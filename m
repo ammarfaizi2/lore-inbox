@@ -1,99 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265677AbSJSTgJ>; Sat, 19 Oct 2002 15:36:09 -0400
+	id <S265676AbSJSTf5>; Sat, 19 Oct 2002 15:35:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265674AbSJSTgJ>; Sat, 19 Oct 2002 15:36:09 -0400
-Received: from marc2.theaimsgroup.com ([63.238.77.172]:30468 "EHLO
-	marc2.theaimsgroup.com") by vger.kernel.org with ESMTP
-	id <S265677AbSJSTf7>; Sat, 19 Oct 2002 15:35:59 -0400
-Date: Sat, 19 Oct 2002 15:42:02 -0400
-Message-Id: <200210191942.g9JJg2U26376@marc2.theaimsgroup.com>
-From: Hank Leininger <linux-kernel@progressive-comp.com>
-Reply-To: Hank Leininger <hlein@progressive-comp.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: can chroot be made safe for non-root?
-X-Shameless-Plug: Check out http://marc.theaimsgroup.com/
-X-Warning: This mail posted via a web gateway at marc.theaimsgroup.com
-X-Warning: Report any violation of list policy to abuse@progressive-comp.com
-X-Posted-By: Hank Leininger <hlein@progressive-comp.com>
+	id <S265677AbSJSTf5>; Sat, 19 Oct 2002 15:35:57 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:51197 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S265676AbSJSTfx> convert rfc822-to-8bit; Sat, 19 Oct 2002 15:35:53 -0400
+From: Christian Borntraeger <linux@borntraeger.net>
+To: <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - EVALUATION VERSION
+Date: Sat, 19 Oct 2002 20:41:45 +0100
+X-URL: http://www.pocomail.com/
+Subject: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E182zTn-0005zB-00@mrelayng3.kundenserver.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-10-19, Eric Buddington <eric@ma-northadams1b-3.bur.adelphia.net>   
-wrote:   
-   
-> On Tue, Oct 15, 2002 at 11:44:32PM -0700, Philippe Troin wrote:   
-> > > Would it be reasonable to allow non-root processes to chroot(), if   
-> > > the chroot syscall also changed the cwd for non-root processes?   
-> >    
-> > No.   
-> >    
-> > fd = open("/", O_RDONLY);   
-> > chroot("/tmp");   
-> > fchdir(fd);   
-> >    
-> > and you're out of the chroot.   
-   
-> I see. From my aesthetic, it would make sense for chroots to 'stack',   
-> such that once a directory is made the root directory, its '..' entry   
-> *always* points to itself, even after another chroot(). That would   
-> prevent the above break (you could be outside the new root, but you   
-> still couldn't back out past the old root), though perhaps at an   
-> unacceptable in complexity.   
-   
-And not quite enough, if I understand your suggestion properly.  It's not   
-necessary above to chroot or fchroot using fd; its existance is enough to  
-monkey with things outside/above the chroot jail, which is unacceptable.   
-   
-> I do like the idea of preventing multiple chroots, as a second option.   
-  
-That's far from enough though.  You also must consider:  
-  
--signals to non-chrooted processes  
--shared memory (maybe obsolete now with shmfs)  
--running a setuid file such as /bin/su which has been hardlinked in by  
-  a process outside the jail, reading your bogus passwd file in the jail   
-  (collusion/multifactor attack)  
--chmod +s a chrooted file, to be accessed by another, unprivileged UID  
-  which is not jailed (collusion/multifactor attack)  
--ptrace non-chrooted processes  
--in addition, for root:  
-  -open raw devices / mknod of block and char devices  
-  -mount(2)  
-  -various capabilities need to be dropped (sysctl, module loading, ...)  
-  
-Any of these allow a chrooted process to interact too much with the rest  
-of the system, if not leading to outright, immediate chroot-breaking.   
-Some of them can be protected against without kernel patching, just  
-careful policing of chroot usage: don't ever chroot a UID who also has  
-processes outside of chroot (or in a different jail); make the parent of  
-the chroot dir inaccessible by non-chrooted processes / regular users, 
-dont't give write access/directory ownership anywhere under chroot, etc.  
-Some can't be made safe(r) w/o help.  
-  
-I have a patch to do all of the above here (only for 2.2 atm):  
-http://www.theaimsgroup.com/~hlein/hap-linux/  
-Look for CONFIG_SECURE_CHROOT.  Double chroots are forbidden, but also, a  
-warning is printed if a process attempts to chroot with an open fd to a  
-directory (I decided against making the chroot call fail, as any software  
-buggy enough to chroot with open directory fds is likely to not check the  
-return value of chroot(2), and blindly continue on failure--even worse).   
-I'd be happy to hear about (and fix ;) anything I've missed.  
-  
-IIRC, FreeBSD allow a chroot'ed process to chroot again if and only if 
-the  
-new root is a subdirectory of the initial chroot.  This allows things 
-like  
-traditional, chrooting anonymous FTP to be run under an initial chroot.    
-  
-Double-chroot would also be desirable if you wanted to, say, have init  
-spawn some kind of supervisory daemon (or just /bin/login on a serial  
-port) and then have *everything* else be chrooted, all multiuser daemons,  
-etc.  Then a compromise can play all they want in the sandbox; you still  
-have an opportunity for integrity checking tools, etc to run in a 
-somewhat  
-trustworthy environment.  
-  
---   
-Hank Leininger <hlein@progressive-comp.com>    
-     
+PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
+
+Trying to read a copy-protected audio CD (I think Cactus Data Shield 200) with
+readcd I get a reproduceable kernel panic in 2.4.19 and 2.4.20-pre11.
+As I can reproduce the bug feel free to ask me any further question, if possible
+cc me. (Otherwise it will take a little longer)
+The information I gathered is below.
+some more files (system.map etc) are on 
+http://www.cborntraeger.de/linux/panic.tgz
+
+cheers
+
+Christian
+ 
+-------------------------------------------------
+I send the panic through ksymoops:
+-------------------------------------------------
+
+ksymoops 2.4.5 on i686 2.4.20-pre11.  Options used
+     -V (default)
+     -k ksyms (specified)
+     -l modules (specified)
+     -o /lib/modules/2.4.20-pre11/ (default)
+     -m System.map (specified)
+
+Warning (compare_maps): ksyms_base symbol __io_virt_debug_R__ver___io_virt_debug not found in System.map.  Ignoring ksyms_base entry
+Unable to handle Kernel Null pointer dereference at virtual address 00000018
+f08968f8
+CPU 0
+EFLAGS: 00010286
+eax: ee88e1c4 ebx: c0322f24 ecx: ebedcb64 edx: 0000005a
+esi: 00000000 edi: 00000040 ebp: c02a9e74 esp: c02a9e50
+00000000 c01da5dc 000003e8 00000046 00000082 ee88e1c4 00000000 c0322f24
+00000040 c02a9eac c01da999 c0322f24 00000000 00000000 00000000 000001f4
+c02a9ec0 00000000 c0322da4 00000001 c0322f24 c18f218c c0322da4 c02a9ed0
+Call Trace: [<c01da5dc>] [<c01dab78>] [<c01dae54>] [<c01dad60>] [<c0124ba3>] 
+            [<c012432d>] [<c0120c0f>] [<c0120b26>] [<c0120957>] [<c010a74d>]
+            [<c010cc18>] [<c01070c3>] [<c01145e6>] [<c0114530>] [<c0107132>]
+            [<c0105000>]
+Code: 8b 56 18 c7 45 ec 00 00 00 00 89 70 04 8b 7e 0c 8b 46 1c c7
+Using defaults from ksymoops -t elf32-i386 -a i386
+
+
+>>eax; ee88e1c4 <_end+2e55d100/304e7fbc>
+>>ebx; c0322f24 <ide_hwifs+4c4/20a8>
+>>ecx; ebedcb64 <_end+2bbabaa0/304e7fbc>
+>>ebp; c02a9e74 <init_task_union+1e74/2000>
+>>esp; c02a9e50 <init_task_union+1e50/2000>
+
+Trace; c01da5dc <ide_wait_stat+bc/120>
+Trace; c01dab78 <ide_do_request+c8/1b0>
+Trace; c01dae54 <ide_timer_expiry+f4/1c0>
+Trace; c01dad60 <ide_timer_expiry+0/1c0>
+Trace; c0124ba3 <run_timer_list+f3/160>
+Trace; c012432d <update_wall_time+d/40>
+Trace; c0120c0f <bh_action+1f/40>
+Trace; c0120b26 <tasklet_hi_action+46/70>
+Trace; c0120957 <do_softirq+97/a0>
+Trace; c010a74d <do_IRQ+bd/f0>
+Trace; c010cc18 <call_do_IRQ+5/d>
+Trace; c01070c3 <default_idle+23/30>
+Trace; c01145e6 <apm_cpu_idle+b6/150>
+Trace; c0114530 <apm_cpu_idle+0/150>
+Trace; c0107132 <cpu_idle+42/60>
+Trace; c0105000 <_stext+0/0>
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   8b 56 18                  mov    0x18(%esi),%edx
+Code;  00000003 Before first symbol
+   3:   c7 45 ec 00 00 00 00      movl   $0x0,0xffffffec(%ebp)
+Code;  0000000a Before first symbol
+   a:   89 70 04                  mov    %esi,0x4(%eax)
+Code;  0000000d Before first symbol
+   d:   8b 7e 0c                  mov    0xc(%esi),%edi
+Code;  00000010 Before first symbol
+  10:   8b 46 1c                  mov    0x1c(%esi),%eax
+Code;  00000013 Before first symbol
+  13:   c7 00 00 00 00 00         movl   $0x0,(%eax)
+
+Kernel Panic, Aiee..
+
+1 warning issued.  Results may not be reliable.
+---------------------------------------------------
+/proc/modules:
+---------------------------------------------------
+
+usbmouse                2264   0 (unused)
+keybdev                 2080   0 (unused)
+mousedev                4244   1
+hid                    19300   0 (unused)
+input                   3584   0 [usbmouse keybdev mousedev hid]
+ide-scsi                8816   0
+scsi_mod               56276   1 [ide-scsi]
+ide-cd                 30148   0
+cdrom                  28608   0 [ide-cd]
+usb-uhci               23020   0 (unused)
+usbcore                60960   1 [usbmouse hid usb-uhci]
+rtc                     6940   0 (autoclean)
+
+-----------------------------------------------
+ver-linux
+----------------------------------------------- 
+Linux cubus.mynet 2.4.20-pre11 #3 Sat Oct 19 18:50:52 BST 2002 i686 unknown unknown GNU/Linux
+ 
+Gnu C                  3.2
+Gnu make               3.79.1
+util-linux             2.11u
+mount                  2.11u
+modutils               2.4.19
+e2fsprogs              1.27ea
+reiserfsprogs          3.6.3
+PPP                    2.4.1
+Linux C Library        2.2.5
+Dynamic linker (ldd)   2.2.5
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.15
+Modules Loaded         usbmouse keybdev mousedev hid input ide-scsi scsi_mod ide-cd cdrom usb-uhci usbcore rtc
+
+-------------------------------------------------
+/proc/scsi/scsi
+-------------------------------------------------
+Attached devices: 
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: SONY     Model: CD-RW  CRX140E   Rev: 1.0p
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+

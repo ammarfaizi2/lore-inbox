@@ -1,84 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVCOTbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVCOTdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbVCOTbS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 14:31:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVCOTbS
+	id S261796AbVCOTdm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 14:33:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVCOTbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 14:31:18 -0500
-Received: from fire.osdl.org ([65.172.181.4]:45259 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261802AbVCOT0G (ORCPT
+	Tue, 15 Mar 2005 14:31:33 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:7381 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261814AbVCOTaw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 14:26:06 -0500
-Date: Tue, 15 Mar 2005 11:25:30 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: davej@redhat.com, airlied@linux.ie, andrew@digital-domain.net,
-       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-Subject: Re: drm lockups since 2.6.11-bk2
-Message-Id: <20050315112530.21bb0922.akpm@osdl.org>
-In-Reply-To: <200503151003.39636.jbarnes@engr.sgi.com>
-References: <Pine.LNX.4.58.0503151033110.22756@skynet>
-	<20050315143629.GA27654@redhat.com>
-	<200503151003.39636.jbarnes@engr.sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 15 Mar 2005 14:30:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=XttkfqPV9L+FqPnAkMIIIXtYfLIoaEcekRR94rWUdWfxYo1Y/u1WkvLQkDsh110y2pCK2DvS3FXu4Y2pZILL/YCsILUyA+vbxmWa3E8JRG9wSVOpRgra2XckfFrMAtl5OTxVqlVyeutrjQBTm3GheGk4/hUFROTbhlJ6//tfwBg=
+Message-ID: <d120d5000503151130266fb235@mail.gmail.com>
+Date: Tue, 15 Mar 2005 14:30:49 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Dominik Brodowski <linux@dominikbrodowski.net>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [linux-usb-devel] Re: [RFC] Changes to the driver model class code.
+In-Reply-To: <20050315190847.GA1870@isilmar.linta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <20050315170834.GA25475@kroah.com>
+	 <20050315190847.GA1870@isilmar.linta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes <jbarnes@engr.sgi.com> wrote:
->
-> I'd be happy to test and fix things, but the page table walker patches broke 
->  ia64...  Once that's cleared up I can go digging.
+On Tue, 15 Mar 2005 20:08:47 +0100, Dominik Brodowski
+<linux@dominikbrodowski.net> wrote:
+> On Tue, Mar 15, 2005 at 09:08:34AM -0800, Greg KH wrote:
+> > Then I moved the USB host controller code to use this new interface.
+> > That was a bit more complex as it used the struct class and struct
+> > class_device code directly.  As you can see by the patch, the result is
+> > pretty much identical, and actually a bit smaller in the end.
+> >
+> > So I'll be slowly converting the kernel over to using this new
+> > interface, and when finished, I can get rid of the old class apis (or
+> > actually, just make them static) so that no one can implement them
+> > improperly again...
+> >
+> > Comments?
+> 
+> The "old" class api _forced_ you to think of reference counting of
+> dynamically allocated objects, while it gets easier to get reference
+> counting wrong using this "simple"/"new" interface: while struct class will
+> always have fine reference counting, the "parent" struct [with struct class
+> no longer being embedded] needs to be thought of individually; and the
+> reference count cannot be shared any longer.
+> 
+> Also, it seems to me that you view the class subsystem to be too closely
+> related to /dev entries -- and for these /dev entries class_simple was
+> introduced, IIRC. However, /dev is not the reason the class subsystem was
+> introduced for -- instead, it describes _types_ of devices which want to
+> share (userspace and in-kernel) interfaces.
 
-We're hoping that davem's fix (committed yesterday) fixed that.
+Exactly! I am working on input_dev class that lies between actual
+devices and input class devices exported by evdev, tsdev, etc. It does
+not have /dev entry, it is just a building block for the rest of the
+subsystem. evdev and the rest will be interfaces (as per driver model)
+for the input_dev class and will in turn continue exporting input
+class devices that do have /dev entries.
 
-
-ChangeSet 1.2181.1.2, 2005/03/14 21:16:17-08:00, davem@sunset.davemloft.net
-
-	[MM]: Restore pgd_index() iteration to clear_page_range().
-	
-	Otherwise ia64 and sparc64 explode with the new ptwalk
-	iterators.  The pgd level stuff does not handle virtual
-	address space holes (sparc64) and region based PGD indexing
-	(ia64) properly.  It only matters in functions like
-	clear_page_range() which potentially walk over more than
-	a single VMA worth of address space.
-	
-	Signed-off-by: David S. Miller <davem@davemloft.net>
-
-
-
- memory.c |   10 +++++++---
- 1 files changed, 7 insertions(+), 3 deletions(-)
-
-
-diff -Nru a/mm/memory.c b/mm/memory.c
---- a/mm/memory.c	2005-03-15 00:06:50 -08:00
-+++ b/mm/memory.c	2005-03-15 00:06:50 -08:00
-@@ -182,15 +182,19 @@
- 				unsigned long addr, unsigned long end)
- {
- 	pgd_t *pgd;
--	unsigned long next;
-+	unsigned long i, next;
- 
- 	pgd = pgd_offset(tlb->mm, addr);
--	do {
-+	for (i = pgd_index(addr); i <= pgd_index(end-1); i++) {
- 		next = pgd_addr_end(addr, end);
- 		if (pgd_none_or_clear_bad(pgd))
- 			continue;
- 		clear_pud_range(tlb, pgd, addr, next);
--	} while (pgd++, addr = next, addr != end);
-+		pgd++;
-+		addr = next;
-+		if (addr == end)
-+			break;
-+	}
- }
- 
- pte_t fastcall * pte_alloc_map(struct mm_struct *mm, pmd_t *pmd, unsigned long address)
-
-
+-- 
+Dmitry

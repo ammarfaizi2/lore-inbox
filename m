@@ -1,92 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264151AbUECX3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264153AbUECX3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264151AbUECX3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 19:29:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbUECX3Q
+	id S264153AbUECX3W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 19:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbUECX3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 19:29:16 -0400
-Received: from pop.gmx.de ([213.165.64.20]:22741 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264151AbUECX3K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 19:29:10 -0400
-Date: Tue, 4 May 2004 01:29:09 +0200 (MEST)
-From: "Svetoslav Slavtchev" <svetljo@gmx.de>
-To: "lkml " <linux-kernel@vger.kernel.org>
+	Mon, 3 May 2004 19:29:22 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:40587 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S264153AbUECX3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 19:29:13 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Greg Banks <gnb@melbourne.sgi.com>
+Date: Tue, 4 May 2004 09:28:48 +1000
 MIME-Version: 1.0
-Subject: acpi-20040326-2.6.6 on 2.6.6rc2 & KT400 (Epox 8k9a3+ )
-X-Priority: 3 (Normal)
-X-Authenticated: #20183004
-Message-ID: <27171.1083626949@www3.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16534.54704.792101.617408@cse.unsw.edu.au>
+Cc: Nikita Danilov <Nikita@Namesys.COM>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       alexander viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       trond myklebust <trondmy@trondhjem.org>
+Subject: Re: d_splice_alias() problem.
+In-Reply-To: message from Greg Banks on Monday May 3
+References: <16521.5104.489490.617269@laputa.namesys.com>
+	<16529.56343.764629.37296@cse.unsw.edu.au>
+	<409634B9.8D9484DA@melbourne.sgi.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday May 3, gnb@melbourne.sgi.com wrote:
+> Neil Brown wrote:
+> > 
+> > This problem can be resolved by making sure that an inode never has
+> > both a connected and a disconnected dentry.
+> > 
+> > This is already the case for directories (as they must only have one
+> > dentry), but it is not the case for non-directories.
+> > 
+> > The following patch tries to address this.  It is a "technology
+> > preview" in that the only testing I have done is that it compiles OK.
+> > 
+> > Please consider reviewing it to see if it makes sense.
+> 
+> It does, and it fixes one of the dcache bugs that was tripping my debug
+> code.  Here are a couple more.
+> 
+> *   Logic bug in d_splice_alias() forgets to clear the DCACHE_DISCONNECTED
+>     flag when a lookup connects a disconnected dentry.  Fix is (relative
+>     to Neil's patch):
 
-just wanted to report that i still have the
-module unloading problem 
+I seem to recall that this was intentional.  When I first wrote the
+code I wanted to leave the splicing code to just splice things, and
+when the code that cared about disconnected-ness (in knfsd) discovered
+that something really was connected, it would clear the bit
+(find_exported_dentry does this). 
+However if we want to ensure that there is at-most one disconnected
+dentry for an inode, we do need to set the bit more aggressively.
+I'll try and review the code with that in mind.  Thanks.
 
-all Trace: [<c018ee8d>]  [<f8d5a1b5>]  [<f8d5a2d0>]  [<c01db097>] 
-[<c01db155>]  [<f8d5a2ed>]  [<c0133078>]  [<c014dd6b>]  [<c014de13>] 
-[<c0106029>]
-Call Trace: [<c018ee8d>]  [<f8d6feda>]  [<f8d70197>]  [<c01db097>] 
-[<c01db155>]  [<f8d701ad>]  [<c0133078>]  [<c014de13>]  [<c0106029>]
-Call Trace: [<c018ee8d>]  [<f8d68229>]  [<f8d6854d>]  [<f8d68570>] 
-[<c0133078>]  [<c014de13>]  [<c0106029>]
-Warning (Oops_read): Code line not seen, dumping what data is available
+> 
+> 
+> *   Dentry_stat.nr_unused can be be spuriously decremented when dput()
+>     races with __dget_unlocked().  Eventual result is nr_unused<0
+>     and kswapd loops.  This is the problem I mentioned earlier.  Note
+>     that this is not an NFS-specific problem.  Fix is:
+> 
+> --- linux.orig/fs/dcache.c	Mon May  3 21:46:30 2004
+> +++ linux/fs/dcache.c	Mon May  3 21:49:07 2004
+> @@ -255,8 +255,8 @@
+>  
+>  static inline struct dentry * __dget_locked(struct dentry *dentry)
+>  {
+> -	atomic_inc(&dentry->d_count);
+> -	if (atomic_read(&dentry->d_count) == 1) {
+> +	if (atomic_inc(&dentry->d_count) == 1) {
 
+One problem with this is that (in include/asm-i386/atomic.h at least):
+  static __inline__ void atomic_inc(atomic_t *v)
 
-Trace; c018ee8d <remove_proc_entry+16d/180>
-Trace; f8d5a1b5 <__crc_bio_get_nr_vecs+2d1c5/49a18>
-Trace; f8d5a2d0 <__crc_bio_get_nr_vecs+2d2e0/49a18>
-Trace; c01db097 <acpi_driver_detach+3b/82>
-Trace; c01db155 <acpi_bus_unregister_driver+14/57>
-Trace; f8d5a2ed <__crc_bio_get_nr_vecs+2d2fd/49a18>
-Trace; c0133078 <sys_delete_module+148/1a0>
-Trace; c014dd6b <do_munmap+15b/1c0>
-Trace; c014de13 <sys_munmap+43/70>
-Trace; c0106029 <sysenter_past_esp+52/71>
-Trace; c018ee8d <remove_proc_entry+16d/180>
-Trace; f8d6feda <__crc_bio_get_nr_vecs+42eea/49a18>
-Trace; f8d70197 <__crc_bio_get_nr_vecs+431a7/49a18>
-Trace; c01db097 <acpi_driver_detach+3b/82>
-Trace; c01db155 <acpi_bus_unregister_driver+14/57>
-Trace; f8d701ad <__crc_bio_get_nr_vecs+431bd/49a18>
-Trace; c0133078 <sys_delete_module+148/1a0>
-Trace; c014de13 <sys_munmap+43/70>
-Trace; c0106029 <sysenter_past_esp+52/71>
-Trace; c018ee8d <remove_proc_entry+16d/180>
-Trace; f8d68229 <__crc_bio_get_nr_vecs+3b239/49a18>
-Trace; f8d6854d <__crc_bio_get_nr_vecs+3b55d/49a18>
-Trace; f8d68570 <__crc_bio_get_nr_vecs+3b580/49a18>
-Trace; c0133078 <sys_delete_module+148/1a0>
-Trace; c014de13 <sys_munmap+43/70>
-Trace; c0106029 <sysenter_past_esp+52/71>
+atomic_inc returns "void".
 
-
-2 warnings and 1 error issued.  Results may not be reliable.
-[svetljo@svetljo svetljo]$
-
-plus, 
-acpi=noirq or pci=noacpi breaks usb 
-/* hard to trace cause i've only usb keyboard */
-
-acpi=off or acpi enabled seem to work,
-
-but i've the impression that this patch breaks
-irq assignment for my radeon both with 
-acpi enabled or disabled
-/* it's not listed in /proc/interupts
-   and dri can not be activated       */
-
-best,
-
-svetljo
-
--- 
-"Sie haben neue Mails!" - Die GMX Toolbar informiert Sie beim Surfen!
-Jetzt aktivieren unter http://www.gmx.net/info
-
+NeilBrown

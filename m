@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbUEVRAA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUEVREH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbUEVRAA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 13:00:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUEVQ6o
+	id S261375AbUEVREH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 13:04:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbUEVREH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 12:58:44 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:1701 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261682AbUEVQ6h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 12:58:37 -0400
-Date: Thu, 20 May 2004 21:27:52 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Elladan <elladan@eskimo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Consistent deadlock+crash in 2.6.5 when writing large file to CFSd (over NFS)
-Message-ID: <20040520192751.GD5215@openzaurus.ucw.cz>
-References: <20040519075336.GA2020@eskimo.com>
+	Sat, 22 May 2004 13:04:07 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:12736 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S261375AbUEVRED (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 13:04:03 -0400
+Subject: Expected sys_msync() behaviour?
+From: Alexander Nyberg <alexn@telia.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1085245436.610.23.camel@boxen>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040519075336.GA2020@eskimo.com>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 22 May 2004 19:03:56 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I looked at a bugzilla filed because of sys_msync() returning ok even if
+you specify a addr + len that goes over bss section or MAP_PRIVATE's.
 
-> I'm getting consistent crashes in 2.6.5 when I write a large file to cfs
-> (crypto file system).  This is a user daemon that implements an NFS
-> export of encrypted files on disk.
-> 
-> Basically, what appears to happen is that it's deadlocking something in
-> the IO system.  I can't really tell what, because the entire system
-> seizes up soon afterward.
+http://bugzilla.kernel.org/show_bug.cgi?id=2728
+(my patch should return -ENOMEM instead of -EINVAL according
+to specification link below).
 
-...
 
-> Any ideas?
+This brings up a question on the expected behaviour of sys_msync().
+Should it only sync a single vma? 
 
-Are you doing r/w mount from process that is on local machine?
-That would be broken by design.
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Should it traverse several vma's until the the ending address has been
+reached? In that case it should skip anything not MAP_SHARED, but that
+also makes the system call quite random as it doesn't sync a flat memory
+region.
+
+Personally I think that it should sync a single vma, or parts of it, not
+search around or "accidently" touch other mappings which aren't
+intended, this should be the work of the user space program.
+
+So before syncing it should check that the region is backed by a
+MAP_SHARED file which is writeable and then sync it, yes?
+
+The Open Group Base Specifications Issue 6:
+http://www.opengroup.org/onlinepubs/009695399/functions/msync.html
+
+Alex
 

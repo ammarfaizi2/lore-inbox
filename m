@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292847AbSCEGYu>; Tue, 5 Mar 2002 01:24:50 -0500
+	id <S310417AbSCEGf2>; Tue, 5 Mar 2002 01:35:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293614AbSCEGYe>; Tue, 5 Mar 2002 01:24:34 -0500
-Received: from chamber.cco.caltech.edu ([131.215.48.55]:26075 "EHLO
-	chamber.cco.caltech.edu") by vger.kernel.org with ESMTP
-	id <S292847AbSCEGYc>; Tue, 5 Mar 2002 01:24:32 -0500
-From: bryanr@bryanr.org
-Message-ID: <3C8464AB.3020404@bryanr.org>
-Date: Mon, 04 Mar 2002 22:24:43 -0800
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S293186AbSCEGfP>; Tue, 5 Mar 2002 01:35:15 -0500
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:53912 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S310417AbSCEGfI>; Tue, 5 Mar 2002 01:35:08 -0500
+Date: Tue, 5 Mar 2002 08:21:17 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Andries.Brouwer@cwi.nl
+Subject: [PATCH] UFS blocksize fix
+Message-ID: <Pine.LNX.4.44.0203050818490.23382-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-To: aryan aru <aryan222is@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: netlink vs ioctl
-In-Reply-To: <20020305002843.30834.qmail@web21206.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-aryan aru wrote:
-> When used ioremap_nocache to map from user space to
-> kernel space does it do cache flush ?
+Looks like i got my test wrong in that last patch, pointed out by Andries 
+Brouwer (backing it out causes oopses with certain blocksizes).
 
-I'd guess ioremap_nocache marks the area as uncacheable,
-so that all memory accesses bypass the cache and go
-directly to physical memory. best way to find out
-is to check the code ;)
+Thanks,
+	Zwane
 
--Bryan
+diffed against 2.4.19-pre2
+
+--- linux-2.4.19/fs/ufs/super.c.orig	Tue Mar  5 08:17:30 2002
++++ linux-2.4.19/fs/ufs/super.c	Tue Mar  5 08:15:40 2002
+@@ -597,7 +597,7 @@
+ 	}
+ 	
+ again:	
+-	if (!set_blocksize (sb->s_dev, block_size)) {
++	if (set_blocksize (sb->s_dev, block_size)) {
+ 		printk(KERN_ERR ""UFS: failed to set blocksize\n");
+ 		goto failed;
+ 	}
+
 

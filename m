@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264061AbTGFWoo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 18:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbTGFWon
+	id S264066AbTGFWy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 18:54:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266748AbTGFWy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 18:44:43 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:6028 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S264061AbTGFWon (ORCPT
+	Sun, 6 Jul 2003 18:54:28 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:7308 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S264066AbTGFWy1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 18:44:43 -0400
-Date: Sun, 6 Jul 2003 23:59:14 +0100
+	Sun, 6 Jul 2003 18:54:27 -0400
+Date: Mon, 7 Jul 2003 00:08:23 +0100
 From: Jamie Lokier <jamie@shareable.org>
-To: Diego Calleja =?iso-8859-1?Q?Garc=EDa?= <diegocg@teleline.es>
-Cc: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.74-mm1
-Message-ID: <20030706225914.GA6123@mail.jlokier.co.uk>
-References: <20030703023714.55d13934.akpm@osdl.org> <200307052309.12680.phillips@arcor.de> <20030706001136.3a423b29.diegocg@teleline.es> <200307060131.02051.phillips@arcor.de> <20030706022325.4ef87afc.diegocg@teleline.es>
+To: Bernardo Innocenti <bernie@develer.com>
+Cc: Philippe Elie <phil.el@wanadoo.fr>, linux-kernel@vger.kernel.org,
+       Richard Henderson <rth@twiddle.net>
+Subject: Re: SPAM[RBL] Re: C99 types VS Linus types
+Message-ID: <20030706230823.GB6123@mail.jlokier.co.uk>
+References: <200307060703.58533.bernie@develer.com> <3F0814B1.1000401@wanadoo.fr> <200307061937.26519.bernie@develer.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030706022325.4ef87afc.diegocg@teleline.es>
+In-Reply-To: <200307061937.26519.bernie@develer.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja García wrote:
-> It'll do if you're running oracle at the same time.
+Bernardo Innocenti wrote:
+> On Sunday 06 July 2003 14:23, Philippe Elie wrote:
+>  > alpha user space .h define uint64_t as unsigned long,
+>  > include/asm-alpha/types.h defines it as unsigned long long.
 > 
-> Desktop users shouldn't notice skips.
+>  Why is that? Isn't uint64_t supposed to be _always_ a 64bit
+> unsigned integer? Either the kernel or the user space might
+> be doing the wrong thing...
 
-Fwiw, sometimes desktop users run Oracle.
+uint64_t is always a 64-bit type, and in the case given the compiler
+emits a warning but the code runs ok.
+
+The problem is that "64-bit long" and "64-bit long long" are different
+types with the same representation.  Which means they are mostly
+interchangeable, with occasional C weirdness.
 
 -- Jamie

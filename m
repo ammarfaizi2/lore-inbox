@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264464AbTIIVXb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 17:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbTIIVXa
+	id S264498AbTIIV0w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 17:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTIIV0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 17:23:30 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:65297 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264464AbTIIVUY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 17:20:24 -0400
-Date: Tue, 9 Sep 2003 22:20:19 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Patrick Mochel <mochel@osdl.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Power: call save_state on PCI devices along with suspend
-Message-ID: <20030909222019.T4216@flint.arm.linux.org.uk>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Patrick Mochel <mochel@osdl.org>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0309091354471.695-100000@cherise> <1063141771.639.53.camel@gaston>
+	Tue, 9 Sep 2003 17:26:46 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:51847 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264565AbTIIV0b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 17:26:31 -0400
+Subject: Re: 2.4.21 -> 2.4.22 kernel thread oddities
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: hendriks@lanl.gov
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030909192913.GE10623@lanl.gov>
+References: <20030909192913.GE10623@lanl.gov>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063142708.30962.24.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1063141771.639.53.camel@gaston>; from benh@kernel.crashing.org on Tue, Sep 09, 2003 at 11:09:32PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Tue, 09 Sep 2003 22:25:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 09, 2003 at 11:09:32PM +0200, Benjamin Herrenschmidt wrote:
-> On Tue, 2003-09-09 at 23:04, Patrick Mochel wrote:
-> > ->save_state()? From a quick look, it looks like: 
-> > 4. drivers/serial/8250_pci.c
+On Maw, 2003-09-09 at 20:29, hendriks@lanl.gov wrote:
+> The "unshare_files" addition to execve() is having some unexpected
+> side effects for a funky init() program that I use on our clusters.
+> Basically the problem is that standard-equipment type kernel threads
+> (e.g. kupdated, bdflush) are ending up with open file descriptors on a
+> file system that I wish to unmount.
 
-This doesn't use save_state anymore.
+I sent Marcelo a fix for this in 2.4.23pre/2.4.22-ac - see the change to
+init/main.c
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Linux kernel maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core
+

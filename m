@@ -1,123 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264082AbTH1P4X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 11:56:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264087AbTH1P4X
+	id S262836AbTH1Pr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 11:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbTH1Pr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 11:56:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21225 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264082AbTH1P4K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 11:56:10 -0400
-Date: Thu, 28 Aug 2003 08:59:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: rddunlap@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] floppy driver cleanup
-Message-Id: <20030828085916.035632ce.akpm@osdl.org>
-In-Reply-To: <16205.58701.762150.49446@gargle.gargle.HOWL>
-References: <20030827224135.75f344dd.rddunlap@osdl.org>
-	<16205.58701.762150.49446@gargle.gargle.HOWL>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 28 Aug 2003 11:47:56 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:45531 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262836AbTH1Pry
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 11:47:54 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [RFC] /proc/ide/hdx/settings with ide-default pseudo-driver is a 2.6/2.7 show-stopper
+Date: Thu, 28 Aug 2003 17:47:11 +0200
+User-Agent: KMail/1.5
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andre Hedrick <andre@linux-ide.org>
+References: <200308281646.16203.bzolnier@elka.pw.edu.pl> <1062083581.24982.21.camel@dhcp23.swansea.linux.org.uk>
+In-Reply-To: <1062083581.24982.21.camel@dhcp23.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308281747.11359.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson <mikpe@csd.uu.se> wrote:
+On Thursday 28 of August 2003 17:13, Alan Cox wrote:
+> On Iau, 2003-08-28 at 15:46, Bartlomiej Zolnierkiewicz wrote:
+> > Some background first: we need ide-default driver (set as a device driver
+> > for all driver-less ide devices) mainly because we allow changing devices
+> > settings through /proc/ide/hdX/settings and some of them (current_speed,
+> > pio_mode) are processed via request queue (we are currently preallocating
+> > gendisk and queue structs for all possible ide devices).  The next
+> > problem is that ide-default doesn't register itself with ide and
+> > driverfs. If it does it will "steal" devices meaned to be used by other
+> > drivers.
 >
-> Randy.Dunlap writes:
->  > -static void schedule_bh( void (*handler)(void*) )
->  > +static void schedule_bh(void (*handler) (void *))
-> ...
->  > -		schedule_bh( (void *)(void *) handler);
->  > +		schedule_bh((void *) handler);
-> ...
->  > -	schedule_bh((void *)(void *)handler);
->  > +	schedule_bh((void *) handler);
-> ...
->  > -		schedule_bh( (void *)(void *) floppy_start);
->  > +		schedule_bh((void *) floppy_start);
-> ...
->  > -	schedule_bh( (void *)(void *) redo_fd_request);
->  > +	schedule_bh((void *) redo_fd_request);
-> 
-> Am I the only one having problems with code like this?
-> (Not Randy's, the original.)
+> Its also used to avoid special cases elsewhere.
 
-No, you're not - I also instapuked over that.
+/proc/ide/hdX/settings is the source (directly/indirectly)
+for 95% of these special cases.
 
+> > If we want dynamic hwifs/devices, moving gendisks/queues allocation
+> > to device drivers and ide integration with driverfs we need to:
+> >
+> > (a) kill /proc/ide/hdX/settings for driver-less devices and kill
+> > ide-default
+>
+> ide_default avoids a ton of driver specific special case code outside
+> of /proc/ide/foo/settings too. It isnt that simple, and I added it
 
+It is simple.  No settings - you dont hit these places.
 
-diff -puN drivers/block/floppy.c~floppy-more-cleanup drivers/block/floppy.c
---- 25/drivers/block/floppy.c~floppy-more-cleanup	2003-08-27 22:51:16.000000000 -0700
-+++ 25-akpm/drivers/block/floppy.c	2003-08-27 22:56:54.000000000 -0700
-@@ -1007,9 +1007,9 @@ static void empty(void)
- 
- static DECLARE_WORK(floppy_work, NULL, NULL);
- 
--static void schedule_bh(void (*handler) (void *))
-+static void schedule_bh(void (*handler) (void))
- {
--	PREPARE_WORK(&floppy_work, handler, NULL);
-+	PREPARE_WORK(&floppy_work, (void (*)(void *))handler, NULL);
- 	schedule_work(&floppy_work);
- }
- 
-@@ -1799,9 +1799,9 @@ irqreturn_t floppy_interrupt(int irq, vo
- 			max_sensei--;
- 		} while ((ST0 & 0x83) != UNIT(current_drive) && inr == 2 && max_sensei);
- 	}
--	if (handler) {
--		schedule_bh((void *) handler);
--	} else
-+	if (handler)
-+		schedule_bh(handler);
-+	else
- 		FDCS->reset = 1;
- 	is_alive("normal interrupt end");
- 
-@@ -2063,7 +2063,7 @@ static int wait_til_done(void (*handler)
- {
- 	int ret;
- 
--	schedule_bh((void *) handler);
-+	schedule_bh(handler);
- 
- 	if (command_status < 2 && NO_SIGNAL) {
- 		DECLARE_WAITQUEUE(wait, current);
-@@ -2974,7 +2974,7 @@ static void redo_fd_request(void)
- 
- 		if (TESTF(FD_NEED_TWADDLE))
- 			twaddle();
--		schedule_bh((void *) floppy_start);
-+		schedule_bh(floppy_start);
- #ifdef DEBUGT
- 		debugt("queue fd request");
- #endif
-@@ -2993,7 +2993,7 @@ static struct cont_t rw_cont = {
- static void process_fd_request(void)
- {
- 	cont = &rw_cont;
--	schedule_bh((void *) redo_fd_request);
-+	schedule_bh(redo_fd_request);
- }
- 
- static void do_fd_request(request_queue_t * q)
-@@ -3057,9 +3057,9 @@ static void reset_intr(void)
- 
- static struct cont_t reset_cont = {
- 	.interrupt = reset_intr,
--	. redo = success_and_wakeup,
--	. error = generic_failure,
--	. done = generic_done
-+	.redo = success_and_wakeup,
-+	.error = generic_failure,
-+	.done = generic_done
- };
- 
- static int user_reset_fdc(int drive, int arg, int interruptible)
+> originally to fix hundreds of weird little bugs and races. You also need
+> it for handling hotplug of devices.
 
-_
+Why for hotplug?  We should move all code physically touching
+devices to use request queue (REQ_SPECIAL), then you can simply
+mark device as unplugged when its gone and check this flag inside
+ide_do_request().
+
+When its plugged again its reprobed (you dont need driver for this)
+and if its the same device you just clear unplugged flag.
+
+Does it make sense?
+
+With this scheme you also shouldn't need hwif->unplugged_ops hack.
+You mark all drives belonging to hwif as unplugged and you are happy.
+
+> I don't however think it needs to be any brighter than it is now. Driver
+> ordering isnt important, Linus was pretty emphatic that he a) didn't
+
+Ordering is important when converting ide drivers to driverfs.
+Then i will need to register ide-default with driverfs and it will
+be "stealing" devices.
+
+> care and b) wouldnt take patches to do any kind of rigid ordering when I
+> asked him (and for hotplug its pretty obvious why)
+>
+> As far as I can see you either
+>
+> 1. Set up the queues and /proc when you create a hwif
+>
+> or
+>
+> 2. Provide a generic function for each driver to call that does this
+> and/or undoes it. Since each driver needs the same code (default
+> included).
+
+2. is a proper solution and its not a problem.
+
+Problem is when integrating ide with driverfs.
+Then you need to register/unregister ide-default as driverfs driver
+and now it can "steal" devices, ie. you have cd drive owned by ide-default,
+later you load ide-cdrom driver and your cd drive needs to be unregistered
+from ide-default driver first before it can be registered with ide-cdrom
+driver - you need to add code to do this or device will be "stealed".
+Its not very hard to do but it adds complexity.
+
+--bartlomiej
 

@@ -1,113 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261919AbVCHJOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVCHJTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261919AbVCHJOk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 04:14:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVCHJOk
+	id S261898AbVCHJTX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 04:19:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVCHJTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 04:14:40 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:36281 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261919AbVCHJOe (ORCPT
+	Tue, 8 Mar 2005 04:19:22 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29088 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261898AbVCHJTR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 04:14:34 -0500
-Date: Tue, 8 Mar 2005 12:40:09 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Nishanth Aravamudan <nacc@us.ibm.com>
-Cc: Nish Aravamudan <nish.aravamudan@gmail.com>, linux-kernel@vger.kernel.org,
-       Fruhwirth Clemens <clemens@endorphin.org>,
-       Herbert Xu <herbert@gondor.apana.org.au>, cryptoapi@lists.logix.cz,
-       James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [UPDATE PATCH 8/many] acrypto: crypto_dev.c
-Message-ID: <20050308124009.260dcf05@zanzibar.2ka.mipt.ru>
-In-Reply-To: <20050308014641.GA10675@us.ibm.com>
-References: <11102278542733@2ka.mipt.ru>
-	<1110227854480@2ka.mipt.ru>
-	<29495f1d0503071440562f054@mail.gmail.com>
-	<20050308021431.1313971a@zanzibar.2ka.mipt.ru>
-	<29495f1d05030714515c44caf2@mail.gmail.com>
-	<20050308022720.023a7a2b@zanzibar.2ka.mipt.ru>
-	<20050308014641.GA10675@us.ibm.com>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Tue, 8 Mar 2005 04:19:17 -0500
+Date: Tue, 8 Mar 2005 10:18:56 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Li, Shaohua" <shaohua.li@intel.com>, Andrew Morton <akpm@zip.com.au>
+Cc: Bruno Ducrot <ducrot@poupinou.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>, seife@suse.de,
+       "Brown, Len" <len.brown@intel.com>
+Subject: Re: [ACPI] s4bios: does anyone use it?
+Message-ID: <20050308091856.GB16436@elf.ucw.cz>
+References: <16A54BF5D6E14E4D916CE26C9AD305750155EBB0@pdsmsx402.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 08 Mar 2005 12:14:08 +0300 (MSK)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16A54BF5D6E14E4D916CE26C9AD305750155EBB0@pdsmsx402.ccr.corp.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Mar 2005 17:46:41 -0800
-Nishanth Aravamudan <nacc@us.ibm.com> wrote:
+Hi!
 
-> On Tue, Mar 08, 2005 at 02:27:20AM +0300, Evgeniy Polyakov wrote:
-> > On Mon, 7 Mar 2005 14:51:21 -0800
-> > Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
-> > 
-> > > On Tue, 8 Mar 2005 02:14:31 +0300, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> > > > On Mon, 7 Mar 2005 14:40:52 -0800
-> > > > Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
-> > > > 
-> > > > > On Mon, 7 Mar 2005 23:37:34 +0300, Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> > > > > > --- /tmp/empty/crypto_dev.c     1970-01-01 03:00:00.000000000 +0300
-> > > > > > +++ ./acrypto/crypto_dev.c      2005-03-07 20:35:36.000000000 +0300
-> > > > > > @@ -0,0 +1,421 @@
-> > > > > > +/*
-> > > > > > + *     crypto_dev.c
-> > > > >
-> > > > > <snip>
-> > > > >
-> > > > > > +                       while (atomic_read(&__dev->refcnt)) {
-> > > 
-> > > <snip>
-> > > 
-> > > > > > +                               set_current_state(TASK_UNINTERRUPTIBLE);
-> > > > > > +                               schedule_timeout(HZ);
-> > > > >
-> > > > > I don't see any wait-queues in the immediate area of this code. Can
-> > > > > this be an ssleep(1)?
-> > > > 
-> > > > Yes, you are right, this loop just spins until all pending sessions
-> > > > are removed from given crypto device, so it can just ssleep(1) here.
-> > > 
-> > > Would you like me to send an incremental patch or will you be changing
-> > > it yourself?
-> > 
-> > That would be nice to see your changes in the acrypto.
-> > If it will be commited...
+> >Okay, so we had 2 users in past but have 0 users now? :-).
+> I wonder how could anyone use S4BIOS in 2.6.11. S4 and S4b all came into
+> 'enter_state'. and in acpi_sleep_init:
 > 
-> Well, here is an incremental patch, then:
-> 
-> Description: Use ssleep() instead of schedule_timeout() to guarantee the
-> task delays as expected.
-> 
-> Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-> 
+> 		if (i == ACPI_STATE_S4) {
+> 			if (acpi_gbl_FACS->S4bios_f) {
+> 				sleep_states[i] = 1;
+> 				printk(" S4bios");
+> 				acpi_pm_ops.pm_disk_mode =
+> PM_DISK_FIRMWARE;
+> 			}
+> 			if (sleep_states[i])
+> 				acpi_pm_ops.pm_disk_mode =
+> PM_DISK_PLATFORM;
+> 		}
+> That means we actually can't set PM_DISK_FIRMWARE (always set
+> PM_DISK_PLATFORM). Is this intended? If no, .pm_disk_mode should be a
+> mask.
 
-Thank you, I've applied it to my tree.
+pm_disk_mode is settable using /sys/power/disk, no? Anyway, what about
+this, then?
+
+--- clean/Documentation/feature-removal-schedule.txt	2005-01-22 21:24:50.000000000 +0100
++++ linux/Documentation/feature-removal-schedule.txt	2005-03-08 10:18:05.000000000 +0100
+@@ -15,3 +15,8 @@
+ 	against the LSB, and can be replaced by using udev.
+ Who:	Greg Kroah-Hartman <greg@kroah.com>
  
-> --- 2.6.11-v/acrypto/crypto_dev.c	2005-03-07 17:41:31.000000000 -0800
-> +++ 2.6.11/acrypto/crypto_dev.c	2005-03-07 17:41:57.000000000 -0800
-> @@ -28,6 +28,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/spinlock.h>
->  #include <linux/device.h>
-> +#include <linux/delay.h>
->  
->  #include "acrypto.h"
->  
-> @@ -399,8 +400,7 @@ void crypto_device_remove(struct crypto_
->  				 */
->  
->  				__dev->data_ready(__dev);
-> -				set_current_state(TASK_UNINTERRUPTIBLE);
-> -				schedule_timeout(HZ);
-> +				ssleep(1);
->  			}
->  
->  			dprintk(KERN_ERR "Crypto device %s was unregistered.\n",
++What:	ACPI S4bios support
++When:	May 2005
++Why:	Noone uses it, and it probably does not work, anyway. swsusp is
++	faster, more reliable, and people are actually using it.
++Who:	Pavel Machek <pavel@suse.cz>
 
 
-	Evgeniy Polyakov
-
-Only failure makes us experts. -- Theo de Raadt
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

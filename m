@@ -1,76 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313639AbSDPPjo>; Tue, 16 Apr 2002 11:39:44 -0400
+	id <S313533AbSDPPjH>; Tue, 16 Apr 2002 11:39:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313619AbSDPPjn>; Tue, 16 Apr 2002 11:39:43 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:48390 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S313639AbSDPPjl>; Tue, 16 Apr 2002 11:39:41 -0400
-Date: Tue, 16 Apr 2002 12:39:22 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Moritz Franosch <jfranosc@physik.tu-muenchen.de>,
-        <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: IO performance problems in 2.4.19-pre5 when writing to DVD-RAM/ZIP/MO
-In-Reply-To: <20020416165358.E29747@dualathlon.random>
-Message-ID: <Pine.LNX.4.44L.0204161236320.16531-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S313619AbSDPPjG>; Tue, 16 Apr 2002 11:39:06 -0400
+Received: from waste.org ([209.173.204.2]:27317 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S313533AbSDPPjF>;
+	Tue, 16 Apr 2002 11:39:05 -0400
+Date: Tue, 16 Apr 2002 10:37:53 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Andi Kleen <ak@suse.de>,
+        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        "David S. Miller" <davem@redhat.com>, <taka@valinux.co.jp>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] zerocopy NFS updated
+In-Reply-To: <20020416001749.GY23513@matchmail.com>
+Message-ID: <Pine.LNX.4.44.0204161032300.3933-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Apr 2002, Andrea Arcangeli wrote:
-> On Fri, Apr 05, 2002 at 11:04:18PM +0200, Moritz Franosch wrote:
+On Mon, 15 Apr 2002, Mike Fedyk wrote:
 
-> > The problem is that writing to a DVD-RAM, ZIP or MO device almost
-> > totally blocks reading from a _different_ device. Here is some data.
+> On Thu, Apr 11, 2002 at 03:16:16PM +0200, Andi Kleen wrote:
+> > On Thu, Apr 11, 2002 at 04:00:37PM -0200, Denis Vlasenko wrote:
+> > > On 11 April 2002 09:36, David S. Miller wrote:
+> > > > No, you must block truncate operations on the file until the client
+> > > > ACK's the nfsd read request if you wish to use sendfile() with
+> > > > nfsd.
+> > >
+> > > Which shouldn't be a big performance problem unless I am unaware
+> > > of some real-life applications doing heavy truncates.
 > >
-> > nr bench read       write      2.4.18  2.4.19-rc5  expected factor
-> > 1  dd    30GB HDD   DVD-RAM    278     490         60       8.2
-> > 2  dd    120GB HDD  DVD-RAM    197     438         32       14
-> > 3  dd    30GB HDD   ZIP        158     239         60       4.0
-> > 4  dd    120GB HDD  ZIP        142     249         32       7.8
-> > 5  dd    30GB HDD   120GB HDD   87      89         60       1.5
-> > 6  dd    120GB HDD  30GB HDD    66      69         32       2.2
-> > 7  cp    30GB HDD   120GB HDD   97      77         60       1.3
-> > 8  cp    120GB HDD  30GB HDD    78      65         50       1.3
-> >
-> > The columns 2.4.18 and 2.4.19-rc5 list execution times in seconds of
-> > the respective benchmark. The column "expected" lists the time I would
-> > have expected for the respective benchmark to complete with a
-> > "perfect" kernel. The "factor" is the factor 2.4.19-rc5 is slower than
-> > a perfect kernel would be.
-
-> The reason hd is faster is because new algorithm is much better than the
-> previous mainline code. Now the reason the DVDRAM hangs the machine
-> more, that's probably because more ram can be marked dirty with those
-> new changes (beneficial for some workload, but it stalls much more the
-> fast hd, if there's one very slow blkdev in the system). You can try
-> decrasing the percent of vm dirty in the system with:
+> > Every unlink does a truncate. There are applications that delete files
+> > a lot.
 >
-> 	echo 2 500 0 0 500 3000 3 1 0 >/proc/sys/vm/bdflush
+> Is this true at the filesystem level or only in memory?  If so, I could
+> immagine that it would make it much harder to undelete a file when you don't
+> even know how big it was (file set to 0 size)...
+>
+> Why is this required?  Could someone say quickly (as I'm sure it's probably
+> quite complex) or point me to some references?
 
-Judging from the performance regression above it would seem the
-new defaults suck rocks.
+Truncate is used to return the formerly used blocks to the free pool. It
+is possible (and preferable) to avoid flushing out the modified file
+metadata (inode and indirect blocks) for the deleted file, but
+recoverability of deleted files has never been high on the priority list.
 
-Can we please stop optimising Linux for a single workload benchmark
-and start tuning it for the common case of running multiple kinds
-of applications and making sure one application can't mess up the
-others ?
-
-Personally I couldn't care less if my tar went 30% faster if it
-meant having my desktop unresponsive for the whole time.
-
-regards,
-
-Rik
 -- 
-	http://www.linuxsymposium.org/2002/
-"You're one of those condescending OLS attendants"
-"Here's a nickle kid.  Go buy yourself a real t-shirt"
-
-http://www.surriel.com/		http://distro.conectiva.com/
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

@@ -1,52 +1,140 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317525AbSFEBHh>; Tue, 4 Jun 2002 21:07:37 -0400
+	id <S317524AbSFEBPX>; Tue, 4 Jun 2002 21:15:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317526AbSFEBHg>; Tue, 4 Jun 2002 21:07:36 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:2222 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317525AbSFEBHd>;
-	Tue, 4 Jun 2002 21:07:33 -0400
-Date: Tue, 04 Jun 2002 18:10:25 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: Ruth Forester <lilo@us.ibm.com>, linux-kernel@vger.kernel.org
-cc: hannal@us.ibm.com
-Subject: Re: Lockstats for SMP DB Workload
-Message-ID: <55990000.1023239425@w-hlinder.des>
-In-Reply-To: <200206050016.g550Gl110934@eng4.beaverton.ibm.com>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S317526AbSFEBPW>; Tue, 4 Jun 2002 21:15:22 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:61357 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S317524AbSFEBPV>; Tue, 4 Jun 2002 21:15:21 -0400
+Message-ID: <20020605011517.13355.qmail@linuxmail.org>
+Content-Type: multipart/mixed; boundary="----------=_1023239717-12600-0"
+Content-Transfer-Encoding: binary
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Anthony Spinillo" <tspinillo@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 05 Jun 2002 09:15:17 +0800
+Subject: INTEL 845G IDE PATCH for 2.4.19-pre10-ac1
+X-Originating-Ip: 24.49.78.239
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Tuesday, June 04, 2002 17:16:46 -0700 Ruth Forester <lilo@us.ibm.com> wrote:
+This is a multi-part message in MIME format...
 
-> Everyone, 
-> 
-> I am running with the following configuration
-> 
-> 	2.4.19pre8aa2+dj2+ (dj2 removes global semaphore_lock spinlock)
-> 	 +fast_walkA3-2_4_19-pre8_patch.
-> 
-> The database is set up to use raw-io, yet looking at this data, it appears that
-> I am still hitting a lot of filesystem accesses, among other things.  This is an
-> oltp workload, although there are some contentions (pread?) that cause the 
-> cpu sys time to go to 99%, it was during this part of the "workload" that this
-> snapshot of lockmeter was taken.
-> 
+------------=_1023239717-12600-0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-> SPINLOCKS         HOLD            WAIT
->   UTIL  CON    MEAN(  MAX )   MEAN(  MAX )(% CPU)     TOTAL NOWAIT SPIN RJECT  NAME
-> 
->         6.7%  2.5us(  25ms)   62us(  12ms)( 6.8%)   2650959 93.3%  6.6% 0.05%  *TOTAL*
-> 
->   2.4%  1.0%   38us(  15ms) 3185us(  12ms)(0.13%)      6291 99.0%  1.0%    0%  kernel_flag_cacheline
->   2.3%  9.1% 6865us(  15ms) 3551us(5592us)(0.01%)        33 90.9%  9.1%    0%    do_exit+0xf4
+I assembled 3 diffs based on a patch Andre Hedrick
+sent me the other day to enable DMA on the 845G chipset. Hopefully they can help someone else out.
+The diffs patch ide-pci.c, piix.c and 
+pci-ids.h.
+
+The diffs are on top of linux-2.4.19-pre10-ac1 
+(Thanks Alan).
+
+I'm out of PIO hell, but if someone can give them a quick sanity check, that would be great.
+
+Thanks,
+
+Tony
+
+-- 
+Get your free email from www.linuxmail.org 
 
 
-Dave Hanson has a do_exit patch you might want to look at...
+Powered by Outblaze
 
-Hanna
+------------=_1023239717-12600-0
+Content-Type: application/octet-stream; name="ide-pci.diff"
+Content-Disposition: attachment; filename="ide-pci.diff"
+Content-Transfer-Encoding: base64
 
+LS0tIGxpbnV4L2RyaXZlcnMvaWRlL2lkZS1wY2kuYwlUdWUgSnVuICA0IDIw
+OjQ2OjE4IDIwMDIKKysrIGxpbnV4LWZpeC9kcml2ZXJzL2lkZS9pZGUtcGNp
+LmMJVHVlIEp1biAgNCAyMDozMDo0NiAyMDAyCkBAIC00Nyw2ICs0Nyw3IEBA
+CiAjZGVmaW5lIERFVklEX1BJSVg0VTUJKChpZGVfcGNpX2RldmlkX3Qpe1BD
+SV9WRU5ET1JfSURfSU5URUwsICAgUENJX0RFVklDRV9JRF9JTlRFTF84Mjgw
+MUNBXzEwfSkKICNkZWZpbmUgREVWSURfUElJWDRVNgkoKGlkZV9wY2lfZGV2
+aWRfdCl7UENJX1ZFTkRPUl9JRF9JTlRFTCwgICBQQ0lfREVWSUNFX0lEX0lO
+VEVMXzgyODAxQ0FfMTF9KQogI2RlZmluZSBERVZJRF9QSUlYNFU3CSgoaWRl
+X3BjaV9kZXZpZF90KXtQQ0lfVkVORE9SX0lEX0lOVEVMLCAgIFBDSV9ERVZJ
+Q0VfSURfSU5URUxfODI4MDFFXzExfSkKKyNkZWZpbmUgREVWSURfUElJWDRV
+OCAgICgoaWRlX3BjaV9kZXZpZF90KXtQQ0lfVkVORE9SX0lEX0lOVEVMLCAg
+IFBDSV9ERVZJQ0VfSURfSU5URUxfODI4MDFEQl8xMX0pCiAjZGVmaW5lIERF
+VklEX1ZJQV9JREUJKChpZGVfcGNpX2RldmlkX3Qpe1BDSV9WRU5ET1JfSURf
+VklBLCAgICAgUENJX0RFVklDRV9JRF9WSUFfODJDNTYxfSkKICNkZWZpbmUg
+REVWSURfTVJfSURFCSgoaWRlX3BjaV9kZXZpZF90KXtQQ0lfVkVORE9SX0lE
+X1ZJQSwgICAgIFBDSV9ERVZJQ0VfSURfVklBXzgyQzU3Nl8xfSkKICNkZWZp
+bmUgREVWSURfVlBfSURFCSgoaWRlX3BjaV9kZXZpZF90KXtQQ0lfVkVORE9S
+X0lEX1ZJQSwgICAgIFBDSV9ERVZJQ0VfSURfVklBXzgyQzU4Nl8xfSkKQEAg
+LTQzOCw2ICs0MzksNyBAQAogCXtERVZJRF9QSUlYNFU1LCAiUElJWDQiLAlG
+SVhVUF9QSUlYLAlQQ0lfUElJWCwJQVRBNjZfUElJWCwJSU5JVF9QSUlYLAlO
+VUxMLAkJe3sweDQxLDB4ODAsMHg4MH0sIHsweDQzLDB4ODAsMHg4MH19LAlP
+Tl9CT0FSRCwJMCB9LAogCXtERVZJRF9QSUlYNFU2LAkiUElJWDQiLAlGSVhV
+UF9QSUlYLAlQQ0lfUElJWCwJQVRBNjZfUElJWCwJSU5JVF9QSUlYLAlOVUxM
+LAkJe3sweDQxLDB4ODAsMHg4MH0sIHsweDQzLDB4ODAsMHg4MH19LAlPTl9C
+T0FSRCwJMCB9LAogCXtERVZJRF9QSUlYNFU3LAkiUElJWDQiLAlGSVhVUF9Q
+SUlYLAlQQ0lfUElJWCwJQVRBNjZfUElJWCwJSU5JVF9QSUlYLAlOVUxMLAkJ
+e3sweDQxLDB4ODAsMHg4MH0sIHsweDQzLDB4ODAsMHg4MH19LAlPTl9CT0FS
+RCwJMCB9LAorCXtERVZJRF9QSUlYNFU4LCAiUElJWDQiLAlGSVhVUF9QSUlY
+LAlQQ0lfUElJWCwJQVRBNjZfUElJWCwJSU5JVF9QSUlYLAlOVUxMLAkJe3sw
+eDQxLDB4ODAsMHg4MH0sIHsweDQzLDB4ODAsMHg4MH19LAlPTl9CT0FSRCwJ
+MCB9LAogCXtERVZJRF9WSUFfSURFLAkiVklBX0lERSIsCU5VTEwsCQlOVUxM
+LAkJTlVMTCwJCU5VTEwsCQlOVUxMLAkJe3sweDAwLDB4MDAsMHgwMH0sIHsw
+eDAwLDB4MDAsMHgwMH19LAlPTl9CT0FSRCwJMCB9LAogCXtERVZJRF9NUl9J
+REUsCSJWUF9JREUiLAlOVUxMLAkJUENJX1ZJQTgyQ1hYWCwJQVRBNjZfVklB
+ODJDWFhYLElOSVRfVklBODJDWFhYLAlETUFfVklBODJDWFhYLAl7ezB4NDAs
+MHgwMiwweDAyfSwgezB4NDAsMHgwMSwweDAxfX0sIAlPTl9CT0FSRCwJMCB9
+LAogCXtERVZJRF9WUF9JREUsCSJWUF9JREUiLAlOVUxMLAkJUENJX1ZJQTgy
+Q1hYWCwJQVRBNjZfVklBODJDWFhYLElOSVRfVklBODJDWFhYLAlETUFfVklB
+ODJDWFhYLAl7ezB4NDAsMHgwMiwweDAyfSwgezB4NDAsMHgwMSwweDAxfX0s
+IAlPTl9CT0FSRCwJMCB9LAo=
+
+------------=_1023239717-12600-0
+Content-Type: application/octet-stream; name="pci_ids.diff"
+Content-Disposition: attachment; filename="pci_ids.diff"
+Content-Transfer-Encoding: base64
+
+LS0tIGxpbnV4L2luY2x1ZGUvbGludXgvcGNpX2lkcy5oCVR1ZSBKdW4gIDQg
+MjA6NDY6MTkgMjAwMgorKysgbGludXgtZml4L2luY2x1ZGUvbGludXgvcGNp
+X2lkcy5oCVR1ZSBKdW4gIDQgMjA6MzU6MzIgMjAwMgpAQCAtMTY4Niw2ICsx
+Njg2LDcgQEAKICNkZWZpbmUgUENJX0RFVklDRV9JRF9JTlRFTF84MjgwMUNB
+XzEwCTB4MjQ4YQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX0lOVEVMXzgyODAx
+Q0FfMTEJMHgyNDhiCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfSU5URUxfODI4
+MDFDQV8xMgkweDI0OGMKKyNkZWZpbmUgUENJX0RFVklDRV9JRF9JTlRFTF84
+MjgwMURCXzExICAweDI0Y2IKICNkZWZpbmUgUENJX0RFVklDRV9JRF9JTlRF
+TF84MDMxMAkweDUzMGQKICNkZWZpbmUgUENJX0RFVklDRV9JRF9JTlRFTF84
+MjgxMF9NQzEJMHg3MTIwCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfSU5URUxf
+ODI4MTBfSUcxCTB4NzEyMQo=
+
+------------=_1023239717-12600-0
+Content-Type: application/octet-stream; name="piix.diff"
+Content-Disposition: attachment; filename="piix.diff"
+Content-Transfer-Encoding: base64
+
+LS0tIGxpbnV4L2RyaXZlcnMvaWRlL3BpaXguYwlUdWUgSnVuICA0IDIwOjQ2
+OjE4IDIwMDIKKysrIGxpbnV4LWZpeC9kcml2ZXJzL2lkZS9waWl4LmMJVHVl
+IEp1biAgNCAyMDo0NDo1MiAyMDAyCkBAIC05NCw2ICs5NCw3IEBACiAJCWNh
+c2UgUENJX0RFVklDRV9JRF9JTlRFTF84MjgwMUNBXzEwOgogCQljYXNlIFBD
+SV9ERVZJQ0VfSURfSU5URUxfODI4MDFDQV8xMToKIAkJY2FzZSBQQ0lfREVW
+SUNFX0lEX0lOVEVMXzgyODAxRV8xMToKKwkJY2FzZSBQQ0lfREVWSUNFX0lE
+X0lOVEVMXzgyODAxREJfMTE6CiAJCQlwICs9IHNwcmludGYocCwgIkludGVs
+IFBJSVg0IFVsdHJhIDEwMCBDaGlwc2V0LlxuIik7CiAJCQlicmVhazsKIAkJ
+Y2FzZSBQQ0lfREVWSUNFX0lEX0lOVEVMXzgyMzcyRkJfMToKQEAgLTIxNiw2
+ICsyMTcsNyBAQAogCQljYXNlIFBDSV9ERVZJQ0VfSURfSU5URUxfODI4MDFD
+QV8xMDoKIAkJY2FzZSBQQ0lfREVWSUNFX0lEX0lOVEVMXzgyODAxQ0FfMTE6
+CiAJCWNhc2UgUENJX0RFVklDRV9JRF9JTlRFTF84MjgwMUVfMTE6CisJCWNh
+c2UgUENJX0RFVklDRV9JRF9JTlRFTF84MjgwMURCXzExOgogCQkJbW9kZSB8
+PSAweDAzOwogCQkJYnJlYWs7CiAJCWNhc2UgUENJX0RFVklDRV9JRF9JTlRF
+TF84MjgwMUFBXzE6CkBAIC01MzQsNiArNTM2LDcgQEAKIAkJY2FzZSBQQ0lf
+REVWSUNFX0lEX0lOVEVMXzgyODAxQ0FfMTA6CiAJCWNhc2UgUENJX0RFVklD
+RV9JRF9JTlRFTF84MjgwMUNBXzExOgogCQljYXNlIFBDSV9ERVZJQ0VfSURf
+SU5URUxfODI4MDFFXzExOgorCQljYXNlIFBDSV9ERVZJQ0VfSURfSU5URUxf
+ODI4MDFEQl8xMToKIAkJewogCQkJdW5zaWduZWQgaW50IGV4dHJhID0gMDsK
+IAkJCXBjaV9yZWFkX2NvbmZpZ19kd29yZChkZXYsIDB4NTQsICZleHRyYSk7
+Cg==
+
+------------=_1023239717-12600-0--

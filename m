@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129561AbRAZNx3>; Fri, 26 Jan 2001 08:53:29 -0500
+	id <S130454AbRAZNw6>; Fri, 26 Jan 2001 08:52:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129818AbRAZNxW>; Fri, 26 Jan 2001 08:53:22 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:1408 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129561AbRAZNwu>; Fri, 26 Jan 2001 08:52:50 -0500
-Date: Fri, 26 Jan 2001 08:49:31 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Rob Kaper <cap@capsi.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Renaming lost+found
-In-Reply-To: <20010126141350.Q6979@capsi.com>
-Message-ID: <Pine.LNX.3.95.1010126084632.208A-100000@chaos.analogic.com>
+	id <S129818AbRAZNwk>; Fri, 26 Jan 2001 08:52:40 -0500
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:53486 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S129561AbRAZNwe>;
+	Fri, 26 Jan 2001 08:52:34 -0500
+Date: Fri, 26 Jan 2001 13:52:22 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: "David S. Miller" <davem@redhat.com>
+cc: Matti Aarnio <matti.aarnio@zmailer.org>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: hotmail not dealing with ECN
+In-Reply-To: <14961.25754.449497.640325@pizda.ninka.net>
+Message-ID: <Pine.SOL.4.21.0101261351150.11126-100000@red.csi.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Jan 2001, Rob Kaper wrote:
+On Fri, 26 Jan 2001, David S. Miller wrote:
 
-> If this is ext2 specific, just say so and I'll find a better list to discuss
-> this: (any good ext2 lists available for example?)
 > 
-> Is there a way to rename lost+found ?? It bothers me to see it in ls all the
-> time because 99.9% of my time it's just useless and I really think
-> .lost+found (a hidden file) would make much more sense for daily use. I
-> assume this would require some ext2 changes as well as a patch to e2fsck
-> etc. (with backwards compatibility of course)
+> James Sutherland writes:
+>  > A delayed retry without ECN might be a good compromise...
+>  > 
+>  > Every single connection to ECN-broken sites would work as normal - it
+>  > would just take an extra few seconds. Instead of "Hotmail doesn't
+>  > work!" it becomes "Hrm... Hotmail is fscking slow, but Yahoo is fine. I'll
+>  > use Yahoo". A few million of those, and suddenly Hotmail isn't so hot...
+> 
+> No, as explained in previous emails, no retry scheme can work.
+> 
+> Hotmails failing machines, for example, send RST packets back when
+> they see ECN.  Ignoring valid TCP RST frames is unacceptable and
+> Linux will not do that as long as I am maintaining it.
 
-Get used to it. This is part of the Linux/Unix heritage!  A file-system
-without a lost+found directory is like love without sex.
+I was not suggesting ignoring these. OTOH, there is no reason to treat an
+RST packet as "go away and never ever send traffic to this host again" -
+i.e. trying another TCP connection, this time with ECN disabled, would be
+acceptable.
 
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+James.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

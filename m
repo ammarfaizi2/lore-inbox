@@ -1,39 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbUL2I6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbUL2JIB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbUL2I6E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 03:58:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbUL2I6E
+	id S261327AbUL2JIB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 04:08:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbUL2JIB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 03:58:04 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:30149 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S261313AbUL2I6A (ORCPT
+	Wed, 29 Dec 2004 04:08:01 -0500
+Received: from gw.c9x.org ([213.41.131.17]:3937 "HELO nerim.mx.42-networks.com")
+	by vger.kernel.org with SMTP id S261327AbUL2JH6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 03:58:00 -0500
-Date: Wed, 29 Dec 2004 08:57:59 +0000 (GMT)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
+	Wed, 29 Dec 2004 04:07:58 -0500
+Date: Wed, 29 Dec 2004 10:07:35 +0100
+From: "Frank Denis \(Jedi/Sector One\)" <lkml@pureftpd.org>
 To: linux-kernel@vger.kernel.org
-Subject: running Linus kernel on FC3
-Message-ID: <Pine.LNX.4.58.0412290853540.2899@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: kernel BUG at fs/namei.c:2333 (reiserfs related?)
+Message-ID: <20041229090757.GA27378@c9x.org>
+References: <20041227112349.GA29389@c9x.org> <20041228203105.57467469.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041228203105.57467469.akpm@osdl.org>
+X-Operating-System: OpenBSD - http://www.openbsd.org/
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 28, 2004 at 08:31:05PM -0800, Andrew Morton wrote:
+> >  kernel BUG at fs/namei.c:2333!
+> Were filesystem quotas in use at the time?
 
-I'm trying to run a linus bk tree on my FC3 system, but I get a lot of
-Selinux warnings with minilogd,
-
-Are there some selinux patches that haven't made their way into Linus's
-tree but are in the FC kernel?
-
-I don't mind running without Selinux but I like to keep my .config as
-close to the FC one as possible..
-
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
-
+  No, quota weren't in use.
+  
+  And Vlad's recent fixes for reiserfs were applied.

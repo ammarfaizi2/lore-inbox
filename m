@@ -1,75 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262867AbVCDCbo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262863AbVCDCX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262867AbVCDCbo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 21:31:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbVCDCYS
+	id S262863AbVCDCX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 21:23:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262825AbVCDCTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 21:24:18 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:9631 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S262798AbVCDCTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 21:19:04 -0500
-From: Darren Williams <dsw@gelato.unsw.edu.au>
-To: Christoph Lameter <clameter@sgi.com>
-Date: Fri, 4 Mar 2005 13:18:47 +1100
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Page fault scalability patch V18: Overview
-Message-ID: <20050304021847.GF28102@cse.unsw.EDU.AU>
-Mail-Followup-To: Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 3 Mar 2005 21:19:16 -0500
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:56768 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S262009AbVCDCRX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 21:17:23 -0500
+From: David Brownell <david-b@pacbell.net>
+To: linux-pm@lists.osdl.org
+Subject: Re: [linux-pm] [PATCH] Custom power states for non-ACPI systems
+Date: Thu, 3 Mar 2005 18:17:06 -0800
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@ucw.cz>, Todd Poynor <tpoynor@mvista.com>,
+       linux-pm@osdl.org, linux-kernel@vger.kernel.org
+References: <20050302020306.GA5724@slurryseal.ddns.mvista.com> <20050302085619.GA1364@elf.ucw.cz>
+In-Reply-To: <20050302085619.GA1364@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.6+20040523i
+Message-Id: <200503031817.06993.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph
-
-On Tue, 01 Mar 2005, Christoph Lameter wrote:
-
-> Is there any chance that this patchset could go into mm now? This has been
-> discussed since last August....
+On Wednesday 02 March 2005 12:56 am, Pavel Machek wrote:
 > 
-> Changelog:
-> 
-> V17->V18 Rediff against 2.6.11-rc5-bk4
+> If OMAP has "big sleep" and "deep sleep", why not simply map them to
+> "standby" and "suspend-to-ram"?
 
-Just applied this patch against 2.6.11, however with the patch applied
-and all the aditional config options not set, the kernel hangs at
-Freeing unused kernel memory: 240kB freed 
-FYI:
+Or even "cpu idle".  Entering power saving modes shouldn't be such
+a Big Deal.  Some of the variable scheduling timeout work has been
+done specifically with the goal of letting the system use those low
+power modes more generally, without needing user(space) input to
+suggest that now would be a good time to conserve more milliWatts.
 
-boot    atomic   prezero
-OK        on      on
-fail      off     on
-fail      off     off
-OK        on      off
+Of course, on systems that don't swap (or swsusp) there may be
+dozens of different low-power "standby" states.  I'm not sure it
+helps to try labeling them all through /sys/power/files.
 
-> V16->V17 Do not increment page_count in do_wp_page. Performance data
-> 	posted.
-> V15->V16 of this patch: Redesign to allow full backback
-> 	for architectures that do not supporting atomic operations.
-> 
-> An introduction to what this patch does and a patch archive can be found on
-> http://oss.sgi.com/projects/page_fault_performance. The archive also has the
-> result of various performance tests (LMBench, Microbenchmark and
-> kernel compiles).
-> 
-> The basic approach in this patchset is the same as used in SGI's 2.4.X
-> based kernels which have been in production use in ProPack 3 for a long time.
-> 
-> The patchset is composed of 4 patches (and was tested against 2.6.11-rc5-bk4):
-> 
-[SNIP]
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
---------------------------------------------------
-Darren Williams <dsw AT gelato.unsw.edu.au>
-Gelato@UNSW <www.gelato.unsw.edu.au>
---------------------------------------------------
+- Dave

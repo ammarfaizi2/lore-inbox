@@ -1,60 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261934AbTCDWja>; Tue, 4 Mar 2003 17:39:30 -0500
+	id <S262812AbTCDWqh>; Tue, 4 Mar 2003 17:46:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261963AbTCDWja>; Tue, 4 Mar 2003 17:39:30 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:63499
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S261934AbTCDWj3>; Tue, 4 Mar 2003 17:39:29 -0500
-Date: Tue, 4 Mar 2003 17:46:35 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: raarts@office.netland.nl
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       "" <david.knierim@tekelec.com>, "" <alexander@netintact.se>,
-       Donald Becker <becker@scyld.com>, Greg KH <greg@kroah.com>,
-       jamal <hadi@cyberus.ca>, Jeff Garzik <jgarzik@pobox.com>,
-       "" <kuznet@ms2.inr.ac.ru>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Robert Olsson <Robert.Olsson@data.slu.se>
-Subject: Re: PCI init issues
-In-Reply-To: <3E650061.9050201@netland.nl>
-Message-ID: <Pine.LNX.4.50.0303041742420.5867-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.44.0303041046370.1426-100000@home.transmeta.com>
- <3E650061.9050201@netland.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263204AbTCDWqh>; Tue, 4 Mar 2003 17:46:37 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:19599 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S262812AbTCDWqf>;
+	Tue, 4 Mar 2003 17:46:35 -0500
+Date: Tue, 4 Mar 2003 17:57:00 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Matt Domsch <Matt_Domsch@dell.com>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: Displaying/modifying PCI device id tables via sysfs
+Message-ID: <20030304225659.GB7120@gtf.org>
+References: <1046753776.12441.92.camel@iguana> <Pine.LNX.4.44.0303041414270.23375-100000@chaos.physics.uiowa.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303041414270.23375-100000@chaos.physics.uiowa.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Mar 2003, Ron Arts wrote:
+On Tue, Mar 04, 2003 at 02:22:13PM -0600, Kai Germaschewski wrote:
+> On 3 Mar 2003, Matt Domsch wrote:
+> 
+> > /sys
+> > `-- bus
+> >     `-- pci
+> >         `-- drivers
+> >             `-- 3c59x
+> >                 |-- dynamic_id_0  (these are simple DRIVER_ATTRs)
+> >                 |-- dynamic_id_1
+> >                 |-- dynamic_id_2
+> >                 `-- new_id
+> > 
+> > Where dynamic_id_[012] are new dynamic entries, created by writing
+> > values into new_id.  Both file types would be of the format (analogous
+> > to pci_show_resources):
+> > echo "0x0000 0x0000 0x0000 0x0000 0x0000 0x0000" > new_id
+> > with fields being vendor, device, subvendor, subdevice, class,
+> > class_mask.
+> 
+> I dont' think what you actually want is changing the id table - after all, 
+> it's only walked when registering the driver (+ hotplug).
+> 
+> What you really want is a way to call the drivers' probe routine for a 
+> device which isn't in its tables.
+> 
+> So why not simply
+> 
+> echo "0x0000 0x0000 0x0000 0x0000 0x0000 0x0000" > .../3c59x/probe
 
-> > So there are at least two potential reasons for that:
-> > 
-> >  - The MP table is simply wrong, and WinXP gets the routing information 
-> >    from somewhere else (ie most likely ACPI)
-> > 
-> >  - The MP table is right, and only pin0 is connected, and WinXP only uses 
-> >    pin0 (ie it puts the card in some state where all irqs are shared 
-> >    across all of the four tulip chips).
-> > 
-> > Maybe somebody can come up with other schenarios.
-> > 
-> > It would be interesting to hear what "Device Manager" (or whatever it is
-> > called) unde WinXP claims the interrupts are on this machine... Are they
-> > all on irq 48 on XP too? Or has XP gotten magic knowledge somewhere
-> > (ACPI?) and they are on different irq's?
-> > 
-> > 		Linus
+I think there is value in decoupling the two operations:
 
-How about using 'mptable' (Authored by Pete Zaitcev) to view the 
-bus,pin and ioapic layout? It showed all the INTA,B,C,D pins on a 
-troublesome system of mine and helped track down the problem.
+	echo "0x0000 0x0000 0x0000 0x0000 0x0000 0x0000" > .../3c59x/table
+	echo 1 > .../3c59x/probe_it
 
-http://people.redhat.com/zaitcev/linux/mptable-2.0.15a-1.i386.rpm
-http://people.redhat.com/zaitcev/linux/mptable-2.0.15a-1.src.rpm
+Because you want the id table additions to be persistant in the face of
+cardbus unplug/replug, and for the case where cardbus card may not be
+present yet, but {will,may} be soon.
 
-Regards,
-	Zwane
--- 
-function.linuxpower.ca
+	Jeff
+
+
+

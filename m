@@ -1,109 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312634AbSDAWWx>; Mon, 1 Apr 2002 17:22:53 -0500
+	id <S312643AbSDAW0D>; Mon, 1 Apr 2002 17:26:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312638AbSDAWWo>; Mon, 1 Apr 2002 17:22:44 -0500
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:28178 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S312634AbSDAWW3>;
-	Mon, 1 Apr 2002 17:22:29 -0500
-Date: Mon, 1 Apr 2002 14:21:28 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        linux-usb-devel@lists.sourceforge.net,
-        Linux-usb-users@lists.sourceforge.net
-Subject: [ANNOUNCE] 2002-03-01 release of hotplug scripts
-Message-ID: <20020401222127.GB32079@kroah.com>
+	id <S312661AbSDAWZz>; Mon, 1 Apr 2002 17:25:55 -0500
+Received: from erasure.jasnik.net ([207.148.204.33]:10688 "HELO
+	erasure.jasnik.net") by vger.kernel.org with SMTP
+	id <S312643AbSDAWZq>; Mon, 1 Apr 2002 17:25:46 -0500
+Subject: Re: ECC memory and SMP lockups on Gateway 6400 server
+From: Jason Czerak <Jason-Czerak@Jasnik.net>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3CA82C0B.98CD7275@colorfullife.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 01 Apr 2002 17:25:45 -0500
+Message-Id: <1017699945.19498.244.camel@neworder>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Mon, 04 Mar 2002 20:08:15 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-04-01 at 04:44, Manfred Spraul wrote:
+> > Recently got the goahead to upgrade the Gateway Win2K server to a linux
+> > box to replace out old webserver. It's a 6400 server. 2 PIII-733's, 704
+> > megs ECC registered ram.. NT ran fine on this box. not a hitch.
+> > 
+> Could you check /proc/interrupts? Is one number extremely high?
+> 
+> And try to boot with "mem=690M". My sis boards become extremely slow if
+> I don't limit the memory. I guess the e820 map is wrong, and one of the
+> pages are actually power managmenet registes/NVS.
+> 
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The OEM 128 and 64 meg sitck of ECC that came with the machine works
+fine. I got an aftermarket ECC stick that NT likes but linux doesn't.
 
-I've just packaged up the latest Linux hotplug scripts into a release,
-which can be found at:
- 	http://sourceforge.net/project/showfiles.php?group_id=3D17679
 
-Or from your favorite kernel.org mirror at:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2002_04_01.tar.gz
+Standard boot with no extra kerenl switches
+and it's very slow and CPU load is 1.0
 
-I've also packaged up a Red Hat 7.2 based rpm:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2002_04_01-1.noarch.rpm
-=20
-The source rpm is available if you want to rebuild it for other distros
-at:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2002_04_01-1.src.rpm
+Moby:/proc # cat interrupts
+           CPU0       CPU1       
+  0:      17736      20742    IO-APIC-edge  timer
+  1:         62         70    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  8:          0          2    IO-APIC-edge  rtc
+ 20:        434        453   IO-APIC-level  eth0
+ 24:         15         15   IO-APIC-level  sym53c8xx
+ 25:       1073       1108   IO-APIC-level  sym53c8xx
+NMI:          0          0 
+LOC:      38293      38388 
+ERR:          0
+MIS:          0
 
-The main web site for the linux-hotplug project can be found at:
-	http://linux-hotplug.sf.net/
-which contains lots of documentation on the whole linux-hotplug
-process.  There are also links to kernel patches, not currently in the
-main kernel tree, that provide hotplug functionality to new subsystems
-(like CPU, SCSI, Memory, etc.)
 
-The main changes in this release are the following:
-	- fixed potential temp file security exploit in the ieee1394
-	  script.
-	- removed the fxload program from the package, moving back to
-	  one package that is processor neutral (scripts only.)  fxload
-	  can now be released on its own, separate from the main
-	  package.
 
-Here's the changes (and who made them) from the last release:
 
-  Changes from David Brownell
-        - hotplug.functions: always run setup scripts
-        - ieee1394.agent: rm another explicit /etc/hotplug pathname
-        - usb.agent: doesn't skip usb.usermap
-        - usb.rc: hooks for other "new style" HCDs (2.5)
-        - distro should now include /etc/hotplug/{usb,pci} directories
-        - remove obsolete USBD_ENABLE option
-        - comments/diagnostics say "usbfs" not "usbdevfs"
-        - various comment/doc updates, including for USB "coldplug"
-        - fxload:
-            * fix bug in handling first hex record: nothing to merge with!
-            * add '-Wall' to build and resolve warnings
-            * Makefile installs fxload.8 man page
+Booted with "kernel-2.4.18 mem=704M" at lilo prompt and it's still slow
 
-  Changes from Fumitoshi UKAI
-        - etc/hotplug/ieee1394.agent: fix /tmp writable check
-        - usb.agent: match algorithm in usb_map_modules() should be the=20
-                     same as in kernel.
-       =20
-  Changes from me
-        - usb.rc: updated the list of modules that we should be trying to
-          remove.
-        - moved fxload to a separate directory, out of this package.
-        - updated the Makefile and .spec file to handle fxload moving away
-        - cleaned Makefile up, now 'make distrib' works much nicer.
-        - applied some minor cleanup patches from Landon Curt Noll.
-        - ieee1394.agent: made more like other .agent files.  Removed /tmp
-          check entirely as it's not needed.
+Kernel command line: auto BOOT_IMAGE=Linux-2.4.18 ro root=802
+BOOT_FILE=/boot/kernel-2.4.18 mem=704M
 
-thanks,
+is what dmesg cought.
 
-greg k-h
+Moby:/proc # cat interrupts
+           CPU0       CPU1       
+  0:      15540      18511    IO-APIC-edge  timer
+  1:         16         24    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  8:          1          1    IO-APIC-edge  rtc
+ 20:        151        162   IO-APIC-level  eth0
+ 24:         15         15   IO-APIC-level  sym53c8xx
+ 25:       3647       3656   IO-APIC-level  sym53c8xx
+NMI:          0          0 
+LOC:      33966      33907 
+ERR:          0
+MIS:          0
 
---J/dobhs11T7y2rNN
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQE8qN1mMUfUDdst+ykRAtiiAJ0cbJPYB79vyRNiJE5NDEFQlOWHiwCfUEok
-cqJtR8QCODLILBX6MWOkL68=
-=Mosz
------END PGP SIGNATURE-----
+I finally got the machine stable with SMP enabled in the kernel (had to
+be a heat issue and the mobo shutting things down)
 
---J/dobhs11T7y2rNN--
+I'm about to compile and use  http://www.anime.net/~goemon/linux-ecc/ 
+to see if I can figure out what exactly is happening.
+
+
+

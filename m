@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265902AbUFVVCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265932AbUFVU6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265902AbUFVVCx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 17:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUFVVCu
+	id S265932AbUFVU6i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 16:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265956AbUFVUtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 17:02:50 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:13472 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S265900AbUFVVBs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 17:01:48 -0400
-Message-Id: <200406222100.i5ML0TY32225@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Bug fix in mm/hugetlb.c - use safe iterater
-Date: Tue, 22 Jun 2004 14:01:45 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcRYnCAzAMaAtxsgT1iqPqQq1PnuSg==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Tue, 22 Jun 2004 16:49:07 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:63195 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S265932AbUFVUfz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 16:35:55 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16600.38945.759248.188810@alkaid.it.uu.se>
+Date: Tue, 22 Jun 2004 22:35:45 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][1/6] perfctr-2.7.3 for 2.6.7-rc1-mm1: core
+In-Reply-To: <20040622172025.GA6074@infradead.org>
+References: <200405312218.i4VMIISg012277@harpo.it.uu.se>
+	<20040622015311.561a73bf.akpm@osdl.org>
+	<20040622085901.GA31971@infradead.org>
+	<20040622020417.0ec87564.akpm@osdl.org>
+	<20040622091219.GA32146@infradead.org>
+	<20040622021441.4f6aa13c.akpm@osdl.org>
+	<20040622091850.GA32160@infradead.org>
+	<20040622022023.1942fd82.akpm@osdl.org>
+	<16600.17486.81041.111276@alkaid.it.uu.se>
+	<20040622172025.GA6074@infradead.org>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With list poisoning on by default from linux-2.6.7, it's easier
-than ever to trigger the bug in try_to_free_low().  It ought to
-use the safe version of list iterater.
+Christoph Hellwig writes:
+ > On Tue, Jun 22, 2004 at 04:38:06PM +0200, Mikael Pettersson wrote:
+ > > Swiching to open() on /proc/<pid>/<tid>/perfctr followed by ioctl()s
+ > > would be easy to implement. But people @ LKML are sometimes violently
+ > > opposed to ioctl()s, that's why the switch to syscalls happended.
+ > 
+ > I don't remember the details anymore, but lots of the syscalls could
+ > really be read/write on special files.  I'll look through the code again
+ > and send out draft API document.
 
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+I've thought about this, but the FS with multiple files approach
+has several problems:
 
+1. An open file descriptor no longer suffices as a user-space handle.
+   This is because we don't have fd = open("%d/file",dirfd) type
+   system calls.
 
-diff -Nurp linux-2.6.7.orig/mm/hugetlb.c linux-2.6.7/mm/hugetlb.c
---- linux-2.6.7.orig/mm/hugetlb.c	2004-06-15 22:19:37.000000000 -0700
-+++ linux-2.6.7/mm/hugetlb.c	2004-06-22 13:45:11.000000000 -0700
-@@ -134,8 +134,8 @@ static int try_to_free_low(unsigned long
- {
- 	int i;
- 	for (i = 0; i < MAX_NUMNODES; ++i) {
--		struct page *page;
--		list_for_each_entry(page, &hugepage_freelists[i], lru) {
-+		struct page *page, *next;
-+		list_for_each_entry_safe(page, next, &hugepage_freelists[i], lru) {
- 			if (PageHighMem(page))
- 				continue;
- 			list_del(&page->lru);
+2. A mini-fs under /proc/<pid>/<tid>/perfctr/ disappears when the
+   process disappears. Currently, a process' perfctr state lives
+   as long as references remains, whether via the process task_struct,
+   or via some open file descriptor. One use for this is in
+   remote-control applications, where it avoids enforcing
+   parent/child relationships on monitor/target processes.
 
+Going with a mini-fs is possible (though painful to implement), but
+the remote-control feature would have to be constrained to a debugger
+like model. In particular, the whole notion of using an fd as a handle
+to a state object with its own lifetime would have to be ditched.
 
+/Mikael

@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314214AbSDVPIF>; Mon, 22 Apr 2002 11:08:05 -0400
+	id <S314215AbSDVPJB>; Mon, 22 Apr 2002 11:09:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314215AbSDVPIE>; Mon, 22 Apr 2002 11:08:04 -0400
-Received: from www.microgate.com ([216.30.46.105]:57613 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S314214AbSDVPIE>; Mon, 22 Apr 2002 11:08:04 -0400
-Subject: [PATCH] 2.4.19-pre7 New Driver synclink_cs.c
-From: Paul Fulghum <paulkf@microgate.com>
-To: "marcelo@conectiva.com.br" <marcelo@conectiva.com.br>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>
+	id <S314216AbSDVPJA>; Mon, 22 Apr 2002 11:09:00 -0400
+Received: from lucy.ulatina.ac.cr ([163.178.60.3]:3334 "EHLO
+	lucy.ulatina.ac.cr") by vger.kernel.org with ESMTP
+	id <S314215AbSDVPI7>; Mon, 22 Apr 2002 11:08:59 -0400
+Subject: Re: Adding snapshot capability to Linux
+From: Alvaro Figueroa <fede2@fuerzag.ulatina.ac.cr>
+To: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020422124244.GA18252@spaans.ds9a.nl>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3.99 
-Date: 22 Apr 2002 10:05:51 -0500
-Message-Id: <1019487952.3374.10.camel@diemos.microgate.com>
+X-Mailer: Evolution/0.99.0 (Preview Release)
+Date: 22 Apr 2002 09:02:35 -0600
+Message-Id: <1019487755.31790.4.camel@lucy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A patch that adds a new driver for the SyncLink PC Card
-(PCMCIA) multiprotocol serial adapter is located at
+> I'm sorry to have to say this, but making snapshots of remote filesystems is
+> kinda silly and impossible - if you implement it at the FS level.
 
-ftp://ftp.microgate.com/linux/patch-synclink_cs-2.4.19-pre7.gz
+FWIW, this kinda sounds like mirroring an EVMS object that is on a
+remote machine[1], or the cache in CODA.
 
-This patch is against 2.4.19-pre7
+[1] Plugins for working on objetcs in a SAN or network attatched disks.
 
-This includes changes requested by Alan for removing
-unnecessary global variables and correcting inconsistant
-indentation.
-
-Please apply.
-
-
-
-
-
+-- 
+Alvaro Figueroa
 

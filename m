@@ -1,77 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263370AbUBCDii (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 22:38:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbUBCDii
+	id S264542AbUBCDsn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 22:48:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265776AbUBCDsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 22:38:38 -0500
-Received: from webhost1.sirion.net.au ([203.63.163.20]:26383 "EHLO
-	webhost1.sirion.net.au") by vger.kernel.org with ESMTP
-	id S263370AbUBCDig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 22:38:36 -0500
-Mime-Version: 1.0 (Apple Message framework v612)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <6FF5C83C-55FA-11D8-AC00-000A95CEEE4E@computeraddictions.com.au>
+	Mon, 2 Feb 2004 22:48:43 -0500
+Received: from clix.aarnet.edu.au ([192.94.63.10]:49341 "EHLO
+	clix.aarnet.edu.au") by vger.kernel.org with ESMTP id S264542AbUBCDsl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 22:48:41 -0500
+Subject: User-space notification of process end
+From: Glen Turner <glen.turner@aarnet.edu.au>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Australian Academic and Research Network
+Message-Id: <1075780082.6747.23.camel@andromache>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 03 Feb 2004 14:18:02 +1030
 Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Ryan Verner <xfesty@computeraddictions.com.au>
-Subject: Promise PDC20269 (Ultra133 TX2) + Software RAID
-Date: Tue, 3 Feb 2004 14:08:31 +1030
-To: LinuxSA ML <linuxsa@linuxsa.org.au>
-X-Mailer: Apple Mail (2.612)
+X-MDSA: Yes
+X-Spam-Score: -100 USER_IN_WHITELIST
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howdy,
 
-I did an upgrade on a system the other day; we went from 2 * 8G drives 
-in software RAID1, running off the motherboard's IDE chipset, to 2 * 
-80G drives in software RAID1, running off a Promise Ultra133 TX2 card.
+Hi,
 
-I upgraded the kernel at the same time to 2.4.24 w/ grsec patches.  The 
-drives are detected fine:
+I am writing a application which needs to know fairly
+promptly if a daemon has died.  I'd prefer not to
+alter the daemon source code or to run the program
+as a non-daemon child of a daemon watcher process.
 
-PDC20269: IDE controller at PCI slot 00:0d.0
-PCI: Found IRQ 10 for device 00:0d.0
-PDC20269: chipset revision 2
-PDC20269: not 100% native mode: will probe irqs later
-PDC20269: ROM enabled at 0xe5000000
-     ide2: BM-DMA at 0xe400-0xe407, BIOS settings: hde:pio, hdf:pio
-     ide3: BM-DMA at 0xe408-0xe40f, BIOS settings: hdg:pio, hdh:pio
-hde: WDC WD800JB-00ETA0, ATA DISK drive
-blk: queue c01a2db8, I/O limit 4095Mb (mask 0xffffffff)
-hdg: WDC WD800JB-00ETA0, ATA DISK drive
-blk: queue c01a3224, I/O limit 4095Mb (mask 0xffffffff)
-ide2 at 0xd400-0xd407,0xd802 on irq 10
-ide3 at 0xdc00-0xdc07,0xe002 on irq 10
-hde: attached ide-disk driver.
-hde: host protected area => 1
-hde: 156301488 sectors (80026 MB) w/8192KiB Cache, CHS=9729/255/63, 
-UDMA(100)
-hdg: attached ide-disk driver.
-hdg: host protected area => 1
-hdg: 156301488 sectors (80026 MB) w/8192KiB Cache, CHS=9729/255/63, 
-UDMA(100)
+I tried using fnctl(..., F_NOTIFY, ...) as
+follows
 
-However, we get these sorts of errors often:
+  f = open("/proc/123", O_RDONLY);
+  signal(SIGIO, handler);
+  fcntl(f, F_NOTIFY, DN_DELETE | DN_RENAME);
+  F_ZERO(&f_set);
+  F_SET(f, &f_set);
+  select(1, NULL, NULL, &f_set, NULL);
 
-hdg: dma_timer_expiry: dma status == 0x22
-hdg: error waiting for DMA
-hdg: dma timeout retry: status=0x58 { DriveReady SeekComplete 
-DataRequest }
-hdg: status timeout: status=0xd0 { Busy }
-PDC202XX: Secondary channel reset.
-hdg: drive not ready for command
-ide3: reset: success
+hoping I'd see the /proc/<processid>/* files being
+removed at process end.
 
-And the machine is randomly locking up, and of course, on reboot, the 
-raid array is rebuilt.  Ouch.  Any clues as to why?  I'm sure the hard 
-drive hasn't failed as it's brand new; I suspect a chipset 
-compatibility problem or something.
+But procfs doesn't seem to support fnctl(.., F_NOTIFY, ...)
+for parameters other than DN_ACCESS.  This doesn't seem
+to be limited to my code (the dnotify program, which has
+much better signal handling, has the same behavior).
 
-R
+Suggestions, particularly ones which don't require polling
+for the existence of the watched process, are welcome.
 
---
+uname -r says 2.4.22-1.2149.nptl, which is the latest
+Fedora Core 1 kernel.  I'm willing to try 2.6 if that
+supports F_NOTIFY on /proc.
 
-Signature space for rent.
+Thanks,
+Glen
+
+-- 
+Glen Turner         Tel: (08) 8303 3936 or +61 8 8303 3936 
+Network Engineer          Email: glen.turner@aarnet.edu.au
+Australian Academic & Research Network   www.aarnet.edu.au
+
 

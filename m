@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292229AbSBTTjj>; Wed, 20 Feb 2002 14:39:39 -0500
+	id <S292232AbSBTTnU>; Wed, 20 Feb 2002 14:43:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292237AbSBTTjb>; Wed, 20 Feb 2002 14:39:31 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1804 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292229AbSBTTjW>; Wed, 20 Feb 2002 14:39:22 -0500
-Subject: Re: Dlink DSL PCI Card
-To: egberts@yahoo.com (S W)
-Date: Wed, 20 Feb 2002 19:53:17 +0000 (GMT)
-Cc: lkml@secureone.com.au (Andrew Hatfield),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <20020220185044.31163.qmail@web10502.mail.yahoo.com> from "S W" at Feb 20, 2002 10:50:44 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S292245AbSBTTnK>; Wed, 20 Feb 2002 14:43:10 -0500
+Received: from mons.uio.no ([129.240.130.14]:42888 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S292232AbSBTTm4>;
+	Wed, 20 Feb 2002 14:42:56 -0500
+To: "Peter J. Braam" <braam@clusterfs.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: tmpfs, NFS, file handles
+In-Reply-To: <20020220094649.X25738@lustre.cfs>
+	<3C73D548.648C5D64@mandrakesoft.com>
+	<20020220122116.C28913@lustre.cfs>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 20 Feb 2002 20:42:50 +0100
+In-Reply-To: <20020220122116.C28913@lustre.cfs>
+Message-ID: <shsk7t82b45.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16dcnl-0004Wd-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> that have microcodes loaded to them NOR require
-> proprietary microcodes accessed to memory by DMA.  In
-> other word, don't buy winmodem nor DSL PCI adapters,
-> until those chipset manufacturers publish those
-> datasheets.
+>>>>> " " == Peter J Braam <braam@clusterfs.com> writes:
 
-The same reasoning goes for another reason. Some of the newest DSL PCI cards are
-in many respects winmodems at multimegabit speed levels, burning huge chunks
-of CPU on a pentium III processor even.
+     > Would the following also work?
 
-Alan
+     > - have a 32 bit counter: set inode->i_ino to count++
+
+That is exactly what iunique() does except that it also checks for
+uniqueness and allows you to specify a minimum value. Sooner or later
+your 32-bit counter will wrap round...
+
+     > - up the generation number each time the counter warps.
+
+     > Between boot cycles NFS could still get confused, that might be
+     > helped by setting the initial generation to the system time.
+
+Yep. That is what the 'fat' filesystem does.
+
+Cheers,
+  Trond

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285501AbRLGUSU>; Fri, 7 Dec 2001 15:18:20 -0500
+	id <S285506AbRLGUVb>; Fri, 7 Dec 2001 15:21:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285500AbRLGUSJ>; Fri, 7 Dec 2001 15:18:09 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:25350 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S285501AbRLGURy>; Fri, 7 Dec 2001 15:17:54 -0500
-Message-ID: <3C1123AB.50207@namesys.com>
-Date: Fri, 07 Dec 2001 23:16:43 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
-        ramon@thebsh.namesys.com, yura@namesys.com
-Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and benchmarks
-In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <E16CCn9-0000sC-00@starship.berlin> <3C10B7C7.6030602@namesys.com> <E16CM6V-0000t3-00@starship.berlin>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S285505AbRLGUVT>; Fri, 7 Dec 2001 15:21:19 -0500
+Received: from chunnel.redhat.com ([199.183.24.220]:54767 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S285506AbRLGUVA>; Fri, 7 Dec 2001 15:21:00 -0500
+Date: Fri, 7 Dec 2001 20:20:36 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>, Andi Kleen <ak@suse.de>,
+        Andreas Gruenbacher <ag@bestbits.at>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com,
+        Stephen Tweedie <sct@redhat.com>
+Subject: Re: [PATCH] Revised extended attributes interface
+Message-ID: <20011207202036.J2274@redhat.com>
+In-Reply-To: <20011205143209.C44610@wobbly.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011205143209.C44610@wobbly.melbourne.sgi.com>; from nathans@sgi.com on Wed, Dec 05, 2001 at 02:32:10PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+Hi,
 
->On December 7, 2001 01:36 pm, Hans Reiser wrote:
->http://innominate.org/~graichen/projects/lxr/source/include/linux/reiserfs_fs.h?v=v2.4#L1393 
->
->>> 1393 create a new node.  We implement S1 balancing for the leaf nodes
->>> 1394 and S0 balancing for the internal nodes (S1 and S0 are defined in
->>> 1395 our papers.)*/
->>>
->>How about I just explain it instead?  We preserve a criterion of nodes 
->>must be 50% full for internal nodes and criterion of no 3 nodes can be 
->>squeezed into 2 nodes for leaf nodes.
->>
->>A tree that satisfies the criterion that no N nodes can be squeezed into 
->>N-1 nodes is an SN tree.  I don't remember where Konstantin Shvachko 
->>published his paper on this, maybe it can be found.
->>
->
-><nit> Then shouldn't that be "S3 balancing for the leaf nodes and S2 
->balancing for the internal nodes"?
->
->--
->Daniel
->
->
-Yes, sorry, an SN tree has the property that at the end of balancing the 
-set of nodes within the sweep composed of nodes N to the left and N to 
-the right plus the node being balanced cannot be compressed into 2N nodes.
+On Wed, Dec 05, 2001 at 02:32:10PM +1100, Nathan Scott wrote:
+ 
+> Here is the revised interface.  I believe it takes into account
+> the issues raised so far - further suggestions are also welcome,
+> of course.
 
-My error.
+This is looking OK as far as EAs go.  However, there is still no
+mention of ACLs specifically, except an oblique reference to
+""system.posix_acl_access".  
 
-Hans
+Is there no consensus on this?  In previous proposals we've at least
+tried to deal with it to some extent.
 
-
-
+Cheers,
+ Stephen

@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbUEJSt6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbUEJSvW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbUEJSt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 14:49:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbUEJSt6
+	id S261236AbUEJSvW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 14:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbUEJSvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 14:49:58 -0400
-Received: from zero.aec.at ([193.170.194.10]:1039 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261206AbUEJSt4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 14:49:56 -0400
-To: Fabiano Ramos <ramos_fabiano@yahoo.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ptrace in 2.6.5
-References: <1UlcA-6lq-9@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 10 May 2004 20:49:39 +0200
-In-Reply-To: <1UlcA-6lq-9@gated-at.bofh.it> (Fabiano Ramos's message of
- "Mon, 10 May 2004 17:50:08 +0200")
-Message-ID: <m365b4kth8.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 10 May 2004 14:51:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2992 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261236AbUEJSvJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 14:51:09 -0400
+Date: Mon, 10 May 2004 19:51:07 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Paul Eggert <eggert@CS.UCLA.EDU>
+Cc: Jon Oberheide <jon@focalhost.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, bug-patch@gnu.org, bug-gnu-utils@gnu.org
+Subject: Re: [PATCH] [RFC] adding support for .patches and /proc/patches.gz
+Message-ID: <20040510185107.GD17014@parcelfarce.linux.theplanet.co.uk>
+References: <1084157289.7867.0.camel@latitude> <87oeowb029.fsf@penguin.cs.ucla.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87oeowb029.fsf@penguin.cs.ucla.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fabiano Ramos <ramos_fabiano@yahoo.com.br> writes:
+On Mon, May 10, 2004 at 11:37:34AM -0700, Paul Eggert wrote:
+> Jon Oberheide <jon@focalhost.com> writes:
+> 
+> > I'm CC'ing this to the GNU patch maintainers.  Hopefully they will have
+> > some input.
+> 
+> As I understand it, Solution 4 is an incompatible change to 'patch'
+> which would cause 'patch' to not conform to POSIX, the LSB, or to
+> widespread existing practice.  That's a pretty serious step, and I'm
+> not sure it's worth the aggravation.
+> 
+> Solution 3 would be to add an option to 'patch' to cause it to log the
+> patches into a file.  The basic idea seems like a worthwhile
+> improvement to 'patch', though (as you mention) it's more of a hassle
+> for users to remember the option.
+> 
+> Perhaps there's a better way to address the problem in a way that
+> maintains compatibility while still satisfying your needs.  For example,
+> if the kernel patches all contained a line like this at the start:
+> 
+> Patch-log: .patches
+> 
+> then 'patch' could log all the changes into the named file.  This
+> would conform to POSIX.
 
-> Hi All.
->
->      Is ptrace(), in singlestep mode, required to stop after a int 0x80?
->     When tracing a sequence like
->
-> 	mov ...
-> 	int 0x80
-> 	mov ....
->
->     ptrace would notify the tracer after the two movs, but not after the
-> int 0x80. I want to know if it is a bug or the expected behaviour.
+Not needed.
 
-What happens is that after the int 0x80 the CPU is in ring 0 (you
-don't get an trace event in that mode unless you use a kernel debugger). 
-Then when the kernel returns the last instruction executed before it is an 
-IRET. But the IRET is also executed still in ring 0 and you should not get 
-an event for it (you can not even access its code from user space).
+diff -erN dir1/file dir2/file
+--- dir1/file
++++ dir2/file
+1i
+lines
+.
 
-So it's expected behaviour.
-
--Andi
-
+will do just fine.  Remember that patch(1) can handle at least some ed
+scripts.

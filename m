@@ -1,82 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289069AbSAGBkF>; Sun, 6 Jan 2002 20:40:05 -0500
+	id <S289070AbSAGBnF>; Sun, 6 Jan 2002 20:43:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289071AbSAGBjz>; Sun, 6 Jan 2002 20:39:55 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:25425 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S289069AbSAGBjm>; Sun, 6 Jan 2002 20:39:42 -0500
-Date: Mon, 7 Jan 2002 02:38:54 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Jens Axboe <axboe@suse.de>, Matthias Hanisch <mjh@vr-web.de>,
-        Mikael Pettersson <mikpe@csd.uu.se>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 2.5.2 scheduler code for 2.4.18-pre1 ( was 2.5.2-pre performance degradation on an old 486 )
-Message-ID: <20020107023854.F1561@athlon.random>
-In-Reply-To: <20020106112129.D8673@suse.de> <Pine.LNX.4.40.0201061554410.933-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.40.0201061554410.933-100000@blue1.dev.mcafeelabs.com>; from davidel@xmailserver.org on Sun, Jan 06, 2002 at 03:59:05PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S289073AbSAGBnB>; Sun, 6 Jan 2002 20:43:01 -0500
+Received: from cptf-adsl.demon.co.uk ([62.49.1.93]:5779 "HELO
+	boatman.intrepid.co.uk") by vger.kernel.org with SMTP
+	id <S289070AbSAGBmT>; Sun, 6 Jan 2002 20:42:19 -0500
+Date: Mon, 7 Jan 2002 01:42:14 +0000 (GMT)
+From: Chris Pitchford <cpitchford@intrepid.co.uk>
+X-X-Sender: <cpitchford@boatman.intrepnet>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Ethernet/SCSI/PCI problems when enabling SMP on 2.4.17: VP6, 
+ aix7xxx& 3c595
+In-Reply-To: <3C38F077.32064893@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0201070135190.23157-100000@boatman.intrepnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 06, 2002 at 03:59:05PM -0800, Davide Libenzi wrote:
-> On Sun, 6 Jan 2002, Jens Axboe wrote:
-> 
-> > On Sat, Jan 05 2002, Davide Libenzi wrote:
-> > > > > (*) 100MHz 486DX4, 28MB ram, no L2 cache, two old and slow IDE disks,
-> > > > > small custom no-nonsense RedHat 7.2, kernels compiled with gcc 2.95.3.
-> > > >
-> > > > Is this ISA (maybe it has something to do with ISA bouncing)? Mine is:
-> > > >
-> > > > 486 DX/2 ISA, Adaptec 1542, two slow scsi disks and a self-made
-> > > > slackware-based system.
-> > > >
-> > > > Can you also backout the scheduler changes to verify this? I have a
-> > > > backout patch for 2.5.2-pre6, if you don't want to do this for yourself.
-> > >
-> > > There should be some part of the kernel that assume a certain scheduler
-> > > behavior. There was a guy that reported a bad  hdparm  performance and i
-> > > tried it. By running  hdparm -t  my system has a context switch of 20-30
-> > > and an irq load of about 100-110.
-> > > The scheduler itself, even if you code it in visual basic, cannot make
-> > > this with such loads.
-> > > Did you try to profile the kernel ?
-> >
-> > Davide,
-> >
-> > If this is caused by ISA bounce problems, then you should be able to
-> > reproduce by doing something ala
-> >
-> > [ drivers/ide/ide-dma.c ]
-> >
-> > ide_toggle_bounce()
-> > {
-> > 	...
-> >
-> > +	addr = BLK_BOUNCE_ISA;
-> > 	blk_queue_bounce_limit(&drive->queue, addr);
-> > }
-> >
-> > pseudo-diff, just add the addr = line. Now compare performance with and
-> > without your scheduler changes.
-> 
-> I fail to understand where the scheduler code can influence this.
-> There's basically nothing inside blk_queue_bounce_limit()
-> I made this patch for Andrea and it's the scheduler code for 2.4.18-pre1
-> Could someone give it a try on old 486s
 
-yes please (feel free to CC me on the answers), I'd really like to
-reduce the scheduler O(N) overhead to the number of the running tasks,
-rather than doing the recalculate all over the processes in the machine.
-O(1) scheduler would be even better of course, but the below would
-ensure not to hurt the 1 task running case, and it's way simpler to
-check for correctness (so it's easier to include it as a start).
 
-Andrea
+On Sun, 6 Jan 2002, Andrew Morton wrote:
+
+> Chris Pitchford wrote:
+> >
+> > Hi all,
+> >
+> > ....
+> >
+> > NETDEV WATCHDOG: eth0: transmit timed out
+> > eth0: transmit timed out, tx_status 00 status e000.
+> >   diagnostics: net 0c80 media 88c0 dma ffffffff.
+> > eth0: Updating statistics failed, disabling stats as an interrupt source.
+> >
+>
+> I've never seen that one before.  There's this comment in the source:
+>
+>         update_stats(ioaddr, dev);
+>         /* HACK: Disable statistics as an interrupt source. */                                    /* This occurs when we have the wrong media type! */
+>         if (DoneDidThat == 0  &&
+>             inw(ioaddr + EL3_STATUS) & StatsFull) {
+>             printk(KERN_WARNING "%s: Updating statistics failed, disabling "
+>                    "stats as an interrupt source.\n", dev->name);
+>
+> But it looks like you don't have the wrong media type?  Please check
+> this.
+>
+>
+> The 3c595 is ancient, and there are numerous reports of PCI bus
+> problems with it.  Fiddling with the PCI latency timers sometimes
+> helps.
+>
+> My advice: buy another NIC.  Even a ten-dollar rtl8139 will
+> perform better than the 3c595.  Sorry.
+
+
+I'm going to see if I can't get my hands on an intel card from work.. but
+my point was this does not happen when I run a UP processor kernel, only
+when SMP.. However, specifying "noapic" on the kernel cmdline dropped me
+back to the traditional 0-15 IRQ mappings and the problems disappeared.
+Does this mean it is an APIC problem with this VIA chipset? I like a
+challenge, I'll look at more kernel source!
+
+I also tried changing the latency settings in the BIOS from 32 to 64 as
+suggested, but my machine hard hung (possibly a SCSI problem since the
+tap drive was doing something at the time) and on a reboot my ext3 root
+file system (and it was raid-1 too ) was completely foobar'd. I'm
+currently restoring from a backup, hurray for DDS3! Note that this was NOT
+with the noapic option at the time. Still, win some, lose some. My first
+serious failure in 4 years! nice going really!
+
+Anyway, back to the point. It seems that these problems are as a result of
+having apic turned on. I'm going to try enabling the local-apic on
+uni-processors option and giving that a go with one CPU, see if the
+problem recurs. At the moment I really feel I'm grasping at straws and
+perhaps shouldn't be fiddling with kernel code on a fileserver :)
+
+Thanks for all the help though. If any more suggestions of things I can
+look at it'd be much appreciated!
+
+Cheers
+
+Chris
+
+
+
+
+

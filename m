@@ -1,80 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262803AbTJJNjY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 09:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbTJJNjY
+	id S262570AbTJJNlg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 09:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbTJJNlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 09:39:24 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:41415 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262803AbTJJNjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 09:39:22 -0400
-Subject: Re: Linksys/Cisco GPL Violations
-From: David Woodhouse <dwmw2@infradead.org>
-Reply-To: dwmw2@infradead.org
-To: Florian Schirmer <jolt@tuxbox.org>
-Cc: linux-kernel@vger.kernel.org, David Turner <novalis@fsf.org>,
-       andrew@mikl.as, rob@nocat.net
-In-Reply-To: <023501c38f32$2b83caa0$9602010a@jingle>
-References: <1064859766.20847.33983.camel@banks>
-	 <1065428944.22491.169.camel@hades.cambridge.redhat.com>
-	 <01f301c38f2f$b1a7e0b0$9602010a@jingle>
-	 <1065791790.24015.238.camel@hades.cambridge.redhat.com>
-	 <023501c38f32$2b83caa0$9602010a@jingle>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1065793144.24015.274.camel@hades.cambridge.redhat.com>
+	Fri, 10 Oct 2003 09:41:36 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:63498 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S262570AbTJJNlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 09:41:35 -0400
+Date: Fri, 10 Oct 2003 17:41:09 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: USB and DMA on Alpha with 2.6.0-test7
+Message-ID: <20031010174109.A12022@jurassic.park.msu.ru>
+References: <yw1xu16hbg75.fsf@users.sourceforge.net> <20031010144710.A1396@jurassic.park.msu.ru> <20031010133104.GE28224@mail.shareable.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
-Date: Fri, 10 Oct 2003 14:39:04 +0100
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Mail-From: dwmw2@infradead.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
-X-Pentafluge-Mail-From: <dwmw2@infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20031010133104.GE28224@mail.shareable.org>; from jamie@shareable.org on Fri, Oct 10, 2003 at 02:31:04PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-10-10 at 15:26 +0200, Florian Schirmer wrote:
-> The ethernet and wireless driver where never linked into the kernel.
->  So it should be okay if they only distribute the module.
+On Fri, Oct 10, 2003 at 02:31:04PM +0100, Jamie Lokier wrote:
+> Isn't the device's dma_mask set equal to the controller's dma_mask
+> automatically?
 
-That is true, according to the GPL, _only_ if the modules are
-distributed as separate works. If they are part of a collective work
-which is based on the kernel (note, not a _derived_ work but a
-_collective_ work) then they must be released under the terms of the
-GPL.
+You are right, just check dma_mask of the device.
 
-This is a _different_ issue to the question of whether a module is
-indeed a derived work, and it's _far_ more clear-cut.
+Anyway, as it is, usbnet driver won't work on i386 with
+more than 4G of RAM and 32-bit DMA USB controller.
 
-Ask yourself the following questions:
-
-1. The wireless and Ethernet driver modules are distributed within
-   a cramfs file system in a flash image on a chip soldered to the
-   board of the device.
-
-   Are they being distributed 'as separate works'?
-
-2. The fundamental mode of operation of these devices is to
-   receive network packets from one of the drivers, pass them
-   through the Linux kernel routing or bridging code, and then
-   back out through another of the network interfaces. All 
-   three parts of this are indispensable and the product is 
-   useless without any one part.
-
-   A) Does this form a whole which is a derived work based on the
-      Linux kernel?
-
-   B) Does this form a whole which is a collective work?
-
-   C) Is this collective work based, in part, on the Linux kernel?
-
-3. Refer back to the facts in question 1. Is this 'mere aggregation
-   of a work not based on the [kernel] on a volume of a storage or
-   distribution medium'?
-
-Now, having answered those questions, reread the final three paragraphs
-of §2 of the GPL.
-
--- 
-dwmw2
-
+Ivan.

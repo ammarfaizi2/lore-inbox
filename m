@@ -1,75 +1,52 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S156610AbPLNLKL>; Tue, 14 Dec 1999 06:10:11 -0500
-Received: by vger.rutgers.edu id <S156609AbPLNLDk>; Tue, 14 Dec 1999 06:03:40 -0500
-Received: from oxmail2.ox.ac.uk ([163.1.2.1]:42235 "EHLO oxmail.ox.ac.uk") by vger.rutgers.edu with ESMTP id <S156681AbPLNK7E>; Tue, 14 Dec 1999 05:59:04 -0500
-Subject: Compartments (was Re: Per-Processor Data Page)
-In-Reply-To: <199912140102.RAA09517@griffin.engr.sgi.com> from Scott Lurndal at "Dec 13, 1999 05:02:30 pm"
+Received: by vger.rutgers.edu via listexpand id <S156759AbPLPGSB>; Thu, 16 Dec 1999 01:18:01 -0500
+Received: by vger.rutgers.edu id <S156541AbPLPGG4>; Thu, 16 Dec 1999 01:06:56 -0500
+Received: from amdext2.amd.com ([163.181.251.1]:37185 "EHLO amdext2.amd.com") by vger.rutgers.edu with ESMTP id <S156528AbPLPF6R>; Thu, 16 Dec 1999 00:58:17 -0500
+From: nathan.zook@amd.com
+Message-ID: <AB4CB1CC6547D21197B00008C7F48FB402C10F17@txexmta0.amd.com>
 To: linux-kernel@vger.rutgers.edu
-Date: Tue, 14 Dec 1999 10:59:01 +0000 (GMT)
-From: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
-X-Mailer: ELM [version 2.4ME+ PL54 (25)]
+Subject: [HUMOR]:  RE: Ok, making ready for pre-2.4 and code-freeze..
+Date: Wed, 15 Dec 1999 23:58:07 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <E11xpfZ-0006ti-00@sable.ox.ac.uk>
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Scott Lurndal writes:
-> ------ From Andi Kleen <ak@suse.de>
-> 
-> > On Thu, Dec 09, 1999 at 04:32:31PM -0600, Bret Indrelee wrote:
-> > > If processes can get a highly accurate time value from some sort of global
-> > > clock, it allows a pair of processes to create a covert channel for passing
-> > > information. The less secure program monitors the time variences of the
-> > > high-security program in order to get information about or from them.
-> 
-> > Linux simply does not support real compartmentation and probably never will.
-> 
-> While the first part is true, I really hope that the latter isn't.
+The neophyte stood in wide-eyed wonder, his jaw slack.  He had heard of the
+power of the Great Wizard, but had never seen it.  Whereas before in the
+magical kingdom, the mages and wizards had hissed forth curses against each
+other, or hidden away in their towers so that none knew of their doings,
+there was now assembling a magical army greater than any he had conceived.
+Now every wizard and mage reported in the state of their latest
+incantations, and the drone of their tidings almost matched that of the
+banshees which had wailed before.
 
-I'm in the middle of adding Mandatory Access Control support to the
-kernel and it's turning out to be mostly easier than I expected. I'm
-concentrating on the integrity/compartment side (Biba model) and
-leaving out sensitivity (Bell-LaPadula) labels since they're not
-really useful in real life. Currently, tasks, sockets, network
-packets and filesystems (super blocks) are marked with a mac_label
-(grade, compartment, flags) triple and tasks can only see other tasks
-and filesystems with appropriate labels. IP firewall rules can mark
-incoming packets with labels and drop outgoing packets if the sending
-task isn't allowed access to a label.
+The neophyte gathered his wits enough to say to the Great Wizard "Where did
+you learn this incantation, and why did you wait so to utter it?  Your
+kingom has suffered these months of stife.  Why not utter it more often?"
+For he knew that it must have been uttered in the past, and that surely it
+would be uttered again.
 
-One useful configuration allows one Linux box to behave like many
-virtual machines, each can only see their own filesystems (and any
-system-wide filesystems--it's more flexible than chroot) and their own
-tasks (so "ps auxw" only shows up their compartment/virtual machine
-and they can't communicate directly with other compartments).
-A pseudo-filesystem lets you redirect, say, /etc to different
-subdirectories based on the task's label so that each compartment
-sees its own /etc/*.conf etc. The overall admin, though, can see all
-process and all filesystems which makes it much easier to look after
-(apply updates etc.) than lots of smaller machines. I'm currently
-fighting my way through all the marvellously flexible routing code so
-that you can set outgoing routes based on mac_labels: then even with
-INADDR_ANY sockets you'll get outgoing data stamped with the
-compartment's own IP address (or you can allocate different labels
-differing access to networks/bandwidth/etc.
+The Great Wizard smiled slightly.  For he knew that this was no ordinary
+incantation.  Powerful in its simplicity, it exhausted the mystic energies
+in the kingdom.  To utter it prematurely would wreck the incantations of
+lesser mages--incantations he needed for this, his latest golem.  The golem
+would have to go into the world to and fight in battle mostly alone.  Once
+unleashed, he dared not aid it with powerful spells, lest the uncertain
+engeries of battle cause the golem to collapse.  Only minor spells and
+cantrips could be added.  So he had waited while all the mages prepared.
+When the time was right, and ONLY when the time was right, might he utter
+the Great Incantation and, summon all the energies in his kingdom, finish
+this, his greatest golem.
 
-The basics work but I've just done a rewrite (I'd called it "Linux
-zones" but I've made the labels match the Biba model properly now that
-so it was worth calling it mac_label instead). Patches and stuff will
-be available on the
-    http://users.ox.ac.uk/~mbeattie/linux-kernel.html
-page soonish. You can get real-life useful practical configurations
-without having mac labels at the file level but I may add that too
-eventually (except that needs hacking of real current filesystems
-rather than a transparent add-on).
+The neophyte was not suprised that the Great Wizard had not answered.  That
+night, however, he wrote down the words, in code, as he was taught, lest he
+unleash some fearful magic on himself.  He had learned enough to discern
+which words were essential to incantations, and which were ornamental.  His
+entry that night was two words:  xlwv uivvav
 
---Malcolm
+Nathan
 
--- 
-Malcolm Beattie <mbeattie@sable.ox.ac.uk>
-Unix Systems Programmer
-Oxford University Computing Services
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,56 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131317AbRDNI4O>; Sat, 14 Apr 2001 04:56:14 -0400
+	id <S131323AbRDNJBd>; Sat, 14 Apr 2001 05:01:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131323AbRDNI4E>; Sat, 14 Apr 2001 04:56:04 -0400
-Received: from p3EE37582.dip.t-dialin.net ([62.227.117.130]:3827 "EHLO
-	infinity.bzimage.de") by vger.kernel.org with ESMTP
-	id <S131317AbRDNIzz>; Sat, 14 Apr 2001 04:55:55 -0400
-Date: Sat, 14 Apr 2001 10:55:52 +0200
-From: Norbert Tretkowski <nobse@debian.org>
-To: Linux Kernel Mailingliste <linux-kernel@vger.kernel.org>
-Subject: can't compile -ac6
-Message-ID: <20010414105552.A15368@infinity.bzimage.de>
-Mail-Followup-To: Linux Kernel Mailingliste <linux-kernel@vger.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vkogqOf2sHV7VnPd"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-Organization: defunct
-Mail-Copies-To: never
+	id <S131459AbRDNJBY>; Sat, 14 Apr 2001 05:01:24 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:29193 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131323AbRDNJBL>; Sat, 14 Apr 2001 05:01:11 -0400
+Date: Sat, 14 Apr 2001 02:00:52 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH(?): linux-2.4.4-pre2: fork should run child first
+In-Reply-To: <200104140758.AAA06084@adam.yggdrasil.com>
+Message-ID: <Pine.LNX.4.31.0104140136520.25138-100000@cesium.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.3-ac6/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686    -DEXPORT_SYMTAB -c sys.c
-sys.c: In function `sys_gethostname': /usr/src/linux-2.4.3-ac6/include/asm/rwsem-xadd.h:153: inconsistent operand constraints in an `asm'
-make[2]: *** [sys.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.4.3-ac6/kernel'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.3-ac6/kernel'
-make: *** [_dir_kernel] Error 2
+On Sat, 14 Apr 2001, Adam J. Richter wrote:
+>
+> [...]
+> >If it turns out to be beneficial to run the child first (you
+> >can measure this), why not leave everything the same as it is
+> >now but have do_fork() "switch threads" internally ?
+>
+> 	That is an elegant idea.
 
-I'm using gcc 3.0 (20010402) and had no problems with 2.4.3-ac4.
+I doubt it. It sounds like one of those "cool value" ideas that are
+actually really stupid except they sound cool because you have to think
+about the twists and turns.
 
+So yes, you could "give" your TLB state to the child, and take the childs
+state yourself (eventually, when you re-schedule back to the parent).
+They're supposed to be the same, after all. And by doing so, you could do
+a "switch_to()" to the child, without actually switching mm state at all.
+Fine. Cool TLB optimization.
 
-Norbert
+Except you don't actually _have_ any TLB state to optimize away, as you
+just invalidated it anyway when you did the COW thing on the page tables.
+So you would only optimize away a "mov xxx,%cr3" - which is the least
+expensive part of switching TLB's. You would NOT optimize away any actual
+TLB reloads.
 
---vkogqOf2sHV7VnPd
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+And oh, btw, it also means that you'd better make sure that /proc knows
+about the fact that the MM state is no longer yours, but your childs, so
+that a concurrent "ps" doesn't mess us. Maybe it works as-is, and maybe it
+doesn't.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+And what if the guy who did the fork() had done a clone(CLONE_MM) before,
+or was the child of a vfork'ing parent?  We can't give the mm state to the
+child, because we're sharing it with somebody else who expects to share it
+with the _parent_. Oh, and the co-thread, btw, might be _using_ those page
+tables on another CPU at any time.
 
-iD8DBQE62BCYr/RnCw96jQERAjdbAKCO3uQiFCNTAWbdqSXA8fBRS6MzfQCdHOH7
-aKwi80uIXYn78OemB+2qiSM=
-=+oDH
------END PGP SIGNATURE-----
+And oh, there's the small special case of "init", which uses a fork() to
+create the first user-mode mm state, so we'd have to special-case that one
+too - we can't let "init_mm" go to a user process. So at the very least it
+would have to be conditional on both that and the thread case.
 
---vkogqOf2sHV7VnPd--
+There's a ton of reasons why you _really_ don't want to play games here.
+Switching contexts is tricky enough as it is. Let's not try to be "clever"
+about it.
+
+So the best you could do is to do a full context switch to the child.
+Which setting "current->need_resched = 1" will already end up doing. Plus
+it does the right thing on SMP.
+
+		Linus
+

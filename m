@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262811AbTE2UwA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 16:52:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbTE2Uv7
+	id S262855AbTE2U4E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 16:56:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbTE2U4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 16:51:59 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:31495 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262776AbTE2Uv5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 16:51:57 -0400
-Subject: Re: 2.5.70-mm2: NCR_D700.c doesn't compile
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20030529205742.GI5643@fs.tum.de>
-References: <20030529012914.2c315dad.akpm@digeo.com> 
-	<20030529205742.GI5643@fs.tum.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 29 May 2003 17:01:56 -0400
-Message-Id: <1054242118.1819.465.camel@mulgrave>
+	Thu, 29 May 2003 16:56:03 -0400
+Received: from holomorphy.com ([66.224.33.161]:25994 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262855AbTE2U4C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 16:56:02 -0400
+Date: Thu, 29 May 2003 14:09:08 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Morten Helgesen <morten.helgesen@nextframe.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: list_head debugging patch
+Message-ID: <20030529210908.GD8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Morten Helgesen <morten.helgesen@nextframe.net>,
+	linux-kernel@vger.kernel.org
+References: <20030529130807.GH19818@holomorphy.com> <200305292158.52311.morten.helgesen@nextframe.net> <20030529201337.GC8978@holomorphy.com> <200305292303.19946.morten.helgesen@nextframe.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305292303.19946.morten.helgesen@nextframe.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-05-29 at 16:57, Adrian Bunk wrote:
-> It seems the following compile error comes from Linus' tree:
+On Thursday 29 May 2003 22:13, William Lee Irwin III wrote:
+>> Same thing; nuke the __list_head_check() check in list_empty()
+>> please.
 
-Yes, I already have the fix (which is to add the correct argument to the
-function).
+On Thu, May 29, 2003 at 11:03:19PM +0200, Morten Helgesen wrote:
+> Ok, after having nuked __list_head_check() in list_empty() I can`t 
+> seem to trigger any more list corruption on this box.
 
-James
+Well, that's a hopeful sign; at some point maybe IDE will stop oopsing
+on me with it.
 
 
+-- wli

@@ -1,73 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265276AbSLWJPB>; Mon, 23 Dec 2002 04:15:01 -0500
+	id <S265446AbSLWJSq>; Mon, 23 Dec 2002 04:18:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265446AbSLWJPA>; Mon, 23 Dec 2002 04:15:00 -0500
-Received: from mail.gmx.net ([213.165.65.60]:46232 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S265276AbSLWJO7>;
-	Mon, 23 Dec 2002 04:14:59 -0500
-Date: Mon, 23 Dec 2002 10:23:04 +0100
-To: linux-kernel@vger.kernel.org
-Subject: compile error in isdn_ppp_mp.h (kernel 2.5.52)
-Message-ID: <20021223092303.GB4995@mob.wid>
+	id <S265603AbSLWJSq>; Mon, 23 Dec 2002 04:18:46 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:41196 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265446AbSLWJSp>;
+	Mon, 23 Dec 2002 04:18:45 -0500
+Date: Mon, 23 Dec 2002 01:21:05 -0800 (PST)
+Message-Id: <20021223.012105.52767427.davem@redhat.com>
+To: rusty@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Embed __this_module in module itself.
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021223084155.8C2D22C053@lists.samba.org>
+References: <20021223084155.8C2D22C053@lists.samba.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
-Content-Disposition: inline
-x-gpg-fingerprint: 717B AE57 49B3 410F A733  FE6A 2D43 E1E3 CF28 6A67
-x-gpg-key: wwwkeys.de.pgp.net
-From: Felix Triebel <ernte23@gmx.de>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Rusty Russell <rusty@rustcorp.com.au>
+   Date: Mon, 23 Dec 2002 19:38:41 +1100
 
---cvVnyQ+4j833TQvp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+   Please check out this patch, which embeds the module structure into
+   the module itself (in ".gnu.linkonce.this_module").  Slight
+   simplification, and gives Dave that page back, as I promised.
 
-Hi,
-
-compiling kernel 2.5.52 stops with this:
-
-gcc -Wp,-MD,drivers/isdn/i4l/.isdn_ppp.o.d -D__KERNEL__ -Iinclude -Wall -Ws=
-trict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe =
--mpreferred-stack-boundary=3D2 -march=3Di686 -malign-functions=3D4 -Iarch/i=
-386/mach-generic -fomit-frame-pointer -nostdinc -iwithprefix include -DMODU=
-LE   -DKBUILD_BASENAME=3Disdn_ppp -DKBUILD_MODNAME=3Disdn   -c -o drivers/i=
-sdn/i4l/isdn_ppp.o drivers/isdn/i4l/isdn_ppp.c
-In file included from drivers/isdn/i4l/isdn_ppp.c:22:
-drivers/isdn/i4l/isdn_ppp_mp.h: In function `ippp_mp_xmit':
-drivers/isdn/i4l/isdn_ppp_mp.h:47: too many arguments to function `ippp_xmi=
-t'
-make[4]: *** [drivers/isdn/i4l/isdn_ppp.o] error 1
-make[3]: *** [drivers/isdn/i4l] error 2
-make[2]: *** [drivers/isdn] error 2
-make[1]: *** [drivers] error 2
-make: *** [modules] error 2
-
-Is this a known problem?
-I just wanted to test 2.5.
-
-regards,
-Felix T.
-
---=20
-
-/"\  ASCII RIBBON CAMPAIGN
-\ /  AGAINST HTML MAIL
- X   AND POSTINGS  :)
-/ \  http://www.dcoul.de/
-
---cvVnyQ+4j833TQvp
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-
-iD8DBQE+BtX3LUPh488oamcRAkbRAJ42rv8XM/3XTfIDHGO7GDHhfX5mswCdFEqB
-7chWJ269Wzi50DPmUH1aSDg=
-=fQJ/
------END PGP SIGNATURE-----
-
---cvVnyQ+4j833TQvp--
+Looks like the right idea to me Rusty.

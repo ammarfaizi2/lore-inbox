@@ -1,50 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbTJFH4f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 03:56:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbTJFH4f
+	id S262789AbTJFHyM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 03:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbTJFHyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 03:56:35 -0400
-Received: from pop.gmx.net ([213.165.64.20]:62440 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262794AbTJFH4d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 03:56:33 -0400
-X-Authenticated: #1033915
-Message-ID: <3F812027.4010609@GMX.li>
-Date: Mon, 06 Oct 2003 09:56:23 +0200
-From: Jan Schubert <Jan.Schubert@GMX.li>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031005
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: linux-kernel@vger.kernel.org, dz@debian.org
-Subject: Re: 2.6.0_test6: CONFIG_I8K produces wrong/no keycodes for special
- buttons
-References: <3F7E9E27.20500@GMX.li> <200310060237.h962baCE012938@turing-police.cc.vt.edu>
-In-Reply-To: <200310060237.h962baCE012938@turing-police.cc.vt.edu>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Oct 2003 03:54:12 -0400
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:56206 "EHLO
+	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S262789AbTJFHyI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 03:54:08 -0400
+Date: Mon, 6 Oct 2003 08:53:59 +0100
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Devin Henderson <linux@devhen.com>, Pauli Borodulin <boro@fixel.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: SiI3112 DMA? (2.6.0-test6)
+Message-ID: <20031006075359.GQ9052@carfax.org.uk>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	Andre Hedrick <andre@linux-ide.org>,
+	Devin Henderson <linux@devhen.com>,
+	Pauli Borodulin <boro@fixel.org>, linux-kernel@vger.kernel.org
+References: <3F80D5BC.4040004@devhen.com> <Pine.LNX.4.10.10310052225350.21746-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="4ECF1u7dKBoUGhe3"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10310052225350.21746-100000@master.linux-ide.org>
+X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+X-GPG-Key: 1C335860
+X-Parrot: It is no more. It has joined the choir invisible.
+X-IRC-Nicks: hugo darksatanic
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
 
->On Sat, 04 Oct 2003 12:17:11 +0200, Jan Schubert <Jan.Schubert@GMX.li>  said:
->  
->
->>There are 4 special buttons on dell-laptops which you could only get to 
->>work using CONFIG_I8K.
->>    
->>
->
->I'm assuming you're talking about the Inspiron line of laptops?  The Latitude
->series doesn't have said 4 buttons (or at least on my Latitude C840, there are
->no such buttons)
->  
->
-I'm using a Dell Inspiron i8200.
+--4ECF1u7dKBoUGhe3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Jan
+On Sun, Oct 05, 2003 at 10:29:40PM -0700, Andre Hedrick wrote:
+> 
+> I have a scheduled fix prepared for release and review by SiI monday
+> morning 9AM Pacific time.  Once it is cleared by SiI, it will be released
+> out to the masses.
 
+   That's good news. Thank you.
+
+> Will attempt to address the mod15b phy issues
+
+   mod15b phy? Me simple idiot. Me no understand. :)
+
+   Is that the PATA/SATA converter that the last poster mentioned? Or
+something else?
+
+   Hugo.
+
+-- 
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+       --- The early bird gets the worm,  but the second mouse ---       
+                            gets the cheese.                             
+
+--4ECF1u7dKBoUGhe3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/gR+WssJ7whwzWGARAg6JAJ9gXZm9LEJpFNemuch/kCxi0uCpGwCdGvv5
+1JErPqRbNFqCDK/cUkDX2ww=
+=iqDv
+-----END PGP SIGNATURE-----
+
+--4ECF1u7dKBoUGhe3--

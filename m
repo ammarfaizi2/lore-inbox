@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266391AbUIMIL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266366AbUIMIPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266391AbUIMIL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 04:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266366AbUIMIKu
+	id S266366AbUIMIPn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 04:15:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUIMIPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 04:10:50 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34574 "EHLO
+	Mon, 13 Sep 2004 04:15:43 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38926 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266364AbUIMIKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 04:10:30 -0400
-Date: Mon, 13 Sep 2004 09:10:22 +0100
+	id S266366AbUIMIPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 04:15:38 -0400
+Date: Mon, 13 Sep 2004 09:15:34 +0100
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: akpm@osdl.org, spyro@f2s.com, linux390@de.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] irq_enter/irq_exit consolidation
-Message-ID: <20040913091022.A27423@flint.arm.linux.org.uk>
-Mail-Followup-To: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
-	spyro@f2s.com, linux390@de.ibm.com, linux-kernel@vger.kernel.org
-References: <20040912112554.GA32550@lst.de> <20040912124448.A13676@flint.arm.linux.org.uk> <20040912155720.34b188d7.davem@davemloft.net>
+To: Dan Kegel <dank@kegel.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fix allnoconfig on arm with small tweak to kconfig?
+Message-ID: <20040913091534.B27423@flint.arm.linux.org.uk>
+Mail-Followup-To: Dan Kegel <dank@kegel.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <414551FD.4020701@kegel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040912155720.34b188d7.davem@davemloft.net>; from davem@davemloft.net on Sun, Sep 12, 2004 at 03:57:20PM -0700
+In-Reply-To: <414551FD.4020701@kegel.com>; from dank@kegel.com on Mon, Sep 13, 2004 at 12:53:33AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 12, 2004 at 03:57:20PM -0700, David S. Miller wrote:
-> On Sun, 12 Sep 2004 12:44:48 +0100
-> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> 
-> > This guarantee must also exist on every other architecture, otherwise:
-> > 
-> > > ===== include/linux/hardirq.h 1.1 vs edited =====
-> > > --- 1.1/include/linux/hardirq.h	2004-09-08 08:32:57 +02:00
-> > > +++ edited/include/linux/hardirq.h	2004-09-11 21:26:28 +02:00
-> > > +#define irq_exit()						\
-> > > +do {								\
-> > > +	preempt_count() -= IRQ_EXIT_OFFSET;			\
-> > 
-> > would be buggy - it's an inherently non-atomic operation.
-> 
-> It works out actually, if we take an interrupt in the middle
-> of the operation, that's fine because the preemption count
-> will be precisely the same as we first read it by the time
-> we return from that interrupt, work out some example cases
-> as I think that makes it easier to understand.
+On Mon, Sep 13, 2004 at 12:53:33AM -0700, Dan Kegel wrote:
+> 'make allnoconfig' generates a broken .config on arm because
+> none of the boolean CPU types get selected.
+> ARCH_RPC *does* get selected ok, and I can make CPU_SA110 the
+> default if ARCH_RPC, but that doesn't help, since allnoconfig
+> sets all booleans that are exposed to the user to false, so
+> CPU_SA110 remains false.
 
-I realise that, and it's precisely why I wrote the sentence following
-the one you quoted above.
+allnoconfig is broken.  It doesn't generate a legal configuration on
+this platform.
 
-However, ARM ain't buggy whatever.
+There are cases where you have the choice of selecting several options
+and you may select one or more.  Zero options selected is not valid.
+Unfortunately, Kconfig does not provide a way to express this.
+
+> I tried it (see patch below), but couldn't get it to work in first
+> few tries.  Can someone who understands kconfig have a look?
+
+I don't think hacking around allnoconfig works - it means that we
+have to decide on a default for every configuration.  ARCH_RPC is
+only one such small case.  There's loads more.
 
 -- 
 Russell King

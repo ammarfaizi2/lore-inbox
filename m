@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275942AbSIUUOM>; Sat, 21 Sep 2002 16:14:12 -0400
+	id <S275939AbSIUUSt>; Sat, 21 Sep 2002 16:18:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275943AbSIUUOM>; Sat, 21 Sep 2002 16:14:12 -0400
-Received: from mail.cogenit.fr ([195.68.53.173]:33005 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S275942AbSIUUOL>;
-	Sat, 21 Sep 2002 16:14:11 -0400
-Date: Sat, 21 Sep 2002 22:19:11 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       msinz@wgate.com
-Subject: Re: [PATCH] kernel 2.4.19 & 2.5.38 - coredump sysctl
-Message-ID: <20020921221911.C15732@fafner.intra.cogenit.fr>
-References: <3D8B87C7.7040106@wgate.com.suse.lists.linux.kernel> <3D8B8CAB.103C6CB8@digeo.com.suse.lists.linux.kernel> <3D8B934A.1060900@wgate.com.suse.lists.linux.kernel> <3D8B982A.2ABAA64C@digeo.com.suse.lists.linux.kernel> <p73bs6stfv8.fsf@oldwotan.suse.de> <3D8BAEDC.ED943632@digeo.com> <20020921014735.A28162@wotan.suse.de>
+	id <S275940AbSIUUSt>; Sat, 21 Sep 2002 16:18:49 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:37908 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S275939AbSIUUSt>;
+	Sat, 21 Sep 2002 16:18:49 -0400
+Date: Sat, 21 Sep 2002 22:23:53 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.37 won't run X?
+Message-ID: <20020921202353.GA15661@win.tue.nl>
+References: <20020921161702.GA709@iucha.net> <597384533.1032600316@[10.10.2.3]> <20020921185939.GA1771@iucha.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020921014735.A28162@wotan.suse.de>; from ak@suse.de on Sat, Sep 21, 2002 at 01:47:35AM +0200
-X-Organisation: Marie's fan club - II
+In-Reply-To: <20020921185939.GA1771@iucha.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> :
-> On Fri, Sep 20, 2002 at 04:27:24PM -0700, Andrew Morton wrote:
-[...]
-> > Oh sure, I agree that it's a useful feature.  But I don't agree that
-> > we need to allow users to specify how the final filename is pasted
-> > together.  Just give them host-uid-gid-comm.core.  ie: everything.
-> 
-> That wouldn't support the Dr.Watson thing.
+On Sat, Sep 21, 2002 at 01:59:39PM -0500, Florin Iucha wrote:
 
-Time to upgrade to directory notification enabled Dr.Watson ?
+> X is not locked up, as it eats all the CPU. And 2.5.36 works just fine.
 
--- 
-Ueimor
+I noticed that the pgrp-related behaviour of some programs changed.
+Some programs hang, some programs loop. The hang occurs when they
+are stopped by SIGTTOU. The infinite loop occurs when they catch SIGTTOU
+(and the same signal is sent immediately again when they leave the
+signal routine).
+Have not yet investigated details.
+

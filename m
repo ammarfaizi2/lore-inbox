@@ -1,93 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267421AbUBSXhs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 18:37:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267578AbUBSXhs
+	id S267441AbUBSXkn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 18:40:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267585AbUBSXkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 18:37:48 -0500
-Received: from dp.samba.org ([66.70.73.150]:23249 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S267421AbUBSXhg (ORCPT
+	Thu, 19 Feb 2004 18:40:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:31946 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267441AbUBSXkc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 18:37:36 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Feb 2004 18:40:32 -0500
+Date: Thu, 19 Feb 2004 15:42:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Gertjan van Wingerde <gwingerde@home.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ext3 and/or SCSI bug?
+Message-Id: <20040219154218.70d63704.akpm@osdl.org>
+In-Reply-To: <200402192011.40854.gwingerde@home.nl>
+References: <200402192011.40854.gwingerde@home.nl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16437.18605.71269.750607@samba.org>
-Date: Fri, 20 Feb 2004 10:37:17 +1100
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Jamie Lokier <jamie@shareable.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
-In-Reply-To: <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0402181422180.2686@home.osdl.org>
-	<Pine.LNX.4.58.0402181427230.2686@home.osdl.org>
-	<16435.60448.70856.791580@samba.org>
-	<Pine.LNX.4.58.0402181457470.18038@home.osdl.org>
-	<16435.61622.732939.135127@samba.org>
-	<Pine.LNX.4.58.0402181511420.18038@home.osdl.org>
-	<20040219081027.GB4113@mail.shareable.org>
-	<Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org>
-	<20040219163838.GC2308@mail.shareable.org>
-	<Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org>
-	<20040219182948.GA3414@mail.shareable.org>
-	<Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: tridge@samba.org
-From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Gertjan van Wingerde <gwingerde@home.nl> wrote:
+>
+> Below is an part of my dmesg output that I captured when all of a sudden one
+> of my filesystems became mounted read-only (while some heavy reading/
+> writing was being performed to that filesystem).
+> 
+> Can anyone explain to me what is going on here, and why this is happening 
+> to me about every 10 days.
 
-I'm probably just thicker than a complete set of superman comics, and
-probably haven't had enough coffee this morning, but I'm still trying
-to understand exactly how much this is going to gain us.
+I don't know why this:
 
-If I understand it, your suggestion gives us:
+>  EXT3-fs error (device sdb8): ext3_free_blocks: bit already cleared for block 1142880
+>  Aborting journal on device sdb8.
 
- - a way of telling if a directory is fully cached in the dcache
- - a way of scanning that full cache with whatever braindead
-   comparison algorithm we want
+is occurring.  It indicates that the filesystem metadata is corrupted.  You
+should force a fsck to fix it up.  It could be a hardware problem (disk,
+cable, controller, power supply, or even main memory).
 
-At first I didn't understand the scanning part at all, because I
-didn't realise that you could scan just the dentries associated with a
-single directory. Al was kind enough to correct me on that.
+>  bad: scheduling while atomic!
+>  Call Trace:
+>   [<c012049e>] schedule+0x68e/0x6a0
 
-What your proposal doesn't give us is case-insensitive indexing into
-the dcache. The reason the dcache is such a great thing in Linux is
-that it is indexed by name, so you rarely do any scanning at all, and
-even the case where you have never seen the name before we avoid
-scanning because fast filesystems also use a "indexed by name"
-scheme. Now maybe I'm just over-obsessed about this scanning stuff and
-I'd need some profiles to see how much it would cost (although the
-cost as the directory size gets really large seems obvious).
+This part is caused by a minor bug.
 
-The really interesting part of your proposal is that it opens up the
-possibility of a coherence mechanism between a cache that is indexed
-by some windows like scheme and the real dcache. If those two bits
-could be used by the windows_braindead module to determine if its own
-separately indexed cache was current then we'd really be getting
-somewhere. 
 
-If we didn't do the separate cache at all, then your proposal still
-should hugely reduce the number of times we ask the filesystem for a
-list of files in the directory, although as those calls are already
-cached at the block device level what I suppose it does is move the
-cache up a level. I don't have a clear idea of how much faster it is
-to do this scanning in the dcache versus in the filesystem in the
-hot-cache case, so I am not clear on how much this wins us. I'm
-prepared to believe it could be quite significant though.
 
-I really need more coffee-and-think time on this, plus maybe some
-quick and dirty profiling tests to see what the various costs are
-like. 
+ext3_error() sleeps, so don't call it with the lock held.
 
-While I'm here I should point out that I'm thinking of the 2.7/2.8
-kernel (or even 3.0) for any change, not 2.6. Maybe thats obvious
-anyway, but the corresponding userspace changes in Samba definately
-won't be happening in Samba 3.0, so this is a Samba 4.0 thing, which
-is a fair way off. This means we've got plenty of time to try some
-experiments and see what schemes really help.
 
-Cheers, Tridge
+---
+
+ 25-akpm/fs/ext3/balloc.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
+
+diff -puN fs/ext3/balloc.c~ext3-schedule-inside-lock-fix fs/ext3/balloc.c
+--- 25/fs/ext3/balloc.c~ext3-schedule-inside-lock-fix	Thu Feb 19 15:37:04 2004
++++ 25-akpm/fs/ext3/balloc.c	Thu Feb 19 15:38:16 2004
+@@ -239,9 +239,10 @@ do_more:
+ 		BUFFER_TRACE(bitmap_bh, "clear bit");
+ 		if (!ext3_clear_bit_atomic(sb_bgl_lock(sbi, block_group),
+ 						bit + i, bitmap_bh->b_data)) {
+-			ext3_error (sb, __FUNCTION__,
+-				      "bit already cleared for block %lu", 
+-				      block + i);
++			jbd_unlock_bh_state(bitmap_bh);
++			ext3_error(sb, __FUNCTION__,
++				"bit already cleared for block %lu", block + i);
++			jbd_lock_bh_state(bitmap_bh);
+ 			BUFFER_TRACE(bitmap_bh, "bit already cleared");
+ 		} else {
+ 			dquot_freed_blocks++;
+
+_
+

@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275938AbSIUUMh>; Sat, 21 Sep 2002 16:12:37 -0400
+	id <S275941AbSIUULT>; Sat, 21 Sep 2002 16:11:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275939AbSIUUMh>; Sat, 21 Sep 2002 16:12:37 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46327 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S275938AbSIUUMf>; Sat, 21 Sep 2002 16:12:35 -0400
-Date: Sat, 21 Sep 2002 22:17:36 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: James Simmons <jsimmons@infradead.org>
-cc: Burton Samograd <kruhft@kruhft.dyndns.org>, <linux-kernel@vger.kernel.org>
-Subject: [2.5 patch] fix .text.exit error in tdfxfb.c
-Message-ID: <Pine.NEB.4.44.0209212214010.10334-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S275940AbSIUULT>; Sat, 21 Sep 2002 16:11:19 -0400
+Received: from 62-190-219-210.pdu.pipex.net ([62.190.219.210]:5 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S275941AbSIUULS>; Sat, 21 Sep 2002 16:11:18 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209212023.g8LKNC9i001545@darkstar.example.net>
+Subject: Re: Loading kernel
+To: thunder@lightweight.ods.org (Thunder from the hill)
+Date: Sat, 21 Sep 2002 21:23:12 +0100 (BST)
+Cc: chavvasrini@yahoo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0209201846520.342-100000@hawkeye.luckynet.adm> from "Thunder from the hill" at Sep 20, 2002 06:47:41 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James,
+> On Fri, 20 Sep 2002, Srinivas Chavva wrote:
+> > "
+> > /etc/rc.sysinit: /var/log/dmesg: No such file or
+> > directory
+> > /etc/rc.sysinit: /var/log/ksyms.o: No such file or
+> > directory
+> > INIT: Entering run level:3
+> > Updating /etc/fstab execvp: No such file or directory
+> > 					[FAILED]
+> > Checking for new hardware
+> > /etc/rc3.d/S05Kudzu:/usr/sbin/kudzu: No such file or
+> > directory
+> > 					[FAILED]
+> > touch:creating '/var/lock/subsys/kudzu': No such file
+> > or directory
+> > "
+> 
+> That's really no kernel issue. The kernel seems to have booted fine, and 
+> I'd doubt that's fs corruption.
 
-Burton Samograd reported a .text.exit error at the final linking in
-2.5.37. The problem is that tdfxfb_remove is __devexit but the pointer to
-the function didn't use __devexit_p. The following patch fixes it:
+Agreed, except that I think that the old kernel has been re-loaded instead of the new one, because lilo hasn't been re-run.
 
+Lilo does not automatically re-read it's config file, like grub does, (apparently, I use lilo exclusively), and you need to run lilo before re-booting after installing a new kernel image.
 
---- linux-2.5.37/drivers/video/tdfxfb.c.old	2002-09-21 22:06:55.000000000 +0200
-+++ linux-2.5.37/drivers/video/tdfxfb.c	2002-09-21 22:07:47.000000000 +0200
-@@ -146,7 +146,7 @@
- 	.name =		"tdfxfb",
- 	.id_table =	tdfxfb_id_table,
- 	.probe =	tdfxfb_probe,
--	.remove =	tdfxfb_remove,
-+	.remove =	__devexit_p(tdfxfb_remove),
- };
-
- MODULE_DEVICE_TABLE(pci, tdfxfb_id_table);
-
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
-
+John.

@@ -1,73 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265910AbUACDxR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 22:53:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265913AbUACDxR
+	id S262566AbUACENy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 23:13:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbUACENy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 22:53:17 -0500
-Received: from gizmo13ps.bigpond.com ([144.140.71.23]:40358 "HELO
-	gizmo13ps.bigpond.com") by vger.kernel.org with SMTP
-	id S265910AbUACDws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 22:52:48 -0500
-Mail-Copies-To: never
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: udev - please help me to understand
-Keywords: need
-References: <microsoft-free.87r7yiinaj.fsf@eicq.dnsalias.org>
-	<200401021400.29569.mbuesch@freenet.de>
-From: Steve Youngs <sryoungs@bigpond.net.au>
-X-Face: #/1'_-|5_1$xjR,mVKhpfMJcRh8"k}_a{EkIO:Ox<]@zl/Yr|H,qH#3jJi6Aw(Mg@"!+Z"C
- N_S3!3jzW^FnPeumv4l#,E}J.+e%0q(U>#b-#`~>l^A!_j5AEgpU)>t+VYZ$:El7hLa1:%%L=3%B>n
- K{^jU_{&
-Organization: Linux Users - Fanatics Dept.
-X-URL: <http://users.bigpond.net.au/sryoungs/>
-X-Request-PGP: <http://users.bigpond.net.au/sryoungs/pgp/sryoungs.asc>
-X-OpenPGP-Fingerprint: 1659 2093 19D5 C06E D320  3A20 1D27 DB4B A94B 3003
-X-Attribution: SY
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
- linux-hotplug-devel@lists.sf.net
-Date: Sat, 03 Jan 2004 13:52:38 +1000
-In-Reply-To: <200401021400.29569.mbuesch@freenet.de> (Michael Buesch's
- message of "Fri, 02 Jan 2004 14:00:19 +0100")
-Message-ID: <microsoft-free.87n095k7sp.fsf@eicq.dnsalias.org>
-User-Agent: Gnus/5.1004 (Gnus v5.10.4) XEmacs/21.4 (Reasonable Discussion,
- linux)
-MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 2 Jan 2004 23:13:54 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:3592 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S262566AbUACENx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 23:13:53 -0500
+Date: Sat, 3 Jan 2004 04:00:13 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Rob Love <rml@ximian.com>, Andries Brouwer <aebr@win.tue.nl>,
+       rob@landley.net, Pascal Schmidt <der.eremit@email.de>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040103040013.A3100@pclin040.win.tue.nl>
+References: <18Cz7-7Ep-7@gated-at.bofh.it> <20040101001549.GA17401@win.tue.nl> <1072917113.11003.34.camel@fur> <200401010634.28559.rob@landley.net> <1072970573.3975.3.camel@fur> <20040101164831.A2431@pclin040.win.tue.nl> <1072972440.3975.29.camel@fur> <Pine.LNX.4.58.0401021238510.5282@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0401021238510.5282@home.osdl.org>; from torvalds@osdl.org on Fri, Jan 02, 2004 at 12:42:41PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Fri, Jan 02, 2004 at 12:42:41PM -0800, Linus Torvalds wrote:
 
-|--==> "MB" == Michael Buesch <mbuesch@freenet.de> writes:
+Hi Linus - A happy 2004 !
 
-  MB> _You_ have to decide if you need udev or don't.
 
-Precisely why I sent the post, to find out whether or not I need it,
-or if there are any benefits (for me) to using it.  I don't, there
-aren't, so I won't.  Pretty easy decision, actually. :-)
+> Note that one reason I didn't much like the 64-bit versions is that not 
+> only are they bigger, they also encourage insanity. Ie you'd find SCSI 
+> people who want to try to encode device/controller/bus/target/lun info 
+> into the device number. 
 
-And just so there's no confusion,  I'm not against the concept of
-udev, I think it is a _very_ good idea.  I just don't have a need for
-it right now, that's all.
+Weak. "We don't want this power that has good uses because it also
+can be used stupidly." That is not Unix-style.
 
--- 
-|---<Steve Youngs>---------------<GnuPG KeyID: A94B3003>---|
-|              Ashes to ashes, dust to dust.               |
-|      The proof of the pudding, is under the crust.       |
-|------------------------------<sryoungs@bigpond.net.au>---|
+> We should resist any effort that makes the numbers "mean" something. They 
+> are random cookies. Not "unique identifiers", and not "addresses".
 
---=-=-=
-Content-Type: application/pgp-signature
+Random cookies? I prefer "arbitrary" over "random". The value plays no role
+at all, but it must be unique, preferably stable across reboots.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Eicq - The XEmacs ICQ Client <http://eicq.sf.net/>
+Andries
 
-iEYEABECAAYFAj/2PIoACgkQHSfbS6lLMAOvQwCfQlL029Wkhba1Ea0lSxRo9HGd
-13kAoNXlC7pgv/4xCTO7mUuDUC2NcG9P
-=qTKM
------END PGP SIGNATURE-----
---=-=-=--
+
+

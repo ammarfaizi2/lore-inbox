@@ -1,58 +1,126 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268133AbRHGPKJ>; Tue, 7 Aug 2001 11:10:09 -0400
+	id <S268382AbRHGPLj>; Tue, 7 Aug 2001 11:11:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267615AbRHGPJ7>; Tue, 7 Aug 2001 11:09:59 -0400
-Received: from 63-216-69-197.sdsl.cais.net ([63.216.69.197]:38409 "EHLO
-	vyger.freesoft.org") by vger.kernel.org with ESMTP
-	id <S268206AbRHGPJz>; Tue, 7 Aug 2001 11:09:55 -0400
-Message-ID: <3B7004BA.7896CFF7@freesoft.org>
-Date: Tue, 07 Aug 2001 11:09:46 -0400
-From: Brent Baccala <baccala@freesoft.org>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.6 i686)
+	id <S268934AbRHGPL0>; Tue, 7 Aug 2001 11:11:26 -0400
+Received: from [217.89.38.238] ([217.89.38.238]:36853 "HELO schottelius.org")
+	by vger.kernel.org with SMTP id <S267615AbRHGPKg>;
+	Tue, 7 Aug 2001 11:10:36 -0400
+Message-ID: <3B7004B2.6351C900@pcsystems.de>
+Date: Tue, 07 Aug 2001 17:09:39 +0200
+From: Nico Schottelius <nicos@pcsystems.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: Problem with usb-storage using HP 8200 external CD-ROM burner
-In-Reply-To: <3B68FB0C.5BC83115@freesoft.org> <20010806014626.K24225@one-eyed-alien.net> <3B6EF4DA.8899E1D3@freesoft.org> <20010806201746.C6080@one-eyed-alien.net> <20010807093320.I6192@suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: cpu not detected(x86)
+Content-Type: multipart/mixed;
+ boundary="------------B3EFE2B3B625D6794E69DD53"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> 
-> On Mon, Aug 06 2001, Matthew Dharm wrote:
-> > >       774         spin_lock_irqsave(&io_request_lock, flags);
-> > >       775         rtn = SCpnt->host->hostt->eh_abort_handler(SCpnt);
-> > >       776         spin_unlock_irqrestore(&io_request_lock, flags);
-> > >
-> > > seems like a real shotgun approach.  Get rid of the spinlock stuff, and
-> > > make sure that the abort handlers lock io_request_lock themselves if
-> > > they need it.  Of course, this would require changes to all the scsi
-> > > drivers.
-> >
-> > Hrm... perhaps I could just unlock that spinlock and then re-lock it before
-> > returning.  Anyone have a clue if this would work?
-> 
-> That would work -- stuff like the above is already scheduled for removal
-> for 2.5. Locking will be moved from the mid layer to the drivers
-> themselves.
+This is a multi-part message in MIME format.
+--------------B3EFE2B3B625D6794E69DD53
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-If that's the case (the locking will be moved in 2.5), then I'd suggest
-using Matthew's idea of unlocking, then re-locking the spinlock, as a
-temporary measure.
+Hello!
 
--- 
-                                        -bwb
+I am trying to run 2.4.7 and have heavily problems with my cpu.
+The kernel retected another speed at every start! I attached
+three times CPUINFO. The cpu in reality is a p3 650 mhz speedstep.
+(may switch down to 500 mhz, but 126 _not_).
 
-                                        Brent Baccala
-                                        baccala@freesoft.org
+Who changed something in the 2.4.7 source ?
+I am more or less unable to run X with netscape to write this email
+with 126 Mhz!
 
-==============================================================================
-       For news from freesoft.org, subscribe to announce@freesoft.org:
-   
-mailto:announce-request@freesoft.org?subject=subscribe&body=subscribe
-==============================================================================
+What to do, where to fix ? Please help asap!
+
+Nico
+
+
+
+--------------B3EFE2B3B625D6794E69DD53
+Content-Type: text/plain; charset=us-ascii;
+ name="CPUINFO"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="CPUINFO"
+
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 8
+model name	: Pentium III (Coppermine)
+stepping	: 6
+cpu MHz		: 161.858
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips	: 330.95
+
+
+--------------B3EFE2B3B625D6794E69DD53
+Content-Type: text/plain; charset=us-ascii;
+ name="CPUINFO2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="CPUINFO2"
+
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 8
+model name	: Pentium III (Coppermine)
+stepping	: 6
+cpu MHz		: 127.553
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips	: 244.94
+
+
+--------------B3EFE2B3B625D6794E69DD53
+Content-Type: text/plain; charset=us-ascii;
+ name="CPUINFO3"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="CPUINFO3"
+
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 8
+model name	: Pentium III (Coppermine)
+stepping	: 6
+cpu MHz		: 162.371
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips	: 317.84
+
+
+--------------B3EFE2B3B625D6794E69DD53--
+

@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264888AbSLBTCQ>; Mon, 2 Dec 2002 14:02:16 -0500
+	id <S264885AbSLBTDj>; Mon, 2 Dec 2002 14:03:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264885AbSLBTCP>; Mon, 2 Dec 2002 14:02:15 -0500
-Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:63652 "EHLO
-	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S264886AbSLBTCN>; Mon, 2 Dec 2002 14:02:13 -0500
-Message-ID: <3DEBAAE6.6000106@enib.fr>
-Date: Mon, 02 Dec 2002 19:48:06 +0100
-From: XI <xizard@enib.fr>
-Reply-To: xizard@enib.fr
-Organization: http://www.chez.com/xizard
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: sound is stutter, sizzle with lasts kernel releases
-References: <3DEA322B.40204@enib.fr>	<1038765233.30392.0.camel@irongate.swansea.linux.org.uk> 	<3DEAA660.60004@enib.fr> <1038845393.1020.26.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S264889AbSLBTDj>; Mon, 2 Dec 2002 14:03:39 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:32008
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S264885AbSLBTDh>; Mon, 2 Dec 2002 14:03:37 -0500
+Subject: Re: [PATCH] set_cpus_allowed() for 2.4
+From: Robert Love <rml@tech9.net>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Christoph Hellwig <hch@sgi.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <15851.40133.974155.446342@harpo.it.uu.se>
+References: <1033513407.12959.91.camel@phantasy>
+	 <20021104223725.A23168@sgi.com> <15851.37989.723028.614451@harpo.it.uu.se>
+	 <20021202195120.A25954@sgi.com>  <15851.40133.974155.446342@harpo.it.uu.se>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1038856253.1221.33.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 02 Dec 2002 14:10:53 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Mon, 2002-12-02 at 00:16, XI wrote:
+On Mon, 2002-12-02 at 12:47, Mikael Pettersson wrote:
+
+> I knew RH8.0 has set_cpus_allowed(), but I wanted to avoid having to check
+> for being compiled in a RH-hacked kernel. LINUX_VERSION_CODE doesn't
+> distinguish between standard and "with tons of vendor-specific changes" :-(
 > 
->>I was thinking about a problem with my chipset (AMD760MPX, motherboard 
->>tyan tiger MPX); because I have done some tests on a PC with a matrox 
->>G200 PCI and a sound blaster live, with a chipset via KT333 and the 
->>problem doesn't seems to occur. Is it possible?
-> 
-> 
-> Could be - the newer kernel supports IDE DMA, and in my experience the
-> AMD76x has serious fairness problems (I gave up using it for video
-> capture)
-> 
+> I'll use your code then on stock 2.4 kernels, and work out some kludge
+> for the RH case.
 
-This doesn't reassure me :-) but I didn't get the choice for an SMP 
-machine with some athlon processors.
+The code only works on the stock scheduler.  It is the same interface
+and has the same behavior as the O(1) scheduler version, but the code is
+very very different.
 
-Note that I am also able to use IDE DMA with the kernel 2.4.8 (ie hdparm 
--d 1 /dev/hd. works)
+If this patch is merged, you can safely use set_cpus_allowed() in either
+kernel (which is the intention).  But you cannot use this routine's code
+on either scheduler.
 
-
-So now, do you want me to try other kernel version in order to find in 
-what version the problem appeared?
-
-Xavier
+	Robert Love
 

@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261582AbSJAL2E>; Tue, 1 Oct 2002 07:28:04 -0400
+	id <S261587AbSJALdv>; Tue, 1 Oct 2002 07:33:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261583AbSJAL2E>; Tue, 1 Oct 2002 07:28:04 -0400
-Received: from mta05bw.bigpond.com ([139.134.6.95]:1996 "EHLO
-	mta05bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S261582AbSJAL2D>; Tue, 1 Oct 2002 07:28:03 -0400
-Message-ID: <090e01c2693e$4a32fea0$41368490@archaic>
-From: "David McIlwraith" <quack@bigpond.net.au>
-To: "Martin Diehl" <lists@mdiehl.de>
-Cc: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.21.0210011324110.485-100000@notebook.diehl.home>
-Subject: Re: calling context when writing to tty_driver
-Date: Tue, 1 Oct 2002 21:32:56 +1000
+	id <S261586AbSJALdv>; Tue, 1 Oct 2002 07:33:51 -0400
+Received: from mx0.gmx.de ([213.165.64.100]:33842 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S261585AbSJALdt>;
+	Tue, 1 Oct 2002 07:33:49 -0400
+Date: Tue, 1 Oct 2002 13:39:10 +0200 (MEST)
+From: Markus Weiss <mweiss38@gmx.net>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.3663.0
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3663.0
+Subject: Re: Linux v2.5.40 - and a feature freeze reminder
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0015120543@gmx.net
+X-Authenticated-IP: [147.173.81.84]
+Message-ID: <8556.1033472350@www19.gmx.net>
+X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Spinlocks *could* be used in place, if this is the case. Having not examined
-the code, I don't know the implementation specifics.
+On Tuesday 01 October 2002 09:32, Linus Torvalds wrote: 
+<snip> 
+> And if it wasn't clear to the non-2.5-development people out there, yes 
+> you _should_ also test this code out even before the freeze. The IDE layer
 
------ Original Message -----
-From: "Martin Diehl" <lists@mdiehl.de>
-To: "David McIlwraith" <quack@bigpond.net.au>
-Cc: "Martin Diehl" <lists@mdiehl.de>; <linux-kernel@vger.kernel.org>
-Sent: Tuesday, October 01, 2002 9:28 PM
-Subject: Re: calling context when writing to tty_driver
+> shouldn't be all that scary any more, and while there are still silly 
+> things like trivially non-compiling setups etc, it's generally a good idea
 
+> to try things out as widely as possible before it's getting too late to 
+> complain about things.. 
+ 
+I also would love to test on my laptop (especially because of ACPI), 
+but I have / on LVM :-( 
+ 
+Any info, when I might be able to get a 2.5 kernel running ? 
+ 
+Thanks, 
+	Markus 
 
-> On Tue, 1 Oct 2002, David McIlwraith wrote:
->
-> > Semaphores may sleep - therefore, they cannot be used from a 'non-sleep'
-> > context.
->
-> Yes, sure. Sorry if I wasn't clear enough - the point is whether those
-> tty_driver write/write_room() calls are allowed to sleep or not. If yes,
-> the usbserial implementation is right and it is impossible to do further
-> writing directly from write_wakeup() callback (which would be really bad
-> IMHO) - if not, usbserial needs to avoid the down() somehow.
->
-> Martin
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Werden Sie mit uns zum "OnlineStar 2002"! Jetzt GMX wählen -
+und tolle Preise absahnen! http://www.onlinestar.de
 

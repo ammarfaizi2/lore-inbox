@@ -1,77 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263162AbTDVN03 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 09:26:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbTDVN02
+	id S263152AbTDVNZN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 09:25:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263146AbTDVNZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 09:26:28 -0400
-Received: from customer204.globaltap.com ([206.104.238.204]:5839 "HELO
-	annexa.net") by vger.kernel.org with SMTP id S263162AbTDVN0Y (ORCPT
+	Tue, 22 Apr 2003 09:25:13 -0400
+Received: from mx1.technologica.biz ([217.75.131.34]:62137 "EHLO
+	mx1.technologica.biz") by vger.kernel.org with ESMTP
+	id S263140AbTDVNZK convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 09:26:24 -0400
-Subject: Need help with lockups on tyan s2460 motherboard in SMP mode
-From: James Strandboge <jamie@tpptraining.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Targeted Performance Partners, LLC
-Message-Id: <1051018709.3235.55.camel@sirius.strandboge.cxm>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 22 Apr 2003 09:38:29 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Apr 2003 09:25:10 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: unable to stop /dev/md1 where root is mounted on 2.4.19.SuSE-246
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Date: Tue, 22 Apr 2003 16:38:35 +0300
+Message-ID: <15F26D0D9E18E24583D912511D668FF8027230@exchange.ad.tlogica.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-topic: unable to stop /dev/md1 where root is mounted on 2.4.19.SuSE-246
+Thread-Index: AcMI1HkTU5kdhHb4S/CsJF8dcRGbzQ==
+From: "Michael Daskalov" <MDaskalov@technologica.biz>
+To: <linux-raid@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have googled a lot on this issue, but if there is somewhere else I can
-look, please tell me.
+Hi all, 
+I have the following situation. I have my root partition on RAID1 (/dev/hda5 and /dev/sda5) - /dev/md1. 
 
-I have a dual AMD 1600+ (MP processors) system with tyan s2460
-motherboard that freezes with no error messages in syslog.  I have read
-(among a lot of other things):
-http://ouray.cudenver.edu/~etumenba/smp-howto/SMP-HOWTO.html
+I have two partitions for boot, which are also in raid1 configuration. 
+/dev/md0 (/dev/hda1, /dev/sda1). 
 
-and what I have done so far is:
+On system reboot or shutdown the md device is not stopped (a clean record is not written on it), 
+And after system reboot it always starts reconstructing. 
 
-replaced power supply with Enermax 550
-BIOS upgrade to 1.05
-kernels used are 2.4.18 from debian, 2.4.20 and 2.4.21-pre6 
-compiled in acpi (acpi-200303028-2.4.21-pre6)
-compiled out acpi
-compiled with and without Athlon support
-Currently using 2.4.21-pre6 for i386
+Which is the correct way to setup the situation? 
 
-booted with combinations of the following:
-noapic
-noacpi
-acpi=off
-nopentium
 
-tried the following bios settings in various combinations:
-MultiProcessor specification 1.1 and 1.4
-Use PCI Interrupt Entries in MP as yes and no
-enabled/disabled acpi
-enabled/disabled power management
 
-The only way I have found to reliably crash the system is to compile two
-kernels simultaneously while in smp mode.  If I boot with 'nosmp' the
-system seems ok (still running and compiling after 9 hours).
+I'm activating the raid devices through initrd's linuxrc, where I'm loading a 
+1) hpt302.o driver, 
+2) raid1.o, raid5.o - The raid personality modules, and then I run 
+3)raidstart --all. 
 
-Because the system runs ok with one processor, it leads me to think it
-may be kernel code, and not heat or memory related.  Though I guess it
-could be the motherboard still.  Is this a correct assessment?  I'd be
-happy to send any additional information.
 
-I am new to SMP, so any and all suggestions are welcome.
 
-Thanks,
+On shutdown I see messages that 
+/dev/md2, /dev/md3, /dev/md4 are also stopped. 
 
-Jamie Strandboge
+I see a message saying /dev/md0 is put in read-only mode. 
 
--- 
-James Strandboge
-Targeted Performance Partners, LLC
-Web: http://www.tpptraining.com
-E-mail: jamie@tpptraining.com
-Tel: (585) 271-8370
-Fax: (585) 271-8373
+Only /dev/md1 where is my rootfs is not stopped. 
+I see the following message: 
+md: md1 is still active 
 
+The problem occurs on SuSE 7.2 with kernel 2.4.19.
+
+I didn't have this problem with 2.4.4 kernel on SuSE 7.1
+
+For me this looks like a bug in the kernel shutdown (reboot) functionality, but I know too little to say.
+
+Best regards and 10x for any help, 
+Mihail Daskalov 

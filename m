@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbTITFKc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 01:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbTITFKc
+	id S261508AbTITFZC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 01:25:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbTITFZC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 01:10:32 -0400
-Received: from holomorphy.com ([66.224.33.161]:23262 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261397AbTITFKb (ORCPT
+	Sat, 20 Sep 2003 01:25:02 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:45074 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S261508AbTITFZA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 01:10:31 -0400
-Date: Fri, 19 Sep 2003 22:11:36 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG at mm/memory.c:1501 in 2.6.0-test5
-Message-ID: <20030920051136.GE4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org
-References: <95932E0ADB@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 20 Sep 2003 01:25:00 -0400
+From: Shine Mohamed <shinemohamed_j@naturesoft.net>
+Organization: Naturesoft
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [TRIVIAL] Patch to for Cyclades ISA serial board under 2.6
+Date: Sat, 20 Sep 2003 10:56:07 +0530
+User-Agent: KMail/1.5
+Cc: krishnakumar@naturesoft.net
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <95932E0ADB@vcnet.vc.cvut.cz>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Message-Id: <200309201056.07380.shinemohamed_j@naturesoft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Sep 03 at 13:43, William Lee Irwin III wrote:
->> This is probably the reason you're not getting much in the way of a
->> response.
-
-On Thu, Sep 18, 2003 at 11:10:06PM +0200, Petr Vandrovec wrote:
-> I explicitly stated that it happened shortly after I shut down VMware UI,
-> and that I spent whole day trying to find what's going on, finally
-> politely asking for help, hoping that someone could have a clue
-> what went wrong.
-
-Much better. I presumed something like nvidia. Now that that's cleared
-up, I'll have to find time to take a breather and peek at the vmware bits
-to see if they're doing anything that might get misunderstood by the VM.
-
-One thing to look for in vmware if you have the time/motivation
-yourself is to check for dirty bits getting left in (or put into) non-
-present ptes; this clashes with _PTE_FILE on i386.
+Quick patch to remove unused variables in Cyclades.c
 
 
--- wli
+diff -urN linux-2.6.0-test5.orig/drivers/char/cyclades.c 
+linux-2.6.0-test5/drivers/char/cyclades.c
+--- linux-2.6.0-test5.orig/drivers/char/cyclades.c      2003-09-09 
+01:19:57.000000000 +0530
++++ linux-2.6.0-test5/drivers/char/cyclades.c   2003-09-20 09:38:20.000000000 
++0530
+@@ -5665,8 +5665,7 @@
+ cy_cleanup_module(void)
+ {
+     int i;
+-    int e1, e2;
+-    unsigned long flags;
++    int e1;
+
+ #ifndef CONFIG_CYZ_INTR
+     if (cyz_timeron){
+
+

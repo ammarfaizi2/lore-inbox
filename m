@@ -1,64 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292817AbSBVGpz>; Fri, 22 Feb 2002 01:45:55 -0500
+	id <S292818AbSBVGsp>; Fri, 22 Feb 2002 01:48:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292818AbSBVGpf>; Fri, 22 Feb 2002 01:45:35 -0500
-Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:43667 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S292817AbSBVGp2>;
-	Fri, 22 Feb 2002 01:45:28 -0500
-Message-ID: <3C75E905.9000809@candelatech.com>
-Date: Thu, 21 Feb 2002 23:45:25 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S292819AbSBVGsf>; Fri, 22 Feb 2002 01:48:35 -0500
+Received: from traven.uol.com.br ([200.231.206.184]:36078 "EHLO
+	traven.uol.com.br") by vger.kernel.org with ESMTP
+	id <S292818AbSBVGsW>; Fri, 22 Feb 2002 01:48:22 -0500
+Date: Fri, 22 Feb 2002 03:47:51 -0300 (BRT)
+From: Cesar Suga <sartre@linuxbr.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HPT366: DMA errors?
+In-Reply-To: <20020222030254.GH20060@matchmail.com>
+Message-ID: <Pine.LNX.4.40.0202220346260.902-100000@sartre.linuxbr.com>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: dank@kegel.com, linux-kernel@vger.kernel.org, zab@zabbo.net
-Subject: Re: is CONFIG_PACKET_MMAP always a win?
-In-Reply-To: <3C75A418.2C848B3F@kegel.com> <20020221.215925.41634293.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 21 Feb 2002, Mike Fedyk wrote:
 
+> Is that because one of the connector holes is blocked on the cable conector?
+>
+> If so, I have had success with just breaking the correct pin so that the 80
+> pin cable can be plugged into old motherboard IDE connectors.  As always
+> with hardware mods, YMMV.
 
-David S. Miller wrote:
+	But if I use the old motherboard IDE connector I'll not be using
+DMA66, so no need to use those new cables if I have a chunk of the other
+cables... (even if I agree that hardware mods are possible, I avoid them
+while I can)
 
->    From: Dan Kegel <dank@kegel.com>
->    Date: Thu, 21 Feb 2002 17:51:20 -0800
-> 
->    What's the best way to retrieve raw packets from the kernel?
->    
->    a) use libpcap
->  ...   
->    b) use af_packet
->  ...   
->    c) enable CONFIG_PACKET_MMAP, use PACKET_RX_RING
->    
->    If I understand it right, b costs one memcpy and one recv, and c costs
->    two memcpys.  Which one wins?
-> 
-> "a" should be doing "c" when it is available in the kernel.
-> If not, get a newer copy of the libpcap sources, preferably
-> from Alexey's site:
-> 
-> ftp.inr.ac.ru:/ip-routing/
-
-
-And if you can figure out how to do c, and feel like
-sharing, please do let me know!  Documentation is a
-bit sparse..at least wherever I've been looking.
-
-Enjoy,
-Ben
-
-
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+	Thanks,
+	Cesar Suga <sartre@linuxbr.com>
 
 

@@ -1,58 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265488AbUAKATP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 19:19:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265493AbUAKATP
+	id S265709AbUAKAXU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 19:23:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265710AbUAKAXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 19:19:15 -0500
-Received: from h80ad254f.async.vt.edu ([128.173.37.79]:31618 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265488AbUAKATN (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 19:19:13 -0500
-Message-Id: <200401110019.i0B0J2Ld014059@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Job 317 <job317@mailvault.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: HELP!! 2.6.x build problem with make xconfig 
-In-Reply-To: Your message of "Sun, 11 Jan 2004 01:00:33 +0100."
-             <20040110235440.7962B8400A3@gateway.mailvault.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040110235440.7962B8400A3@gateway.mailvault.com>
+	Sat, 10 Jan 2004 19:23:20 -0500
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:64689 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S265709AbUAKAXR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 19:23:17 -0500
+Date: Sat, 10 Jan 2004 16:23:04 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       USB Developers <linux-usb-devel@lists.sourceforge.net>,
+       Greg KH <greg@kroah.com>
+Subject: Re: USB hangs
+Message-ID: <20040111002304.GE16484@one-eyed-alien.net>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	USB Developers <linux-usb-devel@lists.sourceforge.net>,
+	Greg KH <greg@kroah.com>
+References: <1073779636.17720.3.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-2004626072P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 10 Jan 2004 19:19:02 -0500
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="M/SuVGWktc5uNpra"
+Content-Disposition: inline
+In-Reply-To: <1073779636.17720.3.camel@dhcp23.swansea.linux.org.uk>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-2004626072P
+
+--M/SuVGWktc5uNpra
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, 11 Jan 2004 01:00:33 +0100, Job 317 <job317@mailvault.com>  said:
+Where is USB kmalloc'ing with GFP_KERNEL?  I thought we tracked all those
+down and eliminated them.
 
-> cd /usr/include
-> rm asm linux scsi
-> ln -fs /usr/src/linux/include/asm-i386 asm
-> ln -fs /usr/src/linux/include/linux linux
-> ln -fs /usr/src/linux/include/scsi scsi
+Matt
 
-Don't do that.
+On Sun, Jan 11, 2004 at 12:07:17AM +0000, Alan Cox wrote:
+> With the various fixes people had been posting USB storage
+> writing was still hanging repeatedly when doing a 20Gb rsync
+> to usb-storage disks with a low memory system. Doing things
+> like while(true) sync() made it hang even more often.
+>=20
+> After a bit of digging the following seems to fix it
+>=20
+> Not sure if 2.6 needs this as well.
+>=20
+> The failure path seems to be
+>=20
+> 	->scsi_done in the USB storage thread
+> 	issues a new command
+> 	causes USB to kmalloc GFP_KERNEL
+> 	causes a page out
+> 	queues a page out to the USB storage thread
+> 	Deadlock.
+>=20
+> Setting PF_MEMALLOC should stop the storage thread ever causing pageout
+> itself so deadlocking.
+>=20
 
-Use what's in the glibc-kernheaders RPM for userspace, and let the kernel
-provide its own headers for its use.
+> --- drivers/usb/storage/usb.c~	2004-01-09 02:06:35.000000000 +0000
+> +++ drivers/usb/storage/usb.c	2004-01-09 02:06:35.000000000 +0000
+> @@ -332,6 +332,8 @@
+> =20
+>  	/* set our name for identification purposes */
+>  	sprintf(current->comm, "usb-storage-%d", us->host_number);
+> +=09
+> +	current->flags |=3D PF_MEMALLOC;
+> =20
+>  	unlock_kernel();
+> =20
 
 
---==_Exmh_-2004626072P
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
+
+Your lips are twitching.  You're playing Quake aren't you.
+					-- Stef to Greg
+User Friendly, 8/11/1998
+
+--M/SuVGWktc5uNpra
 Content-Type: application/pgp-signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQFAAJZ2cC3lWbTT17ARAos3AJ9rvZ91rjM8f7qJ+/qJvT4JKIlBDwCfQD1v
-mSxRSx06xLvdhVf3U0apd5Q=
-=h2p1
+iD8DBQFAAJdoIjReC7bSPZARAqr8AJ4kYJGXA260qSADWEpDMso9IjfbhgCeMeAq
+sk6nY1YtO0rNtpzvF7FJzLE=
+=JIS1
 -----END PGP SIGNATURE-----
 
---==_Exmh_-2004626072P--
+--M/SuVGWktc5uNpra--

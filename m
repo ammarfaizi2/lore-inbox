@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267725AbUIFLBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267689AbUIFLFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267725AbUIFLBq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 07:01:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267734AbUIFLBq
+	id S267689AbUIFLFK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 07:05:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267734AbUIFLFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 07:01:46 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:51831 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267725AbUIFLBp (ORCPT
+	Mon, 6 Sep 2004 07:05:10 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:940 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267689AbUIFLFE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 07:01:45 -0400
-Message-ID: <d577e569040906040147c2277f@mail.gmail.com>
-Date: Mon, 6 Sep 2004 07:01:44 -0400
-From: Patrick McFarland <diablod3@gmail.com>
-Reply-To: Patrick McFarland <diablod3@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [BUG] r200 dri driver deadlocks
-Cc: dri-devel@lists.sf.net, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1094429682.29921.6.camel@krustophenia.net>
+	Mon, 6 Sep 2004 07:05:04 -0400
+Date: Mon, 6 Sep 2004 13:06:26 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: rlrevell@joe-job.com, felipe_alfaro@linuxmail.org,
+       Florian Schmidt <mista.tapas@gmx.net>, "K.R. Foley" <kr@cybsft.com>,
+       Mark_H_Johnson@Raytheon.com
+Subject: [patch] voluntary-preempt-2.6.9-rc1-bk12-R6
+Message-ID: <20040906110626.GA32320@elte.hu>
+References: <20040903120957.00665413@mango.fruits.de> <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <d577e569040904021631344d2e@mail.gmail.com>
-	 <1094321696.31459.103.camel@admin.tel.thor.asgaard.local>
-	 <d577e56904090413365f5e223d@mail.gmail.com>
-	 <1094366099.31457.112.camel@admin.tel.thor.asgaard.local>
-	 <d577e56904090501224f252dbc@mail.gmail.com>
-	 <1094406055.31464.118.camel@admin.tel.thor.asgaard.local>
-	 <d577e569040905131870fa14a3@mail.gmail.com>
-	 <1094429682.29921.6.camel@krustophenia.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040905140249.GA23502@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 05 Sep 2004 20:14:43 -0400, Lee Revell <rlrevell@joe-job.com> wrote:
-> How to fix this is a pretty hot topic now.
 
-Yow, I didn't mean to cause such an upset. ;)
+i've released the -R6 patch:
 
-Currently, the dri cvs snapshot for 20040905 doesn't compile with
-2.6.8.1 for me (I've sent
-a bug report to the dri-devel mailing list about this) so Lee and
-Michel, you'll have to wait
-until tomorrow (or maybe even the day after that) to see how the test goes.
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk12-R6
 
-I'm hoping it does work, this bug is pretty nasty imho. Who knew Quake
-could take an entire box out in under 10 seconds. ;)
+Changes in -R6:
 
--- 
-Patrick "Diablo-D3" McFarland || diablod3@gmail.com
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd 
-all be running around in darkened rooms, munching magic pills and listening to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
+ - fixed a CONFIG_SMP + CONFIG_PREEMPT bug that had the potential to
+   cause spinlock related lockups. (UP kernels are unaffected.) This bug 
+   got introduced in -R5.
+
+2.6.9-rc1-bk12 patching order is:
+ 
+    http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
+  + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc1.bz2
+  + http://redhat.com/~mingo/voluntary-preempt/patch-2.6.9-rc1-bk12.bz2
+ 
+	Ingo

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136567AbREAErw>; Tue, 1 May 2001 00:47:52 -0400
+	id <S136573AbREAEwc>; Tue, 1 May 2001 00:52:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136570AbREAEre>; Tue, 1 May 2001 00:47:34 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:25822 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S136567AbREAEra>;
-	Tue, 1 May 2001 00:47:30 -0400
-Date: Mon, 30 Apr 2001 21:47:26 -0700 (PDT)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.19 locks up on SMP
-In-Reply-To: <Pine.LNX.4.33.0104301255020.12259-100000@age.cs.columbia.edu>
-Message-ID: <Pine.LNX.4.33.0104302141510.12259-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136570AbREAEwW>; Tue, 1 May 2001 00:52:22 -0400
+Received: from sync.nyct.net ([216.44.109.250]:16134 "HELO sync.nyct.net")
+	by vger.kernel.org with SMTP id <S136573AbREAEwL>;
+	Tue, 1 May 2001 00:52:11 -0400
+Date: Tue, 1 May 2001 00:52:37 -0400
+From: Michael Bacarella <mbac@nyct.net>
+To: linux-kernel@vger.kernel.org
+Subject: Question about /proc/kmsg semantics..
+Message-ID: <20010501005237.A2776@sync.nyct.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Apr 2001, Ion Badulescu wrote:
+Two pronged:
 
-> Ok, so onto the binary search through the 2.2.19pre series...
+I've seen a couple of patches in the archives to make open()/close()
+on /proc/kmsg do more than NOP. As of 2.4.4, klogd still needs to
+run as root since access is checked on read() rather than once at
+open(). I can't find the rationale as to why they're rejected.
 
-I think it started in 2.2.19pre10. I can reproduce the hang on pre10, 
-quite easily, but I couldn't reproduce it on pre5, pre7 and pre9. I'll try 
-a few other pre versions, just to make sure.
+Also, why is reading /proc/kmsg a privileged operation, yet dmesg
+can happily print out the entire ring via (do_)syslog() ?
 
-One of the things that are different between pre10 and the others is NFS:
-the client is broken in all versions except pre10. I'm not sure how much 
-it matters, since I wasn't pounding on NFS. Anyway, that's why I want to 
-try a few other kernels -- maybe it does matter after all.
-
-Thanks,
-Ion
+Thanks
 
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+Michael Bacarella <mbac@nyct.net>
+Technical Staff / System Development,
+New York Connect.Net, Ltd.

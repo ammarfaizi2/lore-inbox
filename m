@@ -1,452 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbVCKUuJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVCKU36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261571AbVCKUuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 15:50:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbVCKUtu
+	id S261353AbVCKU36 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 15:29:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVCKU1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 15:49:50 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:42122 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261697AbVCKUkX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 15:40:23 -0500
-Date: Fri, 11 Mar 2005 15:39:58 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
-In-Reply-To: <20050311153817.GA32020@elte.hu>
-Message-ID: <Pine.LNX.4.58.0503111440190.22043@localhost.localdomain>
-References: <20050204100347.GA13186@elte.hu> <1108789704.8411.9.camel@krustophenia.net>
- <Pine.LNX.4.58.0503100323370.14016@localhost.localdomain>
- <Pine.LNX.4.58.0503100447150.14016@localhost.localdomain> <20050311095747.GA21820@elte.hu>
- <Pine.LNX.4.58.0503110508360.19798@localhost.localdomain> <20050311101740.GA23120@elte.hu>
- <Pine.LNX.4.58.0503110521390.19798@localhost.localdomain>
- <20050311024322.690eb3a9.akpm@osdl.org> <Pine.LNX.4.58.0503110754240.19798@localhost.localdomain>
- <20050311153817.GA32020@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 11 Mar 2005 15:27:14 -0500
+Received: from [160.45.44.199] ([160.45.44.199]:13981 "EHLO elderorb.fefe.de")
+	by vger.kernel.org with ESMTP id S261427AbVCKUVl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 15:21:41 -0500
+Date: Fri, 11 Mar 2005 20:21:23 +0000
+From: Felix von Leitner <felix-linuxkernel@fefe.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.11: USB broken on nforce4, ipv6 still broken, centrino speedstep even more broken than in 2.6.10
+Message-ID: <20050311202122.GA13205@fefe.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linux is getting less and less usable for me. :-(
 
 
-On Fri, 11 Mar 2005, Ingo Molnar wrote:
+My new nForce 4 mainboard has 10 or so USB 2.0 outlets.  In Windows,
+they all work.  In Linux, two of them work.  Putting my USB stick or
+anything else in one of the others produces nothing in Linux.
+Apparently no IRQ getting through or something?
 
->
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> > Here's the patch. It's probably more of an overkill wrt buffer heads,
-> > but it seems to be the easiest solution.
->
-> isnt there some ext3-private journal structure (journal-bh) linked off
-> the bh? If the lock is in that structure then the overhead would only
-> affect ext3.
->
+This is what /proc/interrupts has to say:
 
-OK, here it is (Yuck!).  I was able to use the journal head (private data
-of the buffer head) for the state lock.  I just decided to have the
-journal head lock be one global lock for all buffer heads, since it is
-used to add and remove the journal private data from the buffer head, and
-thus can't be stored in the journal private data.
+  177:    9503618   IO-APIC-level  ohci_hcd, eth0
 
-The state lock is now in the journal private data but we must be careful
-not to free this data before we unlock it. So here's what I've done.
+These are the USB boot messages:
 
-  static inline void jbd_lock_bh_state(struct buffer_head *bh)
-  {
-	BUG_ON(!bh->b_private);
-	atomic_inc(&bh2jh(bh)->b_state_wait_count);
-	spin_lock(&bh2jh(bh)->b_state_lock);
-  }
+  usbcore: registered new driver usbfs
+  usbcore: registered new driver hub
+  ehci_hcd 0000:00:02.1: new USB bus registered, assigned bus number 1
+  ehci_hcd 0000:00:02.1: USB 2.0 initialized, EHCI 1.00, driver 26 Oct 2004
+  hub 1-0:1.0: USB hub found
+  ohci_hcd: 2004 Nov 08 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+  ohci_hcd 0000:00:02.0: new USB bus registered, assigned bus number 2
+  hub 2-0:1.0: USB hub found
+  usbcore: registered new driver usblp
+  drivers/usb/class/usblp.c: v0.13: USB Printer Device Class driver
+  Initializing USB Mass Storage driver...
+  usb 2-4: new low speed USB device using ohci_hcd and address 2
+  usbcore: registered new driver usb-storage
+  USB Mass Storage support registered.
+  input: USB HID v1.10 Mouse [B16_b_02 USB-PS/2 Optical Mouse] on
+  usb-0000:00:02.0-4
+  usbcore: registered new driver usbhid
+  drivers/usb/input/hid-core.c: v2.0:USB HID core driver
+  HUB0 XVR0 XVR1 XVR2 XVR3 USB0 USB2 MMAC MMCI UAR1
 
-I have a counter of those that want/have the lock, and this informs the
-journal_remove_journal_head that it should not free the jh.
-
-  static void __journal_remove_journal_head(struct buffer_head *bh)
-  {
-	struct journal_head *jh = bh2jh(bh);
-
-	J_ASSERT_JH(jh, jh->b_jcount >= 0);
-
-	get_bh(bh);
-	if (jh->b_jcount == 0) {
-		if (jh->b_transaction == NULL &&
-				jh->b_next_transaction == NULL &&
-				jh->b_cp_transaction == NULL) {
-  #ifdef CONFIG_PREEMPT_RT
-			if (atomic_read(&jh->b_state_wait_count)) {
-				BUG_ON(buffer_journalhead(bh));
-				set_buffer_journalhead(bh);
-			} else
-  #endif
-                        {
+As you can see, it appears to work in principle.
 
 
-Here the state_wait_count is checked, and if > 0, then using the bit that
-was originally used for locking the journal head, is set to inform the
-unlocking of the state lock that it needs to be removed.
 
-  static inline void jbd_unlock_bh_state(struct buffer_head *bh)
-  {
-	int rmjh = 0;
-
-	BUG_ON(!atomic_read(&bh2jh(bh)->b_state_wait_count));
-	atomic_dec(&bh2jh(bh)->b_state_wait_count);
-
-	if (buffer_journalhead(bh)) {
-		clear_buffer_journalhead(bh);
-		rmjh = 1;
-	}
-
-	spin_unlock(&bh2jh(bh)->b_state_lock);
-
-	if (rmjh)
-		journal_remove_journal_head(bh);
-  }
-
-Now in the unlocking of the state lock, the journal head bit is tested and
-if it is set, then the remove journal head function is called.
+Now about IPv6: npush and npoll are two applications I wrote.  npush
+sends multicast announcements and opens a TCP socket.  npoll receives
+the multicast announcement and connects to the source IP/port/scope_id
+of the announcement.  If both are run on the same machine, npoll sees
+the link local address of eth0 as source IP, and the interface number of
+eth0 as scope_id.  So far so good.  Trying to connect() however hangs.
+Since this has been broken in different ways for as long as I can
+remember in Linux, and I keep complaining about it every half a year or
+so.  Can't someone fix this once and for all?  IPv4 checks whether we
+are connecting to our own address and reroutes through loopback, why
+can't IPv6?
 
 
-Maybe this isn't the cleanest solution, but it keeps the overhead on the
-buffer heads down, so it's prefered over my last patch.
 
-Once again, this has only been tested with full preemption enabled, but I
-tried to keep it from changing the way non PREEMPT_RT works.
-
-I'm leaving now for the weekend, so I won't be able to respond to anyone
-till Monday.  I'll also run this patch over the weekend while compiling
-the kernel in an endless loop
-
- while [ 1 ]; do
-   make clean; make
- done
-
-With kjournal running FIFO, to see if it survives.
-
-Cheers,
+Finally Centrino SpeedStep.
+I have a "Intel(R) Pentium(R) M processor 1.80GHz" in my notebook.
+Linux does not support it.  This architecture has been out there for
+months now, and there even was a patch to support it posted here a in
+October last year or so.  Linux still does not include it.  Until
+2.6.11-rc4-bk8 or so, the old patched file from back then still worked.
+Now it doesn't.  Because some interface changed.  Now what?  Using a
+Centrino notebook without CPU throttling is completely out of the
+question.  Linux might as well not boot on it at all.
 
 
--- Steve
 
-diff -ur linux-2.6.11-rc4-V0.7.39-02.orig/fs/jbd/journal.c linux-2.6.11-rc4-V0.7.39-02/fs/jbd/journal.c
---- linux-2.6.11-rc4-V0.7.39-02.orig/fs/jbd/journal.c	2005-02-12 22:05:29.000000000 -0500
-+++ linux-2.6.11-rc4-V0.7.39-02/fs/jbd/journal.c	2005-03-11 14:54:21.000000000 -0500
-@@ -80,6 +80,10 @@
- EXPORT_SYMBOL(journal_try_to_free_buffers);
- EXPORT_SYMBOL(journal_force_commit);
+Did I mention that I'm really tired of you putting stones into ATI's
+way?  You might believe you have a right to piss everyone off, after all
+people get what they paid for.  Or maybe you think you are on a crusade
+to promote open source software.  But if you keep alienating me (I'm a
+software developer) like this, I spend more time working around this
+bullshit and less time writing free software.  In the end, everyone
+loses.  I sincerely hope some day you people are done pissing in the
+pool and can create at least some semblance of semi-stable APIs.  This
+house is never going to be safe for living until you stop digging around
+the foundation.
 
-+#ifdef CONFIG_PREEMPT_RT
-+spinlock_t jbd_journal_head_lock = SPIN_LOCK_UNLOCKED;
-+#endif
-+
- static int journal_convert_superblock_v1(journal_t *, journal_superblock_t *);
-
- /*
-@@ -1727,6 +1731,9 @@
- 		jh = new_jh;
- 		new_jh = NULL;		/* We consumed it */
- 		set_buffer_jbd(bh);
-+#ifdef CONFIG_PREEMPT_RT
-+		spin_lock_init(&jh->b_state_lock);
-+#endif
- 		bh->b_private = jh;
- 		jh->b_bh = bh;
- 		get_bh(bh);
-@@ -1767,26 +1774,34 @@
- 		if (jh->b_transaction == NULL &&
- 				jh->b_next_transaction == NULL &&
- 				jh->b_cp_transaction == NULL) {
--			J_ASSERT_BH(bh, buffer_jbd(bh));
--			J_ASSERT_BH(bh, jh2bh(jh) == bh);
--			BUFFER_TRACE(bh, "remove journal_head");
--			if (jh->b_frozen_data) {
--				printk(KERN_WARNING "%s: freeing "
--						"b_frozen_data\n",
--						__FUNCTION__);
--				kfree(jh->b_frozen_data);
--			}
--			if (jh->b_committed_data) {
--				printk(KERN_WARNING "%s: freeing "
--						"b_committed_data\n",
--						__FUNCTION__);
--				kfree(jh->b_committed_data);
-+#ifdef CONFIG_PREEMPT_RT
-+			if (atomic_read(&jh->b_state_wait_count)) {
-+				BUG_ON(buffer_journalhead(bh));
-+				set_buffer_journalhead(bh);
-+			} else
-+#endif
-+			{
-+				J_ASSERT_BH(bh, buffer_jbd(bh));
-+				J_ASSERT_BH(bh, jh2bh(jh) == bh);
-+				BUFFER_TRACE(bh, "remove journal_head");
-+				if (jh->b_frozen_data) {
-+					printk(KERN_WARNING "%s: freeing "
-+					       "b_frozen_data\n",
-+					       __FUNCTION__);
-+					kfree(jh->b_frozen_data);
-+				}
-+				if (jh->b_committed_data) {
-+					printk(KERN_WARNING "%s: freeing "
-+					       "b_committed_data\n",
-+					       __FUNCTION__);
-+					kfree(jh->b_committed_data);
-+				}
-+				bh->b_private = NULL;
-+				jh->b_bh = NULL;	/* debug, really */
-+				clear_buffer_jbd(bh);
-+				__brelse(bh);
-+				journal_free_journal_head(jh);
- 			}
--			bh->b_private = NULL;
--			jh->b_bh = NULL;	/* debug, really */
--			clear_buffer_jbd(bh);
--			__brelse(bh);
--			journal_free_journal_head(jh);
- 		} else {
- 			BUFFER_TRACE(bh, "journal_head was locked");
- 		}
-diff -ur linux-2.6.11-rc4-V0.7.39-02.orig/fs/jbd/transaction.c linux-2.6.11-rc4-V0.7.39-02/fs/jbd/transaction.c
---- linux-2.6.11-rc4-V0.7.39-02.orig/fs/jbd/transaction.c	2005-02-12 22:05:50.000000000 -0500
-+++ linux-2.6.11-rc4-V0.7.39-02/fs/jbd/transaction.c	2005-03-11 13:25:49.000000000 -0500
-@@ -1207,11 +1207,17 @@
-
- 	BUFFER_TRACE(bh, "entry");
-
-+	/*
-+	 * Is it OK to check to see if this isn't a jbd buffer outside of
-+	 * locks? Now that jbd_lock_bh_state only works with jbd buffers
-+	 * I sure hope so.
-+	 */
-+	if (!buffer_jbd(bh))
-+		goto not_jbd;
-+
- 	jbd_lock_bh_state(bh);
- 	spin_lock(&journal->j_list_lock);
-
--	if (!buffer_jbd(bh))
--		goto not_jbd;
- 	jh = bh2jh(bh);
-
- 	/* Critical error: attempting to delete a bitmap buffer, maybe?
-@@ -1219,7 +1225,7 @@
- 	if (!J_EXPECT_JH(jh, !jh->b_committed_data,
- 			 "inconsistent data on disk")) {
- 		err = -EIO;
--		goto not_jbd;
-+		goto bad_jbd;
- 	}
-
- 	if (jh->b_transaction == handle->h_transaction) {
-@@ -1274,9 +1280,11 @@
- 		}
- 	}
-
--not_jbd:
-+
-+bad_jbd:
- 	spin_unlock(&journal->j_list_lock);
- 	jbd_unlock_bh_state(bh);
-+not_jbd:
- 	__brelse(bh);
- 	return err;
- }
-diff -ur linux-2.6.11-rc4-V0.7.39-02.orig/include/linux/jbd.h linux-2.6.11-rc4-V0.7.39-02/include/linux/jbd.h
---- linux-2.6.11-rc4-V0.7.39-02.orig/include/linux/jbd.h	2005-02-12 22:07:18.000000000 -0500
-+++ linux-2.6.11-rc4-V0.7.39-02/include/linux/jbd.h	2005-03-11 14:55:31.000000000 -0500
-@@ -313,6 +313,7 @@
- BUFFER_FNS(RevokeValid, revokevalid)
- TAS_BUFFER_FNS(RevokeValid, revokevalid)
- BUFFER_FNS(Freed, freed)
-+BUFFER_FNS(JournalHead,journalhead)
-
- static inline struct buffer_head *jh2bh(struct journal_head *jh)
- {
-@@ -324,6 +325,66 @@
- 	return bh->b_private;
- }
-
-+void journal_remove_journal_head(struct buffer_head *bh);
-+
-+#ifdef CONFIG_PREEMPT_RT
-+
-+extern spinlock_t jbd_journal_head_lock;
-+
-+static inline void jbd_lock_bh_state(struct buffer_head *bh)
-+{
-+	BUG_ON(!bh->b_private);
-+	atomic_inc(&bh2jh(bh)->b_state_wait_count);
-+	spin_lock(&bh2jh(bh)->b_state_lock);
-+}
-+
-+static inline int jbd_trylock_bh_state(struct buffer_head *bh)
-+{
-+	int ret;
-+
-+	BUG_ON(!bh->b_private);
-+
-+	if ((ret = spin_trylock(&bh2jh(bh)->b_state_lock)))
-+		atomic_inc(&bh2jh(bh)->b_state_wait_count);
-+
-+	return ret;
-+}
-+
-+static inline int jbd_is_locked_bh_state(struct buffer_head *bh)
-+{
-+	return bh2jh(bh) ? spin_is_locked(&bh2jh(bh)->b_state_lock) : 0;
-+}
-+
-+static inline void jbd_unlock_bh_state(struct buffer_head *bh)
-+{
-+	int rmjh = 0;
-+
-+	BUG_ON(!atomic_read(&bh2jh(bh)->b_state_wait_count));
-+	atomic_dec(&bh2jh(bh)->b_state_wait_count);
-+
-+	if (buffer_journalhead(bh)) {
-+		clear_buffer_journalhead(bh);
-+		rmjh = 1;
-+	}
-+
-+	spin_unlock(&bh2jh(bh)->b_state_lock);
-+
-+	if (rmjh)
-+		journal_remove_journal_head(bh);
-+}
-+
-+static inline void jbd_lock_bh_journal_head(struct buffer_head *bh)
-+{
-+	spin_lock(&jbd_journal_head_lock);
-+}
-+
-+static inline void jbd_unlock_bh_journal_head(struct buffer_head *bh)
-+{
-+	spin_unlock(&jbd_journal_head_lock);
-+}
-+
-+#else /* !CONFIG_PREEMPT_RT */
-+
- static inline void jbd_lock_bh_state(struct buffer_head *bh)
- {
- 	bit_spin_lock(BH_State, &bh->b_state);
-@@ -354,6 +415,8 @@
- 	bit_spin_unlock(BH_JournalHead, &bh->b_state);
- }
-
-+#endif /* CONFIG_PREEMPT_RT */
-+
- struct jbd_revoke_table_s;
-
- /**
-@@ -918,7 +981,6 @@
-  */
- struct journal_head *journal_add_journal_head(struct buffer_head *bh);
- struct journal_head *journal_grab_journal_head(struct buffer_head *bh);
--void journal_remove_journal_head(struct buffer_head *bh);
- void journal_put_journal_head(struct journal_head *jh);
-
- /*
-diff -ur linux-2.6.11-rc4-V0.7.39-02.orig/include/linux/journal-head.h linux-2.6.11-rc4-V0.7.39-02/include/linux/journal-head.h
---- linux-2.6.11-rc4-V0.7.39-02.orig/include/linux/journal-head.h	2005-02-12 22:07:39.000000000 -0500
-+++ linux-2.6.11-rc4-V0.7.39-02/include/linux/journal-head.h	2005-03-11 15:14:07.774541864 -0500
-@@ -80,6 +80,16 @@
- 	 * [j_list_lock]
- 	 */
- 	struct journal_head *b_cpnext, *b_cpprev;
-+
-+	/*
-+	 * Lock the state of the buffer head.
-+	 */
-+	spinlock_t b_state_lock;
-+
-+	/*
-+	 * Count the processes that want/have the state lock.
-+	 */
-+	atomic_t b_state_wait_count;
- };
-
- #endif		/* JOURNAL_HEAD_H_INCLUDED */
-diff -ur linux-2.6.11-rc4-V0.7.39-02.orig/include/linux/spinlock.h linux-2.6.11-rc4-V0.7.39-02/include/linux/spinlock.h
---- linux-2.6.11-rc4-V0.7.39-02.orig/include/linux/spinlock.h	2005-03-10 08:47:25.000000000 -0500
-+++ linux-2.6.11-rc4-V0.7.39-02/include/linux/spinlock.h	2005-03-11 09:06:26.000000000 -0500
-@@ -774,6 +774,10 @@
- }))
+You know, people are actually spending time (and money!) to learn how to
+write Linux kernel modules.  And all this API shifting makes sure their
+knowledge is completely obsolete a few months down the road.  That's not
+how you create a community of people working on a shared goal.
 
 
-+#ifndef CONFIG_PREEMPT_RT
-+
-+/* These are just plain evil! */
-+
- /*
-  *  bit-based spin_lock()
-  *
-@@ -789,10 +793,15 @@
- 	 * busywait with less bus contention for a good time to
- 	 * attempt to acquire the lock bit.
- 	 */
--#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
--	while (test_and_set_bit(bitnum, addr))
--		while (test_bit(bitnum, addr))
-+	preempt_disable();
-+#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
-+	while (test_and_set_bit(bitnum, addr)) {
-+		while (test_bit(bitnum, addr)) {
-+			preempt_enable();
- 			cpu_relax();
-+			preempt_disable();
-+		}
-+	}
- #endif
- 	__acquire(bitlock);
- }
-@@ -802,9 +811,12 @@
-  */
- static inline int bit_spin_trylock(int bitnum, unsigned long *addr)
- {
--#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
--	if (test_and_set_bit(bitnum, addr))
-+	preempt_disable();
-+#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
-+	if (test_and_set_bit(bitnum, addr)) {
-+		preempt_enable();
- 		return 0;
-+	}
- #endif
- 	__acquire(bitlock);
- 	return 1;
-@@ -815,11 +827,12 @@
-  */
- static inline void bit_spin_unlock(int bitnum, unsigned long *addr)
- {
--#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
-+#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
- 	BUG_ON(!test_bit(bitnum, addr));
- 	smp_mb__before_clear_bit();
- 	clear_bit(bitnum, addr);
- #endif
-+	preempt_enable();
- 	__release(bitlock);
- }
+Enough ranting for today.  Sigh.
 
-@@ -828,12 +841,15 @@
-  */
- static inline int bit_spin_is_locked(int bitnum, unsigned long *addr)
- {
--#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
-+#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
- 	return test_bit(bitnum, addr);
-+#elif defined CONFIG_PREEMPT
-+	return preempt_count();
- #else
- 	return 1;
- #endif
- }
-+#endif /* CONFIG_PREEMPT_RT */
-
- #define DEFINE_SPINLOCK(name) \
- 	spinlock_t name __cacheline_aligned_in_smp = _SPIN_LOCK_UNLOCKED(name)
-
+Felix

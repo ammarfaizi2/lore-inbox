@@ -1,85 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266293AbRGFIeP>; Fri, 6 Jul 2001 04:34:15 -0400
+	id <S266301AbRGFIiF>; Fri, 6 Jul 2001 04:38:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266298AbRGFIeF>; Fri, 6 Jul 2001 04:34:05 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:6561 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S266293AbRGFId5>; Fri, 6 Jul 2001 04:33:57 -0400
-Message-ID: <3B457835.F06E49CF@uow.edu.au>
-Date: Fri, 06 Jul 2001 18:35:01 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Henry <henry@borg.metroweb.co.za>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: OOPS (kswapd) in 2.4.5 and 2.4.6
-In-Reply-To: <01070516412506.06182@borg>
+	id <S266303AbRGFIhz>; Fri, 6 Jul 2001 04:37:55 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:35600 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S266301AbRGFIhp>;
+	Fri, 6 Jul 2001 04:37:45 -0400
+Date: Fri, 6 Jul 2001 02:38:35 -0600
+From: Cort Dougan <cort@fsmlabs.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why Plan 9 C compilers don't have asm("")
+Message-ID: <20010706023835.A5224@ftsoj.fsmlabs.com>
+In-Reply-To: <200107040337.XAA00376@smarty.smart.net> <20010703233605.A1244@zalem.puupuu.org> <20010704002436.C1294@ftsoj.fsmlabs.com> <9hvjd4$1ok$1@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <9hvjd4$1ok$1@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Jul 04, 2001 at 05:22:44PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Henry wrote:
-> 
-> ...
-> Dual-cpu pentium 233 (intel) with 128MB RAM and more than double that swap.
-> 
-> ...
-> Unable to handle kernel NULL pointer dereference at virtual address 00000008
-> c01b4227
-> *pde = 00000000
-> Oops: 0000
-> CPU:    0
-> EIP:    0010:[<c01b4227>]
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010207
-> eax: 00000001   ebx: 00000000   ecx: 000000c0   edx: c12c49c0
-> esi: c12d3f4c   edi: 00000001   ebp: c0d0f2a0   esp: c12d3ee0
-> ds: 0018   es: 0018   ss: 0018
-> Process kswapd (pid: 3, stackpage=c12d3000)
-> Stack: 00000000 c12d3f4c c12d3f4c c01330cb 00000001 00000000 001c4300 c1203048
->        00000000 00000028 c0129752 00000001 c1203048 00000305 c12d3f48 00001000
->        001c4300 c1203048 00000000 00000028 c12d3f48 00000000 00001000 00001c43
-> Call Trace: [<c01330cb>] [<c0129752>] [<c0106cec>] [<c012981f>] [<c012a4e8>] [<c
-> 0128b1d>] [<c01293f5>]
->        [<c0129486>] [<c01054cc>]
-> Code: 0f b7 43 08 66 c1 e8 09 0f b7 f0 8b 43 18 a8 04 75 19 68 a7
-> 
-> >>EIP; c01b4227 <submit_bh+b/74>   <=====
-> Trace; c01330cb <brw_page+8f/a0>
-> Trace; c0129752 <rw_swap_page_base+152/1b0>
-> Trace; c0106cec <ret_from_intr+0/7>
-> Trace; c012981f <rw_swap_page+6f/b8>
-> Trace; c012a4e8 <swap_writepage+78/80>
-> Trace; c0128b1d <page_launder+285/874>
-> Trace; c01293f5 <do_try_to_free_pages+1d/58>
-> Trace; c0129486 <kswapd+56/e8>
-> Trace; c01054cc <kernel_thread+28/38>
+I'm talking about _modern_ processors, not processors that dominate the
+modern age.  This isn't x86.  I don't believe that even aggressive
+re-ordering will cause a serious hit in performance on function calls.
+Unconditional branches are definitely predictable so icache pre-fetches are
+not more complicated that straight-line code.
 
-There does appear to be an SMP race in brw_page() which can cause
-this - end_buffer_io_async() unlocks the page, try_to_free_buffers()
-zaps the buffer_head ring and brw_page() gets a null pointer.  But
-gee, it's unlikely unless you have super-fast disks and/or something
-which has a super-slow interrupt routine.
-
-Could you please provide a description of your hardware lineup?
-
-And could you please test 2.4.6 with this patch?
-
---- linux-2.4.6/fs/buffer.c	Wed Jul  4 18:21:31 2001
-+++ lk-ext3/fs/buffer.c	Fri Jul  6 18:25:00 2001
-@@ -2181,8 +2181,9 @@ int brw_page(int rw, struct page *page, 
- 
- 	/* Stage 2: start the IO */
- 	do {
-+		struct buffer_head *next = bh->b_this_page;
- 		submit_bh(rw, bh);
--		bh = bh->b_this_page;
-+		bh = next;
- 	} while (bh != head);
- 	return 0;
- }
-
--
+Measurement is more important, though.  I've rejected a number of
+optimizations from people (including many of my own) that were "obvious
+enhancements" because of what they showed in real-world measurements.  If
+it doesn't run faster, despite the theory being "right", it's worthless.

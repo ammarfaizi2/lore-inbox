@@ -1,78 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281015AbRKCTHr>; Sat, 3 Nov 2001 14:07:47 -0500
+	id <S281016AbRKCTIh>; Sat, 3 Nov 2001 14:08:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281016AbRKCTHh>; Sat, 3 Nov 2001 14:07:37 -0500
-Received: from www.wen-online.de ([212.223.88.39]:20237 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S281015AbRKCTHZ>;
-	Sat, 3 Nov 2001 14:07:25 -0500
-Date: Sat, 3 Nov 2001 20:07:16 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: <jogi@planetzork.ping.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.14-pre6
-In-Reply-To: <Pine.LNX.4.33.0111030953250.1680-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0111031957040.362-100000@mikeg.weiden.de>
+	id <S281017AbRKCTIc>; Sat, 3 Nov 2001 14:08:32 -0500
+Received: from pD951AA6B.dip.t-dialin.net ([217.81.170.107]:46474 "EHLO
+	power.suche.org") by vger.kernel.org with ESMTP id <S281016AbRKCTIT>;
+	Sat, 3 Nov 2001 14:08:19 -0500
+Message-ID: <3BE44096.2070808@bewegungsmelder.de>
+Date: Sat, 03 Nov 2001 20:08:06 +0100
+From: Thomas Lussnig <tlussnig@bewegungsmelder.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: null, de-de, de, en-gb, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+CC: linux-kernel@vger.kernel.org, khttpd mailing list <khttpd-users@zgp.org>
+Subject: Re: [khttpd-users] khttpd vs tux
+In-Reply-To: <Pine.LNX.4.30.0111031900230.9228-100000@mustard.heime.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Nov 2001, Linus Torvalds wrote:
-
-> On Sat, 3 Nov 2001, Mike Galbraith wrote:
-> >
-> > > Otherwise -pre5aa1 still seems to be the fastest kernel *in this test*.
-> >
-> > My box agrees.  Notice pre5aa1/ac IO numbers below.  I'm getting
-> > ~good %user/wallclock with pre6/pre7 despite (thrash?) IO numbers.
 >
-> Well, pre7 gets the second-best numbers, and the reason I really don't
-> like pre5aa1 is that since pre4, the virgin kernels have had all mapped
-> pages in the LRU queue, and can use that knowledge to decide when to
-> start swapping.
 >
-> So in those kernels, the balance between scanning the VM tables and
-> scanning the regular unmapped caches is something that is strictly
-> deterministic, which is something I _really_ want to have.
+>how much do you think you can get out of a server with several 1Gb
+>ethernet cards, multiple 66MHz/64bit PCI busses, multiple SCSI busses or
+>perhaps some sort of SAN solution based on FibreChannel 2?
 >
-> We've had too much trouble with the "let's hope this works" approach.
-> Which is why I want the anonymous pages to clearly show up in the
-> scanning, and not have them be these virtual ghosts that only show up when
-> you start swapping stuff out.
->
-> Your array cut down to just the ones that made the benchmark in under 8
-> minutes makes it easier to read, and clearly pre6+ seems to be a bit _too_
-> swap-happy. I'm trying the "dynamic max_mapped" approach now.
+Ok,
+on this hardware i think that the problem is the that the Kernel and
+Webserver need to suport that ( each of the 1Gbit card is bound to its
+own process and on Multiprozessor machine that the prozess is fixed to
+one CPU to minimize the siwtch overhead, also im not firm with the 
+FibreChannel2
+spezifikation i think that there can some trouble with the load, but much
+more important is to know how much different data is served, because then
+you talk about khttpd i think that it is definit static data and so the 
+question
+is how much, because on an ideal case the whole set of files is cached 
+in the
+ram, with 500 hundred Users i think there is only minmal patch in the 
+kernel to
+do for higher file handles. So if there is only there the choice left open
+tux or khttpd i think you should use tux
 
-Swap-happy doesn't bother this load too much.  What it's really sensitive
-to is pagein.  Turning the cache knobs (vigorously:) in aa-latest...
+- more defelopment
+- more tuning/config/log options
+- better code ( khttpd soud's a little bit of try and error )
 
-2.4.14-pre6aa1
-real    8m29.484s
-user    6m38.650s
-sys     0m27.940s
-
-user  :       0:06:45.45  70.6%  page in :   641298
-nice  :       0:00:00.00   0.0%  page out:   634494
-system:       0:00:41.73   7.3%  swap in :   118869
-idle  :       0:02:06.90  22.1%  swap out:   154141
-
-echo 2 > /proc/sys/vm/vm_mapped_ratio
-echo 128 > /proc/sys/vm/vm_balance_ratio
-
-real    7m25.069s
-user    6m37.390s
-sys     0m27.540s
-
-user  :       0:06:43.60  78.7%  page in :   588488
-nice  :       0:00:00.00   0.0%  page out:   514865
-system:       0:00:40.47   7.9%  swap in :   118738
-idle  :       0:01:08.92  13.4%  swap out:   122340
-
-..lowers the sleep time noticibly despite swapin remaining constant.
-
-	-Mike
 

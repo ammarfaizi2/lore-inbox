@@ -1,96 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272430AbTGaHwU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 03:52:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272808AbTGaHwU
+	id S272813AbTGaH6G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 03:58:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272835AbTGaH6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 03:52:20 -0400
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:62472 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S272430AbTGaHwS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 03:52:18 -0400
-Date: Thu, 31 Jul 2003 00:52:13 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Greg KH <greg@kroah.com>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Grant Miner <mine0057@mrs.umn.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Zio! compactflash doesn't work
-Message-ID: <20030731005213.B7207@one-eyed-alien.net>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Andries Brouwer <aebr@win.tue.nl>,
-	Grant Miner <mine0057@mrs.umn.edu>, linux-kernel@vger.kernel.org
-References: <3F26F009.4090608@mrs.umn.edu> <20030730231753.GB5491@kroah.com> <20030731011450.GA2772@win.tue.nl> <20030731041103.GA7668@kroah.com>
+	Thu, 31 Jul 2003 03:58:06 -0400
+Received: from smtp102.mail.sc5.yahoo.com ([216.136.174.140]:3502 "HELO
+	smtp102.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S272813AbTGaH6B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 03:58:01 -0400
+Date: Thu, 31 Jul 2003 05:01:04 -0300
+From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+To: Stefano Rivoir <s.rivoir@gts.it>
+Cc: ianh@iahastie.clara.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0t2 Hangs randomly
+Message-Id: <20030731050104.1b61990d.vmlinuz386@yahoo.com.ar>
+In-Reply-To: <3F28C124.9070004@gts.it>
+References: <3F27817A.8000703@gts.it>
+	<200307302346.02989.ianh@iahastie.local.net>
+	<3F28C124.9070004@gts.it>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i486-slackware-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="R3G7APHDIzY6R/pk"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030731041103.GA7668@kroah.com>; from greg@kroah.com on Wed, Jul 30, 2003 at 09:11:03PM -0700
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 31 Jul 2003 09:11:32 +0200, Stefano Rivoir wrote:
+>Ian Hastie wrote:
+>> On Wednesday 30 Jul 2003 09:27, Stefano Rivoir wrote:
+>> 
+>
+>> 
+>> What makes you think this is a hang?  Does the disc activity stop? 
+>If you > press the caps lock or num lock keys does the LED light up? 
+>What I'm asking > is could it have been swapping for some reason?  I've
+>had the system go > unresponsive on me quite recently, also when
+>running KDE.  It easilly took a > two or more minutes to start
+>responding again.  The disc light stayed active > all the time it
+>wasn't responding.
+>
+>No, it hangs. No cursor movement, no keyboard reaction, no ping on
+>eth0, no disc activity except for 3/4 seconds following. I left it like
+>that 10/15 minutes then I had to power it off...
 
---R3G7APHDIzY6R/pk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I have similar symptom when the freeze happen. No disk activity, no
+mouse, no keyboard, the open sessions ssh not to respond, no ping, etc. 
+Until this moment, I happen to me only once, but it takes advantage of
+east message to comment to them of the experience.
+In any case if experiment these freeze, I return to them to communicate
+of the problem, and in any case I test some parameter of starting
+or options of compilation that you they recommend to me.
 
-On Wed, Jul 30, 2003 at 09:11:03PM -0700, Greg KH wrote:
-> On Thu, Jul 31, 2003 at 03:14:50AM +0200, Andries Brouwer wrote:
-> > On Wed, Jul 30, 2003 at 04:17:53PM -0700, Greg KH wrote:
-> > > On Tue, Jul 29, 2003 at 05:07:05PM -0500, Grant Miner wrote:
-> > > > I have a Microtech CompactFlash ZiO! USB
-> > > > P:  Vendor=3D04e6 ProdID=3D1010 Rev=3D 0.05
-> > > > S:  Manufacturer=3DSHUTTLE
-> > > > S:  Product=3DSCM Micro USBAT-02
-> > > >=20
-> > > > but it does not show up in /dev; this is in 2.6.0-pre1.  (It never=
-=20
-> > > > worked in 2.4 either.)  config is attached.  Any ideas?
-> > >=20
-> > > Linux doesn't currently support this device, sorry.
-> >=20
-> > Hmm. I think I recall seeing people happily using that.
-> > Do I misremember?
-> >=20
-> > Google gives
-> >   http://www.scm-pc-card.de/service/linux/zio-cf.html
-> > and
-> >   http://usbat2.sourceforge.net/
->=20
-> In looking at the kernel source, I don't see support for this device.  I
-> do see support for others like it, but with different product ids.
+About other beta versions of kernel I cannot comment to them because
+not them probe.  2.6.0-test1 probe just a short time.
 
-Zio! apparently makes multiple CF readers.  Some of them are supported, but
-this particular one is not, and likely never will be.
+Lamentably it is not left anything registered in logs, only combinacion
+of keys that responds is sysrq-reboot.
+sysrq-sync and sysrq-umount not respond (no disk activity).
 
-Matt
+Running: kernel compilation (over ext3) ,
+X 4.3 (DRI no in use), KDE,Mozilla(downloading file over xfs)
+,Sylpheed,Xchat, and in the reiser fs partition no activitie.
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+When reboot fsck deleted orphaned entrys from /tmp (ext3) and no others
+problems in others filesystems.
 
-G:   Baaap booop BAHHHP.
-Mir: 9600 Baud?
-Mik: No, no!  9600 goes baap booop, not booop bahhhp!
-					-- Greg, Miranda and Mike
-User Friendly, 12/31/1998
 
---R3G7APHDIzY6R/pk
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+My .config, dmesg and lspci.
+http://www.vmlinuz.com.ar/slackware/kernel.config.djgera/config-2.6.0-test2
+http://www.vmlinuz.com.ar/slackware/info-hard/dmesg-2.6.0-test2-djgera
+http://www.vmlinuz.com.ar/slackware/info-hard/lspci-2.6.0-test2-djgera
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQE/KMqtIjReC7bSPZARAnamAJ9HdubtYwwZrRZKZY4Z8iiTZmlUDACfYxmd
-I/fgUXUOcFLu6pQGxS8sUtw=
-=y9Zm
------END PGP SIGNATURE-----
-
---R3G7APHDIzY6R/pk--
+(sorry my english)
+-- 
+Gerardo Exequiel Pozzi ( djgera )
+http://www.vmlinuz.com.ar http://www.djgera.com.ar
+KeyID: 0x1B8C330D
+Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D

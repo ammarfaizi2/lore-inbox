@@ -1,39 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbTE2SuO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 14:50:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbTE2SuO
+	id S262499AbTE2Sz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 14:55:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbTE2Sz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 14:50:14 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:43988 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S262567AbTE2SuN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 14:50:13 -0400
-Date: Thu, 29 May 2003 13:13:12 +0200
-From: Pavel Machek <pavel@suse.cz>
+	Thu, 29 May 2003 14:55:27 -0400
+Received: from [65.244.37.61] ([65.244.37.61]:15671 "EHLO
+	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
+	id S262499AbTE2Sz0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 14:55:26 -0400
+Message-ID: <170EBA504C3AD511A3FE00508BB89A920221E6EA@exnanycmbx4.ipc.com>
+From: "Downing, Thomas" <Thomas.Downing@ipc.com>
 To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: must-fix list, v5
-Message-ID: <20030529111312.GB1215@elf.ucw.cz>
-References: <20030521152255.4aa32fba.akpm@digeo.com> <20030521152334.4b04c5c9.akpm@digeo.com> <20030526093717.GC642@zaurus.ucw.cz> <20030528144839.47efdc4f.akpm@digeo.com> <20030528215551.GB255@elf.ucw.cz> <20030528150610.3df70031.akpm@digeo.com> <20030528221812.GC255@elf.ucw.cz> <20030528154651.177488f3.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030528154651.177488f3.akpm@digeo.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: RE: 2.5.70-mm2
+Date: Thu, 29 May 2003 15:08:35 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I use MySQL pretty extensively, so I'll excersize that as well as
+the day-to-day builds, etc.  I'm on day 4 of -mm1, no problems to date.
 
-> > Yes, x86-64 and sparc64 were converted.
+By definition, I'm happy!
+
+-----Original Message-----
+From: Andrew Morton [mailto:akpm@digeo.com]
+Sent: Thursday, May 29, 2003 1:36 PM
+To: Downing, Thomas
+Cc: linux-kernel@vger.kernel.org; linux-mm@kvack.org
+Subject: Re: 2.5.70-mm2
+
+
+"Downing, Thomas" <Thomas.Downing@ipc.com> wrote:
+>
+> -----Original Message-----
+> From: Andrew Morton [mailto:akpm@digeo.com]
 > 
-> OK, I know who to bug about those.
+> >
+>
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.70-
+> mm2/
+> [snip]
+> >  Needs lots of testing.
+> [snip]
+> 
+> I for one would like to help in that testing, as might others.
+> Could you point to/name some effective test tools/scripts/suites 
+> for testing your work?  As it is, my testing is just normal usage,
+> lots of builds.
+> 
 
-I'm currently porting davem's 2.4 changes forward. Did you apply the
-patch (-> do you want relative patch) or not?
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+I was specifically referring to the O_SYNC changes there.  That means
+databases: postgresql, mysql, sapdb, etc.
+
+Some of these use fsync()-based synchronisation and won't benefit, but they
+may have compile-time or runtime options to use O_SYNC instead.
+
+
+Apart from that, just using the kernel in day-to-day activity is the most
+important thing.  If everyone does that, and everyone is happy then by
+definition this kernel is a wrap.

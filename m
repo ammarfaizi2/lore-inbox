@@ -1,47 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266749AbUIJBVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUIJBXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266749AbUIJBVO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 21:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUIJBVO
+	id S265395AbUIJBXg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 21:23:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266836AbUIJBXe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 21:21:14 -0400
-Received: from fw.osdl.org ([65.172.181.6]:442 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266836AbUIJBU7 (ORCPT
+	Thu, 9 Sep 2004 21:23:34 -0400
+Received: from open.hands.com ([195.224.53.39]:29664 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S265395AbUIJBXa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 21:20:59 -0400
-Date: Thu, 9 Sep 2004 18:20:54 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: linux-kernel@vger.kernel.org, coreteam@netfilter.org
-Subject: Re: why is sk->skb->sk_socket->file  NULL on incoming packets?
-Message-ID: <20040909182053.P1973@build.pdx.osdl.net>
-References: <20040910004517.GC7587@lkcl.net>
+	Thu, 9 Sep 2004 21:23:30 -0400
+Date: Fri, 10 Sep 2004 02:34:45 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] update: _working_ code to add device+inode check to ipt_owner.c
+Message-ID: <20040910013445.GF11160@lkcl.net>
+References: <20040909162200.GB9456@lkcl.net> <20040909091931.K1973@build.pdx.osdl.net> <20040909181034.GF10046@lkcl.net> <20040909114846.V1924@build.pdx.osdl.net> <20040909212514.GA10892@lkcl.net> <20040909160449.E1924@build.pdx.osdl.net> <20040910000819.GA7587@lkcl.net> <20040909172134.G1924@build.pdx.osdl.net> <20040910005932.GA11160@lkcl.net> <20040909180838.H1924@build.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040910004517.GC7587@lkcl.net>; from lkcl@lkcl.net on Fri, Sep 10, 2004 at 01:45:17AM +0100
+In-Reply-To: <20040909180838.H1924@build.pdx.osdl.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-hands-com-MailScanner-SpamScore: s
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Luke Kenneth Casson Leighton (lkcl@lkcl.net) wrote:
-> hi, simple question - if a userspace ip_queue program (fireflier)
-> can determine the pid of an incoming packet, why can't ipt_owner.c
-> do the same?
+On Thu, Sep 09, 2004 at 06:08:38PM -0700, Chris Wright wrote:
+> * Luke Kenneth Casson Leighton (lkcl@lkcl.net) wrote:
+> > On Thu, Sep 09, 2004 at 05:21:35PM -0700, Chris Wright wrote:
+> > > >  under such circumstances [file descs passed between programs]...
+> > > >  you would end up having to create _two_ program-specific rules, like
+> > > >  above.
+> > > > 
+> > > >  one for each of the two programs.
+> > > 
+> > > Actually you wouldn't, just one.  It will match, then one of those
+> > > processes will get woken up and receive the data, regardless of whether
+> > > you meant to allow it.  
+> > 
+> >  blehhrrr....
+> > 
+> >  oh i get it.  
+> >  
+> >  is that like someone writing really poor quality code where
+> >  you have two processes reading from the same socket, wot like
+> >  you're not supposed to do?
 > 
-> how do i force, even by using a userspace thing which asks the
-> packet to be "re-examined", the skb->sk->sk_socket->file to be
-> set?
+> I don't think it's behaviour many apps rely on.  But this is exactly the
+> kind of behaviour which can break security models.
+> 
+> >  or are there real instances / times where you really _do_ want
+> >  that sort of thing to happen (xinetd?)
+> 
+> Well, xinted won't really read from multiple processes simultaneously
+> (if all is working properly).  The xinetd server will see the initial
+> packet, then fork/exec and close off all extra fds.  Now, try and write
+> a firewall ruleset that mandatorily enforces that.  See the trouble?
+ 
+ hmmm... *thinks*...
 
-I assume the netfilter hook you come in on is NF_IP_LOCAL_IN?  This is
-at ip level.  The sock (sk) is protocol specific, and hasn't been
-looked up yet.  Look at the protocols' input handlers (i.e. udp_rcv or
-tcp_v4_rcv), they do this lookup (i.e. udp_v4_lookup or __tcp_v4_lookup).
-The sk_filter() point is probably the first time you have an association
-between the skb (inbound) and the sock it's going to be queued to.
-LSM modules use security_sock_rcv_skb at this point.
+ thought-experiment:
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+ it'd involve doing a userspace rule that caught the packet.
+
+
+> >  [btw the sk_socket->file thing isn't filled in on input packets,
+> >   but you still get the packet.  arg.  how the heck does ip_queue
+> >   get enough info???]
+> 
+> Heh, right.  The sock is protocol specific.  The input happening on ip
+> level is before sock lookup.
+ 
+ *neck muscles tensing causing head to vibrate at about 8Hz*
+ rrrrrr arg!  
+
+ okay - chris, anyone - got any tips on triggering socket lookup?
+
+ what sort of things should i be looking for in netfilter that does
+ the socket lookup?
+

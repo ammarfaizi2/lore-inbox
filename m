@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272375AbTHECav (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 22:30:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272376AbTHECav
+	id S272382AbTHECjD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 22:39:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272388AbTHECjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 22:30:51 -0400
-Received: from almesberger.net ([63.105.73.239]:45830 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S272375AbTHECau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 22:30:50 -0400
-Date: Mon, 4 Aug 2003 23:30:27 -0300
-From: Werner Almesberger <werner@almesberger.net>
-To: Larry McVoy <lm@work.bitmover.com>,
-       David Lang <david.lang@digitalinsight.com>,
-       "Ihar 'Philips' Filipau" <filia@softhome.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: TOE brain dump
-Message-ID: <20030804233026.R5798@almesberger.net>
-References: <20030804223800.P5798@almesberger.net> <Pine.LNX.4.44.0308041841190.7534-100000@dlang.diginsite.com> <20030805015401.GA15811@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030805015401.GA15811@work.bitmover.com>; from lm@bitmover.com on Mon, Aug 04, 2003 at 06:54:01PM -0700
+	Mon, 4 Aug 2003 22:39:03 -0400
+Received: from customer-server-246.servepath.com ([216.93.178.246]:57098 "EHLO
+	sourcream.tacosalad.org") by vger.kernel.org with ESMTP
+	id S272382AbTHECjB (ORCPT <rfc822;linux-kernel@VGER.KERNEL.ORG>);
+	Mon, 4 Aug 2003 22:39:01 -0400
+Message-ID: <1060051117.3f2f18ad94736@www.tacosalad.org>
+Date: Mon,  4 Aug 2003 22:38:37 -0400
+From: Info Account <info@PerryResearch.com>
+To: linux-kernel@VGER.KERNEL.ORG
+Subject: OBSD OCF support
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Lotus Notes Release 5.0.8 June 18, 2001
+X-Originating-IP: 67.121.51.142
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> I'd suggest that all of you look at the fact that all of these offload 
-> card companies have ended up dieing.  I don't know of a single one that
-> made it to profitability.  Doesn't that tell you something?  What has 
-> changed that makes this a good idea?
+Are there any plans to port OBSD's OCF to the linux kernel?
 
-1) So far, most of the battle has been about data transfers.
-   Now, per-packet overhead is becoming an issue.
+>- Existing kernel APIs with hardware support:
+>- OpenBSD crypto queue
+>- Cryptolib by Martin Gadbois,
+>http://sources.colubris.com/en/projects/FreeSWAN/
+>(what license does cryptolib use?)
 
-2) AFAIK, they all went for designs that isolated their code
-   from the main stack. That's one thing that, IMHO, has to
-   change.
 
-Is this enough to make TOE succeed ? I don't know.
 
-- Werner
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+---------------------------------
+
+Perry Research, Inc.
+5450 Bruce B. Downs Blvd #313
+Wesley Chapel, FL 33543
+p: 813-864-7659 f: 813-862-2015
+
+http://www.PerryResearch.com/directory.htm
+
+

@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261173AbTCBV3t>; Sun, 2 Mar 2003 16:29:49 -0500
+	id <S261353AbTCBVbZ>; Sun, 2 Mar 2003 16:31:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261290AbTCBV3t>; Sun, 2 Mar 2003 16:29:49 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:23821 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S261173AbTCBV3t>;
-	Sun, 2 Mar 2003 16:29:49 -0500
-Date: Sun, 2 Mar 2003 22:40:13 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kbuild: fix make -j4 on UP
-Message-ID: <20030302214013.GA13138@mars.ravnborg.org>
-Mail-Followup-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	linux-kernel@vger.kernel.org
-References: <20030302201648.GA14770@mars.ravnborg.org>
+	id <S261375AbTCBVbZ>; Sun, 2 Mar 2003 16:31:25 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:51609
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261353AbTCBVbX>; Sun, 2 Mar 2003 16:31:23 -0500
+Subject: Re: [PATCH] kernel source spellchecker
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, Dan Kegel <dank@kegel.com>,
+       Matthias Schniedermeyer <ms@citd.de>, Joe Perches <joe@perches.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mike@aiinc.ca
+In-Reply-To: <1046612993.7527.472.camel@spc1.mesatop.com>
+References: <Pine.LNX.4.44.0303011503590.29947-101000@korben.citd.de>
+	 <3E6101DE.5060301@kegel.com> <1046546305.10138.415.camel@spc1.mesatop.com>
+	 <3E6167B1.6040206@kegel.com>  <3E617428.3090207@kegel.com>
+	 <1046578585.2544.451.camel@spc1.mesatop.com>
+	 <1046604117.12947.16.camel@imladris.demon.co.uk>
+	 <1046612993.7527.472.camel@spc1.mesatop.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046645090.3698.40.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030302201648.GA14770@mars.ravnborg.org>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 02 Mar 2003 22:44:50 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 02, 2003 at 09:16:48PM +0100, Sam Ravnborg wrote:
-> The following patch moves the generation of compile.h to the
-> top-level makefile, and list it in the prepare rule.
 
-Which has the side-effect that compile.h will be generated each time,
-because the version increases. And the kernel is recompiled.
-I will do a proper fix tomorrow.
+> > I think we also want to add:
+> > 
+> > Decompressing=Uncompressing
 
-	Sam
+Both are commonly used. People are going to far. Fixing typos that are
+confusing or blatantly daft is one thing, but if you want to pick over
+documentation line by line with a copy of Fowlers in hand the Gnome and
+KDE projects would both love to have you working over their
+documentation and end user manuals ;)
+
+

@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262083AbSKHOpK>; Fri, 8 Nov 2002 09:45:10 -0500
+	id <S262089AbSKHOxw>; Fri, 8 Nov 2002 09:53:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262080AbSKHOpK>; Fri, 8 Nov 2002 09:45:10 -0500
-Received: from email.gcom.com ([206.221.230.194]:58509 "EHLO gcom.com")
-	by vger.kernel.org with ESMTP id <S262076AbSKHOpK>;
-	Fri, 8 Nov 2002 09:45:10 -0500
-Message-Id: <5.1.0.14.2.20021108084936.03fe6eb8@localhost>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 08 Nov 2002 08:51:07 -0600
-To: landley@trommello.org
-From: David Grothe <dave@gcom.com>
-Subject: Re: [PATCH] Linux-streams registration 2.5.46
+	id <S262100AbSKHOxw>; Fri, 8 Nov 2002 09:53:52 -0500
+Received: from ext-nj2gw-1.online-age.net ([216.35.73.163]:50603 "EHLO
+	ext-nj2gw-1.online-age.net") by vger.kernel.org with ESMTP
+	id <S262089AbSKHOxv>; Fri, 8 Nov 2002 09:53:51 -0500
+Message-ID: <A9713061F01AD411B0F700D0B746CA6802FC1544@vacho6misge.cho.ge.com>
+From: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
+To: "'Corey Minyard'" <cminyard@mvista.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200211080637.06511.landley@trommello.org>
-References: <5.1.0.14.2.20021107145447.027905c8@localhost>
- <5.1.0.14.2.20021107145447.027905c8@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Subject: RE: NMI handling rework
+Date: Fri, 8 Nov 2002 10:00:16 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 06:37 AM 11/8/2002 Friday, Rob Landley wrote:
->On Thursday 07 November 2002 21:00, David Grothe wrote:
->
->Just a random comment, but the feature freeze was October 31st.  Is this a
->repost of something we saw before then?
 
-Yes.  This came up in late September and I posted a patch in early October 
-for 2.4.  It took until just a few days ago to get LiS ported to 2.5 so 
-that I could test the patch for 2.5.
--- Dave
+-- Snipped from the patch --
 
+If the handler actually handles the NMI, it should return NOTIFY_OK.
+If it did not handle the NMI, it should return NOTIFY_DONE.  It may "or"
+on NOTIFY_STOP_MASK to the return value if it does not want other
+handlers after it to be notified.
 
+-- End snip --
+
+> It is still possible, though unlikely, that two NMI sources could occur 
+> at the same time.  Maybe that's not worth worrying about, and maybe for 
+> the APICs it works fine.
+
+Am I reading this correctly? As long as no one passes back NOTIFY_STOP_MASK,
+all handlers are run. Assuming that all external NMI sources have a means of
+checking whether they were the source, this would work like shared PCI
+interrupts.
+
+> Not on the i386 family.  Once an NMI is accepted by the CPU, it gets
+> internally masked until an iret instruction gets executed.  If another NMI
+> happens maenwhile, it's latched by the processor internally and dispatched
+> as soon as NMIs are unmasked.  Further NMIs received when masked are lost.
+
+So... We're running through the handler list servicing an NMI, two more NMIs
+come in and we latch one (the other is dropped). It doesn't matter. Either
+the
+affected handlers have not run yet and will get run on the current pass, or
+they will run on the next pass. You may have two handlers run on a single
+pass
+but you should not drop any. True??
+
+This assumes i386 architecture and all handlers are run. I don't know about
+other archs.

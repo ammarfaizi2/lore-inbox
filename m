@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262012AbTICMhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 08:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTICMhZ
+	id S262074AbTICMrW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 08:47:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbTICMrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 08:37:25 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:46991 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262012AbTICMhY (ORCPT
+	Wed, 3 Sep 2003 08:47:22 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:33218 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S262074AbTICMrU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 08:37:24 -0400
-Date: Wed, 3 Sep 2003 14:36:34 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Jamie Lokier <jamie@shareable.org>, Kars de Jong <jongk@linux-m68k.org>,
-       Linux/m68k kernel mailing list 
-	<linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-In-Reply-To: <Pine.LNX.4.44.0309031407050.20748-100000@serv>
-Message-ID: <Pine.GSO.4.21.0309031436020.6985-100000@waterleaf.sonytel.be>
+	Wed, 3 Sep 2003 08:47:20 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: b.zolnierkiewicz@elka.pw.edu.pl
+Date: Wed, 3 Sep 2003 14:46:42 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: LBA48 on PDC20265 (again and again...)
+Cc: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <BFC117A6765@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Sep 2003, Roman Zippel wrote:
-> On Wed, 3 Sep 2003, Geert Uytterhoeven wrote:
-> > > Does the 68020 even _have_ the equivalent of a store buffer?
-> > 
-> > Good question :-)
-> > 
-> > After I sent the previous mail, I realized the '030 has 256 bytes I cache and
-> > 256 bytes D cache, while the '020 has 256 bytes I cache only.
-> 
-> BTW the 020/030 caches are VIVT (and also only writethrough), the 040/060 
-> caches are PIPT.
+Hi,
+  during last year there was couple of complaints that pdc202xx_old
+driver does not allow LBA48 on first channel, and couple of confirmations
+that just removing these two lines which do:
 
-That explains a bit. But the '060 stores are coherent, while the '040 stores
-aren't.
+  if (hwif->pci_dev->device == PCI_DEVICE_ID_PROMISE_20265)
+      hwif->no_lba48 = (hwif->channel) ? 0 : 1;
+      
+fixes problem, and both channels run with lba48 drives just fine...
 
-Gr{oetje,eeting}s,
+  Yesterday I bring home two nice 160GB seagates, hooked them up to
+the Promise, and booted. And to my surprise we still do not enable
+lba48 on primary channel...
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+  Is there some reason for doing that? I removed this, and I was able
+to copy contents of my old 120GB disk to the 160GB one, with 40G offset
+(so lba48 has to work, otherwise first 40GB holding an VFAT partition with
+some gzipped test files gets corrupted). Currently these two drives
+are unused (they just hold backup copy of dying 120GB wd), so I can do
+any experiments you may want to confirm/decline idea that we should
+remove this no_lba48 hack. Of course unless you have datasheet which says
+that it cannot work. But as Promise BIOS happily says that two 149GB disks
+(149 * 2^30 == 160 * 10^9) running UDMA5 are attached, I assume that it 
+is willing to handle LBA48 on both channels.
+                                              Thanks,
+                                                  Petr Vandrovec
+                                                  
 

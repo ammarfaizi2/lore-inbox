@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291470AbSBHIZq>; Fri, 8 Feb 2002 03:25:46 -0500
+	id <S291471AbSBHI10>; Fri, 8 Feb 2002 03:27:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291471AbSBHIZg>; Fri, 8 Feb 2002 03:25:36 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:58891 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S291470AbSBHIZV>; Fri, 8 Feb 2002 03:25:21 -0500
-Date: Fri, 8 Feb 2002 10:25:14 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: How to check the kernel compile options ?
-Message-ID: <20020208082514.GH535637@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020207075607.GE534915@niksula.cs.hut.fi> <200202072111.g17LBig0001686@tigger.cs.uni-dortmund.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200202072111.g17LBig0001686@tigger.cs.uni-dortmund.de>
-User-Agent: Mutt/1.3.25i
+	id <S291472AbSBHI1Q>; Fri, 8 Feb 2002 03:27:16 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:12043 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S291471AbSBHI1H>; Fri, 8 Feb 2002 03:27:07 -0500
+Message-Id: <200202080824.g188ODt13531@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Christoph Hellwig <hch@ns.caldera.de>, Martin.Wirth@dlr.de (Martin Wirth)
+Subject: Re: [RFC] New locking primitive for 2.5
+Date: Fri, 8 Feb 2002 10:24:15 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: akpm@zip.com.au, mingo@elte.hu, rml@tech9.net, nigel@nrg.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200202071822.g17IMgS14802@ns.caldera.de>
+In-Reply-To: <200202071822.g17IMgS14802@ns.caldera.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 07, 2002 at 10:11:44PM +0100, you [Horst von Brand] wrote:
-> Ville Herva <vherva@niksula.hut.fi> said:
-> 
-> [...]
-> 
-> > With a directory, you lose the information of in which order the patches
-> > have been applied - unless of course you resort to file dates or some
-> > such.
-> 
-> Pfui! Think patches 1, 2, 3 in this order; with 2a later superseeding 2...
+On 7 February 2002 16:22, Christoph Hellwig wrote:
+> In article <3C629F91.2869CB1F@dlr.de> you wrote:
+> > The new lock uses a combination of a spinlock and a (mutex-)semaphore.
+> > You can lock it for short-term issues in a spin-lock mode:
+> >
+> >         combi_spin_lock(struct combilock *x)
+> >         combi_spin_unlock(struct combilock *x)
+> >
+> > and for longer lasting tasks in a sleeping mode by:
+> >
+> >         combi_mutex_lock(struct combilock *x)
+> >         combi_mutex_unlock(struct combilock *x)
+>
+> I think this API is really ugly.  If both pathes actually do the same,
+> just with different defaults, one lock function with a flag would be
+> much nicer.  Also why do we need two unlock functions?
+>
+> What about the following instead:
+>
+> 	combi_lock(struct combilock *x, int spin);
+> 	combi_unlock(struct combilock *x);
 
-Well, what way 2a supersedes 2? diff-2-2a? That would add a "2-2a" entry to
-the patches dir.
+What is easier to read:
+	combi_lock(zzzt_clock, 1);	
+	// go grepping .h to find out what this 1 means
+or
+	combi_spin_lock(zzzt_clock);
+?
 
-But clearly this scheme is not suited for nor aimed at maintaining a tree.
-It is more useful when you build a kernel from already existing bits: I
-usually take stable tree X, then pre-patch Y, ac- or aa- patch Z and stuff
-like newer raid/lvm patch, ide-patch, reiserfs patch, e2compr patch,
-lowlatency patch etc. Later I have trouble remembering which patches went in
-to that particular kernel (and which versions of those patches.)
- 
-> They do it in RPM's spec files, listing the patches (and saying if, and
-> perhaps when, in what order) they have to be applied. A source RPM is not
-> that much more than a cpio(1)-ball of the sources, patches, and .spec, very
-> handy a  _single_ file.
-
-Yes, perhaps I should make rpm out of each kernel I build - but then again
-that won't help with boot disks nor with non-redhat systems.
-
-
--- v --
-
-v@iki.fi
+OTOH single unlock() looks good.
+--
+vda

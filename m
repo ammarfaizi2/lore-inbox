@@ -1,47 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265753AbUBPTFr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 14:05:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265775AbUBPTFq
+	id S265841AbUBPTP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 14:15:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbUBPTP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 14:05:46 -0500
-Received: from mail.uni-kl.de ([131.246.137.52]:4041 "EHLO uni-kl.de")
-	by vger.kernel.org with ESMTP id S265753AbUBPTFo (ORCPT
+	Mon, 16 Feb 2004 14:15:56 -0500
+Received: from fw.osdl.org ([65.172.181.6]:26822 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265841AbUBPTPo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 14:05:44 -0500
-Date: Mon, 16 Feb 2004 20:05:24 +0100
-From: Eduard Bloch <edi@gmx.de>
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: JFS default behavior
-Message-ID: <20040216190524.GA15087@zombie.inka.de>
-References: <1pvUz-6j-1@gated-at.bofh.it> <1pRVj-2am-29@gated-at.bofh.it> <E1AskjS-0000OQ-3K@localhost>
+	Mon, 16 Feb 2004 14:15:44 -0500
+Subject: Re: Linux 2.6.3-rc3 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0402141931050.14025@home.osdl.org>
+References: <Pine.LNX.4.58.0402141931050.14025@home.osdl.org>
+Content-Type: text/plain
+Message-Id: <1076959106.9928.59.camel@cherrytest.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1AskjS-0000OQ-3K@localhost>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 16 Feb 2004 11:18:26 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Moin Pascal!
-Pascal Schmidt schrieb am Monday, den 16. February 2004:
+Linux 2.6 Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-> > When I do this, I still cannot enter unicode chars "as usual". I see
-> > them, mutt (for example) displays everything correct with a UTF-8
-> > locale. However, I cannot insert them correctly. When I use vim, I have
-> > to press another key (eg. Space) 2..4 times after an umlaut was pressed,
-> > only then the char appears.
-> 
-> You're right, inputing UTF-8 (in joe) doesn't work, but that's an
-> application problem, I think, because it works just fine on a shell
-> prompt.
+Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
+             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
+-----------  -----------  -------- -------- -------- -------- ---------
+2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
+2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
+2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
+2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
+2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
+2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
+2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
 
-No, does not work for me either (up-to-date bash). General multibyte
-support in joe is a different problem.
+Warning summary:
+   drivers/block: 1 warnings, 0 errors
+   drivers/cdrom: 3 warnings, 0 errors
+   drivers/char: 1 warnings, 0 errors
+   drivers/ide: 5 warnings, 0 errors
+   drivers/isdn: 2 warnings, 0 errors
+   drivers/message: 1 warnings, 0 errors
+   drivers/mtd: 23 warnings, 0 errors
+   drivers/net: 7 warnings, 0 errors
+   drivers/pcmcia: 3 warnings, 0 errors
+   drivers/scsi/pcmcia: 1 warnings, 0 errors
+   drivers/scsi: 32 warnings, 0 errors
+   drivers/serial: 1 warnings, 0 errors
+   drivers/telephony: 5 warnings, 0 errors
+   drivers/usb: 2 warnings, 0 errors
+   drivers/video/console: 2 warnings, 0 errors
+   drivers/video/matrox: 5 warnings, 0 errors
+   sound/isa: 6 warnings, 0 errors
+   sound/oss: 33 warnings, 0 errors
 
-Regards,
-Eduard.
--- 
-Wie man sein Kind nicht nennen sollte: 
-  Mario Hanna 
+Error summary:
+   drivers/net: 0 warnings, 1 errors
+
+
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
+Daily compiles (ia32): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
+Daily compiles (ia64): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
+Latest changes in Linus' bitkeeper tree:
+   http://linux.bkbits.net:8080/linux-2.5
+
+John
+
+
+

@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268516AbRG3L4n>; Mon, 30 Jul 2001 07:56:43 -0400
+	id <S268543AbRG3MIx>; Mon, 30 Jul 2001 08:08:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268533AbRG3L4e>; Mon, 30 Jul 2001 07:56:34 -0400
-Received: from bish.net ([208.139.225.12]:61327 "EHLO bish.net")
-	by vger.kernel.org with ESMTP id <S268516AbRG3L4X>;
-	Mon, 30 Jul 2001 07:56:23 -0400
-Date: Mon, 30 Jul 2001 07:55:42 -0400 (EDT)
-From: Mark <mark@bish.net>
-Reply-To: Mark <mark@bish.net>
-To: Jonathan Hudson <jonathan@daria.co.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel version 2.4.7 compile errors (fwd)
-In-Reply-To: <20010730094356.C74F210800@trespassersw.daria.co.uk>
-Message-ID: <Pine.LNX.3.96.1010730075301.654G-100000@bish.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268545AbRG3MIn>; Mon, 30 Jul 2001 08:08:43 -0400
+Received: from SSH.ChaoticDreams.ORG ([64.162.95.164]:53893 "EHLO
+	ssh.chaoticdreams.org") by vger.kernel.org with ESMTP
+	id <S268543AbRG3MIa>; Mon, 30 Jul 2001 08:08:30 -0400
+Date: Mon, 30 Jul 2001 05:07:49 -0700
+From: Paul Mundt <lethal@ChaoticDreams.ORG>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: john slee <indigoid@higherplane.net>, linux-kernel@vger.kernel.org
+Subject: Re: Test mail
+Message-ID: <20010730050749.A17726@ChaoticDreams.ORG>
+In-Reply-To: <20010730214522.C1183@higherplane.net> <E15RBV4-0003d0-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.13i
+In-Reply-To: <E15RBV4-0003d0-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Jul 30, 2001 at 12:46:18PM +0100
+Organization: Chaotic Dreams Development Team
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-NOTE: I'm not subscribed - please Cc: mark@bish.net
+On Mon, Jul 30, 2001 at 12:46:18PM +0100, Alan Cox wrote:
+> Its more than that. Its the same smug arrogance that is going to get a lot
+> of people nasty shocks one day
+> 
+> ELM, Pine and Mutt have all at various times had holes that could have been
+> used to write an exact Unix equivalent of the windows virus. 
+> <img src="file:/dev/mouse"> hangs some web browser email 4 years after the
+> bug was reported and so on...
+> 
+This all goes back to opening things blindly, and also ties in the issue of
+HTML aware email clients.
 
-On Mon, 30 Jul 2001, Jonathan Hudson wrote:
->
->Dodgy RAM. Had the same problem some time ago. The machine would run
->memtest86 as long as you like, no problem. Compile a kernel and I'd
->get these bit errors. Reboot, powercycle, look at the file -- no
->problem, probably compile next time.
->
->Replacing the RAM fixed the problem.
->
->
+Mail clients should simply be dealing with plain text. As soon as things like
+HTML support are introduced into the client, you have the same sort of
+problems that you do with easily exploitable web browsers.
 
-I already replaced the RAM and did the power cycle.
+These things are only an issue when your mail client tries to do things for
+you instead of allowing you to do them yourself. HTML emails can simply be
+fed through something like a lynx -dump in order to capture their plaintext
+output.
 
+Keep HTML where it belongs, on webpages, not mail. If someone wants to send
+you an image, they can do so through an attachment.
 
-------------------------------------------------------------------------
-| Mark Bishop  (mark@bish.net)         |             Computer Engineer |
-| 813.258.2390                         |             Network Engineer  |
-| http://bish.net                      |          Embedded Programmer  |
+Regards,
 
-
+-- 
+Paul Mundt <lethal@chaoticdreams.org>
 

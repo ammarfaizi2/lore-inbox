@@ -1,79 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbUJWTjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbUJWUHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbUJWTjY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 15:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbUJWTjY
+	id S261299AbUJWUHe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 16:07:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbUJWUGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 15:39:24 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:58532
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S261286AbUJWTjT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 15:39:19 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-U10.2
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: paulmck@us.ibm.com, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>
-In-Reply-To: <1098558876.13176.54.camel@krustophenia.net>
-References: <20041015102633.GA20132@elte.hu>
-	 <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu>
-	 <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu>
-	 <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu>
-	 <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu>
-	 <20041022175633.GA1864@elte.hu>  <20041023185132.GA1268@us.ibm.com>
-	 <1098558876.13176.54.camel@krustophenia.net>
-Content-Type: text/plain
-Organization: linutronix
-Date: Sat, 23 Oct 2004 21:31:13 +0200
-Message-Id: <1098559873.3306.159.camel@thomas>
+	Sat, 23 Oct 2004 16:06:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:18063 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261300AbUJWUFJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 16:05:09 -0400
+Date: Sat, 23 Oct 2004 13:04:48 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Chris Wright <chrisw@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Jody McIntyre <realtime-lsm@modernduck.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
+Subject: Re: [PATCH] Realtime LSM
+Message-ID: <20041023130448.F2357@build.pdx.osdl.net>
+References: <1097273105.1442.78.camel@krustophenia.net> <20041008151911.Q2357@build.pdx.osdl.net> <20041008152430.R2357@build.pdx.osdl.net> <87zn2wbt7c.fsf@sulphur.joq.us> <20041008221635.V2357@build.pdx.osdl.net> <87is9jc1eb.fsf@sulphur.joq.us> <20041009121141.X2357@build.pdx.osdl.net> <878yafbpsj.fsf@sulphur.joq.us> <20041009155339.Y2357@build.pdx.osdl.net> <874qkmtibt.fsf@sulphur.joq.us>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <874qkmtibt.fsf@sulphur.joq.us>; from joq@io.com on Fri, Oct 22, 2004 at 06:59:50PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-23 at 15:14 -0400, Lee Revell wrote:
-> On Sat, 2004-10-23 at 11:51 -0700, Paul E. McKenney wrote:
-> > On Fri, Oct 22, 2004 at 07:56:33PM +0200, Ingo Molnar wrote:
-> > > 
-> > > i have released the -U10.2 Real-Time Preemption patch, which can be
-> > > downloaded from:
-> > > 
-> > >   http://redhat.com/~mingo/realtime-preempt/
-> > 
-> > On realtime-preempt-2.6.9-mm1-U10.3:
-> > 
-> > o	In rcupdate.h, I believe that the:
-> > 
-> > 	+# define rcu_read_unlock_nort()                rcu_read_lock_nort()
-> > 
-> > 	should instead be:
-> > 
-> > 	+# define rcu_read_unlock_nort()                rcu_read_unlock()
-> > 
+* Jack O'Quin (joq@io.com) wrote:
+> Chris Wright <chrisw@osdl.org> writes:
 > 
-> Oh no!  That would explain a lot... the typical report is it works fine
-> until people go to use the network :-P
+> > - less generic variable names
+> >   - s/any/rt_any/
+> >   - s/gid/rt_gid/
+> >   - s/mlock/rt_mlock/
+> 
+> Is there a compelling reason for changing all the parameter names?
 
-Yes and No !
+primarly for namespace cleanliness.  nice to avoid overly generic names
+if possible.  makes it easier to search.
 
-The wrong define is in the #else path of CONFIG_PREEMPT_REALTIME, so it
-affects the kernel only when it is built with PREEMPT_REALTIME
-disabled. 
+> I would prefer not to do that.  It is incompatible for our current
+> user base, and really does not seem like an improvement.  Those names
+> only appear in the context of `realtime', so the `rt_' is completely
+> redundant.  For example...
 
-The network problem with PREEMPT_REALTIME enabled is a subtle race,
-which I have nearly tracked down. I know the scenario, but I have not
-yet identified the culprit. (:
+Actually, I recall the change being 100% internal (not exposed
+externally), but I'm away at the moment, so it's just from memory.
 
-tglx
+>  # modprobe realtime gid=29
+>  # sysctl -w security/realtime/mlock=0
+> 
+> Also, you forgot to update the documentation.
 
+I don't think it was needed due to above.
 
-
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

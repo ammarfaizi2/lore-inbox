@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262693AbUKLXZ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262719AbUKMCRo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262693AbUKLXZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 18:25:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262688AbUKLXYc
+	id S262719AbUKMCRo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 21:17:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbUKLXbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 18:24:32 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:61432 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262687AbUKLXWn convert rfc822-to-8bit
+	Fri, 12 Nov 2004 18:31:32 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:15235 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262679AbUKLXWj convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 18:22:43 -0500
+	Fri, 12 Nov 2004 18:22:39 -0500
 X-Fake: the user-agent is fake
 Subject: Re: [PATCH] PCI fixes for 2.6.10-rc1
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <11003017163000@kroah.com>
-Date: Fri, 12 Nov 2004 15:21:56 -0800
-Message-Id: <11003017161569@kroah.com>
+In-Reply-To: <11003017171675@kroah.com>
+Date: Fri, 12 Nov 2004 15:21:57 -0800
+Message-Id: <1100301717571@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,87 +23,74 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2026.66.12, 2004/11/05 15:05:02-08:00, bunk@stusta.de
+ChangeSet 1.2026.66.23, 2004/11/11 15:40:24-08:00, greg@kroah.com
 
-[PATCH] PCI: kill old PCI changelog
+PCI Hotplug: fix up remaining MODULE_PARAM usage in pci hotplug drivers
 
-There's not much value in shipping a changelog who's last update was
-five years ago.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- arch/i386/pci/changelog |   62 ------------------------------------------------
- 1 files changed, 62 deletions(-)
+ drivers/pci/hotplug/cpcihp_generic.c |   14 +++++++-------
+ drivers/pci/hotplug/fakephp.c        |    2 +-
+ drivers/pci/hotplug/ibmphp_core.c    |    2 +-
+ 3 files changed, 9 insertions(+), 9 deletions(-)
 
 
-diff -Nru a/arch/i386/pci/changelog b/arch/i386/pci/changelog
---- a/arch/i386/pci/changelog	2004-11-12 15:13:28 -08:00
-+++ /dev/null	Wed Dec 31 16:00:00 196900
-@@ -1,62 +0,0 @@
--/*
-- * CHANGELOG :
-- * Jun 17, 1994 : Modified to accommodate the broken pre-PCI BIOS SPECIFICATION
-- *	Revision 2.0 present on <thys@dennis.ee.up.ac.za>'s ASUS mainboard.
-- *
-- * Jan 5,  1995 : Modified to probe PCI hardware at boot time by Frederic
-- *     Potter, potter@cao-vlsi.ibp.fr
-- *
-- * Jan 10, 1995 : Modified to store the information about configured pci
-- *      devices into a list, which can be accessed via /proc/pci by
-- *      Curtis Varner, cvarner@cs.ucr.edu
-- *
-- * Jan 12, 1995 : CPU-PCI bridge optimization support by Frederic Potter.
-- *	Alpha version. Intel & UMC chipset support only.
-- *
-- * Apr 16, 1995 : Source merge with the DEC Alpha PCI support. Most of the code
-- *	moved to drivers/pci/pci.c.
-- *
-- * Dec 7, 1996  : Added support for direct configuration access of boards
-- *      with Intel compatible access schemes (tsbogend@alpha.franken.de)
-- *
-- * Feb 3, 1997  : Set internal functions to static, save/restore flags
-- *	avoid dead locks reading broken PCI BIOS, werner@suse.de 
-- *
-- * Apr 26, 1997 : Fixed case when there is BIOS32, but not PCI BIOS
-- *	(mj@atrey.karlin.mff.cuni.cz)
-- *
-- * May 7,  1997 : Added some missing cli()'s. [mj]
-- * 
-- * Jun 20, 1997 : Corrected problems in "conf1" type accesses.
-- *      (paubert@iram.es)
-- *
-- * Aug 2,  1997 : Split to PCI BIOS handling and direct PCI access parts
-- *	and cleaned it up...     Martin Mares <mj@atrey.karlin.mff.cuni.cz>
-- *
-- * Feb 6,  1998 : No longer using BIOS to find devices and device classes. [mj]
-- *
-- * May 1,  1998 : Support for peer host bridges. [mj]
-- *
-- * Jun 19, 1998 : Changed to use spinlocks, so that PCI configuration space
-- *	can be accessed from interrupts even on SMP systems. [mj]
-- *
-- * August  1998 : Better support for peer host bridges and more paranoid
-- *	checks for direct hardware access. Ugh, this file starts to look as
-- *	a large gallery of common hardware bug workarounds (watch the comments)
-- *	-- the PCI specs themselves are sane, but most implementors should be
-- *	hit hard with \hammer scaled \magstep5. [mj]
-- *
-- * Jan 23, 1999 : More improvements to peer host bridge logic. i450NX fixup. [mj]
-- *
-- * Feb 8,  1999 : Added UM8886BF I/O address fixup. [mj]
-- *
-- * August  1999 : New resource management and configuration access stuff. [mj]
-- *
-- * Sep 19, 1999 : Use PCI IRQ routing tables for detection of peer host bridges.
-- *		  Based on ideas by Chris Frantz and David Hinds. [mj]
-- *
-- * Sep 28, 1999 : Handle unreported/unassigned IRQs. Thanks to Shuu Yamaguchi
-- *		  for a lot of patience during testing. [mj]
-- *
-- * Oct  8, 1999 : Split to pci-i386.c, pci-pc.c and pci-visws.c. [mj]
-- */
-\ No newline at end of file
+diff -Nru a/drivers/pci/hotplug/cpcihp_generic.c b/drivers/pci/hotplug/cpcihp_generic.c
+--- a/drivers/pci/hotplug/cpcihp_generic.c	2004-11-12 15:12:04 -08:00
++++ b/drivers/pci/hotplug/cpcihp_generic.c	2004-11-12 15:12:04 -08:00
+@@ -63,7 +63,7 @@
+ 
+ /* local variables */
+ static int debug;
+-static char* bridge;
++static char bridge[256];
+ static u8 bridge_busnr;
+ static u8 bridge_slot;
+ static struct pci_bus *bus;
+@@ -209,15 +209,15 @@
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+ MODULE_DESCRIPTION(DRIVER_DESC);
+ MODULE_LICENSE("GPL");
+-MODULE_PARM(debug, "i");
++module_param(debug, bool, S_IRUGO | S_IWUSR);
+ MODULE_PARM_DESC(debug, "Debugging mode enabled or not");
+-MODULE_PARM(bridge, "s");
++module_param_string(bridge, bridge, 256, 0);
+ MODULE_PARM_DESC(bridge, "Hotswap bus bridge device, <bus>:<slot> (bus and slot are in hexadecimal)");
+-MODULE_PARM(first_slot, "b");
++module_param(first_slot, byte, 0);
+ MODULE_PARM_DESC(first_slot, "Hotswap bus first slot number");
+-MODULE_PARM(last_slot, "b");
++module_param(last_slot, byte, 0);
+ MODULE_PARM_DESC(last_slot, "Hotswap bus last slot number");
+-MODULE_PARM(port, "h");
++module_param(port, ushort, 0);
+ MODULE_PARM_DESC(port, "#ENUM signal I/O port");
+-MODULE_PARM(enum_bit, "i");
++module_param(enum_bit, int, 0);
+ MODULE_PARM_DESC(enum_bit, "#ENUM signal bit (0-7)");
+diff -Nru a/drivers/pci/hotplug/fakephp.c b/drivers/pci/hotplug/fakephp.c
+--- a/drivers/pci/hotplug/fakephp.c	2004-11-12 15:12:04 -08:00
++++ b/drivers/pci/hotplug/fakephp.c	2004-11-12 15:12:04 -08:00
+@@ -227,6 +227,6 @@
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+ MODULE_DESCRIPTION(DRIVER_DESC);
+ MODULE_LICENSE("GPL");
+-MODULE_PARM(debug, "i");
++module_param(debug, bool, S_IRUGO | S_IWUSR);
+ MODULE_PARM_DESC(debug, "Debugging mode enabled or not");
+ 
+diff -Nru a/drivers/pci/hotplug/ibmphp_core.c b/drivers/pci/hotplug/ibmphp_core.c
+--- a/drivers/pci/hotplug/ibmphp_core.c	2004-11-12 15:12:04 -08:00
++++ b/drivers/pci/hotplug/ibmphp_core.c	2004-11-12 15:12:04 -08:00
+@@ -51,7 +51,7 @@
+ int ibmphp_debug;
+ 
+ static int debug;
+-MODULE_PARM (debug, "i");
++module_param(debug, bool, S_IRUGO | S_IWUSR);
+ MODULE_PARM_DESC (debug, "Debugging mode enabled or not");
+ MODULE_LICENSE ("GPL");
+ MODULE_DESCRIPTION (DRIVER_DESC);
 

@@ -1,69 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265181AbTFRMWv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 08:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265192AbTFRMWv
+	id S265025AbTFRMcK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 08:32:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbTFRMcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 08:22:51 -0400
-Received: from host81-134-138-64.in-addr.btopenworld.com ([81.134.138.64]:32905
-	"HELO factotum.office.bytemark.co.uk") by vger.kernel.org with SMTP
-	id S265181AbTFRMWu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 08:22:50 -0400
-From: Pete Taphouse <pete@bytemark.co.uk>
-Organization: Bytemark Computer Consulting Ltd
-To: Andre Tomt <andre@tomt.net>
-Subject: Re: ptrace/kmod exploit still works in 2.4.21?
-Date: Wed, 18 Jun 2003 13:36:07 +0100
-User-Agent: KMail/1.5.2
-References: <200306181222.11691.pete@bytemark.co.uk> <1055936287.7480.136.camel@slurv.ws.pasop.tomt.net>
-In-Reply-To: <1055936287.7480.136.camel@slurv.ws.pasop.tomt.net>
+	Wed, 18 Jun 2003 08:32:09 -0400
+Received: from mail0.ewetel.de ([212.6.122.12]:36010 "EHLO mail0.ewetel.de")
+	by vger.kernel.org with ESMTP id S265025AbTFRMcI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 08:32:08 -0400
+To: Stephan von Krawczynski <skraw@ithnet.com>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_6yF8+4DA2su/0LT";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200306181336.10601.pete@bytemark.co.uk>
+Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
+In-Reply-To: <20030618111010$154f@gated-at.bofh.it>
+References: <20030507203025$6f60@gated-at.bofh.it> <20030509005011$6cee@gated-at.bofh.it> <20030509101012$732a@gated-at.bofh.it> <20030509122007$758f@gated-at.bofh.it> <20030509131009$00f3@gated-at.bofh.it> <20030611045008$03cf@gated-at.bofh.it> <20030611203031$12de@gated-at.bofh.it> <20030611211012$34cf@gated-at.bofh.it> <20030613095017$1680@gated-at.bofh.it> <20030617210022$3e37@gated-at.bofh.it> <20030618111010$154f@gated-at.bofh.it>
+Date: Wed, 18 Jun 2003 14:46:02 +0200
+Message-Id: <E19ScKA-0000Pt-00@neptune.local>
+From: Pascal Schmidt <der.eremit@email.de>
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stephan von Krawczynski wrote in linux-kernel:
 
---Boundary-02=_6yF8+4DA2su/0LT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+> around 70-100 GB of data is transferred to a nfs-server with rc8 onto a RAID5
+> on 3ware-controller.
+> The data is then copied via tar onto a SDLT drive connected to an aic
+> controller.
+> Afterwards the data is verified by tar.
 
-On Wednesday 18 June 2003 12:38, you wrote:
-> On ons, 2003-06-18 at 13:22, Pete Taphouse wrote:
-> <snip FAQ>
->
-> Check your exploit binary for the suid flag. If run successfully once on
-> a older kernel, it cheats by setting suid root.
-Doh!  Apologies for time/space wastage.
+Have you tried with a different SCSI controller to rule out bugs in st.c?
 
-Cheers,
-=2D-=20
-Peter Taphouse
-
-Bytemark Hosting
-http://www.bytemark-hosting.co.uk
-tel. +44 (0) 8707 455 026
-
---Boundary-02=_6yF8+4DA2su/0LT
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+8Fy6IAZ7OKeBB58RApCwAJ99dd4ZNTXqqADQqydiM73ZzAiQLQCeKjeW
-4/7KK+GAf3TjLYHrjQ7Gs5Q=
-=e87H
------END PGP SIGNATURE-----
-
---Boundary-02=_6yF8+4DA2su/0LT--
-
+-- 
+Ciao,
+Pascal

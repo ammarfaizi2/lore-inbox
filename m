@@ -1,71 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317462AbSINScO>; Sat, 14 Sep 2002 14:32:14 -0400
+	id <S317457AbSINS2e>; Sat, 14 Sep 2002 14:28:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317463AbSINScO>; Sat, 14 Sep 2002 14:32:14 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:64439 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S317462AbSINScN>;
-	Sat, 14 Sep 2002 14:32:13 -0400
-Subject: Re: [PATCH 2.4.20-pre7] net/ipv4/netfilter/ip_conntrack_ftp and
-	_irc to export objs
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Jarno Paananen <jpaana@s2.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m3n0qkqvs8.fsf@kalahari.s2.org>
-References: <m3vg58qwz1.fsf@kalahari.s2.org>
-	<1032027105.29595.129.camel@tux>  <m3n0qkqvs8.fsf@kalahari.s2.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-zM+cwIW1hMYVnWPrzqfc"
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 14 Sep 2002 20:37:02 +0200
-Message-Id: <1032028622.29595.134.camel@tux>
-Mime-Version: 1.0
+	id <S317462AbSINS2e>; Sat, 14 Sep 2002 14:28:34 -0400
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:46041 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317457AbSINS2c>; Sat, 14 Sep 2002 14:28:32 -0400
+Date: Sat, 14 Sep 2002 20:33:07 +0200 (CEST)
+From: Oktay Akbal <oktay.akbal@s-tec.de>
+X-X-Sender: oktay@omega.s-tec.de
+To: linux-kernel@vger.kernel.org
+Subject: Possible Bug with MD multipath and raid1 on top
+Message-ID: <Pine.LNX.4.44.0209142014080.21833-100000@omega.s-tec.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: OK! AntiVir MailGate Version 2.0.1.1; AVE: 6.15.0.1; VDF: 6.15.0.7
+	 at email has not found any known virus in this email.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---=-zM+cwIW1hMYVnWPrzqfc
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I found a very strange effect when using a raid1 on top of multipathing
+with Kernel 2.4.18 (Suse-version of it) with a 2-Port qlogic HBA
+connecting two arrays.
 
-On Sat, 2002-09-14 at 20:19, Jarno Paananen wrote:
+The raidtab used to set this up is:
 
-> Hm, didn't notice those, sorry.
->=20
-> It seems the condition for the actual export is different than the
-> Makefile. In ip_conntrack_ftp.c for example the export is done:
->=20
-> #ifdef CONFIG_IP_NF_NAT_NEEDED
-> EXPORT_SYMBOL(ip_ftp_lock);
-> #endif
->=20
-> and in Makefile:
->=20
-> ifdef CONFIG_IP_NF_NAT_FTP
->         export-objs +=3D ip_conntrack_ftp.o
-> endif
+raiddev                 /dev/md0
+raid-level              multipath
+nr-raid-disks           1
+nr-spare-disks          1
+chunk-size              32
 
-I just did a basic test and I didn't manage to get
-CONFIG_IP_NF_NAT_NEEDED set without getting CONFIG_IP_NF_NAT and
-CONFIG_IP_NF_NAT_FTP and CONFIG_IP_NF_NAT_IRC set aswell.
-(with the corresponding CONFIG_IP_NF_FTP and CONFIG_IP_NF_IRC of course)
+device                  /dev/sda1
+raid-disk               0
 
---=20
-/Martin
+device                  /dev/sdc1
+spare-disk              1
 
-Never argue with an idiot. They drag you down to their level, then beat
-you with experience.
+raiddev                 /dev/md1
+raid-level              multipath
+nr-raid-disks           1
+nr-spare-disks          1
+chunk-size              32
 
---=-zM+cwIW1hMYVnWPrzqfc
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+device                  /dev/sdb1
+raid-disk               0
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+device                  /dev/sdd1
+spare-disk              1
 
-iD8DBQA9g4HOWm2vlfa207ERAjYcAJ4u3q5Cw1il55frAonyKkxZG+oKDwCgpEj/
-um76U0ZO2uH6pzqF5z/lOSM=
-=2ect
------END PGP SIGNATURE-----
+raiddev                 /dev/md2
+raid-level              1
+nr-raid-disks           2
+nr-spare-disks          0
+chunk-size              32
 
---=-zM+cwIW1hMYVnWPrzqfc--
+device                  /dev/md0
+raid-disk               0
+
+device                  /dev/md1
+raid-disk               1
+
+
+As you see, one port from the hba "sees" sda and sdb, the second port
+sdc and sdd.
+When I now pull out one of the cables two disks are missing and the
+multipath driver correctly uses the second path to the disks and
+continues to work. After plugging out the second cable all drives
+are marked as failed (mdstat), but the raid1 (md2) is still reported
+as functional with one device (md0) missing.
+(Sorry do not have the output at hand but md2 was reported [_U], while
+sda-sdd were marked [F]).
+
+All Processes using the raid1-device get stuck and this situation
+does not recover. Even some simple process testing the disk-access
+got stuck  (I think ps showed state   L<D).
+
+Even if I'm quite sure that this is a bug, how should I test disk access
+without ending in "uninterruptible sleep" ?
+
+Thanks
+
+Oktay Akbal
+

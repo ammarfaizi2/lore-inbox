@@ -1,74 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292892AbSBVPNi>; Fri, 22 Feb 2002 10:13:38 -0500
+	id <S292893AbSBVPRt>; Fri, 22 Feb 2002 10:17:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292893AbSBVPNT>; Fri, 22 Feb 2002 10:13:19 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:43530 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S292892AbSBVPNH>; Fri, 22 Feb 2002 10:13:07 -0500
-Message-ID: <3C765FD3.2060000@evision-ventures.com>
-Date: Fri, 22 Feb 2002 16:12:19 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S292895AbSBVPR3>; Fri, 22 Feb 2002 10:17:29 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23306 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292893AbSBVPRW>;
+	Fri, 22 Feb 2002 10:17:22 -0500
+Message-ID: <3C7660F5.FC238A7E@mandrakesoft.com>
+Date: Fri, 22 Feb 2002 10:17:09 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: Vojtech Pavlik <vojtech@suse.cz>, Gadi Oxman <gadio@netvision.net.il>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-In-Reply-To: <Pine.LNX.4.33.0202131434350.21395-100000@home.transmeta.com> <3C723B15.2030409@evision-ventures.com> <00a201c1bb8d$90dd2740$0300a8c0@lemon> <3C764B7C.2000609@evision-ventures.com> <20020222150323.A5530@suse.cz> <3C7652B6.1040008@evision-ventures.com> <3C765D50.D4A1D2D0@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Jes Sorensen <jes@sunsite.dk>
+CC: Anton Altaparmakov <aia21@cam.ac.uk>, Troy Benjegerdes <hozer@drgw.net>,
+        wli@holomorphy.com, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bring sanity to div64.h and do_div usage
+In-Reply-To: <5.1.0.14.2.20020208113710.04ecedf0@pop.cus.cam.ac.uk> <20020207234555.N17426@altus.drgw.net> <5.1.0.14.2.20020208113710.04ecedf0@pop.cus.cam.ac.uk> <5.1.0.14.2.20020208181656.03862ec0@pop.cus.cam.ac.uk> <d37kp5v9y5.fsf@lxplus050.cern.ch>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-
->>#ifdef CONFIG_BLK_DEV_ALI15X3
->>extern unsigned int pci_init_ali15x3(struct pci_dev *, const char *);
->>...
->>#define PCI_ALI15X3     &pci_init_ali15x3
->>#else
->>...
->>#define PCI_ALI15X3     NULL
->>#endif
->>
->>This should rather look like:
->>
->>#ifdef CONFIG_BLK_DEV_ALI15X3
->>extern unsigned int pci_init_ali15x3(struct pci_dev *);
->>#else
->>#define pci_init_ali15x3        NULL
->>#endif
->>
+Jes Sorensen wrote:
 > 
-> For what the code is trying to accomplish, the code is correct.
-
-Of course it's semantically correct. But the usage of an explicitly 
-taken function pointer refference is usually a shure sign for a C 
-beginner at work. I know and you know that this &xxx == xxx semantics is 
-a workarount for pure K&R C implementation quriks.
-
-> I agree the above change is also correct... probably the author wanted
-> to reduce the size of the -huge- data table where PCI_ALI15X3 symbol is
-> used.
-
-Yes but he just didn't recognize that the whole huge list is the true
-cause of grief ;-).
-
->>And be replaces entierly by register_chipset(...) blah blah or
->>therlike ;-) as well as module initialization lists.
->>
+> Anton Altaparmakov <aia21@cam.ac.uk> writes:
 > 
-> When we have "modprobe piix4_ide" loading the IDE subsystem, you are
-> correct.
+> > At 17:57 08/02/02, Troy Benjegerdes wrote:
+> > >Well, there's a reason I left out CONFIG_M68K deps.. Go tell me where
+> > >CONFIG_M68K is defined.. ;)
+> >
+> > Appologies, it's in Configure.help but that is not a too useful places to
+> > have it. However the kernel seems to be using:
+> >
+> > #if defined(__mc68000__) so just use that instead. Any m68k people reading
+> > this care to comment?
+> 
+> __mc68000__ is the correct define, I don't know who put in CONFIG_M68K
+> but it doesn't belong there.
 
-That's the intention yes.
+I disagree -- look at arch/*/config.in.
 
-> IDE is currently driven by an inward->outward setup of module
-> initialization, which is fundamentally the opposite of what we want,
-> which is chipset_drvr -> core initialization.
+Each arch needs to define a CONFIG_$ARCH.
 
-Just one word: Amen.
+It looks like cris and mk68 are one of the few arches that fail to do
+this...
+> # Identify this as a Sparc64 build
+> define_bool CONFIG_SPARC64 y
 
+Sigh, this should be in an 'arch' specification :)
+
+	Jeff
+
+
+-- 
+Jeff Garzik      | "UNIX enhancements aren't."
+Building 1024    |           -- says /usr/games/fortune
+MandrakeSoft     |

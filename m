@@ -1,65 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262559AbTCZWRq>; Wed, 26 Mar 2003 17:17:46 -0500
+	id <S262582AbTCZWRG>; Wed, 26 Mar 2003 17:17:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262577AbTCZWRq>; Wed, 26 Mar 2003 17:17:46 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:65183 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262559AbTCZWRm>; Wed, 26 Mar 2003 17:17:42 -0500
-Date: Wed, 26 Mar 2003 23:28:51 +0000
-From: norbert_wolff@t-online.de (Norbert Wolff)
-To: "jds" <jds@soltis.cc>
-Cc: linux-kernel@vger.kernel.org
-Subject: Linux 2.5.65 can't mount root Partition - PANIC
-Message-Id: <20030326232851.4c9d1906.norbert_wolff@t-online.de>
-In-Reply-To: <20030326015511.M32266@soltis.cc>
-References: <20030325190214.M66226@soltis.cc>
-	<20030326014652.5b9f44a3.norbert_wolff@t-online.de>
-	<20030326015511.M32266@soltis.cc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S262577AbTCZWRG>; Wed, 26 Mar 2003 17:17:06 -0500
+Received: from services.paradyne.com ([135.90.22.16]:51877 "EHLO
+	pigeon.is.paradyne.com") by vger.kernel.org with ESMTP
+	id <S262559AbTCZWQ6>; Wed, 26 Mar 2003 17:16:58 -0500
+Message-ID: <3E82292E.536D9196@paradyne.com>
+Date: Wed, 26 Mar 2003 17:26:54 -0500
+From: "Mark Studebaker" <mds@paradyne.com>
+Organization: Paradyne Corporation
+X-Mailer: Mozilla 4.7 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Jan Dittmer <j.dittmer@portrix.net>, azarah@gentoo.org,
+       KML <linux-kernel@vger.kernel.org>, Dominik Brodowski <linux@brodo.de>,
+       sensors@Stimpy.netroedge.com
+Subject: Re: w83781d i2c driver updated for 2.5.66 (without sysfs support)
+References: <1048582394.4774.7.camel@workshop.saharact.lan> <20030325175603.GG15823@kroah.com> <1048705473.7569.10.camel@nosferatu.lan> <3E82024A.4000809@portrix.net> <20030326202622.GJ24689@kroah.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi my name is Jesus Delgado from Mexico City:
->
->  I need help for resolve this problems, compile kernel 2.5.66 in rh 8,
-> update
-> my lvm to lvm2 utils, devmapper, modutil 2.4.24, when try to boot with new
-> kernel recive this messages:
->
->   VFS: Cannot open root device "rootvg/lvol1" or unknown-block(0,0)
->   Please append a coorect "root=" boot option
->   kernel panic
->   VFS= Unable to mount fs on unknown-block(0,0).
+If you rename the files and/or split multivalue files into separate
+single value files, or change the format of the contents,
+and continue these changes across the 30 or so "chip" drivers of ours,
+you will completely blow up our libsensors library, and userspace programs.
 
-Hi Jesus !
+If all the patches do is move all the files unchanged from
+/proc/sys/dev/sensors/... to /sysfs/... then that change is much much easier
+to incorporate in our programs.
 
-I have tried to hunt down our problem a lot of hours, but without Success.
+While not all drivers conform perfectly to the our standard (link below)
+(lm75 temp_os and temp_hyst don't), this is the naming and
+data format standard we attempt to follow. This has evolved
+over the years. If the chip drivers in the kernel
+diverge from this, or even worse diverge from each other haphazardly,
+we're going to end up with a mess and no usable userspace tools
+for a long long time. 
 
-Neither the bk-patches nor the mm-patches cure the panic, i've tried 3
-different compilers and two binutils.
+Please consider keeping the file names and contents unchanged.
 
-The strangest thing about this is that we seem to be the only people triggering
-the bug, as there is no echo in the LKML.
+thanks
+mds
 
-I give up and go back to 2.5.65 :-(
+------------
 
-Below some debugging statements, if there should be somewhere outside
-who likes to spent his time in frustrating debugging Sessions ...
 
-Bye
-    Norbert
+lm_sensors /proc naming standars for sensors chip drivers:
 
-----
-Kernel: Linux 2.5.66  (no Problems with 2.5.65 with same .config ! )
-Compiler: gcc 2.95.3 (also tried 3.2.2 and 3.4-CVS)
-No Modules, no lvm, no raid, no initrd, tried with and without devfs.
+http://www2.lm-sensors.nu/~lm78/cvs/lm_sensors2/doc/developers/proc
 
-VFS: Cannot open root device "301" or ide(3,1)  <- my /dev/hda1 boot-partition
-                                                                     (reiserfs)
 
-sys_mount("sysfs", "/sys", "sysfs", 0, NULL) succeeds
-sys_mknod for /dev/root                      succeeds
-sys_mount for /dev/root   returns ENOENT     -> Panic
+
+Greg KH wrote:
+> 
+> On Wed, Mar 26, 2003 at 08:40:58PM +0100, Jan Dittmer wrote:
+> > Martin Schlemmer wrote:
+> > >
+> > >I did look at the changes needed for sysfs, but this beast have
+> > >about 6 ctl_tables, and is hairy in general.  I am not sure what
+> > >is the best way to do it for the different chips, so here is what
+> > >I have until I or somebody else can do the sysfs stuff.
+> > >
+> > I've just done this with the via686a driver. Saves about 100 lines of code.
+> >
+> > Comments?
+> 
+> <snip>
+> 
+> > +/* following are the sysfs callback functions */
+> > +static ssize_t show_in(struct device *dev, char *buf, int nr) {
+> > +     struct i2c_client *client = to_i2c_client(dev);
+> > +     struct via686a_data *data = i2c_get_clientdata(client);
+> > +     via686a_update_client(client);
+> > +
+> > +     return sprintf(buf,"%ld %ld %ld\n",
+> > +             IN_FROM_REG(data->in_min[nr], nr),
+> > +             IN_FROM_REG(data->in_max[nr], nr),
+> > +             IN_FROM_REG(data->in[nr], nr) );
+> > +}
+> 
+> We should really split these multivalue files up into individual files,
+> as sysfs is for single value files.  Makes parsing easier too.
+> 
+> Here's a patch for the lm75.c driver that does this.

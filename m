@@ -1,82 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVCHJc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbVCHJmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbVCHJc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 04:32:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261927AbVCHJc0
+	id S261938AbVCHJmi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 04:42:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbVCHJmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 04:32:26 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:47279 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261925AbVCHJcW (ORCPT
+	Tue, 8 Mar 2005 04:42:33 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:14264 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261933AbVCHJm1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 04:32:22 -0500
-Date: Tue, 8 Mar 2005 15:11:59 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: sebastien.dugue@bull.net, linux-aio@kvack.org,
-       linux-kernel@vger.kernel.org, pbadari@us.ibm.com, daniel@osdl.org
-Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
-Message-ID: <20050308094159.GA4144@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <1110189607.11938.14.camel@frecb000686> <20050307223917.1e800784.akpm@osdl.org> <20050308090946.GA4100@in.ibm.com> <20050308011814.706c094e.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050308011814.706c094e.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+	Tue, 8 Mar 2005 04:42:27 -0500
+Message-ID: <422D737F.2020807@suse.de>
+Date: Tue, 08 Mar 2005 10:42:23 +0100
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+Cc: "Li, Shaohua" <shaohua.li@intel.com>, Andrew Morton <akpm@zip.com.au>,
+       Bruno Ducrot <ducrot@poupinou.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       "Brown, Len" <len.brown@intel.com>
+Subject: Re: [ACPI] s4bios: does anyone use it?
+References: <16A54BF5D6E14E4D916CE26C9AD305750155EBB0@pdsmsx402.ccr.corp.intel.com> <20050308091856.GB16436@elf.ucw.cz>
+In-Reply-To: <20050308091856.GB16436@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 08, 2005 at 01:18:14AM -0800, Andrew Morton wrote:
-> Suparna Bhattacharya <suparna@in.ibm.com> wrote:
-> >
-> > ...
-> > 
-> > Bugs in this area seem never-ending don't they - plug one, open up
-> > another - hard to be confident/verify :( - someday we'll have to
-> > rewrite a part of this code.
+Pavel Machek wrote:
+> Hi!
 > 
-> It's solving a complex problem.  Any rewrite would probably end up just as
-> hairy once all the new bugs and corner cases are fixed.  Maybe.
+>> >Okay, so we had 2 users in past but have 0 users now? :-).
+>> I wonder how could anyone use S4BIOS in 2.6.11. S4 and S4b all came into
+>> 'enter_state'. and in acpi_sleep_init:
+>> 
+>> 		if (i == ACPI_STATE_S4) {
+>> 			if (acpi_gbl_FACS->S4bios_f) {
+>> 				sleep_states[i] = 1;
+>> 				printk(" S4bios");
+>> 				acpi_pm_ops.pm_disk_mode =
+>> PM_DISK_FIRMWARE;
+>> 			}
+>> 			if (sleep_states[i])
+>> 				acpi_pm_ops.pm_disk_mode =
+>> PM_DISK_PLATFORM;
+>> 		}
+>> That means we actually can't set PM_DISK_FIRMWARE (always set
+>> PM_DISK_PLATFORM). Is this intended? If no, .pm_disk_mode should be a
+>> mask.
 > 
-> 
-> > Hmm, shouldn't dio->result ideally have been adjusted to be within
-> > i_size at the time of io submission, so we don't have to deal with
-> > this during completion ? We are creating bios with the right size
-> > after all. 
-> > 
-> > We have this: 
-> > 		if (!buffer_mapped(map_bh)) {
-> > 				....
-> > 				if (dio->block_in_file >=
-> >                                         i_size_read(dio->inode)>>blkbits) {
-> >                                         /* We hit eof */
-> >                                         page_cache_release(page);
-> >                                         goto out;
-> >                                 }
-> > 
-> > and
-> > 		dio->result += iov[seg].iov_len -
-> >                         ((dio->final_block_in_request - dio->block_in_file) <<
-> >                                         blkbits);
-> > 
-> > 
-> > can you spot what is going wrong here that we have to try and
-> > workaround this later ?
-> 
-> Good question.  Do we have the i_sem coverage to prevent a concurrent
-> truncate?
-> 
-> But from Sebastien's description it doesn't soound as if a concurrent
-> truncate is involved.
+> pm_disk_mode is settable using /sys/power/disk, no?
 
-Daniel McNeil has a testcase that reproduces the problem - seemed
-like a single thread thing - that's what puzzles me.
+No, it isn't. That was my original point: you can write "firmware" into
+it, but it has no effect. This probably was a side-effect of the "make
+firmware mode not default" patch from a year ago.
+But the real question is: what is firmware mode good for today? Is there
+a single machine where firmware mode once worked, but swsusp does not
+work today?
 
-Regards
-Suparna
+> Anyway, what about this, then?
+> 
+> --- clean/Documentation/feature-removal-schedule.txt	2005-01-22 21:24:50.000000000 +0100
+> +++ linux/Documentation/feature-removal-schedule.txt	2005-03-08 10:18:05.000000000 +0100
 
+Fine with me. I think it cannot work since ~one year (when we changed
+the default from "firmware if available" to "shutdown always", the code
+piece cited above) and nobody complained until now, so it won't be
+missed IMO.
 -- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+Stefan Seyfried, QA / R&D Team Mobile Devices, SUSE LINUX Nürnberg.
 
+"Any ideas, John?"
+"Well, surrounding them's out."

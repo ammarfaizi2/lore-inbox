@@ -1,71 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277423AbRJEPg1>; Fri, 5 Oct 2001 11:36:27 -0400
+	id <S277432AbRJEQIm>; Fri, 5 Oct 2001 12:08:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277424AbRJEPgK>; Fri, 5 Oct 2001 11:36:10 -0400
-Received: from foobar.isg.de ([62.96.243.63]:212 "HELO mail.isg.de")
-	by vger.kernel.org with SMTP id <S277417AbRJEPf5>;
-	Fri, 5 Oct 2001 11:35:57 -0400
-Message-ID: <3BBDD37D.56D7B359@isg.de>
-Date: Fri, 05 Oct 2001 17:36:29 +0200
-From: lkv@isg.de
-Organization: Innovative Software AG
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: German, de, en
+	id <S277434AbRJEQIc>; Fri, 5 Oct 2001 12:08:32 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:40137 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S277432AbRJEQIZ>;
+	Fri, 5 Oct 2001 12:08:25 -0400
+From: David Mosberger <davidm@hpl.hp.com>
 MIME-Version: 1.0
-To: "Kernel, Linux" <linux-kernel@vger.kernel.org>
-Subject: Desperately missing a working "pselect()" or similar...
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15293.56077.925419.949405@napali.hpl.hp.com>
+Date: Fri, 5 Oct 2001 09:08:45 -0700
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, davidm@hpl.hp.com
+Subject: Re: ioremap() vs. ioremap_nocache()
+In-Reply-To: <E15pXGL-0006n6-00@the-village.bc.nu>
+In-Reply-To: <15293.54409.884529.251159@napali.hpl.hp.com>
+	<E15pXGL-0006n6-00@the-village.bc.nu>
+X-Mailer: VM 6.76 under Emacs 20.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> On Fri, 5 Oct 2001 16:51:45 +0100 (BST), Alan Cox <alan@lxorguk.ukuu.org.uk> said:
 
-I'm currently looking for a decent method to wait on either
-an I/O event _or_ a signal coming from another process.
+  >> >>>>> On Fri, 5 Oct 2001 12:18:07 +0100 (BST), Alan Cox
+  >> <alan@lxorguk.ukuu.org.uk> said:
+  >> 
+  >> Can you tell me what the answer is to this question?
 
-Alas, it seems that the Linux kernel does not have any
-appropriate system call to support what for example "pselect()"
-tries to do: Atomically enable some signals and entering a
-select.
+  >> When is a programmer supposed to use ioremap()
+  >> vs. ioremap_nocache().
 
-Without a proper pselect() implementation (the one in glibc is just
-a mock-up that doesn't prevent the race condition) I'm currently
-unable to come up with a good idea on how to wait on both types
-of events.
+  Alan> You should never need ioremap_nocache for anything
+  Alan> non-ultraweird.
 
-A somewhat bizarre solution would be to have the process create
-a pipe-pair, select on the reading end, and let the signal-handler
-write a byte to the pipe - but this has at least the drawback
-you always spoil one "select-cycle" for each signal you get - as
-the first return from the select() call happenes without any
-fds being flagged as readable, only when you enter select() once
-more the pipe will cause the return and tell you what happened...
+Then who added it and why?
 
-
-Arguments against other options I considered:
-
-- Using just signals is at least prevented by SIGIO not being
-  delivered for pipes, and I'm not eager to find out about
-  all the other problems that may arise by devices not behaving
-  as expected
-
-- Unix domain sockets would be awkward to use due to the fact
-  I'd need to come up with some "filenames" for them to bind to,
-  and both security considerations and the danger of "leaking"
-  files that remain on disk forever make me shudder...
-
-
-Any ideas?
-Anyone capable of implementing a system-call for pselect() (or ppoll) ?
-
-Regards,
-
-Lutz Vieweg
-
---
- Dipl. Phys. Lutz Vieweg | email: lkv@isg.de
- Innovative Software AG  | Phone/Fax: +49-69-505030 -120/-505
- Feuerbachstrasse 26-32  | http://www.isg.de/people/lkv/
- 60325 Frankfurt am Main | ^^^ PGP key available here ^^^
+	--david

@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131777AbRCUVaQ>; Wed, 21 Mar 2001 16:30:16 -0500
+	id <S131801AbRCUWPr>; Wed, 21 Mar 2001 17:15:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131778AbRCUVaG>; Wed, 21 Mar 2001 16:30:06 -0500
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:29693 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S131777AbRCUVaB>; Wed, 21 Mar 2001 16:30:01 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200103212128.f2LLSRx20724@webber.adilger.int>
-Subject: Re: ext2_unlink fun
-In-Reply-To: <Pine.LNX.4.32.0103211414540.19449-100000@viper.haque.net> from
- "Mohammad A. Haque" at "Mar 21, 2001 02:22:15 pm"
-To: "Mohammad A. Haque" <mhaque@haque.net>
-Date: Wed, 21 Mar 2001 14:28:24 -0700 (MST)
-CC: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S131799AbRCUWPg>; Wed, 21 Mar 2001 17:15:36 -0500
+Received: from ns-inetext.inet.com ([199.171.211.140]:64671 "EHLO
+	ns-inetext.inet.com") by vger.kernel.org with ESMTP
+	id <S131801AbRCUWPX>; Wed, 21 Mar 2001 17:15:23 -0500
+Message-ID: <3AB927D0.F152717D@inet.com>
+Date: Wed, 21 Mar 2001 16:14:40 -0600
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.5-15 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Jamie Lokier <lk@tantalophile.demon.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: gettimeofday question
+In-Reply-To: <200103192134.VAA01785@raistlin.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mohammad A. Haque writes:
-> On Wed, 21 Mar 2001, Andreas Dilger wrote:
-> > It appears a reasonable spot to get the EIO from is in ext2_delete_entry()
-> > where we are validating the de in ext2_check_dir_entry().  Can you check
-> > your syslog for any error messages, like:
-> >
-> > 	ext2_delete_entry: bad entry in directory X: 199908231702.txt ...
+Russell King wrote:
 > 
-> Only message I have is EXT2-fs warning (device ide0(3,3)): ext2_unlink:
-> Deleting nonexistent file (1343506), 0
-
-OK, this is consistent with the debugfs output - the inode was overwritten
-with zeros.  However, I'm not sure how this would lead to EIO.  In my tree
-(2.4.2) for ext2_unlink() we get EIO if ext2_delete_entry() has a problem
-with ext2_check_dir_entry(), but that would have put another message into
-the logs.  The other EIO (de->inode != inode->i_ino) happens before this
-message is printed, so it isn't possible either.
-
-> Correct, this was after running e2fsck. I'll try running it again when I
-> get home. Here is debugfs stat output for one of the broken files.
-> Again, I havent run e2fsck a second time yet.
+> Eli Carter writes:
+> > What are you seeing that I'm missing?
 > 
-> debugfs:  stat 199908231702.txt
-> Inode: 1343489   Type: bad type    Mode:  0000   Flags: 0x0
-> Version/Generation: 0
-> User:     0   Group:     0   Size: 0
-> File ACL: 0    Directory ACL: 0
-> Links: 0   Blockcount: 0
-> Fragment:  Address: 0    Number: 0    Size: 0
-> ctime: 0x00000000 -- Wed Dec 31 19:00:00 1969
-> atime: 0x00000000 -- Wed Dec 31 19:00:00 1969
-> mtime: 0x00000000 -- Wed Dec 31 19:00:00 1969
-> BLOCKS:
+> Ok, after sitting down and thinking again about this problem, its not
+> the 9.9999ms case, but the 10.000000001 case:
+[snip]
+> Like I say, this requires good timing to create, so may not be too much of
+> a problem, but it does seem to be a problem that could occur. 
 
-Maybe you really _are_ having I/O errors?  That would explain the zero'd
-inode table and the I/O error messages.
+It appears that this problem is easier to create than we originally gave
+credit for....  All that is needed is for gettimeoffset() not to be
+called for a _minimum_ of >10ms, and for the timer to wrap during a call
+to do_gettimeofday() or during a period of time where interrupts are
+disabled and do_gettimeofday() is called.  Note that there is no upper
+limit to the time...
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+If we call gettimeoffset() after do_timer() returns (and there-by update
+the internal variables every 10ms), we should reduce the impact of this
+bug dramatically (in theory--in practice, disabling interrupts for long
+periods can also have some bad effects that this won't help, but I think
+that's another issue.)
+
+One of the guys I'm working with did some testing on this, and he was
+seeing this problem (off by 10ms) every 5 to 10 minutes (on a modified
+ARM & kernel).  With the additional gettimeoffset() call, he no longer
+saw it (at least within ~3hrs.).
+
+Questions, comments, etc.?
+
+Eli
+-----------------------.           Rule of Accuracy: When working toward
+Eli Carter             |            the solution of a problem, it always 
+eli.carter(at)inet.com `------------------ helps if you know the answer.

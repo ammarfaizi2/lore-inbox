@@ -1,108 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbTJ3B3h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 20:29:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTJ3B3h
+	id S262098AbTJ3BwX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 20:52:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTJ3BwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 20:29:37 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53669 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262063AbTJ3B3f
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 20:29:35 -0500
-Message-ID: <3FA0696D.7030205@pobox.com>
-Date: Wed, 29 Oct 2003 20:29:17 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Patrik Wallstrom <pawal@blipp.com>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: SATA and 2.6.0-test9
-References: <20031027141531.GD15558@vic20.blipp.com> <20031027165809.GD19711@gtf.org> <20031027181052.GG32168@vic20.blipp.com>
-In-Reply-To: <20031027181052.GG32168@vic20.blipp.com>
-Content-Type: multipart/mixed;
- boundary="------------010805040206070300030101"
+	Wed, 29 Oct 2003 20:52:22 -0500
+Received: from thunk.org ([140.239.227.29]:12431 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S262098AbTJ3BwV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 20:52:21 -0500
+Date: Wed, 29 Oct 2003 20:52:12 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Erik Andersen <andersen@codepoet.org>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Things that Longhorn seems to be doing right
+Message-ID: <20031030015212.GD8689@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Erik Andersen <andersen@codepoet.org>,
+	Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
+References: <3F9F7F66.9060008@namesys.com> <20031029224230.GA32463@codepoet.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031029224230.GA32463@codepoet.org>
+User-Agent: Mutt/1.5.4i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010805040206070300030101
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Keep in mind that just because Windows does thing a certain way
+doesn't mean we have to provide the same functionality in exactly the
+same way.
 
-Patrik Wallstrom wrote:
-> On Mon, 27 Oct 2003, Jeff Garzik wrote:
-> 
-> 
->>>>Jeff Garzik:
->>>>  o [libata] Merge Serial ATA core, and drivers for
->>>>  o [libata] Integrate Serial ATA driver into kernel tree
->>>
->>>I am happy to see these in the kernel now, but I have yet to get them
->>>working on my KT6 Delta KT600 motherboard with the VT8237 SATA
->>>southbridge controller or even the Promise controller.
->>
->>Does it improve things, if you change ATA_FLAG_SRST to
->>ATA_FLAG_SATA_RESET, in drivers/scsi/sata_via.c ?
-> 
-> 
-> It doesn't hang any more, but the only result is:
-> sata_via version 0.11
-> ata3: SATA max UDMA/133 cmd 0xD800 ctl 0xD402 bmdma 0xC800 irq 16
-> ata4: SATA max UDMA/133 cmd 0xD000 ctl 0xCC02 bmdma 0xC808 irq 16
-> ata3: thread exiting
-> scsi2 : sata_via
-> ata4: thread exiting
-> scsi3 : sata_via
+Also keep in mind that Microsoft very deliberately blurs what they do
+in their "kernel" versus what they provide via system libraries (i.e.,
+API's provided via their DLL's, or shared libraries).
 
-Duh...  I was missing a piece in libata-core.c, and clobbering some 
-information I needed.
+At some level what they have done can be very easily replicated by
+having a userspace database which is tied to the filesystem so you can
+do select statements to search on metadata assocated with files.  We
+can do this simply by associating UUID's to files, and storing the
+file metadata in a MySQL database which can be searched via
+appropriate userspace libraries which we provide.
 
-Can you try this patch, and let me know if things change?
+Please do **not** assume that just because of the vaporware press
+releases released by Microsoft that (a) they have pushed an SQL Query
+optimizer into the kernel, or that (b) even if they did, we should
+follow their bad example and attempt to do the same.  
 
-	Jeff
+There are multiple ways of skinning this particular cat, and we don't
+need to blindly follow Microsoft's design mistakes.
 
+Fortunately, I have enough faith in Linus Torvalds' taste that I'm not
+particularly worried what would happen if someone were to send him a
+patch that attempted to cram MySQL or Postgres into the guts of the
+Linux kernel....  although I would like to watch when someone proposes
+such a thing!
 
-
---------------010805040206070300030101
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-===== drivers/scsi/libata-core.c 1.5 vs edited =====
---- 1.5/drivers/scsi/libata-core.c	Wed Oct 22 22:25:32 2003
-+++ edited/drivers/scsi/libata-core.c	Wed Oct 29 20:27:27 2003
-@@ -1339,9 +1339,13 @@
- 		outb(ap->ctl, ioaddr->ctl_addr);
- 
- 	/* determine if device 0/1 are present */
--	dev0 = ata_dev_devchk(ap, 0);
--	if (slave_possible)
--		dev1 = ata_dev_devchk(ap, 1);
-+	if (ap->flags & ATA_FLAG_SATA_RESET)
-+		dev0 = 1;
-+	else {
-+		dev0 = ata_dev_devchk(ap, 0);
-+		if (slave_possible)
-+			dev1 = ata_dev_devchk(ap, 1);
-+	}
- 
- 	if (dev0)
- 		devmask |= (1 << 0);
-===== drivers/scsi/sata_via.c 1.2 vs edited =====
---- 1.2/drivers/scsi/sata_via.c	Tue Oct 21 23:13:54 2003
-+++ edited/drivers/scsi/sata_via.c	Wed Oct 29 20:27:43 2003
-@@ -108,7 +108,7 @@
- 	{
- 		.sht		= &svia_sht,
- 		.host_flags	= ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY
--				  | ATA_FLAG_SRST,
-+				  | ATA_FLAG_SATA_RESET,
- 		.pio_mask	= 0x03,	/* pio3-4 */
- 		.udma_mask	= 0x7f,	/* udma0-6 ; FIXME */
- 		.port_ops	= &svia_sata_ops,
-
---------------010805040206070300030101--
-
+						- Ted

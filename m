@@ -1,39 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266487AbUALVXT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 16:23:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266326AbUALVUN
+	id S266497AbUALVsi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 16:48:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbUALVsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 16:20:13 -0500
-Received: from AGrenoble-101-1-2-140.w193-253.abo.wanadoo.fr ([193.253.227.140]:53427
-	"EHLO awak.dyndns.org") by vger.kernel.org with ESMTP
-	id S266285AbUALVTP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 16:19:15 -0500
-Subject: Re: Laptops & CPU frequency
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Jerry Cooperstein <jerry.cooperstein@charter.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1073926718.10953.8.camel@p3>
-References: <20040111025623.GA19890@ncsu.edu>
-	 <1073791061.1663.77.camel@localhost>  <1073816858.6189.186.camel@nomade>
-	 <1073817226.6189.189.camel@nomade>  <1073926718.10953.8.camel@p3>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1073942376.724.0.camel@nomade>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 12 Jan 2004 22:19:38 +0100
-Content-Transfer-Encoding: 8BIT
+	Mon, 12 Jan 2004 16:48:38 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10144 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266497AbUALVse
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 16:48:34 -0500
+Message-ID: <40031623.2000204@pobox.com>
+Date: Mon, 12 Jan 2004 16:48:19 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Herbert Xu <herbert@gondor.apana.org.au>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [I810_AUDIO] 1/x: Fix wait queue race in drain_dac
+References: <20031122070931.GA27231@gondor.apana.org.au> <4001B979.1080600@pobox.com> <20040112094625.GA16686@gondor.apana.org.au>
+In-Reply-To: <20040112094625.GA16686@gondor.apana.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le lun 12/01/2004 à 17:58, Jerry Cooperstein a écrit :
-> There were some patches to solve this back in the 2.5 series.
+Herbert Xu wrote:
+> On Sun, Jan 11, 2004 at 04:00:41PM -0500, Jeff Garzik wrote:
 > 
-> Try booting with the kernel command line option
->           clock=pit
+>>Thanks much for these i810_audio patches.  I've been meaning to review 
+>>them in-depth for some time.
+> 
+> 
+> Thanks a lot for reviewing them.
+> 
+> 
+>>Could you be kind and "spell out" the patch-1 race for me?
+> 
+> 
+> Prior to the patch, if an interrupt occured between the count check
+> and the setting of the current state the wait will timeout instead
+> of waking up immediately.
 
-Great ! That works well now. Thansk !
+hmmm, I'll have to think on this one a bit.  You are described observed 
+behavior here... can you go a bit deeper, and describe what two code 
+paths are racing?  I think I might a _different_ race in the code we're 
+looking at, but I do not yet see the race you are describing :(
 
-	Xav
+
+>>Also, it seems to me that you would want to check for signal_pending()
+>>(a) just after the schedule_timeout(), and
+>>(b) -after- testing the 'signals_allowed' variable  ;-)
+> 
+> 
+> schedule() already checks for signals.
+
+Well -- A signal won't be pending until after you call 
+schedule_timeout() ;-)  A signal, particularly SIGINT, might even occur 
+_during_ the schedule_timeout().
+
+	Jeff
+
+
 

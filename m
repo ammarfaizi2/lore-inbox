@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267786AbTCFEwP>; Wed, 5 Mar 2003 23:52:15 -0500
+	id <S264644AbTCFE4q>; Wed, 5 Mar 2003 23:56:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267803AbTCFEwP>; Wed, 5 Mar 2003 23:52:15 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:19903 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267786AbTCFEwO>;
-	Wed, 5 Mar 2003 23:52:14 -0500
-Date: Wed, 05 Mar 2003 20:43:48 -0800 (PST)
-Message-Id: <20030305.204348.130225511.davem@redhat.com>
-To: kazunori@miyazawa.org
-Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       usagi-core@linux-ipv6.org
-Subject: Re: [PATH] IPv6 IPsec support
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030306093219.1a702868.kazunori@miyazawa.org>
-References: <20030305233025.784feb00.kazunori@miyazawa.org>
-	<20030305.152530.70806720.davem@redhat.com>
-	<20030306093219.1a702868.kazunori@miyazawa.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267577AbTCFE4q>; Wed, 5 Mar 2003 23:56:46 -0500
+Received: from blackbird.intercode.com.au ([203.32.101.10]:2565 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S264644AbTCFE4p>; Wed, 5 Mar 2003 23:56:45 -0500
+Date: Thu, 6 Mar 2003 16:06:46 +1100 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Niels den Otter <otter@surfnet.nl>
+cc: Brian Litzinger <brian@top.worldcontrol.com>,
+       "David S. Miller" <davem@redhat.com>, <kuznet@ms2.inr.ac.ru>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Re: Booting 2.5.63 vs 2.4.20 I can't read multicast data
+In-Reply-To: <20030304223953.GA3114@pangsit>
+Message-ID: <Pine.LNX.4.44.0303061605001.27962-100000@blackbird.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Kazunori Miyazawa <kazunori@miyazawa.org>
-   Date: Thu, 6 Mar 2003 09:32:19 +0900
+On Tue, 4 Mar 2003, Niels den Otter wrote:
 
-   - Extension Header Processing on inbound:
-     As a result of IPv6 IPsec support, Extension Header processing is devided
-     into ipv6_parse_exthdrs and ipproto->handler. I think it is better to merge
-     other Extension Header handling into ipproto->handler.
-   
-Ok.
+> You appear to be strugling with the same problem I have. What I find is
+> that the multicast application binds to the loopback instead of ethernet
+> interface (also no IGMP joins are send out on the ethernet interface).
 
-   - Fragmentation support on outbound:
-     We should change ipv6_build_xmit like ip_append_data style to support
-     fragmentation with IPsec.
-   
-Please work together with Alexey on this.  There are known
-major problems on ipv4 side, and it must be resolved before
-ipv6 side may be done.
+Please try the patch below.
 
-For example, right now a non-TCP packet can do the following.  If it
-is just slightly smaller than MTU, and when encapsulated in ESP/AH it
-becomes larger than MTU, we will not fragment it and too-large frame
-will be sent to device.
 
-In my last round of talks with Alexey I believe we were very close to
-a possible solution to this problem.  The idea was to have a "local
-dont-fragment" flag, and at the very last stage of IP output we check
-this and either 1) clear DF and fragment or 2) drop packet and send
-ICMP message back.
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 
-Alexey, what is the current state?
 
-   - Removing duplicate codes, clean up and improveing performance.
-   
-   - Considering relation of IPv6 IPsec and Mobile IPv6. This is future stuff.
-   
-Ok.
+diff -urN -X dontdiff linux-2.5.64.orig/net/ipv4/igmp.c linux-2.5.64.w1/net/ipv4/igmp.c
+--- linux-2.5.64.orig/net/ipv4/igmp.c	Tue Feb 25 15:03:26 2003
++++ linux-2.5.64.w1/net/ipv4/igmp.c	Thu Mar  6 15:55:37 2003
+@@ -606,7 +606,7 @@
+ static struct in_device * ip_mc_find_dev(struct ip_mreqn *imr)
+ {
+ 	struct flowi fl = { .nl_u = { .ip4_u =
+-				      { .daddr = imr->imr_address.s_addr } } };
++				      { .daddr = imr->imr_multiaddr.s_addr } } };
+ 	struct rtable *rt;
+ 	struct net_device *dev = NULL;
+ 	struct in_device *idev = NULL;
+

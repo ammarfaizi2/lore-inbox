@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129521AbQLJKvy>; Sun, 10 Dec 2000 05:51:54 -0500
+	id <S129737AbQLJLZj>; Sun, 10 Dec 2000 06:25:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129539AbQLJKvo>; Sun, 10 Dec 2000 05:51:44 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:19472 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129521AbQLJKvc>; Sun, 10 Dec 2000 05:51:32 -0500
-Date: Sun, 10 Dec 2000 04:16:59 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.18 Frame Buffer Problem with DELL
-Message-ID: <20001210041659.A17524@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S129792AbQLJLZ3>; Sun, 10 Dec 2000 06:25:29 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:14737 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129737AbQLJLZM>;
+	Sun, 10 Dec 2000 06:25:12 -0500
+Date: Sun, 10 Dec 2000 02:38:28 -0800
+Message-Id: <200012101038.CAA06747@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: ppetru@ppetru.net
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <20001210105553.E728@ppetru.net> (message from Petru Paler on
+	Sun, 10 Dec 2000 10:55:53 +0200)
+Subject: Re: sparc64 network-related problems
+In-Reply-To: <20001210105553.E728@ppetru.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   Date: Sun, 10 Dec 2000 10:55:53 +0200
+   From: Petru Paler <ppetru@ppetru.net>
 
+   [5.] Output of Oops.. message (if applicable) with symbolic information
+	resolved (see Documentation/oops-tracing.txt)                                               
 
-Alan/Linux,
+   This is only one of the repeated oopses, if you need all of them I will
+   make the logs available.
 
-I will post the DELL Laptop information on the chipsets Monday relative
-to this problem.  If someone else has some DELL hardware to test,
-I have posted the Ute-Linux ISO's at vger.timpanogas.org that use 
-the 2.2.18pre-25 kernel integrated with David Hinds PCMCIA 3.1.22
-and modutils 2.3.20.  They are at
+Is this always the _first_ OOPS though?  That is what is important,
+because after the first OOPS all the others are likely just side
+effects of the first one.
 
-Binary RPM
-ftp://vger.timpanogas.org/ute-linux-iso/ute-bin-2.2.18-12102000.iso
-Source RPM
-ftp://vger.timpanogas.org/ute-linux-iso/ute-src-2.2.18-12102000.iso
+Anyways, if it is always the first OOPS, the following debugging patch
+may help because this case is the only way that OOPS could possibly
+happen all by itself.
 
-This release has 2.2.18-25 integrated into the anaconda installer.  
-This is the release I am seeing the DELL laptop problems when 
-framebuffer is enabled under 2.2.18-25.  This is kindof tough to test 
-properly without the integrated installer, so I have posted 
-the iso's early if someone out there wants to help test with these
-laptop problems.  IBM Thankpads passed with flying colors, BTW.
-
-Jeff
-
+--- net/ipv4/tcp.c.~1~	Tue Nov 28 08:33:08 2000
++++ net/ipv4/tcp.c	Sun Dec 10 02:36:43 2000
+@@ -1014,6 +1014,14 @@
+ 
+ 			/* Determine how large of a buffer to allocate.  */
+ 			tmp = MAX_TCP_HEADER + 15 + tp->mss_cache;
++#if 1
++			if (copy > tmp) {
++				printk("TCP: MSS out of sync copy(%d) tmp(%d) "
++				       "mss_now(%d) mss_cache(%d)\n",
++				       copy, tmp, mss_now, tp->mss_cache);
++				copy = tmp - (MAX_TCP_HEADER + 15);
++			}
++#endif
+ 			if (copy < mss_now && !(flags & MSG_OOB)) {
+ 				/* What is happening here is that we want to
+ 				 * tack on later members of the users iovec
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

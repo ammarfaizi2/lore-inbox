@@ -1,64 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288955AbSBMVeX>; Wed, 13 Feb 2002 16:34:23 -0500
+	id <S288974AbSBMVid>; Wed, 13 Feb 2002 16:38:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288959AbSBMVeE>; Wed, 13 Feb 2002 16:34:04 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:58694 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S288955AbSBMVdv>; Wed, 13 Feb 2002 16:33:51 -0500
-Date: Wed, 13 Feb 2002 23:33:41 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Mark Cooke <mpc@star.sr.bham.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Quick question on Software RAID support.
-Message-ID: <20020213213341.GI1105@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Mark Cooke <mpc@star.sr.bham.ac.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <E16axOE-0004zX-00@the-village.bc.nu> <Pine.LNX.4.44.0202131824530.29582-100000@pc24.sr.bham.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0202131824530.29582-100000@pc24.sr.bham.ac.uk>
-User-Agent: Mutt/1.3.25i
+	id <S288973AbSBMViY>; Wed, 13 Feb 2002 16:38:24 -0500
+Received: from [208.179.59.195] ([208.179.59.195]:636 "EHLO
+	Booterz.killerlabs.com") by vger.kernel.org with ESMTP
+	id <S288969AbSBMViG>; Wed, 13 Feb 2002 16:38:06 -0500
+Message-ID: <3C6ADCAA.6080600@blue-labs.org>
+Date: Wed, 13 Feb 2002 16:37:46 -0500
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020212
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: ver_linux script updates
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms080504000602020301010400"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 13, 2002 at 06:30:01PM +0000, you [Mark Cooke] wrote:
-> Hi Alan,
-> 
-> Just a note that I have almost exactly the setup you outlined on a 
-> KT7A-RAID, HPT370 onboard.
-> 
-> I have a single disk on each highpoint chain, and a 3rd (parity) on 
-> one of the onboard 686B channels.
-> 
-> I have been seeing odd corruptions since I setup the system as RAID-5 
-> though.  Have you seen any reports of 686B ide corruption recently (or 
-> RAID-5 for that matter) ?
-> 
-> kernel 2.4.18pre6... just compiling pre9-ac3...
-> Athlon MP 1500+, mem=nopentium apm=off, NvAGP=0 in X-setup.
+This is a cryptographically signed message in MIME format.
 
-After months of testing, we found that KT7-RAID (we tested KT7A-RAID as
-well) is basicly impossible to get working reliably. It *always* corrupted
-data from HPT370, no matter what we tried. It seemed VIA PCI problem as
-things like the pci slot of the nic, network load, nic model etc greatly
-affected corruption rate. (Via 686b ide never corrupted data, but then again
-it's integrated in the south bridge and perhaps avoids full PCI path). Our
-combination was software RAID0 (one disk on ide2 and ide3 (HPT370
-channels)).
+--------------ms080504000602020301010400
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-We ditched the board deep, took an Abit ST6-RAID (i815+HPT370) and have had
-no problems since. 
+I've been working on an update to the ver_linux script and I'm looking 
+for comment and help in improving the accuracy of reported information.
 
-My position is that for heavy PCI load (additional IDE adapters etc), stay
-away from Via.
+The script is at http://stuph.org/ver_linux
 
-BTW: I have a little program to stress the raid volume (or any disk device
-for that matter) that I used to trigger the corruption. It is destructive
-for the data, though. I can mail it to you, if you like.
+Please provide feedback on it.
 
- 
--- v --
+Thanks,
+-d
 
-v@iki.fi
+
+--------------ms080504000602020301010400
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+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
+ARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMDA4MzAwMDAwMDBaFw0wMjA4
+MjkyMzU5NTlaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYD
+VQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNhdGUg
+U2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAyMDAwLjguMzAwgZ8w
+DQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAN4zMqZjxwklRT7SbngnZ4HF2ogZgpcO40QpimM1
+Km1wPPrcrvfudG8wvDOQf/k0caCjbZjxw0+iZdsN+kvx1t1hpfmFzVWaNRqdknWoJ67Ycvm6
+AvbXsJHeHOmr4BgDqHxDQlBRh4M88Dm0m1SKE4f/s5udSWYALQmJ7JRr6aFpAgMBAAGjTjBM
+MCkGA1UdEQQiMCCkHjAcMRowGAYDVQQDExFQcml2YXRlTGFiZWwxLTI5NzASBgNVHRMBAf8E
+CDAGAQH/AgEAMAsGA1UdDwQEAwIBBjANBgkqhkiG9w0BAQQFAAOBgQBzG28mZYv/FTRLWWKK
+7US+ScfoDbuPuQ1qJipihB+4h2N0HG23zxpTkUvhzeY42e1Q9DpsNJKs5pKcbsEjAcIJp+9L
+rnLdBmf1UG8uWLi2C8FQV7XsHNfvF7bViJu3ooga7TlbOX00/LaWGCVNavSdxcORL6mWuAU8
+Uvzd6WIDSDGCAycwggMjAgEBMIGaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVy
+biBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UECxMU
+Q2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAy
+MDAwLjguMzACAwZepDAJBgUrDgMCGgUAoIIBYTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcB
+MBwGCSqGSIb3DQEJBTEPFw0wMjAyMTMyMTM3NDZaMCMGCSqGSIb3DQEJBDEWBBQk/u1ZLlaT
+QhKZ50tzMm04d3CfJzBSBgkqhkiG9w0BCQ8xRTBDMAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMC
+AgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDCBrQYLKoZIhvcN
+AQkQAgsxgZ2ggZowgZIxCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQ
+BgNVBAcTCUNhcGUgVG93bjEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZpY2F0
+ZSBTZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDIwMDAuOC4zMAID
+Bl6kMA0GCSqGSIb3DQEBAQUABIIBACo6cIVm8kaQ8flGYI5vPPFItXjP7PkU+c2M9a673YPf
+lhZam4P4vlTQKOChHlxMVgopRX2nRdKVV9Ay6w5F+uBlpTr8oiih9TdfkTQpvdUOH1l4xjOs
+LWbE/SeyxN7VUyupmHi5UiBrk+oEI5Mq7tSa1KMHSwSEQZ8tfZI0y6Ok4xGYfZDu42eBWg19
+v8k1hrcwAlkA983xyBDULNJxuAq7vOAsfJ7bMxfkAqzz8EuOMeoq2r4E/JJAKLG3NZ2lPbs+
+RB/35Uac+ySRwB+DjE8mfn0bB+UvXAZ4+CakORco4/g984byNLm3ud2b7DAXy4zGw7vpwpFO
+0VDBUNbWnMsAAAAAAAA=
+--------------ms080504000602020301010400--
+

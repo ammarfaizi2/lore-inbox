@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbUATCQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 21:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbUATCQO
+	id S264473AbUATCMC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 21:12:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbUATCIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 21:16:14 -0500
-Received: from [24.35.117.106] ([24.35.117.106]:36227 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265161AbUATCNl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 21:13:41 -0500
-Date: Mon, 19 Jan 2004 21:13:26 -0500 (EST)
-From: Thomas Molina <tmolina@cablespeed.com>
-X-X-Sender: tmolina@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.1-mm4
-In-Reply-To: <20040119165730.7f250869.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0401192107550.5662@localhost.localdomain>
-References: <20040115225948.6b994a48.akpm@osdl.org>
- <Pine.LNX.4.58.0401191912300.5662@localhost.localdomain>
- <20040119165730.7f250869.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 19 Jan 2004 21:08:52 -0500
+Received: from dp.samba.org ([66.70.73.150]:20646 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265233AbUATCHP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 21:07:15 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [PATCH] fix/improve modular IDE (Re: [PATCH] modular IDE for 2.6.1 ugly but working fix) 
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-reply-to: Your message of "Sat, 17 Jan 2004 14:22:06 BST."
+             <200401171422.06211.bzolnier@elka.pw.edu.pl> 
+Date: Tue, 20 Jan 2004 13:01:02 +1100
+Message-Id: <20040120020710.837CE2C226@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <200401171422.06211.bzolnier@elka.pw.edu.pl> you write:
+> +static int __init ide_generic_init(void)
+> +{
+> +	MOD_INC_USE_COUNT;
+> +	if (ide_hwifs[0].io_ports[IDE_DATA_OFFSET])
+> +		ide_get_lock(NULL, NULL); /* for atari only */
+> +
+> +	(void)ideprobe_init();
+> +
+> +	if (ide_hwifs[0].io_ports[IDE_DATA_OFFSET])
+> +		ide_release_lock();	/* for atari only */
+> +
+> +#ifdef CONFIG_PROC_FS
+> +	create_proc_ide_interfaces();
+> +#endif
+> +	return 0;
+> +}
+> +
+> +static void __exit ide_generic_exit(void)
+> +{
+> +}
 
+If you don't want to be unloadable, just don't have a module_exit() at
+all.
 
-On Mon, 19 Jan 2004, Andrew Morton wrote:
-
-> > Cannot open master raw device '/dev/rawctl' (No such device)
-> 
-> Do you have
-> 
-> 	alias char-major-162 raw
-> 
-> in /etc/modprobe.conf?
-
-I added that and got the same message on the next reboot.  I don't get 
-this on the 2.4 RedHat kernel.  I will have to do a bk pull for 2.6 since 
-I have been running mm kernels exclusively lately.  
+Thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

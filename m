@@ -1,194 +1,150 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266136AbUAGGjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 01:39:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266139AbUAGGjQ
+	id S266139AbUAGGkl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 01:40:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbUAGGkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 01:39:16 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:10702 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S266136AbUAGGjL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 01:39:11 -0500
-Message-ID: <3FFBA98D.1080901@comcast.net>
-Date: Wed, 07 Jan 2004 00:39:09 -0600
-From: Ian Pilcher <i.pilcher@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
+	Wed, 7 Jan 2004 01:40:41 -0500
+Received: from cafe.hardrock.org ([142.179.182.80]:10626 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP id S266139AbUAGGkd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 01:40:33 -0500
+Date: Tue, 6 Jan 2004 23:40:31 -0700 (MST)
+From: James Bourne <jbourne@hardrock.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.24-uv1 patch set released
+Message-ID: <Pine.LNX.4.51.0401062334230.5370@cafe.hardrock.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] sysctl equivalent of "idle=poll"
-Content-Type: multipart/mixed;
- boundary="------------050305000703010607060500"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050305000703010607060500
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-The previous version of this patch didn't get any response, so on the
-"no news is good news" theory ... Any comments before I send this off to
-Marcelo?
+The Update Version patchset is a set of patches which include only fatal
+compile/runtime bug fixes and security updates for the current kernel
+version.  This patch set can be used in production environments for those
+who wish to run 2.4.24, but do not use vendor kernels and at the same time
+require patches which add to the stability of the current release kernel
+version.  This is a patch set only, it does not include kernel source.
 
-This adds a new x86-only sysctl, /proc/sys/kernel/idle_poll, which does
-basically the same thing as the "idle=poll" boot parameter (except that
-it can be turned on and off).
+Current version is 2.4.24-uv1 which contains many patches pulled from the
+2.4-bk mailing list which did not make it into the release of 2.4.24.
 
-This patch does not affect the ability of the APM and/or ACPI subsystems
-to override the default idle function.  It adds one symbol,
-pm_idle_poll, to the global namespace.
+The complete URL to the patch set is
+http://www.hardrock.org/kernel/current-updates/linux-2.4.24-updates.patch
 
-This patch applies cleanly to 2.4.23, 2.4.24, and 2.4.25-pre4.
+Individual patches can be viewed and downloaded from
+http://www.hardrock.org/kernel/current-updates/
+
+This patch set only contains and will only contain security updates and
+fixes for the latest kernel version.  Each individual patch contains text
+WRT the patch itself and the creator of the patch, I will try to keep doing
+that as standard reference for the complete collection.
+
+Please send bug reports to jbourne@hardrock.org and CC
+linux-kernel@vger.kernel.org.
+
+Patch specifics are:
+linux-2.4.24-updates.patch: Contains all the patches below.
+
+linux-2.4.24-extraversion.patch: Updated the extraversion in the Makefile
+
+linux-2.4.24-file_lock_acct.patch: Remove broken file lock accounting
+
+linux-2.4.24-ht-detect.patch: Fixup smb_boot_cpus(): Fix HT detection bug
+
+linux-2.4.24-ll_rw_blk_race_fix.patch: from -aa tree: Fix potential fsync()
+        race condition
+
+linux-2.4.24-lockd_reclaim.patch: Drop module count if lockd reclaimer
+        thread failed to start
+
+linux-2.4.24-no_idt.patch: fix reboot/no_idt bug
+
+linux-2.4.24-oom_kill.patch: out_of_memory() locking issue
+
+linux-2.4.24-rbs_clobber.patch: ia64: Fix a bug in sigtramp() which
+        corrupted ar.rnat when unwinding across a signal trampoline
+        (in user space).  Reported by Laurent Morichetti.
+
+linux-2.4.24-root_rlim.patch: Make root a special case for per-user process
+        limits.
+
+linux-2.4.24-rtc-compile.patch: Patch to allow RTC to compile properly on
+        some systems, see http://lkml.org/lkml/2003/12/1/150
+
+linux-2.4.24-duplicate-pid-fix.patch: Without this, duplicate pids can be
+	allocated, which will make one of them unkillable (signals are
+	deliverd to only one of them), and this can be exploitable (I don't
+	know for sure, but maybe, like brk()).
+
+linux-2.4.24-iseries-saverestore-flags.patch: [PPC64] Fix save_flags/restore_flags
+	on iSeries.
+
+linux-2.4.24-mct_u232-baudratefix.patch: Fix a problem in the 'mct_u232' driver
+	whereby output data gets held up in the USB/RS-232 adapter for RS-232
+	devices which don't assert the 'CTS' signal.
+
+linux-2.4.24-odirect-offset.patch: here's an obvious mistake i made in the NFS
+	O_DIRECT implementation.  A missing type cast causes the offset of direct
+	read and write requests to wrap at 4GB.
+
+linux-2.4.24-ppc64-pmc-compile-fix.patch: [PPC64] Fix compile error in
+	arch/ppc64/kernel/pmc.c
+
+linux-2.4.24-ppc64-smp_call_function_late_ipi.patch: [PPC64] Fix smp_call_function
+	so we don't crash if an IPI is very late.
+
+linux-2.4.24-sparc32-build-fix.patch: [SPARC32]: Fix build after asm/system.h
+	include was added to linux/spinlock.h
+
+linux-2.4.24-usb-serial-edgeport-counter-and-alignment.patch: [PATCH] USB: fix bug
+	when errors happen in ioedgeport driver
+
+linux-2.4.24-airo-oops-fix.patch: [wireless airo] Delay MIC activation to
+	prevent Oops
+
+linux-2.4.24-fix-airo-pci-registration.patch: [wireless airo] Fix PCI
+	registration
+
+linux-2.4.24-ide-busy-race-fix.patch: Daniel Lux: Fix IDE busy-wait race
+
+linux-2.4.24-init-ioc3-timer.patch: [PATCH] Initialize ioc3_timer before use
+
+linux-2.4.24-raid1-blocksize.patch: [PATCH] Fix RAID1 blocksize check
+
+linux-2.4.24-megaraid-fix.patch: Latest update to megaraid driver in 2.4
+	tree revived already fixed possible memleak.  Simple patch below
+	should fix it again.
+
+linux-2.4.24-sch_htb-oops-fix.patch: [PATCH] Fixes two oops with htb
+
+linux-2.4.24-st-buffext.patch: The problem was noticed by a user who also
+	provided excellent analysis why the corruption occurred. A small
+	test program was able to prove the analysis. After this the fix was
+	trivial.
+
+linux-2.4.24-tg3_init_one-retfix.patch: [TG3]: Fix bogus return value in
+	tg3_init_one().
+
+linux-2.4.24-iSeries-periodic-interrupts-shared-proc.patch: [PPC64] Fix for
+	periodic interrupts on iSeries with shared processors
+
+linux-2.4.24-laptopmode-j_commit_interval-0.patch: After the laptop mode
+	patch was merged, it is now possible for j_commit_interval to be
+	zero.  Unfortunately jbd doesn't handle this situation very well.
+
+linux-2.4.24-rt_sigprocmask-error-handling.patch: [PATCH] fix broken 2.4.x
+	rt_sigprocmask error handling
+
+
+Regards
+James Bourne
+
 
 -- 
-========================================================================
-Ian Pilcher                                        i.pilcher@comcast.net
-========================================================================
-
---------------050305000703010607060500
-Content-Type: text/plain;
- name="idle_poll.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="idle_poll.patch"
-
-diff -ur linux-2.4.25-pre4/arch/i386/kernel/process.c linux/arch/i386/kernel/process.c
---- linux-2.4.25-pre4/arch/i386/kernel/process.c	2004-01-07 00:01:39.000000000 -0600
-+++ linux/arch/i386/kernel/process.c	2004-01-07 00:04:22.000000000 -0600
-@@ -62,6 +62,12 @@
- void (*pm_idle)(void);
- 
- /*
-+ * Use polling instead of HLT instructions?  (Has no effect if pm_idle is over-
-+ * ridden by APM, ACPI, etc.)
-+ */
-+int pm_idle_poll = 0;
-+
-+/*
-  * Power off function, if any
-  */
- void (*pm_power_off)(void);
-@@ -77,10 +83,9 @@
- }
- 
- /*
-- * We use this if we don't have any better
-- * idle routine..
-+ * Idle using HLT instructions; saves power & keeps cpu's cool.
-  */
--void default_idle(void)
-+static void hlt_idle(void)
- {
- 	if (current_cpu_data.hlt_works_ok && !hlt_counter) {
- 		__cli();
-@@ -118,6 +123,18 @@
- }
- 
- /*
-+ * Default idle routine; can be overridden by APM, ACPI, etc.  (See cpu_idle &
-+ * pm_idle.)
-+ */
-+void default_idle(void)
-+{
-+	if (pm_idle_poll)
-+		poll_idle();
-+	else
-+		hlt_idle();
-+}
-+
-+/*
-  * The idle thread. There's no useful work to be
-  * done, so just try to conserve power and have a
-  * low exit latency (ie sit in a loop waiting for
-@@ -145,7 +162,7 @@
- {
- 	if (!strncmp(str, "poll", 4)) {
- 		printk("using polling idle threads.\n");
--		pm_idle = poll_idle;
-+		pm_idle_poll = 1;
- 	}
- 
- 	return 1;
-diff -ur linux-2.4.25-pre4/Documentation/sysctl/kernel.txt linux/Documentation/sysctl/kernel.txt
---- linux-2.4.25-pre4/Documentation/sysctl/kernel.txt	2001-09-30 14:26:08.000000000 -0500
-+++ linux/Documentation/sysctl/kernel.txt	2004-01-07 00:15:56.000000000 -0600
-@@ -22,6 +22,7 @@
- - domainname
- - hostname
- - htab-reclaim                [ PPC only ]
-+- idle_poll                   [ x86 only ]
- - java-appletviewer           [ binfmt_java, obsolete ]
- - java-interpreter            [ binfmt_java, obsolete ]
- - l2cr                        [ PPC only ]
-@@ -105,6 +106,20 @@
-  
- ==============================================================
- 
-+idle_poll: (x86 only)
-+
-+Setting this to a non-zero value causes the idle loop in the
-+kernel to poll on the need reschedule flag instead of waiting
-+for an interrupt to happen.  This can result in an improvement
-+in performance on SMP systems (albeit at the cost of an increase
-+in power consumption).
-+
-+Note that the power management subsystem (APM or ACPI) can
-+override the default idle function, in which case this setting
-+will have no effect.
-+
-+==============================================================
-+
- l2cr: (PPC only)
- 
- This flag controls the L2 cache of G3 processor boards. If
-diff -ur linux-2.4.25-pre4/include/linux/pm.h linux/include/linux/pm.h
---- linux-2.4.25-pre4/include/linux/pm.h	2002-08-02 19:39:45.000000000 -0500
-+++ linux/include/linux/pm.h	2004-01-07 00:04:22.000000000 -0600
-@@ -185,6 +185,10 @@
- 
- #endif /* CONFIG_PM */
- 
-+#ifdef CONFIG_X86
-+extern int pm_idle_poll;
-+#endif
-+
- extern void (*pm_idle)(void);
- extern void (*pm_power_off)(void);
- 
-diff -ur linux-2.4.25-pre4/include/linux/sysctl.h linux/include/linux/sysctl.h
---- linux-2.4.25-pre4/include/linux/sysctl.h	2004-01-07 00:01:56.000000000 -0600
-+++ linux/include/linux/sysctl.h	2004-01-07 00:04:22.000000000 -0600
-@@ -128,6 +128,7 @@
- 	KERN_PPC_L3CR=57,       /* l3cr register on PPC */
- 	KERN_EXCEPTION_TRACE=58, /* boolean: exception trace */
-  	KERN_CORE_SETUID=59,	/* int: set to allow core dumps of setuid apps */
-+	KERN_IDLE_POLL=60,  	/* boolean: use polling for idle threads? */
- };
- 
- 
-diff -ur linux-2.4.25-pre4/kernel/sysctl.c linux/kernel/sysctl.c
---- linux-2.4.25-pre4/kernel/sysctl.c	2003-11-28 12:26:21.000000000 -0600
-+++ linux/kernel/sysctl.c	2004-01-07 00:04:22.000000000 -0600
-@@ -31,6 +31,7 @@
- #include <linux/sysrq.h>
- #include <linux/highuid.h>
- #include <linux/swap.h>
-+#include <linux/pm.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -275,6 +276,10 @@
- 	{KERN_EXCEPTION_TRACE,"exception-trace",
- 	 &exception_trace,sizeof(int),0644,NULL,&proc_dointvec},
- #endif	
-+#ifdef CONFIG_X86
-+	{KERN_IDLE_POLL,"idle_poll",
-+	&pm_idle_poll,sizeof(int),0644,NULL,&proc_dointvec},
-+#endif
- 	{0}
- };
- 
-
---------------050305000703010607060500--
-
+James Bourne                  | Email:            jbourne@hardrock.org          
+Unix Systems Administrator    | WWW:           http://www.hardrock.org
+Custom Unix Programming       | Linux:  The choice of a GNU generation
+----------------------------------------------------------------------
+ "All you need's an occasional kick in the philosophy." Frank Herbert  

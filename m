@@ -1,41 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270936AbUJUVPN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270838AbUJUVPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270936AbUJUVPN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 17:15:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270803AbUJUVMY
+	id S270838AbUJUVPr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 17:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270809AbUJUVP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 17:12:24 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:52234 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S270928AbUJUVJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 17:09:52 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "Dave Hatton" <mail@davehatton.it>, <linux-kernel@vger.kernel.org>
-Subject: Re: shutdown -h causes laptop to reboot since kernel 2.6.9
-Date: Fri, 22 Oct 2004 00:09:45 +0300
-User-Agent: KMail/1.5.4
-References: <20041021200003.B515C252345@smtp.nildram.co.uk>
-In-Reply-To: <20041021200003.B515C252345@smtp.nildram.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Thu, 21 Oct 2004 17:15:27 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:63197 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S270969AbUJUVO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 17:14:57 -0400
+Subject: Re: Linux 2.6.9-ac2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041021123404.1d947ee0.davem@davemloft.net>
+References: <1098379853.17095.160.camel@localhost.localdomain>
+	 <20041021123404.1d947ee0.davem@davemloft.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410220009.45137.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-Id: <1098389527.17096.166.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 21 Oct 2004 21:12:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 21 October 2004 23:00, Dave Hatton wrote:
-> Hi 
-> 
-> Since kernel 2.6.9, I'm finding "shutdown -g0 -h" now causes my HP nx7010
-> laptop to reboot rather than power down. 
-> 
-> No problems prior to 2.9.0.
+On Iau, 2004-10-21 at 20:34, David S. Miller wrote:
+> 2.4.x will need this one as well, at least the AF_PACKET
+> case.  Would you mind if I pushed that to Marcelo?
 
-You mean 2.6.9.
+Not at all. Andrea has proposed fixing it a little differently. 
+For 2.6 making remap_page_range DTRT itself is ok but for 2.4 the
+vma isn't passed.
 
-You may try to find which 2.6.9-rcN was last working one.
---
-vda
 

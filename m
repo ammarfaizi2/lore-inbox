@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131172AbRAKHP3>; Thu, 11 Jan 2001 02:15:29 -0500
+	id <S131500AbRAKHWu>; Thu, 11 Jan 2001 02:22:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131513AbRAKHPU>; Thu, 11 Jan 2001 02:15:20 -0500
-Received: from ns1.megapath.net ([216.200.176.4]:9746 "EHLO megapathdsl.net")
-	by vger.kernel.org with ESMTP id <S131172AbRAKHPC>;
-	Thu, 11 Jan 2001 02:15:02 -0500
-Message-ID: <3A5D5CFC.5080309@megapathdsl.net>
-Date: Wed, 10 Jan 2001 23:13:00 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-ac1 i686; en-US; m18) Gecko/20010107
-X-Accept-Language: en
-MIME-Version: 1.0
-To: jga@wastelandranger.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PPP: VJ decompression error
-In-Reply-To: <Pine.LNX.4.31.0101110039350.3216-100000@wastelandranger.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S131615AbRAKHWk>; Thu, 11 Jan 2001 02:22:40 -0500
+Received: from [200.222.195.217] ([200.222.195.217]:47503 "EHLO
+	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
+	id <S131500AbRAKHWY>; Thu, 11 Jan 2001 02:22:24 -0500
+Date: Thu, 11 Jan 2001 05:22:10 -0200
+From: Frédéric L . W . Meunier 
+	<0@pervalidus.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 umount problem
+Message-ID: <20010111052210.H1130@pervalidus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.12i
+X-Mailer: Mutt/1.3.12i - Linux 2.4.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joseph Anthony wrote:
+Just FYI, when 2.2.0 was released (yes, 2.2), I moved from
+2.0.36 to it on a RedHat 5.1 with all the updates and the rest
+built from scratch. And shutting down the system gave me the
+same results: / -> device or resource busy. No need to say
+that fsck was used. The other partitions were cleanly
+unmounted.
 
-> Ok, I just upgraded to 2.4.0 from 2.2.17 and I get a slew of these "PPP:
-> VJ decompression error" messages in my kern.log. I have searched all over
-> the place for a patch or an answer, but find nothing. These messages show
-> up mostly when I use Netscape, if that helps.
+2.2.1 was released after some days. Rebooting with this Kernel
+would do the same. Then (I was too lazy to try fuser or lsof) I
+started doing init 1 and umount / for half a year, then it
+worked again (I don't know what changed, but I never edited the
+RedHat scripts).
 
-I complained about this ages ago and submitted snippets of PPP
-debug output for analysis.  As I recall, the problem was never
-resolved and I wound up simply putting "novj" in my PPP config
-file:
+BTW, what's the problem with devfs? I plan to use it, but now
+am afraid.
 
-    /etc/ppp/options
-
-If you'd like to pursue this further, there is a linux-ppp mailing list:
-
-	linux-ppp@vger.kernel.org
-
-I believe this is the PPP maintainer's e-mail address:
-
-	Paul Mackerras <paulus@linuxcare.com>
-
-Best of luck,
-
-	Miles
-
+-- 
+0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

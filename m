@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289412AbSAJMQn>; Thu, 10 Jan 2002 07:16:43 -0500
+	id <S289413AbSAJMTD>; Thu, 10 Jan 2002 07:19:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289413AbSAJMQe>; Thu, 10 Jan 2002 07:16:34 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:45064 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S289412AbSAJMQT>;
-	Thu, 10 Jan 2002 07:16:19 -0500
-Date: Thu, 10 Jan 2002 13:15:57 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Jim Crilly <noth@noth.is.eleet.ca>, Chris Ball <chris@void.printf.net>,
-        Benjamin S Carrell <ben@xmission.com>, linux-kernel@vger.kernel.org
-Subject: Re: Bigggg Maxtor drives (fwd)
-Message-ID: <20020110131557.Y19814@suse.de>
-In-Reply-To: <3C3D191E.7090804@noth.is.eleet.ca> <Pine.LNX.4.33L.0201101010090.2985-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0201101010090.2985-100000@imladris.surriel.com>
+	id <S289417AbSAJMSx>; Thu, 10 Jan 2002 07:18:53 -0500
+Received: from nile.gnat.com ([205.232.38.5]:27549 "HELO nile.gnat.com")
+	by vger.kernel.org with SMTP id <S289413AbSAJMSq>;
+	Thu, 10 Jan 2002 07:18:46 -0500
+From: dewar@gnat.com
+To: Dautrevaux@microprocess.com, dewar@gnat.com, pkoning@equallogic.com
+Subject: RE: [PATCH] C undefined behavior fix
+Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, mrs@windriver.com
+Message-Id: <20020110121845.91AD8F317E@nile.gnat.com>
+Date: Thu, 10 Jan 2002 07:18:45 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10 2002, Rik van Riel wrote:
-> On Wed, 9 Jan 2002, Jim Crilly wrote:
-> 
-> > Actually it would seem this is just Andre's, not so subtle, way of
-> > trying to prove that his ATA133/48-bit addressing patches need
-> > included in 2.4.
-> 
-> I think you'll agree with him the moment you end up with
-> a cheap 160 GB drive in your machine and the old driver
-> (which is limited to 32(?)-bit LBA) won't let you use a
-> large portion of the disk ;)
+<<Note that this is not too much of a problem for system programming, as you
+have a way to be sure they are not combined: just use intermediate variables
+and set them separately; the nice thing there is that as you use these
+intermediate variables just once, the compiler will eliminate them. But be
+careful: the sequence point MUST BE RETAINED, and then the two loads cannot
+be combined (in case 1 of course).
+>>
 
-It's 28-bit LBA, which means
+Of course we all understand that sequence points myust be retained, but this
+is a weak condition compared to the rule that all loads and stores for
+volatile variables must not be resequenced, and in particular, you seem to
+agree that two loads *can* be combined if they both appear between two
+sequence points. I think that's unfortunate, and it is why in Ada we
+adopted a stricter point of view that avoids the notion of sequence points.
 
-2^28 * 512 == 137GB (hard disk manufacturer gigs)
+It even seems that if you have two stores between two sequence points then
+the compiler is free to omit one, and again that seems the wrong decision
+for the case of volatile variables. If it can omit a store in this way, can
+it omit a load, i.e. if we have:
 
-So waste is just 23GB :-)
+   x := v - v;
 
-Once the ide stuff has been proven, of course it will get integrated.
-
--- 
-Jens Axboe
-
+can someone read the sequence point rule to mean that the compiler is
+free to do only one load here? I hope not, but we have already seen how
+much confusion there is on this point.

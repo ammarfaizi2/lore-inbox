@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262430AbUJ0NRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262439AbUJ0NVg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262430AbUJ0NRu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 09:17:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbUJ0NRZ
+	id S262439AbUJ0NVg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 09:21:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbUJ0NRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 09:17:25 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:62099 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262431AbUJ0NKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 09:10:46 -0400
-Subject: Re: Strange IO behaviour on wakeup from sleep
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>, Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jens Axboe <axboe@suse.de>
-In-Reply-To: <1098878790.9478.11.camel@gaston>
-References: <1098845804.606.4.camel@gaston>
-	 <Pine.LNX.4.53.0410271308360.9839@gockel.physik3.uni-rostock.de>
-	 <1098878790.9478.11.camel@gaston>
-Content-Type: text/plain
-Message-Id: <1098882118.4097.10.camel@desktop.cunninghams>
+	Wed, 27 Oct 2004 09:17:16 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21668 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262430AbUJ0NIM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 09:08:12 -0400
+Date: Wed, 27 Oct 2004 14:08:06 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: olh@suse.de, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix O= build
+Message-ID: <20041027130806.GI3450@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 27 Oct 2004 23:01:58 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-On Wed, 2004-10-27 at 22:06, Benjamin Herrenschmidt wrote:
-> The problem has been observed on ppc, while this patch only affects
-> i386...
+Olaf tells me make O= has been broken for a week.  Here's the patch I've
+been using to fix it:
 
-Another shot in the dark....
+diff -urpNX dontdiff linus-2.6/usr/Makefile parisc-2.6/usr/Makefile
+--- linus-2.6/usr/Makefile	Thu Oct 21 14:40:04 2004
++++ parisc-2.6/usr/Makefile	Thu Oct 21 15:10:40 2004
+@@ -8,7 +8,7 @@ clean-files := initramfs_data.cpio.gz
+ # If you want a different list of files in the initramfs_data.cpio
+ # then you can either overwrite the cpio_list in this directory
+ # or set INITRAMFS_LIST to another filename.
+-INITRAMFS_LIST := $(obj)/initramfs_list
++INITRAMFS_LIST := $(srctree)/$(obj)/initramfs_list
+ 
+ # initramfs_data.o contains the initramfs_data.cpio.gz image.
+ # The image is included using .incbin, a dependency which is not
 
-Nothing interesting about /proc/interrupts?
-
-Regards,
-
-Nigel
 -- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Everyone lives by faith. Some people just don't believe it.
-Want proof? Try to prove that the theory of evolution is true.
-
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

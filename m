@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132102AbRA2Oma>; Mon, 29 Jan 2001 09:42:30 -0500
+	id <S130357AbRA2O4X>; Mon, 29 Jan 2001 09:56:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132093AbRA2OmM>; Mon, 29 Jan 2001 09:42:12 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:54641 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S131378AbRA2OmD>; Mon, 29 Jan 2001 09:42:03 -0500
-Date: Mon, 29 Jan 2001 08:41:48 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-To: Martin Diehl <mdiehlcs@compuserve.de>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Robert Siemer <siemer@panorama.hadiko.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: PCI IRQ routing problem in 2.4.0
-In-Reply-To: <Pine.LNX.4.21.0101291230070.29065-100000@notebook.diehl.home>
-Message-ID: <Pine.LNX.3.96.1010129083911.27039F-100000@mandrakesoft.mandrakesoft.com>
+	id <S130949AbRA2O4N>; Mon, 29 Jan 2001 09:56:13 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:5393 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S130357AbRA2O4D>; Mon, 29 Jan 2001 09:56:03 -0500
+Message-ID: <3A7584D8.E7C3CB21@ngforever.de>
+Date: Mon, 29 Jan 2001 07:57:28 -0700
+From: Thunder from the hill <thunder@ngforever.de>
+X-Mailer: Mozilla 4.76 [en]C-CCK-MCD QXW03240  (WinNT; U)
+X-Accept-Language: de,en-US
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Chris Meadors <clubneon@hereintown.net>
+CC: Daniel Chemko <dchemko@intrinsyc.com>,
+        "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: hotmail not dealing with ECN
+In-Reply-To: <Pine.LNX.4.31.0101261438300.30912-100000@rc.priv.hereintown.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jan 2001, Martin Diehl wrote:
-> I've the documentation for the SiS 5591/95 chipset which provides
-> IRQ-routing using the 85C503 ISA bridge function function. This is
-> the same vendor/device id as the pirq_sis*() rely on. According to this
-> datasheet the pirq_sis*() thing is wrong, unless there are different
-> chipsets using the same pci id's but behave differently. The thing went
-> in around 2.4.0-test10 - but I'm unable to find a way to contact the
-> author to check for different chip revisions e.g.
-
-The specification that describes the link ("cookie") values in the
-pirq table built by the BIOS is what needs to be described....  I'm not
-sure you are looking at the correct docs.
-
-And what what we're seeing in this thread, it looks like there are
-two different types of SiS link values from two different BIOSen;
-or perhaps one BIOS is using some of the link value bits for other
-purposes.
-
-	Jeff
 
 
+Chris Meadors wrote:
+> 
+> On Fri, 26 Jan 2001, Daniel Chemko wrote:
+> 
+> > Microsoft are bad for dropping ICMP because of security.. .I mean try pinging
+> > microsoft.com...
+> 
+> It's down, ha ha, Microsoft is down!  I'm joking of course.  But you don't
+> know how many times my techs have told me that.  It's either that, or
+> something is seeming a little strange on our network, and to trouble
+> shoot, they ping microsoft.com and don't get a responce.  Then they call
+> me at home, to tell me that our T1s are down.
+> 
+> I wonder how much bandwidth was used up by people pinging MS to trouble
+> shoot when they still allowed ICMP packets through.
+That's why the nmap manual tells us to use -P0 to scan
+www.microsoft.com.
+Operating system guess returned some unix...
 
+Thunder
+---
+Woah... I did a "cat /boot/vmlinuz >> /dev/audio" - and I think I heard
+god...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

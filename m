@@ -1,74 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130083AbQKUXBq>; Tue, 21 Nov 2000 18:01:46 -0500
+	id <S131135AbQKUXC0>; Tue, 21 Nov 2000 18:02:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129708AbQKUXBg>; Tue, 21 Nov 2000 18:01:36 -0500
-Received: from tellus.thn.htu.se ([193.10.192.40]:31762 "EHLO thn.htu.se")
-	by vger.kernel.org with ESMTP id <S129325AbQKUXBc>;
-	Tue, 21 Nov 2000 18:01:32 -0500
-Date: Tue, 21 Nov 2000 23:31:21 +0100 (CET)
-From: Richard Torkar <ds98rito@thn.htu.se>
-To: David Riley <oscar@the-rileys.net>
-cc: Jeff Epler <jepler@inetnebr.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Defective Red Hat Distribution poorly represents Linux
-In-Reply-To: <3A1AF6AC.F7208DC@the-rileys.net>
-Message-ID: <Pine.LNX.4.30.0011212330130.3193-100000@toor.thn.htu.se>
+	id <S131102AbQKUXCI>; Tue, 21 Nov 2000 18:02:08 -0500
+Received: from 7-ZARA-X12.libre.retevision.es ([62.82.225.7]:17924 "EHLO
+	head.redvip.net") by vger.kernel.org with ESMTP id <S129708AbQKUXBy>;
+	Tue, 21 Nov 2000 18:01:54 -0500
+Message-ID: <3A1AD460.AC55923B@zaralinux.com>
+Date: Tue, 21 Nov 2000 21:00:32 +0100
+From: Jorge Nerin <comandante@zaralinux.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i586)
+X-Accept-Language: es-ES, es, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ext2 compression: How about using the Netware principle?
+In-Reply-To: <3A193A12.9B384B61@karlsbakk.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Roy Sigurd Karlsbakk wrote:
+> 
+> Hi
+> 
+> With some years of practice with Novell NetWare, I've been wandering why
+> the (unused?) file system compression mechanism in ext2 is based on
+> doing realtime compression. To make compression efficient, it can't be
+> made this simple. Let's look at the type of volume (file system)
+> compression introduced with Novell NetWare 4.0 around '94:
+> 
+> - A file is saved to disk
+> - If the file isn't touched (read or written to) within <n> days
+> (default 14), the file is compressed.
+> - If the file isn't compressed more than <n> percent (default 20), the
+> file is flagged "can't compress".
+> - All file compression is done on low traffic times (default between
+> 00:00 and 06:00 hours)
+> - The first time a file is read or written to within the <n> days
+> interval mentioned above, the file is addressed using realtime
+> compression. The second time, the file is decompressed and commited to
+> disk (uncompressed).
+> 
+> Results:
+> A minimum of CPU time is wasted compressing/decompressing files.
+> The average server I've been out working with have an effective
+> compression of somewhere between 30 and 100 per cent.
+> 
+> PS: This functionality was even scheduled for Win2k, but was somewhere
+> lost... I don't know where...
+> 
+> Questions:
+> I'm really not a kernel hacker, but really...
+> - The daily (or nightly) compression job can run as a cron job. This can
+> be a normal user process running as root. Am I right?
+> - The decompress-and-perhaps-commit-decompressed-to-disk process should
+> be done by a kernel process within (or beside) the file system.
+> - The M$ folks will get even more problems braging about a less useful
+> product.
+> 
+> Please CC: to me, as I'm not on the list
+> 
+> Regards
+> 
+> Roy Sigurd Karlsbakk
+> 
 
-David Riley wrote:
+Well, filesystem compresion is in NT since 4.0, in fact you can compress
+a file, a directory, or the whole partition, but only under NTFS. I
+believe that it's [un]compressed on the fly, but I'm not sure about this
+fact.
 
-> Jeff Epler wrote:
-> >
-> > On Tue, Nov 21, 2000 at 04:08:26PM -0500, David Riley wrote:
-> > > Windoze is not the only OS to handle bad hardware better than Linux.  On
-> > > my Mac, I had a bad DIMM that worked fine on the MacOS side, but kept
-> > > causing random bus-type errors in Linux.  Same as when I accidentally
-> > > (long story) overclocked the bus on the CPU.  I think that more
-> > > tolerance for faulty hardware (more than just poorly programmed BIOS or
-> > > chipsets with known bugs) is something that might be worth looking into.
-> >
-> > And how do you propose to do that?
-> >
-> > For instance, in some other operating systems having the top bit flip
-> > in a pointer will cause silent use of incorrect data.  On Linux, this
-> > will cause a signal 11.  Which do you prefer, bad results or an error
-> > message?
-> >
-> > Can you suggest a specific way in which Linux can react correctly to
-> > e.g. flipped bits in RAM or cache which cannot be detected at the hardware
-> > level?  Or maybe tell me how Linux can react correctly when an overclocked
-> > CPU starts producing incorrect results for right shifts once every few
-> > thousand instructions?
->
-> Hmm... Good point.  That would be hard to do.  On that note, there
-> should be some prominent note on things like user manuals (though Linux
-> users shouldn't need *manuals* :-) that notes that common crashes like
-> signal 11 or "cc: internal failure" messages are generally caused by
-> hardware problems.
+The [un]compression mechanism could be a kernel thread calling a
+userspace program (gzip, bzip2, definable) doing the actual
+decompresion.
 
-Well David, there is such a "manual".
+Don't know, just thoughts.
 
-http://ftp.sunet.se/LDP/FAQ/faqs/GCC-SIG11-FAQ
-
-
-
-/Richard
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6Gve8USLExYo23RsRAtrQAJ4glySTwLB+e02mlYX0L42pf3+8BACdEssx
-L2fhmp7uY+xa3wpWYt6cb+M=
-=aP6d
------END PGP SIGNATURE-----
-
-
+-- 
+Jorge Nerin
+<comandante@zaralinux.com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

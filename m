@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262907AbUDDW77 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 18:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbUDDW77
+	id S262906AbUDDW7v (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 18:59:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbUDDW7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 18:59:59 -0400
-Received: from starsphere.linkinnovations.com ([203.94.138.50]:4224 "EHLO
-	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S262907AbUDDW7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 18:59:55 -0400
-Date: Mon, 5 Apr 2004 08:59:51 +1000
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.5: kernel crash on large disk writes
-Message-ID: <20040404225951.GA1586@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sun, 4 Apr 2004 18:59:51 -0400
+Received: from mta8.srv.hcvlny.cv.net ([167.206.5.75]:36525 "EHLO
+	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S262906AbUDDW7t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 18:59:49 -0400
+Date: Sun, 04 Apr 2004 18:59:41 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Re: 2.6.5-aa1
+In-reply-to: <40707888.80006@web.de>
+To: Marcus Hartig <m.f.h@web.de>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <200404041859.47940.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.6.1
+References: <40707888.80006@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Had to leave the house quickly today so this is not as complete as I
-would like. The situation is as follows: I have a k6-500 on an ali1541
-(from memory) ide chipset. All channels filled with 3 hds and 1 cdrom.
-2 hds on the asme port at ata66, one at ata33 and the cdrom at whatever
-it's on. ;) The system boots up normally and light use is just fine. 
-When I backup my laptop to it though I can repeatedly bring the system
-down. The end result is an oops on the screen in soft_irq_timer that
-came from cpu_idle. (I had no time to write it down). The following,
-just before the oops was logged:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Apr  5 01:14:35 nessie kernel: Assertion failure in journal_add_journal_head() a
-t fs/jbd/journal.c:1679: "(((&bh->b_count)->counter) > 0) || (bh->b_page && bh->
-b_page->mapping)"
-Apr  5 01:14:35 nessie kernel: ------------[ cut here ]------------
-Apr  5 01:14:35 nessie kernel: kernel BUG at fs/jbd/journal.c:1679!
+On Sunday 04 April 2004 17:05, Marcus Hartig wrote:
+<snip>
+> But now with the vanilla 2.6.5 and/or -aa1 my favourite game Enemy
+> Territory quits with "signal 11". With 2.6.5-rc3 it runs stable for hours.
+>
+> No change in the kernel config, all with preempt, no CONFIG_REGPARM for
+> nVidia binary drivers is set, or other changes. But only when I want to
+> access the net server game browser in ET to play online! Only then bumm!
 
-The backup was an rsync over the net.
+Same here (with vanilla 2.6.5, I didn't try -aa.)
 
-There have been other problems with the system. It liked my promise
-card in it even less (old driver variety) but nothing ever did get
-logged.
+> With 2.6.5-rc3 all runs fine. Amusingly, hmmm?
 
-If you need mroe info, please yell and I'll try to answer from memory
-and I'll try to give oops details when I get home (please specify what
-details you're most interested in so that I don't have to type it all
-in if possible :).
+In 2.6.5-rc1 it works fine.
 
-Thanks.
+Jeff.
 
--- 
-    Red herrings strewn hither and yon.
+- -- 
+Penguin : Linux version 2.6.2-rc2-net64 on an i686 machine (3932.16 BogoMips).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAcJNhwFP0+seVj/4RAp6gAKCXL7rhnhWrlPLGHd+uHYNU1b+QggCcCb0n
+ivXbW7pWxMXXEt+jlH8gEx0=
+=tmuS
+-----END PGP SIGNATURE-----

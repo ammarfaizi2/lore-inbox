@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263586AbTJCGxC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 02:53:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263701AbTJCGxC
+	id S263489AbTJCHCa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 03:02:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263509AbTJCHCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 02:53:02 -0400
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:54476 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S263586AbTJCGw7
+	Fri, 3 Oct 2003 03:02:30 -0400
+Received: from pgramoul.net2.nerim.net ([80.65.227.234]:9352 "EHLO
+	philou.aspic.com") by vger.kernel.org with ESMTP id S263489AbTJCHC2 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 02:52:59 -0400
-Date: Fri, 3 Oct 2003 09:52:58 +0300 (EEST)
-From: Catalin BOIE <util@deuroconsult.ro>
-X-X-Sender: util@hosting.rdsbv.ro
-To: Jamie Lokier <jamie@shareable.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: idt change in a running kernel? what locking?
-In-Reply-To: <20031003063411.GF15691@mail.shareable.org>
-Message-ID: <Pine.LNX.4.58.0310030945050.10930@hosting.rdsbv.ro>
-References: <Pine.LNX.4.58.0310030850110.10930@hosting.rdsbv.ro>
- <20031003063411.GF15691@mail.shareable.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Oct 2003 03:02:28 -0400
+Date: Fri, 3 Oct 2003 09:02:25 +0200
+From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
+	<philippe.gramoulle@mmania.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test5-mm2] no /proc/bus/i2c but i2c-core module loaded +
+ small oops
+Message-Id: <20031003090225.5ed11211.philippe.gramoulle@mmania.com>
+In-Reply-To: <20031003043325.GA16781@kroah.com>
+References: <20031003043053.367eb89c.philippe.gramoulle@mmania.com>
+	<20031003043325.GA16781@kroah.com>
+Organization: Lycos Europe
+X-Mailer: Sylpheed version 0.9.5claws43 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Oct 2003, Jamie Lokier wrote:
 
-> Catalin BOIE wrote:
-> > What may happen if I modify idt on a running kernel?
-> > It's lock_kernel enough?
->
-> lock_kernel won't help at all.  It doesn't disable interrupts.
->
-> It's more likely, you want to use get_cpu()/put_cpu() to prevent the
-> current kernel thread from being pre-empted to a different CPU.
-get_cpu locks the thread on a CPU until put_cpu?
+Hello Greg,
 
-> > Of course that the new location contain a valid idt table.
->
-> If the new table has the same entries as the old one for all
-> interrupts which are enabled it should be fine.  "lidt" is an atomic
-> operation with respect to interrupts.
-Great.
+On Thu, 2 Oct 2003 21:33:25 -0700
+Greg KH <greg@kroah.com> wrote:
 
-> If you are intending to change idt on all CPUs, you'll need something
-> more complicated.
+  | On Fri, Oct 03, 2003 at 04:30:53AM +0200, Philippe Gramoullé wrote:
+  | > 
+  | >  Hello,
+  | > 
+  | > Symptoms: modprobe i2c-core works fine but /proc/bus/i2c doesn't exist
+  | 
+  | /proc/bus/i2c will never exist :)
 
-Hm. I realized that on a SMP it's a little hard to do it.
-How can I change that on all cpus?
-There is something to use that i can force my code to run on a specific
-cpu?
+Well, ok :) No need to say that i didn't follow closely recent evolutions 
+regarding i2c. I just read but documentation but obviously not for the right kernel :)
+  | 
+  | lmsensors has not been ported to 2.6 yet, sorry.  Look in /sys/bus/i2c
+  | for the devices and sensors.
 
->
-> -- Jamie
+Ok Thx. Will do.
+  | 
+  | > Device class 'i2c-0' does not have a release() function, it is broken and must be fixed.
+  | > Badness in class_dev_release at drivers/base/class.c:200
+  | 
+  | bah, forget to fix this one up.  Will get to it in the next few days.
 
-Thank you very much, Jamie!
+Ok. Hope that it helped.
 
----
-Catalin(ux) BOIE
-catab@deuroconsult.ro
+  | 
+  | thanks,
+
+Thanks to you.
+
+  | 
+  | greg k-h
+
+Bye,
+
+Philippe

@@ -1,52 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288855AbSBILpU>; Sat, 9 Feb 2002 06:45:20 -0500
+	id <S288870AbSBILqB>; Sat, 9 Feb 2002 06:46:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288870AbSBILpK>; Sat, 9 Feb 2002 06:45:10 -0500
-Received: from maild.telia.com ([194.22.190.101]:62169 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S288855AbSBILpB>;
-	Sat, 9 Feb 2002 06:45:01 -0500
-To: Patrick Mochel <mochel@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [bk patch] Make cardbus compile in -pre4
-In-Reply-To: <Pine.LNX.4.33.0202081824070.25114-100000@segfault.osdlab.org>
-From: Peter Osterlund <petero2@telia.com>
-Date: 09 Feb 2002 12:44:51 +0100
-In-Reply-To: <Pine.LNX.4.33.0202081824070.25114-100000@segfault.osdlab.org>
-Message-ID: <m2vgd6hob0.fsf@ppro.localdomain>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	id <S288878AbSBILpv>; Sat, 9 Feb 2002 06:45:51 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:56797 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S288870AbSBILpe>; Sat, 9 Feb 2002 06:45:34 -0500
+Date: Sat, 9 Feb 2002 12:45:29 +0100
+From: Marc Schiffbauer <marc.schiffbauer@links2linux.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: ingress policing still not working in 2.4?
+Message-ID: <20020209114529.GA6753@links2linux.de>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.4.17 i586
+X-Editor: VIM 6.0
+X-Homepage: http://www.links2linux.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel <mochel@osdl.org> writes:
+Hi all,
 
-> I broke cardbus compile in -pre4 on accident. Sorry about that...
+Is ingress policing not working in the current Kernel?
 
-It compiles in -pre5 but doesn't work unless you also apply the patch
-below. Without this patch, bus_id will be empty which makes
-device_register fail.
+I'm using the Script from the Advanced Routing HOWTO
+(Thanks for that BTW!)
 
---- linux/drivers/pcmcia/cardbus.c.old	Sat Feb  9 12:39:49 2002
-+++ linux/drivers/pcmcia/cardbus.c	Sat Feb  9 12:14:36 2002
-@@ -279,13 +279,13 @@
- 		pci_readw(dev, PCI_DEVICE_ID, &dev->device);
- 		dev->hdr_type = hdr & 0x7f;
- 
-+		pci_setup_device(dev);
-+
- 		dev->dev.parent = bus->dev;
- 		strcpy(dev->dev.name, dev->name);
- 		strcpy(dev->dev.bus_id, dev->slot_name);
- 		device_register(&dev->dev);
- 
--		pci_setup_device(dev);
--
- 		/* FIXME: Do we need to enable the expansion ROM? */
- 		for (r = 0; r < 7; r++) {
- 			struct resource *res = dev->resource + r;
+While trying to do a
+
+# tc qdisc add dev ppp0 handle ffff: ingress
+
+I get this:
+RTNETLINK answers: No such file or directory
+
+
+Before that I successfully did this:
+# install root CBQ
+DEV=ppp0
+UPLINK=100
+DOWNLINK=750
+tc qdisc add dev $DEV root handle 1: cbq avpkt 1000 bandwidth 100mbit
+
+tc class add dev $DEV parent 1: classid 1:1 cbq rate ${UPLINK}kbit \
+allot 1500 prio 5 bounded isolated
+
+tc class add dev $DEV parent 1:1 classid 1:10 cbq rate ${UPLINK}kbit \
+   allot 1600 prio 1 avpkt 1000
+
+tc class add dev $DEV parent 1:1 classid 1:20 cbq rate $[9*$UPLINK/10]kbit \
+   allot 1600 prio 2 avpkt 1000
+
+tc qdisc add dev $DEV parent 1:10 handle 10: sfq perturb 10
+tc qdisc add dev $DEV parent 1:20 handle 20: sfq perturb 10
+
+tc filter add dev $DEV parent 1:0 protocol ip prio 10 u32 \
+      match ip tos 0x10 0xff  flowid 1:10
+
+tc filter add dev $DEV parent 1:0 protocol ip prio 11 u32 \
+        match ip protocol 1 0xff flowid 1:10
+
+tc filter add dev $DEV parent 1: protocol ip prio 12 u32 \
+   match ip protocol 6 0xff \
+   match u8 0x05 0x0f at 0 \
+   match u16 0x0000 0xffc0 at 2 \
+   match u8 0x10 0xff at 33 \
+   flowid 1:10
+
+tc filter add dev $DEV parent 1: protocol ip prio 13 u32 \
+   match ip dst 0.0.0.0/0 flowid 1:20
+
+
+I have crawled the archives and found some mails describing this
+problem but I did not find any solution. Some of the mails were
+from year 2000...
+
+So does anybody know a solution for that Problem?
+
+I'm using Kernel 2.4.17 with everything <M>'ed or [*]'ed in
+QoS-Setup.
+
+The Docu says something about the module would be called cls_ingress.o 
+but there is only sch_ingress.o. Is this a Docu-Bug BTW?
+
+All sch_* modules seem to load perfectly.
+
+regards
+-Marc
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+BUGS My programs  never  have  bugs.  They  just  develop  random
+     features.  If you discover such a feature and you want it to
+     be removed: please send an email to bug@links2linux.de 

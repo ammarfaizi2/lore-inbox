@@ -1,81 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265722AbUFYHGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266294AbUFYHrq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265722AbUFYHGf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 03:06:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266294AbUFYHGd
+	id S266294AbUFYHrq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 03:47:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266295AbUFYHrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 03:06:33 -0400
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:41886 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265722AbUFYHGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 03:06:31 -0400
-Message-ID: <40DBCEF3.3040605@yahoo.com.au>
-Date: Fri, 25 Jun 2004 17:06:27 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Fri, 25 Jun 2004 03:47:46 -0400
+Received: from nacho.alt.net ([207.14.113.18]:37092 "HELO nacho.alt.net")
+	by vger.kernel.org with SMTP id S266294AbUFYHro convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 03:47:44 -0400
+Date: Fri, 25 Jun 2004 00:47:39 -0700 (PDT)
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: inode_unused list corruption in 2.4.26 - spin_lock problem?
+In-Reply-To: <Pine.LNX.4.44.0406231824350.13351-100000@nacho.alt.net>
+Message-ID: <Pine.LNX.4.44.0406250046110.6668-100000@nacho.alt.net>
 MIME-Version: 1.0
-To: Miles Bader <miles@gnu.org>
-CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][v850]  Add find_next_bit for v850
-References: <20040625062900.897C93A2@mctpc71>
-In-Reply-To: <20040625062900.897C93A2@mctpc71>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Delivery-Agent: TMDA/1.0.2 (Bold Forbes)
+From: Chris Caputo <ccaputo@alt.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Bader wrote:
-> [Since many archs use the same implementation of find_next_bit, it might
-> be nice to have `generic_find_next_bit' or something.]
+On Wed, 23 Jun 2004, Chris Caputo wrote:
+> On Mon, 21 Jun 2004, Trond Myklebust wrote:
+> > På su , 20/06/2004 klokka 20:45, skreiv Marcelo Tosatti:
+> > > Lets see if I get this right, while we drop the lock in iput to call 
+> > > write_inode_now() an iget happens, possibly from write_inode_now itself 
+> > > (sync_one->__iget) causing the inode->i_list to be added to to inode_in_use. 
+> > > But then the call returns, locks inode_lock, decreases inodes_stat.nr_unused--
+> > > and deletes the inode from the inode_in_use and adds to inode_unused. 
+> > > 
+> > > AFAICS its an inode with i_count==1 in the unused list, which does not
+> > > mean "list corruption", right? Am I missing something here?
+> > 
+> > Yes. Please don't forget that the inode is still hashed and is not yet
+> > marked as FREEING: find_inode() can grab it on behalf of some other
+> > process as soon as we drop that spinlock inside iput(). Then we have the
+> > calls to clear_inode() + destroy_inode() just a few lines further down.
+> > ;-)
+> > 
+> > If the above scenario ever does occur, it will cause random Oopses for
+> > third party processes. Since we do not see this too often, my guess is
+> > that the write_inode_now() path must be very rarely (or never?) called.
+> > 
+> > > If you are indeed right all 2.4.x versions contain this bug.
+> > 
+> > ...and all 2.6.x versions...
+> > 
+> > I'm not saying this is the same problem that Chris is seeing, but I am
+> > failing to see how iput() is safe as it stands right now. Please
+> > enlighten me if I'm missing something.
 > 
-> Signed-off-by: Miles Bader <miles@gnu.org>
+> I think this is a different (albeit apparently valid) problem.  In my case
+> MS_ACTIVE (in iput() below) will be set since I am not unmounting a volume
+> and so I believe iput() will return immediately after adding the inode to
+> the unused list.
 > 
->  include/asm-v850/bitops.h |   76 ++++++++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 76 insertions(+)
-> 
-> diff -ruN -X../cludes linux-2.6.7-uc0/include/asm-v850/bitops.h linux-2.6.7-uc0-v850-20040625/include/asm-v850/bitops.h
-> --- linux-2.6.7-uc0/include/asm-v850/bitops.h	2004-05-11 13:20:53.000000000 +0900
-> +++ linux-2.6.7-uc0-v850-20040625/include/asm-v850/bitops.h	2004-06-25 14:24:08.000000000 +0900
-> @@ -193,10 +193,86 @@
->  	return result + ffz (tmp);
->  }
->  
-> +
-> +/* This is the same as generic_ffs, but we can't use that because it's
-> +   inline and the #include order mucks things up.  */
-> +static inline int generic_ffs_for_find_next_bit(int x)
-> +{
-> +	int r = 1;
-> +
-> +	if (!x)
-> +		return 0;
-> +	if (!(x & 0xffff)) {
-> +		x >>= 16;
-> +		r += 16;
-> +	}
-> +	if (!(x & 0xff)) {
-> +		x >>= 8;
-> +		r += 8;
-> +	}
-> +	if (!(x & 0xf)) {
-> +		x >>= 4;
-> +		r += 4;
-> +	}
-> +	if (!(x & 3)) {
-> +		x >>= 2;
-> +		r += 2;
-> +	}
-> +	if (!(x & 1)) {
-> +		x >>= 1;
-> +		r += 1;
-> +	}
-> +	return r;
-> +}
-> +
-> +/*
-> + * Find next one bit in a bitmap reasonably efficiently.
-> + */
-> +static __inline__ unsigned long find_next_bit(const unsigned long *addr,
+> That said, I have added your patch to my test setup in case it helps.
 
-This probably shouldn't be inline.
+I was able to duplicate the problem I am seeing even with Trond's patch
+applied.  So the patch potentially solves a different problem but not the
+one I am seeing.
+
+Chris
+

@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264372AbUASGKU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 01:10:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264374AbUASGKU
+	id S264410AbUASGr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 01:47:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264411AbUASGr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 01:10:20 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:43677 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264372AbUASGKP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 01:10:15 -0500
-Message-ID: <400B7539.8080901@in.ibm.com>
-Date: Mon, 19 Jan 2004 11:42:09 +0530
-From: Prashanth T <prasht@in.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: rml@tech9.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rwlock_is_locked undefined for UP systems
-References: <4007EAE7.2030104@in.ibm.com> <20040116140933.C24102@infradead.org>
-In-Reply-To: <20040116140933.C24102@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jan 2004 01:47:58 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:10641 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S264410AbUASGr5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 01:47:57 -0500
+Date: Mon, 19 Jan 2004 07:47:56 +0100
+From: Sander <sander@humilis.net>
+To: Andi Kleen <ak@colin2.muc.de>
+Cc: Sander <sander@humilis.net>, Andi Kleen <ak@muc.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, jh@suse.cz
+Subject: Re: several oopses during boot (was: Re: [PATCH] Add CONFIG for -mregparm=3)
+Message-ID: <20040119064756.GA9708@favonius>
+Reply-To: sander@humilis.net
+References: <20040114090603.GA1935@averell> <20040117201639.GA16420@favonius> <20040117205302.GA16658@colin2.muc.de> <20040117210715.GA15172@favonius> <20040117212857.GA28114@colin2.muc.de> <20040118054442.GA32278@favonius> <20040118203459.GB8500@favonius> <20040118210017.GB68521@colin2.muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040118210017.GB68521@colin2.muc.de>
+X-Uptime: 07:25:48 up 31 days, 21:14, 36 users,  load average: 1.16, 1.99, 2.45
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok....I understand that rwlock_is_locked( ) is to be protected by
-CONFIG_SMP.  But I was tempted when I saw spin_is_locked( )
-to be returning zero for !SMP in include/linux/spinlock.h . 
-Am I seeing something wrong here?
+Andi Kleen wrote (ao):
+> > I have no idea if it is hardware or software related, and if it has
+> > got anything to do with the REGPARM option, but I entered this
+> > thread because the kernel oopsed the first time I booted it and the
+> > first time I enabled this option.
+> 
+> Do the oopses go away when you disable the option? And do they come
+> back when you reenable it again? 
 
-Christoph Hellwig wrote:
+I have to try that, but have no reliable way to get the oopses yet which
+makes that a bit hard.
 
->On Fri, Jan 16, 2004 at 07:15:11PM +0530, Prashanth T wrote:
->  
->
->>Hi,
->>    I had to use rwlock_is_locked( ) with linux2.6 for kdb and noticed that
->>this routine to be undefined for UP.  I have attached the patch for 2.6.1
->>below to return 0 for rwlock_is_locked( ) on UP systems.
->>Please let me know.
->>    
->>
->
->we don't implement spin_is_locked on UP either because there's no really
->usefull return value.  The lock will never be taken on !SMP && !PREEMPT,
->but OTOH it's also not needed, so any assert on will give false results.
->And the assert is probably the only thing that the _is_locked routines
->could used for sanely.
->
->
->  
->
+> You could run memtest86 to make sure your RAM is ok.
 
+I'll do that.
+
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265847AbTFSSGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 14:06:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265875AbTFSSGJ
+	id S265878AbTFSSRL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 14:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265881AbTFSSRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 14:06:09 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:29916 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S265847AbTFSSGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 14:06:03 -0400
-Date: Thu, 19 Jun 2003 11:21:02 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Ray Bryant <raybry@sgi.com>
-Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Bug in __pollwait() can cause select() and poll()
- tohang in
-Message-Id: <20030619112102.6a528a29.akpm@digeo.com>
-In-Reply-To: <3EF1FC53.2C9C5249@sgi.com>
-References: <3EF1E136.40305@colorfullife.com>
-	<3EF1FC53.2C9C5249@sgi.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Jun 2003 18:20:03.0052 (UTC) FILETIME=[66DD7AC0:01C3368F]
+	Thu, 19 Jun 2003 14:17:11 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:43230 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S265878AbTFSSRK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 14:17:10 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780E04087F@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Robert Love'" <rml@tech9.net>
+Cc: "'Ingo Molnar'" <mingo@elte.hu>, "'Andrew Morton'" <akpm@digeo.com>,
+       "'george anzinger'" <george@mvista.com>,
+       "'joe.korty@ccur.com'" <joe.korty@ccur.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "Li, Adam" <adam.li@intel.com>
+Subject: RE: O(1) scheduler seems to lock up on sched_FIFO and sched_RR ta
+	 sks
+Date: Thu, 19 Jun 2003 11:31:03 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ray Bryant <raybry@sgi.com> wrote:
->
->  > The correct fix is current->state = TASK_RUNNING just before calling
->  > yield() in the rebalance code.
+> From: Robert Love [mailto:rml@tech9.net]
+> On Wed, 2003-06-18 at 23:52, Perez-Gonzalez, Inaky wrote:
 > 
->  But doesn't this have the same kind of problem?  e. g., just before
->  calling yield() in the rebalance code we save current->state, set it to
->  TASK_RUNNING, then restore current->state on return from yield().  If a
->  fd becomes ready after the call to yield(), and we entered
->  __alloc_pages() with state TASK_INTERRUPTIBLE, aren't we in exactly the
->  same situation as described above?
+> > Then some output would show on my serial console when events/0 is
+> > reprioritized...
+> >
+> > OTOH, what do you think of Robert's idea of adding 20 levels of
+> > priorities for the kernel's sole use?
+> 
+> That was your idea, I just said the infrastructure was in place and we
+> could do it ;-)
 
-No, you cannot restore the task state after having set it to TASK_RUNNING.
+I stand corrected (Man! I should really have my fingers typing 
+after my brain thinks it).
 
-Just leave the state at TASK_RUNNING.  The (silly) code which called the
-page allocator in state TASK_[IN]TERRUPTIBLE will just go around its wait
-loop an extra time and go back to sleep.  This almost always works.
+> I am not so sure it is ideal. I hesitate to make kernel threads FIFO at
+> a maximum priority, let alone an even greater one. I would really prefer
+> to find a nicer solution. Anyhow, if we make events FIFO/99 that would
+> also solve the problem, without dipping into extra high levels.
+
+I don't think is ideal either, but it is the only way I see where we
+can make sure that no user thread is going to stomp over the kernel
+toes and cause a deadlock (this is a extreme, but it can happen). If
+by default we ship all the kernel threads at higher priority than
+anything that the user can do, we avoid this problem (of course, some
+are going to be a no-no, so we default them to OTHER -20), but the 
+most common ones to cause trouble, like the migration thread, keventd
+and some else might benefit from this.
+
+Then, being then the user/sysadmin/designer able to tweak them 
+up or down at will could fix many potential issues with this.
+
+(eg: customer who has decided his applications are real-time,
+and thus have to be made SCHED_FIFO/50 and without any warning or 
+possible cause, they are deadlocking while on some other systems
+they work flawlessly ... )
+
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)
 

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131096AbRAWObC>; Tue, 23 Jan 2001 09:31:02 -0500
+	id <S129905AbRAWO7G>; Tue, 23 Jan 2001 09:59:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131104AbRAWOaw>; Tue, 23 Jan 2001 09:30:52 -0500
-Received: from web11604.mail.yahoo.com ([216.136.172.56]:1296 "HELO
-	web11604.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S131096AbRAWOan>; Tue, 23 Jan 2001 09:30:43 -0500
-Message-ID: <20010123143042.59117.qmail@web11604.mail.yahoo.com>
-Date: Tue, 23 Jan 2001 06:30:42 -0800 (PST)
-From: Tom <freyason@yahoo.com>
-Subject: Re: Proper OOPS report
-To: Henrik Stokseth <hstokset@privat.cybercity.no>
-Cc: linux-kernel@vger.kernel.org
+	id <S130105AbRAWO6r>; Tue, 23 Jan 2001 09:58:47 -0500
+Received: from mail.digitalme.com ([193.97.97.75]:46085 "EHLO digitalme.com")
+	by vger.kernel.org with ESMTP id <S129905AbRAWO60>;
+	Tue, 23 Jan 2001 09:58:26 -0500
+Message-ID: <3A6D9BE6.8070400@bigfoot.com>
+Date: Tue, 23 Jan 2001 09:57:42 -0500
+From: "Trever L. Adams" <trever_Adams@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; m18) Gecko/20010122
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Patrizio Bruno <patrizio@dada.it>
+CC: "Mike A. Harris" <mharris@opensourceadvocate.org>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Total loss with 2.4.0 (release)
+In-Reply-To: <Pine.LNX.4.10.10101231129450.22934-100000@blacksheep.at.dada.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Henrik Stokseth <hstokset@privat.cybercity.no> wrote:
-> you were the one with the gcc 2.95.3 compiler right? even though this
-> compiler is a prerelease of a stable branch i have confirmed errors
-> in the
-> optimalization passes. my advice: use a compiler which really IS
-> stable
-> (gcc-2.95.2 or egcs-1.1.2 are fine), or turn off all optimalizations.
+Patrizio Bruno wrote:
+
+> I think that your linux's partition has not been overwritten, but only the MBR
+> of your disk, so you probably just need to reinstall lilo. Insert your
+> installation bootdisk into your pc, then skip all the setup stuff, but the
+> choose of the partition where you want to install and the source from where
+> you want to install, then select just the lilo configuration (bootconfiguration
+> I mean), complete that step and reboot your machine, lilo will'be there again.
 > 
-> -henrik
+> P.
+> 
+> On Tue, 23 Jan 2001, Trever L. Adams wrote:
 
-The kernel was compiled with 2.95.2.. I did not upgrade to 2.95.3 until
-a week after I compiled the kernel.
+I hate to tell you this, but you couldn't be more wrong.  My MBR was 
+fine.  Lilo was fine and ran fine.  The kernel even booted. The problem 
+was my ext2 partition was scrambled but good (over 4 hours trying to fix 
+it and answer all the questions that fsck threw out).  The ext2 drive 
+lost a lot of data and suddenly had windows stuff all over it (yes, just 
+like Mike, I had ttf fonts and other such things).
 
-Tom
+Trever
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Auctions - Buy the things you want at great prices. 
-http://auctions.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

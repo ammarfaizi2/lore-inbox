@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264925AbRFUHsc>; Thu, 21 Jun 2001 03:48:32 -0400
+	id <S264569AbRFUH7p>; Thu, 21 Jun 2001 03:59:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264926AbRFUHsX>; Thu, 21 Jun 2001 03:48:23 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:34579 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S264925AbRFUHsN>; Thu, 21 Jun 2001 03:48:13 -0400
-Message-ID: <3B31A652.85D2E597@idb.hist.no>
-Date: Thu, 21 Jun 2001 09:46:26 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6-pre3 i686)
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.6pre iptables masquerading seems to kill eth0
+	id <S264926AbRFUH7f>; Thu, 21 Jun 2001 03:59:35 -0400
+Received: from [203.36.158.121] ([203.36.158.121]:48653 "EHLO
+	piro.kabuki.sfarc.net") by vger.kernel.org with ESMTP
+	id <S264569AbRFUH7Z>; Thu, 21 Jun 2001 03:59:25 -0400
+Date: Thu, 21 Jun 2001 17:59:20 +1000
+From: Daniel Stone <daniel@sfarc.net>
+To: Wayne.Brown@altec.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The latest Microsoft FUD. This time from BillG, himself.
+Message-ID: <20010621175920.A691@kabuki.sfarc.net>
+Mail-Followup-To: Wayne.Brown@altec.com, linux-kernel@vger.kernel.org
+In-Reply-To: <86256A71.007DEAD9.00@smtpnotes.altec.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <86256A71.007DEAD9.00@smtpnotes.altec.com>
+User-Agent: Mutt/1.3.18i
+Organisation: Sadly lacking
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a home network with two machines connected with
-3c905B cards.  The main machine also has a isdn dialup connection.
+On Wed, Jun 20, 2001 at 05:53:44PM -0500, Wayne.Brown@altec.com wrote:
+> Not I.  The slides for my last meeting were done as TIFF files and I used xv to
+> display them.  Plus, the most recent documentation I wrote for one of our
+> mainframe applications was done with vi and LaTeX.  "What, in addition to the
+> printed copies, you want a copy of the Word document?  There is no Word
+> document.  But I'll convert it to Rich Text for you and you can take it from
+> there."  If my employer didn't require me to use them occasionally, I'd delete
+> every Microsoft product on my laptop.  It's not that I have anything against
+> proprietary software.  It's just Microsoft that I despise.
 
-Networking works well except if I let the main machine masquerade
-so the other can use the internet too.  I use iptables for this.
-It works for a day or so, then eth0 goes silent on the main machine.
-(Rebooting it shows that the other one was fine all the time.)
+I did the slides for my last LUG talk in MagicPoint (apt-get install mgp, or
+on rpmfind.net, or wherever, maybe even with RH, I don't know). Very clean
+format - see http://kabuki.sfarc.net/daniel/netfilter/netfilter.mgp
 
-The symptoms is that there is no contact between the two machines.
-No ping or anything.  "ifconfig" shows the interface is up
-with the correct ip address, but all packets just disappear.
-There are no error messages except from programs that time out.
-
-Bringing the interface down and up
-again with ifconfig does not help.  It is compiled into the
-kernel, so I can't try module reloading.
-
-Is this some sort of known problem? Or is there something
-I could do to find out more?  I couldn't
-find anything in the logfiles.
-
-Helge Hafting.
+-- 
+Daniel Stone						     <daniel@sfarc.net>
+<Nuke> "can NE1 help me aim nuclear weaponz????? /MSG ME!!"

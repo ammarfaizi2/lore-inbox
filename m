@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270003AbUJNInx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270004AbUJNIva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270003AbUJNInx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 04:43:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270004AbUJNInx
+	id S270004AbUJNIva (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 04:51:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269999AbUJNIva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 04:43:53 -0400
-Received: from mail.gmx.net ([213.165.64.20]:58777 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S270003AbUJNInw (ORCPT
+	Thu, 14 Oct 2004 04:51:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9708 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S270004AbUJNIvC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 04:43:52 -0400
-X-Authenticated: #4399952
-Date: Thu, 14 Oct 2004 10:57:11 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Daniel Walker <dwalker@mvista.com>,
-       Bill Huey <bhuey@lnxw.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U0
-Message-ID: <20041014105711.654efc56@mango.fruits.de>
-In-Reply-To: <20041014002433.GA19399@elte.hu>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
-	<20041011215909.GA20686@elte.hu>
-	<20041012091501.GA18562@elte.hu>
-	<20041012123318.GA2102@elte.hu>
-	<20041012195424.GA3961@elte.hu>
-	<20041013061518.GA1083@elte.hu>
-	<20041014002433.GA19399@elte.hu>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 14 Oct 2004 04:51:02 -0400
+Date: Thu, 14 Oct 2004 04:50:05 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Arun Sharma <arun.sharma@intel.com>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] Support ia32 exec domains without CONFIG_IA32_SUPPORT
+Message-ID: <20041014085003.GM31909@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <41643EC0.1010505@intel.com> <20041007142710.A12688@infradead.org> <4165D4C9.2040804@intel.com> <mailman.1097223239.25078@unix-os.sc.intel.com> <41671696.1060706@intel.com> <mailman.1097403036.11924@unix-os.sc.intel.com> <416AF599.2060801@intel.com> <1097617824.5178.20.camel@localhost.localdomain> <416C5ECF.6060402@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <416C5ECF.6060402@intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Oct 2004 02:24:33 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
+On Tue, Oct 12, 2004 at 03:46:39PM -0700, Arun Sharma wrote:
+> --- linux-2.6-cvs/fs/namei.c	2 Oct 2004 17:59:55 -0000	1.110
+> +++ linux-2.6-cvs/fs/namei.c	8 Oct 2004 18:14:11 -0000
+> @@ -897,7 +897,7 @@
+>  	return 1;
+>  }
+>  
+> -void set_fs_altroot(void)
+> +int set_fs_altroot(const char __user *altroot)
+>  {
+>  	char *emul = __emul_prefix();
 
-> 
-> i'm pleased to announce a significantly improved version of the
-> Real-Time Preemption (PREEMPT_REALTIME) feature that i have been working
-> towards in the past couple of weeks.
+I think you should change this to char *emul;
 
-Cool :)
+>  	struct nameidata nd;
+> @@ -905,12 +905,20 @@
+>  	struct dentry *dentry = NULL, *olddentry;
+>  	int err;
+>  
+> +	if (altroot) {
+> +		emul = getname(altroot);
+> +		if (IS_ERR(emul))
+> +			return PTR_ERR(emul);
+> +	}
+> +
 
-Say, does it still apply that one should not use unthreaded IRQ handlers for
-all IRQ's when using PREEMPT_REALTIME (Except maybe for the keyboard)?
+and add here
+	else
+		emul = __emul_prefix();
 
-flo
+There is no point in calling __emul_prefix () when it will be thrown away.
+
+	Jakub

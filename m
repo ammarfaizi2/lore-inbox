@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289086AbSAIXzF>; Wed, 9 Jan 2002 18:55:05 -0500
+	id <S289088AbSAJAD0>; Wed, 9 Jan 2002 19:03:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289088AbSAIXyz>; Wed, 9 Jan 2002 18:54:55 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33291 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289086AbSAIXyn>; Wed, 9 Jan 2002 18:54:43 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
+	id <S289090AbSAJADR>; Wed, 9 Jan 2002 19:03:17 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:65182
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S289088AbSAJADB>; Wed, 9 Jan 2002 19:03:01 -0500
+Date: Wed, 9 Jan 2002 17:02:16 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Torrey Hoffman <torrey.hoffman@myrio.com>
+Cc: andersen@codepoet.org, Greg KH <greg@kroah.com>,
+        linux-kernel@vger.kernel.org
 Subject: Re: initramfs programs (was [RFC] klibc requirements)
-Date: 9 Jan 2002 15:54:27 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a1il7j$hjl$1@cesium.transmeta.com>
-In-Reply-To: <20020109174637.A1742@thyrsus.com> <Pine.LNX.4.33.0201092325280.31502-100000@sphinx.mythic-beasts.com> <20020109182902.A2804@thyrsus.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Message-ID: <20020110000216.GS13931@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CB23@mail0.myrio.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211CB23@mail0.myrio.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020109182902.A2804@thyrsus.com>
-By author:    "Eric S. Raymond" <esr@thyrsus.com>
-In newsgroup: linux.dev.kernel
-> 
-> OK.  One more time.
-> 
-> The autoconfigurator is *not* mean to be run at boot time, or as root.
-> 
-> It is intended to be run by ordinary users, after system boot time.
-> This is so they can configure and experimentally build kernels without
-> incurring the "oops..." risks of going root.
-> 
-> Therefore, the above 'solution' is not acceptable.
-> 
+On Wed, Jan 09, 2002 at 12:25:37PM -0800, Torrey Hoffman wrote:
+ 
+> One of the neat things about moving a lot of this formerly in-kernel
+> boot stuff to userspace is that it will be easier to do interesting
+> customization of the boot process, without having to hack the kernel.
 
-If /var/run/dmidata [or whatever you call it] isn't available, put an
-error box on the screen and say "complain to your distribution
-vendor."
+Right.  But in doing this we also don't want to bloat the very small
+programs/functionality we currently hack directly in
 
-End of story.
+> I'm sure that this will be used in lots of innovative ways that people
+> haven't even thought of yet.  
 
-	-hpa
+Yes, but how many of these require a 'klibc' ?  One of the other tiny
+libcs is probably a better bet for any sort of 'large' project.  IMHO,
+the klibc stuff should be just big enough to support the 'normal' cases,
+ie stuff we do now and related.
+
+> So, I guess what I'd like to see with the initramfs build system is a 
+> easy way to build little apps like sfdisk and mkreiserfs against the 
+> libc it (normally) uses and add them to the ramdisk.
+
+Well, occording to the spec file hpa posted, it's just a cpio(1)
+archive, so anything is possible.
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

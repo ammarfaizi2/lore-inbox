@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317705AbSFLNy2>; Wed, 12 Jun 2002 09:54:28 -0400
+	id <S317707AbSFLODO>; Wed, 12 Jun 2002 10:03:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317707AbSFLNy1>; Wed, 12 Jun 2002 09:54:27 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:5650 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S317705AbSFLNy1>;
-	Wed, 12 Jun 2002 09:54:27 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: kbuild-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, release 3.0 is available 
-In-Reply-To: Your message of "Fri, 07 Jun 2002 18:49:19 +1000."
-             <13225.1023439759@kao2.melbourne.sgi.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 12 Jun 2002 23:54:14 +1000
-Message-ID: <27097.1023890054@ocs3.intra.ocs.com.au>
+	id <S317708AbSFLODO>; Wed, 12 Jun 2002 10:03:14 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:15878 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S317707AbSFLODN>; Wed, 12 Jun 2002 10:03:13 -0400
+Date: Wed, 12 Jun 2002 09:57:47 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Nick Evgeniev <nick@octet.spb.ru>, Andre Hedrick <andre@linux-ide.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: linux 2.4.19-preX IDE bugs
+In-Reply-To: <E17I2bd-000732-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.96.1020612095106.337A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 05 Jun 2002 23:53:43 +1000, 
-Keith Owens <kaos@ocs.com.au> wrote:
->Release 3.0 of kernel build for kernel 2.5 (kbuild 2.5) is available.
->http://sourceforge.net/projects/kbuild/, package kbuild-2.5, download
->release 3.0.
+On Wed, 12 Jun 2002, Alan Cox wrote:
 
-New files:
+> >   I agree that if it has known problems which destroy data it should be
+> > unavailable in the stable kernel. It certainly sounds as if that's the
+> > case, and the driver could be held out until 2.4.20 or so when it can be
+> > fixed, or if it can't be fixed it can just go away.
+> 
+> Then I suggest you give up computing, because PC hardware doesnt make
+> your grade. BTW the general open promise bugs *dont* include data
+> corruption so I suspect it may be your h/w thats hosed.
 
-kbuild-2.5-core-19
-  Change from core-18.
+Mine, and the original poster? And the "me too?" I understood the author
+to say that the new board needed a driver change, and if that's the case
+why not hold off the driver until he gets to it? Nobody if faulting him
+for lack of time, but it seems not to work.
 
-    Change allno/allyes/allmod to all*config.
-    Replace $([<^@][DF]) with $(dir/notdir).
-    Do a dummy write to the database to workaround a kernel bug on
-    timestamps of mmaped files.
+Guess it must be my hardware, two boards, two systems, corruption only on
+the drives on the new... hell with it, obviously if you don't have the
+problem the original poster and I must be clueless whiners.
 
-kbuild-2.5-i386-2.4.18-4
-kbuild-2.5-i386-2.4.19-pre10-2
+I'll drop this discussion and scrap the board, restores cost more than
+controllers :-(
 
-    Backport CC/CC_real fix from 2.5.
-
-kbuild-2.5-common-2.5.21-1
-kbuild-2.5-i386-2.5.21-1
-
-    Upgrade to 2.5.21.
-
-More arch patches for 2.5.21 to follow.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

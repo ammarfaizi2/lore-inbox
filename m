@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262789AbSKIWci>; Sat, 9 Nov 2002 17:32:38 -0500
+	id <S262804AbSKIWo0>; Sat, 9 Nov 2002 17:44:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262790AbSKIWci>; Sat, 9 Nov 2002 17:32:38 -0500
-Received: from unthought.net ([212.97.129.24]:32986 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S262789AbSKIWci>;
-	Sat, 9 Nov 2002 17:32:38 -0500
-Date: Sat, 9 Nov 2002 23:39:21 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Jeff Dike <jdike@karaya.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-rc1 - hang with processes stuck in D
-Message-ID: <20021109223921.GE10902@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Jeff Dike <jdike@karaya.com>, Andrew Morton <akpm@digeo.com>,
-	linux-kernel@vger.kernel.org
-References: <3DC8645B.A0E99A99@digeo.com> <200211060308.gA638Ui08714@karaya.com> <20021108041755.GD1729@unthought.net> <shslm437vi9.fsf@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <shslm437vi9.fsf@charged.uio.no>
-User-Agent: Mutt/1.3.28i
+	id <S262802AbSKIWo0>; Sat, 9 Nov 2002 17:44:26 -0500
+Received: from ns1.triode.net.au ([202.147.124.1]:60618 "EHLO
+	iggy.triode.net.au") by vger.kernel.org with ESMTP
+	id <S262800AbSKIWoY>; Sat, 9 Nov 2002 17:44:24 -0500
+Message-ID: <3DCD9107.3020103@torque.net>
+Date: Sun, 10 Nov 2002 09:49:43 +1100
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: linux-scsi@vger.kernel.org,
+       Rolf Eike Beer <eike@bilbo.math.uni-mannheim.de>
+Subject: Re: [RFC] Clean up scsi documentation
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 08, 2002 at 07:43:10PM +0100, Trond Myklebust wrote:
-> >>>>> " " == Jakob Oestergaard <jakob@unthought.net> writes:
-...
->      > Everything using disk, both on NFS clients and locally running
->      > processes, just pause. Five seconds after everything is like it
->      > never happened.
-> 
-> If you are using HIGHMEM, then the stock 2.4.20-rc1 has a known issue
-> with an unbalanced kmap. Marcelo has already applied the following
-> patch in the latest bitkeeper update.
+Eike Beer <eike@bilbo.math.uni-mannheim.de> wrote:
+ > currently the documentation for scsi is not completely located
+ > where it should IMHO be: in Documentation/
+ >
+ > There are a few files in Documentation and much more files in
+ > drivers/scsi/ .
+ > I think this should be fixed. Any thougts?
+ >
+ > My way would be:
+ >
+ > 1) create a directory Documentation/scsi/
+ > 2) move everything to this location
+ > 3) rename some of the docs (currently the names look
+ > like "README.drivername"
+ > but "drivername.txt" is more common in Documentation/*)
+ > 4) fix up the references
+ > 5) add a 00-INDEX file to Documentation/scsi
+<snip/>
 
-No highmem.  The box has 512 MB RAM.
+Yes, this would be a positive step and has been proposed by
+others on the linux-scsi list. It may be a bit late for the
+2.4 series but the time would be right for the 2.5 series.
 
-I get some
-eth1: TX underrun, threshold adjusted.
-eth0: TX underrun, threshold adjusted.
-messages in the syslog - probably around 100 messages or so, but they
-stop appearing after a day of uptime or so.  This is two bonded Intel
-eepro100 cards, using the "Becker" driver (not the Intel one which I saw
-was included).  Those messages do not seem to be correlated with the
-pauses at all though.
+James Bottomley <James.Bottomley@steeleye.com> and Doug Ledford
+<dledford@redhat.com> are maintaining BK repositories for the
+scsi subsystem in the 2.5 series. If you could submit your
+patches to them, then they will find their way to Linus
+in an orderly fashion.
 
-That's the *only* anomaly except for the pauses, that I see on the box.
+Doug Gilbert
 
-The machine has run 2.4.20-rc1 for 5 days now, with an average load
-probably around 3 or 4  (load 2 caused by two long-running CPU hogs, the
-rest comes from disk I/O, mostly because it's NFS exporting a 147G fs).
 
-Stable so far, but the "hickups" are weird.
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:

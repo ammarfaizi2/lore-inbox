@@ -1,89 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262094AbRFNLwZ>; Thu, 14 Jun 2001 07:52:25 -0400
+	id <S262202AbRFNMHp>; Thu, 14 Jun 2001 08:07:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262116AbRFNLwO>; Thu, 14 Jun 2001 07:52:14 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:24842 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S262094AbRFNLv4>;
-	Thu, 14 Jun 2001 07:51:56 -0400
-Date: Thu, 14 Jun 2001 15:51:53 +0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Support for "Yet Another Sound Blaster 16"
-Message-ID: <20010614155153.A2855@orbita1.ru>
-Reply-To: pazke@orbita1.ru
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yEPQxsgoJgBvi8ip"
-User-Agent: Mutt/1.0.1i
-X-Uptime: 3:31pm  up 14 days, 23:13,  1 user,  load average: 0.00, 0.03, 0.00
-From: <pazke@orbita1.ru>
+	id <S262262AbRFNMHf>; Thu, 14 Jun 2001 08:07:35 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:57097 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S262202AbRFNMH2>; Thu, 14 Jun 2001 08:07:28 -0400
+Message-Id: <200106141207.f5EC7CA4030080@pincoya.inf.utfsm.cl>
+To: David Luyer <david_luyer@pacific.net.au>
+cc: "Rainer Mager" <rmager@vgkk.com>, linux-kernel@vger.kernel.org
+Subject: Re: Download process for a "split kernel" (was: obsolete code must die) 
+In-Reply-To: Message from David Luyer <david_luyer@pacific.net.au> 
+   of "Thu, 14 Jun 2001 12:00:23 +1000." <200106140200.f5E20NL3012987@typhaon.pacific.net.au> 
+Date: Thu, 14 Jun 2001 08:07:11 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Luyer <david_luyer@pacific.net.au> said:
 
---yEPQxsgoJgBvi8ip
-Content-Type: multipart/mixed; boundary="dDRMvlgZJXvWKvBx"
+[...]
 
+> This might actually make sense - a kernel composed of multiple versioned
+> segments.  A tool which works out dependencies of the options being selected,
+> downloads the required parts if the latest versions of those parts are not
+> already downloaded, and then builds the kernel (or could even build during
+> the download, as soon as the build dependencies for each block of the kernel
+> are satisfied, if you want to be fancy...).
 
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-
-Hi all,
-
-attached patch to add yet another Sound Blaster 16 variant reported by
-<klink@clouddancer.com>
-
-Best regards.
-
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
-
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-yasb
-Content-Transfer-Encoding: quoted-printable
-
-diff -ur linux.vanilla/drivers/sound/sb_card.c linux/drivers/sound/sb_card.c
---- linux.vanilla/drivers/sound/sb_card.c	Thu Jun 14 10:12:35 2001
-+++ linux/drivers/sound/sb_card.c	Thu Jun 14 10:16:38 2001
-@@ -298,6 +298,11 @@
- 		ISAPNP_VENDOR('C','T','L'), ISAPNP_FUNCTION(0x0031),
- 		0,0,0,0,
- 		0,1,1,-1},
-+	{"Sound Blaster 16",=20
-+		ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x00ed),=20
-+		ISAPNP_VENDOR('C','T','L'), ISAPNP_FUNCTION(0x0041),
-+		0,0,0,0,
-+		0,1,1,-1},
- 	{"Sound Blaster Vibra16S",=20
- 		ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x0051),=20
- 		ISAPNP_VENDOR('C','T','L'), ISAPNP_FUNCTION(0x0001),
-@@ -518,6 +523,9 @@
-=20
- 	{	ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x002b),=20
- 		ISAPNP_VENDOR('C','T','L'), ISAPNP_FUNCTION(0x0031), 0 },
-+
-+	{	ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x00ed),=20
-+		ISAPNP_VENDOR('C','T','L'), ISAPNP_FUNCTION(0x0041), 0 },
-=20
- 	{	ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x0051),=20
- 		ISAPNP_VENDOR('C','T','L'), ISAPNP_FUNCTION(0x0001), 0 },
-
---dDRMvlgZJXvWKvBx--
-
---yEPQxsgoJgBvi8ip
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7KKVZBm4rlNOo3YgRAiN1AJ9aiBtHq3E5v7eP1LjjiKCFc1efKwCdH1J8
-1Z5ETg/SfoR+s5XrdUuc058=
-=CXAA
------END PGP SIGNATURE-----
-
---yEPQxsgoJgBvi8ip--
+Please do look at the archives to find out just why this idea is floated
+each 3 to 4 months and then shot down, and why.
+-- 
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

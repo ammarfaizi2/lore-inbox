@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281916AbSAUBFp>; Sun, 20 Jan 2002 20:05:45 -0500
+	id <S288327AbSAUBIc>; Sun, 20 Jan 2002 20:08:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288327AbSAUBFd>; Sun, 20 Jan 2002 20:05:33 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:64271 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S285692AbSAUBFS>; Sun, 20 Jan 2002 20:05:18 -0500
-Message-ID: <3C4B6867.8070302@namesys.com>
-Date: Mon, 21 Jan 2002 04:01:27 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S285692AbSAUBIW>; Sun, 20 Jan 2002 20:08:22 -0500
+Received: from ns1.baby-dragons.com ([199.33.245.254]:18830 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S288327AbSAUBIM>; Sun, 20 Jan 2002 20:08:12 -0500
+Date: Sun, 20 Jan 2002 20:07:12 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+cc: Frank van de Pol <fvdpol@home.nl>, Keith Owens <kaos@ocs.com.au>,
+        Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Re: Hardwired drivers are going away?
+In-Reply-To: <5.1.0.14.2.20020121010328.02672020@pop.cus.cam.ac.uk>
+Message-ID: <Pine.LNX.4.44.0201202004440.914-100000@filesrv1.baby-dragons.com>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org
-Subject: Re: Possible Idea with filesystem buffering.
-In-Reply-To: <Pine.LNX.4.33L.0201202242240.32617-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
 
->On Mon, 21 Jan 2002, Hans Reiser wrote:
->
->>Suppose we do what you ask, and always write the page (as well as some
->>other pages) to disk.  This will result in the filesystem cache as a
->>whole receiving more pressure than other caches that only write one
->>page in response to pressure.  This is unbalanced, leads to some
->>caches having shorter average page lifetimes than others, and it is
->>therefor suboptimal.  Yes?
->>
->
->If your ->writepage() writes pages to disk it just means
->that reiserfs will be able to clean its pages faster than
->the other filesystems.
->
-the logical extreme of this is that no write caching should be done at 
-all, only read caching?
+	Hello Anton ,
 
->
->
->This means the VM will not call reiserfs ->writepage() as
->often as for the other filesystems, since more of the
->pages it finds will already be clean and freeable.
->
->I guess the only way to unbalance the caches is by actually
->freeing pages in ->writepage, but I don't see any real reason
->why you'd want to do that...
->
->regards,
->
->Rik
->
-It would unbalance the write cache, not the read cache.
+On Mon, 21 Jan 2002, Anton Altaparmakov wrote:
+> At 23:20 20/01/02, Frank van de Pol wrote:
+> >On Sat, Jan 19, 2002 at 10:22:43AM +1100, Keith Owens wrote:
+> > > On Fri, 18 Jan 2002 17:20:02 -0500 (EST),
+> > > "Mr. James W. Laferriere" <babydr@baby-dragons.com> wrote:
+> > > >     Linux doesn't have a method to load encrypted & signed modules at
+> > > >     this time .
+> > > And never will.  Who loads the module - root.  Who maintains the list
+> > > of signatures - root.  Who controls the code that verifies the
+> > > signature - root.
+> > > Your task Jim, should you choose to accept it, is to make the kernel
+> > > distinguish between a good use of root and a malicious use by some who
+> > > has broken in and got root privileges.  When you can do that, then we
+> > > can add signed modules.
+> >If you want to secure your box, why don't you simply put a lock on it and
+> >throw away the key? Really, what might help the paranoid admins in this case
+> >is a setting in the kernel which basically disables the ability to load or
+> >unload modules. Of course once set this setting can not been turned with
+> >rebooting the box.
 
-Hans
+> Er that sounds like just disabling modules in the kernel altogether (kernel
+> compile option exists for this since the beginning of time)... I do that on
+> all servers I control. Not only for security reasons but also because I
+> suspect it produces smaller and probably faster kernels (I haven't tested
+> this in any way, just a guess).
+	This is just what the Heads are trying to do away with .  There
+	will only be module enabled kernels .  JimL
+
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
 

@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273299AbRIWHNB>; Sun, 23 Sep 2001 03:13:01 -0400
+	id <S273304AbRIWHOB>; Sun, 23 Sep 2001 03:14:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273304AbRIWHMv>; Sun, 23 Sep 2001 03:12:51 -0400
-Received: from embolism.psychosis.com ([216.242.103.100]:4112 "EHLO
-	embolism.psychosis.com") by vger.kernel.org with ESMTP
-	id <S273299AbRIWHMh>; Sun, 23 Sep 2001 03:12:37 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: David Cinege <dcinege@psychosis.com>
-Reply-To: dcinege@psychosis.com
-To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PART1: Proposed init & module changes for 2.5
-Date: Sun, 23 Sep 2001 03:12:54 -0400
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <E15l2tb-0004KK-00@wagner>
-In-Reply-To: <E15l2tb-0004KK-00@wagner>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15l3Qu-0005YQ-00@schizo.psychosis.com>
+	id <S273305AbRIWHNm>; Sun, 23 Sep 2001 03:13:42 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:51045 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S273304AbRIWHNY>;
+	Sun, 23 Sep 2001 03:13:24 -0400
+Message-ID: <20010923091408.A850@win.tue.nl>
+Date: Sun, 23 Sep 2001 09:14:08 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Luben Karavelov <luben@bgone.net>, linux-kernel@vger.kernel.org
+Subject: Re: kernel can not scan partition table of hdd?
+In-Reply-To: <20010923021623.A1201@bgone.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010923021623.A1201@bgone.net>; from Luben Karavelov on Sun, Sep 23, 2001 at 02:16:23AM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 23 September 2001 2:37, Rusty Russell wrote:
+On Sun, Sep 23, 2001 at 02:16:23AM +0300, Luben Karavelov wrote:
 
-Russ,
+> If the partition table of the disk is not correct,
+> how to fix it?
 
-How about implementing MBS? (Bootloader module loading. IE as implmented in 
-GRUB) so we can finally have completely modular kernels?
+Your partition table looks fine, nothing wrong with that.
 
-Dave
+But the partition table is the very first thing the kernel
+tries to read from disk, so probably disk reading fails.
+
+> I have the following problem. After I have upgraded the 
+> kernel from from 2.4.7 to 2.4.9 I have found that the new
+> kernel can not scan the partition table of the disk - it
+> freezes for a moment and than i continue but it cannot
+> find the root device after that.
+> The situation with 2.4.10-pre14 and 2.4.9-ac14 is the same.
+> The chipset of the ide controller is VIA82C59x. The disk is
+> Quantum Fireball tm1280a ATA.

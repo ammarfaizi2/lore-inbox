@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129590AbRBXUet>; Sat, 24 Feb 2001 15:34:49 -0500
+	id <S129594AbRBXUvP>; Sat, 24 Feb 2001 15:51:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129592AbRBXUea>; Sat, 24 Feb 2001 15:34:30 -0500
-Received: from ns1.uklinux.net ([212.1.130.11]:13834 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S129590AbRBXUe0>;
-	Sat, 24 Feb 2001 15:34:26 -0500
-Envelope-To: linux-kernel@vger.kernel.org
-Date: Sat, 24 Feb 2001 19:27:02 +0000 (GMT)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-cc: Chris Mason <mason@suse.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+	id <S129596AbRBXUvE>; Sat, 24 Feb 2001 15:51:04 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30468 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129594AbRBXUu5>; Sat, 24 Feb 2001 15:50:57 -0500
 Subject: Re: reiserfs: still problems with tail conversion
-In-Reply-To: <20010223231949.D24959@arthur.ubicom.tudelft.nl>
-Message-ID: <Pine.LNX.4.21.0102241917020.1720-100000@localhost.localdomain>
+To: ken@kenmoffat.uklinux.net (Ken Moffat)
+Date: Sat, 24 Feb 2001 20:53:15 +0000 (GMT)
+Cc: J.A.K.Mouw@ITS.TUDelft.NL (Erik Mouw), mason@suse.com (Chris Mason),
+        linux-kernel@vger.kernel.org (Linux kernel mailing list)
+In-Reply-To: <Pine.LNX.4.21.0102241917020.1720-100000@localhost.localdomain> from "Ken Moffat" at Feb 24, 2001 07:27:02 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Wlgs-0000Sp-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(reisertest)
+> 32Mb. The test results vary depending on what else is on the partition,
+> but in each case the last file affected is 01017 and there are sequences
+> of previous_number+4, for up to 8 files (but next file after this might be
+> previous+7 or previous +15, or sporadic). From other problems I've seen on
+> the list, maybe I need more memory to run reiserfs ?
 
-I get the same problems with straight 2.4.2, machine is a k5 with
-32Mb. The test results vary depending on what else is on the partition,
-but in each case the last file affected is 01017 and there are sequences
-of previous_number+4, for up to 8 files (but next file after this might be
-previous+7 or previous +15, or sporadic). From other problems I've seen on
-the list, maybe I need more memory to run reiserfs ?
- 
-This happens whether I compile the kernel (and/or the test program) with
-Red Hat's revised gcc-2.96 or with egcs. First testing was with a
-partition created from the rpm version of mkreiserfs, while running a
-2.96-built-kernel. I've now recreated the partition while running a kernel
-compiled with egcs ('kgcc'), the only difference is some of the numbers
-for the affected files differ.
- 
-Partition approx 1.7Gb, built with defaults, block size is 4096.
- 
-More details of config or whatever available if required.
- 
-Ken
+No. Reiserfs cannot go around corrupting files regardless of the amount of
+memory you have. What is however quite possible is that there is a race
+condition on reiserfs (or in the VFS) that is triggered when you are paging
+and programs are thus sleeping on buffer and memory allocations
 

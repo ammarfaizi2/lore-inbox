@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317945AbSFSRLh>; Wed, 19 Jun 2002 13:11:37 -0400
+	id <S317944AbSFSRTm>; Wed, 19 Jun 2002 13:19:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317946AbSFSRLg>; Wed, 19 Jun 2002 13:11:36 -0400
-Received: from ns.suse.de ([213.95.15.193]:34820 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317945AbSFSRLg>;
-	Wed, 19 Jun 2002 13:11:36 -0400
-Date: Wed, 19 Jun 2002 19:11:36 +0200
-From: Dave Jones <davej@suse.de>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Craig Kulesa <ckulesa@as.arizona.edu>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Linus Torvalds <torvalds@transmeta.com>,
-       rwhron@earthlink.net
-Subject: Re: [PATCH] (1/2) reverse mapping VM for 2.5.23 (rmap-13b)
-Message-ID: <20020619191136.H29373@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Craig Kulesa <ckulesa@as.arizona.edu>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, Linus Torvalds <torvalds@transmeta.com>,
-	rwhron@earthlink.net
-References: <Pine.LNX.4.44.0206181340380.3031-100000@loke.as.arizona.edu> <E17KipF-0000up-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E17KipF-0000up-00@starship>; from phillips@bonn-fries.net on Wed, Jun 19, 2002 at 07:00:57PM +0200
+	id <S317946AbSFSRTl>; Wed, 19 Jun 2002 13:19:41 -0400
+Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:3456
+	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with ESMTP id <S317944AbSFSRTk>; Wed, 19 Jun 2002 13:19:40 -0400
+From: Wayne Whitney <whitney@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+Message-Id: <200206191718.g5JHIrK01977@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Dave Jones <davej@suse.de>, Anders Gustafsson <andersg@0x63.nu>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/partitions broken in 2.5.23
+In-Reply-To: <20020619113233.GA15730@win.tue.nl>
+References: <20020619090248.GA8681@suse.de> <20020619090248.GA8681@suse.de> <20020619113233.GA15730@win.tue.nl>
+Reply-To: whitney@math.berkeley.edu
+Date: Wed, 19 Jun 2002 10:18:53 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 19, 2002 at 07:00:57PM +0200, Daniel Phillips wrote:
- > > ...Hope this is of use to someone!  It's certainly been a fun and 
- > > instructive exercise for me so far.  ;)
- > It's intensely useful.  It changes the whole character of the VM discussion 
- > at the upcoming kernel summit from 'should we port rmap to mainline?' to 'how 
- > well does it work' and 'what problems need fixing'.  Much more useful.
+In mailing-lists.linux-kernel, you wrote:
 
-Absolutely.  Maybe Randy Hron (added to Cc) can find some spare time
-to benchmark these sometime before the summit too[1]. It'll be very
-interesting to see where it fits in with the other benchmark results
-he's collected on varying workloads.
+> I changed something here a few weeks ago. The idea was to avoid
+> listing partitions of size 0 but do list full devices, regardless of
+> size. Especially in case of removable media that is useful.
 
-        Dave
+I traced the change to the part of mainline ChangeSet 1.496 given
+below (warning: cut and pasted).  It seems to cause every possible
+device that a driver could provide to show up in /proc/partitions.
+For LVM, that's a zillion devices, and /proc/partitions overflows,
+showing some random pages from memory.  Reverting the patch below
+makes /proc/partitions and LVM happy again.
 
-[1] I am master of subtle hints.
+Cheers,
+Wayne
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+
+--- a/drivers/block/genhd.c	Wed May  8 09:53:06 2002
++++ b/drivers/block/genhd.c	Sun Jun  9 18:58:36 2002
+@@ -177,9 +177,10 @@
+ 	if (sgp == gendisk_head)
+ 		seq_puts(part, "major minor  #blocks  name\n\n");
+ 
+-	/* show all non-0 size partitions of this disk */
++	/* show the full disk and all non-0 size partitions of it */
+ 	for (n = 0; n < (sgp->nr_real << sgp->minor_shift); n++) {
+-		if (sgp->part[n].nr_sects == 0)
++		int minormask = (1<<sgp->minor_shift) - 1;
++		if ((n & minormask) && sgp->part[n].nr_sects == 0)
+ 			continue;
+ 		seq_printf(part, "%4d  %4d %10d %s\n",
+ 			sgp->major, n, sgp->sizes[n],

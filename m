@@ -1,78 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313558AbSGUUlR>; Sun, 21 Jul 2002 16:41:17 -0400
+	id <S313416AbSGUUjf>; Sun, 21 Jul 2002 16:39:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313537AbSGUUlQ>; Sun, 21 Jul 2002 16:41:16 -0400
-Received: from hub-r.franken.de ([194.94.249.2]:49423 "EHLO hub-r.franken.de")
-	by vger.kernel.org with ESMTP id <S313558AbSGUUlN>;
-	Sun, 21 Jul 2002 16:41:13 -0400
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-From: Ernst Lehmann <lehmann@acheron.franken.de>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020720205520.GX29001@khan.acc.umu.se>
-References: <OF918E6F71.637B1CBC-ON85256BFB.004CDDD0@pok.ibm.com>
-	 <1027199147.16819.39.camel@irongate.swansea.linux.org.uk>
-	 <1027197028.26159.2.camel@UberGeek.digitalroadkill.net>
-	 <20020720205520.GX29001@khan.acc.umu.se>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1027284252.10069.2.camel@hadley>
+	id <S313477AbSGUUjf>; Sun, 21 Jul 2002 16:39:35 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37642 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S313416AbSGUUjf>; Sun, 21 Jul 2002 16:39:35 -0400
+Date: Sun, 21 Jul 2002 21:42:39 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A1
+Message-ID: <20020721214239.C26376@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.44.0207212038350.23450-100000@localhost.localdomain> <20020721205800.B26376@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 21 Jul 2002 22:44:13 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020721205800.B26376@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Sun, Jul 21, 2002 at 08:58:01PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-07-20 at 22:55, David Weinehall wrote:
-> On Sat, Jul 20, 2002 at 03:30:29PM -0500, Austin Gonyou wrote:
-> > On Sat, 2002-07-20 at 16:05, Alan Cox wrote:
-> > ...
-> > > > > Do you think the breakdown is realistic?
-> > > > >
-> > > > > -- Guillaume
-> > > > 
-> > > > o EVMS (Enterprise Volume Management System)      (EVMS team)
-> > > 
-> > > or LVM2, which already appears to be scrubbed down and clean
-> > 
-> > Just IMHO, LVM2 makes better sense as there currently is no "stable"
-> > module for XFS in EVMS, AFAIK.
-> > Also, LVM is currently in 2.4 and a lot of peopel use it, LVM2 seems to
-> > be the proper progression for 2.6. My $0.02
+On Sun, Jul 21, 2002 at 08:58:01PM +0100, Russell King wrote:
+> On Sun, Jul 21, 2002 at 08:50:35PM +0200, Ingo Molnar wrote:
+> > (the serial subsystem is disabled for example.)
 > 
-> I'd rather see the EVMS go in, if a choice has to be made between the
-> two. EVMS seems to have a lot of effort put in it, and has the
-> experience from the (very good) volume-managers that IBM have in OS/2
-> and AIX.
+> As far as the serial stuff goes:
 > 
-> Afaik, EVMS supports LVM volumes. As for XFS, I'm sure an XFS module can
-> be produced for EVMS (then again, XFS isn't merged yet either...)
+> - William Irvin and Zwane Mwaikambo have been testing it, found a
+>   deadlock, now fixed. (yay)
 > 
-Hmm, the XFS-module for EVMS is only comsetic. Because you can youe XFS
-on EVMS right now.
-
-I think the best will be to move both in the kernel, and if that is too
-much :)) Then choose EVMS, because it is all under one hat. LVM and Raid
-Management.
-
-So my vote is on EVMS...
+> - Zwane reports that serial console doesn't work for him.  Oddly,
+>   it works here on a Netwinder (which has all the bits'n'pieces to
+>   be close enough to a PC with a PCI bus, southbridge, and standard
+>   serial ports at standard IO bases and standard IRQs) so I'm at a
+>   loss why this works for me but not Zwane.
 > 
-> Regards: David Weinehall
->   _                                                                 _
->  // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-> //  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-> \>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> I'm just sorting out a 2.5.26-rmk1 release, then update to 2.5.27,
+> make sure it builds, and then I'll be sending the serial stuff to
+> Linus.  Until then, I've no idea if any patch I create will apply
+> to 2.5.27.
+> 
+> Gimme about an hour or so and I'll have the patch ready.
 
-Bye	
-	Ernst
+Ok, 2.5.27 doesn't seem to touch any of the affected files; the patch
+still applies.  In such a short time period, I've not been able to
+confirm that it actually works with 2.5.27, only with 2.5.26.
 
+Here's the complete patch; it's rather large, so for mortals it's
+available from:
+
+  http://www.arm.linux.org.uk/cvs/serial-2.5.26-3.diff.bz2
+
+I'm going to send it in mail to Linus separately.
 
 -- 
-Ernst Lehmann <lehmann@acheron.franken.de>
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

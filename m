@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129094AbQKBTGy>; Thu, 2 Nov 2000 14:06:54 -0500
+	id <S129142AbQKBTNq>; Thu, 2 Nov 2000 14:13:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129129AbQKBTGo>; Thu, 2 Nov 2000 14:06:44 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37956 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129094AbQKBTGi>; Thu, 2 Nov 2000 14:06:38 -0500
-Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
-To: Tim@Rikers.org (Tim Riker)
-Date: Thu, 2 Nov 2000 19:07:12 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <3A01B8BB.A17FE178@Rikers.org> from "Tim Riker" at Nov 02, 2000 11:55:55 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129247AbQKBTNg>; Thu, 2 Nov 2000 14:13:36 -0500
+Received: from ra.lineo.com ([204.246.147.10]:65186 "EHLO thor.lineo.com")
+	by vger.kernel.org with ESMTP id <S129142AbQKBTNY>;
+	Thu, 2 Nov 2000 14:13:24 -0500
+Message-ID: <3A01BB7D.B084B66@Rikers.org>
+Date: Thu, 02 Nov 2000 12:07:41 -0700
+From: Tim Riker <Tim@Rikers.org>
+Organization: Riker Family (http://rikers.org/)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
+In-Reply-To: <E13rPhi-0001ng-00@the-village.bc.nu>
+X-MIMETrack: Serialize by Router on thor/Lineo(Release 5.0.5 |September 22, 2000) at 11/02/2000
+ 12:13:21 PM,
+	Serialize complete at 11/02/2000 12:13:21 PM
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13rPhi-0001ng-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1. There are architectures where some other compiler may do better
-> optimizations than gcc. I will cite some examples here, no need to argue
+Alan Cox wrote:
+> 
+> > 1. There are architectures where some other compiler may do better
+> > optimizations than gcc. I will cite some examples here, no need to argue
+> 
+> I think we only care about this when they become free software.
 
-I think we only care about this when they become free software.
+This may be your belief, but I would not choose to enforce it on
+everyone. Thank you for you opinion.
 
-> 2. There are architectures where gcc is not yet available, but vendor C
-> compilers are.
+> > 2. There are architectures where gcc is not yet available, but vendor C
+> > compilers are.
+> 
+> That need to run Linux - name one ? Why try to solve a problem when it hasn't
+> happened yet. Let whoever needs to solve it do it.
 
-That need to run Linux - name one ? Why try to solve a problem when it hasn't
-happened yet. Let whoever needs to solve it do it. 
+We have proposals here all under NDA. So I won't mention one of them.
+Perhaps there are some of these folk on the list that would like to
+comment?
 
-Alan
+> 
+> Alan
 
-
+-- 
+Tim Riker - http://rikers.org/ - short SIGs! <g>
+All I need to know I could have learned in Kindergarten
+... if I'd just been paying attention.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

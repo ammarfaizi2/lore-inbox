@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264418AbTLBWW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 17:22:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264420AbTLBWW2
+	id S264415AbTLBWQe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 17:16:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264418AbTLBWQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 17:22:28 -0500
-Received: from pixy-gw.netlab.is.tsukuba.ac.jp ([130.158.83.98]:46342 "HELO
-	pixy.netlab.is.tsukuba.ac.jp") by vger.kernel.org with SMTP
-	id S264418AbTLBWW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 17:22:26 -0500
-To: hirofumi@mail.parknet.co.jp
-CC: linux-kernel@vger.kernel.org
-Subject: FAT fs sanity check patch
-X-Mailer: Mew version 1.94.2 on Emacs 19.34 / Mule 2.3 (SUETSUMUHANA)
+	Tue, 2 Dec 2003 17:16:34 -0500
+Received: from users.ccur.com ([208.248.32.211]:20672 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id S264415AbTLBWQb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 17:16:31 -0500
+Date: Tue, 2 Dec 2003 17:16:20 -0500
+From: Joe Korty <joe.korty@ccur.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH, 2.6.0-test11] more correct get_compat_timespec interface
+Message-ID: <20031202221619.GA27505@rudolph.ccur.com>
+Reply-To: Joe Korty <joe.korty@ccur.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20031203072219F.yokota@netlab.is.tsukuba.ac.jp>
-Date: Wed, 03 Dec 2003 07:22:19 +0900
-From: Yokota Hiroshi <yokota@netlab.is.tsukuba.ac.jp>
-X-Dispatcher: imput version 20000228(IM140)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello,
+Hi Andrew, 
+ The API for get_compat_timespec / put_compat_timespec is incorrect, it
+forces a caller with const args to (incorrectly) cast.  The posix message
+queue patch is one such caller.
 
- This patch is required for my 640MB Optical disk.
-Because some MS windows based FAT filesystem disk formatter generetes
-wrong super bloacks.
+Joe
 
--------------------------------------------
---- linux-2.6.0-test10/fs/fat/inode.c.bak	2003-11-24 10:31:52.000000000 +0900
-+++ linux-2.6.0-test10/fs/fat/inode.c	2003-11-30 01:12:37.000000000 +0900
-@@ -968,6 +968,8 @@
- 		/* all is as it should be */
- 	} else if (media == 0xf8 && FAT_FIRST_ENT(sb, 0xfe) == first) {
- 		/* bad, reported on pc9800 */
-+	} else if (media == 0xf0 && FAT_FIRST_ENT(sb, 0xf8) == first) {
-+		/* bad, reported with a MO disk */
- 	} else if (first == 0) {
- 		/* bad, reported with a SmartMedia card */
- 	} else {
--------------------------------------------
 
-PS:
- I don't subscribe linux-kernel ML. If you have any questions,
-please send mail to my mail address.
 
----
-YOKOTA Hiroshi
-E-mail: yokota (at) netlab (dot) is (dot) tsukuba (dot) ac (dot) jp
+diff -ura 2.6.0-test11-base/include/linux/compat.h 2.6.0-test11-new/include/linux/compat.h
+--- 2.6.0-test11-base/include/linux/compat.h	2003-11-26 15:43:56.000000000 -0500
++++ 2.6.0-test11-new/include/linux/compat.h	2003-12-02 15:48:14.000000000 -0500
+@@ -44,8 +44,8 @@
+ } compat_sigset_t;
+ 
+ extern int cp_compat_stat(struct kstat *, struct compat_stat *);
+-extern int get_compat_timespec(struct timespec *, struct compat_timespec *);
+-extern int put_compat_timespec(struct timespec *, struct compat_timespec *);
++extern int get_compat_timespec(struct timespec *, const struct compat_timespec *);
++extern int put_compat_timespec(struct timespec *, const struct compat_timespec *);
+ 
+ struct compat_iovec {
+ 	compat_uptr_t	iov_base;
+diff -ura 2.6.0-test11-base/kernel/compat.c 2.6.0-test11-new/kernel/compat.c
+--- 2.6.0-test11-base/kernel/compat.c	2003-11-26 15:44:11.000000000 -0500
++++ 2.6.0-test11-new/kernel/compat.c	2003-12-02 15:48:14.000000000 -0500
+@@ -22,14 +22,14 @@
+ 
+ #include <asm/uaccess.h>
+ 
+-int get_compat_timespec(struct timespec *ts, struct compat_timespec *cts)
++int get_compat_timespec(struct timespec *ts, const struct compat_timespec *cts)
+ {
+ 	return (verify_area(VERIFY_READ, cts, sizeof(*cts)) ||
+ 			__get_user(ts->tv_sec, &cts->tv_sec) ||
+ 			__get_user(ts->tv_nsec, &cts->tv_nsec)) ? -EFAULT : 0;
+ }
+ 
+-int put_compat_timespec(struct timespec *ts, struct compat_timespec *cts)
++int put_compat_timespec(struct timespec *ts, const struct compat_timespec *cts)
+ {
+ 	return (verify_area(VERIFY_WRITE, cts, sizeof(*cts)) ||
+ 			__put_user(ts->tv_sec, &cts->tv_sec) ||

@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266983AbSK2JNc>; Fri, 29 Nov 2002 04:13:32 -0500
+	id <S266986AbSK2JiP>; Fri, 29 Nov 2002 04:38:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266986AbSK2JNc>; Fri, 29 Nov 2002 04:13:32 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:49866 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S266983AbSK2JNc> convert rfc822-to-8bit; Fri, 29 Nov 2002 04:13:32 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Radeon DRM oops in 2.4.20-rc4-ac1
-Date: Fri, 29 Nov 2002 10:20:17 +0100
-User-Agent: KMail/1.4.3
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: Jens-Christian Skibakk <jens@cultus.no>
+	id <S266991AbSK2JiO>; Fri, 29 Nov 2002 04:38:14 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:5034 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S266986AbSK2JiO>;
+	Fri, 29 Nov 2002 04:38:14 -0500
+Date: Fri, 29 Nov 2002 10:45:24 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] named struct initialiser updates
+In-Reply-To: <200211260414.gAQ4EaJ26436@hera.kernel.org>
+Message-ID: <Pine.GSO.4.21.0211291044410.29438-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200211291020.17123.m.c.p@wolk-project.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens-Christian,
+On Tue, 26 Nov 2002, Linux Kernel Mailing List wrote:
+> ChangeSet 1.842.43.47, 2002/11/25 18:40:22-08:00, davej@codemonkey.org.uk
+> 
+> 	[PATCH] named struct initialiser updates
 
-> Now I can start the X-Window system, and glxinfo report direct redering 
-> as enabled.
-> But when I test the glxgears I get Illegal instruction, the same error 
-> also happens for tuxracer.
-> If I turn the DRI of in the XF86Config-4 file, glxgears runs fine, but 
-> without HW redering.
-hmm, seems the Radeon code is somewhat buggy. I have a Rage128 chipset and 
-that is working fine after the fix applied.
 
-Consider writing Arjan van de Ven, he did the code :)
+> diff -Nru a/drivers/video/fbcon.c b/drivers/video/fbcon.c
+> --- a/drivers/video/fbcon.c	Mon Nov 25 20:14:39 2002
+> +++ b/drivers/video/fbcon.c	Mon Nov 25 20:14:39 2002
+> @@ -230,8 +230,9 @@
+>  
+>  static void cursor_timer_handler(unsigned long dev_addr);
+>  
+> -static struct timer_list cursor_timer =
+> -		TIMER_INITIALIZER(cursor_timer_handler, 0, 0);
+> +static struct timer_list cursor_timer = {
+> +    function: cursor_timer_handler
+> +};
+>  
+>  static void cursor_timer_handler(unsigned long dev_addr)
+>  {
 
-ciao, Marc
+Doesn't this part reverse the timer initializer fix?
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

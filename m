@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268869AbRHBJxg>; Thu, 2 Aug 2001 05:53:36 -0400
+	id <S268871AbRHBJ5G>; Thu, 2 Aug 2001 05:57:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268872AbRHBJx0>; Thu, 2 Aug 2001 05:53:26 -0400
-Received: from stargate.gnyrf.net ([194.165.254.115]:48771 "HELO
-	stargate.gnyrf.net") by vger.kernel.org with SMTP
-	id <S268869AbRHBJxO>; Thu, 2 Aug 2001 05:53:14 -0400
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SMP possible with AMD CPUs?
-Message-ID: <996753017.3b693e79209b1@stargate.gnyrf.net>
-Date: Thu, 02 Aug 2001 13:50:17 +0200 (CEST)
-From: Roger Abrahamsson <hyperion@gnyrf.net>
-In-Reply-To: <20010801230441.A19396@leeor.math.technion.ac.il> <3B690A63.5068B279@theOffice.net>
-In-Reply-To: <3B690A63.5068B279@theOffice.net>
+	id <S268872AbRHBJ44>; Thu, 2 Aug 2001 05:56:56 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:57358 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S268871AbRHBJ4m>; Thu, 2 Aug 2001 05:56:42 -0400
+Date: Thu, 2 Aug 2001 06:56:47 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Christoph Hellwig <hch@ns.caldera.de>
+Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        <linux-kernel@vger.kernel.org>, <sct@redhat.com>
+Subject: Re: ext3-2.4-0.9.4
+In-Reply-To: <200108020951.f729pAc13598@ns.caldera.de>
+Message-ID: <Pine.LNX.4.33L.0108020655530.5582-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.5
-X-Originating-IP: 212.32.163.13
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Saw this thread, and I just wondered if there is support in 2.4.x kernels for
-cpu's off different stepping and model to be run on SMP systems?
-Apparently the design AMD did choose allows say a 750MHZ Duron to be run
-together with a 1.2GHZ Athlon MP due to the separate buses to the chipset.
-Anyone tried this?
+On Thu, 2 Aug 2001, Christoph Hellwig wrote:
 
-Regards
-Roger A
+> > Well, if there's not a single dirent, you cannot retrieve the data,
+>
+> Of course you can, you can pass and fd for an unliked file
+> everywhere using AF_LOCAL descriptor passing.
+
+But this assumes the system doesn't crash, while
+fsync() seems meant more as a protection against
+the system going down unexpectedly ...
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

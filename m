@@ -1,93 +1,87 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316051AbSFPKA1>; Sun, 16 Jun 2002 06:00:27 -0400
+	id <S316070AbSFPKSu>; Sun, 16 Jun 2002 06:18:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316070AbSFPKA0>; Sun, 16 Jun 2002 06:00:26 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:40081 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S316051AbSFPKAZ>;
-	Sun, 16 Jun 2002 06:00:25 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 16 Jun 2002 11:59:55 +0200 (MEST)
-Message-Id: <UTC200206160959.g5G9xtM29126.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, viro@math.psu.edu
-Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
-Cc: linux-kernel@vger.kernel.org
+	id <S316079AbSFPKSt>; Sun, 16 Jun 2002 06:18:49 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52837 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S316070AbSFPKSs>; Sun, 16 Jun 2002 06:18:48 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: Andrea Arcangeli <andrea@suse.de>, Benjamin LaHaise <bcrl@redhat.com>,
+        linux-kernel@vger.kernel.org,
+        Richard Brunner <richard.brunner@amd.com>, mark.langsdorf@amd.com
+Subject: Re: another new version of pageattr caching conflict fix for 2.4
+In-Reply-To: <20020613221533.A2544@wotan.suse.de>
+	<20020613210339.B21542@redhat.com>
+	<20020614032429.A19018@wotan.suse.de>
+	<20020613213724.C21542@redhat.com>
+	<20020614040025.GA2093@inspiron.birch.net>
+	<20020614001726.D21542@redhat.com>
+	<20020614062754.A11232@wotan.suse.de>
+	<20020614112849.A22888@redhat.com>
+	<20020614181328.A18643@wotan.suse.de>
+	<20020614173133.GH2314@inspiron.paqnet.com>
+	<20020614200537.A5418@wotan.suse.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 16 Jun 2002 04:08:49 -0600
+Message-ID: <m17kkzv8lq.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    On Sun, 16 Jun 2002 Andries.Brouwer@cwi.nl wrote:
+Andi Kleen <ak@suse.de> writes:
 
-    > > Wrong.  That breaks for anything with ->follow_link() that
-    > > can't be expressed as a single lookup on some path.
-    > 
-    > I don't know what interesting out-of-tree filesystems you
-    > have in mind, but it looks like this would work for all
-    > systems in the current tree.
+> On Fri, Jun 14, 2002 at 12:31:33PM -0500, Andrea Arcangeli wrote:
+> > On Fri, Jun 14, 2002 at 06:13:28PM +0200, Andi Kleen wrote:
+> > > +#ifdef CONFIG_HIGHMEM
+> > > +	/* Hopefully not be mapped anywhere else. */
+> > > +	if (page >= highmem_start_page) 
+> > > +		return 0;
+> > > +#endif
+> > 
+> > there's no hope here. If you don't want to code it right because nobody
+> > is exercising such path and flush both any per-cpu kmap-atomic slot and
+> > the page->virtual, please place a BUG() there or any more graceful
+> > failure notification.
+> 
+> Ok done. 
+> 
+> I also removed the DRM change because it was buggy. I'm not 100% yet
+> it is even a problem. Needs more investigation.
+> 
+> BTW there is another corner case that was overlooked:  
+> mmap of /dev/kmem, /proc/kcore, /dev/mem. To handle this correctly 
+> the mmap functions would need to always walk the kernel page table
+> and force the correct caching attribute in the user mapping.
+> But what to do when there is already an existing mapping to user space?
 
-    Trivial counterexample: procfs.
+Don't allow the change_page_attr if page->count > 1 is an easy solution,
+and it probably suffices.  Beyond that anything mmaped can be found
+by walking into the backing address space, and then through the
+vm_area_structs found with i_mmap && i_mmap_shared.  Of course the
+vm_area_structs may possibly need to break because of the multiple
+page protections.
 
-That is trivially handled:
+> > > +int change_page_attr(struct page *page, int numpages, pgprot_t prot)
+> > > +{
+> > 
+> > this API not the best, again I would recommend something on these lines:
+> 
+> Hmm: i would really prefer to do the allocation in the caller.
+> If you want your API you could do  just do it as a simple wrapper to
+> the existing function (with the new numpages it would be even 
+> efficient) 
 
-static inline int
-do_follow_link(struct dentry *dentry, struct nameidata *nd) {
-	const char *link = NULL;
-	struct page *page = NULL;
-	int err;
+Using pgprot_t to convey the cacheablity of a page appears to be an
+abuse.  At the very least we need a PAGE_CACHE_MASK, to find just
+the cacheability attributes.
 
-	...
-	err = dentry->d_inode->i_op->prepare_follow_link(dentry, nd, &link, &page);
-	if (nd->flags & FOLLOW_DONE)
-		nd->flags &= ~FOLLOW_DONE;
-	else if (err = 0)
-		err = __vfs_follow_link(nd, link);
-	if (page) {
-		kunmap(page);
-		page_cache_release(page);
-	}
-	...
-	return err;
-}
+And we should really consider using the other cacheability page
+attributes on x86, not just cache enable/disable.  Using just mtrr's
+is limiting in that you don't always have enough of them, and that
+sometimes valid ram is mapped uncacheable, because of the mtrr
+alignment restrictions. 
 
-You must come with more serious objections before I believe your
-claim that this doesn't work.
-
-----------     
-    > You are replacing kdev_t by struct block device *, that I
-    > consider as a refcounted reference to the device. Fine.
-    > But kdev_t is created by the driver, at the moment the
-    > device is detected, while struct block device * is created
-    > at open() time. Thus, the question arises where you plan to
-...
-    > store permanent device data like size or sectorsize.
-
-    Sector size is kept in the queue.  Disk size - in per-disk objects
-    that are yet to be introduced in the tree.
-
-Yes - it is these per-disk objects that I was referring to.
-Recently I was polishing some SCSI code, and the next step
-would have been unification with some IDE code that did precisely
-the same things in an entirely different way. But in order to
-remove this driver code I needed what I still think of as kdev_t
-structs. So you will be introducing them after all. Good.
-
-----------
-    Notice that your "permanent" data is not quite permanent - e.g.
-    information about partitioning can be lost (in all kernels since
-    2.0, if not earlier) at any moment when nobody has devices opened.
-    rmmod -a and there you go...
-
-    IMO correct approach to such data is that it's generated on demand
-    (as it is right now - again, consider modular driver; then we don't
-    see _anything_ about devices until somebody attempts to open one
-    of them and triggers module loading)
-
-Yes, when the disk is removed, or when the driver is removed
-it does not matter that information is lost.
-But it is very bad to generate a partition table on each open.
-Indeed, it is wrong.
-
-User space can tell the kernel what the partitions are.
-Opening a disk device must not destroy that information.
-So some permanent info of the gendisk type is needed.
-
-Andries
+Eric

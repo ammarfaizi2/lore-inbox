@@ -1,77 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbTDYLSz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 07:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbTDYLSz
+	id S263862AbTDYLZP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 07:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263870AbTDYLZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 07:18:55 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16687 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP id S262914AbTDYLSy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 07:18:54 -0400
-To: Werner Almesberger <wa@almesberger.net>
-Cc: Daniel Phillips <phillips@arcor.de>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flame Linus to a crisp!
-References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com>
-	<20030424182945.7065812EFF1@mx12.arcor-online.net>
-	<20030424201522.G1425@almesberger.net>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 25 Apr 2003 05:28:19 -0600
-In-Reply-To: <20030424201522.G1425@almesberger.net>
-Message-ID: <m1bryuhl4c.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	Fri, 25 Apr 2003 07:25:15 -0400
+Received: from mta02.telering.at ([212.95.31.39]:18648 "EHLO smtp.telering.at")
+	by vger.kernel.org with ESMTP id S263862AbTDYLZM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 07:25:12 -0400
+Date: Fri, 25 Apr 2003 12:40:24 +0200
+From: Bernhard Kaindl <kaindl@telering.at>
+X-X-Sender: bkaindl@hase.a11.local
+To: Andreas Gietl <Listen@e-admin.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH][2.4-rc1] fix side effects of the kmod/ptrace secfix
+In-Reply-To: <200304250037.45133.Listen@e-admin.de>
+Message-ID: <Pine.LNX.4.53.0304251215200.2582@hase.a11.local>
+References: <200304250037.45133.Listen@e-admin.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: MULTIPART/MIXED; BOUNDARY="1283901862-134127159-1051267224=:2582"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger <wa@almesberger.net> writes:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> Daniel Phillips wrote:
-> > Open source + Linux + DRM could be used to solve the Quake client-side 
-> > cheating problem:
-> 
-> Yes, but in return you'd be excluded from playing Quake unless
-> you're running one of those signed kernels or modules.
+--1283901862-134127159-1051267224=:2582
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-In this context, the only thing I know has been openly discussed
-is to have a BIOS that includes a public key of my choosing for
-authentication.
- 
-> So, if I, say, want to test some TCP fix, new VM feature, file
-> system improvement, etc., none of the applications that rely on
-> DRM would work. This doesn't only affect developers, but also
-> their potential testers.
+On Fri, 25 Apr 2003, Andreas Gietl wrote:
+> > system monitoring stuff this way(I've even heard shutdown is affected)
+>
+> i can confirm that shutdown (halt|reboot) does not work on my 2.4.21-rc1-ac1
+> boxes. (gentoo + redhat).
 
-Not so because in a general purpose system the owners of the
-system control the keys.
- 
-> Given that most users will just run a distribution's kernel, with
-> all the right signatures, companies will not perceive the few
-> cases in which their use of DRM causes problems as very important,
-> so they will use DRM.
+Thanks for the info!
 
-Redhat's kernel is unlikely to get my signature.  Possibly
-at some point there will be a web of trust where that will work
-but in the first approximation distributors kernels will not
-load until I sign them.
- 
-> Oh, maybe some developers could be granted the privilege of being
-> able to sign their own kernels or modules. So if you're part of
-> this circle, you'd be fine, right ? No, even this doesn't work,
-> because if you'd leak such a key, you'd certainly get sued for
-> damages. And I don't think many people would feel overly pleased
-> with the idea of being responsible for the safekeeping of the key
-> to a multi-million lawsuit. (And besides, this may turn them into
-> targets for key theft/robbery/extortion.)
-> 
-> (There are of course uses of such signatures that would not have
-> those problems. E.g. signatures that prove trustworthiness to the
-> local user, instead of a remote party.)
+> But your patch does not seem to fix it.
 
-Yes.  And there has been some limited discussion on LinuxBIOS list
-about implementing these. 
+Very interesting also, the two liner adressed only the well-known problems.
+To fix the other not so well-known side effects, a real cleanup is the way
+to go.
 
-Eric
+Can you try the attached cleanup patch instead of the two-liner?
+
+It's an inital cleanup and should fix the other side effects which
+I described in my mails.
+
+Bernhard Kaindl
+
+PS: If either patch is applied correctly, this
+
+	su guest -c 'ps $PPID;wc -m </proc/$PPID/cmdline'
+
+should give:
+
+  PID TTY      STAT   TIME COMMAND
+ 2452 pts/2    S      0:00 su bin -c ps $PPID;wc -m </proc/$PPID/cmdline
+     46
+
+If it does not, access_process_vm is not fixed properly.
+
+Second, calling this as root:
+
+	strace -fewrite su -c /bin/echo 2>&1 | grep pid
+
+should give:
+
+[pid  2599] --- SIGSTOP (Stopped (signal)) @ 0 (0) ---
+[pid  2599] write(1, "\n", 1
+
+If it does not, ptrace_check_attach is not fixed properly.
+
+(These are only the checks for the well known side
+effects which should be fixed even with the short
+is_dumpable() -> task_dumpable patch.)
+--1283901862-134127159-1051267224=:2582
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ptrace-cleanup-1.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.53.0304251240240.2582@hase.a11.local>
+Content-Description: 
+Content-Disposition: attachment; filename="ptrace-cleanup-1.diff"
+
+LS0tIGtlcm5lbC9wdHJhY2UuYwkyMDAzLzA0LzIyIDIxOjE0OjIwCTEuMQ0K
+KysrIGtlcm5lbC9wdHJhY2UuYwkyMDAzLzA0LzI1IDA2OjIxOjE2CTEuMw0K
+QEAgLTIxLDkgKzIxLDYgQEANCiAgKi8NCiBpbnQgcHRyYWNlX2NoZWNrX2F0
+dGFjaChzdHJ1Y3QgdGFza19zdHJ1Y3QgKmNoaWxkLCBpbnQga2lsbCkNCiB7
+DQotCW1iKCk7DQotCWlmICghaXNfZHVtcGFibGUoY2hpbGQpKQ0KLQkJcmV0
+dXJuIC1FUEVSTTsNCiANCiAJaWYgKCEoY2hpbGQtPnB0cmFjZSAmIFBUX1BU
+UkFDRUQpKQ0KIAkJcmV0dXJuIC1FU1JDSDsNCkBAIC0xMjcsOCArMTI0LDYg
+QEAgaW50IGFjY2Vzc19wcm9jZXNzX3ZtKHN0cnVjdCB0YXNrX3N0cnVjdA0K
+IAkvKiBXb3JyeSBhYm91dCByYWNlcyB3aXRoIGV4aXQoKSAqLw0KIAl0YXNr
+X2xvY2sodHNrKTsNCiAJbW0gPSB0c2stPm1tOw0KLQlpZiAoIWlzX2R1bXBh
+YmxlKHRzaykgfHwgKCZpbml0X21tID09IG1tKSkNCi0JCW1tID0gTlVMTDsN
+CiAJaWYgKG1tKQ0KIAkJYXRvbWljX2luYygmbW0tPm1tX3VzZXJzKTsNCiAJ
+dGFza191bmxvY2sodHNrKTsNCi0tLSBrZXJuZWwvc3lzLmMJMjAwMy8wNC8y
+NSAwNjoyMzoxNQkxLjENCisrKyBrZXJuZWwvc3lzLmMJMjAwMy8wNC8yNSAw
+NjoyMzo1MQ0KQEAgLTEyNTIsOCArMTI1Miw3IEBAIGFzbWxpbmthZ2UgbG9u
+ZyBzeXNfcHJjdGwoaW50IG9wdGlvbiwgdW4NCiAJCQkJZXJyb3IgPSAtRUlO
+VkFMOw0KIAkJCQlicmVhazsNCiAJCQl9DQotCQkJaWYgKGlzX2R1bXBhYmxl
+KGN1cnJlbnQpKQ0KLQkJCQljdXJyZW50LT5tbS0+ZHVtcGFibGUgPSBhcmcy
+Ow0KKwkJCWN1cnJlbnQtPm1tLT5kdW1wYWJsZSA9IGFyZzI7DQogCQkJYnJl
+YWs7DQogDQogCSAgICAgICAgY2FzZSBQUl9TRVRfVU5BTElHTjoNCg==
+
+--1283901862-134127159-1051267224=:2582--

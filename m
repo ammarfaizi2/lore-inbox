@@ -1,57 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263421AbUCPBpi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 20:45:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbUCPBnB
+	id S263326AbUCPBpj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 20:45:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263324AbUCPBmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 20:43:01 -0500
-Received: from gate.crashing.org ([63.228.1.57]:45021 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S263399AbUCPBmG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 20:42:06 -0500
-Subject: Re: consistent_sync_for_cpu() and friends on ppc32
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Olaf Hering <olh@suse.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040315164917.6a85966b.davem@redhat.com>
-References: <20040315201616.GA31268@suse.de>
-	 <20040315123647.4ce943b7.davem@redhat.com>
-	 <1079396621.1967.196.camel@gaston>
-	 <20040315164917.6a85966b.davem@redhat.com>
-Content-Type: text/plain
-Message-Id: <1079400967.2302.213.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 16 Mar 2004 12:36:07 +1100
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Mar 2004 20:42:53 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:6902 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262927AbUCPBlx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 20:41:53 -0500
+To: "Woodruff, Robert J" <woody@co.intel.com>
+Cc: "Greg KH" <greg@kroah.com>, "Woodruff, Robert J" <woody@jf.intel.com>,
+       <linux-kernel@vger.kernel.org>, "Hefty, Sean" <sean.hefty@intel.com>,
+       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
+       "Davis, Arlin R" <arlin.r.davis@intel.com>
+Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
+References: <1AC79F16F5C5284499BB9591B33D6F000B4805@orsmsx408.jf.intel.com>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 15 Mar 2004 17:41:50 -0800
+In-Reply-To: <1AC79F16F5C5284499BB9591B33D6F000B4805@orsmsx408.jf.intel.com>
+Message-ID: <52oeqxo9ep.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 16 Mar 2004 01:41:50.0908 (UTC) FILETIME=[DA4FCFC0:01C40AF7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I understand that you've only had a short time to review the code, and
+many of your comments are points well taken.  I think most of the
+technical comments can wait to be debated on the openib.org mailing
+lists (which I am assured are coming soon).  However, since this is
+being preserved for posterity in the linux-kernel archive, I wanted to
+correct a few inaccuracies.
 
-> 1) User prepares buffer X with data.
-> 2) pci_map_single(X, TO_DEVICE)
-> 3) Device does DMA, interrupts cpu.
-> 4) pci_dma_sync_single_for_cpu(X)
-> 5) Write new contents.
-> 6) pci_dma_sync_single_for_device(X)
-> 7) Device does DMA again, interrupts cpu.
-> 8) ...
-> 
-> Step 2 would writeback flush the cpu cache, step 4 would be a NOP,
-> step 6 would writeback flush the cpu cache.
-> 
-> The direction does not provide enough information to do these operations
-> with the right amount of information.
+    Robert> 3.) The code is not compliant with the InfiniBand
+    Robert> specification and has proprietary implementations of
+    Robert> things like "path records" so it will only work with the
+    Robert> TopSpin subnet manager that requires you to buy a topspin
+    Robert> switch.
 
-Hrm... I'm still not sure how I'm supposed to implement those
-for non-consistent PPCs (embedded). We don't carry state information
-around, so I suppose I'll have to rely on the direction beeing the
-same for the whole duration of the operation... In which case, it's
-just a matter of having for_cpu nop'ing when direction is TO_DEVICE
-and for_device nop'ing when direction is FROM_DEVICE ? Not clear
-imho...
+This is definitely not our intent, and we fix whatever IB compliancy
+bugs we find as soon as we know about them.  In addition, I know that
+people have been able to use the Topspin/Mellanox code from OpenIB
+with OpenSM and no Topspin switch (this did require some compliance
+fixes to both OpenSM and the Topspin code).
 
-Ben.
+    Robert> 6.)The VAPI code has extra propietary verbs that are not
+    Robert> specified by the InfiniBand Specification.
 
+True, but I'm not sure why this is a deficiency.  We found certain
+things that were required for good performance were not specified by
+the IBTA, and we added them.  The Linux way is definitely not to
+follow a spec when the spec is wrong.
 
+    Robert> 9.) The CM does not support reliable datagrams.
+
+Fair enough but I'm sure we can easily add RD support before any
+hardware supporting RD is ready.  We took a pragmatic approach and
+didn't implement "speculative" features.
+
+    Robert> 10) There is no built in support for plug and play events,
+    Robert> port up/down, LID change, SM change
+
+I'm not sure what plug and play events are (certainly they're not part
+of the IB spec).  However, we did add extended IB asynchronous events
+for LID/SM changes and P_Key changes (port up and down are already
+part of the IB spec).
+
+As I said above, the rest of your points are well taken (although of
+course there are two sides to every story) and we can talk about them
+when we get the openib.org mailing lists up.
+
+ - Roland

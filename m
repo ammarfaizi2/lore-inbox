@@ -1,79 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317446AbSF1OpP>; Fri, 28 Jun 2002 10:45:15 -0400
+	id <S317448AbSF1Oyk>; Fri, 28 Jun 2002 10:54:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317447AbSF1OpO>; Fri, 28 Jun 2002 10:45:14 -0400
-Received: from tolkor.sgi.com ([192.48.180.13]:58305 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S317446AbSF1OpO>;
-	Fri, 28 Jun 2002 10:45:14 -0400
-Subject: Re: [PATCH] compile fix for 2.5 kdev_t compatibility macros
-From: Stephen Lord <lord@sgi.com>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1025275076.27133.131.camel@spc9.esa.lanl.gov>
-References: <1025272233.1168.21.camel@n236> 
-	<1025275076.27133.131.camel@spc9.esa.lanl.gov>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 28 Jun 2002 09:42:42 -0500
-Message-Id: <1025275551.1168.27.camel@n236>
+	id <S317450AbSF1Oyj>; Fri, 28 Jun 2002 10:54:39 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:10219 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S317448AbSF1Oyi>;
+	Fri, 28 Jun 2002 10:54:38 -0400
+Date: Sat, 29 Jun 2002 00:53:57 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Lars Duesing <ld@stud.fh-muenchen.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI / APM - Battery level not readable on HP Omnibook XE3 (again)
+Message-Id: <20020629005357.35fc14b1.sfr@canb.auug.org.au>
+In-Reply-To: <1025164995.25831.6.camel@ws1.intern.stud.fh-muenchen.de>
+References: <1025164995.25831.6.camel@ws1.intern.stud.fh-muenchen.de>
+X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-06-28 at 09:37, Steven Cole wrote:
-> On Fri, 2002-06-28 at 07:50, Stephen Lord wrote:
-> > 
-> > 
-> > Marcelo,
-> > 
-> > We started using these for XFS, and found a missing bracket, patch
-> > against 2.4.19-rc1.
-> > 
-> > Steve
-> > 
-> > *** linux-2.4.19-rc1/include/linux/kdev_t.h	Fri Jun 28 08:40:22 2002
-> > --- linux/include/linux/kdev_t.h	Fri Jun 28 07:05:32 2002
-> > ***************
-> > *** 81,87 ****
-> >   #define minor(d)	MINOR(d)
-> >   #define kdev_same(a,b)	((a) == (b))
-> >   #define kdev_none(d)	(!(d))
-> > ! #define kdev_val(d)	((unsigned int)(d)
-> >   #define val_to_kdev(d)	((kdev_t(d))
-> >   
-> >   /*
-> > --- 81,87 ----
-> >   #define minor(d)	MINOR(d)
-> >   #define kdev_same(a,b)	((a) == (b))
-> >   #define kdev_none(d)	(!(d))
-> > ! #define kdev_val(d)	((unsigned int)(d))
-> >   #define val_to_kdev(d)	((kdev_t(d))
-> >   
-> >   /*
+Hi Lars,
+
+On 27 Jun 2002 10:03:11 +0200 Lars Duesing <ld@stud.fh-muenchen.de> wrote:
+>
+> I sent a question regarding this in early December.
+> ( http://www.cs.helsinki.fi/linux/linux-kernel/2001-48/0691.html )
+> Since then I got many questions whether this is already fixed or not.
+> Latest 2.4-Kernel is still not fixed. 
 > 
-> That's an odd-looking patch.  Is this what you meant?
-> 
-> Steven
-> 
-> --- linux-2.4.19-rc1/include/linux/kdev_t.h.orig	Fri Jun 28 08:31:27 2002
-> +++ linux-2.4.19-rc1/include/linux/kdev_t.h	Fri Jun 28 08:32:36 2002
-> @@ -81,7 +81,7 @@
->  #define minor(d)	MINOR(d)
->  #define kdev_same(a,b)	((a) == (b))
->  #define kdev_none(d)	(!(d))
-> -#define kdev_val(d)	((unsigned int)(d)
-> +#define kdev_val(d)	((unsigned int)(d))
->  #define val_to_kdev(d)	((kdev_t(d))
->  
->  /*
-> 
+> Is there so much trouble in this?
 
+As far as APM is concerned this is not fixable in the kernel as the BIOS
+appears to have a bug.  Please see if your vendor has an updated BIOS.
 
-Yes, do not use diff before drinking coffee in the morning.
+The ACPI guys may be able to tell you how to work around this, but maybe
+not.  Again it is a bug in the BIOS.
 
-Steve
-
-
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

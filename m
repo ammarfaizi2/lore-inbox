@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264819AbUGGBcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264798AbUGGCFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264819AbUGGBcR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 21:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264815AbUGGBcR
+	id S264798AbUGGCFK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 22:05:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264815AbUGGCFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 21:32:17 -0400
-Received: from mailer2.psc.edu ([128.182.66.106]:21704 "EHLO mailer2.psc.edu")
-	by vger.kernel.org with ESMTP id S264782AbUGGBcP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 21:32:15 -0400
-Date: Tue, 6 Jul 2004 21:32:09 -0400 (EDT)
-From: John Heffner <jheffner@psc.edu>
-To: "David S. Miller" <davem@redhat.com>
-cc: <netdev@oss.sgi.com>, <linux-net@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix tcp_default_win_scale.
-In-Reply-To: <20040706155013.32af8e13.davem@redhat.com>
-Message-ID: <Pine.NEB.4.33.0407062130190.13672-100000@dexter.psc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 Jul 2004 22:05:10 -0400
+Received: from sb0-cf9a48a7.dsl.impulse.net ([207.154.72.167]:17615 "EHLO
+	madrabbit.org") by vger.kernel.org with ESMTP id S264798AbUGGCFE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 22:05:04 -0400
+Subject: Re: 0xdeadbeef vs 0xdeadbeefL
+From: Ray Lee <ray-lk@madrabbit.org>
+To: tomstdenis@yahoo.com, eger@havoc.gtf.org
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: http://madrabbit.org/
+Message-Id: <1089165901.4373.175.camel@orca.madrabbit.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 06 Jul 2004 19:05:01 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Jul 2004, David S. Miller wrote:
+tom st denis quoted David Eger saying:
 
-> On Tue, 6 Jul 2004 17:55:12 -0400 (EDT)
-> John Heffner <jheffner@psc.edu> wrote:
->
-> > Another bit to addr to the firewall / window scale mess:  I remember from
-> > a while ago that the Cisco PIX firewalls would not allow a window scale of
-> > greater than 8.  I don't know if they've fixed this or not.  It seems
-> > like some sort of arbitrary limit.
->
-> In what manner did it deal with > 8 window scales?  By rewriting the option
-> or deleting the option entirely from the SYN or SYN+ACK packets?
+>> Is there a reason to add the 'L' to such a 32-bit constant like
+>> this? There doesn't seem a great rhyme to it in the headers...
+> 
+> IIRC it should have the L [probably UL instead] since numerical 
+> constants are of type ``int'' by default. 
+> [...]
+> However, by the standard 0xdeadbeef is not a valid unsigned 
+> long constant.
 
-I don't recall.  It was not as ugly as changing the option value.  It may
-have just sent a RST.
+I think you have a different standard than I do [1]. According to K&R,
+2nd ed, section A2.5.1 (Integer Constants):
 
-  -John
+        The type of an integer depends on its form, value and suffix.
+        [...] If it is unsuffixed octal or hexadecimal, it has the first
+        possible of these types ["in which its value can be represented"
+        -- from omitted]: int, unsigned int, long int, unsigned long
+        int.
+
+Which means 0xdeadbeef is a perfectly valid literal for an unsigned int.
+
+Ray
+
+	[1] "The great thing about standards is that there are so many
+	     of them to choose from."  Wish I could remember who said
+	     that.
+
 

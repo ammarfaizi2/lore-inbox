@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272753AbRILLXD>; Wed, 12 Sep 2001 07:23:03 -0400
+	id <S272755AbRILMWc>; Wed, 12 Sep 2001 08:22:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272763AbRILLWx>; Wed, 12 Sep 2001 07:22:53 -0400
-Received: from t2.redhat.com ([199.183.24.243]:3322 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S272753AbRILLWq>; Wed, 12 Sep 2001 07:22:46 -0400
-Message-ID: <3B9F4597.B10E428E@redhat.com>
-Date: Wed, 12 Sep 2001 12:23:03 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-6.4smp i686)
-X-Accept-Language: en
+	id <S272763AbRILMWY>; Wed, 12 Sep 2001 08:22:24 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:38665 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S272755AbRILMWM>; Wed, 12 Sep 2001 08:22:12 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Marcus Sundberg <marcus@cendio.se>
+Date: Wed, 12 Sep 2001 22:22:08 +1000 (EST)
 MIME-Version: 1.0
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Duron kernel crash (i686 works)
-In-Reply-To: <E15goos-0002le-00@the-village.bc.nu>
-	 <9184118686.20010912095919@port.imtp.ilyichevsk.odessa.ua>
-	 <3B9F3E4B.AB5E1D12@scali.no> <1715812347.20010912140853@port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15263.21360.720415.344639@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nfs is stupid ("getfh failed")
+In-Reply-To: message from Marcus Sundberg on  September 12
+In-Reply-To: <002b01c136e1$3bb36a80$81d4870a@cartman>
+	<15261.47176.73283.841982@notabene.cse.unsw.edu.au>
+	<vebskgpu32.fsf@inigo.sthlm.cendio.se>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-VDA wrote:
+On  September 12, marcus@cendio.se wrote:
+> neilb@cse.unsw.edu.au (Neil Brown) writes:
+> 
+> > On  September 10, marcus@cendio.se wrote:
+> > > cachefs sucks. It doesn't seem to cache stat(2) information.
+> > > Doing ls -F in a ~100-entries directory takes several seconds over
+> > > a link with 50ms round-trip time.
+> > 
+> > Well, I said "concept" not "implementation", but I suspect that
+> > Solaris cachefs does cache stat information.  Maybe you just need to
+> > increase the timeouts for the attribute cache.
+> 
+> Considering that I did several ls'es on the order of milliseconds
+> apart I doubt that would help...
 
-> SP> Well, not necessarily. It might be that data just hasn't "arrived" yet because
-> SP> of the movntq instruction.
+Odd..
+I just tried out cachefs (for the first time) on Solaris2.6.
+I mounted my home directory (which has 125 entries) and did 
+ ls -F
+while watching network traffic.
 
-this is wrong; the CPU _internal_ view of the data is always consistent,
-regardless of movntq vs movq.
-It's only the EXTERNAL view that is slightly different. "sfence" takes
-care of syncing that.
+Except of the first time, and after every 30 seconds (the default
+attribute cache timeout) there was only 1 RPC request for each
+  ls -F
+and that was to check the modify time on the directory.
+But then that is exactly the same traffic that I see when I do
+  ls -F
+in my home directory over normal NFS (v2).
 
- 
-> So why it is oopses then?
-> Also, we don't want this data to arrive late or whatever.
-> fast_copy_page must copy page (make it so that memcpy()==0).
-> If it does not, it is too much "optimized".
+I could do 100 "ls -F" runns in about 4 seconds.
+This is on regular 100Mbit ethernet.
 
-It does; but if you read it back from memory and is corrupted, your
-chipset corrupted it.
- 
-> SP> One thing that also puzzels me is that my is the fast_copy_page() routine laid
-> SP> out like this :
-
-[snip]
-
-A better way to do it is to bencmark several routines at
-> startup time and pick the best one. It is done now
-> for RAID xor'ing routine.
-
-I benchmarked several versions, see the testprogram at
-http://www.fenrus.demon.nl/athlon.c
-
-The interleaved one is faster on athlons because it seems to help AMD's
-register aliasing logic
-to operate better....
-
-Anyway, since this code works for like 99% of the machines, and only 1%
-seems to be affected, it really really really looks like a hardware bug.
-This is also more or less proven by the reports that certain
-biosversions "break" working setups by doing things to the via chipset
-that make it break....
-
-Greetings,
-   Arjan van de Ven
+NeilBrown

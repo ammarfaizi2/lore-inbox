@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285344AbRLSQCM>; Wed, 19 Dec 2001 11:02:12 -0500
+	id <S285347AbRLSP7v>; Wed, 19 Dec 2001 10:59:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285355AbRLSQCB>; Wed, 19 Dec 2001 11:02:01 -0500
-Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:52498 "EHLO
-	moria.gondor.com") by vger.kernel.org with ESMTP id <S285344AbRLSQBq>;
-	Wed, 19 Dec 2001 11:01:46 -0500
-Date: Wed, 19 Dec 2001 17:01:43 +0100
-From: Jan Niehusmann <jan@gondor.com>
-To: Brendan Pike <spike@superweb.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE Harddrive Performance
-Message-ID: <20011219160143.GA8658@gondor.com>
-In-Reply-To: <20011219153233.GA3424@leukertje.hitnet.rwth-aachen.de> <01121911444703.31762@spikes>
+	id <S285344AbRLSP7c>; Wed, 19 Dec 2001 10:59:32 -0500
+Received: from gateway-2.hyperlink.com ([213.52.152.2]:17683 "EHLO
+	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
+	id <S285342AbRLSP7V>; Wed, 19 Dec 2001 10:59:21 -0500
+Subject: Re: asynchronus multiprocessing
+From: "Martin A. Brooks" <martin@jtrix.com>
+To: "Martin A. Brooks" <martin@jtrix.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1008776432.431.15.camel@unhygienix>
+In-Reply-To: <1008776432.431.15.camel@unhygienix>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-tyDCmrWaFb3t1+GGv75N"
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 19 Dec 2001 15:59:20 +0000
+Message-Id: <1008777560.431.19.camel@unhygienix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01121911444703.31762@spikes>
-User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 19, 2001 at 11:44:47AM -0400, Brendan Pike wrote:
-> I dont really know, I dont think its possible to get higher then that from a 
-> 5400 RPM disk. Heres mine,
 
-/dev/hda:
- Timing buffered disk reads:  64 MB in  2.32 seconds = 27.59 MB/sec
+--=-tyDCmrWaFb3t1+GGv75N
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-bash-2.05a# cat /proc/ide/hda/model 
-Maxtor 98196H8
+On Wed, 2001-12-19 at 15:40, Martin A. Brooks wrote:
+> Has there been any talk of (or work on) AMP support in the kernel?
 
-This is a 5400rpm drive, too.
+I meant /asymmetric/ MP. Sorry.
 
-Jan
+--=20
+Martin A. Brooks   Systems Administrator
+Jtrix Ltd          t: +44 7395 4990
+57-59 Neal Street  f: +44 7395 4991
+London, WC2H 9PP   e: martin@jtrix.com
+
+--=-tyDCmrWaFb3t1+GGv75N
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEABECAAYFAjwguVgACgkQwgE0gTKdDoZ0hgCeLWKGLk5VClqkUi4HcN2NcYMj
+hqkAnjQqPZ+/27IX9qJZFBGGXTlUyFWF
+=SmFi
+-----END PGP SIGNATURE-----
+
+--=-tyDCmrWaFb3t1+GGv75N--
 

@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbUKSNje@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbUKSNlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbUKSNje (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 08:39:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbUKSNje
+	id S261416AbUKSNlK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 08:41:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbUKSNkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 08:39:34 -0500
-Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:17358 "EHLO
-	links.magenta.com") by vger.kernel.org with ESMTP id S261410AbUKSNgA
+	Fri, 19 Nov 2004 08:40:23 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17331 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261412AbUKSNiY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 08:36:00 -0500
-Date: Fri, 19 Nov 2004 08:35:17 -0500
-From: Raul Miller <moth@magenta.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-os@analogic.com, Andi Kleen <ak@suse.de>,
-       David Woodhouse <dwmw2@infradead.org>, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: RFC: let x86_64 no longer define X86
-Message-ID: <20041119083517.A22958@links.magenta.com>
-References: <20041119103418.GB30441@wotan.suse.de> <1100863700.21273.374.camel@baythorne.infradead.org> <20041119115539.GC21483@wotan.suse.de> <1100865050.21273.376.camel@baythorne.infradead.org> <20041119120549.GD21483@wotan.suse.de> <419DE33E.2000208@pobox.com> <20041119121909.GF21483@wotan.suse.de> <419DE90D.9030509@pobox.com> <Pine.LNX.4.61.0411190749170.12075@chaos.analogic.com> <419DEF79.2090309@pobox.com>
+	Fri, 19 Nov 2004 08:38:24 -0500
+Date: Fri, 19 Nov 2004 06:09:46 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Martin MOKREJ__ <mmokrejs@ribosome.natur.cuni.cz>, piggin@cyberone.com.au,
+       chris@tebibyte.org, andrea@novell.com, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, riel@redhat.com, tglx@linutronix.de
+Subject: Re: [PATCH] fix spurious OOM kills
+Message-ID: <20041119080946.GA30845@logos.cnet>
+References: <20041114202155.GB2764@logos.cnet> <419A2B3A.80702@tebibyte.org> <419B14F9.7080204@tebibyte.org> <20041117012346.5bfdf7bc.akpm@osdl.org> <419CD8C1.4030506@ribosome.natur.cuni.cz> <20041118131655.6782108e.akpm@osdl.org> <419D25B5.1060504@ribosome.natur.cuni.cz> <419D2987.8010305@cyberone.com.au> <419D383D.4000901@ribosome.natur.cuni.cz> <20041118160824.3bfc961c.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <419DEF79.2090309@pobox.com>; from jgarzik@pobox.com on Fri, Nov 19, 2004 at 08:04:57AM -0500
+In-Reply-To: <20041118160824.3bfc961c.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> linux-os wrote:
-> > Why CONFIG_ISA_BROKEN. That implies (states) that its broken and
+On Thu, Nov 18, 2004 at 04:08:24PM -0800, Andrew Morton wrote:
+> Martin MOKREJ__ <mmokrejs@ribosome.natur.cuni.cz> wrote:
+> >
+> >   Anyway, plain 2.6.7 kills only the application asking for
+> >  so much memory and logs via syslog:
+> >  Out of Memory: Killed process 58888 (RNAsubopt)
+> > 
+> >    It's a lot better compared to what we have in 2.6.10-rc2,
+> >  from my user's view.
+> 
+> We haven't made any changes to the oom-killer algorithm since July 2003. 
+> Weird.
 
-On Fri, Nov 19, 2004 at 08:04:57AM -0500, Jeff Garzik wrote:
-> The name is appropriate because the drivers in question _are_ broken.
+As Thomas Gleixner has investigated, the OOM killer selection is problematic.
 
-On some architectures -- this is a porting issue, and not a clean binary
-distinction.
+When testing your ignore-page-referenced patch it first killed the memory hog
+then shortly afterwards the shell I was running it on.
 
-ASSUMES_32_BIT or some other "32 bit" name would probably better capture
-this particular issue.
+You've seen Thomas emails, he has nice description there.
 
-Even better might be to get the compiler to catch the most obvious
-mistakes and use #define decorations to override the compiler's
-determination (you'd need two of these, because the compiler can get
-this wrong in two different ways).
-
--- 
-Raul

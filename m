@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265292AbUAJSwX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 13:52:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265299AbUAJSwX
+	id S265296AbUAJSw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 13:52:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265299AbUAJSw0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 13:52:23 -0500
-Received: from zork.zork.net ([64.81.246.102]:45444 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S265292AbUAJSwV (ORCPT
+	Sat, 10 Jan 2004 13:52:26 -0500
+Received: from main.gmane.org ([80.91.224.249]:57788 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265296AbUAJSwW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 13:52:21 -0500
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>, vojtech@suse.cz
-Subject: Re: Do not use synaptics extensions by default
-References: <20040110175930.GA1749@elf.ucw.cz>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>, kernel list
- <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>, 
- vojtech@suse.cz
-Date: Sat, 10 Jan 2004 18:52:15 +0000
-In-Reply-To: <20040110175930.GA1749@elf.ucw.cz> (Pavel Machek's message of
- "Sat, 10 Jan 2004 18:59:30 +0100")
-Message-ID: <6ubrpb7i1s.fsf@zork.zork.net>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 Jan 2004 13:52:22 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [2.6.1] atkbd.c: Unknown key released
+Date: Sat, 10 Jan 2004 19:52:20 +0100
+Message-ID: <yw1xlloftz4r.fsf@kth.se>
+References: <20040110183116.GA8319@ss1000.ms.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:J57rRSnrF1UmlOXSpoIJrEw5W84=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> writes:
+Rudo Thomas <rudo@matfyz.cz> writes:
 
-> ..aka "make synaptics touchpad usable in 2.6.1" -- synaptics support
-> is not really suitable to be enabled by default. You can not click by
-> tapping the touchpad (well, unless you have very new X with right
-> configuration, but than you can't go back to 2.4), and touchpad senses
-> your finger even when it is not touching, doing spurious movements =>
-> you can't hit anything on screen. Without synaptics extensions
-> everything works just fine. You can reenable synaptics support using
-> commandline.
+> Hello.
+>
+> This line shows up twice in dmesg when starting up X.
+>
+> atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
+>
+> Tried with 2.6.1, 2.6.1-mm1. It does not happen in 2.6.0, IIRC. I
+> don't seem to be able to reproduce the message by pressing any
+> combination on keyboard.
 
-My laptop has a dodgy trackpoint attached to the passthrough port,
-although the touchpad works fine.  Before 2.6.1 this didn't matter,
-because whether by accident or design, the passthrough was disabled.
-Does this patch disable the passthrough port by default?  If not,
-would it be possible to add a boot parameter or something to allow it
-to be disabled?
+For me, it showed up in 2.6.1-rc1 or possibly -rc2.
+
+-- 
+Måns Rullgård
+mru@kth.se
 

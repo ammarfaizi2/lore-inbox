@@ -1,67 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276957AbRJDXU2>; Thu, 4 Oct 2001 19:20:28 -0400
+	id <S277020AbRJDXY2>; Thu, 4 Oct 2001 19:24:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277020AbRJDXUT>; Thu, 4 Oct 2001 19:20:19 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:16815 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S276957AbRJDXUJ>;
-	Thu, 4 Oct 2001 19:20:09 -0400
-Date: Fri, 05 Oct 2001 00:20:34 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Benjamin LaHaise <bcrl@redhat.com>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: mingo@elte.hu, jamal <hadi@cyberus.ca>, linux-kernel@vger.kernel.org,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Robert Olsson <Robert.Olsson@data.slu.se>, netdev@oss.sgi.com,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Simon Kirby <sim@netnation.com>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-Message-ID: <309455016.1002241234@[195.224.237.69]>
-In-Reply-To: <20011004174945.B18528@redhat.com>
-In-Reply-To: <20011004174945.B18528@redhat.com>
-X-Mailer: Mulberry/2.1.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S277203AbRJDXYS>; Thu, 4 Oct 2001 19:24:18 -0400
+Received: from quechua.inka.de ([212.227.14.2]:14146 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S277020AbRJDXYI>;
+	Thu, 4 Oct 2001 19:24:08 -0400
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: bad blocks and rebooting
+In-Reply-To: <20011003134423.A28512@home.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.10-xfs (i686))
+Message-Id: <E15pHqe-00048A-00@calista.inka.de>
+Date: Fri, 05 Oct 2001 01:24:12 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20011003134423.A28512@home.com> you wrote:
+> I have a system setup as a black box. If the system is powered
+> off accidentally, and upon powering on the system keeps rebooting 
+> after trying to do the file system consistency check. The file 
+> system message is to run "ef2fsck -v -y <partition>. Is there
+> anyway to force this check at lilo prompt? 
 
+You can modify the init scripts to search for an init arg. Most init scripts
+check for /forchecheck. For an embedded box it is MUCH better to have the
+filesystem readonly or at least use a journaled FS.
 
---On Thursday, 04 October, 2001 5:49 PM -0400 Benjamin LaHaise 
-<bcrl@redhat.com> wrote:
-
->> In at least one environment known to me (router), I'd rather it
->> kept accepting packets, and f/w'ing them, and didn't switch VTs etc.
->> By dropping down performance, you've made the DoS attack even
->> more successful than it would otherwise have been (the kiddie
->> looks at effect on the host at the end).
->
-> Then bug the driver author of your ethernet cards or turn the hammer off.
->  You're the sysadmin, you know that your system is unusual.  Deal with it.
-
-The hammer has an average age of 13yrs and is difficult to turn off,
-unfortunately.
-
-Rather than bugging the author of the driver card, we've actually
-been trying to fix it, down to rewriting the firmware. So for
-this purpose I/we am/are the driver maintainer thanks. However,
-there are limitations like bus speed which mean that in practice
-if we receive a large enough number of small packets each second,
-the box will saturate.
-
-My point was merely that some applications (and using a linux
-box as a router is not that 'unusual') want to deprioritize
-different things under resource starvation. Changing the default,
-in an unconfigurable way, isn't a great idea. Sure dealing
-with external resource exhaustions for hosts is indeed a good
-idea. I was just suggesting that it wasn't always what you
-wanted to do.
-
-Not sure this required jumping down my throat.
-
---
-Alex Bligh
+Greetings
+Bernd

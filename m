@@ -1,91 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272837AbRILOhx>; Wed, 12 Sep 2001 10:37:53 -0400
+	id <S272843AbRILOxN>; Wed, 12 Sep 2001 10:53:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272838AbRILOhn>; Wed, 12 Sep 2001 10:37:43 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:48848 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S272837AbRILOhc>; Wed, 12 Sep 2001 10:37:32 -0400
-Date: Wed, 12 Sep 2001 20:12:29 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
+	id <S272848AbRILOxE>; Wed, 12 Sep 2001 10:53:04 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:34418 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S272843AbRILOwt>; Wed, 12 Sep 2001 10:52:49 -0400
+Date: Wed, 12 Sep 2001 16:53:35 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Dipankar Sarma <dipankar@in.ibm.com>
 Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
         Paul Mckenney <paul.mckenney@us.ibm.com>
 Subject: Re: 2.4.10pre7aa1
-Message-ID: <20010912201229.F5819@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-In-Reply-To: <20010912163426.A5979@in.ibm.com> <20010912160313.A695@athlon.random>
+Message-ID: <20010912165335.F695@athlon.random>
+In-Reply-To: <20010912163426.A5979@in.ibm.com> <20010912160313.A695@athlon.random> <20010912201229.F5819@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010912160313.A695@athlon.random>; from andrea@suse.de on Wed, Sep 12, 2001 at 04:03:13PM +0200
+Content-Disposition: inline
+In-Reply-To: <20010912201229.F5819@in.ibm.com>; from dipankar@in.ibm.com on Wed, Sep 12, 2001 at 08:12:29PM +0530
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 12, 2001 at 04:03:13PM +0200, Andrea Arcangeli wrote:
-> > > 	Like the kernel threads approach, but AFAICT it won't work for the case of two CPUs running wait_for_rcu at the same time (on a 4-way or above).
-> 
-> Good catch!
+On Wed, Sep 12, 2001 at 08:12:29PM +0530, Dipankar Sarma wrote:
+> You changed the way I maintained the wait_list and current_list.
+> The basic logic was that new callbacks are always added to the
+> wait list. The wait_for_rcu() is started only if current_list
+> was empty and we just moved the wait_list to current_list. The
+> key step was moving the wait_list to current_list *after* doing
+> a wait_for_rcu(). This prevents another CPU from doing a wait_for_rcu().
+> Either that or I missed something big time :-)
 
-It barfs on our 4way with the FD management patch and chat benchmark :-)
+Really when Rusty said "multiple cpus calling wait_for_rcu" I was thinking 
+at common code calling wait_for_rcu directly (in such a case you would
+have a problem too), I thought it was exported as well as call_rcu.
 
-> > The patch I submitted to Andrea had logic to make sure that
-> > two CPUs don't execute wait_for_rcu() at the same time.
-> > Somehow it seems to have got lost in Andrea's modifications.
-> 
-> I think the bug was in your original patch too, I'm pretty sure I didn't
-> broke anything while changing the API a little.
+If you mean races with call_rcu they cannot be explained by wait_for_rcu
+called by different cpus also with my approch because there's only one
+keventd so only one wait_for_rcu can run at once with my current code
+(obviously, only keventd will ever recall wait_for_rcu).
 
-You changed the way I maintained the wait_list and current_list.
-The basic logic was that new callbacks are always added to the
-wait list. The wait_for_rcu() is started only if current_list
-was empty and we just moved the wait_list to current_list. The
-key step was moving the wait_list to current_list *after* doing
-a wait_for_rcu(). This prevents another CPU from doing a wait_for_rcu().
-Either that or I missed something big time :-)
+The problem should be elsewhere.
 
+Also we still don't address the case of keventd being starved by RT
+tasks. Maybe we should just make keventd RT, but then it would hang if
+somebody reinserts itself for a long time :(. Maybe Russel's approch is
+the cleaner after all, it just adds a branch in schedule fast path but
+(once fixed properly with the IPI and need_resched and dropping the
+unused irq checks that we don't want anyways to avoid even further
+slowdown of the slow paths) then the other issues goes away as well as
+the memory consumation.
 
-> 
-> > I will look at that and submit a new patch to Andrea, if necessary.
-> 
-> I prefer to allow all cpus to enter wait_for_rcu at the same time rather
-> than putting a serializing semaphore around wait_for_rcu (it should
-> scale pretty well if we don't serialize around wait_for_rcu).
+> One disadvantage of the wrappers is that we would be wasting most of
+> the L1 cache line for rcu_head and that could be relatively significant for 
+> a small frequently allocated structure. And no, I don't see any problem asking
+> people to allocate the rcu_head in the data structure.
 
-Serializing is not what I want to do either. Instead the other
-CPUs just add to the wait_list and return if there is a wait_for_rcu()
-going on. What we have seen is that relatively larger batches around
-a single recurring wait_for_rcu() will do reasonably well in terms
-of performance.
+Ok. As usual people should care to order the fields in cacheline
+optimized manner, so for example they should care to put the rcu_head at
+the very end if they want to reserve the cacheline for the "hot" fields.
+This can infact save a cacheline if the data structure is very small.
+It's something we cannot choose in rcu_kmalloc etc... only the user can.
 
-> 
-> The way I prefer to fix it is just to replace the rcu_sema with a per-cpu
-> semaphore and have wait_for_rcu running down on such per-cpu semaphore
-> of the interesting cpu, should be a few liner patch (we have space
-> free for it in the per-cpu rcu_data cacheline).
-
-It should be possible to do this. However, I am not sure we would
-really benefit significantly from allowing multiple wait_for_rcu()s
-to run parallelly. I would much rather see per-CPU lists implemented
-and avoid keventd eventually.
-
-
-> 
-> > As for wrappers, I am agnostic. However, I think sooner or later
-> > people will start asking for them, if we go by our past experience.
-> 
-> Maybe I'm missing something but what's the problem in allocating the
-> struct rcu_head in the data structure? I don't think it's not much more
-> complicated than the cast magics, and in general I prefer to avoid casts
-> on larger buffers to get advantage of the C compile time sanity checking ;).
-
-One disadvantage of the wrappers is that we would be wasting most of
-the L1 cache line for rcu_head and that could be relatively significant for 
-a small frequently allocated structure. And no, I don't see any problem asking
-people to allocate the rcu_head in the data structure.
-
-Thanks
-Dipankar
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+Andrea

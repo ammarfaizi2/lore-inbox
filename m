@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264690AbSL0ARD>; Thu, 26 Dec 2002 19:17:03 -0500
+	id <S264697AbSL0AYO>; Thu, 26 Dec 2002 19:24:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264697AbSL0ARD>; Thu, 26 Dec 2002 19:17:03 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:15374 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S264690AbSL0ARC>; Thu, 26 Dec 2002 19:17:02 -0500
-Date: Thu, 26 Dec 2002 19:23:21 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Timo Korth <timo.korth@t-online.de>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: DivX in Suse 8.1
-In-Reply-To: <3E05DE40.AFCBF150@t-online.de>
-Message-ID: <Pine.LNX.3.96.1021226191706.2670A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264699AbSL0AYO>; Thu, 26 Dec 2002 19:24:14 -0500
+Received: from h24-80-147-251.no.shawcable.net ([24.80.147.251]:2820 "EHLO
+	antichrist") by vger.kernel.org with ESMTP id <S264697AbSL0AYN>;
+	Thu, 26 Dec 2002 19:24:13 -0500
+Date: Thu, 26 Dec 2002 16:28:50 -0800
+From: carbonated beverage <ramune@net-ronin.org>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [TINY] Documentation/Changes for modutils
+Message-ID: <20021227002850.GA913@net-ronin.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Dec 2002, Timo Korth wrote:
+Hi all,
 
-Since I haven't seen an answer to your question, I'll tell you that you
-are unlikely to get one.
- a - sig 11 might be caused by hardware, therefore peopl ignore questions
-     about it.
- b - many people will not pay any attention to questions regarding systems
-     with  nvidia hardware because the driver is no GPL licensed
- c - you quoted bugreports.html but you didn't read and follow the
-     instructions. They clearly didn't tell you to post here.
+	Since I haven't heard any feedback, I'm assuming this
+patch is acceptable.  The current Documentation/Changes points
+to the wrong toolset for module support, here's a small patch
+to fix that.
 
-> since some time I'm trying to get DivX in Linux MPlayer working... It
-> was not very successful. The MPlayer doesn't load the DivX AVI with the
-> Errormessage: "MPlayer interrupted by signal 11 in module: Key_events".
-> Then: "Crashed by bad usage of CPU/FPU/RAM. Recompile Mplayer with
-> --enable-debug and make a 'gbd' backtrace and disassembly. For details
-> see /DOCS/bugreports.html"
-> And: "code_or_in your drivers_or_in your gcc version. If you think it's
-> Mplayers fault, please read DOCS/bugreports.html and follow instructions
-> there. We cant and wont'......."
-> 
-> The grafic device is an nvidia GForce 3 Ti 200. The nvidia Driver is
-> installed correctly and the hardware acceleration is working. I've
-> downloaded and installed the DivX Driver from www.divx.com
-> 
-> What could be the Problem. I've no idea...
-> 
-> Thanks for your help
-> 
-> Timo
-> 
+	Linus, please apply.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+-- DN
+Daniel
 
+--- Documentation/Changes.orig	Thu Dec 26 16:29:34 2002
++++ Documentation/Changes	Thu Dec 26 16:29:38 2002
+@@ -52,7 +52,7 @@
+ o  Gnu make               3.78                    # make --version
+ o  binutils               2.9.5.0.25              # ld -v
+ o  util-linux             2.10o                   # fdformat --version
+-o  modutils               2.4.2                   # insmod -V
++o  module-init-tools      0.9                     # insmod -V
+ o  e2fsprogs              1.29                    # tune2fs
+ o  jfsutils               1.0.14                  # fsck.jfs -V
+ o  reiserfsprogs          3.6.3                   # reiserfsck -V 2>&1|grep reiserfsprogs
+@@ -141,14 +141,11 @@
+ version of ksymoops to decode the report; see REPORTING-BUGS in the
+ root of the Linux source for more information.
+ 
+-Modutils
++Module-Init-Tools
+ --------
+ 
+-Upgrade to recent modutils to fix various outstanding bugs which are
+-seen more frequently under 2.4.x, and to enable auto-loading of USB
+-modules.  In addition, the layout of modules under
+-/lib/modules/`uname -r`/ has been made more sane.  This change also
+-requires that you upgrade to a recent modutils.
++A new module loader is now in the kernel that requires module-init-tools
++to use.  It is backward compatible with the 2.4.x series kernels.
+ 
+ Mkinitrd
+ --------
+@@ -306,7 +303,7 @@
+ 
+ Modutils
+ --------
+-o  <ftp://ftp.kernel.org/pub/linux/utils/kernel/modutils/v2.4/>
++o  <ftp://ftp.kernel.org/pub/linux/people/rusty/modules/>
+ 
+ Mkinitrd
+ --------

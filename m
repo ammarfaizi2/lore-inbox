@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275778AbRJYRsk>; Thu, 25 Oct 2001 13:48:40 -0400
+	id <S275816AbRJYRrI>; Thu, 25 Oct 2001 13:47:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275813AbRJYRs3>; Thu, 25 Oct 2001 13:48:29 -0400
-Received: from [209.195.52.30] ([209.195.52.30]:35348 "HELO [209.195.52.30]")
-	by vger.kernel.org with SMTP id <S275778AbRJYRsS>;
-	Thu, 25 Oct 2001 13:48:18 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Victor Yodaiken <yodaiken@fsmlabs.com>
-Cc: Rob Turk <r.turk@chello.nl>, linux-kernel@vger.kernel.org
-Date: Thu, 25 Oct 2001 09:26:58 -0700 (PDT)
-Subject: Re: [RFC] New Driver Model for 2.5
-In-Reply-To: <20011025082001.B764@hq2>
-Message-ID: <Pine.LNX.4.40.0110250926380.15014-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275813AbRJYRq6>; Thu, 25 Oct 2001 13:46:58 -0400
+Received: from genesis.westend.com ([212.117.67.2]:56288 "EHLO
+	genesis.westend.com") by vger.kernel.org with ESMTP
+	id <S275778AbRJYRqk>; Thu, 25 Oct 2001 13:46:40 -0400
+Date: Thu, 25 Oct 2001 19:47:10 +0200
+From: Christian Hammers <ch@westend.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG() in asm/pci.h:142 with 2.4.13
+Message-ID: <20011025194710.A12089@westend.com>
+In-Reply-To: <20011025120701.C6557@westend.com> <20011025131107.C4795@suse.de> <20011025192351.A9823@westend.com> <20011025193248.J4795@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20011025193248.J4795@suse.de>; from axboe@suse.de on Thu, Oct 25, 2001 at 07:32:48PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-let alone a reason for a suspend to be triggered while running the tape.
+Hello
 
-David Lang
+On Thu, Oct 25, 2001 at 07:32:48PM +0200, Jens Axboe wrote:
+> > This patch did not prevent the crash. Again immediately after rewinding the
+> > tape when it began to write. I'll try now the 2.4.12-ac6... and it works.
+> Ok, someone else is meddling with the scatterlist then. I'll take a 2nd
+> look.
 
-On Thu, 25 Oct 2001, Victor Yodaiken wrote:
+The 2.4.12-ac6 crashed, too, when I killed the dd and cpio processes 
+with SIGKILL. I got the extra scsi queue debug information on the console
+but it was too much to write down. I now have a serial connection to
+another computer and did "ln /dev/ttyS1 /dev/console" in the hope to be
+able to save you all kernel output.
 
-> Date: Thu, 25 Oct 2001 08:20:01 -0600
-> From: Victor Yodaiken <yodaiken@fsmlabs.com>
-> To: Rob Turk <r.turk@chello.nl>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: [RFC] New Driver Model for 2.5
->
-> On Thu, Oct 25, 2001 at 10:27:11AM +0200, Rob Turk wrote:
-> > > The act of "suspend" should basically be: shut off the SCSI controller,
-> > > screw all devices, reset the bus on resume.
-> > >
-> >
-> > Doing so will create havoc on sequential devices, such as tape drives. If
->
-> I'm failing  to imagine a good case for suspending a system that has a
-> tape drive on it.
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+ -christian-
+
+-- 
+Christian Hammers    WESTEND GmbH - Aachen und Dueren     Tel 0241/701333-0
+ch@westend.com     Internet & Security for Professionals    Fax 0241/911879
+           WESTEND ist CISCO Systems Partner - Premium Certified
+

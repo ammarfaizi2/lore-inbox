@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262795AbTJTUhM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 16:37:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262817AbTJTUhL
+	id S262838AbTJTUk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 16:40:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbTJTUk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 16:37:11 -0400
-Received: from [62.81.235.112] ([62.81.235.112]:12456 "EHLO smtp12.eresmas.com")
-	by vger.kernel.org with ESMTP id S262795AbTJTUfw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 16:35:52 -0400
-Message-ID: <3F9446D2.70004@wanadoo.es>
-Date: Mon, 20 Oct 2003 22:34:26 +0200
-From: Xose Vazquez Perez <xose@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: gl, es, en
+	Mon, 20 Oct 2003 16:40:57 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:1479 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262838AbTJTUk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 16:40:56 -0400
+To: Jochen Hein <jochen@jochen.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test8] might sleep
+References: <87ekx78z3g.fsf@echidna.jochen.org>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 20 Oct 2003 13:40:45 -0700
+In-Reply-To: <87ekx78z3g.fsf@echidna.jochen.org>
+Message-ID: <52ekx7mylu.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 3C940/3C2000
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Oct 2003 20:40:54.0215 (UTC) FILETIME=[74F5DD70:01C3974A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cal Lidderdale wrote:
+These might_sleep warnings on boot are fixed in test8-mm1.  They don't
+indicate any real problem and you can ignore them for now.
 
-> For the next build, is the code for the 3C940 / 3C2000 code there.  I
-> have a
-> ASUS P4P800 MB and downloaded the right code from 3Com - works fine.
-
-_forget_ 3com web site drivers, they are old and *without maintenance*.
-Get it from latest 2.4.23-preX.
-
--- 
-HTML mails are going to trash automatically
+ - Roland
 
 

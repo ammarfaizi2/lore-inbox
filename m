@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262591AbREOA6O>; Mon, 14 May 2001 20:58:14 -0400
+	id <S262590AbREOAow>; Mon, 14 May 2001 20:44:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262592AbREOA6E>; Mon, 14 May 2001 20:58:04 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:34063 "HELO
+	id <S262591AbREOAom>; Mon, 14 May 2001 20:44:42 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:13070 "HELO
 	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S262591AbREOA5v>; Mon, 14 May 2001 20:57:51 -0400
-Date: Mon, 14 May 2001 21:57:16 -0300 (BRST)
+	id <S262590AbREOAoX>; Mon, 14 May 2001 20:44:23 -0400
+Date: Mon, 14 May 2001 21:44:02 -0300 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@duckman.distro.conectiva>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] vmscan.c fixes
-In-Reply-To: <Pine.LNX.4.21.0105141922490.32493-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0105142155520.18102-100000@duckman.distro.conectiva>
+To: Jeff Golds <jgolds@resilience.com>
+Cc: Wayne Whitney <whitney@math.berkeley.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.4 kernel reports wrong amount of physical memory
+In-Reply-To: <3B006CC7.AAD065BA@resilience.com>
+Message-ID: <Pine.LNX.4.33.0105142143190.18102-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 May 2001, Marcelo Tosatti wrote:
-> On Mon, 14 May 2001, Rik van Riel wrote:
->
-> > +	/* XXX: dynamic free target is complicated and may be wrong... */
-> >  	int freetarget = freepages.high + inactive_target / 3;
->
-> I think its better if we just remove " + inactive_target / 3" here ---
-> callers already account for the inactive_target when trying to
-> calculate the free target anyway.
+On Mon, 14 May 2001, Jeff Golds wrote:
 
-Right, there's really only one thing this "+ inactive_target / 3"
-achieves ... more agressive flushing of dirty pages, by trying to
-keep a larger free target.
+> Ahh, it's totally obvious.  1 GB option = 890 MB, 4 GB option =
+> 4GB.  Can I assume a linear relation and get 66.2 MB when I
+> select the 64 MB option?
 
-Whether this is good or not I really don't know; this basically
-boils down to the old "pre-flushing vs. delaying IO" thing.
+Where did you get the mythical "1GB" option?
 
-regards,
+Last I looked we had "off", "4GB" and "64GB" ;)
+
+cheers,
 
 Rik
 --

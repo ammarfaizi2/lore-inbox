@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318286AbSHPKPw>; Fri, 16 Aug 2002 06:15:52 -0400
+	id <S318287AbSHPK2v>; Fri, 16 Aug 2002 06:28:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318287AbSHPKPw>; Fri, 16 Aug 2002 06:15:52 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:25872
+	id <S318289AbSHPK2v>; Fri, 16 Aug 2002 06:28:51 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:27152
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S318286AbSHPKPu>; Fri, 16 Aug 2002 06:15:50 -0400
-Date: Fri, 16 Aug 2002 03:10:19 -0700 (PDT)
+	id <S318287AbSHPK2u>; Fri, 16 Aug 2002 06:28:50 -0400
+Date: Fri, 16 Aug 2002 03:23:21 -0700 (PDT)
 From: Andre Hedrick <andre@linux-ide.org>
 To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
 cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.31 boot failure on pdc20267
+Subject: Part 2: Re: 2.5.31 boot failure on pdc20267
 In-Reply-To: <22A03733B17@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.10.10208160251460.12468-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.10.10208160317280.12468-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,44 +21,19 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Petr,
 
-No d1510r0c.pdf refers to a new created device class 0x0105.
-But then again you do not read or vote on the documents so why should I
-expect more from you?
+Try reading the entire document first before commenting and showing why
+people should not believe you.
 
-[root@xathy root]# lspci
-00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System Controller (rev 11)
-00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP Bridge00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev 02)
-00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE (rev 03)
-00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev 02)
-00:08.0 Unknown mass storage controller: CMD Technology Inc: Unknown device 3112 (rev 01)
-00:09.0 Ethernet controller: Intel Corp. 82543GC Gigabit Ethernet Controller (rev 02)
-00:10.0 PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev 02)
-01:05.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo 3 (rev 01)
-02:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-768 [Opus] USB (rev 07)
-02:04.0 Class 0105: Pacific Digital Corp: Unknown device 1841 (rev 40)
-02:06.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 21)
+The author went through great lengths to explain and capture what
+SFF-8038i defined.  The object is to show the difference.
 
-Now LOOK who is STUPID NOW!
-Now read the head of the document and the name of the company?
-
-Now go look at page 26 table 14.
-
-Some day you will learn I am an expert in my field.  I have the hardware
-that document refers to and you are smoking a crack pipe.
-
-Proper document you want, heh?  e02105r0 amendment to d1510r0c.pdf
-
-For those who are clueless "Petr Vandrovec", e02105r0 is a direct
-reference to the retired SFF-8038i document orginally put forward by
-Intel.
-
-If I did not know any better, you are becoming what I used to be.
+Now carefully look and see that BAR4 in d1510 is not the same as 
+BAR 4 for SFF-8038i.
 
 Regards,
 
 Andre Hedrick
 LAD Storage Consulting Group
-
 
 On Fri, 16 Aug 2002, Petr Vandrovec wrote:
 
@@ -104,5 +79,10 @@ On Fri, 16 Aug 2002, Petr Vandrovec wrote:
 >                                                 Petr Vandrovec
 >                                                 vandrove@vc.cvut.cz
 >                                                 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 

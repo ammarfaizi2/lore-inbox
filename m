@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267430AbTALTgV>; Sun, 12 Jan 2003 14:36:21 -0500
+	id <S267446AbTALTza>; Sun, 12 Jan 2003 14:55:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267431AbTALTeu>; Sun, 12 Jan 2003 14:34:50 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5893 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267430AbTALTee>; Sun, 12 Jan 2003 14:34:34 -0500
-Date: Sun, 12 Jan 2003 11:38:35 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rob Wilkens <robw@optonline.net>
-cc: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       William Lee Irwin III <wli@holomorphy.com>,
+	id <S267447AbTALTza>; Sun, 12 Jan 2003 14:55:30 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:49814
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267446AbTALTz2>; Sun, 12 Jan 2003 14:55:28 -0500
+Subject: Re: Linux 2.4.21-pre3-ac4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Alan Cox <alan@redhat.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*?
-In-Reply-To: <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
-Message-ID: <Pine.LNX.4.44.0301121134340.14031-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <1042401443.525.223.camel@zion.wanadoo.fr>
+References: <200301121807.h0CI7Qp04542@devserv.devel.redhat.com>
+	 <1042399796.525.215.camel@zion.wanadoo.fr>
+	 <1042403235.16288.14.camel@irongate.swansea.linux.org.uk>
+	 <1042401074.525.219.camel@zion.wanadoo.fr>
+	 <1042401443.525.223.camel@zion.wanadoo.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042404682.16288.34.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 12 Jan 2003 20:51:23 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2003-01-12 at 19:57, Benjamin Herrenschmidt wrote:
+> Actually, do we really need that delay as we are waiting for an
+> interrupt anyway ? my understanding is that this delay is the required
+> before we start polling for BSY bit (that is the max time the drive may
+> take to assert BSY after getting the command), but in our case, unless
+> we have other bugs, we shall have the channel marked busy, so nobody
+> will tap it, except the actual interrupt coming in. Or will the case of
+> shared interrupt potentially cause a read of status at the wrong time ?
 
-On Sun, 12 Jan 2003, Rob Wilkens wrote:
-> 
-> I'm REALLY opposed to the use of the word "goto" in any code where it's
-> not needed.
+Precisely. Or a random IRQ from a drive power change or hotplug that
+passed our command in the other direction.
 
-I think goto's are fine, and they are often more readable than large
-amounts of indentation. That's _especially_ true if the code flow isn't
-actually naturally indented (in this case it is, so I don't think using
-goto is in any way _clearer_ than not, but in general goto's can be quite
-good for readability).
+We could actually address this another way which might even be easier, 
+that is in the IRQ path to wait the 400nS if BSY isnt asserted. I need
+to go reread the spec to check if we can poll it before the timeout
+but not trust the data, or cannot poll it.
 
-Of course, in stupid languages like Pascal, where labels cannot be 
-descriptive, goto's can be bad. But that's not the fault of the goto, 
-that's the braindamage of the language designer.
-
-		Linus
+Alan
 

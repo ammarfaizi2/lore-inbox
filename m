@@ -1,66 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287835AbSANRnM>; Mon, 14 Jan 2002 12:43:12 -0500
+	id <S287840AbSANRpW>; Mon, 14 Jan 2002 12:45:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287838AbSANRnC>; Mon, 14 Jan 2002 12:43:02 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:1020 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S287835AbSANRm7>;
-	Mon, 14 Jan 2002 12:42:59 -0500
-Date: Mon, 14 Jan 2002 10:42:42 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: Hans Reiser <reiser@namesys.com>, reiserfs-list@namesys.com,
-        linux-kernel@vger.kernel.org, ewald.peiszer@gmx.at,
-        matthias.andree@stud.uni-dortmund.de
-Subject: Re: [reiserfs-list] Boot failure: msdos pushes in front of reiserfs
-Message-ID: <20020114104242.M26688@lynx.adilger.int>
-Mail-Followup-To: Oleg Drokin <green@namesys.com>,
-	Hans Reiser <reiser@namesys.com>, reiserfs-list@namesys.com,
-	linux-kernel@vger.kernel.org, ewald.peiszer@gmx.at,
-	matthias.andree@stud.uni-dortmund.de
-In-Reply-To: <20020113223803.GA28085@emma1.emma.line.org> <20020114095013.A4760@namesys.com> <3C42BE0E.2090902@namesys.com> <20020114143650.D828@namesys.com>
-Mime-Version: 1.0
+	id <S287848AbSANRpD>; Mon, 14 Jan 2002 12:45:03 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:40197 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S287840AbSANRo7>; Mon, 14 Jan 2002 12:44:59 -0500
+Subject: Re: Memory problem with bttv driver
+To: skraw@ithnet.com (Stephan von Krawczynski)
+Date: Mon, 14 Jan 2002 17:56:54 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20020114184334.0a1712d4.skraw@ithnet.com> from "Stephan von Krawczynski" at Jan 14, 2002 06:43:34 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020114143650.D828@namesys.com>; from green@namesys.com on Mon, Jan 14, 2002 at 02:36:50PM +0300
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16QBLq-0002Mu-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 14, 2002  14:36 +0300, Oleg Drokin wrote:
-> On Mon, Jan 14, 2002 at 02:16:30PM +0300, Hans Reiser wrote:
-> > So what solution should we use, zeroing or fixing msdos to not try 
-> > something reiserfs can find, or both or what?
+> > The bt848 drivers are working beautifully
+> > for me in 2.4.18pre
 > 
-> We can use both:
->      destroy MSDOS superblock (if any) at mkreiserfs (or don't touch 1st
->      block of the device if there is no msdos superblock).
->      And link reiserfs code into the kernel earlier than msdos code.
+> Well, I had a quick look at the code, and it seems that vmalloc is just
+> failing, the source line is obvious./proc/meminfo before modprobe and xawtv:
+> 
+>         total:    used:    free:  shared: buffers:  cached:
+> Mem:  1054728192 120070144 934658048        0 10420224 65257472
+> Swap: 1085652992        0 1085652992
+> 
+> Can this be highmem-related?
 
-Hmm, I could have sworn I submitted patches already which did both of these
-things.  In general, it is perfectly safe to zero the bootsector of a
-partition when you mkfs it (mke2fs has been doing this for a long time).
-If you mkfs your boot partition (and zap the bootblock) you would have to
-run LILO on it anyways after they install a new kernel, because the
-location of the kernel would change.
-
-'Re: 2.4.15-pre1: "bogus" message with reiserfs root and other weirdness'
-dated Nov 21, 2001 for patch to clean up reiserfs boot messages and order.
-
-'Re: [reiserfs-list] Re: Basic reiserfs question' dated Sep 7, 2001 for
-patch which (among other things) zaps non-reiserfs data from the disk
-when mkreiserfs is run (also referenced in a subsequent posting
-'Re: [reiserfs-list] mkreiserfs /dev/hdb' dated Oct 1, 2001).
-
-There was a patch submitted within the past week to clean up the FAT
-messages when "silent" is passed.  In any case, that is mostly irrelevant
-if reiserfs is moved up in the probe order.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+That would make complete sense if so. The bttv uses vmalloc_32(), as the
+card has 32bit limits, and I am not running bttv (nor I suspect are most
+people) with highmem enabled

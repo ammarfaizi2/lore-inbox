@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267839AbUJGSxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267840AbUJGTrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267839AbUJGSxq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 14:53:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267829AbUJGSvI
+	id S267840AbUJGTrj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 15:47:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266175AbUJGTrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 14:51:08 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:29060 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S267807AbUJGStl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 14:49:41 -0400
-Subject: Re: Default cache_hot_time value back to 10ms
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: nickpiggin@yahoo.com.au, kenneth.w.chen@intel.com, kernel@kolivas.org,
-       mingo@elte.hu, Andrew Morton OSDL <akpm@osdl.org>
+	Thu, 7 Oct 2004 15:47:32 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:9451 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267961AbUJGTka (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 15:40:30 -0400
+Subject: 2.6.9-rc3-mm3 fails to detect aic7xxx
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
 Content-Type: text/plain
-Organization: 
-Message-Id: <1097174661.2669.310.camel@cube>
+Message-Id: <1097178019.24355.39.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 07 Oct 2004 14:44:22 -0400
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 07 Oct 2004 12:40:19 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas writes:
+I just booted 2.6.9-rc3-mm3 and got the good ol' 
 
-> Should it not be based on the cache flush time? We measure
-> that and set the cache_decay_ticks and can base it on that.
+VFS: Cannot open root device "sda2" or unknown-block(0,0)
+Please append a correct "root=" boot option
+Kernel panic - not syncing: VFS: Unable to mount root fs on
+unknown-block(0,0)
 
-Often one must use the time, but...
+backing out bk-scsi.patch seems to fix it.  I believe this worked in
+2.6.9-rc3-mm2.
 
-If the system goes idle for an hour, the last-run
-process is still cache-hot.
-
-Many systems let you measure cache line castouts.
-Time is a very crude approximation of this.
-Memory traffic is a slightly better approximation.
-
+-- Dave
 

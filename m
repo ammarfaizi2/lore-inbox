@@ -1,106 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262694AbTJTT1G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 15:27:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbTJTT1G
+	id S262758AbTJTTXI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 15:23:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbTJTTXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 15:27:06 -0400
-Received: from mail002.syd.optusnet.com.au ([211.29.132.32]:23700 "EHLO
-	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262694AbTJTT1B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 15:27:01 -0400
-Subject: Re: K 2.6 test6 strange signal behaviour
-From: Ken Foskey <foskey@optushome.com.au>
-To: root@chaos.analogic.com
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.53.0310200938260.13239@chaos>
-References: <1066654886.5930.57.camel@gandalf.foskey.org>
-	 <Pine.LNX.4.53.0310200938260.13239@chaos>
-Content-Type: text/plain
-Message-Id: <1066677998.8832.98.camel@gandalf.foskey.org>
+	Mon, 20 Oct 2003 15:23:08 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:35290 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S262758AbTJTTXE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 15:23:04 -0400
+Subject: [BUG] Re: 2.6.0-test8-mm1
+From: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <rrey@ranty.pantax.net>
+Reply-To: ramon.rey@hispalinux.es
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <20031020020558.16d2a776.akpm@osdl.org>
+References: <20031020020558.16d2a776.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-DppBFU+Hzk9ZFjPmezdF"
+Message-Id: <1066677679.2121.3.camel@debian>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 21 Oct 2003 05:26:38 +1000
-Content-Transfer-Encoding: 7bit
+Date: Mon, 20 Oct 2003 21:21:20 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-10-20 at 23:48, Richard B. Johnson wrote:
-> On Mon, 20 Oct 2003, Ken Foskey wrote:
-> 
-> >
-> > I have a problem with signals.
-> >
-> > I get multiple signals from a single execution of the program.  I have
-> > attached a stripped source.  Here is the critical snippet, you can see
-> > the signal handler being set before each call:
-> >
-> > 	signal( SIGSEGV,	SignalHdl );
-> > 	signal( SIGBUS,		SignalHdl );
-> > 	fprintf( stderr, "Running \n" );
-> > 	result = func( eT, p );
-> > 	fprintf( stderr, "Finished \n" );
-> > 	signal( SIGSEGV,	SIG_DFL );
-> > 	signal( SIGBUS,		SIG_DFL );
-> >
-> > When I run the code, that does 2 derefs of NULL you will see 2 instances
-> > of "Running" and the handler is not invoked at all for the second time.
-> >
-> > ./solar:
-> 
-> You really didn't give enough information.
 
-I provided sample code...
+--=-DppBFU+Hzk9ZFjPmezdF
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-> , but I think your
-> signal() is not set up as BSD signals as you expect. I encountered
-> such a problem several years ago and reported it to the people
-> who wrote the 'C' runtime library. They were kind enough to respond
-> with the usual "you are an idiot..." response, but buried in the
-> response was the information that I needed. You can bypass all
-> those problems by using sigaction(). You can set the flags to
-> give the required response. I think you want SA_RESTART in the
-> flags to give you the response you expect.
+Hi.
 
-The SA_RESTART option looks interesting.  Will tinker with this.  The
-important thing that the K 2.6 developers must be aware if this code
-works under K 2.4. This has changed between K 2.4 and K 2.6.  This has
-lead to mysterious failures of existing programs, mine at least.
+The same problem with other kernel versions. I get it trying to delete
+my local 2.6 svn repository:
 
-> Also, if you have a longjmp() in your handler code, you can
-> trash your local variables in the main-line code. You want
-> to try to perform whatever it is that you are doing without
-> setjmp()/longjmp() or sigsetjmp()/siglongjmp().
+EXT3-fs error (device hdb1): ext3_free_blocks: Freeing blocks in system
+zones - Block =3D 512, count =3D 1
+Aborting journal on device hdb1.
+ext3_free_blocks: aborting transaction: Journal has aborted in
+__ext3_journal_get_undo_access<2>EXT3-fs error (device hdb1) in
+ext3_free_blocks: Journal has aborted
+ext3_reserve_inode_write: aborting transaction: Journal has aborted in
+__ext3_journal_get_write_access<2>EXT3-fs error (device hdb1) in
+ext3_reserve_inode_write: Journal has aborted
+EXT3-fs error (device hdb1) in ext3_truncate: Journal has aborted
+ext3_reserve_inode_write: aborting transaction: Journal has aborted in
+__ext3_journal_get_write_access<2>EXT3-fs error (device hdb1) in
+ext3_reserve_inode_write: Journal has aborted
+EXT3-fs error (device hdb1) in ext3_orphan_del: Journal has aborted
+ext3_reserve_inode_write: aborting transaction: Journal has aborted in
+__ext3_journal_get_write_access<2>EXT3-fs error (device hdb1) in
+ext3_reserve_inode_write: Journal has aborted
+EXT3-fs error (device hdb1) in ext3_delete_inode: Journal has aborted
+ext3_abort called.
+EXT3-fs abort (device hdb1): ext3_journal_start: Detected aborted
+journal
+Remounting filesystem read-only
+--=20
+Ram=F3n Rey Vicente       <ramon dot rey at hispalinux dot es>
+        jabber ID       <rreylinux at jabber dot org>
+GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
 
-The code works correctly on K 2.4. The signal function is called before
-EVERY invocation just before the "Running" text and the output shows
-that "Running" was output and yet signal( SIGSEGV, SignalHdl) does not
-fire.
+--=-DppBFU+Hzk9ZFjPmezdF
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
 
-Here is the output again:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-Getting from NULL
-Setting Jump
-Running
-Signal 11 caught
-After jump
-Setting to NULL
-Setting Jump
-Running
-Segmentation fault
+iD8DBQA/lDWuRGk68b69cdURAl2sAJ9yq6sp/IB0w8g3yE7qosvqLVUmPgCeKfWP
+fMW2b5+12d2Dn4Xhko4A9zc=
+=5UP+
+-----END PGP SIGNATURE-----
 
-I was looking for another error in the code, like longjmp trashing
-variables however the code does not show problems (or crash) with that,
-it simply does not honour the signal function.  The fact that there is
-other "issues" with the code does not cover that fact however longjmp
-may have some indirect bearing.
-
-This is behaving differently from K 2.4.  either K 2.4 has a bug that
-existing software does rely on like mine or K 2.6 has a bug.  If it is a
-correction of a K 2.4 bug we need to ensure that people know about it.
-
--- 
-Thanks
-KenF
-OpenOffice.org developer
+--=-DppBFU+Hzk9ZFjPmezdF--
 

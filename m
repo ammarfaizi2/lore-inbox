@@ -1,86 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261214AbUDAAjt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 19:39:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbUDAAjs
+	id S261358AbUDAAoh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 19:44:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbUDAAoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 19:39:48 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:44200 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261214AbUDAAjq
+	Wed, 31 Mar 2004 19:44:37 -0500
+Received: from bay2-f51.bay2.hotmail.com ([65.54.247.51]:22537 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261358AbUDAAof
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 19:39:46 -0500
-Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Paul Jackson <pj@sgi.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-In-Reply-To: <20040329041253.5cd281a5.pj@sgi.com>
-References: <20040329041253.5cd281a5.pj@sgi.com>
-Content-Type: multipart/mixed; boundary="=-FvS01rJKOHKn6UYL47VY"
-Organization: IBM LTC
-Message-Id: <1080779931.9787.3.camel@arrakis>
+	Wed, 31 Mar 2004 19:44:35 -0500
+X-Originating-IP: [209.172.74.2]
+X-Originating-Email: [idht4n@hotmail.com]
+From: "David L" <idht4n@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: serial port canonical mode weirdness?
+Date: Wed, 31 Mar 2004 16:44:32 -0800
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 31 Mar 2004 16:38:51 -0800
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY2-F51LDp7mvjkO2200021e67@hotmail.com>
+X-OriginalArrivalTime: 01 Apr 2004 00:44:32.0832 (UTC) FILETIME=[7FAB0C00:01C41782]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When I configure a serial port for canonical mode (newtio.c_lflag = ICANON),
+I get behavior that isn't what I'd expect.  If I send >4095 characters that 
+don't
+contain an end-of-line and then an end of line, the number of characters 
+read
+is 1.  If I then start sending shorter lines, one character is read for each
+end-of-line that is sent.  For example, if the limit was 10 instead of 4096, 
+if the
+received data was:
 
---=-FvS01rJKOHKn6UYL47VY
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+0123456789\n
 
-On Mon, 2004-03-29 at 04:12, Paul Jackson wrote:
-> Patch_2_of_22 - New mask ADT
-> 	Adds new include/linux/mask.h header file
-> 
-> 	==> See this mask.h header for more extensive mask documentation <==
+The data returned by the driver would be:
 
-Paul,
-	2 small changes to include/linux/mask.h:
+0
 
-1) Change #ifndef _ASM_GENERIC_MASK_H to #ifnded __LINUX_MASK_H since
-mask.h resides in include/linux/ not include/asm-generic/.
+(I would expect 0123456789\n to be returned)
 
-2) In #define mask_complement(), the "nbits" argument to
-bitmap_complement wasn't wrapped in parens.
+Then if you send "A\n"
+The data returned will be "1"
 
-Cheers!
+Then if you send "B\n"
+The data returned will be "2"
 
--Matt
+And so on.
 
---=-FvS01rJKOHKn6UYL47VY
-Content-Disposition: attachment; filename=mask_h-mcd.patch
-Content-Type: text/x-patch; name=mask_h-mcd.patch; charset=
-Content-Transfer-Encoding: 7bit
+When it's in this state and you send "\n\n", it returns 4096 characters
+and then starts acting like I would expect again.
 
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.4-pj_nodemask/include/linux/mask.h linux-2.6.4-mask_h-mcd/include/linux/mask.h
---- linux-2.6.4-pj_nodemask/include/linux/mask.h	Tue Mar 30 17:04:27 2004
-+++ linux-2.6.4-mask_h-mcd/include/linux/mask.h	Wed Mar 31 15:59:36 2004
-@@ -1,5 +1,5 @@
--#ifndef _ASM_GENERIC_MASK_H
--#define _ASM_GENERIC_MASK_H
-+#ifndef __LINUX_MASK_H
-+#define __LINUX_MASK_H
- 
- /*
-  * include/linux/mask.h
-@@ -273,7 +273,7 @@ do {									\
- } while(0)
- 
- #define mask_complement(dst, src, nbits)				\
--	bitmap_complement((dst)._m, (src)._m, nbits)
-+	bitmap_complement((dst)._m, (src)._m, (nbits))
- 
- #define mask_equal(mask1, mask2)					\
- ({									\
-@@ -369,4 +369,4 @@ do {									\
- #define mask_parse(ubuf, ulen, mask, nbits)				\
- 	bitmap_parse((ubuf), (ulen), ((mask)._m), (nbits))
- 
--#endif /* _ASM_GENERIC_MASK_H */
-+#endif /* __LINUX_MASK_H */
+I've also found that when it's in this state and you send
+a few lines in rapid succession, the call to read will return 0
+bytes and never returns any more good data.
 
---=-FvS01rJKOHKn6UYL47VY--
+Is this a kernel bug or an ignorant user?  I might expect some
+data to be lost if a buffer overruns, but I didn't expect this behavior.
+
+Thanks:
+
+                                           David
+
+_________________________________________________________________
+MSN Toolbar provides one-click access to Hotmail from any Web page – FREE 
+download! http://toolbar.msn.com/go/onm00200413ave/direct/01/
 

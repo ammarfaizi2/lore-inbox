@@ -1,52 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129352AbRBEMoU>; Mon, 5 Feb 2001 07:44:20 -0500
+	id <S129566AbRBESPq>; Mon, 5 Feb 2001 13:15:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129694AbRBEMoK>; Mon, 5 Feb 2001 07:44:10 -0500
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:14487 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S129352AbRBEMoC>; Mon, 5 Feb 2001 07:44:02 -0500
-Message-ID: <3A8141FA.8040202@sympatico.ca>
-Date: Wed, 07 Feb 2001 07:39:22 -0500
-From: David Pyke <loftwyr@sympatico.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1 i686; en-US; 0.7) Gecko/20010105
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S129711AbRBESPg>; Mon, 5 Feb 2001 13:15:36 -0500
+Received: from grunt.okdirect.com ([209.54.94.12]:26381 "HELO mail.pyxos.com")
+	by vger.kernel.org with SMTP id <S129232AbRBESP0>;
+	Mon, 5 Feb 2001 13:15:26 -0500
+Message-Id: <5.0.2.1.2.20010131134730.02eb4fe8@209.54.94.12>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Mon, 05 Feb 2001 12:15:22 -0600
 To: linux-kernel@vger.kernel.org
-Subject: Problems with a Magik1 chipset board
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Daniel Walton <zwwe@opti.cgi.net>
+Subject: 2.4.x latency
+In-Reply-To: <3A75BBB2.63CE124C@napster.com>
+In-Reply-To: <5.0.2.1.2.20010128140720.03465e38@209.54.94.12>
+ <5.0.2.1.2.20010128140720.03465e38@209.54.94.12>
+ <5.0.2.1.2.20010129002217.03362fe0@209.54.94.12>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I own a Iwill KA266 which uses the ALi M1647 northbridge and M1535D+ 
-south.  I'm getting errors on startup and thought I should see if this 
-is an issue with the set or kernel 2.4.1
 
-First, during the ALI15X3 starup I get:
+I'm experiencing an odd behavior under the 2.4.0 and 2.4.1 kernels on two 
+of my servers.  I'm experiencing high latency periods.  Sometimes the 
+periods are long and other times they are short.  As a test I setup three 
+ping processes on one of the servers all pinging the same destination on 
+the LAN at the same time.  Below is a sample of the ping output.  The 
+strange thing is that while all three ping processes went through the 
+latency cycle, they each did it at different times.  This tells me that 
+surely this isn't a network response issue or else all ping processes would 
+show the latency at the same time.
 
-PCI: No IRQ known for interrupt pin A of device 00:04.0.  Please try 
-pci=biosirq
+64 bytes from (216.185.106.18): icmp_seq=55 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=56 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=57 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=58 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=59 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=60 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=61 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=62 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=63 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=64 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=65 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=66 ttl=255 time=4121.7 ms
+64 bytes from (216.185.106.18): icmp_seq=67 ttl=255 time=3259.0 ms
+64 bytes from (216.185.106.18): icmp_seq=68 ttl=255 time=2384.6 ms
+64 bytes from (216.185.106.18): icmp_seq=69 ttl=255 time=1511.2 ms
+64 bytes from (216.185.106.18): icmp_seq=70 ttl=255 time=666.1 ms
+64 bytes from (216.185.106.18): icmp_seq=71 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=72 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=73 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=74 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=75 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=76 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=77 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=78 ttl=255 time=0.1 ms
+64 bytes from (216.185.106.18): icmp_seq=79 ttl=255 time=0.1 ms
 
-according to /proc/pci,00:04.0 is an ALi M5229 IDE (rev 196).
 
-Second, for agpgart I have to use try_agp_unsupported=1 which gets me
+The hardware in question are two Athlon servers with VIA KT133 chipset, 
+512Mb RAM, and IDE drives.  One server uses the tulip network driver for a 
+Netgear FA-310.  The other uses the NatSim DP83810 network driver for the 
+FA-312 and both exhibit the same problem.  I've had 3com 3c900 series cards 
+in the machines as well and the problem still persisted.
 
-agpgart: Trying generic Ali routines for device id: 1647
+One other interesting little fact is that if I ping the problem machines 
+from a good machine I always get 0.1 ms response times, even while the 
+pings from the problem machines are showing latency.
 
-according to my nvidia driver proc entry, agp is not enabled.
+I hope this is enough information for someone to work with.  I'm at a loss 
+for what the problem is and unfortunately I'm no kernel hacker.  I 
+appreciate any help you guys can offer.
 
-Is there more information I should provide?
+Thank you,
+Daniel Walton
 
-Thanks
-Dave Pyke
 
--- 
-No disclaimer shall be read or observed.  Any person (either corporate 
-or individual) making any statement shall be held civily and criminally 
-liable as a party to any act I may do while following the intentional, 
-implied or inferred (whether correctly or not) directions from said 
-statement.  So there.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

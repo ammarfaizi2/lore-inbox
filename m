@@ -1,61 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286268AbRLTOj4>; Thu, 20 Dec 2001 09:39:56 -0500
+	id <S286267AbRLTOvh>; Thu, 20 Dec 2001 09:51:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286267AbRLTOjh>; Thu, 20 Dec 2001 09:39:37 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:30724 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S286261AbRLTOj1>;
-	Thu, 20 Dec 2001 09:39:27 -0500
-Date: Thu, 20 Dec 2001 15:38:49 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: "David S. Miller" <davem@redhat.com>
-cc: <billh@tierra.ucsd.edu>, <bcrl@redhat.com>, <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>, <linux-aio@kvack.org>
-Subject: Re: aio
-In-Reply-To: <20011219.191354.65000844.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0112201533320.18275-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286266AbRLTOv1>; Thu, 20 Dec 2001 09:51:27 -0500
+Received: from mail5.speakeasy.net ([216.254.0.205]:26248 "EHLO
+	mail5.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S286261AbRLTOvQ> convert rfc822-to-8bit; Thu, 20 Dec 2001 09:51:16 -0500
+Subject: Re: Poor performance during disk writes
+From: safemode <safemode@speakeasy.net>
+To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: Helge Hafting <helgehaf@idb.hist.no>, jlm <jsado@mediaone.net>,
+        Andre Hedrick <andre@linuxdiskcert.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011220132729Z286241-18285+3296@vger.kernel.org>
+In-Reply-To: <20011220132729Z286241-18285+3296@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 20 Dec 2001 09:51:14 -0500
+Message-Id: <1008859875.2857.0.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2001-12-20 at 08:27, Dieter Nützel wrote:
+> On Thursday, 20.12.201, 10:49 Helge Hafting wrote:
+> > jlm wrote:
+> [-]
+> > > So I guess I don't really care what mode the hard drive is operating in
+> > > (udma, mdma, dma or plain ide), I just don't want to have to go get a
+> > > cup of coffee while the hard drive saves some data. Is there a "don't
+> >
+> > Devices generally get the cpu before anything else.  A good disk system
+> > don't need much cpu.  Running IDE in PIO mode require a lot
+> > of cpu though.   Using any of the DMA modes avoids that.
+> 
+> Amen..
+> Sorry, Helge sure you are right in theory but try dbench 32 (maybe 
+> bonnie/bonnie++) and playing an MP3/Ogg-Vorbis in parallel...
+> That's my first test on any "new" kernel version.
+> 
+> Even with an 1 GHz Athlon II, 640 MB, U160 DDYS 18 GB, 10k IBM disk (on an 
+> AHA-2940UW) it stutters like mad. I am running all my kernel _with_ Robert 
+> Love's preempt + lock-break patches and it doesn't solve the problem.
+> CPU load is (very) low but it do not work like it should.
+
+try it with vanilla 2.4.17-rc1.  I just did and i'm getting no
+stuttering at all.   nice -n 20 dbench 32.   Worked quite nicely. Of
+course i'm using an ext3 fs which is more important than your cpu speed
+or ram.   This kind of discussion has been talked about and argued over
+many times in the past here already.  Too many factors go into this and
+in the end,  dbench is _Meant_ to preempt everything else.  if you want
+a real test find a real program you really use and use it.  
 
 
-On Wed, 19 Dec 2001, David S. Miller wrote:
+ 
+> > > pre-empt the rest of the system" switch for the eide drives? Is there
+> > > something fundamental/unique going on here that I'm missing?
+> > dma, udma, etc. is that switch.  It lets the cpu do other work (such as
+> > redrawing X) while the disk is busy.  Plain ide is what you don't want.
+> 
+> See above the whole system show some bad hiccup.
+> 
+> > The problem of waiting for other files or swapping while a really big
+> > write is going on is different.  Get more drives, so the big writes go
+> > to one drive while you get stuff swapped in (or other file access)
+> > on other drive(s).  The kernel is capable of getting fast response
+> > from one drive while another is completely bogged down with
+> > enormous writes.
+> 
+> Tried this already. Neither I put my test files (MP3/Ogg-Vorbis) in /dev/shm 
+> or a nother disk it do not change anything.
+> 
+> There must be something in the VFS?
+> 
+> -Dieter
+> 
+> -- 
+> Dieter Nützel
+> Graduate Student, Computer Science
+> University of Hamburg
+> @home: Dieter.Nuetzel@hamburg.de
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
->    From: Bill Huey <billh@tierra.ucsd.edu>
->    Date: Wed, 19 Dec 2001 19:07:16 -0800
->
->    And using lkml as a AIO forum is probably outside of the scope of this list
->    and group.
->
-> This whole thread exists because Linus wants public general and
-> technical discussion on lkml of new features to happen before he
-> considers putting them into the tree, and the fact that they are not
-> in the tree because he isn't seeing such enthusiastic discussions
-> happening at all.
->
-YES, and he is right doing so.
-
-> I don't think AIO, because of it's non-trivial impact to the tree, is
-> at all outside the scope of this list.  This is in fact the place
-> where major stuff like AIO is meant to be discussed, not some special
-> list where only "AIO people" hang out, of course people on that list
-> will be enthusiastic about AIO!
-agreed
->
-> Frankly, on your other comments, I don't give a rats ass what BSD/OS
-> people are doing about, nor how highly they rate, Java.  That is
-> neither here nor there.  Java is going to be dead in a few years, and
-> let's just agree to disagree about this particular point ok?
-mmhh, java will not be death untill a lot of commecial software will use
-it for graphical interfaces.
-Infact it is simpler and cheaper for them to use java, and so we have to
-deal with this bad future, where a dead language will be keept alive by
-software houses.
-That said, should we care about this? In my opinion, NO. and why we
-should? when there are no good technical reasons, political reasons should
-please disappear.
-
-Luigi
 

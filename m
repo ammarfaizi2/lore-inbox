@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261457AbTIKSa6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 14:30:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbTIKSa6
+	id S261438AbTIKSi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 14:38:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbTIKSi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 14:30:58 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:63244
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S261457AbTIKSa5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 14:30:57 -0400
-Date: Thu, 11 Sep 2003 11:30:55 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: ide-scsi oops was: 2.6.0-test4-mm3
-Message-ID: <20030911183055.GF18399@matchmail.com>
-Mail-Followup-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-	Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030910114346.025fdb59.akpm@osdl.org> <10720000.1063224243@flay> <20030911082057.GP1396@suse.de> <63090000.1063303982@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <63090000.1063303982@flay>
-User-Agent: Mutt/1.5.4i
+	Thu, 11 Sep 2003 14:38:26 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:33851 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S261438AbTIKSiZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 14:38:25 -0400
+Message-ID: <3F60BF89.6060605@rackable.com>
+Date: Thu, 11 Sep 2003 11:31:37 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Yaoping Ruan <yruan@CS.Princeton.EDU>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux on Intel Server Board SE7501WV2
+References: <Pine.GSO.4.55.0309111338120.28288@oakley.CS.Princeton.EDU>
+In-Reply-To: <Pine.GSO.4.55.0309111338120.28288@oakley.CS.Princeton.EDU>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Sep 2003 18:38:22.0116 (UTC) FILETIME=[E0A85640:01C37893]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 11, 2003 at 11:13:02AM -0700, Martin J. Bligh wrote:
-> >> That's a real shame ... it seemed to work fine until recently. Some
-> >> of the DVD writers (eg the one I have - Sony DRU500A or whatever)
-> > 
-> > Then maybe it would be a really good idea to find out why it doesn't
-> > work with ide-cd. What are the symptoms?
+Yaoping Ruan wrote:
+> Hello,
 > 
-> Symptoms are that it required cdrecord-pro, which was a closed source
-> piece of turd I can't do much with ;-)
+> We plan to install Linux (2.4.21 and later with epoll patch) on an Intel
+> Server Board SE7501WV2 with 1 XEON 2.4GHz CPU, 4GB PC2100 DDR memory, and
+> a Seagate 120GB ATA 7200RPM harddisk, and use the server box for high
+> demand SpecWeb99 tests. Does anyone have any experience on this Server
+> Board, and see any compatibility problem here?
 
-Are you using the version of cdrecord with Linus' patch when he added CDR capability to
-ide-cd?
+    No it should just work on 2.4.21.  You may want to try 2.4.22 if you 
+aren't using dma on harddrive. "hdparm -d /dev/hda"
+> 
+> An other question about this box is the two on-board Gigabit Network
+> Controller. Do they work fine on Linux? 
 
-I know it has been in debian testing for a while now...
+   Yes with newer versions of the e1000 driver.  (2.4.21 should be new 
+enough.)  Newer kernel revs may have issues networking issues if you are 
+enabling acpi.  Try "pci=noacpi" if you have issues.
+
+
+> May I use fiber Giganet NCI like
+> Netgear GA621 on it?
+
+> 
+> Any thoughts/information are welcome.
+> 
+> 
+
+-- 
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
+

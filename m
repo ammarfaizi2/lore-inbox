@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132888AbRDPIXx>; Mon, 16 Apr 2001 04:23:53 -0400
+	id <S132883AbRDPIcP>; Mon, 16 Apr 2001 04:32:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132887AbRDPIWX>; Mon, 16 Apr 2001 04:22:23 -0400
-Received: from mail.cis.nctu.edu.tw ([140.113.23.5]:3341 "EHLO
-	mail.cis.nctu.edu.tw") by vger.kernel.org with ESMTP
-	id <S132880AbRDPIUr>; Mon, 16 Apr 2001 04:20:47 -0400
-Message-ID: <007201c0c64e$f1bb5a30$ae58718c@cis.nctu.edu.tw>
-Reply-To: "gis88530" <gis88530@cis.nctu.edu.tw>
-From: "gis88530" <gis88530@cis.nctu.edu.tw>
-To: <linux-kernel@vger.kernel.org>
-Subject: swap memory
-Date: Mon, 16 Apr 2001 16:26:31 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+	id <S132884AbRDPIby>; Mon, 16 Apr 2001 04:31:54 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:51110 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S132883AbRDPIbv>;
+	Mon, 16 Apr 2001 04:31:51 -0400
+Date: Mon, 16 Apr 2001 10:31:48 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200104160831.KAA196012.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, acahalan@cs.uml.edu
+Subject: Re: Bug in EZ-Drive remapping code (ide.c)
+Cc: Jochen.Hoenicke@informatik.uni-oldenburg.de, andre@linux-ide.org,
+        linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+    From acahalan@saturn.cs.uml.edu Mon Apr 16 08:35:09 2001
 
-Does linux kernel swap data out to disk?
-or
-It just reside in the physical memory.
-or
-You could give me a hint. Thanks a lot.
+    Andries.Brouwer writes:
 
-Cheers,
-Tom
+    > What one wants is to remap access to sector 0 to sector 1,
+    > and leave all other sectors alone. Thus, if someone asks
+    > for sectors 0 1 2 3 4, she should get sectors 1 1 2 3 4.
 
+    No, because then you can't write to the real first sector.
+    Assuming translation is good, 1 0 2 3 4 is a better order.
+    Then "dd if=/dev/zero of=/dev/hda bs=1k count=999" will get
+    rid of all this crap. Otherwise, killing it is difficult.
+
+If you use EZdrive and damage its code, then probably you
+cannot boot anymore, or lose access to your data.
+Killing it must be difficult.
+
+EZdrive provides uninstall code itself, but if you really want,
+boot with "hda=noremap", and then your dd command will erase
+both EZdrive and your precious data.
+
+Andries

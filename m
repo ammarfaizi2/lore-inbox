@@ -1,66 +1,197 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268686AbUJPInL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268688AbUJPJCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268686AbUJPInL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 04:43:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268688AbUJPInL
+	id S268688AbUJPJCk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 05:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268693AbUJPJCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 04:43:11 -0400
-Received: from services.exanet.com ([212.143.73.102]:40610 "EHLO
-	services.exanet.com") by vger.kernel.org with ESMTP id S268686AbUJPInH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 04:43:07 -0400
-Message-ID: <4170DF18.50004@exanet.com>
-Date: Sat, 16 Oct 2004 10:43:04 +0200
-From: Avi Kivity <avi@exanet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040930
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joel Becker <jlbec@evilplan.org>
-CC: Yasushi Saito <ysaito@hpl.hp.com>, linux-aio@kvack.org,
-       linux-kernel@vger.kernel.org, suparna@in.ibm.com,
-       Janet Morgan <janetmor@us.ibm.com>
-Subject: Re: [PATCH 1/2]  aio: add vectored I/O support
-References: <416EDD19.3010200@hpl.hp.com> <20041016031301.GC17142@parcelfarce.linux.theplanet.co.uk> <4170AF35.7030806@exanet.com> <20041016053721.GD17142@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20041016053721.GD17142@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 16 Oct 2004 05:02:40 -0400
+Received: from gate.crashing.org ([63.228.1.57]:56553 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S268688AbUJPJCX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 05:02:23 -0400
+Subject: [PATCH] ppc32: Add "native" iomap interfaces
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Message-Id: <1097917142.8961.40.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 16 Oct 2004 18:59:02 +1000
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Oct 2004 08:43:06.0093 (UTC) FILETIME=[27E579D0:01C4B35C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joel Becker wrote:
+Hi !
 
->On Sat, Oct 16, 2004 at 07:18:45AM +0200, Avi Kivity wrote:
->  
->
->>It is a huge performance win, at least on the 2.4-based RHEL kernel. 
->>Large reads (~256K) using 4K iocbs are very slow on a large RAID, while 
->>after I coded a similar patch I got a substantial speedup.
->>    
->>
->
->	I'd think we should fix the submission path instead.  Why create
->iovs _and_ iocbs when we only need to create one?  And even if we
->decided aio_readv() was still nice to keep, we'd want to fix this
->inefficiency in io_submit().
->
->  
->
-Using IO_CMD_READ for a vector entails
+This patch adds proper ppc32 "iomap" interfaces.
 
-- converting the userspace structure (which might well an iovec) to iocbs
-- copying all those iocbs to the kernel
-- merging the iocbs
-- generating multiple completions for the merged request
-- copying the completions to userspace
-- coalescing the multiple completions in userspace to a single completion
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-error handling is difficult as well. one would expect that a bad sector 
-with multiple iocbs would only fail one of the requests. it seems to be 
-non-trivial to implement this correctly.
+diff -urN linux-2.5/arch/ppc/Kconfig linux-lappy/arch/ppc/Kconfig
+--- linux-2.5/arch/ppc/Kconfig	2004-09-24 14:32:52.000000000 +1000
++++ linux-lappy/arch/ppc/Kconfig	2004-10-16 18:46:34.000000000 +1000
+@@ -35,10 +35,6 @@
+ 	bool
+ 	default y
+ 
+-config GENERIC_IOMAP
+-	bool
+-	default y
+-
+ source "init/Kconfig"
+ 
+ menu "Processor"
+diff -urN linux-2.5/arch/ppc/kernel/pci.c linux-lappy/arch/ppc/kernel/pci.c
+--- linux-2.5/arch/ppc/kernel/pci.c	2004-09-24 14:32:53.000000000 +1000
++++ linux-lappy/arch/ppc/kernel/pci.c	2004-10-16 18:12:50.000000000 +1000
+@@ -1709,6 +1709,32 @@
+ 	res->child = NULL;
+ }
+ 
++void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max)
++{
++	unsigned long start = pci_resource_start(dev, bar);
++	unsigned long len = pci_resource_len(dev, bar);
++	unsigned long flags = pci_resource_flags(dev, bar);
++
++	if (!len)
++		return NULL;
++	if (max && len > max)
++		len = max;
++	if (flags & IORESOURCE_IO)
++		return ioport_map(start, len);
++	if (flags & IORESOURCE_MEM)
++		return (void __iomem *) start;
++	/* What? */
++	return NULL;
++}
++
++void pci_iounmap(struct pci_dev *dev, void __iomem *addr)
++{
++	/* Nothing to do */
++}
++EXPORT_SYMBOL(pci_iomap);
++EXPORT_SYMBOL(pci_iounmap);
++
++
+ /*
+  * Null PCI config access functions, for the case when we can't
+  * find a hose.
+diff -urN linux-2.5/arch/ppc/mm/pgtable.c linux-lappy/arch/ppc/mm/pgtable.c
+--- linux-2.5/arch/ppc/mm/pgtable.c	2004-09-24 14:32:55.000000000 +1000
++++ linux-lappy/arch/ppc/mm/pgtable.c	2004-10-16 18:23:21.000000000 +1000
+@@ -22,6 +22,7 @@
+ 
+ #include <linux/config.h>
+ #include <linux/kernel.h>
++#include <linux/module.h>
+ #include <linux/types.h>
+ #include <linux/mm.h>
+ #include <linux/vmalloc.h>
+@@ -271,6 +272,18 @@
+ 		vunmap((void *) (PAGE_MASK & (unsigned long)addr));
+ }
+ 
++void __iomem *ioport_map(unsigned long port, unsigned int len)
++{
++	return (void __iomem *) (port + _IO_BASE);
++}
++
++void ioport_unmap(void __iomem *addr)
++{
++	/* Nothing to do */
++}
++EXPORT_SYMBOL(ioport_map);
++EXPORT_SYMBOL(ioport_unmap);
++
+ int
+ map_page(unsigned long va, phys_addr_t pa, int flags)
+ {
+diff -urN linux-2.5/include/asm-ppc/io.h linux-lappy/include/asm-ppc/io.h
+--- linux-2.5/include/asm-ppc/io.h	2004-09-24 14:36:10.000000000 +1000
++++ linux-lappy/include/asm-ppc/io.h	2004-10-16 18:16:24.000000000 +1000
+@@ -398,6 +398,79 @@
+ 	return 0;
+ }
+ 
++/*
++ * Here comes the ppc implementation of the IOMAP 
++ * interfaces.
++ */
++static inline unsigned int ioread8(void __iomem *addr)
++{
++	return readb(addr);
++}
++
++static inline unsigned int ioread16(void __iomem *addr)
++{
++	return readw(addr);
++}
++
++static inline unsigned int ioread32(void __iomem *addr)
++{
++	return readl(addr);
++}
++
++static inline void iowrite8(u8 val, void __iomem *addr)
++{
++	writeb(val, addr);
++}
++
++static inline void iowrite16(u16 val, void __iomem *addr)
++{
++	writew(val, addr);
++}
++
++static inline void iowrite32(u32 val, void __iomem *addr)
++{
++	writel(val, addr);
++}
++
++static inline void ioread8_rep(void __iomem *addr, void *dst, unsigned long count)
++{
++	_insb((u8 __force *) addr, dst, count);
++}
++
++static inline void ioread16_rep(void __iomem *addr, void *dst, unsigned long count)
++{
++	_insw_ns((u16 __force *) addr, dst, count);
++}
++
++static inline void ioread32_rep(void __iomem *addr, void *dst, unsigned long count)
++{
++	_insl_ns((u32 __force *) addr, dst, count);
++}
++
++static inline void iowrite8_rep(void __iomem *addr, const void *src, unsigned long count)
++{
++	_outsb((u8 __force *) addr, src, count);
++}
++
++static inline void iowrite16_rep(void __iomem *addr, const void *src, unsigned long count)
++{
++	_outsw_ns((u16 __force *) addr, src, count);
++}
++
++static inline void iowrite32_rep(void __iomem *addr, const void *src, unsigned long count)
++{
++	_outsl_ns((u32 __force *) addr, src, count);
++}
++
++/* Create a virtual mapping cookie for an IO port range */
++extern void __iomem *ioport_map(unsigned long port, unsigned int nr);
++extern void ioport_unmap(void __iomem *);
++
++/* Create a virtual mapping cookie for a PCI BAR (memory or IO) */
++struct pci_dev;
++extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
++extern void pci_iounmap(struct pci_dev *dev, void __iomem *);
++
+ #endif /* _PPC_IO_H */
+ 
+ #ifdef CONFIG_8260_PCI9
 
-IO_CMD_PREADV, by contrast, is very simple, intuitive, and efficient.
-
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 

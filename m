@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317648AbSHCSOG>; Sat, 3 Aug 2002 14:14:06 -0400
+	id <S317653AbSHCSV1>; Sat, 3 Aug 2002 14:21:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317640AbSHCSNB>; Sat, 3 Aug 2002 14:13:01 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10256 "EHLO
+	id <S317639AbSHCSOE>; Sat, 3 Aug 2002 14:14:04 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11024 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317641AbSHCSMy>; Sat, 3 Aug 2002 14:12:54 -0400
-To: <linux-kernel@vger.kernel.org>
+	id <S317649AbSHCSMz>; Sat, 3 Aug 2002 14:12:55 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: <linux-kernel@vger.kernel.org>
 From: Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH] 8: 2.5.29-rd
-Message-Id: <E17b3Rq-0006wY-00@flint.arm.linux.org.uk>
+Subject: [PATCH] 10: 2.5.29-wdt977
+Message-Id: <E17b3Rq-0006wh-00@flint.arm.linux.org.uk>
 Date: Sat, 03 Aug 2002 19:16:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch has been verified to apply cleanly to 2.5.30
 
-This patch adds support for "initrd=start,size" on the kernel command
-line.  This allows us (the ARM folk) to give details of the initrd
-on the (default) command line rather than hard-coding such stuff
-into the kernel proper.
+Bitops are used with on the timer_alive variable.  Therefore, timer_alive
+needs to be "unsigned long" not "int".
 
- drivers/block/rd.c |   19 +++++++++++++++++++
- 1 files changed, 19 insertions
+ drivers/char/wdt977.c |    2 +-
+ 1 files changed, 1 insertion, 1 deletion
 
-diff -urN orig/drivers/block/rd.c linux/drivers/block/rd.c
---- orig/drivers/block/rd.c	Thu Jul 25 20:13:26 2002
-+++ linux/drivers/block/rd.c	Fri Aug  2 17:34:53 2002
-@@ -349,6 +349,25 @@
- 	release:	initrd_release,
- };
+diff -urN orig/drivers/char/wdt977.c linux/drivers/char/wdt977.c
+--- orig/drivers/char/wdt977.c	Sat May 25 23:13:25 2002
++++ linux/drivers/char/wdt977.c	Wed Jun 12 14:13:47 2002
+@@ -39,7 +39,7 @@
  
-+/*
-+ * Add function to specify initrd address as initrd=start,size
-+ *   start is a phyical address
-+ *   size is the size of the initrd ramdisk
-+ */
-+
-+static int __init setup_initrd(char *str)
-+{
-+	unsigned long start = memparse(str, &str);
-+
-+	if (str && *str == ',') {
-+		initrd_start = (unsigned long)phys_to_virt(start);
-+		initrd_end = initrd_start + memparse(str + 1, &str);
-+	}
-+	return 1;
-+}
-+
-+__setup("initrd=", setup_initrd);
-+
- #endif
+ static	int timeout = DEFAULT_TIMEOUT*60;	/* TO in seconds from user */
+ static	int timeoutM = DEFAULT_TIMEOUT;		/* timeout in minutes */
+-static	int timer_alive;
++static	unsigned long timer_alive;
+ static	int testmode;
  
- 
+ MODULE_PARM(timeout, "i");
 

@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279950AbRKVQW7>; Thu, 22 Nov 2001 11:22:59 -0500
+	id <S279984AbRKVQ1L>; Thu, 22 Nov 2001 11:27:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279984AbRKVQWt>; Thu, 22 Nov 2001 11:22:49 -0500
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:60331 "EHLO
-	localhost") by vger.kernel.org with ESMTP id <S279950AbRKVQWj>;
-	Thu, 22 Nov 2001 11:22:39 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ryan Cumming <bodnar42@phalynx.dhs.org>
-To: "Elgar, Jeremy" <JElgar@ndsuk.com>
-Subject: Re: Swap vs No Swap.
-Date: Thu, 22 Nov 2001 08:22:08 -0800
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <F128989C2E99D4119C110002A507409801C52F89@topper.hrow.ndsuk.com>
-In-Reply-To: <F128989C2E99D4119C110002A507409801C52F89@topper.hrow.ndsuk.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S279986AbRKVQ1A>; Thu, 22 Nov 2001 11:27:00 -0500
+Received: from c0mailgw.prontomail.com ([216.163.180.10]:9126 "EHLO
+	c0mailgw02.prontomail.com") by vger.kernel.org with ESMTP
+	id <S279984AbRKVQ0u>; Thu, 22 Nov 2001 11:26:50 -0500
+Message-ID: <3BFD2709.31A1A85E@starband.net>
+Date: Thu, 22 Nov 2001 11:25:45 -0500
+From: war <war@starband.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E166wc5-0004WA-00@localhost>
+To: James A Sutherland <jas88@cam.ac.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Swap vs No Swap.
+In-Reply-To: <3BFC5A9B.915B77DF@starband.net> <E166rbB-0005LC-00@mauve.csi.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 22, 2001 08:11, Elgar, Jeremy wrote:
-> Hum think I'm going to test this idea out tonight, quick question without
-> swap at what point would the kernel stop giving memory up for cache
-> purposes. For example I noticed on Tuesday whist doing a back up of a file
-> system (in-line tar cd untar) I was left with ~4 Mb left having nearly the
-> rest of my 2Gb Ram used for cache.
+Why have SWAP if you don't need it - answer that.?
 
-The general idea behind VM is pretty simple: keep the most frequently used 
-pages in the fastest storage possible. The tar backup pushed a lot of pages 
-that looked more frequently used in to RAM, and swapped out programs that 
-weren't being used at all in favour of this cache. Now that the backup is 
-completed, and only a small portion of the cache you used for backup is being 
-used, these unused cache pages can very easily be 'given up' to be used as 
-free memory again. A VM that -doesn't care- if it's dealing with program 
-pages, buffer pages, shared memory, or cache pages when making swapping 
-decisions is much more robust than a VM that tries to 'outsmart' itself.
+James A Sutherland wrote:
 
--Ryan
+> On Thursday 22 November 2001 1:53 am, war wrote:
+> > I do not understand something.
+> >
+> > How can having swap speed ANYTHING up?
+>
+> By providing ADDITIONAL storage. Yes, it's slower than RAM - but it's faster
+> than not having the storage at all.
+>
+> > RAM = 1000MB/s.
+> > DISK = 10MB/s
+> >
+> > Ram is generally 1000x faster than a hard disk.
+> >
+> > No swap = fastest possible solution.
+>
+> BS. You don't use swap INSTEAD of RAM, but AS WELL AS. Moving less frequently
+> used data to swap allows you to put more frequently used data in RAM, which
+> DOES speed things up. (At least, it does if the VM system works properly :P)
+>
+> By your logic, we should switch off the system RAM, too: after all, L2 cache
+> is much faster again, so using RAM can only slow things down?
+>
+> James.
+

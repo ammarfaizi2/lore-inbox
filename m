@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269535AbUINQNX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269593AbUINQnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269535AbUINQNX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 12:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269516AbUINQL5
+	id S269593AbUINQnX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 12:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269461AbUINQkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 12:11:57 -0400
-Received: from a26.t1.student.liu.se ([130.236.221.26]:63917 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S269457AbUINQEZ
+	Tue, 14 Sep 2004 12:40:52 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:47752 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S269592AbUINQ04
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 12:04:25 -0400
-Message-ID: <4147167B.9080202@drzeus.cx>
-Date: Tue, 14 Sep 2004 18:04:11 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040704)
-X-Accept-Language: en-us, en
+	Tue, 14 Sep 2004 12:26:56 -0400
+Date: Tue, 14 Sep 2004 17:26:24 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Ville Hallivuori <vph@iki.fi>,
+       Toon van der Pas <toon@hout.vanvergehaald.nl>,
+       Wolfpaw - Dale Corse <admin@wolfpaw.net>, kaukasoi@elektroni.ee.tut.fi,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local and REMOTE(verified) Denial
+ of Service Attack
+In-Reply-To: <1095174633.16990.19.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0409141721270.23011@fogarty.jakma.org>
+References: <002301c498ee$1e81d4c0$0200a8c0@wolf> 
+ <1095008692.11736.11.camel@localhost.localdomain>  <20040912192331.GB8436@hout.vanvergehaald.nl>
+  <Pine.LNX.4.61.0409130413460.23011@fogarty.jakma.org> 
+ <Pine.LNX.4.61.0409130425440.23011@fogarty.jakma.org>  <20040913201113.GA5453@vph.iki.fi>
+  <Pine.LNX.4.61.0409141553260.23011@fogarty.jakma.org>
+ <1095174633.16990.19.camel@localhost.localdomain>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: seife@suse.de, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: HP/Compaq (Winbond) SD/MMC reader supported
-References: <41383D02.5060709@drzeus.cx> <20040913223827.GA28524@elf.ucw.cz> <41467216.6070508@drzeus.cx> <20040914150013.GB27621@elf.ucw.cz> <41470B5A.2010005@drzeus.cx> <20040914152406.GA9581@elf.ucw.cz>
-In-Reply-To: <20040914152406.GA9581@elf.ucw.cz>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+On Tue, 14 Sep 2004, Alan Cox wrote:
 
->Hi!
->
->  
->
->>Is the 0xf00 id the only one you get? If it is a SuperIO chip then 
->>    
->>
->
->How can I (try to) get other id's? Yes, it seems to be stable across reboots.
->
->  
->
-You don't. The driver will list all it finds, so if there's only one 
-line then that's it.
+> guess them that way. This is spectacularly more effective and 
+> various vendors highly invalid rst acking crap won't save you.
 
->>resetting it will probably cause all sorts of funky problems.
->>Do you know what SuperIO is used in the machine? And have you tried 
->>confirming that the card reader is indeed winbond? The easiest way to do 
->>that is to see if the Windows driver is wbsd.sys.
->>    
->>
->
->Stefan, could you take a look? I rm -rf'ed my copy of windows :-(.
->
->SuperIO is behind ISA bridge so it can not be deduced from lspci? Or I
->may be completely off mark; there's Unknown mass storage controller:
->Texas Instruments PCI7420 Flash Media Controller.... Hmm, that seems
->like flash.
->  
->
-PCI7420 does indeed support SD/MMC so there's a high probability that 
-this is the wrong driver for you. See if TI will release a complete 
-spec. for the SD/MMC interface. Then you can start writing your own 
-driver ;)
+Ah, well, I dont care about various vendors. I only care about Linux, 
+BSD and SunOS kernel behaviour ;)
 
-Rgds
-Pierre
+That said, TCP-MD5 signature renders this mostly moot, and deployment 
+of TCP-MD5 has increased a lot since the last round of "BGP TCP is 
+insecure!" non-issues came up. Many IXes and peers now require 
+TCP-MD5.
 
+The rights and wrongs of TCP-MD5 notwithstanding, it'd be nice if 
+Linux could support this. Anyone running BGP on Linux at moment must 
+patch their kernel - or else just switch to Free/Open BSD.
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+It looks like it's up to me to save our skins.  Get into that garbage chute,
+flyboy!
+ 		-- Princess Leia Organa

@@ -1,94 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbUK1LDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbUK1LLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261434AbUK1LDq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 06:03:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbUK1LDq
+	id S261431AbUK1LLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 06:11:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbUK1LLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 06:03:46 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:58089 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261434AbUK1LDX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 06:03:23 -0500
-Date: Sun, 28 Nov 2004 11:02:57 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: Sami Farin <7atbggg02@sneakemail.com>, William Irwin <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/2] VmLib wrapped: mprotect flags
-In-Reply-To: <Pine.LNX.4.44.0411281057160.11877-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0411281101410.11877-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Sun, 28 Nov 2004 06:11:09 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6156 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261431AbUK1LKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 06:10:52 -0500
+Date: Sun, 28 Nov 2004 11:10:47 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alex Williamson <alex.williamson@hp.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Exar ST16C2550 rev A2 bug
+Message-ID: <20041128111047.A10807@flint.arm.linux.org.uk>
+Mail-Followup-To: Alex Williamson <alex.williamson@hp.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <1100716008.32679.55.camel@tdi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1100716008.32679.55.camel@tdi>; from alex.williamson@hp.com on Wed, Nov 17, 2004 at 11:26:47AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sometimes /proc/<pid>/status shows VmLib: 42949..... kB.
+On Wed, Nov 17, 2004 at 11:26:47AM -0700, Alex Williamson wrote:
+>    There seem to be an increasing number of the above UARTs floating
+> around and I'm wondering if we can do something to better detect and
+> work around their flaw.  Exar has documented the problem and their
+> proposed serial driver changes to work around the issue here:
+> 
+> http://www.exar.com/info.php?pdf=dan180_oct2004.pdf
 
-mprotect_fixup must note oldflags on entry: if vma_merge is successful,
-vma->vm_flags afterwards may be either the oldflags or the newflags,
-and the extent of the change will be less than the extent of the vma.
+Can you check whether this patch solves it?  I'd rather not rely on
+size_fifo() to do the right thing in every circumstance.
 
-And let's use unsigned long for these flags throughout.
+Essentially, if we find an EFR, we check whether the UART reports
+DVID/DREV values corresponding to the known problem scenario, and
+if so, we essentially ignore the EFR.
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
-Acked-by: William Lee Irwin III <wli@holomorphy.com>
+What I don't know is whether these DVID/DREV values correspond to
+a real device which does have an EFR.  Maybe Exar people can shed
+some light on this?
 
---- 2.6.10-rc2-bk9/mm/mprotect.c	2004-11-15 16:21:24.000000000 +0000
-+++ linux/mm/mprotect.c	2004-11-25 15:58:55.711365888 +0000
-@@ -111,15 +111,17 @@ change_protection(struct vm_area_struct 
+(Also, one has to wonder what information Exar has about what we're
+working on, which we don't know ourselves about... check out the
+above link, FAQ question 6. 8))
+
+===== drivers/serial/8250.c 1.92 vs edited =====
+--- 1.92/drivers/serial/8250.c	2004-11-19 07:03:10 +00:00
++++ edited/drivers/serial/8250.c	2004-11-28 11:02:32 +00:00
+@@ -479,6 +479,34 @@
+ }
  
- static int
- mprotect_fixup(struct vm_area_struct *vma, struct vm_area_struct **pprev,
--	unsigned long start, unsigned long end, unsigned int newflags)
-+	unsigned long start, unsigned long end, unsigned long newflags)
+ /*
++ * Read UART ID using the divisor method - set DLL and DLM to zero
++ * and the revision will be in DLL and device type in DLM.  We
++ * preserve the device state across this.
++ */
++static unsigned int autoconfig_read_divisor_id(struct uart_8250_port *p)
++{
++	unsigned char old_dll, old_dlm, old_lcr;
++	unsigned int id;
++
++	old_lcr = serial_inp(p, UART_LCR);
++	serial_outp(p, UART_LCR, UART_LCR_DLAB);
++
++	old_dll = serial_inp(p, UART_DLL);
++	old_dlm = serial_inp(p, UART_DLM);
++
++	serial_outp(p, UART_DLL, 0);
++	serial_outp(p, UART_DLM, 0);
++
++	id = serial_inp(p, UART_DLL) | serial_inp(p, UART_DLM) << 8;
++
++	serial_outp(p, UART_DLL, old_dll);
++	serial_outp(p, UART_DLM, old_dlm);
++	serial_outp(p, UART_LCR, old_lcr);
++
++	return id;
++}
++
++/*
+  * This is a helper routine to autodetect StarTech/Exar/Oxsemi UART's.
+  * When this function is called we know it is at least a StarTech
+  * 16650 V2, but it might be one of several StarTech UARTs, or one of
+@@ -490,7 +518,7 @@
+  */
+ static void autoconfig_has_efr(struct uart_8250_port *up)
  {
- 	struct mm_struct * mm = vma->vm_mm;
-+	unsigned long oldflags = vma->vm_flags;
-+	long nrpages = (end - start) >> PAGE_SHIFT;
- 	unsigned long charged = 0;
- 	pgprot_t newprot;
- 	pgoff_t pgoff;
- 	int error;
+-	unsigned char id1, id2, id3, rev, saved_dll, saved_dlm;
++	unsigned int id1, id2, id3, rev;
  
--	if (newflags == vma->vm_flags) {
-+	if (newflags == oldflags) {
- 		*pprev = vma;
- 		return 0;
+ 	/*
+ 	 * Everything with an EFR has SLEEP
+@@ -540,21 +568,13 @@
+ 	 *  0x12 - XR16C2850.
+ 	 *  0x14 - XR16C854.
+ 	 */
+-	serial_outp(up, UART_LCR, UART_LCR_DLAB);
+-	saved_dll = serial_inp(up, UART_DLL);
+-	saved_dlm = serial_inp(up, UART_DLM);
+-	serial_outp(up, UART_DLL, 0);
+-	serial_outp(up, UART_DLM, 0);
+-	id2 = serial_inp(up, UART_DLL);
+-	id1 = serial_inp(up, UART_DLM);
+-	serial_outp(up, UART_DLL, saved_dll);
+-	serial_outp(up, UART_DLM, saved_dlm);
+-
+-	DEBUG_AUTOCONF("850id=%02x:%02x ", id1, id2);
+-
+-	if (id1 == 0x10 || id1 == 0x12 || id1 == 0x14) {
+-		if (id1 == 0x10)
+-			up->rev = id2;
++	id1 = autoconfig_read_divisor_id(up);
++	DEBUG_AUTOCONF("850id=%04x ", id1);
++
++	id2 = id1 >> 8;
++	if (id2 == 0x10 || id2 == 0x12 || id2 == 0x14) {
++		if (id2 == 0x10)
++			up->rev = id1 & 255;
+ 		up->port.type = PORT_16850;
+ 		return;
  	}
-@@ -133,8 +135,8 @@ mprotect_fixup(struct vm_area_struct *vm
- 	 * a MAP_NORESERVE private mapping to writable will now reserve.
- 	 */
- 	if (newflags & VM_WRITE) {
--		if (!(vma->vm_flags & (VM_ACCOUNT|VM_WRITE|VM_SHARED|VM_HUGETLB))) {
--			charged = (end - start) >> PAGE_SHIFT;
-+		if (!(oldflags & (VM_ACCOUNT|VM_WRITE|VM_SHARED|VM_HUGETLB))) {
-+			charged = nrpages;
- 			if (security_vm_enough_memory(charged))
- 				return -ENOMEM;
- 			newflags |= VM_ACCOUNT;
-@@ -176,11 +178,11 @@ success:
- 	 * vm_flags and vm_page_prot are protected by the mmap_sem
- 	 * held in write mode.
- 	 */
--	vm_stat_unaccount(vma);
- 	vma->vm_flags = newflags;
- 	vma->vm_page_prot = newprot;
- 	change_protection(vma, start, end, newprot);
--	vm_stat_account(vma);
-+	__vm_stat_account(mm, oldflags, vma->vm_file, -nrpages);
-+	__vm_stat_account(mm, newflags, vma->vm_file, nrpages);
- 	return 0;
+@@ -634,8 +654,16 @@
+ 	serial_outp(up, UART_LCR, 0xBF);
+ 	if (serial_in(up, UART_EFR) == 0) {
+ 		DEBUG_AUTOCONF("EFRv2 ");
+-		autoconfig_has_efr(up);
+-		return;
++
++		/*
++		 * Exar ST16C2550 "A2" devices incorrectly detect as
++		 * having an EFR, and report an ID of 0x0201.  See
++		 * http://www.exar.com/info.php?pdf=dan180_oct2004.pdf
++		 */
++		if (autoconfig_read_divisor_id(up) != 0x0201) {
++			autoconfig_has_efr(up);
++			return;
++		}
+ 	}
  
- fail:
-@@ -246,7 +248,7 @@ sys_mprotect(unsigned long start, size_t
- 		prev = vma;
- 
- 	for (nstart = start ; ; ) {
--		unsigned int newflags;
-+		unsigned long newflags;
- 
- 		/* Here we know that  vma->vm_start <= nstart < vma->vm_end. */
- 
+ 	/*
 
 
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

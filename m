@@ -1,96 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261341AbSJUMf4>; Mon, 21 Oct 2002 08:35:56 -0400
+	id <S261347AbSJUMhf>; Mon, 21 Oct 2002 08:37:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261347AbSJUMf4>; Mon, 21 Oct 2002 08:35:56 -0400
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:3968 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S261341AbSJUMfz> convert rfc822-to-8bit; Mon, 21 Oct 2002 08:35:55 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Con Kolivas <conman@kolivas.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] 2.5.44-mm2 with contest
-Date: Mon, 21 Oct 2002 22:39:41 +1000
-User-Agent: KMail/1.4.3
-Cc: Andrew Morton <akpm@digeo.com>
+	id <S261355AbSJUMhf>; Mon, 21 Oct 2002 08:37:35 -0400
+Received: from mta01bw.bigpond.com ([139.134.6.78]:58321 "EHLO
+	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261347AbSJUMhZ>; Mon, 21 Oct 2002 08:37:25 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: "Matt D. Robinson" <yakker@aparity.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.44: lkcd (0/9): general description and diffstat
+Date: Mon, 21 Oct 2002 22:34:49 +1000
+User-Agent: KMail/1.4.5
+References: <200210211015.g9LAFlv21151@nakedeye.aparity.com>
+In-Reply-To: <200210211015.g9LAFlv21151@nakedeye.aparity.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210212239.54558.conman@kolivas.net>
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200210212234.49219.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Contest 0.51 results for 2.5.44-mm2
+On Mon, 21 Oct 2002 20:15, Matt D. Robinson wrote:
+> These are the latest LKCD patches for 2.5.44.  We have put in a
+> number of changes, additions and deletions requested by the
+> following people on the lkml list between our 2.5.38 and 2.5.44
+> patches:
+Comments follow.
 
-noload:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.43-mm2 [2]          73.4    93      0       0       1.03
-2.5.44 [3]              74.6    93      0       0       1.04
-2.5.44-mm1 [3]          75.0    93      0       0       1.05
-2.5.44-mm2 [3]          76.4    93      0       0       1.07
+I have no real interest in LKCD functionality. I'm really only concerned that you aren't making my life ugly.
 
-process_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.43-mm2 [2]          105.8   71      44      31      1.48
-2.5.44 [3]              90.9    76      32      26      1.27
-2.5.44-mm1 [3]          191.5   36      168     64      2.68
-2.5.44-mm2 [3]          193.5   38      161     62      2.71
+And you are, in a couple of small but annoying ways:
+1. No Config.help entry. So I still have no idea what LKCD does, and whether I need to enable it in my kernel.
 
-ctar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.43-mm2 [1]          92.3    82      1       5       1.29
-2.5.44 [3]              97.7    80      1       6       1.37
-2.5.44-mm1 [3]          99.2    78      1       6       1.39
-2.5.44-mm2 [3]          96.9    79      1       5       1.36
+2. Needless compile time errors.
+make -f drivers/dump/Makefile
+  gcc -Wp,-MD,drivers/dump/.dump_base.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigra
+phs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -marc
+h=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=dump_base -DEXPORT
+_SYMTAB  -c -o drivers/dump/dump_base.o drivers/dump/dump_base.c
+In file included from drivers/dump/dump_base.c:204:
+include/linux/version.h:3: warning: `KERNEL_VERSION' redefined
+include/linux/dump.h:434: warning: this is the location of the previous definition
+  gcc -Wp,-MD,drivers/dump/.dump_i386.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigra
+phs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -marc
+h=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=dump_i386   -c -o
+drivers/dump/dump_i386.o drivers/dump/dump_i386.c
+  ld -m elf_i386  -r -o drivers/dump/dump.o drivers/dump/dump_base.o drivers/dump/dump_i386.o
+  gcc -Wp,-MD,drivers/dump/.dump_blockdev.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-tr
+igraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -
+march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=dump_blockdev
+  -c -o drivers/dump/dump_blockdev.o drivers/dump/dump_blockdev.c
+drivers/dump/dump_blockdev.c:14: warning: `DUMP_MODULE_NAME' redefined
+include/linux/dump.h:403: warning: this is the location of the previous definition
+  gcc -Wp,-MD,drivers/dump/.dump_rle.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigrap
+hs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march
+=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=dump_rle   -c -o dr
+ivers/dump/dump_rle.o drivers/dump/dump_rle.c
+  gcc -Wp,-MD,drivers/dump/.dump_gzip.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigra
+phs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -marc
+h=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=dump_gzip   -c -o
+drivers/dump/dump_gzip.o drivers/dump/dump_gzip.c
+drivers/dump/dump_gzip.c:27: warning: `DUMP_MODULE_NAME' redefined
+include/linux/dump.h:403: warning: this is the location of the previous definition
+drivers/dump/dump_gzip.c:29: warning: `DUMP_PRINTN' redefined
+include/linux/dump.h:413: warning: this is the location of the previous definition
+drivers/dump/dump_gzip.c:31: warning: `DUMP_PRINT' redefined
+include/linux/dump.h:431: warning: this is the location of the previous definition
 
-xtar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.43-mm2 [2]          171.0   45      2       8       2.39
-2.5.44 [3]              117.0   65      1       7       1.64
-2.5.44-mm1 [3]          156.2   49      2       7       2.19
-2.5.44-mm2 [3]          176.1   44      2       7       2.47
+And MOST IMPORTANTLY:
+3. Kernel gets bigger, even with the config option turned off:
+Baseline:
+- -rwxr-xr-x    1 bradh    users     4542815 Oct 21 21:58 vmlinux
+- -rw-r--r--    1 bradh    users     1571320 Oct 21 21:58 bzImage
 
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.43-mm2 [2]          301.1   26      21      11      4.22
-2.5.44 [3]              873.8   9       69      12      12.24
-2.5.44-mm1 [3]          347.3   22      35      15      4.86
-2.5.44-mm2 [3]          294.2   28      19      10      4.12
+With LKCD patches installed, and the same .config (except for LKCD stuff), it looks like:
+- -rwxr-xr-x    1 bradh    users     4548357 Oct 21 22:19 vmlinux-configM
+- -rwxr-xr-x    1 bradh    users     4548357 Oct 21 22:03 vmlinux-configN
+- -rwxr-xr-x    1 bradh    users     4588663 Oct 21 22:21 vmlinux-configY
+- -rw-r--r--    1 bradh    users     1571988 Oct 21 22:17 bzImage-configM
+- -rw-r--r--    1 bradh    users     1571993 Oct 21 22:03 bzImage-configN
+- -rw-r--r--    1 bradh    users     1590318 Oct 21 22:21 bzImage-configY
 
-read_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.43-mm2 [1]          105.7   73      6       4       1.48
-2.5.44 [3]              110.8   68      6       3       1.55
-2.5.44-mm1 [3]          110.5   69      7       3       1.55
-2.5.44-mm2 [3]          104.5   73      7       4       1.46
+Where the -configX shows the effect of compiling with any options presented set to X (where X is N, M or Y).
 
-list_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.43-mm2 [1]          98.9    72      1       23      1.39
-2.5.44 [3]              99.1    71      1       21      1.39
-2.5.44-mm1 [3]          96.5    74      1       22      1.35
-2.5.44-mm2 [3]          94.5    75      1       22      1.32
+I don't know enough VM or scheduler to critique the impact on performance with it turned on. However the very least you can do is to have no impact when your code is turned off.
 
-mem_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.43-mm2 [2]          106.5   69      27      2       1.49
-2.5.44 [3]              114.3   67      30      2       1.60
-2.5.44-mm1 [3]          159.7   47      38      2       2.24
-2.5.44-mm2 [3]          116.6   64      29      2       1.63
+Brad
 
-Statistical drop off on xtar load. Improvement in IO load, read load and 
-substantial improvement on mem_load. Lots happening here.
- 
-Cheers,
-Con.
+- -- 
+http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-iD8DBQE9s/WNF6dfvkL3i1gRAn5MAKCaf5yzpsA8nin60c+aWujm9eitWgCfdwVf
-oecA8CmfK8np7b40bMYqGCM=
-=KIj8
+iD8DBQE9s/RpW6pHgIdAuOMRAgodAJ9J/Lm2ShxMO/K7EkFRghkT9MF3gQCdGBpf
+6d7H2aXsPgHsqnVOZwwJDGg=
+=Ad25
 -----END PGP SIGNATURE-----
 

@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317258AbSINPCu>; Sat, 14 Sep 2002 11:02:50 -0400
+	id <S316842AbSINPt1>; Sat, 14 Sep 2002 11:49:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317331AbSINPCu>; Sat, 14 Sep 2002 11:02:50 -0400
-Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:38877 "EHLO
-	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S317258AbSINPCu>; Sat, 14 Sep 2002 11:02:50 -0400
-Date: Sat, 14 Sep 2002 12:07:12 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Hans-Peter Jansen <hpj@urpla.net>
-cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Good way to free as much memory as possible under 2.5.34?
-In-Reply-To: <200209141651.00974.hpj@urpla.net>
-Message-ID: <Pine.LNX.4.44L.0209141206270.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317341AbSINPt1>; Sat, 14 Sep 2002 11:49:27 -0400
+Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:39307 "EHLO
+	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S316842AbSINPt0>; Sat, 14 Sep 2002 11:49:26 -0400
+Date: Sat, 14 Sep 2002 11:57:25 -0400
+To: linux-kernel@vger.kernel.org
+Subject: irman takes 50x longer without O(1) on uniprocessor
+Message-ID: <20020914155725.GA12337@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Sep 2002, Hans-Peter Jansen wrote:
+I've noticed running irman on uniprocessor with the 
+O(1) scheduler takes a lot less time than the mainline
+scheduler.  Only 2.4.20-pre5 and 2.4.20-pre6 below don't 
+have a version of the O(1) scheduler:
 
-> The question is: why is the VM not able to fulfill such a simple need in
-> a clean way?
+			 seconds to run irman 3 times
+2.4.20-pre4-ac1		  1420
+2.4.20-pre5-ac1		  1872
+2.4.20-pre5		162088
+2.4.20-pre5aa1		  2264
+2.4.20-pre5aa2		  2274
+2.4.20-pre6		111651
+2.5.32-viro-mm1		  2209
+2.5.33-mm1-poll		  2168
+2.5.33-mm1		  1679
+2.5.33-mm5		  2374
+2.5.33			  2408
 
-No. The question is: "why does swsuspend need to stick its fingers
-into every other subsystem of the kernel, instead of trying to
-remain vaguely modular ?"
+There are some differences in context switch, user, and
+system times between O(1) haves and have nots.  Oddly, the
+user time without O(1) is higher, yet it takes longer to 
+complete.  
 
-If you have an answer, please let me know.
+vmstat 60 on 2.4.20-pre6
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 3  0  0   2012 364212  10468   2264   0   0     0     1  100 27467  18  82   0
+ 2  0  0   2012 364172  10492   2268   0   0     0     1  100 27488  18  82   0
+ 2  0  0   2012 364144  10508   2268   0   0     0     1  100 27555  18  82   0
 
-Rik
+vmstat 60 on 2.4.20-pre5-ac1
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 3  0  0   1692 365848   1488   7756   0   0     0     1  100 36821   4  96   0
+ 2  0  0   1692 365832   1504   7756   0   0     0     1  100 37334   6  94   0
+ 3  0  0   1692 365816   1520   7756   0   0     0     1  100 37005   5  95   0
+
+Quad xeon doesn't have a huge difference in "real"
+time to run irman.
+
+Does anyone know what would cause a 50-100x difference in time 
+to execute irman on uniprocessor?  
+
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
 

@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269134AbUIXUkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269137AbUIXUmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269134AbUIXUkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 16:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269121AbUIXUkG
+	id S269137AbUIXUmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 16:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269121AbUIXUkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 16:40:06 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:22485 "EHLO
+	Fri, 24 Sep 2004 16:40:16 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:22741 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S269134AbUIXUj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 16:39:58 -0400
-Date: Fri, 24 Sep 2004 16:37:14 +0200
+	id S269135AbUIXUj7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 16:39:59 -0400
+Date: Fri, 24 Sep 2004 22:22:40 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Kevin Fenzi <kevin-linux-kernel@scrye.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
-Message-ID: <20040924143714.GA826@openzaurus.ucw.cz>
-References: <20040924021956.98FB5A315A@voldemort.scrye.com>
+To: Nuno Ferreira <nuno.ferreira@graycell.biz>
+Cc: Pavel Machek <pavel@ucw.cz>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: problem with suspend and usb
+Message-ID: <20040924202239.GB826@openzaurus.ucw.cz>
+References: <1095685487.4294.14.camel@taz.graycell.biz> <20040922094844.GA9197@elf.ucw.cz> <1095870490.3809.3.camel@taz.graycell.biz> <20040922175058.GA14891@elf.ucw.cz> <1095981566.4339.16.camel@taz.graycell.biz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040924021956.98FB5A315A@voldemort.scrye.com>
+In-Reply-To: <1095981566.4339.16.camel@taz.graycell.biz>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Was trying to swsusp my 2.6.9-rc2-mm1 laptop tonight. It churned for a
-> while, but didn't hibernate. Here are the messages. 
+> OK, I inserted a printk between each line of acpi_power_off, I see
+> set_cpus_allowed finished and then the pause, then after ~30s the
+> poweroff, I never get to see the remaining printk.
+
+Uh, can you quote lines that cause slowdown? This is probably best done
+on acpi list, perhaps even go to bugzilla.kernel.org.
+
+> By the way, is there a swsusp specific list?
 > 
-> ....................................................................................................
-> .........................swsusp: Need to copy 34850 pages
-> Sep 23 16:53:37 voldemort kernel: hibernate: page allocation failure. order:8, mode:0x120
-> Sep 23 16:53:37 voldemort kernel:  
-Out of memory... Try again with less loaded system.
+
+No. There's suspend2-specific list, but thats different codebase.
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVCFXRY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVCFXVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbVCFXRY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 18:17:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVCFWlp
+	id S261601AbVCFXVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 18:21:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVCFXT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 17:41:45 -0500
-Received: from coderock.org ([193.77.147.115]:17328 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261591AbVCFWib (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 17:38:31 -0500
-Subject: [patch 8/8] drivers/isdn/pcbit/* - compile warning cleanup
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
-       domen@coderock.org, yrgrknmxpzlk@gawab.com
-From: domen@coderock.org
-Date: Sun, 06 Mar 2005 23:38:22 +0100
-Message-Id: <20050306223822.D72821EDA4@trashy.coderock.org>
+	Sun, 6 Mar 2005 18:19:28 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:8455 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261591AbVCFWmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 17:42:03 -0500
+Date: Sun, 6 Mar 2005 23:41:59 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+Subject: 2.6: sound/isa/gus/gus_lfo.c is unused (fwd)
+Message-ID: <20050306224159.GQ5070@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Jaroslav,
 
-compile warning cleanup - handle copy_to/from_user error 
-returns
+I didn't receive any answer regarding this question.
 
-Signed-off-by: Stephen Biggs <yrgrknmxpzlk@gawab.com>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
+Any comments or shall I send a patch to remove this file?
+
+cu
+Adrian
 
 
- kj-domen/drivers/isdn/pcbit/drv.c |   15 +++++++++------
- 1 files changed, 9 insertions(+), 6 deletions(-)
+----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-diff -puN drivers/isdn/pcbit/drv.c~return_code-drivers_isdn_pcbit drivers/isdn/pcbit/drv.c
---- kj/drivers/isdn/pcbit/drv.c~return_code-drivers_isdn_pcbit	2005-03-05 16:13:08.000000000 +0100
-+++ kj-domen/drivers/isdn/pcbit/drv.c	2005-03-05 16:13:08.000000000 +0100
-@@ -727,23 +727,26 @@ int pcbit_stat(u_char __user *buf, int l
- 
- 	if (stat_st < stat_end)
- 	{
--		copy_to_user(buf, statbuf + stat_st, len);
-+		if (copy_to_user(buf, statbuf + stat_st, len))
-+			return -EFAULT;
- 		stat_st += len;	   
- 	}
- 	else
- 	{
- 		if (len > STATBUF_LEN - stat_st)
- 		{
--			copy_to_user(buf, statbuf + stat_st, 
--				       STATBUF_LEN - stat_st);
--			copy_to_user(buf, statbuf, 
--				       len - (STATBUF_LEN - stat_st));
-+			if (copy_to_user(buf, statbuf + stat_st,
-+				       STATBUF_LEN - stat_st) ||
-+				copy_to_user(buf, statbuf,
-+				       len - (STATBUF_LEN - stat_st)))
-+				return -EFAULT;
- 
- 			stat_st = len - (STATBUF_LEN - stat_st);
- 		}
- 		else
- 		{
--			copy_to_user(buf, statbuf + stat_st, len);
-+			if (copy_to_user(buf, statbuf + stat_st, len))
-+				return -EFAULT;
- 
- 			stat_st += len;
- 			
-_
+Date:	Wed, 24 Nov 2004 23:07:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+Subject: 2.6: sound/isa/gus/gus_lfo.c is unused
+
+Hi Jaroslav,
+
+in kernel 2.6 (I've checked 2.6.10-rc2-mm3), the file 
+sound/isa/gus/gus_lfo.c is completely unused (it's never built, and all 
+code using it in other files is #if 0'ed).
+
+What's the status of this file?
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
+

@@ -1,331 +1,418 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVADVvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbVADVz2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262276AbVADVvh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 16:51:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbVADVqI
+	id S262274AbVADVz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 16:55:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVADVya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 16:46:08 -0500
-Received: from out012pub.verizon.net ([206.46.170.137]:28153 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S262273AbVADVkg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 16:40:36 -0500
-From: James Nelson <james4765@cwazy.co.uk>
-To: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Cc: paulus@samba.org, James Nelson <james4765@cwazy.co.uk>
-Message-Id: <20050104214054.21749.48616.58958@localhost.localdomain>
-In-Reply-To: <20050104214048.21749.85722.89116@localhost.localdomain>
-References: <20050104214048.21749.85722.89116@localhost.localdomain>
-Subject: [PATCH 1/7] ppc: remove cli()/sti() in arch/ppc/4xx_io/serial_sicc.c
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [209.158.220.243] at Tue, 4 Jan 2005 15:40:34 -0600
-Date: Tue, 4 Jan 2005 15:40:35 -0600
+	Tue, 4 Jan 2005 16:54:30 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:2019 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262274AbVADVsc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 16:48:32 -0500
+Date: Tue, 4 Jan 2005 15:48:33 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [RFC] [PATCH] merge *_vm_enough_memory()s into a common helper
+Message-ID: <20050104214833.GA3420@IBM-BWN8ZTBWA01.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: James Nelson <james4765@gmail.com>
+The attached patch introduces a __vm_enough_memory function in
+security/security.c which is used by cap_vm_enough_memory,
+dummy_vm_enough_memory, and selinux_vm_enough_memory.  This has
+been discussed on the lsm mailing list.
 
-diff -urN --exclude='*~' linux-2.6.10-mm1-original/arch/ppc/4xx_io/serial_sicc.c linux-2.6.10-mm1/arch/ppc/4xx_io/serial_sicc.c
---- linux-2.6.10-mm1-original/arch/ppc/4xx_io/serial_sicc.c	2004-12-24 16:33:49.000000000 -0500
-+++ linux-2.6.10-mm1/arch/ppc/4xx_io/serial_sicc.c	2005-01-03 19:55:54.048289892 -0500
-@@ -385,9 +385,9 @@
-     struct SICC_info *info = tty->driver_data;
-     unsigned long flags;
+Are there any objections to or comments on this patch?
+
+thanks,
+-serge
+
+Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+
+Index: linux-2.6.10-mm1/include/linux/security.h
+===================================================================
+--- linux-2.6.10-mm1.orig/include/linux/security.h	2005-01-04 16:42:10.000000000 -0600
++++ linux-2.6.10-mm1/include/linux/security.h	2005-01-04 16:42:33.000000000 -0600
+@@ -1900,6 +1900,7 @@ extern int register_security	(struct sec
+ extern int unregister_security	(struct security_operations *ops);
+ extern int mod_reg_security	(const char *name, struct security_operations *ops);
+ extern int mod_unreg_security	(const char *name, struct security_operations *ops);
++extern int __vm_enough_memory	(long pages, int cap_sys_admin);
  
--    save_flags(flags); cli();
-+    local_irq_save(flags);
-     siccuart_disable_tx_interrupt(info);
--    restore_flags(flags);
-+    local_irq_restore(flags);
+ 
+ #else /* CONFIG_SECURITY */
+Index: linux-2.6.10-mm1/security/commoncap.c
+===================================================================
+--- linux-2.6.10-mm1.orig/security/commoncap.c	2005-01-04 16:42:10.000000000 -0600
++++ linux-2.6.10-mm1/security/commoncap.c	2005-01-04 16:42:33.000000000 -0600
+@@ -316,90 +316,10 @@ int cap_syslog (int type)
+ 	return 0;
  }
  
- static void siccuart_start(struct tty_struct *tty)
-@@ -395,11 +395,11 @@
-     struct SICC_info *info = tty->driver_data;
-     unsigned long flags;
- 
--    save_flags(flags); cli();
-+    local_irq_save(flags);
-     if (info->xmit.head != info->xmit.tail
-         && info->xmit.buf)
-         siccuart_enable_tx_interrupt(info);
--    restore_flags(flags);
-+    local_irq_restore(flags);
+-/*
+- * Check that a process has enough memory to allocate a new virtual
+- * mapping. 0 means there is enough memory for the allocation to
+- * succeed and -ENOMEM implies there is not.
+- *
+- * We currently support three overcommit policies, which are set via the
+- * vm.overcommit_memory sysctl.  See Documentation/vm/overcommit-accounting
+- *
+- * Strict overcommit modes added 2002 Feb 26 by Alan Cox.
+- * Additional code 2002 Jul 20 by Robert Love.
+- */
+ int cap_vm_enough_memory(long pages)
+ {
+-	unsigned long free, allowed;
+-
+-	vm_acct_memory(pages);
+-
+-	/*
+-	 * Sometimes we want to use more memory than we have
+-	 */
+-	if (sysctl_overcommit_memory == OVERCOMMIT_ALWAYS)
+-		return 0;
+-
+-	if (sysctl_overcommit_memory == OVERCOMMIT_GUESS) {
+-		unsigned long n;
+-
+-		free = get_page_cache_size();
+-		free += nr_swap_pages;
+-
+-		/*
+-		 * Any slabs which are created with the
+-		 * SLAB_RECLAIM_ACCOUNT flag claim to have contents
+-		 * which are reclaimable, under pressure.  The dentry
+-		 * cache and most inode caches should fall into this
+-		 */
+-		free += atomic_read(&slab_reclaim_pages);
+-
+-		/*
+-		 * Leave the last 3% for root
+-		 */
+-		if (!capable(CAP_SYS_ADMIN))
+-			free -= free / 32;
+-
+-		if (free > pages)
+-			return 0;
+-
+-		/*
+-		 * nr_free_pages() is very expensive on large systems,
+-		 * only call if we're about to fail.
+-		 */
+-		n = nr_free_pages();
+-		if (!capable(CAP_SYS_ADMIN))
+-			n -= n / 32;
+-		free += n;
+-
+-		if (free > pages)
+-			return 0;
+-		vm_unacct_memory(pages);
+-		return -ENOMEM;
+-	}
+-
+-	allowed = (totalram_pages - hugetlb_total_pages())
+-	       	* sysctl_overcommit_ratio / 100;
+-	/*
+-	 * Leave the last 3% for root
+-	 */
+-	if (!capable(CAP_SYS_ADMIN))
+-		allowed -= allowed / 32;
+-	allowed += total_swap_pages;
+-
+-	/* Leave the last 3% for root */
+-	if (current->euid)
+-		allowed -= allowed / 32;
+-
+-	/* Don't let a single process grow too big:
+-	   leave 3% of the size of this process for other processes */
+-	allowed -= current->mm->total_vm / 32;
+-
+-	if (atomic_read(&vm_committed_space) < allowed)
+-		return 0;
+-
+-	vm_unacct_memory(pages);
+-
+-	return -ENOMEM;
++	return __vm_enough_memory(pages,
++			(cap_capable(current, CAP_SYS_ADMIN) == 0));
  }
  
- 
-@@ -604,7 +604,7 @@
- 	return -ENOMEM;
-     }
- 
--    save_flags(flags); cli();
-+    local_irq_save(flags);
- 
-     if (info->xmit.buf)
-         free_page(page);
-@@ -688,12 +688,12 @@
-     siccuart_enable_rx_interrupt(info);
- 
-     info->flags |= ASYNC_INITIALIZED;
--    restore_flags(flags);
-+    local_irq_restore(flags);
-     return 0;
- 
- 
- errout:
--    restore_flags(flags);
-+    local_irq_restore(flags);
-     return retval;
+ EXPORT_SYMBOL(cap_capable);
+Index: linux-2.6.10-mm1/security/dummy.c
+===================================================================
+--- linux-2.6.10-mm1.orig/security/dummy.c	2005-01-04 16:42:10.000000000 -0600
++++ linux-2.6.10-mm1/security/dummy.c	2005-01-04 16:42:33.000000000 -0600
+@@ -111,69 +111,10 @@ static int dummy_settime(struct timespec
+ 	return 0;
  }
  
-@@ -708,7 +708,7 @@
-     if (!(info->flags & ASYNC_INITIALIZED))
-         return;
- 
--    save_flags(flags); cli(); /* Disable interrupts */
-+    local_irq_save(flags); /* Disable interrupts */
- 
-     /*
-      * clear delta_msr_wait queue to avoid mem leaks: we may free the irq
-@@ -746,7 +746,7 @@
- 
-     info->flags &= ~ASYNC_INITIALIZED;
- 
--    restore_flags(flags);
-+    local_irq_restore(flags);
+-/*
+- * Check that a process has enough memory to allocate a new virtual
+- * mapping. 0 means there is enough memory for the allocation to
+- * succeed and -ENOMEM implies there is not.
+- *
+- * We currently support three overcommit policies, which are set via the
+- * vm.overcommit_memory sysctl.  See Documentation/vm/overcommit-accounting
+- */
+ static int dummy_vm_enough_memory(long pages)
+ {
+-	unsigned long free, allowed;
+-
+-	vm_acct_memory(pages);
+-
+-	/*
+-	 * Sometimes we want to use more memory than we have
+-	 */
+-	if (sysctl_overcommit_memory == OVERCOMMIT_ALWAYS)
+-		return 0;
+-
+-	if (sysctl_overcommit_memory == OVERCOMMIT_GUESS) {
+-		free = get_page_cache_size();
+-		free += nr_free_pages();
+-		free += nr_swap_pages;
+-
+-		/*
+-		 * Any slabs which are created with the
+-		 * SLAB_RECLAIM_ACCOUNT flag claim to have contents
+-		 * which are reclaimable, under pressure.  The dentry
+-		 * cache and most inode caches should fall into this
+-		 */
+-		free += atomic_read(&slab_reclaim_pages);
+-
+-		/*
+-		 * Leave the last 3% for root
+-		 */
+-		if (current->euid)
+-			free -= free / 32;
+-
+-		if (free > pages)
+-			return 0;
+-		vm_unacct_memory(pages);
+-		return -ENOMEM;
+-	}
+-
+-	allowed = (totalram_pages - hugetlb_total_pages())
+-		* sysctl_overcommit_ratio / 100;
+-	allowed += total_swap_pages;
+-
+-	/* Leave the last 3% for root */
+-	if (current->euid)
+-		allowed -= allowed / 32;
+-
+-	/* Don't let a single process grow too big:
+-	   leave 3% of the size of this process for other processes */
+-	allowed -= current->mm->total_vm / 32;
+-
+-	if (atomic_read(&vm_committed_space) < allowed)
+-		return 0;
+-
+-	vm_unacct_memory(pages);
+-
+-	return -ENOMEM;
++	return __vm_enough_memory(pages,
++			(dummy_capable(current, CAP_SYS_ADMIN) == 0));
  }
  
+ static int dummy_bprm_alloc_security (struct linux_binprm *bprm)
+Index: linux-2.6.10-mm1/security/security.c
+===================================================================
+--- linux-2.6.10-mm1.orig/security/security.c	2005-01-04 16:42:10.000000000 -0600
++++ linux-2.6.10-mm1/security/security.c	2005-01-04 16:44:19.000000000 -0600
+@@ -17,6 +17,10 @@
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+ #include <linux/security.h>
++#include <linux/mman.h>
++#include <linux/swap.h>
++#include <linux/hugetlb.h>
++#include <linux/pagemap.h>
  
-@@ -869,7 +869,7 @@
-     }
+ #define SECURITY_FRAMEWORK_VERSION	"1.0.0"
  
-     /* first, disable everything */
--    save_flags(flags); cli();
-+    local_irq_save(flags);
- 
-     old_rcr = readb(info->port->uart_base + BL_SICC_RCR);
-     old_tcr = readb(info->port->uart_base + BL_SICC_TxCR);
-@@ -881,7 +881,7 @@
-     /*RLBtrace (&ppc403Chan0, 0x2000000c, 0, 0);*/
- 
- 
--    restore_flags(flags);
-+    local_irq_restore(flags);
- 
- 
-     /* Set baud rate */
-@@ -909,12 +909,12 @@
-     if (!tty || !info->xmit.buf)
-         return;
- 
--    save_flags(flags); cli();
-+    local_irq_save(flags);
-     if (CIRC_SPACE(info->xmit.head, info->xmit.tail, SICC_XMIT_SIZE) != 0) {
-         info->xmit.buf[info->xmit.head] = ch;
-         info->xmit.head = (info->xmit.head + 1) & (SICC_XMIT_SIZE - 1);
-     }
--    restore_flags(flags);
-+    local_irq_restore(flags);
+@@ -173,6 +177,90 @@ int mod_unreg_security(const char *name,
+ 	return security_ops->unregister_security(name, ops);
  }
  
- static void siccuart_flush_chars(struct tty_struct *tty)
-@@ -928,9 +928,9 @@
-         || !info->xmit.buf)
-         return;
++/*
++ * Check that a process has enough memory to allocate a new virtual
++ * mapping. 0 means there is enough memory for the allocation to
++ * succeed and -ENOMEM implies there is not.
++ *
++ * We currently support three overcommit policies, which are set via the
++ * vm.overcommit_memory sysctl.  See Documentation/vm/overcommit-accounting
++ *
++ * Strict overcommit modes added 2002 Feb 26 by Alan Cox.
++ * Additional code 2002 Jul 20 by Robert Love.
++ *
++ * cap_sys_admin is 1 if the process has admin privileges, 0 otherwise.
++ */
++int __vm_enough_memory(long pages, int cap_sys_admin)
++{
++	unsigned long free, allowed;
++
++	vm_acct_memory(pages);
++
++	/*
++	 * Sometimes we want to use more memory than we have
++	 */
++	if (sysctl_overcommit_memory == OVERCOMMIT_ALWAYS)
++		return 0;
++
++	if (sysctl_overcommit_memory == OVERCOMMIT_GUESS) {
++		unsigned long n;
++
++		free = get_page_cache_size();
++		free += nr_swap_pages;
++
++		/*
++		 * Any slabs which are created with the
++		 * SLAB_RECLAIM_ACCOUNT flag claim to have contents
++		 * which are reclaimable, under pressure.  The dentry
++		 * cache and most inode caches should fall into this
++		 */
++		free += atomic_read(&slab_reclaim_pages);
++
++		/*
++		 * Leave the last 3% for root
++		 */
++		if (!cap_sys_admin)
++			free -= free / 32;
++
++		if (free > pages)
++			return 0;
++
++		/*
++		 * nr_free_pages() is very expensive on large systems,
++		 * only call if we're about to fail.
++		 */
++		n = nr_free_pages();
++		if (!cap_sys_admin)
++			n -= n / 32;
++		free += n;
++
++		if (free > pages)
++			return 0;
++		vm_unacct_memory(pages);
++		return -ENOMEM;
++	}
++
++	allowed = (totalram_pages - hugetlb_total_pages())
++	       	* sysctl_overcommit_ratio / 100;
++	/*
++	 * Leave the last 3% for root
++	 */
++	if (!cap_sys_admin)
++		allowed -= allowed / 32;
++	allowed += total_swap_pages;
++
++	/* Don't let a single process grow too big:
++	   leave 3% of the size of this process for other processes */
++	allowed -= current->mm->total_vm / 32;
++
++	if (atomic_read(&vm_committed_space) < allowed)
++		return 0;
++
++	vm_unacct_memory(pages);
++
++	return -ENOMEM;
++}
++
+ /**
+  * capable - calls the currently loaded security module's capable() function with the specified capability
+  * @cap: the requested capability level.
+@@ -201,3 +289,4 @@ EXPORT_SYMBOL_GPL(mod_reg_security);
+ EXPORT_SYMBOL_GPL(mod_unreg_security);
+ EXPORT_SYMBOL(capable);
+ EXPORT_SYMBOL(security_ops);
++EXPORT_SYMBOL(__vm_enough_memory);
+Index: linux-2.6.10-mm1/security/selinux/hooks.c
+===================================================================
+--- linux-2.6.10-mm1.orig/security/selinux/hooks.c	2005-01-04 16:42:10.000000000 -0600
++++ linux-2.6.10-mm1/security/selinux/hooks.c	2005-01-04 16:42:33.000000000 -0600
+@@ -1521,69 +1521,26 @@ static int selinux_syslog(int type)
+  * mapping. 0 means there is enough memory for the allocation to
+  * succeed and -ENOMEM implies there is not.
+  *
+- * We currently support three overcommit policies, which are set via the
+- * vm.overcommit_memory sysctl.  See Documentation/vm/overcommit-accounting
+- *
+- * Strict overcommit modes added 2002 Feb 26 by Alan Cox.
+- * Additional code 2002 Jul 20 by Robert Love.
++ * Note that secondary_ops->capable and task_has_perm return 0 if
++ * the capability is granted, but __vm_enough_memory requires 1 if
++ * the capability is granted.
+  */
+ static int selinux_vm_enough_memory(long pages)
+ {
+-	unsigned long free, allowed;
+-	int rc;
++	int rc, cap_sys_admin = 0;
+ 	struct task_security_struct *tsec = current->security;
  
--    save_flags(flags); cli();
-+    local_irq_save(flags);
-     siccuart_enable_tx_interrupt(info);
--    restore_flags(flags);
-+    local_irq_restore(flags);
+-	vm_acct_memory(pages);
+-
+-        /*
+-	 * Sometimes we want to use more memory than we have
+-	 */
+-	if (sysctl_overcommit_memory == OVERCOMMIT_ALWAYS)
+-		return 0;
+-
+-	if (sysctl_overcommit_memory == OVERCOMMIT_GUESS) {
+-		free = get_page_cache_size();
+-		free += nr_free_pages();
+-		free += nr_swap_pages;
+-
+-		/*
+-		 * Any slabs which are created with the
+-		 * SLAB_RECLAIM_ACCOUNT flag claim to have contents
+-		 * which are reclaimable, under pressure.  The dentry
+-		 * cache and most inode caches should fall into this
+-		 */
+-		free += atomic_read(&slab_reclaim_pages);
+-
+-		/*
+-		 * Leave the last 3% for privileged processes.
+-		 * Don't audit the check, as it is applied to all processes
+-		 * that allocate mappings.
+-		 */
+-		rc = secondary_ops->capable(current, CAP_SYS_ADMIN);
+-		if (!rc) {
+-			rc = avc_has_perm_noaudit(tsec->sid, tsec->sid,
+-						  SECCLASS_CAPABILITY,
+-						  CAP_TO_MASK(CAP_SYS_ADMIN), NULL);
+-		}
+-		if (rc)
+-			free -= free / 32;
+-
+-		if (free > pages)
+-			return 0;
+-		vm_unacct_memory(pages);
+-		return -ENOMEM;
+-	}
+-
+-	allowed = (totalram_pages - hugetlb_total_pages())
+-		* sysctl_overcommit_ratio / 100;
+-	allowed += total_swap_pages;
+-
+-	if (atomic_read(&vm_committed_space) < allowed)
+-		return 0;
++	rc = secondary_ops->capable(current, CAP_SYS_ADMIN);
++	if (rc == 0)
++		cap_sys_admin = avc_has_perm_noaudit(tsec->sid, tsec->sid,
++					SECCLASS_CAPABILITY,
++					CAP_TO_MASK(CAP_SYS_ADMIN),
++					NULL);
+ 
+-	vm_unacct_memory(pages);
++	if (rc == 0)
++		cap_sys_admin = 1;
+ 
+-	return -ENOMEM;
++	return __vm_enough_memory(pages, cap_sys_admin);
  }
  
- static int siccuart_write(struct tty_struct *tty,
-@@ -943,8 +943,7 @@
-     if (!tty || !info->xmit.buf || !tmp_buf)
-         return 0;
- 
--    save_flags(flags);
--    cli();
-+    local_irq_save(flags);
-     while (1) {
-         c = CIRC_SPACE_TO_END(info->xmit.head,
-                       info->xmit.tail,
-@@ -960,7 +959,7 @@
-         count -= c;
-         ret += c;
-     }
--    restore_flags(flags);
-+    local_irq_restore(flags);
-     if (info->xmit.head != info->xmit.tail
-         && !tty->stopped
-         && !tty->hw_stopped)
-@@ -988,9 +987,9 @@
-     unsigned long flags;
- 
-     pr_debug("siccuart_flush_buffer(%d) called\n", tty->index);
--    save_flags(flags); cli();
-+    local_irq_save(flags);
-     info->xmit.head = info->xmit.tail = 0;
--    restore_flags(flags);
-+    local_irq_restore(flags);
-     wake_up_interruptible(&tty->write_wait);
-     if ((tty->flags & (1 << TTY_DO_WRITE_WAKEUP)) &&
-         tty->ldisc.write_wakeup)
-@@ -1019,10 +1018,10 @@
-         siccuart_send_xchar(tty, STOP_CHAR(tty));
- 
-     if (tty->termios->c_cflag & CRTSCTS) {
--        save_flags(flags); cli();
-+        local_irq_save(flags);
-         info->mctrl &= ~TIOCM_RTS;
-         info->port->set_mctrl(info->port, info->mctrl);
--        restore_flags(flags);
-+        local_irq_restore(flags);
-     }
- }
- 
-@@ -1039,10 +1038,10 @@
-     }
- 
-     if (tty->termios->c_cflag & CRTSCTS) {
--        save_flags(flags); cli();
-+        local_irq_save(flags);
-         info->mctrl |= TIOCM_RTS;
-         info->port->set_mctrl(info->port, info->mctrl);
--        restore_flags(flags);
-+        local_irq_restore(flags);
-     }
- }
- 
-@@ -1181,9 +1180,9 @@
-     unsigned int result, status;
-     unsigned long flags;
- 
--    save_flags(flags); cli();
-+    local_irq_save(flags);
-     status = readb(info->port->uart_base +  BL_SICC_LSR);
--    restore_flags(flags);
-+    local_irq_restore(flags);
-     result = status & _LSR_TSR_EMPTY ? TIOCSER_TEMT : 0;
- 
-     /*
-@@ -1234,10 +1233,10 @@
-     default:
-         return -EINVAL;
-     }
--    save_flags(flags); cli();
-+    local_irq_save(flags);
-     if (old != info->mctrl)
-         info->port->set_mctrl(info->port, info->mctrl);
--    restore_flags(flags);
-+    local_irq_restore(flags);
-     return 0;
- }
- 
-@@ -1248,14 +1247,14 @@
-     unsigned int lcr_h;
- 
- 
--    save_flags(flags); cli();
-+    local_irq_save(flags);
-     lcr_h = readb(info->port + BL_SICC_LSR);
-     if (break_state == -1)
-         lcr_h |=  _LSR_LB_MASK;
-     else
-         lcr_h &= ~_LSR_LB_MASK;
-     writeb(lcr_h, info->port + BL_SICC_LSRS);
--    restore_flags(flags);
-+    local_irq_restore(flags);
- }
- 
- static int siccuart_ioctl(struct tty_struct *tty, struct file *file,
-@@ -1303,9 +1302,9 @@
-          *     RI where only 0->1 is counted.
-          */
-         case TIOCGICOUNT:
--            save_flags(flags); cli();
-+            local_irq_save(flags);
-             cnow = info->state->icount;
--            restore_flags(flags);
-+            local_irq_restore(flags);
-             icount.cts = cnow.cts;
-             icount.dsr = cnow.dsr;
-             icount.rng = cnow.rng;
-@@ -1342,22 +1341,22 @@
-     /* Handle transition to B0 status */
-     if ((old_termios->c_cflag & CBAUD) &&
-         !(cflag & CBAUD)) {
--        save_flags(flags); cli();
-+        local_irq_save(flags);
-         info->mctrl &= ~(TIOCM_RTS | TIOCM_DTR);
-         info->port->set_mctrl(info->port, info->mctrl);
--        restore_flags(flags);
-+        local_irq_restore(flags);
-     }
- 
-     /* Handle transition away from B0 status */
-     if (!(old_termios->c_cflag & CBAUD) &&
-         (cflag & CBAUD)) {
--        save_flags(flags); cli();
-+        local_irq_save(flags);
-         info->mctrl |= TIOCM_DTR;
-         if (!(cflag & CRTSCTS) ||
-             !test_bit(TTY_THROTTLED, &tty->flags))
-             info->mctrl |= TIOCM_RTS;
-         info->port->set_mctrl(info->port, info->mctrl);
--        restore_flags(flags);
-+        local_irq_restore(flags);
-     }
- 
-     /* Handle turning off CRTSCTS */
-@@ -1393,10 +1392,10 @@
- 
-     //pr_debug("siccuart_close() called\n");
- 
--    save_flags(flags); cli();
-+    local_irq_save(flags);
- 
-     if (tty_hung_up_p(filp)) {
--        restore_flags(flags);
-+        local_irq_restore(flags);
-         return;
-     }
- 
-@@ -1416,11 +1415,11 @@
-         state->count = 0;
-     }
-     if (state->count) {
--        restore_flags(flags);
-+        local_irq_restore(flags);
-         return;
-     }
-     info->flags |= ASYNC_CLOSING;
--    restore_flags(flags);
-+    local_irq_restore(flags);
-     /*
-      * Now we wait for the transmit buffer to clear; and we notify
-      * the line discipline to only process XON/XOFF characters.
-@@ -1569,20 +1568,20 @@
-      */
-     retval = 0;
-     add_wait_queue(&info->open_wait, &wait);
--    save_flags(flags); cli();
-+    local_irq_save(flags);
-     if (!tty_hung_up_p(filp)) {
-         extra_count = 1;
-         state->count--;
-     }
--    restore_flags(flags);
-+    local_irq_restore(flags);
-     info->blocked_open++;
-     while (1) {
--        save_flags(flags); cli();
-+        local_irq_save(flags);
-         if (tty->termios->c_cflag & CBAUD) {
-             info->mctrl = TIOCM_DTR | TIOCM_RTS;
-             info->port->set_mctrl(info->port, info->mctrl);
-         }
--        restore_flags(flags);
-+        local_irq_restore(flags);
-         set_current_state(TASK_INTERRUPTIBLE);
-         if (tty_hung_up_p(filp) ||
-             !(info->flags & ASYNC_INITIALIZED)) {
+ /* binprm security operations */

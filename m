@@ -1,41 +1,325 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313054AbSDCEF0>; Tue, 2 Apr 2002 23:05:26 -0500
+	id <S312917AbSDCEzC>; Tue, 2 Apr 2002 23:55:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313056AbSDCEFQ>; Tue, 2 Apr 2002 23:05:16 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:43281 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S313054AbSDCEFN>; Tue, 2 Apr 2002 23:05:13 -0500
-Date: Tue, 2 Apr 2002 23:02:58 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Ext2 vs. ext3 recovery after crash
-Message-ID: <Pine.LNX.3.96.1020402225256.9671A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312964AbSDCEyo>; Tue, 2 Apr 2002 23:54:44 -0500
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:9667 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S312917AbSDCEy0>; Tue, 2 Apr 2002 23:54:26 -0500
+Date: Wed, 3 Apr 2002 05:54:06 +0200
+From: "Axel H. Siebenwirth" <axel@hh59.org>
+To: Michal Jaegermann <michal@harddata.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Another BUG in page_alloc.c:108
+Message-ID: <20020403035406.GA2925@neon>
+In-Reply-To: <20020402123348.A20799@mail.harddata.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organization: hh59.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a laptop (Dell Inspiron C600) which, like most Dell laptops,
-crashes every time I log out of X. On some occasions on reboot I get a
-message about replaying the journal, while occasionally I get a full ext2
-style multi-pass 12 minute recovery. I don't see why the ext3 isn't always
-used, I know it's going to crash, I always do a sync and wait ten seconds
-for journal writes, etc, to take place.
+Hi,
 
-I have tried all the usual, Redhat kernels, 2.4.17, 2.4.19, -aa, -ac,
-disable io-apc, disable apic, disable all power management, boot noapic
-(someone swore it wasn't enough to pull it out of the kernel ;-) all
-producing about 20% chance of slow reboot.
+found another BUG in page_alloc.
+Two times oopsed, one from kswapd, one from X.
+I would not know how to reproduce this.
 
-Since I would have to spend my own money to replace this device with
-something functional before 2003, is there something I'm missing about why
-it does the slow cleanup? It was Redhat 7.1, updated fsutils and modutils,
-pcmcia packed, etc, to latest of Mar 15 this year, in case that matters.
-All kernels have ext3 compiled in, all work "most of the time."
+#1
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Warning (compare_maps): ksyms_base symbol
+vmalloc_to_page_R__ver_vmalloc_to_page not found in System.map.  Ignoring
+ksyms_base entry
+kernel BUG at page_alloc.c:108!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[__free_pages_ok+45/688]    Tainted: P 
+EFLAGS: 00013282
+eax: c127a544   ebx: c13c86fc   ecx: c13c86fc   edx: c02c74e0
+esi: 00000000   edi: 00000000   ebp: c02c7610   esp: c15bdf0c
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 4, stackpage=c15bd000)
+Stack: 00003282 00000003 dd037704 dd037704 dd037704 c13c86fc c013d56b
+dd037704 
+       c02c74e0 c13c86fc 00003128 c02c7610 c01327e9 c13c86fc 000001d0
+c15bc000 
+       000001f8 000001d0 00000007 00000020 000001d0 00000020 00000006
+c01329a3 
+Call Trace: [try_to_free_buffers+139/240] [shrink_cache+649/784]
+[shrink_caches+99/160] [try_to_free_pages+54/80]
+[kswapd_balance_pgdat+94/176] 
+Code: 0f 0b 6c 00 33 c1 27 c0 8b 0d b0 23 32 c0 89 d8 29 c8 c1 f8 
+Using defaults from ksymoops -t elf32-i386 -a i386
 
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   0f 0b                     ud2a   
+Code;  00000002 Before first symbol
+   2:   6c                        insb   (%dx),%es:(%edi)
+Code;  00000002 Before first symbol
+   3:   00 33                     add    %dh,(%ebx)
+Code;  00000004 Before first symbol
+   5:   c1 27 c0                  shll   $0xc0,(%edi)
+Code;  00000008 Before first symbol
+   8:   8b 0d b0 23 32 c0         mov    0xc03223b0,%ecx
+Code;  0000000e Before first symbol
+   e:   89 d8                     mov    %ebx,%eax
+Code;  00000010 Before first symbol
+  10:   29 c8                     sub    %ecx,%eax
+Code;  00000012 Before first symbol
+  12:   c1 f8 00                  sar    $0x0,%eax
+
+
+#2
+
+kernel BUG at page_alloc.c:108!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[__free_pages_ok+45/688]    Tainted: P 
+EFLAGS: 00013286
+eax: c11eb074   ebx: c13c9330   ecx: c13c9330   edx: dc60dd60
+esi: 00000000   edi: 00000000   ebp: c02c7610   esp: dc45dde8
+ds: 0018   es: 0018   ss: 0018
+Process X (pid: 11699, stackpage=dc45d000)
+Stack: 00003282 00000003 dd5f9c7c dd5f9c7c dd5f9c7c c13c9330 c013d56b
+dd5f9c7c 
+       dc60dd60 c13c9330 0000315f c02c7610 c01327e9 c13c9330 000001d2
+dc45c000 
+       00000200 000001d2 00000020 00000020 000001d2 00000020 00000006
+c01329a3 
+Call Trace: [try_to_free_buffers+139/240] [shrink_cache+649/784]
+[shrink_caches+99/160] [try_to_free_pages+54/80] [balance_classzone+89/496] 
+Code: 0f 0b 6c 00 33 c1 27 c0 8b 0d b0 23 32 c0 89 d8 29 c8 c1 f8 
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   0f 0b                     ud2a   
+Code;  00000002 Before first symbol
+   2:   6c                        insb   (%dx),%es:(%edi)
+Code;  00000002 Before first symbol
+   3:   00 33                     add    %dh,(%ebx)
+Code;  00000004 Before first symbol
+   5:   c1 27 c0                  shll   $0xc0,(%edi)
+Code;  00000008 Before first symbol
+   8:   8b 0d b0 23 32 c0         mov    0xc03223b0,%ecx
+Code;  0000000e Before first symbol
+   e:   89 d8                     mov    %ebx,%eax
+Code;  00000010 Before first symbol
+  10:   29 c8                     sub    %ecx,%eax
+Code;  00000012 Before first symbol
+  12:   c1 f8 00                  sar    $0x0,%eax
+
+
+
+Axel S.
+
+
+On Tue, 02 Apr 2002, Michal Jaegermann wrote:
+
+> This is from Alpha UP1500 (Nautilus) with a kernel based on 2.4.19-pre5
+> and somewhat modified in Nautilus specific parts to be bootable on that
+> machine at all.  I have seen similar incidents before and they seem to
+> be too repeateable just to chalk them to "not really stable yet" status
+> of the machine in question although what is in a register a4, i.e. a
+> string "ghijklmn", surely looks unusual.
+> 
+> Anyway, the box went catatonic but before doing that left in log
+> files a series of oopses which decoded look like that:
+> 
+> ksymoops 2.4.1 on alpha 2.4.19-pre5.ink.agp.  Options used
+>      -V (default)
+>      -k /proc/ksyms (default)
+>      -l /proc/modules (default)
+>      -o /lib/modules/2.4.19-pre5.ink.agp/ (default)
+>      -m /boot/System.map-2.4.19-pre5.ink.agp (specified)
+> 
+> Warning (compare_maps): ksyms_base symbol GPLONLY_vmalloc_to_page not found in System.map.  Ignoring ksyms_base entry
+> kernel BUG at page_alloc.c:241!
+> run-parts(3421): Kernel Bug 1
+> pc = [rmqueue+888/1024]  ra = [rmqueue+876/1024]  ps = 0000    Not tainted
+> pc = [<fffffc0000845448>]  ra = [<fffffc000084543c>]  ps = 0000    Not tainted
+> Using defaults from ksymoops -t elf64-alpha -a alpha
+> v0 = 0000000000000020  t0 = 0000000000000001  t1 = fffffc00de0a3ec8
+> t2 = 000000000000002a  t3 = 0000000000000001  t4 = fffffc0000af40c8
+> t5 = fffffc00d9184bc0  t6 = 0000000000000065  t7 = fffffc00bf4f8000
+> a0 = 0000000000000000  a1 = 0000000000000001  a2 = 0000000000000001
+> a3 = 0000000000000000  a4 = 6e6d6c6b6a696867  a5 = 0000000000000002
+> t8 = fffffc0000af4d20  t9 = 0000000000004000  t10= fffffc0000af4d28
+> t11= fffffc0000af4d38  pv = fffffc0000820d30  at = 0000000000003fff
+> gp = fffffc0000ae8ce8  sp = fffffc00bf4fbd60
+> Trace:fffffc000084590c fffffc00008454fc fffffc0000836538 fffffc0000836604 fffffc0000837238 fffffc000081fec8 fffffc0000812e3c 
+> Code: 225f00f1  a77da708  6b5b7d5d  27ba002a  23bd38ac  00000081 <a04a0000> 44501001 
+> 
+> >>PC;  fffffc0000845448 <rmqueue+378/400>   <=====
+> Trace; fffffc000084590c <__alloc_pages+7c/260>
+> Trace; fffffc00008454fc <_alloc_pages+2c/40>
+> Trace; fffffc0000836538 <do_wp_page+a8/3e0>
+> Trace; fffffc0000836604 <do_wp_page+174/3e0>
+> Trace; fffffc0000837238 <handle_mm_fault+118/1c0>
+> Trace; fffffc000081fec8 <do_page_fault+208/4c0>
+> Trace; fffffc0000812e3c <entMM+9c/c0>
+> Code;  fffffc0000845430 <rmqueue+360/400>
+> 0000000000000000 <_PC>:
+> Code;  fffffc0000845430 <rmqueue+360/400>
+>    0:   f1 00 5f 22       lda  a2,241(zero)
+> Code;  fffffc0000845434 <rmqueue+364/400>
+>    4:   08 a7 7d a7       ldq  t12,-22776(gp)
+> Code;  fffffc0000845438 <rmqueue+368/400>
+>    8:   5d 7d 5b 6b       jsr  ra,(t12),fffffffffffff580 <_PC+0xfffffffffffff580> fffffc00008449b0 <rw_swap_page_base+1b0/1e0>
+> Code;  fffffc000084543c <rmqueue+36c/400>
+>    c:   2a 00 ba 27       ldah gp,42(ra)
+> Code;  fffffc0000845440 <rmqueue+370/400>
+>   10:   ac 38 bd 23       lda  gp,14508(gp)
+> Code;  fffffc0000845444 <rmqueue+374/400>
+>   14:   81 00 00 00       call_pal     0x81
+> Code;  fffffc0000845448 <rmqueue+378/400>   <=====
+>   18:   00 00 4a a0       ldl  t1,0(s1)   <=====
+> Code;  fffffc000084544c <rmqueue+37c/400>
+>   1c:   01 10 50 44       and  t1,0x80,t0
+> 
+> kernel BUG at page_alloc.c:241!
+> diskcheck(3422): Kernel Bug 1
+> pc = [rmqueue+888/1024]  ra = [rmqueue+876/1024]  ps = 0000    Not tainted
+> pc = [<fffffc0000845448>]  ra = [<fffffc000084543c>]  ps = 0000    Not tainted
+> v0 = 0000000000000020  t0 = 0000000000000001  t1 = fffffc00de0a3ec8
+> t2 = 0000000000000028  t3 = 0000000000000001  t4 = fffffc0000af40c8
+> t5 = fffffc00d91843c0  t6 = 0000000000000065  t7 = fffffc00bf938000
+> a0 = 0000000000000000  a1 = 0000000000000001  a2 = 0000000000000001
+> a3 = 0000000000000000  a4 = 6e6d6c6b6a696867  a5 = 0000000000000002
+> t8 = fffffc0000af4d20  t9 = 0000000000004000  t10= fffffc0000af4d28
+> t11= fffffc0000af4d38  pv = fffffc0000820d30  at = 0000000000003fff
+> gp = fffffc0000ae8ce8  sp = fffffc00bf93bd60
+> Trace:fffffc000084590c fffffc00008454fc fffffc0000836538 fffffc0000836604 fffffc0000837238 fffffc000081fec8 fffffc0000812e3c fffffc0000818c94 
+> Code: 225f00f1  a77da708  6b5b7d5d  27ba002a  23bd38ac  00000081 <a04a0000> 44501001 
+> 
+> >>PC;  fffffc0000845448 <rmqueue+378/400>   <=====
+> Trace; fffffc000084590c <__alloc_pages+7c/260>
+> Trace; fffffc00008454fc <_alloc_pages+2c/40>
+> Trace; fffffc0000836538 <do_wp_page+a8/3e0>
+> Trace; fffffc0000836604 <do_wp_page+174/3e0>
+> Trace; fffffc0000837238 <handle_mm_fault+118/1c0>
+> Trace; fffffc000081fec8 <do_page_fault+208/4c0>
+> Trace; fffffc0000812e3c <entMM+9c/c0>
+> Trace; fffffc0000818c94 <do_entInt+84/170>
+> Code;  fffffc0000845430 <rmqueue+360/400>
+> 0000000000000000 <_PC>:
+> Code;  fffffc0000845430 <rmqueue+360/400>
+>    0:   f1 00 5f 22       lda  a2,241(zero)
+> Code;  fffffc0000845434 <rmqueue+364/400>
+>    4:   08 a7 7d a7       ldq  t12,-22776(gp)
+> Code;  fffffc0000845438 <rmqueue+368/400>
+>    8:   5d 7d 5b 6b       jsr  ra,(t12),fffffffffffff580 <_PC+0xfffffffffffff580> fffffc00008449b0 <rw_swap_page_base+1b0/1e0>
+> Code;  fffffc000084543c <rmqueue+36c/400>
+>    c:   2a 00 ba 27       ldah gp,42(ra)
+> Code;  fffffc0000845440 <rmqueue+370/400>
+>   10:   ac 38 bd 23       lda  gp,14508(gp)
+> Code;  fffffc0000845444 <rmqueue+374/400>
+>   14:   81 00 00 00       call_pal     0x81
+> Code;  fffffc0000845448 <rmqueue+378/400>   <=====
+>   18:   00 00 4a a0       ldl  t1,0(s1)   <=====
+> Code;  fffffc000084544c <rmqueue+37c/400>
+>   1c:   01 10 50 44       and  t1,0x80,t0
+> 
+> kernel BUG at page_alloc.c:241!
+> X(1207): Kernel Bug 1
+> pc = [rmqueue+888/1024]  ra = [rmqueue+876/1024]  ps = 0000    Not tainted
+> pc = [<fffffc0000845448>]  ra = [<fffffc000084543c>]  ps = 0000    Not tainted
+> v0 = 0000000000000020  t0 = 0000000000000001  t1 = fffffc00de0a3ec8
+> t2 = 0000000000000058  t3 = 0000000000000001  t4 = fffffc0000af40c8
+> t5 = fffffc0003d456c0  t6 = 0000000000000065  t7 = fffffc00dc12c000
+> a0 = 0000000000000000  a1 = 0000000000000001  a2 = 0000000000000001
+> a3 = 0000000000000000  a4 = 6e6d6c6b6a696867  a5 = 0000000000000002
+> t8 = fffffc0000af4d20  t9 = 0000000000004000  t10= fffffc0000af4d28
+> t11= fffffc0000af4d38  pv = fffffc0000820d30  at = 0000000000003fff
+> gp = fffffc0000ae8ce8  sp = fffffc00dc12fd40
+> Trace:fffffc000084590c fffffc000099ef0c fffffc00008454fc fffffc0000836e68 fffffc0000836d98 fffffc0000836f0c fffffc00008371e8 fffffc000081fec8 fffffc0000812e3c 
+> Code: 225f00f1  a77da708  6b5b7d5d  27ba002a  23bd38ac  00000081 <a04a0000> 44501001 
+> 
+> >>PC;  fffffc0000845448 <rmqueue+378/400>   <=====
+> Trace; fffffc000084590c <__alloc_pages+7c/260>
+> Trace; fffffc000099ef0c <kfree_skbmem+1c/a0>
+> Trace; fffffc00008454fc <_alloc_pages+2c/40>
+> Trace; fffffc0000836e68 <do_anonymous_page+128/170>
+> Trace; fffffc0000836d98 <do_anonymous_page+58/170>
+> Trace; fffffc0000836f0c <do_no_page+5c/270>
+> Trace; fffffc00008371e8 <handle_mm_fault+c8/1c0>
+> Trace; fffffc000081fec8 <do_page_fault+208/4c0>
+> Trace; fffffc0000812e3c <entMM+9c/c0>
+> Code;  fffffc0000845430 <rmqueue+360/400>
+> 0000000000000000 <_PC>:
+> Code;  fffffc0000845430 <rmqueue+360/400>
+>    0:   f1 00 5f 22       lda  a2,241(zero)
+> Code;  fffffc0000845434 <rmqueue+364/400>
+>    4:   08 a7 7d a7       ldq  t12,-22776(gp)
+> Code;  fffffc0000845438 <rmqueue+368/400>
+>    8:   5d 7d 5b 6b       jsr  ra,(t12),fffffffffffff580 <_PC+0xfffffffffffff580> fffffc00008449b0 <rw_swap_page_base+1b0/1e0>
+> Code;  fffffc000084543c <rmqueue+36c/400>
+>    c:   2a 00 ba 27       ldah gp,42(ra)
+> Code;  fffffc0000845440 <rmqueue+370/400>
+>   10:   ac 38 bd 23       lda  gp,14508(gp)
+> Code;  fffffc0000845444 <rmqueue+374/400>
+>   14:   81 00 00 00       call_pal     0x81
+> Code;  fffffc0000845448 <rmqueue+378/400>   <=====
+>   18:   00 00 4a a0       ldl  t1,0(s1)   <=====
+> Code;  fffffc000084544c <rmqueue+37c/400>
+>   1c:   01 10 50 44       and  t1,0x80,t0
+> 
+> kernel BUG at page_alloc.c:241!
+> X(3433): Kernel Bug 1
+> pc = [rmqueue+888/1024]  ra = [rmqueue+876/1024]  ps = 0000    Not tainted
+> pc = [<fffffc0000845448>]  ra = [<fffffc000084543c>]  ps = 0000    Not tainted
+> v0 = 0000000000000020  t0 = 0000000000000001  t1 = fffffc00de0a3ec8
+> t2 = 000000000000002c  t3 = 0000000000000001  t4 = fffffc0000af40c8
+> t5 = fffffc0003d45dc0  t6 = 0000000000000065  t7 = fffffc00d98e0000
+> a0 = 0000000000000000  a1 = 0000000000000001  a2 = 0000000000000001
+> a3 = 0000000000000000  a4 = 6e6d6c6b6a696867  a5 = 0000000000000002
+> t8 = fffffc0000af4d20  t9 = 0000000000004000  t10= fffffc0000af4d28
+> t11= fffffc0000af4d38  pv = fffffc0000820d30  at = 0000000000003fff
+> gp = fffffc0000ae8ce8  sp = fffffc00d98e3d40
+> Trace:fffffc000084590c fffffc0000882630 fffffc00008454fc fffffc0000836e68 fffffc0000836d98 fffffc0000836f0c fffffc00008371e8 fffffc000081fec8 fffffc0000812e3c 
+> Code: 225f00f1  a77da708  6b5b7d5d  27ba002a  23bd38ac  00000081 <a04a0000> 44501001 
+> 
+> >>PC;  fffffc0000845448 <rmqueue+378/400>   <=====
+> Trace; fffffc000084590c <__alloc_pages+7c/260>
+> Trace; fffffc0000882630 <ext3_commit_write+1b0/220>
+> Trace; fffffc00008454fc <_alloc_pages+2c/40>
+> Trace; fffffc0000836e68 <do_anonymous_page+128/170>
+> Trace; fffffc0000836d98 <do_anonymous_page+58/170>
+> Trace; fffffc0000836f0c <do_no_page+5c/270>
+> Trace; fffffc00008371e8 <handle_mm_fault+c8/1c0>
+> Trace; fffffc000081fec8 <do_page_fault+208/4c0>
+> Trace; fffffc0000812e3c <entMM+9c/c0>
+> Code;  fffffc0000845430 <rmqueue+360/400>
+> 0000000000000000 <_PC>:
+> Code;  fffffc0000845430 <rmqueue+360/400>
+>    0:   f1 00 5f 22       lda  a2,241(zero)
+> Code;  fffffc0000845434 <rmqueue+364/400>
+>    4:   08 a7 7d a7       ldq  t12,-22776(gp)
+> Code;  fffffc0000845438 <rmqueue+368/400>
+>    8:   5d 7d 5b 6b       jsr  ra,(t12),fffffffffffff580 <_PC+0xfffffffffffff580> fffffc00008449b0 <rw_swap_page_base+1b0/1e0>
+> Code;  fffffc000084543c <rmqueue+36c/400>
+>    c:   2a 00 ba 27       ldah gp,42(ra)
+> Code;  fffffc0000845440 <rmqueue+370/400>
+>   10:   ac 38 bd 23       lda  gp,14508(gp)
+> Code;  fffffc0000845444 <rmqueue+374/400>
+>   14:   81 00 00 00       call_pal     0x81
+> Code;  fffffc0000845448 <rmqueue+378/400>   <=====
+>   18:   00 00 4a a0       ldl  t1,0(s1)   <=====
+> Code;  fffffc000084544c <rmqueue+37c/400>
+>   1c:   01 10 50 44       and  t1,0x80,t0
+> 
+> 
+> 1 warning issued.  Results may not be reliable.
+> 
+> Not that I can repeat that performance on demand. :-)
+> 
+>   Michal
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267596AbUHEHjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267598AbUHEHjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267596AbUHEHjt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 03:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267595AbUHEHjt
+	id S267598AbUHEHjn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 03:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267595AbUHEHjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 03:39:49 -0400
-Received: from holomorphy.com ([207.189.100.168]:50369 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267601AbUHEHiV (ORCPT
+	Thu, 5 Aug 2004 03:39:42 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13249 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267600AbUHEHiP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 03:38:21 -0400
-Date: Thu, 5 Aug 2004 00:38:13 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [sparc32] [12/13] gcc-3.3 macro parenthesization fix for memcpy.S
-Message-ID: <20040805073813.GA14358@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jakub Jelinek <jakub@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040805044427.GV2334@holomorphy.com> <20040805044627.GW2334@holomorphy.com> <20040805044736.GX2334@holomorphy.com> <20040805044839.GY2334@holomorphy.com> <20040805044950.GZ2334@holomorphy.com> <20040805045417.GA2334@holomorphy.com> <20040805045528.GB2334@holomorphy.com> <20040805045643.GC2334@holomorphy.com> <20040805050141.GD2334@holomorphy.com> <20040805072838.GS8296@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040805072838.GS8296@devserv.devel.redhat.com>
-User-Agent: Mutt/1.5.6+20040722i
+	Thu, 5 Aug 2004 03:38:15 -0400
+Message-ID: <4111E3B5.1070608@redhat.com>
+Date: Thu, 05 Aug 2004 00:37:25 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040804
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: inaky.perez-gonzalez@intel.com, linux-kernel@vger.kernel.org,
+       robustmutexes@lists.osdl.org, rusty@rustcorp.com.au, mingo@elte.hu,
+       jamie@shareable.org
+Subject: Re: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
+References: <F989B1573A3A644BAB3920FBECA4D25A6EC06D@orsmsx407>	<20040804232123.3906dab6.akpm@osdl.org>	<4111DC8C.7050504@redhat.com> <20040805001737.78afb0d6.akpm@osdl.org>
+In-Reply-To: <20040805001737.78afb0d6.akpm@osdl.org>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 04, 2004 at 10:01:41PM -0700, William Lee Irwin III wrote:
->> From: Art Haas <ahaas@airmail.net>
->> The 1.3->1.4 changes to the arch/sparc/lib/copy_user.S file added
->> parenthesis to a number of macros within that file. The BK changlog
->> associated with this change indicate the change was to make the
->> file work with gcc-3.3.
->> When looking at the changes made, I see that similar macros exist in
->> memcpy.S as well, so would a patch adding parens to that file be
->> worthwhile? Also, just what was the problem with gcc-3.3 that was
->> resolved by adding the parenthesis? Macro mis-expansion I'm guessing.
+Andrew Morton wrote:
 
-On Thu, Aug 05, 2004 at 03:28:38AM -0400, Jakub Jelinek wrote:
-> The problem was an (already fixed) gas bug, which for a short time treated
-> %reg - -0x02
-> as if there was a -- operator in between.
-> arch/arch/lib/memcpy.S never passes -0xNN offsets to any of these macros,
-> so the parenthesis is unnecessary there IMHO.
+> How large is the slowdown, and on what workloads?
 
-I'd be inclined to take it anyway, as macros should generally
-parenthesize their arguments, though it's good to know what specific
-toolchain issue the copy_user.S change was meant to deal with.
+The fast path for all locking primitives etc in nptl today is entirely
+at userlevel.  Normally just a single atomic operation with a dozen
+other instructions.  With the fusyn stuff each and every locking
+operation needs a system call to register/unregister the thread as it
+locks/unlocks mutex/rwlocks/etc.  Go figure how well this works.  We are
+talking about making the fast path of the locking primitives
+two/three/four orders of magnitude more expensive.  And this for
+absolutely no benefit for 99.999% of all the code which uses threads.
 
-Thanks.
 
--- wli
+> Passing the lock to a non-rt task when there's an rt-task waiting for it
+> seems pretty poor form, too.
+
+No no, that's not what is wanted.  Robust mutexes are a special kind of
+mutex and not related to rt issues.  Lockers of robust mutexes have to
+register with the kernel (i.e., the locking must actually be performed
+by the kernel) so that in case the thread goes away or the entire
+process dies, the mutex is unlocked and other waiters (other threads, in
+the same or other processes) can get the lock.  This is very useful for
+normal operations where mutexes are used inter-process.  This is the
+part which is independent from rt but it also must not be the default
+mode (i.e., normal pthread_mutex_t code must not be replaced) since it
+is significantly slower.
+
+
+The rest of the extensions like all the priority handling is not of
+general interest.  POSIX describes how a thread's priority would be
+temporarily raised if it holds a mutex which has a higher-priority
+waiter.  But this is all functionality of a realtime profile and widely
+not part of the normal implementation.
+
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

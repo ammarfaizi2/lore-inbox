@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282707AbRK0BNY>; Mon, 26 Nov 2001 20:13:24 -0500
+	id <S282706AbRK0BNG>; Mon, 26 Nov 2001 20:13:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282709AbRK0BNO>; Mon, 26 Nov 2001 20:13:14 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:46723 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S282707AbRK0BNK>;
-	Mon, 26 Nov 2001 20:13:10 -0500
-Date: Mon, 26 Nov 2001 17:13:01 -0800 (PST)
-Message-Id: <20011126.171301.50592818.davem@redhat.com>
-To: akpm@zip.com.au
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: Release Policy
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3C02E682.4CDC6858@zip.com.au>
-In-Reply-To: <4.3.2.7.2.20011126113409.00bfaa70@mail.osagesoftware.com>
-	<Pine.LNX.4.21.0111261328450.13681-100000@freak.distro.conectiva>
-	<3C02E682.4CDC6858@zip.com.au>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S282707AbRK0BMz>; Mon, 26 Nov 2001 20:12:55 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:57862 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S282706AbRK0BMk>; Mon, 26 Nov 2001 20:12:40 -0500
+Message-ID: <3C02E856.A24BACD5@zip.com.au>
+Date: Mon, 26 Nov 2001 17:11:50 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Journaling pointless with today's hard disks?
+In-Reply-To: <Pine.LNX.4.10.10111261229190.8817-100000@master.linux-ide.org> <0111261535070J.02001@localhost.localdomain> <20011126165920.N730@lynx.no> <9tumf0$dvr$1@cesium.transmeta.com> <9tuo54$e8p$1@cesium.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrew Morton <akpm@zip.com.au>
-   Date: Mon, 26 Nov 2001 17:04:02 -0800
-   
-   Marcelo, if someone sends you a patch which has not been thoroughly
-   reviewed on the appropriate mailing list, I would urge you to
-   peremptorily shitcan it.  There is no reason why you alone should
-   be responsible for reviewing kernel changes.
+"H. Peter Anvin" wrote:
+> 
+> Followup to:  <9tumf0$dvr$1@cesium.transmeta.com>
+> By author:    "H. Peter Anvin" <hpa@zytor.com>
+> In newsgroup: linux.dev.kernel
+> >
+> > Indeed; having explicit write barriers would be a very useful feature,
+> > but the drives MUST default to strict ordering unless reordering (with
+> > write barriers) have been enabled explicitly by the OS.
+> >
+> 
+> On the subject of write barriers... such a setup probably should have
+> a serial number field for each write barrier command, and a "WAIT FOR
+> WRITE BARRIER NUMBER #" command -- which will wait until all writes
+> preceeding the specified write barrier has been committed to stable
+> storage.  It might also be worthwhile to have the equivalent
+> nonblocking operation -- QUERY LAST WRITE BARRIER COMMITTED.
+> 
 
-Are you suggesting that, for example, I should send every Sparc change
-to this list?
+For ext3 at least, all that is needed is a barrier which says
+"don't reorder writes across here".  Asynchronous behaviour
+beyond that is OK - the disk is free to queue multiple transactions
+internally as long as the barriers are observed.  If the power
+goes out we'll just recover up to and including the last-written
+commit block.
 
-I bet a lot of what he is seeing are driver and arch updates.
-
-Such updates really only need to go through his "stupid filter"
-when it is coming from the maintainer, but it does add up and
-take up time.
+-

@@ -1,122 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbULTHte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbULTHtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261524AbULTHte (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 02:49:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbULTHpQ
+	id S261460AbULTHtc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 02:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbULTHqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 02:45:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:32980 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261460AbULTGZA (ORCPT
+	Mon, 20 Dec 2004 02:46:20 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:57251 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261468AbULTGbT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 01:25:00 -0500
-Message-ID: <41C66F18.1000505@osdl.org>
-Date: Sun, 19 Dec 2004 22:20:08 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jim Nelson <james4765@verizon.net>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] ip2: fix compile warnings
-References: <20041217214735.7127.91238.40236@localhost.localdomain> <41C38BE0.30004@osdl.org> <41C42DD2.9030205@verizon.net>
-In-Reply-To: <41C42DD2.9030205@verizon.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Dec 2004 01:31:19 -0500
+Date: Sun, 19 Dec 2004 22:30:06 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Greg KH <greg@kroah.com>,
+       mdharm-usb@one-eyed-alien.net, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: Re: RFC: [2.6 patch] let BLK_DEV_UB depend on EMBEDDED
+Message-ID: <20041219223006.4301bb8c@lembas.zaitcev.lan>
+In-Reply-To: <41C65EA0.7020805@osdl.org>
+References: <20041220001644.GI21288@stusta.de>
+	<20041220003146.GB11358@kroah.com>
+	<20041220013542.GK21288@stusta.de>
+	<20041219205104.5054a156@lembas.zaitcev.lan>
+	<41C65EA0.7020805@osdl.org>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Nelson wrote:
-> Randy.Dunlap wrote:
-> 
->> james4765@verizon.net wrote:
->>
->>> This fixes the following compile errors in the ip2 and ip2main drivers:
->>>
->>>   CC      drivers/char/ip2main.o
->>> drivers/char/ip2main.c:470: warning: initialization from incompatible 
->>> pointer type
->>
->>
->>> diff -urN --exclude='*~' 
->>> linux-2.6.10-rc3-mm1-original/drivers/char/ip2main.c 
->>> linux-2.6.10-rc3-mm1/drivers/char/ip2main.c
->>> --- linux-2.6.10-rc3-mm1-original/drivers/char/ip2main.c    
->>> 2004-12-03 16:55:03.000000000 -0500
->>> +++ linux-2.6.10-rc3-mm1/drivers/char/ip2main.c    2004-12-17 
->>> 16:24:24.094730049 -0500
->>> @@ -467,7 +466,7 @@
->>>  static struct tty_operations ip2_ops = {
->>>      .open            = ip2_open,
->>>      .close           = ip2_close,
->>> -    .write           = ip2_write,
->>> +    .write           = (void *) ip2_write,
->>>      .put_char        = ip2_putchar,
->>>      .flush_chars     = ip2_flush_chars,
->>>      .write_room      = ip2_write_room,
->>
->>
->> The write() prototype in tty_operations is:
->>     int  (*write)(struct tty_struct * tty,
->>               const unsigned char *buf, int count);
->>
->> Somehow the cast does eliminate the compiler warning (and give
->> a false sense of correctness).
->>
->> However, ip2main.c::ip2_write() should be modified like so:
->>
->> static int
->> ip2_write( PTTY tty, const unsigned char *pData, int count)
->>
->> and drop the cast and fix the ip2_write comment (drop old arg 2),
->> and fix the ip2_write() prototype.
->> But then you (someone) will have to decide how to handle the
->> dropped <user> parameter when calling i2Output()...
->> I don't know the answer to that.
->> I just changed <user> to 0 to get a clean build of ip2main.o,
->> but ip2/i2lib.c still needs some work.
->>
-> 
-> Sorry for the constant n00b questions, but:
-> 
-> Is there anything outside the kernel that could call tty_operations.write?
+On Sun, 19 Dec 2004 21:09:52 -0800, "Randy.Dunlap" <rddunlap@osdl.org> wrote:
 
-Sorry, I don't know the path to get to that code.
+> Pete Zaitcev wrote:
+> > On Mon, 20 Dec 2004 02:35:42 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> > 
+> >>What about a dependency of BLK_DEV_UB on USB_STORAGE=n ?
+> > 
+> > I have them both as 'm' in my configuration, works like a charm.
+> 
+> ub can work like that, but it makes it darned difficult to
+> use usb-storage like that.  ub wants to bind to the devices,
+> not usb-storage, and if ub is unloaded, usb-storage doesn't
+> bind to them.  at least that's been my experience with it.
 
-> drivers/input/serio/serport.c uses: (as an example)
-> 
-> static int serport_serio_write(struct serio *serio, unsigned char data)
-> {
->     struct serport *serport = serio->port_data;
->     return -(serport->tty->driver->write(serport->tty, &data, 1) != 1);
-> }
-> 
-> I'm guessing that something does copy_from_user() before 
-> tty_operations.write is called, but I don't know quite what that is.
-> 
-> Can anyone to point me in the direction of where the user/kernel 
-> interface for tty devices is?
-> 
-> Given the way this is set up -
-> 
-> int  (*write)(struct tty_struct * tty, const unsigned char *buf, int 
-> count);
-> 
-> vs.
-> 
-> ip2_write( PTTY tty, int user, const unsigned char *pData, int count)
-> 
-> I don't even know if the driver would work - I think you'd have serious 
-> problems as it tries to dereference a pointer that is half-integer.
+There is no asymmetry in lists of devices in either of them, however
+currently there aren't any devices which usb-storage cannot handle
+and ub can. Thus it makes sense to conditionalize part of usb-storage
+list on ub. Otherwise, it would be a separate configuration item,
+I suppose. We'll when we get there.
 
-I didn't quite get the "half-integer" part...
-Unless you mean that the function interface is just broken.
-Yes, it is.
+I don't quite understand why it matters for you if a certain module
+is loaded or not loaded. The hotplug acts upon the contents of
+modules.usbmap which does not change when you modprobe or rmmod things.
+So, the match lists are made non-conflicting between
+ub and usb-storage. It looks as if Adrian has the same broken mental
+model of the way things work. Once again, what is loaded does not
+matter (not in ideal world, but in reality we still have conflicts such
+as e100 and eepro100).
 
-> Am I reading this wrong?
-
-It looks to me like the Kconfig entry for CONFIG_COMPUTONE
-should just use BROKEN instead of BROKEN_ON_SMP since its
-.write function interface hasn't been updated.
-
--- 
-~Randy
+-- Pete

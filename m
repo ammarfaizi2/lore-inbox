@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267253AbSKVBEl>; Thu, 21 Nov 2002 20:04:41 -0500
+	id <S267256AbSKVBHR>; Thu, 21 Nov 2002 20:07:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267258AbSKVBEl>; Thu, 21 Nov 2002 20:04:41 -0500
-Received: from holomorphy.com ([66.224.33.161]:52355 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267253AbSKVBEk>;
-	Thu, 21 Nov 2002 20:04:40 -0500
-Date: Thu, 21 Nov 2002 17:08:53 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Hugh Dickins <hugh@veritas.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-Subject: Re: 2.5.48-mm1
-Message-ID: <20021122010853.GI11776@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Bill Davidsen <davidsen@tmr.com>, Hugh Dickins <hugh@veritas.com>,
-	lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-References: <Pine.LNX.4.44.0211191338590.1596-100000@localhost.localdomain> <Pine.LNX.3.96.1021121160056.10456D-100000@gatekeeper.tmr.com>
+	id <S267258AbSKVBHR>; Thu, 21 Nov 2002 20:07:17 -0500
+Received: from mail.michigannet.com ([208.49.116.30]:36104 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S267256AbSKVBHP>; Thu, 21 Nov 2002 20:07:15 -0500
+Date: Thu, 21 Nov 2002 20:14:14 -0500
+From: Paul <set@pobox.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Linux 2.4.20-rc2 screwy ac97_codec.c:codec_id()
+Message-ID: <20021122011413.GA1463@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L.0211151309400.11268-100000@freak.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1021121160056.10456D-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <Pine.LNX.4.44L.0211151309400.11268-100000@freak.distro.conectiva>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 21, 2002 at 04:04:25PM -0500, Bill Davidsen wrote:
-> This is purely a performance decision. If you want to avoid bad latency on
-> reads then you have to throttle writes. The loop_thread will make the
-> system just as slow as a user application writing the same number of
-> pages.
-> If you want io scheduling you will deliberately slow writes to let reads
-> happen in reasonable time. And vice-versa I imagine, although I don't
-> think I've seen that case.
+	Hi;
 
-Not entirely so. This is just a scheduling decision that has to
-discriminate between blocking and nonblocking requests and prevent
-starvation of the blocking requests. Write throttling is an
-oversimplification that functions poorly.
+	Im pretty sure this is broken, but I dont know exactly
+what it is trying to do.
+	The first snprintf is overwritten regardless-- missing
+else block? And its format string should probably be "%4X:%4X",
+because whats there wont fit in the buffer.
+	Then the first 3 chars in the string are filled in
+with raw numbers (For my card, non-ascii) and then a single
+decimal digit?? (This string is printed out during boot time--
+which is how I noticed it because of the 'garbage' chars.)
+	I dont know what a PnP string is supposed to look like...
+
+Paul
+set@pobox.com
+
+--- linux-2.4.19/drivers/sound/ac97_codec.c     2002-08-03 00:39:44.000000000 +0 000
++++ linux-2.4.20/drivers/sound/ac97_codec.c     2002-11-15 14:56:52.000000000 +0 000
+@@ -654,6 +654,27 @@
+ }
+  
+/**
++ *     codec_id        -  Turn id1/id2 into a PnP string
++ *     @id1: Vendor ID1
++ *     @id2: Vendor ID2
++ *     @buf: 10 byte buffer
++ *
++ *     Fills buf with a zero terminated PnP ident string for the id1/id2
++ *     pair. For convenience the return is the passed in buffer pointer.
++ */
++ 
++static char *codec_id(u16 id1, u16 id2, char *buf)
++{
++       if(id1&0x8080)
++               snprintf(buf, 10, "%0x4X:%0x4X", id1, id2);
++       buf[0] = (id1 >> 8);
++       buf[1] = (id1 & 0xFF);
++       buf[2] = (id2 >> 8);
++       snprintf(buf+3, 7, "%d", id2&0xFF);
++       return buf;
++}
 
 
-Bill

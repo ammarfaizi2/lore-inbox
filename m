@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbTDKVwA (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 17:52:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTDKVwA (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 17:52:00 -0400
-Received: from [195.82.114.197] ([195.82.114.197]:2055 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id S261801AbTDKVv7 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 17:51:59 -0400
-Date: Fri, 11 Apr 2003 23:03:41 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: root@chaos.analogic.com, John Bradford <john@grabjohn.com>
-Cc: Mike Dresser <mdresser_l@windsormachine.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       linux-hotplug-devel@lists.sourceforge.net, message-bus-list@redhat.com,
-       Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+	id S261807AbTDKV5y (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 17:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbTDKV5y (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 17:57:54 -0400
+Received: from [12.47.58.73] ([12.47.58.73]:56557 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S261807AbTDKV5x (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 17:57:53 -0400
+Date: Fri, 11 Apr 2003 15:09:33 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Steven Dake <sdake@mvista.com>
+Cc: kpfleming@cox.net, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, message-bus-list@redhat.com,
+       greg@kroah.com
 Subject: Re: [ANNOUNCE] udev 0.1 release
-Message-ID: <290576556.1050102221@[192.168.100.8]>
-In-Reply-To: <Pine.LNX.4.53.0304111635140.15320@chaos>
-References: <Pine.LNX.4.53.0304111635140.15320@chaos>
-X-Mailer: Mulberry/2.2.1 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <20030411150933.43fd9a84.akpm@digeo.com>
+In-Reply-To: <3E9725C5.3090503@mvista.com>
+References: <20030411172011.GA1821@kroah.com>
+	<200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk>
+	<20030411182313.GG25862@wind.cocodriloo.com>
+	<3E970A00.2050204@cox.net>
+	<3E9725C5.3090503@mvista.com>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-OriginalArrivalTime: 11 Apr 2003 22:09:30.0837 (UTC) FILETIME=[069A0050:01C30077]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steven Dake <sdake@mvista.com> wrote:
+>
+> A much better solution could be had by select()ing on a filehandle 
+> indicating when a new hotswap event is ready to be processed.  No races, 
+> no security issues, no performance issues.
 
+I must say that I've always felt this to be a better approach than the
+/sbin/hotplug callout.
 
---On 11 April 2003 16:39 -0400 "Richard B. Johnson" 
-<root@chaos.analogic.com> wrote:
+Apart from the performance issue, it means that the kernel can buffer the
+"insertion" events which happen at boot-time discovery until the userspace
+handler attaches itself.
 
-> Also the 1 ampere that each of drives take on the 12-volt line
-> that's 4000 amperes for 4000 drives. You need 8 parallel wires
-> of AWG #00 to handle that current.... and you need to get rid
-> of 4,000 * 12 = 48,000 watts of heat ;^
-
-& I thought 64-bit dev_t flames were generating all the heat...
-
---
-Alex Bligh

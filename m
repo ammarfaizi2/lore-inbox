@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264864AbTE1Uil (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 16:38:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264865AbTE1Uil
+	id S264866AbTE1Uqr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 16:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264868AbTE1Uqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 16:38:41 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:26583 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264864AbTE1Uik (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 16:38:40 -0400
-Date: Wed, 28 May 2003 13:51:50 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.70-osdl1
-Message-Id: <20030528135150.602b8eff.shemminger@osdl.org>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 May 2003 16:46:47 -0400
+Received: from warrior.services.quay.plus.net ([212.159.14.227]:62930 "HELO
+	warrior.services.quay.plus.net") by vger.kernel.org with SMTP
+	id S264866AbTE1Uqq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 16:46:46 -0400
+From: "Riley Williams" <Riley@Williams.Name>
+To: "Andrew Morton" <akpm@digeo.com>, "Pavel Machek" <pavel@ucw.cz>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: 2.5.70: CODA breaks boot
+Date: Wed, 28 May 2003 22:00:06 +0100
+Message-ID: <BKEGKPICNAKILKJKMHCACEPLEBAA.Riley@Williams.Name>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20030528043600.650a2f82.akpm@digeo.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew.
 
-http://prdownloads.sourceforge.net/osdldcl/patch-2.5.70-osdl1.bz2?download
+ >> ...it oopses in kmem_cache_create, called from release_console_sem and
+ >>  coda_init_inodecache.
 
-or OSDL Patch Lifecycle Manager (http://www.osdl.org/cgi-bin/plm/)
-	osdl-2.5.670-1	PLM # 1862
+ > You'll be needing this one.
+ > 
+ >  fs/coda/inode.c |    6 +++---
+ >  1 files changed, 3 insertions(+), 3 deletions(-)
+ > 
+ > diff -puN fs/coda/inode.c~coda-typo-fix fs/coda/inode.c
+ > --- 25/fs/coda/inode.c~coda-typo-fix	2003-05-27 22:27:11.000000000 -0700
+ > +++ 25-akpm/fs/coda/inode.c	2003-05-27 22:27:27.000000000 -0700
+ > @@ -69,9 +69,9 @@ static void init_once(void * foo, kmem_c
+ >  int coda_init_inodecache(void)
+ >  {
+ >  	coda_inode_cachep = kmem_cache_create("coda_inode_cache",
+ > -					     sizeof(struct coda_inode_info),
+ > +				sizeof(struct coda_inode_info),
+ > -					     0, SLAB_HWCACHE_ALIGN||SLAB_RECLAIM_ACCOUNT,
+ > +				0, SLAB_HWCACHE_ALIGN|SLAB_RECLAIM_ACCOUNT,
+ > -					     init_once, NULL);
+ > +				init_once, NULL);
+ >  	if (coda_inode_cachep == NULL)
+ >  		return -ENOMEM;
+ >  	return 0;
 
-No new features; just merged up to 2.5.70 kernel.
+That patch has me puzzled. Other than changing the white space, what actual
+change to the code does it make? I can't see any.
 
-o Linux Trace Toolkit (LTT)             (Karim Yaghmour)
-  includes relayfs
-o Kexec 				(Eric Biederman, Andy Pfiffer)
-o Lockmeter
-o Atomic 64 bit i_size access		(Daniel McNeil)
-o Pentium Performance Counters		(Mikael Pettersson)
-o Kernel Config (ikconfig)		(Randy Dunlap)
-o RCU statistics               		(Dipankar Sarma)
-o Scheduler tunables            	(Robert Love)
+Best wishes from Riley.
+---
+ * Nothing as pretty as a smile, nothing as ugly as a frown.
+
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.484 / Virus Database: 282 - Release Date: 27-May-2003
 

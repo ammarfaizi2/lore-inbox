@@ -1,68 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272406AbTGZDD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 23:03:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272407AbTGZDD0
+	id S272405AbTGZDDR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 23:03:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272406AbTGZDDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 23:03:26 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:24997 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S272406AbTGZDDY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 23:03:24 -0400
-Date: Fri, 25 Jul 2003 20:18:32 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>
-Subject: Re: Switching to the OSL License, in a dual way.
-Message-ID: <20030726031832.GE14606@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>
-References: <pan.2003.07.24.18.06.06.546220@terra.com.br> <Pine.LNX.4.10.10307241256360.16098-100000@master.linux-ide.org> <pan.2003.07.24.21.05.40.969654@terra.com.br> <20030724215744.GA7777@work.bitmover.com> <plopm3wue72alp.fsf@drizzt.kilobug.org> <20030725143933.GA13840@work.bitmover.com> <20030726025246.GA30151@merlin.emma.line.org>
+	Fri, 25 Jul 2003 23:03:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:14789 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272405AbTGZDDP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 23:03:15 -0400
+Date: Fri, 25 Jul 2003 20:19:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: albert@users.sourceforge.net, linux-yoann@ifrance.com,
+       linux-kernel@vger.kernel.org, akpm@digeo.com, vortex@scyld.com,
+       jgarzik@pobox.com
+Subject: Re: another must-fix: major PS/2 mouse problem
+Message-Id: <20030725201914.644b020c.akpm@osdl.org>
+In-Reply-To: <1059097601.1220.75.camel@cube>
+References: <1054431962.22103.744.camel@cube>
+	<3EDCF47A.1060605@ifrance.com>
+	<1054681254.22103.3750.camel@cube>
+	<3EDD8850.9060808@ifrance.com>
+	<1058921044.943.12.camel@cube>
+	<20030724103047.31e91a96.akpm@osdl.org>
+	<1059097601.1220.75.camel@cube>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030726025246.GA30151@merlin.emma.line.org>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've looked into this and I think if you dig into you'll find that this
-stuff is all claused in "if they don't provide the API's to interoperate".
+Albert Cahalan <albert@users.sourceforge.net> wrote:
+>
+> I hope you don't consider a 100 Mb/s PCI device to be
+> a nasty old NIC. It's not an NE2000 you know! I have this:
 
-It's a moot point anyway because by the time anyone has come anywhere near
-to reverse engineering what we do today we'll be years beyond that.  In 
-some ways, that's fine, either we keep moving or die.  I can live with that.
-On the other hand, I'm not about to hand our IP out on a silver platter.
-Be legal or be in court...
+Sorry, I got my boomerangs and vortices mixed up. Vortex is the ancient one.
 
-On Sat, Jul 26, 2003 at 04:52:46AM +0200, Matthias Andree wrote:
-> On Fri, 25 Jul 2003, Larry McVoy wrote:
+> I added code to the top and bottom of do_IRQ, as well as to
+> the top and bottom of boomerang_interrupt. The lockmeter was
+> compiled into the kernel but never enabled. I record the
+> minimum and maximum time in microseconds.
 > 
-> > > This is  exactly the  same. As  long as there  is a  data format  or a
-> > > protocol involved,  European laws allow users to  reverse engineer it,
-> > > to  be  able to  create  another program  using  the  same format  and
-> > > protocols. 
-> > 
-> > Really?  Show me that law please.
-> 
-> IANAL, but check the "German Gesetz ?ber Urheberrecht und verwandte
-> Schutzrechte" (Urheberrechtsgesetz/UrhG for short), ?? 69c, 69d, 69e.
-> http://bundesrecht.juris.de/bundesrecht/urhg/index.html
-> 
-> It concerns itself with "interoperability" of independently developed
-> programs with an existing one that you may use, (not with clones though,
-> the law formulates this differently); decompilation is allowed, unless
-> information needed to obtain interoperability is available, and there
-> are other restrictions.  License or contract clauses that attempt to run
-> counter to ?69d 2,3 (backup copies to ensure future use) or ?69e
-> (decompilation) are void.
-> 
-> Anyone interested should check out the exact words of the law though,
-> and in particular he should not rely on my translation.
+> -------------------------------
+> IRQ    num use      min     max
+> --- ------ -------- --- -------   
+>   0 746770 timer     40  103595
+>   1    936 i8042     13  389773
+>   2      0 cascade    -       -
+>   3      - -          -       -
+>   4      9 serial    28      56
+>   5      0 uhci-hcd   -       -
+>   6      - -        711     711
+>   7      - -         25      25
+>   8      - -          -       -
+>   9      - -          -       -
+>  10      - -          -       -
+>  11   2417 eth0      87 1535331
+>  12     60 i8042     18  102895
+>  13      - -          -       -
+>  14  13844 ide0       8   51944
+>  15      2 ide1       7      11 
 
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+But did your instrumentation account for nested interrupts?  What happens
+if a slow i8042 interrupt happens in the middle of a 3c59x interrupt?
+
+Still, that probably doesn't account for the stalls.
+
+I don't know what does account for it, frankly.  You could try dropping the
+2.4 driver into the 2.5 tree just to verify that it is not a driver
+problem.  The driver has hardly changed at all.
+

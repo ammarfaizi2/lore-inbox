@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262850AbUFSTFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbUFSTQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262850AbUFSTFN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 15:05:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUFSTFN
+	id S262050AbUFSTQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 15:16:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbUFSTQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 15:05:13 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:22407 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S262850AbUFSTFF (ORCPT
+	Sat, 19 Jun 2004 15:16:57 -0400
+Received: from quechua.inka.de ([193.197.184.2]:65170 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S262050AbUFSTQ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 15:05:05 -0400
-Date: Sat, 19 Jun 2004 21:05:03 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: zdzichu@irc.pl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Matroxfb in 2.6 still doesn't work in 2.6.7
-Message-ID: <20040619190503.GB17053@vana.vc.cvut.cz>
-References: <20040618211031.GA4048@irc.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040618211031.GA4048@irc.pl>
-User-Agent: Mutt/1.5.6+20040523i
+	Sat, 19 Jun 2004 15:16:56 -0400
+From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: mode data=journal in ext3. Is it safe to use?
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <1087558255.25904.14.camel@pmarqueslinux>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.5 (i686))
+Message-Id: <E1BblKg-0007Mn-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Sat, 19 Jun 2004 21:16:54 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 18, 2004 at 11:10:31PM +0200, Tomasz Torcz wrote:
-> 
->  Hi,
-> 
-> I am constantly having problems with my G550 matrox card.
-> I'm trying to get same video mode in framebuffer as in XFree.
-> I'm using 1280x1024x16 in XFree but this mode in fb don't work.
-> My LCD monitor turns black and slowly change into all white.
-> There is some very bright white area in lower right corner of monitor.
+In article <1087558255.25904.14.camel@pmarqueslinux> you wrote:
+> The point is, there is no concept of "atomic operation" at the file
+> system level, so the application must do journaling itself if it wants
+> to have some concept of "transactions".
 
-When monitor goes into this mode? Immediately after kernel starts, or
-after you start X? Picture you see happens with some (stupid) monitors
-if there are missing sync pulses. Are you sure that you do not have any
-fbset or stty commands in your startup scripts? What if you boot with init=/bin/bash?
+Well, there can be rules like  "writes after flush with size less than x are
+atomic". With X beeing something between sector size, blocksize or data
+journal size.
 
-> % dmesg | grep -i matrox
-> Kernel command line: root=/dev/hda4 acpi=force ro video=matroxfb:1280x1024-16@60
-> matroxfb: Matrox G550 detected
-> matroxfb: MTRR's turned on
-> matroxfb: 1280x1024x16bpp (virtual: 1280x6553)
-> matroxfb: framebuffer at 0xE8000000, mapped to 0xd080b000, size 33554432
-> fb0: MATROX frame buffer device
-> [drm] Initialized mga 3.1.0 20021029 on minor 0: Matrox Graphics, Inc. MGA G550 AGP
-> matroxfb_crtc2: secondary head of fb0 was registered as fb1
-> 
->  It stopped working somewhere in 2.5.x series. It still doesn't
-> work in
-> Linux version 2.6.7 (zdzichu@mother) (gcc version 3.4.0) #1 Fri Jun 18 22:39:14 CEST 2004
+However most unix programs  which do not do yournalling and rely on some
+stable atomic behaviour work with generating new files and renaming that.
+And for this the meta data journalling in ordered mode is fine. 
 
-It works for me, with CRT analog monitor... What if you boot with
-video=matroxfb:outputs:010,1280x1024-16@60 (if you plugged your LCD to analog
-output) or video=matroxfb:outputs:100,1280x1024-16@60 (if you plugged your LCD to
-digital output with digital-analog connector convertor) ?
+So only the append only logfiles may need some special treatment, this looks
+like a common source for null-bytes in a file. And only in case it is not a
+temp file, its a problem (syslog)
 
-You can also try patching your kernel with 
-http://platan.vc.cvut.cz/ftp/pub/linux/matrox-latest/matrox-2.6.7-rc2-c1818.gz. It
-should help you if videomode is destroyed by your initscripts.
-							Best regards,
-								Petr Vandrovec
-
+Greetings
+Bernd
+-- 
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

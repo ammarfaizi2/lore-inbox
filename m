@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261283AbTC3Nf5>; Sun, 30 Mar 2003 08:35:57 -0500
+	id <S261293AbTC3ODW>; Sun, 30 Mar 2003 09:03:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261293AbTC3Nf5>; Sun, 30 Mar 2003 08:35:57 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:384 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id <S261283AbTC3Nf5>; Sun, 30 Mar 2003 08:35:57 -0500
-From: "Folkert van Heusden" <folkert@vanheusden.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: eth2: Error -110 writing Tx descriptor to BAP
-Date: Sun, 30 Mar 2003 15:47:14 +0200
-Message-ID: <012101c2f6c2$dfddd260$3640a8c0@boemboem>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	id <S261307AbTC3ODW>; Sun, 30 Mar 2003 09:03:22 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:51419 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261293AbTC3ODV>;
+	Sun, 30 Mar 2003 09:03:21 -0500
+Date: Sun, 30 Mar 2003 16:14:04 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Robert Love <rml@tech9.net>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Peter Lundkvist <p.lundkvist@telia.com>, akpm@digeo.com, mingo@elte.hu,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Bad interactive behaviour in 2.5.65-66 (sched.c)
+Message-ID: <20030330141404.GG917@suse.de>
+References: <3E8610EA.8080309@telia.com> <1048987260.679.7.camel@teapot> <1048989922.13757.20.camel@localhost> <200303301233.03803.kernel@kolivas.org> <1048992365.13757.23.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1048992365.13757.23.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Mar 29 2003, Robert Love wrote:
+> On Sat, 2003-03-29 at 21:33, Con Kolivas wrote:
+> 
+> > Are you sure this should be called a bug? Basically X is an interactive 
+> > process. If it now is "interactive for a priority -10 process" then it should 
+> > be hogging the cpu time no? The priority -10 was a workaround for lack of 
+> > interactivity estimation on the old scheduler.
+> 
+> Well, I do not necessarily think that renicing X is the problem.  Just
+> an idea.
 
-I'm getting ziliions of
-eth2: Error -110 writing Tx descriptor to BAP
-in the output of dmesg.
-With 2 cards from different brands.
-Modules I'm using:
-orinoco_plx             3200   1
-orinoco                32176   0 [orinoco_plx]
-hermes                  6448   0 [orinoco_plx orinoco]
-kernel 2.4.20
+I see the exact same behaviour here (systems appears fine, cpu intensive
+app running, attempting to start anything _new_ stalls for ages), and I
+definitely don't play X renice tricks.
 
-What does this error mean? And is it the cause
-of the bad data-transmissions I get? (it's so slow, it
-'s useless)
+It basically made 2.5 unusable here, waiting minutes for an ls to even
+start displaying _anything_ is totally unacceptable.
 
+-- 
+Jens Axboe
 
-Folkert

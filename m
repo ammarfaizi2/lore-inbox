@@ -1,43 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263573AbTDCXcd (for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 18:32:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbTDCXcd (for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 18:32:33 -0500
-Received: from [12.47.58.55] ([12.47.58.55]:12704 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S263573AbTDCXcc (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Apr 2003 18:32:32 -0500
-Date: Thu, 3 Apr 2003 15:43:14 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mounting 4000 disks
-Message-Id: <20030403154314.7b8604c9.akpm@digeo.com>
-In-Reply-To: <200304031520.52138.pbadari@us.ibm.com>
-References: <200304031520.52138.pbadari@us.ibm.com>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S263562AbTDCX3f (for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 18:29:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbTDCX3f (for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 18:29:35 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:52709 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263562AbTDCX3d (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Apr 2003 18:29:33 -0500
+Message-ID: <3E8CC41D.90003@us.ibm.com>
+Date: Thu, 03 Apr 2003 15:30:37 -0800
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+Organization: IBM LTC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org, mbligh@aracnet.com, hch@infradead.org,
+       zeppegno.paolo@seat.it, ak@muc.de, lse-tech@lists.sourceforge.net,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [rfc][patch] Memory Binding Take 2 (1/1)
+References: <3E8BCB96.6090908@us.ibm.com>	<3E8BCD21.2050307@us.ibm.com> <20030402223736.1277755f.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Apr 2003 23:43:55.0761 (UTC) FILETIME=[E3DACE10:01C2FA3A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
-> Hi,
+Andrew Morton wrote:
+> Matthew Dobson <colpatch@us.ibm.com> wrote:
 > 
-> I have been playing with testing 4000 disk support. (using 32bit dev_t).
+>>+#define __NR_mbind		223
 > 
-> I created 4000 disks using scsi_debug and mounted them.
-> We consumed 84MB of low memory by just mouting 4000 filesystems.
-> Out of 84MB lowmem 48MB is in slabs. 33 MB is used by buffers.
+> 
+> What was wrong with "membind"?
+Well, there was nothing wrong with it, per se, I just liked Paolo's 
+suggestion to align the naming with mmap, munmap, mremap, etc.  The 
+syscalls that manipulate a processes address space tend to be called 
+m(something).  Right now it isn't as generic as I'd like it to be, but 
+all in good time.
 
-20 kbytes per disk+filesystem seems reasonable.
+>>+/* Translate a cpumask to a nodemask */
+>>+static inline void cpumask_to_nodemask(bitmap_t cpumask, bitmap_t nodemask)
+>>+{
+>>+	int i;
+>>+
+>>+	for (i = 0; i < NR_CPUS; i++)
+>>+		if (test_bit(i, cpumask))
+> 
+> 
+> That's a bit weird.  test_bit is only permitted on longs, so why introduce
+> bitmap_t?
+Erm...  Good point.  I really wanted to try and maintain the abstraction 
+of a bitmap type.  I hoped that we could, via macros and typedefs, keep 
+the underlying data type obscured, and have a good facsimile of variable 
+length bitmaps.  It's proving too difficult to hide the fact that 
+they're just unsigned long[]'s, so I'll give up the ghost and pass them 
+as unsigned long *'s.
 
-The "Buffers" will be the superblock (4k) and the group descriptor blocks
-(256 bytes per gigabyte of disk).  These are pinned memory.
+>>+/* Top-level function for allocating a binding for a region of memory */
+>>+static inline struct binding *alloc_binding(bitmap_t nodemask)
+>>+{
+>>+	struct binding *binding;
+>>+	int node, zone_num;
+>>+
+>>+	binding = (struct binding *)kmalloc(sizeof(struct binding), GFP_KERNEL);
+>>+	if (!binding)
+>>+		return NULL;
+>>+	memset(binding, 0, sizeof(struct binding));
+>>+
+>>+	/* Build binding zonelist */
+>>+	for (node = 0, zone_num = 0; node < MAX_NUMNODES; node++)
+>>+		if (test_bit(node, nodemask) && node_online(node))
+>>+			zone_num = add_node(NODE_DATA(node), 
+>>+				&binding->zonelist, zone_num);
+>>+	binding->zonelist.zones[zone_num] = NULL;
+>>+
+>>+	if (zone_num == 0) {
+>>+		/* No zones were added to the zonelist.  Let the caller know. */
+>>+		kfree(binding);
+>>+		binding = NULL;
+>>+	}
+>>+	return binding;
+>>+} 
+> 
+> It looks like this function needs to be able to return a real errno (see
+> below).
+True.  EFAULT is a sorta decent catchall, but not appropriate for 
+something like no memory, etc.
 
-And the ext2 superblock got bigger in -mm due to the recent scalability
-patches.
+>>+	struct vm_area_struct *vma = NULL;
+>>+	struct address_space *mapping;
+>>+	int copy_len, error = 0;
+>>+
+>>+	/* Deal with getting cpu_mask from userspace & translating to node_mask */
+>>+	copy_len = min(mask_len, (unsigned int)NR_CPUS);
+>>+	CLEAR_BITMAP(cpu_mask, NR_CPUS);
+>>+	CLEAR_BITMAP(node_mask, MAX_NUMNODES);
+>>+	if (copy_from_user(cpu_mask, mask_ptr, (copy_len+7)/8)) {
+>>+		error = -EFAULT;
+>>+		goto out;
+>>+	}
+>>+	cpumask_to_nodemask(cpu_mask, node_mask);
+>>+
+>>+	vma = find_vma(current->mm, start);
+>>+	if (!(vma && vma->vm_file && vma->vm_ops && 
+>>+		vma->vm_ops->nopage == shmem_nopage)) {
+>>+		/* This isn't a shm segment.  For now, we bail. */
+>>+		error = -EINVAL;
+>>+		goto out;
+>>+	}
+>>+
+>>+	mapping = vma->vm_file->f_dentry->d_inode->i_mapping;
+>>+	mapping->binding = alloc_binding(node_mask);
+>>+	if (!mapping->binding)
+>>+		error = -EFAULT;
+> 
+> 
+> It returns EFAULT on memory exhaustion?
+No longer...  That'll be fixed in version 3.
 
-What is using the "size-8192" allocation there?  It could be the ext2 superblock
-if you have NR_CPUS=32.
+> btw, can you remind me again why this is only available to tmpfs pagecache?
+I can try! ;)  I originally wanted to do just a shared memory binding 
+call, but people (correctly) suggested a more generic memory binding 
+would be more useful.  So I've basically just set up a lot of the 
+infrastructure for a more generic call, but haven't fully implemented 
+it.  This patch is intended to be a starting point, from which it will 
+be easy to incrementally add more functionality and power to the binding 
+call.  The underlying code (syscalls, structures, .c files, allocator 
+changes) won't have to change too much.  So this patch works for any 
+shared memory segment.  It'd be straightforward to extend this to any 
+file-backed vma (because it already has a struct address_space, with a 
+struct binding in it), so I hope to grow this into something more.
+
+Cheers!
+
+-Matt
+

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263333AbTB1VNB>; Fri, 28 Feb 2003 16:13:01 -0500
+	id <S268177AbTB1VQh>; Fri, 28 Feb 2003 16:16:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268140AbTB1VNB>; Fri, 28 Feb 2003 16:13:01 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:54537 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263333AbTB1VNA>;
-	Fri, 28 Feb 2003 16:13:00 -0500
-Date: Fri, 28 Feb 2003 13:14:41 -0800
-From: Greg KH <greg@kroah.com>
-To: kernel1@jsl.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Keyspan USB/Serial Drivers for 2.4.20/2.4.21-pre4
-Message-ID: <20030228211441.GC29266@kroah.com>
-References: <20030221000647.GA26468@kroah.com> <200302211728.h1LHSS720755@jsl.com>
+	id <S268179AbTB1VQh>; Fri, 28 Feb 2003 16:16:37 -0500
+Received: from packet.digeo.com ([12.110.80.53]:64937 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S268177AbTB1VQe>;
+	Fri, 28 Feb 2003 16:16:34 -0500
+Date: Fri, 28 Feb 2003 13:23:22 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>
+Subject: Re: Memory modified after freeing in 2.5.63?
+Message-Id: <20030228132322.1ec5689a.akpm@digeo.com>
+In-Reply-To: <20030228150447.GA3862@vana.vc.cvut.cz>
+References: <20030228150447.GA3862@vana.vc.cvut.cz>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302211728.h1LHSS720755@jsl.com>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Feb 2003 21:26:49.0208 (UTC) FILETIME=[1A66EF80:01C2DF70]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 21, 2003 at 09:28:28AM -0800, System Administrator wrote:
-> 
-> Please excuse my mistakes.  That was my very first post to the list even
-> though I've been reading it for many years.  I wasn't entirely sure how to
-> get this out there.  I'm glad you noticed it Greg :)
-> 
-> You're right.  the Config.in file didn't need all those changes.  I mistakedly
-> diffed against the wrong file.
-> 
-> The 49WLC device works fine with this patch.  I have not tested the MPR but
-> it should work too.
-> 
-> Below is a better patch.
+Petr Vandrovec <vandrove@vc.cvut.cz> wrote:
+>
+> Hi,
+>   for some time I'm using patch attached at the end of this email, 
+> which modifies check_poison function to not only verify that
+> last byte is POISON_END, but also that all preceeding bytes are
+> either POISON_BEFORE or POISON_AFTER bytes. 
 
-Thanks, I've applied this patch (and the firmware files) to my 2.4 and
-2.5 trees, and will be sending them onward soon.
+Nice patch.
 
-greg k-h
+>   And now when I returned from my month vacation and upgraded 
+> from 2.5.52 to 2.5.63, when dselect/apt updates dozens of packages, 
+> I'm getting memory corruption reports as shown below - 22nd byte 
+> in vm_area_struct - which looks like that VM_ACCOUNT in vm_flags 
+> is set after vma is freeed...  Any clue? Setting VM_ACCOUNT
+> in mremap.c:move_vma after calling do_unmap() looks suspicious
+> to me, but as I know almost nothing about MM...
+
+Ha!  I've been harrassing Hugh over this ;)
+
+Thanks.
+
+

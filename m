@@ -1,100 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263982AbTE0RaT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 13:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbTE0RaT
+	id S263976AbTE0Rbr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 13:31:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263979AbTE0Rbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 13:30:19 -0400
-Received: from mta3-svc.business.ntl.com ([62.253.164.43]:32187 "EHLO
-	mta3-svc.business.ntl.com") by vger.kernel.org with ESMTP
-	id S263982AbTE0RaN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 13:30:13 -0400
-Date: Tue, 27 May 2003 18:34:32 +0100 (BST)
-From: William Gallafent <william.gallafent@virgin.net>
-X-X-Sender: williamg@flatlounge.oldvicarage
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20 AMD 74xx IDE cable detection problem
-Message-ID: <Pine.LNX.4.44.0305271808560.1589-100000@flatlounge.oldvicarage>
+	Tue, 27 May 2003 13:31:47 -0400
+Received: from web40003.mail.yahoo.com ([66.218.78.21]:17997 "HELO
+	web40003.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263976AbTE0Rbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 13:31:40 -0400
+Message-ID: <20030527174453.51471.qmail@web40003.mail.yahoo.com>
+Date: Tue, 27 May 2003 10:44:53 -0700 (PDT)
+From: Jeff Smith <whydoubt@yahoo.com>
+Subject: [PATCH] KBuild documentation - make dep
+To: linux-kernel@vger.kernel.org, mec@shout.net
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Remove references to make {dep|depend} in kbuild documentation.
 
-Hi,
+- Jeff Smith
 
-I've found mention of similar problems (80w cables being incorrectly
-detected as 40w under various circumstances) in the list archives, but
-not of exactly this. I'm using stock SuSE 8.2 kernel 2.4.20-64GB-SMP
-at the moment.
+========================================================================
+--- a/Documentation/kbuild/commands.txt Mon May 26 20:00:41 2003
++++ b/Documentation/kbuild/commands.txt Tue May 27 11:59:24 2003
+@@ -17,7 +17,6 @@
+ you need:
 
-M/B: Tyan S2460 Tiger MP, with AMD 760MP chipset.
+     make config
+-    make dep
+     make bzImage
 
-Each IDE channel has an ATA-133 capable HDD as master, and an ATA-33
-capable CD/DVD drive as slave. Both channels have 80 wire cables.
+ Instead of 'make config', you can run 'make menuconfig' for a full-screen
+@@ -86,28 +85,5 @@
 
-If I only connect the master devices to each IDE channel, the cable
-detect works fine, detecting an 80 wire cable on each channel, and
-enabling ATA-100 for both drives. If I connect the slave on either
-channel, though, the detection reports a 40w cable, and therefore
-limits all drives on that channel to ATA-33.
+        You can run 'make checkhelp' without configuring the kernel.
+        Also, 'make checkhelp' does not modify any files.
+-
+-    make dep, make depend
+-
+-       'make dep' is a synonym for the long form, 'make depend'.
+-
+-       This command does two things.  First, it computes dependency
+-       information about which .o files depend on which .h files.
+-       It records this information in a top-level file named .hdepend
+-       and in one file per source directory named .depend.
+-
+-       Second, if you have CONFIG_MODVERSIONS enabled, 'make dep'
+-       computes symbol version information for all of the files that
+-       export symbols (note that both resident and modular files may
+-       export symbols).
+-
+-       If you do not enable CONFIG_MODVERSIONS, you only have to run
+-       'make dep' once, right after the first time you configure
+-       the kernel.  The .hdepend files and the .depend file are
+-       independent of your configuration.
+-
+-       If you do enable CONFIG_MODVERSIONS, you must run 'make dep'
+-       every time you change your configuration, because the module
+-       symbol version information depends on the configuration.
 
-Here's the contents of /proc/ide/amd74xx with all the drives
-connected, and the cable detection wrong:
+ [to be continued ...]
 
-----------AMD BusMastering IDE Configuration----------------
-Driver Version:                     2.10
-South Bridge:                       Advanced Micro Devices [AMD] AMD-766 [ViperPlus] IDE
-Revision:                           IDE 0x1
-Highest DMA rate:                   UDMA100
-BM-DMA base:                        0xf000
-PCI clock:                          33.3MHz
------------------------Primary IDE-------Secondary IDE------
-Prefetch Buffer:               no                  no
-Post Write Buffer:             no                  no
-Enabled:                      yes                 yes
-Simplex only:                  no                  no
-Cable Type:                   40w                 40w
--------------------drive0----drive1----drive2----drive3-----
-Transfer Mode:       UDMA      UDMA      UDMA      UDMA
-Address Setup:       30ns      30ns      30ns      30ns
-Cmd Active:          90ns      90ns      90ns      90ns
-Cmd Recovery:        30ns      30ns      30ns      30ns
-Data Active:         90ns      90ns      90ns      90ns
-Data Recovery:       30ns      30ns      30ns      30ns
-Cycle Time:          60ns      60ns      60ns      60ns
-Transfer Rate:   33.3MB/s  33.3MB/s  33.3MB/s  33.3MB/s
 
-If I disconnect the slave device from channel 1, though, the cable on
-that channel is correctly detected, so that drive runs at ATA-100. The
-same is true for the other channel:
-
-----------AMD BusMastering IDE Configuration----------------
-Driver Version:                     2.10
-South Bridge:                       Advanced Micro Devices [AMD] AMD-766 [ViperPlus] IDE
-Revision:                           IDE 0x1
-Highest DMA rate:                   UDMA100
-BM-DMA base:                        0xf000
-PCI clock:                          33.3MHz
------------------------Primary IDE-------Secondary IDE------
-Prefetch Buffer:               no                  no
-Post Write Buffer:             no                  no
-Enabled:                      yes                 yes
-Simplex only:                  no                  no
-Cable Type:                   80w                 40w
--------------------drive0----drive1----drive2----drive3-----
-Transfer Mode:       UDMA       PIO      UDMA      UDMA
-Address Setup:       30ns      90ns      30ns      30ns
-Cmd Active:          90ns      90ns      90ns      90ns
-Cmd Recovery:        30ns      30ns      30ns      30ns
-Data Active:         90ns     180ns      90ns      90ns
-Data Recovery:       30ns     450ns      30ns      30ns
-Cycle Time:          20ns     630ns      60ns      60ns
-Transfer Rate:   99.9MB/s   3.1MB/s  33.3MB/s  33.3MB/s
-
-Can anyone tell me what's wrong here, and where I should look to fix
-it?
-
--- 
-Bill Gallafent.
-
+__________________________________
+Do you Yahoo!?
+The New Yahoo! Search - Faster. Easier. Bingo.
+http://search.yahoo.com

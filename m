@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbUFQRwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUFQRyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbUFQRwM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 13:52:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUFQRwM
+	id S261239AbUFQRyp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 13:54:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUFQRyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 13:52:12 -0400
-Received: from mail.kroah.org ([65.200.24.183]:53469 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261321AbUFQRwL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 13:52:11 -0400
-Date: Thu, 17 Jun 2004 10:50:58 -0700
-From: Greg KH <greg@kroah.com>
-To: Oleg Drokin <green@linuxhacker.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove EXPORT_SYMBOL(kallsyms_lookup)
-Message-ID: <20040617175058.GA16640@kroah.com>
-References: <20040617162927.GA12498@kroah.com> <200406171731.i5HHVA0M015051@car.linuxhacker.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406171731.i5HHVA0M015051@car.linuxhacker.ru>
-User-Agent: Mutt/1.5.6i
+	Thu, 17 Jun 2004 13:54:45 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:8351 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S261239AbUFQRym convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 13:54:42 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: PATCH: Further aacraid work
+Date: Thu, 17 Jun 2004 13:54:38 -0400
+Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189FD2407B@otce2k03.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PATCH: Further aacraid work
+Thread-Index: AcRUiru1sE+Be+YXTsKGtapG1eSPcgACMYqA
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "Alan Cox" <alan@redhat.com>, "Clay Haapala" <chaapala@cisco.com>
+Cc: "James Bottomley" <James.Bottomley@steeleye.com>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "SCSI Mailing List" <linux-scsi@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 17, 2004 at 08:31:10PM +0300, Oleg Drokin wrote:
-> Hello!
-> 
-> Greg KH <greg@kroah.com> wrote:
-> GK> Distros have started to ship kernels with this patch, as it seems that
-> GK> some unnamed binary module authors are already abusing this function (as
-> GK> well as some open source modules, like the openib code.)  I could not
-> GK> find any valid reason why this symbol should be exported, so here's a
-> 
-> What if some extra carefully written code detects some (non fatal) problem in
-> itself and decides to dump a decoded backtrace to some internal log buffer,
-> user will find this later and will send a bugreport to developers?
+And I might add, undoing the entropy to result in the descending page
+list (but that is the forth time I've said this).
 
-Do you have an example of code in the current kernel tree that does
-this?  If not, then feel free to bring up the discussion about exporting
-this symbol at that point in time :)
+I ran heavy sequential load overnight and continued to have this
+characteristic when taking snapshots of command SG lists. The average SG
+element size statistically was 4168 bytes.
 
-> (yes, there are problems with simply doing dump_stack()).
-> Or perhaps we need dump_stack version that will print the dump into a
-> supplied buffer then?
+Sincerely -- Mark Salyzyn
 
-That might be useful.
+-----Original Message-----
+From: Alan Cox [mailto:alan@redhat.com] 
+Sent: Thursday, June 17, 2004 12:47 PM
+To: Clay Haapala
+Cc: James Bottomley; Salyzyn, Mark; Christoph Hellwig; Alan Cox; Linux
+Kernel; SCSI Mailing List
+Subject: Re: PATCH: Further aacraid work
 
-thanks,
+On Thu, Jun 17, 2004 at 11:32:29AM -0500, Clay Haapala wrote:
+> So, on regular x86 this is a matter of convenience/timing, and the
+> page assignments will tend toward, but not always be, random 1-page
+> entries as the system is used.
 
-greg k-h
+In 2.4 at least it shows no sign of degenerating in that way, something
+in the VM is undoing the entropy
+

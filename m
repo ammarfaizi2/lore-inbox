@@ -1,16 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129377AbQJ0Pgv>; Fri, 27 Oct 2000 11:36:51 -0400
+	id <S129098AbQJ0Pkb>; Fri, 27 Oct 2000 11:40:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129557AbQJ0Pgm>; Fri, 27 Oct 2000 11:36:42 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41234 "EHLO
+	id <S129167AbQJ0PkW>; Fri, 27 Oct 2000 11:40:22 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:46354 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S129197AbQJ0PgV>; Fri, 27 Oct 2000 11:36:21 -0400
-Date: Fri, 27 Oct 2000 17:36:19 +0200
+	id <S129098AbQJ0PkK>; Fri, 27 Oct 2000 11:40:10 -0400
+Date: Fri, 27 Oct 2000 17:40:08 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Network block device moving to sourceforge
-Message-ID: <20001027173619.A5505@atrey.karlin.mff.cuni.cz>
+To: Roland.Mainz@informatik.med.uni-giessen.de,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Podfuk renamed to uservfs and moved to sourceforge
+Message-ID: <20001027174008.A5544@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0i
@@ -19,8 +20,8 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-You can see the project at http://nbd.sourceforge.net/. If you want to
-help, just contact me.
+Subject says it pretty much all. If you want to help with anything,
+just get yourself sourceforge account and ask me ;-).
 								Pavel
 -- 
 The best software in life is free (not shareware)!		Pavel

@@ -1,41 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316538AbSH0UcL>; Tue, 27 Aug 2002 16:32:11 -0400
+	id <S316845AbSH0UjI>; Tue, 27 Aug 2002 16:39:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316845AbSH0UcL>; Tue, 27 Aug 2002 16:32:11 -0400
-Received: from pD9E23A01.dip.t-dialin.net ([217.226.58.1]:59835 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316538AbSH0UcK>; Tue, 27 Aug 2002 16:32:10 -0400
-Date: Tue, 27 Aug 2002 14:36:26 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Stephane Wirtel <stephane.wirtel@belgacom.net>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S316897AbSH0UjI>; Tue, 27 Aug 2002 16:39:08 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:3972 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S316845AbSH0UjG>; Tue, 27 Aug 2002 16:39:06 -0400
+Date: Tue, 27 Aug 2002 22:43:22 +0200
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Linux v2.5.32
-In-Reply-To: <20020827202250.GA24265@debian>
-Message-ID: <Pine.LNX.4.44.0208271435150.3234-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20020827224322.24561e60.us15@os.inf.tu-dresden.de>
+In-Reply-To: <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com>
+References: <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com>
+Organization: Disorganized
+X-Mailer: Sylpheed version 0.8.1claws (GTK+ 1.2.10; )
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg=pgp-sha1; boundary="W6+=.h0RFIe)2K.e"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--W6+=.h0RFIe)2K.e
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Tue, 27 Aug 2002, Stephane Wirtel wrote:
-> a small compile error 
+On Tue, 27 Aug 2002 12:47:16 -0700 (PDT)
+Linus Torvalds <torvalds@transmeta.com> wrote:
 
-For a good reason:
+> Linux 2.5.32 ...
 
->   i2o_block.c:43:2: #error Please convert me to
-> 	Documentation/DMA-mapping.txt
+Hello,
 
-Still not done?
+It looks like the kernel is trying to read partition tables on IDE cdrom drives
+in SCSI emulation mode - and failing at doing so.
 
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
+Regards,
+-Udo.
+
+
+hda: hda1
+hdb: hdb1 hdb2 hdb3 < hdb5 hdb6 hdb7 hdb8 hdb9 hdb10 >
+hde:ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 0, nr/cnr 8/1
+
+end_request: I/O error, dev 21:00, sector 0
+Buffer I/O error on device ide2(33,0), logical block 0
+ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 1, nr/cnr 7/1
+
+end_request: I/O error, dev 21:00, sector 1
+Buffer I/O error on device ide2(33,0), logical block 1
+ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 2, nr/cnr 6/1
+
+end_request: I/O error, dev 21:00, sector 2
+Buffer I/O error on device ide2(33,0), logical block 2
+ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 3, nr/cnr 5/1
+
+end_request: I/O error, dev 21:00, sector 3
+Buffer I/O error on device ide2(33,0), logical block 3
+ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 4, nr/cnr 4/1
+
+end_request: I/O error, dev 21:00, sector 4
+Buffer I/O error on device ide2(33,0), logical block 4
+ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 5, nr/cnr 3/1
+
+end_request: I/O error, dev 21:00, sector 5
+Buffer I/O error on device ide2(33,0), logical block 5
+ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 6, nr/cnr 2/1
+
+end_request: I/O error, dev 21:00, sector 6
+Buffer I/O error on device ide2(33,0), logical block 6
+ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 7, nr/cnr 1/1
+
+end_request: I/O error, dev 21:00, sector 7
+Buffer I/O error on device ide2(33,0), logical block 7
+ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 0, nr/cnr 8/1
+
+end_request: I/O error, dev 21:00, sector 0
+Buffer I/O error on device ide2(33,0), logical block 0
+ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 1, nr/cnr 7/1
+
+end_request: I/O error, dev 21:00, sector 1
+Buffer I/O error on device ide2(33,0), logical block 1
+ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 2, nr/cnr 6/1
+
+end_request: I/O error, dev 21:00, sector 2
+Buffer I/O error on device ide2(33,0), logical block 2
+ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 3, nr/cnr 5/1
+
+end_request: I/O error, dev 21:00, sector 3
+Buffer I/O error on device ide2(33,0), logical block 3
+ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 4, nr/cnr 4/1
+
+end_request: I/O error, dev 21:00, sector 4
+Buffer I/O error on device ide2(33,0), logical block 4
+ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 5, nr/cnr 3/1
+
+end_request: I/O error, dev 21:00, sector 5
+Buffer I/O error on device ide2(33,0), logical block 5
+ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 6, nr/cnr 2/1
+
+end_request: I/O error, dev 21:00, sector 6
+Buffer I/O error on device ide2(33,0), logical block 6
+ide-scsi: unsup command: dev 21:00: REQ_CMD REQ_STARTED sector 7, nr/cnr 1/1
+
+end_request: I/O error, dev 21:00, sector 7
+Buffer I/O error on device ide2(33,0), logical block 7
+ unable to read partition table
+SCSI subsystem driver Revision: 1.00
+
+
+--W6+=.h0RFIe)2K.e
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9a+RtnhRzXSM7nSkRApdhAJ9WIlT1M8aoF/E1i5AJ5GlCTj6o5QCeIfqJ
+54rpViHhgauFblQb7DSA7as=
+=SAUd
+-----END PGP SIGNATURE-----
+
+--W6+=.h0RFIe)2K.e--
 

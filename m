@@ -1,50 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310995AbSCHSx2>; Fri, 8 Mar 2002 13:53:28 -0500
+	id <S311009AbSCHSy6>; Fri, 8 Mar 2002 13:54:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310950AbSCHSxS>; Fri, 8 Mar 2002 13:53:18 -0500
-Received: from pc-62-31-78-67-ed.blueyonder.co.uk ([62.31.78.67]:15507 "EHLO
-	linux.local") by vger.kernel.org with ESMTP id <S310968AbSCHSxN>;
-	Fri, 8 Mar 2002 13:53:13 -0500
-Date: Fri, 8 Mar 2002 18:53:24 +0000
-From: rob@mur.org.uk
-To: linux-kernel@vger.kernel.org
-Subject: Re: strange hang with promise ide and 2.4.18
-Message-ID: <20020308185324.GF1043@mur.org.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020302134523.GA1022@mur.org.uk> <20020303173341.GO28780@lan.berghof.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020303173341.GO28780@lan.berghof.org>
-User-Agent: Mutt/1.3.27i
+	id <S310968AbSCHSym>; Fri, 8 Mar 2002 13:54:42 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:8576 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S310950AbSCHSy3>; Fri, 8 Mar 2002 13:54:29 -0500
+Date: Fri, 8 Mar 2002 13:54:16 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Terje Eggestad <terje.eggestad@scali.com>,
+        Ben Greear <greearb@candelatech.com>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        george anzinger <george@mvista.com>
+Subject: Re: gettimeofday() system call timing curiosity
+In-Reply-To: <20020308183049.A18247@kushida.apsleyroad.org>
+Message-ID: <Pine.LNX.3.95.1020308134552.6627A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 03, 2002 at 06:33:41PM +0100, Wolfram Schlich wrote:
-> Have you tried Andre Hedricks IDE-patch from
-> http://www.kernel.org/pub/linux/kernel/people/hedrick/ide-2.4.18/ ?
+On Fri, 8 Mar 2002, Jamie Lokier wrote:
 
-Ok, I've tried it now, no difference. I can use 1 card but not 2. I
-can't test the 3 card case because I gave the other one away. 
-
+> Jamie Lokier wrote:
+> > It takes the median of 1000 samples of the TSC time taken to do a
+> > rdtsc/gettimeofday/rdtsc measurement, then uses that as the threshold
+> > for deciding which of the subsequent 1000000 measurements are accepted.
+> > Then linear regression through the accepted points.
+> > 
+> > I see a couple of results there which suggests a probable fault in the
+> > filtering algorithm.  Perhaps it should simply use the smallest TSC time
+> > taken as the threshold.
 > 
-> You could also try to enable CONFIG_PDC202XX_BURST, but I'm not
-> sure.
+> I've looked more closely.  Of all the machines I have access to, only my
+> laptop shows the anomolous measurements.
+> 
+> It turns out that the median of "time in TSC cycles to do a
+> rdtsc+gettimeofday+rdtsc measurement" varies from run to run.  It only
+> varies between two values, though.
+> 
+[SNIPPED...]
 
-I already had it enabled. Would disabling it make any difference? I
-don't have much time to debug this problem.
+The following program clearly shows that Linux will not return the
+same gettimeofday values twice in succession. Since it provably takes
+less than 1 microsecond to make a system call on a modern machine,
+Linux must be waiting within the gettimeofday procedure long enough
+to make certain that the time has changed. This may be screwing up
+any performance measurments made with gettimeofday().
 
-I want to get an ata133 controller. Can anyone recommend one?
-Stability is the most important criteria. 
-> -- 
-> Mit freundlichen Gruessen / Yours sincerely
-> Wolfram Schlich; Berghof, D-56626 Andernach-Kell; +49-(0)2636-941194;
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
--- 
-Rob Murray
+#include <stdio.h>
+#include <sys/time.h>
+
+int main(void);
+int main()
+{
+   struct timeval tv, pv;
+   tv.tv_sec  = tv.tv_usec = pv.tv_sec = pv.tv_usec = 0;
+   for(;;)
+   {
+        (void)gettimeofday(&tv, NULL);
+        if((tv.tv_sec != pv.tv_sec) || (tv.tv_usec != pv.tv_usec))
+            printf("sec = %ld usec = %ld\n", tv.tv_sec, tv.tv_usec);
+         else
+            puts("The same!");
+         pv = tv;
+   }
+   return 0;
+}
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+	Bill Gates? Who?
+

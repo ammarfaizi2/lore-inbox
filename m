@@ -1,22 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271201AbTHRDJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 23:09:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271205AbTHRDJ0
+	id S271197AbTHRDI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 23:08:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271201AbTHRDI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 23:09:26 -0400
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:55054 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S271201AbTHRDJY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 23:09:24 -0400
-Date: Mon, 18 Aug 2003 00:07:47 -0300
+	Sun, 17 Aug 2003 23:08:59 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:26117 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S271197AbTHRDI5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 23:08:57 -0400
+Date: Sun, 17 Aug 2003 23:59:28 -0300
 From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.22-rc2-ac3
-Message-Id: <20030818000747.60b8cf17.vmlinuz386@yahoo.com.ar>
-In-Reply-To: <200308162139.h7GLdW415121@devserv.devel.redhat.com>
-References: <200308162139.h7GLdW415121@devserv.devel.redhat.com>
+To: Richard Russon <ntfs@flatcap.org>
+Cc: aia21@cus.cam.ac.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix all warning deprecated in NTFS 1.1.22 (2.4)
+Message-Id: <20030817235928.759adbb0.vmlinuz386@yahoo.com.ar>
+In-Reply-To: <1061152213.1114.42.camel@ipa.flatcap.org>
+References: <20030814035719.6905b4fd.vmlinuz386@yahoo.com.ar>
+	<1061152213.1114.42.camel@ipa.flatcap.org>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i486-slackware-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,31 +25,47 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Aug 2003 17:39:32 -0400 (EDT), Alan Cox wrote:
->Linux 2.4.22-rc2-ac3
->o	Finish off the core IDE hotplug support		(me)
->	| If your hardware supports it you can now
->	| hdparm -b0 /dev/hdc  change drive hdparm -b1 /dev/hdc
->o	Fix problem with wan Config.in			(Adrian Bunk)
->o	Fix NTFS warnings				(Gerardo Exequiel Pozzi)
->o	Add a 3com ident to the tulip driver		(Ion Badulescu)
->o	Clip drives when LBA48 isn't available		(Jan Niehusmann, 
->							 Andries Brouwer)
->o	Update megaraid2 driver				(Atul Mukker, Haruo
->							 Tomita)
->	| Plus remove some escaped volatiles
+On 17 Aug 2003 21:30:13 +0100, Richard Russon wrote:
+>Hi djgera,
+>
+>Anton isn't ignoring you, he's just extremely busy.
 >
 
-nice,! thank you very much to consider my patch,
+no problem, he I answer myself Marcelo and my, accepting the patch.
 
-at the moment I am proving ac3 like with the previous ones in my system,
-and everything works perfect.
+>> total 191 warnings fixed!!! (it took enough hours to me)
+>
+>Wow, thank you very much.  You've done an amazing job.
+>
 
-PD: I am working at the moment to correct all warnings __ FUNCTION __
-that finds (1500).
+:) it was a pleasure.
+
+>I've read through the patch (yawn) and tested it.  I found a couple of
+>problems (debug only), but they weren't your fault.  Several of the
+>ntfs_debug's had the wrong arguments.  I've rebuilt the patch and put
+>it here:
+>
+>  http://flatcap.org/ntfs/fix.warning.deprecated.ntfs.patch2
+>  http://flatcap.org/ntfs/fix.warning.deprecated.ntfs.patch2.bz2
+>
+>> Please review, and confirm to Marcelo Tosatti
+>
+
+yup, by the way it forgets to me to comment to them of the lack of
+arguments in original code (sorry), and thanks to correct
+them.
+
+>Now we just need to keep poking Anton :-)
+>
+>Thanks for your hard work.
+>
+
+excelent!
+
+my patch is at the moment in the tree of Alan, since -ac3.
 
 
-chau,
+Best Regards,
  djgera
 
 

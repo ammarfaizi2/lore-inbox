@@ -1,37 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269261AbTCBRgn>; Sun, 2 Mar 2003 12:36:43 -0500
+	id <S267687AbTCBRzL>; Sun, 2 Mar 2003 12:55:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269262AbTCBRgn>; Sun, 2 Mar 2003 12:36:43 -0500
-Received: from almesberger.net ([63.105.73.239]:2064 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S269261AbTCBRgn>; Sun, 2 Mar 2003 12:36:43 -0500
-Date: Sun, 2 Mar 2003 14:47:02 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Bernd Petrovitsch <bernd@gams.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kernel source spellchecker
-Message-ID: <20030302144702.P2791@almesberger.net>
-References: <20030302165127Z269240-29902+1551@vger.kernel.org> <27243.1046625727@frodo.gams.co.at>
-Mime-Version: 1.0
+	id <S267870AbTCBRzK>; Sun, 2 Mar 2003 12:55:10 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:48579
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S267687AbTCBRzJ>; Sun, 2 Mar 2003 12:55:09 -0500
+Message-ID: <3E6247F7.8060301@redhat.com>
+Date: Sun, 02 Mar 2003 10:05:43 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030301
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Norbert Kiesel <nkiesel@tbdnetworks.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Multiple & vs. && and | vs. || bugs in 2.4.20
+References: <20030302121425.GA27040@defiant>
+In-Reply-To: <20030302121425.GA27040@defiant>
+X-Enigmail-Version: 0.73.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <27243.1046625727@frodo.gams.co.at>; from bernd@gams.at on Sun, Mar 02, 2003 at 06:22:07PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Petrovitsch wrote:
-> 'invokation' is absolutely not-existing in German, see
-> http://dict.leo.org/?p=T8PXU.&search=invocation. In case of function 
-> one would use "Aufruf" (similar to "call a function").
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-That's not entirely true. If you capitalize it, it means the act of
-calling upon your God(s), i.e. something a distressed programmer may
-in fact end up doing ;-)
+Norbert Kiesel wrote:
 
-- Werner
+> --- linux-2.4.20/drivers/usb/acm.c~	2002-12-03 00:17:50.000000000 -0800
+> +++ linux-2.4.20/drivers/usb/acm.c	2003-03-02 03:03:34.000000000 -0800
+> @@ -240,7 +240,7 @@
+>  	if (urb->status)
+>  		dbg("nonzero read bulk status received: %d", urb->status);
+>  
+> -	if (!urb->status & !acm->throttle)  {
+> +	if (!urb->status && !acm->throttle)  {
+>  		for (i = 0; i < urb->actual_length && !acm->throttle; i++) {
+>  			/* if we insert more than TTY_FLIPBUF_SIZE characters,
+>  			 * we drop them. */
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Have you really looked at detail at all these cases?  The problem is
+that you have made the code less efficient on some platforms.  The use
+of && requires shortcut evaluation.  I.e., the compiler is forced to not
+evaluate !acm->throttle if !urb->status is true.  The causes, unless the
+architecture has condition bits, a conditional jump.
+
+The original code didn't need and normally has no jump and thi specific
+case was certainly fine before since the result of the ! operator is
+either 0 or 1 and therefore the & operator has no strange side effects.
+
+As an example, here is how the code for x86 could have looked before
+
+   movl   status(%edx), %edx
+   testl  %edx, %edx
+   movl   throttle(%eax), %eax
+   sete   %dl
+   testl  %eax, %eax
+   sete   %al
+   andb   %dl, %al
+   jne    ...
+   [if code]
+
+After the change the code must look something like this:
+
+   movl   status(%edx), %edx
+   testl  %edx, %edx
+   jne    ...
+   movl   throttle(%eax), %eax
+   testl  %eax, %eax
+   jne    ...
+   [if code]
+
+
+Observe the extra 'jne' and the fact that the value of 'throttle'
+element cannot be loaded until after the conditional jump.   Not even
+out of order execution can arrange that.
+
+
+To summarize, I'd probably not be amused if you would change any of my
+code which takes advantage of such programming finess.  I would probably
+have added appropriate comments to explain the code but nevertheless,
+replacing the more efficient code with some which is easier to
+understand should probably be considered on a case by case basis.
+Incorrect branch prediction is costly.
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+Ykf82ijCOnn/RHQRApJaAKCxM4hwu12mJVbQuD3o+t13YVxrsACgsnVH
+RZmgjNB5KP3Qu27iqpf5aiU=
+=l7xl
+-----END PGP SIGNATURE-----
+

@@ -1,89 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266662AbUGQAfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266663AbUGQAnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266662AbUGQAfT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 20:35:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266664AbUGQAfS
+	id S266663AbUGQAnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 20:43:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266664AbUGQAnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 20:35:18 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:12491 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S266662AbUGQAfE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 20:35:04 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Fri, 16 Jul 2004 20:43:16 -0400
+Received: from pxy5allmi.all.mi.charter.com ([24.247.15.44]:28830 "EHLO
+	proxy5-grandhaven.chartermi.net") by vger.kernel.org with ESMTP
+	id S266663AbUGQAnM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 20:43:12 -0400
+Message-ID: <40F87613.9060606@quark.didntduck.org>
+Date: Fri, 16 Jul 2004 20:42:59 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040625
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16632.29749.550202.245115@napali.hpl.hp.com>
-Date: Fri, 16 Jul 2004 17:35:01 -0700
-To: Ingo Molnar <mingo@redhat.com>
-Cc: davidm@hpl.hp.com, suresh.b.siddha@intel.com, jun.nakajima@intel.com,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: serious performance regression due to NX patch
-In-Reply-To: <Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
-References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com>
-	<Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com>
-	<Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+To: Andrew Morton <akpm@osdl.org>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] remove scripts/mkconfigs
+Content-Type: multipart/mixed;
+ boundary="------------050107030104020108080304"
+X-Charter-Information: 
+X-Charter-Scan: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Sun, 11 Jul 2004 05:39:23 -0400 (EDT), Ingo Molnar <mingo@redhat.com> said:
+This is a multi-part message in MIME format.
+--------------050107030104020108080304
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-  Ingo> On Sun, 11 Jul 2004, Ingo Molnar wrote:
+This script is no longer used after the patch to consolidate the stored 
+configs.
 
-  >> ok, agreed. I'll check that it still does the right thing on x86.
+--
+				Brian Gerst
 
-  Ingo> it doesnt seem to do the right thing for !PT_GNU_STACK applications on 
-  Ingo> x86:
+--------------050107030104020108080304
+Content-Type: text/plain;
+ name="remove-mkconfigs"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="remove-mkconfigs"
 
-How about the patch below (on top of Linus' current bk tree)?  Only
-platforms which had VM_DATA_DEFAULT_FLAGS changed (as a result of the
-NX patch) will need to define LEGACY_VM_DATA_DEFAULT_FLAGS to the old
-value.  AFAIK, that's x86 only, so the impact is very minimal and
-should retain the existing behavior on all other platforms.
+diff -urN linux-2.6.8-rc1-bk/scripts/mkconfigs linux/scripts/mkconfigs
+--- linux-2.6.8-rc1-bk/scripts/mkconfigs	2004-07-13 10:27:33.000000000 -0400
++++ linux/scripts/mkconfigs	1969-12-31 19:00:00.000000000 -0500
+@@ -1,67 +0,0 @@
+-#!/bin/sh
+-#
+-# Copyright (C) 2002 Khalid Aziz <khalid_aziz@hp.com>
+-# Copyright (C) 2002 Randy Dunlap <rddunlap@osdl.org>
+-# Copyright (C) 2002 Al Stone <ahs3@fc.hp.com>
+-# Copyright (C) 2002 Hewlett-Packard Company
+-#
+-#   This program is free software; you can redistribute it and/or modify
+-#   it under the terms of the GNU General Public License as published by
+-#   the Free Software Foundation; either version 2 of the License, or
+-#   (at your option) any later version.
+-#
+-#   This program is distributed in the hope that it will be useful,
+-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-#   GNU General Public License for more details.
+-#
+-#   You should have received a copy of the GNU General Public License
+-#   along with this program; if not, write to the Free Software
+-#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+-#
+-# 
+-# Rules to generate ikconfig.h from linux/.config:
+-#	- Retain lines that begin with "CONFIG_"
+-#	- Retain lines that begin with "# CONFIG_"
+-#	- lines that use double-quotes must \\-escape-quote them
+-
+-if [ $# -lt 2 ]
+-then
+-	echo "Usage: `basename $0` <configuration_file> <Makefile>"
+-	exit 1
+-fi
+-
+-config=$1
+-makefile=$2
+-
+-cat << EOF
+-#ifndef _IKCONFIG_H
+-#define _IKCONFIG_H
+-/*
+- * 
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or (at
+- * your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful, but
+- * WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
+- * NON INFRINGEMENT.  See the GNU General Public License for more
+- * details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+- *
+- *
+- * 
+- * This file is generated automatically by scripts/mkconfigs. Do not edit.
+- *
+- */
+-static char const ikconfig_config[] __attribute__((unused)) =
+-"CONFIG_BEGIN=n\\n\\
+-$(sed < $config -n 's/"/\\"/g;/^#\? \?CONFIG_/s/.*/&\\n\\/p')
+-CONFIG_END=n\\n";
+-#endif /* _IKCONFIG_H */
+-EOF
 
-	--david
-
-===== fs/binfmt_elf.c 1.80 vs edited =====
---- 1.80/fs/binfmt_elf.c	2004-07-16 16:46:22 -07:00
-+++ edited/fs/binfmt_elf.c	2004-07-16 17:25:26 -07:00
-@@ -662,9 +662,9 @@
- 		SET_PERSONALITY(elf_ex, ibcs2_interpreter);
- 	}
- 
--	/* Now that personality is set, we can use VM_DATA_DEFAULT_FLAGS.  */
-+	/* Now that personality is set, we can use LEGACY_VM_DATA_DEFAULT_FLAGS.  */
- 	if (no_gnu_stack)
--		def_flags |= VM_DATA_DEFAULT_FLAGS & (VM_EXEC | VM_MAYEXEC);
-+		def_flags |= LEGACY_VM_DATA_DEFAULT_FLAGS & (VM_EXEC | VM_MAYEXEC);
- 
- 	/* OK, we are done with that, now set up the arg stuff,
- 	   and then start this sucker up */
-===== include/asm-i386/page.h 1.26 vs edited =====
---- 1.26/include/asm-i386/page.h	2004-07-01 17:00:00 -07:00
-+++ edited/include/asm-i386/page.h	2004-07-16 17:24:26 -07:00
-@@ -142,6 +142,7 @@
- 
- #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | \
- 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
-+#define LEGACY_VM_DATA_DEFAULT_FLAGS	(VM_DATA_DEFAULT_FLAGS | VM_EXEC)
- 
- #endif /* __KERNEL__ */
- 
-===== include/linux/mm.h 1.138 vs edited =====
---- 1.138/include/linux/mm.h	2004-07-06 22:19:25 -07:00
-+++ edited/include/linux/mm.h	2004-07-16 17:23:41 -07:00
-@@ -136,6 +136,10 @@
- #define VM_HUGETLB	0x00400000	/* Huge TLB Page VM */
- #define VM_NONLINEAR	0x00800000	/* Is non-linear (remap_file_pages) */
- 
-+#ifndef LEGACY_VM_DATA_DEFAULT_FLAGS
-+#define LEGACY_VM_DATA_DEFAULT_FLAGS VM_DATA_DEFAULT_FLAGS
-+#endif
-+
- #ifndef VM_STACK_DEFAULT_FLAGS		/* arch can override this */
- #define VM_STACK_DEFAULT_FLAGS VM_DATA_DEFAULT_FLAGS
- #endif
+--------------050107030104020108080304--

@@ -1,81 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130414AbQKOA1u>; Tue, 14 Nov 2000 19:27:50 -0500
+	id <S129047AbQKOAmO>; Tue, 14 Nov 2000 19:42:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130848AbQKOA1k>; Tue, 14 Nov 2000 19:27:40 -0500
-Received: from [194.73.73.138] ([194.73.73.138]:49083 "EHLO ruthenium")
-	by vger.kernel.org with ESMTP id <S130414AbQKOA1c>;
-	Tue, 14 Nov 2000 19:27:32 -0500
-From: davej@suse.de
-Date: Tue, 14 Nov 2000 23:57:08 +0000 (GMT)
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: _deepfire@mail.ru
-Subject: RE: /proc tweaking
-Message-ID: <Pine.LNX.4.21.0011142338150.1275-100000@neo.local>
+	id <S129045AbQKOAmF>; Tue, 14 Nov 2000 19:42:05 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59396 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129047AbQKOAlu>;
+	Tue, 14 Nov 2000 19:41:50 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200011150001.AAA00723@raistlin.arm.linux.org.uk>
+Subject: Re: [PATCH] pcmcia event thread. (fwd)
+To: dwmw2@infradead.org (David Woodhouse)
+Date: Wed, 15 Nov 2000 00:01:15 +0000 (GMT)
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik), torvalds@transmeta.com,
+        dhinds@valinux.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20554.974126251@redhat.com> from "David Woodhouse" at Nov 13, 2000 02:37:31 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samium Gromoff wrote...
+David Woodhouse writes:
+> If we don't specify CLONE_FS | CLONE_FILES | CLONE_SIGHAND then new ones 
+> get allocated just for us to free them again immediately. If we clone them, 
+> then we just increase and decrease the use counts of the parent's ones. The 
+> latter is slightly more efficient, and I don't think it really matters. If 
+> you really care, that can be changed. I've dropped CLONE_SIGHAND because 
+> daemonize() doesn't free that, but left CLONE_FS and CLONE_FILES.
 
-> >Take a look at powertweak. >http://powertweak.sourceforge.net
-> >Made by kernel people, for non-kernel people.
-> Maybe i were not enough exact, but i`ve meant
-> addition of some intelligence to tweaking /proc
-> e.g. something what automates tuning, not only
-> providing interface to such actions.
+Small suggestion - when your thread is created, make sure that all /proc
+accesses to stuff relating to this thread doesn't cause the kernel to panic.
 
- If you check the version in CVS, you'll notice addition of
-profiles which allow you to do just this.
-"This is an Oracle server", "This is an Apache server" e.t.c.
-(These profiles can also be combined for multi-purpose boxes)
-
-> But after lookthru ptweaks source i realized
-> what its ONLY interface (to proc), and MAYBE
-> it does some PCI tuning
-
- I assume you're referring to 0.1.17 codebase, which is no
-longer getting actively developed. The version in CVS is due to
-be released _very_ soon, and is notably improved.
-- Profiles (as mentioned above)
-- Each option now offers comprehensive advice.
-- Other areas of tuning.
-  Notably CPU MSRs (with the /dev/msr interface), and
-  disk elevator adjustment.
-- Several other new goodies.
-
-And if it doesn't support your hardware, then hey, we accept patches.
-
-> BTW powertweak is a port from unfamous MD
-
- Bzzt, thanks for playing. I've no idea what program you're
-referring to, a google-search for "MD /proc/sys" revealed
-nothing relevant.
-
- Just for the record, it started as the 2.2 `Tune PCI bridges'
-feature moved to userspace named "TunePCI" (never released),
-and then had a reimplementation of a tool called `proctune'
-by Arjan van de Ven added to it. Only then did it get named
-Powertweak-Linux.
-
- Time passed, and eventually Arjan rewrote the /proc/sys
-tuning code to use XML.
-
-> There is another argument, telling what doing autotune is ugly
-
-How do you propose that the kernel should "know" what role you
-intend to use it for ? Answer : It shouldn't, it's a userspace
-problem, best solved in userspace by a userspace tool.
-
-regards,
-
-davej.
-
--- 
-| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
-| SuSE Labs
-
+I used to create some processes with '0' as the third arg until Debian's
+start-stop-daemon script started killing peoples machines with a kernel
+oops.  Now I always use CLONE_FS | CLONE_FILES | CLONE_SIGHAND as per
+fs/buffer.c (which I used as the reference for creating kernel threads).
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

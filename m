@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262405AbVADWrB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262392AbVADWtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262405AbVADWrB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 17:47:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbVADWp2
+	id S262392AbVADWtT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 17:49:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbVADWem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 17:45:28 -0500
-Received: from bender.bawue.de ([193.7.176.20]:31946 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S262405AbVADWof (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 17:44:35 -0500
-Date: Tue, 4 Jan 2005 23:44:27 +0100
-From: Joerg Sommrey <jo175@sommrey.de>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Oops on 2.6.9-ac16: xfs, dm and md may be involved
-Message-ID: <20050104224427.GB9135@sommrey.de>
-Mail-Followup-To: Joerg Sommrey <jo175@sommrey.de>,
-	Nathan Scott <nathans@sgi.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20041221185754.GA28356@sommrey.de> <20041222182606.GA14733@infradead.org> <20041222195203.GA24857@sommrey.de> <20041223101143.A702917@wobbly.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041223101143.A702917@wobbly.melbourne.sgi.com>
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 4 Jan 2005 17:34:42 -0500
+Received: from out012pub.verizon.net ([206.46.170.137]:54923 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S262392AbVADWdd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 17:33:33 -0500
+From: James Nelson <james4765@cwazy.co.uk>
+To: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
+Cc: ralf@linux-mips.org, James Nelson <james4765@cwazy.co.uk>
+Message-Id: <20050104223352.21889.12240.53908@localhost.localdomain>
+In-Reply-To: <20050104223327.21889.11863.64754@localhost.localdomain>
+References: <20050104223327.21889.11863.64754@localhost.localdomain>
+Subject: [PATCH 4/4] mips: remove cli()/sti() in arch/mips/tx4927/toshiba_rbtx4927/toshiba_rbtx4927_setup.c
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [209.158.220.243] at Tue, 4 Jan 2005 16:33:32 -0600
+Date: Tue, 4 Jan 2005 16:33:32 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 23, 2004 at 10:11:43AM +1100, Nathan Scott wrote:
-> 
-> Certainly wasn't XFS using stack in the initial oops, perhaps
-> the lower layers, but I'm a bit sceptical.  Almost certainly
-> this is a device mapper snapshot problem, the DM folks should
-> be able to analyse it further.
-> 
-I just want to let you know that there hasn't been any problem until now
-using 2.6.10-ac2.  Though I didn't see changes in the dm-snapshot code,
-there are quite a lot in dm-crypt.  This seems to be the key: my
-problems always appeared with a crypted device mounted.  But I didn't
-realize this dependency until now...
+Signed-off-by: James Nelson <james4765@gmail.com>
 
-Thanks again,
--jo
-
--- 
--rw-r--r--  1 jo users 63 2005-01-04 22:50 /home/jo/.signature
+diff -urN --exclude='*~' linux-2.6.10-mm1-original/arch/mips/tx4927/toshiba_rbtx4927/toshiba_rbtx4927_setup.c linux-2.6.10-mm1/arch/mips/tx4927/toshiba_rbtx4927/toshiba_rbtx4927_setup.c
+--- linux-2.6.10-mm1-original/arch/mips/tx4927/toshiba_rbtx4927/toshiba_rbtx4927_setup.c	2004-12-24 16:35:00.000000000 -0500
++++ linux-2.6.10-mm1/arch/mips/tx4927/toshiba_rbtx4927/toshiba_rbtx4927_setup.c	2005-01-04 16:55:45.501173508 -0500
+@@ -727,7 +727,7 @@
+ 	reg_wr08(RBTX4927_SW_RESET_DO, RBTX4927_SW_RESET_DO_SET);
+ 
+ 	/* do something passive while waiting for reset */
+-	cli();
++	local_irq_disable();
+ 	while (1)
+ 		asm_wait();
+ 
+@@ -738,7 +738,7 @@
+ void toshiba_rbtx4927_halt(void)
+ {
+ 	printk(KERN_NOTICE "System Halted\n");
+-	cli();
++	local_irq_disable();
+ 	while (1) {
+ 		asm_wait();
+ 	}

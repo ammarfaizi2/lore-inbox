@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263119AbTCSTiZ>; Wed, 19 Mar 2003 14:38:25 -0500
+	id <S263118AbTCSTho>; Wed, 19 Mar 2003 14:37:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263120AbTCSTiZ>; Wed, 19 Mar 2003 14:38:25 -0500
-Received: from mail-8.tiscali.it ([195.130.225.154]:57398 "EHLO
-	mail.tiscali.it") by vger.kernel.org with ESMTP id <S263119AbTCSTiY>;
-	Wed, 19 Mar 2003 14:38:24 -0500
-Date: Wed, 19 Mar 2003 20:48:59 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: ak@suse.de, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-Subject: Re: 2.4 delayed acks don't work, fixed
-Message-ID: <20030319194859.GO30541@dualathlon.random>
-References: <20030319002409.GI30541@dualathlon.random> <20030318.163701.56035556.davem@redhat.com> <20030319015517.GA15150@wotan.suse.de> <20030318.180219.91189534.davem@redhat.com>
+	id <S263125AbTCSTho>; Wed, 19 Mar 2003 14:37:44 -0500
+Received: from dc-mx04.cluster1.charter.net ([209.225.8.14]:65427 "EHLO
+	dc-mx04.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id <S263118AbTCSTho>; Wed, 19 Mar 2003 14:37:44 -0500
+Date: Wed, 19 Mar 2003 14:48:31 -0500
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [REPORT] 2.5.65-mm1
+Message-ID: <20030319194823.GA12615@cy599856-a>
+Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <1048067924.21567.7.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030318.180219.91189534.davem@redhat.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+In-Reply-To: <1048067924.21567.7.camel@localhost.localdomain>
+X-Editor: GNU Emacs 21.1
+X-Operating-System: Debian GNU/Linux 2.5.65-mm1 i686
+X-Processor: Athlon XP 2000+
+X-Uptime: 14:39:20  up 12:24,  5 users,  load average: 0.00, 0.00, 0.00
+User-Agent: Mutt/1.5.3i
+From: Josh McKinney <forming@charter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 18, 2003 at 06:02:19PM -0800, David S. Miller wrote:
-> TCP needs at least a full window of data on the send side to clock
-> things properly.  This streamer application doesn't give TCP that
+On approximately Wed, Mar 19, 2003 at 03:58:44AM -0600, Shawn wrote:
+> Well, 2.5.65-mm1 trashed all my data... Just kidding.
+> 
+> Actually, I'm sitting here with a load of over 25, and my gnome2 menus
+> go like they're being chased by friggin fire ants. How many cans of
+> whoop-ass does linux have to open for crying out loud???
+> 
+> Almost like anticipatory /menus/! ;) Almost think I hear a *whoosh* as
+> I'm plinking around with 20 cpp processes running simultaneously. Nice!
+> Damn nice!
+> 
+> So, I guess this is a subjective interactivity changes report. So, now,
+> Performance == Holy sheet!
+> 
 
-the inflating doubling the ato is too slow after you destroyed the ato
-info setting it to 4 this is why it takes so long for 2.4 to clock
-things properly, at least you should inflate it with the average down.
-the <= in the window raise check in recvmsg as well generate window
-updates too early, I find better to wait two packets to be read before
-sending the window update. Now that I understood better how the logic in
-mainline works I'll try to make a better patch (not very soon though
-since I'm busy with other stuff and next week I'll be offline most of
-the time).
+Just a me too here.  I have been using 2.5-mm kernels for about the last 10 or
+12 revisions and I thought it was good when I started but WOW, it is really good
+now.  It seems all of the AS bugs have been ironed out as I haven't had any odd
+OOPS or hangs, and under even a serious load it still runs like a champ!
 
-Andrea
+Thanks, 
+-- 
+Josh McKinney		     |	Webmaster: http://joshandangie.org
+--------------------------------------------------------------------------
+Linux, the choice            | Accept people for what they are --
+of a GNU generation     -o)  | completely unacceptable. 
+Kernel 2.5.65-mm1        /\  | 
+on a Athlon-XP          _\_v | 
+                             | 

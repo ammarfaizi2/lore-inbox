@@ -1,49 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317525AbSGJP4Q>; Wed, 10 Jul 2002 11:56:16 -0400
+	id <S317520AbSGJQMq>; Wed, 10 Jul 2002 12:12:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317528AbSGJP4P>; Wed, 10 Jul 2002 11:56:15 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:48842 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S317525AbSGJP4O> convert rfc822-to-8bit; Wed, 10 Jul 2002 11:56:14 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <mcp@linux-systeme.de>
-To: linux-kernel@vger.kernel.org
-Subject: Booting problems with Compaq ML570 >2 CPUs
-Date: Wed, 10 Jul 2002 17:58:28 +0200
-X-Mailer: KMail [version 1.4]
-Organization: Linux-Systeme GmbH
+	id <S317531AbSGJQMq>; Wed, 10 Jul 2002 12:12:46 -0400
+Received: from dsl-216-227-40-121.telocity.com ([216.227.40.121]:35731 "HELO
+	mail.shirleyfamily.net") by vger.kernel.org with SMTP
+	id <S317520AbSGJQMp>; Wed, 10 Jul 2002 12:12:45 -0400
+From: "Bill Shirley" <bill@shirleyfamily.net>
+To: "'Tomas Konir'" <moje@molly.vabo.cz>,
+       "'Anton Altaparmakov'" <aia21@cantab.net>
+Cc: "'Matthias Andree'" <matthias.andree@stud.uni-dortmund.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: IBM Desktar disk problem?
+Date: Wed, 10 Jul 2002 12:15:17 -0400
+Message-ID: <005201c2282c$fbe42460$0404a8c0@lan.shirleyfamily.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200207101758.28028.mcp@linux-systeme.de>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.44L0.0207052306170.4516-100000@moje.ich.vabo.cz>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+Perhaps you should try:
+http://www.storage.ibm.com/hdd/support/download.htm
+it has a linux version.
 
-does anyone have a clue what can cause a hard reset with a Compaq ML570 Quad 
-CPU System? If i use "maxcpus=2" the kernel boots fine and works fine, if i 
-boot with "maxcpus=3" i see "Loading Linux..." and then hard reset, if i use 
-maxcpus=4 the same, if i use "noapic" also the same.
 
-I totally have no clue about it and also don't see any error messages, also 
-not with early printk() patch from William Lee Irwin III.
+Bill Shirley
 
-This is with 2.4.18, 2.4.19rc1, 2.4.19rc1-aa2, 2.4.19-rc1-aa2-jam2 and my 
-kernel tree wolk 3.5.
 
-For anyone who don't know the mashine:
-http://www.compaq.com/products/servers/proliantml570/description.html
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Tomas Konir
+Sent: Friday, July 05, 2002 5:09 PM
+To: Anton Altaparmakov
+Cc: Matthias Andree; linux-kernel@vger.kernel.org
+Subject: Re: IBM Desktar disk problem?
 
-Please CC, I am not subscribed to the mailinglist.
 
--- 
-Kind regards,
-        Marc-Christian Petersen
+On Fri, 5 Jul 2002, Anton Altaparmakov wrote:
 
-http://sourceforge.net/projects/wolk
+> >I have no broken blocks. Only two errors logged in S.M.A.R.T.
+> >I have no S.M.A.R.T. errors for one year ago. And after use TCQ there
+are
+> >two errors after two days. Is is normal ?
+> >Curently i not believe new IBM disks and TCQ. I'll wait for better
+disks
+> >and stable TCQ.
+>
+> You should update your firmware regardless of using TCQ because the
+errors
+> you experienced have nothing to do with TCQ but a lot to do with buggy
+> firmware. See what I found written about the firmware update on this
+> webpage (Phil Randal posted this URL earlier on in this thread):
+>          http://www.geocities.com/dtla_update/
+>
 
-PGP/GnuPG Key: 1024D/408B2D54947750EC
-Fingerprint: 8602 69E0 A9C2 A509 8661 2B0B 408B 2D54 9477 50EC
-Key available at www.keyserver.net. Encrypted e-mail preferred.
+I know this page, but firmware upgrade need windows and i have no
+windows
+and there are no windows near me. I'll try to find windows and upgrade
+it.
+Thanks for your advice.
+
+> ---snip---
+> While S.M.A.R.T. offline scan running in background, a read error
+could
+> cause a potential failure. This is corrected with current microcode.
+>
+> (A5AA/A6AA) will detect and prevent application specific usage
+patterns
+> that cause excessive dwell times in particular areas.
+> ---snip---
+>
+> Best regards,
+>
+> Anton
+
+	MOJE
+
+--
+Tomas Konir
+Brno
+ICQ 25849167
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,191 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264170AbUFKQ0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264265AbUFKRHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264170AbUFKQ0N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 12:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264191AbUFKQSH
+	id S264265AbUFKRHH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 13:07:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbUFKRFA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 12:18:07 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:8089 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264124AbUFKQQM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 12:16:12 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: linux-ide@vger.kernel.org
-Subject: [PATCH] IDE update for 2.6.7-rc3 [9/12]
-Date: Fri, 11 Jun 2004 18:15:16 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Fri, 11 Jun 2004 13:05:00 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:23533 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264196AbUFKRB1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 13:01:27 -0400
+Date: Fri, 11 Jun 2004 18:58:13 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>,
+       "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
+       linux-kernel@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Ed Tomlinson <edt@aei.ca>, Andrew Morton <akpm@osdl.org>
+Subject: Re: flush cache range proposal (was Re: ide errors in 7-rc1-mm1 and later)
+Message-ID: <20040611165812.GD4309@suse.de>
+References: <20040606161827.GC28576@bounceswoosh.org> <200406100238.11857.bzolnier@elka.pw.edu.pl> <20040610061141.GD13836@suse.de> <20040610164135.GA2230@bounceswoosh.org> <40C89F4D.4070500@pobox.com> <40C8A241.50608@pobox.com> <20040611075515.GR13836@suse.de> <20040611161701.GB11095@bounceswoosh.org> <40C9DE7F.8040002@pobox.com> <20040611165224.GA11945@bounceswoosh.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406111815.16493.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20040611165224.GA11945@bounceswoosh.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jun 11 2004, Eric D. Mudama wrote:
+> On Fri, Jun 11 at 12:31, Jeff Garzik wrote:
+> >If queued-FUA is out of the question, this seems quite reasonable.  It 
+> >appears to achieve the commit-block semantics described for barrier 
+> >operation, AFAICS.
+> 
+> Queued FUA shouldn't be out of the question.
+> 
+> However, Queued FUA requires waiting for the queue to drain before
+> sending more commands, since a pair of queued FUA commands doesn't
+> guarantee the ordering of those two commands, which may or may not be
+> acceptable semantics.
 
-[PATCH] ide: cleanup taskfile PIO handlers (CONFIG_IDE_TASKFILE_IO=n)
+You can continue building and reordering requests behind the QUEUED_FUA
+write(s).
 
-These handlers are nowadays used only for REQ_DRIVE_TASKFILE
-requests (rq->bio is always NULL) which aren't retried et all so
-remove code 'rewinding' rq->current_nr_sectors and some FIXMEs.
+> The barrier operation is basically a queueing-friendly flush+FUA,
+> which may be better...  it lets the driver keep the queue in the drive
 
-Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+That's exactly correct.
 
- linux-2.6.7-rc3-bzolnier/drivers/ide/ide-taskfile.c |   77 +-------------------
- 1 files changed, 6 insertions(+), 71 deletions(-)
+> full, and also allows writes other than the commit block to not be
+> done as FUA operations, which is potentially faster.  THe bigger the
+> ratio of data to commit block, the better the performance would be
+> with a barrier operation vs a purely queued FUA workload.
 
-diff -puN drivers/ide/ide-taskfile.c~ide_taskfile_retry drivers/ide/ide-taskfile.c
---- linux-2.6.7-rc3/drivers/ide/ide-taskfile.c~ide_taskfile_retry	2004-06-10 23:13:09.376279528 +0200
-+++ linux-2.6.7-rc3-bzolnier/drivers/ide/ide-taskfile.c	2004-06-10 23:13:09.382278616 +0200
-@@ -307,10 +307,6 @@ EXPORT_SYMBOL(task_no_data_intr);
- /*
-  * Handler for command with PIO data-in phase, READ
-  */
--/*
-- * FIXME before 2.4 enable ...
-- *	DATA integrity issue upon error. <andre@linux-ide.org>
-- */
- ide_startstop_t task_in_intr (ide_drive_t *drive)
- {
- 	struct request *rq	= HWGROUP(drive)->rq;
-@@ -321,18 +317,6 @@ ide_startstop_t task_in_intr (ide_drive_
- 
- 	if (!OK_STAT(stat = hwif->INB(IDE_STATUS_REG),DATA_READY,BAD_R_STAT)) {
- 		if (stat & (ERR_STAT|DRQ_STAT)) {
--#if 0
--			DTF("%s: attempting to recover last " \
--				"sector counter status=0x%02x\n",
--				drive->name, stat);
--			/*
--			 * Expect a BUG BOMB if we attempt to rewind the
--			 * offset in the BH aka PAGE in the current BLOCK
--			 * segment.  This is different than the HOST segment.
--			 */
--#endif
--			if (!rq->bio)
--				rq->current_nr_sectors++;
- 			return DRIVER(drive)->error(drive, "task_in_intr", stat);
- 		}
- 		if (!(stat & BUSY_STAT)) {
-@@ -348,12 +332,8 @@ ide_startstop_t task_in_intr (ide_drive_
- 		pBuf, (int) rq->current_nr_sectors, stat);
- 	taskfile_input_data(drive, pBuf, SECTOR_WORDS);
- 	task_unmap_rq(rq, pBuf, &flags);
--	/*
--	 * FIXME :: We really can not legally get a new page/bh
--	 * regardless, if this is the end of our segment.
--	 * BH walking or segment can only be updated after we have a good
--	 * hwif->INB(IDE_STATUS_REG); return.
--	 */
-+
-+	/* FIXME: check drive status */
- 	if (--rq->current_nr_sectors <= 0)
- 		if (!DRIVER(drive)->end_request(drive, 1, 0))
- 			return ide_stopped;
-@@ -383,16 +363,6 @@ ide_startstop_t task_mulin_intr (ide_dri
- 
- 	if (!OK_STAT(stat = hwif->INB(IDE_STATUS_REG),DATA_READY,BAD_R_STAT)) {
- 		if (stat & (ERR_STAT|DRQ_STAT)) {
--			if (!rq->bio) {
--				rq->current_nr_sectors += drive->mult_count;
--				/*
--				 * NOTE: could rewind beyond beginning :-/
--				 */
--			} else {
--				printk(KERN_ERR "%s: MULTI-READ assume all data " \
--					"transfered is bad status=0x%02x\n",
--					drive->name, stat);
--			}
- 			return DRIVER(drive)->error(drive, "task_mulin_intr", stat);
- 		}
- 		/* no data yet, so wait for another interrupt */
-@@ -414,12 +384,8 @@ ide_startstop_t task_mulin_intr (ide_dri
- 		rq->errors = 0;
- 		rq->current_nr_sectors -= nsect;
- 		msect -= nsect;
--		/*
--		 * FIXME :: We really can not legally get a new page/bh
--		 * regardless, if this is the end of our segment.
--		 * BH walking or segment can only be updated after we have a
--		 * good hwif->INB(IDE_STATUS_REG); return.
--		 */
-+
-+		/* FIXME: check drive status */
- 		if (!rq->current_nr_sectors) {
- 			if (!DRIVER(drive)->end_request(drive, 1, 0))
- 				return ide_stopped;
-@@ -473,10 +439,6 @@ ide_startstop_t task_out_intr (ide_drive
- 	u8 stat;
- 
- 	if (!OK_STAT(stat = hwif->INB(IDE_STATUS_REG), DRIVE_READY, drive->bad_wstat)) {
--		DTF("%s: WRITE attempting to recover last " \
--			"sector counter status=0x%02x\n",
--			drive->name, stat);
--		rq->current_nr_sectors++;
- 		return DRIVER(drive)->error(drive, "task_out_intr", stat);
- 	}
- 	/*
-@@ -533,9 +495,6 @@ ide_startstop_t pre_task_mulout_intr (id
- EXPORT_SYMBOL(pre_task_mulout_intr);
- 
- /*
-- * FIXME before enabling in 2.4 ... DATA integrity issue upon error.
-- */
--/*
-  * Handler for command write multiple
-  * Called directly from execute_drive_cmd for the first bunch of sectors,
-  * afterwards only by the ISR
-@@ -557,16 +516,6 @@ ide_startstop_t task_mulout_intr (ide_dr
- 	 */
- 	if (rq->current_nr_sectors == 0) {
- 		if (stat & (ERR_STAT|DRQ_STAT)) {
--			if (!rq->bio) {
--                                rq->current_nr_sectors += drive->mult_count;
--				/*
--				 * NOTE: could rewind beyond beginning :-/
--				 */
--			} else {
--				printk(KERN_ERR "%s: MULTI-WRITE assume all data " \
--					"transfered is bad status=0x%02x\n",
--					drive->name, stat);
--			}
- 			return DRIVER(drive)->error(drive, "task_mulout_intr", stat);
- 		}
- 		if (!rq->bio)
-@@ -578,16 +527,6 @@ ide_startstop_t task_mulout_intr (ide_dr
- 	 */
- 	if (!OK_STAT(stat,DATA_READY,BAD_R_STAT)) {
- 		if (stat & (ERR_STAT|DRQ_STAT)) {
--			if (!rq->bio) {
--				rq->current_nr_sectors += drive->mult_count;
--				/*
--				 * NOTE: could rewind beyond beginning :-/
--				 */
--			} else {
--				printk("%s: MULTI-WRITE assume all data " \
--					"transfered is bad status=0x%02x\n",
--					drive->name, stat);
--			}
- 			return DRIVER(drive)->error(drive, "task_mulout_intr", stat);
- 		}
- 		/* no data yet, so wait for another interrupt */
-@@ -616,12 +555,8 @@ ide_startstop_t task_mulout_intr (ide_dr
- 		taskfile_output_data(drive, pBuf, nsect * SECTOR_WORDS);
- 		task_unmap_rq(rq, pBuf, &flags);
- 		rq->current_nr_sectors -= nsect;
--		/*
--		 * FIXME :: We really can not legally get a new page/bh
--		 * regardless, if this is the end of our segment.
--		 * BH walking or segment can only be updated after we
--		 * have a good  hwif->INB(IDE_STATUS_REG); return.
--		 */
-+
-+		/* FIXME: check drive status */
- 		if (!rq->current_nr_sectors) {
- 			if (!DRIVER(drive)->end_request(drive, 1, 0))
- 				if (!rq->bio)
+Just looking at how pre/write/post flush performs and I don't think it
+will be that bad (it's already quite good). Depends on how sync
+intensive the workload is of course.
 
-_
+But as long as it's the fastest possible implementation (and I think it
+is), then arguing about performance is futile imo. Correctness comes
+first.
+
+-- 
+Jens Axboe
 

@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVBHAyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVBHBEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261363AbVBHAyq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 19:54:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVBHAyq
+	id S261372AbVBHBEr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 20:04:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261370AbVBHBEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 19:54:46 -0500
-Received: from h151_115.u.wavenet.pl ([217.79.151.115]:7850 "EHLO
-	alpha.polcom.net") by vger.kernel.org with ESMTP id S261363AbVBHAyn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 19:54:43 -0500
-Date: Tue, 8 Feb 2005 01:56:30 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Daniel Drake <dsd@gentoo.org>, pavel@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc3: Kylix application no longer works?
-In-Reply-To: <20050207161810.23fcc4f1.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0502080154200.31698@alpha.polcom.net>
-References: <20050207221107.GA1369@elf.ucw.cz> <20050207145100.6208b8b9.akpm@osdl.org>
- <420801D7.3020405@gentoo.org> <20050207161810.23fcc4f1.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 7 Feb 2005 20:04:47 -0500
+Received: from fw.osdl.org ([65.172.181.6]:6590 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261368AbVBHBEo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 20:04:44 -0500
+Date: Mon, 7 Feb 2005 17:09:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: prezeroing V6 [2/3]: ScrubD
+Message-Id: <20050207170947.239f8696.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0502071646170.29971@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0501211228430.26068@schroedinger.engr.sgi.com>
+	<1106828124.19262.45.camel@hades.cambridge.redhat.com>
+	<20050202153256.GA19615@logos.cnet>
+	<Pine.LNX.4.58.0502071127470.27951@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0502071131260.27951@schroedinger.engr.sgi.com>
+	<20050207163035.7596e4dd.akpm@osdl.org>
+	<Pine.LNX.4.58.0502071646170.29971@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Feb 2005, Andrew Morton wrote:
-
-> Daniel Drake <dsd@gentoo.org> wrote:
->>
->>> # fs/binfmt_elf.c
->>> #   2005/01/17 13:37:56-08:00 ecd@skynet.be +43 -19
->>> #   [SPARC64]: Missing user access return value checks in fs/binfmt_elf.c and fs/compat.c
->>> #
->>
->> I think so. For a short period we applied this patch to the Gentoo 2.6.10
->> kernel...
->>
->> http://dev.gentoo.org/~dsd/gentoo-dev-sources/release-10.01/dist/1900_umem_catch.patch
->>
->> ...but removed it once users complained it stopped kylix binaries from running.
+Christoph Lameter <clameter@sgi.com> wrote:
 >
-> Bah.  That's what happens when you fix stuff.
->
-> What's kylix?  The Borland C++ builder thing?
+> > What were the benchmarking results for this work?  I think you had some,
+> > but this is pretty vital info, so it should be retained in the changelogs.
+> 
+> Look at the early posts. I plan to put that up on the web. I have some
+> stats attached to the end of this message from an earlier post.
 
-Rather Delphi (== Object Pascal) thing.
+But that's a patch-specific microbenchmark, isn't it?  Has this work been
+benchmarked against real-world stuff?
 
+> > Should we be managing the kernel threads with the kthread() API?
+> 
+> What would you like to manage?
 
-> How should one set about reproducing this problem?
-
-IIRC, Some minimal "personal" version can be downloaded from borland.com.
-
-
-
-Grzegorz Kulewski
+Startup, perhaps binding the threads to their cpus too.

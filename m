@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129706AbRAWJQF>; Tue, 23 Jan 2001 04:16:05 -0500
+	id <S129562AbRAWJQF>; Tue, 23 Jan 2001 04:16:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129562AbRAWJP5>; Tue, 23 Jan 2001 04:15:57 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:56079 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S129703AbRAWIie>; Tue, 23 Jan 2001 03:38:34 -0500
-Message-ID: <3A6D42D5.ED8552D0@idb.hist.no>
-Date: Tue, 23 Jan 2001 09:37:41 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: no, da, en
+	id <S129383AbRAWJP4>; Tue, 23 Jan 2001 04:15:56 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:58891 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S129735AbRAWJIL>; Tue, 23 Jan 2001 04:08:11 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: patl@curl.com (Patrick J. LoPresti)
+Date: Tue, 23 Jan 2001 20:07:40 +1100 (EST)
 MIME-Version: 1.0
-To: Stephen Satchell <satch@fluent-access.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OT?] Coding Style
-In-Reply-To: <4.3.2.7.2.20010122130852.00b92a80@mail.fluent-access.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14957.18908.887016.124180@notabene.cse.unsw.edu.au>
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [NFS] Help: 2.2.18 NFS is corrupting our files
+In-Reply-To: message from Patrick J. LoPresti on  January 22
+In-Reply-To: <s5gvgr71xao.fsf@egghead.curl.com>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Satchell wrote:
+On  January 22, patl@curl.com wrote:
+> We have a LAN with about 40 Linux systems on it.  We use the Berkeley
+> "customs" suite to perform parallelized builds of our product.  So we
+> hammer NFS pretty hard; 30-40 machines can be simultaneously reading
+> and writing a single build tree through NFS.
+> 
+> We upgraded one of our developers to 2.2.18.  We also upgraded all of
+> our systems to the latest nfs-utils (0.2.1) and mount (2.10m) packages
+> from <http://nfs.sourceforge.net/>.
+> 
+> As a result, we now have a large number of 2.2.17 NFS clients reading
+> and writing to a 2.2.18 NFS server.  The server (the developer's
+> desktop system) is SMP, and all of our systems have ECC memory.
+> 
+> This developer is now regularly seeing two problems which began with
+> the 2.2.18 upgrade.  First, remote clients occasionally get "stale NFS
+> file handle" errors for no apparent reason.  Second, some of the files
+> are being corrupted.
 
-[lots of good advice deleted]
-> One goal of language designers is to REMOVE the need for comments.  With a
-> good fourth-generation or fifth-generation language, the need for comments
-> diminishes to a detailed description of the data sets and any highly
-> unusual operations or transforms on the data.
+Could you retry after applying patches from
+    http://www.cse.unsw.edu.au/~neilb/patches/knfsd-2.2/
 
-This is but a dream.  You can't "design out" the need for comments by
-approaching natural language.  Try reading a law book and realize that
-natural language too may be twisted to the extent that it needs
-extensive comments.  The same goes for any computer language powerful
-enough to do useful work.
+particularly patch-B-sema.
 
-Helge Hafting
+Thanks,
+
+NeilBrown
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

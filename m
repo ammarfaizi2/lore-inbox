@@ -1,68 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261283AbTDUN7N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 09:59:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbTDUN7N
+	id S261281AbTDUNxz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 09:53:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbTDUNxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 09:59:13 -0400
-Received: from chiark.greenend.org.uk ([193.201.200.170]:61200 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id S261283AbTDUN7L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 09:59:11 -0400
-From: Peter Benie <peterb@chiark.greenend.org.uk>
+	Mon, 21 Apr 2003 09:53:54 -0400
+Received: from host160-52.pool62211.interbusiness.it ([62.211.52.160]:45454
+	"EHLO penny.tippete.net") by vger.kernel.org with ESMTP
+	id S261281AbTDUNxx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 09:53:53 -0400
+To: linux-kernel@vger.kernel.org
+Subject: booting 2.5.68 with root on software raid and devfs?
+Reply-To: Pierfrancesco Caci <pf@tippete.net>
+From: Pierfrancesco Caci <ik5pvx@home.tippete.net>
+Date: Mon, 21 Apr 2003 16:05:53 +0200
+Message-ID: <87smsceyim.fsf@home.tippete.net>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16035.64514.811736.721619@chiark.greenend.org.uk>
-Date: Mon, 21 Apr 2003 15:11:14 +0100
-To: linux-kernel@vger.kernel.org (linux-kernel)
-Subject: Verifying a RAID device (Was: Are linux-fs's drive-fault-tolerant by concept?)
-In-Reply-To: <200304201725.h3KHP5lU000751@81-2-122-30.bradfords.org.uk>
-References: <200304201306_MC3-1-3537-115@compuserve.com>
-	<200304201725.h3KHP5lU000751@81-2-122-30.bradfords.org.uk>
-X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford writes:
-> [Chuck Ebbert writes]
-> >   I have some ugly code that forces all reads from a mirror set to
-> > a specific copy, set via a global sysctl.  This lets you do things
-> > like make a backup from disk 0, then verify against disk 1 and take
-> > action if something is wrong.
-> 
-> That's interesting.  Have you thought of making it read from _both_
-> disks and check that the data matches, before passing it back?
-> 
-> RAID1 mirrors guard against drive failiure, but if a drive returns bad
-> data, but doesn't report an error, that will usually go unnoticed.
 
-Checking the disks periodically guards against another important
-failure mode. Consider this scenario:
+Hi,
 
-Start with a RAID1 mirror using two apparently working disks. 
-The first disk develops a media fault, however, this goes unnoticed
-because there happens to be no data stored on that part of the media.
+anyone has an idea why 2.5.68 can't boot (it sends a panic, can't
+mount root on md(9,0) message and dies) off a raid1+devfs setup that
+works perfectly on 2.4.x ?
 
-Later, a fault is detected during a read of the second disk; the disk
-is marked off off-line, but all the data is still readable on the
-first disk so there's no need to panic yet.
+I have the suspect that something in the naming of devices has
+changed, but I can't find any reference by googling around.
 
-You replace the known faulty disk with a new one. The md driver
-automatically reconstructs the array from the first disk. Since the
-md driver doesn't know about the filesystem, it reads every disk
-block, regardless of whether it contains data or not.
+Here's my setup, as 2.4.21-pre7 sees it:
 
-The latent error on the first disk is now discovered, and the first
-disk is now marked off-line. The replacement is only partially
-reconstructed, so it remains inactive. Oops, there are no active disks
-left - the md device has failed!
+root@penny:~ # mount            
+/dev/md/0 on / type ext3 (rw)
+proc on /proc type proc (rw)
+/dev/penny/niglia on /usr type ext3 (rw)
+/dev/penny/viola on /var type ext3 (rw)
+/dev/penny/tippete on /home type ext3 (rw)
+/dev/kim/felix on /usr/src type ext3 (rw)
+/dev/kim/isidoro on /home/ftp/pub type ext3 (rw,noatime)
+/dev/gattaia/pink on /scratch type ext3 (rw)
+tmpfs on /dev/shm type tmpfs (rw)
+usbdevfs on /proc/bus/usb type usbdevfs (rw)
 
-To guard against this, it is a good idea to periodically read all of
-every disk in a RAID to detect faults early. Ideally, this should be
-done as another background task, like reconstruction. Checking that
-the data is valid is then a trivial extra step. If a read fails, you
-mark the disk relevant disk off-line, as usual. If the parity check
-fails, you just return a bad blocks list.
 
-Peter
+root@penny:~ # cat /proc/mdstat 
+Personalities : [raid0] [raid1] 
+read_ahead 1024 sectors
+md0 : active raid1 ide/host0/bus1/target1/lun0/part1[1] ide/host0/bus0/target0/lun0/part1[0]
+      248896 blocks [2/2] [UU]
+      
+md1 : active raid1 ide/host0/bus1/target1/lun0/part2[1] ide/host0/bus0/target0/lun0/part2[0]
+      39896576 blocks [2/2] [UU]
+      
+unused devices: <none>
+
+root@penny:~ # head /etc/lilo.conf
+#disk=/dev/hda
+# bios=0x80
+#disk=/dev/hdd
+# bios=0x81
+boot=/dev/md0
+root=/dev/md0
+raid-extra-boot=/dev/hda,/dev/hdd
+#compact
+#linear
+lba32
+
+
+Any ideas where to start looking ?
+
+Thanks
+
+Pf
+
+-- 
+
+-------------------------------------------------------------------------------
+ Pierfrancesco Caci | ik5pvx | mailto:p.caci@tin.it  -  http://gusp.dyndns.org
+  Firenze - Italia  | Office for the Complication of Otherwise Simple Affairs 
+     Linux penny 2.4.21-pre7 #1 Sat Apr 12 09:12:33 CEST 2003 i686 GNU/Linux
+

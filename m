@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317282AbSFGNej>; Fri, 7 Jun 2002 09:34:39 -0400
+	id <S317283AbSFGNp3>; Fri, 7 Jun 2002 09:45:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317283AbSFGNei>; Fri, 7 Jun 2002 09:34:38 -0400
-Received: from mercury.lss.emc.com ([168.159.40.77]:12297 "EHLO
-	mercury.lss.emc.com") by vger.kernel.org with ESMTP
-	id <S317282AbSFGNei>; Fri, 7 Jun 2002 09:34:38 -0400
-Message-ID: <64655AAA92E6ED46B9AC9421260D96A5D18BF4@srmanning.eng.emc.com>
-From: "goggin, edward" <egoggin@emc.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Request to have get_blkfops() and get_chrfops() exported to kerne
-	l modules
-Date: Fri, 7 Jun 2002 09:33:41 -0400 
+	id <S317285AbSFGNp2>; Fri, 7 Jun 2002 09:45:28 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:17425 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317283AbSFGNp2>; Fri, 7 Jun 2002 09:45:28 -0400
+Message-ID: <3D00AB3B.9020201@evision-ventures.com>
+Date: Fri, 07 Jun 2002 14:46:51 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: "goggin, edward" <egoggin@emc.com>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Request to have get_blkfops() and get_chrfops() exported to kerne
+ l modules
+In-Reply-To: <64655AAA92E6ED46B9AC9421260D96A5D18BF4@srmanning.eng.emc.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a request to have both the linux kernel symbols
-get_chrfops and get_blkfops exported to kernel modules
-in future releases of the linux kernel.
+goggin, edward wrote:
+> This is a request to have both the linux kernel symbols
+> get_chrfops and get_blkfops exported to kernel modules
+> in future releases of the linux kernel.
+> 
+> This request is in response to a need we have when building
+> kernel modules which will filter block and/or character device
+> i/o by trapping the native block/character i/o requests.
 
-This request is in response to a need we have when building
-kernel modules which will filter block and/or character device
-i/o by trapping the native block/character i/o requests.
 
-We propose three source modifications as part of this request.
-Furthermore, assuming approval of this request, we will supply
-a source patch to effect these modifications.
+The loop device implementation is showing you already
+how to achieve this.
 
-	1)	EXPORT_SYMBOL references for both get_charfops and
-		get_blkfops be placed in fs/devices.c.
-
-	2)	Removal of the static scope qualifier for the 
-		definition of get_chrfops() in fs/devices.c.
-
-	3)	The file devices.o be added to the list of exported
-		in fs/Makefile.
-
-Ed Goggin

@@ -1,82 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281772AbSAEUDB>; Sat, 5 Jan 2002 15:03:01 -0500
+	id <S281787AbSAEUDU>; Sat, 5 Jan 2002 15:03:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281762AbSAEUCw>; Sat, 5 Jan 2002 15:02:52 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:8850 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S281504AbSAEUCl>;
-	Sat, 5 Jan 2002 15:02:41 -0500
-Date: Sat, 5 Jan 2002 23:00:05 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Mika Liljeberg <Mika.Liljeberg@welho.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
-In-Reply-To: <3C3758B3.9A84693C@welho.com>
-Message-ID: <Pine.LNX.4.33.0201052247540.10321-100000@localhost.localdomain>
+	id <S281762AbSAEUDL>; Sat, 5 Jan 2002 15:03:11 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:13072 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S281504AbSAEUC6>; Sat, 5 Jan 2002 15:02:58 -0500
+Message-ID: <3C375AC9.52462540@zip.com.au>
+Date: Sat, 05 Jan 2002 11:58:01 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Eric <eric-linuxkernel@dragonglen.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17 oops - ext2/ext3 fs corruption (?)
+In-Reply-To: <Pine.LNX.4.33.0201051005190.5754-400000@fire.dragonglen.invalid>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric wrote:
+> 
+> I seem to be having a reoccurring problem with my Red Hat 7.2 system
+> running kernel 2.4.17.  Four times now, I have seen the kernel generate an
+> oops.  After the oops, I find that one of file systems is no longer sane.
+> The effect that I see is a Segmentation Fault when things like ls or du
+> some directory (the directory is never the same).  Also, when the system
+> is going down for a reboot, it is unable to umount the file system.  The
+> umount command returns a "bad lseek" error.
+> 
+> The first time this happened, it resulted in catastrophic corruption of
+> /usr and I had to reinstall.  At this time, /usr was an ext2 file system.
+> When I reinstalled, I took the opportunity to reformat all the file
+> systems, except /home, as ext3.
+> 
 
-On Sat, 5 Jan 2002, Mika Liljeberg wrote:
+Everything here points at failing hardware.  Probably memory errors.
+People say that memtest86 is good at detecting these things.  Another
+way to verify this is to move the same setup onto a different computer...
 
-> Well, different RT tasks have different requirements and when multiple
-> RT tasks are competing for the CPUs it gets more interesting. For
-> instance, suppose that I have the MAC protocol for a software radio
-> running on a dedicated CPU, clocking out a radio frame every 1 ms with
-> very high time synchronization requirements. For this application I
-> definately don't want my CPU suddenly racing to the door to see why
-> the doorbell rang. :) This seems to suggest that it should be possible
-> for a task to make itself non-interruptible, in which case it would
-> not even receive reschedule IPIs for the global RT tasks.
-
-yes, we can do the following: instead of sending the broadcast IPI, we can
-skip CPUs that run a RT task that has a higher priority than the one that
-just got woken up. This way we send the IPI only to CPUs that have a
-chance to actually preempt their current task for the newly woken up task.
-We do this optimization for SCHED_OTHER tasks already, behavior like this
-is not something cast into stone.
-
-this way you can mark your RT task 'uninterruptible' by giving it a high
-RT priority.
-
-i'd also like to note that Davide's description made the broadcast IPI
-solution sound more scary than it is in fact. A broadcast IPI's handler is
-pretty lightweight (it does a single APIC ACK and returns), and even a
-pointless trip into the O(1) scheduler wont take more time than say 10-20
-microseconds (pessimistic calculation), on a typical x86 system.
-
-and there is another solution as well, we could simply pick a single CPU
-where the RT task preempts the current task, and send a directed IPI. This
-is similar to the reschedule_idle() code.
-
-The reason i made the IPI a broadcast in the RT case is race avoidance:
-right now our IPIs are 'inexact', ie. if the scheduling situation changes
-while they are in flight (they can take 5-10 microseconds to get delivered
-to the target) then they might hit the wrong target. In case of RT/SMP,
-this might end up us missing to run a task that should be run. This was
-the major reason why i took the broadcast IPI solution. Eg. consider the
-following situation: we have 4 runnable RT tasks, two have priority 20,
-the other two have a higher RT priority of 90. We do not want to end up
-with this situation:
-
-	CPU#0					CPU#1
-        prio 90 task running			prio 20 task running
-	prio 90 task pending			prio 20 task pending
-
-because the pending prio 90 task should run on CPU#1:
-
-	CPU#0					CPU#1
-        prio 90 task running			prio 90 task running
-	prio 20 task pending			prio 20 task pending
-
-situations like this is the main reason why i made the RT scheduler use
-heavier locking and more conservative constructs, like broadcast IPIs.
-
-	Ingo
-
+-

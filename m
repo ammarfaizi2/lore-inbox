@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbUCVCdM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 21:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbUCVCdL
+	id S261635AbUCVCll (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 21:41:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbUCVCll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 21:33:11 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:742 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261631AbUCVCdK (ORCPT
+	Sun, 21 Mar 2004 21:41:41 -0500
+Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:27803
+	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S261635AbUCVClk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 21:33:10 -0500
-Date: Sun, 21 Mar 2004 21:32:46 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>, <akpm@osdl.org>,
-       <torvalds@osdl.org>, <hugh@veritas.com>, <mbligh@aracnet.com>,
-       <mingo@elte.hu>, <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity
- fix
-In-Reply-To: <20040322004652.GF3649@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0403212131100.20045-100000@chimarrao.boston.redhat.com>
+	Sun, 21 Mar 2004 21:41:40 -0500
+From: "Shawn Starr" <shawn.starr@rogers.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PANIC][2.6.5-rc2-bk1] st_probe - Detection of a SCSI tape drive (HP Colorado T4000s)
+Date: Sun, 21 Mar 2004 21:44:55 -0500
+Message-ID: <000001c40fb7$a909f390$030aa8c0@PANIC>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep02-mail.bloor.is.net.cable.rogers.com from [67.60.40.239] using ID <shawn.starr@rogers.com> at Sun, 21 Mar 2004 21:40:41 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Mar 2004, Andrea Arcangeli wrote:
+Apon booting 2.6.5-rc2-bk1, during detection of the SCSI tape drive, the
+kernel panics
 
-> It would be curious to test it after changing the return 1 to return 0
-> in the page_referenced trylock failures?
+The backtrace is:
 
-In the case of a trylock failure, it should probably return a
-random value.  For heavily page faulting multithreaded apps,
-that would mean we'd tend towards random replacement, instead
-of FIFO.
+st_probe
+__lockup_hash
+dput
+sysfs_create_dir
+bus_match
+driver_match
+kobject_register
+bus_add_driver
+driver_register
+init_st
+do_initcalls
+init
+init
+kernel_thread_helper
 
-Then again, the locking problems shouldn't be too bad in most
-cases.  If you're swapping the program will be waiting on IO
-and if it's not waiting on IO there's no problem.
+Is this known? I will revert to my previous kernel 
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Shawn.
+
 

@@ -1,70 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263544AbSKMVS4>; Wed, 13 Nov 2002 16:18:56 -0500
+	id <S263986AbSKMVi2>; Wed, 13 Nov 2002 16:38:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263326AbSKMVRu>; Wed, 13 Nov 2002 16:17:50 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47885 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262881AbSKMVRm>;
-	Wed, 13 Nov 2002 16:17:42 -0500
-Message-ID: <3DD2C30B.9000404@pobox.com>
-Date: Wed, 13 Nov 2002 16:24:27 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
+	id <S263143AbSKMVi2>; Wed, 13 Nov 2002 16:38:28 -0500
+Received: from mgw-dax2.ext.nokia.com ([63.78.179.217]:31409 "EHLO
+	mgw-dax2.ext.nokia.com") by vger.kernel.org with ESMTP
+	id <S263986AbSKMViZ> convert rfc822-to-8bit; Wed, 13 Nov 2002 16:38:25 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: David Brownell <david-b@pacbell.net>, rusty@rustcorp.com.au,
-       kaos <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.47bk2 + current modutils == broken hotplug
-References: <3DD2B1D5.7020903@pacbell.net> <20021113201710.GB7238@kroah.com> <3DD2B8D3.6060106@pacbell.net> <3DD2BD4C.7060502@pobox.com> <20021113210711.GA7810@kroah.com>
-In-Reply-To: <3DD2B1D5.7020903@pacbell.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: patch: qconf "help" menu
+Date: Wed, 13 Nov 2002 13:44:19 -0800
+Message-ID: <4D7B558499107545BB45044C63822DDE01C758DE@mvebe001.americas.nokia.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: kconfig (qconf): bug ?
+Thread-Index: AcKIK5ZvEiFlY0FeTzSdrC9+HAkRNADMPXWw
+From: <Rod.VanMeter@nokia.com>
+To: <zippel@linux-m68k.org>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 13 Nov 2002 21:44:20.0286 (UTC) FILETIME=[D2B175E0:01C28B5D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+Okay, so I'm a moron.
 
-> On Wed, Nov 13, 2002 at 03:59:56PM -0500, Jeff Garzik wrote:
->
-> >(tangent warning!)
-> >Another long term idea I would eventually like to realize is the removal
-> >of device ids from the C source code.  I don't care where they go --
-> >drivers/net/pci_ids [per directory ids?], drivers/net/3c59x.meta,
-> >whereever.  Anywhere but the C source code.  It's quite silly to require
-> >a driver rebuild just to add a single PCI id, and further, embedding
-> >metadata in C source is rarely a good idea in the long term.  [reference
-> >some of Linus's counter-arguments when it was mentioned that Donald
-> >Becker's method of including Config.{in,help} data in C source might be
-> >useful]
->
->
-> True, this would be nice, but how would the driver know to bind to a new
-> device, if it isn't rebuilt, and doesn't know about the new id that was
-> just added?  In the current scheme of driver matching to devices, I
-> don't see how this could be done.
+The first time I upgraded from 2.4 to 2.5.47, it took me half
+an hour to figure out how to turn the PS/2 mouse back on
+(serial I/O was off, so I couldn't see it.  Doh!).
+
+But I figure I'm not the only moron on the planet, so here's
+a patch that adds a help system.  Simplest, most brain-dead
+implementation possible; all inline strings, no internationalization,
+etc.  I figure it was worth an hour of my time to save some
+other morons' hours.
+
+			--Rod
+
+P.S. Apologies if Lookout barfs on the long lines.  Crossing
+my fingers...too embarrassing for words to be using it...
+#@!$ Nokia IM...
 
 
-I think that truly seamless rebinding is doable but would require too 
-much additional complexity in the kernel.  Rebinding to a new id table 
-between unregister() ... register() pairs, or between mod unload and mod 
-load, should be enough to be useable for 98% of the cases.
-
-It should be noted that David Hinds' pcmcia-cs package stores id in an 
-external database.  There are both positive and negative lessons that 
-have been learned from that experience (WRT external id tables only! 
-:):)) too.
-
-
-> Not to say I would not want to see this changed to allow this to happen,
-> I'm very tired of telling USB Palm users to get a new kernel version
-> just because a single device id was added which their new device has.
-
-
-Indeed :/  There are also issues like vendors who want to GPG-sign 
-drivers, and updating the PCI id table makes the GnuPG signature and the 
-certification that goes along with it invalid, requiring a vendor update.
-
-	Jeff
-
-
+diff -Naur a/qconf.cc b/qconf.cc
+--- a/qconf.cc	2002-11-13 13:31:53.000000000 -0800
++++ b/qconf.cc	2002-11-13 13:32:19.000000000 -0800
+@@ -711,6 +711,15 @@
+ 	  showDebugAction->setOn(showDebug);
+ 	  connect(showDebugAction, SIGNAL(toggled(bool)), SLOT(setShowDebug(bool)));
+ 
++	QAction *showIntroAction = new QAction(NULL, "Introduction to qconf", 0, this);
++	  connect(showIntroAction, SIGNAL(activated()), SLOT(showIntro()));
++
++	QAction *showLicenseAction = new QAction(NULL, "License", 0, this);
++	  connect(showLicenseAction, SIGNAL(activated()), SLOT(showLicense()));
++
++	QAction *showAboutAction = new QAction(NULL, "About", 0, this);
++	  connect(showAboutAction, SIGNAL(activated()), SLOT(showAbout()));
++
+ 	// init tool bar
+ 	backAction->addTo(toolBar);
+ 	toolBar->addSeparator();
+@@ -740,6 +749,13 @@
+ 	showAllAction->addTo(optionMenu);
+ 	showDebugAction->addTo(optionMenu);
+ 
++	// create help menu
++	QPopupMenu* helpMenu = new QPopupMenu(this);
++	menu->insertItem("&Help", helpMenu);
++	showIntroAction->addTo(helpMenu);
++	showAboutAction->addTo(helpMenu);
++	showLicenseAction->addTo(helpMenu);
++
+ 	connect(configList, SIGNAL(menuSelected(struct menu *)),
+ 		SLOT(changeMenu(struct menu *)));
+ 	connect(configList, SIGNAL(parentSelected()),
+@@ -1026,6 +1042,43 @@
+ 	configList->reinit();
+ }
+ 
++void ConfigView::showIntro(void)
++{
++  char *str = "Welcome to the qconf graphical kernel configuration tool\n\
++for Linux.\n\
++\n\
++For each option, a blank box indicates the feature is disabled, a check\n\
++indicates it is enabled, and a dot indicates that it is to be compiled\n\
++as a module.  Clicking on the box will cycle through the three states.\n\
++\n\
++If you do not see an option (e.g., a device driver) that you believe\n\
++should be present, try turning on Show All Options under the Options menu.\n\
++Although there is no cross reference yet to help you figure out what other\n\
++options must be enabled to support the option you are interested in, you can\n\
++still view the help of a grayed-out option.\n\
++\n\
++Toggling Show Debug Info under the Options menu will show the dependencies,\n\
++which you can then match by examining other options.";
++
++  QMessageBox::information(this, "qconf", str);
++}
++
++void ConfigView::showLicense(void)
++{
++  char *str = "qconf is released under the terms of the GNU GPL v2.0.\n\
++For more information, please see the source code or visit\n\
++http://www.fsf.org/licenses/licenses.html";
++
++  QMessageBox::information(this, "qconf", str);
++}
++
++void ConfigView::showAbout(void)
++{
++  char *str = "qconf is Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>.";
++
++  QMessageBox::information(this, "qconf", str);
++}
++
+ /*
+  * ask for saving configuration before quitting
+  * TODO ask only when something changed
+diff -Naur a/qconf.h b/qconf.h
+--- a/qconf.h	2002-11-13 13:31:33.000000000 -0800
++++ b/qconf.h	2002-11-13 13:32:23.000000000 -0800
+@@ -187,6 +187,9 @@
+ 	void setShowRange(bool);
+ 	void setShowName(bool);
+ 	void setShowData(bool);
++	void showIntro(void);
++	void showLicense(void);
++	void showAbout(void);
+ 
+ protected:
+ 	void closeEvent(QCloseEvent *e);

@@ -1,50 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132242AbRCVX3j>; Thu, 22 Mar 2001 18:29:39 -0500
+	id <S132251AbRCVXft>; Thu, 22 Mar 2001 18:35:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132246AbRCVX3d>; Thu, 22 Mar 2001 18:29:33 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:39536 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S132241AbRCVX2f>;
-	Thu, 22 Mar 2001 18:28:35 -0500
-Message-ID: <20010323002752.A5650@win.tue.nl>
-Date: Fri, 23 Mar 2001 00:27:52 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: stephenc@theiqgroup.com (Stephen Clouse),
-        riel@conectiva.com.br (Rik van Riel),
-        orourke@missioncriticallinux.com (Patrick O'Rourke),
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <20010322230041.A5598@win.tue.nl> <E14gDwB-0003Tj-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S132255AbRCVXfk>; Thu, 22 Mar 2001 18:35:40 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39434 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132251AbRCVXfb>; Thu, 22 Mar 2001 18:35:31 -0500
+Subject: Re: Incorrect mdelay() results on Power Managed Machines x86
+To: twoller@crystal.cirrus.com (Woller, Thomas)
+Date: Thu, 22 Mar 2001 23:37:43 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'), andrew.grover@intel.com,
+        twoller@crystal.cirrus.com (Woller Thomas),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <973C11FE0E3ED41183B200508BC7774C0124F077@csexchange.crystal.cirrus.com> from "Woller, Thomas" at Mar 22, 2001 05:26:05 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <E14gDwB-0003Tj-00@the-village.bc.nu>; from Alan Cox on Thu, Mar 22, 2001 at 10:52:09PM +0000
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14gEeH-0003Z4-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 22, 2001 at 10:52:09PM +0000, Alan Cox wrote:
+> 	thanks, i just tested the "notsc" option (.config has CONFIG_X86_TSC
+> enabled=y, but CONFIG_M586TSC is not enabled.. if that's ok), but this time
+...
+> boot and stay on battery power exclusively.  did anyone else expect this
+> behaviour?  
 
-> > You see, the bug is that malloc does not fail. This means that the
-> > decisions about what to do are not taken by the program that knows
-> > what it is doing, but by the kernel.
+Errmm no.. 
 
-> Even if malloc fails the situation is no different.
-
-Why do you say so?
-
-> You can do overcommit avoidance in Linux if you are bored enough to try it.
-
-Would you accept it as the default? Would Linus?
-
-(With disk I/O we are terribly conservative, using very cautious settings,
-and many people use hdparm to double or triple their disk speed.
-But for a few these optimistic settings cause data corruption,
-so we do not make it the default.
-Similarly I would be happy if the "no overcommit", "no OOM killer"
-situation was the default. The people who need a reliable system
-will leave it that way. The people who do not mind if some process
-is killed once in a while use vmparm or /proc/vm/overcommit or so
-to make Linux achieve more on average.)
-
-Andries

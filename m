@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263579AbSJHUIX>; Tue, 8 Oct 2002 16:08:23 -0400
+	id <S263457AbSJHT7H>; Tue, 8 Oct 2002 15:59:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263558AbSJHUGw>; Tue, 8 Oct 2002 16:06:52 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:58790 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263554AbSJHUF0>;
-	Tue, 8 Oct 2002 16:05:26 -0400
-Date: Tue, 08 Oct 2002 13:04:02 -0700 (PDT)
-Message-Id: <20021008.130402.96131900.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: simon@baydel.com, linux-kernel@vger.kernel.org
-Subject: Re: The end of embedded Linux?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1034076314.26473.47.camel@irongate.swansea.linux.org.uk>
-References: <3DA1CF36.19659.13D4209@localhost>
-	<3DA2BD70.14919.2C6951@localhost>
-	<1034076314.26473.47.camel@irongate.swansea.linux.org.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S263526AbSJHT4Y>; Tue, 8 Oct 2002 15:56:24 -0400
+Received: from tapu.f00f.org ([66.60.186.129]:56040 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S263527AbSJHT4G>;
+	Tue, 8 Oct 2002 15:56:06 -0400
+Date: Tue, 8 Oct 2002 13:01:47 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
+Message-ID: <20021008200147.GB5162@tapu.f00f.org>
+References: <1034044736.29463.318.camel@phantasy> <20021008183824.GA4494@tapu.f00f.org> <1034102950.30670.1433.camel@phantasy> <20021008190513.GA4728@tapu.f00f.org> <1034104637.29468.1483.camel@phantasy> <20021008195223.GA5040@tapu.f00f.org> <1034107190.29467.1533.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1034107190.29467.1533.camel@phantasy>
+User-Agent: Mutt/1.4i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: 08 Oct 2002 12:25:14 +0100
-   
-   [BTW that also came up in the large
-   computing world too - we never merged a driver for the AP-1000+ fddi
-   because there were only two cards on the planet 8)]
+On Tue, Oct 08, 2002 at 03:59:50PM -0400, Robert Love wrote:
 
-Actually, that driver was in the tree for a long time.
+> 20% increase in kernel compilation is amazingly nice, for free.
+
+Results like this make pretty good arguments :)
+
+
+  --cw

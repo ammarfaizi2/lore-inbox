@@ -1,71 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271495AbTGQPUo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 11:20:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271498AbTGQPUn
+	id S271491AbTGQPUS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 11:20:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271497AbTGQPUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 11:20:43 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:9617 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S271495AbTGQPTe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 11:19:34 -0400
-Date: Fri, 18 Jul 2003 01:33:48 +1000
-From: CaT <cat@zip.com.au>
-To: Greg KH <greg@kroah.com>, sensors@stimpy.netroedge.com, frodol@dds.nl
-Cc: linux-kernel@vger.kernel.org, phil@netroedge.com
-Subject: Re: 2.6.0-t1: i2c+sensors still whacky
-Message-ID: <20030717153348.GO4612@zip.com.au>
-References: <20030715090726.GJ363@zip.com.au> <20030715161127.GA2925@kroah.com> <20030716060443.GA784@zip.com.au> <20030716061009.GA5037@kroah.com> <20030716062922.GA1000@zip.com.au> <20030716073135.GA5338@kroah.com> <20030716224718.GA4612@zip.com.au> <20030716225452.GA3419@kroah.com>
+	Thu, 17 Jul 2003 11:20:17 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:524 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S271491AbTGQPTX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 11:19:23 -0400
+Date: Thu, 17 Jul 2003 17:34:13 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Walt H <waltabbyh@comcast.net>, arjanv@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       davzaffiro@tasking.nl
+Subject: Re: [PATCH] pdcraid and weird IDE geometry
+Message-ID: <20030717173413.A2393@pclin040.win.tue.nl>
+References: <3F160965.7060403@comcast.net> <1058431742.5775.0.camel@laptop.fenrus.com> <3F16B49E.8070901@comcast.net> <1058453918.9055.12.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030716225452.GA3419@kroah.com>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1058453918.9055.12.camel@dhcp22.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Thu, Jul 17, 2003 at 03:58:38PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 03:54:52PM -0700, Greg KH wrote:
-> On Thu, Jul 17, 2003 at 08:47:18AM +1000, CaT wrote:
-> > On Wed, Jul 16, 2003 at 12:31:35AM -0700, Greg KH wrote:
-> > > Then just load the i2c_piix4 module.  If things still work just fine,
-> > > then try the i2c-adm1021 driver.  See what the kernel log says then.
-> > 
-> > All went well till the last step of loading the adm1021 driver.
+On Thu, Jul 17, 2003 at 03:58:38PM +0100, Alan Cox wrote:
+> On Iau, 2003-07-17 at 15:37, Walt H wrote:
 > 
-> And you are sure you have this hardware device?  Is that what the
-
-Yes. I am very definate that this worked in past 2.5 kernels. Remember
-how it used to turn my laptop off under load? I was able to read my
-temps and stuff though.
-
-> sensors package for 2.4 uses?  And 2.4 works just fine, right?
-
-I don't use 2.4. Haven't for ages.
-
-> If so, I suggest you ask the sensors developers on their mailing list as
-> this is a driver specific issue, and doesn't sound like a problem due to
-> the 2.5 port.
-
-I've added them to To/Cc. (Hey folks :) The full thread is available
-here:
-
-http://marc.theaimsgroup.com/?t=105826046600003&r=1&w=2
-
-If you could have a look I'd really appreciate it.
-
-> > i2c_adapter i2c-0: found normal i2c_range entry for adapter 0, addr 0018
-> > i2c_adapter i2c-0: Transaction (pre): CNT=00, CMD=09, ADD=30, DAT0=ff, DAT1=ff
-> > i2c_adapter i2c-0: Error: no response!
+> > On the second drive, it's like this:
+> > capacity = 80418240, head=255, sect = 63
+> > lba = capacity / (head * sect) = 5005 int or 5005.80 float
+> > lba = lba * (head * sect) = 80405325 int or 80418240.01 float
+> > lba = lba - sect = 80405262 int or 80418177 float
 > 
-> It's really looking like the driver is trying to talk to a device that
-> isn't present, hence the timeouts.
+> Would fixed point solve this. Start from capacity <<= 16 and then
+> do the maths. That would put lba in 65536ths of a sector which
+> should have the same result as your float maths
 
-I tried the other drivers and they all failed nicely and without hassle. I
-looked through my past .config files and this is the driver that appears
-the most in use.
+Ach Alan - I have not seen these earlier posts, but float or
+fixed point here is just nonsense.
 
--- 
-"How can I not love the Americans? They helped me with a flat tire the
-other day," he said.
-	- http://tinyurl.com/h6fo
+The purpose of
+	A = B/C;
+	A *= C;
+can only be to round B down to the largest multiple of C below it.
+Using infinite precision just turns this into
+	A = B;
+
+He needs the first sector of the last cylinder, in a setup where
+cylinders have size 16*63 or so, but the surrounding software
+thinks that it is 255*63, a mistake.
+
+I don't know anything about these RAIDs, but possibly it would
+help to give boot parameters for this disk.
+
+Maybe he is victim of the completely ridiculous
+	drive->head = 255;
+in ide-disk.c.
+(We have drive->head, the number of physical heads, and
+drive->bios_head, the translation presently used by the BIOS -
+or at least that is the intention. It is a bug if the former
+is larger than 16. The latter may well be 255.)
+
+Andries
+

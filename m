@@ -1,40 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263479AbUJ2T5w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263535AbUJ2U1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263479AbUJ2T5w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 15:57:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUJ2TzA
+	id S263535AbUJ2U1z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 16:27:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263537AbUJ2UYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 15:55:00 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:46772 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261875AbUJ2Tr0
+	Fri, 29 Oct 2004 16:24:07 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:21534 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S263521AbUJ2UMf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 15:47:26 -0400
-Message-ID: <41829E39.1000909@us.ibm.com>
-Date: Fri, 29 Oct 2004 12:47:05 -0700
-From: Ian Romanick <idr@us.ibm.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Thomas Zehetbauer <thomasz@hostmaster.org>
-CC: linux-kernel@vger.kernel.org,
-       "DRI developer's list" <dri-devel@lists.sourceforge.net>
-Subject: Re: status of DRM_MGA on x86_64
-References: <1099052450.11282.72.camel@hostmaster.org> <1099061384.11918.4.camel@hostmaster.org>
-In-Reply-To: <1099061384.11918.4.camel@hostmaster.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Oct 2004 16:12:35 -0400
+Date: Sat, 30 Oct 2004 00:13:07 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Doug Maxey <dwm@austin.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org
+Subject: Re: 2.6.10-rc1-mm2
+Message-ID: <20041029221307.GB11016@mars.ravnborg.org>
+Mail-Followup-To: Doug Maxey <dwm@austin.ibm.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linuxppc64-dev@ozlabs.org
+References: <20041029014930.21ed5b9a.akpm@osdl.org> <200410291955.i9TJtfaj014056@falcon10.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410291955.i9TJtfaj014056@falcon10.austin.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Zehetbauer wrote:
-> Hi again,
+On Fri, Oct 29, 2004 at 02:55:41PM -0500, Doug Maxey wrote:
 > 
-> I have now changed Kconfig and successfully compiled, loaded and used
-> DRI with a Matrox Millenium G550 on a dual Opteron system. I guess this
-> is a pretty good test and I wonder if the problem has already been fixed
-> or if it was limited to specific hard- or software.
+> Andrew, 
+> 
+> having some troubles on ppc64.  It looks like the changes in
+> the scripts/Makefile.{clean,build} are expecting include/asm to
+> exist in the source tree.  I don't see any related file except the
+> include/asm-$ARCH/Kbuild
 
-The problem, which exists with most (all?) DRM drivers, is that data 
-types are used in the kernel/user interface that have different sizes on 
-LP32 and LP64.  If your kernel is 64-bit, you will have problems with 
-32-bit applications.
+Fix attached.
+
+	Sam
+
+===== Makefile 1.546 vs edited =====
+--- 1.546/Makefile	2004-10-27 23:00:25 +02:00
++++ edited/Makefile	2004-10-29 23:05:42 +02:00
+@@ -761,7 +761,7 @@
+ prepare1: prepare2 outputmakefile
+ 
+ prepare0: prepare1 include/linux/version.h include/asm include/config/MARKER
+-	$(Q)$(MAKE) $(build)=$(srctree)/include/asm
++	$(Q)$(MAKE) $(build)=include/asm-$(ARCH)
+ ifneq ($(KBUILD_MODULES),)
+ 	$(Q)rm -rf $(MODVERDIR)
+ 	$(Q)mkdir -p $(MODVERDIR)
+===== include/asm-i386/Kbuild 1.1 vs edited =====
+--- 1.1/include/asm-i386/Kbuild	2004-10-27 23:06:50 +02:00
++++ edited/include/asm-i386/Kbuild	2004-10-29 01:44:08 +02:00
+@@ -11,7 +11,7 @@
+ always  := offsets.h
+ targets := offsets.s
+ 
+-CFLAGS_offsets.o := -I arch/i386/kernel
++CFLAGS_offsets.o := -Iarch/i386/kernel
+ 
+ $(obj)/offsets.h: $(obj)/offsets.s FORCE
+ 	$(call filechk,gen-asm-offsets, < $<)
+===== scripts/Makefile.build 1.51 vs edited =====
+--- 1.51/scripts/Makefile.build	2004-10-27 22:49:53 +02:00
++++ edited/scripts/Makefile.build	2004-10-29 23:04:40 +02:00
+@@ -10,7 +10,7 @@
+ # Read .config if it exist, otherwise ignore
+ -include .config
+ 
+-include $(if $(wildcard $(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
++include $(if $(wildcard $(srctree)/$(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
+ 
+ include scripts/Makefile.lib
+ 
+===== scripts/Makefile.clean 1.17 vs edited =====
+--- 1.17/scripts/Makefile.clean	2004-10-27 22:49:53 +02:00
++++ edited/scripts/Makefile.clean	2004-10-29 23:22:26 +02:00
+@@ -7,7 +7,7 @@
+ .PHONY: __clean
+ __clean:
+ 
+-include $(if $(wildcard $(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
++include $(if $(wildcard $(srctree)/$(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
+ 
+ # Figure out what we need to build from the various variables
+ # ==========================================================================

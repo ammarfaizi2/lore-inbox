@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261222AbREOSck>; Tue, 15 May 2001 14:32:40 -0400
+	id <S261255AbREOScj>; Tue, 15 May 2001 14:32:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261226AbREOS2z>; Tue, 15 May 2001 14:28:55 -0400
-Received: from cpe.atm0-0-0-122182.bynxx2.customer.tele.dk ([62.243.2.100]:44131
-	"HELO marvin.athome.dk") by vger.kernel.org with SMTP
-	id <S261225AbREOSSR>; Tue, 15 May 2001 14:18:17 -0400
-Message-ID: <3B0172E6.2010808@fugmann.dhs.org>
-Date: Tue, 15 May 2001 20:18:14 +0200
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4-ac9 i686; en-US; rv:0.9+) Gecko/20010513
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Exporting symbols from a module.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261222AbREOS2x>; Tue, 15 May 2001 14:28:53 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:62859 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S261226AbREOSS1>; Tue, 15 May 2001 14:18:27 -0400
+Date: Tue, 15 May 2001 20:18:21 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LANANA: To Pending Device Number Registrants
+Message-ID: <20010515201821.B754@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <Pine.GSO.4.21.0105151330480.21081-100000@weyl.math.psu.edu> <Pine.LNX.4.10.10105151036490.22038-100000@www.transvirtual.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.10.10105151036490.22038-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Tue, May 15, 2001 at 10:44:23AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Tue, May 15, 2001 at 10:44:23AM -0700, James Simmons wrote:
+> different. I do plan on some day merging drm and fbdev into one interface. So
+> I plan to change this behavior. I like to see this interface ioctl-less
+> (is their such a word ???). You mmap to alter buffers. Mmap is much more
+> flexiable than write for graphics buffers anyways. You use write to pass
+> "data" to the driver.
 
-I've got a simple question - how export symbols from one module, and use 
-them in another.
+The only problem with mmap(): You cannot know, if the page
+changed under you a**.
 
-I have two modules - 'kvaser' and 'can_master'.
-'kvaser' exports some functions, and 'can_master' needs to use call 
-these functions.
+What would first mmap()ed page of the screen look like, if some
+accelerator wrote a line there? Invalidating all mmap()ed pages
+for each and every accelerator command would be evil. Forbidding
+reads of that page is evil, too.
 
-I used EXPORT_SYMBOL, and declared the function extern,
-but i still get unresolved symbols.
+I have the same problem with DSPs, which like to mmap() some of
+their memory into the application, but can alter this memory
+every instruction the execute.
 
- > insmod kvaser.o
- > insmod can_master.o
-can_master.o: unresolved symbol can_hw_no_messages
-can_master.o: unresolved symbol can_hw_register
-can_master.o: unresolved symbol can_hw_get_message
-can_master.o: unresolved symbol can_hw_unregister
-can_master.o: unresolved symbol can_hw_listen
-can_master.o: unresolved symbol can_hw_block
-can_master.o: unresolved symbol can_hw_send_message
+mmap() has it's beauties, but ...
 
+Regards
 
-Looking in /proc/ksyms, i can find the exported symbols from the kvaser 
-driver, but it they are in a different format than all the others.
-
-d3d27070 can_hw_register_R__ver_can_hw_register [kvaser]
-d3d27090 can_hw_unregister_R__ver_can_hw_unregister     [kvaser]
-d3d270b0 can_hw_listen_R__ver_can_hw_listen     [kvaser]
-d3d270c4 can_hw_block_R__ver_can_hw_block       [kvaser]
-d3d270e8 can_hw_send_message_R__ver_can_hw_send_message [kvaser]
-d3d270f8 can_hw_get_message_R__ver_can_hw_get_message   [kvaser]
-d3d27108 can_hw_no_messages_R__ver_can_hw_no_messages   [kvaser]
-d3d27000 
-__insmod_kvaser_O/home/afu/cvs/dtu/49422/canbus/src/kvaser.o_M3B01709C_V132100 
-[kvaser]
-
-the modules are compiled with:
--D__KERNEL__ -DMODULE -Wall -O2 -Wall -Wstrict-prototypes 
--fomit-frame-pointer -fno-strict-aliasing -DEXPORT_SYMTAB
-
-Any ideas appreciated.
-
-Regards Anders Fugmann
-
-
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

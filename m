@@ -1,96 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbUK3OkC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbUK3Or7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262092AbUK3OkC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 09:40:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbUK3OkB
+	id S262095AbUK3Or7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 09:47:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbUK3Or6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 09:40:01 -0500
-Received: from nijmegen.renzel.net ([195.243.213.130]:6027 "EHLO
-	mx1.renzel.net") by vger.kernel.org with ESMTP id S262092AbUK3Ojc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 09:39:32 -0500
-From: Mws <mws@twisted-brains.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Looking for a single patch file for the ITE8212 kernel 2.6.10-rc2
-Date: Tue, 30 Nov 2004 15:37:52 +0100
-User-Agent: KMail/1.7.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200411291910.53740.mws@twisted-brains.org> <1101816038.25603.17.camel@localhost.localdomain>
-In-Reply-To: <1101816038.25603.17.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2451011.KgjqncJRTZ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Tue, 30 Nov 2004 09:47:58 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:65436 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262095AbUK3Or4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 09:47:56 -0500
+Subject: Re: [RFC] relinquish_fs() syscall
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mitchell Blank Jr <mitch@sfgoth.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041130141204.GE63669@gaz.sfgoth.com>
+References: <20041129114331.GA33900@gaz.sfgoth.com>
+	 <1101729087.20223.14.camel@localhost.localdomain>
+	 <20041129135559.GC33900@gaz.sfgoth.com>
+	 <1101741440.20225.22.camel@localhost.localdomain>
+	 <20041130132744.GB63669@gaz.sfgoth.com>
+	 <1101822273.2640.52.camel@laptop.fenrus.org>
+	 <20041130141204.GE63669@gaz.sfgoth.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <200411301537.59697.mws@twisted-brains.org>
+Message-Id: <1101822206.25617.28.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 30 Nov 2004 13:43:27 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2451011.KgjqncJRTZ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Maw, 2004-11-30 at 14:12, Mitchell Blank Jr wrote:
+> > iirc there are anonymous unix sockets...
+> 
+> Ah, I see now -- the sun_path[0]=='\0' code.  I'll have to take a look
+> at that; probably just need to add a check to prevent jailed processes
+> from using those sockets (since they're supposed to be in a "null"
+> namespace)  Will investigate later this week.
 
-hi,=20
+You would probably want a "private" AF_UNIX namespace too. The fact its
+a single namespace for "anonymous" AF_UNIX and the \0 trick is used is
+really legacy unix compatibility. Having multiple such namespaces is
+certainly
+doable. It's the same problem as the shared memory, semaphore and
+message
+queue objects have because they fall out of the filesystem namespace.
+Posix
+has fixed these but very few apps use the new forms.
 
-thanks for your response Alan,
+> 
+> It looks like this is also a weakness in code that currently uses
+> chroot("/var/empty")  It's not the end of the world since it still
+> requires a cooperating unjailed process on the same host as the jailed
+> one to pass in a fd which is quite an obstacle in most scenarios.  Still,
+> it's something that should be protected against.
 
-what i did now is i patched a 2.6.9 version to -ac.
+Also you need to look at fchdir(). If I accidentally pass you a file
+handle to a directory (or maybe to a file in reiser4 world ?) you can
+fchdir() out of the chroot.
 
-IT8212 is working properly and has found my attached harddisk.
+Alan
 
-unfortunately i got the next problem :)
-
-my s-ata drives connected to the Intel 925X (ICH6R) are not detected correc=
-tly with 2.6.9
-
-solution for now - backup data on IT8212 drive - reboot 2.6.10-rc2 and wait=
- for your proper
-patch when 2.6.10 is released.=20
-
-another question=20
-my Asus P5AD2 Premium has got 2 OnBoard Marvell Gigabit chipsets.=20
-I got a driver package from syskonnect directly - which is working also wit=
-h 2.6.9/10-rcX.
-sysconnect told me that they sended the drivers/patch to the kernel-ml.
-does somebody know when it will be merged to the repository?
-
-regards
-marcel
-
-
-On Tuesday 30 November 2004 13:00, Alan Cox wrote:
-> On Llu, 2004-11-29 at 18:10, Mws wrote:
-> > hi,
-> >=20
-> > does somebody, or you alan, have a single patch to support the ite8212 =
-ide chip?
-> > i now that it is contained in the latest ac patch - but that is against=
- kernel 2.6.9
->=20
-> The IT8212 driver depends on other -ac IDE changes. There was an earlier
-> version that didn't but that has some other bugs and since Bartlomiej
-> rejected it I've no interest in maintaining that version.
->=20
-> I'm afraid you'll need the -ac patches to use the IT8212. That isn't how
-> I wanted it either. Once 2.6.10 is out I'll maybe do a 2.6.10-ac. Right
-> now however both the released 10rc trees crashed or hung on boot on my
-> test boxes and I've not got the time to mess with random -bk snapshots.
->=20
-> Alan
->=20
-
---nextPart2451011.KgjqncJRTZ
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBrIXHPpA+SyJsko8RAtzTAKCCFfLKiVYMDRADygehcaFGTV0ZUgCcDUL/
-BUQXA0TkOOce4dkz7Zoorbg=
-=7uNj
------END PGP SIGNATURE-----
-
---nextPart2451011.KgjqncJRTZ--

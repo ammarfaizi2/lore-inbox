@@ -1,37 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbRBWABj>; Thu, 22 Feb 2001 19:01:39 -0500
+	id <S130071AbRBWAFA>; Thu, 22 Feb 2001 19:05:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129550AbRBWAB3>; Thu, 22 Feb 2001 19:01:29 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:44818 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S129511AbRBWABT>; Thu, 22 Feb 2001 19:01:19 -0500
-Date: Thu, 22 Feb 2001 18:01:03 -0600
-From: Philipp Rumpf <prumpf@mandrakesoft.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rusty Russell <rusty@linuxcare.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.1-ac15
-Message-ID: <20010222180103.B30762@mandrakesoft.mandrakesoft.com>
-In-Reply-To: <E14Vl7y-0001FG-00@halfway> <E14Vstm-0003q3-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S129550AbRBWAEt>; Thu, 22 Feb 2001 19:04:49 -0500
+Received: from alto.i-cable.com ([210.80.60.4]:30400 "EHLO alto.i-cable.com")
+	by vger.kernel.org with ESMTP id <S129290AbRBWAEb>;
+	Thu, 22 Feb 2001 19:04:31 -0500
+Message-ID: <3A95A94E.E3C84BE4@hkicable.com>
+Date: Fri, 23 Feb 2001 08:05:34 +0800
+From: root <lkthomas@hkicable.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac20 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: need to suggest a good FS:
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <E14Vstm-0003q3-00@the-village.bc.nu>; from Alan Cox on Thu, Feb 22, 2001 at 10:22:56AM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 22, 2001 at 10:22:56AM +0000, Alan Cox wrote:
-> > > We can take page faults in interrupt handlers in 2.4 so I had to use a 
-> > > spinlock, but that sounds the same
-> > 
-> > We can?  Woah, please explain.
-> 
-> vmalloc does a lazy load of the tlb. That can lead to the exception table 
-> being walked on an IRQ
+hey all, trouble again
 
-But will that ever get to the search_exception_table code ?  (I don't
-think that would be valid, but other exceptions in interrupts might be -
-cf some of the self-modifying mmx copy versions).
+anyone can suggest some good FS that can install linux?
+exclude reiserfs, ext2, ext3, DOS FAT..etc
+just need non-normal or non-popular FS, any suggestion?
 
-Oh, like rdmsr_eio on SMP systems.  Definitely valid, and it can deadlock
-with both the semaphore and the spinlock AFAICS.  Alan, is this an issue ?

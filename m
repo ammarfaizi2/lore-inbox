@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265854AbTAJRcX>; Fri, 10 Jan 2003 12:32:23 -0500
+	id <S265705AbTAJRZl>; Fri, 10 Jan 2003 12:25:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265857AbTAJRcW>; Fri, 10 Jan 2003 12:32:22 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:12304 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S265854AbTAJRcV>;
-	Fri, 10 Jan 2003 12:32:21 -0500
-Date: Fri, 10 Jan 2003 18:40:58 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Rusty Russell <rusty@rustcorp.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Craig Wilkie <craig@homerjay.homelinux.org>
-Subject: Re: [TRIVIAL] [PATCH 1 of 3] Fix errors making Docbook documentation
-Message-ID: <20030110174058.GB1163@mars.ravnborg.org>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Craig Wilkie <craig@homerjay.homelinux.org>
-References: <1041866409.17472.25.camel@irongate.swansea.linux.org.uk> <20030110073328.A11712C0DD@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030110073328.A11712C0DD@lists.samba.org>
-User-Agent: Mutt/1.4i
+	id <S265708AbTAJRZl>; Fri, 10 Jan 2003 12:25:41 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4626 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265705AbTAJRZk>; Fri, 10 Jan 2003 12:25:40 -0500
+Date: Fri, 10 Jan 2003 09:29:36 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: any chance of 2.6.0-test*?
+In-Reply-To: <20030110170625.GE23375@codemonkey.org.uk>
+Message-ID: <Pine.LNX.4.44.0301100921460.12833-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 
-> > Grab the docbook for those files from 2.4 and also the changes to the
-> > docbook generator
 
-I have updated scripts/kernel-doc once from 2.4, I will check again
-if there are new updates.
-I saw good improvements in reporting when updating it last time,
-people actually had a chance to locate were documentation was missing.
+On Fri, 10 Jan 2003, Dave Jones wrote:
+> 
+> What's happening with the OSS drivers ?
+> I'm still carrying a few hundred KB of changes from 2.4 for those.
+> I'm not going to spent a day splitting them up, commenting them and pushing
+> to Linus if we're going to be dropping various drivers.
 
-And I prefer a warning, to remind people that an update is needed.
+I consider them to be old drivers, the same way "hd.c" was. Not
+necessarily useful for most people, but neither was hd.c. And it was
+around for a _long_ time (heh. I needed to check. The config option is 
+still there ;)
 
-	Sam
+So I don't see a huge reason to remove them from the sources, but we might
+well make them harder to select by mistake, for example. Right now the
+config help files aren't exactly helpful, and the OSS choice is before the
+ALSA one, which looks wrong. 
+
+They should probably be marked deprecated, and if they don't get a lot of 
+maintenance, that's fine.
+
+		Linus
+

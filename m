@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266095AbSKOLCH>; Fri, 15 Nov 2002 06:02:07 -0500
+	id <S266106AbSKOLRr>; Fri, 15 Nov 2002 06:17:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266108AbSKOLCG>; Fri, 15 Nov 2002 06:02:06 -0500
-Received: from pc-62-31-74-27-ed.blueyonder.co.uk ([62.31.74.27]:22658 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S266095AbSKOLCG>; Fri, 15 Nov 2002 06:02:06 -0500
-Date: Fri, 15 Nov 2002 11:08:30 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, Alexander Viro <viro@math.psu.edu>,
-       Andrew Morton <akpm@zip.com.au>
-Cc: Stephen Tweedie <sct@redhat.com>, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Orlov allocator directory accounting bug
-Message-ID: <20021115110830.D4512@redhat.com>
+	id <S266108AbSKOLRr>; Fri, 15 Nov 2002 06:17:47 -0500
+Received: from pc3-stoc3-4-cust114.midd.cable.ntl.com ([80.6.255.114]:16905
+	"EHLO buzz.ichilton.co.uk") by vger.kernel.org with ESMTP
+	id <S266106AbSKOLRr>; Fri, 15 Nov 2002 06:17:47 -0500
+Date: Fri, 15 Nov 2002 11:24:37 +0000
+From: Ian Chilton <mailinglist@ichilton.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Panic - Kernel or Hardware?
+Message-ID: <20021115112437.GB1178@buzz.ichilton.co.uk>
+Reply-To: Ian Chilton <ian@ichilton.co.uk>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="r5Pyd7+fXNt84Ff3"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I seem to have started getting a lot of kernel panic's on a box but am
+not sure whether it's a kernel problem or a hardware problem.
 
-Hi,
+It's a dual Celeron 500 in an Abit BP6 board with 640MB RAM and a 40GB
+IDE HD. The HD is connected to the onboard UDMA interface (the A-bit
+board has 2x normal ide channels and 2x udma channels with a HPT366
+chipset).
 
-In looking at the fix for the ext3 Orlov double-accounting bug, I
-noticed a change to the sb->s_dir_count accounting, restoring a
-missing s_dir_count++ when we allocate a new directory.
+2.4.40-rc1 with the new eepro100 driver seemed to happen every few
+minutes so I recompiled it with the old eepro100 driver and it seemed
+much better but died after a few hours of compiling. 2.4.19 seemed to do
+the same.
 
-However, I can't find anywhere in the code where we decrement this
-again on directory deletion, neither in ext2 nor in ext3, in 2.4 nor
-in 2.5.
+All I could see in the log, is about the time it happened last was:
 
-Patch below is against Ted's 2.4 Orlov-for-ext3 backport, but it looks
-like we need something similar in both ext2 and ext3 in 2.5, too.
+Nov 14 23:26:40 buzz kernel: hda: status error:
+status=0x58 { DriveReady SeekComplete DataRequest }
+Nov 14 23:26:40 buzz kernel: hda: drive not ready for command
+Nov 14 23:28:47 buzz kernel: hda: status error:
+status=0x58 { DriveReady SeekComplete DataRequest }
+Nov 14 23:28:47 buzz kernel: hda: drive not ready for command
+Nov 14 23:29:00 buzz kernel: APIC error on CPU0: 02(02)
 
---Stephen
 
---r5Pyd7+fXNt84Ff3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="4200-orlov-dircount.patch"
+The box always seems to respond to pings fine but I can not
+ssh/telnet/anything else in and when I go to the console it's showing a
+kernel panic and have to hard reset.
 
---- linux-2.4-ext3merge/fs/ext3/ialloc.c.=K0023=.orig	Fri Nov 15 11:02:23 2002
-+++ linux-2.4-ext3merge/fs/ext3/ialloc.c	Fri Nov 15 11:02:23 2002
-@@ -263,9 +263,11 @@
- 		if (gdp) {
- 			gdp->bg_free_inodes_count = cpu_to_le16(
- 				le16_to_cpu(gdp->bg_free_inodes_count) + 1);
--			if (is_directory)
-+			if (is_directory) {
- 				gdp->bg_used_dirs_count = cpu_to_le16(
- 				  le16_to_cpu(gdp->bg_used_dirs_count) - 1);
-+				EXT3_SB(sb)->s_dir_count--;
-+			}
- 		}
- 		BUFFER_TRACE(bh2, "call ext3_journal_dirty_metadata");
- 		err = ext3_journal_dirty_metadata(handle, bh2);
+[ian@sooty:~]$ telnet 10.10.1.1
+Trying 10.10.1.1...
+Connected to 10.10.1.1.
+Escape character is '^]'.
+[stops]
 
---r5Pyd7+fXNt84Ff3--
+
+Any ideas?
+
+
+Thanks!
+
+Ian
+

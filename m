@@ -1,69 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261163AbRERQ7S>; Fri, 18 May 2001 12:59:18 -0400
+	id <S261165AbRERRDI>; Fri, 18 May 2001 13:03:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261165AbRERQ7I>; Fri, 18 May 2001 12:59:08 -0400
-Received: from waste.org ([209.173.204.2]:18525 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S261163AbRERQ6y>;
-	Fri, 18 May 2001 12:58:54 -0400
-Date: Fri, 18 May 2001 11:59:54 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Alternatives to device nodes as directories idea?
-Message-ID: <Pine.LNX.4.30.0105181117310.24909-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261167AbRERRC6>; Fri, 18 May 2001 13:02:58 -0400
+Received: from munchkin.spectacle-pond.org ([209.192.197.45]:60936 "EHLO
+	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
+	id <S261165AbRERRCp>; Fri, 18 May 2001 13:02:45 -0400
+Date: Fri, 18 May 2001 12:43:55 -0400
+From: Michael Meissner <meissner@spectacle-pond.org>
+To: Christoph Hellwig <hch@munchkin.spectacle-pond.org>,
+        "Eric S. Raymond" <esr@thyrsus.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Tom Rini <trini@kernel.crashing.org>,
+        Michael Meissner <meissner@spectacle-pond.org>,
+        Keith Owens <kaos@ocs.com.au>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+Message-ID: <20010518124355.A20191@munchkin.spectacle-pond.org>
+In-Reply-To: <20010518105353.A13684@thyrsus.com> <E150mKO-0007FF-00@the-village.bc.nu> <20010518120434.F14309@thyrsus.com> <20010518180909.A10357@caldera.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010518180909.A10357@caldera.de>; from hch@ns.caldera.de on Fri, May 18, 2001 at 06:09:09PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems to me that Linus' idea of making device nodes work like
-directories is a little too clever and probably overkill but the only
-alternative I've seen suggested is Al's per-device filesystems which seems
-similarly excessive.
+On Fri, May 18, 2001 at 06:09:09PM +0200, Christoph Hellwig wrote:
+> Aunt Tillie shouldn't try to manually configure a kernel.
 
-Few devices will have a need for multiple streamable interfaces and should
-probably be fine with one acting as the 'normal' device and another acting
-as a control device replacing ioctl. This would leave most of these weird
-directory-like objects containing only one file. And then there's the
-issue that the naming and permissions of that file ends up being a matter
-of kernel policy.
+Ummm, maybe Aunt Tillie wants to learn how to configure a kernel....  After
+all, all of us at one point in time were newbies in terms of configuring
+kernels, etc.
 
-As an alternative, I suggest something like:
-
-struct devicetype
-{
-	char name[16];
-	struct list_head isa; /* base types */
-};
-
-struct devicereg
-{
-	kdev_t dev; /* kdev_t could also include the following */
-	char name[16]; /* symbolic in-kernel name for this device */
-	struct devicetype devtype;
-	int block; /* block or char */
-	dev_t major, minor; /* legacy numbers, deprecated */
-};
-
-int register_devices(const devicereg *d, int n);
-
-Register_devices then makes a single call to a userspace helper,
-passing it a list of symbolic names and major/minor numbers associated
-with a detected device. This lets the helper configure them as a
-group. It can even mount per-device tmpfs directories to look like
-Al's world.
-
-Still missing is a scheme to allow the kernel to rendezvous with
-userspace when a user wants to open a device that's a module and has
-therefore not been detected yet. Presumably the userspace helper
-mentioned above keeps a mapping of kernel name->userspace name, so
-using the inverse of this map with autofs should allow module
-probing-like behavior.
-
-This still leaves cases that don't work: booting off IDE, SCSI built
-as a module, trying to mount a SCSI disk by UUID... But that doesn't
-work now.
-
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+-- 
+Michael Meissner, Red Hat, Inc.  (GCC group)
+PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
+Work:	  meissner@redhat.com		phone: +1 978-486-9304
+Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482

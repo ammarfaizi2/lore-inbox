@@ -1,70 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267966AbTBMJTM>; Thu, 13 Feb 2003 04:19:12 -0500
+	id <S267985AbTBMJWm>; Thu, 13 Feb 2003 04:22:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267985AbTBMJTM>; Thu, 13 Feb 2003 04:19:12 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:30643 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S267966AbTBMJTK>; Thu, 13 Feb 2003 04:19:10 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "David S. Miller" <davem@redhat.com>
-Date: Thu, 13 Feb 2003 20:28:34 +1100
-Message-ID: <15947.25922.785515.945307@notabene.cse.unsw.edu.au>
+	id <S267992AbTBMJWm>; Thu, 13 Feb 2003 04:22:42 -0500
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:20186 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S267985AbTBMJWj> convert rfc822-to-8bit; Thu, 13 Feb 2003 04:22:39 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-In-Reply-To: message from David S. Miller on  February 12
-References: <15946.54853.37531.810342@notabene.cse.unsw.edu.au>
-	<1045120278.5115.0.camel@rth.ninka.net>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Routing problem with udp, and a multihomed host in 2.4.20
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Subject: [BENCHMARK] 2.5.60 Lmbench performance
+Date: Thu, 13 Feb 2003 15:02:12 +0530
+Message-ID: <94F20261551DC141B6B559DC4910867217BE35@blr-m3-msg.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BENCHMARK] 2.5.60 Lmbench performance
+Thread-Index: AcLTQslsPjXakv6QQmaqWz03Xc1o3w==
+From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 13 Feb 2003 09:32:13.0566 (UTC) FILETIME=[CA54E9E0:01C2D342]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  February 12, davem@redhat.com wrote:
-> On Wed, 2003-02-12 at 15:18, Neil Brown wrote:
-> > Is this a bug, or is there some configuration I can change?
-> 
-> Specify the correct 'src' parameter in your 'ip' route
-> command invocations.
+Hi,
+Here are results of Lmbench for 2.5.60. Also look at the summary comparison below.
 
-Thanks... but I think I need a bit more help.
+						2.5.60		2.5.59	
+==============================================================================
+Processor, Processes - times in microseconds - smaller is better
 
-bartok # ./ip route show
-129.94.232.0/24 via 129.94.172.66 dev eth1 
-129.94.242.0/24 dev eth0  proto kernel  scope link  src 129.94.242.45 
-129.94.241.0/24 via 129.94.174.2 dev eth1 
-129.94.172.0/22 dev eth1  proto kernel  scope link  src 129.94.172.12 
-129.94.208.0/22 dev eth2  proto kernel  scope link  src 129.94.208.2 
-default via 129.94.242.1 dev eth0 
-bartok # ip addr show
-1: lo: <LOOPBACK,UP> mtu 16436 qdisc noqueue 
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-2: eth0: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 100
-    link/ether 00:10:4b:1c:a3:a4 brd ff:ff:ff:ff:ff:ff
-    inet 129.94.242.45/24 brd 129.94.242.255 scope global eth0
-3: eth1: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 100
-    link/ether 00:a0:c9:8f:7f:3c brd ff:ff:ff:ff:ff:ff
-    inet 129.94.172.12/22 brd 129.94.242.255 scope global eth1
-4: eth2: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 100
-    link/ether 00:90:27:37:bb:d5 brd ff:ff:ff:ff:ff:ff
-    inet 129.94.208.2/22 brd 129.94.242.255 scope global eth2
+1. sh proc					6652		6770
+------------------------------------------------------------------------------------------------------------------------------
+Context switching - times in microseconds - smaller is better
+
+1. 2p/0K ctxsw					1.430		1.660		
+------------------------------------------------------------------------------------------------------------------------------
+*Local* Communication latencies in microseconds - smaller is better
+1. TCP connection 				101		110
+------------------------------------------------------------------------------------------------------------------------------
+File & VM system latencies in microseconds - smaller is better
+1. Prot fault					0.562		1.035
+-------------------------------------------------------------------------------------------------------------------------------
+*Local* Communication bandwidth in MB/s - bigger is better
+1. AF unix					411		559
+==============================================================================
 
 
-The client in question is 129.94.211.194
-It sends a UDP request to 129.94.172.12
-The reply, addressed to 129.94.211.194 causes ARP requests on bartok's
-eth1
+*********************************************************************************************
+		LMBENCH for kernel 2.5.60
+*********************************************************************************************
 
-Surely the route that applies is the 4th one, which seems to have a
-correct 'src' parameter.
+                 L M B E N C H  2 . 0   S U M M A R Y
+                 ------------------------------------
+		 (Alpha software, do not distribute)
 
-BTW, The routes were all created with 'route', not 'ip', incase it
-matters.
+Basic system parameters
+----------------------------------------------------
+Host                 OS Description              Mhz
+                                                    
+--------- ------------- ----------------------- ----
+benchtest  Linux 2.5.60       i686-pc-linux-gnu  790
+benchtest  Linux 2.5.60       i686-pc-linux-gnu  790
+benchtest  Linux 2.5.60       i686-pc-linux-gnu  790
+benchtest  Linux 2.5.60       i686-pc-linux-gnu  790
+benchtest  Linux 2.5.60       i686-pc-linux-gnu  790
 
-NeilBrown
+Processor, Processes - times in microseconds - smaller is better
+----------------------------------------------------------------
+Host                 OS  Mhz null null      open selct sig  sig  fork exec sh  
+                             call  I/O stat clos TCP   inst hndl proc proc proc
+--------- ------------- ---- ---- ---- ---- ---- ----- ---- ---- ---- ---- ----
+benchtest  Linux 2.5.60  790 0.44 0.81 7.13 8.77       1.26 4.01  282 1281 6584
+benchtest  Linux 2.5.60  790 0.46 0.82 7.13 8.71    34 1.25 3.98  326 1287 6652
+benchtest  Linux 2.5.60  790 0.46 0.82 7.12 8.68    34 1.26 4.01  311 1303 6627
+benchtest  Linux 2.5.60  790 0.46 0.82 7.16 8.73    34 1.26 3.98  293 1302 6679
+benchtest  Linux 2.5.60  790 0.44 0.82 7.30 8.80    34 1.26 3.99  336 1299 6644
+
+Context switching - times in microseconds - smaller is better
+-------------------------------------------------------------
+Host                 OS 2p/0K 2p/16K 2p/64K 8p/16K 8p/64K 16p/16K 16p/64K
+                        ctxsw  ctxsw  ctxsw ctxsw  ctxsw   ctxsw   ctxsw
+--------- ------------- ----- ------ ------ ------ ------ ------- -------
+benchtest  Linux 2.5.60 1.350 4.8400     32 9.8000    175      43     178
+benchtest  Linux 2.5.60 1.480 4.7900     14     10    178      41     179
+benchtest  Linux 2.5.60 1.430 4.7900     14     11    178      43     179
+benchtest  Linux 2.5.60 1.370 4.7400     16 9.2700    178      40     179
+benchtest  Linux 2.5.60 1.430 4.8300     14 8.6300    178      42     179
+
+*Local* Communication latencies in microseconds - smaller is better
+-------------------------------------------------------------------
+Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
+                        ctxsw       UNIX         UDP         TCP conn
+--------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
+benchtest  Linux 2.5.60 1.350 8.616   13    25    47    30    57  101
+benchtest  Linux 2.5.60 1.480 8.370   13    25    46    30    57  102
+benchtest  Linux 2.5.60 1.430 8.384   13    24    46    31    57  102
+benchtest  Linux 2.5.60 1.370 8.498   14    24    46    30    57  103
+benchtest  Linux 2.5.60 1.430 8.562   14    25    46    30    58  102
+
+File & VM system latencies in microseconds - smaller is better
+--------------------------------------------------------------
+Host                 OS   0K File      10K File      Mmap    Prot    Page	
+                        Create Delete Create Delete  Latency Fault   Fault 
+--------- ------------- ------ ------ ------ ------  ------- -----   ----- 
+benchtest  Linux 2.5.60     92     31    362     85      641 0.562 4.00000
+benchtest  Linux 2.5.60     91     30    324     80      608 0.602 4.00000
+benchtest  Linux 2.5.60     91     31    325     84      618 0.574 4.00000
+benchtest  Linux 2.5.60     90     30    325     83      636 0.605 4.00000
+benchtest  Linux 2.5.60     90     30    325     83      624 0.605 4.00000
+
+*Local* Communication bandwidths in MB/s - bigger is better
+-----------------------------------------------------------
+Host                OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
+                             UNIX      reread reread (libc) (hand) read write
+--------- ------------- ---- ---- ---- ------ ------ ------ ------ ---- -----
+benchtest  Linux 2.5.60  344  309   51    295    355    124    113  355   170
+benchtest  Linux 2.5.60  544  253   53    298    353    123    112  354   169
+benchtest  Linux 2.5.60  511  411   52    296    353    123    112  354   169
+benchtest  Linux 2.5.60  575  552   52    272    353    123    112  354   169
+benchtest  Linux 2.5.60  577  477   53    295    353    123    113  354   170
+
+Memory latencies in nanoseconds - smaller is better
+    (WARNING - may not be correct, check graphs)
+---------------------------------------------------
+Host                 OS   Mhz  L1 $   L2 $    Main mem    Guesses
+--------- -------------  ---- ----- ------    --------    -------
+benchtest  Linux 2.5.60   790 3.800     56    174
+benchtest  Linux 2.5.60   790 3.804 8.8710    175
+benchtest  Linux 2.5.60   790 3.798 8.8810    175
+benchtest  Linux 2.5.60   790 3.801 8.8810    175
+benchtest  Linux 2.5.60   790 3.798     10    175
+
+Aniruddha Marathe
+WIPRO technologies, India

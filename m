@@ -1,61 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261345AbSJ1Qaa>; Mon, 28 Oct 2002 11:30:30 -0500
+	id <S261354AbSJ1QiZ>; Mon, 28 Oct 2002 11:38:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261346AbSJ1Qaa>; Mon, 28 Oct 2002 11:30:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56849 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261345AbSJ1Qa3>;
-	Mon, 28 Oct 2002 11:30:29 -0500
-Date: Mon, 28 Oct 2002 16:36:49 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: willy@debian.org, alan@lxorguk.ukuu.org.uk, rmk@arm.linux.org.uk,
-       hugh@veritas.com, akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] shmem missing cache flush
-Message-ID: <20021028163649.P27461@parcelfarce.linux.theplanet.co.uk>
-References: <1035216742.27318.189.camel@irongate.swansea.linux.org.uk> <20021028.061059.38206858.davem@redhat.com> <20021028143226.N27461@parcelfarce.linux.theplanet.co.uk> <20021028.062608.78045801.davem@redhat.com>
+	id <S261360AbSJ1QiZ>; Mon, 28 Oct 2002 11:38:25 -0500
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:21519 "EHLO vlad")
+	by vger.kernel.org with ESMTP id <S261354AbSJ1QiY>;
+	Mon, 28 Oct 2002 11:38:24 -0500
+Date: Mon, 28 Oct 2002 16:45:40 +0000
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops in kswapd, 2.4.19 kernel and before
+Message-ID: <20021028164540.GE13490@carfax.org.uk>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+References: <20021028102439.GB13490@carfax.org.uk> <20021028132901.B27077@oldwotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fWddYNRDgTk9wQGZ"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021028.062608.78045801.davem@redhat.com>; from davem@redhat.com on Mon, Oct 28, 2002 at 06:26:08AM -0800
+In-Reply-To: <20021028132901.B27077@oldwotan.suse.de>
+User-Agent: Mutt/1.4i
+x-gpg-fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+x-gpg-key: 1C335860
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 28, 2002 at 06:26:08AM -0800, David S. Miller wrote:
-> If you can't get purely arch/* include/asm-* patches to him,
-> that isn't my problem.
+
+--fWddYNRDgTk9wQGZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Mon, Oct 28, 2002 at 01:29:01PM +0100, Andrea Arcangeli wrote:
+> On Mon, Oct 28, 2002 at 10:24:39AM +0000, Hugo Mills wrote:
+> >    I'm getting regular oopsen in kswapd on my 2.4.19 kernel. They
+> > generally appear to happen while running Amanda (a tape backup
 > 
-> Yes, you might have to retransmit that patch 20/30 times over the
-> course of a few days depending upon how busy Linus is, just get over
-> it. :-)
+> if it only happens while or after running Amanda, it may be a tape
+> driver bug.
 
-I've been more concerned with getting core changes we need to him than
-updating arch/parisc and include/asm-parisc.  Maybe I should have been
-more pushy.
+   I may have seen it (once?) before without touching the tape drive,
+although I'm not certain. I shall see if I can reproduce without use
+of the tape.
 
->    What do you want to do about flush_icache_page?  You want to change it
->    to flush_dcache_page at eviction time, and then we can purge that page
->    from our icache in update_mmu_cache?
->    
-> That's the idea.  The other idea is "well these particular call spots
-> really are special, so let's document flush_icache_page properly".
+> >    Decoded oopsen are below (they _are_ decoded with the right system
+> > maps, despite ksymoops's concerns). If there's anything else that's
+> > needed in order to track this down, please let me know.
+> 
+> the oopses shows some inode was corrupted, it doesn't tell us who is
+> corrupting them but most likely it is not a piece of common code (a driver
+> or a non mainstream feature or we should be able to reproduce it) You
+> should try to localize the bug to a piece of code, by for example making
+> 100% sure that it triggers as soon as you start amanda. 
 
-What data do you need to make that decision?  AFAICT (I'm not really
-a PA CPU guru..) it's exactly the same amount of code, no matter which
-way we do it.
+   It's not certain. I appear to have triggered it this morning on the
+_third_ consecutive run of amflush. Again, I'll test more carefully.
 
-While we're on the subject of cache flushing... these make no sense:
+> Then you can try to backup using another device (not tape) and see
+> if you can still reproduce. finally you can try to use older or
+> newer 2.4 drivers for the tape and see if there's any change that
+> fixes the problem in the old/new drivers. Of course it isn't certain
+> at all that it is the tape, I'm just guessing because you said it
+> happens while backing up to the tape.
 
-fs/binfmt_aout.c:357:           flush_icache_range(text_addr, text_addr+ex.a_text+ex.a_data);
-fs/binfmt_aout.c:381:                   flush_icache_range((unsigned long) N_TXTADDR(ex),
-fs/binfmt_aout.c:479:           flush_icache_range((unsigned long) start_addr,
-fs/binfmt_elf.c:422:    flush_icache_range((unsigned long)addr,
+   I've definitely seen the problem throughout the 2.4 series. I don't
+recall what the first 2.4 kernel I used was, but it was definitely
+there in all mainstream kernels (and those -ac kernels I tried) from
+about 2.4.14 onwards. I'll try 2.4.20-preX and report on that as well.
 
-the kernel doesn't execute the code ranges here, userspace does.  Which
-means that the only place in the entire kernel which does need to call
-flush_icache_range() is kernel/module.c, and that could all be done in
-module_arch_init().  So I think we don't need flush_icache_range() at all.
+   Thanks for your help. It may be a week or two before I can get all
+these tests completed, but I shall definitely report back when I'm
+done.
+
+   Hugo.
 
 -- 
-Revolutions do not require corporate support.
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+ PGP: 1024D/1C335860 from wwwkeys.eu.pgp.net or www.carfax.nildram.co.uk
+   --- Anyone who claims their cryptographic protocol is secure is ---   
+         either a genius or a fool.  Given the genius/fool ratio         
+                 for our species,  the odds aren't good.                 
+
+--fWddYNRDgTk9wQGZ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE9vWm0ssJ7whwzWGARAsJ9AJ0eQBXcomblau0V724JATMJL0qpaACgl5I5
+lKqKsL9LeK1p77XUm8TqIJg=
+=0d7f
+-----END PGP SIGNATURE-----
+
+--fWddYNRDgTk9wQGZ--

@@ -1,71 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262737AbTDXKHG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 06:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262764AbTDXKHG
+	id S262680AbTDXKQw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 06:16:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262682AbTDXKQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 06:07:06 -0400
-Received: from [195.95.38.160] ([195.95.38.160]:48121 "HELO mail.vt4.net")
-	by vger.kernel.org with SMTP id S262737AbTDXKHE (ORCPT
+	Thu, 24 Apr 2003 06:16:52 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:47539 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262680AbTDXKQv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 06:07:04 -0400
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: Russell King <rmk@arm.linux.org.uk>, devilkin-lkml@blindguardian.org
-Subject: Re: [2.5.67 - 2.5.68] Hangs on pcmcia yenta_socket initialisation
-Date: Thu, 24 Apr 2003 12:16:18 +0200
-User-Agent: KMail/1.5.1
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <200304230747.27579.devilkin-lkml@blindguardian.org> <200304241206.43717.devilkin-lkml@blindguardian.org> <20030424111123.A25304@flint.arm.linux.org.uk>
-In-Reply-To: <20030424111123.A25304@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Description: clearsigned data
+	Thu, 24 Apr 2003 06:16:51 -0400
+Date: Thu, 24 Apr 2003 12:28:51 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Erik Andersen <andersen@codepoet.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.21-rc1 pointless IDE noise reduction
+Message-ID: <20030424102851.GI8775@suse.de>
+References: <20030424093443.GA7180@codepoet.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304241216.24417.devilkin-lkml@blindguardian.org>
+In-Reply-To: <20030424093443.GA7180@codepoet.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Apr 24 2003, Erik Andersen wrote:
+> The ide driver does not list whether drives support things like
+> write cache, SMART, SECURITY ERASE UNIT.  But for some silly
+> reason it tells us at boot whether each drive is capable of
+> supporting the Host Protected Area feature set.  If people want
+> to know the capabilites of their drive, they can run 'hdparm' 
+> and find out.
+> 
+> This patch removes this pointless noise.  Please apply,
+> 
+> 
+> --- linux/drivers/ide/ide-disk.c.orig	2003-04-24 03:23:53.000000000 -0600
+> +++ linux/drivers/ide/ide-disk.c	2003-04-24 03:24:54.000000000 -0600
+> @@ -1133,10 +1133,7 @@
+>   */
+>  static inline int idedisk_supports_host_protected_area(ide_drive_t *drive)
+>  {
+> -	int flag = (drive->id->cfs_enable_1 & 0x0400) ? 1 : 0;
+> -	if (flag)
+> -		printk("%s: host protected area => %d\n", drive->name, flag);
+> -	return flag;
+> +	return((drive->id->cfs_enable_1 & 0x0400) ? 1 : 0);
+>  }
 
-On Thursday 24 April 2003 12:11, Russell King wrote:
-> On Thu, Apr 24, 2003 at 12:06:37PM +0200, DevilKin wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > On Thursday 24 April 2003 09:57, Russell King wrote:
-> > > Maybe looking in /sysfs/bus/pci/drivers before inserting the card
-> > > (this may cause an oops as well - if so, it confirms my suspicion.)
-> >
-> > Uh... The Maestro3 is integrated on the motherboard, so that's kinda
-> > hard.
->
-> Sorry, I meant booting without the cardbus card inserted, then looking
-> at /sysfs/bus/pci/drivers.
+Seconded, it causes a lot more confusion than it does good.
 
-devilkin@laptop:~$ tree /sys/bus/pci/drivers/
-/sys/bus/pci/drivers/
-|-- PIIX IDE
-|   `-- 00:07.1 -> ../../../../devices/pci0/00:07.1
-|-- cardbus
-|   |-- 00:03.0 -> ../../../../devices/pci0/00:03.0
-|   `-- 00:03.1 -> ../../../../devices/pci0/00:03.1
-|-- ess_m3_audio
-|   `-- 00:08.0 -> ../../../../devices/pci0/00:08.0
-|-- parport_pc
-|-- serial
-`-- uhci-hcd
-    `-- 00:07.2 -> ../../../../devices/pci0/00:07.2
-
-Jan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+p7l1puyeqyCEh60RAkK0AJ48w7l9nl93DpKbQAldI7Q1nsMfkgCghNiP
-IzwpmcKOxgGytMG+OQP20RI=
-=SnTJ
------END PGP SIGNATURE-----
+-- 
+Jens Axboe
 

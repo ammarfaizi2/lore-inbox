@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275424AbRJFSEV>; Sat, 6 Oct 2001 14:04:21 -0400
+	id <S275399AbRJFR7a>; Sat, 6 Oct 2001 13:59:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275425AbRJFSEC>; Sat, 6 Oct 2001 14:04:02 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:60043 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S275424AbRJFSDu>; Sat, 6 Oct 2001 14:03:50 -0400
-Date: Sat, 6 Oct 2001 14:04:19 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200110061804.f96I4Jk03897@devserv.devel.redhat.com>
-To: paulus@samba.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: how to get virtual address from dma address
-In-Reply-To: <mailman.1002355920.6872.linux-kernel2news@redhat.com>
-In-Reply-To: <200110032244.f93MiI103485@localhost.localdomain> <d3n136tc48.fsf@lxplus014.cern.ch> <mailman.1002355920.6872.linux-kernel2news@redhat.com>
+	id <S275420AbRJFR7U>; Sat, 6 Oct 2001 13:59:20 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:60596 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S275399AbRJFR7I>;
+	Sat, 6 Oct 2001 13:59:08 -0400
+Date: Sat, 06 Oct 2001 18:59:34 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+        Rik van Riel <riel@conectiva.com.br>
+Cc: Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
+        linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: %u-order allocation failed
+Message-ID: <462829506.1002394773@[195.224.237.69]>
+In-Reply-To: <Pine.LNX.3.96.1011006164044.29342B-200000@artax.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.3.96.1011006164044.29342B-200000@artax.karlin.mff.cuni
+ .cz>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->[...]
-> The argument for supplying this functionality in the PCI DMA code
-> would be that if it was done there it could be done once, and in a
-> sophisticated and efficient (and SMP-safe :) fashion, rather than
-> ad-hoc in each driver.
 
-This is exactly the kind of thinking that brought us pci_pool.
-With all due respect to David-B, it was totally unnecessary,
-in my view. However, attempts to make it "pretty" resulted in
-something that cannot be implemented right. Just think if
-pci_pool_free can be entered from an interrupt. If you allow
-that, you cannot free full pages (because some broken architectures
-implement pci_alloc_consistent with vmalloc, and vfree is not
-interrupt safe). The root of the problem is an attempt to specify
-variable sized pools.
 
-I am afraid that if we start adding first class citizen APIs
-in the area of pci_alloc_something, it's going to be more and
-more interdependent and will place very strong constraints
-on what architectures can and cannot do. For example, already
-pci_alloc_consistent _cannot_ be implemented on some HP machines
-(and, by extension, pci_pool).
+--On Saturday, 06 October, 2001 4:44 PM +0200 Mikulas Patocka 
+<mikulas@artax.karlin.mff.cuni.cz> wrote:
 
-> It may also be possible for the PCI DMA code to take advantage of its
-> knowledge of a particular platform, for example if the platform only
-> has a small range of possible DMA addresses then it could use a simple
-> and fast lookup table.  Or it may be possible to read the IOMMU tables
-> on some platforms and do the reverse mapping quickly that way - this
-> would certainly be the case for the IBM RS/6000 machines since the
-> IOMMU tables are in system RAM.
+> Here goes the fix. (note that I didn't try to compile it so there may be
+> bugs, but you see the point).
 
-And it neither of these is possible, then what? Then you fall
-back on the most generic code, which is the worst case of
-all possible partial implementations in drivers.
+(seems to replace high order allocations by vmalloc)
 
--- Pete
+& how does vmalloc allocate physically (as opposed to virtually)
+contiguous memory; can't clearly recall it being IRQ safe either
+(for GFP_ATOMIC).
+
+--
+Alex Bligh

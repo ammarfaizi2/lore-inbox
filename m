@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266525AbUGUPtc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266531AbUGUP74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266525AbUGUPtc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 11:49:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266526AbUGUPtb
+	id S266531AbUGUP74 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 11:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266528AbUGUP74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 11:49:31 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:30546 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S266525AbUGUPtW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 11:49:22 -0400
-Subject: Re: [PATCH] delete devfs
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Greg KH <greg@kroah.com>
-Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040721141524.GA12564@kroah.com>
-References: <20040721141524.GA12564@kroah.com>
-Content-Type: text/plain
-Date: Wed, 21 Jul 2004 17:49:21 +0200
-Message-Id: <1090424961.16171.4.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9 
+	Wed, 21 Jul 2004 11:59:56 -0400
+Received: from smtp.rol.ru ([194.67.21.9]:33482 "EHLO smtp.rol.ru")
+	by vger.kernel.org with ESMTP id S266526AbUGUP7w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 11:59:52 -0400
+Message-ID: <40FE9390.9060609@vlnb.net>
+Date: Wed, 21 Jul 2004 20:02:24 +0400
+From: Vladislav Bolkhovitin <vst@vlnb.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040512
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [ANNOUNCE] [RFC] Generic SCSI Target Middle Level for Linux (SCST)
+ version 0.9.2 released
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pretty nice - i like it
+I would like to announce that Generic SCSI Target Middle Level for Linux
+(SCST) version 0.9.2 released.
 
-On Wed, 2004-07-21 at 10:15 -0400, Greg KH wrote:
-> Hm, seems kernel.org dropped my big patch, so the patch below can be
-> found at:
-> 	www.kernel.org/pub/linux/kernel/people/gregkh/misc/2.6/devfs-delete-2.6.8-rc2.patch
-> 
-> 
-> 
-> ----- Forwarded message from Greg KH <greg@kroah.com> -----
-> 
-> Date: Wed, 21 Jul 2004 02:49:37 -0400
-> From: Greg KH <greg@kroah.com>
-> To: Andrew Morton <akpm@osdl.org>
-> Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-> Subject: [PATCH] delete devfs
-> 
-> Ok, to test out the new development model, here's a nice patch that
-> simply removes the devfs code.  No commercial distro supports this for
-> 2.6, and both Gentoo and Debian have full udev support for 2.6, so it is
-> not needed there either.  Combine this with the fact that Richard has
-> sent me a number of good udev patches to fix up some "emulate devfs with
-> udev" minor issues, I think we can successfully do this now.
-> 
-> Andrew, please apply this to your tree and feel free to send it to Linus
-> when you think it should be there.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> <PATCH SNIPPED>
-> 
-> ----- End forwarded message -----
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+SCST is a new subsystem of the Linux kernel that provides a standard
+framework for SCSI target drivers development. SCST is designed to
+provide unified, consistent interface between SCSI target drivers and
+Linux kernel and simplify target drivers development as much as
+possible. A system with a SCSI target device is able to share its local
+or virtual devices with other systems on the network with SCSI protocol
+support, e.g. SCSI bus, Fibre Channel, TCP/IP with iSCSI. A system with
+a SCSI target device is able to share its local or virtual devices with
+other systems on a network with SCSI protocol support, e.g. SCSI bus,
+Fibre Channel, TCP/IP with iSCSI. This is commonly used for data storage
+virtualization. Full list of SCST's features, the source code and
+detailed documentation could be found on its Internet page
+http://scst.sourceforge.net.
+
+The major changes from version 0.9.1 are
+
+- 2.6 kernels support
+
+- FILEIO/BLKDEV device handler that works over files on file system and
+makes from them virtual remotely available SCSI disks. In addition, it
+allows to work directly over a block device, e.g. local IDE or SCSI disk
+or ever disk partition, where there is no file systems overhead. Using
+block devices comparing to sending SCSI commands directly to SCSI
+mid-level via scsi_do_req() has advantage that data are get or put via
+system cache, so it can fully benefit from caching and read ahead,
+performed by Linux's VM subsystem.
+
+The Qlogic target driver is coming soon.
+
+The next coming features are complete BLKDEV device handler, which will 
+not copy data from the page cache, but instead use the pages directly, 
+and device access control.
+
+Comments, suggestions, patches, drivers and testers are welcome. 
+Especially interesting comments (reviews) from inclusion in the mainline
+kernel point of view.
+
+Vlad
 

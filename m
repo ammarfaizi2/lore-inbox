@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbUJ0EcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbUJ0EdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261634AbUJ0EcM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 00:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbUJ0EcM
+	id S261622AbUJ0EdV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 00:33:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbUJ0EdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 00:32:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12684 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262316AbUJ0Eb7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 00:31:59 -0400
-Date: Tue, 26 Oct 2004 21:29:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: karim@opersys.com
-Cc: paulmck@us.ibm.com, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       rpm@xenomai.org
-Subject: Re: [RFC][PATCH] Restricted hard realtime
-Message-Id: <20041026212956.4729ce98.akpm@osdl.org>
-In-Reply-To: <417F12F1.5010804@opersys.com>
-References: <20041023194721.GB1268@us.ibm.com>
-	<417F12F1.5010804@opersys.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 27 Oct 2004 00:33:21 -0400
+Received: from smtp100.rog.mail.re2.yahoo.com ([206.190.36.78]:57947 "HELO
+	smtp100.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S261622AbUJ0EdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 00:33:17 -0400
+From: Shawn Starr <shawn.starr@rogers.com>
+Organization: sh0n.net
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.10-rc1-bk5] e1000 broken badly on IBM T42
+Date: Wed, 27 Oct 2004 00:33:22 -0400
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410270033.22804.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karim Yaghmour <karim@opersys.com> wrote:
->
-> Here are a number of solutions that some have found to be "correct"
->  for their needs over time, in chronological order of appearance:
->  a- Master/slave kernel (ex.: RTLinux)
->  b- Dual-CPU (there are actually many examples of this, some that
->      date back quite a few years)
->  c- Interrupt levels (ex.: D.Schleef, B.Kuhn, etc.)
->  d- Nanokernel/Hypervisor (ex.:Adeos)
->  e- Preemption
->  f- Uber-preemption and IRQ threading (a.k.a. preemption on acid)
->      (ex.: Ingo, TimeSys, MontaVista, Bill)
+NETDEV WATCHDOG: eth0: transmit timed out
+e1000: eth0: e1000_watchdog: NIC Link is Up 1000 Mbps Full Duplex
+NETDEV WATCHDOG: eth0: transmit timed out
 
-uber-preemption is the chosen way for the mainline kernel mainly because
-its mechanisms can be largely hidden inside (increasingly ghastly) header
-files and most developers just don't have to worry about it.
+eth0      Link encap:Ethernet  HWaddr 00:0D:60:CA:C1:97
+          inet addr:192.168.10.5  Bcast:192.168.10.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:4294883167 errors:4294370903 dropped:4294796898 overruns:4294882097 frame:4294711699
+          TX packets:4294883949 errors:4294796898 dropped:0 overruns:0 carrier:4294711699
+          collisions:4294882097 txqueuelen:1000
+          RX bytes:470309 (459.2 KiB)  TX bytes:108971 (106.4 KiB)
+          Base address:0x8000 Memory:c0220000-c0240000
 
-I have a sneaking suspicion that the day will come when we get nice
-sub-femtosecond latencies in all the trivial benchmarks but it turns out
-that the realtime processes won't be able to *do* anything useful because
-whenever they perform syscalls, those syscalls end up taking long-held
-locks.
 
-Which does lead me to suggest that we need to identify the target
-application areas for Ingo's current work and confirm that those
-applications are seeing the results which they require.  Empirical results
-from the field do seem to indicate success, but I doubt if they're
-sufficiently comprehensive.
+I can't even use the interface, some counters are going up others going backwards? ;-)
+
+Anyone notice this?
+
+Shawn.

@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbUEVVa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbUEVVmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbUEVVa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 17:30:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbUEVVa0
+	id S261925AbUEVVmz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 17:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbUEVVmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 17:30:26 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:37532 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261920AbUEVVaY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 17:30:24 -0400
-Date: Sat, 22 May 2004 23:30:18 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Lorenzo Allegrucci <l_allegrucci@despammed.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm5 oops mounting ext3 or reiserfs with -o barrier
-Message-ID: <20040522213018.GA31224@suse.de>
-References: <200405222107.55505.l_allegrucci@despammed.com> <20040522122126.2940f8f4.akpm@osdl.org> <20040522212028.GA31188@suse.de>
-Mime-Version: 1.0
+	Sat, 22 May 2004 17:42:55 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:31688 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261925AbUEVVmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 17:42:54 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "Jim Gifford" <maillist@jg555.com>
+Date: Sun, 23 May 2004 07:42:34 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040522212028.GA31188@suse.de>
+Content-Transfer-Encoding: 7bit
+Message-ID: <16559.51530.676312.49328@cse.unsw.edu.au>
+Cc: "Kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: Trouble with NFS with -mm3, -mm4, and -mm5
+In-Reply-To: message from Jim Gifford on Saturday May 22
+References: <01ef01c44027$7cb90920$d100a8c0@W2RZ8L4S02>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 22 2004, Jens Axboe wrote:
-> On Sat, May 22 2004, Andrew Morton wrote:
-> > Lorenzo Allegrucci <l_allegrucci@despammed.com> wrote:
-> > >
-> > > 
-> > > I get a 100% reproducible oops mounting an ext3 or reiserfs
-> > > partition with -o barrier enabled.
-> > > Hand written oops (for ext3):
-> > 
-> > That's a lot of hand-writing.  Thanks for doing that.  You can usually omit
-> > the hex numbers in [brackets] when doing this.
-> > 
-> > The crash is here:
-> > 
-> > static inline void blkdev_dequeue_request(struct request *req)
-> > {
-> > 	BUG_ON(list_empty(&req->queuelist));
-> > 
-> > perhaps related to that I/O error sending the code through less-tested
-> > paths.
+On Saturday May 22, maillist@jg555.com wrote:
+> I keep getting the following oops using NFS with -mm3 thru -mm5.
+
+What filesystem type(s) are you exporting?
+
+NeilBrown
+
 > 
-> Ouch indeed, I'll get that fixed up first thing in the morning.
-
-Can you test this work-around? The work-around should be perfectly safe,
-this is just a case where a BUG_ON() does more harm than good :-)
-
---- drivers/ide/ide-io.c~	2004-05-21 11:02:58.000000000 +0200
-+++ drivers/ide/ide-io.c	2004-05-22 23:28:37.692944185 +0200
-@@ -291,6 +291,8 @@
- 		sector = real_rq->hard_sector;
- 
- 	bad_sectors = real_rq->hard_nr_sectors - good_sectors;
-+	/* work-around, make sure request is on queue */
-+	elv_requeue_request(drive->queue, real_rq);
- 	if (good_sectors)
- 		__ide_end_request(drive, real_rq, 1, good_sectors);
- 	if (bad_sectors)
-
--- 
-Jens Axboe
-
+> May 22 00:25:27 server ------------[ cut here ]------------
+> May 22 00:25:27 server kernel BUG at include/linux/dcache.h:276!
+> May 22 00:25:27 server invalid operand: 0000 [#1]
+> May 22 00:25:27 server PREEMPT SMP

@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261217AbRFFUWA>; Wed, 6 Jun 2001 16:22:00 -0400
+	id <S261198AbRFFUck>; Wed, 6 Jun 2001 16:32:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264140AbRFFUVt>; Wed, 6 Jun 2001 16:21:49 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:59659 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S264138AbRFFUVh>; Wed, 6 Jun 2001 16:21:37 -0400
-Date: Wed, 6 Jun 2001 13:20:53 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Vojtech Pavlik <vojtech@suse.cz>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        linux-kernel@vger.kernel.org, tytso@mit.edu
-Subject: Re: [driver] New life for Serial mice
-In-Reply-To: <20010606182221.B30546@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10106061317180.12135-100000@transvirtual.com>
+	id <S261268AbRFFUca>; Wed, 6 Jun 2001 16:32:30 -0400
+Received: from web10001.mail.yahoo.com ([216.136.130.37]:59659 "HELO
+	web10001.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261198AbRFFUcM>; Wed, 6 Jun 2001 16:32:12 -0400
+Message-ID: <20010606203210.79319.qmail@web10001.mail.yahoo.com>
+Date: Wed, 6 Jun 2001 13:32:10 -0700 (PDT)
+From: Ali Sanaie <asanaie@yahoo.com>
+Subject: RE:  Problem: NIC doesn't work anymore  Winbond 89C940
+To: jonathan_brugge@hotmail.com, david@fortyoz.org,
+        linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, I have the same problem with my network card Winbond 89C940 on a
+linksys etherPCI lan card II.
 
-> > > hmmm.  I just looked over this, and drivers/char/joystick/ser*.[ch].
-> > > 
-> > > Bad trend.
-> > > 
-> > > Serial needs to be treated just like parport: the basic hardware code,
-> > > then on top of that, a selection of drivers, all peers:  dumb serial
-> > > port, serial mouse, joystick, etc.
-> > 
-> > Agreed. Completely.
-> 
-> I suggest that if someone is thinking about this that they look at
-> serial_core.c in the ARM patch hunk.
->    (ftp.arm.linux.org.uk/pub/armlinux/source/kernel-patches/v2.4/)
-> 
-> Note that you shouldn't apply the whole patch - it probably won't compile
-> for anything but ARM atm.
+The kernel recommends ne2k-pci for winbond, It's detected by the kernel but I 
+get the "bogus packet size" error and it does not send any info!
+my kernel is 2.4.5 and RH7.1 is the system.
 
-Never noticed it until now. Very nice patch :-) I have to agree as well.
-It would be nice if we had 
+which driver did you use?
 
-1) A seperate serial directory under drivers.
-
-2) A nice structure that input devices and the tty layer can use. It is
-   just a waste to go threw the tty layer for input devices. It would also
-   make serial driver writing easier if the api is designed right :-) 
+Thanks in advance
+Ali
 
 
+
+>From: David Raufeisen <david@fortyoz.org>
+>Reply-To: David Raufeisen <david@fortyoz.org>
+>To: Jonathan Brugge <jonathan_brugge@hotmail.com>
+>CC: linux-kernel@vger.kernel.org
+>Subject: Re: Problem: NIC doesn't work anymore, SIOCIFADDR-errors
+>Date: Wed, 14 Feb 2001 06:36:20 -0800
+>
+>Are you using the net-tools from debian? There was a broken one causing 
+>these
+>errors the last few days, is fixed now.
+>
+>On Wednesday, 14 February 2001, at 15:17:09 (+0100),
+>Jonathan Brugge wrote:
+>
+> > Here's the output from dmesg, after deleting some unimportant stuff like
+> > sound and graphics-init. I don't see any errors that have something to
+
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail - only $35 
+a year!  http://personal.mail.yahoo.com/

@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262506AbSKCVXV>; Sun, 3 Nov 2002 16:23:21 -0500
+	id <S261847AbSKCVQ4>; Sun, 3 Nov 2002 16:16:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262667AbSKCVXV>; Sun, 3 Nov 2002 16:23:21 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:4622 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262506AbSKCVXR>; Sun, 3 Nov 2002 16:23:17 -0500
-Date: Sun, 3 Nov 2002 22:29:38 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Sam Ravnborg <sam@ravnborg.org>,
-       Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5: troubles with piping make output
-In-Reply-To: <20021103212435.G5589@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0211032227100.6949-100000@serv>
-References: <200211031122.gA3BMbp27805@Port.imtp.ilyichevsk.odessa.ua>
- <20021103182805.GA1057@mars.ravnborg.org> <200211031946.gA3JkIp29186@Port.imtp.ilyichevsk.odessa.ua>
- <Pine.LNX.4.44.0211032106010.6949-100000@serv> <20021103202446.F5589@flint.arm.linux.org.uk>
- <Pine.LNX.4.44.0211032146240.6949-100000@serv> <20021103212435.G5589@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262415AbSKCVQ4>; Sun, 3 Nov 2002 16:16:56 -0500
+Received: from holomorphy.com ([66.224.33.161]:53648 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261847AbSKCVQ4>;
+	Sun, 3 Nov 2002 16:16:56 -0500
+Date: Sun, 3 Nov 2002 13:22:04 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@digeo.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Hot/cold allocation -- swsusp can not handle hot pages
+Message-ID: <20021103212204.GP23425@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@digeo.com>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20021102181900.GA140@elf.ucw.cz> <20021102184612.GI23425@holomorphy.com> <20021102202208.GC18576@atrey.karlin.mff.cuni.cz> <3DC44839.A3AEAE41@digeo.com> <20021103200809.GC27271@elf.ucw.cz> <20021103205206.GN23425@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021103205206.GN23425@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Nov 03, 2002 at 12:52:06PM -0800, William Lee Irwin III wrote:
+> static void empty_pageset(struct zone *zone, struct per_cpu_pages *pcp)
+> {
+> 	pcp->batch = pcp->low = pcp->high = 1;
+> 	pcp->count -= free_pages_bulk(zone, pcp->batch, &pcp->list, 0);
+> }
 
-On Sun, 3 Nov 2002, Russell King wrote:
+Should be
+ 	pcp->count -= free_pages_bulk(zone, pcp->count, &pcp->list, 0);
 
-> > Huh? What do you mean? oldconfig still works as before,
-> 
-> ssh host make -C $tree oldconfig ARCH=arm
-> 
-> that doesn't allocate a terminal.  I want such commands to _prompt_ for
-> input.  If they die because its not a terminal, I consider that _broken_.
-> Why?  The command is able to read input from a human, and write its output
-> to a human via the ssh pipes.
-> 
-> If you insist on breaking this, I'll insist on fixing it.  Its a misfeature
-> that you refuse to run in this situation.
 
-As I already said, oldconfig still works as before. Maybe you should have 
-tried it first?
-
-bye, Roman
-
+Bill

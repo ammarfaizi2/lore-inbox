@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264914AbRFUKJx>; Thu, 21 Jun 2001 06:09:53 -0400
+	id <S264913AbRFUKHx>; Thu, 21 Jun 2001 06:07:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264912AbRFUKJn>; Thu, 21 Jun 2001 06:09:43 -0400
-Received: from [203.126.57.231] ([203.126.57.231]:23308 "HELO
-	mail.celestix.com") by vger.kernel.org with SMTP id <S264850AbRFUKJe>;
-	Thu, 21 Jun 2001 06:09:34 -0400
-Date: Thu, 21 Jun 2001 17:58:57 +0800
-From: Thibaut LAURENT <thibaut@celestix.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.6-preX and MediaGX
-Message-Id: <20010621175857.1e278b28.thibaut@celestix.com>
-Organization: Celestix Networks Pte Ltd
-X-Mailer: Sylpheed version 0.4.99 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S264912AbRFUKHn>; Thu, 21 Jun 2001 06:07:43 -0400
+Received: from big-relay-1.ftel.co.uk ([192.65.220.123]:29063 "EHLO
+	old-callisto.ftel.co.uk") by vger.kernel.org with ESMTP
+	id <S264850AbRFUKHg>; Thu, 21 Jun 2001 06:07:36 -0400
+Message-ID: <3B31C762.BEBC2D07@ftel.co.uk>
+Date: Thu, 21 Jun 2001 11:07:30 +0100
+From: Paul Flinders <P.Flinders@ftel.co.uk>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.4-ac4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: The latest Microsoft FUD.  This time from BillG, himself.
+In-Reply-To: <E15Cq9u-0000CX-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan Cox wrote:
 
-I'm trying to build a kernel for Cyrix MediaGX. Kernel version is 2.4.6-pre3
-as it comes straight from the XFS devel tree.
-Processor type is set to 586/K5/5x86/6x86/6x86MX. Everything compiles fine.
+> > http://www.zdnet.com/zdnn/stories/news/0,4586,5092935,00.html >
+>
+> Of course the URL that goes with that is :
+>         http://www.microsoft.com/windows2000/interix/features.asp
+>
+> Yes., Microsoft ship GNU C (quite legally) as part of their offerings...
 
-Here comes my problem : the darn thing won't boot. I've seen at least 3
-different behaviours after the "Uncompressing Linux... Ok, booting the kernel"
-message : 
-Most of the time, it just crashes, nothing special.
-Sometimes, the screen blinks and turns blank (FB is not in...)
-Once or twice out of 20+ times, kernel panics.
-
-Any idea ?
-
-If you need the kernel panic trace I can try to reproduce it, though it seems
-very random.
-
-Regards,
-
-Thibaut
+Do they include the source? There's a CD of source that you can buy
+for $20 but gcc isn't listed
 

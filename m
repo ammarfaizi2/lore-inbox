@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVATTxR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVATTyw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261917AbVATTxR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 14:53:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVATTxQ
+	id S261927AbVATTyw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 14:54:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbVATTxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 14:53:16 -0500
-Received: from almesberger.net ([63.105.73.238]:47122 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S261917AbVATTwX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 14:52:23 -0500
-Date: Thu, 20 Jan 2005 16:51:50 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Re: [PATCH 0/29] overview
-Message-ID: <20050120165150.A21510@almesberger.net>
-References: <20050120102223.B14297@almesberger.net> <m1vf9s3ozr.fsf@ebiederm.dsl.xmission.com>
+	Thu, 20 Jan 2005 14:53:30 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:2463 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261921AbVATTwM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 14:52:12 -0500
+Date: Thu, 20 Jan 2005 11:50:58 -0800
+From: Greg KH <greg@kroah.com>
+To: Kumar Gala <kumar.gala@freescale.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: serial8250_init and platform_device
+Message-ID: <20050120195058.GA8835@kroah.com>
+References: <20050120154420.D13242@flint.arm.linux.org.uk> <736677C2-6B16-11D9-BD44-000393DBC2E8@freescale.com> <20050120193845.H13242@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1vf9s3ozr.fsf@ebiederm.dsl.xmission.com>; from ebiederm@xmission.com on Thu, Jan 20, 2005 at 12:00:08PM -0700
+In-Reply-To: <20050120193845.H13242@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> To some extent.  It is worth noting that the first 13 of my patches
-> are not core functionality they are bug fixes or feature enhancements
-> of code that simply have come to be associated with the work on kexec.
+On Thu, Jan 20, 2005 at 07:38:45PM +0000, Russell King wrote:
+> 
+> Greg - the name is constructed from "name" + "id num" thusly:
+> 
+> 	serial8250
+> 	serial82500
+> 	serial82501
+> 	serial82502
+> 
+> When "name" ends in a number, it gets rather confusing.  Can we have
+> an optional delimiter in there when we append the ID number, maybe
+> something like a '.' or ':' ?
 
-Good point. I didn't even think of the low-level parts of the boot
-process. I'm more worried about the high-level side. Since GRUB,
-not much seems to have happened. I think we should have a much
-richer boot environment by now.
+Sure, that's fine with me.  Someone send me a patch :)
 
-We're still not even at the level of functionality typically found
-in the boot PROMs of classical Unix workstations, whereas I think
-we should have been running circles around them for years already.
+thanks,
 
-So if there was a vote to be cast for getting kexec into mainline
-as quickly as possible, you'd certainly have mine :-)
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+greg k-h

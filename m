@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265574AbUFIKdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266125AbUFILUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265574AbUFIKdN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 06:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266001AbUFIKdN
+	id S266125AbUFILUr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 07:20:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266126AbUFILUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 06:33:13 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:43424 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265574AbUFIKdM
+	Wed, 9 Jun 2004 07:20:47 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:3855 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S266125AbUFILUp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 06:33:12 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Anton Blanchard <anton@samba.org>
-Subject: Re: [PATCH] Fix PCI hotplug of promise IDE cards
-Date: Wed, 9 Jun 2004 12:37:01 +0200
-User-Agent: KMail/1.5.3
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <20040607225115.GC7412@krispykreme>
-In-Reply-To: <20040607225115.GC7412@krispykreme>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Jun 2004 07:20:45 -0400
+Date: Wed, 9 Jun 2004 21:20:25 +1000
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: [HPT366] Fix /proc/ide/hpt366 crash
+Message-ID: <20040609112024.GC23623@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="6zdv2QT/q3FMhpsV"
 Content-Disposition: inline
-Message-Id: <200406091237.01429.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 of June 2004 00:51, Anton Blanchard wrote:
-> Hi,
 
-Hi,
+--6zdv2QT/q3FMhpsV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> It looks like no one has tried hotplugging Promise IDE cards :)
+Hi Marcelo:
 
-Yep and this bug is present in some other drivers.
-Debian kernel patchkit has fixes for them but it goes too far
-and fixes drivers for hardware which is not hot-pluggable.
+The following patch which fixes fixes the disk spindown problem when
+/proc/ide/hpt366 is read has been in 2.6 for a couple of months.  It
+has just been verified that the same fix is needed and works under
+2.4 (see http://bugs.debian.org/250171).
 
-> Anton
->
-> --
->
-> Change some __init functions in the pdc202xx driver to be __devinit, they
-> are used when hotpluging.
->
-> Signed-off-by: Anton Blanchard <anton@samba.org>
+So please apply it.
 
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--6zdv2QT/q3FMhpsV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
+
+===== drivers/ide/pci/hpt366.c 1.14 vs edited =====
+--- 1.14/drivers/ide/pci/hpt366.c	2004-05-01 08:27:08 +10:00
++++ edited/drivers/ide/pci/hpt366.c	2004-06-09 21:20:01 +10:00
+@@ -123,7 +123,7 @@
+ 				"                             %s\n",
+ 			(c0 & 0x80) ? "no" : "yes",
+ 			(c1 & 0x80) ? "no" : "yes");
+-
++#if 0
+ 		if (hpt_minimum_revision(dev, 3)) {
+ 			u8 cbl;
+ 			cbl = inb(iobase + 0x7b);
+@@ -136,7 +136,7 @@
+ 				(cbl & 0x01) ? 33 : 66);
+ 			p += sprintf(p, "\n");
+ 		}
+-
++#endif
+ 		p += sprintf(p, "--------------- drive0 --------- drive1 "
+ 				"------- drive0 ---------- drive1 -------\n");
+ 		p += sprintf(p, "DMA capable:    %s              %s" 
+
+--6zdv2QT/q3FMhpsV--

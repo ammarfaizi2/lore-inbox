@@ -1,79 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268447AbUIFSXe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268457AbUIFS2g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268447AbUIFSXe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 14:23:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268448AbUIFSXe
+	id S268457AbUIFS2g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 14:28:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268458AbUIFS2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 14:23:34 -0400
-Received: from colin2.muc.de ([193.149.48.15]:2322 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S268447AbUIFSXb (ORCPT
+	Mon, 6 Sep 2004 14:28:36 -0400
+Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:55932 "HELO
+	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268457AbUIFS2d convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 14:23:31 -0400
-Date: 6 Sep 2004 20:23:30 +0200
-Date: Mon, 6 Sep 2004 20:23:30 +0200
-From: Andi Kleen <ak@muc.de>
-To: Paul Jackson <pj@sgi.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix argument checking in sched_setaffinity
-Message-ID: <20040906182330.GA79122@muc.de>
-References: <20040831183655.58d784a3.pj@sgi.com> <20040904133701.GE33964@muc.de> <20040904171417.67649169.pj@sgi.com> <Pine.LNX.4.58.0409041717230.4735@ppc970.osdl.org> <20040904180548.2dcdd488.pj@sgi.com> <Pine.LNX.4.58.0409041827280.2331@ppc970.osdl.org> <20040904204850.48b7cfbd.pj@sgi.com> <Pine.LNX.4.58.0409042055460.2331@ppc970.osdl.org> <20040904211749.3f713a8a.pj@sgi.com> <20040904215205.0a067ab8.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Sep 2004 14:28:33 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] allow i8042 register location override
+Date: Mon, 6 Sep 2004 13:28:30 -0500
+User-Agent: KMail/1.6.2
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Alessandro Rubini <rubini@ipvvis.unipv.it>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <20040902175647.97709.qmail@web81309.mail.yahoo.com> <200409030941.24557.bjorn.helgaas@hp.com> <20040906122237.GA316@ucw.cz>
+In-Reply-To: <20040906122237.GA316@ucw.cz>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040904215205.0a067ab8.pj@sgi.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200409061328.31045.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 04, 2004 at 09:52:05PM -0700, Paul Jackson wrote:
-> > starting with backing out the changes made to it this week.
+On Monday 06 September 2004 07:22 am, Vojtech Pavlik wrote:
+> On Fri, Sep 03, 2004 at 09:41:24AM -0600, Bjorn Helgaas wrote:
+> > On Friday 03 September 2004 12:57 am, Dmitry Torokhov wrote:
+> > > What do you think about the patch below? I renamed some function/variable
+> > > names to be more in line with the rest of i8042 code, other than that
+> > > its pretty much your code.
+> > 
+> > That looks great to me, and it works fine on my DL360.
+> > 
+> > My only comment is that in an ideal world, we would not have to
+> > change any drivers if a new architecture started supporting ACPI.
+> > With the current patch, we'd have to twiddle some of the i8042-XXX.h
+> > files a bit.  But I don't think it's worth the trouble of restructuring
+> > them to fix that.
+> > 
+> > Thanks for all your help!
 > 
-> Andi,
-> 
-> Given that Linus has gutted most of your patch to sched_setaffinity,
-> do you have a preference between where the code started the week,
-> and where it ended?
-> 
-> If I'm reading Linus' mind right (well ... there's a first time
-> for everything) then your preference, either way, would likely
-> carry the day.
+> One bug that I could spot immediately is that the patch sets i8042_reset
+> on i386. This doesn't seem intentional, and is quite wrong, too, since
+> on some older machines it confuses the BIOS.
 
-The only change I would like to have is to check the excess bytes
-to make sure they don't contain some random value. They should
-be either all 0 or all 0xff. 
+Nope it does not. It is only on IA64:
 
--Andi
+> +#if defined(__ia64__)
+> +        i8042_reset = 1;
+> +#endif
+which is in i8042-x86ia64io.h
 
-Here's a patch for bk12: 
+This fragment is in i8042-io.h which is not included in by Intel-originated
+arches anymore.
 
-Linus, does this look better?
+> -#if !defined(__i386__) && !defined(__x86_64__)
+>          i8042_reset = 1;
+> -#endif
 
---------------------------------------------------------
+Did I miss something?
 
-For excess cpumask bits passed from user space ensure
-they are all zero or all one.  This minimizes binary incompatibilities
-when the kernel is recompiled with a bigger cpumask_t type.
-
-diff -u linux-2.6.8/kernel/sched.c-o linux-2.6.8/kernel/sched.c
---- linux-2.6.8/kernel/sched.c-o	2004-09-06 20:06:58.000000000 +0200
-+++ linux-2.6.8/kernel/sched.c	2004-09-06 20:16:33.940579241 +0200
-@@ -3368,6 +3368,19 @@
- 	if (len < sizeof(cpumask_t)) {
- 		memset(new_mask, 0, sizeof(cpumask_t));
- 	} else if (len > sizeof(cpumask_t)) {
-+		unsigned i;
-+		unsigned char val, initval;
-+		if (len > PAGE_SIZE)
-+			return -EINVAL;
-+		/* excess bytes must be all 0 or all 0xff */
-+		for (i = sizeof(cpumask_t); i < len; i++) { 
-+			if (get_user(val, (char *)new_mask + i))
-+				return -EFAULT; 
-+			if (i == sizeof(cpumask_t))
-+				initval = val;
-+			if (!(val == 0 || val == 0xff) || val != initval)
-+				return -EINVAL; 
-+		} 
- 		len = sizeof(cpumask_t);
- 	}
- 	return copy_from_user(new_mask, user_mask_ptr, len) ? -EFAULT : 0;
+-- 
+Dmitry

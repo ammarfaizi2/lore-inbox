@@ -1,87 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261619AbSJANgX>; Tue, 1 Oct 2002 09:36:23 -0400
+	id <S261635AbSJANpU>; Tue, 1 Oct 2002 09:45:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261622AbSJANgX>; Tue, 1 Oct 2002 09:36:23 -0400
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:2176 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S261619AbSJANgV> convert rfc822-to-8bit; Tue, 1 Oct 2002 09:36:21 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Con Kolivas <conman@kolivas.net>
-To: linux-kernel@vger.kernel.org
-Subject: [BENCHMARK] 2.5.40{-mm1} with contest 0.42
-Date: Tue, 1 Oct 2002 23:38:57 +1000
-User-Agent: KMail/1.4.3
-Cc: Andrew Morton <akpm@digeo.com>
+	id <S261636AbSJANpU>; Tue, 1 Oct 2002 09:45:20 -0400
+Received: from mg01.austin.ibm.com ([192.35.232.18]:3734 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S261635AbSJANpT>; Tue, 1 Oct 2002 09:45:19 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [ANNOUNCE] EVMS Release 1.2.0
+Date: Tue, 1 Oct 2002 08:18:19 -0500
+X-Mailer: KMail [version 1.2]
+Cc: evms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <0209301701470A.15956@boiler> <20021001102043.GD20878@suse.de>
+In-Reply-To: <20021001102043.GD20878@suse.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210012339.06423.conman@kolivas.net>
+Message-Id: <02100108181900.20800@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tuesday 01 October 2002 05:20, Jens Axboe wrote:
+> On Mon, Sep 30 2002, Kevin Corry wrote:
+> > The EVMS team is announcing the next stable release of the Enterprise
+> > Volume Management System, which will eventually become EVMS 2.0. Package
+> > 1.2.0 is now available for download at the project web site:
+> > http://www.sf.net/projects/evms
+>
+> [evms.c]
+>
+> #ifndef CONFIG_SMP
+> static spinlock_t evms_request_lock = SPIN_LOCK_UNLOCKED;
+> #endif
+>
+> ...
+>
+> #ifdef CONFIG_SMP
+>        blk_dev[EVMS_MAJOR].queue = evms_find_queue;
+> #else
+>        blk_init_queue(BLK_DEFAULT_QUEUE(EVMS_MAJOR),
+>                       evms_do_request_fn, &evms_request_lock);
+>        blk_queue_make_request(BLK_DEFAULT_QUEUE(EVMS_MAJOR),
+>                               evms_make_request_fn);
+> #endif
+>
+> ...
+>
+> #ifdef CONFIG_SMP
+>        lv->request_lock = SPIN_LOCK_UNLOCKED;
+>        blk_init_queue(&lv->request_queue,
+>                       evms_do_request_fn,
+>                       &lv->request_lock);
+>        blk_queue_make_request(&lv->request_queue,
+>                               evms_make_request_fn);
+> #endif
+>
+> What the hell is that about?
 
-Here follow the latest benchmarks for 2.5.40 and 2.5.40-mm1:
+The above code implements a single request queue for the EVMS driver on 
+uniprocessor, and per-volume request queues on SMP. This was done quite some 
+time ago (before 2.5), since we felt SMP was the only place where there was a 
+performance advantage to having multiple queues (and thus using up all the 
+extra memory on UP was wasteful). Since a lot of things have changed in 2.5 
+(e.g. prempt), there might be performance advantages on UP now as well.
 
-noload:
-Kernel                  Time            CPU%            Ratio
-2.4.19                  67.7            98              1.00
-2.5.38                  72.4            94              1.07
-2.5.38-mm3              73.0            93              1.08
-2.5.39                  73.2            93              1.08
-2.5.39-mm1              73.0            94              1.08
-2.5.40                  73.2            94              1.08
-2.5.40-mm1              73.4            93              1.08
+I was reading over the kernel Bitkeeper changelogs last night and noticed you 
+made some changes to the loop driver to implement per-device queues. I talked 
+this over with Mark and we decided that if this was the trend, we would 
+switch to always using per-volume queues. If you take a look at our bitkeeper 
+tree, you should see that change is already in. Unfortunately, this was after 
+1.2.0 was released, so that change isn't available in the package I announced 
+yesterday. But, the 2.5 code changes almost daily anyway, so I'm not too 
+worried. And from looking over the Bitkeeper logs, it looks like there are 
+more gendisk changes in 2.5.40 that may affect EVMS, so there will probably 
+be additional changes today.
 
-process_load:
-Kernel                  Time            CPU%            Ratio
-2.4.19                  110.8           57              1.64
-2.5.38                  85.7            79              1.27
-2.5.38-mm3              96.3            72              1.42
-2.5.39                  88.9            76              1.31
-2.5.39-mm1              99.0            69              1.46
-2.5.40                  96.4            71              1.43
-2.5.40-mm1              94.5            72              1.40
+If you have any additional comments, please let us know.
 
-io_load:
-Kernel                  Time            CPU%            Ratio
-2.4.19                  216.1           33              3.19
-2.5.38                  887.8           8               13.11
-2.5.38-mm3              105.2           70              1.55
-2.5.39                  229.4           34              3.39
-2.5.39-mm1              239.5           32              3.54
-2.5.40                  230.3           33              3.40
-2.5.40-mm1              117.5           62              1.74
-
-mem_load:
-Kernel                  Time            CPU%            Ratio
-2.4.19                  105.4           70              1.56
-2.5.38                  107.9           73              1.59
-2.5.38-mm3              117.1           63              1.73
-2.5.39                  103.7           72              1.53
-2.5.39-mm1              104.6           73              1.54
-2.5.40                  103.0           73              1.52
-2.5.40-mm1              111.3           67              1.64
-
-Summary: 
-2.5.40 shows no significant difference from 2.5.39 (except in process_load; 
-now equivalent to 2.5.39-mm1 - the significance of which is not clear of it's 
-importance)
-
-2.5.40-mm1 shows a substantial improvement under IO load (consistent with the 
-change in fifo_batch as discussed under the thread "[BENCHMARK] 2.5.39-mm1")
-2.5.40-mm1 also shows a slight drop in performance under mem_load. Note of 
-interest that both 2.5.38-mm3 and 2.5.40-mm1 which have fifo_batch set to 16 
-instead of 32 have both better IO load performance, and worse mem_load 
-performance - related?
-
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9maV0F6dfvkL3i1gRAjQZAJ9Ue60e1pe9A/WKigGW3UiMfshngACfT/FW
-cpLOyqDqFq7LkaTCMJo51l8=
-=yrf+
------END PGP SIGNATURE-----
+-- 
+Kevin Corry
+corryk@us.ibm.com
+http://evms.sourceforge.net/

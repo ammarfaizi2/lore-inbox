@@ -1,66 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbUKHJec@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbUKHJnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbUKHJec (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 04:34:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbUKHJdv
+	id S261817AbUKHJnV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 04:43:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUKHJnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 04:33:51 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:15025 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261797AbUKHJWv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 04:22:51 -0500
-Date: Mon, 8 Nov 2004 11:24:47 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.19
-Message-ID: <20041108102447.GA14980@elte.hu>
-References: <20041019180059.GA23113@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <200411081015.47750.annabellesgarden@yahoo.de>
-Mime-Version: 1.0
+	Mon, 8 Nov 2004 04:43:15 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:35806 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261817AbUKHJkq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 04:40:46 -0500
+X-Envelope-From: kraxel@bytesex.org
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       Gregoire Favre <Gregoire.Favre@freesurf.ch>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Why my computer freeze completely with xawtv ?
+References: <20041107224621.GB5360@magma.epfl.ch>
+	<418EB58A.7080309@kolivas.org> <20041108000229.GC5360@magma.epfl.ch>
+	<418EB8EB.30405@kolivas.org> <20041108003323.GE5360@magma.epfl.ch>
+	<418EBFE5.5080903@kolivas.org>
+	<Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net>
+From: Gerd Knorr <kraxel@bytesex.org>
+Organization: SUSE Labs, Berlin
+Date: 08 Nov 2004 10:17:39 +0100
+In-Reply-To: <Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net>
+Message-ID: <87bre88zt8.fsf@bytesex.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411081015.47750.annabellesgarden@yahoo.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Grzegorz Kulewski <kangur@polcom.net> writes:
 
-* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+> I am seeing the same problem with my bttv card. It was present in the
+> 2.4 day and is present to this day. There are some kernels that are
+> more probable to hang while others are less. It does not depend on -ck
+> or any other patchset or scheduling. I reported it to bttv maintainer
+> year or two ago, but it looks like he is very unresponsive. :-)
 
-> RT-V0.7.19-dmesg_after_boot_rl3.log is a freshly booted dmesg output
-> after logging on via ssh. RT-V0.7.19-proc_acpi_TAB.log is captured via
-> netconsole. This log started after logging in locally, then typing in
-> "cat /proc/acpi", then first <TAB> gives an additional "/", 2nd <TAB>
-> gives no visual effect, 3rd <TAB> produces whats in the log.
+Well, if it happens almost independant of the kernel/driver version it
+most likely is buggy hardware.  I can't do much about it ...
 
-there's at least one more netconsole buglet causing asserts, which
-should be fixed by the patch below.
+Well known example are some via chipsets which have trouble with
+multiple devices doing DMA at the same time (those tend to run stable
+with bttv once you've turned off ide-dma ...).
 
-	Ingo
+Getting broken hardware run stable and fast is black magic.  You can
+try these (if that happens to help we can put that info into the pci
+quirks btw.):
 
---- linux/net/core/netpoll.c.orig
-+++ linux/net/core/netpoll.c
-@@ -194,7 +194,7 @@ repeat:
- 	}
- 
- 	spin_lock(&np->dev->xmit_lock);
--	np->dev->xmit_lock_owner = smp_processor_id();
-+	np->dev->xmit_lock_owner = _smp_processor_id();
- 
- 	/*
- 	 * network drivers do not expect to be called if the queue is
+  eskarina kraxel ~# modinfo bttv | grep "pci config"
+  parm: vsfx:set VSFX pci config bit [yet another chipset flaw workaround]
+  parm: triton1:set ETBF pci config bit [enable bug compatibility for triton1 + others]
+
+Otherwise BIOS updates, obscure BIOS settings, shuffling cards in PCI
+slots, enable/disable ACPI and/or APIC, whatelse may or may not help.
+
+See also Documentation/video4linux/bttv/README.freeze
+
+good luck,
+
+  Gerd
+
+-- 
+#define printk(args...) fprintf(stderr, ## args)

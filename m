@@ -1,71 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293236AbSCJVDZ>; Sun, 10 Mar 2002 16:03:25 -0500
+	id <S293237AbSCJVJI>; Sun, 10 Mar 2002 16:09:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293237AbSCJVDP>; Sun, 10 Mar 2002 16:03:15 -0500
-Received: from ns.suse.de ([213.95.15.193]:29959 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S293236AbSCJVDF>;
-	Sun, 10 Mar 2002 16:03:05 -0500
-To: Robert Love <rml@tech9.net>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] syscall interface for cpu affinity
-In-Reply-To: <1015784104.1261.8.camel@phantasy> <u8zo1g9nf8.fsf@gromit.moeb>
-	<1015793618.928.17.camel@phantasy>
-From: Andreas Jaeger <aj@suse.de>
-Date: Sun, 10 Mar 2002 22:03:02 +0100
-In-Reply-To: <1015793618.928.17.camel@phantasy> (Robert Love's message of
- "10 Mar 2002 15:53:38 -0500")
-Message-ID: <u8bsdw9lvd.fsf@gromit.moeb>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Artificial
- Intelligence, i386-suse-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S293238AbSCJVI5>; Sun, 10 Mar 2002 16:08:57 -0500
+Received: from [202.54.26.202] ([202.54.26.202]:20729 "EHLO hindon.hss.co.in")
+	by vger.kernel.org with ESMTP id <S293237AbSCJVIn>;
+	Sun, 10 Mar 2002 16:08:43 -0500
+X-Lotus-FromDomain: HSS
+From: hkumar@hss.hns.com
+To: linux-kernel@vger.kernel.org
+Message-ID: <65256B78.00740223.00@sandesh.hss.hns.com>
+Date: Mon, 11 Mar 2002 02:30:30 +0530
+Subject: Kernel 2.4.16 failed to compile
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love <rml@tech9.net> writes:
 
-> On Sun, 2002-03-10 at 15:29, Andreas Jaeger wrote:
->  
->> Please add the procinterface also!  I've found it today (for 2.4.18)
->> and it's much easier to use with existing programs.
->
-> I agree and I really like the proc-interface.  There is something uber
-> cool about:
->
-> 	cat 1 > /proc/pid/affinity
 
-I agree.
+Hi,
 
-> I have a patch for 2.5.6 for proc-based affinity interface here:
->
-> 	http://www.kernel.org/pub/linux/kernel/people/rml/cpu-affinity/v2.5/cpu-affinity-proc-rml-2.5.6-1.patch
->
-> I suspect, however, that despite both patches being small we really only
-> want to pick and standardize on one.  The syscall interface has two main
-> things going for it against a proc-based implementation: it is faster
-> and /proc may not be mounted.  The masses have spoken on this issue.
->
-> Note you can use the syscall interface with existing programs, too. 
-> Just write a program to take in a pid and mask and call
-> sched_set_affinity.
+I am trying to compile kernel version 2.4.16 for powerpc with networking off
+i.e.
+CONFIG_NET was not set.
 
-What I need at the moment is a wrapper - and you can do it two ways:
+-----------------------------------
+make CFLAGS="-D__KERNEL__ -I/usr/src/linux-2.4.16/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
+ -fno-common -D__powerpc__ -fsigned-char -msoft-float -pipe -ffixed-r2
+-Wno-uninitialized -mmultiple -mstring -mcpu=860 " -C  net
+make[1]: Entering directory `/usr/src/linux-2.4.16/net'
+make -C core
+make[2]: Entering directory `/usr/src/linux-2.4.16/net/core'
+make all_targets
+make[3]: Entering directory `/usr/src/linux-2.4.16/net/core'
+ppc-linux-gcc -D__KERNEL__ -I/usr/src/linux-2.4.16/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
+ -fno-common -D__powerpc__ -fsigned-char -msoft-float -pipe -ffixed-r2
+-Wno-uninitialized -mmultiple -mstring -mcpu=860    -c -o sock.o sock.c
+In file included from /usr/src/linux-2.4.16/include/net/tcp.h:1036,
+                 from sock.c:122:
+/usr/src/linux-2.4.16/include/net/tcp_ecn.h: In function `TCP_ECN_send':
+/usr/src/linux-2.4.16/include/net/tcp_ecn.h:54: union has no member named
+`af_inet'
+/usr/src/linux-2.4.16/include/net/tcp_ecn.h:61: union has no member named
+`af_inet'
+make[3]: *** [sock.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.16/net/core'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.16/net/core'
+make[1]: *** [_subdir_core] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.16/net'
+make: *** [_dir_net] Error 2
+-----------------------------------------------
 
-$ run_with_affinity 1 program arguments...
-$ (cat 1 > /proc/self/affinity; program arguments...)
+I am wondering why is it compiling in the net/core directory when I do not want
+any
+kind of networking support!
 
-The second one is much easier coded ;-)
+After looking at the Makefiles I found that it compiles the net, net/core and
+net/ethernet
+directories even if  CONFIG_NET is not set. I tried to remove all the networking
+ stuff by
+changing the makefiles but I had to fix the following:
 
->> Please add it for all archs - this is not only interesting for x86,
->
-> I'll send Linus the patch for other arches if/when he accepts this patch
-> - I have no problem with that.
+1. removed (using #ifdef) all the socket related stuff except for a
+sys_socketcall which
+returns ENOTSUPP. This hook is needed by the code in arch dir
+2. put the sock_init call in main.c inside #ifdef
+3. added some #ifdefs in fs/fcntl.c to remove calls to  sock_fcntl
+
+Am I doing it right or will it break something? Do we need socket.c etc. even
+when we
+do not want networking support?
 
 Thanks,
-Andreas
--- 
- Andreas Jaeger
-  SuSE Labs aj@suse.de
-   private aj@arthur.inka.de
-    http://www.suse.de/~aj
+Harendra
+
+
+"DISCLAIMER: This message is proprietary to Hughes Software Systems Limited
+(HSS) and is intended solely for the use of the individual  to whom it is
+addressed. It may contain  privileged or confidential information  and should
+not be circulated or used for any purpose other than for what it is intended. If
+you have received this message in error, please notify the originator
+immediately. If you are not the intended recipient, you are notified that you
+are strictly prohibited from using, copying, altering, or disclosing the
+contents of this message. HSS accepts no responsibility for loss or damage
+arising from the use of the information transmitted by this email including
+damage from virus."
+
+
+
+
+

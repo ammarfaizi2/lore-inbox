@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266484AbUGUOwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266501AbUGUOye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266484AbUGUOwg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 10:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266501AbUGUOwg
+	id S266501AbUGUOye (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 10:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266391AbUGUOye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 10:52:36 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:22510 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S266484AbUGUOwe (ORCPT
+	Wed, 21 Jul 2004 10:54:34 -0400
+Received: from gate.crashing.org ([63.228.1.57]:22443 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266501AbUGUOyd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 10:52:34 -0400
-Date: Wed, 21 Jul 2004 16:52:30 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Oliver Neukum <oliver@neukum.org>
-cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] delete devfs
-In-Reply-To: <200407211626.55670.oliver@neukum.org>
-Message-ID: <Pine.GSO.4.58.0407211648580.8147@waterleaf.sonytel.be>
-References: <20040721141524.GA12564@kroah.com> <200407211626.55670.oliver@neukum.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 21 Jul 2004 10:54:33 -0400
+Subject: Re: reserve legacy io regions on powermac
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Olaf Hering <olh@suse.de>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Paul Mackeras <paulus@samba.org>
+In-Reply-To: <20040721091249.GA1336@suse.de>
+References: <20040721091249.GA1336@suse.de>
+Content-Type: text/plain
+Message-Id: <1090421466.2002.24.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 21 Jul 2004 10:51:07 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Jul 2004, Oliver Neukum wrote:
-> Am Mittwoch, 21. Juli 2004 16:15 schrieb Greg KH:
-> > Hm, seems kernel.org dropped my big patch, so the patch below can be
-> > found at:
-> > 	www.kernel.org/pub/linux/kernel/people/gregkh/misc/2.6/devfs-delete-2.6.8-rc2.patch
->
-> May I point out that 2.6 is supposed to be a _stable_ series?
+On Wed, 2004-07-21 at 05:12, Olaf Hering wrote:
+> Anton pointed this out.
+> 
+> ppc32 can boot one single binary on prep, chrp and pmac boards.
+> pmac has no legacy io, probing for PC style legacy hardware leads to a
+> hard crash.
+> Several patches exist to prevent serial, floppy, ps2, parport and other
+> drivers from probing these io ports.
+> I think the simplest fix for 2.6 is a request_region of the problematic
+> areas.
+> PCMCIA is still missing.
+> I found that partport_pc.c pokes at varios ports, without claiming the
+> ports first. Should this be fixed?
+> smsc_check(), winbond_check(), winbond_check2()
 
-Quoting GregKH: `to test out the new development model', i.e. the one
-established at the Kernel Summit yesterday afternoon :-)
+Note that this is still all workarounds... Nothing prevents you (and some
+people actually do that) to put a PCI card with legacy serial ports on it
+inside a pmac....
 
-Well, looking at the late (or early :-) hour he sent out the patch, it looks
-like he did need a few beers before he gained enough confidence in this `new
-development model' :-)
+Ben.
 
-Gr{oetje,eeting}s,
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

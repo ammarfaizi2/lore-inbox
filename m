@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317037AbSFWPak>; Sun, 23 Jun 2002 11:30:40 -0400
+	id <S317040AbSFWPbb>; Sun, 23 Jun 2002 11:31:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317040AbSFWPak>; Sun, 23 Jun 2002 11:30:40 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:61572 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S317037AbSFWPai>;
-	Sun, 23 Jun 2002 11:30:38 -0400
+	id <S317045AbSFWPbb>; Sun, 23 Jun 2002 11:31:31 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:63364 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S317040AbSFWPb2>;
+	Sun, 23 Jun 2002 11:31:28 -0400
 X-Originating-IP: [62.179.172.225]
-From: "Roy Sigurd Karlsbakk" <roy@karlsbakk.net>
+From: "Roy Sigurd Karlsbakk" <roy@pronto.tv>
 To: linux-kernel@vger.kernel.org
 Subject: Large block device support?
-Date: Sun, 23 Jun 2002 15:30:45 +0000
-Message-ID: <20020623.P9E.94255800@mail.pronto.tv>
+Date: Sun, 23 Jun 2002 15:31:33 +0000
+Message-ID: <20020623.mko.16936000@mail.pronto.tv>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -40,6 +40,5 @@ Roy Sigurd Karlsbakk, Datavaktmester
 
 Computers are like air conditioners.
 They stop working when you open Windows.
-
 
 

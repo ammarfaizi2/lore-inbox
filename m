@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264066AbUEMKjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264072AbUEMKpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264066AbUEMKjm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 06:39:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264067AbUEMKjm
+	id S264072AbUEMKpX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 06:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264067AbUEMKpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 06:39:42 -0400
-Received: from stingr.net ([212.193.32.15]:46999 "EHLO stingr.net")
-	by vger.kernel.org with ESMTP id S264066AbUEMKjl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 06:39:41 -0400
-Date: Thu, 13 May 2004 14:39:37 +0400
-From: Paul P Komkoff Jr <i@stingr.net>
-To: Jan Kara <jack@suse.cz>
-Cc: Paul P Komkoff Jr <i@stingr.net>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: might_sleep in quota code path as of 2.6.6-rc2, may be fixed already
-Message-ID: <20040513103937.GA19183@stingr.net>
-Mail-Followup-To: Jan Kara <jack@suse.cz>,
-	Paul P Komkoff Jr <i@stingr.net>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040512121835.GP13255@stingr.net> <20040512165802.GB32138@atrey.karlin.mff.cuni.cz>
+	Thu, 13 May 2004 06:45:23 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:29457 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264072AbUEMKpV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 06:45:21 -0400
+Date: Thu, 13 May 2004 11:45:20 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm2
+Message-ID: <20040513114520.A8442@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040513032736.40651f8e.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040512165802.GB32138@atrey.karlin.mff.cuni.cz>
-User-Agent: Agent Darien Fawkes
-X-Mailer: Intel Ultra ATA Storage Driver
-X-RealName: Stingray Greatest Jr
-Organization: Department of Fish & Wildlife
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040513032736.40651f8e.akpm@osdl.org>; from akpm@osdl.org on Thu, May 13, 2004 at 03:27:36AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replying to Jan Kara:
->   Hello,
+> +hugetlb_shm_group-sysctl-gid-0-fix.patch
 > 
-> > Have you seen that?
->   No. Thanks for the trace. Which kernel do you use?
+>  Don't make gid 0 special for hugetlb shm.
 
-that was in 2.6.6-rc2
+As Oracle has agreed on fixing their DB to use hugetlbfs could we
+please stop doctoring around on this broken patch and revert it.
 
+Except for for you I've seen no one defending it, not even the Intel
+folks that submitted it..
 
--- 
-Paul P 'Stingray' Komkoff Jr // http://stingr.net/key <- my pgp key
- This message represents the official view of the voices in my head

@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVBSKYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVBSKw2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261675AbVBSKYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 05:24:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbVBSKYP
+	id S261691AbVBSKw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 05:52:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVBSKw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 05:24:15 -0500
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:38397 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261675AbVBSKYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 05:24:12 -0500
-Date: Sat, 19 Feb 2005 11:24:10 +0100
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-To: linux-kernel@vger.kernel.org
-Subject: FAUmachine: Looking for a good documented DMA bus master capable PCI IDE Controller card 
-Message-ID: <20050219102410.GD16858@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-	linux-kernel@vger.kernel.org
+	Sat, 19 Feb 2005 05:52:27 -0500
+Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:13210 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261691AbVBSKwX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 05:52:23 -0500
+Subject: Re: Should kirqd work on HT?
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1108805793.6304.75.camel@laptopd505.fenrus.org>
+References: <1108794699.4098.28.camel@desktop.cunningham.myip.net.au>
+	 <4216E248.5070603@pobox.com>
+	 <1108804063.4098.35.camel@desktop.cunningham.myip.net.au>
+	 <1108805793.6304.75.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Message-Id: <1108810450.4098.41.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-URL: http://wwwcip.informatik.uni-erlangen.de/~sithglan/
-User-Agent: Mutt/1.5.8i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sat, 19 Feb 2005 21:54:10 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-we just implemented the Intel PIIX DMA Bus Master capable IDE Controller
-in FAUmachine. This improved the IO access to virtual IDE Devices using
-DMA as transport mechanism a lot.
+Hi,
 
-But with the current simulation it is only possible to access 4 devices
-via DMA.
+On Sat, 2005-02-19 at 20:36, Arjan van de Ven wrote:
+> On Sat, 2005-02-19 at 20:07 +1100, Nigel Cunningham wrote:
+> > Hi Jeff.
+> > 
+> > On Sat, 2005-02-19 at 17:52, Jeff Garzik wrote:
+> > > Nigel Cunningham wrote:
+> > > What are the results of running irqbalanced?
+> > 
+> > You mean the debugging output? I can reenable it and record the results
+> > if that's what you mean.
+> 
+> no Jeff meant
+> http://people.redhat.com/arjanv/irqbalance/
+> that app most likely....
 
-Because of that I am looking for a good documented PCI IDE Controller
-Card to provide DMA access to more than 4 devices with public available
-documentation. Any pointers?
+Oh... Ok. Never heard of it before.
 
-Please CC me because I am currently not subscribed to linux-kernel.
+I'll download it now, but I'm about to go to bed now so the answer will
+be a while.
 
-	Thomas
---
-Thomas Glanzmann  ++49 (0) 9131 85-27574   Department of Computer Science III
-Martensstrasse 3  D-91058 Erlangen Germany   University of Erlangen-Nuremberg
-      http://www3.informatik.uni-erlangen.de/Research/FAUmachine/
+Thanks for the reply.
+
+Nigel
+
+-- 
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+
+Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
+

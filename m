@@ -1,33 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265657AbSLCUrF>; Tue, 3 Dec 2002 15:47:05 -0500
+	id <S265843AbSLCUsK>; Tue, 3 Dec 2002 15:48:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265843AbSLCUrF>; Tue, 3 Dec 2002 15:47:05 -0500
-Received: from [209.184.141.189] ([209.184.141.189]:52314 "HELO ubergeek")
-	by vger.kernel.org with SMTP id <S265657AbSLCUrE>;
-	Tue, 3 Dec 2002 15:47:04 -0500
-Subject: 2.4.20-aa1 questions.
-From: Austin Gonyou <austin@coremetrics.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Coremetrics, Inc.
-Message-Id: <1038948847.1772.7.camel@UberGeek>
+	id <S265844AbSLCUsK>; Tue, 3 Dec 2002 15:48:10 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:1921 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265843AbSLCUsI>;
+	Tue, 3 Dec 2002 15:48:08 -0500
+Subject: sysfs open should fail with -EACCES not -EPERM
+From: Paul Larson <plars@linuxtestproject.org>
+To: mochel@osdl.org
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-WQFPa0tyvE8GQfB2MnZT"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 03 Dec 2002 14:47:24 -0600
+Message-Id: <1038948444.545.59.camel@plars>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 03 Dec 2002 14:54:08 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-what do the following patches actually *fix*?
 
-00_backout-gcc-3_0-patch-1
-00_gcc-30-volatile-xtime-1
+--=-WQFPa0tyvE8GQfB2MnZT
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I'm trying to get 2.4.20 patched up by using the -aa split patches for
-2.4.20 and I'm incorporating only the things I want, but I use gcc 3.2
-for compiling, and these confused me a bit.
+I noticed that opening a file for write on sysfs that doesn't support it
+returns -EPERM.  After checking the SuS, I believe the correct behavior
+is to return -EACCES.
 
--- 
-Austin Gonyou <austin@coremetrics.com>
-Coremetrics, Inc.
+-Paul Larson
+
+diff -Naur linux-2.5.50/fs/sysfs/inode.c linux-2.5.50-sysfsfix/fs/sysfs/ino=
+de.c
+--- linux-2.5.50/fs/sysfs/inode.c	Wed Nov 27 16:36:17 2002
++++ linux-2.5.50-sysfsfix/fs/sysfs/inode.c	Tue Dec  3 14:07:19 2002
+@@ -279,9 +279,7 @@
+ 	 */
+ 	if (file->f_mode & FMODE_WRITE) {
+=20
+-		if (!(inode->i_mode & S_IWUGO))
+-			goto Eperm;
+-		if (!ops->store)
++		if (!(inode->i_mode & S_IWUGO) || !ops->store)
+ 			goto Eaccess;
+=20
+ 	}
+@@ -291,9 +289,7 @@
+ 	 * must be a show method for it.
+ 	 */
+ 	if (file->f_mode & FMODE_READ) {
+-		if (!(inode->i_mode & S_IRUGO))
+-			goto Eperm;
+-		if (!ops->show)
++		if (!(inode->i_mode & S_IRUGO) || !ops->show)
+ 			goto Eaccess;
+ 	}
+=20
+@@ -308,9 +304,6 @@
+ 	goto Done;
+  Eaccess:
+ 	error =3D -EACCES;
+-	goto Done;
+- Eperm:
+-	error =3D -EPERM;
+  Done:
+ 	return error;
+ }
+
+
+--=-WQFPa0tyvE8GQfB2MnZT
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEABECAAYFAj3tGFsACgkQbkpggQiFDqfKZACghneg9cKFA1As2T0esQrZKhz3
+pQoAmwetFWprlX6xjQhQ6xmw3exfIfNP
+=9lAr
+-----END PGP SIGNATURE-----
+
+--=-WQFPa0tyvE8GQfB2MnZT--
+

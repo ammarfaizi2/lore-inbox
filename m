@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274028AbRISJv6>; Wed, 19 Sep 2001 05:51:58 -0400
+	id <S273350AbRISKLa>; Wed, 19 Sep 2001 06:11:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273350AbRISJvr>; Wed, 19 Sep 2001 05:51:47 -0400
-Received: from t2.redhat.com ([199.183.24.243]:11253 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S274028AbRISJvj>; Wed, 19 Sep 2001 05:51:39 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: David Howells <dhowells@redhat.com>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Andrea Arcangeli <andrea@suse.de>, Ulrich.Weigand@de.ibm.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Deadlock on the mm->mmap_sem 
-In-Reply-To: Message from Linus Torvalds <torvalds@transmeta.com> 
-   of "Tue, 18 Sep 2001 09:49:42 PDT." <Pine.LNX.4.33.0109180948260.2077-100000@penguin.transmeta.com> 
-Date: Wed, 19 Sep 2001 10:51:57 +0100
-Message-ID: <9326.1000893117@warthog.cambridge.redhat.com>
-From: David Howells <dhowells@redhat.com>
+	id <S274029AbRISKLU>; Wed, 19 Sep 2001 06:11:20 -0400
+Received: from [203.195.134.252] ([203.195.134.252]:1284 "HELO
+	mindgames.noida.webyarn.com") by vger.kernel.org with SMTP
+	id <S273350AbRISKLP>; Wed, 19 Sep 2001 06:11:15 -0400
+Date: Wed, 19 Sep 2001 15:53:32 +0530
+From: Sandip Bhattacharya <sandip@webyarn.com>
+To: linux-kernel@vger.kernel.org
+Subject: procfs feature or bug?
+Message-ID: <20010919155332.A980@mindsw.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-Organisation: Mindframe Software 
+X-Os: Linux mindgames.noida.webyarn.com 2.4.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[Do cc me replies. Thanks.]
 
-Looking through the do_page_fault(), I noticed there's a race in expand stack
-because expand_stack() expects the caller to have the mm-sem write-locked.
+Hi!
 
-I've attached a patch that might fix it appropriately. Alternatively, it may
-be worth applying Andrea's 00_silent-stack-overflow-10 patch which fixes this
-and something else too.
+I was trying out the multipage procfs entries, when i found out that i
+was having a problem.  
 
-David
+I am trying to use the "hack" by Paul Russell to allow mangling of
+filepos using ``*start'' entries as my personal page offset. Now, for
+multipage entries, whatever i set as *start should be coming back to
+me as offset when the next page is called.
 
+But in fs/proc/generic.c in proc_file_read() at the end we have (
+after the first page has been "copied_to_user")
 
-diff -uNr linux-2.4.10-pre12/include/linux/mm.h linux-rwsem/include/linux/mm.h
---- linux-2.4.10-pre12/include/linux/mm.h	Wed Sep 19 10:39:23 2001
-+++ linux-rwsem/include/linux/mm.h	Wed Sep 19 10:40:48 2001
-@@ -586,11 +586,11 @@
- 	 * before relocating the vma range ourself.
- 	 */
- 	address &= PAGE_MASK;
-+	spin_lock(&vma->vm_mm->page_table_lock);
- 	grow = (vma->vm_start - address) >> PAGE_SHIFT;
- 	if (vma->vm_end - address > current->rlim[RLIMIT_STACK].rlim_cur ||
- 	    ((vma->vm_mm->total_vm + grow) << PAGE_SHIFT) > current->rlim[RLIMIT_AS].rlim_cur)
--		return -ENOMEM;
--	spin_lock(&vma->vm_mm->page_table_lock);
-+		goto nomem;
- 	vma->vm_start = address;
- 	vma->vm_pgoff -= grow;
- 	vma->vm_mm->total_vm += grow;
-@@ -598,6 +598,9 @@
- 		vma->vm_mm->locked_vm += grow;
- 	spin_unlock(&vma->vm_mm->page_table_lock);
- 	return 0;
-+ nomem:
-+	spin_unlock(&vma->vm_mm->page_table_lock);
-+	return -ENOMEM;
- }
- 
- /* Look up the first VMA which satisfies  addr < vm_end,  NULL if none. */
+ *ppos += start < page ? (long) start : n;
+
+But this _adds_ the contents of start to the offset, in the case where
+I am supplying the offset in ``start''. Shouldn't this just be
+_replacing_ ? 'Cause in this case the offsets get cumulatively added,
+causing an oops at the end for me :(
+
+Or am I missing something big???
+
+- Sandip
+
+--
+-----------------------------------------------------------
+Sandip Bhattacharya
+Office: sandip@mindsw.com       Home: sandipb@bigfoot.com
+Mindframe Software
+-----------------------------------------------------------

@@ -1,46 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264666AbTFAQgW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 12:36:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264667AbTFAQgW
+	id S264667AbTFAQje (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 12:39:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbTFAQje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 12:36:22 -0400
-Received: from eos.telenet-ops.be ([195.130.132.40]:163 "EHLO
-	eos.telenet-ops.be") by vger.kernel.org with ESMTP id S264666AbTFAQgV
+	Sun, 1 Jun 2003 12:39:34 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:63431 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264667AbTFAQjd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 12:36:21 -0400
-From: DevilKin-LKML <devilkin-lkml@blindguardian.org>
-To: root@chaos.analogic.com, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Hyper-threading
-Date: Sun, 1 Jun 2003 18:49:42 +0200
-User-Agent: KMail/1.5.1
-References: <Pine.LNX.4.53.0306011245090.11595@chaos>
-In-Reply-To: <Pine.LNX.4.53.0306011245090.11595@chaos>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 1 Jun 2003 12:39:33 -0400
+Date: Sun, 1 Jun 2003 09:52:52 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Larry McVoy <lm@bitmover.com>, Jonathan Lundell <linux@lundell-bros.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Question about style when converting from K&R to ANSI C.
+Message-ID: <20030601165252.GD3012@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Steven Cole <elenstev@mesatop.com>, Larry McVoy <lm@bitmover.com>,
+	Jonathan Lundell <linux@lundell-bros.com>,
+	linux-kernel@vger.kernel.org
+References: <1054446976.19557.23.camel@spc> <20030601132626.GA3012@work.bitmover.com> <20030601134942.GA10750@alpha.home.local> <20030601140602.GA3641@work.bitmover.com> <p05210609baffd3a79cfb@[207.213.214.37]> <20030601161133.GC3012@work.bitmover.com> <1054485978.19557.93.camel@spc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306011849.42654.devilkin-lkml@blindguardian.org>
+In-Reply-To: <1054485978.19557.93.camel@spc>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 01 June 2003 18:46, Richard B. Johnson wrote:
-> Hello,
->
-> Anybody know how to enable hyperthreading? I
-> have an ABIT IC7-G motherboard (absolute garbage)
-> with a Phoenix AwardBIOS. They don't provide
-> any BIOS upgrades and say you have to contact
-> the board vendor. ABIT doesn't answer email
-> and www.abit.com ends up being answered by
-> www.motherboards.com that doesn't provide
-> any support.
+> Thanks for the input.  You've convinced me.  When going through
+> arch/ppc/xmon/xmon.c, I will leave things like the following unchanged:
+> 
+> /* Command interpreting routine */
+> static int
+> cmds(struct pt_regs *excp)
+> {
 
-Please check http://www.abit-usa.com, or http://www.abit.com.tw.
+Great.
 
-Jan
+> My changes will be similar to the following:
+> 
+> @@ -1837,9 +1818,7 @@
+>         return *lineptr++;
+>  }
+> 
+> -void
+> -take_input(str)
+> -char *str;
+> +void take_input(char *str)
+>  {
+>         lineptr = str;
+>  }
+
+OK, I'm confused.  You said you were convinced but then shouldn't that be
+
+void
+take_input(char *str)
+{
+       lineptr = str;
+}
+
+??
 -- 
-Underlying Principle of Socio-Genetics:
-	Superiority is recessive.
-
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

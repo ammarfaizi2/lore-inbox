@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135830AbREFUb3>; Sun, 6 May 2001 16:31:29 -0400
+	id <S135841AbREFU6S>; Sun, 6 May 2001 16:58:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135840AbREFUbT>; Sun, 6 May 2001 16:31:19 -0400
-Received: from smarty.smart.net ([207.176.80.102]:1291 "EHLO smarty.smart.net")
-	by vger.kernel.org with ESMTP id <S135830AbREFUbL>;
-	Sun, 6 May 2001 16:31:11 -0400
-From: Rick Hohensee <humbubba@smarty.smart.net>
-Message-Id: <200105062033.QAA08440@smarty.smart.net>
-Subject: Re: inserting a Forth-like language into the Linux kernel
-To: randy.dunlap@intel.com (Dunlap, Randy)
-Date: Sun, 6 May 2001 16:33:37 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE263@orsmsx31.jf.intel.com> from "Dunlap, Randy" at May 06, 2001 09:32:31 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S135844AbREFU6I>; Sun, 6 May 2001 16:58:08 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5639 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135841AbREFU5t>; Sun, 6 May 2001 16:57:49 -0400
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+To: adilger@turbolinux.com (Andreas Dilger)
+Date: Sun, 6 May 2001 21:58:38 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), viro@math.psu.edu (Alexander Viro),
+        cw@f00f.org (Chris Wedgwood), andrea@suse.de (Andrea Arcangeli),
+        axboe@suse.de (Jens Axboe), R.E.Wolff@bitwizard.nl (Rogier Wolff),
+        torvalds@transmeta.com (Linus Torvalds), volodya@mindspring.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200105061946.f46JkkFr026005@webber.adilger.int> from "Andreas Dilger" at May 06, 2001 01:46:46 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14wVc1-0002aj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> 
-> 
-> > > > If someone knows of another example of interpreter-like behavior 
-> > > > directly in a unix in-kernel thread I'd like to know about it.  
-> > > 
-> > > kdb
-> > > 
-> > 
-> > That runs in trap handlers doesn't it? I don't think it's a 
-> > kernel daemon.
-> 
-> and there's the hangman-in-kernel patch...
-> interpreter or daemon or app-in-system-space ???
+> Actually, the EVMS project does exactly this.  All I/O is done on a full
+> disk basis, and essentially does block remapping for each partition.  This
+> also solves the problem of cache inconsistency if accessing the parent
+> device vs. accessing the partition.
 
-Thanks, I'll look for that.
-
-Rick Hohensee
-
-> 
-> ~Randy
-> 
-
+Interesting. Can EVMS handle the partition labels used by the LVM layer - ie
+could it replace it as well ?

@@ -1,109 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268591AbUILKNi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268589AbUILKLf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268591AbUILKNi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 06:13:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268594AbUILKNh
+	id S268589AbUILKLf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 06:11:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268591AbUILKLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 06:13:37 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:30674 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S268591AbUILKMf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 06:12:35 -0400
-Date: Sun, 12 Sep 2004 12:13:50 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: /proc/sys/kernel/pid_max issues
-Message-ID: <20040912101350.GA13164@elte.hu>
-References: <20040912085609.GK32755@krispykreme> <20040912093605.GJ2660@holomorphy.com> <20040912095805.GL2660@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="SLDf9lqlvOQaIe6s"
-Content-Disposition: inline
-In-Reply-To: <20040912095805.GL2660@holomorphy.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 12 Sep 2004 06:11:35 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:13552 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S268589AbUILKLR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 06:11:17 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Zwane Mwaikambo <zwane@fsmlabs.com>
+Subject: Re: [PATCH] Yielding processor resources during lock contention
+Date: Sun, 12 Sep 2004 12:10:32 +0200
+User-Agent: KMail/1.6.2
+Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, Andi Kleen <ak@suse.de>,
+       Ingo Molnar <mingo@elte.hu>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com> <Pine.LNX.4.53.0409091107450.15087@montezuma.fsmlabs.com> <Pine.LNX.4.53.0409120009510.2297@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.53.0409120009510.2297@montezuma.fsmlabs.com>
+MIME-Version: 1.0
+Message-Id: <200409121210.32259.arnd@arndb.de>
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_YCCRBpvt/IsLG5P";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
+--Boundary-02=_YCCRBpvt/IsLG5P
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
+On Sonntag, 12. September 2004 06:59, Zwane Mwaikambo wrote:
+> The following patch introduces cpu_lock_yield which allows architectures=
+=20
+> to possibly yield processor resources during lock contention. The origina=
+l=20
+> requirement stems from Paul's requirement on PPC64 LPAR systems to yield=
+=20
+> the processor to the hypervisor instead of spinning.=20
 
-* William Lee Irwin III <wli@holomorphy.com> wrote:
+=46or s390, this was solved by simply defining cpu_relax() to the hypervisor
+yield operation, because we found that cpu_relax() is used only in busy-wait
+situations where it makes sense to continue on another virtual CPU.
 
-> If pid_max == BITS_PER_PAGE*n, none of
-> &pidmap_array[pid_max/BITS_PER_PAGE] is usable, so if we must complete
-> a full revolution around pidmap_array[] to discover a free pid
-> slightly less than last_pid we will miss it. Hence:
+What is the benefit of not always doing a full hypervisor yield when
+you hit cpu_relax()?
 
-yeah. Patch needs testing ...
+	Arnd <><
 
->  		if (++map == map_limit)
->  			map = pidmap_array;
-> +		if (map > &pidmap_array[(pid_max-1)/BITS_PER_PAGE])
-> +			map = pidmap_array;
+--Boundary-02=_YCCRBpvt/IsLG5P
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-in fact we can now merge the max_limit and pid_max checks - see the
-attached updated patch.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-	Ingo
+iD8DBQBBRCCY5t5GS2LDRf4RAmrLAKCVu/b5omHQlZ6lqkZfXagdySzIAwCglWEP
+guEo1FqkpG1bfMVizqjQtOQ=
+=dxuj
+-----END PGP SIGNATURE-----
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="pid-max-fix.patch"
-
-
-fix pid_max handling. Wrap around correctly.
-
-Signed-off-by: William Lee Irwin III <wli@holomorphy.com>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/kernel/pid.c.orig	
-+++ linux/kernel/pid.c	
-@@ -53,8 +53,6 @@ typedef struct pidmap {
- static pidmap_t pidmap_array[PIDMAP_ENTRIES] =
- 	 { [ 0 ... PIDMAP_ENTRIES-1 ] = { ATOMIC_INIT(BITS_PER_PAGE), NULL } };
- 
--static pidmap_t *map_limit = pidmap_array + PIDMAP_ENTRIES;
--
- static spinlock_t pidmap_lock __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
- 
- fastcall void free_pidmap(int pid)
-@@ -73,7 +71,9 @@ fastcall void free_pidmap(int pid)
- static inline pidmap_t *next_free_map(pidmap_t *map, int *max_steps)
- {
- 	while (--*max_steps) {
--		if (++map == map_limit)
-+		pidmap_t *map_limit = pidmap_array + (pid_max-1)/BITS_PER_PAGE;
-+
-+		if (++map > map_limit)
- 			map = pidmap_array;
- 		if (unlikely(!map->page)) {
- 			unsigned long page = get_zeroed_page(GFP_KERNEL);
-@@ -133,13 +133,12 @@ next_map:
- 	 */
- scan_more:
- 	offset = find_next_zero_bit(map->page, BITS_PER_PAGE, offset);
--	if (offset >= BITS_PER_PAGE)
-+	pid = (map - pidmap_array) * BITS_PER_PAGE + offset;
-+	if (offset >= BITS_PER_PAGE || pid >= pid_max)
- 		goto next_map;
- 	if (test_and_set_bit(offset, map->page))
- 		goto scan_more;
--
- 	/* we got the PID: */
--	pid = (map - pidmap_array) * BITS_PER_PAGE + offset;
- 	goto return_pid;
- 
- failure:
-
---SLDf9lqlvOQaIe6s--
+--Boundary-02=_YCCRBpvt/IsLG5P--

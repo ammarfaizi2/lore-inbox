@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286590AbSBIUR0>; Sat, 9 Feb 2002 15:17:26 -0500
+	id <S286895AbSBIUVg>; Sat, 9 Feb 2002 15:21:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286895AbSBIURG>; Sat, 9 Feb 2002 15:17:06 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50185 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286590AbSBIUQ5>; Sat, 9 Feb 2002 15:16:57 -0500
-Date: Sat, 9 Feb 2002 12:15:36 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Hugh Dickins <hugh@veritas.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] BUG preserve registers
-In-Reply-To: <3C658272.8C517D55@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0202091214270.32272-100000@penguin.transmeta.com>
+	id <S287111AbSBIUV0>; Sat, 9 Feb 2002 15:21:26 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:24267 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S286895AbSBIUVI>;
+	Sat, 9 Feb 2002 15:21:08 -0500
+Date: Sat, 09 Feb 2002 20:21:01 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Daniel Phillips <phillips@bonn-fries.net>,
+        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, zaitcev@redhat.com
+Cc: linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: The IBM order relaxation patch
+Message-ID: <2345050357.1013286061@[195.224.237.69]>
+In-Reply-To: <E16YpHW-0000aw-00@starship.berlin>
+In-Reply-To: <E16YpHW-0000aw-00@starship.berlin>
+X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 9 Feb 2002, Andrew Morton wrote:
+
+--On Thursday, 07 February, 2002 3:12 PM +0100 Daniel Phillips 
+<phillips@bonn-fries.net> wrote:
+
+> Maybe Rik's
+>> rmap method could help here, because with reverse mappings we
+>> can at least try to free adjacent areas (because we then at least
+>> *know* who's using the pages).
 >
-> gcc generally get it wrong - unreferenced strings still appear
-> in the object code from multiple usage patterns.  I think this
-> was fixed about six months ago.
+> Yes, that's one of leading reasons for wanting rmap.  (Number one and two
+> reasons are: allow forcible unmapping of multiply referenced pages for
+> swapout; get more reliable hardware ref bit readings.)
+>
+> Note that even if we can do forcible freeing we still have to deal with
+> the  issue of fragmentation due to pinned pages, e.g., slab cache,
+> admittedly a  rarer problem.
 
-Ok. If it's already fixed in recent gcc's, and since even a unfixed gcc
-should at most cause just one extra string per file, this sounds
-acceptable.
+Perhaps mitigated if you use the same technology as you are using to do the
+freeing, to ensure that pinned pages (slab cache etc.) are preferentially
+allocated next to other pinned pages.
 
-> But yes, the verbose BUG overhead is now six bytes per BUG, plus
-> a few bytes per file for the filename.  And it's my opinion that
-> the non-verbose BUG option is undesirable - it's making the
-> developers' job harder.  Seems that with this change, the reasons
-> for CONFIG_DEBUG_BUGVERBOSE are no longer with us, and it can
-> disappear.
-
-Yes. Make it so.
-
-		Linus
-
+--
+Alex Bligh

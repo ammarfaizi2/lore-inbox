@@ -1,111 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbULBT3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbULBTep@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261734AbULBT3A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 14:29:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbULBT3A
+	id S261735AbULBTep (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 14:34:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbULBTep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 14:29:00 -0500
-Received: from mail.aknet.ru ([217.67.122.194]:57355 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S261734AbULBT2d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 14:28:33 -0500
-Message-ID: <41AF6CE0.4090500@aknet.ru>
-Date: Thu, 02 Dec 2004 22:28:32 +0300
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: prasanna@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kprobes: dont steal interrupts from vm86
-References: <20041109130407.6d7faf10.akpm@osdl.org> <20041110104914.GA3825@in.ibm.com> <4192638C.6040007@aknet.ru> <20041117131552.GA11053@in.ibm.com>
-In-Reply-To: <20041117131552.GA11053@in.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------010607050709080402030808"
+	Thu, 2 Dec 2004 14:34:45 -0500
+Received: from moraine.clusterfs.com ([66.96.26.190]:37801 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S261735AbULBTem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 14:34:42 -0500
+Date: Thu, 2 Dec 2004 12:34:36 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Anonymous via the Cypherpunks Tonga Remailer 
+	<nobody@cypherpunks.to>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3 on encrypted device mapper
+Message-ID: <20041202193436.GS22547@schnapps.adilger.int>
+Mail-Followup-To: Anonymous via the Cypherpunks Tonga Remailer <nobody@cypherpunks.to>,
+	linux-kernel@vger.kernel.org
+References: <20041202181727.5B50011643@mail.cypherpunks.to>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oN4OvwWIcd1E23D1"
+Content-Disposition: inline
+In-Reply-To: <20041202181727.5B50011643@mail.cypherpunks.to>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010607050709080402030808
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hello.
+--oN4OvwWIcd1E23D1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Prasanna S Panchamukhi wrote:
-> Yes, there is a small bug in kprobes. Kprobes int3 handler
-> was returning wrong value. Please check out if the patch
-> attached with this mail fixes your problem.
-> Please let me know if you have any issues.
-Yes. After several days of debugging,
-I am pointing to this problem again.
-Unfortunately your patch appeared not
-to work. It only masks the problem.
-I was surprised that you check VM_MASK
-after you already used "addr" a couple
-of times - this "addr" is completely
-bogus and should not be used. Now this
-turned out more important. The problem
-is that the "addr" calculated only from
-the value of EIP, is bogus not only when
-VM flag is set. It is also bogus if the
-program uses segmentation and the
-CS_base!=0. I have many of the like
-programs here and they all are broken
-because kprobes still steal the int3 from
-them. They do not use V86, but they use
-segments instead of the flat layout, so
-the address cannot be calculated by the
-EIP value.
-I would suggest something like the attached
-patch. I know nothing about kprobes (sorry)
-so I don't know what CS you need. If you
-need not only __KERNEL_CS, you probably
-want the (regs->xcs & 4) check to see if
-the CS is not from LDT at least. Does this
-make sense?
-Anyway, would be nice to get this fixed.
-This can cause Oopses because you deref
-the completely bogus pointer later in the
-code.
-Writing a test-case for this problem is
-not a several-minutes work, but if you
-really need one, I may try to hack it out.
+On Dec 02, 2004  19:17 +0100, Anonymous via the Cypherpunks Tonga Remailer =
+wrote:
+> Filesystem is encrypted using dmcrypt, the encryption framework working o=
+n top of the device mapper.
+>=20
+> I deleted a file and immediatelly i attempted to recover it using debugfs.
+>=20
+> Linux aaa 2.6.10-rc2 #1 Wed Dec 1 09:52:37 CET 2004 i686 GNU/Linux
+>=20
+> aaa:~# df -k .
+> Filesystem           1K-blocks      Used Available Use% Mounted on
+> /dev/mapper/rootfs     8676440   5278584   2957108  65% /
+>=20
+> aaa:~# debugfs /dev/mapper/rootfs
+> debugfs 1.35 (28-Feb-2004)
+> debugfs:  lsdel
 
-Thanks.
+Ext3 doesn't allow file undeleting (though the data on disk is not
+overwritten in any way, just the metadata).  You should be happy, this
+is more secure (seems you are worried about that).
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
 
 
---------------010607050709080402030808
-Content-Type: text/x-patch;
- name="kprb.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kprb.diff"
+--oN4OvwWIcd1E23D1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
---- linux/arch/i386/kernel/kprobes.c.old	2004-11-18 16:22:46.000000000 +0300
-+++ linux/arch/i386/kernel/kprobes.c	2004-12-02 22:01:05.000000000 +0300
-@@ -92,6 +92,11 @@
- 	int ret = 0;
- 	u8 *addr = (u8 *) (regs->eip - 1);
- 
-+	/* If we are in v86 mode or CS is not ours, get out */
-+	if ((regs->eflags & VM_MASK) || regs->xcs != __KERNEL_CS) {
-+		return 0;
-+	}
-+
- 	/* We're in an interrupt, but this is clear and BUG()-safe. */
- 	preempt_disable();
- 
-@@ -117,10 +122,6 @@
- 	p = get_kprobe(addr);
- 	if (!p) {
- 		unlock_kprobes();
--		if (regs->eflags & VM_MASK) {
--			/* We are in virtual-8086 mode. Return 0 */
--			goto no_kprobe;
--		}
- 
- 		if (*addr != BREAKPOINT_INSTRUCTION) {
- 			/*
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
---------------010607050709080402030808--
+iD8DBQFBr25LpIg59Q01vtYRAqmmAKC26VC35MulTTdFvgjh5pj/ryFVdQCbB2oG
+YChOTfVRgDj8N0rciRdK0d0=
+=oTO0
+-----END PGP SIGNATURE-----
+
+--oN4OvwWIcd1E23D1--

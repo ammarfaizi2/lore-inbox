@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132755AbRDNFuN>; Sat, 14 Apr 2001 01:50:13 -0400
+	id <S132759AbRDNGDY>; Sat, 14 Apr 2001 02:03:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132743AbRDNFuE>; Sat, 14 Apr 2001 01:50:04 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:32728 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S132763AbRDNFt6>;
-	Sat, 14 Apr 2001 01:49:58 -0400
-Date: Sat, 14 Apr 2001 00:33:34 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: <nico@xanadu.home>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: <esr@thyrsus.com>, <linux-kernel@vger.kernel.org>,
-        <kbuild-devel@lists.sourceforge.net>
-Subject: Re: CML2 1.0.0 doesn't remember configuration changes
-In-Reply-To: <3AD7B619.D1A812CC@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0104140032150.24402-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132756AbRDNGDO>; Sat, 14 Apr 2001 02:03:14 -0400
+Received: from turnover.lancs.ac.uk ([148.88.17.220]:37117 "EHLO
+	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
+	id <S132754AbRDNGDJ>; Sat, 14 Apr 2001 02:03:09 -0400
+Message-Id: <l03130306b6fd91eb090c@[192.168.239.105]>
+In-Reply-To: <3AD78A6C.F0F3CF5A@mindspring.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Sat, 14 Apr 2001 06:35:56 +0100
+To: joeja@mindspring.com, linux-kernel@vger.kernel.org
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: bug in float on Pentium
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> double x = 5483.99;
+> float y = 5483.99;
 
+>5483.990000
+>5483.990234
 
-On Fri, 13 Apr 2001, Jeff Garzik wrote:
+Well, duh.  Floats are less accurate than doubles, so what?  Read your C
+textbook again.
 
-> "Eric S. Raymond" wrote:
-> > OK, 1.1.0 will do these things.  I'm still not certain I have `make
-> > oldconfig' right, but I trust someone will club me gently over the
-> > head if it's still not up to spec.
->
-> Yep :)   'vi .config' + 'make oldconfig' is the most efficient way to
-> update your kernel config, if you really know what you are doing.
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
-I thought I was the only one to do that!  =-)
+The key to knowledge is not to rely on people to teach you it.
 
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
 
-Nicolas
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+-----END GEEK CODE BLOCK-----
+
 

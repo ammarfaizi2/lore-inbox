@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267653AbUI1IJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267632AbUI1Iq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267653AbUI1IJv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 04:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267656AbUI1IJv
+	id S267632AbUI1Iq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 04:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267650AbUI1Iq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 04:09:51 -0400
-Received: from smtp-vbr4.xs4all.nl ([194.109.24.24]:59913 "EHLO
-	smtp-vbr4.xs4all.nl") by vger.kernel.org with ESMTP id S267653AbUI1IJ0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 04:09:26 -0400
-Subject: Re: [OT] Microsoft claim 267% better peak performance than linux?
-From: Norbert van Nobelen <Norbert@edusupport.nl>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040928075545.GA3298@cenedra.walrond.org>
-References: <20040928075545.GA3298@cenedra.walrond.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1096358943.21271.21.camel@linux.local>
+	Tue, 28 Sep 2004 04:46:58 -0400
+Received: from rproxy.gmail.com ([64.233.170.196]:50317 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267632AbUI1Iq5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 04:46:57 -0400
+Message-ID: <dc54396f04092801465d278b73@mail.gmail.com>
+Date: Tue, 28 Sep 2004 10:46:56 +0200
+From: Ed Schouten <edschouten@gmail.com>
+Reply-To: Ed Schouten <edschouten@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] i386: Xbox support
+Cc: nickpiggin@yahoo.com.au
+In-Reply-To: <415915F0.2000803@yahoo.com.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 28 Sep 2004 10:09:03 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <65184.217.121.83.210.1096308147.squirrel@217.121.83.210>
+	 <4158AA5B.8090601@yahoo.com.au>
+	 <dc54396f040927214651393131@mail.gmail.com>
+	 <415915F0.2000803@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just the fact that the benchmark is this old, is a good reason to doubt
-it.
+On Tue, 28 Sep 2004 17:42:40 +1000, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> Well, I ask because there is probably quite a large number of embedded type
+> devices devices that you could "just add a small patch for" to get it working.
+> 
+> The added fact that you have to "hack" the hardware (I think?) to even get
+> it to run Linux makes it probably a bit more questionable (it is great that
+> we can run on xbox, but maybe not too harmful to keep it as an external patch).
 
-On Tue, 2004-09-28 at 09:55, Andrew Walrond wrote:
-> I was pointed to this (rotating) banner advert at the top of www.eweek.com
-> 
-> It claims that when comparing Red Hat AS2.1 with Windows Server 2003 on a dual processor machine, Windows Server 2003 gives 276% better peak performance, quoting Veritest as the source.
-> 
-> I think the report in question must be this one
-> 
-> http://download.microsoft.com/download/0/7/1/0715a190-70f5-4b0d-8ced-f9d1e046aa6a/netbench.pdf
-> 
-> Its dated April 2003, so this was probably discussed a long time ago, but can anyone point me in the direction of an analysis/rebuttal of this report from the linux community? "Windows webserver gives 3x performance of linux" is something I need to be able to debunk, assuming it's inaccurate.
-> 
-> Andrew
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Yes, you have multiple options to get Linux on it (flash the BIOS with
+cromwell, grub-based bootloader, alter some of its current software,
+etc).
+
+The reason why the Xbox-Linux folks and I think it should belong in
+the main tree is adoption. Xbox Linux has been around since 2001 if I
+remember correctly and there are almost no distributions around that
+really support the Xbox. The people at Debian for example will only
+add Xbox support if it is available in the main tree.
+
+Yours,
 -- 
-Met vriendelijke groet,
-
-Norbert van Nobelen
-EduSupport
-
-Postbus 95963
-2509CZ Den Haag
-T: 070-3280200
-M: 06-43036586
-F: 070-3280029
-E: Norbert@edusupport.nl
-I: www.edusupport.nl
-B: ABN AMRO
-R: 47.38.00.411
-
+ Ed Schouten <edschouten@gmail.com>
+ Website: http://g-rave.nl/

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287828AbSATBCq>; Sat, 19 Jan 2002 20:02:46 -0500
+	id <S287832AbSATBKj>; Sat, 19 Jan 2002 20:10:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287831AbSATBCg>; Sat, 19 Jan 2002 20:02:36 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62470 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287828AbSATBCW>; Sat, 19 Jan 2002 20:02:22 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [STATUS 2.5]  January 17, 2001
-Date: 19 Jan 2002 17:02:05 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a2d4ud$9eb$1@cesium.transmeta.com>
-In-Reply-To: <20020117214752.GA5085@localhost> <20020117141458.A11402@vato.org> <3C470866.5353.10126E20@localhost> <20020117143016.B11402@vato.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S287831AbSATBK3>; Sat, 19 Jan 2002 20:10:29 -0500
+Received: from bitmover.com ([192.132.92.2]:37818 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S287832AbSATBKO>;
+	Sat, 19 Jan 2002 20:10:14 -0500
+Date: Sat, 19 Jan 2002 17:10:13 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Would anyone be willing to host a second kernel.org site?
+Message-ID: <20020119171013.T30683@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <a2d46c$9c2$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <a2d46c$9c2$1@cesium.transmeta.com>; from hpa@zytor.com on Sat, Jan 19, 2002 at 04:49:16PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020117143016.B11402@vato.org>
-By author:    "Tim Pepper" <tpepper@vato.org>
-In newsgroup: linux.dev.kernel
->
-> On Thu 17 Jan at 17:22:46 -0500 boissiere@mediaone.net done said:
-> > So are you suggesting I add the following task to my list?
-> > o Finalize new device naming convention (Linus Torvalds)
+On Sat, Jan 19, 2002 at 04:49:16PM -0800, H. Peter Anvin wrote:
+> The recent troubles we've had at kernel.org pretty much highlight the
+> issues with having an offsite system with no easy physical access.
+> This begs the question if we could establish another primary
+> kernel.org site; this would not only reduce the load on any one site
+> but deal with any one failure in a much more graceful way.
 > 
-> Yeah, but I don't know if Linus will want it assigned to him.. ;)
-> 
+> Anyone have any ideas of some organization who would be willing to
+> host a second kernel.org server?  Such an organization should expect
+> around 25 Mbit/s sustained traffic, and up to 40-100 Mbit/s peak
+> traffic (this one can be adjusted to fit the available resources.)
 
-Given that he doesn't seem to be willing to let anyone else do it,
-either...
-
-	-hpa
+We've priced this lately and I think the cheapest you are looking at is
+around $6500/month for a 25Mbit connection.  That's not a huge amount of
+money but it's enough that it shows up on people's radar screens as a line
+item, it's $80K/year, so there would have to be some justification.
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

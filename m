@@ -1,53 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129835AbRCGBoX>; Tue, 6 Mar 2001 20:44:23 -0500
+	id <S129833AbRCGB7X>; Tue, 6 Mar 2001 20:59:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129837AbRCGBoN>; Tue, 6 Mar 2001 20:44:13 -0500
-Received: from smarty.smart.net ([207.176.80.102]:32784 "EHLO smarty.smart.net")
-	by vger.kernel.org with ESMTP id <S129835AbRCGBn5>;
-	Tue, 6 Mar 2001 20:43:57 -0500
-From: Rick Hohensee <humbubba@smarty.smart.net>
-Message-Id: <200103070144.UAA29626@smarty.smart.net>
-Subject: Re: Linux installation problem (Microchannel)
-To: linux-kernel@vger.kernel.org
-Date: Tue, 6 Mar 2001 20:44:10 -0500 (EST)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S129854AbRCGB7N>; Tue, 6 Mar 2001 20:59:13 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:39236 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S129833AbRCGB7B>; Tue, 6 Mar 2001 20:59:01 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: jdthood@mail.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Forcible removal of modules 
+In-Reply-To: Your message of "Tue, 06 Mar 2001 14:17:28 -0800."
+             <9038100.983917051702.JavaMail.imail@digger.excite.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Wed, 07 Mar 2001 12:58:11 +1100
+Message-ID: <7691.983930291@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Standard Red Hat has no MCA support (sorry much as I love my PS/2 its
->rather
->hard to make an honest business case for the huge amount of extra work to
->build MCA boot disks/CD images).  Debian I believe should install
->straight
->out
->of the box on most MCA bus PC systems
->
->Alan
->
+On Tue, 6 Mar 2001 14:17:28 -0800 (PST), 
+Thomas Hood <thood@excite.com> wrote:
+>My question is: Is there some better way of blocking 
+>all open() calls to a particular device driver while
+>processes using it are being killed off?
 
-Hard if you want to pretend you're Microsoft. MCA may still be interesting
-for a bottom-feeder strategy. There are apparently still millions of them
-in storage. It seems the powers that be have made it harder for
-accountable organizations to discard computers, due to the lead content
-and so on. I have come off them myself, but the MAD types (Microchannel
-Affection Disorder) on Usenet still do strange things like upgrade thier
-CPUs and so on. My Microchannel stuff is in 
+Not yet.  There have been some off list discussions about redoing the
+module load/unload process to avoid races, as part of that we will get
+forced module unregister followed by unload when the use count goes to
+zero.  Probably 2.5 changes.
 
-	ftp://ftp.gwdg.de/pub/linux/install/clienux/MCA/
-
-including what I believe was the first 2.88meg rawwrite. cLIeNUX was up
-until recently built on a 9595. The worst afflicted MAD individual is
-probably Charles Lasitter (one s) cl@ncdm.com . His MCA cLIeNUX spin-off
-should still cater to MCA quite nicely. Regular cLIeNUX should still
-install on MCA, I think, and is one dir up from the above URL. 
-
-The newsgroup is comp.sys.ibm.ps2.hardware.
-
-
-Rick Hohensee
-www.clienux.com

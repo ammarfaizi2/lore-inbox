@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263139AbTCLKco>; Wed, 12 Mar 2003 05:32:44 -0500
+	id <S263136AbTCLKaj>; Wed, 12 Mar 2003 05:30:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263140AbTCLKco>; Wed, 12 Mar 2003 05:32:44 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:26090 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S263139AbTCLKcn>;
-	Wed, 12 Mar 2003 05:32:43 -0500
+	id <S263138AbTCLKaj>; Wed, 12 Mar 2003 05:30:39 -0500
+Received: from pop.gmx.de ([213.165.64.20]:8291 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S263136AbTCLKai> convert rfc822-to-8bit;
+	Wed, 12 Mar 2003 05:30:38 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Torsten Foertsch <torsten.foertsch@gmx.net>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [2.4.19] How to get the path name of a struct dentry
+Date: Wed, 12 Mar 2003 11:38:27 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <200303121033.08560.torsten.foertsch@gmx.net> <20030312101133.A9312@infradead.org>
+In-Reply-To: <20030312101133.A9312@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15983.3857.705211.851663@gargle.gargle.HOWL>
-Date: Wed, 12 Mar 2003 11:42:25 +0100
-From: mikpe@csd.uu.se
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: mikpe@csd.uu.se, Andrew Fleming <afleming@motorola.com>,
-       Segher Boessenkool <segher@koffie.nl>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       oprofile-list@lists.sourceforge.net, linuxppc-dev@lists.linuxppc.org,
-       o.oppitz@web.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch] oprofile for ppc
-In-Reply-To: <1047427855.5973.80.camel@cube>
-References: <3E6D469C.8060209@koffie.nl>
-	<FEB94991-540B-11D7-BAD1-000393C30512@motorola.com>
-	<15982.29106.674299.704117@gargle.gargle.HOWL>
-	<1047427855.5973.80.camel@cube>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200303121138.31387.torsten.foertsch@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan writes:
- > > Is this bug restricted to 7400/7410 only, or does it
- > > affect the 750 (and relatives) and 604/604e too?
- > >
- > > I'm thinking about ppc support for my perfctr driver,
- > > and whether overflow interrupts are worth supporting
- > > or not given the errata.
- > 
- > 604/604e doesn't even have performance monitoring AFAIK.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Yes they do. 604 has two counters, 604e has four.
+On Wednesday 12 March 2003 11:11, Christoph Hellwig wrote:
+> On Wed, Mar 12, 2003 at 10:33:05AM +0100, Torsten Foertsch wrote:
+> > Assuming I have got a particular (struct dentry*)dp, how can I get it's
+> > full path name.
+>
+> You can't.  See d_path() for the information needed to get an absolute
+> path.
 
- > I've heard nothing to suggest that the 750 is affected.
+Thanks, that helped.
 
-I seem to recall hearing something about some temperature
-monitoring interrupt interacting badly with the performance
-monitor interupt due to an errata, but that may not have been
-the 750.
+Next question, is there a way to get the dentry and vfsmount of /? I mean not 
+current->fs->root and current->fs->rootmnt. They can be chrooted. I mean the 
+real /.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
- > I'll give you a hand; point me to the latest perfctr code
- > and explain how it is supposed to interact with oprofile.
-
-They're not supposed to interact, but there is currently no
-mechanism in place for preventing both from being activated
-at the same time. What's needed is some form of kernel API
-for reserving and releasing the performance counter hardware,
-and updating oprofile to use that API.
+iD8DBQE+bw4nwicyCTir8T4RAkc3AJ9W1k9rwLF44E5dVawOeePbNcf1pACfR/J7
+giuLC13yRuO+z/wPLpCbtNs=
+=UcIU
+-----END PGP SIGNATURE-----

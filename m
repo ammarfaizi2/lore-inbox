@@ -1,66 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264414AbTL3GOz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 01:14:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264428AbTL3GOz
+	id S264410AbTL3GMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 01:12:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264411AbTL3GMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 01:14:55 -0500
-Received: from [38.119.218.103] ([38.119.218.103]:20411 "HELO
-	mail.bytehosting.com") by vger.kernel.org with SMTP id S264414AbTL3GOw
+	Tue, 30 Dec 2003 01:12:09 -0500
+Received: from out002pub.verizon.net ([206.46.170.141]:56458 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S264410AbTL3GMG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 01:14:52 -0500
-X-Qmail-Scanner-Mail-From: drunk@conwaycorp.net via digital.bytehosting.com
-X-Qmail-Scanner: 1.20rc3 (Clear:RC:1:. Processed in 0.046061 secs)
-Date: Tue, 30 Dec 2003 00:14:49 -0600
-From: Nathan Poznick <kraken@drunkmonkey.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Handle R_ALPHA_REFLONG relocation on Alpha (2.6.0-test11)
-Message-ID: <20031230061449.GA5204@wang-fu.org>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
-References: <20031213003841.GA5213@wang-fu.org> <20031217121010.GA11062@twiddle.net> <20031217193124.GA4837@wang-fu.org> <20031218010203.GA13385@twiddle.net> <20031230145736.4ce0ff59.rusty@rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
+	Tue, 30 Dec 2003 01:12:06 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: Omkhar Arasaratnam <omkhar@rogers.com>, emoenke@gwdg.de
+Subject: Re: [PATCH] drivers/cdrom/sjcd.c check_region() fix
+Date: Tue, 30 Dec 2003 01:12:00 -0500
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <20031229195757.GA26168@omkhar.ibm.com>
+In-Reply-To: <20031229195757.GA26168@omkhar.ibm.com>
+Organization: Organization: None that appears to be detectable by casual observers
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031230145736.4ce0ff59.rusty@rustcorp.com.au>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200312300112.00823.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.205.9.137] at Tue, 30 Dec 2003 00:12:04 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 29 December 2003 14:57, Omkhar Arasaratnam wrote:
+>Here is another check_region fix, this time for sjcd.c
+>
+>--- /usr/src/linux-2.6.0/drivers/cdrom/sjcd.c	2003-12-17
+> 21:59:05.000000000 -0500 +++ drivers/cdrom/sjcd.c	2003-12-29
+> 14:52:05.000000000 -0500 @@ -1700,12 +1700,13 @@
+> 	sprintf(sjcd_disk->disk_name, "sjcd");
+> 	sprintf(sjcd_disk->devfs_name, "sjcd");
+>
+>-	if (check_region(sjcd_base, 4)) {
+>+	if (!request_region(sjcd_base, 4,"sjcd")) {
+> 		printk
+> 		    ("SJCD: Init failed, I/O port (%X) is already in use\n",
+> 		     sjcd_base);
+> 		goto out2;
+> 	}
+>+	release_region(sjcd_base,4);
+>
+> 	/*
+> 	 * Check for card. Since we are booting now, we can't use standard
 
---3MwIy2ne0vdjdPXF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I've got two of those check_region() warnings in advansys.c.
 
-Thus spake Rusty Russell:
-> This patch works for me: Nathan, does it solve your problem?
-> Rusty.
+Would it be appropriate to do a similar fix to it?
 
-This did indeed solve my problem on Alpha.  I can now use modules with
-CONFIG_DEBUG_INFO.
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-Thanks!
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 
---=20
-Nathan Poznick <kraken@drunkmonkey.org>
-
-"Time for go to bed." -Tor Johnson. #320
-
-
---3MwIy2ne0vdjdPXF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/8RfZYOn9JTETs+URAv6tAJoCXh8Yv7A5bk4xdAZL7AZ3J+UH2QCgitsn
-VxsaGjZp2hgWJ6G2dBbnEXM=
-=wHbB
------END PGP SIGNATURE-----
-
---3MwIy2ne0vdjdPXF--

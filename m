@@ -1,34 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316390AbSFLJXy>; Wed, 12 Jun 2002 05:23:54 -0400
+	id <S317672AbSFLJ2R>; Wed, 12 Jun 2002 05:28:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317232AbSFLJXy>; Wed, 12 Jun 2002 05:23:54 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21509 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316390AbSFLJXx>; Wed, 12 Jun 2002 05:23:53 -0400
-Subject: Re: [PATCH] fs/locks.c: Fix posix locking for threaded tasks
-To: willy@debian.org (Matthew Wilcox)
-Date: Wed, 12 Jun 2002 10:40:07 +0100 (BST)
-Cc: torvald@transmeta.com (Linus Torvalds),
-        marcelo@conectiva.com.br (Marcelo Tosatti),
-        sdesai@austin.ibm.com (Saurabh Desai),
-        sfr@canb.auug.org.au (Stephen Rothwell), linux-kernel@vger.kernel.org
-In-Reply-To: <20020610034843.W27186@parcelfarce.linux.theplanet.co.uk> from "Matthew Wilcox" at Jun 10, 2002 03:48:43 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317675AbSFLJ2Q>; Wed, 12 Jun 2002 05:28:16 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:28111 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317672AbSFLJ2Q>;
+	Wed, 12 Jun 2002 05:28:16 -0400
+Date: Wed, 12 Jun 2002 02:22:58 -0700 (PDT)
+Message-Id: <20020612.022258.81407248.davem@redhat.com>
+To: david-b@pacbell.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D06F2FF.8070109@pacbell.net>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17I4bn-0007Rn-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> SUS v3 does not offer any enlightenment.  But it seems reasonable that
-> processes which share a files_struct should share locks.  After all,
-> if one process closes the fd, they'll remove locks belonging to the
-> other process.
-> 
-> Here's a patch generated against 2.4; it also applies to 2.5.
-> Please apply.
+   From: David Brownell <david-b@pacbell.net>
+   Date: Wed, 12 Jun 2002 00:06:39 -0700
 
-This seems horribly inappropriate for 2.4 as it may break apps
+   David S. Miller wrote:
+   > 0 is a valid PCI dma address on many platforms.  This is part
+   > of the problem.
+   
+   OK, so a new call syntax would be desirable.  Or reserving page zero
+   even on such platforms.
+   
+Or, better yet, define a PCI_BAD_ADDR per-arch.
+   
+   > Huh?  The whole idea is that it is memory for PCI dma, it has to be
+   > PCI in nature.  If you want a kmalloc'ish thing, simple use
+   > pci_alloc_consistent and carve up the pages you get internally.
+   
+   And the reason that logic doesn't lead us to rip kmalloc() out of
+   the kernel (in favor of the page allocator) is ... what?  Every driver
+   shouldn't _need_ to write yet another malloc() clone, that's all I'm
+   saying; that'd be a waste.
+   
+That is why we have the PCI pool thing, it's PCI alloc consistent +
+SLAB carving.
+   
+   Certainly hanging some sort of memory allocator object off struct device
+   should be pretty cheap.  At least for USB, all devices on the same bus
+   could share the same allocator.  Not that I know PCI that well, but I
+   suspect that could be true there too ... more sharing, less internal
+   fragmentation, and more efficient use of various resources.
+   
+These instances we are talking about want to allocate multiple
+instance of the same object (thus the same size).  They are not
+allocating things like variable length strings and whatnot.
+
+That is why I keep suggesting PCI pools, it's the perfect kind of
+setup (and the easiest to implement).  A generic kmalloc() out of
+pages is more to implement, certainly.
+
+If you want to hide this behind a usb_dma_pool_create,
+usb_dma_pool_alloc etc. kind of interface that calls back into the
+host controller layer to get the pci_dev etc., that's fine.
+
+Now enough talking and someone implement this, talk is cheap.

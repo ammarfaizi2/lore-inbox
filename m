@@ -1,35 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262019AbVBPVC6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVBPVDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbVBPVC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 16:02:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbVBPVC5
+	id S261911AbVBPVDT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 16:03:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbVBPVDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 16:02:57 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:42005 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262019AbVBPVCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 16:02:47 -0500
-To: "govind raj" <agovinda04@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Customized 2.6.10 kernel on a Compact Flash
-X-Message-Flag: Warning: May contain useful information
-References: <BAY10-F2463631423ADD0786503EAD66C0@phx.gbl>
-From: Roland Dreier <roland@topspin.com>
-Date: Wed, 16 Feb 2005 13:02:45 -0800
-In-Reply-To: <BAY10-F2463631423ADD0786503EAD66C0@phx.gbl> (govind raj's
- message of "Thu, 17 Feb 2005 02:18:13 +0530")
-Message-ID: <52zmy4w74a.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+	Wed, 16 Feb 2005 16:03:19 -0500
+Received: from giesskaennchen.de ([83.151.18.118]:51394 "EHLO
+	mail.uni-matrix.com") by vger.kernel.org with ESMTP id S261911AbVBPVDO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 16:03:14 -0500
+Message-ID: <4213B519.7040202@giesskaennchen.de>
+Date: Wed, 16 Feb 2005 22:03:21 +0100
+From: Oliver Antwerpen <olli@giesskaennchen.de>
+User-Agent: Mozilla Thunderbird 1.0RC1 (Windows/20041201)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 16 Feb 2005 21:02:46.0064 (UTC) FILETIME=[DD3AE300:01C5146A]
+To: linux-kernel@vger.kernel.org
+Subject: Re: Bug in SLES8 kernel 2.4.x freezing HP DL740/760
+References: <4213AB2B.2050604@giesskaennchen.de> <4213B1FC.4020706@tiscali.de>
+In-Reply-To: <4213B1FC.4020706@tiscali.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+X-giesskaennchen.de-MailScanner-Information: Die Giesskaennchen verschicken keine Viren!
+X-giesskaennchen.de-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    govid> Kernel panic - not syncing: Attempted to kill init!
+Hi,
 
-It seems your kernel is booting fine, but your init process is exiting
-(which leads to this message).  What userspace do you have installed
-on your compact flash card?  In particular what are you using as "init"?
+Matthias-Christian Ott schrieb:
+> Oliver Antwerpen wrote:
+> 
+>> SuSE has patched UNICON into the kernel which will cause these servers 
+>> to hang when booted with vga=normal. The system will run fine in 
+>> fb-mode, but not in plain text.
+>
+> Well if you don't need unicon, then remove the patch from the .spec file 
+> and rebuild the kernel (from the source rpm). Or report it their bug 
+> tracking system.
 
- - Roland
+My problem ist, that when I change .config, then I lose my support. So
+SuSE or HP have to tell me to do so.
+
+Oliver
+
+
+

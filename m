@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286934AbSBOF4L>; Fri, 15 Feb 2002 00:56:11 -0500
+	id <S287337AbSBOGwU>; Fri, 15 Feb 2002 01:52:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287048AbSBOF4C>; Fri, 15 Feb 2002 00:56:02 -0500
-Received: from mailhost.nmt.edu ([129.138.4.52]:53776 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id <S286934AbSBOFz6>;
-	Fri, 15 Feb 2002 00:55:58 -0500
-Date: Thu, 14 Feb 2002 22:55:54 -0700
-From: Val Henson <val@nmt.edu>
-To: Paul Mackerras <paulus@samba.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: smp_send_reschedule vs. smp_migrate_task
-Message-ID: <20020214225554.K1557@boardwalk>
-In-Reply-To: <15466.6058.686853.295549@argo.ozlabs.ibm.com> <20020214150331.P30586@boardwalk> <15468.14888.334751.716019@argo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <15468.14888.334751.716019@argo.ozlabs.ibm.com>; from paulus@samba.org on Fri, Feb 15, 2002 at 09:28:56AM +1100
-Favorite-Color: Polka dot
+	id <S287307AbSBOGwL>; Fri, 15 Feb 2002 01:52:11 -0500
+Received: from bs1.dnx.de ([213.252.143.130]:43974 "EHLO bs1.dnx.de")
+	by vger.kernel.org with ESMTP id <S287303AbSBOGv6>;
+	Fri, 15 Feb 2002 01:51:58 -0500
+Date: Fri, 15 Feb 2002 07:51:23 +0100 (CET)
+From: Robert Schwebel <robert@schwebel.de>
+X-X-Sender: <robert@callisto.local>
+Reply-To: <robert@schwebel.de>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: CML2-2.3.0 is available
+In-Reply-To: <20020214193329.A23463@thyrsus.com>
+Message-ID: <Pine.LNX.4.33.0202150751010.24650-100000@callisto.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 15, 2002 at 09:28:56AM +1100, Paul Mackerras wrote:
-> Val Henson writes:
-> 
-> > I had only one IPI for the RPIC (an interrupt controller only used on
-> > Synergy PPC boards) and I implemented a little message queue to
-> > simulate all 4 IPI's.  The mailbox implementation suggested by James
-> > Bottomley ended up having race conditions on our board.  It's probably
-> > not the most elegant solution, but it works and required no change to
-> > the PowerPC SMP code.  See my "Make Gemini boot" patch to linuxppc-dev
-> > and take a look at the files rpic.c and rpic.h.
-> 
-> In that post I was really asking the following questions:
-> 
-> * how often does smp_send_reschedule get called?
-> * how often does smp_migrate_task get called?
-> * if smp_send_reschedule and smp_migrate_task were mutually exclusive,
->   i.e. both used the same spinlock, could that lead to deadlock?
-> 
-> James Bottomley answered the first two for me but not the third.
+On Thu, 14 Feb 2002, Eric S. Raymond wrote:
+> The latest version is always available at <http://www.tuxedo.org/~esr/cml2/>.
 
-Understood.
+"Not Found"...
 
-I'm still a little disgusted by a system that works for 4
-smp_<whatever> functions but not 5. :)
+Robert
+--
+ +--------------------------------------------------------+
+ | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
+ | Pengutronix - Linux Solutions for Science and Industry |
+ |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
+ |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
+ +--------------------------------------------------------+
 
--VAL

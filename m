@@ -1,95 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264369AbUEDNsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264368AbUEDNw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264369AbUEDNsX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 09:48:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbUEDNsX
+	id S264368AbUEDNw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 09:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUEDNw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 09:48:23 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:59011 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264370AbUEDNrP
+	Tue, 4 May 2004 09:52:29 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:31879 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264368AbUEDNw1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 09:47:15 -0400
-Date: Tue, 4 May 2004 09:49:06 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Libor Vanek <libor@conet.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Read from file fails
-In-Reply-To: <20040504011957.GA20676@Loki>
-Message-ID: <Pine.LNX.4.53.0405040947070.13706@chaos>
-References: <20040503000004.GA26707@Loki> <Pine.LNX.4.53.0405030852220.10896@chaos>
- <20040503150606.GB6411@Loki> <Pine.LNX.4.53.0405032020320.12217@chaos>
- <20040504011957.GA20676@Loki>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 4 May 2004 09:52:27 -0400
+Subject: Re: Possible permissions bug on NFSv3 kernel client
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Colin Paton <colin.paton@etvinteractive.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1083664520.4538.42.camel@colinp>
+References: <1QqNJ-4QH-37@gated-at.bofh.it> <1QqNJ-4QH-39@gated-at.bofh.it>
+	 <1QqNJ-4QH-35@gated-at.bofh.it> <1Qrhg-5hH-29@gated-at.bofh.it>
+	 <E1BJeSB-0000Gk-V2@localhost>
+	 <1083357597.13656.37.camel@lade.trondhjem.org>
+	 <1083664520.4538.42.camel@colinp>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1083678737.3529.85.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 04 May 2004 09:52:17 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 May 2004, Libor Vanek wrote:
+On Tue, 2004-05-04 at 05:55, Colin Paton wrote:
+> As writing to a char/block device does not perform a write
+> operation *on the server* then the client should not be asking the
+> server for modify/extend permission in the case of char/block devices.
 
-[SNIPPED...all]
+Sure it should: you are asking it for write permission! If you didn't
+check the for modify/extend, then you be allowing world write permission
+by default.
 
-Did you catch this information? If all you want to do is to
-make a new version of a file, owned by the person who accesses the file
-(like VAX/VMS), then you trap open with O_RDWR or O_CREAT or O_TRUNC
-and make a copy with a numeral appended like: filename.typ;2.
+I just checked that Sun's NFS client indeed checks both "extend" and
+"modify" when attempting to write to a character device.
 
-You do this by making a shared object that does what you want.
-The total affect upon user-mode code is a delayed (slow) open().
+> > The read-only mount option does *not apply* to char/block devices such
+> > as /dev/hd[a-z]*, /dev/tty*. Permission checks on open() for those
+> > devices are done on the server *only* via the ACCESS rpc call.
+> 
+> Should vfs_permission() (as called from nfs_permission) be sufficient to
+> perform this check?
 
+No! I repeat: vfs_permission() knows nothing about any uid/gid
+mapping/squashing. You cannot rely exclusively on the mode bits in NFS.
 
->From der.eremit@email.de Tue May  4 09:21:52 2004
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-From: Pascal Schmidt <der.eremit@email.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Reading from file in module fails
+> I don't believe that it is... it is possible to write to a block device
+> on a filesystem that is mounted read-only, but not to write to a block
+> device on an NFS filesystem that is *exported* read-only. 
 
-On Mon, 03 May 2004 14:50:10 +0200, you wrote in linux.kernel:
-
-> That can all be done in userspace.
->
-> $ export LD_PRELOAD=3Dlibcopyfilesbeforemodify.so
->
-> You just need to program a library that provides all functions that
-> modify files (eg. write, open with O_CREAT, ...) and you're done - 100%
-> in userspace.
-
-This won't catch asm programs that do syscalls by hand or statically
-linked programs. If you really need to catch all write accesses, it
-needs to be done in the kernel, probably as an LSM hook or something.
-
--- 
-Ciao,
-Pascal
-
-
-Now, if you need to squirrel the file away to some secret location
-owned by root, then you might want to use a kernel thread. It will
-take the same time and delay the open the same amount.
-Kernel mode is all about privilige, not about speed. A user-mode
-program daemon that operates as root, could also perform the
-same function by having the LD_PRELOAD code pipe information to
-it. One needs to make sure that the daemon as finished copying
-the file before the open() returns of it would be possible for
-the original caller to trash the file before it was copied.
-
-If I were given the task of; "Make sure that an idiot can't
-delete his files in such a way they can't be restored....".
-I'd use a daemon, simply because it's easier and more
-interesting. Also, the daemon is configurable. It can read
-some configuration file and the password file to find out
-where to stash the "wastebaskets". You end up with an extensible
-solution. Kernel mode programming is the last thing you want
-to do, not the first. You can't access any of the 'C' runtime
-library functions although there a few cloned for kernel
-programming. It's a bitch to write your own string functions
-in such a way that they catch all the corner cases that can
-trash the kernel.
+That sounds like a server bug, then.
 
 Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+  Trond

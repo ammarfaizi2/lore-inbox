@@ -1,79 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268959AbTBWTXi>; Sun, 23 Feb 2003 14:23:38 -0500
+	id <S268544AbTBWTfF>; Sun, 23 Feb 2003 14:35:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269001AbTBWTXi>; Sun, 23 Feb 2003 14:23:38 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34821 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268959AbTBWTWU>; Sun, 23 Feb 2003 14:22:20 -0500
-Date: Sun, 23 Feb 2003 19:32:29 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       Greg KH <greg@kroah.com>, ink@jurassic.park.msu.ru,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Make hot unplugging of PCI buses work
-Message-ID: <20030223193229.F20405@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-	Greg KH <greg@kroah.com>, ink@jurassic.park.msu.ru,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <20030223173441.D20405@flint.arm.linux.org.uk> <Pine.LNX.4.44.0302231054420.11584-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268545AbTBWTfF>; Sun, 23 Feb 2003 14:35:05 -0500
+Received: from smtp2.EUnet.yu ([194.247.192.51]:49105 "EHLO smtp2.eunet.yu")
+	by vger.kernel.org with ESMTP id <S268544AbTBWTfE>;
+	Sun, 23 Feb 2003 14:35:04 -0500
+From: Toplica =?utf-8?q?Tanaskovi=C4=87?= <toptan@EUnet.yu>
+To: Sheng Long Gradilla <skamoelf@netscape.net>
+Subject: Re: AGP backport from 2.5 to 2.4.21-pre4
+Date: Sun, 23 Feb 2003 19:21:27 +0100
+User-Agent: KMail/1.5
+References: <JJEJKAPBMJAOOFPKFDFKKEKACEAA.camber@yakko.cs.wmich.edu> <200302231450.47506.toptan@EUnet.yu> <3E58F07B.3030801@netscape.net>
+In-Reply-To: <3E58F07B.3030801@netscape.net>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0302231054420.11584-100000@home.transmeta.com>; from torvalds@transmeta.com on Sun, Feb 23, 2003 at 10:57:10AM -0800
+Message-Id: <200302231921.27024.toptan@EUnet.yu>
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from quoted-printable to 8bit by smtp2.eunet.yu id h1NJjDF32662
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 23, 2003 at 10:57:10AM -0800, Linus Torvalds wrote:
-> On Sun, 23 Feb 2003, Russell King wrote:
-> > Linus - this patch is for discussion, NOT for applying unless you have
-> > zero problems with it since it actively breaks existing hotplug PCI.
-> 
-> Well, I definitely want it, and you should add Alan to the cc list since 
-> he apparently even _has_ one of these devices.
+Dana nedelja 23. februar 2003. 17:02 napisali ste:
+> I tested on an Asus A7V8X motherboard (KT400) with a GeForce4 Ti 4200
+> AGP8X. The module loads correctly, at last! It sets the apperture size
+> correctly and all, but when I start XFree, I get do not get any
+> graphical screen, but text mode garbage. Characters of all colors, with
+> no sense at all. I had exactly the same problem in other kernels.
+>
+	What kernels? Are you using old agpgart or new one with other kernels?
 
-Alan kindly sent one of these beasts to me, which renewed my interest
-in this area.  I'll forward stuff so far.
+> I played a bit with the NvAGP option on XF86Config file. According to
+> the documentation, 0 is PCI mode, 1 is NvAGP or fallback to PCI if
+> failed, 2 is AGPGART mode or fallback to PCI if failed, 3 is autodetect.
+> If I set it to 2, 3 or comment it, I got the same problem with the
+> garbage and had to reset the PC. Setting it to 0 would make it run in
+> PCI mode, and it always works. I tried setting it to 1, thinking that
+> maybe the documentation is wrong. X started successfully, but the card
+> was in PCI mode. I read the logs to confirm it, and indeed, the NvAGP
+> module fails to identify the AGP chipset and falls back to PCI.
+>
+> I tried setting NvAGP to 2 again, to read the logs and see if there is
+> something I could find out, but unfortunately the log had nothing but
+> garbage. I tried several times with no success. The log is always garbage.
+>
+	Try fetching latest nVidia drivers.
 
-> > Furthermore, I propose that pci_remove_device() shall disappear -
-> > and this devices makes it so (thereby breaking existing hotplug
-> > drivers.)
-> 
-> Can't you just fix up the current users to use "pci_remove_bus_device()". 
-> The breakage seems a bit spiteful ;)
+	I'll try to isolate problem, and send patch if neccessery.
 
-I'd like to hear Gregs comments first - Greg knows the hotplugging code
-better than me.  It appears to have its own way of decending some of the
-PCI buses, but it seems unclear why it needs to supervise removal of
-devices which are downstream from the hotplug slot.
-
-As far as inserting this device, there needs to be a fair number of other
-to the PCI layer to make stuff work sanely.  Currently, in order, we:
-
-1. discovering all devices
-2. once all devices have been initialised, registering each
-   device with sysfs and thereby letting the drivers know.
-3. apply any fixups needed
-4. initialise any resources that need initialising
-
-The drivers quite rightfully moan, and it isn't a pretty sight.
-
-IMO, what we should be doing, in order, is:
-
-1. discovering all devices
-2. apply any fixups needed
-3. initialise any resources that need initialising
-4. once all devices have been initialised, registering each
-   device with sysfs and thereby letting the drivers know.
-
-We need to wait until everything is setup for step 4 because we may
-(and do in the case of this split-bridge) need to program PCI-PCI
-bridges before the devices become accessible.
+> - Sheng Long Gradilla
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Pozdrav,
+Tanasković Toplica
+
 

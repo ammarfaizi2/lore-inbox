@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317058AbSGHS2H>; Mon, 8 Jul 2002 14:28:07 -0400
+	id <S317068AbSGHSah>; Mon, 8 Jul 2002 14:30:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317059AbSGHS2G>; Mon, 8 Jul 2002 14:28:06 -0400
-Received: from fe6.rdc-kc.rr.com ([24.94.163.53]:33807 "EHLO mail6.wi.rr.com")
-	by vger.kernel.org with ESMTP id <S317058AbSGHS2E>;
-	Mon, 8 Jul 2002 14:28:04 -0400
-Message-ID: <002101c226ad$d429c4a0$8a981d41@wi.rr.com>
-From: "Ted Kaminski" <mouschi@wi.rr.com>
-To: <linux-kernel@vger.kernel.org>
-References: <E17RdXQ-0002tr-00@the-village.bc.nu>
-Subject: Re: ISAPNP SB16 card with IDE interface
-Date: Mon, 8 Jul 2002 13:32:34 -0500
+	id <S317059AbSGHSaF>; Mon, 8 Jul 2002 14:30:05 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24584 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317081AbSGHS3T>; Mon, 8 Jul 2002 14:29:19 -0400
+Subject: Re: hd_geometry question.
+To: zippel@linux-m68k.org (Roman Zippel)
+Date: Mon, 8 Jul 2002 19:55:11 +0100 (BST)
+Cc: aebr@win.tue.nl (Andries Brouwer),
+       schwidefsky@de.ibm.com (Martin Schwidefsky),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0207040144500.8911-100000@serv> from "Roman Zippel" at Jul 04, 2002 01:48:33 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-Id: <E17RdfD-0002wp-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Wed, 3 Jul 2002, Andries Brouwer wrote:
+> 
+> > It is rumoured that certain MO disks with a hardware sector size
+> > of 2048 bytes have partition tables in units of 2048-byte sectors.
+> 
+> Why is it a rumour? AFAIK under DOS/Windows the partition table is in
+> units of sector size.
 
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
->
-> Is IRQ10 assigned to the ISA bus in your BIOS ?
-
-This system has no options of that sort in its BIOS... (Its a compaq from
-about '94 or '95, for reference)
-
-I assume that this means it doesn't care where the IRQs originate. I'm also
-pretty sure i've tried setting it up with different IRQs as well. (I will
-try again to be certain)
-
-Ted Kaminski
-
+Yes. I have Fujitsu M/O drives with this property.

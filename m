@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263590AbTH1RI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 13:08:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264069AbTH1RI5
+	id S264069AbTH1RTL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 13:19:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbTH1RTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 13:08:57 -0400
-Received: from hermes.py.intel.com ([146.152.216.3]:36085 "EHLO
-	hermes.py.intel.com") by vger.kernel.org with ESMTP id S263590AbTH1RIz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 13:08:55 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: KDB in the mainstream 2.4.x kernels?
-Date: Thu, 28 Aug 2003 10:08:50 -0700
-Message-ID: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFE662@fmsmsx406.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: KDB in the mainstream 2.4.x kernels?
-Thread-Index: AcNso4GNVnlA1tqdR9m/on6MzwMzdQA4zthQ
-From: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Andi Kleen" <ak@muc.de>
-Cc: "Greg Stark" <gsstark@mit.edu>, "Martin Pool" <mbp@sourcefrog.net>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 28 Aug 2003 17:08:50.0676 (UTC) FILETIME=[0D3F2340:01C36D87]
+	Thu, 28 Aug 2003 13:19:11 -0400
+Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:62482 "EHLO
+	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
+	id S264069AbTH1RTI convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 13:19:08 -0400
+Subject: Re: 2.6.0-test4-mm2
+From: Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20030828090240.2cccf4d9.akpm@osdl.org>
+References: <20030826221053.25aaa78f.akpm@osdl.org>
+	 <1062075227.422.2.camel@lorien>  <20030828090240.2cccf4d9.akpm@osdl.org>
+Content-Type: text/plain; charset=iso-8859-1
+Organization: Governo Eletronico - SP
+Message-Id: <1062090715.484.1.camel@lorien>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 28 Aug 2003 14:11:56 -0300
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Llu, 2003-08-25 at 17:23, Andi Kleen wrote:
-> > > instructions as a forth program that frobbed registers 
-> appropriately. The
-> > > kernel would have a small forth interpretor to run it. 
-> Then switching
-> > > resolutions could happen safely in the kernel.
+Em Qui, 2003-08-28 às 13:02, Andrew Morton escreveu:
+> Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br> wrote:
+> >
+> > when using the hdparm program, thus:
 > > 
-> > Did the proposal come with working code?
+> >  # hdparm /dev/hda
+> > 
+> >  I'm getting this:
+> > 
+> >  Oops: 0000 [#1]
 > 
-> I've seen workable non forth versions of the proposal yes. It isnt 
-> actually that hard to do for most video cards 
+> This should fix it.
+> 
+> --- 25/include/linux/genhd.h~large-dev_t-12-fix	2003-08-27 10:36:32.000000000 -0700
+> +++ 25-akpm/include/linux/genhd.h	2003-08-27 10:36:32.000000000 -0700
+> @@ -197,7 +197,7 @@ extern void rand_initialize_disk(struct 
+>  
+>  static inline sector_t get_start_sect(struct block_device *bdev)
+>  {
+> -	return bdev->bd_part->start_sect;
+> +	return bdev->bd_contains == bdev ? 0 : bdev->bd_part->start_sect;
+>  }
+>  static inline sector_t get_capacity(struct gendisk *disk)
+>  {
 
-Interesting.  So did the interpreted forth (or other) program then interact with the VGA BIOS or was it more generic? 
+ fixed! :)
 
-matt
+ thanks,
+
+-- 
+Luiz Fernando N. Capitulino
+
+<lcapitulino@prefeitura.sp.gov.br>
+<http://www.telecentros.sp.gov.br>
+

@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268614AbRHGP1t>; Tue, 7 Aug 2001 11:27:49 -0400
+	id <S268596AbRHGP1T>; Tue, 7 Aug 2001 11:27:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268712AbRHGP1k>; Tue, 7 Aug 2001 11:27:40 -0400
-Received: from ns.suse.de ([213.95.15.193]:21261 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S268614AbRHGP1a>;
-	Tue, 7 Aug 2001 11:27:30 -0400
-Date: Tue, 7 Aug 2001 17:27:31 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Nico Schottelius <nicos@pcsystems.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: cpu not detected(x86)
-In-Reply-To: <3B7004B2.6351C900@pcsystems.de>
-Message-ID: <Pine.LNX.4.30.0108071723040.1610-100000@Appserv.suse.de>
+	id <S268614AbRHGP1J>; Tue, 7 Aug 2001 11:27:09 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:51460
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S268596AbRHGP0u>; Tue, 7 Aug 2001 11:26:50 -0400
+Date: Tue, 07 Aug 2001 11:26:50 -0400
+From: Chris Mason <mason@suse.com>
+To: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Working reiserfsck?
+Message-ID: <146010000.997198010@tiny>
+In-Reply-To: <20010802133051.A88@toy.ucw.cz>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Aug 2001, Nico Schottelius wrote:
 
-> Hello!
->
-> I am trying to run 2.4.7 and have heavily problems with my cpu.
-> The kernel retected another speed at every start! I attached
-> three times CPUINFO. The cpu in reality is a p3 650 mhz speedstep.
-> (may switch down to 500 mhz, but 126 _not_).
 
-Speedstep is voodoo. No-one other than Intel have knowledge of
-how it works. On my P3-700 I've seen speeds range from as low
-as 2MHz[1] -> 266MHz (using an ACPI kernel), and the 550/700 on APM.
-I've also seen other laptops do speed scaling between 2MHz->full clock
-speed whilst on APM.
+On Thursday, August 02, 2001 01:30:55 PM +0000 Pavel Machek <pavel@ucw.cz>
+wrote:
 
-Run the MHz tester (URL below), and put the box under some load.
-It should increase the MHz accordingly.  How high it goes seems
-to depend on how good your BIOS support for it is.
+> Hi!
+> 
+> On one of my machines, I installed reiserfs on / fs.... and got to habit
+> of just powering that machine down with powerswitch. I was running
+> various kernels at least from 2.4.3 on it.
+> 
+> Now I tried to run reiserfsck, and (besides it having very ugly UI) it
+> reported some problems. Question is, how to correct those? reiserfsck
+> attitude seems to be "run me and I'll kill your filesystem". Is it really
+> that dangerous? Where to get working reiserfsck?
+> 								Pavel
 
-Also try switching between ACPI & APM kernels, to see what
-difference it makes.
+The best reiserfsck version right now is in
+ftp.namesys.com/pub/reiserfsprogs/pre
 
-regards,
+It should fix the problem, backups are always handy though.
 
-Dave.
-
-[1] Actually slower than this, the MHz calculation code takes some
-cycles, so it's an estimate only. http://www.codemonkey.org.uk/MHz.c
-
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
+-chris
 

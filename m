@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282524AbRKZVEb>; Mon, 26 Nov 2001 16:04:31 -0500
+	id <S282530AbRKZVIl>; Mon, 26 Nov 2001 16:08:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282547AbRKZVEY>; Mon, 26 Nov 2001 16:04:24 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38662 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282531AbRKZVCv>; Mon, 26 Nov 2001 16:02:51 -0500
-Subject: Re: [RFC] 2.5/2.6/2.7 transition [was Re: Linux 2.4.16-pre1]
-To: landley@trommello.org
-Date: Mon, 26 Nov 2001 21:08:48 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds), mfedyk@matchmail.com (Mike Fedyk),
-        skraw@ithnet.com (Stephan von Krawczynski),
-        kubla@sciobyte.de (Dominik Kubla), marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <0111261244580G.02001@localhost.localdomain> from "Rob Landley" at Nov 26, 2001 12:44:58 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S282543AbRKZVIb>; Mon, 26 Nov 2001 16:08:31 -0500
+Received: from zero.tech9.net ([209.61.188.187]:17417 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S282530AbRKZVIZ>;
+	Mon, 26 Nov 2001 16:08:25 -0500
+Subject: Re: [Fwd: Re: OOPS in agpgart (2.4.13, 2.4.15pre7)]
+From: Robert Love <rml@tech9.net>
+To: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
+Cc: Didier.Moens@dmb001.rug.ac.be, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C022BB4.7080707@epfl.ch>
+In-Reply-To: <linux.kernel.3C021570.4000603@dmb.rug.ac.be> 
+	<3C022BB4.7080707@epfl.ch>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E168Szh-0006un-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
+Date: 26 Nov 2001 16:07:28 -0500
+Message-Id: <1006808870.817.0.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I submit that if the stable tree hasn't calmed down after three or four 
-> months, opening a development branch may in fact HELP the situation, and 
-> stabilize things faster.  You need to vent the patch pressure.
+On Mon, 2001-11-26 at 06:47, Nicolas Aspert wrote:
 
-I'd tend to agree there. The new VM would have gone into 2.5.x and then back
-into 2.4
+> It seems like you have pointed out the problem... From what you had sent 
+> previously (the output of 'lspci' on your machine), and what the Intel 
+> doc says, it looks to me like the code for i830 initialization is not 
+> correct for your version of the chipset. But I am not too sure of what 
+> is to be done in that case... should we switch back to a 'classic' AGP 
+> initialization, similar to the other i8xx chipsets (820/840/860...) ? 
+> Robert (or somebody else), any clue about this one ?
 
-In terms of release cycles there is a better method, that is simply to
-codify what already happens. In truth we have yearly major releases
+It looks like you got it right ... at any rate, you know as much as me
+about a chipset neither of us have (ie, we have docs), so its all a
+guess.
 
-We went
+Has the user tried your patch?  Results?
 
-	1.2
-	1.3.59
-	2.0
-	2.0.30
-	2.2
-	2.2.14-18 merge cycle
-	2.4
-
-What we possibly should do is admit the backport phases (2.0.30/2.2.14/...)
-do in fact occur and go
-
-	2.5
-	2.5 seems kind of solid at some random point but not finished
-	2.6 (2.4 + 2.5 and useful bit driver backport)
-	2.7 (continued 2.5)
-	2.8 (actual release containing the grand changes 2.5 started)
+	Robert Love
 

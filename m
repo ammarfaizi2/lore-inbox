@@ -1,77 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267817AbTBKNZK>; Tue, 11 Feb 2003 08:25:10 -0500
+	id <S267848AbTBKN13>; Tue, 11 Feb 2003 08:27:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267822AbTBKNZK>; Tue, 11 Feb 2003 08:25:10 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:34997 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267817AbTBKNZJ>; Tue, 11 Feb 2003 08:25:09 -0500
-Date: Tue, 11 Feb 2003 19:10:27 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Corey Minyard <cminyard@mvista.com>, Kenneth Sumrall <ken@mvista.com>,
-       linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net
-Subject: Re: Kexec, DMA, and SMP
-Message-ID: <20030211191027.A2999@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <3E448745.9040707@mvista.com> <m1isvuzjj2.fsf@frodo.biederman.org> <3E45661A.90401@mvista.com> <m1d6m1z4bk.fsf@frodo.biederman.org> <20030210174243.B11250@in.ibm.com> <m18ywoyq78.fsf@frodo.biederman.org> <20030211182508.A2936@in.ibm.com>
+	id <S267851AbTBKN13>; Tue, 11 Feb 2003 08:27:29 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:1461 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S267848AbTBKN11>;
+	Tue, 11 Feb 2003 08:27:27 -0500
+Date: Tue, 11 Feb 2003 14:37:09 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Con Kolivas <ckolivas@yahoo.com.au>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.5.60-cfq with contest
+Message-ID: <20030211133709.GO930@suse.de>
+References: <200302112155.17048.ckolivas@yahoo.com.au> <20030211105944.GB930@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030211182508.A2936@in.ibm.com>; from suparna@in.ibm.com on Tue, Feb 11, 2003 at 06:25:08PM +0530
+In-Reply-To: <20030211105944.GB930@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 11, 2003 at 06:25:08PM +0530, Suparna Bhattacharya wrote:
-> On Mon, Feb 10, 2003 at 10:56:43AM -0700, Eric W. Biederman wrote:
-> > Suparna Bhattacharya <suparna@in.ibm.com> writes:
-> [snip]
-> > 
-> > Not primarily.  Instead I am trying to address the possibility that
-> > DMA is overwriting the recovery code due to a device not being shutdown
-> > properly.  Though it would happen to cover many cases of the wrong
-> > memory address being passed to a device.
-> > 
+On Tue, Feb 11 2003, Jens Axboe wrote:
+> > Write based loads hurt. No breakages, but needs tuning. 
 > 
-> OK, I see where you are coming from. It is an interesting
-> possibility, if you know how to pull it off for various 
-> architectures, and the working area that the new kernel needs 
-> to do operate to the extent of issuing the writeout is not 
-> too big (i.e.  doesn't take away too much memory from the 
-> operational kernel). Perhaps we could hide this memory from 
-> the normal kernel virtual address space most of the time, so 
-> its less susceptable to software corruption (i.e. besides
-> physical access via DMA).
+> That's not even as bad as I had feared. I'll try to do some tuning with
+> contest locally.
 
-For the sort of problems which Ken is seeing, maybe we can,
-for a start, do without all the modifications to make the 
-new kernel run at a different address, if we can assume 
-that most i/o is likely is happen on dynamically allocated 
-buffers.
+Here are my results, for 2.5.60 vanilla, 2.5.60 + cfq with default
+quantum of 16 (what you tested, too), and 2.5.60 + cfq without quantum
+setting. The latter should be the fairest, only moves one request from
+the pending queues.
 
-We could just reserve a memory area of reasonable size (how
-much ?) which would be used by the new kernel for all its 
-allocations. We already have the infrastructure to tell the 
-new kernel which memory areas not to use, so its simple 
-enough to ask it exclude all but the reserved area. 
-By issuing the i/o as early as possible during bootup
-(for lkcd all we need is the block device to be setup for
-i/o requests), we can minimize the amount of memory to
-reserve in this manner.
+no_load:
+Kernel       [runs]     Time    CPU%    Loads   LCPU%   Ratio
+2.5.60            2     31      177.4   0       0.0     1.00
+2.5.60-cfq0       2     31      174.2   0       0.0     1.00
+2.5.60-cfq16      2     31      177.4   0       0.0     1.00
+cacherun:
+Kernel       [runs]     Time    CPU%    Loads   LCPU%   Ratio
+2.5.60            2     29      182.8   0       0.0     0.94
+2.5.60-cfq0       2     28      192.9   0       0.0     0.90
+2.5.60-cfq16      2     29      182.8   0       0.0     0.94
+process_load:
+Kernel       [runs]     Time    CPU%    Loads   LCPU%   Ratio
+2.5.60            2     38      142.1   12      47.4    1.23
+2.5.60-cfq0       2     41      129.3   16      61.0    1.32
+2.5.60-cfq16      2     37      145.9   12      43.2    1.19
+ctar_load:
+Kernel       [runs]     Time    CPU%    Loads   LCPU%   Ratio
+2.5.60            2     38      147.4   0       0.0     1.23
+2.5.60-cfq0       2     36      155.6   0       0.0     1.16
+2.5.60-cfq16      2     36      155.6   0       0.0     1.16
+xtar_load:
+Kernel       [runs]     Time    CPU%    Loads   LCPU%   Ratio
+2.5.60            2     40      140.0   0       2.5     1.29
+2.5.60-cfq0       2     37      148.6   0       2.7     1.19
+2.5.60-cfq16      2     40      137.5   0       2.5     1.29
+io_load:
+Kernel       [runs]     Time    CPU%    Loads   LCPU%   Ratio
+2.5.60            2     93      61.3    2       14.0    3.00
+2.5.60-cfq0       4     103     54.4    2       12.6    3.32
+2.5.60-cfq16      2     264     21.6    12      19.9    8.52
+read_load:
+Kernel       [runs]     Time    CPU%    Loads   LCPU%   Ratio
+2.5.60            2     40      140.0   0       5.0     1.29
+2.5.60-cfq0       2     39      143.6   0       5.1     1.26
+2.5.60-cfq16      2     40      140.0   0       5.0     1.29
+list_load:
+Kernel       [runs]     Time    CPU%    Loads   LCPU%   Ratio
+2.5.60            2     35      157.1   0       8.6     1.13
+2.5.60-cfq0       2     35      160.0   0       8.6     1.13
+2.5.60-cfq16      2     35      160.0   0       14.3    1.13
+mem_load:
+Kernel       [runs]     Time    CPU%    Loads   LCPU%   Ratio
+2.5.60            2     50      116.0   75      10.0    1.61
+2.5.60-cfq0       2     57      101.8   78      8.8     1.84
+2.5.60-cfq16      2     60      96.7    80      8.2     1.94
+dbench_load:
+Kernel       [runs]     Time    CPU%    Loads   LCPU%   Ratio
+2.5.60            2     36      155.6   12693   27.8    1.16
+2.5.60-cfq0       1     35      157.1   12013   28.6    1.13
+2.5.60-cfq16      2     37      151.4   14356   32.4    1.19
 
-That might address a large percentage of the regular cases,
-i.e. except where statically allocated buffers could be
-targets for DMA. If we are using in-use (user) pages
-for saving the dump, then there is a possibility of a dump
-getting corrupted by a DMA, but there may be a way to
-minimize that when we chose destination pages to use.
-
-Regards
-Suparna
 
 -- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
+Jens Axboe
 

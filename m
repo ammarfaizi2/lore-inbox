@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313964AbSDPX36>; Tue, 16 Apr 2002 19:29:58 -0400
+	id <S313962AbSDPX3w>; Tue, 16 Apr 2002 19:29:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313963AbSDPX35>; Tue, 16 Apr 2002 19:29:57 -0400
-Received: from [203.117.131.12] ([203.117.131.12]:17859 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id <S313964AbSDPX3z>; Tue, 16 Apr 2002 19:29:55 -0400
-Message-ID: <3CBCB3EC.2030803@metaparadigm.com>
-Date: Wed, 17 Apr 2002 07:29:48 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020412 Debian/0.9.9-6
+	id <S313963AbSDPX3v>; Tue, 16 Apr 2002 19:29:51 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:54796 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S313962AbSDPX3u>; Tue, 16 Apr 2002 19:29:50 -0400
+Date: Wed, 17 Apr 2002 01:29:48 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.teststation.com>
+To: Christian =?iso-8859-15?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: smbfs 2.4.19pre6
+In-Reply-To: <200204162310.09755.linux-kernel@borntraeger.net>
+Message-ID: <Pine.LNX.4.33.0204170103300.5458-100000@cola.teststation.com>
 MIME-Version: 1.0
-To: Emmanuel Michon <emmanuel_michon@realmagic.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: periodic scsi hard disk noise due to regular flushes?
-In-Reply-To: <7wbscjvdke.fsf@avalon.france.sdesigns.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sounds like TCAL (Thermal Recalibration) - some drives are quite noisy
-when doing this. I had an Hitachi drive that would do this every 30
-seconds once it warmed up. Could be a faulty thermo sensor on the drive.
+On Tue, 16 Apr 2002, Christian [iso-8859-15] Bornträger wrote:
 
-~mc
+> Hello list,
+> 
+> I have a smbfs mounted samba-share that got lost due to a network error.
+> 
+> Every process accessing the mount point falls into uniterruptable sleep - till 
+> the reboot. Even a lsof is frozen. 
+> 
+> Is this a bug or a known issue?
 
+It's known, and it's a bug. The network part of smbfs has a few problems.
 
-Emmanuel Michon wrote:
+I did some patches that used poll to check if they could send things and
+timeout after 30 seconds. Perhaps combined with checking the tcp state
+would work for this case.
 
->Hi,
->
->my recent IBM SCSI drive (18GB IC35L018UWD210-0) connected
->to an old Adaptec AHA-2940 UW adapter make as very 
->irritating high pitched noise (as if it were parking/unparking
->his heads?) periodically with the following intervals:
->
->1min35
->2min12
->5min03
->2min14
->1min02
->4min09
->4min14
->3min18
->1min06
->1min04
->
->It runs in ext3, journalling has commit interval set to 5sec.
->
->Does something happen in the kernel with a about 1min05 interval?
->
->Is there some way to keep it busy?
->
->My kernel is 2.4.7-10
->
->Thanks for any reply to this strange request ;-)
->
+The overly long delay (and most people would assume it is frozen) is one
+or more network timeouts (tcp level?) that needs to pass before the 
+process stops.
 
+That the mount fails to recover could be related to smbmount not managing
+to stay alive.
+
+For 2.5 there is work going on that should fix this at the same time as it
+allows oplock support and stuff. The process should always be
+interruptible.
+
+/Urban
 

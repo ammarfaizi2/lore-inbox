@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261967AbSJIRiA>; Wed, 9 Oct 2002 13:38:00 -0400
+	id <S261977AbSJIRkG>; Wed, 9 Oct 2002 13:40:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261968AbSJIRiA>; Wed, 9 Oct 2002 13:38:00 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:61870 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S261967AbSJIRh7>;
-	Wed, 9 Oct 2002 13:37:59 -0400
-Date: Wed, 9 Oct 2002 10:46:10 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [bk/patch] driver model update: device_unregister()
-In-Reply-To: <Pine.LNX.4.44.0210091038540.7355-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0210091043070.16276-100000@cherise.pdx.osdl.net>
+	id <S261979AbSJIRkF>; Wed, 9 Oct 2002 13:40:05 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22802 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261973AbSJIRkA> convert rfc822-to-8bit; Wed, 9 Oct 2002 13:40:00 -0400
+Date: Wed, 9 Oct 2002 10:47:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Tim Hockin <thockin@hockin.org>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.41 s390 (8/8): 16 bit uid/gids.
+In-Reply-To: <200210091738.g99HcBY15929@www.hockin.org>
+Message-ID: <Pine.LNX.4.44.0210091046170.7355-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id g99HjIA27215
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 9 Oct 2002, Linus Torvalds wrote:
+On Wed, 9 Oct 2002, Tim Hockin wrote:
+> Linus, This is actually something I sent to Martin (and DaveM).  The __UID16
+> crap is because s390x and Sparc64 (and others?) do not want the highuid
+> stuff except in very specific places - namely compat code.  Just using
+> CONFIG_UID16_SYSCALLS has the same bad side-effect as CONFIG_UID16 - all or
+> nothing.  In short, we want to build uid16.o with highuid translations, and
+> a few other compat objects, but not everything.  Ugly.
 
-> 
-> On Wed, 9 Oct 2002, Patrick Mochel wrote:
-> > 
-> > > I think that is a valid argument as long as it's called "driverfs" or
-> > > something, but since the thing is clearly evolving into a "kernelfs"  
-> > 
-> > BTW, is that the name you prefer, and will you take the patch? 
-> 
-> I do know that "kfs" is too much of a random collection of consonants.  
-> Looks like something out of an IBM architecture manual. "kernelfs" is more
-> acceptable, I think, but it's not perfect either - it's a bit too generic.  
-> Isn't /proc a kernelfs too? But I can't come up with anything better..
+So why don't we just split it up into all the sub-options? So that you 
+have a smørgåsbord of real options to select from..
 
-The fantasy that we have is to start reverting procfs back to what it was
-originally designed for (and what the name hints at): displaying process
-information. Of course, that will never be entirely possible, but we'll
-always have our dreams.
+In other words, that __UID16 thing should be a real CONFIG_XXX option.
 
-Peter Anvin suggest 'kernfs', which ain't bad. Then again, we could just
-call it 'patfs'..
+		Linus
 
-	-pat
 

@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318437AbSGSB5t>; Thu, 18 Jul 2002 21:57:49 -0400
+	id <S318447AbSGSCFf>; Thu, 18 Jul 2002 22:05:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318438AbSGSB5t>; Thu, 18 Jul 2002 21:57:49 -0400
-Received: from mailhost.nmt.edu ([129.138.4.52]:28174 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id <S318437AbSGSB5s>;
-	Thu, 18 Jul 2002 21:57:48 -0400
-Date: Thu, 18 Jul 2002 20:00:46 -0600
-From: Val Henson <val@nmt.edu>
-To: Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-Message-ID: <20020719020046.GF1843@boardwalk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-Favorite-Color: Polka dot
+	id <S318448AbSGSCFf>; Thu, 18 Jul 2002 22:05:35 -0400
+Received: from pD9E23646.dip.t-dialin.net ([217.226.54.70]:10368 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318447AbSGSCFe>; Thu, 18 Jul 2002 22:05:34 -0400
+Date: Thu, 18 Jul 2002 20:08:17 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: David Wagner <daw@mozart.cs.berkeley.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: more thoughts on a new jail() system call
+In-Reply-To: <ah7m2r$3cr$1@abraham.cs.berkeley.edu>
+Message-ID: <Pine.LNX.4.44.0207182007090.3525-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jul 2002, Dave Jones wrote:
+Hi,
 
-> > > o Add support for NFS v4                          (NFS v4 team)
-> >      This really shouldn't wait for 2.8!
->
-> Last I saw of this patch it was still against something like 2.4.1,
+On 19 Jul 2002, David Wagner wrote:
+> >sys_ioctl) J - disallowed, but perhaps if devices recognize jails and
+> >filter commands based on that... 
 
-Perhaps we're thinking of different projects, but the current patches
-from CITI are against 2.4.18:
+I think it's quite hard for any type of network application to work well 
+without TIOCINQ.
 
-http://www.citi.umich.edu/projects/nfsv4/
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 
-Whether they've ported to 2.5.x lately is another question.
-
-Thanks to Cynthia Wong (an NFSv4 hacker) for pointing this out to me.
-
--VAL

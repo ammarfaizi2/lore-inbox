@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbVA0AHH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262471AbVA0AQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262437AbVA0AHH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 19:07:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVA0AGA
+	id S262471AbVA0AQs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 19:16:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbVA0AQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 19:06:00 -0500
-Received: from fw.osdl.org ([65.172.181.6]:64438 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262437AbVAZVZE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 16:25:04 -0500
-Date: Wed, 26 Jan 2005 13:25:04 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bug 4081] New: OpenOffice crashes while starting due to a  
- threading error
-Message-ID: <20050126132504.3295e07d@dxpl.pdx.osdl.net>
-In-Reply-To: <1106482954.1256.2.camel@tux.rsn.bth.se>
-References: <217740000.1106412985@[10.10.2.4]>
-	<41F30E0A.9000100@osdl.org>
-	<1106482954.1256.2.camel@tux.rsn.bth.se>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed-Claws 0.9.13 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 26 Jan 2005 19:16:25 -0500
+Received: from lakermmtao06.cox.net ([68.230.240.33]:17293 "EHLO
+	lakermmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S262479AbVAZWS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 17:18:56 -0500
+In-Reply-To: <1106728499.3646.45.camel@localhost>
+References: <1106685009.8968.15.camel@localhost> <1106728499.3646.45.camel@localhost>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <43F70EA3-6FE8-11D9-A93E-000393ACC76E@mac.com>
 Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Drive missing only with LVM kernel
+Date: Wed, 26 Jan 2005 17:18:54 -0500
+To: Jasper Koolhaas <jasper@Morgana.NET>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On my laptop with Fedora Core 3, OpenOffice 1.0.1, 1.0.4 and the pre 2.0 version
-all work fine running 2.6.10-FCxx kernel but get a SEGV when running on 2.6.11-rc1 or 2.6.11-rc2
+On Jan 26, 2005, at 03:34, Jasper Koolhaas wrote:
+> Oh, and I'm using a devfs so "cd /dev && ./MAKEDEV hdg" is not the
+> solution I think.
+>
+> The odd thing is that without LVM compiled in the kernel or as
+> module /dev/hdg is accessible through devfs and with LVM not.
 
-Any hints?
+Well, devfs has been deprecated and mostly unmaintained since before
+2.6.0 was released, so it really doesn't surprise me.  Go download
+and install udev, hotplug, etc from your distro.
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
 
--- 
-Stephen Hemminger	<shemminger@osdl.org>

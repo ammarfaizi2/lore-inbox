@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262244AbUDHSs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 14:48:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbUDHSs2
+	id S262253AbUDHSuN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 14:50:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbUDHSuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 14:48:28 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:55220 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262244AbUDHSs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 14:48:26 -0400
-Date: Thu, 8 Apr 2004 19:48:23 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
+	Thu, 8 Apr 2004 14:50:13 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:60879 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262253AbUDHSuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 14:50:07 -0400
+Subject: Re: [parisc-linux] rmap: parisc __flush_dcache_page
+From: James Bottomley <James.Bottomley@steeleye.com>
 To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: rmap: page_mapping barrier
-In-Reply-To: <20040408180749.GL31667@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0404081936400.7559-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Cc: Hugh Dickins <hugh@veritas.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       parisc-linux@parisc-linux.org
+In-Reply-To: <20040408184245.GO31667@dualathlon.random>
+References: <20040408153412.GD31667@dualathlon.random>
+	<1081439244.2165.236.camel@mulgrave>
+	<20040408161610.GF31667@dualathlon.random>
+	<1081441791.2105.295.camel@mulgrave>
+	<20040408171017.GJ31667@dualathlon.random>
+	<1081446226.2105.402.camel@mulgrave>
+	<20040408175158.GK31667@dualathlon.random>
+	<1081447654.1885.430.camel@mulgrave>
+	<20040408181838.GN31667@dualathlon.random>
+	<1081448897.2105.465.camel@mulgrave> 
+	<20040408184245.GO31667@dualathlon.random>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 08 Apr 2004 13:49:55 -0500
+Message-Id: <1081450196.1885.492.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Apr 2004, Andrea Arcangeli wrote:
-> 
-> I'll do further checking on this when I'm back from vacations on 14,
+On Thu, 2004-04-08 at 13:42, Andrea Arcangeli wrote:
+> What you miss is that the problem is not in flush_dcache_page, the
+> problem is that the _other_ users of the prio-tree may take as long as a
+> timeslice. So it's the _other_ user that you've no control about (i.e.
+> truncate) that may take timeslices with irq disabled.
 
-Have a good one.
+So the problem isn't in the parisc code, it's in the generic vm code,
+OK.
 
-> though if you didn't find anything by that time it most certainly means
-> there's no race ;).
+> But I've an fairly optimal solution for you, you should make it a
+> read_write spinlock, with the readers not disabling interrupts, and the
+> writer disabling interrupts, the writer of the prio-tree will not take a
+> timeslice, the readers instead will take a timeslice, but since they're
+> readers and you've only to read in the flush_dcache_page irq context,
+> you don't need to disable irqs for the readers.  I don't have better
+> solutions than this one at the moment (yeah there's the rcu reading of
+> the prio-tree but I'd leave it for later...)
 
-I'm afraid we can't deduce the nonexistence of a race from my failure
-to search very hard.
+Yes, I'll go for that.  The write need only be done on vma insert, which
+should be very fast.  So do we agree this is a generic solution, or were
+you still thinking of trying to abstract it per-arch?
 
-> I don't want to discourage you in searching for more
-> races in this area ;), I just don't see problems. BTW, if my tree will
-> have a problem here, anonmm should have it too, maybe the other way
+James
 
-Oh yes, we're quite equal on this: I wasn't trying to blacken
-your approach, just raising an issue and asking for help.
-
-> around not (really Hugh, my approch of being transparent with
-> page_mapping if far superior, you may find it ugly to check for
-> swapper_inode in the pagecache entry/exit points but then it gets
-> everything right and more obviously, just see the backing-dev-unplugging
-> code, and the swap_unplug_fn stuff, I only had to change a page->mapping
-> into a page_mapping in block_sync_page [the per-mapping unplug stuff]
-> and everything else just worked without rejects).
-
-On that we differ, and always shall, I expect.  Yes, carrying around
-the PageSwapCache? &swapper_space stuff does make sync_page look
-cleaner, and shrink_list quite a lot easier - I gave up on trying to
-eliminate it completely, would uglify shrink_list too much.  But it
-is a fiction, and for everywhere else (I think that's correct) it's
-just baggage - made sense when you could stuff it in page->mapping
-and then forget about it, but a lot less sense if we have to check
-PageSwapCache all over (even if that is hidden in an inline function).
-
-Hugh
 

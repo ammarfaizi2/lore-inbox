@@ -1,86 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129477AbRBASHg>; Thu, 1 Feb 2001 13:07:36 -0500
+	id <S129525AbRBASO7>; Thu, 1 Feb 2001 13:14:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129525AbRBASHR>; Thu, 1 Feb 2001 13:07:17 -0500
-Received: from styx.suse.cz ([195.70.145.226]:37106 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S129477AbRBASHD>;
-	Thu, 1 Feb 2001 13:07:03 -0500
-Date: Thu, 1 Feb 2001 19:06:53 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Byron Stanoszek <gandalf@winds.org>
-Cc: safemode <safemode@voicenet.com>, linux-kernel@vger.kernel.org
-Subject: Re: VT82C686A corruption with 2.4.x
-Message-ID: <20010201190653.H2341@suse.cz>
-In-Reply-To: <3A794945.5F652819@voicenet.com> <Pine.LNX.4.21.0102011137590.27273-100000@winds.org>
+	id <S130203AbRBASOk>; Thu, 1 Feb 2001 13:14:40 -0500
+Received: from ns.caldera.de ([212.34.180.1]:64518 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S129525AbRBASO1>;
+	Thu, 1 Feb 2001 13:14:27 -0500
+Date: Thu, 1 Feb 2001 19:14:03 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: bsuparna@in.ibm.com, linux-kernel@vger.kernel.org,
+        kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
+Message-ID: <20010201191403.B448@caldera.de>
+Mail-Followup-To: "Stephen C. Tweedie" <sct@redhat.com>,
+	bsuparna@in.ibm.com, linux-kernel@vger.kernel.org,
+	kiobuf-io-devel@lists.sourceforge.net
+In-Reply-To: <CA2569E6.0051970D.00@d73mta03.au.ibm.com> <20010201160953.A17058@caldera.de> <20010201161615.T11607@redhat.com> <20010201180515.B28007@caldera.de> <20010201174120.A11607@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0102011137590.27273-100000@winds.org>; from gandalf@winds.org on Thu, Feb 01, 2001 at 11:46:08AM -0500
+X-Mailer: Mutt 1.0i
+In-Reply-To: <20010201174120.A11607@redhat.com>; from sct@redhat.com on Thu, Feb 01, 2001 at 05:41:20PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 01, 2001 at 11:46:08AM -0500, Byron Stanoszek wrote:
-
-> Yeah, by bios does the same thing too on the Abit KT7(a).
-
-Ok, I'll remember this. This is most likely the cause of the problems
-many people had with the KT7 in the past.
-
-> But you might not
-> want to run your PCI clock at 34 instead of 33. Two problems can occur. If you
-> don't specify idebus=34 on the kernel prompt, the IDE timings might eventually
-> get a DMA reset under 100% disk access. If you do say idebus=34, then you drop
-> your maximum throughput from 33 MB/s to 27MB/s.
+On Thu, Feb 01, 2001 at 05:41:20PM +0000, Stephen C. Tweedie wrote:
+> Hi,
 > 
-> I was curious and compiled a list of timings from Vojtech's formula for certain
-> idebus=xx MHz ratings (I _think_ the UDMA-66 timings are correct, maybe you can
-> check on these, Vojtech..)
+> On Thu, Feb 01, 2001 at 06:05:15PM +0100, Christoph Hellwig wrote:
+> > On Thu, Feb 01, 2001 at 04:16:15PM +0000, Stephen C. Tweedie wrote:
+> > > > 
+> > > > No, and with the current kiobufs it would not make sense, because they
+> > > > are to heavy-weight.
+> > > 
+> > > Really?  In what way?  
+> > 
+> > We can't allocate a huge kiobuf structure just for requesting one page of
+> > IO.  It might get better with VM-level IO clustering though.
 > 
-> Clock | Setup  Active  Recover  Cycle  UDMA | UDMA-33  UDMA-66  UDMA-100
->    21 |    1       2        1      3    0   |   28.0     56.0      84.0
->    22 |    1       2        1      3    0   |   29.3     58.6      88.0
->    23 |    1       2        1      3    0   |   30.6     61.2      92.0
-[snip]
->    31 |    1       3        1      4    0   |   31.0     62.0      93.0
->    32 |    1       3        1      4    0   |   32.0     64.0      96.0
->    33 |    1       3        1      4    0   |   33.0     66.0      99.0
->    34 |    1       3        2      5    0   |   27.2     54.4      81.6
-[snip]
->    59 |    2       5        3      8    1   |   29.5     59.0      88.5
->    60 |    2       5        3      8    1   |   30.0     60.0      90.0
+> A kiobuf is *much* smaller than, say, a buffer_head, and we currently
+> allocate a buffer_head per block for all IO.
 
-Well, the table depends on what type of southbridge chip are you using -
-if it's 586b or other UDMA33 chip, 586b/686a or other UDMA66 chip or the
-UDMA100 capable 686b.
+A kiobuf is 124 bytes, a buffer_head 96.  And a buffer_head is additionally
+used for caching data, a kiobuf not.
 
-The U33 chips do UDMA timing in PCICLK (T = 30ns @ 33MHz) increments, U66 in
-PCICLK*2 (T = 15ns @ 33 MHz) increments, and for U100 it's assumed that
-there is an external 100MHz clock fed to the chip, so that the UDMA timing is
-in T = 10ns increments independent of the PCICLK. I'm not 100% sure about
-the last, it might be just PCICLK*3 (T = 10ns @ 33 MHz). An experiment needs
-to be carried out to verify this.
+> 
+> A kiobuf contains enough embedded page vector space for 16 pages by
+> default, but I'm happy enough to remove that if people want.  However,
+> note that that memory is not initialised, so there is no memory access
+> cost at all for that empty space.  Remove that space and instead of
+> one memory allocation per kiobuf, you get two, so the cost goes *UP*
+> for small IOs.
 
-So, s ahort excerpt of the table will look like:
+You could still embed it into a surrounding structure, even if there are cases
+where an additional memory allocation is needed, yes.
 
-Chip   | Clock | Setup Active Recover | T  | UDMA-33  UDMA-66  UDMA-100
-586b   |    25 |    1      2       1  | 40 | 2T=25.0  xxxxxxx  xxxxxxxx
-686a   |    25 |    1      2       1  | 20 | 3T=33.3  2T=50.0  xxxxxxxx
-686b   |    25 |    1      2       1  | 10 | 6T=33.3  4T=66.6  2T=100.0
+> 
+> > > > With page,length,offsett iobufs this makes sense
+> > > > and is IMHO the way to go.
+> > > 
+> > > What, you mean adding *extra* stuff to the heavyweight kiobuf makes it
+> > > lean enough to do the job??
+> > 
+> > No.  I was speaking abou the light-weight kiobuf Linux & Me discussed on
+> > lkml some time ago (though I'd much more like to call it kiovec analogous
+> > to BSD iovecs).
+> 
+> What is so heavyweight in the current kiobuf (other than the embedded
+> vector, which I've already noted I'm willing to cut)?
 
-Chip   | Clock | Setup Active Recover | T  | UDMA-33  UDMA-66  UDMA-100
-586b   |    33 |    1      2       1  | 30 | 2T=33.3  xxxxxxx  xxxxxxxx
-686a   |    33 |    1      2       1  | 15 | 4T=33.3  2T=66.6  xxxxxxxx
-686b   |    33 |    1      2       1  | 10 | 6T=33.3  4T=66.6  2T=100.0
+array_len, io_count, the presence of wait_queue AND end_io, and the lack of
+scatter gather in one kiobuf struct (you always need an array), and AFAICS
+that is what the networking guys dislike.
 
-... that is, if the 686b indeed has a 100MHz clock source. If not, then
-in the case of 25 MHz, T would be 13.3ns. If you can verify this, it'd
-be nice.
+They often just want multiple buffers in one physical page, and and array of
+those.
+
+Now one could say: just let the networkers use their own kind of buffers
+(and that's exactly what is done in the zerocopy patches), but that again leds
+to inefficient buffer passing and ungeneric IO handling.
+
+S.th. like:
+
+struct kiovec {
+	struct page *           kv_page;        /* physical page        */
+	u_short                 kv_offset;      /* offset into page     */
+	u_short                 kv_length;      /* data length          */
+};
+			 
+enum kio_flags {
+	KIO_LOANED,     /* the calling subsystem wants this buf back    */
+	KIO_GIFTED,     /* thanks for the buffer, man!                  */
+	KIO_COW         /* copy on write (XXX: not yet)                 */
+};
+
+
+struct kio {
+	struct kiovec *         kio_data;       /* our kiovecs          */
+	int                     kio_ndata;      /* # of kiovecs         */
+	int                     kio_flags;      /* loaned or giftet?    */
+	void *                  kio_priv;       /* caller private data  */
+	wait_queue_head_t       kio_wait;	/* wait queue           */
+};
+
+makes it a lot simpler for the subsytems to integrate.
+
+	Christoph
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Of course it doesn't work. We've performed a software upgrade.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

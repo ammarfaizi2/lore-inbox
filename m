@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264685AbUHSJvw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264937AbUHSJva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264685AbUHSJvw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 05:51:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264665AbUHSJvw
+	id S264937AbUHSJva (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 05:51:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUHSJvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 05:51:52 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:15111 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264915AbUHSJsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 05:48:35 -0400
-Date: Thu, 19 Aug 2004 10:48:29 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Markus Lidel <Markus.Lidel@shadowconnect.com>
-Cc: Christoph Hellwig <hch@infradead.org>, alan@lxorguk.ukuu.org.uk,
-       wtogami@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Merge I2O patches from -mm
-Message-ID: <20040819104829.A7705@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Markus Lidel <Markus.Lidel@shadowconnect.com>,
-	alan@lxorguk.ukuu.org.uk, wtogami@redhat.com,
-	linux-kernel@vger.kernel.org
-References: <4123E171.3070104@shadowconnect.com> <20040819002448.A3905@infradead.org> <4123E73F.7040409@shadowconnect.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4123E73F.7040409@shadowconnect.com>; from Markus.Lidel@shadowconnect.com on Thu, Aug 19, 2004 at 01:33:19AM +0200
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 19 Aug 2004 05:51:05 -0400
+Received: from cantor.suse.de ([195.135.220.2]:44218 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264795AbUHSJrl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 05:47:41 -0400
+To: "Pankaj Agarwal" <pankaj@pnpexports.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: how to identify filesystem type
+References: <001901c485cc$208c3a60$9159023d@dreammachine>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: You mean you don't want to watch WRESTLING from ATLANTA?
+Date: Thu, 19 Aug 2004 11:46:42 +0200
+In-Reply-To: <001901c485cc$208c3a60$9159023d@dreammachine> (Pankaj Agarwal's
+ message of "Thu, 19 Aug 2004 14:37:44 +0530")
+Message-ID: <je657fzchp.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > add a controller_add and add controller_remove method, taking a typesafe
-> > i2o_controller * instead of the multiplexer.
-> 
-> I had this before, but i want the notification also for I2O devices, 
-> because the driver model won't call probe functions for devices, which 
-> are already occupied by a other driver.
+"Pankaj Agarwal" <pankaj@pnpexports.com> writes:
 
-Then please add more methods.  Multiplexer calls are an extremly bad idea.
+> I need your help, in understanding filesystems. Kindly let me know how to
+> identify the filesystem in an image file or block device.
 
-> This is not the best solution, 
-> if you have more then one drivers which could handle a device. This is 
-> the case in e.g. i2o_proc, which only want to display information, and 
-> is not a "real driver". So finally there will be controller_add, 
-> controller_remove, device_add, device_remove... and i thought it would 
-> be more generic, and i also don't have to add a function each time a new 
-> notification is needed :-)
+Use file:
 
-Yes, that's the whole point of this methods..
+# file -s /dev/hda3
+/dev/hda3: ReiserFS V3.6 block size 4096 (mounted or unclean) num blocks 9500285 r5 hash
 
-> Also i tried to implement the notification like the one already in the 
-> kernel, so i could exchange my notification facility with the already 
-> existing one (include/linux/notifier.h)...
+Andreas.
 
-linux/notifier.h is an bad example to follow and for many thing we're
-moving slowly away from it (e.g. the shutdown notifications are now
-exposed through the driver model)
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

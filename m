@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262335AbTD3T0t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 15:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbTD3T0t
+	id S262365AbTD3Tab (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 15:30:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbTD3Taa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 15:26:49 -0400
-Received: from watch.techsource.com ([209.208.48.130]:13703 "EHLO
-	techsource.com") by vger.kernel.org with ESMTP id S262335AbTD3T0s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 15:26:48 -0400
-Message-ID: <3EB026D8.2070508@techsource.com>
-Date: Wed, 30 Apr 2003 15:41:12 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Wed, 30 Apr 2003 15:30:30 -0400
+Received: from muss.CIS.mcmaster.ca ([130.113.64.9]:1712 "EHLO
+	cgpsrv1.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S262365AbTD3Ta3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 15:30:29 -0400
+From: Gabriel Devenyi <devenyga@mcmaster.ca>
+To: kraxel@bytesex.org
+Subject: [PATCH] Linux-2.5.68 - Fix DBG after return statement in drives/media/video/cpia_pp.c
+Date: Thu, 1 May 2003 15:42:37 -0400
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-References: <170EBA504C3AD511A3FE00508BB89A9202032941@exnanycmbx4.ipc.com> <20030430152041.GA22038@work.bitmover.com>            <3EB013A1.9030301@techsource.com> <200304301920.h3UJKE5J007310@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200305011542.46089.devenyga@mcmaster.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+This patch applies to 2.5.68. It fixes a bug listed on kbugs.org, a DBG statement is after a return statement, so it never executes.
+- -- 
+Building the Future,
+Gabriel Devenyi
+devenyga@mcmaster.ca
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Wed, 30 Apr 2003 14:19:13 EDT, Timothy Miller said:
-> 
-> 
->>I mean, when will Sun, IBM, or Compaq ever start shipping tcsh or bash 
->>as the default shell?  Don't they realize that people make typos and 
->>would like to reedit the line they just typed?  Why are they still in 
->>the dark ages?
-> 
-> 
-> Odd.. I use the vendor-provided 'ksh' on Solaris, AIX, and Tru64 (now an HP
-> product), and they all have supported re-editing the line just typed for
-> *years* (I can't prove it's over a decade, but I'm fairly sure it is).
-> 
-> Remember that a major reason for 'bash' being created was because of licensing
-> issues with the 'ksh' source.
+- ---FILE----
 
+- --- linux-2.5.68/drivers/media/video/cpia_pp.c	2003-04-19 22:48:49.000000000 -0400
++++ linux-2.5.68-changed/drivers/media/video/cpia_pp.c	2003-05-01 15:00:36.000000000 -0400
+@@ -605,8 +605,8 @@
+ 			return -EINVAL;
+ 		}
+ 		if((err = ReadPacket(cam, buffer, 8)) < 0) {
+- -			return err;
+ 			DBG("Error reading command result\n");
++			return err;
+ 		}
+ 		memcpy(data, buffer, databytes);
+ 	} else if(command[0] == DATA_OUT) {
 
-I am vaguely familiar with that.  It uses vi-like editing commands? 
-Sounds great.  Why isn't THAT the default shell?  Why are these 
-usability perks not a priority to commercial vendors?  Why are they a 
-priority for open source developers?
+- ---ENDFILE----
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+sXiy7I5UBdiZaF4RAvMXAJ9xRpCUS7vw9Rq9hmSfFgh6XQeqEQCeM5Dg
+BXxyNJdXBytaGa/XtjyY1is=
+=15rS
+-----END PGP SIGNATURE-----
 

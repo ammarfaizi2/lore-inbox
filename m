@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbUEBGVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbUEBGVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261472AbUEBGVq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 02:21:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUEBGVq
+	id S261263AbUEBGVl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 02:21:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbUEBGVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 02:21:46 -0400
-Received: from mail.kroah.org ([65.200.24.183]:44429 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261472AbUEBGVm (ORCPT
+	Sun, 2 May 2004 02:21:41 -0400
+Received: from mail.kroah.org ([65.200.24.183]:43405 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261263AbUEBGVk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 02:21:42 -0400
-Date: Sat, 1 May 2004 22:51:44 -0700
+	Sun, 2 May 2004 02:21:40 -0400
+Date: Sat, 1 May 2004 22:10:15 -0700
 From: Greg KH <greg@kroah.com>
-To: stefan.eletzhofer@eletztrick.de, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] 2.6 I2C epson 8564 RTC chip
-Message-ID: <20040502055144.GE31886@kroah.com>
-References: <20040429120250.GD10867@gonzo.local> <20040501054804.GH21431@kroah.com> <20040501092604.GA23561@gonzo.local>
+To: "Kevin O'Connor" <kevin@koconnor.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] support I2C_M_NO_RD_ACK in i2c-algo-bit
+Message-ID: <20040502051015.GB31886@kroah.com>
+References: <20040425180645.GA32199@ohio.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040501092604.GA23561@gonzo.local>
+In-Reply-To: <20040425180645.GA32199@ohio.localdomain>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 01, 2004 at 11:26:04AM +0200, stefan.eletzhofer@eletztrick.de wrote:
-> On Fri, Apr 30, 2004 at 10:48:04PM -0700, Greg KH wrote:
-> > On Thu, Apr 29, 2004 at 02:02:50PM +0200, stefan.eletzhofer@eletztrick.de wrote:
-> > > +	if ( !buf || !client ) {
-> > 
-> > Can you clean up your exuberant use of spaces in 'if' statements, and
-> > function calls?  It's not the proper kernel style.
-> > 
-> > > +DONE:
-> > 
-> > Lowercase please
-> > 
-> > > +	if ( ret ) {
-> > > +		if ( d ) kfree( d );
-> > 
-> > No need to check a pointer before sending it to kfree.
+On Sun, Apr 25, 2004 at 02:06:45PM -0400, Kevin O'Connor wrote:
+> This is a message resend - the original didn't make it to lkml.
 > 
-> Ok, that should be it. I've also ran the source through Lindent,
-> which fixed some further things. I've reverted the indention change
-> for labels, though. I think labels should be at level zero, should
-> they?
+> Hi Greg,
+> 
+> I have an I2C device (Samsung ks0127 video grabber) with a peculiar i2c
+> implementation.  When reading bytes, it only senses for the stop condition
+> in the place where the acknowledge bit should be.  So, to properly support
+> this device acks need to be turned off during reads.
+> 
+> There is an I2C_M_NO_RD_ACK bit already defined in i2c.h which appears to
+> be what I want.  Unfortunately it doesn't seem to be used anywhere in the
+> current tree.  At the end of this message is a patch to teach i2c_algo_bit
+> to honor the bit.
 
-Looks good, applied, thanks.
+Applied, thanks.
 
 greg k-h

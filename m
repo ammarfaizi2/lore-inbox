@@ -1,94 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262068AbSJEF4p>; Sat, 5 Oct 2002 01:56:45 -0400
+	id <S262069AbSJEF6E>; Sat, 5 Oct 2002 01:58:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262069AbSJEF4p>; Sat, 5 Oct 2002 01:56:45 -0400
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:20864 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S262068AbSJEF4o> convert rfc822-to-8bit; Sat, 5 Oct 2002 01:56:44 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Con Kolivas <conman@kolivas.net>
-To: linux-kernel@vger.kernel.org
-Subject: [BENCHMARK] contest 0.50 results to date
-Date: Sat, 5 Oct 2002 15:59:24 +1000
-User-Agent: KMail/1.4.3
-Cc: Andrew Morton <akpm@digeo.com>,
-       Paolo Ciarrocchi <ciarrocchi@linuxmail.org>,
-       Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>,
-       Rodrigo Souza de Castro <rcastro@ime.usp.br>
+	id <S262071AbSJEF6E>; Sat, 5 Oct 2002 01:58:04 -0400
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:46736 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S262069AbSJEF6D>;
+	Sat, 5 Oct 2002 01:58:03 -0400
+Message-ID: <3D9E80A7.1010403@candelatech.com>
+Date: Fri, 04 Oct 2002 23:03:19 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210051559.38887.conman@kolivas.net>
+To: "David S. Miller" <davem@redhat.com>
+CC: jmorris@intercode.com.au, linux-kernel@vger.kernel.org
+Subject: Re: tg3 and Netgear GA302T x 2 locks machine
+References: <20021004.142428.101875902.davem@redhat.com>	<Mutt.LNX.4.44.0210051117240.23965-100000@blackbird.intercode.com.au> <20021004.181537.104336257.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+David S. Miller wrote:
+>    From: James Morris <jmorris@intercode.com.au>
+>    Date: Sat, 5 Oct 2002 11:20:06 +1000 (EST)
+> 
+>    On Fri, 4 Oct 2002, David S. Miller wrote:
+>    
+>    > You reported the other week problems with two Acenic's in
+>    > this same machine right?  The second Acenic wouldn't even probe
+>    > properly.  And the two Acenic's were identical.
+>    
+>    FWIW, my GA302T seems fine with the kernel he originally reported 
+>    (2.4.20-pre8).
+> 
+> Yes but are you running parallel pktgen streams on two
+> tg3's? :-)
 
-Here are the updated contest (http://contest.kolivas.net) benchmarks with 
-version 0.50
+Heh, tis true, I'm abusing them horribly. ;)
 
-noload:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.19 [3]              67.7    98      0       0       1.01
-2.4.19-cc [3]           67.9    97      0       0       1.01
-2.5.38 [3]              72.0    93      0       0       1.07
-2.5.38-mm3 [2]          71.8    93      0       0       1.07
-2.5.39 [2]              72.2    93      0       0       1.07
-2.5.39-mm1 [2]          72.3    93      0       0       1.08
-2.5.40 [1]              72.5    93      0       0       1.08
-2.5.40-mm1 [1]          72.9    93      0       0       1.09
+So far, the tulip driver and DFE-570tx & Phobos NICs are the only
+thing I've found that can stand up to my tests...  (e1000 pukes,
+old acenic pukes (after quite a while), tg3 pukes, at least currently...
 
-process_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.19 [3]              106.5   59      112     43      1.59
-2.4.19-cc [3]           105.0   59      110     42      1.56
-2.5.38 [3]              89.5    74      34      28      1.33
-2.5.38-mm3 [1]          86.0    78      29      25      1.28
-2.5.39 [2]              91.2    73      36      28      1.36
-2.5.39-mm1 [2]          92.0    73      37      29      1.37
-2.5.40 [2]              82.8    80      25      23      1.23
-2.5.40-mm1 [2]          86.9    77      30      25      1.29
+I'll try this this weekend.  Thanks for the suggestion.
 
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.19 [3]              492.6   14      38      10      7.33
-2.4.19-cc [3]           156.0   48      12      10      2.32
-2.5.38 [1]              4000.0  1       500     1       59.55
-2.5.38-mm3 [1]          303.5   25      23      11      4.52
-2.5.39 [2]              423.9   18      30      11      6.31
-2.5.39-mm1 [2]          550.7   14      44      12      8.20
-2.5.40 [1]              315.7   25      22      10      4.70
-2.5.40-mm1 [1]          326.2   24      23      11      4.86
+Ben
 
-mem_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.19 [3]              100.0   72      33      3       1.49
-2.4.19-cc [3]           92.7    76      146     21      1.38
-2.5.38 [3]              107.3   70      34      3       1.60
-2.5.38-mm3 [1]          100.3   72      27      2       1.49
-2.5.39 [2]              103.1   72      31      3       1.53
-2.5.39-mm1 [2]          103.3   72      32      3       1.54
-2.5.40 [2]              102.5   72      31      3       1.53
-2.5.40-mm1 [2]          107.7   68      29      2       1.60
+> 
+> Ben, by chance, does reverting the patch below cure your problems?
 
-Note the io_load value for 2.5.38 was an estimate as every time I tried to run 
-it it took too long and I stopped it (the longest I waited was 4000 seconds); 
-showing very clearly the write starves read problem.
+[patch snipped]
 
-Of most interest is the performance of 2.4.19 with the latest version of 
-compressed cache under mem_load (2.4.19-cc). Note that although the 
-performance is only slightly better timewise, the difference in actual work 
-done by the background load during that time is _enormous_. This demonstrates 
-most clearly the limitations in previous versions of contest.
 
-Comments?
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
-iD8DBQE9nn+8F6dfvkL3i1gRApHxAJ9CANpp1CA+chu+DxEghiNXgP0VjwCfdHsm
-qf7yp7W6sBOnkNx/cmTLPQY=
-=7oEd
------END PGP SIGNATURE-----
+

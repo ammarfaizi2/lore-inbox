@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264276AbUFCU5k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264295AbUFCVGu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264276AbUFCU5k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 16:57:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264295AbUFCU5k
+	id S264295AbUFCVGu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 17:06:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbUFCVGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 16:57:40 -0400
-Received: from apate.telenet-ops.be ([195.130.132.57]:32450 "EHLO
-	apate.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S264276AbUFCU5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 16:57:39 -0400
-To: geert@linux-m68k.org
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [PATCH] Typo in Documentation/fb/framebuffer.txt
-From: Peter Korsgaard <jacmet@sunsite.dk>
-Date: Thu, 03 Jun 2004 22:57:58 +0200
-Message-ID: <87zn7k4aw9.fsf@p4.48ers.dk>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 3 Jun 2004 17:06:50 -0400
+Received: from thunk.org ([140.239.227.29]:44781 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S264295AbUFCVGt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 17:06:49 -0400
+Date: Thu, 3 Jun 2004 17:06:01 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, greg@kroah.com, vojtech@suse.cz
+Subject: Re: [RFC] Changing SysRq - show registers handling
+Message-ID: <20040603210601.GC6709@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Oliver Neukum <oliver@neukum.org>,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	greg@kroah.com, vojtech@suse.cz
+References: <200406030134.04121.dtor_core@ameritech.net> <20040603001804.750b7fa5.akpm@osdl.org> <200406030227.22178.dtor_core@ameritech.net> <200406030944.01615.oliver@neukum.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406030944.01615.oliver@neukum.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Jun 03, 2004 at 09:44:01AM +0200, Oliver Neukum wrote:
+> Am Donnerstag, 3. Juni 2004 09:27 schrieb Dmitry Torokhov:
+> > I don't like the requirement of SysRq request processing being in hard
+> > interrupt handler - that excludes uinput-generated events and precludes
+> > moving keyboard handling to a tasklet for example.
+> 
+> SysRq should work even if bottom halfs don't.
 
-Vertical retrace is in lines, not pixels.
+Indeed; one of the times when SysRq-p is used in the field is when the
+machine is completely wedged.  Sometimes it's the only way to figure
+out where the machine is wedged.  It would be unfortunate if the
+number of cases (when the kernel is four feet in the air and
+twitching) where SysRq worked decreases as a result of the proposed
+change.
 
---- Documentation/fb/framebuffer.txt.orig       2004-06-03 22:43:06.000000000 +0200
-+++ Documentation/fb/framebuffer.txt    2004-06-03 22:43:50.000000000 +0200
-@@ -190,7 +190,7 @@ We'll say that the horizontal scanrate i
-     1/(32.141E-6 s) = 31.113E3 Hz
- 
- A full screen counts 480 (yres) lines, but we have to consider the vertical
--retrace too (e.g. 49 `pixels'). So a full screen will take
-+retrace too (e.g. 49 `lines'). So a full screen will take
- 
-     (480+49)*32.141E-6 s = 17.002E-3 s
-
--- 
-Bye, Peter Korsgaard
+						- Ted

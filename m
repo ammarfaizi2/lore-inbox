@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277945AbRJKCsj>; Wed, 10 Oct 2001 22:48:39 -0400
+	id <S278042AbRJKC5u>; Wed, 10 Oct 2001 22:57:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277991AbRJKCs3>; Wed, 10 Oct 2001 22:48:29 -0400
-Received: from 157-151.nwinfo.net ([216.187.157.151]:28050 "EHLO
-	mail.morcant.org") by vger.kernel.org with ESMTP id <S277976AbRJKCs0>;
-	Wed, 10 Oct 2001 22:48:26 -0400
-Message-ID: <35731.24.255.76.12.1002768539.squirrel@webmail.morcant.org>
-Date: Wed, 10 Oct 2001 19:48:59 -0700 (PDT)
-Subject: 2.4.11 UDF
-From: "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>
+	id <S277991AbRJKC5l>; Wed, 10 Oct 2001 22:57:41 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28939 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S277976AbRJKC52>; Wed, 10 Oct 2001 22:57:28 -0400
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <01101018290109.11498@localhost.localdomain>
-In-Reply-To: <01101018290109.11498@localhost.localdomain>
-X-Mailer: SquirrelMail (version 1.0.6)
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Dump corrupts ext2?
+Date: 10 Oct 2001 19:57:50 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9q31re$7hb$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0110101558210.7049-100000@train.sweet-haven.com> <m3elob3xao.fsf@belphigor.mcnaught.org> <20011010173449.Q10443@turbolinux.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Followup to:  <20011010173449.Q10443@turbolinux.com>
+By author:    Andreas Dilger <adilger@turbolabs.com>
+In newsgroup: linux.dev.kernel
+> > 
+> > I'm pretty sure this is because dump reads the block device directly
+> > (which is cached in the buffer cache), while the file data for cached
+> > files lives in the page cache, and the two caches are no longer
+> > coherent (as of 2.4).
+> 
+> In Linus kernels 2.4.11+ the block devices and filesystems all use the
+> page cache, so no more coherency issues.
+> 
 
-I recieve the following when mounting The Matrix:
+How do you find a random block in the page cache?  Last my
+understanding was that the page cache is organized by inode/offset,
+which wouldn't lend itself to looking up a random hardware block.
 
-Oct 10 19:40:40 ember kernel: UDF-fs INFO UDF 0.9.4.1-ro (2001/06/13) Mounting volume
-'THE_MATRIX_16X9LB_N_AMERICA', timestamp 1999/08/02 17:29 (1e5c)
+(Not to mention the fact that the filesystem is perfectly allowed not
+to present anything like a coherent state to the disk while mounted,
+which means that even if you did a snapshot in time you're not
+guaranteed to have anything functional.  I understand this can be done
+by sending a "quiet point" command to the filesystems, followed by an
+LVM snapshot, but I doubt may people do that!
 
-However, upon ls, I get an empty directory and the following errors dumped to syslog:
-
-Oct 10 19:40:41 ember kernel: UDF-fs DEBUG directory.c:237:udf_get_fileident: 0x0 !=
-TID_FILE_IDENT_DESC
-Oct 10 19:40:41 ember kernel: UDF-fs DEBUG directory.c:239:udf_get_fileident: offset: 532
-sizeof: 38 bufsize: 2048
-
-I can however mount the 5th Element and I see the following, and recieve no errors and a
-correct ls.
-Oct 10 19:44:11 ember kernel: UDF-fs INFO UDF 0.9.4.1-ro (2001/06/13) Mounting volume
-'DVD_VIDEO', timestamp 1997/10/28 11:44 (1e5c)
-
-I didn't use UDF in 2.4.10, so perhaps this has already been discussed, if so clue me in :>
-
+	-hpa
 -- 
-Morgan Collins [Ax0n] http://sirmorcant.morcant.org
-Software is something like a machine, and something like mathematics, and something like
-language, and something like thought, and art, and information.... but software is not in
-fact any of those other things.
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

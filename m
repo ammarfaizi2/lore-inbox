@@ -1,57 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262484AbVCaDw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262490AbVCaD6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262484AbVCaDw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 22:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVCaDwz
+	id S262490AbVCaD6l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 22:58:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbVCaD6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 22:52:55 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:60833 "EHLO
-	moreton.com.au") by vger.kernel.org with ESMTP id S262484AbVCaDwr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 22:52:47 -0500
-Date: Thu, 31 Mar 2005 13:52:14 +1000
-From: David McCullough <davidm@snapgear.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: johnpol@2ka.mipt.ru, Andrew Morton <akpm@osdl.org>,
-       cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org, jmorris@redhat.com,
-       herbert@gondor.apana.org.au
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
-Message-ID: <20050331035214.GA12181@beast>
-References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast> <20050323203856.17d650ec.akpm@osdl.org> <1111666903.23532.95.camel@uganda> <42432596.2090709@pobox.com> <1111724759.23532.121.camel@uganda> <42439781.4080007@pobox.com>
+	Wed, 30 Mar 2005 22:58:41 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:18307 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262490AbVCaD6g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 22:58:36 -0500
+Date: Wed, 30 Mar 2005 19:51:23 -0500
+From: Christopher Li <chrisl@vmware.com>
+To: linux kernel mail list <linux-kernel@vger.kernel.org>
+Cc: linux-usb-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       Greg K-H <greg@kroah.com>
+Subject: [patch] bug fix in usbdevfs
+Message-ID: <20050331005123.GA541@64m.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42439781.4080007@pobox.com>
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Jivin Jeff Garzik lays it down ...
-...
-> >If kernelspace can assist and driver _knows_ in advance that data
-> >produced is cryptographically strong, why not allow it directly
-> >access pools?
-> 
-> A kernel driver cannot know in advance that the data from a hardware RNG 
-> is truly random, unless the data itself is 100% validated beforehand.
+I am sorry that the last patch about 32 bit compat ioctl on
+64 bit kernel actually breaks the usbdevfs. That is on the current
+BK tree. I am retarded. 
 
-You can also say that it cannot know that data written to /dev/random
-is truly random unless it is also validated ?
+Here is the patch to fix it. Tested with USB hard disk and webcam
+in both 32bit compatible mode and native 64bit mode.
 
-For argument you could just run "cat < /dev/hwrandom > /dev/random"
-instead of using rngd.
+Again, sorry about that.
 
-If /dev/random demands a level of randomness,  shouldn't it enforce it ?
+Chris
 
-If the HW is using 2 random sources, a non-linear mixer and a FIPS140
-post processor before handing you a random number it would be nice to
-take advantage of that IMO.
 
-Cheers,
-Davidm
-
--- 
-David McCullough, davidm@snapgear.com  Ph:+61 7 34352815 http://www.SnapGear.com
-Custom Embedded Solutions + Security   Fx:+61 7 38913630 http://www.uCdot.org
+Index: linux-2.5/drivers/usb/core/devio.c
+===================================================================
+--- linux-2.5.orig/drivers/usb/core/devio.c	2005-03-30 18:19:50.000000000 -0800
++++ linux-2.5/drivers/usb/core/devio.c	2005-03-30 19:35:31.000000000 -0800
+@@ -1032,15 +1032,15 @@
+ 	if (put_user(urb->error_count, &userurb->error_count))
+ 		return -EFAULT;
+ 
+-	if (!(usb_pipeisoc(urb->pipe)))
+-		return 0;
+-	for (i = 0; i < urb->number_of_packets; i++) {
+-		if (put_user(urb->iso_frame_desc[i].actual_length,
+-			     &userurb->iso_frame_desc[i].actual_length))
+-			return -EFAULT;
+-		if (put_user(urb->iso_frame_desc[i].status,
+-			     &userurb->iso_frame_desc[i].status))
+-			return -EFAULT;
++	if (usb_pipeisoc(urb->pipe)) {
++		for (i = 0; i < urb->number_of_packets; i++) {
++			if (put_user(urb->iso_frame_desc[i].actual_length,
++				     &userurb->iso_frame_desc[i].actual_length))
++				return -EFAULT;
++			if (put_user(urb->iso_frame_desc[i].status,
++				     &userurb->iso_frame_desc[i].status))
++				return -EFAULT;
++		}
+ 	}
+ 
+ 	free_async(as);
+@@ -1126,7 +1126,7 @@
+ 	if (get_urb32(&uurb,(struct usbdevfs_urb32 *)arg))
+ 		return -EFAULT;
+ 
+-	return proc_do_submiturb(ps, &uurb, ((struct usbdevfs_urb __user *)arg)->iso_frame_desc, arg);
++	return proc_do_submiturb(ps, &uurb, ((struct usbdevfs_urb32 __user *)arg)->iso_frame_desc, arg);
+ }
+ 
+ static int processcompl_compat(struct async *as, void __user * __user *arg)
+@@ -1146,15 +1146,15 @@
+ 	if (put_user(urb->error_count, &userurb->error_count))
+ 		return -EFAULT;
+ 
+-	if (!(usb_pipeisoc(urb->pipe)))
+-		return 0;
+-	for (i = 0; i < urb->number_of_packets; i++) {
+-		if (put_user(urb->iso_frame_desc[i].actual_length,
+-			     &userurb->iso_frame_desc[i].actual_length))
+-			return -EFAULT;
+-		if (put_user(urb->iso_frame_desc[i].status,
+-			     &userurb->iso_frame_desc[i].status))
+-			return -EFAULT;
++	if (usb_pipeisoc(urb->pipe)) {
++		for (i = 0; i < urb->number_of_packets; i++) {
++			if (put_user(urb->iso_frame_desc[i].actual_length,
++				     &userurb->iso_frame_desc[i].actual_length))
++				return -EFAULT;
++			if (put_user(urb->iso_frame_desc[i].status,
++				     &userurb->iso_frame_desc[i].status))
++				return -EFAULT;
++		}
+ 	}
+ 
+ 	free_async(as);
+@@ -1177,10 +1177,8 @@
+ {
+ 	struct async *as;
+ 
+-	printk("reapurbnblock\n");
+ 	if (!(as = async_getcompleted(ps)))
+ 		return -EAGAIN;
+-	printk("reap got as %p\n", as);
+ 	return processcompl_compat(as, (void __user * __user *)arg);
+ }
+ 

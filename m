@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbUDWXt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbUDWXug@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261766AbUDWXt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 19:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbUDWXt5
+	id S261779AbUDWXug (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 19:50:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbUDWXug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 19:49:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:38618 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261766AbUDWXt4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 19:49:56 -0400
-Date: Fri, 23 Apr 2004 16:49:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk,
-       trondmy@trondhjem.org, neilb@cse.unsw.edu.au
-Subject: Re: d_splice_alias() problem.
-Message-Id: <20040423164936.390462fb.akpm@osdl.org>
-In-Reply-To: <16521.5104.489490.617269@laputa.namesys.com>
-References: <16521.5104.489490.617269@laputa.namesys.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 23 Apr 2004 19:50:36 -0400
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:7677 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S261779AbUDWXub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 19:50:31 -0400
+Date: Fri, 23 Apr 2004 16:50:28 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Arthur Othieno <a.othieno@bluewin.ch>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] include/asm-ppc/dma-mapping.h: dma_unmap_page()
+Message-ID: <20040423235028.GM13455@smtp.west.cox.net>
+References: <20040110032915.GW18208@waste.org> <20040109193753.3c158b3b.akpm@osdl.org> <20040114161306.GA16950@stop.crashing.org> <20040423191429.GA14356@mars>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040423191429.GA14356@mars>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov <Nikita@Namesys.COM> wrote:
->
-> for some time I am observing that during stress tests over NFS
-> 
->     shrink_slab->...->prune_dcache()->prune_one_dentry()->...->iput()
-> 
->  is called on inode with ->i_nlink == 0 which results in truncate and
->  file deletion. This is wrong in general (file system is re-entered), and
->  deadlock prone on some file systems.
+[ Playing catchup ]
 
-The filesystem is only reentered if the caller of __alloc_pages() passed in
-__GFP_FS, in which case the bug is in the caller, not in shrink_slab().
+On Fri, Apr 23, 2004 at 09:14:29PM +0200, Arthur Othieno wrote:
 
+> Hi,
+> 
+> Duplicate definition of dma_unmap_single() should actually be
+> dma_unmap_page().
+> 
+> Against 2.6.6-rc2. Thanks.
+> 
+> 
+>  dma-mapping.h |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> 
+> --- a/include/asm-ppc/dma-mapping.h	2004-04-11 14:05:45.000000000 +0200
+> +++ b/include/asm-ppc/dma-mapping.h	2004-04-22 18:06:53.000000000 +0200
+> @@ -77,7 +77,7 @@ dma_map_page(struct device *dev, struct 
+>  }
+>  
+>  /* We do nothing. */
+> -#define dma_unmap_single(dev, addr, size, dir)	do { } while (0)
+> +#define dma_unmap_page(dev, addr, size, dir)	do { } while (0)
+>  
+>  static inline int
+>  dma_map_sg(struct device *dev, struct scatterlist *sg, int nents,
+
+If this hasn't made it in already, it would appear to be correct and
+should go in.
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

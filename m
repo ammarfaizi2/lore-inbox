@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263782AbTEODTl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 23:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263785AbTEODSu
+	id S263779AbTEODTk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 23:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263780AbTEODSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 23:18:50 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:13804 "EHLO
+	Wed, 14 May 2003 23:18:45 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:7404 "EHLO
 	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S263787AbTEODSV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 23:18:21 -0400
-Date: Thu, 15 May 2003 04:31:09 +0100
-Message-Id: <200305150331.h4F3V918000648@deviant.impure.org.uk>
-To: jgarzik@pobox.com
+	id S263782AbTEODSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 23:18:17 -0400
+Date: Thu, 15 May 2003 04:31:05 +0100
+Message-Id: <200305150331.h4F3V5A6000592@deviant.impure.org.uk>
+To: torvalds@transmeta.com
 From: davej@codemonkey.org.uk
 Cc: linux-kernel@vger.kernel.org
-Subject: fix tlan 64bit check
+Subject: Fix ISDN return types.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/net/tlan.c linux-2.5/drivers/net/tlan.c
---- bk-linus/drivers/net/tlan.c	2003-04-22 00:40:43.000000000 +0100
-+++ linux-2.5/drivers/net/tlan.c	2003-04-22 01:23:14.000000000 +0100
-@@ -1536,7 +1536,7 @@ u32 TLan_HandleRxEOF( struct net_device 
- 				t = (void *) skb_put( new_skb, TLAN_MAX_FRAME_SIZE );
- 				head_list->buffer[0].address = pci_map_single(priv->pciDev, new_skb->data, TLAN_MAX_FRAME_SIZE, PCI_DMA_FROMDEVICE);
- 				head_list->buffer[8].address = (u32) t;
--#ifdef __LP64__
-+#if BITS_PER_LONG==64
- #error "Not 64bit clean"
- #endif				
- 				head_list->buffer[9].address = (u32) new_skb;
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/isdn/i4l/isdn_net_lib.c linux-2.5/drivers/isdn/i4l/isdn_net_lib.c
+--- bk-linus/drivers/isdn/i4l/isdn_net_lib.c	2003-04-10 06:01:19.000000000 +0100
++++ linux-2.5/drivers/isdn/i4l/isdn_net_lib.c	2003-03-26 19:06:04.000000000 +0000
+@@ -1777,6 +1776,7 @@ bhup(struct fsm_inst *fi, int pr, void *
+ 
+ 	printk(KERN_INFO "%s: disconnected\n", idev->name);
+ 	fsm_change_state(fi, ST_WAIT_DHUP);
++	return 0;
+ }
+ 
+ static int
+@@ -1898,7 +1898,7 @@ isdn_net_event_callback(struct isdn_slot
+ static int
+ isdn_net_handle_event(isdn_net_dev *idev, int pr, void *arg)
+ {
+-	fsm_event(&idev->fi, pr, arg);
++	return fsm_event(&idev->fi, pr, arg);
+ }
+ 
+ static int

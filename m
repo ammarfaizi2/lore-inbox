@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130010AbQKKIKX>; Sat, 11 Nov 2000 03:10:23 -0500
+	id <S130072AbQKKIYo>; Sat, 11 Nov 2000 03:24:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130145AbQKKIKN>; Sat, 11 Nov 2000 03:10:13 -0500
-Received: from web1102.mail.yahoo.com ([128.11.23.122]:14349 "HELO
-	web1102.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S130010AbQKKIKG>; Sat, 11 Nov 2000 03:10:06 -0500
-Message-ID: <20001111081004.23929.qmail@web1102.mail.yahoo.com>
-Date: Sat, 11 Nov 2000 09:10:04 +0100 (CET)
-From: willy tarreau <wtarreau@yahoo.fr>
-Subject: Re: Intel's ANS Driver -vs- Bonding [was Re: Linux 2.2.18pre21]
-To: Dan Browning <danb@cyclonehq.dnsalias.net>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, const-g@xpert.com,
-        danb@cyclonecomputers.com
+	id <S130123AbQKKIYe>; Sat, 11 Nov 2000 03:24:34 -0500
+Received: from ozone.fmi.fi ([193.166.223.16]:38697 "EHLO ozone.fmi.fi")
+	by vger.kernel.org with ESMTP id <S130072AbQKKIYW>;
+	Sat, 11 Nov 2000 03:24:22 -0500
+From: "Kari E. Hurtta" <Kari.Hurtta@ozone.FMI.FI>
+Message-Id: <200011110823.eAB8Nxc354799@ozone.fmi.fi>
+Subject: [OFF] Load avarage (Re: sendmail fails to deliver mail with attachments
+ in /var/spool/mqueue)
+In-Reply-To: <20001110142547.F16213@sendmail.com> "from Claus Assmann at Nov
+ 10, 2000 02:25:47 pm"
+To: sendmail <sendmail@sendmail.org>
+Date: Sat, 11 Nov 2000 10:23:58 +0200 (EET)
+CC: David Lang <david.lang@digitalinsight.com>,
+        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
+        linux-kernel@vger.kernel.org
+Reply-To: sendmail <sendmail@sendmail.org>
+X-Mailer: ELM [version 2.4ME+ PL83 (25)]
 MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> EtherChannel.  Supposedly, it also supports failover
-> (though even "bonding" driver docs used to say that
-> was impossible because the linux networking
-subsystem
-> didn't handle card failures gracefully enough).
+Claus Assmann:
+> Why does Linux report a LA of 10 if there are only two processes
+> running?
 
-the new bonding code supports failover. It probes the
-cards itself. Although this is a recommended mode of
-operation, it is not the default one because I want it
-to keep fully compatible with any implementation based
-on the old one.
+[This goes out of subject]
 
+I have learned that load avarage means
 
->
-http://support.intel.com/support/network/adapter/pro100/100Linux.htm
+	"Processes on run queue" + 
+	"process waiting disk (or short-term) I/O"
 
-I'll take a look, but except for the XOR sending algo,
-I don't think much features are missing.
+That was before Linux times.
 
-Willy
+I have seen a workstation go to show load-average 100.
+That happened when NFS-server (or network) died. These
+workstations were diskless, so all processes ended to
+waiting of "disk" I/O.
 
+These were Sun's diskless workstation models.
 
-___________________________________________________________
-Do You Yahoo!? -- Pour dialoguer en direct avec vos amis, 
-Yahoo! Messenger : http://fr.messenger.yahoo.com
+So it is not new that load average includes something else than
+processes waiting for CPU.
+
+/ Kari Hurtta
+
+(That was on Computer Science department of University of Helsinki.)
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310749AbSDIXf7>; Tue, 9 Apr 2002 19:35:59 -0400
+	id <S312235AbSDIXeG>; Tue, 9 Apr 2002 19:34:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310806AbSDIXf6>; Tue, 9 Apr 2002 19:35:58 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:26432 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S310749AbSDIXfy>; Tue, 9 Apr 2002 19:35:54 -0400
-Date: Wed, 10 Apr 2002 01:36:09 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Aviv Shavit <avivshavit@yahoo.com>
-Cc: Ken Brownfield <brownfld@irridia.com>, linux-kernel@vger.kernel.org
-Subject: vm-33, strongly recommended [Re: [2.4.17/18pre] VM and swap - it's really unusable]
-Message-ID: <20020410013609.A6875@dualathlon.random>
-In-Reply-To: <20020225224050.D26077@asooo.flowerfire.com> <20020409204545.11251.qmail@web13205.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S312248AbSDIXeF>; Tue, 9 Apr 2002 19:34:05 -0400
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:47165 "EHLO
+	hotmale.boyland.org") by vger.kernel.org with ESMTP
+	id <S312235AbSDIXeF>; Tue, 9 Apr 2002 19:34:05 -0400
+Message-ID: <3CB37B1F.2050405@blue-labs.org>
+Date: Tue, 09 Apr 2002 19:37:03 -0400
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020402
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adam McKenna <adam-dated-1018825278.8644f7@flounder.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: The latest -ac patch to the stable Linux kernels
+In-Reply-To: <20020409230116.GB22300@flounder.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recommend everybody to never use a 2.4 kernel without first applying
-this vm patch:
+Not at all.
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.19pre5/vm-33.gz
+Alan's most recent patch is in line with the 2.4.19 series of patches, 
+these are pre patches to the upcoming 2.4.19.
 
-It applies cleanly to both 2.4.19pre5 and 2.4.19pre6. Andrew splitted it
-into orthogonal pieces for easy merging from Marcelo's side (modulo
--rest that is important too but that it's still quite monolithic, but
-it's pointless to invest further effort at this time until we are
-certain Marcelo will do its job and eventually merge it in mainline):
+Regardless.  Alan is free to name his patches however he wants.
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.19pre5/
+-d
 
-So far a first part of those patches is been merged into mainline into
-pre5 (not any previous kernel, if you've some problem reproducible with
-pre4 pre3 pre2 and pre1 or any previous kernel that's not related to the
-async flushing changes, I seen a bogus report floating around to Marcelo
-about pre1 pointing to the vm changes, it can't be the vm changes if
-it's pre[1234]).
+Adam McKenna wrote:
 
-This VM is under heavy stressing for weeks on my SMP highmem machine
-with a real life DBMS workload in a real life setup with huge VM
-pressure with mem=1024m and 1.2G of shm pushed in swap constantly by the
-kernel, performance of the workload is now very good and exactly
-reproducible and constant, so I recommend it for all production systems
-(both lowmem desktops and highend servers).
+>finger@finger.kernel.org reports the following:
+>
+>The latest stable version of the Linux kernel is:           2.4.18
+>
+>But,
+>
+>The latest -ac patch to the stable Linux kernels is:        2.4.19-pre5-ac3
+>
+>These seem somewhat contradictory..  Shouldn't the second one report
+>2.4.18-ac3?
+>
+>--Adam
+>
 
-Alternatively you can use the whole -aa patchkit, to get all the other
-critical highend features like pte-highmem, highio etc...
 
-I haven't bugreports pending on the vm patch.
-
-Thanks,
-
-Andrea

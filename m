@@ -1,46 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132513AbQL3Ioh>; Sat, 30 Dec 2000 03:44:37 -0500
+	id <S130614AbQL3IuJ>; Sat, 30 Dec 2000 03:50:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130614AbQL3Io1>; Sat, 30 Dec 2000 03:44:27 -0500
-Received: from barnowl.demon.co.uk ([158.152.23.247]:59908 "EHLO
-	barnowl.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S132513AbQL3IoP>; Sat, 30 Dec 2000 03:44:15 -0500
-Mail-Copies-To: never
-To: linux-kernel@vger.kernel.org
-Subject: Re: test13-pre6 (Fork Bug with Athlons? Temporary Fix)
-In-Reply-To: <Pine.LNX.4.21.0012292156200.11714-200000@winds.org>
-From: Graham Murray <graham@barnowl.demon.co.uk>
-Date: 30 Dec 2000 08:13:02 +0000
-In-Reply-To: <Pine.LNX.4.21.0012292156200.11714-200000@winds.org>
-Message-ID: <m2snn6uy29.fsf@barnowl.demon.co.uk>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
+	id <S133074AbQL3It6>; Sat, 30 Dec 2000 03:49:58 -0500
+Received: from photon.idirect.com ([207.136.80.123]:53198 "EHLO photon")
+	by vger.kernel.org with ESMTP id <S130614AbQL3Itp>;
+	Sat, 30 Dec 2000 03:49:45 -0500
+Message-ID: <000c01c07239$35b48820$2d8342d8@fermat>
+From: "BH" <hammock@look.ca>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.2.18 and joy-gravis.o
+Date: Sat, 30 Dec 2000 00:19:18 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0009_01C071F6.26938730"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Byron Stanoszek <gandalf@winds.org> writes:
+This is a multi-part message in MIME format.
 
-> I narrowed the problem down to a subset of patches from the MM set in
-> test13-pre2. Reversing the attached 'context.patch' fixes the problem (only for
-> i386), but I'm not yet sure why. test13-pre2 and up work without any problems
-> on an Intel cpu (Pentium 180 & P3 800 tested).
-[Snip] 
-> root       351  0.0  1.2  9292 1576 ?        S    21:42   0:00 named
-> root       361  0.0  0.0     0    0 ?        Z    21:42   0:00 [named <defunct>]
-> root       363  0.0  1.2  9292 1576 ?        S    21:42   0:00 named
-> root       364  0.0  1.2  9292 1576 ?        S    21:42   0:00 named
-> root       365  0.0  0.7  2064  936 ?        S    21:42   0:00 /usr/sbin/sshd
-> ..etc
-> (Note PID 361)
+------=_NextPart_000_0009_01C071F6.26938730
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-I am seeing the same thing with the [named <defunct>] on a PIII 600,
-so it is not Athlon specific. I haven't yet tried test13-pre6 but it
-happens with pre3,4,5. So I am still running on test12.
+Is the joy-gravis module non-working in 2.2.18 ?
 
-I will try running pre6 then, if it still fails will try with your
-context.patch and see if that fixes it.
+setup:
+es1370 on a K6-2 400 / ALi 15xx board, Gravis XTerminator gamepad
+
+I'm loading the module with joystick=3D1 to enable the gameport, and it =
+shows in dmesg, loading joystick module, then when I modprobe =
+joy-gravis, I get this output:
+
+lib/modules/.../misc/joy-gravis.o: init_module: Device or resource busy
+/lib/modules/.../misc/joy-gravis.o: insmod =
+/lib/modules/.../misc/joy-gravis.o failed
+
+This also happens with the emu10k1 sound card.
+Before when the boot-time gameport hack was used, the gamepad module =
+loaded up fine.
+
+------=_NextPart_000_0009_01C071F6.26938730
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 5.50.4611.1300" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>Is the joy-gravis module non-working in =
+2.2.18=20
+?</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>setup:</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>es1370 on a K6-2 400&nbsp;/ ALi 15xx =
+board, Gravis=20
+XTerminator gamepad</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>I'm loading the module with =
+joystick=3D1 to enable=20
+the gameport, and it shows in dmesg, loading joystick module, then when =
+I=20
+modprobe joy-gravis, I get this output:</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>lib/modules/.../misc/joy-gravis.o: =
+init_module:=20
+Device or resource busy<BR>/lib/modules/.../misc/joy-gravis.o: insmod=20
+/lib/modules/.../misc/joy-gravis.o failed</FONT></DIV>
+<DIV><FONT size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2>This also happens with the emu10k1 =
+sound=20
+card.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Before when the boot-time gameport hack =
+was used,=20
+the gamepad module loaded up fine.</FONT></DIV></BODY></HTML>
+
+------=_NextPart_000_0009_01C071F6.26938730--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293603AbSDXIwf>; Wed, 24 Apr 2002 04:52:35 -0400
+	id <S310654AbSDXI5i>; Wed, 24 Apr 2002 04:57:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293596AbSDXIwe>; Wed, 24 Apr 2002 04:52:34 -0400
-Received: from [159.226.41.188] ([159.226.41.188]:45577 "EHLO
-	gatekeeper.ncic.ac.cn") by vger.kernel.org with ESMTP
-	id <S293276AbSDXIvk>; Wed, 24 Apr 2002 04:51:40 -0400
-Date: Wed, 24 Apr 2002 16:50:55 +0800
-From: "Huo Zhigang" <zghuo@gatekeeper.ncic.ac.cn>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Re: your mail
-Organization: NCIC
-X-mailer: FoxMail 3.11 Release [cn]
-Content-Type: text/plain; charset="GB2312"
-Content-Transfer-Encoding: 7bit
-Message-ID: <7754BE2814E9.AAA645E@gatekeeper.ncic.ac.cn>
+	id <S310749AbSDXI5g>; Wed, 24 Apr 2002 04:57:36 -0400
+Received: from pD9E12C7A.dip.t-dialin.net ([217.225.44.122]:17358 "HELO
+	smart.cobolt.net") by vger.kernel.org with SMTP id <S293337AbSDXIy6>;
+	Wed, 24 Apr 2002 04:54:58 -0400
+Date: Wed, 24 Apr 2002 10:54:58 +0200
+From: Dennis Schoen <dennis@cns.dnsalias.org>
+To: linux-kernel@vger.kernel.org
+Cc: Dave Jones <davej@suse.de>
+Subject: Re: BUG: 2.4.19-pre6aa1 (i586) ?
+Message-ID: <20020424085458.GC9292@smart.cobolt.net>
+Reply-To: Dennis Schoen <dennis@cns.dnsalias.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>
+In-Reply-To: <20020423092731.GA6327@smart.cobolt.net> <20020423150709.A4982@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Mail-Copies-To: never
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 23, 2002 at 03:07:09PM +0200, Andrea Arcangeli wrote:
+> On Tue, Apr 23, 2002 at 11:27:32AM +0200, Dennis Schoen wrote:
+> > Apr 21 21:40:03 opel kernel: kernel BUG at page_alloc.c:234!
+> > Apr 21 21:40:03 opel kernel: invalid operand: 0000
+> > Apr 21 21:40:03 opel kernel: CPU:    0
+> > Apr 21 21:40:03 opel kernel: EIP:    0010:[rmqueue+112/548]    Not tainted
+> > Apr 21 21:40:03 opel kernel: EFLAGS: 00010086
+> > Apr 21 21:40:03 opel kernel: eax: 0000c000   ebx: c119f37c   ecx: 00001000   edx: e8bac588
+> > Apr 21 21:40:03 opel kernel: esi: c119f37c   edi: 00000000   ebp: c0230310   esp: ca569e64
+> > Apr 21 21:40:03 opel kernel: ds: 0018   es: 0018   ss: 0018
+> > Apr 21 21:40:03 opel kernel: Process w3m-en (pid: 1963, stackpage=ca569000)
+> > Apr 21 21:40:03 opel kernel: Stack: c02304d4 00000000 00000001 00000001 c0230310 0000a9b0 00000286 c023034c 
+> > Apr 21 21:40:03 opel kernel:        00000000 c0230310 c012bac4 c1002ccc 00000000 c6ebb274 00000001 c0230310 
+> > Apr 21 21:40:03 opel kernel:        00000001 c0122684 0000000c c0230310 c02304d0 000001d2 0809deb0 c012213b 
+> > Apr 21 21:40:03 opel kernel: Call Trace: [__alloc_pages+116/664] [do_no_page+56/380] [do_wp_page+127/440] [handle_mm_fault+144/208] [do_page_fault+447/1336] 
+> > Apr 21 21:40:03 opel kernel:    [do_page_fault+0/1336] [do_brk+283/508] [sys_brk+193/240] [error_code+52/64] 
+> > Apr 21 21:40:03 opel kernel: 
+> 
+> I doubt it's a bug in the page freelist management, but it seems the
+> freelist got corrupted somehow. So I'd say it's either a bug in another
+> subsystem or faulty dram. Can you try some memchecker to rule out the
+> hardware possibility?
 
-  I boot all the nodes in my cluster without my driver and it is "insmod"ed manually. 
-  Now, I will try to "reboot" my machine after the driver is removed. Great. Thank you. 
+so, six memtest runs. Where four of them reported errors. Unfortunatly
+the machine died again, so I've no logfile.
 
->> 
->> >INIT: Switching to runlevel: 6
->> >INIT: Send processes the TERM signal
->> >Unable to handle kernel NULL pointer dereference
->>   
->>   What's wrong with my machines?  They are all running linux-2.2.18(SMP-supported) with a kernel module which is a driver of Myricom NIC M3S-PCI64C-2 written by my group.
->>   Thank you in advance 8-)
-
->Alan:
->If you boot the machije without your driver, then reboot does the
->same happen ? If not then it may well be your driver has an error but only
->when it closes down
+Looks like bad ram. I'll try to replace it sometime this week. I've
+also upgrade to 2.4.19pre7aa1.
 
 
+Dave: Here's the output of your 'ewbe' program:
 
+opel:~# ./ewbe
+HWCR=               2
+Current EWBE mode is strong ordering
+
+Ciao
+  Dennis

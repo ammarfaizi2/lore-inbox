@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267405AbUJOAe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267454AbUJOAib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267405AbUJOAe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 20:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266186AbUJOAe4
+	id S267454AbUJOAib (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 20:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267651AbUJOAib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 20:34:56 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:43750 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S267454AbUJOAbW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 20:31:22 -0400
-To: karim@opersys.com
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Thomas Zanussi <trz@us.ibm.com>, Robert Wisniewski <bob@watson.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-X-Message-Flag: Warning: May contain useful information
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
-	<20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>
-	<20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
-	<20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
-	<416F0071.3040304@opersys.com> <20041014234603.GA22964@elte.hu>
-	<416F14B4.8070002@opersys.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Thu, 14 Oct 2004 17:31:19 -0700
-In-Reply-To: <416F14B4.8070002@opersys.com> (Karim Yaghmour's message of
- "Thu, 14 Oct 2004 20:07:16 -0400")
-Message-ID: <52u0swddpk.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U0
+	Thu, 14 Oct 2004 20:38:31 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20901 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267454AbUJOAgg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 20:36:36 -0400
+Date: Fri, 15 Oct 2004 01:36:33 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Colin Ngam <cngam@sgi.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, Christoph Hellwig <hch@infradead.org>,
+       Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] Introduce PCI <-> CPU address conversion [1/2]
+Message-ID: <20041015003633.GX16153@parcelfarce.linux.theplanet.co.uk>
+References: <20041014124737.GM16153@parcelfarce.linux.theplanet.co.uk> <20041014125348.GA9633@infradead.org> <20041014135323.GO16153@parcelfarce.linux.theplanet.co.uk> <20041014180005.GA11954@infradead.org> <20041014180748.GS16153@parcelfarce.linux.theplanet.co.uk> <416EFFBE.7B8F702@sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 15 Oct 2004 00:31:20.0169 (UTC) FILETIME=[4A950590:01C4B24E]
+Content-Disposition: inline
+In-Reply-To: <416EFFBE.7B8F702@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Karim> cmpxchg (basically: try reserve; if fail retry; else
-    Karim> write), with per-cpu buffers.
+On Thu, Oct 14, 2004 at 05:37:51PM -0500, Colin Ngam wrote:
+> On SGI's Altix system, the sysdata for the device is very much different than
+> the sysdata for the bus.
 
-Not sure if I really understand the context where Ingo would use this,
-but this lockless scheme doesn't seem to be safe for realtime; the
-retry can potentially happen an arbitrary number of times.
+That's fascinating, because ia64 is one of the architectures that relies
+on sysdata being the same in both the bus and the device:
 
- - Roland
+#define PCI_CONTROLLER(busdev) ((struct pci_controller *) busdev->sysdata)
+
+In various places, we have
+        struct pci_controller *controller = PCI_CONTROLLER(dev);
+and
+        if (PCI_CONTROLLER(bus)->iommu)
+
+So what the hell does Altix do?  Which sysdata can be used to get to the
+pci_controller?  This seems like a horrible mistake to me.
+
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

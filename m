@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311650AbSDEFgd>; Fri, 5 Apr 2002 00:36:33 -0500
+	id <S312317AbSDEFie>; Fri, 5 Apr 2002 00:38:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311786AbSDEFgY>; Fri, 5 Apr 2002 00:36:24 -0500
-Received: from bitsorcery.com ([161.58.175.48]:60942 "EHLO bitsorcery.com")
-	by vger.kernel.org with ESMTP id <S311650AbSDEFgR>;
-	Fri, 5 Apr 2002 00:36:17 -0500
-From: Albert Max Lai <amlai@bitsorcery.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15533.14286.502083.225297@bitsorcery.com>
-Date: Fri, 5 Apr 2002 05:36:14 +0000
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.x and DAC960 issues
-X-Mailer: VM 7.01 under Emacs 20.4.2
+	id <S312308AbSDEFiZ>; Fri, 5 Apr 2002 00:38:25 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:27017 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S312314AbSDEFiT>; Fri, 5 Apr 2002 00:38:19 -0500
+Date: Thu, 4 Apr 2002 22:38:04 -0700
+Message-Id: <200204050538.g355c4v02240@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: bcrl@redhat.com (Benjamin LaHaise), akpm@zip.com.au (Andrew Morton),
+        joeja@mindspring.com, linux-kernel@vger.kernel.org
+Subject: Re: faster boots?
+In-Reply-To: <E16tKI6-0007TJ-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have had problems using the DAC960 driver under any 2.4.x kernel
-(currently using 2.4.18).  I have not experienced these problems under
-2.2.x.
+Alan Cox writes:
+> > I find that on heavily scsi systems: one machine spins each of 13 disks 
+> > up sequentially.  This makes the initial boot take 3-5 minutes before 
+> > init even gets its foot in the door.  If someone made a patch to spin 
+> > up scsi disks on the first access, I'd gladly give it a test. ;-)
+> 
+> Ditto. Especially if it spun them down again when idle for a while. 
 
-1.  Under reasonably low loads the driver will hang.  It is very
-    reproducible when using the benchmark program "Bonnie."  This
-    problem is exacerbated when using the ext3 filing system, locking
-    up almost immediately.
+Be careful here. I did this for a while with a Maxtor 80 GB IDE drive,
+and after a few months, it started making unpleasant noises when
+spinning up (lots of clicking and clacking). I went back to continuous
+spinning. I'm not in the mood for replacing my drives every few
+months :-(
 
-2.  I am not sure if this is related, but I believe that it is.  I see
-    the message "spurious 8259A interrupt: IRQ7."  Most of the
-    examples of this that I have read about involve having APIC
-    enabled.  But, for me, this is not the case.
+> The scsi layer does several things serially it could parallelise. It
+> isnt just disk spin up its also things like initialising all scsi
+> controllers in parallel.
 
-3.  If I boot without appending the "noapic" option, the driver hangs
-    after scanning the bus for cards, but before getting to
-    configuring the card.  This is minor.  I can live with this
-    workaround.
+Indeed. However, the business of spin-up should be handled either in
+the SCSI BIOS extension, or better yet, using auto-start delay. If the
+kernel spins up all drives in parallel, in effect that means they all
+spin up at the same time. Which in turn means that you have a large
+current spike as all the motors start up, stressing the power supply
+and possibly blowing your circuit breaker as 10 machines all come on
+after the blackout...
 
-The machine is a Tyan S1836DLUAN-BX, dual PIII 600Mhz.  The controller
-is a DAC1164P w/ Firmware Version: 5.08-0-87.  The problem exists with
-prior versions of the firmware and either RAID 0 or RAID 5 setups.
-Kernels are compiled w/ egcs-2.91.66.
+Not spinning up at power on is supposed to avoid this very problem. So
+spinning up in parallel might not be a brilliant idea. But if we could
+put a few seconds between each spin-up command, that would make sense.
 
-Please let me know if any additional information is needed.  Any help
-debugging these problems would be appreciated.  Thanks in advance.
+Still, auto-start delay is the best, IMO. 6*ID seconds after power up,
+a drives spins up (ID is the SCSI ID). By the time you've finished the
+BIOS memory test, most/all of your drives have been spun up.
 
--Albert
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUKNXy0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbUKOAGD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbUKNXy0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 18:54:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbUKNXy0
+	id S261376AbUKOAGD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 19:06:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUKOAGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 18:54:26 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:15845 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261341AbUKNXyW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 18:54:22 -0500
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] SCSI -rc1 fixes
-In-Reply-To: <1100473795.23649.26.camel@mulgrave> (James Bottomley's message
-	of "14 Nov 2004 17:09:49 -0600")
-References: <1100467267.23710.7.camel@mulgrave> <4197E4B7.3050008@pobox.com>
-	<1100473795.23649.26.camel@mulgrave>
-From: Matthias Andree <ma@dt.e-technik.uni-dortmund.de>
-Date: Mon, 15 Nov 2004 00:54:14 +0100
-Message-ID: <m3hdnsvvfd.fsf@merlin.emma.line.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+	Sun, 14 Nov 2004 19:06:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28849 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261376AbUKOAF7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 19:05:59 -0500
+Message-ID: <4197F2D9.8050409@pobox.com>
+Date: Sun, 14 Nov 2004 19:05:45 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Adrian Bunk <bunk@stusta.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] OSS via82cxxx_audio.c: enable procfs code
+References: <20041114022446.GK2249@stusta.de> <1100468548.25615.2.camel@localhost.localdomain>
+In-Reply-To: <1100468548.25615.2.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley <James.Bottomley@SteelEye.com> writes:
+Alan Cox wrote:
+> On Sul, 2004-11-14 at 02:24, Adrian Bunk wrote:
+> 
+>>The patch below enables the procfs code in sound/oss/via82cxxx_audio.c 
+>>if CONFIG_PROC_FS=y.
+> 
+> 
+> I don't see what needs fixing here. Generally the /proc file shouldnt
+> exist
 
-> On Sun, 2004-11-14 at 17:05, Jeff Garzik wrote:
->> thankyou thankyou :)
->
-> I've only been away for *two* weeks .... that's not a very long time
-> compared with a linux kernel -rc cycle ...
+Existing procfs code in via82cxxx_audio is never enabled, due to removal 
+of CONFIG_SOUND_VIA82CXXX_PROCFS:
 
-With like 2,400 change sets since v2.6.9...
+#if defined(CONFIG_PROC_FS) && \
+     defined(CONFIG_SOUND_VIA82CXXX_PROCFS)
+#define VIA_PROC_FS 1
+#endif
 
-Still wondering about SuSE's hwscan issue. Has someone managed to figure
-if it uses some ioctl that chokes the sym2 driver or if it hacks the
-hardware?
+However, I don't mind if someone removes the procfs code completely.
 
--- 
-Matthias Andree
+	Jeff
+
+

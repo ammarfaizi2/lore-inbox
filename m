@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263281AbTFGQ4E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 12:56:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263279AbTFGQ4E
+	id S263279AbTFGQ7U (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 12:59:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTFGQ7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 12:56:04 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:48134 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S263273AbTFGQ4C (ORCPT
+	Sat, 7 Jun 2003 12:59:20 -0400
+Received: from smtp03.web.de ([217.72.192.158]:33545 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S263279AbTFGQ7T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 12:56:02 -0400
-Date: Sat, 7 Jun 2003 19:09:26 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       bcollins@debian.org, linux1394-devel@lists.sourceforge.net,
-       Jean Tourrilhes <jt@bougret.hpl.hp.com>, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: [patch] fix vlsi_ir.c compile if !CONFIG_PROC_FS
-Message-ID: <20030607170926.GB20413@mars.ravnborg.org>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	bcollins@debian.org, linux1394-devel@lists.sourceforge.net,
-	Jean Tourrilhes <jt@bougret.hpl.hp.com>, linux-net@vger.kernel.org,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-References: <20030607152434.GQ15311@fs.tum.de> <Pine.SOL.4.30.0306071815120.6449-100000@mion.elka.pw.edu.pl> <20030607165951.GA13377@fs.tum.de>
+	Sat, 7 Jun 2003 12:59:19 -0400
+Date: Sat, 7 Jun 2003 19:29:27 +0200
+From: =?ISO-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       trivial@rustcorp.com.au
+Subject: Re: [PATCH] hugetlbfs: fix error reporting in case of invalid mount
+ options
+Message-Id: <20030607192927.3d308201.l.s.r@web.de>
+In-Reply-To: <20030607163521.GG8978@holomorphy.com>
+References: <20030607145532.2bc66f38.l.s.r@web.de>
+	<20030607163521.GG8978@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030607165951.GA13377@fs.tum.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 07, 2003 at 06:59:51PM +0200, Adrian Bunk wrote:
-> > 
-> > I've seen Sam's mail but this is generic solution to quiet compiler
-> > and will work for any remove_proc_entry() user.
-> 
-> Yup, for this specific error Sam's solution is the best one, but your 
-> patch e.g. solves the ieee1394_core.c compile error I reported, too.
+On Sat, 7 Jun 2003 09:35:21 -0700 William Lee Irwin III <wli@holomorphy.com> wrote:
+> Let's nuke it entirely. All other fs's barf without printk()'ing at all
+> and kick -EINVAL back to the caller.
 
-Actually both should be applied.
-The ifdef/endif pair is redundant when Bartlomiej's patch is applied.
+Mmmkay, even better. Patch below.
 
-	Sam
+René
+
+
+
+diff -u ./fs/hugetlbfs/inode.c~ ./fs/hugetlbfs/inode.c
+--- ./fs/hugetlbfs/inode.c~	2003-06-07 19:22:27.000000000 +0200
++++ ./fs/hugetlbfs/inode.c	2003-06-07 19:23:03.000000000 +0200
+@@ -524,10 +524,9 @@
+ 	struct hugetlbfs_config config;
+ 
+ 	ret = hugetlbfs_parse_options(data, &config);
+-	if (ret) {
+-		printk("hugetlbfs: invalid mount options: %s.\n", data);
++	if (ret)
+ 		return ret;
+-	}
++
+ 	sb->s_blocksize = PAGE_CACHE_SIZE;
+ 	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
+ 	sb->s_magic = HUGETLBFS_MAGIC;

@@ -1,34 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289039AbSBMWdN>; Wed, 13 Feb 2002 17:33:13 -0500
+	id <S289025AbSBMWdX>; Wed, 13 Feb 2002 17:33:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289036AbSBMWdD>; Wed, 13 Feb 2002 17:33:03 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54541 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289018AbSBMWcu>; Wed, 13 Feb 2002 17:32:50 -0500
-Subject: Re: What does AddrMarkNotFound mean?
-To: schepler@math.berkeley.edu (Daniel Schepler)
-Date: Wed, 13 Feb 2002 22:46:33 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <873d059gzh.fsf@frobnitz.ddts.net> from "Daniel Schepler" at Feb 13, 2002 02:03:46 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289036AbSBMWdN>; Wed, 13 Feb 2002 17:33:13 -0500
+Received: from dwcs.net ([209.142.196.187]:32898 "EHLO dwcs.net")
+	by vger.kernel.org with ESMTP id <S289018AbSBMWdG>;
+	Wed, 13 Feb 2002 17:33:06 -0500
+Date: Wed, 13 Feb 2002 17:32:35 -0500 (EST)
+From: bob@dwcs.net
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.x ALI IDE strangeness
+Message-ID: <Pine.LNX.4.40.0202131655290.3878-100000@dwcs.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16b8Ab-0006f6-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is this typical behavior for a hard drive which has developed bad
-> blocks?  And if I blacklist the affected blocks in the filesystem,
-> should I also blacklist a few previous blocks in order to avoid
-> problems with the readahead feature of the IDE drivers?
+When using any 2.4.x kernel, including the very latest one, with my
+Fujitsu Lifebook P which uses the ALI  M5229 IDE controller it acts much
+different than when using any 2.2.x  kernels that I have tried.  When
+using the latest 2.2 kernels and not including specific support for the
+ALI controller the kernel detects the controller and lets me use DMA.
+When compiling in ALI IDE support in either 2.2 or 2.4 kernels the system
+hangs when the controller is detected.
+That isn't really much of a problem in the 2.2 kernels because I can just
+use the generic IDE support.  In the 2.4 kernel series though, I can't
+enable DMA.  When booting with a 2.4 kernel I get this:
 
-Its a disk error (it can't find the index marks for a sector). In general
-its a bad sign and you might want to check the smart data for the disk.
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+ALI15X3: IDE controller on PCI bus 00 dev 78
+PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try using
+pci=biosirq.
+ALI15X3: chipset revision 195
+ALI15X3: not 100% native mode: will probe irqs later
+ALI15X3: simplex device:  DMA disabled
+ide0: ALI15X3 Bus-Master DMA disabled (BIOS)
+ALI15X3: simplex device:  DMA disabled
+ide1: ALI15X3 Bus-Master DMA disabled (BIOS)
 
-If you bought an IBM disk within the last 18 months or so check for new 
-firmware, flash it if so and reformat it before panicing and assuming
-the worst.
+Then hdparm absolutely will not let me enable DMA giving me this error:
+
+/dev/hda:
+ setting using_dma to 1 (on)
+ HDIO_SET_DMA failed: Operation not permitted
+ using_dma    =  0 (off)
+
+
+Changing the PNP OS value in the BIOS to either Yes or No does absolutely
+nothing and using "pci=biosirq" just makes the part that says "Please try
+using pci=biosirq." go away.
+
+However, on accident I discovered if I boot with a 2.2 kernel, reset the
+computer instead of powering off, then boot with a 2.4 kernel it will let
+me enable DMA.
+
+Is there anything I could try to make DMA work with the 2.4 series?
 

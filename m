@@ -1,76 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266775AbUFYQDQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266784AbUFYQOW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266775AbUFYQDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 12:03:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266777AbUFYQDQ
+	id S266784AbUFYQOW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 12:14:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266785AbUFYQOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 12:03:16 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:37000 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266775AbUFYQDN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 12:03:13 -0400
-Date: Fri, 25 Jun 2004 12:02:47 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Daniel Jacobowitz <dan@debian.org>
-cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@zip.com.au>,
+	Fri, 25 Jun 2004 12:14:22 -0400
+Received: from gprs214-83.eurotel.cz ([160.218.214.83]:49280 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S266784AbUFYQOU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 12:14:20 -0400
+Date: Fri, 25 Jun 2004 18:10:50 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Andrew Morton <akpm@zip.com.au>,
        kernel list <linux-kernel@vger.kernel.org>,
        Patrick Mochel <mochel@digitalimplant.org>
 Subject: Re: swsusp.S: meaningfull assembly labels
-In-Reply-To: <20040625151858.GA27013@nevyn.them.org>
-Message-ID: <Pine.LNX.4.53.0406251152580.28750@chaos>
+Message-ID: <20040625161050.GB30073@elf.ucw.cz>
 References: <20040625115936.GA2849@elf.ucw.cz> <Pine.LNX.4.53.0406250827250.28070@chaos>
- <20040625151858.GA27013@nevyn.them.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0406250827250.28070@chaos>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Jun 2004, Daniel Jacobowitz wrote:
+Hi!
 
-> On Fri, Jun 25, 2004 at 08:37:45AM -0400, Richard B. Johnson wrote:
-> > NO! You just made those labels public! The LOCAL symbols need to
-> > begin with ".L".  Now, if you have a 'copy_loop' in another module,
-> > linked with this, anywhere in the kernel, they will share the
-> > same address -- not what you expected, I'm sure! The assembler
-> > has some strange rules you need to understand. Use `nm` and you
-> > will find that your new labels are in the object file!
->
-> Er, no.  They'll show up in the object file.  That doesn't mean they're
-> global; static symbols also show up in the object file.
->
-> --
-> Daniel Jacobowitz
+> > This introduces meaningfull labels instead of .L1234, meaning code is
+> > readable, kills alignment where unneccessary, and kills TLB flush that
+> > was only pure paranoia (and slows it down a lot on emulated
+> > systems). Please apply,
+> >
+> > 								Pavel
+> >
+> > --- linux-cvs//arch/i386/power/swsusp.S	2004-05-25 17:41:18.000000000 +0200
+> > +++ linux/arch/i386/power/swsusp.S	2004-06-24 14:39:01.000000000 +0200
+> > @@ -18,7 +18,7 @@
+> >  ENTRY(do_magic)
+> >  	pushl %ebx
+> >  	cmpl $0,8(%esp)
+> > -	jne .L1450
+> > +	jne resume
+> >  	call do_magic_suspend_1
+> >  	call save_processor_state
+> >
+...
+> NO! You just made those labels public! The LOCAL symbols need to
+> begin with ".L".  Now, if you have a 'copy_loop' in another module,
+> linked with this, anywhere in the kernel, they will share the
+> same address -- not what you expected, I'm sure! The assembler
+> has some strange rules you need to understand. Use `nm` and you
+> will find that your new labels are in the object file!
 
-I got caught on these, thinking that they weren't globals when
-I made a assembly files that used, not only named labels but
-also definitions like:
+Are you sure? I thought theare not visible from other moduless unless
+"ENTRY()" is used.  See for example entry.S.
+							Pavel
 
-BUF = 0x08
-LEN = 0x0c
-
-code:	movl	BUF(%esp), %ebx
-	movl	LEN(%esp), %ecx
-
-
-This was done in several files. When linked, I got 'duplicate synbol'
-errors. These symbols, while not 'globals' in the sense that 'C'
-code can link with them are global definitions that are seen by
-the linker and cause duplicate symbol errors. I went through
-the gas documentation, trying to find how to prevent these
-private symbols from being written to the object file and there
-is no command-line mechanism. You just have to start every name
-with .L to keep them local.
-
-When I used labels like 'code' above, even though not declared
-'.global',  the labels also showed up as duplicate symbols when
-linking the resulting object files.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,40 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319025AbSHSVTl>; Mon, 19 Aug 2002 17:19:41 -0400
+	id <S319023AbSHSVZZ>; Mon, 19 Aug 2002 17:25:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319026AbSHSVTl>; Mon, 19 Aug 2002 17:19:41 -0400
-Received: from holomorphy.com ([66.224.33.161]:6606 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S319025AbSHSVTk>;
-	Mon, 19 Aug 2002 17:19:40 -0400
-Date: Mon, 19 Aug 2002 14:22:35 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org, akpm@zip.com.au,
-       gone@us.ibm.com, Martin.Bligh@us.ibm.com
-Subject: Re: 2.5.31 i386 mem_map usage corrections
-Message-ID: <20020819212235.GC21683@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org, akpm@zip.com.au,
-	gone@us.ibm.com, Martin.Bligh@us.ibm.com
-References: <20020819102156.GJ18350@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020819102156.GJ18350@holomorphy.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S319026AbSHSVZZ>; Mon, 19 Aug 2002 17:25:25 -0400
+Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:3740 "EHLO
+	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
+	id <S319023AbSHSVZY>; Mon, 19 Aug 2002 17:25:24 -0400
+Message-ID: <180577A42806D61189D30008C7E632E87939F8@boca213a.boca.ssc.siemens.com>
+From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+To: linux-kernel@vger.kernel.org
+Subject: 
+Date: Mon, 19 Aug 2002 17:29:26 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 19, 2002 at 03:21:56AM -0700, William Lee Irwin III wrote:
-> With these fixes (modulo merging), most notably the fix for
-> pmd_populate(), I was able to boot and run userspace on a 16x/16G NUMA-Q
-> in combination with Pat Gaughen's x86 discontigmem patches.
+Are there any plans to do an SCTP (RFC 2960) implementation for Linux?
+Please CC me directly on any responses.
 
-In case this wasn't clear, this is a fix for what is (AFAIK)
-the only reliably reproducible scenario reproducing the BUG on
-page->pte.chain != NULL.
+Thanks in advance.
 
+Jack Bloch 
+Siemens ICN
+phone                (561) 923-6550
+e-mail                jack.bloch@icn.siemens.com
 
-Cheers,
-Bill

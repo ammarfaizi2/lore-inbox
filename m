@@ -1,159 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268094AbUJSHNi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268157AbUJSHZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268094AbUJSHNi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 03:13:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268092AbUJSHNf
+	id S268157AbUJSHZT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 03:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268159AbUJSHZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 03:13:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:48298 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268088AbUJSHNM (ORCPT
+	Tue, 19 Oct 2004 03:25:18 -0400
+Received: from hydra.colinet.de ([194.231.113.36]:43667 "EHLO hydra.colinet.de")
+	by vger.kernel.org with ESMTP id S268157AbUJSHZJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 03:13:12 -0400
-Date: Tue, 19 Oct 2004 00:13:08 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ben Collins <bcollins@debian.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>, willy@debian.org,
-       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>
-Subject: Re: [BK PATCH] SCSI updates for 2.6.9
-In-Reply-To: <200410190012.28071.dtor_core@ameritech.net>
-Message-ID: <Pine.LNX.4.58.0410190009260.2287@ppc970.osdl.org>
-References: <1098137016.2011.339.camel@mulgrave> <200410182341.13648.dtor_core@ameritech.net>
- <200410190012.28071.dtor_core@ameritech.net>
+	Tue, 19 Oct 2004 03:25:09 -0400
+Message-Id: <200410190723.i9J7NNuv027374@hydra.colinet.de>
+Date: Tue, 19 Oct 2004 09:23:23 +0200 (CEST)
+From: "T. Weyergraf" <kirk@colinet.de>
+Subject: patch-2.6.9 against 2.6.8.1
+To: linux-kernel@vger.kernel.org
+cc: kirk@colinet.de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-Ben,
- does this look ok to you?
+I just build 2.6.9 using the patch-2.6.9, as always. Previously,
+I was using 2.6.8.1 and i expected patch-2.6.9 to work on the
+2.6.8.1 tree.
+The patch-2.6.9 is somewhat "confused". Against 2.6.8.1, it fails
+to change the SUBLEVEL field:
 
-Arguably the SCSI layer should also have proper prefixes for its constants
-- and in fact they do kind of exist as the GPCMD_xxx constants.  Oh, well.
-Regardless, the sbp2 constants do look like they want prefixing..
+<snip>
+@@ -1,6 +1,6 @@
+ VERSION = 2
+ PATCHLEVEL = 6
+-SUBLEVEL = 8
++SUBLEVEL = 9
+ EXTRAVERSION =
+ NAME=Zonked Quokka
+</snip>
 
-		Linus
+As one can see, the patch failes, since in 2.6.8.1, EXTRAVERSION is set
+to 1. Also, patch-2.6.9 contains the small fixes in fs/nfs/file.c, that
+were given in patch-2.6.8.1.
 
-On Tue, 19 Oct 2004, Dmitry Torokhov wrote:
+Is this the desired behaviour ? Based on the past, i expected new
+patches to go against the latest stable kernel ( which is reported
+2.6.8.1 by kernel.org ). Will - in the future - new patches skip the
+4-digit kernelpatches ?
 
-> On Monday 18 October 2004 11:41 pm, Dmitry Torokhov wrote:
-> > On Monday 18 October 2004 05:03 pm, James Bottomley wrote:
-> > 
-> > > Matthew Wilcox:
-> > >   o Add SPI-5 constants to scsi.h
-> > 
-> > This breaks Firewire SBP2 build:
-> > 
-> >   CC [M]  drivers/ieee1394/sbp2.o
-> > In file included from drivers/ieee1394/sbp2.c:78:
-> > drivers/ieee1394/sbp2.h:61:1: warning: "ABORT_TASK_SET" redefined
-> > In file included from drivers/scsi/scsi.h:31,
-> >                  from drivers/ieee1394/sbp2.c:67:
-> > include/scsi/scsi.h:255:1: warning: this is the location of the previous definition
-> > In file included from drivers/ieee1394/sbp2.c:78:
-> > drivers/ieee1394/sbp2.h:62:1: warning: "LOGICAL_UNIT_RESET" redefined
-> > In file included from drivers/scsi/scsi.h:31,
-> >                  from drivers/ieee1394/sbp2.c:67:
-> > include/scsi/scsi.h:267:1: warning: this is the location of the previous definition
-> > 
-> > It looks like firewire has its own set of commands with conflicting names.
-> > Who should win?
-> > 
-> 
-> I think something like the patch below shoudl work.
-> 
-> -- 
-> Dmitry
-> 
-> 
-> ===================================================================
-> 
-> 
-> ChangeSet@1.1963, 2004-10-19 00:08:16-05:00, dtor_core@ameritech.net
->   IEEE1394: SBP-2 - rename some constants to fix clash with new
->             SCSI core defines.
->   
->   Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> 
-> 
->  sbp2.c |    8 ++++----
->  sbp2.h |   18 +++++++++---------
->  2 files changed, 13 insertions(+), 13 deletions(-)
-> 
-> 
-> ===================================================================
-> 
-> 
-> 
-> diff -Nru a/drivers/ieee1394/sbp2.c b/drivers/ieee1394/sbp2.c
-> --- a/drivers/ieee1394/sbp2.c	2004-10-19 00:10:58 -05:00
-> +++ b/drivers/ieee1394/sbp2.c	2004-10-19 00:10:58 -05:00
-> @@ -1088,7 +1088,7 @@
->  	scsi_id->query_logins_orb->query_response_hi = ORB_SET_NODE_ID(hi->host->node_id);
->  	SBP2_DEBUG("sbp2_query_logins: query_response_hi/lo initialized");
->  
-> -	scsi_id->query_logins_orb->lun_misc = ORB_SET_FUNCTION(QUERY_LOGINS_REQUEST);
-> +	scsi_id->query_logins_orb->lun_misc = ORB_SET_FUNCTION(SBP2_QUERY_LOGINS_REQUEST);
->  	scsi_id->query_logins_orb->lun_misc |= ORB_SET_NOTIFY(1);
->  	if (scsi_id->sbp2_device_type_and_lun != SBP2_DEVICE_TYPE_LUN_UNINITIALIZED) {
->  		scsi_id->query_logins_orb->lun_misc |= ORB_SET_LUN(scsi_id->sbp2_device_type_and_lun);
-> @@ -1199,7 +1199,7 @@
->  	scsi_id->login_orb->login_response_hi = ORB_SET_NODE_ID(hi->host->node_id);
->  	SBP2_DEBUG("sbp2_login_device: login_response_hi/lo initialized");
->  
-> -	scsi_id->login_orb->lun_misc = ORB_SET_FUNCTION(LOGIN_REQUEST);
-> +	scsi_id->login_orb->lun_misc = ORB_SET_FUNCTION(SBP2_LOGIN_REQUEST);
->  	scsi_id->login_orb->lun_misc |= ORB_SET_RECONNECT(0);	/* One second reconnect time */
->  	scsi_id->login_orb->lun_misc |= ORB_SET_EXCLUSIVE(exclusive_login);	/* Exclusive access to device */
->  	scsi_id->login_orb->lun_misc |= ORB_SET_NOTIFY(1);	/* Notify us of login complete */
-> @@ -1325,7 +1325,7 @@
->  	scsi_id->logout_orb->reserved3 = 0x0;
->  	scsi_id->logout_orb->reserved4 = 0x0;
->  
-> -	scsi_id->logout_orb->login_ID_misc = ORB_SET_FUNCTION(LOGOUT_REQUEST);
-> +	scsi_id->logout_orb->login_ID_misc = ORB_SET_FUNCTION(SBP2_LOGOUT_REQUEST);
->  	scsi_id->logout_orb->login_ID_misc |= ORB_SET_LOGIN_ID(scsi_id->login_response->length_login_ID);
->  
->  	/* Notify us when complete */
-> @@ -1390,7 +1390,7 @@
->  	scsi_id->reconnect_orb->reserved3 = 0x0;
->  	scsi_id->reconnect_orb->reserved4 = 0x0;
->  
-> -	scsi_id->reconnect_orb->login_ID_misc = ORB_SET_FUNCTION(RECONNECT_REQUEST);
-> +	scsi_id->reconnect_orb->login_ID_misc = ORB_SET_FUNCTION(SBP2_RECONNECT_REQUEST);
->  	scsi_id->reconnect_orb->login_ID_misc |=
->  		ORB_SET_LOGIN_ID(scsi_id->login_response->length_login_ID);
->  
-> diff -Nru a/drivers/ieee1394/sbp2.h b/drivers/ieee1394/sbp2.h
-> --- a/drivers/ieee1394/sbp2.h	2004-10-19 00:10:58 -05:00
-> +++ b/drivers/ieee1394/sbp2.h	2004-10-19 00:10:58 -05:00
-> @@ -52,15 +52,15 @@
->  	u8 cdb[12];
->  };
->  
-> -#define LOGIN_REQUEST			0x0
-> -#define QUERY_LOGINS_REQUEST		0x1
-> -#define RECONNECT_REQUEST		0x3
-> -#define SET_PASSWORD_REQUEST		0x4
-> -#define LOGOUT_REQUEST			0x7
-> -#define ABORT_TASK_REQUEST		0xb
-> -#define ABORT_TASK_SET			0xc
-> -#define LOGICAL_UNIT_RESET		0xe
-> -#define TARGET_RESET_REQUEST		0xf
-> +#define SBP2_LOGIN_REQUEST		0x0
-> +#define SBP2_QUERY_LOGINS_REQUEST	0x1
-> +#define SBP2_RECONNECT_REQUEST		0x3
-> +#define SBP2_SET_PASSWORD_REQUEST	0x4
-> +#define SBP2_LOGOUT_REQUEST		0x7
-> +#define SBP2_ABORT_TASK_REQUEST		0xb
-> +#define SBP2_ABORT_TASK_SET		0xc
-> +#define SBP2_LOGICAL_UNIT_RESET		0xe
-> +#define SBP2_TARGET_RESET_REQUEST	0xf
->  
->  #define ORB_SET_LUN(value)                      (value & 0xffff)
->  #define ORB_SET_FUNCTION(value)                 ((value & 0xf) << 16)
-> 
+I do not intent to start a flamewar over whether 4-digit kernelreleases
+are the right/wrong way to go. I am just looking for a consistent
+behaviour, which is at this point only given, if you expect new
+kernelreleases to go against the last 3-digit release.
+
+Is that so ?
+
+Regards,
+Thomas Weyergraf
+
+-- 
+Thomas Weyergraf                                     kirk@colinet.de
+Funny IA64 Opcode Dept: ( see arch/ia64/lib/memset.S )
+"br.ret.spnt.few" - got back from getting beer, did not spend a lot.
+

@@ -1,52 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265506AbUBPKZG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 05:25:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265513AbUBPKZG
+	id S263609AbUBPKpX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 05:45:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbUBPKpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 05:25:06 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:35544 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S265506AbUBPKZA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 05:25:00 -0500
+	Mon, 16 Feb 2004 05:45:23 -0500
+Received: from adsl60.dyn250.pacific.net.sg ([210.24.250.60]:10244 "EHLO
+	firewall.villa-emerald-garden.com") by vger.kernel.org with ESMTP
+	id S263609AbUBPKpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 05:45:11 -0500
+Message-ID: <40309F2F.9020901@wanadoo.nl>
+Date: Mon, 16 Feb 2004 18:45:03 +0800
+From: Arnaud <arnaud.kleinveld@wanadoo.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, nl, nl-be
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: iptunnel: ioctl: Operation not supported
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16432.39480.817800.21083@alkaid.it.uu.se>
-Date: Mon, 16 Feb 2004 11:23:52 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Philippe Elie <phil.el@wanadoo.fr>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Will Cohen <wcohen@redhat.com>, John Levon <levon@movementarian.org>
-Subject: Re: [PATCH] oprofile add Pentium Mobile support
-In-Reply-To: <20040212224152.GE316@zaniah>
-References: <20040212224152.GE316@zaniah>
-X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philippe Elie writes:
- > From: Will Cohen <wcohen@redhat.com>
- > 
- > Add oprofile support for Pentium Mobile (P6 core). Pentium Mobile needs
- > to unmask LVPTC vector, since it doesn't hurt other P6 core based cpus
- > we do it unconditionally for all these.
+Hi All.
 
-[Patch talking about the Pentium-M.]
+Short:
+Trying to start a tunnel with iptunnel and module ipip I ran into the 
+message "ioctl: Operation not supported"
 
-I can find no support in Intel's documentation (IA32 Volume 3,
-25366813.pdf) that Pentium-M:s need to unmask LVTPC.
+Full description:
+Every command on one of my hosts from iptunnel results in "Operation not 
+supported". Command example: 'iptunnel show'
+I built ipip.o for both systems on a development host:
+AMD Athlon(TM) XP 2400+
+RH 9, kernel 2.4.20-8, gcc 3.2.2
 
-How certain are you of this? Is this an undocumented hardware
-quirk? If it is documented, please indicate where.
+On the following system (A) I can set up the tunnel and a tcpdump on the 
+second system (B) shows ecapsulated packages comming in:
+Pentium MMX
+RH 9, kernel 2.4.20-8, gcc 3.2.2
 
-It's my theory that P4 added the auto-masking to help PEBS
-buffer overflow situations, but since P-M doesn't have PEBS,
-they shouldn't have had to change this on P-M as well.
-OTOH, it's certainly possible they changed it by accident.
+system B:
+Cx486DX2
+RH7.2, kernel 2.4.19, gcc 2.96
 
-One way of testing this would be to run a P-M with
-nmi_watchdog=2. If the NMI counter keeps ticking, then
-LVTPC does not need unmasking.
+The PROBLEM is on system B. When I start the iptunnel command, no matter 
+what function, I always get a message "ioctl: Operation not supported". 
+So I entered some printk statements into ipip.c to see what command this 
+module is receiving from iptunnel and to see if the module could 
+register the device 'tunl0'. The registration goes well but the printk 
+statement I entered into the case statement that handels the ioctl 
+commands is never called! For me it looks like the ioctl is adressing 
+the wrong net driver.
+I also noticed a difference between the output of a 'strace iptunnel' on 
+both systems:
+system A (goes well):
+<snip>
+socket(PF_INET, SOCK_DGRAM, IPPROTO_IP) = 4
+ioctl(4, 0x8927, 0xbfffe7e0) = 0
+close(4) = 0
+socket(PF_INET, SOCK_DGRAM, IPPROTO_IP) = 4
+ioctl(4, 0x89f0, 0xbfffe7e0)  = 0
+close(4)  = 0
+<snip>
 
-/Mikael
+system B (goes wrong):
+<snip>
+socket(PF_INET, SOCK_DGRAM, IPPROTO_IP) = 4
+ioctl(4, 0x8927, 0xbffff790) = 0
+close(4) = 0
+socket(PF_INET, SOCK_DGRAM, IPPROTO_IP) = 4
+ioctl(4, 0x89f0, 0xbffff780)            = -1 EOPNOTSUPP (Operation not 
+supported)
+<snip>
+
+I see that the command is a private ioctl '89f0' which is equal to 
+'GETTUNNEL' and that's oke because I did a 'strace iptunnel show' to 
+create this output. I also see a difference on the reference to the 
+ifreq struct. On system A it stays the same for all commands done by 
+iptunnel and on system B only the last command has a different 
+reference. The struct is private by the routines so they are recreated 
+every time, so I guess this difference could happen?
+I checked the bugfixes between 2.4.19 and 2.4.20 but I didn't find 
+anything about ioctl adressing wrong drivers.
+I would like to debug this further more but I don't know where to go 
+from this point. Any help is really appreciated. Maybe I am doing 
+something wrong  by compiling on the other system?
+
+Best Regards,
+Arnaud
+
+Some addional information on the two systems:
+system A (goes well):
+
+MODULES:
+ipip
+hostap_crypt_wep
+hostap_pci
+hostap
+ppp_synctty
+ppp_async
+ppp_generic
+slhc
+8139too
+mii
+af_packet
+ipt_LOG
+ipt_state
+ipt_MASQUERADE
+iptable_nat
+ip_conntrack
+iptable_filter
+ip_tables
+ext3
+jbd
+usb-uhci
+usbcore
+rtc
+
+system B (goes wrong):
+
+MODULES:
+ipip
+ipt_state
+8139too
+mii
+ppp_synctty
+ppp_async
+ppp_generic
+slhc
+ne2k-pci
+8390
+3c509
+isa-pnp
+af_packet
+ipt_LOG
+ipt_MASQUERADE
+iptable_nat
+ip_conntrack
+iptable_filter
+ip_tables
+ext3
+jbd
+rtc
+
+

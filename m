@@ -1,58 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289556AbSCGB0p>; Wed, 6 Mar 2002 20:26:45 -0500
+	id <S289880AbSCGB25>; Wed, 6 Mar 2002 20:28:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289366AbSCGB0f>; Wed, 6 Mar 2002 20:26:35 -0500
-Received: from mnh-1-01.mv.com ([207.22.10.33]:36620 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S289556AbSCGB00>;
-	Wed, 6 Mar 2002 20:26:26 -0500
-Message-Id: <200203070127.UAA05891@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        "H. Peter Anvin" <hpa@zytor.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages 
-In-Reply-To: Your message of "Wed, 06 Mar 2002 18:20:27 EST."
-             <20020306182026.F866@redhat.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 06 Mar 2002 20:27:51 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S289815AbSCGB2q>; Wed, 6 Mar 2002 20:28:46 -0500
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:20772 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S289762AbSCGB2e>;
+	Wed, 6 Mar 2002 20:28:34 -0500
+Date: Thu, 7 Mar 2002 01:32:47 +0000 (GMT)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+X-X-Sender: <tigran@einstein.homenet>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: chroot_fs_refs and pivot_root question
+In-Reply-To: <Pine.LNX.4.33.0203070024410.3387-100000@einstein.homenet>
+Message-ID: <Pine.LNX.4.33.0203070131550.1091-100000@einstein.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bcrl@redhat.com said:
-> Go back in the thread: I suggested making it an option that the user
-> has to  turn on to allow his foot to be shot.
+just for the record (and for the curious) -- the solution to this problem
+is to re-exec /sbin/init. I wonder if this sort of scenario is what Al
+Viro had in mind when he added the re-exec code to init in 1998...
 
-OK, this seems to be the relevant quote (and you seem to be referring to the
-kernel build segfaults - correct me if I'm wrong):
+On Thu, 7 Mar 2002, Tigran Aivazian wrote:
 
-bcrl@redhat.com said:
-> a UML failing at startup  with out of memory is better than random
-> segvs at some later point when the  system is under load.
-
-I showed the kernel build segfaulting as an improvement over UML hanging, 
-which is the alternative behavior.
-
-The segfaults were caused by me implementing the simplest possible response
-to alloc_pages returning unbacked pages, which is to return NULL to the 
-caller.  This is actually wrong because in this failure case, it effectively
-changes the semantics of GFP_USER, GFP_KERNEL, and the other blocking GFP_* 
-allocations to GFP_ATOMIC.  And that's what forced UML to segfault the 
-compilations.
-
-A slightly fancier recovery would loop calling alloc_pages until it got a set
-of already-backed pages (with some possible sleeping in alloc_pages in there).
-That would preserve the blocking semantics of GFP_USER, GFP_KERNEL, et al,
-and would have allowed the UML userspace (the kernel build) to continue working
-as it should.
-
-So, a slightly improved version of the patch (which I can write up if you're
-interested in seeing it) would have allowed UML and its userspace to continue
-running fine (albeit in less memory than it expected) in the presence of an
-overcommited tmpfs.
-
-				Jeff
+> On Thu, 7 Mar 2002, Tigran Aivazian wrote:
+>
+> > Amazing that nobody knew the answer but I think I understand now the
+> > reason, the /proc/1/cwd and /proc/1/root point to "/" and the comment
+> > above sys_pivot_root says:
+> >
+> >  * Note:
+> >  *  - we don't move root/cwd if they are not at the root (reason: if
+> > something
+> >  *    cared enough to change them, it's probably wrong to force them
+> > elsewhere)
+> >
+> > So, that is why the /sbin/init wasn't moved, because it's root/cwd were at
+>                                  ~~~~~~
+>
+> I often say "yes" instead of "no" (and other way around) :)
+>
+> It obviously _was_ moved and the problem is that it's executable's mapping
+> and the libc/ld mappings are keeping /sysroot busy...
+>
+> > /initrd so when it got pivoted to / (and / put to /sysroot) the init was
+> > left alone. Well, either the above policy is wrong or I need to figure out
+> > a way to convince init to move peacebly where I want it to... :)
+> >
+> > On Wed, 6 Mar 2002, Tigran Aivazian wrote:
+> >
+> > > Hello,
+> > >
+> > > Looking at (2.4.9's) sys_pivot_root() implementation I can see that it
+> > > moves all the processes' root/pwd references from the old root to the new
+> > > one.
+> > >
+> > > However, somehow /sbin/init managed to survive the move and is keeping the
+> > > filesystem busy:
+> > >
+> > > # lsof /sysroot
+> > > COMMAND PID     USER  FD   TYPE DEVICE    SIZE  NODE NAME
+> > > init      1        0 txt    REG  22,65   28220 11217 /sysroot/sbin/init
+> > > init      1        0 mem    REG  22,65  468849 10376
+> > > /sysroot/lib/ld-2.2.2.so
+> > > init      1        0 mem    REG  22,65 5636080 10370
+> > > /sysroot/lib/i686/libc-2.2.2.so
+> > >
+> > > # cat /proc/1/maps
+> > > 08048000-0804f000 r-xp 00000000 16:41 11217      /sysroot/sbin/init
+> > > 0804f000-08050000 rw-p 00006000 16:41 11217      /sysroot/sbin/init
+> > > 08050000-08054000 rwxp 00000000 00:00 0
+> > > 15556000-1556c000 r-xp 00000000 16:41 10376      /sysroot/lib/ld-2.2.2.so
+> > > 1556c000-1556d000 rw-p 00015000 16:41 10376      /sysroot/lib/ld-2.2.2.so
+> > > 1556d000-1556e000 rw-p 00000000 00:00 0
+> > > 15573000-15699000 r-xp 00000000 16:41 10370      /sysroot/lib/i686/libc-2.2.2.so
+> > > 15699000-1569f000 rw-p 00125000 16:41 10370      /sysroot/lib/i686/libc-2.2.2.so
+> > > 1569f000-156a3000 rw-p 00000000 00:00 0
+> > > 3fffe000-40000000 rwxp fffff000 00:00 0
+> > >
+> > > Any clues why and how to force it to exec a binary on the new root (or
+> > > get rid of it in any other way)?
+> > >
+> > > Regards,
+> > > Tigran
+> > >
+> > >
+> > >
+> > >
+> >
+> >
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbUJaOxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbUJaOxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261639AbUJaOxU (ORCPT <rfc822;willy@w.ods.org>);
+	id S261636AbUJaOxU (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 31 Oct 2004 09:53:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbUJaOqp
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbUJaOqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 09:46:45 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:43695 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S261639AbUJaOpc
+	Sun, 31 Oct 2004 09:46:19 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:12725 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S261638AbUJaOp3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 09:45:32 -0500
-Date: Sun, 31 Oct 2004 15:44:54 +0100
+	Sun, 31 Oct 2004 09:45:29 -0500
+Date: Sun, 31 Oct 2004 15:45:10 +0100
 From: maximilian attems <janitor@sternwelten.at>
 To: Jeff Garzik <jgarzik@pobox.com>
 Cc: Margit Schubert-While <margitsw@t-online.de>,
@@ -17,8 +17,8 @@ Cc: Margit Schubert-While <margitsw@t-online.de>,
        mcgrof@studorgs.rutgers.edu, kernel-janitors@lists.osdl.org,
        netdev@oss.sgi.com, Domen Puncer <domen@coderock.org>,
        linux-kernel@vger.kernel.org
-Subject: [patch 3/6] sx8 remove duplicate definition msleep(), msecs_to_jiffies()
-Message-ID: <20041031144454.GD28667@stro.at>
+Subject: [patch 5/6] sata_promise remove duplicate msleep() definition
+Message-ID: <20041031144510.GF28667@stro.at>
 Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
 	Margit Schubert-While <margitsw@t-online.de>,
 	Nishanth Aravamudan <nacc@us.ibm.com>, hvr@gnu.org,
@@ -34,40 +34,27 @@ User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-
-remove duplicate definition msleep(), msecs_to_jiffies().
-delay.h already included.
+remove now duplicate define.
+driver already includes delay.
 
 Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
 
 ---
 
- linux-2.4.28-rc1-max/drivers/block/sx8.c |   11 -----------
- 1 files changed, 11 deletions(-)
+ linux-2.4.28-rc1-max/drivers/scsi/sata_promise.c |    2 --
+ 1 files changed, 2 deletions(-)
 
-diff -puN drivers/block/sx8.c~remove-msleep+msecs_to_jiffies-drivers_block_sx8 drivers/block/sx8.c
---- linux-2.4.28-rc1/drivers/block/sx8.c~remove-msleep+msecs_to_jiffies-drivers_block_sx8	2004-10-31 13:37:56.000000000 +0100
-+++ linux-2.4.28-rc1-max/drivers/block/sx8.c	2004-10-31 13:38:56.000000000 +0100
-@@ -548,17 +548,6 @@ static int carm_bdev_ioctl(struct inode 
- 	return -EOPNOTSUPP;
- }
+diff -puN drivers/scsi/sata_promise.c~remove-msleep-drivers_scsi_sata_promise drivers/scsi/sata_promise.c
+--- linux-2.4.28-rc1/drivers/scsi/sata_promise.c~remove-msleep-drivers_scsi_sata_promise	2004-10-31 13:59:39.000000000 +0100
++++ linux-2.4.28-rc1-max/drivers/scsi/sata_promise.c	2004-10-31 14:00:12.000000000 +0100
+@@ -42,8 +42,6 @@
+ #define DRV_NAME	"sata_promise"
+ #define DRV_VERSION	"1.00"
  
--static inline unsigned long msecs_to_jiffies(unsigned long msecs)
--{
--	return ((HZ * msecs + 999) / 1000);
--}
+-#define msleep libata_msleep	/* 2.4-specific */
 -
--static void msleep(unsigned long msecs)
--{
--	set_current_state(TASK_UNINTERRUPTIBLE);
--	schedule_timeout(msecs_to_jiffies(msecs) + 1);
--}
--
- static const u32 msg_sizes[] = { 32, 64, 128, CARM_MSG_SIZE };
- 
- static inline int carm_lookup_bucket(u32 msg_size)
+ enum {
+ 	PDC_PKT_SUBMIT		= 0x40, /* Command packet pointer addr */
+ 	PDC_INT_SEQMASK		= 0x40,	/* Mask of asserted SEQ INTs */
 _
-

@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263815AbTHWROf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 13:14:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbTHWROe
+	id S264390AbTHWRIx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 13:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbTHWRIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 13:14:34 -0400
-Received: from trained-monkey.org ([209.217.122.11]:16658 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP id S264399AbTHWRLH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 13:11:07 -0400
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: "David S. Miller" <davem@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       zaitcev@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RFC: kills consistent_dma_mask
-References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
-	<20030818111522.A12835@devserv.devel.redhat.com>
-	<m33cfyt3x6.fsf@trained-monkey.org>
-	<1061298438.30566.29.camel@dhcp23.swansea.linux.org.uk>
-	<20030819095547.2bf549e3.davem@redhat.com>
-	<m34r0dwfrr.fsf@defiant.pm.waw.pl> <m38ypl29i4.fsf@defiant.pm.waw.pl>
-From: Jes Sorensen <jes@trained-monkey.org>
-Date: 23 Aug 2003 13:11:00 -0400
-In-Reply-To: <m38ypl29i4.fsf@defiant.pm.waw.pl>
-Message-ID: <m3isoo2taz.fsf@trained-monkey.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	Sat, 23 Aug 2003 13:08:51 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27652 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264388AbTHWRIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 13:08:22 -0400
+Date: Sat, 23 Aug 2003 18:08:15 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: PCI PM & compatibility
+Message-ID: <20030823180815.A1158@flint.arm.linux.org.uk>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1061649597.780.4.camel@gaston>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1061649597.780.4.camel@gaston>; from benh@kernel.crashing.org on Sat, Aug 23, 2003 at 04:39:57PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Krzysztof" == Krzysztof Halasa <khc@pm.waw.pl> writes:
+On Sat, Aug 23, 2003 at 04:39:57PM +0200, Benjamin Herrenschmidt wrote:
+> What about this patch to stay compatible with existing drivers
+> implementing everything in save_state ?
 
-Krzysztof> I think we should do it the following way: - adding
-Krzysztof> pci_alloc_consistent_mask(..., u64 mask),
-Krzysztof> pci_map_*_mask(..., mask) and DMA API friends - adding a
-Krzysztof> routine checking if a mask is valid on given system -
-Krzysztof> renaming existing routines to *_nomask and aliasing old
-Krzysztof> names to them.
+And why are we now suspending device parents before their siblings???
 
-I don't like this approach as I mentioned before. IMHO it is adding
-unnecessary overhead to the runtime point. Why should one pass in the
-mask 5 times when it is enough to use pci_set_consistent_dma_mask
-etc. For the consistent allocations it's just a nuisance however if
-you add this to pci_map_*() then it's going to add real overhead to
-the hot paths of drivers which is just plain wrong.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-I still haven't seen a strong argument for the current API being
-insufficient. Alan mentioned one device causing the problem with
-multiple consistent masks, but are there many more device like that
-out there?
-
-Jes

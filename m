@@ -1,67 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131661AbRAPQyk>; Tue, 16 Jan 2001 11:54:40 -0500
+	id <S130225AbRAPQ4U>; Tue, 16 Jan 2001 11:56:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131745AbRAPQya>; Tue, 16 Jan 2001 11:54:30 -0500
-Received: from host194.steeleye.com ([216.33.1.194]:56071 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S131661AbRAPQyX>; Tue, 16 Jan 2001 11:54:23 -0500
-Message-Id: <200101161653.f0GGrl101735@aslan.sc.steeleye.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Venkatesh Ramamurthy <Venkateshr@ami.com>
-cc: "'arjan@fenrus.demon.nl'" <arjan@fenrus.demon.nl>,
-        linux-kernel@vger.kernel.org,
-        "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
-Subject: Re: Linux not adhering to BIOS Drive boot order? 
-In-Reply-To: Message from Venkatesh Ramamurthy <Venkateshr@ami.com> 
-   of "Tue, 16 Jan 2001 11:31:25 EST." <1355693A51C0D211B55A00105ACCFE64E9518F@ATL_MS1> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 16 Jan 2001 11:53:47 -0500
-From: Eddie Williams <Eddie.Williams@steeleye.com>
+	id <S132023AbRAPQ4K>; Tue, 16 Jan 2001 11:56:10 -0500
+Received: from mail2.megatrends.com ([155.229.80.11]:56080 "EHLO
+	mail2.megatrends.com") by vger.kernel.org with ESMTP
+	id <S130423AbRAPQ4A>; Tue, 16 Jan 2001 11:56:00 -0500
+Message-ID: <1355693A51C0D211B55A00105ACCFE64E95193@ATL_MS1>
+From: Venkatesh Ramamurthy <Venkateshr@ami.com>
+To: "'Douglas Gilbert'" <dougg@torque.net>,
+        Venkatesh Ramamurthy <Venkateshr@ami.com>
+Cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Linux not adhering to BIOS Drive boot order?
+Date: Tue, 16 Jan 2001 11:51:38 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Why is this a SCSI ML problem?  The problem is that the OS can't figure out 
-where to mount root from.  Sounds like an OS problem.
-
-I think the file system label is the leading candidate to solve this.  One 
-really does not care if the root disk is called /dev/sda or /dev/fred.  All 
-one cares is that you can boot your system and the right disks are mounted.  
-What I have seen so far with the fs label this either does solve this today or 
-it can solve this.  I notice today on some systems the entries in /etc/fstab 
-already are "deviceless" in that it does not have the disk/partition but 
-simply the disk label.
-
-Can lilo use a label for the root disk also?  I have not looked into that yet. 
- If it does not can it?  When I noticed the use of the label in /etc/fstab my 
-first thought was "alright, someone is solving this problem."  I have not 
-taken the time - not a burning issue with me right now - to see if this is all 
-done yet though.
-
-Keep in mind that the example where /dev/sda is where root lies is that "easy" 
-case.  The hard case is what happens if someone installs on /dev/sdg.  Now 
-they boot up with a disk array turned off.  Is the mid-layer going to figure 
-out that what is now /dev/sda suppose to be /dev/sdg?  Or they install to 
-/dev/sdb and /dev/sda goes bad so they pull it out?
-
-Eddie 
-> > In article <1355693A51C0D211B55A00105ACCFE64E9518C@ATL_MS1> you wrote:
-> > 
-> > > we need some kind of signature being written in the drive, which the
-> > kernel
-> > > will use for determining the boot drive and later re-order drives, if
-> > > required.
-> > 
-> > Like the ext2 labels? (man e2label)
-> 	[Venkatesh Ramamurthy]  This re-ordering of the scsi drives should
-> be done by SCSI ML , so is incorporating ext2 fs data structure knowledge on
-> the SCSI ML a good idea?. 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
+> The scsi host numbers will be allocated to the HBAs in 
+> the order shown starting at 0. This method does not
+> distinguish between the two advansys controllers, luckily
+> swapping their positions on the PCI bus does.
+	[Venkatesh Ramamurthy]  Just think an end-user fuguring out this!!!!
+Asking him to change PCI slots and trying it out. My point is the end user
+should not worry about all this. All he does is plugs a new different/ same
+type of card, and gets it going. Why should the linux kernel force the user
+to change the PCI slots. Will this not make it more user - unfriendly
 
 
 -

@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbTDKRFi (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 13:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbTDKRFi (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 13:05:38 -0400
-Received: from smtp807.mail.sc5.yahoo.com ([66.163.168.186]:61990 "HELO
-	smtp807.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261351AbTDKRFg (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 13:05:36 -0400
-From: Bob Johnson <livewire@gentoo.org>
-Reply-To: livewire@gentoo.org
-To: Con Kolivas <kernel@kolivas.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-ck5
-Date: Fri, 11 Apr 2003 12:12:16 -0500
-User-Agent: KMail/1.5.1
-References: <3E96D711.70404@comcast.net> <200304111146.00283.livewire@gentoo.org> <200304120258.49892.kernel@kolivas.org>
-In-Reply-To: <200304120258.49892.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Description: clearsigned data
+	id S261366AbTDKRIU (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 13:08:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbTDKRIS (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 13:08:18 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:46026 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261360AbTDKRII (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 13:08:08 -0400
+Date: Fri, 11 Apr 2003 10:21:57 -0700
+From: Greg KH <greg@kroah.com>
+To: Jeremy Jackson <jerj@coplanar.net>
+Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: [ANNOUNCE] udev 0.1 release
+Message-ID: <20030411172157.GB1821@kroah.com>
+References: <20030411032424.GA3688@kroah.com> <1050081047.1252.4.camel@contact.skynet.coplanar.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304111212.22362.livewire@gentoo.org>
+In-Reply-To: <1050081047.1252.4.camel@contact.skynet.coplanar.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Apr 11, 2003 at 01:10:47PM -0400, Jeremy Jackson wrote:
+> What about read-only root fs?
 
- I used the full ck5 patch, so it contains xfs.
-I just booted ck5 using the rmap15e patch.
+Make /dev a ramfs partition.
 
-			Bob
-On Friday 11 April 2003 11:58 am, Con Kolivas wrote:
-> On Sat, 12 Apr 2003 02:45, Bob Johnson wrote:
-> > I had almost same experience,  not using xfs here.
->
-> Did you have it patched in?
->
-> Con
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+> What about the root= kernel command line ever working?
 
-iD8DBQE+lvdyxJgsCy9JAX0RAuZwAKCBXFNmEezfw74DNikxGxnUntCL+gCfclCf
-9rW5d3Vu+N8/NrcvOYOmpkY=
-=RA78
------END PGP SIGNATURE-----
+See next answer.
 
+> What about initrd issues?
+
+You mean initramfs, right?  :)
+I wrote this in C for it to go into initramfs so that it would get
+called at device discovery early in the boot process so that the root=
+issue would work transparently.
+
+thanks,
+
+greg k-h

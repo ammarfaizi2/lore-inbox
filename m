@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261329AbTHSTXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 15:23:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbTHSTWe
+	id S261236AbTHSTPr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 15:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbTHSTPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 15:22:34 -0400
-Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:36049
-	"EHLO bastard") by vger.kernel.org with ESMTP id S261305AbTHSTTl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 15:19:41 -0400
-Message-ID: <3F427838.60600@tupshin.com>
-Date: Tue, 19 Aug 2003 12:19:20 -0700
-From: Tupshin Harper <tupshin@tupshin.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030813 Thunderbird/0.2a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS regression in 2.6
-References: <3F4268C1.9040608@redhat.com> <3F427122.9040408@redhat.com>
-In-Reply-To: <3F427122.9040408@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 19 Aug 2003 15:15:33 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:22678 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261332AbTHSTKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 15:10:15 -0400
+Subject: RE: [2.4 PATCH] bugfix: ARP respond on all devices
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Richard Underwood <richard@aspectgroup.co.uk>
+Cc: "'David S. Miller'" <davem@redhat.com>,
+       Stephan von Krawczynski <skraw@ithnet.com>, willy@w.ods.org,
+       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
+       bloemsaa@xs4all.nl, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
+       torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <353568DCBAE06148B70767C1B1A93E625EAB58@post.pc.aspectgroup.co.uk>
+References: <353568DCBAE06148B70767C1B1A93E625EAB58@post.pc.aspectgroup.co.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1061320099.30567.55.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 19 Aug 2003 20:08:20 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
+On Maw, 2003-08-19 at 15:34, Richard Underwood wrote:
+> # arp -d 172.24.0.80
+> # ping -I 172.20.240.2 172.24.0.80
+> 
+> 	I see:
+> 
+> 16:18:40.856328 arp who-has 172.24.0.80 tell 172.20.240.2
+> 16:18:40.856431 arp reply 172.24.0.80 is-at 0:50:da:44:f:37
 
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
->
->Ulrich Drepper wrote:
->
->  
->
->>Go into a directory mounted via NFS.  You need write access.  Then
->>execute this little program:
->>    
->>
->
->Just to be clear: the client is running 2.6.  The server in my case runs
->a 2.4 kernel.
->
-Duplicated here. Same symptoms with a 2.6.0-test3 server. Works with 2.4 
-client, breaks with 2.6 client.
+Fine
 
--Tupshin
+> 	But if I was to do this in the other direction (arp -d 172.20.240.1;
+> ping -I 172.24.0.1 172.20.240.1) then I'd lose connectivity over my default
+> route because 172.20.240.1 won't accept ARP packets from IP numbers not on
+> the connected subnet. The <incomplete> ARP entry will block any further ARP
+> requests from valid IP numbers.
+
+One thing I agree with you about is that an ARP resolution for an
+address via one path should not block a resolution for it by another
+path since to begin with the two paths may be to different routers
+one of which is down.
 

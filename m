@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284336AbRLGTOi>; Fri, 7 Dec 2001 14:14:38 -0500
+	id <S285475AbRLGTSS>; Fri, 7 Dec 2001 14:18:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285471AbRLGTO2>; Fri, 7 Dec 2001 14:14:28 -0500
-Received: from c842c.nat.may.ka0.zugschlus.de ([212.126.200.66]:63497 "EHLO
-	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
-	id <S284336AbRLGTOV>; Fri, 7 Dec 2001 14:14:21 -0500
-Date: Fri, 7 Dec 2001 20:14:20 +0100
-From: Marc Haber <mh+linux-kernel@zugschlus.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.16, 8139too not loadable as a module - unresolved symbols
-Message-ID: <20011207201420.B27154@torres.ka0.zugschlus.de>
-In-Reply-To: <20011127150800.A25438@torres.ka0.zugschlus.de> <1006903886.1285.2.camel@marek.almaran.home> <20011128083950.A30510@torres.ka0.zugschlus.de>
-Mime-Version: 1.0
+	id <S285474AbRLGTSI>; Fri, 7 Dec 2001 14:18:08 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:33031 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S285467AbRLGTRy>; Fri, 7 Dec 2001 14:17:54 -0500
+Message-ID: <3C1115CD.FD2858EC@linux-m68k.org>
+Date: Fri, 07 Dec 2001 20:17:33 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Rene Rebe <rene.rebe@gmx.net>, linux-kernel@vger.kernel.org,
+        alsa-devel@lists.sourceforge.net
+Subject: Re: devfs unable to handle permission: 2.4.17-pre[4,5] 
+ /ALSA-0.9.0beta[9,10]
+In-Reply-To: <200112070609.fB769Eo08508@vindaloo.ras.ucalgary.ca>
+		<Pine.LNX.4.33.0112071617440.2935-100000@serv> <200112071559.fB7FxwR14021@vindaloo.ras.ucalgary.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011128083950.A30510@torres.ka0.zugschlus.de>; from mh+linux-kernel@zugschlus.de on Wed, Nov 28, 2001 at 08:39:50AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 28, 2001 at 08:39:50AM +0100, Marc Haber wrote:
-> I am using Debian's kernel-package [1], and did the usual procedure for
-> both kernels, that I usually do:
-> make-kpkg clean
-> make-kpkg --revision=3:today.0 build
-> fakeroot debian/rules kernel-image-deb
-> 
-> This procedure has resulted in a useable kernel .deb package for the
-> last 18 months, and has resulted in a useable kernel .deb package for
-> 2.4.16 with non-modularized 8139too.
+Hi,
 
-Just for the record, my fault was not having modutils installed when I
-built the kernel in a chroot. The kernel-image-deb step threw an
-error, so I installed modutils and repeated that step which resulted
-in an unuseable kernel.
+Richard Gooch wrote:
 
-A more in-depth investigation showed that the missing modutils had an
-influence on the kernel build process that did not make it fail.
-Repeating the whole process starting with the first step with modutils
-installed resulted in a kernel with useable 8139too driver.
+> Well, no, it was never a valid option. It was always a bug. In any
+> case, the stricter behaviour isn't preventing people from using their
+> drivers, it's just issuing a warning. The user-space created device
+> node still works.
 
-Greetings
-Marc
+But the driver doesn't. You changed the driver API in subtle way! You
+cannot change the behaviour of devfs_register during 2.4. Do whatever
+you want in 2.5, but drivers depend on the current behaviour and devfs
+has to be fixed not these drivers.
 
--- 
------------------------------------------------------------------------------
-Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
-Karlsruhe, Germany |  lose things."    Winona Ryder | Fon: *49 721 966 32 15
-Nordisch by Nature |  How to make an American Quilt | Fax: *49 721 966 31 29
+bye, Roman

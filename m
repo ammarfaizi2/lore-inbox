@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266939AbTCDUvy>; Tue, 4 Mar 2003 15:51:54 -0500
+	id <S266886AbTCDUuS>; Tue, 4 Mar 2003 15:50:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266948AbTCDUvy>; Tue, 4 Mar 2003 15:51:54 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:53718 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S266939AbTCDUvx>;
-	Tue, 4 Mar 2003 15:51:53 -0500
-Message-ID: <3E651456.1050808@colorfullife.com>
-Date: Tue, 04 Mar 2003 22:02:14 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	id <S266932AbTCDUuS>; Tue, 4 Mar 2003 15:50:18 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:39314 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266886AbTCDUuR>;
+	Tue, 4 Mar 2003 15:50:17 -0500
+Date: Tue, 4 Mar 2003 14:36:51 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Pavel Machek <pavel@ucw.cz>
+cc: Nigel Cunningham <ncunningham@clear.net.nz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SWSUSP Discontiguous pagedir patch
+In-Reply-To: <20030303123029.GC20929@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.33.0303041434220.1438-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: no_spam@ntlworld.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kill_fasync usage
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SA wrote:
 
->I wnat to use kill_fasync(struct fasync_struct *PTR,...) to notify userland of 
->events.  Can I just call kill_fasync regardless of the state of PTR or does 
->PTR actually have to point to something valid.  
->  
->
-kill_fasync receives the _address_ of the variable that contains the 
-list of processes that need notifications. It must not be NULL. (I 
-assume you look at 2.4 or 2.5 - 2.2 had a different interface)
+> > > --- linux-2.5.63/arch/i386/kernel/suspend.c	2003-02-20 08:25:26.000000000 +1300
+> > > +++ linux-2.5.63-01/arch/i386/kernel/suspend.c	2003-02-20 08:27:36.000000000 +1300
+> > 
+> > Thank you for putting this back in C, it's much appreciated. 
+> 
+> Actually, it can not be put back in C. Manipulating stack pointer from
+> gcc inline assembly is just undefined. Its back in C so we can edit
+> it, but it needs to get back to assembly before merging with Linus.
 
-Check linux/drivers/char/busmouse.c for an example, the interface is 
-simple: call fasync_helper to register and kill_fasync for the actual 
-notification.
+Noted. I'll convert it back. 
 
---
-    Manfred
+
+> > This is better done as 
+> > 
+> > 	for (loop = 0; loop < nr_copy_pagse; loop++) {
+> > 		memcpy((char *)pagedir_nosave[loop].orig_address,
+> > 		       (char *)pagedir_nosave[loop].address,
+> > 		       PAGE_SIZE);
+> > 		__flush_tlb();
+> > 	}
+> 
+> Hehe, try it.
+> 
+> You may not do function call at this point, because you are
+> overwriting your stack. See mails with Andi Kleen. This *needs* to be
+> in assembly. 
+
+memcpy() is inlined, at least on x86, and it seems to work fine for me
+here. Besides, even if memcpy is not safe, you could at least copy 4 bytes
+at a time. ;)
+
+	-pat
 

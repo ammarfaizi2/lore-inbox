@@ -1,57 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268684AbUHTTZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268683AbUHTT1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268684AbUHTTZl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 15:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268683AbUHTTZl
+	id S268683AbUHTT1J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 15:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268688AbUHTT0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 15:25:41 -0400
-Received: from herkules.viasys.com ([194.100.28.129]:10941 "HELO
-	mail.viasys.com") by vger.kernel.org with SMTP id S268662AbUHTTZY
+	Fri, 20 Aug 2004 15:26:00 -0400
+Received: from ctb-mesg1.saix.net ([196.25.240.73]:21178 "EHLO
+	ctb-mesg1.saix.net") by vger.kernel.org with ESMTP id S268681AbUHTTZa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 15:25:24 -0400
-Date: Fri, 20 Aug 2004 22:25:18 +0300
-From: Ville Herva <vherva@viasys.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: petr@vandrovec.name, linux-kernel@vger.kernel.org,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: 2.6.8.1-mm2 breaks vmware
-Message-ID: <20040820192518.GK23741@viasys.com>
-Reply-To: vherva@viasys.com
-References: <20040820104230.GH23741@viasys.com> <20040820035142.3bcdb1cb.akpm@osdl.org> <20040820131825.GI23741@viasys.com> <20040820144304.GF8307@viasys.com> <20040820151621.GJ23741@viasys.com> <20040820114518.49a65b69.akpm@osdl.org>
+	Fri, 20 Aug 2004 15:25:30 -0400
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       kernel@wildsau.enemy.org, fsteiner-mail@bio.ifi.lmu.de,
+       diablod3@gmail.com, B.Zolnierkiewicz@elka.pw.edu.pl
+In-Reply-To: <4125FFA2.nail8LD61HFT4@burner>
+References: <200408041233.i74CX93f009939@wildsau.enemy.org>
+	 <4124BA10.6060602@bio.ifi.lmu.de>
+	 <1092925942.28353.5.camel@localhost.localdomain>
+	 <200408191800.56581.bzolnier@elka.pw.edu.pl>
+	 <4124D042.nail85A1E3BQ6@burner>
+	 <1092938348.28370.19.camel@localhost.localdomain>
+	 <4125FFA2.nail8LD61HFT4@burner>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-z1ToBhg6HWg0nqhYPXBW"
+Message-Id: <1093030136.8998.72.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040820114518.49a65b69.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux herkules.viasys.com 2.4.27
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 20 Aug 2004 21:28:56 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 20, 2004 at 11:45:18AM -0700, you [Andrew Morton] wrote:
-> > 
-> >  Ok, 2.6.8.1-mm2 minus dev-mem-restriction-patch.patch fixes the "cannot
-> >  allocate memory" problem. 
-> 
-> Thanks for working that out.
 
-No problem. (If only compile-reboot-startx-launch vmware was faster on my
-computer...)
- 
-> >   vmmon: Your kernel is br0ken. get_user_pages(current, current->mm, b7dd1000, 1, 1, 0, &page, NULL) returned -14.
-> >   vmmon: I'll try accessing page tables directly, but you should know that your
-> >   vmmon: kernel is br0ken and you should uninstall all additional patches you vmmon: have installed!
-> >   vmmon: FYI, copy_from_user(b7dd1000) returns 0 (if not 0 maybe your kernel is not br0ken)
-> > 
-> >  I'm still not 100% which of the patches causes that get_user_pages()
-> >  warning.
-> 
-> If you could work that out sometime, it would help.
+--=-z1ToBhg6HWg0nqhYPXBW
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I'll try to do that as soon as I find time.
+On Fri, 2004-08-20 at 15:41, Joerg Schilling wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>=20
+> > On Iau, 2004-08-19 at 17:07, Joerg Schilling wrote:
+> > > Cdrtools is is code freeze state. This is why I say the best idea is =
+to remove=20
+> > > this interface change from the current Linux kernel and wait until th=
+ere will
+> > > be new cdrtools alpha for 2.02 releases. These alpha could get suppor=
+t for uid
+> > > switching. If Linux then would again switch the changes on, it makes =
+sense.
+> >
+> > While Sun did spend a year refusing to fix security holes I found -  fo=
+r
+> > "compatibility reasons" - long ago back when I was a sysadmin at NTL,
+> > the Linux world does not work that way.
+>=20
+> Unless you tell us what kind of "security holes" you found _and_ when thi=
+s has=20
+> been, it looks like a meaningless remark.
+>=20
+
+But this is the same kind of remarks you make - statements without
+proof (the ones you also did not explain, and explicitly refuse to
+explain or give a pointer to) - so I assume we should also consider
+them as meaningless ?
 
 
+--=20
+Martin Schlemmer
 
--- v -- 
+--=-z1ToBhg6HWg0nqhYPXBW
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-v@iki.fi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBJlD4qburzKaJYLYRAoysAJ9+g5I2Piq2PrIDKpm9G6qk7ioZMQCdGx05
+j7944444Chk8BazMIZk3J7c=
+=JcZ9
+-----END PGP SIGNATURE-----
+
+--=-z1ToBhg6HWg0nqhYPXBW--
 

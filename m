@@ -1,99 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267072AbTAZXnX>; Sun, 26 Jan 2003 18:43:23 -0500
+	id <S267078AbTAZXrt>; Sun, 26 Jan 2003 18:47:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267079AbTAZXnX>; Sun, 26 Jan 2003 18:43:23 -0500
-Received: from B5784.pppool.de ([213.7.87.132]:15251 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S267072AbTAZXnV>; Sun, 26 Jan 2003 18:43:21 -0500
-Subject: Re: any brand recomendation for a linux laptop ?
-From: Daniel Egger <degger@fhm.edu>
-To: Gianni Tedesco <gianni@ecsc.co.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1043427661.28761.16.camel@lemsip>
-References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>
-	 <20030116104154.GL25246@pegasys.ws> <3E26BE43.6000406@walrond.org>
-	 <20030116144045.GC30736@work.bitmover.com>
-	 <20030116153727.GA27441@lug-owl.de>  <1042733652.18213.35.camel@sonja>
-	 <1042820273.8935.2.camel@lemsip>  <1042886952.24291.15.camel@sonja>
-	 <1043427661.28761.16.camel@lemsip>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7ir16DAleeI1r+UhsA1l"
-Organization: 
-Message-Id: <1043623577.22621.14.camel@sonja>
+	id <S267079AbTAZXrt>; Sun, 26 Jan 2003 18:47:49 -0500
+Received: from 203-79-122-66.cable.paradise.net.nz ([203.79.122.66]:33284 "EHLO
+	ruru.local") by vger.kernel.org with ESMTP id <S267078AbTAZXrs>;
+	Sun, 26 Jan 2003 18:47:48 -0500
+Date: Mon, 27 Jan 2003 12:55:56 +1300
+From: Volker Kuhlmann <list0570@paradise.net.nz>
+To: linux-kernel@vger.kernel.org
+Subject: isofs hardlink bug (inode numbers different)
+Message-ID: <20030126235556.GA5560@paradise.net.nz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 27 Jan 2003 00:26:18 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am trying to back up directory trees on CD, preserving hard links.
+newer versions of mkisofs are supposedly able to do this, but although
+the data is written to the isofs only once, the resulting directory
+entries have differing inode numbers thus making restore operations
+impossible.
 
---=-7ir16DAleeI1r+UhsA1l
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+When I sent a bug report to the author of mkisofs, Jörg Schilling, I
+got the reply
 
-Am Fre, 2003-01-24 um 18.01 schrieb Gianni Tedesco:
+>>mkisofs 2.01a01 (i686-pc-linux-gnu)
+>>mkisofs 2.0 (i686-pc-linux-gnu)
+>>mkisofs 1.15a27 (i686-suse-linux)
+>
+>>Google shows no reference to anything which tells me that this is not
+>>supposed to work, therefore I assume it's a bug.
+>
+>Nachdenken hilft wie in vielen Fällen auch hier:
+>
+>Der Bug auch hier ist da, wo es wegen schlechter SW Qualität wahrscheinlicher
+>ist: Im Linux Kernel.
 
-> heh, i cant even compile 2.5 due to old binutils in yd2.3 :P
+(Translation: thinking helps here too, like in many other cases: the bug
+is in the linux kernel, where it is more likely to be due to lower
+software quality.)
 
-Get a decent distribution. :)
+Insults aside, is it true that the kernel's isofs can't produce correct
+inode numbers for hardlinked files? If that is the case it would
+somewhat reduce the usefulness of isofs for backups.
 
-> > What CPU does it have (post /proc/cpuinfo).
-> cpu             : 7455, altivec supported
-> clock           : 667MHz
-> revision        : 2.1 (pvr 8001 0201)
-> bogomips        : 665.19
-> machine         : PowerBook3,4
-> motherboard     : PowerBook3,4 MacRISC2 MacRISC Power Macintosh
-> detected as     : 73 (PowerBook Titanium III)
-> pmac flags      : 00000003
-> L2 cache        : 256K unified
-> memory          : 512MB
-> pmac-generation : NewWorld
+Volker
 
-2.4.20-benh1 doesn't know about this version of the cpu.
-
-> > What clocks does it support according to /proc/cpufreq?
->           minimum CPU frequency  -  maximum CPU frequency  -  policy
-> CPU  0       667000 kHz (100 %)  -     667000 kHz (100 %)  -  powersave
-
-Strange. Either the kernel couldn't find the allowed frequencies for
-scaling or the cpu doesn't support it.
-
-> I appear to get nothing like this, if i pull my power out with a full
-> battery the PMU says I have 152 mins of battery power (which seems about
-> right).
-
-152 is nothing....
-
-> The whole of the laptop is warm, esp. around the CPU which is hot to the
-> touch all the time, even when the CPU is idling.
-
-This is not normal. Since the kernel doesn't know either the usable
-frequencies, your version of the cpu and no doze mode is available
-for this type, your energy savings are almost nil at the moment and this
-should definitely be rectified. I cannot imagine Apple built a CPU into
-a PowerBook which doesn't support some kind of throttling, because it
-would kill their statement under their OS, too.
-
-Unfortunately I'll have a whole bunch of nasty tests the following week
-and thus cannot check back with the manuals at the moment; feel free to
-send me a reminder in a week or so.
-
---=20
-Servus,
-       Daniel
-
---=-7ir16DAleeI1r+UhsA1l
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+NG6Zchlzsq9KoIYRAg2FAKCqKpd/qhmtWt+5O9p3cV6YAs2OxgCeMkNs
-7egKVFnjirkzrSNVewz3VGE=
-=t+CH
------END PGP SIGNATURE-----
-
---=-7ir16DAleeI1r+UhsA1l--
+-- 
+Volker Kuhlmann			is possibly list0570 with the domain in header
+http://volker.dnsalias.net/		Please do not CC list postings to me.
 

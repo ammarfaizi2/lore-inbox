@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129415AbRAIONG>; Tue, 9 Jan 2001 09:13:06 -0500
+	id <S131135AbRAIOO0>; Tue, 9 Jan 2001 09:14:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129562AbRAIOMr>; Tue, 9 Jan 2001 09:12:47 -0500
-Received: from herrmann.cherheim.etc.tu-bs.de ([134.169.88.65]:29708 "EHLO
-	herrmann.cherheim.etc.tu-bs.de") by vger.kernel.org with ESMTP
-	id <S129415AbRAIOMl>; Tue, 9 Jan 2001 09:12:41 -0500
-Message-ID: <3A5B1C57.54A225DC@tu-bs.de>
-Date: Tue, 09 Jan 2001 15:12:39 +0100
-From: Felix Maibaum <f.maibaum@tu-bs.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en
+	id <S131156AbRAIOOQ>; Tue, 9 Jan 2001 09:14:16 -0500
+Received: from [216.151.155.116] ([216.151.155.116]:16659 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S131135AbRAIOON>; Tue, 9 Jan 2001 09:14:13 -0500
+To: linux-kernel@vger.kernel.org
+Cc: shane@agendacomputing.com
+Subject: Re: [PATCH] cramfs is ro only, so honour this in inode->mode
+In-Reply-To: <200101091116.f09BGN7281436@saturn.cs.uml.edu>
+From: Doug McNaught <doug@wireboard.com>
+Date: 09 Jan 2001 09:14:10 -0500
+In-Reply-To: "Albert D. Cahalan"'s message of "Tue, 9 Jan 2001 06:16:23 -0500 (EST)"
+Message-ID: <m37l44ert9.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-To: nils@fht-esslingen.de
-CC: linux <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0 bug in SHM an via-rhine or is it my fault?
-In-Reply-To: <Pine.LNX.4.30.0101091457330.8600-100000@rhlx01.fht-esslingen.de>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nils Philippsen wrote:
+"Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
 
-> reboot the machine or "echo 2097152 > /proc/sys/kernel/shmall".
+> Shane Nay writes:
+> 
+> > but the bits are useless in the "normal interpretation" of it,
+> ...
+> > But then you pull out the write bits,
+> 
+> If you need to steal a bit, grab one that won't hurt.
+> Take the owner's read bit. (owner may read own files)
 
-now thats what I call a quick response, thanks, it did the trick.
+Er,
 
+bash-2.03$ cd /tmp
+bash-2.03$ cat >foo
+This is a test.
+bash-2.03$ chmod u-r foo
+bash-2.03$ cat foo
+cat: foo: Permission denied
+bash-2.03$ ls -l foo
+--w-r--r--    1 doug     doug           16 Jan  9 09:16 foo
+bash-2.03$ 
+
+This is Linux 2.4.0.
+
+-Doug
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

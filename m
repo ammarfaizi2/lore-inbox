@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317664AbSHHRFt>; Thu, 8 Aug 2002 13:05:49 -0400
+	id <S317661AbSHHRE4>; Thu, 8 Aug 2002 13:04:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317667AbSHHRFt>; Thu, 8 Aug 2002 13:05:49 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:22022 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317664AbSHHRFb>;
-	Thu, 8 Aug 2002 13:05:31 -0400
-Date: Thu, 8 Aug 2002 10:06:11 -0700
-From: Greg KH <greg@kroah.com>
-To: Scott Murray <scottm@somanetworks.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: PCI hotplug resource reservation
-Message-ID: <20020808170611.GA21821@kroah.com>
-References: <Pine.LNX.4.33.0208061714560.16357-100000@rancor.yyz.somanetworks.com>
+	id <S317662AbSHHRE4>; Thu, 8 Aug 2002 13:04:56 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:53731 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S317661AbSHHREz>;
+	Thu, 8 Aug 2002 13:04:55 -0400
+Date: Thu, 8 Aug 2002 10:08:24 -0700
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+       jmacd@namesys.com, phillips@arcor.de, rml@tech9.net
+Subject: Re: [PATCH] lock assertion macros for 2.5.30
+Message-ID: <20020808170824.GA29468@sgi.com>
+Mail-Followup-To: Jens Axboe <axboe@suse.de>,
+	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+	jmacd@namesys.com, phillips@arcor.de, rml@tech9.net
+References: <20020807205134.GA27013@sgi.com> <Pine.LNX.4.44L.0208071758280.23404-100000@imladris.surriel.com> <20020807210855.GA27182@sgi.com> <20020808060045.GM2243@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0208061714560.16357-100000@rancor.yyz.somanetworks.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Thu, 11 Jul 2002 16:02:48 -0700
+In-Reply-To: <20020808060045.GM2243@suse.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 06, 2002 at 05:16:30PM -0400, Scott Murray wrote:
-> I've been using this for several weeks now, and it allows me to hot
-> insert new devices quite well.  However, my goal for my CompactPCI work
-> is to get it into the mainline kernel so people can add drivers for
-> other boards and chassis on top of it.  If this resource reservation
-> scheme is too distasteful, or there is indeed a "cleaner" way, I'd
-> really like comments or suggestions before I push on much further.
-
-Hm, now that it looks like this is going to be necessary for cPCI
-hotplug drivers, could you make up a 2.5 version of it?
-
-The code should only be compiled in if CONFIG_HOTPLUG_PCI_CPCI is
-enabled, and hopefully with the splitup of the PCI code in the 2.5 tree,
-you should be able to contain it to one file, much like this patch has.
-
-One small comment:
-
-> @@ -2031,6 +2031,10 @@
->  	struct pci_dev *dev;
+On Thu, Aug 08, 2002 at 08:00:45AM +0200, Jens Axboe wrote:
+> The SCSI ASSERT_LOCK() were never used from kernel space, they are for
+> the user space similator. So it was always single threaded from there
+> and has no bearing on what actual kernel code does.
 > 
->  	pcibios_init();
-> +
-> +#ifdef CONFIG_HOTPLUG_PCI
-> +	pci_hp_reserve_resources();
-> +#endif
+> For MUST_NOT_HOLD to work, you need to take into account which processor
+> took the lock etc.
 
-Move this #ifdef to a header file file, so it doesn't show up in the .c
-file.
+That's the only way it seems to be useful...
 
-thanks,
+> > After I posted the last patch, a few people asked for MUST_NOT_HOLD so
+> > I added it back in.  Do you think it's a bad idea?  See the last
+> 
+> Your current version is surely worthless.
 
-greg k-h
+Agreed.  I'll post another patch that doesn't mess with the scsi
+stuff.  Maybe later I can put together a useful
+'lock-not-held-on-this-cpu' macro.
+
+Thanks,
+Jesse

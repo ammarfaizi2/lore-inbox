@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265059AbUBECEu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 21:04:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265071AbUBECEu
+	id S265111AbUBECUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 21:20:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265149AbUBECUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 21:04:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:35254 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265059AbUBECEr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 21:04:47 -0500
-Date: Wed, 4 Feb 2004 18:04:42 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Keith Mannthey <kmannth@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-Subject: Re: [Bugme-new] [Bug 2019] New: Bug from the mm subsystem involving
- X  (fwd)
-In-Reply-To: <1075946211.13163.18962.camel@dyn318004bld.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.58.0402041800320.2086@home.osdl.org>
-References: <51080000.1075936626@flay> <Pine.LNX.4.58.0402041539470.2086@home.osdl.org>
- <60330000.1075939958@flay> <64260000.1075941399@flay>
- <Pine.LNX.4.58.0402041639420.2086@home.osdl.org> <20040204165620.3d608798.akpm@osdl.org>
-  <Pine.LNX.4.58.0402041719300.2086@home.osdl.org>
- <1075946211.13163.18962.camel@dyn318004bld.beaverton.ibm.com>
+	Wed, 4 Feb 2004 21:20:16 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:14322 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S265111AbUBECUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 21:20:12 -0500
+From: Walt Nelson <wnelsonjr@comcast.net>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: psmouse.c, throwing 3 bytes away
+Date: Wed, 4 Feb 2004 18:20:39 -0800
+User-Agent: KMail/1.6
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402041820.39742.wnelsonjr@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+My mouse has been acting wired occationally, not all the time. I receive the 
+following error in the syslog. This has been happening since 2.6.2-RC3. I am 
+currently using 2.6.2. Are these related?
 
+Feb  4 13:56:02 gumby kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 
+lost synchronization, throwing 3 bytes away.
 
-On Wed, 4 Feb 2004, Keith Mannthey wrote:
-> 
-> Martin sent me a patch that fixed the X panics (NUMA and DISCONTIG
-> enabled).  (Thanks Martin!) I don't have the same X panics and issues I
-> had before. I don't know if this will work for the generic case. It
-> compiles with a simple memory situation just fine but I didn't boot it. 
+The following occurs when starting KDE/X.
+Feb  4 18:05:11 gumby kernel: atkbd.c: Unknown key released (translated set 2, 
+code 0x7a on isa0060/serio0).
+Feb  4 18:05:11 gumby kernel: atkbd.c: This is an XFree86 bug. It shouldn't 
+access hardware directly.
+Feb  4 18:05:11 gumby kernel: atkbd.c: Unknown key released (translated set 2, 
+code 0x7a on isa0060/serio0).
+Feb  4 18:05:11 gumby kernel: atkbd.c: This is an XFree86 bug. It shouldn't 
+access hardware directly.
 
-Looks ok, but the thing should be made a function (possibly inline, 
-depending on how big the code generated ends up being). As it is, it now 
-uses its arguments several times, and while I don't see anything where 
-that could screw up, it's just a tad scary.
+Thanks in advance
 
-Also, related to this whole mess, what the _heck_ is this in mm/rmap.c:
-
-        if (!pfn_valid(page_to_pfn(page)) || PageReserved(page))
-                return pte_chain;
-
-that "pfn_valid(page_to_pfn(page))" just looks totally nonsensical. Can
-somebody really pass in random page pointers to this thing, and if so, are
-they guaranteed to be "not-random enough" to not cause bogus behaviour
-when the "page_to_pfn()" happens to be valid..
-
-If VM_IO gets rid of this, then we should immediately apply the patch.
-
-			Linus
+Walt

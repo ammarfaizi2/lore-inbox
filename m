@@ -1,61 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266337AbUA2Tzi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 14:55:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266350AbUA2Tzi
+	id S266327AbUA2Tv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 14:51:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266337AbUA2Tv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 14:55:38 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:38746 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S266337AbUA2Tzg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 14:55:36 -0500
-Date: Thu, 29 Jan 2004 19:55:41 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Albert Cahalan <albert@users.sourceforge.net>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: SysV shm device number
-In-Reply-To: <1075388721.15653.124.camel@cube>
-Message-ID: <Pine.LNX.4.44.0401291931100.9070-100000@localhost.localdomain>
+	Thu, 29 Jan 2004 14:51:57 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:57094 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266327AbUA2Tvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 14:51:39 -0500
+Date: Thu, 29 Jan 2004 19:51:34 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, <hmallat@cc.hut.fi>,
+       <geert@linux-m68k.org>
+Subject: Re: tdfxfb in linux-2.6 and 1GiB RAM
+In-Reply-To: <20040128161318.5b20d741.vmlinuz386@yahoo.com.ar>
+Message-ID: <Pine.LNX.4.44.0401282255590.31165-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Jan 2004, Albert Cahalan wrote:
-> I'd like to reliably identify SysV shared memory
-> in the /proc/*/maps files. On one system, the entries
-> look like this:
+
+> I can't use frame buffer (tdfxfb) in linux-2.6 with 1GiB of RAM, but yes with 512MiB.
+> (The linux-2.4 works ok, in both cases.)
 > 
-> 40014000-40015000 r--s 00000000 00:04 0          /SYSV00000000 (deleted)
-> 40015000-40016000 rw-s 00000000 00:04 32769      /SYSV000000ff (deleted)
+> HIGHMEM disabled.
+
+Working on a fix. Basically we need to migrate as many drivers as possible 
+to use acceleration and remove the ioremapping code. To do this tho I have 
+to replace the fb_read and fb_write functions with someothing that uses 
+the accel engines. I haven't finished that code yet.
+
+> The another problem is, when boot in low resolution default 640x480 and switch with
+> fbset to 1024x768 for example, it changes ok, but can't draw in all screen, only in a
+> small area of 640x480 located at upper left of screen, the same for all VTs.
+
+Fixed in the fbdev tree. That will be synced up soon.
+
+
+> If you need more info in logs/proc/sysfs please let me know.
 > 
-> On my system, they look like this:
+> the @dmesg (1GiB) appears:
+> fb: Can't remap 3Dfx Voodoo5 register area.
+> tdfxfb: probe of 0000:01:00.0 failed with error -6
 > 
-> 30016000-30017000 r--s 00000000 00:06 870318096  /SYSV00000000\040(deleted)
-> 30017000-30018000 rw-s 00000000 00:06 870350865  /SYSV000000ff\040(deleted)
+> and @dmesg (512MiB):
+> fb: 3Dfx Voodoo5 memory = 32768K
 > 
-> So the key number is in the name, and the shmid
-> number is the inode number. The device major number
-> is 0, and the device minor number is 4 or 6.
+> lspci -vv output:
+> 01:00.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo 4 / Voodoo 5 (rev 01) (prog-if 00 [VGA])
+>         Subsystem: 3Dfx Interactive, Inc.: Unknown device 0004
+>         Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR+
+>         Interrupt: pin A routed to IRQ 11
+>         Region 0: Memory at d0000000 (32-bit, non-prefetchable) [size=128M]
+>         Region 1: Memory at e0000000 (32-bit, prefetchable) [size=128M]
+>         Region 2: I/O ports at c000 [size=256]
+>         Expansion ROM at <unassigned> [disabled] [size=64K]
+>         Capabilities: [54] AGP version 2.0
+>                 Status: RQ=16 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit+ FW- AGP3- Rate=x1,x2
+>                 Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- Rate=<none>
+>         Capabilities: [60] Power Management version 2
+>                 Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+>                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+> 
+> 
+> /proc/iomem (1GiB)
+> 00000000-0009ffff : System RAM
+> 000a0000-000bffff : Video RAM area
+> 000c0000-000c7fff : Video ROM
+> 000f0000-000fffff : System ROM
+> 00100000-1ffeffff : System RAM
+>   00100000-00366df4 : Kernel code
+>   00366df5-0043613f : Kernel data
+> 1fff0000-1fff2fff : ACPI Non-volatile Storage
+> 1fff3000-1fffffff : ACPI Tables
+> d0000000-dfffffff : PCI Bus #01
+>   d0000000-d7ffffff : 0000:01:00.0
+> e0000000-e7ffffff : PCI Bus #01
+>   e0000000-e7ffffff : 0000:01:00.0
+> e8000000-ebffffff : 0000:00:00.0
+> ec000000-ec0000ff : 0000:00:09.0
+>   ec000000-ec0000ff : 8139too
+> ec001000-ec0010ff : 0000:00:10.3
+> fec00000-fec00fff : reserved
+> fee00000-fee00fff : reserved
+> ffff0000-ffffffff : reserved
+> 
+> /proc/iomem (512MiB)
+> 00000000-0009ffff : System RAM
+> 000a0000-000bffff : Video RAM area
+> 000c0000-000c7fff : Video ROM
+> 000f0000-000fffff : System ROM
+> 00100000-1ffeffff : System RAM
+>   00100000-003504e0 : Kernel code
+>   003504e1-0041c13f : Kernel data
+> 1fff0000-1fff2fff : ACPI Non-volatile Storage
+> 1fff3000-1fffffff : ACPI Tables
+> d0000000-dfffffff : PCI Bus #01
+>   d0000000-d7ffffff : 0000:01:00.0
+>     d0000000-d7ffffff : tdfx regbase
+> e0000000-e7ffffff : PCI Bus #01
+>   e0000000-e7ffffff : 0000:01:00.0
+>     e0000000-e7ffffff : tdfx smem
+> e8000000-ebffffff : 0000:00:00.0
+> ec000000-ec0000ff : 0000:00:09.0
+>   ec000000-ec0000ff : 8139too
+> ec001000-ec0010ff : 0000:00:10.3
+> fec00000-fec00fff : reserved
+> fee00000-fee00fff : reserved
+> ffff0000-ffffffff : reserved
+> 
+> 
+> chau,
+>  djgera
+> 
+> 
+> 
 
-I'm sure you don't mean to rely on it being 4 or 6: it just depends
-on where in the init sequence init_tmpfs gets called, who else has
-already allocated anon supers before it.
-
-> Other than by creating my own SysV shared memory,
-> is there a way to tell what the minor number should be?
-
-I can't think of a better way.  I presume you're focussing on that
-minor number because you don't want to be fooled by an mmap of a
-regular file at root named /SYSVnnnnnnnn.  Beware that a shared
-writable mmap of /dev/zero (or MAP_ANONYMOUS) also appears on
-that major:minor, but named /dev/zero (deleted).
-
-You might prefer to identify the minor number that way, via an
-mmap(0, 1, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0),
-I can't see any reason for their minors to diverge (so long as
-minors make any sense at all here).
-
-Hugh
 

@@ -1,68 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316023AbSEZM3P>; Sun, 26 May 2002 08:29:15 -0400
+	id <S316034AbSEZMnm>; Sun, 26 May 2002 08:43:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316025AbSEZM3O>; Sun, 26 May 2002 08:29:14 -0400
-Received: from ppp-217-133-218-67.dialup.tiscali.it ([217.133.218.67]:19689
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S316023AbSEZM3N>; Sun, 26 May 2002 08:29:13 -0400
-Subject: How to send GnuPG signed mail to linux-kernel and maintainers?
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-8iU2O/H4rXF9rRhGgwdt"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 26 May 2002 14:29:07 +0200
-Message-Id: <1022416147.4072.14.camel@ldb>
-Mime-Version: 1.0
+	id <S316035AbSEZMnl>; Sun, 26 May 2002 08:43:41 -0400
+Received: from ivimey.org ([194.106.52.201]:39241 "EHLO gatemaster.ivimey.org")
+	by vger.kernel.org with ESMTP id <S316034AbSEZMnl>;
+	Sun, 26 May 2002 08:43:41 -0400
+Date: Sun, 26 May 2002 13:42:51 +0100 (BST)
+From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+X-X-Sender: ruthc@sharra.ivimey.org
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Andre Hedrick <andre@linux-ide.org>,
+        Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] New driver for Artop [Acard] controllers.
+In-Reply-To: <20020526130547.A16548@ucw.cz>
+Message-ID: <Pine.LNX.4.44.0205261334250.11662-100000@sharra.ivimey.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 26 May 2002, Vojtech Pavlik wrote:
+>On Fri, May 24, 2002 at 10:07:36PM -0700, Andre Hedrick wrote:
+>> Where do you get off delete copyrights?
+>> GPL permits changing it does not give you the right to steal, lie, cheat,
+>> defraud, other peoples work.  However I should not expect anything of
+>> honor from a person of your high morals.  I know you want to rewrite the
+>> past to make it so I and other never existed, but you are pathetic.
+>
+>I don't delete copyrights, where applicable. However, in this case, none
+>of the original code stayed, not a single line - I first wrote a spec
+>based on the old driver and then wrote a new driver from scratch based
+>on that spec. So, you really don't have a copyright on the new Artop
+>driver, sorry.
 
---=-8iU2O/H4rXF9rRhGgwdt
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Vojtech,
 
-Until now, I have sent mail to linux-kernel using an unmodified version
-of Ximian Evolution with PGP sign turned on. 
+It would be a lot better if you had acknowledged the prior input of the
+original writers in the source; I accept that if you write a new driver you
+are entitled to claim (C) on it, but to acknowledge the source of the
+specification would have been much fairer to the others whose hard work you
+have used.
 
-However, I've noticed that this causes the message to contain some
-escape codes that, after reading a few RFCs and the source code, turn
-out to be caused by the fact that Evolution, in compliance with RFC2015,
-sends PGP-signed bodies as quoted-printable unless they are already
-tagged as base64. 
+Ruth
 
-The rationale is that quoted-printable avoids any modification by
-gateways that would obviously cause the signature to be invalid. 
-However, both the cs.helsinki.fi archive and Linus' scripts (he is
-quoted in the L-K FAQ saying that he only wants unmangled text/plain) do
-not properly support MIME transfer encodings. 
-Furthermore, if a gateway modifies a message, patches should also be
-adversely affected, so this shouldn't be a problem.
-
-Thus, among the possible solutions, the best one (and the one I'm
-currently using, by patching Evolution) appears to be violating the RFC
-and sending as 7-bit rather than as quoted-printable, risking
-invalidation of the signatures by gateway modifications.
-
-Not using digital signatures is obviously not an option since there is
-no way to prove that a message was not authentic (if it contains a
-trojan patch, for example). 
-
-Is this solution the best/recommended one? 
-Shouldn't this be added to the FAQ? 
+-- 
+Ruth Ivimey-Cook
+Software engineer and technical writer.
 
 
---=-8iU2O/H4rXF9rRhGgwdt
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA88NUTdjkty3ft5+cRAuZUAKCOQTlr4Le8qLMUM1Y+Q7RtQVSSfACdF6Nl
-JpCK/e61InLbynmov/I7Olg=
-=ipHf
------END PGP SIGNATURE-----
-
---=-8iU2O/H4rXF9rRhGgwdt--

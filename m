@@ -1,216 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265377AbUFBXjX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262488AbUFBXmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265377AbUFBXjX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 19:39:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbUFBXjX
+	id S262488AbUFBXmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 19:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265383AbUFBXmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 19:39:23 -0400
-Received: from mail-ext.curl.com ([66.228.88.132]:43537 "HELO
-	mail-ext.curl.com") by vger.kernel.org with SMTP id S265377AbUFBXil
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 19:38:41 -0400
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Cc: akpm@osdl.org, Matt Domsch <Matt_Domsch@dell.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Better names for EDD legacy_* fields
-References: <20040530200300.GA4681@apps.cwi.nl>
-	<s5g8yf9ljb3.fsf@patl=users.sf.net>
-	<20040531180821.GC5257@louise.pinerecords.com>
-	<s5gaczonzej.fsf@patl=users.sf.net>
-	<20040531170347.425c2584.seanlkml@sympatico.ca>
-	<s5gfz9f2vok.fsf@patl=users.sf.net>
-	<20040601235505.GA23408@apps.cwi.nl>
-	<s5gpt8ijf1g.fsf@patl=users.sf.net>
-	<20040602150051.GA3165@lists.us.dell.com>
-	<s5ghdttlkvg.fsf@patl=users.sf.net>
-	<20040602230309.GR23408@apps.cwi.nl>
-From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Message-ID: <s5gise97cy5.fsf@patl=users.sf.net>
-Date: 02 Jun 2004 19:38:40 -0400
-In-Reply-To: <20040602230309.GR23408@apps.cwi.nl>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+	Wed, 2 Jun 2004 19:42:07 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:25985 "EHLO cloud.ucw.cz")
+	by vger.kernel.org with ESMTP id S262488AbUFBXlF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 19:41:05 -0400
+Date: Thu, 3 Jun 2004 01:42:33 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Benoit Plessis <benoit@plessis.info>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Input system and keycodes > 256
+Message-ID: <20040602234233.GC1366@ucw.cz>
+References: <1082938686.21842.50.camel@osiris.localnet.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1082938686.21842.50.camel@osiris.localnet.fr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Mon, Apr 26, 2004 at 02:18:07AM +0200, Benoit Plessis wrote:
+> Hi,
+> 
+> I've digged into the kernel source/tools since i do own a new logitech
+> USB keyboard MX with a great number a keys.
+> 
+> There are two kind of addons keys, some works (scancode in the e0 XX
+> form): Email, Prev, Next, Play/Pause, Vol+/-, Mute, ...
+>  + some of thoses generate a simple keycode eg 
+>      Vol+: 0x73 | 0xf3 (scancodes: 0xe0 0x30 | 0xe0 0xb0)
+>  + some doesn't eg:
+>      play: 0x00 0x81 0xa4 | 0x80 0x81 0xa4  (scancodes: 0xe0 0x22 | 0xe0
+> 0xa2)
+>  _   but all thoses key work quite well under X.
+> 
+> The pb come from the new 'Function' keys with replace F1-F12 when the
+> Flock mod isn't active (it's an hardware mod) and some other (Messenger,
+> Webcam, iTouch and Buy).
+> 
+> When grabbing with 'showkey -s' nothing appear
+> When grabbing with 'showkey' i got keycodes like '0x00 0x82 0xd0 | 0x80
+> 0x82 0xd0' (i got same keycodes when pressing mouse buttons except those
+> are in 0x82 0x90 -> 0x82 0x97 range)
+> 
+> When using the evbug module see that those keys generates > 255
+> keycodes. (see attached file)
+> And strangely all thoses keys generates the sames strings than keys with
+> keycode2 = keycode - 256.
+> 
+> Eg: the 'New' function key (shared with F1) reported by evbug as 336
+> keycode as the same effect as keycode 80 (keypad 2).
+> 
+> So i'm a little lost :(
+> And i wanted some direction on how make thoses keys work correctly on
+> the console (and X eventually. Actually under X some keys generate mouse
+> button event, some doesn't generate anything).
+> 
+> I am wondering if a good start would not be to extend the kbentry
+> structure, to use unsigned short at least for the index so whe can acces
+> a fully 512 entry keymap.
 
-Andries Brouwer <Andries.Brouwer@cwi.nl> writes:
+I'm sorry, but X only understands the RAW PS/2 protocol, and that one
+can only transport keycodes up to 240.
 
-> Ach - I should have been more explicit instead of saying (etc.).
-> Also legacy_cylinders is really legacy_max_cylinder (one less than
-> the number of cylinders).
+For keycodes above 240, XFree86 would either need to use the MediumRAW
+mode, or use event devices for parsing the keyboard.
 
-In my defense, I barely even thought about the cylinder count.  I only
-included it for completeness...  It is meaningless on drives larger
-than 8G, and even on older/smaller drives, it is kind of bogus.
-According to <http://www.ctyme.com/intr/rb-0621.htm>:
-
-    The maximum cylinder number reported in CX is usually two less
-    than the total cylinder count reported in the fixed disk parameter
-    table (see INT 41h,INT 46h) because early hard disks used the last
-    cylinder for testing purposes; however, on some Zenith machines,
-    the maximum cylinder number reportedly is three less than the
-    count in the fixed disk parameter table.
-
-So it is not "one less", but often two or three...
-
-Nevertheless, you are correct.  Revised trivial search&replace patch
-attached.
-
- - Pat
-
-
---=-=-=
-Content-Disposition: attachment; filename=rename_edd_legacy.txt
-Content-Description: rename_edd_legacy.txt
-
-diff -u -r linux-2.6.6-orig/drivers/firmware/edd.c linux-2.6.6/drivers/firmware/edd.c
---- linux-2.6.6-orig/drivers/firmware/edd.c	2004-05-09 22:32:27.000000000 -0400
-+++ linux-2.6.6/drivers/firmware/edd.c	2004-06-02 19:17:26.000000000 -0400
-@@ -334,7 +334,7 @@
- }
- 
- static ssize_t
--edd_show_legacy_cylinders(struct edd_device *edev, char *buf)
-+edd_show_legacy_max_cylinder(struct edd_device *edev, char *buf)
- {
- 	struct edd_info *info;
- 	char *p = buf;
-@@ -344,12 +344,12 @@
- 	if (!info || !buf)
- 		return -EINVAL;
- 
--	p += snprintf(p, left, "0x%x\n", info->legacy_cylinders);
-+	p += snprintf(p, left, "0x%x\n", info->legacy_max_cylinder);
- 	return (p - buf);
- }
- 
- static ssize_t
--edd_show_legacy_heads(struct edd_device *edev, char *buf)
-+edd_show_legacy_max_head(struct edd_device *edev, char *buf)
- {
- 	struct edd_info *info;
- 	char *p = buf;
-@@ -359,12 +359,12 @@
- 	if (!info || !buf)
- 		return -EINVAL;
- 
--	p += snprintf(p, left, "0x%x\n", info->legacy_heads);
-+	p += snprintf(p, left, "0x%x\n", info->legacy_max_head);
- 	return (p - buf);
- }
- 
- static ssize_t
--edd_show_legacy_sectors(struct edd_device *edev, char *buf)
-+edd_show_legacy_sectors_per_track(struct edd_device *edev, char *buf)
- {
- 	struct edd_info *info;
- 	char *p = buf;
-@@ -374,7 +374,7 @@
- 	if (!info || !buf)
- 		return -EINVAL;
- 
--	p += snprintf(p, left, "0x%x\n", info->legacy_sectors);
-+	p += snprintf(p, left, "0x%x\n", info->legacy_sectors_per_track);
- 	return (p - buf);
- }
- 
-@@ -450,7 +450,7 @@
-  */
- 
- static int
--edd_has_legacy_cylinders(struct edd_device *edev)
-+edd_has_legacy_max_cylinder(struct edd_device *edev)
- {
- 	struct edd_info *info;
- 	if (!edev)
-@@ -458,11 +458,11 @@
- 	info = edd_dev_get_info(edev);
- 	if (!info)
- 		return -EINVAL;
--	return info->legacy_cylinders > 0;
-+	return info->legacy_max_cylinder > 0;
- }
- 
- static int
--edd_has_legacy_heads(struct edd_device *edev)
-+edd_has_legacy_max_head(struct edd_device *edev)
- {
- 	struct edd_info *info;
- 	if (!edev)
-@@ -470,11 +470,11 @@
- 	info = edd_dev_get_info(edev);
- 	if (!info)
- 		return -EINVAL;
--	return info->legacy_heads > 0;
-+	return info->legacy_max_head > 0;
- }
- 
- static int
--edd_has_legacy_sectors(struct edd_device *edev)
-+edd_has_legacy_sectors_per_track(struct edd_device *edev)
- {
- 	struct edd_info *info;
- 	if (!edev)
-@@ -482,7 +482,7 @@
- 	info = edd_dev_get_info(edev);
- 	if (!info)
- 		return -EINVAL;
--	return info->legacy_sectors > 0;
-+	return info->legacy_sectors_per_track > 0;
- }
- 
- static int
-@@ -569,12 +569,14 @@
- static EDD_DEVICE_ATTR(extensions, 0444, edd_show_extensions, NULL);
- static EDD_DEVICE_ATTR(info_flags, 0444, edd_show_info_flags, NULL);
- static EDD_DEVICE_ATTR(sectors, 0444, edd_show_sectors, NULL);
--static EDD_DEVICE_ATTR(legacy_cylinders, 0444, edd_show_legacy_cylinders,
--		       edd_has_legacy_cylinders);
--static EDD_DEVICE_ATTR(legacy_heads, 0444, edd_show_legacy_heads,
--		       edd_has_legacy_heads);
--static EDD_DEVICE_ATTR(legacy_sectors, 0444, edd_show_legacy_sectors,
--		       edd_has_legacy_sectors);
-+static EDD_DEVICE_ATTR(legacy_max_cylinder, 0444,
-+                       edd_show_legacy_max_cylinder,
-+		       edd_has_legacy_max_cylinder);
-+static EDD_DEVICE_ATTR(legacy_max_head, 0444, edd_show_legacy_max_head,
-+		       edd_has_legacy_max_head);
-+static EDD_DEVICE_ATTR(legacy_sectors_per_track, 0444,
-+                       edd_show_legacy_sectors_per_track,
-+		       edd_has_legacy_sectors_per_track);
- static EDD_DEVICE_ATTR(default_cylinders, 0444, edd_show_default_cylinders,
- 		       edd_has_default_cylinders);
- static EDD_DEVICE_ATTR(default_heads, 0444, edd_show_default_heads,
-@@ -601,9 +603,9 @@
- 
- /* These attributes are conditional and only added for some devices. */
- static struct edd_attribute * edd_attrs[] = {
--	&edd_attr_legacy_cylinders,
--	&edd_attr_legacy_heads,
--	&edd_attr_legacy_sectors,
-+	&edd_attr_legacy_max_cylinder,
-+	&edd_attr_legacy_max_head,
-+	&edd_attr_legacy_sectors_per_track,
- 	&edd_attr_default_cylinders,
- 	&edd_attr_default_heads,
- 	&edd_attr_default_sectors_per_track,
-diff -u -r linux-2.6.6-orig/include/linux/edd.h linux-2.6.6/include/linux/edd.h
---- linux-2.6.6-orig/include/linux/edd.h	2004-06-02 16:12:17.000000000 -0400
-+++ linux-2.6.6/include/linux/edd.h	2004-06-02 19:16:57.000000000 -0400
-@@ -166,9 +166,9 @@
- 	u8 device;
- 	u8 version;
- 	u16 interface_support;
--	u16 legacy_cylinders;
--	u8 legacy_heads;
--	u8 legacy_sectors;
-+	u16 legacy_max_cylinder;
-+	u8 legacy_max_head;
-+	u8 legacy_sectors_per_track;
- 	struct edd_device_params params;
- } __attribute__ ((packed));
-
---=-=-=--
+-- 

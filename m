@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbUG1TJG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUG1TMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262382AbUG1TJG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 15:09:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUG1TJG
+	id S262605AbUG1TMF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 15:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUG1TMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 15:09:06 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:51429 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262382AbUG1TJB (ORCPT
+	Wed, 28 Jul 2004 15:12:00 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:62674 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262605AbUG1TLA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 15:09:01 -0400
-Date: Wed, 28 Jul 2004 21:08:38 +0200 (MEST)
-Message-Id: <200407281908.i6SJ8c9I015801@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: erik@harddisk-recovery.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.26 doesn't boot on a 386 without "Unsynced TSC support"
-Cc: wli@holomorphy.com
+	Wed, 28 Jul 2004 15:11:00 -0400
+Subject: Re: [Lse-tech] [RFC][PATCH] Change pcibus_to_cpumask()
+	to	pcibus_to_node()
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Christoph Hellwig <hch@infradead.org>,
+       Jesse Barnes <jbarnes@sgi.com>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>,
+       LSE Tech <lse-tech@lists.sourceforge.net>
+In-Reply-To: <82510000.1091026879@[10.10.2.4]>
+References: <1090887007.16676.18.camel@arrakis>
+	 <20040727105145.A18533@infradead.org>
+	 <200407270822.43870.jbarnes@engr.sgi.com>
+	 <1090953179.18747.19.camel@arrakis>  <82510000.1091026879@[10.10.2.4]>
+Content-Type: text/plain
+Organization: IBM LTC
+Message-Id: <1091041808.19459.10.camel@arrakis>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 28 Jul 2004 12:10:09 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jul 2004 17:47:49 +0200, Erik Mouw wrote:
->I tried to boot 2.4.26 on my good old 386 board, but got a kernel
->panic:
->
->  CPU: 386
->  Kernel panic: Kernel compiled for Pentium+, requires TSC feature!
-...
->I am sure I selected support for a 80386 CPU, so the error message
->looks wrong to me. CONFIG_M586TSC is not set, but CONFIG_X86_TSC is
->enabled by default. The only way to disable it, is to enable "Unsynced
->TSC support", (CONFIG_X86_TSC_DISABLE).
-...
->My question is: is this a code bug, or a documentation bug? Right now,
->I guess 2.4.26 will not run on anything < Pentium without
->CONFIG_X86_TSC_DISABLE enabled.
+On Wed, 2004-07-28 at 08:01, Martin J. Bligh wrote:
+> >> I wonder though if we shouldn't add
+> >> 
+> >>   ...
+> >> # ifdef CONFIG_NUMA
+> >>   int node; /* or nodemask_t if necessary */
+> >> # endif
+> >>   ...
+> >> 
+> >> to struct pci_bus instead?  That would make the existing code paths a little 
+> >> faster and avoid the need for a global array, which tends to lead to TLB 
+> >> misses.
+> > 
+> > I like that idea!  Stick a nodemask_t in struct pci_bus, initialize it
+> > to NODE_MASK_ALL.  If a particular arch wants to put something more
+> > accurate in there, then great, if not, we're just in the same boat we're
+> > in now.
+> > 
+> > Anyone else have opinions one way or the other on Jesse's idea?
+> 
+> Sounds great - if it's possible to add it to something more generic than
+> PCI, that'd be even better, but pci would still be very useful.
+> 
+> M.
 
-It's a limitation in scripts/Configure.
-If you start with a .config with TSC enabled/required,
-and just flip the CPU selection option to a TSC-less
-CPU, like 386 or 486, then you end up with a .config
-that _still_ has TSC enabled/required.
+Is there anything like that?  I'm not aware of any structure that keeps
+track of general "buses", which would be what we want.  Something that
+keeps track of PCI buses, Infiniband buses, arch-specific fabric buses,
+etc.  Barring the existence of such a structure, I'll just shove it in
+the PCI bus structure for now.
 
-The workaround is to run 'make oldconfig' afterwards.
+-Matt
 
-FWIW, both 2.4 and 2.6 kernels run Ok on my 486.
-(My 486's Fedora user-space is another matter,
-requiring kernel hacks for unconditional RDTSC
-usage in RPM, but that's another issue.)

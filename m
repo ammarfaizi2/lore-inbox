@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267482AbSLRTi4>; Wed, 18 Dec 2002 14:38:56 -0500
+	id <S267472AbSLRThV>; Wed, 18 Dec 2002 14:37:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267484AbSLRTi4>; Wed, 18 Dec 2002 14:38:56 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:21893 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S267482AbSLRTiy>; Wed, 18 Dec 2002 14:38:54 -0500
-Date: Wed, 18 Dec 2002 19:48:07 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Dave Hansen <haveblue@us.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] smpboot magical numbers
-Message-ID: <Pine.LNX.4.44.0212181943570.2179-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S267474AbSLRThV>; Wed, 18 Dec 2002 14:37:21 -0500
+Received: from bitmover.com ([192.132.92.2]:2473 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S267472AbSLRThT>;
+	Wed, 18 Dec 2002 14:37:19 -0500
+Date: Wed, 18 Dec 2002 11:45:12 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Alan Cox <alan@redhat.com>
+Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Dave Jones <davej@codemonkey.org.uk>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
+Message-ID: <20021218114512.J7976@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Alan Cox <alan@redhat.com>, Larry McVoy <lm@bitmover.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Dave Jones <davej@codemonkey.org.uk>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+References: <20021218113324.I7976@work.bitmover.com> <200212181942.gBIJgp418497@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200212181942.gBIJgp418497@devserv.devel.redhat.com>; from alan@redhat.com on Wed, Dec 18, 2002 at 02:42:51PM -0500
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anyone experimenting with different THREAD_SIZE or PAGE_SIZE on i386
-runs into magical mystery numbers in do_boot_cpu esp initialization.
-Remove those and use the same stack top in startup_32 as thereafter.
+On Wed, Dec 18, 2002 at 02:42:51PM -0500, Alan Cox wrote:
+> > On Wed, Dec 18, 2002 at 02:30:48PM -0500, Alan Cox wrote:
+> > > We've got one - its called linux-kernel.
+> > 
+> > Huh?  That's like saying "we don't need a bug database, we have a mailing
+> > list".  That's patently wrong and so is your statement.  If you want 
+> > reviews you need some place to store them.  A mailing list isn't storage.
+> > 
+> > You'll do it however you want of course, but you are being stupid about it.
+> > Why is that?
+> 
+> We've got a bug database (bugzilla), we've got a system for seeing what opinion
+> appears to be -kernel-list
 
-Oh, and what's that phys_to_virt(8192)?  Goodness! it's actually the
-trampoline_base we (hopefully) got from early alloc_bootmem_low_pages.
-Yes, could do with a lot more cleanup, but I'll stick here for safety.
+And exactly how is your statement different than
 
-Hugh
+    "we have a system for seeing what bugs appear to be -kernel-list"
 
---- 2.5.52/arch/i386/kernel/smpboot.c	Fri Nov 22 23:44:10 2002
-+++ linux/arch/i386/kernel/smpboot.c	Wed Dec 18 19:11:25 2002
-@@ -806,7 +806,8 @@
- 
- 	/* So we see what's up   */
- 	printk("Booting processor %d/%d eip %lx\n", cpu, apicid, start_eip);
--	stack_start.esp = (void *) (1024 + PAGE_SIZE + (char *)idle->thread_info);
-+	/* Stack for startup_32 can be just as for start_secondary onwards */
-+	stack_start.esp = (void *) idle->thread.esp;
- 
- 	/*
- 	 * This grunge runs the startup process for
-@@ -879,7 +880,7 @@
- 			Dprintk("CPU has booted.\n");
- 		} else {
- 			boot_error= 1;
--			if (*((volatile unsigned char *)phys_to_virt(8192))
-+			if (*((volatile unsigned char *)trampoline_base)
- 					== 0xA5)
- 				/* trampoline started but...? */
- 				printk("Stuck ??\n");
-@@ -901,7 +902,7 @@
- 	}
- 
- 	/* mark "stuck" area as not stuck */
--	*((volatile unsigned long *)phys_to_virt(8192)) = 0;
-+	*((volatile unsigned long *)trampoline_base) = 0;
- 
- 	if(clustered_apic_mode) {
- 		printk("Restoring NMI vector\n");
-
+?
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265117AbUFAQdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265124AbUFAQhA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265117AbUFAQdN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 12:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265115AbUFAQ3n
+	id S265124AbUFAQhA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 12:37:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265114AbUFAQXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 12:29:43 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36239 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265128AbUFAQ2e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 12:28:34 -0400
-Date: Tue, 1 Jun 2004 09:28:16 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       Andries Brouwer <Andries.Brouwer@cwi.nl>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x partition breakage and dual booting
-Message-Id: <20040601092816.18789176@dell_ss3.pdx.osdl.net>
-In-Reply-To: <20040531180821.GC5257@louise.pinerecords.com>
-References: <40BA2213.1090209@pobox.com>
-	<20040530183609.GB5927@pclin040.win.tue.nl>
-	<40BA2E5E.6090603@pobox.com>
-	<20040530200300.GA4681@apps.cwi.nl>
-	<s5g8yf9ljb3.fsf@patl=users.sf.net>
-	<20040531180821.GC5257@louise.pinerecords.com>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Tue, 1 Jun 2004 12:23:54 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:24035 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265037AbUFAQVA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 12:21:00 -0400
+Date: Tue, 1 Jun 2004 17:20:58 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: davej@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: intel-agp: skip non-AGP devices
+Message-ID: <20040601162058.GA20983@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Matt Domsch <Matt_Domsch@dell.com>, davej@redhat.com,
+	linux-kernel@vger.kernel.org
+References: <20040601160457.GA11437@lists.us.dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040601160457.GA11437@lists.us.dell.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 May 2004 20:08:21 +0200
-Tomas Szepe <szepe@pinerecords.com> wrote:
-
-> > This is really very simple.  If you move a disk from a machine with a
-> > different BIOS and you preserve the partition table geometry, you will
-> > NEVER be able to install Windows on the drive.  If you partition a
-> > blank drive and use the wrong geometry, you will NEVER be able to
-> > install Windows on the drive.
+On Tue, Jun 01, 2004 at 11:04:57AM -0500, Matt Domsch wrote:
+> Dave, 
 > 
-> I don't quite believe this.  AFAICT the Windows 2000/XP install program will
-> succeed no matter what, the only problem is with getting the dirty thing to
-> boot AFTER install has completed.  If it craps out, boot off the install
-> CD to the repair console prompt, run fixboot/fixmbr and all should be swell.
-> If you need dual boot, you can go ahead and reinstall lilo/grub at this point.
-> The one scenario unfixable without a hex editor that I know of is installing
-> Windows on a partition that was created using mkdosfs -F 32 (and even that
-> will sometimes work)
+> On our PowerEdge 2600 system, which has an Intel E7501 Memroy
+> Controller Hub, the intel-agp probe code is reporting, at KERN_ERR no less:
+> 
+> agpgart: Unsupported Intel chipset (device id 254c)
+> 
 
-Having suffered through this "Daddy, why did you break the computer?".
-I can say that fixboot/fixmbr will not work. 
+...
 
-What did work on my machine was changing the BIOS setting on the boot disk
-from "Auto" to "Large disk".  As I remember there were several possible settings
-and it took trying all of them till one worked. Still not sure why it worked
-though.
+> agp_intel_probe()  calls pci_find_capability(PCI_CAP_ID_AGP)
+> but doesn't check the return value (should be zero in this case) prior
+> to moving into the switch.
+> 
+> 
+> The patch below checks for a valid cap_ptr prior to printing the
+> message, now at KERN_WARNING level (it's not really an error, is it?)
 
+The real problem is that agpgart doesn't properly fill in the pci_id
+table but claims all devices and then does it's own probing internally.
+
+This also breaks hotplug in a funny way.

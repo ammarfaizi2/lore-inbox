@@ -1,58 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129691AbQKUMA7>; Tue, 21 Nov 2000 07:00:59 -0500
+	id <S129793AbQKUMFj>; Tue, 21 Nov 2000 07:05:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129208AbQKUMAu>; Tue, 21 Nov 2000 07:00:50 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:58245 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S129931AbQKUMAm>; Tue, 21 Nov 2000 07:00:42 -0500
-From: kumon@flab.fujitsu.co.jp
-Date: Tue, 21 Nov 2000 20:30:33 +0900
-Message-Id: <200011211130.UAA27961@asami.proc.flab.fujitsu.co.jp>
-To: Jens Axboe <axboe@suse.de>
-Cc: kumon@flab.fujitsu.co.jp, linux-kernel@vger.kernel.org,
-        Dave Jones <davej@suse.de>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [PATCH] livelock in elevator scheduling
-In-Reply-To: <20001121112836.B10007@suse.de>
-In-Reply-To: <200011210838.RAA27382@asami.proc.flab.fujitsu.co.jp>
-	<20001121112836.B10007@suse.de>
-Reply-To: kumon@flab.fujitsu.co.jp
-Cc: kumon@flab.fujitsu.co.jp
-X-Mailer: Handmade Mailer version 1.0
-Mime-Version: 1.0
+	id <S130177AbQKUMFT>; Tue, 21 Nov 2000 07:05:19 -0500
+Received: from ife.ee.ethz.ch ([129.132.29.2]:26822 "EHLO ife.ee.ethz.ch")
+	by vger.kernel.org with ESMTP id <S129793AbQKUMFQ>;
+	Tue, 21 Nov 2000 07:05:16 -0500
+Message-ID: <3A1A5DEE.BCA32964@ife.ee.ethz.ch>
+Date: Tue, 21 Nov 2000 12:35:10 +0100
+From: Thomas Sailer <sailer@ife.ee.ethz.ch>
+Organization: IfE
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.7 sun4u)
+X-Accept-Language: de,fr,ru
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: test11-pre6 still very broken
+In-Reply-To: <Pine.LNX.4.21.0011171935560.1796-100000@saturn.homenet> <20001117223137.A26341@wirex.com> <3A162EFE.A980A941@talontech.com> <20001117235624.B26341@wirex.com> <8v6h3d$rp$1@penguin.transmeta.com> <3A191B03.6DE258C8@ife.ee.ethz.ch> <20001120134708.A941@suse.cz>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe writes:
- > > Problem:
- > >  Current elevator_linus() traverses the I/O requesting queue from the
- > > tail to top. And when the current request has smaller sector number
- > > than the request on the top of queue, it is always placed just after
- > > the top.
- > >  This means, if requests in some sector range are continuously
- > > generated, a request with larger sector number is always places at the
- > > last and has no chance to go to the front.  e.g. it is not scheduled.
- > 
- > Believe it or not, but this is intentional. In that regard, the
- > function name is a misnomer -- call it i/o scheduler instead :-)
+Vojtech Pavlik wrote:
 
-I never believe it intentional.  If it is true, the current kernel
-will be suffered from a kind of DOS attack.  Yes, actually I'm a
-victim of it.
+> Oops? I thought the paired controller there is for OSes not being able
+> to handle EHCI yet? So that USB works even for those ... I think EHCI
+> should handle even 1.x devices ... I may be wrong, though.
 
-By Running ZD's ServerBench, not only the performance down, but my
-machine blocks all commands execution including /bin/ps, /bin/ls... ,
-and those are not ^C able unless the benchmark is stopped. Those
-commands are read from disks but the requests are wating at the end of
-I/O queue, those won't be executed.
+Check the Intel EHCI spec. Esp. the chapter about port handover...
 
-Anyway, I'll try your patch.
-
---
-Computer Systems Laboratory, Fujitsu Labs.
-kumon@flab.fujitsu.co.jp
+Tom
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

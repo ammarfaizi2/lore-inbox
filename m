@@ -1,44 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319073AbSHPVTs>; Fri, 16 Aug 2002 17:19:48 -0400
+	id <S317751AbSHPVYa>; Fri, 16 Aug 2002 17:24:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319117AbSHPVTs>; Fri, 16 Aug 2002 17:19:48 -0400
-Received: from www.wotug.org ([194.106.52.201]:1848 "EHLO
-	gatemaster.ivimey.org") by vger.kernel.org with ESMTP
-	id <S319073AbSHPVTs>; Fri, 16 Aug 2002 17:19:48 -0400
-Date: Fri, 16 Aug 2002 22:21:28 +0100 (BST)
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-X-X-Sender: ruthc@sharra.ivimey.org
-To: henrique <henrique@cyclades.com>
-cc: Oliver Xymoron <oxymoron@waste.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with random.c and PPC
-In-Reply-To: <200208161751.35895.henrique@cyclades.com>
-Message-ID: <Pine.LNX.4.44.0208162219110.1659-100000@sharra.ivimey.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317864AbSHPVYa>; Fri, 16 Aug 2002 17:24:30 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12814 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317751AbSHPVY3>; Fri, 16 Aug 2002 17:24:29 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: IDE?
+Date: 16 Aug 2002 14:28:01 -0700
+Organization: Transmeta Corporation
+Message-ID: <ajjqp1$q80$1@cesium.transmeta.com>
+References: <2444170000.1029531611@flay>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Aug 2002, henrique wrote:
+In article <2444170000.1029531611@flay>,
+Martin J. Bligh <Martin.Bligh@us.ibm.com> wrote:
+>So did Linus get disk corruption or is something else afoot?
 
->What would you do in my situation. I am dealing with the Motorola MPC860T and 
->my system has no disk (I use a flash), no mouse, no keyboard, no PCI bus. It 
->has just a fast-ethernet, a console port and some serial ports. 
->
->After reading the discussion on the lkml I realize that the only places I can 
->get randomness in my system is in the serial.c (that controls the serial 
->ports) and arch/ppc/8xx_io/fec.c (fast eth driver) interrupts.
+Martin gave up the fight he had to do all the time, so..
 
-Is there another way -- add a 'noise' device by connecting a PIO pin or 
-similar to suitable hardware? It shouldn't bee too hard to do as a one-off. 
-For example:
-
- [noise-diode]--[amplifier]--[schmidt-trigger-inverter]---[PIO INT pin]
-
-
-Ruth
-
--- 
-Ruth Ivimey-Cook
-Software engineer and technical writer.
-
+		Linus

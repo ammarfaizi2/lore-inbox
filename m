@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbUKSVeb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbUKSVf1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261571AbUKSVeb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 16:34:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbUKSVeb
+	id S261575AbUKSVf1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 16:35:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbUKSVf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 16:34:31 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:13068 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S261571AbUKSVe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 16:34:28 -0500
-Message-ID: <419E66D1.8000304@techsource.com>
-Date: Fri, 19 Nov 2004 16:34:09 -0500
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Blocking access to a PCI device for "a long time"?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Nov 2004 16:35:26 -0500
+Received: from gold.pobox.com ([208.210.124.73]:25314 "EHLO gold.pobox.com")
+	by vger.kernel.org with ESMTP id S261575AbUKSVef (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 16:34:35 -0500
+Date: Fri, 19 Nov 2004 13:34:23 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Massimo Cetra <mcetra@navynet.it>
+Cc: "'Barry K. Nathan'" <barryn@pobox.com>, "'O.Sezer'" <sezeroz@ttnet.net.tr>,
+       linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+Subject: Re: Linux 2.4.28-rc4
+Message-ID: <20041119213423.GA11601@ip68-4-98-123.oc.oc.cox.net>
+References: <20041118204841.GA11682@ip68-4-98-123.oc.oc.cox.net> <20041119001033.B25D48400A@server1.navynet.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041119001033.B25D48400A@server1.navynet.it>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some of you may have followed the earlier discussions on the open 
-graphics card.  One problem is that we are trying to fit a lot of logic 
-into a small area, so one thing we're considering is having multiple 
-FPGA bitfiles in the PROM.  When changing modes (ie. from VGA to 3D), 
-the driver would instruct the FPGA to reload itself from a different 
-part of the bitfile PROM.
+On Fri, Nov 19, 2004 at 01:10:32AM +0100, Massimo Cetra wrote:
+> Why such a decision ?
+> 
+> Do you think that it is not exploitable or at least not in a short time ?
 
-The issue here is that it's a complete reload of the FPGA which makes it 
-completely lose all configuration state, which includes PCI config. 
-Thus, the process for switching modes would go something like this:
+As far as I can tell, the only damage an exploit could do is to crash
+*itself*; unless I'm mistaken, any "exploit" would not be able to use
+either of these bugs to do any other mischief. I guess that's a long way
+of saying, I don't think it's exploitable.
 
-- Make sure that nothing can get confused by the device "going away" on 
-the PCI/AGP bus, using whatever kernel locks are necessary
-- Save PCI config state of device
-- Instruct the FPGA to reload itself
-- Wait many, many, many, many milliseconds
-- Reload PCI config state
-- Unlock and continue
+-Barry K. Nathan <barryn@pobox.com>
 
-Other drivers accessing the bus for other devices is PROBABLY not a 
-problem, but nothing can touch the GPU while it's reloading.
-
-Are there any problems with this approach that would make it a really 
-bad idea?

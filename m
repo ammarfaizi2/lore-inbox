@@ -1,62 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284499AbRLFQLS>; Thu, 6 Dec 2001 11:11:18 -0500
+	id <S285154AbRLFQST>; Thu, 6 Dec 2001 11:18:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284630AbRLFQLI>; Thu, 6 Dec 2001 11:11:08 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:6591 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S284499AbRLFQKx>;
-	Thu, 6 Dec 2001 11:10:53 -0500
-Importance: Normal
-Subject: Re: [Lse-tech] [RFC] [PATCH] Scalable Statistics Counters
-To: kiran@linux.ibm.com
-Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF5920A1C3.B32C93AF-ON85256B1A.005706AC@raleigh.ibm.com>
-From: "Niels Christiansen" <nchr@us.ibm.com>
-Date: Thu, 6 Dec 2001 10:10:47 -0600
-X-MIMETrack: Serialize by Router on D04NM104/04/M/IBM(Release 5.0.8 |June 18, 2001) at
- 12/06/2001 11:10:47 AM
+	id <S285150AbRLFQR6>; Thu, 6 Dec 2001 11:17:58 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:297 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S284933AbRLFQRx>; Thu, 6 Dec 2001 11:17:53 -0500
+Message-ID: <3C0F9A2F.5D019244@redhat.com>
+Date: Thu, 06 Dec 2001 16:17:51 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: Greg Hennessy <gsh@cox.rr.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: horrible disk thorughput on itanium
+In-Reply-To: <20011206110713.A8404@cox.rr.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg Hennessy wrote:
+> 
+> I recently installed a  both a Dell dual cpu 2500 server (dual 1.6 ghz
+> ia32 chips) and a dell 7150 (dual IA64 chips). My users complained
+> that the disk io speed on the itanium seemed very slow, even though
+> both servers have a megaraid controller with seagate cheetah
+> disks. Bonnie also shows the ia64 machine having worse throughput than
+> the ia32 machine.
 
-Hi Kiran,
-
-> Are you concerned with increase in memory used per counter Here? I
-suppose
-> that must not be that much of an issue for a 16 processor box....
-
-Nope, I'm concerned that if this mechanism is to be used for all counters,
-the improvement in cache coherence might be less significant to the point
-where the additional overhead isn't worth it.
-
-Arjab van de Ven voiced similar concerns but he also said:
-
-> There's several things where per cpu data is useful; low frequency
-> statistics is not one of them in my opinion.
-
-...which may be true for 4-ways and even 8-ways but when you get to
-32-ways and greater, you start seeing cache problems.  That was the
-case on AIX and per-cpu counters was one of the changes that helped
-get the spectacular scalability on Regatta.
-
-Anyway, since we just had a long thread going on NUMA topology, maybe
-it would be proper to investigate if there is a better way, such as
-using the topology to decide where to put counters?  I think so, seeing
-as it is that most Intel based 8-ways and above will have at least some
-NUMA in them.
-
-> Well, I wrote a simple kernel module which just increments a shared
-global
-> counter a million times per processor in parallel, and compared it with
-> the statctr which would be incremented a million times per processor in
-> parallel..
-
-I suspected that.  Would it be possible to do the test on the real
-counters?
-
-Niels Christiansen
-IBM LTC, Kernel Performance
-
+How much RAM do you have ?

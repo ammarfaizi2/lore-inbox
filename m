@@ -1,12 +1,12 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317649AbSGJWis>; Wed, 10 Jul 2002 18:38:48 -0400
+	id <S317652AbSGJWoz>; Wed, 10 Jul 2002 18:44:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317652AbSGJWis>; Wed, 10 Jul 2002 18:38:48 -0400
-Received: from pD952AE71.dip.t-dialin.net ([217.82.174.113]:24707 "EHLO
+	id <S317653AbSGJWoy>; Wed, 10 Jul 2002 18:44:54 -0400
+Received: from pD952AE71.dip.t-dialin.net ([217.82.174.113]:30595 "EHLO
 	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317649AbSGJWir>; Wed, 10 Jul 2002 18:38:47 -0400
-Date: Wed, 10 Jul 2002 16:41:23 -0600 (MDT)
+	id <S317652AbSGJWox>; Wed, 10 Jul 2002 18:44:53 -0400
+Date: Wed, 10 Jul 2002 16:47:33 -0600 (MDT)
 From: Thunder from the hill <thunder@ngforever.de>
 X-X-Sender: thunder@hawkeye.luckynet.adm
 To: Thunder from the hill <thunder@ngforever.de>
@@ -14,8 +14,8 @@ cc: Andrew Morton <akpm@zip.com.au>,
        "Grover, Andrew" <andrew.grover@intel.com>,
        Linux <linux-kernel@vger.kernel.org>
 Subject: Re: HZ, preferably as small as possible
-In-Reply-To: <Pine.LNX.4.44.0207101559460.5067-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44.0207101640340.5067-100000@hawkeye.luckynet.adm>
+In-Reply-To: <Pine.LNX.4.44.0207101640340.5067-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.44.0207101646301.5067-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,12 +24,9 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Hi,
 
 On Wed, 10 Jul 2002, Thunder from the hill wrote:
-> Want a config option? Either int or bool (CONFIG_LOW_HZ). It's not too 
-> much effort.
+> I guess I forgot the half of it...
 
-I guess I forgot the half of it...
-
-What arches do we want?
+I did. Here is the whole version:
 
 Index: arch/i386/Config.help
 ===================================================================
@@ -72,6 +69,21 @@ diff -p -u -r1.2 param.h
  # define USER_HZ	100		/* .. some user interfaces are in "ticks" */
  # define CLOCKS_PER_SEC	(USER_HZ)	/* like times() */
  #endif
+Index: arch/i386/config.in
+===================================================================
+RCS file: /var/cvs/thunder-2.5/arch/i386/config.in,v
+retrieving revision 1.8
+diff -p -u -r1.8 config.in
+--- arch/i386/config.in	7 Jul 2002 09:59:47 -0000	1.8
++++ arch/i386/config.in	10 Jul 2002 22:45:28 -0000
+@@ -181,6 +181,7 @@ else
+    bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
+ fi
+ 
++bool 'Low scheduler rates' CONFIG_SCHED_LOW_HZ
+ bool 'Machine Check Exception' CONFIG_X86_MCE
+ dep_bool 'Check for non-fatal errors on Athlon/Duron' CONFIG_X86_MCE_NONFATAL $CONFIG_X86_MCE
+ dep_bool 'check for P4 thermal throttling interrupt.' CONFIG_X86_MCE_P4THERMAL $CONFIG_X86_MCE $CONFIG_X86_UP_APIC
 
 							Regards,
 							Thunder

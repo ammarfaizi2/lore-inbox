@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266647AbUGKSID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266669AbUGKSL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266647AbUGKSID (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 14:08:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266648AbUGKSID
+	id S266669AbUGKSL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 14:11:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266671AbUGKSL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 14:08:03 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:22969 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S266647AbUGKSH7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 14:07:59 -0400
-Date: Sun, 11 Jul 2004 20:07:59 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, linux-audio-dev@music.columbia.edu
-Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-In-Reply-To: <20040711041329.22f637d1.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0407112004570.695@artax.karlin.mff.cuni.cz>
-References: <20040709182638.GA11310@elte.hu> <20040710222510.0593f4a4.akpm@osdl.org>
- <20040711093209.GA17095@elte.hu> <20040711024518.7fd508e0.akpm@osdl.org>
- <20040711095039.GA22391@elte.hu> <20040711025855.08afbca1.akpm@osdl.org>
- <20040711103020.GA24797@elte.hu> <20040711034258.796f8c6a.akpm@osdl.org>
- <20040711105936.GA13956@devserv.devel.redhat.com> <20040711041329.22f637d1.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 11 Jul 2004 14:11:27 -0400
+Received: from wblv-244-142.telkomadsl.co.za ([165.165.244.142]:34265 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S266669AbUGKSLW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 14:11:22 -0400
+Subject: Re: [2.6.7+current cset] *bug* in scheduler...
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: =?iso-8859-2?Q?Pawe=B3?= Sikora <pluto@pld-linux.org>
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <200407080102.31766.pluto@pld-linux.org>
+References: <200407080102.31766.pluto@pld-linux.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-IHtpDCuLaV8p9/qXXrTE"
+Message-Id: <1089569473.8708.3.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 11 Jul 2004 20:11:14 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-IHtpDCuLaV8p9/qXXrTE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, 11 Jul 2004, Andrew Morton wrote:
+On Thu, 2004-07-08 at 01:02, Pawe=C5=82 Sikora wrote:
+> with cset-20040630_0514 everything works fine.
+> with current cset xmms causing nice ooops ;)
+>=20
 
-> Arjan van de Ven <arjanv@redhat.com> wrote:
-> >
-> > On Sun, Jul 11, 2004 at 03:42:58AM -0700, Andrew Morton wrote:
-> > > > We do not want to enable preempt for Fedora yet because it
-> > > > breaks just too much stuff
-> > >
-> > > What stuff?
-> >
-> > just look over all the "fix preempt" stuff that got added to the kernel in
-> > the last 6 months. Sometimes subtle sometimes less so. From a distribution
-> > POV I don't want a potential slew of basically impossible to reproduce
-> > problems, especially this young in 2.6, there are plenty of other problems
-> > already (and before you ask "which", just look at how many bugs got fixed in
-> > the last X weeks for any value of X, and look at say acpi issues).
-> > Yes I understand this puts you into a bit of a bad position, several distros
-> > not enabling preempt means that it gets less testing than it should.
-> > However.. there's only so much issues distros can take and with 2.6 still
-> > quite fresh...
-> >
->
-> IOW: "we haven't found any such stuff".  Sounds fuddy to me.
+Unfortunately you will have to try without the nVidia driver to get
+somebody to have a look.  I have similar issues with latest nvidia
+driver and when fbdev in use - vga=3Dnormal works fine.
 
-For example the recent race that corrupted file content on ext3 and
-reiserfs when fsync and write were called simultaneously ... it was
-possible on SMP too, but with tiny probability --- CONFIG_PREEMPT
-triggered it wide open.
 
-Mikulas
+Cheers,
+
+--=20
+Martin Schlemmer
+
+--=-IHtpDCuLaV8p9/qXXrTE
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA8YLBqburzKaJYLYRAvKxAKCHA7UNqPtPY9CBZgida7bQeTfmEwCeOJu/
+pFFhje4yhRcdfFtH48jqAE8=
+=n87+
+-----END PGP SIGNATURE-----
+
+--=-IHtpDCuLaV8p9/qXXrTE--
+

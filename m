@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280880AbRKBXfZ>; Fri, 2 Nov 2001 18:35:25 -0500
+	id <S280883AbRKBXhf>; Fri, 2 Nov 2001 18:37:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280881AbRKBXfQ>; Fri, 2 Nov 2001 18:35:16 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:8209 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S280880AbRKBXfG>;
-	Fri, 2 Nov 2001 18:35:06 -0500
-Message-ID: <3BE32B9E.99F57470@osdl.org>
-Date: Fri, 02 Nov 2001 15:26:22 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christian Lavoie <clavoie@bmed.mcgill.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Disabling CPUs -- at runtime?
-In-Reply-To: <20011102232536Z280877-17408+9634@vger.kernel.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S280882AbRKBXhZ>; Fri, 2 Nov 2001 18:37:25 -0500
+Received: from ncc1701.cistron.net ([195.64.68.38]:33033 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S280884AbRKBXhO>; Fri, 2 Nov 2001 18:37:14 -0500
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: Zlatko's I/O slowdown status
+Date: Fri, 2 Nov 2001 23:37:13 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <9rvan9$cn6$2@ncc1701.cistron.net>
+In-Reply-To: <Pine.LNX.4.33.0110261018270.1001-100000@penguin.transmeta.com> <20011102065255.B3903@athlon.random> <87g07xdj6x.fsf@atlas.iskon.hr> <20011102152349.B17362@netnation.com>
+X-Trace: ncc1701.cistron.net 1004744233 13030 195.64.65.67 (2 Nov 2001 23:37:13 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Lavoie wrote:
-> 
-> Is it possible to disable a CPU on a dual machine while the kernel is
-> running? (Intel PIIIs, Asus motherboards -- VIA686B based)
-> 
-> Parsing of the relevant documentation didn't find an answer...
+In article <20011102152349.B17362@netnation.com>,
+Simon Kirby  <sim@netnation.com> wrote:
+>If they have hdparm -W 0 at shutdown, there should be a -W 1 during
+>startup.
 
-There's a patch [out of date :( ] at
-sourceforge.net/projects/lhcs/ that does this (CPU online/offline).
+Well no. It should be set back to 'power on default' on startup.
+But there is no way to do that.
 
-~Randy
+Mike.
+-- 
+"Only two things are infinite, the universe and human stupidity,
+ and I'm not sure about the former" -- Albert Einstein.
+

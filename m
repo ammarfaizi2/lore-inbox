@@ -1,48 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVBRI5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVBRJGw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbVBRI5A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 03:57:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVBRI5A
+	id S261316AbVBRJGw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 04:06:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVBRJGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 03:57:00 -0500
-Received: from ptr210-netcat ([66.230.167.210]:56006 "EHLO
-	mail.globalproof.net") by vger.kernel.org with ESMTP
-	id S261305AbVBRI45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 03:56:57 -0500
-Date: Fri, 18 Feb 2005 10:56:53 +0200
-From: nuclearcat <nuclearcat@nuclearcat.com>
-X-Mailer: The Bat! (v3.0.1.33) Professional
-Reply-To: nuclearcat <nuclearcat@nuclearcat.com>
-Organization: NUC
-X-Priority: 3 (Normal)
-Message-ID: <1567604259.20050218105653@nuclearcat.com>
-To: linux-kernel@vger.kernel.org
-Subject: pty_chars_in_buffer NULL pointer (kernel oops)
+	Fri, 18 Feb 2005 04:06:52 -0500
+Received: from ns.suse.de ([195.135.220.2]:57819 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261305AbVBRJGt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 04:06:49 -0500
+Message-ID: <421506FC.3060909@suse.de>
+Date: Thu, 17 Feb 2005 22:05:00 +0100
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: ncunningham@cyclades.com
+Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
+       dtor_core@ameritech.net
+Subject: Re: Swsusp, resume and kernel versions
+References: <200502162346.26143.dtor_core@ameritech.net>	 <1108617332.4471.33.camel@desktop.cunningham.myip.net.au>	 <200502170038.30033.dtor_core@ameritech.net> <1108627778.4471.54.camel@desktop.cunningham.myip.net.au>
+In-Reply-To: <1108627778.4471.54.camel@desktop.cunningham.myip.net.au>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear, linux-kernel.
+Nigel Cunningham wrote:
 
-Is discussed at
-http://kerneltrap.org/mailarchive/1/message/12508/thread
-bug fixed in 2.4.x tree? Cause seems i have downloaded 2.4.29, and it
-is not fixed (still my kernel on vpn server crashing almost at start),
-i have grepped fast pre and bk patches, but didnt found any fixed
-related to tty/pty.
-Provided in thread patch from Linus working, but after night i have
-checked server, and see load average jumped to 700.
-Can anybody help in that? I am not kernel guru to provide a patch, but
-seems by search in google it is actual problem for people, who own
-poptop vpn servers, it is really causing serious instability for
-servers.
+> If the mistakenly booted kernel isn't suspend enabled, however, you need
+> a more generic method of removing the image, such as mkswapping the
+> storage device. This is what I was speaking of.
 
+The following code is used in the SUSE bootscripts to do exactly this:
 
--- 
-With best regards,
-GlobalProof Globax Division Manager,
-Denys Fedoryshchenko
-mailto:denys@globalproof.net
+----------------------------------------------------
+get_swap_id() {
+    local line;
+    fdisk -l | while read line; do
+        case "$line" in
+        /*Linux\ [sS]wap*) echo "${line%% *}"
+        esac
+    done
+}
+
+check_swap_sig () {
+    local part="$(get_swap_id)"
+    local where what type rest p c
+    while read  where what type rest ; do
+        test "$type" = "swap" || continue
+        c=continue
+        for p in $part ; do
+            test "$p" = "$where" && c=true
+        done
+        $c
+        case "$(dd if=$where bs=1 count=6 skip=4086 2>/dev/null)" in
+        S1SUSP|S2SUSP) mkswap $where
+        esac
+    done < /etc/fstab
+}
+---------------------------------------------------------------------
+
+This invalidates the suspend signature if the kernel has not already
+done it. It probably does not cover the softwaresuspend2 signature but
+that should be trivial to add.
+
+Regards,
+
+  Stefan
 

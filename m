@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316096AbSEJTxz>; Fri, 10 May 2002 15:53:55 -0400
+	id <S316068AbSEJTx0>; Fri, 10 May 2002 15:53:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316097AbSEJTxy>; Fri, 10 May 2002 15:53:54 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:20438 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S316096AbSEJTxw>; Fri, 10 May 2002 15:53:52 -0400
-Date: Fri, 10 May 2002 21:54:06 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "David S. Miller" <davem@redhat.com>
-cc: dizzy@roedu.net, linux-kernel@vger.kernel.org
-Subject: Re: mmap, SIGBUS, and handling it
-In-Reply-To: <20020510.095600.90795538.davem@redhat.com>
-Message-ID: <Pine.GSO.3.96.1020510213633.16282A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S316093AbSEJTxZ>; Fri, 10 May 2002 15:53:25 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:33464 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S316068AbSEJTxY>;
+	Fri, 10 May 2002 15:53:24 -0400
+Date: Fri, 10 May 2002 15:53:17 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        trond.myklebust@fys.uio.no, reiserfs-dev@namesys.com
+Subject: Re: [PATCH] iget_locked [1/6]
+In-Reply-To: <20020510160719.GB18065@ravel.coda.cs.cmu.edu>
+Message-ID: <Pine.GSO.4.21.0205101550290.19226-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 May 2002, David S. Miller wrote:
 
-> He's talking about how SIG_IGN should behave.
 
- So do I.
+On Fri, 10 May 2002, Jan Harkes wrote:
 
-> If you want non-default behavior, specify a signal handler instead
-> of SIG_IGN.
-
- Well, SIG_IGN is non-default (user-specified) behavior -- SIG_DFL is. 
-
->     Why should we enforce policy on a user?  If one wants to ignore such
->    signals for whatever reason, let him do that. 
->    
-> We don't specify any policy other than the behavior of SIG_IGN which
-> is to kill off the process for SIGBUS.
-
- Making a special exception to well-defined semantics because it seems
-less useful for a certain case is policy.  SIG_IGN means to ignore a
-signal (except from SIGKILL, SIGSTOP, SIGCONT signals that cannot be
-ignored, but that's a result of how they work and it is explicitly
-specified in standards) -- everything else is unexpected semantics. 
-
-> If you specify a handler you can have SIGBUS do whatever you want it
-> to.  There are no enforced limitations, only a specified behavior
-> for SIG_IGN when used for SIGBUS.
+> Hi Linus,
 > 
-> The original poster has solved his problem, yet you continue to argue
-> one and on and on.
+> Here is a series of 6 patches that started off as fixing a race in
+> iget4, but ended up as a merge of the XFS icreate functionality, removal
+> of the 'reiserfs specific hack' and reduces the VFS dependency on i_ino.
+> 
+> It has seen some discussion on linux-fsdevel.
 
- s/argue/discuss/
+I'm pretty much OK with that, but there are some comments on the patches
 
- Anyway, since the code seems to work like I describe/expect, there is
-really no problem for me.  Haven't you meant SIG_DFL, actually? 
+> +			if (set)
+> +				err = set(inode, data);
+> +			if (!err) {
+> +				inodes_stat.nr_inodes++;
+> +				list_add(&inode->i_list, &inode_in_use);
+> +				list_add(&inode->i_hash, head);
+> +				inode->i_state = I_LOCK;
+> +			}
+>  			spin_unlock(&inode_lock);
+>  
+> +			if (err) {
+> +				destroy_inode(inode);
+> +				return NULL;
+> +			}
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Please, take that code out of the path - will be cleaner that way.
 

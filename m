@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265402AbTAJQdT>; Fri, 10 Jan 2003 11:33:19 -0500
+	id <S265567AbTAJQkH>; Fri, 10 Jan 2003 11:40:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265446AbTAJQdT>; Fri, 10 Jan 2003 11:33:19 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:34546
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S265402AbTAJQcR>; Fri, 10 Jan 2003 11:32:17 -0500
-Date: Fri, 10 Jan 2003 11:41:48 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: William Lee Irwin III <wli@holomorphy.com>, "" <torvalds@transmeta.com>,
-       "" <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*?
-In-Reply-To: <20030110162834.GB23375@codemonkey.org.uk>
-Message-ID: <Pine.LNX.4.50.0301101139000.7163-100000@montezuma.mastecende.com>
-References: <20030110161012.GD2041@holomorphy.com> <20030110162834.GB23375@codemonkey.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265532AbTAJQkH>; Fri, 10 Jan 2003 11:40:07 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:25244 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S265567AbTAJQkF>;
+	Fri, 10 Jan 2003 11:40:05 -0500
+Date: Fri, 10 Jan 2003 17:48:34 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andre Hedrick <andre@linux-ide.org>
+Cc: fverscheure@wanadoo.fr,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: Problem in IDE Disks cache handling in kernel 2.4.XX
+Message-ID: <20030110164834.GM843@suse.de>
+References: <Pine.LNX.4.10.10301100502450.31168-100000@master.linux-ide.org> <1042207998.28469.98.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1042207998.28469.98.camel@irongate.swansea.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Jan 2003, Dave Jones wrote:
+On Fri, Jan 10 2003, Alan Cox wrote:
+> On Fri, 2003-01-10 at 13:03, Andre Hedrick wrote:
+> > Oh, just let the darn thing barf a 0x51/0x04 is fine with me!
+> > Just an abort/unsupported command.
+> 
+> Sounds ok to me. We do need a barfsupressor option so we can issue
+> commands that may fail without confusing the user (eg multiwrite setup)
+> 
+> ie
+> 	ide_hwif_barfsupress(hwif);
+> 	ide_command....
+> 
+> That's very much true irrespective of the flush thing
 
-> There's still a boatload of drivers that don't compile,
-> a metric shitload of bits that never came over from 2.4 after
-> I stopped doing it circa 2.4.18, a lot of little 'trivial'
-> patches that got left by the wayside, and a load of 'strange' bits
-> that still need nailing down (personally, I have two boxes
-> that won't boot a 2.5 kernel currently (One was pnpbios related,
+In the barrier patches, I just used drive->quiet to supress ide_error()
+complaining too much (on cache flushes, too). Whether that's per-drive
+of per-hwif entity, dunno...
 
-I had a problem with PCI init, pnpbios ordering at some point, but i
-haven't tried a kernel with pnpbios in a while.
-
-> other needs more investigation), and another that falls on its
-> face after 10 minutes idle uptime. My p4-ht desktop box is the only one
-> that runs 2.5 without any problems.
-
-Thats interesting, i have a laptop experiencing the same symptoms, i'll be
-looking at it over the weekend.
-
-	Zwane
 -- 
-function.linuxpower.ca
+Jens Axboe
+

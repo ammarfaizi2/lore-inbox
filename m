@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265998AbUBPXrD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 18:47:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbUBPXrD
+	id S265944AbUBPXtq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 18:49:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265955AbUBPXtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 18:47:03 -0500
-Received: from atlrel8.hp.com ([156.153.255.206]:54739 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S265998AbUBPXpY (ORCPT
+	Mon, 16 Feb 2004 18:49:45 -0500
+Received: from fw.osdl.org ([65.172.181.6]:63397 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265944AbUBPXtn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 18:45:24 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Keith Owens <kaos@ocs.com.au>
-Subject: Re: 2.6.3-rc3 serial console woes
-Date: Mon, 16 Feb 2004 16:45:14 -0700
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>
-References: <2719.1076973910@kao2.melbourne.sgi.com>
-In-Reply-To: <2719.1076973910@kao2.melbourne.sgi.com>
+	Mon, 16 Feb 2004 18:49:43 -0500
+Date: Mon, 16 Feb 2004 15:49:39 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: David Eger <eger@theboonies.us>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.3-rc3 radeonfb: Problems with new (and old) driver
+In-Reply-To: <1076974304.1046.102.camel@gaston>
+Message-ID: <Pine.LNX.4.58.0402161546460.30742@home.osdl.org>
+References: <Pine.LNX.4.50L0.0402160411260.2959-100000@rosencrantz.theboonies.us>
+  <1076904084.12300.189.camel@gaston>  <Pine.LNX.4.58.0402160947080.30742@home.osdl.org>
+  <1076968236.3648.42.camel@gaston>  <Pine.LNX.4.58.0402161410430.30742@home.osdl.org>
+  <1076969892.3649.66.camel@gaston>  <Pine.LNX.4.58.0402161420390.30742@home.osdl.org>
+  <1076972267.3649.81.camel@gaston>  <Pine.LNX.4.58.0402161503490.30742@home.osdl.org>
+ <1076974304.1046.102.camel@gaston>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402161645.14151.bjorn.helgaas@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 February 2004 4:25 pm, Keith Owens wrote:
-> Spoke too soon.  That one line patch makes the serial console available
-> early in boot.  But as soon as /sbin/init runs, the console is
-> gibberish due to a speed mismatch.  Completely reverting
-> 
->   http://linux.bkbits.net:8080/linux-2.5/cset@1.1653?nav=index.html|ChangeSet@-7d
-> 
-> works fine.  Since this is a -rc kernel, can we revert the cset until
-> it is fixed?
 
-Reverting for now sounds like the right thing to me.  I would like to
-understand what's going on, though.
 
-For the serial console to work early, serial8250_console_setup() must
-be returning zero.  So we can't be taking this return:
+On Tue, 17 Feb 2004, Benjamin Herrenschmidt wrote:
+> > 
+> > So _logically_ the interface should be more of a "con_notify_change()"  
+> > one, with a bitmap of which states have changed (where "graphics vs text"
+> > is just one set of states - resultion is another, VC backing store is one,
+> > etc etc).
+>
+> Ok, if it's ok to delay it to 2.6.4, i'd prefer going all the way trough
+> calling it properly and passing the proper "state" flags instead of
+> hacking more on broken blank/unblank semantics. It can stay in -mm for
+> a while if we want enough testing.
 
-	if (!port->ops)
-		return -ENODEV;
+Oh, there is no hurry with this. In fact, I'd rather take it slow than try 
+to make any big changes to something that _largely_ works but has problems 
+in some special cases.
 
-and therefore, the hunk in serial_core.c shouldn't have any effect either.
-So is it merely the fact that we call serial8250_late_console_init()?
+In fact, I'd be happiest if the first step would be to just rename the
+interface and change the argument infrastructure, but actually keep all
+the behaviour "obviously the same". Bugs and all, if it comes to that. So
+I'd rather take several small steps (and let people use it for a while in
+between) than try to do everything. And yes, 2.6.3 is not even a target.
 
-I wouldn't expect that to make any difference, because the setup()
-call from serial8250_console_init() should have succeeded, so
-CON_ENABLED should have been set, and we don't do anything in
-that case.
-
-Keith, can you tell me how to reproduce this?
-
-Bjorn
-
+			Linus

@@ -1,66 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264065AbUDBOsA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 09:48:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264075AbUDBOsA
+	id S264064AbUDBOsn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 09:48:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbUDBOsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 09:48:00 -0500
-Received: from mailout.zma.compaq.com ([161.114.64.105]:28435 "EHLO
-	zmamail05.zma.compaq.com") by vger.kernel.org with ESMTP
-	id S264065AbUDBOr6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 09:47:58 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: HSG80 entry in drivers/scsi/scsi_scan.c
-Date: Fri, 2 Apr 2004 09:47:52 -0500
-Message-ID: <A8B003DDA3332A479C0ECCA641F47E6503BE6718@tayexc13.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: HSG80 entry in drivers/scsi/scsi_scan.c
-Thread-Index: AcQYsVNhZfWkz2y9RZi40B5L2tyZNwAEBW9g
-From: "Dupuis, Chad" <chad.dupuis@hp.com>
-To: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
-Cc: <James.Bottomley@HansenPartnership.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 02 Apr 2004 14:47:53.0206 (UTC) FILETIME=[7A412160:01C418C1]
+	Fri, 2 Apr 2004 09:48:42 -0500
+Received: from mail.fdk-filmhaus.de ([212.184.83.66]:44780 "EHLO
+	mail.fdk-filmhaus.de") by vger.kernel.org with ESMTP
+	id S264064AbUDBOsi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 09:48:38 -0500
+Subject: powernow-k8: broken PSB
+From: Christoph Terhechte <ct@fdk-berlin.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GPK6VgxApLmD3F0/Z/ar"
+Message-Id: <1080917249.7252.13.camel@asahi>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 02 Apr 2004 16:47:30 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, thank you.
 
-Regards,
+--=-GPK6VgxApLmD3F0/Z/ar
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Chad Dupuis
-Hewlett-Packard Company
+Hi,
 
------Original Message-----
-From: Marcelo Tosatti [mailto:marcelo.tosatti@cyclades.com] 
-Sent: Friday, April 02, 2004 7:37 AM
-To: Dupuis, Chad
-Cc: James.Bottomley@HansenPartnership.com; linux-kernel@vger.kernel.org
-Subject: Re: HSG80 entry in drivers/scsi/scsi_scan.c
+I'm running Gentoo Linux on an Athlon 64 system (board is Asus 8KV SE
+Deluxe). I was getting the "BIOS error - no PSB" message when trying to
+"modprobe powernow-k8", so I upgraded to 2.6.5-rc3-mm4 which includes
+Pavel Machek's new powernow-k8 driver. Theoretically, it should be
+getting tables through ACPI and ignore the legacy PST/PSB tables, but
+I'm still getting the same error as before and inserting powernow-k8
+fails with this message:
+
+FATAL: Error inserting powernow_k8
+(/lib/modules/2.6.5-rc3-mm4/kernel/arch/x86_64/cpufreq/powernow-k8.ko):
+No such device
+
+Is there anything I need to tell the kernel explicitly to inform it not
+to use the legacy method? Any kernel options I might have overlooked?
+
+BIOS support for ACPI 2.0 is activated and APIC APIC Supprt enabled. I'm
+confused about this boot message, though:
+
+PCI bridge 00:01 from 1106 found. Setting "noapic". Overwrite with
+"apic"
+
+--=20
+Christoph Terhechte <ct@fdk-berlin.de>
+International Forum of New Cinema
+Potsdamer Strasse 2
+D-10785 Berlin
+Tel: +49-30-269.55.200
+Fax: +49-30-269.55.222
 
 
-On Tue, Mar 30, 2004 at 04:40:00PM -0500, Dupuis, Chad wrote:
-> Hello,
-> 
-> I wanted to report that the
-> 
-> {"DEC","HSG80","*", BLIST_FORCELUN | BLIST_NOSTARTONADD},
-> 
-> entry in the device_list[] structure in drivers/scsi/scsi_scan.c is 
-> incorrect.  It should be
-> 
-> {"DEC","HSG80","*", BLIST_SPARSELUN | BLIST_LARGELUN | 
-> BLIST_NOSTARTONADD}
+--=-GPK6VgxApLmD3F0/Z/ar
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
-Hi Chad, 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Mind to write a patch for 2.6 and, as soon as its tested there, we can 
-backport it to 2.4.
+iD8DBQBAbX0BUMN/y69U3RgRAgKHAKCkVhEQjXBl6R7zcj59LTpChTVxOgCdEvi7
+u/udaxJHyhSeLcdXXkRNhX4=
+=hlnE
+-----END PGP SIGNATURE-----
 
-James should handle this.
+--=-GPK6VgxApLmD3F0/Z/ar--

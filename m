@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131386AbRCHNqK>; Thu, 8 Mar 2001 08:46:10 -0500
+	id <S130020AbRCHOEM>; Thu, 8 Mar 2001 09:04:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131387AbRCHNqA>; Thu, 8 Mar 2001 08:46:00 -0500
-Received: from dyn545.dhcp.lancs.ac.uk ([148.88.245.69]:20741 "EHLO
-	dyn545.dhcp.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S131386AbRCHNp4>; Thu, 8 Mar 2001 08:45:56 -0500
-Date: Thu, 8 Mar 2001 13:42:00 +0000 (GMT)
-From: Stephen Torri <s.torri@lancaster.ac.uk>
-X-X-Sender: <torri@dyn545.dhcp.lancs.ac.uk>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI:system description tables not found.
-In-Reply-To: <Pine.LNX.4.33.0103081304540.6042-100000@dyn545.dhcp.lancs.ac.uk>
-Message-ID: <Pine.LNX.4.33.0103081341310.7166-100000@dyn545.dhcp.lancs.ac.uk>
+	id <S130029AbRCHOEB>; Thu, 8 Mar 2001 09:04:01 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:927 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S130020AbRCHODy>;
+	Thu, 8 Mar 2001 09:03:54 -0500
+Importance: Normal
+Subject: 2.4.2 kernel mount crash
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3  March 21, 2000
+Message-ID: <OF586830F9.6A70047B-ON85256A09.004D1EC7@somers.hqregion.ibm.com>
+From: "Jie Zhou" <jiezhou@us.ibm.com>
+Date: Thu, 8 Mar 2001 09:03:27 -0500
+X-MIMETrack: Serialize by Router on D02ML231/02/M/IBM(Release 5.0.6a |January 17, 2001) at
+ 03/08/2001 09:03:28 AM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Motherboard is a P6DBE. IDE drives. Just found the site and confirmed it.
+Hi, Folks,
 
-Stephen
+I did an upgrade from  kernel-2.2.16 to the latest version-2.4.2.
+During the "make bzImage"step, I got bunch of this warning:
+"pasting would not give a valid preprocessing token". then I just ignored
+it and after all done
+rebooted the linux and got into the new kernel successfully. However, when
+I tried to
+mount my DVD RAM using the command mount -t udf /dev/hdb /mnt/dvd
+(I did choose the support for udf filesystem), the command completed with a
+promp appears.but
+after the 'busy' light on the DVD catridge gets on, it never gets off any
+more, and
+the computer froze then. I thought it might be because I haven't unmount
+the DVD
+, so I restarted the computer and use the 'dmesg' command to see what
+happens, then I found a lot of
+"Unable to identify CD-ROM Format" messages in it. so I did a 'mount'
+command to check whether it's
+ mounted or not, and the result shows that the /dev/hdb(which is the DVD on
+my computer) is not mounted
+yet.So I did the mount -t udf /dev/hdb /mnt/dvd again, same thing happens
+again-the computer froze with the DVD light on.
+I read in the book "Running Linux", the author said
+"If any errors or warnings occur while compiling, you cannot expect the
+resulting
+kernel to work correctly..." I'm wondering if it's because of the the
+warning I got during
+the process of compiling the image file-"pasting would not give a valid
+preprocessing token"
+that the mount command fails.
+Any kind of suggestions are appreciated..
 
-On Thu, 8 Mar 2001, Stephen Torri wrote:
-
-> I am using kernel-2.4.2-ac12 (will try ac14). The motherboard is a
-> Supermicro P6DBU. (I will need to check the board when I get home to
-> confirm). I get the messages below when the system starts:
->
-> acpi: system description tables not found
->
-> The manufacturer says that there is support for acpi. So I willing to beat
-> it around a bit to get the tables found. Any ideas where to start?
->
-> Stephen
->
-> -----------------------------------------------
-> Buyer's Guide for a Operating System:
-> Don't care to know: Mac
-> Don't mind knowing but not too much: Windows
-> Hit me! I can take it!: Linux
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
------------------------------------------------
-Buyer's Guide for a Operating System:
-Don't care to know: Mac
-Don't mind knowing but not too much: Windows
-Hit me! I can take it!: Linux
+-Jie
 

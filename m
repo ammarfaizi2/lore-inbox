@@ -1,28 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266353AbRGPKuh>; Mon, 16 Jul 2001 06:50:37 -0400
+	id <S267279AbRGPLOd>; Mon, 16 Jul 2001 07:14:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267272AbRGPKuR>; Mon, 16 Jul 2001 06:50:17 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36360 "EHLO
+	id <S267287AbRGPLOX>; Mon, 16 Jul 2001 07:14:23 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42504 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266353AbRGPKuP>; Mon, 16 Jul 2001 06:50:15 -0400
-Subject: Re: Wanted Tester for IDE-DMA timeout barfing!
-To: andre@linux-ide.org (Andre Hedrick)
-Date: Mon, 16 Jul 2001 11:51:06 +0100 (BST)
+	id <S267281AbRGPLOQ>; Mon, 16 Jul 2001 07:14:16 -0400
+Subject: Re: "oversized" files
+To: yoda_2002@yahoo.com (Aaron Smith)
+Date: Mon, 16 Jul 2001 12:15:19 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10107152143430.4899-100000@master.linux-ide.org> from "Andre Hedrick" at Jul 15, 2001 09:46:25 PM
+In-Reply-To: <20010715212006.A408@jacana.dyn.dhs.org> from "Aaron Smith" at Jul 15, 2001 09:20:07 PM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15M5xy-0005Lf-00@the-village.bc.nu>
+Message-Id: <E15M6LP-0005NU-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you have a system that can predictable on the problem and can afford
-> the down time or data loss to resolve this issue, please contact me ASAP.
-> I have an idea and do not want to lose it ;-)
+> I have a file that is approximately 3.25GB and my system keeps bitching about "Value too large for defined data type."  Is there any way to stop this?  Since I'm sure you're wondering why I have a file that large, I'm using it via loopback as my MP3 partition, so I can remove it fairly quick if the need should ever arise.
 
-I can generate it to order on CD-ROM with the Palmax. The patches Jens and
-co did fixed it completely however
+You need a 2.4 kernel and you need to be using NFSv3 to handle files >2Gb

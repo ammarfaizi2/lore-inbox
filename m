@@ -1,106 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263321AbTBSRzh>; Wed, 19 Feb 2003 12:55:37 -0500
+	id <S268956AbTBSR5m>; Wed, 19 Feb 2003 12:57:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263326AbTBSRzh>; Wed, 19 Feb 2003 12:55:37 -0500
-Received: from cda1.e-mind.com ([195.223.140.107]:44161 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S263321AbTBSRzf>;
-	Wed, 19 Feb 2003 12:55:35 -0500
-Date: Wed, 19 Feb 2003 19:05:24 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Dejan Muhamedagic <dejan@hello-penguin.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: vm issues on sap app server
-Message-ID: <20030219180523.GK14633@x30.suse.de>
-References: <20030219171432.A6059@smp.colors.kwc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030219171432.A6059@smp.colors.kwc>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+	id <S263366AbTBSR5m>; Wed, 19 Feb 2003 12:57:42 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:64260 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S268956AbTBSR5k>; Wed, 19 Feb 2003 12:57:40 -0500
+Date: Wed, 19 Feb 2003 13:04:21 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Thomas Molina <tmolina@cox.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.62]: 2/3: Make SCSI low-level drivers also a seperate, complete selectable submenu
+In-Reply-To: <Pine.LNX.4.44.0302190332200.4923-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.3.96.1030219130140.10611E-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 19, 2003 at 05:14:32PM +0100, Dejan Muhamedagic wrote:
-> Hello everybody,
+On Wed, 19 Feb 2003, Thomas Molina wrote:
+
+> On Wed, 19 Feb 2003, Bill Davidsen wrote:
+
+> > Have you checked/used them? I kind of wrote that off after a while, I
+> > don't need more coasters :-( At the time I deferred testing the score was
+> > CD: read okay burn failed, ide-floppy (ZIP in my case): ng, and tape: not
+> > even visible. That was back around 2.5.52 or so, since ide-scsi seems to
+> > work I haven't been motivated to care.
 > 
-> We're running here a couple of 4-way intel boxes each with
-> 6GB of memory and a SCSI RAID.  The sole purpose is to run
-> SAP applications (SAP app servers).  Basically, it's 30-40
-> processes accepting connections from ~150 SAP users and
-> making queries/updates to a DB server.  These processes are
-> long lived and may swallow quite a bit of memory.  The
-> standard estimate is ~30MB per user.
-> 
-> Currently, one box is running 2.4.20aa1 kernel and the other
-> 2.4.20 with rmap15d and a bunch of NFS patches applied.
-> We're not entirely happy with either VM though the SAP
-> statistics show that both machines have acceptable response
-> times.
-> 
-> Both servers swap constantly, but the 2.4.20aa1 at a 10-fold
-> higher rate.  OTOH, there should be enough memory for
-> everything.  It seems like both VMs have preference for
-> cache.  Is it possible to reduce the amount of memory used
-> for cache?
+> As I said, I've been using it successfully.  I've not tested ide-floppy 
+> since I don't have one, nor a tape.  I would rather not have to use 
+> ide-scsi if I can help it.  ide cd support is incompatible with ide-scsi 
+> cdrom support, so things are simpler if I can just cut out the scsi 
+> support entirely.
 
-yes:
+Since I have SCSI devices I'd rather make the ATAPI devices look SCSI than
+have two sets of tools to do things. And two sets of drivers loaded, two
+sources of possible bugs, etc. That just seems simpler to me.
 
-	echo 1000 >/proc/sys/vm/vm_mapped_ratio
+Thanks for the input.
 
-this controls how hard the vm will try to shrink the cache before
-starting swapping/unmapping activities.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-> 
-> The worst situation is when there's a high io load.  For
-> example, a file transfer over the Gb i/f (~40MBps) makes
-> almost all SAP processes stuck in the D state for some time
-> even making some SAP jobs fail due to high timeouts.  It
-> looks like the VM wants to fill the cache and starts to swap
-> more at the same time.  So we have to do big file transfers
-
-you can try if this mitigate the "stalling" effect of the file
-transfer:
-
-	echo 5 >/proc/sys/vm/bdflush
-
-also elvtune might be useful here if the above doesn't help at all.
-
-You can also consider to use 2.4.21pre4aa3, it has some more advanced
-elevator logic, the one in 2.4.20aa1 wasn't as accurate and it might
-generate more stalls than what was necessary.
-
-> when there's no SAP activity.  The machine also suffers
-> badly during backup.
-> 
-> Finally, there's a third SAP app server, an RS6000 running
-> AIX with the same amount of memory, which seems to be more
-> stable under various loads.
-> 
-> Anybody with advice on how to get Linux behave better?
-
-2.4.21pre4aa3 has also extreme scalability optimizations that generates
-three digits percent improvements on some hardware, however those won't
-help latency directly. These optimizations will also change partly when
-the vm starts swapping, and it will defer the "swap" point somehow, this
-new behaviour (besides the greatly improved scalability) is also
-beneficial to very shm-userspace-cache intensive apps. You can revert to
-the non-scalable behaviour (but possibly more desiderable on small
-desktop/laptops) by using echo 1 >/proc/sys/vm/vm_anon_lru. You should
-also try 'echo 1 >/proc/sys/vm/vm_anon_lru' if you see the VM isn't
-swapping well enough and that it shrinks too much cache after upgrading
-to 2.4.21pre4aa3.
-
-Unfortunately the tuning largely depends on the workload and the
-hardware, so it is very hard to make it autotuning at best
-automatically.
-
-> I will paste here excerpts from vmstat and sysstat
-> (sar), which seemed to be representative, as well as other
-> relevant data.
-
-Thanks for the interesting feedback!
-
-Andrea

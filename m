@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286371AbSAEXUi>; Sat, 5 Jan 2002 18:20:38 -0500
+	id <S286403AbSAEXaw>; Sat, 5 Jan 2002 18:30:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286374AbSAEXUb>; Sat, 5 Jan 2002 18:20:31 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2823 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286371AbSAEXUS>; Sat, 5 Jan 2002 18:20:18 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: losetuping files in tmpfs fails?
-Date: 5 Jan 2002 15:20:05 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a181n5$tm3$1@cesium.transmeta.com>
-In-Reply-To: <20020105215147.GH136@pervalidus>
+	id <S286395AbSAEXam>; Sat, 5 Jan 2002 18:30:42 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46607 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286399AbSAEXaj>; Sat, 5 Jan 2002 18:30:39 -0500
+Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
+To: davidel@xmailserver.org (Davide Libenzi)
+Date: Sat, 5 Jan 2002 23:41:38 +0000 (GMT)
+Cc: mingo@elte.hu (Ingo Molnar), linux-kernel@vger.kernel.org (lkml),
+        torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <Pine.LNX.4.40.0201051242080.1607-100000@blue1.dev.mcafeelabs.com> from "Davide Libenzi" at Jan 05, 2002 03:04:27 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16N0RW-0001We-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020105215147.GH136@pervalidus>
-By author:    =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <0@pervalidus.net>
-In newsgroup: linux.dev.kernel
->
-> On a side note, why do I need to use losetup -d after umount
-> when /etc/mtab is a symlink to /proc/mounts ?
+> > In fact it's the cr3 switch (movl %0, %%cr3) that accounts for about 30%
+> > of the context switch cost. On x86. On other architectures it's often
+> > much, much cheaper.
 > 
-> mount or loop "feature" ?
-> 
+> TLB flushes are expensive everywhere, and you know exactly this and if you
 
-/proc/mounts, unlike /etc/mtab, doesn't tell umount(8) that this was a
-loopback created by mount(8) as opposed to a preexisting loopback
-created by losetup(8).
+Not every processor is dumb enough to have TLB flush on a context switch.
+If you have tags on your tlb/caches it's not a problem.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+> Again, the history of our UP scheduler thought us that noone has been able
+> to makes it suffer with realistic/high not-stupid-benchamrks loads.
+
+Apache under load, DB2, Postgresql, Lotus domino all show bad behaviour. 
+(Whether apache, db2, and postgresql want fixing differently is a seperate
+ argument)
+
+Alan

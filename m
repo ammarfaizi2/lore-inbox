@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266802AbUHCTFW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266808AbUHCTFj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266802AbUHCTFW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 15:05:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUHCTFV
+	id S266808AbUHCTFj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 15:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266807AbUHCTFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 15:05:21 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:58087 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266802AbUHCTFO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 15:05:14 -0400
-Subject: Re: modversion.h in kernel 2.6.x
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
+	Tue, 3 Aug 2004 15:05:39 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:5158 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S266808AbUHCTFb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 15:05:31 -0400
+Date: Tue, 3 Aug 2004 21:06:49 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
 To: Lei Yang <leiyang@nec-labs.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>,
        kernelnewbies <kernelnewbies@nl.linux.org>
-In-Reply-To: <1091570120.5487.82.camel@bijar.nec-labs.com>
+Subject: Re: modversion.h in kernel 2.6.x
+Message-ID: <20040803190649.GA20041@mars.ravnborg.org>
+Mail-Followup-To: Lei Yang <leiyang@nec-labs.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	kernelnewbies <kernelnewbies@nl.linux.org>
 References: <1091570120.5487.82.camel@bijar.nec-labs.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SG7df+OaYzqq8ThEpgMj"
-Organization: Red Hat UK
-Message-Id: <1091559899.2816.16.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 03 Aug 2004 21:05:00 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091570120.5487.82.camel@bijar.nec-labs.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-SG7df+OaYzqq8ThEpgMj
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 2004-08-03 at 23:55, Lei Yang wrote:
+On Tue, Aug 03, 2004 at 02:55:20PM -0700, Lei Yang wrote:
 > Hello,
->=20
+> 
 > Could anyone tell me what happened with modversion.h in 2.6.x? I want to
 > build a module whose makefile indicates that,
+> 
+> ifdef CONFIG_MODVERSIONS
+> MODVERSIONS:= -DMODVERSIONS -include
+> $(KERNEL_DIR)/include/linux/modversions.h
+> CKERNOPS += $(MODVERSIONS)
+> endif
 
-this module has a broken makefile for 2.6 .....
+This is a sign of a broken module.
+Request the author to use the kbuild infrastructure when building the module.
+See Documentation/kbuild/modules.txt and Driver porting series at lwn.net for
+good examples.
 
-it really should use the kbuild infrastructure instead.
+If you do not need CONFIG_MODVERSION then try to disable it and compile
+the module, you may be lucky that it works.
 
---=-SG7df+OaYzqq8ThEpgMj
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+But be carefull not to enable any options that may change ABI, for example reg-parm=3
+is know to cause problems if not used consistently.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBD+HbxULwo51rQBIRAnhZAJ9P7skqX0CujrpKoKfvnpAkXN+ZAACfdphs
-xtSd3TvVHYqPb5UgI3yakn0=
-=0YXb
------END PGP SIGNATURE-----
-
---=-SG7df+OaYzqq8ThEpgMj--
-
+	Sam

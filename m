@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263608AbRFFQ6k>; Wed, 6 Jun 2001 12:58:40 -0400
+	id <S263607AbRFFRAU>; Wed, 6 Jun 2001 13:00:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263607AbRFFQ6a>; Wed, 6 Jun 2001 12:58:30 -0400
-Received: from twinlark.arctic.org ([204.107.140.52]:10771 "HELO
-	twinlark.arctic.org") by vger.kernel.org with SMTP
-	id <S263608AbRFFQ6T>; Wed, 6 Jun 2001 12:58:19 -0400
-Date: Wed, 6 Jun 2001 09:58:18 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Sean Hunter <sean@dev.sportingbet.com>,
-        "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <Pine.GSO.4.21.0106060637580.7264-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33.0106060949200.21294-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	id <S263632AbRFFRAK>; Wed, 6 Jun 2001 13:00:10 -0400
+Received: from tomts14.bellnexxia.net ([209.226.175.35]:64163 "EHLO
+	tomts14-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S263607AbRFFRAB>; Wed, 6 Jun 2001 13:00:01 -0400
+To: Peter Svensson <petersv@psv.nu>
+Cc: Chris Boot <bootc@worldnet.fr>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        "David N. Welton" <davidw@apache.org>, Pavel Machek <pavel@suse.cz>
+Subject: Re: temperature standard - global config option?
+In-Reply-To: <Pine.LNX.4.33.0106061814470.1655-100000@cheetah.psv.nu>
+From: Bill Pringlemeir <bpringle@sympatico.ca>
+Date: 06 Jun 2001 12:58:03 -0400
+In-Reply-To: Peter Svensson's message of "Wed, 6 Jun 2001 18:16:08 +0200 (CEST)"
+Message-ID: <m2iti9v944.fsf@sympatico.ca>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Jun 2001, Alexander Viro wrote:
+>>>>> "Peter" == Peter Svensson <petersv@psv.nu> writes:
 
-> On Wed, 6 Jun 2001, Sean Hunter wrote:
->
-> > This is completely bogus. I am not saying that I can't afford the swap.
-> > What I am saying is that it is completely broken to require this amount
-> > of swap given the boundaries of efficient use.
->
-> Funny. I can count many ways in which 4.3BSD, SunOS{3,4} and post-4.4 BSD
-> systems I've used were broken, but I've never thought that swap==2*RAM rule
-> was one of them.
->
-> Not that being more kind on swap would be a bad thing, but that rule for
-> amount of swap is pretty common. ISTR similar for (very old) SCO, so it's
-> not just BSD world. How are modern Missed'em'V variants in that respect, BTW?
+ Peter> Kelvin (decikelvin?) is probably a good unit to use in the
+ Peter> kernel. If you want something else you convert it in the
+ Peter> programs you use to interact with the kernel. This is a
+ Peter> usespace issue, I think.
 
-frequently when building out a solaris web farm you have to just bite it
-and throw away half your disk for swap that will never be used.  it's got
-pessimistic memory allocation by default.
-
-you can do something with mmap() to get an optimistic allocation, but i
-didn't trust making this change to apache when i was involved with a farm
-like this... i didn't want to be debugging any potential low memory
-problems.
-
--dean
+How about BogoDegrees?  Sorry, I will go and shoot myself.
 

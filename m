@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131356AbQLIPKk>; Sat, 9 Dec 2000 10:10:40 -0500
+	id <S131506AbQLIPRM>; Sat, 9 Dec 2000 10:17:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131506AbQLIPKa>; Sat, 9 Dec 2000 10:10:30 -0500
-Received: from web1.clubnet.net ([206.126.128.3]:54290 "EHLO web1.clubnet.net")
-	by vger.kernel.org with ESMTP id <S131356AbQLIPKQ>;
-	Sat, 9 Dec 2000 10:10:16 -0500
-Message-ID: <001001c061ed$f5de3da0$3d8d7ece@snowline.net>
-From: "Eddy" <edmc@snowline.net>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Subject: 2.2.16 and 2.2.17 nfsroot boot problem with D-Link DE-220PCT
-Date: Sat, 9 Dec 2000 06:40:21 -0800
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_000D_01C061AA.E7025C00"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S131686AbQLIPRC>; Sat, 9 Dec 2000 10:17:02 -0500
+Received: from dusdi4-145-253-116-006.arcor-ip.net ([145.253.116.6]:41221 "EHLO
+	al.romantica.wg") by vger.kernel.org with ESMTP id <S131506AbQLIPQm>;
+	Sat, 9 Dec 2000 10:16:42 -0500
+Date: Sat, 9 Dec 2000 14:54:28 +0100
+From: Jens Taprogge <taprogge@idg.rwth-aachen.de>
+To: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+Cc: Linus Torvalds <torvalds@transmeta.com>, rgooch@ras.ucalgary.ca,
+        jgarzik@mandrakesoft.mandrakesoft.com, dhinds@valinux.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Serial cardbus code.... for testing, please.....
+Message-ID: <20001209145428.A11104@al.romantica.wg>
+Mail-Followup-To: Jens Taprogge <taprogge@idg.rwth-aachen.de>,
+	"Theodore Y. Ts'o" <tytso@MIT.EDU>,
+	Linus Torvalds <torvalds@transmeta.com>, rgooch@ras.ucalgary.ca,
+	jgarzik@mandrakesoft.mandrakesoft.com, dhinds@valinux.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10012081319010.11626-100000@penguin.transmeta.com> <200012090541.AAA17863@tsx-prime.MIT.EDU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200012090541.AAA17863@tsx-prime.MIT.EDU>; from tytso@MIT.EDU on Sat, Dec 09, 2000 at 12:41:24AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Sat, Dec 09, 2000 at 12:41:24AM -0500, Theodore Y. Ts'o wrote:    
+> In the case of the MegaHertz modem PCMCIA card and the Linksys combo
+> PCMCIA card, card registers manage to survive the serial driver's UART
+> test (although as a 8250 or 16450, instead of the 16550A that's really
+> in those cards, meaning it failed the more advanced loopback and FIFO
+> tests).
 
-------=_NextPart_000_000D_01C061AA.E7025C00
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+I have a Megaherz card as well. It has been working fine ever since
+Linus fixed some issues with the ToPIC97 Cardbus controller. It reports
+a 16550A on my machine.
 
-Well that didn't work either! I took out APM from 2.2.17 and the now the =
-system resets immediately following the "Booting Kernel" message.
+I have been using the card to connect to my ISP day-in and day-out with
+no problems.
 
-Anybody got some good pointers for debugging a kernel at boot time?
 
-Thanks, Eddy
+If you want me to run some specific test on this box let me know.
 
-------=_NextPart_000_000D_01C061AA.E7025C00
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Jens
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Diso-8859-1">
-<META content=3D"MSHTML 5.50.4207.2601" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DTerminal size=3D2>Well that didn't work either! I took =
-out APM=20
-from 2.2.17 and the now the system resets immediately following the =
-"Booting=20
-Kernel" message.</FONT></DIV>
-<DIV><FONT face=3DTerminal size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DTerminal size=3D2>Anybody got some good pointers for =
-debugging a=20
-kernel at boot time?</FONT></DIV>
-<DIV><FONT face=3DTerminal size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DTerminal size=3D2>Thanks, =
-Eddy</FONT></DIV></BODY></HTML>
+PS: I have everything compiled into the kernel.
 
-------=_NextPart_000_000D_01C061AA.E7025C00--
+--
+Jens Taprogge
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,29 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129661AbRBNWLk>; Wed, 14 Feb 2001 17:11:40 -0500
+	id <S129581AbRBNWNA>; Wed, 14 Feb 2001 17:13:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131771AbRBNWLb>; Wed, 14 Feb 2001 17:11:31 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32530 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129661AbRBNWLS>; Wed, 14 Feb 2001 17:11:18 -0500
-Subject: Re: 2.4.1-ac13 tulip problems
-To: faceprint@faceprint.com (Nathan Walp)
-Date: Wed, 14 Feb 2001 22:11:46 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A8B019C.4F0C76DB@faceprint.com> from "Nathan Walp" at Feb 14, 2001 05:07:24 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130761AbRBNWMv>; Wed, 14 Feb 2001 17:12:51 -0500
+Received: from barnowl.demon.co.uk ([158.152.23.247]:62471 "EHLO
+	barnowl.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S130455AbRBNWMi>; Wed, 14 Feb 2001 17:12:38 -0500
+Mail-Copies-To: never
+To: linux-kernel@vger.kernel.org
+Subject: Re: ECN for servers ?
+In-Reply-To: <20010214190128.G923@ppetru.net>
+	<96eqhm$33k$1@cesium.transmeta.com>
+From: Graham Murray <graham@barnowl.demon.co.uk>
+Date: 14 Feb 2001 22:11:57 +0000
+In-Reply-To: <96eqhm$33k$1@cesium.transmeta.com> ("H. Peter Anvin"'s message of "14 Feb 2001 12:41:26 -0800")
+Message-ID: <m2ofw4nccy.fsf@barnowl.demon.co.uk>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14TA9M-0006FE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I just booted to 2.4.1-ac13, and was fine for a couple minutes.  Then
-> all network connectivity went away, and I had this sitting in syslog:
-> Hence, I'm back to 2.4.1-ac12, and sending this in.  No other noticible
-> problems in my short-lived uptime ;-)
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-I guess the pnic fixes have a side effect we didnt want. What kind of tulip
-do you have (lspci -v ?)
+> Con: people behind broken firewalls can't connect.
+
+Are you sure that is correct?  "Servers" normally listen for incoming
+connections from clients rather than establish them[1]. So, if the
+server implements ECN then it will respond appropriately to incoming
+SYN packets irrespective of whether the ECN bits are set. People, who
+use ECN, who are behind a broken firewall will have problems
+connecting irrespective of whether or not the server implements ECN.
+
+
+[1] Passive FTP being an exception.

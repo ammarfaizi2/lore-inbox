@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267374AbUHJBAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267373AbUHJBEH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267374AbUHJBAH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 21:00:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUHJBAG
+	id S267373AbUHJBEH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 21:04:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUHJBEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 21:00:06 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:33729 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267373AbUHJA7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 20:59:53 -0400
-Subject: Re: 2.4.x vs 2.6.x: denormal handling and audio performance
-From: Lee Revell <rlrevell@joe-job.com>
-To: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>
-In-Reply-To: <1092079195.16794.257.camel@cmn37.stanford.edu>
-References: <1092079195.16794.257.camel@cmn37.stanford.edu>
-Content-Type: text/plain
-Message-Id: <1092099606.22613.12.camel@mindpipe>
+	Mon, 9 Aug 2004 21:04:07 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:17143 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S267373AbUHJBED (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 21:04:03 -0400
+Date: Mon, 9 Aug 2004 18:03:58 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6] Remove spaces from Skystar2 pci_driver.name field
+Message-ID: <20040810010358.GA9344@plexity.net>
+Reply-To: dsaxena@plexity.net
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 09 Aug 2004 21:00:07 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-09 at 15:19, Fernando Pablo Lopez-Lezcano wrote:
-> Hi all, I've been trying to track weird behavior I'm experiencing when
-> trying to use 2.6.x for "pro audio" applications and I think I have
-> something to report (and some questions). 
-> 
-> First, the environment. I'm running the Jack low latency server on top
-> of two different software installs on the same hardware, one is FC1 +
-> 2.4.26 + low latency and preemption patches, the other is FC2 + 2.6.7
-> rc2-mm2 + voluntary preemption O3. They are different hard disks swapped
-> into the same P4 laptop. Both are running the same source code versions
-> of all the audio programs that I use to test (but _not_ the same
-> binaries, each one is built in the environment it runs on). 
-> 
 
-Have you tried using the exact same binaries under both 2.4 and 2.6? 
-This would rule out a compiler issue.
+More...
 
-In case anyone thinks this is an application bug, here are some links
-pertaining to the P4 denormals-are-zero issue, these were at the bottom
-of Fernando's post:
+Please apply,
+~Deepak
 
-http://gcc.gnu.org/ml/gcc/2001-07/msg02162.html
-http://lkml.org/lkml/2003/5/9/144
-
-Lee
+Signed-off-by: Deepak Saxena <dsaxena@plexity.net>
 
 
+===== drivers/media/dvb/b2c2/skystar2.c 1.7 vs edited =====
+--- 1.7/drivers/media/dvb/b2c2/skystar2.c	Tue Jul 13 06:27:49 2004
++++ edited/drivers/media/dvb/b2c2/skystar2.c	Mon Aug  9 17:58:34 2004
+@@ -2345,7 +2345,7 @@
+ MODULE_DEVICE_TABLE(pci, skystar2_pci_tbl);
+ 
+ static struct pci_driver skystar2_pci_driver = {
+-	.name = "Technisat SkyStar2 driver",
++	.name = "SkyStar2",
+ 	.id_table = skystar2_pci_tbl,
+ 	.probe = skystar2_probe,
+ 	.remove = skystar2_remove,
 
+-- 
+Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
 
+"Unlike me, many of you have accepted the situation of your imprisonment and
+ will die here like rotten cabbages." - Number 6

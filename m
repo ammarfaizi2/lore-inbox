@@ -1,79 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292701AbSBUS1U>; Thu, 21 Feb 2002 13:27:20 -0500
+	id <S292702AbSBUS2a>; Thu, 21 Feb 2002 13:28:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292702AbSBUS1K>; Thu, 21 Feb 2002 13:27:10 -0500
-Received: from smtp-1.llnl.gov ([128.115.250.81]:28059 "EHLO smtp-1.llnl.gov")
-	by vger.kernel.org with ESMTP id <S292701AbSBUS0y>;
-	Thu, 21 Feb 2002 13:26:54 -0500
-Date: Thu, 21 Feb 2002 10:26:47 -0800 (PST)
-From: "Tom Epperly" <tepperly@llnl.gov>
-X-X-Sender: epperly@tux06.llnl.gov
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: RH7.2 running 2.4.9-21-SMP (dual Xeon's) yields "Illegal
- instructions"
-In-Reply-To: <E16dxoe-0007l6-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44.0202211010270.19681-100000@tux06.llnl.gov>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292703AbSBUS2X>; Thu, 21 Feb 2002 13:28:23 -0500
+Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:16132
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S292702AbSBUS2J>; Thu, 21 Feb 2002 13:28:09 -0500
+Subject: Re: [PROBLEM]: 2.4.18-rc1 - Unable to mount CD-ROM/RW
+From: Shawn Starr <spstarr@sh0n.net>
+To: jss@pacbell.net
+Cc: Linux <linux-kernel@vger.kernel.org>
+In-Reply-To: <LI5YSPXWYTY04431V32LFIF97042TP.3c7534b4@jss>
+In-Reply-To: <LI5YSPXWYTY04431V32LFIF97042TP.3c7534b4@jss>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1.99 (Preview Release)
+Date: 21 Feb 2002 13:31:42 -0500
+Message-Id: <1014316330.8812.27.camel@unaropia>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Feb 2002, Alan Cox wrote:
+It's an LFS distribution i built. The problem is 2.4.17 didn't have this
+problem. Something introduced into 2.4.18-pre/rc.
 
-> Almost every other report I have ever seen that looked like that one has
-> always turned out to be hardware related. The randomness in paticular
-> tends to be a pointer to thinks like cache faults.
+I compile my core devices into kernel.
 
-Is there any way to test this?
- 
-> You do have ECC main memory which is good.
+Shawn.
+
+
+On Thu, 2002-02-21 at 12:56, J.S.Souza wrote:
+> What distro are you using?  If you are using RedHat 7.2 then there are known issues with the installer.   Some of the fixes suggest doing a 'depmod -ae' (this 
+> is redhat's fix on their website - I forget the exact URL btw).  Anyways, try 'depmod -ae' and see if that fixes it.
 > 
-> What other hardware is in the machine ?
+> 2/21/2002 9:40:35 AM, Shawn Starr <spstarr@sh0n.net> wrote:
+> 
+> >Uniform Multi-Platform E-IDE driver Revision: 6.31
+> >ide: Assuming 33MHz system bus speed for PIO modes; override with
+> >idebus=xx
+> >PIIX3: IDE controller on PCI bus 00 dev 39
+> >PIIX3: chipset revision 0
+> >PIIX3: not 100% native mode: will probe irqs later
+> >    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:DMA
+> >    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
+> >hda: FUJITSU MPE3064AT, ATA DISK drive
+> >hdb: WDC AC32500H, ATA DISK drive
+> >hdc: YAMAHA CRW2100E, ATAPI CD/DVD-ROM drive      <--------------------
+> >ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> >ide1 at 0x170-0x177,0x376 on irq 15
+> >hda: 12672450 sectors (6488 MB) w/512KiB Cache, CHS=788/255/63, (U)DMA
+> >hdb: Disabling (U)DMA for WDC AC32500H
+> >hdb: 4999680 sectors (2560 MB) w/128KiB Cache, CHS=620/128/63
+> >Partition check:
+> > hda: hda1 hda2
+> > hdb: hdb1
+> >Floppy drive(s): fd0 is 1.44M
+> >FDC 0 is a post-1991 82077
+> >3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+> >00:0c.0: 3Com PCI 3c900 Cyclone 10Mbps TPO at 0xe880. Vers LK1.1.16
+> >PPP generic driver version 2.4.1
+> >PPP Deflate Compression module registered
+> >PPP BSD Compression module registered
+> >SCSI subsystem driver Revision: 1.00
+> >scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.4
+> >        <Adaptec 2902/04/10/15/20/30C SCSI adapter>
+> >        aic7850: Single Channel A, SCSI Id=7, 3/253 SCBs
+> >
+> >  Vendor: HP        Model: T4000s            Rev: 1.10
+> >  Type:   Sequential-Access                  ANSI SCSI revision: 02
+> >scsi1 : SCSI host adapter emulation for IDE ATAPI devices
+> >  Vendor: YAMAHA    Model: CRW2100E          Rev: 1.0N <----------------
+> >  Type:   CD-ROM                             ANSI SCSI revision: 02
+> >st: Version 20020205, bufsize 32768, wrt 30720, max init. bufs 4, s/g
+> >segs 16
+> >Attached scsi tape st0 at scsi0, channel 0, id 4, lun 0
+> >
+> >When i attempt to mount /dev/cdrom (symlink to /dev/scd0) I get
+> >
+> >mount: /dev/cdrom is not a valid block device (or /dev/scd0).
+> >
+> >What broke? :-(
+> >
+> >Shawn.
+> >
+> >
+> >
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 
+> 
+> 
+> 
 
-1. SCSI harddisk plugged into the motherboard
-2. Floppy drive plugged into the motherboard
-3. CD-ROM and a never used Zip disk drive plugged into IDE2 on the 
-   motherboard
-4. Sound Blaster live sound code plugged into a PCI slot.
-5. nVidia Corp NV15 GL (Quadro2) plugged into the AGP slot.
-
-No USB ports are in use. The video output, mouse and keyboard are plugged 
-into a KVM switch.  There is also a CAT-5 cable attached to the network 
-jack.  Otherwise, there are no other external connections outside of the 
-power cable.
-
-By running without the X11 server, I hoped to remove the nVidia board as a 
-source of trouble.
-
-$ /sbin/lspci
-00:00.0 Host bridge: Intel Corporation 82850 860 (Wombat) Chipset Host Bridge (MCH) (rev 04)
-00:01.0 PCI bridge: Intel Corporation 82850 850 (Tehama) Chipset AGP Bridge (rev 04)
-00:02.0 PCI bridge: Intel Corporation 82860 860 (Wombat) Chipset AGP Bridge (rev 04)
-00:1e.0 PCI bridge: Intel Corporation 82801BAM PCI (rev 04)
-00:1f.0 ISA bridge: Intel Corporation 82801BA ISA Bridge (ICH2) (rev 04)
-00:1f.1 IDE interface: Intel Corporation 82801BA IDE U100 (rev 04)
-00:1f.2 USB Controller: Intel Corporation 82801BA(M) USB (Hub A) (rev 04)
-00:1f.3 SMBus: Intel Corporation 82801BA(M) SMBus (rev 04)
-00:1f.4 USB Controller: Intel Corporation 82801BA(M) USB (Hub B) (rev 04)
-00:1f.5 Multimedia audio controller: Intel Corporation 82801BA(M) AC'97 Audio (rev 04)
-01:00.0 VGA compatible controller: nVidia Corporation NV15 GL (Quadro2) (rev a4)
-02:1f.0 PCI bridge: Intel Corporation 82806AA PCI64 Hub PCI Bridge (rev 03)
-03:00.0 PIC: Intel Corporation 82806AA PCI64 Hub Advanced Programmable Interrupt Controller (rev 01)
-03:0e.0 SCSI storage controller: Adaptec 7892P (rev 02)
-04:0b.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink] (rev 78)
-04:0c.0 FireWire (IEEE 1394): Texas Instruments: Unknown device 8020
-04:0d.0 Multimedia audio controller: Creative Labs SB Live! EMU10000 (rev 08)
-04:0d.1 Input device controller: Creative Labs SB Live! (rev 08)
-
-Tom
-
---
-------------------------------------------------------------------------
-Tom Epperly
-Center for Applied Scientific Computing   Phone: 925-424-3159
-Lawrence Livermore National Laboratory      Fax: 925-424-2477
-L-661, P.O. Box 808, Livermore, CA 94551  Email: tepperly@llnl.gov
-------------------------------------------------------------------------
 

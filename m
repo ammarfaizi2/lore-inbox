@@ -1,48 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUJAQRy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUJAQ0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264571AbUJAQRy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 12:17:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUJAQRX
+	id S264503AbUJAQ0a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 12:26:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUJAQ0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 12:17:23 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:21154 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S264503AbUJAQPI (ORCPT
+	Fri, 1 Oct 2004 12:26:30 -0400
+Received: from rproxy.gmail.com ([64.233.170.196]:60188 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S264726AbUJAQYW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 12:15:08 -0400
-Date: Fri, 1 Oct 2004 09:13:25 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Robert Love <rml@novell.com>
-Cc: ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch] inotify: make user visible types portable
-Message-Id: <20041001091325.7fbc6971.pj@sgi.com>
-In-Reply-To: <1096645624.7676.18.camel@betsy.boston.ximian.com>
-References: <1096410792.4365.3.camel@vertex>
-	<1096583108.4203.86.camel@betsy.boston.ximian.com>
-	<20040930155704.16d71cec.pj@sgi.com>
-	<1096608925.4803.2.camel@localhost>
-	<20040930234436.097e6dfe.pj@sgi.com>
-	<1096616399.4803.26.camel@localhost>
-	<20041001084009.6b33c1a1.pj@sgi.com>
-	<1096645624.7676.18.camel@betsy.boston.ximian.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 1 Oct 2004 12:24:22 -0400
+Message-ID: <35fb2e5904100109246f43ee7b@mail.gmail.com>
+Date: Fri, 1 Oct 2004 17:24:21 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Ralph Corderoy <ralph@inputplus.co.uk>
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone.
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200410011559.i91FxfH13266@blake.inputplus.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <alan@lxorguk.ukuu.org.uk>
+	 <1096640407.21940.33.camel@localhost.localdomain>
+	 <200410011559.i91FxfH13266@blake.inputplus.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert wrote:
-> The structure needs to be used exactly the same between the kernel and
-> the user.  We both agree to that, right?  It is user visible.
+On Fri, 01 Oct 2004 16:59:41 +0100, Ralph Corderoy
+<ralph@inputplus.co.uk> wrote:
 
-Certainly the ABI, yes.  These stubborn beasts called computers that we
-labour over just won't work otherwise.
+> Alan Cox wrote:
+> > Actually by the time this made the kernel list an answer turned up
+> > from Amstrad - the URL for the GPL source, and an offer valid for
+> > three years to supply it at cost is in the welcome email their units
+> > start up with.
 
-I'd have no objections to the user header spelling "__u32" where the
-kernel header spelled "u32".
+The E3 uses Montavista Linux and as far as I am aware they made little
+or no changes to that for the product. Most of the perceived problem
+here is, I think, just misunderstanding.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+It also seems you're overly keen for Amstrad to be in the wrong here,
+but the reality is that Alan Sugar (or his son/relative in charge of
+various PR activities) is not going to have these answers readily
+available for you. Someone will know and provide you with the
+information that you are after - but it's worth treating the lack of
+informtation as a small oversight.
+
+While the E3 is quoted as not using any other "Open Source" software,
+it does use Monta's Linux. I would suggest that you contact the folks
+at Montavista's UK offices in Bracknell and ask them about obtaining a
+link to the source.mvista.com and similar websites where you can
+obtain a copy of the sources used in their distribution. They are
+friendly people.
+
+> And the written offer is in the welcome email *now* but probably wasn't
+> until I hassled them.
+
+They probably overlooked it. Yes that's not great - but I wouldn't get
+too worked up over it. The reality is that you asked for a copy of the
+source and eventually it seems that you will get what you want. It
+would be nice if this process were entirely seemless but it's
+certainly a lot better than many examples I've seen elsewhere.
+
+> It also doesn't meet 3(b) so they're not complying.
+
+Technically I think you might be correct there - but I'd give them the
+benefit of the doubt and assume they just need to read the license
+over and make a change to some packaging.
+
+I'm planning to do a review of the E3 so I'll be sure to look in to
+these issues then.
+
+Cheers,
+
+Jon.

@@ -1,68 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262943AbSJFWnp>; Sun, 6 Oct 2002 18:43:45 -0400
+	id <S262506AbSJFWbg>; Sun, 6 Oct 2002 18:31:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262944AbSJFWnp>; Sun, 6 Oct 2002 18:43:45 -0400
-Received: from bitmover.com ([192.132.92.2]:7570 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S262943AbSJFWno>;
-	Sun, 6 Oct 2002 18:43:44 -0400
-Date: Sun, 6 Oct 2002 15:49:18 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Jes Sorensen <jes@wildopensource.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Russell King <rmk@arm.linux.org.uk>,
-       Ingo Molnar <mingo@elte.hu>, "David S. Miller" <davem@redhat.com>,
-       Larry McVoy <lm@bitmover.com>, Ulrich Drepper <drepper@redhat.com>,
-       bcollins@debian.org, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BK MetaData License Problem?
-Message-ID: <20021006154918.X29486@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Jes Sorensen <jes@wildopensource.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Russell King <rmk@arm.linux.org.uk>, Ingo Molnar <mingo@elte.hu>,
-	"David S. Miller" <davem@redhat.com>, Larry McVoy <lm@bitmover.com>,
-	Ulrich Drepper <drepper@redhat.com>, bcollins@debian.org,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20021006.035934.106436540.davem@redhat.com> <Pine.LNX.4.44.0210061324500.4303-100000@localhost.localdomain> <20021006144821.B31147@flint.arm.linux.org.uk> <m3ofa7sd0z.fsf@trained-monkey.org> <1033926107.21282.42.camel@irongate.swansea.linux.org.uk> <m3it0fsbq7.fsf@trained-monkey.org>
+	id <S262512AbSJFWbf>; Sun, 6 Oct 2002 18:31:35 -0400
+Received: from almesberger.net ([63.105.73.239]:10515 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S262506AbSJFWbb>; Sun, 6 Oct 2002 18:31:31 -0400
+Date: Sun, 6 Oct 2002 19:36:57 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] loop devices from NFS broken in 2.5
+Message-ID: <20021006193657.B14894@almesberger.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m3it0fsbq7.fsf@trained-monkey.org>; from jes@wildopensource.com on Sun, Oct 06, 2002 at 01:45:04PM -0400
-X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 06, 2002 at 01:45:04PM -0400, Jes Sorensen wrote:
-> I have no issue with a company like BM or anyone else using anonymous
-> statistics for advertisement, but I'd be royally pissed if I had my
-> name on someone's leaflet without having given my written permission
-> first. Hence the suggestion for a privacy clause in the license.
+2.5 kernels from ~2.5.24 up to 2.5.40 break loop devices using
+files on NFS, because inode->i_sb->s_bdev is NULL, so you get
+an oops in loop_set_fd, and recently also in loop_get_status.
 
-OK, so find some legal language that does what you want and send it to me.
-If it doesn't prevent the openlogging web pages or the bkbits.net web pages
-and bkd ports, we'll add it.  We don't do a darn thing with that info,
-I hear, understand, and agree with your concern, I just need some sample
-language that threads the needle.
+The patch below fixes this, and I haven't found any ill
+side-effects for non-NFS use. The patch is for 2.5.40.
 
-All the language I've seen would prevent us from displaying the web pages.
-That's no good.  We can't say we won't redistribute because the web pages
-are definitely redistribution.  We can say we won't sell it if that helps.
-If we say we can't aggragate it then we can't do stuff like this:
+This patch also removes redundant setting of LO_FLAGS_READ_ONLY
 
-	http://www.bitkeeper.com/stats/linux-csets-L3W.png
+(I've posted a similar patch about three months ago. The only
+new things now are the loop_get_status change, and that I'm a
+little more confident that my solution works :-)
 
-which is something we'd like to make part of bkbits.net.  And I think it's
-something that the community wants.
+- Werner
 
-So what's the language that says we won't do the spam style crud that you 
-are legitimately afraid of but does allow the useful stuff for the 
-community?  It's good to handle this now, if we can get it nailed down
-to something reasonable it's hard for BitMover the corporation to lose
-its mind and change things later, you can argue fair use or breach of
-promise or one of those lovely legal terms, I don't remember which 
-covers this, but I know there is one.
+---------------------------------- cut here -----------------------------------
+
+--- linux-2.5.40.orig/drivers/block/loop.c	Tue Oct  1 04:07:04 2002
++++ linux-2.5.40/drivers/block/loop.c	Sun Oct  6 19:18:37 2002
+@@ -333,7 +333,9 @@
+ 
+ static inline int loop_get_bs(struct loop_device *lo)
+ {
+-	return block_size(lo->lo_device);
++	if (lo->lo_device)
++		return block_size(lo->lo_device);
++	return lo->lo_backing_file->f_dentry->d_inode->i_blksize;
+ }
+ 
+ static inline unsigned long loop_get_iv(struct loop_device *lo,
+@@ -662,9 +664,6 @@
+ 	error = -EINVAL;
+ 	inode = file->f_dentry->d_inode;
+ 
+-	if (!(file->f_mode & FMODE_WRITE))
+-		lo_flags |= LO_FLAGS_READ_ONLY;
+-
+ 	if (S_ISBLK(inode->i_mode)) {
+ 		lo_device = inode->i_bdev;
+ 		if (lo_device == bdev) {
+@@ -691,7 +690,7 @@
+ 
+ 	get_file(file);
+ 
+-	if (IS_RDONLY (inode) || bdev_read_only(lo_device)
++	if (IS_RDONLY (inode) || (lo_device && bdev_read_only(lo_device))
+ 	    || !(lo_file->f_mode & FMODE_WRITE))
+ 		lo_flags |= LO_FLAGS_READ_ONLY;
+ 
+@@ -706,7 +705,7 @@
+ 	lo->old_gfp_mask = inode->i_mapping->gfp_mask;
+ 	inode->i_mapping->gfp_mask = GFP_NOIO;
+ 
+-	set_blocksize(bdev, block_size(lo_device));
++	set_blocksize(bdev, loop_get_bs(lo));
+ 
+ 	lo->lo_bio = lo->lo_biotail = NULL;
+ 
+@@ -878,7 +877,7 @@
+ 	info.lo_number = lo->lo_number;
+ 	info.lo_device = stat.dev;
+ 	info.lo_inode = stat.ino;
+-	info.lo_rdevice = lo->lo_device->bd_dev;
++	info.lo_rdevice = lo->lo_device ? lo->lo_device->bd_dev : 0;
+ 	info.lo_offset = lo->lo_offset;
+ 	info.lo_flags = lo->lo_flags;
+ 	strncpy(info.lo_name, lo->lo_name, LO_NAME_SIZE);
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284755AbRLUQoJ>; Fri, 21 Dec 2001 11:44:09 -0500
+	id <S284933AbRLUQup>; Fri, 21 Dec 2001 11:50:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284746AbRLUQn7>; Fri, 21 Dec 2001 11:43:59 -0500
-Received: from olinz-dsl-1316.utaonline.at ([212.152.239.38]:50414 "EHLO
-	falke.mail") by vger.kernel.org with ESMTP id <S284755AbRLUQnv>;
-	Fri, 21 Dec 2001 11:43:51 -0500
-Message-ID: <3C2363F8.28E338CE@falke.mail>
-Date: Fri, 21 Dec 2001 17:31:52 +0100
-From: Thomas Winischhofer <tw@webit.com>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
+	id <S284780AbRLUQua>; Fri, 21 Dec 2001 11:50:30 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:23050 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S284778AbRLUQuT>;
+	Fri, 21 Dec 2001 11:50:19 -0500
+Date: Fri, 21 Dec 2001 08:47:04 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Andreas Bombe <bombe@informatik.tu-muenchen.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.1 API change summary
+In-Reply-To: <20011221030218.GA3893@storm.local>
+Message-ID: <Pine.LNX.4.33L2.0112210837300.2896-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Thomas Winischhofer <tw@webit.com>, linux-kernel@vger.kernel.org
-Subject: Re: @Linus, Marcello, (Alan?) (regards sisfb)
-In-Reply-To: <E16HRwE-0000X8-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-MDRemoteIP: 10.0.0.13
-X-Return-Path: tw@webit.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > So, the whole theory with this driver is a failure.
-> 
-> Its the same driver core XFree86 uses.  Also if you are not looking at a
-> currentish 2.4 or 2.5 you'll have the wrong code.
+On Fri, 21 Dec 2001, Andreas Bombe wrote:
 
-No, it's not the same driver core. Take a look yourself.
+| On Tue, Dec 18, 2001 at 11:28:02AM -0800, Randy.Dunlap wrote:
+| > On Tue, 18 Dec 2001, Andreas Bombe wrote:
+| >
+| > http://www.osdl.org/archive/rddunlap/linux-port-25x.html .
+|
+| Nice.  I wasn't aware of that page.  So basically you attack the same
+| problem I do (that it's not obvious that a thread on linux-kernel or
+| other lists have interesting information deeply embedded).  You point to
 
-I used the 2.4.16 code as basis. There have not been any patches since
-that (at least in the 2.4 series).
+Right. and most people don't want to dig for the info. :)
 
-I am currently also re-writing the X driver using the new core (and
-eventually VESA functions). 
+| the archived discussions and documentation whereas I just want to list
+| the changes that did actually make it into a certain revision, without
+| documenting much.
 
-> > Are you willing to include the new driver in the kernel?
-> > It's available here: http://members.aon.at/~twinisch/sisfb.tar.gz
-> 
-> If your timings are wrong you may destroy the LCD panel.
+Your method catches more of the detailed changes -- I had missed
+a few.
+Mine captures discussion and decision-making.
+Both have merits and are useful.
 
-The timings are taken from the machine's BIOS. If that data is wrong, no
-driver will ever work.
+| We could probably combine our efforts, but I can't think of a way how
+| (apart from just pointing to each other).
 
-By the way: You might also have destroyed your LCD when using the old
-drivers with the 0-values.
+I've updated mine to do that.  It will appear soon.
 
-Thomas
-
+Thanks,
 -- 
-Thomas Winischhofer
-Vienna/Austria                  Check it out:
-mailto:tw@webit.com              http://www.webit.com/tw
+~Randy
 

@@ -1,38 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281032AbRKCUbp>; Sat, 3 Nov 2001 15:31:45 -0500
+	id <S281034AbRKCUgh>; Sat, 3 Nov 2001 15:36:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281034AbRKCUbf>; Sat, 3 Nov 2001 15:31:35 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:16068 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S281032AbRKCUb1>;
-	Sat, 3 Nov 2001 15:31:27 -0500
-Date: Sat, 3 Nov 2001 15:31:25 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Simon Kirby <sim@netnation.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Something broken in sys_swapon
-In-Reply-To: <20011103122344.A12059@netnation.com>
-Message-ID: <Pine.GSO.4.21.0111031529490.18001-100000@weyl.math.psu.edu>
+	id <S281035AbRKCUgZ>; Sat, 3 Nov 2001 15:36:25 -0500
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:54998 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S281034AbRKCUgO>; Sat, 3 Nov 2001 15:36:14 -0500
+Subject: [PATCH] NTFS sparc compile fix
+To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
+Date: Sat, 3 Nov 2001 20:36:11 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1607WV-0001xb-00@libra.cus.cam.ac.uk>
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus, Alan,
 
+Please apply below patchlet for your next releases (applies cleanly to
+any recent kernel). It fixes compilation of NTFS driver on Sparc.
 
-On Sat, 3 Nov 2001, Simon Kirby wrote:
+Thanks to Jan-Benedict Glaw for reporting and testing.
 
->                 kdev_t dev = swap_inode->i_rdev;
->                 struct block_device_operations *bdops;
-> 
->                 p->swap_device = dev;
->                 set_blocksize(dev, PAGE_SIZE);
-> 
-> I don't know much at all about the inode structure, but doesn't this set
-> the block size of the originating filesystem containing the inode rather
-> than the block device that inode happens to be pointing to?  That would
+Best regards,
 
-man 2 stat
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
-i_rdev is equivalent of st_rdev, i_dev - of st_dev.
+--- ntfs-sparc.diff ---
+
+diff -u -urN linux-2.4.14-pre7-vanilla/fs/ntfs/dir.c linux-2.4.14-pre7-ntfs/fs/ntfs/dir.c
+--- linux-2.4.14-pre7-vanilla/fs/ntfs/dir.c	Wed Sep 12 01:02:46 2001
++++ linux-2.4.14-pre7-ntfs/fs/ntfs/dir.c	Sat Nov  3 17:56:40 2001
+@@ -19,6 +19,7 @@
+ #include "support.h"
+ #include "util.h"
+ #include <linux/smp_lock.h>
++#include <linux/bitops.h>
+ 
+ static char I30[] = "$I30";
+ 
+diff -u -urN linux-2.4.14-pre7-vanilla/include/linux/ntfs_fs.h linux-2.4.14-pre7-ntfs/include/linux/ntfs_fs.h
+--- linux-2.4.14-pre7-vanilla/include/linux/ntfs_fs.h	Sat Sep  8 20:24:40 2001
++++ linux-2.4.14-pre7-ntfs/include/linux/ntfs_fs.h	Sat Nov  3 16:43:03 2001
+@@ -10,12 +10,12 @@
+  * Attribute flags (16-bit).
+  */
+ typedef enum {
+-	ATTR_IS_COMPRESSED      = cpu_to_le16(0x0001),
+-	ATTR_COMPRESSION_MASK   = cpu_to_le16(0x00ff),  /* Compression method
+-							 * mask. Also, first
+-							 * illegal value. */
+-	ATTR_IS_ENCRYPTED       = cpu_to_le16(0x4000),
+-	ATTR_IS_SPARSE          = cpu_to_le16(0x8000),
++	ATTR_IS_COMPRESSED      = __constant_cpu_to_le16(0x0001),
++	ATTR_COMPRESSION_MASK   = __constant_cpu_to_le16(0x00ff),
++					/* Compression method mask. Also,
++					 * first illegal value. */
++	ATTR_IS_ENCRYPTED       = __constant_cpu_to_le16(0x4000),
++	ATTR_IS_SPARSE          = __constant_cpu_to_le16(0x8000),
+ } __attribute__ ((__packed__)) ATTR_FLAGS;
+ 
+ /*
 

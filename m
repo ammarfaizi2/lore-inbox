@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263351AbTJ0Qc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 11:32:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263356AbTJ0Qc7
+	id S263008AbTJ0QnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 11:43:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263179AbTJ0QnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 11:32:59 -0500
-Received: from fw.osdl.org ([65.172.181.6]:34507 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263351AbTJ0Qc6 (ORCPT
+	Mon, 27 Oct 2003 11:43:09 -0500
+Received: from fw.osdl.org ([65.172.181.6]:8401 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263008AbTJ0QnG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 11:32:58 -0500
-Date: Mon, 27 Oct 2003 08:32:15 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@muc.de>
-cc: vojtech@suse.cz, <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PS/2 mouse rate setting 
-In-Reply-To: <20031027140217.GA1065@averell>
-Message-ID: <Pine.LNX.4.44.0310270830060.1699-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 27 Oct 2003 11:43:06 -0500
+Date: Mon, 27 Oct 2003 08:40:43 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Emmanuel Fleury <fleury@cs.auc.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Remote Serial Console on 2.6.x ?
+Message-Id: <20031027084043.4847224c.rddunlap@osdl.org>
+In-Reply-To: <1067248709.30367.10.camel@rade7.s.cs.auc.dk>
+References: <1067248709.30367.10.camel@rade7.s.cs.auc.dk>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 27 Oct 2003 10:58:29 +0100 Emmanuel Fleury <fleury@cs.auc.dk> wrote:
 
-On Mon, 27 Oct 2003, Andi Kleen wrote:
-> 
-> Overall as KVM user I must say I'm not very happy with the 2.6 mouse
-> driver. 2.4 pretty much worked out of the box, but 2.6 needs
-> lots of strange options (psmouse_noext, psmouse_rate=80) 
-> because it does things very differently out of the box.
+| Hi,
+| 
+| I was used to debug my kernel code with the remote serial console
+| facility on the 2.4.x serie, but I really can't figure how does it works
+| to activate it on the 2.6.0-test9 that I just got.
+| 
+| I took a look at the relevant HOWTO:
+| http://www.tldp.org/HOWTO/Remote-Serial-Console-HOWTO/kernelcompile-25.html
+| 
+| But, it seems that all the configure scheme has changed for the 2.6.x...
+| 
+| Can anybody give me some pointers on a documentation or give me some
+| hints ???
 
-I agree. The keyboard driver has also deteriorated, I think. 
+Hi,
 
-I'd suggest we _not_ set the rate by default at all (and let the default
-thing just happen). And only set the rate if the user _asks_ for it with
-your setup thing. Mind sending me that kind of patch?
+Here's how it looks in 2.6.0-test9:
 
-		Linus
 
+Device Drivers:
+  Character devices:
+    Serial drivers:
+      <*> 8250/16550 and compatible serial support
+          (CONFIG_SERIAL_8250=y)
+      [*]   Console on 8250/16550 and compatible serial port
+            (CONFIG_SERIAL_8250_CONSOLE=y)
+
+
+HTH.
+--
+~Randy

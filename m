@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbUKDQBF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262242AbUKDQAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262264AbUKDQBF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 11:01:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUKDQBF
+	id S262242AbUKDQAx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 11:00:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262264AbUKDQAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 11:01:05 -0500
-Received: from host.atlantavirtual.com ([209.239.35.47]:43149 "EHLO
+	Thu, 4 Nov 2004 11:00:53 -0500
+Received: from host.atlantavirtual.com ([209.239.35.47]:39309 "EHLO
 	host.atlantavirtual.com") by vger.kernel.org with ESMTP
-	id S262264AbUKDQBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 11:01:00 -0500
-Subject: Re: is killing zombies possible w/o a reboot?
+	id S262242AbUKDQAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 11:00:47 -0500
+Subject: Re: Installing software on a knoppix CD
 From: kernel <kernel@crazytrain.com>
 Reply-To: kernel@crazytrain.com
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org, DervishD <lkml@dervishd.net>,
-       =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-In-Reply-To: <200411031147.14179.gene.heskett@verizon.net>
-References: <200411030751.39578.gene.heskett@verizon.net>
-	 <yw1xis8nhtst.fsf@ford.inprovide.com> <20041103152531.GA22610@DervishD>
-	 <200411031147.14179.gene.heskett@verizon.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Sai Prathap <saiprathap@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <418940AA.7000809@tmr.com>
+References: <69cfd1b80411031106663a1cc8@mail.gmail.com>
+	 <418940AA.7000809@tmr.com>
 Content-Type: text/plain
-Message-Id: <1099533471.3448.6.camel@crazytrain>
+Message-Id: <1099532897.3448.4.camel@crazytrain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 04 Nov 2004 11:01:45 -0500
+Date: Thu, 04 Nov 2004 11:01:33 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-03 at 11:47, Gene Heskett wrote:
-> Finding them is usually an exersize in stretching the 
-> top window out till its about 20 screens high as its always going to 
-> be at the bottom of the list.
+On Wed, 2004-11-03 at 15:33, Bill Davidsen wrote:
+> Sai Prathap wrote:
+> > Hi,
+> > 
+> > I have a question regarding knoppix. If we boot from a knoppix CD, Is
+> > it possible to get any software installed on it ? Because, whenever I
+> > try to install something  it says its not writable. Please advice.
+> 
 
-use 'htop' instead, more flexible in showing and parsing.
+Try a different architecture - ovlfs - slax or linux-live scripts.
 
+With this approach you can install or remove packages (in RAM, of
+course) as you need.  Customize your distro, run the scripts, burn your
+ISO, boot something, then install or remove programs.  Again, none of
+these changes will exist upon reboot.  
+
+Slax takes it a step further, incorporating 'modules', which you can
+load (or not) as you see fit.  These can reside elsewhere, USB media,
+firewire, etc.  
+
+Would be really nice, though, if you could make a bootable ISO on a
+multi-session CD, leaving a free session to burn while running from
+first session.
 
 -fd
 

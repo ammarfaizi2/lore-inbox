@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314016AbSDKKVM>; Thu, 11 Apr 2002 06:21:12 -0400
+	id <S314017AbSDKKWt>; Thu, 11 Apr 2002 06:22:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314017AbSDKKVL>; Thu, 11 Apr 2002 06:21:11 -0400
-Received: from cttsv008.ctt.ne.jp ([210.166.4.137]:32694 "EHLO
-	cttsv008.ctt.ne.jp") by vger.kernel.org with ESMTP
-	id <S314016AbSDKKVK> convert rfc822-to-8bit; Thu, 11 Apr 2002 06:21:10 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Gabor Kerenyi <wom@tateyama.hu>
-To: Paratimer@aol.com, EdV@macrolink.com
-Subject: Re: [PLX-9050] Re: how to write driver for PCI cards
-Date: Thu, 11 Apr 2002 19:19:21 +0900
-X-Mailer: KMail [version 1.4]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <e5.168693d9.29e6a308@aol.com>
+	id <S314018AbSDKKWs>; Thu, 11 Apr 2002 06:22:48 -0400
+Received: from elin.scali.no ([62.70.89.10]:54278 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S314017AbSDKKWr>;
+	Thu, 11 Apr 2002 06:22:47 -0400
+Date: Thu, 11 Apr 2002 12:22:39 +0200 (CEST)
+From: Steffen Persvold <sp@scali.com>
+To: <nfs@lists.sourceforge.net>
+cc: <linux-kernel@vger.kernel.org>, <trond.myklebust@fys.uio.no>
+Subject: Re: IRIX NFS server and Linux NFS client
+In-Reply-To: <Pine.LNX.4.30.0204110928530.28565-100000@elin.scali.no>
+Message-ID: <Pine.LNX.4.30.0204111218440.30970-100000@elin.scali.no>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200204111919.21901.wom@tateyama.hu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 April 2002 17:27, Paratimer@aol.com wrote:
-> In a message dated 4/11/2002 12:48:12 AM Eastern Daylight Time,
+On Thu, 11 Apr 2002, Steffen Persvold wrote:
+
+> Hi all,
 >
-> wom@tateyama.hu writes:
-> > Yes it is  a PLX-9050. The device uses interrupts, but why should I have
-> > to know that what type of interrupt it is? Until now I haven't found
-> > anything describing it.
-> > I could find out from the docs that it uses memory I/O and everything is
-> > done
-> > through a 8K buffer.
+> Is there any reason why my Linux NFS client (kernel 2.4.18
+> nfs-utils-0.3.1-13.7.2.1 from RedHat 7.2) is not able to mount a directory
+> exported from an IRIX server in NFSv3 (not sure which version of IRIX
+> yet, if this is important I will find out). NFSv2 works fine, but if I
+> try to force NFSv3 I get "Connection refused".
 >
-> As I remember the serial eeprom from which the PLX-9050 is configured
-> needs to be programmed differently according to the type of interrupt.
+> I'll appreciate any help.
+>
 
-I think the device is configured properly because a windows driver exists and 
-it's working correctly. But what do I have to do on the driver side according 
-to the type of the interrupt? Is there any difference from the driver's point 
-if view?
-Both needs the interrupt flag to be cleared.
+I forgot to mention that NFSv3 works when an IRIX client mounts the same
+directory (i.e the directory shows up as "nfs" and not "nfs2" in the mount
+table on the IRIX client).
 
-> But more important, I do not believe your company wants to use the
-> 9050 in a cPCI system.  This chip does not support hot swappabilitiy.
-> I believe there is an almost identical part, the PLX 9051 (or perhaps the
-> 9052) that does.  You might have the hardware engineer check the
-> issue out.
+Could it be that IRIX only supports NFSv3 with TCP and not UDP (I didn't
+try TCP mounting on the Linux client) ?
 
-The company uses the 9050 in a C-PCI system. The card is designed in 98 or 99. 
-So the card is produced and there are existing products using it. (of course 
-these are only windows based). But thanks for the info, I will mention the 
-hot swapable problem using the 9050. But I think this feature is delayed at 
-least until I develop the driver.
-I suggested already to implement this feature in the driver if the hw supports 
-it but they couldn't tell me whether it supports.
-
-Gabor
+Thanks,
+-- 
+  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best
+ mailto:sp@scali.com |  http://www.scali.com  | performing MPI implementation:
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.13.8 -
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >320MBytes/s and <4uS latency
 

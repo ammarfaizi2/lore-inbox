@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291460AbSBHIEG>; Fri, 8 Feb 2002 03:04:06 -0500
+	id <S291462AbSBHIJf>; Fri, 8 Feb 2002 03:09:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291456AbSBHID4>; Fri, 8 Feb 2002 03:03:56 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:23570 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S291455AbSBHIDr>; Fri, 8 Feb 2002 03:03:47 -0500
-Date: Fri, 8 Feb 2002 09:03:42 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18-pre9: iptables screwed?
-Message-ID: <20020208080342.GB12130@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-In-Reply-To: <a3vjts$r7l$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <a3vjts$r7l$1@cesium.transmeta.com>
-User-Agent: Mutt/1.3.25i
+	id <S291463AbSBHIJ0>; Fri, 8 Feb 2002 03:09:26 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:44764 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S291464AbSBHIJU>; Fri, 8 Feb 2002 03:09:20 -0500
+Message-Id: <200202072111.g17LBig0001686@tigger.cs.uni-dortmund.de>
+To: Ville Herva <vherva@twilight.cs.hut.fi>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: How to check the kernel compile options ? 
+In-Reply-To: Message from Ville Herva <vherva@niksula.hut.fi> 
+   of "Thu, 07 Feb 2002 09:56:07 +0200." <20020207075607.GE534915@niksula.cs.hut.fi> 
+Date: Thu, 07 Feb 2002 22:11:44 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 07, 2002 at 08:24:28PM -0800, H. Peter Anvin wrote:
+Ville Herva <vherva@niksula.hut.fi> said:
 
-> I get the following error with iptables on 2.4.18-pre9:
-> 
-> sudo iptables-restore < /etc/sysconfig/iptables
-> iptables-restore: libiptc/libip4tc.c:384: do_check: Assertion
-> `h->info.valid_hooks == (1 << 0 | 1 << 3)' failed.
-> Abort (core dumped)
-> 
-> However, if I apply the rules manually (using iptables), I have no
-> problem; only if I'm using iptables-save or iptables-restore do I get
-> a dump...
+[...]
 
-I have this since the netfilter update from pre6 or pre7...
+> With a directory, you lose the information of in which order the patches
+> have been applied - unless of course you resort to file dates or some
+> such.
 
-It seems to be caused by a change in the logic for the mangle table:
-the userspace tools check only for PREROUTING and OUTPUT chains
-(the 1 << 0 | 1 << 3 check), but the kernel code was recently updated
-to support more chains in this table (POSTROUTING etc).
+Pfui! Think patches 1, 2, 3 in this order; with 2a later superseeding 2...
 
-So it would seem that we need to have a more recent version of 
-the userspace tools (CVS maybe, since the latest released version
-has the same bug), or the netfilter people should check the
-userspace tools version before introducing this kind of 
-incompatible change.
+> I agree that one file is very problematic wrt. patch(1), but I was hoping
+> there would be a way to persuade patch into doing the right thing.
 
-(BTW, the quick and dirty fix for me was to hand edit 
-/etc/sysconfig/iptables and remove all references to the mangle table,
-since I don't use it).
-
-That being said, IANANG (netfilter guru) :-)
-
-Stelian.
+They do it in RPM's spec files, listing the patches (and saying if, and
+perhaps when, in what order) they have to be applied. A source RPM is not
+that much more than a cpio(1)-ball of the sources, patches, and .spec, very
+handy a  _single_ file.
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|---------------- Free Software Engineer -----------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|------------- Alcôve, liberating software ---------------|
+Horst von Brand			     http://counter.li.org # 22616

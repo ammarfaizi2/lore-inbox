@@ -1,55 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265040AbTIJACj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 20:02:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265052AbTIJACj
+	id S265069AbTIJANX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 20:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265073AbTIJANX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 20:02:39 -0400
-Received: from mrout3.yahoo.com ([216.145.54.173]:37637 "EHLO mrout3.yahoo.com")
-	by vger.kernel.org with ESMTP id S265040AbTIJACi (ORCPT
+	Tue, 9 Sep 2003 20:13:23 -0400
+Received: from mail.kroah.org ([65.200.24.183]:43907 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265069AbTIJANW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 20:02:38 -0400
-Message-ID: <3F5E6A10.8050604@bigfoot.com>
-Date: Tue, 09 Sep 2003 17:02:24 -0700
-From: Erik Steffl <steffl@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i386; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.22-ac2
-References: <200309092334.h89NYxh18536@devserv.devel.redhat.com>
-In-Reply-To: <200309092334.h89NYxh18536@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Sep 2003 20:13:22 -0400
+Date: Tue, 9 Sep 2003 17:13:47 -0700
+From: Greg KH <greg@kroah.com>
+To: rusty@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] add kobject to struct module
+Message-ID: <20030910001346.GA8846@kroah.com>
+References: <20030909222421.GA7703@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030909222421.GA7703@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> (No its not course start time quite yet..)
-> 
-> Various little fixups and tidying bits. Some of these probably want to
-> get pushed on to Marcelo eventually - the small bits and the CMPCI update
-> certainly.
-> 
-> Linux 2.4.22-ac2
-...
-> o	SATA driver core update				(Jeff Garzik)
+On Tue, Sep 09, 2003 at 03:24:21PM -0700, Greg KH wrote:
+> So here's a patch that does this that is against 2.6.0-test4 (it
+> applies with some fuzz, sorry.)
 
-...
-> Linux 2.4.21rc1-ac4
-...
-> o	Intel ICH5 basic SATA support			(Andre Hedrick)
-...
+Ugh, that should read "2.6.0-test5"...
 
-
-   does this include the fix to make it possible to use >137GB drives 
-with SCSI_ATA? (I think that's libata5 patch)
-
-   (I have intel D865PERL, maxtor 250GB SATA drive used with SCSI_ATA 
-kernel config option, currently use 2.4.21-ac4 (for SCSI_ATA) + libata5 
-(for 137+ GB support) patches)
-
-   TIA,
-
-	erik
-
+greg k-h

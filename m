@@ -1,92 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261689AbSKHMSn>; Fri, 8 Nov 2002 07:18:43 -0500
+	id <S261733AbSKHMZO>; Fri, 8 Nov 2002 07:25:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261729AbSKHMSn>; Fri, 8 Nov 2002 07:18:43 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:58554 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S261689AbSKHMSl>;
-	Fri, 8 Nov 2002 07:18:41 -0500
-Date: Fri, 8 Nov 2002 13:25:23 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: "David S. Miller" <davem@redhat.com>, mdiehl@dominion.dyndns.org,
-       linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-Subject: Re: [documentation] Re: [LARTC] IPSEC FIRST LIGHT! (by non-kernel developer :-))
-Message-ID: <20021108122523.GA21075@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	"David S. Miller" <davem@redhat.com>, mdiehl@dominion.dyndns.org,
-	linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-References: <20021107130244.GA25032@outpost.ds9a.nl> <20021108023926.51B985606@dominion.dyndns.org> <20021108094122.GB16512@outpost.ds9a.nl> <20021108.015230.94737520.davem@redhat.com> <20021108111529.GA19850@outpost.ds9a.nl> <20021108112715.GA20226@outpost.ds9a.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021108112715.GA20226@outpost.ds9a.nl>
-User-Agent: Mutt/1.3.28i
+	id <S261746AbSKHMZO>; Fri, 8 Nov 2002 07:25:14 -0500
+Received: from sproxy.gmx.de ([213.165.64.20]:13739 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261733AbSKHMZM>;
+	Fri, 8 Nov 2002 07:25:12 -0500
+Message-ID: <3DCBAC99.7010909@gmx.net>
+Date: Fri, 08 Nov 2002 13:22:49 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-Q4@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: Linux 2.4.20-rc1
+References: <Pine.LNX.4.44L.0211061033410.27268-100000@freak.distro.conectiva> <3DCAAF2D.2040202@gmx.net>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------040407030801040902040307"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 08, 2002 at 12:27:15PM +0100, bert hubert wrote:
-> On Fri, Nov 08, 2002 at 12:15:29PM +0100, bert hubert wrote:
+This is a multi-part message in MIME format.
+--------------040407030801040902040307
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Carl-Daniel Hailfinger wrote:
+> [CC: linux-fbdev-devel to find out what was wrong with the patch]
+> Marcelo Tosatti wrote:
+>> On Sat, 2 Nov 2002, Carl-Daniel Hailfinger wrote:
+>>> Marcelo Tosatti wrote:
+>>>
+>>>> Hi,
+>>>>
+>>>> Finally, rc1.
+>>>> [snipped]
+>>>>
+>>>> Please stress test it.
+>>>>
+>>>
+>>> My system comes up with a blank console after hardware suspend and 
+>>> resume.
+>>> The cursor is still visible, but no text is there. Switching to another
+>>> console and back fixes it. Vesafb is enabled with vga=791.
+>>> Hardware is a Toshiba Satellite 4100XCDT notebook with Trident 
+>>> Cyber9525DVD
+>>> graphics chipset, but this also can be reproduced with Dell notebooks.
+>>>
+>>> I just verified the problem exists still with 2.4.20-rc1.
+>>> A binary search turned up 2.4.18-pre7 as the kernel which broke,
+>>> specifically the changes made to apm.c back then.
+>>
+>>
+>>
+>> Have you tried to revert 2.4.18-pre7's changes to apm.c to make sure 
+>> it is
+>> the cause?>
 > 
-> > This code locks up solid on any ipsec TCP traffic outgoing with this
-> > configuration:
-
-Bug is here:
-
-+/* Optimize later using cookies and generation ids. */
-+
- static struct dst_entry *xfrm4_dst_check(struct dst_entry *dst, u32 cookie)
- {
--       dst_release(dst);
--       return NULL;
-+       struct dst_entry *child = dst;
-+
-+       while (child) {
-+               if (child->obsolete > 0 ||
-+                   (child->xfrm && child->xfrm->km.state != XFRM_STATE_VALID)) {
-+                       dst_release(dst);
-+                       return NULL;
-+               }
-+       }
-+
-+       return dst;
- }
-
-
-Kernel enters a very tight loop here, I'm amazed that magic sysrq still
-works, how is that?
-
-Anyhow, this function smells but I'm not sure how it should be fixed,
-perhaps child=child->next?
-
-Regards,
-
-bert
-
-
 > 
-> Also with the following configuration:
+> I tried it and found out that my results were incorrect. The problem was 
+> introduced in 2.4.18-pre1 by the changes to drivers/video/fbcon.c
 > 
-> add 10.0.0.216 10.0.0.12 ah 24500 -A hmac-md5 "1234567890123456";
-> spdadd 10.0.0.216 10.0.0.11 any -P out ipsec
->             ah/transport//require;
-> 
-> -or-
-> 
-> add 10.0.0.216 10.0.0.12 esp 24501 -E 3des-cbc "123456789012123456789012";
-> spdadd 10.0.0.216 10.0.0.11 any -P out ipsec
->             esp/transport//require;
->  
-> 10.0.0.12 is a host which does not exist. 'telnet 10.0.0.12' locks up
-> instantly. I'm unsure how to extract more data from my kernel.
-> 
-> Regards,
-> 
-> bert
-> 
-> -- 
-> http://www.PowerDNS.com          Versatile DNS Software & Services
-> http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+> Reverting the attached patch fixes my problem. However, I am not exactly 
+> sure why a patch intended to fix a PM problem introduced another one.
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+I managed to trim down the offending patch further. Reverting the new 
+attached patch is enough to fix my problem. Can someone of the framebuffer 
+experts please comment on this one?
+
+Regards
+Carl-Daniel
+
+--------------040407030801040902040307
+Content-Type: application/x-java-vm;
+ name="patch-fbdev-5"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="patch-fbdev-5"
+
+ZGlmZiAtTmF1ciAtWCAvaG9tZS9tYXJjZWxvL2xpYi9kb250ZGlmZiBsaW51eC5vcmlnL2Ry
+aXZlcnMvdmlkZW8vZmJjb24uYyBsaW51eC9kcml2ZXJzL3ZpZGVvL2ZiY29uLmMKLS0tIGxp
+bnV4Lm9yaWcvZHJpdmVycy92aWRlby9mYmNvbi5jCVRodSBKYW4gMTAgMjA6MTc6NDEgMjAw
+MgorKysgbGludXgvZHJpdmVycy92aWRlby9mYmNvbi5jCVdlZCBEZWMgMjYgMTY6NTA6NTIg
+MjAwMQpAQCAtMTU1OCw2ICsxNTcxLDEwIEBACiAKICAgICBpZiAoYmxhbmsgPCAwKQkvKiBF
+bnRlcmluZyBncmFwaGljcyBtb2RlICovCiAJcmV0dXJuIDA7CisjaWZkZWYgQ09ORklHX1BN
+CisgICAgaWYgKGZiY29uX3NsZWVwaW5nKQorICAgIAlyZXR1cm4gMDsKKyNlbmRpZiAvKiBD
+T05GSUdfUE0gKi8KIAogICAgIGZiY29uX2N1cnNvcihwLT5jb25wLCBibGFuayA/IENNX0VS
+QVNFIDogQ01fRFJBVyk7CiAK
+--------------040407030801040902040307--
+

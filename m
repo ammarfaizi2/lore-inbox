@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbUAYIpd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 03:45:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbUAYIpc
+	id S263805AbUAYIoS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 03:44:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbUAYIoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 03:45:32 -0500
-Received: from k1.dinoex.de ([80.237.200.138]:38094 "EHLO k1.dinoex.de")
-	by vger.kernel.org with ESMTP id S263806AbUAYIpZ (ORCPT
+	Sun, 25 Jan 2004 03:44:18 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:11648 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263805AbUAYIoR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 03:45:25 -0500
-To: Andries.Brouwer@cwi.nl
+	Sun, 25 Jan 2004 03:44:17 -0500
+Date: Sun, 25 Jan 2004 09:44:25 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: rvalles <rvalles@es.gnu.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [uPATCH] ufs.txt update
-X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
-X-Message-Flag: This space is intentionally left blank
-X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
-X-Note: sending SPAM is a violation of both german and US law and will
-	at least trigger a complaint at your provider's postmaster.
-X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
-     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
-X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
-References: <UTC200401250035.i0P0ZJW13717.aeb@smtp.cwi.nl>
-From: Jochen Hein <jochen@jochen.org>
-X-No-Archive: yes
-Date: Sun, 25 Jan 2004 09:26:21 +0100
-In-Reply-To: <UTC200401250035.i0P0ZJW13717.aeb@smtp.cwi.nl> (Andries
- Brouwer's message of "Sun, 25 Jan 2004 01:35:19 +0100 (MET)")
-Message-ID: <87u12ksac2.fsf@echidna.jochen.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+Subject: Re: joydev: kernel panic accessing /dev/js0 with 2.6.2-rc1-bk1
+Message-ID: <20040125084425.GA610@ucw.cz>
+References: <20040125060731.GA5797@217-126-33-148.uc.nombres.ttd.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040125060731.GA5797@217-126-33-148.uc.nombres.ttd.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl writes:
+On Sun, Jan 25, 2004 at 07:07:31AM +0100, rvalles wrote:
+> > If you also could get the function where EIP is, that'd be great.
+> Oops! Did I really post all the stack trace and forgot about the current
+> function? Well, I wonder what was I thinking. Here it is:
+> 
+> EIP is at hidinput_hid_event+0x8f/0x2a0
+> 
+> Also, had to boot from a Knoppix 3.3 for some stuff, and verified, with jstest,
+> that the pad seems to be working well with its kernel (2.4.22-xfs).
+> 
+> I also forgot to tell you that I've got CONFIG_HID_FF and CONFIG_LOGITECH_FF
+> enabled on my 2.6.2-rc1-bk1.
+> 
+> cc me on reply. I'm not suscribed into linux-kernel.
 
->  	old	old format of ufs
-> -		default value, supported os read-only
-> +		supported os read-only
-
-s/os/as/ ?
-
->  	44bsd	used in FreeBSD, NetBSD, OpenBSD
->  		supported os read-write
-
-s/os/as/ ?
-
-Jochen
+Ok, now I see how and where it happens. But I need the device HID
+desriptor dump. Please enable DEBUG and DEBUG_DATA in hid-core.c,
+and send me the output it produces into 'dmesg'. If you want to avoid
+the crash, simply disable hid-input in kernel config for the experiment.
 
 -- 
-#include <~/.signature>: permission denied
+Vojtech Pavlik
+SuSE Labs, SuSE CR

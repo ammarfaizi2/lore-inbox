@@ -1,50 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135353AbRDWPhn>; Mon, 23 Apr 2001 11:37:43 -0400
+	id <S135404AbRDWPlD>; Mon, 23 Apr 2001 11:41:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135395AbRDWPh2>; Mon, 23 Apr 2001 11:37:28 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:15540 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S135397AbRDWPg1>;
-	Mon, 23 Apr 2001 11:36:27 -0400
-Date: Mon, 23 Apr 2001 11:36:24 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: Christoph Rohland <cr@sap.com>, "David L. Parsley" <parsley@linuxjedi.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: hundreds of mount --bind mountpoints?
-In-Reply-To: <20010423172335.G719@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.GSO.4.21.0104231133120.3617-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135443AbRDWPkv>; Mon, 23 Apr 2001 11:40:51 -0400
+Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:43022 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S135397AbRDWPh6>; Mon, 23 Apr 2001 11:37:58 -0400
+Date: Mon, 23 Apr 2001 09:37:47 -0600
+Message-Id: <200104231537.f3NFblv08166@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Jesper Juhl <juhl@eisenstein.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pedantic code cleanup - am I wasting my time with this?
+In-Reply-To: <3AE449A3.3050601@eisenstein.dk>
+In-Reply-To: <3AE449A3.3050601@eisenstein.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 23 Apr 2001, Ingo Oeser wrote:
-
-> Hi Chris,
+Jesper Juhl writes:
+> Hi people,
 > 
-> On Mon, Apr 23, 2001 at 04:54:02PM +0200, Christoph Rohland wrote:
-> > > The question is: How? If you do it like ramfs, you cannot swap
-> > > these symlinks and this is effectively a mlock(symlink) operation
-> > > allowed for normal users. -> BAD!
-> > 
-> > How about storing it into the inode structure if it fits into the
-> > fs-private union? If it is too big we allocate the page as we do it
-> > now. The union has 192 bytes. This should be sufficient for most
-> > cases.
+> I'm reading through various pieces of source code to try and get an 
+> understanding of how the kernel works (with the hope that I'll 
+> eventually be able to contribute something really usefull, but you've 
+> got to start somewhere ;)
 > 
-> Great idea. We allocate this space anyway. And we don't have to
-> care about the internals of this union, because never have to use
-> it outside the kernel ;-)
+> While reading through the source I've stumbled across various bits and 
+> pieces that are not exactely wrong, but not strictly correct either. I 
+> was wondering if I would be wasting my time by cleaning this up or if it 
+> would actually be appreciated. One example of these things is the patch 
+> below:
+[...]
+> All the above does is to remove the last comma from 3 enumeration
+> lists.  I know that gcc has no problem with that, but to be strictly
+> correct the last entry should not have a trailing comma.
+
+But it's more people-friendly to have that trailing comma. It makes
+adding new enumerations just slightly easier, and also makes it easier
+to manually apply failed patches. I'd rather see those trailing commas
+left in.
+
+> Another example is the following line (1266) from linux/include/net/sock.h
 > 
-> I like it. ext2fs does the same, so there should be no VFS
-> hassles involved. Al?
+>          return (waitall ? len : min(sk->rcvlowat, len)) ? : 1;
+> 
+> To be strictly correct the second expression (between '?' and ':' ) 
+> should not be omitted (all you guys already know that ofcourse).
 
-We should get ext2 and friends to move the sucker _out_ of struct inode.
-As it is, sizeof(struct inode) is way too large. This is 2.5 stuff, but
-it really has to be done. More filesystems adding stuff into the union
-is a Bad Thing(tm). If you want to allocates space - allocate if yourself;
-->clear_inode() is the right place for freeing it.
+Yeah, that one's pretty ugly and unreadable.
 
+> Would patches that clean up stuff like that be appreciated or am I just 
+> wasting my time?
+
+Go ahead and make suggestions. I expect some things will be accepted,
+some rejected (just like I did). Steer clear of any brace or tabbing
+style changes, though.
+
+> Should I just adopt an 'if gcc -Wall does not complain then it's ok' 
+> attitude and leave this stuff alone?
+
+Gcc is often too picky. It tries to be clever, but in many cases I've
+found it's not clever enough. It's useful as a mechanism to identify
+potential problems, but just because gcc whinges, doesn't mean there
+is a problem. You'll need to read and analyse the code to be sure gcc
+is correct in throwing a warning.
+
+The goal should *not* be to shut up gcc. The goal should be to produce
+more readable code and to fix bugs. Gcc is merely a tool. And a flawed
+one, at that.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

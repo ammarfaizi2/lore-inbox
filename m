@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264359AbUA3Vw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 16:52:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264364AbUA3Vw0
+	id S264313AbUA3V7M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 16:59:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264321AbUA3V7M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 16:52:26 -0500
-Received: from [66.35.79.110] ([66.35.79.110]:34722 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S264359AbUA3VwZ (ORCPT
+	Fri, 30 Jan 2004 16:59:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55447 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264313AbUA3V7L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 16:52:25 -0500
-Date: Fri, 30 Jan 2004 13:52:09 -0800
-From: Tim Hockin <thockin@hockin.org>
-To: John Stoffel <stoffel@lucent.com>
-Cc: Andrew Morton <akpm@osdl.org>, thockin@sun.com, arjanv@redhat.com,
-       thomas.schlichter@web.de, thoffman@arnor.net,
+	Fri, 30 Jan 2004 16:59:11 -0500
+Date: Fri, 30 Jan 2004 14:00:24 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: thockin@sun.com
+Cc: arjanv@redhat.com, thomas.schlichter@web.de, thoffman@arnor.net,
        linux-kernel@vger.kernel.org, linux-mm@kvack.org
 Subject: Re: 2.6.2-rc2-mm2
-Message-ID: <20040130215209.GA29010@hockin.org>
-References: <20040130014108.09c964fd.akpm@osdl.org> <1075489136.5995.30.camel@moria.arnor.net> <200401302007.26333.thomas.schlichter@web.de> <1075490624.4272.7.camel@laptop.fenrus.com> <20040130114701.18aec4e8.akpm@osdl.org> <20040130201731.GY9155@sun.com> <20040130123301.70009427.akpm@osdl.org> <16410.51656.221208.976055@gargle.gargle.HOWL>
+Message-Id: <20040130140024.4b409335.akpm@osdl.org>
+In-Reply-To: <20040130211256.GZ9155@sun.com>
+References: <20040130014108.09c964fd.akpm@osdl.org>
+	<1075489136.5995.30.camel@moria.arnor.net>
+	<200401302007.26333.thomas.schlichter@web.de>
+	<1075490624.4272.7.camel@laptop.fenrus.com>
+	<20040130114701.18aec4e8.akpm@osdl.org>
+	<20040130201731.GY9155@sun.com>
+	<20040130123301.70009427.akpm@osdl.org>
+	<20040130211256.GZ9155@sun.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16410.51656.221208.976055@gargle.gargle.HOWL>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 30, 2004 at 04:16:56PM -0500, John Stoffel wrote:
-> Andrew> static long do_setgroups(int gidsetsize, gid_t __user *user_grouplist,
-> Andrew> 			gid_t *kern_grouplist)
-> Andrew> {
-> Andrew> 	gid_t groups[NGROUPS];
-> 
-> Call me stupid, but what if we accept the patches to increase the
-> number of groups, won't that make this array be huge potentially?
-> Shouldn't we instead do a kmalloc() using current->ngroups instead?
+Tim Hockin <thockin@sun.com> wrote:
+>
+> In fact, here is a rough cut (would need a coupel exported syms, too).  The
+> lack of any way to handle errors bothers me.  printk and fail?  yeesh.
 
-One of the things you CAN'T do anymore is an array of NGROUPS.  That is why
-struct group_info is there. Andrew's suggestion was a sketch, not a patch :)
+Seems to be a good way to go.  It doesn't seem likely that any other parts
+of the kernel will want to be setting the group ownership in this way.
+

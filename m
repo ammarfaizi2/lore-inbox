@@ -1,54 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267674AbSLSWR6>; Thu, 19 Dec 2002 17:17:58 -0500
+	id <S267656AbSLSWVt>; Thu, 19 Dec 2002 17:21:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267655AbSLSWRA>; Thu, 19 Dec 2002 17:17:00 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5129 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267674AbSLSWQR>; Thu, 19 Dec 2002 17:16:17 -0500
-Date: Thu, 19 Dec 2002 14:22:12 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: bart@etpmod.phys.tue.nl, <davej@codemonkey.org.uk>, <hpa@transmeta.com>,
-       <terje.eggestad@scali.com>, <drepper@redhat.com>,
-       <matti.aarnio@zmailer.org>, <hugh@veritas.com>, <mingo@elte.hu>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <20021219221043.GA18562@bjl1.asuk.net>
-Message-ID: <Pine.LNX.4.44.0212191412180.1629-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267424AbSLSWUo>; Thu, 19 Dec 2002 17:20:44 -0500
+Received: from h24-80-147-251.no.shawcable.net ([24.80.147.251]:13322 "EHLO
+	antichrist") by vger.kernel.org with ESMTP id <S266795AbSLSWTi>;
+	Thu, 19 Dec 2002 17:19:38 -0500
+Date: Thu, 19 Dec 2002 14:23:36 -0800
+From: carbonated beverage <ramune@net-ronin.org>
+To: linux-kernel@vger.kernel.org
+Subject: depmod errors in 2.5.52-bk
+Message-ID: <20021219222336.GA17044@net-ronin.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="SLDf9lqlvOQaIe6s"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 19 Dec 2002, Jamie Lokier wrote:
-> Linus Torvalds wrote:
-> > For _zero_ gain.  The jump to the library address has to be indirect 
-> > anyway, and glibc has several places to put the information without any 
-> > mmap's or anything like that.
-> 
-> This is not true, (but your overall point is still correct).
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Go back and read the postings by Uli.
+Got tons of depmod errors for various symbols in a few drivers I built as
+modules, for such things as: kmalloc, __alloc_pages, schedule, etc.
 
-Uli's suggested glibc approach is to just put the magis system call 
-address (which glibc gets from the AT_SYSINFO elf aux table entry) into 
-the per-thread TLS area, which is alway spointed to by %gs anyway.
+Attatching the errors as a gzip'd file, as it's rather large.
 
-THIS WORKS WITH ALL DSO'S WITHOUT ANY GAMES, ANY MMAP'S, ANY RELINKING, OR
-ANY EXTRA WORK AT ALL!
+-- DN
+Daniel
 
-The system call entry becomes a simple
+--SLDf9lqlvOQaIe6s
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="bk-errs.txt.gz"
+Content-Transfer-Encoding: base64
 
-	call *%gs:constant-offset
+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
 
-Not mmap. No magic system calls. No relinking. Not _nothing_. One 
-instruction, that's it. 
-
-See for example Uli's posting in this thread from the day before
-yesterday, message ID <3DFF6D4B.3060107@redhat.com>. So please stop 
-arguing about any extra work, because none is needed.
-
-		Linus
-
+--SLDf9lqlvOQaIe6s--

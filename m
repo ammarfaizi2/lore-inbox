@@ -1,63 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268602AbUIXJ0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268609AbUIXJ1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268602AbUIXJ0N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 05:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268609AbUIXJ0N
+	id S268609AbUIXJ1e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 05:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268637AbUIXJ1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 05:26:13 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:2707 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S268602AbUIXJ0L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 05:26:11 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: lost memory on a 4GB amd64
-Date: Fri, 24 Sep 2004 11:27:38 +0200
-User-Agent: KMail/1.6.2
-Cc: Sergei Haller <Sergei.Haller@math.uni-giessen.de>,
-       Andrew Walrond <andrew@walrond.org>
-References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au> <200409240931.42356.andrew@walrond.org> <Pine.LNX.4.58.0409241856120.16011@fb07-calculator.math.uni-giessen.de>
-In-Reply-To: <Pine.LNX.4.58.0409241856120.16011@fb07-calculator.math.uni-giessen.de>
-MIME-Version: 1.0
+	Fri, 24 Sep 2004 05:27:33 -0400
+Received: from barclay.balt.net ([195.14.162.78]:53468 "EHLO barclay.balt.net")
+	by vger.kernel.org with ESMTP id S268609AbUIXJ1S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 05:27:18 -0400
+Date: Fri, 24 Sep 2004 12:25:47 +0300
+From: Zilvinas Valinskas <zilvinas@gemtek.lt>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Mathieu B?rard <Mathieu.Berard@crans.org>, linux-kernel@vger.kernel.org
+Subject: Re: Oops with racoon and linux-2.6.9-rc2-mm1
+Message-ID: <20040924092546.GA14850@gemtek.lt>
+Reply-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+References: <41520074.3080706@crans.org> <41524CEE.2020508@trash.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409241127.38529.rjw@sisk.pl>
+In-Reply-To: <41524CEE.2020508@trash.net>
+X-Attribution: Zilvinas
+X-Url: http://www.gemtek.lt/
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 of September 2004 10:57, Sergei Haller wrote:
-> On Fri, 24 Sep 2004, Andrew Walrond (AW) wrote:
+Seems like the same patch is missing from linux 2.6.9-rc2-bk8 too.
+As reported this solves the problem in mm tree ...
+
+BR
+
+
+On Thu, Sep 23, 2004 at 06:11:26AM +0200, Patrick McHardy wrote:
+> Should be fixed by this patch.
 > 
-> AW> On Friday 24 Sep 2004 09:23, Sergei Haller wrote:
-> AW> > It's the same for me if I use the non-SMP version of the kernel.
-> AW> > but the SMP one seems to be panicking for some reason.
-> AW> >
-> AW> 
-> AW> Just a thought; How are the memory modules arranged on the board?
-> AW> I have 2 x 1Gb modules in each cpu-specific bank, rather than all four 
-in 
-> AW> cpu1's bank. How are yours arranged?
+> Regards
+> Patrick
 > 
-> my board has only four banks, each of them has a 1GB module sitting.
-> (page 26 of ftp://ftp.tyan.com/manuals/m_s2875_102.pdf)
+> Mathieu B?rard wrote:
+> 
+> >Hi,
+> >
+> >I get this Oops using racoon and linux 2.6.9-rc2-mm1,
+> >though everything run smoothly with a 2.6.8 kernel.
+> >
+> >Here the oops (copied by hand):
+> >
+> >Warning: kfree_skb on hard IRQ 000000c0
+> >scheduling while atomic: racoon/0xffffff00/1680
+> >[<c027c7bb>] schedule+0x32b/0x480
+> >[<c0114a4a>] sys_sched_yield+0x1a/0x20
+> >[<c0153e3b>] coredump_wait+0x2b/0x90
+> >[<c0153f6a>] do_coredump+0xca/0x1a1
+> >[<c0132d1d>] buffered_rmqueue+0xdd/0x1b0
+> >[<c0128290>] autoremove_wake_function+0x0/0x50
+> >[<c011f365>] __dequeue_signal+0xe5/0x150
+> >[<c011f3f3>] dequeue_signal+0x23/0x90
+> >[<c0120b8d>] get_signal_to_deliver+0x24d/0x300
+> >[<c0103c6f>] do_signal+0x8f/0x160
+> >[<c015a2e0>] __pollwait+0x0/0xc0
+> >[<c0227687>] sys_recv+0x37/0x40
+> >[<c010618c>] do_IRQ+0xec/0x190
+> >[<c0112a90>] do_page_fault+0x0/0x575
+> >[<c0103d77>] do_notify_resume+0x37/0x3c
+> >[<c0103f1a>] work_notifysig+0x13/0x15
+> >Kernel panic - not syncing: Aiee, killing interrupt handler!
+> >
+> 
 
-Which is what makes the difference, I think.  IMO, the problem is that _both_ 
-CPUs use the same memory bank that is physically attached to only one of them 
-which leads to conflicts, apparently (the CPU with memory has also 
-PCI/AGP/whatever attached to it via HyperTransport so I can imagine there may 
-be issues with overlapping address spaces etc.).  I'd bet that there's 
-something wrong either with the BIOS or with the board design itself and I 
-don't think there's anything that the kernel can do about it (usual 
-disclaimer applies).
+> # This is a BitKeeper generated diff -Nru style patch.
+> #
+> # ChangeSet
+> #   2004/09/23 06:05:52+02:00 kaber@coreworks.de 
+> #   [XFRM]: Fix unbalanced spin_unlock_bh
+> #   
+> #   Signed-off-by: Patrick McHardy <kaber@trash.net>
+> # 
+> # net/xfrm/xfrm_state.c
+> #   2004/09/23 06:05:25+02:00 kaber@coreworks.de +0 -1
+> #   [XFRM]: Fix unbalanced spin_unlock_bh
+> #   
+> #   Signed-off-by: Patrick McHardy <kaber@trash.net>
+> # 
+> diff -Nru a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+> --- a/net/xfrm/xfrm_state.c	2004-09-23 06:07:23 +02:00
+> +++ b/net/xfrm/xfrm_state.c	2004-09-23 06:07:23 +02:00
+> @@ -592,7 +592,6 @@
+>  		list_for_each_entry(x, xfrm_state_bydst+i, bydst) {
+>  			if (x->km.seq == seq) {
+>  				xfrm_state_hold(x);
+> -				spin_unlock_bh(&xfrm_state_lock);
+>  				return x;
+>  			}
+>  		}
 
-Out of couriosity: have you tried to run the kernel with K8 NUMA enabled?
-
-Greets,
-RJW
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"

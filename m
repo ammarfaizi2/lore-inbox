@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274894AbRIZJfB>; Wed, 26 Sep 2001 05:35:01 -0400
+	id <S274761AbRIZJjB>; Wed, 26 Sep 2001 05:39:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274896AbRIZJev>; Wed, 26 Sep 2001 05:34:51 -0400
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:61957 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S274894AbRIZJee>; Wed, 26 Sep 2001 05:34:34 -0400
-Date: Wed, 26 Sep 2001 10:49:54 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10 problems with X + USB mouse
-Message-ID: <20010926104954.B1651@suse.cz>
-In-Reply-To: <20010923222036.A1685@taral.net> <20010923233022.A30991@lnuxlab.ath.cx> <20010925204047.A2818@srcf.ucam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010925204047.A2818@srcf.ucam.org>; from mjg59@srcf.ucam.org on Tue, Sep 25, 2001 at 08:40:47PM +0100
+	id <S274895AbRIZJiw>; Wed, 26 Sep 2001 05:38:52 -0400
+Received: from suphys.physics.usyd.edu.au ([129.78.129.1]:53173 "EHLO
+	suphys.physics.usyd.edu.au") by vger.kernel.org with ESMTP
+	id <S274761AbRIZJig>; Wed, 26 Sep 2001 05:38:36 -0400
+Date: Wed, 26 Sep 2001 19:38:45 +1000 (EST)
+From: Tim Connors <tcon@Physics.usyd.edu.au>
+To: Evan Harris <eharris@puremagic.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: VM bug in 2.4.10-pre15 (been there a while though)
+In-Reply-To: <Pine.LNX.4.33.0109260028030.1071-200000@kinison.puremagic.com>
+Message-ID: <Pine.SOL.3.96.1010926193716.15516A-100000@suphys.physics.usyd.edu.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 25, 2001 at 08:40:47PM +0100, Matthew Garrett wrote:
+> After that, the system locks up tight.  The .config was copied verbatim with
+> no changes from my working 2.4.3 config, but when I tested 2.4.8 and 2.4.9,
+> they had similar crashes right after booting.  Was unable to test kernels
+> 2.4.4-2.4.7 because of various modules I use having compile errors.
 
-> On Sun, Sep 23, 2001 at 11:30:22PM -0400, khromy wrote:
-> 
-> > I had this problem too.  I used NetMousePS/2 in XF86Config but changing
-> > it to IMPS/2 fixed it.
-> 
-> Here too. Using IMPS/2 appears to have the disadvantage that the side 
-> buttons are only recognised as duplicates of buttons 2 and 3, whereas 
-> NetmousePS/2 allowed all of them to be used separately.
+I don't know whether this is related - but you didn't go 
+make oldconfig?
 
-NetmousePS/2 is no longer supported, because it was problematic (on X
-and GPM side). Use ExplorerPS/2 instead for 5 button support.
+You'll need to do that first before make dep in order to use the old
+.config file.
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+TimC -- http://www.physics.usyd.edu.au/~tcon/
+
+Some witty text here,
+can be any number of lines
+long
+

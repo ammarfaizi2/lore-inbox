@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262545AbREVAWz>; Mon, 21 May 2001 20:22:55 -0400
+	id <S262543AbREVAQy>; Mon, 21 May 2001 20:16:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262546AbREVAWo>; Mon, 21 May 2001 20:22:44 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:42459 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S262545AbREVAWi>; Mon, 21 May 2001 20:22:38 -0400
-Date: Tue, 22 May 2001 02:22:34 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@suse.cz>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Matthew Wilcox <matthew@wil.cx>, Andrew Clausen <clausen@gnu.org>,
-        Ben LaHaise <bcrl@redhat.com>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-Message-ID: <20010522022234.T754@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <E151xFO-0000ue-00@the-village.bc.nu> <Pine.GSO.4.21.0105211745490.12245-100000@weyl.math.psu.edu>
+	id <S262545AbREVAQo>; Mon, 21 May 2001 20:16:44 -0400
+Received: from t2.redhat.com ([199.183.24.243]:3581 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262543AbREVAQ3>; Mon, 21 May 2001 20:16:29 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <5.0.2.1.2.20010521163446.00a85fa0@pxwang.pobox.stanford.edu> 
+In-Reply-To: <5.0.2.1.2.20010521163446.00a85fa0@pxwang.pobox.stanford.edu> 
+To: Philip Wang <PXWang@stanford.edu>
+Cc: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, Dawson Engler <engler@cs.Stanford.EDU>
+Subject: Re: [PATCH] drivers/mtd/mtdchar.c 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.GSO.4.21.0105211745490.12245-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, May 21, 2001 at 05:51:08PM -0400
+Date: Tue, 22 May 2001 01:15:50 +0100
+Message-ID: <22152.990490550@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 21, 2001 at 05:51:08PM -0400, Alexander Viro wrote:
-> Sure. But we have to do two syscalls only if ioctl has both in- and out-
-> arguments that way. Moreover, we are talking about non-trivial in- arguments.
-> How many of these are in hotspots?
 
-ioctl has actually 4 semantics:
+PXWang@stanford.edu said:
+>  There is a bug in mtdchar.c of not freeing memory on error paths.
+> databuf  is allocated but not freed if copy_from_user fails.  The
+> addition I made  was to kfree databuf before returning -EFAULT.
+> Thanks!
 
-command only
-command + read
-command + write
-command + rw-transaction
+Thankyou. I've now committed the fix to my tree and it'll be in the next 
+merge with Linus, which should hopefully happen quite soon.
 
-Separating these would be a first step. And yes, I consider each
-of them useful.
-
-command only: reset drive
-command + rw-transaction: "dear device please mangle this data"
-   (crypto processors come to mind...)
-
-The other two are obviously needed and already accepted by all of
-you.
-
-Hotspots: crypto hardware or generally DSPs.
+--
+dwmw2
 
 
-Regards
-
-Ingo Oeser
--- 
-To the systems programmer,
-users and applications serve only to provide a test load.

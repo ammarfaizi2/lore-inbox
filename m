@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbULAKzC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbULAK5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261363AbULAKzC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 05:55:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbULAKzC
+	id S261375AbULAK5r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 05:57:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbULAK5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 05:55:02 -0500
-Received: from box.punkt.pl ([217.8.180.66]:46600 "HELO box.punkt.pl")
-	by vger.kernel.org with SMTP id S261363AbULAKy6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 05:54:58 -0500
-From: Mariusz Mazur <mmazur@kernel.pl>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Date: Wed, 1 Dec 2004 11:52:45 +0100
-User-Agent: KMail/1.7
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Alexandre Oliva <aoliva@redhat.com>, Paul Mackerras <paulus@samba.org>,
-       Greg KH <greg@kroah.com>, Matthew Wilcox <matthew@wil.cx>,
-       David Howells <dhowells@redhat.com>, hch@infradead.org,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-References: <19865.1101395592@redhat.com> <200412010008.13572.mmazur@kernel.pl> <20041201052328.GA8157@mars.ravnborg.org>
-In-Reply-To: <20041201052328.GA8157@mars.ravnborg.org>
+	Wed, 1 Dec 2004 05:57:46 -0500
+Received: from 92.Red-80-34-142.pooles.rima-tde.net ([80.34.142.92]:42572 "EHLO
+	samsagaz.sirte.net") by vger.kernel.org with ESMTP id S261367AbULAKz5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 05:55:57 -0500
+Message-ID: <41ADA35E.2010801@sombragris.com>
+Date: Wed, 01 Dec 2004 11:56:30 +0100
+From: Miguel Angel Flores <maf@sombragris.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; es-ES; rv:1.7) Gecko/20040616
+X-Accept-Language: es-es, es
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: linux-kernel@vger.kernel.org
+CC: Joe Hsu <joe@softwell.com.tw>
+Subject: Re: Kernel 2.6 with X (xorg) 4.4 (eats more CPU power)
+References: <1101896505.2161.45.camel@joe>
+In-Reply-To: <1101896505.2161.45.camel@joe>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200412011152.45279.mmazur@kernel.pl>
+X-OriginalArrivalTime: 01 Dec 2004 10:56:30.0265 (UTC) FILETIME=[69C1B290:01C4D794]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On ¶roda 01 grudzieñ 2004 06:23, Sam Ravnborg wrote:
-> > Linked, copied, mount --binded, whatever. Just not under the
-> > name /usr/include/user, but something more meaningfull.
->
-> Whats wrong with
-> /lib/modules/`uname -r`/source/include/user
-> /lib/modules/`uname -r`/source/include/$arch
+Its just an idea but... ¿Have you configured your 2.6 kernel as a 
+Preemptive kernel?
 
-Those are supposed to be userland-only headers that don't just change - they 
-are gradually expanded. I don't see a point in having `uname -r` in there.
+Cheers,
+MaF
 
-And another thing - distribution vendors will *hate* anyone, that encourages 
-app developers to add an include path based on which kernel is being 
-currently run. People, that have their headers tied to their kernels are a 
-*minority*.
+Joe Hsu escribió:
 
-(though iirc eg. netfilter is a mess, so there might be bigger reasons to 
-ignore my arguments; not that I won't hate you if you do, and I'll have to 
-patch everything, just to get it compiled)
-
--- 
-In the year eighty five ten
-God is gonna shake his mighty head
-He'll either say,
-"I'm pleased where man has been"
-Or tear it down, and start again
+>     In contrast, I've tried Kernel 2.4 with same X, same 
+> program, and same machine. It consumes almost zero of CPU 
+> resource( no matter it runs on a P4 1.xG or P4 3.0G and no
+> matter it runs on 4.4 or 4.2 X-server).
+> 
+>     Same phenomenon happened when I ran 4 mpeg4 playback 
+> programs (each 320x240, 30 frames per second, no scaling).
+> It seems that these programs and X consume almost zero of 
+> CPU power when the KERNEL HZ is 100. (I've 
+> tried Robert Love's variable HZ patch to kernel 2.4 and 
+> change HZ to 1000........Same phenomenon as 2.6)

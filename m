@@ -1,51 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136165AbRD0SoD>; Fri, 27 Apr 2001 14:44:03 -0400
+	id <S136173AbRD0TBi>; Fri, 27 Apr 2001 15:01:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136168AbRD0Snx>; Fri, 27 Apr 2001 14:43:53 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:38152 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S136165AbRD0Snj>; Fri, 27 Apr 2001 14:43:39 -0400
-Date: Fri, 27 Apr 2001 15:43:33 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
-In-Reply-To: <Pine.LNX.4.33.0104271930070.225-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.33.0104271541190.17635-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136170AbRD0TB2>; Fri, 27 Apr 2001 15:01:28 -0400
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:45363 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S136173AbRD0TBT>; Fri, 27 Apr 2001 15:01:19 -0400
+Date: Fri, 27 Apr 2001 15:01:14 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: zaitcev@redhat.com
+Subject: Atrocious icache/dcache in 2.4.2
+Message-ID: <20010427150114.A23960@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Apr 2001, Mike Galbraith wrote:
+Hello:
 
-> virgin pre7 +Rik
-> real    11m44.088s
-> user    7m57.720s
-> sys     0m36.420s
+My box here slows down dramatically after a while, and starts
+behaving as if it has very little memory, e.g. programs page
+each other out. It turns out that out of 40MB total, about
+35MB is used for dcache and icache, and system basically
+runs in 5MB of RAM.
 
-> None of them make much difference.
+When I tried to discuss it with riel, viro, and others,
+I got an immediate and very strong knee jerk reaction "we fixed
+it in 2.4.4-pre4!" "we gotta call prune_dcache more!".
+That just does not sound persuasive to me.
 
-Good, then I suppose we can put in the cleanup from my code, since
-it makes the balancing a bit more predictable and should keep the
-background aging within bounds.
+After a little thinking it seems apparent to me that it
+may be a good thing to have VM taking pages from dentry and
+inode pools directly. This sounds almost what slab does,
+so let me speculate about it (it is a bad idea, but it is
+interesting _why_).
 
-I'll send a fixed patch tonight (with that last small thinko you
-and marcelo discovered removed).
+Suppose that we do this: when inode gets clean (e.g. unlocked,
+written to disk if was changed), drop it into kmem_cache_free(),
+but retain on hash (forget about poisoning for a momemt).
+Then, if memory is needed, VM may ask slab, slab calls our
+destructors, and destructors take inode off hash. The idea
+solves the problem, but has two marks agains it. First, when
+we look up an inode, we either hit dirty or "clean", which
+is free. Then we have to do kmem_cache_alloc() and that will
+return wrong inode, which we have to drop from hash, then do
+memcpy from old "really free one", etc. It still saves disk
+I/O, but messy. Another thing is a fragmentation: suppose we
+have bunch of slabs, every one has a single dirty inode in it
+(tar xf -). Memory pressure will be powerless to do anything
+about them.
 
-regards,
+So, I have a better crackpot idea: create a fake filesystem,
+say "inodefs". When inodes are needed, we pretend to read
+pages from that filesystem, but in fact we just zero most
+of them and put inodes there, also every one needs a "used"
+counter, like slab has.  When an inode is dirty, we mark
+those pages locked or dirty, if only clean - mark pages
+as dirty. VM will automatically try to get pages, and
+write out those that are "dirty". At that moment,
+we have an option to look, if any used (clean or dirty) inodes
+are inside the page. If they are, we either move them in
+some other (fragmented) pages, or just remove them from
+hashes and pretend that the page is written.
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+The bad part is that inode cache code and inodefs will have
+part of slab machinery replicated in them. Dunno if that is
+bad enough to bury the thing.
 
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+If you have read to this point, let me know what you think.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+-- Pete

@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267433AbUI0XIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267435AbUI0XIS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267433AbUI0XIP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 19:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267424AbUI0XIP
+	id S267435AbUI0XIS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 19:08:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267424AbUI0XIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 19:08:15 -0400
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:57783 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267433AbUI0XHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 19:07:00 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: suspend/resume support for driver requires an external firmware
-Date: Mon, 27 Sep 2004 18:06:57 -0500
-User-Agent: KMail/1.6.2
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Oliver Neukum <oliver@neukum.org>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       "Zhu, Yi" <yi.zhu@intel.com>
-References: <3ACA40606221794F80A5670F0AF15F8403BD5791@pdsmsx403> <200409271319.05112.dtor_core@ameritech.net> <200409280147.03957.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200409280147.03957.vda@port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="koi8-r"
+	Mon, 27 Sep 2004 19:08:18 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:34446 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267435AbUI0XHW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 19:07:22 -0400
+Message-ID: <35fb2e5904092716077e744882@mail.gmail.com>
+Date: Tue, 28 Sep 2004 00:07:19 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, jonathan@jonmasters.org,
+       Lars Marowsky-Bree <lmb@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Thomas Habets <thomas@habets.pp.se>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] oom_pardon, aka don't kill my xlock
+In-Reply-To: <20040927171253.GA9728@MAIL.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409271806.57992.dtor_core@ameritech.net>
+References: <200409230123.30858.thomas@habets.pp.se>
+	 <20040923234520.GA7303@pclin040.win.tue.nl>
+	 <1096031971.9791.26.camel@localhost.localdomain>
+	 <200409242158.40054.thomas@habets.pp.se>
+	 <1096060549.10797.10.camel@localhost.localdomain>
+	 <20040927104120.GA30364@logos.cnet>
+	 <20040927125441.GG3934@marowsky-bree.de>
+	 <35fb2e590409270612524c5fb9@mail.gmail.com>
+	 <20040927133554.GD30956@logos.cnet>
+	 <20040927171253.GA9728@MAIL.13thfloor.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 27 September 2004 05:47 pm, Denis Vlasenko wrote:
-> On Monday 27 September 2004 21:19, Dmitry Torokhov wrote:
-> > On Monday 27 September 2004 12:19 pm, Oliver Neukum wrote:
-> > > > Why not just suspend the device first, then enter the system suspend
-> > > > state; then on resume, resume the device after control has transferred
-> > > > back to userspace. That way, the driver can load the firmware from the
-> > > 
-> > > And thus cause errors in all applications wishing to use the network
-> > > until the firmware is reloaded. It is precisely what cannot be done.
-> > > The firmware must be present on suspend. The question is, how?
-> > 
-> > While non-availability might be an issue for other types of hardware I think
-> > it is ok for network cards. In many cases the interface will have to be
-> > reconfigured at resume anyway (you move from office to home and the network
-> > is completely different). Can't resume be handled by virtually removing/
-> > inserting the device so firmware will be re-loaded as it was just a normal
-> > startup?
-> 
-> Think about situation when all filesystems are NFS-mounted.
-> You absolutely are not allowed to lose your network, or else hotplug
-> (and all fs-backed stuff in general) will die horribly.
+On Mon, 27 Sep 2004 19:12:53 +0200, Herbert Poetzl <herbert@13thfloor.at> wrote:
 
-Where do you load your firmware from so that you can bring up the network
-so you can mount everything via NFS in the first place?
+> I'm no friend of the 'extend swap idea' so don't
+> get me wrong, but userspace can just reduce the
+> cases where you get out-of-swap, without support
+> from the kernel side (via some userspace helper)
 
--- 
-Dmitry
+I was just thinking it might be a suitable approach for some of the
+distros to take when running on a machine with plenty of disk that for
+whatever reason runs at risk of rolling over and dying - better to
+take up some additional disk space than to have some critical server
+process killed. It's not pretty but then neither is the oom killer,
+and this might reduce some of that pain.
+
+Jon.

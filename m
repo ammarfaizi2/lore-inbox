@@ -1,59 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129500AbRBLXin>; Mon, 12 Feb 2001 18:38:43 -0500
+	id <S129723AbRBLXkX>; Mon, 12 Feb 2001 18:40:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129752AbRBLXie>; Mon, 12 Feb 2001 18:38:34 -0500
-Received: from irz301.inf.tu-dresden.de ([141.76.2.1]:38522 "EHLO
-	irz301.inf.tu-dresden.de") by vger.kernel.org with ESMTP
-	id <S129500AbRBLXiU>; Mon, 12 Feb 2001 18:38:20 -0500
-Date: Tue, 13 Feb 2001 00:38:15 +0100
-From: Adam Lackorzynski <al10@inf.tu-dresden.de>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI bridge handling 2.4.0-test10 -> 2.4.2-pre3
-Message-ID: <20010213003815.A17962@inf.tu-dresden.de>
-In-Reply-To: <20010212140419.A11619@lug-owl.de>
+	id <S129750AbRBLXkN>; Mon, 12 Feb 2001 18:40:13 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:15357 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S129723AbRBLXkA>;
+	Mon, 12 Feb 2001 18:40:00 -0500
+Date: Tue, 13 Feb 2001 00:39:20 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Ivan Passos <lists@cyclades.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: LILO and serial speeds over 9600
+Message-ID: <20010213003920.A21164@khan.acc.umu.se>
+In-Reply-To: <Pine.LNX.4.31.0102121147390.25638-100000@lairdtest1.internap.com> <Pine.LNX.4.10.10102121456380.3761-100000@main.cyclades.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010212140419.A11619@lug-owl.de>; from jbglaw@lug-owl.de on Mon, Feb 12, 2001 at 02:04:20PM +0100
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.LNX.4.10.10102121456380.3761-100000@main.cyclades.com>; from lists@cyclades.com on Mon, Feb 12, 2001 at 03:17:04PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Feb 12, 2001 at 14:04:20 +0100, Jan-Benedict Glaw wrote:
-> I've got a "Bull Express5800/Series" (dual P3) with a DAC1164 RAID
-> controller. The mainboard is ServerWorks based and however, 2.4.2-pre3
-> fails to find the RAID controller. I think there's a problem at
-> scanning PCI busses behind PCI bridges. Here's the PCI bus layout as
-> 2.4.0-test10 recognizes it:
+On Mon, Feb 12, 2001 at 03:17:04PM -0800, Ivan Passos wrote:
+> 
+> On Mon, 12 Feb 2001, Scott Laird wrote:
+> > 
+> > On 12 Feb 2001, H. Peter Anvin wrote:
+> > >
+> > > Just checked my own code, and SYSLINUX does indeed support 115200 (I
+> > > changed this to be a 32-bit register ages ago, apparently.)  Still
+> > > doesn't answer the question "why"... all I think you do is increase
+> > > the risk for FIFO overrun and lost characters (flow control on a boot
+> > > loader console is vestigial at the best.)
+> > 
+> > It's simple -- we want the kernel to have its serial console running at
+> > 115200, and we don't want to have to change speeds to talk to the
+> > bootloader. 
+> 
+> Exactly.
+> 
+> Then HPA may ask: but why do you want to run the serial console at
+> 115200?? The answer is simple: because we can (or more precisely, because
+> the HW can ;).
+> 
+> If the hardware is supposed to support 115.2Kbps, why can't / shouldn't 
+> we use it?? Remember, this is not a modem connection, there is no
+> compression involved, both sides are running 115.2Kbps, so there should
+> NOT be a risk for FIFO overruns (unless you have buggy hardware). And in
+> this case, you can then decrease your baud rate. But at least you have the
+> _option_! :)
+> 
+> 
+> > Some boot processes, particularaly fsck, can be *REALLY*
+> > verbose on screwed up systems.  I've seen systems take hours to run fsck,
+> > even on small filesystems, simply because they were blocking on a 9600 bps
+> > console.
+> 
+> This is true!!
+> 
+> Another one (not as critical as the fsck though): when compiling the
+> kernel, sometimes the kernel compilation is done, but the console output
+> isn't finished yet (I'm serious).
 
-There's was a change in the PCI bus scan code in pre3.
+Dunno about others, but I always pipe stdout to /dev/null when compiling
+kernels. This way, everything important is still shown (warnings/errors)
+as those go to stderr anyway, and all non-interesting stuff goes down
+the drain.
 
 
-Could you please apply the following patch to arch/i386/kernel/pci-pc.c (against
-2.4.1-pre3) and tell us your results? The fixup functions do not seem to
-work right now so we'll trust the BIOS...
-
---- pci-pc.c.orig       Tue Feb 13 00:02:50 2001
-+++ pci-pc.c    Tue Feb 13 00:19:29 2001
-@@ -953,9 +953,6 @@
- struct pci_fixup pcibios_fixups[] = {
-        { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_INTEL,    PCI_DEVICE_ID_INTEL_82451NX,    pci_fixup_i450nx },
-        { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_INTEL,    PCI_DEVICE_ID_INTEL_82454GX,    pci_fixup_i450gx },
--       { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_SERVERWORKS,      PCI_DEVICE_ID_SERVERWORKS_HE,           pci_fixup_serverworks },
--       { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_SERVERWORKS,      PCI_DEVICE_ID_SERVERWORKS_LE,           pci_fixup_serverworks },
--       { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_SERVERWORKS,      PCI_DEVICE_ID_SERVERWORKS_CMIC_HE,      pci_fixup_serverworks },
-        { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_COMPAQ,   PCI_DEVICE_ID_COMPAQ_6010,      pci_fixup_compaq },
-        { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_UMC,      PCI_DEVICE_ID_UMC_UM8886BF,     pci_fixup_umc_ide },
-        { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_SI,       PCI_DEVICE_ID_SI_5513, pci_fixup_ide_trash },
-
-
-
-Adam
--- 
-Adam                 al10@inf.tu-dresden.de
-  Lackorzynski         http://a.home.dhs.org
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

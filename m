@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266998AbTBXNSU>; Mon, 24 Feb 2003 08:18:20 -0500
+	id <S267039AbTBXNXz>; Mon, 24 Feb 2003 08:23:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267013AbTBXNST>; Mon, 24 Feb 2003 08:18:19 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:36335 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP
-	id <S266998AbTBXNST>; Mon, 24 Feb 2003 08:18:19 -0500
-Subject: Re: Question on scsi disk driver
-From: Arjan van de Ven <arjan@fenrus.demon.nl>
-To: vijaysrinath@lycos.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <AFIFLLKIMJDOIDAA@mailcity.com>
-References: <AFIFLLKIMJDOIDAA@mailcity.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ljZFbqeLbMufTHr6bSz3"
-Organization: 
-Message-Id: <1046093306.1709.3.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 24 Feb 2003 14:28:26 +0100
+	id <S267049AbTBXNXz>; Mon, 24 Feb 2003 08:23:55 -0500
+Received: from mailrelay2.lrz-muenchen.de ([129.187.254.102]:57237 "EHLO
+	mailrelay2.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S267039AbTBXNXy> convert rfc822-to-8bit; Mon, 24 Feb 2003 08:23:54 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: Duncan Sands <baldrick@wanadoo.fr>, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] USB speedtouch: better proc info
+Date: Mon, 24 Feb 2003 11:43:20 +0100
+User-Agent: KMail/1.4.3
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <200302241058.52073.baldrick@wanadoo.fr>
+In-Reply-To: <200302241058.52073.baldrick@wanadoo.fr>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302241143.20632.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Montag, 24. Februar 2003 10:58 schrieb Duncan Sands:
+> Output the correct device name, show the state of the device (for
+> debugging) and of the ADSL line (anyone want to write a graphical utility
+> to show this, like under windows?).  We no longer consult the usb_device
+> struct in udsl_atm_proc_read, so don't take a reference to it.  Against
+> Greg's current 2.5 USB tree.
 
---=-ljZFbqeLbMufTHr6bSz3
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+First of all, let me say that you're doing wonders with this driver.
+But this particular patch I don't like. It improves stuff that should
+be removed. More specifically:
 
-On Mon, 2003-02-24 at 13:58, vijay srinath wrote:
-> hello all,
->=20
-> 	Iam running Linux Kernel 2.4.9. I have a disk array with a more than 128=
- luns. Since the maximum number of disk luns that sd driver can see is 128,=
- i expected to see atleast 128. But i noticed that i was not able to access=
- any lun at all.
-> 	I investigated further and saw that sd_init() in sd.c was returning a fa=
-ilure. This was because the code where memory is alloc'd for 'hd_struct' st=
-ructures was failing. The code snippet is below
+1. Does anything prevent you from using the medium detection
+hooks the network layer provides?
+2. What need is there to export manufacturer id and mac address
+again?
+3. Doesn't the rest belong into sysfs rather than procfs?
 
-if you are running a RHL kernel you need to upgrade to the latest
-erratum kernel (2.4.18-24.x.y) which has support for 256 scsi disks.
+	Regards
+		Oliver
 
-
---=-ljZFbqeLbMufTHr6bSz3
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+Wh36xULwo51rQBIRAt8EAJwODGhW7iow13YOky20tFPlleRFewCfRqOG
-0bz/W0wnsXUqCiHN/DU6jXY=
-=aJAr
------END PGP SIGNATURE-----
-
---=-ljZFbqeLbMufTHr6bSz3--

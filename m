@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131555AbRCSTWA>; Mon, 19 Mar 2001 14:22:00 -0500
+	id <S131560AbRCSTXA>; Mon, 19 Mar 2001 14:23:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131560AbRCSTVu>; Mon, 19 Mar 2001 14:21:50 -0500
-Received: from mta05-svc.ntlworld.com ([62.253.162.45]:34999 "EHLO
-	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S131555AbRCSTVl>; Mon, 19 Mar 2001 14:21:41 -0500
-From: cjw44@flatline.org.uk (Colin Watson)
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: How to mount /proc/sys/fs/binfmt_misc ?
-In-Reply-To: <Pine.GSO.4.21.0103161335240.12618-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0103161335240.12618-100000@weyl.math.psu.edu>
-Organization: riva.ucam.org
-Message-Id: <E14f5LN-0005Go-00@riva.ucam.org>
-Date: Mon, 19 Mar 2001 19:29:29 +0000
+	id <S131561AbRCSTWv>; Mon, 19 Mar 2001 14:22:51 -0500
+Received: from dfw-smtpout2.email.verio.net ([129.250.36.42]:53894 "EHLO
+	dfw-smtpout2.email.verio.net") by vger.kernel.org with ESMTP
+	id <S131560AbRCSTWh>; Mon, 19 Mar 2001 14:22:37 -0500
+Message-ID: <3AB65C51.3DF150E5@bigfoot.com>
+Date: Mon, 19 Mar 2001 11:21:53 -0800
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.19pre17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: UDMA 100 / PIIX4 question
+In-Reply-To: <20010318165246Z131240-406+1417@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro <viro@math.psu.edu> wrote:
->Seriously, binfmt_misc.c was written in rather, erm, interesting C.
->Read it and you'll see. Just one (but rather impressive) example:
->
->        if ((count == 1) && !(buffer[0] & ~('0' | '1'))) {
->
->It was meant to be
->
->        if (count == 1 && (buffer[0] == '0' || buffer[0] == '1')) {
->
->and anyone who can't find the difference really should learn C. And
->that's not the only bogosity of such level. Besides, the thing is
->trivially oopsable - write() to any file in binfmt_misc with buffer
->pointing to unmapped kernel address and you are screwed,
+quintaq@yahoo.co.uk wrote:
+> I have an IBM DTLA 307030 (ATA 100 / UDMA 5) on an 815e board (Asus CUSL2), which has a PIIX4 controller.
+> ...
+> My problem is that (according to hdparm -t), I never get a better transfer rate than approximately 15.8 Mb/sec.  I achieve this when DMA is enabled, - without it I fall back to about 5 Mb /sec.  No amount of fiddling with other hdparm settings makes any difference.
+> ...
 
-Or you can register binfmt names that are registered already and
-silently shadow old ones, or register names like 'register', 'status',
-'.', and '..'. It's hideous to manage reliably from userspace.
+15MB/s for hdparm is about right.
 
--- 
-Colin Watson                                     [cjw44@flatline.org.uk]
+"...four IDE devices can be supported in Bus Master mode.
+ PIIX4 contains support for "Ultra DMA/33" synchronous DMA
+ compatible devices."
+
+http://developer.intel.com/design/intarch/techinfo/440BX/PIIX4_intro.htm
+
+--

@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132230AbRACFqj>; Wed, 3 Jan 2001 00:46:39 -0500
+	id <S132242AbRACFsj>; Wed, 3 Jan 2001 00:48:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132242AbRACFqU>; Wed, 3 Jan 2001 00:46:20 -0500
-Received: from www.wen-online.de ([212.223.88.39]:23812 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S132230AbRACFqP>;
-	Wed, 3 Jan 2001 00:46:15 -0500
-Date: Wed, 3 Jan 2001 05:48:01 +0100 (CET)
+	id <S132267AbRACFsa>; Wed, 3 Jan 2001 00:48:30 -0500
+Received: from www.wen-online.de ([212.223.88.39]:61188 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S132242AbRACFsR>;
+	Wed, 3 Jan 2001 00:48:17 -0500
+Date: Wed, 3 Jan 2001 06:17:45 +0100 (CET)
 From: Mike Galbraith <mikeg@wen-online.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Anton Blanchard <anton@linuxcare.com.au>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
+To: Roger Larsson <roger.larsson@norran.net>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
         Andrew Morton <andrewm@uow.edu.au>
 Subject: Re: scheduling problem?
-In-Reply-To: <Pine.LNX.4.10.10101021057040.25012-100000@penguin.transmeta.com>
-Message-ID: <Pine.Linu.4.10.10101030546500.1057-100000@mikeg.weiden.de>
+In-Reply-To: <01010303393503.01851@dox>
+Message-ID: <Pine.Linu.4.10.10101030557060.1075-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Jan 2001, Linus Torvalds wrote:
+On Wed, 3 Jan 2001, Roger Larsson wrote:
 
-> On Tue, 2 Jan 2001, Mike Galbraith wrote:
-> > 
-> > Yes and no.  I've seen nasty stalls for quite a while now.  (I think
-> > that there is a wakeup problem lurking)
-> > 
-> > I found the change which triggers my horrid stalls.  Nobody is going
-> > to believe this...
+> Hi,
 > 
-> Hmm.. I can believe it. The code that waits on bdflush in wakeup_bdflush()
-> is somewhat suspicious. In particular, if/when that ever triggers, and
-> bdflush() is busy in flush_dirty_buffers(), then the process that is
-> trying to wake bdflush up is going to wait until flush_dirty_buffers() is
-> done. 
-> 
-> Which, if there is a process dirtying pages, can basically be
-> pretty much forever.
-> 
-> This was probably hidden by the lower limits simply by virtue of bdflush
-> never being very active before.
-> 
-> What does the system feel like if you just change the "sleep for bdflush"
-> logic in wakeup_bdflush() to something like
-> 
-> 	wake_up_process(bdflush_tsk);
-> 	__set_current_state(TASK_RUNNING);
-> 	current->policy |= SCHED_YIELD;
-> 	schedule();
-> 
-> instead of trying to wait for bdflush to wake us up?
+> I have played around with this code previously.
+> This is my current understanding.
+> [yield problem?]
 
-No difference (except more context switching as expected)
+Hmm.. this ~could be.  I once dove into the VM waters (me=stone)
+and changed __alloc_pages() to only yield instead of scheduling.
+The results (along with many other strange changes) were.. weirdest
+feeling kernel I ever ran.  Damn fast, but very very weird ;-)
+
+> Possible (in -prerelease) untested possibilities.
+> 
+> * Be tougher when yielding.
+> 
+> 
+>  	wakeup_kswapd(0);
+> 	if (gfp_mask & __GFP_WAIT) {
+> 		__set_current_state(TASK_RUNNING);
+> 		current->policy |= SCHED_YIELD;
+> +               current->counter--; /* be faster to let kswapd run */
+> or
+> +               current->counter = 0; /* too fast? [not tested] */
+> 		schedule();
+> 	}
+
+That looks a lot like cheating.
+
+> * Move wakeup of bflushd to kswapd. Somewhere after 'do_try_to_free_pages(..)'
+>   has been run. Before going to sleep... 
+>   [a variant tested with mixed results - this is likely a better one]
+
+I also did some things along this line.. also with mixed results.
+
+:) the changes I've done that I actually like best is to kill bdflush
+graveyard dead.  Did that twice and didn't miss it at all.  (next time,
+I think I'll erect a headstone)
 
 	-Mike
 

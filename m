@@ -1,62 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129597AbQLOXUB>; Fri, 15 Dec 2000 18:20:01 -0500
+	id <S129823AbQLOXcr>; Fri, 15 Dec 2000 18:32:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129896AbQLOXTl>; Fri, 15 Dec 2000 18:19:41 -0500
-Received: from jalon.able.es ([212.97.163.2]:43445 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129823AbQLOXTb>;
-	Fri, 15 Dec 2000 18:19:31 -0500
-Date: Fri, 15 Dec 2000 23:48:57 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
+	id <S129896AbQLOXch>; Fri, 15 Dec 2000 18:32:37 -0500
+Received: from blackdog.wirespeed.com ([208.170.106.25]:13319 "EHLO
+	blackdog.wirespeed.com") by vger.kernel.org with ESMTP
+	id <S129823AbQLOXc0>; Fri, 15 Dec 2000 18:32:26 -0500
+Message-ID: <3A3AA21F.4060100@redhat.com>
+Date: Fri, 15 Dec 2000 16:58:39 -0600
+From: Joe deBlaquiere <jadb@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Werner Almesberger <Werner.Almesberger@epfl.ch>
-Cc: LA Walsh <law@sgi.com>, Alexander Viro <viro@math.psu.edu>,
-        lkml <linux-kernel@vger.kernel.org>
+CC: ferret@phonewave.net, Alexander Viro <viro@math.psu.edu>,
+        LA Walsh <law@sgi.com>, lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Linus's include file strategy redux
-Message-ID: <20001215234857.A689@werewolf.able.es>
-In-Reply-To: <20001215152137.K599@almesberger.net> <NBBBJGOOMDFADJDGDCPHAENMCJAA.law@sgi.com> <20001215222117.S573@almesberger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20001215222117.S573@almesberger.net>; from Werner.Almesberger@epfl.ch on Fri, Dec 15, 2000 at 22:21:17 +0100
-X-Mailer: Balsa 1.0.0
+In-Reply-To: <20001215152137.K599@almesberger.net> <Pine.LNX.3.96.1001215090857.16439A-100000@tarot.mentasm.org> <20001215184644.R573@almesberger.net> <3A3A7F25.2050203@redhat.com> <20001215222707.T573@almesberger.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2000/12/15 Werner Almesberger wrote:
-> LA Walsh wrote:
+Werner Almesberger wrote:
+
+> Joe deBlaquiere wrote:
 > 
-> Exception: opaque types; there one would have to go via a __ identifier,
-> i.e.
+>> My solution to this has always been to make a cross compiler environment 
 > 
-> <public>/foo.h defines  struct __foo ...;
-> <public>/bar.h includes <public>/foo.h
->                and uses #define FOOSIZE sizeof(struct __foo)
-> <private>/foo.h either  typedef struct __foo foo_t;
->                 or      #define foo __foo  /* ugly */
+> 
+> ;-))) I think lots of people would really enjoy to have "build a
+> cross-gcc" added to the prerequisites for installing some driver
+> module ;-)
+> 
+> I know, it's not *that* bad. But it still adds quite a few possible
+> points of failure. Also, it adds a fair amount of overhead to any
+> directory name change or creation of a new kernel tree.
 > 
 
-Easier: public kernel interfaces only work through pointers.
-<public>/foo.h typedef struct foo foo_t;
-               foo_t* foo_new();
-<private>/foo.h includes <public>/foo.h
-               struct foo { ............... };
-               and uses #define FOOSIZE sizeof(foo_t)
+might be a good newbie filter... but actually the best thing about it is 
+that the compiler people of the work might make generating a proper 
+cross-toolchain less difficult by one or two magnitudes...
 
-Drawback: public access is slow (always through foo_set_xxxx_field(foo_t*))
-          private access from kernel or modules is fast (foo_t->x = ...)
-Advantage: kernel can change, foo_t internals can change and it is binary
-          compatible. Even public headers can be kernel version
-          independent.
+> 
+>> The other advantage to this is that I can switch my host environment 
+>> (within reason - compatible host glibcs, ok) and not have to change the 
+>> target compiler.
+> 
+> 
+> Hmm, I don't quite understand what you mean here.
+> 
 
-Too kind-of-classroom-not-real-world-useless-thing ?
-All depends on public access needing full fast paths...
+This way I can upgrade my host system from RH6.2 to RH7 and not worry 
+about compiler differences affecting my kernel builds for the various 
+projects I'm working on... including systems based on 2.0, 2.2 and 2.4...
+
+If anybody thinks gcc-2.96 messes up a 2.4 kernel, you should see what 
+happens when you compile 2.0.33 ;o).
+
+> - Werner
+
 
 -- 
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
-
-Linux werewolf 2.2.19-pre1 #1 SMP Fri Dec 15 22:25:20 CET 2000 i686
+Joe deBlaquiere
+Red Hat, Inc.
+307 Wynn Drive
+Huntsville AL, 35805
+voice : (256)-704-9200
+fax   : (256)-837-3839
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,81 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266143AbTIKG0n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 02:26:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266144AbTIKG0n
+	id S266139AbTIKGWx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 02:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266140AbTIKGWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 02:26:43 -0400
-Received: from mail.kroah.org ([65.200.24.183]:58508 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266143AbTIKG0j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 02:26:39 -0400
-Date: Wed, 10 Sep 2003 23:26:49 -0700
-From: Greg KH <greg@kroah.com>
+	Thu, 11 Sep 2003 02:22:53 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:25574 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266139AbTIKGWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 02:22:51 -0400
+Date: Thu, 11 Sep 2003 08:22:44 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] add kobject to struct module
-Message-ID: <20030911062649.GA10454@kroah.com>
-References: <Pine.LNX.4.33.0309100807430.1012-100000@localhost.localdomain> <20030911011644.DA21C2C335@lists.samba.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: [2.6 patch] better i386 CPU selection
+Message-ID: <20030911062243.GW27368@fs.tum.de>
+References: <20030908142920.GB28062@fs.tum.de> <20030909023011.BF25E2C014@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030911011644.DA21C2C335@lists.samba.org>
+In-Reply-To: <20030909023011.BF25E2C014@lists.samba.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 11, 2003 at 11:13:25AM +1000, Rusty Russell wrote:
-> > > > But in looking at your patch, I don't see why you want to separate the
-> > > > module from the kobject?  What benefit does it have?
+On Tue, Sep 09, 2003 at 11:11:21AM +1000, Rusty Russell wrote:
+> In message <20030908142920.GB28062@fs.tum.de> you write:
+> > On Mon, Sep 08, 2003 at 10:46:30AM +1000, Rusty Russell wrote:
+> > > In message <20030907112813.GQ14436@fs.tum.de> you write:
+> > > > - @Rusty:
+> > > >   what's your opinion on making MODULE_PROC_FAMILY in 
+> > > >   include/asm-i386/module.h some kind of bitmask?
 > > > 
-> > > The lifetimes are separate, each controlled by their own reference
-> > > count.  I *know* this will work even if someone holds a reference to
-> > > the kobject (for some reason in the future) even as the module is
-> > > removed.
+> > > The current one is readable, which is good, and Linus asked for it,
+> > > which makes it kinda moot.  And really, if you compile a module with
+> > > M686 and insert it in a kernel with M586, *WHATEVER* scheme you we use
+> > > for CPU seleciton, I want the poor user to have to use "modprobe -f".
 > > 
-> > Correct me if I'm wrong, but this sounds similar to the networking 
-> > refcount problem. The reference on the containing object is the 
-> > interesting one, as far as visibility goes. As long as its positive, the 
-> > module is active. 
+> > I agree, my thoughts go in the direction
+> > 
+> > bit 0 CPU_386
+> > bit 1 CPU_486
+> > bit 2 CPU_586
 > 
-> There are basically two choices: ensure that the reference count is
-> taken using try_module_get() (kobject doesn't have an owner field, so
-> it does not match this one), or ensure that an object isn't ever
-> referenced after the module cleanup function is called.
-> 
-> In this context, that means that the module cleanup must pause until
-> the reference count of the kobject hits zero, so it can be freed.
-> 
-> Implementation below.
+> We had a bitmask, which Linus said to replace with a string.  We have
+> 21 architectures, and a string works well in practice.  We could have
+> a bitmask *and* a string, but why the complexity?
+>...
 
-Ah, nice catch on that bug.  I like this implementation.
+My intention is that the user (= person compiling the kernel) selects 
+all CPUs he wants to support and to move the answer to questions like 
+"Which CPU type should I choose to support both an AMD Athlon and a
+Pentium 4?" into the Kconfig/Makefile where it's automatically selected.
 
-On a site note, can't you just use a "struct completion" to use for your
-waiting?  Or do you need to do something special here?
+> Hope that clarifies,
+> Rusty.
 
-> BTW, The *real* answer IMHO is (this is 2.7 stuff:)
-> 
-> 1) Adopt a faster, smaller implementation of alloc_percpu (this patch
->    exists, needs some arch-dependent love for ia64).
-> 2) Use it to generalize the current module reference count scheme to
->    a "bigref_t" (I have a couple of these)
-> 3) Use that in kobjects.
+cu
+Adrian
 
-Hm, I don't know if kobjects really need to get that heavy.
+-- 
 
-> 4) Decide that module removal is not as important as it was, and not
->    all modules need be removable (at least in finite time).
-> 5) Use the kobject reference count everywhere, including modules.
-> 
-> This would make everything faster, except for the case where someone
-> is actually waiting for a refcount to hit zero: for long-lived objects
-> like kobjects, this seems the right tradeoff.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-As more people use kobjects, I think we'll see some pretty short
-lifespans...
-
-But yes, that's all 2.7 dreams :)
-
-thanks,
-
-greg k-h

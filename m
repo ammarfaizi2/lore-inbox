@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290962AbSBFXmi>; Wed, 6 Feb 2002 18:42:38 -0500
+	id <S290961AbSBFXm2>; Wed, 6 Feb 2002 18:42:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290953AbSBFXmZ>; Wed, 6 Feb 2002 18:42:25 -0500
-Received: from panoramix.vasoftware.com ([198.186.202.147]:2030 "EHLO
+	id <S290962AbSBFXmK>; Wed, 6 Feb 2002 18:42:10 -0500
+Received: from panoramix.vasoftware.com ([198.186.202.147]:54430 "EHLO
 	mail2.vasoftware.com") by vger.kernel.org with ESMTP
-	id <S290958AbSBFXla>; Wed, 6 Feb 2002 18:41:30 -0500
+	id <S290953AbSBFXl3>; Wed, 6 Feb 2002 18:41:29 -0500
 From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15457.48373.737875.173842@argo.ozlabs.ibm.com>
-Date: Thu, 7 Feb 2002 10:32:05 +1100 (EST)
+Message-ID: <15457.48802.434240.868780@argo.ozlabs.ibm.com>
+Date: Thu, 7 Feb 2002 10:39:14 +1100 (EST)
 To: linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: [PATCH] PPP fixes for 2.4.18-pre8
+Subject: [PATCH] ppp fixes for 2.5.4-pre1
 X-Mailer: VM 6.75 under Emacs 20.7.2
 Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below fixes the deadlock and scheduling-in-interrupt
-problems in the PPP code.  It also includes Andrew Morton's fix for
-the memory leak that happened when packet decompression errors
-occurred.
+This patch is the 2.5.4-pre1 version of the PPP patch for 2.4.18-pre8
+that I posted.  It:
 
-Instead of using a linked list for the ppp units, I now use a wide
-tree (32-way branching at each level) with a bitmap at each level so I
-can find the lowest unused unit number quickly.  This should make it
-much more efficient when there are large numbers of PPP interfaces.
+* Fixes the deadlock and scheduling-in-interrupt problems in the
+  ppp_generic code and the async-tty and sync-tty PPP line
+  disciplines.
 
-This patch is against 2.4.18-pre8.  It nearly applies to 2.5.4-pre1,
-but not quite, so I will post a separate patch for 2.5.4-pre1.
+* Fixes a memory leak when packet decompression errors occur (fix from
+  Andrew Morton).
 
-This patch fixes all the SMP locking problems that I am aware of in
-the generic PPP code and the async-tty and sync-tty PPP line
-disciplines.  It also includes changes to pppoe.c and if_pppox.h from
-Michal Ostrowski that are needed because now ppp_unregister_channel
-must be called from process context, not from interrupt context.
+* Uses an efficient data structure to index the ppp units, reducing
+  the overhead when large numbers of ppp interfaces are used.
 
-It would be good if people could test this patch, particularly those
-who are using PPP on SMP boxes and/or with a large number of
-connections at once.  Please let me know how it goes.
+There is a small change to the API in that ppp_unregister_channel may
+now only be called from process context, not from interrupt or softirq
+context.  The patch includes changes to pppoe.c and if_pppox.h from
+Michal Ostrowski which make the pppoe code conform to this
+requirement.
+
+Dave, if this looks OK to you, could you pass it on to Linus?
 
 Paul.
 
-diff -urN linux-2.4.18-pre8/drivers/net/ppp_async.c linux/drivers/net/ppp_async.c
---- linux-2.4.18-pre8/drivers/net/ppp_async.c	Wed Oct 10 12:39:02 2001
-+++ linux/drivers/net/ppp_async.c	Fri Jan 25 18:07:28 2002
+diff -urN linux-2.5.4-pre1/drivers/net/ppp_async.c linux/drivers/net/ppp_async.c
+--- linux-2.5.4-pre1/drivers/net/ppp_async.c	Mon Oct  1 05:26:07 2001
++++ linux/drivers/net/ppp_async.c	Thu Feb  7 10:04:38 2002
 @@ -17,7 +17,7 @@
   * PPP driver, written by Michael Callahan and Al Longyear, and
   * subsequently hacked by Paul Mackerras.
@@ -214,9 +212,9 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_async.c linux/drivers/net/ppp_async.
  }
  
  
-diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_generic.c
---- linux-2.4.18-pre8/drivers/net/ppp_generic.c	Wed Oct 24 23:05:06 2001
-+++ linux/drivers/net/ppp_generic.c	Tue Feb  5 16:43:42 2002
+diff -urN linux-2.5.4-pre1/drivers/net/ppp_generic.c linux/drivers/net/ppp_generic.c
+--- linux-2.5.4-pre1/drivers/net/ppp_generic.c	Tue Jan 22 19:44:15 2002
++++ linux/drivers/net/ppp_generic.c	Thu Feb  7 10:19:11 2002
 @@ -1,7 +1,7 @@
  /*
   * Generic PPP layer for Linux.
@@ -402,7 +400,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  /*
   * /dev/ppp device routines.
   * The /dev/ppp device is used by pppd to control the ppp unit.
-@@ -323,11 +349,16 @@
+@@ -323,10 +349,16 @@
  
  static int ppp_release(struct inode *inode, struct file *file)
  {
@@ -410,7 +408,6 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
 +	struct ppp_file *pf = file->private_data;
 +	struct ppp *ppp;
  
--	lock_kernel();
  	if (pf != 0) {
  		file->private_data = 0;
 +		if (pf->kind == INTERFACE) {
@@ -421,14 +418,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  		if (atomic_dec_and_test(&pf->refcnt)) {
  			switch (pf->kind) {
  			case INTERFACE:
-@@ -339,37 +370,27 @@
- 			}
- 		}
- 	}
--	unlock_kernel();
- 	return 0;
- }
- 
+@@ -344,30 +376,21 @@
  static ssize_t ppp_read(struct file *file, char *buf,
  			size_t count, loff_t *ppos)
  {
@@ -463,7 +453,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  			break;
  		ret = -EAGAIN;
  		if (file->f_flags & O_NONBLOCK)
-@@ -379,7 +400,7 @@
+@@ -377,7 +400,7 @@
  			break;
  		schedule();
  	}
@@ -472,7 +462,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	remove_wait_queue(&pf->rwait, &wait);
  
  	if (skb == 0)
-@@ -402,21 +423,12 @@
+@@ -400,21 +423,12 @@
  static ssize_t ppp_write(struct file *file, const char *buf,
  			 size_t count, loff_t *ppos)
  {
@@ -496,7 +486,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	ret = -ENOMEM;
  	skb = alloc_skb(count + pf->hdrlen, GFP_KERNEL);
  	if (skb == 0)
-@@ -448,7 +460,7 @@
+@@ -446,7 +460,7 @@
  /* No kernel lock - fine */
  static unsigned int ppp_poll(struct file *file, poll_table *wait)
  {
@@ -505,7 +495,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	unsigned int mask;
  
  	if (pf == 0)
-@@ -457,18 +469,15 @@
+@@ -455,18 +469,15 @@
  	mask = POLLOUT | POLLWRNORM;
  	if (skb_peek(&pf->rq) != 0)
  		mask |= POLLIN | POLLRDNORM;
@@ -527,7 +517,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	struct ppp *ppp;
  	int err = -EFAULT, val, val2, i;
  	struct ppp_idle idle;
-@@ -479,6 +488,33 @@
+@@ -477,6 +488,33 @@
  	if (pf == 0)
  		return ppp_unattached_ioctl(pf, file, cmd, arg);
  
@@ -561,7 +551,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	if (pf->kind == CHANNEL) {
  		struct channel *pch = PF_TO_CHANNEL(pf);
  		struct ppp_channel *chan;
-@@ -494,20 +530,13 @@
+@@ -492,20 +530,13 @@
  			err = ppp_disconnect_channel(pch);
  			break;
  
@@ -584,7 +574,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  		}
  		return err;
  	}
-@@ -520,13 +549,6 @@
+@@ -518,13 +549,6 @@
  
  	ppp = PF_TO_PPP(pf);
  	switch (cmd) {
@@ -598,7 +588,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	case PPPIOCSMRU:
  		if (get_user(val, (int *) arg))
  			break;
-@@ -677,6 +699,7 @@
+@@ -675,6 +699,7 @@
  	default:
  		err = -ENOTTY;
  	}
@@ -606,7 +596,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	return err;
  }
  
-@@ -696,6 +719,7 @@
+@@ -694,6 +719,7 @@
  		if (ppp == 0)
  			break;
  		file->private_data = &ppp->file;
@@ -614,7 +604,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  		err = -EFAULT;
  		if (put_user(ppp->file.index, (int *) arg))
  			break;
-@@ -706,31 +730,29 @@
+@@ -704,31 +730,29 @@
  		/* Attach to an existing ppp unit */
  		if (get_user(unit, (int *) arg))
  			break;
@@ -658,7 +648,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  		break;
  
  	default:
-@@ -907,15 +929,16 @@
+@@ -905,15 +929,16 @@
  	struct sk_buff *skb;
  
  	ppp_xmit_lock(ppp);
@@ -684,7 +674,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	ppp_xmit_unlock(ppp);
  }
  
-@@ -1528,6 +1551,7 @@
+@@ -1526,6 +1551,7 @@
  			   error indication. */
  			if (len == DECOMP_FATALERROR)
  				ppp->rstate |= SC_DC_FERROR;
@@ -692,7 +682,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  			goto err;
  		}
  
-@@ -1799,7 +1823,7 @@
+@@ -1797,7 +1823,7 @@
  {
  	struct channel *pch;
  
@@ -701,7 +691,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	if (pch == 0)
  		return -ENOMEM;
  	memset(pch, 0, sizeof(struct channel));
-@@ -1811,11 +1835,13 @@
+@@ -1809,11 +1835,13 @@
  #ifdef CONFIG_PPP_MULTILINK
  	pch->lastseq = -1;
  #endif /* CONFIG_PPP_MULTILINK */
@@ -716,7 +706,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	spin_unlock_bh(&all_channels_lock);
  	MOD_INC_USE_COUNT;
  	return 0;
-@@ -1828,7 +1854,9 @@
+@@ -1826,7 +1854,9 @@
  {
  	struct channel *pch = chan->ppp;
  
@@ -727,7 +717,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  }
  
  /*
-@@ -1850,7 +1878,7 @@
+@@ -1848,7 +1878,7 @@
  
  /*
   * Disconnect a channel from the generic layer.
@@ -736,7 +726,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
   */
  void
  ppp_unregister_channel(struct ppp_channel *chan)
-@@ -1865,14 +1893,17 @@
+@@ -1863,14 +1893,17 @@
  	 * This ensures that we have returned from any calls into the
  	 * the channel's start_xmit or ioctl routine before we proceed.
  	 */
@@ -756,7 +746,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	if (atomic_dec_and_test(&pch->file.refcnt))
  		ppp_destroy_channel(pch);
  	MOD_DEC_USE_COUNT;
-@@ -1929,20 +1960,21 @@
+@@ -1927,20 +1960,21 @@
  #endif /* CONFIG_KMOD */
  	if (cp == 0)
  		goto out;
@@ -786,7 +776,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  			ppp->xcomp = cp;
  			ppp->xc_state = state;
  			ppp_xmit_unlock(ppp);
-@@ -1950,17 +1982,14 @@
+@@ -1948,17 +1982,14 @@
  		}
  
  	} else {
@@ -809,7 +799,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  			ppp->rcomp = cp;
  			ppp->rc_state = state;
  			ppp_recv_unlock(ppp);
-@@ -2193,39 +2222,27 @@
+@@ -2191,39 +2222,27 @@
  ppp_create_interface(int unit, int *retp)
  {
  	struct ppp *ppp;
@@ -864,7 +854,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	ppp->file.index = unit;
  	ppp->mru = PPP_MRU;
  	init_ppp_file(&ppp->file, INTERFACE);
-@@ -2250,19 +2267,26 @@
+@@ -2248,19 +2267,26 @@
  	ret = register_netdevice(dev);
  	rtnl_unlock();
  	if (ret != 0) {
@@ -901,7 +891,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  }
  
  /*
-@@ -2279,19 +2303,48 @@
+@@ -2277,19 +2303,48 @@
  }
  
  /*
@@ -958,7 +948,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	ppp_ccp_closed(ppp);
  	if (ppp->vj) {
  		slhc_free(ppp->vj);
-@@ -2312,52 +2365,27 @@
+@@ -2310,52 +2365,27 @@
  		ppp->active_filter.filter = 0;
  	}
  #endif /* CONFIG_PPP_FILTER */
@@ -1018,7 +1008,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
   */
  static struct channel *
  ppp_find_channel(int unit)
-@@ -2365,9 +2393,18 @@
+@@ -2363,9 +2393,18 @@
  	struct channel *pch;
  	struct list_head *list;
  
@@ -1038,7 +1028,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  		if (pch->file.index == unit)
  			return pch;
  	}
-@@ -2384,19 +2421,16 @@
+@@ -2382,19 +2421,16 @@
  	int ret = -ENXIO;
  	int hdrlen;
  
@@ -1061,7 +1051,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	if (pch->file.hdrlen > ppp->file.hdrlen)
  		ppp->file.hdrlen = pch->file.hdrlen;
  	hdrlen = pch->file.hdrlen + 2;	/* for protocol bytes */
-@@ -2405,15 +2439,14 @@
+@@ -2403,15 +2439,14 @@
  	list_add_tail(&pch->clist, &ppp->channels);
  	++ppp->n_channels;
  	pch->ppp = ppp;
@@ -1081,7 +1071,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	return ret;
  }
  
-@@ -2425,25 +2458,21 @@
+@@ -2423,25 +2458,21 @@
  {
  	struct ppp *ppp;
  	int err = -EINVAL;
@@ -1111,7 +1101,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	return err;
  }
  
-@@ -2452,6 +2481,14 @@
+@@ -2450,6 +2481,14 @@
   */
  static void ppp_destroy_channel(struct channel *pch)
  {
@@ -1126,7 +1116,7 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  	skb_queue_purge(&pch->file.xq);
  	skb_queue_purge(&pch->file.rq);
  	kfree(pch);
-@@ -2460,12 +2497,123 @@
+@@ -2458,12 +2497,123 @@
  static void __exit ppp_cleanup(void)
  {
  	/* should never happen */
@@ -1251,9 +1241,9 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_generic.c linux/drivers/net/ppp_gene
  
  module_init(ppp_init);
  module_exit(ppp_cleanup);
-diff -urN linux-2.4.18-pre8/drivers/net/ppp_synctty.c linux/drivers/net/ppp_synctty.c
---- linux-2.4.18-pre8/drivers/net/ppp_synctty.c	Wed Oct 24 23:05:06 2001
-+++ linux/drivers/net/ppp_synctty.c	Mon Feb  4 12:46:15 2002
+diff -urN linux-2.5.4-pre1/drivers/net/ppp_synctty.c linux/drivers/net/ppp_synctty.c
+--- linux-2.5.4-pre1/drivers/net/ppp_synctty.c	Fri Oct 12 04:17:22 2001
++++ linux/drivers/net/ppp_synctty.c	Thu Feb  7 10:04:38 2002
 @@ -25,11 +25,11 @@
   * the generic PPP layer to give it frames to send and to process
   * received frames.  It implements the PPP line discipline.
@@ -1430,9 +1420,9 @@ diff -urN linux-2.4.18-pre8/drivers/net/ppp_synctty.c linux/drivers/net/ppp_sync
  }
  
  
-diff -r -u linux-2.4.18-pre8/drivers/net/pppoe.c linux/drivers/net/pppoe.c
---- linux-2.4.18-pre8/drivers/net/pppoe.c	Fri Nov  9 17:02:24 2001
-+++ linux/drivers/net/pppoe.c	Fri Jan 25 07:42:14 2002
+diff -urN linux-2.5.4-pre1/drivers/net/pppoe.c linux/drivers/net/pppoe.c
+--- linux-2.5.4-pre1/drivers/net/pppoe.c	Sat Nov 10 09:02:24 2001
++++ linux/drivers/net/pppoe.c	Thu Feb  7 10:04:38 2002
 @@ -5,7 +5,7 @@
   * PPPoE --- PPP over Ethernet (RFC 2516)
   *
@@ -1486,9 +1476,9 @@ diff -r -u linux-2.4.18-pre8/drivers/net/pppoe.c linux/drivers/net/pppoe.c
  			break;
  
  		err = -ENOTCONN;
-diff -r -u linux-2.4.18-pre8/include/linux/if_pppox.h linux/include/linux/if_pppox.
---- linux-2.4.18-pre8/include/linux/if_pppox.h	Thu Nov 22 14:47:14 2001
-+++ linux/include/linux/if_pppox.h	Fri Jan 25 07:39:15 2002
+diff -urN linux-2.5.4-pre1/include/linux/if_pppox.h linux/include/linux/if_pppox.h
+--- linux-2.5.4-pre1/include/linux/if_pppox.h	Fri Nov 23 06:47:14 2001
++++ linux/include/linux/if_pppox.h	Thu Feb  7 10:04:38 2002
 @@ -126,13 +126,14 @@
  extern int pppox_channel_ioctl(struct ppp_channel *pc, unsigned int cmd,
  			       unsigned long arg);
@@ -1506,4 +1496,3 @@ diff -r -u linux-2.4.18-pre8/include/linux/if_pppox.h linux/include/linux/if_ppp
  };
  
  extern struct ppp_channel_ops pppoe_chan_ops;
-

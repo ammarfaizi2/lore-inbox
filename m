@@ -1,210 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262155AbTENN0D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 09:26:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbTENN0D
+	id S262118AbTENNY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 09:24:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbTENNY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 09:26:03 -0400
-Received: from bilbo.math.uni-mannheim.de ([134.155.88.153]:42387 "EHLO
-	bilbo.math.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S262155AbTENNZ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 09:25:57 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [KEXEC][2.5.69] Re: Updated kexec diffs...
-Date: Wed, 14 May 2003 15:30:03 +0200
-User-Agent: KMail/1.5.1
+	Wed, 14 May 2003 09:24:27 -0400
+Received: from prv-tm12.provo.novell.com ([192.108.102.142]:49508 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S262118AbTENNY0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 09:24:26 -0400
+Subject: Re: Compile error including asm/uaccess.h
+From: "ismail donmez" <kde@smtp-send.myrealbox.com>
+To: storri@sbcglobal.net
+CC: linux-kernel@vger.kernel.org
+Date: Wed, 14 May 2003 07:37:08 -0600
+X-Mailer: NetMail ModWeb Module
 MIME-Version: 1.0
-References: <3EBA626E.6040205@cyberone.com.au> <20030508121211.532dcbcf.akpm@digeo.com> <3EBC37C4.9090602@cyberone.com.au> <20030509162911.2cd5321e.akpm@digeo.com> <m1u1c37d2o.fsf@frodo.biederman.org> <20030509201327.734caf9e.akpm@digeo.com> <m1of2978ao.fsf@frodo.biederman.org> <20030511121753.7a883afb.akpm@digeo.com> <m1fznl57ss.fsf_-_@frodo.biederman.org> <1052861167.1324.15.camel@andyp.pdx.osdl.net>
-In-Reply-To: <1052861167.1324.15.camel@andyp.pdx.osdl.net>
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_bTkw+RFA0m7ksdC"
-Message-Id: <200305141530.03400@bilbo.math.uni-mannheim.de>
+Message-ID: <1052919428.273b9220kde@smtp-send.myrealbox.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+<snip>
+In file included from /usr/include/linux/sched.h:14,
+                 from /usr/include/asm/uaccess.h:8,
+                 from test.cpp:1:
+/usr/include/linux/timex.h:173: field `time' has incomplete type
+In file included from /usr/include/linux/sched.h:17,
+                 from /usr/include/asm/uaccess.h:8,
+                 from test.cpp:1:
+/usr/include/asm/system.h:238: parse error before `new'
+/usr/include/asm/system.h: In function `long unsigned int
+__cmpxchg(...)':
+/usr/include/asm/system.h:241: `size' undeclared (first use this
+function)
+/usr/include/asm/system.h:241: (Each undeclared identifier is reported
+only 
+   once for each function it appears in.)
+/usr/include/asm/system.h:245: parse error before `)' token
+/usr/include/asm/system.h:251: parse error before `)' token
+/usr/include/asm/system.h:257: parse error before `)' token
+/usr/include/asm/system.h:261: `old' undeclared (first use this
+function)
+</snip>
 
---Boundary-00=_bTkw+RFA0m7ksdC
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Dont include kernel headers in userspace OR define the needed variables to  make your userspace application compile.
 
-Von Andy Pfiffer:
+Nice report btw 
 
-> Mixed news: I didn't get any console output after the last printk in
-> kexec ("Starting new kernel"), nor did I get any console output during
-> the reboot.  Other than that, the system rebooted fine and went
-> multi-user (complete with graphical login and networking).  Strange.
+/ismail
 
-Same problem here, config attached.
-
-Machine is a K6-233, 128 MB RAM, 440T(?)X board, Award BIOS.
-
-Eike
---Boundary-00=_bTkw+RFA0m7ksdC
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="caliban-2.5"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="caliban-2.5"
-
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-CONFIG_X86_PC=y
-CONFIG_MK6=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_ALIGNMENT_16=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_PREEMPT=y
-CONFIG_X86_TSC=y
-CONFIG_NOHIGHMEM=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_KEXEC=y
-CONFIG_PM=y
-CONFIG_APM=y
-CONFIG_APM_DO_ENABLE=y
-CONFIG_APM_CPU_IDLE=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_HOTPLUG=y
-CONFIG_HOTPLUG_PCI=m
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_BLK_DEV_FD=m
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=m
-CONFIG_BLK_DEV_SD=m
-CONFIG_CHR_DEV_ST=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_SYM53C8XX=m
-CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=4
-CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
-CONFIG_SCSI_NCR53C8XX_SYNC=20
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_NET_HOOKS=y
-CONFIG_IPV6=m
-CONFIG_IPV6_SCTP__=m
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=m
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_8139TOO=m
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-CONFIG_BUSMOUSE=m
-CONFIG_RTC=m
-CONFIG_GEN_RTC=m
-CONFIG_GEN_RTC_X=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=m
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_NTFS_FS=m
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-CONFIG_DEVPTS_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ACCESS_FS=y
-CONFIG_ACCESSFS_USER_PORTS=y
-CONFIG_ACCESSFS_PROT_SOCK=1024
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-CONFIG_NFS_V4=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_V4=y
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=m
-CONFIG_SUNRPC=m
-CONFIG_SUNRPC_GSS=m
-CONFIG_SMB_FS=m
-CONFIG_CIFS=m
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_NLS_ISO8859_15=m
-CONFIG_SOUND=m
-CONFIG_SND=m
-CONFIG_SND_SEQUENCER=m
-CONFIG_SND_SEQ_DUMMY=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=m
-CONFIG_SND_ENS1370=m
-CONFIG_DEBUG_KERNEL=y
-CONFIG_DEBUG_STACKOVERFLOW=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_KALLSYMS=y
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-CONFIG_FRAME_POINTER=y
-CONFIG_ZLIB_INFLATE=m
-CONFIG_X86_BIOS_REBOOT=y
-
---Boundary-00=_bTkw+RFA0m7ksdC--

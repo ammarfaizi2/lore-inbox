@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289161AbSBSBGo>; Mon, 18 Feb 2002 20:06:44 -0500
+	id <S289148AbSBSBTQ>; Mon, 18 Feb 2002 20:19:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289139AbSBSBGf>; Mon, 18 Feb 2002 20:06:35 -0500
-Received: from dsl-213-023-040-169.arcor-ip.net ([213.23.40.169]:55185 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289148AbSBSBGa>;
-	Mon, 18 Feb 2002 20:06:30 -0500
+	id <S289166AbSBSBTH>; Mon, 18 Feb 2002 20:19:07 -0500
+Received: from dsl-213-023-040-169.arcor-ip.net ([213.23.40.169]:63121 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289148AbSBSBS7>;
+	Mon, 18 Feb 2002 20:18:59 -0500
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@bonn-fries.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
+To: Linus Torvalds <torvalds@transmeta.com>
 Subject: Re: [RFC] Page table sharing
-Date: Tue, 19 Feb 2002 02:11:20 +0100
+Date: Tue, 19 Feb 2002 02:23:35 +0100
 X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <Pine.LNX.4.33.0202182000320.5124-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.33.0202182000320.5124-100000@coffee.psychology.mcmaster.ca>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Hugh Dickins <hugh@veritas.com>, <dmccr@us.ibm.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>, Robert Love <rml@tech9.net>,
+        Rik van Riel <riel@conectiva.com.br>, <mingo@redhat.co>,
+        Andrew Morton <akpm@zip.com.au>, <manfred@colorfullife.com>,
+        <wli@holomorphy.com>
+In-Reply-To: <Pine.LNX.4.33.0202181631120.24405-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0202181631120.24405-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E16cyoS-0000yG-00@starship.berlin>
+Message-Id: <E16cz0J-0000yQ-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 19, 2002 02:01 am, Mark Hahn wrote:
-> > [benchmarks]
+On February 19, 2002 01:56 am, Linus Torvalds wrote:
+> On Tue, 19 Feb 2002, Daniel Phillips wrote:
 > >
-> > (Look at the last one, the nonshared fork forces the system into swap.  I ran 
-> > it twice to verify, the second time from a clean reboot.  This is another 
-> > reason why shared page tables are good.)
+> > Thanks, here it is again.  This time I left the gratuitous whitespace
+> > cleanup in as the route of least resistance ;-)
 > 
-> that's really nice.  http://hahn.mcmaster.ca/~hahn/shpg.png
-> if you like graphs.  but did you swap the last two sets,
-> or does a reboot actually make it take longer?
+> Daniel, there's something wrong in the locking.
+> 
+> I can see _no_ reason to have "page_table_share_lock". What is the point
+> of that one?
 
-I wouldn't read too much into the variance, swapping is fairly brain-damaged at
-the moment.  Please stand by for an update after we kick around the question of
-how to repair the swap locking and we'll get better numbers.  They are going to
-be in the same ballpark, hopefully with less variance.  Thanks a lot for the
-graph.
+Before I put it in I was getting a weird error trying to run UML on a
+native kernel with page table sharing.  After it was solid.  That's emprical, 
+but...
 
-(I took the liberty of replying to the kernel list.)
+> Whenever we end up touching the pmd counts, we already hold the local
+> mm->page_table_lock. That means that we are always guaranteed to have a
+> count of at least one when we start out on it.
 
+Yes, good observation, I was looking at it inversely: when we have a
+count of one then we must have exclusion from the mm->page_table_lock.
+
+> [...]
+>
+> In short, I do not believe that that lock is needed. And if it isn't
+> needed, it is _incorrect_. Locking that doesn't buy you anything is not
+> just a performance overhead, it's bad thinking.
+
+It would be very nice if the lock isn't needed.  OK, it's going to take some
+time to ponder over your post properly.  In the mean time, there is exclusion 
+that's clearly missing elsewhere and needs to go it, i.e., in the read fault 
+path.
+ 
 -- 
 Daniel

@@ -1,41 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264173AbTDJVYe (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 17:24:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264177AbTDJVYe (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 17:24:34 -0400
-Received: from mail1.ewetel.de ([212.6.122.16]:28850 "EHLO mail1.ewetel.de")
-	by vger.kernel.org with ESMTP id S264173AbTDJVYd (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 17:24:33 -0400
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: ATAPI cdrecord issue 2.5.67
-In-Reply-To: <20030410205020$3813@gated-at.bofh.it>
-References: <20030410143018$100e@gated-at.bofh.it> <20030410144011$6cc1@gated-at.bofh.it> <20030410150015$0682@gated-at.bofh.it> <20030410194019$3cf5@gated-at.bofh.it> <20030410200011$156b@gated-at.bofh.it> <20030410205020$3813@gated-at.bofh.it>
-Date: Thu, 10 Apr 2003 23:36:07 +0200
-Message-Id: <E193jiK-00057T-00@neptune.local>
-From: Pascal Schmidt <der.eremit@email.de>
-X-CheckCompat: OK
+	id S264180AbTDJV0T (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 17:26:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264182AbTDJV0T (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 17:26:19 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:40453 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264180AbTDJV0R (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 17:26:17 -0400
+Date: Thu, 10 Apr 2003 22:37:55 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [FBDEV updates] Newest framebuffer fixes.
+In-Reply-To: <Pine.LNX.4.51L.0304102312090.626@piorun.ds.pg.gda.pl>
+Message-ID: <Pine.LNX.4.44.0304102237010.23050-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Apr 2003 22:50:20 +0200, you wrote:
-> On Thu, 2003-04-10 at 20:53, H. Peter Anvin wrote:
->> I think ide-scsi needs to be supported for some time going forward.
->> After all, cdrecord, cdrdao, dvdrecord aren't going to be the only
->> applications.
-> 
-> And far longer than that. People seem to be testing and demoing 
-> crazy things like SATA attached scanners, printers and even enclosure
-> services.
 
-Just to add to the list, I have an ATAPI MO drive that only works with
-ide-scsi and not with any native IDE driver.
+> No, it doesn't. On clean 2.5.67:
 
-hde: FUJITSU MCC3064AP, ATAPI OPTICAL drive
-scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-  Vendor: FUJITSU   Model: M25-MCC3064AP     Rev: 0051
-  Type:   Optical Device                     ANSI SCSI revision: 02
+Ug. Try it again.
 
--- 
-Ciao,
-Pascal
+At the same spot. http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+
+

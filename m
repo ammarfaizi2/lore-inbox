@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129134AbRB1SGV>; Wed, 28 Feb 2001 13:06:21 -0500
+	id <S129159AbRB1SIC>; Wed, 28 Feb 2001 13:08:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129143AbRB1SF5>; Wed, 28 Feb 2001 13:05:57 -0500
-Received: from mill.gdls.com ([4.18.140.69]:61139 "EHLO mill.gdls.com")
-	by vger.kernel.org with ESMTP id <S129134AbRB1SF0>;
-	Wed, 28 Feb 2001 13:05:26 -0500
-From: "Keven Murphy" <murphyk@gdls.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.2 & PPP bad file descriptor
-Date: Wed, 28 Feb 2001 13:06:14 -0500
-Message-ID: <NEBBJIOMKDAKJOCGELHHEEGBCLAA.murphyk@gdls.com>
+	id <S129146AbRB1SHj>; Wed, 28 Feb 2001 13:07:39 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:41190 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129143AbRB1SHc>;
+	Wed, 28 Feb 2001 13:07:32 -0500
+Date: Wed, 28 Feb 2001 13:07:29 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "David L. Parsley" <parsley@linuxjedi.org>
+cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH][CFT] per-process namespaces for Linux
+In-Reply-To: <3A9D3FD0.76E6457B@linuxjedi.org>
+Message-ID: <Pine.GSO.4.21.0102281302230.7107-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <A490B2C9C629944E85CE1F394138AF957FC3EA@bignorse.SURGIENT.COM>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've recompiled my kernel to 2.4.2 (even tried 2.4.1) and I am having
-problems with pppd. The error I am getting is pppd[1491]: read: bad file
-descriptor (9). Under the kernel 2.2.22-16 (or whatever came default with
-redhat 7.0) it work fine. I am using a default redhat 7.0 install.
 
-I have tried compiling the ppp and options as modules and another time into
-the kernel. I keep getting the same results. I have also downloaded and
-installed the latest version of modutilities after getting the error. I
-recompiled again and recieved the same error.
 
-If for some reason this is not the right list, please tell me where I can go
-to get help with this problem.
+On Wed, 28 Feb 2001, David L. Parsley wrote:
 
-Thank you for any help,
+> Alexander Viro wrote:
+> > > Evil idea of the day: non-directory (even non-existant) mount points and
+> > > non-directory mounts. So then "mount --bind /etc/foo /dev/bar" works.
+> > 
+> > Try it. It _does_ work.
+> 
+> Yeah, mount --bind is cool, I've been using it on one of my projects
+> today.  But - maybe I'm just not thinking creatively enough - what are
+> the advantages of mount --bind versus just symlinking?
 
-Xavier
-xavier@greyhawk-codex.com
+1) Correctly working ".." (obviously relevant only for directories)
+2) Try to create symlinks on read-only NFS mount. For bonus points, try
+to do that one one client without disturbing everybody else.
+3) Try to make it different for different users, for that matter.
 
+> Also, I tried mount --bind fileone filetwo, and it fails if filetwo
+> doesn't exist. ('mount point filetwo doesn't exist').  Is that supposed
+> to work?  (using mount from latest redhat beta)
+
+Nope. It does exactly what it should - changing that is a too large
+can of worms I simply don't want to touch.
+
+> BTW, pivot_root is nifty, too. ;-)
+
+Thank Werner for that ;-)
 

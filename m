@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbQKRDGi>; Fri, 17 Nov 2000 22:06:38 -0500
+	id <S129091AbQKREJG>; Fri, 17 Nov 2000 23:09:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129097AbQKRDG2>; Fri, 17 Nov 2000 22:06:28 -0500
-Received: from jalon.able.es ([212.97.163.2]:54934 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129091AbQKRDGQ>;
-	Fri, 17 Nov 2000 22:06:16 -0500
-Date: Sat, 18 Nov 2000 03:36:09 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Errors in aa2
-Message-ID: <20001118033609.C4381@werewolf.able.es>
-Reply-To: jamagallon@able.es
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.0.0
+	id <S129097AbQKREI4>; Fri, 17 Nov 2000 23:08:56 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:58379 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129091AbQKREIj>; Fri, 17 Nov 2000 23:08:39 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: test11-pre7 compile failure
+Date: 17 Nov 2000 19:38:17 -0800
+Organization: Transmeta Corporation
+Message-ID: <8v4tj9$10v$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10011171720410.5987-100000@penguin.transmeta.com> <3A15DDCB.42B0F208@toyota.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone.
+In article <3A15DDCB.42B0F208@toyota.com>, J Sloan  <jjs@toyota.com> wrote:
+>
+>looks like the md fixes broke something -
+>
+>In file included from /usr/src/linux/include/linux/pagemap.h:17,
+>                 from /usr/src/linux/include/linux/locks.h:9,
+>                 from /usr/src/linux/include/linux/raid/md.h:37,
+>                 from init/main.c:25:
+>/usr/src/linux/include/linux/highmem.h: In function `bh_kmap':
+>/usr/src/linux/include/linux/highmem.h:23: structure has no member named
+>`p_page'
 
-When compiling Andreas aa2 patch I got:
+The "p_page" should be a "b_page". Duh.
 
-/usr/bin/kgcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
--O4 -fomit-frame-pointer -fno-strict-aliasing -D__SMP__ -pipe
--fno-strength-reduce -march=i686 -malign-loops=2 -malign-jumps=2
--malign-functions=2 -DCPU=686   -c -o time.o time.c
-time.c: In function `do_gettimeofday':
-time.c:727: fixed or forbidden register 0 (ax) was spilled for class AREG.
-This may be due to a compiler bug or to impossible asm
-statements or clauses.
-
-The only difference is the inclusion of timeval_normalize.
-
-If I get time.c from 2.2.18-pre21 compiles fine.
-But I don't see any strange asm round there...
-
--- 
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
-
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,76 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbUKWOit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbUKWOkH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbUKWOit (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 09:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbUKWOit
+	id S261262AbUKWOkH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 09:40:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbUKWOkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 09:38:49 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:696 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261256AbUKWOir (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 09:38:47 -0500
-Date: Tue, 23 Nov 2004 16:41:08 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: Florian Schmidt <mista.tapas@gmx.net>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
-Message-ID: <20041123154108.GA27413@elte.hu>
-References: <20041122020741.5d69f8bf@mango.fruits.de> <20041122094602.GA6817@elte.hu> <56781.195.245.190.93.1101119801.squirrel@195.245.190.93> <20041122132459.GB19577@elte.hu> <20041122142744.0a29aceb@mango.fruits.de> <65529.195.245.190.94.1101133129.squirrel@195.245.190.94> <20041122154516.GC2036@elte.hu> <9182.195.245.190.93.1101142412.squirrel@195.245.190.93> <20041123135508.GA13786@elte.hu> <29024.195.245.190.94.1101218441.squirrel@195.245.190.94>
+	Tue, 23 Nov 2004 09:40:06 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:40167 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261262AbUKWOjB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 09:39:01 -0500
+Subject: [PATCH 2.6.9] fork: move security_task_alloc() after p->parent
+	initialization
+From: Guillaume Thouvenin <Guillaume.Thouvenin@Bull.net>
+To: Greg KH <greg@kroah.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       guillaume.thouvenin@bull.net
+Date: Tue, 23 Nov 2004 15:38:51 +0100
+Message-Id: <1101220731.6210.142.camel@frecb000711.frec.bull.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <29024.195.245.190.94.1101218441.squirrel@195.245.190.94>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.2 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 23/11/2004 15:45:56,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 23/11/2004 15:46:04,
+	Serialize complete at 23/11/2004 15:46:04
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If we register a LSM hook and if we use the parameter passed to
+security_task_alloc(struct task_struct *p), the value of p->parent is
+wrong. This patch move the call to security_task_alloc() after the
+initialization of the field p->parent. 
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+Guillaume,
 
-> Yes, there's a non-official patch to jackd from Lee Revell's. Without
-> that you don't get to read the maximum delay from jackd. Sorry. But if
-> you have the patience to rebuild jack, here comes attached the minimal
-> patch for just that.
+Signed-Off-By: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
 
-thx, it applied cleanly to jack-cvs. Here's the 5-minute idle-system
-test again:
+--- kernel/fork.c.orig	2004-10-19 08:41:53.000000000 +0200
++++ kernel/fork.c	2004-11-23 15:29:25.799903744 +0100
+@@ -1006,8 +1006,6 @@ static task_t *copy_process(unsigned lon
+  	}
+ #endif
+ 
+-	if ((retval = security_task_alloc(p)))
+-		goto bad_fork_cleanup_policy;
+ 	if ((retval = audit_alloc(p)))
+ 		goto bad_fork_cleanup_security;
+ 	/* copy all the process information */
+@@ -1092,6 +1090,9 @@ static task_t *copy_process(unsigned lon
+ 		p->real_parent = current;
+ 	p->parent = p->real_parent;
+ 
++	if ((retval = security_task_alloc(p)))
++		goto bad_fork_cleanup_policy;
++
+ 	if (clone_flags & CLONE_THREAD) {
+ 		spin_lock(&current->sighand->siglock);
+ 		/*
 
- ************* SUMMARY RESULT ****************
- Timeout Count . . . . . . . . :(    0)
- XRUN Count  . . . . . . . . . :     0
- Delay Count (>spare time) . . :     0
- Delay Count (>1000 usecs) . . :     0
- Delay Maximum . . . . . . . . :    28   usecs
- Cycle Maximum . . . . . . . . :   414   usecs
- Average DSP Load. . . . . . . :    20.6 %
- Average CPU System Load . . . :    11.6 %
- Average CPU User Load . . . . :     8.6 %
- Average CPU Nice Load . . . . :     0.0 %
- Average CPU I/O Wait Load . . :     0.0 %
- Average CPU IRQ Load  . . . . :     0.0 %
- Average CPU Soft-IRQ Load . . :     0.0 %
- Average Interrupt Rate  . . . :  1671.7 /sec
- Average Context-Switch Rate . : 17003.1 /sec
- *********************************************
 
-but i can reproduce xruns on another, much slower box, using just 3-4
-jack_test clients. The xruns dont seem to be justified, they happen at
-30-40% CPU utilization already.
-
-	Ingo

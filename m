@@ -1,50 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289046AbSAUFd0>; Mon, 21 Jan 2002 00:33:26 -0500
+	id <S289049AbSAUFgQ>; Mon, 21 Jan 2002 00:36:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289047AbSAUFdG>; Mon, 21 Jan 2002 00:33:06 -0500
-Received: from [203.94.130.164] ([203.94.130.164]:27914 "EHLO bad-sports.com")
-	by vger.kernel.org with ESMTP id <S289046AbSAUFc7>;
-	Mon, 21 Jan 2002 00:32:59 -0500
-Date: Mon, 21 Jan 2002 16:50:21 +1100 (EST)
-From: Brett <brett@bad-sports.com>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-cc: linux-kernel@vger.kernel.org, "Udo A. Steinberg" <reality@delusion.de>
-Subject: Re: [PATCH] Combined APM patch for 2.5.3-pre2
-In-Reply-To: <20020121135046.574bfa60.sfr@canb.auug.org.au>
-Message-ID: <Pine.LNX.4.44.0201211648050.5769-100000@bad-sports.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289050AbSAUFgH>; Mon, 21 Jan 2002 00:36:07 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:15377 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S289049AbSAUFfx>; Mon, 21 Jan 2002 00:35:53 -0500
+Date: Mon, 21 Jan 2002 00:35:52 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: performance of O_DIRECT on md/lvm
+Message-ID: <20020121003552.A12850@redhat.com>
+In-Reply-To: <200201181743.g0IHhO226012@street-vision.com.suse.lists.linux.kernel> <3C48607C.35D3DDFF@redhat.com.suse.lists.linux.kernel> <20020120201603.L21279@athlon.random.suse.lists.linux.kernel> <p734rlg90ga.fsf@oldwotan.suse.de> <20020121021224.O21279@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020121021224.O21279@athlon.random>; from andrea@suse.de on Mon, Jan 21, 2002 at 02:12:24AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jan 2002, Stephen Rothwell wrote:
->
-> Hi all,
-> 
-> This is the same patch as the 2.4 combined APM patch I posted earlier,
-> but against 2.5.3-pre2.  It does:
-> 	Update a couple of email addresses
-> 	Fix the idle handling (this is an improved version of the fix
-> 		that Alan Cox has in his -ac tree)
-> 	Notify user mode of suspend events before drivers (fix)
-> 	Make the idling percentage boot time configurable
-> 	Rename kapm-idled to kapmd
-> 
-> As a bonus, it makes apm compile! :-)
-> 
-> Anyone brave enough to run 2.5.3-pre on their laptop, please test
-> and let me know the results.
-> 
-> 
+On Mon, Jan 21, 2002 at 02:12:24AM +0100, Andrea Arcangeli wrote:
+> yes, in short the API to allow the userspace to keep the I/O pipeline
+> full with a ring of user buffers is not available at the moment.
 
-s/brave/stupid/
+See http://www.kvack.org/~blah/aio/ .  Seems to work pretty nicely 
+for raw io.
 
-Compiled and booted fine for me on my toshiba satellite 100cs (after 
-adding the #include <linux/fs.h> fix to dnotify.h.  System seems fine and 
-dandy to me, what should I be looking for by way of improvements ?
-
-thanks,
-
-	/ Brett
-
+		-ben

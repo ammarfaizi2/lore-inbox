@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264860AbTFQRP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 13:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264861AbTFQRP2
+	id S264861AbTFQRPo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 13:15:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264862AbTFQRPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 13:15:28 -0400
-Received: from 24-216-225-11.charter.com ([24.216.225.11]:56242 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id S264860AbTFQRPV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 13:15:21 -0400
-Date: Tue, 17 Jun 2003 13:29:15 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: CONFIG_BSD_PROCESS_ACCT: tools?
-Message-ID: <20030617172915.GF22692@rdlg.net>
-Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cW+P/jduATWpL925"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Tue, 17 Jun 2003 13:15:44 -0400
+Received: from ida.rowland.org ([192.131.102.52]:5124 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S264861AbTFQRPh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 13:15:37 -0400
+Date: Tue, 17 Jun 2003 13:29:31 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Greg KH <greg@kroah.com>
+cc: Patrick Mochel <mochel@osdl.org>, Russell King <rmk@arm.linux.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Flaw in the driver-model implementation of attributes
+In-Reply-To: <20030616233651.GB27033@kroah.com>
+Message-ID: <Pine.LNX.4.44L0.0306171318090.621-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 16 Jun 2003, Greg KH wrote:
 
---cW+P/jduATWpL925
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> All disk info is in the /sys/block directory, does that work for you?
 
+Not scsi disk info.  (Or maybe it should be there but it isn't.)  And no,
+it doesn't work for me because it's owned by the scsi core, not my driver.
 
+> I think the scsi core will create you a directory that you can use that
+> will have the proper lifetime that you are looking for.  If not, I can
+> look into doing something else for some of the other USB devices that
+> are not using the USB major.
 
-  Reading through the make menuconfig help it talks about user level tools
-for taking advantage of CONFIG_BSD_PROCESS_ACCT.  Are there any good
-ones?  Is this worth pursuing for user tracking on production servers?
+I don't think it would be appropriate to use that directory, since my 
+driver wouldn't own it.
 
-Robert
+How about creating a /sys/class/usb/usb-storage/ directory, under which
+there could be a directory for each USB mass-storage device?  Or would it 
+be better to create a usb-storage.# directory under the interface's 
+directory in /sys/devices/ ?
 
+It's worth pointing out that both the OHCI and EHCI drivers also do the
+same wrong thing.  They create their attribute files in a directory
+owned by the PCI driver.
 
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu=20
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
+Alan Stern
 
-Diagnosis: witzelsucht  =09
-
-IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
-IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
-
---cW+P/jduATWpL925
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+70/r8+1vMONE2jsRAmPfAJ9vu/FOEppJOrGr6lWwDVxvNb1l4wCguwNX
-r7hF1V93Qe9clLNB2CkpLwE=
-=ZVvT
------END PGP SIGNATURE-----
-
---cW+P/jduATWpL925--

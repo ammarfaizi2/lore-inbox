@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262971AbTIRFj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 01:39:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbTIRFj2
+	id S262979AbTIRFs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 01:48:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbTIRFs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 01:39:28 -0400
-Received: from dyn-ctb-210-9-244-121.webone.com.au ([210.9.244.121]:23045 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S262971AbTIRFj1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 01:39:27 -0400
-Message-ID: <3F694509.60100@cyberone.com.au>
-Date: Thu, 18 Sep 2003 15:39:21 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: bee71e@netscape.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: excessive swapping in 2.4.x
-References: <7E768FF1.7BC13987.0005DAE9@netscape.net>
-In-Reply-To: <7E768FF1.7BC13987.0005DAE9@netscape.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 18 Sep 2003 01:48:27 -0400
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:24847 "EHLO
+	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
+	id S262973AbTIRFsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 01:48:25 -0400
+Subject: Re: [PATCH] 2.4 force_successful_syscall()
+From: "Aneesh Kumar K.V" <aneesh.kumar@digital.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Cc: "Helgaas, Bjorn (HP)" <bjorn.helgaas@hp.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, linux-ia64@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1063863741.1801.34.camel@satan.xko.dec.com>
+References: <1063863741.1801.34.camel@satan.xko.dec.com>
+Content-Type: text/plain
+Organization: Digital India
+Message-Id: <1063864899.1802.36.camel@satan.xko.dec.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 18 Sep 2003 11:31:39 +0530
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-09-18 at 11:12, Kumar, Aneesh wrote:
+> On Thu, 2003-09-18 at 01:30, Marcelo Tosatti wrote:
+> > On Wed, 10 Sep 2003, Bjorn Helgaas wrote:
+> > 
+> > > Here's a 2.4 backport of this change to 2.5:
+> > > 
+> > >
+> >
+> http://linux.bkbits.net:8080/linux-2.5/cset@1.1046.238.7?nav=index.html
+> > > 
+> > > Alpha, ppc, and sparc64 define force_successful_syscall_return() in
+> > 2.5,
+> > > but since it's not obvious to me how to do it correctly in 2.4, I
+> left
+> > > them unchanged.
+> > 
+> > Whats the reasoning behing this patch?
+> 
+> IIRC those changes were added to 2.5 by David. Architecture like Ia64
+> and Alpha support error return via a different register set ( $19 for
+> Alpha ). But syscalls like ptrace can have negative return value for
+> successful returns. So in that particular case $19 is forced to be zero
+> to indicate it is a successful return. IIUC
+> force_successful_syscall_return  is a wrapper around doing that. On
+> alpha actually r0 in the stack (regs.r0 ) is made zero which is  read in
+> entry.S and put in $19. 
 
 
-bee71e@netscape.net wrote:
+For IA64 I guess it is r10 and regs.r8. May be other can correct me if i
+am wrong. 
 
->Hi, 
->
->I am using 2.4.21 and I see an unusually large amount of swapping for relatively low load : 
->
->sample vmstat output: (note that the system is almost idle)
->
->  procs                      memory    swap          io     system         cpu
->r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
->0  2  0 1850220  10524   9412 703652 3030 1102  3912  1106 1506  1710   1   1  98
->0  2  0 1849188  10572   9388 700568 2780 376  3558   379 1434  1284   1   1  99
->0  5  0 1851576  11668   9404 698228 2999 479  3890   488 1499  1487   1   1  98
->
->Is this a known issue? Whats happening? How do I fix this?
->
-
-You could try the latest 2.4 prerelease. It has some VM updates.
+-aneesh 
 
 

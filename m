@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284890AbRLKFMm>; Tue, 11 Dec 2001 00:12:42 -0500
+	id <S284876AbRLKF1g>; Tue, 11 Dec 2001 00:27:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284905AbRLKFMc>; Tue, 11 Dec 2001 00:12:32 -0500
-Received: from bluebox.ne.mediaone.net ([24.128.139.92]:59400 "EHLO
-	osiris.978.org") by vger.kernel.org with ESMTP id <S284890AbRLKFMO>;
-	Tue, 11 Dec 2001 00:12:14 -0500
-Date: Tue, 11 Dec 2001 00:12:14 -0500
-From: Brian Ristuccia <brian@ristuccia.com>
-To: linux-kernel@vger.kernel.org
-Cc: familiar@handhelds.org
-Subject: how to receive UDP packet at interface from interface's IP
-Message-ID: <20011211001213.X22467@osiris.978.org>
-Mail-Followup-To: brian@ristuccia.com, linux-kernel@vger.kernel.org,
-	familiar@handhelds.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S284894AbRLKF1R>; Tue, 11 Dec 2001 00:27:17 -0500
+Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:43156 "EHLO
+	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S284876AbRLKF1L>; Tue, 11 Dec 2001 00:27:11 -0500
+Date: Mon, 10 Dec 2001 21:27:05 -0800 (PST)
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Reply-To: <whitney@math.berkeley.edu>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [uPATCH] 2.4.17-preX compile fix for RedHat gcc 3.1-0.10
+Message-ID: <Pine.LNX.4.33.0112102048390.17524-100000@mf1.private>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
 
-I'm currently working on getting status reporting going on my merlin CDPD
-modem. The merlin is a PCMCIA type II card that works as a standard serial
-device and can be made to talk SLIP or PPP by issuing certain Hayes-style AT
-commands. Combined with a handheld PC like the Compaq IPAQ, it makes a great
-tool for remote system administration, email, text web browsing, etc.
+Hello,
 
-One nifty thing about the modem is that while in SLIP or PPP mode, one can
-send a UDP packet to 10.0.0.1:4950. Using a protocol called MSCI, the modem
-will let you query things like signal strength, link quality, etc. But my
-problem is that the modem sends the response UDP packets with the source and
-destination IP address both matching that of the PPP interface to which the
-modem is attached and I never see the data on my listening socket. For
-example, if the PPP interface's IP address was 192.168.0.100, the packets
-would come from 192.168.0.100 to 192.168.0.100. Even when I disable
-rp_filter, I can not receive the packets on my listening socket. I can see
-the packets with tcpdump, but they never make it to the socket.
+I recently upgraded to "gcc version 3.1 20011127 (Red Hat Linux Rawhide
+3.1-0.10)".  It compiles the recent 2.4.17-preX kernels OK, with one small
+hitch:  rpciod_tcp_dispatcher in module net/sunrpc/sunrpc.o is an
+unresolved symbol.  The patch below (or an equivalent) is required for
+net/sunrpc/sched.c to compile properly with this version of gcc.
 
-Is there any reason why the kernel is not sending the contents of these
-packets to the socket? If so, is there an easy way to change the behavior?
-I've looked in net/ipv4/ at files ip_input.c fib_frontend.c and udp.c, but I
-can't see where the packet might be getting discarded. Is there any way to
-receive this type of packet through a normal UDP socket, or should I just
-hack up a userspace workaround with libpcap?
+The situation is that net/sunrpc/sched.c (the only caller of
+rpciod_tcp_dispatcher) includes linux/sunrpc/clnt.h, which includes
+linux/sunrpc/xprt.h.  linux/sunrpc/clnt.h defines rpciod_tcp_dispatcher as
+extern void, while linux/sunrpc/xprt.h defines it as static inline.  
+Apparently this latter definition is the intended one, and while earlier
+versions of gcc chose it, the above version of gcc choses the first
+definition.
 
-Any hints will be very much appreciated. Thanks.
+Since I'm no C expert, I don't know what the correct behavior for gcc is.
+So maybe this is a bug in the kernel, or maybe it is a bug in the above
+version of gcc.
 
-(Please respect my Mail-Followup-To header when replying).
+Cheers,
+Wayne
 
--- 
-Brian Ristuccia
-brian@ristuccia.com
-bristucc@cs.uml.edu
+--- linux-2.4.17-pre6/include/linux/sunrpc/clnt.h	Mon Dec 10 20:36:26 2001
++++ linux-2.4.17-pre7/include/linux/sunrpc/clnt.h	Mon Dec 10 20:50:39 2001
+@@ -136,7 +136,6 @@
+ 	xprt_set_timeout(&clnt->cl_timeout, retr, incr);
+ }
+ 
+-extern void rpciod_tcp_dispatcher(void);
+ extern void rpciod_wake_up(void);
+ 
+ /*
+

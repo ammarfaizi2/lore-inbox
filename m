@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbUCVHOo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 02:14:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbUCVHOo
+	id S261798AbUCVH0h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 02:26:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbUCVH0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 02:14:44 -0500
-Received: from test.estpak.ee ([194.126.115.47]:9726 "EHLO arena.estpak.ee")
-	by vger.kernel.org with ESMTP id S261795AbUCVHOm (ORCPT
+	Mon, 22 Mar 2004 02:26:37 -0500
+Received: from mail.gmx.de ([213.165.64.20]:62429 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261798AbUCVH0g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 02:14:42 -0500
-From: Hasso Tepper <hasso@estpak.ee>
-To: Paul Jakma <paul@clubi.ie>
-Subject: Re: raw sockets and blocking
-Date: Mon, 22 Mar 2004 09:14:13 +0200
-User-Agent: KMail/1.6.2
-Cc: Jamie Lokier <jamie@shareable.org>, David Schwartz <davids@webmaster.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Quagga Dev <quagga-dev@lists.quagga.net>
-References: <MDEHLPKNGKAHNMBLJOLKMENGKHAA.davids@webmaster.com> <200402191440.01035.hasso@estpak.ee> <Pine.LNX.4.58.0402191252010.25392@fogarty.jakma.org>
-In-Reply-To: <Pine.LNX.4.58.0402191252010.25392@fogarty.jakma.org>
+	Mon, 22 Mar 2004 02:26:36 -0500
+X-Authenticated: #20450766
+Date: Mon, 22 Mar 2004 08:25:54 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Richard Browning <richard@redline.org.uk>
+cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
+       <linux-kernel@vger.kernel.org>,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Subject: Re: ANYONE? Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel
+ 2.4.x 2.6.x / Crash/Freeze
+In-Reply-To: <200403220104.10619.richard@redline.org.uk>
+Message-ID: <Pine.LNX.4.44.0403220823020.2831-100000@poirot.grange>
 MIME-Version: 1.0
-Content-Disposition: inline
-Organization: Elion Enterprises Ltd.
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403220914.13676.hasso@estpak.ee>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jakma wrote:
-> On Thu, 19 Feb 2004, Hasso Tepper wrote:
-> > And maybe it makes sense to mention that all packets ospf daemon
-> > sends to actually down ethernet interface are multicast packets.
->
-> nearly all. unicast packets are sent too.
+On Mon, 22 Mar 2004, Richard Browning wrote:
 
-Hello's in broadcast network are multicast. Problem is solved now for 
-me, btw. It appears to be bug in e100 driver in 2.4.x.
+> As I suggested in the original post, the problem can be triggered simply by
+> executing ./configure - the kernel corrupts when gcc does its thing. I can
+> boot into KDE, run Enemy Territory, execute a Java compile, and so on. But
+> the thing absolutely and most definitely able to upset the cart is to execute
+> gcc.
 
-I can't reproduce it any more with e100 development driver (from 
-http://sf.net/projects/e1000/). And I can't it reproduce it with 
-forcing network to non-broadcast either (in this case unicast hello's 
-are sent).
+Aha! A single thread? A specific asm insn? Is gcc --version enough to kill
+the machine? Or on smth like
+int main(void)
+{return 0;}
+gcc -E; gcc -S; gcc -c; ld? Step-by-step with gdb (hopefully, gdb doesn't
+have this insn...). NMI watchdog?
 
-So it's multicast problem with e100 2.x driver.
+Guennadi
+---
+Guennadi Liakhovetski
 
 
--- 
-Hasso Tepper
-Elion Enterprises Ltd.
-WAN administrator

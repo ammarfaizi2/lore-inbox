@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262506AbUKQT1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262513AbUKQTgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262506AbUKQT1m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 14:27:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbUKQT0G
+	id S262513AbUKQTgh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 14:36:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbUKQTeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 14:26:06 -0500
-Received: from fw.osdl.org ([65.172.181.6]:53174 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262408AbUKQTXr (ORCPT
+	Wed, 17 Nov 2004 14:34:11 -0500
+Received: from colino.net ([213.41.131.56]:46833 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S262408AbUKQTcY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 14:23:47 -0500
-Date: Wed, 17 Nov 2004 11:22:05 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: kraxel@bytesex.org, jelle@foks.8m.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cx88: fix printk arg. type
-Message-Id: <20041117112205.7272d362.akpm@osdl.org>
-In-Reply-To: <419B8EC0.2070005@osdl.org>
-References: <419A89A3.90903@osdl.org>
-	<20041117172519.GB8176@bytesex>
-	<419B8EC0.2070005@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 17 Nov 2004 14:32:24 -0500
+Date: Wed, 17 Nov 2004 20:31:39 +0100
+From: Colin Leroy <colin@colino.net>
+To: linux-kernel@vger.kernel.org
+Subject: hotplug_path no longer exported
+Message-ID: <20041117203139.7c9f5e95.colin@colino.net>
+X-Mailer: Sylpheed-Claws 0.9.12cvs142.2 (GTK+ 2.4.9; powerpc-unknown-linux-gnu)
+X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
->
-> Gerd Knorr wrote:
->  >>-		dprintk(0, "ERROR: Firmware size mismatch (have %ld, expected %d)\n",
->  >>+		dprintk(0, "ERROR: Firmware size mismatch (have %Zd, expected %d)\n",
->  > 
->  > 
->  > Thanks, merged to cvs.  I like that 'Z'.  Or is that just a linux-kernel
->  > printk specific thingy?  Or is this standardized somewhere?  So I could
->  > use that in userspace code as well maybe?
-> 
->  Kernel supports/allows 'Z' or 'z'.
->  C99 spec defines 'z' only as a size_t format length modifier:
-> 
->  z   Specifies that a following d, i, o, u, x, or X conversion 
->  specifier applies to a size_t or the corresponding signed integer type 
->  argument; or that a following n conversion specifier applies to a 
->  pointer to a signed integer type corresponding to size_t argument.
-> 
->  Anyway, I agree with Al.  Will you please change it to
->  'z' instead of 'Z'?
+Hi,
 
-gcc-2.95.x generates warnings for `z', but is happy with 'Z'.
+hotplug_path is no longer exported, is this on purpose ? It breaks 
+linux-wlan-ng. If it is on purpose, I suppose linux-wlan-ng 
+should use kobject_hotplug() ? If not, here's a patch.
 
-But I seem to be the only person who uses 2.95, and I patched my version to
-stop that warning anyway, so...
+Signed-off-by: Colin Leroy <colin@colino.net>
+--- lib/kobject_uevent.c.orig	2004-11-17 20:31:02.258535288 +0100
++++ lib/kobject_uevent.c	2004-11-17 20:28:12.341366624 +0100
+@@ -312,6 +312,7 @@
+ 	return;
+ }
+ EXPORT_SYMBOL(kobject_hotplug);
++EXPORT_SYMBOL(hotplug_path);
+ 
+ /**
+  * add_hotplug_env_var - helper for creating hotplug environment variables

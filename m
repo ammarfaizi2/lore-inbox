@@ -1,39 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267871AbUHKBzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267775AbUHKCCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267871AbUHKBzX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 21:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267872AbUHKBzX
+	id S267775AbUHKCCH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 22:02:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267874AbUHKCCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 21:55:23 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9197 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267871AbUHKBzV (ORCPT
+	Tue, 10 Aug 2004 22:02:07 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:2432 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267775AbUHKCCG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 21:55:21 -0400
-Date: Tue, 10 Aug 2004 21:55:05 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
-To: Chris Wright <chrisw@osdl.org>
-cc: Kurt Garloff <garloff@suse.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: [PATCH] [LSM] Rework LSM hooks
-In-Reply-To: <20040810134319.S1924@build.pdx.osdl.net>
-Message-ID: <Xine.LNX.4.44.0408102154530.10585-100000@dhcp83-76.boston.redhat.com>
+	Tue, 10 Aug 2004 22:02:06 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.6.8-rc4-mm1
+Date: Tue, 10 Aug 2004 19:01:18 -0700
+User-Agent: KMail/1.6.2
+Cc: Robert Picco <Robert.Picco@hp.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20040810002110.4fd8de07.akpm@osdl.org> <20040810224532.GD11200@holomorphy.com> <20040810230357.GE11200@holomorphy.com>
+In-Reply-To: <20040810230357.GE11200@holomorphy.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408101901.19218.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Aug 2004, Chris Wright wrote:
+On Tuesday, August 10, 2004 4:03 pm, William Lee Irwin III wrote:
+> I have an even better fix:
 
-> I'll push this up, unless there's an objection.
+Confirmed that this works on my machine too.  Kudos Bob & Bill!
 
-Looks fine to me.
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+Thanks,
+Jesse

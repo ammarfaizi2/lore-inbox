@@ -1,37 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129400AbRBLXYW>; Mon, 12 Feb 2001 18:24:22 -0500
+	id <S129604AbRBLXWw>; Mon, 12 Feb 2001 18:22:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129452AbRBLXYM>; Mon, 12 Feb 2001 18:24:12 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6150 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129400AbRBLXYA>; Mon, 12 Feb 2001 18:24:00 -0500
-Subject: Re: LILO and serial speeds over 9600
-To: hpa@transmeta.com (H. Peter Anvin)
-Date: Mon, 12 Feb 2001 23:23:22 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jas88@cam.ac.uk (James Sutherland),
-        hpa@zytor.com (H. Peter Anvin), linux-kernel@vger.kernel.org
-In-Reply-To: <3A886F73.759DB067@transmeta.com> from "H. Peter Anvin" at Feb 12, 2001 03:19:15 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129607AbRBLXWm>; Mon, 12 Feb 2001 18:22:42 -0500
+Received: from monza.monza.org ([209.102.105.34]:6406 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S129604AbRBLXWg>;
+	Mon, 12 Feb 2001 18:22:36 -0500
+Date: Mon, 12 Feb 2001 15:22:23 -0800
+From: Tim Wright <timw@splhi.com>
+To: Nick Papadonis <nick@coelacanth.com>
+Cc: linux-kernel@vger.kernel.org, kurt@garloff.de
+Subject: Re: TRM-S1040/DC395 Driver?
+Message-ID: <20010212152223.A4280@kochanski.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: Nick Papadonis <nick@coelacanth.com>,
+	linux-kernel@vger.kernel.org, kurt@garloff.de
+In-Reply-To: <m3zofu7bk4.fsf@h0050bad6338d.ne.mediaone.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14SSJZ-0008T5-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m3zofu7bk4.fsf@h0050bad6338d.ne.mediaone.net>; from nick@coelacanth.com on Sat, Feb 10, 2001 at 11:22:19AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I *REALLY* don't know if that is reasonable; it may have to fall into the
-> category of "supported but not required".  Requiring an SHA hash in a
-> small bootstrap loader may not exactly be a reasonable expectation! 
+Well, it's back up again now.
+I've been using the patches for a couple of months with no problems.
+This is on a 4-processor P6 box, so the SMP support seems sound. I only have
+a CDRW attached on this SCSI bus so I can't comment on disk support etc.
 
-tea is very very small so may be appropriate instead.
+Kurt, have you submitted this driver to be included into the mainstream
+kernel ? It seems solid enough to me.
 
-> However, I think the protocol is inherently going to be asymmetric, with
-> as much as possible unloaded.
+Regards,
 
-Nod.
+Tim
 
+On Sat, Feb 10, 2001 at 11:22:19AM -0500, Nick Papadonis wrote:
+> Hi,
+> 
+> Anyone know where the kernel patches for the DC395U with the Tekram TRM-S1040
+> chip are?
+> 
+> http://www.garloff.de/ appears to be down.
+> 
+> Will these be included in the 2.4.x kernel tree?
+> 
+> Thanks.
+> 
+> -- 
+> - Nick
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+Interested in Linux scalability ? Look at http://lse.sourceforge.net/
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

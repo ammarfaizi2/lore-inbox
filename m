@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269136AbUIXUnK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269135AbUIXUrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269136AbUIXUnK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 16:43:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269135AbUIXUmr
+	id S269135AbUIXUrM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 16:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269140AbUIXUqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 16:42:47 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:62319 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S269132AbUIXUk5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 16:40:57 -0400
-Subject: Re: 2.6.9-rc2-mm3
-From: Paul Fulghum <paulkf@microgate.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20040924204345.C11325@flint.arm.linux.org.uk>
-References: <Xine.LNX.4.44.0409241210220.8009-100000@thoron.boston.redhat.com>
-	 <1096051977.1938.5.camel@deimos.microgate.com>
-	 <1096053328.1938.11.camel@deimos.microgate.com>
-	 <20040924204345.C11325@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1096058415.1981.25.camel@deimos.microgate.com>
+	Fri, 24 Sep 2004 16:46:49 -0400
+Received: from fw.osdl.org ([65.172.181.6]:45459 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269146AbUIXUqH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 16:46:07 -0400
+Date: Fri, 24 Sep 2004 13:46:02 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Chris Wright <chrisw@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: mlock(1)
+Message-ID: <20040924134602.U1924@build.pdx.osdl.net>
+References: <41547C16.4070301@pobox.com> <20040924132247.W1973@build.pdx.osdl.net> <4154867F.7030108@nortelnetworks.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 24 Sep 2004 15:40:15 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <4154867F.7030108@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Fri, Sep 24, 2004 at 02:41:35PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-24 at 14:43, Russell King wrote:
-> a port supporting only 8 bit data transmission
-> must not report in termios that it is set to 7 bit data transmission.
+* Chris Friesen (cfriesen@nortelnetworks.com) wrote:
+> Chris Wright wrote:
+> 
+> > 2. Problem is the execve(2) that the mlock(1) program would have to call.
+> > This blows away the mappings which contain the locking info.
+> 
+> Does it?  The man page said it isn't inherited on fork(), but why wouldn't it 
+> be inherited on exec()?
 
-OK, the check should stay.
+The info is stored in the memory mapping info that's necessarily blown
+away at execve(2) because that's where you are overlaying a new image.
 
-Side note: the current check has an off by one bug:
-
-if (cbaud < 1 || cbaud + 15 > n_baud_table)
-   termios->c_flag &= ~CBAUDEX;
-else
-   cbaud += 15;
-
-where cbaud is an index into baud_table array
-and n_baud_table is the number of elements
-in baud_table. The conditional should be:
-
-if (cbaud < 1 || cbaud + 15 >= n_baud_table)
-
-
+thanks,
+-chris
 -- 
-Paul Fulghum
-paulkf@microgate.com
-
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

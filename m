@@ -1,96 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVBXP6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262408AbVBXQBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262440AbVBXP6U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 10:58:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbVBXP5U
+	id S262408AbVBXQBH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 11:01:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbVBXP7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 10:57:20 -0500
-Received: from fire.osdl.org ([65.172.181.4]:51084 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262416AbVBXP4S (ORCPT
+	Thu, 24 Feb 2005 10:59:53 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:57404 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262420AbVBXP6E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 10:56:18 -0500
-Subject: Re: 2.6.11-rc5 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Thu, 24 Feb 2005 07:57:15 -0800
-Message-Id: <1109260635.5807.0.camel@cherrypit.pdx.osdl.net>
+	Thu, 24 Feb 2005 10:58:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=pHSTEBh5zleI3yGqw3Ac03cCUgC+EP+o6BCaKnBZW9BZnHOGxV5YyU49y64Yl9JSYLdWrNQZTezAnBa/Qblm+D7gZmZvViKm+wZttjDX13oalJauo3aEof0rhtLsm+YWN7y0wpH55ZlGWkvqw68Xb5oI9fglLnQ1Qr5qdaEAzGE=
+Message-ID: <58cb370e05022407587e86f8ad@mail.gmail.com>
+Date: Thu, 24 Feb 2005 16:58:03 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <htejun@gmail.com>
+Subject: Re: [PATCH 2.6.11-rc3 01/11] ide: task_end_request() fix
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-ide <linux-ide@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <20050210083809.63BF53E6@htj.dyndns.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20050210083808.48E9DD1A@htj.dyndns.org>
+	 <20050210083809.63BF53E6@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6 Compile Statistics (gcc 3.4.1)
+On Thu, 10 Feb 2005 17:38:14 +0900 (KST), Tejun Heo <htejun@gmail.com> wrote:
+> 
+> 01_ide_task_end_request_fix.patch
+> 
+>         task_end_request() modified to always call ide_end_drive_cmd()
+>         for taskfile requests.  Previously, ide_end_drive_cmd() was
+>         called only when task->tf_out_flags.all was set.  Also,
+>         ide_dma_intr() is modified to use task_end_request().
+> 
+>         * fixes taskfile ioctl oops bug which was caused by referencing
+>           NULL rq->rq_disk of taskfile requests.
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
+I fixed it in slightly different way in ide-dev-2.6 - by calling
+ide_end_request() instead of ->end_request().
 
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.11-rc5    14w/0e       0w/0e   353w/0e    6w/0e  18w/0e    431w/0e
-2.6.11-rc4    14w/0e       0w/0e   353w/0e    6w/0e  18w/0e    431w/0e
-2.6.11-rc3    14w/0e       0w/0e   356w/0e    6w/0e  18w/0e    435w/0e
-2.6.11-rc3    13w/0e       0w/0e   356w/0e    6w/0e  18w/0e    435w/0e
-2.6.11-rc2    18w/0e       0w/0e   365w/0e    6w/0e  22w/0e    440w/0e
-2.6.11-rc1    20w/0e       0w/0e   497w/0e    6w/0e  22w/0e    577w/0e
-2.6.10        13w/0e       0w/0e   778w/0e    6w/0e  15w/0e    861w/0e
-2.6.9-rc3     13w/0e       0w/0e   774w/0e    6w/0e  15w/0e    857w/0e
-2.6.9-rc2     14w/0e       0w/0e  1815w/11e  65w/0e  19w/0e   2157w/0e
-(Compiles with gcc 3.2.2)
-2.6.9-rc1      5w/0e       1w/0e  1069w/15e   6w/0e   4w/0e   1062w/1e
-2.6.9          0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
-2.6.9-final    0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
-2.6.9-rc4      0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
-2.6.9-rc3      0w/0e       0w/0e  2752w/17e  41w/0e  11w/0e   2782w/5e
-2.6.9-rc2      0w/0e       0w/0e  3036w/0e   41w/0e  11w/0e   3655w/0e
-2.6.9-rc1      0w/0e       0w/0e    77w/10e   4w/0e   3w/0e     68w/0e
-2.6.8.1        0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8          0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8-rc4      0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8-rc3      0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8-rc2      0w/0e       0w/0e    85w/ 0e   5w/0e   1w/0e     79w/0e
-2.6.8-rc1      0w/0e       0w/0e    87w/ 0e   5w/0e   1w/0e     82w/0e
-2.6.7          0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    102w/0e
-2.6.7-rc3      0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    104w/0e
-2.6.7-rc2      0w/0e       0w/0e   110w/ 0e   5w/0e   2w/0e    106w/0e
-2.6.7-rc1      0w/0e       0w/0e   111w/ 0e   6w/0e   2w/0e    107w/0e
-2.6.6          0w/0e       0w/0e   123w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc3      0w/0e       0w/0e   124w/ 0e   7w/0e   5w/0e    121w/0e
-2.6.6-rc2      0w/0e       0w/0e   122w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc1      0w/0e       0w/0e   125w/ 0e   7w/0e   4w/0e    123w/0e
-2.6.5          0w/0e       0w/0e   134w/ 0e   8w/0e   4w/0e    132w/0e
-2.6.5-rc3      0w/0e       0w/0e   135w/ 0e   8w/0e   4w/0e    132w/0e
-2.6.5-rc2      0w/0e       0w/0e   135w/ 0e   8w/0e   3w/0e    132w/0e
-2.6.5-rc1      0w/0e       0w/0e   138w/ 0e   8w/0e   3w/0e    135w/0e
-2.6.4          1w/0e       0w/0e   145w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.4-rc2      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.4-rc1      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.3          1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
-2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
-2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
-2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
-2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
-2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
-2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
+>         * enables TASKFILE ioctls to get valid register outputs on
+>           successful completion.
 
-Daily compiles (ia32): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
+This change makes *all* taskfile registers to be read on completion
+of *any* command.  Currently this is done only for flagged taskfiles
+and commands using no-data protocol.
 
-John
+With all your changes it will be also done for:
+* HDIO_DRIVE_[TASKFILE,CMD] ioctls
+* /proc/ide/hd?/{identify,smart_thresholds,smart_values}
+but reading back all registers is not always needed.
 
-
-
+It is already bad enough (and we can't fix it cause it is exported
+to user-space through HDIO_DRIVE_TASKFILE), we shouldn't
+make it worse.

@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267686AbTBUU3N>; Fri, 21 Feb 2003 15:29:13 -0500
+	id <S267697AbTBUUpc>; Fri, 21 Feb 2003 15:45:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267687AbTBUU3N>; Fri, 21 Feb 2003 15:29:13 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:5896 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S267686AbTBUU3M>; Fri, 21 Feb 2003 15:29:12 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302212040.h1LKejY3001679@81-2-122-30.bradfords.org.uk>
-Subject: Re: RFC3168, section 6.1.1.1 - ECN and retransmit of SYN
-To: Valdis.Kletnieks@vt.edu
-Date: Fri, 21 Feb 2003 20:40:45 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200302212013.h1LKD6Cu014437@turing-police.cc.vt.edu> from "Valdis.Kletnieks@vt.edu" at Feb 21, 2003 03:13:06 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267699AbTBUUpc>; Fri, 21 Feb 2003 15:45:32 -0500
+Received: from packet.digeo.com ([12.110.80.53]:45549 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267697AbTBUUpb>;
+	Fri, 21 Feb 2003 15:45:31 -0500
+Date: Fri, 21 Feb 2003 12:52:59 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: andrea@suse.de, m.c.p@wolk-project.de, t.baetzler@bringe.com,
+       linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: xdr nfs highmem deadlock fix [Re: filesystem access slowing
+ system to a crawl]
+Message-Id: <20030221125259.5d22a42f.akpm@digeo.com>
+In-Reply-To: <shs1y22zhm9.fsf@charged.uio.no>
+References: <A1FE021ABD24D411BE2D0050DA450B925EEA6C@MERKUR>
+	<200302191742.02275.m.c.p@wolk-project.de>
+	<20030219174940.GJ14633@x30.suse.de>
+	<200302201629.51374.m.c.p@wolk-project.de>
+	<20030220103543.7c2d250c.akpm@digeo.com>
+	<20030220215457.GV31480@x30.school.suse.de>
+	<shs1y22zhm9.fsf@charged.uio.no>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Feb 2003 20:55:30.0098 (UTC) FILETIME=[91794120:01C2D9EB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> RFC3168 section 6.1.1.1 says this:
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+>
+> >>>>> " " == Andrea Arcangeli <andrea@suse.de> writes:
 > 
->    A host that receives no reply to an ECN-setup SYN within the normal
->    SYN retransmission timeout interval MAY resend the SYN and any
->    subsequent SYN retransmissions with CWR and ECE cleared.  To overcome
->    normal packet loss that results in the original SYN being lost, the
->    originating host may retransmit one or more ECN-setup SYN packets
->    before giving up and retransmitting the SYN with the CWR and ECE bits
->    cleared.
+>      > 2.5.62 has the very same deadlock condition in xdr triggered by
+>      >        nfs too.
+>      > Andrew, if you're forward porting it yourself like with the
+>      > filebacked vma merging feature just let me know so we make sure
+>      > not to duplicate effort.
 > 
-> Supporting this would make using ECN a lot less painful - currently, if
-> I want to use ECN by default, I get to turn it off anytime I find an
-> ECN-hostile site that I'd like to communicate with.
+> For 2.5.x we should rather fix MSG_MORE so that it actually works
+> instead of messing with hacks to kmap().
 
-Linux shouldn't encourage the use of equipment that violates RFCs, in
-this case, RFC 739.
+Is the fixing of MSG_MORE likely to actually happen?
 
-The correct way to deal with it, is to contact the maintainers of the
-site, and ask them to fix the non conforming equipment.
+> For 2.4.x, Hirokazu Takahashi had a patch which allowed for a safe
+> kmap of > 1 page in one call. Appended here as an attachment FYI
+> (Marcelo do *not* apply!).
 
-If the problem is caused upstream, by equipment out of the
-site's maintainers' control, it is their responsibility to contact the
-relevant maintainers, or change their upstream provider.
+Andrea's patch is quite simple.  Although I wonder if this, in
+xdr_kmap():
 
-John.
++		} else {
++			iov->iov_base = kmap_nonblock(*ppage);
++			if (!iov->iov_base)
++				goto out;
++		}
+
+should be skipping the map_tail thing?

@@ -1,55 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269922AbRHEFiq>; Sun, 5 Aug 2001 01:38:46 -0400
+	id <S269923AbRHEFzb>; Sun, 5 Aug 2001 01:55:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269923AbRHEFih>; Sun, 5 Aug 2001 01:38:37 -0400
-Received: from quattro.sventech.com ([205.252.248.110]:50181 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S269922AbRHEFia>; Sun, 5 Aug 2001 01:38:30 -0400
-Date: Sun, 5 Aug 2001 01:38:37 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Andre Tomt <andre@tomt.net>, linux-kernel@vger.kernel.org
-Subject: Re: SMP Support for AMD Athlon MP motherboards
-Message-ID: <20010805013835.T3126@sventech.com>
-In-Reply-To: <002b01c11d62$73e65540$8405000a@slurv> <20010805173024.C20716@weta.f00f.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010805173024.C20716@weta.f00f.org>; from cw@f00f.org on Sun, Aug 05, 2001 at 05:30:24PM +1200
+	id <S269924AbRHEFzW>; Sun, 5 Aug 2001 01:55:22 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:62980 "EHLO
+	mailout01.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S269923AbRHEFzQ>; Sun, 5 Aug 2001 01:55:16 -0400
+Message-Id: <200108050555.f755sx108234@jordan.goethel.local>
+Content-Type: text/plain; charset=US-ASCII
+From: Sven Goethel <sgoethel@jausoft.com>
+Organization: Jausoft - Sven Goethel Software Development
+To: Robert Kuebel <kuebelr@email.uc.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: system freezes w/ 2.4.7-pre4 and later
+Date: Sun, 5 Aug 2001 07:54:57 +0200
+X-Mailer: KMail [version 1.2.3]
+In-Reply-To: <Pine.OSF.4.33.0108050048300.23006-100000@oz.uc.edu>
+In-Reply-To: <Pine.OSF.4.33.0108050048300.23006-100000@oz.uc.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 05, 2001, Chris Wedgwood <cw@f00f.org> wrote:
-> On Sun, Aug 05, 2001 at 05:55:22AM +0200, Andre Tomt wrote:
-> 
->     I recently got my hands on a unreleased evaluation AthlonMP
->                                  ^^^^^^^^^^^^^^^^^^^^^
->     motherboard with two 1.1Ghz Athlon CPU's. First thing I tried was
->     of course Linux. I ran into some problems, however.
-> 
-> Linux does support this, and people are using it --- with no
-> major problems.
-> 
-> Maybe your board is busted?  If you think that not the case, please
-> try 2.4.7+ and report specifically what the problems are in more
-> detail if you can (ie. supply dmesg from boot, etc).
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-All of the 2.4 kernels that worked on PIII systems worked on my Dual
-Athlon.
+On Sunday 05 August 2001 07:28, Robert Kuebel wrote:
+> My system has been hanging since I switched from 2.4.7-pre3.  The
+> lock-up's seem to happen during periods of disk activity. I was usually
+> able to reproduce the hangs by untar-ing the kernel source a few times.
+> Also, these kernels tended to hang while fsck'ing.
+>
+> 2.4.7-pre3 was working fine, but 2.4.7-pre4 through 2.4.8-pre3 were not.
+> Also 2.4.7-ac6 froze on me.
+>
 
-> Anyhow, you 2.2.x you need something very recent, maybe 2.2.20+ I
-> think.
+well, may be a bit OT .. but:
 
-Only for SMP. Atleast all of the later 2.2 kernels worked fine with the
-Tyan MP Athlon board with the UP kernel.
+i had the freeze in conjunction with 
+	- [2.4.7-pre4 .. 2.4.7] + xfs
+	- iptables
+	- pppoe
 
-To get SMP working you need to apply the patches I created. They just
-got to Alan and I don't think they're in 2.2.20pre yet, but it sounds
-like they'll be in there soon.
+now, i use:
+	- 2.4.7, xfs
+	- 2.4.7-ac6 patch 
+	  (only the netfilter part, cause the rest is not xfs clean ..)
+	- iptables
+	- pppoe
+and it works nice !
 
-Anyway, it sounds like a hardware problem.
 
-JE
+> I am running on an Abit KT7 and an IBM-DTLA-307045 IDE drive.
+>
 
+hmm .. may be you did some hot hdparm settings ?
+
+how about none hdparm settings ?
+
+how about the 2.4.7ac6 patch ?
+- -- 
+mailto:sgoethel@jausoft.com
+www   : http://www.jausoft.com ; pgp: http://www.jausoft.com/gpg/
+voice : +49-521-2399440 ; fax : +49-521-2399442
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7bN+yHdOA30NoFAARAj2CAJ9tBeNiIn8OuGLRQ3UeMflcozZIrQCff34g
+HgIFrt6RnEBiEw+vSt5mmWc=
+=QD/7
+-----END PGP SIGNATURE-----

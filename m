@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVBNKGB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVBNKHX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbVBNKGB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 05:06:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVBNKGB
+	id S261381AbVBNKHX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 05:07:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVBNKHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 05:06:01 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:54163 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S261378AbVBNKF7 (ORCPT
+	Mon, 14 Feb 2005 05:07:23 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:9634 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261381AbVBNKHP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 05:05:59 -0500
-Date: Mon, 14 Feb 2005 11:07:39 +0100
-From: Stelian Pop <stelian@popies.net>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, acpi-devel@lists.sourceforge.net,
-       Pekka Enberg <penberg@gmail.com>
-Subject: Re: [PATCH, new ACPI driver] new sony_acpi driver
-Message-ID: <20050214100738.GC3233@crusoe.alcove-fr>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Jean Delvare <khali@linux-fr.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, acpi-devel@lists.sourceforge.net,
-	Pekka Enberg <penberg@gmail.com>
-References: <20050210161809.GK3493@crusoe.alcove-fr> <20050211113636.GI3263@crusoe.alcove-fr> <20050212142103.5e1a79f9.khali@linux-fr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050212142103.5e1a79f9.khali@linux-fr.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 14 Feb 2005 05:07:15 -0500
+Message-ID: <42107840.1000504@redhat.com>
+Date: Mon, 14 Feb 2005 11:06:56 +0100
+From: Harald Hoyer <harald@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041209)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: harald.hoyer@redhat.de, lifebook@conan.de, dtor_core@ameritech.net,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
+References: <20050211201013.GA6937@ucw.cz>
+In-Reply-To: <20050211201013.GA6937@ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 12, 2005 at 02:21:03PM +0100, Jean Delvare wrote:
-
-> > Based on feedback from Jean Delvare and Pekka Enberg, here is an
-> > updated version.
+Vojtech Pavlik wrote:
+> Hi!
 > 
-> Works for me (Vaio PCG-GR214EP). Tested with 2.6.11-rc3-bk8.
+> I've reimplemented the Lifebook touchscreen driver using libps2 and
+> input, to make it short and fitting into the kernel drivers.
 > 
-> I then enabled the debug mode. I couldn't find anything relevant WRT
-> what each additional file is supposed to do, but I still have noticed a
-> number of things you might be interested in.
-[...]
+> Please comment on code and test for functionality!
+> 
+> PS.: The driver should register two input devices. It doesn't yet,
+> since that isn't very straightforward in the psmouse framework.
 
-I have some interesting information from one user, who noticed that:
+Sorry, I have no more Lifebook available to test :-/
 
-* pbr is the power-on brightness. It's the brightness that the
-  laptop uses at power-on time.
-
-* cdp is the CD-ROM power. Writing 0 to cdp turns off the cdrom in
-  order to save a bit of power consumption.
-
-I'll add this information in the docs.
-
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
+Have fun!

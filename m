@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280447AbRJaTtE>; Wed, 31 Oct 2001 14:49:04 -0500
+	id <S280443AbRJaTtu>; Wed, 31 Oct 2001 14:49:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280443AbRJaTsu>; Wed, 31 Oct 2001 14:48:50 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23827 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280447AbRJaTsd>; Wed, 31 Oct 2001 14:48:33 -0500
-Date: Wed, 31 Oct 2001 11:46:37 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Bernt Hansen <bernt@norang.ca>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Lorenzo Allegrucci <lenstra@tiscalinet.it>
-Subject: Re: new OOM heuristic failure  (was: Re: VM: qsbench)
-In-Reply-To: <Pine.LNX.3.96.1011031133645.448B-100000@gollum.norang.ca>
-Message-ID: <Pine.LNX.4.33.0110311138590.32727-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280449AbRJaTtl>; Wed, 31 Oct 2001 14:49:41 -0500
+Received: from boreas.isi.edu ([128.9.160.161]:63951 "EHLO boreas.isi.edu")
+	by vger.kernel.org with ESMTP id <S280443AbRJaTth>;
+	Wed, 31 Oct 2001 14:49:37 -0500
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Timur Tabi <ttabi@interactivesi.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Module Licensing? 
+In-Reply-To: Your message of "Wed, 31 Oct 2001 15:10:13 -0200."
+             <Pine.LNX.4.33L.0110311505160.2963-100000@imladris.surriel.com> 
+Date: Wed, 31 Oct 2001 11:49:30 -0800
+Message-ID: <3336.1004557770@ISI.EDU>
+From: Craig Milo Rogers <rogers@ISI.EDU>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-[ Cc'd to linux-kernel just in case other people are wondering ]
-
-On Wed, 31 Oct 2001, Bernt Hansen wrote:
+>> The fact that the open source portions and the closed source portions
+>> can't function on their own is irrelevant, IMHO.
+>>
+>> Please show me where in the GPL text it says that the act of compiling a
+>> module and loading it into memory is subject to the GPL.
 >
-> Do I need to rebuild my systems with my swap partitions >= my physical
-> memory size for the 2.4.x kernels?  All of my systems have total swap
-> space less than their physical memory size and are running 2.4.13 kernels.
+>That'd be paragraph 2 b)
+>
+>    b) You must cause any work that you distribute or publish, that in
+>    whole or in part contains or is derived from the Program or any
+>    part thereof, to be licensed as a whole at no charge to all third
+>    parties under the terms of this License.
+>
+>... These requirements apply to the modified work as a whole.
+>
+>Since your program, which happens to consist of one open
+>source part and one proprietary part, is partly a derived
+>work from the kernel source (by using kernel header files
+>and the inline functions in it) your whole work must be
+>distributed under the GPL.
 
-No. With the two-liner patch on linux-kernel, your old setup should work
-as-is.
+	False.  Please cite the section of the GPL version 2 that you
+think means that the derived work, once created, *must be
+distributed*.  If you read closely, I think you will find that it says
+that *if* you distribute the mixed work, then then it must be
+distributed under the the terms of the GPL.  If you do *not*
+distribute the mixed work, then the GPL does not place any
+restrictions on your use of the derived work.  In other words, the
+restrictions imposed by the GPL are conditional upon the derived
+work's actual distribution:  no distribution, no restrictions.
 
-And performance will be fine, _except_ if you regularly actually have your
-swap usage up in the 75%+ range. But if you do work that typically puts a
-lot of pressure on swap, and you find that you almost always end up using
-clearly more than half your swapspace, that implies that you should
-consider perhaps reconfiguring so that you have a bigger swap partition.
+	Furthermore, "loading into memory" is (arguably) considered an
+essential part of running a program, and section 0 of the GPL version
+2 says:
 
-When I pointed out the performance problems to Lorenzo, I specifically
-meant only that one load that he is testing - the fact that the load fills
-up the swap device implies that for _that_ load, performance could be
-improved by making sure he has enough swap to cover it.
+    The act of running the Program is not restricted,
 
-I bet Lorenzo doesn't even come _close_ to 80% full swap under normal
-usage, so he probably wouldn't see any performance impact normally. It's
-just that when you report VM benchmarks, maybe you want to try to improve
-the numbers..
+	I should insert the usual disclaimer:  I am not a lawyer.
 
-[ It's equally valid to say that Lorenzo's numbers are _especially_
-  interesting exactly because they also test the behaviour when we need to
-  start pruning the swap cache, though. So I'm in no way trying to
-  criticise his benchmark - I think the qsort benchmark is actually one of
-  the more valid VM patterns we have ever had as a benchmark, and I
-  really like how it mixes random accesses with non-random ones ]
-
-So don't worry.
-
-		Linus
-
+					Craig Milo Rogers

@@ -1,44 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292036AbSBYR7S>; Mon, 25 Feb 2002 12:59:18 -0500
+	id <S293092AbSBYR5s>; Mon, 25 Feb 2002 12:57:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292908AbSBYR7I>; Mon, 25 Feb 2002 12:59:08 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:58888 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S292036AbSBYR65>; Mon, 25 Feb 2002 12:58:57 -0500
-Date: Mon, 25 Feb 2002 09:58:41 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Carlos Manuel Duclos Vergara <carlos@embedded.cl>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: PATCH: FrameBuffer Monitor Functions
-In-Reply-To: <20020225145015.46d7c9ad.carlos@embedded.cl>
-Message-ID: <Pine.LNX.4.10.10202250957110.10454-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292908AbSBYR5j>; Mon, 25 Feb 2002 12:57:39 -0500
+Received: from [200.29.13.60] ([200.29.13.60]:49925 "EHLO mail.embedded.cl")
+	by vger.kernel.org with ESMTP id <S292481AbSBYR5d>;
+	Mon, 25 Feb 2002 12:57:33 -0500
+Date: Mon, 25 Feb 2002 15:02:11 -0300
+From: Carlos Manuel Duclos Vergara <carlos@embedded.cl>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: PATCH: FrameBuffer Monitor Functions [now with patch attached :-)]
+Message-Id: <20020225150211.3e1729a5.carlos@embedded.cl>
+Organization: Embedded CL
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart_Mon__25_Feb_2002_15:02:11_-0300_085c3078"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-> Hi,
-> this patch is to avoid the cooking of monitors from inside the
-> framebuffer subsystem. Normally this would be made by
-> fbmon_valid_timings function, but actually this function does nothing.
-> So i start writing a new implementation that will make some checks, note
-> that is not the full answer because it requires to user use another data
-> structures normally don't used, but for now it checks the basic stuff.
-> bye
+--Multipart_Mon__25_Feb_2002_15:02:11_-0300_085c3078
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Patch is where? Also please send the patch to me, Geert and the fbdev
-list. 
+Hi,
+this patch is to avoid the cooking of monitors from inside the
+framebuffer subsystem. Normally this would be made by
+fbmon_valid_timings function, but actually this function does nothing.
+So i start writing a new implementation that will make some checks, note
+that is not the full answer because it requires to user use another data
+structures normally don't used, but for now it checks the basic stuff.
+bye
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'_   _/`\
- ___)=(___/
 
+
+-- 
+"Solo me arrepiento de unos * de menos y unos ++ de sobra"
+Carlos Manuel Duclos Vergara
+
+--Multipart_Mon__25_Feb_2002_15:02:11_-0300_085c3078
+Content-Type: application/octet-stream;
+ name="fbmon_c.patch"
+Content-Disposition: attachment;
+ filename="fbmon_c.patch"
+Content-Transfer-Encoding: base64
+
+LS0tIHVjbGludXgtMi40LngvZHJpdmVycy92aWRlby9mYm1vbi5jCVdlZCBNYXIgIDggMTU6MTg6
+MjUgMjAwMAorKysgZWNsLXVjbGludXgtMi40LngvZHJpdmVycy92aWRlby9mYm1vbi5jCU1vbiBG
+ZWIgMjUgMTQ6MjA6MjUgMjAwMgpAQCAtNDYsMzEgKzQ2LDU0IEBACiBpbnQgZmJtb25fdmFsaWRf
+dGltaW5ncyh1X2ludCBwaXhjbG9jaywgdV9pbnQgaHRvdGFsLCB1X2ludCB2dG90YWwsCiAgICAg
+ICAgICAgICAgICAgICAgICAgICBjb25zdCBzdHJ1Y3QgZmJfaW5mbyAqZmJfaW5mbykKIHsKLSNp
+ZiAwCiAgIC8qCi0gICAqIGxvbmcgbG9uZyBkaXZpc2lvbnMgLi4uLiAkIyUlIyQKKyAgICogT2ho
+aCwgaSBkaXNjb3ZlciB0aGUgU2VjcmV0IG9mIFJhbXNlcyBJSSB0b21iIQorICAgKiBfUExFQVNF
+XyBub3RlIHRoYXQgdGhpcyBpcyBvbmx5IHdvcnRoIGlmIHlvdSBfRklMTF8gX1VQXworICAgKiBh
+IGZiX21vbnNwZWNzIHdpdGggeW91ciBtb25pdG9yIHNwZWNzIQorICAgKiBJZiB5b3UgZG9uJ3Qg
+ZG8gdGhhdCwgdGhpcyB3aWxsIG9ubHkgY2hlY2sgZm9yIHZlc2EgY29tcGF0aWJsZQorICAgKiBt
+b2RlcyBhdCBzb21lICJnZW5lcmljIiBtdWx0aWZyZXF1ZW5jeSBtb25pdG9ycyEgKG5vdCBkb25l
+IHlldCkKKyAgICogSSB3aWxsIHRoaW5rIGluIGhvdyB0byBhdXRvIGRldGVjdCBtb25pdG9ycywg
+b3IgbWF5YmUgaG93IHlvdSBjYW4gdGVsbCBpbgorICAgKiBydW50aW1lIHdoYXQga2luZCBvZiBt
+b25pdG9yIGRvIHlvdSBoYXZlLgorICAgKiBJZiB5b3Ugd2FudCB0byBrbm93IHRoZSBwcm9ncmVz
+cyBvZiB0aGF0LCBlbWFpbCBtZSBhdDogY2FybG9zQGVtYmVkZGVkLmNsCisgICAqIE5vdGUgMTog
+SSBkb24ndCBhc3N1bWUgbm90aGluZywgc28gaW4gaHRvdGFsICYgdnRvdGFsIHVzZSB5b3VyIHZh
+bHVlcy4uLgorICAgKiBpZiB5b3Ugd2FudCBhIHN1Z2VzdGlvbiB1c2U6IGh0b3RhbCA9IGhyZXMg
+KiAxLjIgYW5kIHZ0b3RhbCA9IHZyZXMgKiAxLjEKKyAgICogTm90ZSAyOiBXZSBvbmx5IG5lZWQg
+dG8gY2FsY3VsYXRlIG9uZSB0aGluZyB0byBzZWUgaWYgeW91ciBtb25pdG9yIHdpbGwgY29vawor
+ICAgKiAocGxlYXNlIGRvbid0IGJsYW1lIG1lIGlmIGl0IGNvb2tzIGFueXdheSwgeW91IG11c3Qg
+YmUgYXdhcmUgdGhhdCB0aGlzIGZ1bmN0aW9uCisgICAqIGRvIGl0cyBiZXN0IHRvIGNoZWNrIGJ1
+dCBpcyBub3QgX3RoZV8gZmluYWwgYW5zd2VyIQogICAgKi8KLSAgICB1bnNpZ25lZCBsb25nIGxv
+bmcgaHBpY29zLCB2cGljb3M7Ci0gICAgY29uc3QgdW5zaWduZWQgbG9uZyBsb25nIF8xZTEyID0g
+MTAwMDAwMDAwMDAwMFVMTDsKLSAgICBjb25zdCBzdHJ1Y3QgZmJfbW9uc3BlY3MgKm1vbnNwZWNz
+ID0gJmZiX2luZm8tPm1vbnNwZWNzOwogCi0gICAgaHBpY29zID0gKHVuc2lnbmVkIGxvbmcgbG9u
+ZylodG90YWwqKHVuc2lnbmVkIGxvbmcgbG9uZylwaXhjbG9jazsKLSAgICB2cGljb3MgPSAodW5z
+aWduZWQgbG9uZyBsb25nKXZ0b3RhbCoodW5zaWduZWQgbG9uZyBsb25nKWhwaWNvczsKLSAgICBp
+ZiAoIXZwaWNvcykKLSAgICAgIHJldHVybiAwOwotICAgIAotICAgIGlmIChtb25zcGVjcy0+aGZt
+aW4gPT0gMCkKKyAgaWYoICFmYl9pbmZvLT5tb25zcGVjcyApCisgICAgeworICAgICAgLyoKKyAg
+ICAgICAqIERlYXIgR29kLi4uCisgICAgICAgKi8KKyAgICAgIHByaW50ayggS0VSTl9JTkZPICJm
+YjogV2UgY291bGQgbm90IGNoZWNrIHlvdXIgbW9uaXRvciwgZHVlIGxhY2sgb2YgbW9uc3BlY3Mh
+XG4iICk7CiAgICAgICByZXR1cm4gMTsKLSAgICAKLSAgICBpZiAoaHBpY29zKm1vbnNwZWNzLT5o
+Zm1pbiA+IF8xZTEyIHx8IGhwaWNvcyptb25zcGVjcy0+aGZtYXggPCBfMWUxMiB8fAotICAgICAg
+ICB2cGljb3MqbW9uc3BlY3MtPnZmbWluID4gXzFlMTIgfHwgdnBpY29zKm1vbnNwZWNzLT52Zm1h
+eCA8IF8xZTEyKQorICAgIH0KKworICBpZiggcGl4ZWxjbG9jayA+IChmYl9pbmZvLT5tb25zcGVj
+cy5oZm1heCAqIGh0b3RhbCkgKQorICAgIHsKKyAgICAgIC8qIAorICAgICAgICogV2Ugd2lsbCBj
+b29rIHRoaXMgbW9uaXRvciEKKyAgICAgICAqLworICAgICAgcHJpbnRrKCBLRVJOX0lORk8gImZi
+OiBUbyBhdm9pZCBjb29raW5nIHlvdXIgbW9uaXRvciB3ZSB3b24ndCB1c2UgdGhpcyByZXNvbHV0
+aW9uIVxuIiApOwogICAgICAgcmV0dXJuIDA7Ci0jZW5kaWYKLSAgICByZXR1cm4gMTsKKyAgICB9
+CisKKyAgLyoKKyAgICogSWYgd2UgZ2V0IGhlcmUsIHdlJ3JlIHNhZmUgKGFsbW9zdCkKKyAgICov
+CisKKyAgcmV0dXJuIDE7CiB9CiAKIGludCBmYm1vbl9kcG1zKGNvbnN0IHN0cnVjdCBmYl9pbmZv
+ICpmYl9pbmZvKQogeworICBpZiggIWZiX2luZm8tPm1vbnNwZWNzICkKKyAgICB7CisgICAgICBw
+cmludGsoIEtFUk5fSU5GTyAiZmI6IE5vIG1vbnNwZWNzIVxuIiApOworICAgICAgcmV0dXJuIC1F
+SU5WQUw7CisgICAgfQogICByZXR1cm4gZmJfaW5mby0+bW9uc3BlY3MuZHBtczsKIH0KIAo=
+
+--Multipart_Mon__25_Feb_2002_15:02:11_-0300_085c3078--

@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318252AbSIKAec>; Tue, 10 Sep 2002 20:34:32 -0400
+	id <S318266AbSIKAhm>; Tue, 10 Sep 2002 20:37:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318253AbSIKAeb>; Tue, 10 Sep 2002 20:34:31 -0400
-Received: from packet.digeo.com ([12.110.80.53]:48004 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S318252AbSIKAd6>;
-	Tue, 10 Sep 2002 20:33:58 -0400
-Message-ID: <3D7E909A.512C23C1@digeo.com>
-Date: Tue, 10 Sep 2002 17:38:50 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.34 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: Chuck Lever <cel@citi.umich.edu>, Rik van Riel <riel@conectiva.com.br>,
-       trond.myklebust@fys.uio.no,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-References: <Pine.BSO.4.33.0209101412300.5368-100000@citi.umich.edu> <E17orzf-0007Gn-00@starship> <3D7E8936.9882E929@digeo.com> <E17ovLv-0007JB-00@starship>
-Content-Type: text/plain; charset=us-ascii
+	id <S318268AbSIKAhm>; Tue, 10 Sep 2002 20:37:42 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:26614
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318266AbSIKAhk>; Tue, 10 Sep 2002 20:37:40 -0400
+Subject: IDE status
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Sep 2002 00:38:38.0728 (UTC) FILETIME=[91F91080:01C2592B]
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 11 Sep 2002 01:45:45 +0100
+Message-Id: <1031705145.2768.15.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> 
-> > ...
-> We do get
-> around to walking the ptes at file close I believe.  Is that not driven by
-> zap_page_range, which moves any orphaned pte dirty bits down into the struct
-> page?
+Ok the last -ac seems to have worked better than I had expected. I've
+now got the test code with some more PCI cleanups. I need to finish
+pushing these to the other drivers in the PCI layer and then I'll put
+out another release
 
-Nope, close will just leave all the pages pte-dirty or PageDirty in
-memory.  truncate will nuke all the ptes and then the pagecache.
+You can now do
 
-But the normal way in which pte-dirty pages find their way to the
-backing file is:
+hdparm -t /dev/hda           (get 900K/sec)
+insmod piix
+hdparm -d 1 /dev/hda
+hdparm -t /dev/hda           (get 8Mbyte/sec)
 
-- page reclaim runs try_to_unmap or
+[Yeah my TP600 drive isnt the fastest on earth]
 
-- user runs msync().  (Which will only clean that mm's ptes!)
-
-These will run set_page_dirty(), making the page visible to
-one of the many things which run writeback.

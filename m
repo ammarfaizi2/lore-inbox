@@ -1,85 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265643AbTA2JeP>; Wed, 29 Jan 2003 04:34:15 -0500
+	id <S265589AbTA2Jnc>; Wed, 29 Jan 2003 04:43:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265570AbTA2JeP>; Wed, 29 Jan 2003 04:34:15 -0500
-Received: from [217.167.51.129] ([217.167.51.129]:28145 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S265643AbTA2JeO>;
-	Wed, 29 Jan 2003 04:34:14 -0500
-Subject: Re: 2.4.21-pre3 kernel crash
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org,
-       Larry Sendlosky <Larry.Sendlosky@storigen.com>
-In-Reply-To: <20030129085332.GT31566@suse.de>
-References: <7BFCE5F1EF28D64198522688F5449D5A03C0FA@xchangeserver2.storigen.com>
-	 <20030128220607.GF31566@suse.de> <1043828587.537.25.camel@zion.wanadoo.fr>
-	 <20030129085332.GT31566@suse.de>
-Content-Type: text/plain
+	id <S265633AbTA2Jnc>; Wed, 29 Jan 2003 04:43:32 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:18326 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP
+	id <S265589AbTA2Jnc>; Wed, 29 Jan 2003 04:43:32 -0500
+Message-ID: <3E37A46B.4080907@zytor.com>
+Date: Wed, 29 Jan 2003 01:52:43 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: John Bradford <john@grabjohn.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel.org frontpage
+References: <200301290947.h0T9lKa9000750@darkstar.example.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1043833440.537.30.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 29 Jan 2003 10:44:00 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-01-29 at 09:53, Jens Axboe wrote:
-> On Wed, Jan 29 2003, Benjamin Herrenschmidt wrote:
-> > On Tue, 2003-01-28 at 23:06, Jens Axboe wrote:
-> > > On Tue, Jan 28 2003, Larry Sendlosky wrote:
-> > > > I was glad to see the physical page support in 2.4.20.
-> > > > (and also noticed that the current BK tree clobbered it
-> > > > on a patch set from Alan).
-> > > > 
-> > > > One question, 
-> > > > 
-> > > > +		lastdataend = bh_phys(bh) + bh->b_size;
-> > > > 
-> > > > bh_phys(x) uses bh->b_page. Does it make a difference
-> > > > if bh->b_page is zero? What if someone combines virt and phys
-> > > > buffer addresses in bh list?
-> > > 
-> > > Yes good catch! New version attached.
-> > 
-> > That's interesting. I wasn't awaye you could have a request
-> > containing such a "mixed" set of bh without valid pages.
-> > Actually, I though b_page was always valid. Looking at
-> > other drivers (typically the the csiss.c driver), it also
-> > unconditionally use b_page & bh_phys(). So either we are
-> > looking at a false problem, or that driver need fixing as
-> > well.
+John Bradford wrote:
+>>Just in case anyone cares :) I have changed the kernel.org frontpage
+>>from linking to .gz to linking to .bz2 files.  It should now also
+>>display snapshot releases if they exist.
 > 
-> b_page is not always valid for IDE, this is a special case. ide-scsi
-> fabricates its own buffer_heads. cciss etc can rely on valid b_page
-> always.
+> 
+> Cool, would it be worth putting in a link to the relevant .sign files
+> as well?
 
-Ok. Well, looking at ide-scsi, I see that:
+No, it would add absolutely nothing (other than clutter.)  All the .sign 
+files are good for is to check for rogue mirrors.
 
-#if 1
-			bh->b_data = sg->address;
-#else
-			if (sg->address) {
-				bh->b_page = virt_to_page(sg->address);
-				bh->b_data = (char *) ((unsigned long) sg->address & ~PAGE_MASK);
-			} else if (sg->page) {
-				bh->b_page = sg->page;
-				bh->b_data = (char *) sg->offset;
-			}
-#endif
+	-hpa
 
-Can't we just turn that #if 1 into #if 0 ? The case of non segmented
-requests remains, where we have
-
-		bh->b_data = pc->scsi_cmd->request_buffer;
-		bh->b_size = pc->request_transfer;
-
-But then, can't we use the same approach as above using virt_to_page() ?
-
-I don't say we should do it now. I'm mostly asking for my own eductation
-about all this, though I admit I don't like the "mixing" done in
-ide_build_sglist.
-
-Ben.
 

@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261610AbSJYVZw>; Fri, 25 Oct 2002 17:25:52 -0400
+	id <S261609AbSJYVcR>; Fri, 25 Oct 2002 17:32:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261612AbSJYVZw>; Fri, 25 Oct 2002 17:25:52 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:41393 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261610AbSJYVZv>;
-	Fri, 25 Oct 2002 17:25:51 -0400
-Date: Fri, 25 Oct 2002 23:31:45 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Cameron, Steve" <Steve.Cameron@hp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.44-ac3, cciss, more scatter gather elements
-Message-ID: <20021025213145.GH12628@suse.de>
-References: <45B36A38D959B44CB032DA427A6E10640167D070@cceexc18.americas.cpqcorp.net> <20021025211107.GG1203@suse.de> <20021025212438.GH1203@suse.de> <20021025212512.GI1203@suse.de>
-Mime-Version: 1.0
+	id <S261611AbSJYVcR>; Fri, 25 Oct 2002 17:32:17 -0400
+Received: from packet.digeo.com ([12.110.80.53]:61367 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261609AbSJYVcQ>;
+	Fri, 25 Oct 2002 17:32:16 -0400
+Message-ID: <3DB9B9D1.D049C730@digeo.com>
+Date: Fri, 25 Oct 2002 14:38:25 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: Alexander Viro <viro@math.psu.edu>, "Adam J. Richter" <adam@yggdrasil.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i_blkbits inconsistency
+References: <Pine.LNX.4.44.0210252158020.1213-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021025212512.GI1203@suse.de>
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 Oct 2002 21:38:25.0486 (UTC) FILETIME=[D95E06E0:01C27C6E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 25 2002, Jens Axboe wrote:
->  			} else {
->  new_segment:
-> -				memset(&sg[nsegs],0,sizeof(struct scatterlist));
-> -				sg[nsegs].page = bvec->bv_page;
-> -				sg[nsegs].length = nbytes;
-> -				sg[nsegs].offset = bvec->bv_offset;
-> -
-> +				sg.page = bvec->bv_page;
-> +				sg.offset = bvec->bv_offset;
-> +				sg.length = nbytes;
-> +				map(q, &sg, nsegs, cookie);
-				if (sgprev)
-					map(q, sgprev, nsegs, cookie);
+Hugh Dickins wrote:
+> 
+> Fix premature -EIO from blkdev_get_block: bdget initialize bd_block_size
+> consistent with bd_inode->i_blkbits (assigned by new_inode).  Otherwise,
+> subsequent set_blocksize can find bd_block_size doesn't need updating,
+> and skip updating i_blkbits, leaving them inconsistent.
+> 
+> --- 2.5.44/fs/block_dev.c       Sat Oct 19 07:14:45 2002
+> +++ linux/fs/block_dev.c        Fri Oct 25 21:30:41 2002
+> @@ -310,6 +310,7 @@
+>                         new_bdev->bd_queue = NULL;
+>                         new_bdev->bd_contains = NULL;
+>                         new_bdev->bd_inode = inode;
+> +                       new_bdev->bd_block_size = (1 << inode->i_blkbits);
+>                         new_bdev->bd_part_count = 0;
+>                         new_bdev->bd_invalidated = 0;
+>                         inode->i_mode = S_IFBLK;
 
-of course, and likewise for the cluster check. I'll cut a clean version
-tomorrow, I'm out for today..
-
--- 
-Jens Axboe
-
+Thanks, sleuth.   Wondering if we can we remove bd_block_size
+and simply use (1 << bdev->bd_inode->i_blkbits) everywhere?

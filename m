@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266052AbUAUEiq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 23:38:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266054AbUAUEgW
+	id S261827AbUAUFEy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 00:04:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265939AbUAUFEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 23:36:22 -0500
-Received: from dp.samba.org ([66.70.73.150]:32737 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266055AbUAUEfx (ORCPT
+	Wed, 21 Jan 2004 00:04:53 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:63676 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261827AbUAUFEv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 23:35:53 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] v4l-05 add infrared remote support 
-In-reply-to: Your message of "Tue, 20 Jan 2004 10:30:54 BST."
-             <20040120093054.GC18096@bytesex.org> 
-Date: Wed, 21 Jan 2004 11:26:03 +1100
-Message-Id: <20040121043608.7F1F02C141@lists.samba.org>
+	Wed, 21 Jan 2004 00:04:51 -0500
+Date: Wed, 21 Jan 2004 10:39:33 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Tim Hockin <thockin@hockin.org>, Rusty Russell <rusty@au1.ibm.com>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       rml@tech9.net
+Subject: Re: CPU Hotplug: Hotplug Script And SIGPWR
+Message-ID: <20040121103933.B3236@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <400CD4B5.6020507@cyberone.com.au> <20040120073032.GB12638@hockin.org> <400CDCA1.5070200@cyberone.com.au> <20040120075409.GA13897@hockin.org> <400CE354.8060300@cyberone.com.au> <20040120082943.GA15733@hockin.org> <400CE8DC.70307@cyberone.com.au> <20040120084352.GD15733@hockin.org> <20040121093633.A3169@in.ibm.com> <400DFC8B.7020906@cyberone.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <400DFC8B.7020906@cyberone.com.au>; from piggin@cyberone.com.au on Wed, Jan 21, 2004 at 03:14:03PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040120093054.GC18096@bytesex.org> you write:
-> On Tue, Jan 20, 2004 at 12:55:39PM +1100, Rusty Russell wrote:
-> > In message <20040115115611.GA16266@bytesex.org> you write:
-> > > +static int repeat = 1;
-> > > +MODULE_PARM(repeat,"i");
-> > > +MODULE_PARM_DESC(repeat,"auto-repeat for IR keys (default: on)");
-> > > +
-> > > +static int debug = 0;    /* debug level (0,1,2) */
-> > > +MODULE_PARM(debug,"i");
-> > 
-> > Please replace the MODULE_PARM lines with the modern form:
-> > 
-> > 	module_param(repeat, bool, 0644);
-> > 	module_param(debug, int, 0644);
-> 
-> No.  The code in question must also build on 2.4 kernels which don't
-> have module_param().  And I don't want to clutter up the code with
-> #ifdefs unless I absolutely have to.
+On Wed, Jan 21, 2004 at 03:14:03PM +1100, Nick Piggin wrote:
+> Yes, that is with the cpu-is-down hotplug event, right?
 
-Sure!  I'll write and test the forward compat macros for 2.4, submit
-them to Marcelo, and then bother you again 8)
+right.
 
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+ 
+> *Before* that happens, tasks that don't handle the signal should just
+> have their affinity changed to all cpus.
+
+Currently, handle or not handle the signal, affinity is changed
+to all cpus for tasks that are bound only to the dying CPU.
+
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

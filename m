@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318188AbSIEUNk>; Thu, 5 Sep 2002 16:13:40 -0400
+	id <S318175AbSIEUM2>; Thu, 5 Sep 2002 16:12:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318190AbSIEUNk>; Thu, 5 Sep 2002 16:13:40 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:8965 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S318188AbSIEUNd>; Thu, 5 Sep 2002 16:13:33 -0400
-Message-ID: <3D77BB7C.5F20939F@zip.com.au>
-Date: Thu, 05 Sep 2002 13:15:56 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
+	id <S318176AbSIEUM2>; Thu, 5 Sep 2002 16:12:28 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:1408 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S318175AbSIEUM0>; Thu, 5 Sep 2002 16:12:26 -0400
+Date: Thu, 5 Sep 2002 16:16:52 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Peter Surda <shurdeek@panorama.sth.ac.at>
+cc: linux-kernel@vger.kernel.org
+Subject: Uptime timer-wrap
+In-Reply-To: <20020905180253.GC2567@noir.cb.ac.at>
+Message-ID: <Pine.LNX.3.95.1020905160808.141A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Chuck Lever <cel@citi.umich.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-References: <3D77A22A.DC3F4D1@zip.com.au>
-		<Pine.BSO.4.33.0209051439540.12826-100000@citi.umich.edu>
-		<3D77ADC3.938C09F8@zip.com.au> <shsvg5k9pg3.fsf@charged.uio.no>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+On Thu, 5 Sep 2002, Peter Surda wrote:
+
+> Dear kernel developers and other guys with deep linux knowledge,
 > 
-> >>>>> " " == Andrew Morton <akpm@zip.com.au> writes:
+> I am posting here because I think this is an interesting story, and even if
+> noone can find a answer now, maybe this can serve as a reference for future.
 > 
->      > You may have more success using the stronger
->      > invalidate_inode_pages2().
-> 
-> Shouldn't make any difference. Chuck is seeing this on readdir() pages
-> which, of course, don't suffer from problems of dirtiness etc on NFS.
+> I am not sure what information is relevant to the story, so I'll try to
+> mention anything I consider relevant.
+[SNIPPED timer-wrap story]
 
-Well the VM will take a ref on the page during reclaim even if it
-is clean.
+I tried to simulate your observation by making a driver that
+set the 'jiffies' count upon an 'open'. The idea was to get
+the jiffies count to something close to wrap so I didn't have to
+wait a long time.
 
-With what sort of frequency does this happen?  If it's easily reproducible
-then dunno. If it's once-an-hour then it may be page reclaim, conceivably.
-The PageLRU debug test in there will tell us.
+Anyway, I found that setting the jiffies count to more than a
+few hundred counts into the future, causes the machine to halt
+with no interrupts (no Capslock, no NumLock, no network ping, etc).
 
-> I've noticed that the code that used to clear page->flags when we
-> added a page to the page_cache has disappeared. Is it possible that
-> pages are being re-added with screwy values for page->flags?
+The machine just stops and I don't understand why. 
 
-It's possible - those flags were getting set all over the place,
-and for add_to_swap(), the nonatomic rmw was an outright bug.
 
-The intent now is to set the initial page state in prep_new_page()
-and to then modify it atomically from there on in ways which make
-sense, rather than "because that's what the code used to do".
-Something may have got screwed up in there.  Suggest you print
-out page->flags from in there and we can take a look.
+	spin_lock_irqsave(&xlock, flags);
+        jiffies += 0x1000;
+	spin_lock_irqrestore(&xlock, flags);
 
-It's a bit worrisome if NFS is dependent upon successful pagecache
-takedown in invalidate_inode_pages.
+	... works just fine, but, changing 0x1000 to 0x7fffffff causes
+the machine to stop as reported. 
+
+Does anybody have a clue?
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
+

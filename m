@@ -1,76 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270523AbRIFNKt>; Thu, 6 Sep 2001 09:10:49 -0400
+	id <S270640AbRIFNPJ>; Thu, 6 Sep 2001 09:15:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270634AbRIFNKk>; Thu, 6 Sep 2001 09:10:40 -0400
-Received: from tank.panorama.sth.ac.at ([193.170.53.11]:31250 "EHLO
-	tank.panorama.sth.ac.at") by vger.kernel.org with ESMTP
-	id <S270523AbRIFNKY>; Thu, 6 Sep 2001 09:10:24 -0400
-Date: Thu, 6 Sep 2001 15:10:33 +0200
-From: Peter Surda <shurdeek@panorama.sth.ac.at>
-To: linux-kernel@vger.kernel.org
-Cc: Daniel Egger <egger@suse.de>
-Subject: Re: (solved) memcpy to videoram eats too much CPU on ATI cards
-Message-ID: <20010906151033.I27619@shurdeek.cb.ac.at>
-In-Reply-To: <E15bRy4-0004Va-00@the-village.bc.nu> <200108272140.XAA20798@cave.bitwizard.nl> <20010828000127.M17545@shurdeek.cb.ac.at> <20010906081842.D27619@shurdeek.cb.ac.at> <999776228.10893.17.camel@sonja>
+	id <S270645AbRIFNO7>; Thu, 6 Sep 2001 09:14:59 -0400
+Received: from gnu.in-berlin.de ([192.109.42.4]:24591 "EHLO gnu.in-berlin.de")
+	by vger.kernel.org with ESMTP id <S270640AbRIFNOq>;
+	Thu, 6 Sep 2001 09:14:46 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Thu, 6 Sep 2001 15:04:51 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PNPBIOS: warning: >= 16 resources, overflow?
+Message-ID: <20010906150451.A5256@bytesex.org>
+In-Reply-To: <slrn9pedo0.3eu.kraxel@bytesex.org> <E15exwY-0007xb-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8/pVXlBMPtxfSuJG"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <999776228.10893.17.camel@sonja>; from egger@suse.de on Thu, Sep 06, 2001 at 01:37:07PM +0200
-X-Operating-System: Linux shurdeek 2.4.3-20mdk
-X-Editor: VIM - Vi IMproved 6.0z ALPHA (2001 Mar 24, compiled Mar 26 2001 12:25:08)
+In-Reply-To: <E15exwY-0007xb-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 06, 2001 at 01:07:38PM +0100, Alan Cox wrote:
+> > lspnp (comes with pcmcia-cs) would be more intresting.  The pnpbios code
+> > fills a "struct pci_dev" for each device reported by the pnpbios, and it
+> > looks like your portable has one device with alot ressources, so the
+> > ressources array in struct pci_dev can't hold them all.  There is a
+> > #define in include/linux/pci.h for the array size ...
+> 
+> For the motherboard memory/io ranges it might be worth teaching the
+> pnp bios parser to actually reserve the regions as it scans them ?
 
---8/pVXlBMPtxfSuJG
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+No trivial way.  Need to read some more code to see how the parser
+works and if the data structures are build in a way that I have the
+informations I need at any point to do that "on-the-fly" in the
+pnp bios node => struct pci_dev parser.
 
-On Thu, Sep 06, 2001 at 01:37:07PM +0200, Daniel Egger wrote:
-> > Just to end this thread in a victorous manner ;-), thanks to Michel D=
-=E4nzer
-> > <michdaen@iiic.ethz.ch> and me, there is now a working implementation of
-> > busmastered video transfers for the r128 driver, and it has been submit=
-ted to.=20
-> > all relevant lists and maintainers.
-> I kept on checking the relevant mailinglist and project CVSes but failed =
-to
-> find the described implementation, would you please provide additional hi=
-nts
-> where to get it?
-dri-devel should have it, as well as livid-gatos (which unfortunately seems=
- to
-have full disks and is offline at the moment).
+BTW:  There is another issue I've noticed on my Desktop box, where I'm
+not sure what the best way to deal with:  Some pnpbios-reported I/O
+ranges clash with stuff reserved by pci quirks:
 
-For very lazy ones I found a link to the annoucement in dri-devel:
-http://www.geocrawler.com/lists/3/SourceForge/680/0/6536416/
 
-> Servus,
->        Daniel
-Mit freundlichen Gr=FC=DFen
+This we have in PCI space (good old Intel BX):
 
-Peter Surda (Shurdeek) <shurdeek@panorama.sth.ac.at>, ICQ 10236103, +436505=
-122023
+bogomips root ~# lspci -v -s 00:04.3
+00:04.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
+        Flags: medium devsel, IRQ 9
 
---
-   "One world, one web, one program"  -- Microsoft promotional ad
-         "Ein Volk, ein Reich, ein Fuehrer"  -- Adolf Hitler
 
---8/pVXlBMPtxfSuJG
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+drivers/pci/quirks.c reserves this for the ACPI bridge:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+bogomips root ~# cat /proc/ioports
+[ ... ]
+e400-e43f : Intel Corporation 82371AB PIIX4 ACPI
+e800-e81f : Intel Corporation 82371AB PIIX4 ACPI
 
-iD8DBQE7l3XJzogxsPZwLzcRAir1AKCHtf1tLBlCjvZbufgpPbxUBfsM+ACffV7c
-v/Q6f/loWZ3+eGoiqbaCAPI=
-=GSyC
------END PGP SIGNATURE-----
 
---8/pVXlBMPtxfSuJG--
+pnpbios lists the ACPI ports too:
+
+bogomips root ~# lspnp -v
+[ ... ]
+0f PNP0c02 system peripheral: other
+        io 0x0290-0x0297
+        io 0xe400-0xe43f
+        io 0xe800-0xe83f
+
+Hmm...
+
+  Gerd
+
+-- 
+Damn lot people confuse usability and eye-candy.

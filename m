@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbUKDGiY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbUKDGko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262098AbUKDGiY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 01:38:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbUKDGiY
+	id S262097AbUKDGko (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 01:40:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbUKDGkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 01:38:24 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:35229 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S262095AbUKDGiK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 01:38:10 -0500
-Date: Thu, 4 Nov 2004 15:38:06 +0900
-From: Tejun Heo <tj@home-tj.org>
-To: rusty@rustcorp.com.au, mochel@osdl.org, greg@kroah.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.10-rc1 1/15] driver-model: param_array_set num field fix
-Message-ID: <20041104063806.GA24890@home-tj.org>
-References: <20041104063532.GA24566@home-tj.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Nov 2004 01:40:43 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:57869 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262095AbUKDGjq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 01:39:46 -0500
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Russell Miller <rmiller@duskglow.com>, Doug McNaught <doug@mcnaught.org>
+Subject: Re: is killing zombies possible w/o a reboot?
+Date: Thu, 4 Nov 2004 08:39:34 +0200
+User-Agent: KMail/1.5.4
+Cc: Jim Nelson <james4765@verizon.net>, DervishD <lkml@dervishd.net>,
+       Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
+       =?iso-8859-1?q?M=E5ns=20Rullg=E5rd?= <mru@inprovide.com>
+References: <200411030751.39578.gene.heskett@verizon.net> <87k6t24jsr.fsf@asmodeus.mcnaught.org> <200411031733.30469.rmiller@duskglow.com>
+In-Reply-To: <200411031733.30469.rmiller@duskglow.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041104063532.GA24566@home-tj.org>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200411040839.34350.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- dp_01_param_array_bug.patch
+On Thursday 04 November 2004 01:33, Russell Miller wrote:
+> On Wednesday 03 November 2004 17:03, Doug McNaught wrote:
+> 
+> > It was already mentioned in this thread that the bookkeeping required
+> > to clean up properly from such an abort would add a lot of overhead
+> > and slow down the normal, non-buggy case.
+> >
+> I am going to continue pursuing this at the risk of making a bigger fool of 
+> myself than I already am, but I want to make sure that I understand the 
+> issues - and I did read the message you are referring to.
+> 
+> I think what you are saying is that there is kind of a race condition here.  
+> When something is on the wait queue, it has to be followed through to 
+> completion.  An interrupt could be received at any time, and if it's taken 
+> off of the wait queue prematurely, it'll crash the kernel, because the 
+> interrupt has no way of telling that.
 
- This is the 1st patch of 15 patches for devparam.
+The problem is in locking. You must not kill process while it is
+in uninterruptible state because it is uninterruptible
+for a reason - has taken semaphore, or get_cpu(), etc.
+You do want it to do put_cpu(), right?
 
- This patches fixes param_array_set() to not use arr->max as nump
-argument of param_array.  If arr->max is used as nump and the
-configuration variable is exported writeable in the syfs, the size of
-the array will be limited by the smallest number of elements
-specified.  One side effect is that as the actual number of elements
-is not recorded anymore when nump is NULL, all elements should be
-printed when referencing the corresponding sysfs node.  I don't think
-that will cause any problem.
+Processes must never get stuck in D, it's a kernel bug.
 
+Find out how did process ended up in D state forever,
+and fix it - that's what I'm trying to do
+in these cases.
+--
+vda
 
-Signed-off-by: Tejun Heo <tj@home-tj.org>
-
-
-Index: linux-export/kernel/params.c
-===================================================================
---- linux-export.orig/kernel/params.c	2004-11-04 10:25:51.000000000 +0900
-+++ linux-export/kernel/params.c	2004-11-04 11:04:07.000000000 +0900
-@@ -305,9 +305,10 @@ int param_array(const char *name,
- int param_array_set(const char *val, struct kernel_param *kp)
- {
- 	struct kparam_array *arr = kp->arg;
-+	unsigned int t;
- 
- 	return param_array(kp->name, val, 1, arr->max, arr->elem,
--			   arr->elemsize, arr->set, arr->num ?: &arr->max);
-+			   arr->elemsize, arr->set, arr->num ?: &t);
- }
- 
- int param_array_get(char *buffer, struct kernel_param *kp)

@@ -1,193 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268474AbTANBbD>; Mon, 13 Jan 2003 20:31:03 -0500
+	id <S268468AbTANBZg>; Mon, 13 Jan 2003 20:25:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268479AbTANBbD>; Mon, 13 Jan 2003 20:31:03 -0500
-Received: from ore.jhcloos.com ([64.240.156.239]:21509 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id <S268474AbTANBa6>;
-	Mon, 13 Jan 2003 20:30:58 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*?
-References: <Pine.LNX.4.44.0301100921460.12833-100000@home.transmeta.com>
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <Pine.LNX.4.44.0301100921460.12833-100000@home.transmeta.com>
-Date: 13 Jan 2003 20:39:37 -0500
-Message-ID: <m3y95o33xi.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S268472AbTANBZg>; Mon, 13 Jan 2003 20:25:36 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:41268 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id <S268468AbTANBZe>; Mon, 13 Jan 2003 20:25:34 -0500
+Message-ID: <3E2368CF.6050608@google.com>
+Date: Mon, 13 Jan 2003 17:33:03 -0800
+From: Ross Biro <rossb@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: alan@lxorguk.ukuu.org.uk, andre@linux-ide.org, marcelo@conectiva.com.br
+CC: linux-kernel@vger.kernel.org
+Subject: PATCH: [2.4.21-pre3] Fix for Promise PIO Lockup
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[re OSS vs ALSA audio drivers]
 
-Linus> So I don't see a huge reason to remove them from the sources,
-Linus> but we might well make them harder to select by mistake, for
-Linus> example. Right now the config help files aren't exactly helpful,
-Linus> and the OSS choice is before the ALSA one, which looks wrong.
+Newer kernels will lock up when a drive command (SMART, hdparm -I, etc.) 
+is issued to a drive connected to a Promise 20265 or 20267 controller 
+while the controller is in DMA mode.  The problem appears to be that 
+tune_chipset incorrectly clears the high PIO bit thinking that it is a 
+"PIO force on" bit.  The documentation I have access to does not seem to 
+mention a PIO force bit.  Not changing that bit seems to fix the problem 
+with drive commands on a promise controller.
 
-Linus> They should probably be marked deprecated, and if they don't
-Linus> get a lot of maintenance, that's fine.
+The documentation I have also says the values for the TB and TC 
+variables should be the same for all UDMA modes and they are not. 
+ However the driver seems to work anyway, so I left them the way they are.
 
-Like this?
+To reproduce this problem make sure your drive is set to a DMA mode, eg 
+hdparm -X 67 and then issue a drive command, e.g. hdparm -I.
 
-Also available from:
+This problem may also be present in the drivers for other Promise chips.
 
-        bk://cloos.bkbits.net/alsa-oss
+This change has only been minimally tested.
 
-ChangeSet@1.966, 2003-01-13 20:05:11-05:00, cloos@lugabout.jhcloos.org
-  Move ALSA before OSS
+------ snip here -------
+diff -durbB linux-2.4.20-p2/drivers/ide/pci/pdc202xx_old.c 
+linux-2.4.20-p3/drivers/ide/pci/pdc202xx_old.c
+--- linux-2.4.20-p2/drivers/ide/pci/pdc202xx_old.c    Wed Jan  8 
+15:44:11 2003
++++ linux-2.4.20-p3/drivers/ide/pci/pdc202xx_old.c    Fri Jan 10 
+15:05:28 2003
+@@ -268,7 +268,9 @@
+         if ((BP & 0xF0) && (CP & 0x0F)) {
+             /* clear DMA modes of upper 842 bits of B Register */
+             /* clear PIO forced mode upper 1 bit of B Register */
+-            pci_write_config_byte(dev, (drive_pci)|0x01, BP &~0xF0);
++                        /* The documentation I have access to says there
++                           is no PIO forced mode bit. -- RAB 01/10/03 */
++            pci_write_config_byte(dev, (drive_pci)|0x01, BP &~0xE0);
+             pci_read_config_byte(dev, (drive_pci)|0x01, &BP);
+ 
+             /* clear DMA modes of lower 8421 bits of C Register */
 
- sound/Kconfig          |   26 ++++++++++++--------------
- arch/i386/defconfig    |   10 +++++-----
- arch/ia64/defconfig    |   10 +++++-----
- arch/parisc/defconfig  |    8 ++++----
- arch/sparc64/defconfig |   10 +++++-----
- 5 files changed, 31 insertions(+), 33 deletions(-)
-
-
-diff -Nru a/sound/Kconfig b/sound/Kconfig
---- a/sound/Kconfig	Mon Jan 13 20:32:29 2003
-+++ b/sound/Kconfig	Mon Jan 13 20:32:29 2003
-@@ -1,20 +1,6 @@
- # sound/Config.in
- #
- 
--menu "Open Sound System"
--	depends on SOUND!=n
--
--config SOUND_PRIME
--	tristate "Open Sound System"
--	depends on SOUND
--	help
--	  Say 'Y' or 'M' to enable Open Sound System drivers.
--
--source "sound/oss/Kconfig"
--
--endmenu
--
--
- menu "Advanced Linux Sound Architecture"
- 	depends on SOUND!=n
- 
-@@ -42,3 +28,15 @@
- 
- endmenu
- 
-+menu "Open Sound System"
-+	depends on SOUND!=n
-+
-+config SOUND_PRIME
-+	tristate "Open Sound System (DEPRECATED)"
-+	depends on SOUND
-+	help
-+	  Say 'Y' or 'M' to enable Open Sound System drivers.
-+
-+source "sound/oss/Kconfig"
-+
-+endmenu
-diff -Nru a/arch/i386/defconfig b/arch/i386/defconfig
---- a/arch/i386/defconfig	Mon Jan 13 20:32:29 2003
-+++ b/arch/i386/defconfig	Mon Jan 13 20:32:29 2003
-@@ -839,11 +839,6 @@
- CONFIG_SOUND=y
- 
- #
--# Open Sound System
--#
--# CONFIG_SOUND_PRIME is not set
--
--#
- # Advanced Linux Sound Architecture
- #
- CONFIG_SND=y
-@@ -922,6 +917,11 @@
- # ALSA USB devices
- #
- # CONFIG_SND_USB_AUDIO is not set
-+
-+#
-+# Open Sound System
-+#
-+# CONFIG_SOUND_PRIME is not set
- 
- #
- # USB support
-diff -Nru a/arch/ia64/defconfig b/arch/ia64/defconfig
---- a/arch/ia64/defconfig	Mon Jan 13 20:32:29 2003
-+++ b/arch/ia64/defconfig	Mon Jan 13 20:32:29 2003
-@@ -657,6 +657,11 @@
- CONFIG_SOUND=y
- 
- #
-+# Advanced Linux Sound Architecture
-+#
-+# CONFIG_SND is not set
-+
-+#
- # Open Sound System
- #
- CONFIG_SOUND_PRIME=y
-@@ -679,11 +684,6 @@
- # CONFIG_SOUND_VIA82CXXX is not set
- # CONFIG_SOUND_OSS is not set
- # CONFIG_SOUND_TVMIXER is not set
--
--#
--# Advanced Linux Sound Architecture
--#
--# CONFIG_SND is not set
- 
- #
- # USB support
-diff -Nru a/arch/parisc/defconfig b/arch/parisc/defconfig
---- a/arch/parisc/defconfig	Mon Jan 13 20:32:29 2003
-+++ b/arch/parisc/defconfig	Mon Jan 13 20:32:29 2003
-@@ -643,14 +643,14 @@
- CONFIG_SOUND=y
- 
- #
--# Open Sound System
-+# Advanced Linux Sound Architecture
- #
--# CONFIG_SOUND_PRIME is not set
-+# CONFIG_SND is not set
- 
- #
--# Advanced Linux Sound Architecture
-+# Open Sound System
- #
--# CONFIG_SND is not set
-+# CONFIG_SOUND_PRIME is not set
- 
- #
- # USB support
-diff -Nru a/arch/sparc64/defconfig b/arch/sparc64/defconfig
---- a/arch/sparc64/defconfig	Mon Jan 13 20:32:29 2003
-+++ b/arch/sparc64/defconfig	Mon Jan 13 20:32:29 2003
-@@ -710,11 +710,6 @@
- CONFIG_SOUND=m
- 
- #
--# Open Sound System
--#
--# CONFIG_SOUND_PRIME is not set
--
--#
- # Advanced Linux Sound Architecture
- #
- CONFIG_SND=m
-@@ -777,6 +772,11 @@
- #
- CONFIG_SND_SUN_AMD7930=m
- CONFIG_SND_SUN_CS4231=m
-+
-+#
-+# Open Sound System
-+#
-+# CONFIG_SOUND_PRIME is not set
- 
- #
- # USB support
 

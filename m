@@ -1,74 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135297AbRDLTyx>; Thu, 12 Apr 2001 15:54:53 -0400
+	id <S135304AbRDLUBo>; Thu, 12 Apr 2001 16:01:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135298AbRDLTyp>; Thu, 12 Apr 2001 15:54:45 -0400
-Received: from d247.as5200.mesatop.com ([208.164.122.247]:908 "HELO
-	gopnik.dom-duraki") by vger.kernel.org with SMTP id <S135297AbRDLTyh>;
-	Thu, 12 Apr 2001 15:54:37 -0400
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-Date: Thu, 12 Apr 2001 13:54:13 -0600
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Subject: Request for Configure.help entries for newly added config options.
+	id <S135305AbRDLUBZ>; Thu, 12 Apr 2001 16:01:25 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:46607 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S135304AbRDLUBN>; Thu, 12 Apr 2001 16:01:13 -0400
+Date: Thu, 12 Apr 2001 15:19:14 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Alexander Viro <viro@math.psu.edu>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: generic_osync_inode() broken?
+In-Reply-To: <Pine.LNX.4.21.0104121451180.3059-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0104121517360.3110-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Message-Id: <01041213541300.00836@gopnik.dom-duraki>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As of kernel 2.4.3-ac5, there are now 574 config options which have
-no help text in Configure.help. I believe these are not derived options,
-but setable options which could use a help entry.
 
-Here is a list of these items which have been introduced very recently.
-Each group is incremental, versus 2.4.3-ac[n-1].
 
-Of course, there are 548 other options which also should have texts.
+On Thu, 12 Apr 2001, Marcelo Tosatti wrote:
 
-If you see one of your options here, please consider generating a patch
-for Configure.help, or send me the information and I'll do the rest.
+> 
+> On Thu, 12 Apr 2001, Linus Torvalds wrote:
+> 
+> > On Thu, 12 Apr 2001, Marcelo Tosatti wrote:
+> > >
+> > > Comments?
+> > >
+> > > --- fs/inode.c~	Thu Mar 22 16:04:13 2001
+> > > +++ fs/inode.c	Thu Apr 12 15:18:22 2001
+> > > @@ -347,6 +347,11 @@
+> > >  #endif
+> > >
+> > >  	spin_lock(&inode_lock);
+> > > +	while (inode->i_state & I_LOCK) {
+> > > +		spin_unlock(&inode_lock);
+> > > +		__wait_on_inode(inode);
+> > > +		spin_lock(&inode_lock);
+> > > +	}
+> > >  	if (!(inode->i_state & I_DIRTY))
+> > >  		goto out;
+> > >  	if (datasync && !(inode->i_state & I_DIRTY_DATASYNC))
+> > 
+> > Ehh.
+> > 
+> > Why not just lock the inode around the thing?
+> > 
+> > The above looks rather ugly.
+> 
+> You mean writing a function called "lock_inode()" or whatever to basically
+> do what I did ? 
 
-Thanks,
-Steven
+Oh well, its still bad.
 
-2.4.3-ac5
+We drop the inode_lock before calling write_inode_now() (which is broken,
+too :)), which means someone can set I_LOCK under us.
 
-        CONFIG_IA64_EFIVARS
-        CONFIG_ITANIUM
-        CONFIG_MCKINLEY
-        CONFIG_MCKINLEY_A0_SPECIFIC
-        CONFIG_MCKINLEY_ASTEP_SPECIFIC
+I'll send you a patch to fix that one (and other callers of
+write_inode_now()) later.
 
-2.4.3-ac4
 
-        CONFIG_ARCH_CLPS711X
-        CONFIG_ARCH_P720T
-        CONFIG_ARM_THUMB
-        CONFIG_CPU_ARM1020
-        CONFIG_CPU_ARM610
-        CONFIG_CPU_ARM710
-        CONFIG_CPU_ARM720T
-        CONFIG_CPU_ARM920T
-        CONFIG_CPU_SA110
-        CONFIG_DASD_DIAG
-        CONFIG_DEBUG_CLPS711X_UART2
-        CONFIG_DEBUGSYM
-        CONFIG_GCOV
-        CONFIG_GPROF
-        CONFIG_HOSTFS
-        CONFIG_NET_UM_ETH
-        CONFIG_NET_UMN
-        CONFIG_SA1100_PANGOLIN
-        CONFIG_SA1100_SHERMAN
-        CONFIG_SSL
-
-2.4.3-ac3
-
-        none
-
-2.4.3-ac2
-
-        CONFIG_GEMINI

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271144AbTG1Weh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 18:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271147AbTG1Weh
+	id S271140AbTG1WeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 18:34:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271147AbTG1WeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 18:34:37 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:16392 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S271144AbTG1Wef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 18:34:35 -0400
-Message-ID: <3F25A76A.5070907@techsource.com>
-Date: Mon, 28 Jul 2003 18:44:58 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Ingo Molnar <mingo@elte.hu>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-References: <Pine.LNX.4.44.0307271112570.7547-100000@localhost.localdomain> <200307271957.01597.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 28 Jul 2003 18:34:16 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:60348 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S271140AbTG1WeO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 18:34:14 -0400
+Date: Mon, 28 Jul 2003 15:30:55 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: rickh@capaccess.org, linux-kernel@vger.kernel.org,
+       linux-assembly@vger.kernel.org
+Subject: Re: The Well-Factored 386
+Message-Id: <20030728153055.006aa3f0.davem@redhat.com>
+In-Reply-To: <20030729002737.111bc3ad.skraw@ithnet.com>
+References: <fc.0010c7b2009ebbbf0010c7b2009ebbbf.9ebbc6@capaccess.org>
+	<20030728070658.343ed2b0.davem@redhat.com>
+	<fc.0010c7b2009ecdef0010c7b2009ebbbf.9ecdfd@capaccess.org>
+	<20030728133300.2ef96cf4.davem@redhat.com>
+	<20030729002737.111bc3ad.skraw@ithnet.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 29 Jul 2003 00:27:37 +0200
+Stephan von Krawczynski <skraw@ithnet.com> wrote:
 
+> I have not read any complaints (1 pro)
 
-Con Kolivas wrote:
->
-> 
-> Thanks Ingo. I will continue then and stepwise make use of the extra 
-> infrastructure you've made available when I can decide how best to benefit 
-> from it.
-> 
-> Con
+People send me complaints about him every time he posts.
+And I don't care if you don't like my attitude, my job as
+list manager is not to be liked by people or to have them
+like my attitude.  My job is to keep the lists clean.
 
-To see you and Ingo cooperating on the scheduler like this makes me feel 
-all warm an fuzzy inside.  Seriously!  :)
+I told people last week that I was going to start cracking down on
+this.  And I was absolutely serious.  I know that linux-kernel is
+often a very unnice place to be subscribed, and I am going to change
+that.
 
-That's one of the the greatest things about Linux and other free 
-software.  I really get a kick out of seeing people working together well.
-
+I publicly asked him NICELY to stop his postings, and he responded
+with his description of why his x86 assembler written in bash is so
+great.  I have zero sympathy for people who act that way.

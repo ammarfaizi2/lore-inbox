@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262558AbREZXWR>; Sat, 26 May 2001 19:22:17 -0400
+	id <S262569AbREZXY0>; Sat, 26 May 2001 19:24:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262532AbREZXVr>; Sat, 26 May 2001 19:21:47 -0400
+	id <S262660AbREZXYQ>; Sat, 26 May 2001 19:24:16 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:20647 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262581AbREZW6z>;
+	by vger.kernel.org with ESMTP id <S262580AbREZW6z>;
 	Sat, 26 May 2001 18:58:55 -0400
-Date: Sat, 26 May 2001 18:04:13 +0200
-From: Andrea Arcangeli <andrea@suse.de>
+Date: Sat, 26 May 2001 08:17:58 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
 To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Ben LaHaise <bcrl@redhat.com>,
+cc: Andrea Arcangeli <andrea@suse.de>, Ben LaHaise <bcrl@redhat.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
 Subject: Re: Linux-2.4.5
-Message-ID: <20010526180413.E9634@athlon.random>
-In-Reply-To: <20010526173051.B9634@athlon.random> <Pine.LNX.4.21.0105261250160.30264-100000@imladris.rielhome.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0105261250160.30264-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Sat, May 26, 2001 at 12:51:38PM -0300
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <Pine.LNX.4.21.0105261139360.30264-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.21.0105260812280.3684-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 26, 2001 at 12:51:38PM -0300, Rik van Riel wrote:
-> On Sat, 26 May 2001, Andrea Arcangeli wrote:
-> 
-> > > > -	/* 
-> > > > -	 * Set our state for sleeping, then check again for buffer heads.
-> > > > -	 * This ensures we won't miss a wake_up from an interrupt.
-> > > > -	 */
-> > > > -	wait_event(buffer_wait, nr_unused_buffer_heads >= MAX_BUF_PER_PAGE);
-> > > > +	current->policy |= SCHED_YIELD;
-> > > > +	__set_current_state(TASK_RUNNING);
-> > > > +	schedule();
-> > > >  	goto try_again;
-> > > >  }
-> 
-> I'm still curious ... is it _really_ needed to busy-spin here?
 
-As said we cannot wait_event, because those reserved bh will be released
-only by the VM if there is memory pressure. If we sleep in wait_event
-while I/O is in progress on the reserved bh and a big chunk of memory is
-released under us, then those reserved bh may never get released and we
-will hang in wait_event until there's memory pressure again, so unless
-we implement another logic we need to somehow poll there and to try to
-allocate again later. We should enter that path very seldom so I'm not
-very concerned about the performance during the polling loop.
+On Sat, 26 May 2001, Rik van Riel wrote:
+> 
+> I am smoking the "tested the patch and wasn't able to reproduce
+> a deadlock" stuff.
 
-Andrea
+I'd be happier if _anybody_ was smoking the "thought about the problem
+some more" stuff as well.
+
+I can easily imagine that this part of your patch
+
+                if (gfp_mask & __GFP_WAIT) {
+                        memory_pressure++;
+-                       try_to_free_pages(gfp_mask);
+-                       goto try_again;
++                       if (!order || free_shortage()) {
++                               int progress = try_to_free_pages(gfp_mask);
++                               if (progress || gfp_mask & __GFP_IO)
++                                       goto try_again;
++                       }
+                }
+
+is fine. The fact that other parts of your patch were NOT fine should make
+you go "Hmm, maybe Linus dismissed it for a reason" instead.
+
+Testing is good. But I want to understand how we get into the situation in
+the first place, and whether there are ways to alleviate those problems
+too.
+
+Testing and finding that the bug went away under your workload is
+good. But thinking that that should stop discussion about the _proper_ fix
+is stupid, Rik.
+
+		Linus
+

@@ -1,48 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbTKYKzV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 05:55:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbTKYKzV
+	id S262344AbTKYLD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 06:03:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbTKYLD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 05:55:21 -0500
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:30359 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262323AbTKYKzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 05:55:17 -0500
-Date: Tue, 25 Nov 2003 11:55:15 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
+	Tue, 25 Nov 2003 06:03:29 -0500
+Received: from vcgwp1.bit-drive.ne.jp ([211.9.32.211]:12715 "HELO
+	vcgwp1.bit-drive.ne.jp") by vger.kernel.org with SMTP
+	id S262344AbTKYLD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 06:03:26 -0500
+From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Copy protection of the floppies
-Message-ID: <20031125105515.GA8887@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <5F0021EEA434D511BE7300D0B7B6AB530CA67677@mail2.ggn.hcltech.com> <20031125.182844.46174767.yoshfuji@linux-ipv6.org> <yw1xu14sdbwo.fsf@kth.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Subject: [BUG 2.4] NFS unlocking operation accesses invalid file struct 
+Date: Tue, 25 Nov 2003 20:00:32 +0900
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xu14sdbwo.fsf@kth.se>
-User-Agent: Mutt/1.5.5.1i
+Message-Id: <200311252000.32094.mita@miraclelinux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Nov 2003, Måns Rullgård wrote:
+Hi,
 
-> YOSHIFUJI Hideaki / .$B5HF#1QL@.(B <yoshfuji@linux-ipv6.org> writes:
-> 
-> > Basically, it depends on what kind of equipment you and the enemy
-> > have.  If you have special equipment and technique to write a
-> > floppy, you can make a floppy which is not copiable by normal PCs.
-> > But, if the enemy has similar equipment, he can do it.
-> >
-> > About 15 years ago, there were many gaming softwares which were procected,
-> > for example, by checking "gap" between sectors.
-> 
-> Can't that be done with a regular floppy drive and some special
-> software?
+I'm investigating the reliabiblity of the NFS locking.
+I noticed that possible NFS locking related crash in the following situation:
 
-It depends. Checking gap length (exactly) and location of one track
-relative to the next would require drives with synchronized spindles to
-copy the data iff the gap information is used as encryption key. Whether
-Linux is up to the task, is something different. Last time I tried such
-a thing was in the good old Commodore 1541 days which also supported
-half-steps between tracks and stepping after 1/3rd track or some things.
+process A
+process B
+  -- A and B are sharing task's fd array.
+     (clone()d with CLONE_FILES)
+
+file F
+  -- The file on NFS
+
+file descriptor p (equivalent to file struct P)
+file descriptor q (equivalent to file struct Q)
+
+  -- p and q are individual file descriptors for the file F
+     (not dup()-ed)
+
+file lock L
+
+  -- The file lock L has been locked via fcntl() for the file descriptor q by
+     the process B (connects with file struct Q)
+
+
+1. The process A closes the file descriptor p.
+
+In filp_close(), the process A closes file struct P, it unlocks all the
+file locks related to the i-node of the file F, which are held by the
+processes sharing the same fd array process A refers to. (locks_remove_posix)
+
+2. The process A unlocks the file lock L.
+
+First of all, the process A removes the file lock L from the list of the
+file locks related to the i-node of the file F. Then, it calls the `nfs_lock'
+to do the unlocking operation for its file-system dependent operation.
+
+3. While executing the `nfs_lock' with RPC procedure, the process A
+  sleep on there for a while.
+
+On the other side.
+4. The process B closes the file descriptor q.
+
+Because process A has already remove the entry of the file lock from the list,
+process B cannot find the entry so it just exit without doing anything about
+the list.
+System treats the closing operation carried out by the process B is done,
+while the process A is sleeping.
+The process B invalidates the file struct Q because it is no longer needed.
+
+But, the process A has not finished the operation of the unlocking 
+for file lock L yet.
+
+5. When the process A wakes up, it attempts to execute remaining unlocking
+   works, and accesses the file struct Q.
+
+Because the file struct Q is no longer valid, it is likely to cause NULL
+pointer dereference.
+Also, the file struct Q might be used by other files. in this case, the data
+contradiction would happen.
+
+Does anyone have a idea of how to fix it ?
+
+Regards,
+-- 
+Akinobu Mita
+

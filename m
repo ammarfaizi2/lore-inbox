@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130038AbRDGTEW>; Sat, 7 Apr 2001 15:04:22 -0400
+	id <S130446AbRDGTFw>; Sat, 7 Apr 2001 15:05:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130466AbRDGTEM>; Sat, 7 Apr 2001 15:04:12 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:22830 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S130317AbRDGTEF>; Sat, 7 Apr 2001 15:04:05 -0400
-Date: Sat, 7 Apr 2001 20:03:40 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Gunther Mayer <Gunther.Mayer@t-online.de>
-Cc: linux-kernel@vger.kernel.org, mj@suse.cz, reinelt@eunet.at,
-        jgarzik@mandrakesoft.com
-Subject: Re: PATCH for Broken PCI Multi-IO in 2.4.3 (serial+parport)
-Message-ID: <20010407200340.C3280@redhat.com>
-In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <3ACED679.7E334234@mandrakesoft.com> <20010407111419.B530@redhat.com> <3ACF5F9B.AA42F1BD@t-online.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="Clx92ZfkiYIKRjnr"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3ACF5F9B.AA42F1BD@t-online.de>; from Gunther.Mayer@t-online.de on Sat, Apr 07, 2001 at 08:42:35PM +0200
+	id <S130466AbRDGTFn>; Sat, 7 Apr 2001 15:05:43 -0400
+Received: from femail17.sdc1.sfba.home.com ([24.0.95.144]:14301 "EHLO
+	femail17.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S130317AbRDGTFN>; Sat, 7 Apr 2001 15:05:13 -0400
+Message-ID: <3ACF5924.4E321EF2@didntduck.org>
+Date: Sat, 07 Apr 2001 14:15:00 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 kernel hangs on 486 machine at boot
+In-Reply-To: <E14krU0-0002P8-00@the-village.bc.nu> <3ACB6524.C5986233@didntduck.org> <20010405102454.A31@(none)>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek wrote:
+> 
+> Hi!
+> 
+> > > > Problem: Linux kernel 2.4 consistently hangs at boot on 486 machine
+> > > >
+> > > > Shortly after lilo starts the kernel it hangs at the following message:
+> > > > Checking if this processor honours the WP bit even in supervisor mode...
+> > > > <blinking cursor>
+> > >
+> > > Does this happen on 2.4.3-ac kernel trees ? I thought i had it zapped
+> >
+> > Yes, that fix in -ac should take care of it.  As to why only the 486
+> > showed the problem, most 386's will not fault on the write protected
+> > page (the whole reason for this test) and pentiums and later don't run
+> > the test at all (assumed good).
+> 
+> We should not "assume good" -- to catch bugs like this one.
 
---Clx92ZfkiYIKRjnr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Well, in this case we cannot do the test if we enabled PSE (we would
+mark the whole 4MB page read-only).  The test would have to use a
+different page.
 
-On Sat, Apr 07, 2001 at 08:42:35PM +0200, Gunther Mayer wrote:
-
-> Please apply this little patch instead of wasting time by
-> finger-pointing and arguing.
-
-This patch would make me happy.
-
-It would allow support for new multi-IO cards to generally be the
-addition of about two lines to two files (which is currently how it's
-done), rather than having separate mutant hybrid monstrosity drivers
-for each card (IMHO)..
-
-Tim.
-*/
-
---Clx92ZfkiYIKRjnr
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6z2SLONXnILZ4yVIRAsfdAJ46NzuMmsfUtbD10Pxy4Gc+hvWtNgCfVJv0
-8s656jmDEbDyZUdhCtKL1mQ=
-=m+W5
------END PGP SIGNATURE-----
-
---Clx92ZfkiYIKRjnr--
+--
+						Brian Gerst

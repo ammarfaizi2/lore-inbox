@@ -1,68 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266139AbUHATyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266155AbUHAUBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266139AbUHATyw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 15:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266153AbUHATyw
+	id S266155AbUHAUBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 16:01:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266158AbUHAUBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 15:54:52 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:44196 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266139AbUHATyu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 15:54:50 -0400
-Date: Sun, 1 Aug 2004 21:30:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Sun, 1 Aug 2004 16:01:16 -0400
+Received: from mail.broadpark.no ([217.13.4.2]:64241 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S266155AbUHAUBK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 16:01:10 -0400
 To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, mingo@redhat.com,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: [patch] voluntary-preempt-2.6.8-rc2-O2
-Message-ID: <20040801193043.GA20277@elte.hu>
-References: <20040713143947.GG21066@holomorphy.com> <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040729222657.GA10449@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Subject: Oops in register_chrdev, what did I do?
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Date: Sun, 01 Aug 2004 22:01:10 +0200
+Message-ID: <yw1xwu0i1vcp.fsf@kth.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+While experimenting a bit with a small kernel module, I got this
+oops.  Digging further, I found that /proc/devices had an entry saying
 
-here's the latest version of the voluntary-preempt patch:
-  
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-O2
+248 <NULL>
 
-this patch is mainly a stabilization effort. I dropped the irq-threads
-code added in -M5 and rewrote it from scratch based on -L2 - it is
-simpler and should be more robust.
+which would indicate that I passed a NULL name to register_chrdev(),
+only I didn't.  I used a string constant, so I can't see what changed
+it to NULL along the way.
 
-The same /proc/irq/* configuration switches are still present, but i
-added the following additional rule: if _any_ handler of a given IRQ is
-marked as non-threaded then all handlers will be executed non-threaded
-as well.
+What am I missing here?
 
-E.g. if you have the following handlers on IRQ 10:
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+c014cad4
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c014cad4>]    Tainted: P  
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00210282   (2.6.6) 
+eax: e0f93414   ebx: e0f93410   ecx: 00000000   edx: 00000000
+esi: 00000000   edi: e0f93414   ebp: de43357c   esp: d7487f64
+ds: 007b   es: 007b   ss: 0068
+Stack: 00000000 e0f93414 fffffff4 000000f8 c0332c74 d7486000 e8969b80 d7487fa0 
+       e896b023 000000f8 e89691c9 e8969b20 fffffffc c0332c74 d7486000 c0332c5c 
+       c012ac2a 00000001 00000000 40152000 00000003 00000000 d7486000 c0103d29 
+Call Trace:
+ [<e896b023>] init_foo+0x23/0x40 [foo]
+ [<c012ac2a>] sys_init_module+0x105/0x211
+ [<c0103d29>] sysenter_past_esp+0x52/0x71
+Code: ac aa 84 c0 75 fa ba 2f 00 00 00 8b 74 24 04 89 d0 88 c4 ac 
 
- 10:      11584   IO-APIC-level  eth0, eth1, eth2
 
-and you change /proc/irq/16/eth1/threaded from 1 to 0 then the eth0 and
-eth2 handlers will be executed non-threaded as well. (This rule only
-enforces what the hardware enforces anyway, none of the previous patches
-allowed true separation of these handlers.)
+>>EIP; c014cad4 <register_chrdev+57/f8>   <=====
 
-i also changed the IO-APIC level-triggered code to be robust when
-redirection is done. The noapic workaround should not be necessary
-anymore.
+>>eax; e0f93414 <pg0+20ba9414/3fc14000>
+>>ebx; e0f93410 <pg0+20ba9410/3fc14000>
+>>edi; e0f93414 <pg0+20ba9414/3fc14000>
+>>ebp; de43357c <pg0+1e04957c/3fc14000>
+>>esp; d7487f64 <pg0+1709df64/3fc14000>
 
-the keyboard lockups are now hopefully all gone too - i've tested
-IO-APIC and non-IO-APIC setups as well and NumLock/ScrollLock works fine
-in all sorts of workloads.
+Trace; e896b023 <pg0+28581023/3fc14000>
+Trace; c012ac2a <sys_init_module+105/211>
+Trace; c0103d29 <sysenter_past_esp+52/71>
 
-Let me know if you still have any problems.
+Code;  c014cad4 <register_chrdev+57/f8>
+00000000 <_EIP>:
+Code;  c014cad4 <register_chrdev+57/f8>   <=====
+   0:   ac                        lods   %ds:(%esi),%al   <=====
+Code;  c014cad5 <register_chrdev+58/f8>
+   1:   aa                        stos   %al,%es:(%edi)
+Code;  c014cad6 <register_chrdev+59/f8>
+   2:   84 c0                     test   %al,%al
+Code;  c014cad8 <register_chrdev+5b/f8>
+   4:   75 fa                     jne    0 <_EIP>
+Code;  c014cada <register_chrdev+5d/f8>
+   6:   ba 2f 00 00 00            mov    $0x2f,%edx
+Code;  c014cadf <register_chrdev+62/f8>
+   b:   8b 74 24 04               mov    0x4(%esp,1),%esi
+Code;  c014cae3 <register_chrdev+66/f8>
+   f:   89 d0                     mov    %edx,%eax
+Code;  c014cae5 <register_chrdev+68/f8>
+  11:   88 c4                     mov    %al,%ah
+Code;  c014cae7 <register_chrdev+6a/f8>
+  13:   ac                        lods   %ds:(%esi),%al
 
-	Ingo
+
+-- 
+Måns Rullgård
+mru@kth.se

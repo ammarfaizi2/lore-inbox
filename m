@@ -1,55 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266796AbUFYQnN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266797AbUFYQqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266796AbUFYQnN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 12:43:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266795AbUFYQnM
+	id S266797AbUFYQqE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 12:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266795AbUFYQqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 12:43:12 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:1257 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S266796AbUFYQlo convert rfc822-to-8bit
+	Fri, 25 Jun 2004 12:46:03 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:65198 "EHLO
+	clueserver.org") by vger.kernel.org with ESMTP id S266797AbUFYQo5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 12:41:44 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH] Staircase scheduler v7.4
-Date: Fri, 25 Jun 2004 18:40:21 +0200
-User-Agent: KMail/1.6.2
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200406251840.46577.mbuesch@freenet.de>
+	Fri, 25 Jun 2004 12:44:57 -0400
+Subject: Re: Elastic Quota File System (EQFS)
+From: Alan <alan@clueserver.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Amit Gud <gud@eth.net>,
+       "Fao, Sean" <Sean.Fao@dynextechnologies.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040625162537.GA6201@elf.ucw.cz>
+References: <004e01c45abd$35f8c0b0$b18309ca@home>
+	 <200406251444.i5PEiYpq008174@eeyore.valparaiso.cl>
+	 <20040625162537.GA6201@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1088181893.6558.12.camel@zontar.fnordora.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 25 Jun 2004 09:44:54 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 2004-06-25 at 09:25, Pavel Machek wrote:
+> Hi!
+> 
+> > Case closed, anyway. It belongs in the kernel only if there is no
+> > reasonable way to do it in userspace.
+> 
+> But... there's no reasonable way to do this in userspace.
+> 
+> Two pieces of kernel support are needed:
+> 
+> 1) some way to indicate "this file is elastic" (okay perhaps xattrs
+> can do this already)
+> 
+> and either
+> 
+> 2a) file selection/deletion in kernel
+> 
+> or
+> 
+> 2b) assume that disk does not fill up faster than 1GB/sec, allways
+> keep 1GB free, make "deleting" daemon poll each second [ugly,
+> unreliable]
+> 
+> or
+> 
+> 2c) just before returning -ENOSPC, synchronously tell userspace to
+> free space, and retry the operation.
+> 
+> BTW 2c) would be also usefull for undelete. Unfortunately 2c looks
+> very complex, too; it might be easier to do 2a than 2c.
 
-Hi,
+Why does the kernel have to get involved with file deletion?
 
-I just applied the patch against 2.6.7-bk7 and saw
-the following strange thing:
+All it needs is to run at sufficient privs.
 
-I was compiling some program, as suddenly compilation
-stopped. g++ was running (sorry, I didn't look at the
-process state. Maybe it was in T or something like that),
-but it didn't get any timeslice. (so didn't execute. Simply
-stayed around and didn't finish).
-I noticed this since I switched from staircase 7.1 to 7.4
-a few minutes ago. No such problems before.
-I'm not really sure, if it's a staircase problem. Just
-wanted to let you know.
+If you are overflowing drives that easily, it is time to buy a bigger
+drive.  It is not the time to start deleting stuff at random.  Data is
+usually put on a drive for a reason.  Having a human decide what to
+delete is *much* better than letting some automated process do it in
+background.
 
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+This sounds like a hack to get around a badly designed system with too
+few resources.
+
+Windows has an option to delete files "that are not needed".  It tends
+to delete things that you wanted, but had not thought about in a while.
+
+This really strikes me as a bad idea.  It has lots of "special" things
+that programs will have to deal with for this particular case. 
+This makes things much more complex in userspace for a problem that
+needs to be dealt with in meatspace.
+
+-- 
+"Ye have locked yerselves up in cages of fear--and, behold, do ye now
+complain that ye lack FREEDOM!"
+  - Lord Omar in THE EPISTLE TO THE PARANOIDS Chaper 1 Verse 1
 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA3FWNFGK1OIvVOP4RAhw1AJ9P50RtKh86EvHWRxJ8l2EdF7lWZACgnFV3
-JATebGeaWIOOkBZs4ly6d3g=
-=8SfQ
------END PGP SIGNATURE-----

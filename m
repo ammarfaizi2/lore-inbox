@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318999AbSHGS3J>; Wed, 7 Aug 2002 14:29:09 -0400
+	id <S318767AbSHGSXp>; Wed, 7 Aug 2002 14:23:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319097AbSHGS3J>; Wed, 7 Aug 2002 14:29:09 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38661 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318999AbSHGS3I>; Wed, 7 Aug 2002 14:29:08 -0400
-Date: Wed, 7 Aug 2002 11:33:23 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org, Alexandre Julliard <julliard@winehq.com>,
-       Luca Barbieri <ldb@ldb.ods.org>
-Subject: Re: [patch] tls-2.5.30-A1
-In-Reply-To: <Pine.LNX.4.44.0208072001490.22133-200000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0208071115290.4961-100000@home.transmeta.com>
+	id <S318771AbSHGSXo>; Wed, 7 Aug 2002 14:23:44 -0400
+Received: from pg-fw.paradigmgeo.com ([192.117.235.33]:48496 "EHLO
+	ntserver2.geodepth.com") by vger.kernel.org with ESMTP
+	id <S318767AbSHGSXn>; Wed, 7 Aug 2002 14:23:43 -0400
+Message-ID: <EE83E551E08D1D43AD52D50B9F511092E114E3@ntserver2>
+From: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
+To: "'trond.myklebust@fys.uio.no'" <trond.myklebust@fys.uio.no>
+Cc: "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: RE: O_SYNC option doesn't work (2.4.18-3)
+Date: Wed, 7 Aug 2002 21:24:37 +0200 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 7 Aug 2002, Ingo Molnar wrote:
-> 
-> the attached patch (against BK-curr + Luca Barbieri's two TLS patches)  
-> does two things:
-> 
->  - it implements a second TLS entry for Wine's purposes.
+>Furthermore, even with 'noac' they *all* have problems with races in
+>the sort of scenario you describe because there is no atomic
+>GETATTR+READ operation.
+>
+>Bottom line: If you want the sort of data cache consistency you are
+>describing, you *have* to use file locking.
+File locking, meaning lockd? There are so many problems with file locking in
+heterogeneous environments that we were moving towards dropping its usage.
+Instead, we planned to use some home grown TCP based lock server mechanism. 
 
-Guys, I really don't like how the segment map ends up getting uglier and
-uglier.
+I understand that locking file flushes NFS cache, isn't it? Why can't it be
+flushed by O_SYNC and "sync" options presence? This would make the life much
+easier for programmers...
 
-I would suggest:
- - move all kernel-related (and thus non-visible to user space) segments 
-   up, and make the cacheline optimizations _there_. 
- - keep the TLS entries contiguous, and make sure that segment 0040 (ie
-   GDT entry #8) is available to a TLS entry, since if I remember
-   correctly, that one is also magical for old Windows binaries for all
-   the wrong reasons (ie it was some system data area in DOS and in 
-   Windows 3.1)
- - and for cleanliness bonus points: make the regular user data segments 
-   just another TLS segment that just happens to have default values. If 
-   the user wants to screw with its own segments, let it.
+This means that we will never be able to drop lockd locking and at the same
+time achieve file consistency via NFS?
 
-Then, for double extra bonus points somebody should look into whether
-those damn PnP BIOS segments could be simply made to be TLS segments
-during module init. I don't know if that PnP stuff is required later or
-not.
-
-		Linus
-
+Best,
+Giga

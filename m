@@ -1,97 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268407AbTBNMxD>; Fri, 14 Feb 2003 07:53:03 -0500
+	id <S268391AbTBNMoW>; Fri, 14 Feb 2003 07:44:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268414AbTBNMxD>; Fri, 14 Feb 2003 07:53:03 -0500
-Received: from cs-ats40.donpac.ru ([217.107.128.161]:22030 "EHLO pazke")
-	by vger.kernel.org with ESMTP id <S268407AbTBNMwf>;
-	Fri, 14 Feb 2003 07:52:35 -0500
-Date: Fri, 14 Feb 2003 15:57:47 +0300
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] visws: allow SMP kernel build without io_apic.c (1/13)
-Message-ID: <20030214125747.GA8230@pazke>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="OwLcNYc0lM97+oe1"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Uname: Linux 2.4.20aa1 i686 unknown
-From: Andrey Panin <pazke@orbita1.ru>
+	id <S268386AbTBNMoK>; Fri, 14 Feb 2003 07:44:10 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:12377
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S268391AbTBNMno>; Fri, 14 Feb 2003 07:43:44 -0500
+Date: Fri, 14 Feb 2003 07:52:15 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH][2.5][14/14] smp_call_function_on_cpu - x86_64
+In-Reply-To: <Pine.LNX.4.50.0302140412190.3518-100000@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.50.0302140751530.3518-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0302140412190.3518-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+One liner to fix num_cpus == 0 on SMP kernel w/ UP box
 
---OwLcNYc0lM97+oe1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi.
-
-I'm here again, starting another hopeless attempt to submmit
-visws subarch support for 2.5. This series of patches was tested
-by me and brave people from linux-visws-devel mailing list and
-our beloved workstations seem to work well under 2.5.xx.
-
-This patch moves enable_NMI_through_LVT0() function from io_apic.c
-to apic.c to allow SMP kernel build without io_apic.c included.
-
-Please consider applying.
-
-Best regards.
-
--- 
-Andrey Panin		| Embedded systems software developer
-pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
-
---OwLcNYc0lM97+oe1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-apic
-
-diff -urN -X /usr/share/dontdiff linux-2.5.60.vanilla/arch/i386/kernel/apic.c linux-2.5.60/arch/i386/kernel/apic.c
---- linux-2.5.60.vanilla/arch/i386/kernel/apic.c	Thu Feb 13 20:29:07 2003
-+++ linux-2.5.60/arch/i386/kernel/apic.c	Thu Feb 13 20:42:02 2003
-@@ -54,6 +54,18 @@
- int prof_old_multiplier[NR_CPUS] = { 1, };
- int prof_counter[NR_CPUS] = { 1, };
+Index: linux-2.5.60/arch/x86_64/kernel/smp.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.60/arch/x86_64/kernel/smp.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 smp.c
+--- linux-2.5.60/arch/x86_64/kernel/smp.c	10 Feb 2003 22:15:09 -0000	1.1.1.1
++++ linux-2.5.60/arch/x86_64/kernel/smp.c	14 Feb 2003 12:17:24 -0000
+@@ -385,26 +385,35 @@
+  * in the system.
+  */
  
-+void enable_NMI_through_LVT0 (void * dummy)
-+{
-+	unsigned int v, ver;
+-int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
+-			int wait)
+ /*
+- * [SUMMARY] Run a function on all other CPUs.
+- * <func> The function to run. This must be fast and non-blocking.
+- * <info> An arbitrary pointer to pass to the function.
+- * <nonatomic> currently unused.
+- * <wait> If true, wait (atomically) until function has completed on other CPUs.
+- * [RETURNS] 0 on success, else a negative status code. Does not return until
+- * remote CPUs are nearly ready to execute <<func>> or are or have executed.
++ * smp_call_function_on_cpu - Runs func on all processors in the mask
++ *
++ * @func: The function to run. This must be fast and non-blocking.
++ * @info: An arbitrary pointer to pass to the function.
++ * @wait: If true, wait (atomically) until function has completed on other CPUs.
++ * @mask: The bitmask of CPUs to call the function
++ * 
++ * Returns 0 on success, else a negative status code. Does not return until
++ * remote CPUs are nearly ready to execute func or have executed it.
+  *
+  * You must not call this function with disabled interrupts or from a
+  * hardware interrupt handler or from a bottom half handler.
+  */
 +
-+	ver = apic_read(APIC_LVR);
-+	ver = GET_APIC_VERSION(ver);
-+	v = APIC_DM_NMI;			/* unmask and set to NMI */
-+	if (!APIC_INTEGRATED(ver))		/* 82489DX */
-+		v |= APIC_LVT_LEVEL_TRIGGER;
-+	apic_write_around(APIC_LVT0, v);
++int smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
++				unsigned long mask)
+ {
+ 	struct call_data_struct data;
+-	int cpus = num_online_cpus()-1;
++	int i, cpu, num_cpus;
++
+ 
+-	if (!cpus)
++	cpu = get_cpu();
++	mask &= ~(1UL << cpu);
++	num_cpus = hweight64(mask);
++	if (num_cpus == 0) {
++		put_cpu_no_resched();
+ 		return 0;
++	}
+ 
+ 	data.func = func;
+ 	data.info = info;
+@@ -416,19 +425,26 @@
+ 	spin_lock(&call_lock);
+ 	call_data = &data;
+ 	wmb();
++
+ 	/* Send a message to all other CPUs and wait for them to respond */
+-	send_IPI_allbutself(CALL_FUNCTION_VECTOR);
++	send_IPI_mask(mask, CALL_FUNCTION_VECTOR);
+ 
+ 	/* Wait for response */
+-	while (atomic_read(&data.started) != cpus)
++	while (atomic_read(&data.started) != num_cpus)
+ 		barrier();
+ 
+ 	if (wait)
+-		while (atomic_read(&data.finished) != cpus)
++		while (atomic_read(&data.finished) != num_cpus)
+ 			barrier();
+ 	spin_unlock(&call_lock);
+-
++	put_cpu_no_resched();
+ 	return 0;
 +}
 +
- int get_maxlvt(void)
- {
- 	unsigned int v, ver, maxlvt;
-diff -urN -X /usr/share/dontdiff linux-2.5.60.vanilla/arch/i386/kernel/io_apic.c linux-2.5.60/arch/i386/kernel/io_apic.c
---- linux-2.5.60.vanilla/arch/i386/kernel/io_apic.c	Thu Feb 13 20:29:06 2003
-+++ linux-2.5.60/arch/i386/kernel/io_apic.c	Thu Feb 13 20:42:02 2003
-@@ -1807,18 +1807,6 @@
- 	end_lapic_irq
- };
++int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
++			int wait)
++{
++	return smp_call_function_on_cpu(func, info, wait, cpu_online_map);
+ }
  
--void enable_NMI_through_LVT0 (void * dummy)
--{
--	unsigned int v, ver;
--
--	ver = apic_read(APIC_LVR);
--	ver = GET_APIC_VERSION(ver);
--	v = APIC_DM_NMI;			/* unmask and set to NMI */
--	if (!APIC_INTEGRATED(ver))		/* 82489DX */
--		v |= APIC_LVT_LEVEL_TRIGGER;
--	apic_write_around(APIC_LVT0, v);
--}
--
- static void setup_nmi (void)
- {
- 	/*
-
---OwLcNYc0lM97+oe1--
+ static void stop_this_cpu (void * dummy)

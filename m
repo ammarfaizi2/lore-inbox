@@ -1,56 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265982AbUBCKIT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 05:08:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265986AbUBCKIS
+	id S265965AbUBCKDi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 05:03:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265966AbUBCKDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 05:08:18 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:49547 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S265982AbUBCKIR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 05:08:17 -0500
-Date: Tue, 3 Feb 2004 10:35:02 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Srivatsa Vaddagiri <vatsa@in.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>,
-       dipankar@in.ibm.com
-Subject: Re: New v. v. experimental HOTPLUG CPU megapatch.
-Message-ID: <20040203093502.GA4399@elte.hu>
-References: <20040202154040.GA5895@elte.hu> <20040203074322.27A892C13E@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040203074322.27A892C13E@lists.samba.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: SpamAssassin 2.60
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 3 Feb 2004 05:03:38 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:53253 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S265965AbUBCKDc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 05:03:32 -0500
+Message-ID: <401F74E8.8080301@aitel.hist.no>
+Date: Tue, 03 Feb 2004 11:16:08 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.2-rc3-mm1
+References: <20040202235817.5c3feaf3.akpm@osdl.org>
+In-Reply-To: <20040202235817.5c3feaf3.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-rc3/2.6.2-rc3-mm1/
+> 
+> 
+> - There is a debug patch in here which detects when someone calls
+>   i_size_write() without holding the inode's i_sem.  It generates a warning
+>   and a stack backtrace.  We know that XFS generates such a trace.  It will
+>   turn itself off after the first ten warnings.  Please don't report the XFS
+>   case.
+> 
+Ok, here's an ext2 case, from dmesg:
 
-* Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-> Patch against 2.6.2-rc2-mm2.  Works basically, gives "APIC error on
-> CPU1: 08(08)" under stress.  Clues welcome.
 
-APIC error 08 is receive error. Ie. most likely there was a pending IPI
-(or pending hwirq) to that CPU but the CPU was zapped and the APIC
-reset. I'd suggest to add "sti;nop;cli" instructions after the IO-APIC
-masks have been redirected [note the nop - the interrupt-enable boundary
-on x86 is two instructions from sti] - to flush out pending hardirqs and
-IPIs. After this point nothing is supposed to reach this CPU. Enabling
-irqs at this point should not cause any races, because you do this
-first, right?
+md: running: <hdb1><hda1>
+raid1: raid set md0 active with 2 out of 2 mirrors
+md: ... autorun DONE.
+VFS: Mounted root (ext2 filesystem) readonly.
+Freeing unused kernel memory: 168k freed
+Adding 1999864k swap on /dev/hdb2.  Priority:-1 extents:1
+Disabled Privacy Extensions on device c042ca80(lo)
+i_size_write() called without i_sem
+Call Trace:
+ [<c012e66c>] i_size_write_check+0x3a/0x4d
+ [<c0145444>] generic_commit_write+0x4e/0x70
+ [<c0169886>] ext2_commit_chunk+0x28/0x61
+ [<c016aa1d>] ext2_make_empty+0x158/0x1e0
+ [<c016d3d5>] ext2_mkdir+0xa1/0xff
+ [<c016d334>] ext2_mkdir+0x0/0xff
+ [<c014d592>] vfs_mkdir+0x60/0x83
+ [<c014d639>] sys_mkdir+0x84/0xbf
+ [<c036133f>] syscall_call+0x7/0xb
 
-the pending cross-CPU-IPI case should not happen if the infrastructure
-is correct, external hardirqs are not an issue unless it's an
-edge-triggered device. So the worst-case with your current code could be
-a lost timer IRQ or a lost edge-triggered PCI irq (old ne2k cards).
+i_size_write() called without i_sem
+Call Trace:
+ [<c012e66c>] i_size_write_check+0x3a/0x4d
+ [<c0145444>] generic_commit_write+0x4e/0x70
+ [<c0169886>] ext2_commit_chunk+0x28/0x61
+ [<c016aa1d>] ext2_make_empty+0x158/0x1e0
+ [<c016d3d5>] ext2_mkdir+0xa1/0xff
+ [<c016d334>] ext2_mkdir+0x0/0xff
+ [<c014d592>] vfs_mkdir+0x60/0x83
+ [<c014d639>] sys_mkdir+0x84/0xbf
+ [<c036133f>] syscall_call+0x7/0xb
 
-	Ingo
+i_size_write() called without i_sem
+Call Trace:
+ [<c012e66c>] i_size_write_check+0x3a/0x4d
+ [<c0145444>] generic_commit_write+0x4e/0x70
+ [<c0169886>] ext2_commit_chunk+0x28/0x61
+ [<c016aa1d>] ext2_make_empty+0x158/0x1e0
+ [<c016d3d5>] ext2_mkdir+0xa1/0xff
+ [<c016d334>] ext2_mkdir+0x0/0xff
+ [<c014d592>] vfs_mkdir+0x60/0x83
+ [<c014d639>] sys_mkdir+0x84/0xbf
+ [<c036133f>] syscall_call+0x7/0xb
+
+eth0: no IPv6 routers present
+atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
+atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
+
+2.6.2-rc3-mm1 compiled with mregparm3
+

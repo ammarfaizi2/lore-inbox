@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266161AbTCEMv7>; Wed, 5 Mar 2003 07:51:59 -0500
+	id <S266368AbTCEMwz>; Wed, 5 Mar 2003 07:52:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266224AbTCEMv7>; Wed, 5 Mar 2003 07:51:59 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:30663 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S266161AbTCEMv5>;
-	Wed, 5 Mar 2003 07:51:57 -0500
-Date: Wed, 5 Mar 2003 14:02:22 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: 2.5.64 build doesn't abort on link failure
-Message-ID: <Pine.GSO.4.21.0303051353350.23176-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266434AbTCEMwz>; Wed, 5 Mar 2003 07:52:55 -0500
+Received: from sysdoor.net ([62.212.103.239]:17420 "EHLO celia")
+	by vger.kernel.org with ESMTP id <S266368AbTCEMww>;
+	Wed, 5 Mar 2003 07:52:52 -0500
+Date: Wed, 5 Mar 2003 14:02:57 +0100
+From: Michael Vergoz <mvergoz@sysdoor.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: alan@lxorguk.ukuu.org.uk, timothy.a.reed@lmco.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: High Mem Options
+Message-Id: <20030305140257.2ab08ab8.mvergoz@sysdoor.com>
+In-Reply-To: <20030305125747.GS1195@holomorphy.com>
+References: <9EFD49E2FB59D411AABA0008C7E675C00DCDFE01@emss04m10.ems.lmco.com>
+	<20030305131116.0556f3a5.mvergoz@sysdoor.com>
+	<1046871362.14169.0.camel@irongate.swansea.linux.org.uk>
+	<20030305134937.5414b913.mvergoz@sysdoor.com>
+	<20030305125747.GS1195@holomorphy.com>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi William,
 
-In 2.5.64, the kernel build process doesn't abort if the linking stage fails:
+Right, but if the pagetable pointing to a different 4GB subsets of memory.
+The performance of the system can be disastrous, not?
 
-|   	m68k-linux-ld -m m68kelf -T arch/m68k/vmlinux.lds.s arch/m68k/kernel/head.o   init/built-in.o --start-group  usr/built-in.o  arch/m68k/kernel/built-in.o  arch/m68k/mm/built-in.o  arch/m68k/q40/built-in.o  arch/m68k/amiga/built-in.o  arch/m68k/atari/built-in.o  arch/m68k/mac/built-in.o  arch/m68k/hp300/built-in.o  arch/m68k/apollo/built-in.o  arch/m68k/mvme147/built-in.o  arch/m68k/mvme16x/built-in.o  arch/m68k/bvme6000/built-in.o  arch/m68k/sun3x/built-in.o  arch/m68k/sun3/built-in.o  arch/m68k/fpsp040/built-in.o  arch/m68k/ifpsp060/built-in.o  arch/m68k/math-emu/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/m68k/lib/lib.a  drivers/built-in.o  sound/built-in.o  net/built-in.o --end-group  -o vmlinux
-| drivers/built-in.o: In function `atari_scsi_queue_command':
-| drivers/built-in.o(.text+0x5974c): undefined reference to `update_timeout'
+Best regards,
+Michael
 
-In 2.5.63, the build process was aborted here, but in 2.5.64 it continues with:
+On Wed, 5 Mar 2003 04:57:47 -0800
+William Lee Irwin III <wli@holomorphy.com> wrote:
 
-| m68k-linux-nm vmlinux | grep -v '\(compiled\)\|\(\.o$\)\|\( [aUw] \)\|\(\.\.ng$\)\|\(LASH[RL]DI\)' | sort > System.map
-| m68k-linux-nm: vmlinux: No such file or directory
-| cp vmlinux vmlinux.tmp
-| cp: cannot stat `vmlinux': No such file or directory
-| make: *** [vmlinux.gz] Error 1
-| tux$ 
-
-which obviously fails.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+> On Wed, Mar 05, 2003 at 01:49:37PM +0100, Michael Vergoz wrote:
+> > That i can't understand i when the system going to the protect mode. 
+> > How the system can use over 4GB memory ?
+> > On freebsd, when you have over 4GB the system say "XGB of XGB skiped..."
+> > (i'v got a machine with 8GB running on freebsd and without memory spare)
+> 
+> The cpu can't look at more than 4GB at a time.
+> 
+> Protected mode doesn't help this, turning paging on and PAE on does.
+> 
+> What it can do is point pagetables at different 4GB subsets of memory.
+> 
+> c.f. kmap_atomic() for how to window around using what's actually a
+> very small set of PTE's.
+> 
+> 
+> -- wli

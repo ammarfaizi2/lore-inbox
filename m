@@ -1,58 +1,218 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266672AbUAWUQn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 15:16:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266674AbUAWUQn
+	id S266621AbUAWUa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 15:30:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266622AbUAWUa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 15:16:43 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:56767 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S266672AbUAWUQl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 15:16:41 -0500
-Subject: Re: keyboard and USB problems (Re: 2.6.2-rc1-mm2)
-From: john stultz <johnstul@us.ibm.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-In-Reply-To: <20040123195439.GA7878@ucw.cz>
-References: <20040123013740.58a6c1f9.akpm@osdl.org>
-	 <20040123160152.GA18073@ss1000.ms.mff.cuni.cz>
-	 <20040123161946.GA6934@ucw.cz> <1074886056.12447.36.camel@localhost>
-	 <20040123195439.GA7878@ucw.cz>
-Content-Type: text/plain
-Message-Id: <1074888902.12442.51.camel@localhost>
+	Fri, 23 Jan 2004 15:30:56 -0500
+Received: from [193.170.124.123] ([193.170.124.123]:4153 "EHLO 23.cms.ac")
+	by vger.kernel.org with ESMTP id S266621AbUAWUat (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 15:30:49 -0500
+Date: Fri, 23 Jan 2004 21:30:37 +0100
+From: JG <jg@cms.ac>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0: kjournald 100% cpu + block errors(?)
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Gentoo 1.4 ;)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 23 Jan 2004 12:15:03 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Fri__23_Jan_2004_21_30_37_+0100__I_Ta5l1BpzdRaw1"
+Message-Id: <20040123203045.387641A9B8B@23.cms.ac>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-01-23 at 11:54, Vojtech Pavlik wrote:
-> On Fri, Jan 23, 2004 at 11:27:41AM -0800, john stultz wrote:
-> > Well, loops_per_jiffy is actually being measured correctly as we're
-> > using the acpi pm timesource to time udelay(). However there is a loss
-> > of resolution using the slower time source, so udelay(1) might take
-> > longer then 1 us. 
-> 
-> Longer udelay shouldn't cause trouble. Shorter one definitely would.
-
-Hmm. 
-
-> > If that is going to cause problems, then we'll need to pull out the
-> > use-pmtmr-for-delay_pmtmr patch. I guess our only option is then to use
-> > the TSC for delay_pmtrm() (as a loop based delay fails in other cases).
-> > I'll write that up and send it your way, Andrew. 
-> 
-> I've seen the PM timer breaking the mouse operation rather badly in the
-> past, the lost-sync check was triggering for many people when the PM
-> timer was used. This implies time inacurracy in the range of 0.5
-> seconds. Could that happen somehow?
-
-Not in a way that I yet understand. Do you see similar problems with
-folks using clock=pit?
-
-thanks
--john
+--Signature=_Fri__23_Jan_2004_21_30_37_+0100__I_Ta5l1BpzdRaw1
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Fri__23_Jan_2004_21_30_37_+0100_lFKL8wRCZMD5yR_z"
 
 
+--Multipart=_Fri__23_Jan_2004_21_30_37_+0100_lFKL8wRCZMD5yR_z
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+
+hi,
+
+i just checked some stuff on my server via vnc when suddenly the cpu load went to 100% because of kjournald. i could only reboot my server with sysrq keys, because no shell was working/accepting input.
+this is the dmesg output, which also scrolled down very fast on all consoles (not on vnc, but i also looked at the monitor of my server).
+
+[...]
+block=4286578559, b_blocknr=18446744073701162879
+b_state=0x00000010, b_size=4096
+block=4286578559, b_blocknr=18446744073701162879
+b_state=0x00000010, b_size=4096
+block=4286578559, b_blocknr=18446744073701162879
+b_state=0x00000010, b_size=4096
+block=4286578559, b_blocknr=18446744073701162879
+b_state=0x00000010, b_size=4096
+block=4286578559, b_blocknr=18446744073701162879
+b_state=0x00000010, b_size=4096
+block=4286578559, b_blocknr=18446744073701162879
+b_state=0x00000010, b_size=4096
+block=4286578559, b_blocknr=18446744073701162879
+[...]
+
+i have no idea what could have caused this problem (the same problem, only other blocks, happend 11 days ago) and how i could debug this, since i have nothing else in the log files. when hitting the sysrq key to terminate the processes i got some other messages (which looked like oopses), but they were scrolling down so fast i couldn't read anything. is my OS hard disk (hda) dying (which is not older than 3 months)?
+
+i also got this message on startup:
+hda: set_drive_speed_status: status=0x58 { DriveReady SeekComplete DataRequest }
+blk: queue e7dd1800, I/O limit 4095Mb (mask 0xffffffff)
+hda: dma_timer_expiry: dma status == 0x60
+hda: DMA timeout retry
+hda: timeout waiting for DMA
+blk: queue e7dd1400, I/O limit 4095Mb (mask 0xffffffff)
+blk: queue e7c9b800, I/O limit 4095Mb (mask 0xffffffff)
+blk: queue e7cbec00, I/O limit 4095Mb (mask 0xffffffff)
+blk: queue e7cbe000, I/O limit 4095Mb (mask 0xffffffff)
+blk: queue e7cafc00, I/O limit 4095Mb (mask 0xffffffff)
+blk: queue e7caf400, I/O limit 4095Mb (mask 0xffffffff)
+blk: queue e7caf000, I/O limit 4095Mb (mask 0xffffffff)
+blk: queue e7ca6800, I/O limit 4095Mb (mask 0xffffffff)
+blk: queue e7ca6400, I/O limit 4095Mb (mask 0xffffffff)
+blk: queue e7c9bc00, I/O limit 4095Mb (mask 0xffffffff)
+hda: status timeout: status=0xd0 { Busy }
+
+hdb: DMA disabled
+hda: drive not ready for command
+ide0: reset: success
+blk: queue e7dd1800, I/O limit 4095Mb (mask 0xffffffff)
+
+i also attached the smartctl -a /dev/hda output, if it helps.
+
+thanks very much for any info,
+JG
+
+--Multipart=_Fri__23_Jan_2004_21_30_37_+0100_lFKL8wRCZMD5yR_z
+Content-Type: application/octet-stream;
+ name="smartctl"
+Content-Disposition: attachment;
+ filename="smartctl"
+Content-Transfer-Encoding: base64
+
+c21hcnRjdGwgdmVyc2lvbiA1LjI2IENvcHlyaWdodCAoQykgMjAwMi0zIEJydWNlIEFsbGVuCkhv
+bWUgcGFnZSBpcyBodHRwOi8vc21hcnRtb250b29scy5zb3VyY2Vmb3JnZS5uZXQvCgo9PT0gU1RB
+UlQgT0YgSU5GT1JNQVRJT04gU0VDVElPTiA9PT0KRGV2aWNlIE1vZGVsOiAgICAgSERTNzIyNTEy
+VkxBVDgwClNlcmlhbCBOdW1iZXI6ICAgIFZOUjMzRUMzQzFUMktLCkZpcm13YXJlIFZlcnNpb246
+IFYzM09BNjBBCkRldmljZSBpczogICAgICAgIE5vdCBpbiBzbWFydGN0bCBkYXRhYmFzZSBbZm9y
+IGRldGFpbHMgdXNlOiAtUCBzaG93YWxsXQpBVEEgVmVyc2lvbiBpczogICA2CkFUQSBTdGFuZGFy
+ZCBpczogIEFUQS9BVEFQSS02IFQxMyAxNDEwRCByZXZpc2lvbiAzYQpMb2NhbCBUaW1lIGlzOiAg
+ICBGcmkgSmFuIDIzIDIxOjI1OjE2IDIwMDQgQ0VUClNNQVJUIHN1cHBvcnQgaXM6IEF2YWlsYWJs
+ZSAtIGRldmljZSBoYXMgU01BUlQgY2FwYWJpbGl0eS4KU01BUlQgc3VwcG9ydCBpczogRW5hYmxl
+ZAoKPT09IFNUQVJUIE9GIFJFQUQgU01BUlQgREFUQSBTRUNUSU9OID09PQpTTUFSVCBvdmVyYWxs
+LWhlYWx0aCBzZWxmLWFzc2Vzc21lbnQgdGVzdCByZXN1bHQ6IFBBU1NFRAoKR2VuZXJhbCBTTUFS
+VCBWYWx1ZXM6Ck9mZmxpbmUgZGF0YSBjb2xsZWN0aW9uIHN0YXR1czogICgweDAwKQlPZmZsaW5l
+IGRhdGEgY29sbGVjdGlvbiBhY3Rpdml0eSB3YXMKCQkJCQluZXZlciBzdGFydGVkLgoJCQkJCUF1
+dG8gT2ZmbGluZSBEYXRhIENvbGxlY3Rpb246IERpc2FibGVkLgpTZWxmLXRlc3QgZXhlY3V0aW9u
+IHN0YXR1czogICAgICAoICAyNSkJVGhlIHNlbGYtdGVzdCByb3V0aW5lIHdhcyBhYm9ydGVkIGJ5
+CgkJCQkJdGhlIGhvc3QuClRvdGFsIHRpbWUgdG8gY29tcGxldGUgT2ZmbGluZSAKZGF0YSBjb2xs
+ZWN0aW9uOiAJCSAoMjcwNykgc2Vjb25kcy4KT2ZmbGluZSBkYXRhIGNvbGxlY3Rpb24KY2FwYWJp
+bGl0aWVzOiAJCQkgKDB4MWIpIFNNQVJUIGV4ZWN1dGUgT2ZmbGluZSBpbW1lZGlhdGUuCgkJCQkJ
+QXV0byBPZmZsaW5lIGRhdGEgY29sbGVjdGlvbiBvbi9vZmYgc3VwcG9ydC4KCQkJCQlTdXNwZW5k
+IE9mZmxpbmUgY29sbGVjdGlvbiB1cG9uIG5ldwoJCQkJCWNvbW1hbmQuCgkJCQkJT2ZmbGluZSBz
+dXJmYWNlIHNjYW4gc3VwcG9ydGVkLgoJCQkJCVNlbGYtdGVzdCBzdXBwb3J0ZWQuCgkJCQkJTm8g
+Q29udmV5YW5jZSBTZWxmLXRlc3Qgc3VwcG9ydGVkLgoJCQkJCU5vIFNlbGVjdGl2ZSBTZWxmLXRl
+c3Qgc3VwcG9ydGVkLgpTTUFSVCBjYXBhYmlsaXRpZXM6ICAgICAgICAgICAgKDB4MDAwMykJU2F2
+ZXMgU01BUlQgZGF0YSBiZWZvcmUgZW50ZXJpbmcKCQkJCQlwb3dlci1zYXZpbmcgbW9kZS4KCQkJ
+CQlTdXBwb3J0cyBTTUFSVCBhdXRvIHNhdmUgdGltZXIuCkVycm9yIGxvZ2dpbmcgY2FwYWJpbGl0
+eTogICAgICAgICgweDAxKQlFcnJvciBsb2dnaW5nIHN1cHBvcnRlZC4KCQkJCQlHZW5lcmFsIFB1
+cnBvc2UgTG9nZ2luZyBzdXBwb3J0ZWQuClNob3J0IHNlbGYtdGVzdCByb3V0aW5lIApyZWNvbW1l
+bmRlZCBwb2xsaW5nIHRpbWU6IAkgKCAgIDEpIG1pbnV0ZXMuCkV4dGVuZGVkIHNlbGYtdGVzdCBy
+b3V0aW5lCnJlY29tbWVuZGVkIHBvbGxpbmcgdGltZTogCSAoICA0NSkgbWludXRlcy4KClNNQVJU
+IEF0dHJpYnV0ZXMgRGF0YSBTdHJ1Y3R1cmUgcmV2aXNpb24gbnVtYmVyOiAxNgpWZW5kb3IgU3Bl
+Y2lmaWMgU01BUlQgQXR0cmlidXRlcyB3aXRoIFRocmVzaG9sZHM6CklEIyBBVFRSSUJVVEVfTkFN
+RSAgICAgICAgICBGTEFHICAgICBWQUxVRSBXT1JTVCBUSFJFU0ggVFlQRSAgICAgIFVQREFURUQg
+IFdIRU5fRkFJTEVEIFJBV19WQUxVRQogIDEgUmF3X1JlYWRfRXJyb3JfUmF0ZSAgICAgMHgwMDBi
+ICAgMDk2ICAgMDk2ICAgMDYwICAgIFByZS1mYWlsICBBbHdheXMgICAgICAgLSAgICAgICA5CiAg
+MiBUaHJvdWdocHV0X1BlcmZvcm1hbmNlICAweDAwMDUgICAxMDAgICAxMDAgICAwNTAgICAgUHJl
+LWZhaWwgIE9mZmxpbmUgICAgICAtICAgICAgIDAKICAzIFNwaW5fVXBfVGltZSAgICAgICAgICAg
+IDB4MDAwNyAgIDEwMCAgIDEwMCAgIDAyNCAgICBQcmUtZmFpbCAgQWx3YXlzICAgICAgIC0gICAg
+ICAgMTk1CiAgNCBTdGFydF9TdG9wX0NvdW50ICAgICAgICAweDAwMTIgICAxMDAgICAxMDAgICAw
+MDAgICAgT2xkX2FnZSAgIEFsd2F5cyAgICAgICAtICAgICAgIDYKICA1IFJlYWxsb2NhdGVkX1Nl
+Y3Rvcl9DdCAgIDB4MDAzMyAgIDEwMCAgIDEwMCAgIDAwNSAgICBQcmUtZmFpbCAgQWx3YXlzICAg
+ICAgIC0gICAgICAgMTYKICA3IFNlZWtfRXJyb3JfUmF0ZSAgICAgICAgIDB4MDAwYiAgIDEwMCAg
+IDEwMCAgIDA2NyAgICBQcmUtZmFpbCAgQWx3YXlzICAgICAgIC0gICAgICAgMAogIDggU2Vla19U
+aW1lX1BlcmZvcm1hbmNlICAgMHgwMDA1ICAgMTAwICAgMTAwICAgMDIwICAgIFByZS1mYWlsICBP
+ZmZsaW5lICAgICAgLSAgICAgICAwCiAgOSBQb3dlcl9Pbl9Ib3VycyAgICAgICAgICAweDAwMTIg
+ICAxMDAgICAxMDAgICAwMDAgICAgT2xkX2FnZSAgIEFsd2F5cyAgICAgICAtICAgICAgIDE4MjMK
+IDEwIFNwaW5fUmV0cnlfQ291bnQgICAgICAgIDB4MDAxMyAgIDEwMCAgIDEwMCAgIDA2MCAgICBQ
+cmUtZmFpbCAgQWx3YXlzICAgICAgIC0gICAgICAgMAogMTIgUG93ZXJfQ3ljbGVfQ291bnQgICAg
+ICAgMHgwMDMyICAgMTAwICAgMTAwICAgMDAwICAgIE9sZF9hZ2UgICBBbHdheXMgICAgICAgLSAg
+ICAgICA2CjE5MiBQb3dlci1PZmZfUmV0cmFjdF9Db3VudCAweDAwMzIgICAxMDAgICAxMDAgICAw
+NTAgICAgT2xkX2FnZSAgIEFsd2F5cyAgICAgICAtICAgICAgIDgwCjE5MyBMb2FkX0N5Y2xlX0Nv
+dW50ICAgICAgICAweDAwMTIgICAxMDAgICAxMDAgICAwNTAgICAgT2xkX2FnZSAgIEFsd2F5cyAg
+ICAgICAtICAgICAgIDgwCjE5NCBUZW1wZXJhdHVyZV9DZWxzaXVzICAgICAweDAwMDIgICAxNzEg
+ICAxNzEgICAwMDAgICAgT2xkX2FnZSAgIEFsd2F5cyAgICAgICAtICAgICAgIDMyIChMaWZldGlt
+ZSBNaW4vTWF4IDIzLzM4KQoxOTYgUmVhbGxvY2F0ZWRfRXZlbnRfQ291bnQgMHgwMDMyICAgMTAw
+ICAgMTAwICAgMDAwICAgIE9sZF9hZ2UgICBBbHdheXMgICAgICAgLSAgICAgICAyNAoxOTcgQ3Vy
+cmVudF9QZW5kaW5nX1NlY3RvciAgMHgwMDIyICAgMTAwICAgMTAwICAgMDAwICAgIE9sZF9hZ2Ug
+ICBBbHdheXMgICAgICAgLSAgICAgICAzCjE5OCBPZmZsaW5lX1VuY29ycmVjdGFibGUgICAweDAw
+MDggICAxMDAgICAxMDAgICAwMDAgICAgT2xkX2FnZSAgIE9mZmxpbmUgICAgICAtICAgICAgIDAK
+MTk5IFVETUFfQ1JDX0Vycm9yX0NvdW50ICAgIDB4MDAwYSAgIDIwMCAgIDIwMCAgIDAwMCAgICBP
+bGRfYWdlICAgQWx3YXlzICAgICAgIC0gICAgICAgMAoKU01BUlQgRXJyb3IgTG9nIFZlcnNpb246
+IDEKQVRBIEVycm9yIENvdW50OiAzCglDUiA9IENvbW1hbmQgUmVnaXN0ZXIgW0hFWF0KCUZSID0g
+RmVhdHVyZXMgUmVnaXN0ZXIgW0hFWF0KCVNDID0gU2VjdG9yIENvdW50IFJlZ2lzdGVyIFtIRVhd
+CglTTiA9IFNlY3RvciBOdW1iZXIgUmVnaXN0ZXIgW0hFWF0KCUNMID0gQ3lsaW5kZXIgTG93IFJl
+Z2lzdGVyIFtIRVhdCglDSCA9IEN5bGluZGVyIEhpZ2ggUmVnaXN0ZXIgW0hFWF0KCURIID0gRGV2
+aWNlL0hlYWQgUmVnaXN0ZXIgW0hFWF0KCURDID0gRGV2aWNlIENvbW1hbmQgUmVnaXN0ZXIgW0hF
+WF0KCUVSID0gRXJyb3IgcmVnaXN0ZXIgW0hFWF0KCVNUID0gU3RhdHVzIHJlZ2lzdGVyIFtIRVhd
+ClRpbWVzdGFtcCA9IGRlY2ltYWwgc2Vjb25kcyBzaW5jZSB0aGUgcHJldmlvdXMgZGlzayBwb3dl
+ci1vbi4KTm90ZTogdGltZXN0YW1wICJ3cmFwcyIgYWZ0ZXIgMl4zMiBtc2VjID0gNDkuNzEwIGRh
+eXMuCgpFcnJvciAzIG9jY3VycmVkIGF0IGRpc2sgcG93ZXItb24gbGlmZXRpbWU6IDg0MyBob3Vy
+cwogIFdoZW4gdGhlIGNvbW1hbmQgdGhhdCBjYXVzZWQgdGhlIGVycm9yIG9jY3VycmVkLCB0aGUg
+ZGV2aWNlIHdhcyBhY3RpdmUgb3IgaWRsZS4KCiAgQWZ0ZXIgY29tbWFuZCBjb21wbGV0aW9uIG9j
+Y3VycmVkLCByZWdpc3RlcnMgd2VyZToKICBFUiBTVCBTQyBTTiBDTCBDSCBESAogIC0tIC0tIC0t
+IC0tIC0tIC0tIC0tCiAgNDAgNTEgNzAgNjQgY2UgNWMgZWUgIEVycm9yOiBVTkMKCiAgQ29tbWFu
+ZHMgbGVhZGluZyB0byB0aGUgY29tbWFuZCB0aGF0IGNhdXNlZCB0aGUgZXJyb3Igd2VyZToKICBD
+UiBGUiBTQyBTTiBDTCBDSCBESCBEQyAgIFRpbWVzdGFtcCAgQ29tbWFuZC9GZWF0dXJlX05hbWUK
+ICAtLSAtLSAtLSAtLSAtLSAtLSAtLSAtLSAgIC0tLS0tLS0tLSAgLS0tLS0tLS0tLS0tLS0tLS0t
+LS0KICAyNSAwMCA3MCA2NCBjZSA1YyBlMCAwMCAzMDMwNzUxLjkwMCAgUkVBRCBETUEgRVhUCiAg
+MjUgMDAgNzggNWMgY2UgNWMgZTAgMDAgMzAzMDc0Ni45MDAgIFJFQUQgRE1BIEVYVAogIDI1IDAw
+IDgwIDU0IGNlIDVjIGUwIDAwIDMwMzA3NDIuMDAwICBSRUFEIERNQSBFWFQKICAyNSAwMCA4MCBk
+NCAzNCAxNCBlMCAwMCAzMDMwNzQyLjAwMCAgUkVBRCBETUEgRVhUCiAgMjUgMDAgODAgNTQgMzQg
+MTQgZTAgMDAgMzAzMDc0Mi4wMDAgIFJFQUQgRE1BIEVYVAoKRXJyb3IgMiBvY2N1cnJlZCBhdCBk
+aXNrIHBvd2VyLW9uIGxpZmV0aW1lOiA4NDMgaG91cnMKICBXaGVuIHRoZSBjb21tYW5kIHRoYXQg
+Y2F1c2VkIHRoZSBlcnJvciBvY2N1cnJlZCwgdGhlIGRldmljZSB3YXMgYWN0aXZlIG9yIGlkbGUu
+CgogIEFmdGVyIGNvbW1hbmQgY29tcGxldGlvbiBvY2N1cnJlZCwgcmVnaXN0ZXJzIHdlcmU6CiAg
+RVIgU1QgU0MgU04gQ0wgQ0ggREgKICAtLSAtLSAtLSAtLSAtLSAtLSAtLQogIDQwIDUxIDc3IDVk
+IGNlIDVjIGVlICBFcnJvcjogVU5DCgogIENvbW1hbmRzIGxlYWRpbmcgdG8gdGhlIGNvbW1hbmQg
+dGhhdCBjYXVzZWQgdGhlIGVycm9yIHdlcmU6CiAgQ1IgRlIgU0MgU04gQ0wgQ0ggREggREMgICBU
+aW1lc3RhbXAgIENvbW1hbmQvRmVhdHVyZV9OYW1lCiAgLS0gLS0gLS0gLS0gLS0gLS0gLS0gLS0g
+ICAtLS0tLS0tLS0gIC0tLS0tLS0tLS0tLS0tLS0tLS0tCiAgMjUgMDAgNzggNWMgY2UgNWMgZTAg
+MDAgMzAzMDc0Ni45MDAgIFJFQUQgRE1BIEVYVAogIDI1IDAwIDgwIDU0IGNlIDVjIGUwIDAwIDMw
+MzA3NDIuMDAwICBSRUFEIERNQSBFWFQKICAyNSAwMCA4MCBkNCAzNCAxNCBlMCAwMCAzMDMwNzQy
+LjAwMCAgUkVBRCBETUEgRVhUCiAgMjUgMDAgODAgNTQgMzQgMTQgZTAgMDAgMzAzMDc0Mi4wMDAg
+IFJFQUQgRE1BIEVYVAogIDI1IDAwIDgwIGQ0IGNkIDVjIGUwIDAwIDMwMzA3MjkuOTAwICBSRUFE
+IERNQSBFWFQKCkVycm9yIDEgb2NjdXJyZWQgYXQgZGlzayBwb3dlci1vbiBsaWZldGltZTogODQz
+IGhvdXJzCiAgV2hlbiB0aGUgY29tbWFuZCB0aGF0IGNhdXNlZCB0aGUgZXJyb3Igb2NjdXJyZWQs
+IHRoZSBkZXZpY2Ugd2FzIGFjdGl2ZSBvciBpZGxlLgoKICBBZnRlciBjb21tYW5kIGNvbXBsZXRp
+b24gb2NjdXJyZWQsIHJlZ2lzdGVycyB3ZXJlOgogIEVSIFNUIFNDIFNOIENMIENIIERICiAgLS0g
+LS0gLS0gLS0gLS0gLS0gLS0KICA0MCA1MSA4MCA1NCBjZSA1YyBlZSAgRXJyb3I6IFVOQwoKICBD
+b21tYW5kcyBsZWFkaW5nIHRvIHRoZSBjb21tYW5kIHRoYXQgY2F1c2VkIHRoZSBlcnJvciB3ZXJl
+OgogIENSIEZSIFNDIFNOIENMIENIIERIIERDICAgVGltZXN0YW1wICBDb21tYW5kL0ZlYXR1cmVf
+TmFtZQogIC0tIC0tIC0tIC0tIC0tIC0tIC0tIC0tICAgLS0tLS0tLS0tICAtLS0tLS0tLS0tLS0t
+LS0tLS0tLQogIDI1IDAwIDgwIDU0IGNlIDVjIGUwIDAwIDMwMzA3NDIuMDAwICBSRUFEIERNQSBF
+WFQKICAyNSAwMCA4MCBkNCAzNCAxNCBlMCAwMCAzMDMwNzQyLjAwMCAgUkVBRCBETUEgRVhUCiAg
+MjUgMDAgODAgNTQgMzQgMTQgZTAgMDAgMzAzMDc0Mi4wMDAgIFJFQUQgRE1BIEVYVAogIDI1IDAw
+IDgwIGQ0IGNkIDVjIGUwIDAwIDMwMzA3MjkuOTAwICBSRUFEIERNQSBFWFQKICAyNSAwMCA4MCA1
+NCBjZCA1YyBlMCAwMCAzMDMwNzI5LjkwMCAgUkVBRCBETUEgRVhUCgpTTUFSVCBTZWxmLXRlc3Qg
+bG9nIHN0cnVjdHVyZSByZXZpc2lvbiBudW1iZXIgMQpOdW0gIFRlc3RfRGVzY3JpcHRpb24gICAg
+U3RhdHVzICAgICAgICAgICAgICAgICAgUmVtYWluaW5nICBMaWZlVGltZShob3VycykgIExCQV9v
+Zl9maXJzdF9lcnJvcgojIDEgIEV4dGVuZGVkIG9mZmxpbmUgICAgQWJvcnRlZCBieSBob3N0ICAg
+ICAgICAgICAgICAgOTAlICAgICAgMTgyMyAgICAgICAgIC0KCg==
+
+--Multipart=_Fri__23_Jan_2004_21_30_37_+0100_lFKL8wRCZMD5yR_z--
+
+--Signature=_Fri__23_Jan_2004_21_30_37_+0100__I_Ta5l1BpzdRaw1
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAEYR0U788cpz6t2kRAtxFAJ9Y2ieaG4NY26r/+K+tyAwBxhfuRACfUOA5
+HjHwOaYE4OIfvRr4BZvkIhM=
+=c5Mu
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__23_Jan_2004_21_30_37_+0100__I_Ta5l1BpzdRaw1--

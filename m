@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261529AbSJMQlr>; Sun, 13 Oct 2002 12:41:47 -0400
+	id <S261553AbSJMQmb>; Sun, 13 Oct 2002 12:42:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261553AbSJMQlr>; Sun, 13 Oct 2002 12:41:47 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:38545 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S261529AbSJMQlp>; Sun, 13 Oct 2002 12:41:45 -0400
-Message-ID: <20021013164731.10615.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: <davidsen@tmr.com>
+	id <S261556AbSJMQm2>; Sun, 13 Oct 2002 12:42:28 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:9374 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261553AbSJMQm0>; Sun, 13 Oct 2002 12:42:26 -0400
+X-From-Line: nobody Sun Oct 13 17:48:37 2002
+To: Manfred Spraul <manfred@colorfullife.com>
 Cc: linux-kernel@vger.kernel.org
-Date: Mon, 14 Oct 2002 00:47:31 +0800
-Subject: Re:Benchmark results from resp1 trivial response time test
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws4-4.us4.outblaze.com
+Subject: Re: [PATCH][RFC] 2.5.42: remove capable(CAP_SYS_RAWIO) check from
+ open_kmem
+References: <3DA985E6.6090302@colorfullife.com>
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Date: Sun, 13 Oct 2002 17:48:37 +0200
+Message-ID: <87adliuyp6.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Bill Davidsen <davidsen@tmr.com>
-[...]
-> run this version I'd like to see the result. I believe I had to use the
-> "-l" patch option to ignore blank mismatches to get this to work, and I've
-> cleaned up another mailing funny as well. 
+Manfred Spraul <manfred@colorfullife.com> writes:
 
-Hi Bill,
-here the results agains 2.5.41-mm2C (2.5.41-mm2 + Con patch "vmscan.c")
+>> In drivers/char/mem.c there's open_port(), which is used as open_mem()
+>> and open_kmem() as well. I don't see the benefit of this, since
+>> /dev/mem and /dev/kmem are already protected by filesystem
+>> permissions.
+>>
+> capabilities can be stricter than filesystem permissions
 
-Starting 1 CPU run with 250 MB RAM, minimum 5 data points at 20 sec intervals
- 
-                       _____________ delay ms. ____________                  
-           Test        low       high    median     average     S.D.    ratio
-         noload    113.648    114.508    113.707    113.861    0.000    1.000
-     smallwrite    116.054    180.420    117.924    130.525    0.028    1.146
-     largewrite    114.019    179.770    120.451    134.021    0.028    1.177
-        cpuload    106.590    162.893    107.075    118.080    0.025    1.037
-      spawnload    106.574    164.898    107.490    118.671    0.026    1.042
-       8ctx-mem   7767.843  16917.625   8994.265  10906.788    3.844   95.790
-       2ctx-mem   6515.450  18273.101  10344.575  11217.755    4.822   98.521
+Which means, it prevents me from giving access to /dev/kmem to an
+otherwise unprivileged process.
 
-8ctx-mem and 2ctx-mem show "bad" performance.
-Do you think is it possible to apply the patch on the top of 2.5.42-mm2 ?
+> , and the call
+> is needed to update the PF_SUPERPRIV process flag.
 
-Ciao,
-       Paolo
+What exactly is PF_SUPERPRIV good for? I see no real use in the
+source. There is exactly one test for this flag (kernel/acct.c:336),
+then sets another flag (ASU), which in turn is used nowhere else.
 
+So, I think we could get rid of this flag as well. Comments?
 
-
--- 
-Get your free email from www.linuxmail.org 
-
-
-Powered by Outblaze
+Regards, Olaf.

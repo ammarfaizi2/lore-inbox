@@ -1,78 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293407AbSCKAaA>; Sun, 10 Mar 2002 19:30:00 -0500
+	id <S293403AbSCKA3R>; Sun, 10 Mar 2002 19:29:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293409AbSCKA3s>; Sun, 10 Mar 2002 19:29:48 -0500
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:35844
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S293407AbSCKA3m>; Sun, 10 Mar 2002 19:29:42 -0500
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200203110032.g2B0WPx07017@www.hockin.org>
-Subject: Re: [PATCH] syscall interface for cpu affinity
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Sun, 10 Mar 2002 16:32:25 -0800 (PST)
-Cc: thockin@hockin.org (Tim Hockin), rml@tech9.net (Robert Love),
-        aj@suse.de (Andreas Jaeger), torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3C8BF593.A5F5BE19@mandrakesoft.com> from "Jeff Garzik" at Mar 10, 2002 07:08:51 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S293407AbSCKA3H>; Sun, 10 Mar 2002 19:29:07 -0500
+Received: from mons.uio.no ([129.240.130.14]:40359 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S293403AbSCKA2u>;
+	Sun, 10 Mar 2002 19:28:50 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15499.64058.442959.241470@charged.uio.no>
+Date: Mon, 11 Mar 2002 01:28:42 +0100
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
+In-Reply-To: <200203110018.BAA11921@webserver.ithnet.com>
+In-Reply-To: <shswuwkujx5.fsf@charged.uio.no>
+	<200203110018.BAA11921@webserver.ithnet.com>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > If we are going to pick an affinity system, please, let's consider sysmp().
-> 
-> Not too bad.  I picked a random sysmp(2) man page off the net (attached
-> for ease of other's reference).
- 
-so, there are actually two parts to sysmp().  The Way SGI used to it is
-with Pset (MP_PSET to sysmp()).  They seem to have dropped exported support
-for PSets - don't know why.  The idea is this.
+>>>>> " " == Stephan von Krawczynski <skraw@ithnet.com> writes:
 
-At boot the system creates a PSet with ALL processors, and one set for each
-single CPU.  Root can define extra sets with specified CPUs, too.
-Processes can then run (commandline tool = 'runon') on a specific Pset.
+     > this is a weak try of an explanation. All involved fs types are
+     > reiserfs. The problem occurs reproducably only after (and
 
-runon 3 yes 	# runs on PSET #3
+Which ReiserFS format? Is it version 3.5?
 
-This is ok, but it has several drawbacks:
-* user can not run on an arbitrary set of procs
-* defining a set for every combination of procs is ludicrous
+   'cat /proc/fs/reiserfs/device/version'
 
-However, it has several upsides
-* disabling a CPU is as simple as removing it from a pset struct, not
-iterating over all tasks
-* conceptually hides the 'bitmask of CPUs'
+     > including)
+     > 2.2.20 and above and _not_ in 2.2.19. There must be some
+     > problem.
 
-> It duplicates some stuff set elsewhere, and seems more than a bit like
-> ioctl(2) by another name, but doesn't seem too bad.  Note we should be
-> careful not to overengineer the interface, either...
+The client code in 2.2.20 is supposed to be the same as in 2.4.x. The
+only thing I can think might be missing is the fix to cope with broken
+servers that reuse filehandles (this violates the RFCs). Reiserfs 3.5
++ knfsd is one such broken combination. Another broken server is
+unfsd...
 
-At some point Ralf Baechle asked me to extend it more for IRIX
-compatibility.  We may want to just drop that altogether.  Several of the
-sysmp() interfaces can be handled at the library layer and re-routed to
-their existing interfaces.
+     > Though I do not know whether the problem is on the client side,
+     > or simply produced by this client side and effectively located
+     > on 2.4.18 server, I really can't tell. But giving me something
+     > to try might clear the picture.
+                                                                      
+You might try keeping a file open on /backup while you play with /mnt...
 
-> Just setting a bitmask does seem a bit limiting when thinking about the
-> future, agreed.
-
-What is the future of the existing CPUs bitmask?  Is it becoming something
-else? 
-
-Perhaps we want to keep sysmp() in name and form, perhaps just in name,
-perhaps not at all.  This is an area in which I have (had, but could get
-again) a lot of interest, but before I waste any more time on it, I'd like
-to actually co-design a feature set.
-
-What do we want:
-* unpriviliged ability to change current->pset?
-	- any user can call sysmp(MP_RUNON) anytime
-* privileged ability only (runon becomes suid)
-	- can "trap" processes to a CPU - it has been requested a lot
-* processor sets or just bitmasks/lists?
-	- someone was working on memory sets, similarly to psets
-
-If we really want this, I definately want to help. :)
-Tim
+Cheers,
+   Trond

@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262697AbUCWQoP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 11:44:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbUCWQoP
+	id S262689AbUCWQwF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 11:52:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262698AbUCWQwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 11:44:15 -0500
-Received: from mail04a.baweb.com ([209.130.123.57]:59644 "HELO
-	mail06.baweb.com") by vger.kernel.org with SMTP id S262697AbUCWQoI
+	Tue, 23 Mar 2004 11:52:05 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:51075 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262689AbUCWQwD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 11:44:08 -0500
-From: "Patrick Burke" <pb@navistaff.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: To all
-Date: Tue, 23 Mar 2004 11:43:52 -0500
-Message-ID: <OJEILMPNJCFNEJFKONPJEEEGDDAA.pb@navistaff.com>
+	Tue, 23 Mar 2004 11:52:03 -0500
+Date: Tue, 23 Mar 2004 11:54:13 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Patrick Burke <pb@navistaff.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: To all
+In-Reply-To: <OJEILMPNJCFNEJFKONPJKEDNDDAA.pb@navistaff.com>
+Message-ID: <Pine.LNX.4.53.0403231153010.28714@chaos>
+References: <OJEILMPNJCFNEJFKONPJKEDNDDAA.pb@navistaff.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
-X-Loop-Detect: 1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Burke with Navistaff.  I am currently looking for hardcore Unix
-networking developers for a top NYC area ibank.    Know anyone who might be
-interested?
+On Tue, 23 Mar 2004, Patrick Burke wrote:
 
-A top financial firm in the NYC area is currently looking to for elite unix
-network programmers to join their equities trading group.
+> Patrick Burke with Navistaff.  I am currently looking for hardcore Unix
+> networking developers for a top NYC area ibank.  Know anyone who might be
+> interested?
 
-Requirements:
-*Guru-level unix programming--must be able to get through the toughest of
-technical examinations
-*Must have outstanding network programming skills, NFS, multicast, socket
-options, RFCs
-*Must be comfortable with emacs/vi, the GNU toolchain, CVS, make
-*Must possess a low-level understanding of IPC and multi-threading
-*Must possess outstanding distributed computing experience, financial
-protocol development (CMS, FIX), database development, and kernal
-development.
+[SNIPPED...]
 
-Please send resumes to pb@navistaff.com, or call Patrick Burke at Navistaff
-for further details. 908.273.6960 ext. 102
+I tried to patch the kernel with this, but all I got was syntax
+errors when I compiled.
 
-For our complete job listing, go to www.BullMarketIT.com
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

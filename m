@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272658AbRHaKWW>; Fri, 31 Aug 2001 06:22:22 -0400
+	id <S272660AbRHaKdZ>; Fri, 31 Aug 2001 06:33:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272659AbRHaKWM>; Fri, 31 Aug 2001 06:22:12 -0400
-Received: from mout03.kundenserver.de ([195.20.224.218]:44057 "EHLO
-	mout03.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S272658AbRHaKWI>; Fri, 31 Aug 2001 06:22:08 -0400
-User-Agent: Microsoft-Outlook-Express-Macintosh-Edition/5.02.2106
-Date: Fri, 31 Aug 2001 12:23:48 +0200
-Subject: How to take part?
-From: Rene Engelhard <mail@rene-engelhard.de>
+	id <S272661AbRHaKdQ>; Fri, 31 Aug 2001 06:33:16 -0400
+Received: from nick.dcs.qmw.ac.uk ([138.37.88.61]:8206 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S272660AbRHaKdB>; Fri, 31 Aug 2001 06:33:01 -0400
+Date: Fri, 31 Aug 2001 11:33:19 +0100 (BST)
+From: <mb/ext3@dcs.qmul.ac.uk>
 To: <linux-kernel@vger.kernel.org>
-Message-ID: <B7B5320A.2052%mail@rene-engelhard.de>
-Mime-version: 1.0
-Content-type: text/plain; charset="US-ASCII"
-Content-transfer-encoding: 7bit
+cc: <ext3-users@redhat.com>
+Subject: Re: ext3 oops under moderate load
+In-Reply-To: <Pine.LNX.4.33.0108310759460.13139-100000@nick.dcs.qmul.ac.uk>
+Message-ID: <Pine.LNX.4.33.0108311131380.25530-100000@nick.dcs.qmul.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+At 08:19 +0100 mb/ext3@dcs.qmul.ac.uk wrote:
 
-I subscribed me a few days ago and therefore I am new in this lists.
+>I left my spangly new dual PIII with an ext3 partition on a Promise
+>FastTrak 100TX2 being used both by a local process and knfsd for a few
+>hours, and the following happened:
 
-I want to know, in which form kernel-patches and ideas are supposed to be
-presented in this lists, because I have one and would share it but I do not
-know how yet.
+>[ 2.4.9-ac3 SMP (noapic) + the one patch from Zygo Blaxell to recognise
+>the Promise card; now I have kupdated, kjournald and user-space processes
+>trying to access the volume in question all in state 'D' ]
 
-Can anybody help me?
+>kernel BUG at revoke.c:307!
+[snip oops]
 
-Rene
+found this on my screen when I got into work:
+
+Assertion failure in journal_revoke() at revoke.c:307: "!(__builtin_constant_p(BH_Revoked) ? constant_test_bit((BH_Revoked),(&bh->b_state)) : variable_test_bit((BH_Revoked),(&bh->b_state)))"
+
+Anything else I can provide, do let me know!
 

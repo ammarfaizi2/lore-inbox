@@ -1,63 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268832AbUJUMJV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270329AbUJUMAl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268832AbUJUMJV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 08:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268565AbUJUMI4
+	id S270329AbUJUMAl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 08:00:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268723AbUJTRWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 08:08:56 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:48428 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268703AbUJUMGv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 08:06:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=lpHLnTC/ZP7QWGM0GxXxPyXWZQkEQmrT2F6HzW6OUZXkBYh+64K8dkkoBzer+wjadMbXjrE8LSozybtzBsSBuacgxXG6ZfaQUey5kMy1zH9XMPRD31iSjlMkkPbpoue1csgx9+91/CuWU+ZBU01sHyneS5nkZvqP5rYrTb7zBwU=
-Message-ID: <e796392204102105063fca80f@mail.gmail.com>
-Date: Thu, 21 Oct 2004 14:06:45 +0200
-From: Stefan Schweizer <sschweizer@gmail.com>
-Reply-To: Stefan Schweizer <sschweizer@gmail.com>
-To: cijoml@volny.cz
-Subject: Re: Hibernation and time and dhcp
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200410202045.24388.cijoml@volny.cz>
+	Wed, 20 Oct 2004 13:22:21 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:47767 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268719AbUJTRPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 13:15:21 -0400
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       Timothy Miller <miller@techsource.com>, Hugh Dickins <hugh@veritas.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <20041020170802.GB24619@dualathlon.random>
+References: <593560000.1094826651@[10.10.2.4]>
+	 <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>
+	 <20040910151538.GA24434@devserv.devel.redhat.com>
+	 <20040910152852.GC15643@x30.random>
+	 <20040910153421.GD24434@devserv.devel.redhat.com>
+	 <41768858.8070709@techsource.com>
+	 <20041020153521.GB21556@devserv.devel.redhat.com>
+	 <1098290345.1429.65.camel@krustophenia.net>
+	 <20041020165050.GA24619@dualathlon.random>
+	 <1098291315.1429.79.camel@krustophenia.net>
+	 <20041020170802.GB24619@dualathlon.random>
+Content-Type: text/plain
+Message-Id: <1098292516.1429.116.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 20 Oct 2004 13:15:16 -0400
 Content-Transfer-Encoding: 7bit
-References: <200410202045.24388.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hibernate.conf:
-
-### clock
-SaveClock yes
-
-
-OnResume 20  dhcpcd -n
-
-
-
-On Wed, 20 Oct 2004 20:45:24 +0200, Michal Semler <cijoml@volny.cz> wrote:
-> Hi guys,
+On Wed, 2004-10-20 at 13:08, Andrea Arcangeli wrote:
+> On Wed, Oct 20, 2004 at 12:55:17PM -0400, Lee Revell wrote:
+> > This was not my point, I agree that the two have nothing to do with each
+> > other.  But if a hardirq handler runs for 3ms then no user code can run
+> > for 3ms.  Therefore this is a problem if our goal for desktop response
+> > is 1ms.
 > 
-> with 2.6.9 hibernation to disk finally works! Thanks
-> To ram it still don't work, system starts with lcd disabled - but it is
-> another story.
+> I sure agree it's a problem, but not always userspace code needs to run
+> for the user not to notice. With ring buffers in the kernel for playback
+> all you need is a nested irq for the user not to notice skips.
 > 
-> I have now this problem - when I hibernate and then system is started up in
-> other company, it don't update time and shows still for example 14:00 - when
-> I rehibernate for example in 20:00 - could you ask bios for current time?
-> It's better to have bad time about few seconds instead of hours.
-> 
-> Same problem with dhcp - it should ask for IP when rehibernate.
-> 
-> Thanks for fixing
-> 
-> Michal
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+
+I was thinking of X, not audio.  This might be a problem for AV
+playback.  Maybe that would depend on if DRI was in use.  Anyway I use a
+low latency kernel because i need sub-ms response, I was just pointing
+out that the current behavior might not be compatible with the 1ms
+target.
+
+However with the patch in -mm that enables setting max_sectors_kb, the
+1ms goal can be achived by lowering this to 256 or so.  If I were
+shipping a desktop distro I would lower this by default.  My tests show
+the slowdown is barely measurable if at all.
+
+Lee
+

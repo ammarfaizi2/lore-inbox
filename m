@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282076AbRKWHTy>; Fri, 23 Nov 2001 02:19:54 -0500
+	id <S282081AbRKWHOD>; Fri, 23 Nov 2001 02:14:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282077AbRKWHTo>; Fri, 23 Nov 2001 02:19:44 -0500
-Received: from ns01.netrox.net ([64.118.231.130]:30348 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S282076AbRKWHTd>;
-	Fri, 23 Nov 2001 02:19:33 -0500
-Subject: Re: Kernel-module version mismatch
-From: Robert Love <rml@tech9.net>
-To: Kashif <kashif@and-or.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <GOEAKAFMBJEILCMEHMLAIEPACAAA.kashif@and-or.com>
-In-Reply-To: <GOEAKAFMBJEILCMEHMLAIEPACAAA.kashif@and-or.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
-Date: 23 Nov 2001 02:17:58 -0500
-Message-Id: <1006499899.1871.4.camel@icbm>
-Mime-Version: 1.0
+	id <S282080AbRKWHNo>; Fri, 23 Nov 2001 02:13:44 -0500
+Received: from news.cistron.nl ([195.64.68.38]:50961 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S282078AbRKWHNX>;
+	Fri, 23 Nov 2001 02:13:23 -0500
+From: "Rob Turk" <r.turk@chello.nl>
+Subject: Re: Linux FSCP (Frequently Submitted Compilation Problems)? (was:  Re: Loop.c File !!!!)
+Date: Fri, 23 Nov 2001 08:10:14 +0100
+Organization: Cistron Internet Services B.V.
+Message-ID: <9tksuh$mlo$1@ncc1701.cistron.net>
+In-Reply-To: <Pine.LNX.4.21.0111202025290.6299-100000@brick><5.1.0.14.2.20011121082413.00abadd0@pop.gmx.net><5.1.0.14.0.20011122100929.009ead30@mail.amc.localnet><9ti8e5$9bl$1@ncc1701.cistron.net><5.1.0.14.0.20011123105317.00a0c940@mail.amc.localnet><20011122180320.R1308@lynx.no> <200111230116.fAN1G8p04152@vindaloo.ras.ucalgary.ca>
+X-Trace: ncc1701.cistron.net 1006499602 23224 213.46.44.164 (23 Nov 2001 07:13:22 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-11-23 at 02:15, Kashif wrote:
->  I have recently upgraded from Redhat Linux 7.1 kernel
-> version 2.4.2 to 2.4.10. I am trying to insert a
-> driver module "code.o" (which was perfectly fine in the previous kernel)into
-> the new Kernel. But on insmod i get
-> an error:-
-> 
-> "kernel-module version mismatch. code.o was compiled
-> for kernel version 2.4.2-2 while this kernel is
-> version 2.4.10"
-> 
->  Although i am able to insert the driver module with
-> the -f(force) switch. But this results in a faulty
-> operation of the driver module. Rather i get an OOps message
-> I have tried recompiling the source of gcc in this new kernel but
-> that has also not solved this problem. Help will be
-> appreciated! Thank you.
+"Richard Gooch" <rgooch@ras.ucalgary.ca> wrote in message
+news:cistron.200111230116.fAN1G8p04152@vindaloo.ras.ucalgary.ca...
+> Andreas Dilger writes:
+> > On Nov 23, 2001  11:03 +1100, Stuart Young wrote:
+> > > >Something along the lines of 'Your kernel failed to build. Check
+> > > >www.where-ever-the-buglist-is.org for known issues with your kernel. Post
+> > > >your problem on the kernel list if this is not a FRB'. Is this something
+> > > >that can be done easily?
+> > >
+> > > At the bottom of the file, have ANOTHER link to a generic FAQ about
+> > > compilation problems (which covers all the major things like forgetting to
+> > > install an assembler, the broken old build stuff, 'make dep' before
+> > > compiling modules, etc). The FAQ could be on the kernel mirrors as well
+> > > (and I don't see why not, as this is all kernel related, and definitely a
+> > > resource that needs to be in more than one place).
+> >
+> > Yes!!!!  Anything to reduce the number of repeat problems reported
+> > is good in my books.  It might also hold a pointer to Linus' (or
+> > Marcello's) -pre patch area, with a warning that they are not for
+> > everyone.
+>
+> Well, the FAQ is supposed to answer these questions. There's a whole
+> section on compile problems. Do we need another FAQ?
+>
 
-Not sure what recompiling gcc would achieve ... you need to recompile
-this code.o module under your new RedHat kernel.
+No, we do not need another FAQ. But we could certainly use a few more *pointers*
+to the existing ones.
 
-	Robert Love
+Rob
+
+
+
 

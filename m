@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264029AbTEFSme (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 14:42:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264030AbTEFSmd
+	id S264027AbTEFStu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 14:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264038AbTEFStu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 14:42:33 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:8576 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S264029AbTEFSmC (ORCPT
+	Tue, 6 May 2003 14:49:50 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:41715 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264027AbTEFStt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 14:42:02 -0400
-Date: Tue, 6 May 2003 19:54:33 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Using GPL'd Linux drivers with non-GPL, binary-only kernel
-Message-ID: <20030506185433.GA6023@mail.jlokier.co.uk>
-References: <20030506164252.GA5125@mail.jlokier.co.uk> <1052242508.1201.43.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 6 May 2003 14:49:49 -0400
+Subject: [RFC][Patch] fix for irq_affinity_write_proc v2.5
+From: Keith Mannthey <kmannth@us.ibm.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 May 2003 12:03:08 -0700
+Message-Id: <1052247789.16886.261.camel@dyn9-47-17-180.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1052242508.1201.43.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Maw, 2003-05-06 at 17:42, Jamie Lokier wrote:
-> > So, as dynamic loading is ok between parts of Linux and binary-only
-> > code, that seems to imply we could build a totally different kind of
-> > binary-only kernel which was able to make use of all the Linux kernel
-> > modules.  We could even modularise parts of the kernel which aren't
-> > modular now, so that we could take advantage of even more parts of Linux.
-> 
-> You want a legal list - you really do. Its all about derived works and
-> thats an area where even some lawyers will only hunt in packs 8)
+Hello,
+  irq_affinity_write_proc currently directly calls set_ioapic_affinity
+which writes to the ioapic.  This undermines the work done by kirqd by
+writing a cpu mask directly to the ioapic. I propose the following patch
+to tie the /proc affinity writes into the same code path as kirqd. 
+Kirqd will enforce the affinity requested by the user.   
 
-Alan, you're right of course - from a legal standpoint.  But I'm not
-interested in how it pans out in a strict legal interpretation.
+Keith Mannthey
 
-What I'm interested in is how the kernel developers and driver authors
-would treat something like that.  Binary modules haven't had the full
-lawyer treatment AFAIK, but a sort of community viewpoint regarding
-what is and is not acceptable, to the community, is fairly clear on
-this list.
 
-So I was wondering what is the community viewpoint when it's the
-core kernel that is a non-GPL binary, rather than the modules.
-
-What if this new-fangled other kernel is open source, but BSD license
-instead?  Would that also anger the kernel developers?  (As I suspect
-a closed-source binary kernel would, even if one could get away with it).
-
-The reason for this question is: These days, if someone wants to
-develop a new operating system that is compatible with the full range
-of PC hardware, the starting point is to read all the *BSD and Linux
-source code that's relevant.  There's no way you can duplicate 12+
-years of testing every known PC hardware quirk.  It just isn't feasible.
-
-(And for that reason, I'd regard the drivers as "something that nobody
-should be forced to rewrite", to paraphrase what Linus said about klibc).
-
-Then, you can (a) rewrite everything, using the knowledge you gained
-from reading the various open source drivers, or (b) just use those
-drivers, and save a lot of effort.
-
--- Jamie
+diff -urN linux-2.5.68/arch/i386/kernel/irq.c linux-2.5.68-procfix/arch/i386/kernel/irq.c
+--- linux-2.5.68/arch/i386/kernel/irq.c	Sat Apr 19 19:48:50 2003
++++ linux-2.5.68-procfix/arch/i386/kernel/irq.c	Thu May  8 13:47:38 2003
+@@ -871,8 +871,11 @@
+ 		return -EINVAL;
+ 
+ 	irq_affinity[irq] = new_value;
+-	irq_desc[irq].handler->set_affinity(irq, new_value);
+-
++	if (irqbalance_disabled)
++		irq_desc[irq].handler->set_affinity(irq, new_value);
++	else
++		do_irq_balance();
++	
+ 	return full_count;
+ }
 
 

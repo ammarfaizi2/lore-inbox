@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268080AbUJLXdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268086AbUJLXi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268080AbUJLXdm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 19:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268086AbUJLXdm
+	id S268086AbUJLXi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 19:38:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268089AbUJLXi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 19:33:42 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:15366 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S268080AbUJLXdh
+	Tue, 12 Oct 2004 19:38:26 -0400
+Received: from gw02.applegatebroadband.net ([207.55.227.2]:37879 "EHLO
+	data.mvista.com") by vger.kernel.org with ESMTP id S268086AbUJLXfZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 19:33:37 -0400
-Date: Tue, 12 Oct 2004 16:33:08 -0700
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Bill Huey <bhuey@lnxw.com>, dwalker@mvista.com,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       amakarov@ru.mvista.com, ext-rt-dev@mvista.com,
-       LKML <linux-kernel@vger.kernel.org>, Doug Niehaus <niehaus@ittc.ku.edu>
-Subject: Re: [Ext-rt-dev] Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-Message-ID: <20041012233308.GA31150@nietzsche.lynx.com>
-References: <20041010142000.667ec673.akpm@osdl.org> <20041010215906.GA19497@elte.hu> <1097517191.28173.1.camel@dhcp153.mvista.com> <20041011204959.GB16366@elte.hu> <1097607049.9548.108.camel@dhcp153.mvista.com> <1097610393.19549.69.camel@thomas> <20041012211201.GA28590@nietzsche.lynx.com> <1097618415.19549.190.camel@thomas> <20041012223642.GB30966@nietzsche.lynx.com> <1097622634.19549.235.camel@thomas>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1097622634.19549.235.camel@thomas>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+	Tue, 12 Oct 2004 19:35:25 -0400
+Message-ID: <416C6A33.6030202@mvista.com>
+Date: Tue, 12 Oct 2004 16:35:15 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: question about linux time change
+References: <4165AFBC.8010605@nortelnetworks.com>
+In-Reply-To: <4165AFBC.8010605@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 13, 2004 at 01:10:34AM +0200, Thomas Gleixner wrote:
-> > This has been articulate a couple of times by both me and Ingo (recent email).
-> > The MV's system is highly unstable, not because of priority inheritance,
-> > but because of basic lock violation in the lock graph itself. It's another kind
-> > of SMP granularity problem. The hard problem was just what Ingo was saying and
-> > it's higher, but higher in the graph.
+Chris Friesen wrote:
 > 
-> Can you point me a bit more clear on what you are talking about ?
+> I have been asked to add the ability to notify userspace when the time 
+> of day changes.  The actual notification is the easy part.  I'm having 
+> issues with where exactly the time is really changed.
 
-It's just a lock graph dependency problem. Things up top in the graph
-force things below it to be non-preemptable. The things up top need
-to be changed, so that things below it can also be preemptable. Sleeping
-within an atomic critical section, local_irq* or preempt_count() > 0,
-is a deadlock waiting to happen.
+Just what sort of time changes do you want to notify on?  The ntp code "drifts" 
+time a lot.  Do you want to know about this?  If it is only cases where there is 
+a jump in time, you might do well to look at "clock_was_set()".  It is in 
+kernel/posix-timers.c and is called when ever do_settimeofday() is called AND on 
+leap second calls.
 
-> So the natural consequence is to convert _all_ concurrency control
-> mechanisms into a single identifiable one. That's a purely semantical
-> conversion, in terms of macro replacement, where no functional change
-> takes place.
-... 
-> The bad thing of hidden gcc magic is that you will not be able to
-> analyse nested concurrency controls in one go. You have to figure out
-> what the heck spin_lock vs. _spin_lock vs. semaphore vs. _semaphore vs.
-> mutex vs. _mutex means.
+You will even find code in there to push the ladder out of the softirq context.
+> 
+> do_settimeofday() is pretty straightforward.  No problems there.
+> adjtimex() with ADJ_OFFSET_SINGLESHOT mode seems reasonable as well.
+> 
+> adjtimex() with ADJ_OFFSET is a bit harder to follow.  Can you give me 
+> any pointers on what's going on with ADJ_OFFSET?
 
-Yeah, I thought of it initially as a great idea, but ultimately this
-is going to impose on the overall Linux development methodology if
-these patches go into the mainstream.
+> 
+> Thanks,
+> 
+> Chris
+> 
 
-I know what you're saying, but I ask you to be patient. All of this
-stuff is going to get clean up when I get some critical parts in place.
-And, yes, I do agree that this is unspeakably horrid. The static
-type determination thing probably will have to be removed at some point,
-but it's useful for rapid changing in the kernel at this time so that
-Ingo can make changes to keep up with MontaVista.
-
-All I can ask is for folks to be patient as all groups get synced up
-to each other and then we'll be able to talk about it more meaningfully.
-A bunch of things will fall into place once we all parties are mentally
-synced up.
-
-bill
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbUK2Xny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbUK2Xr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261855AbUK2Xny (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 18:43:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbUK2Xny
+	id S261862AbUK2Xr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 18:47:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbUK2Xrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 18:43:54 -0500
-Received: from mercury.sdinet.de ([193.103.161.30]:62135 "EHLO
-	mercury.sdinet.de") by vger.kernel.org with ESMTP id S261855AbUK2Xnu
+	Mon, 29 Nov 2004 18:47:55 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:18332 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261862AbUK2Xry
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 18:43:50 -0500
-Date: Tue, 30 Nov 2004 00:43:49 +0100 (CET)
-From: Sven-Haegar Koch <haegar@sdinet.de>
-To: Bernard Normier <bernard@zeroc.com>
-Cc: jonathan@jonmasters.org, linux-kernel@vger.kernel.org
-Subject: Re: Concurrent access to /dev/urandom
-In-Reply-To: <002c01c4d669$28ec6e30$6401a8c0@centrino>
-Message-ID: <Pine.LNX.4.61.0411300041290.816@mercury.sdinet.de>
-References: <006001c4d4c2$14470880$6400a8c0@centrino>
- <35fb2e5904112914476df48518@mail.gmail.com> <002c01c4d669$28ec6e30$6401a8c0@centrino>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 29 Nov 2004 18:47:54 -0500
+Date: Mon, 29 Nov 2004 15:42:35 -0800
+From: Greg KH <greg@kroah.com>
+To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6] I2C: macintoch/therm_* drivers cleanups
+Message-ID: <20041129234235.GA21496@kroah.com>
+References: <20041129231855.5e7f0bed.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041129231855.5e7f0bed.khali@linux-fr.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Nov 2004, Bernard Normier wrote:
+On Mon, Nov 29, 2004 at 11:18:55PM +0100, Jean Delvare wrote:
+> Hi Greg,
+> 
+> This patch cleans the macintoch/therm_* drivers a bit. It removes
+> useless IDs, cleans names (no white space), some coding style fixes as
+> well, etc. It's exactly the same as what I posted yesterday as a
+> candidate fix to bug #3823:
+> http://bugzilla.kernel.org/show_bug.cgi?id=3823
+> 
+> Although it isn't the proper fix for that bug, as you underlined, this
+> still sounds like a sane set of cleanups for these drivers.
+> 
+> Please apply,
 
->>> I use /dev/urandom to generate UUIDs by reading 16 random bytes from
->>> /dev/urandom (very much like e2fsprogs' libuuid).
->> 
->> Why not use /dev/random for such data instead?
->
-> A UUID generator that blocks from time to time waiting for entropy would not 
-> be usable.
+Applied, thanks,
 
-Especially when used on a box without any effective entropy source - like 
-praktically most cheap servers stashed away into some rack.
-
-c'ya
-sven
-
--- 
-
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)
+greg k-h

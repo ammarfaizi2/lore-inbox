@@ -1,26 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266082AbRF1SRF>; Thu, 28 Jun 2001 14:17:05 -0400
+	id <S266079AbRF1SSP>; Thu, 28 Jun 2001 14:18:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266079AbRF1SQ4>; Thu, 28 Jun 2001 14:16:56 -0400
-Received: from imo-m06.mx.aol.com ([64.12.136.161]:11465 "EHLO
-	imo-m06.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S266082AbRF1SQm>; Thu, 28 Jun 2001 14:16:42 -0400
-Date: Thu, 28 Jun 2001 14:16:24 -0400
-From: hunghochak@netscape.net (Ho Chak Hung)
-To: linux-kernel@vger.kernel.org
-Subject: Is an outside module supposed to use page cache?
-Mime-Version: 1.0
-Message-ID: <1EA7E4FA.3574845C.0F76C228@netscape.net>
-X-Mailer: Franklin Webmailer 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S266078AbRF1SSJ>; Thu, 28 Jun 2001 14:18:09 -0400
+Received: from [209.60.162.25] ([209.60.162.25]:17349 "EHLO wien.coactive.com")
+	by vger.kernel.org with ESMTP id <S266079AbRF1SRY>;
+	Thu, 28 Jun 2001 14:17:24 -0400
+Date: Thu, 28 Jun 2001 11:17:15 -0700 (PDT)
+From: Christoph Zens <czens@coactive.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: chuckw@altaserv.net, Aaron Lehmann <aaronl@vitelus.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Vipin Malik <vipin.malik@daniel.com>,
+        David Woodhouse <dwmw2@infradead.org>, jffs-dev@axis.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Cosmetic JFFS patch.
+In-Reply-To: <Pine.LNX.4.33.0106281057170.15199-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0106281111490.19351-100000@rumba.coactive.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-I am trying to develop a module that makes use of the page cache(by allocating a LOT of pages use page_cache_alloc and then add_to_page_cache). However, I got some unresolved symbols error during insmod.(because the symbols related to lru_cache_add.... etc are not exported?) .
-I am just wondering if I am not building a file system but at the same time want to allocate a lot of pages of physical memory to store something that has no backup storage as a file, should I add it to the page cache?
-Any advice would be greatly appreciated
-Thanks 
-__________________________________________________________________
-Get your own FREE, personal Netscape Webmail account today at http://webmail.netscape.com/
+
+> Also, in printk's, you waste run-time memory, and you bloat up the need
+> for the log size. Both of which are _technical_ reasons not to do it.
+> 
+> Small is beuatiful.
+
+I totally agree. If you want to use Linux for a small and low cost
+embedded system, you can't afford loads of RAM and FLASH space.
+Small is the _key_ for those systems.
+
+> 
+> 		Linus
+> 
+> 
+> To unsubscribe from this list: send the line "unsubscribe jffs-dev" in
+> the body of a message to majordomo@axis.com
+> 
+
+-- 
+Christoph Zens
+czens@coactive.com
+(415)-289-7765
+

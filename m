@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbTEDWkr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 18:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbTEDWkr
+	id S261827AbTEDXJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 19:09:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbTEDXJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 18:40:47 -0400
-Received: from munk.apl.washington.edu ([128.95.96.184]:53640 "EHLO
-	munk.apl.washington.edu") by vger.kernel.org with ESMTP
-	id S261823AbTEDWkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 18:40:46 -0400
-Date: Sun, 4 May 2003 16:10:11 -0700 (PDT)
-From: Brian Dushaw <dushaw@apl.washington.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Albatron KM18G PRO/RedHat 9.0 - disk errors and system seizures...
-Message-ID: <Pine.LNX.4.44.0305041543440.8546-100000@munk.apl.washington.edu>
+	Sun, 4 May 2003 19:09:29 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:5589 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261827AbTEDXJ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 19:09:28 -0400
+Message-ID: <D9223EB959A5D511A98F00508B68C20C15626C1C@orsmsx108.jf.intel.com>
+From: "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>
+To: "'Adrian McMenamin'" <adrian@mcmen.demon.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: RE: Cannot install 2.5.68 on Red Hat 8
+Date: Sun, 4 May 2003 16:21:35 -0700 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Linuxers,
-    I have a new KM18G PRO motherboard from Albatron, an nforce2 system.
-I've put together a generic system with 2X512MB Kingston HyperX memory
-sticks, 80 GB Maxtor drive, LG GMA-4020B DVD drive, athlon 2500XP+ (barton).  
-I also have USB devices: Epson C80 printer, Linksys wireless ethernet v2.5, 
-and a compactflash reader.  I am trying to use the nvidia graphics drivers, 
-which seem to work o.k.  A plain-jane system (apologies to Jane) - no 
-overclocking, etc.
-    I've installed RedHat 9.0 three times now - going on the fourth.  Most
-recently I upgraded the kernel with the RedHat update, to similar effect.  The
-problem seems to be two fold:  system lockups and disk errors.  The
-system lockups happen irregularly.  The disk errors seem to do things like
-corrupt the shared libraries (e.g., "bad magic" something, so the libraries
-are not recognized as ELF anymore).  In one case, I was upgrading the RedHat 
-glibc package when the upgrade crashed; then I was in big trouble.  Things are
-very unstable, although everything seems to install o.k..
-    Nothing much appears in the logs - dmesg or /var/log/messages.
-    Possible theories:  the nforce IDE driver is unstable, the two memory
-sticks in "twin bank" configuration don't cut the mustard, flakey motherboard,
-motherboard bios settings that linux has trouble with (PnP, ACPI/APIC, MPS
-Version Control (set to 1.4)), Memory timings (set to a conservative Optimal,
-By SPD), anything else?  I don't think I have an overheating problem.
+Yes. Mkinitrd in RH8.0 does not comprehend the .ko extension for kernel
+modules. Search and replace .o witk .ko in mkinitrd (4 occurrences) and you
+will be OK.
 
-    Anybody have ideas on what to try?  I got the nforce2 for performance; I
-had not realized that the linux support for it was so tenuous...
+Ganesh.
 
-    One other note:  I do have Windows2K on the system as well.  I did have
-a certain amount of trouble installing it, but I figured that was normal.  
-Windows 2K seems to be by-and-large stable.
+-----Original Message-----
+From: Adrian McMenamin [mailto:adrian@mcmen.demon.co.uk] 
+Sent: Sunday, May 04, 2003 3:47 PM
+To: linux-kernel@vger.kernel.org
+Subject: Cannot install 2.5.68 on Red Hat 8
 
-Thx!
+I have been trying to install 2.5.68 on an SMP box running a fairly bog 
+standard Red Hat 8 distro.
 
-Brian Dushaw
+The compile works, but the installation fails:
 
-(I am not subscribed; please cc me directly, thx.)
+Kernel: arch/i386/boot/bzImage is ready
+sh arch/i386/boot/install.sh 2.5.68 arch/i386/boot/bzImage System.map ""
+No module aic7xxx found for kernel 2.5.68
+make[1]: *** [install] Error 1
+make: *** [install] Error 2
 
+
+I understand, from googling old lkml messages, that this is likely to be due
+
+to Red Hat's mkinitrd.
+
+Is that correct?
+
+Is there a fix?
+
+Adrian
+adrian@mcmen.demon.co.uk
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,72 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbQLASav>; Fri, 1 Dec 2000 13:30:51 -0500
+	id <S129738AbQLASuA>; Fri, 1 Dec 2000 13:50:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129735AbQLASal>; Fri, 1 Dec 2000 13:30:41 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:7552 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129511AbQLASaa>; Fri, 1 Dec 2000 13:30:30 -0500
-Date: Fri, 1 Dec 2000 12:59:11 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Olivier Galibert <galibert@pobox.com>
-cc: Tigran Aivazian <tigran@veritas.com>, Alexander Viro <viro@math.psu.edu>,
-        Hugh Dickins <hugh@veritas.com>, Andries Brouwer <aeb@veritas.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: access() says EROFS even for device files if /dev is mounted RO
-In-Reply-To: <20001201121248.A13401@zalem.puupuu.org>
-Message-ID: <Pine.LNX.3.95.1001201124851.3833A-100000@chaos.analogic.com>
+	id <S129735AbQLAStv>; Fri, 1 Dec 2000 13:49:51 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:25093 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129437AbQLAStl>; Fri, 1 Dec 2000 13:49:41 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: /dev/random probs in 2.4test(12-pre3)
+Date: 1 Dec 2000 10:18:56 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <908q2g$1pf$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10012011720050.23462-100000@sphinx.mythic-beasts.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Dec 2000, Olivier Galibert wrote:
-
-> On Wed, Nov 29, 2000 at 04:40:29PM +0000, Tigran Aivazian wrote:
-> > b) what should be the return of access(W_OK) (or, the same, open() for 
-> > write with switched uid) for devices on a readonly-mounted filesystems?
-> > 
-> > Should the majority win? I.e. should we say OK, as we do now?
+Followup to:  <Pine.LNX.4.10.10012011720050.23462-100000@sphinx.mythic-beasts.com>
+By author:    Matthew Kirkwood <matthew@hairy.beasts.org>
+In newsgroup: linux.dev.kernel
+>
+> Hi,
 > 
-> My gut feeling on this is that when you mount a filesystem readonly
-> you mean "I don't want the filesystem to be modifiable".  Opening a
-> device for write never modifies the filesystem directly.  Devices are
-> gateways to resources external to the filesystem, the write permission
-> means something different for them.
+> It looks like the random driver in 2.4test will return a
+> short read, rather than blocking.  This is breaking vpnd
+> (http://sunsite.dk/vpnd/) which breaks with "failed to
+> gather random data" or similar.
 > 
-> Same is for sockets/pipes btw.
+> Here's a sample strace:
 > 
-> And I really wonder how you plan to fsck / if it has been uncleanly
-> unmounted and includes /dev.
+> open("/dev/random", O_RDONLY)           = 3
+> read(3, "q\321Nu\204\251^\234i\254\350\370\363\"\305\366R\2708V"..., 72) = 29
+> close(3)                                = 0
 > 
->   OG.
-> -
+> Have the semantics of the device changed, or is vpnd doing
+> something wrong?
+> 
 
-There is a mount option to disallow access to special files, i.e.,
-devices; MS_NODEV. A read-only file-system defaults to allowing
-access to device special files because it has to. Your console,
-your virtual terminal, /dev/tty, the root file-system raw device,
-etc., all have to be 'writable' before the root file-system is remounted
-read/write.
+vpnd is doing something wrong: it's assuming short reads won't
+happen.  /dev/random will block if there is NOTHING to be read;
+however, if there are bytes to be read, it will return them even if it
+is less than the user asked for.
 
-/dev/special files, are not really 'files'. They are a trick to
-associate a major/minor number with a file descriptor. They
-cannot be 'extended' or modified because you are not writing to
-them, hense `fsck` isn't a problem. The access time and ownership
-may have been modified, but that is synchronous.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

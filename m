@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269089AbRG3Xpb>; Mon, 30 Jul 2001 19:45:31 -0400
+	id <S269099AbRG3XzN>; Mon, 30 Jul 2001 19:55:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269090AbRG3XpV>; Mon, 30 Jul 2001 19:45:21 -0400
-Received: from atlrel2.hp.com ([156.153.255.202]:43740 "HELO atlrel2.hp.com")
-	by vger.kernel.org with SMTP id <S269093AbRG3XpJ>;
-	Mon, 30 Jul 2001 19:45:09 -0400
-Message-ID: <3B65F1A2.30708CC1@fc.hp.com>
-Date: Mon, 30 Jul 2001 17:45:38 -0600
-From: Khalid Aziz <khalid@fc.hp.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.5 i686)
+	id <S269098AbRG3XzE>; Mon, 30 Jul 2001 19:55:04 -0400
+Received: from archive.osdlab.org ([65.201.151.11]:707 "EHLO fire.osdlab.org")
+	by vger.kernel.org with ESMTP id <S269099AbRG3Xyy>;
+	Mon, 30 Jul 2001 19:54:54 -0400
+Message-ID: <3B65F330.CD4BE9DB@osdlab.org>
+Date: Mon, 30 Jul 2001 16:52:16 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolinux.com>
-Cc: Linux kernel development list <linux-kernel@vger.kernel.org>
+To: Khalid Aziz <khalid@fc.hp.com>
+CC: Andreas Dilger <adilger@turbolinux.com>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
 Subject: Re: Support for serial console on legacy free machines
-In-Reply-To: <200107302332.f6UNWbxg001791@webber.adilger.int>
+In-Reply-To: <200107302240.f6UMeWg2001230@webber.adilger.int> <3B65E711.A3828E15@fc.hp.com> <3B65EB21.C1DD8624@osdlab.org> <3B65F02B.53A8880D@fc.hp.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Andreas Dilger wrote:
+Khalid Aziz wrote:
 > 
-> OK, maybe I'm misunderstanding here, but even if I put in a PCI serial
-> card in such a machine, can I get serial console support without ACPI?
-> Not that it matters in my case, because there are no PCI slots on the
-> motherboard either.
+> "Randy.Dunlap" wrote:
+> >
+> > Khalid Aziz wrote:
+> > > I am puzzled. How would you get "serial console" support even with ACPI
+> > > unless there IS a serial port on the system????? All ACPI can do is tell
+>     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > > you where the serial port is.
+> >
+> > Wait a minute.  Aren't you the person who originally proposed this,
+> > and you don't know how it's used?
+> >
+> > Here are 2 possibilities:
+> >
+> > a.  Some pre-production motherboards are built with serial ports on
+> > them, only for debugging.  Never shipped to customers like this.
+> > The documented I/O resources for this serial port are in the
+> > special ACPI table that you referred to last Thursday.
+> >
 > 
+> And that means system DOES have a serial port. All SPCR table does is
+> tell you where it is (in I/O, memory or PCI space). SPCR table does not
+> add a serial port. Some kind of serial port has to exist for SPCR table
+> to be meaningful. My understanding of Andreas' question was how to get
+> serial console support (or same kind of functionality) when the new
+> systems do not have a serial port.
 
-AFAIK, you can not have console on a PCI serial port at this time. I
-looked at it few months back and found out that PCI initialization
-happens much too late for a serial console. It would take quite a bit of
-work to get serial console working on PCI cards. PA-Linux faced the same
-problem but they were able to get around it by using the firmware calls
-to do console I/O. If serial console were working on PCI serial cards,
-you wouldn't need ACPI to use it.
+OK, thanks for the clarification.  I misunderstood Andreas's question.
+
+> If a USB chipset could "emulate" a serial port by doing proper
+> translation from read/write into USB protocol transfers, system still
+> has a serial port from OS point of view and all ACPI tables will do is
+> tell me where to find it.
+
+I agree (mostly).
 
 -- 
-Khalid
-
-====================================================================
-Khalid Aziz                              Linux Systems Operation R&D
-(970)898-9214                                        Hewlett-Packard
-khalid@fc.hp.com                                    Fort Collins, CO
+~Randy

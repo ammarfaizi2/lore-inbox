@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbVAEBNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262233AbVAEBOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262232AbVAEBNt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 20:13:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbVAEBNp
+	id S262233AbVAEBOf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 20:14:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbVAEBOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 20:13:45 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:63109 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262224AbVAEBMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 20:12:53 -0500
-Subject: Re: FAT, NTFS, CIFS and DOS attributes
-From: Nicholas Miell <nmiell@comcast.net>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, sfrench@samba.org,
-       ntfs-dev <linux-ntfs-dev@lists.sourceforge.net>,
-       samba-technical@lists.samba.org, hirofumi@mail.parknet.co.jp,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1104886081.3815.102.camel@localhost.localdomain>
-References: <41D9C635.1090703@zytor.com>
-	 <1104834865.26349.32.camel@imp.csi.cam.ac.uk>
-	 <1104877121.3815.36.camel@localhost.localdomain>
-	 <Pine.LNX.4.60.0501042251420.15144@hermes-1.csi.cam.ac.uk>
-	 <1104886081.3815.102.camel@localhost.localdomain>
+	Tue, 4 Jan 2005 20:14:17 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:28599 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262220AbVAEBNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 20:13:55 -0500
+Subject: Re: [patch] maintainers: remove moderated arm list
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Erik Mouw <erik@harddisk-recovery.com>, Adrian Bunk <bunk@stusta.de>,
+       Domen Puncer <domen@coderock.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1104873185.8346.32.camel@krustophenia.net>
+References: <20041225170825.GA31577@nd47.coderock.org>
+	 <20041225172155.A26504@flint.arm.linux.org.uk>
+	 <20050103175438.GL2980@stusta.de>
+	 <20050104085437.GA26584@harddisk-recovery.com>
+	 <20050104090057.GA2035@infradead.org>
+	 <20050104092515.B9409@flint.arm.linux.org.uk>
+	 <20050104093326.GA2408@infradead.org>
+	 <1104873185.8346.32.camel@krustophenia.net>
 Content-Type: text/plain
-Date: Tue, 04 Jan 2005 17:12:50 -0800
-Message-Id: <1104887570.3815.104.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3.njm.1) 
 Content-Transfer-Encoding: 7bit
+Message-Id: <1104883649.17166.105.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 05 Jan 2005 00:07:32 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-04 at 16:48 -0800, Nicholas Miell wrote:
+On Maw, 2005-01-04 at 21:13, Lee Revell wrote:
+> Agreed.  Besides, there are _very_ effective solutions to the spam
+> problem.  man spamassassin.
 
-> [ Note to audience: the following is a long (and largely irrelevant to
-> the subject) discussion of how NTFS could implement reparse points and
-> encryption on Linux. Feel free to ignore it. ]
+You realise current generation spam generator tools actually grab and
+build spamassassin and then feed the spam through it adjusting it until
+it passes ?
 
-Sorry for the reply to my own message, but I forget to mention in the
-original that the right thing to do for the Encrypted and Reparse bits
-may be just be to silently discard them and not support the manipulation
-of these rather esoteric NTFS features through a general API at all.
-
--- 
-Nicholas Miell <nmiell@comcast.net>
+Please don't tell mailing list admins how to run lists.
 

@@ -1,29 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311264AbSCYPkp>; Mon, 25 Mar 2002 10:40:45 -0500
+	id <S312444AbSCYPvp>; Mon, 25 Mar 2002 10:51:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310660AbSCYPkf>; Mon, 25 Mar 2002 10:40:35 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22280 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311644AbSCYPk1>; Mon, 25 Mar 2002 10:40:27 -0500
-Subject: Re: IDE and hot-swap disk caddies
-To: summer@os2.ami.com.au (John Summerfield)
-Date: Mon, 25 Mar 2002 15:56:07 +0000 (GMT)
-Cc: andre@linux-ide.org, linux-kernel@vger.kernel.org,
-        mlord@pobox.com (Mark Lord)
-In-Reply-To: <200203250932.g2P9W0g04463@numbat.Os2.Ami.Com.Au> from "John Summerfield" at Mar 25, 2002 05:32:00 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S312442AbSCYPvf>; Mon, 25 Mar 2002 10:51:35 -0500
+Received: from [212.30.75.51] ([212.30.75.51]:19586 "EHLO
+	radovan.kista.gajba.net") by vger.kernel.org with ESMTP
+	id <S310660AbSCYPvU>; Mon, 25 Mar 2002 10:51:20 -0500
+Date: Mon, 25 Mar 2002 16:50:55 +0100
+From: Boris <boris@kista.gajba.net>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: kernel-janitor-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: mdacon.c minor cleanups
+Message-ID: <20020325165055.A421@radovan.kista.gajba.net>
+In-Reply-To: <20020324194254.A14465@suse.de> <Pine.LNX.4.44.0203250951520.14794-100000@netfinity.realnet.co.sz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16pWpL-0000pg-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The device is hot-swap capable and has a switch (others have a key) 
-> that locks the drive in and powers it up; in the other position the 
-> drive is powered down and can be removed.
+On Mon, Mar 25, 2002 at 09:53:24AM +0200, Zwane Mwaikambo wrote:
+> The mdacon probe code doesn't seem to work well, if i have it compiled in 
+> it *always* detects an MDA card, even if there isn't one actually in the 
+> box. I can provide the dmesg if anyone's interested.
+> 
+> 	Zwane
+> 
 
-Linux doesn't support IDE hot swap at the drive level. Its basically
-waiting people to want it enough to either fund it or go write the code
+I will look into it, however i must admit i never tried to load the driver without the mda card in the box.
+
+Can you tell me, what type of "card" is found?
+Kernel version?
+
+	Boris

@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286994AbRL1UBj>; Fri, 28 Dec 2001 15:01:39 -0500
+	id <S286999AbRL1UOK>; Fri, 28 Dec 2001 15:14:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286999AbRL1UB3>; Fri, 28 Dec 2001 15:01:29 -0500
-Received: from bitmover.com ([192.132.92.2]:18339 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S286994AbRL1UBK>;
-	Fri, 28 Dec 2001 15:01:10 -0500
-Date: Fri, 28 Dec 2001 12:01:04 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Legacy Fishtank <garzik@havoc.gtf.org>, Dave Jones <davej@suse.de>,
-        "Eric S. Raymond" <esr@snark.thyrsus.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: State of the new config & build system
-Message-ID: <20011228120104.B4077@work.bitmover.com>
-Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
-	Legacy Fishtank <garzik@havoc.gtf.org>, Dave Jones <davej@suse.de>,
-	"Eric S. Raymond" <esr@snark.thyrsus.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20011228042648.A7943@havoc.gtf.org> <2705.1009532564@ocs3.intra.ocs.com.au>
+	id <S286993AbRL1UOA>; Fri, 28 Dec 2001 15:14:00 -0500
+Received: from naxos.pdb.sbs.de ([192.109.3.5]:58082 "EHLO naxos.pdb.sbs.de")
+	by vger.kernel.org with ESMTP id <S287003AbRL1UN5>;
+	Fri, 28 Dec 2001 15:13:57 -0500
+Date: Fri, 28 Dec 2001 21:13:48 +0100
+From: Wolfgang Erig <Wolfgang.Erig@fujitsu-siemens.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: zImage not supported for 2.2.20?
+Message-ID: <20011228211348.A8720@upset.pdb.fsc.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <4.3.2.7.2.20011228101818.00aaa2c0@192.168.124.1> <4.3.2.7.2.20011228101818.00aaa2c0@192.168.124.1> <20011228121228.GA9920@emma1.emma.line.org> <4.3.2.7.2.20011228124704.00abba70@192.168.124.1> <20011228163250.A31791@elektroni.ee.tut.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <2705.1009532564@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Fri, Dec 28, 2001 at 08:42:44PM +1100
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011228163250.A31791@elektroni.ee.tut.fi>; from kaukasoi@elektroni.ee.tut.fi on Fri, Dec 28, 2001 at 04:32:50PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 28, 2001 at 08:42:44PM +1100, Keith Owens wrote:
-> "All" I need to do is have one server process that reads the big list
-> once and the other client processes talk to the server.  Much less data
-> involved means faster conversion from absolute to standardized names.
+On Fri, Dec 28, 2001 at 04:32:50PM +0200, Petri Kaukasoina wrote:
+> Hi, I used to make zImages, but for no specific reason. The last working
+> version was 2.2.20pre3. 2.2.20pre5 gave Out of memory -- System halted. I
+> reported it a few months ago:
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0108.2/0363.html
+> 
+> This was the only change then that looks like it:
+> 
+> o       Add support for the 2.4 boot extensions to 2.2  (H Peter Anvin)
+> -
+Loading linux 2.2.20.......
+Uncompressing Linux...
 
-Actually, if you use the mdbm code, you can have a server process which
-reads the data, stashes it in the db, touchs ./i_am_done, and exits.
-"client" processes do a 
 
-	while (!exists("i_am_done")) usleep(100000);
-	m = mdbm_open("db", O_RDONLY, 0, 0);
-	val = mdbm_fetch_str(m, "key");
-	etc.
+Out of memory
 
-No sockets, no back and forth, runs at mmap speed.
 
-If you tell me what the data looks like that needs to be in the DB, i.e.,
-how to get it, I'll code you up the "server" side.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+ -- System halted
+
+Siemens/Nixdorf Mobile 710
+Pentium MMX 166MHz, 128MB
+
+Kernel 2.2.20 generated from perfectly running 2.2.19 with
+make oldconfig; make dep; make zImage; ...
+
+2.4.16 does not work too:
+Loading linux 2.4.16........
+
+[ black screen and than back in BIOS-boot ]
+
+	Wolfgang

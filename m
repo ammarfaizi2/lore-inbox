@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316471AbSEOSyb>; Wed, 15 May 2002 14:54:31 -0400
+	id <S316459AbSEOTBO>; Wed, 15 May 2002 15:01:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316472AbSEOSya>; Wed, 15 May 2002 14:54:30 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38662 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316471AbSEOSya>; Wed, 15 May 2002 14:54:30 -0400
-Date: Wed, 15 May 2002 19:54:22 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix for initrd breakage in 2.5.13+
-Message-ID: <20020515195421.C28997@flint.arm.linux.org.uk>
-In-Reply-To: <200205151653.g4FGrV702962@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S316466AbSEOTBN>; Wed, 15 May 2002 15:01:13 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:57607 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S316459AbSEOTBN>; Wed, 15 May 2002 15:01:13 -0400
+Date: Wed, 15 May 2002 16:00:56 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: [RFC][PATCH] iowait statistics
+In-Reply-To: <20020515184646.GH27957@holomorphy.com>
+Message-ID: <Pine.LNX.4.44L.0205151558180.32261-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 15, 2002 at 12:53:31PM -0400, James Bottomley wrote:
-> initrd was completely broken by your change set 1.447.69.4 ([PATCH] (4/6) 
-> blksize_size[] removal).  As part of this change, you completely divorced the 
-> ramdisk from the setup parameter rd_blocksize, so it now has the default 512 
-> byte block size and thus initrd fails to mount.
+On Wed, 15 May 2002, William Lee Irwin III wrote:
 
-Al has a far nicer patch for this, which works for me.  Al?
+> $ vmstat 1
+>    procs                      memory    swap          io     system         cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+> 17  0  0      0 182880  32364  55180   0   0     2    77   29   229  84   6  10
+> 16  0  0      0 175224  32408  57524   0   0     0     0  104   961  95   5   0
+>
+> All good there. OTOH:
+>
+> $ top
+> fscanf failed on /proc/stat for cpu 1
 
- Date:	Mon, 6 May 2002 03:03:04 -0400 (EDT)
- From:	Alexander Viro <viro@math.psu.edu>
- To:	Linus Torvalds <torvalds@transmeta.com>
- cc:	linux-kernel@vger.kernel.org
- Subject: [PATCH] rd.c blocksize fix
+Doh, take a look at top.c around line 1460:
 
-(fallout from blksize_size[] removal)
+              for(i = 0; i < nr_cpu; i++) {
+                if(fscanf(file, "cpu%*d %d %d %d %d\n",
+                          &u_ticks, &n_ticks, &s_ticks, &i_ticks) != 4) {
+                  fprintf(stderr, "fscanf failed on /proc/stat for cpu %d\n", i);
 
-rd.c depends on exact value of blocksize being set from the very
-beginning.
+It would have been ok (like vmstat) if it didn't expect the \n
+after the fourth number ;/
 
---- drivers/block/rd.c	Fri May  3 03:26:05 2002
-+++ /tmp/rd.c	Mon May  6 03:00:00 2002
-@@ -376,6 +376,7 @@
- 		rd_bdev[unit] = bdget(kdev_t_to_nr(inode->i_rdev));
- 		rd_bdev[unit]->bd_openers++;
- 		rd_bdev[unit]->bd_inode->i_mapping->a_ops = &ramdisk_aops;
-+		rd_bdev[unit]->bd_block_size = rd_blocksize;
- 	}
- 
- 	return 0;
+Oh well, time for another procps patch ;)
 
+cheers,
+
+Rik
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

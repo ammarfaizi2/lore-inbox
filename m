@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVCAClW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbVCACr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbVCAClW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 21:41:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVCAClW
+	id S261218AbVCACr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 21:47:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVCACr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 21:41:22 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:19212 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261204AbVCAClU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 21:41:20 -0500
-Date: Tue, 1 Mar 2005 03:41:18 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: adaplas@pol.net
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: RFC: disallow modular framebuffers
-Message-ID: <20050301024118.GF4021@stusta.de>
+	Mon, 28 Feb 2005 21:47:29 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24271 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261218AbVCACrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 21:47:25 -0500
+Date: Tue, 1 Mar 2005 02:47:21 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: matthew@wil.cx, James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/scsi/sym53c8xx_2/sym_hipd.c: make a function static
+Message-ID: <20050301024721.GD28741@parcelfarce.linux.theplanet.co.uk>
+References: <20050228220155.GS4021@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050228220155.GS4021@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Feb 28, 2005 at 11:01:55PM +0100, Adrian Bunk wrote:
+> This patch makes a needlessly global function static.
 
-while looking how to fix modular FB_SAVAGE_* (both FB_SAVAGE_I2C=m and 
-FB_SAVAGE_ACCEL=m are currently broken) I asked myself:
-
-Do modular framebuffers really make sense?
-
-OK, distributions like to make everything modular, but all the 
-framebuffer drivers I've looked at parse driver specific options in 
-their *_setup function only in the non-modular case.
-
-And most framebuffer drivers contain a module_exit function.
-Is there really any case where this is both reasonable and working?
-
-cu
-Adrian
+Thanks, committed
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

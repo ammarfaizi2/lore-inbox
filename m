@@ -1,64 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264401AbUF0Ueg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUF0VDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264401AbUF0Ueg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 16:34:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264411AbUF0Ueg
+	id S262380AbUF0VDi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 17:03:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264412AbUF0VDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 16:34:36 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:23218 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S264401AbUF0Ue1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 16:34:27 -0400
-Message-ID: <40DF2F0D.6030804@colorfullife.com>
-Date: Sun, 27 Jun 2004 22:33:17 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Brian Lazara <blazara@nvidia.com>
-CC: linux-kernel@vger.kernel.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-Subject: [PATCH 2.6.7 and 2.4.27-pre6] new device support for forcedeth.c
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Jun 2004 17:03:38 -0400
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:11229 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S262380AbUF0VDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 17:03:33 -0400
+Date: Sun, 27 Jun 2004 14:03:21 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Greg KH <greg@kroah.com>,
+       arjanv@redhat.com, jgarzik@redhat.com, tburke@redhat.com,
+       linux-kernel@vger.kernel.org, david-b@pacbell.net, oliver@neukum.org
+Subject: Re: drivers/block/ub.c
+Message-ID: <20040627210321.GA12839@one-eyed-alien.net>
+Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>,
+	Alan Stern <stern@rowland.harvard.edu>, Greg KH <greg@kroah.com>,
+	arjanv@redhat.com, jgarzik@redhat.com, tburke@redhat.com,
+	linux-kernel@vger.kernel.org, david-b@pacbell.net,
+	oliver@neukum.org
+References: <20040627050201.GA24788@kroah.com> <Pine.LNX.4.44L0.0406271120520.10357-100000@netrider.rowland.org> <20040627132945.70350f2a@lembas.zaitcev.lan>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="MGYHOYXEY6WxJCY8"
+Content-Disposition: inline
+In-Reply-To: <20040627132945.70350f2a@lembas.zaitcev.lan>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Brian,
 
-could you check the full duplex handling? I'm testing my new nforce-250
-Gb (epox 8KDA3J) with a normal 100 MBit autonegotiation link partner and
-I'm getting bad performance (30 kB/sec) when sending. Half duplex works.
-The nic reports late collisions:
+--MGYHOYXEY6WxJCY8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-nv_tx_done: looking at packet 233, Flags 0x28200.
-	-> packet not yet completed
-nv_tx_done: looking at packet 233, Flags 0x1a810.
-	bits 16, 15, 13, 11, 4
-	error, lastpacket, late collision, deferred, retryerror.
-nv_tx_done: looking at packet 234, Flags 0x8000.
-	-> successful
-nv_tx_done: looking at packet 235, Flags 0x28200.
-	-> not yet completed.
+On Sun, Jun 27, 2004 at 01:29:45PM -0700, Pete Zaitcev wrote:
+> On Sun, 27 Jun 2004 11:23:10 -0400 (EDT)
+> Alan Stern <stern@rowland.harvard.edu> wrote:
+>=20
+> > + * -- use serial numbers to hook onto same hosts (same minor) after
+> > disconnect
+>=20
+> It was a poor wording by me. It refers to the drift of naming due to
+> increments in usb_host_id. After a disconnect and reconnect, /dev/uba1
+> refers to the device, but /proc/partitions says "ubb".
+>=20
+> To correct this, I have to set gendisk->fist_minor before calling
+> add_disk(), but in order to do that, a driver has to track devices
+> somehow. A serial number looks like an obvious candidate for a key.
 
-Autonegotiation seems to work correctly: np->linkspeed is set to 65636, 
-np->duplex to 1.
-lspci reports:
+Serial numbers are unreliable for this.  We've had a long history with this
+issue.  Many devices do not provide a serial number.  Many devices provide
+a serial number, but it is not a constant.  Many devices provide invalid
+serial numbers.
 
-00:05.0 Bridge: nVidia Corporation: Unknown device 00df (rev a2)
-        Subsystem: Unknown device 1695:100c
-        Flags: bus master, 66Mhz, fast devsel, latency 0, IRQ 11
-        Memory at ec000000 (32-bit, non-prefetchable)
-        I/O ports at b400 [size=8]
-        Capabilities: [44] Power Management version 2
-00: de 10 df 00 07 00 b0 00 a2 00 80 06 00 00 00 00
-10: 00 00 00 ec 01 b4 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 95 16 0c 10
-30: 00 00 00 00 44 00 00 00 00 00 00 00 0b 01 01 14
+Matt
 
-Could you give me a hint what's wrong? If you need further register 
-values, just ask.
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
-Thanks,
---
-	Manfred
+IT KEEPS ASKING ME WHERE I WANT TO GO TODAY! I DONT WANT TO GO ANYWHERE!
+					-- Greg
+User Friendly, 11/28/97
+
+--MGYHOYXEY6WxJCY8
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFA3zYZIjReC7bSPZARAtJpAKCYsjsEB0MbYsQGPm6b/QOcB/bJ9QCfVijX
+aEtWgu0EhUxkecCvJw9u/PY=
+=Oxao
+-----END PGP SIGNATURE-----
+
+--MGYHOYXEY6WxJCY8--

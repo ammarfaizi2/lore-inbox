@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135599AbREBQMw>; Wed, 2 May 2001 12:12:52 -0400
+	id <S135619AbREBQOb>; Wed, 2 May 2001 12:14:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135612AbREBQMl>; Wed, 2 May 2001 12:12:41 -0400
-Received: from mailgw.prontomail.com ([216.163.180.10]:4327 "EHLO
-	c0mailgw09.prontomail.com") by vger.kernel.org with ESMTP
-	id <S135599AbREBQMc>; Wed, 2 May 2001 12:12:32 -0400
-Message-ID: <3AF031DC.B8D793FE@mvista.com>
-Date: Wed, 02 May 2001 09:12:12 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S135404AbREBQOR>; Wed, 2 May 2001 12:14:17 -0400
+Received: from mail.iwr.uni-heidelberg.de ([129.206.104.30]:63937 "EHLO
+	mail.iwr.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S135617AbREBQNt>; Wed, 2 May 2001 12:13:49 -0400
+Date: Wed, 2 May 2001 18:13:43 +0200 (CEST)
+From: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
+To: "Cabaniols, Sebastien" <Sebastien.Cabaniols@compaq.com>
+cc: "'andrewm@uow.edu.au'" <andrewm@uow.edu.au>,
+        "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [3com905b freeze Alpha SMP 2.4.2] FullDuplex issue ?
+In-Reply-To: <1FF17ADDAC64D0119A6E0000F830C9EA04B3CDCA@aeoexc1.aeo.cpqcorp.net>
+Message-ID: <Pine.LNX.4.30.0105021801190.26143-100000@kenzo.iwr.uni-heidelberg.de>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: xconfig is broken (example ppc 8xx)
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To show the problem do:
+On Wed, 2 May 2001, Cabaniols, Sebastien wrote:
 
-make xconfig ARCH=ppc
+> I insert the 3c59x module with debug=7.
 
-in the "Platform support" menu "Processor Type" select "8xx" then close
-the subminue with "MainMenu"
+Why ? debug=7 is the highest debug level and produces _lots_ of debug data
+for high network activity. Do you have problems when insmod-ing without
+any option and use a higher debug level just to see what's going on?
 
-now select "Save and Exit"
+> The first of the above machines launching the get freezes.
 
-This produces the following error messages:
+Why do you believe that the card/driver is responsible for the freeze ?
+The outputs that you provided show no problems to me.
 
-ERROR - Attempting to write value for unconfigured variable
-(CONFIG_SCC_ENET).
-ERROR - Attempting to write value for unconfigured variable
-(CONFIG_FEC_ENET).
+A duplex mismatch would not freeze a computer. You would get crappy
+transfer rates, usually some error messages from the driver, but
+everything should otherwise work. To verify the media settings, you might
+want to use mii-diag (from ftp.scyld.com).
 
-The named CONFIG options are not set, nor are a few others related to
-CONFIG_SCC_ENET.
-(This means the on board NIC is not configured and since this is usually
-a disc less system, boot fails when trying to mount "/" over nfs.)
+Sincerely,
 
-make menueconfig ARCH=ppc  works correctly.
+Bogdan Costescu
 
-The problem appears to be related to these lines in
-../ARCH/ppc/config.in
+IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
+Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
+Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
+E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
 
 
-if [ "$CONFIG_CPU_PPC_8xx" = "y" ]; then
-source arch/ppc/8xx_io/Config.in
-fi
-
-if [ "$CONFIG_CPU_PPC_8260" = "y" ]; then
-source arch/ppc/8260_io/Config.in
-fi
-
-Only one of the two files is included, however, both configure the two
-options mentioned in the error messages.
-
-I think the problem is that the "wish" script builder does not allow a
-CONFIG option to be configured in two different places, even if only one
-of scripts should be included.
-
-Additional info: Kernel revs tested 2.4.2, 2.4.3
-If you swap the two "if" phrases above, the 8xx config works but the
-8260 fails in the same way.  I.e. the last one wins.

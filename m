@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132909AbREFG4G>; Sun, 6 May 2001 02:56:06 -0400
+	id <S133019AbREFHBG>; Sun, 6 May 2001 03:01:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132991AbREFGzq>; Sun, 6 May 2001 02:55:46 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:45318 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S132909AbREFGzp>; Sun, 6 May 2001 02:55:45 -0400
-Date: Sun, 6 May 2001 10:55:19 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Richard Henderson <rth@twiddle.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.4 alpha semaphores optimization
-Message-ID: <20010506105519.A7562@jurassic.park.msu.ru>
-In-Reply-To: <20010503194747.A552@jurassic.park.msu.ru> <20010504141240.A11122@twiddle.net> <20010505175547.A2302@jurassic.park.msu.ru>
-Mime-Version: 1.0
+	id <S133024AbREFHAq>; Sun, 6 May 2001 03:00:46 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:58628 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S133019AbREFHAn>;
+	Sun, 6 May 2001 03:00:43 -0400
+Message-ID: <3AF4FB57.BA55A651@candelatech.com>
+Date: Sun, 06 May 2001 00:20:55 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>
+Subject: Re: [PATCH] arp_filter patch for 2.4.4 kernel.
+In-Reply-To: <3AF4720F.35574FDD@candelatech.com>
+		<15092.32371.139915.110859@pizda.ninka.net>
+		<3AF49617.1B3C48AF@candelatech.com> <15092.37426.648280.631914@pizda.ninka.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010505175547.A2302@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Sat, May 05, 2001 at 05:55:47PM +0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > If you do
-> > (perhaps to coordinate with devices) then the barriers are required.
+"David S. Miller" wrote:
 > 
-> For IO space access mb's are required, but ll/sc are of no use, AFAIK.
+> Ben Greear writes:
+>  > No idea, haven't tried to use netfilter.  With this patch, though,
+>  > it's as easy as:
+> 
+> I know, the problem is if some existing facility can be made
+> to do it, I'd rather it be done that way.
 
-Ugh. You are right, of course. I forgot that drivers are also using
-atomic.h, and the intelligent device could be counted as another CPU
-to some degree...
+Would requiring netfilter to be used slow down the fast path
+for packets in any way?  The current arp-filter code will not,
+as far as I can tell, and if the netfilter overhead is significant,
+that may be a good reason to accept the patch, or the alternative
+one proposed a few mails back...
 
-Thanks for the __builtin_expect fix!
-
-Ivan.
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

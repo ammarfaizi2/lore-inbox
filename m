@@ -1,51 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262115AbVATLHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262117AbVATLOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262115AbVATLHA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 06:07:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbVATLHA
+	id S262117AbVATLOp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 06:14:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVATLOp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 06:07:00 -0500
-Received: from gprs215-87.eurotel.cz ([160.218.215.87]:60806 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262115AbVATLG6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 06:06:58 -0500
-Date: Thu, 20 Jan 2005 12:06:28 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Fred Labrosse <ffl@aber.ac.uk>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Machine no longer enters C3 on 2.6.11-rc1-bk
-Message-ID: <20050120110628.GH1452@elf.ucw.cz>
-References: <20050120104033.GA25889@elf.ucw.cz> <16879.36609.94551.926755@aber.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16879.36609.94551.926755@aber.ac.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 20 Jan 2005 06:14:45 -0500
+Received: from zone4.gcu-squad.org ([213.91.10.50]:21999 "EHLO
+	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S262117AbVATLOh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 06:14:37 -0500
+Date: Thu, 20 Jan 2005 12:08:47 +0100 (CET)
+To: nico@cam.org, sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-mm2: it87 sensor driver stops CPU fan
+X-IlohaMail-Blah: khali@localhost
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
+Message-ID: <CPrisGfK.1106219326.9605690.khali@localhost>
+In-Reply-To: <Pine.LNX.4.61.0501191608010.5315@localhost.localdomain>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: "Jonas Munsin" <jmunsin@iki.fi>, "Simone Piunno" <pioppo@ferrara.linux.it>,
+       "Greg KH" <greg@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
->  > bus master activity: is changing all the time, mostly 555555555 and
->  > aaaaaaa, and cpu refuses to enter C3 for obvious reasons. I compiled
->  > out USB and sound... Does anybody else see the same problem?
->  > 
-> 
-> I did notice too that it was never in C3 apart from a bit right at the
-> beginning, since 2.6.10.  It has always been like that up to 2.6.6, became
-> better from 2.6.7 (but had other problems with that).
-> 
-> Fred
-> 
-> P.S.  I didn't check bus master activity.  How do you do that?
+Hi Nicolas,
 
-can you try to kill all bm_activity++ things in
-drivers/acpi/processor.c and see what it does to your power
-consumption. (Warning: it may do bad stuff to your performance).
+> > I would also appreciate a dump of the chip (isadump 0x295 0x296 unless
+> > it lives at some uncommon address) to confirm the guess.
+>
+>      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+> 00: 11 10 80 00 37 ff 00 37 ff 07 13 5b 00 51 40 ff
+> 10: fe fe ff 71 d7 fe 7f fe 00 00 ff ff ff ff ff ff
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Interesting. Your chip does seem to be configured (i.e. pwm polarity is
+high), so whatever your problem is, it is probably different from what
+Simone experienced.
+
+Your configuration is as follow:
+* PWM outputs active high.
+* PWM 2 and 3 in on/off mode, set to on.
+* PWM 1 in "smart guardian" mode, set to automatic PWM depending on
+temp3.
+
+I would like to know how temperature channels are used by your
+motherboard, and how fans are used as well. Which temperature and fan
+channels correspond to your CPU? What other temperature sensors and fans
+are present?
+
+The values dumped here make me believe that the PWM outputs were
+configured by the BIOS. Now maybe not the correct way, at least for you.
+
+> I guess the BIOS setting will simply be overwritten so changing the BIOS
+> should not affect subsequent use, no?
+
+Changing the BIOS configuration affects the initial register
+configuration, from which the it87 driver decides whether using PWM or
+reconfiguring the chip (changing polarity) is safe or not. This is why
+it might help. With the dump you provided, we now know that the (new)
+it87 driver will accept PWM operations even when your BIOS was left in
+"smart guardian" mode.
+
+I would like you to give a try to a recent version of the it87 driver (as
+found in 2.6.11-rc1-bk7 or 2.6.11-rc1-mm2). This will let us know which
+revision of the IT8712F you have (in case it matters), and will also let
+you experiment with manual PWM.
+
+If manual PWM works, then the problem is in the way temperature interacts
+with PWM in automatic mode.
+
+If manual PWM works the wrong way around (like it did for Simone) then it
+is a polarity issue (after all, maybe *you* need active low).
+
+If manual PWM half works (fan speed changes but not as much as it should)
+it might be a problem of picking the correct base frequency for PWM.
+
+So please let us know how manual PWM behaves, and I'll tell you what I
+think the problem is, and how I think it can be tinkered with (providing
+it can).
+
+In the meantime, you could contact Gigabyte and explain about the
+problem. They better learn about the problem and fix their BIOS is
+needed.
+
+Thanks,
+--
+Jean Delvare

@@ -1,31 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbUC1SRl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 13:17:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUC1SRl
+	id S262337AbUC1SWN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 13:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbUC1SWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 13:17:41 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:61390 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262316AbUC1SRf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 13:17:35 -0500
-Date: Sun, 28 Mar 2004 20:17:08 +0200
-From: Jens Axboe <axboe@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+	Sun, 28 Mar 2004 13:22:13 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:52921 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262337AbUC1SVJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 13:21:09 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: William Lee Irwin III <wli@holomorphy.com>, Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] speed up SATA
+Date: Sun, 28 Mar 2004 20:30:11 +0200
+User-Agent: KMail/1.5.3
+Cc: Jeff Garzik <jgarzik@pobox.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
        linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] speed up SATA
-Message-ID: <20040328181708.GP24370@suse.de>
-References: <40661049.1050004@yahoo.com.au> <406611CA.3050804@pobox.com> <406612AA.1090406@yahoo.com.au> <4066156F.1000805@pobox.com> <20040328141014.GE24370@suse.de> <40670BD9.9020707@pobox.com> <20040328173508.GI24370@suse.de> <40670FDB.6080409@pobox.com> <20040328175436.GL24370@suse.de> <20040328181223.GA791@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <4066021A.20308@pobox.com> <20040328175436.GL24370@suse.de> <20040328181223.GA791@holomorphy.com>
 In-Reply-To: <20040328181223.GA791@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403282030.11743.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 28 2004, William Lee Irwin III wrote:
+On Sunday 28 of March 2004 20:12, William Lee Irwin III wrote:
 > On Sun, Mar 28, 2004 at 07:54:36PM +0200, Jens Axboe wrote:
 > > Sorry, but I cannot disagree more. You think an artificial limit at the
 > > block layer is better than one imposed at the driver end, which actually
@@ -43,18 +46,8 @@ On Sun, Mar 28 2004, William Lee Irwin III wrote:
 > > hardware. I absolutely refuse to put a global block layer 'optimal io
 > > size' restriction in, since that is the ugliest of policies and without
 > > having _any_ knowledge of what the hardware can do.
-> 
+>
 > How about per-device policies and driver hints wrt. optimal io?
 
-That would be fine, it's what I suggested in an earlier email. In the
-future Jamie's suggestion is probably the one that makes the most sense
-- just keep a per-driver limit setting which informs the block layer of
-max sectors the hardware truly can do, and try and time request
-execution if you care about latencies.
-
-But lets not forget the original question, which is when and if 32MB
-request make sense at all. Right now they probably don't.
-
--- 
-Jens Axboe
+Yep, user-tunable per-device policies with sane driver defaults.
 

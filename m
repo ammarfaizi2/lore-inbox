@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272124AbRIJXZU>; Mon, 10 Sep 2001 19:25:20 -0400
+	id <S272187AbRIJXhy>; Mon, 10 Sep 2001 19:37:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272164AbRIJXZM>; Mon, 10 Sep 2001 19:25:12 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:24513 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S272124AbRIJXZA>;
-	Mon, 10 Sep 2001 19:25:00 -0400
-Date: Tue, 11 Sep 2001 00:25:16 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Daniel Phillips <phillips@bonn-fries.net>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>
-Cc: Andreas Dilger <adilger@turbolabs.com>, Andrea Arcangeli <andrea@suse.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: linux-2.4.10-pre5
-Message-ID: <1735991721.1000167915@[169.254.198.40]>
-In-Reply-To: <20010910230554Z16824-26183+920@humbolt.nl.linux.org>
-In-Reply-To: <20010910230554Z16824-26183+920@humbolt.nl.linux.org>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S272182AbRIJXho>; Mon, 10 Sep 2001 19:37:44 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:37893 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S272164AbRIJXh1>;
+	Mon, 10 Sep 2001 19:37:27 -0400
+Message-ID: <XFMail.20010911013717.ast@domdv.de>
+X-Mailer: XFMail 1.4.6-3 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+In-Reply-To: <200109102306.f8AN6iY21834@aslan.scsiguy.com>
+Date: Tue, 11 Sep 2001 01:37:17 +0200 (CEST)
+Organization: D.O.M. Datenverarbeitung GmbH
+From: Andreas Steinmetz <ast@domdv.de>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors)
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        <SPATZ1@t-online.de (Frank Schneider)>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> MD (line 3475 of drivers/md/md.c) uses 0 too.  Change it to INT_MAX
+> and MD will always get shutdown prior to any child devices it might
+
+I don't believe INT_MAX to be a good idea. What happens if anything else needs
+to shutdown prior to md (think of tux, knfsd)? As a suggestion it would be a
+good idea if someone with a broader overview would define some reboot
+priorities in include/linux/notifier.h.
 
 
---On Tuesday, 11 September, 2001 1:13 AM +0200 Daniel Phillips 
-<phillips@bonn-fries.net> wrote:
-
-> OK, now to shorten this up, if you've reached the conclusion that the
-> page  cache needs to be able to take advantage of blocks already read
-> into the  buffer cache then we're done.  That was my point all along.
-
-ACK. May be I am arguing all pages read should live in page/unified cache,
-i.e. current buffer cache should at most contain references to data already
-read and influence expiry of those pages (as opposed to hold private copies
-thereof) - see previous readahead debate ref best/worst pages to expire -
-BUT STILL thus drive what is cached at the layers below, (i.e.
-drive the file based readahead). Not saying there is necessarilly no place
-for physical readahead even with disks being able to do it, just difficult
-to measure whilst all logical readahead pages put in buffer cache cannot be
-taken advantage of by page cache.
-
-It may well be that I am lagging well behind on the thought process.
-Need lkml readahead obviously :-)
-
---
-Alex Bligh
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH

@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVC2Qzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVC2Q5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbVC2Qzo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 11:55:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVC2Qzo
+	id S261244AbVC2Q5T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 11:57:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbVC2Q5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 11:55:44 -0500
-Received: from verein.lst.de ([213.95.11.210]:54161 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261237AbVC2Qzh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 11:55:37 -0500
-Date: Tue, 29 Mar 2005 18:55:24 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Ali Akcaagac <aliakc@web.de>, Chris Wright <chrisw@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernel OOOPS in 2.6.11.6
-Message-ID: <20050329165524.GA1997@lst.de>
-References: <1112008141.17962.1.camel@localhost> <20050328224430.GO28536@shell0.pdx.osdl.net> <20050329063044.GB17541@frodo>
+	Tue, 29 Mar 2005 11:57:19 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:31402 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261244AbVC2Q5I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 11:57:08 -0500
+Date: Tue, 29 Mar 2005 17:57:05 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ed L Cashin <ecashin@coraid.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Greg K-H <greg@kroah.com>
+Subject: Re: [PATCH 2.6.11] aoe [7/12]: support configuration of AOE_PARTITIONS from Kconfig
+Message-ID: <20050329165705.GA31013@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ed L Cashin <ecashin@coraid.com>, linux-kernel@vger.kernel.org,
+	Greg K-H <greg@kroah.com>
+References: <87mztbi79d.fsf@coraid.com> <20050317234641.GA7091@kroah.com> <1111677688.29912@geode.he.net> <20050328170735.GA9567@infradead.org> <87hdiuv3lz.fsf@coraid.com> <20050329162506.GA30401@infradead.org> <87wtrqtn2n.fsf@coraid.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050329063044.GB17541@frodo>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+In-Reply-To: <87wtrqtn2n.fsf@coraid.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29, 2005 at 04:30:44PM +1000, Nathan Scott wrote:
-> On Mon, Mar 28, 2005 at 02:44:30PM -0800, Chris Wright wrote:
-> > * Ali Akcaagac (aliakc@web.de) wrote:
-> > > And happy easter to you all. Just got this while trying to delete some
-> > > files on my system.
-> > ...
-> > > : EIP is at linvfs_open+0x59/0xa0
-> > ...
-> > Nothing in the -stable series has changed either XFS or the core vfs
-> > path on during file open.  Without a chance of reproducing or any more
-> > information, it'll be tough to make much progress here.
-> 
-> *nod*.
-> 
-> Your full .config would be useful too, Ali, thanks.
-> 
-> > with eax == 00000000.  This corresponds to a vp->v_fops (or rather
-> > vp->v_bh.bh_first->bd_ops) deref.  So, looks like the vnode has a
-> > NULL v_bh.bh_first (which looks like it's meant to be used to mean
-> > uninitialized).  May check with XFS folks if they've seen this type
-> > of bug.
-> 
-> Its not currently known.  Looks like a possible iget-related race;
-> does this one ring any bells, Christoph?
+On Tue, Mar 29, 2005 at 11:48:48AM -0500, Ed L Cashin wrote:
+> I don't know if it matters now that we have udev.  When udev manages
+> the device nodes it all just works,
 
-This means the inode wasn't fully initialized.  This looks more like a
-problem of not unwinding properly on an error than a race to me.
+But most peopel still don't use udev.
 
-I'll take a deeper look.
+> If you're saying that it's bad in principal, then that's another
+> story.  If that's what you mean, then it's a Linux policy issue, and
+> to follow convention I'd think that we'd need another major number.
+> That would be like the partitionable md devices, etc.
+
+Yes, it's a policy issue.  We don't do this weird config option anywhere
+else.
 

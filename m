@@ -1,60 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130824AbRCJBoj>; Fri, 9 Mar 2001 20:44:39 -0500
+	id <S130820AbRCJBoA>; Fri, 9 Mar 2001 20:44:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130825AbRCJBoa>; Fri, 9 Mar 2001 20:44:30 -0500
-Received: from Mail.ubishops.ca ([192.197.190.5]:6661 "EHLO Mail.ubishops.ca")
-	by vger.kernel.org with ESMTP id <S130824AbRCJBoW>;
-	Fri, 9 Mar 2001 20:44:22 -0500
-Message-ID: <3AA9868C.A5226735@yahoo.co.uk>
-Date: Fri, 09 Mar 2001 20:42:36 -0500
-From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: linux-thinkpad@www.bm-soft.com
-Subject: 2.4.2-ac16 PIIX4 ACPI getting wrong IRQ?
+	id <S130824AbRCJBnu>; Fri, 9 Mar 2001 20:43:50 -0500
+Received: from monster.Stanford.EDU ([171.64.38.79]:53009 "EHLO
+	monster.stanford.edu") by vger.kernel.org with ESMTP
+	id <S130799AbRCJBni>; Fri, 9 Mar 2001 20:43:38 -0500
+Date: Fri, 9 Mar 2001 17:42:45 -0800
+From: Peter Blomgren <blomgren@monster.Stanford.EDU>
+To: Nathan Dabney <smurf@osdlab.org>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, greg@ulima.unil.ch
+Subject: Re: [PATCH] aicasm db3 fiasco
+Message-ID: <20010309174245.A13762@monster.Stanford.EDU>
+Reply-To: blomgren@math.Stanford.EDU
+In-Reply-To: <20010309160145.H30901@osdlab.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010309160145.H30901@osdlab.org>; from smurf@osdlab.org on Fri, Mar 09, 2001 at 04:01:45PM -0800
+Organization: High Latency R Us
+X-OS: Linux 2.2.17-1smp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.4.3-pre1, /proc/pci contained:
->   Bus  0, device   7, function  3:
->     Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 1).
+While we're at it, on my RH6.2 system db_185.h is in /usr/include,
+i.e.
 
-With 2.4.2-ac16, /proc/pci contains:
->  Bus  0, device   7, function  3:
->    Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 1).
->      IRQ 9.
+bash$ echo "`locate db_185.h` ($(rpm -qf `locate db_185.h`))"
+/usr/include/db_185.h (glibc-devel-2.1.3-22)
 
-So the ACPI function of the PIIX4 is now being given
-IRQ 9.  I don't want this.  I was using IRQ 9 for a
-PCMCIA device.
+FWIW, for my builds I've been using the following patch (hey, it works
+for me):
 
-So I tried booting the kernel with "acpi=off" and
-"pci=irqmask=0x0800", but the result was the same.
+--- linux/drivers/scsi/aic7xxx/aicasm/aicasm_symbol.c.orig      Thu Mar  8 17:09:00 2001
++++ linux/drivers/scsi/aic7xxx/aicasm/aicasm_symbol.c   Thu Mar  8 17:09:14 2001
+@@ -36,7 +36,7 @@
+ #include <sys/types.h>
+ 
+ #ifdef __linux__
+-#include <db/db_185.h>
++#include <db_185.h>
+ #else
+ #include <db.h>
+ #endif
 
-Documentation/kernel-parameters.txt says that
-"pci=irqmask=0xMMMM ... sets a bit mask of IRQs allowed
-to be assigned".  This parameter is being ignored.
+Maybe .../aic7xxx/aicasm/Makefile should do something like:
 
-[... searches through kernel sources ...]
+if [ ! -z `find /usr/include -name db_185.h` ]; then
+   echo "#include <`find /usr/include -name db_185.h | sed \
+   's+/usr/include/++g'`>" > aicdb.h
+else
+   echo "*** Install db development libraries ***";
+   exit 1
+fi
 
-Well I see that this is the result of a change to
-/usr/src/linux-2.4.2-ac16/arch/i386/kernel/pci_pc.c
-which looks deliberate:
+But what do I know? :-}
 
-< static void __init pci_fixup_piix4_acpi(struct pci_dev *d)
-< {
-< 	/*
-< 	 * PIIX4 ACPI device: hardwired IRQ9
-< 	 */
-< 	d->irq = 9;
-< }
 
-What's going on?
+On Fri, Mar 09, 2001 at 04:01:45PM -0800, Nathan Dabney wrote:
+> Debian does not use db3 at all, yet.
+> 
+> Applies against 2.4.2-ac17
+> 
+> -Nathan
+> 
+> diff -urN linux.orig/drivers/scsi/aic7xxx/aicasm/Makefile linux/drivers/scsi/aic7xxx/aicasm/Makefile
+> --- linux.orig/drivers/scsi/aic7xxx/aicasm/Makefile	Fri Mar  9 15:38:13 2001
+> +++ linux/drivers/scsi/aic7xxx/aicasm/Makefile	Fri Mar  9 15:52:27 2001
+> @@ -28,10 +28,12 @@
+>  aicdb.h:
+>  	if [ -e "/usr/include/db3/db_185.h" ]; then		\
+>  		echo "#include <db3/db_185.h>" > aicdb.h;	\
+> +	elif [ -e "/usr/include/db2/db_185.h" ]; then		\
+> +		echo "#include <db2/db_185.h>" > aicdb.h;	\
+>  	elif [ -e "/usr/include/db/db_185.h" ]; then		\
+>  		echo "#include <db/db_185.h>" >aicdb.h	;	\
+>  	else							\
+> -		echo "*** Install db3 development libraries";	\
+> +		echo "*** Install db development libraries";	\
+>  	fi
+>  
+>  clean:
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Thomas Hood
-jdthood_AT_yahoo.co.uk
+-- 
+\Peter.
+

@@ -1,60 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270332AbTGWOB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 10:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270334AbTGWOB7
+	id S270335AbTGWOFo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 10:05:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270346AbTGWOFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 10:01:59 -0400
-Received: from neko.kfib.org ([193.12.253.17]:25514 "EHLO neko.kfib.org")
-	by vger.kernel.org with ESMTP id S270332AbTGWOBq (ORCPT
+	Wed, 23 Jul 2003 10:05:44 -0400
+Received: from noose.gt.owl.de ([62.52.19.4]:31496 "EHLO noose.gt.owl.de")
+	by vger.kernel.org with ESMTP id S270335AbTGWOFd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 10:01:46 -0400
-To: linux-kernel@vger.kernel.org
-Cc: marcelo@conectiva.com.br
-Subject: [PATCH] Bug in initrd-handling still there in 2.4.22-pre7
-From: martin@kfib.org (martin@kfib.org)
-Date: 23 Jul 2003 16:16:56 +0200
-Message-ID: <m37k69s4yv.fsf@neko.kfib.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Jul 2003 10:05:33 -0400
+Date: Wed, 23 Jul 2003 16:20:35 +0200
+From: Florian Lohoff <flo@rfc822.org>
+To: Max Krasnyansky <maxk@qualcomm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.21] bluez/usb-ohci bulk_msg timeout
+Message-ID: <20030723142035.GA956@paradigm.rfc822.org>
+References: <20030718173214.GD15430@paradigm.rfc822.org> <5.1.0.14.2.20030721100313.0759df08@unixmail.qualcomm.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZPt4rx8FFjLCG7dd"
+Content-Disposition: inline
+In-Reply-To: <5.1.0.14.2.20030721100313.0759df08@unixmail.qualcomm.com>
+Organization: rfc822 - pure communication
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From original posting (2 weeks ago):
 
-> At work we've encountered a problem when trying to netboot 2.4.21.
-> After /linuxrc has been executed and the kernel tries to remount the
-> root, it panics with the all too well known message "Unable to mount
-> root fs on ...".
-> 
-> The kernel bugs out in mount_block_root in the file init/do_mounts.c,
-> to be more precise in the for-loop. What happens is that it tries to
-> mount the file system as type ext2 (which happens to be first in the
-> list in our case), but instead of returning -EINVAL it returns -EBUSY,
-> the loop exits instead of trying the next (correct) fs-type and the
-> kernel panics.
+--ZPt4rx8FFjLCG7dd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Patch for 2.4.22-pre7:
+On Mon, Jul 21, 2003 at 10:06:19AM -0700, Max Krasnyansky wrote:
+> At 10:32 AM 7/18/2003, Florian Lohoff wrote:
+>=20
+> >Hi,
+> >since 2.4.21 + mh2 bluez patch i am seeing these errors. 2.4.20 + mh7
+> >bluez patch did not show these errors. Results are very instable
+> >Bluetooth connections.
+> Those errors don't seem to be related to the driver update. But you could
+> try this. In drivers/bluetooth/hci_usb.h set HCI_MAX_BULK_TX define to 1 =
+(instead of 4)
+> and rebuild the module. Does it make any difference ?
 
---- linux-2.4.22-pre7/init/do_mounts.c.orig     Wed Jul 23 16:16:51 2003
-+++ linux-2.4.22-pre7/init/do_mounts.c  Wed Jul 23 16:16:54 2003
-@@ -360,6 +360,7 @@
-                                flags |= MS_RDONLY;
-                                goto retry;
-                        case -EINVAL:
-+                       case -EBUSY:
-                                continue;
-                }
-                /*
+Doesnt help at all - So the OHCI changes are to blame ?
 
-It's been broken since 2.4.19, so I definitely think it's about time it
-gets fixed. ;>
+Flo
+--=20
+Florian Lohoff                  flo@rfc822.org             +49-171-2280134
+                        Heisenberg may have been here.
 
--- 
-Martin Persson           martin@kfib.org
-http://martin.kfib.org/  http://ss.kfib.org/
+--ZPt4rx8FFjLCG7dd
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-  "esound is junk. The only thing esd has is a good client API for
-   going boing at approximately the right time. Anything else is
-   beyond it." -- Alan Cox
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/HpmzUaz2rXW+gJcRAqXLAKDkIX9eQq/iNMmXru2I5K9tUJijdgCfebKN
+4cg0+3SAYqCMvutre/AKJYk=
+=+cs6
+-----END PGP SIGNATURE-----
+
+--ZPt4rx8FFjLCG7dd--

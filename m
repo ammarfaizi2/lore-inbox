@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbTJ1UPP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 15:15:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbTJ1UPP
+	id S261692AbTJ1UTh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 15:19:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbTJ1UTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 15:15:15 -0500
-Received: from CPEdeadbeef0000-CM000039d4cc6a.cpe.net.cable.rogers.com ([67.60.40.239]:5760
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id S261749AbTJ1UPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 15:15:12 -0500
-Date: Tue, 28 Oct 2003 15:15:10 -0500 (EST)
-From: Shawn Starr <spstarr@sh0n.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PS/2 Slowness w/ 2.6.0-test9-bk2
-In-Reply-To: <Pine.LNX.4.44.0310281457300.459-100000@coredump.sh0n.net>
-Message-ID: <Pine.LNX.4.44.0310281514420.511-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 28 Oct 2003 15:19:37 -0500
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:8199 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S261692AbTJ1UTg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 15:19:36 -0500
+Subject: Re: [pm] fix time after suspend-to-*
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: George Anzinger <george@mvista.com>, Pavel Machek <pavel@suse.cz>,
+       John stultz <johnstul@us.ibm.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0310281019280.1023-100000@cherise>
+References: <Pine.LNX.4.44.0310281019280.1023-100000@cherise>
+Content-Type: text/plain
+Message-Id: <1067372372.864.13.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-5) 
+Date: Tue, 28 Oct 2003 21:19:32 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-10-28 at 19:20, Patrick Mochel wrote:
 
-It should be noted that I have a Startech KVM.
+> I posted the patch below to the linux-acpi list a few weeks ago. It causes
+> /sbin/hotplug to be called on both suspend and resume. It's a lightweight,
+> non-intrusive notification mechanism that allows only the applications
+> that care about the events be notified of the transition.
 
-On Tue, 28 Oct 2003, Shawn Starr wrote:
-
->
-> Apon trying the latest -bk, I've noticed changes in how the kernel
-> determines mouse rate.
->
-> Although this was easy to fix with gpm, XFree86-HEAD does not seem to
-> honor any manual overriding of the mouse rate. Even when setting the rate
-> to 60 this did not work.
->
-> After reverting the psmouse-base.c changes XFree86 behaved like previous.
->
-> I would suggest reverting the patch until this issue is resolved. I don't
-> know what X is doing to get the mouse rate but it certainly ignored it
-> when I set psmouse_rate=60 in kernel parameters. Perhaps someone knows
-> something I'm not doing.
->
-> This isn't trying to start a flamewar but I'd prefer that these changes
-> were checked beforehand.
->
-> Thanks,
-> Shawn S.
->
->
->
+I really like it. Will starting playing with it.
 

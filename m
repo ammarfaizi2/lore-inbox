@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262564AbTKVRW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 12:22:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbTKVRW6
+	id S262558AbTKVR3M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 12:29:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbTKVR3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 12:22:58 -0500
-Received: from web41906.mail.yahoo.com ([66.218.93.157]:46470 "HELO
-	web41906.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262564AbTKVRWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 12:22:54 -0500
-Message-ID: <20031122172253.5645.qmail@web41906.mail.yahoo.com>
-Date: Sat, 22 Nov 2003 09:22:53 -0800 (PST)
-From: Michael Welles <mikewelles71@yahoo.com>
-Subject: Re: Using get_cwd inside a module.
-To: Christoph Hellwig <hch@infradead.org>, Juergen Hasch <lkml@elbonia.de>
-Cc: Michael Welles <mike@bangstate.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20031122110459.A31359@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 22 Nov 2003 12:29:12 -0500
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:40199 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S262558AbTKVR3E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Nov 2003 12:29:04 -0500
+Date: Sat, 22 Nov 2003 18:29:02 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: marcelo@cyclades.com, linux-kernel@vger.kernel.org,
+       sensors@Stimpy.netroedge.com, greg@kroah.com
+Subject: Re: [PATCH 2.4] Trivial changes to I2C stuff
+Message-Id: <20031122182902.26f859fd.khali@linux-fr.org>
+In-Reply-To: <20031122154720.GA18110@alpha.home.local>
+References: <20031122161510.7d5b4d20.khali@linux-fr.org>
+	<20031122154720.GA18110@alpha.home.local>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For changedfiles, using cut n' paste sys_getcwd, we've
-managed to get "good enough" functionality.  When a
-user runs "touch foo" in /tmp/watch, when we intercept
-the  openw, we manage to resolve "foo" to
-"/tmp/watch/foo".   We still break on things like 
-"touch ../../foo", since we resolve that to
-"/tmp/watch/../../foo"  -- but that's pretty fixable  
-with a little effort.
-
-NFS mounted filesystems still get us, since we rely on
-intercepting the system calls and putting a wrapper
-around them.  I've looked into doing so, but I didn't
-see a way of doing so in a module -- and we haven't
-wanted to demand that users patch and rebuild a
-kernel.
-
-
---- Christoph Hellwig <hch@infradead.org> wrote:
-
+> > @@ -199,7 +199,7 @@
+> >  #define I2C_HW_SMBUS_AMD756	0x05
+> >  #define I2C_HW_SMBUS_SIS5595	0x06
+> >  #define I2C_HW_SMBUS_ALI1535	0x07
+> > -#define I2C_HW_SMBUS_W9968CF	0x08
+> > +#define I2C_HW_SMBUS_W9968CF	0x0d
 > 
-> Well, reporting a single path component relative to
-> the parent directory
-> is doable, there's just no way to have a canonical
-> absolute or
-> multi-component pathname.
-> 
+> Is this one intentionnal or just a typo ?
 
+Intentional. 0x08 is I2C_HW_SMBUS_SIS630 in both i2c-CVS and Linux 2.6.0-test9, so I chose the next available ID, which happens to be 0x0d. Anyway, these IDs have no real use AFAIK, so there is nothing to be afraid of here.
 
-__________________________________
-Do you Yahoo!?
-Free Pop-Up Blocker - Get it now
-http://companion.yahoo.com/
+-- 
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129098AbRBTJL1>; Tue, 20 Feb 2001 04:11:27 -0500
+	id <S129170AbRBTJa1>; Tue, 20 Feb 2001 04:30:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129115AbRBTJLS>; Tue, 20 Feb 2001 04:11:18 -0500
-Received: from nas24-217.wms.club-internet.fr ([213.44.53.217]:63985 "EHLO
-	microsoft.com") by vger.kernel.org with ESMTP id <S129098AbRBTJLF>;
-	Tue, 20 Feb 2001 04:11:05 -0500
-Message-Id: <200102200909.KAA12190@microsoft.com>
-Subject: Re: Is this the ultimate stack-smash fix?
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Andreas Bombe <andreas.bombe@munich.netsurf.de>
-Cc: Eric "W." Biederman <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010220021012.A1481@storm.local>
-In-Reply-To: <3A899FEB.D54ABBC7@sympatico.ca>  
-	<m1lmr98c5t.fsf@frodo.biederman.org> <3A8ADA30.2936D3B1@sympatico.ca>  
-	<m1hf1w8qea.fsf@frodo.biederman.org> <3A8BF5ED.1C12435A@colorfullife.com>  
-	<m1k86s6imn.fsf@frodo.biederman.org> <20010217084330.A17398@cadcamlab.org>  
-	<m1y9v4382r.fsf@frodo.biederman.org>  <20010220021012.A1481@storm.local>
-Content-Type: text/plain; charset=ISO-8859-1
-X-Mailer: Evolution (0.8 - Preview Release)
-Date: 20 Feb 2001 10:09:55 +0100
-Mime-Version: 1.0
+	id <S129363AbRBTJaR>; Tue, 20 Feb 2001 04:30:17 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:7722 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129170AbRBTJaG>; Tue, 20 Feb 2001 04:30:06 -0500
+Date: Tue, 20 Feb 2001 03:30:02 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Bill Nottingham <notting@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: unresloved symbols in 2.4.1
+In-Reply-To: <20010220012710.A5267@nostromo.devel.redhat.com>
+Message-ID: <Pine.LNX.3.96.1010220032921.23246G-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le 20 Feb 2001 02:10:12 +0100, Andreas Bombe a écrit :
-> On Sat, Feb 17, 2001 at 09:53:48PM -0700, Eric W. Biederman wrote:
-> > Peter Samuelson <peter@cadcamlab.org> writes:
-> > > It also sounds like you will be
-> > > breaking the extremely useful C postulate that, at the ABI level at
-> > > least, arrays and pointers are equivalent.  I can't see *how* you plan
-> > > to work around that one.
+On Tue, 20 Feb 2001, Bill Nottingham wrote:
+> Eugene Danilchenko (eugene@kriljon.ru) said: 
+> > cd /lib/modules/2.4.1; \
+> > mkdir -p pcmcia; \
+> > find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
+> > if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.1; fi
+> > depmod: *** Unresolved symbols in /lib/modules/2.4.1/kernel/fs/binfmt_elf.o
+> > depmod:         get_pte_slow
+> > depmod:         __handle_bad_pmd                                                                              
 > > 
-> > Huh?  Pointers and arrays are clearly different at the ABI level.
+> > System: RedHat 6.2 
+> > on system installed:
+> > modutils-2.4.2-1
 > > 
-> > A pointer is a word that contains an address of something.
-> > An array is an array.
+> > What does it mean.
 > 
-> An array is a word that contains the address of the first element.
+> It means that compiling ELF binary support as a module doesn't work right.
+> 
+> > and what have i to do to avoid it?
+> 
+> Compile it in (CONFIG_BINFMT_ELF=y). If you're using Red Hat Linux 6.2,
+> compiling it as a module is an incredibly bad idea anyway.
+
+I wonder if we shouldn't disable CONFIG_BINFMT_ELF=m, until we have a
+good use case and some good testers.
+
+	Jeff
 
 
-No. Exercise 3: compile and run this:
-file a.c:
-char array[] = "I'm really an array";
-
-file b.c:
-extern char* array;
-main() { printf("array = %s\n", array); }
-
-... and watch it biting the dust !
-in short: an array is NOT a pointer.
-
-
-    Xav
 

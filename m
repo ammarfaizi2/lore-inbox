@@ -1,65 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264363AbUBRKyp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 05:54:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264364AbUBRKyp
+	id S264605AbUBRLTA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 06:19:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbUBRLTA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 05:54:45 -0500
-Received: from fw.osdl.org ([65.172.181.6]:11203 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264363AbUBRKyn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 05:54:43 -0500
-Date: Wed, 18 Feb 2004 02:55:49 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-mm1
-Message-Id: <20040218025549.4e7c56a1.akpm@osdl.org>
-In-Reply-To: <p73wu6k653f.fsf@verdi.suse.de>
-References: <20040217232130.61667965.akpm@osdl.org.suse.lists.linux.kernel>
-	<p73wu6k653f.fsf@verdi.suse.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 18 Feb 2004 06:19:00 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:59050 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S264605AbUBRLS5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 06:18:57 -0500
+Date: Wed, 18 Feb 2004 11:16:12 +0000
+From: Dave Jones <davej@redhat.com>
+To: Marc Zyngier <mzyngier@freesurf.fr>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: EISA & sysfs.
+Message-ID: <20040218111612.GM6242@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Marc Zyngier <mzyngier@freesurf.fr>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20040217235431.GF6242@redhat.com> <wrpfzd87mg6.fsf@panther.wild-wind.fr.eu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <wrpfzd87mg6.fsf@panther.wild-wind.fr.eu.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> Andrew Morton <akpm@osdl.org> writes:
-> 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3/2.6.3-mm1/
-> > 
-> > - Added the dm-crypt driver: a crypto layer for device-mapper.
-> > 
-> >   People need to test and use this please.  There is documentation at
-> >   http://www.saout.de/misc/dm-crypt/.
-> > 
-> >   We should get this tested and merged up.  We can then remove the nasty
-> >   bio remapping code from the loop driver.  This will remove the current
-> >   ordering guarantees which the loop driver provides for journalled
-> >   filesystems.  ie: ext3 on cryptoloop will no longer be crash-proof.
-> > 
-> >   After that we should remove cryptoloop altogether.
-> > 
-> >   It's a bit late but cyptoloop hasn't been there for long anyway and it
-> >   doesn't even work right with highmem systems (that part is fixed in -mm).
-> 
-> Is it guaranteed that this thing will be disk format compatible to cryptoloop? 
-> (mainly in IVs and crypto algorithms)
+On Wed, Feb 18, 2004 at 10:42:49AM +0100, Marc Zyngier wrote:
 
-Allegedly.  Of course, doing this will simply retain crypto-loop's security
-weaknesses.
+ > Dave> Wouldn't it make sense to have eisa_driver_register() check that the
+ > Dave> root EISA bus actually got registered, and if not, -ENODEV
+ > Dave> immediately ?
+ > 
+ > Most of the time, the bus driver kicks in *after* the device driver is
+ > registered to the EISA framework (eisa is second to last in the driver
+ > list, so if the driver is built-in, it is guaranted to init before the
+ > root driver has a chance to discover the bus).
 
-> While 2.3 and 2.4 have broken the on disk format of crypto loop several
-> times (each time to a new "improved and ultimately perfect format")
-> I don't think that's acceptable for a mature OS anymore.
+sounds like the initcall needs a different priority.
 
-Well I guess people are free to do that sort of thing with out-of-kernel
-patches.
+ > So, returning -ENODEV immediatly in this case prevents you from using
+ > any built-in EISA driver. A possible solution to this problem would be
+ > to move eisa just after the pci init (and even that would cause some
+ > trouble, because the virtual_root driver would register before the
+ > parisc root driver has a chance to be probed...).
+ > 
+ > So yes, this sucks, but I can't come up with a better solution...
 
-One question which needs to be adressed is whether dm-crypt adequately
-addresses crypto-loop's security weaknesses, and if so, how one should set
-it up to do so.
+This problem is not just cosmetic btw, it kills boxes.
+For example, hp100 is a net driver that supports multiple busses.
+Trying to modprobe it on a kernel that supports EISA on a box that
+doesn't gets a hung modprobe. Backtrace shows..
+
+ modprobe      D 00000082     0 23407  15920                     (NOTLB)
+        c1fe3f2c 00000082 c031ba08 00000082 ffffffff c031bb90 cc318219 00000092
+        c6ee8ca0 c6ee8cc0 c111acc0 0040603e cc532c37 00000092 c267eca0 c267ee70
+        c6c6375c 00000001 000005a0 c035ffcc ffffffff c7c5e644 c267eca0 c01d4583
+ Call Trace:
+  [<c01d4583>] rwsem_down_write_failed+0x141/0x15c
+  [<c01d3742>] .text.lock.kobject+0x36/0x74
+  [<c01d339a>] kobject_register+0x19/0x39
+  [<c0221a5c>] bus_add_driver+0x2e/0x83
+  [<c02622d4>] eisa_driver_register+0xf/0x19
+  [<c786e91e>] hp100_module_init+0x12/0x2e [hp100]
+  [<c013c0c0>] sys_init_module+0x14e/0x25e
+  [<c010b697>] syscall_call+0x7/0xb
+
+I've seen same exactly the same behaviour with quite a few other modules.
+For my 'modprobe/rmmod script-o-death', I just ended up disabling EISA
+in that test tree, as it was too painful to hit this issue over and over,
+but its a real situation that could bite users of for eg, vendor kernels.
+
+		Dave
 

@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262922AbRFTW5b>; Wed, 20 Jun 2001 18:57:31 -0400
+	id <S261651AbRFTXBv>; Wed, 20 Jun 2001 19:01:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263079AbRFTW5V>; Wed, 20 Jun 2001 18:57:21 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:23466 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S262922AbRFTW5G>;
-	Wed, 20 Jun 2001 18:57:06 -0400
-Message-ID: <3B312A32.86BDE58B@mandrakesoft.com>
-Date: Wed, 20 Jun 2001 18:56:50 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolinux.com>
-Cc: Greg Ingram <ingram@symsys.com>, linux-kernel@vger.kernel.org
-Subject: Re: Unknown PCI Net Device
-In-Reply-To: <200106202253.f5KMrX2X029668@webber.adilger.int>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264667AbRFTXBo>; Wed, 20 Jun 2001 19:01:44 -0400
+Received: from thorgal.et.tudelft.nl ([130.161.40.91]:29760 "EHLO
+	thorgal.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S261651AbRFTXBd>; Wed, 20 Jun 2001 19:01:33 -0400
+Mime-Version: 1.0
+Message-Id: <a05100306b756d7a9fdac@[130.161.115.44]>
+In-Reply-To: <20010620134221.C12357@qcc.sk.ca>
+In-Reply-To: <20010620104800.D1174@w-mikek2.des.beaverton.ibm.com>
+ <lx66drf04u.fsf@pixie.isr.ist.utl.pt> <20010620134221.C12357@qcc.sk.ca>
+Date: Thu, 21 Jun 2001 01:00:19 +0200
+To: Charles Cazabon <linux-kernel@discworld.dyndns.org>
+From: "J.D. Bakker" <bakker@thorgal.et.tudelft.nl>
+Subject: Re: Threads FAQ entry incomplete
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> 
-> Greg writes:
-> > I picked up a network card that claims to use the "most reliable Realtek
-> > LAN chip".  The big chip is labelled "LAN-8139" so naturally I tried the
-> > 8139too driver.  It doesn't find the device.  I'm wondering if maybe it's
-> > just something in the device ID tables.  Here's some info:
-> >
-> > 00:0b.0 Ethernet controller: MYSON Technology Inc: Unknown device 0803
-> >       Subsystem: MYSON Technology Inc: Unknown device 0803
-> >       Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-> 
-> Add the PCI vendor ID and device ID (0803) to drivers/net/8139too.c, in
-> the rtl8139_pci_tbl[] and board_info[] and if it works, send a patch to
-> Jeff (CC'd).
+At 13:42 -0600 20-06-2001, Charles Cazabon wrote:
+>Rodrigo Ventura <yoda@isr.ist.utl.pt> wrote:
+>  > BTW, I have a question: Can the availability of dual-CPU boards for intel
+>>  and amd processors, rather then tri- or quadra-CPU boards, be explained with
+>>  the fact that the performance degrades significantly for three or more CPUs?
+>>  Or is there a technological and/or comercial reason behind?
+>
+>Commercial reasons.  Cost per motherboard/chipset goes way up as the number of
+>CPUs supported goes up.  For each CPU that a chipset supports, it has to add a
+>lot of pins/lands, and chipsets are already typically land-limited.
 
-See my other reply, it uses the fealnx driver, adding 2.4.4 or 2.4.5 or
-so :)
+That's not quite accurate. Most modern SMP-able processors have a 
+common bus, where going from 1->2 CPUs adds just a handful of extra 
+nets (usually bus request, bus grant and some IRQs). The actual 
+issues are threefold.
 
-> Jeff, is there a reason why you have numeric vendor and device IDs instead
-> of using the definitions in <linux/pci_ids.h>?
+First, most commodity chipsets simply support no more than two CPUs 
+at best; most CPUs don't support having more (or any) siblings. 
+Adding more is cheap on the ASIC level, but nobody bothers because 
+there is no demand.
 
-Not a good one :)   Not using those constants makes the table nice and
-uniform, with one entry per line.  Using those constants tends to bloat
-up [in the src] the pci_device_id table quite a bit.
+Second, adding more CPUs on a shared bus decreases the bus bandwidth 
+that is available per CPU. This is comparable with having Ethernet 
+hubs vs switches. The really expensive multi-CPU boards have crossbar 
+switches between CPUs, memory and PCI. Future stuff like RapidIO may 
+mitigate this.
 
-	Jeff
+Third, the more CPUs a bus holds, the higher the capacitance on the 
+bus lines. Higher capacitance means lower maximum bus speed, which 
+aggravates point two.
 
+>Motherboard trace complexity (and therefore number of layers) goes up.  Add to
+>that that the potential market goes down as CPUs goes up.
 
+True enough.
+
+Regards,
+
+JDB
+[working on a SMP PowerPC design]
 -- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+LART. 250 MIPS under one Watt. Free hardware design files.
+http://www.lart.tudelft.nl/

@@ -1,79 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268680AbUHTTHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268677AbUHTTLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268680AbUHTTHA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 15:07:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268668AbUHTTER
+	id S268677AbUHTTLR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 15:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUHTTHO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 15:04:17 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:19089 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S268667AbUHTS77 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 14:59:59 -0400
-Date: Fri, 20 Aug 2004 12:59:56 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-Cc: Stephen Hemminger <shemminger@osdl.org>,
-       "David S. Miller" <davem@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Theodore Ts'o" <tytso@mit.edu>,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] enhanced version of net_random()
-Message-ID: <20040820185956.GV8967@schnapps.adilger.int>
-Mail-Followup-To: Jean-Luc Cooke <jlcooke@certainkey.com>,
-	Stephen Hemminger <shemminger@osdl.org>,
-	"David S. Miller" <davem@redhat.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Theodore Ts'o <tytso@mit.edu>,
-	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-References: <20040812104835.3b179f5a@dell_ss3.pdx.osdl.net> <20040820175952.GI5806@certainkey.com>
+	Fri, 20 Aug 2004 15:07:14 -0400
+Received: from hqemgate02.nvidia.com ([216.228.112.145]:11784 "EHLO
+	hqemgate02.nvidia.com") by vger.kernel.org with ESMTP
+	id S268678AbUHTTEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 15:04:46 -0400
+Date: Fri, 20 Aug 2004 14:04:37 -0500
+From: Terence Ripperda <tripperda@nvidia.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Terence Ripperda <tripperda@nvidia.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Michael Geithe <warpy@gmx.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8.1-mm2 (nvidia breakage)
+Message-ID: <20040820190437.GG1131@hygelac>
+Reply-To: Terence Ripperda <tripperda@nvidia.com>
+References: <20040819092654.27bb9adf.akpm@osdl.org> <200408191603.55327.bjorn.helgaas@hp.com> <20040819225848.GE1263@hygelac> <200408200953.11440.bjorn.helgaas@hp.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="o0y1lerN6xYE2ROn"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040820175952.GI5806@certainkey.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <200408200953.11440.bjorn.helgaas@hp.com>
+User-Agent: Mutt/1.4i
+X-Accept-Language: en
+X-Operating-System: Linux hrothgar 2.6.7 
+X-OriginalArrivalTime: 20 Aug 2004 19:04:39.0475 (UTC) FILETIME=[8AF03830:01C486E8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---o0y1lerN6xYE2ROn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+sure, I meant to include this link in the earlier email and forgot:
 
-On Aug 20, 2004  13:59 -0400, Jean-Luc Cooke wrote:
-> Is there a reason why get_random_bytes() is unsuitable?
->=20
-> Keeping the number of PRNGs in the kernel to a minimum should a goal we c=
-an
-> all share.
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0408.1/0127.html
 
-For some uses a decent PRNG is enough, and the overhead of get_random_bytes=
-()
-is much too high.  We've needed something like this for a long time (someth=
-ing
-that gives decenly uniform numbers) and hacks to use useconds/cycles/etc do
-not cut it.  I for one welcome a simple in-kernel interface to
-e.g. get_urandom_bytes() (or net_random() as this is maybe inappropriately
-called) that is only pseudo-random but fast and efficient.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
-
-
---o0y1lerN6xYE2ROn
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFBJkospIg59Q01vtYRAl5VAKCVp4g4/om0QnxQyojGH+LNyAp7kgCfVgWa
-f2ociyLHiIpWvcmGR1Lnb7Y=
-=xfaR
------END PGP SIGNATURE-----
-
---o0y1lerN6xYE2ROn--
+On Fri, Aug 20, 2004 at 09:53:11AM -0600, bjorn.helgaas@hp.com wrote:
+> I don't seem to have an email from Kevin.  Can you forward it to
+> me?  The thread I know about started with mail from Michael Geithe
+> that Andrew Morton forwarded to me:

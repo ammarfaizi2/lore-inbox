@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130869AbRAHR6p>; Mon, 8 Jan 2001 12:58:45 -0500
+	id <S135424AbRAHR7Z>; Mon, 8 Jan 2001 12:59:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131876AbRAHR6f>; Mon, 8 Jan 2001 12:58:35 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:12174 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130869AbRAHR6Y>;
-	Mon, 8 Jan 2001 12:58:24 -0500
-Date: Mon, 8 Jan 2001 12:58:20 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: `rmdir .` doesn't work in 2.4
-In-Reply-To: <20010108180857.A26776@athlon.random>
-Message-ID: <Pine.GSO.4.21.0101081236440.4061-100000@weyl.math.psu.edu>
+	id <S135538AbRAHR7C>; Mon, 8 Jan 2001 12:59:02 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:4876 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131876AbRAHR6t>; Mon, 8 Jan 2001 12:58:49 -0500
+Date: Mon, 8 Jan 2001 09:58:15 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Wayne Whitney <whitney@math.berkeley.edu>, linux-kernel@vger.kernel.org,
+        "William A. Stein" <was@math.harvard.edu>
+Subject: Re: Subtle MM bug
+In-Reply-To: <Pine.LNX.4.21.0101081514180.21675-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.10.10101080951140.3750-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,56 +21,32 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 8 Jan 2001, Andrea Arcangeli wrote:
+On Mon, 8 Jan 2001, Rik van Riel wrote:
 
-> Hello Al,
+> On Sun, 7 Jan 2001, Wayne Whitney wrote:
 > 
-> why `rmdir .` is been deprecated in 2.4.x?  I wrote software that depends on
-> `rmdir .` to work (it's local software only for myself so I don't care that it
-> may not work on unix) and I'm getting flooded by failing cronjobs since I put
-> 2.4.0 on such machine.  `rmdir .` makes perfect sense, the cwd dentry remains
-> pinned by me until I `cd ..`, when it gets finally deleted from disk.  I'd like
-> if we could resurrect such fine feature (adapting userspace is just a few liner
-> but that isn't the point). Comments?
+> > Well, here is a workload that performs worse on 2.4.0 than on 2.2.19pre,
+> 
+> > The typical machine is a dual Intel box with 512MB RAM and 512MB swap.
+> 
+> How does 2.4 perform when you add an extra GB of swap ?
+> 
+> 2.4 keeps dirty pages in the swap cache, so you will need
+> more swap to run the same programs...
+> 
+> Linus: is this something we want to keep or should we give
+> the user the option to run in a mode where swap space is
+> freed when we swap in something non-shared ?
 
-It's a hell of a pain wrt locking. You need to lock the parent, but it can
-cease to be your parent while you were locking it. rmdir() (and especially
-rename()) are major PITA as is. Adding lock/check/retry everything if
-we had been moved was way over the top. Again, rename() was the main
-offender, but rmdir() also wasn't nice.
+I'd prefer just documenting it and keeping it. I'd hate to have two fairly
+different modes of behaviour. It's always been the suggested "twice the
+amount of RAM", although there's historically been the "Linux doesn't
+really need that much" that we just killed with 2.4.x.
 
-rmdir() and rename() act on links. Yes, for directory there is a special
-link - one from the parent and we could try to find it and assume that
-caller wanted to do the thing on said link. However, it _is_ overloading
-the operation. Adds quite a bit of complexity into the place where we
-already have too much. For no good reason, since rmdir(pwd) does the same
-thing quite fine, is portable (unlike the rmdir(".") which will fail on
-every UNIX except Linux) and does not require special-casing.
+If you have 512MB or RAM, you can probably afford another 40GB or so of
+harddisk. They are disgustingly cheap these days.
 
-All namespace-modifying operation (create/remove/rename) act on the links,
-not fs objects. Pathname you are passing identifies the directory entry
-that should be affected. Conceptually, actual removal of the inode is a
-side effect.
-
-The bottom line: rmdir(".") is gone. Replace it with portable equivalent,
-namely
-	p = getcwd(pwd, sizeof(pwd));
-	if (!p)
-		/* handle error - ERANGE or ENOENT */
-	rmdir(p);
-Shell equivalent is rmdir `pwd`. Also portable.
-Same goes for rename(). Notice that _all_ pathes that end on . or .. are
-off-limits. Explicit POSIX requirement and in that case I'm 100% agree
-with them. Linux used to provide an extension that
-	* added complexity (and was handled with races in 2.2)
-	* was absolutely nonportable
-	* was inconsistent with the semantics of other operations (and
-in case of rename() - with other parts of rename() semantics)
-	* had simple portable replacement.
-
-He's dead, Jim.
-
-PS: try your code on any other UNIX and see it misbehave.
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

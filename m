@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262177AbTCMFmo>; Thu, 13 Mar 2003 00:42:44 -0500
+	id <S262178AbTCMGBr>; Thu, 13 Mar 2003 01:01:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262178AbTCMFmo>; Thu, 13 Mar 2003 00:42:44 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:4060 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262177AbTCMFmn>; Thu, 13 Mar 2003 00:42:43 -0500
-Date: Thu, 13 Mar 2003 00:53:28 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: marcelo@conectiva.com.br
-Subject: Patch for initrd on 2.4.21-pre5
-Message-ID: <20030313005328.A29160@devserv.devel.redhat.com>
+	id <S262181AbTCMGBr>; Thu, 13 Mar 2003 01:01:47 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:11027 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S262178AbTCMGBq>; Thu, 13 Mar 2003 01:01:46 -0500
+Date: Thu, 13 Mar 2003 01:11:44 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Torrey Hoffman <thoffman@arnor.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Oops in firewire (2.4.21-pre5 with 2.4.21-pre4 firewire driver)
+Message-ID: <20030313061144.GV563@phunnypharm.org>
+References: <1047517628.1172.8.camel@rohan.arnor.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1047517628.1172.8.camel@rohan.arnor.net>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The initrd refuses to work for me without the attached patch
-(actually, initrd works, but nothing else does: console is hosed).
-I did not see anything on the list. Am I the only one who
-uses initrd?
+On Wed, Mar 12, 2003 at 05:06:23PM -0800, Torrey Hoffman wrote:
+> I heard that the firewire merge in 2.4.21-pre5 was messed up, so I
+> replaced the -pre5 drivers/ieee1394 with the one from -pre4.
 
--- Pete
+I'd suggest with trying the latest BK cset patch (which fixes -pre5 and
+also fixes some things in general).
 
---- linux-2.4.21-pre5/init/do_mounts.c	2003-03-12 21:21:05.000000000 -0800
-+++ linux-2.4.21-pre5-nip/init/do_mounts.c	2003-03-12 21:43:03.000000000 -0800
-@@ -813,6 +813,8 @@
- 	sys_fchdir(root_fd);
- 	sys_chroot(".");
- 	sys_umount("/old/dev", 0);
-+	close(old_fd);
-+	close(root_fd);
- 
- 	if (real_root_dev == ram0) {
- 		sys_chdir("/old");
+> I got an oops while loading the driver.  I will continue to experiment
+> with recent kernels, and try to find a bitkeeper snapshot with the
+> latest firewire fixes.  Any suggestions are welcome.
+
+> >>EIP; c016e639 <__journal_remove_checkpoint+39/90>   <=====
+
+This happened in the kjournald thread context. I'm not sure it is
+ieee1394 related, but it is suspect that it happened in the middle of
+handling an ieee1394 bus reset.
+
+Is this reproducible when loading the ohci1394 driver? If so, does it
+occur when you turn off hotplug (IOW, don't load sbp2 driver) or if the
+sbp2 device is not attached?
+
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

@@ -1,36 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284694AbRLIXrV>; Sun, 9 Dec 2001 18:47:21 -0500
+	id <S284696AbRLIXsl>; Sun, 9 Dec 2001 18:48:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284676AbRLIXrL>; Sun, 9 Dec 2001 18:47:11 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:58481 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S284688AbRLIXq5>; Sun, 9 Dec 2001 18:46:57 -0500
-Date: Sun, 9 Dec 2001 18:46:56 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Robert Love <rml@tech9.net>
-Cc: Anthony DeRobertis <asd@suespammers.org>, root <r6144@263.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make highly niced processes run only when idle
-Message-ID: <20011209184656.E8846@redhat.com>
-In-Reply-To: <75F30A52-ECF4-11D5-80FE-00039355CFA6@suespammers.org> <1007939114.878.1.camel@phantasy> <20011209181643.A8846@redhat.com> <1007940066.878.7.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1007940066.878.7.camel@phantasy>; from rml@tech9.net on Sun, Dec 09, 2001 at 06:21:05PM -0500
+	id <S284698AbRLIXs0>; Sun, 9 Dec 2001 18:48:26 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:32525 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S284676AbRLIXsR>; Sun, 9 Dec 2001 18:48:17 -0500
+Date: Sun, 9 Dec 2001 15:50:04 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Mike Kravetz <kravetz@us.ibm.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rusty Russell <rusty@rustcorp.com.au>,
+        <anton@samba.org>, <davej@suse.de>, <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Linux 2.4.17-pre5
+In-Reply-To: <20011209144433.B1087@w-mikek2.sequent.com>
+Message-ID: <Pine.LNX.4.40.0112091548260.996-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 09, 2001 at 06:21:05PM -0500, Robert Love wrote:
-> Ahh ... wait, do you mean periodically run them, but only give them the
-> boost while they are in kernel space?  Very good idea.  Can you see an
-> easy way to do this?
+On Sun, 9 Dec 2001, Mike Kravetz wrote:
 
-Actually, yes: in entry.S the ret_from_syscall path which calls schedule 
-can be changed to pass a parameter indicating it is returning to userspace 
-afterwards which would let schedule know the bump is not needed.
+> On Sun, Dec 09, 2001 at 04:24:59PM +0000, Alan Cox wrote:
+> > I'm currently using the following rule in wake up
+> >
+> > 	if(current->mm->runnable > 0)	/* One already running ? */
+> > 		cpu = current->mm->last_cpu;
+> > 	else
+> > 		cpu = idle_cpu();
+> > 	else
+> > 		cpu = cpu_num[fast_fl1(runnable_set)]
+> >
+> > that is
+> > 	If we are running threads with this mm on a cpu throw them at the
+> > 		same core
+> > 	If there is an idle CPU use it
+> > 	Take the mask of currently executing priority levels, find the last
+> > 	set bit (lowest pri) being executed, and look up a cpu running at
+> > 	that priority
+> >
+> > Then the idle stealing code will do the rest of the balancing, but at least
+> > it converges towards each mm living on one cpu core.
+>
+> This implies that the idle loop will poll looking for work to do.
+> Is that correct?  Davide's scheduler also does this.  I believe
+> the current default idle loop (at least for i386) does as little
+> as possible and stops execting instructions.  Comments in the code
+> mention power consumption.  Should we be concerned with this?
 
-		-ben
--- 
-Fish.
+My idea is not to poll ( due energy issues ) but to wake up idles (
+kernel/timer.c ) at every timer tick to let them monitor the overall
+balancing status.
+
+
+
+
+- Davide
+
+

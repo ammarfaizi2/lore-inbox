@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263212AbTFPCM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 22:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbTFPCM0
+	id S263239AbTFPCTN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 22:19:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263245AbTFPCTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 22:12:26 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:32915 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S263212AbTFPCM0 (ORCPT
+	Sun, 15 Jun 2003 22:19:13 -0400
+Received: from dp.samba.org ([66.70.73.150]:49122 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263239AbTFPCTM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 22:12:26 -0400
-Message-Id: <200306160226.h5G2Q3VP009683@eeyore.valparaiso.cl>
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Rocketport changes for 2.5.70-bk 
-In-Reply-To: Message from Greg KH <greg@kroah.com> 
-   of "Fri, 13 Jun 2003 12:52:39 MST." <20030613195239.GB1260@kroah.com> 
-X-Mailer: MH-E 7.1; nmh 1.0.4; XEmacs 21.4
-Date: Sun, 15 Jun 2003 22:26:03 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Sun, 15 Jun 2003 22:19:12 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16109.11192.531655.562208@cargo.ozlabs.ibm.com>
+Date: Mon, 16 Jun 2003 12:30:16 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: force_successful_syscall_return() buggy?
+In-Reply-To: <20030615193604.L5417@flint.arm.linux.org.uk>
+References: <20030615193604.L5417@flint.arm.linux.org.uk>
+X-Mailer: VM 7.16 under Emacs 21.3.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> said:
-> Here is rocket driver patch against 2.5.70-bk18.  Changes are:
-> 
-> -  Removed non-GPL license text from headers
+Russell King writes:
 
-Cleared that with the writer(s)? Including it in the kernel might have been
-a mistake from their part...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> #define force_successful_syscall_return()               \
+>         do {                                            \
+>                 ia64_task_regs(current)->r8 = 0;        \
+>         } while (0)
+> 
+> I don't know what happens on these architectures, but I have a suspicion
+> that there is a case which the above will fail, maybe with dramatic
+> consequences.
+
+On PPC, I am going to use a bit in the thread_info flags field to
+indicate that the current syscall should not return an error.  The
+syscall entry and exit paths already look at the thread_info flags
+(testing the syscall trace bit, among others) so it's convenient to
+have the "no error" flag there too.  The flag bit gets cleared on
+syscall entry, set by force_successful_syscall_return() and tested on
+syscall exit.  The only restriction is that kernel code should not do
+a system call between where it calls force_successful_syscall_return
+and where it returns from the syscall.  But I don't believe we ever do
+recursive system calls anyway, so that should be fine.
+
+Regards,
+Paul.

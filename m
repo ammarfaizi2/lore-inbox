@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315454AbSHRSAn>; Sun, 18 Aug 2002 14:00:43 -0400
+	id <S315485AbSHRSGf>; Sun, 18 Aug 2002 14:06:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315455AbSHRSAm>; Sun, 18 Aug 2002 14:00:42 -0400
-Received: from mail14.speakeasy.net ([216.254.0.214]:1936 "EHLO
+	id <S315491AbSHRSGf>; Sun, 18 Aug 2002 14:06:35 -0400
+Received: from mail13.speakeasy.net ([216.254.0.213]:57287 "EHLO
 	mail.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S315454AbSHRSAm>; Sun, 18 Aug 2002 14:00:42 -0400
+	id <S315485AbSHRSGe>; Sun, 18 Aug 2002 14:06:34 -0400
 Subject: Re: cerberus errors on 2.4.19 (ide dma related)
 From: Ed Sweetman <safemode@speakeasy.net>
-To: Jonathan Lundell <linux@lundell-bros.com>
+To: Alexander Viro <viro@math.psu.edu>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <p05111a2bb9858e64756e@[207.213.214.37]>
-References: <1029653085.674.53.camel@psuedomode>
-	<1029655603.2970.6.camel@psuedomode> 
-	<p05111a2bb9858e64756e@[207.213.214.37]>
+In-Reply-To: <1029662182.2970.23.camel@psuedomode>
+References: <Pine.GSO.4.21.0208180509540.2495-100000@weyl.math.psu.edu> 
+	<1029662182.2970.23.camel@psuedomode>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Aug 2002 14:04:42 -0400
-Message-Id: <1029693883.516.2.camel@psuedomode>
+Date: 18 Aug 2002 14:10:34 -0400
+Message-Id: <1029694235.520.9.camel@psuedomode>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It appears i'm completely unable to not use devfs.  Attempting to run
+the kernel without mounting devfs results in it still being mounted or
+if not compiled in, locks up during boot.  Attempts to run the kernel
+and mv /dev does not work, umounting /dev does not work and rm'ing /dev
+does not work.  I cant create the non-devfs  nodes while devfs is
+mounted and i cant boot the kernel without devfs.  It seems that no
+uninstall procedure has been made and i've read the documentation that
+comes with the kernel about devfs and it says nothing about how to move
+back to the old device nodes from devfs.  
+
+anyone have any suggestions?
 
 
 
-the dmesg i included shows my chipsets
- VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
-PDC20262: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
 
-
-
-
-
-On Sun, 2002-08-18 at 13:50, Jonathan Lundell wrote:
-> At 3:26 AM -0400 8/18/02, Ed Sweetman wrote:
-> >It appears then that there are some DMA issues with the promise 
-> >controller i have with the driver.  My swap used to be on the drive 
-> >on the promise controller before which would explain fs corruption 
-> >on both drives (swap cached and such).
+On Sun, 2002-08-18 at 05:16, Ed Sweetman wrote:
+> On Sun, 2002-08-18 at 05:10, Alexander Viro wrote:
+> > 
+> > 
+> > On 18 Aug 2002, Ed Sweetman wrote:
+> > 
+> > > (overview written in hindsight of writing email)  
+> > > I ran all these tests on ide/host2/bus0/target0/lun0/part1 
+> > 
+> > Don't be silly - if you want to test anything, devfs is the last thing
+> > you want on the system.
+> > 
+> > 
 > 
-> FWIW, this is a semi-well-known phenomenon with the IDE controller in 
-> the ServerWorks OSB4 south bridge. As I recall from our testing, a 
-> word appears to be dropped in the DMA transfer to the disk. We found 
-> that both PIO and multi-word DMA worked OK.
 > 
-> What's your chipset?
-> -- 
-> /Jonathan Lundell.
+> OK, i can remove devfs, but I dont really see how that would make dma
+> transfers (memory) become corrupted and pio mode transfers (memory) to
+> not.  
 > 
+> I'm going to remove it, but i dont see how it's going to affect what's
+> going on. 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 

@@ -1,33 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264326AbTLKCaY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 21:30:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbTLKCaY
+	id S264281AbTLKCUE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 21:20:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbTLKCUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 21:30:24 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:6399 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S264326AbTLKCaW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 21:30:22 -0500
-Date: Wed, 10 Dec 2003 18:30:08 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11-wli-1
-Message-ID: <20031211023008.GF15401@matchmail.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-References: <20031209233523.GS8039@holomorphy.com> <Pine.LNX.4.58.0312091859330.2313@montezuma.fsmlabs.com> <br8i18$v8s$1@gatekeeper.tmr.com> <20031211021031.GW8039@holomorphy.com>
-Mime-Version: 1.0
+	Wed, 10 Dec 2003 21:20:04 -0500
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:25022 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S264281AbTLKCUA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 21:20:00 -0500
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS errors in 2.6
+References: <buobrqhun6r.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	<shsu148ajbv.fsf@guts.uio.no>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 11 Dec 2003 11:19:55 +0900
+In-Reply-To: <shsu148ajbv.fsf@guts.uio.no>
+Message-ID: <buooeugccz8.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031211021031.GW8039@holomorphy.com>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 06:10:31PM -0800, William Lee Irwin III wrote:
-> You don't have to run into it to report it. =) At any rate, I hope it does
-> prevent confusion elsewhere.
+Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+>      > Network File System, READDIRPLUS Reply Error:ERR_INVAL
+>      >     Program Version: 3 V3 Procedure: READDIRPLUS (17) Status:
+>      >     ERR_INVAL (22) dir_attributes
+> 
+> Interesting. That actually looks like an error on the part of your
+> Solaris server. NFS3ERR_INVAL is not a valid return code for either
+> READDIR or for READDIRPLUS according to RFC1813.
 
-Especially if there is a wli-2 or 3. :)
+Hmmm; I did a packet-trace on the 2.4.23 traffic for the same user
+command, and it doesn't use READDIRPLUS at all (does 2.4.23 not support
+NFS V3, or does it just use a different algorithm for reading
+directories?), so maybe the server's just broken.  Gah...
+
+> Is the server being kept up to scratch on the patch side?
+
+No clue, but I suspect the answer is `sort of' (we don't have a real
+sysadmin staff, but the people who take care of the servers are not
+entirely clueless).  I'll check on it.
+
+Thanks,
+
+-Miles
+-- 
+We have met the enemy, and he is us.  -- Pogo

@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129639AbRBYTZO>; Sun, 25 Feb 2001 14:25:14 -0500
+	id <S129652AbRBYTZz>; Sun, 25 Feb 2001 14:25:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129652AbRBYTZE>; Sun, 25 Feb 2001 14:25:04 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:51808 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129639AbRBYTYq>; Sun, 25 Feb 2001 14:24:46 -0500
-Date: Sun, 25 Feb 2001 20:26:05 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ll_rw_block/submit_bh and request limits
-Message-ID: <20010225202605.C16259@athlon.random>
-In-Reply-To: <20010222145642.D17276@suse.de> <Pine.LNX.4.10.10102221052000.8403-100000@penguin.transmeta.com> <20010222223811.A29372@athlon.random> <20010225183401.D7830@suse.de>
+	id <S129646AbRBYTZo>; Sun, 25 Feb 2001 14:25:44 -0500
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:55208 "EHLO
+	mailout.plan9.de") by vger.kernel.org with ESMTP id <S129652AbRBYTZ3>;
+	Sun, 25 Feb 2001 14:25:29 -0500
+Date: Sun, 25 Feb 2001 20:25:26 +0100
+From: Marc Lehmann <pcg@goof.com>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux swap freeze STILL in 2.4.x
+Message-ID: <20010225202526.B8890@cerebro.laendle>
+Mail-Followup-To: Mike Galbraith <mikeg@wen-online.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010225155929.A371@cerebro.laendle> <Pine.LNX.4.33.0102251745360.568-100000@mikeg.weiden.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20010225183401.D7830@suse.de>; from axboe@suse.de on Sun, Feb 25, 2001 at 06:34:01PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <Pine.LNX.4.33.0102251745360.568-100000@mikeg.weiden.de>; from mikeg@wen-online.de on Sun, Feb 25, 2001 at 05:58:32PM +0100
+X-Operating-System: Linux version 2.4.2-ac3 (root@cerebro) (gcc version 2.95.2.1 19991024 (release)) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 25, 2001 at 06:34:01PM +0100, Jens Axboe wrote:
-> Any reason why you don't have a lower wake-up limit for the queue?
+Oh, and one last thing I forgot: loop devices. Since 2.4.1 (the first
+version I used) through 2.4.2 and 2.4.2ac3 I only get:
 
-The watermark diff looked too high (it's 128M in current Linus's tree), but it's
-probably a good idea to resurrect it with a max difference of a few full sized
-requests (1/2mbytes).
+cerebro:~# strace -f -o x losetup -e rc6 /dev/loop0 /dev/hdd
+Memory Fault
 
-> Do you mind if I do some testing with this patch and fold it in,
-> possibly?
+And then no access to the loop device works anymore (clearly this is after
+the 2.4.0.something crypto-patch applied, so this is probably not a 2.4.2
+issue anyway since there is no 2.4.2 crypto patch).
 
-Go ahead, thanks,
-Andrea
+Happy Hacking ;)
+
+-- 
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130755AbRAXJdD>; Wed, 24 Jan 2001 04:33:03 -0500
+	id <S129532AbRAXJnj>; Wed, 24 Jan 2001 04:43:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130869AbRAXJcx>; Wed, 24 Jan 2001 04:32:53 -0500
-Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:1801 "EHLO
-	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S130755AbRAXJcp>;
-	Wed, 24 Jan 2001 04:32:45 -0500
-Date: Wed, 24 Jan 2001 10:32:33 +0100
-From: f5ibh <f5ibh@db0bm.ampr.org>
-Message-Id: <200101240932.KAA13200@db0bm.ampr.org>
-To: vandrove@vc.cvut.cz
-Subject: Re: display problem with matroxfb
-Cc: linux-kernel@vger.kernel.org
+	id <S130869AbRAXJn3>; Wed, 24 Jan 2001 04:43:29 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:15370 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S130866AbRAXJnP>; Wed, 24 Jan 2001 04:43:15 -0500
+From: Paul Mackerras <paulus@linuxcare.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14958.42045.576523.62083@argo.linuxcare.com.au>
+Date: Wed, 24 Jan 2001 20:45:33 +1100 (EST)
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: l_indien@magic.fr, jma@netgem.com, jfree@sovereign.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Bug in ppp_async.c
+In-Reply-To: <200101240701.f0O71OE110437@saturn.cs.uml.edu>
+In-Reply-To: <14958.25201.508164.388346@diego.linuxcare.com.au>
+	<200101240701.f0O71OE110437@saturn.cs.uml.edu>
+X-Mailer: VM 6.75 under Emacs 20.4.1
+Reply-To: paulus@linuxcare.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Albert D. Cahalan writes:
 
-Hi Petr,
+> Even Red Hat 7 only has the 2.3.11 version.
+> 
+> The 2.4.xx series is supposed to be stable. If there is any way
+> you could add a compatibility hack, please do so.
 
-> Grr. Did not pass through due to DUL blacklist...
-What is DUL blacklist ?
-If the problem is with my e-mail address (it is an hamradio address), you can
-use <jean-luc.coulon@wanadoo.fr> instead.
+Stable != backwards compatible to the year dot.  ppp-2.4.0 has been
+out for over 5 months now.  Adding the compatibility stuff back in
+would make the PPP subsystem much more complicated and less robust.
+And pppd is not the only thing you would have to upgrade if you are
+using a 2.4.0 with Red Hat 7.0 - I would expect that you would also at
+least have to upgrade modutils, and switch over from ipchains to
+iptables if you use the netfilter stuff.
 
-> Can you try 'video=matrox:init' ? And 'video=matrox:nopan'?
+Paul.
 
-Bingo ! 'init' does not work but 'nopam' give me a normal display without the
-fbset gimnick.
-
-Thank you for the help.
-
-Next step will be to test dual head. I've already installed an AGP ATI (S3
-chipset) together with the PCI matrox Mystique and it seems to work. If I
-succeed, I will attach a normal VGA display on the ATI board and a 19" IBM (not
-multisync) on the Matrox. The ATI card is a cheap one with only 4Mb RAM. I've
-upgraded my Matrox Mystique to 8Mb, so I hope it will work.
-Now, I will have a look on how to use XF68_FBDev (if needed).
-
---
-Regards
-		Jean-Luc
+-- 
+Paul Mackerras, Open Source Research Fellow, Linuxcare, Inc.
++61 2 6262 8990 tel, +61 2 6262 8991 fax
+paulus@linuxcare.com.au, http://www.linuxcare.com.au/
+Linuxcare.  Support for the revolution.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

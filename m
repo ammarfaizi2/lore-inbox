@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281026AbRKCTms>; Sat, 3 Nov 2001 14:42:48 -0500
+	id <S281027AbRKCTp6>; Sat, 3 Nov 2001 14:45:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281027AbRKCTmj>; Sat, 3 Nov 2001 14:42:39 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:49256 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S281026AbRKCTm3>; Sat, 3 Nov 2001 14:42:29 -0500
-Date: Sat, 3 Nov 2001 20:42:18 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.14pre7aa1
-Message-ID: <20011103204217.A2650@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S281028AbRKCTps>; Sat, 3 Nov 2001 14:45:48 -0500
+Received: from ns.suse.de ([213.95.15.193]:51207 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S281027AbRKCTpa>;
+	Sat, 3 Nov 2001 14:45:30 -0500
+To: Dan Hollis <goemon@anime.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ECS k7s5a audio sound SiS 735 - 7012
+In-Reply-To: <86ady56u3h.fsf@cam.ac.uk.suse.lists.linux.kernel> <Pine.LNX.4.30.0111021316150.4828-100000@anime.net.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 03 Nov 2001 20:45:20 +0100
+In-Reply-To: Dan Hollis's message of "2 Nov 2001 22:23:47 +0100"
+Message-ID: <p73zo63prjj.fsf@amdsim2.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Only in 2.4.14pre6aa1: 00_block-highmem-all-18.bz2
-Only in 2.4.14pre6aa1: 10_nohighio-discontigmem-1
+Dan Hollis <goemon@anime.net> writes:
 
-	Backed out until we sort out the bugreports on real highmem.
+> On 2 Nov 2001, John Fremlin wrote:
+> > Who to talk to at SiS? They have a dubious web interface for sales and
+> > marketing requests that I used, but I'd prefer to email someone who
+> > knows what a datasheet actually is ;-)
+> > Alsa doesn't advertise any contact with SiS at all :-(
+> 
+> I've already talked with SiS. They are insisting that they will write the
+> drivers themselves, they dont want to release datasheets to anyone. The
+> reply I got (Thu, 25 Oct 2001) they said they are working on OSS drivers
+> in-house, and ALSA drivers are next.
 
-Only in 2.4.14pre6aa1: 00_ksoftirqd-1
+ALSA drivers seem to work. A standard SuSE 7.2 install with yast2 alsa installer
+had no problems with producing sound on a k7s5a.
 
-	Just in mainline.
+The sound quality is somewhat poor however; but even with another sound card
+this board is cheaper than the alternativesa and works very fast. 
 
-Only in 2.4.14pre6aa1: 00_netconsole-2.4.10-C2
-Only in 2.4.14pre7aa1: 00_netconsole-2.4.10-C2-1.bz2
-
-	Minor update from tux patch.
-
-Only in 2.4.14pre6aa1: 10_vm-10
-Only in 2.4.14pre7aa1: 10_vm-11
-
-	Latest vm updates. Merged Linus changes in mainline, also the VM_LOCKED
-	one on l-k that certainly make sense to avoid inactive cache pollution.
-	Now keeping dirty swap cache around like pre7 does, dubious
-	optimization though but I want to see if it makes big differences.
-	Fixed three vm corruption bugs (one longstanding pre-2.4.9). Good
-	that Linus spotted a silly vm corruption bug that I was adding in
-	those updates :), thanks.
-
-Only in 2.4.14pre6aa1: 60_tux-2.4.13-ac4-A3.bz2
-Only in 2.4.14pre7aa1: 60_tux-2.4.13-ac5-A5.bz2
-
-	Latest tux update from www.redhat.com/~mingo, from Ingo Molnar.
-
-Only in 2.4.14pre6aa1: 61_tux-logger-1
-
-	Now in tux mainline.
-
-Andrea
+-Andi (happy user of a k7s5a with a sblive) 

@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315856AbSFESx3>; Wed, 5 Jun 2002 14:53:29 -0400
+	id <S315941AbSFESyd>; Wed, 5 Jun 2002 14:54:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315923AbSFESx2>; Wed, 5 Jun 2002 14:53:28 -0400
-Received: from mail.mplayerhq.hu ([192.190.173.45]:11193 "EHLO
-	mail.mplayerhq.hu") by vger.kernel.org with ESMTP
-	id <S315856AbSFESx2>; Wed, 5 Jun 2002 14:53:28 -0400
-Date: Wed, 5 Jun 2002 21:07:18 +0200 (CEST)
-From: Szabolcs Berecz <szabi@mplayerhq.hu>
-To: <kaos@ocs.com.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] use $(CONFIG_SHELL instead of . in Makefile
-Message-ID: <Pine.LNX.4.33.0206052105440.11996-100000@mail.mplayerhq.hu>
+	id <S315943AbSFESyc>; Wed, 5 Jun 2002 14:54:32 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28679 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315941AbSFESya>; Wed, 5 Jun 2002 14:54:30 -0400
+Date: Wed, 5 Jun 2002 11:53:10 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] 4KB stack + irq stack for x86
+In-Reply-To: <20020605144357.A4697@redhat.com>
+Message-ID: <Pine.LNX.4.33.0206051150320.10556-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-sh ignores parameters when using . , so we should use $(CONFIG_SHELL)
-instead.
+On Wed, 5 Jun 2002, Benjamin LaHaise wrote:
+> 
+> Ah, you're right.  If anyone uses current_thread_info from IRQ context 
+> it will set the flags in the wrong structure.  However, it actually 
+> works because nobody does that currently: all of the _thread_flag users 
+> appear to be coming in from task context.  Mostly that's luck as I 
+> didn't change the smp ipis to switch stacks, so the only place that 
+> is an interrupt and needs to access the actual thread data, does.
 
-patch is against 2.5.20
+Hmm..
 
-Bye,
-Szabi
+How about just making the interrupt code (ie do_IRQ()) or in the flags 
+into the "parent" flags.
 
---- linux-2.5.20/Makefile.orig	Wed Jun  5 16:34:22 2002
-+++ linux-2.5.20/Makefile	Wed Jun  5 16:50:18 2002
-@@ -231,7 +231,7 @@
+All of the flags should be "sticky one-bits", so just oring them should do 
+the right thing.
 
- include/linux/version.h: Makefile
- 	@echo Generating $@
--	@. scripts/mkversion_h $@ $(KERNELRELEASE) $(VERSION) $(PATCHLEVEL) $(SUBLEVEL)
-+	@$(CONFIG_SHELL) scripts/mkversion_h $@ $(KERNELRELEASE) $(VERSION) $(PATCHLEVEL) $(SUBLEVEL)
+That way we don't have to add nasty BUG checks to the code, and since 
+we're already dirtying both cache-lines the extra overhead should 
+literally be just the cost of doing one locked "orl".
 
- # Helpers built in scripts/
- # ---------------------------------------------------------------------------
+			Linus
 

@@ -1,87 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267241AbRHHUUI>; Wed, 8 Aug 2001 16:20:08 -0400
+	id <S267650AbRHHU0i>; Wed, 8 Aug 2001 16:26:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267650AbRHHUT6>; Wed, 8 Aug 2001 16:19:58 -0400
-Received: from srvr2.telecom.lt ([212.59.0.1]:24317 "EHLO mail.takas.lt")
-	by vger.kernel.org with ESMTP id <S267241AbRHHUTy>;
-	Wed, 8 Aug 2001 16:19:54 -0400
-Message-Id: <200108082020.WAA1347968@mail.takas.lt>
-Date: Wed, 8 Aug 2001 22:14:37 +0200 (EET)
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re: [PATCH] vfat write wrong value into lcase flag
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
+	id <S269115AbRHHU02>; Wed, 8 Aug 2001 16:26:28 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:33033 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S267650AbRHHU0L>;
+	Wed, 8 Aug 2001 16:26:11 -0400
+Date: Wed, 8 Aug 2001 21:26:17 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: Mark Atwood <mra@pobox.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+In-Reply-To: <m3bslrv21e.fsf@flash.localdomain>
+Message-ID: <Pine.LNX.4.33.0108080757060.12565-100000@infradead.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-Disposition: INLINE
-In-Reply-To: <87wv4er2kt.fsf@devron.myhome.or.jp>
-In-Reply-To: <87wv4er2kt.fsf@devron.myhome.or.jp>
-X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.4.7 i686
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09 Aug 2001 00:30:58 +0900 OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+Hi Mark.
 
-OH> The current vfat is writeing wrong value into lcase flag.  It is
-OH> writing the lowercase flag, although filename is uppercase.
+ > (apologies for splitting my reply into multiple pieces, but each
+ > part covers different territory).
 
-Hello,
+ >>  2. Multiple identical static interfaces.
+ >>
+ >>     At the moment, you are required to initialise the interfaces in
+ >>     ascending order of their name in the modules.conf file.
+ >>
+ >>     I've dealt with this situation on several occasions, and never
+ >>     found this to be a problem in any way.
 
-In December 1999 I sent my investigation about short filenames in vfat:
-_________________________________________
-Hello,
+ > Have you ever assembled a distribution that's going to be imaged
+ > into several thousands to several tens of thousands of hardware
+ > boxes, with evolving-into-the-future changes in hardware version
+ > and changes in component suppliers?
 
-there were some complaints about linux not handling upper/lowercase
-filenames in vfat correctly (they are below). So I did some investigation.
-I created following directories (or files, it does not matter):
+I haven't personally, no, but RedHat, Caldera, SUSE, Debian and
+Eridani all have, and (curiously enough) they all use the same basic
+solution, although implemented in different ways. This is also the
+solution implemented by the ifmap script I attached to my previous
+email.
 
-in Linux: LINUP, linlow
-in win98: 98UP, 98low
-in NT4: NTUP, ntlow
-in W2k: W2KUP, w2klow
+ > If Linux really wants to break into the appliance market, this
+ > is going to be a bigger and bigger issue.
 
-Now what ls/dir shows:
+Agreed, but then, it appears to be an issue that has largely been
+solved. The only part that may still need attention (I'm not up to
+date on it, so can't say for sure) is the hotplug stuff.
 
-in Linux: LINUP, linlow, 98up, 98low, ntup, ntlow, w2kup, w2klow
-in win98: LINUP, LINLOW, 98UP, 98low, NTUP, NTLOW, W2KUP, W2KLOW
-in NT4: LINUP, linlow, 98UP, 98low, NTUP, ntlow, W2KUP, w2klow
-in W2K: LINUP, linlow, 98UP, 98low, NTUP, ntlow, W2KUP, w2klow
-
-So I would suggest NT/W2K shows everything correctly (if we can call so,
-because microsoft mixed everything up), and win98/Linux shows differently
-in opposite directions. I think Linux should follow one of win95/98 or NT/W2K,
-and since NT/W2K seams more reasonable, Linux could display filenames
-like NT (Linux creates filenames similar to NT already).
-
-There is no such problem with mixed up/low or with filenames
-containing more than 8 characters.
-_________________________________________
-
-I like this table format better, with errors marked:
-
-in Linux:  LINUP  linlow <98up> 98low <ntup> ntlow
-in win98:  LINUP <LINLOW> 98UP  98low  NTUP <NTLOW>
-in NT4:    LINUP  linlow  98UP  98low  NTUP  ntlow
-
-Clearly NT displays everything right.
-Lowercase must be written the Win98 way.
-Uppercase must be written the Linux way.
-_________________________________________
-Then I sent a diskette image to Al Viro:
-
-> I am sending diskette image, made with
-> dd if=/dev/fd0 of=fdd_vfat bs=512 count=2847
-
-Aha... In other words, for NT in short records bit 3 at offset 0xc
-means 'lowercase it'. 9x ignores the thing. Everybody handle the long
-entries the same way. Umhm... Thanks.
-_________________________________________
-
-I think Linux should create files like win98
-(because NT shows them correctly) and show like NT.
-
-
-Regards,
-Nerijus
-
+Best wishes from Riley.
 

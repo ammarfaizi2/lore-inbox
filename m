@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264979AbTFCMac (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 08:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264981AbTFCMac
+	id S264985AbTFCMml (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 08:42:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264986AbTFCMmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 08:30:32 -0400
-Received: from imsantv20.netvigator.com ([210.87.250.76]:19931 "EHLO
-	imsantv20.netvigator.com") by vger.kernel.org with ESMTP
-	id S264979AbTFCMab (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 08:30:31 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: Jakob Oestergaard <jakob@unthought.net>
-Subject: Re: NFS io errors on transfer from system running 2.4 to system running 2.5
-Date: Tue, 3 Jun 2003 20:43:28 +0800
-User-Agent: KMail/1.5.2
-References: <200306031912.53569.mflt1@micrologica.com.hk> <20030603122411.GB14947@unthought.net>
-In-Reply-To: <20030603122411.GB14947@unthought.net>
-Cc: linux-kernel@vger.kernel.org
-X-OS: GNU/Linux 2.5.70
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jun 2003 08:42:40 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:21407 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S264985AbTFCMmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 08:42:38 -0400
+Date: Tue, 3 Jun 2003 13:59:40 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Anders Gustafsson <andersg@0x63.nu>
+Cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
+       mikpe@csd.uu.se, torvalds@transmeta.com
+Subject: Re: [PATCH] Support for mach-xbox (updated)
+Message-ID: <20030603125940.GC13838@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Anders Gustafsson <andersg@0x63.nu>, linux-kernel@vger.kernel.org,
+	Sam Ravnborg <sam@ravnborg.org>, mikpe@csd.uu.se,
+	torvalds@transmeta.com
+References: <20030603091113.GD13285@h55p111.delphi.afb.lu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306032043.28141.mflt1@micrologica.com.hk>
+In-Reply-To: <20030603091113.GD13285@h55p111.delphi.afb.lu.se>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 June 2003 20:24, Jakob Oestergaard wrote:
-> > When doing rsync or cp _from_ system running 2.4 _to_ system running 2.5
-> > get Input/output error errors with random files.
->
-> Do you use soft mounts?
+On Tue, Jun 03, 2003 at 11:11:13AM +0200, Anders Gustafsson wrote:
+ > Updated according to Sam and Mikaels comments.
 
-Yes
+you missed one 8-)
 
->
-> If so, try hard instead. soft will fail, sooner or later.
+ > +static void xbox_pic_cmd(u8 command)
+ > +{
+ > +	outw_p(((XBOX_PIC_ADDRESS) << 1),XBOX_SMB_HOST_ADDRESS);
+ > +        outb_p(SMC_CMD_POWER, XBOX_SMB_HOST_COMMAND);
+ > +        outw_p(command, XBOX_SMB_HOST_DATA);
+ > +        outw_p(inw(XBOX_SMB_IO_BASE),XBOX_SMB_IO_BASE);
+ > +        outb_p(0x0a,XBOX_SMB_GLOBAL_ENABLE);
+ > +}
 
-I don't like hard mounts because these do not timeout.
+Last 4 lines all use spaces instead of tabs.
 
-Also, this does not explain why 2.5 > 2.4 (and 2.4 > 2.4) is OK - _never_ had any problem  
+ >  targets		:= vmlinux vmlinux.bin vmlinux.bin.gz head.o misc.o piggy.o
+ > +ifeq ($(CONFIG_X86_XBOX),y)
+ > +#XXX Compiling with optimization makes 1.1-xboxen 
+ > +#    crash while decompressing the kernel
+ > +CFLAGS_misc.o   := -O0
+ > +endif
 
-Regards
-Michael
+curious. does it matter which version of gcc you used ?
+this sounds like a band-aid for something else that needs fixing.
+
+ 		Dave
 

@@ -1,311 +1,291 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293237AbSCAOwm>; Fri, 1 Mar 2002 09:52:42 -0500
+	id <S289564AbSCAOuc>; Fri, 1 Mar 2002 09:50:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293219AbSCAOwe>; Fri, 1 Mar 2002 09:52:34 -0500
-Received: from fairchild-196.adsl.newnet.co.uk ([213.131.187.196]:58047 "HELO
-	pinus") by vger.kernel.org with SMTP id <S293201AbSCAOwK>;
-	Fri, 1 Mar 2002 09:52:10 -0500
-Date: Fri, 1 Mar 2002 14:43:07 +0000 (GMT)
-From: Steve Hill <steve@navaho.co.uk>
-X-X-Sender: <steve@sorbus.navaho>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [Patch] ALi M7101 watchdog
-Message-ID: <Pine.LNX.4.33.0203011427520.9334-200000@sorbus.navaho>
+	id <S293219AbSCAOuY>; Fri, 1 Mar 2002 09:50:24 -0500
+Received: from alpha.show.it ([194.184.40.2]:23050 "EHLO alpha.show.it")
+	by vger.kernel.org with ESMTP id <S289564AbSCAOuE>;
+	Fri, 1 Mar 2002 09:50:04 -0500
+Message-Id: <200203011450.g21EnuJ17640@alpha.show.it>
+Content-Type: text/plain; charset=US-ASCII
+From: Andrea Ferraris <ferraris@show.it>
+Reply-To: ferraris@show.it
+Organization: SHOW.IT
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18 OOPSes 
+Date: Fri, 1 Mar 2002 15:47:28 +0100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="665600-1915745409-1014993787=:9334"
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+The PC is a P II 200Mhz with 128 MB RAM and a Promise ATA/66
+controller, 2 ATA/100 60 GB disks ,a 3com 590 card. 
+It is a Rh 7.2 system with all patches applied, with raid1 sw and ext3 file 
+systems.
 
---665600-1915745409-1014993787=:9334
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+I get worses oopses with the 2.4.17 kernel and with the original RH 7.2 
+kernel.
+
+The machine is a backup server with RH rsync-2.4.6-10 and I get oopses
+after transferring to the PC about 2-4 GB of data.
+
+For better information here you are the dmesg output and the the ksymoops of 
+the crashes:
+
+Linux version 2.4.18 (root@backup) (gcc version 2.96 20000731 (Red Hat 
+Linux7.1  2.96-98)) #1 Thu Feb 28 22:55:12 MET 2002
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 0000000008000000 (usable)
+ BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+On node 0 totalpages: 32768
+zone(0): 4096 pages.
+zone(1): 28672 pages.
+zone(2): 0 pages.
+No local APIC present or hardware disabled
+Kernel command line: ro root=/dev/md0
+Initializing CPU#0
+Detected 199.743 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 398.95 BogoMIPS
+Memory: 127060k/131072k available (907k kernel code, 3628k reserved, 238k 
+data,
+204k init, 0k highmem)
+Dentry-cache hash table entries: 16384 (order: 5, 131072 bytes)
+Inode-cache hash table entries: 8192 (order: 4, 65536 bytes)
+Mount-cache hash table entries: 2048 (order: 2, 16384 bytes)
+Buffer-cache hash table entries: 8192 (order: 3, 32768 bytes)
+Page-cache hash table entries: 32768 (order: 5, 131072 bytes)
+CPU: Before vendor init, caps: 008001bf 00000000 00000000, vendor = 0
+Intel Pentium with F0 0F bug - workaround enabled.
+CPU: After vendor init, caps: 008001bf 00000000 00000000 00000000
+CPU:     After generic, caps: 008001bf 00000000 00000000 00000000
+CPU:             Common caps: 008001bf 00000000 00000000 00000000
+CPU: Intel Pentium MMX stepping 03
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+PCI: PCI BIOS revision 2.10 entry at 0xfb130, last bus=0
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+PCI: Using IRQ router PIIX [8086/7110] at 00:07.0
+Limiting direct PCI/PCI transfers.
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+Starting kswapd
+VFS: Diskquotas version dquot_6.4.0 initialized
+Journalled Block Device driver loaded
+Detected PS/2 Mouse Port.
+pty: 256 Unix98 ptys configured
+Software Watchdog Timer: 0.05, timer margin: 60 sec
+block: 128 slots per queue, batch=32
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 39
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
+PDC20262: IDE controller on PCI bus 00 dev 70
+PCI: Found IRQ 11 for device 00:0e.0
+PDC20262: chipset revision 1
+PDC20262: not 100% native mode: will probe irqs later
+PDC20262: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+    ide2: BM-DMA at 0x7800-0x7807, BIOS settings: hde:DMA, hdf:DMA
+    ide3: BM-DMA at 0x7808-0x780f, BIOS settings: hdg:pio, hdh:pio
+hdc: CD-ROM 40X/AKU, ATAPI CD/DVD-ROM drive
+hde: WDC WD600BB-32CCB0, ATA DISK drive
+hdf: MAXTOR 6L060J3, ATA DISK drive
+ide1 at 0x170-0x177,0x376 on irq 15
+ide2 at 0x6800-0x6807,0x6c02 on irq 11
+hde: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63, UDMA(66)
+hdf: 117266688 sectors (60041 MB) w/1819KiB Cache, CHS=116336/16/63, UDMA(66)
+hdc: ATAPI 40X CD-ROM drive, 128kB Cache
+Uniform CD-ROM driver Revision: 3.12
+Partition check:
+ hde: hde1 hde2 hde3
+ hdf: hdf1 hdf2
+PCI: Found IRQ 10 for device 00:11.0
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+00:11.0: 3Com PCI 3c905C Tornado at 0x7c00. Vers LK1.1.16
+md: raid1 personality registered as nr 3
+md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
+md: Autodetecting RAID arrays.
+ [events: 00000024]
+ [events: 00000024]
+md: autorun ...
+md: considering hdf2 ...
+md:  adding hdf2 ...
+md:  adding hde3 ...
+md: created md0
+md: bind<hde3,1>
+md: bind<hdf2,2>
+md: running: <hdf2><hde3>
+md: hdf2's event counter: 00000024
+md: hde3's event counter: 00000024
+md: md0: raid array is not clean -- starting background reconstruction
+md: RAID level 1 does not need chunksize! Continuing anyway.
+md0: max total readahead window set to 124k
+md0: 1 data-disks, max readahead per data-disk: 124k
+raid1: device hdf2 operational as mirror 1
+raid1: device hde3 operational as mirror 0
+raid1: raid set md0 not clean; reconstructing mirrors
+raid1: raid set md0 active with 2 out of 2 mirrors
+md: updating md0 RAID superblock on device
+md: hdf2 [events: 00000025]<6>(write) hdf2's sb offset: 58320768
+md: syncing RAID array md0
+md: minimum _guaranteed_ reconstruction speed: 100 KB/sec/disc.
+md: using maximum available idle IO bandwith (but not more than 100000 
+KB/sec) f
+or reconstruction.
+md: using 124k window, over a total of 58302144 blocks.
+md: hde3 [events: 00000025]<6>(write) hde3's sb offset: 58302144
+md: ... autorun DONE.
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP
+IP: routing cache hash table of 1024 buckets, 8Kbytes
+TCP: Hash tables configured (established 8192 bind 8192)
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+EXT3-fs: INFO: recovery required on readonly filesystem.
+EXT3-fs: write access will be enabled during recovery.
+(recovery.c, 252): journal_recover: JBD: recovery, exit status 0, recovered 
+tran
+sactions 28622 to 28731
+(recovery.c, 255): journal_recover: JBD: Replayed 4342 and revoked 0/0 blocks
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: recovery complete.
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+Freeing unused kernel memory: 204k freed
+Real Time Clock Driver v1.10e
+Adding Swap: 312440k swap-space (priority -1)
+Adding Swap: 262072k swap-space (priority -2)
+EXT3 FS 2.4-0.9.17, 10 Jan 2002 on md(9,0), internal journal
+inserting floppy driver for 2.4.18
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a post-1991 82077
+isapnp: Scanning for PnP cards...
+isapnp: No Plug & Play device found
+Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_PCI 
+IS
+APNP enabled
+ttyS00 at 0x03f8 (irq = 4) is a 16550A
+ttyS01 at 0x02f8 (irq = 3) is a 16550A
+parport0: PC-style at 0x378 (0x778) [PCSPP(,...)]
+parport0: irq 7 detected
+md: md0: sync done.
+VFS: Disk change detected on device fd(2,0)
 
 
-Attached is a patch against the 2.4.17 tree to provide a /dev/watchdog 
-interface to the watchdog in the ALi M7101 PMU (as used in Cobalt's x86 
-kit - Raq3/4, Qube3, etc).
+ksymoops 2.4.1 on i586 2.4.18.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.18/ (default)
+     -m /boot/System.map-2.4.18 (default)
 
-It takes notice of the CONFIG_WDT_NOWAYOUT option and will kick the 
-watchdog timer when the system goes down for a reboot so it pulls the 
-reset (as far as I can tell this is the only way to reboot Cobalt 
-machines?)
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-I have done preliminary testing on a Cobalt Raq 4 and it seems good - 
-please CC any comments / questions to me.
+Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base says 
+c019cc70, System.map says c014c040.  Ignoring ksyms_base entry
+Unable to handle kernel NULL pointer dereference at virtual address 00000800
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c012e9c4>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010282
+eax: c6b49480   ebx: c6b49420    ecx: c6b49420    edx: 00000800
+esi: c6b49420   edi: c6b49420    ebp: c1023980    esp: c1261f00
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 4, stackpage=c1261000)
+Stack: c0131019 c6b49420 c12e1c00 c1023980 000001d0 c012f669 00000000 c1023980
+       00000020 00001161 c0127105 c1023980 000001d0 c1205e30 c1260000 000001bd
+       000001d0 c02139c8 c1205e30 c0c7b020 c1205ce0 00000002 00000020 000001d0
+Call Trace: [<c0131019>] [<c012f669>] [<c0127105>] [<c0127330>] [<c01273a0>] 
+[<c0127434>] [<c0127496>] [<c01275b1>] [<c0127510>] [<c0105000>] [<c0105516>] 
+[<c0127510>]
+Code: 89 02 c7 41 30 00 00 00 00 89 4c 24 04 e9 5a ff ff ff 8d 76 
 
--- 
+>>EIP; c012e9c4 <__remove_from_queues+14/30>   <=====
+Trace; c0131019 <try_to_free_buffers+59/e0>
+Trace; c012f669 <try_to_release_page+29/50>
+Trace; c0127105 <shrink_cache+1f5/2f0>
+Trace; c0127330 <shrink_caches+50/90>
+Trace; c01273a0 <try_to_free_pages+30/50>
+Trace; c0127434 <kswapd_balance_pgdat+44/90>
+Trace; c0127496 <kswapd_balance+16/30>
+Trace; c01275b1 <kswapd+a1/c0>
+Trace; c0127510 <kswapd+0/c0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105516 <kernel_thread+26/30>
+Trace; c0127510 <kswapd+0/c0>
+Code;  c012e9c4 <__remove_from_queues+14/30>
+00000000 <_EIP>:
+Code;  c012e9c4 <__remove_from_queues+14/30>   <=====
+   0:   89 02                     mov    %eax,(%edx)   <=====
+Code;  c012e9c6 <__remove_from_queues+16/30>
+   2:   c7 41 30 00 00 00 00      movl   $0x0,0x30(%ecx)
+Code;  c012e9cd <__remove_from_queues+1d/30>
+   9:   89 4c 24 04               mov    %ecx,0x4(%esp,1)
+Code;  c012e9d1 <__remove_from_queues+21/30>
+   d:   e9 5a ff ff ff            jmp    ffffff6c <_EIP+0xffffff6c> c012e930 
+<__remove_from_lru_list+0/80>
+Code;  c012e9d6 <__remove_from_queues+26/30>
+  12:   8d 76 00                  lea    0x0(%esi),%esi
 
-- Steve Hill
-System Administrator         Email: steve@navaho.co.uk
-Navaho Technologies Ltd.       Tel: +44-870-7034015
+<1> Unable to handle kernel NULL pointer dereference at virtual address 
+00000800
+c012e9c4
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c012e9c4>]    Not tainted
+EFLAGS: 00010246
+eax: 00000000   ebx: c6b49480   ecx: c6b49480   edx: 00000000
+esi: c6b49480   edi: c6b49480   ebp: c10232c0   esp: c2c41e4c
+ds: 0018   es: 0018   ss: 0018
+Process rsync (pid: 776, stackpage=c2c41000)
+Stack: c0131019 c6b49480 c12e1c00 c10232c0 000001d2 c012f669 00000000 c10232c0
+       00000010 000011ae c0127105 c10232c0 000001d2 c2c41ec8 c2c40000 000001c6
+       000001d2 c02139c8 c3c99440 c01524e5 c1205180 00000000 00000020 000001d2
+Call Trace: [<c0131019>] [<c012f669>] [<c0127105>] [<c01524e5>] [<c0127330>] 
+[<c01273a0>] [<c0127c17>] [<c0127e7a>] [<c012388b>] [<c012d5c6>] [<c0106d03>]
+Code: 89 02 c7 41 30 00 00 00 00 89 4c 24 04 e9 5a ff ff ff 8d 76
 
-        ... Alcohol and calculus don't mix - Don't drink and derive! ...
+>>EIP; c012e9c4 <__remove_from_queues+14/30>   <=====
+Trace; c0131019 <try_to_free_buffers+59/e0>
+Trace; c012f669 <try_to_release_page+29/50>
+Trace; c0127105 <shrink_cache+1f5/2f0>
+Trace; c01524e5 <ext3_mark_iloc_dirty+35/50>
+Trace; c0127330 <shrink_caches+50/90>
+Trace; c01273a0 <try_to_free_pages+30/50>
+Trace; c0127c17 <balance_classzone+57/1b0>
+Trace; c0127e7a <__alloc_pages+10a/170>
+Trace; c012388b <generic_file_write+41b/700>
+Trace; c012d5c6 <sys_write+96/f0>
+Trace; c0106d03 <system_call+33/40>
+Code;  c012e9c4 <__remove_from_queues+14/30>
+00000000 <_EIP>:
+Code;  c012e9c4 <__remove_from_queues+14/30>   <=====
+   0:   89 02                     mov    %eax,(%edx)   <=====
+Code;  c012e9c6 <__remove_from_queues+16/30>
+   2:   c7 41 30 00 00 00 00      movl   $0x0,0x30(%ecx)
+Code;  c012e9cd <__remove_from_queues+1d/30>
+   9:   89 4c 24 04               mov    %ecx,0x4(%esp,1)
+Code;  c012e9d1 <__remove_from_queues+21/30>
+   d:   e9 5a ff ff ff            jmp    ffffff6c <_EIP+0xffffff6c> c012e930 
+<__remove_from_lru_list+0/80>
+Code;  c012e9d6 <__remove_from_queues+26/30>
+  12:   8d 76 00                  lea    0x0(%esi),%esi
 
 
---665600-1915745409-1014993787=:9334
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="linux-2.4.17-alim7101wdt.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0203011443070.9334@sorbus.navaho>
-Content-Description: 
-Content-Disposition: attachment; filename="linux-2.4.17-alim7101wdt.patch"
-
-ZGlmZiAtdXJOIGxpbnV4LnZhbmlsbGEvRG9jdW1lbnRhdGlvbi9Db25maWd1
-cmUuaGVscCBsaW51eC5jaG9jb2xhdGVjb29raWVkb3VnaC9Eb2N1bWVudGF0
-aW9uL0NvbmZpZ3VyZS5oZWxwDQotLS0gbGludXgudmFuaWxsYS9Eb2N1bWVu
-dGF0aW9uL0NvbmZpZ3VyZS5oZWxwCUZyaSBEZWMgMjEgMTc6NDE6NTMgMjAw
-MQ0KKysrIGxpbnV4LmNob2NvbGF0ZWNvb2tpZWRvdWdoL0RvY3VtZW50YXRp
-b24vQ29uZmlndXJlLmhlbHAJRnJpIE1hciAgMSAwOTo1Mjo1OCAyMDAyDQpA
-QCAtMTczOTgsNiArMTczOTgsMTcgQEANCiAgIG1vZHVsZSwgc2F5IE0gaGVy
-ZSBhbmQgcmVhZCA8ZmlsZTpEb2N1bWVudGF0aW9uL21vZHVsZXMudHh0Pi4g
-IE1vc3QNCiAgIHBlb3BsZSB3aWxsIHNheSBOLg0KIA0KK0FMaSBNNzEwMSBX
-YXRjaGRvZyBUaW1lcg0KK0NPTkZJR19BTElNNzEwMV9XRFQNCisgIFRoaXMg
-aXMgdGhlIGRyaXZlciBmb3IgdGhlIGhhcmR3YXJlIHdhdGNoZG9nIG9uIHRo
-ZSBBTGkgTTcxMDEgUE1VDQorICBhcyB1c2VkIGluIHRoZSB4ODYgQ29iYWx0
-IHNlcnZlcnMuDQorDQorICBUaGlzIGRyaXZlciBpcyBhbHNvIGF2YWlsYWJs
-ZSBhcyBhIG1vZHVsZSAoID0gY29kZSB3aGljaCBjYW4gYmUNCisgIGluc2Vy
-dGVkIGluIGFuZCByZW1vdmVkIGZyb20gdGhlIHJ1bm5pbmcga2VybmVsIHdo
-ZW5ldmVyIHlvdSB3YW50KS4NCisgIFRoZSBtb2R1bGUgaXMgY2FsbGVkIGFs
-aW03MTAxX3dkdC5vLiAgSWYgeW91IHdhbnQgdG8gY29tcGlsZSBpdCBhcyBh
-DQorICBtb2R1bGUsIHNheSBNIGhlcmUgYW5kIHJlYWQgPGZpbGU6RG9jdW1l
-bnRhdGlvbi9tb2R1bGVzLnR4dD4uICBNb3N0DQorICBwZW9wbGUgd2lsbCBz
-YXkgTi4NCisNCiBJQjcwMCBTQkMgV2F0Y2hkb2cgVGltZXINCiBDT05GSUdf
-SUI3MDBfV0RUDQogICBUaGlzIGlzIHRoZSBkcml2ZXIgZm9yIHRoZSBoYXJk
-d2FyZSB3YXRjaGRvZyBvbiB0aGUgSUI3MDAgU2luZ2xlDQpkaWZmIC11ck4g
-bGludXgudmFuaWxsYS9kcml2ZXJzL2NoYXIvQ29uZmlnLmluIGxpbnV4LmNo
-b2NvbGF0ZWNvb2tpZWRvdWdoL2RyaXZlcnMvY2hhci9Db25maWcuaW4NCi0t
-LSBsaW51eC52YW5pbGxhL2RyaXZlcnMvY2hhci9Db25maWcuaW4JTW9uIE5v
-diAxMiAxNzozNDoxNiAyMDAxDQorKysgbGludXguY2hvY29sYXRlY29va2ll
-ZG91Z2gvZHJpdmVycy9jaGFyL0NvbmZpZy5pbglGcmkgTWFyICAxIDA5OjQ3
-OjQzIDIwMDINCkBAIC0xNzAsNiArMTcwLDcgQEANCiAgICB0cmlzdGF0ZSAn
-ICBNaXhjb20gV2F0Y2hkb2cnIENPTkZJR19NSVhDT01XRCANCiAgICB0cmlz
-dGF0ZSAnICBTQkMtNjBYWCBXYXRjaGRvZyBUaW1lcicgQ09ORklHXzYwWFhf
-V0RUDQogICAgdHJpc3RhdGUgJyAgVzgzODc3RiAoRU1BQ1MpIFdhdGNoZG9n
-IFRpbWVyJyBDT05GSUdfVzgzODc3Rl9XRFQNCisgICB0cmlzdGF0ZSAnICBB
-TGkgTTcxMDEgUE1VIFdhdGNoZG9nIFRpbWVyJyBDT05GSUdfQUxJTTcxMDFf
-V0RUDQogICAgdHJpc3RhdGUgJyAgWkYgTWFjaFogV2F0Y2hkb2cnIENPTkZJ
-R19NQUNIWl9XRFQNCiBmaQ0KIGVuZG1lbnUNCmRpZmYgLXVyTiBsaW51eC52
-YW5pbGxhL2RyaXZlcnMvY2hhci9NYWtlZmlsZSBsaW51eC5jaG9jb2xhdGVj
-b29raWVkb3VnaC9kcml2ZXJzL2NoYXIvTWFrZWZpbGUNCi0tLSBsaW51eC52
-YW5pbGxhL2RyaXZlcnMvY2hhci9NYWtlZmlsZQlTdW4gTm92IDExIDE4OjA5
-OjMyIDIwMDENCisrKyBsaW51eC5jaG9jb2xhdGVjb29raWVkb3VnaC9kcml2
-ZXJzL2NoYXIvTWFrZWZpbGUJRnJpIE1hciAgMSAxMDo0MToxMSAyMDAyDQpA
-QCAtMjMzLDYgKzIzMyw3IEBADQogb2JqLSQoQ09ORklHX01BQ0haX1dEVCkg
-Kz0gbWFjaHp3ZC5vDQogb2JqLSQoQ09ORklHX1NIX1dEVCkgKz0gc2h3ZHQu
-bw0KIG9iai0kKENPTkZJR19FVVJPVEVDSF9XRFQpICs9IGV1cm90ZWNod2R0
-Lm8NCitvYmotJChDT05GSUdfQUxJTTcxMDFfV0RUKSArPSBhbGltNzEwMV93
-ZHQubw0KIG9iai0kKENPTkZJR19TT0ZUX1dBVENIRE9HKSArPSBzb2Z0ZG9n
-Lm8NCiANCiBzdWJkaXItJChDT05GSUdfTVdBVkUpICs9IG13YXZlDQpkaWZm
-IC11ck4gbGludXgudmFuaWxsYS9kcml2ZXJzL2NoYXIvYWxpbTcxMDFfd2R0
-LmMgbGludXguY2hvY29sYXRlY29va2llZG91Z2gvZHJpdmVycy9jaGFyL2Fs
-aW03MTAxX3dkdC5jDQotLS0gbGludXgudmFuaWxsYS9kcml2ZXJzL2NoYXIv
-YWxpbTcxMDFfd2R0LmMJVGh1IEphbiAgMSAwMTowMDowMCAxOTcwDQorKysg
-bGludXguY2hvY29sYXRlY29va2llZG91Z2gvZHJpdmVycy9jaGFyL2FsaW03
-MTAxX3dkdC5jCUZyaSBNYXIgIDEgMTQ6MTA6MDcgMjAwMg0KQEAgLTAsMCAr
-MSwzNDggQEANCisvKg0KKyAqCUFMaSBNNzEwMSBQTVUgQ29tcHV0ZXIgV2F0
-Y2hkb2cgVGltZXIgZHJpdmVyIGZvciBMaW51eCAyLjQueA0KKyAqDQorICoJ
-QmFzZWQgb24gdzgzODc3Zl93ZHQuYyBieSBTY290dCBKZW5uaW5ncyA8bWFu
-YWdlbWVudEBvcm8ubmV0Pg0KKyAqCWFuZCB0aGUgQ29iYWx0IGtlcm5lbCBX
-RFQgdGltZXIgZHJpdmVyIGJ5IFRpbSBIb2NraW4NCisgKgkgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgIDx0aG9ja2luQGNvYmFsdG5l
-dC5jb20+DQorICoNCisgKgkoYykyMDAyIFN0ZXZlIEhpbGwgPHN0ZXZlQG5h
-dmFoby5jby51az4NCisgKiANCisgKiAgVGhlb3J5IG9mIG9wZXJhdGlvbjoN
-CisgKiAgQSBXYXRjaGRvZyBUaW1lciAoV0RUKSBpcyBhIGhhcmR3YXJlIGNp
-cmN1aXQgdGhhdCBjYW4gDQorICogIHJlc2V0IHRoZSBjb21wdXRlciBzeXN0
-ZW0gaW4gY2FzZSBvZiBhIHNvZnR3YXJlIGZhdWx0Lg0KKyAqICBZb3UgcHJv
-YmFibHkga25ldyB0aGF0IGFscmVhZHkuDQorICoNCisgKiAgVXN1YWxseSBh
-IHVzZXJzcGFjZSBkYWVtb24gd2lsbCBub3RpZnkgdGhlIGtlcm5lbCBXRFQg
-ZHJpdmVyDQorICogIHZpYSB0aGUgL3Byb2Mvd2F0Y2hkb2cgc3BlY2lhbCBk
-ZXZpY2UgZmlsZSB0aGF0IHVzZXJzcGFjZSBpcw0KKyAqICBzdGlsbCBhbGl2
-ZSwgYXQgcmVndWxhciBpbnRlcnZhbHMuICBXaGVuIHN1Y2ggYSBub3RpZmlj
-YXRpb24NCisgKiAgb2NjdXJzLCB0aGUgZHJpdmVyIHdpbGwgdXN1YWxseSB0
-ZWxsIHRoZSBoYXJkd2FyZSB3YXRjaGRvZw0KKyAqICB0aGF0IGV2ZXJ5dGhp
-bmcgaXMgaW4gb3JkZXIsIGFuZCB0aGF0IHRoZSB3YXRjaGRvZyBzaG91bGQg
-d2FpdA0KKyAqICBmb3IgeWV0IGFub3RoZXIgbGl0dGxlIHdoaWxlIHRvIHJl
-c2V0IHRoZSBzeXN0ZW0uDQorICogIElmIHVzZXJzcGFjZSBmYWlscyAoUkFN
-IGVycm9yLCBrZXJuZWwgYnVnLCB3aGF0ZXZlciksIHRoZQ0KKyAqICBub3Rp
-ZmljYXRpb25zIGNlYXNlIHRvIG9jY3VyLCBhbmQgdGhlIGhhcmR3YXJlIHdh
-dGNoZG9nIHdpbGwNCisgKiAgcmVzZXQgdGhlIHN5c3RlbSAoY2F1c2luZyBh
-IHJlYm9vdCkgYWZ0ZXIgdGhlIHRpbWVvdXQgb2NjdXJzLg0KKyAqDQorICog
-IFRoaXMgV0RUIGRyaXZlciBpcyBkaWZmZXJlbnQgZnJvbSBtb3N0IG90aGVy
-IExpbnV4IFdEVA0KKyAqICBkcml2ZXJzIGluIHRoYXQgdGhlIGRyaXZlciB3
-aWxsIHBpbmcgdGhlIHdhdGNoZG9nIGJ5IGl0c2VsZiwNCisgKiAgYmVjYXVz
-ZSB0aGlzIHBhcnRpY3VsYXIgV0RUIGhhcyBhIHZlcnkgc2hvcnQgdGltZW91
-dCAoMS42DQorICogIHNlY29uZHMpIGFuZCBpdCB3b3VsZCBiZSBpbnNhbmUg
-dG8gY291bnQgb24gYW55IHVzZXJzcGFjZQ0KKyAqICBkYWVtb24gYWx3YXlz
-IGdldHRpbmcgc2NoZWR1bGVkIHdpdGhpbiB0aGF0IHRpbWUgZnJhbWUuDQor
-ICovDQorDQorI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPg0KKyNpbmNsdWRl
-IDxsaW51eC92ZXJzaW9uLmg+DQorI2luY2x1ZGUgPGxpbnV4L3R5cGVzLmg+
-DQorI2luY2x1ZGUgPGxpbnV4L2Vycm5vLmg+DQorI2luY2x1ZGUgPGxpbnV4
-L2tlcm5lbC5oPg0KKyNpbmNsdWRlIDxsaW51eC90aW1lci5oPg0KKyNpbmNs
-dWRlIDxsaW51eC9zY2hlZC5oPg0KKyNpbmNsdWRlIDxsaW51eC9taXNjZGV2
-aWNlLmg+DQorI2luY2x1ZGUgPGxpbnV4L3dhdGNoZG9nLmg+DQorI2luY2x1
-ZGUgPGxpbnV4L3NsYWIuaD4NCisjaW5jbHVkZSA8bGludXgvaW9wb3J0Lmg+
-DQorI2luY2x1ZGUgPGxpbnV4L2ZjbnRsLmg+DQorI2luY2x1ZGUgPGxpbnV4
-L3NtcF9sb2NrLmg+DQorI2luY2x1ZGUgPGFzbS9pby5oPg0KKyNpbmNsdWRl
-IDxhc20vdWFjY2Vzcy5oPg0KKyNpbmNsdWRlIDxhc20vc3lzdGVtLmg+DQor
-I2luY2x1ZGUgPGxpbnV4L25vdGlmaWVyLmg+DQorI2luY2x1ZGUgPGxpbnV4
-L3JlYm9vdC5oPg0KKyNpbmNsdWRlIDxsaW51eC9pbml0Lmg+DQorI2luY2x1
-ZGUgPGxpbnV4L3BjaS5oPg0KKw0KKyNkZWZpbmUgT1VSX05BTUUgImFsaW03
-MTAxX3dkdCINCisNCisjZGVmaW5lIFdEVF9FTkFCTEUgMHg5Qw0KKyNkZWZp
-bmUgV0RUX0RJU0FCTEUgMHg4Qw0KKw0KKyNkZWZpbmUgQUxJXzcxMDFfV0RU
-ICAgIDB4OTINCisjZGVmaW5lIEFMSV9XRFRfQVJNICAgICAweDAxDQorDQor
-LyoNCisgKiBXZSdyZSBnb2luZyB0byB1c2UgYSAxIHNlY29uZCB0aW1lb3V0
-Lg0KKyAqIElmIHdlIHJlc2V0IHRoZSB3YXRjaGRvZyBldmVyeSB+MjUwbXMg
-d2Ugc2hvdWxkIGJlIHNhZmUuICAqLw0KKw0KKyNkZWZpbmUgV0RUX0lOVEVS
-VkFMIChIWi80KzEpDQorDQorLyoNCisgKiBXZSBtdXN0IG5vdCByZXF1aXJl
-IHRvbyBnb29kIHJlc3BvbnNlIGZyb20gdGhlIHVzZXJzcGFjZSBkYWVtb24u
-DQorICogSGVyZSB3ZSByZXF1aXJlIHRoZSB1c2Vyc3BhY2UgZGFlbW9uIHRv
-IHNlbmQgdXMgYSBoZWFydGJlYXQNCisgKiBjaGFyIHRvIC9kZXYvd2F0Y2hk
-b2cgZXZlcnkgMzAgc2Vjb25kcy4NCisgKi8NCisNCisjZGVmaW5lIFdEVF9I
-RUFSVEJFQVQgKEhaICogMzApDQorDQorc3RhdGljIHZvaWQgd2R0X3RpbWVy
-X3BpbmcodW5zaWduZWQgbG9uZyk7DQorc3RhdGljIHN0cnVjdCB0aW1lcl9s
-aXN0IHRpbWVyOw0KK3N0YXRpYyB1bnNpZ25lZCBsb25nIG5leHRfaGVhcnRi
-ZWF0Ow0KK3N0YXRpYyBpbnQgd2R0X2lzX29wZW47DQorc3RhdGljIGludCB3
-ZHRfZXhwZWN0X2Nsb3NlOw0KK3N0cnVjdCBwY2lfZGV2ICoJYWxpbTcxMDFf
-cG11Ow0KKw0KKy8qDQorICoJV2hhY2sgdGhlIGRvZw0KKyAqLw0KKw0KK3N0
-YXRpYyB2b2lkIHdkdF90aW1lcl9waW5nKHVuc2lnbmVkIGxvbmcgZGF0YSkN
-Cit7DQorCS8qIElmIHdlIGdvdCBhIGhlYXJ0YmVhdCBwdWxzZSB3aXRoaW4g
-dGhlIFdEVF9VU19JTlRFUlZBTA0KKwkgKiB3ZSBhZ3JlZSB0byBwaW5nIHRo
-ZSBXRFQgDQorCSAqLw0KKwljaGFyCXRtcDsNCisNCisJaWYodGltZV9iZWZv
-cmUoamlmZmllcywgbmV4dF9oZWFydGJlYXQpKSANCisJew0KKwkJLyogUGlu
-ZyB0aGUgV0RUICh0aGlzIGlzIGFjdHVhbGx5IGEgZGlzYXJtL2FybSBzZXF1
-ZW5jZSkgKi8NCisJCXBjaV9yZWFkX2NvbmZpZ19ieXRlKGFsaW03MTAxX3Bt
-dSwgMHg5MiwgJnRtcCk7DQorCQlwY2lfd3JpdGVfY29uZmlnX2J5dGUoYWxp
-bTcxMDFfcG11LCBBTElfNzEwMV9XRFQsICh0bXAgJiB+QUxJX1dEVF9BUk0p
-KTsNCisJCXBjaV93cml0ZV9jb25maWdfYnl0ZShhbGltNzEwMV9wbXUsIEFM
-SV83MTAxX1dEVCwgKHRtcCB8IEFMSV9XRFRfQVJNKSk7DQorCX0gZWxzZSB7
-DQorCQlwcmludGsoT1VSX05BTUUgIjogSGVhcnRiZWF0IGxvc3QhIFdpbGwg
-bm90IHBpbmcgdGhlIHdhdGNoZG9nXG4iKTsNCisJfQ0KKwkvKiBSZS1zZXQg
-dGhlIHRpbWVyIGludGVydmFsICovDQorCXRpbWVyLmV4cGlyZXMgPSBqaWZm
-aWVzICsgV0RUX0lOVEVSVkFMOw0KKwlhZGRfdGltZXIoJnRpbWVyKTsNCit9
-DQorDQorLyogDQorICogVXRpbGl0eSByb3V0aW5lcw0KKyAqLw0KKw0KK3N0
-YXRpYyB2b2lkIHdkdF9jaGFuZ2UoaW50IHdyaXRldmFsKQ0KK3sNCisJY2hh
-cgl0bXA7DQorDQorCXBjaV9yZWFkX2NvbmZpZ19ieXRlKGFsaW03MTAxX3Bt
-dSwgMHg5MiwgJnRtcCk7DQorCWlmICh3cml0ZXZhbCA9PSBXRFRfRU5BQkxF
-KSBwY2lfd3JpdGVfY29uZmlnX2J5dGUoYWxpbTcxMDFfcG11LCBBTElfNzEw
-MV9XRFQsICh0bXAgfCBBTElfV0RUX0FSTSkpOw0KKwllbHNlIHBjaV93cml0
-ZV9jb25maWdfYnl0ZShhbGltNzEwMV9wbXUsIEFMSV83MTAxX1dEVCwgKHRt
-cCAmIH5BTElfV0RUX0FSTSkpOw0KK30NCisNCitzdGF0aWMgdm9pZCB3ZHRf
-c3RhcnR1cCh2b2lkKQ0KK3sNCisJbmV4dF9oZWFydGJlYXQgPSBqaWZmaWVz
-ICsgV0RUX0hFQVJUQkVBVDsNCisNCisJLyogU3RhcnQgdGhlIHRpbWVyICov
-DQorCXRpbWVyLmV4cGlyZXMgPSBqaWZmaWVzICsgV0RUX0lOVEVSVkFMOwkN
-CisJYWRkX3RpbWVyKCZ0aW1lcik7DQorDQorCXdkdF9jaGFuZ2UoV0RUX0VO
-QUJMRSk7DQorDQorCXByaW50ayhPVVJfTkFNRSAiOiBXYXRjaGRvZyB0aW1l
-ciBpcyBub3cgZW5hYmxlZC5cbiIpOyAgDQorfQ0KKw0KK3N0YXRpYyB2b2lk
-IHdkdF90dXJub2ZmKHZvaWQpDQorew0KKwkvKiBTdG9wIHRoZSB0aW1lciAq
-Lw0KKwlkZWxfdGltZXIoJnRpbWVyKTsNCisNCisJd2R0X2NoYW5nZShXRFRf
-RElTQUJMRSk7DQorDQorCXByaW50ayhPVVJfTkFNRSAiOiBXYXRjaGRvZyB0
-aW1lciBpcyBub3cgZGlzYWJsZWQuLi5cbiIpOw0KK30NCisNCisNCisvKg0K
-KyAqIC9kZXYvd2F0Y2hkb2cgaGFuZGxpbmcNCisgKi8NCisNCitzdGF0aWMg
-c3NpemVfdCBmb3Bfd3JpdGUoc3RydWN0IGZpbGUgKiBmaWxlLCBjb25zdCBj
-aGFyICogYnVmLCBzaXplX3QgY291bnQsIGxvZmZfdCAqIHBwb3MpDQorew0K
-KwkvKiBXZSBjYW4ndCBzZWVrICovDQorCWlmKHBwb3MgIT0gJmZpbGUtPmZf
-cG9zKQ0KKwkJcmV0dXJuIC1FU1BJUEU7DQorDQorCS8qIFNlZSBpZiB3ZSBn
-b3QgdGhlIG1hZ2ljIGNoYXJhY3RlciAqLw0KKwlpZihjb3VudCkgDQorCXsN
-CisJCXNpemVfdCBvZnM7DQorDQorCQkvKiBub3RlOiBqdXN0IGluIGNhc2Ug
-c29tZW9uZSB3cm90ZSB0aGUgbWFnaWMgY2hhcmFjdGVyDQorCQkgKiBmaXZl
-IG1vbnRocyBhZ28uLi4gKi8NCisJCXdkdF9leHBlY3RfY2xvc2UgPSAwOw0K
-Kw0KKwkJLyogbm93IHNjYW4gKi8NCisJCWZvcihvZnMgPSAwOyBvZnMgIT0g
-Y291bnQ7IG9mcysrKQ0KKwkJICBpZihidWZbb2ZzXSA9PSAnVicpDQorCQkJ
-CXdkdF9leHBlY3RfY2xvc2UgPSAxOw0KKw0KKwkJLyogc29tZW9uZSB3cm90
-ZSB0byB1cywgd2Ugc2hvdWxkIHJlc3RhcnQgdGltZXIgKi8NCisJCW5leHRf
-aGVhcnRiZWF0ID0gamlmZmllcyArIFdEVF9IRUFSVEJFQVQ7DQorCQlyZXR1
-cm4gMTsNCisJfTsNCisJcmV0dXJuIDA7DQorfQ0KKw0KK3N0YXRpYyBzc2l6
-ZV90IGZvcF9yZWFkKHN0cnVjdCBmaWxlICogZmlsZSwgY2hhciAqIGJ1Ziwg
-c2l6ZV90IGNvdW50LCBsb2ZmX3QgKiBwcG9zKQ0KK3sNCisJLyogTm8gY2Fu
-IGRvICovDQorCXJldHVybiAtRUlOVkFMOw0KK30NCisNCitzdGF0aWMgaW50
-IGZvcF9vcGVuKHN0cnVjdCBpbm9kZSAqIGlub2RlLCBzdHJ1Y3QgZmlsZSAq
-IGZpbGUpDQorew0KKwlzd2l0Y2goTUlOT1IoaW5vZGUtPmlfcmRldikpIA0K
-Kwl7DQorCQljYXNlIFdBVENIRE9HX01JTk9SOg0KKwkJCS8qIEp1c3QgaW4g
-Y2FzZSB3ZSdyZSBhbHJlYWR5IHRhbGtpbmcgdG8gc29tZW9uZS4uLiAqLw0K
-KwkJCWlmKHdkdF9pc19vcGVuKQ0KKwkJCQlyZXR1cm4gLUVCVVNZOw0KKwkJ
-CS8qIEdvb2QsIGZpcmUgdXAgdGhlIHNob3cgKi8NCisJCQl3ZHRfaXNfb3Bl
-biA9IDE7DQorCQkJd2R0X3N0YXJ0dXAoKTsNCisJCQlyZXR1cm4gMDsNCisN
-CisJCWRlZmF1bHQ6DQorCQkJcmV0dXJuIC1FTk9ERVY7DQorCX0NCit9DQor
-DQorc3RhdGljIGludCBmb3BfY2xvc2Uoc3RydWN0IGlub2RlICogaW5vZGUs
-IHN0cnVjdCBmaWxlICogZmlsZSkNCit7DQorCWxvY2tfa2VybmVsKCk7DQor
-CWlmKE1JTk9SKGlub2RlLT5pX3JkZXYpID09IFdBVENIRE9HX01JTk9SKSAN
-CisJew0KKyNpZmRlZiBDT05GSUdfV0RUX05PV0FZT1VUDQorCQlpZih3ZHRf
-ZXhwZWN0X2Nsb3NlKQ0KKyNlbmRpZg0KKwkJCXdkdF90dXJub2ZmKCk7DQor
-I2lmZGVmIENPTkZJR19XRFRfTk9XQVlPVVQNCisJCWVsc2Ugew0KKwkJCXBy
-aW50ayhPVVJfTkFNRSAiOiBkZXZpY2UgZmlsZSBjbG9zZWQgdW5leHBlY3Rl
-ZGx5LiBXaWxsIG5vdCBzdG9wIHRoZSBXRFQhXG4iKTsNCisJCX0NCisjZW5k
-aWYNCisJfQ0KKwl3ZHRfaXNfb3BlbiA9IDA7DQorCXVubG9ja19rZXJuZWwo
-KTsNCisJcmV0dXJuIDA7DQorfQ0KKw0KK3N0YXRpYyBpbnQgZm9wX2lvY3Rs
-KHN0cnVjdCBpbm9kZSAqaW5vZGUsIHN0cnVjdCBmaWxlICpmaWxlLCB1bnNp
-Z25lZCBpbnQgY21kLA0KKwl1bnNpZ25lZCBsb25nIGFyZykNCit7DQorCXN0
-YXRpYyBzdHJ1Y3Qgd2F0Y2hkb2dfaW5mbyBpZGVudD0NCisJew0KKwkJMCwN
-CisJCTEsDQorCQkiQUxpTTcxMDEiDQorCX07DQorCQ0KKwlzd2l0Y2goY21k
-KQ0KKwl7DQorCQlkZWZhdWx0Og0KKwkJCXJldHVybiAtRU5PSU9DVExDTUQ7
-DQorCQljYXNlIFdESU9DX0dFVFNVUFBPUlQ6DQorCQkJcmV0dXJuIGNvcHlf
-dG9fdXNlcigoc3RydWN0IHdhdGNoZG9nX2luZm8gKilhcmcsICZpZGVudCwg
-c2l6ZW9mKGlkZW50KSk/LUVGQVVMVDowOw0KKwkJY2FzZSBXRElPQ19LRUVQ
-QUxJVkU6DQorCQkJbmV4dF9oZWFydGJlYXQgPSBqaWZmaWVzICsgV0RUX0hF
-QVJUQkVBVDsNCisJCQlyZXR1cm4gMDsNCisJfQ0KK30NCisNCitzdGF0aWMg
-c3RydWN0IGZpbGVfb3BlcmF0aW9ucyB3ZHRfZm9wcyA9IHsNCisJb3duZXI6
-CQlUSElTX01PRFVMRSwNCisJbGxzZWVrOgkJbm9fbGxzZWVrLA0KKwlyZWFk
-OgkJZm9wX3JlYWQsDQorCXdyaXRlOgkJZm9wX3dyaXRlLA0KKwlvcGVuOgkJ
-Zm9wX29wZW4sDQorCXJlbGVhc2U6CWZvcF9jbG9zZSwNCisJaW9jdGw6CQlm
-b3BfaW9jdGwNCit9Ow0KKw0KK3N0YXRpYyBzdHJ1Y3QgbWlzY2RldmljZSB3
-ZHRfbWlzY2RldiA9IHsNCisJV0FUQ0hET0dfTUlOT1IsDQorCSJ3YXRjaGRv
-ZyIsDQorCSZ3ZHRfZm9wcw0KK307DQorDQorLyoNCisgKglOb3RpZmllciBm
-b3Igc3lzdGVtIGRvd24NCisgKi8NCisNCitzdGF0aWMgaW50IHdkdF9ub3Rp
-Znlfc3lzKHN0cnVjdCBub3RpZmllcl9ibG9jayAqdGhpcywgdW5zaWduZWQg
-bG9uZyBjb2RlLA0KKwl2b2lkICp1bnVzZWQpDQorew0KKwlpZiAoY29kZT09
-U1lTX0RPV04gfHwgY29kZT09U1lTX0hBTFQpIHdkdF90dXJub2ZmKCk7DQor
-CWlmIChjb2RlPT1TWVNfUkVTVEFSVCkgew0KKwkJLyoNCisJCSAqIENvYmFs
-dCBkZXZpY2VzIGhhdmUgbm8gd2F5IG9mIHJlYm9vdGluZyB0aGVtc2VsdmVz
-IG90aGVyIHRoYW4NCisJCSAqIGdldHRpbmcgdGhlIHdhdGNoZG9nIHRvIHB1
-bGwgcmVzZXQsIHNvIHdlIHJlc3RhcnQgdGhlIHdhdGNoZG9nIG9uDQorCQkg
-KiByZWJvb3Qgd2l0aCBubyBoZWFydGJlYXQNCisJCSAqLw0KKwkJd2R0X2No
-YW5nZShXRFRfRU5BQkxFKTsNCisJCXByaW50ayhPVVJfTkFNRSAiOiBXYXRj
-aGRvZyB0aW1lciBpcyBub3cgZW5hYmxlZCB3aXRoIG5vIGhlYXJ0YmVhdCAt
-IHNob3VsZCByZWJvb3QgaW4gfjEgc2Vjb25kLlxuIik7DQorCX07DQorCXJl
-dHVybiBOT1RJRllfRE9ORTsNCit9DQorIA0KKy8qDQorICoJVGhlIFdEVCBu
-ZWVkcyB0byBsZWFybiBhYm91dCBzb2Z0IHNodXRkb3ducyBpbiBvcmRlciB0
-bw0KKyAqCXR1cm4gdGhlIHRpbWVib21iIHJlZ2lzdGVycyBvZmYuIA0KKyAq
-Lw0KKyANCitzdGF0aWMgc3RydWN0IG5vdGlmaWVyX2Jsb2NrIHdkdF9ub3Rp
-Zmllcj0NCit7DQorCXdkdF9ub3RpZnlfc3lzLA0KKwkwLA0KKwkwDQorfTsN
-CisNCitzdGF0aWMgdm9pZCBfX2V4aXQgYWxpbTcxMDFfd2R0X3VubG9hZCh2
-b2lkKQ0KK3sNCisJd2R0X3R1cm5vZmYoKTsNCisNCisJLyogRGVyZWdpc3Rl
-ciAqLw0KKwltaXNjX2RlcmVnaXN0ZXIoJndkdF9taXNjZGV2KTsNCisNCisJ
-dW5yZWdpc3Rlcl9yZWJvb3Rfbm90aWZpZXIoJndkdF9ub3RpZmllcik7DQor
-fQ0KKw0KK3N0YXRpYyBpbnQgX19pbml0IGFsaW03MTAxX3dkdF9pbml0KHZv
-aWQpDQorew0KKwlpbnQgcmMgPSAtRUJVU1k7DQorCXN0cnVjdCBwY2lfZGV2
-ICoJYWxpMTU0M19zb3V0aDsNCisJY2hhcgkJCXRtcDsNCisNCisJcHJpbnRr
-KEtFUk5fSU5GTyBPVVJfTkFNRSAiOiBTdGV2ZSBIaWxsIDxzdGV2ZUBuYXZh
-aG8uY28udWs+LlxuIik7DQorCWFsaW03MTAxX3BtdSA9IHBjaV9maW5kX2Rl
-dmljZShQQ0lfVkVORE9SX0lEX0FMLCBQQ0lfREVWSUNFX0lEX0FMX003MTAx
-LE5VTEwpOw0KKwlpZiAoIWFsaW03MTAxX3BtdSkgew0KKwkJcHJpbnRrKEtF
-Uk5fSU5GTyBPVVJfTkFNRSAiOiBBTGkgTTcxMDEgUE1VIG5vdCBwcmVzZW50
-IC0gV0RUIG5vdCBzZXRcbiIpOw0KKwkJcmV0dXJuIC1FQlVTWTsNCisJfTsN
-CisJDQorCS8qIFNldCB0aGUgV0RUIGluIHRoZSBQTVUgdG8gMSBzZWNvbmQg
-Ki8NCisJcGNpX3dyaXRlX2NvbmZpZ19ieXRlKGFsaW03MTAxX3BtdSwgQUxJ
-XzcxMDFfV0RULCAweDAyKTsNCisNCisJYWxpMTU0M19zb3V0aCA9IHBjaV9m
-aW5kX2RldmljZShQQ0lfVkVORE9SX0lEX0FMLCBQQ0lfREVWSUNFX0lEX0FM
-X00xNTMzLCBOVUxMKTsNCisJaWYgKCFhbGkxNTQzX3NvdXRoKSB7DQorCQlw
-cmludGsoS0VSTl9JTkZPIE9VUl9OQU1FICI6IEFMaSAxNTQzIFNvdXRoLUJy
-aWRnZSBub3QgcHJlc2VudCAtIFdEVCBub3Qgc2V0XG4iKTsNCisJCXJldHVy
-biAtRUJVU1k7DQorCX07DQorCXBjaV9yZWFkX2NvbmZpZ19ieXRlKGFsaTE1
-NDNfc291dGgsIDB4NWUsICZ0bXApOw0KKwlpZiAoKHRtcCAmIDB4MWUpICE9
-IDB4MTIpIHsNCisJCXByaW50ayhLRVJOX0lORk8gT1VSX05BTUUgIjogQUxp
-IDE1NDMgU291dGgtQnJpZGdlIGRvZXMgbm90IGhhdmUgdGhlIGNvcnJlY3Qg
-cmV2aXNpb24gbnVtYmVyICg/Pz8xMDAxPykgLSBXRFQgbm90IHNldFxuIik7
-DQorCQlyZXR1cm4gLUVCVVNZOw0KKwl9Ow0KKw0KKwlpbml0X3RpbWVyKCZ0
-aW1lcik7DQorCXRpbWVyLmZ1bmN0aW9uID0gd2R0X3RpbWVyX3Bpbmc7DQor
-CXRpbWVyLmRhdGEgPSAxOw0KKwkJDQorCXJjID0gbWlzY19yZWdpc3Rlcigm
-d2R0X21pc2NkZXYpOw0KKwlpZiAocmMpIHJldHVybiByYzsNCisNCisJcmMg
-PSByZWdpc3Rlcl9yZWJvb3Rfbm90aWZpZXIoJndkdF9ub3RpZmllcik7DQor
-CWlmIChyYykgew0KKwkJbWlzY19kZXJlZ2lzdGVyKCZ3ZHRfbWlzY2Rldik7
-DQorCQlyZXR1cm4gcmM7DQorCX07DQorCQ0KKwlwcmludGsoS0VSTl9JTkZP
-IE9VUl9OQU1FICI6IFdEVCBkcml2ZXIgZm9yIEFMaSBNNzEwMSBpbml0aWFs
-aXNlZC5cbiIpOw0KKwkNCisJcmV0dXJuIDA7DQorDQorfQ0KKw0KK21vZHVs
-ZV9pbml0KGFsaW03MTAxX3dkdF9pbml0KTsNCittb2R1bGVfZXhpdChhbGlt
-NzEwMV93ZHRfdW5sb2FkKTsNCisNCitNT0RVTEVfTElDRU5TRSgiR1BMIik7
-DQo=
---665600-1915745409-1014993787=:9334--
-
+2 warnings issued.  Results may not be reliable.

@@ -1,280 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbUKCWya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbUKDA2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261970AbUKCWya (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 17:54:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbUKCWvZ
+	id S262016AbUKDA2j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 19:28:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbUKDAYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 17:51:25 -0500
-Received: from [203.2.177.22] ([203.2.177.22]:32006 "EHLO pinot.tusc.com.au")
-	by vger.kernel.org with ESMTP id S261952AbUKCWsO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 17:48:14 -0500
-Subject: [PATCH] 2.6 X.25: Remove unused header files.
-From: Andrew Hendry <ahendry@tusc.com.au>
-To: linux-x25@vger.kernel.org, eis@baty.hanse.de
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1099521943.3060.74.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 04 Nov 2004 09:45:43 +1100
+	Wed, 3 Nov 2004 19:24:37 -0500
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:63582 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262015AbUKDAYH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 19:24:07 -0500
+From: Blaisorblade <blaisorblade_spam@yahoo.it>
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Re: [uml-devel] [PATCH] UML: Use PTRACE_KILL instead of SIGKILL to kill host-OS processes (take #2)
+Date: Thu, 4 Nov 2004 01:23:48 +0100
+User-Agent: KMail/1.7.1
+Cc: Gerd Knorr <kraxel@bytesex.org>,
+       user-mode-linux-devel@lists.sourceforge.net,
+       Jeff Dike <jdike@addtoit.com>, Anton Altaparmakov <aia21@cam.ac.uk>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+References: <20041103113736.GA23041@taniwha.stupidest.org> <20041103201836.GB29289@bytesex> <20041103204812.GA11010@taniwha.stupidest.org>
+In-Reply-To: <20041103204812.GA11010@taniwha.stupidest.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Nov 2004 22:48:01.0102 (UTC) FILETIME=[2BE976E0:01C4C1F7]
+Content-Disposition: inline
+Message-Id: <200411040123.49624.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 03 November 2004 21:48, Chris Wedgwood wrote:
+> On Wed, Nov 03, 2004 at 09:18:36PM +0100, Gerd Knorr wrote:
+> > Not sure whenever tt is fixed with my patch, I've tested skas only
+> > (I'm building skas-only dynamically linked kernels these days
+> > because due to working on x11 framebuffer stuff which needs
+> > dynamically linked libX11).
 
-Remove unused header files from X.25
+> it would be nice to find a way to make this work TT mode for you
 
-Signed-off-by: Andrew Hendry <ahendry@tusc.com.au>
+> > So if Chris actually tested TT then his patch probably is ok and
+> > needed as well ...
 
+> i'm only using TT mode at present, i don't check esoteric modes that
+> require host-OS patches at present
+SKAS mode is currently more used and tested than TT mode. And the SKAS patch 
+is included at least in WOLK, the SuSE kernel, and the -cko patchset (Con 
+Kolivas Overloaded).
 
-diff -uprN -X dontdiff linux-2.6.8.1-vanilla/net/x25/af_x25.c linux-2.6.8.1/net/x25/af_x25.c
---- linux-2.6.8.1-vanilla/net/x25/af_x25.c	2004-08-14 20:56:22.000000000 +1000
-+++ linux-2.6.8.1/net/x25/af_x25.c	2004-10-29 11:05:12.794679312 +1000
-@@ -34,28 +34,19 @@
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/errno.h>
--#include <linux/types.h>
--#include <linux/socket.h>
--#include <linux/in.h>
- #include <linux/kernel.h>
- #include <linux/sched.h>
- #include <linux/timer.h>
- #include <linux/string.h>
--#include <linux/sockios.h>
- #include <linux/net.h>
--#include <linux/stat.h>
--#include <linux/inet.h>
- #include <linux/netdevice.h>
- #include <linux/if_arp.h>
- #include <linux/skbuff.h>
- #include <net/sock.h>
- #include <net/tcp.h>
--#include <asm/system.h>
- #include <asm/uaccess.h>
- #include <linux/fcntl.h>
- #include <linux/termios.h>	/* For TIOCINQ/OUTQ */
--#include <linux/mm.h>
--#include <linux/interrupt.h>
- #include <linux/notifier.h>
- #include <linux/init.h>
- #include <net/x25.h>
-diff -uprN -X dontdiff linux-2.6.8.1-vanilla/net/x25/sysctl_net_x25.c linux-2.6.8.1/net/x25/sysctl_net_x25.c
---- linux-2.6.8.1-vanilla/net/x25/sysctl_net_x25.c	2004-08-14 20:55:32.000000000 +1000
-+++ linux-2.6.8.1/net/x25/sysctl_net_x25.c	2004-10-29 10:28:27.051003320 +1000
-@@ -5,7 +5,6 @@
-  * Added /proc/sys/net/x25 directory entry (empty =) ). [MS]
-  */
- 
--#include <linux/mm.h>
- #include <linux/sysctl.h>
- #include <linux/skbuff.h>
- #include <linux/socket.h>
-diff -uprN -X dontdiff linux-2.6.8.1-vanilla/net/x25/x25_dev.c linux-2.6.8.1/net/x25/x25_dev.c
---- linux-2.6.8.1-vanilla/net/x25/x25_dev.c	2004-08-14 20:55:24.000000000 +1000
-+++ linux-2.6.8.1/net/x25/x25_dev.c	2004-10-29 10:23:05.201931816 +1000
-@@ -18,29 +18,10 @@
-  */
- 
- #include <linux/config.h>
--#include <linux/errno.h>
--#include <linux/types.h>
--#include <linux/socket.h>
--#include <linux/in.h>
- #include <linux/kernel.h>
--#include <linux/sched.h>
--#include <linux/timer.h>
--#include <linux/string.h>
--#include <linux/sockios.h>
--#include <linux/net.h>
--#include <linux/stat.h>
--#include <linux/inet.h>
- #include <linux/netdevice.h>
- #include <linux/skbuff.h>
- #include <net/sock.h>
--#include <asm/system.h>
--#include <asm/uaccess.h>
--#include <linux/fcntl.h>
--#include <linux/termios.h>	/* For TIOCINQ/OUTQ */
--#include <linux/mm.h>
--#include <linux/interrupt.h>
--#include <linux/notifier.h>
--#include <linux/proc_fs.h>
- #include <linux/if_arp.h>
- #include <net/x25.h>
- 
-diff -uprN -X dontdiff linux-2.6.8.1-vanilla/net/x25/x25_facilities.c linux-2.6.8.1/net/x25/x25_facilities.c
---- linux-2.6.8.1-vanilla/net/x25/x25_facilities.c	2004-08-14 20:55:33.000000000 +1000
-+++ linux-2.6.8.1/net/x25/x25_facilities.c	2004-10-29 10:13:09.996416808 +1000
-@@ -19,24 +19,10 @@
-  *					  negotiation.
-  */
- 
--#include <linux/errno.h>
--#include <linux/types.h>
--#include <linux/socket.h>
--#include <linux/in.h>
- #include <linux/kernel.h>
--#include <linux/sched.h>
--#include <linux/timer.h>
- #include <linux/string.h>
--#include <linux/sockios.h>
--#include <linux/net.h>
--#include <linux/inet.h>
--#include <linux/netdevice.h>
- #include <linux/skbuff.h>
- #include <net/sock.h>
--#include <asm/system.h>
--#include <linux/fcntl.h>
--#include <linux/mm.h>
--#include <linux/interrupt.h>
- #include <net/x25.h>
- 
- /*
-diff -uprN -X dontdiff linux-2.6.8.1-vanilla/net/x25/x25_in.c linux-2.6.8.1/net/x25/x25_in.c
---- linux-2.6.8.1-vanilla/net/x25/x25_in.c	2004-08-14 20:56:23.000000000 +1000
-+++ linux-2.6.8.1/net/x25/x25_in.c	2004-10-29 09:50:11.513977992 +1000
-@@ -24,25 +24,11 @@
-  */
- 
- #include <linux/errno.h>
--#include <linux/types.h>
--#include <linux/socket.h>
--#include <linux/in.h>
- #include <linux/kernel.h>
--#include <linux/sched.h>
--#include <linux/timer.h>
- #include <linux/string.h>
--#include <linux/sockios.h>
--#include <linux/net.h>
--#include <linux/inet.h>
--#include <linux/netdevice.h>
- #include <linux/skbuff.h>
- #include <net/sock.h>
--#include <net/ip.h>			/* For ip_rcv */
- #include <net/tcp.h>
--#include <asm/system.h>
--#include <linux/fcntl.h>
--#include <linux/mm.h>
--#include <linux/interrupt.h>
- #include <net/x25.h>
- 
- static int x25_queue_rx_frame(struct sock *sk, struct sk_buff *skb, int more)
-diff -uprN -X dontdiff linux-2.6.8.1-vanilla/net/x25/x25_link.c linux-2.6.8.1/net/x25/x25_link.c
---- linux-2.6.8.1-vanilla/net/x25/x25_link.c	2004-08-14 20:54:48.000000000 +1000
-+++ linux-2.6.8.1/net/x25/x25_link.c	2004-10-29 12:07:59.326079504 +1000
-@@ -21,25 +21,12 @@
-  *	2000-09-04	Henner Eisen	  dev_hold() / dev_put() for x25_neigh.
-  */
- 
--#include <linux/errno.h>
--#include <linux/types.h>
--#include <linux/socket.h>
--#include <linux/in.h>
- #include <linux/kernel.h>
- #include <linux/jiffies.h>
- #include <linux/timer.h>
--#include <linux/string.h>
--#include <linux/sockios.h>
--#include <linux/net.h>
--#include <linux/inet.h>
- #include <linux/netdevice.h>
- #include <linux/skbuff.h>
--#include <net/sock.h>
--#include <asm/system.h>
- #include <asm/uaccess.h>
--#include <linux/fcntl.h>
--#include <linux/mm.h>
--#include <linux/interrupt.h>
- #include <linux/init.h>
- #include <net/x25.h>
- 
-diff -uprN -X dontdiff linux-2.6.8.1-vanilla/net/x25/x25_out.c linux-2.6.8.1/net/x25/x25_out.c
---- linux-2.6.8.1-vanilla/net/x25/x25_out.c	2004-08-14 20:54:49.000000000 +1000
-+++ linux-2.6.8.1/net/x25/x25_out.c	2004-10-29 12:10:00.113716992 +1000
-@@ -22,24 +22,11 @@
-  *					needed cleaned seq-number fields.
-  */
- 
--#include <linux/errno.h>
--#include <linux/types.h>
- #include <linux/socket.h>
--#include <linux/in.h>
- #include <linux/kernel.h>
--#include <linux/sched.h>
--#include <linux/timer.h>
- #include <linux/string.h>
--#include <linux/sockios.h>
--#include <linux/net.h>
--#include <linux/inet.h>
--#include <linux/netdevice.h>
- #include <linux/skbuff.h>
- #include <net/sock.h>
--#include <asm/system.h>
--#include <linux/fcntl.h>
--#include <linux/mm.h>
--#include <linux/interrupt.h>
- #include <net/x25.h>
- 
- static int x25_pacsize_to_bytes(unsigned int pacsize)
-diff -uprN -X dontdiff linux-2.6.8.1-vanilla/net/x25/x25_subr.c linux-2.6.8.1/net/x25/x25_subr.c
---- linux-2.6.8.1-vanilla/net/x25/x25_subr.c	2004-08-14 20:54:52.000000000 +1000
-+++ linux-2.6.8.1/net/x25/x25_subr.c	2004-10-29 12:26:28.652436264 +1000
-@@ -21,25 +21,11 @@
-  *	jun/24/01	Arnaldo C. Melo	  use skb_queue_purge, cleanups
-  */
- 
--#include <linux/errno.h>
--#include <linux/types.h>
--#include <linux/socket.h>
--#include <linux/in.h>
- #include <linux/kernel.h>
--#include <linux/sched.h>
--#include <linux/timer.h>
- #include <linux/string.h>
--#include <linux/sockios.h>
--#include <linux/net.h>
--#include <linux/inet.h>
--#include <linux/netdevice.h>
- #include <linux/skbuff.h>
- #include <net/sock.h>
- #include <net/tcp.h>
--#include <asm/system.h>
--#include <linux/fcntl.h>
--#include <linux/mm.h>
--#include <linux/interrupt.h>
- #include <net/x25.h>
- 
- /*
-diff -uprN -X dontdiff linux-2.6.8.1-vanilla/net/x25/x25_timer.c linux-2.6.8.1/net/x25/x25_timer.c
---- linux-2.6.8.1-vanilla/net/x25/x25_timer.c	2004-08-14 20:54:48.000000000 +1000
-+++ linux-2.6.8.1/net/x25/x25_timer.c	2004-10-29 12:27:28.340362320 +1000
-@@ -20,24 +20,10 @@
-  */
- 
- #include <linux/errno.h>
--#include <linux/types.h>
--#include <linux/socket.h>
--#include <linux/in.h>
--#include <linux/kernel.h>
- #include <linux/jiffies.h>
- #include <linux/timer.h>
--#include <linux/string.h>
--#include <linux/sockios.h>
--#include <linux/net.h>
--#include <linux/inet.h>
--#include <linux/netdevice.h>
--#include <linux/skbuff.h>
- #include <net/sock.h>
- #include <net/tcp.h>
--#include <asm/system.h>
--#include <linux/fcntl.h>
--#include <linux/mm.h>
--#include <linux/interrupt.h>
- #include <net/x25.h>
- 
- static void x25_heartbeat_expiry(unsigned long);
+That said, feel free not to use it, but at least test that it compiles in SKAS 
+mode.
 
-
+Bye
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729

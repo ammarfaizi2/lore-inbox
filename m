@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVCQI5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbVCQJFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261814AbVCQI5r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 03:57:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbVCQI5q
+	id S263024AbVCQJFT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 04:05:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbVCQJEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 03:57:46 -0500
-Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:7336 "EHLO mta2.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S261814AbVCQI5o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 03:57:44 -0500
-In-Reply-To: <42390A65.7090501@osdl.org>
-References: <E1DBX27-0000te-00@mta1.cl.cam.ac.uk> <42390A65.7090501@osdl.org>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <95cdf61bd30e7b47c7ec360eddbcf542@cl.cam.ac.uk>
+	Thu, 17 Mar 2005 04:04:44 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:39555 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261883AbVCQJEd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 04:04:33 -0500
+Subject: [patch 0/2] fork_connector
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Jay Lan <jlan@engr.sgi.com>,
+       Erich Focht <efocht@hpce.nec.com>, Ram <linuxram@us.ibm.com>,
+       Gerrit Huizenga <gh@us.ibm.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>, Greg KH <greg@kroah.com>
+Date: Thu, 17 Mar 2005 10:03:55 +0100
+Message-Id: <1111050235.306.106.camel@frecb000711.frec.bull.fr>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 17/03/2005 10:13:27,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 17/03/2005 10:13:55,
+	Serialize complete at 17/03/2005 10:13:55
 Content-Transfer-Encoding: 7bit
-Cc: akpm@osdl.org, Ian.Pratt@cl.cam.ac.uk, linux-kernel@vger.kernel.org,
-       riel@redhat.com, kurt@garloff.de, Christian.Limpach@cl.cam.ac.uk
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Subject: Re: [PATCH] Xen/i386 cleanups - io_remap_pfn_range
-Date: Thu, 17 Mar 2005 09:00:40 +0000
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-X-Mailer: Apple Mail (2.619.2)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On 17 Mar 2005, at 04:41, Randy.Dunlap wrote:
+  The following patch set adds a fork connector in the do_fork()
+routine. 
 
-> Our io_remap_pfn_range() patches don't contain many collisions.
-> My first patch [adding io_remap_pfn_range() to all arches]
-> <http://marc.theaimsgroup.com/?l=linux-mm&m=111049473410099&w=2>
-> does go a little further than yours in that regard.
->
-> Also, I was under the impression (only, so this is a question)
-> that this type of construct (from your patch):
->
-> +#ifndef io_remap_pfn_range
-> +#define io_remap_pfn_range remap_pfn_range
-> +#endif
->
-> only works for #defines (macros), while in some arches
-> io_remap_page_range() (and presumably io_remap_pfn_range)
-> is a function [sparc32/64] or inline function [mips].
->
-> My first patch referenced a future patch to convert
-> all callers of io_remap_page_range() to io_remap_pfn_range(),
-> which I have now done and built succesfully on 8 arches.
-> I'll post it now.
+  We provide two patches. The first one is the fork connector
+implementation and the second one fix a bug in the connector.c. The
+second patch has been sent by Evgeniy Polyakov for inclusion and should
+be in the next -mm release. While it's not included, we provide it with
+the fork connector to allow people to use and test the fork connector.
 
-The way in which you introduce io_remap_pfn_range() into all 
-architectures is much better than my method, and doesn't depend on 
-io_remap_pfn_range being a macro.
-Apart from that, yes: our driver patches are quite disjoint and 
-complement each other.
-Hopefully a combined patch could eliminate some of the 'ifdef sparc's 
-that are scattered around. :-)
+  Those patches apply to 2.6.11-mm4.
 
-  -- Keir
+  I may not answer the questions before next Monday, sorry for the
+delay.
+
+Best regards,
+Guillaume
 

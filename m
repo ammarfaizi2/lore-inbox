@@ -1,45 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262689AbUCEULy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 15:11:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbUCEULx
+	id S262089AbUCEUOT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 15:14:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262696AbUCEUOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 15:11:53 -0500
-Received: from mail.shareable.org ([81.29.64.88]:37511 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262689AbUCEULw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 15:11:52 -0500
-Date: Fri, 5 Mar 2004 20:11:39 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrea Arcangeli <andrea@suse.de>, Peter Zaitsev <peter@mysql.com>,
-       Andrew Morton <akpm@osdl.org>, riel@redhat.com, mbligh@aracnet.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
-Message-ID: <20040305201139.GA7254@mail.shareable.org>
-References: <Pine.LNX.4.44.0402280950500.1747-100000@chimarrao.boston.redhat.com> <20040229014357.GW8834@dualathlon.random> <1078370073.3403.759.camel@abyss.local> <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local> <20040305103308.GA5092@elte.hu> <20040305141504.GY4922@dualathlon.random> <20040305143425.GA11604@elte.hu> <20040305145947.GA4922@dualathlon.random> <20040305150225.GA13237@elte.hu>
+	Fri, 5 Mar 2004 15:14:19 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49103 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262089AbUCEUOI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 15:14:08 -0500
+Subject: [Dri-devel][PATCH] sysfs simple class support for DRI char device
+From: Leann Ogasawara <ogasawara@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: Hanna Linder <hannal@us.ibm.com>, Greg KH <greg@kroah.com>,
+       faith@valinux.com
+Content-Type: text/plain
+Message-Id: <1078517655.29095.32.camel@ibm-d.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040305150225.GA13237@elte.hu>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 05 Mar 2004 12:14:15 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> if mysql in fact calls time() frequently, then it should rather start a
-> worker thread that updates a global time variable every second.
+Hi All,
 
-That has the same problem as discussed later in this thread with
-vsyscall-time: the worker thread may not run immediately it is woken,
-and also setitimer() and select() round up the delay a little more
-then expected, so sometimes the global time variable will be out of
-date and misordered w.r.t. gettimeofday() and stat() results of
-recently modified files.
+Patch adds sysfs simple class support for DRI character device (Major
+226).  Also, adds some error checking.  Feedback appreciated.  Thanks,
 
-Also, if there's paging the variable may be out of date by quite a
-long time, so mlock() should be used to remove that aspect of the delay.
+Leann
 
-I don't know if such delays a problem for MySQL.
+diffed against 2.6.4-rc2
 
--- Jamie
+===== drivers/char/drm/drm_stub.h 1.9 vs edited =====
+--- 1.9/drivers/char/drm/drm_stub.h	Tue Aug 26 09:25:41 2003
++++ edited/drivers/char/drm/drm_stub.h	Fri Mar  5 11:56:24 2004
+@@ -35,6 +35,8 @@
+ 
+ #define DRM_STUB_MAXCARDS 16	/* Enough for one machine */
+ 
++static struct class_simple *drm_class;
++
+ /** Stub list. One for each minor. */
+ static struct drm_stub_list {
+ 	const char             *name;
+@@ -117,6 +119,7 @@
+ 			DRM(stub_root) = DRM(proc_init)(dev, i, DRM(stub_root),
+ 							&DRM(stub_list)[i]
+ 							.dev_root);
++			class_simple_device_add(drm_class, MKDEV(DRM_MAJOR, i), NULL, name);
+ 			return i;
+ 		}
+ 	}
+@@ -141,6 +144,7 @@
+ 	DRM(proc_cleanup)(minor, DRM(stub_root),
+ 			  DRM(stub_list)[minor].dev_root);
+ 	if (minor) {
++		class_simple_device_remove(MKDEV(DRM_MAJOR, minor));
+ 		inter_module_put("drm");
+ 	} else {
+ 		inter_module_unregister("drm");
+@@ -148,6 +152,8 @@
+ 			  sizeof(*DRM(stub_list)) * DRM_STUB_MAXCARDS,
+ 			  DRM_MEM_STUB);
+ 		unregister_chrdev(DRM_MAJOR, "drm");
++		class_simple_device_remove(MKDEV(DRM_MAJOR, minor));
++		class_simple_destroy(drm_class);
+ 	}
+ 	return 0;
+ }
+@@ -170,10 +176,23 @@
+ 		       drm_device_t *dev)
+ {
+ 	struct drm_stub_info *i = NULL;
++	int ret1;
++	int ret2;
+ 
+ 	DRM_DEBUG("\n");
+-	if (register_chrdev(DRM_MAJOR, "drm", &DRM(stub_fops)))
++	ret1 = register_chrdev(DRM_MAJOR, "drm", &DRM(stub_fops));
++	if (!ret1) {
++		drm_class = class_simple_create(THIS_MODULE, "drm");
++		if (IS_ERR(drm_class)) {
++			printk (KERN_ERR "Error creating drm class.\n");
++			unregister_chrdev(DRM_MAJOR, "drm");
++			return PTR_ERR(drm_class);
++		}
++	}
++	else if (ret1 == -EBUSY)
+ 		i = (struct drm_stub_info *)inter_module_get("drm");
++	else
++		return -1;
+ 
+ 	if (i) {
+ 				/* Already registered */
+@@ -186,8 +205,18 @@
+ 		DRM_DEBUG("calling inter_module_register\n");
+ 		inter_module_register("drm", THIS_MODULE, &DRM(stub_info));
+ 	}
+-	if (DRM(stub_info).info_register)
+-		return DRM(stub_info).info_register(name, fops, dev);
++	if (DRM(stub_info).info_register) {
++		ret2 = DRM(stub_info).info_register(name, fops, dev);
++		if (ret2) {
++			if (!ret1) {
++			unregister_chrdev(DRM_MAJOR, "drm");
++			class_simple_destroy(drm_class);
++			}
++			if (!i)
++				inter_module_unregister("drm");
++		}
++		return ret2;
++	}
+ 	return -1;
+ }
+ 
+
+
+

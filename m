@@ -1,42 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbUCZVkM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 16:40:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbUCZVkL
+	id S261263AbUCZVql (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 16:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbUCZVql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 16:40:11 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:32274 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261258AbUCZVkJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 16:40:09 -0500
-Date: Fri, 26 Mar 2004 21:40:07 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-mm4
-Message-ID: <20040326214007.A10869@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040326131816.33952d92.akpm@osdl.org> <20040326132212.14bac327.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040326132212.14bac327.akpm@osdl.org>; from akpm@osdl.org on Fri, Mar 26, 2004 at 01:22:12PM -0800
+	Fri, 26 Mar 2004 16:46:41 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:33013 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261263AbUCZVqg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 16:46:36 -0500
+Message-ID: <4064A4B7.5030103@mvista.com>
+Date: Fri, 26 Mar 2004 13:46:31 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Praedor Atrebates <praedor@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: System clock speed too high - 2.6.3 kernel
+References: <200403261430.18629.praedor@yahoo.com>
+In-Reply-To: <200403261430.18629.praedor@yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 26, 2004 at 01:22:12PM -0800, Andrew Morton wrote:
-> +si_band-is-long.patch
+Praedor Atrebates wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
->  Make the siginfo si_band field unsigned long.
-
-Do we still need __ARCH_SI_BAND_T with this one?
-
-> +dont-show-cdroms-in-proc-partitions.patch
+> In doing a web search on system clock speeds being too high, I found entries 
+> describing exactly what I am experiencing in the linux-kernel list archives, 
+> but have not yet found a resolution.
 > 
->  Suppress cdroms in /proc/partitions
+> I have Mandrake 10.0, kernel-2.6.3-7mdk installed, on an IBM Thinkpad 1412 
+> laptop, celeron 366, 512MB RAM.  I am finding that my system clock is ticking 
+> away at a rate of about 3:1 vs reality, ie, I count ~3 seconds on the system 
+> clock for every 1 real second.  I am running ntpd but this is unable to keep 
+> up with the rate of system clock passage.  
+> 
+> I had to slow my keyboard repeat rate _way_ down in order to be able to type 
+> at all as well.   The system is limited, in that I have no way to alter the 
+> actual system clock (in bios at any rate).  The CPU is properly identified as 
+> a celeron 366.  
+> 
+> Does anyone have any enlightenment, or a fix, to offer?  The exact same 
+> software setup on a desktop system, Athlon XP2700+, has no such problems.
 
-What's this patch trying to archive?  IDE cdroms are partitionable in
-2.5..
+Try this in the boot command line "clock=pmtmr".  If that fails, then try 
+"clock=pit".
+
+-g
+> 
+> praedor
+> - -- 
+> "George W. Bush is a deserter, an election thief, a drunk driver, a WMD 
+> liar and a functional illiterate. And he poops his pants." 
+> - --Barbara Bush, his mother
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.2.4 (GNU/Linux)
+> 
+> iD8DBQFAZITKSTapoRk9vv8RAkxyAJ45KBKN7ngdNX6qTOwSBIxEs7rfcACgl8e0
+> 0lKo+bfaSHPcNpA+36WGCrE=
+> =ZdjK
+> -----END PGP SIGNATURE-----
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268472AbRGXVhI>; Tue, 24 Jul 2001 17:37:08 -0400
+	id <S268477AbRGXVlS>; Tue, 24 Jul 2001 17:41:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268474AbRGXVg6>; Tue, 24 Jul 2001 17:36:58 -0400
-Received: from mailout1-hme0.midsouth.rr.com ([24.165.200.10]:25032 "EHLO
-	mailout1-hme0.midsouth.rr.com") by vger.kernel.org with ESMTP
-	id <S268472AbRGXVgp>; Tue, 24 Jul 2001 17:36:45 -0400
-Subject: Re: Newbie problem
-From: "Stephen M. Williams" <rootusr@midsouth.rr.com>
-To: Frank Akujobi <bulggie@yahoo.com>
+	id <S268479AbRGXVlI>; Tue, 24 Jul 2001 17:41:08 -0400
+Received: from ohiper1-3.apex.net ([209.250.47.18]:39693 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S268477AbRGXVk4>; Tue, 24 Jul 2001 17:40:56 -0400
+Date: Tue, 24 Jul 2001 16:40:14 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: "Paul G. Allen" <pgallen@randomlogic.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010724211726.33706.qmail@web12307.mail.yahoo.com>
-In-Reply-To: <20010724211726.33706.qmail@web12307.mail.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.11.99 (Preview Release)
-Date: 24 Jul 2001 16:36:06 -0500
-Message-Id: <996010573.3017.12.camel@bofumgw.bofum.net>
+Subject: Re: Winbond Support
+Message-ID: <20010724164014.A5801@hapablap.dyn.dhs.org>
+In-Reply-To: <3B5DEACE.B4C794ED@randomlogic.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B5DEACE.B4C794ED@randomlogic.com>; from pgallen@randomlogic.com on Tue, Jul 24, 2001 at 02:38:22PM -0700
+X-Uptime: 4:37pm  up 2 days,  1:05,  0 users,  load average: 1.27, 1.10, 1.08
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On 24 Jul 2001 22:17:26 +0100, Frank Akujobi wrote:
-> Hi all,
-> Am a newbie and this is my first post. I just
-> installed Redhat7.1 (one I downloaded) and it's
-> working well even hooked it up to the internet. I
-> checked my /usr/src/ and I don't find a /linux
-> directory. I find only one directory... /redhat. It
-> there something wrong somewhere, or do I have to
-> download a kernel source seperately. Doing uname -r
-> shows me that I have 2.4.x.x.
+On Tue, Jul 24, 2001 at 02:38:22PM -0700, Paul G. Allen wrote:
+> Does the Linux kernel (or any add-ons) support the Winbond W83782D Harware Monitoring chip? This is the chip that is on the Tyan K7 Thunder board.
 > 
-> Thanks.
-> Frank.
-> 
+> PGA
 
-OT, but if you did not tell the installer to install the
-source/development part, it doesn't install the kernel source.  Look on
-your CD or in the directory you downloaded files into for the RPM with
-the word kernel-source in them.
+Yes, it is quite well supported by the lm_sensors project, which is a
+patch to the Linux kernel.  See here:
 
-The soure can be had from ftp.kernel.org, then untar it into /usr/src.
-
-HTH,
---
-Stephen Williams
-mailto:rootusr@midsouth.rr.com
-
-* I've tried killing time, but it keeps making a comeback.
-
+http://www.netroedge.com/~lm78/
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266289AbUHGGcU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266174AbUHGGqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266289AbUHGGcU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 02:32:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267776AbUHGGcU
+	id S266174AbUHGGqN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 02:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266287AbUHGGqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 02:32:20 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:46767 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S266289AbUHGGcS (ORCPT
+	Sat, 7 Aug 2004 02:46:13 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:21651 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266174AbUHGGqD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 02:32:18 -0400
-Date: Fri, 6 Aug 2004 23:30:01 -0700
+	Sat, 7 Aug 2004 02:46:03 -0400
+Date: Fri, 6 Aug 2004 23:45:29 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Hubertus Franke <frankeh@watson.ibm.com>
 Cc: mbligh@aracnet.com, efocht@hpce.nec.com, lse-tech@lists.sourceforge.net,
@@ -17,7 +17,7 @@ Cc: mbligh@aracnet.com, efocht@hpce.nec.com, lse-tech@lists.sourceforge.net,
        sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
        colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com
 Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-Id: <20040806233001.4218ca0c.pj@sgi.com>
+Message-Id: <20040806234529.38024b52.pj@sgi.com>
 In-Reply-To: <4113A860.4070007@watson.ibm.com>
 References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
 	<20040805190500.3c8fb361.pj@sgi.com>
@@ -33,14 +33,20 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hubertus wrote:
-> As indicated above, this would mean to create a resource controller
-> and assign mask to them, which is not what we have done so far, as
-> our current controllers are more share focused.
+Hubertus asked:
+> While we are on the topic, do you envision these sets to be somewhat 
+> hierarchical or simply a flat hierarchy ?
 
-Could you explain this a bit?  In particular, the phrases
-"assign mask" and "share focused" went wizzing right on
-past me.
+I'm not sure what you mean by the distinction between a "somewhat"
+hierarchy and a "simply flat" hierarchy ... I'll guess you're asking how
+deep we envision these sets being.
+
+I'd envision they start out just one or two deep, then over time they
+tend to reflect the several layer deep organizational structure of the
+institution paying for the big iron, _plus_ another layer or two to
+handle the cpu/memory placement needs of more complex applications.
+
+With occassional examples a few times that.
 
 -- 
                           I won't rest till it's the best ...

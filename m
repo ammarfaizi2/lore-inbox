@@ -1,42 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265079AbSJWPz4>; Wed, 23 Oct 2002 11:55:56 -0400
+	id <S262670AbSJWQEG>; Wed, 23 Oct 2002 12:04:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265082AbSJWPz4>; Wed, 23 Oct 2002 11:55:56 -0400
-Received: from rztsun.rz.tu-harburg.de ([134.28.200.14]:5545 "EHLO
-	rztsun.rz.tu-harburg.de") by vger.kernel.org with ESMTP
-	id <S265079AbSJWPzy> convert rfc822-to-8bit; Wed, 23 Oct 2002 11:55:54 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jan Dittmer <jan@jandittmer.de>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: Oops on boot with TCQ enabled (VIA KT133A)
-Date: Wed, 23 Oct 2002 18:02:26 +0200
-User-Agent: KMail/1.4.3
-References: <200210190241.49618.jan@jandittmer.de> <20021020104601.C8606@ucw.cz> <20021020093818.GC24484@suse.de>
-In-Reply-To: <20021020093818.GC24484@suse.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+	id <S262692AbSJWQEG>; Wed, 23 Oct 2002 12:04:06 -0400
+Received: from sentry.gw.tislabs.com ([192.94.214.100]:35296 "EHLO
+	sentry.gw.tislabs.com") by vger.kernel.org with ESMTP
+	id <S262670AbSJWQEF>; Wed, 23 Oct 2002 12:04:05 -0400
+Date: Wed, 23 Oct 2002 12:09:47 -0400 (EDT)
+From: Stephen Smalley <sds@tislabs.com>
+X-X-Sender: <sds@raven>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Russell Coker <russell@coker.com.au>, <linux-kernel@vger.kernel.org>,
+       <linux-security-module@wirex.com>
+Subject: Re: [PATCH] remove sys_security
+In-Reply-To: <20021023155457.L2732@redhat.com>
+Message-ID: <Pine.GSO.4.33.0210231112420.7042-100000@raven>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210231802.26447.jan@jandittmer.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Thanks for verifying that! Jan, you appeared to have problems even with
-> tcq-per-default enabled and not touching the depth while running io, is
-> that correct?
+On Wed, 23 Oct 2002, Stephen C. Tweedie wrote:
 
-Just got this, but system seems to work stable though. What does it mean?
+> Good question --- what is the reason you need these, and are other
+> security modules likely to need similar functionality?  If so, there's
+> an argument for new syscalls which take a credentials/sid area as a
+> return argument.
 
-jan
+The extended *stat calls enable applications to obtain file SIDs along
+with the regular file status for a variety of purposes, e.g. SELinux
+provides patched versions of ls (displaying security contexts to users),
+find (searching for files with particular security contexts or displaying
+the contexts of files matching the find criteria to users), cp -p and tar
+(preserving contexts on copies and in archives), logrotate (preserving
+contexts when logs are rotated), and crond (checking the context on a
+user-generated crontab spool file to protect against running cron jobs
+with a given process SID from a less trusted source).  While you don't
+always need to get both the file status and the security attributes for a
+given file, you often do for programs like ls, cp, tar, etc.
 
-Code: 0f 0b 35 02 b5 df 38 c0 68 30 d3 27 c0 68 20 4e 00 00 68 d0
- ide_tcq_intr_timeout: timeout waiting for completion interrupt
-hda: invalidating tag queue (10 commands)
-hda: status error: status=0x48 { DriveReady DataRequest }
+If we migrate SELinux to using extended attributes to store file security
+contexts (pending their merging into 2.5), then we could replace the
+extended *stat with getxattr, although getxattr doesn't provide an atomic
+way of getting both the regular file status information and the security
+attributes for a given file.  Closest approximation to stat_secure() would
+be an open(...O_RDONLY), fstat(), fgetxattr(), close() sequence to ensure
+that the file status and security attributes are from the same inode, but
+this assumes that you can always read the file in order to stat it and
+isn't exactly ideal.
 
-hda: drive not ready for command
-hda: status error: status=0x48 { DriveReady DataRequest }
+For System V IPC and socket IPC, the extended calls enable applications to
+obtain security information about the sender and the data so that the
+security-aware applications can make security decisions and label data
+appropriately.  An extended form of SCM_CREDENTIALS that supports
+additional security data and is not limited to local domain sockets [the
+SELinux calls work for INET sockets if labeled networking is used] might
+be reasonable for socket IPC.
 
-hda: drive not ready for command
+--
+Stephen D. Smalley, NAI Labs
+ssmalley@nai.com
+
+
+
+
+
+
+
+
+
+

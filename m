@@ -1,80 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbUDGI7D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 04:59:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbUDGI7D
+	id S261880AbUDGI5i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 04:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUDGI5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 04:59:03 -0400
-Received: from dialin-212-144-167-162.arcor-ip.net ([212.144.167.162]:20129
-	"EHLO karin.de.interearth.com") by vger.kernel.org with ESMTP
-	id S261969AbUDGI6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 04:58:54 -0400
-In-Reply-To: <4072CD01.6070408@pobox.com>
-References: <4072CD01.6070408@pobox.com>
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-4--102663672"
-Message-Id: <FE87A41F-8809-11D8-8F2A-000A9597297C@fhm.edu>
-Content-Transfer-Encoding: 7bit
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Netdev <netdev@oss.sgi.com>
-From: Daniel Egger <degger@fhm.edu>
-Subject: Re: [NET] net driver updates
-Date: Tue, 6 Apr 2004 22:35:51 +0200
-To: Jeff Garzik <jgarzik@pobox.com>
-X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
-X-Mailer: Apple Mail (2.613)
+	Wed, 7 Apr 2004 04:57:38 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:44690 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S261880AbUDGI5g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 04:57:36 -0400
+Date: Wed, 7 Apr 2004 10:57:33 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel stack challenge
+Message-ID: <20040407085733.GJ8130@khan.acc.umu.se>
+Mail-Followup-To: Sergiy Lozovsky <serge_lozovsky@yahoo.com>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200404070102.i3712nDe002647@eeyore.valparaiso.cl> <20040407013450.84365.qmail@web40512.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040407013450.84365.qmail@web40512.mail.yahoo.com>
+User-Agent: Mutt/1.4.1i
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 06, 2004 at 06:34:50PM -0700, Sergiy Lozovsky wrote:
+> 
+> --- Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+> > Sergiy Lozovsky <serge_lozovsky@yahoo.com> said:
+> > 
+> > Why do you think it has been 2 pages (8KiB) for as
+> > long as I remember
+> > (essentially forever in Linux), and it has taken a
+> > _lot_ of work to shrink
+> > it to 4KiB (- size of *current)?
+> 
+> I described the possible solution (virtual stack)
+> which can easily take care of this problem for some
+> subsystems, or am I wrong. If code doesn't allocate
+> big buffers in stack my solution can make conversion
+> of existing code possible without _lot_ of work. (I'm
+> lazy - remember :-)
 
---Apple-Mail-4--102663672
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+You know, to me the combination of lazy programmer rhymes poorly with
+well-written code and security audits.
 
-On 06.04.2004, at 17:30, Jeff Garzik wrote:
+> What do you think about my solution? Despite some
+> additional overhead, but I don't think that it is
+> significant.
 
-> * Francois work on r8169, epic100, sis190: PCI DMA, NAPI, other minor 
-> fixes and cleanups
+Personally, I think this proposal would be worthy for the
+patch-of-the-month award.
 
-r8169 seems to work though it is not even a tad bit faster
-than plain 2.6.5.
 
-Those cards are really driving me nuts. Between two r8169 cards, one
-on Athlon with kernel 2.4.24, one on Athlon with 2.6.5 or 2.4.24, I
-get 90Mbit/s in one direction and 39Mbit/s in the other using iperf and
-TCP. With iperf and UDP they deliver 100Mbit/s resp. 230Mbit/s depending
-on the direction. Crosschecking with my PowerBook (OS X) shows that I 
-can
-get 844Mbit/s (UDP) or 572Mbit/s (TCP) to one host and 844Mbit/s (UDP) 
-but
-only 88Mbit/s (TCP) to the other.
-
-The environment is switched and changing cables and/or ports doesn't
-improve the results.
-
-Ideas? (Yeah, I'll get Intel NICs RSN...)
-
-Servus,
-       Daniel
-
---Apple-Mail-4--102663672
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
-
-iQEVAwUBQHMUpzBkNMiD99JrAQL45Qf/b96+36QbfCn1DYBW1dc3kdvwwK89svqT
-Hu2akhQbncciQ8Wuy0yw8tYd4N5oDAOi+4NnJMA77JveHIlKSoMcRB5m8O2of5SJ
-PvNhKQhU3I6ysoUrOO5AIpoiycymYuxgv76tMKQbiouSY/xR8EfxXPRGkCxzfV3w
-7yHhjgMFEz9DbgTEQJj3ed5I4GalpCVh/x5EPqv7c/7+LLkWkDYhwoWtZCxb3lrS
-W5LjRVfHmks+kqk+9WbhwnJEtcoSGEVOLyRGmL8PxUgTDYZjm98MxSgUbnWO6KP2
-C0FVe6VtBfElQbLgWuJOHqDjynxwuosMeeEsdigOCuis2hIUBUXQ9w==
-=j3y8
------END PGP SIGNATURE-----
-
---Apple-Mail-4--102663672--
-
+Regards: David Weinehall
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

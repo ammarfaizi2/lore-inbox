@@ -1,26 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263679AbUAHEYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 23:24:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbUAHEYZ
+	id S263646AbUAHEXW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 23:23:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbUAHEXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 23:24:25 -0500
-Received: from relay5.ptmail.sapo.pt ([212.55.154.25]:33517 "HELO sapo.pt")
-	by vger.kernel.org with SMTP id S263679AbUAHEWv (ORCPT
+	Wed, 7 Jan 2004 23:23:21 -0500
+Received: from relay1.ptmail.sapo.pt ([212.55.154.21]:56468 "HELO sapo.pt")
+	by vger.kernel.org with SMTP id S263646AbUAHEWi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 23:22:51 -0500
+	Wed, 7 Jan 2004 23:22:38 -0500
 From: Carlos Azevedo <cara1968listas@sapo.pt>
 Reply-To: cara1968listas@sapo.pt
 To: linux-kernel@vger.kernel.org
 Subject: Kernel hang with MSI KT3-UltraARU and kernel > 2.4.19-rc3
-Date: Thu, 8 Jan 2004 04:20:15 +0000
+Date: Thu, 8 Jan 2004 04:22:33 +0000
 User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200401080420.15314.cara1968listas@sapo.pt>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401080422.33908.cara1968listas@sapo.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

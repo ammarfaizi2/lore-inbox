@@ -1,52 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276855AbRJCEVE>; Wed, 3 Oct 2001 00:21:04 -0400
+	id <S276857AbRJCEYe>; Wed, 3 Oct 2001 00:24:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276856AbRJCEUx>; Wed, 3 Oct 2001 00:20:53 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:58320 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S276855AbRJCEUu>;
-	Wed, 3 Oct 2001 00:20:50 -0400
-Date: Wed, 3 Oct 2001 00:21:15 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.11-pre2 fs/buffer.c: invalidate: busy buffer
-In-Reply-To: <9pe345$8ic$1@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0110030014270.21861-100000@weyl.math.psu.edu>
+	id <S276858AbRJCEYY>; Wed, 3 Oct 2001 00:24:24 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:63900 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S276857AbRJCEYT>; Wed, 3 Oct 2001 00:24:19 -0400
+From: Ian Stirling <root@mauve.demon.co.uk>
+Message-Id: <200110030423.FAA07107@mauve.demon.co.uk>
+Subject: Re: [PATCH] Stateful Magic Sysrq Key
+To: linux-kernel@vger.kernel.org
+Date: Wed, 3 Oct 2001 05:23:56 +0100 (BST)
+In-Reply-To: <20011002185016.90E271F9BA@zion.rivenstone.net> from "Joseph Fannin" at Oct 02, 2001 07:44:10 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+> On Tuesday 02 October 2001 03:02, Ian Stirling wrote:
+> > > The following patch is a reworked patch which originated from Amazon.
+> > > It makes the sysrq key stateful, giving it the following behaviours:
+> >
+> > IMO, this is needed for broken keyboards, but in this exact form will
+> > cause problems for those without them.
+<snip>
+>     This behavior *is* optional -- both as a compile-time option and as a
+> value in /proc/sys.
 
-
-On Wed, 3 Oct 2001, Linus Torvalds wrote:
-
-> It's harmless, although I hope that the LVM people will become a bit
-> less invalidation-happy as a result of the warning (it's always happened
-> before, it just hasn't warned about it in earlier kernels).
-
-AFAICS, md.c also doesn't play nice with buffe cache.
-
-        fsync_dev(dev);
-        set_blocksize(dev, MD_SB_BYTES);
-        bh = getblk(dev, sb_offset / MD_SB_BLOCKS, MD_SB_BYTES);
-        if (!bh) {
-                printk(GETBLK_FAILED, partition_name(dev));
-                return 1;
-        }
-        memset(bh->b_data,0,bh->b_size);
-        sb = (mdp_super_t *) bh->b_data;
-        memcpy(sb, rdev->sb, MD_SB_BYTES);
-
-        mark_buffer_uptodate(bh, 1);
-        mark_buffer_dirty(bh);
-        ll_rw_block(WRITE, 1, &bh);
-        wait_on_buffer(bh);
-        brelse(bh);
-        fsync_dev(dev);
-
-is not a good thing to do (write_disk_sb()).  Not to mention the fact that
-set_blocksize() looks bogus, the code is obviously racy.  Think what will
-happen if somebody is reading from device at that moment.
-
+Sorry, I diddn't see it, I had a quick scan, and it seemed to me that
+it was a replacement for the current magic-sysrq, not an alternative.

@@ -1,104 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267292AbUHDGNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267278AbUHDG1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267292AbUHDGNf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 02:13:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267272AbUHDGMI
+	id S267278AbUHDG1R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 02:27:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267274AbUHDG1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 02:12:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:48286 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267292AbUHDGHf (ORCPT
+	Wed, 4 Aug 2004 02:27:17 -0400
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:38626
+	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
+	with ESMTP id S267278AbUHDG1L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 02:07:35 -0400
-Date: Tue, 3 Aug 2004 22:57:53 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: sam@ravnborg.org, zippel@linux-m68k.org
-Subject: [PATCH] save kernel version in .config file
-Message-Id: <20040803225753.15220897.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 4 Aug 2004 02:27:11 -0400
+Message-ID: <411081BD.6030706@bio.ifi.lmu.de>
+Date: Wed, 04 Aug 2004 08:27:09 +0200
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: L A Walsh <lkml@tlinx.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS-mounted, read-only /dev unusable in 2.6
+References: <410F481C.9090408@bio.ifi.lmu.de> <64bf.410f9d6f.62af@altium.nl> <410FA44F.1020804@bio.ifi.lmu.de> <410FCB3A.9000401@tlinx.org>
+In-Reply-To: <410FCB3A.9000401@tlinx.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+L A Walsh wrote:
+> Maybe I'm missing something, but in the 2.6 series, wasn't the ability
+> to mount subdirectories with different options, also, added?  Would
+> it be possible to export and mount /dev with rw options to a specific
+> client?
 
-(from June/2004 email thread:
-http://marc.theaimsgroup.com/?t=108753573200001&r=1&w=2
-)
+Yes, that's an option. But all this needs to be done in the init script,
+since with nfsroot I only get /. So mounting /dev rw from the server is
+similar to figuring out which client-specific /dev should be mounted.
+But in this init process things can fail and I want to see those messages.
+If I fail to mount the server /dev rw for any reason, I won't see the
+error message :-(
 
-Several people found this useful, none opposed (afaik).
+> 
+> Or, more radical, if the roots of the clients end up being mounted RW
+> eventually anyway, why not specify 'rw' in the lilo option?  It's not
+> like it is a local filesystem that may be corrupt where one should
+> boot from it RO until it is checked...
 
-Saves kernel version in .config file, e.g.:
+No, the real / is exported ro from the server and stays mounted ro on
+the clients. Only the client specific /dev, /var and /etc are mounted
+rw...
 
-#
-# Automatically generated make config: don't edit
-# Linux kernel version: 2.6.8-rc3
-# Tue Aug  3 22:55:57 2004
-#
+cu,
+Frank
 
-Please merge.
----
-
-Save kernel version info and date when writing .config file.
-Tested with 'make {menuconfig|xconfig|gconfig}'.
-
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-
-
-diffstat:=
- scripts/kconfig/confdata.c |   17 +++++++++++++++--
- 1 files changed, 15 insertions(+), 2 deletions(-)
-
-diff -Naurp ./scripts/kconfig/confdata.c~config_version ./scripts/kconfig/confdata.c
---- ./scripts/kconfig/confdata.c~config_version	2004-06-15 22:20:21.000000000 -0700
-+++ ./scripts/kconfig/confdata.c	2004-06-19 21:14:24.000000000 -0700
-@@ -8,6 +8,7 @@
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
-+#include <time.h>
- #include <unistd.h>
- 
- #define LKC_DIRECT_LINK
-@@ -268,6 +269,7 @@ int conf_write(const char *name)
- 	char dirname[128], tmpname[128], newname[128];
- 	int type, l;
- 	const char *str;
-+	time_t now;
- 
- 	dirname[0] = 0;
- 	if (name && name[0]) {
-@@ -301,14 +303,25 @@ int conf_write(const char *name)
- 		if (!out_h)
- 			return 1;
- 	}
-+	sym = sym_lookup("KERNELRELEASE", 0);
-+	sym_calc_value(sym);
-+	time(&now);
- 	fprintf(out, "#\n"
- 		     "# Automatically generated make config: don't edit\n"
--		     "#\n");
-+		     "# Linux kernel version: %s\n"
-+		     "# %s"
-+		     "#\n",
-+		     sym_get_string_value(sym),
-+		     ctime(&now));
- 	if (out_h)
- 		fprintf(out_h, "/*\n"
- 			       " * Automatically generated C config: don't edit\n"
-+			       " * Linux kernel version: %s\n"
-+			       " * %s"
- 			       " */\n"
--			       "#define AUTOCONF_INCLUDED\n");
-+			       "#define AUTOCONF_INCLUDED\n",
-+			       sym_get_string_value(sym),
-+			       ctime(&now));
- 
- 	if (!sym_change_count)
- 		sym_clear_all_valid();
-
-
-
---
+-- 
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+* Rekursion kann man erst verstehen, wenn man Rekursion verstanden hat. *

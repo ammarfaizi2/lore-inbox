@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136412AbRD2XpX>; Sun, 29 Apr 2001 19:45:23 -0400
+	id <S136411AbRD2Xrx>; Sun, 29 Apr 2001 19:47:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136409AbRD2XpO>; Sun, 29 Apr 2001 19:45:14 -0400
-Received: from [62.81.160.68] ([62.81.160.68]:23512 "EHLO smtp2.alehop.com")
-	by vger.kernel.org with ESMTP id <S132993AbRD2XpB>;
-	Sun, 29 Apr 2001 19:45:01 -0400
-Date: Mon, 30 Apr 2001 01:36:05 -0400
-From: Ignacio Monge <ignaciomonge@navegalia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 8139too in 2.4.4 Hanging/Locking
-Message-Id: <20010430013605.1d51277c.ignaciomonge@navegalia.com>
-X-Mailer: Sylpheed version 0.4.65cvs11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S132993AbRD2Xrn>; Sun, 29 Apr 2001 19:47:43 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:13652 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S136409AbRD2Xr2>; Sun, 29 Apr 2001 19:47:28 -0400
+Date: Mon, 30 Apr 2001 01:46:53 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Magnus Naeslund(f)" <mag@fbab.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Alpha compile problem solved by Andrea (pte_alloc)
+Message-ID: <20010430014653.C923@athlon.random>
+In-Reply-To: <052901c0ceca$e6a543c0$020a0a0a@totalmef> <20010427155246.O16020@athlon.random> <m1k843qoc1.fsf@frodo.biederman.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1k843qoc1.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, Apr 29, 2001 at 05:27:10PM -0600
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Apr 29, 2001 at 05:27:10PM -0600, Eric W. Biederman wrote:
+> 
+> Do you know if anyone has fixed the lazy vmalloc code?  I know of
+> as of early 2.4 it was broken on alpha.  At the time I noticed it I didn't
+> have time to persue it, but before I forget to even put in a bug
+> report I thought I'd ask if you know anything about it?
 
+On alpha it's racy if you set CONFIG_ALPHA_LARGE_VMALLOC y (so don't do
+that as you don't need it). As long as you use only 1 entry of the pgd
+for the whole vmalloc space (CONFIG_ALPHA_LARGE_VMALLOC n) alpha is
+safe.
 
-	The same thing happens to me. I've tried to start my ethernet, but my
-system hangs and, after a forced restart, the BIOS has cleared all my
-setup configuration (!).
-	kernel 2.4.4 / modutils 2.4.5
-	VIA 868a, Athlon Thunderbidth 1 Ghz,  384 Mb RAM. Mandrake 8. Gcc 2.96.
+OTOH x86 is racy and there's no workaround available at the moment.
 
-	cat /proc/pci
-	 [...
-		  Bus  0, device  12, function  0:
-    Ethernet controller: Accton Technology Corporation SMC2-1211TX (rev
-16).
-      IRQ 11.
-      Master Capable.  Latency=32.  Min Gnt=32.Max Lat=64.
-      I/O at 0x9000 [0x90ff].
-      Non-prefetchable 32 bit memory at 0xde800000 [0xde8000ff].
-
-	...]
-
-	lspci -vv:
-	[...
-	00:0c.0 Ethernet controller: Accton Technology Corporation SMC2-1211TX
-(rev 10)
-	Subsystem: Accton Technology Corporation EN-1207D Fast Ethernet Adapter
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
-<MAbort- >SERR- <PERR-
-	Latency: 32 (8000ns min, 16000ns max)
-	Interrupt: pin A routed to IRQ 11
-	Region 0: I/O ports at 9000 [size=256]
-	Region 1: Memory at de800000 (32-bit, non-prefetchable) [size=256]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-	Capabilities: <available only to root>
-	...]
-
-	I need some help.
-
-	Thanks
+Andrea

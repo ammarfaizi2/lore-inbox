@@ -1,68 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264410AbTLVNHN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 08:07:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbTLVNHN
+	id S264452AbTLVNZK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 08:25:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbTLVNZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 08:07:13 -0500
-Received: from mail.szintezis.hu ([195.56.253.241]:27333 "HELO
-	hold.szintezis.hu") by vger.kernel.org with SMTP id S264410AbTLVNHL
+	Mon, 22 Dec 2003 08:25:10 -0500
+Received: from mail-05.iinet.net.au ([203.59.3.37]:15523 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264452AbTLVNZI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 08:07:11 -0500
-Subject: [2.6.0] intel pro/wireless 2011 vs. orinoco
-From: Gabor MICSKO <gmicsko@szintezis.hu>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	Mon, 22 Dec 2003 08:25:08 -0500
+Message-ID: <3FE6F0AF.1050305@cyberone.com.au>
+Date: Tue, 23 Dec 2003 00:25:03 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew McGregor <andrew@indranet.co.nz>
+CC: Christian Meder <chris@onestepahead.de>, Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.6 vs 2.4 regression when running gnomemeeting
+References: <1071864709.1044.172.camel@localhost>	 <1071885178.1044.227.camel@localhost> <3FE3B61C.4070204@cyberone.com.au>	 <200312201355.08116.kernel@kolivas.org> <1071891168.1044.256.camel@localhost> <14897962.1072137278@[192.168.1.249]>
+In-Reply-To: <14897962.1072137278@[192.168.1.249]>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 22 Dec 2003 14:07:08 +0100
-Message-Id: <1072098429.3831.13.camel@gmicsko03>
-Mime-Version: 1.0
-X-OriginalArrivalTime: 22 Dec 2003 13:07:10.0356 (UTC) FILETIME=[824CE540:01C3C88C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-if i try download big files from the internet or my local network throuh
-my intel pro/wireless 2011 card, i get sometimes (rare) the following
-error messages:
 
-Dec 22 13:54:55 gmicsko03 kernel: eth1: Error -110 writing Tx descriptor
-to BAP
-Dec 22 13:54:55 gmicsko03 last message repeated 82 times
+Andrew McGregor wrote:
 
-in this situation my CPU load jump to 100%, traffic stopping. if i
-remove the pcmcia card, and reinsert everything is OK.
+> Hmm.  Gnomemeeting has a history of strange threading issues 
+> (actually, all OpenH323 derived projects do).  Is there a threading 
+> change that might explain this?
 
-it is a driver bug, or my wireless card old/buggy/etc ?
 
-snip from syslog:
 
-Dec 22 14:05:11 gmicsko03 cardmgr[231]: socket 0: Intel PRO/Wireless
-2011
-Dec 22 14:05:11 gmicsko03 kernel: eth1: Station identity
-001f:0002:0002:0001
-Dec 22 14:05:11 gmicsko03 kernel: eth1: Looks like a Symbol firmware
-version [V2.51-04] (parsing to 25104)
-Dec 22 14:05:11 gmicsko03 kernel: eth1: Ad-hoc demo mode supported
-Dec 22 14:05:11 gmicsko03 kernel: eth1: IEEE standard IBSS ad-hoc mode
-supported
-Dec 22 14:05:11 gmicsko03 kernel: eth1: WEP supported, 104-bit key
-Dec 22 14:05:11 gmicsko03 kernel: eth1: MAC address 00:02:B3:04:7B:F6
-Dec 22 14:05:11 gmicsko03 kernel: eth1: Station name "Prism  I"
-Dec 22 14:05:11 gmicsko03 kernel: eth1: ready
-Dec 22 14:05:11 gmicsko03 kernel: eth1: index 0x01: Vcc 5.0, irq 3, io
-0x0100-0x0147
-Dec 22 14:05:11 gmicsko03 cardmgr[231]: executing: './network start
-eth1'
-Dec 22 14:05:11 gmicsko03 cardmgr[231]: + SIOCSIFFLAGS: Cannot assign
-requested address
-Dec 22 14:05:11 gmicsko03 kernel: eth1: New link status: Disconnected
-(0002)
-Dec 22 14:05:12 gmicsko03 kernel: eth1: New link status: Connected
-(0001)
-
-[...]
+Yes, changes in the way the scheduler deals with sched_yield.
 
 

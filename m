@@ -1,83 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262622AbVCJO6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262623AbVCJPDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262622AbVCJO6u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 09:58:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbVCJO6u
+	id S262623AbVCJPDs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 10:03:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbVCJPDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 09:58:50 -0500
-Received: from rproxy.gmail.com ([64.233.170.202]:35561 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262622AbVCJO6L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 09:58:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=AGsKmpa5Kg/VqftH6JHZVoIEK8d0fGeezsR0ar7iAQNCw8BvfCzJrd8qLiKkeDe+uKYwOEY7ssh7Cs+1bG0ier8guMUHtq9CdCa99PYHnVzYXSMYepK1drWmQ8s89YU+fJgN9C6KCmpt7fjWIMWb/er464gptRPDZK81+0qJZN4=
-Message-ID: <9e4733910503100658ff440e3@mail.gmail.com>
-Date: Thu, 10 Mar 2005 09:58:10 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: current linus bk, error mounting root
-Cc: Jeff Garzik <jgarzik@pobox.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050310075049.GA30243@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Mar 2005 10:03:48 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:51855 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262623AbVCJPDr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 10:03:47 -0500
+Subject: Re: Linux 2.6.11-ac1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Tupshin Harper <tupshin@tupshin.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <42300E31.5030301@tupshin.com>
+References: <1110231261.3116.90.camel@localhost.localdomain>
+	 <20050309072646.GG1811@zip.com.au>
+	 <58cb370e05030908267f0fadbe@mail.gmail.com>
+	 <1110386321.3116.196.camel@localhost.localdomain>
+	 <58cb370e050309084374f93a71@mail.gmail.com>
+	 <20050309222232.GH1811@zip.com.au>
+	 <1110407945.3072.272.camel@localhost.localdomain>
+	 <42300E31.5030301@tupshin.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-References: <9e47339105030909031486744f@mail.gmail.com>
-	 <422F2F7C.3010605@pobox.com>
-	 <9e4733910503091023474eb377@mail.gmail.com>
-	 <422F5D0E.7020004@pobox.com>
-	 <9e473391050309125118f2e979@mail.gmail.com>
-	 <20050309210926.GZ28855@suse.de>
-	 <9e473391050309171643733a12@mail.gmail.com>
-	 <20050310075049.GA30243@suse.de>
+Message-Id: <1110466897.28860.291.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 10 Mar 2005 15:01:40 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LABEL=/                 /                       ext3    defaults        1 1
-label / is on /dev/sda6
+On Iau, 2005-03-10 at 09:06, Tupshin Harper wrote:
+> Alan...since you disagreed with the earlier characterization of what it 
+> would take to get into the mainline kernels, could you let us know what 
+> it would take in your opinion? FWIW, I'm happily using it with a -ac kernel.
 
-Creating root device
-Mounting root filesystem
-mount: error 6 mounting ext3
-mount: error 2 mounting none
-Switching to new root
-Switchroot: mount failed 22
-umount /initrd/dev failed: 2
+It needs some small changes in the base ide-disk code to handle drives
+having only a logical geometry (legal but Linux can't cope). Most if not
+all the other hooks are there to an extent the driver for the it821x can
+work without core code changes. It might be cleaner with core changes
+but it's better that the it821x code handles the weirdness of the
+hardware.
 
-This is what is left on the screen when the boot fails. There is a
-another line about failed to mount root machine halted.
+Longer term it (and probably every other IDE PATA driver) should be
+moved to the Jeff Garzik SATA layer. That's also Bart's position I
+believe ?
 
-I am still broken with using the Linus bk tree as of when I wrote this
-mail. That should be all of bk6 plus anything that came in this
-morning.
-
-
-
-On Thu, 10 Mar 2005 08:50:53 +0100, Jens Axboe <axboe@suse.de> wrote:
-> On Wed, Mar 09 2005, Jon Smirl wrote:
-> > On Wed, 9 Mar 2005 22:09:26 +0100, Jens Axboe <axboe@suse.de> wrote:
-> > > probably not worth the bother, looks like barrier problems. get the
-> > > serial console running instead and send the full output, I'll take a
-> > > look in the morning.
-> >
-> > serial console boot output attached.
-> 
-> Hmm ok, nothing of interest there. What does the mount error 6 and 2
-> from  your original mail mean? I need some more info on what fails
-> specifically. What mount options are used? What partition is mounted (is
-> it md or hdaX)?
-> 
-> I'm not sure -bk5 had the follow up fix patch for the barrier rework,
-> you should probably just retry with -bk6 first.
-> 
-> --
-> Jens Axboe
-> 
-> 
-
-
--- 
-Jon Smirl
-jonsmirl@gmail.com

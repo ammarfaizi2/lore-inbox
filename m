@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261616AbUBUV1v (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 16:27:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbUBUV1v
+	id S261610AbUBUVeh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 16:34:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbUBUVef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 16:27:51 -0500
-Received: from gprs153-228.eurotel.cz ([160.218.153.228]:5248 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261616AbUBUV1u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 16:27:50 -0500
-Date: Sat, 21 Feb 2004 22:27:39 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Hyok S. Choi" <hyok.choi@samsung.com>
-Cc: linux-arm-kernel@lists.arm.linux.org.uk,
-       "'uClinux development list'" <uclinux-dev@uclinux.org>,
-       Linux-Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: the first port of uClinux/ARM for 2.6 kernel (armnommu architecture)
-Message-ID: <20040221212739.GA302@elf.ucw.cz>
-References: <009501c3f1ce$13fc88a0$1327dba8@dmsst.net>
+	Sat, 21 Feb 2004 16:34:35 -0500
+Received: from defout.telus.net ([199.185.220.240]:39055 "EHLO
+	priv-edtnes51.telusplanet.net") by vger.kernel.org with ESMTP
+	id S261610AbUBUVed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 16:34:33 -0500
+Subject: drivers/ieee1394/sbp2.c:734: error: `host' undeclared (first use
+	in this function) 2.6.3-bk3
+From: Bob Gill <gillb4@telusplanet.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1077399402.22141.86.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <009501c3f1ce$13fc88a0$1327dba8@dmsst.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sat, 21 Feb 2004 14:36:43 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi.  The whole error message is (when building 2.6.3-bk3):
+drivers/ieee1394/sbp2.c: In function `sbp2_alloc_device':
+drivers/ieee1394/sbp2.c:734: error: `host' undeclared (first use in this
+function)
+drivers/ieee1394/sbp2.c:734: error: (Each undeclared identifier is
+reported only once
+drivers/ieee1394/sbp2.c:734: error: for each function it appears in.)
+make[2]: *** [drivers/ieee1394/sbp2.o] Error 1
+make[1]: *** [drivers/ieee1394] Error 2
+make: *** [drivers] Error 2
 
->  I'm reporting of the first port of new architecture(armnommu) for 2.6
-> kernel is done.
-> 
->  I planning the patch against recent kernel version will be announced in
-> this month, after some test and addition of 1~2 more chips. The current
-> port include support of only one (Samsung S5C7375 SoC) for test.
+It gives the same message when building with the source from the 1394
+subversion tree.  Apparently the declaration for 'host' is not where it
+used to be. 
 
-How common are arms without mmu?
+#ifdef CONFIG_IEEE1394_SBP2_PHYS_DMA
+                /* Handle data movement if physical dma is not
+                 * enabled/supportedon host controller */
+                hpsb_register_addrspace(&sbp2_highlevel, host,
+&sbp2_physdma_ops,
+                                        0x0ULL, 0xfffffffcULL);
+#endif
 
-> CHOI, HYOK-SUNG
-> Engineer (Linux System Software)
-> S/W Platform Lab, Digital Media R&D Center
-> Samsung Electronics Co.,Ltd.
-> tel: +82-31-200-8594  fax: +82-31-200-3427
-> e-mail: hyok.choi@samsung.com
+**--------------------------------------------------------------
+highlevel.c (which isn't #included in sbp2.c) lists:
+struct hl_host_info {
+        struct list_head list;
+        struct hpsb_host *host;
+        size_t size;
+        unsigned long key;
+        void *data;
+};
 
-So.... when can we expect samsung phone running linux?
+**(highlevel.h is #included in sbp2.c, highlevel.c isn't, and 
+highlevel.h doesn't mention struct hl_host_info). 
+**---------------------------------------------------------------
+** The above information is intended merely for recreational value
+   and may provide no practical information with respect to 
+   resolving the problem as I have never been accused of being a
+   systems programmer!  :)
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+If you need more info, please mail me as I'm not on the list.  TIA,
+
+Bob
+

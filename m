@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132950AbRDERkv>; Thu, 5 Apr 2001 13:40:51 -0400
+	id <S132960AbRDESFt>; Thu, 5 Apr 2001 14:05:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132953AbRDERkm>; Thu, 5 Apr 2001 13:40:42 -0400
-Received: from rcum.uni-mb.si ([164.8.2.10]:30726 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S132950AbRDERk0>;
-	Thu, 5 Apr 2001 13:40:26 -0400
-Date: Thu, 05 Apr 2001 19:39:42 +0200
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Looking for a card with working TV-out in linux
-To: linux-fbdev@vuser.vu.union.edu, linux-kernel@vger.kernel.org,
-        linuxconsole-dev@lists.sourceforge.net
-Message-id: <3ACCADDE.2E72B1BE@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.7 [en] (WinNT; U)
-Content-type: text/plain; charset=iso-8859-2
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S132959AbRDESFj>; Thu, 5 Apr 2001 14:05:39 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:14608 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S132886AbRDESFS>; Thu, 5 Apr 2001 14:05:18 -0400
+Message-Id: <200104051804.f35I48s48040@aslan.scsiguy.com>
+To: peter@rottengatter.de
+cc: linux-kernel@vger.kernel.org
+Subject: Re: AIC7xxx in Kernel 2.4.3 
+In-Reply-To: Your message of "Wed, 04 Apr 2001 01:11:01 +0200."
+             <E14kZx0-00079C-00@> 
+Date: Thu, 05 Apr 2001 12:04:08 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+>
+>Hi
+>
+>This driver seems to be pretty broken, the way it is. It does not compile.
+>The new author, Justin T. Gibbs, has been careful in avoiding to mention
+>his e-mail address in his code :-(
 
-I am looking for a gfx card to purchase for use with Linux.
+I actually don't believe in putting email address in code.  They become
+stale far too easily.  If you ever want to find me, type my name
+into a Yahoo search.  I did this today and was a little surprised at
+the number of acurate hits. ;-)
 
-Requirements :
- - working TV-out ( S-Video or composite-video ), I mean really working
-   and supported in linux, not "it works if the BIOS initializes it and
-   Linux doesn't touch it"
- - video support ( in HW and linux-SW ) is desired ( color space conversion,
-   video overlays and stuff )
- - PCI interface ( I plan later to multihead with another AGP card and also
-   want to keep the price low )
- - 3D acceleration welcome ( with XFree86 support ), but not that important
- - low price :-)
+>Hence the post to this list.
 
-( message posted to linux-fbdev@vu.union.edu, linux-kernel@vger.kernel.org
-  and to linuxconsole-dev@lists.sourceforge.net mail lists , please CC me
-  the replies and excuse me if some of them are inappropriate  )
+You should really check the archives before posting to LK.  This has
+been discussed *a lot*.
 
+The version that was released in 2.4.3 was stale weeks prior to
+that final kernel cut.  I'm working on getting revised versions into
+2.4.4.  If you want to upgrade to something newer, try the 6.1.9
+release from here:
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+http://people.FreeBSD.org/~gibbs/linux/
+
+Just be sure to configure the bus settle delay to 5000ms as the default
+in that release causes a timeout.
+
+You can also configure the aic7xxx_old driver.
+
+--
+Justin

@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267018AbSKLXQd>; Tue, 12 Nov 2002 18:16:33 -0500
+	id <S267028AbSKLXUf>; Tue, 12 Nov 2002 18:20:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267012AbSKLXQd>; Tue, 12 Nov 2002 18:16:33 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:23976 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267018AbSKLXQb>; Tue, 12 Nov 2002 18:16:31 -0500
-Subject: Re: 2.5 Problem Report Status for 10 Nov
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Thomas Molina <tmolina@cox.net>,
+	id <S267029AbSKLXUe>; Tue, 12 Nov 2002 18:20:34 -0500
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:13039 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S267028AbSKLXUd>; Tue, 12 Nov 2002 18:20:33 -0500
+Message-ID: <3DD19332.1050703@kegel.com>
+Date: Tue, 12 Nov 2002 15:48:02 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: Chuck Lever <cel@citi.umich.edu>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <15825.26870.393595.356922@kim.it.uu.se>
-References: <Pine.LNX.4.44.0211100834110.16968-100000@dad.molina> 
-	<15825.26870.393595.356922@kim.it.uu.se>
-Content-Type: text/plain
+Subject: re: [PATCH] new timeout behavior for RPC requests on TCP sockets
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Nov 2002 23:47:25 +0000
-Message-Id: <1037144845.10029.4.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-12 at 20:47, Mikael Pettersson wrote:
-> Thomas Molina writes:
->  >    open   08 Oct 2002 IDE problems on prePCI
->  >    3. http://marc.theaimsgroup.com/?l=linux-kernel&m=103277899317468&w=2
+Chuck wrote:
+> make RPC timeout behavior over TCP sockets behave more like reference
+> client implementations.  reference behavior is to transmit the same
+> request three times at 60 second intervals; if there is no response, close
+> and reestablish the socket connection.  we modify the Linux RPC client as
+> follows:
 > 
-> No update since I haven't had time to do any qd65xx testing in a while.
-> I strongly believe the bug is due to the fact that "ide=qd65xx" and
-> similar IDE chipset selection options are processed very very early in
-> the boot process, long before IDE's normal init.
-
-Sort of half fixed in 2.5.47. 
-
->  >    open   17 Oct 2002 reboot kills Dell Latitude keyboard
->  >   38. http://marc.theaimsgroup.com/?l=linux-kernel&m=103484425027884&w=2
+> +  after a minor retransmit timeout, use the same timeout value when
+>    retrying on a TCP socket rather than doubling the value
+> +  after a major retransmit timeout, close the socket and attempt
+>    to reestablish a fresh TCP connection
 > 
-> This bug is still present in 2.5.47.
-> 
->  >    open   08 Nov 2002 piix driver oops
->  >   99. http://marc.theaimsgroup.com/?l=linux-kernel&m=103677362411873&w=2
-> 
-> That one is a duplicate of the ide-dma oops I reported:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=103675019320066&w=2
-> Alan stated he had IDE updates that would fix this.
+> note that today mount uses a 6 second timeout with 5 retries for NFS over
+> TCP by default; proper default behavior is 2 retries each with 60 second
+> timeouts.  a separate patch for mount is pending.
 
-I have updates that will fix some stuff, not this one. I know why this
-occurs. Its trivial to make it go away, it requires some major work to
-make it go away properly in the context of SATA and hotswap.
-
-The latest patches split the ide registratio code from the ide i/o code.
-Its now possible to read all the registration code in one place. I'm now
-commenting it ready to rip it to shreds.
-
-And yes now ide.c in 2.5.47-ac1 is basically just the registration code
-it must qualify for some of the ugliest code in the kernel ;)
+Chuck, can you briefly explain why RPC does any minor
+retransmits at all over TCP?
+Shouldn't TCP's natural retransmit take care of that?
+- Dan
 

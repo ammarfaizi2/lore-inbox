@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbUB2Siz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 13:38:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbUB2Siz
+	id S262099AbUB2Smu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 13:42:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbUB2Smu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 13:38:55 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13516 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262101AbUB2Sit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 13:38:49 -0500
-Message-ID: <404231AC.9090307@pobox.com>
-Date: Sun, 29 Feb 2004 13:38:36 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Sun, 29 Feb 2004 13:42:50 -0500
+Received: from [80.72.36.106] ([80.72.36.106]:29587 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S262099AbUB2Smt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 13:42:49 -0500
+Date: Sun, 29 Feb 2004 19:42:45 +0100 (CET)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Robbert Haarman <lkml@inglorion.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6 Build System and Binary Modules
+In-Reply-To: <20040229183143.GA8057@shire.sytes.net>
+Message-ID: <Pine.LNX.4.58.0402291940110.22146@alpha.polcom.net>
+References: <20040229183143.GA8057@shire.sytes.net>
 MIME-Version: 1.0
-To: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] unsafe reset in ac97_codec.c
-References: <1075822947.5204.506.camel@cearnarfon>	 <40216306.2010602@pobox.com>  <1075998717.5204.1003.camel@cearnarfon>	 <1076003988.15801.8.camel@dhcp23.swansea.linux.org.uk> <1077810934.2846.187.camel@cearnarfon>
-In-Reply-To: <1077810934.2846.187.camel@cearnarfon>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch looks good to me.
+On Sun, 29 Feb 2004, Robbert Haarman wrote:
 
-You need to use bit operations, not equality, to check codec->flags, but 
-I can fix that up.
+> Hello list,
+> 
+> Excuse me for not finding this if it has been asked before. Please Cc any answers, as I am not subscribed to this list.
+> 
+> I am trying to port a driver for the Realtek 8180 wireless ehternet controller from 2.4 to 2.6. The module comes as a binary-only object file with some sources that can be adapted to fit the specific kernel. My problem is that I can't figure out how to get the 2.6 kernel to include the binary part (it's in a .o file). The new build system does a little too much magic - compiling the module from source to .ko without giving me a chance to sneak in the binary code. How do I get it to link in the .o file, without making it look for the like-named .c file?
+> 
+> Cheers,
+> 
+> Robbert Haarman
 
-	Jeff
+I do not know if it will help You, but take a look at how makefile of new 
+nvidia driver is built... (patches from minion.de or newest driver from 
+nvidia.com)
 
-
-
+Grzegorz Kulewski
 

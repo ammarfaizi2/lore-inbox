@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261474AbTCYGgf>; Tue, 25 Mar 2003 01:36:35 -0500
+	id <S261486AbTCYGjP>; Tue, 25 Mar 2003 01:39:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261480AbTCYGgf>; Tue, 25 Mar 2003 01:36:35 -0500
-Received: from verein.lst.de ([212.34.181.86]:29203 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S261474AbTCYGge>;
-	Tue, 25 Mar 2003 01:36:34 -0500
-Date: Tue, 25 Mar 2003 07:47:39 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Miles Bader <miles@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: !CONFIG_MMU stubs in 2.5.66
-Message-ID: <20030325074739.A16342@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Miles Bader <miles@gnu.org>, linux-kernel@vger.kernel.org
-References: <buod6kgaxhb.fsf@mcspd15.ucom.lsi.nec.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <buod6kgaxhb.fsf@mcspd15.ucom.lsi.nec.co.jp>; from miles@lsi.nec.co.jp on Tue, Mar 25, 2003 at 01:20:16PM +0900
+	id <S261482AbTCYGjP>; Tue, 25 Mar 2003 01:39:15 -0500
+Received: from jk.sby.abo.fi ([130.232.136.104]:56068 "EHLO gemini.relay")
+	by vger.kernel.org with ESMTP id <S261486AbTCYGjO>;
+	Tue, 25 Mar 2003 01:39:14 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jan Knutar <jk@fornax.tk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Please send a reply to me....
+Date: Tue, 25 Mar 2003 08:50:18 +0200
+X-Mailer: KMail [version 1.2]
+References: <F111KV6aGHW5uUJvf5w0000e9f0@hotmail.com>
+In-Reply-To: <F111KV6aGHW5uUJvf5w0000e9f0@hotmail.com>
+Cc: "Senthil Kumar" <senthil_gowran@hotmail.com>
+MIME-Version: 1.0
+Message-Id: <03032508501800.05216@polaris>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 25, 2003 at 01:20:16PM +0900, Miles Bader wrote:
-> The following change in 2.5.66:
-> 
->    [PATCH] a few missing stubs for !CONFIG_MMU
-> 
->    Patch from Christoph Hellwig <hch@lst.de>
-> 
->    This is from the uClinux patches - there are a few more stubs needed
->    in nommu.c to get the mmuless plattforms working.
-> 
-> Adds definitions for vmalloc_to_page, follow_page, and remap_page_range,
-> to mm/mmnommu.c.  However, there are already inline definitions of those
-> functions (predicated on !CONFIG_MMU) in linux/mm.h, so compilation
-> fails.
-> 
-> Which is the correct location?
+On Tuesday 25 March 2003 06:34, Senthil Kumar wrote:
+> i. e. From the mp3 file i extracted the data to be played alone to my
+> local buffer leaving the Frame information of 32 bits.
+[ ... ]
+> Then through ioctl() function i wrote the channel, bitrate and
+> Format. Then through write function i wrote the data captured in the
+> local buffer to the dsp device /dev/dsp.
+[...]
+> Is any uncompression should be done for data and written.
+> Is so how the uncompression should be done..
 
-OOPS, it looks like Greg & me submitted paches in parallel.  Personally I
-prefer the out of line ones over the inlines, especially as they handle
-vmalloc_to_page properly.  I'll submit a patch to Linus to fix this
-mess.
-
+The kernel doesn't do mp3 decoding, and yes, you have to decode mp3 
+first into PCM. Take a look at mpg123 or xmms for ideas (google is your 
+friend).

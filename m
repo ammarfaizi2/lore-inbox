@@ -1,58 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262493AbVCBWJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbVCBWJe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262493AbVCBWJd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 17:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVCBWHV
+	id S261402AbVCBWJe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 17:09:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVCBWHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 17:07:21 -0500
-Received: from tantale.fifi.org ([64.81.251.130]:28298 "EHLO tantale.fifi.org")
-	by vger.kernel.org with ESMTP id S262479AbVCBWAc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 17:00:32 -0500
-To: linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux@syskonnect.de
-Subject: 2.4.29 sk98lin patch for Asus K8W SE Deluxe 
-Mail-Copies-To: nobody
-From: Philippe Troin <phil@fifi.org>
-Date: 02 Mar 2005 14:00:30 -0800
-Message-ID: <873bvdbtdt.fsf@ceramic.fifi.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Wed, 2 Mar 2005 17:07:39 -0500
+Received: from fep01-0.kolumbus.fi ([193.229.0.41]:46682 "EHLO
+	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S262468AbVCBWAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 17:00:02 -0500
+Date: Thu, 3 Mar 2005 00:01:13 +0200 (EET)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: Andrew Morton <akpm@osdl.org>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       myeatman@vale-housing.co.uk, linux-kernel@vger.kernel.org,
+       gene.heskett@verizon.net
+Subject: Re: Problems with SCSI tape rewind / verify on 2.4.29
+In-Reply-To: <20050302132512.5853cd3b.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0503022334280.9132@kai.makisara.local>
+References: <E7F85A1B5FF8D44C8A1AF6885BC9A0E472B886@ratbert.vale-housing.co.uk>
+ <20050302120332.GA27882@logos.cnet> <Pine.LNX.4.61.0503022253360.9132@kai.makisara.local>
+ <20050302132512.5853cd3b.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The EEPROM (or whatever that is) on Asus K8V SE Deluxe motherboards
-contains buggy firmware.  This buggy firmware has one flipped bit, and
-causes the sk98lin driver refuses to work correctly.  Please look at
-this thread:
+On Wed, 2 Mar 2005, Andrew Morton wrote:
 
-  http://www.ussg.iu.edu/hypermail/linux/kernel/0404.0/1439.html
+> Kai Makisara <Kai.Makisara@kolumbus.fi> wrote:
+> >
+> > > 
+> >  > v2.6 also contains the same problem BTW.
+> >  > 
+> >  > Try this:
+> >  > 
+> >  > --- a/drivers/scsi/st.c.orig	2005-03-02 09:02:13.637158144 -0300
+> >  > +++ b/drivers/scsi/st.c	2005-03-02 09:02:20.208159200 -0300
+> >  > @@ -3778,7 +3778,6 @@
+> >  >  	read:		st_read,
+> >  >  	write:		st_write,
+> >  >  	ioctl:		st_ioctl,
+> >  > -	llseek:		no_llseek,
+> >  >  	open:		st_open,
+> >  >  	flush:		st_flush,
+> >  >  	release:	st_release,
+> > 
+> >  This change covers up the problem. The real bug is in tar.
+> 
+> In that case we're kinda screwed, and should change the kernel to make tar
+> work again.  We can send a bug report to the tar folks (good luck) and wait
+> a few years.
+> 
+> >  The first BSF did position the tape correctly although it did fail.
+> 
+> (what's a BSF?)
+> 
+> If it positioned the tape successfully, why did it claim that it failed? 
 
-It contains a patch for 2.6 that fixs the problem.  Enclosed is a copy
-of this patch for 2.4.29.  Please consider applying.
+BSF moves the tape backwards over filemarks. tar tries to move over one 
+filemark. It does not find it because it ends to the beginning of the 
+tape. This is why the operation fails. However, the tape is at the 
+beginning and this is the correct place with regard to what is done next.
 
-Phil.
+> If we were to fix that up, would tar then be happy?
 
-Signed-Off-By: Philippe Troin <phil@fifi.rog>
+It is not fixable in the kernel. The beginning of the tape is a special 
+case because there is no filemark. Any application should take this into 
+account. We could fake a filemark there but this would lead to problems 
+because then we could "skip" backwards indefinitely even when the tape 
+moves nowhere. This could confuse other applications.
 
-diff -ruN linux-2.4.29.orig/drivers/net/sk98lin/skvpd.c linux-2.4.29/drivers/net/sk98lin/skvpd.c
---- linux-2.4.29.orig/drivers/net/sk98lin/skvpd.c	Wed Apr 14 06:05:30 2004
-+++ linux-2.4.29/drivers/net/sk98lin/skvpd.c	Mon Feb 21 02:03:00 2005
-@@ -466,6 +466,15 @@
- 	
- 	pAC->vpd.vpd_size = vpd_size;
- 
-+	/* Asus K8V Se Deluxe bugfix. Correct VPD content */
-+	/* MBo April 2004 */
-+	if( ((unsigned char)pAC->vpd.vpd_buf[0x3f] == 0x38) &&
-+	    ((unsigned char)pAC->vpd.vpd_buf[0x40] == 0x3c) &&
-+	    ((unsigned char)pAC->vpd.vpd_buf[0x41] == 0x45) ) {
-+		printk("sk98lin : humm... Asus mainboard with buggy VPD ? correcting data.\n");
-+		(unsigned char)pAC->vpd.vpd_buf[0x40] = 0x38;
-+	}
-+
- 	/* find the end tag of the RO area */
- 	if (!(r = vpd_find_para(pAC, VPD_RV, &rp))) {
- 		SK_DBG_MSG(pAC, SK_DBGMOD_VPD, SK_DBGCAT_ERR | SK_DBGCAT_FATAL,
+If seek with tape is changed back to returning success, this would enable 
+correct tar --verify at the beginning of the tape. However, I am not sure 
+what happens if we are not at the beginning. I will investigate this and 
+suggest a long term fix to the tar people (a fix that should be compatible 
+with all Unix tape semantics I know) and also suggest possible fixes to st 
+(this may include automatic writing of a filemark when BSF is used after 
+writes).
+
+If you think want to make st return success for seeks even if nothing 
+happens (as it did earlier), I don't have anything against that. It would 
+solve the practical problem several people have reported recently. (My 
+recommendation for the people seeing this problem is to do verification 
+separately with 'tar -d'.)
+
+-- 
+Kai

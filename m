@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274079AbRISOkJ>; Wed, 19 Sep 2001 10:40:09 -0400
+	id <S274076AbRISOol>; Wed, 19 Sep 2001 10:44:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274077AbRISOkA>; Wed, 19 Sep 2001 10:40:00 -0400
-Received: from lilly.ping.de ([62.72.90.2]:46095 "HELO lilly.ping.de")
-	by vger.kernel.org with SMTP id <S274076AbRISOjw>;
-	Wed, 19 Sep 2001 10:39:52 -0400
-Date: 19 Sep 2001 16:38:14 +0200
-Message-ID: <20010919163814.A3610@planetzork.spacenet>
-From: jogi@planetzork.ping.de
-To: "Andrea Arcangeli" <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10-pre11: alsaplayer skiping during kernel build (-pre10 did not)
-In-Reply-To: <20010918171416.A6540@planetzork.spacenet> <20010918172500.F19092@athlon.random> <20010918173515.B6698@planetzork.spacenet> <20010918174434.I19092@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010918174434.I19092@athlon.random>; from andrea@suse.de on Tue, Sep 18, 2001 at 05:44:34PM +0200
+	id <S274077AbRISOoa>; Wed, 19 Sep 2001 10:44:30 -0400
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:40619 "EHLO
+	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S274076AbRISOoY>;
+	Wed, 19 Sep 2001 10:44:24 -0400
+Message-ID: <3BA8AEFB.4090205@stesmi.com>
+Date: Wed, 19 Sep 2001 16:43:07 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
+In-Reply-To: <Pine.GSO.4.21.0109191707260.23205-100000@skiathos.physics.auth.gr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2001 at 05:44:34PM +0200, Andrea Arcangeli wrote:
-> certainly not from the console locking changes. Can you just go back to
-> pre10 and verify you don't get those skips to just to be 100% sure the
-> userspace config is the same?
+Hi.
 
-Hello Andrea,
+>>If this should be an optional fix, it should be default enabled, and then
+>>all those who don't want to use the fix, should disable it. But I guess, as
+>>long as it's an option, someone is _bound_ to come naging with their
+>>problems...
+>>
+> 
+> How can you know you need it if it is enabled by default. I see many more
+> ppl just not being bothered enough to check. 
 
-forget about the scheduler changes. I did the following change and the
-problem is almost solved. Before I had both kernel and wav files on
 
-/dev/hda6              4200828   1745204   2455624  42% /usr
-/dev/hda6 on /usr type reiserfs (rw)
+How many cpus did you try on your machine ?
 
-I copied kernel source and wav files to
+Are you 100% sure the fix isn't needed on your machine?
 
-/dev/hda8              8989695   2907606   5615804  34% /mnt
-/dev/hda8 on /mnt type ext2 (rw)
+> And then, would you prefer having somebody naging about, say, his
+> northbirdge melting down after 10mins with K7 optimizations enabled?
 
-and it skipped only three (very short) times. So it seems to be a problem
-of reiserfs in combination with your memory management changes. Dang!
-Can someone of the reiserfs people comment on this?
+Sure, I can see the mail already:
 
-Regards,
+"My Northbridge melted. It's never done that before".
 
-   Jogi
+// Stefan
 
--- 
 
-Well, yeah ... I suppose there's no point in getting greedy, is there?
-
-    << Calvin & Hobbes >>

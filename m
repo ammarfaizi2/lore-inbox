@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290772AbSAYSbw>; Fri, 25 Jan 2002 13:31:52 -0500
+	id <S290767AbSAYSfU>; Fri, 25 Jan 2002 13:35:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290770AbSAYSbg>; Fri, 25 Jan 2002 13:31:36 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:41105 "EHLO segfault.osdlab.org")
-	by vger.kernel.org with ESMTP id <S290766AbSAYSbU>;
-	Fri, 25 Jan 2002 13:31:20 -0500
-Date: Fri, 25 Jan 2002 10:31:43 -0800 (PST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@segfault.osdlab.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Grover, Andrew" <andrew.grover@intel.com>, "'lwn@lwn.net'" <lwn@lwn.net>,
-        "Acpi-linux (E-mail)" <acpi-devel@lists.sourceforge.net>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] Re: ACPI mentioned on lwn.net/kernel
-In-Reply-To: <E16UAZO-00034f-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0201251019230.800-100000@segfault.osdlab.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290770AbSAYSex>; Fri, 25 Jan 2002 13:34:53 -0500
+Received: from mailhost.nmt.edu ([129.138.4.52]:62482 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S290767AbSAYSes>;
+	Fri, 25 Jan 2002 13:34:48 -0500
+Date: Fri, 25 Jan 2002 11:34:43 -0700
+From: Val Henson <val@nmt.edu>
+To: benh@kernel.crashing.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Athlon/AGP issue update
+Message-ID: <20020125113443.C26874@boardwalk>
+In-Reply-To: <20020123.060855.26275529.davem@redhat.com> <20020123154737.19204@mailhost.mipsys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020123154737.19204@mailhost.mipsys.com>; from benh@kernel.crashing.org on Wed, Jan 23, 2002 at 04:47:37PM +0100
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 25 Jan 2002, Alan Cox wrote:
-
-> > battery status, the steps the OS must perform are defined by the BIOS.
-> > However, since they are performed by the OS, the OS in fact gains visibility
-> > into the process, and does not ever relinquish control to the BIOS.
+On Wed, Jan 23, 2002 at 04:47:37PM +0100, benh@kernel.crashing.org wrote:
+> >I don't think your PPC case needs the kernel mappings messed with.
+> >I really doubt the PPC will speculatively fetch/store to a TLB
+> >missing address.... unless you guys have large TLB mappings on
+> >PPC too?
 > 
-> It has task file IDE access. It is capable of being abused for that or more.
-> Intent doesnt come into it. Its no different to the current BIOS SMM
-> situation. 
+> Yes, we use BATs (sort of built-in fixed large TLBs) to map
+> the lowmem (or entire RAM without CONFIG_HIGHMEM).
 
-That's not his point. ACPI is doing what the BIOS tells us, not asking the 
-BIOS to do something for is. That's not a Good Thing, but it's Better. 
+Looking at bat_mapin_ram, it looks like we only map the first 512MB of
+RAM with BATs, so we actually map the 512MB - 768MB range with PTEs
+(and highmem starts at 768MB).  Two of the DBATs are used by I/O
+mappings, so that only leaves two DBATs of 256MB each to map lowmem
+anyway.  Am I missing something?
 
-Unless you're proactive about scanning BIOS routines for power mgmt,
-verifying tables, and analyzing AML before you use it, you won't know 
-something is wacky until it bites you. 
+By the way, does the "nobats" option currently work on PowerMac?
 
-With AML, at least you have the freedom to pinpoint the problem and 
-overridde it, either by modifying the table yourself, or providing a new 
-one(*).
-
-I'm a big ACPI pundit, and disagree with many aspects of the spec and 
-implementation. But, a) we're stuck with it and b) it's a lot better in 
-many aspects than previous things, including the ability to catch and work 
-around problems rather than just punting on them.
-
-	-pat
-
-(*) Aside from any potential copyright infringement on the tables 
-themselves. But, it is theoretically possible to override the DSDT with 
-one provided at runtime. So, if someone finds a problem with Company X, 
-Model Y's AML, they can go to acpi.sf.net and download a fixed table, run 
-a utility to put it in the early init scripts, reboot and be safe. 
-Hypothetically. 
-
-
-
+-VAL

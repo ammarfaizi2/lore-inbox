@@ -1,193 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318865AbSHEUiH>; Mon, 5 Aug 2002 16:38:07 -0400
+	id <S318866AbSHEUsW>; Mon, 5 Aug 2002 16:48:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318866AbSHEUiH>; Mon, 5 Aug 2002 16:38:07 -0400
-Received: from h-64-105-137-168.SNVACAID.covad.net ([64.105.137.168]:60880
-	"EHLO freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S318865AbSHEUiF>; Mon, 5 Aug 2002 16:38:05 -0400
-Date: Mon, 5 Aug 2002 13:41:30 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: aia21@cantab.net, linux-ntfs-dev@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Patch: linux-2.5.30/fs/ntfs BUG_ON(cond1 || cond2) bugs(!) and clean ups
-Message-ID: <20020805134130.A2627@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="HlL+5n6rz5pIUxbD"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S318870AbSHEUsW>; Mon, 5 Aug 2002 16:48:22 -0400
+Received: from 209-184-211-130.ded.swbell.net ([209.184.211.130]:49521 "HELO
+	localhost") by vger.kernel.org with SMTP id <S318866AbSHEUsU>;
+	Mon, 5 Aug 2002 16:48:20 -0400
+Message-Id: <1028567152.944@0.0.1>
+Date: Mon, 05 Aug 2002 19:05:52 0200
+To: linux-kernel@vger.kernel.org
+From: "enquiries@convergence.org" <enquiries@convergence.org>
+Subject: [Leads] The Early Retirement System That WORKS!
+MIME-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thank you for posting to our FFA Pages. This is a one-time
+mailing; this list will be deleted upon its completion.
 
---HlL+5n6rz5pIUxbD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Greetings!!
 
-	The following patch replaces all BUG_ON(condition1 || condition2)
-statements in fs/ntfs with separate BUG_ON statements, usually like so:
+Today, it's a documented fact that most Americans do not
+have enough savings for their retirement. Have you been at
+Wal-Mart recently? What have you seen there? I have seen
+a number of retirement-aged people working. Some have
+chosen to maintain an active lifestyle. But, most of them
+are working simply because they don't have enough
+retirement income!!!! How sad is that?
 
-		BUG_ON(condition1);
-		BUG_ON(condition2);
+The Social security system was established to assure that
+people could retire with ample financial means. However, we
+can't expect that social security retirement benefits will
+be adequate when we reach retirement age. In fact, today,
+it takes 3-4 people to support one retirement benefit.
 
-	This provides more information if the BUG_ON statement is every
-tripped.
+http://www.aesop.com/ce.html?moneypipe
+Partner:
+http://www.convergence.org
 
-	In addition, the fs/ntfs code had some
-BUG_ON(...atomic_dec_and_test(...)) statements.  BUG_ON conditions should
-not have side effects, because you are supposed to be able to compile out
-BUG_ON statements to have the code run faster (which is an important
-guarantee for encouraging developers to write BUG_ON statements).  I
-have translated the offending cases to statements of the following form:
+For most people in the private sector, a 401(k) is pretty
+much the only option to accumulate their retirement needs.
 
-	if(...atomic_dec_and_test(...))
-		BUG();
+A 401(k) is based on investing YOUR OWN funds with your
+employer matching them. But, they're not as secure as we
+might hope for.
 
-	I have attached the patch below.  I would like to get these
-changes into Linus's 2.5 tree.  Please let me know if you want to take
-it from here, if you want me to submit this patch to Linus or if you
-want me to do something else.  Thanks for your time, and for maintaining
-the NT file system on Linux.
+For example: Many employees at Enron, the giant energy
+trading company, chose to put their 401(k) fund into
+Enron's stock. However, as the accounting scandal
+revealed, Enron collapsed within WEEKS, not months, and
+their 401(k) funds became worthless.
 
--- 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Another example: US West was a local telephone company
+with a good retirement plan. But, after Qwest
+International acquired US West, their stock value declined
+to an almost worthless level, and is Now a serious concern
+for the retirees of US West.
 
---HlL+5n6rz5pIUxbD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ntfs.diff"
+This is the reality of the retirement picture RIGHT NOW.
 
-diff -u linux-2.5.30/fs/ntfs/attrib.c linux/fs/ntfs/attrib.c
---- linux-2.5.30/fs/ntfs/attrib.c	2002-08-01 14:16:26.000000000 -0700
-+++ linux/fs/ntfs/attrib.c	2002-08-05 13:27:51.000000000 -0700
-@@ -110,7 +110,8 @@
- static inline BOOL ntfs_are_rl_mergeable(run_list_element *dst,
- 		run_list_element *src)
- {
--	BUG_ON(!dst || !src);
-+	BUG_ON(!dst);
-+	BUG_ON(!src);
- 
- 	if ((dst->lcn < 0) || (src->lcn < 0))     /* Are we merging holes? */
- 		return FALSE;
-@@ -192,7 +193,8 @@
- 	BOOL right;
- 	int magic;
- 
--	BUG_ON(!dst || !src);
-+	BUG_ON(!dst);
-+	BUG_ON(!src);
- 
- 	/* First, check if the right hand end needs merging. */
- 	right = ntfs_are_rl_mergeable(src + ssize - 1, dst + loc + 1);
-@@ -258,7 +260,8 @@
- 	BOOL hole = FALSE;	/* Following a hole */
- 	int magic;
- 
--	BUG_ON(!dst || !src);
-+	BUG_ON(!dst);
-+	BUG_ON(!src);
- 
- 	/* disc => Discontinuity between the end of @dst and the start of @src.
- 	 *         This means we might need to insert a hole.
-@@ -362,7 +365,8 @@
- 	BOOL right;
- 	int magic;
- 
--	BUG_ON(!dst || !src);
-+	BUG_ON(!dst);
-+	BUG_ON(!src);
- 
- 	/* First, merge the left and right ends, if necessary. */
- 	right = ntfs_are_rl_mergeable(src + ssize - 1, dst + loc + 1);
-@@ -423,7 +427,8 @@
- static inline run_list_element *ntfs_rl_split(run_list_element *dst, int dsize,
- 		run_list_element *src, int ssize, int loc)
- {
--	BUG_ON(!dst || !src);
-+	BUG_ON(!dst);
-+	BUG_ON(!src);
- 
- 	/* Space required: @dst size + @src size + one new hole. */
- 	dst = ntfs_rl_realloc(dst, dsize, dsize + ssize + 1);
-diff -u linux-2.5.30/fs/ntfs/compress.c linux/fs/ntfs/compress.c
---- linux-2.5.30/fs/ntfs/compress.c	2002-08-01 14:16:26.000000000 -0700
-+++ linux/fs/ntfs/compress.c	2002-08-05 13:27:51.000000000 -0700
-@@ -467,7 +467,8 @@
- 	 * Bad things happen if we get here for anything that is not an
- 	 * unnamed $DATA attribute.
- 	 */
--	BUG_ON(ni->type != AT_DATA || ni->name_len);
-+	BUG_ON(ni->type != AT_DATA);
-+	BUG_ON(ni->name_len);
- 
- 	pages = kmalloc(nr_pages * sizeof(struct page *), GFP_NOFS);
- 
-diff -u linux-2.5.30/fs/ntfs/inode.c linux/fs/ntfs/inode.c
---- linux-2.5.30/fs/ntfs/inode.c	2002-08-01 14:16:19.000000000 -0700
-+++ linux/fs/ntfs/inode.c	2002-08-05 13:27:51.000000000 -0700
-@@ -278,7 +278,9 @@
- 	ntfs_inode *ni = NTFS_I(inode);
- 
- 	ntfs_debug("Entering.");
--	BUG_ON(atomic_read(&ni->mft_count) || !atomic_dec_and_test(&ni->count));
-+	BUG_ON(atomic_read(&ni->mft_count));
-+	if (!atomic_dec_and_test(&ni->count))
-+		BUG();
- 	kmem_cache_free(ntfs_big_inode_cache, NTFS_I(inode));
- }
- 
-@@ -298,7 +300,11 @@
- void ntfs_destroy_extent_inode(ntfs_inode *ni)
- {
- 	ntfs_debug("Entering.");
--	BUG_ON(atomic_read(&ni->mft_count) || !atomic_dec_and_test(&ni->count));
-+
-+	BUG_ON(atomic_read(&ni->mft_count));
-+	if (!atomic_dec_and_test(&ni->count))
-+		BUG();
-+
- 	kmem_cache_free(ntfs_inode_cache, ni);
- }
- 
-diff -u linux-2.5.30/fs/ntfs/mft.c linux/fs/ntfs/mft.c
---- linux-2.5.30/fs/ntfs/mft.c	2002-08-01 14:16:07.000000000 -0700
-+++ linux/fs/ntfs/mft.c	2002-08-05 13:27:51.000000000 -0700
-@@ -132,7 +132,9 @@
- 	struct page *page;
- 	unsigned long index, ofs, end_index;
- 
--	BUG_ON(atomic_read(&ni->mft_count) || ni->page);
-+	BUG_ON(atomic_read(&ni->mft_count));
-+	BUG_ON(ni->page);
-+
- 	/*
- 	 * The index into the page cache and the offset within the page cache
- 	 * page of the wanted mft record. FIXME: We need to check for
-@@ -190,8 +192,10 @@
-  */
- static inline void unmap_mft_record_page(ntfs_inode *ni)
- {
--	BUG_ON(atomic_read(&ni->mft_count) || !ni->page);
--	// TODO: If dirty, blah...
-+	BUG_ON(atomic_read(&ni->mft_count));
-+	BUG_ON(!ni->page);
-+
-+	/* TODO: If dirty, blah... */
- 	ntfs_unmap_page(ni->page);
- 	ni->page = NULL;
- 	ni->page_ofs = 0;
-@@ -316,7 +320,8 @@
- {
- 	struct page *page = ni->page;
- 
--	BUG_ON(!atomic_read(&ni->mft_count) || !page);
-+	BUG_ON(!atomic_read(&ni->mft_count));
-+	BUG_ON(!page);
- 
- 	ntfs_debug("Entering for mft_no 0x%lx, unmapping from %s.", ni->mft_no,
- 			rw == READ ? "READ" : "WRITE");
+WE MUST SECURE OUR RETIREMENT FOR OURSELVES!
 
---HlL+5n6rz5pIUxbD--
+http://www.aesop.com/ce.html?moneypipe
+
+For this reason alone, CASH Evolution is a remarkable
+opportunity. But, there are many other reasons that make
+this the most attractive new program ever devised!
+
+[1] The monthly fee is ONLY $25 a month, the price of a
+family pizza.
+
+[2] You ONLY need three! With just 3 referrals your
+membership fee is self-funding. And, these need not be
+'Personal' referrals! You get credit for them even if they
+are "Spilled" down to you from your upline.
+
+[3] Realistically earn $1,500 a month RESIDUAL income
+after your 3rd level, of this 5X5 "FORCED" matrix, is
+filled. Three levels consists of only 160 people,
+including the sign-ups by your downlines AND 'spillover'
+from your uplines.
+
+(Internet Marketing Giant Mark Joyner, our upline Sponsor
+and owner of Aesop, Roibot, StartBlaze, and many other Huge
+Corporations, has just taken on CASHevolution as his pet
+project and is expected to recruit Hundreds of Thousands of
+new members to be spilled into our downlines.)
+
+[4] The ability to earn up to $9,000 a month RESIDUAL
+income.
+
+[5] 100% payout of membership fees! CASHevolution pays
+100% of it's membership fees back to it's members through
+the five levels of this 5X5 FORCED matrix.
+
+[6] Paid-out is more than paid-in. Not only do they pay
+back 100% of the membership fees, 10% of the commissions
+from levels 3-5 are reinvested in mutual funds, stocks,
+bonds,etc. So, in essence, what you have here is a self
+funding 401(k)!!!
+
+[7] Free Offshore Account even if you cancel your
+membership! It costs hundreds of dollars to open an
+offshore account, with lots of research time to find one
+you can trust. CASHevolution banks with a UK controlled
+Bank located in the West Indies and is FDIC Insured. This
+Bank Account comes with your Membership!
+
+[8] And...Much much more
+
+The More I've been associated with CASHevolution, the more
+I have been impressed with their ingenious ideas.
+
+They've actually come up with a foolproof opportunity to
+help those of us who would normally not be able to afford
+it, to fund an investment portfolio and build a secure
+future for ourselves and our families.
+
+A concept of "Helping Ourselves by Helping Others."
+
+JOIN OUR TEAM NOW TO SECURE THE BEST SPOT
+TO SECURE YOUR FUTURE!
+
+http://www.aesop.com/ce.html?moneypipe
+
+Here's To A Better Future For Us All,
+
+Gary A. Fowler
+mailto:enquiries@convergence.org
+
+PS: Unlike other programs you may have heard of, You are
+not left to flounder alone. OUR group offers a tremendous
+support system to help you succeed in building your future.
+If you have any questions, please feel free to contact me
+anytime.
+
+
+
+_______________________
+There is no need to unsubscribe from
+this list. This is a one-time mailing
+only, and the list will be deleted once
+this mailing is completed.
+

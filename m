@@ -1,43 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261254AbREOS5t>; Tue, 15 May 2001 14:57:49 -0400
+	id <S261274AbREOTRp>; Tue, 15 May 2001 15:17:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261261AbREOS5j>; Tue, 15 May 2001 14:57:39 -0400
-Received: from geos.coastside.net ([207.213.212.4]:56741 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S261254AbREOS51>; Tue, 15 May 2001 14:57:27 -0400
-Mime-Version: 1.0
-Message-Id: <p05100314b72729920e83@[207.213.214.37]>
-In-Reply-To: <Pine.LNX.4.33.0105151911410.730-100000@mikeg.weiden.de>
-In-Reply-To: <Pine.LNX.4.33.0105151911410.730-100000@mikeg.weiden.de>
-Date: Tue, 15 May 2001 11:57:14 -0700
-To: linux-kernel@vger.kernel.org
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: [PATCH] Remove silly beep macro from pgtable.h
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S261279AbREOTRf>; Tue, 15 May 2001 15:17:35 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:13829 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261274AbREOTRU>; Tue, 15 May 2001 15:17:20 -0400
+Date: Tue, 15 May 2001 12:17:11 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Johannes Erdfelt <johannes@erdfelt.com>
+cc: James Simmons <jsimmons@transvirtual.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <20010515145830.Y5599@sventech.com>
+Message-ID: <Pine.LNX.4.21.0105151208540.2339-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 7:36 PM +0200 2001-05-15, Mike Galbraith wrote:
->On Tue, 15 May 2001, Jeff Golds wrote:
->
->>  Hi folks,
->>
->>  Found this bit of unused code in the i386 and sh architectures. 
->>As it's not being used, let's get rid of it.  Also, pgtable.h seems 
->>to be an odd place for this.
->
->I'd leave it.. folks with early boot troubles might find it useful.
->
->	-Mike
 
-Consider small rant about literal IO references to magic locations 
-hereby ranted. Especially in header files completely unrelated to the 
-IO function in question.
+On Tue, 15 May 2001, Johannes Erdfelt wrote:
+> 
+> Even bulk has issues because USB pipe's aren't necessarily streams, they
+> can packetized in the psuedo weird way that USB does things.
 
--#define __beep() asm("movb $0x3,%al; outb %al,$0x61")
+This is ok. "pipe" does not mean that the write data doesn't have
+boundaries.
 
-Let's please not assume that every i386 implementation has a full set 
-of legacy PC IO hardware.
--- 
-/Jonathan Lundell.
+Think about UDP. It's done with file desriptors, yet it is very much
+packetized. 
+
+Even a regular "pipe" actually has packet behaviour: a single write of <
+PIPEBUF is guaranteed by UNIX to complete atomically, which is exactly so
+that people can use pipes in a "packet" environment.
+
+A file descriptor does NOT imply that the data you read or write must be
+one mushy stream of bytes. It's ok to honour write() packet boundaries
+etc.
+
+You should absolutely NOT think that "we cannot send a packet down the
+control pipe because multiple writers might confuse each other". You can
+still require that separate packets be cleanly delimeted.
+
+It's a huge mistake to think that you _have_ to use ioctl's to get
+"packet" behaviour, or to get structured reads/writes. 
+
+The advantage of read/write is that it doesn't _force_ a packet on you,
+but the kernel really doesn't care if you have some structure to your read
+and write requests.
+
+> > or possibly you take a more socket-like approach and do
+> > 
+> > 	fd = socket(part-of-the-structure);
+> > 	bind(fd, more-of-the-structure)
+> > 	connect(fd, last-part-of-the-structure);
+> 
+> I don't like socket's since we do have a well bound set of endpoints. We
+> don't have 4 billion IP's with 64k ports to choose from. We have x
+> endpoints that the device tells us about ahead of time.
+
+Note that "sockets" != "IPv4". Sockets just have names, they can be IPv4
+(4+2 byte things), they can be pathnames (UNIX domain) and they can be
+large IPv6 (16+2 or whatever). Or they could be small USB names. There's
+nothing fundamentally wrong with "binding" a one-byte address and a
+one-byte "interface" name. You'd just create a AF_USB layer ;)
+
+But no, I don't actually like sockets all that much myself. They are hard
+to use from scripts, and many more people are familiar with open/close and
+read/write.
+
+		Linus
+

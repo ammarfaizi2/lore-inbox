@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132243AbRBRAKr>; Sat, 17 Feb 2001 19:10:47 -0500
+	id <S131126AbRBRALR>; Sat, 17 Feb 2001 19:11:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132240AbRBRAKi>; Sat, 17 Feb 2001 19:10:38 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:40630 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S131228AbRBRAKZ>;
-	Sat, 17 Feb 2001 19:10:25 -0500
-Date: Sun, 18 Feb 2001 01:10:14 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200102180010.BAA163601.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, swansma@yahoo.com
-Subject: Re: Fwd: Re: System V msg queue bugs in latest kernels
-Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com
+	id <S132251AbRBRAKs>; Sat, 17 Feb 2001 19:10:48 -0500
+Received: from innerfire.net ([208.181.73.33]:48134 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id <S131228AbRBRAKm>;
+	Sat, 17 Feb 2001 19:10:42 -0500
+Date: Sat, 17 Feb 2001 16:13:51 -0800 (PST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Dennis <dennis@etinc.com>
+cc: John Cavan <johnc@damncats.org>, jesse@cats-chateau.net,
+        A.J.Scott@casdn.neu.edu, linux-kernel@vger.kernel.org
+Subject: Re: Linux stifles innovation... [way O.T.]
+In-Reply-To: <5.0.0.25.0.20010217143912.0390e440@mail.etinc.com>
+Message-ID: <Pine.LNX.4.10.10102171612090.1850-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From swansma@yahoo.com Sat Feb 17 22:45:36 2001
+On Sat, 17 Feb 2001, Dennis wrote:
 
-    I'm sending this to you with the hope that lines like this (in ipcs.c)
-    can be modified to report proper values:
+> BSDI is distributing FreeBSD now. They havent done anything useful to 
+> support it. They are just cashing in on it.
 
-     printf ("%-10o%-12ld%-12ld\n",
-                    ipcp->mode & 0777,
-                    /*
-                     * glibc-2.1.3 and earlier has unsigned short;
-                     * glibc-2.1.91 has variation between
-                     * unsigned short, unsigned long
-                     * Austin has msgqnum_t
-                     */
-                    (long) msgque.msg_cbytes,
-                    (long) msgque.msg_qnum);  
+That's BS last I heard they were merging their SMP support.
 
-    msg_cbytes and msg_qnum should be handled differently (as per Manfred's
-    email).
+Btw have you submitted bug reports for your networking card? If not you
+have no one to blame but yourself for the fact that it's not working on
+your system.
 
-Hmm. In 2.2.18 these fields are short in the kernel, so there is
-no more information, and ipcs cannot print it.
-In 2.4.1 these fields are long in the kernel, and are copied back
-to user space using copy_msqid_to_user() which will give the longs
-in case IPC_64 was set, and the shorts otherwise.
+	Gerhard
 
-(By the way, "IPC_64" is rather a misnomer - it is more like IPC_32.
-I could well imagine that we'll need something for 64-bits sooner or
-later (and call it IPC_128 then?).)
 
-Manfred's email does
+--
+Gerhard Mack
 
-    #define msg_lqbytes        __rwait
+gmack@innerfire.net
 
-that is, his program stores information in, and retrieves information
-from some field that maybe is unused. In fact the kernel also uses it,
-so I don't think that would be very successful.
+<>< As a computer I find your faith in technology amusing.
 
-No, we must just use IPC_64 when it is available, and that is glibc's job.
-Looking at the libc source I see that glibc-2.1.95 does this, but
-glibc-2.1.3 doesn't. So, maybe, if you upgrade your glibc all will be well.
-
-Andries

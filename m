@@ -1,69 +1,348 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135796AbRDYDy0>; Tue, 24 Apr 2001 23:54:26 -0400
+	id <S135802AbRDYEJV>; Wed, 25 Apr 2001 00:09:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135799AbRDYDyG>; Tue, 24 Apr 2001 23:54:06 -0400
-Received: from smtp.networkusa.net ([216.162.106.18]:31246 "EHLO
-	smtp.networkusa.net") by vger.kernel.org with ESMTP
-	id <S135796AbRDYDyB>; Tue, 24 Apr 2001 23:54:01 -0400
-Message-ID: <3AE64A60.7FD6CFBB@networkusa.net>
-Date: Tue, 24 Apr 2001 22:54:08 -0500
-From: Ian Zink <zforce@networkusa.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac12 i686)
-X-Accept-Language: en
+	id <S135803AbRDYEJM>; Wed, 25 Apr 2001 00:09:12 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:5903 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S135802AbRDYEJG>; Wed, 25 Apr 2001 00:09:06 -0400
+Date: Tue, 24 Apr 2001 23:28:38 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+        Rik van Riel <riel@conectiva.com.br>,
+        Szabolcs Szakacsits <szaka@f-secure.com>
+Subject: Re: [patch] swap-speedup-2.4.3-B3
+In-Reply-To: <Pine.LNX.4.21.0104240932570.15791-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0104242316580.2694-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: TULIP driver broken
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well it would appear the tulip driver regressed from 2.4.2-ac22 and
-2.4.3. (2.4.3-ac12 isn't working either) Once again, my tulip card just
-spews carrier errors and doesn't even get a link light.
-
-If someone could point me to a patch I would appreciate it. I have
-attached any pretient information below.
 
 
-Thanks, Ian Zink
+On Tue, 24 Apr 2001, Linus Torvalds wrote:
+
+> Basically, I don't want to mix synchronous and asynchronous
+> interfaces. Everything should be asynchronous by default, and waiting
+> should be explicit.
+
+The following patch changes all swap IO functions to be asynchronous by
+default and changes the callers to wait when needed (except
+rw_swap_page_base which will block writers if there are too many in flight
+swap IOs). 
+
+Ingo's find_get_swapcache_page() does not wait on locked pages anymore,
+which is now up to the callers.
+
+time make -j32 test with 4 CPUs machine, 128M ram and 128M swap: 
+
+pre5
+----
+228.04user 28.14system 5:16.52elapsed 80%CPU (0avgtext+0avgdata
+0maxresident)k
+0inputs+0outputs (525113major+678617minor)pagefaults 0swaps
+
+pre5 + attached patch 
+--------------------
+227.18user 25.49system 3:40.53elapsed 114%CPU (0avgtext+0avgdata
+0maxresident)k
+0inputs+0outputs (495387major+644924minor)pagefaults 0swaps
 
 
-Linux zforce 2.4.3-ac12 #5 Tue Apr 24 02:49:03 CDT 2001 i686 unknown
-
-  Bus  0, device  11, function  0:
-    Ethernet controller: Digital Equipment Corporation DECchip 21140
-[FasterNet]
- (rev 32).
-      IRQ 10.
-      Master Capable.  Latency=32.  Min Gnt=20.Max Lat=40.
-      I/O at 0xb000 [0xb07f].
-      Non-prefetchable 32 bit memory at 0xe0800000 [0xe080007f].
-
-eth0      Link encap:Ethernet  HWaddr 00:00:C0:41:99:E9
-          inet addr:10.1.1.1  Bcast:10.1.1.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:243 dropped:0 overruns:0 carrier:243
-          collisions:0 txqueuelen:100
-          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
-          Interrupt:10 Base address:0xb000
-
-Linux version 2.4.3-ac12 (root@zforce) (gcc version 2.95.4 20010319
-(Debian prer
-elease)) #5 Tue Apr 24 02:49:03 CDT 2001
-....
-
-Linux Tulip driver version 0.9.14e (April 20, 2001)
-PCI: Found IRQ 10 for device 00:0b.0
-tulip0:  EEPROM default media type Autosense.
-tulip0:  Index #0 - Media MII (#11) described by a 21140 MII PHY (1)
-block.
-00:0b.0:  MII transceiver #3 config 3100 status 7809 advertising 01e1.
-00:0b.0:  Advertising 0001 on PHY 3, previously advertising 01e1.
-00:0b.0:  Advertising 0001 (to advertise is 0001).
-eth0: Digital DS21140 Tulip rev 32 at 0xb000, 00:00:C0:41:99:E9, IRQ 10.
+Comments? 
 
 
+diff -Nur linux.orig/include/linux/pagemap.h linux/include/linux/pagemap.h
+--- linux.orig/include/linux/pagemap.h	Wed Apr 25 00:51:36 2001
++++ linux/include/linux/pagemap.h	Wed Apr 25 00:53:04 2001
+@@ -77,7 +77,12 @@
+ 				unsigned long index, struct page **hash);
+ extern void lock_page(struct page *page);
+ #define find_lock_page(mapping, index) \
+-		__find_lock_page(mapping, index, page_hash(mapping, index))
++	__find_lock_page(mapping, index, page_hash(mapping, index))
++
++extern struct page * __find_get_swapcache_page (struct address_space * mapping,
++				unsigned long index, struct page **hash);
++#define find_get_swapcache_page(mapping, index) \
++	__find_get_swapcache_page(mapping, index, page_hash(mapping, index))
+ 
+ extern void __add_page_to_hash_queue(struct page * page, struct page **p);
+ 
+diff -Nur linux.orig/include/linux/swap.h linux/include/linux/swap.h
+--- linux.orig/include/linux/swap.h	Wed Apr 25 00:51:36 2001
++++ linux/include/linux/swap.h	Wed Apr 25 00:53:04 2001
+@@ -111,8 +111,8 @@
+ extern int try_to_free_pages(unsigned int gfp_mask);
+ 
+ /* linux/mm/page_io.c */
+-extern void rw_swap_page(int, struct page *, int);
+-extern void rw_swap_page_nolock(int, swp_entry_t, char *, int);
++extern void rw_swap_page(int, struct page *);
++extern void rw_swap_page_nolock(int, swp_entry_t, char *);
+ 
+ /* linux/mm/page_alloc.c */
+ 
+@@ -121,8 +121,7 @@
+ extern void add_to_swap_cache(struct page *, swp_entry_t);
+ extern int swap_check_entry(unsigned long);
+ extern struct page * lookup_swap_cache(swp_entry_t);
+-extern struct page * read_swap_cache_async(swp_entry_t, int);
+-#define read_swap_cache(entry) read_swap_cache_async(entry, 1);
++extern struct page * read_swap_cache_async(swp_entry_t);
+ 
+ /* linux/mm/oom_kill.c */
+ extern int out_of_memory(void);
+diff -Nur linux.orig/mm/filemap.c linux/mm/filemap.c
+--- linux.orig/mm/filemap.c	Wed Apr 25 00:51:35 2001
++++ linux/mm/filemap.c	Wed Apr 25 00:53:04 2001
+@@ -678,6 +678,34 @@
+ }
+ 
+ /*
++ * Find a swapcache page (and get a reference) or return NULL.
++ * The SwapCache check is protected by the pagecache lock.
++ */
++struct page * __find_get_swapcache_page(struct address_space *mapping,
++			      unsigned long offset, struct page **hash)
++{
++	struct page *page;
++
++	/*
++	 * We need the LRU lock to protect against page_launder().
++	 */
++
++	spin_lock(&pagecache_lock);
++	page = __find_page_nolock(mapping, offset, *hash);
++	if (page) {
++		spin_lock(&pagemap_lru_lock);
++		if (PageSwapCache(page)) 
++			page_cache_get(page);
++		else
++			page = NULL;
++		spin_unlock(&pagemap_lru_lock);
++	}
++	spin_unlock(&pagecache_lock);
++
++	return page;
++}
++
++/*
+  * Same as the above, but lock the page too, verifying that
+  * it's still valid once we own it.
+  */
+diff -Nur linux.orig/mm/memory.c linux/mm/memory.c
+--- linux.orig/mm/memory.c	Wed Apr 25 00:51:35 2001
++++ linux/mm/memory.c	Wed Apr 25 00:53:04 2001
+@@ -1040,7 +1040,7 @@
+ 			break;
+ 		}
+ 		/* Ok, do the async read-ahead now */
+-		new_page = read_swap_cache_async(SWP_ENTRY(SWP_TYPE(entry), offset), 0);
++		new_page = read_swap_cache_async(SWP_ENTRY(SWP_TYPE(entry), offset));
+ 		if (new_page != NULL)
+ 			page_cache_release(new_page);
+ 		swap_free(SWP_ENTRY(SWP_TYPE(entry), offset));
+@@ -1063,13 +1063,13 @@
+ 	if (!page) {
+ 		lock_kernel();
+ 		swapin_readahead(entry);
+-		page = read_swap_cache(entry);
++		page = read_swap_cache_async(entry);
+ 		unlock_kernel();
+ 		if (!page) {
+ 			spin_lock(&mm->page_table_lock);
+ 			return -1;
+ 		}
+-
++		wait_on_page(page);
+ 		flush_page_to_ram(page);
+ 		flush_icache_page(vma, page);
+ 	}
+diff -Nur linux.orig/mm/page_io.c linux/mm/page_io.c
+--- linux.orig/mm/page_io.c	Wed Apr 25 00:51:35 2001
++++ linux/mm/page_io.c	Wed Apr 25 00:53:04 2001
+@@ -33,7 +33,7 @@
+  * that shared pages stay shared while being swapped.
+  */
+ 
+-static int rw_swap_page_base(int rw, swp_entry_t entry, struct page *page, int wait)
++static int rw_swap_page_base(int rw, swp_entry_t entry, struct page *page)
+ {
+ 	unsigned long offset;
+ 	int zones[PAGE_SIZE/512];
+@@ -41,6 +41,7 @@
+ 	kdev_t dev = 0;
+ 	int block_size;
+ 	struct inode *swapf = 0;
++	int wait = 0;
+ 
+ 	/* Don't allow too many pending pages in flight.. */
+ 	if ((rw == WRITE) && atomic_read(&nr_async_pages) >
+@@ -104,7 +105,7 @@
+  *  - it's marked as being swap-cache
+  *  - it's associated with the swap inode
+  */
+-void rw_swap_page(int rw, struct page *page, int wait)
++void rw_swap_page(int rw, struct page *page)
+ {
+ 	swp_entry_t entry;
+ 
+@@ -116,7 +117,7 @@
+ 		PAGE_BUG(page);
+ 	if (page->mapping != &swapper_space)
+ 		PAGE_BUG(page);
+-	if (!rw_swap_page_base(rw, entry, page, wait))
++	if (!rw_swap_page_base(rw, entry, page))
+ 		UnlockPage(page);
+ }
+ 
+@@ -125,7 +126,7 @@
+  * Therefore we can't use it.  Later when we can remove the need for the
+  * lock map and we can reduce the number of functions exported.
+  */
+-void rw_swap_page_nolock(int rw, swp_entry_t entry, char *buf, int wait)
++void rw_swap_page_nolock(int rw, swp_entry_t entry, char *buf)
+ {
+ 	struct page *page = virt_to_page(buf);
+ 	
+@@ -137,7 +138,8 @@
+ 		PAGE_BUG(page);
+ 	/* needs sync_page to wait I/O completation */
+ 	page->mapping = &swapper_space;
+-	if (!rw_swap_page_base(rw, entry, page, wait))
++	if (!rw_swap_page_base(rw, entry, page))
+ 		UnlockPage(page);
++	wait_on_page(page);
+ 	page->mapping = NULL;
+ }
+diff -Nur linux.orig/mm/shmem.c linux/mm/shmem.c
+--- linux.orig/mm/shmem.c	Wed Apr 25 00:51:35 2001
++++ linux/mm/shmem.c	Wed Apr 25 00:53:04 2001
+@@ -124,6 +124,7 @@
+ 		*ptr = (swp_entry_t){0};
+ 		freed++;
+ 		if ((page = lookup_swap_cache(entry)) != NULL) {
++			wait_on_page(page);
+ 			delete_from_swap_cache(page);
+ 			page_cache_release(page);	
+ 		}
+@@ -329,10 +330,11 @@
+ 			spin_unlock (&info->lock);
+ 			lock_kernel();
+ 			swapin_readahead(*entry);
+-			page = read_swap_cache(*entry);
++			page = read_swap_cache_async(*entry);
+ 			unlock_kernel();
+ 			if (!page) 
+ 				return ERR_PTR(-ENOMEM);
++			wait_on_page(page);
+ 			if (!Page_Uptodate(page)) {
+ 				page_cache_release(page);
+ 				return ERR_PTR(-EIO);
+diff -Nur linux.orig/mm/swap_state.c linux/mm/swap_state.c
+--- linux.orig/mm/swap_state.c	Wed Apr 25 00:51:35 2001
++++ linux/mm/swap_state.c	Wed Apr 25 00:53:04 2001
+@@ -34,7 +34,7 @@
+ 	return 0;
+ 
+ in_use:
+-	rw_swap_page(WRITE, page, 0);
++	rw_swap_page(WRITE, page);
+ 	return 0;
+ }
+ 
+@@ -163,37 +163,18 @@
+ 		/*
+ 		 * Right now the pagecache is 32-bit only.  But it's a 32 bit index. =)
+ 		 */
+-repeat:
+-		found = find_lock_page(&swapper_space, entry.val);
++		found = find_get_swapcache_page(&swapper_space, entry.val);
+ 		if (!found)
+ 			return 0;
+-		/*
+-		 * Though the "found" page was in the swap cache an instant
+-		 * earlier, it might have been removed by refill_inactive etc.
+-		 * Re search ... Since find_lock_page grabs a reference on
+-		 * the page, it can not be reused for anything else, namely
+-		 * it can not be associated with another swaphandle, so it
+-		 * is enough to check whether the page is still in the scache.
+-		 */
+-		if (!PageSwapCache(found)) {
+-			UnlockPage(found);
+-			page_cache_release(found);
+-			goto repeat;
+-		}
++		if (!PageSwapCache(found))
++			BUG();
+ 		if (found->mapping != &swapper_space)
+-			goto out_bad;
++			BUG();
+ #ifdef SWAP_CACHE_INFO
+ 		swap_cache_find_success++;
+ #endif
+-		UnlockPage(found);
+ 		return found;
+ 	}
+-
+-out_bad:
+-	printk (KERN_ERR "VM: Found a non-swapper swap page!\n");
+-	UnlockPage(found);
+-	page_cache_release(found);
+-	return 0;
+ }
+ 
+ /* 
+@@ -205,7 +186,7 @@
+  * the swap entry is no longer in use.
+  */
+ 
+-struct page * read_swap_cache_async(swp_entry_t entry, int wait)
++struct page * read_swap_cache_async(swp_entry_t entry)
+ {
+ 	struct page *found_page = 0, *new_page;
+ 	unsigned long new_page_addr;
+@@ -238,7 +219,7 @@
+ 	 */
+ 	lock_page(new_page);
+ 	add_to_swap_cache(new_page, entry);
+-	rw_swap_page(READ, new_page, wait);
++	rw_swap_page(READ, new_page);
+ 	return new_page;
+ 
+ out_free_page:
+diff -Nur linux.orig/mm/swapfile.c linux/mm/swapfile.c
+--- linux.orig/mm/swapfile.c	Wed Apr 25 00:51:35 2001
++++ linux/mm/swapfile.c	Wed Apr 25 00:53:24 2001
+@@ -369,13 +369,15 @@
+ 		/* Get a page for the entry, using the existing swap
+                    cache page if there is one.  Otherwise, get a clean
+                    page and read the swap into it. */
+-		page = read_swap_cache(entry);
++		page = read_swap_cache_async(entry);
+ 		if (!page) {
+ 			swap_free(entry);
+   			return -ENOMEM;
+ 		}
++		lock_page(page);
+ 		if (PageSwapCache(page))
+-			delete_from_swap_cache(page);
++			delete_from_swap_cache_nolock(page);
++		UnlockPage(page);
+ 		read_lock(&tasklist_lock);
+ 		for_each_task(p)
+ 			unuse_process(p->mm, entry, page);
+@@ -650,7 +652,7 @@
+ 	}
+ 
+ 	lock_page(virt_to_page(swap_header));
+-	rw_swap_page_nolock(READ, SWP_ENTRY(type,0), (char *) swap_header, 1);
++	rw_swap_page_nolock(READ, SWP_ENTRY(type,0), (char *) swap_header);
+ 
+ 	if (!memcmp("SWAP-SPACE",swap_header->magic.magic,10))
+ 		swap_header_version = 1;
 

@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263286AbTC0QP7>; Thu, 27 Mar 2003 11:15:59 -0500
+	id <S263277AbTC0QPO>; Thu, 27 Mar 2003 11:15:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263290AbTC0QP6>; Thu, 27 Mar 2003 11:15:58 -0500
-Received: from [170.210.46.46] ([170.210.46.46]:37125 "EHLO
-	scdt.frc.utn.edu.ar") by vger.kernel.org with ESMTP
-	id <S263286AbTC0QPc> convert rfc822-to-8bit; Thu, 27 Mar 2003 11:15:32 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Edgardo Hames <ehames@scdt.frc.utn.edu.ar>
-Organization: UTN
-To: root@chaos.analogic.com
-Subject: Re: Error accessing memory between 0xc0000 and 0x100000
-Date: Thu, 27 Mar 2003 13:25:30 -0300
-User-Agent: KMail/1.4.1
+	id <S263278AbTC0QPN>; Thu, 27 Mar 2003 11:15:13 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:44220 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S263277AbTC0QPM>;
+	Thu, 27 Mar 2003 11:15:12 -0500
+Date: Thu, 27 Mar 2003 08:22:12 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Larry McVoy <lm@bitmover.com>
 Cc: linux-kernel@vger.kernel.org
-References: <200303251308.36565.ehames@scdt.frc.utn.edu.ar> <Pine.LNX.4.53.0303251119420.29139@chaos>
-In-Reply-To: <Pine.LNX.4.53.0303251119420.29139@chaos>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200303271325.30514.ehames@scdt.frc.utn.edu.ar>
+Subject: Re: ECC error in 2.5.64 + some patches
+Message-Id: <20030327082212.252159e0.rddunlap@osdl.org>
+In-Reply-To: <20030327160220.GA29195@work.bitmover.com>
+References: <20030324212813.GA6310@osiris.silug.org>
+	<20030324180107.A14746@vger.timpanogas.org>
+	<20030324234410.GB10520@work.bitmover.com>
+	<20030324182508.A15039@vger.timpanogas.org>
+	<20030327160220.GA29195@work.bitmover.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Mar 25 Mar 2003 13:21, Richard B. Johnson escribió:
+On Thu, 27 Mar 2003 08:02:20 -0800 Larry McVoy <lm@bitmover.com> wrote:
 
-> On Tue, 25 Mar 2003, Edgardo Hames wrote:
-> > Hi everybody. I'm trying to write a simple device driver to read and
-> > write memory at addresses beween 0xc0000 and 0x100000, but when I try to
-> > load the module I get the following error:
->
-> Check out ioremap(). Although the addresses you show are already
-> mapped, you need to access them with the "cookie" returned from
-> ioremap().
+| I'm getting these on the machine we use to do the BK->CVS conversions.
+| My guess is that this means there was a memory error and ECC fixed it.
+| The only problem is that I'm reasonably sure that there isn't ECC on
+| these DIMMs.  Does anyone have the table of error codes to explanations?
+| Google didn't find anything for this one.
+| 
+| Thanks.
+| 
+| Message from syslogd@slovax at Thu Mar 27 05:53:49 2003 ...
+| slovax kernel: MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
+| 
+| Message from syslogd@slovax at Thu Mar 27 05:53:49 2003 ...
+| slovax kernel: Bank 1: 9000000000000151
 
-I tried ioremap'ing the addresses and now it doesn't oops, but I keep reading 
-255 no matter what I write to that address. I have no device at that 
-addresses, but what I'm trying to do is reading and writing to that memory 
-area like it was a file.
+You can try the Dave Jones "parsemce" tool on it, from
+  http://www.codemonkey.org.uk/cruft/parsemce.c/
 
-Thanks,
-Edgardo
--- 
-If you cannot convince them, confuse them.
-Truman's Law
-
+--
+~Randy

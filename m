@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271968AbTG2SbM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 14:31:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271970AbTG2SbM
+	id S271996AbTG2SjX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 14:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271997AbTG2SjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 14:31:12 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:38285 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S271968AbTG2SbK
+	Tue, 29 Jul 2003 14:39:23 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:28403 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S271996AbTG2SjW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 14:31:10 -0400
-Date: Tue, 29 Jul 2003 20:29:01 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pete Zaitcev <zaitcev@redhat.com>,
-       Chris Heath <chris@heathens.co.nz>,
+	Tue, 29 Jul 2003 14:39:22 -0400
+Subject: Re: Turning off automatic screen clanking
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: root@chaos.analogic.com
+Cc: James Simmons <jsimmons@infradead.org>, Charles Lepple <clepple@ghz.cc>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i8042 problem
-In-Reply-To: <20030728155118.GA1761@win.tue.nl>
-Message-ID: <Pine.GSO.3.96.1030729192558.10528A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.53.0307291338260.6166@chaos>
+References: <Pine.LNX.4.44.0307291750170.5874-100000@phoenix.infradead.org>
+	 <Pine.LNX.4.53.0307291338260.6166@chaos>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1059503513.6095.34.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 29 Jul 2003 19:31:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jul 2003, Andries Brouwer wrote:
+On Maw, 2003-07-29 at 18:54, Richard B. Johnson wrote:
+> No. There are no ANSI, nor DEC nor AT&T nor IRIS, nor IBM, nor any
+> other terminals that have screen-blanking capabilities. These are
+> the inventions of later-date emulations. If my DEC VT-220 screen
+> went blank I would need to have it serviced.
 
-> > > > Well, are timeouts needed at all?
-> > > 
-> > > Yes. We send a command to the keyboard. It may react, or it may not.
-> > 
-> >  But we need not wait for that actively.  If we are unsure about a result
-> > of a command, then we may send a command in question followed with an echo
-> > request.  This assures an IRQ will finally arrive and if no command
-> > response arrives before an echo response, then the keyboard ignored the
-> > command.  I used this approach many years ago to differ between PS/2
-> > keyboards (which respond with 0xfa,0xab,0x83 to a request for ID) and
-> > genuine PC/AT ones (which respond with lone 0xfa).  It worked. 
-> 
-> And what did you do for XT? :-)
-
- Nice joke, but I'll answer seriously.  No support was provided.  Hooking
-a PC/XT keyboard to the 8042, if supported, requires a different setup of
-the command byte and is possibly done by the system firmware.  You can
-read the command byte to see which configuration is used.
-
- Wrt polling vs IRQ-driven probing and setup: using IRQ is a natural
-choice as you have to do keyboard detection in the IRQ handler anyway to
-properly support hot plugging of a PC/AT or a PS/2 keyboard. 
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Quite a few of the terminals did have their own screenblank, certainly
+post vt220 it was very common. However nobody really used escape codes
+for it. Screenblank existed to protect the display and the display spent
+most of its time -not- logged into a system.
 

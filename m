@@ -1,87 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261489AbREQSvJ>; Thu, 17 May 2001 14:51:09 -0400
+	id <S261491AbREQSv7>; Thu, 17 May 2001 14:51:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261490AbREQSu7>; Thu, 17 May 2001 14:50:59 -0400
-Received: from web13703.mail.yahoo.com ([216.136.175.136]:56849 "HELO
-	web13703.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261489AbREQSur>; Thu, 17 May 2001 14:50:47 -0400
-Message-ID: <20010517185046.353.qmail@web13703.mail.yahoo.com>
-Date: Thu, 17 May 2001 20:50:46 +0200 (CEST)
-From: =?iso-8859-1?q?Joel=20Cordonnier?= <jocordonnier@yahoo.fr>
-Subject: newbie problem: compiling kernel 2.4.4, make modules_install , Help please !
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010517183832Z261485-1105+1620@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S261490AbREQSvu>; Thu, 17 May 2001 14:51:50 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:58885 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S261491AbREQSvj>;
+	Thu, 17 May 2001 14:51:39 -0400
+Date: Thu, 17 May 2001 21:51:33 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: "Udo A. Steinberg" <reality@delusion.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.4-ac10
+Message-ID: <20010517215133.J5947@mea-ext.zmailer.org>
+In-Reply-To: <E150QuA-0005ah-00@the-village.bc.nu> <3B041980.BC22BA38@delusion.de> <20010517214039.I5947@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010517214039.I5947@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Thu, May 17, 2001 at 09:40:39PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Thu, May 17, 2001 at 09:40:39PM +0300, Matti Aarnio wrote:
+> On Thu, May 17, 2001 at 08:33:36PM +0200, Udo A. Steinberg wrote:
+> > With 2.4.4-ac10 and binutils 2.11 I get the following warnings:
+> 
+>   It is a warning about kernel code using assembler statements
+>   which are not valid with some older assemblers.
 
-It's the first time that i try to compile my own
-kernel. At the moment, I have an old RH 6.1 with a
-2.2.12 kernel.
+  Naeh, I am confusing (you, and myself).  Fixing those (adding the '*')
+  would not work with some older assemblers.
 
-I have downloaded the latest stable kernel 2.4.4
-tar.gz kernel.
+  Claiming minimum level of 2.10/2.11 for assembler/binutils would
+  certainly allow fixing things by adding the missing '*'.
 
-I follow these steps:
-- make xonfig (a give what i need)
-- make dep (for dependencies)
-- make bzImage.
-All seems OK for these steps.
-
-Then 
-- make modules and 
-- make modules_install ==> PROBLEM !
-
-FIRST the message say that no argument -F exist for
-the command /sbin/depmod. So I change in the Makefile
-the call 
-if [ -r System.map ]; then /sbin/depmod -ae -F
-System.map  2.4.4; fi
-TO
-if [ -r System.map ]; then /sbin/depmod -ae System.map
- 2.4.4; fi
-
-AFTER THIS CHANGE, i have the following error:
-
-........
-.......
-make[1]: Entering directory
-`/usr/src/linux-2.4.4/arch/i386/mm'
-make[1]: Nothing to be done for `modules_install'.
-make[1]: Leaving directory
-`/usr/src/linux-2.4.4/arch/i386/mm'
-make -C  arch/i386/lib modules_install
-make[1]: Entering directory
-`/usr/src/linux-2.4.4/arch/i386/lib'
-make[1]: Nothing to be done for `modules_install'.
-make[1]: Leaving directory
-`/usr/src/linux-2.4.4/arch/i386/lib'
-cd /lib/modules/2.4.4; \
-mkdir -p pcmcia; \
-find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i
--r ln -sf ../{} pcmcia
-if [ -r System.map ]; then /sbin/depmod -ae System.map
- 2.4.4; fi
-can't open /lib/modules/System.map/modules.dep
-
-I check, and there is no file or directory named
-/lib/modules/System.map or directory!
-
-
-Help please !
-Thanks
-Joel
-
-
-
-
-
-
-___________________________________________________________
-Do You Yahoo!? -- Pour faire vos courses sur le Net, 
-Yahoo! Shopping : http://fr.shopping.yahoo.com
+> > gcc -D__KERNEL__ -I/usr/src/linux-2.4.4-ac/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     -c -o pci-pc.o pci-pc.c
+> > pci-pc.c:964: warning: `pci_fixup_via691' defined but not used
+> > pci-pc.c:977: warning: `pci_fixup_via691_2' defined but not used
+> > {standard input}: Assembler messages:
+> > {standard input}:747: Warning: indirect lcall without `*'
+> > {standard input}:832: Warning: indirect lcall without `*'
+> > {standard input}:919: Warning: indirect lcall without `*'
+> > {standard input}:958: Warning: indirect lcall without `*'
+...

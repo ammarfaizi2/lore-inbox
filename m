@@ -1,63 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262902AbTKPQEu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 11:04:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbTKPQEu
+	id S262901AbTKPQKH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 11:10:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbTKPQKH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 11:04:50 -0500
-Received: from ns.tasking.nl ([195.193.207.2]:47625 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id S262902AbTKPQEs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 11:04:48 -0500
-To: linux-kernel@vger.kernel.org
+	Sun, 16 Nov 2003 11:10:07 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64938 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262901AbTKPQKA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 11:10:00 -0500
+Date: Sun, 16 Nov 2003 16:09:58 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: Will Dyson <will_dyson@pobox.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add lib/parser.c kernel-doc
+Message-ID: <20031116160958.GW30485@parcelfarce.linux.theplanet.co.uk>
+References: <1068970562.19499.11.camel@thalience>
 Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-Reply-To: dick.streefland@xs4all.nl (Dick Streefland)
-Organization: none
-X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
-References: <1068679942.3082.131.camel@mentor.gurulabs.com>
-From: spam@streefland.xs4all.nl (Dick Streefland)
-Subject: Re: List of SCO files
 Content-Type: text/plain; charset=us-ascii
-NNTP-Posting-Host: 172.17.1.66
-Message-ID: <4f6a.3fb79fd6.49695@altium.nl>
-Date: Sun, 16 Nov 2003 16:03:34 -0000
+Content-Disposition: inline
+In-Reply-To: <1068970562.19499.11.camel@thalience>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dax Kelson <dax@gurulabs.com> wrote:
-| http://www.groklaw.net/article.php?story=2003111203544653
-| 
-| "I used it for comparison to file listings of different kernel versions,
-| and my conclusion is that this list is either based on 2.5.68 (released
-| April 20, 2003) or on 2.5.69 (released May 5, 2003). Those are the only
-| two versions that contain all of the listed files." -- Groklaw reader
-| "Lev"
+On Sun, Nov 16, 2003 at 03:16:03AM -0500, Will Dyson wrote:
+> +// associates an integer enumerator with a pattern string.
 
-I think they used 2.5.69. Their list includes net/bridge/br_if.c, and
-patch 2.5.69 adds code containing the word "rcu", which is probably
-one of the keywords they searched for. The following script generates
-a list very close to SCOs list:
+Please no C++ comments.
 
-#!/bin/sh
-# to be run in the linux-2.5.69 kernel tree
-(
-  find * -name '*.[ch]' |
-  egrep -v '^(drivers|sound)|(arch/|include/asm-)(sparc|alpha|parisc)' |
-  xargs egrep -iwl '(smp|numa|rcu)'
-  ls fs/jfs/*.[ch]
-) |
-sort -u
+> -int match_int(substring_t *, int *result);
+> -int match_octal(substring_t *, int *result);
+> -int match_hex(substring_t *, int *result);
+> -void match_strcpy(char *, substring_t *);
+> -char *match_strdup(substring_t *);
+> +int match_int(substring_t *s, int *result);
+> +int match_octal(substring_t *s, int *result);
+> +int match_hex(substring_t *s, int *result);
+> +void match_strcpy(char *to, substring_t *s);
+> +char *match_strdup(substring_t *s);
 
-The only files not on SCOs list are:
+What value does this "s" add?  "result" is clearly useful documentation,
+but "s" says "There is no good name for this variable"
 
-arch/um/drivers/harddog_kern.c
-arch/um/drivers/harddog_user.c
-arch/um/drivers/mconsole_kern.c
-include/asm-h8300/smplock.h
+> @@ -74,6 +85,20 @@
+>  	}
+>  }
+>  
+> +/**
+> + * match_token: - Find a token (and optional args) in a string
+> + * @s: the string to examine for token/argument pairs
+> + * @table: match_table_t describing the set of allowed option tokens
+> and the
+> + * arguments that may be associated with them. Must be terminated with
+> a
+> + * &struct match_token who's pattern is set to the NULL pointer.
+
+whose
+
+> + * @args: array of %MAX_OPT_ARGS &substring_t elements. Used to return
+> match
+> + * locations.
+> + *
+> + * Description: Detects which if any of a set of token strings has been
+> passed
+> + * to it. Tokens can include up to MAX_OPT_ARGS instances of basic
+> c-style
+> + * format identifiers which will be taken into account when matching
+> the
+> + * tokens, and who's locations will be returned in the @args array.
+
+ditto
+
+> +/**
+> + * match_strdup: - allocate a new c-string with the contents of a
+
+Umm.  We're writing in C.  Just plain "string" is fine.
 
 -- 
-Dick Streefland                    ////               De Bilt
-dick.streefland@xs4all.nl         (@ @)       The Netherlands
-------------------------------oOO--(_)--OOo------------------
-
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

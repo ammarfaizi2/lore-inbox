@@ -1,44 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbUCSHhY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 02:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUCSHhY
+	id S261673AbUCSHjg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 02:39:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbUCSHjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 02:37:24 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:27294 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261421AbUCSHhX (ORCPT
+	Fri, 19 Mar 2004 02:39:36 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:57758 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261673AbUCSHjZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 02:37:23 -0500
-Date: Fri, 19 Mar 2004 08:37:17 +0100
+	Fri, 19 Mar 2004 02:39:25 -0500
+Date: Fri, 19 Mar 2004 08:39:20 +0100
 From: Jens Axboe <axboe@suse.de>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Eric Valette <eric.valette@free.fr>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc1-mm2 : Badness in elv_requeue_request at drivers/block/elevator.c:157
-Message-ID: <20040319073716.GX22234@suse.de>
-References: <40596FC5.3080703@free.fr> <20040318100222.GE22234@suse.de> <20040318100606.GG22234@suse.de> <20040318231957.GA3867@werewolf.able.es>
+To: Andrew Morton <akpm@osdl.org>
+Cc: markw@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm2
+Message-ID: <20040319073919.GY22234@suse.de>
+References: <20040314172809.31bd72f7.akpm@osdl.org> <200403181737.i2IHbCE09261@mail.osdl.org> <20040318100615.7f2943ea.akpm@osdl.org> <20040318192707.GV22234@suse.de> <20040318191530.34e04cb2.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040318231957.GA3867@werewolf.able.es>
+In-Reply-To: <20040318191530.34e04cb2.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 19 2004, J.A. Magallon wrote:
+On Thu, Mar 18 2004, Andrew Morton wrote:
+> Jens Axboe <axboe@suse.de> wrote:
+> >
+> > On Thu, Mar 18 2004, Andrew Morton wrote:
+> >  > > Comparing one pair of readprofile results, I find it curious that
+> >  > > dm_table_unplug_all and dm_table_any_congested show up near the top of a
+> >  > > 2.6.4-mm2 profile when they haven't shown up before in 2.6.3.
+> >  > 
+> >  > 14015190 poll_idle                                241641.2069
+> >  > 175162 generic_unplug_device                    1317.0075
+> >  > 165480 __copy_from_user_ll                      1272.9231
+> >  > 161151 __copy_to_user_ll                        1342.9250
+> >  > 152106 schedule                                  85.0705
+> >  > 142395 DAC960_LP_InterruptHandler               761.4706
+> >  > 113677 dm_table_unplug_all                      1386.3049
+> >  >  65420 __make_request                            45.5571
+> >  >  64832 dm_table_any_congested                   697.1183
+> >  >  37913 try_to_wake_up                            32.2939
+> >  > 
+> >  > That's broken.  How many disks are involve in the DM stack?
+> >  > 
+> >  > The relevant code was reworked subsequent to 2.6.4-mm2.  Maybe we fixed
+> >  > this, but I cannot immediately explain what you're seeing here.
+> > 
+> >  Ugh that looks really bad, I wonder how it could possibly ever be this
+> >  bad.
 > 
-> On 03.18, Jens Axboe wrote:
-> > On Thu, Mar 18 2004, Jens Axboe wrote:
-> > > On Thu, Mar 18 2004, Eric Valette wrote:
-> > > > I have this message two times as I have two adaptec controllers...
-> > > > 
+> generic_unplug_device() is only sucking 0.5% of total CPU capacity, so
+> perhaps we need to be looking elsewhere for the source of the slowdown. 
 > 
-> I have a similar but different place oops. My box was dog slow with -mm2,
-> and syslog was flooded with:
+> I suggest we do something like this:
 > 
-> Mar 18 20:00:00 werewolf kernel: Badness in elv_remove_request at drivers/block/elevator.c:249
-> Mar 18 20:00:00 werewolf kernel: Call Trace:
-> Mar 18 20:00:00 werewolf kernel:  [elv_remove_request+156/160] elv_remove_request+0x9c/0xa0
+> --- 25/drivers/md/dm-table.c~a	2004-03-18 19:03:15.130004696 -0800
+> +++ 25-akpm/drivers/md/dm-table.c	2004-03-18 19:03:41.656971984 -0800
+> @@ -893,7 +893,7 @@ void dm_table_unplug_all(struct dm_table
+>  		struct dm_dev *dd = list_entry(d, struct dm_dev, list);
+>  		request_queue_t *q = bdev_get_queue(dd->bdev);
+>  
+> -		if (q->unplug_fn)
+> +		if (q->unplug_fn && queue_needs_unplug(q)))
+>  			q->unplug_fn(q);
+>  	}
+>  }
+> 
+> 
+> to reduce the computational expense of dm_table_unplug_all() a bit.
+> 
+> But we're barking up the wrong tree here.  Mark, if it's OK I'll run up
+> some kernels for you to test.
 
-Tell me a bit about your io setup please, ide/scsi, raid, what?
+I thought about this last night, and I have a better idea that gets the
+same accomplished. The problem right now is indeed that we aren't
+tracking who needs to be unplugged, like we used to. The solution is to
+do the exact same style plugging (with block helpers) that we used to,
+except the plug_list is maintained in the driver. So when you do
+dm_unplug(), it doesn't _have_ to iterate the full device list, only
+those that do need kicking.
+
+I'll produce a patch to fix this this morning. First coffee.
 
 -- 
 Jens Axboe

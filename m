@@ -1,41 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVCHAma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVCHAmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261854AbVCHAma (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 19:42:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVCHAmY
+	id S261323AbVCHAmH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 19:42:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVCHAha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 19:42:24 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:24767 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261854AbVCHAlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 19:41:11 -0500
-Date: Tue, 8 Mar 2005 00:41:10 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Mateusz Berezecki <mateuszb@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Atheros wi-fi card drivers (?)
-Message-ID: <20050308004110.GA28484@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Mateusz Berezecki <mateuszb@gmail.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <422C7722.40301@gmail.com>
+	Mon, 7 Mar 2005 19:37:30 -0500
+Received: from farad.aurel32.net ([82.232.2.251]:49096 "EHLO farad.aurel32.net")
+	by vger.kernel.org with ESMTP id S261854AbVCHAdg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 19:33:36 -0500
+Date: Tue, 8 Mar 2005 01:33:30 +0100
+From: Aurelien Jarno <aurelien@aurel32.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCHES] 2.6.x libata updates
+Message-ID: <20050308003329.GA21516@bode.aurel32.net>
+Mail-Followup-To: Aurelien Jarno <aurelien@aurel32.net>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <422C8B64.1020404@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <422C7722.40301@gmail.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <422C8B64.1020404@pobox.com>
+X-Mailer: Mutt 1.5.6+20040907i (CVS)
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 07, 2005 at 04:45:38PM +0100, Mateusz Berezecki wrote:
-> Hi list members,
+On Mon, Mar 07, 2005 at 12:12:04PM -0500, Jeff Garzik wrote:
+
+> Please do a
 > 
-> I've been doing some reverse engineering of madwifi HAL (Hardware 
-> Abstraction Layer) object file recently.
-> I ended up with an almost complete source code for one chipset so far 
+> 	bk pull bk://gkernel.bkbits.net/libata-2.6
+> 
+> This will update the following files:
+> 
+>  drivers/scsi/libata-core.c |   16 ++++++----------
+>  drivers/scsi/sata_nv.c     |    6 ++++--
+>  drivers/scsi/sata_sil.c    |    2 +-
+>  drivers/scsi/sata_svw.c    |    4 ++--
+>  drivers/scsi/sata_vsc.c    |    3 ++-
+>  5 files changed, 15 insertions(+), 16 deletions(-)
+> 
+> through these ChangeSets:
+> 
+> Adam J. Richter:
+>   o ata_pci_remove_one used freed memory
+> 
+> Adrian Bunk:
+>   o drivers/scsi/sata_*: make code static
+> 
+Is there any plan to include the ATA pass thru functionality into the main
+kernel tree?
 
-A different one than the one that's supported by OpenBSD's reverse-engineered
-HAL?
+Thanks,
+Aurelien
 
+-- 
+  .''`.  Aurelien Jarno	            | GPG: 1024D/F1BCDB73
+ : :' :  Debian GNU/Linux developer | Electrical Engineer
+ `. `'   aurel32@debian.org         | aurelien@aurel32.net
+   `-    people.debian.org/~aurel32 | www.aurel32.net

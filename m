@@ -1,413 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131689AbQKVWu6>; Wed, 22 Nov 2000 17:50:58 -0500
+        id <S131680AbQKVWw6>; Wed, 22 Nov 2000 17:52:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131686AbQKVWut>; Wed, 22 Nov 2000 17:50:49 -0500
-Received: from inet-smtp4.oracle.com ([209.246.15.58]:18596 "EHLO
-        inet-smtp4.us.oracle.com") by vger.kernel.org with ESMTP
-        id <S131679AbQKVWuh>; Wed, 22 Nov 2000 17:50:37 -0500
-Message-ID: <3A1C46B1.D8668E60@oracle.com>
-Date: Wed, 22 Nov 2000 14:20:34 -0800
-From: Josue Emmanuel Amaro <Josue.Amaro@oracle.com>
-Organization: Linux Strategic Business Unit, Oracle Corporation
-X-Mailer: Mozilla 4.75 [en] (WinNT; U)
-X-Accept-Language: en,pdf
-MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-CC: "Stephen C. Tweedie" <sct@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, Ben LaHaise <bcrl@redhat.com>
-Subject: Re: [patch] O_SYNC patch 3/3, add inode dirty buffer list support to 
- ext2
-In-Reply-To: <20001122112646.D6516@redhat.com> <20001122115424.A18592@vger.timpanogas.org>
-Content-Type: multipart/mixed;
- boundary="------------ABA035CF9B92C0853C69001D"
+        id <S131724AbQKVWws>; Wed, 22 Nov 2000 17:52:48 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:3338 "HELO mail.ocs.com.au")
+        by vger.kernel.org with SMTP id <S131686AbQKVWwl> convert rfc822-to-8bit;
+        Wed, 22 Nov 2000 17:52:41 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Christian Gennerat <christian.gennerat@vz.cit.alcatel.fr>
+cc: Andries.Brouwer@cwi.nl,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: silly [< >] and other excess 
+In-Reply-To: Your message of "Wed, 22 Nov 2000 14:42:05 BST."
+             <3A1BCD2C.8F489FB3@vz.cit.alcatel.fr> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Date: Thu, 23 Nov 2000 09:22:30 +1100
+Message-ID: <3626.974931750@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------ABA035CF9B92C0853C69001D
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Jeff,
-
->>Is this assumption correct, and does this comply with TPC rules for ORACLE and
->>other DBMS benchmarks?  It looks like a good patch that will perform
->>very fast for O_SYNC.
-
-Why would that be a problem?  If you look at our benchmarks we normally use raw I/O
-to bypass buffers altogether (We buffer in the SGA).
-That said, we maintain consistency at the database, so as long as the data in the
-buffers is consistent with the data on disk, which is only relevant to modified
-buffers, which are being written directly to disk, there should not be a problem.
-
-The effect of O_SYNC on the kernel buffer is that there should not be "any" dirty
-buffers for that particular file, since all of them are written to disk
-"immediately".
-
-Am I missing something?
-
-Regards,
-
-"Jeff V. Merkey" wrote:
-
-> On Wed, Nov 22, 2000 at 11:26:46AM +0000, Stephen C. Tweedie wrote:
-> > Hi,
-> >
-> > This final part of the O_SYNC patches adds calls to ext2, and to
-> > generic_commit_write, to record dirty buffers against the owning
-> > inode.  It also removes most of fs/ext2/fsync.c, which now simply
-> > calls the generic sync code.
-> >
-> > --Stephen
+On Wed, 22 Nov 2000 14:42:05 +0100, 
+Christian Gennerat <christian.gennerat@vz.cit.alcatel.fr> wrote:
+>Andries.Brouwer@cwi.nl a écrit :
 >
-> Stephen,
->
-> I have not implemented O_SYNC in NWFS, but it looks like I need to add it
-> before posting the final patches.  This patch appears to force write-through
-> of only dirty inodes, and allow reads to continue from cache.  Is this
-> assumption correct, and does this comply with TPC rules for ORACLE and
-> other DBMS benchmarks?  It looks like a good patch that will perform
-> very fast for O_SYNC.
->
-> Jeff
->
-> >
-> > 2.4.0test11.02.ext2-osync.diff :
-> >
-> >
-> > --- linux-2.4.0-test11/fs/buffer.c.~1~        Tue Nov 21 15:51:17 2000
-> > +++ linux-2.4.0-test11/fs/buffer.c    Tue Nov 21 16:35:35 2000
-> > @@ -1727,6 +1727,7 @@
-> >                       set_bit(BH_Uptodate, &bh->b_state);
-> >                       if (!atomic_set_buffer_dirty(bh)) {
-> >                               __mark_dirty(bh);
-> > +                             buffer_insert_inode_queue(bh, inode);
-> >                               need_balance_dirty = 1;
-> >                       }
-> >               }
-> > --- linux-2.4.0-test11/fs/ext2/fsync.c.~1~    Tue Nov 21 15:47:48 2000
-> > +++ linux-2.4.0-test11/fs/ext2/fsync.c        Tue Nov 21 16:01:15 2000
-> > @@ -28,98 +28,6 @@
-> >  #include <linux/smp_lock.h>
-> >
-> >
-> > -#define blocksize    (EXT2_BLOCK_SIZE(inode->i_sb))
-> > -#define addr_per_block       (EXT2_ADDR_PER_BLOCK(inode->i_sb))
-> > -
-> > -static int sync_indirect(struct inode * inode, u32 * block, int wait)
-> > -{
-> > -     struct buffer_head * bh;
-> > -
-> > -     if (!*block)
-> > -             return 0;
-> > -     bh = get_hash_table(inode->i_dev, le32_to_cpu(*block), blocksize);
-> > -     if (!bh)
-> > -             return 0;
-> > -     if (wait && buffer_req(bh) && !buffer_uptodate(bh)) {
-> > -             /* There can be a parallell read(2) that started read-I/O
-> > -                on the buffer so we can't assume that there's been
-> > -                an I/O error without first waiting I/O completation. */
-> > -             wait_on_buffer(bh);
-> > -             if (!buffer_uptodate(bh))
-> > -             {
-> > -                     brelse (bh);
-> > -                     return -1;
-> > -             }
-> > -     }
-> > -     if (wait || !buffer_uptodate(bh) || !buffer_dirty(bh)) {
-> > -             if (wait)
-> > -                     /* when we return from fsync all the blocks
-> > -                        must be _just_ stored on disk */
-> > -                     wait_on_buffer(bh);
-> > -             brelse(bh);
-> > -             return 0;
-> > -     }
-> > -     ll_rw_block(WRITE, 1, &bh);
-> > -     atomic_dec(&bh->b_count);
-> > -     return 0;
-> > -}
-> > -
-> > -static int sync_iblock(struct inode * inode, u32 * iblock,
-> > -                     struct buffer_head ** bh, int wait)
-> > -{
-> > -     int rc, tmp;
-> > -
-> > -     *bh = NULL;
-> > -     tmp = le32_to_cpu(*iblock);
-> > -     if (!tmp)
-> > -             return 0;
-> > -     rc = sync_indirect(inode, iblock, wait);
-> > -     if (rc)
-> > -             return rc;
-> > -     *bh = bread(inode->i_dev, tmp, blocksize);
-> > -     if (!*bh)
-> > -             return -1;
-> > -     return 0;
-> > -}
-> > -
-> > -static int sync_dindirect(struct inode * inode, u32 * diblock, int wait)
-> > -{
-> > -     int i;
-> > -     struct buffer_head * dind_bh;
-> > -     int rc, err = 0;
-> > -
-> > -     rc = sync_iblock(inode, diblock, &dind_bh, wait);
-> > -     if (rc || !dind_bh)
-> > -             return rc;
-> > -
-> > -     for (i = 0; i < addr_per_block; i++) {
-> > -             rc = sync_indirect(inode, ((u32 *) dind_bh->b_data) + i, wait);
-> > -             if (rc)
-> > -                     err = rc;
-> > -     }
-> > -     brelse(dind_bh);
-> > -     return err;
-> > -}
-> > -
-> > -static int sync_tindirect(struct inode * inode, u32 * tiblock, int wait)
-> > -{
-> > -     int i;
-> > -     struct buffer_head * tind_bh;
-> > -     int rc, err = 0;
-> > -
-> > -     rc = sync_iblock(inode, tiblock, &tind_bh, wait);
-> > -     if (rc || !tind_bh)
-> > -             return rc;
-> > -
-> > -     for (i = 0; i < addr_per_block; i++) {
-> > -             rc = sync_dindirect(inode, ((u32 *) tind_bh->b_data) + i, wait);
-> > -             if (rc)
-> > -                     err = rc;
-> > -     }
-> > -     brelse(tind_bh);
-> > -     return err;
-> > -}
-> > -
-> >  /*
-> >   *   File may be NULL when we are called. Perhaps we shouldn't
-> >   *   even pass file to fsync ?
-> > @@ -127,34 +35,20 @@
-> >
-> >  int ext2_sync_file(struct file * file, struct dentry *dentry, int datasync)
-> >  {
-> > -     int wait, err = 0;
-> >       struct inode *inode = dentry->d_inode;
-> > +     return ext2_fsync_inode(inode, datasync);
-> > +}
-> >
-> > -     lock_kernel();
-> > -     if (S_ISLNK(inode->i_mode) && !(inode->i_blocks))
-> > -             /*
-> > -              * Don't sync fast links!
-> > -              */
-> > -             goto skip;
-> > -
-> > -     err = generic_buffer_fdatasync(inode, 0, ~0UL);
-> > -
-> > -     for (wait=0; wait<=1; wait++)
-> > -     {
-> > -             err |= sync_indirect(inode,
-> > -                                  inode->u.ext2_i.i_data+EXT2_IND_BLOCK,
-> > -                                  wait);
-> > -             err |= sync_dindirect(inode,
-> > -                                   inode->u.ext2_i.i_data+EXT2_DIND_BLOCK,
-> > -                                   wait);
-> > -             err |= sync_tindirect(inode,
-> > -                                   inode->u.ext2_i.i_data+EXT2_TIND_BLOCK,
-> > -                                   wait);
-> > -     }
-> > -skip:
-> > -     if ((inode->i_state & I_DIRTY_DATASYNC) ||
-> > -         ((inode->i_state & I_DIRTY) && !datasync))
-> > -             err |= ext2_sync_inode (inode);
-> > -     unlock_kernel();
-> > +int ext2_fsync_inode(struct inode *inode, int datasync)
-> > +{
-> > +     int err;
-> > +
-> > +     err  = fsync_inode_buffers(inode);
-> > +     if (!(inode->i_state & I_DIRTY))
-> > +             return err;
-> > +     if (datasync && !(inode->i_state & I_DIRTY_DATASYNC))
-> > +             return err;
-> > +
-> > +     err |= ext2_sync_inode(inode);
-> >       return err ? -EIO : 0;
-> >  }
-> > --- linux-2.4.0-test11/fs/ext2/inode.c.~1~    Tue Nov 21 15:40:22 2000
-> > +++ linux-2.4.0-test11/fs/ext2/inode.c        Tue Nov 21 16:01:15 2000
-> > @@ -404,7 +404,7 @@
-> >               branch[n].p = (u32*) bh->b_data + offsets[n];
-> >               *branch[n].p = branch[n].key;
-> >               mark_buffer_uptodate(bh, 1);
-> > -             mark_buffer_dirty(bh);
-> > +             mark_buffer_dirty_inode(bh, inode);
-> >               if (IS_SYNC(inode) || inode->u.ext2_i.i_osync) {
-> >                       ll_rw_block (WRITE, 1, &bh);
-> >                       wait_on_buffer (bh);
-> > @@ -469,7 +469,7 @@
-> >
-> >       /* had we spliced it onto indirect block? */
-> >       if (where->bh) {
-> > -             mark_buffer_dirty(where->bh);
-> > +             mark_buffer_dirty_inode(where->bh, inode);
-> >               if (IS_SYNC(inode) || inode->u.ext2_i.i_osync) {
-> >                       ll_rw_block (WRITE, 1, &where->bh);
-> >                       wait_on_buffer(where->bh);
-> > @@ -591,7 +591,7 @@
-> >                               wait_on_buffer(bh);
-> >                       memset(bh->b_data, 0, inode->i_sb->s_blocksize);
-> >                       mark_buffer_uptodate(bh, 1);
-> > -                     mark_buffer_dirty(bh);
-> > +                     mark_buffer_dirty_inode(bh, inode);
-> >               }
-> >               return bh;
-> >       }
-> > @@ -907,7 +907,7 @@
-> >               if (partial == chain)
-> >                       mark_inode_dirty(inode);
-> >               else
-> > -                     mark_buffer_dirty(partial->bh);
-> > +                     mark_buffer_dirty_inode(partial->bh, inode);
-> >               ext2_free_branches(inode, &nr, &nr+1, (chain+n-1) - partial);
-> >       }
-> >       /* Clear the ends of indirect blocks on the shared branch */
-> > @@ -916,7 +916,7 @@
-> >                                  partial->p + 1,
-> >                                  (u32*)partial->bh->b_data + addr_per_block,
-> >                                  (chain+n-1) - partial);
-> > -             mark_buffer_dirty(partial->bh);
-> > +             mark_buffer_dirty_inode(partial->bh, inode);
-> >               if (IS_SYNC(inode)) {
-> >                       ll_rw_block (WRITE, 1, &partial->bh);
-> >                       wait_on_buffer (partial->bh);
-> > @@ -1208,7 +1208,7 @@
-> >               raw_inode->i_block[0] = cpu_to_le32(kdev_t_to_nr(inode->i_rdev));
-> >       else for (block = 0; block < EXT2_N_BLOCKS; block++)
-> >               raw_inode->i_block[block] = inode->u.ext2_i.i_data[block];
-> > -     mark_buffer_dirty(bh);
-> > +     mark_buffer_dirty_inode(bh, inode);
-> >       if (do_sync) {
-> >               ll_rw_block (WRITE, 1, &bh);
-> >               wait_on_buffer (bh);
-> > --- linux-2.4.0-test11/fs/ext2/namei.c.~1~    Tue Nov 21 15:40:22 2000
-> > +++ linux-2.4.0-test11/fs/ext2/namei.c        Tue Nov 21 16:01:15 2000
-> > @@ -296,7 +296,7 @@
-> >                       dir->u.ext2_i.i_flags &= ~EXT2_BTREE_FL;
-> >                       mark_inode_dirty(dir);
-> >                       dir->i_version = ++event;
-> > -                     mark_buffer_dirty(bh);
-> > +                     mark_buffer_dirty_inode(bh, dir);
-> >                       if (IS_SYNC(dir)) {
-> >                               ll_rw_block (WRITE, 1, &bh);
-> >                               wait_on_buffer (bh);
-> > @@ -337,7 +337,7 @@
-> >                       else
-> >                               de->inode = 0;
-> >                       dir->i_version = ++event;
-> > -                     mark_buffer_dirty(bh);
-> > +                     mark_buffer_dirty_inode(bh, dir);
-> >                       if (IS_SYNC(dir)) {
-> >                               ll_rw_block (WRITE, 1, &bh);
-> >                               wait_on_buffer (bh);
-> > @@ -449,7 +449,7 @@
-> >       strcpy (de->name, "..");
-> >       ext2_set_de_type(dir->i_sb, de, S_IFDIR);
-> >       inode->i_nlink = 2;
-> > -     mark_buffer_dirty(dir_block);
-> > +     mark_buffer_dirty_inode(dir_block, dir);
-> >       brelse (dir_block);
-> >       inode->i_mode = S_IFDIR | mode;
-> >       if (dir->i_mode & S_ISGID)
-> > @@ -755,7 +755,7 @@
-> >                                             EXT2_FEATURE_INCOMPAT_FILETYPE))
-> >                       new_de->file_type = old_de->file_type;
-> >               new_dir->i_version = ++event;
-> > -             mark_buffer_dirty(new_bh);
-> > +             mark_buffer_dirty_inode(new_bh, new_dir);
-> >               if (IS_SYNC(new_dir)) {
-> >                       ll_rw_block (WRITE, 1, &new_bh);
-> >                       wait_on_buffer (new_bh);
-> > @@ -786,7 +786,7 @@
-> >       mark_inode_dirty(old_dir);
-> >       if (dir_bh) {
-> >               PARENT_INO(dir_bh->b_data) = le32_to_cpu(new_dir->i_ino);
-> > -             mark_buffer_dirty(dir_bh);
-> > +             mark_buffer_dirty_inode(dir_bh, old_inode);
-> >               old_dir->i_nlink--;
-> >               mark_inode_dirty(old_dir);
-> >               if (new_inode) {
-> > --- linux-2.4.0-test11/include/linux/ext2_fs.h.~1~    Tue Nov 21 15:40:22 2000
-> > +++ linux-2.4.0-test11/include/linux/ext2_fs.h        Tue Nov 21 16:01:15 2000
-> > @@ -549,6 +549,7 @@
-> >
-> >  /* fsync.c */
-> >  extern int ext2_sync_file (struct file *, struct dentry *, int);
-> > +extern int ext2_fsync_inode (struct inode *, int);
-> >
-> >  /* ialloc.c */
-> >  extern struct inode * ext2_new_inode (const struct inode *, int, int *);
-> > --- linux-2.4.0-test11/mm/filemap.c.~1~       Tue Nov 21 15:47:48 2000
-> > +++ linux-2.4.0-test11/mm/filemap.c   Tue Nov 21 16:01:15 2000
-> > @@ -2521,8 +2521,14 @@
-> >       if (cached_page)
-> >               page_cache_free(cached_page);
-> >
-> > +     /* For now, when the user asks for O_SYNC, we'll actually
-> > +      * provide O_DSYNC. */
-> > +     if ((status >= 0) && (file->f_flags & O_SYNC))
-> > +             status = generic_osync_inode(inode, 1); /* 1 means datasync */
-> > +
-> >       err = written ? written : status;
-> >  out:
-> > +
-> >       up(&inode->i_sem);
-> >       return err;
-> >  fail_write:
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > Please read the FAQ at http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+>>  I also left something else
+>> that always annoyed me: valuable screen space (on a 24x80 vt)
+>> is lost by these silly [< >] around addresses in an Oops.
+>> They provide no information at all, but on the other hand
+>> cause loss of information because these lines no longer
+>> fit in 80 columns causing line wrap and the loss of the
+>> top of the Oops.]
 
---
-=======================================================================
-  Josue Emmanuel Amaro                         Josue.Amaro@oracle.com
-  Linux Products Manager                       Phone:   650.506.1239
-  Intel and Linux Technologies Group           Fax:     650.413.0167
-=======================================================================
+You just broke ksymoops.  Removing the [< >] is a bad idea, they are
+one of the few things that identifies the addresses in the log,
+otherwise they just look like hex numbers.  ksymoops has to scan log
+files which can contain anything and somehow pick out the interesting
+lines, you need some identifier on the lines.
 
+>Moreover, there is another problem in Oops:
+>the dumped stack is limited to 3 or 4 lines to prevent loss of information
+>but the call trace is unlimited and can loose all information,
+>and sometimes is printing forever!
+>--- arch/i386/kernel/traps.c.orig Mon Oct  2 20:57:01 2000
+>+++ arch/i386/kernel/traps.c Sun Nov  5 14:33:52 2000
+>@@ -142,11 +142,12 @@
+>    * out the call path that was taken.
+>    */
+>   if (((addr >= (unsigned long) &_stext) &&
+>+    (i<32) &&
+>        (addr <= (unsigned long) &_etext)) ||
+>       ((addr >= module_start) && (addr <= module_end))) {
+>    if (i && ((i % 8) == 0))
+>     printk("\n       ");
+>-   printk("[<%08lx>] ", addr);
+>+   printk("%08lx ", addr);
+>    i++;
+>   }
+>  }
 
---------------ABA035CF9B92C0853C69001D
-Content-Type: text/x-vcard; charset=us-ascii;
- name="Josue.Amaro.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Josue Emmanuel Amaro
-Content-Disposition: attachment;
- filename="Josue.Amaro.vcf"
-
-begin:vcard 
-n:Amaro;Josue Emmanuel
-tel;cell:650-245-5131
-tel;fax:650-413-0167
-tel;work:650-506-1239
-x-mozilla-html:FALSE
-url:http://www.oracle.com
-org:Intel and Linux Technologies
-version:2.1
-email;internet:Josue.Amaro@oracle.com
-title:Sr.Product Manager - Linux
-adr;quoted-printable:;;500 Oracle Parkway=0D=0AMS1ip4;Redwood Shores;CA;94065;United States
-fn:Josue Emmanuel Amaro
-end:vcard
-
---------------ABA035CF9B92C0853C69001D--
+There should be no need to restrict the number of lines printed, it is
+limited by the top of the kernel stack.  If there are more than 32
+trace entries on the stack then they should be printed.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

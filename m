@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266293AbRGQMz5>; Tue, 17 Jul 2001 08:55:57 -0400
+	id <S266400AbRGQNBR>; Tue, 17 Jul 2001 09:01:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266339AbRGQMzr>; Tue, 17 Jul 2001 08:55:47 -0400
-Received: from mail.nep.net ([12.23.44.24]:36111 "HELO nep.net")
-	by vger.kernel.org with SMTP id <S266293AbRGQMzb>;
-	Tue, 17 Jul 2001 08:55:31 -0400
-Message-ID: <19AB8F9FA07FB0409732402B4817D75A0389F5@FILESERVER.SRF.srfarms.com>
-From: "Ryan C. Bonham" <Ryan@srfarms.com>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: Adaptec 2400A
-Date: Tue, 17 Jul 2001 09:04:16 -0400
+	id <S266399AbRGQNBH>; Tue, 17 Jul 2001 09:01:07 -0400
+Received: from ns1.baby-dragons.com ([199.33.245.254]:54026 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S266456AbRGQNAz>; Tue, 17 Jul 2001 09:00:55 -0400
+Date: Tue, 17 Jul 2001 09:00:59 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Large memory oops/odd behaviour Linux 2.2, seeking recommendations
+In-Reply-To: <Pine.LNX.4.33.0107171343410.8409-100000@tahallah.demon.co.uk>
+Message-ID: <Pine.LNX.4.33.0107170849140.6752-100000@filesrv1.baby-dragons.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, for needlessly posting to the mailinglist, i was being stupid for a
-moment... (BAD DRIVER DISK) :)  
 
------Original Message-----
-From: Ryan C. Bonham [mailto:Ryan@srfarms.com]
-Sent: Tuesday, July 17, 2001 8:24 AM
-To: Linux-Kernel
-Subject: Adaptec 2400A
+	Hello All ,  I am just collecting information on which kernel
+	versions have worked best wtih a config liek the below & what
+	I s/b watching out for system wise .  Tia ,  JimL
+
+Main memory size: 128 Mbytes < Will be 1024Mbyts >
+1 GenuineIntel  processor --+-[ SMP
+1 GenuineIntel 2 processor -+
+2 16550A serial ports
+1 1.44M floppy drive
+1 vga+ graphics device
+1 keyboard
+IDE devices:
+  ATAPI 48X CD-ROM drive, 128kB Cache
+SCSI devices:
+  HITACHI  DK32CJ-36MC <--- Primary drive /
+  HITACHI  DK32CJ-36MC <-+
+  HITACHI  DK32CJ-36MC <---[ in a Software Raid 5 array .
+  HITACHI  DK32CJ-36MC <-+
+PCI bus devices:
+    Host bridge: Unknown vendor CNB30LE PCI Bridge (rev 6).
+    Host bridge: Unknown vendor CNB30LE PCI Bridge (rev 6).
+    VGA compatible controller: ATI Unknown device (rev 39).
+    Ethernet controller: Intel 82557 (rev 8).
+    ISA bridge: Unknown vendor Unknown device (rev 81).
+    IDE interface: Unknown vendor Unknown device (rev 0).
+    USB Controller: Unknown vendor Unknown device (rev 4).
+    SCSI storage controller: Adaptec AIC-7892 (rev 2).
 
 
-Hi,
+       +----------------------------------------------------------------+
+       | James   W.   Laferriere | System  Techniques | Give me VMS     |
+       | Network        Engineer | 25416      22nd So |  Give me Linux  |
+       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
+       +----------------------------------------------------------------+
 
-First i apologize i realize this mailing list isn't the best place to post
-this question. That said i am trying to install Redhat 7.1 on a new machine.
-The computer has an adaptec 2400A IDE RAID controller card on it. Out of the
-box, redhat doesn't see the card so it can't find a drive to install on. The
-card comes with drivers for redhat 6.0-7.0. SO basically i read that to mean
-anything other then the 2.4 kernel.. I just want to know if anyone knows of
-a driver for redhat 7.1?  Thanks in advance
-
-Ryan Bonham
-ryan@srfarms.com
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVBGQpk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVBGQtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbVBGQpk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 11:45:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVBGQpk
+	id S261187AbVBGQtw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 11:49:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVBGQtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 11:45:40 -0500
-Received: from alphan.student.Princeton.EDU ([140.180.161.103]:13707 "EHLO
-	mevlevi") by vger.kernel.org with ESMTP id S261187AbVBGQp1 (ORCPT
+	Mon, 7 Feb 2005 11:49:52 -0500
+Received: from fire.osdl.org ([65.172.181.4]:32747 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261187AbVBGQtu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 11:45:27 -0500
-Subject: Re: Suggestion for CD filesystem for Backups
-From: Ali Bayazit <listeci@bayazit.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Judith und Mirko Kloppstech <jugal@gmx.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1095956209.6776.36.camel@localhost.localdomain>
-References: <415204E0.9010203@gmx.net>
-	 <1095956209.6776.36.camel@localhost.localdomain>
-Content-Type: text/plain
+	Mon, 7 Feb 2005 11:49:50 -0500
+Message-ID: <420797DE.6030904@osdl.org>
+Date: Mon, 07 Feb 2005 08:31:26 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Charles-Edouard Ruault <ce@idtect.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: IO port conflict between timer & watchdog on PCISA-C800EV board
+ ?
+References: <420734DC.4020900@idtect.com>
+In-Reply-To: <420734DC.4020900@idtect.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 24 Sep 2004 01:18:19 -0400
-Message-Id: <1096003099.16849.16.camel@mevlevi>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 2004-09-23 at 17:16 +0100, Alan Cox wrote:
-> On Iau, 2004-09-23 at 00:04, Judith und Mirko Kloppstech wrote:
-> > Why not write a file system on top of ISO9660 which uses the rest of the 
-> > CD to write error correction. If a sector becomes unreadable, the error 
-> > correction saves the data. Besides, a tool for testing the error rate 
-> > and the safety of the data can be easily written for a normal CD-ROM drive.
-> > 
-> > The data for error correction might be written into a file so that the 
-> > CD can be read using any System, but Linux provides error correction.
+Charles-Edouard Ruault wrote:
+> Hi All,
 > 
-> Send patches, or possibly if you are dumping tars and the like just
-> write yourself an app to generate a second file of ECC data.
+> i wrote a driver for the watchdog timer provided by a small form factor 
+> board from IEI ( the PCISA-C800EV : 
+> http://www.iei.com.tw/en/product_IPC.asp?model=PCISA-C800 ).
+> This board has a Via Apollo PLE133 ( VT8601A and VT82C686B ) chipset.
+> The watchdog uses two registers at addresses 0x43 and 0x443, therefore 
+> my driver tries to get bot addresses for its own use calling
+> request_region(0x43, 1, "watchdog" ) and request_region(0x443, 1, 
+> "watchdog").
+> The first call to request 0x43 fails because the address has already 
+> been allocated to the timer ( /proc/ioports shows 0040-005f : timer ).
 > 
-Wouldn't it be safer to do ECC on meta-data also?
-That probably means replacing ISO9660 though.
+> So my questions are :
+> - Why is the generic timer using this address ? isn't it reserving a too 
+> wide portion of IO ports ? Should it be modified for this board ?
+> -  If there's a good reason for the timer to request this address, is  
+> there a clean way to share it with the timer ?
 
--ali
+Missing kernel version.... must be "not the current/latest",
+so early 2.6 or more likely 2.4 (just guessing)?
+
+/proc/ioports timer assignments have now been split up like this:
+0040-0043 : timer0
+0050-0053 : timer1
+
+However, port 0x43 is still assigned to timer0, so your request_region
+call will still fail.  What system board timer resource assignments
+should be used for that VIA chipset?  If the chipset timer only needs
+0x40-0x42, e.g., leaving 0x43 available, then it would be possible
+to do some kind of workaround (maybe not real clean, but possible).
 
 -- 
-Ali Bayazit <listeci@bayazit.net>
+~Randy

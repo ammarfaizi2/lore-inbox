@@ -1,17 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266095AbTBLDCJ>; Tue, 11 Feb 2003 22:02:09 -0500
+	id <S266637AbTBLC6T>; Tue, 11 Feb 2003 21:58:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266224AbTBLC4M>; Tue, 11 Feb 2003 21:56:12 -0500
-Received: from covert.black-ring.iadfw.net ([209.196.123.142]:11529 "EHLO
+	id <S266435AbTBLC42>; Tue, 11 Feb 2003 21:56:28 -0500
+Received: from covert.brown-ring.iadfw.net ([209.196.123.142]:12553 "EHLO
 	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id <S266095AbTBLCzv>; Tue, 11 Feb 2003 21:55:51 -0500
-Date: Tue, 11 Feb 2003 20:57:52 -0600
+	id <S266081AbTBLCzy>; Tue, 11 Feb 2003 21:55:54 -0500
+Date: Tue, 11 Feb 2003 20:59:50 -0600
 From: Art Haas <ahaas@airmail.net>
 To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] C99 initializers for drivers/char/random.c
-Message-ID: <20030212025752.GF914@debian>
+Subject: [PATCH] C99 initializers for kernel/exec_domain.c
+Message-ID: <20030212025950.GG914@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,98 +20,114 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi.
 
-This patch adds C99 initializer to the file to remove warnings if '-W'
-is used, add to aid readability.
+This patch converts the file to C99 initializers to remove warnings if
+'-W' is used and to aid readability.
 
 Art Haas
 
-===== drivers/char/random.c 1.30 vs edited =====
---- 1.30/drivers/char/random.c	Mon Dec 30 06:47:26 2002
-+++ edited/drivers/char/random.c	Tue Feb 11 20:56:55 2003
-@@ -1850,27 +1850,62 @@
- }
+===== kernel/exec_domain.c 1.13 vs edited =====
+--- 1.13/kernel/exec_domain.c	Mon Dec 30 11:10:06 2002
++++ edited/kernel/exec_domain.c	Tue Feb 11 10:50:41 2003
+@@ -32,11 +32,12 @@
+ };
  
- ctl_table random_table[] = {
--	{RANDOM_POOLSIZE, "poolsize",
--	 &sysctl_poolsize, sizeof(int), 0644, NULL,
--	 &proc_do_poolsize, &poolsize_strategy},
--	{RANDOM_ENTROPY_COUNT, "entropy_avail",
--	 NULL, sizeof(int), 0444, NULL,
--	 &proc_dointvec},
--	{RANDOM_READ_THRESH, "read_wakeup_threshold",
--	 &random_read_wakeup_thresh, sizeof(int), 0644, NULL,
--	 &proc_dointvec_minmax, &sysctl_intvec, 0,
--	 &min_read_thresh, &max_read_thresh},
--	{RANDOM_WRITE_THRESH, "write_wakeup_threshold",
--	 &random_write_wakeup_thresh, sizeof(int), 0644, NULL,
--	 &proc_dointvec_minmax, &sysctl_intvec, 0,
--	 &min_write_thresh, &max_write_thresh},
--	{RANDOM_BOOT_ID, "boot_id",
--	 &sysctl_bootid, 16, 0444, NULL,
--	 &proc_do_uuid, &uuid_strategy},
--	{RANDOM_UUID, "uuid",
--	 NULL, 16, 0444, NULL,
--	 &proc_do_uuid, &uuid_strategy},
+ struct exec_domain default_exec_domain = {
+-	"Linux",		/* name */
+-	default_handler,	/* lcall7 causes a seg fault. */
+-	0, 0,			/* PER_LINUX personality. */
+-	ident_map,		/* Identity map signals. */
+-	ident_map,		/*  - both ways. */
++	.name		= "Linux",		/* name */
++	.handler	= default_handler,	/* lcall7 causes a seg fault. */
++	.pers_low	= 0, 			/* PER_LINUX personality. */
++	.pers_high	= 0,			/* PER_LINUX personality. */
++	.signal_map	= ident_map,		/* Identity map signals. */
++	.signal_invmap	= ident_map,		/*  - both ways. */
+ };
+ 
+ 
+@@ -251,24 +252,66 @@
+ int abi_fake_utsname;
+ 
+ static struct ctl_table abi_table[] = {
+-	{ABI_DEFHANDLER_COFF, "defhandler_coff", &abi_defhandler_coff,
+-		sizeof(int), 0644, NULL, &proc_doulongvec_minmax},
+-	{ABI_DEFHANDLER_ELF, "defhandler_elf", &abi_defhandler_elf,
+-		sizeof(int), 0644, NULL, &proc_doulongvec_minmax},
+-	{ABI_DEFHANDLER_LCALL7, "defhandler_lcall7", &abi_defhandler_lcall7,
+-		sizeof(int), 0644, NULL, &proc_doulongvec_minmax},
+-	{ABI_DEFHANDLER_LIBCSO, "defhandler_libcso", &abi_defhandler_libcso,
+-		sizeof(int), 0644, NULL, &proc_doulongvec_minmax},
+-	{ABI_TRACE, "trace", &abi_traceflg,
+-		sizeof(u_int), 0644, NULL, &proc_dointvec},
+-	{ABI_FAKE_UTSNAME, "fake_utsname", &abi_fake_utsname,
+-		sizeof(int), 0644, NULL, &proc_dointvec},
 -	{0}
 +	{
-+		.ctl_name	= RANDOM_POOLSIZE,
-+		.procname	= "poolsize",
-+		.data		= &sysctl_poolsize,
++		.ctl_name	= ABI_DEFHANDLER_COFF,
++		.procname	= "defhandler_coff",
++		.data		= &abi_defhandler_coff,
 +		.maxlen		= sizeof(int),
 +		.mode		= 0644,
-+		.proc_handler	= &proc_do_poolsize,
-+		.strategy	= &poolsize_strategy
++		.proc_handler	= &proc_doulongvec_minmax
 +	},
 +	{
-+		.ctl_name	= RANDOM_ENTROPY_COUNT,
-+		.procname	= "entropy_avail",
++		.ctl_name	= ABI_DEFHANDLER_ELF,
++		.procname	= "defhandler_elf",
++		.data		= &abi_defhandler_elf,
 +		.maxlen		= sizeof(int),
-+		.mode		= 0444,
++		.mode		= 0644,
++		.proc_handler	= &proc_doulongvec_minmax
++	},
++	{
++		.ctl_name	= ABI_DEFHANDLER_LCALL7,
++		.procname	= "defhandler_lcall7",
++		.data		= &abi_defhandler_lcall7,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_doulongvec_minmax
++	},
++	{
++		.ctl_name	= ABI_DEFHANDLER_LIBCSO,
++		.procname	= "defhandler_libcso",
++		.data		= &abi_defhandler_libcso,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_doulongvec_minmax
++	},
++	{
++		.ctl_name	= ABI_TRACE,
++		.procname	= "trace",
++		.data		= &abi_traceflg,
++		.maxlen		= sizeof(u_int),
++		.mode		= 0644,
 +		.proc_handler	= &proc_dointvec
 +	},
 +	{
-+		.ctl_name	= RANDOM_READ_THRESH,
-+		.procname	= "read_wakeup_threshold",
-+		.data		= &random_read_wakeup_thresh,
++		.ctl_name	= ABI_FAKE_UTSNAME,
++		.procname	= "fake_utsname",
++		.data		= &abi_fake_utsname,
 +		.maxlen		= sizeof(int),
 +		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec_minmax,
-+		.strategy	= &sysctl_intvec,
-+		.extra1		= &min_read_thresh,
-+		.extra2		= &max_read_thresh
-+	},
-+	{
-+		.ctl_name	= RANDOM_WRITE_THRESH,
-+		.procname	= "write_wakeup_threshold",
-+		.data		= &random_write_wakeup_thresh,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec_minmax,
-+		.strategy	= &sysctl_intvec,
-+		.extra1		= &min_write_thresh,
-+		.extra2		= &max_write_thresh
-+	},
-+	{
-+		.ctl_name	= RANDOM_BOOT_ID,
-+		.procname	= "boot_id",
-+		.data		= &sysctl_bootid,
-+		.maxlen		= 16,
-+		.mode		= 0444,
-+		.proc_handler	= &proc_do_uuid,
-+		.strategy	= &uuid_strategy
-+	},
-+	{
-+		.ctl_name	= RANDOM_UUID,
-+		.procname	= "uuid",
-+		.maxlen		= 16,
-+		.mode		= 0444,
-+		.proc_handler	= &proc_do_uuid,
-+		.strategy	= &uuid_strategy
++		.proc_handler	= &proc_dointvec
 +	},
 +	{ .ctl_name = 0 }
  };
  
- static void sysctl_init_random(struct entropy_store *random_state)
+ static struct ctl_table abi_root_table[] = {
+-	{CTL_ABI, "abi", NULL, 0, 0555, abi_table},
+-	{0}
++	{
++		.ctl_name	= CTL_ABI,
++		.procname	= "abi",
++		.maxlen		= 0,
++		.mode		= 0555,
++		.child		= abi_table
++	},
++	{ .ctl_name = 0 }
+ };
+ 
+ static int __init
 -- 
 They that can give up essential liberty to obtain a little temporary safety
 deserve neither liberty nor safety.

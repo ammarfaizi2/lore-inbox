@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262709AbSJLChl>; Fri, 11 Oct 2002 22:37:41 -0400
+	id <S262776AbSJLCn5>; Fri, 11 Oct 2002 22:43:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262743AbSJLChl>; Fri, 11 Oct 2002 22:37:41 -0400
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:17682 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id <S262709AbSJLChk>; Fri, 11 Oct 2002 22:37:40 -0400
-Date: Sat, 12 Oct 2002 11:43:30 +0900 (JST)
-Message-Id: <20021012.114330.78212112.yoshfuji@linux-ipv6.org>
-To: davem@redhat.com
-Cc: mk@linux-ipv6.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       usagi@linux-ipv6.org
-Subject: Re: [PATCH] USAGI IPsec
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20021011.185332.115906289.davem@redhat.com>
-References: <m3u1js1l1a.wl@karaba.org>
-	<20021011.185332.115906289.davem@redhat.com>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262779AbSJLCn5>; Fri, 11 Oct 2002 22:43:57 -0400
+Received: from smtp02.fields.gol.com ([203.216.5.132]:29574 "EHLO
+	smtp02.fields.gol.com") by vger.kernel.org with ESMTP
+	id <S262776AbSJLCn4>; Fri, 11 Oct 2002 22:43:56 -0400
+X-From-Line: miles@lsi.nec.co.jp Fri Oct 11 09:51:48 2002
+To: linux-kernel@vger.kernel.org
+Subject: compiling without CONFIG_NET broken in 2.5.41
+Reply-To: Miles Bader <miles@gnu.org>
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 11 Oct 2002 13:22:37 +0900
+Message-ID: <buo1y6xy582.fsf@mcspd15.ucom.lsi.nec.co.jp>
+X-Abuse-Complaints: abuse@gol.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20021011.185332.115906289.davem@redhat.com> (at Fri, 11 Oct 2002 18:53:32 -0700 (PDT)), "David S. Miller" <davem@redhat.com> says:
+Hi,
 
-> We liked your implementation for it's simplicity.  But Alexey and
-> myself believe several details should be handled very much
-> differently.
+I used to be able to compile linux without CONFIG_NET, but in 2.5.41,
+doing so makes compilation fail.  The reason is that net/socket.c
+references `dev_ioctl', which is only defined when CONFIG_NET is
+enabled.
 
-Would you tell us the points of the "several details," please?
+I can avoid the problem like this:
+
+
+--- ../orig/linux-2.5.41/net/socket.c	2002-10-10 11:40:28.000000000 +0900
++++ net/socket.c	2002-10-11 13:06:39.000000000 +0900
+@@ -691,9 +691,11 @@
+ 
+ 	unlock_kernel();
+ 	sock = SOCKET_I(inode);
++#ifdef CONFIG_NET
+ 	if (cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15)) {
+ 		err = dev_ioctl(cmd, (void *)arg);
+ 	} else
++#endif /* CONFIG_NET */
+ #ifdef WIRELESS_EXT
+ 	if (cmd >= SIOCIWFIRST && cmd <= SIOCIWLAST) {
+ 		err = dev_ioctl(cmd, (void *)arg);
+
+
+It seems to work fine, but I have no idea if this is really the correct
+solution or not.
+
+I'd appreciate it if someone could look at this and install a fix.
+
+Thanks,
+
+-Miles
 
 -- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+The secret to creativity is knowing how to hide your sources.
+  --Albert Einstein
+

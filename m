@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132650AbRAaRv7>; Wed, 31 Jan 2001 12:51:59 -0500
+	id <S129867AbRAaR6b>; Wed, 31 Jan 2001 12:58:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132648AbRAaRvv>; Wed, 31 Jan 2001 12:51:51 -0500
-Received: from 4dyn210.com21.casema.net ([212.64.95.210]:43790 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S132640AbRAaRvk>;
-	Wed, 31 Jan 2001 12:51:40 -0500
-Date: Wed, 31 Jan 2001 18:51:21 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Nathan Black <NBlack@md.aacisd.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: drive/block device write scheduling, buffer flushing?
-Message-ID: <20010131185120.B3287@home.ds9a.nl>
-Mail-Followup-To: Nathan Black <NBlack@md.aacisd.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <8FED3D71D1D2D411992A009027711D67187E@md>
-Mime-Version: 1.0
+	id <S129990AbRAaR6V>; Wed, 31 Jan 2001 12:58:21 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:11785 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129811AbRAaR6E>; Wed, 31 Jan 2001 12:58:04 -0500
+Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
+To: manfred@colorfullife.com (Manfred Spraul)
+Date: Wed, 31 Jan 2001 17:57:43 +0000 (GMT)
+Cc: dwmw2@infradead.org (David Woodhouse),
+        acme@conectiva.com.br (Arnaldo Carvalho de Melo),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A7459AA.84CDCF7B@colorfullife.com> from "Manfred Spraul" at Jan 28, 2001 06:40:58 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre4i
-In-Reply-To: <8FED3D71D1D2D411992A009027711D67187E@md>; from NBlack@md.aacisd.com on Wed, Jan 31, 2001 at 11:52:25AM -0500
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14O1Vp-0002mv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 31, 2001 at 11:52:25AM -0500, Nathan Black wrote:
-> I was wondering if there is a way to make the kernel write to disk faster. 
-> I need to maintain a 10 MB /sec write rate to a 10K scsi disk in a computer,
-> but it caches and doesn't start writing to disk until I hit about 700 MB. At
-> that point, it pauses(presumably while the kernel is flushing some of the
-> buffers) and I will have missed data that I am trying to capture.
+> And one more point for the Janitor's list:
+> Get rid of superflous irqsave()/irqrestore()'s - in 90% of the cases
+> either spin_lock_irq() or spin_lock() is sufficient. That's both faster
+> and better readable.
 
-try opening with O_SYNC, or call fsync() every once in a while. Otherwise,
-this sounds like an application for a raw device, whereby you can write
-directly to the disk, with no caching in between.
+Expect me to drop any submissions that do this. I'd rather take the two
+clock hit in most cases because the effect of spin_lock_irq() being used
+and people then changing which functions call each other and producing 
+impossible to debug irq mishandling cases is unacceptable.
 
-Regards,
+The original Linux network code did this with sti() not save/restore flags.
+I've been there before, I am not going to allow a rerun of that disaster for
+a few cycles
 
-bert
-
--- 
-PowerDNS                     Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

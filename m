@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263180AbSJBQop>; Wed, 2 Oct 2002 12:44:45 -0400
+	id <S263177AbSJBQlL>; Wed, 2 Oct 2002 12:41:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263181AbSJBQop>; Wed, 2 Oct 2002 12:44:45 -0400
-Received: from 62-190-202-92.pdu.pipex.net ([62.190.202.92]:15364 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S263180AbSJBQoo>; Wed, 2 Oct 2002 12:44:44 -0400
-Date: Wed, 2 Oct 2002 17:58:37 +0100
-From: jbradford@dial.pipex.com
-Message-Id: <200210021658.g92Gwbdg000900@darkstar.example.net>
-To: linux-kernel@vger.kernel.org
-Subject: Freaky 2.5.40 keyboard behavior
+	id <S263178AbSJBQlL>; Wed, 2 Oct 2002 12:41:11 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:32775 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S263177AbSJBQlK>;
+	Wed, 2 Oct 2002 12:41:10 -0400
+Date: Wed, 2 Oct 2002 18:46:16 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ALSA 'make menuconfig exits' fix
+Message-ID: <20021002184616.A1329@mars.ravnborg.org>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	linux-kernel@vger.kernel.org
+References: <E17wk9W-0005c1-00@scrub.xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E17wk9W-0005c1-00@scrub.xs4all.nl>; from zippel@linux-m68k.org on Wed, Oct 02, 2002 at 04:07:02PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, this is a really surreal problem:
+On Wed, Oct 02, 2002 at 04:07:02PM +0200, Roman Zippel wrote:
+> Below is a better patch + another sparc sound config fix.
 
-I am using a Japanese AT keyboard, (an IBM 94X1110), with 2.5.40, and noticed entries like these in the syslog:
+Speaking about SPARC and audio:
+Is the following line in drivers/sbus/Mafilefile bogus?
+obj-$(CONFIG_SPARCAUDIO) += audio/
 
-Oct  2 17:26:00 darkstar kernel: atkbd.c: Unknown key (set 2, scancode 0xb6, on
-isa0060/serio0) pressed.
-Oct  2 17:50:22 darkstar kernel: atkbd.c: Unknown key (set 2, scancode 0xa7, on
-isa0060/serio0) pressed.
-Oct  2 17:50:22 darkstar kernel: atkbd.c: Unknown key (set 2, scancode 0xa3, on
-isa0060/serio0) pressed.
-Oct  2 17:50:22 darkstar kernel: atkbd.c: Unknown key (set 2, scancode 0xa4, on
-isa0060/serio0) pressed.
-Oct  2 17:50:35 darkstar kernel: atkbd.c: Unknown key (set 2, scancode 0xa6, on
-isa0060/serio0) pressed.
+There is no audio directory as of today.
 
-The funny thing is, I cannot reproduce them by pressing any single key - even the Henkaku/Zenkaku key, which is about the most non-standard compared to a U.K. keyboard, (the kana shift keys are mapped to space bar), doesn't report anything odd.
+	Sam
 
-However, I can reproduce it by banging repeatedly on 't', 'h', '@', and ';'.
-
-Any idea at all what is causing this?  By the way, I have the Russian keymap loaded, because it fits this keyboard better than the Japanese keymap, (this is a weird keyboard, incase you haven't guessed).
-
-Sayonara :-)
-
-John.

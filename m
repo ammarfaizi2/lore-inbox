@@ -1,84 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131626AbRDDTI1>; Wed, 4 Apr 2001 15:08:27 -0400
+	id <S131886AbRDDTKH>; Wed, 4 Apr 2001 15:10:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131873AbRDDTIS>; Wed, 4 Apr 2001 15:08:18 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:57310 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S131626AbRDDTIL>;
-	Wed, 4 Apr 2001 15:08:11 -0400
-Importance: Normal
-Subject: Re: a quest for a better scheduler
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        lse-tech@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OFE7B61E08.EBBC35C3-ON85256A24.006740B8@pok.ibm.com>
-From: "Hubertus Franke" <frankeh@us.ibm.com>
-Date: Wed, 4 Apr 2001 15:06:02 -0400
-X-MIMETrack: Serialize by Router on D01ML244/01/M/IBM(Release 5.0.7 |March 21, 2001) at
- 04/04/2001 03:06:57 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S131882AbRDDTJ6>; Wed, 4 Apr 2001 15:09:58 -0400
+Received: from dial127.za.nextra.sk ([195.168.64.127]:772 "HELO Boris.SHARK")
+	by vger.kernel.org with SMTP id <S131886AbRDDTJq>;
+	Wed, 4 Apr 2001 15:09:46 -0400
+Date: Wed, 4 Apr 2001 15:54:45 +0200
+From: Boris Pisarcik <boris@acheron.sk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Non keyboard trigger of Alt-SysRQ-S-U-B
+Message-ID: <20010404155445.A1800@Boris>
+In-Reply-To: <3ABE1C70.92CBBF01@umr.edu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="opJtzjQTFsWo+cga"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3ABE1C70.92CBBF01@umr.edu>; from nneul@umr.edu on Sun, Mar 25, 2001 at 10:27:28AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I give you a concrete example:
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Running DB2 on an SMP system.
+    Hi Nathan,
 
-In DB2 there is a processes/thread pool that is sized based
-on memory and numcpus. People tell me that the size of this pool
-is in the order of 100s for an 8-way system with reasonable
-sized database. These <maxagents> determine the number of agents
-that can simultaneously execute an SQL statement.
+I've just made an experimental module which offers syscall to privileged
+process, which internally translates itself into real sysrq handler
+(handle_sysrq) defined in drivers/char/sysrq.c. It occupates itself 
+one of unussed linux system calls (concretely stty - no. 31). 
+Makefile and patch for that sysrq.c are included in attached archive. 
+(I stronly believe i didn't made it reversed :). 
+The patch itself only exports 1 variable and 1 function from sysrq.c, 
+that normally aren't.
 
-Requests are flying in for transactions (e.g. driven by TPC-W like
-applications). The agents are grepped from the pool and concurrently
-fire the SQL transactions.
-Assuming that there is enough concurrency in the database, there is
-no reason to believe that the majority of those active agents is
-not effectively running. TPC-W loads have observed 100 of active
-transactions at a time.
+You can make a daemon, which listens on socket and triggers commands
+send by clients. Dont call sysrq+boot until a while needed to sync and
+unmount. This check, if sync and/or umount were finished before boot,
+should be really done, but it would require more changes in kernel
+source. And of course, the security is to be taken in client/server
+into account.
 
-Ofcourse limiting the number of agents would reduce concurrently
-running tasks, but would limit the responsiveness of the system.
-Implementing a database in the kernel ala TUX doesn't seem to be
-the right approach either (complexity, fault containment, ...)
+Bye                                                                   B.
 
-Hope that is one example people accept.
+--opJtzjQTFsWo+cga
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="srq.tar.gz"
+Content-Transfer-Encoding: base64
 
-I can dig up some information on WebSphere Applications.
+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
 
-I'd love to hear from some other applications that fall into
-a similar category as the above and substantiate a bit the need
-for 100s of running processes, without claiming that the
-application is broke.
-
-Hubertus Franke
-Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
-, OS-PIC (Chair)
-email: frankeh@us.ibm.com
-(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
-
-
-
-Mark Hahn <hahn@coffee.psychology.mcmaster.ca> on 04/04/2001 02:28:42 PM
-
-To:   Hubertus Franke/Watson/IBM@IBMUS
-cc:
-Subject:  Re: a quest for a better scheduler
-
-
-
-> ok if the runqueue length is limited to a very small multiple of the
-#cpus.
-> But that is not what high end server systems encounter.
-
-do you have some example of this in mind?  so far, noone has
-actually produced an example of a "high end" server that has
-long runqueues.
-
-
-
-
+--opJtzjQTFsWo+cga--

@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262564AbSI0TCq>; Fri, 27 Sep 2002 15:02:46 -0400
+	id <S262611AbSI0TLY>; Fri, 27 Sep 2002 15:11:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262569AbSI0TCq>; Fri, 27 Sep 2002 15:02:46 -0400
-Received: from tolkor.sgi.com ([198.149.18.6]:49341 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S262564AbSI0TCj>;
-	Fri, 27 Sep 2002 15:02:39 -0400
-Date: Fri, 27 Sep 2002 22:21:59 -0400
-From: Christoph Hellwig <hch@sgi.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix drm ioctl ABI default
-Message-ID: <20020927222159.A5124@sgi.com>
-Mail-Followup-To: Christoph Hellwig <hch@sgi.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel@vger.kernel.org
-References: <20020927212752.E4733@sgi.com> <1033153674.16726.10.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262609AbSI0TLY>; Fri, 27 Sep 2002 15:11:24 -0400
+Received: from magic.adaptec.com ([208.236.45.80]:64177 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S262608AbSI0TLW>; Fri, 27 Sep 2002 15:11:22 -0400
+Date: Fri, 27 Sep 2002 13:16:16 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: James Bottomley <James.Bottomley@steeleye.com>, Jens Axboe <axboe@suse.de>,
+       Matthew Jacob <mjacob@feral.com>,
+       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+       Mathieu Chouquet-Stringer <mathieu@newview.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Warning - running *really* short on DMA buffers while doingfile
+   transfers
+Message-ID: <2561606224.1033154176@aslan.btc.adaptec.com>
+In-Reply-To: <3D94AC8B.4AB6EB09@digeo.com>
+References: <200209271721.g8RHLTn05231@localhost.localdomain>
+ <2543856224.1033153019@aslan.btc.adaptec.com> <3D94AC8B.4AB6EB09@digeo.com>
+X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1033153674.16726.10.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Fri, Sep 27, 2002 at 08:07:54PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 27, 2002 at 08:07:54PM +0100, Alan Cox wrote:
-> With all the vendors now shipping 4.2 this seems a bad thing to default
-> to the 4,1 interface - especially as the 4.1 server is
+>> Which unfortunately characterizes only a single symptom without breaking
+>> it down on a transaction by transaction basis.  We need to understand
+>> how many writes were queued by the OS to the drive between each read to
+>> know if the drive is actually allowing writes to pass reads or not.
+>> 
 > 
-> o Buggy
-> o Has security holes that are fixed in 4.2.1 only
+> Given that I measured a two-second read latency with four tags,
+> that would be about 60 megabytes of write traffic after the
+> read was submitted.  Say, 120 requests.  That's with a tag
+> depth of four.
 
-I don't think that's the proper argument.  2.4.20 silently breaking
-systems that worked fine with 2.4.19 is not the way new linux releases
-work.  Vendors can of course feel free to have the new ABI by default.
+I still don't follow your reasoning.  Your benchmark indicates the
+latency for several reads (cat kernel/*.c), not the per-read latency.
+The two are quite different and unless you know the per-read latency and
+whether it was affected by filling the drive's entire cache with
+pent up writes (again these are writes that are above and beyond
+those still assigned tags) you are still speculating that writes
+are passing reads.
 
+If you can tell me exactly how you ran your benchmark, I'll find the
+information I want by using a SCSI bus analyzer to sniff the traffic
+on the bus.
+
+--
+Justin

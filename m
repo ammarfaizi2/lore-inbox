@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269522AbTCDTuR>; Tue, 4 Mar 2003 14:50:17 -0500
+	id <S269533AbTCDT51>; Tue, 4 Mar 2003 14:57:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269524AbTCDTuR>; Tue, 4 Mar 2003 14:50:17 -0500
-Received: from mta03-svc.ntlworld.com ([62.253.162.43]:36531 "EHLO
-	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S269522AbTCDTuR> convert rfc822-to-8bit; Tue, 4 Mar 2003 14:50:17 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: no_spam@ntlworld.com
-To: linux-kernel@vger.kernel.org
-Subject: kill_fasync usage
-Date: Tue, 4 Mar 2003 20:08:16 +0000
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200303042008.16839.no_spam@ntlworld.com>
+	id <S269534AbTCDT51>; Tue, 4 Mar 2003 14:57:27 -0500
+Received: from pusa.informat.uv.es ([147.156.10.98]:16283 "EHLO
+	pusa.informat.uv.es") by vger.kernel.org with ESMTP
+	id <S269533AbTCDT50>; Tue, 4 Mar 2003 14:57:26 -0500
+Date: Tue, 4 Mar 2003 21:07:44 +0100
+To: Vergoz Michael <mvergoz@sysdoor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 'cooked' packets
+Message-ID: <20030304200744.GA20975@pusa.informat.uv.es>
+References: <3E6504FA.2090707@sysdoor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3E6504FA.2090707@sysdoor.com>
+User-Agent: Mutt/1.3.28i
+From: uaca@alumni.uv.es
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 04, 2003 at 08:56:42PM +0100, Vergoz Michael wrote:
+> Hi list,
+> 
+> I want to know, why Linux have a "cooked" packets capture encapsulation 
+> ??@#!
 
-Dear list, 
+Take a look at pcap-linux.c (libpcap library)
 
-quick advice please,
+this is not a pure kernel issue, probably you should ask to linux-net mailing
+list
 
-I wnat to use kill_fasync(struct fasync_struct *PTR,...) to notify userland of 
-events.  Can I just call kill_fasync regardless of the state of PTR or does 
-PTR actually have to point to something valid.  
+	Ulisses
+                Debian GNU/Linux: a dream come true
+-----------------------------------------------------------------------------
+"Computers are useless. They can only give answers."            Pablo Picasso
 
-In my code PTR=NULL initially and may or may not be set or unset during use. I 
-would like to know if I can call kill_fasync without testing what is in PTR.  
-If I have to test what would PTR be if there isn't anything in the queue?
-If I can't test PTR how can I find out from the arguments to my fasync method 
-if I am adding (or removing) processes from the list?
-
-Thanks SA 
+--->	Visita http://www.valux.org/ para saber acerca de la	<---
+--->	Asociación Valenciana de Usuarios de Linux		<---
+ 

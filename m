@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319151AbSIDMRD>; Wed, 4 Sep 2002 08:17:03 -0400
+	id <S319153AbSIDM0A>; Wed, 4 Sep 2002 08:26:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319152AbSIDMRD>; Wed, 4 Sep 2002 08:17:03 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:5620 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319151AbSIDMRC>; Wed, 4 Sep 2002 08:17:02 -0400
-Subject: Re: writing OOPS/panic info to nvram?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200209041350.21358.roy@karlsbakk.net>
-References: <200209041350.21358.roy@karlsbakk.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 04 Sep 2002 13:21:33 +0100
-Message-Id: <1031142093.2796.116.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S319154AbSIDM0A>; Wed, 4 Sep 2002 08:26:00 -0400
+Received: from mail.hometree.net ([212.34.181.120]:16602 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S319153AbSIDMZ6>; Wed, 4 Sep 2002 08:25:58 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Stupid anti-spam testings...
+Date: Wed, 4 Sep 2002 12:30:31 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <al4ud7$i9l$1@forge.intermeta.de>
+References: <20020902215019.GB5834@mea-ext.zmailer.org> <20020902222837.GM32468@clusterfs.com> <20020902233230.GC5834@mea-ext.zmailer.org>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1031142631 2334 212.34.181.4 (4 Sep 2002 12:30:31 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Wed, 4 Sep 2002 12:30:31 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-09-04 at 12:50, Roy Sigurd Karlsbakk wrote:
-> hi
-> 
-> I just read in the OS X.2 technote 
-> (http://developer.apple.com/technotes/tn2002/tn2053.html#TN001016) that 
-> they're writing the panic dump to nvram.
-> 
-> Is it hard to implement this on Linux?
+Matti Aarnio <matti.aarnio@zmailer.org> writes:
 
-Its been done years ago. However on a PC you basically have no free
-nvram so its not terribly useful there.
+>  some sendmail milter (whatever that is), etc..
 
+mail filter. The filtering API of sendmail 8.12+. You can e.g. attach
+SpamAssassin here...
+
+	Regards
+		Henning
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

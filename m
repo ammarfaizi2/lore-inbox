@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293544AbSCKWkp>; Mon, 11 Mar 2002 17:40:45 -0500
+	id <S293532AbSCKWlP>; Mon, 11 Mar 2002 17:41:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293546AbSCKWkg>; Mon, 11 Mar 2002 17:40:36 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49672 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S293543AbSCKWkR>; Mon, 11 Mar 2002 17:40:17 -0500
-Date: Mon, 11 Mar 2002 14:39:14 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Vojtech Pavlik <vojtech@suse.cz>, Martin Dalecki <martin@dalecki.de>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] My AMD IDE driver, v2.7
-In-Reply-To: <E16kYXz-0001z3-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0203111431340.15427-100000@penguin.transmeta.com>
+	id <S293543AbSCKWlG>; Mon, 11 Mar 2002 17:41:06 -0500
+Received: from CPE-203-51-27-33.nsw.bigpond.net.au ([203.51.27.33]:41967 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S293532AbSCKWku>; Mon, 11 Mar 2002 17:40:50 -0500
+Message-ID: <3C8D3265.146899B1@eyal.emu.id.au>
+Date: Tue, 12 Mar 2002 09:40:37 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-ac3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-pre3
+In-Reply-To: <Pine.LNX.4.21.0203111805480.2492-100000@freak.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 11 Mar 2002, Alan Cox wrote:
+Marcelo Tosatti wrote:
 > 
-> Its quite different to other goings on
+> Hi,
+> 
+> Here goes -pre3, with the new IDE code. It has been stable enough time in
 
-Alan, did you actually look at the diffs that Martin sent out, or are you 
-just reacting to the description?
+ld -m elf_i386 -r -o ide-mod.o ide.o ide-features.o ide-taskfile.o 
+aec62xx.o alim15x3.o amd74xx.o cmd640.o cmd64x.o cs5530.o cy82c693.o
+hpt34x.o hpt366.o ide-adma.o ide-dma.o ide-pci.o ns87415.o opti621.o
+serverworks.o pdc202xx.o pdcadma.o piix.o rz1000.o sis5513.o slc90e66.o
+trm290.o via82cxxx.o ide-proc.o
+ld: cannot open pdcadma.o: No such file or directory
+make[3]: *** [ide-mod.o] Error 1
+make[3]: Leaving directory
+`/data2/usr/local/src/linux-2.4-pre/drivers/ide'
 
-I think you read more into the description than was actually in the patch 
-itself.
-
-Rule #1: always read the patch.
-
-Right now, that patch definitely needs to learn to use "yield()" instead
-of "schedule()" etc details, but I really don't understand why all the 
-brouhaha over Martins patches.
-
-Am I really the only one who actually reads the actual _changes_ instead
-of arguing over personal issues?
-
-Now, I've long had this theory that IDE coding is bad for your mental
-health (you won't ever see _me_ going close to the dang thing - I'll use
-it, but I won't start writing code for it), but that theory used to be a
-_joke_, for chrissake! Don't make it appear a truism.
-
-			Linus
-
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

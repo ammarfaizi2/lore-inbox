@@ -1,40 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267343AbUJNVEu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267360AbUJNVNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267343AbUJNVEu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 17:04:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267705AbUJNVDb
+	id S267360AbUJNVNt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 17:13:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267294AbUJNVMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 17:03:31 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:11422 "HELO
+	Thu, 14 Oct 2004 17:12:12 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:51103 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267633AbUJNVAO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 17:00:14 -0400
-Subject: Re: Spam on the list
+	id S267360AbUJNVKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 17:10:18 -0400
+Subject: Re:  [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U1
 From: Lee Revell <rlrevell@joe-job.com>
-To: Norbert van Nobelen <Norbert@edusupport.nl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200410142041.33694.Norbert@edusupport.nl>
-References: <416EA06E.3050608@colannino.org>
-	 <Pine.LNX.4.53.0410141201470.7694@chaos.analogic.com>
-	 <200410142041.33694.Norbert@edusupport.nl>
+To: William Wolf <wwolf@vt.edu>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <4196928A.9070103@vt.edu>
+References: <4196928A.9070103@vt.edu>
 Content-Type: text/plain
-Message-Id: <1097787482.2682.54.camel@krustophenia.net>
+Message-Id: <1097788119.2682.56.camel@krustophenia.net>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 14 Oct 2004 16:58:03 -0400
+Date: Thu, 14 Oct 2004 17:08:39 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-14 at 14:41, Norbert van Nobelen wrote:
-> Can't we run it through spamassassin with a whitelist for the real users on 
-> the list, and standard filters for the new users. With keeping track of the 
-> pointsscore they will be auto whitelisted if they are not spammers.
+On Sat, 2004-11-13 at 18:02, William Wolf wrote:
+> Has anyone tried these patches been on x86_64?  Im trying the latest -U1 
+> patch and getting lots of compile errors.  I can send the output if needed.
 
-Is this really worth the trouble, just to accomodate the vocal minority
-of subscribers who cannot tolerate ANY spam?  The list actually gets
-very little spam, way less that 1% I would think.  Just delete it or run
-SA locally. 
+Looks like you might be the only one.  Please post any compile errors,
+and cc: Ingo.
 
 Lee
 

@@ -1,82 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129068AbRBJAZY>; Fri, 9 Feb 2001 19:25:24 -0500
+	id <S129584AbRBJAay>; Fri, 9 Feb 2001 19:30:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129336AbRBJAZO>; Fri, 9 Feb 2001 19:25:14 -0500
-Received: from cr626425-a.bloor1.on.wave.home.com ([24.156.35.8]:3849 "EHLO
-	spqr.damncats.org") by vger.kernel.org with ESMTP
-	id <S129068AbRBJAYz>; Fri, 9 Feb 2001 19:24:55 -0500
-Message-ID: <3A8489DE.D8C2B80A@damncats.org>
-Date: Fri, 09 Feb 2001 19:22:54 -0500
-From: John Cavan <johnc@damncats.org>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-ac9 i686)
-X-Accept-Language: en
+	id <S129763AbRBJAap>; Fri, 9 Feb 2001 19:30:45 -0500
+Received: from blackhole.compendium-tech.com ([206.55.153.26]:254 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S129584AbRBJAaf>; Fri, 9 Feb 2001 19:30:35 -0500
+Date: Fri, 9 Feb 2001 16:29:49 -0800 (PST)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+To: Scott Laird <laird@internap.com>
+cc: George <greerga@entropy.muc.muohio.edu>,
+        Peter Samuelson <peter@cadcamlab.org>,
+        Bernd Eckenfels <inka-user@lina.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: Request: increase in PCI bus limit
+In-Reply-To: <Pine.LNX.4.31.0101311243340.13278-100000@lairdtest1.internap.com>
+Message-ID: <Pine.LNX.4.21.0102091628570.26669-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Mucho timeouts on USB
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 31 Jan 2001, Scott Laird wrote:
+> On Wed, 31 Jan 2001, George wrote:
+> >   Also account for anything else funny in the system.
+> >
+> > Then panic on boot if they're wrong (sort of like processor type).
+> 
+> Where do cards with PCI-PCI bridges, like multiport PCI ethernet cards,
+> fit into this?  I can easily add 3 or 4 extra busses into a box just by
+> grabbing a couple extra Intel dual-port Ethernet cards.
 
-Just got a D-Link USB radio (R100) and I'm seeing lots of timeouts with
-it. I've seen this through the last few 2.4.1+ and -ac+ kernels.
+Notice the 'also account for anything funny' line. Multiport ethernet
+cards IMO fall under this category.
 
-Current config:
-
-Dual P3-500 w/ 512mb of RAM
-Tyan Tiger 133 mobo with VIA chipset, onboard USB
-Kernel 2.4.1-ac9 compiled with egcs-1.1.2
-
-The only thing funky is that three devices are sharing an interrupt:
-
-           CPU0       CPU1       
-  0:     216690     219652    IO-APIC-edge  timer
-  1:       3564       3816    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  3:          7         20    IO-APIC-edge  serial
-  5:       1017       1135   IO-APIC-level  EMU10K1
-  8:          0          1    IO-APIC-edge  rtc
- 11:      22978      22756   IO-APIC-level  aic7xxx, eth0, usb-uhci
- 12:      64220      63272    IO-APIC-edge  PS/2 Mouse
- 14:      12132      12810    IO-APIC-edge  ide0
- 15:          3         10    IO-APIC-edge  ide1
-NMI:     436327     436327 
-LOC:     436151     436128 
-ERR:          0
-
-The ethernet card is a 3Com 3c905, the SCSI card is Adaptec 7892B (19160
-card). No problems with either as far as I can tell, but one of these
-modules may not be playing nice with interrupt sharing.
-
-The messages:
-
-usb.c: registered new driver usbdevfs
-usb.c: registered new driver hub
-usb-uhci.c: $Revision: 1.251 $ time 17:33:47 Feb  9 2001
-usb-uhci.c: High bandwidth mode enabled
-usb-uhci.c: USB UHCI at I/O 0xd400, IRQ 11
-usb-uhci.c: Detected 2 ports
-usb.c: new USB bus registered, assigned bus number 1
-usb_control/bulk_msg: timeout
-usb.c: USB device not accepting new address=2 (error=-110)
-usb.c: USB device 3 (vend/prod 0x4b4/0x1002) is not claimed by any
-active driver.
-usb_control/bulk_msg: timeout
-usb.c: error getting string descriptor 0 (error=-110)
-usb_control/bulk_msg: timeout
-usb.c: error getting string descriptor 0 (error=-110)
-usb_control/bulk_msg: timeout
-usb.c: error getting string descriptor 0 (error=-110)
-usb_control/bulk_msg: timeout
-usb.c: error getting string descriptor 0 (error=-110)
-usb_control/bulk_msg: timeout
-usb_control/bulk_msg: timeout
-usb_control/bulk_msg: timeout
-usb_control/bulk_msg: timeout
-usb_control/bulk_msg: timeout
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

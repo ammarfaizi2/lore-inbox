@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbTICMrW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 08:47:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbTICMrW
+	id S262038AbTICMle (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 08:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbTICMle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 08:47:22 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:33218 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S262074AbTICMrU (ORCPT
+	Wed, 3 Sep 2003 08:41:34 -0400
+Received: from smtp02.fuse.net ([216.68.1.133]:63995 "EHLO smtp02.fuse.net")
+	by vger.kernel.org with ESMTP id S262038AbTICMlc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 08:47:20 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: b.zolnierkiewicz@elka.pw.edu.pl
-Date: Wed, 3 Sep 2003 14:46:42 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: LBA48 on PDC20265 (again and again...)
-Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <BFC117A6765@vcnet.vc.cvut.cz>
+	Wed, 3 Sep 2003 08:41:32 -0400
+From: "Dale E Martin" <dmartin@cliftonlabs.com>
+Date: Wed, 3 Sep 2003 08:41:31 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: Re: repeatable, hard lockup on boot in linux-2.6.0-test4 (more details)
+Message-ID: <20030903124131.GA842@cliftonlabs.com>
+References: <20030902123050.GA854@cliftonlabs.com> <20030902130323.41d2fdca.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030902130323.41d2fdca.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  during last year there was couple of complaints that pdc202xx_old
-driver does not allow LBA48 on first channel, and couple of confirmations
-that just removing these two lines which do:
+> Looks like it.  Please add a DB() to the start of i8042_interrupt(),
+> see if we locked up in an interrupt storm.
 
-  if (hwif->pci_dev->device == PCI_DEVICE_ID_PROMISE_20265)
-      hwif->no_lba48 = (hwif->channel) ? 0 : 1;
-      
-fixes problem, and both channels run with lba48 drives just fine...
+I believe this is what's happening - i8042_interrupt is getting called at a
+very fast rate and we never do anything else.  (I suppose that's the
+definition of an interrupt storm - this is my first foray into kernel
+programming aside from fixing compiler errors.)
 
-  Yesterday I bring home two nice 160GB seagates, hooked them up to
-the Promise, and booted. And to my surprise we still do not enable
-lba48 on primary channel...
+As others have suggested, booting with "pci=noacpi" fixes the problem.
+(Leaving the debug statement in there, I'd estimate that i8042_interrupt
+gets called at about 25 times a second - about a screenfull a second or
+so.)
 
-  Is there some reason for doing that? I removed this, and I was able
-to copy contents of my old 120GB disk to the 160GB one, with 40G offset
-(so lba48 has to work, otherwise first 40GB holding an VFAT partition with
-some gzipped test files gets corrupted). Currently these two drives
-are unused (they just hold backup copy of dying 120GB wd), so I can do
-any experiments you may want to confirm/decline idea that we should
-remove this no_lba48 hack. Of course unless you have datasheet which says
-that it cannot work. But as Promise BIOS happily says that two 149GB disks
-(149 * 2^30 == 160 * 10^9) running UDMA5 are attached, I assume that it 
-is willing to handle LBA48 on both channels.
-                                              Thanks,
-                                                  Petr Vandrovec
-                                                  
+So, anyone else with this problem can plug in a PS/2 mouse or boot with
+"pci=noacpi" to work around it.
 
+The last thing I would mention is that 2.5.75 ran fine on this machine, so
+I guess this problem has crept in since then.
+
+> There's an ugly in the irq code there: if i8042_check_mux() or
+> i8042_check_mux() are called while the device is open we end up freeing
+> the wrong IRQ.  It is unlikely to help though.
+
+I did apply this patch, and it did not visibly help.
+
+Thanks for the help, let me know if you'd like me to try anything else.
+
+Take care,
+     Dale
+-- 
+Dale E. Martin, Clifton Labs, Inc.
+Senior Computer Engineer
+dmartin@cliftonlabs.com
+http://www.cliftonlabs.com
+pgp key available

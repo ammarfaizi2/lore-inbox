@@ -1,80 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262746AbVA1UHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262726AbVA1T73@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbVA1UHV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 15:07:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbVA1UGW
+	id S262726AbVA1T73 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 14:59:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbVA1T40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 15:06:22 -0500
-Received: from s2.home.ro ([193.231.236.41]:64995 "EHLO s2.home.ro")
-	by vger.kernel.org with ESMTP id S262746AbVA1UBN (ORCPT
+	Fri, 28 Jan 2005 14:56:26 -0500
+Received: from rproxy.gmail.com ([64.233.170.196]:42100 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261503AbVA1Tx5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 15:01:13 -0500
-Subject: Re: kernel oops!
-From: ierdnah <ierdnah@go.ro>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0501271532420.2362@ppc970.osdl.org>
-References: <1106437010.32072.0.camel@ierdnac>
-	 <Pine.LNX.4.58.0501222223090.4191@ppc970.osdl.org>
-	 <1106483340.21951.4.camel@ierdnac>
-	 <Pine.LNX.4.58.0501230943020.4191@ppc970.osdl.org>
-	 <1106866066.20523.3.camel@ierdnac>
-	 <Pine.LNX.4.58.0501271532420.2362@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Fri, 28 Jan 2005 22:00:01 +0200
-Message-Id: <1106942401.27217.8.camel@ierdnac>
+	Fri, 28 Jan 2005 14:53:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=MGhtyzfDKFTycXHp3kcO/lJNplfVO6BhuxziZ2cJlE6bVN18J1FMbAn/BYwMCMjOxWDCBEDCoy1Q/AXKEIWCmJh6o5hfQ2dB8JtFHTJZrjPI0X0g5A5DClzN3iN2C0NyMnFLRiOznjQJT15tYBYRuHcmrqLl9yMEDaGWOnRcQkw=
+Message-ID: <d120d50005012811534eb1ed70@mail.gmail.com>
+Date: Fri, 28 Jan 2005 14:53:57 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Wiktor <victorjan@poczta.onet.pl>
+Subject: Re: AT keyboard dead on 2.6
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <41FA972F.2000604@poczta.onet.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <41F11F79.3070509@poczta.onet.pl>
+	 <d120d500050121074831087013@mail.gmail.com>
+	 <41F15307.4030009@poczta.onet.pl>
+	 <d120d500050121113867c82596@mail.gmail.com>
+	 <41F69FFE.2050808@poczta.onet.pl> <20050128143121.GB12137@ucw.cz>
+	 <d120d50005012806467cc5ee03@mail.gmail.com>
+	 <41FA90F8.6060302@poczta.onet.pl>
+	 <d120d5000501281127752561a3@mail.gmail.com>
+	 <41FA972F.2000604@poczta.onet.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-27 at 15:35 -0800, Linus Torvalds wrote:
-
-the last patch works, but the load increases very much (normally with
-200 VPN connections I have a load of maximum 10, with this patch I have
-a load of 50-100 - after 30 min of uptime)
-
-> You probably should. The patch you've tested is really ugly, and not a fix 
-> at all - it's really just depending on the compiler generating a specific 
-> code sequence that will hide the race.  As such, it's a patch I would only 
-> accept in the standard kernel as an absolute last resort.
+On Fri, 28 Jan 2005 20:49:03 +0100, Wiktor <victorjan@poczta.onet.pl> wrote:
+> Hi,
 > 
-> In contrast, the second patch I tested may actually _fix_ the race. 
+> > Could you please try editing drivers/input/serio/i8042.c and add
+> > udelay(20) before and after calls to i8042_write_data() in
+> > i8042_kbd_write() and i8042_command().
 > 
-> The fact that the first patch makes the oops go away is a good thing, 
-> though: it shows that your oops really was due to that small race window, 
-> and as such it helps validate that it wasn't anything else.
+> of course i could, will it make kernel not detect smoked AUX port?
+> (problem is solved by i8042.noaux=1 cause my hardware has smoked PS/2
+> port) i would rather think about testing devices before assuming thet
+> work and trying to use them (maybe not as standard kernel feature, but
+> it would be nice stuff for people with self-built machines where not
+> everything works).
 
---- 1.32/drivers/char/pty.c     2005-01-10 17:29:36 -08:00
-+++ edited/drivers/char/pty.c   2005-01-23 10:21:04 -08:00
-@@ -149,13 +149,17 @@
- static int pty_chars_in_buffer(struct tty_struct *tty)
- {
-        struct tty_struct *to = tty->link;
--       int count;
-+       int count = 0;
- 
--       if (!to || !to->ldisc.chars_in_buffer)
--               return 0;
--
--       /* The ldisc must report 0 if no characters available to be read
-*/
--       count = to->ldisc.chars_in_buffer(to);
-+       if (to) {
-+               struct tty_ldisc *ld = tty_ldisc_ref(to);
-+               if (ld) {
-+                       if (ld->chars_in_buffer) {
-+                               count = ld->chars_in_buffer(to);
-+                               tty_ldisc_deref(ld);
-+                       }
-+               }
-+       }
- 
- 
-       if (tty->driver->subtype == PTY_TYPE_SLAVE) return count;
- 
+We do test AUX port and your port appears to be perfectly functional
+from the kernel point of view - it porperly responds to AUX_LOOP
+commands, does not claim to support MUX mode and KBC properly sets
+status register when asked to disable interface...
+
 -- 
-ierdnah <ierdnah@go.ro>
-
+Dmitry

@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbUC0AGo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 19:06:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbUC0AGo
+	id S261498AbUC0AJz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 19:09:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbUC0AJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 19:06:44 -0500
-Received: from fed1mtao02.cox.net ([68.6.19.243]:26008 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S261497AbUC0AGm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 19:06:42 -0500
-Date: Fri, 26 Mar 2004 17:06:39 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6-BK] Allow arch-specific pci_dma_set_mask
-Message-ID: <20040327000639.GA29290@plexity.net>
-Reply-To: dsaxena@plexity.net
+	Fri, 26 Mar 2004 19:09:55 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:23448 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261498AbUC0AJy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 19:09:54 -0500
+Date: Fri, 26 Mar 2004 16:08:23 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       akpm@osdl.org, haveblue@us.ibm.com, hch@infradead.org,
+       wli@holomorphy.com
+Subject: Re: Sparc64, cpumask_t and struct arguments (was: [PATCH] Introduce
+ nodemask_t ADT)
+Message-Id: <20040326160823.224150c8.davem@redhat.com>
+In-Reply-To: <20040326152927.5992b011.pj@sgi.com>
+References: <20040320031843.GY2045@holomorphy.com>
+	<20040320000235.5e72040a.pj@sgi.com>
+	<20040320111340.GA2045@holomorphy.com>
+	<20040322171243.070774e5.pj@sgi.com>
+	<20040323020940.GV2045@holomorphy.com>
+	<20040322183918.5e0f17c7.pj@sgi.com>
+	<20040323031345.GY2045@holomorphy.com>
+	<20040322193628.4278db8c.pj@sgi.com>
+	<20040323035921.GZ2045@holomorphy.com>
+	<20040325012457.51f708c7.pj@sgi.com>
+	<20040325101827.GO791@holomorphy.com>
+	<20040326143648.5be0e221.pj@sgi.com>
+	<20040326145423.74c1ce52.davem@redhat.com>
+	<20040326152927.5992b011.pj@sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organization: Plexity Networks
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 26 Mar 2004 15:29:27 -0800
+Paul Jackson <pj@sgi.com> wrote:
 
-Jeff, 
+> > It's a problem moreso on sparc32.
+> 
+> Ah good.  Then, since arch/sparc and include/asm-sparc make no use
+> of cpumask_t, can I therefore conclude that you don't care whether
+> it's really a struct, or not?
+> 
+> That would be good news, if so.
 
-Following is a patch that allows for architectures to override 
-pci_set_dma_mask and friends for systems that need to do so such
-as the ARM IXP425. Instead of having invidual HAVE_ARCH_FOO
-for each of the three mask functions, I think it just makes more
-sense to have one for overrdding all three since chances are
-if you need to override one, you need to do so for all of them.
-
-Tnx,
-~Deepak
-
-===== drivers/pci/pci.c 1.63 vs edited =====
---- 1.63/drivers/pci/pci.c	Sun Mar 14 12:17:06 2004
-+++ edited/drivers/pci/pci.c	Fri Mar 26 16:58:01 2004
-@@ -658,6 +658,10 @@
- 	}
- }
- 
-+#ifndef HAVE_ARCH_PCI_SET_DMA_MASK
-+/*
-+ * These can be overridden by arch-specific implementations
-+ */
- int
- pci_set_dma_mask(struct pci_dev *dev, u64 mask)
- {
-@@ -690,6 +694,7 @@
- 
- 	return 0;
- }
-+#endif
-      
- static int __devinit pci_init(void)
- {
-
--- 
-Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
-
-"Unlike me, many of you have accepted the situation of your imprisonment and   
- will die here like rotten cabbages." - Number 6
+SMP on sparc32 is totally not working yet in 2.6.x, that is why
+there are no cpumask_t references :-)

@@ -1,54 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263068AbREaL0x>; Thu, 31 May 2001 07:26:53 -0400
+	id <S263083AbREaLwZ>; Thu, 31 May 2001 07:52:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263070AbREaL0d>; Thu, 31 May 2001 07:26:33 -0400
-Received: from kashiwa8-77.ppp-1.dion.ne.jp ([210.157.148.77]:45072 "EHLO
-	ask.ne.jp") by vger.kernel.org with ESMTP id <S263068AbREaL0c>;
-	Thu, 31 May 2001 07:26:32 -0400
-Date: Thu, 31 May 2001 20:28:20 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
-To: Bjorn Wesen <bjorn.wesen@axis.com>
-Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Only 5 undocumented configuration symbols left
-Message-Id: <20010531202820.0ac5bf9d.bruce@ask.ne.jp>
-In-Reply-To: <Pine.LNX.4.21.0105311213261.28884-100000@godzilla.axis.se>
-In-Reply-To: <20010530190744.A2027@thyrsus.com>
-	<Pine.LNX.4.21.0105311213261.28884-100000@godzilla.axis.se>
-X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S263098AbREaLwP>; Thu, 31 May 2001 07:52:15 -0400
+Received: from [194.168.151.17] ([194.168.151.17]:25357 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263086AbREaLwE>; Thu, 31 May 2001 07:52:04 -0400
+Subject: Re: kernel
+To: j_red@sz.onet.pl
+Date: Thu, 31 May 2001 12:45:50 +0100 (BST)
+Cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org
+In-Reply-To: <01053113302200.01722@laptop> from "robert seczkowski" at May 31, 2001 01:31:56 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E155Qti-0007Pw-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Since I don't actually know what you're talking about, I'll just make picky
-little comments about the grammar, etc. ;)
-
-On Thu, 31 May 2001 12:14:06 +0200 (CEST)
-Bjorn Wesen <bjorn.wesen@axis.com> wrote:
-
-> +Etrax100 I2C configuration
-> +CONFIG_ETRAX_I2C_USES_PB_NOT_PB_I2C
-> +  Select whether to use the special I2C mode in the PB I/O register or
-> +  not. This option needs to be selected in order to use some drivers that
-> +  accesses the I2C I/O pins directly instead of going through the I2C
-     ^^^^^^^^
-     access
-
-> +  driver, like the DS1302 realtime-clock driver. If you are uncertain, 
-> +  choose yes here.
-     ^^^^^^^^^^^^^^^
-This is usually "say Y here." Minor, I know, but it'd be nice to get the
-nomenclature standardized.
-
-(Actually, "...to be selected in order to use some drivers, such as the DS1302
-realtime clock driver, that access the I2C I/O pins directly instead of going
-through the I2C driver." might scan better.)
-
-
-Bruce
-
+Does it do this if you start with 'make mrproper' also I asume you mean RH 7.1
 

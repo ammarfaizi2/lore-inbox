@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130962AbRA3Whz>; Tue, 30 Jan 2001 17:37:55 -0500
+	id <S132704AbRA3Wiz>; Tue, 30 Jan 2001 17:38:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132446AbRA3Whf>; Tue, 30 Jan 2001 17:37:35 -0500
-Received: from cmr2.ash.ops.us.uu.net ([198.5.241.40]:61663 "EHLO
-	cmr2.ash.ops.us.uu.net") by vger.kernel.org with ESMTP
-	id <S130962AbRA3WhZ>; Tue, 30 Jan 2001 17:37:25 -0500
-Message-ID: <3A774282.5285F5EF@uu.net>
-Date: Tue, 30 Jan 2001 17:38:58 -0500
-From: Alex Deucher <adeucher@UU.NET>
-Organization: UUNET
-X-Mailer: Mozilla 4.74 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: tori@tellus.mine.nu, linux-kernel@vger.kernel.org
-Subject: Re: WOL and 3c59x (3c905c-tx)
+	id <S132785AbRA3Wip>; Tue, 30 Jan 2001 17:38:45 -0500
+Received: from usuario0-37-165-207.dialup.uni2.es ([62.37.165.207]:56992 "EHLO
+	TeLeNiEkO") by vger.kernel.org with ESMTP id <S132704AbRA3Wij>;
+	Tue, 30 Jan 2001 17:38:39 -0500
+Date: Tue, 30 Jan 2001 23:35:49 +0100
+From: TeLeNiEkO <telenieko@telenieko.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2 Possible bugs, 1 'stuff'
+Message-ID: <20010130233549.A5149@telenieko.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+X-Mailer: Mutt 1.3.12i
+X-Editor: GNU Emacs 20.7.2
+X-Info: http://www.telenieko.com
+X-Operating-System: Linux(TeLeNiEkO)/2.4.0 (i686)
+X-Uptime: 11:23pm  up 9 days, 10:26,  8 users,  load average: 0.27, 0.27, 0.26
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Linksys WOL ethernet card and it all has some issues with WOL. 
-My PC will wake fine if I shut it down in linux (using apm).  It will
-also stay off after I shut it down.  If I shutdown from within win98 or
-using the power button, it will boot it's self up within 1-2 minutes of
-being turned off.  The only way to make it stay off is to boot linux and
-shut it down.  I'm using 2.4.0 with apm in kernel.  Same behavior in the
-2.4test kernels.
+On kernel 2.4.0:
+ The ne2k-pci driver (NE2000 PCI) cannont be compiled as a module. I tried it on two computers and I had really hard problems.
+ I built it in. If this wasn't notified yet let me know and I'll recompile the kernel to get the exact error message and bring it to you. (It was about unresolved simbols, you won't need to habe the card to see it!)
 
-It's not too bothersome since I rarely run win98, but it is strange...
+The other think is about Traffic Shaping and QoS:
+Wendy:/etc/ipconf# tc filter add dev eth1 parent 1:0 protocol ip prio 100 u32 match ip dst 192.168.0.69 flowid 1:2
+RTNETLINK answers: Invalid argument
 
-Alex
+Both 1:0 and 1:2 are created, and according to the howto that should run (and it did on 2.2.18), if you want I'll send you a complete list of the commands issued to 'tc'.
 
+(Traffic Shaper and QoS was compiled as built-in, i got more unresolved simbols having them as modules!)
 
-------------------------------
+The other thing...
+ Many new users are coming to linux world. But the BUG-HUNTING really goes far for a lot of people. Many people are trying linux for first time, after 2 months they try to get witth kernel update and OOOhh, they find a bug! then:
+ a) They don't find a nice button to notify the bug on their desktop... and the most clever can't find it on a website.
+ b) When they read the BUG-HUNTING doc they just get the windows CD and go back to monkeys world.
 
-When shutting down my computer with Linux, I cannot wake it up using 
-wake-on-LAN, which I can do if I shut it down from WinME or the LILO 
-prompt using the power button. 
+So, as Linux intends to approach to more "home-users" each day, there should be an easier way to notify bugs, for thoose users. Remember that it's while you mess up with things is when bugs appear. 
+And there's nothing better than a novice user to mess-up with a kernel ;o)
 
-I see some "interesting" code in 3c59x.c and acpi_set_WOL, and there is 
-the following little comment: "AKPM: This kills the 905". 
+So, try to find an easier, but reallybly way, for notifiing bugs (a form on kernel.org won't do much!)
 
-So, what's up? Does it break all 905s? And will not changing the state 
-to D3, as a comment a few lines down says, shut the card down, which
-seems 
-to be a bad thing to do in a function called from vortex_probe1... I
-know 
-this code is currently bypassed, but still, what is this? 
+And let me know about the ne2k-pci and TF bugs (if they are).
 
-/Tobias
+sincerelly,
+ TeLeNiEkO (Barcelona, Spain)
+
+PD: If you want full info about one of the "bugs" let me know, and I'll do my best to recompile the kernel.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

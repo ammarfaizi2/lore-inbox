@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318901AbSHEXP7>; Mon, 5 Aug 2002 19:15:59 -0400
+	id <S318992AbSHFF2J>; Tue, 6 Aug 2002 01:28:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318914AbSHEXP7>; Mon, 5 Aug 2002 19:15:59 -0400
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:31716 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S318901AbSHEXP6>; Mon, 5 Aug 2002 19:15:58 -0400
-Subject: Re: Patch: linux-2.5.30/fs/partitions/ldm.c BUG_ON(cond1 || cond2)
-	separation
-From: Richard Russon <ldm@flatcap.org>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020805140634.A2999@baldur.yggdrasil.com>
-References: <20020805140634.A2999@baldur.yggdrasil.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8.99 
-Date: 06 Aug 2002 00:19:33 +0100
-Message-Id: <1028589573.28848.10.camel@whiskey.something.uk.com>
+	id <S318993AbSHFF2J>; Tue, 6 Aug 2002 01:28:09 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:17415 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S318992AbSHFF2J>;
+	Tue, 6 Aug 2002 01:28:09 -0400
+Date: Tue, 6 Aug 2002 01:31:12 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode linux]
+Message-ID: <20020806013112.A3228@mark.mielke.cc>
+References: <1028294887.18635.71.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208031332120.7531-100000@localhost.localdomain> <m3u1mb5df3.fsf@averell.firstfloor.org> <ail2qh$bf0$1@penguin.transmeta.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <ail2qh$bf0$1@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Aug 05, 2002 at 05:35:13AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adam,
+On Mon, Aug 05, 2002 at 05:35:13AM +0000, Linus Torvalds wrote:
+> And yes, this signal handler thing is clearly visible on benchmarks. 
+> MUCH too clearly visible.  I just didn't see any safe alternatives
+> (and I still don't ;( )
 
-> 	linux-2.5.30/fs/partitions/ldm.c had 23 statements 
-> of the form BUG_ON(condition1 || condition2).  This patch changes
-> them to:
-> 
-> 		BUG_ON(condition1);
-> 		BUG_ON(condition2);
+To some degree, the original approach taken by Intel may be an alternative...
 
-Hmm...  The only reason I put the BUG_ONs in, is paranoia.  I cannot
-imagine how they could be tripped, since all the pointers will have
-already been checked.  If you wish to standardise the way BUG_ON is
-used, then OK, change them.
+That is, the signal handler is responsible for saving state of all CPU
+resources that it intends to use, and restoring state before returning
+control to the caller. (the 'interupt' qualifier from C)
 
-> Could you please let me know if you want to handle submitting it
+I could see this offered as a GCC optimization, but without the compiler
+smarts to detect what is needed and what is not, it would be very difficult
+to add this support in a seamless manner.
 
-Please can you submit the patch to Linus.
+For example:
 
-Cheers,
-  FlatCap (Rich)
-  ldm@flatcap.org
+    typedef void (*__fastsighandler_t) (int) __attribute__ ((signal_handler));
+
+    #define signal(number, handler) \
+        (__attribute_enabled__((handler, signal_handler)) \
+            ? __signal_fast(number, handler) \
+            : __signal(number, handler))
+
+    void handle_sigint (int) __attribute__ ((signal_handler))
+    {
+        sigint_received++;
+    }
 
 
+
+mark
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

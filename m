@@ -1,100 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263573AbUDURfH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263567AbUDURmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263573AbUDURfH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 13:35:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbUDURfH
+	id S263567AbUDURmV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 13:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbUDURmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 13:35:07 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3456 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263565AbUDURev
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 13:34:51 -0400
-Message-ID: <4086B0AB.1030604@pobox.com>
-Date: Wed, 21 Apr 2004 13:34:35 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Wed, 21 Apr 2004 13:42:21 -0400
+Received: from borf.com ([209.179.94.84]:49583 "EHLO edsac.borf.com")
+	by vger.kernel.org with ESMTP id S263567AbUDURmQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 13:42:16 -0400
+Message-ID: <c6be8c22d61f39eeb861c900d5abd7fe@borf.com>
+Subject: AoE inclusion into 2.4.x
+From: Sam Hopkins <sah@coraid.com>
+Date: Wed, 21 Apr 2004 13:34:58 -0400
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Thomas Horsten <thomas@horsten.com>, medley@lists.infowares.com,
-       linux-hotplug-devel@lists.sourceforge.net,
-       Wilfried Weissmann <Wilfried.Weissmann@gmx.at>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Greg KH <greg@kroah.com>,
-       Linux RAID Mailing List <linux-raid@vger.kernel.org>,
-       Martins Krikis <mkrikis@yahoo.com>, ataraid-list@redhat.com,
-       linux-scsi@vger.kernel.org
-Subject: Re: [RFC] [DRAFT] [udev PATCH] First attempt at vendor RAID support
- in 2.6
-References: <Pine.LNX.4.40.0404151458450.30892-100000@jehova.dsm.dk> <40803C61.503@gmx.net> <40816AEC.6020309@gmx.net>
-In-Reply-To: <40816AEC.6020309@gmx.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carl-Daniel Hailfinger wrote:
-> since on one side ATARAID support has vanished from 2.6 and on the other
-> side some parties are pushing for an enhanced MD driver in the kernel, why
->  don't we do the setup and metadata handling of all those types of RAID in
-> userspace?
+Greetings,
+
+I would like to offer our driver for inclusion into the 2.4 kernel.
+Marcelo suggested (strongly) that I make this request officially
+to the list.
+
+The driver code is available from:
+
+	http://www.coraid.com/support/aoe-1.6.tar
+
+I'm now going to cheat and copy our prior correspondence.  Please CC me
+on any comments / questions as I'm not a lkml subscriber.
+
+
+Cheers,
+
+Sam Hopkins
+sah@coraid.com
+
+-----
+>From cyclades.com!marcelo.tosatti Wed Apr 21 12:18:18 EDT 2004
+Date: Wed, 21 Apr 2004 13:16:35 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Sam Hopkins <sah@coraid.com>
+Subject: Re: AoE driver inclusion into standard kernel release
+In-Reply-To: <70362c6516a63d61c978affd8ac6d270@borf.com>
+
+mail linux-kernel@vger.kernel.org
+Subject: AoE inclusion into 2.4.x
+Greetings,
+
+I would like to offer our driver for inclusion into the 2.4 kernel.
+Marcelo suggested (strongly) that I make this request officially
+to the list.
+
+The driver code is available from:
+
+	http://www.coraid.com/support/aoe-1.6.tar
+
+I'm now going to cheat and copy our prior correspondence.  Please CC me
+on any comments / questions as I'm not a lkml subscriber.
+
+
+Cheers,
+
+Sam Hopkins
+sah@coraid.com
+
+-----
+>From cyclades.com!marcelo.tosatti Wed Apr 21 12:18:18 EDT 2004
+Date: Wed, 21 Apr 2004 13:16:35 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Sam Hopkins <sah@coraid.com>
+Subject: Re: AoE driver inclusion into standard kernel release
+In-Reply-To: <70362c6516a63d61c978affd8ac6d270@borf.com>
+
+Hi Sam, 
+
+Sorry for taking so long to answer. 
+
+Currently 2.4.x is in maintenance-only mode, but I dont see a problem including
+your driver. I strongly suggest you to post this announcement to the linux-kernel 
+mailing list to get wider review, please.
+
+Thanks!
+
+On Sat, Apr 17, 2004 at 05:26:50PM -0400, Sam Hopkins wrote:
+> Hello,
 > 
-> I got positive feedback by private mail from several kernel developers for
-> the last incarnations of raiddetect, so if you disagree, speak up now.
+> I would like to discuss getting my AoE protocol driver
+> into the standard kernel release.  AoE (ATA over Ethernet)
+> is an open protocol for transmitting ATA commands over ethernet
+> frames.  AoE has an assigned IANA Ethernet type of 0x88a2 and
+> an assigned linux kernel major number of 152.  The AoE driver
+> translates block device requests into AoE requests to EtherDrive
+> blades, the only device to currently support the AoE protocol.
+> An EtherDrive blade is a small computer that answers AoE requests
+> by performing them upon the attached ATA drive.  Each blade slides
+> into a rackmount shelf where it gets access to power and ethernet.
+> Each blade has its own ethernet address.  For more information about
+> EtherDrive blades, please visit www.coraid.com.
 > 
-> Raiddetect is a program to find vendor software RAID superblocks, analyze
-> them for validity, group them by RAID vendor and (later on) set them up
-> via MD/DM. It is small (~35kB compiled statically against klibc) and
-> designed to be run from initrd/initramfs.
+> The current addressing scheme for accessing EtherDrive blades
+> has changed since the initial registration of the major number.
+> Previously we had a mechanism by which users associated blades
+> with a minor number and then accessed the blade by accessing
+> /dev/etherd/<minor number>.  This was scrapped in favor of a
+> simpler method.  The current mechanism relies on the notion
+> that each blade slides into one of 18 slots in an addressable rack.
+> The blade in shelf 0, slot 1 is addressed as /dev/etherd/00:01.
+> For char devices, the following is now employed:
 > 
-> raiddetect now supports the following metadata formats:
-> -Promise RAID
-> -Highpoint RAID
-> -Medley RAID
-> -Intel RAID
-
-Yeah, it's pretty spiffy.  I like it.
-
-My personal preference for raiddetect would be as a simple helper that 
-examines the system, and outputs some information.
-
-Then, someone using device mapper could use that in a script that takes 
-the information generated by raiddetect, and uses it to configure 
-DM-based raid0 and raid1 arrays.
-
-Small and purpose-specific, and even usable for someone in a 2.4.x 
-kernel that wrote a small MD-based plugin for "userspace-configured 
-vendor raid [01]"
-
-
-> If you want support for another metadata format, please tell me which and
-> I'll try to add it. Patches are preferred ;-) My current wishlist is:
-> - Adaptec ASR HostRAID
-> - DDF RAID
+> 	0 = /dev/etherd/ctl
+> 	1 = /dev/etherd/stat
+> 	2 = /dev/etherd/err
 > 
-> Hot-add and hot-remove features can be added easily if raiddetect is
-> called by an udev rule on block device removal/insertion. If raiddetect
-> stays loaded into memory or is allowed to save its state, hotplug events
-> will not trigger any access to devices not related to that particular RAID
-> array.
-
-Well, hotplug and hotremove are more interrupt-context type events these 
-days.  It's feasible to send "device just appeared" or "device is 
-already gone, nyah nyah" messages to /sbin/hotplug after that fact, mainly.
-
-Failover and hotplug/hotremove callbacks are definitely in-kernel 
-things, IMO.  Userspace drives the policy behind that, of course.
-
-
-> It seems that there are some host adapter drivers out there implementing
-> their own RAID engine which could be consolidated into a single RAID
-> "library" instead. If you know about such drivers, please speak up.
-
-In the kernel long term, I would definitely like to see just a single 
-piece of code for each raid flavor -- RAID0, 1, 5, 6, etc.
-
-	Jeff
-
-
-
+> We may add /dev/etherd/raw back in the future, but currently
+> it is no longer necessary.  Documentation at lanana.org should
+> probably be updated to reflect these changes.
+> 
+> We've been using the AoE driver with EtherDrive blades and
+> software raid for a while and I feel the driver is ready for
+> this next step.  Please let me know if there is anything you
+> need for me to do in order to move this along.
+> 
+> Cheers,
+> 
+> Sam Hopkins
+> sah@coraid.com

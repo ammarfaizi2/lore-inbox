@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265648AbTFSA2t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 20:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265654AbTFSA2t
+	id S265656AbTFSAcT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 20:32:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265662AbTFSAcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 20:28:49 -0400
-Received: from fed1mtao05.cox.net ([68.6.19.126]:1982 "EHLO fed1mtao05.cox.net")
-	by vger.kernel.org with ESMTP id S265648AbTFSA2r (ORCPT
+	Wed, 18 Jun 2003 20:32:19 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:63418 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265656AbTFSAcO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 20:28:47 -0400
-Message-ID: <3EF10705.9090609@cox.net>
-Date: Wed, 18 Jun 2003 17:42:45 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030603
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Oliver Neukum <oliver@neukum.org>, Robert Love <rml@tech9.net>,
-       Patrick Mochel <mochel@osdl.org>, Andrew Morton <akpm@digeo.com>,
-       sdake@mvista.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] udev enhancements to use kernel event queue
-References: <3EE8D038.7090600@mvista.com> <1055459762.662.336.camel@localhost> <20030612232523.GA1917@kroah.com> <200306132201.47346.oliver@neukum.org> <20030618225913.GB2413@kroah.com> <3EF10002.7020308@cox.net> <20030619002039.GA2866@kroah.com>
-In-Reply-To: <20030619002039.GA2866@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 18 Jun 2003 20:32:14 -0400
+Subject: [KEXEC][ANNOUNCE] kexec for 2.5.72-mm1 available
+From: Andy Pfiffer <andyp@osdl.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@zip.com.au>
+In-Reply-To: <1055878770.1203.9.camel@andyp.pdx.osdl.net>
+References: <1055878770.1203.9.camel@andyp.pdx.osdl.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1055983570.1230.5.camel@andyp.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 18 Jun 2003 17:46:10 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+A patch for kexec in 2.5.72-mm1 is now available.  This patch is based
+upon the stable 2.5.72 version.
 
-> But you also have to "hold" events for a bit of time in order to
-> determine that things are out of order, or we have a gap.  So a bit of
-> "complex" logic is in the works, but it's much less complex than if we
-> didn't have that sequence number.
-> 
+This patch has been lightly tested to work on a dual-proc P4-1.7GHz Xeon
+system.  If you try it, and you use the VESA framebuffer, expect
+darkness on your screen during the reboot. ;^)
 
-OK, so the important point here is that while you probably delay events 
-for a small amount of time (1-3 seconds maybe) to ensure that you aren't 
-processing steps out of order, it's not likely that userspace is going 
-hold event #1321 for an indefinite period of time just because it has 
-never seen event #1320.
+More info here:
+http://www.osdl.org/archive/andyp/bloom/Code/Linux/Kexec/index.html
 
-I can't wait to see this implementation; it's going to be interesting, 
-to say the least. However, without the sequence numbers, it would very 
-likely be impossible.
+The patch:
+http://www.osdl.org/archive/andyp/kexec/2.5.72-mm1/kexec2-2.5.72-mm1-full.patch
+
+Source for the matching user-mode tool:
+http://www.osdl.org/archive/andyp/kexec/2.5.72-mm1/kexec-tools-1.8-2.5.72-mm1.tgz
+
+
 

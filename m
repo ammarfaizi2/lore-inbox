@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317418AbSGDOGy>; Thu, 4 Jul 2002 10:06:54 -0400
+	id <S317419AbSGDOQZ>; Thu, 4 Jul 2002 10:16:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317419AbSGDOGx>; Thu, 4 Jul 2002 10:06:53 -0400
-Received: from smtp.intrex.net ([209.42.192.250]:18705 "EHLO intrex.net")
-	by vger.kernel.org with ESMTP id <S317418AbSGDOGw>;
-	Thu, 4 Jul 2002 10:06:52 -0400
-Date: Thu, 4 Jul 2002 10:15:01 -0400
-From: jlnance@intrex.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
-Message-ID: <20020704101501.A19611@tricia.dyndns.org>
-References: <20020619113734.D2658@redhat.com> <E17LF65-0001K4-00@starship> <20020621160659.C2805@redhat.com> <E17PyXt-0000hm-00@starship>
+	id <S317421AbSGDOQY>; Thu, 4 Jul 2002 10:16:24 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:21703 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S317419AbSGDOQY>;
+	Thu, 4 Jul 2002 10:16:24 -0400
+Date: Thu, 4 Jul 2002 16:18:09 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Martin Dalecki <dalecki@evision-ventures.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.24 IDE 97
+Message-ID: <20020704161809.A27207@ucw.cz>
+References: <Pine.SOL.4.30.0207030021060.27685-200000@mion.elka.pw.edu.pl> <20020704142938.D11601@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E17PyXt-0000hm-00@starship>; from phillips@arcor.de on Thu, Jul 04, 2002 at 06:48:45AM +0200
-X-Declude-Sender: jlnance@intrex.net [216.181.42.97]
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020704142938.D11601@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Thu, Jul 04, 2002 at 02:29:38PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 04, 2002 at 06:48:45AM +0200, Daniel Phillips wrote:
-> > behaviour under certain application workloads.  With the half-md4, at
-> > least we can expect decent worst-case behaviour unless we're under
-> > active attack (ie. only maliscious apps get hurt).
+On Thu, Jul 04, 2002 at 02:29:38PM +0100, Russell King wrote:
+
+> On Wed, Jul 03, 2002 at 12:22:11AM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > This patch is a accumulation of ata-hosts-7/8/9/10/11, ata-autodma
+> > and ata-ata66_check patches previously posted on LKML.
 > 
-> OK, anti-hash-attack is on the list of things to do, and it's fairly
-> clear how to go about it:
+> >From a first review only, it looks like this patch prevents the chipset
+> drivers from disabling DMA mode on initialisation.  This is Really Bad(tm)
+> since some revisions of some chipsets must _never_ be placed into DMA
+> mode due to hardware bugs.  Even if the user selects CONFIG_IDEDMA_AUTO.
+> 
+> The code in sl82c105.c knows about the chipset revisions that this is
+> required for, and it looks like the code in ide-pci.c will override the
+> chipset if CONFIG_IDEDMA_AUTO is enabled.
 
-Is it really worth the trouble and complexity to do anti-hash-attack?
-What is the worst that could happen if someone managed to create a bunch
-of files that hashed to the same value?
+I think the best solution (for now) probably would be to supply the mode
+map to the core IDE driver so that it can choose which modes (and
+whether DMA) are available.
 
-Jim
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,70 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVBONVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVBON3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbVBONVN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 08:21:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVBONUL
+	id S261719AbVBON3z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 08:29:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVBON3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 08:20:11 -0500
-Received: from 83-216-143-24.alista342.adsl.metronet.co.uk ([83.216.143.24]:46218
-	"EHLO devzero.co.uk") by vger.kernel.org with ESMTP id S261717AbVBONSv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 08:18:51 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Reply-To: s0348365@sms.ed.ac.uk
-Organization: University of Edinburgh
-To: Lorenzo Colitti <lorenzo@colitti.com>
-Subject: Re: [ACPI] Re: Call for help: list of machines with working S3
-Date: Tue, 15 Feb 2005 13:17:15 +0000
-User-Agent: KMail/1.7.1
-Cc: Pavel Machek <pavel@suse.cz>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
-References: <20050214211105.GA12808@elf.ucw.cz> <200502150605.11683.s0348365@sms.ed.ac.uk> <4211E729.1090305@colitti.com>
-In-Reply-To: <4211E729.1090305@colitti.com>
+	Tue, 15 Feb 2005 08:29:55 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:32951 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261719AbVBON3x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 08:29:53 -0500
+Message-ID: <4211F90F.5030705@grupopie.com>
+Date: Tue, 15 Feb 2005 13:28:47 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: Bernd Petrovitsch <bernd@firmix.at>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Patrick McFarland <pmcfarland@downeast.net>,
+       linux-kernel@vger.kernel.org, Tim Bird <tim.bird@am.sony.com>,
+       Prakash Punnoor <prakashp@arcor.de>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       linux-hotplug-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
+       Roland Dreier <roland@topspin.com>
+Subject: Re: [OT] speeding boot process (was Re: [ANNOUNCE] hotplug-ng 001
+ release)
+References: <20050211004033.GA26624@suse.de> <420C054B.1070502@downeast.net>	 <20050211011609.GA27176@suse.de>	 <1108354011.25912.43.camel@krustophenia.net>	 <4d8e3fd305021400323fa01fff@mail.gmail.com> <42106685.40307@arcor.de>	 <1108422240.28902.11.camel@krustophenia.net> <524qge20e2.fsf@topspin.com>	 <1108424720.32293.8.camel@krustophenia.net> <42113F6B.1080602@am.sony.com>	 <1108430245.32293.16.camel@krustophenia.net>	 <4B923A81-7EF3-11D9-86CC-000393ACC76E@mac.com>	 <4211B8FC.8000600@aitel.hist.no> <1108459982.438.9.camel@tara.firmix.at> <4211F706.4030104@aitel.hist.no>
+In-Reply-To: <4211F706.4030104@aitel.hist.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502151317.15633.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 Feb 2005 12:12, Lorenzo Colitti wrote:
-> Alistair John Strachan wrote:
-> > On Monday 14 Feb 2005 21:11, Pavel Machek wrote:
-> >>Table of known working systems:
-> >>Model                         hack (or "how to do it")
-> >>[...]
-> >>HP NC6000   s3_bios (2)
-> >
-> > The above report is incorrect. On 2.6.11-rc4, even with the s3_bios
-> > option, the NC6000 (which I own) still does not wake up from S3 sleep.
-> > The wiki linked somewhere else in this thread also identifies these
-> > machines as not working.
->
-> I beg to differ: it works for me on 2.6.11-rc3 (even with the swsusp2
-> patch). However, I need to use acpi_sleep=s3_bios, and I can't use
-> radeonfb or it will lock up on resume.
->
-> .config attached.
->
+Helge Hafting wrote:
+> Now that is a really good idea.  Init could simply run "make -j init2" to
+> enter runlevel 2.  A suitable makefile would list all dependencies, and
+> of course the targets needed for "init2", "init3" and so on.
+> 
+> It might not be that much work either.  Parallel make exists already, 
+> and the
+> first attempt at a makefile could simply implement the current sequence 
+> that
+> is known to work. Then the tweaking comes. :-)
 
-As recommended elsewhere in this thread, I'm not using any sort of framebuffer 
-driver, but vesafb IS compiled in (but no vga= option is present). Does it 
-need to be compiled out completely?
+Someone already mentioned this work before on this thread. I just 
+googled for it and found the link:
 
-I have acpi_sleep=s3_bios on cmdline. I am not using swsusp2 (and I can't see 
-how this is at all related to software suspend).
-
-Perhaps it is the machine BIOS. Which version do you have?
+http://www-106.ibm.com/developerworks/linux/library/l-boot.html?ca=dgr-lnxw04BootFaster
 
 -- 
-Cheers,
-Alistair.
+Paulo Marques - www.grupopie.com
 
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/CSim Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

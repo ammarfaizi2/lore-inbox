@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136008AbREHAFv>; Mon, 7 May 2001 20:05:51 -0400
+	id <S136024AbREHAGw>; Mon, 7 May 2001 20:06:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136017AbREHAFm>; Mon, 7 May 2001 20:05:42 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:17159 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S136008AbREHAF3>; Mon, 7 May 2001 20:05:29 -0400
-Date: Mon, 7 May 2001 19:26:55 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
+	id <S136017AbREHAGm>; Mon, 7 May 2001 20:06:42 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:9387 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S136024AbREHAGa>;
+	Mon, 7 May 2001 20:06:30 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15095.14467.446430.966055@pizda.ninka.net>
+Date: Mon, 7 May 2001 17:06:27 -0700 (PDT)
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
 Subject: Re: page_launder() bug
 In-Reply-To: <Pine.LNX.4.21.0105071645070.7915-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0105071920080.7515-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.21.0105071848210.7515-100000@freak.distro.conectiva>
+	<Pine.LNX.4.21.0105071645070.7915-100000@penguin.transmeta.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Linus Torvalds writes:
+ > What do you expect me to do? The patch is buggy. It should be reverted.
+ > What's your problem?
 
-On Mon, 7 May 2001, Linus Torvalds wrote:
+I think the problem he has is that you are acting as if the patch
+causes corruptions and will end in failures.  This is how you are
+coming across, at least.
 
-> 
-> On Mon, 7 May 2001, Marcelo Tosatti wrote:
-> > 
-> > So the "dead_swap_page" logic is _not_ buggy and you are full of shit when
-> > telling Alan to revert the change. (sorry, I could not avoid this one)
-> 
-> Well, the problem is that the patch _is_ buggy. 
-> 
-> swap_writepage() does it right. And dead_swap_page does it wrong. It
-> doesn't look at the swap counts, for one thing.
+Really, your problem with the patch seems to be aesthetic in nature
+and that the patch is not doing things cleanly at all.  To this I will
+not contest, it surely is not the way to fix this in the end.
 
-So lets fix it and make it look for the swap counts. 
+If my analysis up to this point is correct, the patch should in fact
+not be reverted.  Many patches in Alan's tree are not done in the most
+aesthetically pleasing way to you, we all know this. But they do solve
+problems for people.  Half of Alan's tree should be reverted if we
+followed this rule, really.
 
-> The patch should be reverted. The fact that other parts of the system do
-> it _right_ is not an argument for mm/vmscan.c to do it wrong.
-
-My point is that its _ok_ for us to check if the page is a dead swap cache
-page _without_ the lock since writepage() will recheck again with the page
-_locked_. Quoting you two messages back: 
-
-"But it is important to re-calculate the deadness after getting the lock.
-Before, it was just an informed guess. After the lock, it is knowledge."
-
-See ? 
-
-
-
-
-
+Later,
+David S. Miller
+davem@redhat.com

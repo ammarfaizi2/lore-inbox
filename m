@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285274AbRLNAVe>; Thu, 13 Dec 2001 19:21:34 -0500
+	id <S285277AbRLNAXy>; Thu, 13 Dec 2001 19:23:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285276AbRLNAVY>; Thu, 13 Dec 2001 19:21:24 -0500
-Received: from rcpt-expgw.biglobe.ne.jp ([210.147.6.214]:42955 "EHLO
-	rcpt-expgw.biglobe.ne.jp") by vger.kernel.org with ESMTP
-	id <S285274AbRLNAVN>; Thu, 13 Dec 2001 19:21:13 -0500
-X-Biglobe-Sender: <k-suganuma@mvj.biglobe.ne.jp>
-Date: Thu, 13 Dec 2001 16:20:26 -0800
-From: Kimio Suganuma <k-suganuma@mvj.biglobe.ne.jp>
-To: Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [ANNOUNCE] HotPlug CPU patch against 2.5.0
-Cc: linux-kernel@vger.kernel.org, large-discuss@lists.sourceforge.net,
-        Heiko Carstens <Heiko.Carstens@de.ibm.com>,
-        Jason McMullan <jmcmullan@linuxcare.com>,
-        Anton Blanchard <antonb@au1.ibm.com>,
-        Greg Kroah-Hartman <ghartman@us.ibm.com>, rusty@rustcorp.com.au
-In-Reply-To: <20011213224400.H8007@flint.arm.linux.org.uk>
-In-Reply-To: <20011213132557.5B3E.K-SUGANUMA@mvj.biglobe.ne.jp> <20011213224400.H8007@flint.arm.linux.org.uk>
-Message-Id: <20011213161734.5B4F.K-SUGANUMA@mvj.biglobe.ne.jp>
+	id <S285279AbRLNAXo>; Thu, 13 Dec 2001 19:23:44 -0500
+Received: from kullstam.ne.mediaone.net ([66.30.137.210]:52616 "HELO
+	kullstam.ne.mediaone.net") by vger.kernel.org with SMTP
+	id <S285277AbRLNAXh>; Thu, 13 Dec 2001 19:23:37 -0500
+From: "Johan Kullstam" <kullstam@ne.mediaone.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.1-pre11 de2104X tulip driver problem
+In-Reply-To: <20011213150346.A31843@Sophia.soo.com>
+	<m2hequpw3a.fsf@euler.axel.nom> <3C193AD3.55AFF698@mandrakesoft.com>
+Organization: none
+Date: 13 Dec 2001 19:23:31 -0500
+In-Reply-To: <3C193AD3.55AFF698@mandrakesoft.com>
+Message-ID: <m2bsh2ps3g.fsf@euler.axel.nom>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.00.05
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jeff Garzik <jgarzik@mandrakesoft.com> writes:
 
-On Thu, 13 Dec 2001 22:44:00 +0000
-Russell King <rmk@arm.linux.org.uk> wrote:
-
-> On Thu, Dec 13, 2001 at 01:29:42PM -0800, Kimio Suganuma wrote:
-> > Down CPU
-> > echo 0 > /proc/sys/kernel/cpu/<id>/online
-> > 
-> > Up CPU
-> > echo 1 > /proc/sys/kernel/cpu/<id>/online
+> Johan Kullstam wrote:
+> > i have a DEC DE450 (based on 21041 AA chipset).  i guess, for
+> > 2104[01], tulip driver has been broken since 2.4.4 (yes, that's over
+> > six months of brokeness).  yes, jeff garzik knows about it.  i've
+> > emailed the list and sourceforge &c.
 > 
-> Please use /proc/sys/cpu/*/ so that we have all CPU information in
-> a consistent place.  Please see linux/include/linux/sysctl.h for the
-> sysctl allocation.
+> This is a bug report for de2104x not tulip.  de2104x was created to fix
+> the 2104x problems in tulip, which is getting really hairy to
+> maintain.
 
-I don't know much about sysctl specification, so could you show me
-pointer to any document or something?
+ah ok.  sorry to crap on you.  i guess the proliferation of tulip
+clones is getting pretty crazy.
 
-There is no /proc/sys/cpu directory on the latest kernel, and 
-I guess someone is thinking the structure under the directory,
-right?
-
-I guess the operation would be
-
-echo 1 > /proc/sys/cpu/hotplug/<cpu-id>/online
-  or
-echo 1 > /proc/sys/cpu/<cpu-id>/online
-  or
-echo <cpu-id> > /proc/sys/cpu/online
-
-Which is the right way?
-
-Regards,
-Kimi
+i got a switch over the weekend.  my DE500 (DEC 21140AB w/o MII)
+wouldn't negotiate full-duplex.  i finally just broke down and
+scrapped my tulips and put in a 3com905b instead.
 
 -- 
-Kimio Suganuma <k-suganuma@mvj.biglobe.ne.jp>
-
+J o h a n  K u l l s t a m
+[kullstam@mediaone.net]

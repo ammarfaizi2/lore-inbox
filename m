@@ -1,63 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280976AbRLDQdf>; Tue, 4 Dec 2001 11:33:35 -0500
+	id <S281138AbRLDQfz>; Tue, 4 Dec 2001 11:35:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278625AbRLDQdZ>; Tue, 4 Dec 2001 11:33:25 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:62220 "EHLO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S280961AbRLDQdN>; Tue, 4 Dec 2001 11:33:13 -0500
-Date: Tue, 4 Dec 2001 17:33:09 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+	id <S281027AbRLDQf1>; Tue, 4 Dec 2001 11:35:27 -0500
+Received: from tomts13-srv.bellnexxia.net ([209.226.175.34]:32737 "EHLO
+	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S280967AbRLDQdn>; Tue, 4 Dec 2001 11:33:43 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Nav Mundi <nmundi@karthika.com>
 To: linux-kernel@vger.kernel.org
-Cc: Christoph Hellwig <hch@caldera.de>, "Eric S. Raymond" <esr@thyrsus.com>,
-        Keith Owens <kaos@ocs.com.au>, kbuild-devel@lists.sourceforge.net,
-        torvalds@transmeta.com
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011204173309.A10746@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Christoph Hellwig <hch@caldera.de>,
-	"Eric S. Raymond" <esr@thyrsus.com>, Keith Owens <kaos@ocs.com.au>,
-	kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
-In-Reply-To: <1861.1007341572@kao2.melbourne.sgi.com> <20011204131136.B6051@caldera.de> <20011204072808.A11867@thyrsus.com> <20011204133932.A8805@caldera.de> <20011204074815.A12231@thyrsus.com> <20011204140050.A10691@caldera.de> <20011204081640.A12658@thyrsus.com> <20011204142958.A14069@caldera.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20011204142958.A14069@caldera.de>
-User-Agent: Mutt/1.3.22.1i
+Subject: Insmod problems
+Date: Tue, 4 Dec 2001 11:33:30 -0500
+X-Mailer: KMail [version 1.3.2]
+Cc: Michael Zhu <apiggyjj@yahoo.ca>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011204163337.ZIZ21717.tomts13-srv.bellnexxia.net@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 04 Dec 2001, Christoph Hellwig wrote:
+What are we doing wrong? - Nav & Michael
+**************************************************
 
-> On Tue, Dec 04, 2001 at 08:16:40AM -0500, Eric S. Raymond wrote:
-> > N separate implementations means N dialects and N**2 compatibility problems.
-> > Nicer just to have *one* parser, *one* compiler, and *one* service class that
-> > supports several thin front-end layers, yes?  No?
-> 
-> Oh man.  When you think one implementation of a 'standard' is better then
-> multiple go to the MS world.
+hello.c Source:
 
-Well, there is competition: CML2. It is setting a new standard, which
-Microsoft only claim, but never achieve (except for standards of making
-licensing more restrictive). >:-)
+#include "/home/mzhu/linux/include/linux/config.h" 
+/*retrieve the CONFIG_* macros */
+#if defined(CONFIG_MODVERSIONS) && !defined(MODVERSIONS)
+#define MODVERSIONS  /* force it on */
+#endif
 
-Seriously: what do you fear? Losing the efforts you put into mconfig?
-Linux 2.2 and 2.4 will be around for quite some time (not sure about
-mconfig on 2.0, I don't use 2.0.x ATM).
+#ifdef MODVERSIONS
+#include "/home/mzhu/linux/include/linux/modversions.h"
+#endif
 
-Creating a dependency on Python? Is a non-issue. Current systems that
-are to run 2.5 or 2.6 are bloated beyond belief by glibc already, Python
-is nice and it does not create such unmaintainable mess. Whether
-Python's syntax is actually good is disbutable, but at no avail; it's
-possible yet no good to discuss taste. In the end, you do not need to
-maintain that code. You don't make the pen yourself when writing a
-letter either.
+#include "/home/mzhu/linux/include/linux/module.h"
 
-> > I quote Linus at the 2.5 kernel summit: "Python is not an issue."
-> > Unless and until he changes his mind about that, waving around this
-> > kind of argument is likely to do your case more harm than good.
-> 
-> For me (and others) it is an issues.
+int init_module(void)  { printk("<1>Hello, world\n");  return 0; }
+void cleanup_module(void) { printk("<1>Goodbye cruel world\n"); }
 
-What are the precise issues with Python? Just claiming it is an issue is
-not useful for discussing this. Archive pointers are welcome.
+Output:
+
+#>gcc -D_KERNEL_ -DMODULE -c hello.c
+
+[This builds the hello.o file. ]
+
+#>insmod hello.o
+
+hello.o : unresolved symbol printk
+hello.o : Note: modules without a GPL compatible license cannot use 
+GPONLY_symbols
+
+
+
+

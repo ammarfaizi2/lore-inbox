@@ -1,121 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263307AbUDWAjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263147AbUDWAv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263307AbUDWAjj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 20:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbUDWAjj
+	id S263147AbUDWAv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 20:51:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbUDWAv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 20:39:39 -0400
-Received: from 66.159.164.68.adsl.snet.net ([66.159.164.68]:47272 "EHLO
-	mail.bscnet.com") by vger.kernel.org with ESMTP id S263307AbUDWAjf
+	Thu, 22 Apr 2004 20:51:56 -0400
+Received: from adsl-209-204-138-32.sonic.net ([209.204.138.32]:33667 "EHLO
+	server.home") by vger.kernel.org with ESMTP id S263147AbUDWAvy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 20:39:35 -0400
-Message-ID: <01b801c428cb$737005d0$0900a8c0@bobhitt>
-From: "Bobby Hitt" <Bob.Hitt@bscnet.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Graphics Mode Woes
-Date: Thu, 22 Apr 2004 20:39:32 -0400
+	Thu, 22 Apr 2004 20:51:54 -0400
+Date: Thu, 22 Apr 2004 17:51:53 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@server.home
+To: Urban Widmark <urban@teststation.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: CIFS/SMBFS failing under load in 2.6.X
+In-Reply-To: <Pine.LNX.4.44.0404221935090.32465-100000@cola.local>
+Message-ID: <Pine.LNX.4.58.0404221750070.14856@server.home>
+References: <Pine.LNX.4.44.0404221935090.32465-100000@cola.local>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Well the server is under very high load in this test (up to 200) and the
+response times are also extremely high. Are timeouts new in 2.6.x? SMBFS
+in 2.4.X does not seem to timeout.
 
-I'm attempting to get linux 2.6.5 to go into 1024x768x64k mode with my
-NVidia GEForce card. Under 2.4.25, it works fine with "vga=791" in my
-lilo.conf file. Here's what's in the log:
+Also are there any fixes for the 4KB size limitation? Windows allows 64K
+writes and reads in one request. SMBFS only 4K.
 
-Apr 22 17:19:09 gateway kernel: vesafb: framebuffer at 0xf0000000, mapped to
-0xe080d000, size 3072k
-Apr 22 17:19:09 gateway kernel: vesafb: mode is 1024x768x16,
-linelength=2048, pages=0
-Apr 22 17:19:09 gateway kernel: vesafb: protected mode interface info at
-c000:c590
-Apr 22 17:19:09 gateway kernel: vesafb: scrolling: redraw
-Apr 22 17:19:09 gateway kernel: vesafb: directcolor: size=0:5:6:5,
-shift=0:11:5:0
-Apr 22 17:19:09 gateway kernel: Console: switching to colour frame buffer
-device 128x48
-Apr 22 17:19:09 gateway kernel: fb0: VESA VGA frame buffer device
+On Thu, 22 Apr 2004, Urban Widmark wrote:
 
-Under 2.6.5:
-
-Apr 22 17:57:58 gateway kernel: rivafb: nVidia device/chipset 10DE0110
-Apr 22 17:57:58 gateway kernel: rivafb: Detected CRTC controller 0 being
-used
-Apr 22 17:57:58 gateway kernel: rivafb: RIVA MTRR set to ON
-Apr 22 17:57:58 gateway kernel: rivafb: PCI nVidia NV10 framebuffer ver
-0.9.5b (nVidiaGeForce2-M, 32MB @ 0xF0000000)
-Apr 22 17:57:58 gateway kernel: vga16fb: initializing
-Apr 22 17:57:58 gateway kernel: vga16fb: mapped to 0xc00a0000
-Apr 22 17:57:58 gateway kernel: fb1: VGA16 VGA frame buffer device
-
-Totally different output and no references to vesafb. With "vga=791" on
-bootup the screen goes blank then switches to the normal graphics mode. Even
-when I use "vga=ask" and I put in a valid number, the screen switches to
-text mode momentarily then goes back to the normal graphics mode.
-
-Here's the related portion of my .config file:
-
- #
-# Graphics support
-#
-CONFIG_FB=y
-# CONFIG_FB_PM2 is not set
-# CONFIG_FB_CYBER2000 is not set
-# CONFIG_FB_IMSTT is not set
-CONFIG_FB_VGA16=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-# CONFIG_FB_HGA is not set
-CONFIG_FB_RIVA=y
-# CONFIG_FB_I810 is not set
-# CONFIG_FB_MATROX is not set
-# CONFIG_FB_RADEON_OLD is not set
-# CONFIG_FB_RADEON is not set
-# CONFIG_FB_ATY128 is not set
-# CONFIG_FB_ATY is not set
-# CONFIG_FB_SIS is not set
-# CONFIG_FB_NEOMAGIC is not set
-# CONFIG_FB_KYRO is not set
-# CONFIG_FB_3DFX is not set
-# CONFIG_FB_VOODOO1 is not set
-# CONFIG_FB_TRIDENT is not set
-# CONFIG_FB_VIRTUAL is not set
-
-#
-# Console display driver support
-#
-CONFIG_VGA_CONSOLE=y
-# CONFIG_MDA_CONSOLE is not set
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_PCI_CONSOLE=y
-CONFIG_FONTS=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-# CONFIG_FONT_6x11 is not set
-CONFIG_FONT_PEARL_8x8=y
-CONFIG_FONT_ACORN_8x8=y
-# CONFIG_FONT_MINI_4x6 is not set
-# CONFIG_FONT_SUN8x16 is not set
-# CONFIG_FONT_SUN12x22 is not set
-
-#
-# Logo configuration
-#
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_MONO=y
-CONFIG_LOGO_LINUX_VGA16=y
-CONFIG_LOGO_LINUX_CLUT224=y
-
-Any help or suggestions are appreciated,
-
-Bobby
-
+> On Mon, 12 Apr 2004, Christoph Lameter wrote:
+>
+> > Whenever I put a high load on CIFS or SMBFS requests timeout and then the
+> > benchmark or whatever I run fails. I ran the same tests successfully with
+> > a 2.4.25 kernel. This is a connection to a samba 3.0.2 server.
+> >
+> > SMBFS logs the following:
+> >
+> > Apr 12 15:59:25 testbox kernel: smb_add_request: request [ca7b7280,
+> > mid=12891] timed out!
+> > Apr 12 15:59:25 testbox kernel: smb_writepage_sync: failed write,
+> > wsize=4096, result=-5
+> ...
+>
+> > CIFS logs:
+> >
+> > Apr 12 17:02:00 testbox kernel:  CIFS VFS: Send error in write = -6
+> > Apr 12 17:02:29 testbox kernel:  CIFS VFS: Send error in write = -5
+> > Apr 12 17:02:29 testbox last message repeated 8 times
+> > Apr 12 17:02:39 testbox kernel:  CIFS VFS: Need to reconnect after session
+> > died to server
+>
+> smbfs and cifs does not share any code although I believe both of them
+> will send multiple requests in parallel. Any chance that this is the
+> server or network?
+>
+>
+> smbfs at least does not limit the number of requests it sends. It could be
+> a problem if the server has a low limit (should be the maxmux field in the
+> smb_conn_opt struct).
+>
+> I could send a patch for this, but unless cifs does the same then that is
+> probably not it.
+>
+> /Urban
+>
+>

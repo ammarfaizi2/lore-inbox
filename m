@@ -1,248 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263279AbTDLOt7 (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 10:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263283AbTDLOt6 (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 10:49:58 -0400
-Received: from smtp.hccnet.nl ([62.251.0.13]:210 "EHLO smtp.hccnet.nl")
-	by vger.kernel.org with ESMTP id S263279AbTDLOty (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 10:49:54 -0400
-Message-ID: <3E982AAC.3060606@hccnet.nl>
-Date: Sat, 12 Apr 2003 17:03:08 +0200
-From: Gert Vervoort <gert.vervoort@hccnet.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id S263285AbTDLO4v (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 10:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263290AbTDLO4v (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 10:56:51 -0400
+Received: from mrw.demon.co.uk ([194.222.96.226]:3456 "EHLO rebecca")
+	by vger.kernel.org with ESMTP id S263285AbTDLO4u convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Apr 2003 10:56:50 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Watts <m.watts@mrw.demon.co.uk>
+To: Frank Van Damme <frank.vandamme@student.kuleuven.ac.be>,
+       linux-kernel@vger.kernel.org
+Subject: Re: stabilty problems using opengl on kt400 based system
+Date: Sat, 12 Apr 2003 16:08:33 +0100
+User-Agent: KMail/1.4.3
+References: <200304121410.58522.frank.vandamme@student.kuleuven.ac.be>
+In-Reply-To: <200304121410.58522.frank.vandamme@student.kuleuven.ac.be>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.67: ppa driver & preempt == oops
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200304121608.33357.m.watts@mrw.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ppa: Version 2.07 (for Linux 2.4.x)
-ppa: Found device at ID 6, Attempting to use EPP 16 bit
-ppa: Communication established with ID 6 using EPP 16 bit
-scsi0 : Iomega VPI0 (ppa) interface
-bad: scheduling while atomic!
-Call Trace:
- [<c0117064>] schedule+0x3a4/0x3b0
- [<c0117349>] wait_for_completion+0x99/0xe0
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c023b15e>] scsi_wait_req+0x7e/0xb0
- [<c023b050>] scsi_wait_done+0x0/0x90
- [<c023cf5c>] scsi_probe_lun+0x6c/0x200
- [<c023d38b>] scsi_probe_and_add_lun+0x7b/0x130
- [<c023d64c>] scsi_scan_target+0x5c/0x100
- [<c023d741>] scsi_scan_host+0x51/0x90
- [<c023798d>] scsi_add_host+0x4d/0x90
- [<c0237dac>] scsi_register_host+0x6c/0xc0
- [<c01295df>] init_workqueues+0xf/0x30
- [<c01050a3>] init+0x33/0x190
- [<c0105070>] init+0x0/0x190
- [<c01071dd>] kernel_thread_helper+0x5/0x18
+On Saturday 12 Apr 2003 1:10 pm, Frank Van Damme wrote:
+> Hello,
+>
+> I have stability problems with my computer when using OpenGl applications.
+> First of all, this is the hardware I am using that may be responsible:
+>
+> - Motherboard: Soltek sl-75fvr with a kt400 chipset
+> - Cpu: Athlon Xp 2000+
+> - Video card: Ati radeon 8500 retail, 64 MB ddr.
+>
+> Software I am using:
+>
+> - distribution: Debian Sid
+> - Xfree86: version 4.3, packaged in Debian packages by Daniel Stone
+> <http://capricorn.woot.net/~daniels/sid/i386/>
+> - Linux kernel: version 2.4.21-pre5-ac3
+> - Quake3 + urban terror, tuxracer (old version 0.6), xmms openGL plugins.
+>
+> The symptoms are as follows. Linux boots fine, the "radeon" kernel module
+> inserts with no errors. X also starts without problems and runs stably in
+> day-to-day work and during cpu-intensive tasks such as compiling. However,
+> if Istart running OpenGL applications (games) (quake,tuxracer or whatever)
+> themachine will freeze in anything from 2 minutes to an hour. The last
+> frame remains on the screen, but I can still login over ssh and reboot.
+> The drivers of this card are only stable since the latest XFree86 release,
+> butsince I had hours of crashless fun with that card on another motherboard
+> (anepox 7kxa which is now broken), and since the agp features of the kt400
+> chipsetare only supported since kernel version 2.4.21-pre1, I supposed that
+> was thecause of my problems.
+>
+> Unfortunately I am unable to provide any useful error messages. The kernel
+> doesnot oops or panic, there are no messages on stdout/stderr, X's log file
+> does notshow anything, idem for syslog. I find only positive messages in
+> dmesg:
+> Mar 30 23:07:34 dionysos kernel: Linux agpgart interface v0.99 (c) Jeff
+> HartmannMar 30 23:07:34 dionysos kernel: agpgart: Maximum main memory to
+> use for agp memory: 203MMar 30 23:07:34 dionysos kernel: agpgart: Detected
+> Via Apollo Pro KT400 chipsetMar 30 23:07:34 dionysos kernel: agpgart: AGP
+> aperture is 64M @ 0xe0000000
+>
+> Mar 30 23:07:44 dionysos kernel: [drm] AGP 0.99 on VIA Apollo KT400 @
+> 0xe000000064MBMar 30 23:07:44 dionysos kernel: [drm] Initialized radeon
+> 1.7.0 20020828 on minor 0Mar 30 23:08:02 dionysos kernel: [drm] Loading
+> R200 Microcode
+>
+> If there is anything I overlooked, further info I can provide, let me know.
+>
+> Thanks in advance,
+>
+> Frank Van Damme.
 
-bad: scheduling while atomic!
-Call Trace:
- [<c0117064>] schedule+0x3a4/0x3b0
- [<c0117349>] wait_for_completion+0x99/0xe0
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c023b15e>] scsi_wait_req+0x7e/0xb0
- [<c023b050>] scsi_wait_done+0x0/0x90
- [<c023cf5c>] scsi_probe_lun+0x6c/0x200
- [<c023d38b>] scsi_probe_and_add_lun+0x7b/0x130
- [<c023d64c>] scsi_scan_target+0x5c/0x100
- [<c023d741>] scsi_scan_host+0x51/0x90
- [<c023798d>] scsi_add_host+0x4d/0x90
- [<c0237dac>] scsi_register_host+0x6c/0xc0
- [<c01295df>] init_workqueues+0xf/0x30
- [<c01050a3>] init+0x33/0x190
- [<c0105070>] init+0x0/0x190
- [<c01071dd>] kernel_thread_helper+0x5/0x18
+I'm running a KT400 based board (MSI KT4 Ultra) with a GeForce 4 Ti4200 (agp 
+4x) on a custom compiled Mandrake 2.4.21 kernel.
+I regularly play games such as Unreal Tournament / UT 2003 and Neverwinter 
+Nights and I have to say that stability and performance is excelent.
 
-bad: scheduling while atomic!
-Call Trace:
- [<c0117064>] schedule+0x3a4/0x3b0
- [<c0117349>] wait_for_completion+0x99/0xe0
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c023b15e>] scsi_wait_req+0x7e/0xb0
- [<c023b050>] scsi_wait_done+0x0/0x90
- [<c023cf5c>] scsi_probe_lun+0x6c/0x200
- [<c023d38b>] scsi_probe_and_add_lun+0x7b/0x130
- [<c023d64c>] scsi_scan_target+0x5c/0x100
- [<c023d741>] scsi_scan_host+0x51/0x90
- [<c023798d>] scsi_add_host+0x4d/0x90
- [<c0237dac>] scsi_register_host+0x6c/0xc0
- [<c01295df>] init_workqueues+0xf/0x30
- [<c01050a3>] init+0x33/0x190
- [<c0105070>] init+0x0/0x190
- [<c01071dd>] kernel_thread_helper+0x5/0x18
+I'm running Mandrake 9.0 which includes X 4.2.1, along with the latest nVidia 
+binary drivers.
 
-bad: scheduling while atomic!
-Call Trace:
- [<c0117064>] schedule+0x3a4/0x3b0
- [<c0117349>] wait_for_completion+0x99/0xe0
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c023b15e>] scsi_wait_req+0x7e/0xb0
- [<c023b050>] scsi_wait_done+0x0/0x90
- [<c023cf5c>] scsi_probe_lun+0x6c/0x200
- [<c023d38b>] scsi_probe_and_add_lun+0x7b/0x130
- [<c023d64c>] scsi_scan_target+0x5c/0x100
- [<c023d741>] scsi_scan_host+0x51/0x90
- [<c023798d>] scsi_add_host+0x4d/0x90
- [<c0237dac>] scsi_register_host+0x6c/0xc0
- [<c01295df>] init_workqueues+0xf/0x30
- [<c01050a3>] init+0x33/0x190
- [<c0105070>] init+0x0/0x190
- [<c01071dd>] kernel_thread_helper+0x5/0x18
+I certainly don't see any of the kind of application/X crash you are 
+reporting. In fact, I've played NWN for most of a day with nothing going 
+wrong that can't be attributed to the beta status of the game (the game 
+doesn't crash, I just get some graphical glitches which are fixed by 
+reloading a saved game).
 
-bad: scheduling while atomic!
-Call Trace:
- [<c0117064>] schedule+0x3a4/0x3b0
- [<c0117349>] wait_for_completion+0x99/0xe0
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c023b15e>] scsi_wait_req+0x7e/0xb0
- [<c023b050>] scsi_wait_done+0x0/0x90
- [<c023cf5c>] scsi_probe_lun+0x6c/0x200
- [<c023d38b>] scsi_probe_and_add_lun+0x7b/0x130
- [<c023d64c>] scsi_scan_target+0x5c/0x100
- [<c023d741>] scsi_scan_host+0x51/0x90
- [<c023798d>] scsi_add_host+0x4d/0x90
- [<c0237dac>] scsi_register_host+0x6c/0xc0
- [<c01295df>] init_workqueues+0xf/0x30
- [<c01050a3>] init+0x33/0x190
- [<c0105070>] init+0x0/0x190
- [<c01071dd>] kernel_thread_helper+0x5/0x18
+If I can be of any more assistance, shout.
 
-bad: scheduling while atomic!
-Call Trace:
- [<c0117064>] schedule+0x3a4/0x3b0
- [<c0117349>] wait_for_completion+0x99/0xe0
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c023b15e>] scsi_wait_req+0x7e/0xb0
- [<c023b050>] scsi_wait_done+0x0/0x90
- [<c023cf5c>] scsi_probe_lun+0x6c/0x200
- [<c023d38b>] scsi_probe_and_add_lun+0x7b/0x130
- [<c023d64c>] scsi_scan_target+0x5c/0x100
- [<c023d741>] scsi_scan_host+0x51/0x90
- [<c023798d>] scsi_add_host+0x4d/0x90
- [<c0237dac>] scsi_register_host+0x6c/0xc0
- [<c01295df>] init_workqueues+0xf/0x30
- [<c01050a3>] init+0x33/0x190
- [<c0105070>] init+0x0/0x190
- [<c01071dd>] kernel_thread_helper+0x5/0x18
+Mark Watts.
 
-bad: scheduling while atomic!
-Call Trace:
- [<c0117064>] schedule+0x3a4/0x3b0
- [<c0117349>] wait_for_completion+0x99/0xe0
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c023b15e>] scsi_wait_req+0x7e/0xb0
- [<c023b050>] scsi_wait_done+0x0/0x90
- [<c023cf5c>] scsi_probe_lun+0x6c/0x200
- [<c023d38b>] scsi_probe_and_add_lun+0x7b/0x130
- [<c023d64c>] scsi_scan_target+0x5c/0x100
- [<c023d741>] scsi_scan_host+0x51/0x90
- [<c023798d>] scsi_add_host+0x4d/0x90
- [<c0237dac>] scsi_register_host+0x6c/0xc0
- [<c01295df>] init_workqueues+0xf/0x30
- [<c01050a3>] init+0x33/0x190
- [<c0105070>] init+0x0/0x190
- [<c01071dd>] kernel_thread_helper+0x5/0x18
-
-bad: scheduling while atomic!
-Call Trace:
- [<c0117064>] schedule+0x3a4/0x3b0
- [<c0117349>] wait_for_completion+0x99/0xe0
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c023b15e>] scsi_wait_req+0x7e/0xb0
- [<c023b050>] scsi_wait_done+0x0/0x90
- [<c023d074>] scsi_probe_lun+0x184/0x200
- [<c023d38b>] scsi_probe_and_add_lun+0x7b/0x130
- [<c023d64c>] scsi_scan_target+0x5c/0x100
- [<c023d741>] scsi_scan_host+0x51/0x90
- [<c023798d>] scsi_add_host+0x4d/0x90
- [<c0237dac>] scsi_register_host+0x6c/0xc0
- [<c01295df>] init_workqueues+0xf/0x30
- [<c01050a3>] init+0x33/0x190
- [<c0105070>] init+0x0/0x190
- [<c01071dd>] kernel_thread_helper+0x5/0x18
-
-  Vendor: IOMEGA    Model: ZIP 100           Rev: D.13
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-bad: scheduling while atomic!
-Call Trace:
- [<c0117064>] schedule+0x3a4/0x3b0
- [<c0117349>] wait_for_completion+0x99/0xe0
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c023b15e>] scsi_wait_req+0x7e/0xb0
- [<c023b050>] scsi_wait_done+0x0/0x90
- [<c023c7ef>] scsi_get_evpd_page+0x7f/0x120
- [<c023ce2e>] scsi_load_identifier+0x2e/0xf0
- [<c023d248>] scsi_add_lun+0x158/0x220
- [<c023d3b9>] scsi_probe_and_add_lun+0xa9/0x130
- [<c023d64c>] scsi_scan_target+0x5c/0x100
- [<c023d741>] scsi_scan_host+0x51/0x90
- [<c023798d>] scsi_add_host+0x4d/0x90
- [<c0237dac>] scsi_register_host+0x6c/0xc0
- [<c01295df>] init_workqueues+0xf/0x30
- [<c01050a3>] init+0x33/0x190
- [<c0105070>] init+0x0/0x190
- [<c01071dd>] kernel_thread_helper+0x5/0x18
-
-bad: scheduling while atomic!
-Call Trace:
- [<c0117064>] schedule+0x3a4/0x3b0
- [<c0128db4>] queue_work+0x84/0xa0
- [<c02402f5>] ppa_queuecommand+0x95/0xa0
- [<c0117349>] wait_for_completion+0x99/0xe0
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c023c002>] scsi_request_fn+0x172/0x230
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c023b15e>] scsi_wait_req+0x7e/0xb0
- [<c023b050>] scsi_wait_done+0x0/0x90
- [<c023cc43>] scsi_get_serialnumber+0x93/0x1b0
- [<c023c852>] scsi_get_evpd_page+0xe2/0x120
- [<c023ceeb>] scsi_load_identifier+0xeb/0xf0
- [<c023d248>] scsi_add_lun+0x158/0x220
- [<c023d3b9>] scsi_probe_and_add_lun+0xa9/0x130
- [<c023d64c>] scsi_scan_target+0x5c/0x100
- [<c023d741>] scsi_scan_host+0x51/0x90
- [<c023798d>] scsi_add_host+0x4d/0x90
- [<c0237dac>] scsi_register_host+0x6c/0xc0
- [<c01295df>] init_workqueues+0xf/0x30
- [<c01050a3>] init+0x33/0x190
- [<c0105070>] init+0x0/0x190
- [<c01071dd>] kernel_thread_helper+0x5/0x18
-
-bad: scheduling while atomic!
-Call Trace:
- [<c0117064>] schedule+0x3a4/0x3b0
- [<c0117349>] wait_for_completion+0x99/0xe0
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c01170c0>] default_wake_function+0x0/0x20
- [<c023b15e>] scsi_wait_req+0x7e/0xb0
- [<c023b050>] scsi_wait_done+0x0/0x90
- [<c023cf5c>] scsi_probe_lun+0x6c/0x200
- [<c023d38b>] scsi_probe_and_add_lun+0x7b/0x130
- [<c023d64c>] scsi_scan_target+0x5c/0x100
- [<c023d741>] scsi_scan_host+0x51/0x90
- [<c023798d>] scsi_add_host+0x4d/0x90
- [<c0237dac>] scsi_register_host+0x6c/0xc0
- [<c01295df>] init_workqueues+0xf/0x30
- [<c01050a3>] init+0x33/0x190
- [<c0105070>] init+0x0/0x190
- [<c01071dd>] kernel_thread_helper+0x5/0x18
-
-error in initcall at 0xc0391ad0: returned with preemption imbalance
-Attached scsi removable disk sda at scsi0, channel 0, id 6, lun 0
 
 

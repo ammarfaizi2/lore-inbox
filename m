@@ -1,34 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbUCLBRx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 20:17:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbUCLBRx
+	id S261884AbUCLBWl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 20:22:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbUCLBWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 20:17:53 -0500
-Received: from mta06-svc.ntlworld.com ([62.253.162.46]:7692 "EHLO
-	mta06-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S261902AbUCLBRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 20:17:44 -0500
-From: Richard Browning <richard@redline.org.uk>
-Organization: Redline Software Engineering
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel 2.4.x 2.6.x / Crash/Freeze
-Date: Fri, 12 Mar 2004 01:16:02 +0000
-User-Agent: KMail/1.6
-Cc: Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org
-References: <A6974D8E5F98D511BB910002A50A6647615F4B99@hdsmsx402.hd.intel.com> <200403120022.13534.richard@redline.org.uk> <Pine.LNX.4.58.0403111932400.29087@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.58.0403111932400.29087@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 11 Mar 2004 20:22:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:15825 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261884AbUCLBWj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 20:22:39 -0500
+Date: Thu, 11 Mar 2004 17:22:44 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm1
+Message-Id: <20040311172244.3ae0587f.akpm@osdl.org>
+In-Reply-To: <16465.3163.999977.302378@notabene.cse.unsw.edu.au>
+References: <20040310233140.3ce99610.akpm@osdl.org>
+	<16465.3163.999977.302378@notabene.cse.unsw.edu.au>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200403120116.02842.richard@redline.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe it's worthwhile pointing out that this Asus mobo achieves the unusual 
-Xeon 533MHz front side bus speed by combining the Intel875 Northbridge with 
-the Canterwood chipset. Dunno if that's significant.
+Neil Brown <neilb@cse.unsw.edu.au> wrote:
+>
+> 
+> 2.6.4-mm1 doesn't work for me :-(
+> 
+> I get the:
+>    Uncompressing kernel ... now booting Linux
+> 
+> message, and then ...... nothing.
+> 
+> I've seen this before when trying to boot a P4 kernel on a P-classic
+> etc, so I tried compiling with CONFIG_M386, and got lots of compile
+> errors:
+> 
+> include/asm/acpi.h: In function `__acpi_acquire_global_lock':
+> include/asm/acpi.h:74: warning: implicit declaration of function `cmpxchg'
+> 
+> So I tried the default (CONFIG_M686) and it still doesn't work.
+> 
+> So: where do I look next?
+> 
+> I've included some of the machine specs below together with a config
+> file.
 
-R
+Tried adding earlyprintk=vga?
+
+If that works, judicious addition of printks will narrow it down.

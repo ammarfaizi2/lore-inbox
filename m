@@ -1,88 +1,194 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261696AbTCNJsn>; Fri, 14 Mar 2003 04:48:43 -0500
+	id <S262036AbTCNJz1>; Fri, 14 Mar 2003 04:55:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261697AbTCNJsn>; Fri, 14 Mar 2003 04:48:43 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:60426 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S261696AbTCNJrl>; Fri, 14 Mar 2003 04:47:41 -0500
-Message-ID: <3E71A838.9020306@aitel.hist.no>
-Date: Fri, 14 Mar 2003 11:00:24 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
+	id <S262934AbTCNJz1>; Fri, 14 Mar 2003 04:55:27 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:59145 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S262036AbTCNJzX>; Fri, 14 Mar 2003 04:55:23 -0500
+Message-Id: <200303140957.h2E9vfu08416@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Oleg Drokin <green@linuxhacker.ru>, alan@redhat.com,
+       linux-kernel@vger.kernel.org, zubarev@us.ibm.com, gregkh@us.ibm.com
+Subject: Re: [2.4] Multiple memleaks in IBM Hot Plug Controller Driver
+Date: Fri, 14 Mar 2003 11:54:40 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <20030313204556.GA3475@linuxhacker.ru>
+In-Reply-To: <20030313204556.GA3475@linuxhacker.ru>
 MIME-Version: 1.0
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
-References: <Pine.LNX.4.30.0303140703010.24704-100000@divine.city.tvnet.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Szakacsits Szabolcs wrote:
-[...]
-> Bcode, meaning before code [well, wrong choise, could be misunderstend
-> as byte code], would mean it's the bytes before Code. They are not
-> necessarily start on the _correct_ instruction boundary (14% they
-> are). One should disassemble them separately from offset 0,1,...6
-> (pedantic coders or in case of a later failure to 14) and choose the
-> one that makes sense based on
-> 
-> 	1) next instruction boundary is on EIP (can be automated)
-> and
-The problem is that several offsets will fit into this.  Going
-backwards from those positions gives even more options when
-going two instructions back and so on.  And if you run into
-an illegal opcode - was it a "wrong" attempt or did you
-merely go beyond the start of the function?
+On 13 March 2003 22:45, Oleg Drokin wrote:
+> Hello!
+>
+>    There seem to be memleak convert_2digits_to_char() function that
+> is triggered during normal operations.
+>    Also I think there are some memleaks on error exit paths
+>    ebda_rsrc_controller()
+>    All of this is addressed by below patch.
+>    2.5 seems to have totally different version of this code (and no
+>    convert_2digits_to_char() function at all for example).
+>    Found with help of smatch + enhanced unfree script.
+>
+> Bye,
+>     Oleg
 
-> 	2) has something to do with the C source code
-And how do you plan on achieving that?  This one is
-impossible for the kernel, as the kernel don't know its
-own sources.  (Now that _can_ be arranged, but it
-won't be easy without regular file access in the kernel.)
-But even with the source, how would you determine that the
-disassembled stuff "has something to do with the source?"
-Even programmers are sometimes surprised by what compilers,
-and particularly opimizing compilers do.  I don't think
-you or anybody else can provide a tool that reliably maps
-assembly to source.  And if it isn't reliable, it is no use.
+Oleg, you are doing great job. Thanks!
 
+Well.. I just looked into that function. Do we have a kernel
+obfuscated C contest? ;)
 
-> and
-> 	3) the assembly makes sense (considering compiler
->            optimizations, generated dead/bad code, etc)
-> and
-> 	4) the assembly fits the context after EIP.
-> 
-> If you think this would result more confusion than benefit, I
-> understand (promised to my fiancee to say so ;)
-> 
-A tool doing this would be nice, but achieving 2 and 3 is impossible.
-And even if you could do backwards disassembly with 95% success per
-instruction you'd run into more and more trouble the farther backwards 
-you get.  And then there's the problem of loops and jumps.  Perhaps
-the code did a nice long jump to the instruction that faulted.  The
-"previous instructions" are then useless because they weren't executed.
-But there won't be any hint of that in the oops.
+> ===== drivers/hotplug/ibmphp_ebda.c 1.6 vs edited =====
+> --- 1.6/drivers/hotplug/ibmphp_ebda.c	Fri Sep 13 21:56:25 2002
+> +++ edited/drivers/hotplug/ibmphp_ebda.c	Thu Mar 13 23:40:29 2003
+> @@ -597,8 +597,8 @@
+>  	char *str1;
+>
+>  	str = (char *) kmalloc (3, GFP_KERNEL);
 
-If you want an interesting excercise, try implementing (1) above.
-Make a tool and try to disassemble perhaps 2-3 instructions
-backwards from some random point in an object file.  Make sure
-your tool outputs _all_ valid combinations of instructions, not
-just the first one.  See how many you get.  Then see how
-far you get with 2,3 and 4.
+BTW, that char* str is not local. It is not even static.
+It is global symbol: "char *chassis_str, *rxe_str, *str;"
 
+> -	memset (str, 0, 3);
+> -	str1 = (char *) kmalloc (2, GFP_KERNEL);
 
-> On the other hand, if the kernel did this, a simple script could be
-> written analysing the last two years kernel oopses [and future ones]
+A bit weird to have 3 and 2 bytes allocated in two separate kmalloc()
 
-Most really old oopses are either fixed ot otherwise irrelevant.  The
-code they refer to is changed, and there are newer versions of
-the compiler.
+> +	if (!str)
+> +		return NULL;
+>  	memset (str, 0, 3);
 
-Helge Hafting
+This was fun, right? "Lets add second memset just in case
+first failed" ;) ;)
 
+>  	bit = (int)(var / 10);
+>  	switch (bit) {
+> @@ -608,13 +608,20 @@
+>  		return str;
+>  	default:
+>  		//2 digits number
+> +		str1 = (char *) kmalloc (2, GFP_KERNEL);
+> +		if (!str1) {
+> +			break;
+> +		}
+> +		memset (str, 0, 3);
+> +             memset (str, 0, 3);
+>               *str1 = (char)(bit + 48);
+>               strncpy (str, str1, 1);
+>               memset (str1, 0, 3);
+
+Wow! *str1 is 2 bytes long, not 3!
+
+Anyway, here is the diff against some old 2.5 (sorry don't have latest
+tree here at the moment). Also here are old and new functions
+for easy visual diff. Completely untested:
+
+static char *convert_2digits_to_char (int var)
+{
+        int bit;
+        char *str1;
+
+        str = (char *) kmalloc (3, GFP_KERNEL);
+        memset (str, 0, 3);
+        str1 = (char *) kmalloc (2, GFP_KERNEL);
+        memset (str, 0, 3);
+        bit = (int)(var / 10);
+        switch (bit) {
+        case 0:
+                //one digit number
+                *str = (char)(var + 48);
+                return str;
+        default:
+                //2 digits number
+                *str1 = (char)(bit + 48);
+                strncpy (str, str1, 1);
+                memset (str1, 0, 3);
+                *str1 = (char)((var % 10) + 48);
+                strcat (str, str1);
+                return str;
+        }
+        return NULL;
+}
+
+static char *convert_2digits_to_char (int var)
+{
+        int bit;
+
+        char *str = (char *) kmalloc (3, GFP_KERNEL);
+        if (!str)
+                return NULL;
+        bit = (int)(var / 10);
+        switch (bit) {
+        case 0:
+                //one digit number
+                str[0] = (char)(var + '0');
+                str[1] = 0;
+                break;
+        default:
+                //2 digits number
+                str[0] = (char)(bit + '0');
+                str[1] = (char)((var % 10) + '0');
+                str[2] = 0;
+                break;
+        }
+        return str;
+}
+--
+vda
+
+--- ibmphp_ebda.c	Mon Nov 11 05:28:05 2002
++++ ibmphp_ebda.new.c	Fri Mar 14 11:46:28 2003
+@@ -65,7 +65,7 @@
+ static LIST_HEAD (opt_lo_head);
+ static void *io_mem;
+ 
+-char *chassis_str, *rxe_str, *str;
++char *chassis_str, *rxe_str;
+ 
+ /* Local functions */
+ static int ebda_rsrc_controller (void);
+@@ -594,28 +594,25 @@
+ static char *convert_2digits_to_char (int var)
+ {
+ 	int bit;	
+-	char *str1;
+ 
+-	str = (char *) kmalloc (3, GFP_KERNEL);
+-	memset (str, 0, 3);
+-	str1 = (char *) kmalloc (2, GFP_KERNEL);
+-	memset (str, 0, 3);
++	char *str = (char *) kmalloc (3, GFP_KERNEL);
++	if (!str)
++		return NULL;	
+ 	bit = (int)(var / 10);
+ 	switch (bit) {
+ 	case 0:
+ 		//one digit number
+-		*str = (char)(var + 48);
+-		return str;
++		str[0] = (char)(var + '0');
++		str[1] = 0;
++		break;
+ 	default: 	
+ 		//2 digits number
+-		*str1 = (char)(bit + 48);
+-		strncpy (str, str1, 1);
+-		memset (str1, 0, 3);
+-		*str1 = (char)((var % 10) + 48);
+-		strcat (str, str1);
+-		return str;
+-	}	
+-	return NULL;	
++		str[0] = (char)(bit + '0');
++		str[1] = (char)((var % 10) + '0');
++		str[2] = 0;
++		break;
++	}
++	return str;
+ }
+ 
+ /* Since we don't know the max slot number per each chassis, hence go

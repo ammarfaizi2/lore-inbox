@@ -1,50 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269314AbUJGAxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269531AbUJGAzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269314AbUJGAxi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 20:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269356AbUJGAxi
+	id S269531AbUJGAzU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 20:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269495AbUJGAzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 20:53:38 -0400
-Received: from main.gmane.org ([80.91.229.2]:21134 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S269314AbUJGAxf (ORCPT
+	Wed, 6 Oct 2004 20:55:19 -0400
+Received: from ozlabs.org ([203.10.76.45]:60335 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S269531AbUJGAyr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 20:53:35 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Pasi Savolainen <psavo@iki.fi>
-Subject: Re: 2.6.9-rc3-mm2
-Date: Thu, 7 Oct 2004 00:53:31 +0000 (UTC)
-Message-ID: <slrncm94sb.hiv.psavo@varg.dyndns.org>
-References: <1096968325.2628.5.camel@localhost.localdomain> <Pine.LNX.4.44.0410051251210.6757-100000@localhost.localdomain>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: a11a.mannikko1.ton.tut.fi
-User-Agent: slrn/0.9.8.0 (Linux)
+	Wed, 6 Oct 2004 20:54:47 -0400
+Date: Thu, 7 Oct 2004 10:52:25 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
+       linuxppc64-dev@ozlabsorg, linux-kernel@vger.kernel.org
+Subject: [PPC64] Kconfig cleanups
+Message-ID: <20041007005225.GB25012@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, Paul Mackerras <paulus@samba.org>,
+	Anton Blanchard <anton@samba.org>, linuxppc64-dev@ozlabsorg,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Hugh Dickins <hugh@veritas.com>:
-> On Tue, 5 Oct 2004, Peter Zijlstra wrote:
->> On Mon, 2004-10-04 at 19:13, Pasi Savolainen wrote:
->> >   LD      .tmp_vmlinux1
->> >   KSYM    .tmp_kallsyms1.S
->> > make: *** wait: No child processes.  Stop.
->> > - -
->> > The 'no child processes' keeps on coming up at 'random' moments under
->> > rc3-mm1. First time ever that I've seen it otherwise.
->> 
->> Just a simple mee too!
->> on 2.6.9-rc3-mm2-VP-T0 and on some earlier Sx patches as well.
->> Unfortunatly I haven't had time to track back as to when this was
->> introduced.
->
-> Please, would you try this patch below that I posted yesterday?
-> At the time I thought the trylock was hardly used so not urgent.
+Andrew, please apply:
 
-Thanks, this seemed to fix it.
-In my case these came very frequently and easily. No Zombie processes
-were in 'ps aux' output, but I think it's being talked about in the
-other thread.
+Now that the PPC64 code supports more platforms than just pSeries and
+iSeries, some p/i specific Kconfig options need to be updated
+accordingly.
+
+Signed-off-by: David Gibson <dwg@au1.ibm.com>
+
+Index: working-2.6/arch/ppc64/Kconfig
+===================================================================
+--- working-2.6.orig/arch/ppc64/Kconfig	2004-09-28 10:22:13.000000000 +1000
++++ working-2.6/arch/ppc64/Kconfig	2004-10-07 10:26:53.466075056 +1000
+@@ -215,7 +215,7 @@
+ 
+ config PPC_RTAS
+ 	bool "Proc interface to RTAS"
+-	depends on !PPC_ISERIES
++	depends on PPC_PSERIES
+ 
+ config RTAS_FLASH
+ 	tristate "Firmware flash interface"
+@@ -227,6 +227,7 @@
+ 
+ config LPARCFG
+ 	tristate "LPAR Configuration Data"
++	depends on PPC_PSERIES || PPC_ISERIES
+ 	help
+ 	Provide system capacity information via human readable
+ 	<key word>=<value> pairs through a /proc/ppc64/lparcfg interface.
+@@ -273,7 +274,7 @@
+ 
+ config HOTPLUG_CPU
+ 	bool "Support for hot-pluggable CPUs"
+-	depends on SMP && HOTPLUG && EXPERIMENTAL
++	depends on SMP && HOTPLUG && EXPERIMENTAL && PPC_PSERIES
+ 	---help---
+ 	  Say Y here to be able to turn CPUs off and on.
+ 
 
 -- 
-   Psi -- <http://www.iki.fi/pasi.savolainen>
-
+David Gibson			| For every complex problem there is a
+david AT gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

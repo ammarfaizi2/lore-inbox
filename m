@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbUFHJO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264914AbUFHJRV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbUFHJO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 05:14:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264911AbUFHJO5
+	id S264914AbUFHJRV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 05:17:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbUFHJRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 05:14:57 -0400
-Received: from cantor.suse.de ([195.135.220.2]:52139 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262009AbUFHJO4 (ORCPT
+	Tue, 8 Jun 2004 05:17:21 -0400
+Received: from eik.ii.uib.no ([129.177.16.3]:58816 "EHLO eik.ii.uib.no")
+	by vger.kernel.org with ESMTP id S264914AbUFHJRU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 05:14:56 -0400
-Date: Tue, 8 Jun 2004 11:14:53 +0200
-From: Andi Kleen <ak@suse.de>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: torvalds@osdl.org, arjanv@redhat.com, luto@myrealbox.com, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, suresh.b.siddha@intel.com,
-       jun.nakajima@intel.com
-Subject: Re: [announce] [patch] NX (No eXecute) support for x86,
- 2.6.7-rc2-bk2
-Message-Id: <20040608111453.22cae15a.ak@suse.de>
-In-Reply-To: <20040608090712.GW4736@devserv.devel.redhat.com>
-References: <20040602205025.GA21555@elte.hu>
-	<20040603230834.GF868@wotan.suse.de>
-	<20040604092552.GA11034@elte.hu>
-	<200406040826.15427.luto@myrealbox.com>
-	<Pine.LNX.4.58.0406040830200.7010@ppc970.osdl.org>
-	<20040604154142.GF16897@devserv.devel.redhat.com>
-	<Pine.LNX.4.58.0406040843240.7010@ppc970.osdl.org>
-	<20040604155138.GG16897@devserv.devel.redhat.com>
-	<Pine.LNX.4.58.0406040856100.7010@ppc970.osdl.org>
-	<20040604181304.325000cb.ak@suse.de>
-	<20040608090712.GW4736@devserv.devel.redhat.com>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 8 Jun 2004 05:17:20 -0400
+Date: Tue, 8 Jun 2004 11:17:17 +0200
+From: Jan-Frode Myklebust <janfrode@parallab.uib.no>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.7-rc3
+Message-ID: <20040608091717.GA601@ii.uib.no>
+Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0406071227400.2550@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0406071227400.2550@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Jun 2004 05:07:12 -0400
-Jakub Jelinek <jakub@redhat.com> wrote:
+This failed to build for me:
 
-> On Fri, Jun 04, 2004 at 06:13:04PM +0200, Andi Kleen wrote:
-> > Of course that is only for the stack. Making the heap non executable
-> > is another can of worms. I don't know if Fedora does that
-> > too, SUSE and mainline x86-64 doesn't.
-> 
-> When I added PT_GNU_STACK, it was meant from the beginning as
-> stack+heap+mmap w/o PROT_EXEC executability/non-executability.
-> I don't think it makes any sense to have separate bits for heap and stack.
-> Any program which assumes PROT_READ implies PROT_EXEC just can be marked
-> PT_GNU_STACK PF_X.
+% make oldconfig; make
+<snip>
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+arch/i386/mach-generic/built-in.o(.init.text+0x39e): In function `parse_unisys_oem':
+: undefined reference to `platform_rename_gsi'
+make: *** [.tmp_vmlinux1] Error 1
 
-heap execution seems to be a lot more common than stack execution.
+So I switched from the default CONFIG_X86_GENERICARCH to
+CONFIG_X86_PC, which is probably the more correct option for my system
+(dual Pentium-III, 2 GB memory). Then it built just fine. 
 
--Andi
+
+  -jf

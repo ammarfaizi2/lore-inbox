@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261759AbTCLPzy>; Wed, 12 Mar 2003 10:55:54 -0500
+	id <S261781AbTCLQIN>; Wed, 12 Mar 2003 11:08:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261765AbTCLPzy>; Wed, 12 Mar 2003 10:55:54 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:38891 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261760AbTCLPzd>;
-	Wed, 12 Mar 2003 10:55:33 -0500
-Date: Wed, 12 Mar 2003 17:06:11 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Andre Hedrick <andre@linux-ide.org>,
-       scott thomason <scott-kernel@thomasons.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bio too big device
-Message-ID: <20030312160611.GL834@suse.de>
-References: <20030312090943.GA3298@suse.de> <Pine.LNX.4.10.10303120205250.391-100000@master.linux-ide.org> <20030312101414.GB3950@suse.de> <20030312154440.GA4868@win.tue.nl> <20030312155105.GJ834@suse.de> <20030312160218.GB4868@win.tue.nl>
+	id <S261782AbTCLQIN>; Wed, 12 Mar 2003 11:08:13 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:30474 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S261781AbTCLQIL>; Wed, 12 Mar 2003 11:08:11 -0500
+Date: Wed, 12 Mar 2003 11:18:38 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Jens Axboe <axboe@suse.de>, Larry McVoy <lm@work.bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
+Message-ID: <20030312161838.GF563@phunnypharm.org>
+References: <20030312034330.GA9324@work.bitmover.com> <20030312041621.GE563@phunnypharm.org> <20030312085517.GK811@suse.de> <20030312032614.G12806@schatzie.adilger.int>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030312160218.GB4868@win.tue.nl>
+In-Reply-To: <20030312032614.G12806@schatzie.adilger.int>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 12 2003, Andries Brouwer wrote:
-> On Wed, Mar 12, 2003 at 04:51:05PM +0100, Jens Axboe wrote:
-> > On Wed, Mar 12 2003, Andries Brouwer wrote:
-> > > On Wed, Mar 12, 2003 at 11:14:14AM +0100, Jens Axboe wrote:
-> > > 
-> > > > So I still think it's much better stick with the safe choice. Why do you
-> > > > think it's only one drive that has this bug? It basically boils down to
-> > > > whether That Other OS uses 256 sector commands or not. If it doesn't, I
-> > > > wouldn't trust the drives one bit.
-> > > 
-> > > I am not quite sure I understand your reasoning.
-> > > We have seen *zero* drives that do not understand 256 sector commands.
-> > > Maybe such drives exist, but so far there is zero evidence.
+On Wed, Mar 12, 2003 at 03:26:14AM -0700, Andreas Dilger wrote:
+> On Mar 12, 2003  09:55 +0100, Jens Axboe wrote:
+> > On Tue, Mar 11 2003, Ben Collins wrote:
+> > > You've made quite a marketing move. It's obvious to me, maybe not to
+> > > others. By providing this CVS gateway, you make it almost pointless to
+> > > work on an alternative client. Also by providing it, you make it easier
+> > > to get away with locking the revision history into a proprietary format.
 > > 
-> > Have you read the thread? You are obviously mistaken.
+> > This is a really good point, deserves high lighting imho...
+> > 
+> > The BK candy is getting increasingly bitter to swallow here, I may just
+> > have to drop it soon. A shame.
 > 
-> Usually I am not, but I am happy to be corrected.
-> Please point out the facts.
+> Sadly, some people see the dark side of everything.  I don't see how making
+> a CVS repository available with comments and an as-good-as-you-can-do-with-CVS
+> equivalent of a BK changeset equals "locking the revision history into a
+> proprietary format".  Yes, Larry said that this would allow him to change the
+> BK file format to break compatibility with CSSC, but it is no more "locked
+> away" now than before for those people who refuse to use BK.
 > 
-> What I have seen is Paul Gortmaker, who reported on an old disk
-> that showed errors with 256 sector transfers. In an early post
-> he thought that that just was because the drive did not understand
-> 256-sector transfers, in a later post he reported that in fact
-> 256-sector transfers worked but that it was possible to
-> provoke a problem by having heavy load for an hour with
-> 256-sector transfers.
-> 
-> I have an old drive that works fine but after three crashes
-> at 4 in the morning I decided that the load of updating
-> the locate database was more than it could handle.
-> Heavy load is something that kills many a machine.
+> Ironically, SCCS was a former "evil proprietary format" that was reverse
+> engineered to get CSSC, AFAIK.  People are still free to update CSSC to
+> track BK if they so choose.
 
-Either the drive has the bug or not. I seriously doubt that 256 vs 248
-sectors would put any extra strain on the drive.
+Atleast SCCS is mostly ascii. Larry is talking about binary. Who knows,
+maybe even encrypted and using some unknown compression method (I'm sure
+if it's encrypted, it will be called "compression").
 
-If there's no real precedent wrt 256 sector bug in _any_ drive, then I'm
-fine with that change. Remember that we _did_ have it that way for a
-while, it was only changed back because of apparent problems. If those
-problems turn out to be non-existant, then the error was changing it
-away from 256 in the first place.
 
 -- 
-Jens Axboe
-
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

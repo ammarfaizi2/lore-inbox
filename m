@@ -1,68 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269576AbUINQSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269501AbUINQNd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269576AbUINQSL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 12:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269574AbUINQSI
+	id S269501AbUINQNd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 12:13:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269508AbUINQMB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 12:18:08 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:5256 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S269563AbUINQRF (ORCPT
+	Tue, 14 Sep 2004 12:12:01 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6104 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269454AbUINQFY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 12:17:05 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Subject: Re: [profile] amortize atomic hit count increments
-Date: Tue, 14 Sep 2004 09:16:48 -0700
-User-Agent: KMail/1.7
-Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
-       Ray Bryant <raybry@sgi.com>, hawkes@sgi.com,
-       linux-kernel@vger.kernel.org
-References: <20040913015003.5406abae.akpm@osdl.org> <20040914155103.GR9106@holomorphy.com> <20040914160531.GP4180@dualathlon.random>
-In-Reply-To: <20040914160531.GP4180@dualathlon.random>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 14 Sep 2004 12:05:24 -0400
+Date: Tue, 14 Sep 2004 09:05:12 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: James Roper <u3205097@anu.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel semaphores
+Message-Id: <20040914090512.7236a6da@lembas.zaitcev.lan>
+In-Reply-To: <mailman.1095139743.24686.linux-kernel2news@redhat.com>
+References: <mailman.1095139743.24686.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409140916.48786.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, September 14, 2004 9:05 am, Andrea Arcangeli wrote:
-> It probably worth to measure it. The real bottleneck happens when all
-> cpus tries to get an exclusive lock on the same cacheline at the *same*
-> time. 1 second is a pretty long time, if there's no contention of the
-> cacheline, things are normally ok.
+On Tue, 14 Sep 2004 15:25:24 +1000
+James Roper <u3205097@anu.edu.au> wrote:
 
-Right, we want to avoid that heavy contention.
+> [] So my question is, if my semaphore is 
+> causing that error, what possible things could be triggering it?  Could it be 
+> an interrupt while waiting to acquire the semaphore?  I'm using the 
+> down_interruptible() to acquire and up() to release.
 
-> this is basically the same issue we had with RCU since all timers fired
-> at the same wall clock time, and all of them tried to change bits in the
-> same cacheline at the same time, that is a workload that collapse a
-> 512-way machine ;). The profile timer is no different.
->
-> Simply removing the idle time accounting would fix it, however this
-> cripple down functionality a little bit, but it'll be a very good way to
-> test if my theory is correct, or if you truly need some per-cpu logic in
-> the profiler.
->
-> You could also fake it, have a per-cpu counter only for the current->pid
-> case, and then once somebody reads /proc/profile, you flush the total
-> per-cpu count to the counter in the buffer that corresponds to the EIP
-> of the idle func.
->
-> Before dedicidng I'd suggest to have a look and see how the below patch
-> compares to your approch in performance terms.
+You have to use spinlocks to provide a mutual exclusion to interrupts.
+However, a process on CPU cannot sleep while holding a spinlock. So,
+sometimes it's needed to create a derivative locking scheme, based
+on spinlocks. A common trick is to combine semaphores and spinlocks.
+I cannot be more specific without knowing your code.
 
-It looks like the 512p we have here is pretty heavily reserved this week, so 
-I'm not sure if I'll be able to test this (someone else might, John?).  I 
-think the balance we're looking for is between simplicity and non-brokenness.  
-Builtin profiling is *supposed* to be simple and dumb, and were it not for 
-the readprofile times, I'd say per-cpu would be the way to go just because it 
-retains the simplicity of the current approach while allowing it to work on 
-large machines (as well as limiting the performance impact of builtin 
-profiling in general).  wli's approach seems like a reasonable tradeoff 
-though, assuming what you suggest doesn't work.
-
-Thanks,
-Jesse
+-- Pete

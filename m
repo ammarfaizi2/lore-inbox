@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318300AbSIFHEf>; Fri, 6 Sep 2002 03:04:35 -0400
+	id <S318349AbSIFHR5>; Fri, 6 Sep 2002 03:17:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318349AbSIFHEf>; Fri, 6 Sep 2002 03:04:35 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:1931 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S318300AbSIFHEe>;
-	Fri, 6 Sep 2002 03:04:34 -0400
-Date: Fri, 6 Sep 2002 09:09:11 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>, linux-kernel@vger.kernel.org
-Subject: Re: side-by-side Re: BYTE Unix Benchmarks Version 3.6
-Message-ID: <20020906070911.GA31562@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Daniel Phillips <phillips@arcor.de>,
-	Paolo Ciarrocchi <ciarrocchi@linuxmail.org>,
-	linux-kernel@vger.kernel.org
-References: <20020904220055.21349.qmail@linuxmail.org> <20020905134830.GA16149@outpost.ds9a.nl> <E17n9im-0006Ef-00@starship>
+	id <S318357AbSIFHR5>; Fri, 6 Sep 2002 03:17:57 -0400
+Received: from dp.samba.org ([66.70.73.150]:52156 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S318349AbSIFHR4>;
+	Fri, 6 Sep 2002 03:17:56 -0400
+Date: Fri, 6 Sep 2002 16:48:41 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: paulus@au1.ibm.com, jamagallon@able.es, r.post@sara.nl,
+       morten.helgesen@nextframe.net, linux-kernel@vger.kernel.org
+Subject: Re: writing OOPS/panic info to nvram?
+Message-Id: <20020906164841.3c7e1085.rusty@rustcorp.com.au>
+In-Reply-To: <1031184421.2796.161.camel@irongate.swansea.linux.org.uk>
+References: <E471FA7E-C00E-11D6-A20D-000393911DE2@sara.nl>
+	<20020904140856.GA1949@werewolf.able.es>
+	<1031149539.2788.120.camel@irongate.swansea.linux.org.uk>
+	<15734.39068.766611.169333@argo.ozlabs.ibm.com>
+	<1031184421.2796.161.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E17n9im-0006Ef-00@starship>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 06, 2002 at 05:23:48AM +0200, Daniel Phillips wrote:
-> On Thursday 05 September 2002 15:48, bert hubert wrote:
-> > Arithmetic Test (type = arithoh)        3598100.4 lps    3435944.6 lps
-> > Arithmetic Test (type = register)        201521.0 lps     197870.4 lps
-> > Arithmetic Test (type = short)           190245.9 lps     145140.8 lps
-> > Arithmetic Test (type = int)             201904.5 lps     104440.5 lps
-> > Arithmetic Test (type = long)            201906.4 lps     177757.4 lps
-> > Arithmetic Test (type = float)           210562.7 lps     208476.4 lps
-> > Arithmetic Test (type = double)          210385.9 lps     208443.3 lps
+On 05 Sep 2002 01:07:01 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+
+> On Thu, 2002-09-05 at 00:34, Paul Mackerras wrote:
+> > IDE was relatively straightforward since you can do basic block I/O
+> > with just the ATA-1 or ATA-2 registers and command set and PIO.  In
+> > contrast, I believe SCSI defeated him. :)
 > 
-> What kind of arithmetic is this?  Why on earth would arithmetic vary
-> from one kernel to another?
+> You have to reset and retune the interface/controller registers as well,
+> otherwise bad things can happen.
 
-I wasn't involved in this benchmark, I just reformatted the results.
-However, it might be that this benchmark is a tad braindead and 'suffers'
-from far better timing resolution because of HZ=1000. I'm unsure. I saw that
-this benchmark used something like a Sparcstation 5 as a reference platform,
-so maybe it is not geared for today's processors.
+No, at this stage the code reboots the machine (well, I could call the ide
+reset code at this point I guess).
 
-Regards,
+Note that my mini oops dumper object file is a leafnode which doesn't use any
+external code in the dump path (checked at build time).  It is armed with the
+symbols and device & block offsets by userspace.  I plan to update it in the
+next month, but it's trivial enough (a new driver with one hook in the oops
+code) to be done after the freeze if reqd.
 
-bert hubert
+The interesting bit becomes harvesting those reports: this is a higher level
+problem (userspace and privacy being the higher levels, respectively).
 
+Rusty.
 -- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

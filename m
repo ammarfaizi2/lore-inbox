@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270463AbTGNAGF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 20:06:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270461AbTGNAGF
+	id S270464AbTGNAIg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 20:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270462AbTGNAIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 20:06:05 -0400
-Received: from webmail.hamiltonfunding.la ([12.162.17.40]:46225 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S270459AbTGNAGC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 20:06:02 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: alan@storlinksemi.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: TCP IP Offloading Interface
-References: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com>
-	<20030713004818.4f1895be.davem@redhat.com>
-	<52u19qwg53.fsf@topspin.com>
-	<20030713160200.571716cf.davem@redhat.com>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 13 Jul 2003 17:20:41 -0700
-In-Reply-To: <20030713160200.571716cf.davem@redhat.com>
-Message-ID: <52llv2vu06.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	Sun, 13 Jul 2003 20:08:35 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:53452 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S270464AbTGNAIb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 20:08:31 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+Organization: ( )
+To: Nathan Scott <nathans@sgi.com>
+Subject: Re: 2.5.75 and xfs quotas
+Date: Sun, 13 Jul 2003 18:32:39 -0400
+User-Agent: KMail/1.5.2
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <200307131025.56438.ivg2@cornell.edu> <20030713234837.GA891@frodo>
+In-Reply-To: <20030713234837.GA891@frodo>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 14 Jul 2003 00:20:44.0218 (UTC) FILETIME=[C3EB59A0:01C3499D]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307131832.39596.ivg2@cornell.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    David> I didn't say I agree with all of Moguls ideas, just his
-    David> anti-TOE arguments.  For example, I also think RDMA sucks
-    David> too yet he thinks it's a good iea.
+> There will be a more meaningful message in your system log.
 
-Sure, he talks about some weaknesses of TOE, but his conclusion is
-that the time has come for OS developers to start working on TCP
-offload (for storage).
+There is...quota is unsupported. But I figured that out from the rest of it.
 
-    David> You obviously don't understand my ideas if you think that
-    David> it matters whether there is some relationship between the
-    David> MTU and the system page size necessary for the scheme to
-    David> work.
+> This (remount,quota) is not implemented by the XFS kernel code,
+> and hasn't ever been, although there was a time when it wouldn't
+> have reported an error when attempting this.  Currently, quota
+> can only be enabled during the initial mount.  For your root fs
+> this means using "rootflags=quota" during startup.
 
-I was just quoting part of Mogul's paper that seemed to directly
-contradict your original post.  I also said it would be great to see
-NIC hardware with support for flow classification.
+Okay, thank you. 
+Perhaps that's what the warning should say rather than "quota option 
+unsupported"?
 
-Look, I pretty much agree with you about TOE hardware.  Every chip
-I've seen either requires a bunch of dedicated expensive memory
-(including a giant CAM) or is just firmware running on a
-low-performance embedded CPU.  But I also think Mogul is right: iSCSI
-HBAs are going to force OS designers to deal with TCP offload.
 
-My whole point was just that it doesn't make much sense to dismiss the
-whole idea by saying "TOE is evil" and then cite as support a paper
-that explains why TOEs now make sense and need to be supported.
 
- - Roland
+

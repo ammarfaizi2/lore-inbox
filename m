@@ -1,96 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbUAVPD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 10:03:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUAVPD5
+	id S265117AbUAVXIS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 18:08:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266441AbUAVXIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 10:03:57 -0500
-Received: from fed1mtao06.cox.net ([68.6.19.125]:48810 "EHLO
-	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S263777AbUAVPDz
+	Thu, 22 Jan 2004 18:08:18 -0500
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:25080 "EHLO
+	mail.kroptech.com") by vger.kernel.org with ESMTP id S265117AbUAVXIQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 10:03:55 -0500
-Date: Thu, 22 Jan 2004 08:03:38 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: George Anzinger <george@mvista.com>
-Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
-       Powerpc Linux <linuxppc-dev@lists.linuxppc.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
-Subject: Re: PPC KGDB changes and some help?
-Message-ID: <20040122150338.GB15271@stop.crashing.org>
-References: <20040120172708.GN13454@stop.crashing.org> <200401211946.17969.amitkale@emsyssoft.com> <20040121153019.GR13454@stop.crashing.org> <200401212223.13347.amitkale@emsyssoft.com> <20040121184217.GU13454@stop.crashing.org> <400F05D2.4010607@mvista.com>
+	Thu, 22 Jan 2004 18:08:16 -0500
+Date: Thu, 22 Jan 2004 18:17:51 -0500
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: 2.6.1 oops in prune_dcache()
+Message-ID: <20040122181751.A2101@mail.kroptech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <400F05D2.4010607@mvista.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 21, 2004 at 03:05:54PM -0800, George Anzinger wrote:
-> Tom Rini wrote:
-> >On Wed, Jan 21, 2004 at 10:23:12PM +0530, Amit S. Kale wrote:
-> >
-> >
-> >>Hi,
-> >>
-> >>Here it is: ppc kgdb from timesys kernel is available at
-> >>http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.1.0.tar.bz2
-> >>
-> >>This is my attempt at extracting kgdb from TimeSys kernel. It works well 
-> >>in TimeSys kernel, so blame me if above patch doesn't work.
-> >
-> >
-> >Okay, here's my first patch against this.
-> >===== kernel/kgdbstub.c 1.1 vs edited =====
-> >--- 1.1/kernel/kgdbstub.c	Wed Jan 21 10:13:17 2004
-> >+++ edited/kernel/kgdbstub.c	Wed Jan 21 10:53:38 2004
-> >@@ -1058,9 +1058,6 @@
-> > 	kgdb_serial->write_char('+');
-> > 
-> > 	linux_debug_hook = kgdb_handle_exception;
-> >-	
-> >-	if (kgdb_ops->kgdb_init)
-> >-		kgdb_ops->kgdb_init();
-> > 
-> > 	/* We can't do much if this fails */
-> > 	register_module_notifier(&kgdb_module_load_nb);
-> >@@ -1104,6 +1101,11 @@
-> > 	if (!kgdb_enter) {
-> > 		return;
-> > 	}
-> >+
-> >+	/* Let the arch do any initalization it needs to */
-> >+	if (kgdb_ops->kgdb_init)
-> >+		kgdb_ops->kgdb_init();
-> >+
-> > 	if (!kgdb_serial) {
-> > 		printk("KGDB: no gdb interface available.\n"
-> > 		       "kgdb can't be enabled\n");
-> >
-> >I'm not sure why you were calling the arch-specific init so late in the
-> >process, but since it's a nop on both i386 and x86_64 (so perhaps it
-> >should be removed for both of these?), this change doesn't matter to
-> >them.  But it does make the PPC code cleaner, IMHO.
-> 
-> I agree.  Lets dump all the init calls/code.  I have not seen anything yet 
-> that can not be done as a side effect of the first call, or better yet, at 
-> compile time.
-> 
-> I am willing to be shown a valid case, however.  Remember, I want to be 
-> able to do a breakpoint() as the first line of C code in the kernel.  
-> (works with the mm kgdb).
+At 4 AM this morning (during cron run, I suppose) a box running 2.6.1
+hit the oops below. It locked solid, had to hit the reset button to
+reboot it. The machine had been running 2.6.1 for about a week prior
+with no problems.
 
-How would you propose handling what's done in ppc_kgdb_init ?  I could
-make it a __setup, ala how kgdb_8250.c works, but that too won't allow
-for 'first line of C'.  OTOH,  if breakpoint did:
-if (!kgdb_initalized) {
-   ... work of kgdb_entry() ...
-}
-... normal breakpoint() code ...
+Hardware is single Pentium Pro 200, 128 MB RAM (extensively
+memtest86'ed). Kernel is no-SMP, no-preempt, and (obviously) no-highmem.
 
-PPC would be fine, as would other arches which need to do some setup.
+Feel free to ask for more details if I can help. This is the first oops
+I've seen since mid 2.5.x on this machine.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+--Adam
+
+
+Jan 21 04:06:32 print kernel: Unable to handle kernel paging request at virtual address 00008014
+Jan 21 04:06:32 print kernel:  printing eip:
+Jan 21 04:06:32 print kernel: c01570e5
+Jan 21 04:06:32 print kernel: *pde = 00000000
+Jan 21 04:06:32 print kernel: Oops: 0000 [#1]
+Jan 21 04:06:32 print kernel: CPU:    0
+Jan 21 04:06:32 print kernel: EIP:    0060:[<c01570e5>]    Not tainted
+Jan 21 04:06:32 print kernel: EFLAGS: 00010206
+Jan 21 04:06:32 print kernel: EIP is at prune_dcache+0xe5/0x130
+Jan 21 04:06:32 print kernel: eax: 00008000   ebx: c1dc83e0   ecx: c577da74   edx: c577da74
+Jan 21 04:06:32 print kernel: esi: c577da64   edi: c1dc83e0   ebp: 00000072   esp: c11d7e70
+Jan 21 04:06:32 print kernel: ds: 007b   es: 007b   ss: 0068
+Jan 21 04:06:32 print kernel: Process kswapd0 (pid: 7, threadinfo=c11d6000 task=c11db2f0)
+Jan 21 04:06:37 print kernel: Stack: c11d6000 c11d7eac c0114641 00000202 c11db2f0 c11db310 000658fc 9b6c7589
+Jan 21 04:06:37 print kernel:        00000080 0000031b c11d6000 00000080 c0157445 00000080 c0134689 00000080
+Jan 21 04:06:37 print kernel:        000000d0 000031d4 000000a8 01620ff0 00000000 00000001 c7ffeb80 000000a8
+Jan 21 04:06:37 print kernel: Call Trace:
+Jan 21 04:06:37 print kernel:  [<c0114641>] schedule+0x41/0x4c0
+Jan 21 04:06:37 print kernel:  [<c0157445>] shrink_dcache_memory+0x15/0x20
+Jan 21 04:06:37 print kernel:  [<c0134689>] shrink_slab+0x109/0x160
+Jan 21 04:06:37 print kernel:  [<c01356cf>] balance_pgdat+0x13f/0x1f0
+Jan 21 04:06:37 print kernel:  [<c013588b>] kswapd+0x10b/0x110
+Jan 21 04:06:37 print kernel:  [<c0115d00>] autoremove_wake_function+0x0/0x40
+Jan 21 04:06:37 print kernel:  [<c0115d00>] autoremove_wake_function+0x0/0x40
+Jan 21 04:06:37 print kernel:  [<c0135780>] kswapd+0x0/0x110
+Jan 21 04:06:37 print kernel:  [<c0106fb5>] kernel_thread_helper+0x5/0x10
+Jan 21 04:06:37 print kernel:
+Jan 21 04:06:37 print kernel: Code: 8b 40 14 85 c0 74 08 56 53 ff d0 5a 59 eb 07 56 e8 66 20 00
+

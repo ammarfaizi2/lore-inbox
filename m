@@ -1,175 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263342AbTANPJH>; Tue, 14 Jan 2003 10:09:07 -0500
+	id <S263039AbTANPEQ>; Tue, 14 Jan 2003 10:04:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263544AbTANPJG>; Tue, 14 Jan 2003 10:09:06 -0500
-Received: from eamail1-out.unisys.com ([192.61.61.99]:43713 "EHLO
-	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
-	id <S263342AbTANPJD>; Tue, 14 Jan 2003 10:09:03 -0500
-Message-ID: <3FAD1088D4556046AEC48D80B47B478C022BD8F9@usslc-exch-4.slc.unisys.com>
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: anyone have a 16-bit x86 early_printk?
-Date: Tue, 14 Jan 2003 09:17:40 -0600
+	id <S263228AbTANPEQ>; Tue, 14 Jan 2003 10:04:16 -0500
+Received: from ophelia.ess.nec.de ([193.141.139.8]:31626 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S263039AbTANPEP> convert rfc822-to-8bit; Tue, 14 Jan 2003 10:04:15 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: "Andrew Theurer" <habanero@us.ibm.com>,
+       "Michael Hohnbaum" <michael@hbaum.com>
+Subject: Re: [Lse-tech] Re: NUMA scheduler 2nd approach
+Date: Tue, 14 Jan 2003 16:13:27 +0100
+User-Agent: KMail/1.4.3
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, "Robert Love" <rml@tech9.net>,
+       "Ingo Molnar" <mingo@elte.hu>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "lse-tech" <lse-tech@lists.sourceforge.net>
+References: <52570000.1042156448@flay> <1042523478.30434.164.camel@kenai> <001a01c2bbed$600f64a0$29060e09@andrewhcsltgw8>
+In-Reply-To: <001a01c2bbed$600f64a0$29060e09@andrewhcsltgw8>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301141613.27521.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can share our serial tool for debugging early boot. It is actually written
-for IA64 by Chuck Sluder at Unisys, and we used it even for EFI driver
-debug. It saved us a lot of grief.
-You can modify it for IA32. It just outputs debug messages to the serial
-port directly, so you will need a serial console:
+On Tuesday 14 January 2003 17:52, Andrew Theurer wrote:
+> > I suppose I should not have been so dang lazy and cut-n-pasted
+> > the line I changed.  The change was (((5*4*this_load)/4) + 4)
+> > which should be the same as your second choice.
+> >
+> > > We def need some constant to avoid low load ping pong, right?
+> >
+> > Yep.  Without the constant, one could have 6 processes on node
+> > A and 4 on node B, and node B would end up stealing.  While making
+> > a perfect balance, the expense of the off-node traffic does not
+> > justify it.  At least on the NUMAQ box.  It might be justified
+> > for a different NUMA architecture, which is why I propose putting
+> > this check in a macro that can be defined in topology.h for each
+> > architecture.
+>
+> Yes, I was also concerned about one task in one node and none in the
+> others. Without some sort of constant we will ping pong the task on every
+> node endlessly, since there is no % threshold that could make any
+> difference when the original load value is 0..  Your +4 gets rid of the 1
+> task case.
 
-This insertion is into kernel/prink.c:
----------------------------------------------
-extern void writebuf(int, const char *);
+That won't happen because:
+ - find_busiest_queue() won't detect a sufficient imbalance
+ (imbalance == 0),
+ - load_balance() won't be able to steal the task, as it will be
+ running (the rq->curr task)
 
-void
-early_printk (const char *str)
-{
-	char c;
-	int  i, k, j;
+So the worst thing that happens is that load_balance() finds out that
+it cannot steal the only task running on the runqueue and
+returns. But we won't get there because find_busiest_queue() returns
+NULL. It happens even in the bad case:
+   node#0 : 0 tasks
+   node#1 : 4 tasks (each on its own CPU)
+where we would desire to distribute the tasks equally among the
+nodes. At least on our IA64 platform...
 
-#ifdef CONFIG_ITANIUM_ES7000
-// this is out writing to serial port routine:
-	writebuf(0, str);
-#endif
-	while ((c = *str++) != '\0') {
-
-
-
-
-==cut here io.c =======================
-
-
-
-#include <string.h>
-
-extern unsigned long ia64_iobase;
-extern void outb_asm();
-extern unsigned char inb_asm();
-
-unsigned short
-serial_port_addr[4] = {
-    0x3f8,
-    0x2f8,
-    0x3e8,
-    0x2e8
-};
-
-void
-outb(unsigned short port, unsigned char data)
-{
-	unsigned char *addr;
-	
-	addr = (unsigned char *)(ia64_iobase | ((port & 0xfffc) << 10) |
-(port & 0x0fff));
-	outb_asm(addr, data);
-	
-	return;
-}
-
-unsigned char
-inb(unsigned short port)
-{
-	unsigned char *addr, data;
-
-	addr = (unsigned char *)(ia64_iobase | ((port & 0xfffc) << 10) |
-(port & 0x0fff));
-
-	data = inb_asm(addr);
-	
-	return(data);
-}
-
-
-#define SERIAL_REGISTER_LSR 5    /*  R/W  Line Status Register */
-
-void
-mputc(unsigned char port, unsigned char data)
-{
-	unsigned char status, i=0;
-	unsigned short portaddr;
-
-	portaddr = serial_port_addr[port];
-
-	do {
-		status = inb((serial_port_addr[port] +
-SERIAL_REGISTER_LSR));
-		i++;
-		if (i == 10000){
-			return;
-		}
-	} while ((status & 0x20) == 0);
-
-	outb(portaddr, data);	
-	
-	return;
-}
-
-int
-writebuf(unsigned char port, char *buf)
-{
-	int i;
-	size_t cnt;
-	unsigned char data;
-
-	
-	cnt = strlen(buf);
-
-	for (i=0; i<cnt; i++) {
-		data = buf[i];
-		if (data == '\n') {
-			mputc(port, 0x0d);
-			mputc(port, 0x0a);
-		} else {
-			mputc(port, data);
-		}
-	}
-
-	return((int)cnt);
-}
-
-
-====sample asm inb and outb for IA64========
-
-	.text
-
-	.global inb_asm
-	.global outb_asm
-	.global read_psr
-	.global read_iva
-	.global read_xapic
-	.global write_xapic
-
-	.align 32
+Regards,
+Erich
 
 
 
-	.proc inb_asm
-inb_asm:
-
-        mf                      // fence all loads/stores
-        ld1.acq r8 = [r32]      // read a byte from the port
-        mf.a                    // make sure the platform accepts it
-
-        br.ret.sptk     b0
-	.endp inb_asm
-
-
-
-	.proc outb_asm
-outb_asm:
-
-        st1.rel [r32] = r33     // write one byte to a port
-        mf.a                    // make sure the platform accepts it
-        mf                      // fence all loads/stores
-
-        br.ret.sptk     b0
-
-	.endp outb_asm

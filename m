@@ -1,33 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267741AbTAIUM4>; Thu, 9 Jan 2003 15:12:56 -0500
+	id <S266854AbTAIUJw>; Thu, 9 Jan 2003 15:09:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267742AbTAIUM4>; Thu, 9 Jan 2003 15:12:56 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34317 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267741AbTAIUMz>; Thu, 9 Jan 2003 15:12:55 -0500
-Date: Thu, 9 Jan 2003 12:20:11 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Luca Barbieri <ldb@ldb.ods.org>,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Use %ebp rather than %ebx for thread_info pointer
-In-Reply-To: <Pine.LNX.3.95.1030109150728.27501A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.44.0301091219070.1890-100000@penguin.transmeta.com>
+	id <S266982AbTAIUJv>; Thu, 9 Jan 2003 15:09:51 -0500
+Received: from packet.digeo.com ([12.110.80.53]:16091 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266854AbTAIUJv>;
+	Thu, 9 Jan 2003 15:09:51 -0500
+Message-ID: <3E1DD913.2571469F@digeo.com>
+Date: Thu, 09 Jan 2003 12:18:27 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Chris Wood <cwood@xmission.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20, .text.lock.swap cpu usage? (ibm x440)
+References: <3E1A12B5.4020505@xmission.com> <3E1A16C5.87EDE35A@digeo.com> <3E1DAEAC.4060904@xmission.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Jan 2003 20:18:27.0845 (UTC) FILETIME=[45251B50:01C2B81C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 9 Jan 2003, Richard B. Johnson wrote:
+Chris Wood wrote:
 > 
-> If you use EBP as an index register, i.e., "movl (%ebp), %eax", it
-> will be relative to the SS, not ES or DS. Is this what you want?
+> ..
+> The server ran fine for 3 days, so it took a bit to get this info.
 
-That's fine, both SS and DS are 32-bit flat segments everywhere in the
-kernel (they have different descriptors - __KERNEL_DS vs __USER_DS, but
-they do the same thing)
+Is appreciated, thanks.
+ 
+> Is there a list of which patches I can apply if I don't want to apply
+> the entire 2.4.20aa1?  I'm nervous about breaking other things, but may
+> give it a try anyway.
 
-		Linus
+http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20aa1/05_vm_16_active_free_zone_bhs-1
+http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20aa1/10_inode-highmem-2
 
+The former is the most important and, alas, has dependencies on
+earlier patches.
+
+hm, OK.  I've pulled all Andrea's VM changes and the inode-highmem fix
+into a standalone diff.  I'll beat on that a bit tonight before unleashing
+it.
+
+> Thanks for the help!
+> 
+> Here is a /proc/meminfo when it is running fine:
+
+These numbers are a little odd.  You seem to have only lost 200M of
+lowmem to buffer_heads.  Bill, what's your take on this?
+
+Maybe we're looking at the wrong thing.  Are any of your applications
+using mlock(), mlockall(), etc?

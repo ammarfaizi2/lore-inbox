@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319392AbSIFVCA>; Fri, 6 Sep 2002 17:02:00 -0400
+	id <S319398AbSIFU5z>; Fri, 6 Sep 2002 16:57:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319397AbSIFVB7>; Fri, 6 Sep 2002 17:01:59 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:39329 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S319392AbSIFVB6>;
-	Fri, 6 Sep 2002 17:01:58 -0400
-Message-ID: <3D7918E8.5030000@colorfullife.com>
-Date: Fri, 06 Sep 2002 23:06:48 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Paul Larson <plars@linuxtestproject.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pid_max hang again...
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S319396AbSIFU51>; Fri, 6 Sep 2002 16:57:27 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:62454
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319397AbSIFUzw>; Fri, 6 Sep 2002 16:55:52 -0400
+Subject: Re: RE:Re: ide drive dying?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Hell.Surfers@cwctv.net
+Cc: degger@fhm.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <0d2bf5139200692DTVMAIL9@smtp.cwctv.net>
+References: <0d2bf5139200692DTVMAIL9@smtp.cwctv.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 06 Sep 2002 22:01:29 +0100
+Message-Id: <1031346090.10612.90.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2002-09-06 at 21:40, Hell.Surfers@cwctv.net wrote:
+> Is a drive you cant rely on worth having?
 
-Searching for a free pid value and inserting the thread into the task 
-list should be atomic, otherwise the same pid value could be given to 2 
-threads.
+Thats up to the owner. There are lots of uses for such drives - /tmp,
+swap, in a raid array, etc
 
-do_fork runs without the BLK, you might have to search for the pid 
-within the write_lock_irq(&tasklist_lock) block.
-
---
-	Manfred
+Mind you I collect drives that have nice properties like "hangs the
+entire scsi bus when inserted into an SCA connector" for testing with
 

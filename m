@@ -1,111 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbUG2F6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262768AbUG2GQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbUG2F6g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 01:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUG2F6g
+	id S262768AbUG2GQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 02:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263847AbUG2GQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 01:58:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33197 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262329AbUG2F6L (ORCPT
+	Thu, 29 Jul 2004 02:16:27 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:7570 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262768AbUG2GPz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 01:58:11 -0400
-Date: Thu, 29 Jul 2004 01:58:06 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: lkml List <linux-kernel@vger.kernel.org>
-Subject: Re: Preliminary Linux Key Infrastructure 0.01-alpha1
-In-Reply-To: <65EFF013-DEAA-11D8-9612-000393ACC76E@mac.com>
-Message-ID: <Xine.LNX.4.44.0407290116340.13892-100000@dhcp83-76.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 Jul 2004 02:15:55 -0400
+Date: Wed, 28 Jul 2004 23:15:48 -0700
+From: Paul Jackson <pj@sgi.com>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: aebr@win.tue.nl, vojtech@suse.cz, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix NR_KEYS off-by-one error
+Message-Id: <20040728231548.4edebd5b.pj@sgi.com>
+In-Reply-To: <87llh3ihcn.fsf@ibmpc.myhome.or.jp>
+References: <87llhjlxjk.fsf@devron.myhome.or.jp>
+	<20040716164435.GA8078@ucw.cz>
+	<20040716201523.GC5518@pclin040.win.tue.nl>
+	<871xjbkv8g.fsf@devron.myhome.or.jp>
+	<20040728115130.GA4008@pclin040.win.tue.nl>
+	<87fz7c9j0y.fsf@devron.myhome.or.jp>
+	<20040728134202.5938b275.pj@sgi.com>
+	<87llh3ihcn.fsf@ibmpc.myhome.or.jp>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jul 2004, Kyle Moffett wrote:
 
-> Preliminary Linux Key Infrastructure 0.01-alpha1:
-> 
-> I'm writing a key/keyring infrastructure for the Linux kernel. I've got
-> some of the basic infrastructure done, and I'd like any comments on it
-> that you may have.
+Thank-you for considering my comments.
 
-Firstly, it might be useful for other developers if you could write up a
-brief rationale about this feature, why it's needed and why this is a good
-solution.  I do know of a few projects which could make use of keyrings:
+OGAWA wrote:
+> because it limits the range when struct kbentry
+> was changed.  (I think this change is likely)
 
- - cryptfs (Michael Halcrow)
- - afs
- - module signing (David Howells/ Arjan)
+I'm not sure I understand this comment -- but I am guessing that
+you mean that:
 
-Are there others (with running code, merged or potentially mergable) ?
+> +	unsigned char s, i;
+> +	unsigned short v;
 
-Does your design cater for all needs?
+would limit s, i, and v if struct kbentry was changed to have
+larger types (short or int, say) for these.
 
-I think I heard that Greg-KH had some keyring code already, so there may
-be some existing code floating around.
+Good point.
 
-To get more people to look at the code, I'd suggest that you get it 
-running and prepared as a patch to the mainline kernel.  It will also help 
-if you follow Documentation/CodingStyle and use more idiomatic kernel 
-development practices.
+Would it work to use larger types for local variables s, i, and v now,
+in order to avoid the ugly macro, as in:
 
-For example, typedefs are generally frowned upon (but perhaps acceptable
-to improve readability of complex function pointer stuff).
+	unsigned int s, i, v;
 
-You don't need to cast the result of kmalloc:
-
-	key = (lki_key_t *)kmalloc(sizeof(lki_key_t),GFP_KERNEL);
-
-should be:
-
-	key = kmalloc(sizeof(lki_key_t),GFP_KERNEL);
-
-Avoid using sizeof(some_type) for things like the above, use the actual 
-object itself:
-
-	key = kmalloc(sizeof(*key), GFP_KERNEL);
-
-(in case the type of *key changes some day).
-
-Use wrapper functions like wait_event_interruptible() instead of rolling 
-your own.
-
-It's better (IMHO) to have one exit path in a function, to clarify error
-handling, locking, and make it easier to audit the code.  e.g. in
-lki_key_used_list_allocate(), you grab a lock then have several return
-points with no unlock.
-
-Having some real code which uses the framework will also be good.
+However, if I have guessed incorrectly, then this idea may make no
+sense.  If so, sorry about that.
 
 
-> TODO:
-> 	keyctl:
-> 		The syscall that makes it all possible
+> key_map is pointer, so ARRAY_SIZE() can't use.
 
-Why would you need a syscall?
-
-> 	keyfs:
-> 		keys by number: On hold while I learn more about filesystems :-D
-
-What does this mean?
-
-I would imagine that the entire userspace API would be filesystem based.  
-e.g.  you could load the keys for module signature checking during boot by
-writing them to a node like:
-
-cat keyring.txt > /keyrings/modsign/keys
-
-Disable further changes:
-
-echo "0" > /keyrings/modsign/write
-
-You could manage per process credentials via /proc/self/something
+Yes - good point.
 
 
-- James
+> Anyhow these will be warned by gcc.
+
+If larger types, as I wrote above, were used for s, i, and v,
+then does gcc still warn?
+
+
+> Although overhead is insignificance, I'd hated to add overhead of this
+> test because test is not needed right now.
+
+Code clarity matters most here.  If the code had been crystal clear
+to the casual reader, then the initial mistake, of removing the
+range checking, probably would never have occurred in the first place,
+and we human beings would have already saved more time than we can ever
+hope to save by optimizing this code.
+
+You are absolutely correct that overhead is insignificant.
+
+But code clarity - that is very significant <smile>.
+
+Let all the essential details be spelled out, in the simplest
+most easily read, C statements that can be found to express it.
+
+Each line of code we put in the kernel will be read by many people
+doing various things.  They will be more likely to have a correct
+understanding of our code if it is clear and simple, with a minimum
+of surprises.
+
 -- 
-James Morris
-<jmorris@redhat.com>
-
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,73 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262821AbTA1JWX>; Tue, 28 Jan 2003 04:22:23 -0500
+	id <S264706AbTA1J2D>; Tue, 28 Jan 2003 04:28:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264614AbTA1JWX>; Tue, 28 Jan 2003 04:22:23 -0500
-Received: from host213-121-111-56.in-addr.btopenworld.com ([213.121.111.56]:1258
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
-	id <S262821AbTA1JWW>; Tue, 28 Jan 2003 04:22:22 -0500
-Subject: Re: sendfile support in linux
-From: Gianni Tedesco <gianni@ecsc.co.uk>
-To: Stanley Yee <SYee@snapappliance.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <057889C7F1E5D61193620002A537E8690B4387@NCBDC>
-References: <057889C7F1E5D61193620002A537E8690B4387@NCBDC>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-NrPkRLsOL2YtXYLUhU5J"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 28 Jan 2003 09:32:05 +0000
-Message-Id: <1043746326.6975.93.camel@lemsip>
-Mime-Version: 1.0
+	id <S264907AbTA1J2D>; Tue, 28 Jan 2003 04:28:03 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:52131 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S264706AbTA1J2C>;
+	Tue, 28 Jan 2003 04:28:02 -0500
+Date: Tue, 28 Jan 2003 10:32:53 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Martin Mares <mj@ucw.cz>, Richard Henderson <rth@twiddle.net>,
+       "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.5] VGA IO on systems with multiple PCI IO domains
+In-Reply-To: <20030128011710.A638@localhost.park.msu.ru>
+Message-ID: <Pine.GSO.4.21.0301281030590.9269-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 28 Jan 2003, Ivan Kokshaysky wrote:
+> On Mon, Jan 27, 2003 at 06:55:04PM +0100, Benjamin Herrenschmidt wrote:
+> > Well, your example clearly limits us to one IO space for VGA, which
+> > might not be what we want. The problem also exist for some fbdev drivers
+> > which might need to tap the VGA IOs of a given PCI card (thus getting
+> > access to the "legacy" IOs of the bus the card is on).
+> 
+> You are right, I've already realized that. :-)
+> The struct pci_bus * arg to legacy_ioport_remap (maybe better
+> pci_legacy_ioport_remap) is really good idea, and it's perfectly
+> ok to pass NULL in the vgacon case - we are limited to only one
+> VGA console anyway.
+> After the PCI setup is done, pci_legacy_ioport_remap(pbus, &legacy_resource)
+> would solve any problem I can think of, including multiple ISA bridges.
 
---=-NrPkRLsOL2YtXYLUhU5J
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+BTW, we still need a separate isa_request_mem_region(), since right now we
+cannot simply call request_mem_region(0xa0000, 0x10000) to request the VGA
+memory buffer in ISA memory space. On ia32 the plain request_mem_region() is
+OK, but on other archs you need to add the ISA memory space base.
 
-On Tue, 2003-01-28 at 01:45, Stanley Yee wrote:
-> I'm trying to find out more about sendfile(2).  So far, from what I've
-> gathered, it sounds like the requirements for it are (please correct me i=
-f
-> I'm wrong):
->=20
-> 1.  A kernel with sendfile support (i.e. 2.4.X)
-> 2.  A network card capable of doing the TCP checksum in the hardware
-> 3.  The application must support sendfile=20
+Gr{oetje,eeting}s,
 
-Those are the user requirements yes. Of course the programmer only needs
-to assume (1) to start writing applications. Oh and its probably worth
-mentioning:
+						Geert
 
- 4. You can't do zero-copy receive.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-> Do you know what applications support zerocopy (sendfile)?  I noticed tha=
-t a
-> zerocopy NFS patch was added to the 2.5.x tree.  Does the 2.4.X NFS daemo=
-n
-> support zerocopy?  Does samba support zerocopy and if so what version?
-
-Samba, tux2, apache?, all the big stuff.
-
-Dunno about NFS.
-
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
-
---=-NrPkRLsOL2YtXYLUhU5J
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA+Nk4VkbV2aYZGvn0RAthuAJ9CAzbxhYdper9UKFTHiqhjsxYrAgCdEfwy
-kouOxknoD0r4yETFcXN8ojM=
-=w2XE
------END PGP SIGNATURE-----
-
---=-NrPkRLsOL2YtXYLUhU5J--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

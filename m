@@ -1,65 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129609AbQKINa0>; Thu, 9 Nov 2000 08:30:26 -0500
+	id <S130227AbQKINbQ>; Thu, 9 Nov 2000 08:31:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129914AbQKINaQ>; Thu, 9 Nov 2000 08:30:16 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:45979 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129609AbQKINaD>;
-	Thu, 9 Nov 2000 08:30:03 -0500
-Date: Thu, 9 Nov 2000 08:30:02 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-cc: Christoph Rohland <cr@sap.com>, Larry McVoy <lm@bitmover.com>,
-        richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org
+	id <S129914AbQKINbG>; Thu, 9 Nov 2000 08:31:06 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55376 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129616AbQKINbC>; Thu, 9 Nov 2000 08:31:02 -0500
 Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-In-Reply-To: <3A0AA063.DD5AB6D0@holly-springs.nc.us>
-Message-ID: <Pine.GSO.4.21.0011090812500.11045-100000@weyl.math.psu.edu>
+To: rothwell@holly-springs.nc.us (Michael Rothwell)
+Date: Thu, 9 Nov 2000 13:31:40 +0000 (GMT)
+Cc: cr@sap.com (Christoph Rohland), richardj_moore@uk.ibm.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A0A97D0.36C5913B@holly-springs.nc.us> from "Michael Rothwell" at Nov 09, 2000 07:25:52 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13trnq-00019Y-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> reason to hamstring their efforts because of the possibility of binary
+> modules. The GPL allows that, right? So any developer of binary-only
 
+Its not clear the GPL does allow it. 
 
-On Thu, 9 Nov 2000, Michael Rothwell wrote:
+> extensions using the GKHI would not be breaking the license agreement, I
+> don't think. There's lots of binary modules right now -- VMWare, Aureal
+> sound card drivers, etc.
 
-> Alexander Viro wrote:
-> > 
-> > On Thu, 9 Nov 2000, Michael Rothwell wrote:
-> > 
-> > > Same as before -- freedom and low cost. The primary advantae of Linux
-> > > over other OSes is the GPL.
-> > 
-> > Now, that's more than slightly insulting...
-> 
-> Well, it wasn't meant to be. I imagine RMS would make the same type of
-> statement -- Linux is libre, therefore superior. There's a number of
+All of which just cause large numbers of bugs to go in the bitbucket because
+nobody can tell whose the problem is.
 
-<shrug> RMS had repeatedly demonstrated what he's worth as a designer
-and programmer. Way below zero. You may like or dislike his ideology,
-but when it comes to technical stuff... Not funny.
-
-> OSes that have advantages of Linux in some area; Solaris can use more
-> processors; QNX is real-time, smaller and still posix; Windows has
-> better application support (i.e., more of them); MacOS has better color
-> and font management. But, Linux is free. Let's say for a moment that
-> Linux was exactly the same as Solaris, technically. Linux would be
-
-You mean, bloated tasteless parody on UNIX? Thanks, but no thanks.
-
-> superior because it is licensed under the GPL, and is free; whereas
-> Solaris would not be.
-
-Small solace it would be.
-
-> > The problem with the hooks et.al. is very simple - they promote every
-> > bloody implementation detail to exposed API. Sorry, but... See Figure 1.
-> > It won't fly.
-> 
-> Figure 1?
-
-Use search engine. On google "See Figure 1" brings the thing in the first
-5 hits.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265151AbTFMFtz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 01:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265152AbTFMFtz
+	id S265152AbTFMFvh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 01:51:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265153AbTFMFvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 01:49:55 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:21440 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265151AbTFMFty (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 01:49:54 -0400
-Date: Fri, 13 Jun 2003 11:36:32 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: John M Flinchbaugh <glynis@butterfly.hjsoft.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-       Maneesh Soni <maneesh@in.ibm.com>
-Subject: Re: 2.5.70-bk16: nfs crash
-Message-ID: <20030613060632.GB1331@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20030612125630.GA19842@butterfly.hjsoft.com> <20030612135254.GA2482@in.ibm.com> <16104.40370.828325.379995@charged.uio.no> <20030612155345.GB1438@in.ibm.com> <16104.43445.918001.683257@charged.uio.no> <20030612195302.GH1438@in.ibm.com> <16105.24576.901270.856844@charged.uio.no>
+	Fri, 13 Jun 2003 01:51:37 -0400
+Received: from law10-f103.law10.hotmail.com ([64.4.15.103]:64007 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S265152AbTFMFvd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 01:51:33 -0400
+X-Originating-IP: [211.28.96.69]
+X-Originating-Email: [alfiejohn@hotmail.com]
+From: "Alfie John" <alfiejohn@hotmail.com>
+To: andre@linux-ide.org
+Cc: jobs@interlogic.com.au, vox@lists.lugod.org, linux-kernel@vger.kernel.org,
+       ajug@yahoogroups.com
+Subject: Re: [OT] joining the "elite" team
+Date: Fri, 13 Jun 2003 16:05:19 +1000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16105.24576.901270.856844@charged.uio.no>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; format=flowed
+Message-ID: <Law10-F103XCFbN4TZy0000055b@hotmail.com>
+X-OriginalArrivalTime: 13 Jun 2003 06:05:19.0438 (UTC) FILETIME=[C4814EE0:01C33171]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 12, 2003 at 10:24:16PM -0700, Trond Myklebust wrote:
-> Wrong. Look at the VFS code. In all cases the test is of the form.
-> 
->     spin_lock(&dcache_lock);
->     /* Are we the sole users of this dentry */
->     if (atomic_read(&dentry->d_count) == 1) {
->        /* Yes - do some operation */
->     }
-> 
-> 
-> Knowing that d_lookup() can *increase* d_count is not a plus here. The
-> whole idea is to have a test for sole use.
+>Alfie,
+>
+>Did you not get hired, and your arse is a weee bit on the chapped side?
 
-I missed this part. If you want to do this, I would suggest taking
-the per-dentry lock instead. Most dcache routines have been fixed
-to do this. We will look around and see anything violates this rule.
+Actually I didn't even apply.
 
-Thanks
-Dipankar
+>grep -in hotmail /etc/mail/access
+>534:hotmail.com                 REJECT
+>
+>I am a weee bit chapped because "hotmail.com" did not get rejected!
+
+It isn't rejecting because this is coming through a mailing list.
+
+>Have a good'ay
+
+You too good sir.
+
+int 20h;
+Alfie John
+
+_________________________________________________________________
+Get mobile Hotmail. Go to  http://ninemsn.com.au/mobilecentral/signup.asp
+

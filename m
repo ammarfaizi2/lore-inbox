@@ -1,75 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264516AbTDPQom (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 12:44:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbTDPQol
+	id S264449AbTDPQrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 12:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264447AbTDPQq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 12:44:41 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:20096 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S264512AbTDPQog (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 12:44:36 -0400
-Message-Id: <200304161656.h3GGuQSt004394@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/02/2003 with nmh-1.0.4+dev
-To: Antonio Vargas <wind@cocodriloo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RedHat 9 and 2.5.x support 
-In-Reply-To: Your message of "Wed, 16 Apr 2003 18:54:08 +0200."
-             <20030416165408.GD30098@wind.cocodriloo.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030416165408.GD30098@wind.cocodriloo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1559688370P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Wed, 16 Apr 2003 12:46:57 -0400
+Received: from netmail02.services.quay.plus.net ([212.159.14.221]:35485 "HELO
+	netmail02.services.quay.plus.net") by vger.kernel.org with SMTP
+	id S264519AbTDPQpy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 12:45:54 -0400
+From: "Riley Williams" <rhw@MemAlpha.fslife.co.uk>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: firmware separation filesystem (fwfs)
+Date: Wed, 16 Apr 2003 17:57:41 +0100
+Message-ID: <BKEGKPICNAKILKJKMHCAKEDNCHAA.rhw@MemAlpha.fslife.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Wed, 16 Apr 2003 12:56:26 -0400
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
+In-Reply-To: <1050508028.28586.126.camel@dhcp22.swansea.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1559688370P
-Content-Type: text/plain; charset=us-ascii
+Hi Alan.
 
-On Wed, 16 Apr 2003 18:54:08 +0200, Antonio Vargas <wind@cocodriloo.com>  said:
-> 
-> I've just installed RedHat 9 on my desktop machine and I'd like
-> if it will support running under 2.5.65+ instead of his usual
-> 2.4.19+.
+ >> On the other hand, there are already many drivers in the kernel
+ >> that include firmware in headers, keyspan, io_edgeport, dabusb,
+ >> ser_a2232, sym53c8xx_2, ...
 
-I'm running 2.5.67 on an otherwise mostly-RH9, and it works fine modulo the
-usual issues with bleeding-edge kernels.  I've only hit two issues that are
-at all redhat specific:
+ > But so would loading it from hotplug via ioctl. It might be we
+ > want a clean hotplug way to ask for 'firmware for xyz'.
 
-1) Get Rusty's module tools (but you knew that).  If you install them
-right, they'll DTRT if you boot a 2.4 kernel too (keep the RH kernel
-around just in case. ;)
+I know that PCI uses a 32-bit number (or two 16-bit numbers if one
+prefers to think of it that way) to identify each piece of equipment.
+Is there a similar number for USB, Firewire, etc?
 
-2) You'll need this work-around for modules, probably:
+If so, the hotplug firmware driver could use those numbers prefixed
+by a code for the relevant bus to identify the relevant firmware.
+For example...
 
-*** etc/rc.d/rc.sysinit.orig    2003-04-16 12:52:22.780531536 -0400
---- etc/rc.d/rc.sysinit 2003-04-09 21:40:36.000000000 -0400
-***************
-*** 360,365 ****
---- 360,366 ----
-  if ! LC_ALL=C grep -iq nomodules /proc/cmdline 2>/dev/null && [ -f /proc/ksyms ]; then
-      USEMODULES=y
-  fi
-+ USEMODULES=y
-  
-  # Our modutils don't support it anymore, so we might as well remove
-  # the preferred link.
+	P:1234:5678		PCI Bus code 1234:5678
+	U:1234:5678		USB Bus code 1234:5678
 
-(or some other similar work-around for /proc/ksyms not being in 2.5 kernels)
+...and the hotplug driver would know whether those two were the same
+device on different buses, or two different devices.
 
---==_Exmh_-1559688370P
-Content-Type: application/pgp-signature
+Best wishes from Riley.
+---
+ * Nothing as pretty as a smile, nothing as ugly as a frown.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.471 / Virus Database: 269 - Release Date: 10-Apr-2003
 
-iD8DBQE+nYs6cC3lWbTT17ARAn3CAJ9T0scn4Jh/8sRmolf3XCJSknmWvwCeLkZG
-U5JtNpbGH+ZjONBfTqdp4c4=
-=ry0g
------END PGP SIGNATURE-----
-
---==_Exmh_-1559688370P--

@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267727AbUHPPYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267793AbUHPPfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267727AbUHPPYg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 11:24:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267842AbUHPPXn
+	id S267793AbUHPPfS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 11:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267687AbUHPPef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 11:23:43 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:34053 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267734AbUHPPWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 11:22:07 -0400
-Date: Mon, 16 Aug 2004 16:21:59 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] 2.6.8 synclink_cs.c replace syncppp with genhdlc
-Message-ID: <20040816162158.A11863@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Paul Fulghum <paulkf@microgate.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <1092669058.2012.11.camel@deimos.microgate.com>
+	Mon, 16 Aug 2004 11:34:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:50922 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267783AbUHPP3Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 11:29:16 -0400
+Date: Mon, 16 Aug 2004 11:28:16 -0400
+From: Alan Cox <alan@redhat.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Alan Cox <alan@redhat.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: PATCH: fixup incomplete ident blocks on ITE raid volumes
+Message-ID: <20040816152816.GD10279@devserv.devel.redhat.com>
+References: <20040815144527.GA7983@devserv.devel.redhat.com> <200408161716.35922.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1092669058.2012.11.camel@deimos.microgate.com>; from paulkf@microgate.com on Mon, Aug 16, 2004 at 10:11:00AM -0500
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <200408161716.35922.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#ifdef CONFIG_HDLC_MODULE
-> +#define CONFIG_HDLC 1
->  #endif
+On Mon, Aug 16, 2004 at 05:16:35PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> This should be part of ITE driver patch and be compiled only when ITE driver 
+> is going to be used or even better - there should be new callback for that.
 
-shouldn't the drivers depend on hdlc instead?
+Nice theory but doesn't work that way. The ITE drive will do this even if
+you don't have the ITE driver compiled in because it'll be seen as the
+mainboard legacy controller (or generic) in some systems.
+
+Alan
 

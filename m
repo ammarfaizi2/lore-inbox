@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318795AbSG0RLo>; Sat, 27 Jul 2002 13:11:44 -0400
+	id <S318792AbSG0Rnn>; Sat, 27 Jul 2002 13:43:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318796AbSG0RLo>; Sat, 27 Jul 2002 13:11:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56589 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318795AbSG0RLn>;
-	Sat, 27 Jul 2002 13:11:43 -0400
-Message-ID: <3D42D706.9899A4A0@zip.com.au>
-Date: Sat, 27 Jul 2002 10:23:18 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3-ac3 i686)
-X-Accept-Language: en
+	id <S318796AbSG0Rnn>; Sat, 27 Jul 2002 13:43:43 -0400
+Received: from mailb.telia.com ([194.22.194.6]:38111 "EHLO mailb.telia.com")
+	by vger.kernel.org with ESMTP id <S318792AbSG0Rnm>;
+	Sat, 27 Jul 2002 13:43:42 -0400
+X-Original-Recipient: <linux-kernel@vger.kernel.org>
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Funding GPL projects or funding the GPL?
+Date: Sat, 27 Jul 2002 19:46:11 +0200
+User-Agent: KMail/1.4.5
+References: <20020727085931.X26813@work.bitmover.com> <Pine.LNX.4.44L.0207271302550.3086-100000@imladris.surriel.com> <20020727092223.B26813@work.bitmover.com>
+In-Reply-To: <20020727092223.B26813@work.bitmover.com>
 MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cantab.net>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH 2.5] Introduce 64-bit versions of 
- PAGE_{CACHE_,}{MASK,ALIGN}
-References: <E17YRp5-0006H6-00@storm.christs.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200207271946.11727.roger.larsson@skelleftea.mail.telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
-> 
-> Linus,
-> 
-> This patch introduces 64-bit versions of PAGE_{CACHE_,}MASK and
-> PAGE_{CACHE_,}ALIGN:
->         PAGE_{CACHE_,}MASK_LL and PAGE_{CACHE_,}ALIGN_LL.
-> 
-> These are needed when 64-bit values are worked with on 32-bit
-> architectures, otherwise the high 32-bits are destroyed.
-> 
-> ...
->  #define PAGE_SIZE      (1UL << PAGE_SHIFT)
->  #define PAGE_MASK      (~(PAGE_SIZE-1))
-> +#define PAGE_MASK_LL   (~(u64)(PAGE_SIZE-1))
+On Saturday 27 July 2002 18.22, Larry McVoy wrote:
+> On Sat, Jul 27, 2002 at 01:06:56PM -0300, Rik van Riel wrote:
+> Actually, that's an interesting topic.  Other applications could use
+> the BK model of "free if you're out in the open" and pay otherwise.
+> It's pretty effective.  However, it doesn't work very well when the
+> community beats you to hell for not being GPLed.  I had a thick enough
+> skin to deal with it, I doubt others would, they'd give up.  It also
+> doesn't work when people refuse to obey the license because they 
+> don't agree with it (we had plenty of that).
 
-The problem here is that we've explicitly forced the
-PAGE_foo type to unsigned long.
+Trolltech does the same. And have taken the same amount of heat.
+(Probably A LOT more... since their Qt is the base for KDE)
 
-If we instead take the "UL" out of PAGE_SIZE altogether,
-the compiler can then promote the type of PAGE_SIZE and PAGE_MASK
-to the widest type being used in the expression (ie: long long)
-and everything should work.
+/RogerL
 
-Which seems to be a much cleaner solution, if it works.
+-- 
+Roger Larsson
+Skellefteå
+Sweden
 
-Will it work?
-
--

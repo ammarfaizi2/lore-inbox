@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVC0T7Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVC0UAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbVC0T7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 14:59:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVC0T7Z
+	id S261503AbVC0UAL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 15:00:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVC0UAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 14:59:25 -0500
-Received: from mail.sf-mail.de ([62.27.20.61]:17363 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S261497AbVC0T7V (ORCPT
+	Sun, 27 Mar 2005 15:00:11 -0500
+Received: from fire.osdl.org ([65.172.181.4]:15030 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261503AbVC0UAG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 14:59:21 -0500
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: [PATCH] typo fix in Documentation/eisa.txt
-Date: Sun, 27 Mar 2005 22:01:33 +0200
-User-Agent: KMail/1.8
-Cc: Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
-References: <200503271554.44382.eike-kernel@sf-tec.de> <200503272145.10266.eike-kernel@sf-tec.de> <42470E99.7010304@osdl.org>
-In-Reply-To: <42470E99.7010304@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Mar 2005 15:00:06 -0500
+Date: Sun, 27 Mar 2005 11:59:58 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Chris Wright <chrisw@osdl.org>, Moritz Muehlenhoff <jmm@inutil.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.11.6
+Message-ID: <20050327195958.GJ30522@shell0.pdx.osdl.net>
+References: <20050326033939.GV30522@shell0.pdx.osdl.net> <E1DF70M-0001ai-8z@localhost.localdomain> <20050326092753.GB30522@shell0.pdx.osdl.net> <20050327185259.GD5164@mythryan2.michonline.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503272201.36092.eike-kernel@sf-tec.de>
+In-Reply-To: <20050327185259.GD5164@mythryan2.michonline.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Typo fixes.
+* Ryan Anderson (ryan@michonline.com) wrote:
+> On Sat, Mar 26, 2005 at 01:27:53AM -0800, Chris Wright wrote:
+> > > Could you please add CAN IDs to the stable changelog for already assigned
+> > > vulnerabilities?
+> > 
+> > That's what I did for .5 -> .6.  We can't retroactively update changeset
+> > comments, and I'm not sure we have any other candidates in -stable.
+> > We'll certainly continue to add them as we have them.
+> 
+> bk helptool comments
 
-Thanks to Randy Dunlap and Jean Delvare.
+Yeah, I've actually used that, but as Dave mentioned, it's only really
+useful while you have the changes locally and haven't pushed them out yet.
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
-
---- linux-2.6.11/Documentation/eisa.txt	2005-03-02 08:38:12.000000000 +0100
-+++ linux-2.6.12-rc1/Documentation/eisa.txt	2005-03-27 21:58:04.000000000 +0200
-@@ -171,9 +171,9 @@
- virtual_root.force_probe :
- 
- Force the probing code to probe EISA slots even when it cannot find an
--EISA compliant mainboard (nothing appears on slot 0). Defaultd to 0
--(don't force), and set to 1 (force probing) when either
--CONFIG_ALPHA_JENSEN or CONFIG_EISA_VLB_PRIMING are set.
-+EISA compliant mainboard (nothing appears on slot 0). Defaults to 0
-+(don't force) and set to 1 (force probing) when either
-+CONFIG_ALPHA_JENSEN or CONFIG_EISA_VLB_PRIMING is set.
- 
- ** Random notes :
- 
+thanks,
+-chris

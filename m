@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313633AbSDYRRy>; Thu, 25 Apr 2002 13:17:54 -0400
+	id <S313217AbSDYRZo>; Thu, 25 Apr 2002 13:25:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313217AbSDYRRy>; Thu, 25 Apr 2002 13:17:54 -0400
-Received: from twin.jikos.cz ([217.11.237.146]:36100 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id <S313633AbSDYRRx>;
-	Thu, 25 Apr 2002 13:17:53 -0400
-Date: Thu, 25 Apr 2002 19:15:08 +0200 (CEST)
-From: Jirka Kosina <jikos@jikos.cz>
-To: cjtsai@ali.com.tw, <andre@linux-ide.org>
-cc: linux-kernel@vger.kernel.org
-Subject: IDE DMA problem on ALi chipset
-Message-ID: <Pine.LNX.4.44.0204251900210.1090-100000@twin.jikos.cz>
+	id <S313242AbSDYRZn>; Thu, 25 Apr 2002 13:25:43 -0400
+Received: from elin.scali.no ([62.70.89.10]:49675 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S313217AbSDYRZl>;
+	Thu, 25 Apr 2002 13:25:41 -0400
+Date: Thu, 25 Apr 2002 19:24:52 +0200 (CEST)
+From: Steffen Persvold <sp@scali.com>
+To: NFS Mailinglist <nfs@lists.sourceforge.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [NFS] NFS clients behind a masqueraded gateway
+In-Reply-To: <Pine.LNX.4.30.0204180946500.10622-100000@elin.scali.no>
+Message-ID: <Pine.LNX.4.30.0204251922190.16930-100000@elin.scali.no>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi again,
 
-I am experiencing quite heavy problems with DMA on IDE disks on one older 
-piece of hardware. Output from /proc/pci attached at the end of mail.
+I hate to bother you guys again with this problem, but do you have any
+ideas (haven't received any response so far) ?
 
-If I don't turn off DMA on all IDE disks, after quite a short while after 
-bootup (commonly during run of /sbin/init), I get many error messages of 
-all kinds (some programs segfault, for example), and after bootup my 
-console gets filled (cca 1 message per minute, not under heavy disk 
-access) with such messages:
+Answers highly appreciated.
 
-init_special_inode: bogus imode(0)
+On Thu, 18 Apr 2002, Steffen Persvold wrote:
 
-(imode followed by different numbers, but 0 is the most common).
+> Hi all,
+>
+> I'm experiencing some problems with a cluster setup. The cluster is set up
+> in a way that you have a frontend machine configured as a masquerading
+> gateway and all the compute nodes behind it on a private network (i.e the
+> frontend has two network interfaces). User home directories and also other
+> data directories which should be available to the cluster (i.e statically
+> mounted in the same location on both frontend and nodes) are located on
+> external NFS servers (IRIX and Linux servers). This seems to work fine
+> when the cluster is in use, but if the cluster is idle for some time (e.g
+> over night), the NFS directories has become unavailable and trying to
+> reboot the frontend results in a complete hang when it tries to unmount
+> the NFS directories (it hangs in a fuser command). The frontend and all
+> the nodes are running RedHat 7.2, but with a stock 2.4.18 kernel (plus
+> Trond's seekdir patch, thanks for the help BTW).
+>
+> Ideas anyone ?
+>
+> Thanks in advance,
+>
 
-Tried on kernel 2.4.9 from RedHat (there I get SeekError messages, instead
-of those mentioned above), 2.4.16, 2.4.18, I've heard that it happens to
-someone even with 2.4.19-pre7, but I haven't tested it myself yet.
-
-After I again boot with DMA turned off, fsck complains a lot (orphaned 
-inodes, orphaned linked lists, bad file attributes, etc.), after repairing 
-some of the files fsck mentioned are lost forever, /lost+found is filled 
-with many entries, etc).
-
-Here is complete /proc/pci from that computer
-
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: Acer Laboratories Inc. [ALi] M1621 (rev 5).
-      Prefetchable 32 bit memory at 0xe0000000 [0xe3ffffff].
-  Bus  0, device   1, function  0:
-    PCI bridge: Acer Laboratories Inc. [ALi] M5247 (rev 1).
-      Master Capable.  No bursts.  Min Gnt=7.
-  Bus  0, device   7, function  0:
-    ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV] (rev 195).
-  Bus  0, device  15, function  0:
-    IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev 193).
-      IRQ 14.
-      Master Capable.  Latency=32.  Min Gnt=2.Max Lat=4.
-      I/O at 0xffa0 [0xffaf].
-  Bus  0, device  16, function  0:
-    Ethernet controller: Hewlett-Packard Company J2585B (rev 0).
-      IRQ 9.
-      Master Capable.  Latency=64.  Min Gnt=8.Max Lat=32.
-      I/O at 0xde00 [0xdeff].
-      Non-prefetchable 32 bit memory at 0xdfffe000 [0xdfffffff].
-
-I've searched archives of LKML, but didn't find any solution. Thnaks in 
-advance for your replies.
-
+Regards,
 -- 
-JiKos.
-
+  Steffen Persvold   | Scalable Linux Systems |   Try out the world's best
+ mailto:sp@scali.com |  http://www.scali.com  | performing MPI implementation:
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6   |      - ScaMPI 1.13.8 -
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY   | >320MBytes/s and <4uS latency
 

@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264497AbSIVTZB>; Sun, 22 Sep 2002 15:25:01 -0400
+	id <S264500AbSIVT1l>; Sun, 22 Sep 2002 15:27:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264500AbSIVTZB>; Sun, 22 Sep 2002 15:25:01 -0400
-Received: from nameservices.net ([208.234.25.16]:20457 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S264497AbSIVTZA>;
-	Sun, 22 Sep 2002 15:25:00 -0400
-Message-ID: <3D8E1AF8.91C1915D@opersys.com>
-Date: Sun, 22 Sep 2002 15:33:12 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       LTT-Dev <ltt-dev@shafik.org>, Linus Torvalds <torvalds@transmeta.com>
+	id <S264503AbSIVT1l>; Sun, 22 Sep 2002 15:27:41 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:48528 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S264500AbSIVT1k>;
+	Sun, 22 Sep 2002 15:27:40 -0400
+Date: Sun, 22 Sep 2002 21:40:50 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LTT-Dev <ltt-dev@shafik.org>
 Subject: Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
-References: <Pine.LNX.4.44.0209221222060.21475-100000@localhost.localdomain> <3D8E14B6.F98A86E4@opersys.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3D8E179B.FCD06E7@opersys.com>
+Message-ID: <Pine.LNX.4.44.0209222124580.28832-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-err...
+On Sun, 22 Sep 2002, Karim Yaghmour wrote:
 
-Karim Yaghmour wrote:
-> retrieve the information they need easily from LTT without using
-                                                     ^^^^^^^ => by
-> clean interfaces and no table redirection.
+> Source bloat is certainly not desirable, as I said to my reply to Ingo.
 
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+(then how should i interpret 90% of the patches you sent to lkml today?)
+
+> What is desirable, however, is to have a uniform tracing mechanism
+> replace the ad-hoc tracing mechanisms already implemented in many
+> drivers and subsystems.
+
+exactly what is the problem with keeping intrusive debugging patches
+separate, just like all the other ones are kept separate? It's not like
+this came out of the blue, per-CPU trace buffers (and other tracers) were
+done years ago for Linux.
+
+> The lockless scheme is pretty simple, instead of using a spinlock to
+> ensure atomic allocation of buffer space, the code does an
+> allocate-and-test routine where it tries to allocate space in the buffer
+> and tests if it succeeded in doing so. If so, then it goes on to write
+> the data in the event buffer, otherwise it tries again. In most cases,
+> it does this loop only once and in most worst cases twice.
+
+(this is in essence a moving spinlock at the tail of the trace buffer -
+same problem.)
+
+	Ingo
+

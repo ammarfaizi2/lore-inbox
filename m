@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263167AbSJBO7K>; Wed, 2 Oct 2002 10:59:10 -0400
+	id <S263144AbSJBPWg>; Wed, 2 Oct 2002 11:22:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263107AbSJBO7J>; Wed, 2 Oct 2002 10:59:09 -0400
-Received: from [66.70.28.20] ([66.70.28.20]:57359 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S263167AbSJBO7I>; Wed, 2 Oct 2002 10:59:08 -0400
-Date: Wed, 2 Oct 2002 17:03:15 +0200
-From: DervishD <raul@pleyades.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: About the SCSI generic driver and libscg
-Message-ID: <20021002150315.GA46@DervishD>
+	id <S263145AbSJBPWg>; Wed, 2 Oct 2002 11:22:36 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:17508 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S263144AbSJBPWf>; Wed, 2 Oct 2002 11:22:35 -0400
+Date: Wed, 2 Oct 2002 09:11:10 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20pre8aa2
+Message-ID: <20021002071110.GC1158@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
-Organization: Pleyades Net
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all :))
+URL:
 
-    First of all: I *don't* want to feed a troll, I *don't* want a
-flamewar. I just want some information ;))
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20pre8aa2.gz
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20pre8aa2/
 
-    I've read some information (at <http://www.fokus.gmd.de/research/cc/glone/employees/joerg.schilling/private/linuxscsi.html>)
-and I don't know if it is a bit outdated. I mean: is not possible to
-do under Linux+sg what the document suggests? This document shows
-some apparent limitations of the SCSI generic driver under Linux,
-namely under kernel 2.2.x and 2.3.x. It doesn't refer to 2.4.x, though.
+Changelog between 2.4.20pre8aa1 and 2.4.20pre8aa2:
 
-    Namely what I want to know is if CD recording software (or SCSI
-software in general) needs libscg. I haven't seen much SCSI software,
-just cdrecord (which needs libscg, but well, it has been written by
-Joerg ;)), cdrdao (I don't know right now if it needs or not libscg)
-and cdparanoia (AFAIK don't use libscg). What I've read someplaces in
-the internet is that truly this library has a better SCSI generic
-driver (I insist: I *don't* know if this is true, I just don't know a
-word about SCSI).
+Only in 2.4.20pre8aa1: 00_extraversion-8
+Only in 2.4.20pre8aa2: 00_extraversion-9
 
-    I'm just curious why this library hasn't been adopted into the
-kernel as the SCSI generic driver and if this library is really
-needed or is just the vision of Joerg.
+	Rediffed.
 
-    I know that Joerg has a quite particular personality, but I know
-too that he is very intelligent and able and writes good software
-(specially cdrecord ;)), so is the curiosity.
+Only in 2.4.20pre8aa2: 00_proc-cmdline-1
 
-    For references, both Alan Cox and Douglas Gilbert are cited in
-the document I refer above.
+	Read within the page.
 
-    Thanks in advance :)
+Only in 2.4.20pre8aa2: 00_thinkpad-1
 
-    Raúl
+	Thinkpad support at http://tpctl.sourceforge.net/ integrated
+	by Chip Salzenberg.
+
+Only in 2.4.20pre8aa2: 00_usb_get_string-len-1
+
+	Don't read behind the end of the string
+	to avoid timeouts with some hardware. From Andreas Klein.
+
+Only in 2.4.20pre8aa1: 08_qlogicfc-template-aa-3
+Only in 2.4.20pre8aa2: 08_qlogicfc-template-aa-4
+
+	Allow qlogicfc to compile.
+
+Only in 2.4.20pre8aa1: 20_sched-o1-fixes-1
+Only in 2.4.20pre8aa2: 20_sched-o1-fixes-2
+
+	Resurrect the starvation logic, fix the idle->prio value, and further
+	fixes to the run-child-first logic too.
+
+Only in 2.4.20pre8aa2: 84_x86-64-arch-1
+Only in 2.4.20pre8aa2: 85_x86-64-includes-1
+
+	Synchronize x86-64 with all the additional features
+	(aio, cpu affinity etc..)
+
+Only in 2.4.20pre8aa1: 9900_aio-8.gz
+Only in 2.4.20pre8aa2: 9900_aio-9.gz
+
+	Add reiserfs support and fix one bug with timeout
+	null to getevents. From Chris Mason.
+
+Andrea

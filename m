@@ -1,56 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262568AbTFKR6x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 13:58:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbTFKR6x
+	id S263187AbTFKSBP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 14:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263449AbTFKSBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 13:58:53 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:60623
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262568AbTFKR6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 13:58:52 -0400
-Date: Wed, 11 Jun 2003 20:12:17 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Chris Mason <mason@suse.com>
-Cc: Nick Piggin <piggin@cyberone.com.au>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Georg Nikodym <georgn@somanetworks.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
-Subject: Re: [PATCH] io stalls (was: -rc7   Re: Linux 2.4.21-rc6)
-Message-ID: <20030611181217.GX26270@dualathlon.random>
-References: <200306041246.21636.m.c.p@wolk-project.de> <20030604104825.GR3412@x30.school.suse.de> <3EDDDEBB.4080209@cyberone.com.au> <1055194762.23130.370.camel@tiny.suse.com> <20030611003356.GN26270@dualathlon.random> <1055292839.24111.180.camel@tiny.suse.com> <20030611010628.GO26270@dualathlon.random> <1055296630.23697.195.camel@tiny.suse.com> <20030611021030.GQ26270@dualathlon.random> <1055353360.23697.235.camel@tiny.suse.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 11 Jun 2003 14:01:15 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:3740 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S263187AbTFKSBJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 14:01:09 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Documentation tweak to SendingPatches.
+Date: Wed, 11 Jun 2003 14:17:01 -0400
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1055353360.23697.235.camel@tiny.suse.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Message-Id: <200306111417.24269.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 01:42:41PM -0400, Chris Mason wrote:
-> +		if (q->rq[rw].count >= q->batch_requests) {
-> +			smp_mb();
-> +			if (waitqueue_active(&q->wait_for_requests[rw]))
-> +				wake_up(&q->wait_for_requests[rw]);
+Random first stab at it, flame away.
 
-in my tree I also changed this to:
+(Yes, I'd be happy to split out the bit about log rolling into a separate
+patch.  I probably should anyway, on general principles... :)
 
-				wake_up_nr(&q->wait_for_requests[rw], q->rq[rw].count);
+Rob
 
-otherwise only one waiter will eat the requests, while multiple waiters
-can eat requests in parallel instead because we freed not just 1 request
-but many of them.
+--- linux-2.5.70/Documentation/SubmittingPatches	2003-05-26 21:00:20.000000000 -0400
++++ linux-new/Documentation/SubmittingPatches	2003-06-11 14:01:23.000000000 -0400
+@@ -92,6 +92,16 @@
+ complete, that is OK.  Simply note "this patch depends on patch X"
+ in your patch description.
+ 
++In politics, there's a concept called "log rolling", where unrelated
++amendments are bundled together so that changes people want grease the
++way for changes they don't.  Do not do this.  It's insulting.
++
++In coding, this sort of thing can be very subtle, such as performance increases
++that help your new version perform as well as the original while doing more
++work, but which could also have been applied to the original making it even
++faster.  The linux-kernel guys are very good at taking the chocolate coating
++and leaving the pill behind.  This can be very frustrating to developers, but
++it's one of the big reasons open source produces such excellent results.
+ 
+ 4) Select e-mail destination.
+ 
+@@ -175,9 +185,14 @@
+ If the patch does not apply cleanly to the latest kernel version,
+ Linus will not apply it.
+ 
++9) Include PATCH in the subject
+ 
++Due to high e-mail traffic to Linus, and to linux-kernel, it is common
++convention to prefix your subject line with [PATCH].  This lets Linus
++and other kernel developers more easily distinguish patches from other
++e-mail discussions.
+ 
+-9) Don't get discouraged.  Re-submit.
++10) Don't get discouraged.  Re-submit.
+ 
+ After you have submitted your change, be patient and wait.  If Linus
+ likes your change and applies it, it will appear in the next version
+@@ -201,16 +216,56 @@
+ 
+ When in doubt, solicit comments on linux-kernel mailing list.
+ 
++11) Follow the chain (or "Why is Linus ignoring me?")
+ 
+-
+-10) Include PATCH in the subject
+-
+-Due to high e-mail traffic to Linus, and to linux-kernel, it is common
+-convention to prefix your subject line with [PATCH].  This lets Linus
+-and other kernel developers more easily distinguish patches from other
+-e-mail discussions.
+-
+-
++These days, Linus is too overwhelmed to reliably accept patches directly
++from developers he doesn't know.  Furthermore, Linus is unlikely to respond
++to unsolicited email, since he gets so much of it he reads most with the
++delete key.  If your patch is being repeatedly ignored, resending it more than
++a few times can get frustrating.  There's a better way.
++
++The slow but steady way to get patches into the development kernel is a three
++step process:
++
++  A) Get the maintainer's approval.
++  B) Get the subsystem lieutenant's approval.
++  C) Get it to Linus.
++
++The maintainer is listed in the MAINTAINERS file.  This is the first person
++you should approach with your patch, as they're the only ones who owe you
++any kind of response if they've never heard of you before.  (Notice they
++do not owe you a _polite_ response.  Be nice.)
++
++Maintainers report to lieutenants, which are like subsystem maintainers.
++There are over a hundred maintainers, but only about a dozen lieutenants.
++They're not listed anywhere, but the maintainer you contact should know who
++they report to.  (If the maintainer doesn't respond after a week or so,
++you could try asking on linux kernel.)  The maintainer may take your patch
++and forward it on themselves, or sign off on it and send you on to the
++appropriate lieutanant with their blessing but not their spare time.
++
++Lieutanants report to Linus.  They're the only people who can ding him
++for not answering their email.  Linus responds fairly reliably to his
++lieutenants, lieutenants respond to maintainers, and maintainers should
++respond to you.  If you follow the chain, at each stage you will be talking
++to somebody who more or less owes you an answer, even if that answer is "no".
++
++The farther away from Linus people are, the more time they're likely to have
++to respond to your email.  The response may be "no, that's a bad idea", but
++it's better than being left hanging.
++
++11) Listen to feedback.
++
++If a maintainer, lieutenant, or Linus tells you something specific is wrong
++with your patch, this is a GOOD thing.  It means you've been given the
++opportunity to fix it.  It's not meant to be discouraging, if they wanted to
++discourage you they'd either ignore you or explicitly tell you to stop
++bothering them.
++
++If Linus himself replies to you by telling you your patch has something wrong
++with it, you have just been encouraged.  Same goes for lieutenants and
++maintainers.  When they tell you what you need to do to make the thing
++palatable to them, you've been given the opportunity to fix it and resubmit.
+ 
+ -----------------------------------
+ SECTION 2 - HINTS, TIPS, AND TRICKS
 
-I wonder if my above change is really the right way to implement the
-removal of the _exclusive line that went in rc6. However with your patch
-the wake_up_nr (or ~equivalent removal of _exclusive wakeup of rc6)
-should mostly improve cpu parallelism in smp and while waiting for I/O,
-the amount of stuff in the I/O queue and the overall fariness shouldn't
-change very significantly with this new completely fair FIFO request
-allocator.
-
-Andrea

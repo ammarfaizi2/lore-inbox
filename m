@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266005AbRF1QDt>; Thu, 28 Jun 2001 12:03:49 -0400
+	id <S266007AbRF1QJJ>; Thu, 28 Jun 2001 12:09:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266006AbRF1QDm>; Thu, 28 Jun 2001 12:03:42 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:47885 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S266005AbRF1QDb>;
-	Thu, 28 Jun 2001 12:03:31 -0400
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, dhowells@redhat.com (David Howells),
-        linux-kernel@vger.kernel.org, arjanv@redhat.com
-Subject: Re: [RFC] I/O Access Abstractions
-In-Reply-To: <E15FbuU-0006wH-00@the-village.bc.nu> <7040.993736538@redhat.com>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 28 Jun 2001 18:02:35 +0200
-In-Reply-To: David Woodhouse's message of "Thu, 28 Jun 2001 14:55:38 +0100"
-Message-ID: <d3bsn8bnj8.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S266008AbRF1QI7>; Thu, 28 Jun 2001 12:08:59 -0400
+Received: from spc.esa.lanl.gov ([128.165.46.232]:6272 "HELO spc.esa.lanl.gov")
+	by vger.kernel.org with SMTP id <S266007AbRF1QIw>;
+	Thu, 28 Jun 2001 12:08:52 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+To: alan@lxorguk.ukuu.org.uk
+Subject: 2.4.5-ac20 problems with drivers/net/Config.in and make xconfig
+Date: Thu, 28 Jun 2001 10:05:58 -0600
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <01062810055901.01131@spc.esa.lanl.gov>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David Woodhouse <dwmw2@infradead.org> writes:
+I got this familiar error with make xconfig and 2.4.5-ac20 (same as 2.4.6-pre6)
 
-David> Having per-resource I/O methods would help us to remove some of
-David> the cruft which is accumulating in various non-x86 code. Note
-David> that the below is the _core_ routines for _one_ board - I'm not
-David> even including the extra indirection through the machine vector
-David> here....
+drivers/net/Config.in: 149: can't handle dep_bool/dep_mbool/dep_tristate condition
+make[1]: *** [kconfig.tk] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.4.5-ac20/scripts'
+make: *** [xconfig] Error 2
 
-Have you considered the method used by the 8390 Ethernet driver?
-For each device, add a pointer to the registers and a register shift.
+I applied this patch written by Keith Owens (thanks Keith):
 
-I really don't like hacing virtual access functions that makes memory
-mapped I/O look the same as I/O operations. For memory mapped I/O you
-want to be able to smart optimizations to reduce the access on the PCI
-bus (or similar).
+--- linux/drivers/net/Config.in.original	Thu Jun 28 09:52:02 2001
++++ linux/drivers/net/Config.in	Thu Jun 28 09:52:25 2001
+@@ -146,7 +146,11 @@
+       tristate '  NE/2 (ne2000 MCA version) support' CONFIG_NE2_MCA
+       tristate '  IBM LAN Adapter/A support' CONFIG_IBMLANA
+    fi
+-   dep_bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI
++   if [ "$CONFIG_ISA" = "y" -o "$CONFIG_EISA" = "y" -o "$CONFIG_PCI" = "y" ]; then
++     bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI
++   else
++     define_bool CONFIG_NET_PCI n
++   fi
+    if [ "$CONFIG_NET_PCI" = "y" ]; then
+       dep_tristate '    AMD PCnet32 PCI support' CONFIG_PCNET32 $CONFIG_PCI
+       dep_tristate '    Adaptec Starfire support (EXPERIMENTAL)' CONFIG_ADAPTEC_STARFIRE $CONFIG_PCI $CONFIG_EXPERIMENTAL
 
-Jes
+And then I got:
+
+[root@spc linux]# make xconfig
+rm -f include/asm
+( cd include ; ln -sf asm-i386 asm)
+make -C scripts kconfig.tk
+make[1]: Entering directory `/usr/src/linux-2.4.5-ac20/scripts'
+cat header.tk >> ./kconfig.tk
+./tkparse < ../arch/i386/config.in >> kconfig.tk
+make[1]: *** [kconfig.tk] Error 139
+make[1]: Leaving directory `/usr/src/linux-2.4.5-ac20/scripts'
+make: *** [xconfig] Error 2
+
+So, I used the old reliable make menuconfig, and it worked OK and 
+2.4.5-ac20 built successfully.
+
+Steven

@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265520AbTF3IgM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 04:36:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265482AbTF3IgM
+	id S265482AbTF3IsH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 04:48:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265796AbTF3IsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 04:36:12 -0400
-Received: from snoopy.pacific.net.au ([61.8.0.36]:11705 "EHLO
-	snoopy.pacific.net.au") by vger.kernel.org with ESMTP
-	id S265739AbTF3Ie3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 04:34:29 -0400
-Date: Mon, 30 Jun 2003 18:49:43 +1000
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org
-Cc: alsa-devel@lists.sourceforge.net
-Subject: Realtek ALC650E support in 2.[45]?
-Message-ID: <20030630084943.GB385@zip.com.au>
+	Mon, 30 Jun 2003 04:48:07 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:14351 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S265482AbTF3IsF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 04:48:05 -0400
+Subject: Re: patch-O1int-0306281420 for 2.5.73 interactivity
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Zwane Mwaikambo <zwane@linuxpower.ca>
+In-Reply-To: <200306301535.49732.kernel@kolivas.org>
+References: <200306281516.12975.kernel@kolivas.org>
+	 <200306291132.49068.kernel@kolivas.org>
+	 <200306291457.40524.kernel@kolivas.org>
+	 <200306301535.49732.kernel@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1056963742.598.7.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 30 Jun 2003 11:02:22 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to get an upgrade and have a choice between two MBs. Both have
-onboard sound and one has the ALC650 audio support and the other has
-ALC650E audio support. I believe the former is s/w and the latter is
-h/w. I'd like to get the ALC650E but I can't find any clear info if
-there's support for it in either the 2.4 or 2.5 linux kernels. I found
-mention of the ALC650 in the source but not the ALC650E. Searching
-the web did not yeild much clarity either (and neither did the ALSA
-website :/) but I may have missed something though.
+On Mon, 2003-06-30 at 07:35, Con Kolivas wrote:
 
-Anyways, does it support it? I'd prefer fully OS driver support and 
-don't mind using patches but prefer to be able to compile the driver
-into the kernel as I like the lack of messyness that comes with
-monolithic kernels.
+> A patch to reduce audio skipping and X jerking under load.
 
-Any help would be truly appreciated. Thanks.
+Can't make XMMS skip audio with "while true; do a = 2; done" while
+playing moving windows under an X session.
 
--- 
-"How can I not love the Americans? They helped me with a flat tire the
-other day," he said.
-	- http://www.toledoblade.com/apps/pbcs.dll/artikkel?SearchID=73139162287496&Avis=TO&Dato=20030624&Kategori=NEWS28&Lopenr=106240111&Ref=AR
+> It's looking seriously like I'm talking to myelf here, but just in case there 
+> are lurkers testing this patch, there's a big bug that made it think jiffy 
+> wraparound was occurring so interactive tasks weren't receiving the boost 
+> they deserved. Here is a patch with the fix in. 
+
+Well, you're not talking to yourself. We're listening and testing:
+2.5.73-mm2 + patch-O1int + patch-granularity + patch-1000HZ. With this
+new version of the patch, the mouse cursor jumpiness has returned again,
+altough in much less extent than in previous versions: it's more
+difficult to reproduce, but it's present just when logging onto my KDE
+session on a Red Hat Linux 9 box. For the rest of the session, it's
+pretty hard difficult to make the mouse cursor to turn jumpy.
+
+> How to use if you're still thinking of testing:
+> Use with Hz 1000, and use the granularity patch I posted as well for smoothing 
+> X off. 
+
+Under heavy load (3 simulatenous consoles doing while true; do a=2;
+done), X feels smooth, but moving windows aggresively, makes X go jerky
+for a few seconds and some process do starve a little when repainting.
+
+Anyways, at a first glance, it looks really good :-)
+

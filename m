@@ -1,97 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265967AbTGAEuj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 00:50:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265972AbTGAEuj
+	id S265973AbTGAFDE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 01:03:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265974AbTGAFDE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 00:50:39 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:7591 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S265967AbTGAEuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 00:50:37 -0400
-Reply-To: <vlad@lrsehosting.com>
-From: <vlad@lrsehosting.com>
-To: "'Andre Hedrick'" <andre@linux-ide.org>
-Cc: "Lkml \(E-mail\)" <linux-kernel@vger.kernel.org>
-Subject: RE: Dell vs. GPL 
-Date: Tue, 1 Jul 2003 00:03:02 -0500
-Message-ID: <000b01c33f8e$0d1dab60$0200a8c0@wsl3>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.10.10306301341290.5840-100000@master.linux-ide.org>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Tue, 1 Jul 2003 01:03:04 -0400
+Received: from dp.samba.org ([66.70.73.150]:43649 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265973AbTGAFDA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 01:03:00 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Manfred Spraul <manfred@colorfullife.com>, Ray Bryant <raybry@sgi.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>, Andi Kleen <ak@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PROBLEM: Bug in __pollwait() can cause select() and poll() to hang in 2.4.22-pre2 -- second try 
+In-reply-to: Your message of "Mon, 30 Jun 2003 21:17:12 MST."
+             <Pine.LNX.4.44.0306302114170.2186-100000@home.osdl.org> 
+Date: Tue, 01 Jul 2003 15:08:37 +1000
+Message-Id: <20030701051719.B2B702C090@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the US, you cannot be made complicit by such an instrument.  If you sign
-an NDA, and your boss murders someone and this murder is, strictly speaking,
-covered by the NDA, you're still guilty of being an accessory if you don't
-report it.  It's one of those little annoying differences between civil and
-criminal law...
+In message <Pine.LNX.4.44.0306302114170.2186-100000@home.osdl.org> you write:
+> 
+> On Tue, 1 Jul 2003, Rusty Russell wrote:
+> > 
+> > Linus?  See thread below: poll_wait is called with task state !=
+> > TASK_RUNNING, but can do a yield on low memory, causing eternal hangs.
+> 
+> Hint: 2.5.x does not have this problem, because the yield() in 2.5.x isn't
+> buggy.
+> 
+> So the proper fix is to just fix yield() on 2.4.x.
+
+Thanks Linus.
+
+Um, Ray?  2.4's yield also does:
+
+	void yield(void)
+	{
+		set_current_state(TASK_RUNNING);
+		sys_sched_yield();
+		schedule();
+	}
+
+So how did the below patch make any difference?
+
+Now thoroughly confused,
+Rusty.
+
+--- linux-2.4.22-pre2.orig/mm/page_alloc.c      Thu Nov 28 17:53:15 2002
++++ linux-2.4.22-pre2/mm/page_alloc.c   Fri Jun 27 13:47:49 2003
+@@ -418,6 +418,7 @@
+                 return NULL;
+
+         /* Yield for kswapd, and try again */
++        set_current_state(TASK_RUNNING);
+         yield();
+         goto rebalance;
+  }
 
 --
-
- /"\                         / For information and quotes, email us at
- \ /  ASCII RIBBON CAMPAIGN / info@lrsehosting.com
-  X   AGAINST HTML MAIL    / http://www.lrsehosting.com/
- / \  AND POSTINGS        / vlad@lrsehosting.com
--------------------------------------------------------------------------
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Andre Hedrick
-Sent: Monday, June 30, 2003 3:44 PM
-To: Valdis.Kletnieks@vt.edu
-Cc: Linux Kernel Mailing List
-Subject: Re: Dell vs. GPL
-
-
-
-Now you are being silly, and I have to stop because your lack of
-seriousness.
-
-You can not talk about what you see or hear.
-
-What is not clear?
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Mon, 30 Jun 2003 Valdis.Kletnieks@vt.edu wrote:
-
-> On Mon, 30 Jun 2003 11:28:15 PDT, Andre Hedrick said:
-> > Try leaving the ivory towers of academics for the real world.
-> > I did and it was a rude slap in the face.  Most academics don't get the
-> > real world of business, they can teach it but generally can not do it.
-> > If they could do it, they would not be in academics.  Except for the few
-> > cases of people who just get off on teaching and that is wonderful.
-> > Maybe you are different, and do not fit under the brush.  However your
-> > comments about NDA's leaves me little faith in your knowledge base.
->
-> Well.. I prefer to think of it as working at a large corporate data center
-with
-> a 10,000 square foot server room that provides central computing services
-for a
-> $400M/year organization that just happens to be in the business sector of
-> "higher education".
->
-> And does your NDA *REALLY* say "Thou shalt not go to the cops if
-> you find out about illegal activity"?
->
->
->
->
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

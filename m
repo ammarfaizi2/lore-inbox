@@ -1,48 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264968AbTFQWOL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 18:14:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264966AbTFQWOK
+	id S264928AbTFQWT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 18:19:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264966AbTFQWT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 18:14:10 -0400
-Received: from aneto.able.es ([212.97.163.22]:23237 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S264959AbTFQWN7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 18:13:59 -0400
-Date: Wed, 18 Jun 2003 00:27:50 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: [PATCHES] 2.4.x net driver updates
-Message-ID: <20030617222750.GE13990@werewolf.able.es>
-References: <20030612194926.GA7653@gtf.org>
+	Tue, 17 Jun 2003 18:19:58 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:33195 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264928AbTFQWTj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 18:19:39 -0400
+Subject: Re: borked sysfs system devices in 2.5.72
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Dobson <colpatch@us.ibm.com>
+In-Reply-To: <Pine.LNX.4.44.0306171519260.908-100000@cherise>
+References: <Pine.LNX.4.44.0306171519260.908-100000@cherise>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1055889108.24196.11.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20030612194926.GA7653@gtf.org>; from jgarzik@pobox.com on Thu, Jun 12, 2003 at 21:49:26 +0200
-X-Mailer: Balsa 2.0.11
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 17 Jun 2003 15:31:48 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-06-17 at 15:26, Patrick Mochel wrote:
+> On 17 Jun 2003, Dave Hansen wrote:
+> 
+> > The per-node numa meminfo files in 2.5.72 are broken, the only display
+> > node0's information.  The devices are being properly registered:
+> > Registering sys device 'node0':c0423844 id:0 kobj:c042384c
+> > Registering sys device 'node1':c0423888 id:1 kobj:c0423890
+> > Registering sys device 'node2':c04238cc id:2 kobj:c04238d4
+> > Registering sys device 'node3':c0423910 id:3 kobj:c0423918
+> > 
+> > When I look at the 4 nodes files with:
+> > "cat /sys/devices/system/node/*/meminfo", I printed out some
+> > information:
+> > subsys_attr_show(kobj: c042384c, attr: c033ea30, page: e76ba000)
+> > subsys_attr_show(kobj: c0423890, attr: c033ea30, page: e76ba000)
+> > subsys_attr_show(kobj: c04238d4, attr: c033ea30, page: e76ba000)
+> > subsys_attr_show(kobj: c0423918, attr: c033ea30, page: e76ba000)
+> > 
+> > As you can see, the kobj is the one which belongs to the sys device, yet
+> > you do a to_subsys() on it.  Why?
+> > struct subsystem * s = to_subsys(kobj);
+> 
+> Where exactly is that happening? 
 
-On 06.12, Jeff Garzik wrote:
-> 
-> BK users may issue a
-> 
-> 	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.4
-> 
-> Others may download the patch from
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.4/2.4.21-rc8-netdrvr2.patch.bz2
-> 
+Look in subsys_attr_show().  It is being passed a kobject, which is a
+member of a "struct sys_device".  We can tell this because I printed out
+the address of the sys device in sys_device_register().  A to_subsys()
+is being performed on that object, which is wrong, because the kobject
+is not a member of a "struct subsystem".
 
-Any info about the RX_POLLING (NAPI) option for e1000 ?
-What is that for ?
+> > I'm getting a 0 as the node ID out of pure dumb luck.  Is the NUMA code
+> > broken or is sysfs?
+> 
+> It's taking the ID from the system device of the node that's passed to 
+> ->show(). That is set in register_node(), so I'm not sure how they could 
+> get out of sync, unless I'm missing something obvious. 
+
+They're not out of sync, it's getting garbage because of the bogus
+to_subsys().
+
+> BTW, I did request that the NUMA topology people take a look at these 
+> patches when I sent them a couple of weeks ago, so as to avoid this. :) 
+
+I'll cc him to make him feel bad :)
 
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.21-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-1mdk))
+Dave Hansen
+haveblue@us.ibm.com
+

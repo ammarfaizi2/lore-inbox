@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261877AbSI3Ayf>; Sun, 29 Sep 2002 20:54:35 -0400
+	id <S261882AbSI3Ayj>; Sun, 29 Sep 2002 20:54:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261878AbSI3Ayf>; Sun, 29 Sep 2002 20:54:35 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:29355 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261877AbSI3Aye>;
-	Sun, 29 Sep 2002 20:54:34 -0400
-Date: Sun, 29 Sep 2002 17:53:11 -0700 (PDT)
-Message-Id: <20020929.175311.97852433.davem@redhat.com>
-To: perex@suse.cz
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: Re: [PATCH] ALSA update [6/10] - 2002/07/20
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0209292230500.591-100000@pnote.perex-int.cz>
-References: <3D9759FF.2050802@pobox.com>
-	<Pine.LNX.4.33.0209292230500.591-100000@pnote.perex-int.cz>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261892AbSI3Ayj>; Sun, 29 Sep 2002 20:54:39 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:25107 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S261882AbSI3Ayh>; Sun, 29 Sep 2002 20:54:37 -0400
+Message-Id: <200209300059.g8U0xoNa025046@pincoya.inf.utfsm.cl>
+To: Gerald Britton <gbritton@alum.mit.edu>
+cc: Dominik Brodowski <linux@brodo.de>, linux-kernel@vger.kernel.org,
+       cpufreq@www.linux.org.uk
+Subject: Re: [PATCH] Re: [2.5.39] (3/5) CPUfreq i386 drivers 
+In-Reply-To: Message from Gerald Britton <gbritton@alum.mit.edu> 
+   of "Sun, 29 Sep 2002 15:56:48 -0400." <20020929155648.A20308@light-brigade.mit.edu> 
+Date: Sun, 29 Sep 2002 20:59:50 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jaroslav Kysela <perex@suse.cz>
-   Date: Sun, 29 Sep 2002 22:34:51 +0200 (CEST)
-    
-   -	if (hwdev == NULL || ((u32)hwdev->dma_mask != 0xffffffff))
-   +	if (hwdev == NULL || (u32)hwdev->dma_mask <= 0x00ffffff)
-    		gfp |= GFP_DMA;
+Gerald Britton <gbritton@alum.mit.edu> said:
+> On Sun, Sep 29, 2002 at 12:10:18PM +0200, Dominik Brodowski wrote:
+> > I think I found the problem: it should be GFP_ATOMIC and not GFP_KERNEL in
+> > the allocation of struct cpufreq_driver. Will be fixed in the next release.
+> 
+> Nope.  That should be fine, it's in a process context and not holding any
+> locks, so GFP_KERNEL should be fine.  I found the bug though:
+>  
+> -driver->policy = (struct cpufreq_policy *) (driver + sizeof(struct cpufreq_dri
+> ver));
+> +driver->policy = (struct cpufreq_policy *) (driver + 1);
+>  
+> Remember your pointer arithmetic.
 
-So alan, why is this really broken?
+Perhaps you should create a local variable of the right type:
 
-EISA/ISA DMA is defined as using a hwdev of NULL or requiring
-<16MB address, he is preserving GFP_DMA in those cases.
+   struct cpufreq_policy *local_var = (struct cpufreq_policy *)driver;
 
-The only problem I have with the patch is that it probably isn't
-that hard to let the page allocator take some MASK arg (defaults
-to all 1's) to implement this in 2.5.x
+   driver->policy = &local_var[1];
+
+(gcc should be smart enough to loose it)
+
+[In any case, making this part of driver point at itself looks wrong to me...]
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

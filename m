@@ -1,54 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbULUKUh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbULUKYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbULUKUh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 05:20:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbULUKUg
+	id S261728AbULUKYI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 05:24:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbULUKYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 05:20:36 -0500
-Received: from mail.gmx.de ([213.165.64.20]:16812 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261727AbULUKUb (ORCPT
-	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Tue, 21 Dec 2004 05:20:31 -0500
-Date: Tue, 21 Dec 2004 11:20:30 +0100 (MET)
-From: "Loic Domaigne" <loic-dev@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: piggin@cyberone.com.au, nptl@bullopensource.org,
-       Linux-Kernel@Vger.Kernel.ORG
+	Tue, 21 Dec 2004 05:24:08 -0500
+Received: from piglet.wetlettuce.com ([82.68.149.69]:41088 "EHLO
+	piglet.wetlettuce.com") by vger.kernel.org with ESMTP
+	id S261728AbULUKYB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 05:24:01 -0500
+Message-ID: <52121.192.102.214.6.1103624620.squirrel@webmail.wetlettuce.com>
+Date: Tue, 21 Dec 2004 10:23:40 -0000 (GMT)
+Subject: Re: Lockup with 2.6.9-ac15 related to netconsole
+From: "Mark Broadbent" <markb@wetlettuce.com>
+To: <mpm@selenic.com>
+In-Reply-To: <20041221005521.GD5974@waste.org>
+References: <59719.192.102.214.6.1103214002.squirrel@webmail.wetlettuce.com>
+        <20041216211024.GK2767@waste.org>
+        <34721.192.102.214.6.1103274614.squirrel@webmail.wetlettuce.com>
+        <20041217215752.GP2767@waste.org>
+        <20041217233524.GA11202@electric-eye.fr.zoreil.com>
+        <36901.192.102.214.6.1103535728.squirrel@webmail.wetlettuce.com>
+        <20041220211419.GC5974@waste.org>
+        <20041221002218.GA1487@electric-eye.fr.zoreil.com>
+        <20041221005521.GD5974@waste.org>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+Cc: <romieu@fr.zoreil.com>, <linux-kernel@vger.kernel.org>,
+       <netdev@oss.sgi.com>
+Reply-To: markb@wetlettuce.com
+X-Mailer: SquirrelMail (version 1.2.6)
 MIME-Version: 1.0
-References: <20041221100934.GA31538@elte.hu>
-Subject: Re: Re: OSDL Bug 3770
-X-Priority: 3 (Normal)
-X-Authenticated: #19395655
-Message-ID: <11277.1103624430@www34.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MailScanner: Mail is clear of Viree
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo, 
 
-> note that my -RT patchset includes scheduler changes that implement
-> "global RT scheduling" on SMP systems. Give it a go, it's at:
-> 
->    http://redhat.com/~mingo/realtime-preempt/
+Matt Mackall said:
+> On Tue, Dec 21, 2004 at 01:22:18AM +0100, Francois Romieu wrote:
+>> Matt Mackall <mpm@selenic.com> :
+>> > On Mon, Dec 20, 2004 at 09:42:08AM -0000, Mark Broadbent wrote:
+>> > >
+>> > > Exactly the same happens, I still get a 'NMI Watchdog detected
+>> > > LOCKUP' with the r8169 device using the above patch on top of
+>> > > 2.6.10-rc3-bk10.
+>> >
+>> > Ok, that suggests a problem localized to netpoll itself. Do you have
+>> > spinlock debugging turned on by any chance?
+>>
+>> Any chance of:
+>> 1 dev_queue_xmit
+>> 2 dev->xmit_lock taken
+>> 3 interruption
+>> 4 printk
+>> 5 netconsole write
+>> 6 dev->xmit_lock again
+>> 7 lockup
+>>
+>> ?
+>>
+>> This is probably the silly question of the day.
+>
+> Maybe, but the answer isn't obvious to me at the moment as I haven't
+> been thinking about such stuff enough lately. Silly response of the
+> day:
+>
+> Mark, can you try this (again completely untested, but at least
+> compiles) patch? I'm afraid I don't have a proper test rig to
+> reproduce this at the moment. This will attempt to grab the lock, and
+> if it fails, will check for recursion. Then it will try to print a
+> message on the local console, temporarily disabling netconsole to
+> allow the printk to get through..
 
-That looks good, at least from a theoritical standpoint.  
-We shall give a go with Seb and post the results. 
-
-Thanks! 
-Loic. 
+OK, patch applied and spinlock debugging enabled.  Testing with eth1
+(r1869) doesn'tyield any additional messages, just the standard 'NMI Watchdog detected
+lockup'.
+Thanks
+Mark
 
 -- 
---
-// Sender address goes to /dev/null (!!) 
-// Use my 32/64 bits, ANSI C89, compliant email-address instead:   
+Mark Broadbent <markb@wetlettuce.com>
+Web: http://www.wetlettuce.com
 
-unsigned y[]=
-{0,34432,26811,16721,41866,63119,61007,48155,26147,10986};
-void x(z){putchar(z);}; unsigned t; 
-main(i){if(i<10){t=(y[i]*47560)%65521;x(t>>8);x(t&255);main(++i);}}
 
-Psssst! Mit GMX Handyrechnung senken: http://www.gmx.net/de/go/mail
-100 FreeSMS/Monat (GMX TopMail), 50 (GMX ProMail), 10 (GMX FreeMail)
+

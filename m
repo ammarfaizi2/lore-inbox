@@ -1,25 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263510AbUCPIDG (ORCPT <rfc822;willy@w.ods.org>);
+	id S263509AbUCPIDG (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 16 Mar 2004 03:03:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263509AbUCPIBw
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263511AbUCPIB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 03:01:52 -0500
-Received: from mail.cyclades.com ([64.186.161.6]:19691 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S263507AbUCPIA6
+	Tue, 16 Mar 2004 03:01:58 -0500
+Received: from mail.cyclades.com ([64.186.161.6]:26858 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S263506AbUCPIAj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 03:00:58 -0500
-Date: Tue, 16 Mar 2004 04:25:04 -0300 (BRT)
+	Tue, 16 Mar 2004 03:00:39 -0500
+Date: Tue, 16 Mar 2004 03:31:33 -0300 (BRT)
 From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 X-X-Sender: marcelo@dmt.cyclades
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, <marcelo.tosatti@cyclades.com>,
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, <marcelo.tosatti@cyclades.com>,
        <j-nomura@ce.jp.nec.com>, <linux-kernel@vger.kernel.org>,
-       <torvalds@osdl.org>
+       <riel@redhat.com>, <torvalds@osdl.org>
 Subject: Re: [2.4] heavy-load under swap space shortage
-In-Reply-To: <405628AC.4030609@cyberone.com.au>
-Message-ID: <Pine.LNX.4.44.0403160414080.1667-100000@dmt.cyclades>
+In-Reply-To: <20040314152253.05c58ecc.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0403160326360.1667-100000@dmt.cyclades>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 X-Cyclades-MailScanner-Information: Please contact the ISP for more information
@@ -29,56 +28,48 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Tue, 16 Mar 2004, Nick Piggin wrote:
+On Sun, 14 Mar 2004, Andrew Morton wrote:
 
-> 
-> 
-> Andrea Arcangeli wrote:
-> 
-> >On Tue, Mar 16, 2004 at 01:37:04AM +1100, Nick Piggin wrote:
+> Andrea Arcangeli <andrea@suse.de> wrote:
 > >
-> >>This case I think is well worth the unfairness it causes, because it
-> >>means your zone's pages can be freed quickly and without freeing pages
-> >>from other zones.
-> >>
-> >
-> >freeing pages from other zones is perfectly fine, the classzone design
-> >gets it right, you have to free memory from the other zones too or you
-> >have no way to work on a 1G machine. you call the thing "unfair" when it
-> >has nothing to do with fariness, your unfariness is the slowdown I
-> >pointed out, it's all about being able to maintain a more reliable cache
-> >information from the point of view of the pagecache users (the pagecache
-> >users cares at the _classzone_, they can't care about the zones
-> >themself), it has nothing to do with fairness.
-> >
-> >
+> > > 
+> > > Having a magic knob is a weak solution: the majority of people who are
+> > > affected by this problem won't know to turn it on.
+> > 
+> > that's why I turned it _on_ by default in my tree ;)
 > 
-> What I meant by unfairness is that low zone scanning in response
-> to low zone pressure will not put any pressure on higher zones.
-> Thus pages in higher zones have an advantage.
+> So maybe Marcelo should apply this patch, and also turn it on by default.
+
+Hhhmm, not so easy I guess. What about the added overhead of 
+lru_cache_add() for every anonymous page created? 
+
+I bet this will cause problems for users which are happy with the current 
+behaviour. Wont it?
+
+Andrea, do you have any numbers (or at least estimates) for the added
+overhead of instantly addition of anon pages to the LRU? That would be
+cool to know.
+
+> > There are workloads where adding anonymous pages to the lru is
+> > suboptimal for both the vm (cache shrinking) and the fast path too
+> > (lru_cache_add), not sure how 2.6 optimizes those bits, since with 2.6
+> > you're forced to add those pages to the lru somehow and that implies
+> > some form of locking.
 > 
-> We do scan lowmem in response to highmem pressure.
+> Basically a bunch of tweeaks:
+> 
+> - Per-zone lru locks (which implicitly made them per-node)
+> 
+> - Adding/removing sixteen pages for one taking of the lock.
+> 
+> - Making the lock irq-safe (it had to be done for other reasons, but
+>   reduced contention by 30% on 4-way due to not having a CPU wander off to
+>   service an interrupt while holding a critical lock).
+> 
+> - In page reclaim, snip 32 pages off the lru completely and drop the
+>   lock while we go off and process them.
 
-Hi Nick, 
+Obviously we dont have, and dont want to, such things in 2.4.
 
-I'm having a good time reading this discussion, so let me jump in.
-
-Sure, the "unfairness" between lowmem and highmem exists. Quoting what 
-you said, "pages in higher zones have an advantage". 
-
-That is natural, after all the necessity for lowmem pages is much higher
-than the need for highmem pages. And this necessity for the lowmem
-precious increases as far as the lowmem/highmem ratio grows.
-
-As Andrew has demonstrated, the problems previously caused by such
-"unfairness" are non existant with per-zone LRU lists.
-
-So, yes, we have unfairness between lowmem and highmem, and yes, that is
-the way it should be.
-
-I felt you had a problem with such a thing, however I dont see one.
-
-Am I missing something?
-
-Regards
+Anyway, it seems this discussion is being productive. Glad!
 

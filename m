@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265114AbTBFRAY>; Thu, 6 Feb 2003 12:00:24 -0500
+	id <S264956AbTBFRVQ>; Thu, 6 Feb 2003 12:21:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265092AbTBFRAY>; Thu, 6 Feb 2003 12:00:24 -0500
-Received: from 216-239-45-4.google.com ([216.239.45.4]:12494 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id <S265077AbTBFRAX>; Thu, 6 Feb 2003 12:00:23 -0500
-Message-ID: <3E4296BB.2000407@google.com>
-Date: Thu, 06 Feb 2003 09:09:15 -0800
-From: Ross Biro <rossb@google.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stephan van Hienen <raid@a2000.nu>
-CC: Hans-Peter Jansen <hp@lisa-gmbh.de>, Shawn Evans <shawnwe@hotmail.com>,
-       linux-raid@vger.kernel.org, Andre Hedrick <andre@aslab.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Promise FastTrak TX4 losing interrupts (with apic mode)
-References: <F14meUdm8TihuWkpKyG0001ebd3@hotmail.com> <20011031162116.AF5A41018@shrek.lisa.de> <Pine.LNX.4.53.0302060313490.9702@ddx.a2000.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265135AbTBFRVQ>; Thu, 6 Feb 2003 12:21:16 -0500
+Received: from bitmover.com ([192.132.92.2]:45786 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S264956AbTBFRVP>;
+	Thu, 6 Feb 2003 12:21:15 -0500
+Date: Thu, 6 Feb 2003 09:30:50 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
+Message-ID: <20030206173050.GA15854@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>, lm@bitmover.com,
+	linux-kernel@vger.kernel.org
+References: <20030205174021.GE19678@dualathlon.random> <20030205102308.68899bc3.akpm@digeo.com> <20030205184535.GG19678@dualathlon.random> <20030205114353.6591f4c8.akpm@digeo.com> <20030205141104.6ae9e439.arashi@yomerashi.yi.org> <20030205233115.GB14131@work.bitmover.com> <20030205233705.A31812@infradead.org> <20030205235706.GB21064@work.bitmover.com> <20030206095850.D18636@schatzie.adilger.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030206095850.D18636@schatzie.adilger.int>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->>>    ide7: BM-DMA at 0xb408-0xb40f, BIOS settings: hdo:pio, hdp:pio
->>>hda: WDC WD800BB-00BSA0, ATA DISK drive
->>>hdc: YAMAHA CRW2100E, ATAPI CD/DVD-ROM drive
->>>hdi: WDC WD800BB-00BSA0, ATA DISK drive
->>>hdk: WDC WD800BB-00BSA0, ATA DISK drive
->>>hdm: WDC WD800BB-00BSA0, ATA DISK drive
->>>hdo: WDC WD800BB-00BSA0, ATA DISK drive
->>>      
->>>
+> > And is everyone happy with 8.0's glibc, if we offer that up until 8.1 comes
+> > out?  If so, we'll buy a machine and add it to the build cluster this week.
+> 
+> UML is your friend here - you can have a whole set of distros/revisions all
+> on the same host.
 
-Don't know if it's related, but I believe these WD drives sometimes stop 
-sending interrupts.  WD is aware of the problem and tells me they are 
-working on a fix.
+We do our builds in parallel on all platforms (except s390, that one
+is special for obvious reasons).  Even with a fast machine it takes a
+while to do the build/test cycle.  So we allocate a machine/platform.
 
-    Ross
+The cost of the machine doesn't bother me that much, actually, it's
+the power.  The power bill for our build cluster is about $800/month.
+I've thought of putting all the machines on a software controlled
+power switch and turning them on when we need it but bring up on some
+of these is manual (headless machines that don't want to be headless,
+the alpha machine refuses to autoboot, etc) and my experience is that
+power cycling is a great way to make machines die young.
 
+So we're sort of stuck with the current model.  It's not that bad, we 
+use cheap machines, it will cost me maybe $400 to put a new machine 
+up, that's hardly something to get excited about if it makes some
+problems go away.
+
+What I'd really like to know is if we really need a glibc2.3 image. 
+Would the guy who had the segfaults step foward and confirm/deny the
+use of the static image?  We haven't had any other problem reports
+related to glibc2.3 so it may be there is no need to do anything but
+kill the static version.  I can always hand roll one for Gooch.  Does
+anyone else need a.out support?
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

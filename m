@@ -1,36 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129688AbQLJI1X>; Sun, 10 Dec 2000 03:27:23 -0500
+	id <S129834AbQLJIqP>; Sun, 10 Dec 2000 03:46:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130147AbQLJI1N>; Sun, 10 Dec 2000 03:27:13 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:44296 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129688AbQLJI06>; Sun, 10 Dec 2000 03:26:58 -0500
-Date: Sun, 10 Dec 2000 01:56:24 -0600
-From: Peter Samuelson <peter@cadcamlab.org>
-To: David Feuer <David_Feuer@brown.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: swapoff weird
-Message-ID: <20001210015623.V6567@cadcamlab.org>
-In-Reply-To: <20001209222427.A1542@bug.ucw.cz> <4.3.2.7.2.20001209174435.00aaf310@postoffice.brown.edu>
-Mime-Version: 1.0
+	id <S129884AbQLJIqG>; Sun, 10 Dec 2000 03:46:06 -0500
+Received: from smtp.lax.megapath.net ([216.34.237.2]:29707 "EHLO
+	smtp.lax.megapath.net") by vger.kernel.org with ESMTP
+	id <S129834AbQLJIps>; Sun, 10 Dec 2000 03:45:48 -0500
+Message-ID: <3A333B34.114A488B@megapathdsl.net>
+Date: Sun, 10 Dec 2000 00:13:40 -0800
+From: Miles Lane <miles@megapathdsl.net>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Bug in config scripts? Some FB console options not cleared when 
+ container options disabled.
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <4.3.2.7.2.20001209174435.00aaf310@postoffice.brown.edu>; from David_Feuer@brown.edu on Sat, Dec 09, 2000 at 05:46:16PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-[David Feuer]
-> Perhaps it would be good to put a check in unlink to make sure that
-> this is not the last link to a swapfile.
+If I set these options using "make menuconfig":
 
-Much better to add code to /sbin/swapon and /sbin/swapoff to set and
-clear immutable bit.  Sure it only works on ext2 but how far do you
-want to take this thing?
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FBCON_ADVANCED=y
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+CONFIG_FBCON_FONTS=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
 
-Peter
+And, I then unset CONFIG_FBCON_ADVANCED and CONFIG_FBCON_FONTS
+(the options that cause the CFB options and the FONT options
+to become accessible), I am left with these options:
+
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+
+Perhaps this is not a big deal and the orphaned options are usused.
+I guess I would expect the orphaned options to simply not appear,
+as the unselected options in the same subsections are not written
+out.
+
+        Miles
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

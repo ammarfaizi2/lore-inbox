@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287376AbSACWGm>; Thu, 3 Jan 2002 17:06:42 -0500
+	id <S287394AbSACWLW>; Thu, 3 Jan 2002 17:11:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287357AbSACWGd>; Thu, 3 Jan 2002 17:06:33 -0500
-Received: from luke.cpl.net ([63.169.72.3]:59147 "EHLO luke.cpl.net")
-	by vger.kernel.org with ESMTP id <S287420AbSACWGO>;
-	Thu, 3 Jan 2002 17:06:14 -0500
-Message-Id: <5.1.0.14.0.20020103134618.02eba540@mail.cpl.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 03 Jan 2002 14:03:05 -0800
+	id <S287408AbSACWLM>; Thu, 3 Jan 2002 17:11:12 -0500
+Received: from svr3.applink.net ([206.50.88.3]:21766 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S287407AbSACWLG>;
+	Thu, 3 Jan 2002 17:11:06 -0500
+Message-Id: <200201032210.g03MAsSr028379@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
 To: linux-kernel@vger.kernel.org
-From: Shawn Ramsey <shawn@cpl.net>
-Subject: Firewire, SBP2 help
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Subject: more M$ theft
+Date: Thu, 3 Jan 2002 16:07:13 -0600
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am running RedHat 7.2, trying to get an IDE drive with an Oxford 911
-bridge to work. Its one of those Granite Digital hotswap bays... I tried
-GDs Firewire card, didn't work, so got a firewiredirect.com card, since
-it is listed as works "very well" on the IEEE1394 SourceForge site.
-Although the chip on the card is different than listed on sourceforge...
-TSB43AB22 is what is on the chip, but its an OHCI compliant card so it
-"should" work. This is what I get after loading the modules :
-ohci1394: v0.51 08/08/01 Ben Collins <<EMAIL: PROTECTED>>
-PCI: Found IRQ 11 for device 00:0b.0
-ohci1394_0: OHCI-1394 1.1 (PCI): IRQ 3D[11] MMIO 3D[cfffd000-cfffd800]
-Max Packet 3D
-[2048]
-ieee1394: Local host added: node 0:1023, GUID 000156000000095c
-ieee1394: Device added: node 1:1023, GUID 0004da00e0012a8f
-raw1394: /dev/raw1394 device initialized
-ieee1394: sbp2: Driver forced to serialize I/O (serialize_io 3D 1)
-ieee1394: sbp2: Error logging into SBP-2 device - login timed-out
-ieee1394: sbp2: sbp2_login_device failed
-scsi0 : IEEE-1394 SBP-2 protocol driver
-
-If I remove the HD, it detects it... here is the output after turning it
-off, then back on :
-ieee1394: ConfigROM quadlet transaction error for node 0:1023
-ieee1394: ConfigROM quadlet transaction error for node 0:1023
-ieee1394: ConfigROM quadlet transaction error for node 0:1023
-ieee1394: Giving up on node 0:1023 for ConfigROM probe, too many errors
-ieee1394: Node 0:1023 changed to 1:1023
-ieee1394: Device removed: node 1:1023, GUID 0004da00e0012a8f
-ieee1394: Node 1:1023 changed to 0:1023
-ieee1394: sbp2: Error logging into SBP-2 device - login timed-out
-ieee1394: sbp2: sbp2_login_device failed
-ieee1394: Device added: node 1:1023, GUID 0004da00e0012a8f
-
-Im not sure if this is the right place to send this, but the right place 
-didn't give any answers... maybe there arn't any answers and this hardware 
-combo just won't work... 
-
+MS didn't give IE away they just made it part of the windows tax.
+That's NOT what they said under oath in court:  For those of you doing the 
+Internet long enough to remember, you may recall that MS wasn't up to writing 
+a browser of their own to challenge Netscape:  So instead, they decided to 
+buy one (or actually, steal one, as you'll see in a moment.)
+The only thing that was even close to being a Netscape competitor in those 
+days was the original  NCSA Mosaic code, which was spun off for 
+commercialization by UIUC(.edu) as a company called Spyglass.  Spyglass tried 
+unsuccessfully for a while to land big buyers in hopes of competing with 
+Netscape, but their code wasn't nearly so good as the Mozilla crowds' (back 
+before Mozillla meant open source...)  Finally, they landed the biggest fish 
+of them all, Microsoft:  They struck a deal with Microsoft to be the 
+Microsoft browser: with backing and volume like that, they couldn't lose!  
+Spyglass poured millions into develpoment and features that Microsoft wanted 
+in the product - they knew they'd get their money back because the contract 
+with Microsoft guaranteed them a percentage cut of every copy sold.
+But Microsoft NEVER SOLD A BROWSER!  Instead, it simply became "part of the 
+operating system" (avoiding having to pay Spyglass was one of the biggest 
+reasons BillG wanted to claim this.) 
+There was, of course, a law suit about this, which Microsoft won by swearing 
+that since IE was an integral part of the OS, and not something that was even 
+possible to buy separately, they owed Spyglass nothing for the millions of 
+copies of their code that they distributed: Since they had'nt sold any IE 
+they owed no royalties!  Microsoft won leaving Spyglass with nothing for all 
+its hard work and destitute to the point that they finally had to sell out to 
+OpenTV in the hopes of becoming a niche browser for set-top boxes...
+-- 
+timothy.covell@ashavan.org.

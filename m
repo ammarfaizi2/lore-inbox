@@ -1,69 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316826AbSGBRC1>; Tue, 2 Jul 2002 13:02:27 -0400
+	id <S316837AbSGBRF3>; Tue, 2 Jul 2002 13:05:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316827AbSGBRC0>; Tue, 2 Jul 2002 13:02:26 -0400
-Received: from ns.escriba.com.br ([200.250.187.130]:11001 "EHLO
-	alexnunes.lab.escriba.com.br") by vger.kernel.org with ESMTP
-	id <S316826AbSGBRC0>; Tue, 2 Jul 2002 13:02:26 -0400
-Message-ID: <3D21DD2A.2010801@PolesApart.wox.org>
-Date: Tue, 02 Jul 2002 14:04:42 -0300
-From: "Alexandre P. Nunes" <alex@PolesApart.wox.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020610
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.4.19-pre10-ac2 bug in page_alloc.c:131
-References: <Pine.LNX.3.96.1020702120824.28259A-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	id <S316836AbSGBRF2>; Tue, 2 Jul 2002 13:05:28 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:53008 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S316837AbSGBRF1>; Tue, 2 Jul 2002 13:05:27 -0400
+Date: Tue, 2 Jul 2002 19:07:57 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: fchabaud@free.fr
+Cc: alan@lxorguk.ukuu.org.uk, swsusp@lister.fornax.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][swsusp] 2.4.19-pre10-ac2
+Message-ID: <20020702170757.GD21260@atrey.karlin.mff.cuni.cz>
+References: <20020630224307.GA147@elf.ucw.cz> <200207020643.g626hZO09162@colombe.home.perso>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200207020643.g626hZO09162@colombe.home.perso>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
+Hi!
 
->On Mon, 24 Jun 2002, David S. Miller wrote:
->
->  
->
->>This has to do with facts, not opinions.  Since we lack the source to
->>their drivers, we have no idea if some bug in their driver is
->>scribbling over (ie. corrupting) memory.  It is therefore an unknown
->>which makes it a waste of time for us to pursue the bug report.
->>    
->>
->
->By that logic if source is freely available the kernel should not be
->marked tainted, even if the source license is not GPL, as in you can get
->it and use it to debug, but the license is something like BSD, or the
->Kermit limited redistribution, etc.
->
->I'm asking in general, not about just one particular binary-only driver.
->
->  
->
+> > +                       name_resume, cur->swh.magic.magic); /* even with a noresume option, it is better
+> > +                                                              to panic here, because that means that the
+> > +                                                              resume device is not a proper swap one. It
+> > +                                                              is perhaps a linux or dos partition and we
+> > +                                                              don't want to risk damaging it. */
+> > 
+> > Swapon seems to do its own checks, so this is red herring.
+> 
+> I think we need it anyway, because if we're not on a swap partition and
+> we have a noresume option, we may force a swap signature just after. The
+> point is thta this is a misconfiguration of kernel. So I think panic is
+> a good warning :-)
 
-How this taint stuff works, actually ? It's just a marker or it impose 
-any restrictions?
+Okay.
 
-While I made all efforts to send nvidia all information pertinent to the 
-reported bug, I also found that the source to o/s dependent parts are in 
-fact (at least partially) available, with an absurdly restrictive 
-license, though. If someone else is interested in looking at, one of the 
-files in the distribution contains the mm code and all general 
-interfacing to the kernel.
+> >> 3/6	Fix possible endless loop in ide-suspend stuff when using
+> >>  	removable devices
+> >> 4/6	Fix swap signature in case of noresume option
+> >> 5/6	Use memeat to make suspension of *big* sessions possible
+> >> 6/6	Clean SysRq stuff.
+> >>     	Clean obsolete PF_KERNTHREAD flag.
+> >>     	Manage kernel threads: bdflush, khubd, nfs shares (lockd,
+> >> rpciod), kjournald, kreiserfsd.
+> > 
+> >         sprintf(current->comm, "lockd");
+> > -
+> > +       current->flags |= PF_IOTHREAD;
+> > 
+> > Lockd does not seem any io needed for suspend-to-disk. I guess it
+> > would be better to freeze it.
+> > 
+> >         strcpy(current->comm, "rpciod");
+> > -
+> > +       current->flags |= PF_IOTHREAD;
+> > +
+> > 
+> > No, this is incorrect. I believe rpciod could submit packet for io in
+> > time we are freezing devices. If it does that... bye bye to your data.
+> 
+> 
+> I think so. At first I did freeze those two tasks but someone post a much simpler patch and... I think you're right. I'll fix that.
+> 
 
-I agree it's nvidia responsability for checking its own source, but help 
-is always welcome when it's true help after all.
+Thanks.
 
-In last weekend I patched 2.4.19-pre10-ac2 with the last preempt-kernel 
-patch, and since I was unable to reproduce the crash, though I didn't 
-stress the machine enough by lack of time, so it's just informative 
-report in case someone want to try.
+> > PS: This is what I did in response to your patch (it compiles,
+> > otherwise untested). I'll try to fix noresume fixing signatures
+> > somehow.
+> 
+> For 2.5 tree ?
 
-Cheers,
+Yep.
 
-Alexandre
+> > @@ -604,13 +595,12 @@
+> >  
+> >  static int prepare_suspend_processes(void)
+> >  {
+> > -	PRINTS( "Stopping processes\n" );
+> > -	MDELAY(1000);
+> >  	if (freeze_processes()) {
+> > -		PRINTS( "Not all processes stopped!\n" );
+> > +		printk( KERN_ERR "Suspend failed: Not all processes
+> stopped!\n"
+> > );
+> >  		thaw_processes();
+> >  		return 1;
+> >  	}
+> > 
+> > +	MDELAY(1000);
+> >  	do_suspend_sync();
+> >  	return 0;
+> >  }
+> 
+> 
+> Where does this MDELAY come from ?
 
+>From top of the function.
 
+> > @@ -1029,11 +1019,13 @@
+> >  static int resume_try_to_read(const char * specialfile, int noresume)
+> >  {
+> >  	union diskpage *cur;
+> > +	unsigned long scratch_page = 0;
+> >  	swp_entry_t next;
+> >  	int i, nr_pgdir_pages, error;
+> >  
+> >  	resume_device = name_to_kdev_t(specialfile);
+> > -	cur = (void *) get_free_page(GFP_ATOMIC);
+> > +	scratch_page = get_free_page(GFP_ATOMIC);
+> > +	cur = (void *) scratch_page;
+> 
+> Why doing that in two steps ?
+
+I do not think I can write that into one expression...
+
+> 
+> > +	if(noresume) {
+> > +#if 0
+> 
+> I believe this is for 2.5 reasons ;-)
+
+It will not compile; small reshuffling is needed to address this.
+								Pavel
+
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

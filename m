@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267082AbUFZKpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266371AbUFZL5z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267082AbUFZKpA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 06:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267084AbUFZKpA
+	id S266371AbUFZL5z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 07:57:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267164AbUFZL5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 06:45:00 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:5127 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S267082AbUFZKo6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 06:44:58 -0400
-Date: Sat, 26 Jun 2004 12:44:55 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: andyb@island.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG 2.6.7] : Partition table display bogus...
-Message-ID: <20040626104455.GC5526@pclin040.win.tue.nl>
-References: <1088216934.40dcdf66edd1d@webmail.island.net>
+	Sat, 26 Jun 2004 07:57:55 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:13839 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S266371AbUFZL5y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 07:57:54 -0400
+Date: Sat, 26 Jun 2004 14:00:06 +0200
+To: Amit Gud <gud@eth.net>
+Cc: Timothy Miller <miller@techsource.com>, Pavel Machek <pavel@suse.cz>,
+       alan <alan@clueserver.org>,
+       "Fao, Sean" <Sean.Fao@dynextechnologies.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Elastic Quota File System (EQFS)
+Message-ID: <20040626120006.GA14609@hh.idb.hist.no>
+References: <20040624220318.GE20649@elf.ucw.cz> <Pine.LNX.4.44.0406241544010.19187-100000@www.fnordora.org> <20040625001545.GI20649@elf.ucw.cz> <40DC62BD.3010607@techsource.com> <40DC72A2.6080600@eth.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1088216934.40dcdf66edd1d@webmail.island.net>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : 
+In-Reply-To: <40DC72A2.6080600@eth.net>
+User-Agent: Mutt/1.5.6+20040523i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 25, 2004 at 07:28:54PM -0700, andyb@island.net wrote:
-
-> Having partition table troubles here with 2.6.7 on hdc:  unknown partition table.
+On Sat, Jun 26, 2004 at 12:14:50AM +0530, Amit Gud wrote:
+> Timothy Miller wrote:
 > 
-> Using 2.6.6 kernel, hdc is handled just fine, partitions are visible.
-> The boot drive is hda,  drive hdc is for other optional mount points.
+> >
+> >I have a much simpler idea that both implements the EQFS and doesn't 
+> >touch the kernel.
+> >
+> >Each user is given a quota which applies to their home directory.  
+> >(This quota is not elastic and if everyone met their quota, everything 
+> >would fit.)  In addition, there is another directory or file system 
+> >(could be on the same disk or even the same partition) to which their 
+> >quota doesn't apply AT ALL.  Let's call this "scratch" space.
+> >
+> I guess the system should be more transparent to the users and their 
+> applications. Here its not convenient to generate .o files or caches in 
+> /scratch/$USER/ .
 > 
-> hdc: QUANTUM FIREBALL CR8.4A, ATA DISK drive
-> ide1 at 0x170-0x177,0x376 on irq 15
-> hdc: max request size: 128KiB
-> hdc: 16514064 sectors (8455 MB) w/418KiB Cache, CHS=16383/16/63
->  hdc: unknown partition table
-> 
-> It's been said in this thread that the kernel no longer guesses a geometry;
-> it's also been said elsewhere that the kernel doesn't use CHS at all.
-> What do I put on the kernel parameter line to give a define geometry?
+Symlinks.  I mozilla stores a cache in .mozilla/something,
+then make .mozilla/something a symlink to /scratch/user/.mozilla/something
 
-Well, I suppose whatever geometry you invent will make no difference at all.
-Roughly speaking, Linux does not use any geometry.
+In a big installation, a script can do this for all users
+as well as similiar tricks for other caching apps.
 
-Also, the geometry change you refer to is old, not something that happened
-during 2.6.
-
-Since reading the partition table is the very first thing that happens
-on the disk, any kind of IDE problem will cause problems reading the pt
-
-Check whether you can read that disk using dd.
-Check that fdisk still can read the table on that disk.
-Go back to 2.6.6 and check that the pt table is still OK.
-Check what type it is, and that your 2.6.7 kernel still has
-configured that type.
-
+Helge Hafting

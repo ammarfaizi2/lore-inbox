@@ -1,103 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266457AbUHIKQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266451AbUHIKXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266457AbUHIKQt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 06:16:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266453AbUHIKPp
+	id S266451AbUHIKXA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 06:23:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266459AbUHIKW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 06:15:45 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:3732 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S266451AbUHIKOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 06:14:10 -0400
-Date: Mon, 9 Aug 2004 12:13:26 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408091013.i79ADQK0008995@burner.fokus.fraunhofer.de>
-To: axboe@suse.de, schilling@fokus.fraunhofer.de
-Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+	Mon, 9 Aug 2004 06:22:59 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:14513 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S266451AbUHIKUq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 06:20:46 -0400
+Date: Mon, 9 Aug 2004 12:21:25 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: [patch] inode-lock-break.patch, 2.6.8-rc3-mm2
+Message-ID: <20040809102125.GA12391@elte.hu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ZGiS0Q5IWpPtfppv"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From axboe@suse.de  Fri Aug  6 17:10:35 2004
 
->> Let me give you a short answer: If DMA creates so many problem on Linux,
->> how about imlementing a generic DMA abstraction layer like Solaris does?
-
->We do have that. But suddenly changing the alignment and length
->restrictions on issuing dma to a device in the _end_ of a stable series
->does not exactly fill me with joyful expectations. It's simply that,
->not lack of infrastructure.
-
-If you _really_ _had_ a DMA abstraction layer, then ide-scsi would use DMA
-for all sector sizes a CD may have. The fact that ide-scsi does not
-use DMA easily proves that you are wrong.
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
->> Please try to distinct between threads I did start and threads I have
->> been drawn into. I am open to any serious discussion, however if you
->> like to insist in things that have been agreed on being suboptimal for
->> more than 20 years, you should have very good reasons _and_ be willing
->> to explain them.
+the attached patch does a scheduling-latency lock-break of two functions
+within the VFS: prune_icache() [typically triggered by VM load] and
+invalidate_inodes() [triggered by e.g. CDROM auto-umounts - reported by
+Florian Schmidt].
 
->Agreed between whom? I don't agree that this naming is sound, in fact I
->think it's quite stupid.
+prune_icache() was easy - it works off a global list head so adding
+voluntary_resched_lock() solves the latency.
 
-If you like to call the Sun developers and the FreeBSD developers (which means 
-people like Bill Joy and Scott Mcusick) stupid, you seem to have a real
-strange idea from the world :-(
+invalidate_inodes() was trickier - we scan a list filtering for specific
+inodes - simple lock-break is incorrect because the list might change at
+the cursor, and retrying opens up the potential for livelocks.
 
-AGAIN: if you believe you did invent a better method, _describe_ it.
-As you did not describe a _working_ method different from the one I request,
-you need to agree that you are wrong - as long as your description is missing.
+The solution i found was to insert a private marker into the list and to
+start off that point - the inodes of the superblock in question wont get
+reordered within the list because the filesystem is quiet already at
+this point. (other inodes of other filesystems might get reordered but
+that doesnt matter.)
+
+tested on x86, the patch solves these particular latencies.
+
+	Ingo
+
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="inode-lock-break.patch"
 
 
+the attached patch does a scheduling-latency lock-break of two functions
+within the VFS: prune_icache() [typically triggered by VM load] and
+invalidate_inodes() [triggered by e.g. CDROM auto-umounts - reported by
+Florian Schmidt].
 
->I am focused on Linux, that's what I work on. And I truly think the
->device naming option is so much easier for users that it's not even
->funny.
+prune_icache() was easy - it works off a global list head so adding
+voluntary_resched_lock() solves the latency.
 
-So let me use other words: While I am focussed on the cdrtools uses on _all_
-platforms, you are not :-(
+invalidate_inodes() was trickier - we scan a list filtering for specific
+inodes - simple lock-break is incorrect because the list might change at
+the cursor, and retrying opens up the potential for livelocks.
 
+The solution i found was to insert a private marker into the list and to
+start off that point - the inodes of the superblock in question wont get
+reordered within the list because the filesystem is quiet already at
+this point. (other inodes of other filesystems might get reordered but
+that doesnt matter.)
+
+tested on x86, the patch solves these particular latencies.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/fs/inode.c.orig	
++++ linux/fs/inode.c	
+@@ -296,7 +296,7 @@ static void dispose_list(struct list_hea
+ /*
+  * Invalidate all inodes for a device.
+  */
+-static int invalidate_list(struct list_head *head, struct list_head *dispose)
++static int invalidate_list(struct list_head *head, struct list_head *dispose, struct list_head *mark)
+ {
+ 	struct list_head *next;
+ 	int busy = 0, count = 0;
+@@ -306,6 +306,21 @@ static int invalidate_list(struct list_h
+ 		struct list_head * tmp = next;
+ 		struct inode * inode;
  
->> As 50% of all problems reported for cdrecord on Linux look like Linux
->> kernel problems, this is what I do every day.
++		/*
++		 * Preempt if necessary. To make this safe we use a dummy
++		 * inode as a marker - we can continue off that point.
++		 * We rely on this sb's inodes (including the marker) not
++		 * getting reordered within the list during umount. Other
++		 * inodes might get reordered.
++		 */
++		if (need_resched()) {
++			list_add_tail(mark, next);
++			spin_unlock(&inode_lock);
++			cond_resched();
++			spin_lock(&inode_lock);
++			tmp = next = mark->next;
++			list_del(mark);
++		}
+ 		next = next->next;
+ 		if (tmp == head)
+ 			break;
+@@ -346,15 +361,21 @@ int invalidate_inodes(struct super_block
+ {
+ 	int busy;
+ 	LIST_HEAD(throw_away);
++	struct inode *marker;
++
++	marker = kmalloc(sizeof(*marker), GFP_KERNEL|__GFP_REPEAT);
++	memset(marker, 0, sizeof(*marker));
+ 
+ 	down(&iprune_sem);
+ 	spin_lock(&inode_lock);
+-	busy = invalidate_list(&sb->s_inodes, &throw_away);
++	busy = invalidate_list(&sb->s_inodes, &throw_away, &marker->i_list);
+ 	spin_unlock(&inode_lock);
+ 
+ 	dispose_list(&throw_away);
+ 	up(&iprune_sem);
+ 
++	kfree(marker);
++
+ 	return busy;
+ }
+ 
+@@ -425,6 +446,8 @@ static void prune_icache(int nr_to_scan)
+ 	for (nr_scanned = 0; nr_scanned < nr_to_scan; nr_scanned++) {
+ 		struct inode *inode;
+ 
++		cond_resched_lock(&inode_lock);
++
+ 		if (list_empty(&inode_unused))
+ 			break;
+ 
 
->Just because they look like Linux kernel problems, doesn't mean that
->they are :-)
-
-I am able to distinct between something that only looks like a kernel problem
-and something that really is a kernel problem. As long as you define everything
-to be a non kernel problem :-( see the Linux Kernel bug with 
-SG_SET_RESERVED_SIZE) I don't know how to continue the discussion with you.
-
-
->A textual description of the problem is not a fix. Or did I miss the
->patch? If so, I apologize.
-
-Being able to read seems to be a real advantage....
-
->> The importance could be limited if there were unique instance numbers
->> for ATAPI devices using the same address space as the other SCSI
->> devices.  For now, ide-scsi is really important.
-
->It's not the same address space, so there is not.
-
-Well you just did prove that forcing people to send SCSI commands via 
-non SCSI parts of the kernel is a design bug
-
->> Let's see whether "Linux" is open enough to listen to the demands of
->> the users......
-
->We try, when they make sense...
-
-You should learn what "make sense" means, Linux-2.6 is a clear move away from 
-the demands of a Linux user who likes to write CDs/DVDs.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+--ZGiS0Q5IWpPtfppv--

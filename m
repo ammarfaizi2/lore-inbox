@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291883AbSBHV5I>; Fri, 8 Feb 2002 16:57:08 -0500
+	id <S291874AbSBHV7S>; Fri, 8 Feb 2002 16:59:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291862AbSBHV46>; Fri, 8 Feb 2002 16:56:58 -0500
-Received: from willow.seitz.com ([207.106.55.140]:22288 "EHLO willow.seitz.com")
-	by vger.kernel.org with ESMTP id <S287781AbSBHV4o>;
-	Fri, 8 Feb 2002 16:56:44 -0500
-From: Ross Vandegrift <ross@willow.seitz.com>
-Date: Fri, 8 Feb 2002 16:56:41 -0500
-To: David Garfield <garfield@irving.iisd.sra.com>
+	id <S291871AbSBHV7J>; Fri, 8 Feb 2002 16:59:09 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:20217
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S291862AbSBHV66>; Fri, 8 Feb 2002 16:58:58 -0500
+Date: Fri, 8 Feb 2002 13:59:02 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Linus' email account is full. - Fwd: Mail System Error - Returned Mail
-Message-ID: <20020208165641.A25951@willow.seitz.com>
-In-Reply-To: <5.1.0.14.2.20020208201734.038322c0@pop.cus.cam.ac.uk> <a41cfi$fpr$1@cesium.transmeta.com> <15460.16213.450482.512797@irving.iisd.sra.com>
+Message-ID: <20020208215902.GA16065@matchmail.com>
+Mail-Followup-To: Anton Altaparmakov <aia21@cam.ac.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20020208201734.038322c0@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15460.16213.450482.512797@irving.iisd.sra.com>; from garfield@irving.iisd.sra.com on Fri, Feb 08, 2002 at 04:12:53PM -0500
+In-Reply-To: <5.1.0.14.2.20020208201734.038322c0@pop.cus.cam.ac.uk>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Actually, I suspect the situation is somewhat simpler.  It is possible
-> transmet.com may only have one mailbox that everything funnels into.
-> Their mail is hosted by "registeredsite.com", which has a somewhat
-> invalid web presence (IP address = 10.0.0.1).
+On Fri, Feb 08, 2002 at 08:19:15PM +0000, Anton Altaparmakov wrote:
+> Linus' email account appears to be full if we can believe this returned 
+> email:
+> 
+> >Envelope-to: aia21@cus.cam.ac.uk
+> >To: aia21@cam.ac.uk
+> >From: Mail Administrator <Postmaster@transmet.com>
+> >Reply-To: Mail Administrator <Postmaster@transmet.com>
+> >Subject: Mail System Error - Returned Mail
+> >Date: Fri, 8 Feb 2002 15:14:23 -0500
+> >
+> >This Message was undeliverable due to the following reason:
+> >
+> >The user(s) account is temporarily over quota.
+> >
+> ><usr3189@transmet.com>
 
-Interesting.  In my battles against spam, a *HUGE* precentage has been linked
-with registeredsite.com.  Wouldn't be surprised if they were harvesting
-addresses, or some other such vile stuffs.
+It looks like the CC in "[RFC] New locking primitive for 2.5" by Martin
+Wirth is the culprit.
 
-Ross Vandegrift
-ross@willow.seitz.com
+Once this thread ends, or people change the address manually in their
+replies the problem ends.
+
+Mike

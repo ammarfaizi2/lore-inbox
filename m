@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311898AbSGUKli>; Sun, 21 Jul 2002 06:41:38 -0400
+	id <S312601AbSGULOH>; Sun, 21 Jul 2002 07:14:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312601AbSGUKli>; Sun, 21 Jul 2002 06:41:38 -0400
-Received: from divine.city.tvnet.hu ([195.38.100.154]:58118 "EHLO
-	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
-	id <S311898AbSGUKli>; Sun, 21 Jul 2002 06:41:38 -0400
-Date: Sun, 21 Jul 2002 11:10:47 +0200 (MEST)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-To: Alan Cox <alan@redhat.com>
-cc: Adrian Bunk <bunk@fs.tum.de>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] strict VM overcommit
-In-Reply-To: <200207200032.g6K0Wwk11011@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.30.0207211008280.701-100000@divine.city.tvnet.hu>
+	id <S312973AbSGULOG>; Sun, 21 Jul 2002 07:14:06 -0400
+Received: from loke.as.arizona.edu ([128.196.209.61]:17797 "EHLO
+	loke.as.arizona.edu") by vger.kernel.org with ESMTP
+	id <S312601AbSGULOG>; Sun, 21 Jul 2002 07:14:06 -0400
+Date: Sun, 21 Jul 2002 04:14:51 -0700 (MST)
+From: Craig Kulesa <ckulesa@as.arizona.edu>
+To: linux-kernel@vger.kernel.org
+cc: linux-mm@kvack.org
+Subject: [PATCH 1/2][CFT] Full rmap VM for 2.5.27
+Message-ID: <Pine.LNX.4.44.0207210218410.6770-100000@loke.as.arizona.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 19 Jul 2002, Alan Cox wrote:
-> > How is assured that it's impossible to OOM when the amount of memory
-> > shrinks?
-> > IOW:
-> > - allocate very much memory
-> > - "swapoff -a"
->
-> Make swapoff -a return -ENOMEM
->
-> I've not done this on the basis that this is root specific stupidity and
-> generally shouldnt be protected against
 
-Recommended reading: MIT's Magazin of Innovation Technology Review,
-August 2002 issue, cover story: Why Software Is So Bad?
+A new release of the full-featured rmap patch (Rik van Riel's rmap-13b) is 
+available against the minimal rmap in 2.5.27.  This first patch brings the 
+2.5 VM into approximate parity with 2.4-ac in terms of basic page 
+replacement, page aging, and lru list logic.  
 
-Next you might read: "... prominent, leading Linux kernel developer
-publically labels users stupid instead of handling a special case
-[that is ironically used as a workaround for one of the many system
-software deficiencies] in what case the system software would hang
-using a new feature the developer is about to add and admitted to be
-paid for ..."
+A description from the last posting:  
+	http://mail.nl.linux.org/linux-mm/2002-07/msg00215.html
 
-Adrian would deserve a thanks for spotting and reporting the issue
-[and there *are* other use cases for the above mentioned swapoff -a,
-some also to overcome kernel bugs].
 
-With all respect, Alan, the critic isn't personal but reaction to a
-trendy phenomenon that should be address if developers care about user
-issues.
+Changelog:
+- Sync'ed with the 2.5.27 rmap merge
+- Added Bill Irwin's recent patch that converts the pte_chain freelist to 
+  use mempool.  Updated VM stats.  A nice patch that seems to work well 
+  here, so far... :)
 
-	Szaka
+
+Next release:
+- multi-page batch processing of the list-scanning methods in 
+  vmscan to reduce lock contention, ala Andrew Morton's recent patches
+- looking into 2.4-aa for useful tidbits
+- various rmap updates from the usual suspects... :)
+
+
+Get it here:
+	http://loke.as.arizona.edu/~ckulesa/kernel/rmap-vm/2.5.27/
+
+
+Try it, use it, send feedback. :)
+
+Craig Kulesa
+Steward Observatory
+Univ. of Arizona
 

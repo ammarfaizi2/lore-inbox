@@ -1,75 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290959AbSBLKjG>; Tue, 12 Feb 2002 05:39:06 -0500
+	id <S290962AbSBLKxJ>; Tue, 12 Feb 2002 05:53:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290961AbSBLKi5>; Tue, 12 Feb 2002 05:38:57 -0500
-Received: from 91dyn53.com21.casema.net ([62.234.22.53]:17104 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S290959AbSBLKil>; Tue, 12 Feb 2002 05:38:41 -0500
-Message-Id: <200202121038.LAA02103@cave.bitwizard.nl>
-Subject: Re: what serial driver restructure is planned?
-In-Reply-To: <E16aOVf-00084P-00@the-village.bc.nu> from Alan Cox at "Feb 11,
- 2002 10:01:15 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Tue, 12 Feb 2002 11:38:37 +0100 (MET)
-CC: Nick Craig-Wood <ncw@axis.demon.co.uk>,
-        Russell King - ARM Linux <linux@arm.linux.org.uk>,
-        linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S290965AbSBLKw7>; Tue, 12 Feb 2002 05:52:59 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:17932 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S290962AbSBLKwx>; Tue, 12 Feb 2002 05:52:53 -0500
+Message-ID: <3C68F3F3.8030709@evision-ventures.com>
+Date: Tue, 12 Feb 2002 11:52:35 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Pavel Machek <pavel@suse.cz>
+CC: Jens Axboe <axboe@suse.de>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: another IDE cleanup: kill duplicated code
+In-Reply-To: <20020211221102.GA131@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > Could we also have an interface to serial devices which bypass the tty
-> > layer?  Ie a /dev/ttyraw* which just speaks to the serial port without
-> > going through the labyrinthine tty layers?
-> 
-> You've got one
-> 
-> > 9 times out of 10 when I reach for /dev/ttyS* that is all I want and
-> > the tty layer is just wasteful and gets in the way of a conceptually
-> > very simple device.
-> 
-> The only bits of the tty layer being used in raw data passing is the same
-> buffer management logic you would need anyway. In short - the perceived
-> waste is simply not there
+Pavel Machek wrote:
 
-IMHO, the main waste is "in the drivers". 
+>Hi!
+>
+>This is slightly longer but also simple cleanup. It kills code
+>duplication and removes unneccessary assignments/casts. Please apply,
+>	
+>
+If you are already at it, I would like to ask to you consider seriously 
+the removal of the
+following entries in the ide drivers /proc control files:
 
-A serial driver restructuring should have a simple driver just be
-"pass a character to the hardware" and "get a character from the
-hardware" as well as "read/write modem control" register. (And the
-driver would be requested to call a "modem status changed, please
-ask me what the new status is").
+    ide_add_setting(drive,    "breada_readahead",    ...         1,    
+2,    &read_ahead[major],        NULL);
+    ide_add_setting(drive,    "file_readahead",   ...    
+&max_readahead[major][minor],    NULL);
 
-That way you can build a working serial driver in under 100 lines of
-code.
+Those calls can be found in ide-cd.c, ide-disk,c and ide-floppy.c
 
-Now most advanced serial drivers would want to also provide "pass a
-bunch of characters to the hardware" routine. By default that would
-just be a routine that calls the output one char function
-repeatedly. But hardware with a larger buffer can really benefit from
-the block-move.
+The first does control an array of values, which doesn't make sense in 
+first place. I.e. changing it doesn't
+change ANY behaviour of the kernel.
 
-All "tty-layer" things should then move out of the driver. For
-instance: no calling of "hangup" if the flags allow that: The driver
-should report that DCD went down, and then something generic should in
-one place decide wether or not to call "hangup" (i.e. send the hangup
-signal).
+The second of them is trying to control a file-system level constant 
+inside the actual block device driver.
+This is a blatant violation of the layering principle in software 
+design, and should go as soon as
+possible.
 
-If someone wires "DCD" to "TXD", and then uses the port in CLOCAL, we
-will call the "DCD changed" function WAY too often. But that is just
-stupid. Let's not create a stupid architecture because it will be
-inefficient in a stupid case.
+BTW.> The wole IDE /proc stuff found there makes me vommit...
+Both in terms of interface and in terms of coding style.
+Apparently Andre Hendrick doesn't know what ioctrl are about and is 
+missing the windows
+registry greatly.
 
-	Roger. 
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+

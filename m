@@ -1,97 +1,241 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266147AbUGTTyC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266128AbUGTTmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266147AbUGTTyC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 15:54:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266185AbUGTTxN
+	id S266128AbUGTTmP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 15:42:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266143AbUGTSir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 15:53:13 -0400
-Received: from cantor.suse.de ([195.135.220.2]:10922 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266208AbUGTTwT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 15:52:19 -0400
-Subject: Re: Processes stuck in unkillable D state (now seen in 2.6.7-mm6)
-From: Chris Mason <mason@suse.com>
-To: Rob Mueller <robm@fastmail.fm>, wli@holomorphy.com, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <009e01c46849$f2e85430$9aafc742@ROBMHP>
-References: <00f601c46539$0bdf47a0$e6afc742@ROBMHP>
-	 <1089377936.3956.148.camel@watt.suse.com>
-	 <009e01c46849$f2e85430$9aafc742@ROBMHP>
-Content-Type: text/plain
-Message-Id: <1090353111.23350.8.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 20 Jul 2004 15:51:52 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Jul 2004 14:38:47 -0400
+Received: from nl-ams-slo-l4-01-pip-8.chellonetwork.com ([213.46.243.27]:58156
+	"EHLO amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id S266128AbUGTSiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 14:38:03 -0400
+Date: Tue, 20 Jul 2004 20:38:00 +0200
+Message-Id: <200407201838.i6KIc0BI015384@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 463] m68k sparse #if vs. #ifdef
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-07-12 at 15:53, Rob Mueller wrote:
+M68k: Use #ifdef instead of #if (found by sparse)
 
-> Here's the relevant stuck proc.
-> 
-> imapd         D E17BE6E0     0  3761      1               10291 (NOTLB)
-> e11c3bc8 00000086 00000020 e17be6e0 c1372d20 00000246 00000220 f7e12380
->        00000020 c0136667 c42c6da0 00000001 00000d74 bbfe8a6a 0000040d 
-> c42c6da0
->        f7f91140 e17be6e0 e17be890 f78cd9cc 00000003 f78cd9cc f78cd9cc 
-> c025d2cc
-> Call Trace:
->  [<c0136667>] kmem_cache_alloc+0x57/0x70
->  [<c025d2cc>] generic_unplug_device+0x2c/0x40
->  [<c037a148>] io_schedule+0x28/0x40
->  [<c012e03c>] __lock_page+0xbc/0xe0
->  [<c012dd70>] page_wake_function+0x0/0x50
->  [<c012dd70>] page_wake_function+0x0/0x50
->  [<c012f061>] filemap_nopage+0x231/0x360
->  [<c013dc18>] do_no_page+0xb8/0x3a0
->  [<c013ba7b>] pte_alloc_map+0xdb/0xf0
->  [<c013e0ae>] handle_mm_fault+0xbe/0x1a0
->  [<c025d292>] __generic_unplug_device+0x32/0x40
->  [<c0112af2>] do_page_fault+0x172/0x5ec
->  [<c014cab0>] bh_wake_function+0x0/0x40
->  [<c014cab0>] bh_wake_function+0x0/0x40
->  [<c018ec9f>] reiserfs_prepare_file_region_for_write+0x94f/0x9b0
->  [<c0112980>] do_page_fault+0x0/0x5ec
->  [<c0104b19>] error_code+0x2d/0x38
->  [<c018dc0f>] reiserfs_copy_from_user_to_file_region+0x8f/0x100
->  [<c018f2b1>] reiserfs_file_write+0x5b1/0x750
->  [<c0186675>] reiserfs_link+0xb5/0x190
->  [<c0186719>] reiserfs_link+0x159/0x190
->  [<c016134c>] dput+0x1c/0x1b0
->  [<c016134c>] dput+0x1c/0x1b0
->  [<c01581a0>] path_release+0x10/0x40
->  [<c015a9bc>] sys_link+0xcc/0xe0
->  [<c014bb9a>] vfs_write+0xaa/0xe0
->  [<c014b610>] default_llseek+0x0/0x110
->  [<c014bc4f>] sys_write+0x2f/0x50
->  [<c010406b>] syscall_call+0x7/0xb
-> 
-> Is that in lock_page again?
-> 
-> Hopefully there's some helpful information there. If the dump there isn't 
-> complete, can you give me an idea why it might not be? I've set the kernel 
-> buffer to 17 (128k), and the proc list was definitely small enough to fit in 
-> the buffer. When I did "dmesg -s 1000000 > foo", the first part of the file 
-> was still the original boot sequence. Any other suggestions on what to do?
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Ugh, so the call path here is:
+--- linux-2.6.8-rc2/arch/m68k/kernel/signal.c	2004-06-21 20:20:00.000000000 +0200
++++ linux-m68k-2.6.8-rc2/arch/m68k/kernel/signal.c	2004-07-10 21:07:33.000000000 +0200
+@@ -349,7 +349,7 @@
+ 		/*
+ 		 * user process trying to return with weird frame format
+ 		 */
+-#if DEBUG
++#ifdef DEBUG
+ 		printk("user process returning with weird frame format\n");
+ #endif
+ 		goto badframe;
+@@ -450,7 +450,7 @@
+ 		/*
+ 		 * user process trying to return with weird frame format
+ 		 */
+-#if DEBUG
++#ifdef DEBUG
+ 		printk("user process returning with weird frame format\n");
+ #endif
+ 		goto badframe;
+@@ -829,7 +829,7 @@
+ 	if (regs->stkadj) {
+ 		struct pt_regs *tregs =
+ 			(struct pt_regs *)((ulong)regs + regs->stkadj);
+-#if DEBUG
++#ifdef DEBUG
+ 		printk("Performing stackadjust=%04x\n", regs->stkadj);
+ #endif
+ 		/* This must be copied with decreasing addresses to
+@@ -912,7 +912,7 @@
+ 	if (regs->stkadj) {
+ 		struct pt_regs *tregs =
+ 			(struct pt_regs *)((ulong)regs + regs->stkadj);
+-#if DEBUG
++#ifdef DEBUG
+ 		printk("Performing stackadjust=%04x\n", regs->stkadj);
+ #endif
+ 		/* This must be copied with decreasing addresses to
+--- linux-2.6.8-rc2/arch/m68k/kernel/traps.c	2004-06-20 17:14:30.000000000 +0200
++++ linux-m68k-2.6.8-rc2/arch/m68k/kernel/traps.c	2004-07-10 21:07:34.000000000 +0200
+@@ -541,7 +541,7 @@
+ 	unsigned short ssw = fp->un.fmtb.ssw;
+ 	extern unsigned long _sun3_map_test_start, _sun3_map_test_end;
+ 
+-#if DEBUG
++#ifdef DEBUG
+ 	if (ssw & (FC | FB))
+ 		printk ("Instruction fault at %#010lx\n",
+ 			ssw & FC ?
+@@ -670,7 +670,7 @@
+ 	unsigned short mmusr;
+ 	unsigned long addr, errorcode;
+ 	unsigned short ssw = fp->un.fmtb.ssw;
+-#if DEBUG
++#ifdef DEBUG
+ 	unsigned long desc;
+ 
+ 	printk ("pid = %x  ", current->pid);
+@@ -696,7 +696,7 @@
+ 	if (ssw & DF) {
+ 		addr = fp->un.fmtb.daddr;
+ 
+-#if DEBUG
++#ifdef DEBUG
+ 		asm volatile ("ptestr %3,%2@,#7,%0\n\t"
+ 			      "pmove %%psr,%1@"
+ 			      : "=a&" (desc)
+@@ -708,7 +708,7 @@
+ #endif
+ 		mmusr = temp;
+ 
+-#if DEBUG
++#ifdef DEBUG
+ 		printk("mmusr is %#x for addr %#lx in task %p\n",
+ 		       mmusr, addr, current);
+ 		printk("descriptor address is %#lx, contents %#lx\n",
+@@ -767,7 +767,7 @@
+ 				      : "a" (&tlong));
+ 			printk("tt1 is %#lx\n", tlong);
+ #endif
+-#if DEBUG
++#ifdef DEBUG
+ 			printk("Unknown SIGSEGV - 1\n");
+ #endif
+ 			die_if_kernel("Oops",&fp->ptregs,mmusr);
+@@ -812,7 +812,7 @@
+ 		   should still create the ATC entry.  */
+ 		goto create_atc_entry;
+ 
+-#if DEBUG
++#ifdef DEBUG
+ 	asm volatile ("ptestr #1,%2@,#7,%0\n\t"
+ 		      "pmove %%psr,%1@"
+ 		      : "=a&" (desc)
+@@ -836,7 +836,7 @@
+ 	else if (mmusr & (MMU_B|MMU_L|MMU_S)) {
+ 		printk ("invalid insn access at %#lx from pc %#lx\n",
+ 			addr, fp->ptregs.pc);
+-#if DEBUG
++#ifdef DEBUG
+ 		printk("Unknown SIGSEGV - 2\n");
+ #endif
+ 		die_if_kernel("Oops",&fp->ptregs,mmusr);
+@@ -858,7 +858,7 @@
+ 	if (user_mode(&fp->ptregs))
+ 		current->thread.esp0 = (unsigned long) fp;
+ 
+-#if DEBUG
++#ifdef DEBUG
+ 	printk ("*** Bus Error *** Format is %x\n", fp->ptregs.format);
+ #endif
+ 
+@@ -881,7 +881,7 @@
+ #endif
+ 	default:
+ 	  die_if_kernel("bad frame format",&fp->ptregs,0);
+-#if DEBUG
++#ifdef DEBUG
+ 	  printk("Unknown SIGSEGV - 4\n");
+ #endif
+ 	  force_sig(SIGSEGV, current);
+--- linux-2.6.8-rc2/arch/m68k/mm/memory.c	2004-06-21 20:20:00.000000000 +0200
++++ linux-m68k-2.6.8-rc2/arch/m68k/mm/memory.c	2004-07-10 21:06:54.000000000 +0200
+@@ -129,7 +129,7 @@
+ 	return 0;
+ }
+ 
+-#if DEBUG_INVALID_PTOV
++#ifdef DEBUG_INVALID_PTOV
+ int mm_inv_cnt = 5;
+ #endif
+ 
+@@ -179,7 +179,7 @@
+ 		voff += m68k_memory[i].size;
+ 	} while (++i < m68k_num_memory);
+ 
+-#if DEBUG_INVALID_PTOV
++#ifdef DEBUG_INVALID_PTOV
+ 	if (mm_inv_cnt > 0) {
+ 		mm_inv_cnt--;
+ 		printk("Invalid use of phys_to_virt(0x%lx) at 0x%p!\n",
+--- linux-2.6.8-rc2/include/asm-m68k/math-emu.h	1999-08-15 20:47:29.000000000 +0200
++++ linux-m68k-2.6.8-rc2/include/asm-m68k/math-emu.h	2004-07-10 21:06:55.000000000 +0200
+@@ -102,7 +102,7 @@
+ 	struct fp_ext temp[2];
+ };
+ 
+-#if FPU_EMU_DEBUG
++#ifdef FPU_EMU_DEBUG
+ extern unsigned int fp_debugprint;
+ 
+ #define dprint(bit, fmt, args...) ({			\
+--- linux-2.6.8-rc2/include/asm-m68k/semaphore.h	2004-04-28 15:47:30.000000000 +0200
++++ linux-m68k-2.6.8-rc2/include/asm-m68k/semaphore.h	2004-07-10 21:06:55.000000000 +0200
+@@ -27,12 +27,12 @@
+ 	atomic_t count;
+ 	atomic_t waking;
+ 	wait_queue_head_t wait;
+-#if WAITQUEUE_DEBUG
++#ifdef WAITQUEUE_DEBUG
+ 	long __magic;
+ #endif
+ };
+ 
+-#if WAITQUEUE_DEBUG
++#ifdef WAITQUEUE_DEBUG
+ # define __SEM_DEBUG_INIT(name) \
+ 		, (long)&(name).__magic
+ #else
+@@ -86,7 +86,7 @@
+ {
+ 	register struct semaphore *sem1 __asm__ ("%a1") = sem;
+ 
+-#if WAITQUEUE_DEBUG
++#ifdef WAITQUEUE_DEBUG
+ 	CHECK_MAGIC(sem->__magic);
+ #endif
+ 	might_sleep();
+@@ -109,7 +109,7 @@
+ 	register struct semaphore *sem1 __asm__ ("%a1") = sem;
+ 	register int result __asm__ ("%d0");
+ 
+-#if WAITQUEUE_DEBUG
++#ifdef WAITQUEUE_DEBUG
+ 	CHECK_MAGIC(sem->__magic);
+ #endif
+ 	might_sleep();
+@@ -134,7 +134,7 @@
+ 	register struct semaphore *sem1 __asm__ ("%a1") = sem;
+ 	register int result __asm__ ("%d0");
+ 
+-#if WAITQUEUE_DEBUG
++#ifdef WAITQUEUE_DEBUG
+ 	CHECK_MAGIC(sem->__magic);
+ #endif
+ 
+@@ -164,7 +164,7 @@
+ {
+ 	register struct semaphore *sem1 __asm__ ("%a1") = sem;
+ 
+-#if WAITQUEUE_DEBUG
++#ifdef WAITQUEUE_DEBUG
+ 	CHECK_MAGIC(sem->__magic);
+ #endif
+ 
 
-reiserfs_file_write -> start a transaction
-copy_from_user -> fault in the page
-page fault handler -> lock page
+Gr{oetje,eeting}s,
 
-This means we're trying to lock a page with a running transaction, and
-that's not allowed, since some other process on the box most likely has
-that page locked and is trying to start a transaction.
+						Geert
 
-That makes for 3 different deadlocks in this exact same call path
-(dirty_inode, lock_page and kmap), and my patch for it has major
-problems.  So, I'll talk things over with everyone during OLS and try to
-work out a proper fix.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Sorry Rob, this one is non-trivial.
-
--chris
-
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,66 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266195AbUGARYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266196AbUGAR0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266195AbUGARYj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 13:24:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUGARYi
+	id S266196AbUGAR0q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 13:26:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266197AbUGAR0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 13:24:38 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:53936 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S266195AbUGARYg
+	Thu, 1 Jul 2004 13:26:46 -0400
+Received: from p02m166.mxlogic.net ([216.173.230.166]:7305 "HELO
+	p02m166.mxlogic.net") by vger.kernel.org with SMTP id S266196AbUGAR0j
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 13:24:36 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Wim Van Sebroeck <wim@iguana.be>
-Subject: watchdog infrastructure
-Date: Thu, 1 Jul 2004 19:23:44 +0200
+	Thu, 1 Jul 2004 13:26:39 -0400
+From: Michael Driscoll <fenris@ulfheim.net>
+Organization: FFW/CO
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [OT] Testing PROT_NONE and other protections, and a surprise
+Date: Thu, 1 Jul 2004 11:26:11 -0600
 User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <20040630024434.GA25064@mail.shareable.org> <20040701123941.GC4187@mail.shareable.org> <F64265B6-CB6C-11D8-947A-000393ACC76E@mac.com>
+In-Reply-To: <F64265B6-CB6C-11D8-947A-000393ACC76E@mac.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_hiE5ARMP182WAso";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407011923.45226.arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-
---Boundary-02=_hiE5ARMP182WAso
+Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <200407011126.11159.fenris@ulfheim.net>
+X-OriginalArrivalTime: 01 Jul 2004 17:26:37.0905 (UTC) FILETIME=[90985C10:01C45F90]
+X-MX-Spam: exempt
+X-MX-MAIL-FROM: <fenris@ulfheim.net>
+X-MX-SOURCE-IP: [63.78.248.11]
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Wim,
+On Thursday 01 July 2004 08:43, Kyle Moffett wrote:
+> On Jul 01, 2004, at 08:39, Jamie Lokier wrote:
+> > The error code is -1, aka. MAP_FAILED.
+>
+> Oops!  I guess I was just lucky that part didn't fail :-D  On the other
+> hand, it couldn't legally return 0 anyway, could it?  That would have been a
+> slightly more sensible error code, IMHO, anyway, but it probably came from
+> some silly standard somewhere.
 
-I noticed you have been working on sanitizing the watchdog driver
-in your http://linux-watchdog.bkbits.net/linux-2.6-watchdog-experimental
-tree. What are your plans for this, i.e. do you see this as 2.7 only
-stuff or do you intend to merge the at least the infrastructure code
-so it can be used by future 2.6 drivers?
+mmap can (and will, in the case of glibc) return NULL for a length of 0.
 
-I'm asking because I have a new driver and I would prefer not to add
-yet another copy of the ioctl code, which I don't even know how
-to test properly.
-
-If we can get your watchdog.c into a mergable state (in which it
-arguably isn't at the moment), I could use that to base my driver
-on, while the other drivers get converted during 2.7.
-
-	Arnd <><
-
---Boundary-02=_hiE5ARMP182WAso
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA5Eih5t5GS2LDRf4RAi2zAJ0bjR7refdoUlOCkbwsBqJ1KSgKVgCfRrPE
-NJ8kVWShnc95HXjIa65oLts=
-=u2XY
------END PGP SIGNATURE-----
-
---Boundary-02=_hiE5ARMP182WAso--
+-- 
+Michael Driscoll, fenris@ulfheim.net
+"A noble spirit embiggens the smallest man" -- J. Springfield

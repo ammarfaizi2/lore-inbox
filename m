@@ -1,69 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278701AbRKXP4t>; Sat, 24 Nov 2001 10:56:49 -0500
+	id <S278714AbRKXP73>; Sat, 24 Nov 2001 10:59:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278714AbRKXP4j>; Sat, 24 Nov 2001 10:56:39 -0500
-Received: from mail301.mail.bellsouth.net ([205.152.58.161]:51945 "EHLO
-	imf01bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S278701AbRKXP40>; Sat, 24 Nov 2001 10:56:26 -0500
-Message-ID: <3BFFC324.130A532C@mandrakesoft.com>
-Date: Sat, 24 Nov 2001 10:56:20 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: admin@nextframe.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove last references to linux/malloc.h
-In-Reply-To: <20011122145527.A117@sexything> <27400.1006437269@redhat.com> <20011122150738.D117@sexything> <3BFF1AAB.273A2BB@osdl.org>
+	id <S278722AbRKXP7K>; Sat, 24 Nov 2001 10:59:10 -0500
+Received: from m64-mp1-cvx1c.lee.ntl.com ([62.252.236.64]:36480 "EHLO
+	box.penguin.power") by vger.kernel.org with ESMTP
+	id <S278714AbRKXP7I>; Sat, 24 Nov 2001 10:59:08 -0500
+Date: Sat, 24 Nov 2001 15:55:16 +0000
+From: Gavin Baker <gavbaker@ntlworld.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.13-ac7 ext3 OOPS
+Message-ID: <20011124155516.A14067@box.penguin.power>
+In-Reply-To: <20011118205039.A3208@box.penguin.power> <20011122202432.A11821@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20011122202432.A11821@redhat.com>; from sct@redhat.com on Thu, Nov 22, 2001 at 08:24:32PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" wrote:
+On Thu, Nov 22, 2001 at 08:24:32PM +0000, Stephen C. Tweedie wrote:
+
+> Hi,
 > 
-> Morten Helgesen wrote:
-> >
-> > Hey David.
-> >
-> > I see your point - but someone has obiously decided to switch from malloc.h to slab.h, and I do not
-> > see the point in having three references to malloc.h when malloc.h only prints a warning and then includes
-> > slab.h
-> >
-> > == Morten
-> >
-> > On Thu, Nov 22, 2001 at 01:54:29PM +0000, David Woodhouse wrote:
-> > >
-> > >
-> > > admin@nextframe.net said:
-> > > >  Ok people - stop submitting patches which include malloc.h. Include
-> > > > slab.h instead. :)
-> > >
-> > > Bah. I was sort of hoping we'd come to our collective senses and switch
-> > > them all back.
-> > >
-> > > What does malloc.h do? Stuff to do with memory allocation, one presumes.
-> > > What does slab.h do? Some random implementation detail that people have no
-> > > business knowing about.
+> On Sun, Nov 18, 2001 at 08:50:39PM +0000, Gavin Baker wrote:
+> > A seemingly random OOPS while using netscape. 2.4.13-ac7 with preempt patches on a RH7.2 laptop.
+>  
+> > Nov 18 13:12:45 n-files kernel: EIP:    0010:[get_hash_table+107/208]    Not tainted
 > 
-> Too bad someone decided to change.  I agree with David.
+> get_hash_table oopses are almost always caused by bad memory.  For
+> some reason, the buffer cache hashes are peculiarly sensitive to
+> corruptions.
+
+This is definately likely, the machine has a cheap no-name memory
+module in it.
+
+> > Nov 18 13:12:45 n-files kernel: eax: c1430000   ebx: ffffffff   ecx: 00000002   edx: 00003859
 > 
-> malloc.h is just too plain obvious, I suppose.
-> slab.h is only an implementation detail.
+> It's not enough to be conclusive, but the other common footprint of
+> random memory corruption is register dumps containing a value which is
+> all-zeroes except for one flipped bit, like your 0x00000002 value in
+> %ecx.
 
-Water under the bridge...  someone should have spoken up long ago :) 
-malloc.h has been an empty shell for years and years, and I do not see
-how the API benefits from this.  Does "malloc" exist in kernel code? 
-No.  kmalloc does...  so it's arguably already misnamed as well as
-superfluous.
+This is another factoid for my notebook. :)
 
-	Jeff
+> Let me know if you can reproduce this, but in the absense of any other
+> pattern, bad memory is the most likely cause for now.
 
+I cannot reproduce this, i've tried stressing the filesystem but the
+oops does not show up. I will cc you if one shows up again.
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+I've tried memtest86 on the machine, and while it doesn't spot any
+errors, it does seem to take an extremly long time to do some of the
+tests (The default tests are taking more than 12 hours). I will replace
+the memory with some decent branded ram just in case.
+
+Thanks for your time Stephen,
+
+Regards, Gavin Baker
 

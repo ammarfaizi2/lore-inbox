@@ -1,59 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272968AbTGaMjX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 08:39:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273006AbTGaMjX
+	id S272473AbTGaNHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 09:07:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272476AbTGaNHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 08:39:23 -0400
-Received: from main.gmane.org ([80.91.224.249]:53467 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S272968AbTGaMjV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 08:39:21 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Thu, 31 Jul 2003 09:07:25 -0400
+Received: from skunk.physik.uni-erlangen.de ([131.188.163.240]:36069 "EHLO
+	skunk.physik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S272473AbTGaNHY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 09:07:24 -0400
+From: Christian Vogel <vogel@skunk.physik.uni-erlangen.de>
+Date: Thu, 31 Jul 2003 15:07:22 +0200
 To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: fun or real: proc interface for module handling?
-Date: Thu, 31 Jul 2003 14:34:01 +0200
-Message-ID: <yw1xptjqub7q.fsf@users.sourceforge.net>
-References: <20030731121248.GQ264@schottelius.org>
+Subject: linux-2.6.0-test2: Never using pm_idle (CPU wasting power)
+Message-ID: <20030731150722.A5938@skunk.physik.uni-erlangen.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-Cc: Nico Schottelius <nico-kernel@schottelius.org>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:lpCP3CeLN2K5dZN9WHlwO0BfaRo=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nico Schottelius <nico-kernel@schottelius.org> writes:
+Hi,
 
-> I was just joking around here, but what do you think about this idea:
->
-> A proc interface for module handling:
->    /proc/mods/
->    /proc/mods/<module-name>/<link-to-the-modules-use-us>
->
-> So we could try to load a module with
->    mkdir /proc/mods/ipv6
-> and remove it and every module which uses us with
->    rm -r /proc/mods/ipv6
+on a Thinkpad 600X I noticed the CPU getting very hot. It turned
+out that pm_idle was never called (which invokes the ACPI pm_idle
+call in this case) and default_idle was used instead.
 
-So far, so good.
+	/* arch/i386/kernel/process.c, line 723 */
+	void cpu_idle (void)
+	{
+		/* endless idle loop with no priority at all */
+		while (1) {
+			void (*idle)(void) = pm_idle;
+			if (!idle)
+				idle = default_idle; /* once on bootup */
+			irq_stat[smp_processor_id()].idle_timestamp = jiffies;
+			while (!need_resched())
+				idle();
+			schedule();  /* never reached */
+		}
+	}
 
-> Modul options could be passed my
->    echo "psmouse_noext=1" > /proc/mods/psmouse/options
-> which would also make it possible to change module options while running..
+The schedule() is never reached (need_resched() is never 0) and
+so the idle-variable is not updated. pm_idle is NULL on the
+first call to cpu_idle on this thinkpad, and so I stay idling
+in the default_idle()-function.
 
-How would options be passed when loading?  Some modules require that
-to load properly.  Also, there are lots of options that can't be
-changed after loading.  To enable this, I believe the whole option
-handling would need to be modified substantially.  Instead of just
-storing the values in static variables, there would have to be some
-means of telling the module that its options changed.  Then there's
-the task of hacking all modules to support this...
+By moving the "void *idle = pm_idle; if(!idle)..." in the inner
+while()-loop the notebook calls pm_idle (as it get's updated by ACPI)
+and stays cool.
+
+	Chris
 
 -- 
-Måns Rullgård
-mru@users.sf.net
-
+Programming today is a race between software engineers striving to build
+bigger and better idiot-proof programs, and the Universe trying to
+produce bigger and better idiots.  So far, the Universe is winning.
+ -- Rich Cook

@@ -1,139 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbUKRXWf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263018AbUKRXZG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263003AbUKRXWf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 18:22:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbUKRXUn
+	id S263018AbUKRXZG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 18:25:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263013AbUKRXXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 18:20:43 -0500
-Received: from smtp.kisikew.org ([66.11.160.83]:22144 "EHLO smtp.nuit.ca")
-	by vger.kernel.org with ESMTP id S262997AbUKRXR6 (ORCPT
+	Thu, 18 Nov 2004 18:23:18 -0500
+Received: from gate.crashing.org ([63.228.1.57]:44931 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261166AbUKRXUa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 18:17:58 -0500
-Date: Thu, 18 Nov 2004 18:17:48 -0500
-From: simon@nuit.ca
-To: linux-kernel@vger.kernel.org
-Subject: follow-up to: OOPS in tulip on 2.6.10-rc2-bk2
-Message-ID: <20041118231748.GB6228@nuit.ca>
+	Thu, 18 Nov 2004 18:20:30 -0500
+Subject: Re: 2.6.10-rc2 on VAIO laptop and PowerMac 8500/G3
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: John Mock <kd6pag@qsl.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1CUv66-0000HA-00@penngrove.fdns.net>
+References: <E1CUv66-0000HA-00@penngrove.fdns.net>
+Content-Type: text/plain
+Date: Fri, 19 Nov 2004 10:17:02 +1100
+Message-Id: <1100819822.25520.8.camel@gaston>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5/uDoXvLw7AC5HRs"
-Content-Disposition: inline
-X-Operating-System: Debian GNU/Linux
-X-GPG-Key-Server: x-hkp://subkeys.pgp.net
-User-Agent: Mutt/1.5.6+20040907i
-X-Scan-Signature: smtp.nuit.ca 1CUvXA-0001gJ-F7 a4880918733d98e6d99164340cda9604
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---5/uDoXvLw7AC5HRs
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> The PowerMac 8500/G3 does not come up at all.  Upgrading to 2.6.10-rc2-bk1
+> fixed a couple of minor PPC problems, but it's still failing.  I can't see
+> what's going on because it appears that the video parameters don't match
+> the framebuffer geometry and almost everything is black with a few thin 
+> diagonal lines of dots and dashes (which don't look like morse code...).  
+> I have not mananged to get serial console to work on this machine, so i'm
+> rather clueless.  So all i can offer is the .config for it (see below).  
+> I tried to regress this problem and it seems to have appeared somewhere 
+> between 2.6.8 and 2.6.9-rc1.
+> 
+> It does seem to be specific to CONFIG_FB_CONTROL, as if CONFIG_FB_OF is set
+> instead, the PowerMac will boot OK, but all that will appear on the screen
+> until 'xdm' is started is a cute penguin.  The nearly-blank screen with 
+> CONFIG_FB_OF only set goes back at least until 2.6.3, after which i lost
+> patience chasing the problem down.
+
+You lack CONFIG_FRAMEBUFFER_CONSOLE maybe ? You should use the
+pmac_defconfig ... Now, if controlfb still doesn't work, then I'll have
+to dig out my old 8500, it's possible that the recent changes to the
+fbdev layer broke some of those old drivers.
+
+As for serial, check out CONFIG_SERIAL_PMACZILOG and
+CONFIG_SERIAL_PMACZILOG_CONSOLE.
+
+> In addition, to that on the PowerMac, when things are running normally
+> (under 2.6.8 for example), switching to a virtual console from X windows 
+> causes the vertical refresh rate to be set to about 47Hz, i.e. the screen
+> loses sync.  It can be fixed (until X windows is visited again) using 'ssh' 
+> from another machine and doing a 'fbset' with the correct vertical sync
+> rate.  That problem has been with me for quite awhile.
+
+Yes, that is due to the 2.6 changes in fbdev/fbcon, the loss of the per
+VT mode data structure, the driver is now sort-of supposed to re-invent
+a mode based on bogus stuff sent by fbcon on console switch. I don't
+like it much, but I suppose I'll have to fix controlfb (and platinumfb
+etc...).
 
 
-ok, this is my boot sequence when i boot to the current testing kernel,
-2.6.10-rc2-bk3:
-
-Thu Nov 18 22:57:56 2004:      tulip: can't be loaded
-Thu Nov 18 22:57:56 2004: missing kernel or user mode driver tulip
-Thu Nov 18 22:57:56 2004:      tulip: already loaded
-Thu Nov 18 22:57:56 2004:    pci      [success]
-Thu Nov 18 22:57:56 2004:    usb
-Thu Nov 18 22:57:57 2004:    usb      [success]
-Thu Nov 18 22:57:57 2004: done
-Thu Nov 18 22:57:57 2004: Running 0dns-down to make sure resolv.conf is ok.=
-=2E.done.
-Thu Nov 18 22:57:57 2004: /dev/shm/network/...Initializing: /etc/network/if=
-state.
-Thu Nov 18 22:57:57 2004: Setting up IP spoofing protection: rp_filter.
-Thu Nov 18 22:57:57 2004: Enabling packet forwarding...done.
-Thu Nov 18 22:57:57 2004: Configuring network interfaces...SIOCSIFADDR: Fil=
-e exists
-Thu Nov 18 22:57:57 2004: Failed to bring up lo.
-Thu Nov 18 22:57:58 2004: 2000::/3: Resolver Error 0 (no error)
-Thu Nov 18 22:57:58 2004: Failed to bring up eth0.
-Thu Nov 18 22:57:58 2004: SIOCSIFADDR: File exists
-Thu Nov 18 22:57:58 2004: Failed to bring up eth0:0.
-Thu Nov 18 22:57:58 2004: SIOCSIFADDR: File exists
-Thu Nov 18 22:57:58 2004: Failed to bring up eth0:3.
-Thu Nov 18 22:57:59 2004: SIOCSIFADDR: No such device
-Thu Nov 18 22:57:59 2004: eth1: ERROR while getting interface flags: No suc=
-h device
-Thu Nov 18 22:57:59 2004: SIOCSIFNETMASK: No such device
-Thu Nov 18 22:57:59 2004: SIOCSIFBRDADDR: No such device
-Thu Nov 18 22:57:59 2004: eth1: ERROR while getting interface flags: No suc=
-h device
-Thu Nov 18 22:57:59 2004: eth1: ERROR while getting interface flags: No suc=
-h device
-Thu Nov 18 22:57:59 2004: Failed to bring up eth1.
-Thu Nov 18 22:58:00 2004: Plugin rp-pppoe.so loaded.
-Thu Nov 18 22:58:00 2004: RP-PPPoE plugin version 3.3 compiled against pppd=
- 2.4.2
-Thu Nov 18 22:58:00 2004: done.
-Thu Nov 18 22:58:00 2004: Starting portmap daemon: portmap.
-Thu Nov 18 22:58:01 2004: ^[]RSetting up general console font... ^[%G^[[9;3=
-0]^[[14;30]
-Thu Nov 18 22:58:07 2004: Setting the System Clock using the Hardware Clock=
- as reference...
-Thu Nov 18 22:58:08 2004: System Clock set. Local time: Thu Nov 18 22:58:08=
- UTC 2004
-Thu Nov 18 22:58:08 2004:
-Thu Nov 18 22:58:08 2004: Running ntpdate to synchronize clock.
-Thu Nov 18 22:58:08 2004: Initializing random number generator...done.
-Thu Nov 18 22:58:08 2004: Recovering nvi editor sessions... done.
-Thu Nov 18 22:58:09 2004: Give root password for maintenance
-Thu Nov 18 22:58:09 2004: (or type Control-D to continue):
-Thu Nov 18 22:58:19 2004: ^[[0m^[[27m^[[24m^[[J^[[1m^[[36m^[[11m^[[1m^[[34m=
-^[[10m(^[[1m^[[32m^[[7mROOT^[[27m^[[1m^[[32m@pylon:console^[[1m^[[34m)^[[11=
-m^[[1m^[[36m^[[1m^[[34m^[[10m(^[[1m^[[35m~^[[1m^[[34m)^[[11m^[[1m^[[36m^[[1=
-0m
-Thu Nov 18 22:58:19 2004: ^[[11Gpoffm^[[11m^[[1m^[[34m^[[10m(^[[1m^[[33m22:=
-58^[[34m:^[[1m^[[31m#^[[1m^[[34m)^[[11m^[[10m^[[1m^[[36m^[[11m^[[10m^[[0;10=
-m ^[[K^[[116G ^[[1m^[[36m^[[11m^[[1m^[[34m^[[10m(^[[1m^[[33mThu,Nov18^[[1m^=
-[[34m)^[[11m^[[1m^[[36m^[[10m^[[0;10m
-Thu Nov 18 22:58:27 2004: ^[[0m^[[27m^[[24m^[[J^[[1m^[[36m^[[11m^[[1m^[[34m=
-^[[10m(^[[1m^[[32m^[[7mROOT^[[27m^[[1m^[[32m@pylon:console^[[1m^[[34m)^[[11=
-m^[[1m^[[36m^[[1m^[[34m^[[10m(^[[1m^[[35m~^[[1m^[[34m)^[[11m^[[1m^[[36m^[[1=
-0m
-Thu Nov 18 22:58:27 2004:
-
-please note the poff in all the escape codes ^^^^^^^ second line of
-junk, after "Thu Nov 18 22:58:19 2004: ^[[11G"=20
-
-that's where it oopses and panics, after pressing x<return> in xmon. i got =
-some of the oops output:
-
-snmp6_unregister_dev
-in6_dev_finish_destory
-ip6_dst_destroy
-
-were some of the symbols (?) i managed to get before it rebooted on me
-(i have panic set to 60 for s/w watchdog).
-
-
-
---=20
-Cold pizza and cold coffee, second best thing to cold pizza and warm beer.
-
---5/uDoXvLw7AC5HRs
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iQGVAwUBQZ0tm2qIeuJxHfCXAQKe5wwAkb13N9Jj+/QtcwjIKALULKDELUgW84F6
-1K9xn6oHANNktxQPeqUPHzKTWe39hd0vqPSG/j6BWHtbsGmQiJfevCckxZLnzSyE
-cUpo34JEXDpv3oktn98lQMOQFWwfz/aUxJj5nS7siuNv6vQcqo5QIIptfVCHlcUt
-2NFuV7TqIyP5Xm5feoHBPPhl7BGNYAmi8uP67v8KXWjYBS6iFMQhISTEK/f1Wfbv
-Fy9jnMNuKYM4xyb8jhEjLZbMVhRMWorBPjO+zhEK+vf8KU3RzVFwxm07Zdg9rqTC
-7avPa8PQPJSSEH1lWiv8+VCrJlB6gGXTLCiZgtHjZD15SXkKVmd3BK6mSAVeH/gz
-HVUTwFERiS30GsAdMMVBG4zWnghtyGhUs7U2Ljhg3YO4Mnc9U5M/QiHGCcHimagU
-0gadIbLimUK6MNJgirdFomv4ioATp3hv3YwOvyINbyWu3rSPdgqBqDf+KOSw0NUH
-HTX0Q8E2xK1itxen6UzEoF0b0T4AjRSV
-=FVTe
------END PGP SIGNATURE-----
-
---5/uDoXvLw7AC5HRs--

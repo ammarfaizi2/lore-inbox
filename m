@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267351AbSLRUlu>; Wed, 18 Dec 2002 15:41:50 -0500
+	id <S267341AbSLRUyT>; Wed, 18 Dec 2002 15:54:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267352AbSLRUlu>; Wed, 18 Dec 2002 15:41:50 -0500
-Received: from [213.171.53.133] ([213.171.53.133]:14603 "EHLO gulipin.miee.ru")
-	by vger.kernel.org with ESMTP id <S267351AbSLRUlt>;
-	Wed, 18 Dec 2002 15:41:49 -0500
-Date: Wed, 18 Dec 2002 23:49:45 +0300 (MSK)
-From: "Ruslan U. Zakirov" <cubic@miee.ru>
-To: Richard A Nelson <cowboy@vnet.ibm.com>
+	id <S267345AbSLRUyT>; Wed, 18 Dec 2002 15:54:19 -0500
+Received: from smtp6.us.dell.com ([143.166.85.135]:28547 "EHLO
+	smtp6.us.dell.com") by vger.kernel.org with ESMTP
+	id <S267341AbSLRUyS>; Wed, 18 Dec 2002 15:54:18 -0500
+Date: Wed, 18 Dec 2002 14:55:13 -0600 (CST)
+From: Robert Macaulay <robert_macaulay@dell.com>
+X-X-Sender: robert@ping.us.dell.com
+Reply-To: Robert Macaulay <robert_macaulay@dell.com>
+To: Andrew Morton <akpm@digeo.com>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.52 PNP failure
-In-Reply-To: <Pine.LNX.4.51.0212171730020.7058@nqynaqf.yrkvatgba.voz.pbz>
-Message-ID: <Pine.BSF.4.05.10212182341570.25928-100000@wildrose.miee.ru>
+Subject: Re: [BUG] 2.5.47 - Assertion failed in fs/jbd/journal.c:415
+In-Reply-To: <3E00DC07.7729E6A2@digeo.com>
+Message-ID: <Pine.LNX.4.44.0212181453001.16565-100000@ping.us.dell.com>
+X-Complaints-to: /dev/null
+X-Apparently-From: mars
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Dec 2002, Richard A Nelson wrote:
-
+On Wed, 18 Dec 2002, Andrew Morton wrote:
+> I can't immediately see what would cause this.  There is code in
+> __journal_file_buffer which could have triggered this, but we should
+> have exclusion from that via both lock_kernel() and lock_journal().
 > 
-> Hand transcribed, so probably missing something important ...
+> I'll see if Stephen can spot it.   I shall assume you were using
+> the data-ordered journalling mode.
 > 
-> Oops: 0000
-> Eip:  0060:[<c01cdbf3>] Not tainted
-> EIP is at compare_pnp_id+0x4f/0x78
-> Call Trace:
-> [<c01cfa43>] pnp_name_device+0x23/0x58
-> [<c01cd9af>] __pnp_add_device+0xf/0xc8
-> [<c01cdab4>] pnp_add_device+0x4c/0x54
-> [<c010509b>] init+0x33/0x188
-> [<c0105068>] init+0x0/0x188
-> [<c0109211>] kernel_thread_helper+0x5/0xc
-> 
-> <0>Kernel panic: Attempted to kill init!
-> 
-Try this small patch. I think it'll help.
---- drivers/pnp/driver.c~       2002-12-20 02:15:30.000000000 +0300
-+++ drivers/pnp/driver.c        2002-12-20 02:24:53.000000000 +0300
-@@ -165,6 +165,7 @@
-        if (!dev)
-                return -EINVAL;
-        ptr = dev->id;
-+       id->next = NULL;
-        while (ptr && ptr->next)
-                ptr = ptr->next;
-        if (ptr)
---
-			Ruslan.
+Correct, I also had them mounted with noatime as well if that matters.
 

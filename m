@@ -1,187 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269292AbUIHSmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269293AbUIHSnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269292AbUIHSmi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 14:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269289AbUIHSmh
+	id S269293AbUIHSnL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 14:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269297AbUIHSnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 14:42:37 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:62605 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269300AbUIHSlL (ORCPT
+	Wed, 8 Sep 2004 14:43:11 -0400
+Received: from mail2.bluewin.ch ([195.186.4.73]:57574 "EHLO mail2.bluewin.ch")
+	by vger.kernel.org with ESMTP id S269303AbUIHSle (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 14:41:11 -0400
-Date: Wed, 8 Sep 2004 20:42:31 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Lee Revell <rlrevell@joe-job.com>, Free Ekanayaka <free@agnula.org>,
-       Eric St-Laurent <ericstl34@sympatico.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
-       nando@ccrma.stanford.edu, luke@audioslack.com, free78@tin.it
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R1
-Message-ID: <20040908184231.GA8318@elte.hu>
-References: <OFD3DB738F.105F62D0-ON86256F08.005CDE25-86256F08.005CDE44@raytheon.com>
+	Wed, 8 Sep 2004 14:41:34 -0400
+Date: Wed, 8 Sep 2004 20:40:28 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: Albert Cahalan <albert@users.sf.net>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>
+Subject: [0/1][ANNOUNCE] nproc v2: netlink access to /proc information
+Message-ID: <20040908184028.GA10840@k3.hellgate.ch>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, Albert Cahalan <albert@users.sf.net>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <OFD3DB738F.105F62D0-ON86256F08.005CDE25-86256F08.005CDE44@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Operating-System: Linux 2.6.9-rc1-bk13 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am submitting nproc, a new netlink interface to process information,
+for review and a possible inclusion in mainline.
 
-* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+The problems with /proc as far as parsers go are widely known. Parsing is
+both difficult and slow (including a more detailed discussion by reference:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109361019528995). What
+follows is an overview showing how nproc fares in those areas.
 
-> If you look at the date / time of the traces, you will notice that
-> most occur in the latter part of the test. This is during the "disk
-> copy" and "disk read" parts of the testing. [...]
+Roger
 
-would it be possible to test with DMA disabled? (hdparm -d0 /dev/hda) It
-might take some extra work to shun the extra latency reports from the
-PIO IDE path (which is quite slow) but once that is done you should be
-able to see whether these long 0.5 msec delays remain even if all (most)
-DMA activity has been eliminated.
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Clean Interface
+---------------
+The main motivation was to clean up the mess that are /proc semantics
+and provide a clean interface for tools to gather process information.
 
-> preemption latency trace v1.0.5 on 2.6.9-rc1-VP-R1
-> --------------------------------------------------
->  latency: 550 us, entries: 6 (6)
->     -----------------
->     | task: cat/6771, uid:0 nice:0 policy:0 rt_prio:0
->     -----------------
->  => started at: kmap_atomic+0x23/0xe0
->  => ended at:   kunmap_atomic+0x7b/0xa0
-> =======>
-> 00000001 0.000ms (+0.000ms): kmap_atomic (file_read_actor)
-> 00000001 0.000ms (+0.000ms): page_address (file_read_actor)
-> 00000001 0.000ms (+0.549ms): __copy_to_user_ll (file_read_actor)
-> 00000001 0.550ms (+0.000ms): kunmap_atomic (file_read_actor)
-> 00000001 0.550ms (+0.000ms): sub_preempt_count (kunmap_atomic)
-> 00000001 0.550ms (+0.000ms): update_max_trace (check_preempt_timing)
+Nproc does not add new knowledge to the kernel (some redundancy remains
+until routines are shared with /proc). Instead, it offers existing
+information in a form that works for tools. In fact, a tool can pass
+the buffer read from the netlink directly as a va_list to vprintf
+(strings require a trivial extra operation).
 
-this is a full page copy, from userspace into a kernelspace pagecache
-page. This shouldnt take 500 usecs on any hardware. Since this is a
-single instruction (memcpy's rep; movsl instruction) there's nothing
-that Linux can do to avoid (or even to cause) such a situation.
+A small user-space app can present a view like the one below based on
+zero prior knowledge about the fields the kernel has to offer. While I
+don't envision that as common for tools in the future, it demonstrates
+what can be done with little effort. This is not a mock-up, by the way,
+the nprocdemo tool exists (lines truncated to fit 80 chars).
 
-> 00010002 0.141ms (+0.000ms): mark_offset_tsc (timer_interrupt) [0]
-> 00010002 0.141ms (+0.000ms): mark_offset_tsc (timer_interrupt) [1]
-> 00010002 0.141ms (+0.000ms): spin_lock (mark_offset_tsc)
-> 00010003 0.141ms (+0.000ms): spin_lock (<00000000>)
-> 00010003 0.141ms (+0.131ms): mark_offset_tsc (timer_interrupt) [2]
-> 00010003 0.273ms (+0.000ms): mark_offset_tsc (timer_interrupt) [3]
+MemFree |PageSize|Jiffies   |nr_dirty|nr_writeback|nr_unstable|[...]
+____page|____byte|__________|____page|________page|_______page|[...]
+    7546|    4096|   1917203|       1|           0|          0|[...]
 
-note that there's no spinning on the spinlock, the (<00000000>) shows 
-that there was no contention at all.
+PID  |Name           |VmSize  |VmLock  |VmRSS   |VmData  |VmStack |[...]
+_____|_______________|_____KiB|_____KiB|_____KiB|_____KiB|_____KiB|[...]
+    1|init           |    1340|       0|     468|     144|       4|[...]
+    2|ksoftirqd/0    |       0|       0|       0|       0|       0|[...]
+    3|events/0       |       0|       0|       0|       0|       0|[...]
+    4|khelper        |       0|       0|       0|       0|       0|[...]
+    5|netlink/0      |       0|       0|       0|       0|       0|[...]
+    6|kacpid         |       0|       0|       0|       0|       0|[...]
+   23|kblockd/0      |       0|       0|       0|       0|       0|[...]
+   24|khubd          |       0|       0|       0|       0|       0|[...]
+   36|pdflush        |       0|       0|       0|       0|       0|[...]
+   37|pdflush        |       0|       0|       0|       0|       0|[...]
+   38|kswapd0        |       0|       0|       0|       0|       0|[...]
+   39|aio/0          |       0|       0|       0|       0|       0|[...]
+  671|kseriod        |       0|       0|       0|       0|       0|[...]
+  686|reiserfs/0     |       0|       0|       0|       0|       0|[...]
+  851|udevd          |    1320|       0|     360|     144|       4|[...]
+ 9159|syslogd        |    1516|       0|     588|     272|      16|[...]
+ 9382|gpm            |    1540|       0|     468|     152|       4|[...]
+ 9452|klogd          |    1468|       0|     432|     276|       8|[...]
+ 9478|hddtemp        |    1692|       0|     848|     472|      16|[...]
+ 9486|login          |    2152|       0|    1204|     392|      36|[...]
+ 9487|agetty         |    1340|       0|     488|     156|       4|[...]
+ 9488|agetty         |    1340|       0|     488|     156|       4|[...]
+ 9489|agetty         |    1340|       0|     488|     156|       4|[...]
+ 9490|agetty         |    1340|       0|     488|     156|       4|[...]
+ 9491|agetty         |    1340|       0|     488|     156|       4|[...]
+ 9598|zsh            |    4748|       0|    1688|     532|      20|[...]
+[...]
 
-> For reference, the steps in the code read (w/o comments):
-> 
->         mcount(); [1]
->         write_seqlock(&monotonic_lock);
->         mcount(); [2]
->         last_offset = ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
->         rdtsc(last_tsc_low, last_tsc_high);
->         mcount(); [3]
+Performance
+-----------
+I measured the time to write a complete process table dump for 5000
+tasks to /dev/null 100 times for "ps ax" and nprocdemo.
 
-the 131 usec delay occured between [2] and [3] - which, if you check the 
-assembly, there are only 14 instructions between those two mcount() 
-calls:
+ps ax     (5 process fields):
+real    1m0.472s
+user    0m18.227s
+sys     0m28.545s
 
- 1a0:   31 db                   xor    %ebx,%ebx
- 1a2:   8b 0d 10 00 00 00       mov    0x10,%ecx
-                        1a4: R_386_32   .bss
- 1a8:   a1 14 00 00 00          mov    0x14,%eax
-                        1a9: R_386_32   .bss
- 1ad:   89 c2                   mov    %eax,%edx
- 1af:   31 c0                   xor    %eax,%eax
- 1b1:   89 c7                   mov    %eax,%edi
- 1b3:   09 cf                   or     %ecx,%edi
- 1b5:   89 7d e0                mov    %edi,0xffffffe0(%ebp)
- 1b8:   89 d7                   mov    %edx,%edi
- 1ba:   09 df                   or     %ebx,%edi
- 1bc:   89 7d e4                mov    %edi,0xffffffe4(%ebp)
- 1bf:   0f 31                   rdtsc
- 1c1:   89 15 14 00 00 00       mov    %edx,0x14
-                        1c3: R_386_32   .bss
- 1c7:   a3 10 00 00 00          mov    %eax,0x10
-                        1c8: R_386_32   .bss
+nprocdemo (automatic field discovery, reading and printing 11 process
+           fields + 9 global fields):
+real    0m9.064s
+user    0m2.491s
+sys     0m1.554s
 
-no loop, no nothing. No way can this take 131 usecs without hardware 
-effects.
+The details of resource usage for the benchmarks show that /proc based
+tools are suffering badly from the inefficiency of three(!) conversions
+between data and strings (kernel produces strings from numbers, app
+converts back to numbers, app converts numbers again to strings for
+printing).
 
-> Clear Page Tables
-> =================
-> 
-> This is the longest single latency with the following traces:
-> 
-> # grep '(+0.6' lt040907/lt*/lt.*
-> lt040907/lt001.v3k1/lt.28:00000001 0.001ms (+0.635ms): clear_page_tables
-> (exit_mmap)
-> lt040907/lt002.v3k1/lt.75:00000001 0.001ms (+0.628ms): clear_page_tables
-> (exit_mmap)
+For nproc based tools, only one conversion remains.
 
-this one might be a real latency - but it's hard to tell if there are 
-random 500 usec latencies all around the place.
+# ps ax > /dev/null
+CPU: CPU with timer interrupt, speed 0 MHz (estimated)
+Profiling through timer interrupt
+samples  %        image name           app name   symbol name
+6524     14.0613  vmlinux              ps         number
+4828     10.4058  libc-2.3.3.so        ps         _IO_vfscanf_internal
+2740      5.9056  vmlinux              ps         vsnprintf
+2689      5.7956  vmlinux              ps         proc_pid_stat
+1807      3.8946  vmlinux              ps         __d_lookup
+1676      3.6123  libc-2.3.3.so        ps         ____strtol_l_internal
+1335      2.8773  vmlinux              ps         link_path_walk
+1133      2.4420  libproc-3.2.3.so     ps         status2proc
+1094      2.3579  vmlinux              ps         render_sigset_t
+1088      2.3450  libc-2.3.3.so        ps         _IO_vfprintf_internal
+1086      2.3407  libc-2.3.3.so        ps         __GI_strchr
+885       1.9075  libc-2.3.3.so        ps         ____strtoul_l_internal
+800       1.7242  vmlinux              ps         pid_revalidate
+581       1.2522  vmlinux              ps         proc_pid_status
+551       1.1876  libc-2.3.3.so        ps         _IO_sputbackc_internal
+529       1.1402  vmlinux              ps         system_call
+524       1.1294  libc-2.3.3.so        ps         _IO_default_xsputn_internal
+476       1.0259  libc-2.3.3.so        ps         __i686.get_pc_thunk.bx
+466       1.0044  vmlinux              ps         get_tgid_list
+442       0.9526  vmlinux              ps         atomic_dec_and_lock
+373       0.8039  vmlinux              ps         dput
+311       0.6703  libc-2.3.3.so        ps         __GI___strtol_internal
+274       0.5906  vmlinux              ps         __copy_to_user_ll
+272       0.5862  vmlinux              ps         path_lookup
+270       0.5819  vmlinux              ps         strncpy_from_user
+262       0.5647  libproc-3.2.3.so     ps         escape_str
+259       0.5582  vmlinux              ps         page_address
+249       0.5367  libc-2.3.3.so        ps         __GI_____strtoull_l_internal
+244       0.5259  libc-2.3.3.so        ps         __GI_strlen
 
-> __modify_IO_APIC_irq
-> ====================
+# nprocdemo > /dev/null
+CPU: CPU with timer interrupt, speed 0 MHz (estimated)
+Profiling through timer interrupt
+samples  %        image name           app name   symbol name
+1142     15.9208  libc-2.3.3.so        nprocdemo  _IO_vfprintf_internal
+1072     14.9449  vmlinux              vmlinux    __task_mem
+611       8.5181  libc-2.3.3.so        nprocdemo  _IO_new_file_xsputn
+445       6.2038  vmlinux              vmlinux    nproc_pid_fields
+244       3.4016  vmlinux              vmlinux    get_wchan
+235       3.2762  vmlinux              nprocdemo  __copy_to_user_ll
+233       3.2483  vmlinux              vmlinux    find_pid
+215       2.9974  vmlinux              vmlinux    finish_task_switch
+208       2.8998  vmlinux              nprocdemo  netlink_recvmsg
+158       2.2027  vmlinux              nprocdemo  __wake_up
+153       2.1330  libc-2.3.3.so        nprocdemo  __find_specmb
+149       2.0772  vmlinux              nprocdemo  finish_task_switch
+146       2.0354  libc-2.3.3.so        nprocdemo  __i686.get_pc_thunk.bx
+114       1.5893  vmlinux              vmlinux    get_task_mm
+94        1.3105  vmlinux              nprocdemo  skb_release_data
+87        1.2129  vmlinux              vmlinux    nproc_ps_do_pid
+76        1.0595  vmlinux              vmlinux    alloc_skb
+72        1.0038  vmlinux              nprocdemo  system_call
+68        0.9480  libc-2.3.3.so        nprocdemo  _IO_padn_internal
+65        0.9062  libc-2.3.3.so        nprocdemo  read_int
+64        0.8922  libc-2.3.3.so        nprocdemo  __recv
+63        0.8783  vmlinux              vmlinux    netlink_attachskb
+61        0.8504  vmlinux              nprocdemo  kfree
+56        0.7807  vmlinux              vmlinux    __kmalloc
+55        0.7668  vmlinux              vmlinux    schedule
+47        0.6552  vmlinux              vmlinux    __task_mem_cheap
+42        0.5855  vmlinux              nprocdemo  sys_socketcall
+40        0.5576  vmlinux              nprocdemo  fget
+37        0.5158  nprocdemo            nprocdemo  nproc_get_reply
 
-> 00000003 0.001ms (+0.000ms): __unmask_IO_APIC_irq (unmask_IO_APIC_irq)
-> 00000003 0.002ms (+0.567ms): __modify_IO_APIC_irq (__unmask_IO_APIC_irq)
-> 00010001 0.569ms (+0.000ms): do_nmi (smp_apic_timer_interrupt)
-
-this too seems to be one of these random 500 usec latencies that have no 
-connection whatsoever to what is being done. It's just some unfortunate 
-piece of code that is more likely to access the memory bus or happens to 
-be on a page boundary or something like that.
-
-> Spin Lock
-> =========
-> 
-> We seem to have gotten stuck here in a spin lock...
-
-none of the spinlocks had a counter different from zero so there was no
-contention. The extra trace entry after a spinlock:
-
-> 00000002 0.000ms (+0.000ms): spin_lock (<00000000>)
-
-shows the number of times the spinlock had to spin internally before it
-got the lock. For real contention this should be some large nonzero
-number.
-
-> 00000002 0.008ms (+0.000ms): snd_ensoniq_trigger (snd_pcm_do_stop)
-> 00000002 0.009ms (+0.000ms): spin_lock (snd_ensoniq_trigger)
-> 00000003 0.009ms (+0.549ms): spin_lock (<00000000>)
-
-this too seems to be caused by that 'magic' latency - a noncontended
-spinlock cannot take 500 usecs to execute ...
-
-> Context Switch
-> ==============
-
-same for the context-switch codepath. I'm very convinced that the 'magic
-latencies' are distributed more or less randomly across kernel code. 
-Code that accesses the main memory bus more likely will be affected more
-by DMA starvation, that's what makes some of these functions more
-prominent than others.
-
-> 00000002 0.005ms (+0.000ms): dummy_cs_switch_mm (context_switch)
-> 00000002 0.005ms (+0.111ms): context_switch (schedule)
-
-since this includes a cr3 flush it is very likely accessing main memory. 
-(it's possibly re-fetching lots of TLB entries from a new pagetable
-which is likely cache-cold.)
-
-so my main candidate is still IDE DMA. Please disable IDE DMA and see
-what happens (after hiding the PIO IDE codepath via
-touch_preempt_timing()).
-
-	Ingo
+EOT

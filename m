@@ -1,27 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267382AbSKPVz0>; Sat, 16 Nov 2002 16:55:26 -0500
+	id <S267377AbSKPVpm>; Sat, 16 Nov 2002 16:45:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267383AbSKPVz0>; Sat, 16 Nov 2002 16:55:26 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:57780 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S267382AbSKPVzZ>; Sat, 16 Nov 2002 16:55:25 -0500
-Date: Sat, 16 Nov 2002 17:01:33 -0500
-From: "Murray J. Root" <murrayr@brain.org>
-To: linux-kernel@vger.kernel.org
+	id <S267379AbSKPVpl>; Sat, 16 Nov 2002 16:45:41 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:13834 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S267377AbSKPVpk>; Sat, 16 Nov 2002 16:45:40 -0500
+Date: Sat, 16 Nov 2002 19:52:28 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-Message-ID: <20021116220133.GA15999@Master.Wizards>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+Message-ID: <20021116215228.GA26275@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
 References: <20021116214140.GP24641@conectiva.com.br> <551278547.1037454258@[10.10.2.3]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <551278547.1037454258@[10.10.2.3]>
 User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 16, 2002 at 01:44:19PM -0800, Martin J. Bligh wrote:
+Em Sat, Nov 16, 2002 at 01:44:19PM -0800, Martin J. Bligh escreveu:
 > >> Very bad idea. People using unusual hardware do not want to keep
 > >> re-submitting a bug report. I know when I submit a report I expect 
 > >> that it will remain until the problem is fixed. I do not like to 
@@ -36,7 +39,7 @@ On Sat, Nov 16, 2002 at 01:44:19PM -0800, Martin J. Bligh wrote:
 > > a perior of one month (or any other timeout period).
 > > 
 > > Its not like the ticket will vanish from the database.
-> 
+ 
 > One thing we've done before in other bug-tracking systems was to create
 > a "STALE" state (or something similar) for this type of bug. So it 
 > wouldn't get closed (I have seen this done as a closing resolution, but
@@ -44,16 +47,12 @@ On Sat, Nov 16, 2002 at 01:44:19PM -0800, Martin J. Bligh wrote:
 > either ... you could just select it if you wanted it ... does that sound
 > sane? (obviously we don't need this yet, but might be a good plan
 > longer-term).
-> 
 
-Sounds like a good idea to me.
+looks sane, the idea is that automatically bugzilla would move things that
+didn't had any activity to a state that doesn't appears on the default
+searches, this can help with dups as well, only the most recent duplicates
+would, over time, appear on the default searches. And the others would
+remain in STALE mode forever. STALE for over a year? CLOSED STALE. 8) And
+even then it would be in the database...
 
--- 
-Murray J. Root
-------------------------------------------------
-DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
-------------------------------------------------
-Mandrake on irc.freenode.net:
-  #mandrake & #mandrake-linux = help for newbies 
-  #mdk-cooker = Mandrake Cooker 
-
+- Arnaldo

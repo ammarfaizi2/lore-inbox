@@ -1,32 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265132AbTAWLRI>; Thu, 23 Jan 2003 06:17:08 -0500
+	id <S265098AbTAWLPb>; Thu, 23 Jan 2003 06:15:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265134AbTAWLRI>; Thu, 23 Jan 2003 06:17:08 -0500
-Received: from [217.144.230.27] ([217.144.230.27]:2570 "HELO lexx.infeline.org")
-	by vger.kernel.org with SMTP id <S265132AbTAWLRH>;
-	Thu, 23 Jan 2003 06:17:07 -0500
-Date: Thu, 23 Jan 2003 12:26:13 +0100 (CET)
-From: Ketil Froyn <kernel@ketil.froyn.name>
-X-X-Sender: ketil@lexx.infeline.org
-To: Yao Minfeng <yaomf@gdufs.edu.cn>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: new kernel fail
-In-Reply-To: <005101c2c2d1$3a5b2380$81df74ca@hammer>
-Message-ID: <Pine.LNX.4.44.0301231225040.13736-100000@lexx.infeline.org>
+	id <S265099AbTAWLPb>; Thu, 23 Jan 2003 06:15:31 -0500
+Received: from dp.samba.org ([66.70.73.150]:56449 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265098AbTAWLPb>;
+	Thu, 23 Jan 2003 06:15:31 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15919.52605.186820.873536@argo.ozlabs.ibm.com>
+Date: Thu, 23 Jan 2003 22:09:49 +1100
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       <linuxppc-dev@lists.linuxppc.org>, <benh@kernel.crashing.org>
+Subject: Re: [PATCH][2.5][10/18] smp_call_function_on_cpu - ppc
+In-Reply-To: <Pine.LNX.4.44.0301220028240.29944-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.44.0301220028240.29944-100000@montezuma.mastecende.com>
+X-Mailer: VM 7.07 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Jan 2003, Yao Minfeng wrote:
+Zwane Mwaikambo writes:
 
-> 2) all the files under /home, /usr are missing, this happens both for 2.4.12
-> and 2.4.16, but when I login back to 2.4.7-10, the files are there again, I
-> can't figure it out.
+> +	if (num_cpus == 0 || )
+> +		return -EINVAL;
 
-Perhaps you forgot to include the filesystem these are using in your 
-kernel...?
+Doesn't look to me like this will even compile. :(
 
-Ketil
-
+Paul.

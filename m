@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265567AbSLJWos>; Tue, 10 Dec 2002 17:44:48 -0500
+	id <S266959AbSLJWsV>; Tue, 10 Dec 2002 17:48:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266310AbSLJWos>; Tue, 10 Dec 2002 17:44:48 -0500
-Received: from spacecake.plus.com ([195.166.148.239]:12160 "EHLO
-	unicorn.encapsulated.net") by vger.kernel.org with ESMTP
-	id <S265567AbSLJWor>; Tue, 10 Dec 2002 17:44:47 -0500
-Date: Tue, 10 Dec 2002 22:46:14 +0000
-From: Spacecake <lkml@spacecake.plus.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: sflory@rackable.com, linux-kernel@vger.kernel.org
-Subject: Re: HPT372 RAID controller
-Message-Id: <20021210224614.1d175371.lkml@spacecake.plus.com>
-In-Reply-To: <1039553984.14302.65.camel@irongate.swansea.linux.org.uk>
-References: <20021208123134.4be342c7.lkml@spacecake.plus.com>
-	<3DF4E433.5010207@rackable.com>
-	<20021209203338.32e8665f.lkml@spacecake.plus.com>
-	<1039480307.12051.8.camel@irongate.swansea.linux.org.uk>
-	<20021210180931.0b174cd5.lkml@spacecake.plus.com>
-	<1039553984.14302.65.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S266962AbSLJWsU>; Tue, 10 Dec 2002 17:48:20 -0500
+Received: from h-64-105-35-2.SNVACAID.covad.net ([64.105.35.2]:45456 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S266959AbSLJWsT>; Tue, 10 Dec 2002 17:48:19 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 10 Dec 2002 14:55:36 -0800
+Message-Id: <200212102255.OAA00649@baldur.yggdrasil.com>
+To: bwindle@fint.org
+Subject: Re: [2.5.51] unknown field 'driver_data' compiling cs4243
+Cc: ambx1@neo.rr.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does the same occur without taskfile I/O ?
+Burton Windle writes:
+>I'm getting an error compiling cs4232 in 2.5.51. It built fine in 50-bk6.
+[...]
+>sound/oss/cs4232.c:361: unknown field `driver_data' specified in initializer
+[etc.]
 
-I just tried it... copying the exact same files across from the exact
-same hdd etc. It didn't crash my system this time, and the files seem
-okay. However - there were long pauses where CPU load was so high that X
-wouldn't update the screen for about 10 seconds at a time, and things
-were acting slightly weird for a few seconds after i got back my prompt.
-And now the HDD light is on permanently whether i have disk access or
-not. Hmm.
-Though this *could* be a coincidence.
+	This is not due to the change that I submitted removing
+driver_data from struct pci_dev, although it looks like a similar change
+for isapnp devices.  I started to make a change to convert
+the references to driver_data to
+dev_set_drvdata(&isapnpdev->dev,...) and dev_get_drvdata(&isapnpdev->dev),
+but got a little confused by the multiple classes of isapnp drivers:
+
+	Driver structure	Device structure	ID structure
+
+include/linux/isapnp.h:
+	isapnp_driver		pci_dev			isapnp_device_id
+	(none)			pci_bus			isapnp_card_id
+
+include/linux/pnp.h:
+	pnpc_driver		pnp_card		pnp_card_id
+	pnp_driver		pnp_dev			pnp_id
+
+
+	From ChangeLog-2.5.51, I see mention of isapnp changes
+associated with Adam Belay.  So, I'm cc'ing him as he is probably
+much better qualified to explain.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

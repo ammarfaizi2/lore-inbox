@@ -1,91 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290386AbSA3SaR>; Wed, 30 Jan 2002 13:30:17 -0500
+	id <S290344AbSA3SY3>; Wed, 30 Jan 2002 13:24:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290376AbSA3S0F>; Wed, 30 Jan 2002 13:26:05 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:25245 "EHLO segfault.osdlab.org")
-	by vger.kernel.org with ESMTP id <S290370AbSA3SZq>;
-	Wed, 30 Jan 2002 13:25:46 -0500
-Date: Wed, 30 Jan 2002 10:26:50 -0800 (PST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@segfault.osdlab.org>
-To: Greg KH <greg@kroah.com>
-cc: <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] driverfs support for USB - take 2
-In-Reply-To: <20020130002418.GB21784@kroah.com>
-Message-ID: <Pine.LNX.4.33.0201301018580.800-100000@segfault.osdlab.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290293AbSA3SXa>; Wed, 30 Jan 2002 13:23:30 -0500
+Received: from xi.linuxpower.cx ([204.214.10.168]:64004 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S290319AbSA3SWJ>;
+	Wed, 30 Jan 2002 13:22:09 -0500
+Date: Wed, 30 Jan 2002 13:24:42 -0500
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: Corey Minyard <minyard@acm.org>
+Cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: TCP/IP Speed
+Message-ID: <20020130132442.A12754@xi.linuxpower.cx>
+In-Reply-To: <Pine.LNX.4.44.0201301831120.5518-100000@netfinity.realnet.co.sz> <3C583655.6060707@acm.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <3C583655.6060707@acm.org>; from minyard@acm.org on Wed, Jan 30, 2002 at 12:07:17PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 30, 2002 at 12:07:17PM -0600, Corey Minyard wrote:
+> Zwane Mwaikambo wrote:
+> >You didn't make that explicit in your previous email, and anyway what kind 
+> >of resolution can you expect from gettimeofday...
+> >
+> Depending on the processor, gettimeofday has very high resolution.
+> If I remember correctly, the TCP stacks put in delays for small sends so 
+> they can pack multiple things together.  I think there are ways to work 
+> around this via some type of flush, but memory fails me on exactly how.
 
-On Tue, 29 Jan 2002, Greg KH wrote:
+Please! People, if you don't know exactly what you are talking about, at
+least keep your replies off list.
 
-> Hi,
-> 
-> Well after determining that the last version of this patch doesn't show
-> the USB tree properly, here's another patch against 2.5.3-pre6 that
-> fixes this issue.
-> 
-> With this patch (the driver core changes were from Pat Mochel, thanks
-> Pat for putting up with my endless questions) my machine now shows the
-> following tree:
+The problem he's having is caused by nagle, I replied to him off list
+because not knowing the API to disable a perfectly standard TCP behavior is
+not related to kernel development.
 
-This is great! Thanks to Greg for testing and providing feedback. 
+I get enough traffic from this list without having a dozen blind people
+trying to lead the blind.
 
+It's great that you are trying to be helpful, but please do it off list,
+unless it's actual pertinent to kernel development.
 
-One question:
-
->     |   |   |-- 01:0d.1
->     |   |   |   |-- power
->     |   |   |   |-- status
->     |   |   |   `-- usb_bus
->     |   |   |       |-- 003
->     |   |   |       |   |-- power
->     |   |   |       |   `-- status
->     |   |   |       |-- power
->     |   |   |       `-- status
-
-You have a PCI device that is the USB controller. You create a child of 
-that represents the USB bus. Then, devices are added as children of that.
-
-Logically, couldn't you skip that extra layer of indirection and make USB 
-devices children of the USB controller? Or, do you see benefit in the 
-explicit distinction?
-
-
-
-> diff -Nru a/include/linux/device.h b/include/linux/device.h
-> --- a/include/linux/device.h	Tue Jan 29 16:02:26 2002
-> +++ b/include/linux/device.h	Tue Jan 29 16:02:26 2002
-> @@ -66,10 +66,8 @@
->  
->  struct device {
->  	struct list_head node;		/* node in sibling list */
-> -	struct iobus	*parent;	/* parent bus */
-> -
-> -	struct iobus	*subordinate;	/* only valid if this device is a
-> -					   bridge device */
-> +	struct list_head children;
-> +	struct device 	*parent;
-
-(To everyone else)
-
-Note this change: This patch removed struct iobus, so that everything 
-becomes a device and only a device. A 'bus' is simply a device that has 
-children. 
-
-This concept is something that I have argued both for and against since I 
-started on this. Initially, the goal was to separate the two because they 
-followed such different semantics. 
-
-But, I've found it, IMO, it creates more problems than it solves. There 
-was/is a lot of code replication just because you want to do the same 
-thing to each object, but have two different pointer types to deal with. 
-
-And, it's quite easy to add extra semantics for devices that have 
-children. 
-
-	-pat
-
+[For future archive searchers: The solution is to set the TCP_NODELAY socket
+option]

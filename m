@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270507AbUJTUIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270491AbUJTUIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270507AbUJTUIA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 16:08:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270494AbUJTUCo
+	id S270491AbUJTUIh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 16:08:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269214AbUJTUIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 16:02:44 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:24208 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S268907AbUJTT7A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 15:59:00 -0400
-Date: Wed, 20 Oct 2004 21:59:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: John Hawkes <hawkes@oss.sgi.com>
-Cc: nickpiggin@yahoo.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       jbarnes@sgi.com, hawkes@sgi.com
-Subject: Re: [PATCH, 2.6.9] improved load_balance() tolerance for pinned tasks
-Message-ID: <20041020195930.GA29735@elte.hu>
-References: <200410201936.i9KJa4FF026174@oss.sgi.com>
+	Wed, 20 Oct 2004 16:08:15 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:15835 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S270491AbUJTUCc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 16:02:32 -0400
+Subject: Re: Running user processes in kernel mode; Java and .NET
+	support	in kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kendall Bennett <KendallB@scitechsoft.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4173BC21.24859.11899F91@localhost>
+References: <82fa66380410152111143f75ec@mail.gmail.com>
+	 <4173BC21.24859.11899F91@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1098298776.12366.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410201936.i9KJa4FF026174@oss.sgi.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 20 Oct 2004 19:59:37 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* John Hawkes <hawkes@oss.sgi.com> wrote:
-
-> A large number of processes that are pinned to a single CPU results in
-> every other CPU's load_balance() seeing this overloaded CPU as "busiest",
-> yet move_tasks() never finds a task to pull-migrate.  This condition
-> occurs during module unload, but can also occur as a denial-of-service
-> using sys_sched_setaffinity().  Several hundred CPUs performing this
-> fruitless load_balance() will livelock on the busiest CPU's runqueue
-> lock.  A smaller number of CPUs will livelock if the pinned task count
-> gets high.  This simple patch remedies the more common first problem:
-> after a move_tasks() failure to migrate anything, the balance_interval
-> increments.  Using a simple increment, vs.  the more dramatic doubling of
-> the balance_interval, is conservative and yet also effective.
+On Llu, 2004-10-18 at 20:50, Kendall Bennett wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 > 
-> John Hawkes
+> > Why would I care ? I need the MMU for paging and to avoid
+> > fragmentation of the system. If I have the MMU on then memory
+> > protection checks are free. 
+> > 
+> > Except in 4G/4G mode syscalls are extremely cheap too nowdays.
 > 
-> 
-> Signed-off-by: John Hawkes <hawkes@sgi.com>
+> Yes, but kernel mode support in user programs would allow user mode 
+> device drivers to do stuff that currently cannot be done at all from user 
+> space such as handling interrupts and scheduling DMA operations.
 
-looks good to me.
+DMA doesn't need the kernel's help except for when you want to manage
+security - DRI is quite special in that way. A driver to provide
+mmapable DMA memory is trivial. IRQ's are *much* harder because you have
+to clear the IRQ source in the IRQ handler, but people have code that
+does this and then sends signals.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo

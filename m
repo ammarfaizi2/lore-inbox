@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129170AbRBUXzb>; Wed, 21 Feb 2001 18:55:31 -0500
+	id <S129381AbRBUX4l>; Wed, 21 Feb 2001 18:56:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129381AbRBUXzX>; Wed, 21 Feb 2001 18:55:23 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:30592 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129170AbRBUXzQ>;
-	Wed, 21 Feb 2001 18:55:16 -0500
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S129534AbRBUX4b>; Wed, 21 Feb 2001 18:56:31 -0500
+Received: from [199.239.160.155] ([199.239.160.155]:21259 "EHLO
+	tenchi.datarithm.net") by vger.kernel.org with ESMTP
+	id <S129381AbRBUX4U>; Wed, 21 Feb 2001 18:56:20 -0500
+Date: Wed, 21 Feb 2001 15:56:18 -0800
+From: Robert Read <rread@datarithm.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: newbie fodder
+Message-ID: <20010221155618.B8640@tenchi.datarithm.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <UTC200102212223.XAA133762.aeb@vlet.cwi.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14996.21701.542448.49413@pizda.ninka.net>
-Date: Wed, 21 Feb 2001 15:52:37 -0800 (PST)
-To: Jordan Mendelson <jordy@napster.com>
-Cc: ookhoi@dds.nl, Vibol Hou <vibol@khmer.cc>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>, sim@stormix.com,
-        netdev@oss.sgi.com
-Subject: Re: 2.4 tcp very slow under certain circumstances (Re: netdev issues 
- (3c905B))
-In-Reply-To: <3A9453F4.993A9A74@napster.com>
-In-Reply-To: <HDEBKHLDKIDOBMHPKDDKMEGDEFAA.vibol@khmer.cc>
-	<20010221104723.C1714@humilis>
-	<14995.40701.818777.181432@pizda.ninka.net>
-	<3A9453F4.993A9A74@napster.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <UTC200102212223.XAA133762.aeb@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Wed, Feb 21, 2001 at 11:23:51PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This looks great, in fact I was working on something similar for
+myself.  Unfortunately, like all good documentation, it's already
+slightly out of date.  Just this morning I noticed that as of the
+2.4.2-preX, the __make_request function no longer contains this code:
 
-Jordan Mendelson writes:
- > Now, if it didn't have the side effect of dropping packets left and
- > right after ~4000 open connections (simultaneously), I could finally
- > move our production system to 2.4.x.
+       if (!q->plugged)
+               q->request_fn(q);
 
-There is no reason my patch should have this effect.
+I don't know why the change was made, and I have not yet found where
+how q->request_fn gets called for non-plugged request queues, but
+since this is one of the key steps of the whole process, it will be
+great to keep this documentation current.
 
-All of this is what appears to be a bug in Windows TCP header
-compression, if the ID field of the IPv4 header does not change then
-it drops every other packet.
+robert
 
-The change I posted as-is, is unacceptable because it adds unnecessary
-cost to a fast path.  The final change I actually use will likely
-involve using the TCP sequence numbers to calculate an "always
-changing" ID number in the IPv4 headers to placate these broken
-windows machines.
-
-Later,
-David S. Miller
-davem@redhat.com
+On Wed, Feb 21, 2001 at 11:23:51PM +0100, Andries.Brouwer@cwi.nl wrote:
+> For a beginner I recently wrote a tiny demonstration
+> of what the kernel does, given a trivial user program.
+> Now that it served its purpose it would be a pity to
+> throw it out again, maybe it can be useful to someone else.
+> 
+> See
+> 	http://www.win.tue.nl/~aeb/linux/vfs/trail-1.html
+> 
+> Andries
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

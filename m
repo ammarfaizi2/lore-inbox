@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276118AbRJ2QMV>; Mon, 29 Oct 2001 11:12:21 -0500
+	id <S276135AbRJ2QQW>; Mon, 29 Oct 2001 11:16:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276097AbRJ2QML>; Mon, 29 Oct 2001 11:12:11 -0500
-Received: from mail.nep.net ([12.23.44.24]:47370 "HELO nep.net")
-	by vger.kernel.org with SMTP id <S276099AbRJ2QMH>;
-	Mon, 29 Oct 2001 11:12:07 -0500
-Message-ID: <19AB8F9FA07FB0409732402B4817D75A038BF2@FILESERVER.SRF.srfarms.com>
-From: "Ryan C. Bonham" <Ryan@srfarms.com>
-To: "Linux Kernel List (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Build RPM
-Date: Mon, 29 Oct 2001 11:14:06 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S276132AbRJ2QQL>; Mon, 29 Oct 2001 11:16:11 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:36879 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S276099AbRJ2QQH>; Mon, 29 Oct 2001 11:16:07 -0500
+Message-Id: <200110291615.f9TGFYYY010564@pincoya.inf.utfsm.cl>
+To: Andreas Dilger <adilger@turbolabs.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] random.c bugfix 
+In-Reply-To: Message from Andreas Dilger <adilger@turbolabs.com> 
+   of "Sun, 28 Oct 2001 22:37:54 PDT." <20011028223754.G1311@lynx.no> 
+Date: Mon, 29 Oct 2001 13:15:33 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andreas Dilger <adilger@turbolabs.com> said:
 
-Sorry I know this is a bit OT, but I was wondering if someone could point me
-towards some documentation on how to build a RPM for a Kernel. I am using AC
-Kernels, I know there is a 'make rpm' command, I just don't know when to run
-it and what else I have to do.. 
+[...]
 
+> (*) I don't know enough about the hash functions to know how to add a
+>     few odd bytes into the store in a useful and safe way.  We don't
+>     really want to discard them either - think if a user-space random
+>     daemon on an otherwise entropy-free system only writes one byte at
+>     a time...
 
-Thanks,
-
-Ryan 
+I'm no expert either, but padding with anything (zeroes?) to get the right
+length should be safe, no?
+-- 
+Dr. Horst H. von Brand                Usuario #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

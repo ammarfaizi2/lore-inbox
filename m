@@ -1,118 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264854AbUD1PTP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264836AbUD1PZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264854AbUD1PTP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 11:19:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264856AbUD1PTP
+	id S264836AbUD1PZT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 11:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264859AbUD1PZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 11:19:15 -0400
-Received: from rtp-iport-2.cisco.com ([64.102.122.149]:56244 "EHLO
-	rtp-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S264854AbUD1PTK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 11:19:10 -0400
-X-BrightmailFiltered: true
-To: "David S. Miller" <davem@redhat.com>
-Cc: jmorris@redhat.com, Matt_Domsch@dell.com, B.Zolnierkiewicz@elka.pw.edu.pl,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] lib/crc32.c: uses (and includes) compiler.h
-References: <Xine.LNX.4.44.0403261134210.4331-100000@thoron.boston.redhat.com>
-	<yqujr7vai6k4.fsf@chaapala-lnx2.cisco.com>
-	<200403302043.22938.bzolnier@elka.pw.edu.pl>
-	<yqujwu52ywsy.fsf@chaapala-lnx2.cisco.com>
-	<20040330192350.GB5149@lists.us.dell.com>
-	<yquj1xn87mpy.fsf_-_@chaapala-lnx2.cisco.com>
-	<yqujpta3y7ia.fsf_-_@chaapala-lnx2.cisco.com>
-	<20040423164226.3d6fa2c3.davem@redhat.com>
-	<yqujk7019ox2.fsf_-_@chaapala-lnx2.cisco.com>
-From: Clay Haapala <chaapala@cisco.com>
-Organization: Cisco Systems, Inc. SRBU
-Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAHlBMVEXl5ufMrp3a4OLr6ujO
- lXzChGmsblZzRzjF1+ErFRAz+KIaAAACVElEQVR4nG3TQW/aMBQAYC9IO88dguyWUomqt0DQ
- do7koO22SXFQb6uE7XIMKrFya+mhPk8D43+79+wMyrp3gnx59nvxMxmNEnIWycgH+U9E55CO
- rkZJ8hYipbXTdfcvQK/Xy6JF2zqI+qpbjZAszSDG2oXYp0FI5mOqbAeuDtLBdeuO8fNVxkzr
- E9jklKEgQWsppYYf9v4IE3i/4RiVRPneQTpoXSM8QA7un3QZQ2cl54wXIH7VDwEmrdOiZBgF
- V5BiLwLM4B3BS0ZpB24d4IvzW+QIc7/JIcAQIadF2eeUzn3FAa6xWFYUotjIRmLB7vEvCC4t
- VAugpTrC2FleLBm2wVnlAc7Dl2u5L1UozgWCjTxMW+vb4GVVFhWWFSCdKmgDMhaNFoxL3bSH
- rc/Irn1/RcWlh+UqNgHeNwishJ1L6LCpjdmGz76RmFGyuSwLgLUxJhyUlLA7fHMpeSGVPsFA
- wqtK4voI8RE+I3DsDpfamSNMpIBTKrF1yIpPMA0AzQPU5gSwCTyC/aEAtX4NM6gLM3CCziBT
- jRR+StQ/AA8a7AMuwxn0YAmcRKnVGwDRiOcw3uMWlajgAJsAPbw4OIpwrH3/vdq9B7hpl7GD
- w61A4PxwSqyH9J25gePnYdqhYjjZ5s6QCb3bwvOLJWPBFvCvWVDSthYmcff44IcacOUOt1Yv
- yGCF1+twuQtQCPjzZIaK/Lrx9+6b7TKEdXTwgz8R+uJv5K1jOcWMnO7NJ3v/QlprnzP1deUe
- 8j4CpVE82MRj4j5SHGDnfvul8uGwjqNnpf4Ak4pzJDIy3lkAAAAASUVORK5CYII=
-Date: Wed, 28 Apr 2004 10:19:02 -0500
-In-Reply-To: <yqujk7019ox2.fsf_-_@chaapala-lnx2.cisco.com> (Clay Haapala's
- message of "Tue, 27 Apr 2004 14:55:05 -0500")
-Message-ID: <yqujd65sku55.fsf_-_@chaapala-lnx2.cisco.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.5 (chayote, linux)
+	Wed, 28 Apr 2004 11:25:18 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18823 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264836AbUD1PZI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 11:25:08 -0400
+Message-ID: <408FCCC3.4050704@pobox.com>
+Date: Wed, 28 Apr 2004 11:24:51 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Felipe W Damasio <felipewd@terra.com.br>
+CC: Andy Lutomirski <luto@myrealbox.com>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [PATCH r8169] ethtool support and sane speed selection/detection
+References: <20040424050931.14C341D4F@luto.stanford.edu> <408FA6B3.1000805@terra.com.br>
+In-Reply-To: <408FA6B3.1000805@terra.com.br>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the crc32.c patch to remove attribute((pure)), with compiler.h
-included.
--- 
-Clay Haapala (chaapala@cisco.com) Cisco Systems SRBU +1 763-398-1056
-   6450 Wedgwood Rd, Suite 130 Maple Grove MN 55311 PGP: C89240AD
-  "Oh, *that* Physics Prize.  Well, I just substituted 'stupidity' for
-      'dark matter' in the equations, and it all came together."
+Felipe W Damasio wrote:
+>     Hi Andy,
+> 
+> Andy Lutomirski wrote:
+> 
+>> +static void rtl8169_set_speed(struct net_device *dev,
+>> +                  u8 autoneg, u16 speed, u8 duplex)
+>> +{
+>> +    struct rtl8169_private *tp = dev->priv;
+>> +    void *ioaddr = tp->mmio_addr;
+>> +    unsigned long flags;
+>> +    u8 status;
+>> +
+>> +    int auto_nego, giga_ctrl;
+>> +
+>> +    spin_lock_irqsave(&tp->lock, flags);
+>> +
+>> +    status = RTL_R8(PHYstatus);
+>> +    if ((status & TBI_Enable) && autoneg == AUTONEG_DISABLE) {
+>> +        autoneg = AUTONEG_ENABLE;
+>> +        printk(KERN_WARNING PFX
+>> +               "%s: ignoring request to force speed in TBI mode\n",
+>> +               dev->name);
+>> +    }
+>> +
+>> +    auto_nego = mdio_read(ioaddr, PHY_AUTO_NEGO_REG);
+>> +    auto_nego &= ~(PHY_Cap_10_Half | PHY_Cap_10_Full |
+>> +               PHY_Cap_100_Half | PHY_Cap_100_Full);
+>> +    giga_ctrl = mdio_read(ioaddr, PHY_1000_CTRL_REG);
+>> +    giga_ctrl &= ~(PHY_Cap_1000_Full | PHY_Cap_Null);
+>> +
+>> +    if (autoneg == AUTONEG_ENABLE) {
+>> +        auto_nego |= (PHY_Cap_10_Half | PHY_Cap_10_Full |
+>> +                  PHY_Cap_100_Half | PHY_Cap_100_Full);
+>> +        giga_ctrl |= PHY_Cap_1000_Full;
+>> +    } else {
+>> +        if (speed == SPEED_10)
+>> +            auto_nego |= PHY_Cap_10_Half | PHY_Cap_10_Full;
+>> +        else if (speed == SPEED_100)
+>> +            auto_nego |= PHY_Cap_100_Half | PHY_Cap_100_Full;
+>> +
+>> +        if (speed == SPEED_1000)
+>> +            giga_ctrl |= PHY_Cap_1000_Full;
+>> +        else
+>> +            giga_ctrl |= PHY_Cap_Null;
+>> +
+>> +        if (duplex == DUPLEX_HALF)
+>> +            auto_nego &= ~(PHY_Cap_10_Full | PHY_Cap_100_Full);
+>> +    }
+>> +
+>> +    tp->phy_auto_nego_reg = auto_nego;
+>> +    tp->phy_1000_ctrl_reg = giga_ctrl;
+>> +
+>> +    if(!(status & TBI_Enable)) {
+>> +        mdio_write(ioaddr, PHY_AUTO_NEGO_REG, auto_nego);
+>> +        mdio_write(ioaddr, PHY_1000_CTRL_REG, giga_ctrl);
+>> +    }
+>> +
+>> +    mdio_write(ioaddr, PHY_CTRL_REG,
+>> +           PHY_Enable_Auto_Nego | PHY_Restart_Auto_Nego);
+>> +
+>> +    if (tp->if_up && (giga_ctrl & PHY_Cap_1000_Full))
+>> +        mod_timer(&tp->timer, jiffies + RTL8169_PHY_TIMEOUT);
+>> +
+>> +    spin_unlock_irqrestore(&tp->lock, flags);
+>> +}
+>> +
+> 
+> 
+>     I think you can use the mii's interface here..
+> 
+>     Please look 8139cp's way of doind this. Using that interface is much 
+> cleaner and doesn't duplicate code.
 
---- linux-2.6.5.orig/lib/crc32.c	Sat Apr  3 21:36:14 2004
-+++ linux-2.6.5/lib/crc32.c	Wed Apr 28 10:07:20 2004
-@@ -23,6 +23,7 @@
- #include <linux/crc32.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/compiler.h>
- #include <linux/types.h>
- #include <linux/slab.h>
- #include <linux/init.h>
-@@ -37,13 +38,6 @@
- #endif
- #include "crc32table.h"
- 
--#if __GNUC__ >= 3	/* 2.x has "attribute", but only 3.0 has "pure */
--#define attribute(x) __attribute__(x)
--#else
--#define attribute(x)
--#endif
--
--
- MODULE_AUTHOR("Matt Domsch <Matt_Domsch@dell.com>");
- MODULE_DESCRIPTION("Ethernet CRC32 calculations");
- MODULE_LICENSE("GPL");
-@@ -62,7 +56,7 @@
-  * @len - length of buffer @p
-  * 
-  */
--u32 attribute((pure)) crc32_le(u32 crc, unsigned char const *p, size_t len)
-+u32 __attribute_pure__ crc32_le(u32 crc, unsigned char const *p, size_t len)
- {
- 	int i;
- 	while (len--) {
-@@ -82,7 +76,7 @@
-  * @len - length of buffer @p
-  * 
-  */
--u32 attribute((pure)) crc32_le(u32 crc, unsigned char const *p, size_t len)
-+u32 __attribute_pure__ crc32_le(u32 crc, unsigned char const *p, size_t len)
- {
- # if CRC_LE_BITS == 8
- 	const u32      *b =(u32 *)p;
-@@ -165,7 +159,7 @@
-  * @len - length of buffer @p
-  * 
-  */
--u32 attribute((pure)) crc32_be(u32 crc, unsigned char const *p, size_t len)
-+u32 __attribute_pure__ crc32_be(u32 crc, unsigned char const *p, size_t len)
- {
- 	int i;
- 	while (len--) {
-@@ -187,7 +181,7 @@
-  * @len - length of buffer @p
-  * 
-  */
--u32 attribute((pure)) crc32_be(u32 crc, unsigned char const *p, size_t len)
-+u32 __attribute_pure__ crc32_be(u32 crc, unsigned char const *p, size_t len)
- {
- # if CRC_BE_BITS == 8
- 	const u32      *b =(u32 *)p;
+
+Unfortunately mii_xxx doesn't do gigabit ethernet and GMII...
+
+	Jeff
+
+
+

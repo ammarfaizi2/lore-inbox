@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319387AbSIMA2P>; Thu, 12 Sep 2002 20:28:15 -0400
+	id <S319446AbSIMAnU>; Thu, 12 Sep 2002 20:43:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319399AbSIMA2P>; Thu, 12 Sep 2002 20:28:15 -0400
-Received: from inspired.net.au ([203.58.81.130]:60178 "EHLO inspired.net.au")
-	by vger.kernel.org with ESMTP id <S319387AbSIMA2O>;
-	Thu, 12 Sep 2002 20:28:14 -0400
-Message-Id: <200209130032.KAA32528@thucydides.inspired.net.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S319471AbSIMAnU>; Thu, 12 Sep 2002 20:43:20 -0400
+Received: from tolkor.sgi.com ([192.48.180.13]:29381 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S319446AbSIMAnT>;
+	Thu, 12 Sep 2002 20:43:19 -0400
+Subject: Re: 2.4.20pre5aa2
+From: Stephen Lord <lord@sgi.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Samuel Flory <sflory@rackable.com>, Austin Gonyou <austin@coremetrics.com>,
+       Christian Guggenberger 
+	<christian.guggenberger@physik.uni-regensburg.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
+In-Reply-To: <20020913002316.GG11605@dualathlon.random>
+References: <20020911201602.A13655@pc9391.uni-regensburg.de>
+	<1031768655.24629.23.camel@UberGeek.coremetrics.com>
+	<20020911184111.GY17868@dualathlon.random> <3D81235B.6080809@rackable.com> 
+	<20020913002316.GG11605@dualathlon.random>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Fri, 13 Sep 2002 10:28:29 +1000
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Pull NFS server address off root_server_path
-In-Reply-To: <1031818177.2994.39.camel@irongate.swansea.linux.org.uk>
-References: <200209120208.MAA00777@thucydides.inspired.net.au>
-	<1031818177.2994.39.camel@irongate.swansea.linux.org.uk>
-X-Mailer: VM 7.07 under Emacs 21.2.90.3
-From: "Martin Schwenke" <martin@meltin.net>
-Reply-To: "Martin Schwenke" <martin@meltin.net>
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 12 Sep 2002 19:47:48 -0500
+Message-Id: <1031878070.1236.29.camel@snafu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Thu, 2002-09-12 at 19:23, Andrea Arcangeli wrote:
+> 
+> that seems a bug in xfs, it BUG() if vmap fails, it must not BUG(), it
+> must return -ENOMEM to userspace instead, or it can try to recollect and
+> release some of the other vmalloced entries. Most probably you run into
+> an address space shortage, not a real ram shortage, so to workaround it
+> you can recompile with CONFIG_2G and it'll probably work, also dropping
+> the gap page in vmalloc may help workaround it (there's no config option
+> for it though). It could be also a vmap leak, maybe a missing vfree,
+> just some idea.
+> 
 
-    Alan> You are probably much better using the initrd based dhcp
-    Alan> client from things like the LTSP project (ltsp.org) than the
-    Alan> kernel one
+We hold vmalloced space for very short periods of time, in fact
+filesystem recovery and large extended attributes are the only
+cases. In this case we should be attempting to remap 2 pages
+together. The only way out of this would be to fail the whole
+mount at this point. I suspect a leak elsewhere.
 
-That's probably true in the long term.  For the short term, is the
-initrd-based stuff working right now?  I didn't think it was quite
-there yet...
+Samuel, when you mounted xfs and it oopsed, was it shortly after bootup?
+Also, how far did your dbench run get before it hung? I tried the
+kernel, but I paniced during startup - then I realized I did not 
+apply the patch to fix the xfs/scheduler interactions first.
 
-If the patch goes in now, I won't be terribly disappointed if it comes
-back out, along with (most of) the rest of the ipconfig stuff, if the
-initrd-based stuff works acceptably before the feature freeze...
+How much memory is in the machine by the way? And Andrea, is the
+vmalloc space size reduced in the 3G user space configuration?
 
-I would think that if there's a chance that the ipconfig stuff will
-stay in for 2.6, and this patch improves it, then it should probably
-be merged.  The patch has been in use at OzLabs for about 6 months
-(since I moved the DHCP server off the NFS server :-) to help boot the
-embedded boxes that David Gibson is doing bring-up work on.
+Steve
 
-peace & happiness,
-martin
+-- 
+
+Steve Lord                                      voice: +1-651-683-3511
+Principal Engineer, Filesystem Software         email: lord@sgi.com
+

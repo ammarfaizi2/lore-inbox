@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265709AbTFNTwF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 15:52:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265712AbTFNTwF
+	id S265718AbTFNT6I (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 15:58:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265719AbTFNT6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 15:52:05 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:20458 "EHLO
+	Sat, 14 Jun 2003 15:58:07 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:50666 "EHLO
 	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S265709AbTFNTwD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 15:52:03 -0400
-Date: Sat, 14 Jun 2003 22:05:38 +0200
+	id S265718AbTFNT6G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Jun 2003 15:58:06 -0400
+Date: Sat, 14 Jun 2003 22:11:57 +0200
 From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
 To: Stacy Woods <stacyw@us.ibm.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        "Martin J. Bligh" <mbligh@aracnet.com>
 Subject: Re: Bugs sitting in the NEW state for more than 28 days
-Message-ID: <20030614200538.GC4972@wohnheim.fh-wedel.de>
-References: <3EEA15EC.7080203@us.ibm.com> <20030614194026.GA3733@mars.ravnborg.org>
+Message-ID: <20030614201156.GD4972@wohnheim.fh-wedel.de>
+References: <3EEA15EC.7080203@us.ibm.com> <20030614194026.GA3733@mars.ravnborg.org> <20030614200538.GC4972@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030614194026.GA3733@mars.ravnborg.org>
+In-Reply-To: <20030614200538.GC4972@wohnheim.fh-wedel.de>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 June 2003 21:40:26 +0200, Sam Ravnborg wrote:
-> On Fri, Jun 13, 2003 at 02:20:28PM -0400, Stacy Woods wrote:
-> > There are 125 bugs sitting in the NEW state for more than 28 days
-> > 
-> > 228  Other      Other      bugme-janitors@lists.osdl.org
-> > Make pdfdocs/psdocs/htmldoc fail in 2.5.54
+On Sat, 14 June 2003 22:05:38 +0200, Jörn Engel wrote:
 > 
-> Fixed in linus-latest.
-> Note that the changes to kernel-doc make it spit out warnings for
-> all parameters in a funtion which is not documented.
-> A better solution might be to spit out warnings for parameters
-> documented but not present.
-> My perl skills did not suffer for this.
-> 
-> The real errors were in one .tmpl files and one .c file,
-> The other changes in kernel-doc just helped me identifying the root
-> cause.
+> Close the bug.
 
-Close the bug.
+s/close/closed/
 
-> > 485  Other      Other      bugme-janitors@lists.osdl.org
-> > "make rpm" fails; no kernel-2.5.65/debugfiles.list
-> 
-> Alan Cox checked in a correction that was present in 2.5.66.
-> I have tried "make rpm" with 2.5.70 with success.
-> Can be closed.
-
-dito.
-
-Any reason why you didn't do this yourself, except for the general
-lazyness of a programmer?
+Sometimes harmless typos can lead to Miss Understandings. 
 
 Jörn
 
 -- 
-Victory in war is not repetitious.
--- Sun Tzu
+Simplicity is prerequisite for reliability.
+-- Edsger W. Dijkstra

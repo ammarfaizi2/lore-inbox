@@ -1,133 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265817AbUBPUYw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 15:24:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265821AbUBPUYe
+	id S265805AbUBPUYN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 15:24:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265872AbUBPUYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 15:24:34 -0500
-Received: from fw.osdl.org ([65.172.181.6]:43655 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265817AbUBPUXu (ORCPT
+	Mon, 16 Feb 2004 15:24:13 -0500
+Received: from main.gmane.org ([80.91.224.249]:41909 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265805AbUBPUWu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 15:23:50 -0500
-Date: Mon, 16 Feb 2004 12:23:25 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Marc Lehmann <pcg@schmorp.de>
-cc: viro@parcelfarce.linux.theplanet.co.uk,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re:
- JFS default behavior)
-In-Reply-To: <20040216200321.GB17015@schmorp.de>
-Message-ID: <Pine.LNX.4.58.0402161205120.30742@home.osdl.org>
-References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca>
- <200402150006.23177.robin.rosenberg.lists@dewire.com>
- <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk>
- <200402150107.26277.robin.rosenberg.lists@dewire.com>
- <Pine.LNX.4.58.0402141827200.14025@home.osdl.org> <20040216183616.GA16491@schmorp.de>
- <Pine.LNX.4.58.0402161040310.30742@home.osdl.org> <20040216200321.GB17015@schmorp.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Feb 2004 15:22:50 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jan Rychter <jan@rychter.com>
+Subject: Re: Oopsing cryptoapi (or loop device?) on 2.6.*
+Date: Mon, 16 Feb 2004 04:22:34 -0800
+Message-ID: <m2k72n9pth.fsf@tnuctip.rychter.com>
+References: <402A4B52.1080800@centrum.cz> <402A7765.FD5A7F9E@users.sourceforge.net>
+ <m265e9oyrs.fsf@tnuctip.rychter.com>
+ <402F877C.C9B693C1@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 66-27-68-14.san.rr.com
+X-Spammers-Please: blackholeme@rychter.com
+User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Reasonable Discussion,
+ linux)
+Cancel-Lock: sha1:QfIbpalRz7Ky2yscgVNr1ogeNqM=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=-=-=
 
+>>>>> "Jari" == Jari Ruusu <jariruusu@users.sourceforge.net>:
+ Jari> Jan Rychter wrote:
+ >> FWIW, I've just tried loop-AES with 2.4.24, after using cryptoapi
+ >> for a number of years. My machine froze dead in the midst of copying
+ >> 2.8GB of data onto my file-backed reiserfs encrypted loopback mount.
+ >>
+ >> Since the system didn't ever freeze on me before and since I've had
+ >> zero problems with cryptoapi, I attribute the freeze to loop-AES.
+ >>
+ >> Yes, I know this isn't a good bugreport...
 
-On Mon, 16 Feb 2004, Marc Lehmann wrote:
-> 
-> > I'm saying that "the kernel talks bytestreams".
-> 
-> And I am saying that this is not good, which is my sole point.
+ Jari> Is there any particular reason why you insist on using file
+ Jari> backed loops?
 
-Fair enough. 
+Yes. They are much easier to use from a practical standpoint. They do
+not require repartitioning of your drives. They are easy to back up
+using rsync. They are reasonably easy to resize (by creating another
+file-backed loop side by side and copying the data).
 
-However, that's where the unix philosophy comes in. The unix philosophy 
-has always been to not try to understand the data that the user passes 
-around - and that "everything is a bytestream" is very much encoded in the 
-basic principles of how unix should work.
+Probably the biggest reason is that repartitioning laptop drives is a
+difficult task. You can't just connect a second drive to a laptop, so
+when you have a laptop that's full of data, there is no easy way to
+repartition.
 
-That agnosticism has a lot of advantages. It literally means that the
-basic operating system doesn't set arbitrary limitations, which means that
-you can do things that you couldn't necessarily otherwise easily do.
+All in all, it's not a strict requirement, it's a convenience thing,
+especially for those of us who do not sit in front of huge desktops,
+where you can easily add and replace drives.
 
-It does mean that you can do "strange" things too, and it does mean that 
-user space basically has a lot of choice in how to interpret those byte 
-streams.
+ Jari> File backed loops have hard to fix re-entry problem: GFP_NOFS
+ Jari> memory allocations that cause dirty pages to written out to file
+ Jari> backed loop, will have to re-enter the file system anyway to
+ Jari> complete the write. This causes deadlocks. Same deadlocks are
+ Jari> there in mainline loop+cryptoloop combo.
 
-And yes, it can cause confusion. You don't like the confusion, so you 
-argue that it shouldn't be allowed. It's a valid argument, but it's an 
-argument that assumes that choice is bad.
+I have used cryptoapi (as modules) for the last 2 years (or so) now,
+without encountering any problems whatsoever. I therefore beg to differ:
+if the same deadlocks are there, then for some reason they are not
+triggered on my machine. Two years versus an hour, that's a rather
+significant difference in terms of reliability.
 
-If you want to _force_ everybody to use UTF-8, then yes, the kernel could 
-enforce that readdir() would never pass through a broken UTF-8 string, and 
-all the path lookup functions also would never accept a broken string. It' 
-snot technically impossible to to, although it would add a certain amount 
-of pain and overhead.
+ Jari> This is one of the reasons why this is in loop-AES README: "If
+ Jari> you can choose between device backed and file backed, choose
+ Jari> device backed even if it means that you have to re-partition your
+ Jari> disks."
 
-But the thing is, not everyone uses UTF-8. The big distributions have only 
-recently started moving to UTF-8, and it will take _years_ before UTF-8 is 
-ubiquotous. And even then it might be the wrong thing to disallow clever 
-people from doing clever things. Encoding other information in filenames 
-might be proper for a number of applications.
+I would humbly suggest that this annotation be made more explicit. Had
+it said "DO NOT use file backed loop devices, as these do not work and
+cause deadlocks", I would have never even tried loop-AES. As it stands,
+I did, and it took about an hour to get a deadlock.
 
-> And I'd say such a kernel would be highly useful, as it would standardize
-> the encoding of filenames, just as unix standardizes on "mostly ascii"
-> (i.e. the SuS).
+--J.  
+PS: just as a clarification: my setup consists of reiserfs on top of an
+encrypted file-backed loop device, the file sits on an ext3 fs mounted
+with data=ordered.
 
-It would also be very painful, since it would mean that when you mount an 
-old disk, you may be totally unable to read the files, because they have 
-filenames that such a kernel would never accept.
+--=-=-=
+Content-Type: application/pgp-signature
 
-> > The kernel is _agnostic_ in what it does.
-> 
-> No, it's not. If at all, the kernel specifies a specially-interpreted
-> (ascii sans / and \0) byte-stream, as you say yourself.
-> 
-> However, just as with URLs (which are byte-streams, too), byte-streams are
-> useless to store text. You need bytestreams + known encoding.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-You don't "need" a known encoding. The kernel clearly doesn't need one. 
-It's a container, and the encoding comes from the outside. 
+iD8DBQBAMLYMLth4/7/QhDoRAmQ+AKCmD2DO0aooyr9lhLGT0leESFINkgCgl5Xo
+D0KRBhI6XCMmxs0FZGQAqy0=
+=Kwqt
+-----END PGP SIGNATURE-----
+--=-=-=--
 
-And that's what I mean by agnostic - you can make your own encoding. 
-
-Most of the time (but not always) these days UTF-8 is the only sane 
-encoding to use. But let people do what they want to do.
-
-Choice is _inherently_ good. Trying to force a world-view is bad. You 
-should be able to tell people what they should do to avoid confusion ("use 
-UTF-8"), but you should not _force_ them to that if they have good reasons 
-not to (and "backwards compatibility" is a better reason than just about 
-anything else).
-
-> But you are saying that you have to feed UTF-8 into the kernel, which is
-> not the case either.
-
-No. I'm saying that
- (a) "if you want to use complex character sets"
-then 
- (b) "you really have to use UTF-8"
-to talk to the kernel.
-
-Note the two parts. You're hung up on (b), while I have tried to make it 
-clear that (a) is a prerequisite for (b).
-
-Not everybody cares about (a). There are still people who use extended 
-ASCII, simply because they DO NOT CARE about complex character sets. And 
-if they don't care, and (a) isn't true, then (b) has no meaning any more.
-
-(In all fairness, some people will disagree with (b) even when (a) is true
-and like things like UCS-2. Those people are crazy, but I guess I'd just
-mention that possibility anyway).
-
-And this is why I say that the kernel only cares about byte streams, and
-having it filter to only accept proper UTF-8 sequences would be a horribly
-bad idea. Because it _assumes_ (a). That's what "making policy" is all
-about. The kernel should not assume that everybody cares about complex
-character sets.
-
-This may change, btw. I'm nothing if not pragmatic. In another twenty
-years, maybe everybody _literally_ uses complex character sets, and this
-whole discussion is totally silly, and the kernel may enforce UTF-8 or
-Klingon or whatever. At some point assumptions become _so_ ingrained that
-they are no longer policy any more, they are just "fact".
-
-		Linus

@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286339AbSA2XRO>; Tue, 29 Jan 2002 18:17:14 -0500
+	id <S286756AbSA2XUD>; Tue, 29 Jan 2002 18:20:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286821AbSA2XPx>; Tue, 29 Jan 2002 18:15:53 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:65033 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286756AbSA2XOm>; Tue, 29 Jan 2002 18:14:42 -0500
-Subject: Re: Linux 2.4.18pre7-ac1
-To: kristian.peters@korseby.net (Kristian)
-Date: Tue, 29 Jan 2002 23:27:23 +0000 (GMT)
-Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20020129221545.4e9a253e.kristian.peters@korseby.net> from "Kristian" at Jan 29, 2002 10:15:45 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S286692AbSA2XSw>; Tue, 29 Jan 2002 18:18:52 -0500
+Received: from waste.org ([209.173.204.2]:52193 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S286712AbSA2XRg>;
+	Tue, 29 Jan 2002 18:17:36 -0500
+Date: Tue, 29 Jan 2002 17:17:04 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: linux-kernel@vger.kernel.org, <torvalds@transmeta.com>
+Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6
+In-Reply-To: <E16VU8j-0006Hm-00@wagner.rustcorp.com.au>
+Message-ID: <Pine.LNX.4.44.0201291713090.25443-100000@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Vhet-0005Ut-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Compiling fails with the following output:
-> 
-> ld: cannot open ipt_ah.o: No such file or directory
+On Tue, 29 Jan 2002, Rusty Russell wrote:
 
-Thats a bug in the base 2.4.18pre7
+> This patch introduces the __per_cpu_data tag for data, and the
+> per_cpu() & this_cpu() macros to go with it.
+>
+> This allows us to get rid of all those special case structures
+> springing up all over the place for CPU-local data.
 
-> Maybe that was meant with
-> > several 18pre7 netfilter bugs left unfixed for now
+Seems like we could do slightly better to have these local areas mapped to
+the same virtual address on each processor, which does away with the need
+for an entire level of indirection.
 
-Yep 
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

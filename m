@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264865AbUEJQhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264864AbUEJQja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264865AbUEJQhO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 12:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264864AbUEJQhM
+	id S264864AbUEJQja (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 12:39:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264862AbUEJQja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 12:37:12 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:4009 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S264867AbUEJQgw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 12:36:52 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [PATCH] hci-usb bugfix
-Date: Mon, 10 May 2004 18:36:35 +0200
-User-Agent: KMail/1.6.2
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Sebastian Schmidt <yath@yath.eu.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L0.0405101211350.669-100000@ida.rowland.org> <1084205974.9639.16.camel@pegasus>
-In-Reply-To: <1084205974.9639.16.camel@pegasus>
-MIME-Version: 1.0
+	Mon, 10 May 2004 12:39:30 -0400
+Received: from adsl-74-86.38-151.net24.it ([151.38.86.74]:21257 "EHLO
+	gateway.milesteg.arr") by vger.kernel.org with ESMTP
+	id S264864AbUEJQj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 12:39:26 -0400
+Date: Mon, 10 May 2004 18:39:24 +0200
+From: Daniele Venzano <webvenza@libero.it>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Daniele Venzano <webvenza@libero.it>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alex Riesen <ari@mbs-software.de>
+Subject: Re: Linux 2.6.6
+Message-ID: <20040510163924.GA2560@gateway.milesteg.arr>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Daniele Venzano <webvenza@libero.it>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Alex Riesen <ari@mbs-software.de>
+References: <Pine.LNX.4.58.0405091954240.3028@ppc970.osdl.org> <20040510105129.GB25969@picchio.gall.it> <Pine.LNX.4.58.0405100810320.3028@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405101836.35239.oliver@neukum.org>
+In-Reply-To: <Pine.LNX.4.58.0405100810320.3028@ppc970.osdl.org>
+X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.25-grsec
+X-Copyright: Forwarding or publishing without permission is prohibited.
+X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
+X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 10. Mai 2004 18:19 schrieb Marcel Holtmann:
-> Hi Alan,
+On Mon, May 10, 2004 at 08:11:08AM -0700, Linus Torvalds wrote:
 > 
-> > It looks like the problem is that hci_usb_disconnect() is trying to do too 
-> > much.  When called for the SCO interface it should simply return.
+> Can you do the dmesg for 2.6.6 too? Just to see if something else changed? 
+> For example, maybe ACPI or something decided to (incorrectly) change your 
+> irq..
 > 
-> I came to the same conclusion, but I used the attached patch.
+> 		Linus
 
-Which is wrong. It assumes that interfaces are disconnected in a certain
-order, which happens only by chance in your case.
+Indeed it was ACPI, the patch available here:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108415978500425&w=2
 
-	Regards
-		Oliver
+made the trick.
+
+Thanks to Alex for the link to the right thread.
+
+-- 
+-----------------------------
+Daniele Venzano
+Web: http://teg.homeunix.org
+

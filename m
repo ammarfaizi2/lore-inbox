@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268787AbRHAG7W>; Wed, 1 Aug 2001 02:59:22 -0400
+	id <S268788AbRHAHGn>; Wed, 1 Aug 2001 03:06:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268788AbRHAG7L>; Wed, 1 Aug 2001 02:59:11 -0400
-Received: from tierra.stl.es ([195.235.83.3]:51045 "EHLO tierra.stl.es")
-	by vger.kernel.org with ESMTP id <S268787AbRHAG6x>;
-	Wed, 1 Aug 2001 02:58:53 -0400
-Message-ID: <3B67A7B6.EE7B7931@stl.es>
-Date: Wed, 01 Aug 2001 08:54:46 +0200
-From: Julio =?iso-8859-1?Q?S=E1nchez=20Fern=E1ndez?= <j_sanchez@stl.es>
-Organization: Poca
-X-Mailer: Mozilla 4.75 [en]C-STL/0.3  (WinNT; U)
-X-Accept-Language: en
+	id <S269662AbRHAHGb>; Wed, 1 Aug 2001 03:06:31 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:48138 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S268788AbRHAHGO>;
+	Wed, 1 Aug 2001 03:06:14 -0400
+Date: Wed, 1 Aug 2001 08:06:16 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: peter revill <arevill@bigpond.net.au>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: university studies?
+In-Reply-To: <20010801052200.25526.qmail@webmail.com>
+Message-ID: <Pine.LNX.4.33.0108010801550.9176-100000@infradead.org>
 MIME-Version: 1.0
-To: Nerijus Baliunas <nerijus@users.sourceforge.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Transparent proxies and binding to foreign addresses
-In-Reply-To: <m2lmlcakrq.fsf@j-sanchez-p.stl.es>
-		<m2lmlcakrq.fsf@j-sanchez-p.stl.es>
-		<200107270215.EAA1376016@mail.takas.lt>
-	 <m2hevyaljp.fsf@j-sanchez-p.stl.es> <200107311820.UAA1709621@mail.takas.lt>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Hi Peter.
 
+ > Ok, im 16 and looking at heading into uni as soon as ive
+ > finished year 12. I'm gonna head on over to uni, i am wondering
+ > out of curiosity what courses most kernel developers have done?
+ > im going to do either bachelour of computer science, or
+ > information technology, at a later date, when im done my studies
+ > im hoping to help with kernel developing, mozilla etc. etc., so
+ > i was wondering what people would consider the course that gives
+ > you "kernel development" sort of skillset-mindset any feedback
+ > is appriciated, please CC it to my mail adress at
+ > arevill@bigpond.net.au
 
-Nerijus Baliunas wrote:
-> 
-> On 27 Jul 2001 09:16:58 +0200 Julio Sanchez Fernandez <j_sanchez@stl.es> wrote:
-> 
-> JSF> And as long as you don't care what origin address the server sees,
-> JSF> that's alright.  But all connections now seem to come from the proxy.
-> JSF> And that does not let you do things like differentiated services,
-> JSF> access control or audit.  Even user support becomes a mess.
-> 
-> Do you mean that even if I adapt them as you say, the receiving end will see
-> connection orriginating from the proxy instead of the real address?
+Personally, I did "B.Sc. Computer Studies", but I suspect the actual
+course title is irrelevant, and it's the modules you do in the course
+that matter. Here's what I would regard as important:
 
-Precisely.  The bind-to-foreign-address will usually fail.  If you set
-/proc/sys/net/ipv4/ip_nonlocal_bind to "1", then the bind will succeed but
-when you connect it will fail immedaiately or not work (I have not checked
-the exact behaviour and I am still digging in the code).
+ 1. A thorough knowledge of programming in C. Knowledge of C++
+    will help.
 
-> I'm asking as these 2 port forwarders I tried work with 2.4 kernel in non-transparent
-> mode, i.e. connections seem to come from the proxy, what I need is connection
-> to be seen to come from real originating IP.
+ 2. Experience of programming hardware will definitely help.
 
-So do I.  If you are the daring type, I suggest you track the netfilter-devel
-mail list (start from http://lists.samba.org/mailman/listinfo/netfilter-devel)
-where some discussion has happened in July.  If you are not, I am afraid you
-will have to stay at 2.2.x for the time being.
+ 3. The ability to think logically is a definite advantage, and
+    tends to result in 90%+ of your programs working first time.
 
-Julio
+Additions, anybody?
+
+Best wishes from Riley.
+

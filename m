@@ -1,76 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276424AbSAGQpL>; Mon, 7 Jan 2002 11:45:11 -0500
+	id <S279798AbSAGQvV>; Mon, 7 Jan 2002 11:51:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279798AbSAGQpC>; Mon, 7 Jan 2002 11:45:02 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:65042 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S276424AbSAGQox>;
-	Mon, 7 Jan 2002 11:44:53 -0500
-Date: Mon, 7 Jan 2002 17:44:50 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: christian e <cej@ti.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: swapping,any updates ?? Just wasted money on mem upgrade performance still suck :-(
-Message-Id: <20020107174450.5d20d2ad.skraw@ithnet.com>
-In-Reply-To: <3C396B45.6040702@ti.com>
-In-Reply-To: <3C386DC9.307@ti.com>
-	<20020106170204.7e04e81f.skraw@ithnet.com>
-	<3C396B45.6040702@ti.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S280126AbSAGQvM>; Mon, 7 Jan 2002 11:51:12 -0500
+Received: from pat.uio.no ([129.240.130.16]:4284 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S279798AbSAGQvF>;
+	Mon, 7 Jan 2002 11:51:05 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15417.53743.840597.686135@charged.uio.no>
+Date: Mon, 7 Jan 2002 17:50:55 +0100
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: NFS "dev_t" issues..
+In-Reply-To: <Pine.LNX.4.33.0201011402560.13397-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0201011402560.13397-100000@penguin.transmeta.com>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 07 Jan 2002 10:32:53 +0100
-christian e <cej@ti.com> wrote:
+>>>>> " " == Linus Torvalds <torvalds@transmeta.com> writes:
 
-> Stephan von Krawczynski wrote:
-> 
-> 
-> > Besides the fact I couldn't identify the kernel version from your mail, I
-would> > try:
-> > 
-> > 1) Turn off swap, then
-> > 2) Use 2.4.17 with patch I send you off LKML.
-> > 
-> > Then give us a hint if things got better.
->
-> Sorry forgot that.Currently running 2.4.17-mjc1.
+     > I made a pre6, which contains a new-and-anal "kdev_t".
 
-Please try a stock 2.4.17 (with the patch), otherwise we will have no idea what
-is going on.
+<snip>
 
-> Turning off swap is apparently not an option 'cause now VMware won't run 
-> anymore (really a swap happy app if I ever saw one :o) I get this error 
-> when starting to log on to my virtual Windows XP Pro:
-> 
-> AIO: unexpected loss of channel ide0:0 (thread ide 0:0)
-> 
-> and turning swap back on it runs with no problems..*sigh*
+     > I fixed up the stuff I use and which showed up in compiles (on
+     > a source level, it's so far totally untested), but I'd really
+     > like people to check out their own subsystems. _Especially_ NFS
+     > and NFSD, which had several cases of mixing the two dev_t's
+     > around, and which also used them as numbers. Trond, Neil?
 
-Uh, this is no good. How much mem does your XP need? I can't really believe you
-need more than the 512 MB you have to get this config running. Really: please
-try stock kernel with patch.
+Hi Linus & Marcelo,
 
-> Can I make a RAM drive and then use that for swap ??Will the patch you 
-> sent me work with swap turned on ??
+  Sorry I'm a bit late in replying. AFAICS as of 2.5.2-pre9, all is
+more or less well, however when reviewing that code, I noticed what is
+probably a bug:
 
-Yes, it will work of course. But we would like to see this config without swap
-running too, won't we?
+  Given that (for character devices) the value of inode->i_cdev in
+2.[45].x depends on the i_rdev, it would appear to be a bug for us to
+be able to change inode->i_rdev *after* we've called
+init_special_inode().
+For this reason, I'd advocate removing the lines in
+nfs_refresh_inode() that reset the inode->i_rdev (as per the patch
+below) and instead rely on the ordinary stale inode checks to tell us
+if/when the inode->i_rdev has changed.
 
-> For info my system:
-> 
-> Dell latitude cpx j650GT,650 MHz P3
-> 512 MB mem
-> 12 GB hdd
-> 3com 3c575ct pcmcia NIC
+It's hardly a new bug. It's been around ever since we added
+init_special_inode(), so it's clearly not one that bites us every day
+of the year. Even so, the same patch should probably be applied to
+2.4.x.
 
-Nice box. Must work somehow.
-
-Regards,
-Stephan
+Cheers,
+  Trond
 
 
+diff -u --recursive --new-file linux-2.5.2-pre9/fs/nfs/inode.c linux-2.5.2-fix/fs/nfs/inode.c
+--- linux-2.5.2-pre9/fs/nfs/inode.c	Mon Jan  7 16:57:18 2002
++++ linux-2.5.2-fix/fs/nfs/inode.c	Mon Jan  7 17:08:42 2002
+@@ -1107,9 +1107,6 @@
+  		inode->i_blocks = fattr->du.nfs2.blocks;
+  		inode->i_blksize = fattr->du.nfs2.blocksize;
+  	}
+- 	inode->i_rdev = NODEV;
+- 	if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode))
+- 		inode->i_rdev = to_kdev_t(fattr->rdev);
+  
+ 	/* Update attrtimeo value */
+ 	if (!invalid && time_after(jiffies, NFS_ATTRTIMEO_UPDATE(inode)+NFS_ATTRTIMEO(inode))) {

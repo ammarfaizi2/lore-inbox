@@ -1,55 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276275AbRJCNgI>; Wed, 3 Oct 2001 09:36:08 -0400
+	id <S276271AbRJCNfs>; Wed, 3 Oct 2001 09:35:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276270AbRJCNft>; Wed, 3 Oct 2001 09:35:49 -0400
-Received: from robur.slu.se ([130.238.98.12]:16135 "EHLO robur.slu.se")
-	by vger.kernel.org with ESMTP id <S276266AbRJCNfn>;
-	Wed, 3 Oct 2001 09:35:43 -0400
-From: Robert Olsson <Robert.Olsson@data.slu.se>
+	id <S276270AbRJCNfi>; Wed, 3 Oct 2001 09:35:38 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:10473 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S276266AbRJCNfa>;
+	Wed, 3 Oct 2001 09:35:30 -0400
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15291.5314.595897.458571@robur.slu.se>
-Date: Wed, 3 Oct 2001 15:38:10 +0200
-To: jamal <hadi@cyberus.ca>
-Cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Robert Olsson <Robert.Olsson@data.slu.se>,
-        Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <Pine.GSO.4.30.0110030850480.4495-100000@shell.cyberus.ca>
-In-Reply-To: <Pine.LNX.4.33.0110031108550.2679-100000@localhost.localdomain>
-	<Pine.GSO.4.30.0110030850480.4495-100000@shell.cyberus.ca>
-X-Mailer: VM 6.92 under Emacs 19.34.1
+Message-ID: <15291.5181.397553.789748@harpo.it.uu.se>
+Date: Wed, 3 Oct 2001 15:35:57 +0200
+To: linux-kernel@vger.kernel.org
+Subject: ne.c (ISA ne2k) problems in 2.4.x
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Are there any known bugs in the ISA NE2000 driver (drivers/net/ne.c) in
+2.4 kernels? I have a remote server that runs mostly unattended. For
+various reasons, the NIC to the outside world is an ISA NE2000 (D-link).
+This NIC works fine in 2.2 kernels, easily handling months of uptime
+and plenty of traffic, but in recent 2.4 kernels, it (NIC or driver)
+tends to lock up efter a few days or weeks of uptime. ifdown/ifup
+doesn't restore it completely when that happens, but a reboot does.
 
+I could easily exchange the NIC for a 3c509b or an fa310tx rev D, but I
+don't know how well those would stand up to these usage patterns.
 
-jamal writes:
-
- > The paper is at: http://www.cyberus.ca/~hadi/usenix-paper.tgz
- > Robert can point you to the latest patches.
-
-
- Current code... there are still some parts we like to better.
-
- Available via ftp from robur.slu.se:/pub/Linux/net-development/NAPI/
- 2.4.10-poll.pat
- 
- The original code:
-
- ANK-NAPI-tulip-only.pat
- ANK-NAPI-kernel-only.pat
-
- And for GIGE there is a e1000 driver in test. 
-
- Cheers.
-
-						--ro
-
-
- 
+/Mikael

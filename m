@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272074AbTGYNzz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 09:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272075AbTGYNzz
+	id S272073AbTGYNzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 09:55:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272074AbTGYNzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 09:55:55 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:60805 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S272074AbTGYNzx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 09:55:53 -0400
-Date: Fri, 25 Jul 2003 16:11:12 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: linux-kernel@vger.kernel.org
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: ulimit behaviour ...
-Message-ID: <20030725141112.GA2713@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
+	Fri, 25 Jul 2003 09:55:09 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:38061 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S272073AbTGYNzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 09:55:06 -0400
+Date: Fri, 25 Jul 2003 16:10:13 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Bernd Eckenfels <ecki-lkm@lina.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: why the current kernel config menu layout is a mess
+Message-ID: <20030725141013.GC29152@louise.pinerecords.com>
+References: <E19frN3-00025I-00@calista.inka.de> <Pine.LNX.4.53.0307250820320.25867@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.53.0307250820320.25867@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> [rpjday@mindspring.com]
+> 
+>   some time ago, i suggested it would be nice to be able to deselect
+> entire submenus right at the top level.  for example, it's clearly
+> inefficient to have to select "Parallel port support" and bring
+> up its corresponding submenu, if your only goal is to *deselect*
+> that option.
 
-Hi All!
+Now that the menuconfig command extension to Kconfig has been merged,
+I guess I could look into fixing the worst offenders.
 
-Just stumbled over it ...
-
-ulimit -H -u <#procs>
-
-refuses to go below the current 'soft' limit,
-this was not the case in 2.4.21, but I do not
-know when, how and why this changed ...
-
-I do not have a problem with that, but it will
-give some troubles on certain configurations,
-which simply reduce the hard limit to something
-reasonable and expect the soft limit to follow
-
-best,
-Herbert
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

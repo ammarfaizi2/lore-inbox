@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265523AbTAJRFK>; Fri, 10 Jan 2003 12:05:10 -0500
+	id <S265457AbTAJRCt>; Fri, 10 Jan 2003 12:02:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265541AbTAJRFJ>; Fri, 10 Jan 2003 12:05:09 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:48512 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S265523AbTAJRFG>; Fri, 10 Jan 2003 12:05:06 -0500
-Message-Id: <200301101713.h0AHDmLK010383@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5] speedup kallsyms_lookup 
-In-Reply-To: Your message of "Fri, 10 Jan 2003 17:12:12 +0100."
-             <20030110161212.GA11193@wotan.suse.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <1042192419.1415.49.camel@cast2.alcatel.ch> <Pine.LNX.4.44.0301101428420.1292-100000@localhost.localdomain> <20030110160334.GU23814@holomorphy.com>
-            <20030110161212.GA11193@wotan.suse.de>
+	id <S265470AbTAJRCt>; Fri, 10 Jan 2003 12:02:49 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:11138 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265457AbTAJRCd>;
+	Fri, 10 Jan 2003 12:02:33 -0500
+Date: Fri, 10 Jan 2003 17:08:41 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: any chance of 2.6.0-test*?
+Message-ID: <20030110170841.GF23375@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Zwane Mwaikambo <zwane@holomorphy.com>,
+	William Lee Irwin III <wli@holomorphy.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+References: <20030110161012.GD2041@holomorphy.com> <20030110162834.GB23375@codemonkey.org.uk> <Pine.LNX.4.50.0301101139000.7163-100000@montezuma.mastecende.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-339223764P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 10 Jan 2003 12:13:48 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0301101139000.7163-100000@montezuma.mastecende.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-339223764P
-Content-Type: text/plain; charset=us-ascii
+On Fri, Jan 10, 2003 at 11:41:48AM -0500, Zwane Mwaikambo wrote:
 
-On Fri, 10 Jan 2003 17:12:12 +0100, Andi Kleen <ak@suse.de>  said:
-> 
-> > So the end-result of the discussion is, "What should really happen here?"
-> > and "What, if anything, do you want me to do?"
-> 
-> IMHO best would be to get rid of /proc/*/wchan and keep the kallsyms 
-> lookup slow, simple and stupid.
+ > > other needs more investigation), and another that falls on its
+ > > face after 10 minutes idle uptime. My p4-ht desktop box is the only one
+ > > that runs 2.5 without any problems.
+ > 
+ > Thats interesting, i have a laptop experiencing the same symptoms, i'll be
+ > looking at it over the weekend.
 
-And replace the current /proc/*/wchan functionality with what?
-(Note that saying "read the System.map file from userspace" doesn't *quite*
-work, as I may be running a kernel that doesn't have System.map installed
-someplace easily findable.  At the moment my /boot partition has 6 assorted
-vmlinuz-\(*\) files, only 4 of which have System.map-\1 files matching).
+This is exactly the sort of thing I meant. There are still problems out
+there which a lot of people haven't reported, yet when they see someone
+else with that problem, suddenly the 'me too's come in.
+
+I'm hoping the bugzilla will help out for corelating these as it starts to get
+used more.
+
+		Dave
 
 -- 
-				Valdis Kletnieks
-				Computer Systems Senior Engineer
-				Virginia Tech
-
-
---==_Exmh_-339223764P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+Hv9McC3lWbTT17ARAn8fAJ9gALd32bjXGMUAlPLZCy3xb4+7zgCg68ZH
-NkYnap5Juq8hwKrOFYE7UOI=
-=3pBY
------END PGP SIGNATURE-----
-
---==_Exmh_-339223764P--
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

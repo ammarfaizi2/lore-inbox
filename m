@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266291AbUGJP1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263448AbUGJPb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266291AbUGJP1g (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 11:27:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266292AbUGJP1f
+	id S263448AbUGJPb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 11:31:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264638AbUGJPb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 11:27:35 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:20287 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S266291AbUGJP1V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 11:27:21 -0400
-Date: Sun, 11 Jul 2004 01:25:49 +1000
-From: Greg Banks <gnb@sgi.com>
-To: raven@themaw.net
-Cc: Thomas Moestl <moestl@ibr.cs.tu-bs.de>,
-       autofs mailing list <autofs@linux.kernel.org>,
-       nfs@lists.sourceforge.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [autofs] Re: umount() and NFS races in 2.4.26
-Message-ID: <20040710152549.GD21121@sgi.com>
-References: <20040708180709.GA7704@timesink.dyndns.org> <Pine.LNX.4.58.0407101419210.1378@donald.themaw.net>
+	Sat, 10 Jul 2004 11:31:57 -0400
+Received: from c-67-171-146-69.client.comcast.net ([67.171.146.69]:14490 "EHLO
+	tp-timw.internal.splhi.com") by vger.kernel.org with ESMTP
+	id S263448AbUGJPbz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 11:31:55 -0400
+Subject: rmmod st "hangs" - bad interaction with sg
+From: Tim Wright <timw@splhi.com>
+Reply-To: timw@splhi.com
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Splhi
+Message-Id: <1089473460.1473.17.camel@tp-timw.internal.splhi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0407101419210.1378@donald.themaw.net>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 10 Jul 2004 08:31:00 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 10, 2004 at 02:57:46PM +0800, raven@themaw.net wrote:
-> On Thu, 8 Jul 2004, Thomas Moestl wrote:
-> > I believe that I have found two problems:
-> > 
-> > - The NFS async unlink code (fs/nfs/unlink.c) does keep a dentry for
-> >   later asynchronous processing, but the mount point is unbusied via
-> >   path_release() once sys_unlink() returns (fs/namei.c). [...]
+Hi,
+I was working on the qlogicisp/isp1020 driver in 2.6, as I still have
+one of these antiques and the driver is a bit out of date (a patch is
+forthcoming). In the process of testing my changes, I came across the
+following:
 
-This used to be a bug.  It was fixed in 2.4.26 with
+I have a single DDS-2 tape drive attached to the SCSI bus. qlogicisp
+loads, and pulls and the tape is found. However, when I tried to unload
+st, the unload "hung" unkillable. I use the quotes for a reason. After
+much searching, I found that there is still a reference count on the
+sysfs scsi_device and that is because when the driver gets loaded, not
+only does st get loaded, but sg also gets pulled in and increments the
+refcount on the sysfs scsi_device. Running 'rmmod sg' in another window
+allows the original 'rmmod st' to complete.
 
-http://linux.bkbits.net:8080/linux-2.4/diffs/fs/nfs/dir.c@1.13
+This seems bad to me - either the original rmmod should fail with EBUSY,
+or it should complete. However, for it to do so, it seems that st needs
+to know that sg has its hooks into the device it controls, and it needs
+to be able to make it let go. My workaround is impractical if sg is in
+use on other devices too.
 
-What happens now is that the dentry and its inode are cleaned up
-when the async unlink task is deleted in nfs_put_super() between
-the first and second calls to invalidate_inodes() in kill_super().
+So....
+what do interested parties think? Would this be considered a bug? Should
+I chase and see if I can find a way to make it behave, or does someone
+already know what's wrong?
 
-> > - There is a SMP race between the shrink_dcache_parent() (fs/dcache.c)
-> >   called from kill_super() and prune_dache() called via
-> >   shrink_dache_memory() (called by kswapd), as follows: [...]
+Regards,
 
-Your scenario sounds plausible and might explain at least some 
-of the autofs unmount races we've been seeing.
+Tim
 
-> >   In the attached patch, I have used a semaphore to serialize purging
-> >   accesses to the dentry_unused list. [...]
+BTW, if anyone is interested in the fixed-up qlogicisp, I can make it
+available. Error-handling is in and seems to be working (the main
+complaint that 2.6 has), and interfaces have been updated to 2.6
+standards.
 
-Can we see the patch please?
-
-Greg.
--- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.

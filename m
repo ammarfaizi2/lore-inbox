@@ -1,138 +1,227 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316541AbSHBWub>; Fri, 2 Aug 2002 18:50:31 -0400
+	id <S317354AbSHBXDl>; Fri, 2 Aug 2002 19:03:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317251AbSHBWub>; Fri, 2 Aug 2002 18:50:31 -0400
-Received: from barbados.bluemug.com ([63.195.182.101]:54797 "EHLO
-	barbados.bluemug.com") by vger.kernel.org with ESMTP
-	id <S316541AbSHBWua>; Fri, 2 Aug 2002 18:50:30 -0400
-Date: Fri, 2 Aug 2002 15:53:47 -0700
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: Alexander Viro <viro@math.psu.edu>,
-       Thunder from the hill <thunder@ngforever.de>,
-       Peter Chubb <peter@chubb.wattle.id.au>, Pavel Machek <pavel@ucw.cz>,
-       Matt_Domsch@Dell.com, Andries.Brouwer@cwi.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.28 and partitions
-Message-ID: <20020802225347.GI4116@bluemug.com>
-Mail-Followup-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	Alexander Viro <viro@math.psu.edu>,
-	Thunder from the hill <thunder@ngforever.de>,
-	Peter Chubb <peter@chubb.wattle.id.au>, Pavel Machek <pavel@ucw.cz>,
-	Matt_Domsch@Dell.com, Andries.Brouwer@cwi.nl,
-	linux-kernel@vger.kernel.org
-References: <20020802212149.GC4528@bluemug.com> <200208022212.g72MCsu456903@saturn.cs.uml.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200208022212.g72MCsu456903@saturn.cs.uml.edu>
-X-PGP-ID: 5C09BB33
-X-PGP-Fingerprint: C518 67A5 F5C5 C784 A196  B480 5C97 3BBD 5C09 BB33
-From: Mike Touloumtzis <miket@bluemug.com>
+	id <S317363AbSHBXDl>; Fri, 2 Aug 2002 19:03:41 -0400
+Received: from nycsmtp3out.rdc-nyc.rr.com ([24.29.99.228]:32644 "EHLO
+	nycsmtp3out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S317354AbSHBXDi>; Fri, 2 Aug 2002 19:03:38 -0400
+Message-ID: <3D4B1057.2040703@linuxhq.com>
+Date: Fri, 02 Aug 2002 19:05:59 -0400
+From: John Weber <john.weber@linuxhq.com>
+Organization: Linux Headquarters
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jonathan Buzzard <jonathan@buzzard.org.uk>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Toshiba Laptop Support and IRQ Locks
+References: <3D4AAD53.7010008@linux.org> <1028310939.18309.93.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 02, 2002 at 06:12:54PM -0400, Albert D. Cahalan wrote:
->
-> > Of course you have to stuff the values into native binary formats
-> > eventually.  I'm just talking about on-disk representation,
-> > not in-memory.
+Alan Cox wrote:
+> On Fri, 2002-08-02 at 17:03, John Weber wrote:
 > 
-> Ah, but it has to get into memory at some point.
-> There it will need a data type. Changing the data
-> type involves changing the parser and inventing
-> yet another in-memory struct anyway.
-
-Right, but if each of your in-memory structs is localized to the
-kernel (i.e. not present in the partition table, and not exported
-to userspace via /proc or syscalls), then you can just increase
-field sizes and recompile the kernel, without the need to support
-both structure layouts in the kernel in perpetuity.
-
-For efficiency reasons the kernel will always need to export
-structs to userspace but partition information probably shouldn't
-get a performance exemption.
-
-> Fine, no operator overloading:
+>>Hi,
+>>
+>>Toshiba laptop support is broken.  Here's my rookie attempt at fixing it.
 > 
-> err = ascii_math_make_number(baz, 512); // baz = 512
-> if(err){
->   // handle error here
-> }
-> err = ascii_math_add(foo, bar, baz); // foo = bar + baz
-> if(err){
->   // handle error here
-> }
-
-Yes, this is more or less what a bignum package would implement,
-albeit with a much more efficient representation that ASCII
-strings.  But actually manipulating values in bignum format
-should be left to utilities like fdisk that want to be generic.
-The kernel and boot loaders would just load values into 'u32
-a' and 'u32 b' (or whatever type) and add them with 'a + b'.
-I'm not in any way advocating bignum arithmetic in the kernel.
-
-> With a 32-bit binary field, programs will use 32-bit types.
-> With a 64-bit binary field, programs will use 64-bit types.
-> With an ASCII format, every program will use a different type.
-
-Right, which would allow intelligence on the part of the programs,
-like using 32-bit types on 32-bit architectures where values are
-known to max out at 32-bits (I'm thinking of, say, /proc here)
-and 64-bit values on 64-bit architectures.
-
-> It does, a bit, but it sure beats hidden per-program
-> limits caused by every program converting the ASCII
-> to a different in-memory structure.
-
-So create a library and flame people who don't link against it
-and screw up their parsing.  At least this way only some programs
-would have hidden limits, not all of them.
-
-> >> Yeah, just what we need. The /proc mess expanding
-> >> into partition tables. That sounds like a great way
-> >> to increase filesystem destruction performance.
-> >
-> > The /proc mess exists because people chose N ad hoc output
-> > formats for /proc files.  If they had a consistent format like
-> > s-expressions or one-value-per-file most problems with /proc
-> > would not exist.
 > 
-> That only solves a superficial problem. It doesn't let
-> you reliably handle changing data types and keywords.
+> Looks basically sound. You probably want to use spinlock_irqsave - the
+> spin locks are less overhead than the reader/writer locks and you don't
+> really seem to be using it for anything else. I'm assuming we want the
+> irqsave to block interrupts because the I/O cycles might have to happen
+> one after another - if not they could be relaxed - perhaps Jonathan
+> knows ?
 
-s-expressions do--the first value in each parenthesized expression
-is the keyword.  For instance, if you have the tree:
+Alrighty then, the patch below uses spinlocks instead of cli() and 
+friends -- to conform to the new irq locking mechanism -- and some minor 
+module changes while we're at it.
 
-/proc
-    /sys
-        /net
-            /ipsec
-                /inbound_policy_check (== 1)
-            /ipv4
-                /icmp_echo_ignore_all (== 0)
-                /icmp_echo_ignore_broadcasts (== 0)
+--- linux-2.5.30/drivers/char/toshiba.c	2002-08-01 17:16:39.000000000 -0400
++++ linux-bleed/drivers/char/toshiba.c	2002-08-02 18:43:53.000000000 -0400
+@@ -82,7 +82,13 @@
 
-Via, say, a magic 'cat /proc/serialize', you could view this as:
+  static int tosh_fn = 0;
 
-(sys (net (ipsec (inbound_policy_check 1)
-          (ipv4 (icmp_echo_ignore_all 0)
-                (icmp_echo_ignore_broadcasts 0)))))
++extern spinlock_t tosh_lock;
++
+  MODULE_PARM(tosh_fn, "i");
++MODULE_PARM_DESC(tosh_fn, "User specified Fn key detection port");
++MODULE_AUTHOR("Jonathan Buzzard <jonathan@buzzard.org.uk>");
++MODULE_DESCRIPTION("Toshiba laptop SMM driver");
++MODULE_SUPPORTED_DEVICE("toshiba");
 
-without the pretty-printing, of course.  Likewise you could
-cat /proc/sys/serialize to see just that subtree.
+  MODULE_LICENSE("GPL");
 
-All this information is available already in the kernel and
-'parsing' the resulting s-expressions is mostly a matter of
-counting parenthesis nesting depth, matching keywords, and doing
-ASCII->numeric conversions.
+@@ -114,11 +120,10 @@
+  	if (tosh_fn!=0) {
+  		scan = inb(tosh_fn);
+  	} else {
+- 
+	save_flags(flags);
+- 
+	cli();
++ 
+         spin_lock_irqsave(&tosh_lock,flags);
+  		outb(0x8e, 0xe4);
+  		scan = inb(0xe5);
+- 
+	restore_flags(flags);
++ 
+	spin_unlock_irqrestore(&tosh_lock,flags);
+  	}
 
-I'm not religious about s-expressions but they do solve this
-problem fairly well.  People who are religiously anti-LISP should
-pretend I used { } in the above.
+          return (int) scan;
+@@ -141,35 +146,32 @@
+  	if (tosh_id==0xfccb) {
+  		if (eax==0xfe00) {
+  	 
+	/* fan status */
+- 
+		save_flags(flags);
+- 
+		cli();
++ 
+	        spin_lock_irqsave(&tosh_lock,flags);
+  	 
+	outb(0xbe, 0xe4);
+  	 
+	al = inb(0xe5);
+- 
+		restore_flags(flags);
++ 
+		spin_unlock_irqrestore(&tosh_lock,flags);
+  	 
+	regs->eax = 0x00;
+  	 
+	regs->ecx = (unsigned int) (al & 0x01);
+  		}
+  		if ((eax==0xff00) && (ecx==0x0000)) {
+  	 
+	/* fan off */
+- 
+		save_flags(flags);
+- 
+		cli();
++ 
+	        spin_lock_irqsave(&tosh_lock,flags);
+  	 
+	outb(0xbe, 0xe4);
+  	 
+	al = inb(0xe5);
+  	 
+	outb(0xbe, 0xe4);
+  	 
+	outb (al | 0x01, 0xe5);
+- 
+		restore_flags(flags);
++ 
+		spin_unlock_irqrestore(&tosh_lock,flags);
+  	 
+	regs->eax = 0x00;
+  	 
+	regs->ecx = 0x00;
+  		}
+  		if ((eax==0xff00) && (ecx==0x0001)) {
+  	 
+	/* fan on */
+- 
+		save_flags(flags);
+- 
+		cli();
++ 
+	        spin_lock_irqsave(&tosh_lock,flags);
+  	 
+	outb(0xbe, 0xe4);
+  	 
+	al = inb(0xe5);
+  	 
+	outb(0xbe, 0xe4);
+  	 
+	outb(al & 0xfe, 0xe5);
+- 
+		restore_flags(flags);
++ 
+		spin_unlock_irqrestore(&tosh_lock,flags);
+  	 
+	regs->eax = 0x00;
+  	 
+	regs->ecx = 0x01;
+  		}
+@@ -180,33 +182,30 @@
+  	if (tosh_id==0xfccc) {
+  		if (eax==0xfe00) {
+  	 
+	/* fan status */
+- 
+		save_flags(flags);
+- 
+		cli();
++ 
+	        spin_lock_irqsave(&tosh_lock,flags);
+  	 
+	outb(0xe0, 0xe4);
+  	 
+	al = inb(0xe5);
+- 
+		restore_flags(flags);
++ 
+		spin_unlock_irqrestore(&tosh_lock,flags);
+  	 
+	regs->eax = 0x00;
+  	 
+	regs->ecx = al & 0x01;
+  		}
+  		if ((eax==0xff00) && (ecx==0x0000)) {
+  	 
+	/* fan off */
+- 
+		save_flags(flags);
+- 
+		cli();
++ 
+	        spin_lock_irqsave(&tosh_lock,flags);
+  	 
+	outb(0xe0, 0xe4);
+  	 
+	al = inb(0xe5);
+  	 
+	outw(0xe0 | ((al & 0xfe) << 8), 0xe4);
+- 
+		restore_flags(flags);
++ 
+		spin_unlock_irqrestore(&tosh_lock,flags);
+  	 
+	regs->eax = 0x00;
+  	 
+	regs->ecx = 0x00;
+  		}
+  		if ((eax==0xff00) && (ecx==0x0001)) {
+  	 
+	/* fan on */
+- 
+		save_flags(flags);
+- 
+		cli();
++ 
+	        spin_lock_irqsave(&tosh_lock,flags);
+  	 
+	outb(0xe0, 0xe4);
+  	 
+	al = inb(0xe5);
+  	 
+	outw(0xe0 | ((al | 0x01) << 8), 0xe4);
+- 
+		restore_flags(flags);
++ 
+		spin_unlock_irqrestore(&tosh_lock,flags);
+  	 
+	regs->eax = 0x00;
+  	 
+	regs->ecx = 0x01;
+  		}
 
-Of course this all relies on a one-value-per-file /proc, which is
-regrettably not the case now; that's why I chose /proc/sys for
-the above example.
-
-miket

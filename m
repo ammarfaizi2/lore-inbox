@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVCCBkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVCCBkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbVCCBkn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 20:40:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVCCBga
+	id S261254AbVCCBkl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 20:40:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVCCBg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 20:36:30 -0500
-Received: from mercury.sdinet.de ([193.103.161.30]:53634 "EHLO
-	mercury.sdinet.de") by vger.kernel.org with ESMTP id S261296AbVCCBe5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 20:34:57 -0500
-Date: Thu, 3 Mar 2005 02:34:56 +0100 (CET)
-From: Sven-Haegar Koch <haegar@sdinet.de>
-To: Massimo Cetra <mcetra@navynet.it>
-Cc: "'Linus Torvalds'" <torvalds@osdl.org>,
-       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel release numbering
-In-Reply-To: <20050303010615.3C7F184008@server1.navynet.it>
-Message-ID: <Pine.LNX.4.62.0503030222520.11715@mercury.sdinet.de>
-References: <20050303010615.3C7F184008@server1.navynet.it>
+	Wed, 2 Mar 2005 20:36:58 -0500
+Received: from ns1.lanforge.com ([66.165.47.210]:33936 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S261254AbVCCBgA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 20:36:00 -0500
+Message-ID: <422669F4.9020706@candelatech.com>
+Date: Wed, 02 Mar 2005 17:35:48 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Massimo Cetra <mcetra@navynet.it>
+CC: "'Linus Torvalds'" <torvalds@osdl.org>,
+       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel release numbering
+References: <20050303010615.3C7F184008@server1.navynet.it>
+In-Reply-To: <20050303010615.3C7F184008@server1.navynet.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Mar 2005, Massimo Cetra wrote:
+Massimo Cetra wrote:
 
-> Linus Torvalds wrote:
->
->> Namely that we could adopt the even/odd numbering scheme that
->> we used to do on a minor number basis, and instead of
->> dropping it entirely like we did, we could have just moved it
->> to the release number, as an indication of what was the
->> intent of the release.
->
->> Comments?
->
-> This is surely a good idea because end users (not developers) like me would
-> have greater possibility not to occur in a regression with an even release.
+> So, why moving from 2.6.14 to 2.6.15 when, in 2/4 weeks, i'll have a more
+> stable 2.6.16 ? 
+> Will users help testing an odd release to have a good even release ? Or will
+> they consider an even release as important as a -RC release ?
 
-What I would like to see as an enduser is (dreaming):
- 	kernel 2.6.x - last released
+I think it would be useful for folks to test the 2.6.ODD release because
+the understanding is that 2.6.ODD+1 will be out soon, and we are pretty
+sure there won't be any large changes in that transition.  Any out-side-the-tree
+patches will probably apply to both of these w/out manual hacking,
+which also makes testing easier.
 
- 	often released (every 1-2 weeks) kernel 2.6.x.z
- 	containing just the answers to the often repeating
- 	lkml questions which are answered with "use $this simple patch"
+I am less likely to test an ODD.pre-Z release because there is likely to be
+a large pile coming after that, which means that even if pre-Z worked
+fine, I still have to be very paranoid about the final release.
 
- 	kernel 2.6.y-pre/rc/bk - development, working towards 2.6.y
-
-in practice your proposed 2.6.even changes, but these continued until the 
-next kernel is released, not stopped after 1-2 weeks with the worst fixes.
-(a bit like the -as series, but with the "official blessing")
-
-c'ya
-sven
+Ben
 
 -- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)

@@ -1,52 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261903AbTCMBsD>; Wed, 12 Mar 2003 20:48:03 -0500
+	id <S261958AbTCMBwE>; Wed, 12 Mar 2003 20:52:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261911AbTCMBsD>; Wed, 12 Mar 2003 20:48:03 -0500
-Received: from bitmover.com ([192.132.92.2]:59583 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S261903AbTCMBsC>;
-	Wed, 12 Mar 2003 20:48:02 -0500
-Date: Wed, 12 Mar 2003 17:58:46 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030313015846.GK7275@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-References: <20030312174244.GC13792@work.bitmover.com> <Pine.LNX.4.44.0303121324510.14172-100000@xanadu.home> <20030312195120.GB7275@work.bitmover.com> <20030312201416.GA2433@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030312201416.GA2433@mars.ravnborg.org>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+	id <S261967AbTCMBwE>; Wed, 12 Mar 2003 20:52:04 -0500
+Received: from smtp.cs.curtin.edu.au ([134.7.1.1]:14274 "EHLO
+	smtp.cs.curtin.edu.au") by vger.kernel.org with ESMTP
+	id <S261958AbTCMBwD>; Wed, 12 Mar 2003 20:52:03 -0500
+Message-ID: <004501c2e904$38a120e0$64070786@synack>
+From: "David Shirley" <dave@cs.curtin.edu.au>
+To: "Hans-Peter Jansen" <hpj@urpla.net>, <vda@port.imtp.ilyichevsk.odessa.ua>,
+       <linux-kernel@vger.kernel.org>
+References: <041b01c2e86a$870822f0$64070786@synack> <200303121353.h2CDrhu30117@Port.imtp.ilyichevsk.odessa.ua> <002101c2e8a5$8358d4c0$2400a8c0@compaq3> <200303121852.44804.hpj@urpla.net>
+Subject: Re: Help, eth0: transmit timed out!
+Date: Thu, 13 Mar 2003 09:59:45 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 12, 2003 at 09:14:16PM +0100, Sam Ravnborg wrote:
-> On Wed, Mar 12, 2003 at 11:51:20AM -0800, Larry McVoy wrote:
-> > is what davej may have typed in as comments.  We capture that as well, it
-> > looks like this:
-> > 
-> >     revision 1.342
-> >     date: 2003/03/07 15:39:16;  author: torvalds;  state: Exp;  lines: +7 -1
-> >     [PATCH] kbuild: Smart notation for non-verbose output
-> 
-> Ho humm, I did this not Linus.
-> Checked the web which is correct.
-> 
-> Same goes for 1.340 for the Makefile. Kai did it, not Linus.
+Sorry
 
-There is a "fixed" (I hope) linux-2.4 tree up.  We're still converting the
-2.5 tree, ETA is about 6 hours (the fix substantially slowed down the 
-coversion process, did I mention that this stuff is a pain?).  I'm going 
-out for a while but I'll send out mail when the 2.5 tree is up.
+Diferent NIC didn't help.
 
-If you have worked on files in 2.4 please go poke at them at 
+Yeah we have used about 300 3c905's over the last couple of years
+(labs for a university dept). Never had a problem
 
-cvs -d:pserver:anonymous@kernel.bkbits.net:/home/cvs rlog linux-2.4/<your file>
+Must be something else, mem of MB i reckon.
 
-and see if you think that is accurate.  Let me know either way.  Thanks.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Will change it and let you all know.
+
+Cheers
+Dave
+
+----- Original Message -----
+From: "Hans-Peter Jansen" <hpj@urpla.net>
+To: "David Shirley" <dave@cs.curtin.edu.au>;
+<vda@port.imtp.ilyichevsk.odessa.ua>; <linux-kernel@vger.kernel.org>
+Sent: Thursday, March 13, 2003 1:52 AM
+Subject: Re: Help, eth0: transmit timed out!
+
+
+> On Wednesday 12 March 2003 15:41, David Shirley wrote:
+> > Tried a different NIC, another 3c905c.
+>
+> ..and? I'm using this NIC family with this driver in all my diskless
+setups
+> with kernels since 2.0.* up to 2.4.20, and I never experienced the problem
+> you describe, so I would check for some hardware, bios, chipset, cable,
+hub
+> or switch problem.
+>
+> From about 30 NICs currently in production for 6 month up to 5 years, I
+had
+> one failure (3c905b). I haven't found Don's driver failing since ages ;-),
+> through the b versions created me some headaches for etherbooting and the
+> newest 3c905cx-txm has a problem with software bootprom flashing :-(.
+>
+> Pete
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

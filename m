@@ -1,64 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131784AbRAUADr>; Sat, 20 Jan 2001 19:03:47 -0500
+	id <S131831AbRAUAH1>; Sat, 20 Jan 2001 19:07:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131831AbRAUAD2>; Sat, 20 Jan 2001 19:03:28 -0500
-Received: from [203.36.158.121] ([203.36.158.121]:56196 "EHLO kabuki.eyep.net")
-	by vger.kernel.org with ESMTP id <S131784AbRAUADP>;
-	Sat, 20 Jan 2001 19:03:15 -0500
-Subject: Re: 2.4 and ipmasq modules
-From: Daniel Stone <daniel@kabuki.eyep.net>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010120153403.A17269@vitelus.com>
-In-Reply-To: <20010120144616.A16843@vitelus.com>  
-	<E14K7UY-0004hB-00@kabuki.eyep.net>  <20010120153403.A17269@vitelus.com>
-Content-Type: text/plain
-X-Mailer: Evolution (0.8 - Preview Release)
-Date: 21 Jan 2001 11:08:00 +1100
-Mime-Version: 1.0
-Message-Id: <E14K83B-0004lQ-00@kabuki.eyep.net>
+	id <S132101AbRAUAHS>; Sat, 20 Jan 2001 19:07:18 -0500
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:48900 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S131831AbRAUAHH>; Sat, 20 Jan 2001 19:07:07 -0500
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200101210006.BAA06025@green.mif.pg.gda.pl>
+Subject: Re: Linux 2.4.0-ac10
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Sun, 21 Jan 2001 01:06:58 +0100 (CET)
+Cc: linux-kernel@vger.kernel.org (kernel list)
+X-Mailer: ELM [version 2.5 PL0pre8]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Jan 2001 15:34:03 -0800, Aaron Lehmann wrote:
-> On Sun, Jan 21, 2001 at 10:32:15AM +1100, Daniel Stone wrote:
-> > FTP is under Connection Tracking support, FTP connection tracking. Does
-> > the same stuff as ip_masq_ftp. IRC is located in patch-o-matic -
-> > download iptables 1.2 and do a make patch-o-matic, there is also RPC and
-> > eggdrop support in there. I'm half in the middle of porting ip_masq_icq,
-> > but it's one hideously ugly kludge after another. Such is life.
-> 
-> That option seems to conflict with "ipfwadm (2.0-style) support".
-> Preferably, I'd like to stay with friendly old ipfwadm rather than
-> switching firewalling tools _again_.
+Hi Alan,
 
+--- linux-2.4.0-ac9/arch/i386/boot/bootsect.S   Tue Jul 18 23:55:01 2000
++++ linux-2.4.0-ac10/arch/i386/boot/bootsect.S  Sat Jan 20 02:47:07 2001
+@@ -5,8 +5,12 @@
+  *     modified by Bruce Evans (bde)
+  *     modified by Chris Noe (May 1999) (as86 -> gas)
+  *
+- * bootsect is loaded at 0x7c00 by the bios-startup routines, and moves
+- * itself out of the way to address 0x90000, and jumps there.
++ * 360k/720k disk support: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
 
-Your choice, but if you choose not to switch, you lose the power of:
-* stateful inspection
-* modules
-* a sane command line
-* a metric shitload of extensions
+I wonder how this line gets into your patch. Please, remove it (patch follows).
+My bootsector patch is NOT enclosed into 2.4.0-ac10.
 
-"I'd rather stay with my friendly old pushbike than my car!"
-So don't complain when you can't use cruise control.
+Yes, I did rewrite some time ago the bootsect.S to enable booting a kernel
+with (bootsect.o + setup.o) > 4 kB   
+[ it happens eg. when video selection is compiled in ]
+from a 360k/720k (8 sec/track) floppy, but AFAIR it is alredy obsolete and
+has never been ported to 2.4.
 
-d
+Note that it is almost impossible to compile an usable [you must turn off
+networking] i386 2.4 kernel which fits into 360k floppy...
 
+And there are other bootsect.S related unsolved problems [large kernels].
+
+Regards
+   Andrzej
+
+**************************************************
+--- arch/i386/boot/bootsect.S.orig	Sat Jan 20 18:36:39 2001
++++ arch/i386/boot/bootsect.S	Sat Jan 20 18:36:55 2001
+@@ -5,8 +5,6 @@
+  *	modified by Bruce Evans (bde)
+  *	modified by Chris Noe (May 1999) (as86 -> gas)
+  *
+- * 360k/720k disk support: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+- *
+  * BIG FAT NOTE: We're in real mode using 64k segments.  Therefore segment
+  * addresses must be multiplied by 16 to obtain their respective linear
+  * addresses. To avoid confusion, linear addresses are written using leading
+**************************************************
 -- 
-Daniel Stone
-Linux Kernel Developer
-daniel@kabuki.eyep.net
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-G!>CS d s++:- a---- C++ ULS++++$>B P---- L+++>++++ E+(joe)>+++ W++ N->++ !o
-K? w++(--) O---- M- V-- PS+++ PE- Y PGP>++ t--- 5-- X- R- tv-(!) b+++ DI+++ 
-D+ G e->++ h!(+) r+(%) y? UF++
-------END GEEK CODE BLOCK------
-
-
-
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

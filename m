@@ -1,48 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267249AbUGVUiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267242AbUGVUhy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267249AbUGVUiw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 16:38:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267251AbUGVUiw
+	id S267242AbUGVUhy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 16:37:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267249AbUGVUhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 16:38:52 -0400
-Received: from ozlabs.org ([203.10.76.45]:30090 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S267249AbUGVUh5 (ORCPT
+	Thu, 22 Jul 2004 16:37:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:7380 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267242AbUGVUhv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 16:37:57 -0400
-MIME-Version: 1.0
+	Thu, 22 Jul 2004 16:37:51 -0400
+Date: Thu, 22 Jul 2004 16:34:55 -0400
+From: Alan Cox <alan@redhat.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: Willy Tarreau <willy@w.ods.org>, solar@openwall.com,
+       tigran@aivazian.fsnet.co.uk, alan@redhat.com,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: question about /proc/<PID>/mem in 2.4 (fwd)
+Message-ID: <20040722203455.GA26526@devserv.devel.redhat.com>
+References: <20040707234852.GA8297@openwall.com> <Pine.LNX.4.44.0407181336040.2374-100000@einstein.homenet> <20040718125925.GA20133@openwall.com> <20040718212721.GC1545@alpha.home.local> <20040718161549.5c61d4a9.pj@sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16640.9278.416147.515293@cargo.ozlabs.ibm.com>
-Date: Thu, 22 Jul 2004 16:31:58 -0400
-From: Paul Mackerras <paulus@samba.org>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org,
-       linas@linas.org
-Subject: Re: Remail: [PATCH] 2.6 PPC64: PCI Config Space reads need EEH checking
-In-Reply-To: <20040721212621.GZ13171@austin.ibm.com>
-References: <20040721212621.GZ13171@austin.ibm.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Disposition: inline
+In-Reply-To: <20040718161549.5c61d4a9.pj@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linas Vepstas writes:
+On Sun, Jul 18, 2004 at 04:15:49PM -0700, Paul Jackson wrote:
+> The setuidapp will see the shell's memory.  In general, a app, setuid or
+> not, should make no assumption that any open fd's handed to it at birth
+> were opened using the same priviledges that the app itself has.
 
-> This patch adds explicit checking for EEH slot isolation events into the 
-> PCI config space read path.  The change itself would have been minor,
-> except that pci config reads don't have a pointer to a struct pci_dev.
-> Thus, I had to restructure the eeh code to accomodate this, which
-> seems to be a good thing anyway, making it a tad cleaner.   This patch
-> presumes the earlier patches i.e. the notifier-call chain patch) have
-> been applied.
-> 
-> Please forward upstream if all's OK.
-> 
-> Signed-off-by: Linas Vepstas <linas@linas.org>
-> 
-> --linas 
-> 
-> ----- End forwarded message -----
 
--ENOPATCH :)
+Now think about "exec suidapp < ..." thats more fun
 
-Paul.

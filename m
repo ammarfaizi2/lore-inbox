@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264512AbUGRU0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUGRUb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264512AbUGRU0X (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 16:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUGRU0X
+	id S264503AbUGRUb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 16:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264519AbUGRUb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 16:26:23 -0400
-Received: from mail2.bluewin.ch ([195.186.4.73]:29128 "EHLO mail2.bluewin.ch")
-	by vger.kernel.org with ESMTP id S264512AbUGRU0O (ORCPT
+	Sun, 18 Jul 2004 16:31:26 -0400
+Received: from mail6.bluewin.ch ([195.186.4.229]:33959 "EHLO mail6.bluewin.ch")
+	by vger.kernel.org with ESMTP id S264503AbUGRUbY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 16:26:14 -0400
-Date: Sun, 18 Jul 2004 22:23:42 +0200
-To: akpm@osdl.com
+	Sun, 18 Jul 2004 16:31:24 -0400
+Date: Sun, 18 Jul 2004 22:29:30 +0200
+To: akpm@osdl.org
 Cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
 Subject: [PATCH] s390: Use include/asm-generic/dma-mapping-broken.h
-Message-ID: <20040718202342.GA9485@mars>
+Message-ID: <20040718202930.GA9542@mars>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline

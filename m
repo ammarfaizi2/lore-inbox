@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261310AbSKHUQb>; Fri, 8 Nov 2002 15:16:31 -0500
+	id <S261894AbSKHUXl>; Fri, 8 Nov 2002 15:23:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261434AbSKHUQb>; Fri, 8 Nov 2002 15:16:31 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43023 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261310AbSKHUQ2>; Fri, 8 Nov 2002 15:16:28 -0500
-Date: Fri, 8 Nov 2002 12:19:20 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Douglas Gilbert <dougg@torque.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: sscanf("-1", "%d", &i) fails, returns 0
-In-Reply-To: <Pine.LNX.4.33L2.0211081153480.32726-100000@dragon.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44.0211081211141.4471-100000@penguin.transmeta.com>
+	id <S262344AbSKHUXk>; Fri, 8 Nov 2002 15:23:40 -0500
+Received: from modemcable191.130-200-24.mtl.mc.videotron.ca ([24.200.130.191]:38411
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S261894AbSKHUXh>; Fri, 8 Nov 2002 15:23:37 -0500
+Date: Fri, 8 Nov 2002 15:30:02 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
+cc: "'Corey Minyard'" <cminyard@mvista.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: NMI handling rework
+In-Reply-To: <A9713061F01AD411B0F700D0B746CA6802FC1544@vacho6misge.cho.ge.com>
+Message-ID: <Pine.LNX.4.44.0211081524430.10231-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 8 Nov 2002, Heater, Daniel (IndSys, GEFanuc, VMIC) wrote:
 
-On Fri, 8 Nov 2002, Randy.Dunlap wrote:
-?
-> Sure, it looks cleaner that way, although gcc has already put <*dig>
-> in a local register; i.e., it's not pulled from memory for each test.
-> Here's a (tested) version that does that.
+> Am I reading this correctly? As long as no one passes back NOTIFY_STOP_MASK,
+> all handlers are run. Assuming that all external NMI sources have a means of
+> checking whether they were the source, this would work like shared PCI
+> interrupts.
 
-Why do you have that "dig" pointer at all? It's not really used.
+On Linux we run through all handlers for shared interrupts, it is up to 
+the handler to figure out wether it really was supposed to receive that 
+interrupt (normally quick status checks for hardware).
 
-Why not just do
+> affected handlers have not run yet and will get run on the current pass, or
+> they will run on the next pass. You may have two handlers run on a single
+> pass but you should not drop any. True??
 
-	+	char digit;
-	...
+For sanity's sake stick to running through all of them, there should be no 
+partial handling, every registered handler should get serviced once per 
+NMI interrupt.
 
-	+	digit = str;
-	+	if (digit == '-')
-	+		digit = str[1];
-
-
-(and maybe it should also test for whether signed stuff is even alloed or 
-not, ie maybe the test should be "if (is_sign && digit == '-')" instead)
-
-		Linus
+	Zwane
+-- 
+function.linuxpower.ca
 

@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283163AbRK2KsC>; Thu, 29 Nov 2001 05:48:02 -0500
+	id <S283167AbRK2KuC>; Thu, 29 Nov 2001 05:50:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283160AbRK2Krw>; Thu, 29 Nov 2001 05:47:52 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38662 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S283158AbRK2Krc>; Thu, 29 Nov 2001 05:47:32 -0500
-Subject: Re: 3 Questions
-To: linux@sneulv.dk (Allan Sandfeld)
-Date: Thu, 29 Nov 2001 10:56:13 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E169N2Y-0000zS-00@Princess> from "Allan Sandfeld" at Nov 29, 2001 09:59:29 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S283176AbRK2Ktx>; Thu, 29 Nov 2001 05:49:53 -0500
+Received: from web13604.mail.yahoo.com ([216.136.175.115]:7692 "HELO
+	web13604.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S283167AbRK2Kth>; Thu, 29 Nov 2001 05:49:37 -0500
+Message-ID: <20011129104936.66773.qmail@web13604.mail.yahoo.com>
+Date: Thu, 29 Nov 2001 02:49:36 -0800 (PST)
+From: Todd Roy <todd_m_roy@yahoo.com>
+Subject: lvm.c compilation errors with 2.5.1-pre2 and pre3
+To: linux-kernel@vger.kernel.org
+Cc: linux-lvm@sistina.com
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E169OrV-00086I-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unless they release it GPL, then it might be included in the kernel right? 
-> And "the nitty gritty details of making sure its driver software works
-> properly across such a range of rapidly changing development
-> environments" taken care of by the users of the driver.  They can even track 
-> it by CVS, by requesting all patches against the driver to be submitted to 
-> them.
+Hi all, I got these errors trying to
+compile 2.5.1-pre2 and pre3:
 
-Seperate "works" from "supported by". Putting a driver in the kernel makes a
-lot of sense, but you'd still probably have an officially supported version.
+make[3]: Entering directory
+`/usr/src/linux-2.5/drivers/md'
+gcc -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2
+-fomit-frame-pointer -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=i686
+-malign-functions=4     -c -o lvm.o lvm.c
+lvm.c: In function `lvm_user_bmap':
+lvm.c:1046: request for member `bv_len' in something
+not a structure or union
+lvm.c: In function `lvm_map':
+lvm.c:1249: `BIO_HASHED' undeclared (first use in this
+function)
+lvm.c:1249: (Each undeclared identifier is reported
+only once
+lvm.c:1249: for each function it appears in.)
+make[3]: *** [lvm.o] Error 1
+make[3]: Leaving directory
+`/usr/src/linux-2.5/drivers/md'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory
+`/usr/src/linux-2.5/drivers/md'
+make[1]: *** [_subdir_md] Error 2
+make[1]: Leaving directory
+`/usr/src/linux-2.5/drivers'
+make: *** [_dir_drivers] Error 2
+[supermoby] /usr/src/linux-2.5
+root $ more Makefile
 
-> They asked for official recommendations, shouldnt the primary recommandation 
-> not be to open source it, even if some vendors wont?
+Looks like BIO_HASHED was left in from somewhere... I
+can't find a definition for it anywhere.
 
-They have to open source it anyway, since it is based on the sbus aurora
-driver as they said, so its already GPL code.
+-- todd --
 
-There is a difference between releasing GPL code and supporting it. Standard
-Red Hat support contracts for example stop at the point you go compiling
-your own kernel.
-
-
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
+http://geocities.yahoo.com/ps/info1

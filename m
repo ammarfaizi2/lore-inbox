@@ -1,76 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318359AbSGYIWJ>; Thu, 25 Jul 2002 04:22:09 -0400
+	id <S318386AbSGYIa6>; Thu, 25 Jul 2002 04:30:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318366AbSGYIWJ>; Thu, 25 Jul 2002 04:22:09 -0400
-Received: from viefep13-int.chello.at ([213.46.255.15]:2864 "EHLO
-	viefep13-int.chello.at") by vger.kernel.org with ESMTP
-	id <S318359AbSGYIWI>; Thu, 25 Jul 2002 04:22:08 -0400
-Message-Id: <5.0.2.1.2.20020725101620.01ccb0a0@pop.tvnet.hu>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Thu, 25 Jul 2002 10:19:21 +0100
-To: linux-kernel@vger.kernel.org
-From: Newsmail <newsmail@satimex.tvnet.hu>
-Subject: cmd680 problem in 2.4.19-rc3-ac3
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S318387AbSGYIa5>; Thu, 25 Jul 2002 04:30:57 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:3846 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S318386AbSGYIa5>;
+	Thu, 25 Jul 2002 04:30:57 -0400
+Message-ID: <3D3FB6C8.1070409@evision.ag>
+Date: Thu, 25 Jul 2002 10:28:56 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC/CFT] cmd640 irqlocking fixes
+References: <20020724225826.GF25038@holomorphy.com> <1027559111.6456.34.camel@irongate.swansea.linux.org.uk> <20020725095448.B21541@ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I just bought a new kouwell udma133+raid (KW-571B) card that has a cmd680 
-chip on it.
-the card detects nicely my HDs, but after when linux boots I get something 
-like this:
+Vojtech Pavlik wrote:
 
-Jul 23 18:43:28 wk kernel: hdi: IC35L120AVVA07-0, ATA DISK drive
-Jul 23 18:43:28 wk kernel: hdj: 2AIC35L120AVVA07-0, ATA DISK drive
+> 
+> The kernel functions are OK. The problem is that the kernel can use
+> PCIBIOS calls to set the registers. And certain old buggy BIOSes which
+> violate the PCI spec can use wrong size data transfers to set the
+> registers, which the CMD640 doesn't like.
+> 
+> IMHO the best workaround here would be either to disable PCIBIOS calls
+> and revert to conf1 or conf2 in the PCI code if a CMD640 is present, or
+> just panic() in the CMD640 code and suggest to the user to use
+> "pci=nobios" on the kernel command line. I'd actually prefer the later.
+> 
 
-Jul 23 18:43:28 wk kernel: hdi: host protected area => 
-1
-Jul 23 18:43:28 wk kernel: hdi: 241254720 sectors (123522 MB) w/1863KiB 
-Cache, CHS=239340/16/63, UDMA(100)
-Jul 23 18:43:28 wk kernel: hdj: task_no_data_intr: status=0x51 { DriveReady 
-SeekComplete Error }
-Jul 23 18:43:28 wk kernel: hdj: task_no_data_intr: error=0x04 { 
-DriveStatusError }
-Jul 23 18:43:28 wk kernel: hdj: setmax_ext LBA 1, 
-native  0
-Jul 23 18:43:28 wk kernel: hdj: 0 sectors (0 MB) w/1KiB Cache, 
-CHS=0/255/63, DMA
-Jul 23 18:43:28 wk kernel: hdj: set_multmode: status=0x51 { DriveReady 
-SeekComplete Error }
-
-both HDs are the same IBM120GXP drives. both are perfect, for sure. after 
-this, I tried this controller card with some maxtor drives. then I got this:
-
-Jul 23 18:43:28 wk kernel: hde: MAXTOR 4K080H4, ATA DISK drive
-Jul 23 18:43:28 wk kernel: hdf: 00MAXTOR 4K080H4, ATA DISK drive
-
-Jul 23 18:43:28 wk kernel: hde: host protected area => 
-1
-Jul 23 18:43:28 wk kernel: hde: 156301488 sectors (80026 MB) w/2000KiB 
-Cache, CHS=155061/16/63, UDMA(100)
-Jul 23 18:43:28 wk kernel: hdf: task_no_data_intr: status=0x53 { DriveReady 
-SeekComplete Index Error }
-Jul 23 18:43:28 wk kernel: hdf: task_no_data_intr: error=0x04 { 
-DriveStatusError }
-Jul 23 18:43:28 wk kernel: hdf: -122814464 sectors (2136142 MB) w/1KiB 
-Cache, CHS=259704/255/63, DMA
-Jul 23 18:43:28 wk kernel: hdf: set_multmode: status=0x51 { DriveReady 
-SeekComplete Error }
-Jul 23 18:43:28 wk kernel: hdf: set_multmode: error=0x04 { DriveStatusError 
-}
-
-In both cases the SLAVE drive wasnt detected correctly, and after reported 
-errors. after I tried this out with another card from the same brand, I 
-tried primary and secondary channel, no luck, I got these same sypmtoms. 
-all drives worked perfect with promise controllers.
-the kernel I used: 2.4.19-rc3-ac3.
-I use an asus cuv4x-d motherboard, with 2 pIII 850.
-I hope these informations are enough,
-best wishes,
-greg
-
+ From a long long time ago during the first days of this driver I 
+remember that those chips could be wired to both PCI and VLB(ISA) bus.
+And this is the main reaons why the functions is question exist in first 
+place -> "emulating" PCI configuration space access on VLB.
 
 

@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269091AbTCDC2R>; Mon, 3 Mar 2003 21:28:17 -0500
+	id <S269126AbTCDCk4>; Mon, 3 Mar 2003 21:40:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269092AbTCDC2R>; Mon, 3 Mar 2003 21:28:17 -0500
-Received: from mx02.cyberus.ca ([216.191.240.26]:5391 "EHLO mx02.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S269091AbTCDC2P>;
-	Mon, 3 Mar 2003 21:28:15 -0500
-Date: Mon, 3 Mar 2003 21:38:17 -0500 (EST)
-From: jamal <hadi@cyberus.ca>
-To: Terje Eggestad <terje.eggestad@scali.com>
-cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, "" <netdev@oss.sgi.com>,
-       "" <linux-net@vger.kernel.org>, "" <davem@redhat.com>
-Subject: Re: anyone ever done multicast AF_UNIX sockets?
-In-Reply-To: <1046734165.27924.263.camel@eggis1>
-Message-ID: <20030303212628.M67734@shell.cyberus.ca>
-References: <3E5E7081.6020704@nortelnetworks.com> <1046695876.7731.78.camel@pc-16.office
- .scali.no>  <3E638C51.2000904@nortelnetworks.com> <1046720360.28127.209.camel@eggis1>
-  <3E63D73A.2000402@nortelnetworks.com> <1046734165.27924.263.camel@eggis1>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269132AbTCDCkz>; Mon, 3 Mar 2003 21:40:55 -0500
+Received: from shfd-3e35393f.pool.mediaWays.net ([62.53.57.63]:6528 "EHLO
+	unicorn.encapsulated.net") by vger.kernel.org with ESMTP
+	id <S269126AbTCDCky>; Mon, 3 Mar 2003 21:40:54 -0500
+Date: Tue, 4 Mar 2003 02:47:14 +0000
+From: Beneath <ishikodzume@beneath.plus.com>
+To: linux-kernel@vger.kernel.org
+Subject: BUG: EXT3: linux-2.4.21-pre5
+Message-Id: <20030304024714.647cc75d.ishikodzume@beneath.plus.com>
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hi Terje,
+I have experienced this twice now... it seems to be random, or at least
+i wasn't at all doing the same things each time i experienced it.
+Once i experienced it back with pre3... and now with pre5.
+My apologies, i am not sure what's going on, but here is what happens:
 
-On Mon, 4 Mar 2003, Terje Eggestad wrote:
+All of a sudden, and not during any heavy disk writing sessions or
+anything, things seem to stop loading up. I.e. the system is still very
+much alive, just anything that requires disk access will hang. It's
+happened both times in X, and i was able to switch back to VT1, where
+the following error messages awaited me:
+(this is as much as i could write down)
 
-> How do you design a protocol that uses multicast to send a request to do
-> work?
->
-> All uses I can think of right now of multicast/broadcast is:
-> * Discovery, like in NIS.
-> * Announcements like in OSPF.
-> * update like in NTP broadcast
->
+Several of these two messages:
+EXT3-FS error (device ide0(3,2)) in ext3 reserve_inode_write: IO failure
+EXT3-FS error (device ide0(3,2)) in ext3_get_inode ... (this then
+scrolled off the screen before i could transcribe it)
 
-I know we are digressing away from main discussion ...
+Then, after tonnes of that, whenever i tried to do anything subsequent:
+EXT3-FS error (device ide0(3,2)) in start_transaction: journal has
+aborted
 
-The concept of reliable multicast is known to be useful.
-Look at(for some sample apps):
-http://www.ietf.org/html.charters/rmt-charter.html
+I can't get anything to work, including shutdown, so i have to do a hard
+reset.
 
-But we are talking about a distributed system in that context.
+This has only happened twice in... well, since pre3 has been released,
+whenever that was. So it doesn't occur too much... good luck replicating
+it. Anyone else had it?
 
-Agreed, reliability and multicast do not always make sense.
+ide0 is using the HPT37x driver, which just recently started working
+with 2.4.20-ac1 onwards.
+I'm using reverse-ide if that makes any difference.
 
+I know this isn't much info, but i really can't think of anything else i
+can add. Nothing pertaining to this is showing up in any log files or
+anything.
+Really sorry about the lack of detail... anything else i could say that
+would help this be fixed? I'd really like to see it gone in 2.4.21... if
+not it'll be the only pre-release kernel that has ever crashed for me.
 
-cheers,
-jamal
+I'm not subscribed to the list, so please CC to my address.
+
+Thank you,
+ - Daniel
+

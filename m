@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278146AbRJZMnx>; Fri, 26 Oct 2001 08:43:53 -0400
+	id <S277398AbRJZMgX>; Fri, 26 Oct 2001 08:36:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276803AbRJZMnn>; Fri, 26 Oct 2001 08:43:43 -0400
-Received: from mx6.port.ru ([194.67.57.16]:2311 "EHLO smtp6.port.ru")
-	by vger.kernel.org with ESMTP id <S276330AbRJZMni> convert rfc822-to-8bit;
-	Fri, 26 Oct 2001 08:43:38 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: info <5740@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Micro$of use Novell, not his own products
-Date: Fri, 26 Oct 2001 16:43:33 +0400
-X-Mailer: KMail [version 1.3.1]
+	id <S276330AbRJZMgN>; Fri, 26 Oct 2001 08:36:13 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:521 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276803AbRJZMgI>; Fri, 26 Oct 2001 08:36:08 -0400
+Subject: Re: [RFC] New Driver Model for 2.5
+To: helgehaf@idb.hist.no (Helge Hafting)
+Date: Fri, 26 Oct 2001 13:38:02 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BD94A65.1A8E6B84@idb.hist.no> from "Helge Hafting" at Oct 26, 2001 01:35:02 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15x6LM-000H1x-00@smtp6.port.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15x6FO-0008Ex-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello to all
+> Telling the kernel to suspend while burning a CD is
+> on the same level as ejecting the CD while burning.  
+> It has to go wrong.  Someone explicitly asking for
+> trouble might as well get it.
 
-I think, this is interesting
+It need not be someone asking for trouble. It might just be a ten minute
+"nothing happened" timeout that starts the decision making.
 
-# queso microsoft.com:25
-207.46.197.100:25       * Novell Netware TCP/IP
+> The really dumb users is probably using a GUI tool
+> for either activity, that one may of course refuse
+> to ruin the burn.
 
-This is piracy or Microsoft buy licensed Novell?
+The current GUI tools don't know anything about 2.5 power management, and
+in some cases don't know when the driver has done needed work or not.
 
-And what it mean - that Microsoft can't guarrantie even himself 
-against viruses, hackers etc., so used no his own IIS, but Novell? 
-
-In any case, I think that this fact can be exellently used for 
-Linux Public Relation and advertizing.
-
-Best regards,
-
-George Afanassew,
-www.gossovet.ru
+Alan

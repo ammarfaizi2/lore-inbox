@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266220AbUA2U2S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 15:28:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266340AbUA2U2S
+	id S266340AbUA2Udk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 15:33:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266343AbUA2Udk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 15:28:18 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:41897 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S266220AbUA2U2K (ORCPT
+	Thu, 29 Jan 2004 15:33:40 -0500
+Received: from ce.fis.unam.mx ([132.248.33.1]:31681 "EHLO ce.fis.unam.mx")
+	by vger.kernel.org with ESMTP id S266340AbUA2Udh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 15:28:10 -0500
-From: Matthias Fouquet-Lapar <mfl@kernel.paris.sgi.com>
-Message-Id: <200401292016.i0TKGraI034387@mtv-vpn-hw-mfl-2.corp.sgi.com>
-Subject: Re: [RFC/PATCH, 1/4] readX_check() performance evaluation
-To: davidm@hpl.hp.com
-Date: Thu, 29 Jan 2004 21:16:52 +0100 ("CET)
-Cc: mfl@kernel.paris.sgi.com (Matthias Fouquet-Lapar), ak@suse.de (Andi Kleen),
-       davidm@napali.hpl.hp.com, iod00d@hp.com, ishii.hironobu@jp.fujitsu.com,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-In-Reply-To: <16409.24257.589224.818006@napali.hpl.hp.com> from "David Mosberger" at Jan 29, 2004 11:28:01 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Jan 2004 15:33:37 -0500
+Subject: Re: OT: try a search for "bastards" on google
+From: Max Valdez <maxvalde@fis.unam.mx>
+To: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1075400259.40194e4327596@horde.sandall.us>
+References: <40190128.6010103@alvie.com>
+	 <1075400259.40194e4327596@horde.sandall.us>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-E8Vk/qjXnDLL1n2FSu4s"
+Message-Id: <1075408410.19897.10.camel@garaged.homeip.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 29 Jan 2004 14:33:30 -0600
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   Matthias> We have done a rather large study with DIMMs that had SBEs
->   Matthias> and have found no evidence that a SBE turns into a UCE,
->   Matthias> i.e. the fact that a SBE is reported, is no indication
->   Matthias> that the device might fail soon.
-> 
-> Ehh, wait a second: you're saying that your study proved that if the
-> device isn't failing, it isn't failing. ;-) Of course you'll get noise
 
-I should have been more precice. We used field returned parts which 
-had reported SBEs and had been exchanged in the field. Our goal was to
-see if any of these parts "de-generate" over time. Most of these parts
-had hard single bit failures in one or more locations. As I said,
-we didn't find evidence that even hard SBEs turn into a multiple bit
-error. Of course the chances of getting a UCE are higher when a "soft"
-SBE occurs in a memory location which already has a hard SBE.
+--=-E8Vk/qjXnDLL1n2FSu4s
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
+I did the search, and the first entry was www.sco.com
 
-Thanks
+Now it's giving completly new items
 
-Matthias Fouquet-Lapar  Core Platform Software    mfl@sgi.com  VNET 521-8213
-Principal Engineer      Silicon Graphics          Home Office (+33) 1 3047 4127
+Max
+On Thu, 2004-01-29 at 12:17, Eric Sandall wrote:
+> Quoting Alvaro Lopes <alvieboy@alvie.com>:
+> > .... and first hit will lead you to SCO group.
+> >=20
+> > Rather funny, heh?
+> >=20
+> > =C1lvaro
+>=20
+> Led me to bastards.org first...didn't even see SCO mentioned on the first=
+ page.
+>=20
+> -sandalle
+
+--=-E8Vk/qjXnDLL1n2FSu4s
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAGW4aNNkpVEFxW78RAvFlAJ44zu/srbmuX/pRhklnRP7EKvy7IACfcBnN
+7NDjXh2XZ3fb1gt5BnlCIRY=
+=TBmI
+-----END PGP SIGNATURE-----
+
+--=-E8Vk/qjXnDLL1n2FSu4s--
 

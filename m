@@ -1,78 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129338AbQKFJjP>; Mon, 6 Nov 2000 04:39:15 -0500
+	id <S129493AbQKFJko>; Mon, 6 Nov 2000 04:40:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129357AbQKFJjE>; Mon, 6 Nov 2000 04:39:04 -0500
-Received: from [62.254.209.2] ([62.254.209.2]:4856 "EHLO cam-gw.zeus.co.uk")
-	by vger.kernel.org with ESMTP id <S129338AbQKFJi4>;
-	Mon, 6 Nov 2000 04:38:56 -0500
-Date: Mon, 6 Nov 2000 09:38:53 +0000 (GMT)
-From: Stephen Landamore <stephenl@zeus.com>
-To: Thomas Pollinger <tpolling@rhone.ch>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG REPORT] TCP/IP weirdness in 2.2.15
-In-Reply-To: <5.0.0.25.0.20001103173708.034fb360@stargate>
-Message-ID: <Pine.LNX.4.10.10011060917300.6962-100000@phaedra.cam.zeus.com>
+	id <S129207AbQKFJkf>; Mon, 6 Nov 2000 04:40:35 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:39950
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129493AbQKFJkZ>; Mon, 6 Nov 2000 04:40:25 -0500
+Date: Mon, 6 Nov 2000 01:40:09 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Neil Brown <neilb@cse.unsw.edu.au>, ryan <ryan@netidea.com>,
+        linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: Kernel 2.4.0test10 crash (RAID+SMP)
+In-Reply-To: <3A067318.E9C6ADDF@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.10.10011060138320.14903-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Thomas,
+On Mon, 6 Nov 2000, Jeff Garzik wrote:
 
-On Fri, 3 Nov 2000, Thomas Pollinger wrote:
-> Running a 'cvs get' on the Linux clients of a larger source tree
-> eventually hangs the client in the middle of the get process. The
-> hang is *always* reproduceable (however it does not always hang at
-> the same place, sometimes after 1', sometimes after 5' to
-> 10'). Several runs on Win NT did not show this problem.
-[...]
-> At last, I tried to do the same on another HP-UX box and there was
-> no blocking at all.
->
-> What is interesting to know is that between the HP-UX server and the
-> HP client is a Linux router with a 3c905 card, 2.2.14 kernel.
+> Neil Brown wrote:
+> > It looks like an interupt is happening while another interrupt is
+> > happening, which should be impossible... but it isn't.
+> 
+> If multiple interrupts are hitting a single code path (like IDE irqs 14
+> -and- 15), you definitely have to think about that.  The reentrancy
+> guarantee only exists when a single IRQ is assigned to a single
+> handler...
+Jeff,
 
-Let me see if I understand this correct:
+This is likely the classic case where the driver hangs on to the global
+lock way to lock because it is grabbed to early wrt what I am changing the
+behavior to...
 
-	Client	Router	Server
-	------------------------------------
-	Linux	Linux	HPUX		Bad
-	WinNT	Linux	HPUX		Good
-	HPUX	Linux	HPUX		Good
+Cheers,
 
-With all Linux boxes version 2.2.something
-
-Is this correct?
-
-This is slightly different from my situation; I had a Linux client and
-Linux server directly connected to the same switch (3Com Superstack
-II, FWIW)
-
-I found the client always hung in my test; this was only visible at
-the end of a SPEC run. Analysing tcpdump etc showed that in fact it
-died somewhere early in the test, almost always before 10 minutes
-worth of run.
-
-In the end I 'fixed' the problem by using a HPUX server :-/ ... I
-observe that there _are_ some SPECweb99 submissions with Linux (the
-Tux result), I'm curious to know if the people who actually did the
-test run experienced any problems...
-
-Perhaps if I get time I'll repeat the experiment with (a) the most
-recent Alan pre-2.2 kernel and (b) the most recent 2.4-test kernel...
-
-I'll re-iterate my original request, which was not "it's broke - can
-you fix it" but was "okay, how do I go about tracking this one down?"
-
-cheers,
-stephen
-
---
-Stephen Landamore, <slandamore@zeus.com>              Zeus Technology
-Tel: +44 1223 525000                      Universally Serving the Net
-Fax: +44 1223 525100                              http://www.zeus.com
-Zeus Technology, Zeus House, Cowley Road, Cambridge, CB4 0ZT, ENGLAND
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272127AbRHVVOx>; Wed, 22 Aug 2001 17:14:53 -0400
+	id <S272123AbRHVV0E>; Wed, 22 Aug 2001 17:26:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272123AbRHVVOm>; Wed, 22 Aug 2001 17:14:42 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25105 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272121AbRHVVOg>; Wed, 22 Aug 2001 17:14:36 -0400
-Subject: Re: [PATCH,RFC] make ide-scsi more selective
-To: mikpe@csd.uu.se (Mikael Pettersson)
-Date: Wed, 22 Aug 2001 22:17:37 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-        ionut@cs.columbia.edu
-In-Reply-To: <no.id> from "Mikael Pettersson" at Aug 22, 2001 09:46:03 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S272121AbRHVVZy>; Wed, 22 Aug 2001 17:25:54 -0400
+Received: from h131s117a129n47.user.nortelnetworks.com ([47.129.117.131]:6818
+	"HELO pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
+	id <S272123AbRHVVZn>; Wed, 22 Aug 2001 17:25:43 -0400
+Message-ID: <3B8423B9.29B1293A@nortelnetworks.com>
+Date: Wed, 22 Aug 2001 17:27:21 -0400
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (comments requested) adding finer-grained timing to PPC 
+ add_timer_randomness()
+In-Reply-To: <Pine.LNX.4.33.0108221702300.12521-100000@terbidium.openservices.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15ZfNZ-0002J3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've been rather annoyed by a dual problem in the ide-scsi setup:
-> during initialisation, ide-scsi will claim ALL currently unassigned
-> IDE devices. This is a problem in modular setups, since there's
-> no guarantee that currently unassigned devices actually are intended
-> for ide-scsi.
+Ignacio Vazquez-Abrams wrote:
 
-The real problem is that the drivers are claiming resources on load not
-on open. Why shouldnt I be able to load ide-cd and ide-scsi and open either
-/dev/hda or /dev/sr0 but not both together ?
+> >From the patch:
+> 
+> --- linux-2.2.19-clean/arch/ppc/kernel/setup.c  Sun Mar 25 11:31:49 2001
+> +++ linux-2.2.19/arch/ppc/kernel/setup.c        Wed Aug 22 16:34:51 2001
+>   ...
+> +extern int have_timebase = 1;
+>   ...
+> --- linux-2.2.19-clean/include/asm-ppc/processor.h      Sun Mar 25 11:31:08 2001
+> +++ linux-2.2.19/include/asm-ppc/processor.h    Wed Aug 22 16:34:51 2001
+>   ...
+> +extern int have_timebase;
+>   ...
 
-Alan
+> Am I missing something, or should at least one of these not be extern?
+
+
+Okay, I feel dumb.  You're right of course. I guess I must have missed the
+compiler warning.
+
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

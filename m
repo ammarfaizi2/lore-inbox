@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269232AbTGJMDG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 08:03:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269228AbTGJMDG
+	id S266338AbTGJL7n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 07:59:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269226AbTGJL7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 08:03:06 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:30378 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S269232AbTGJMCI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 08:02:08 -0400
-Date: Thu, 10 Jul 2003 08:54:02 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: green@namesys.com, mason@suse.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre3 and reiserfs boot problem
-In-Reply-To: <20030710132141.65a8f770.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.55L.0307100852230.7857@freak.distro.conectiva>
-References: <20030706183453.74fbfaf2.skraw@ithnet.com>
- <1057515223.20904.1315.camel@tiny.suse.com> <20030709140138.141c3536.skraw@ithnet.com>
- <1057757764.26768.170.camel@tiny.suse.com> <20030709134837.GJ18307@namesys.com>
- <20030709141111.GK18307@namesys.com> <20030709162535.175d5fd3.skraw@ithnet.com>
- <Pine.LNX.4.55L.0307091408340.26373@freak.distro.conectiva>
- <20030710132141.65a8f770.skraw@ithnet.com>
+	Thu, 10 Jul 2003 07:59:43 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:24047 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S266338AbTGJL7m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 07:59:42 -0400
+Message-ID: <3F0D583E.8070307@intel.com>
+Date: Thu, 10 Jul 2003 15:12:46 +0300
+From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alexander Viro <viro@math.psu.edu>
+Subject: Re: PATCH: seq_file interface to provide large data chunks
+References: <3F0D217B.4040900@intel.com> <1057835373.8028.0.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1057835373.8028.0.camel@dhcp22.swansea.linux.org.uk>
+X-Enigmail-Version: 0.76.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan,
+I analyzed 2 latest patches from www.kernel.org:
+patch-2.4.22-pre4 and patch-2.4.22-pre3-ac1.
 
+-pre4 do not touch seq_file;
 
-On Thu, 10 Jul 2003, Stephan von Krawczynski wrote:
+-pre3-ac1 corrects spelling and adds single_xxx functions. There is no 
+conflict between this patch and my one. I verified, they do apply in any 
+order (with some offset).
 
-> On Wed, 9 Jul 2003 14:18:37 -0300 (BRT)
-> Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+Vladimir.
+
+Alan Cox wrote:
+
+>On Iau, 2003-07-10 at 09:19, Vladimir Kondratiev wrote:
+>  
 >
-> > > PS to Marcelo:
-> > > There is a problem with 2.4.22-pre3. I cannot mount a reiserfs
-> > > data-partition with 320 GB size located on a 3ware RAID. It just hangs the
-> > > box, during init or any runlevel I tried. It is completely reproducable,
-> > > but debugreiserfs on the partition and reiserfsck both show no problems at
-> > > all ... The things mounts flawlessly under 2.4.22-pre2 and below.
-> >
-> > There are no 3ware changes in pre3. So it must be reiserfs or something
-> > else. Lets try reverting the reiserfs patches to see if they are the
-> > cause?
-> >
-> > Attached are files rei1, rei2, and rei3 (all gzip compressed).
+>>seq_file interface, as it exist in last official kernel, never provides 
+>>more then one page for each 'read' call. Old read_proc_t did loop to 
+>>fill more than one page.
+>>    
+>>
 >
-> I reverted all three patches and the problem stays just the same. I guess this
-> makes it a lot likely that the problem lies elsewhere.
+>There is a merge of Al's additional seq_file stuff to 2.4 floating
+>around (its in -ac for one) that may be a better thing to merge instead
+>if we want it 
 >
-> If you want me to try others, just send them to me like these three.
+>Al ?
+>
+>  
+>
 
-Stephan,
 
-First of all, thanks a lot for your help. Not everyone is willing to
-debug/test problems like you do. This is very important for us.
-
-Well, we now know reiserfs patches in 2.4.22-pre are not the problem.
-
-2.4.21 is OK (does not crash when mounting) correct?

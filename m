@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262956AbTC1LAd>; Fri, 28 Mar 2003 06:00:33 -0500
+	id <S262958AbTC1LAo>; Fri, 28 Mar 2003 06:00:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262958AbTC1LAd>; Fri, 28 Mar 2003 06:00:33 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:34200 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S262956AbTC1LAc>; Fri, 28 Mar 2003 06:00:32 -0500
-Date: Fri, 28 Mar 2003 11:11:17 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Christoph Hellwig <hch@infradead.org>,
-       David Ford <david+cert@blue-labs.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.66 buglet
-Message-ID: <20030328111117.GB32101@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Christoph Hellwig <hch@infradead.org>,
-	David Ford <david+cert@blue-labs.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <3E827CDA.8030904@blue-labs.org> <20030327145440.A900@infradead.org> <20030327233050.GD16251@suse.de> <20030328082607.A13326@infradead.org>
+	id <S262959AbTC1LAo>; Fri, 28 Mar 2003 06:00:44 -0500
+Received: from bi-01pt1.bluebird.ibm.com ([129.42.208.186]:27295 "EHLO
+	bigbang.in.ibm.com") by vger.kernel.org with ESMTP
+	id <S262958AbTC1LAm>; Fri, 28 Mar 2003 06:00:42 -0500
+Date: Fri, 28 Mar 2003 16:44:34 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: dipankar@in.ibm.com, Paul.McKenney@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] real_lookup fix
+Message-ID: <20030328111434.GB1127@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20030328104043.GA1127@in.ibm.com> <20030328025131.3363ef37.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030328082607.A13326@infradead.org>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030328025131.3363ef37.akpm@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 28, 2003 at 08:26:07AM +0000, Christoph Hellwig wrote:
- > >  > +	error = devfs_mk_symlink("cpu/microcode", "../misc/microcode");
- > > Where did ../misc/microcode come from? That sounds horribly
- > > generic compared to /dev/cpu/microcode
- > 
- > devfs automatically registers /dev/misc/<name> entries for any minor
- > registered by misc_register.
+On Fri, Mar 28, 2003 at 02:51:31AM -0800, Andrew Morton wrote:
+> Maneesh Soni <maneesh@in.ibm.com> wrote:
+> >
+> > Hi Andrew,
+> > 
+> > Here is a patch to use seqlock for real_lookup race with d_lookup as suggested
+> > by Linus. The race condition can result in duplicate dentry when d_lookup
+> > fails due concurrent d_move in some unrelated directory. 
+> 
+> I was not aware of this race.  Could you please explain it in more detail?
+> 
 
-That's pretty fucked up IMO. Is it feasable that we could one day
-have /dev/$otherhardware/microcode, and that would completely
-screw up this devfs 'feature' ?
+Sometime back, Linus has pointed a race regading d_lookup and concurrent
+d_move (rename). If lookup moves to a different bucket due to d_move, it may
+fail the lookup. rename in the same directory is protected by parent's i_sem
+but rename in some unrelated directory on the same hash chain can have
+this problem. This can result in real_lookup allocating a new dentry for an
+existing one.
 
-		Dave
+Now, similar problem is there with lookup_hash()->cached_lookup(), where
+lookup_hash() ends up in allocating a duplicate dentry.
 
+Linus, actually fixed the race in real_lookup using dcache_lock around the
+d_lookup call. The patch I posted replaces this with seqlock and also fixes
+the cached_lookup() case.
+
+Regards,
+Maneesh
+
+-- 
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/

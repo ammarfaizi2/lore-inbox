@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267518AbUGWDVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267516AbUGWDU2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267518AbUGWDVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 23:21:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbUGWDVQ
+	id S267516AbUGWDU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 23:20:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbUGWDU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 23:21:16 -0400
-Received: from mail.aei.ca ([206.123.6.14]:39638 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S267518AbUGWDU6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 23:20:58 -0400
-Subject: [PATCH] page_cache_readahead unused variable
-From: Shane Shrybman <shrybman@aei.ca>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-KmpWsSaGCZFsGSuFschi"
-Message-Id: <1090552979.2887.13.camel@mars>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 22 Jul 2004 23:22:59 -0400
+	Thu, 22 Jul 2004 23:20:28 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:3170 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267516AbUGWDUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 23:20:08 -0400
+Message-ID: <410083E5.6010502@yahoo.com.au>
+Date: Fri, 23 Jul 2004 13:20:05 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jack Steiner <steiner@sgi.com>, Andrew Morton <akpm@osdl.org>
+CC: mingo@elte.hu, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] - Initialize sched domain table
+References: <20040723010257.GA27350@sgi.com>
+In-Reply-To: <20040723010257.GA27350@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jack Steiner wrote:
+> Here is a trivial patch that is required to boot the latest 2.6.7 tree 
+> on the SGI 512p system.
+> 
+> 	Initial the busy_factor in the sched_domain_init table.
+> 	Otherwise, booting hangs doing excessive load balance
+> 	operations.
+> 
+> 	Signed-off-by: Jack Steiner <steiner@sgi.com>
+> 
 
---=-KmpWsSaGCZFsGSuFschi
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Thanks. Andrew please apply.
 
-Minor cleanup. Removal of unused variable in mm/readahead.c.
-
-Shane
-
---=-KmpWsSaGCZFsGSuFschi
-Content-Disposition: attachment; filename=page_cache_readahead_unused_var.diff
-Content-Type: text/x-patch; name=page_cache_readahead_unused_var.diff; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
-
-Binary files linux-2.6.7-mm7.orig/mm/.readahead.c.swp and linux-2.6.7-mm7/mm/.readahead.c.swp differ
-diff -urN linux-2.6.7-mm7.orig/mm/readahead.c linux-2.6.7-mm7/mm/readahead.c
---- linux-2.6.7-mm7.orig/mm/readahead.c	2004-07-22 22:28:47.000000000 -0400
-+++ linux-2.6.7-mm7/mm/readahead.c	2004-07-22 23:04:50.000000000 -0400
-@@ -349,7 +349,6 @@
- 			struct file *filp, unsigned long offset)
- {
- 	unsigned max;
--	unsigned min;
- 	unsigned orig_next_size;
- 	unsigned actual;
- 	int first_access=0;
-@@ -374,7 +373,6 @@
- 	if (max == 0)
- 		goto out;	/* No readahead */
- 
--	min = get_min_readahead(ra);
- 	orig_next_size = ra->next_size;
- 
- 	if (ra->next_size == 0) {
-
---=-KmpWsSaGCZFsGSuFschi--
+> 
+> 
+> Index: linux/kernel/sched.c
+> ===================================================================
+> --- linux.orig/kernel/sched.c
+> +++ linux/kernel/sched.c
+> @@ -3922,6 +3922,7 @@ void __init sched_init(void)
+>  	sched_domain_init.groups = &sched_group_init;
+>  	sched_domain_init.last_balance = jiffies;
+>  	sched_domain_init.balance_interval = INT_MAX; /* Don't balance */
+> +	sched_domain_init.busy_factor = 1;
+>  
+>  	memset(&sched_group_init, 0, sizeof(struct sched_group));
+>  	sched_group_init.cpumask = CPU_MASK_ALL;
 

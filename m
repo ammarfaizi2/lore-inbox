@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbTLBNPe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 08:15:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbTLBNPe
+	id S262076AbTLBNPx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 08:15:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTLBNPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 08:15:34 -0500
-Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:30901 "EHLO
-	office.labsysgrp.com") by vger.kernel.org with ESMTP
-	id S262070AbTLBNP3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 08:15:29 -0500
-Message-ID: <3FCC906C.5040907@backtobasicsmgmt.com>
-Date: Tue, 02 Dec 2003 06:15:24 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back to Basics Network Management
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-CC: Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>,
-       Linux-raid maillist <linux-raid@vger.kernel.org>, linux-lvm@sistina.com
-Subject: Re: Reproducable OOPS with MD RAID-5 on 2.6.0-test11
-References: <3FCB4AFB.3090700@backtobasicsmgmt.com> <20031201141144.GD12211@suse.de> <3FCB4CFA.4020302@backtobasicsmgmt.com> <20031201155143.GF12211@suse.de> <3FCC0EE0.9010207@backtobasicsmgmt.com> <20031202082713.GN12211@suse.de> <20031202211002.C2009778@wobbly.melbourne.sgi.com>
-In-Reply-To: <20031202211002.C2009778@wobbly.melbourne.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Dec 2003 08:15:53 -0500
+Received: from mailgate3.globalintranet.net ([194.206.181.244]:52630 "EHLO
+	relais-int15.globalintranet.net") by vger.kernel.org with ESMTP
+	id S262076AbTLBNPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 08:15:48 -0500
+X-Lotus-FromDomain: MGE-UPS
+From: arnaud.quette@mgeups.com
+To: Greg KH <greg@kroah.com>, Paul Stewart <stewart@wetlogic.net>,
+       Vojtech Pavlik <vojtech@suse.cz>
+cc: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net,
+       opensource@mgeups.com, "Charles Lepple" <clepple@ghz.cc>
+Message-ID: <C1256DF0.0048D122.00@gin123.ftgin.com>
+Date: Tue, 2 Dec 2003 14:18:25 +0100
+Subject: USB/HID UPS issue (was Re: USB scanner issue)
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Scott wrote:
 
-> One thing that might be of interest - XFS does tend to pass
-> variable size requests down to the block layer, and this has
-> tripped up md and other drivers in 2.4 in the distant past.
-> 
-> Log IO is typically 512 byte aligned (as opposed to block or
-> page size aligned), as are IOs into several of XFS' metadata
-> structures.
 
-Hey, thanks for the pointer! I think we're getting somewhere now. Here's 
-a recap of the tested combinations:
+Hi folks,
 
-XFS on raw disk: OK
-XFS on LVM2 on single disk: OK
-XFS on LVM2 on RAID-5: fails
-ext2 on LVM2 on RAID-5: OK
+I take the opportunity of the previous discussion (USB
+scanner obsolescence) to relaunch the one about hidddev.
 
-I just tested XFS on LVM2 on RAID-5 using "-l sunit=8" while creating 
-the filesystem to force log writes be block-sized and block-aligned; 
-this seems to work :-) I have not been able to force a failure using my 
-test script, although ATM the system is still running a RAID-5 resync of 
-the array, but that should only make the problem more likely, not less.
 
-So, this does appear to be an md/dm stacking problem, that is exposed by 
-XFS sending non-block-sized and/or non-block-aligned IOs.
+On Mon, Dec 01, 2003 at 11:21:58AM -0800, Greg KH wrote:
+> ...
+> Can't you use xsane without the scanner kernel driver?  I thought the
+> latest versions used libusb/usbfs to talk directly to the hardware.
+> Because of this, the USB scanner driver is marked to be removed from the
+> kernel sometime in the near future.
+
+I'm thinking about doing the same with hiddev
+as I'm facing new problems each times we solve
+one! Currently, MGE devices won't work fine with
+latest kernels (2.4 and 2.6). I've identified that
+config/report descriptors are queried another time
+at the end of HID enumeration, but the device doesn't
+have time to answer (about 1,5 sec, instead of the
+standard "5 sec" timeout). I've not found the cause
+after digging, so I've directly gone to the next
+step.
+
+So I've setup the libHID project [1] to allow this
+HID support, only used by UPSs at the moment (I've
+seen passing some comments about USB radio and
+other gadgets). But others complex HID devices are
+welcomed.
+
+My last problem is that I can't succeed in deactivating
+hiddev at runtime (I've tryed various form of
+"alias hiddev off" in modules.conf without success).
+This still cause nasty side effect to the device.
+
+So my question is: If we have userland HID support
+through libHID (in the same way as libusb), is hiddev
+still needed? I obviously don't talk about hid (core),
+joy/keyb/mouse which are still needed...
+
+Your feedback about all of that is welcomed.
+
+Arnaud
+
+[1] http://savannah.nongnu.org/projects/libhid
+http://www.ghz.cc/~clepple/libHID/doc/html/index.html
+
 

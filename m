@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbULNWfV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbULNWiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbULNWfV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 17:35:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbULNWdR
+	id S261710AbULNWiS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 17:38:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbULNWfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 17:33:17 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:30906 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261717AbULNW2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 17:28:38 -0500
-Subject: Re: dynamic-hz
-From: Lee Revell <rlrevell@joe-job.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Andrea Arcangeli <andrea@suse.de>, Pavel Machek <pavel@suse.cz>,
+	Tue, 14 Dec 2004 17:35:40 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:25011 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261694AbULNWdY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 17:33:24 -0500
+Date: Tue, 14 Dec 2004 14:33:02 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: libc-alpha@sources.redhat.com
+cc: Roland McGrath <roland@redhat.com>, george@mvista.com,
        linux-kernel@vger.kernel.org
-In-Reply-To: <41BCD5F3.80401@kolivas.org>
-References: <20041211142317.GF16322@dualathlon.random>
-	 <20041212163547.GB6286@elf.ucw.cz>
-	 <20041212222312.GN16322@dualathlon.random>  <41BCD5F3.80401@kolivas.org>
-Content-Type: text/plain
-Date: Tue, 14 Dec 2004 17:28:32 -0500
-Message-Id: <1103063312.14699.54.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Subject: Support for additional kernel clocks in glibc
+Message-ID: <Pine.LNX.4.58.0412141431230.4769@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-13 at 10:36 +1100, Con Kolivas wrote:
-> The performance benefit, if any, is often lost in noise during 
-> benchmarks and when there, is less than 1%.
+On Tue, 14 Dec 2004, Roland McGrath wrote:
 
-I have measured 2.1-2.3% residency for the timer ISR on my 600Mhz VIA
-C3.  And this is a desktop - you have many many embedded systems that
-are slower.  For these systems the difference is very real.
+> > It seems that this code does now support extra clocks like
+> > CLOCK_REALTIME_HR, CLOCK_MONOTONIC_HR and CLOCK_SGI_CYCLE right?
+>
+> Here I think you are talking about glibc, not kernel code.  If you mean
+> this about the kernel code, then please clarify (and I'm not sure what the
+> question means in that context).  If you are asking about the glibc code,
+> please take that to the libc mailing list and we won't bother the kernel
+> folks with that discussion.
 
-I would certainly expect it to be lost in the noise on a 2Ghz machine.
+The clock_id's are now passed through since you also have to pass your
+bitmapped performance clocks through. I think this may also satisfy
+George Anzinger's long standing request for the possibility of additional
+clock support in glibc. The clocks are now defined only in the
+kernel header files though.
 
-Lee
+Could you make the three clocks also available in glibc header files?
+What do we do if additional clocks become available through the posix
+layer in Linux?
 

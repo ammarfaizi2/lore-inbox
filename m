@@ -1,154 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261917AbTEVO62 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 10:58:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbTEVO62
+	id S261916AbTEVO4K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 10:56:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbTEVO4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 10:58:28 -0400
-Received: from mailsrv1.sonybpe.com ([62.6.248.15]:32527 "EHLO
-	ukbpebasmss01.sonybpe") by vger.kernel.org with ESMTP
-	id S261917AbTEVO6Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 10:58:24 -0400
-Subject: [Fwd: blk_congestion_wait() with linux-2.5.68]
-From: Mathew Spencer <Matthew.Spencer@eu.sony.com>
+	Thu, 22 May 2003 10:56:10 -0400
+Received: from isp247n.hispeed.ch ([62.2.95.247]:61352 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S261916AbTEVO4I convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 10:56:08 -0400
+From: Fabiano Sidler <fabianosidler@swissonline.ch>
 To: linux-kernel@vger.kernel.org
-Cc: axboe@suse.de
-Content-Type: multipart/mixed; boundary="=-9s+FpjCeSoWattk3EFpF"
-Organization: 
-Message-Id: <1053617008.8679.280.camel@jeckle>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 22 May 2003 16:23:29 +0100
-X-OriginalArrivalTime: 22 May 2003 15:09:17.0859 (UTC) FILETIME=[1D6E9F30:01C32074]
+Subject: Kernel unable to load modules
+Date: Thu, 22 May 2003 17:09:09 +0200
+User-Agent: KMail/1.5
+PGP-key: Chaibs
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200305221709.11147.fabianosidler@swissonline.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all folks!
 
---=-9s+FpjCeSoWattk3EFpF
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I hope I'm posting this to the right list:
+Recently, I wanted to set up my box to kernel 2.4.20 and I built a kernel as I 
+made it many times before. But from now on, my kernels are not longer able to 
+load modules. Meanwhile I' ve built kernels with most of gcc versions (2.95.3 
+- 3.3) and linux versions 2.4.18 - 20, but without any success. The modutils 
+are up to date (gentoo .ebuild) and I removed the modules dir and ran 'make 
+mrproper'.
 
-Hi,
-I'm forwarding this question to this list as I have been told there is
-more expertise here regarding the question.  My usual point of contact
-is the linux-arm-kernel mailing list.
+This error I get trying to load a module:
+***
+root@tinagrar:~ $ modprobe 3c59x
+/lib/modules/2.4.20.deever/kernel/drivers/net/3c59x.o: unresolved symbol 
+del_timer_sync
+/lib/modules/2.4.20.deever/kernel/drivers/net/3c59x.o: unresolved symbol 
+xquad_portio
+/lib/modules/2.4.20.deever/kernel/drivers/net/3c59x.o: insmod 
+/lib/modules/2.4.20.deever/kernel/drivers/net/3c59x.o failed
+/lib/modules/2.4.20.deever/kernel/drivers/net/3c59x.o: insmod 3c59x failed
+***
 
-Thanks for your time,
+While booting the kernel, following problems ocurr:
+***...
+Ps_execute: method failed - \_SB_.PCI0.SBRG.PS2M._STA (c7f5cee8)
+evregion-0302 [-13] Ev_address_space_dispa: Region handler: AE_ERROR 
+[PCIConfig]
+ dswexec-0392 [-22] Ds_exec_end_op        : [LNot]: Could not resolve 
+operands, AE_ERROR
+Ps_execute: method failed - \_SB_.PCI0.SBRG.FDC0._STA (c7f5af48)
+  uteval-0337 [-29] Ut_execute_STA        : _STA on FDC0 failed AE_ERROR
+evregion-0302 [-11] Ev_address_space_dispa: Region handler: AE_ERROR 
+[PCIConfig]
+ dswexec-0392 [-20] Ds_exec_end_op        : [LNot]: Could not resolve 
+operands, AE_ERROR
+[10000... times]
+...
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory: 94M
+agpgart: no supported devices found.
+[drm] Initialized tdfx 1.0.0 20010216 on minor 0
+[drm] Initialized radeon 1.1.1 20010405 on minor 1
+[drm:drm_init] *ERROR* Cannot initialize the agpgart module.
+SCSI subsystem driver Revision: 1.00
+kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter, errno = 2
+...
+***
 
-Mat Spencer
+That's all I can report, if you need my .config file for autopsy, please ask! 
+;) (But I don't think that something is wrong there)
 
-
-*************************************************************************
-The information contained in this message or any of its
-attachments may be privileged and confidential and intended 
-for the exclusive use of the addressee. If you are not the
-addressee any disclosure, reproduction, distribution or other
-dissemination or use of this communication is strictly prohibited
-*************************************************************************
-
---=-9s+FpjCeSoWattk3EFpF
-Content-Disposition: inline
-Content-Description: Forwarded message - blk_congestion_wait() with
-	linux-2.5.68
-Content-Type: message/rfc822
-
-Received: from gbisseweymss05.eu.sony.com (43.194.30.211 [43.194.30.211])
-	by gbisseweymsx08.eu.sony.com with SMTP (Microsoft Exchange Internet Mail
-	Service Version 5.5.2653.13) id KK75FXL7; Thu, 22 May 2003 15:48:54 +0100
-Received: from relay1.eu.sony.co.jp (unverified) by
-	gbisseweymss05.eu.sony.com (Content Technologies SMTPRS 4.2.10) with ESMTP
-	id <T625cf7b82c2bc21e113e0@gbisseweymss05.eu.sony.com> for
-	<matthew.spencer@eu.sony.com>; Thu, 22 May 2003 15:48:53 +0100
-Received: from www.linux.org.uk (parcelfarce.linux.theplanet.co.uk
-	[195.92.249.252]) by relay1.eu.sony.co.jp (8.11.3/8.11.3) with ESMTP id
-	h4MEmqV60254 for <matthew.spencer@eu.sony.com>; Thu, 22 May 2003 14:48:53
-	GMT
-Received: from [127.0.0.1] (helo=parcelfarce.linux.theplanet.co.uk) by
-	www.linux.org.uk with esmtp (Exim 4.14) id 19IrLY-0001Om-FO; Thu, 22 May
-	2003 15:47:08 +0100
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]) by
-	www.linux.org.uk with esmtp (TLSv1:DES-CBC3-SHA:168) (Exim 4.14) id
-	19IrKy-0001OG-4M for linux-arm-kernel@lists.arm.linux.org.uk; Thu, 22 May
-	2003 15:46:32 +0100
-Received: from mailsrv1.sonybpe.com ([62.6.248.15]
-	helo=ukbpebasmss01.sonybpe) by caramon.arm.linux.org.uk with esmtp (Exim
-	4.14) id 19IrKv-0000ug-GD for linux-arm-kernel@lists.arm.linux.org.uk; Thu,
-	22 May 2003 15:46:29 +0100
-Received: from akombe.bprl.eu.sony.com (unverified) by
-	ukbpebasmss01.sonybpe (Content Technologies SMTPRS 4.2.1) with ESMTP id
-	<T625cd2cbe12bc2bc21132@ukbpebasmss01.sonybpe> for
-	<linux-arm-kernel@lists.arm.linux.org.uk>; Thu, 22 May 2003 15:08:33 +0100
-Received: from jeckle ([43.194.41.245]) by akombe.bprl.eu.sony.com with
-	Microsoft SMTPSVC(5.0.2195.5329); Thu, 22 May 2003 15:06:24 +0100
-Subject: blk_congestion_wait() with linux-2.5.68
-From: Mathew Spencer <Matthew.Spencer@eu.sony.com>
-To: "linux-arm-kernel@lists.arm.linux.org.uk" <linux-arm-kernel@lists.arm.linux.org.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1053613235.8669.276.camel@jeckle>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-X-OriginalArrivalTime: 22 May 2003 14:06:25.0140 (UTC)
-	FILETIME=[54B76340:01C3206B]
-X-For-Lists: true
-X-Check-HTML: true
-Sender: linux-arm-kernel-admin@lists.arm.linux.org.uk
-Errors-To: linux-arm-kernel-admin@lists.arm.linux.org.uk
-X-BeenThere: linux-arm-kernel@lists.arm.linux.org.uk
-X-Mailman-Version: 2.0.11
-Precedence: bulk
-List-Unsubscribe: 	<http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
-List-Id: ARM Linux kernel discussions
-	<linux-arm-kernel.lists.arm.linux.org.uk>
-List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
-List-Help: 	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
-List-Subscribe: 	<http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
-List-Archive: <http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/>
-Date: 22 May 2003 15:20:36 +0100
-Content-Transfer-Encoding: 7bit
-
-Hi all,
-I have been using 2.4.19 successfully for a while now with an PCI IDE
-disk drive with no problems whatsoever.  I recently upgraded to 2.5.68
-(so that I could use the most recent ieee1394 drivers) and also to start
-experimenting with the new version of the kernel and since then I am
-having problems formatting the hard disk.
-
-When I run mke2fs, it manages to write out the first 12 or 13 blocks
-successfully, but then the code gets stuck continually calling
-blk_congestion_wait() from balance_dirty_pages().
-
-This is the only time that I see this problem.  If the disk is already
-formatted, then mounting/reading/writing to the disk happens without any
-problems at all.
-
-Is anyone out there aware of this problem?
-Does anyone know how to fix it?
-
-For your information, I'm using the 2.95.3 toolchain and
-linux-2.5.68-rmk1-pxa1.
-
-Your time and knowledge is much appreciated.
-
-Regards,
-
-Mat
-
-
-
-*************************************************************************
-The information contained in this message or any of its
-attachments may be privileged and confidential and intended 
-for the exclusive use of the addressee. If you are not the
-addressee any disclosure, reproduction, distribution or other
-dissemination or use of this communication is strictly prohibited
-*************************************************************************
-
--------------------------------------------------------------------
-Subscription options: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
-FAQ/Etiquette:       http://www.arm.linux.org.uk/armlinux/mailinglists.php
-
---=-9s+FpjCeSoWattk3EFpF--
+Thank you for helping people!
+fps
 

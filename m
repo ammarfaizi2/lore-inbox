@@ -1,79 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbUIDNsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263429AbUIDNwr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263003AbUIDNsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 09:48:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUIDNsQ
+	id S263429AbUIDNwr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 09:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUIDNwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 09:48:16 -0400
-Received: from cpe.atm0-0-0-2421032.0x3ef2dbfa.arcnxx7.customer.tele.dk ([62.242.219.250]:48766
-	"EHLO host.kl-teknik.com") by vger.kernel.org with ESMTP
-	id S263003AbUIDNr6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 09:47:58 -0400
-From: Frederik Dannemare <frederik@dannemare.net>
-To: Richard Whittaker <rwhittaker@northwestel.ca>
-Subject: Re: Linux 2.6.8 SegFaulting...
-Date: Sat, 4 Sep 2004 15:52:28 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <4137FC68.3010404@northwestel.ca>
-In-Reply-To: <4137FC68.3010404@northwestel.ca>
+	Sat, 4 Sep 2004 09:52:47 -0400
+Received: from pengo.systems.pipex.net ([62.241.160.193]:16363 "EHLO
+	pengo.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S263429AbUIDNwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 09:52:44 -0400
+Message-ID: <4139C8A3.6010603@tungstengraphics.com>
+Date: Sat, 04 Sep 2004 14:52:35 +0100
+From: Keith Whitwell <keith@tungstengraphics.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040817
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200409041552.29448.frederik@dannemare.net>
+To: Dave Jones <davej@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Dave Airlie <airlied@linux.ie>,
+       Jon Smirl <jonsmirl@yahoo.com>, dri-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, mharris@redhat.com
+Subject: Re: New proposed DRM interface design
+References: <20040904102914.B13149@infradead.org> <41398EBD.2040900@tungstengraphics.com> <20040904104834.B13362@infradead.org> <413997A7.9060406@tungstengraphics.com> <20040904112535.A13750@infradead.org> <4139995E.5030505@tungstengraphics.com> <20040904112930.GB2785@redhat.com> <4139A9F4.4040702@tungstengraphics.com> <20040904115442.GD2785@redhat.com> <4139B03A.6040706@tungstengraphics.com> <20040904122057.GC26419@redhat.com>
+In-Reply-To: <20040904122057.GC26419@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Dave Jones wrote:
+> On Sat, Sep 04, 2004 at 01:08:26PM +0100, Keith Whitwell wrote:
+> 
+>  > So, we are coming out of a period of history where it was extremely 
+>  > difficult to get our drivers to users through the 'official' channels - to 
+>  > the extent that many people have given up on the possibility of them 
+>  > working properly. Maybe things will improve now.
+>  > 
+>  > Are you suggesting for instance, that RedHat might pick up individual 
+>  > drivers out of Xorg or better still Mesa, rather than waiting for a full 
+>  > stable release?  That would probably be the biggest help - by comparison 
+>  > kernel releases are very frequent.
+> 
+> I don't speak for X packaging (which is why I Cc'd Mike), 
 
-On Friday 03 September 2004 07:08, Richard Whittaker wrote:
-> Hiya..
->
-> We have a Proliant DL360 G3 running Linux 2.6.8. This machine has two
-> CPUs, 3GB of memory, a pair of 146GB disks on the SmartArray 5i
-> contoller, a QL2314 Fibrechannel card, and is using abou 60GB on an
-> HP VA7400 via the Fibrechannel card. Under 2.6.6 and 1GB of memory
-> this machine had run for 4 months without even a hiccup... As of
-> yesterday, I added the space on the VA, and moved our MRTG monitoring
-> system to the machine. Our MRTG currently monitors about 300
-> different elements, and is pretty I/O intensive. The website that the
-> MRTG graphs are being written to is on the VA.
->
-> This machine crashed and burned in spectacular fashion last night for
-> the first time in 4 months, and I was really suprised. The machine
-> SegFaulted, but I couldn't get a capture of the stack spew... I had
-> to power the machine off, and restart it this morning. The machine
-> ran for about 4 hours, then SegFaulted again... I was able to at
-> least see the Segfault info, and it was saying something about
-> swapper. Power cycled, and about 5 hours later, Segfaulted again, but
-> this time I was able to capture the DMESG output... I thought it
-> might have been the software RAID device I'd made out of the two LUNS
-> on the VA, but after wiping the LUNS out, and rebuilding them, and
-> moving to LVM with striping the problem still persists.
->
-> Everything in this Kernel is statically linked, and everything is
-> stock, right from ftp.kernel.org...
->
-> Now, I have a feeling that this has something to do with the I/O that
-> I'm loading on the QLogic controller, but can't be absolutely
-> certain... I pose the question here for perusal by the experts, and
-> hopefully some suggestions about what I should look at, or do next...
-[snip]
-Can you rule out bad memory (try memtest86+ for 10-20 hours)? Or could 
-it be heat? Bad mem and heat problems have been the source of almost 
-all crashes I've witnessed.
-- -- 
-Frederik Dannemare | mailto:frederik@dannemare.net
-http://qa.debian.org/developer.php?login=Frederik+Dannemare
-http://frederik.dannemare.net | http://www.linuxworlddomination.dk
-Key fingerprint: BB7B 078A 0DBF 7663 180A  F84A 2D25 FAD5 9C4E B5A8
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+In fact this drags back to my mind the last time a similar conversation came 
+up.  That conversation lead in part to the descision to pull the userspace DRI 
+drivers out of the DRI tree into Mesa, and to likewise spin the DRM off into a 
+project of its own.  At that point Mike did indicate that he might consider 
+pulling drivers directly from our releases (if I remember correctly).  Shortly 
+after this the XFree86 slow-motion trainwreck started, and history overtook 
+that idea.
 
-iD8DBQFBOcicLSX61ZxOtagRAqyNAKCIlPOdU5Je7NSerF2NcD4qxNzlUQCgi1o2
-plUHzPPGixdMT5ULZayszgQ=
-=VvlJ
------END PGP SIGNATURE-----
+What does all this mean?  Not much except that we've been hoping to speed up 
+this process for a long time, and have been working to improve how we do 
+things for about as long.
+
+It's still a difficult problem though.  We've got three distinct, major 
+projects that have to coordinate to get a release to users - Linux kernel 
+(DRM), X.org (DDX) and Mesa (DRI 3D client).  These are all big, stable trees 
+that have their own and changing release strategies.
+
+Currently we have to perform two merges and three releases to get a driver to 
+a users:
+
+	Merge DRM CVS --> LK
+	Release stable kernel  --> Picked up by vendor
+	Release stable Mesa 3D
+	Merge Mesa 3D --> X.org
+	Release stable X.org  --> Picked up by vendor
+
+Now that there's no development/stable kernel divide, the kernel releases 
+should be the quickest part of this, though I'm not as optimistic as some 
+about users pulling them down (but please, let's not go back to that, I'm 
+prepared to believe...).
+
+The fact is that X is already very modular, although not in terms of it's 
+build process.  (If you believe the hype, a DDX compiled on i386 Linux should 
+run on i386 Solaris, SCO, BSD, wherever, without modification.)
+
+In any case, X isn't a monolithic binary, there is scope to pull in 
+incremental updates if the will is there to do the validation.  If vendors are 
+serious about making ad-hoc binary driver updates unnecessary, there has to be 
+a willingness to address the whole problem.
+
+Keith
+

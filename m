@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289824AbSBSUVx>; Tue, 19 Feb 2002 15:21:53 -0500
+	id <S289826AbSBSUWD>; Tue, 19 Feb 2002 15:22:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289823AbSBSUVo>; Tue, 19 Feb 2002 15:21:44 -0500
-Received: from smtp4.vol.cz ([195.250.128.43]:57354 "EHLO majordomo.vol.cz")
-	by vger.kernel.org with ESMTP id <S289820AbSBSUVb>;
-	Tue, 19 Feb 2002 15:21:31 -0500
-Date: Tue, 19 Feb 2002 20:41:55 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: trivial@rustcorp.com.au
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Tiny IDE cleanup
-Message-ID: <20020219194155.GA5468@elf.ucw.cz>
+	id <S289823AbSBSUVy>; Tue, 19 Feb 2002 15:21:54 -0500
+Received: from smtp4.vol.cz ([195.250.128.43]:65034 "EHLO majordomo.vol.cz")
+	by vger.kernel.org with ESMTP id <S289817AbSBSUVk>;
+	Tue, 19 Feb 2002 15:21:40 -0500
+Date: Tue, 19 Feb 2002 09:30:53 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Missed jiffies
+Message-ID: <20020219093052.B37@toy.ucw.cz>
+In-Reply-To: <3C6E77DE.70FE49DF@rwii.com> <3C6E833F.1A888B3C@mvista.com> <a4pbvi@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <a4pbvi@cesium.transmeta.com>; from hpa@zytor.com on Sun, Feb 17, 2002 at 02:48:18PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-What about this tiny cleanup? Its against 2.4., but applicable to 2.5,
-too.
+> > lap tops), is the fact that TSC is NOT clocked at a fixed rate.  It is
+> > affected by throttling (reduced in 12.5% increments) and by power
+> > management.
+> 
+> If the TSC is affected by HLT, throttling, or C2 power management, the
+> TSC is broken (as it is on Cyrix chips, for example.)  The TSC usually
+> *is* affected by C3 power management, but the OS should be aware of
+> C3.
 
+Add thinkpad 560X (pentium/MMX) and toshiba 4030cdt (celeron) to your
+blacklist, then. I believe that by your definition *many* sstems are
+broken.
 								Pavel
-
---- clean.2.4/include/linux/ide.h	Mon Nov  5 21:43:28 2001
-+++ linux-swsusp.24/include/linux/ide.h	Tue Feb 19 20:38:38 2002
-@@ -697,11 +698,9 @@
-  * structure directly (the allocation/layout may change!).
-  *
-  */
--#ifndef _IDE_C
- extern	ide_hwif_t	ide_hwifs[];		/* master data repository */
- extern	ide_module_t	*ide_modules;
- extern	ide_module_t	*ide_probe;
--#endif
- extern int noautodma;
- 
- /*
-@@ -900,10 +899,8 @@
- void do_ide_request (request_queue_t * q);
- void ide_init_subdrivers (void);
- 
--#ifndef _IDE_C
- extern struct block_device_operations ide_fops[];
- extern ide_proc_entry_t generic_subdriver_entries[];
--#endif
- 
- #ifdef _IDE_C
- #ifdef CONFIG_BLK_DEV_IDE
-
 -- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

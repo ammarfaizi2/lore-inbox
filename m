@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269454AbRH3QLn>; Thu, 30 Aug 2001 12:11:43 -0400
+	id <S272309AbRH3QUN>; Thu, 30 Aug 2001 12:20:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272304AbRH3QLd>; Thu, 30 Aug 2001 12:11:33 -0400
-Received: from smtp7.us.dell.com ([143.166.224.233]:56075 "EHLO
-	smtp7.us.dell.com") by vger.kernel.org with ESMTP
-	id <S269454AbRH3QLW>; Thu, 30 Aug 2001 12:11:22 -0400
-Date: Thu, 30 Aug 2001 11:11:39 -0500 (CDT)
-From: Michael E Brown <michael_e_brown@dell.com>
-X-X-Sender: <mebrown@blap.linuxdev.us.dell.com>
-Reply-To: Michael E Brown <michael_e_brown@dell.com>
-To: Ben LaHaise <bcrl@redhat.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] blkgetsize64 ioctl
-Message-ID: <Pine.LNX.4.33.0108301108210.1213-100000@blap.linuxdev.us.dell.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272312AbRH3QUD>; Thu, 30 Aug 2001 12:20:03 -0400
+Received: from pD903CA2F.dip.t-dialin.net ([217.3.202.47]:23228 "EHLO
+	no-maam.dyndns.org") by vger.kernel.org with ESMTP
+	id <S272309AbRH3QT6>; Thu, 30 Aug 2001 12:19:58 -0400
+Date: Thu, 30 Aug 2001 18:18:56 +0200
+To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.9-ac4
+Message-ID: <20010830181856.A6691@no-maam.dyndns.org>
+In-Reply-To: <20010830154637.A4570@lightning.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010830154637.A4570@lightning.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.20i
+From: erik.tews@gmx.net (Erik Tews)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben LaHaise wrote:
-> Here's the modified patch (incompatible with e2fsprogs 1.23, but not
-> conflicting with ia64: ioctls that write to disk are b0rken).
+On Thu, Aug 30, 2001 at 03:46:37PM +0100, Alan Cox wrote:
+> 2.4.9-ac4
+> o	Fix X.75 with new hisax drivers and an isdn	(Kai Germaschewski)
+> 	disconnect race
 
-In reference to the ia64 ioctls:  I'm sorry, but disk access APIs that
-don't allow access to the whole disk are what is broken. These ioctls
-would not be necessary if you could actually write to the last sector of
-an odd-sized disk. Have you read the comments surrounding this ioctl?
+What is that exactly? I got the problem that mppp is not working
+correctly with 2.4.9 and 2.4.10-pre2 (and I tried some 2.4.9-ac too).
+When I came to my router, I had the following lines on my console
 
--- 
-Michael Brown
-Linux OS Development
-Dell Computer Corp
+isdn_ppp_mp_receive: lpq->ppp_slot -1
+isdn_ppp_mp_receive: lpq->ppp_slot -1
+isdn_ppp_mp_receive: lpq->ppp_slot -1
+isdn_ppp_mp_receive: lpq->ppp_slot -1
+isdn_ppp_xmit: lp->ppp_slot -1
 
-  If each of us have one object, and we exchange them,
-     then each of us still has one object.
-  If each of us have one idea,   and we exchange them,
-     then each of us now has two ideas.
-
-
+And after these lines I had a kernel-oops on my console. After running
+ksymoops I found out, that the kernel was doing something in the
+sceduler (if I understand the output of ksymoops right). But these
+crashes must be mppp-related, because if I never execute isdnctrl
+addlink ippp0 the system never crashes and these error-messages never
+appear.

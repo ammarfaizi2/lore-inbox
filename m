@@ -1,125 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263846AbTJ1HNI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 02:13:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263869AbTJ1HNI
+	id S263869AbTJ1H0r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 02:26:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263870AbTJ1H0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 02:13:08 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:37858 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263846AbTJ1HND (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 02:13:03 -0500
-From: Michael Frank <mhf@linuxmail.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: 2.6.0-test8/test9 io scheduler needs tuning?
-Date: Tue, 28 Oct 2003 14:11:20 +0800
-User-Agent: KMail/1.5.2
-Cc: cliff white <cliffw@osdl.org>, linux-kernel@vger.kernel.org,
-       Nigel Cunningham <ncunningham@clear.net.nz>
-References: <200310261201.14719.mhf@linuxmail.org> <200310281213.31709.mhf@linuxmail.org> <3F9DF0D3.60707@cyberone.com.au>
-In-Reply-To: <3F9DF0D3.60707@cyberone.com.au>
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Oct 2003 02:26:47 -0500
+Received: from adsl-68-120-202-5.dsl.pltn13.pacbell.net ([68.120.202.5]:1504
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S263869AbTJ1H0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 02:26:46 -0500
+Date: Mon, 27 Oct 2003 23:26:45 -0800
+To: linux-kernel@vger.kernel.org, lipeng@acm.org
+Subject: Re: 512MB/1GB RAM & Wireless Card
+Message-ID: <20031028072645.GB5795@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org, linux-kernel@vger.kernel.org,
+	lipeng@acm.org
+References: <20031028064554.GA20596@seas.upenn.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
 Content-Disposition: inline
-Message-Id: <200310281411.20165.mhf@linuxmail.org>
+In-Reply-To: <20031028064554.GA20596@seas.upenn.edu>
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 October 2003 12:30, Nick Piggin wrote:
-> 
-> Michael Frank wrote:
-> 
-> >On Tuesday 28 October 2003 07:50, Nick Piggin wrote:
-> >
-> >>cliff white wrote:
-> >>
-> >>
-> >>>On Tue, 28 Oct 2003 05:52:45 +0800
-> >>>Michael Frank <mhf@linuxmail.org> wrote:
-> >>>
-> >>>
-> >>>
-> >>>>To my surprise 2.6 - which used to do better then 2.4 - does no longer 
-> >>>>handle these test that well.
-> >>>>
-> >>>>Generally, IDE IO throughput is _very_ uneven and IO _stops_ at times with the
-> >>>>system cpu load very high (and the disk LED off).
-> >>>>
-> >>>>IMHO the CPU scheduling is OK but the IO scheduling acts up here.
-> >>>>
-> >>>>The test system is a 2.4GHz P4 with 512M RAM and a 55MB/s udma IDE harddisk.
-> >>>>
-> >>>>The tests load the system to loadavg > 30. IO should be about 20MB/s on avg.
-> >>>>
-> >>>>Enclosed are vmstat -1 logs for 2.6-test9-Vanilla, followed by 2.6-test8-Vanilla 
-> >>>>(-mm1 behaves similar), 2.4.22-Vanilla and 2.4.21+swsusp all compiled wo preempt.
-> >>>>
-> >>>>IO on 2.6 stops now for seconds at a time. -test8 is worse than -test9
-> >>>>
-> >>>>
-> >>>We see the same delta at OSDL. Try repeating your tests with 'elevator=deadline' 
-> >>>to confirm.
-> >>>For example, on the 8-cpu platform:
-> >>>STP id Kernel Name         MaxJPM      Change  Options
-> >>>281669 linux-2.6.0-test8   7014.42      0.0    
-> >>>281671 linux-2.6.0-test8   8294.94     +18.26%  elevator=deadline
-> >>>
-> >>>The -mm kernels don't show this big delta. We also do not see this delta on
-> >>>smaller machines
-> >>>
-> >>>
-> >>I'm working with Randy to fix this. Attached is what I have so far. See how
-> >>you go with it.
-> >>
-> >>
-> >>
-> >
-> >This has been done without running a kernel compile, by $ ti-tests/ti stat ub17 ddw 4 5000
-> >
-> >Seems to be more even on average but still drops IO too low and then gets overloaded. 
-> >
-> >By "too low" I mean io bo less than 10000.
-> >
-> >By overloaded I mean io bo goes much above 40000. The disk can do maybe 60000. 
-> >
-> >When io bo is much above 40000, cpu scheduling is being impaired as indicated
-> >by vmstat stopping output for a second or so...
-> >
-> 
-> The bi / bo fields in vmstat aren't exactly what the disk is doing, rather
-> the requests the queue is taking. The interesting thing is how your final
-> measurement compares with 2.4.
 
-Well this is one easy "measurement", an other being hooking up an oscilloscope
-to IDE - might do that actually as well ;)
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Anyway, what matters is the user side. IO intensive tasks are the most affected. 
-Running on $ ti stat ddw 4 5000, any one out of 4 ddd's gets locked  out at times 
-for several seconds. This was a problem on 2.4 with 2.4.18 - 2.4.20 and is 
-fixed again since 2.4.21 while at that time the focus was more on general 
-interactivity with regard to desktop use.
+On Tue, Oct 28, 2003 at 01:45:54AM -0500, Peng Li wrote:
+> Problem: I installed an Dell Truemobile 1150 MINI PCI wireless card (a
+> rebranded orinoco gold) on this machine and it didn't work.  The card
+> worked perfectly in Windows, but when I use it in Linux, the PCMCIA
+> driver could not find the device.
 
-Going to improve the time info output of the ddd loops to get better data and 
-provide a comparison of -test9 with 2.4.22 and 2.4.23-pre-latest within a 
-few days.
+Always the same first question: was CONFIG_ISA enabled in your .config?
+It's what I needed to do to get my Orinoco to work under Linux.
 
-> 
-> I think 2.4 has quite a lot more free requests by default (512 vs 128 for
-> 2.6). This might also be causing Nigel's writeout problems perhaps. Try
-> echo 512 > /sys/block/xxx/queue/nr_requests
-> 
+Interesting that it worked when you unplugged the RAM, but I don't see
+an immediate correlation.
 
-Superficially, the effect between 128 up to 2048 is insignificant.
-The effect down to the minimum of 4 is noticable both in userspace 
-and with physical disk activity.
+--=20
+Joshua Kwan
 
-BTW, with the patch the hang reported earlier was not encountered again so 
-far, but this needs more testing. Is this an anticipated or side-effect 
-of the patch?
+--LZvS9be/3tNcYl/X
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Regards
-Michael
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
+iQIVAwUBP54aM6OILr94RG8mAQJuGBAA9N06VPgC/rOagsDQ18lCINRmbl8TX+27
+vQ7jIv3abA3f8DUB7M3I2DVMh54TXnvRne5JsC6ThjmQEMHDUD2rZm4WfrThqIDB
+W7kUk4Aq+z0Tx8uab08Y+/LpkwIb7Mb9MJevIvoY7g/zMXA4QtaqaArXptgvmfyO
+z8xt5gzdjGpsCHB1b9DxmXHw2SsMjaexFxGlInHtO1xtFdep7otsqhYpEoB+U5Ul
+v65l9HZltjya7LqS339smuz9a2cvDO+Wp9Aeuo9GBfNvL/fgl2abd4+fau+5/Kmd
+m19NhIRgZvnh+Or4AQPpH1xzM0eOLpYpgUyPYXX+j6llZANJJGkAhvgMF/TYHdtD
+LFhlSa357XBrJrojfWvX24qfgqAnjXWQICgw82amXqzYT0HyFvtquXAoObsjgXYg
+GF/nbL0CU63BkL7bZr+ctdsNws7A6Xje/WejQmSD6LEEPajy2Er1iqX5+oVk+d5/
+j/grHox78N8qM6v9L4rmJQPUL2YyvXdUqhdLvwjWiyf/6HZKPj+p0+2hAM5mqusr
+CzxFizps26OxVJdlhtfKU/TFOA2DKcPKMY2KznUQqVDA7AtqMDwHfAEWSxkAl0Gy
+q7ChkJ6HNUZYLT2ATsKqaPm/LgQ3hpfpDX3MEqtPYSz6NHeKwF5+YQ3nKvwvRSN6
+/XaNkw2XQew=
+=veTC
+-----END PGP SIGNATURE-----
+
+--LZvS9be/3tNcYl/X--

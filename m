@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273230AbRI0PF0>; Thu, 27 Sep 2001 11:05:26 -0400
+	id <S273233AbRI0PH0>; Thu, 27 Sep 2001 11:07:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273233AbRI0PFH>; Thu, 27 Sep 2001 11:05:07 -0400
-Received: from [200.248.92.2] ([200.248.92.2]:58120 "EHLO
-	inter.lojasrenner.com.br") by vger.kernel.org with ESMTP
-	id <S273210AbRI0PE7>; Thu, 27 Sep 2001 11:04:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andre Margis <andre@sam.com.br>
-Organization: SAM Informatica
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.10 /proc/partitions
-Date: Thu, 27 Sep 2001 12:02:51 -0300
-X-Mailer: KMail [version 1.2]
+	id <S273254AbRI0PHR>; Thu, 27 Sep 2001 11:07:17 -0400
+Received: from [200.250.64.5] ([200.250.64.5]:27767 "EHLO nat.brsat.com.br")
+	by vger.kernel.org with ESMTP id <S273233AbRI0PHE>;
+	Thu, 27 Sep 2001 11:07:04 -0400
+Message-ID: <3BB34142.3010508@brsat.com.br>
+Date: Thu, 27 Sep 2001 12:09:54 -0300
+From: Roberto Orenstein <roberto@brsat.com.br>
+Reply-To: roberto@brsat.com.br
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.9-ac15 i686; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: pt-br, en
 MIME-Version: 1.0
-Message-Id: <01092712025100.01050@dpd16>
-Content-Transfer-Encoding: 7BIT
+To: Xavier Bestel <xavier.bestel@free.fr>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.9-ac15 sluggish
+In-Reply-To: <1001602003.17481.7.camel@nomade>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Xavier Bestel wrote:
+
+> I gave 2.4.9-ac15 a try on my dual-pIII, 700MB
+> 
+> I tried to run /usb/bin/automake on the gstreamer project (current
+> automake has a bug which sucks all ram, gstreamer provides its own)
+> 
+> with -ac10 no real bad behavior, just automake is working like crazy.
+> 
+> with -ac15 the system starts disk-trashing immediately, xterms, ssh or
+> telnet sessions are unresponsive for 20mn (after that I gave up and
+> rebooted)
+
+Did you try Rik's patch on http://www.surriel.com/patches?
+
+I had the same problem and it is fixed with the patch.
+patch name is 2.4.9-ac15-age+launder
 
 
+Roberto
 
-I'm testing Linux Kernel 2.4.10. I have a Dell 8450 with 8xP-III 700Mhz, 
-10GBytes RAM, with megaraid PERC 3/DC. I have one logic disk (sda) with 4 
-partitions (sd1, sd2, sd3, sd4). After boot, my /proc/partitions has this 
-values:
-
-
-
- major minor  #blocks  name
-
-   8     0   17692672 sda
-   8     1      32098 sda1
-   8     2      32130 sda2
-   8     3    4096575 sda3
-   8     4   13526730 sda4
-   8     0   17692672 sda
-   8     1      32098 sda1
-   8     2      32130 sda2
-   8     3    4096575 sda3
-   8     4   13526730 sda4
-   8     0   17692672 sda
-   8     1      32098 sda1
-   8     2      32130 sda2
-   8     3    4096575 sda3
-   8     4   13526730 sda4
-   8     0   17692672 sda
-   8     1      32098 sda1
-   8     2      32130 sda2
-   8     3    4096575 sda3
-   8     4   13526730 sda4
-
-the cat command never stop to list.
-
-
-
-What's happen?
-
-
-
-
-Thank's
-
-
-Andre

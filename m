@@ -1,71 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270594AbTGTBxf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 21:53:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270595AbTGTBxe
+	id S270599AbTGTB4k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 21:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270600AbTGTB4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 21:53:34 -0400
-Received: from dhcp160176008.columbus.rr.com ([24.160.176.8]:21001 "EHLO
-	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
-	id S270594AbTGTBxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 21:53:30 -0400
-From: "Joseph Fannin" <jhf@rivenstone.net>
-Date: Sat, 19 Jul 2003 22:08:27 -0400
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Alvaro Lopes <alvieboy@alvie.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Oops with ALSA and OSS emulation - 2.6.0-test1
-Message-ID: <20030720020827.GA986@rivenstone.net>
-Mail-Followup-To: Takashi Iwai <tiwai@suse.de>,
-	Alvaro Lopes <alvieboy@alvie.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3F1815A1.4070409@alvie.com> <s5hbrvrkeja.wl@alsa2.suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
-Content-Disposition: inline
-In-Reply-To: <s5hbrvrkeja.wl@alsa2.suse.de>
-User-Agent: Mutt/1.5.4i
+	Sat, 19 Jul 2003 21:56:40 -0400
+Received: from web41804.mail.yahoo.com ([66.218.93.138]:19796 "HELO
+	web41804.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S270599AbTGTB4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 21:56:35 -0400
+Message-ID: <20030720021133.53368.qmail@web41804.mail.yahoo.com>
+Date: Sun, 20 Jul 2003 04:11:33 +0200 (CEST)
+From: =?iso-8859-1?q?Roberto=20Sanchez?= <rcsanchez97@yahoo.es>
+Subject: [PATCH] drivers/video/vesafb.c, kernel 2.6.0-test1
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: jsimmons@infradead.org, geert@linux-m68k.org, torvalds@osdl.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a trivial patch I made against the 2.6.0-test1 kernel to fix the
+"vesafb: abort, cannot ioremap video memory 0x8000000 @ 0xe8000000" error
+on systems with 1 GB RAM or more trying to use the framebuffer.
 
---VbJkn9YxBvnuCH5J
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The trivial fix was mentioned on this list in this message:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0303.3/1236.html
 
-On Fri, Jul 18, 2003 at 06:03:53PM +0200, Takashi Iwai wrote:
-> At Fri, 18 Jul 2003 16:43:29 +0100,
-> Alvaro Lopes wrote:
-> >=20
-> > I'm getting the following oops when I start some audio applications:
->=20
-> i've heard that this might happen if you compile without frame
-> pointer.  anyway it must be fixed...
+The thread for the above message started here:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0303.3/1098.html
 
-    I can verify that this oops goes away when building the kernel
-with frame pointers.  I have a SiS 7012 and was seeing the same oops.
+-Roberto Sanchez
+
+Here is the patch (it is only a change to one line):
+
+--- linux-2.6.0-test1.orig/drivers/video/vesafb.c       2003-07-13
+23:30:36.000000000 -0400
++++ linux/drivers/video/vesafb.c        2003-07-19 20:30:18.000000000 -0400
+@@ -227,7 +227,7 @@
+        vesafb_defined.xres = screen_info.lfb_width;
+        vesafb_defined.yres = screen_info.lfb_height;
+        vesafb_fix.line_length = screen_info.lfb_linelength;
+-       vesafb_fix.smem_len = screen_info.lfb_size * 65536;
++       vesafb_fix.smem_len = screen_info.lfb_width * screen_info.lfb_height *
+screen_info.lfb_depth;
+        vesafb_fix.visual   = (vesafb_defined.bits_per_pixel == 8) ?
+                FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR;
+                                                                               
 
 
---=20
-Joseph Fannin
-jhf@rivenstone.net
 
-Rothchild's Rule -- "For every phenomenon, however complex, someone will
-eventually come up with a simple and elegant theory. This theory will
-be wrong."
-
---VbJkn9YxBvnuCH5J
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/GfmbWv4KsgKfSVgRAttZAJ9GPKm7cND6IHBIwWyOM4vY6MjCWwCfb1Xj
-mezmWoqgDyOP+Urn5watW9s=
-=TP1q
------END PGP SIGNATURE-----
-
---VbJkn9YxBvnuCH5J--
+___________________________________________________
+Yahoo! Messenger - Nueva versión GRATIS
+Super Webcam, voz, caritas animadas, y más...
+http://messenger.yahoo.es

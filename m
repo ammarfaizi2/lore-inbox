@@ -1,40 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130456AbQJ0NMa>; Fri, 27 Oct 2000 09:12:30 -0400
+	id <S130534AbQJ0NNU>; Fri, 27 Oct 2000 09:13:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130534AbQJ0NMV>; Fri, 27 Oct 2000 09:12:21 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:29194 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130456AbQJ0NMP>;
-	Fri, 27 Oct 2000 09:12:15 -0400
-Date: Fri, 27 Oct 2000 14:10:06 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Juri Haberland <juri.haberland@innominate.de>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Quota fixes and a few questions
-Message-ID: <20001027141006.Q20050@redhat.com>
-In-Reply-To: <20000927145620.B8484@atrey.karlin.mff.cuni.cz> <20001007003134.B4732@redhat.com> <news2mail-39EAE3A3.7D08CD8B@innominate.de> <news2mail-39EF0906.E7281F12@innominate.de> <20001019190354.A15755@atrey.karlin.mff.cuni.cz> <20001020154204.A1863@redhat.com> <39F94B8F.C2293ADD@innominate.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <39F94B8F.C2293ADD@innominate.de>; from juri.haberland@innominate.de on Fri, Oct 27, 2000 at 11:31:59AM +0200
+	id <S130597AbQJ0NNK>; Fri, 27 Oct 2000 09:13:10 -0400
+Received: from [208.49.193.203] ([208.49.193.203]:46858 "EHLO web.kd0yu.com")
+	by vger.kernel.org with ESMTP id <S130534AbQJ0NM7>;
+	Fri, 27 Oct 2000 09:12:59 -0400
+Message-Id: <200010271316.e9RDGSR17634@goliath.kd0yu.com>
+Date: Fri, 27 Oct 2000 08:16:25 -0500 (CDT)
+From: dave@kd0yu.com
+Reply-To: dave@kd0yu.com
+Subject: Re: Off-Topic (or maybe on-topic)
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0010271344070.10504-100000@saturn.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/plain; CHARSET=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Fri, Oct 27, 2000 at 11:31:59AM +0200, Juri Haberland wrote:
-> > 
-> Hi Stephen,
+On 27 Oct, Tigran Aivazian wrote:
+[snip]
+> http://news.bbc.co.uk/hi/english/business/newsid_993000/993933.stm
 > 
-> unfortunately 0.0.3b has the same problem. I tried it with a stock
-> 2.2.17 kernel + NFS patches + ext3-0.0.3b and the quota rpm you
-> included. Extracting two larger tar.gz files hits the deadlock reliably.
+> I hope nobody will buy Microsoft products from now on, now that they are
+> not only filled with internal bugs but also with external ones introduced
+> by the guys from Leningrad... :)
+> 
+> But it is probably Microsoft's own original way of "releasing source under
+> GPL". Maybe they don't have the guts to admit that the proprietary
+> software model (in OS market, where Linux dominateth!) is a failure so
+> they make it look like some script-kiddie posted their source listings on
+> the Usenet (or wherever he is going to post them?) and so they "have no
+> choice but to release windoz under GPL" :)
+> 
+> Regards,
+> Tigran
+> 
+[snip]
 
-OK, will try to replicate.
 
-Cheers,
- Stephen
+It makes you wonder...
+Having been a /real/ breakin, I would have thought MS would have hushed
+any kind of press release.
+The other side may be that the culprit tried to blackmail MS after the
+fact.
+
+If Bill said 'screw you' to the blackmailer and made the press release,
+we should see the source on web sites soon.  Then we can see how bad it
+really is.  Maybe even fix it.
+
+-- 
+Dave
+
+I come from the net....  I search through systems, people, 
+and cities to find this place... mainframe, my home.
+My format: Guardian, to mend and defend.
+Reboot!
+
+---------------------------------------------------------------------------
+Dave Helton, KD0YU    - dave@realworldcomputing.net  - http://www.kd0yu.com
+Real World Computing  - 319-386-4041                 - 8am-5pm CST    
+Linux/Novell/NT | Servers/Workstations | Consulting | Internet Technologies 
+---------------------------------------------------------------------------
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

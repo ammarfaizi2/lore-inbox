@@ -1,72 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbTL1VKK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 16:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTL1VKK
+	id S262098AbTL1Vqd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 16:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbTL1Vqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 16:10:10 -0500
-Received: from mbox.serv4.servweb.de ([80.239.142.80]:29165 "EHLO
-	serv4.servweb.de") by vger.kernel.org with ESMTP id S262063AbTL1VKF
+	Sun, 28 Dec 2003 16:46:33 -0500
+Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:15240 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262098AbTL1Vqa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 16:10:05 -0500
-Date: Sun, 28 Dec 2003 22:10:49 +0100
-From: Patrick Plattes <patrick@erdbeere.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: best AMD motherboard for Linux
-Message-ID: <20031228211048.GA5870@erdbeere.net>
-References: <3FEF0AFD.4040109@yahoo.com> <20031228172008.GA9089@c0re.hysteria.sk> <3FEF0AFD.4040109@yahoo.com> <20031228174828.GF3386@DervishD>
+	Sun, 28 Dec 2003 16:46:30 -0500
+Subject: Re: Best Low-cost IDE RAID Solution For 2.6.x? (OT?)
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Johannes Ruscheinski <ruschein@mail-infomine.ucr.edu>
+Cc: Joel Jaeggli <joelja@darkwing.uoregon.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20031228213535.GA21459@mail-infomine.ucr.edu>
+References: <20031228180424.GA16622@mail-infomine.ucr.edu>
+	 <Pine.LNX.4.44.0312281032350.21070-100000@twin.uoregon.edu>
+	 <20031228213535.GA21459@mail-infomine.ucr.edu>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-F/ebGGYrkF/C3/PoPhKb"
+Organization: Red Hat, Inc.
+Message-Id: <1072647938.10298.3.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
-Content-Disposition: inline
-In-Reply-To: <20031228174828.GF3386@DervishD>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sun, 28 Dec 2003 22:45:39 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---VbJkn9YxBvnuCH5J
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-F/ebGGYrkF/C3/PoPhKb
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, Dec 28, 2003 at 06:48:28PM +0100, DervishD wrote:
->     Hi Eugene :)
->
->     Oh, ye olde kernel hacker... who hasn't write a line of code in
-> the kernel... Have you tried to be polite and stop making noise in
-> [...]
+On Sun, 2003-12-28 at 22:35, Johannes Ruscheinski wrote:
 
-hey, be cool :)
+> Fisrt of all: thanks for the advice Joel!  Two questions: why not use the
+> hardware raid capability of the Promise tx4000 and if we'd use software
+> raid instead, what would be the CPU overhead?
 
-and eugene: there are some websites, which are able to help you -
-normally much faster and better than any mailing-list can do. normally
-the distributor has a database with supported hardware. if you
-distributer has no database online have a look at websites from other
-distributors, maybe:
-http://hardwaredb.suse.de/?LANG=en_UK
-http://hardware.redhat.com/hcl/
+be careful, almost all ata raid controllers out there are *software
+raid* hidden in a binary only driver. Also generally the on-disk format
+of these is quite unfortionate resulting in slower access than linux
+software raid can do...
 
-or:
-http://www.linuxhardware.org/
-
-i think that you will finde an answer much faster, than anybody can
-write an e-mail ;)
-
-cu
-pp
-
-
---VbJkn9YxBvnuCH5J
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+--=-F/ebGGYrkF/C3/PoPhKb
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQE/70bYQ7Xfys5M9aQRAqymAJ0cKMsVEnIW/H/L6H9DE37SVLR2HQCggVCy
-T3scDVDlZnW6uRuOz36G0Qw=
-=K0n4
+iD8DBQA/708CxULwo51rQBIRArQgAJ0f1tjJnRZ+jTdL4PssAMSNTye/rACfcCS0
+iwbWBUaJP9GgrWRRgzIjlak=
+=Fy23
 -----END PGP SIGNATURE-----
 
---VbJkn9YxBvnuCH5J--
+--=-F/ebGGYrkF/C3/PoPhKb--

@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVBHWbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVBHWas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261589AbVBHWbA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 17:31:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVBHWbA
+	id S261552AbVBHWas (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 17:30:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVBHWas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 17:31:00 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:28639 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261589AbVBHWau (ORCPT
+	Tue, 8 Feb 2005 17:30:48 -0500
+Received: from gprs215-154.eurotel.cz ([160.218.215.154]:60836 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261552AbVBHWal (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 17:30:50 -0500
-Date: Mon, 7 Feb 2005 19:51:43 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: dtor_core@ameritech.net
-Cc: David Fries <dfries@mail.win.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Linux joydev joystick disconnect patch 2.6.11-rc2
-Message-ID: <20050207185143.GA2006@ucw.cz>
-References: <20041123212813.GA3196@spacedout.fries.net> <d120d500050201072413193c62@mail.gmail.com> <20050206131241.GA19564@ucw.cz> <200502062021.13726.dtor_core@ameritech.net> <20050207122033.GA16959@ucw.cz> <d120d500050207062257490ae2@mail.gmail.com>
+	Tue, 8 Feb 2005 17:30:41 -0500
+Date: Tue, 8 Feb 2005 23:27:59 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc3: Kylix application no longer works?
+Message-ID: <20050208222759.GB1347@elf.ucw.cz>
+References: <20050207221107.GA1369@elf.ucw.cz> <20050207145100.6208b8b9.akpm@osdl.org> <20050208175106.GA1091@elf.ucw.cz> <20050208204300.GA18598@nevyn.them.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d120d500050207062257490ae2@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050208204300.GA18598@nevyn.them.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 07, 2005 at 09:22:19AM -0500, Dmitry Torokhov wrote:
+Hi!
 
-> On Mon, 7 Feb 2005 13:20:33 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > On Sun, Feb 06, 2005 at 08:21:13PM -0500, Dmitry Torokhov wrote:
-> > > > > Opening braces should go on the same line as the statement (if (...) {).
-> > > >  
-> > > > How about this patch?
-> > >
-> > > Looks fine now. Hmm, wait a sec... Don't we also need kill_fasync calls in
-> > > disconnect routines as well?
+> > > I wonder if reverting the patch will restore the old behaviour?
 > > 
-> > This should do it:
-> > 
+> > This seems to be minimal fix to get Kylix application back to the
+> > working state... Maybe it is good idea for 2.6.11?
 > 
-> Not quite...
-> 
-> > +               list_for_each_entry(list, &evdev->list, node)
-> > +                       kill_fasync(&list->fasync, SIGIO, POLLHUP | POLLERR);
-> 
-> Wrong band constants - for SIGIO POLL_HUP and POLL_ERR should be used.
+> Why does clearing the BSS fail?  Are the program headers bogus?
+> (readelf -l).
 
-Obviously only one of them, since they're not designed for ORing. I used POLL_HUP then.
+No idea, probably yes. Here's readelf -l result:
 
-> /*
->  * SIGPOLL si_codes
->  */
-> #define POLL_IN         (__SI_POLL|1)   /* data input available */
-> #define POLL_OUT        (__SI_POLL|2)   /* output buffers available */
-> #define POLL_MSG        (__SI_POLL|3)   /* input message available */
-> #define POLL_ERR        (__SI_POLL|4)   /* i/o error */
-> #define POLL_PRI        (__SI_POLL|5)   /* high priority input available */
-> #define POLL_HUP        (__SI_POLL|6)   /* device disconnected */
- 
+								Pavel
+
+Elf file type is EXEC (Executable file)
+Entry point 0x80614b4
+There are 5 program headers, starting at offset 52
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  PHDR           0x000034 0x08048034 0x08048034 0x000a0 0x000a0 R E 0x4
+  INTERP         0x0000d4 0x080480d4 0x080480d4 0x00013 0x00013 R   0x1
+      [Requesting program interpreter: /lib/ld-linux.so.2]
+  LOAD           0x000000 0x08048000 0x08048000 0xb7354 0x1b7354 R E 0x1000
+  LOAD           0x0b7354 0x08200354 0x08200354 0x1e3e4 0x1f648 RW  0x1000
+  DYNAMIC        0x0d56a0 0x0821e6a0 0x0821e6a0 0x00098 0x00098 RW  0x4
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     
+   01     .interp 
+   02     .interp .dynsym .dynstr .hash .rel.plt .plt .text borland.ressym borland.resstr borland.reshash borland.resdata borland.resspare 
+   03     .data .rodata .got .dynamic .bss 
+   04     .dynamic 
+
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278149AbRJLV2O>; Fri, 12 Oct 2001 17:28:14 -0400
+	id <S278151AbRJLV3e>; Fri, 12 Oct 2001 17:29:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278151AbRJLV2E>; Fri, 12 Oct 2001 17:28:04 -0400
-Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:14101 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id <S278149AbRJLV17>; Fri, 12 Oct 2001 17:27:59 -0400
-Date: Fri, 12 Oct 2001 23:27:26 +0200
-Message-Id: <200110122127.f9CLRQUJ002100@lt.wsisiz.edu.pl>
-From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: BUG - Kernel 2.4.12 doesn't compile
-In-Reply-To: <000d01c15356$6c2bfec0$0100a8c0@leopoldo>
-X-Newsgroups: wsisiz.linux-kernel
-X-PGP-Key-Fingerprint: E233 4EB2 BC46 44A7 C5FC  14C7 54ED 2FE8 FEB9 8835
-X-Key-ID: 829B1533
-User-Agent: tin/1.5.9-20010723 ("Chord of Souls") (UNIX) (Linux/2.4.13-pre1 (i586))
+	id <S278152AbRJLV30>; Fri, 12 Oct 2001 17:29:26 -0400
+Received: from m3d.uib.es ([130.206.132.6]:43453 "EHLO m3d.uib.es")
+	by vger.kernel.org with ESMTP id <S278151AbRJLV3Q>;
+	Fri, 12 Oct 2001 17:29:16 -0400
+Date: Fri, 12 Oct 2001 23:29:46 +0200 (MET)
+From: Ricardo Galli <gallir@m3d.uib.es>
+To: <linux-kernel@vger.kernel.org>
+cc: <alan@lxorguk.ukuu.org.uk>
+Subject: 2.4.12-ac1 dies (seems reiserfs)
+Message-ID: <Pine.LNX.4.33.0110122323460.7693-100000@m3d.uib.es>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <000d01c15356$6c2bfec0$0100a8c0@leopoldo> you wrote:
-> I use a RH 7.1 ad trying to compile the kernel v. 2.4.12 i get the error you
-> can see here:
-> ieee1284_ops.c:365: (Each undeclared identifier is reported only once
-> ieee1284_ops.c:365: for each function it appears in.)
-> ieee1284_ops.c: In function `ecp_reverse_to_forward':
-> ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in this
-> function)
-> make[2]: *** [ieee1284_ops.o] Error 1
+This time linux has died when un-installing a debian package from a remote
+ssh terminal, so it might be related to ReiserFS.
 
-Wrong define. Try 2.4.13-pre1
+There is no logs, sysrq didn't work neither.
 
--- 
-*[ £ukasz Tr±biñski ]*
-SysAdmin @wsisiz.edu.pl
+Several files are corrupted:
+
+linux:/var/log# dpkg -i "kernel-source*"
+dpkg: error processing kernel-source* (--install):
+ cannot access archive: No such file or directory
+Errors were encountered while processing:
+ kernel-source*
+
+
+(i tried to remove kernel-source-2.4.7 when the machine hung).
+
+--ricardo
+
+
+
+

@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263937AbUCZEHg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 23:07:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263942AbUCZEHg
+	id S263926AbUCZEHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 23:07:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263921AbUCZEHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 23:07:36 -0500
-Received: from waste.org ([209.173.204.2]:7342 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S263937AbUCZEHd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 23:07:33 -0500
-Date: Thu, 25 Mar 2004 22:07:10 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: Fw: potential /dev/urandom scalability improvement
-Message-ID: <20040326040710.GF8366@waste.org>
-References: <20040325141923.7080c6f0.akpm@osdl.org> <20040325224726.GB8366@waste.org> <16483.35656.864787.827149@napali.hpl.hp.com> <20040325180014.29e40b65.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040325180014.29e40b65.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
+	Thu, 25 Mar 2004 23:07:09 -0500
+Received: from intolerance.mr.itd.umich.edu ([141.211.14.78]:41940 "EHLO
+	intolerance.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S263926AbUCZEHG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 23:07:06 -0500
+Date: Thu, 25 Mar 2004 23:06:50 -0500 (EST)
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+X-X-Sender: vrajesh@azure.engin.umich.edu
+To: Andrea Arcangeli <andrea@suse.de>
+cc: akpm@osdl.org, torvalds@osdl.org, hugh@veritas.com, mbligh@aracnet.com,
+       riel@redhat.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity
+ fix
+In-Reply-To: <20040325225919.GL20019@dualathlon.random>
+Message-ID: <Pine.GSO.4.58.0403252258170.4298@azure.engin.umich.edu>
+References: <Pine.LNX.4.44.0403150527400.28579-100000@localhost.localdomain>
+ <Pine.GSO.4.58.0403211634350.10248@azure.engin.umich.edu>
+ <20040325225919.GL20019@dualathlon.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 25, 2004 at 06:00:14PM -0800, Andrew Morton wrote:
-> David Mosberger <davidm@napali.hpl.hp.com> wrote:
-> >
-> > The
-> >  patch below is updated to go on top of your patch and gives about the
-> >  same performance as I reported yesterday.  For now, I defined an
-> >  inline prefetch_range().  If and when all architectures get updated to
-> >  define this directly, we can simply remove prefetch_range() from the
-> >  driver.
-> 
-> We may as well stick prefetch_range() in prefetch.h.
-> 
-> And Matt's patch series is not a thing I want to take on board at present,
-> so let's stick with the straight scalability patch for now.
 
-Sigh, I'll trim it back to some bits I think are critical.
- 
-> I moved the prefetch_range() call to outside the spinlock.  Does that make
-> sense?
+Hi Andrea,
 
-I don't think that's actually a win. If there's contention, threads
-racing to the lock will grab the same cache lines and all but one
-thread's cache will end up invalidated by the time the lock is
-released.
+I am yet to look at the new -aa you released. A small change is
+required below. Currently, I cannot generate a patch. Sorry. Please
+fix it by hand. Thanks.
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+>
+> -	list_for_each_entry(vma, list, shared) {
+> +	vma = __vma_prio_tree_first(root, &iter, h_pgoff, h_pgoff);
+
+This should be:
+	vma = __vma_prio_tree_first(root, &iter, h_pgoff, ULONG_MAX);
+
+> +	while (vma) {
+>  		unsigned long h_vm_pgoff;
+[snip]
+> +		vma = __vma_prio_tree_next(vma, root, &iter, h_pgoff, h_pgoff);
+>  	}
+
+and here it should be:
+		vma = __vma_prio_tree_next(vma, root, &iter,
+						h_pgoff, ULONG_MAX);
+
+Thanks,
+Rajesh
+

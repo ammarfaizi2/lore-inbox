@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVAWGy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVAWHE3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbVAWGy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 01:54:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVAWGy2
+	id S261238AbVAWHE3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 02:04:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVAWHE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 01:54:28 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:39896 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S261236AbVAWGyY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 01:54:24 -0500
-Subject: Re: module's parameters could not be set via sysfs in 2.6.11-rc1?
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Greg KH <greg@kroah.com>
-Cc: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050114005948.GD4140@kroah.com>
-References: <200501132234.30762.rathamahata@ehouse.ru>
-	 <20050114005948.GD4140@kroah.com>
-Content-Type: text/plain
-Date: Sun, 23 Jan 2005 07:54:21 +0100
-Message-Id: <1106463261.8118.13.camel@pegasus>
+	Sun, 23 Jan 2005 02:04:29 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30386 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261238AbVAWHEV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 02:04:21 -0500
+Date: Sat, 22 Jan 2005 22:52:22 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: phil.el@wanadoo.fr, akpm <akpm@osdl.org>
+Subject: [PATCH] oprofile: use NULL for pointer
+Message-Id: <20050122225222.0c3baf45.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
 
-> > It looks like module parameters are not setable via sysfs in 2.6.11-rc1
-> > 
-> > E.g.
-> > arise parameters # echo -en Y > /sys/module/usbcore/parameters/old_scheme_first
-> > -bash: /sys/module/usbcore/parameters/old_scheme_first: Permission denied
-> > arise parameters # id
-> > uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel),11(floppy),20(dialout),26(tape),27(video)
-> > arise parameters # 
-> > arise parameters # ls -la /sys/module/usbcore/parameters/old_scheme_first
-> > -rw-r--r--  1 root root 0 Jan 13 22:22 /sys/module/usbcore/parameters/old_scheme_first
-> > arise parameters # 
-> > 
-> > This is sad because it seems that my usb flash stick (transcebd jetflash)
-> > doesn't like new USB device initialization scheme introduced in 2.6.10.
-> 
-> I'm seeing the same problem here.  I'll dig into it later tonight.
+Use NULL instead of 0 for pointer:
 
-any updates on this? It still results in a permission denied with a
-recent 2.6.11-rc2 kernel.
+arch/x86_64/oprofile/../../i386/oprofile/backtrace.c:30:10: warning: Using plain integer as NULL pointer
 
-Regards
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
 
-Marcel
+diffstat:=
+ arch/i386/oprofile/backtrace.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
+diff -Naurp ./arch/i386/oprofile/backtrace.c~oprofile_null ./arch/i386/oprofile/backtrace.c
+--- ./arch/i386/oprofile/backtrace.c~oprofile_null	2005-01-22 19:06:29.923734008 -0800
++++ ./arch/i386/oprofile/backtrace.c	2005-01-22 22:05:44.485792064 -0800
+@@ -27,7 +27,7 @@ dump_backtrace(struct frame_head * head)
+ 	/* frame pointers should strictly progress back up the stack
+ 	 * (towards higher addresses) */
+ 	if (head >= head->ebp)
+-		return 0;
++		return NULL;
+ 
+ 	return head->ebp;
+ }
 
+--

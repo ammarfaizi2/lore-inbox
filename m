@@ -1,64 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269392AbUI3Sds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269401AbUI3Sha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269392AbUI3Sds (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 14:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269400AbUI3Sdr
+	id S269401AbUI3Sha (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 14:37:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269404AbUI3Sh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 14:33:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:22405 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269392AbUI3Sdn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 14:33:43 -0400
-Date: Thu, 30 Sep 2004 11:33:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Franz Pletz <franz_pletz@t-online.de>, Michal Rokos <michal@rokos.info>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 2.6] Natsemi - remove compilation warnings
-In-Reply-To: <415C4EC5.4040603@pobox.com>
-Message-ID: <Pine.LNX.4.58.0409301129540.2403@ppc970.osdl.org>
-References: <200409230958.31758.michal@rokos.info> <200409231618.56861.michal@rokos.info>
- <415C37D8.20203@t-online.de> <Pine.LNX.4.58.0409300951150.2403@ppc970.osdl.org>
- <415C4EC5.4040603@pobox.com>
+	Thu, 30 Sep 2004 14:37:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29312 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269401AbUI3SgL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 14:36:11 -0400
+Message-ID: <415C520E.1030904@pobox.com>
+Date: Thu, 30 Sep 2004 14:35:58 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@redhat.com>
+CC: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+Subject: Re: PATCH: resend: VIA Velocity belongs under gigabit ethernet
+References: <20040930175605.GA1472@devserv.devel.redhat.com>
+In-Reply-To: <20040930175605.GA1472@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please CC me on net driver patches.
 
+Applied.
 
-On Thu, 30 Sep 2004, Jeff Garzik wrote:
-> >  
-> > +static inline void __iomem *ns_ioaddr(struct net_device *dev)
-> > +{
-> > +	return (void __iomem *) dev->base_addr;
-> > +}
-> > +
-> 
-> hmmmm.  Since dev->base_addr gets exported to userspace, I don't think 
-> it's that quick/easy to change.
-
-Hmm? This maintains the _exact_ old semantics, ie we do exactly what it 
-used to do before. The inline function doesn't save the value off 
-anywhere, it's really just a nicer way to do a cast in _one_ place rather 
-than all over the world. Also, it ends up resulting in just _one_ place 
-that knows where to get the base address, instead of several places in 
-pretty much every function in the whole driver ;-P
-
-> Wouldn't it be better to just phase out the base of dev->base_addr 
-> completely?  I tend to prefer adding a "void __iomem *regs" to struct 
-> netdev_private, and ignore dev->base_addr completely.
-
-Yes. I didn't want to change actual behaviour in a driver that I can't 
-even test, so I went for the semantically 100% equivalent cleanup patch 
-instead that just changes the syntax and gets rid of the warnings.
-
-But that's the other advantage of the ns_ioaddr() accessor function:  
-somebody who does have the hw can now phase out "base_addr", and just
-change that one one-liner function, and you can now get the base address
-from anywhere you like ;)
-
-		Linus

@@ -1,76 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVASOZu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVASO0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261475AbVASOZu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 09:25:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261633AbVASOZu
+	id S261633AbVASO0T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 09:26:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbVASO0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 09:25:50 -0500
-Received: from wproxy.gmail.com ([64.233.184.197]:30737 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261475AbVASOZl (ORCPT
+	Wed, 19 Jan 2005 09:26:19 -0500
+Received: from mail.joq.us ([67.65.12.105]:58255 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261633AbVASO0M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 09:25:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:x-mailer:reply-to:x-priority:message-id:to:mime-version:content-type:content-transfer-encoding;
-        b=FqtyDg1ZEsxvz9KQuwg+zIdNj2vKZ5xWHg6kQ9xA7NZofGm5PecBi5qIk2l8nuISk/S+CnvrOy8V62na7pZ7el14IqAqnPb2Sy9qkO/fny8j2uwDuYp8pd8Aqq6DeesqVGhCe5XtMNcvxY+t3V8zLlZIbKGdw/BeR/uhAlSlxL0=
-Date: Wed, 19 Jan 2005 16:25:22 +0200
-From: Gmail <todor.t@gmail.com>
-X-Mailer: The Bat! (v3.0) UNREG / CD5BF9353B3B7091
-Reply-To: Gmail <todor.t@gmail.com>
-X-Priority: 3 (Normal)
-Message-ID: <987426305.20050119162522@gmail.com>
-To: linux-kernel@vger.kernel.org
+	Wed, 19 Jan 2005 09:26:12 -0500
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       rlrevell@joe-job.com, paul@linuxaudiosystems.com,
+       CK Kernel <ck@vds.kolivas.org>
+Subject: Re: [PATCH][RFC] sched: Isochronous class for unprivileged soft rt
+ scheduling
+References: <41ED08AB.5060308@kolivas.org> <87is5tx61a.fsf@sulphur.joq.us>
+	<41EE12AB.9020604@kolivas.org>
+From: "Jack O'Quin" <joq@io.com>
+Date: Wed, 19 Jan 2005 08:27:48 -0600
+In-Reply-To: <41EE12AB.9020604@kolivas.org> (Con Kolivas's message of "Wed,
+ 19 Jan 2005 18:56:27 +1100")
+Message-ID: <87y8eptrx7.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---------------------------------------------------------------
- * Building module-init-tools...
-./configure --prefix=/usr --host=i486-slackware-linux --mandir=//usr/share/man --infodir=//usr/share/info --datadir=//usr/share --sysconfdir=//etc --localstatedir=//var/lib --prefix=/ --enable-zlib
-configure: WARNING: If you wanted to set the --build type, don't use --host.
-    If a cross compiler is detected then cross compile mode will be used.
-checking build system type... i586-pc-linux-gnu
-checking host system type... i486-slackware-linux-gnu
-checking target system type... i486-slackware-linux-gnu
-checking for a BSD-compatible install... /usr/bin/ginstall -c
-checking whether build environment is sane... yes
-checking for gawk... gawk
-checking whether make sets $(MAKE)... yes
-checking for i486-slackware-linux-strip... no
-checking for strip... strip
-checking for i486-slackware-linux-gcc... gcc
-checking for C compiler default output file name... a.out
-checking whether the C compiler works... yes
-checking whether we are cross compiling... no
-checking for suffix of executables...
-checking for suffix of object files... o
-checking whether we are using the GNU C compiler... yes
-checking whether gcc accepts -g... yes
-checking for gcc option to accept ANSI C... none needed
-checking for style of include used by make... GNU
-checking dependency style of gcc... gcc3
-configure: Adding gcc options: -O2 -mcpu=i686 -pipe -Wunused -Wall
-configure: creating ./config.status
-config.status: creating Makefile
-config.status: executing depfiles commands
-Makefile:385: *** missing separator.  Stop.
+Con Kolivas <kernel@kolivas.org> writes:
 
-!!! ERROR: sys-apps/module-init-tools-3.0-r2 failed.
-!!! Function src_compile, Line 1980, Exitcode 2
-!!! emake module-init-tools failed
-!!! If you need support, post the topmost build error, NOT this status message.
+> Jack O'Quin wrote:
+>> Con Kolivas <kernel@kolivas.org> writes:
+>>
+>>>This patch for 2.6.11-rc1 provides a method of providing real time
+>>>scheduling to unprivileged users which increasingly is desired for
+>>>multimedia workloads.
+>> I ran some jack_test3.2 runs with this, using all the default
+>> settings.  The results of three runs differ quite significantly for no
+>> obvious reason.  I can't figure out why the DSP load should vary so
+>> much.  These may be bogus results.  It looks like a libjack bug
+>> sometimes
+>> causes clients to crash when deactivating.  I will investigate more
+>> tomorrow, and come up with a fix.
+>> For comparison, I also made a couple of runs using the realtime-lsm
+>> to
+>> grant SCHED_FIFO privileges.  There was some variablility, but nowhere
+>> near as much (and no crashes).  I used schedtool to verify that the
+>> jackd threads actually have the expected scheduler type.
+>
+> Thanks for those. If you don't know what to make of the dsp variation
+> and the crashing then I'm not sure what I should make of it
+> either. It's highly likely that my code still needs fixing to ensure
+> it behaves as expected. Already one bug has been picked up in testing
+> with respect to yield() so there may be others. By design, if you set
+> iso_cpu to 100 it should be as good as SCHED_RR. If not, then the
+> implementation is still buggy.
 
-phases failed
--------------------------------------------------------------------
+I fixed that bug in libjack, eliminating the crashes on disconnect.
 
-[1] When we reach the 'make' command.. it prints that error...
-Makefile:385. I'm not familiar at all with this kind of stuff... So I
-just CAN'T help myself! And that makes me nervous...
+They must have been perturbing the numbers quite a bit.  Here are
+three more runs (all SCHED_ISO).  The results are much more
+consistent.  The only significant anomaly I see now is that small
+Delay Max in the first run.
 
-[2]
-[3] module-init-tools
-[4] Linux version 2.4.26 (root@tree) (gcc version 3.3.4) #6 Mon Jun 14 19:07:27 PDT 2004
-[6] bash# make
+*** Terminated Wed Jan 19 01:04:55 CST 2005 ***
+************* SUMMARY RESULT ****************
+Total seconds ran . . . . . . :   300
+Number of clients . . . . . . :    20
+Ports per client  . . . . . . :     4
+Frames per buffer . . . . . . :    64
+*********************************************
+Timeout Count . . . . . . . . :(    1)          (    5)         (    3)         
+XRUN Count  . . . . . . . . . :     2               16              15          
+Delay Count (>spare time) . . :     0                0               0          
+Delay Count (>1000 usecs) . . :     0                0               0          
+Delay Maximum . . . . . . . . : 11932   usecs    101053  usecs   98719   usecs  
+Cycle Maximum . . . . . . . . :   868   usecs     1099   usecs     887   usecs  
+Average DSP Load. . . . . . . :    37.9 %           33.6 %          36.0 %      
+Average CPU System Load . . . :    10.2 %            9.0 %           9.9 %      
+Average CPU User Load . . . . :    24.5 %           22.7 %          23.0 %      
+Average CPU Nice Load . . . . :     0.0 %            0.0 %           0.0 %      
+Average CPU I/O Wait Load . . :     0.6 %            3.4 %           0.4 %      
+Average CPU IRQ Load  . . . . :     0.7 %            0.7 %           0.7 %      
+Average CPU Soft-IRQ Load . . :     0.0 %            0.0 %           0.0 %      
+Average Interrupt Rate  . . . :  1688.1 /sec      1696.1 /sec     1685.2 /sec   
+Average Context-Switch Rate . : 11727.9 /sec     10642.4 /sec    11568.3 /sec
+*********************************************
 
+I should probably experiment with higher thresholds on the SCHED_ISO class.
+-- 
+  joq

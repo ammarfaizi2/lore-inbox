@@ -1,39 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269193AbUISJWc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269198AbUISJbh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269193AbUISJWc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 05:22:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269198AbUISJWc
+	id S269198AbUISJbh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 05:31:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269200AbUISJbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 05:22:32 -0400
-Received: from verein.lst.de ([213.95.11.210]:42920 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S269193AbUISJWa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 05:22:30 -0400
-Date: Sun, 19 Sep 2004 11:22:26 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: HPPA List <parisc-linux@parisc-linux.org>, linux-kernel@vger.kernel.org
-Subject: Re: [parisc-linux] The new iomap interface
-Message-ID: <20040919092226.GA5158@lst.de>
-References: <20040917124612.GS642@parcelfarce.linux.theplanet.co.uk> <20040917162430.GA7984@colo.lackof.org> <20040917165031.GT642@parcelfarce.linux.theplanet.co.uk> <1095436838.26146.22.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1095436838.26146.22.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Sun, 19 Sep 2004 05:31:34 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:32949 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S269198AbUISJbD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 05:31:03 -0400
+Message-ID: <414D4631.4030809@free.fr>
+Date: Sun, 19 Sep 2004 10:41:21 +0200
+From: Remi Colinet <remi.colinet@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Cyril Wattebled <neurowork@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: init_tss problem
+References: <414CBCE0.5000508@free.fr>
+In-Reply-To: <414CBCE0.5000508@free.fr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 17, 2004 at 05:00:39PM +0100, Alan Cox wrote:
-> On Gwe, 2004-09-17 at 17:50, Matthew Wilcox wrote:
-> > On Fri, Sep 17, 2004 at 10:24:30AM -0600, Grant Grundler wrote:
-> > > Interesting. I'm not sure this new scheme provides any special hooks
-> > > that we can't already do today.
-> > > Did Linus write why he wants iomap? Have a URL handy?
-> 
-> Discussion on linux-arch originally I think
+Cyril Wattebled wrote:
 
-Does anyone have a pointer to the list archives for that linux-arch
-thing?
+> Hi,
+> I'm trying to understand some piece of kernel code and I've come to 
+> this :
+> In arch/i386/kernel/process.c:
+>     struct tss_struct *tss = &per_cpu(init_tss, cpu);
+> I don't know what init_tss is.
+> It's defined in asm/processor.h with the macro DEFINE_PER_CPU 
+> (tss_struct, init_tss)
+> which basically does extern tss_struct init_tss.
+> But this init_tss has to be declared somewhere to be used as extern ...
+> I've searched the entire code for any reference to it but I only found 
+> it in
+> arch/x86_64/kernel/init_task.c which is normaly not compiled on my 
+> system.
+> I'm in a dead end ... anyone .. help ?
+> Thanks
+
+TSS is a Task State Segment. It is defined in include/asm-i386/processor.h.
+init_tss is the Task State Segment used by the statically forked init 
+process. (process 0)
+
+Each CPU has its own tss.
+
+This segment is used by i386 and x86_64 CPUs to store the CPU/process 
+context. Could be used to have hardware context switch (not used by Linux).
+
+In order to have a clean understanding about TSS (and more generally 
+i386), you should have a look at the i386 Intel specifiction, manual vol 
+3 (system programming manual)
+Then, you could also read the AMD64 specification if you wish to 
+understand x86_64...
+
+Regards
+Remi
 

@@ -1,123 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132804AbRDDPbb>; Wed, 4 Apr 2001 11:31:31 -0400
+	id <S132841AbRDDPiL>; Wed, 4 Apr 2001 11:38:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132840AbRDDPbP>; Wed, 4 Apr 2001 11:31:15 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:40365 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S132804AbRDDPaw>;
-	Wed, 4 Apr 2001 11:30:52 -0400
-Importance: Normal
-Subject: Re: a quest for a better scheduler
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        lse-tech@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF44F2A6FB.BD0D4064-ON85256A24.00543C9D@pok.ibm.com>
-From: "Hubertus Franke" <frankeh@us.ibm.com>
-Date: Wed, 4 Apr 2001 11:28:14 -0400
-X-MIMETrack: Serialize by Router on D01ML244/01/M/IBM(Release 5.0.7 |March 21, 2001) at
- 04/04/2001 11:30:01 AM
+	id <S132843AbRDDPiB>; Wed, 4 Apr 2001 11:38:01 -0400
+Received: from staffnet.com ([207.226.80.14]:35345 "EHLO staffnet.com")
+	by vger.kernel.org with ESMTP id <S132841AbRDDPhv>;
+	Wed, 4 Apr 2001 11:37:51 -0400
+Message-ID: <3ACB3FA1.D1525B91@staffnet.com>
+Date: Wed, 04 Apr 2001 11:37:05 -0400
+From: Wade Hampton <whampton@staffnet.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.2.19 toshiba option broken
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On my toshiba laptop, I am trying to use 2.2.19.
+However, building it with the Toshiba Laptop option
+set to Y or M results in errors.  The errors 
+from setting it to M are:
 
-Yes, Andrea.
+toshiba.c:81: toshiba.h: No such file or directory
+toshiba.c:156: parse error before `*'
+...
 
-We actually already went a step further. We treat the scheduler
-as a single entity, rather than splitting it up.
+The fix is to edit drivers/char/toshiba.c
+and change 
 
-Based on the MQ scheduler we do the balancing across all nodes
-at reschedule_idle time. We experimented to see whether only looking
-for idle tasks remotely is a good idea, but it bloats the code.
-Local scheduling decisions are limited to a set of cpus, which
-could coincide with the cpus of one node, or if desirable on
-smaller granularities.
+	#include "toshiba.h"
 
-In addition we implemented a global load balancing scheme that
-ensures that load is equally distributed across all run queues.
-This is made a loadable module, so you can plug in what ever
-you want.
+to 
+	#include"linux/toshiba.h"
 
-I grant in NUMA it might actually be desirable to separate
-schedulers completely (we can do that trivially in reschedule_idle),
-but you need loadbalancing at some point.
-
-Here is the list of patches:
-
-MultiQueue Scheduler: http://lse.sourceforge.net/scheduling/2.4.1.mq1-sched
-Pooling Extension:    http://lse.sourceforge.net/scheduling/LB/2.4.1-MQpool
-LoadBalancing:
-http://lse.sourceforge.net/scheduling/LB/loadbalance.c
-
-
-Hubertus Franke
-Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
-, OS-PIC (Chair)
-email: frankeh@us.ibm.com
-(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
-
-
-
-Andrea Arcangeli <andrea@suse.de> on 04/04/2001 11:08:47 AM
-
-To:   Ingo Molnar <mingo@elte.hu>
-cc:   Hubertus Franke/Watson/IBM@IBMUS, Mike Kravetz
-      <mkravetz@sequent.com>, Fabio Riccardi <fabio@chromium.com>, Linux
-      Kernel List <linux-kernel@vger.kernel.org>,
-      lse-tech@lists.sourceforge.net
-Subject:  Re: a quest for a better scheduler
-
-
-
-On Wed, Apr 04, 2001 at 03:34:22PM +0200, Ingo Molnar wrote:
->
-> On Wed, 4 Apr 2001, Hubertus Franke wrote:
->
-> > Another point to raise is that the current scheduler does a exhaustive
-> > search for the "best" task to run. It touches every process in the
-> > runqueue. this is ok if the runqueue length is limited to a very small
-> > multiple of the #cpus. [...]
->
-> indeed. The current scheduler handles UP and SMP systems, up to 32
-> (perhaps 64) CPUs efficiently. Agressively NUMA systems need a different
-> approach anyway in many other subsystems too, Kanoj is doing some
-> scheduler work in that area.
-
-I didn't seen anything from Kanoj but I did something myself for the
-wildfire:
-
-
-ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.3aa1/10_numa-sched-1
-
-
-this is mostly an userspace issue, not really intended as a kernel
-optimization
-(however it's also partly a kernel optimization). Basically it splits the
-load
-of the numa machine into per-node load, there can be unbalanced load across
-the
-nodes but fairness is guaranteed inside each node. It's not extremely well
-tested but benchmarks were ok and it is at least certainly stable.
-
-However Ingo consider that in a 32-way if you don't have at least 32 tasks
-running all the time _always_ you're really stupid paying such big money
-for
-nothing ;). So the fact the scheduler is optimized for 1/2 tasks running
-all
-the time is not nearly enough for those machines (and of course also the
-scheduling rate automatically increases linearly with the increase of the
-number of cpus). Now it's perfectly fine that we don't ask the embedded and
-desktop guys to pay for that, but a kernel configuration option to select
-an
-algorithm that scales would be a good idea IMHO. The above patch just adds
-a
-CONFIG_NUMA_SCHED. The scalable algorithm can fit into it and nobody will
-be
-hurted by that (CONFIG_NUMA_SCHED cannot even be selected by x86 compiles).
-
-Andrea
-
-
-
+Cheers,
+-- 
+W. Wade, Hampton  <whampton@staffnet.com>  
+If Microsoft Built Cars:  Every time they repainted the 
+lines on the road, you'd have to buy a new car.
+Occasionally your car would just die for no reason, and 
+you'd have to restart it, but you'd just accept this.

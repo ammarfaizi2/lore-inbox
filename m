@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269712AbUJGFqY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269713AbUJGFqB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269712AbUJGFqY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 01:46:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269710AbUJGFqX
+	id S269713AbUJGFqB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 01:46:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269710AbUJGFoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 01:46:23 -0400
-Received: from relay.pair.com ([209.68.1.20]:2827 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S269711AbUJGFps (ORCPT
+	Thu, 7 Oct 2004 01:44:07 -0400
+Received: from havoc.gtf.org ([69.28.190.101]:56750 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S267291AbUJGFn7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 01:45:48 -0400
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <4164CB02.2030607@kegel.com>
-Date: Wed, 06 Oct 2004 21:50:10 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, de-de
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, joris@eljakim.nl
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Oct 2004 01:43:59 -0400
+Date: Thu, 7 Oct 2004 01:43:57 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Why no linux-2.6.8.2? (was Re: new dev model)
+Message-ID: <20041007054357.GA23022@havoc.gtf.org>
+References: <200410070134_MC3-1-8BA9-A215@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410070134_MC3-1-8BA9-A215@compuserve.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joris wrote:
-> On Wed, 6 Oct 2004, Andries Brouwer wrote:
->> Does this really happen?
+On Thu, Oct 07, 2004 at 01:31:39AM -0400, Chuck Ebbert wrote:
+> Why has linux 2.6.8 been abandoned at version 2.6.8.1?
 > 
-> Yes. Finally got my raw-udp-with-wrong-checksum sending program to work
-> over localhost and it hangs recvfrom pretty good.
+> There exist fixes that could go into 2.6.8.2:
 > 
->> All kernel versions?
+>         process start time doesn't match system time
+>         FDDI frame doesn't allow 802.3 hwtype
+>         NFS server using XFS filesystem on SMP machine oopses
 > 
-> Quick guess: probably since late 2.4. Source of 2.4.27 udp.c is similar to
-> 2.6.9, but 2.4.17 returns EAGAIN even for blocking sockets, apparently
-> this was "fixed" later on.
+> I'm sure there are more...
+> 
+> So why is 2.6.8.1 a "dead branch?"
 
-It would be nice to know how other operating systems behave
-when receiving UDP packets with bad checksums.  Can someone
-try BSD and Solaris?
+Since it's in BitKeeper, it's not dead, it's just sleeping...
 
-- Dan
+$ bk clone -ql -rv2.6.8.1 linux-2.6 linux-2.6.8-branch
+$ cpcset <cset> linux-2.6 linux-2.6.8-branch
+$ # repeat for each <cset> to apply
+$ cd linux-2.6.8-branch
+$ bk vi Makefile	# bump version
+$ bk tag v2.6.8.2
+$ # release 2.6.8.2 ...
 
--- 
-My technical stuff: http://kegel.com
-My politics: see http://www.misleader.org for examples of why I'm for regime change

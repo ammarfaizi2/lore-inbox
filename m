@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbRAMUNc>; Sat, 13 Jan 2001 15:13:32 -0500
+	id <S129401AbRAMUPC>; Sat, 13 Jan 2001 15:15:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129401AbRAMUNW>; Sat, 13 Jan 2001 15:13:22 -0500
-Received: from smtp-out1.bellatlantic.net ([199.45.40.143]:7065 "EHLO
-	smtp-out1.bellatlantic.net") by vger.kernel.org with ESMTP
-	id <S129383AbRAMUNS>; Sat, 13 Jan 2001 15:13:18 -0500
-Date: Sat, 13 Jan 2001 15:13:14 -0500 (EST)
-From: Werner Puschitz <werner.lx@verizon.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: HP Pavilion 8290 HANGS on boot 2.4/2.4-test9
-In-Reply-To: <Pine.LNX.4.21.0101131444030.1779-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0101131509280.2049-100000@localhost.localdomain>
+	id <S131153AbRAMUOw>; Sat, 13 Jan 2001 15:14:52 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:59144 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S129401AbRAMUOn>;
+	Sat, 13 Jan 2001 15:14:43 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200101132014.f0DKEJh153332@saturn.cs.uml.edu>
+Subject: Re: shmem or swapfs? was: [Patch] make shm filesystem part configurable
+To: cr@sap.com (Christoph Rohland)
+Date: Sat, 13 Jan 2001 15:14:19 -0500 (EST)
+Cc: david+validemail@kalifornia.com, linux-kernel@vger.kernel.org
+In-Reply-To: <m33denk0p2.fsf@linux.local> from "Christoph Rohland" at Jan 13, 2001 03:04:41 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christoph Rohland writes:
 
-I guess I confused some people. I didn't copy the kernel from PIII to
-PII etc.. I compiled the kernel on all my PCs separately.
-I just have problems with one PC, the HP Pavilion.
+> I am quite open about naming, but "shm" is not appropriate any more
+> since the fs does a lot more than shared memory. Solaris calles this
+> "tmpfs" but I did not want to 'steal' their name and I also do not
+> think that it's a very good name.
 
+Admins already know what "tmpfs" means, so you should just call
+your filesystem that. I know it isn't a pretty name, but in the
+interest of reducing confusion, you should use the existing name.
 
-On Sat, 13 Jan 2001, Werner wrote:
+Don't think of it as just "for /tmp". It is for temporary storage.
+The name is a reminder that you shouldn't store archives in tmpfs.
 
-> 
-> HP Pavilion 8290, PII 400MHz, 256MB hangs on boot 2.4 and 2.4-test9 on RH7.0.
-> I tried to compile 2.4-test9 on RH 7.0 with gcc versions 2.96-54, 2.96-69,
-> and with kgcc 1.1.2-40 (egcs-2.91.66) without success.
-> 
-> The first and last message I get is: 
-> "Uncompressing Linux... OK, booting the kernel"
-> 
-> I never get to the start_kernel() function in main.c
-> I had no problems to get 2.4 (testx) running on IBM 300PL (PIII 500MHz, 192MB).
-> After running 'make mrproper' and 'make xconfig' I changed only SMP to No.
-> 
-> Can you please tell me how I can print debug information to the console in
-> arch/i386/boot/compressed/head.s and in arch/i386/kernel/head.S
-> _without_ impacting the rest of the assembly code?
-> 
-> # lspci
-> 00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge(rev 02)
-> 00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX AGP bridge(rev 02)
-> 00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
-> 00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
-> 00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
-> 00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
-> 00:0a.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI]
-> 00:0b.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink] (rev 74)
-> 00:0c.0 Ethernet controller: National Semiconductor Corporation: Unknown device 0020
-> 01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 1X/2X (rev 5c)
-> 
-> Let me know what I can do.
-> 
-> Thanks
-> Werner
-> 
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+Again for compatibility, Sun's size option would be useful.
 
+-o size=111222333      Size in bytes, rounded up by page size.
+-o size=111222k        Size in kilobytes (base-2 or ISO standard?)
+-o size=111m           Size in megabytes (base-2 or ISO standard?)
+
+I'd prefer k for ISO standard and K for base-2.
+Of course m isn't millibytes, but that isn't horrible.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

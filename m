@@ -1,49 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269086AbUHYBWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269115AbUHYBYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269086AbUHYBWM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 21:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269091AbUHYBWM
+	id S269115AbUHYBYq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 21:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269087AbUHYBYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 21:22:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:9424 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269086AbUHYBVN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 21:21:13 -0400
-Date: Tue, 24 Aug 2004 18:20:56 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Daniel Andersen <anddan@linux-user.net>
-cc: "Sartorelli, Kevin" <Kevin.Sartorelli@openpolytechnic.ac.nz>,
-       fraga@abusar.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.9-rc1
-In-Reply-To: <412BE5CC.8020303@linux-user.net>
-Message-ID: <Pine.LNX.4.58.0408241818030.17766@ppc970.osdl.org>
-References: <4B2093FFC31B7A45862B62A376EA7176033C058D@mickey.topnz.ac.nz>
- <412BE5CC.8020303@linux-user.net>
+	Tue, 24 Aug 2004 21:24:45 -0400
+Received: from out011pub.verizon.net ([206.46.170.135]:2486 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S269120AbUHYBY0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 21:24:26 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: NForce 2 support
+Date: Tue, 24 Aug 2004 21:24:22 -0400
+User-Agent: KMail/1.6.82
+Cc: chakkerz_dev@optusnet.com.au, Dr NoName <spamacct11@yahoo.com>
+References: <200408250102.i7P12Bp08783@mail019.syd.optusnet.com.au>
+In-Reply-To: <200408250102.i7P12Bp08783@mail019.syd.optusnet.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408242124.22798.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.205.62.54] at Tue, 24 Aug 2004 20:24:24 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 25 Aug 2004, Daniel Andersen wrote:
+On Tuesday 24 August 2004 21:02, chakkerz_dev@optusnet.com.au wrote:
+>Heya
 >
->					 Linus, is there a chance that 
-> there will be a x.y.z.W release of an old kernel after the next x.y.Z.w 
-> has been released and no longer is -rc? For example releasing a 2.6.8.2 
-> after 2.6.9 has been released and no longer is a 2.6.9-rcX.
+>Not a kernel hacker but and nforce2 user
+>
+>nforce 2 works sweet with the exception of sound which has been
+> broken in 2.6.7 and 2.6.8.1 causing system crashes. If you have a
+> soundcard not to worry, if you are gonna run onboard ... wait and
+> see with 2.6.9 brings
+>
+My biostar M7NCD Pro intel8x0 sound works right well here on an 
+otherwise nforce2 board.
 
-I don't see the point of such a release, so I'd say "no". Once we have a 
-stable kernel, we make updates to _that_ one, not older ones.
+>> Dr NoName <spamacct11@yahoo.com> wrote:
+>>
+>> Hello kernel hackers,
+>>
+>> I have a quick question: what is the current state of
+>> support for NVidia NForce 2 chipset? I am planning to
+>> get a new Athlon XP rig and just wondering if NForce
+>> (specifically Abit NF7-S) is a good choice. I can
+>> compile a custom kernel and don't mind installing
+>> nvidia drivers separately but I do want everything to
+>> work and be rock-solid (ide, agp, sound, network,
+>> etc.). So will NForce work or should I stick with VIA?
+>>
+>> thanks in advance,
+>>
+>> Eugene
+>>
+>>
+>>
+>> _______________________________
+>> Do you Yahoo!?
+>> Win 1 of 4,000 free domain names from Yahoo! Enter now.
+>> http://promotions.yahoo.com/goldrush
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe
+>> linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-HOWEVER - there may well be exceptions to this brought on by distribution 
-usage etc. For example, if some distribution ends up basing it's work on 
-(say) 2.6.8.1, and we later find a bug, we might release a 2.6.8.2 even 
-though we might have done a 2.6.9 or even 2.6.10 later - just as a way to 
-support the existing users who take a long time to update.
-
-I consider that a pretty remote possibility, though. It's a lot more 
-likely that the distribution-maker itself just does it's own patch on top 
-of whatever release he started off with.
-
-		Linus
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

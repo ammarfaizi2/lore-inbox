@@ -1,305 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbUJ1URh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262715AbUJ1U2D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261964AbUJ1URh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 16:17:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262214AbUJ1UQJ
+	id S262715AbUJ1U2D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 16:28:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbUJ1UVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 16:16:09 -0400
-Received: from out007pub.verizon.net ([206.46.170.107]:22942 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S262889AbUJ1UFs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 16:05:48 -0400
-From: james4765@verizon.net
-To: linux-kernel@vger.kernel.org
-Cc: rusty@rustcorp.com.au, james4765@verizon.net
-Message-Id: <20041028200546.4340.41054.78841@localhost.localdomain>
-In-Reply-To: <20041028200540.4340.4431.73847@localhost.localdomain>
-References: <20041028200540.4340.4431.73847@localhost.localdomain>
-Subject: [PATCH 1/3] to Documentation/digiboard.txt
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [209.158.211.53] at Thu, 28 Oct 2004 15:05:46 -0500
-Date: Thu, 28 Oct 2004 15:05:47 -0500
+	Thu, 28 Oct 2004 16:21:15 -0400
+Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:30089
+	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
+	id S262883AbUJ1USs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 16:18:48 -0400
+Subject: [patch 1/1] uml: fix mainline lazyness about TTY layer patch
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
+From: blaisorblade_spam@yahoo.it
+Date: Thu, 28 Oct 2004 22:19:33 +0200
+Message-Id: <20041028201933.76C984F752@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Description: Remove obsolete Documentation/digiboard.txt file - driver was obsoleted
-by the digiecpa driver.
 
-Signed-off-by: James Nelson <james4765@gmail.com>
+While changing the TTY layer, an API parameter was removed, so it was removed
+by almost all calls, changing their prototype. But one use of one such
+function was not updated, breaking UML compilation. This is the fix.
 
-diff -urN --exclude='*~' linux-2.6.9-original/Documentation/digiboard.txt linux-2.6.9/Documentation/digiboard.txt
---- linux-2.6.9-original/Documentation/digiboard.txt	2004-10-18 17:54:07.000000000 -0400
-+++ linux-2.6.9/Documentation/digiboard.txt	1969-12-31 19:00:00.000000000 -0500
-@@ -1,272 +0,0 @@
--The Linux Digiboard Driver
----------------------------
--
--The Digiboard Driver for Linux supports the following boards:
--
-- DigiBoard PC/Xi, PC/Xe, PC/Xeve(which is the newer, smaller Xe with
-- a 8K window which is also known as PC/Xe(8K) and has no memory/irq
-- switches) You can use up to 4 cards with this driver and it should work
-- on other architectures than intel also.
--
--A version of this driver has been taken by Digiboard to make a driver
--software package which supports also PC/Xem cards and newer PCI cards
--but it doesn't support the old PC/Xi cards and it isn't yet ported to
--linux-2.1.x and may not be usable on other architectures than intel now.
--It is available from ftp.digi.com/ftp.digiboard.com. You can write me if
--you need an patch for this driver.
--
--Bernhard Kaindl (bkaindl@netway.at)  6. April 1997.
--
--Configuring the Driver
------------------------
--
--The driver can be built direct into the kernel or as a module.
--The pcxx driver can be configured using the command line feature while
--loading the kernel with LILO or LOADLIN or, if built as a module,
--with arguments to insmod and modprobe or with parameters in
--/etc/modprobe.conf for modprobe and kerneld.
--
--After configuring the driver you need to create the device special files
--as described in "Device file creation:" below and set the appropriate
--permissions for your application.
--
--As Module
-----------
--
--modprobe pcxx io=<io> \
--  membase=<membase> \
--  memsize=<memsize> \
--  numports=<numports>  \
--  altpin=<altpin> \
--  verbose=<verbose>
--
--or, if several cards are installed
--
--modprobe pcxx io=<io-1>,<io-2>,... \
--  membase=<membase-1>,<membase-2>,... \
--  memsize=<memsize-1>,<memsize-2>,... \
--  numports=<numports-1>,<numports-2>,... \
--  altpin=<altpin-1>,<altpin-2>,... \
--  verbose=<verbose>
--
--where <io-N> is the io address of the Nth card and <membase-N> is the
--memory base address of the Nth card, etc.
--
--The parameters can be specified in any order. For example, the numports
--parameter can precede the membase parameter, or vice versa. If several
--cards are installed the ordering within the comma separated parameter
--lists must be consistent, of course.
--
--io       - I/O port address of that card.
--membase  - Memory start address of that card.
--memsize  - Memory size of that card, in kilobytes. If given, this value
--           is compared against the card to verify configuration and
--           hinder the driver from using a misconfigured card. If the parameter
--           does not match the board it is disabled with a memory size error.
--numports - Number of ports on this card. This is the number of devices to
--           assign to this card or reserve if disabled.
--altpin   - 1: swap DCD and DSR for 8-pin RJ-45 with modems.
--	   0: don't swap DCD and DSR.
--           other values count as 1.
--verbose  - 1: give nice verbose output during initialisation of the driver,
--              possibly helpful during board configuration.
--           0: normal terse output.
--
--Only the parameters which differ from the defaults need to be specified.
--If the io= parameter is not given, the default config is used. This is
--
--  io=0x200 membase=0xD0000 numports=16 altpin=0
--
--Only applicable parameters need be specified. For example to configure
--2 boards, first one at 0x200 with 8 ports, rest defaults, second one at
--0x120, memory at 0xD80000, altpin enabled, rest defaults, you can do this
--by using these parameters:
--
--  modprobe pcxx io=0x200,0x120 numports=8,8 membase=,0xD80000 altpin=,1
--
--To disable a temporary unusable board without changing the mapping of the
--devices following that board, you can empty the io-value for that board:
--
--  modprobe pcxx io=,0x120 numports=8,8 membase=,0xD80000 altpin=,1
--
--The remaining board still uses ttyD8-ttyD15 and cud8-cud15.
--
--Example line for /etc/modprobe.conf for use with kerneld and as default
--parameters for modprobe:
--
--options pcxx           io=0x200 numports=8
--
--For kmod to work you will likely need to add these two lines to your
--/etc/modprobe.conf:
--
--alias char-major-22    pcxx
--alias char-major-23    pcxx
--
--
--Boot-time configuration when linked into the kernel
-----------------------------------------------------
--
--Per board to be configured, pass a digi= command-line parameter to the
--kernel using lilo or loadlin. It consists of a string of comma separated
--identifiers or integers.  The 6 values in order are:
--
--Card status:      Enable      - use that board
--		  Disable     - don't actually use that board.
--
--Card type:        PC/Xi       - the old ones with 64/128/256/512K RAM.
--		  PC/Xe       - PC/Xe(old ones with 64k mem range).
--		  PC/Xeve     - PC/Xe(new ones with 8k mem range).
--
--Note: This is for documentation only, the type is detected from the board.
--
--Altpin setting:   Enable      - swap DCD and DSR for 8-pin RJ-45 with modems.
--		  Disable     - don't swap DCD and DSR.
--
--Number of ports:  1 ... 16    - Number of ports on this card. This is the
--				number of devices to assign to this card.
--
--I/O port address: eg. 200     - I/O Port address where the card is configured.
--
--Memory base addr: eg. 80000   - Memory address where the board's memory starts.
--
--This is an example for a line which you can insert into you lilo.conf:
--
--   append="digi=Enable,PC/Xi,Disable,4,120,D0000"
--
--there is an alternate form, in which you must use decimal values only:
--
--   append="digi=1,0,0,16,512,851968"
--
--If you don't give a digi= command line, the compiled-in defaults of
--board 1: io=0x200, membase=0xd0000, altpin=off and numports=16 are used.
--
--If you have the resources (io&mem) free for use, configure your board to
--these settings and you should be set up fine even if yours has not got 16 
--ports.
--
--
--Sources of Information
------------------------
--
--Please contact digi directly digilnux@dgii.com. Forward any information of
--general interest to me so that I can include it on the webpage.
--
--Web page: http://lameter.com/digi
--
--Christoph Lameter (christoph@lameter.com) Aug 14, 2000.
--
--Device file creation
----------------------
--
--Currently the Linux MAKEDEV command does not support generating the Digiboard
--Devices. 
--
--The /dev/cud devices behave like the /dev/cua devices
--and the ttyD devices are like the /dev/ttyS devices.
--
--Use the following script to generate the devices:
--
-------------------- mkdigidev begin
--#!/bin/sh
--#
--# Script to create Digiboard Devices
--# Christoph Lameter, April 16, 1996
--#
--# Usage:
--# mkdigidev [<number of devices>]
--# 
--
--DIGI_MAJOR=23
--DIGICU_MAJOR=22
--
--BOARDS=$1
--
--if [ "$BOARDS" = "" ]; then
--BOARDS=1
--fi
--
--boardnum=0
--while [ $boardnum -lt $BOARDS ];
--do
--  for c in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15;
--  do
--	name=`expr $boardnum \* 16 + $c`
--	mknod /dev/cud$name c $DIGICU_MAJOR $name
--	mknod /dev/ttyD$name c $DIGI_MAJOR $name
--  done
--  boardnum=`expr $boardnum + 1`
--done
-------------------- mkdigidev end
--
--or apply the following patch to /dev/MAKEDEV and do a 
--sh /dev/MAKEDEV digi
--
------- MAKEDEV Patch
----- /dev/MAKEDEV	Sun Aug 13 15:48:23 1995
--+++ MAKEDEV	Tue Apr 16 17:53:27 1996
--@@ -120,7 +120,7 @@
-- 	while [ $# -ne 0 ]
-- 	do
-- 		case "$1" in
---			mem|tty|ttyp|cua|cub)	;;
--+			mem|tty|ttyp|cua|cub|cud)	;;
-- 			hd)	echo hda hdb hdc hdd ;;
-- 			xd)	echo xda xdb ;;
-- 			fd)	echo fd0 fd1 ;;
--@@ -140,6 +140,7 @@
-- 			dcf)		echo dcf ;;
-- 			pcmcia)	;; # taken care of by its own driver
-- 			ttyC)	echo cyclades ;;
--+			ttyD)	echo digi ;;
-- 			*)	echo "$0: don't know what \"$1\" is" >&2 ;;
-- 		esac
-- 		shift
--@@ -208,6 +209,15 @@
-- 		do
-- 			makedev ttyC$i c $major1 `expr 32 + $i` $tty
-- 			makedev cub$i c $major2 `expr 32 + $i` $dialout
--+		done
--+		;;
--+	digi)
--+		major1=`Major ttyD` || continue
--+		major2=`Major cud` || continue
--+		for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
--+		do
--+			makedev ttyD$i c $major1 `expr 32 + $i` $tty
--+			makedev cud$i c $major2 `expr 32 + $i` $dialout
-- 		done
-- 		;;
-- 	par[0-2])
------- End Makedev patch
--
-------------------------------------------------------------------------------
--
--Changes v1.5.5:
--
--The ability to use the kernel's command line to pass in the configuration for 
--boards.  Using LILO's APPEND command, a string of comma separated identifiers 
--or integers can be used.  The 6 values in order are:
--
--   Enable/Disable this card,
--   Type of card: PC/Xi(0), PC/Xe(1), PC/Xeve(2), PC/Xem(3)
--   Enable/Disable alternate pin arrangement,
--   Number of ports on this card,
--   I/O Port where card is configured (in HEX if using string identifiers),
--   Base of memory window (in HEX if using string identifiers), 
--
--Samples:
--   append="digi=E,PC/Xi,D,16,200,D0000"
--   append="digi=1,0,0,16,512,(whatever D0000 is in base 10 :)
--
--Drivers' minor device numbers are conserved. This means that instead of
--each board getting a block of 16 minors pre-assigned, it gets however
--many it should, with the next card following directly behind it.  A
--system with 4 2-port PC/Xi boards will use minor numbers 0-7.
--This conserves some memory, and removes a few hard coded constants.
--
--NOTE!! NOTE!! NOTE!!
--The definition of PC/Xem as a valid board type is the BEGINNING of support
--for this device.  The driver does not currently recognise the board, nor
--does it want to initialize it.  At least not the EISA version.
--
--Mike McLagan <mike.mclagan@linux.org> 5, April 1996.
+Should go in directly - trivial fix.
 
+Thanks for the breakage, too :-).
+
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
+
+ vanilla-linux-2.6.9-paolo/arch/um/drivers/line.c |    2 --
+ vanilla-linux-2.6.9-paolo/arch/um/drivers/ssl.c  |    2 +-
+ 2 files changed, 1 insertion(+), 3 deletions(-)
+
+diff -puN arch/um/drivers/ssl.c~uml-mainline-is-lazy-fix arch/um/drivers/ssl.c
+--- vanilla-linux-2.6.9/arch/um/drivers/ssl.c~uml-mainline-is-lazy-fix	2004-10-27 01:47:58.000000000 +0200
++++ vanilla-linux-2.6.9-paolo/arch/um/drivers/ssl.c	2004-10-27 01:48:07.000000000 +0200
+@@ -119,7 +119,7 @@ static int ssl_write(struct tty_struct *
+ 
+ static void ssl_put_char(struct tty_struct *tty, unsigned char ch)
+ {
+-	line_write(serial_lines, tty, 0, &ch, sizeof(ch));
++	line_write(serial_lines, tty, &ch, sizeof(ch));
+ }
+ 
+ static void ssl_flush_chars(struct tty_struct *tty)
+diff -puN arch/um/drivers/line.c~uml-mainline-is-lazy-fix arch/um/drivers/line.c
+--- vanilla-linux-2.6.9/arch/um/drivers/line.c~uml-mainline-is-lazy-fix	2004-10-27 01:49:16.000000000 +0200
++++ vanilla-linux-2.6.9-paolo/arch/um/drivers/line.c	2004-10-27 01:49:47.000000000 +0200
+@@ -110,7 +110,6 @@ static int flush_buffer(struct line *lin
+ int line_write(struct line *lines, struct tty_struct *tty, const char *buf, int len)
+ {
+ 	struct line *line;
+-	char *new;
+ 	unsigned long flags;
+ 	int n, err, i, ret = 0;
+ 
+@@ -143,7 +142,6 @@ int line_write(struct line *lines, struc
+ 	}
+  out_up:
+ 	up(&line->sem);
+- out_free:
+ 	return(ret);
+ }
+ 
+_

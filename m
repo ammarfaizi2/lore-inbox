@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbUFFIDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263040AbUFFIEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263020AbUFFIDq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 04:03:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbUFFIDp
+	id S263040AbUFFIEK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 04:04:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbUFFIEJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 04:03:45 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:14831 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263020AbUFFIDn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 04:03:43 -0400
-Date: Sun, 6 Jun 2004 01:07:47 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: anton@samba.org, wli@holomorphy.com, mikpe@csd.uu.se,
-       nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
-       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       Simon.Derr@bull.net, miltonm@bga.com
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
- implementation
-Message-Id: <20040606010747.7c0dd03b.pj@sgi.com>
-In-Reply-To: <20040605002827.2e539991.pj@sgi.com>
-References: <20040603094339.03ddfd42.pj@sgi.com>
-	<20040603101010.4b15734a.pj@sgi.com>
-	<1086313667.29381.897.camel@bach>
-	<40BFD839.7060101@yahoo.com.au>
-	<20040603221854.25d80f5a.pj@sgi.com>
-	<16576.16748.771295.988065@alkaid.it.uu.se>
-	<20040604090314.56d64f4d.pj@sgi.com>
-	<20040604165601.GC21007@holomorphy.com>
-	<20040604190803.GA6651@krispykreme>
-	<20040605002827.2e539991.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 6 Jun 2004 04:04:09 -0400
+Received: from mail.codeweavers.com ([216.251.189.131]:55714 "EHLO
+	mail.codeweavers.com") by vger.kernel.org with ESMTP
+	id S263032AbUFFIEF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 04:04:05 -0400
+Message-ID: <40C2E045.8090708@codeweavers.com>
+Date: Sun, 06 Jun 2004 18:13:41 +0900
+From: Mike McCormack <mike@codeweavers.com>
+Organization: Codeweavers
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040514
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+References: <40C2B51C.9030203@codeweavers.com> <20040606073241.GA6214@infradead.org>
+In-Reply-To: <20040606073241.GA6214@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pj wrote:
-> but rather the number (possibly an odd number) of u32 dest words,
 
-or the byte size of the destination buffer ...
+Christoph Hellwig wrote:
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+> if you have a need for a special virtual memory layout please use your
+> own binary loader as I already suggested earlier in the thread, i.e.
+> binfmt_pecoff.
+
+We are using our own user space loader now, but a kernel space loader is 
+  neither portable or practical.
+
+The Wine project is used by many people and companies for both comercial 
+and non-comercial purposes.  In the spirit of cooperation, it would be 
+nice if somebody let us know when they're going to make a change that is 
+going to break Wine, and provide a way for us to workaround that change, 
+or even better maintain real binary compatability...
+
+It seems Linus's kernel does that quite well, but some vendors seem not 
+to care too much about breaking Wine.
+
+Mike

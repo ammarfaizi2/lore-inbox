@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275082AbRJANuK>; Mon, 1 Oct 2001 09:50:10 -0400
+	id <S275078AbRJANuU>; Mon, 1 Oct 2001 09:50:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275086AbRJANuA>; Mon, 1 Oct 2001 09:50:00 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:2309 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S275082AbRJANtu>;
-	Mon, 1 Oct 2001 09:49:50 -0400
-To: julien23@alcove.fr
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PnPBIOS 2.4.9-ac1[56] Vaio fix
-In-Reply-To: <20011001120432.A5531@come.alcove-fr>
-In-Reply-To: <20010930174627.52817587@thanatos.toad.net> <20011001120432.A5531@come.alcove-fr>
-Reply-To: stephane.list@fr.alcove.com
+	id <S275086AbRJANuL>; Mon, 1 Oct 2001 09:50:11 -0400
+Received: from pscgate.progress.com ([192.77.186.1]:12989 "EHLO
+	pscgate.progress.com") by vger.kernel.org with ESMTP
+	id <S275078AbRJANtw>; Mon, 1 Oct 2001 09:49:52 -0400
+Subject: Re: Broken APIC detection 2.4.10?
+From: "Sujal Shah" <sshah@progress.com>
+Reply-To: sujal@sujal.net
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200109301126.NAA24615@harpo.it.uu.se>
+In-Reply-To: <200109301126.NAA24615@harpo.it.uu.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.14.99+cvs.2001.09.27.08.08 (Preview Release)
+Date: 01 Oct 2001 09:48:33 -0400
+Message-Id: <1001944127.32358.3.camel@pcsshah>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
-Message-Id: <E15o3SZ-0005mL-00@wiliam.alcove-fr>
-From: St?phane List <stephane@alcove.fr>
-Date: Mon, 01 Oct 2001 15:50:15 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le driver de stelian est tombé en marche ;-)
+On Sun, 2001-09-30 at 07:26, Mikael Pettersson wrote:
+> On 27 Sep 2001 18:21:54 -0400, Sujal Shah wrote:
+[SNIP]
+> Please elaborate: What does "This" in "This was not the case before."
+> refer to? The "Could not enable APIC!" boot message or the XT-PIC in
+> /proc/interrupts?
+> 
 
+I'm just dumb.  The message was new, but the behavior (non-APIC
+interrupts) was not.  I'm truly sorry for any confusion.
 
-In alcove.lists.linux.kernel, you wrote:
-> On Sun, Sep 30, 2001 at 01:46:26PM -0400, Thomas Hood wrote:
+I was trying to track down another problem (the PNPBios issue that looks
+to have been patched and an ALSA driver issue) when I just saw the
+message, which I had never seen before.
+
+Sorry.
+
+Sujal
+
+> 2.4.10 merged code from 2.4-ac which (in some .configs) will attempt
+> to enable the CPU's local APIC. The boot message above is printed if
+> your CPU doesn't have one.
 > 
-> > Here's the patch to the PnP BIOS driver for Vaio laptops again,
-> > this time against 2.4.9-ac18.  It's unchanged, but as per the
-> > "SubmittingPatches" file, I append rather than attach it.   
-> > // Thomas
+> >Anyone have any ideas why this is?  The APIC stuff was getting detected
+> >fine in 2.4.7.
 > 
-> Ok, here I am again, sorry for not being able to react on 
-> your patches this weekend...
+> Can you send me your .configs and boot logs for both 2.4.7 and 2.4.10?
+> I don't think there is an actual problem, but I'd like to make sure.
 > 
-> I tested your latest patches with a 2.4.9-ac18 kernels, and,
-> surprise, the kernel now boots correctly, _without_ any
-> pnpbios* boot option.
-> 
-> Since the DMI / PNP order was not modified as of ac18, I
-> suppose the patches change something else which makes it
-> work...
-> 
-> Stelian.
-> -- 
-> Stelian Pop <stelian.pop@fr.alcove.com>
-> |---------------- Free Software Engineer -----------------|
-> | Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-> |------------- Alcôve, liberating software ---------------|
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> /Mikael
+-- 
+---- Sujal Shah --- sujal@sujal.net ---
+
+        http://www.sujal.net
+
+Now Playing: none
+

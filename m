@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131246AbRCHAoV>; Wed, 7 Mar 2001 19:44:21 -0500
+	id <S131241AbRCHAov>; Wed, 7 Mar 2001 19:44:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131242AbRCHAoL>; Wed, 7 Mar 2001 19:44:11 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:15335 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S131241AbRCHAoB>; Wed, 7 Mar 2001 19:44:01 -0500
-Date: Thu, 08 Mar 2001 09:43:31 +0900
-Message-ID: <r909um30.wl@frostrubin.open.nm.fujitsu.co.jp>
-From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S131247AbRCHAon>; Wed, 7 Mar 2001 19:44:43 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45065 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131241AbRCHAo3>; Wed, 7 Mar 2001 19:44:29 -0500
+Subject: Re: Can't compile 2.4.2-ac14
+To: amatsus@jaist.ac.jp (MATSUSHIMA Akihiro)
+Date: Thu, 8 Mar 2001 00:47:33 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: Linux 2.4.2ac14
-In-Reply-To: <E14an7j-0001rZ-00@the-village.bc.nu>
-In-Reply-To: <E14an7j-0001rZ-00@the-village.bc.nu>
-User-Agent: Wanderlust/2.4.0 (Rio) EMY/1.13.9 (Art is long, life is short) SLIM/1.14.3 () APEL/10.2 MULE XEmacs/21.2 (beta38) (Peisino) (i386-kondara-linux)
+In-Reply-To: <20010308091307Z.amatsus@jaist.ac.jp> from "MATSUSHIMA Akihiro" at Mar 08, 2001 09:13:07 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14aoac-00021Z-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Hello,
+> I receive the following error with make bzImage:
+> 
+> i386_ksyms.c:170: `do_BUG' undeclared here (not in a function)
+> i386_ksyms.c:170: initializer element is not constant
+> i386_ksyms.c:170: (near initialization for `__ksymtab_do_BUG.value')
+> make[1]: *** [i386_ksyms.o] Error 1
+> make[1]: Leaving directory `/usr/src/linux-2.4.2-ac14/arch/i386/kernel'
+> make: *** [_dir_arch/i386/kernel] Error 2
 
-Hello,
+Change it to
 
-2.4.2ac14 compilation fails when CONFIG_DEBUG_BUGVERBOSE is not enabled.
-Here is my small patch.
+#ifdef CONFIG_DEBUG_BUGVERBOSE
+EXPORT_SYMBOL(do_BUG);
+#endif
 
+sorry
 
-diff -r -u linux-2.4.2-ac14.org/include/asm-i386/page.h linux-2.4.2-ac14/include/asm-i386/page.h
---- linux-2.4.2-ac14.org/include/asm-i386/page.h	Thu Mar  8 09:31:45 2001
-+++ linux-2.4.2-ac14/include/asm-i386/page.h	Thu Mar  8 09:21:43 2001
-@@ -87,8 +87,8 @@
-  * see^H^H^Hhear bugs in early bootup as well!
-  */
- 
--#ifdef CONFIG_DEBUG_BUGVERBOSE
- extern void do_BUG(const char *file, int line);
-+#ifdef CONFIG_DEBUG_BUGVERBOSE
- #define BUG() do {					\
- 	do_BUG(__FILE__, __LINE__);			\
- 	__asm__ __volatile__(".byte 0x0f,0x0b");	\

@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266473AbTB0U6T>; Thu, 27 Feb 2003 15:58:19 -0500
+	id <S266135AbTB0Uzz>; Thu, 27 Feb 2003 15:55:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266805AbTB0U6T>; Thu, 27 Feb 2003 15:58:19 -0500
-Received: from [24.27.43.2] ([24.27.43.2]:18 "EHLO snafu.haywired.net")
-	by vger.kernel.org with ESMTP id <S266473AbTB0U6S>;
-	Thu, 27 Feb 2003 15:58:18 -0500
-Date: Thu, 27 Feb 2003 14:48:16 -0600 (CST)
-From: Paul B Schroeder <paulsch@haywired.net>
-To: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-cc: <girouard@us.ibm.com>
-Subject: [PATCH][2.5] mwave updates
-Message-ID: <Pine.LNX.4.33.0302271430390.18104-100000@snafu.haywired.net>
+	id <S266805AbTB0Uzz>; Thu, 27 Feb 2003 15:55:55 -0500
+Received: from web20709.mail.yahoo.com ([216.136.226.182]:25725 "HELO
+	web20709.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S266135AbTB0Uzy>; Thu, 27 Feb 2003 15:55:54 -0500
+Message-ID: <20030227210613.17243.qmail@web20709.mail.yahoo.com>
+Date: Thu, 27 Feb 2003 13:06:13 -0800 (PST)
+From: Paul Adams <padamsdev@yahoo.com>
+Subject: PCI bridge disconnects and retries
+To: linux-kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch can be found here...
+I have a DMA Bus Master device on a PCI-X or PCI 64/66
+bus under Linux/x86 (UP and SMP).  The device is
+capable of long bursts without wait states, but the
+various host-PCI bridges I have tried will disconnect
+after very short bursts or will require many retries
+before starting a burst.  I would be interested in any
+suggestions for configuring the CPU cache or the
+bridge or ways to tune the behavior of the device to
+optimize sustained throughput.  I am looking at a
+number of standard chipsets such as Serverworks Grand
+Champion, Intel E7500, and AMD-760 MPX.  For example,
+how can the prefetch behavior on each of these bridges
+be tuned?  Are specs available for any of the bridges?
+ Can the driver do anything to make better use of
+caches and prefetching?
 
-http://www.haywired.net/~paulsch/patches/mwave-2.5.63.patch
-
-It is obviously against 2.5.63 and applies cleanly..  Linus, please apply..
-
-Thanks...Paul...
-
-
-Changes include..
-* proc support dropped in favor of sysfs
-* other miscellaneous fixes and cleanups
-
-* smapi.c changes and fixes from Wes Schreiner <wes@infosink.com>
-1. When IR port is disabled skip io address and irq checks.
-2. Actually compiles with gcc 2.95.4 when MWAVE_FUTZ_WITH_OTHER_DEVICES is
-defined.
-3. Makes error printks a little more informative.
-
-
-
--- 
-
-Paul B Schroeder
-paulsch@haywired.net
+Paul Adams
 
 
 
 
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Tax Center - forms, calculators, tips, more
+http://taxes.yahoo.com/

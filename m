@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130530AbQLISs4>; Sat, 9 Dec 2000 13:48:56 -0500
+	id <S130085AbQLISs4>; Sat, 9 Dec 2000 13:48:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130592AbQLISsi>; Sat, 9 Dec 2000 13:48:38 -0500
-Received: from isolaweb.it ([213.82.132.2]:19212 "EHLO web.isolaweb.it")
-	by vger.kernel.org with ESMTP id <S130085AbQLISsC>;
-	Sat, 9 Dec 2000 13:48:02 -0500
-Message-Id: <4.3.2.7.2.20001209190705.00cb29e0@mail.tekno-soft.it>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Sat, 09 Dec 2000 19:11:57 +0100
-To: "David S. Miller" <davem@redhat.com>
-From: Roberto Fichera <kernel@tekno-soft.it>
-Subject: Re: [PATCH] mm->rss is modified without page_table_lock held
-Cc: rasmus@jaquet.dk, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200012091500.HAA20614@pizda.ninka.net>
-In-Reply-To: <4.3.2.7.2.20001209160215.00c901e0@mail.tekno-soft.it>
- <4.3.2.7.2.20001209152806.00c8e7b0@mail.tekno-soft.it>
- <4.3.2.7.2.20001209111347.00c829f0@mail.tekno-soft.it>
- <4.3.2.7.2.20001209111347.00c829f0@mail.tekno-soft.it>
- <4.3.2.7.2.20001209152806.00c8e7b0@mail.tekno-soft.it>
- <4.3.2.7.2.20001209160215.00c901e0@mail.tekno-soft.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S130530AbQLISsg>; Sat, 9 Dec 2000 13:48:36 -0500
+Received: from tungsten.btinternet.com ([194.73.73.81]:21451 "EHLO
+	tungsten.btinternet.com") by vger.kernel.org with ESMTP
+	id <S130592AbQLISsE>; Sat, 9 Dec 2000 13:48:04 -0500
+Date: Sat, 9 Dec 2000 18:11:08 +0000 (GMT)
+From: davej@suse.de
+To: Martin Mares <mj@suse.cz>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pdev_enable_device no longer used ?
+In-Reply-To: <20001209160403.A28562@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.21.0012091803270.571-100000@neo.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07.00 09/12/00 -0800, David S. Miller wrote:
+On Sat, 9 Dec 2000, Martin Mares wrote:
 
->    Date: Sat, 09 Dec 2000 16:07:03 +0100
->    From: Roberto Fichera <kernel@tekno-soft.it>
->
->    8 bits for a spinlock ? What kind of use we have here ?
->
->Sparc32 (like some other older architectures) do not have a
->word atomic update instruction, but it does have a byte spinlock.
->To conserve space and implement the atomic update properly, we
->use a spinlock in the top byte of the word.
+> > Questions:
+> > 1. Is there reason for the drivers to be setting this themselves
+> >    to hardcoded values ?
+> 
+> Definitely not unless the devices are buggy and need a work-around.
 
-There's any possibility ;-) to define it as
+Maybe that's the case. The culprits are mostly IDE interfaces. Andre ?
 
-typedef struct { volatile char spinlock, volatile long counter } atomic_t;
+drivers/ide/cmd64x.c:   (void) pci_write_config_byte(dev,PCI_CACHE_LINE_SIZE, 0x10);
+drivers/ide/cs5530.c:   pci_write_config_byte(cs5530_0,PCI_CACHE_LINE_SIZE, 0x04);
+drivers/ide/hpt366.c:   pci_write_config_byte(dev,PCI_CACHE_LINE_SIZE, 0x08);
+drivers/ide/ns87415.c:  (void) pci_write_config_byte(dev,PCI_CACHE_LINE_SIZE, 0x10);
 
->Also, this sematic was decided upon many eons ago, changing it a month
->before 2.4.0 just to deal with this mm->rss atomicity issue is not
->going to happen.  The spinlock patch exists, and if nothing better
->comes up, we should just use it.
+drivers/atm/eni.c:      pci_write_config_byte(eni_dev->pci_dev,PCI_CACHE_LINE_SIZE, 0x10);
+drivers/media/video/planb.c:    pci_write_config_byte (pdev,PCI_CACHE_LINE_SIZE, 0x8);
 
-Indeed! You are right! I was thinking to optimize it, using a 
-spinlock/unlock we spent
-several time for a inc.
+> For PC's, we've until now relied on the BIOS setting up cache line
+> sizes correctly. Are the "8"'s you've spotted due to drivers messing
+> with the cache line register or do they come from the BIOS?
 
-Roberto Fichera.
+>From the BIOS. They are the USB controllers, I couldn't see any writes
+to the PCI_CACHE_LINE_SIZE in the drivers.
+
+regards,
+
+Davej.
+
+-- 
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

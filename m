@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261708AbREOXmm>; Tue, 15 May 2001 19:42:42 -0400
+	id <S261709AbREOXow>; Tue, 15 May 2001 19:44:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261709AbREOXmc>; Tue, 15 May 2001 19:42:32 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:59920 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S261708AbREOXmU>;
-	Tue, 15 May 2001 19:42:20 -0400
-Date: Tue, 15 May 2001 20:42:03 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
+	id <S261714AbREOXom>; Tue, 15 May 2001 19:44:42 -0400
+Received: from pec-102-189.tnt3.h2.uunet.de ([149.225.102.189]:57360 "EHLO
+	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
+	id <S261709AbREOXog>; Tue, 15 May 2001 19:44:36 -0400
+Date: Tue, 15 May 2001 23:44:23 +0000
+From: Thorsten Kranzkowski <th@Marvin.DL8BCU.ampr.org>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5pre2aa1
-In-Reply-To: <20010515235916.B2415@athlon.random>
-Message-ID: <Pine.LNX.4.21.0105152039060.4671-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: /dev/sch0 interface
+Message-ID: <20010515234422.B32162@Marvin.DL8BCU.ampr.org>
+Reply-To: dl8bcu@gmx.net
+Mail-Followup-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010515150801.A18842@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010515150801.A18842@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Tue, May 15, 2001 at 03:08:01PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 May 2001, Andrea Arcangeli wrote:
-
-> Detailed description of 2.4.5pre2aa1 follows.
-
-> 00_buffer-2
+On Tue, May 15, 2001 at 03:08:01PM -0600, Jeff V. Merkey wrote:
 > 
-> 	Reschedule during oom while allocating buffers, still getblk
-> 	can deadlock with oom but this will hide it pretty well as
-> 	it won't loop in a tight loop anymore.
+> 
+> Is anyone actuaslly using the /dev/sch0 interface for SCSI tape changers
+> in Linux?  I noticed that the device definitions are present, but I do not 
+> see any driver shipped in the standard base that actually uses it.
 
-These descriptions are very helpful. Are they available somewhere
-for all your (recent) patches?
+http://www.in-berlin.de/User/kraxel/linux.html
 
-regards,
+works very well here (needs a minor #include to compile correctly, though)
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+I actually wonder why this isn't in the mainline kernel.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+> 
+> Thanks
+> 
+> Jeff
+> 
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+Thorsten
 
+-- 
+| Thorsten Kranzkowski        Internet: dl8bcu@gmx.net                        |
+| Mobile: ++49 170 1876134       Snail: Niemannsweg 30, 49201 Dissen, Germany |
+| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |

@@ -1,75 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267688AbTBYT5M>; Tue, 25 Feb 2003 14:57:12 -0500
+	id <S267845AbTBYUIR>; Tue, 25 Feb 2003 15:08:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267845AbTBYT5M>; Tue, 25 Feb 2003 14:57:12 -0500
-Received: from teranet244-12-200.monarch.net ([24.244.12.200]:28173 "EHLO
-	teranet244-12-200.monarch.net") by vger.kernel.org with ESMTP
-	id <S267688AbTBYT5L>; Tue, 25 Feb 2003 14:57:11 -0500
-Date: Tue, 25 Feb 2003 13:06:51 -0700
-From: Peter Braam <braam@clusterfs.com>
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       david+cert@blue-labs.org, chyang@clusterfs.com
-Subject: Re: [OOPS] 2.5.62, bootup, do_add_mount
-Message-ID: <20030225200651.GK18243@peter.cfs>
-References: <3E5700EA.9070905@blue-labs.org> <20030225080350.GD1109@in.ibm.com> <20030225000448.6f5e0d22.akpm@digeo.com> <20030225094711.GE1109@in.ibm.com>
+	id <S268220AbTBYUIR>; Tue, 25 Feb 2003 15:08:17 -0500
+Received: from uni00du.unity.ncsu.edu ([152.1.13.100]:35723 "EHLO
+	uni00du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id <S267845AbTBYUIR>; Tue, 25 Feb 2003 15:08:17 -0500
+From: jlnance@unity.ncsu.edu
+Date: Tue, 25 Feb 2003 15:18:32 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030225201832.GA9442@ncsu.edu>
+References: <20030225051956.GA18302@f00f.org> <FKEAJLBKJCGBDJJIPJLJMEOOEPAA.scott@coyotegulch.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030225094711.GE1109@in.ibm.com>
+In-Reply-To: <FKEAJLBKJCGBDJJIPJLJMEOOEPAA.scott@coyotegulch.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 25, 2003 at 02:59:05PM -0500, Scott Robert Ladd wrote:
+> > In two year this kind of hardware probably will be SMP (HT or some
+> > variant).
+> 
+> HT is not the same thing as SMP; while the chip may appear to be two
+> processors, it is actually equivalent 1.1 to 1.3 processors, depending on
+> the application.
+> 
+> Multicore processors and true SMP systems are unlikely to become mainstream
+> consumer items, given the premium price charged for such systems.
 
-This looks good to me. Chen Yang, can you make sure this makes it into
-our CVS also? 
+I think the difference between SMP and HT is likely to decrease rather
+than increase in the future.  Even now people want to put multiple CPUs
+on the same piece of silicon.  Once you do that it only makes sense to
+start sharning things between them.  If you had a system with 2 CPUs
+which shared a common L1 cache is that going to be a HT or an SMP system?
+Or you could go further and have 2 CPUs which share an FPU.  There are
+all sorts of combinations you could come up with.  I think designers
+will experiment and find the one that gives the most throughput for
+the least money.
 
-- Peter -
-
-On Tue, Feb 25, 2003 at 03:17:11PM +0530, Maneesh Soni wrote:
-> On Tue, Feb 25, 2003 at 12:04:48AM -0800, Andrew Morton wrote:
-> > Maneesh Soni <maneesh@in.ibm.com> wrote:
-> > >
-> > > 
-> > > Hi Peter,
-> > > 
-> > > presto_get_sb() is returning error resulting in the following NULL 
-> > > pointer reference in do_kern_mount(). The following patch corrects
-> > > it.
-> > > 
-> > 
-> > It should be returning some ERR_PTR value.  Seems that presto_get_sb() isn't
-> > very careful in tracking the reason for the failed mount, so
-> > 
-> > 	return ERR_PTR(-EINVAL);
-> > 
-> > should suffice.
-> 
-> Actually previous fix I posted is not correct also. Returning -EINVAL seems
-> logical.
-> 
-> 
-> diff -urN linux-2.5.63-base/fs/intermezzo/super.c linux-2.5.63-presto_get_sb/fs/intermezzo/super.c
-> --- linux-2.5.63-base/fs/intermezzo/super.c	2003-02-25 00:36:01.000000000 +0530
-> +++ linux-2.5.63-presto_get_sb/fs/intermezzo/super.c	2003-02-25 15:14:09.000000000 +0530
-> @@ -318,7 +318,7 @@
->  
->          CDEBUG(D_MALLOC, "mount error exit: kmem %ld, vmem %ld\n",
->                 presto_kmemory, presto_vmemory);
-> -        return NULL;
-> +        return ERR_PTR(-EINVAL);
->  }
->  
->  
-> Regards,
-> Maneesh
-> 
-> -- 
-> Maneesh Soni
-> IBM Linux Technology Center, 
-> IBM India Software Lab, Bangalore.
-> Phone: +91-80-5044999 email: maneesh@in.ibm.com
-> http://lse.sourceforge.net/
-- Peter -
+Jim

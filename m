@@ -1,98 +1,173 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262322AbUDAF2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 00:28:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbUDAF2Z
+	id S262442AbUDAFjS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 00:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbUDAFjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 00:28:25 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60035 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262322AbUDAF2W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 00:28:22 -0500
-Message-ID: <406BA867.1070508@pobox.com>
-Date: Thu, 01 Apr 2004 00:28:07 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-CC: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Device mapper devel list <dm-devel@redhat.com>,
-       Thomas Horsten <thomas@horsten.com>, medley@lists.infowares.com
-Subject: Re: ATARAID/FakeRAID/HPTRAID/PDCRAID as dm targets?
-References: <405C8B39.8080609@gmx.net> <405CAEC7.9080104@pobox.com> <405CFC85.70004@backtobasicsmgmt.com> <20040321074711.GA13232@devserv.devel.redhat.com> <405D9CDA.6070107@gmx.at> <405F3B1C.3030500@gmx.net> <405F3EA8.6060606@pobox.com> <406B8A3D.9030405@gmx.net>
-In-Reply-To: <406B8A3D.9030405@gmx.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 1 Apr 2004 00:39:17 -0500
+Received: from fw.osdl.org ([65.172.181.6]:8889 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262442AbUDAFjM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 00:39:12 -0500
+Date: Wed, 31 Mar 2004 21:39:02 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: yusufg@outblaze.com, linux-kernel@vger.kernel.org
+Subject: Re: Strange output from exportfs in 2.6.5-rc3-mm1
+Message-Id: <20040331213902.147036f3.akpm@osdl.org>
+In-Reply-To: <20040331144031.360c2c3f.rddunlap@osdl.org>
+References: <20040331030439.GA23306@outblaze.com>
+	<20040331144031.360c2c3f.rddunlap@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carl-Daniel Hailfinger wrote:
-> Jeff Garzik wrote:
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>
+> On Wed, 31 Mar 2004 11:04:39 +0800 Yusuf Goolamabbas wrote:
 > 
->>Carl-Daniel Hailfinger wrote:
->>
->>
->>>Wilfried Weissmann wrote:
->>>
->>>
->>>>Arjan van de Ven wrote:
->>>>
->>>>
->>>>
->>>>>On Sat, Mar 20, 2004 at 07:23:01PM -0700, Kevin P. Fleming wrote:
->>>>>
->>>>>
->>>>>
->>>>>>Jeff Garzik wrote:
->>>>>>
->>>>>>
->>>>>>
->>>>>>>So go ahead, and I'll lend you as much help as I can.  I have the
->>>>>>>full Promise RAID docs, and it seems like another guy on the lists
->>>>>>>has full Silicon Image "medley" RAID docs...
->>>
->>>
->>>Jeff: May I request your docs?
->>
->>Unfortunately not, but I can get you in touch with somebody at Promise
->>who can.  They're definitely interested in working with the open source
->>community.  Not public...
+>  | In 2.6.5-rc3-mm1, I saw the following via dmesg
+>  | 
+>  | exportfs: no version for "init_module" found: kernel tainted.
+>  | 
+>  | I am exporting a few filesystems via NFS but this is the first 2.6.x
+>  | kernel in which I have seen the above message
+>  | Output of lsmod
+>  | 
+>  | nfsd                   94344  - 
+>  | exportfs                5440  - 
+>  | lockd                  59912  - 
+>  | sunrpc                134312  - 
+>  | e100                   28196  - 
+>  | ext3                  116104  - 
+>  | jbd                    55416  - 
+>  | aic7xxx               164588  - 
+>  | sd_mod                 17696  - 
+>  | scsi_mod              109200  - 
 > 
-> 
-> Could you please send me the contact information via private mail?
-> Thanks.
+>  I can't reproduce that with 2.6.5-rc3-mm3 (but there are no
+>  changes to exportfs in -mm3).
 
-Will do.
+You probably didn't have modversions enabled?
 
-
->>>I'll use your work as a foundation. First step is integrating detection
->>>for non-HPT arrays. If the code looks too messy after that, I still can
->>>refactor it.
->>>
->>>As soon as I have some code to get at least PDCRAID working, I'll post
->>>again.
->>
->>
->>Feel free to ask me questions, too.
-> 
-> 
-> OK. First question: calc_pdcblock_offset calculates the superblock
-> location based on capacity, sectors and heads. However, the same machine
-> which showed 255 heads under Kernel 2.4 now shows only 16 heads and some
-> of the hardcoded location calculation routines may fail. Is there a
-> userspace generic method for finding the right sector?
-> (It works sometimes for me.)
-
-The standard method one uses to calculate cyl/head/sect in ATA, AFAIK. 
-If that changes between 2.4 and 2.6, that sounds like a bug unrelated to 
-the code you're writing...
-
-	Jeff
+Rusty sent me this:
 
 
+From: Rusty Russell <rusty@rustcorp.com.au>
+
+Brian Gerst's patch which moved __this_module out from module.h into the
+module post-processing had a side effect.  genksyms didn't see the
+undefined symbols for modules without a module_init (or module_exit), and
+hence didn't generate a version for them, causing the kernel to be tainted.
+
+The simple solution is to always include the versions for these functions. 
+Also includes two cleanups:
+
+1) alloc_symbol is easier to use if it populates ->next for us.
+
+2) add_exported_symbol should set owner to module, not head of module
+   list (we don't use this field in entries in that list, fortunately).
+
+
+---
+
+ 25-akpm/scripts/modpost.c |   35 ++++++++++++++++-------------------
+ 1 files changed, 16 insertions(+), 19 deletions(-)
+
+diff -puN scripts/modpost.c~modversions-fix scripts/modpost.c
+--- 25/scripts/modpost.c~modversions-fix	2004-03-31 21:37:47.745773896 -0800
++++ 25-akpm/scripts/modpost.c	2004-03-31 21:37:47.749773288 -0800
+@@ -113,12 +113,13 @@ static inline unsigned int tdb_hash(cons
+  * the list of unresolved symbols per module */
+ 
+ struct symbol *
+-alloc_symbol(const char *name)
++alloc_symbol(const char *name, struct symbol *next)
+ {
+ 	struct symbol *s = NOFAIL(malloc(sizeof(*s) + strlen(name) + 1));
+ 
+ 	memset(s, 0, sizeof(*s));
+ 	strcpy(s->name, name);
++	s->next = next;
+ 	return s;
+ }
+ 
+@@ -128,17 +129,15 @@ void
+ new_symbol(const char *name, struct module *module, unsigned int *crc)
+ {
+ 	unsigned int hash;
+-	struct symbol *new = alloc_symbol(name);
++	struct symbol *new;
+ 
++	hash = tdb_hash(name) % SYMBOL_HASH_SIZE;
++	new = symbolhash[hash] = alloc_symbol(name, symbolhash[hash]);
+ 	new->module = module;
+ 	if (crc) {
+ 		new->crc = *crc;
+ 		new->crc_valid = 1;
+ 	}
+-
+-	hash = tdb_hash(name) % SYMBOL_HASH_SIZE;
+-	new->next = symbolhash[hash];
+-	symbolhash[hash] = new;
+ }
+ 
+ #define DOTSYM_PFX "__dot_"
+@@ -177,7 +176,7 @@ add_exported_symbol(const char *name, st
+ 	struct symbol *s = find_symbol(name);
+ 
+ 	if (!s) {
+-		new_symbol(name, modules, crc);
++		new_symbol(name, module, crc);
+ 		return;
+ 	}
+ 	if (crc) {
+@@ -331,7 +330,6 @@ void
+ handle_modversions(struct module *mod, struct elf_info *info,
+ 		   Elf_Sym *sym, const char *symname)
+ {
+-	struct symbol *s;
+ 	unsigned int crc;
+ 
+ 	switch (sym->st_shndx) {
+@@ -368,13 +366,10 @@ handle_modversions(struct module *mod, s
+ #endif
+ 		
+ 		if (memcmp(symname, MODULE_SYMBOL_PREFIX,
+-			   strlen(MODULE_SYMBOL_PREFIX)) == 0) {
+-			s = alloc_symbol(symname + 
+-					 strlen(MODULE_SYMBOL_PREFIX));
+-			/* add to list */
+-			s->next = mod->unres;
+-			mod->unres = s;
+-		}
++			   strlen(MODULE_SYMBOL_PREFIX)) == 0)
++			mod->unres = alloc_symbol(symname +
++						  strlen(MODULE_SYMBOL_PREFIX),
++						  mod->unres);
+ 		break;
+ 	default:
+ 		/* All exported symbols */
+@@ -431,10 +426,12 @@ read_symbols(char *modname)
+ 	 * the automatic versioning doesn't pick it up, but it's really
+ 	 * important anyhow */
+ 	if (modversions) {
+-		s = alloc_symbol("struct_module");
+-		/* add to list */
+-		s->next = mod->unres;
+-		mod->unres = s;
++		mod->unres = alloc_symbol("struct_module", mod->unres);
++
++		/* Always version init_module and cleanup_module, in
++		 * case module doesn't have its own. */
++		mod->unres = alloc_symbol("init_module", mod->unres);
++		mod->unres = alloc_symbol("cleanup_module", mod->unres);
+ 	}
+ }
+ 
+
+_
 

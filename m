@@ -1,88 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbTFBLgX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 07:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbTFBLgX
+	id S262177AbTFBLhU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 07:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbTFBLhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 07:36:23 -0400
-Received: from tomts10.bellnexxia.net ([209.226.175.54]:20366 "EHLO
-	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S262176AbTFBLgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 07:36:21 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Subject: Re: 2.5.70-mm3
-To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Reply-To: tomlins@cam.org
-Date: Mon, 02 Jun 2003 07:50:32 -0400
-References: <fa.j88qmt3.1s0mkrl@ifi.uio.no> <fa.h65tbmk.i5io9k@ifi.uio.no>
-Organization: me
-User-Agent: KNode/0.7.6
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20030602115034.629F5ACE@oscar.casa.dyndns.org>
+	Mon, 2 Jun 2003 07:37:19 -0400
+Received: from AToulouse-105-1-2-46.w193-253.abo.wanadoo.fr ([193.253.42.46]:39172
+	"EHLO choocroot.dyndns.org") by vger.kernel.org with ESMTP
+	id S262177AbTFBLhO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 07:37:14 -0400
+Date: Mon, 2 Jun 2003 13:48:38 +0200
+From: =?iso-8859-15?B?Suly9G1lIEF1Z+k=?= <jauge@club-internet.fr>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21 can't set IDE DMA on harddrive (HDIO_SET_DMA failed: Operation not permitted)
+Message-ID: <20030602114838.GA1730@satellite.workgroup.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Organization: none
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+Hi,
 
-This from -mm2 on UP (k6-III 400, 512M):
+I'm now using kernel 2.4.20-13.8 (from RH8) and 2.4.21-ck1 (from Con
+Kolivas based on 2.4.21-rc6) and I'm unable to set the dma for my
+harddrive with hdparm:
 
-May 31 09:31:24 oscar kernel: Bad page state at free_hot_cold_page
-May 31 09:31:24 oscar kernel: flags:0x01000208 mapping:00000000 mapped:0 count:0
-May 31 09:31:24 oscar kernel: Backtrace:
-May 31 09:31:24 oscar kernel: Call Trace:
-May 31 09:31:24 oscar kernel:  [bad_page+70/108] bad_page+0x46/0x6c
-May 31 09:31:24 oscar kernel:  [free_hot_cold_page+87/212] free_hot_cold_page+0x57/0xd4
-May 31 09:31:24 oscar kernel:  [__pagevec_free+31/40] __pagevec_free+0x1f/0x28
-May 31 09:31:24 oscar kernel:  [__pagevec_release_nonlru+117/132] __pagevec_release_nonlru+0x75/0x84
-May 31 09:31:24 oscar kernel:  [shrink_list+1016/1212] shrink_list+0x3f8/0x4bc
-May 31 09:31:24 oscar kernel:  [shrink_cache+383/684] shrink_cache+0x17f/0x2ac
-May 31 09:31:24 oscar kernel:  [shrink_zone+98/108] shrink_zone+0x62/0x6c
-May 31 09:31:24 oscar kernel:  [balance_pgdat+214/352] balance_pgdat+0xd6/0x160
-May 31 09:31:24 oscar kernel:  [kswapd+261/268] kswapd+0x105/0x10c
-May 31 09:31:24 oscar kernel:  [kswapd+0/268] kswapd+0x0/0x10c
-May 31 09:31:24 oscar kernel:  [autoremove_wake_function+0/56] autoremove_wake_function+0x0/0x38
-May 31 09:31:24 oscar kernel:  [autoremove_wake_function+0/56] autoremove_wake_function+0x0/0x38
-May 31 09:31:24 oscar kernel:  [kernel_thread_helper+5/12] kernel_thread_helper+0x5/0xc
-May 31 09:31:24 oscar kernel:
-May 31 09:31:24 oscar kernel: Trying to fix it up, but a reboot is needed
+  # hdparm -d1 /dev/hda
 
-So far I've not seen this with mm3, but it looks like Alistair has :-(   In my case,
-this triggered when doing "apt-get -u upgrade".  It was a large upgrade as 
-kde was updated.
+  /dev/hda:
+   setting using_dma to 1 (on)
+   HDIO_SET_DMA failed: Operation not permitted
+   using_dma    =  0 (off)
 
-Ed
+Before these kernels I was using the 2.4.18 (from RH8 too) and
+2.4.20-ck1 and setting DMA was working.
 
-PS.  I have more examples if they will help.
+I checked my logs and found that the 2.4.21 kernel use E-IDE version
+7.00beta[34]-.2.4 and the 2.4.20 one use version 6.31.
 
+Looks like something went wrong in the IDE code regarding DMA settings ?
 
-Andrew Morton wrote:
+Here is the output from 'lspci' for my IDE controler (Toshiba Satellite
+2540CDT):
 
-> Alistair J Strachan <alistair@devzero.co.uk> wrote:
->>
->> Bad page state at free_hot_cold_page
->>  flags:0x01010000 mapping:00000000 mapped:1 count:0
->>  Backtrace:
->>  Call Trace:
->>   [bad_page+93/144] bad_page+0x5d/0x90
->>   [free_hot_cold_page+112/256] free_hot_cold_page+0x70/0x100
->>   [zap_pte_range+385/448] zap_pte_range+0x181/0x1c0
->>   [do_wp_page+437/848] do_wp_page+0x1b5/0x350
->>   [zap_pmd_range+75/112] zap_pmd_range+0x4b/0x70
->>   [unmap_page_range+75/128] unmap_page_range+0x4b/0x80
->>   [unmap_vmas+254/544] unmap_vmas+0xfe/0x220
->>   [exit_mmap+109/384] exit_mmap+0x6d/0x180
->>   [mmput+65/176] mmput+0x41/0xb0
->>   [do_exit+243/832] do_exit+0xf3/0x340
-> 
-> eww, that's a PageDirect page.  Never seen that before - it's
-> bad.
-> 
-> Is the box SMP?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--8<--
+00:10.0 IDE interface: Toshiba America Info Systems: Unknown device 0102 (rev 34) (prog-if f0)
+        Subsystem: Toshiba America Info Systems: Unknown device 0002
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort-<TAbort-<MAbort- >SERR- <PERR-
+        Latency: 64 (500ns min, 10000ns max)
+        Region 4: I/O ports at 1800 [size=16]
+-->8--
+
+and the IDE 7.00beta3-.2.4 messages from /var/log/messages:
+
+--8<--
+May 26 12:54:10 satellite kernel: Uniform Multi-Platform E-IDE driver Revision: 7.00beta3-.2.4
+May 26 12:54:10 satellite kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+May 26 12:54:10 satellite kernel: hda: TOSHIBA MK4309MAT, ATA DISK drive
+May 26 12:54:10 satellite kernel: hdc: CD-224E, ATAPI CD/DVD-ROM drive
+May 26 12:54:10 satellite kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+May 26 12:54:10 satellite kernel: ide1 at 0x170-0x177,0x376 on irq 15
+May 26 12:54:11 satellite kernel: hda: attached ide-disk driver.
+May 26 12:54:11 satellite kernel: hda: host protected area => 1
+May 26 12:54:11 satellite kernel: hda: 8452080 sectors (4327 MB), CHS=526/255/63
+-->8--
+
+and the IDE 6.31 messages:
+
+--8<--
+May 12 11:41:52 satellite kernel: Uniform Multi-Platform E-IDE driver Revision: 6.31
+May 12 11:41:52 satellite kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+May 12 11:41:52 satellite kernel: PCI_IDE: unknown IDE controller on PCI bus 00 device 80, VID=1179, DID=0102
+May 12 11:41:52 satellite kernel: PCI_IDE: chipset revision 52
+May 12 11:41:53 satellite kernel: PCI_IDE: not 100%% native mode: will probe irqs later
+May 12 11:41:53 satellite kernel:     ide0: BM-DMA at 0x1800-0x1807, BIOS settings: hda:DMA, hdb:pio
+May 12 11:41:53 satellite kernel:     ide1: BM-DMA at 0x1808-0x180f, BIOS settings: hdc:pio, hdd:pio
+May 12 11:41:53 satellite kernel: hda: TOSHIBA MK4309MAT, ATA DISK drive
+May 12 11:41:53 satellite kernel: hdc: CD-224E, ATAPI CD/DVD-ROM drive
+May 12 11:41:53 satellite kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+May 12 11:41:53 satellite kernel: ide1 at 0x170-0x177,0x376 on irq 15
+May 12 11:41:53 satellite kernel: blk: queue c03a7604, I/O limit 4095Mb (mask 0xffffffff)
+May 12 11:41:53 satellite kernel: hda: 8452080 sectors (4327 MB), CHS=526/255/63, UDMA(33)
+May 12 11:41:53 satellite kernel: hdc: ATAPI 24X CD-ROM drive, 128kB Cache, DMA
+-->8--
+
+Thanks.
+
+-- 
 

@@ -1,61 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266728AbTBCVNt>; Mon, 3 Feb 2003 16:13:49 -0500
+	id <S263291AbTBCVJR>; Mon, 3 Feb 2003 16:09:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266795AbTBCVNt>; Mon, 3 Feb 2003 16:13:49 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:18578 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266728AbTBCVNr>;
-	Mon, 3 Feb 2003 16:13:47 -0500
-Date: Mon, 3 Feb 2003 21:18:06 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: Valdis.Kletnieks@vt.edu, John Bradford <john@grabjohn.com>,
-       Seamus <assembly@gofree.indigo.ie>, linux-kernel@vger.kernel.org
-Subject: Re: CPU throttling??
-Message-ID: <20030203211806.GA21312@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Grover, Andrew" <andrew.grover@intel.com>, Valdis.Kletnieks@vt.edu,
-	John Bradford <john@grabjohn.com>,
-	Seamus <assembly@gofree.indigo.ie>, linux-kernel@vger.kernel.org
-References: <F760B14C9561B941B89469F59BA3A84725A14A@orsmsx401.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A14A@orsmsx401.jf.intel.com>
-User-Agent: Mutt/1.4i
+	id <S264683AbTBCVJR>; Mon, 3 Feb 2003 16:09:17 -0500
+Received: from ool-4351594a.dyn.optonline.net ([67.81.89.74]:28676 "EHLO
+	badula.org") by vger.kernel.org with ESMTP id <S263291AbTBCVJQ>;
+	Mon, 3 Feb 2003 16:09:16 -0500
+Date: Mon, 3 Feb 2003 16:18:41 -0500
+Message-Id: <200302032118.h13LIfqN006832@buggy.badula.org>
+From: Ion Badulescu <ionut@badula.org>
+To: "Joakim Tjernlund" <Joakim.Tjernlund@lumentis.se>
+Cc: "Jeff Garzik" <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: NETIF_F_SG question
+In-Reply-To: <001501c2ca5b$f4b45990$020120b0@jockeXP>
+User-Agent: tin/1.5.12-20020427 ("Sugar") (UNIX) (Linux/2.4.20 (i586))
+X-Spam-Flag: NO
+X-Spam-Score: -0.8, 7 required, IN_REP_TO,SIGNATURE_SHORT_DENSE,SPAM_PHRASE_02_03,USER_AGENT
+X-Spam-Report: ---- Start SpamAssassin results
+ 
+	-0.80 hits, 7 required;
+ 
+	* -0.8 -- Found a In-Reply-To header
+ 
+	* -0.5 -- Found a User-Agent header
+ 
+	*  0.8 -- BODY: Spam phrases score is 02 to 03 (medium)
+ 
+	          [score: 2]
+ 
+	* -0.3 -- Short signature present (no empty lines)
+ 
+	---- End of SpamAssassin results
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 03, 2003 at 01:14:18PM -0800, Grover, Andrew wrote:
+On Sun, 2 Feb 2003 02:39:41 +0100, Joakim Tjernlund <Joakim.Tjernlund@lumentis.se> wrote:
+> 
+> I think HW checksumming and SG are independent. Either one of them should
+> not require the other one in any context.
 
- > You save the most power when the CPU is at the lowest voltage level, and
- > in the deepest CPU sleep state (aka CPU C state).
- > 
- > Throttling offers a linear power/perf tradeoff if your system doesn't
- > have C state support (or if you aren't using it) but really it is
- > preferable to keep the CPU at its nominal speed, get the work done
- > sooner, and start sleeping right away. The quote above makes it sound
- > like the voltage is scaled when throttling, and that isn't accurate -
- > voltage is scaled when sleeping (to counteract leakage current), at
- > least on modern Intel mobile processors.
+They should be independent in general, but they aren't when the particular
+case of TCP/IPv4 is concerned.
 
-Most (all?[1]) other modern x86 mobile processors behave the way I mentioned.
-AMD Powernow (K6 and K7), VIA longhaul/powersaver all have optimal voltages
-they can be run at when clocked to different speeds. By way of example, a table from
-my mobile athlon..
+> Zero copy sendfile() does not require HW checksum to do zero copy, right?
 
-    FID: 0x12 (4.0x [532MHz])   VID: 0x13 (1.200V)
-    FID: 0x4 (5.0x [665MHz])    VID: 0x13 (1.200V)
-    FID: 0x6 (6.0x [798MHz])    VID: 0x13 (1.200V)
-    FID: 0xa (8.0x [1064MHz])   VID: 0xd (1.350V)
-    FID: 0xf (10.5x [1396MHz])  VID: 0x9 (1.550V)
+Wrong...
 
-Sure I *could* run that at 523MHz and still pump 1.550V into it,
-but why would I want to do that ?
+> If HW checksum is present, then you get some extra performance as a bonus.
 
-		Dave
+You get zerocopy, yes. :-) No HW cksum, no zerocopy.
 
-[1] Unsure about the crusoe.
+Don't let this stop you, however. It's always possible that other networking
+stacks will eventually make use of SG while not requiring HW TCP/UDP cksums.
+None of them do right now, but...
+
+> (hmm, one could make SG mandatory and the devices that don't support it can 
+> implement it in their driver. Just an idea)
+
+Not really, that way lies driver madness. The less complexity in the driver,
+the better.
+
+Ion
+[starfire driver maintainer]
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

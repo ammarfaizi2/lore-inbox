@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293658AbSB1Sgi>; Thu, 28 Feb 2002 13:36:38 -0500
+	id <S293654AbSB1Sa6>; Thu, 28 Feb 2002 13:30:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293663AbSB1Sfl>; Thu, 28 Feb 2002 13:35:41 -0500
-Received: from [209.195.52.114] ([209.195.52.114]:44804 "HELO [209.195.52.30]")
-	by vger.kernel.org with SMTP id <S293624AbSB1Sdp>;
-	Thu, 28 Feb 2002 13:33:45 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: "Mark H. Wood" <mwood@IUPUI.Edu>
-Cc: linux-kernel@vger.kernel.org
-Date: Thu, 28 Feb 2002 10:31:21 -0800 (PST)
-Subject: Re: Kernel module ethics.
-In-Reply-To: <Pine.LNX.4.33.0202281054570.4589-100000@mhw.ULib.IUPUI.Edu>
-Message-ID: <Pine.LNX.4.44.0202281028450.15808-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293647AbSB1S2F>; Thu, 28 Feb 2002 13:28:05 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:57846 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S293648AbSB1S1B>; Thu, 28 Feb 2002 13:27:01 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.33.0202280854250.15607-100000@home.transmeta.com> 
+In-Reply-To: <Pine.LNX.4.33.0202280854250.15607-100000@home.transmeta.com> 
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: recalc_sigpending() / recalc_sigpending_tsk() ? 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 28 Feb 2002 18:26:58 +0000
+Message-ID: <365.1014920818@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-just to note that if your hardware put the firmware in flash instead of
-ram so that it only needed to be loaded if it changes you would avoid the
-griping about the firmware not being available.
 
-David Lang
+torvalds@transmeta.com said:
+>  Not a chance in hell. The backwards compatibility looks like a
+> trivial one-liner:
+
+>    compat-2.4.h:
+> 	#define recalc_sigpending() recalc_sigpending(current)
+
+> so what are you complaining about? 
+
+Fine. I was trying to define a back-compat version of recalc_sigpending_tsk()
+too, before going through all the code and changing recalc_sigpending(current)
+to recalc_sigpending and recalc_sigpending(other) to recalc_sigpending_tsk() 
+- but as you rightly point out there's no justification for using the latter
+in any of the driver or fs code that I'm trying to support - and hence it
+isn't present, and doesn't need the compat support.
 
 
- On Thu, 28 Feb 2002, Mark H. Wood wrote:
+--
+dwmw2
 
-> Date: Thu, 28 Feb 2002 11:04:39 -0500 (EST)
-> From: Mark H. Wood <mwood@IUPUI.Edu>
-> To: unlisted-recipients:  ;
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: Kernel module ethics.
->
-> On Thu, 28 Feb 2002, Helge Hafting wrote:
-> [much snipped]
-> > Generally, the more open the better.  Keep in mind that buying
-> > hw that needs a closed-source driver is something we do _only_ when
-> > no competing product with a GPL driver exist.  Your competitors
-> > might go the GPL way even if you don't.  Many users of closed drivers
-> > do so because they converted a machine from windows to linux.
-> > If they buy specifically for linux, they buy something well-supported.
-> > And the ideal then is a driver in the official tree.  The second
-> > best is a open source driver that might get into the tree - it just
-> > hasn't happened yet.  A closed driver at least initiates a web search
-> > for other harware...
->
-> I want to underscore this.  I don't buy hardware until I know that it's
-> possible to *keep* it running with Linux.  If the driver is closed-source,
-> I'll buy something else or do without.  Secret magic firmware would be
-> grudgingly accepted, but only if there isn't a comparable product with no
-> secrets.
->
-> --
-> Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
-> Our lives are forever changed.  But *that* is exactly as it always was.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+

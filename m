@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316043AbSHFVFw>; Tue, 6 Aug 2002 17:05:52 -0400
+	id <S316390AbSHFUx3>; Tue, 6 Aug 2002 16:53:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315919AbSHFVFu>; Tue, 6 Aug 2002 17:05:50 -0400
-Received: from ithilien.qualcomm.com ([129.46.51.59]:37512 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S316043AbSHFVFL>; Tue, 6 Aug 2002 17:05:11 -0400
-Message-Id: <5.1.0.14.2.20020806135501.09799218@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 06 Aug 2002 14:08:37 -0700
-To: kuznet@ms2.inr.ac.ru
-From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Subject: Re: "new style" netdevice allocation patch for TUN driver
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200208062034.AAA25662@sex.inr.ac.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S316161AbSHFUwW>; Tue, 6 Aug 2002 16:52:22 -0400
+Received: from waste.org ([209.173.204.2]:36587 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S316339AbSHFUvD>;
+	Tue, 6 Aug 2002 16:51:03 -0400
+Date: Tue, 6 Aug 2002 15:54:32 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Richard Bonomo <bonomo@sal.wisc.edu>
+cc: linux-kernel@vger.kernel.org, Richard Bonomo <bonomo@maddog.sal.wisc.edu>
+Subject: Re: backups/dumps/caches
+In-Reply-To: <200208060032.g760WZP107993@maddog.sal.wisc.edu>
+Message-ID: <Pine.LNX.4.44.0208061533520.14600-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 5 Aug 2002, Richard Bonomo wrote:
 
-> > I completely agree. However sleeping and holding a lock that you
-> > don't have to hold
+> Hello!
 >
->Nope. We have to hold it. Lock are taken to be held. :-)
-Device is already unlinked and is not visible to the rest of the stack.
-Please explain to me why do we have to hold rtnl lock while sleeping in
-unregister_netdevice ?
+> I have been trying to come up to speed on
+> the issue of dumping file systems from
+> 2.4.x kernels using dumps.  I located
+> Linus' unequivocal words about the dangers
+> of using dump.   I have a couple of questions:
+>
+> 1. Do the same warnings apply to XFS and xfsdump?
+>    (Is the caching system used with the newer
+>     kernel used only with certain file system types?)
 
->Anyway, if you found real problem, it would be better if
->you explained what is this, instead of proposing some random hacks.
-Come on it's not a random hack, there are two problems.
+The essential problem with dump is that the current state of a filesystem
+is a combination of what's in memory and what's on disk. With a journalled
+filesystem, what's on disk at any given moment is self-consistent
+(ignoring various levels of journalling). But dump can't see the whole
+of the disk at any given moment, so it has no way of telling whether piece
+A it read one second is consistent with piece B it read on the next.
 
-1 - Something is not releasing device during deregistration
-I have no idea which subsystem is doing that. I'm not the one
-who brought that up. This needs to be fixed somehow. I personally
-can't reproduce it.
+There's no way to make this work cleanly short of snapshots (which 2.4 LVM
+has), and the hacks to make dump mostly work (which is the best it can
+ever possibly hope for on a live filesystem) were getting in the way of
+doing other things right, so the dump approach of going under the
+filesystem to the block device was officially declared stupid.
 
-2 - We're sleeping with the rntl_lock held
-This is somewhat unrelated to #1. I don't see the reason why we shouldn't
-fix it. If one thing is buggy it doesn't mean that we should halt the
-whole stack. And that's exactly what we're do right now. Devices, routes,
-etc cannot be added/removed while unregister_netdevice is waiting.
+> 2. Perhaps, naively, is it possible to shut off
+>   caching temporarily (and without rebooting),
+>   accepting the performance hit, while a dump
+>   is done, and then restart caching afterwards?
 
-Max
+Yep. Switch to single user mode, sync all filesystems, unmount them for
+good measure, dump, then switch back to multiuser mode.
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

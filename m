@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316586AbSFALf3>; Sat, 1 Jun 2002 07:35:29 -0400
+	id <S317006AbSFALtx>; Sat, 1 Jun 2002 07:49:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317005AbSFALf2>; Sat, 1 Jun 2002 07:35:28 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:25589 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316586AbSFALf2>; Sat, 1 Jun 2002 07:35:28 -0400
-Subject: Re: INTEL 845G Chipset IDE Quandry
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Anthony Spinillo <tspinillo@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020601110355.26944.qmail@linuxmail.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 01 Jun 2002 13:40:03 +0100
-Message-Id: <1022935203.20348.22.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317007AbSFALtw>; Sat, 1 Jun 2002 07:49:52 -0400
+Received: from p508872AA.dip.t-dialin.net ([80.136.114.170]:32904 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317006AbSFALtv>; Sat, 1 Jun 2002 07:49:51 -0400
+Date: Sat, 1 Jun 2002 05:49:47 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [Q] kbuild-2.5: inside or outside Makefile
+In-Reply-To: <Pine.LNX.4.44.0206010542510.29405-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.44.0206010548430.29405-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-06-01 at 12:03, Anthony Spinillo wrote:
-> PCI_IDE: unknown IDE controller on PCI bus 00 device
-> f9, VID=8086, DID=24cb
-> PCI: Device 00:1f.1 not available because of resource
-> collisions
-> PCI_IDE: (ide_setup_pci_device:) Could not enable
-> device.
+Hi,
 
-If you look with lspci -v you will find your BIOS has mismapped or
-forgotten to map some of the control register space for that device.
+On Sat, 1 Jun 2002, Thunder from the hill wrote:
+> You requested piecemeal of kbuild-2.5, and I'm currently hashing it. Thus 
+> one question: someone mentioned to migrate current kbuild-2.4 to 
+> kbuild-2.5, while Kaos' version suggests to at first have a separate 
+> Makefile-2.5.
+> 
+> Which do you prefer now? Shall I have it into the current Makefile, or in 
+> a separate Makefile-2.5?
 
-Alan
+Another suggestion: have a Makefile-2.4 and a Makefile-2.5, then symlink 
+to which one is getting used.
+
+> <URL:ftp://luckynet.dynu.com/pub/linux/kbuild-2.5/>
+
+Regards,
+Thunder
+-- 
+ship is leaving right on time	|	Thunder from the hill at ngforever
+empty harbour, wave goodbye	|
+evacuation of the isle		|	free inhabitant not directly
+caveman's paintings drowning	|	belonging anywhere
 

@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267403AbSLLB6n>; Wed, 11 Dec 2002 20:58:43 -0500
+	id <S267406AbSLLCEt>; Wed, 11 Dec 2002 21:04:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267404AbSLLB6n>; Wed, 11 Dec 2002 20:58:43 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:11953 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S267403AbSLLB6l>; Wed, 11 Dec 2002 20:58:41 -0500
-To: "Garst R. Reese" <reese@isn.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: romfs
-References: <3DF7CC90.99585A8C@isn.net>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 12 Dec 2002 11:06:24 +0900
-In-Reply-To: <3DF7CC90.99585A8C@isn.net>
-Message-ID: <buo4r9k7zz3.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
+	id <S267407AbSLLCEt>; Wed, 11 Dec 2002 21:04:49 -0500
+Received: from cerebus.wirex.com ([65.102.14.138]:19450 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S267406AbSLLCEs>; Wed, 11 Dec 2002 21:04:48 -0500
+Date: Wed, 11 Dec 2002 18:11:44 -0800
+From: Chris Wright <chris@wirex.com>
+To: carbonated beverage <ramune@net-ronin.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: capable open_port() check wrong for kmem
+Message-ID: <20021211181144.B26790@figure1.int.wirex.com>
+Mail-Followup-To: carbonated beverage <ramune@net-ronin.org>,
+	linux-kernel@vger.kernel.org
+References: <20021210032242.GA17583@net-ronin.org> <at3v15$mur$1@abraham.cs.berkeley.edu> <20021210064134.GA17928@net-ronin.org> <20021210065159.GB17928@net-ronin.org> <20021211164348.A26790@figure1.int.wirex.com> <20021212013849.GA24054@net-ronin.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021212013849.GA24054@net-ronin.org>; from ramune@net-ronin.org on Wed, Dec 11, 2002 at 05:38:49PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Garst R. Reese" <reese@isn.net> writes:
-> Is there a current maintainer for romfs?
+* carbonated beverage (ramune@net-ronin.org) wrote:
+> 
+> So if I want to have a generic utility that can be used by any user (and
+> I'm not granting CAP_SYS_RAWIO to every process), then I can:
+> 
+> 1) make it suid root
+> 2) drop all caps other than cap_sys_rawio
+> 
+> or
+> 
+> 1) add the capability to the executable, assuming it worked...
 
-Try:
+this is not supported without kernel patches.  in general you have to
+start with full capabilities and shed the ones you don't need.
 
-   http://romfs.sourceforge.net
-
--Miles
+thanks,
+-chris
 -- 
-Yo mama's so fat when she gets on an elevator it HAS to go down.
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

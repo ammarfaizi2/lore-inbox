@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129776AbRANTJl>; Sun, 14 Jan 2001 14:09:41 -0500
+	id <S130194AbRANTLK>; Sun, 14 Jan 2001 14:11:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130194AbRANTJb>; Sun, 14 Jan 2001 14:09:31 -0500
-Received: from uucp.nl.uu.net ([193.79.237.146]:63109 "EHLO uucp.nl.uu.net")
-	by vger.kernel.org with ESMTP id <S129776AbRANTJW>;
-	Sun, 14 Jan 2001 14:09:22 -0500
-Date: Sun, 14 Jan 2001 20:05:44 +0100 (CET)
-From: kees <kees@schoen.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: old binary works not with 2.2.18 (fwd)
-In-Reply-To: <Pine.LNX.4.21.0012272349070.26290-100000@schoen3.schoen.nl>
-Message-ID: <Pine.LNX.4.21.0101142003180.6603-100000@schoen3.schoen.nl>
+	id <S131428AbRANTLA>; Sun, 14 Jan 2001 14:11:00 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:9488 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S130194AbRANTKj>;
+	Sun, 14 Jan 2001 14:10:39 -0500
+Date: Sun, 14 Jan 2001 20:09:54 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: jamal <hadi@cyberus.ca>
+Cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <Pine.GSO.4.30.0101141356050.12354-100000@shell.cyberus.ca>
+Message-ID: <Pine.LNX.4.30.0101142006420.3610-100000@e2>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I tried a little further, 2.2.19p2 still works, 2.2.19p3 not.....
+On Sun, 14 Jan 2001, jamal wrote:
 
-/usr/SCULPTOR/bin/sage: Microsoft a.out separate pure segmented
-word-swapped V2.3 V3.0 386 small model executable 
+> Already doing the single file, single process. [...]
 
-I *did* rebuilt my iBCS each time after building (and rebooting) a
-different kernel version.
+in this case there could still be valid performance differences, as
+copying from user-space is cheaper than copying from the pagecache. To
+rule out SMP interactions, you could try a UP-IOAPIC kernel on that box.
 
-Kees
+(I'm also curious what kind of numbers you'll get with the zerocopy
+patch.)
 
+> However, i do run by time which means i could read the file from the
+> begining(offset 0) to the end then re-do it for as many times as
+> 15secs would allow. Does this affect it? [...]
+
+no, in the case of a single thread this should have minimum impact. But
+i'd suggest to increase the /proc/sys/net/tcp*mem* values (to 1MB or
+more).
+
+	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,92 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265399AbTIJRpq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 13:45:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265401AbTIJRpq
+	id S265379AbTIJRlp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 13:41:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265383AbTIJRlp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 13:45:46 -0400
-Received: from www.erfrakon.de ([193.197.159.57]:59910 "EHLO www.erfrakon.de")
-	by vger.kernel.org with ESMTP id S265399AbTIJRpo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 13:45:44 -0400
-From: Martin Konold <martin.konold@erfrakon.de>
-Organization: erfrakon
-To: Andrea Arcangeli <andrea@suse.de>,
-       Luca Veraldi <luca.veraldi@katamail.com>
-Subject: Re: Efficient IPC mechanism on Linux
-Date: Wed, 10 Sep 2003 19:39:17 +0200
-User-Agent: KMail/kroupware-RC2
-References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030910165944.GL21086@dualathlon.random>
-In-Reply-To: <20030910165944.GL21086@dualathlon.random>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200309101939.17967.martin.konold@erfrakon.de>
+	Wed, 10 Sep 2003 13:41:45 -0400
+Received: from D720c.pppool.de ([80.184.114.12]:33508 "EHLO
+	karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S265379AbTIJRlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 13:41:42 -0400
+Subject: Re: [PATCH] 2.4.23-pre3 ACPI fixes series (1/3)
+From: Daniel Egger <degger@fhm.edu>
+To: Andrew de Quincey <adq_dvb@lidskialf.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org,
+       lkml <linux-kernel@vger.kernel.org>, acpi-devel@lists.sourceforge.net,
+       linux-acpi@intel.com
+In-Reply-To: <200309060115.24340.adq_dvb@lidskialf.net>
+References: <200309051958.02818.adq_dvb@lidskialf.net>
+	 <200309060016.16545.adq_dvb@lidskialf.net> <3F590E28.6090101@pobox.com>
+	 <200309060115.24340.adq_dvb@lidskialf.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-KeEGG+OvUDx0iu/mawmN"
+Message-Id: <1063207880.7657.1.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 10 Sep 2003 17:31:21 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Wednesday 10 September 2003 06:59 pm schrieb Andrea Arcangeli:
 
-Hi,
+--=-KeEGG+OvUDx0iu/mawmN
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> design that I'm suggesting. Obviously lots of apps are already using
-> this design and there's no userspace API simply because that's not
-> needed.
+Am Sam, 2003-09-06 um 02.15 schrieb Andrew de Quincey:
 
-HPC people have investigated High performance IPC many times basically it 
-boils down to:
+> This patch allows ACPI to drop back to PIC mode if ACPI mode setup fails.
 
-1. Userspace is much more efficient than kernel space. So efficient 
-implementions avoid kernel space even for message transfers over networks 
-(e.g. DMA directly to userspace). 
+Those patches work miracles for me. Finally I can use my ECS L7VTA with
+KT400 chipset with IO-APIC in ACPI mode.
 
-2. The optimal protocol to use and the number of copies to do is depending on 
-the message size.
+egger@alex:/proc$ cat /proc/interrupts
+           CPU0
+  0:     119774    IO-APIC-edge  timer
+  1:        881    IO-APIC-edge  keyboard
+  2:          0          XT-PIC  cascade
+  8:          1    IO-APIC-edge  rtc
+  9:          0    IO-APIC-edge  acpi
+ 14:          7    IO-APIC-edge  ide0
+ 15:         39    IO-APIC-edge  ide1
+ 16:         57   IO-APIC-level  ohci1394
+ 17:          0   IO-APIC-level  eth1
+ 19:          2   IO-APIC-level  ymfpci
+ 21:          0   IO-APIC-level  usb-uhci, usb-uhci, usb-uhci, ehci_hcd
+ 23:     253525   IO-APIC-level  eth0
+NMI:          0
+LOC:     119715
+ERR:          0
+MIS:          0
 
-Small messages are most efficiently handled with a single/dual copy (short 
-protocol / eager protocol) and large messages are more efficient with 
-single/zero copy techniques (get protocol) depending if a network is involved 
-or not.
+--=20
+Servus,
+       Daniel
 
-Traditionally in a networked environment single copy means PIO and zero copy 
-means DMA when using network hardware.
+--=-KeEGG+OvUDx0iu/mawmN
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
-The idea is while DMA has much higher bandwidth than PIO DMA is more expensive 
-to initiate than PIO. So DMA is only useful for large messages.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-In the local SMP case there do exist userspace APIs like MPI which can do 
-single copy Message passing at memory speed in pure userspace since many 
-years.
+iD8DBQA/X0PIchlzsq9KoIYRAsHyAJ9WSEkn9d3InzndOoziHL25O242DACgynpk
+GUQ01q1oYmD40Ak2x6Im+c0=
+=2CHn
+-----END PGP SIGNATURE-----
 
-The following PDF documents a measurement where the communication between two 
-processes running on different CPUs in an SMP system is exactly the memcpy 
-bandwidth for large messages using a single copy get protocol.
+--=-KeEGG+OvUDx0iu/mawmN--
 
-	http://ipdps.eece.unm.edu/1999/pc-now/takahash.pdf
-
-Numbers from a Dual P-II-333, Intel 440LX (100MB/s memcpy)
-
-					eager 	get
-min. Latency µs		8.62		9.98
-max Bandwidth MB/s	48.03	100.02
-half bandwith point KB	0.3		2.5
-
-You can easily see that the eager has better latency for very short messages 
-and that the get has a max bandwidth beeing equivalent of a memcpy (single 
-copy).
-
-True zero copy has unlimited (sigh!) bandwidth within an SMP and does not 
-really make sense in contrast to a network.
-
-Regards,
--- martin
-
-Dipl.-Phys. Martin Konold
-e r f r a k o n
-Erlewein, Frank, Konold & Partner - Beratende Ingenieure und Physiker
-Nobelstrasse 15, 70569 Stuttgart, Germany
-fon: 0711 67400963, fax: 0711 67400959
-email: martin.konold@erfrakon.de

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313060AbSERNVZ>; Sat, 18 May 2002 09:21:25 -0400
+	id <S313114AbSERNsL>; Sat, 18 May 2002 09:48:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313114AbSERNVY>; Sat, 18 May 2002 09:21:24 -0400
-Received: from p5087CAAA.dip.t-dialin.net ([80.135.202.170]:15121 "EHLO
-	extern.linux-systeme.org") by vger.kernel.org with ESMTP
-	id <S313060AbSERNVY>; Sat, 18 May 2002 09:21:24 -0400
-Date: Sat, 18 May 2002 15:21:14 +0200 (MET DST)
-From: Marc-Christian Petersen <mcp@linux-systeme.de>
-To: =?iso-8859-15?q?J=F6rg=20Prante?= <joergprante@gmx.de>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, mcp@linux-systeme.de
-Subject: Re: [PATCH] fixing supermount for > 2.4.19pre4
-In-Reply-To: <200205181138.AWF97768@netmail.netcologne.de>
-Message-ID: <Pine.LNX.3.96.1020518151559.8212A-100000@fps>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313113AbSERNsK>; Sat, 18 May 2002 09:48:10 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:57105 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S313122AbSERNsK>; Sat, 18 May 2002 09:48:10 -0400
+Message-Id: <5.1.0.14.2.20020518144515.040cd480@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sat, 18 May 2002 14:49:00 +0100
+To: mikeH <mikeH@notnowlewis.co.uk>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: linux 2.5.16 and VIA Chipset
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3CE64D4D.4020508@notnowlewis.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Joerg,
+At 13:47 18/05/02, mikeH wrote:
+>Apologies, on closer examination of the 2.4 and 2.5 dmesg, it hangs just 
+>before the
+>ACPI is going to come up. However, there is no option for it in make 
+>menuconfig, and enabling it in .config breaks the compile.
 
-> > your patch for supermount does not work. Now it's even not possible to list
-> > the content via ls -lsa /mnt ... Mount hangs, no access is made, nothing.
-> Is supermount compiled into kernel or as a module? What drive, what media did 
-> you mount, what command did you issue? 
+What do you mean there is no config option in menuconfig?!? I just checked 
+and there is "General options" ---> "ACPI Support" ---> "[ ] ACPI Support".
 
-err, sorry for no details in my first mail :( ... I have headache and
-thinking is not good at all ;(
+Best regards,
 
-Its a module, an IDE 50x CD-ROM Drive, Company: LION and i used a ISO9660
-CD. I used the following command:
+         Anton
 
-mount -t supermount -o dev=/dev/cdrom none /mnt
 
-/dev/cdrom is a symlink to /dev/scd0, i use ide-scsi for CD-ROM access.
-
-> and it works fine for me, patched against 2.4.19-pre8-jp12, and /dev/hdb is 
-> an ISO 9660 CDROM in my DVD drive. No "stale NFS handles", clean mount and 
-> unmount, and with "debug" option I can see it works as a charme.
-hmm, strange :) ... i'm going to test it a little bit more ... Another
-CD-Drive, other CD's ...
-
-Kind regards,
-	Marc
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

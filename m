@@ -1,41 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbUKORWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbUKORcw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbUKORWw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 12:22:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbUKORWw
+	id S261340AbUKORcw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 12:32:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbUKORcw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 12:22:52 -0500
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:53329 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261335AbUKORWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 12:22:51 -0500
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [PATCH] uml: fail xterm_open when we have no $DISPLAY
-Date: Mon, 15 Nov 2004 18:24:29 +0100
-User-Agent: KMail/1.7.1
-Cc: Chris Wedgwood <cw@f00f.org>, Jeff Dike <jdike@addtoit.com>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <20041115032541.GA13077@taniwha.stupidest.org>
-In-Reply-To: <20041115032541.GA13077@taniwha.stupidest.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Nov 2004 12:32:52 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:49834 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261340AbUKORcu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 12:32:50 -0500
+Date: Mon, 15 Nov 2004 12:32:45 -0500
+From: "John W. Linville" <linville@redhat.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "O.Sezer" <sezeroz@ttnet.net.tr>, linux-kernel@vger.kernel.org
+Subject: Re: [netdrvr] netdev-2.4 queue updated
+Message-ID: <20041115173245.GI14381@redhat.com>
+References: <4198C64A.6050900@ttnet.net.tr> <4198E20E.5070305@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411151824.29365.blaisorblade_spam@yahoo.it>
+In-Reply-To: <4198E20E.5070305@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 November 2004 04:25, Chris Wedgwood wrote:
-> If UML wants to open an xterm channel and the xterm does not run
-> properly (eg. terminates soon after starting) we will get a hang.
-> This avoids the most common cause for this and adds a comment (which
-> long term will go away with a rewrite of that code I guess?)
+On Mon, Nov 15, 2004 at 12:06:22PM -0500, Jeff Garzik wrote:
+> O.Sezer wrote:
+> >>John W. Linville:
+> >>  o 3c59x: resync with 2.6
+> >>
+> >
+> >Any specific reason that the following two are not included ?
+> >
+> >3c59x: reload EEPROM values at rmmod for needy cards:
+> >http://marc.theaimsgroup.com/?l=linux-kernel&m=109726032213947&w=2
+> >
+> >3c59x: remove EEPROM_RESET for 3c905 :
+> >http://marc.theaimsgroup.com/?l=linux-kernel&m=109802672909516&w=2
+> 
+> Ask John Linville...  IIRC they caused problems?
 
-Thanks for drawing attention on this! I hadn't had the time to dig this out... 
-for now reasonably correct, but no time to review it properly now. The review 
-would probably try to find a more direct fix to this...
+Actually, the second one was there to correct the first one.
+(Only PART of the first patch was undone by the second one.)
+
+They are additive, so they should be applied in the order above.
+If you'd prefer, I could gen-up a single patch?
+
+Thanks,
+
+John
 -- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
+John W. Linville
+linville@redhat.com

@@ -1,90 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129661AbRBLPfV>; Mon, 12 Feb 2001 10:35:21 -0500
+	id <S129489AbRBLPhb>; Mon, 12 Feb 2001 10:37:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129811AbRBLPfM>; Mon, 12 Feb 2001 10:35:12 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:35761 "EHLO
-	VL-MS-MR003.sc1.videotron.ca") by vger.kernel.org with ESMTP
-	id <S129661AbRBLPfB>; Mon, 12 Feb 2001 10:35:01 -0500
-Message-ID: <3A880004.51C92911@videotron.ca>
-Date: Mon, 12 Feb 2001 10:23:48 -0500
-From: Martin Laberge <mlsoft@videotron.ca>
-Organization: MLSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i586)
-X-Accept-Language: en
+	id <S129811AbRBLPhV>; Mon, 12 Feb 2001 10:37:21 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41490 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129489AbRBLPhR>; Mon, 12 Feb 2001 10:37:17 -0500
+Subject: Re: "Unable to load intepreter" on login - 2.2.14-5.0
+To: pault@5emedia.net (Paul Tweedy)
+Date: Mon, 12 Feb 2001 15:37:47 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <B6ADB136.3E08%pault@5emedia.net> from "Paul Tweedy" at Feb 12, 2001 03:26:46 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Juergen Schneider <juergen.schneider@tuxia.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
-In-Reply-To: <20010201183231.A373@tuxia.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14SL30-0007J5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juergen Schneider wrote:
+> nothing. Swap is hardly being used at all, and even rebooting with all the
+> usual services turned off made no difference, so I can't believe there's
+> something gobbling the memory. In single-user mode, top reports nothing
+> untoward - 99.8% CPU available, swap at 0% use, plenty of RAM available.
 
-> Hello everybody,
->
-> I've created a patch for kernel 2.4.1 that adds some fancy options for
-> the framebuffer console driver concerning the boot logo.
-> I've added logo animation and logo centering.
-> People may find this not very useful but nice to look at. :-)
->
-> It can be downloaded from:
->    <ftp://ftp.tuxia.com/pub/linux/tuxia/anim-logo/AnimLogo.tgz>
->
-> With this tar ball comes the patch for kernel 2.4.1 and a small
-> program called xpm2splash to create animated linux_logo.h files
-> from XPM files.
-> The patch also contains an animated boot logo (that's why it is
-> so big).
-> It is the dancing penguin I've taken from the apache default
-> configuration of a SuSE 6.4 distribution.
-> (BTW who created this nice animation???)
->
-> So, try it and send your comments.
->
-> Juergen Schneider
->
-> PS: The patch should work with kernel 2.4.0 too.
->
-> PPS: Our FTP server seems to have some problems with the "ls"
->      command. You should use "ls -l" or "dir" to get a
->      directory listing. Sorry for that.
->
-> --
-> Dipl.-Inf. Juergen Schneider                    <juergen.schneider@tuxia.com>
-> TUXIA Deutschland GmbH
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Could be out of memory, could be out of files, could be permissions
 
-I beleive it is a very good idea... there has been many objections where
-SYSTEM-HANG or CRASH or ANY-BAD-THING
-would be difficult to trace for the geek... BUT , are you all believing the
-system will be crashing most of the time, or will it be
-running perfectly most of the time...
+> Has *anyone* got any clue, bar a complete reinstall? I'm picking this up as
+> I go along.. 
 
-I want to install a system where my expectations, (when fully installed and
-configured, once at the start) is for the system
-to boot perfectly and do it's job MOST of the time, and if possible ALL of the
-time.
+rpm --verify --all
 
-I believe linux should be one of those systems... you start it and then use
-it... it don't crash, don't hang...   it works...
+That will check all the packages seem sane. It won't neccessarily help 
+identify the problem but can reassure you as what if anything may be corrupt.
 
-Then it is a good idea to have a nice boot logo when the system start... for
-your user happyness...
-we should never lose the idea that this system is intended to be USED by
-someone, not just DEBUGGED.
+If it shows up changes in login, netstat, su and the like then assume the worst.
+If it shows permission changes on the library then you have a good idea what
+may have happened.
 
-Go on, i would like to see this kind of thing, and would use it...
-
-Martin Laberge
-mlsoft@videotron.ca
-
+You might also want to look at ps -aux and top data as that may give you a lot
+of clues if the machine is apparently behaving but being odd
 
 
 -

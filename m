@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317007AbSGZGTI>; Fri, 26 Jul 2002 02:19:08 -0400
+	id <S317078AbSGZG1B>; Fri, 26 Jul 2002 02:27:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317026AbSGZGTI>; Fri, 26 Jul 2002 02:19:08 -0400
-Received: from hdfdns02.hd.intel.com ([192.52.58.11]:30662 "EHLO
-	mail2.hd.intel.com") by vger.kernel.org with ESMTP
-	id <S317007AbSGZGTI>; Fri, 26 Jul 2002 02:19:08 -0400
-Subject: Re: Intel Plumas Chipset and 100Mhz PCI cards
-From: Christopher Leech <christopher.leech@intel.com>
-To: aby_sinha@yahoo.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <BD9B60A108C4D511AAA10002A50708F22C1562@orsmsx118.jf.intel.com>
-References: <BD9B60A108C4D511AAA10002A50708F22C1562@orsmsx118.jf.intel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 25 Jul 2002 23:10:10 -0700
-Message-Id: <1027663813.13982.17.camel@orthanc>
-Mime-Version: 1.0
+	id <S317169AbSGZG1B>; Fri, 26 Jul 2002 02:27:01 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:38330 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S317078AbSGZG1A>;
+	Fri, 26 Jul 2002 02:27:00 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: Patch 2.5.25: Ensure xtime_lock and timerlist_lock are on difft cachelines 
+In-reply-to: Your message of "Thu, 25 Jul 2002 20:45:12 +0530."
+             <20020725204512.E3594@in.ibm.com> 
+Date: Fri, 26 Jul 2002 16:24:51 +1000
+Message-Id: <20020726063124.5114E45D6@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not only is the bus running at 66 MHz, it's using the PCI protocol not
-PCI-X.  Is there a card in the other PCI-X capable slot?  I think they
-are on the same bus, so installing a PCI card there would bring both
-slots down to this speed.  You should check the output of lspci -v and
-make sure all the devices on bus 2 have the PCI-X capability.
+In message <20020725204512.E3594@in.ibm.com> you write:
+> I've noticed that xtime_lock and timerlist_lock ends up on the same
+> cacheline  all the time (atleaset on x86).  Not a good thing for
+> loads with high xxx_timer and do_gettimeofday counts I guess (networking etc)
+..
 
-- Chris Leech
+Better might be to use the x86-64 trick of using sequence counters
+around do_gettimeofday, and avoid the xtime lock altogether.  That
+will improve gettimeofday performance as well.  Or you could try
+changing xtime lock to a brlock.
 
-> PCI_Bus_Type                     PCI
-> PCI_Bus_Speed                    66MHz
-> PCI_Bus_Width                    64-bit
+FYI: as policy, I don't take optimization patches without
+measurements.  I'm just not that smart.
 
-
+Thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

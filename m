@@ -1,85 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbVANAcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVANAcY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261713AbVANAcW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 19:32:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVANAa1
+	id S261704AbVANAcY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 19:32:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVANA3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 19:30:27 -0500
-Received: from grendel.firewall.com ([66.28.58.176]:63905 "EHLO
-	grendel.firewall.com") by vger.kernel.org with ESMTP
-	id S261723AbVAMVsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 16:48:23 -0500
-Date: Thu, 13 Jan 2005 22:48:14 +0100
-From: Marek Habersack <grendel@caudium.net>
-To: Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Wright <chrisw@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
-       akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050113214814.GA9481@beowulf.thanes.org>
-Reply-To: grendel@caudium.net
-References: <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112174203.GA691@logos.cnet> <1105627541.4624.24.camel@localhost.localdomain> <20050113194246.GC24970@beowulf.thanes.org> <20050113115004.Z24171@build.pdx.osdl.net> <20050113202905.GD24970@beowulf.thanes.org> <1105645267.4644.112.camel@localhost.localdomain> <20050113210229.GG24970@beowulf.thanes.org> <20050113213002.GI3555@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
-Content-Disposition: inline
-In-Reply-To: <20050113213002.GI3555@redhat.com>
-Organization: I just...
-X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
-X-message-flag: Outlook - A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 13 Jan 2005 19:29:33 -0500
+Received: from motgate3.mot.com ([144.189.100.103]:1991 "EHLO motgate3.mot.com")
+	by vger.kernel.org with ESMTP id S261720AbVANAWD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 19:22:03 -0500
+Date: Thu, 13 Jan 2005 18:21:54 -0600 (CST)
+From: Kumar Gala <galak@somerset.sps.mot.com>
+To: greg@kroah.com
+cc: linuxppc-embedded@ozlabs.org, sensors@Stimpy.netroedge.com,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] I2C-MPC: use wait_event_interruptible_timeout between
+ transactions
+Message-ID: <Pine.LNX.4.61.0501131816260.27470@blarg.somerset.sps.mot.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Use wait_event_interruptible_timeout so we dont waste time waiting between 
+transactions like we use to.  Also, we use the adapters timeout so the 
+ioctl cmd I2C_TIMEOUT will now work.
 
---cNdxnHkX5QqsyA0e
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
-On Thu, Jan 13, 2005 at 04:30:02PM -0500, Dave Jones scribbled:
-> On Thu, Jan 13, 2005 at 10:02:29PM +0100, Marek Habersack wrote:
->  > Theory is fine, practice is that the closed disclosure list changes ma=
-tters
->  > for a vaste minority of people - those who are to install the fixed ke=
-rnels
->  > are in perfectly the same situation they would be in if there was a fu=
-lly
->  > open disclosure list.
->=20
-> No, it's not the same. They're in a _worse_ situation if anything.
-> With open disclosure, the bad guys get even more lead time.
-I guess it depends on how you look at it. In fact, thinking again, I think
-it gives the same time to the bad and good guys in each case. So it seems
-there is no benefit to having a closed list or an open list in this regard
-after all. And if this is not an issue, what might be the reason for having
-the closed list? The lust for glory as you've said earlier?
+--
 
-> If admins don't install updates in a timely manner, there's
-> not a lot we can do about it.  For those that _do_ however,
-> we can make their lives a lot more stress free.
-Indeed, but what does have it to do with a closed disclosure list? With open
-disclosure list you provide a set of fixes right away, the admins take them
-and apply. With closed list you do the same, but with a delay (which gives
-an opportunity for a "race condition" with the bad guys, one could argue).
-So, what's the advantage of the delayed disclosure?
-
-best regards,
-
-marek
-
---cNdxnHkX5QqsyA0e
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFB5uyeq3909GIf5uoRAqozAJ99mtUPHFj5+HXX6s3JT3/2SjfVvACeM1S5
-la+03tbPmcKMlObWtGO70w8=
-=CM5k
------END PGP SIGNATURE-----
-
---cNdxnHkX5QqsyA0e--
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/01/13 18:09:31-06:00 galak@cde-tx32-ldt330.sps.mot.com 
+#   use wait_even_interruptible_timeout instead of msleep_interruptible
+# 
+# drivers/i2c/busses/i2c-mpc.c
+#   2005/01/13 18:08:40-06:00 galak@cde-tx32-ldt330.sps.mot.com +15 -21
+#   use wait_even_interruptible_timeout instead of msleep_interruptible
+# 
+diff -Nru a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+--- a/drivers/i2c/busses/i2c-mpc.c	2005-01-13 18:15:58 -06:00
++++ b/drivers/i2c/busses/i2c-mpc.c	2005-01-13 18:15:58 -06:00
+@@ -6,7 +6,7 @@
+  * MPC107/Tsi107 PowerPC northbridge and processors that include
+  * the same I2C unit (8240, 8245, 85xx). 
+  *
+- * Release 0.6
++ * Release 0.7
+  *
+  * This file is licensed under the terms of the GNU General Public
+  * License version 2. This program is licensed "as is" without any
+@@ -75,7 +75,6 @@
+ 
+ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
+ {
+-	DECLARE_WAITQUEUE(wait, current);
+ 	unsigned long orig_jiffies = jiffies;
+ 	u32 x;
+ 	int result = 0;
+@@ -92,28 +91,22 @@
+ 		x = readb(i2c->base + MPC_I2C_SR);
+ 		writeb(0, i2c->base + MPC_I2C_SR);
+ 	} else {
+-		set_current_state(TASK_INTERRUPTIBLE);
+-		add_wait_queue(&i2c->queue, &wait);
+-		while (!(i2c->interrupt & CSR_MIF)) {
+-			if (signal_pending(current)) {
+-				pr_debug("I2C: Interrupted\n");
+-				result = -EINTR;
+-				break;
+-			}
+-			if (time_after(jiffies, orig_jiffies + timeout)) {
+-				pr_debug("I2C: timeout\n");
+-				result = -EIO;
+-				break;
+-			}
+-			msleep_interruptible(jiffies_to_msecs(timeout));
++		/* Interrupt mode */
++		result = wait_event_interruptible_timeout(i2c->queue, 
++			(i2c->interrupt & CSR_MIF), timeout * HZ);
++
++		if (unlikely(result < 0))
++			pr_debug("I2C: wait interrupted\n");
++		else if (unlikely(!(i2c->interrupt & CSR_MIF))) {
++			pr_debug("I2C: wait timeout\n");
++			result = -ETIMEDOUT;
+ 		}
+-		set_current_state(TASK_RUNNING);
+-		remove_wait_queue(&i2c->queue, &wait);
++
+ 		x = i2c->interrupt;
+ 		i2c->interrupt = 0;
+ 	}
+ 
+-	if (result < -0)
++	if (result < 0)
+ 		return result;
+ 
+ 	if (!(x & CSR_MCF)) {
+@@ -165,7 +158,7 @@
+ 		     const u8 * data, int length, int restart)
+ {
+ 	int i;
+-	unsigned timeout = HZ;
++	unsigned timeout = i2c->adap.timeout;
+ 	u32 flags = restart ? CCR_RSTA : 0;
+ 
+ 	/* Start with MEN */
+@@ -193,7 +186,7 @@
+ static int mpc_read(struct mpc_i2c *i2c, int target,
+ 		    u8 * data, int length, int restart)
+ {
+-	unsigned timeout = HZ;
++	unsigned timeout = i2c->adap.timeout;
+ 	int i;
+ 	u32 flags = restart ? CCR_RSTA : 0;
+ 
+@@ -302,6 +295,7 @@
+ 	if (!(i2c = kmalloc(sizeof(*i2c), GFP_KERNEL))) {
+ 		return -ENOMEM;
+ 	}
++	memset(i2c, 0, sizeof(*i2c));
+ 	i2c->ocpdef = ocp->def;
+ 	init_waitqueue_head(&i2c->queue);
+ 

@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264928AbTF0XLI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 19:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264930AbTF0XLI
+	id S264923AbTF0XNe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 19:13:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264926AbTF0XNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 19:11:08 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:57929 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264928AbTF0XLD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 19:11:03 -0400
-Date: Fri, 27 Jun 2003 16:25:27 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Ben Collins <bcollins@debian.org>
-Cc: davidel@xmailserver.org, davem@redhat.com, mbligh@aracnet.com,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: networking bugs and bugme.osdl.org
-Message-Id: <20030627162527.714091ce.akpm@digeo.com>
-In-Reply-To: <20030627213153.GR501@phunnypharm.org>
-References: <20030626.224739.88478624.davem@redhat.com>
-	<21740000.1056724453@[10.10.2.4]>
-	<Pine.LNX.4.55.0306270749020.4137@bigblue.dev.mcafeelabs.com>
-	<20030627.143738.41641928.davem@redhat.com>
-	<Pine.LNX.4.55.0306271454490.4457@bigblue.dev.mcafeelabs.com>
-	<20030627213153.GR501@phunnypharm.org>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 27 Jun 2003 19:13:34 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:35782 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264923AbTF0XNd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 19:13:33 -0400
+Date: Fri, 27 Jun 2003 16:27:40 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, CaT <cat@zip.com.au>,
+       nick@snowman.net, Larry McVoy <lm@bitmover.com>,
+       Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bkbits.net is down
+Message-ID: <20030627232740.GA15609@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, CaT <cat@zip.com.au>,
+	nick@snowman.net, Larry McVoy <lm@bitmover.com>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030627145727.GB18676@work.bitmover.com> <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net> <20030627163720.GF357@zip.com.au> <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk> <20030627221214.GA11252@work.bitmover.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Jun 2003 23:25:18.0212 (UTC) FILETIME=[5EDB1C40:01C33D03]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030627221214.GA11252@work.bitmover.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Collins <bcollins@debian.org> wrote:
->
->  I'm with Dave on this one.
+On Fri, Jun 27, 2003 at 03:12:14PM -0700, Larry McVoy wrote:
+> Well, I almost had everything backed up to the new rackspace server
+> and we crashed.  We're in fsck now.  I think the machine room overheated.
 
-I also.  The bug database tries to convert the traditional many<->many
-debugging process into a one<->one process.  This surely results in a
-lower cleanup rate.
-
-It's irritating replying to a bugzilla entry when you _know_ that you're
-cutting other interested parties out of the loop.
-
-And mailing lists tend to be self-correcting:
-
-- The once-off bugs due to broken hardware get filtered away.
-
-- The bugs which simply get magically fixed when someone repaired some
-  unrelated part of the kernel get filtered out.
-
-- The bugs which are affecting people the most get reported the most.
-
-- Lots of other people can chip in with potentially useful info.
-
-
-It is nice to have a record.  But bugzilla is not a comfortable or
-productive environment within which to drill down into and fix problems.
-
+We're back.  More cooling has been applied.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

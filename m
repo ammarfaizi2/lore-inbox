@@ -1,56 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129944AbQKRAYA>; Fri, 17 Nov 2000 19:24:00 -0500
+	id <S130383AbQKRA3f>; Fri, 17 Nov 2000 19:29:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130383AbQKRAXu>; Fri, 17 Nov 2000 19:23:50 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:3589 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129944AbQKRAXk>; Fri, 17 Nov 2000 19:23:40 -0500
-Date: Fri, 17 Nov 2000 15:53:30 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Harald Koenig <koenig@tat.physik.uni-tuebingen.de>
-cc: Andries.Brouwer@cwi.nl, aeb@veritas.com, emoenke@gwdg.de, eric@andante.org,
-        kobras@tat.physik.uni-tuebingen.de, linux-kernel@vger.kernel.org
-Subject: Re: BUG: isofs broken (2.2 and 2.4)
-In-Reply-To: <20001117235515.A1522@turtle.tat.physik.uni-tuebingen.de>
-Message-ID: <Pine.LNX.4.10.10011171552240.898-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130579AbQKRA30>; Fri, 17 Nov 2000 19:29:26 -0500
+Received: from smtp-fwd.valinux.com ([198.186.202.196]:63758 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S130383AbQKRA3O>;
+	Fri, 17 Nov 2000 19:29:14 -0500
+Date: Fri, 17 Nov 2000 15:59:13 -0800
+From: "H . J . Lu" <hjl@valinux.com>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: lseek/llseek allows the negative offset
+Message-ID: <20001117155913.A26622@valinux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+# gcc x.c
+# ./a.out
+lseek on -100000: -100000
+write: File too large
+
+Should kernel allow negative offsets for lseek/llseek?
 
 
-Oh, and sorry - the last patch doesn't contain the (obvious) fixes to the
-header files to take some of the calling convention changes into account.
-
-
-		Linus
-
+-- 
+H.J. Lu (hjl@valinux.com)
 ---
---- v2.4.0-test10/linux/include/linux/iso_fs.h	Fri Sep  8 12:52:56 2000
-+++ linux/include/linux/iso_fs.h	Fri Nov 17 15:52:03 2000
-@@ -177,16 +177,17 @@
- 
- extern int parse_rock_ridge_inode(struct iso_directory_record *, struct inode *);
- extern int get_rock_ridge_filename(struct iso_directory_record *, char *, struct inode *);
-+extern int isofs_name_translate(struct iso_directory_record *, char *, struct inode *);
- 
- extern int find_rock_ridge_relocation(struct iso_directory_record *, struct inode *);
- 
--int get_joliet_filename(struct iso_directory_record *, struct inode *, unsigned char *);
-+int get_joliet_filename(struct iso_directory_record *, unsigned char *, struct inode *);
- int get_acorn_filename(struct iso_directory_record *, char *, struct inode *);
- 
- extern struct dentry *isofs_lookup(struct inode *, struct dentry *);
- extern int isofs_get_block(struct inode *, long, struct buffer_head *, int);
- extern int isofs_bmap(struct inode *, int);
--extern int isofs_lookup_grandparent(struct inode *, int);
-+extern struct buffer_head *isofs_bread(struct inode *, unsigned int, unsigned int);
- 
- extern struct inode_operations isofs_dir_inode_operations;
- extern struct file_operations isofs_dir_operations;
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdio.h>
 
+extern loff_t llseek (int fd, loff_t offset, int whence);
+
+int
+main ()
+{
+  int fd = open ("/tmp/foo.out", O_CREAT | O_RDWR, 0600);
+  off_t res, pos;
+  loff_t lres, lpos;
+  char buffer [] = "negative offset";
+
+  if (fd < 0)
+    {
+      perror ("open");
+      return 1;
+    }
+
+  pos = -100000;
+  res = lseek (fd, pos, SEEK_SET);
+  if (res == (off_t) -1L)
+    {
+      perror ("lseek");
+      close (fd);
+      return 1;
+    }
+  printf ("lseek on %ld: %ld\n", pos, res);
+
+  if (write (fd, buffer, sizeof (buffer)) != sizeof (buffer))
+    {
+      perror ("write");
+      close (fd);
+      return 1;
+    }
+
+  lpos = -100000LL;
+  lres = llseek (fd, lpos, SEEK_SET);
+  if (lres == (loff_t) -1L)
+    {
+      perror ("llseek");
+      close (fd);
+      return 1;
+    }
+
+  
+  printf ("llseek on %lld: %lld\n", lpos, lres);
+
+  if (write (fd, buffer, sizeof (buffer)) != sizeof (buffer))
+    {
+      perror ("write");
+      close (fd);
+      return 1;
+    }
+
+  close (fd);
+
+  return 0;
+}
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

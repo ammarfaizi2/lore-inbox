@@ -1,221 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262582AbUCJLmn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 06:42:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbUCJLmn
+	id S262583AbUCJLnG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 06:43:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbUCJLnG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 06:42:43 -0500
-Received: from s4.uklinux.net ([80.84.72.14]:1970 "EHLO mail2.uklinux.net")
-	by vger.kernel.org with ESMTP id S262583AbUCJLme (ORCPT
+	Wed, 10 Mar 2004 06:43:06 -0500
+Received: from ns.bitdefender.com ([217.156.83.1]:47296 "EHLO avxfw.softwin.ro")
+	by vger.kernel.org with ESMTP id S262583AbUCJLnA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 06:42:34 -0500
-Date: Wed, 10 Mar 2004 11:42:46 +0000
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.3: VIA+ACPI+yenta->hang
-Message-ID: <20040310114246.GA1501@hindley.uklinux.net>
-Mime-Version: 1.0
+	Wed, 10 Mar 2004 06:43:00 -0500
+X-BitDefender-Spam: No (0)
+X-BitDefender-Scanner: Clean, Agent: Qmail 1.5.6 (mail.dsd.ro)
+Date: Wed, 10 Mar 2004 13:42:52 +0200
+From: "Viorel Canja, Softwin" <vcanja@bitdefender.com>
+X-Mailer: The Bat! (v2.00)
+Reply-To: "Viorel Canja, Softwin" <vcanja@bitdefender.com>
+Organization: Softwin
+X-Priority: 3 (Normal)
+Message-ID: <1487103774.20040310134252@bitdefender.com>
+To: Paul Wagland <paul@wagland.net>
+CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re[2]: problem in tcp_v4_synq_add ?
+In-Reply-To: <F750F6B1-7271-11D8-AFFE-000A95CD704C@wagland.net>
+References: <684501482.20040309132741@bitdefender.com>
+ <20040309113046.40271dc8.davem@redhat.com>
+ <F750F6B1-7271-11D8-AFFE-000A95CD704C@wagland.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Mark Hindley <mark@hindley.uklinux.net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello Paul,
 
-I am doing a new install of 2.6.3 on an Acer 1353XV.
+This comment in sock.h makes things clearer :
 
-If I have anything more than acpi=ht loading yenta_socket causes a hang
-requiring hard reset.
-
-Boot gets as far as: (copied from screen)
-
-
-Mar 10 11:23:41 mercury kernel: Linux Kernel Card Services
-Mar 10 11:23:41 mercury kernel:   options:  [pci] [cardbus] [pm]
-Mar 10 11:23:41 mercury kernel: PCI: Found IRQ 5 for device 0000:00:07.0
-Mar 10 11:23:41 mercury kernel: PCI: Sharing IRQ 5 with 0000:00:08.0
-Mar 10 11:23:41 mercury kernel: PCI: Sharing IRQ 5 with 0000:00:10.1
-Mar 10 11:23:41 mercury kernel: Yenta: CardBus bridge found at 0000:00:07.0 [1025:0033]
-Mar 10 11:23:41 mercury kernel: Yenta: Enabling burst memory read transactions
-Mar 10 11:23:41 mercury kernel: Yenta: Using CSCINT to route CSC interrupts to PCI
-Mar 10 11:23:41 mercury kernel: Yenta: Routing CardBus interrupts to PCI
-Mar 10 11:23:41 mercury /usr/sbin/gpm[789]: Detected EXPS/2 protocol mouse.
-Mar 10 11:23:41 mercury kernel: Yenta: ISA IRQ mask 0x0488, PCI irq 5
-Mar 10 11:23:41 mercury kernel: Socket status: 30000010
+397         /* The syn_wait_lock is necessary only to avoid tcp_get_info having
+398          * to grab the main lock sock while browsing the listening hash
+399          * (otherwise it's deadlock prone).
+400          * This lock is acquired in read mode only from tcp_get_info() and
+401          * it's acquired in write mode _only_ from code that is actively
+402          * changing the syn_wait_queue. All readers that are holding
+403          * the master sock lock don't need to grab this lock in read mode
+404          * too as the syn_wait_queue writes are always protected from
+405          * the main sock lock.
+406          */
 
 
-Even without pcmcia in, apci seems unreliable, particularly ac and fan
-modules. I get random hangs synchronised with the fan starting which
-suugests an acpi related event. With just button and battery seems stable 
+best regards,
+Viorel
 
-Logs always empty
-
-lspci -vv
-00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 3205
-	Subsystem: VIA Technologies, Inc.: Unknown device 7205
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 8
-	Region 0: Memory at e0000000 (32-bit, prefetchable) [size=256M]
-	Capabilities: [80] AGP version 3.5
-		Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
-		Command: RQ=0 SBA+ AGP+ 64bit- FW- Rate=x2
-	Capabilities: [c0] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device b168 (prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
-	Latency: 0
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-	Memory behind bridge: d1000000-d1ffffff
-	Prefetchable memory behind bridge: f0000000-f3ffffff
-	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller (rev 02)
-	Subsystem: Acer Incorporated [ALI]: Unknown device 0033
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 168, cache line size 10
-	Interrupt: pin A routed to IRQ 5
-	Region 0: Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
-	Bus: primary=00, secondary=02, subordinate=05, sec-latency=176
-	Memory window 0: 10400000-107ff000 (prefetchable)
-	Memory window 1: 10800000-10bff000
-	I/O window 0: 00004000-000040ff
-	I/O window 1: 00004400-000044ff
-	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt- PostWrite+
-	16-bit legacy interface ports at 0001
-
-00:08.0 FireWire (IEEE 1394): Texas Instruments: Unknown device 8026 (prog-if 10 [OHCI])
-	Subsystem: Acer Incorporated [ALI]: Unknown device 0033
-	Control: I/O- Mem+ BusMaster- SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 5
-	Region 0: Memory at d0004000 (32-bit, non-prefetchable) [size=2K]
-	Region 1: Memory at d0000000 (32-bit, non-prefetchable) [size=16K]
-	Capabilities: [44] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:10.0 USB Controller: VIA Technologies, Inc. UHCI USB (rev 80) (prog-if 00 [UHCI])
-	Subsystem: Acer Incorporated [ALI]: Unknown device 0033
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64, cache line size 08
-	Interrupt: pin A routed to IRQ 4
-	Region 4: I/O ports at 1c00 [size=32]
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:10.1 USB Controller: VIA Technologies, Inc. UHCI USB (rev 80) (prog-if 00 [UHCI])
-	Subsystem: Acer Incorporated [ALI]: Unknown device 0033
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64, cache line size 08
-	Interrupt: pin B routed to IRQ 5
-	Region 4: I/O ports at 1c20 [size=32]
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:10.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 80) (prog-if 00 [UHCI])
-	Subsystem: Acer Incorporated [ALI]: Unknown device 0033
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64, cache line size 08
-	Interrupt: pin C routed to IRQ 9
-	Region 4: I/O ports at 1c40 [size=32]
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME+
-
-00:10.3 USB Controller: VIA Technologies, Inc.: Unknown device 3104 (rev 82) (prog-if 20)
-	Subsystem: Acer Incorporated [ALI]: Unknown device 0033
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64, cache line size 10
-	Interrupt: pin D routed to IRQ 11
-	Region 0: Memory at d0004800 (32-bit, non-prefetchable) [size=256]
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:11.0 ISA bridge: VIA Technologies, Inc.: Unknown device 3177
-	Subsystem: Acer Incorporated [ALI]: Unknown device 0033
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-	Capabilities: [c0] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:11.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06) (prog-if 8a [Master SecP PriP])
-	Subsystem: Acer Incorporated [ALI]: Unknown device 0033
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64
-	Interrupt: pin A routed to IRQ 4
-	Region 4: I/O ports at 1c60 [size=16]
-	Capabilities: [c0] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:11.5 Multimedia audio controller: VIA Technologies, Inc. AC97 Audio Controller (rev 50)
-	Subsystem: Acer Incorporated [ALI]: Unknown device 0033
-	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin C routed to IRQ 9
-	Region 0: I/O ports at 1000 [size=256]
-	Capabilities: [c0] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:11.6 Communication controller: VIA Technologies, Inc. AC97 Modem Controller (rev 80)
-	Subsystem: Acer Incorporated [ALI]: Unknown device 0033
-	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin C routed to IRQ 9
-	Region 0: I/O ports at 1400 [size=256]
-	Capabilities: [d0] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:12.0 Ethernet controller: VIA Technologies, Inc. Ethernet Controller (rev 74)
-	Subsystem: Acer Incorporated [ALI]: Unknown device 0033
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 4
-	Region 0: I/O ports at 1800 [size=256]
-	Region 1: Memory at d0004c00 (32-bit, non-prefetchable) [size=256]
-	Capabilities: [40] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-01:00.0 VGA compatible controller: VIA Technologies, Inc.: Unknown device 7205 (rev 01) (prog-if 00 [VGA])
-	Subsystem: Acer Incorporated [ALI]: Unknown device 0033
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (500ns min)
-	Interrupt: pin A routed to IRQ 4
-	Region 0: Memory at f0000000 (32-bit, prefetchable) [size=64M]
-	Region 1: Memory at d1000000 (32-bit, non-prefetchable) [size=16M]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-	Capabilities: [60] Power Management version 2
-		Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-	Capabilities: [70] AGP version 2.0
-		Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
-		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+Wednesday, March 10, 2004, 11:04:41 AM, you wrote:
 
 
+PW> On Mar 9, 2004, at 20:30, David S. Miller wrote:
 
-Thanks for any help. Let me know if you need any more info.
+>> On Tue, 9 Mar 2004 13:27:41 +0200
+>> "Viorel Canja, Softwin" <vcanja@bitdefender.com> wrote:
+>>
+>>> Shouldn't  "write_lock(&tp->syn_wait_lock);" be moved before
+>>> "req->dl_next = lopt->syn_table[h];" to avoid a race condition ?
+>>
+>> Nope, the listening socket's socket lock is held, and all things that
+>> add members to these hash chains hold that lock.
 
-Mark
+PW> Is that the same as saying that the write_lock() is not needed at all?
+PW> Since it is already guaranteed to be protected with a different lock?
+
+PW> Cheers,
+PW> Paul
+
+

@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130779AbRCJArl>; Fri, 9 Mar 2001 19:47:41 -0500
+	id <S130781AbRCJAsw>; Fri, 9 Mar 2001 19:48:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130784AbRCJArb>; Fri, 9 Mar 2001 19:47:31 -0500
-Received: from attila.bofh.it ([213.92.8.2]:36300 "HELO attila.bofh.it")
-	by vger.kernel.org with SMTP id <S130779AbRCJArV>;
-	Fri, 9 Mar 2001 19:47:21 -0500
-Date: Sat, 10 Mar 2001 00:45:56 +0100
-From: "Marco d'Itri" <md@Linux.IT>
+	id <S130784AbRCJAso>; Fri, 9 Mar 2001 19:48:44 -0500
+Received: from gateway.sequent.com ([192.148.1.10]:40476 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S130781AbRCJAsg>; Fri, 9 Mar 2001 19:48:36 -0500
+Date: Fri, 9 Mar 2001 16:47:41 -0800
+From: Mike Kravetz <mkravetz@sequent.com>
 To: linux-kernel@vger.kernel.org
-Subject: peer shrinks window
-Message-ID: <20010310004556.A7380@wonderland.linux.it>
+Subject: sys_sched_yield fast path
+Message-ID: <20010309164740.D1057@w-mikek2.sequent.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In two days I've got 46 messages like:
+Any thoughts about adding a 'fast path' to the SMP code in
+sys_sched_yield.  Why not compare nr_pending to smp_num_cpus
+before examining the aligned_data structures?  Something like,
 
-Mar  7 08:00:55 attila kernel: TCP: peer 163.162.41.4:37582/20 shrinks window 752789960:5840:752797200. Bad, what else can I say?
+if (nr_pending > smp_num_cpus)
+	goto set_resched_now;
 
-If needed I can ask about the os running there, I think it's solaris.
-(nmap confirms: Solaris 7)
+Where set_resched_now is a label placed just before the code
+that sets the need_resched field of the current process.
+This would eliminate touching all the aligned_data cache lines
+in the case where nr_pending can never be decremented to zero.
 
-Linux attila 2.4.0-test11 #11 Wed Dec 13 12:02:51 CET 2000 ppc unknown
+Also, would it make sense to stop decrementing nr_pending to
+prevent it from going negative?  OR  Is the reasoning that in
+these cases there is so much 'scheduling' activity that we
+should force the reschedule?
 
 -- 
-ciao,
-Marco
+Mike Kravetz                                 mkravetz@sequent.com
+IBM Linux Technology Center

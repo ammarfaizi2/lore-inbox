@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268844AbRHBHdV>; Thu, 2 Aug 2001 03:33:21 -0400
+	id <S268843AbRHBHnL>; Thu, 2 Aug 2001 03:43:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268843AbRHBHdL>; Thu, 2 Aug 2001 03:33:11 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:47630 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S268841AbRHBHc7>;
-	Thu, 2 Aug 2001 03:32:59 -0400
-Date: Thu, 2 Aug 2001 08:33:05 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: David Huen <smh1008@cus.cam.ac.uk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Ridiculously OT] Virii (sic)
-In-Reply-To: <Pine.SOL.3.96.1010801082207.4185A-100000@draco.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.33.0108020828080.6003-100000@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268846AbRHBHnB>; Thu, 2 Aug 2001 03:43:01 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:19215 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S268843AbRHBHmu>; Thu, 2 Aug 2001 03:42:50 -0400
+Date: Thu, 2 Aug 2001 09:42:53 +0200
+From: Jan Kara <jack@ucw.cz>
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Small fix
+Message-ID: <20010802094253.A22656@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOKacYhQ+x31HxR3"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David.
 
- >> plural of virus is virii. Since the whole idea of a computer
- >> virus comes from the medical world, I'd have to assume the
- >> terminology came with it.
- >>
- >> I'll stick with what my training taught me.
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
- > As an ex-virologist, English usage has its plural as viruses
- > almost everywhere, even in books written in "U.S." English.
- > Even in medical virology texts in the aforesaid language.
+  Hello,
 
-{Shrug} Blame my training on the medical staff at Aberdeen Royal
-Infirmiry, Scotland, where I did the 18 months of medical training
-that I have behind me before switching to Computing...
+  the small fix which adds FIOQSIZE ioctl number to forgotten architectures
+is attached. Please apply.
 
- > Not that Caesar ever spoke at length concerning viruses, but
- > viral taxonomies usually refer to viruses of a kind with a
- > collective noun ending with thus:-
- >
- > papillomaviridae	- wart viruses
- > herpesviridae	- herpesviruses
- > retroviridae 	- retroviruses
- >
- > Here's an example of both the plural "viruses" and the
- > collective ending being used...
- >
- > http://www.utoronto.ca/virology/bio351/papova/Papova.html
- >
- > Indeed, if you should search Google for the terms "viruses" and
- > "virii", the former will find mostly biological/medical pages
- > while the latter while the latter finds almost exclusively
- > descriptions of computer "virii" which may be indicative of the
- > orgin of the latter.
- >
- > I look forward to computer virus taxonomies discussing
- > Sircamidae and no doubt Code Red could be classified as member
- > of phylum Annelidae with Linnean name Tabes whitehouseii.
+								Honza
 
- >> PS: Plural of bacteria is bacterium, from the same source.
 
- > You did mean it the other way round, didn't you?
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="quota-ioctls.diff"
 
-I did, yes - blame that on a brain failure...mine!
+--- linux/include/asm-parisc/ioctls.h	Wed Dec 20 19:34:44 2000
++++ linux/include/asm-parisc/ioctls.h	Wed Aug  1 01:15:19 2001
+@@ -67,6 +67,7 @@
+ #define TIOCGICOUNT	0x545D	/* read serial port inline interrupt counts */
+ #define TIOCGHAYESESP   0x545E  /* Get Hayes ESP configuration */
+ #define TIOCSHAYESESP   0x545F  /* Set Hayes ESP configuration */
++#define FIOQSIZE	0x5460	/* Get exact space used by quota */
+ 
+ /* Used for packet mode */
+ #define TIOCPKT_DATA		 0
+--- linux/include/asm-cris/ioctls.h	Wed Mar 21 00:20:52 2001
++++ linux/include/asm-cris/ioctls.h	Wed Aug  1 01:13:17 2001
+@@ -69,6 +69,7 @@
+ #define TIOCGICOUNT	0x545D	/* read serial port inline interrupt counts */
+ #define TIOCGHAYESESP   0x545E  /* Get Hayes ESP configuration */
+ #define TIOCSHAYESESP   0x545F  /* Set Hayes ESP configuration */
++#define FIOQSIZE	0x5460
+ 
+ /* Used for packet mode */
+ #define TIOCPKT_DATA		 0
 
- > D. Huen, Dept. of Genetics, U. of Cambridge
-
-Best wishes from Riley.
-
+--BOKacYhQ+x31HxR3--

@@ -1,81 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318693AbSHLDyd>; Sun, 11 Aug 2002 23:54:33 -0400
+	id <S318704AbSHLEfV>; Mon, 12 Aug 2002 00:35:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318692AbSHLDyd>; Sun, 11 Aug 2002 23:54:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28423 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318693AbSHLDya>;
-	Sun, 11 Aug 2002 23:54:30 -0400
-Message-ID: <3D5734B1.2DEC6CF2@zip.com.au>
-Date: Sun, 11 Aug 2002 21:08:17 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S318705AbSHLEfV>; Mon, 12 Aug 2002 00:35:21 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:29426 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S318704AbSHLEfU>;
+	Mon, 12 Aug 2002 00:35:20 -0400
+Date: Mon, 12 Aug 2002 00:39:08 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Oliver Xymoron <oxymoron@waste.org>
+cc: Rob Landley <landley@trommello.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
+Subject: Re: klibc development release
+In-Reply-To: <Pine.LNX.4.44.0208112119540.25011-100000@waste.org>
+Message-ID: <Pine.GSO.4.21.0208120001260.14833-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Simon Kirby <sim@netnation.com>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
-References: <3D572B4C.90F4AF3C@zip.com.au> <Pine.LNX.4.44.0208112023200.1518-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+
+
+On Sun, 11 Aug 2002, Oliver Xymoron wrote:
+
+> On Sun, 11 Aug 2002, Alexander Viro wrote:
 > 
-> On Sun, 11 Aug 2002, Andrew Morton wrote:
+> > > What's wrong with LGPL?  I thought libraries were what it was originally
 > >
-> > At least that's the theory, and the testing I did yesterday
-> > was succesful.
+> > klibc is static-only.  So for all practical purposes LGPL would be every bit
+> > as viral as GPV itself.
 > 
-> Did you try Simons test-case which seemed to be just a "cat" on a floppy
-> 
->   "To demonstrate the problem reliably, I've used "strace -r cat" on a
->    floppy, which is a sufficiently slow medium. :)  This is on a 2.4.19
->    kernel, but 2.5 behaves similarly.")
-> 
-> although that may be different from the NFS issue, it is kind of
-> interesting: the perfect behaviour would be a steady stream of data, not
-> too many hickups.
+> You say that as if it were a bad thing.
 
-I did, but I cut you from the Cc...
+I do.  I have no problems with people choosing whatever license they prefer
+for their work and I have no problems with using GPL when I'm working on
+projects that are already under it, but it's not the license I would choose
+for my work in cases when I have a choice.
 
-> I happen to have a little test app for this stuff:
-> http://www.zip.com.au/~akpm/linux/stream.tar.gz
-> 
-> You can use it to slowly read or write a file.
-> 
->         ./stream -i /dev/fd0h1440 23 1000
-> 
-> will read 1000k from floppy at 23k per second.  It's a bit
-> useless at those rates on 2.4 because of the coarse timer
-> resolution.  But in 1000Hz 2.5 it works a treat.
-> 
-> ./stream -i /dev/fd0h1440 20 1000  0.00s user 0.01s system 0% cpu 51.896 total
-> ./stream -i /dev/fd0h1440 21 1000  0.00s user 0.02s system 0% cpu 49.825 total
-> ./stream -i /dev/fd0h1440 22 1000  0.00s user 0.02s system 0% cpu 47.843 total
-> ./stream -i /dev/fd0h1440 23 1000  0.00s user 0.01s system 0% cpu 45.853 total
-> ./stream -i /dev/fd0h1440 24 1000  0.01s user 0.02s system 0% cpu 44.077 total
-> ./stream -i /dev/fd0h1440 25 1000  0.00s user 0.02s system 0% cpu 42.307 total
-> ./stream -i /dev/fd0h1440 26 1000  0.00s user 0.01s system 0% cpu 41.305 total
-> ./stream -i /dev/fd0h1440 27 1000  0.00s user 0.02s system 0% cpu 40.493 total
-> ./stream -i /dev/fd0h1440 28 1000  0.01s user 0.02s system 0% cpu 39.122 total
-> ./stream -i /dev/fd0h1440 29 1000  0.00s user 0.01s system 0% cpu 39.118 total
-> 
-> What we see here is perfect readahead behaviour.  The kernel is keeping the
-> read streaming ahead of the application's read cursor all the way out to the
-> point where the device is saturated. (The numbers are all off by three
-> seconds because of the initial spinup delay).
-> 
-> If you strace it, the reads are smooth on 2.4 and 2.5.
-> 
-> So it may be an NFS peculiarity.  That's a bit hard for me to test over
-> 100bT.
+As for the "make the hardware work" code, there's nothing to stop people from
+doing that _NOW_.  I'm not too fond of that, but as long as we are talking
+about userland code it
+	* will have to use normal system calls
+	* will not have to link against any particular library, no matter
+what we provide
+	* will be up to those who write it and those who decide to use it.
 
-The strace of that app is smooth, all the way out to the peak disk
-bandwidth.
+We are talking about libc.  _Nothing_ in that code couldn't be reimplemented
+by any half-competent programmer.  It's a textbook stuff.  Those who don't
+like GPL would be trivially able to reimplement all these functions in their
+own code anyway.  End of story.  Whatever license is chosen, it won't prevent
+people from putting their code under any license they like.
 
-So something is different either in the test or in Simon's setup.  It
-needs further investigation.
+There is a crucial difference from the situation with nVidia, Veritrash and
+the rest of let's-bugger-the-kernel team.  _They_ want more than using
+syscalls from user mode - they want an access to guts of the kernel and that's
+a very different can of worms.  And _that_ I have problems with.  A lot.
+Especially when they expect us to abstain from changes of kernel internals
+that might break their junk and when they whine when such changes are done.
+
+People do have a right to put their code under whatever license they like.
+Now, _I_ won't use the stuff I don't have a source for unless I have
+exceptionally good reason to believe that authors of that stuff are
+among the few percents of programmers who *can* find their arse without
+outside help.  But that has nothing to do with licensing or any moral
+considerations and everything to the fact that I know what kind of crap
+most of the software is.
+

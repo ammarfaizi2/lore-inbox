@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264314AbTIIRWs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 13:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264317AbTIIRWs
+	id S264172AbTIIR1k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 13:27:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264318AbTIIR1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 13:22:48 -0400
-Received: from mail.kroah.org ([65.200.24.183]:62856 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264314AbTIIRWO (ORCPT
+	Tue, 9 Sep 2003 13:27:40 -0400
+Received: from hal-4.inet.it ([213.92.5.23]:4792 "EHLO hal-4.inet.it")
+	by vger.kernel.org with ESMTP id S264172AbTIIR07 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 13:22:14 -0400
-Date: Tue, 9 Sep 2003 10:13:54 -0700
-From: Greg KH <greg@kroah.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       John Levon <levon@movementarian.org>
-Subject: Re: [PATCH][2.6][CFT] rmmod floppy kills box fixes + default_device_remove
-Message-ID: <20030909171354.GC5928@kroah.com>
-References: <Pine.LNX.4.53.0309072228470.14426@montezuma.fsmlabs.com> <20030908155048.GA10879@kroah.com> <Pine.LNX.4.53.0309081722270.14426@montezuma.fsmlabs.com> <20030908230852.GA3320@kroah.com> <Pine.LNX.4.53.0309090739270.14426@montezuma.fsmlabs.com> <Pine.LNX.4.53.0309091142550.14426@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0309091142550.14426@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 9 Sep 2003 13:26:59 -0400
+Message-ID: <00f201c376f8$231d5e00$beae7450@wssupremo>
+Reply-To: "Luca Veraldi" <luca.veraldi@katamail.com>
+From: "Luca Veraldi" <luca.veraldi@katamail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Efficient IPC mechanism on Linux
+Date: Tue, 9 Sep 2003 19:30:58 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 09, 2003 at 12:38:51PM -0400, Zwane Mwaikambo wrote:
-> On Tue, 9 Sep 2003, Zwane Mwaikambo wrote:
-> 
-> > > So an empty release() function is the wrong thing to do in 99.99% of the
-> > > situations in the kernel (the one exception seems to be the mca release
-> > > function that recently got added for use when the bus is doing probing
-> > > logic.)
-> > > 
-> > > Does this help out?
-> > 
-> > Yes thanks, i was confused over which memory references had to be 
-> > maintained.
-> 
-> Ok i had another look and i can see why you need a seperate release 
-> function, as we don't always do the kobject_cleanup immediately.
-> 
-> John and myself had a look and now we have the following race on 
-> ->release() function exit.
-> 
-> my_release_fn()
-> {
-> 	complete(&my_completion);
-> 	<== [1] stall anywhere here, e.g. preempt/schedule
-> }
+Hi all.
+At the web page
+http://web.tiscali.it/lucavera/www/root/ecbm/index.htm
+You can find the results of my attempt in modifing the linux kernel sources
+to implement a new Inter Process Communication mechanism.
 
-Ugh.  Sure, point out the theoretical :)
+It is called ECBM for Efficient Capability-Based Messaging.
 
-Any thoughts on how to solve this?
+In the reading You can also find the comparison of ECBM 
+against some other commonly-used Linux IPC primitives 
+(such as read/write on pipes or SYS V tools).
 
-thanks,
+The results are quite clear.
 
-greg k-h
+Enjoy.
+Luca Veraldi
+
+
+----------------------------------------
+Luca Veraldi
+
+Graduate Student of Computer Science
+at the University of Pisa
+
+veraldi@cli.di.unipi.it
+luca.veraldi@katamail.com
+ICQ# 115368178
+----------------------------------------

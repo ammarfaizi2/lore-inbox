@@ -1,75 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbVBQSM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVBQSTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262287AbVBQSM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 13:12:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbVBQSM7
+	id S261166AbVBQSTK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 13:19:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVBQSTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 13:12:59 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32275 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262287AbVBQSMo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 13:12:44 -0500
-Date: Thu, 17 Feb 2005 18:12:41 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Frank Buss <fb@frank-buss.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with dma_mmap_writecombine on mach-pxa
-Message-ID: <20050217181241.A22752@flint.arm.linux.org.uk>
-Mail-Followup-To: Frank Buss <fb@frank-buss.de>,
-	linux-kernel@vger.kernel.org
-References: <20050217175150.D8E015B874@frankbuss.de>
+	Thu, 17 Feb 2005 13:19:10 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:39329 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261166AbVBQSS6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 13:18:58 -0500
+Date: Thu, 17 Feb 2005 13:18:50 -0500
+From: Dave Jones <davej@redhat.com>
+To: Itsuro Oda <oda@valinux.co.jp>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] /proc/cpumem
+Message-ID: <20050217181850.GE21623@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Itsuro Oda <oda@valinux.co.jp>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	fastboot <fastboot@lists.osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <20050203154433.18E4.ODA@valinux.co.jp> <m14qgu81bw.fsf@ebiederm.dsl.xmission.com> <20050216170224.4C66.ODA@valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050217175150.D8E015B874@frankbuss.de>; from fb@frank-buss.de on Thu, Feb 17, 2005 at 06:51:49PM +0100
+In-Reply-To: <20050216170224.4C66.ODA@valinux.co.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 17, 2005 at 06:51:49PM +0100, Frank Buss wrote:
-> I'm trying to use the pxafb driver on mach-pxa, but I can't mmap the
-> framebuffer memory. I can access it from the driver, filling the entire
-> screen, but when I access the pointer returned from mmap from a user space
-> program, the following two things happens:
-> 
-> - the vm_pgoff is ignored and I get the start of the internal buffer, which
-> caused writing to the palette and DMA descriptors
-> 
-> - when I change the location of the framebuffer to the start of the internal
-> buffer, I can write to the screen, but only to the first 4 k; any write
-> after this address is ignored, but no segfault is generated.
-> 
-> Any ideas what I can do to find the reason? I don't think that it is a
-> kernel bug, but perhaps a wrong configuration for my platform.
+On Wed, Feb 16, 2005 at 05:49:51PM +0900, Itsuro Oda wrote:
+ > Hi, Eric and all
+ > 
+ > Attached is an implementation of /proc/cpumem.
+ > /proc/cpumem shows the valid physical memory ranges.
+ > 
+ > * i386 and x86_64
+ > * implement valid_phys_addr_range() and use it.
+ >   (the first argument of the i386 version is little uncomfortable.)
+ > * /dev/mem of the i386 version should be mofified. but not yet.
+ > 
+ > example: amd64 8GB Mem
+ > # cat /proc/cpumem
+ > 0000000000000000 000000000009b800
+ > 0000000000100000 00000000fbe70000
+ > 0000000100000000 0000000100000000
+ > #
+ > start address and size. hex digit.
+ > 
+ > Any comments, recomendations and suggestions are welcom.
 
-Please try this (and revert your changes):
+It may make more sense to export the entire e820 (or similar)
+bios memory tables. Probably better off in sysfs than adding
+more cruft to procfs too.
 
-===== arch/arm/mm/consistent.c 1.27 vs edited =====
---- 1.27/arch/arm/mm/consistent.c	2005-01-21 05:02:14 +00:00
-+++ edited/arch/arm/mm/consistent.c	2005-02-17 18:11:50 +00:00
-@@ -284,13 +284,15 @@
- 	spin_unlock_irqrestore(&consistent_lock, flags);
- 
- 	if (c) {
-+		unsigned long off = vma->vm_pgoff;
-+
- 		kern_size = (c->vm_end - c->vm_start) >> PAGE_SHIFT;
- 
--		if (vma->vm_pgoff < kern_size &&
--		    user_size <= (kern_size - vma->vm_pgoff)) {
-+		if (off < kern_size &&
-+		    user_size <= (kern_size - off)) {
- 			vma->vm_flags |= VM_RESERVED;
- 			ret = remap_pfn_range(vma, vma->vm_start,
--					      page_to_pfn(c->vm_pages),
-+					      page_to_pfn(c->vm_pages) + off,
- 					      user_size, vma->vm_page_prot);
- 		}
- 	}
+		Dave
 
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

@@ -1,52 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262648AbSJ0VLh>; Sun, 27 Oct 2002 16:11:37 -0500
+	id <S262620AbSJ0VXb>; Sun, 27 Oct 2002 16:23:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262650AbSJ0VLh>; Sun, 27 Oct 2002 16:11:37 -0500
-Received: from 205-158-62-133.outblaze.com ([205.158.62.133]:22166 "HELO
-	ws5-2.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S262648AbSJ0VLh>; Sun, 27 Oct 2002 16:11:37 -0500
-Message-ID: <20021027211751.1102.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-15"
+	id <S262646AbSJ0VXb>; Sun, 27 Oct 2002 16:23:31 -0500
+Received: from chunk.voxel.net ([207.99.115.133]:32698 "EHLO chunk.voxel.net")
+	by vger.kernel.org with ESMTP id <S262620AbSJ0VX3>;
+	Sun, 27 Oct 2002 16:23:29 -0500
+Date: Sun, 27 Oct 2002 16:29:50 -0500
+From: Andres Salomon <dilinger@mp3revolution.net>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.44-ac4
+Message-ID: <20021027212950.GA15937@chunk.voxel.net>
+References: <200210262357.g9QNvMP00380@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="tKW2IUtsqtDRztdT"
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Mon, 28 Oct 2002 05:17:51 +0800
-Subject: Re:[Benchmark] Chat results
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws5-3.us4.outblaze.com
+In-Reply-To: <200210262357.g9QNvMP00380@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux chunk 2.4.18-ac3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I changed the output of the results (thanks to jw schultz for the suggestions).
 
-The benchmark repeast 10 times the following command:
-./chat_c 127.0.0.1 30 1000 9999 
+--tKW2IUtsqtDRztdT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This means that:
-o)it creates 30 chat rooms
-o)it sends 1000 messages (the number of messages sent by each chat room member)
+The following is necessary for sparc64 compilation.
 
-Then it evaluates the average throughput (messages per second).
+On Sat, Oct 26, 2002 at 07:57:22PM -0400, Alan Cox wrote:
+> 
+> ** I strongly recommend saying N to IDE TCQ options otherwise this
+>    should hopefully build and run happily.
+> 
+> Most stuff is now back running at least as well as in 2.5.42-ac (u14f being
+> the exception). This fixes a load more small things and resynchronizes the
+> mmuless Linux stuff. That is now pretty close (IMHO) to mergable.
+> 
+> Linux 2.5.44-ac4
+> o	Add 2.4.20-ac style /proc for ht info		(Robert Love)
+> o	Fix bd_blocksize setting case			(Hugh Dickins)
+> o	PCI bus setup now __devinit for hotplug		(Ivan Kokshaysky)
+> o	make xconfig should work again			(Alex Riesen)
+> o	Merge uclinux resync. This is now way cleaner	(Christoph Hellwig)
+> o	Update znet driver				(Marc Zyngier)
+> o	More i2o_scsi tidying				(Christoph Hellwig)
+> o	Fix a leak in the device mapper			(Joe Thornber)
+> o	Fix missed section name change			(Peter Chubb)
+> o	Fix a bug in the APM update, add comments	(me)
+> o	Merge block layer changes			(Jens Axboe)
+> 	| Should fix eject panic
+> o	Fix warnings in baycom_epp			(me)
+> o	Fix warnings in fmvj18x, and timer_sync bug	(me)
+> o	Fix sim710 warnings				(me)
+> o	Fix pas16/t128 warnings				(me)
+> o	Allow both mmio and pio g_NCR5380 builds at once(me)
+> o	Remove unused code from axnet_cs		(me)
+> o	Fix warning in pc300 driver			(me)
+> o	Clean up qlogicfas drivers somewhat		(me)
+> o	Fix megaraid build for pci bios changes		(me)
+> o	Fix cpu count weird reporting 			(Dave Jones)
+> o	Clean up capabilities printing			(Dave Jones)
+> o	Silence mtrr debugging printk			(Dave Jones)
+> o	Split machine check per processor		(Dave Jones)
+> o	Update mpt fusion for new slave_attach handling	(Peter Chubb)
+> o       Initial speedstep testing for VIA chipset boards(Bob Renwick)
+> 
+> Linux 2.5.44-ac3
+[...]
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Here the results:
-
-Version		Throughput	Min	Max	Ratio
-2.4.19		47250.9 	45634	50940	1.000
-2.4.19-ck7	57210.1 	55007	61988	1.211
-2.5.38		62543.3 	58416	64196	1.324
-2.5.40		60115.4 	52443	63264	1.272
-2.5.43		58807.5 	55376	60617	1.245
-2.5.44		57906.2 	49808	60197	1.226
-2.5.44-mm1	56060.7 	53250	58617	1.186
-2.5.44-mm5	56778.8 	54685	59737	1.202
-
-Comments ?
-
-Paolo
 -- 
+It's not denial.  I'm just selective about the reality I accept.
+	-- Bill Watterson
 
-Powered by Outblaze
+--tKW2IUtsqtDRztdT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="bug.h.diff"
+
+--- a/include/asm-sparc64/bug.h	2002-10-27 13:02:47.000000000 -0500
++++ b/include/asm-sparc64/bug.h	2002-10-27 13:03:27.000000000 -0500
+@@ -13,5 +13,6 @@
+ #define BUG()		__builtin_trap()
+ #endif
+ 
++#define PAGE_BUG(page) BUG()
+ 
+ #endif
+
+--tKW2IUtsqtDRztdT--

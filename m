@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267141AbSLKN1d>; Wed, 11 Dec 2002 08:27:33 -0500
+	id <S267137AbSLKNXc>; Wed, 11 Dec 2002 08:23:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267142AbSLKN1d>; Wed, 11 Dec 2002 08:27:33 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:16394 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S267141AbSLKN1c>; Wed, 11 Dec 2002 08:27:32 -0500
-Date: Wed, 11 Dec 2002 14:35:12 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: IBM spamms me with error messages
-Message-ID: <20021211133509.GC3575@atrey.karlin.mff.cuni.cz>
-References: <20021210205611.GH20049@atrey.karlin.mff.cuni.cz> <20021210224325.GE32122@mea-ext.zmailer.org>
+	id <S267139AbSLKNXc>; Wed, 11 Dec 2002 08:23:32 -0500
+Received: from [66.70.28.20] ([66.70.28.20]:4875 "EHLO
+	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
+	id <S267137AbSLKNXa>; Wed, 11 Dec 2002 08:23:30 -0500
+Date: Wed, 11 Dec 2002 13:32:51 +0100
+From: DervishD <raul@pleyades.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: [BK-2.4] [PATCH] Small do_mmap_pgoff correction
+Message-ID: <20021211123251.GA48@DervishD>
+References: <20021210221357.GA46@DervishD> <20021210.141451.66294590.davem@redhat.com> <20021210222842.GA64@DervishD> <20021210.170644.97772177.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20021210224325.GE32122@mea-ext.zmailer.org>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20021210.170644.97772177.davem@redhat.com>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+    Hi David :)
 
-> > I replied to some mail on l-k and IBM spammed me with 20+ error
-> > messages. Now it is apparently going to do that again.
-> 
->    Still/again ?
+>        Perfect :) If you want, I can make the patch and tell to Alan and
+>    Linus. Anyway, I think you will better heared than me O:))
+> If you could take care of this, I would really be happy.
 
-It seems to happen after I group-reply to message on the list. Being
-subscribed and quiet does not seem to trigger it. When I do
-group-reply, I do get pair of error messages, then another pair of
-same error messages, and it continues like that.
+    OK, then, I'll prepare the patch.
 
-This time it "only" sent two pairs of error messages...
+>        Anyway, I'll take a look at a new macro (lets say PAGE_ALIGN_SIZE
+>    or something as ugly as this ;)))
+> How many places do we try to apply PAGE_ALIGN to a length?
+> If it's just one or two spots, perhaps the special macro
+> isn't worthwhile.
 
-							Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+    I've seen four or five, without a detailed examination. Anyway,
+since it would be a dangerous change (being in the MM code), I'll
+count ocurrences and problems. There is no intrinsic problem in using
+PAGE_ALIGN on a size if we know that size is small enough.
+
+    Thanks for all, Dave :)
+    Raúl

@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261874AbSK0KFv>; Wed, 27 Nov 2002 05:05:51 -0500
+	id <S261872AbSK0KDU>; Wed, 27 Nov 2002 05:03:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261996AbSK0KFv>; Wed, 27 Nov 2002 05:05:51 -0500
-Received: from rth.ninka.net ([216.101.162.244]:7344 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S261874AbSK0KFu>;
-	Wed, 27 Nov 2002 05:05:50 -0500
-Subject: Re: 2.4.20-rc4 netfilter_ipv4 circular dependency
-From: "David S. Miller" <davem@redhat.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <8832.1038373821@kao2.melbourne.sgi.com>
-References: <8832.1038373821@kao2.melbourne.sgi.com>
-Content-Type: text/plain
+	id <S261874AbSK0KDT>; Wed, 27 Nov 2002 05:03:19 -0500
+Received: from mail-in1.inet.tele.dk ([194.182.148.158]:29765 "HELO
+	mail-in1.inet.tele.dk") by vger.kernel.org with SMTP
+	id <S261872AbSK0KDS>; Wed, 27 Nov 2002 05:03:18 -0500
+Message-ID: <3DE49A66.4020208@sentinel.dk>
+Date: Wed, 27 Nov 2002 11:11:50 +0100
+From: Frederik Dannemare <tux@sentinel.dk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; da-DK; rv:1.1) Gecko/20020913 Debian/1.1-1
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Limiting max cpu usage per user (old Conectiva patch)
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 27 Nov 2002 02:34:56 -0800
-Message-Id: <1038393296.14825.2.camel@rth.ninka.net>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-26 at 21:10, Keith Owens wrote:
-> Warning on build of 2.4.20-rc4.
-> 
-> Circular include/linux/netfilter_ipv4/ip_conntrack_helper.h <-
-> include/linux/netfilter_ipv4/ip_conntrack.h dependency dropped
+Hi all,
 
-Keith, please report this to the proper place, as per
-MAINTAINERS that would be the netfilter lists.
+do we have an effective way to limit max cpu usage per user? I haven't been 
+able to find much useful info except for an old thread on lkml, where Rik 
+van Riel mentions[1] a 2.2 kernel patch by Conectiva.
 
-They don't have time to read linux-kernel and it's only a common
-courtesy to at least CC: such reports there.
+Anybody knows if this patch (or similar functionality) been ported to 2.4 
+(or 2.5)?
 
-Thanks.
+[1]http://www.uwsg.iu.edu/hypermail/linux/kernel/0108.2/0362.html
+
+--
+Frederik
+
 

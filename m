@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264520AbRFTR5n>; Wed, 20 Jun 2001 13:57:43 -0400
+	id <S264527AbRFTSBO>; Wed, 20 Jun 2001 14:01:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264522AbRFTR5d>; Wed, 20 Jun 2001 13:57:33 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:40465 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S264520AbRFTR50>; Wed, 20 Jun 2001 13:57:26 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: spindown
-Date: Wed, 20 Jun 2001 20:00:22 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Pavel Machek <pavel@suse.cz>, Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0106201407450.1376-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.33.0106201407450.1376-100000@duckman.distro.conectiva>
+	id <S264525AbRFTSBE>; Wed, 20 Jun 2001 14:01:04 -0400
+Received: from burdell.cc.gatech.edu ([130.207.3.207]:32528 "EHLO
+	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
+	id <S264523AbRFTSAv>; Wed, 20 Jun 2001 14:00:51 -0400
+Message-ID: <3B30E4CC.3794331@cc.gatech.edu>
+Date: Wed, 20 Jun 2001 14:00:44 -0400
+From: Josh Fryman <fryman@cc.gatech.edu>
+Organization: CoC, GaTech
+X-Mailer: Mozilla 4.77 [en] (X11; U; SunOS 5.7 sun4u)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <0106202000220B.00439@starship>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: IDE drives mis-reporting size... bug or feature?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 June 2001 19:32, Rik van Riel wrote:
-> On Wed, 20 Jun 2001, Daniel Phillips wrote:
-> > BTW, with nominal 100,000 erases you have to write 10 terabytes
-> > to your 100 meg flash disk before you'll see it start to
-> > degrade.
->
-> That assumes you write out full blocks.  If you flush after
-> every byte written you'll hit the limit a lot sooner ;)
 
-Yep, so if you are running on a Yopy, try not to sync after each byte.
+hi all,
 
-> Btw, this is also a problem with your patch, when you write
-> out buffers all the time your disk will spend more time seeking
-> all over the place (moving the disk head away from where we are
-> currently reading!) and you'll end up writing the same block
-> multiple times ...
+this is an odd one.  i think it's technically a feature
+but might be perceived instead as a "bug".  anyway, i've
+got a pair of Ultra100 Maxtor 52049h4 20GB drives, on a 
+Promise Ultra 100 (PDC20267) controller.  
 
-It doesn't work that way, it tacks the flush onto the trailing edge of a 
-burst of disk activity, or it flushes out an isolated update, say an edit 
-save, which would have required the same amount of disk activity, just a few 
-seconds off in the future.  Sometimes it does write a few extra sectors when 
-disk activity is sporadic, but the impact on total throughput is small enough 
-to be hard to measure reliably.  Even so, there is some optimizing that could 
-be done - the update could be interleaved a little better with the falling 
-edge of a heavy traffic episode.  This would require that the io rate be 
-monitored instead of just the queue backlog.  I'mi nterested in tackling that 
-eventually - it has applications in other areas than just the early update.
+the drives were popped in with the jumper on for the
+4096 cylinder limit forced.  (it's a long story as to why.)
+the other jumpers were set normally for master/slave config.
 
---
-Daniel
+the promise controller recognizes the drives on boot-up
+init as being what they are - ~20GB - and continues on
+merrily.  
+
+Windows 2000 recognizes the drives as ~2GB in size, due to
+the jumper.  it's observing the 4096cyl limit on the drive
+in some way.  (remove the jumper and it sees ~20GB too.)
+
+Linux 2.4.3 recognizes the drives as ~20GB regardless of
+the jumper.
+
+so, is this a bug or feature?  is windows or linux not 
+working right here?  what *should* be seen with the drive
+jumpered such?
+
+cheers,
+
+josh

@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262693AbVAVKdH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262694AbVAVKiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262693AbVAVKdH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 05:33:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbVAVKdG
+	id S262694AbVAVKiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 05:38:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbVAVKiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 05:33:06 -0500
-Received: from gprs215-125.eurotel.cz ([160.218.215.125]:18064 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262693AbVAVKdD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 05:33:03 -0500
-Date: Sat, 22 Jan 2005 11:32:42 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrea Arcangeli <andrea@cpushare.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@osdl.org>,
-       Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: seccomp for 2.6.11-rc1-bk8
-Message-ID: <20050122103242.GC9357@elf.ucw.cz>
-References: <20050121100606.GB8042@dualathlon.random> <20050121120325.GA2934@elte.hu> <20050121093902.O469@build.pdx.osdl.net> <Pine.LNX.4.61.0501211338190.15744@chimarrao.boston.redhat.com> <20050121105001.A24171@build.pdx.osdl.net> <20050121195522.GA14982@elte.hu> <20050121203425.GB11112@dualathlon.random>
+	Sat, 22 Jan 2005 05:38:25 -0500
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:24594 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S262694AbVAVKiX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 05:38:23 -0500
+Date: Sat, 22 Jan 2005 11:41:09 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4] PCI: Kill duplicate definition of INTEL_82801DB_10
+Message-Id: <20050122114109.432463d8.khali@linux-fr.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050121203425.GB11112@dualathlon.random>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Marcelo,
 
-> > > > Yes, but do you care about the performance of syscalls
-> > > > which the program isn't allowed to call at all ? ;)
-> > > 
-> > > Heh, no, but it's for every syscall not just denied ones.  Point is
-> > > simply that ptrace (complexity aside) doesn't scale the same.
-> > 
-> > seccomp is about CPU-intense calculation jobs - the only syscalls
-> > allowed are read/write (and sigreturn). UML implements a full kernel
-> > via ptrace and CPU-intense applications run at native speed.
-> 
-> Indeed. Performance is not an issue (in the short term at least, since
-> those syscalls will be probably network bound).
-> 
-> The only reason I couldn't use ptrace is what you found, that is the oom
-> killing of the parent (or a mistake of the CPU seller that kills it by
-> mistake by hand, I must prevent him to screw himself ;). Even after
-> fixing ptrace, I've an hard time to prefer ptrace, when a simple,
-> localized and self contained solution like seccomp is available.
+I noticed that PCI_DEVICE_ID_INTEL_82801DB_10 is currently defined twice
+in linux-2.4.29/include/linux/pci_ids.h. The trivial patch below kills
+the second definition.
 
-Well, seccomp is also getting very little testing, when ptrace gets a
-lot of testing; I know that seccomp is simple, but I believe testing
-coverage still make ptrace better choice.
-								Pavel
+Please apply,
+thanks:
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+
+--- linux-2.4.29/include/linux/pci_ids.h.orig	2005-01-21 21:51:21.000000000 +0100
++++ linux-2.4.29/include/linux/pci_ids.h	2005-01-22 11:33:41.000000000 +0100
+@@ -1937,7 +1937,6 @@
+ #define PCI_DEVICE_ID_INTEL_82801EB_5	0x24d5
+ #define PCI_DEVICE_ID_INTEL_82801EB_6	0x24d6
+ #define PCI_DEVICE_ID_INTEL_82801EB_7	0x24d7
+-#define PCI_DEVICE_ID_INTEL_82801DB_10	0x24ca
+ #define PCI_DEVICE_ID_INTEL_82801EB_11	0x24db
+ #define PCI_DEVICE_ID_INTEL_82801EB_13	0x24dd
+ #define PCI_DEVICE_ID_INTEL_ESB_0	0x25a0
+
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Jean Delvare
+http://khali.linux-fr.org/

@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263424AbTIGSNp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 14:13:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263430AbTIGSNo
+	id S263410AbTIGSOy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 14:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263430AbTIGSNu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 14:13:44 -0400
-Received: from mailproxy3.netcologne.de ([194.8.194.221]:15276 "EHLO
-	mailproxy3.netcologne.de") by vger.kernel.org with ESMTP
-	id S263424AbTIGSNL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 14:13:11 -0400
-Date: Sun, 7 Sep 2003 20:13:10 +0200
-From: Meinolf Sander <uce@despammed.com>
-To: linux-kernel@vger.kernel.org
-Subject: "PCI: Error while updating region" with es1371 module
-Message-ID: <20030907181310.GA738@messina.my-fqdn.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Sun, 7 Sep 2003 14:13:50 -0400
+Received: from static-ctb-210-9-247-166.webone.com.au ([210.9.247.166]:49678
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S263426AbTIGSNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 14:13:38 -0400
+Message-ID: <3F5B7537.9090805@cyberone.com.au>
+Date: Mon, 08 Sep 2003 04:13:11 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: Andrew Morton <akpm@osdl.org>, jyau_kernel_dev@hotmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
+References: <000101c374a3$2d2f9450$f40a0a0a@Aria>	 <1062878664.3754.12.camel@boobies.awol.org>	 <3F5ABD3A.7060709@cyberone.com.au>  <20030906231856.6282cd44.akpm@osdl.org> <1062954122.12822.3.camel@boobies.awol.org>
+In-Reply-To: <1062954122.12822.3.camel@boobies.awol.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got an Ensoniq sound card but can't load the appropriate module:
-
-ms@pluto:~$ sudo modprobe es1371
-es1371: version v0.32 time 19:28:00 Sep  7 2003
-PCI: Enabling device 00:0a.0 (0001 -> 0003)
-/lib/modules/2.4.22/kernel/drivers/sound/es1371.o: init_module:
-No such device
-Hint: insmod errors can be caused by incorrect module parameters,
-including invalid IO or IRQ parameters.
-      You may find more information in syslog or the output from dmesg
-[...]
-
-ms@pluto:~$ dmesg | grep 00:0a
-PCI: Cannot allocate resource region 2 of device 00:0a.0
-PCI: Error while updating region 00:0a.0/2 (00001001 != 00001009)
-[ this message seems to come from ../arch/i386/kernel/pci-i386.c ]
-PCI: Enabling device 00:0a.0 (0000 -> 0003)
-PCI: Enabling device 00:0a.0 (0001 -> 0003)
-[ last line another three times repeated ]
-
-ms@pluto:~$ lspci | grep 1371
-00:0a.0 Class 1371: Ensoniq ES1371 [AudioPCI-97] (rev 7c)
-
-ms@pluto:/proc$ grep -B1 -A3 Ensoniq /proc/pci
-Bus  0, device  10, function  0:
-Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 8).
-Master Capable.  No bursts.  Min Gnt=12.Max Lat=128.
-Non-prefetchable 32 bit memory at 0x20000000 [0x2000003f].
-I/O at 0x1000 [0x1007].
-
-ms@pluto:~$ uname -a
-Linux pluto 2.4.22 #4 Sun Sep 7 19:25:27 CEST 2003 i686 GNU/Linux
 
 
-Any ideas what's going wrong here?
+Robert Love wrote:
+
+>On Sun, 2003-09-07 at 02:18, Andrew Morton wrote:
+>
+>
+>>We cannot just jam all this code into Linus's tree while crossing our
+>>fingers and hoping that something will turn up to fix this problem. 
+>>Because we don't know what causes it, nor whether we even _can_ fix it.
+>>
+>
+>Actually, this would be my argument _for_ Nick's approach.  It is simple
+>and we all understand it.
+>
+
+Unfortunately (or fortunately?) you can't really get from my patch to
+Con's in small simple steps, its basically one or the other. I'd like
+to see my patch get included in 2.6, but I'm yet to convince many others.
+Con is further along that road, so my only possibility for wider testing
+is to try free up mm kernels for possible use ;) (if Andrew will have
+them of course). Getting Con's patch more testing wouldn't hurt
+anyone though, of course.
 
 
-Thanks,
-Meinolf

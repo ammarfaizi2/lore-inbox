@@ -1,296 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbUL3MdE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbUL3Myi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261627AbUL3MdE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 07:33:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbUL3MdE
+	id S261623AbUL3Myi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 07:54:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbUL3Myi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 07:33:04 -0500
-Received: from [219.239.36.3] ([219.239.36.3]:28062 "HELO mail.sinosoft.com.cn")
-	by vger.kernel.org with SMTP id S261627AbUL3Mct (ORCPT
+	Thu, 30 Dec 2004 07:54:38 -0500
+Received: from hs-grafik.net ([80.237.205.72]:18869 "EHLO
+	ds80-237-205-72.dedicated.hosteurope.de") by vger.kernel.org
+	with ESMTP id S261623AbUL3Myg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 07:32:49 -0500
-Message-ID: <41D3F538.6000801@sinosoft.com.cn>
-Date: Thu, 30 Dec 2004 21:31:52 +0900
-From: Gewj <geweijin@sinosoft.com.cn>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; zh-CN; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: zh-cn
+	Thu, 30 Dec 2004 07:54:36 -0500
+From: Alexander Gran <alex@zodiac.dnsalias.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: BUG in reiser4
+User-Agent: KMail/1.7.1
+References: <200412291939.31032@zodiac.zodiac.dnsalias.org> <1104407116.3682.168.camel@tribesman.namesys.com>
+In-Reply-To: <1104407116.3682.168.camel@tribesman.namesys.com>
+X-Need-Girlfriend: always
+X-Ignorant-User: yes
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Bug? setlocale() can't find the right data file while run through
- rc.d during reboot
-Content-Type: multipart/mixed;
- boundary="------------090301050808030008030001"
+Date: Thu, 30 Dec 2004 13:54:33 +0100
+Content-Type: multipart/signed;
+  boundary="nextPart3771948.7tJEC1PUso";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200412301354.34151@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090301050808030008030001
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 7bit
-
-Package: glibc
-Version: 2.3.2-95.20.1AX
-
-Addition information about the setlocale puzzle is listed below
-
-gcc version:gcc-3.2.3-36
-kernel version:kernel-2.4.21-9.38AX
-
-I used strace tool to log the run process of my program in both
-reboot mode and shell mode, the result of those two logs are attached.
-
-it is quite strange to find out that the setlocale function's strace
-information is totally same in those two modes, but the file opened is
-differ.
-In reboot mode,
-open("/home/local/mo/en_US/LC_MESSAGES/test.mo", O_RDONLY) = 3
-
-In shell mode
-open("/home/local/mo/ja_JP.eucJP/LC_MESSAGES/test.mo", O_RDONLY) = -1
-ENOENT (No such file or directory)
-open("/home/local/mo/ja_JP.eucjp/LC_MESSAGES/test.mo", O_RDONLY) = -1
-ENOENT (No such file or directory)
-open("/home/local/mo/ja_JP/LC_MESSAGES/test.mo", O_RDONLY) = 3
-
-
-Is it a bug or all thing turn out to be myself's misuse?
-
-Any tips is appriciated
-
-Thanks in advance
-
-Gewj.
-
-Gewj wrote:
-> Package: glibc
-> Version: 2.3.2-95.20.1AX
->
->
-> I am root and using  Linux 2.4.21-9.38AX i686(Miracle3.0) with
-> glibc-2.3.2-95.20.1AX
->
->
-> When I used the following code in a program and start it in rc3.d(such
-> as S99abc, the last one in the rc3.d)
->
-> #define _(String) gettext(String)
->
->         strcpy(moname,"test");
->         setlocale(LC_ALL, "ja_JP");
-> 	bindtextdomain(moname, "/home/local/mo");
-> 	textdomain(moname);
-> 	
-> 	memset(uid, 0, MAX_LINE);
-> 	memset(lpBuffer, 0, 1000);;
-> 	
-> 	strcpy(uid, "0xC0040903");
-> 	strcpy(lpBuffer, _(uid));
->
-> the dir structure of /usr/local/mo is list below:
-> /home/local/mo
->            -|en_US
->                  -|LC_MESSAGES
->            -|ja_JP
->              -|LC_MESSAGES
->
->
-> when I reboot the machine, gettext("0xC0040903") return the string
-> defined in en_US .mo file instead of in ja_JP .mo file.
-> But when I run the same program after reboot(say, through shell) ,it
-> return the right string that define in ja_JP .mo file.
->
->
->
-> -----Test program-------
->
-> #include <stdarg.h>
-> #include <dlfcn.h>
-> #include <ctype.h>
-> #include <stdio.h>
-> #include <syslog.h>
->
-> #include <sys/types.h>
-> #include <unistd.h>
-> #include <libintl.h>
-> #include <locale.h>
->
-> #define MAX_LINE 64
-> #define _(String) gettext(String)
->
-> int main(int argc ,char * argv[])
-> {
-> 	char  moname[MAX_LINE];
-> 	char  uid[MAX_LINE];
-> 	char lpBuffer[1000];
-> 	
-> 	memset(moname,0,MAX_LINE);
-> 	strcpy(moname,"test");
->
->         setlocale(LC_ALL, "ja_JP");
-> 	bindtextdomain(moname, "/home/local/mo");
-> 	textdomain(moname);
-> 	
-> 	memset(uid, 0, MAX_LINE);
-> 	memset(lpBuffer, 0, 1000);
-> 	
-> 	strcpy(uid, "0xC0040903");
-> 	strcpy(lpBuffer, _(uid));
-> 	printf("lpBuffer = %s\n",lpBuffer);
-> 	syslog(6,"lpBuffer = %s",lpBuffer);
-> 	
-> 	return strlen(lpBuffer);
-> }
->
->
->
-
---------------090301050808030008030001
+--nextPart3771948.7tJEC1PUso
 Content-Type: text/plain;
- name="ts.log.reboot"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="ts.log.reboot"
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-ZXhlY3ZlKCIvaG9tZS9sdXkvdHMiLCBbIi9ob21lL2x1eS90cyJdLCBbLyogMTYgdmFycyAq
-L10pID0gMAp1bmFtZSh7c3lzPSJMaW51eCIsIG5vZGU9ImJsdWVzIiwgLi4ufSkgPSAwCmJy
-aygwKSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9IDB4ODA0OTg1MApvbGRf
-bW1hcChOVUxMLCA0MDk2LCBQUk9UX1JFQUR8UFJPVF9XUklURSwgTUFQX1BSSVZBVEV8TUFQ
-X0FOT05ZTU9VUywgLTEsIDApID0gMHhiNzVlYTAwMApvcGVuKCIvZXRjL2xkLnNvLnByZWxv
-YWQiLCBPX1JET05MWSkgICAgPSAtMSBFTk9FTlQgKE5vIHN1Y2ggZmlsZSBvciBkaXJlY3Rv
-cnkpCm9wZW4oIi9ldGMvbGQuc28uY2FjaGUiLCBPX1JET05MWSkgICAgICA9IDMKZnN0YXQ2
-NCgzLCB7c3RfbW9kZT1TX0lGUkVHfDA2NDQsIHN0X3NpemU9NTQ2NTAsIC4uLn0pID0gMApv
-bGRfbW1hcChOVUxMLCA1NDY1MCwgUFJPVF9SRUFELCBNQVBfUFJJVkFURSwgMywgMCkgPSAw
-eGI3NWRjMDAwCmNsb3NlKDMpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9IDAK
-b3BlbigiL2xpYi90bHMvbGliYy5zby42IiwgT19SRE9OTFkpICAgID0gMwpyZWFkKDMsICJc
-MTc3RUxGXDFcMVwxXDBcMFwwXDBcMFwwXDBcMFwwXDNcMFwzXDBcMVwwXDBcMFBYXDFcMDAw
-Ii4uLiwgNTEyKSA9IDUxMgpmc3RhdDY0KDMsIHtzdF9tb2RlPVNfSUZSRUd8MDc1NSwgc3Rf
-c2l6ZT0xNTExNTUzLCAuLi59KSA9IDAKb2xkX21tYXAoTlVMTCwgMTI3NTg1MiwgUFJPVF9S
-RUFEfFBST1RfRVhFQywgTUFQX1BSSVZBVEUsIDMsIDApID0gMHhiNzRhNDAwMApvbGRfbW1h
-cCgweGI3NWQ2MDAwLCAxMjI4OCwgUFJPVF9SRUFEfFBST1RfV1JJVEUsIE1BUF9QUklWQVRF
-fE1BUF9GSVhFRCwgMywgMHgxMzEwMDApID0gMHhiNzVkNjAwMApvbGRfbW1hcCgweGI3NWQ5
-MDAwLCAxMDE4OCwgUFJPVF9SRUFEfFBST1RfV1JJVEUsIE1BUF9QUklWQVRFfE1BUF9GSVhF
-RHxNQVBfQU5PTllNT1VTLCAtMSwgMCkgPSAweGI3NWQ5MDAwCmNsb3NlKDMpICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICA9IDAKc2V0X3RocmVhZF9hcmVhKHtlbnRyeV9udW1i
-ZXI6LTEgLT4gNiwgYmFzZV9hZGRyOjB4Yjc1ZWFiMDAsIGxpbWl0OjEwNDg1NzUsIHNlZ18z
-MmJpdDoxLCBjb250ZW50czowLCByZWFkX2V4ZWNfb25seTowLCBsaW1pdF9pbl9wYWdlczox
-LCBzZWdfbm90X3ByZXNlbnQ6MCwgdXNlYWJsZToxfSkgPSAwCm11bm1hcCgweGI3NWRjMDAw
-LCA1NDY1MCkgICAgICAgICAgICAgICA9IDAKb3BlbigiL3Vzci9saWIvbG9jYWxlL2xvY2Fs
-ZS1hcmNoaXZlIiwgT19SRE9OTFl8T19MQVJHRUZJTEUpID0gMwpmc3RhdDY0KDMsIHtzdF9t
-b2RlPVNfSUZSRUd8MDY0NCwgc3Rfc2l6ZT0zMjkzOTUwNCwgLi4ufSkgPSAwCm1tYXAyKE5V
-TEwsIDIwOTcxNTIsIFBST1RfUkVBRCwgTUFQX1BSSVZBVEUsIDMsIDApID0gMHhiNzJhNDAw
-MAptbWFwMihOVUxMLCA4OTcwMjQsIFBST1RfUkVBRCwgTUFQX1BSSVZBVEUsIDMsIDB4ZTc1
-KSA9IDB4YjcxYzkwMDAKYnJrKDApICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ID0gMHg4MDQ5ODUwCmJyaygweDgwNmE4NTApICAgICAgICAgICAgICAgICAgICAgICAgICA9
-IDB4ODA2YTg1MApicmsoMCkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPSAw
-eDgwNmE4NTAKYnJrKDB4ODA2YjAwMCkgICAgICAgICAgICAgICAgICAgICAgICAgID0gMHg4
-MDZiMDAwCmNsb3NlKDMpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9IDAKb3Bl
-bigiL3Vzci9zaGFyZS9sb2NhbGUvbG9jYWxlLmFsaWFzIiwgT19SRE9OTFkpID0gMwpmc3Rh
-dDY0KDMsIHtzdF9tb2RlPVNfSUZSRUd8MDY0NCwgc3Rfc2l6ZT0yNjAxLCAuLi59KSA9IDAK
-bW1hcDIoTlVMTCwgNDA5NiwgUFJPVF9SRUFEfFBST1RfV1JJVEUsIE1BUF9QUklWQVRFfE1B
-UF9BTk9OWU1PVVMsIC0xLCAwKSA9IDB4YjcxYzgwMDAKcmVhZCgzLCAiIyBMb2NhbGUgbmFt
-ZSBhbGlhcyBkYXRhIGJhc2UuXG4jIi4uLiwgNDA5NikgPSAyNjAxCnJlYWQoMywgIiIsIDQw
-OTYpICAgICAgICAgICAgICAgICAgICAgICA9IDAKY2xvc2UoMykgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgID0gMAptdW5tYXAoMHhiNzFjODAwMCwgNDA5NikgICAgICAgICAg
-ICAgICAgPSAwCm9wZW4oIi9ob21lL2xvY2FsL21vL2VuX1VTL0xDX01FU1NBR0VTL3Rlc3Qu
-bW8iLCBPX1JET05MWSkgPSAzCmZzdGF0NjQoMywge3N0X21vZGU9U19JRlJFR3wwNjQ0LCBz
-dF9zaXplPTEyNzcsIC4uLn0pID0gMAptbWFwMihOVUxMLCAxMjc3LCBQUk9UX1JFQUQsIE1B
-UF9QUklWQVRFLCAzLCAwKSA9IDB4YjcxYzgwMDAKY2xvc2UoMykgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgID0gMApmc3RhdDY0KDEsIHtzdF9tb2RlPVNfSUZJRk98MDYwMCwg
-c3Rfc2l6ZT0wLCAuLi59KSA9IDAKbW1hcDIoTlVMTCwgNDA5NiwgUFJPVF9SRUFEfFBST1Rf
-V1JJVEUsIE1BUF9QUklWQVRFfE1BUF9BTk9OWU1PVVMsIC0xLCAwKSA9IDB4YjcxYzcwMDAK
-dGltZShbMTEwNDM3OTQxMF0pICAgICAgICAgICAgICAgICAgICAgID0gMTEwNDM3OTQxMApv
-cGVuKCIvZXRjL2xvY2FsdGltZSIsIE9fUkRPTkxZKSAgICAgICAgPSAzCmZzdGF0NjQoMywg
-e3N0X21vZGU9U19JRlJFR3wwNjQ0LCBzdF9zaXplPTE2NSwgLi4ufSkgPSAwCm1tYXAyKE5V
-TEwsIDQwOTYsIFBST1RfUkVBRHxQUk9UX1dSSVRFLCBNQVBfUFJJVkFURXxNQVBfQU5PTllN
-T1VTLCAtMSwgMCkgPSAweGI3MWM2MDAwCnJlYWQoMywgIlRaaWZcMFwwXDBcMFwwXDBcMFww
-XDBcMFwwXDBcMFwwXDBcMFwwXDBcMFwzXDBcMFwwXDNcMCIuLi4sIDQwOTYpID0gMTY1CmNs
-b3NlKDMpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9IDAKbXVubWFwKDB4Yjcx
-YzYwMDAsIDQwOTYpICAgICAgICAgICAgICAgID0gMApydF9zaWdhY3Rpb24oU0lHUElQRSwg
-ezB4Yjc1N2M1ZTAsIFtdLCBTQV9SRVNUT1JFUiwgMHhiNzRjYmRlOH0sIHtTSUdfREZMfSwg
-OCkgPSAwCnNvY2tldChQRl9VTklYLCBTT0NLX0RHUkFNLCAwKSAgICAgICAgICA9IDMKZmNu
-dGw2NCgzLCBGX1NFVEZELCBGRF9DTE9FWEVDKSAgICAgICAgID0gMApjb25uZWN0KDMsIHtz
-YV9mYW1pbHk9QUZfVU5JWCwgcGF0aD0iL2Rldi9sb2cifSwgMTYpID0gMApzZW5kKDMsICI8
-MTQ+RGVjIDMwIDEyOjAzOjMwIHRzOiBscEJ1ZmZlciIuLi4sIDE2MywgMCkgPSAxNjMKcnRf
-c2lnYWN0aW9uKFNJR1BJUEUsIHtTSUdfREZMfSwgTlVMTCwgOCkgPSAwCndyaXRlKDEsICJs
-cEJ1ZmZlciA9IFRoZSB1c2VkIGNhcGFjaXR5IG9mICIuLi4sIDE0MCkgPSAxNDAKbXVubWFw
-KDB4YjcxYzcwMDAsIDQwOTYpICAgICAgICAgICAgICAgID0gMApleGl0X2dyb3VwKDEyOCkg
-ICAgICAgICAgICAgICAgICAgICAgICAgPSA/Cg==
---------------090301050808030008030001
-Content-Type: text/plain;
- name="ts.log.shell"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="ts.log.shell"
+Am Donnerstag, 30. Dezember 2004 12:45 schrieben Sie:
+> It is very likely that this biug is fixed already in
+> ftp://ftp.namesys.com/pub/reiser4-for-2.6/2.6.10-rc3-mm1/reiser4-update-f=
+or
+>-2.6.10-rc3-mm1-1.gz
+>
+> Would you try it, please?
 
-ZXhlY3ZlKCIvaG9tZS9sdXkvdHMiLCBbIi9ob21lL2x1eS90cyJdLCBbLyogMjkgdmFycyAq
-L10pID0gMAp1bmFtZSh7c3lzPSJMaW51eCIsIG5vZGU9ImJsdWVzIiwgLi4ufSkgPSAwCmJy
-aygwKSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9IDB4ODA0OTg1MApvbGRf
-bW1hcChOVUxMLCA0MDk2LCBQUk9UX1JFQUR8UFJPVF9XUklURSwgTUFQX1BSSVZBVEV8TUFQ
-X0FOT05ZTU9VUywgLTEsIDApID0gMHhiNzVlYTAwMApvcGVuKCIvZXRjL2xkLnNvLnByZWxv
-YWQiLCBPX1JET05MWSkgICAgPSAtMSBFTk9FTlQgKE5vIHN1Y2ggZmlsZSBvciBkaXJlY3Rv
-cnkpCm9wZW4oIi9ldGMvbGQuc28uY2FjaGUiLCBPX1JET05MWSkgICAgICA9IDMKZnN0YXQ2
-NCgzLCB7c3RfbW9kZT1TX0lGUkVHfDA2NDQsIHN0X3NpemU9NTQ2NTAsIC4uLn0pID0gMApv
-bGRfbW1hcChOVUxMLCA1NDY1MCwgUFJPVF9SRUFELCBNQVBfUFJJVkFURSwgMywgMCkgPSAw
-eGI3NWRjMDAwCmNsb3NlKDMpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9IDAK
-b3BlbigiL2xpYi90bHMvbGliYy5zby42IiwgT19SRE9OTFkpICAgID0gMwpyZWFkKDMsICJc
-MTc3RUxGXDFcMVwxXDBcMFwwXDBcMFwwXDBcMFwwXDNcMFwzXDBcMVwwXDBcMFBYXDFcMDAw
-Ii4uLiwgNTEyKSA9IDUxMgpmc3RhdDY0KDMsIHtzdF9tb2RlPVNfSUZSRUd8MDc1NSwgc3Rf
-c2l6ZT0xNTExNTUzLCAuLi59KSA9IDAKb2xkX21tYXAoTlVMTCwgMTI3NTg1MiwgUFJPVF9S
-RUFEfFBST1RfRVhFQywgTUFQX1BSSVZBVEUsIDMsIDApID0gMHhiNzRhNDAwMApvbGRfbW1h
-cCgweGI3NWQ2MDAwLCAxMjI4OCwgUFJPVF9SRUFEfFBST1RfV1JJVEUsIE1BUF9QUklWQVRF
-fE1BUF9GSVhFRCwgMywgMHgxMzEwMDApID0gMHhiNzVkNjAwMApvbGRfbW1hcCgweGI3NWQ5
-MDAwLCAxMDE4OCwgUFJPVF9SRUFEfFBST1RfV1JJVEUsIE1BUF9QUklWQVRFfE1BUF9GSVhF
-RHxNQVBfQU5PTllNT1VTLCAtMSwgMCkgPSAweGI3NWQ5MDAwCmNsb3NlKDMpICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICA9IDAKc2V0X3RocmVhZF9hcmVhKHtlbnRyeV9udW1i
-ZXI6LTEgLT4gNiwgYmFzZV9hZGRyOjB4Yjc1ZWFiMDAsIGxpbWl0OjEwNDg1NzUsIHNlZ18z
-MmJpdDoxLCBjb250ZW50czowLCByZWFkX2V4ZWNfb25seTowLCBsaW1pdF9pbl9wYWdlczox
-LCBzZWdfbm90X3ByZXNlbnQ6MCwgdXNlYWJsZToxfSkgPSAwCm11bm1hcCgweGI3NWRjMDAw
-LCA1NDY1MCkgICAgICAgICAgICAgICA9IDAKb3BlbigiL3Vzci9saWIvbG9jYWxlL2xvY2Fs
-ZS1hcmNoaXZlIiwgT19SRE9OTFl8T19MQVJHRUZJTEUpID0gMwpmc3RhdDY0KDMsIHtzdF9t
-b2RlPVNfSUZSRUd8MDY0NCwgc3Rfc2l6ZT0zMjkzOTUwNCwgLi4ufSkgPSAwCm1tYXAyKE5V
-TEwsIDIwOTcxNTIsIFBST1RfUkVBRCwgTUFQX1BSSVZBVEUsIDMsIDApID0gMHhiNzJhNDAw
-MAptbWFwMihOVUxMLCA4OTcwMjQsIFBST1RfUkVBRCwgTUFQX1BSSVZBVEUsIDMsIDB4ZTc1
-KSA9IDB4YjcxYzkwMDAKYnJrKDApICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ID0gMHg4MDQ5ODUwCmJyaygweDgwNmE4NTApICAgICAgICAgICAgICAgICAgICAgICAgICA9
-IDB4ODA2YTg1MApicmsoMCkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPSAw
-eDgwNmE4NTAKYnJrKDB4ODA2YjAwMCkgICAgICAgICAgICAgICAgICAgICAgICAgID0gMHg4
-MDZiMDAwCmNsb3NlKDMpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA9IDAKb3Bl
-bigiL3Vzci9zaGFyZS9sb2NhbGUvbG9jYWxlLmFsaWFzIiwgT19SRE9OTFkpID0gMwpmc3Rh
-dDY0KDMsIHtzdF9tb2RlPVNfSUZSRUd8MDY0NCwgc3Rfc2l6ZT0yNjAxLCAuLi59KSA9IDAK
-bW1hcDIoTlVMTCwgNDA5NiwgUFJPVF9SRUFEfFBST1RfV1JJVEUsIE1BUF9QUklWQVRFfE1B
-UF9BTk9OWU1PVVMsIC0xLCAwKSA9IDB4YjcxYzgwMDAKcmVhZCgzLCAiIyBMb2NhbGUgbmFt
-ZSBhbGlhcyBkYXRhIGJhc2UuXG4jIi4uLiwgNDA5NikgPSAyNjAxCnJlYWQoMywgIiIsIDQw
-OTYpICAgICAgICAgICAgICAgICAgICAgICA9IDAKY2xvc2UoMykgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgID0gMAptdW5tYXAoMHhiNzFjODAwMCwgNDA5NikgICAgICAgICAg
-ICAgICAgPSAwCm9wZW4oIi9ob21lL2xvY2FsL21vL2phX0pQLmV1Y0pQL0xDX01FU1NBR0VT
-L3Rlc3QubW8iLCBPX1JET05MWSkgPSAtMSBFTk9FTlQgKE5vIHN1Y2ggZmlsZSBvciBkaXJl
-Y3RvcnkpCm9wZW4oIi9ob21lL2xvY2FsL21vL2phX0pQLmV1Y2pwL0xDX01FU1NBR0VTL3Rl
-c3QubW8iLCBPX1JET05MWSkgPSAtMSBFTk9FTlQgKE5vIHN1Y2ggZmlsZSBvciBkaXJlY3Rv
-cnkpCm9wZW4oIi9ob21lL2xvY2FsL21vL2phX0pQL0xDX01FU1NBR0VTL3Rlc3QubW8iLCBP
-X1JET05MWSkgPSAzCmZzdGF0NjQoMywge3N0X21vZGU9U19JRlJFR3wwNjQ0LCBzdF9zaXpl
-PTk1MiwgLi4ufSkgPSAwCm1tYXAyKE5VTEwsIDk1MiwgUFJPVF9SRUFELCBNQVBfUFJJVkFU
-RSwgMywgMCkgPSAweGI3MWM4MDAwCmNsb3NlKDMpICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICA9IDAKZnN0YXQ2NCgxLCB7c3RfbW9kZT1TX0lGQ0hSfDA2MjAsIHN0X3JkZXY9
-bWFrZWRldigxMzYsIDApLCAuLi59KSA9IDAKbW1hcDIoTlVMTCwgNDA5NiwgUFJPVF9SRUFE
-fFBST1RfV1JJVEUsIE1BUF9QUklWQVRFfE1BUF9BTk9OWU1PVVMsIC0xLCAwKSA9IDB4Yjcx
-YzcwMDAKd3JpdGUoMSwgImxwQnVmZmVyID0gICUxICglMilcMjQ0XDMxNlwyNjZcMzY1XDI0
-NFwyNTVcMzE1XDMwNlwzMTYiLi4uLCA5MikgPSA5Mgp0aW1lKFsxMTA0Mzc5ODMyXSkgICAg
-ICAgICAgICAgICAgICAgICAgPSAxMTA0Mzc5ODMyCm9wZW4oIi9ldGMvbG9jYWx0aW1lIiwg
-T19SRE9OTFkpICAgICAgICA9IDMKZnN0YXQ2NCgzLCB7c3RfbW9kZT1TX0lGUkVHfDA2NDQs
-IHN0X3NpemU9MTY1LCAuLi59KSA9IDAKbW1hcDIoTlVMTCwgNDA5NiwgUFJPVF9SRUFEfFBS
-T1RfV1JJVEUsIE1BUF9QUklWQVRFfE1BUF9BTk9OWU1PVVMsIC0xLCAwKSA9IDB4YjcxYzYw
-MDAKcmVhZCgzLCAiVFppZlwwXDBcMFwwXDBcMFwwXDBcMFwwXDBcMFwwXDBcMFwwXDBcMFww
-XDNcMFwwXDBcM1wwIi4uLiwgNDA5NikgPSAxNjUKY2xvc2UoMykgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgID0gMAptdW5tYXAoMHhiNzFjNjAwMCwgNDA5NikgICAgICAgICAg
-ICAgICAgPSAwCnJ0X3NpZ2FjdGlvbihTSUdQSVBFLCB7MHhiNzU3YzVlMCwgW10sIFNBX1JF
-U1RPUkVSLCAweGI3NGNiZGU4fSwge1NJR19ERkx9LCA4KSA9IDAKc29ja2V0KFBGX1VOSVgs
-IFNPQ0tfREdSQU0sIDApICAgICAgICAgID0gMwpmY250bDY0KDMsIEZfU0VURkQsIEZEX0NM
-T0VYRUMpICAgICAgICAgPSAwCmNvbm5lY3QoMywge3NhX2ZhbWlseT1BRl9VTklYLCBwYXRo
-PSIvZGV2L2xvZyJ9LCAxNikgPSAwCnNlbmQoMywgIjwxND5EZWMgMzAgMTI6MTA6MzIgdHM6
-IGxwQnVmZmVyIi4uLiwgMTE1LCAwKSA9IDExNQpydF9zaWdhY3Rpb24oU0lHUElQRSwge1NJ
-R19ERkx9LCBOVUxMLCA4KSA9IDAKbXVubWFwKDB4YjcxYzcwMDAsIDQwOTYpICAgICAgICAg
-ICAgICAgID0gMApleGl0X2dyb3VwKDgwKSAgICAgICAgICAgICAgICAgICAgICAgICAgPSA/
-Cg==
---------------090301050808030008030001--
+Seems to work, I cannot reproduce the bug.
+Sorry for not running the latest version, seems I have overlooked the fix..
 
+Alex
 
+=2D-=20
+Encrypted Mails welcome.
+PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
+
+--nextPart3771948.7tJEC1PUso
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBB0/qK/aHb+2190pERAjI8AKCWGyIAqD2AJQ94XODXpBtPI2U/YQCfZ5CV
+exKa5NTTqLgo+yue87Z0Wfc=
+=+ZZr
+-----END PGP SIGNATURE-----
+
+--nextPart3771948.7tJEC1PUso--

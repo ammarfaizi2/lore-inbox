@@ -1,15 +1,15 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbUCVG3p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 01:29:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbUCVG3F
+	id S261766AbUCVG3q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 01:29:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbUCVG2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 01:29:05 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:37775 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261764AbUCVG1i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 01:27:38 -0500
-Date: Mon, 22 Mar 2004 12:02:17 +0530
+	Mon, 22 Mar 2004 01:28:00 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:65442 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261766AbUCVG0r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 01:26:47 -0500
+Date: Mon, 22 Mar 2004 12:01:24 +0530
 From: Maneesh Soni <maneesh@in.ibm.com>
 To: Matt Mackall <mpm@selenic.com>
 Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
@@ -17,143 +17,129 @@ Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
        Dipankar Sarma <dipankar@in.ibm.com>, Carsten Otte <COTTE@de.ibm.com>,
        Christian Borntraeger <CBORNTRA@de.ibm.com>,
        "Martin J. Bligh" <mjbligh@us.ibm.com>
-Subject: Re: [RFC 6/6] sysfs backing store v0.3
-Message-ID: <20040322063217.GG5898@in.ibm.com>
+Subject: Re: [RFC 4/6] sysfs backing store v0.3
+Message-ID: <20040322063124.GE5898@in.ibm.com>
 Reply-To: maneesh@in.ibm.com
-References: <20040318063306.GA27107@in.ibm.com> <20040320175708.GQ11010@waste.org> <20040322062842.GA5898@in.ibm.com> <20040322063012.GB5898@in.ibm.com> <20040322063034.GC5898@in.ibm.com> <20040322063058.GD5898@in.ibm.com> <20040322063124.GE5898@in.ibm.com> <20040322063153.GF5898@in.ibm.com>
+References: <20040318063306.GA27107@in.ibm.com> <20040320175708.GQ11010@waste.org> <20040322062842.GA5898@in.ibm.com> <20040322063012.GB5898@in.ibm.com> <20040322063034.GC5898@in.ibm.com> <20040322063058.GD5898@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040322063153.GF5898@in.ibm.com>
+In-Reply-To: <20040322063058.GD5898@in.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-=> changes in version 0.3
- o Corrected dentry ref counting for sysfs_create_group() and
-   sysfs_remove_group().
 
-=> changes in Version 0.2
-  o  Provided error checking after sysfs_get_dentry() call in 
-     sysfs_remove_group().
-  o  kfree the symlink name while freeing the corresponding sysfs_dirent in
-     sysfs_put().
+= changes in version 0.3
+  o Nil, just re-diffed
 
-================
-o This patch has the changes required for attribute groups and misc. routines.
+=> changes in version 0.2
+o symlink name passed to sysfs_create_link() can be destroyed by the
+  caller. So, the symlink name should be allocated and copied to the
+  corresponding sysfs dirent instead of directly using the given name
+  string. The allocated string is freed when the corresponding sysfs_dirent
+  is freed through sysfs_put()
+
+=================
+o sysfs_create_link() now does not create a dentry but allocates a
+  sysfs_dirent and links it to the parent kobject.
+
+o sysfs_dirent corresponding to symlink has an array of two string. One of
+  them is the name of the symlink and the second one is the target path of the
+  symlink
 
 
- fs/sysfs/group.c |    2 -
- fs/sysfs/sysfs.h |   77 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 77 insertions(+), 2 deletions(-)
+ fs/sysfs/symlink.c |   48 ++++++++++++++++++++++++++++++++++++++----------
+ 1 files changed, 38 insertions(+), 10 deletions(-)
 
-diff -puN fs/sysfs/group.c~sysfs-leaves-misc fs/sysfs/group.c
---- linux-2.6.5-rc2/fs/sysfs/group.c~sysfs-leaves-misc	2004-03-22 10:45:43.000000000 +0530
-+++ linux-2.6.5-rc2-maneesh/fs/sysfs/group.c	2004-03-22 10:48:34.000000000 +0530
-@@ -31,7 +31,7 @@ static int create_files(struct dentry * 
- 	int error = 0;
+diff -puN fs/sysfs/symlink.c~sysfs-leaves-symlink fs/sysfs/symlink.c
+--- linux-2.6.5-rc2/fs/sysfs/symlink.c~sysfs-leaves-symlink	2004-03-22 10:44:17.000000000 +0530
++++ linux-2.6.5-rc2-maneesh/fs/sysfs/symlink.c	2004-03-22 10:44:17.000000000 +0530
+@@ -15,7 +15,7 @@ static int init_symlink(struct inode * i
+ 	return 0;
+ }
  
- 	for (attr = grp->attrs; *attr && !error; attr++) {
--		error = sysfs_add_file(dir,*attr);
-+		error = sysfs_add_file(dir, *attr, SYSFS_KOBJ_ATTR);
+-static int sysfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
++int sysfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
+ {
+ 	int error;
+ 
+@@ -63,6 +63,27 @@ static void fill_object_path(struct kobj
  	}
- 	if (error)
- 		remove_files(dir,grp);
-diff -puN fs/sysfs/sysfs.h~sysfs-leaves-misc fs/sysfs/sysfs.h
---- linux-2.6.5-rc2/fs/sysfs/sysfs.h~sysfs-leaves-misc	2004-03-22 10:45:54.000000000 +0530
-+++ linux-2.6.5-rc2-maneesh/fs/sysfs/sysfs.h	2004-03-22 10:46:39.000000000 +0530
-@@ -1,4 +1,5 @@
+ }
  
-+#include <linux/fs.h>
- extern struct vfsmount * sysfs_mount;
- 
- extern struct inode * sysfs_new_inode(mode_t mode);
-@@ -6,8 +7,82 @@ extern int sysfs_create(struct dentry *,
- 
- extern struct dentry * sysfs_get_dentry(struct dentry *, const char *);
- 
--extern int sysfs_add_file(struct dentry * dir, const struct attribute * attr);
-+extern int sysfs_add_file(struct dentry *, const struct attribute *, int);
- extern void sysfs_hash_and_remove(struct dentry * dir, const char * name);
- 
- extern int sysfs_create_subdir(struct kobject *, const char *, struct dentry **);
- extern void sysfs_remove_subdir(struct dentry *);
-+
-+extern loff_t sysfs_dir_lseek(struct file *, loff_t, int);
-+extern int sysfs_readdir(struct file *, void *, filldir_t);
-+extern void sysfs_umount_begin(struct super_block *);
-+extern char * sysfs_get_name(struct sysfs_dirent *);
-+extern struct dentry * sysfs_lookup(struct inode *, struct dentry *, struct nameidata *);
-+extern int sysfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname);
-+
-+extern struct file_operations sysfs_file_operations;
-+extern struct file_operations bin_fops;
-+extern struct inode_operations sysfs_dir_inode_operations;
-+extern struct file_operations sysfs_dir_operations;
-+
-+
-+static inline 
-+struct sysfs_dirent * sysfs_new_dirent(struct sysfs_dirent * p, void * e, int t)
++static int sysfs_add_link(struct sysfs_dirent * parent_sd, char * name, char * target)
 +{
 +	struct sysfs_dirent * sd;
++	char ** link_names;
 +
-+	sd = kmalloc(sizeof(*sd), GFP_KERNEL);
-+	if (!sd)
-+		return NULL;
-+	memset(sd, 0, sizeof(*sd));
-+	atomic_set(&sd->s_count, 1);
-+	sd->s_element = e;
-+	sd->s_type = t;
-+	sd->s_dentry = NULL;
-+	INIT_LIST_HEAD(&sd->s_children);
-+	list_add(&sd->s_sibling, &p->s_children);
++	link_names = kmalloc(sizeof(char *) * 2, GFP_KERNEL);
++	if (!link_names)
++		return -ENOMEM;
 +
-+	return sd;
-+}
-+
-+static inline struct sysfs_dirent * sysfs_get(struct sysfs_dirent * sd)
-+{
-+	if (sd) {
-+		WARN_ON(!atomic_read(&sd->s_count)); 
-+		atomic_inc(&sd->s_count);
++	link_names[0] = name;
++	link_names[1] = target;
++	
++	sd = sysfs_new_dirent(parent_sd, link_names, SYSFS_KOBJ_LINK);
++	if (!sd) {
++		kfree(link_names);
++		return -ENOMEM;
 +	}
-+	return sd;
++
++	return 0;
 +}
 +
-+static inline void sysfs_put(struct sysfs_dirent * sd)
-+{
-+	if (atomic_dec_and_test(&sd->s_count)) {
-+		if (sd->s_type & SYSFS_KOBJ_LINK) {
-+			char ** link_names = sd->s_element;
-+			kfree(link_names[0]);
-+			kfree(link_names[1]);
-+			kfree(sd->s_element);
-+		}
-+		kfree(sd);
+ /**
+  *	sysfs_create_link - create symlink between two objects.
+  *	@kobj:	object whose directory we're creating the link in.
+@@ -72,13 +93,15 @@ static void fill_object_path(struct kobj
+ int sysfs_create_link(struct kobject * kobj, struct kobject * target, char * name)
+ {
+ 	struct dentry * dentry = kobj->dentry;
+-	struct dentry * d;
+ 	int error = 0;
+ 	int size;
+ 	int depth;
+-	char * path;
++	char * link_name, * path;
+ 	char * s;
+ 
++	if (!name)
++		return -EINVAL;
++
+ 	depth = object_depth(kobj);
+ 	size = object_path_length(target) + depth * 3 - 1;
+ 	if (size > PATH_MAX)
+@@ -96,15 +119,20 @@ int sysfs_create_link(struct kobject * k
+ 	fill_object_path(target,path,size);
+ 	pr_debug("%s: path = '%s'\n",__FUNCTION__,path);
+ 
++	link_name = kmalloc(strlen(name) + 1, GFP_KERNEL);
++	if (!link_name) {
++		kfree(path);
++		return -ENOMEM;
 +	}
-+}
++	strcpy(link_name, name);
 +
-+static inline 
-+void sysfs_remove_dirent(struct sysfs_dirent * parent_sd, const char * name)
-+{
-+	struct list_head * tmp;
-+
-+	tmp = parent_sd->s_children.next;
-+	while (tmp != & parent_sd->s_children) {
-+		struct sysfs_dirent * sd;
-+		sd = list_entry(tmp, struct sysfs_dirent, s_sibling);
-+		tmp = tmp->next;
-+		if (sd->s_type & SYSFS_NOT_PINNED) {
-+			if (!strcmp(sysfs_get_name(sd), name)) {
-+				list_del_init(&sd->s_sibling);
-+				sysfs_put(sd);
-+			}
-+		}
+ 	down(&dentry->d_inode->i_sem);
+-	d = sysfs_get_dentry(dentry,name);
+-	if (!IS_ERR(d))
+-		error = sysfs_symlink(dentry->d_inode,d,path);
+-	else
+-		error = PTR_ERR(d);
+-	dput(d);
++	error = sysfs_add_link(dentry->d_fsdata, link_name, path);
+ 	up(&dentry->d_inode->i_sem);
+-	kfree(path);
++	if (error) {
++		kfree(path);
++		kfree(link_name);
 +	}
-+}
-+
+ 	return error;
+ }
+ 
 
 _
 -- 

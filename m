@@ -1,123 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267595AbTACRey>; Fri, 3 Jan 2003 12:34:54 -0500
+	id <S267602AbTACRjZ>; Fri, 3 Jan 2003 12:39:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267597AbTACRey>; Fri, 3 Jan 2003 12:34:54 -0500
-Received: from mailout5-0.nyroc.rr.com ([24.92.226.122]:26716 "EHLO
-	mailout5-0.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S267595AbTACRew> convert rfc822-to-8bit; Fri, 3 Jan 2003 12:34:52 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Stephen Evanchik <evanchsa@clarkson.edu>
+	id <S267603AbTACRjY>; Fri, 3 Jan 2003 12:39:24 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:30158 "EHLO
+	VL-MS-MR001.sc1.videotron.ca") by vger.kernel.org with ESMTP
+	id <S267602AbTACRjJ>; Fri, 3 Jan 2003 12:39:09 -0500
+Date: Fri, 03 Jan 2003 12:47:41 -0500
+From: 0_o Genius o_0 <cybergenius@iquebec.com>
+Subject: PROBLEM: nForce USB Bug!
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5.54] hermes: serialization fixes
-Date: Fri, 3 Jan 2003 12:39:29 -0500
-User-Agent: KMail/1.4.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200301031239.29226.evanchsa@clarkson.edu>
+Message-id: <001f01c2b350$37064ab0$0200a8c0@jsrlepage>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
+X-Priority: 3
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The hermes MAC controller module wasn't serializing BAP seek calls. This 
-caused an eventual Rx/Tx failure which equates tens of thousands of errors on 
-the wireless interface. A simple spinlock is used to keep things in line.
+1. What is the problem : My computer hangs at the loading of USB modules.
 
-Any comments are appreciated, I don't believe this is the best solution, but 
-it is working well. Patches can be downloaded from here:
+2. Description :
+My computer hangs precisely when the kernel tries to configure (himself?)
+USB devices. I have a Lexmark X75 printern and a Cordless Trackman Wheel
+mouse by Logitech. When one of them - or the two - are connected, the kernel
+just stops. No kernel panic. When they are disconnected, the kernel works
+like a charm.
 
-http://www.clarkson.edu/~evanchsa/software/kernel/patches/hermes.patch-2.4.20
-http://www.clarkson.edu/~evanchsa/software/kernel/patches/hermes.patch-2.5.54
+3. Keywords : None.
 
+4. Kernel version : 2.4.18-14 (from redhat), 2.4.19-16mdk (from mandrake),
+2.4.20 (a beautiful home-compiled kernel).
 
+5. Oops? no oops here...
 
---- linux-2.5.54/drivers/net/wireless/hermes.h	2003-01-01 22:21:02.000000000 
--0500
-+++ linux-2.5.54-devel/drivers/net/wireless/hermes.h	2003-01-03 
-11:38:25.000000000 -0500
-@@ -288,6 +288,9 @@
- 
- 	u16 inten; /* Which interrupts should be enabled? */
- 
-+	/* Lock to avoid tripping over ourselves */
-+	spinlock_t baplock;
-+
- #ifdef HERMES_DEBUG_BUFFER
- 	struct hermes_debug_entry dbuf[HERMES_DEBUG_BUFSIZE];
- 	unsigned long dbufp;
---- linux-2.5.54/drivers/net/wireless/hermes.c	2003-01-01 22:21:13.000000000 
--0500
-+++ linux-2.5.54-devel/drivers/net/wireless/hermes.c	2003-01-03 
-11:41:51.000000000 -0500
-@@ -407,11 +407,18 @@
- {
- 	int dreg = bap ? HERMES_DATA1 : HERMES_DATA0;
- 	int err = 0;
-+	unsigned long flags;
- 
- 	if ( (len < 0) || (len % 2) )
- 		return -EINVAL;
- 
-+	/* Without this, system instability occurs */
-+	spin_lock_irqsave((&hw->baplock), flags);
-+
- 	err = hermes_bap_seek(hw, bap, id, offset);
-+
-+	spin_unlock_irqrestore((&hw->baplock), flags);
-+
- 	if (err)
- 		goto out;
- 
-@@ -433,11 +440,17 @@
- {
- 	int dreg = bap ? HERMES_DATA1 : HERMES_DATA0;
- 	int err = 0;
-+	unsigned long flags;
- 
- 	if ( (len < 0) || (len % 2) )
- 		return -EINVAL;
- 
-+	spin_lock_irqsave((&hw->baplock), flags);
-+
- 	err = hermes_bap_seek(hw, bap, id, offset);
-+
-+	spin_unlock_irqrestore((&hw->baplock), flags);
-+
- 	if (err)
- 		goto out;
- 	
-@@ -463,6 +476,7 @@
- 	int dreg = bap ? HERMES_DATA1 : HERMES_DATA0;
- 	u16 rlength, rtype;
- 	int nwords;
-+	unsigned long flags;
- 
- 	if ( (bufsize < 0) || (bufsize % 2) )
- 		return -EINVAL;
-@@ -471,7 +485,12 @@
- 	if (err)
- 		goto out;
- 
-+	spin_lock_irqsave((&hw->baplock), flags);
-+
- 	err = hermes_bap_seek(hw, bap, rid, 0);
-+
-+	spin_unlock_irqrestore((&hw->baplock), flags);
-+
- 	if (err)
- 		goto out;
- 
-@@ -505,8 +524,14 @@
- 	int dreg = bap ? HERMES_DATA1 : HERMES_DATA0;
- 	int err = 0;
- 	int count;
-+	unsigned long flags;
- 	
-+	spin_lock_irqsave((&hw->baplock), flags);
-+
- 	err = hermes_bap_seek(hw, bap, rid, 0);
-+
-+	spin_unlock_irqrestore((&hw->baplock), flags);
-+
- 	if (err)
- 		goto out;
+6. Small shell : i can't make one because i don't know how, but also
+because... i dont think it would be shellable.
+
+7. Environment
+Well since i reverted to windows after that, i'll describe my comp :
+Software : Mandrake, RedHat or Slackware alike, it hangs.
+Processor Info : AMD AthlonXP 1800+ ±1533 mhz
+Module info : ?, but i think its is hub.c or usb.c that hangs.
+Loaded driver info : it's approximately the first driver that loads...
+PCI info : on windows, how?
+SCSI : i don't have any
+Other relevant info : i have the nForce 415D-based ASUS A7N266-C, with audi
+but without network card and graphics adapter integrated. maybe THIS is the
+bug? I'll point out that i have 4 usb plugs.
+

@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262561AbULDRkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262562AbULDRk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262561AbULDRkh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 12:40:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbULDRkh
+	id S262562AbULDRk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 12:40:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbULDRk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 12:40:37 -0500
-Received: from kvaalen.no ([80.203.204.246]:33691 "EHLO athlon.kvaalen.no")
-	by vger.kernel.org with ESMTP id S262561AbULDRkd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 12:40:33 -0500
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel CVS is malfunctioning
-References: <20041204032723.GX32635@dualathlon.random>
-From: =?iso-8859-1?q?H=E5vard_Kv=E5len?= <havardk@kvaalen.no>
-Date: Sat, 04 Dec 2004 18:40:17 +0100
-In-Reply-To: <fa.i7vl3ki.m0gsji@ifi.uio.no> (Andrea Arcangeli's message of
- "Sat, 4 Dec 2004 03:29:00 GMT")
-Message-ID: <m3is7iezcu.fsf@athlon.kvaalen.no>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+	Sat, 4 Dec 2004 12:40:59 -0500
+Received: from sycorax.lbl.gov ([128.3.5.196]:58572 "EHLO sycorax.lbl.gov")
+	by vger.kernel.org with ESMTP id S262562AbULDRkx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 12:40:53 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.10-rc3
+References: <Pine.LNX.4.58.0412031611460.22796@ppc970.osdl.org>
+	<pan.2004.12.04.09.06.09.707940@nn7.de>
+	<87oeha6lj1.fsf@sycorax.lbl.gov> <cosrt1$j67$1@sea.gmane.org>
+From: Alex Romosan <romosan@sycorax.lbl.gov>
+Date: Sat, 04 Dec 2004 09:40:51 -0800
+In-Reply-To: <cosrt1$j67$1@sea.gmane.org> (message from Ari Pollak on Sat,
+ 04 Dec 2004 12:24:57 -0500)
+Message-ID: <87eki66jx8.fsf@sycorax.lbl.gov>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> writes:
+Ari Pollak <aripollak@gmail.com> writes:
 
-> The kernel CVS seems screwed. cvsps -x --bkcvs tells there are 2
-> checkins.
+> Alex Romosan wrote:
+>> well, it's still more than my thinkpad which doesn't want to wake up
+>> from sleep anymore.
+>
+> My thinkpad will resume fine if I remove the intel8x0 and intel8x0m
+> ALSA modules before going into suspend - works with both APM and ACPI,
+> though I don't really use ACPI suspend because the battery drains like
+> crazy.
 
-This has already been reported to linux-kernel:
+i saw there were some changes to alsa cvs having to do with the new
+pci device handling. i'll reconfigure the kernel with alsa as modules
+and try alsa cvs to see if that makes any difference. thanks.
 
-| From: Larry McVoy <lm@bitmover.com>
-| To: linux-kernel@vger.kernel.org
-| Subject: [BK2CVS] locking problems on kernel.org
-| Date:  Fri, 3 Dec 2004 06:53:07 -0800
-| Message-Id: <200412031453.iB3Er70l003000@work.bitmover.com>
-|
-| The last few days the locking mechanism on kernel.org has been broken.
-| The result is that the CVS export tree isn't getting updated.  I've mailed
-| the admins and gotten no response, does anyone know who manages that
-| machine?
+--alex--
 
- - Håvard
+-- 
+| I believe the moment is at hand when, by a paranoiac and active |
+|  advance of the mind, it will be possible (simultaneously with  |
+|  automatism and other passive states) to systematize confusion  |
+|  and thus to help to discredit completely the world of reality. |

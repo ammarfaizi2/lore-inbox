@@ -1,85 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266419AbTGEVum (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 17:50:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266422AbTGEVum
+	id S266422AbTGEVxO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 17:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266509AbTGEVxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 17:50:42 -0400
-Received: from c180224.adsl.hansenet.de ([213.39.180.224]:23752 "EHLO
-	sfhq.hn.org") by vger.kernel.org with ESMTP id S266419AbTGEVul
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 17:50:41 -0400
-To: akpm@osdl.org
-Subject: [PATCH] Fix compilation of apm.c due to cpumask conversion
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E19Yv9U-0004Qa-00@sfhq.hn.org>
-From: Jan Dittmer <jdittmer@sfhq.hn.org>
-Date: Sun, 06 Jul 2003 00:05:04 +0200
+	Sat, 5 Jul 2003 17:53:14 -0400
+Received: from mail.gmx.net ([213.165.64.20]:50584 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266422AbTGEVxH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 17:53:07 -0400
+Message-ID: <3F074C25.5060004@gmx.at>
+Date: Sun, 06 Jul 2003 00:07:33 +0200
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+MIME-Version: 1.0
+To: Wil Reichert <wilreichert@yahoo.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: highpoint driver problem, 2.4.21-ac4
+References: <4V9E.47E.39@gated-at.bofh.it>	<4V9E.47E.37@gated-at.bofh.it>	<4WyE.5oC.19@gated-at.bofh.it>	<3F04823A.5030403@gmx.at> <20030703184427.3cb71051.wilreichert@yahoo.com>
+Content-Type: multipart/mixed;
+ boundary="------------070100040408000202030001"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This converts i386/kernel/apm.c to cpumask_t (applies also to mm2)
+This is a multi-part message in MIME format.
+--------------070100040408000202030001
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thanks,
+Wil Reichert wrote:
+> Thats the kernel I'm using.
 
-Jan
+could you try the attachted patch, and report if this changes something?
 
---- linux-mm/arch/i386/kernel/apm.c	Thu Jul  3 14:49:29 2003
-+++ 2.5.74-mm1/arch/i386/kernel/apm.c	Sat Jul  5 23:52:59 2003
-@@ -508,16 +508,16 @@
-  
- #ifdef CONFIG_SMP
+bye,
+wilfried
+
+> 
+> Wil
+> 
+> On Thu, 03 Jul 2003 21:21:30 +0200
+> Wilfried Weissmann <Wilfried.Weissmann@gmx.at> wrote:
+> 
+> 
+>>Wil Reichert wrote:
+>> >>> The on-board Highpoint controller (HPT372A) on my DFI NF2 is
+>> >>> having issue.  Loading the hptraid module results in a 'No such
+>> >>> device' message while the hpt366 module segfaults and leaves an
+>> >>> oops in my logs.  These errors occur regardless of the disk/raid
+>> >>> configuration in the hpt BIOS.   Following are the oops trace, an
+>> >>> lsmod, the .config and a lspci -vvv.
+>> >>
+>> >> The crash occurs in the hpt366 module. Loading hptraid will not
+>> >> work because it depends on the kernel to claim the disks of the
+>> >> raid volume (that is what hpt366 would do). I will add autoloading
+>> >> of the ide-controller module in the next raid-driver release.
+>> >> However, I do not know why the kernel oopses. You might want to try
+>> >> to build the hpt366 code into the kernel instead of a module. If it
+>> >> works it would probably mean that "ide_hwif_t *hwif" was not
+>> >> properly initalized.
+>> >
+>> > I initially had all the hpt modules built into the kernel, but that
+>> > would also produce an oops and die immediately after ID'ing the two
+>> > drives I have on attached.  Would any more information be of use to
+>> > you?
+>>
+>>2.4.21-ac4 contains several fixes for the hpt37x. Please try this patch out.
+>>
+>>bye,
+>>Wilfried
+
+--------------070100040408000202030001
+Content-Type: text/plain;
+ name="linux-2.4.21-ac4-idedmafix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.4.21-ac4-idedmafix.patch"
+
+--- linux/drivers/ide/setup-pci.c.orig	2003-07-06 00:04:06.000000000 +0200
++++ linux/drivers/ide/setup-pci.c	2003-07-06 00:04:12.000000000 +0200
+@@ -172,7 +172,7 @@ static int ide_setup_pci_baseregs (struc
+  *	is already in DMA mode we check and enforce IDE simplex rules.
+  */
  
--static unsigned long apm_save_cpus(void)
-+static cpumask_t apm_save_cpus(void)
+-static unsigned long __init ide_get_or_set_dma_base (ide_hwif_t *hwif)
++static unsigned long ide_get_or_set_dma_base (ide_hwif_t *hwif)
  {
--	unsigned long x = current->cpus_allowed;
-+	cpumask_t x = current->cpus_allowed;
- 	/* Some bioses don't like being called from CPU != 0 */
--	set_cpus_allowed(current, 1UL << 0);
-+	set_cpus_allowed(current, cpumask_of_cpu(0));
- 	BUG_ON(smp_processor_id() != 0);
- 	return x;
- }
- 
--static inline void apm_restore_cpus(unsigned long mask)
-+static inline void apm_restore_cpus(cpumask_t mask)
- {
- 	set_cpus_allowed(current, mask);
- }
-@@ -593,7 +593,7 @@
- {
- 	APM_DECL_SEGS
- 	unsigned long		flags;
--	unsigned long		cpus;
-+	cpumask_t		cpus;
- 	int			cpu;
- 	struct desc_struct	save_desc_40;
- 
-@@ -635,7 +635,7 @@
- 	u8			error;
- 	APM_DECL_SEGS
- 	unsigned long		flags;
--	unsigned long		cpus;
-+	cpumask_t		cpus;
- 	int			cpu;
- 	struct desc_struct	save_desc_40;
- 
-@@ -913,7 +913,7 @@
- 	 */
- #ifdef CONFIG_SMP
- 	/* Some bioses don't like being called from CPU != 0 */
--	set_cpus_allowed(current, 1UL << 0);
-+	set_cpus_allowed(current, cpumask_of_cpu(0));
- 	BUG_ON(smp_processor_id() != 0);
- #endif
- 	if (apm_info.realmode_power_off)
-@@ -1704,7 +1704,7 @@
- 	 * Some bioses don't like being called from CPU != 0.
- 	 * Method suggested by Ingo Molnar.
- 	 */
--	set_cpus_allowed(current, 1UL << 0);
-+	set_cpus_allowed(current, cpumask_of_cpu(0));
- 	BUG_ON(smp_processor_id() != 0);
- #endif
- 
+ 	unsigned long	dma_base = 0;
+ 	struct pci_dev	*dev = hwif->pci_dev;
+
+--------------070100040408000202030001--
+

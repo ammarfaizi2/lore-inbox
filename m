@@ -1,95 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311025AbSDQRdP>; Wed, 17 Apr 2002 13:33:15 -0400
+	id <S311211AbSDQRgc>; Wed, 17 Apr 2002 13:36:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311211AbSDQRdP>; Wed, 17 Apr 2002 13:33:15 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:50988 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S311025AbSDQRdM>; Wed, 17 Apr 2002 13:33:12 -0400
-Date: Wed, 17 Apr 2002 19:32:46 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Moritz Franosch <jfranosc@physik.tu-muenchen.de>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: IO performance problems in 2.4.19-pre5 when writing to DVD-RAM/ZIP/MO
-Message-ID: <20020417193246.E14322@dualathlon.random>
-In-Reply-To: <rxxadshj1rh.fsf@synapse.t30.physik.tu-muenchen.de> <20020416165358.E29747@dualathlon.random> <rxxk7r6tkh6.fsf@synapse.t30.physik.tu-muenchen.de>
+	id <S311262AbSDQRgb>; Wed, 17 Apr 2002 13:36:31 -0400
+Received: from dark.x.dtu.dk ([130.225.92.246]:19620 "HELO dark.x.dtu.dk")
+	by vger.kernel.org with SMTP id <S311211AbSDQRga>;
+	Wed, 17 Apr 2002 13:36:30 -0400
+Date: Wed, 17 Apr 2002 19:36:29 +0200
+From: Baldur Norddahl <bbn-linux-kernel@clansoft.dk>
+To: nick@snowman.net
+Cc: Baldur Norddahl <bbn-linux-kernel@clansoft.dk>,
+        Mike Dresser <mdresser_l@windsormachine.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: IDE/raid performance
+Message-ID: <20020417173629.GA32736@dark.x.dtu.dk>
+In-Reply-To: <20020417140045.GC27648@dark.x.dtu.dk> <Pine.LNX.4.21.0204171108480.3300-100000@ns>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 17, 2002 at 05:26:13PM +0200, Moritz Franosch wrote:
+Quoting nick@snowman.net (nick@snowman.net):
+> On Wed, 17 Apr 2002, Baldur Norddahl wrote:
+> > Quoting Mike Dresser (mdresser_l@windsormachine.com):
+> > > On Wed, 17 Apr 2002, Baldur Norddahl wrote:
+> > Motherboard: Tyan Tiger MPX S2466N
+> > Chipset: AMD 760MPX
+> > CPU: Dual Athlon MP 1800+ 1.53 GHz                                              
+> > Two Promise Technology UltraDMA133 TX2 controllers
+> > Two Promise Technology UltraDMA100 TX2 controllers
+> > Matrox G200 AGP video card.
+> > 1 GB registered DDR RAM
+> > > Also, with 12 hd's, dual cpu's, etc, what kind of power supply are you
+> > > using?
+> > It is a 350W powersupply. I wanted something bigger, but couldn't get it for
+> > sane prices. I can't rule out that it is overloaded of course. If it is, I
+> > haven't seen any other symptoms, the system is rock stable so far.
+> > Baldur
+> AMD recommends a minimum of 400watts for a dual athlon system
+> IIRC.  Ignoreing that the startup current on an IBM 5400rpm IDE disk seems
+> to be about 25-30watts.  Each 1800+ MP puts out 66w of heat, meaning it
+> uses more than 66w (I couldn't find the power useage stats) for a total of
+> 132 watts, so on boot ignoreing everything but the disks and the chips
+> you've got 12x25w (for the disks) + 2x66w (for the procs) or about
+> 432watts.  This will go down alot after all your disks spin up, but I'm
+> amazed your system boots.  Morale of this message:  Don't be a dipshit and
+> put 12 IDE disks on a single power supply.
+> 	Nick
 > 
-> 
-> > > The problem is that writing to a DVD-RAM, ZIP or MO device almost
-> > > totally blocks reading from a _different_ device. Here is some data.
-> > > 
-> > > nr bench read       write      2.4.18  2.4.19-rc5  expected factor
-> > > 1  dd    30GB HDD   DVD-RAM    278     490         60       8.2
-> > > 2  dd    120GB HDD  DVD-RAM    197     438         32       14
-> > > 3  dd    30GB HDD   ZIP        158     239         60       4.0
-> > > 4  dd    120GB HDD  ZIP        142     249         32       7.8
-> > > 5  dd    30GB HDD   120GB HDD   87      89         60       1.5
-> > > 6  dd    120GB HDD  30GB HDD    66      69         32       2.2
-> > > 7  cp    30GB HDD   120GB HDD   97      77         60       1.3
-> > > 8  cp    120GB HDD  30GB HDD    78      65         50       1.3
-> 
-> Should be -pre5, sorry.
 
-Never mind, that was clear :).
+I checked and it is actually a 400W powersupply. Sorry about that.
 
-> 
-> > The reason hd is faster is because new algorithm is much better than the
-> > previous mainline code. Now the reason the DVDRAM hangs the machine
-> > more, that's probably because more ram can be marked dirty with those
-> > new changes (beneficial for some workload, but it stalls much more the
-> > fast hd, if there's one very slow blkdev in the system). You can try
-> > decrasing the percent of vm dirty in the system with:
-> > 
-> > 	echo 2 500 0 0 500 3000 3 1 0 >/proc/sys/vm/bdflush
-> 
-> With the bdflush-parameters above, I get
-> 
-> nr bench read       write      2.4.19-pre5  expected factor
-> 9  dd    30GB HDD   DVD-RAM    208/0/6      60       3.5
-> 10 dd    120GB HDD  DVD-RAM    39/0/6       32       1.2
-> 11 dd    30GB HDD   ZIP        66/0/10      60       1.1
-> 12 dd    120GB HDD  ZIP        85/0/7       32       2.7
-> 
-> Numbers in the column 2.4.19-pre5 are total time / user time / system
-> time in seconds.
-> 
-> Performance is much better with the new parameters. Also, with the new
-> parameters, the system can read from HDD almost steadily while writing
-> to DVD. This should much increase responsiveness.
+Actually the power usage for the 80 GB western digital disks are:
 
-Good. As said that's a mere workaround at the moment, something generic
-and possibly autotuning is a bit more complex, and still a research
-item (I see it more as a 2.5 thing, because the slow reads during DVD
-etc.. isn't really a regression).
+Spinup(peak) 17.0W
+Read/Write 8.0W
+Seek 14.0W
 
-> In cases 9 and 12 where performance is bad, both tested drives are on
-> the same IDE controller. Should that matter?
+And for the 160 GB maxtor disks:
 
-yes very much so, I should had asked you about it, I was assuming it
-wasn't bound by hardware limitations. IDE isn't able to submit commands
-in parallel to both hosts on the same IDE controller, so you will get
-much slower performance doing I/O on the master and slave of the same
-ide channel. So if your "expected" doesn't count the IDe channel
-collisions then it sounds good.
+Spinup(peak) 23.7W
+Read/Write 4.8W
+Seek 5.2W
 
-> > Right fix is different but not suitable for 2.4.
-> 
-> I'm looking forward to the definitive solution.
+This adds up to 8*17.0+4*23.7 = 231W spinup and 8*14.0+4*5.2 = 132W during
+seek.
 
-Right you are.
+The Athlon MP 1800+ has the following stats:
 
-> Thank you very much,
+Voltage: 1.75V
+Maximum thermal power: 66.0W
+Maximum Icc 37.7A
+Typical thermal power: 58.9W
+Typical Icc 33.7A
 
-You're welcome.
+So the CPU maximum uses Vcc*Icc = 66.0W (wow they didn't lie about the
+thermal power).
 
-Andrea
+It is not likely that both CPUs are burning 66W during the inital phases of
+boot where the disk do their spinup. Even then you might also be able to
+draw more current out of the powersupply than its rating for a short while.
+
+For this discussion it is more interresting if it is enough during normal
+operations. Worst case we got 132W for the disks and 2*66W for the CPUs,
+which leaves 400W - 132 - 2*66 = 136WW for the motherboard, gfx, 4 promise
+controllers and the system disk. 
+
+The recommended minimum powersupply for this motherboard is 300W.
+
+Baldur

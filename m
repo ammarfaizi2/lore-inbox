@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132529AbRDKIUV>; Wed, 11 Apr 2001 04:20:21 -0400
+	id <S132536AbRDKIiM>; Wed, 11 Apr 2001 04:38:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132531AbRDKIUM>; Wed, 11 Apr 2001 04:20:12 -0400
-Received: from nrg.org ([216.101.165.106]:53573 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S132529AbRDKITv>;
-	Wed, 11 Apr 2001 04:19:51 -0400
-Date: Wed, 11 Apr 2001 01:19:43 -0700 (PDT)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Paul McKenney <Paul.McKenney@us.ibm.com>
-cc: ak@suse.de, Dipankar Sarma <dipankar.sarma@in.ibm.com>,
-        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-        Suparna Bhattacharya <bsuparna@in.ibm.com>
-Subject: Re: [Lse-tech] Re: [PATCH for 2.5] preemptible kernel
-In-Reply-To: <OFC444FA4A.28BB0BC6-ON88256A2B.0016B71E@LocalDomain>
-Message-ID: <Pine.LNX.4.05.10104110109210.17755-100000@cosmic.nrg.org>
+	id <S132535AbRDKIiE>; Wed, 11 Apr 2001 04:38:04 -0400
+Received: from phoenix.datrix.co.za ([196.37.220.5]:24112 "EHLO
+	phoenix.datrix.co.za") by vger.kernel.org with ESMTP
+	id <S132537AbRDKIiA>; Wed, 11 Apr 2001 04:38:00 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Marcin Kowalski <kowalski@datrix.co.za>
+Reply-To: kowalski@datrix.co.za
+Organization: Datrix Solutions
+To: linux-kernel@vger.kernel.org
+Subject: Re: memory usage
+Date: Wed, 11 Apr 2001 10:37:29 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <034201c0c1e5$adfc2b70$ae58718c@cis.nctu.edu.tw>
+In-Reply-To: <034201c0c1e5$adfc2b70$ae58718c@cis.nctu.edu.tw>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <0104111037290D.25951@webman>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Apr 2001, Paul McKenney wrote:
-> > Disabling preemption is a possible solution if the critical section
-> > is
-> short
-> > - less than 100us - otherwise preemption latencies become a problem.
-> 
-> Seems like a reasonable restriction.  Of course, this same limit
-> applies to locks and interrupt disabling, right?
 
-That's the goal I'd like to see us achieve in 2.5.  Interrupts are
-already in this range (with a few notable exceptions), but there is
-still the big kernel lock and a few other long held spin locks to deal
-with.  So I want to make sure that any new locking scheme like the ones
-under discussion play nicely with the efforts to achieve low-latency
-Linux such as the preemptible kernel.
+> I can use "ps" to see memory usage of daemons and user programs.
+> I can't find any memory information of kernel with "top" and "ps".
 
-> > The implementation of synchronize_kernel() that Rusty and I
-> > discussed earlier in this thread would work in other cases, such as
-> > module unloading, where there was a concern that it was not
-> > practical to have any sort of lock in the read-side code path and
-> > the write side was not time critical.
-> 
-> True, but only if the synchronize_kernel() implementation is applied
-> to UP kernels, also.
+> Do you know how to take memory usage information of kernel ?
+> Thanks for your help.
 
-Yes, that is the idea.
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+Regarding this issue, I have a similar problem if I do a free on my system I 
+get :
+---   total       used       free     shared    buffers     cached
+Mem:       1157444    1148120       9324          0      22080     459504
+-/+ buffers/cache:     666536     490908
+Swap:       641016      19072     621944
+---
+Now what I do a ps there seems no way to accound for the 500mb + of memory 
+used. No single or group of processes uses that amount of memory. THis is 
+very disconcerting, coupled with extremely high loads when cache is dumped to 
+disk locking up the machine makes me want to move back to 2.2.19 from 2.4.3.
 
-MontaVista Software                             nigel@mvista.com
+I would also be curious to see how the kernel is using memory...
 
+TIA
+MARCin
+
+
+-- 
+-----------------------------
+     Marcin Kowalski
+     Linux/Perl Developer
+     Datrix Solutions
+     Cel. 082-400-7603
+      ***Open Source Kicks Ass***
+-----------------------------

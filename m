@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVDBVsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVDBVsu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbVDBVsu (ORCPT <rfc822;willy@w.ods.org>);
+	id S261314AbVDBVsu (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 2 Apr 2005 16:48:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVDBVf2
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVDBVhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 16:35:28 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27278 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261290AbVDBVQr (ORCPT
+	Sat, 2 Apr 2005 16:37:02 -0500
+Received: from mail.dif.dk ([193.138.115.101]:55199 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261380AbVDBVWb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 16:16:47 -0500
-Date: Sat, 2 Apr 2005 23:16:28 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, benh@kernel.crashing.org
-Subject: fix u32 vs. pm_message_t in drivers/macintosh
-Message-ID: <20050402211628.GA2087@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 2 Apr 2005 16:22:31 -0500
+Date: Sat, 2 Apr 2005 23:24:44 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: |TEcHNO| <techno@punkt.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [SCSI] Driver broken in 2.6.x?
+In-Reply-To: <424F0BFF.6020402@punkt.pl>
+Message-ID: <Pine.LNX.4.62.0504022322150.2525@dragon.hyggekrogen.localhost>
+References: <424EB65A.8010600@punkt.pl> <Pine.LNX.4.62.0504022301430.2525@dragon.hyggekrogen.localhost>
+ <424F0BFF.6020402@punkt.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, 2 Apr 2005, |TEcHNO| wrote:
 
-I thought I'm done with fixing u32 vs. pm_message_t ... unfortunately
-that turned out not to be the case as Russel King pointed out. Here
-are fixes for drivers/macintosh. [These patches are independend and
-change no object code; therefore not numbered].
+> Hi,
+> 
+> <cut, nVidia module tainting>
+> First of all, I don't have my X configured to work w/o that module, and I
+> don't think I can do it now.
 
-Please apply,
-
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-                                                        Pavel
+You should be able to just use the "nv" driver instead of the "nvidia" 
+driver - that should be the only change you need to make in xorg.conf ...
 
 
---- clean-cvs/drivers/macintosh/macio_asic.c	2005-03-29 13:29:52.000000000 +0200
-+++ linux-cvs/drivers/macintosh/macio_asic.c	2005-03-31 23:54:45.000000000 +0200
-@@ -106,7 +106,7 @@
- 		drv->shutdown(macio_dev);
- }
- 
--static int macio_device_suspend(struct device *dev, u32 state)
-+static int macio_device_suspend(struct device *dev, pm_message_t state)
- {
- 	struct macio_dev * macio_dev = to_macio_device(dev);
- 	struct macio_driver * drv = to_macio_driver(dev->driver);
---- clean-cvs/drivers/macintosh/mediabay.c	2005-03-29 13:29:52.000000000 +0200
-+++ linux-cvs/drivers/macintosh/mediabay.c	2005-03-31 23:54:45.000000000 +0200
-@@ -704,7 +704,7 @@
- 
- }
- 
--static int __pmac media_bay_suspend(struct macio_dev *mdev, u32 state)
-+static int __pmac media_bay_suspend(struct macio_dev *mdev, pm_message_t state)
- {
- 	struct media_bay_info	*bay = macio_get_drvdata(mdev);
- 
- 
+> Second of all, the 2.4.x kernel had this module too, and worked flawlessly.
+> 
+It's probably unrelated to the problem, but being able to reproduce it 
+without that module will make more people take the bugreport seriously and 
+it will also eliminate the nvidia module as a potential cause...
+
 
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Jesper Juhl
+
+

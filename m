@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267812AbUG3Tqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267799AbUG3Ttm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267812AbUG3Tqx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 15:46:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267810AbUG3Tqs
+	id S267799AbUG3Ttm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 15:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267815AbUG3Ttl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 15:46:48 -0400
-Received: from albireo.ucw.cz ([81.27.203.89]:39815 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S267814AbUG3Tqd (ORCPT
+	Fri, 30 Jul 2004 15:49:41 -0400
+Received: from fw.osdl.org ([65.172.181.6]:11677 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267799AbUG3TtS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 15:46:33 -0400
-Date: Fri, 30 Jul 2004 21:46:34 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: Matthew Wilcox <willy@debian.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Exposing ROM's though sysfs
-Message-ID: <20040730194634.GA4851@ucw.cz>
-References: <20040730193559.GA4687@ucw.cz> <20040730193932.20813.qmail@web14923.mail.yahoo.com>
+	Fri, 30 Jul 2004 15:49:18 -0400
+Date: Fri, 30 Jul 2004 12:47:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: kladit@t-online.de, linux-kernel@vger.kernel.org
+Subject: Re: dentry cache leak? Re: rsync out of memory 2.6.8-rc2
+Message-Id: <20040730124744.0eb11f63.akpm@osdl.org>
+In-Reply-To: <20040730163007.GA2931@logos.cnet>
+References: <20040726150615.GA1119@xeon2.local.here>
+	<20040729140743.170acb3e.akpm@osdl.org>
+	<20040730163007.GA2931@logos.cnet>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040730193932.20813.qmail@web14923.mail.yahoo.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+>
+> On Thu, Jul 29, 2004 at 02:07:43PM -0700, Andrew Morton wrote:
+> > kladit@t-online.de (Klaus Dittrich) wrote:
+> > >
+> > > >Can you narrow the onset of the problem down to any particular kernel
+> > > >snapshot?
+> > > 
+> > > Did it and here is the answer.
+> > > 
+> > > kernel-2.6.7 and bk's up to 2.6.7-bk7 survived a du -s,
+> > > kernels starting with 2.6.7-bk8 did not.
+> > 
+> > I can reproduce this oom btw.  Am (very, very slowly) working out what's
+> > causing it.  It's unrelated to the vfs-cache-pressure patch.  I'd hope to
+> > have it fixed up for 2.6.8. 
+> 
+> Odd, because the only thing I can see which affects dcache related code
+> between -bk7 and -bk8 is the vfs-cache-pressure patch.
 
-> The caching is only going to happen for cards with minimal address
-> decoder implementations. As far as I know there is only one card that
-> does this.
+It can be triggered with that patch reverted.
 
-Yes, but ...
+> What are the exact steps you're using to reproduce the leak?
 
-(1) it doesn't change the fact that the caching is in the vast majority
-of cases just wasting of RAM, even if it will happen only with a couple
-of cards.
+Just a `du -s' over zillions of files on a 2G machine.
 
-(2) not all drivers dwell in the kernel.
+> And where do you think the problem lies?
 
-I would prefer keeping sysfs access the ROM directly, with a little
-work-around disabling the sysfs file for the devices known for sharing
-decoders and to offer a boot-time parameter for forcing the copy in case
-you really need such feature for that particular device.
+Seems that we reach a state where lowmem pagecache get reclaimed faster
+than dcache/icache.  This causes the number of pages scanned for lowmem
+allocations to fall.  This causes less scanning of the slab and the whole
+thing repeats.  I expect changing nr_used_zone_pages() to ignore highmem
+will fix it, and might be the long-term fix, too.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-return(EIEIO); /* Here-a-bug, There-a-bug... */

@@ -1,47 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271972AbTHDRHP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 13:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271970AbTHDRHO
+	id S271973AbTHDRIt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 13:08:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271966AbTHDRH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 13:07:14 -0400
-Received: from fw.osdl.org ([65.172.181.6]:3487 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271969AbTHDRHE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 13:07:04 -0400
-Date: Mon, 4 Aug 2003 10:03:22 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Eugene Teo <eugene.teo@eugeneteo.net>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Memory-related problem leads to laptop freeze
-Message-Id: <20030804100322.1c7a9795.rddunlap@osdl.org>
-In-Reply-To: <20030803091115.GA781@eugeneteo.net>
-References: <20030803091115.GA781@eugeneteo.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 4 Aug 2003 13:07:28 -0400
+Received: from tandu.perlsupport.com ([66.220.6.226]:28359 "EHLO
+	tandu.perlsupport.com") by vger.kernel.org with ESMTP
+	id S271968AbTHDRGw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 13:06:52 -0400
+Date: Mon, 4 Aug 2003 13:06:53 -0400
+From: Chip Salzenberg <chip@pobox.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.4.22pre10: {,un}likely_p() macros for pointers
+Message-ID: <20030804170653.GA7537@perlsupport.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Aug 2003 17:11:15 +0800 Eugene Teo <eugene.teo@eugeneteo.net> wrote:
+GCC is warning about a pointer-to-int conversion when the likely() and
+unlikely() macros are used with pointer values.  So, for architectures
+where pointers are larger than 'int', I suggest this patch.
 
-| Hi everyone,
-| 
-| I was using kernel 2.6.0-test2-mm3. As usual, I anticipated that
-| I will have a random freeze, and true enough, I have one after a
-| few hours.
-| 
-| I have attached the log. Please take a look, and advise.
+PS: This patch was made against 2.4.22pre10 plus many patches from the
+'aa' kernel series, so it should be considered an example of the patch
+that might be required in other kernel versions.
 
-Hi,
+Index: linux/include/linux/compiler.h
+--- linux/include/linux/compiler.h.old	2001-09-18 17:12:45.000000000 -0400
++++ linux/include/linux/compiler.h	2003-08-04 12:24:15.000000000 -0400
+@@ -11,6 +11,8 @@
+ #endif
+ 
+-#define likely(x)	__builtin_expect((x),1)
+-#define unlikely(x)	__builtin_expect((x),0)
++#define likely(x)	__builtin_expect((x),      1)
++#define likely_p(x)	__builtin_expect((x) != 0, 1)
++#define unlikely(x)	__builtin_expect((x)      ,0)
++#define unlikely_p(x)	__builtin_expect((x) != 0 ,0)
+ 
+ #endif /* __LINUX_COMPILER_H */
 
-What were you doing?  It seems that you have had several (repeated?)
-problems.  Were you doing the same kind of activity each time,
-or are they "random," as you say?
+Index: linux/kernel/sched.c
+--- linux/kernel/sched.c.old	2003-08-04 12:09:47.000000000 -0400
++++ linux/kernel/sched.c	2003-08-04 12:25:44.000000000 -0400
+@@ -477,5 +477,5 @@
+ 	if (unlikely(!prev->mm)) {
+ 		prev->active_mm = NULL;
+-		if (unlikely(rq->prev_mm)) {
++		if (unlikely_p(rq->prev_mm)) {
+ 			printk(KERN_ERR "rq->prev_mm was %p set to %p - %s\n", rq->prev_mm, oldmm, current->comm);
+ 			dump_stack();
 
---
-~Randy
+Index: linux/mm/filemap.c
+--- linux/mm/filemap.c.old	2003-08-04 12:09:41.000000000 -0400
++++ linux/mm/filemap.c	2003-08-04 12:27:07.000000000 -0400
+@@ -3749,5 +3749,5 @@
+ 		pr_debug("attempting to read %lu\n", page->index);
+ 		io->did_read = 1;
+-		if (likely(page->mapping)) {
++		if (likely_p(page->mapping)) {
+ 			locked = 0;
+ 			io->err = page->mapping->a_ops->readpage(io->file, page);
+@@ -3813,5 +3813,5 @@
+ 		 */
+ 		if (!TryLockPage(page)) {
+-			if (likely(page->mapping)) {
++			if (likely_p(page->mapping)) {
+ 				int ret = readpage(io->file, page);
+ 				if (ret)
+
+
+
+-- 
+Chip Salzenberg               - a.k.a. -               <chip@pobox.com>
+"I wanted to play hopscotch with the impenetrable mystery of existence,
+    but he stepped in a wormhole and had to go in early."  // MST3K

@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317016AbSFKMQV>; Tue, 11 Jun 2002 08:16:21 -0400
+	id <S317020AbSFKMSe>; Tue, 11 Jun 2002 08:18:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317017AbSFKMQU>; Tue, 11 Jun 2002 08:16:20 -0400
-Received: from pD952A4ED.dip.t-dialin.net ([217.82.164.237]:10462 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317016AbSFKMQS>; Tue, 11 Jun 2002 08:16:18 -0400
-Date: Tue, 11 Jun 2002 06:16:10 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Thunder from the hill <thunder@ngforever.de>,
-        Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.21: kbuild changes broke filenames with commas
-In-Reply-To: <20020611122144.A3665@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0206110611590.24261-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317017AbSFKMSd>; Tue, 11 Jun 2002 08:18:33 -0400
+Received: from ns.suse.de ([213.95.15.193]:12805 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317020AbSFKMSd>;
+	Tue, 11 Jun 2002 08:18:33 -0400
+Date: Tue, 11 Jun 2002 14:18:33 +0200
+From: Dave Jones <davej@suse.de>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.21 no source for several objects
+Message-ID: <20020611141832.K13140@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <8028.1023759039@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Tue, Jun 11, 2002 at 11:30:39AM +1000, Keith Owens wrote:
+ > These objects are referenced in makefiles but no source exists.
+ > 
+ > arch/i386/kernel/Makefile
+ > obj-$(CONFIG_EISA)              += eisa.o
 
-On Tue 11 Jun 2002 Russell King wrote:
-> On Tue Jun 11 2002 at 05:11:13AM -0600 Thunder from the hill wrote:
-> > Think big! Think about __future__.
-> 
-> The path to overdesign and excessive featurebloat.
+My bad. Can be deleted.
 
-Well the question is then how will things look without commas? I suppose 
-if we have very complex things and prevent using commas whereas I don't 
-assert that we do for text but this is just a bloat example it's good to 
-have things like commas allowed even though we are in case we won't allow 
-them there talking about file names.
+ > None of these were picked up by the existing build system, they were
+ > all detected by kbuild 2.5.
 
-If we allow commas all over the filesystem and likewise say that there is 
-nothing to mention about it why should we refuse them for kbuild 
-especially since there is a parallel system which allows commas?
+It should bite as soon as someone tries to compile a kernel with EISA
+support. If it doesn't, that really needs fixing.
 
-Regards
-Thunder
+        Dave.
+
 -- 
-German attitude becoming        |	Thunder from the hill at ngforever
-rightaway popular:		|
-       "Get outa my way  	|	free inhabitant not directly
-    for I got a mobile phone!"	|	belonging anywhere
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

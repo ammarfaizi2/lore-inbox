@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261721AbTBSRO7>; Wed, 19 Feb 2003 12:14:59 -0500
+	id <S261398AbTBSROj>; Wed, 19 Feb 2003 12:14:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262838AbTBSRO7>; Wed, 19 Feb 2003 12:14:59 -0500
-Received: from griffon.mipsys.com ([217.167.51.129]:52953 "EHLO
-	zion.wanadoo.fr") by vger.kernel.org with ESMTP id <S261721AbTBSRO5>;
-	Wed, 19 Feb 2003 12:14:57 -0500
-Subject: Re: PATCH: clean up the IDE iops, add ones for a dead iface
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1045678925.27427.16.camel@irongate.swansea.linux.org.uk>
-References: <Pine.LNX.4.44.0302190853180.18995-100000@home.transmeta.com>
-	 <1045674387.12533.48.camel@zion.wanadoo.fr>
-	 <1045678925.27427.16.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045675595.12533.58.camel@zion.wanadoo.fr>
+	id <S261640AbTBSROj>; Wed, 19 Feb 2003 12:14:39 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:59329 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261398AbTBSROh>;
+	Wed, 19 Feb 2003 12:14:37 -0500
+Date: Wed, 19 Feb 2003 09:20:46 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Ion Badulescu <ionut@badula.org>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add new DMA_ADDR_T_SIZE define
+Message-Id: <20030219092046.458c2876.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0302191050290.29393-100000@guppy.limebrokerage.com>
+References: <Pine.LNX.4.44.0302191050290.29393-100000@guppy.limebrokerage.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 19 Feb 2003 18:26:35 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-19 at 19:22, Alan Cox wrote:
-> On Wed, 2003-02-19 at 17:06, Benjamin Herrenschmidt wrote:
-> > Yup, you are right. Removing a disk from a controller shall return
-> > anything with bit 7 at 0 per spec, but removing the controller
-> > itself will return 0xff. Actually, in my "wait for BSY low" loop
-> > I added to the probe code for pmac (should be made generic sooner
-> > or later), I did special case 0xff.
-> > 
-> > So we should indeed fix the various bits in IDE. 0xff out of
-> > status, I beleive, never means anything and can always be considered
-> > as "this interface is gone".
-> 
-> I think thats the wrong approach too. We need to be defensive on things
-> like IDE probes. We just have to be sure that we -do- eventually say
-> 'its bust', and when we know from hotplug a channel has vanished also
-> be sure to check the 'its dead jim' flag once I add it
+On Wed, 19 Feb 2003 11:26:27 -0500 (EST)
+Ion Badulescu <ionut@badula.org> wrote:
 
-Ok, then let's make sure we have no endless loops caused by BSY
-returning 1 and _not_ checking the "dead" flag. I'm sure I can find
-some of these in a couple of places (like when setting the PIO/DMA
-mode).
+| This patch adds a new preprocessor define called DMA_ADDR_T_SIZE for all 
+| architectures, for the benefit of those drivers who care about its size 
+| (and yes, starfire is one of them).
+| 
+| Alternatives are:
+| 
+| 1. a really ugly #ifdef in every single driver, which is error-prone and 
+| likely to break (see drivers/net/starfire.c around line 274 and have a 
+| barf bag ready).
+| 
+| 2. always cast it to u64, which adds unnecessary overhead to 32-bit 
+| platforms.
+| 
+| 3. use run-time checks all over the place, of the 
+| "sizeof(dma_addr_t)==sizeof(u64)" kind, which adds unnecessary overhead to 
+| all platforms.
+| 
+| 4. use the results from pci_set_dma_mask(), which still amounts to 
+| unnecessary run-time overhead on platforms which have a 32-bit dma_addr_t 
+| to begin with.
+| 
+| So I think a define in each architecture's types.h file is the cleanest 
+| way to approach this, and that's what my patch does.
+| 
+| Comments and/or suggestions are appreciated.
+| -- 
 
-Ben.
+Does this help with being able to printk() a <dma_addr_t>?  How?
+Always use a cast to (u64) or something else?
+
+--
+~Randy

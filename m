@@ -1,68 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267197AbUH1QDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267350AbUH1QJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267197AbUH1QDq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 12:03:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267319AbUH1QCs
+	id S267350AbUH1QJX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 12:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267365AbUH1QIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 12:02:48 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:46764 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S267312AbUH1QCg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 12:02:36 -0400
-Date: Fri, 27 Aug 2004 23:06:39 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040827210638.GE709@openzaurus.ucw.cz>
-References: <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org> <20040826100530.GA20805@taniwha.stupidest.org> <20040826110258.GC30449@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040826110258.GC30449@mail.shareable.org>
-User-Agent: Mutt/1.3.27i
+	Sat, 28 Aug 2004 12:08:24 -0400
+Received: from lakermmtao01.cox.net ([68.230.240.38]:52464 "EHLO
+	lakermmtao01.cox.net") by vger.kernel.org with ESMTP
+	id S267363AbUH1QFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 12:05:38 -0400
+In-Reply-To: <20040828151544.GB12772@fs.tum.de>
+References: <20040828151137.GA12772@fs.tum.de> <20040828151544.GB12772@fs.tum.de>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <098EB4E1-F90C-11D8-A7C9-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [2.6 patch][1/3] ipc/ BUG -> BUG_ON conversions
+Date: Sat, 28 Aug 2004 12:05:10 -0400
+To: Adrian Bunk <bunk@fs.tum.de>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Aug 28, 2004, at 11:15, Adrian Bunk wrote:
+> The patch below does BUG -> BUG_ON conversions in ipc/ .
+> --- linux-2.6.9-rc1-mm1-full-3.4/ipc/shm.c.old	2004-08-28 
+> 15:55:28.000000000 +0200
+> +++ linux-2.6.9-rc1-mm1-full-3.4/ipc/shm.c	2004-08-28 
+> 16:02:56.000000000 +0200
+> @@ -86,8 +86,7 @@
+>  static inline void shm_inc (int id) {
+>  	struct shmid_kernel *shp;
+>
+> -	if(!(shp = shm_lock(id)))
+> -		BUG();
+> +	BUG_ON(!(shp = shm_lock(id)));
 
-> > > One of the big potential uses for file-as-directory is to go inside
-> > > archive files, ELF files, .iso files and so on in a convenient way.
-> > 
-> > Arguably this belongs in userspace --- and people have put it there.
-> 
-> I agree that these belong in userspace, and that there's plenty* of
-> userspace code doing a similar thing already.  I don't think there's
-> any argument over it.
-> 
-> However, as far as I know it's not accessible in a file-as-directory
-> form as yet.  In my opinion that is the most natural form and it would
-> be very intuitive to use.  
+This won't work:
 
-It does not work. .deb file is ar archive. It is also debian
-package. How do you know if I want to see it as a package or as a archive?
-How do you identify file types, anyway?
+With debugging mode:
+if (unlikely(!(shp = shm_lock(id)))) BUG();
 
-Same happens for .tar.gz.
+Without debugging mode:
+do { } while(0)
 
-uservfs does
-
-cd foo.deb#uar
-vs.
-cd foo.deb#udeb
-
-and
-
-cd foo.tgz#utar
-vs.
-cat foo.tgz#ugz
+Anything you put in BUG_ON() must *NOT* have side effects.
 
 
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+>  	shp->shm_atim = get_seconds();
+>  	shp->shm_lprid = current->tgid;
+>  	shp->shm_nattch++;
+> @@ -137,8 +136,7 @@
+>
+>  	down (&shm_ids.sem);
+>  	/* remove from the list of attaches of the shm segment */
+> -	if(!(shp = shm_lock(id)))
+> -		BUG();
+> +	BUG_ON(!(shp = shm_lock(id)));
+
+Same here
+
+>  	shp->shm_lprid = current->tgid;
+>  	shp->shm_dtim = get_seconds();
+>  	shp->shm_nattch--;
+> @@ -744,8 +741,7 @@
+>  	up_write(&current->mm->mmap_sem);
+>
+>  	down (&shm_ids.sem);
+> -	if(!(shp = shm_lock(shmid)))
+> -		BUG();
+> +	BUG_ON(!(shp = shm_lock(shmid)));
+
+And here
+
+>  	shp->shm_nattch--;
+>  	if(shp->shm_nattch == 0 &&
+>  	   shp->shm_flags & SHM_DEST)
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
 

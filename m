@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313358AbSDUAE7>; Sat, 20 Apr 2002 20:04:59 -0400
+	id <S313300AbSDUAEc>; Sat, 20 Apr 2002 20:04:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313366AbSDUAE6>; Sat, 20 Apr 2002 20:04:58 -0400
-Received: from relay1.pair.com ([209.68.1.20]:36615 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S313358AbSDUAE5>;
-	Sat, 20 Apr 2002 20:04:57 -0400
-X-pair-Authenticated: 24.126.75.99
-Message-ID: <3CC20271.A00B05BC@kegel.com>
-Date: Sat, 20 Apr 2002 17:06:09 -0700
-From: Dan Kegel <dank@kegel.com>
-Reply-To: dank@kegel.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+	id <S313302AbSDUAEb>; Sat, 20 Apr 2002 20:04:31 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:32518 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S313300AbSDUAEb>; Sat, 20 Apr 2002 20:04:31 -0400
+Message-ID: <3CC201F7.B3AC3FDF@linux-m68k.org>
+Date: Sun, 21 Apr 2002 02:04:07 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Saving RAM on an all-RAM system by compressing executables?
-Content-Type: text/plain; charset=us-ascii
+To: Jeff Garzik <garzik@havoc.gtf.org>
+CC: Daniel Phillips <phillips@bonn-fries.net>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+In-Reply-To: <E16ya3u-0000RG-00@starship> <20020420115233.A617@havoc.gtf.org> <3CC19470.ACE2EFA1@linux-m68k.org> <20020420122541.B2093@havoc.gtf.org> <3CC1A31B.AC03136D@linux-m68k.org> <20020420170348.A14186@havoc.gtf.org>
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm working with an all-RAM system (where a host processor pokes 
-the linux kernel and initial ramdisk into RAM, then releases the 
-reset line).  The kernel is 2.4.17 or so.
-I have only 64 MB (or 32 or 16, depending), so every megabyte is precious.
-The C++ app I'm running on this system is 5MB, kinda fat.
-I'd like to save a couple megabytes somehow, either by compressing
-the executable, or by using execute-in-place.
+Hi,
 
-I made a cramfs image of the app; that shrunk it from 5MB down to 2MB.
-You can't mount cramfs images from tmpfs, so I made a little ramfs, 
-and loopback mounted it from there, then measured ram usage on a 64MB system
-with the app both running and not running.
+Jeff Garzik wrote:
 
-/bin/free reported (kb):
-in tmpfs, not running: 47888
-in tmpfs, running:     47244
-in cramfs, not running:46972
-in cramfs, running:    46336
+> What was Daniel's action?  Remove the text.  Nothing else.  Sure, he
+> suggested other options, but he did attempt to implement them?  No.
+> He just implied that people need to step up and do this work for him.
 
-Looks like I lose!  Using cramfs to compress the app appears to
-*waste* a megabyte over just using the noncompressed app.
+He made his intention very clear, you are interpreting something in his
+action, that simply isn't there.
 
->From what I can tell, there's no support for execute-in-place
-except on MIPS with a hacked gcc.
+> Daniel attempted to remove speech he disgreed with from wide
+> distribution -- on distro CDs, kernel.org mirrors, etc.  I am hoping
+> it is plainly obvious that removing a doc from one of the mostly
+> widely distributed open source projects reduces the doc's distribution
+> dramatically.  _That_ is a form of censorship, just like buying out
+> printing presses, to silence them, in the old days.  It's still
+> around... just progressively harder to obtain.
 
-OK, I've exhausted my stock of clever ideas; does anyone have
-a suggestion about how to save RAM in my situation?
-(gzexe won't do it, nor will upx, as they all create a temporary
-uncompressed file on execution...)
+Censorship requires the means to enforce it and has Daniel this ability?
+Could we please stop these "censorship" and "ideology" arguments? In
+this context they are simply nonsense.
 
-Thanks,
-Dan
+> And the answer is, it is BK documentation written for kernel developers
+> by kernel developers, with the intention of being a SubmittingPatches
+> document for BK users.  Very relevant to kernel devel.  This relevance
+> was proved by its origin -- emails bouncing back and forth, generally
+> originating by Linus, CC'ing me, asking me for the emails I had
+> already sent to other hackers, describing kernel development under BK.
+
+kernel development with bk requires net access and so it's sufficient,
+when it's available over the net. On the other hand SubmittingPatches
+describes the lowest common denominator, which works with any SCM and
+doesn't favour any of them.
+Personally I don't care what tools people use, but I'm getting
+concerned, when a nonfree tool is advertised as tool of choice for
+kernel for development as if there would be no choice. bk has advantages
+for distributed development, but beside of this they are alternatives
+and we should rather encourage users to try them and to help with the
+development of them. But there isn't anything like that, so Joe Hacker
+has to think he should use bk as SCM to get his patch into the kernel,
+because Linus is using it.
+
+bye, Roman

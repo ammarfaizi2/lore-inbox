@@ -1,105 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281404AbRKHDsj>; Wed, 7 Nov 2001 22:48:39 -0500
+	id <S281428AbRKHDx6>; Wed, 7 Nov 2001 22:53:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281426AbRKHDs3>; Wed, 7 Nov 2001 22:48:29 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:55698 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S281404AbRKHDsO>;
-	Wed, 7 Nov 2001 22:48:14 -0500
-Message-ID: <3BEA0078.F938623B@pobox.com>
-Date: Wed, 07 Nov 2001 19:48:08 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: J Sloan <jjs@lexus.com>
-CC: Robert Love <rml@tech9.net>, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: preempt-patch cleared of blame
-In-Reply-To: <3BE8B460.A23E1A67@pobox.com> <1005109646.884.0.camel@phantasy> <3BE9A506.82D64AE4@lexus.com>
+	id <S281439AbRKHDxs>; Wed, 7 Nov 2001 22:53:48 -0500
+Received: from toscano.org ([64.50.191.142]:60361 "HELO bubba.toscano.org")
+	by vger.kernel.org with SMTP id <S281428AbRKHDxg>;
+	Wed, 7 Nov 2001 22:53:36 -0500
+Date: Wed, 7 Nov 2001 22:53:28 -0500
+From: Pete Toscano <pete.lkml@toscano.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops when syncing Sony Clie 760 with USB cradle
+Message-ID: <20011107225328.A18371@bubba.toscano.org>
+Mail-Followup-To: Pete Toscano <pete.lkml@toscano.org>,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <E160obZ-0001bO-00@janus> <20011105131014.A4735@kroah.com> <3BE7F362.1090406@gutschke.com> <20011106095527.A10279@kroah.com> <3BE870EF.2080508@gutschke.com> <20011106155934.B12661@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011106155934.B12661@kroah.com>
+User-Agent: Mutt/1.3.23i
+X-Unexpected: The Spanish Inquisition
+X-Uptime: 10:49pm  up 10 days,  5:18,  4 users,  load average: 0.08, 0.07, 0.03
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Just in case it matters any, here's the Clie (760C) part of my
+/proc/bus/usb/devices:
 
-I'd reported a disaster with 2.4.14+preempt,
-but I have just reproduced it with 2.4.14
-vanilla - (to recap, "dbench 16" hangs the
-system hard, it doesn't even respond to
-pings, and must be power cycled)
+T:  Bus=01 Lev=02 Prnt=02 Port=01 Cnt=01 Dev#=  3 Spd=12  MxCh= 0
+D:  Ver= 1.10 Cls=ff(vend.) Sub=00 Prot=00 MxPS=16 #Cfgs=  1
+P:  Vendor=054c ProdID=0066 Rev= 1.00
+S:  Manufacturer=Sony Corp.
+S:  Product=Palm Handheld
+C:* #Ifs= 1 Cfg#= 1 Atr=c0 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=serial
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
 
-Again, since I am seeing the problem with
-2.4.14 vanilla, the preempt patch is NOT at
-fault here -
+I'll also be a test monkey for the patch.
 
-However I am concerned with this latest
-twist, as I want linux to be extremely stable,
-and this sort of thing is discouraging.
+pete
 
-I think there may be a problem with the
-compaq smart/2p raid drivers, since
-the "do_ida_intr" code keeps showing
-up in the oops, and I have not seen a
-problem with 2.4.14 on any other system.
+On Tue, 06 Nov 2001, Greg KH wrote:
 
-I am going to try and reproduce the oops
-elsewhere, and hopefuly I will not be able
-to - in any event, the oops follows:
-
-Compaq 6500
-4XPPRO 200
-1.2 GB RAM
-compaq "smart" raid controller
-
------------------------------------------------------------
-
-ksymoops 2.4.1 on i686 2.4.14.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.14/ (default)
-     -m /boot/System.map-2.4.14 (default)
-
-case login: Unable to handle kernel NULL pointer dereference at virtual
-address
-00000000
-*pde = 00000000
-Oops: 0000
-CPU:    3
-EIP:    0010:[<00000000>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010082
-eax: f1c29480   ebx: f1ec17e0   ecx: 00000001   edx: f0509540
-esi: f7b93fc4   edi: f7bb7000   ebp: 00000001   esp: f569de80
-ds: 0018   es: 0018  ss: 0018
-Process dbench (pid:1360, stackpage=f569d000)
-Stack: c0182b3f f1c29480 00000001 00000012 00004812 00178a3c 00001000
-c1abb7c0
-       f7bc2ca0 00000003 24000001 0000000b c01089d4 0000000b f7bb7000
-f569def8
-       f569def8 c0298960 0000000b 00000003 c01089d4 0000000b f569def8
-f7bc2ca0
-Call Trace:  [<c0182b3f>] [<c01087ce>] [<c01089d4>] [<c0120018>]
-[<c0127631>]
-[<c0133266>] [<c0132dd0>] [<c0132fce>] [<c0106f66>]
-Code: Bad EIP Value.
-
->>EIP; 00000000 Before first symbol
-Trace; c0182b3f <do_ida_intr+20f/280>
-Trace; c01087ce <handle_IRQ_event+5e/90>
-Trace; c01089d4 <do_IRQ+a4/f0>
-Trace; c0120018 <exec_usermodehelper+38/400>
-Trace; c0127631 <generic_file_write+4e1/610>
-Trace; c0133266 <sys_write+96/d0>
-Trace; c0132dd0 <generic_file_llseek+0/b0>
-Trace; c0132fce <sys_lseek+be/d0>
-Trace; c0106f66 <system_call+2e/38>
-
- <0> Kernel panic: Aiee, killing interrupt handler!
-
-
-
-
-
+> On Wed, Nov 07, 2001 at 12:23:27AM +0100, Stephan Gutschke wrote:
+> > there you go,  the output from  /proc/bus/usb/devices
+> > By the way I have an Clie N710C which is upgraded
+> > to an 760 with OS 4.1S, shouldnt make a difference,
+> > but I just wanted to let you know.
+> 
+> Ah, that might make the difference.  It looks like the number of
+> endpoints is different on this device, than any other 4.x Clie devices
+> (they should have 4 bulk endpoints.)  The older devices have 2 endpoints
+> (endpoints are usually done in hardware)
+> 
+> This Clie is reporting to the driver that it _does_ have 2 "ports" (a
+> port is 2 endpoint pairs in this scheme), but in reality, it doesn't.
+> The lying device is then causing the driver to oops when it tries to
+> write to a port that isn't even there.
+> 
+> I'm going to have to rework the driver to fix this problem, give me a
+> day or so to come up with a solution.  Are you willing to try a patch
+> when I have something?
+> 
+> Thanks for the good error reporting, it really helped.
+> 
+> greg k-h

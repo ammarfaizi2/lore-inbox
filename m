@@ -1,85 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbVCIBoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262302AbVCIBtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262287AbVCIBoO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 20:44:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbVCIBlr
+	id S262302AbVCIBtp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 20:49:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbVCIBpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 20:41:47 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:23180 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262287AbVCIBjx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 20:39:53 -0500
-Message-Id: <200503090139.j291dfg16356@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Andrew Morton" <akpm@osdl.org>, "'Jens Axboe'" <axboe@suse.de>
-Subject: Direct io on block device has performance regression on 2.6.x kernel
-Date: Tue, 8 Mar 2005 17:39:41 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcUkSNzKYDObGXK9SD6A7gSOX+GhIw==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Tue, 8 Mar 2005 20:45:55 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:41741 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262299AbVCIBo1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 20:44:27 -0500
+Date: Wed, 9 Mar 2005 02:44:10 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] kernel/power/smp.c: make a variable static
+Message-ID: <20050309014410.GG3146@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know where to start, but let me start with the bombshell:
+This patch makes a needlessly global variable static.
 
-Direct I/O on block device running 2.6.X kernel is a lot SLOWER
-than running on a 2.4 Kernel!
+This patch was already ACK'ed by Pavel Machek.
 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Processing a direct I/O request on 2.6 is taking a lot more cpu
-time compare to the same I/O request running on a 2.4 kernel.
+---
 
-The proof: easy.  I started off by having a pseudo disk, a software
-disk that has zero access latency.  By hooking this pseudo disk into
-the block layer API, I can effectively stress the entire I/O stack
-above the block level.  Combined with user level test programs that
-simply submit direct I/O in a simple while loop, I can measure how
-fast kernel can process these I/O requests.  The performance metric
-can be either throughput (# of I/O per second) or per unit of work
-(processing time per I/O).  For the data presented below, I'm using
-throughput metric (meaning larger number is better performance).
-Pay attention to relative percentage as absolute number depends on
-platform/CPU that test suite runs on.
+This patch was already sent on:
+- 3 Mar 2005
 
-
-			synchronous I/O			AIO
-			(pread/pwrite/read/write)	io_submit
-2.4.21 based
-(RHEL3)		265,122				229,810
-
-2.6.9			218,565				206,917
-2.6.10		213,041				205,891
-2.6.11		212,284				201,124
-
->From the above chart, you can see that 2.6 kernel is at least 18%
-slower in processing direct I/O (on block device) in the synchronous
-path and 10% slower in the AIO path compare to a distributor's 2.4
-kernel.  What's worse, with each advance of kernel version, the I/O
-path is becoming slower and slower.
-
-Most of the performance regression for 2.6.9 came from dio layer (I
-still have to find where the regression came from with 2.6.10 and 2.6.11).
-DIO is just overloaded with too many areas to cover.  I think it's better
-to break things up a little bit.
-
-For example, by having a set of dedicated functions that do direct I/O
-on block device improves the performance dramatically:
-
-			synchronous I/O			AIO
-			(pread/pwrite/read/write)	io_submit
-2.4.21 based
-(RHEL3)		265,122				229,810
-2.6.9			218,565				206,917
-2.6.9+patches	323,016				268,484
-
-See, we can be actually 22% faster in synchronous path and 17% faster
-In the AIO path, if we do it right!
-
-Kernel patch and test suite to follow in the next couple postings.
-
-- Ken
-
-
-
+--- linux-2.6.11-rc5-mm1-full/kernel/power/smp.c.old	2005-03-03 17:00:30.000000000 +0100
++++ linux-2.6.11-rc5-mm1-full/kernel/power/smp.c	2005-03-03 17:00:38.000000000 +0100
+@@ -42,7 +42,7 @@
+ 	__restore_processor_state(&ctxt);
+ }
+ 
+-cpumask_t oldmask;
++static cpumask_t oldmask;
+ 
+ void disable_nonboot_cpus(void)
+ {
 

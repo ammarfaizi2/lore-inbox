@@ -1,88 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261432AbTCGCEh>; Thu, 6 Mar 2003 21:04:37 -0500
+	id <S261480AbTCGCGb>; Thu, 6 Mar 2003 21:06:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261474AbTCGCEh>; Thu, 6 Mar 2003 21:04:37 -0500
-Received: from ip-33-237-104-152.anlai.com ([152.104.237.33]:22788 "EHLO
-	exchsh01.viatech.com.cn") by vger.kernel.org with ESMTP
-	id <S261432AbTCGCEd>; Thu, 6 Mar 2003 21:04:33 -0500
-Message-ID: <C373923C3B6ED611874200010250D52E155E1A@exchsh01.viatech.com.cn>
-From: "Guangyu Kang (Shanghai)" <GuangyuKang@viatech.com.cn>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Help please: DVD ROM read difficulty
-Date: Fri, 7 Mar 2003 10:14:59 +0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="GB2312"
+	id <S261484AbTCGCGb>; Thu, 6 Mar 2003 21:06:31 -0500
+Received: from CPE-203-45-136-67.qld.bigpond.net.au ([203.45.136.67]:50958
+	"EHLO nb1.nb.netbox.net.au") by vger.kernel.org with ESMTP
+	id <S261480AbTCGCG1>; Thu, 6 Mar 2003 21:06:27 -0500
+Date: Fri, 7 Mar 2003 12:16:56 +1000
+From: Menno Smits <menno@netbox.biz>
+To: linux-kernel@vger.kernel.org
+Subject: Strange power off issues (2.4.20)
+Message-Id: <20030307121656.3f1e60db.menno@netbox.biz>
+Organization: NetBox
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on SERVER01/Oxcoda/AU(Release 5.0.11  |July 24, 2002) at
+ 07/03/2003 12:16:56 PM,
+	Serialize by Router on SERVER01/Oxcoda/AU(Release 5.0.11  |July 24, 2002) at
+ 07/03/2003 12:16:57 PM,
+	Serialize complete at 07/03/2003 12:16:57 PM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
-        Currently I'm working on a DVD player fo LINUX project.
-        My player use libc read() function on /dev/hdc, i.e. dvd rom in my
-system, to read data.
-        The last issue I encountered is difficulties during reading
-scratched discs.
-        Such disc will cause the dvd rom drive get ECC error (code = 0x40)
-when perorming the read action.
-        And the kernel will keep retrying to get the correct data from the
-disc.
+I'm experiencing some strange power off problems with 2.4.20.
 
-        This is not what I want. In the worst case, the player's input
-thread is trapped in the kernel trying to read data, seems even won't get
-out from kernel for ever.
-        Then the player is stalled and will not output anything, too bad.
-        The read() function should report fail and return quickly when ECC
-error occurs.
-        This is generally the require for real time data transfer, data loss
-is acceptable and delay is not acceptable.
+When APM or ACPI is enabled and the shutdown/halt/poweroff command is
+issued the system will shutdown, power off and then power straight
+back on again. The power LED turns off and hard disk begins spinning
+down and then power comes straight back on a split second later. 
 
-        I drilled into the file /linux/drivers/ide/ide-cd.c and modified the
-function cdrom_decode_status(), make it abort on senskey==HARDWARE_ERROR. It
-do aborts, but the read() function do not return -1, it just return part of
-the data read.
-        What even worse is that there is too much latency. Normally there
-will be a bunch of consecutive bad blocks ( logical block on DVD,
-2048Bytes), each is read according to a *request* from system cache
-mechanism, and each cause a DVD drive hardware time out ( about 10 seconds.
-). This is still unacceptable.
+This problem doesn't occur on the same hardware with 2.2.19 or with
+Windows 98 (ie. the system shuts down and stays off). The system in
+question has a MSI-6368v5 motherboard (VIA chipset).  Wake-on-LAN,
+wake-on-serial etc etc are all turned off in the BIOS.  APM and ACPI
+are enabled in the BIOS however.
 
-        So, the target is to:
-                Abort the whole read() call.
-                Report FAIL to player. ( The player can do a jump and get to
-some good position on the disc. )
+During my testing I've tried various combinations of APM kernel
+options including "Enable PM at boot time" and "Use real mode APM BIOS
+call to power off", with no change in behaviour. 
 
-        For abort:
-                May be I can do a cdrom_end_request() on every local queue
-element, thus abort to deal with all data to be read in the current read()
-syscall, holding the request lock in hand and unlock it after last request
-is ended.
+I've seen exactly the same behaviour with an Intel chipset MSI
+motherboard. Turning off the "Use real mode APM BIOS call to power
+off" kernel option seemed to fix it for that system. Unfortunately I
+no longer have access to it to test things further.
 
-                >>>>The first question is: WILL THIS WORK, and will it work
-SAFELY?
+Any advice on what might be going on would be greatly appreciated.
+Extensive googling and experimentation has got me nowhere so far.
 
-        For report FAIL:
-                >>>>The second questino is: HOW TO?
-                I did not find any way to report this when the driver start
-to read data, this should be due to the kernel archeticture, IMHO.
-                But I am a newbie to this part of kernel, so I believe there
-will be someone have the idea.
-
-        And never the less, the third question:
-                >>>>Any other idea on this case? Better solution is
-welcomed!
-
-        I have to deal with this issue, and I also hope this will contribute
-to the kernel, this will give very good support to players working on LINUX,
-and also make the cdrom/dvdrom works much more reasonable (IMHO we can have
-two types of read() on such device that may encounter real difficulty when
-doing R/W, we can do more retry when data correctness is mostly concerned,
-but we won't retry for ever.)
-
-        Thanks for your help!
-
-Regards
-
-
-                Guangyu
+-- 
+Menno Smits 

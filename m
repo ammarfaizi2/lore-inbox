@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262873AbUDOBxr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 21:53:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbUDOBxr
+	id S263588AbUDOCPb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 22:15:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263555AbUDOCPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 21:53:47 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:38076 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S262873AbUDOBxo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 21:53:44 -0400
-Subject: Re: modules in 2.6 kernel - question for FAQ?
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200404142142.41137.arekm@pld-linux.org>
-References: <200404142142.41137.arekm@pld-linux.org>
-Content-Type: text/plain
-Message-Id: <1081993968.17782.112.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 15 Apr 2004 11:52:48 +1000
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Apr 2004 22:15:31 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:39709 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S263588AbUDOCPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 22:15:30 -0400
+To: ZI ZHOU <zhouzi@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HELP ! Why my dev->hard_start_xmit get called three times for one ping packet?
+References: <20040415012536.61202.qmail@web12505.mail.yahoo.com>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 14 Apr 2004 19:15:29 -0700
+In-Reply-To: <20040415012536.61202.qmail@web12505.mail.yahoo.com>
+Message-ID: <52oepu7zr2.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 15 Apr 2004 02:15:29.0796 (UTC) FILETIME=[860E2C40:01C4228F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-15 at 05:42, Arkadiusz Miskiewicz wrote:
-> insmod: error inserting './Intel537.ko': -1 Invalid module format
+    ZI> After I configure the ethernet interface(it's a PCI card
+    ZI> plugged in my debian PC), I run command ' ping -c 1
+    ZI> 192.168.0.100', (the interface is configured with IP address
+    ZI> 192.168.0.35), I used smartbit to look at the wire and found 3
+    ZI> ping packets. From the debugging info, I can see
+    ZI> dev->hard_start_xmit is called three times, the DMA engine
+    ZI> seems to be acting correctly, and each time hard_start_xmit is
+    ZI> invoked the skb address is different. How can this happen? 
 
-They didn't use -fno-common.  The patch which adds in the warning got
-lost a while back.
+Are any of the 3 packets actually arp packets?
 
-Here's a new one...
-Rusty.
-
-Name: Print Warning for Common Symbols
-Status: Trivial
-
-People still build modules wrong, particularly without -fno-common.
-The resulting modules don't load, but we should at least warn about it.
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .17714-linux-2.6.5-bk2/kernel/module.c .17714-linux-2.6.5-bk2.updated/kernel/module.c
---- .17714-linux-2.6.5-bk2/kernel/module.c	2004-04-15 09:24:16.000000000 +1000
-+++ .17714-linux-2.6.5-bk2.updated/kernel/module.c	2004-04-15 10:32:39.000000000 +1000
-@@ -1003,6 +1003,8 @@ static int simplify_symbols(Elf_Shdr *se
- 			/* We compiled with -fno-common.  These are not
- 			   supposed to happen.  */
- 			DEBUGP("Common symbol: %s\n", strtab + sym[i].st_name);
-+			printk("%s: please compile with -fno-common\n",
-+			       mod->name);
- 			ret = -ENOEXEC;
- 			break;
- 
-
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
+ - Roland

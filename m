@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262645AbULPIbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbULPIgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262645AbULPIbM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 03:31:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbULPIbL
+	id S262648AbULPIgg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 03:36:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbULPIgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 03:31:11 -0500
-Received: from mail.mellanox.co.il ([194.90.237.34]:37708 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S262645AbULPIa5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 03:30:57 -0500
-Date: Thu, 16 Dec 2004 10:30:58 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, mingo@elte.hu, rlrevell@joe-job.com,
-       tiwai@suse.de, linux-kernel@vger.kernel.org, pavel@suse.cz,
-       discuss@x86-64.org, gordon.jin@intel.com,
-       alsa-devel@lists.sourceforge.net, greg@kroah.com
-Subject: Re: [discuss] Re: unregister_ioctl32_conversion and modules. ioctl32 revisited.
-Message-ID: <20041216083058.GA21887@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20041215065650.GM27225@wotan.suse.de> <20041215074635.GC11501@mellanox.co.il> <s5hbrcvqv7r.wl@alsa2.suse.de> <1103135460.18982.68.camel@krustophenia.net> <20041216050356.GH32718@wotan.suse.de> <20041216075301.GC11047@elte.hu> <20041216080952.GL32718@wotan.suse.de> <20041216002539.60d37dfe.akpm@osdl.org>
+	Thu, 16 Dec 2004 03:36:35 -0500
+Received: from styx.suse.cz ([82.119.242.94]:1458 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S262651AbULPIdf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 03:33:35 -0500
+Date: Thu, 16 Dec 2004 09:34:57 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Eric Lammerts <eric@lammerts.org>
+Cc: linux-kernel@vger.kernel.org, lineak-devel@lists.sourceforge.net
+Subject: Re: Linux input event extending tool exist?
+Message-ID: <20041216083457.GA21199@ucw.cz>
+References: <200412101638.05125.aivils@unibanka.lv> <20041210142044.GB20511@ucw.cz> <41C11202.2040009@lammerts.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041216002539.60d37dfe.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <41C11202.2040009@lammerts.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-Quoting r. Andrew Morton (akpm@osdl.org) "Re: [discuss] Re: unregister_ioctl32_conversion and modules. ioctl32 revisited.":
-> Andi Kleen <ak@suse.de> wrote:
-> >
-> > I think Michael's patch is best (but I'm probably biased) because it addresses
-> >  the independent problem of a race in unregister_ioctl32_conversion() too
-> >  (and some other smaller issues in ioctl 32bit emulation)
-> 
-> They should be separate patches.
-> 
-> >  Andrew, could we replace unlocked_ioctl.patch with Michael's patch?
-> 
-> Where would one locate Michael's patch?
+On Wed, Dec 15, 2004 at 11:41:38PM -0500, Eric Lammerts wrote:
 
-Here it is for review (against 2.6.10-rc3) http://lkml.org/lkml/2004/12/15/62
-I plan to incorporate Arnd Bergmann's comments and repost later today.
+> Vojtech Pavlik wrote:
+> >You can use evtest (attached). It's often found in the joystick RPMs.
+> >It's also in the linuxconsole.sf.net CVS repository.  On recent kernels
+> >it'll show the scancodes as well as the generated keycodes.
+> 
+> Vojtech, are you aware that this doesn't work well with 32-bit apps on 
+> x86-64 kernels? The ioctls don't work (no compat definitions), and 
+> struct input_event is 24 bytes instead of 16.
+ 
+Yes, I'm aware of that, and I don't have a solution for it yet, since
+adding compat ioctls is easy, but using the right input_event size is
+next to impossible.
 
-MST
+The problem is with the difference in size of struct timeval.
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

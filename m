@@ -1,59 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261585AbSJALsv>; Tue, 1 Oct 2002 07:48:51 -0400
+	id <S261588AbSJAL6Z>; Tue, 1 Oct 2002 07:58:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261588AbSJALsv>; Tue, 1 Oct 2002 07:48:51 -0400
-Received: from k100-28.bas1.dbn.dublin.eircom.net ([159.134.100.28]:44303 "EHLO
-	corvil.com.") by vger.kernel.org with ESMTP id <S261585AbSJALsu>;
-	Tue, 1 Oct 2002 07:48:50 -0400
-Message-ID: <3D998C95.9060606@corvil.com>
-Date: Tue, 01 Oct 2002 12:52:53 +0100
-From: Padraig Brady <padraig.brady@corvil.com>
-Organization: Corvil Networks
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: garrett@tbaytel.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE, TRIVIAL, RFC] Linux source strip/bundle script
-References: <200210010734.14949.garrett@tbaytel.net>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S261589AbSJAL6Z>; Tue, 1 Oct 2002 07:58:25 -0400
+Received: from mail.internet-factory.de ([62.134.147.34]:32414 "EHLO
+	mail.internet-factory.de") by vger.kernel.org with ESMTP
+	id <S261588AbSJAL6X>; Tue, 1 Oct 2002 07:58:23 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Holger Lubitz <holger@lubitz.org>
+Newsgroups: lists.linux.kernel
+Subject: PIIX4 problem
+Date: Tue, 01 Oct 2002 14:03:51 +0200
+Organization: Internet Factory AG
+Message-ID: <3D998F27.2090403@lubitz.org>
+NNTP-Posting-Host: gatekeeper.webserv-it.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: darkstar.internet-factory.de 1033473829 24538 62.134.144.10 (1 Oct 2002 12:03:49 GMT)
+X-Complaints-To: usenet@internet-factory.de
+NNTP-Posting-Date: 1 Oct 2002 12:03:49 GMT
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Garrett Kajmowicz wrote:
-> As per the suggestion of the lkml FAQ section 7-7, I have spent some time 
-> working on a script to automatically go through the Linux source tree and 
-> generate a stripped down version of the kernel source code (x86 only), along 
-> with a few additional 'modules' which will contain additional funtionality, 
-> if desired (such as irda or scsi support).
-> 
-> I have requested an account on kernel.org, and hope to run/test this script 
-> for each full, stable release.  I would like all of the input possible on the 
-> script.  Please note that this is the first version, so there are probably 
-> many rough areas.
-> 
-> For a copy of the script please try:
-> 
-> http://garrett.dyndns.biz/makemini.sh.bz2
-> 
-> Please Cc: all comments to:
-> 
-> Garrett Kajmowicz
-> gkajmowi@tbaytel.net
+Hi,
 
-1. There is a distinct dearth (hmm an anagram of redhat) of loops.
-2. When trashing the source like this you may as well remove
-    trailing whitespace (reduces kernel by 200K after compression).
-3. What's the difference in size between 2.4.19.tar.bz2 and
-    2.4.19-bastardized.tar.bz2 ?
-4. Is this just for (a) removing redundant code after installation or
-    (b) providing subset version(s) for download.
-5. If 4(a) wouldn't you need to parse the .config to find the appropriate
-    bits to remove?
+I have the following weird problem with a BX-based Board (Asus P3B-F, P3 
+500 MHz (Katmai) Intel BX with PIIX4, latest BIOS 1008-004):
 
-Pádraig.
+Kernel 2.2 (Debian Woody) works.
+Kernel 2.4 (Redhat 7.3, 8.0) doesn't work.
+Selfcompiled 2.4.19, 2.4.20-pre8: only work if I do _not_ compile PIIX4 
+support in.
+
+dmesg on successful boot with selfcompiled 2.4.20-pre8 without PIIX support:
+
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 21
+PIIX4: detected chipset, but driver not compiled in!
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+     ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:DMA
+     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:pio
+hda: MAXTOR 6L040J2, ATA DISK drive
+hdb: LTN526, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+blk: queue c02d69e4, I/O limit 4095Mb (mask 0xffffffff)
+hda: 78177792 sectors (40027 MB) w/1819KiB Cache, CHS=4866/255/63, (U)DMA
+hdb: ATAPI 52X CD-ROM drive, 120kB Cache
+Uniform CD-ROM driver Revision: 3.12
+Partition check:
+  hda: hda1 hda2 hda3 < hda5 hda6 hda7 hda8 >
+
+Apart from the warning about the driver not being compiled in everything 
+runs fine. hdparm -I even tells me that both drives are running in UDMA 
+mode.
+
+This is the dmesg output for an unsuccessful boot with RedHat 8.0 
+(written down by hand, excuse the errors). Unsuccessful boots with 
+selfcompiled kernels with PIIX support look nearly identical except for 
+the blk: lines.
+
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 21
+PIIX4: detected chipset, but driver not compiled in!
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+     ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:DMA
+     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:pio
+hda: MAXTOR 6L040J2, ATA DISK drive
+hdb: LTN526, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+blk: queue c02e7ce4, I/O limit 4095Mb (mask 0xffffffff)
+hda: set_drive_speed_status: status = 0xff { Busy }
+blk: queue c02e7ce4, I/O limit 4095Mb (mask 0xffffffff)
+hda: status timeout
+hda: drive not ready for command
+hda: 78177792 sectors (40027 MB) w/1819KiB Cache, CHS=4866/255/63, (U)DMA
+hda: status timeout: status = 0xff { Busy }
+hda: drive not ready for command
+hdb: status timeout: status = 0xff { Busy }
+hdb: drive not ready for command
+hdb: ATAPI reset timed-out, status: 0xff
+hda: DMA disabled
+ide0: reset timed-out, status = 0xff
+hdb: status timeout: status = 0xff { Busy }
+hdb: drive not ready for command
+hdb: ATAPI reset timed-out, status = 0xff
+ide0: reset timed-out, status = 0xff
+end_request: I/O-error dev 0b:40 (hdb) sector 0
+hdb: ATAPI CD-ROM drive, 0kB Cache
+
+I tried all combinations of nodma,notune,noautotune (is it notune or 
+noautotune? conflicting documentation there...) for both ide0 and ide1 
+and even for individual drives (hdb=nodma etc.), the kernel ignored me. 
+Even disabling DMA in the BIOS still gave me
+
+PIIX4: not 100% native mode: will probe irqs later
+     ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:DMA
+     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:pio
+
+Again - the strange thing is that it works just fine if I leave out 
+PIIX4 support and select only generic PCI busmaster DMA support. 
+However, I cannot use distribution kernels which have PIIX compiled in.
+
+Is there a boot option to disable PIIX support?
+
+Thanks for any help,
+Holger
 

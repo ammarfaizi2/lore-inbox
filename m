@@ -1,58 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVBARse@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVBARue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262081AbVBARse (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 12:48:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVBARse
+	id S262083AbVBARue (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 12:50:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVBARue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 12:48:34 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36057 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262081AbVBARsF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 12:48:05 -0500
-Date: Tue, 1 Feb 2005 17:47:58 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Brian King <brking@us.ibm.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andi Kleen <ak@muc.de>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
-Message-ID: <20050201174758.GE10088@parcelfarce.linux.theplanet.co.uk>
-References: <41ED27CD.7010207@us.ibm.com> <1106161249.3341.9.camel@localhost.localdomain> <41F7C6A1.9070102@us.ibm.com> <1106777405.5235.78.camel@gaston> <1106841228.14787.23.camel@localhost.localdomain> <41FA4DC2.4010305@us.ibm.com> <20050201072746.GA21236@kroah.com> <41FF9C78.2040100@us.ibm.com> <20050201154400.GC10088@parcelfarce.linux.theplanet.co.uk> <41FFBDC9.2010206@us.ibm.com>
+	Tue, 1 Feb 2005 12:50:34 -0500
+Received: from mail.suse.de ([195.135.220.2]:45445 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262083AbVBARuB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 12:50:01 -0500
+Subject: Re: [PATCH 1/8] lib/sort: Heapsort implementation of sort()
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050131193032.GR2891@waste.org>
+References: <2.416337461@selenic.com>
+	 <1107191783.21706.124.camel@winden.suse.de>
+	 <20050131193032.GR2891@waste.org>
+Content-Type: text/plain
+Organization: SUSE Labs
+Message-Id: <1107280199.12050.113.camel@winden.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41FFBDC9.2010206@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 01 Feb 2005 18:50:00 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 01, 2005 at 11:35:05AM -0600, Brian King wrote:
-> >If we've done a write to config space while the adapter was blocked,
-> >shouldn't we replay those accesses at this point?
+On Mon, 2005-01-31 at 20:30, Matt Mackall wrote:
+> On Mon, Jan 31, 2005 at 06:16:23PM +0100, Andreas Gruenbacher wrote:
+> > Hello,
+> > 
+> > On Mon, 2005-01-31 at 08:34, Matt Mackall wrote:
+> > > This patch adds a generic array sorting library routine. This is meant
+> > > to replace qsort, which has two problem areas for kernel use.
+> > 
+> > looks reasonable.
+> > 
+> > > Note that this function has an extra parameter for passing in an
+> > > optimized swapping function. This is worth 10% or more over the
+> > > typical byte-by-byte exchange functions.
+> > 
+> > I would appreciate a version without the swap callback.
 > 
-> I did not think that was necessary.
+> Why? To eliminate an argument?
 
-We have to do *something*.  We can't just throw away writes.
+Yes, because a custom swap routine isn't very useful generally. It's
+over-engineered IMHO.
 
-I see a few options:
+> > The optimized version of swap should use the machine word size
+> > instead of u32.
+> 
+> That occurred to me, but most instances I found in my audit were using
+> u32 rather than long.
 
- - Log all pending writes to config space and replay the log when the
-   device is unblocked.
- - Fail writes to config space while the device is blocked.
- - Write to the saved config space and then blat the saved config space
-   back to the device upon unblocking.
+Alright, that may be the case.
 
-Any other ideas?
+> > How about this approach instead, if you think we
+> > must really optimize swapping?
+> >
+> > static inline void swap(void *a, void *b, int size)
+> > {
+> >         if (size % sizeof(long)) {
+> >                 char t;
+> >                 do {
+> >                         t = *(char *)a;
+> >                         *(char *)a++ = *(char *)b;
+> >                         *(char *)b++ = t;
+> >                 } while (--size > 0);
+> >         } else {
+> >                 long t;
+> >                 do {
+> >                         t = *(long *)a;
+> >                         *(long *)a = *(long *)b;
+> >                         *(long *)b = t;
+> >                         size -= sizeof(long);
+> >                 } while (size > sizeof(long));
+> >         }
+> > }
+> 
+> This makes things worse. Sort isn't inlined, so we don't know size
+> until we're called and then we're branching in the innermost loop
 
-BTW, you know things like XFree86 go completely around the kernel's PCI
-accessors and poke at config space directly?
+Well, the example code I referred to had an inlined __sort, and the size
+== sizeof(long) case ended up being perfectly optimized. It bloats the
+code somewhat though, but it's still tiny.
 
+> and growing the code footprint to boot.
+
+You mean the object footprint? I don't care much whether we use some 350
+bytes more or not.
+
+> Function pointer wins in my benchmarks.
+
+I had a slowdown in the low percentage range when doing bytewise swap
+instead of wordwise swap as well, but function pointers were about as
+fast as wordwise swap. So no significant gain.
+
+> Note that there are callers like IA64 extable that want a custom swap already:
+> 
+> - * stack may be more than 2GB away from the exception-table).
+> + * Sort the exception table. It's usually already sorted, but there
+> + * may be unordered entries due to multiple text sections (such as the
+> + * .init text section). Note that the exception-table-entries contain
+> + * location-relative addresses, which requires a bit of care during
+> + * sorting to avoid overflows in the offset members (e.g., it would
+> + * not be safe to make a temporary copy of an exception-table entry on
+> + * the stack, because the stack may be more than 2GB away from the
+> + * exception-table).
+>   */
+
+We could either leave the current insertion sort in place in
+arch/ia64/mm/extable.c, or transform the exception table into sortable
+form first, as in the below mock-up.
+
++       /* Exception-table-entries contain location-relative addresses. Convert
++          to addresses relative to START before sorting, and convert back to
++          location-relative addresses afterwards. This allows us to use the
++          general-purpose sort function. */
++       for (p = start+1; p < finish; p++) {
++               int n = (void *)p - (void *)start;
++               p->addr += n;
++               p->cont += n;
++       }
++       sort(start, finish - start, sizeof(struct exception_table_entry),
++            compare_entries);
++       for (p = start+1; p < finish; p++) {
++               int n = (void *)p - (void *)start;
++               p->addr -= n;
++               p->cont -= n;
++       }
+
+Switching to the generic sort probably isn't worth it in this case.
+
+> There are a bunch of other potential users that sort parallel arrays
+> a[] and b[] with keys in a[] that want this too.
+
+Where?
+
+Thanks,
 -- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX GMBH
+

@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264367AbTLVJgP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 04:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbTLVJgP
+	id S264385AbTLVJse (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 04:48:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbTLVJse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 04:36:15 -0500
-Received: from fw.osdl.org ([65.172.181.6]:37258 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264367AbTLVJgO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 04:36:14 -0500
-Date: Mon, 22 Dec 2003 01:36:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: albert@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: atomic copy_from_user?
-Message-Id: <20031222013613.7e0741f5.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0312212024230.6448@home.osdl.org>
-References: <1072054100.1742.156.camel@cube>
-	<Pine.LNX.4.58.0312212024230.6448@home.osdl.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 22 Dec 2003 04:48:34 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6931 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264385AbTLVJsc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 04:48:32 -0500
+Date: Mon, 22 Dec 2003 09:48:29 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andres Salomon <dilinger@voxel.net>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] CONFIG_PCMCIA_PROBE fix
+Message-ID: <20031222094829.B13978@flint.arm.linux.org.uk>
+Mail-Followup-To: Andres Salomon <dilinger@voxel.net>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <1072072123.27831.6.camel@spiral.internal>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1072072123.27831.6.camel@spiral.internal>; from dilinger@voxel.net on Mon, Dec 22, 2003 at 12:48:44AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
->
-> > From some naughty place in the code where might_sleep
->  > would trigger, I'd like to read from user memory.
->  > I'll pretty much assume that mlockall() has been
->  > called. Suppose that "current" is correct as well.
->  > I'd just use a pointer directly, except that:
->  > 
->  > a. it isn't OK for the 4g/4g feature, s390, or sparc64
->  > b. it causes the "sparse" type checker to complain
->  > c. it will oops or worse if the user screwed up
->  > 
->  > If the page is swapped out, I want a failed copy.
+On Mon, Dec 22, 2003 at 12:48:44AM -0500, Andres Salomon wrote:
+> Some time ago, Russell King submitted a patch to use CONFIG_PCMCIA_PROBE
+> instead of CONFIG_ISA in pcmcia probing code.  Unfortunately,
+> CONFIG_PCMCIA_PROBE still is only set if CONFIG_ISA is set.  This means
+> that if ISA isn't enabled, certain things break in 2.6; for example, my
+> pcmcia nic/modem (using pcnet_cs/serial_cs).  These worked fine in 2.4;
+> I tracked the behavior to the fact that if irq_mask is set on a pcmcia
+> socket (instead of pci_irq), and PCMCIA_PROBE isn't set,
+> pcmcia_request_irq refuses to assign an irq.  Most of the pcmcia bridges
+> appear to set an irq_mask, so the attached patch changes Kconfig to set
+> CONFIG_PCMCIA_PROBE if any of those bridges are selected.
 > 
->  the sequence
-> 
->  	local_bh_disable();
->  	err = get_user(n, ptr);
->  	local_bh_enable();
->  	if (!err)
->  		.. 'n' .. was the value
-> 
->  will do this in 2.6.x, except it will complain loudly about the unatomic 
->  access. Other than that, it will do what you ask for.
+> Please apply this (or an alternative fix), as it fixes a 2.6 regression
+> in pcmcia functionality.
 
-An explicit inc_preempt_count() would be clearer.  See how ia32's
-kmap_atomic() does it.  And filemap_copy_from_user().
+Please don't.  David Hinds has a better fix for this, which changes
+the way we handle the allocation of IRQs.  David's change is all
+round a far better way to handle the problem - if all ISA interrupts
+are used or unavailable, we fall back to using the PCI interrupt
+instead.
 
+Please also note that there /is/ a PCMCIA list which patches should
+be forwarded to - linux-pcmcia which is at lists.infradead.org
 
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

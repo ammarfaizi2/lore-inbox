@@ -1,83 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262646AbVCPPde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262616AbVCPPqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262646AbVCPPde (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 10:33:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVCPPch
+	id S262616AbVCPPqz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 10:46:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVCPPqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 10:32:37 -0500
-Received: from mail3.utc.com ([192.249.46.192]:20467 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S262641AbVCPPbS (ORCPT
+	Wed, 16 Mar 2005 10:46:54 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:20878 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261262AbVCPPqx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 10:31:18 -0500
-Message-ID: <42385129.90408@cybsft.com>
-Date: Wed, 16 Mar 2005 09:30:49 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Frank Rowand <frowand@mvista.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] ppc RT: Realtime preempt support for PPC
-References: <422CCC1D.1050902@mvista.com> <20050316100914.GA16012@elte.hu>
-In-Reply-To: <20050316100914.GA16012@elte.hu>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------020607000707080204000903"
+	Wed, 16 Mar 2005 10:46:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=UCLsQYaZODJwsgTwWXZO3H0bs+Dr6r4ofsTGIiZoR+ioN93FjFC6izAqpdCd9r9tl9TxfKx9nwQVoAfZHk1zx4eEUWASipmaq/fk2khxZ4QgYh886GYCz0g1lMCY1Owz/gDDLXBwzE0GwjSgTHM42SmWT0Y4YzUJAdM5ElXhWXc=
+Message-ID: <5a3ed5650503160744730b7db4@mail.gmail.com>
+Date: Wed, 16 Mar 2005 18:44:51 +0300
+From: regatta <regatta@gmail.com>
+Reply-To: regatta <regatta@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 32Bit vs 64Bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020607000707080204000903
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi everyone,
 
-Ingo Molnar wrote:
-> hi Frank - sorry about the late reply, was busy with other things. Your
-> ppc patches look mostly mergeable, with some small details still open:
-> 
-> * Frank Rowand <frowand@mvista.com> wrote:
-> 
-> 
->>The patches are:
->>
->> 1/5 ppc_rt.patch          - the core realtime functionality for PPC
-> 
-> 
-> what is the rationale behind the rt_lock.h changes? The #ifdef
-> CONFIG_PPC32 changes in generic code are not really acceptable, the -RT
-> tree tries to keep a single spinlock definition and debugging
-> primitives, across all architectures.
-> 
-> to drive things forward, i've applied the first 3 patches (except the
-> rt_lock.h chunk from the first patch), and released it as part of the
-> 40-03 patch:
-> 
->   http://redhat.com/~mingo/realtime-preempt/
-> 
+I have a question about the 64Bit mode in AMD 64bit
 
-Is no one else having trouble compiling this one? The attached one liner 
-reverses a one line in the above patch.
+My question is if I run a 32Bit application in Optreon AMD 64Bit with
+Linux 64Bit does this give my any benefit ? I mean running 32Bit
+application in 64Bit machine with 64 Linux is it better that running
+it in 32Bit or doesn't make any different at all ?
 
-kr
-
---------------020607000707080204000903
-Content-Type: text/x-patch;
- name="jbdfix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="jbdfix.patch"
-
---- linux-2.6.11/include/linux/jbd.h.orig	2005-03-16 09:18:51.000000000 -0600
-+++ linux-2.6.11/include/linux/jbd.h	2005-03-16 09:19:24.000000000 -0600
-@@ -65,6 +65,7 @@ extern int journal_enable_debug;
- 		}							\
- 	} while (0)
- #else
-+#define jbd_debug(f, a...)   /**/
- #endif
- 
- extern void * __jbd_kmalloc (const char *where, size_t size, int flags, int retry);
-
---------------020607000707080204000903--
+Thanks
+-- 
+Best Regards,
+--------------------
+-*- If Linux doesn't have the solution, you have the wrong problem -*-

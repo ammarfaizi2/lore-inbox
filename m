@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311692AbSCaG1o>; Sun, 31 Mar 2002 01:27:44 -0500
+	id <S312344AbSCaGxt>; Sun, 31 Mar 2002 01:53:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311860AbSCaG1e>; Sun, 31 Mar 2002 01:27:34 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:17355 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S311692AbSCaG10>;
-	Sun, 31 Mar 2002 01:27:26 -0500
-Date: Sat, 30 Mar 2002 22:21:59 -0800 (PST)
-Message-Id: <20020330.222159.48199024.davem@redhat.com>
-To: pierre.rousselet@wanadoo.fr
-Cc: tim@birdsnest.maths.tcd.ie, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.7
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3CA6819F.3090007@wanadoo.fr>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S312161AbSCaGxj>; Sun, 31 Mar 2002 01:53:39 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18449 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312158AbSCaGx1>;
+	Sun, 31 Mar 2002 01:53:27 -0500
+Message-ID: <3CA6B210.D5AE5D7A@zip.com.au>
+Date: Sat, 30 Mar 2002 22:52:00 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: rwhron@earthlink.net, linux-kernel@vger.kernel.org,
+        marcelo@conectiva.com.br
+Subject: Re: Linux 2.4.19-pre5
+In-Reply-To: <20020330135333.A16794@rushmore> <3CA616B2.1F0D8A76@zip.com.au>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-   Date: Sun, 31 Mar 2002 05:25:19 +0200
+Andrew Morton wrote:
+> 
+> ...
+> I'll get the rest of the -aa VM patches up at the above URL
+> soonish.
 
-   I've noticed 2.5.7 fails to build without tcp/ip enabled :
-   sock.c:559: `TCP_LISTEN' undeclared
-   sock.c:1192: `TCP_CLOSE' undeclared
+http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.19-pre5/aa1/
 
-Just add an include of linux/tcp.h to net/core/sock.c, that
-should clear it up.
+Rediffed, retested.
 
-I'll fix this in my sources.
+>  I seem to have found a nutty workload which is returning
+> extremely occasional allocation failures for GFP_HIGHUSER
+> requests, which will deliver fatal SIGBUS at pagefault time.
+> There's plenty of swap available, so this is a snag.
+
+False alarm.  My test app was not handling SIGBUS inside its SIGBUS
+handler. 
+
+-

@@ -1,41 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135579AbRDSHCC>; Thu, 19 Apr 2001 03:02:02 -0400
+	id <S135580AbRDSHVG>; Thu, 19 Apr 2001 03:21:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135580AbRDSHBw>; Thu, 19 Apr 2001 03:01:52 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:38665 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S135579AbRDSHBk>;
-	Thu, 19 Apr 2001 03:01:40 -0400
-Date: Thu, 19 Apr 2001 03:02:37 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: After implementing logic to ignore changelogs...
-Message-ID: <20010419030237.A30242@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S135581AbRDSHU5>; Thu, 19 Apr 2001 03:20:57 -0400
+Received: from [212.150.182.35] ([212.150.182.35]:36366 "EHLO
+	exchange.guidelet.com") by vger.kernel.org with ESMTP
+	id <S135580AbRDSHUo>; Thu, 19 Apr 2001 03:20:44 -0400
+Message-ID: <023c01c0c8a9$a4bb9940$910201c0@zapper>
+From: "Alon Ziv" <alonz@nolaviz.org>
+To: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Cc: "Mike Kravetz" <mkravetz@sequent.com>,
+        "Ulrich Drepper" <drepper@cygnus.com>,
+        "Linus Torvalds" <torvalds@transmeta.com>
+In-Reply-To: <Pine.LNX.4.31.0104171200220.933-100000@penguin.transmeta.com> <m33db680h8.fsf@otr.mynet.cygnus.com>
+Subject: Re: light weight user level semaphores
+Date: Thu, 19 Apr 2001 10:20:48 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After implementing logic to strip out comments in .c and .h files, and
-to ignore changelog files, the number of broken symbols in 2.4.4pre4
-drops from 731 to 699.  Most of the cruft is real cruft.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Hmm...
+I already started (long ago, and abandoned since due to lack of time :-( )
+down another path; I'd like to resurrect it...
 
-In recent years it has been suggested that the Second Amendment
-protects the "collective" right of states to maintain militias, while
-it does not protect the right of "the people" to keep and bear arms.
-If anyone entertained this notion in the period during which the
-Constitution and the Bill of Rights were debated and ratified, it
-remains one of the most closely guarded secrets of the eighteenth
-century, for no known writing surviving from the period between 1787
-and 1791 states such a thesis.
-        -- Stephen P. Halbrook, "That Every Man Be Armed", 1984
+My lightweight-semaphores were actually even simpler in userspace:
+* the userspace struct was just a signed count and a file handle.
+* Uncontended case is exactly like Linus' version (i.e., down() is decl +
+js, up() is incl()).
+* The contention syscall was (in my implementation) an ioctl on the FH; the
+FH was a special one, from a private syscall (although with the new VFS I'd
+have written it as just another specialized FS, or even referred into the
+SysVsem FS).
+
+So, there is no chance for user corruption of kernel data (as it just ain't
+there...); and the contended-case cost is probably equivalent (VFS cost vs.
+validation).
+
+Hope I inspired someone...
+
+    -az
+
+----- Original Message -----
+From: "Ulrich Drepper" <drepper@redhat.com>
+To: "Linus Torvalds" <torvalds@transmeta.com>
+Cc: "Mike Kravetz" <mkravetz@sequent.com>; "Kernel Mailing List"
+<linux-kernel@vger.kernel.org>
+Sent: Wednesday, April 18, 2001 21:35
+Subject: Re: light weight user level semaphores
+
+
+> Linus Torvalds <torvalds@transmeta.com> writes:
+>
+> Sounds good so far.  Some comments.
+>
+> >  - FS_create is responsible for allocating a shared memory region
+> >    at "FS_create()" time.
+>
+> This is not so great.  The POSIX shared semaphores require that an
+> pthread_mutex_t object placed in a shared memory region can be
+> initialized to work across process boundaries.  I.e., the FS_create
+> function would actually be FS_init.  There is no problem with the
+> kernel or the helper code at user level allocating more storage (for
+> the waitlist of whatever) but it must not be necessary for the user to
+> know about them and place them in share memory themselves.
+>
+> The situation for non-shared (i.e. intra-process) semaphores are
+> easier.  What I didn't understand is your remark about fork.  The
+> semaphores should be cloned.  Unless the shared flag is set there
+> should be no sharing among processes.
+>
+>
+> The rest seems OK.  Thanks,
+>
+> --
+> ---------------.                          ,-.   1325 Chesapeake Terrace
+> Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+> Red Hat          `--' drepper at redhat.com   `------------------------
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+

@@ -1,89 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275744AbRI0Cc3>; Wed, 26 Sep 2001 22:32:29 -0400
+	id <S275745AbRI0ChJ>; Wed, 26 Sep 2001 22:37:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275747AbRI0CcU>; Wed, 26 Sep 2001 22:32:20 -0400
-Received: from razor.hemmet.chalmers.se ([193.11.251.99]:12672 "EHLO
-	razor.hemmet.chalmers.se") by vger.kernel.org with ESMTP
-	id <S275744AbRI0CcO>; Wed, 26 Sep 2001 22:32:14 -0400
-Message-ID: <3BB28FC6.9090404@kjellander.com>
-Date: Thu, 27 Sep 2001 04:32:38 +0200
-From: Carl-Johan Kjellander <carljohan@kjellander.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4+) Gecko/20010925
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S275746AbRI0Cg7>; Wed, 26 Sep 2001 22:36:59 -0400
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:50953
+	"HELO gw.goop.org") by vger.kernel.org with SMTP id <S275745AbRI0Cgp>;
+	Wed, 26 Sep 2001 22:36:45 -0400
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.10 crashes hard when starting X.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: 2.4.9: strange stale buffers when reading partition table (USB/SCSI)
+Message-ID: <1001558230.3bb290d6a8b8e@www.goop.org>
+Date: Wed, 26 Sep 2001 19:37:10 -0700 (PDT)
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: jeremy@goop.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I tried 2.4.10 my machine crashed really hard upon starting the
-Xserver, not even alt-sysrq-SU worked, but alt-sysrq-B did reboot the
-machine. I've been trying divide and conquer to find out which kernel
-that crashes my machine from 2.4.8 and 2.4.10.
+I have a Sony DSC F505V digital camera, which allows you to download images by
+presenting itself as a USB storage device containing a single partition with a
+FAT filesystem on it.
 
-2.4.8        works fine
-2.4.9        works fine
-2.4.10-pre8  works fine
-... (will try other kernels between pre8 and final tomorrow)
-2.4.10       crashes hard
+The camera is detected by USB, and SCSI will talk to it, but it fails to find
+the partition table.  I added some code after the bread() in
+fs/partitions/msdos.c:443 to dump the read data, which shows that it is getting
+garbage.  It has relation to anything on the actual device, and it changes from
+time to time.
 
-I can here the monitor changing resolition just before the machine
-halts, but the screen is all black so I can't see any oopsmessages.
-I've tried with and without FB-console and with and without DRI
-enabled.
+The strange thing is that reading the device via /dev/sda works fine.  fdisk
+shows a valid partition table, and the partition itself looks fine. 
 
-Since alt-sysrq-S doesn't work, there is no usable message in
-/var/log/messages or output from startx.
+If I add:
 
-The only patch applied is the ext3 patch.
+        bh = getblk(dev, 0, get_ptable_blocksize(dev));
+        if (bh)
+                bforget(bh);
 
-The system is a Pentium II and the graphics card a Voodoo3 3000.
+just before the bread(), the bread gets the correct stuff and can read the
+partition table.  Everything works fine from there on:
 
+hub.c: USB new device connect on bus1/1, assigned device number 2
+scsi0 : SCSI emulation for USB Mass Storage devices
+  Vendor: Sony      Model: Sony DSC          Rev: 2.10
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+SCSI device sda: 253696 512-byte hdwr sectors (130 MB)
+usb-uhci.c: interrupt, status 3, frame# 207
+usb-uhci.c: interrupt, status 3, frame# 213
+sda: Write Protect is off
+ /dev/scsi/host0/bus0/target0/lun0: p1
+WARNING: USB Mass Storage data integrity not assured
+USB Mass Storage device found at 2
+scsi singledevice 0 0 0 0
+usb-uhci.c: interrupt, status 3, frame# 48
+...
 
-# ./ver_linux
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
+So it looks like someone is leaking buffers or something.  The bforget() looks
+like its simply papering over the symptoms of some other problem, but I don't
+know where to start looking.  Perhaps there's a SCSI problem which is leaving
+stale blocks around, perhaps related to it being a removeable device?
 
-Linux razor.hemmet.chalmers.se 2.4.10-pre8 #1 Thu Sep 27 02:40:55 CEST 2001 i686 unknown
+This is 2.4.9-linus with ext3 (though plain 2.4.9 without ext3 behaves in
+exactly the same way).
 
-Gnu C                  2.96
-Gnu make               3.79.1
-binutils               2.10.91.0.2
-util-linux             2.11f
-mount                  2.11b
-modutils               2.4.2
-e2fsprogs              1.23
-PPP                    2.4.0
-Linux C Library        2.2.2
-Dynamic linker (ldd)   2.2.2
-Procps                 2.0.7
-Net-tools              1.57
-Console-tools          0.3.3
-Sh-utils               2.0
-Modules Loaded         binfmt_misc tuner tvaudio bttv microcode pwcx pwc
-   usbmouse nfs lockd sunrpc autofs 8139too ipchains vfat fat ntfs es1371
-   ac97_codec soundcore mousedev hid usb-uhci usbcore
+I haven't tried 2.4.10 yet, but it sounds like everything has changed in this
+area anyway...
 
-# rpm -q XFree86
-XFree86-4.0.3-5
-
-# rpm -q gcc
-gcc-2.96-85
-
-Distribution RH 7.1.
-
-Is it an AGPGART issue perhaps. I've tried with and without IOAPIC on UP
-after reading the mail from Matthias Andree. Should I try XFree 4.1.0?
-
-* Please CC me as I'm not on the list.
-
-/Carl-Johan Kjellander
--- 
-begin 644 carljohan_at_kjellander_dot_com.gif
-Y1TE&.#=A(0`F`(```````/___RP`````(0`F```"@XR/!\N<#U.;+MI`<[U(>\!UGQ9BGT%>'D2I
-Y*=NX,2@OUF2&<827ILW;^822C>\7!!Z1,!K'B5(6H<SH-"E*TJ3%*/>QI6:7"A>Y?):D2^*U@NCV
-R<MOQ=]V(B6>LZYD-_T1U<@3W]A4(^$-W4]A#V")W6#.R"$;IR'@).46BN7$9>5D``#L`
-
+        J

@@ -1,74 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbTDQPBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 11:01:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbTDQPBP
+	id S261542AbTDQO7H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 10:59:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbTDQO7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 11:01:15 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:6823 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S261598AbTDQPBN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 11:01:13 -0400
-Date: Thu, 17 Apr 2003 08:13:05 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 594] New: Get repeatly Debug: sleeping function called from
- illegal context at mm/slab.c:1658 
-Message-ID: <10590000.1050592385@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 17 Apr 2003 10:59:07 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:5063
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261542AbTDQO7F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 10:59:05 -0400
+Subject: Re: Help with virus/hackers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: root@chaos.analogic.com
+Cc: joe briggs <jbriggs@briggsmedia.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0304170932490.15993@chaos>
+References: <200304171015.13474.jbriggs@briggsmedia.com>
+	 <Pine.LNX.4.53.0304170932490.15993@chaos>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Organization: 
+Message-Id: <1050588754.31390.72.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 17 Apr 2003 15:12:35 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=594
+On Iau, 2003-04-17 at 14:55, Richard B. Johnson wrote:
+> (2) Boot with init=/bin/bash
 
-           Summary: Get repeatly Debug: sleeping function called from
-                    illegal context at mm/slab.c:1658
-    Kernel Version: 2.5.67-vanilla
-            Status: NEW
-          Severity: high
-             Owner: akpm@digeo.com
-         Submitter: torden88@yahoo.no
+Doesnt help you
+> (5)  Examine /etc/inetd.conf (if one exists). If you see an
+>      unusual entry near the end, you have been 'rooted'. Newer
+>      systems use xinetd and won't get invaded this way.
+Wrong. Old xinetd < 2.3.10 has remote root exploits and real
+ones circulate
+> (6)  Check /etc/passwd for a strange account.
+Rootkits patch other stuff
+> (7)  Check /bin/login for a new file-date.
+> (8)  Check /usr/sbin/sendmail for a new file-date.
+>      Check /usr/sbin/inetd      ""
+>      Check /usr/sbin/xinetd     ""
+>      Check /usr/sbin/syslogd    ""
+>      Check /usr/sbin/klogd      ""
+>      Check /usr/sbin/in.*       ""
 
+Rootkits know about avoiding this
 
-Distribution: Linux From Scratch
-Hardware Environment:Athlon XP 1600+, VIA KT266a, 256mb TwinMOS DDR ram
-Software Environment:GCC 3.2.2, glibc 2.3.2
-Problem Description:
-I get this message repeatly (about 1 second between each time), after the
-system as been up for about 5 minutes(even in runlevel 1).
-It does NOT come when I am in X, but when i switch to the console, it
-appears.
+> If none of these have recent writes, just change the password on
+> the root account and be happy. You just has some file-system
+> corruption and you can fix up /etc/DIR_COLORS (for your color-ls
+> problem) and fix /etc/profile or /root/.bashrc, /root/.profile
+> to fix the bad environment variables created by these scripts.
 
-Debug: sleeping function called from illegal context at mm/slab.c:1658
-Call Trace:
- [<c01186bf>] __might_sleep+0x5f/0xa0
- [<c0137df9>] kmalloc+0x89/0x90
- [<c0283425>] accel_cursor+0xd5/0x300
- [<c0283845>] fb_vbl_handler+0x85/0xa0
- [<c0123be4>] group_send_sig_info+0x1c4/0x510
- [<c0281e40>] cursor_timer_handler+0x0/0x40
- [<c0281e61>] cursor_timer_handler+0x21/0x40
- [<c012242c>] run_timer_softirq+0x8c/0x170
- [<c010e864>] timer_interrupt+0x54/0x140
- [<c011e5e1>] do_softirq+0xa1/0xb0
- [<c010ad18>] do_IRQ+0x108/0x130
- [<c0107040>] default_idle+0x0/0x30
- [<c0107040>] default_idle+0x0/0x30
- [<c0109408>] common_interrupt+0x18/0x20
- [<c0107040>] default_idle+0x0/0x30
- [<c0107040>] default_idle+0x0/0x30
- [<c0107067>] default_idle+0x27/0x30
- [<c01070e1>] cpu_idle+0x31/0x40
- [<c0105000>] rest_init+0x0/0x60
+Never do this. You don't know what else has changed on the system. You
+should always (barring odd exceptions) do a full reinstall. Also clean
+user executable files if neccessary (roots .login is often archived and
+people rerun exploits from it...)
 
-
-
-Steps to reproduce:
-Boot the computer, wait for 5 minutes, and it comes.
-But, when I am in X, it does not start before I switch to the console, and
-it stops when I switch back to X.
+See the cert documents on recovering from an attack
 

@@ -1,54 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289116AbSANW2Y>; Mon, 14 Jan 2002 17:28:24 -0500
+	id <S289121AbSANWbI>; Mon, 14 Jan 2002 17:31:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289102AbSANW2U>; Mon, 14 Jan 2002 17:28:20 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:933 "EHLO
-	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S289108AbSANW0e>; Mon, 14 Jan 2002 17:26:34 -0500
-Message-ID: <3C435C85.C4841FDE@nortelnetworks.com>
-Date: Mon, 14 Jan 2002 17:32:37 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: esr@thyrsus.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Penelope builds a kernel
-In-Reply-To: <20020114165909.A20808@thyrsus.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S289108AbSANW2t>; Mon, 14 Jan 2002 17:28:49 -0500
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:33694 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S289096AbSANW2b>;
+	Mon, 14 Jan 2002 17:28:31 -0500
+Message-Id: <5.1.0.14.2.20020114222648.04ddccf0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 14 Jan 2002 22:28:26 +0000
+To: Ian Morgan <imorgan@webcon.net>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: ide.2.4.16.12102001 chokes on HPT366
+Cc: Andre Hedrick <andre@linuxdiskcert.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40.0201141336480.2591-100000@light.webcon.net>
+In-Reply-To: <Pine.LNX.4.10.10201132041350.18708-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" wrote:
-> 
-> Scenario #3: Penelope goes where the geeks are surfing.
+Have you got the latest mobo BIOS and firmware for the HPT installed?
 
-> If Penelope learns from the README file that all *she* has to do is
-> type "configure; make" to build a kernel that supports her hardware,
-> she can apply that MEMS card patch and build with confidence that the
-> effort is unlikely to turn into an infinite time sink.
-> 
-> Autoconfigure saves the day again.  That guy in the penguin T-shirt
-> might even be impressed...
+Some versions of your motherboard are known to be completely broken, even 
+Windows users end up not using the onboard controller in some cases. This 
+is not necessarilly a Linux IDE issue.
 
-Is anyone arguing that autoconfig is *unconditionally bad*?
+Best regards,
 
-As long as it doesn't impact the ability to continue setting things manually, I
-don't see how it could be bad.
+Anton
 
-For instances where you're building a new kernel on the system it's going to run
-on, and you want all the devices, then use autoconfig.  For anything else,
-either start from scratch as usual or use autoconfig as a base to start from.
-
-As long as we still have manual control if we want it, I don't see any problems.
-
-Chris
+At 18:39 14/01/02, Ian Morgan wrote:
+>On Sun, 13 Jan 2002, Andre Hedrick wrote:
+>
+> > Quantum Fireball LM30 -- stuff it in a quirk list in the top of the file
+> > and see if that fixes it.
+>
+>--- hpt366.c~   Sun Jan 13 18:38:52 2002
+>+++ hpt366.c    Mon Jan 14 01:24:55 2002
+>@@ -82,7 +82,8 @@
+>         "QUANTUM FIREBALLP KA6.4",
+>         "QUANTUM FIREBALLP LM20.4",
+>         "QUANTUM FIREBALLP LM20.5",
+>-        NULL
+>+       "QUANTUM FIREBALLP LM30",
+>+       NULL
+>  };
+>
+>  const char *bad_ata100_5[] = {
+>
+>
+>... made no difference. Also tried ignoring the speed test and running the
+>system as usual, but it consistently locks up during high disk IO.
+>
+>Regards,
+>Ian Morgan
+>--
+>-------------------------------------------------------------------
+>  Ian E. Morgan        Vice President & C.O.O.         Webcon, Inc.
+>  imorgan@webcon.net         PGP: #2DA40D07          www.webcon.net
+>-------------------------------------------------------------------
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

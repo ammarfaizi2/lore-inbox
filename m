@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262347AbVC2KwI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262332AbVC2Kwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbVC2KwI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 05:52:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVC2KtM
+	id S262332AbVC2Kwb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 05:52:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbVC2KwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 05:49:12 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:19470 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262343AbVC2KrW
+	Tue, 29 Mar 2005 05:52:18 -0500
+Received: from zone4.gcu-squad.org ([213.91.10.50]:35547 "EHLO
+	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S262332AbVC2Kvp convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 05:47:22 -0500
-Date: Tue, 29 Mar 2005 20:46:27 +1000
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org, cryptoapi@lists.logix.cz,
-       Jeff Garzik <jgarzik@pobox.com>, David McCullough <davidm@snapgear.com>
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
-Message-ID: <20050329104627.GD19468@gondor.apana.org.au>
-References: <42432972.5020906@pobox.com> <1111725282.23532.130.camel@uganda> <42439839.7060702@pobox.com> <1111728804.23532.137.camel@uganda> <4243A86D.6000408@pobox.com> <1111731361.20797.5.camel@uganda> <20050325061311.GA22959@gondor.apana.org.au> <20050329102104.GB6496@elf.ucw.cz> <20050329103049.GB19541@gondor.apana.org.au> <1112093428.5243.88.camel@uganda>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1112093428.5243.88.camel@uganda>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Tue, 29 Mar 2005 05:51:45 -0500
+Date: Tue, 29 Mar 2005 12:46:22 +0200 (CEST)
+To: akpm@osdl.org
+Subject: Re: Do not misuse Coverity please (Was: sound/oss/cs46xx.c: fix a check after use)
+X-IlohaMail-Blah: khali@localhost
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
+Message-ID: <xyDqcv4K.1112093182.7253990.khali@localhost>
+In-Reply-To: <20050328222348.4c05e85c.akpm@osdl.org>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: "Adrian Bunk" <bunk@stusta.de>, "LKML" <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29, 2005 at 02:50:28PM +0400, Evgeniy Polyakov wrote:
->
-> Without ability speed this up in kernel, we completely [ok, almost] 
-> loose all RNG advantages.
 
-Well if you can demonstrate that you're getting a higher rate of
-throughput from your RNG by doing this in kernel space vs. doing
-it in user space please let me know.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Hi Andrew, all,
+
+> >  Think about it. If the pointer could be NULL, then it's unlikely that
+> >  the bug would have gone unnoticed so far (unless the code is very
+> >  recent). Coverity found 3 such bugs in one i2c driver [1], and the
+> >  correct solution was to NOT check for NULL because it just couldn't
+> >  happen.
+>
+> No, there is a third case: the pointer can be NULL, but the compiler
+> happened to move the dereference down to after the check.
+
+Wow. Great point. I completely missed that possibility. In fact I didn't
+know that the compiler could possibly alter the order of the
+instructions. For one thing, I thought it was simply not allowed to. For
+another, I didn't know that it had been made so aware that it could
+actually figure out how to do this kind of things. What a mess. Let's
+just hope that the gcc folks know their business :)
+
+I'll try to remember this next time I debug something. Do not assume
+that instructions are run in the order seen in the source. Irk.
+
+> If the optimiser is later changed, or if someone tries to compile the code
+> with -O0, it will oops.
+
+Interesting. Then wouldn't it be worth attempting such compilations at
+times, and see if we get additional oops? Doesn't gcc have a flag to
+specifically forbid this family of optimizations?
+
+Thanks,
+--
+Jean Delvare

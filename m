@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312408AbSDCWOk>; Wed, 3 Apr 2002 17:14:40 -0500
+	id <S312412AbSDCWWa>; Wed, 3 Apr 2002 17:22:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312411AbSDCWOf>; Wed, 3 Apr 2002 17:14:35 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:34315 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S312408AbSDCWOP>; Wed, 3 Apr 2002 17:14:15 -0500
-Date: Thu, 4 Apr 2002 00:14:17 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: David Odin <David@dindinx.org>
-Cc: Pavel Machek <pavel@ucw.cz>,
-        Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Trivial docs patch
-Message-ID: <20020403221417.GA29825@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020403215400.GA1040@elf.ucw.cz> <20020404000923.A8777@coruscant>
+	id <S312418AbSDCWWU>; Wed, 3 Apr 2002 17:22:20 -0500
+Received: from ns.exp-math.uni-essen.de ([132.252.150.18]:27663 "EHLO
+	irmgard.exp-math.uni-essen.de") by vger.kernel.org with ESMTP
+	id <S312412AbSDCWWA>; Wed, 3 Apr 2002 17:22:00 -0500
+Date: Thu, 4 Apr 2002 00:21:58 +0200 (MESZ)
+From: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
+To: linux-kernel@vger.kernel.org
+Subject: Is this /dev/sg security hole from 2.2.* already fixed?
+Message-Id: <Pine.A32.3.95.1020404001954.18784A-100000@werner.exp-math.uni-essen.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Sorry,
 
-Rusty, how do we handle this?  Should I somehow cancel the patch and
-make new one, or will you simply update it?
+I probably should just check myself in recent 2.4.* kernels, but I don't
+have one at hand on an SCSI capable machine.
 
-				Pavel
+Playing around with generic scsi on my 2.2.18 SCSI based Intel machine, I
+noticed that if one reads a large allocated SCSI reply packet from the
+/dev/sg device, but the physical scsi device did only use part of the
+allocated reply space, then the remaining, unused bytes of the reply
+packet are not initialized. 
 
-> On Wed, Apr 03, 2002 at 11:54:01PM +0200, Pavel Machek wrote:
-> > Hi!
-> > 
-> > I'm sorry if I submitted it already, but it is still needed for 2.5.7:
-> > 
-> > 								Pavel
-> > 
-> > --- clean.2.5/Documentation/SubmittingDrivers	Mon Aug 27 17:59:16 2001
-> > +++ linux/Documentation/SubmittingDrivers	Thu Oct 25 13:26:15 2001
-> > @@ -3,7 +3,7 @@
-> >  
-> >  This document is intended to explain how to submit device drivers to the
-> >  Linux 2.2 and 2.4 kernel trees. Note that if you are interested in video
-> > -card drivers you should probably talk to XFree86 (http://wwww.xfree86.org) 
-> > +card drivers you should probably talk to XFree86 (http://www.xfree86.org) 
-> >  instead.
-> >  
-> >  Also read the Documentation/SubmittingPatches document.
-> > 
->   While you're at it, correct it to use a valid url designation:
->   http://www.xfree86.org/
-> 
->   (I know, this is pedantic...)
-> 
->               DindinX
-> 
+Typically they seem to contain data from other files (some no longer used
+diskbuffers or so) [in my case: C-source of the same program].
 
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+In case of several accesses to /dev/sg device (same process or same
+program run anew on a different /dev/sg device) the remaining bytes
+often contained data of previously issued, longer generic scsi
+transactions.
+
+Esp. since AFAIK /dev/sg can be used by non-root users (given write access
+to /dev/sg) and other peoples data might pop up in the uninitialized reply
+packet, I consider this an (albeit difficult to exploit) security hole.
+
+I assume such a simple problem must have been detected and solved already,
+but I can't get a specific answer from any search machine or list archive.
+
+Can someone please comment or try on recent kernels?
+
+THX,
+Michael.
+
+
+--
+
+Michael Weller: eowmob@exp-math.uni-essen.de, eowmob@ms.exp-math.uni-essen.de,
+or even mat42b@spi.power.uni-essen.de. If you encounter an eowmob account on
+any machine in the net, it's very likely it's me.
+
+

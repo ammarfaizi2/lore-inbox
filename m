@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131346AbRCHMLm>; Thu, 8 Mar 2001 07:11:42 -0500
+	id <S131344AbRCHMRN>; Thu, 8 Mar 2001 07:17:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131347AbRCHMLc>; Thu, 8 Mar 2001 07:11:32 -0500
-Received: from [193.120.151.1] ([193.120.151.1]:37371 "EHLO mail.asitatech.com")
-	by vger.kernel.org with ESMTP id <S131346AbRCHMLQ>;
-	Thu, 8 Mar 2001 07:11:16 -0500
-From: "John Brosnan" <jbrosnan@asitatech.ie>
-To: <linux-kernel@vger.kernel.org>
-Subject: v0.92,Tulip, carrier errors
-Date: Thu, 8 Mar 2001 12:31:16 -0000
-Message-ID: <00c201c0a7cb$ab70a5e0$8d7fa8c0@NTWIGGY.asitatech.ie>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
+	id <S131345AbRCHMRD>; Thu, 8 Mar 2001 07:17:03 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:19918 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131344AbRCHMQt>;
+	Thu, 8 Mar 2001 07:16:49 -0500
+Date: Thu, 8 Mar 2001 12:14:17 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: 64-bit capable block device layer
+Message-ID: <20010308121417.B14121@redhat.com>
+In-Reply-To: <20010307184749.A4653@suse.de> <Pine.LNX.4.33.0103071504250.1409-100000@duckman.distro.conectiva> <20010307195323.D4653@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010307195323.D4653@suse.de>; from axboe@suse.de on Wed, Mar 07, 2001 at 07:53:23PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+Hi,
 
-using Donald Becker's tulip.c:v0.92 on Linux 2.2.16, 
-if I bring down an interface using ifconfig and
-bring it back up again, when I transmit data on the 
-interface I see lots of carrier errors and very bad 
-performance.  Is this a known problem ? 
-Any workarounds/fixes ?
+On Wed, Mar 07, 2001 at 07:53:23PM +0100, Jens Axboe wrote:
+> > 
+> > OTOH, I'm not sure what problems it could give to make this
+> > a compile-time option...
+> 
+> Plus compile time options are nasty :-). It would probably make
+> bigger sense to completely skip all the merging etc for low end
+> machines. I think they already do this for embedded kernels (ie
+> removing ll_rw_blk.c and elevator.c). That avoids most of the
+> 64-bit arithmetic anyway.
 
-thanks, 
+It's not just a sector-number and ll_rw_blk/elevator issue.  The limit
+goes all the way up to the users of the block device, be they the
+filesystem, buffer cache or block read/write layer.  
 
-John
+This is especially true for filesystems like XFS which need a 512-byte
+blocksize.  At least with ext2 you can set the blocksize to 4kB and
+get some of the benefit of larger block devices without having to
+overflow the 32-bit block number.
 
-
+Cheers,
+ Stephen

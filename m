@@ -1,41 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267764AbRGQEWS>; Tue, 17 Jul 2001 00:22:18 -0400
+	id <S267761AbRGQEW2>; Tue, 17 Jul 2001 00:22:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267762AbRGQEV7>; Tue, 17 Jul 2001 00:21:59 -0400
-Received: from hs2-108.magma.ca ([64.26.169.108]:7570 "EHLO
-	mokona.furryterror.org") by vger.kernel.org with ESMTP
-	id <S267761AbRGQEVt>; Tue, 17 Jul 2001 00:21:49 -0400
-From: uixjjji1@umail.furryterror.org (Zygo Blaxell)
-Subject: Promise FastTrack 100 TX2 PCI device ID's
-Date: 17 Jul 2001 00:20:13 -0400
-Organization: A poorly-maintained Debian GNU/Linux InterNetNews site
-Message-ID: <9j0edt$t7q$1@sana.furryterror.org>
-NNTP-Posting-Host: 10.250.7.77
-X-Header-Mangling: Original "From:" was <zblaxell@sana.furryterror.org>
-To: <linux-kernel@vger.kernel.org>
+	id <S267762AbRGQEWS>; Tue, 17 Jul 2001 00:22:18 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:17058 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id <S267761AbRGQEWG>; Tue, 17 Jul 2001 00:22:06 -0400
+Date: Tue, 17 Jul 2001 13:21:43 +0900
+Message-ID: <k818gp7s.wl@nisaaru.open.nm.fujitsu.co.jp>
+From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG 2.4.6] PPID of a process is set to itself
+User-Agent: Wanderlust/2.5.8 (Smooth) EMY/1.13.9 (Art is long, life is
+ short) SLIM/1.14.7 (=?ISO-2022-JP?B?GyRCPHIwZjpMTD4bKEI=?=) APEL/10.3 MULE
+ XEmacs/21.1 (patch 14) (Cuyahoga Valley) (i586-kondara-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently installed a shiny new Promise FastTrack 100 TX2.  'lspci -n'
-shows this (among other things):
 
-	00:0a.0 RAID bus controller: Promise Technology, Inc.: Unknown device 6268 (rev 01)
+Hi,
 
-The latest IDE patches (2.4.6) on top of Linux 2.4.6 I can find say this:
+When I am playing with clone system call, I found the case the cloned process
+becomes the zombie which is not reaped because the PPID of the process is
+set to itself. The test program are following.
 
-	#define PCI_DEVICE_ID_PROMISE_20268     0x4d68
 
-Needless to say, the kernel fails to see my Promise card.
 
-If I change the #define to
+#include <sched.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 
-	#define PCI_DEVICE_ID_PROMISE_20268     0x6268
+int	stack[2048];
 
-everything seems to work:  the Promise card is detected and seems to function.
+int
+func(void *p)
+{
+	exit(0);
+}
 
-Am I missing something, or is there another kind of "Promise FastTrack
-100 TX2" floating around?
--- 
-Zygo Blaxell (Laptop) <zblaxell@feedme.hungrycats.org>
-GPG = D13D 6651 F446 9787 600B AD1E CCF3 6F93 2823 44AD
+int
+main(int argc, char *argv[])
+{
+	clone(func, &stack[2048],
+		CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD,
+		NULL);
+
+	sleep(1);
+	exit(0);
+}
+
+Following patch fixes the bug, but I don't know this is correct. Can
+someone please explain me why in forget_original_parent(), the parent of
+processes in a thread group is set to another process in the thread
+group?
+
+diff -u -r linux.org/kernel/exit.c linux/kernel/exit.c
+--- linux.org/kernel/exit.c	Sat May  5 06:44:06 2001
++++ linux/kernel/exit.c	Tue Jul 17 11:06:59 2001
+@@ -168,7 +168,7 @@
+ 			/* We dont want people slaying init */
+ 			p->exit_signal = SIGCHLD;
+ 			p->self_exec_id++;
+-			p->p_opptr = reaper;
++			p->p_opptr = p == reaper ? child_reaper : reaper;
+ 			if (p->pdeath_signal) send_sig(p->pdeath_signal, p, 0);
+ 		}
+ 	}

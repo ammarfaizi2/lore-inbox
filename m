@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVALQ6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVALRBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbVALQ6G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 11:58:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVALQ6F
+	id S261246AbVALRBt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 12:01:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVALRBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 11:58:05 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:26028 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261255AbVALQ6B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 11:58:01 -0500
-Message-ID: <41E557BC.9010405@tmr.com>
-Date: Wed, 12 Jan 2005 12:00:44 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Sanders <sandersn@btinternet.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Unable to burn DVDs
-References: <1105474144.15542.1.camel@zeus.city.tvnet.hu><1105474144.15542.1.camel@zeus.city.tvnet.hu> <200501112151.13351.sandersn@btinternet.com>
-In-Reply-To: <200501112151.13351.sandersn@btinternet.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 12 Jan 2005 12:01:49 -0500
+Received: from pat.uio.no ([129.240.130.16]:9879 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261246AbVALRBr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 12:01:47 -0500
+Subject: Re: 2.6.10 - VFS is out of sync with lock manager!
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Anders Saaby <as@cohaesio.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200501121623.10287.as@cohaesio.com>
+References: <200501121623.10287.as@cohaesio.com>
+Content-Type: text/plain
+Date: Wed, 12 Jan 2005 12:01:34 -0500
+Message-Id: <1105549294.14947.10.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Sanders wrote:
-> On Tuesday 11 January 2005 20:09, Sipos Ferenc wrote:
-> 
->>Hi!
->>
->>For me, dvd writing works only when I run growisofs with root
->>permissions (using 2.6.10 kernel, /dev/hdc without ide-scsi)
->>
-> 
-> 
-> For me when running growisofs  with user permissions on 2.6.10 (ide-cd) it 
-> works perfectly 1st time but 2nd time fails with the error below. It works 
-> fine when run as root.
-> 
-> :-( unable to PREVENT MEDIA REMOVAL: Operation not permitted
-> 
-> As an aside audio cd burning with cdrecord works as long as the '-text' option 
-> isn't used, if it is the process hangs.
+on den 12.01.2005 Klokka 16:23 (+0100) skreiv Anders Saaby:
 
-I reported a similar thing with cdrecord, writing a first session 
-successfully using the -multi flag, but not being able to append to it 
-or read the size with the "-msinfo" flag. I was totally blown off and 
-told I didn't have permissions on the device, even though I was able to 
-write to it.
+> First issue:
+> New strange message in the kernel log:
+> 
+> "nlmclnt_lock: VFS is out of sync with lock manager!"
+> 
+> - What does this mean? - Is it bad?, What can i do?
 
-I believe the true answer is that the SCSI command filter is blocking a 
-command needed to perform the operation, probably a command to lock the 
-door of the drive. In my case I have permissions to write the CD, just 
-not to read the info needed to write additional sessions.
+It means that the VFS failed to register the lock that was just granted
+to you because of a combination of an RPC race (the reply telling you
+the lock was granted arrived before the previous lock holder has been
+notified that his lock was freed), and the user pressing ^C at the wrong
+moment.
 
+You may have an "orphaned lock" on the server.
+
+> 
+> Second issue:
+> my fs/nfs/file.c doesn't look like yours (Vanilla 2.6.10):
+
+<shrug>My fs/nfs/file.c looks very much like the one in vanilla
+2.6.11-rc1. See Linus' changelog for what may be missing.</shrug>
+
+Cheers,
+  Trond
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Trond Myklebust <trond.myklebust@fys.uio.no>
+

@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264647AbSJTW0E>; Sun, 20 Oct 2002 18:26:04 -0400
+	id <S264650AbSJTW3U>; Sun, 20 Oct 2002 18:29:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264649AbSJTW0D>; Sun, 20 Oct 2002 18:26:03 -0400
-Received: from starcraft.mweb.co.za ([196.2.45.78]:1454 "EHLO
-	starcraft.mweb.co.za") by vger.kernel.org with ESMTP
-	id <S264647AbSJTWZ7>; Sun, 20 Oct 2002 18:25:59 -0400
-From: Bongani <bhlope@mweb.co.za>
-To: kraxel@bytesex.org
-Subject: [PATCH RESEND] 2.5.44 bttv-driver.c
-Date: Mon, 21 Oct 2002 00:32:54 +0200
-User-Agent: KMail/1.4.7
-Cc: linux-kernel@vger.kernel.org
+	id <S264653AbSJTW3U>; Sun, 20 Oct 2002 18:29:20 -0400
+Received: from 2-136.ctame701-1.telepar.net.br ([200.193.160.136]:34268 "EHLO
+	2-136.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S264652AbSJTW3T>; Sun, 20 Oct 2002 18:29:19 -0400
+Date: Sun, 20 Oct 2002 20:35:07 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: Jeff Garzik <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] procps 3.0.4
+In-Reply-To: <200210200353.g9K3rEF341645@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.4.44L.0210202032590.22993-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_W8ys9JejBMWvHrj"
-Message-Id: <200210210032.54080.bhlope@mweb.co.za>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 19 Oct 2002, Albert D. Cahalan wrote:
 
---Boundary-00=_W8ys9JejBMWvHrj
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
+> > Can you be more specific?  What bugs do you see?
 
-Hi Gerd
+> There isn't error checking in the five_cpu_numbers function
+> to detect bad data. Not that bad data should ever happen; there
+> is a bug in the WOLK kernel.
 
-Sorry it looks like Kmail broke the patch. I have attached it instead
+Guess why the iowait stats are initialised to 0 ? ;)
 
-Cheers
---Boundary-00=_W8ys9JejBMWvHrj
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="bttv.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="bttv.patch"
+We know that user, system, nice and idle are present
+in every kernel and we bail out with an error if we
+get less than 4 values for the CPU stats.
 
---- linux-2.5/drivers/media/video/bttv-driver.c.old	2002-10-21 00:08:50.000000000 +0200
-+++ linux-2.5/drivers/media/video/bttv-driver.c	2002-10-21 00:09:17.000000000 +0200
-@@ -813,7 +813,7 @@
- 	i2c_mux = mux = (btv->audio & AUDIO_MUTE) ? AUDIO_OFF : btv->audio;
- 	if (btv->opt_automute && !signal && !btv->radio_user)
- 		mux = AUDIO_OFF;
--	printk("bttv%d: amux: mode=%d audio=%d signal=%s mux=%d/%d irq=%s\n",
-+	dprintk(KERN_DEBUG "bttv%d: amux: mode=%d audio=%d signal=%s mux=%d/%d irq=%s\n",
- 	       btv->nr, mode, btv->audio, signal ? "yes" : "no",
- 	       mux, i2c_mux, in_interrupt() ? "yes" : "no");
- 
+> I could make vmstat way faster if the kernel would provide the
+> number of tasks that are running, swapped out, blocked, etc.
 
---Boundary-00=_W8ys9JejBMWvHrj--
+I sent in a patch for that. I'll resend when Linus returns
+from holidays.
+
+cheers,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

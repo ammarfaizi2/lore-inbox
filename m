@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268131AbTCFRdw>; Thu, 6 Mar 2003 12:33:52 -0500
+	id <S268140AbTCFRe0>; Thu, 6 Mar 2003 12:34:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268140AbTCFRdw>; Thu, 6 Mar 2003 12:33:52 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64519 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268131AbTCFRdv>; Thu, 6 Mar 2003 12:33:51 -0500
-Date: Thu, 6 Mar 2003 09:42:03 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@digeo.com>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
+	id <S268156AbTCFRe0>; Thu, 6 Mar 2003 12:34:26 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:16807
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268140AbTCFReY>; Thu, 6 Mar 2003 12:34:24 -0500
 Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-In-Reply-To: <Pine.LNX.4.44.0303061819160.14218-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0303060936301.7206-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@digeo.com>, rml@tech9.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0303061801250.13726-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0303061801250.13726-100000@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046976597.17715.93.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 06 Mar 2003 18:49:57 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-03-06 at 17:11, Ingo Molnar wrote:
+> X is special. Especially in Andrew's wild-window-dragging experiment X is
+> a pure CPU-bound task that just eats CPU cycles no end. There _only_ thing
+> that makes it special is that there's a human looking at the output of the
+> X client. This is information that is simply not available to the kernel.
 
-On Thu, 6 Mar 2003, Ingo Molnar wrote:
-> 
-> another thing. What really happens in the 'recompile job' thing is not
-> that X gets non-interactive. Most of the time it _is_ interactive.
+Just like a streaming video server
+Just like a 3D game using DRI
 
-This is not what I've seen.
+X isnt special at all. Research OS people have done stuff like time transfers
+but I've not seen that in a production OS. In that situation an interactive
+task blocking on a server hands on some of its interactiveness to whoever
+services the request.
 
-When X is interactive, and is competing against other interactive jobs, 
-you don't get multi-second slowdowns. X still gets 10% of the CPU, it just 
-gets it in smaller chunks.
-
-The multi-second "freezes" are the thing that bothered me, and those were
-definitely due to the fact that X was competing as a _non_interactive
-member against other non-interactive members, causing it to still get 10%
-of the CPU, but only every few seconds. So you'd get a very bursty
-behaviour with very visible pauses.
-
-It's ok to slow X down. Nobody in their right mind would expect X to track 
-the mouse 100% when scrolling and the machine load is 15+. I certainly 
-don't.
-
-But having X just _pause_ for several seconds gets to me. I can't easily 
-make it happen any more thanks to having ridiculous hardware, and I think 
-X itself has gotten better thanks to more optimizations in both clients 
-and X itself (ie if the CPU requirements of X go down from 5% to 3%, it 
-gets a _lot_ harder to trigger).
-
-But it was definitely there. 3-5 second _pauses_. Not slowdowns.
-
-		Linus
+Thats not a trivial Linux addition however
 

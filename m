@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbUJZSg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbUJZShS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbUJZSg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 14:36:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbUJZSg0
+	id S261389AbUJZShS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 14:37:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbUJZShS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 14:36:26 -0400
-Received: from mail.dif.dk ([193.138.115.101]:45474 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261384AbUJZSgR (ORCPT
+	Tue, 26 Oct 2004 14:37:18 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:59915 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261389AbUJZShL convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 14:36:17 -0400
-Date: Tue, 26 Oct 2004 20:44:35 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: netdev <netdev@oss.sgi.com>,
-       Linux Kernel Trivial Patch Monkey <trivial@rustcorp.com.au>
-Subject: [PATCH][Doc][Trivial] fix spelling error related to IPComp help in
- Kconfig
-Message-ID: <Pine.LNX.4.61.0410262038040.3277@dragon.hygekrogen.localhost>
+	Tue, 26 Oct 2004 14:37:11 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: Temporary NFS problem when rpciod is SIGKILLed
+Date: Tue, 26 Oct 2004 21:36:49 +0300
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <200410251702.58622.vda@port.imtp.ilyichevsk.odessa.ua> <1098715271.10720.37.camel@lade.trondhjem.org>
+In-Reply-To: <1098715271.10720.37.camel@lade.trondhjem.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200410262136.49290.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 25 October 2004 17:41, Trond Myklebust wrote:
+> må den 25.10.2004 Klokka 17:02 (+0300) skreiv Denis Vlasenko:
+> 
+> > I am using NFS root. At shutdown, when I kill
+> > all processes with killall5 -9, NFS temporarily
+> > misbehaves. I narrowed it down to rpciod feeling
+> > bad when signalled with SIGKILL:
+> 
+> That is a deliberate feature. It is useful when mountpoints hang etc.
+> 
+> Note however that the patches that convert rpciod to use a workqueue
+> (they can be found in the latest -mm kernels) remove this feature.
 
-Small patch that fixes a spelling error (Payload misspelled as Paylod)in 
-the IPComp help text in Kconfig (also expands the text to "IP Payload 
-Compression Protocol (IPComp)" which is the title of RFC3173).
-Please consider applying.
+I've tried 2.6.9-mm1, it does not exhibit this anomaly.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -urp linux-2.6.10-rc1-bk5-orig/net/ipv4/Kconfig linux-2.6.10-rc1-bk5/net/ipv4/Kconfig
---- linux-2.6.10-rc1-bk5-orig/net/ipv4/Kconfig	2004-10-18 23:54:55.000000000 +0200
-+++ linux-2.6.10-rc1-bk5/net/ipv4/Kconfig	2004-10-26 20:30:35.000000000 +0200
-@@ -331,8 +331,8 @@ config INET_IPCOMP
- 	select CRYPTO
- 	select CRYPTO_DEFLATE
- 	---help---
--	  Support for IP Paylod Compression (RFC3173), typically needed
--	  for IPsec.
-+	  Support for IP Payload Compression Protocol (IPComp) (RFC3173),
-+	  typically needed for IPsec.
- 	  
- 	  If unsure, say Y.
- 
-diff -urp linux-2.6.10-rc1-bk5-orig/net/ipv6/Kconfig linux-2.6.10-rc1-bk5/net/ipv6/Kconfig
---- linux-2.6.10-rc1-bk5-orig/net/ipv6/Kconfig	2004-10-18 23:54:08.000000000 +0200
-+++ linux-2.6.10-rc1-bk5/net/ipv6/Kconfig	2004-10-26 20:31:19.000000000 +0200
-@@ -52,8 +52,8 @@ config INET6_IPCOMP
- 	select CRYPTO
- 	select CRYPTO_DEFLATE
- 	---help---
--	  Support for IP Paylod Compression (RFC3173), typically needed
--	  for IPsec.
-+	  Support for IP Payload Compression Protocol (IPComp) (RFC3173),
-+	  typically needed for IPsec.
- 
- 	  If unsure, say Y.
- 
+Thanks!
+--
+vda
 

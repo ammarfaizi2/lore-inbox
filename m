@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275001AbTHRQ5J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 12:57:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275050AbTHRQ5B
+	id S272778AbTHRQyg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 12:54:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274964AbTHRQyg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 12:57:01 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:29313 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S274813AbTHRQ4o (ORCPT
+	Mon, 18 Aug 2003 12:54:36 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:41434 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S272778AbTHRQye (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 12:56:44 -0400
-Date: Mon, 18 Aug 2003 09:49:55 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Krzysztof Halasa <khc@pm.waw.pl>
+	Mon, 18 Aug 2003 12:54:34 -0400
+To: "David S. Miller" <davem@redhat.com>
 Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com, alan@lxorguk.ukuu.org.uk
 Subject: Re: [PATCH] RFC: kills consistent_dma_mask
-Message-Id: <20030818094955.3aa5c1c2.davem@redhat.com>
-In-Reply-To: <m365kvufjx.fsf@defiant.pm.waw.pl>
 References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
 	<20030817233705.0bea9736.davem@redhat.com>
 	<m3r83jyw2k.fsf@defiant.pm.waw.pl>
 	<20030818054341.2ef07799.davem@redhat.com>
-	<m365kvufjx.fsf@defiant.pm.waw.pl>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 18 Aug 2003 17:54:42 +0200
+In-Reply-To: <20030818054341.2ef07799.davem@redhat.com>
+Message-ID: <m365kvufjx.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Aug 2003 17:54:42 +0200
-Krzysztof Halasa <khc@pm.waw.pl> wrote:
+"David S. Miller" <davem@redhat.com> writes:
 
-> "David S. Miller" <davem@redhat.com> writes:
-> 
-> > Because the other platforms don't to do anything special wrt. this
-> > they can just ignore consitent_dma_mask altogether.
-> 
-> No. The documentation states that consistent_dma_mask (and not dma_mask)
-> will be used when doing pci_alloc_consistent().
+> The ia64 support code to do things with consistent_dma_mask just isn't
+> in the tree yet.
 
-Then the platforms need to implement the code.
+Ok. Any pointer so I can see how is it used?
+
+> Because the other platforms don't to do anything special wrt. this
+> they can just ignore consitent_dma_mask altogether.
+
+No. The documentation states that consistent_dma_mask (and not dma_mask)
+will be used when doing pci_alloc_consistent(). This is, obviously, false
+on most platforms.
+It is perfectly reasonable to expect that setting consistent_dma_mask
+to, say, 28 bits will cause pci_alloc_consistent to return memory from
+first 256 MB. This is not true on most platforms, for example i386
+happily allocs memory near the top in such case.
+
+If we really need two masks, they can't be ignored on some archs.
+
+Perhaps we should drop the masks at all and always supply a mask to
+a alloc/map calls (possibly first checking if the mask is valid)?
+I don't know.
+-- 
+Krzysztof Halasa
+Network Administrator

@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277718AbRJ3Tjr>; Tue, 30 Oct 2001 14:39:47 -0500
+	id <S277653AbRJ3Tm5>; Tue, 30 Oct 2001 14:42:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277729AbRJ3Tjh>; Tue, 30 Oct 2001 14:39:37 -0500
-Received: from cnxt10002.conexant.com ([198.62.10.2]:32667 "EHLO
-	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
-	id <S277718AbRJ3Tj0>; Tue, 30 Oct 2001 14:39:26 -0500
-Date: Tue, 30 Oct 2001 20:39:33 +0100 (CET)
-From: Rui Sousa <rui.p.m.sousa@clix.pt>
-X-X-Sender: <rsousa@sophia-sousar2.nice.mindspeed.com>
-To: Tony den Haan <tony@chello.nl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: emu10k1 freezes 2.4.13
-In-Reply-To: <Pine.LNX.4.21.0110301910140.7408-100000@kleintje.nozone.nl>
-Message-ID: <Pine.LNX.4.33.0110302037130.3150-100000@sophia-sousar2.nice.mindspeed.com>
+	id <S277729AbRJ3Tmh>; Tue, 30 Oct 2001 14:42:37 -0500
+Received: from ns2.kvikkjokk.net ([195.196.65.62]:9988 "HELO ns2.kvikkjokk.net")
+	by vger.kernel.org with SMTP id <S277653AbRJ3Tmf>;
+	Tue, 30 Oct 2001 14:42:35 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Oden Eriksson <oden.eriksson@kvikkjokk.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Nasty suprise with uptime
+Date: Tue, 30 Oct 2001 20:43:08 +0100
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.LNX.4.33.0110301623171.8732-100000@nick.dcs.qmul.ac.uk>
+In-Reply-To: <Pine.LNX.4.33.0110301623171.8732-100000@nick.dcs.qmul.ac.uk>
+X-No-Archive: No
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200110302043.04821@kvikkjokk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Oct 2001, Tony den Haan wrote:
+On Tuesdayen den 30 October 2001 17.25, Matt Bernstein wrote:
+> At 18:46 +1100 Neale Banks wrote:
+> >> It wraps at 496 days. The drivers are aware of it and dont crash the box
+> >
+> >You mean there was a time when uptime>496days would crash a system?
 
-> hi,
-> 
-> loading emu10k1 locks my system, usually immediately,
+I think this thread is pretty stupid..., who with a little common sense ever 
+treasure uptime? What's important is the total downtime..., and why...
 
-Just by loading the module?
+I liked one idea that popped up here where one would use a random uptime..., 
+that would get ignorant people to be amazed and wonder how _that_ could 
+be....
 
-What was the last kernel you tried and had no problems with? 
-
-
-Rui Sousa
-> sometimes when
-> trying to play sound.
-> 
-> motherboard: dual pIII, MSI-694D
-> with VIA 82CXXX chips
-> 
-> 8139 nic
-> tekram 390U2W scsi
-> 7100 GF2 MX
-> 
-> i heard i'm not alone here, another VIA bug? 
-> 
-> tony
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+-- 
+Oden Eriksson
 

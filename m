@@ -1,189 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267522AbUHEACZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267523AbUHEAIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267522AbUHEACZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 20:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267523AbUHEACZ
+	id S267523AbUHEAIK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 20:08:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUHEAIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 20:02:25 -0400
-Received: from web12823.mail.yahoo.com ([216.136.174.204]:45449 "HELO
-	web12823.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267522AbUHEACF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 20:02:05 -0400
-Message-ID: <20040805000205.53959.qmail@web12823.mail.yahoo.com>
-Date: Wed, 4 Aug 2004 17:02:05 -0700 (PDT)
-From: Shantanu Goel <sgoel01@yahoo.com>
-Subject: Re: [VM PATCH 2.6.8-rc1] Prevent excessive scanning of lower zone
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040722220701.7de4c31f.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-559835686-1091664125=:51903"
+	Wed, 4 Aug 2004 20:08:10 -0400
+Received: from fed1rmmtao02.cox.net ([68.230.241.37]:21124 "EHLO
+	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
+	id S267523AbUHEAIG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 20:08:06 -0400
+Date: Wed, 4 Aug 2004 16:30:35 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dan Zink <dan.zink@hp.com>
+Subject: [PATCH] ppc32: Fix 'mktree' on 64bit hosts
+Message-ID: <20040804233035.GS9235@smtp.west.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-559835686-1091664125=:51903
-Content-Type: text/plain; charset=us-ascii
-Content-Id: 
-Content-Disposition: inline
+Hi,
 
-Hi Andrew,
+The following patch changes some 'unsigned long's into 'uint32_t's in
+mktree (a program that runs on the host to frob the kernel image for
+some firmwares).  Without it, the program is not correct when run
+on/compiled on a 64bit host.
 
---- Andrew Morton <akpm@osdl.org> wrote:
+Signed-off-by: Dan Zink <dan.zink@hp.com>
+Signed-off-by: Tom Rini <trini@kernel.crashing.org>
 
-> Shantanu Goel <sgoel01@yahoo.com> wrote:
-> >
-> > I emailed this a few weeks back to the list but it
-> > seems to have gotten lost...
-> 
-> It came through.  I was unable to reproduce the
-> disproportional scanning
-> rate on almost exactly the same setup, so I parked
-> the problem for a while.
-> 
-> I do agree with the analysis though.  The problem
-> _could_ occur.  I dunno
-> why it happens for you and not for me...
-> 
+--- arch/ppc/boot/utils/mktree.c.old	2004-08-03 16:31:09.568992888 -0500
++++ arch/ppc/boot/utils/mktree.c	2004-08-04 11:06:39.799051328 -0500
+@@ -15,19 +15,20 @@
+ #include <sys/stat.h>
+ #include <unistd.h>
+ #include <netinet/in.h>
++#include <stdint.h>
+ 
+ /* This gets tacked on the front of the image.  There are also a few
+  * bytes allocated after the _start label used by the boot rom (see
+  * head.S for details).
+  */
+ typedef struct boot_block {
+-	unsigned long bb_magic;		/* 0x0052504F */
+-	unsigned long bb_dest;		/* Target address of the image */
+-	unsigned long bb_num_512blocks;	/* Size, rounded-up, in 512 byte blks */
+-	unsigned long bb_debug_flag;	/* Run debugger or image after load */
+-	unsigned long bb_entry_point;	/* The image address to start */
+-	unsigned long bb_checksum;	/* 32 bit checksum including header */
+-	unsigned long reserved[2];
++	uint32_t bb_magic;		/* 0x0052504F */
++	uint32_t bb_dest;		/* Target address of the image */
++	uint32_t bb_num_512blocks;	/* Size, rounded-up, in 512 byte blks */
++	uint32_t bb_debug_flag;	/* Run debugger or image after load */
++	uint32_t bb_entry_point;	/* The image address to start */
++	uint32_t bb_checksum;	/* 32 bit checksum including header */
++	uint32_t reserved[2];
+ } boot_block_t;
+ 
+ #define IMGBLK	512
 
-Actually, the analysis turned out to be not entirely
-correct.  I think I have identified the offending
-code.  Please see attached patch.  It makes kswapd()
-skip zones which contain greater than "pages_high"
-pages.
-
-Machine setup is the same as before.
-2x2.0Ghz Xeon w/HT, memory 256M (manually pegged).
-I see this lopsided lower zone scanning on a dual
-Opteron machine as well.
-
-Attached are the kernbench results for stock 2.6.8-rc1
-and 2.6.8-rc1 with patch.
-
-Thanks,
-Shantanu
-
-
-		
-__________________________________
-Do you Yahoo!?
-Y! Messenger - Communicate in real time. Download now. 
-http://messenger.yahoo.com
---0-559835686-1091664125=:51903
-Content-Type: application/octet-stream; name="vm.patch"
-Content-Transfer-Encoding: base64
-Content-Description: vm.patch
-Content-Disposition: attachment; filename="vm.patch"
-
-LS0tIC5vcmlnL21tL3Ztc2Nhbi5jCTIwMDQtMDgtMDQgMTk6NTY6NDEuMDAw
-MDAwMDAwIC0wNDAwCisrKyAyLjYuOC1yYzEtdm1maXgvbW0vdm1zY2FuLmMJ
-MjAwNC0wOC0wNCAxODo0NTo0NC4wMDAwMDAwMDAgLTA0MDAKQEAgLTEwMzcs
-OCArMTAzNyw5IEBACiAJCQkJY29udGludWU7CiAKIAkJCWlmIChucl9wYWdl
-cyA9PSAwKSB7CS8qIE5vdCBzb2Z0d2FyZSBzdXNwZW5kICovCi0JCQkJaWYg
-KHpvbmUtPmZyZWVfcGFnZXMgPD0gem9uZS0+cGFnZXNfaGlnaCkKLQkJCQkJ
-YWxsX3pvbmVzX29rID0gMDsKKwkJCQlpZiAoem9uZS0+ZnJlZV9wYWdlcyA+
-IHpvbmUtPnBhZ2VzX2hpZ2gpCisJCQkJCWNvbnRpbnVlOworCQkJCWFsbF96
-b25lc19vayA9IDA7CiAJCQl9CiAJCQl6b25lLT50ZW1wX3ByaW9yaXR5ID0g
-cHJpb3JpdHk7CiAJCQlpZiAoem9uZS0+cHJldl9wcmlvcml0eSA+IHByaW9y
-aXR5KQo=
-
---0-559835686-1091664125=:51903
-Content-Type: application/octet-stream; name="kb-2.6.8-rc1"
-Content-Transfer-Encoding: base64
-Content-Description: kb-2.6.8-rc1
-Content-Disposition: attachment; filename="kb-2.6.8-rc1"
-
-NCBjcHVzIGZvdW5kCkNsZWFuaW5nIHNvdXJjZSB0cmVlLi4uCk1ha2luZyBk
-ZWZjb25maWcuLi4KTWFraW5nIGRlcCBpZiBuZWVkZWQuLi4KQ2FjaGluZyBr
-ZXJuZWwgc291cmNlIGluIHJhbS4uLgpIYWxmIGxvYWQgaXMgMiBqb2JzLCBj
-aGFuZ2luZyB0byAzIGFzIGEga2VybmVsIGNvbXBpbGUgd29uJ3QgZ3VhcmFu
-dGVlIDIgam9icwoKUGVyZm9ybWluZyA1IHJ1bnMgb2YKbWFrZSAtaiAxNgoK
-V2FybXVwIG9wdGltYWwgbG9hZCBydW4uLi4KT3B0aW1hbCBsb2FkIC1qMTYg
-cnVuIG51bWJlciAxLi4uCk9wdGltYWwgbG9hZCAtajE2IHJ1biBudW1iZXIg
-Mi4uLgpPcHRpbWFsIGxvYWQgLWoxNiBydW4gbnVtYmVyIDMuLi4KT3B0aW1h
-bCBsb2FkIC1qMTYgcnVuIG51bWJlciA0Li4uCk9wdGltYWwgbG9hZCAtajE2
-IHJ1biBudW1iZXIgNS4uLgoKQXZlcmFnZSBPcHRpbWFsIC1qIDE2IExvYWQg
-UnVuOgpFbGFwc2VkIFRpbWUgMjE2LjgzOApVc2VyIFRpbWUgNjg3LjIyNApT
-eXN0ZW0gVGltZSA2NS4wMjgKUGVyY2VudCBDUFUgMzQ2LjgKQ29udGV4dCBT
-d2l0Y2hlcyA1OTQzNC40ClNsZWVwcyA0OTE0OAoKLS0tLQpwZ2ZhdWx0ICAg
-ICAgICAgICAgICAgICAgICAgICAzMjMxOTQ2OApwZ2ZyZWUgICAgICAgICAg
-ICAgICAgICAgICAgICAyMDYwMjUxNApwZ2FsbG9jX25vcm1hbCAgICAgICAg
-ICAgICAgICAxOTk3ODQxNApwZ3JlZmlsbF9ub3JtYWwgICAgICAgICAgICAg
-ICA1NzIxMjU2CnBncGdvdXQgICAgICAgICAgICAgICAgICAgICAgIDI1Mjc5
-MjgKcGdwZ2luICAgICAgICAgICAgICAgICAgICAgICAgMTc5MzcyOApwZ2Rl
-YWN0aXZhdGUgICAgICAgICAgICAgICAgICAxMzAzMzExCnBncmVmaWxsX2Rt
-YSAgICAgICAgICAgICAgICAgIDc2MjMyOApwZ2FsbG9jX2RtYSAgICAgICAg
-ICAgICAgICAgICA2MjUyNDQKcGdzY2FuX2tzd2FwZF9ub3JtYWwgICAgICAg
-ICAgNTk5NTExCnBnc3RlYWxfbm9ybWFsICAgICAgICAgICAgICAgIDUxMzIx
-OQpwc3dwb3V0ICAgICAgICAgICAgICAgICAgICAgICA1MDkwNDMKcGdyb3Rh
-dGVkICAgICAgICAgICAgICAgICAgICAgNTA1NjczCnBnc2Nhbl9kaXJlY3Rf
-bm9ybWFsICAgICAgICAgIDQ2NDg3MQpwZ2FjdGl2YXRlICAgICAgICAgICAg
-ICAgICAgICA0MTQ5MTcKcGdzY2FuX2tzd2FwZF9kbWEgICAgICAgICAgICAg
-MzczNTYzCmtzd2FwZF9zdGVhbCAgICAgICAgICAgICAgICAgIDM0MjM1Mwpz
-bGFic19zY2FubmVkICAgICAgICAgICAgICAgICAyNjc0MjkKcHN3cGluICAg
-ICAgICAgICAgICAgICAgICAgICAgMjIxOTY3CnBnc2Nhbl9kaXJlY3RfZG1h
-ICAgICAgICAgICAgIDE3MzgwNgpwZ3N0ZWFsX2RtYSAgICAgICAgICAgICAg
-ICAgICAxMjY4MjgKcGdtYWpmYXVsdCAgICAgICAgICAgICAgICAgICAgOTEy
-MDEKYWxsb2NzdGFsbCAgICAgICAgICAgICAgICAgICAgNjQwMgpucl9kaXJ0
-eSAgICAgICAgICAgICAgICAgICAgICA2MzQzCnBhZ2VvdXRydW4gICAgICAg
-ICAgICAgICAgICAgIDIyNjQKa3N3YXBkX2lub2Rlc3RlYWwgICAgICAgICAg
-ICAgMTUxNwpucl9zbGFiICAgICAgICAgICAgICAgICAgICAgICA5MjAKcGdp
-bm9kZXN0ZWFsICAgICAgICAgICAgICAgICAgODQ5Cm5yX3BhZ2VfdGFibGVf
-cGFnZXMgICAgICAgICAgIDMKcGdzdGVhbF9oaWdoICAgICAgICAgICAgICAg
-ICAgMApwZ2FsbG9jX2hpZ2ggICAgICAgICAgICAgICAgICAwCnBnc2Nhbl9r
-c3dhcGRfaGlnaCAgICAgICAgICAgIDAKcGdzY2FuX2RpcmVjdF9oaWdoICAg
-ICAgICAgICAgMApwZ3JlZmlsbF9oaWdoICAgICAgICAgICAgICAgICAwCm5y
-X3Vuc3RhYmxlICAgICAgICAgICAgICAgICAgIDAKbnJfd3JpdGViYWNrICAg
-ICAgICAgICAgICAgICAgMApucl9tYXBwZWQgICAgICAgICAgICAgICAgICAg
-ICAtNTkwMAo=
-
---0-559835686-1091664125=:51903
-Content-Type: application/octet-stream; name="kb-2.6.8-rc1-vmfix-latest10"
-Content-Transfer-Encoding: base64
-Content-Description: kb-2.6.8-rc1-vmfix-latest10
-Content-Disposition: attachment; filename="kb-2.6.8-rc1-vmfix-latest10"
-
-NCBjcHVzIGZvdW5kCkNsZWFuaW5nIHNvdXJjZSB0cmVlLi4uCk1ha2luZyBk
-ZWZjb25maWcuLi4KTWFraW5nIGRlcCBpZiBuZWVkZWQuLi4KQ2FjaGluZyBr
-ZXJuZWwgc291cmNlIGluIHJhbS4uLgpIYWxmIGxvYWQgaXMgMiBqb2JzLCBj
-aGFuZ2luZyB0byAzIGFzIGEga2VybmVsIGNvbXBpbGUgd29uJ3QgZ3VhcmFu
-dGVlIDIgam9icwoKUGVyZm9ybWluZyA1IHJ1bnMgb2YKbWFrZSAtaiAxNgoK
-V2FybXVwIG9wdGltYWwgbG9hZCBydW4uLi4KT3B0aW1hbCBsb2FkIC1qMTYg
-cnVuIG51bWJlciAxLi4uCk9wdGltYWwgbG9hZCAtajE2IHJ1biBudW1iZXIg
-Mi4uLgpPcHRpbWFsIGxvYWQgLWoxNiBydW4gbnVtYmVyIDMuLi4KT3B0aW1h
-bCBsb2FkIC1qMTYgcnVuIG51bWJlciA0Li4uCk9wdGltYWwgbG9hZCAtajE2
-IHJ1biBudW1iZXIgNS4uLgoKQXZlcmFnZSBPcHRpbWFsIC1qIDE2IExvYWQg
-UnVuOgpFbGFwc2VkIFRpbWUgMjA5LjY2ClVzZXIgVGltZSA2ODkuODEKU3lz
-dGVtIFRpbWUgNjUuNjIyClBlcmNlbnQgQ1BVIDM2MApDb250ZXh0IFN3aXRj
-aGVzIDU5Nzk2LjIKU2xlZXBzIDQ3MDgxLjYKCi0tLS0KcGdmYXVsdCAgICAg
-ICAgICAgICAgICAgICAgICAgMzIyNDgzODgKcGdmcmVlICAgICAgICAgICAg
-ICAgICAgICAgICAgMjA2NjEwODMKcGdhbGxvY19ub3JtYWwgICAgICAgICAg
-ICAgICAgMjAxMzMyNTIKcGdyZWZpbGxfbm9ybWFsICAgICAgICAgICAgICAg
-NjM4NzM3NQpwZ3Bnb3V0ICAgICAgICAgICAgICAgICAgICAgICAyMTE1NTIw
-CnBncGdpbiAgICAgICAgICAgICAgICAgICAgICAgIDE4OTk3NzIKcGdkZWFj
-dGl2YXRlICAgICAgICAgICAgICAgICAgMTMxMTA0OQpwZ3NjYW5fa3N3YXBk
-X25vcm1hbCAgICAgICAgICA2Nzg4NzYKcGdzdGVhbF9ub3JtYWwgICAgICAg
-ICAgICAgICAgNjI4NTQ3CnBnc2Nhbl9kaXJlY3Rfbm9ybWFsICAgICAgICAg
-IDYxMDczMQpwZ2FsbG9jX2RtYSAgICAgICAgICAgICAgICAgICA1MTU0MzUK
-cGdhY3RpdmF0ZSAgICAgICAgICAgICAgICAgICAgNDMwMTY2CnBzd3BvdXQg
-ICAgICAgICAgICAgICAgICAgICAgIDQwNTU3NwpwZ3JvdGF0ZWQgICAgICAg
-ICAgICAgICAgICAgICA0MDM2MTQKcGdyZWZpbGxfZG1hICAgICAgICAgICAg
-ICAgICAgNDAwNjU2Cmtzd2FwZF9zdGVhbCAgICAgICAgICAgICAgICAgIDMx
-Njc3NApzbGFic19zY2FubmVkICAgICAgICAgICAgICAgICAyOTAzNjYKcHN3
-cGluICAgICAgICAgICAgICAgICAgICAgICAgMjEzNTY1CnBnbWFqZmF1bHQg
-ICAgICAgICAgICAgICAgICAgIDg1ODI5CnBnc2Nhbl9kaXJlY3RfZG1hICAg
-ICAgICAgICAgIDU5MTQyCnBnc3RlYWxfZG1hICAgICAgICAgICAgICAgICAg
-IDIyNjE1CmFsbG9jc3RhbGwgICAgICAgICAgICAgICAgICAgIDczMjEKbnJf
-ZGlydHkgICAgICAgICAgICAgICAgICAgICAgNjA2NApwYWdlb3V0cnVuICAg
-ICAgICAgICAgICAgICAgICAyNzMxCmtzd2FwZF9pbm9kZXN0ZWFsICAgICAg
-ICAgICAgIDMxOApwZ2lub2Rlc3RlYWwgICAgICAgICAgICAgICAgICAxOTEK
-bnJfcGFnZV90YWJsZV9wYWdlcyAgICAgICAgICAgMwpwZ3N0ZWFsX2hpZ2gg
-ICAgICAgICAgICAgICAgICAwCnBnYWxsb2NfaGlnaCAgICAgICAgICAgICAg
-ICAgIDAKcGdzY2FuX2tzd2FwZF9oaWdoICAgICAgICAgICAgMApwZ3NjYW5f
-a3N3YXBkX2RtYSAgICAgICAgICAgICAwCnBnc2Nhbl9kaXJlY3RfaGlnaCAg
-ICAgICAgICAgIDAKcGdyZWZpbGxfaGlnaCAgICAgICAgICAgICAgICAgMApu
-cl91bnN0YWJsZSAgICAgICAgICAgICAgICAgICAwCm5yX3dyaXRlYmFjayAg
-ICAgICAgICAgICAgICAgIDAKbnJfc2xhYiAgICAgICAgICAgICAgICAgICAg
-ICAgLTI5MQpucl9tYXBwZWQgICAgICAgICAgICAgICAgICAgICAtOTk5MAo=
-
-
---0-559835686-1091664125=:51903--
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263925AbRFNTEJ>; Thu, 14 Jun 2001 15:04:09 -0400
+	id <S263927AbRFNTO3>; Thu, 14 Jun 2001 15:14:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263927AbRFNTDt>; Thu, 14 Jun 2001 15:03:49 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:54194 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263925AbRFNTDh>;
-	Thu, 14 Jun 2001 15:03:37 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S263974AbRFNTOU>; Thu, 14 Jun 2001 15:14:20 -0400
+Received: from biglinux.tccw.wku.edu ([161.6.10.206]:36992 "EHLO
+	biglinux.tccw.wku.edu") by vger.kernel.org with ESMTP
+	id <S263927AbRFNTOL>; Thu, 14 Jun 2001 15:14:11 -0400
+Date: Thu, 14 Jun 2001 14:13:59 -0500 (CDT)
+From: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
+To: James Sutherland <jas88@cam.ac.uk>
+cc: Pavel Machek <pavel@suse.cz>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 3com Driver and the 3XP Processor
+In-Reply-To: <Pine.SOL.4.33.0106131128360.13864-100000@yellow.csi.cam.ac.uk>
+Message-ID: <Pine.LNX.4.30.0106141412370.17117-100000@biglinux.tccw.wku.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15145.2693.704919.651626@pizda.ninka.net>
-Date: Thu, 14 Jun 2001 12:03:33 -0700 (PDT)
-To: Jonathan Lundell <jlundell@pobox.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Tom Gall <tom_gall@vnet.ibm.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Going beyond 256 PCI buses
-In-Reply-To: <p0510030eb74ea25caa73@[207.213.214.37]>
-In-Reply-To: <3B273A20.8EE88F8F@vnet.ibm.com>
-	<3B28C6C1.3477493F@mandrakesoft.com>
-	<15144.51504.8399.395200@pizda.ninka.net>
-	<p0510030eb74ea25caa73@[207.213.214.37]>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Now, if the NIC were to integrate with OpenSSL and offload some of THAT
+> donkey work... Just offloading DES isn't terribly useful, as Pavel says:
+> apart from anything else, DES is a bit elderly now - SSH using 3DES or
+> Blowfish etc... How dedicated is this card? Could it be used to offload
+> other work?
 
-Jonathan Lundell writes:
- > As I recall, even a midline chipset such as the ServerWorks LE 
- > supports the use of two north bridges, which implies two PCI bus 
- > domains.
+Sorry my bad it is 3DES that they have on it, but I don't know how
+in-grained it is in it.  Like I sad it just floated across my desk a few
+days ago and it sounded like a cool bit of hardware.
 
-It hides this fact by making config space accesses respond in such a
-way that it appears that it is all behind one PCI controller.  The
-BIOS even avoids allowing any of the MEM and I/O resources from
-overlapping.
+Brent Norris
 
-Later,
-David S. Miller
-davem@redhat.com
+Executive Advisor -- WKU-Linux
+
+System Administrator -- WKU-Center for Biodiversity
+                        Best Mechanical
+
+W: 270-745-8864
+H: 270-563-9226
+
+"The problem with the Linux learning curve is that it is _so_ steep once
+ at the top you can't see the people at the bottom"  --Doug Hagan
 

@@ -1,64 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUHaSPe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266333AbUHaSSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266275AbUHaSPe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 14:15:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUHaSPe
+	id S266333AbUHaSSO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 14:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbUHaSSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 14:15:34 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:6143 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266275AbUHaSPW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 14:15:22 -0400
-Date: Tue, 31 Aug 2004 20:15:10 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: jgarzik@pobox.com, akpm@digeo.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: net drivers depending on OBSOLETE
-Message-ID: <20040831181509.GI3466@fs.tum.de>
-Mime-Version: 1.0
+	Tue, 31 Aug 2004 14:18:13 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:5066 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S266291AbUHaSRv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 14:17:51 -0400
+Date: Tue, 31 Aug 2004 20:17:36 +0200
+From: Spam <spam@tnonline.net>
+Reply-To: Spam <spam@tnonline.net>
+X-Priority: 3 (Normal)
+Message-ID: <36793180.20040831201736@tnonline.net>
+To: V13 <v13@priest.com>
+CC: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea of what reiser4 wants to do with metafiles and why
+In-Reply-To: <200408312055.56335.v13@priest.com>
+References: <41323AD8.7040103@namesys.com> <200408312055.56335.v13@priest.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following two net drivers depend in both 2.4 and 2.6 on OBSOLETE:
-- FMV18X
-- SEEQ8005
-- SK_G16
 
-Since CONFIG_OBSOLETE is never set they are not selectable.
-Is there any reason why they should stay in the kernel or would you
-accept a patch that removes these drivers?
+  
 
+> On Sunday 29 August 2004 23:21, Hans Reiser wrote:
+>> The Idea
+>>
+>> You should be able to access metadata about a file the same way you
+>> access the file's data, but with a name based on the filename followed
+>> by a name to select the metadata of interest.
+>>
+>> Examples:
+>>
+>> cat song_of_silence/metas/owner
+>> cat song_of_silence/metas/permissions
+>> cat 10 > song_of_silence/metas/mixer_defaults/volume
+>> cat song_of_silence/metas/license
 
-More than one year ago, Alan Cox answered to the same question in two 
-emails:
+> Maybe I'm crazy but:
 
-<--  snip  -->
+>  You're talking about a major change in the way filesystems work if this is
+> going to be used by other FSs too. If  I understand this correctly it is a
+> completely new thing and trying to do it by patching existing well-known
+> 'primitives' may be wrong. 
 
-... sk_g16 is a pretty rare bit of
-hardware but I thought people had it working in current 2.4, fmv18x
-I've no idea about. I'll take a look at them
+>   AFAIK and AFAICS the metadata are not files or directories. You can look at
+> them as files/dirs but they are not, just like a tar is not a directory. I
+> believe that the correct thing to do (tm) is to add a new 'concept' named
+> 'metadata' (which already exists). This way you'll have files, directories
+> and metadata (or whatever you call them). So, each directory can have
+> metadatas and files and each file can have metadatas. Then you have to
+> provide some new methods of accessing them and not to use chdir() etc. (lets
+> say chdir_meta() to enter the meta dir which will work for files too). After
+> entering the 'metadir' you'll be able to use existing methods etc to access
+> its 'files'.
 
-<--  next mail  -->
+>   This approach doesn't mess with existing things and can be extended for
+> other filesystems too.
 
-[FMV18X] Seems to be a mirror of the at1700 driver. Does anyone know if 
-both do the same hardware ?
+> (Just a thought)
 
-<--  snip  -->
+  It  is a good thought. However I think they are trying to figure out
+  a  way  to have the metadata and streams to be accesible with legacy
+  applications.
 
+  The  file-as-directory  concept is one way, which still seem to have
+  issues.
 
-Could anyone comment on the current state of these drivers?
+  How  are  things  done on Windows platforms when there are files and
+  directories  with the same name? In Unix that is imposible. How does
+  it  work  for  environments  like  Cygwin  etc? What happen to tools
+  that run in them?
 
-
-TIA
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+> <<V13>>
 

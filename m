@@ -1,117 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263151AbVCJVae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263123AbVCJVgo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263151AbVCJVae (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 16:30:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263191AbVCJV2s
+	id S263123AbVCJVgo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 16:36:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263175AbVCJVgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 16:28:48 -0500
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:49817 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S263156AbVCJVWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 16:22:03 -0500
-Date: Thu, 10 Mar 2005 16:21:33 -0500
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: binary drivers and development
-Message-ID: <20050310212133.GE17865@csclub.uwaterloo.ca>
-References: <423075B7.5080004@comcast.net> <423082BF.6060007@comcast.net>
+	Thu, 10 Mar 2005 16:36:43 -0500
+Received: from mail.kroah.org ([69.55.234.183]:6568 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263226AbVCJVgL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 16:36:11 -0500
+Date: Thu, 10 Mar 2005 13:35:54 -0800
+From: Greg KH <greg@kroah.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Netdev <netdev@oss.sgi.com>,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       stable@kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCHES] 2.6.x net driver oops fixes
+Message-ID: <20050310213554.GA21061@kroah.com>
+References: <422F59E8.2090707@pobox.com> <20050310202548.GV5389@shell0.pdx.osdl.net> <20050310203112.GA20337@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <423082BF.6060007@comcast.net>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+In-Reply-To: <20050310203112.GA20337@kroah.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 10, 2005 at 12:24:15PM -0500, John Richard Moser wrote:
-> I've done more thought, here's a small list of advantages on using
-> binary drivers, specifically considering UDI.  You can consider a
-> different implementation for binary drivers as well, with most of the
-> same advantages.
+On Thu, Mar 10, 2005 at 12:31:12PM -0800, Greg KH wrote:
+> On Thu, Mar 10, 2005 at 12:25:48PM -0800, Chris Wright wrote:
+> > * Jeff Garzik (jgarzik@pobox.com) wrote:
+> > 
+> > > This will update the following files:
+> > > 
+> > >  drivers/net/sis900.c    |   41 +++++++++++++++++++++--------------------
+> > >  drivers/net/via-rhine.c |    3 +++
+> > 
+> > The via-rhine fix is already in the stable queue.  But the sis900 oops
+> > fix does not apply to the stable tree.  It relies on a few intermediate
+> > patches.  Appears to still be an issue for the older version which is in
+> > 2.6.11.  Here's a stab at a backport.  Would you like to review/validate
+> > or drop this one?
 > 
->  - Smaller kernel tree
->    The kernel tree would no longer contain all of the drivers; they'd
->    slowly have to bleed into UDI until most were there
+> The pci_name() portion of this patch is not necessary for the -stable
+> tree.  Care to remove it?
 
-Users would have to go hunting for drivers to add to their kernel to get
-hardware supported.  Making a CD with a kernel and drivers for a wide
-variety of hardware would be a nightmare.
+Oh nevermind, I was completly wrong, it's fine.
 
->  - Better focused development
->    The kernel's core would be the core.  Driver code would be isolated,
->    so work on the kernel would affect the kernel only and not any
->    drivers.  UDI is a standard interface that shouldn't be broken.  This
->    means that work on the high-level drivers will not need to be sanity
->    checked a thousand times against the PCI Bus interface or the USB
->    host controler API or whatnot.
-
-But anything that runs in kernel memory space can still go trampling on
-memory in the kernel by accident and is very difficult to debug without
-the sources.
-
->  - Faster rebuilding for developers
->    The isolation between drivers and core would make rebuilding involve
->    the particular component (driver, core).  A "broken driver" would
->    just require recoding and rebuilding the driver; a "broken kernel"
->    would require building pretty much a skeletal core
-
-That can already be done basicly.  The makefiles work just fine for
-rebuilding only what has changed in general.
-
->  - UDI supplies SMP safety
->    The UDI page brags[1]:
-> 
->    "An advanced scheduling model. Multiple driver instances can be run
->     in parallel on multiple processors with no lock management performed
->     by the driver. Free paralllism and scalability!"
-> 
->    Drivers can be considered SMP safe, apparently.  Inside the same
->    driver, however, I have my doubts; I can see a driver maintaining a
->    linked list that needs to be locked during insertions or deletions,
->    which needs lock managment for the driver.  Still, no consideration
->    for anything outside the driver need be made, apparently.
->  - Vendor drivers and religious issues
->    Vendors can supply third party drivers until there are open source
->    alternatives, since they have this religious thing where they don't
->    want people to see their driver code, which is kind of annoying and
->    impedes progress
-
-I imagine a driver writer could still easily do something not SMP safe,
-but I don't know that for sure.  It sounds like a very complex thing to
-promise a perfect solution for.
-
-> Disadvantages:
-> 
->  - Preemption
->    Is it still possible to implement a soft realtime kernel that
->    responds to interrupts quickly?
->  - Performance
->    UDI's developers claim that the performance overhead is negligible.
->    It's still added work, but it remains to be seen if it's significant
->    enough to degrade performance.
->  - Religious battles
->    People have this religious thing about binary drivers, which is kind
->    of annoying and impedes progress
-
-Many of the disadvantages are a good reason why they have these opinions
-on binary drivers.  They do impede getting work done if you have to use
-them on your system and something isn't working right.
-
->  - Constriction
->    This would of course create an abstraction layer that constricts the
->    driver developer's ability to do low level complex operations for any
->    portable binary driver
-
-You forgot the very important:
-   - Only works on architecture it was compiled for.  So anyone not
-     using i386 (and maybe later x86-64) is simply out of luck.  What do
-     nvidia users that want accelerated nvidia drivers for X DRI do
-     right now if they have a powerpc or a sparc or an alpha?  How about
-     porting Linux to a new architecture.  With binary drivers you now
-     start out with no drivers on the new architecture except for the
-     ones you have source for.  Not very productive.
-
-[snip]
-
-Len Sorensen
+greg k-h

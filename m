@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287874AbSBRVoO>; Mon, 18 Feb 2002 16:44:14 -0500
+	id <S287946AbSBRVrE>; Mon, 18 Feb 2002 16:47:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287872AbSBRVoI>; Mon, 18 Feb 2002 16:44:08 -0500
-Received: from [194.25.47.66] ([194.25.47.66]:24333 "HELO brenner.novaville.de")
-	by vger.kernel.org with SMTP id <S287865AbSBRVmz>;
-	Mon, 18 Feb 2002 16:42:55 -0500
-Date: Mon, 18 Feb 2002 22:42:50 +0100 (CET)
-From: Oliver Hillmann <oh@novaville.de>
-To: linux-kernel@vger.kernel.org
-Subject: jiffies rollover, uptime etc.
-Message-ID: <Pine.LNX.4.10.10202182040260.11179-100000@rimini.novaville.de>
+	id <S287895AbSBRVqp>; Mon, 18 Feb 2002 16:46:45 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:60601 "EHLO
+	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S287865AbSBRVqg>; Mon, 18 Feb 2002 16:46:36 -0500
+Message-ID: <3C71780F.6377F8D9@nortelnetworks.com>
+Date: Mon, 18 Feb 2002 16:54:23 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Nick Craig-Wood <ncw@axis.demon.co.uk>
+Cc: Dan Kegel <dank@kegel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: time goes backwards periodically on laptop if booted in low-power 
+ mode
+In-Reply-To: <3C6FDB8C.9B033134@kegel.com> <20020218213049.A28604@axis.demon.co.uk>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Nick Craig-Wood wrote:
+> 
+> On Sun, Feb 17, 2002 at 08:34:20AM -0800, Dan Kegel wrote:
+> > My Toshiba laptop (running stock Red Hat 7.2, kernel 2.4.7-10)
+> > appears to suffer from a power management-related time hiccup: when
+> > I boot in low-power mode, then switch to high-power mode,
+> > time goes backwards by 10ms several times a second.
+> > According to the thread
+> >  Subject:  [PATCH]: allow notsc option for buggy cpus
+> >  From:     Anton Blanchard <anton@linuxcare.com.au>
+> >  Date:     2001-03-10 0:58:29
+> >  http://marc.theaimsgroup.com/?l=linux-kernel&m=98418670406359&w=2
+> > this can be fixed by disabling the TSC option, but there
+> > ought to be a runtime fix.  Was a runtime fix ever put
+> > together for this situation?
+> 
+> All the IBM thinkpads we have in the office have exactly this problem.
+> The major symptom is that ALT-TAB goes wrong in the sawfish window
+> manager oddly!
+> 
+> I made a patch to fix this (this is its first outing).  It stops
+> do_gettimeofday reporting a time less than it reported last time.
 
-yes, I know this is defenitely no new issue (maybe its none to you
-anyway), since I found posts about this dating from 1998: the
-jiffies counter rolls over after approx. 497 days uptime, which
-causes the uptime to roll over as well, and seems to cause some
-other irretation in the system itself (my pc speaker starting
-beeping constantely...)
+I see a minor problem here...what happens if you want to reset your clock (for
+whatever purpose) to a previous time?
 
-I noticed this on a couple of servers just having had 500 days of
-uptime, and so I starting looking at the kernel code and played
-around with a tiny jiffie manipulating kernel module. Since jiffies
-is unsigned long (being 32 bits wide on x86) and counts 1/100th
-seconds, it can only hold about 497 days...
+Chris
 
-This seems to be true for both 2.2 and 2.4, at least for 2.2.16 and
-2.4.17, which I tested...
-
-The uptime thingy could IMHO be solved with some kind of rollover
-counter, and I'm currently digging into that area... Stuff like a pc
-speaker driver going wild bothers me a bit more...
-
-Could anybody perhaps tell me why he/she doesn't consider this a
-problem? And is there a fundamental problem with solving this in
-general? (I do see a problem with defining jiffies long long on x86,
-because it might break a lot of things and probably wouldnt perform
-as often as jiffies is touched... And you might sense I haven't
-been into kernel hacking much...)
-
-My first post here, sorry :)
-
-Regards,
-
-Oliver
-
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

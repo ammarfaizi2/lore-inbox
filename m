@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131142AbQKLWXc>; Sun, 12 Nov 2000 17:23:32 -0500
+	id <S131221AbQKLW2Y>; Sun, 12 Nov 2000 17:28:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131221AbQKLWXW>; Sun, 12 Nov 2000 17:23:22 -0500
-Received: from DKBH-T-003-p-249-16.tmns.net.au ([203.54.249.16]:22278 "EHLO
-	eyal.emu.id.au") by vger.kernel.org with ESMTP id <S131142AbQKLWXP>;
-	Sun, 12 Nov 2000 17:23:15 -0500
-Message-ID: <3A0F14C4.F6766C8F@eyal.emu.id.au>
-Date: Mon, 13 Nov 2000 09:08:04 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11pre2 i686)
-X-Accept-Language: en
+	id <S131377AbQKLW2O>; Sun, 12 Nov 2000 17:28:14 -0500
+Received: from shell.webmaster.com ([209.133.28.73]:39678 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S131221AbQKLW14>; Sun, 12 Nov 2000 17:27:56 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "David Wragg" <dpw@doc.ic.ac.uk>, <tytso@mit.edu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: What protects f_pos?
+Date: Sun, 12 Nov 2000 14:27:54 -0800
+Message-ID: <NCBBLIEPOCNJOAEKBEAKKENGLNAA.davids@webmaster.com>
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test11-pre3 doesn't compile (ax25 and md)
-In-Reply-To: <Pine.LNX.4.21.0011121308440.5594-100000@sjoerd.sjoerdnet> <3A0E8B99.2EA40AF0@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <y7raeb69cmg.fsf@sytry.doc.ic.ac.uk>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> Either md.c or sysctl.h needs to include <linux/types.h>.
 
-It actually needs <linux/fs.h>
+> tytso@mit.edu writes:
+> > This looks like it's a bug to me....  although if you have multiple
+> > threads hitting a file descriptor at the same time, you're pretty much
+> > asking for trouble.
+>
+> Yes, I haven't been able to come up with an example that might trigger
+> this that wasn't dubious to begin with.  I'll raise this again at a
+> convenient time during 2.5.
+>
+> David
 
---
-Eyal Lebedinsky		(eyal@eyal.emu.id.au)
+	Suppose you had a multithreaded program that used a configuration file with
+a group of fixed-length blocks indicating what work it had to do. Each
+thread read a block from the file and then did the work. One might think
+that there's no need to protect the file descriptor with a mutex.
+
+	DS
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

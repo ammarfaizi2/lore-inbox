@@ -1,62 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267432AbTBUNaV>; Fri, 21 Feb 2003 08:30:21 -0500
+	id <S267433AbTBUNdZ>; Fri, 21 Feb 2003 08:33:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267433AbTBUNaV>; Fri, 21 Feb 2003 08:30:21 -0500
-Received: from [196.12.44.6] ([196.12.44.6]:24280 "EHLO students.iiit.net")
-	by vger.kernel.org with ESMTP id <S267432AbTBUNaU>;
-	Fri, 21 Feb 2003 08:30:20 -0500
-Date: Fri, 21 Feb 2003 19:10:56 +0530 (IST)
-From: Prasad <prasad_s@students.iiit.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Syscalls on behalf of another process (was Syscalls in kernel space)
-Message-ID: <Pine.LNX.4.44.0302211909140.1417-100000@students.iiit.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267434AbTBUNdZ>; Fri, 21 Feb 2003 08:33:25 -0500
+Received: from anor.ics.muni.cz ([147.251.4.35]:53436 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id <S267433AbTBUNdY>;
+	Fri, 21 Feb 2003 08:33:24 -0500
+Date: Fri, 21 Feb 2003 14:43:29 +0100 (MET)
+From: News Admin <news@nimloth.ics.muni.cz>
+Message-Id: <200302211343.h1LDhTM13523@nimloth.ics.muni.cz>
+To: linux-kernel@vger.kernel.org
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>From news Fri Feb 21 14:43:28 2003
+Received: (from news@localhost)
+	by nimloth.ics.muni.cz (8.11.6+Sun/8.10.0.Beta12) id h1LDhSm13508
+	for newsmaster; Fri, 21 Feb 2003 14:43:28 +0100 (MET)
+Newsgroups: cz.muni.redir.linux-kernel
+Path: news
+From: Zdenek Kabelac <kabi@i.am>
+Subject: SMP kernel 2.4 and gcc-3.2
+Message-ID: <3E562CFC.774860C7@i.am>
+Sender: UNKNOWN@decibel.fi.muni.cz
+Date: Fri, 21 Feb 2003 13:43:24 GMT
+X-Nntp-Posting-Host: decibel.fi.muni.cz
+Content-Transfer-Encoding: 7bit
+X-Accept-Language: cs, en
+Content-Type: text/plain; charset=us-ascii
+Mime-Version: 1.0
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19-rc3-ac3 i686)
+Organization: unknown
 
-(Resending the previous mail)
+Hello
 
-I am sorry for not being clear the previous time... but i think its time
-to tell you where i needed it.  I, as a graduating project am working on a
-distributed computing system, a part of which is "transparent process
-migration in non-distributed environments".  In my system i would like to
-ship the syscalls back to the original node(where the process originated).
-so for that i have a kernel thread that takes the requests and is supposed
-to execute the syscalls on behalf of the process (I have the idle task
-structure existing on the originating node even after the process is
-migrated to the other node).  And the question is how do i do that.  The
-idea I had was to execute the functions behind the syscalls directly, but
-again, these functions use a lot of 'current'.  Could you help me out of
-this situation!
-	An alternative was that if get_current was called I would check if
-the 'current' points to my kernel thread and if i have a remote syscall
-pending, then i would return a pointer to the particular process's
-task_struct.  This I think is a work-around that should work.  Please do
-comment on this too.
+As I've so far not noticed any such post - maybe it's just me.
 
-Prasad.
+But I simply can not build usable SMP 2.4.2x kernel
+with gcc-3.2
 
-On Thu, 20 Feb 2003, Andrea Arcangeli wrote:
-> > 
-> > He is talking about directly calling the function behind the syscall,
-> > not actually executing a syscall itself.
-> 
-> this is not what I understood from your previous discussion also given
-> you suggest not to do that when he can call sys_read/sys_write instead
-> because they're just exported etc.. I just wanted to add a better
-> "never".
-> 
-> > syscalls should be made from userspace, not the kernel.
-> 
-> This is what I tried to say.
-> 
-> Andrea
-> 
+Whenever I use gcc-3.2 - the compiled kernel just immediately
+reboots machine - Exactly the same kernel with same configuration
+compiled with gcc-2.95 works normaly.
+The box is Abit BP6/256MB Ram/Matrox G400 with 2xCelerons
+
+I've just seen slightly different behavior with various
+versions - sometime it just locked the box (i.e. GRUB screen
+has stayed on the screen and I had to press 'reset' button
+myself)
+
+Ok - what should I do to help fix this problem - as I've said
+I've tried various configuration - I don't think there
+is something special in there (http://www.fi.muni.cz/~kabi/.config)
+
+$ gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-linux/3.2.3/specs
+Configured with: ../src/configure -v
+--enable-languages=c,c++,java,f77,proto,pascal,objc,ada --prefix=/usr
+--mandir=/usr/share/man --infodir=/usr/share/info
+--with-gxx-include-dir=/usr/include/c++/3.2 --enable-shared
+--with-system-zlib --enable-nls --without-included-gettext
+--enable-__cxa_atexit --enable-clocale=gnu --enable-java-gc=boehm
+--enable-objc-gc i386-linux
+Thread model: posix
+gcc version 3.2.3 20030210 (Debian prerelease)
+
+
+please Cc: me
 
 -- 
-Failure is not an option
-
+  .''`.
+ : :' :    Zdenek Kabelac  kabi@{debian.org, users.sf.net, fi.muni.cz}
+ `. `'           Debian GNU/Linux maintainer - www.debian.{org,cz}
+   `-
 

@@ -1,83 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266539AbUBLRSn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 12:18:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266541AbUBLRSn
+	id S266523AbUBLRK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 12:10:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266526AbUBLRK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 12:18:43 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:62986 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id S266539AbUBLRQz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 12:16:55 -0500
-Date: Thu, 12 Feb 2004 18:16:56 +0100 (CET)
-From: Urban Widmark <Urban.Widmark@enlight.net>
-X-X-Sender: puw@cola.local
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       JohnNewbigin <jn@it.swin.edu.au>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: smb_ops_unix warning (was: Re: Linux 2.4.25-rc2)
-In-Reply-To: <Pine.GSO.4.58.0402121324180.7297@waterleaf.sonytel.be>
-Message-ID: <Pine.LNX.4.44.0402121758290.14391-100000@cola.local>
+	Thu, 12 Feb 2004 12:10:29 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:27317 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S266523AbUBLRKT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 12:10:19 -0500
+From: Michael Frank <mhf@linuxmail.org>
+To: Michael Buesch <mbuesch@freenet.de>, Chris Stromsoe <cbs@cts.ucla.edu>
+Subject: Re: lock up with 2.4.23
+Date: Fri, 13 Feb 2004 01:19:58 +0800
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0402111939370.5221@potato.cts.ucla.edu> <200402121634.32186.mbuesch@freenet.de>
+In-Reply-To: <200402121634.32186.mbuesch@freenet.de>
+X-OS: KDE 3 on GNU/Linux
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402130119.58662.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Feb 2004, Geert Uytterhoeven wrote:
-
-> On Wed, 11 Feb 2004, Marcelo Tosatti wrote:
-> > Here goes -rc2, with small number of fixes and corrections.
+On Thursday 12 February 2004 23:34, Michael Buesch wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> This patch adds a missing include (fortunately it was included in some other
-> include, but its' not clean for files that check CONFIG_* flags) and kills a
-> compiler warning (introduced in -rc1, IIRC) if CONFIG_SMB_UNIX is not set.
+> On Thursday 12 February 2004 06:18, you wrote:
+> > When the machine locked up, it was not pingable.  I connected via serial
+> > console and used sysrq to sync and remount the disks readonly.  I also got
+> > output from sysrq+t, sysrq+p, and sysrq+m.  Output is below.
+> 
+> I had a lockup on 2.4.24 today, too.
+> The machine was not pingable (suddenly) and all network
+> access failed (NFS, SSH).
+> The box had an uptime of aproximately 20 days.
+> 
+> Machine is a pentium 1 75 Mhz with 48MB Ram.
+> 
+> The bad things are:
+> - - I have no logs. They got lost when I reset the machine.
+> - - The kernel was tainted with the fritzcard dsl driver.
+>   But exact the same driver had uptimes of over 30 days on
+>   this machine several times in the past.
+> - - The machine has no peripheral hardware, so I was not
+>   able to test sysrq, catch dmesg or something like that.
+> 
+> I know, that this mail is not very helpfull, but maybe
+> better than sending no mail at all. :)
+> 
 
-Ah, thanks.
+You say your drivers are not that bad, OK, the kernel is not 
+that bad too.
 
+Now, please consider that this mainboard is about 10 years old.
+How old is the PSU?
 
-> Alternatively, perhaps the code can be reshuffled a bit to avoid too many
-> ifdefs?
+Consider whether the ambient temperature was higher than average
+at time of lockup.
 
-Code below builds cleanly for me either way, but I have not tested it yet.
-Will do that later.
+Please check:
 
-The config could also be removed, but I like that 2.4 users can keep the
-previous 2.4 behaviour if they want to.
+1) CPU heatsink contaminated
+2) CPU fan bad
+3) PSU fan bad or contaminated (also PSU slots/fins)
+4) Power supply instabel due to capacitors drying out
+5) Mainboard CPU voltage instable due to capacitors drying out
+6) Bad contacts at memory modules
+7) Coroded PSU or other connectors
 
-/Urban
+... Just some of the things I have encountered
 
+Bottom line: its HW!
 
-diff -ur linux-2.4.25-rc2-orig/fs/smbfs/proc.c linux-2.4.25-rc2-smbfs/fs/smbfs/proc.c
---- linux-2.4.25-rc2-orig/fs/smbfs/proc.c	2004-02-12 17:52:37.000000000 +0100
-+++ linux-2.4.25-rc2-smbfs/fs/smbfs/proc.c	2004-02-12 17:54:41.000000000 +0100
-@@ -7,6 +7,7 @@
-  *  Please add a note about your changes to smbfs in the ChangeLog file.
-  */
- 
-+#include <linux/config.h>
- #include <linux/types.h>
- #include <linux/errno.h>
- #include <linux/slab.h>
-@@ -915,7 +916,9 @@
- 		SB_of(server)->s_maxbytes = ~0ULL >> 1;
- 		VERBOSE("LFS enabled\n");
- 	}
--#ifdef CONFIG_SMB_UNIX
-+#ifndef CONFIG_SMB_UNIX
-+	server->opt.capabilities &= ~SMB_CAP_UNIX;
-+#endif
- 	if (server->opt.capabilities & SMB_CAP_UNIX) {
- 		struct inode *inode;
- 		VERBOSE("Using UNIX CIFS extensions\n");
-@@ -924,9 +927,6 @@
- 		if (inode)
- 			inode->i_op = &smb_dir_inode_operations_unix;
- 	}
--#else
--	server->opt.capabilities &= ~SMB_CAP_UNIX;
--#endif
- 
- 	VERBOSE("protocol=%d, max_xmit=%d, pid=%d capabilities=0x%x\n",
- 		server->opt.protocol, server->opt.max_xmit, server->conn_pid,
+Your mail is helpful ;)
+
+Michael
+
 

@@ -1,62 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264652AbTE1LBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 07:01:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264671AbTE1LBP
+	id S264676AbTE1LFU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 07:05:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264677AbTE1LFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 07:01:15 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:35209 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S264652AbTE1LBG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 07:01:06 -0400
-Date: Wed, 28 May 2003 13:14:01 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Milton Miller <miltonm@bga.com>
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH] fix oops on resume from apm bios initiated suspend
-Message-ID: <20030528111401.GB342@elf.ucw.cz>
-References: <200305280643.h4S6hRQF028038@sullivan.realtime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305280643.h4S6hRQF028038@sullivan.realtime.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Wed, 28 May 2003 07:05:20 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:34823 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S264676AbTE1LFS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 07:05:18 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Andrew Morton <akpm@digeo.com>, Jens Axboe <axboe@suse.de>
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Date: Wed, 28 May 2003 13:17:59 +0200
+User-Agent: KMail/1.5.2
+Cc: kernel@kolivas.org, matthias.mueller@rz.uni-karlsruhe.de,
+       manish@storadinc.com, andrea@suse.de, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+References: <3ED2DE86.2070406@storadinc.com> <20030528105029.GS845@suse.de> <20030528035939.72a973b0.akpm@digeo.com>
+In-Reply-To: <20030528035939.72a973b0.akpm@digeo.com>
+MIME-Version: 1.0
+Message-Id: <200305281305.44073.m.c.p@wolk-project.de>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_nrJ1+OBUVsgVJg1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> Didn't know if you caught this one, but it fixes it for me and others
-> who responded on the list.  
-> 
-> mm is NULL for kernel threads without their own context.  active_mm is
-> maintained the one we lazly switch from.
-> 
-> Without this patch, apm bios initiated suspend events (eg panel close) 
-> cause an oops on resume in the LDT restore, killing kapmd, which causes
-> further events to not be polled.
+--Boundary-00=_nrJ1+OBUVsgVJg1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Ouch, okay, this looks good. Andrew please apply.
+On Wednesday 28 May 2003 12:59, Andrew Morton wrote:
 
-[I guess this is trivial enough for trivial patch monkey if andrew
-does not want to take it...]
-								Pavel
+Hi Andrew,
 
-> ===== arch/i386/kernel/suspend.c 1.16 vs edited =====
-> --- 1.16/arch/i386/kernel/suspend.c	Sat May 17 16:09:37 2003
-> +++ edited/arch/i386/kernel/suspend.c	Sat May 24 05:00:02 2003
-> @@ -114,7 +114,7 @@
->          cpu_gdt_table[cpu][GDT_ENTRY_TSS].b &= 0xfffffdff;
->  
->  	load_TR_desc();				/* This does ltr */
-> -	load_LDT(&current->mm->context);	/* This does lldt */
-> +	load_LDT(&current->active_mm->context);	/* This does lldt */
->  
->  	/*
->  	 * Now maybe reload the debug registers
+> umm, I'd like confirmation of that.
+>
+> The waitqueue_active() test is wrong because of a missing barrier, but only
+> on SMP.  And if it does make a mistake it will surely correct itself when
+> the next request is put back. (That's why I left it there...)
+> More testing, please.
+Does the attached one make sense?
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+ciao, Marc
+
+
+
+--Boundary-00=_nrJ1+OBUVsgVJg1
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="llrwblk.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="llrwblk.patch"
+
+--- old/drivers/block/ll_rw_blk.c	2003-05-14 23:11:08.000000000 +0200
++++ new/drivers/block/ll_rw_blk.c	2003-05-28 13:04:34.000000000 +0200
+@@ -829,9 +829,10 @@ void blkdev_release_request(struct reque
+ 	 */
+ 	if (q) {
+ 		list_add(&req->queue, &q->rq[rw].free);
+-		if (++q->rq[rw].count >= q->batch_requests &&
+-				waitqueue_active(&q->wait_for_requests[rw]))
++		if (++q->rq[rw].count >= q->batch_requests) {
++			smp_mb();
+ 			wake_up(&q->wait_for_requests[rw]);
++		}
+ 	}
+ }
+ 
+
+--Boundary-00=_nrJ1+OBUVsgVJg1--
+

@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263467AbUGMHIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263555AbUGMHXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263467AbUGMHIP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 03:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUGMHIP
+	id S263555AbUGMHXP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 03:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUGMHXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 03:08:15 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:39303 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S263467AbUGMHIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 03:08:14 -0400
-Date: Tue, 13 Jul 2004 08:08:05 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rmaplock 1/6 PageAnon in mapping
-In-Reply-To: <20040712214842.5c200de0.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0407130755420.5920-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 13 Jul 2004 03:23:15 -0400
+Received: from cantor.suse.de ([195.135.220.2]:32724 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263555AbUGMHXK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 03:23:10 -0400
+Date: Tue, 13 Jul 2004 09:23:07 +0200
+From: Andi Kleen <ak@suse.de>
+To: Roland McGrath <roland@redhat.com>
+Cc: akpm@osdl.org, torvalds@osdl.org, mingo@redhat.com, jparadis@redhat.com,
+       cagney@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86-64 support for singlestep into 32-bit system calls
+Message-Id: <20040713092307.4cd6b5aa.ak@suse.de>
+In-Reply-To: <200407122358.i6CNwQ4Q001709@magilla.sf.frob.com>
+References: <200407122358.i6CNwQ4Q001709@magilla.sf.frob.com>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jul 2004, Andrew Morton wrote:
-> Hugh Dickins <hugh@veritas.com> wrote:
-> >
-> > Replace the PG_anon page->flags bit by setting the lower bit of the
-> >  pointer in page->mapping when it's anon_vma: PAGE_MAPPING_ANON bit.
+On Mon, 12 Jul 2004 16:58:26 -0700
+Roland McGrath <roland@redhat.com> wrote:
+
+> This patch makes x86-64's 32-bit support behave consistently with the
+> native i386 behavior achieved in Davide Libenzi's patch:
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm7/broken-out/really-ptrace-single-step-2.patch
 > 
-> This is likely to cause conniptions in various quarters.  Is there no
-> alternative?
+> I hope these both can go into 2.6.8 or 2.6.9, since they make life 
+> better for gdb.
 
-I've little doubt barriers would provide an alternative;
-but I'm hopeless with barriers, so couldn't manage it myself;
-and not alone in finding them difficult; and surely more expensive.
+I would prefer not to merge this. It looks extremly ugly and the current
+behaviour is not that unreasonable and gdb has lived with it forever,
+so why can't it continue it? It has to keep supporting old versions
+anyways and other i386 OS it supports probably do the same.
 
-> It might make things more palatable to hide the setting, clearing testing
-> amd masking of this bit behind some set of wrapper functions.  Maybe.
+If i386 merges it I guess it's ok for consistency, but it would be 
+better to not do it at all.
 
-Conniptious in some quarters that the name shouts too.  But where does it
-appear?  In mm.h, the inlines to hide it from wider gaze.  And just four
-times in rmap.c.  I'd have been happier to say three times, but even so,
-I don't think burying it deeper helps anyone.
 
-Hugh
+> +#ifdef CONFIG_IA32_EMULATION
+> +	clear_tsk_thread_flag(child, TIF_SINGLESTEP);
+> +#endif
+
+
+This looks wrong. Why do you do this unconditionally when 32bit 
+emulation is compiled in? Either it is correct to do for 64bit 
+processes, then the ifdef should go, or it is not correct then
+it would need a test. For me dropping the flag both for 32bit
+and 64bit looks wrong.
+
+Same in other hunks.
+
+-Andi
 

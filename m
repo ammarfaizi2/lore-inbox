@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbTLMASN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 19:18:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTLMASN
+	id S262356AbTLMAZf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 19:25:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbTLMAZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 19:18:13 -0500
-Received: from smtp06.iddeo.es ([62.81.186.16]:8097 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S262153AbTLMASK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 19:18:10 -0500
-Date: Sat, 13 Dec 2003 01:18:08 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Allow 2.6.0-test11-bk8 AIC build with db1/db4
-Message-ID: <20031213001808.GA10640@werewolf.able.es>
+	Fri, 12 Dec 2003 19:25:31 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49122 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262356AbTLMAZb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 19:25:31 -0500
+Date: Sat, 13 Dec 2003 00:25:30 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Nix <nix@esperi.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+Message-ID: <20031213002530.GL4176@parcelfarce.linux.theplanet.co.uk>
+References: <3FCDE5CA.2543.3E4EE6AA@localhost> <Pine.LNX.4.58.0312031533530.2055@home.osdl.org> <Pine.LNX.4.58.0312031614000.2055@home.osdl.org> <20031204192452.GC10421@parcelfarce.linux.theplanet.co.uk> <877k11y3sh.fsf@amaterasu.srvr.nix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.15
+In-Reply-To: <877k11y3sh.fsf@amaterasu.srvr.nix>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
+On Sat, Dec 13, 2003 at 12:11:58AM +0000, Nix wrote:
+> > 	Some approximation might be obtained by building all modules and
+> > doing nm on them, with manual work for non-obvious cases.
+> 
+> Hang on, surely you can tell which symbols in modules are exported just
+> by looking for expansions of EXPORT_SYMBOL{_GPL}? Why is this bit hard?
 
-This is still needed in bk8. Could it be got right for final, please ?
+It's not a question of which symbols are exported by module, it's what
+symbols are _imported_.
 
---- linux-2.6.0-test11/drivers/scsi/aic7xxx/aicasm/Makefile.orig	2003-12-02 23:52:29.000000000 +0100
-+++ linux-2.6.0-test11/drivers/scsi/aic7xxx/aicasm/Makefile	2003-12-03 00:01:04.000000000 +0100
-@@ -34,10 +34,14 @@
- 	$(AICASM_CC) $(AICASM_CFLAGS) $(SRCS) -o $(PROG) $(LIBS)
- 
- aicdb.h:
--	@if [ -e "/usr/include/db3/db_185.h" ]; then		\
-+	@if [ -e "/usr/include/db4/db_185.h" ]; then		\
-+		echo "#include <db4/db_185.h>" > aicdb.h;	\
-+	 elif [ -e "/usr/include/db3/db_185.h" ]; then		\
- 		echo "#include <db3/db_185.h>" > aicdb.h;	\
- 	 elif [ -e "/usr/include/db2/db_185.h" ]; then		\
- 		echo "#include <db2/db_185.h>" > aicdb.h;	\
-+	 elif [ -e "/usr/include/db1/db_185.h" ]; then		\
-+		echo "#include <db1/db_185.h>" > aicdb.h;	\
- 	 elif [ -e "/usr/include/db/db_185.h" ]; then		\
- 		echo "#include <db/db_185.h>" > aicdb.h;	\
- 	 elif [ -e "/usr/include/db_185.h" ]; then		\
-
-
-TIA
-
--- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 10.0 (Cooker) for i586
-Linux 2.6.0-test11-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-4mdk))
+IOW, the hard question is "what modules use foo()", not "where do we define
+foo()".  And while it's easy for a single symbol, we want it for _all_
+exported symbols in the tree at once.

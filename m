@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267381AbRGLIPS>; Thu, 12 Jul 2001 04:15:18 -0400
+	id <S267453AbRGLIU6>; Thu, 12 Jul 2001 04:20:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267451AbRGLIPI>; Thu, 12 Jul 2001 04:15:08 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:63758 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S267434AbRGLIPB>; Thu, 12 Jul 2001 04:15:01 -0400
-Message-ID: <3B4D5BF5.22BCEAE8@namesys.com>
-Date: Thu, 12 Jul 2001 12:12:37 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
-MIME-Version: 1.0
-To: Ragnar =?koi8-r?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-CC: Shawn Veader <shawn.veader@zapmedia.com>, linux-kernel@vger.kernel.org,
-        Nikita Danilov <god@namesys.com>
-Subject: Re: disk full or not?  you decide...
-In-Reply-To: <3B4CA943.5EC6A127@zapmedia.com> <20010711215413.D20990@vestdata.no>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 8bit
+	id <S267451AbRGLIUs>; Thu, 12 Jul 2001 04:20:48 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:23860 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S267450AbRGLIUj>; Thu, 12 Jul 2001 04:20:39 -0400
+Date: Thu, 12 Jul 2001 10:21:05 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7pre6aa1
+Message-ID: <20010712102105.D779@athlon.random>
+In-Reply-To: <20010712101635.C779@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010712101635.C779@athlon.random>; from andrea@suse.de on Thu, Jul 12, 2001 at 10:16:35AM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ragnar Kjørstad wrote:
+On Thu, Jul 12, 2001 at 10:16:35AM +0200, Andrea Arcangeli wrote:
+> Only in 2.4.7pre6aa1: 40_blkdev-pagecache-5
 > 
-> On Wed, Jul 11, 2001 at 03:30:11PM -0400, Shawn Veader wrote:
-> > does anyone know why this is happening? our guess is that the logs
-> > to reiser are getting quite large. how do we flush them and force
-> > a garbage collection? we save and remove several large files on this
-> > partition as the system is running. therefore, i figure that the
-> > space is kept around till the log is flushed in case it is needed for
-> > replaying the journal. am i totaly off?
-> 
-> No, space should be available right away, and the journal have fixed
-> size (32 MB pr default)
-> 
-> Most likely the problem is caused by a big file (or more files) beeing
-> deleted but some program still keeping it open. Then the space can not
-> be reused until that program closes the file.
-> 
-> You can get a list of deleted files that are still open with:
-> ls -l /proc/*/fd | grep deleted
-> 
-> --
-> Ragnar Kjorstad
-> Big Storage
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-this is probably due to a fixed bug addressed in a not yet released bugfix.
+> 	Now fixed also initrd, and tested that reads and writes with part of
+> 	the page beyond of the end of the device works (assuming userspace
+> 	knows where the device ends without relying on the last
+> 	readable/writeable byte, kernel doesn't destabilize if you write and
+> 	read beyond the end though).
 
-We are about to send it into the ac series (probably Sunday).  If you run fsck it should free up the
-space, but run a backup first.
+btw, I also made a port of the blkdev in pagecache rev 5 against
+2.4.7pre6+o_direct-10. So to test blkdev in pagecache you can also apply
+in order:
 
-Hans
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.7pre5/o_direct-10
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.7pre6/blkdev-pagecache-5
+
+on top of 2.4.7pre6.
+
+Andrea

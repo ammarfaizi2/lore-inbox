@@ -1,58 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUHDIcQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUHDIfj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbUHDIcQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 04:32:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUHDIcP
+	id S261239AbUHDIfj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 04:35:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbUHDIfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 04:32:15 -0400
-Received: from adsl-233-225.38-151.net24.it ([151.38.225.233]:11783 "EHLO
-	gateway.milesteg.arr") by vger.kernel.org with ESMTP
-	id S261300AbUHDIcK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 04:32:10 -0400
-Date: Wed, 4 Aug 2004 10:32:08 +0200
-From: Daniele Venzano <webvenza@libero.it>
-To: Jean Francois Martinez <jfm512@free.fr>
-Cc: Daniele Venzano <webvenza@libero.it>, linux-kernel@vger.kernel.org
-Subject: Re: Integrated ethernet on SiS chipset doesn't work
-Message-ID: <20040804083208.GE18272@gateway.milesteg.arr>
-Mail-Followup-To: Jean Francois Martinez <jfm512@free.fr>,
-	Daniele Venzano <webvenza@libero.it>, linux-kernel@vger.kernel.org
-References: <1089480939.2779.22.camel@agnes> <Pine.LNX.4.53.0407102141560.5590@chaos> <1089538014.4690.32.camel@agnes> <20040711101608.GB10738@picchio.gall.it> <1091130156.2912.17.camel@agnes>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1091130156.2912.17.camel@agnes>
-X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.26-grsec
-X-Copyright: Forwarding or publishing without permission is prohibited.
-X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
-X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
-User-Agent: Mutt/1.5.6i
+	Wed, 4 Aug 2004 04:35:39 -0400
+Received: from smtp014.mail.yahoo.com ([216.136.173.58]:37732 "HELO
+	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261239AbUHDIfb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 04:35:31 -0400
+Message-ID: <41109FCC.4070906@yahoo.com.au>
+Date: Wed, 04 Aug 2004 18:35:24 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2-mm2
+References: <20040802015527.49088944.akpm@osdl.org> <410E3CAF.6080305@kolivas.org> <410F3423.3020409@yahoo.com.au> <cone.1091518501.973503.9648.502@pc.kolivas.org> <cone.1091519122.804104.9648.502@pc.kolivas.org>
+In-Reply-To: <cone.1091519122.804104.9648.502@pc.kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 29, 2004 at 09:42:36PM +0200, Jean Francois Martinez wrote:
-> Here is the interesting part of his dmesg, after reloading the
-> sis900 driver.  We can see that the card
-> indentifies a VIA transceiver at address 1 but instead uses the 
-> (inexistent) one at address 31.
+Con Kolivas wrote:
+> Con Kolivas writes:
+> 
+>> Nick Piggin writes:
+>>
+>>> Con Kolivas wrote:
+>>>
+>>>> Andrew Morton wrote:
+>>>
+>>>
+>>>> Anyone with feedback on this please cc me. This was developed 
+>>>> separately from the -mm series which has heaps of other scheduler 
+>>>> patches which were not trivial to merge with so there may be 
+>>>> teething problems. Good reports dont hurt either ;)
+>>>>
+>>>
+>>> I can't get onto the OSDL site now, but I seem to remember staircase
+>>> having some performance problems on a few things. Hackbench and reaim
+>>> from memory... are these fixed? was I dreaming?
+>>
+>>
+>> Definitely dreaming I'm afraid :D
+>>
+>> The performance on both reaim and hackbench has always equalled or 
+>> exceeded mainline so thanks for bringing it up.
 
-> eth0: VIA 6103 PHY transceiver found at address 1.
-...
-> eth0: Unknown PHY transceiver found at address 31.
-> eth0: Using transceiver found at address 31 as default
-> eth0: SiS 900 PCI Fast Ethernet at 0xe800, IRQ 11, 00:0c:76:68:a9:89.
-
-This behaviuor should be corrected in tha latest kernels (mm or bk) by
-the patches available here:
-http://teg.homeunix.org/sis900.html
-
-If all fails this patch should work just fine:
-http://teg.homeunix.org/download/kpatches/sis900-list-phy-ids.diff
-But is just for that particular case.
+(OSDL's search thingy still isn't working quite right, but I'll get back
+to you about this when it does.)
 
 
--- 
------------------------------
-Daniele Venzano
-Web: http://teg.homeunix.org
+Otherwise, a couple of problems I noticed:
 
+You removed things like this:
+-	/*
+-	 * The idle thread is not allowed to schedule!
+-	 * Remove this check after it has been exercised a bit.
+-	 */
+-	if (unlikely(current == rq->idle) && current->state != TASK_RUNNING) {
+-		printk(KERN_ERR "bad: scheduling from the idle thread!\n");
+-		dump_stack();
+-	}
+-
+And child-runs-first in wake_up_new_task. Please don't.
+
+Also, basic interactivity in X is bad with the interactive sysctl set to 0
+(is X supposed to be at nice 0?), however fairness is bad when interactive is 1.
+I'm not sure if this is an acceptable tradeoff - are you planning to fix it?
+
+It has interactivity problems with "thud". Also the mouse can freeze for .5 to 1
+second when moving between windows while there is disk IO going on in the background
+(this is with interactive = 1). The test-starve problem is back.
+
+Increasing priority (negative nice) doesn't have much impact. -20 CPU hog only gets
+about double the CPU of a 0 priority CPU hog and only about 120% the CPU time of a
+nice -10 hog.

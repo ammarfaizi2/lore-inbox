@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbTHTSTz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 14:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbTHTSTz
+	id S262124AbTHTS12 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 14:27:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbTHTS12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 14:19:55 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:39868 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S262123AbTHTSTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 14:19:53 -0400
-Date: Wed, 20 Aug 2003 15:15:43 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: "Brown, Len" <len.brown@intel.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       "J.A. Magallon" <jamagallon@able.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, acpi-devel@sourceforge.net
-Subject: RE: [patch] 2.4.x ACPI updates
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FC7F@hdsmsx402.hd.intel.com>
-Message-ID: <Pine.LNX.4.55L.0308201514140.617@freak.distro.conectiva>
-References: <BF1FE1855350A0479097B3A0D2A80EE009FC7F@hdsmsx402.hd.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 20 Aug 2003 14:27:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:16273 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262124AbTHTS11 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 14:27:27 -0400
+Date: Wed, 20 Aug 2003 11:29:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hannes Reinecke <Hannes.Reinecke@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dumb question: BKL on reboot ?
+Message-Id: <20030820112918.0f7ce4fe.akpm@osdl.org>
+In-Reply-To: <3F434BD1.9050704@suse.de>
+References: <3F434BD1.9050704@suse.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 19 Aug 2003, Brown, Len wrote:
-
-> Andy/Jeff/Marcelo,
+Hannes Reinecke <Hannes.Reinecke@suse.de> wrote:
 >
-> At Jeff's request, I've back ported ACPICA 20030813 from
-> http://linux-acpi.bkbits.net/linux-acpi-2.4 into a new tree for 2.4.22:
-> http://linux-acpi.bkbits.net/linux-acpi-2.4.22
->
-> I've restored acpitable.[ch], which was deleted too late for this
-> release cycle; and will live on until 2.4.23 -- as well as restored
-> CONFIG_ACPI_HT_ONLY under CONFIG_ACPI; restored the 8-bit characters
-> that got expanded to 16-bits in a previous merge; and deleted some dmesg
-> verbiage that Jeff didn't think was appropriate for the baseline kernel.
->
-> I exported this a patch and then imported onto a clone of Marcelo's
-> tree, so it appears as a single cset where the changes that got un-done
-> never happened.  I've done some sanity tests on it, and will test it
-> some more tomorrow.  Take a look at it and let me know if I missed
-> anything.  When Andy is happy with it I'll leave it to him to re-issue a
-> pull request from Marcelo.
+> Hiya,
+> 
+> I've got a dumb question: Why is the BKL held on entering sys_reboot() 
+> in kernel/sys.c:405 ?
 
-Cool!!
+Probably for no good reason.
 
-Ill try to take a look at the patch now (having serious conectivity issues
-:()
+> It is getting especially interesting on SMP, when one cpu is entering 
+> sys_reboot, acquires the BKL and then waits (via machine_restart) for 
+> all other cpus to shut down. If any of the other cpus is executing a 
+> task which also needs the BKL, we have a nice deadlock.
+> We've seen this here on 2-way s390, where the other cpu tried to execute 
+> kupdated() (what did it try that for? Anyway...), which of course 
+> resulted in a deadlock.
+
+I guess that dropping the BKL around the machine_restart() call would be an
+appropriate 2.4 fix.
+
+Where exactly does the rebooting CPU get stuck in machine_restart()?  If
+someone has done lock_kernel() with local interrupts disabled then yes,
+it'll deadlock.  But that's unlikely?  Confused.
 

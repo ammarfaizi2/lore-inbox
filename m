@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262149AbTCVLuJ>; Sat, 22 Mar 2003 06:50:09 -0500
+	id <S262663AbTCVLza>; Sat, 22 Mar 2003 06:55:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262152AbTCVLuJ>; Sat, 22 Mar 2003 06:50:09 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:1943 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S262149AbTCVLuI>;
-	Sat, 22 Mar 2003 06:50:08 -0500
-Date: Sat, 22 Mar 2003 14:01:10 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Welcome to the Movieglobe Mailing List
-Message-ID: <20030322120110.GD29167@mea-ext.zmailer.org>
-References: <20030322112933.2BB29188E90@bungo.vc.bravenet.com>
+	id <S262588AbTCVLza>; Sat, 22 Mar 2003 06:55:30 -0500
+Received: from packet.digeo.com ([12.110.80.53]:44260 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262402AbTCVLz0>;
+	Sat, 22 Mar 2003 06:55:26 -0500
+Date: Sat, 22 Mar 2003 04:05:50 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: dougg@torque.net
+Cc: pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: [patch for playing] 2.5.65 patch to support > 256 disks
+Message-Id: <20030322040550.0b8baeec.akpm@digeo.com>
+In-Reply-To: <3E7C4D05.2030500@torque.net>
+References: <200303211056.04060.pbadari@us.ibm.com>
+	<3E7C4251.4010406@torque.net>
+	<20030322030419.1451f00b.akpm@digeo.com>
+	<3E7C4D05.2030500@torque.net>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030322112933.2BB29188E90@bungo.vc.bravenet.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Mar 2003 12:05:48.0742 (UTC) FILETIME=[6049EE60:01C2F06B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, Who was the idiote who "clicked" on spamvertised subscription URL ?
-
-I have blacklisted that source, but getting this added AT ALL is
-just indication of somebody being seriously STUPID!
-
-  Your very much non-amused (co-)postmaster.
-
-
-On Sat, Mar 22, 2003 at 03:29:33AM -0800, steve@themovieglobe.com wrote:
-> To:	linux-kernel@vger.kernel.org
-> Subject: Welcome to the Movieglobe Mailing List
-> From:	steve@themovieglobe.com
-> X-Usernum: 4280452265
-> X-IPAddy: 202.51.96.249
-> Message-Id: <20030322112933.2BB29188E90@bungo.vc.bravenet.com>
-> Date:	Sat, 22 Mar 2003 03:29:33 -0800 (PST)
+Douglas Gilbert <dougg@torque.net> wrote:
+>
+> Andrew Morton wrote:
+> > Douglas Gilbert <dougg@torque.net> wrote:
+> > 
+> >>>Slab:           464364 kB
+> >>
+> > 
+> > It's all in slab.
+> > 
+> > 
+> >>I did notice a rather large growth of nodes
+> >>in sysfs. For 84 added scsi_debug pseudo disks the number
+> >>of sysfs nodes went from 686 to 3347.
+> >>
+> >>Does anybody know what is the per node memory cost of sysfs?
+> > 
+> > 
+> > Let's see all of /pro/slabinfo please.
 > 
-> You have been added to the list.
+> Andrew,
+> Attachments are /proc/slabinfo pre and post:
+>   $ modprobe scsi_debug add_host=42 num_devs=2
+> which adds 84 pseudo disks.
 > 
-> -----------------------------------------------------------------------
+
+OK, thanks.  So with 48 disks you've lost five megabytes to blkdev_requests
+and deadline_drq objects.  With 4000 disks, you're toast.  That's enough
+request structures to put 200 gigabytes of memory under I/O ;)
+
+We need to make the request structures dymanically allocated for other
+reasons (which I cannot immediately remember) but it didn't happen.  I guess
+we have some motivation now.
+

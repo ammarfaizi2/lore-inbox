@@ -1,82 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268063AbUHSGHo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268066AbUHSGQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268063AbUHSGHo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 02:07:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUHSGHo
+	id S268066AbUHSGQn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 02:16:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbUHSGQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 02:07:44 -0400
-Received: from fmr10.intel.com ([192.55.52.30]:43680 "EHLO
-	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
-	id S268063AbUHSGHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 02:07:32 -0400
-Subject: Re: kernel 2.6.8.1-mm1 ACPI bug ?
-From: Len Brown <len.brown@intel.com>
-To: Maximilian Decker <burbon04@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <566B962EB122634D86E6EE29E83DD808182C36F4@hdsmsx403.hd.intel.com>
-References: <566B962EB122634D86E6EE29E83DD808182C36F4@hdsmsx403.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1092895624.25902.199.camel@dhcppc4>
+	Thu, 19 Aug 2004 02:16:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10720 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265996AbUHSGQj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 02:16:39 -0400
+Date: Wed, 18 Aug 2004 23:16:24 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>,
+       <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH][linux-usb-devel] Early USB handoff
+Message-Id: <20040818231624.414673c3@lembas.zaitcev.lan>
+In-Reply-To: <5F106036E3D97448B673ED7AA8B2B6B3015B698A@scl-exch2k.phoenix.com>
+References: <5F106036E3D97448B673ED7AA8B2B6B3015B698A@scl-exch2k.phoenix.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 19 Aug 2004 02:07:04 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-08-18 at 03:50, Maximilian Decker wrote:
-> Hi all,
-> 
-> it seems like there is a strange ACPI related bug in the current -mm 
-> patch set... ?
-> At least with my configuration the following happens:
-> 
-> 
-> With vanilla kernel 2.6.7 oder 2.6.8 I get the following at bootup:
-> 
-> ACPI: Processor [CPU0] (supports C1 C2 C3, 8 throttling states)
-> ACPI: Thermal Zone [TZ1] (30 C)
-> ACPI: Thermal Zone [TZ2] (29 C)
-> ACPI: Thermal Zone [TZ3] (26 C)
-> cpufreq: CPU0 - ACPI performance management activated.
-> ACPI: (supports S0 S3 S4 S4bios S5)
-> 
-> 
-> With the current -mm patchset (at least with 2.6.8 rc to .1) I get the
-> following:
-> 
-> ACPI: Processor [CPU0] (supports C1 C2 C3, 8 throttling states)
-> ACPI: Thermal Zone [TZ1] (16 C)
->     ACPI-1133: *** Error: Method execution failed [\_TZ_.C204] (Node 
-> dff45e00), AE_AML_PACKAGE_LIMIT
->     ACPI-1133: *** Error: Method execution failed [\_TZ_.C203] (Node 
-> dff45c20), AE_AML_PACKAGE_LIMIT
->     ACPI-1133: *** Error: Method execution failed [\_TZ_.TZ2_._TMP] 
-> (Node dff46580), AE_AML_PACKAGE_LIMIT
-> ACPI: Thermal Zone [TZ3] (31 C)
-> cpufreq: CPU0 - ACPI performance management activated.
-> ACPI: (supports S0 S3 S4 S4bios S5)
-> 
-> 
-> My hardware is a HP compaq nc8000, Pentium-M.
-> The problem is that with the -mm kernels the CPU fan stops to work -
-> causing temperature to raise very high ...... :-(
-> 
-> Are there any known problems ?
+On Mon, 16 Aug 2004 19:09:53 -0700
+"Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com> wrote:
 
-Please take stock 2.6.8.1 and apply the latest patch here:
-http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.8/
-and give it a go.
+> Attached is a patch for 2.6.8.1
 
-This will bring your kernel up to the same ACPI patch that is in the -mm
-tree, but without all the other stuff in the mm tree.
+This looks good, however I'd like you to make spacing more kernel-like,
+for example here:
 
-If it fails, then ACPI broke.  If it works, then something in -mm broke
-ACPI.
+> +			writel( 0x3f, op_reg_base + EHCI_USBSTS);
+> +			udelay( delta);
 
-thanks,
--Len
+Also, the double star has to go:
 
+ /**
+  * foo
+  */
 
+It might confuse scripts which generate Docbook manuals.
 
+Once you're done, we only have to wait for Greg to get back from
+vacation, pipe through him into -mm and have someone actually
+testing it on the IBM's Itanium NUMA for confirmation that it
+actually worked. Only then Linus will take it, and I'll take it
+for Marcelo. Kind of long way, but there you have it...
+I'll feed it to Dell people too, I know they suffered from it.
+
+BTW, why is that you awarded EHCI its own function, but not UHCI or OHCI?
+
+-- Pete

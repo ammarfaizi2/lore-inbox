@@ -1,32 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314232AbSEXGvz>; Fri, 24 May 2002 02:51:55 -0400
+	id <S317103AbSEXHQO>; Fri, 24 May 2002 03:16:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317103AbSEXGvy>; Fri, 24 May 2002 02:51:54 -0400
-Received: from web14309.mail.yahoo.com ([216.136.224.59]:12551 "HELO
-	web14309.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S314232AbSEXGvx>; Fri, 24 May 2002 02:51:53 -0400
-Message-ID: <20020524065153.15644.qmail@web14309.mail.yahoo.com>
-Date: Thu, 23 May 2002 23:51:53 -0700 (PDT)
-From: samson swanson <intellectcrew@yahoo.com>
-Subject: Compiling 2.2.19 with -O3 flag
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317104AbSEXHQN>; Fri, 24 May 2002 03:16:13 -0400
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:8628 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S317103AbSEXHQM>; Fri, 24 May 2002 03:16:12 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, akpm@zip.com.au
+Subject: Re: [PATCH] XBUG(comment) BUG enhancement 
+In-Reply-To: Your message of "Fri, 24 May 2002 02:49:06 -0400."
+             <20020524024906.A1547@redhat.com> 
+Date: Fri, 24 May 2002 17:19:51 +1000
+Message-Id: <E17B9Me-00019p-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi everyone. [all done for fun]
+In message <20020524024906.A1547@redhat.com> you write:
+> On Fri, May 24, 2002 at 03:24:30PM +1000, Rusty Russell wrote:
+> >   __asm__ __volatile__(	"ud2\n"		\
+> > -			"\t.word %c0\n"	\
+> > +			"\t.long %c0\n"	\
+> >  			"\t.long %c1\n"	\
+> > -			 : : "i" (__LINE__), "i" (__FILE__))
+> > +			 : : "i" (__stringify(__LINE__)), "i" (__FILE__))
+> 
+> This part I can't agree with: changing the line number to a string 
+> results in excess pollution of the data segment with useless strings 
+> that are frequently duplicates.  Why not leave it as a number?
 
-I compiled 2.2.19 with the -O3 flag. then benched with
-crafty (chess engine) and it peformed faster in that
-respect.
+To unify the trap handler to handle both cases.  If you really think
+this is unacceptable bloat, please measure the difference, then use
+line number zero or something for XBUG and place the comment string at
+in a third .long.
 
-I would like to ask when compiling with -O3 flag on a
-kernel such as 2.2.19, what harm / side effect will I
-feel later on if any? will i loose speed in other area's?
-
-__________________________________________________
-Do You Yahoo!?
-LAUNCH - Your Yahoo! Music Experience
-http://launch.yahoo.com
+But I was lazy, and this was tested...
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,83 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272481AbTHEHrc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 03:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272563AbTHEHrc
+	id S272568AbTHEHtv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 03:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272574AbTHEHtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 03:47:32 -0400
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:63872 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S272481AbTHEHrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 03:47:31 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Amon Ott <ao@rsbac.org>
-Organization: RSBAC
-To: RSBAC List <rsbac@rsbac.org>
-Subject: Announce: RSBAC v1.2.2 released
-Date: Tue, 5 Aug 2003 09:49:25 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, Suse-Security <suse-security@suse.com>,
-       sec@linux-sec.net
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <19jwX7-28IRrE0@fmrl00.sul.t-online.com>
-X-Seen: false
-X-ID: ZZR9uuZBZe0mDFFbUcyQtddzOQJ7Ki9zIUOGd0S8SRpyRaXN9qaCEk@t-dialin.net
+	Tue, 5 Aug 2003 03:49:51 -0400
+Received: from mail.gmx.net ([213.165.64.20]:11990 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S272568AbTHEHtu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 03:49:50 -0400
+Message-Id: <5.2.1.1.2.20030805094944.01a00708@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Tue, 05 Aug 2003 09:53:45 +0200
+To: Andrew Morton <akpm@osdl.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] O13int for interactivity
+Cc: Con Kolivas <kernel@kolivas.org>, piggin@cyberone.com.au,
+       linux-kernel@vger.kernel.org, mingo@elte.hu,
+       felipe_alfaro@linuxmail.org
+In-Reply-To: <20030804230337.703de772.akpm@osdl.org>
+References: <1060059844.3f2f3ac46e2f2@kolivas.org>
+ <200308050207.18096.kernel@kolivas.org>
+ <200308051220.04779.kernel@kolivas.org>
+ <3F2F149F.1020201@cyberone.com.au>
+ <200308051318.47464.kernel@kolivas.org>
+ <3F2F2517.7080507@cyberone.com.au>
+ <1060059844.3f2f3ac46e2f2@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+At 11:03 PM 8/4/2003 -0700, Andrew Morton wrote:
+>Con Kolivas <kernel@kolivas.org> wrote:
+> >
+> > > In short: make the same policy for an interruptible and an 
+> uninterruptible
+> >  > sleep.
+> >
+> >  That's the policy that has always existed...
+> >
+> >  Interesting that I have only seen the desired effect and haven't 
+> noticed any
+> >  side effect from this change so far. I'll keep experimenting as much as
+> >  possible (as if I wasn't going to) and see what the testers find as well.
+>
+>We do prefer that TASK_UNINTERRUPTIBLE processes are woken promptly so they
+>can submit more IO and go back to sleep.  Remember that we are artificially
+>leaving the disk head idle in the expectation that the task will submit
+>more I/O.  It's pretty sad if the CPU scheduler leaves the anticipated task
+>in the doldrums for five milliseconds.
 
-Rule Set Based Access Control (RSBAC) version 1.2.2 has been released.
-Full information and downloads are available from http://www.rsbac.org
+It's actually (potentially) _much_ more than that isn't it?  Wakeups don't 
+consider the last time a task has run... the awakened task is always placed 
+at the back of the pack regardless of whether the tasks in front of it have 
+been receiving heavy doses of cpu and the awakened task has not.
 
-RSBAC is a flexible, powerful and fast open source access control framework
-for current Linux kernels, which has been in stable production use since
-January 2000 (version 1.0.9a). All development is independent of governments
-and big companies, and no existing access control code has been reused.
+         -Mike 
 
-The system includes a big range of decision modules, some of which implement 
-professional access control models like ACL, MAC or Role Compatibility. It 
-supports both 2.4 and 2.2 kernel series. Now that 2.6 seems to stabilize, the 
-port to 2.6.0-test is in progress.
-
-New features compared to version 1.2.1:
-
-- Malware scanning:
-       - Added ms_need_scan attribute for selective scanning
-       - MS module support for F-Protd as scanning engine
-       - ms_need_scan FD attribute for selective scanning
-       - MS module support for clamd as scanning engine.
-- Jails:
-       - JAIL flag allow_inet_localhost to additionally allow to/from
-         local/remote IP 127.0.0.1
-- Resource Control:
-       - New RES module with minimum and maximum resource settings for
-         users and programs
-- Authentication Enforcement:
-       - Moved AUTH module to generic lists with ttl
-       - Added caps and checks for effective and fs owner to AUTH module
-         (optional)
-- Linux Capabilities:
-       - New Process Hiding feature in CAP module
-- MAC / Bell-LaPadula:
-       - Almost complete reimplementation of the MAC model with many new
-         features.
-- General:
-       - RSBAC syscall version numbers
-       - Added new requests CHANGE_DAC_(EFF|FS)_OWNER on PROCESS targets
-         for seteuid and setfsuid (configurable)
-       - Changed behaviour on setuid etc.: Notification is always sent, even
-         if the uid was set to the same value. This allows for restricted RC
-         initial roles with correct role after setuid to root.
-       - Delayed init for initial ramdisks: delay RSBAC init until the first
-         real or a specific device mount.
-       - rsbac_init() syscall to trigger init by hand, if not yet
-         initialized - can be used with e.g. rsbac_delayed_root=99:99, which
-         will never trigger init automatically.
-       - New system role 'auditor' for most models, which may read and flush
-         RSBAC own log.
-
-Amon Ott.
--- 
-http://www.rsbac.org - GnuPG: 2048g/5DEAAA30 2002-10-22

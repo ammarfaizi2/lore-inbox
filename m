@@ -1,122 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267721AbTASXiL>; Sun, 19 Jan 2003 18:38:11 -0500
+	id <S267724AbTASXsm>; Sun, 19 Jan 2003 18:48:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267722AbTASXiL>; Sun, 19 Jan 2003 18:38:11 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42964 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S267721AbTASXiJ>; Sun, 19 Jan 2003 18:38:09 -0500
-Date: Mon, 20 Jan 2003 00:47:08 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: intermezzo-discuss@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] small intermezzo cleanup
-Message-ID: <20030119234707.GE12601@fs.tum.de>
+	id <S267723AbTASXsm>; Sun, 19 Jan 2003 18:48:42 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:13551 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S267722AbTASXsl> convert rfc822-to-8bit; Sun, 19 Jan 2003 18:48:41 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <adilger@clusterfs.com>, Roman Zippel <zippel@linux-m68k.org>
+CC: Larry McVoy <lm@bitmover.com>, <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Sun, 19 Jan 2003 15:57:40 -0800
+In-Reply-To: <20030119162614.I1594@schatzie.adilger.int>
+Subject: Re: Is the BitKeeper network protocol documented?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20030119235742.AAA13049@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below does the following cleanups in the intermezzo code:
-- remove #include <stdarg.h>'s
-- remove unused #define MIN/MAX/MKSTR
+On Sun, 19 Jan 2003 16:26:14 -0700, Andreas Dilger wrote:
 
-I've tested the compilation with 2.5.59.
+>There is nothing in the GPL which requires anyone to make their
+>changes
+>available to you the minute they make them.  The fact that you have
+>access
+>to the changes within an hour of when they are made far exceeds the
+>requirements in the GPL, which only require that the source code be
+>made
+>available if you distribute the OBJECT CODE OR EXECUTABLE.
 
-Please apply
-Adrian
+	I think you're ignoring the way the GPL defines the "source code". 
+The GPL defines the "source code" as the preferred form for modifying 
+the program. If the preferred form of a work for purposes of 
+modifying it is live access to a BK repository, then that's the 
+"source code" for GPL purposes.
 
+>There
+>are still lots of other ways to get the kernel source.
 
---- linux-2.5.59-full/fs/intermezzo/dir.c.old	2003-01-20 00:40:01.000000000 +0100
-+++ linux-2.5.59-full/fs/intermezzo/dir.c	2003-01-20 00:40:29.000000000 +0100
-@@ -22,8 +22,6 @@
-  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
- 
--#include <stdarg.h>
--
- #include <asm/bitops.h>
- #include <asm/ioctls.h>
- #include <asm/uaccess.h>
---- linux-2.5.59-full/fs/intermezzo/fileset.c.old	2003-01-20 00:40:30.000000000 +0100
-+++ linux-2.5.59-full/fs/intermezzo/fileset.c	2003-01-20 00:40:47.000000000 +0100
-@@ -23,7 +23,6 @@
-  */
- 
- #define __NO_VERSION__
--#include <stdarg.h>
- 
- #include <asm/bitops.h>
- #include <asm/uaccess.h>
---- linux-2.5.59-full/fs/intermezzo/cache.c.old	2003-01-20 00:40:48.000000000 +0100
-+++ linux-2.5.59-full/fs/intermezzo/cache.c	2003-01-20 00:40:55.000000000 +0100
-@@ -22,7 +22,6 @@
- 
- #define __NO_VERSION__
- #include <linux/module.h>
--#include <stdarg.h>
- #include <asm/bitops.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
---- linux-2.5.59-full/fs/intermezzo/replicator.c.old	2003-01-20 00:40:56.000000000 +0100
-+++ linux-2.5.59-full/fs/intermezzo/replicator.c	2003-01-20 00:41:03.000000000 +0100
-@@ -25,7 +25,6 @@
- 
- #define __NO_VERSION__
- #include <linux/module.h>
--#include <stdarg.h>
- #include <asm/uaccess.h>
- 
- #include <linux/errno.h>
---- linux-2.5.59-full/fs/intermezzo/file.c.old	2003-01-20 00:41:04.000000000 +0100
-+++ linux-2.5.59-full/fs/intermezzo/file.c	2003-01-20 00:41:12.000000000 +0100
-@@ -29,8 +29,6 @@
-  * 
-  */
- 
--#include <stdarg.h>
--
- #include <asm/bitops.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
---- linux-2.5.59-full/fs/intermezzo/methods.c.old	2003-01-20 00:41:13.000000000 +0100
-+++ linux-2.5.59-full/fs/intermezzo/methods.c	2003-01-20 00:41:21.000000000 +0100
-@@ -25,8 +25,6 @@
-  *
-  */
- 
--#include <stdarg.h>
--
- #include <asm/bitops.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
---- linux-2.5.59-full/fs/intermezzo/super.c.old	2003-01-20 00:41:22.000000000 +0100
-+++ linux-2.5.59-full/fs/intermezzo/super.c	2003-01-20 00:41:31.000000000 +0100
-@@ -26,8 +26,6 @@
- static char rcsid[] __attribute ((unused)) = "$Id: super.c,v 1.4 2002/10/12 02:16:19 rread Exp $";
- #define INTERMEZZO_VERSION "$Revision: 1.4 $"
- 
--#include <stdarg.h>
--
- #include <asm/bitops.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
---- linux-2.5.59-full/fs/intermezzo/intermezzo_lib.h.old	2003-01-20 00:41:45.000000000 +0100
-+++ linux-2.5.59-full/fs/intermezzo/intermezzo_lib.h	2003-01-20 00:42:27.000000000 +0100
-@@ -32,12 +32,6 @@
- # include <sys/types.h>
- #endif
- 
--#undef MIN
--#define MIN(a,b) (((a)<(b)) ? (a): (b))
--#undef MAX
--#define MAX(a,b) (((a)>(b)) ? (a): (b))
--#define MKSTR(ptr) ((ptr))? (ptr) : ""
--
- static inline int size_round (int val)
- {
- 	return (val + 3) & (~0x3);
+	You are using the conventional meaning of "source code", which is 
+roughly, "whatever you compile to get the executable". However, this 
+is not the "source" for GPL purposes. For GPL purposes, the source is 
+the preferred form of a work for purposes of modifying it.
+
+	This means you can't remove meta information that's useful for 
+modifying because that is not the preferred form. Such meta 
+information includes whatever is useful for modifying it, such as 
+revision history and chain of custody.
+
+	You can't have two "source"s, one a private repository that you 
+prefer to use for making changes and the other an "obfuscated" public 
+version you distribute for GPL compliance which is missing all the 
+other useful information.
+
+	Checking source out of a repository, separating away the revision 
+history, is an obfuscatory act. The GPL prohibits such source 
+obfuscation and requires you to distribute the source in whatever is 
+the actual preferred form for modifying it. Really. Sorry.
+
+	DS
 
 

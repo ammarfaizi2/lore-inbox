@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317601AbSFIMm1>; Sun, 9 Jun 2002 08:42:27 -0400
+	id <S317606AbSFIMzR>; Sun, 9 Jun 2002 08:55:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317602AbSFIMm0>; Sun, 9 Jun 2002 08:42:26 -0400
-Received: from p50887457.dip.t-dialin.net ([80.136.116.87]:54458 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317601AbSFIMm0>; Sun, 9 Jun 2002 08:42:26 -0400
-Date: Sun, 9 Jun 2002 06:42:17 -0600 (MDT)
-From: Lightweight patch manager <patch@luckynet.dynu.com>
-X-X-Sender: patch@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH][2.5] introduce list_move macros (revisited)
-In-Reply-To: <Pine.LNX.4.44.0206090508330.22407-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44.0206090641330.24893-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317607AbSFIMzQ>; Sun, 9 Jun 2002 08:55:16 -0400
+Received: from adsl-161-92.barak.net.il ([62.90.161.92]:15889 "EHLO
+	qlusters.com") by vger.kernel.org with ESMTP id <S317606AbSFIMzP>;
+	Sun, 9 Jun 2002 08:55:15 -0400
+Subject: Re: Passthrough kernel module?
+From: Gilad Ben-Yossef <gilad@benyossef.com>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0206081318430.6927-100000@dlang.diginsite.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 09 Jun 2002 15:55:02 +0300
+Message-Id: <1023627303.1400.16.camel@sake>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the only _global_ patch about the list_move macros, which means 
-introducing them. Here they are, revisited:
+On Sat, 2002-06-08 at 23:24, David Lang wrote:
+> I am attempting to reverse engineer the interface for a piece of equipment
+> and it would be extreamly handy to have a kernel module that I could load
+> that I could then point a /dev entry and and have the module echo
+> everything that is sent to it (reads/writes/ioctls) to the real device,
+> recording the request and response.
+> 
+> Does such a module exist? Is there a better way to do this that I'm
+> missing?
 
---- linus-2.5/include/linux/list.h	Sun Jun  9 04:17:14 2002
-+++ thunder-2.5/include/linux/list.h	Sun Jun  9 06:40:14 2002
-@@ -174,6 +174,26 @@
- 	for (pos = (head)->next, n = pos->next; pos != (head); \
- 		pos = n, n = pos->next)
- 
-+/**
-+ * list_move           - move a list entry from a right after b
-+ * @list       the entry to move
-+ * @head       the entry to move after
-+ */
-+#define list_move(list,head) \
-+        do { __list_del(list->prev, list->next); \
-+             list_add(list,head); } \
-+        while(0)
-+
-+/**
-+ * list_move_tail      - move a list entry from a right before b
-+ * @list       the entry to move
-+ * @head       the entry that will come after ours
-+ */
-+#define list_move_tail(list,head) \
-+        do { __list_del(list->prev, list->next); \
-+             list_add_tail(list,head); } \
-+        while(0)
-+
- #endif /* __KERNEL__ || _LVM_H_INCLUDE */
- 
- #endif
+Much better way:
+
+1. Grab the CVS version of syscall-track from
+http://syscalltrack.sourceforge.net/ (AFAIK the stable version doesn't
+support read/write yet).
+2. Define logging rules on read/write/ioctl on the specific device.
+3. Enjoy ;-)
+
+Gilad.
 
 -- 
-Lightweight patch manager using pine. If you have any objections, tell me.
+Gilad Ben-Yossef <gilad@benyossef.com>
+Code mangler, senior coffee drinker and VP SIGSEGV
+Qlusters ltd.
+
+"A billion flies _can_ be wrong - I'd rather eat lamb chops than shit."
+	-- Linus Torvalds on lkml
+
+
+
 

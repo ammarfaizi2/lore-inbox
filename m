@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVCNAuf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVCNAyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbVCNAuf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 19:50:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbVCNAue
+	id S261614AbVCNAyS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 19:54:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVCNAyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 19:50:34 -0500
-Received: from pat.uio.no ([129.240.130.16]:64745 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261612AbVCNAu0 (ORCPT
+	Sun, 13 Mar 2005 19:54:18 -0500
+Received: from nevyn.them.org ([66.93.172.17]:61102 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S261614AbVCNAyP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 19:50:26 -0500
-Subject: Re: [CHECKER] inconsistent NFS stat cache (NFS on ext3, 2.6.11)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Daniel Jacobowitz <dan@debian.org>
+	Sun, 13 Mar 2005 19:54:15 -0500
+Date: Sun, 13 Mar 2005 19:54:13 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
 Cc: Junfeng Yang <yjf@stanford.edu>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050314003512.GA16875@nevyn.them.org>
-References: <Pine.GSO.4.44.0503120335160.12085-100000@elaine24.Stanford.EDU>
-	 <1110690267.24123.7.camel@lade.trondhjem.org>
-	 <20050313200412.GA21521@nevyn.them.org>
-	 <1110746550.23876.8.camel@lade.trondhjem.org>
-	 <20050314003512.GA16875@nevyn.them.org>
-Content-Type: text/plain
-Date: Sun, 13 Mar 2005 19:50:09 -0500
-Message-Id: <1110761410.30085.13.camel@lade.trondhjem.org>
+Subject: Re: [CHECKER] inconsistent NFS stat cache (NFS on ext3, 2.6.11)
+Message-ID: <20050314005413.GA17711@nevyn.them.org>
+Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Junfeng Yang <yjf@stanford.edu>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.GSO.4.44.0503120335160.12085-100000@elaine24.Stanford.EDU> <1110690267.24123.7.camel@lade.trondhjem.org> <20050313200412.GA21521@nevyn.them.org> <1110746550.23876.8.camel@lade.trondhjem.org> <20050314003512.GA16875@nevyn.them.org> <1110761410.30085.13.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110761410.30085.13.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-su den 13.03.2005 Klokka 19:35 (-0500) skreiv Daniel Jacobowitz:
-> On Sun, Mar 13, 2005 at 03:42:29PM -0500, Trond Myklebust wrote:
-> > su den 13.03.2005 Klokka 15:04 (-0500) skreiv Daniel Jacobowitz:
-> > 
-> > > I can't find any documentation about this, but it seems like the same
-> > > problem that has been causing me headaches lately; when I replace glibc
-> > > from the server side of an nfsroot, the client has a couple of
-> > > variously wrong reads before it sees the new files.  If it breaks NFS
-> > > so badly, why is it the default for the Linux NFS server?
-> > 
-> > No, that's a very different issue: you are violating the NFS cache
-> > consistency rules if you are changing a file that is being held open by
-> > other machines.
-> > The correct way to do the above is to use GNU install with the '-b'
-> > option: that will rename the version of glibc that is in use, and then
-> > install the new glibc in a different inode.
-> 
-> [closed and/or irrelevant lists removed from CC:]
-> 
-> No, the copy of glibc in question is not in use at the time.  The next
-> attempt to open it on the client will sometimes generate a "stale NFS
-> handle" message, or if the open succeeds a read will sometimes return
-> EIO.  But it sounds like this is a different problem than the original
-> poster was testing for.
+On Sun, Mar 13, 2005 at 07:50:09PM -0500, Trond Myklebust wrote:
+> Sorry, but you should _never_ have gotten an ESTALE error if the file
+> was not in use when you deleted the old copy of glibc. A fresh call to
+> open() will always result in a new lookup of the filehandle.
+> What may have happened in the case of the EIO error is that you may have
+> raced: i.e. a client starts reading the file while it is being copied
+> to.
 
-Sorry, but you should _never_ have gotten an ESTALE error if the file
-was not in use when you deleted the old copy of glibc. A fresh call to
-open() will always result in a new lookup of the filehandle.
-What may have happened in the case of the EIO error is that you may have
-raced: i.e. a client starts reading the file while it is being copied
-to.
+It is in a separate root filesystem, currently not used by anything on
+the target.  It is likely to be in cache, but I can absolutely
+guarantee it isn't open.  Hmm, server is x86_64 2.6.7, client is 2.6.10
+MIPS.  I should upgrade them and see if that helps.
 
-You'll rather want to ask Neil Brown about why subtree_check is still
-the default for knfsd. He is the NFS server maintainer.
+Unfortunately I haven't found any smaller testcases than installing an
+entire root FS.
 
-Cheers,
-  Trond
 -- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
-
+Daniel Jacobowitz
+CodeSourcery, LLC

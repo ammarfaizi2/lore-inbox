@@ -1,71 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268462AbTGNIwq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 04:52:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268552AbTGNIwp
+	id S268390AbTGNIvr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 04:51:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268417AbTGNIvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 04:52:45 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:1169 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S268462AbTGNIw3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 04:52:29 -0400
-Date: Mon, 14 Jul 2003 11:07:00 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Michael Frank <mflt1@micrologica.com.hk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       John Belmonte <jvb@prairienet.org>
-Subject: Re: Yenta_socket lsPCI IRQ reads incorrect
-Message-ID: <20030714090700.GB221@elf.ucw.cz>
-References: <200307141333.03911.mflt1@micrologica.com.hk>
+	Mon, 14 Jul 2003 04:51:47 -0400
+Received: from usr.lcm.msu.ru ([193.232.113.217]:55725 "EHLO
+	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
+	id S268390AbTGNIv2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 04:51:28 -0400
+Date: Mon, 14 Jul 2003 13:06:15 +0400
+From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
+To: Wes Janzen <superchkn@sbcglobal.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com
+Subject: Re: FS Corruption with VIA MVP3 + UDMA/DMA
+Message-ID: <20030714090615.GA6334@tentacle.sectorb.msk.ru>
+References: <16128.19218.139117.293393@charged.uio.no> <3F007EBF.9020506@sbcglobal.net> <3F10729F.7070701@sbcglobal.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <200307141333.03911.mflt1@micrologica.com.hk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <3F10729F.7070701@sbcglobal.net>
+User-Agent: Mutt/1.3.28i
+X-Organization: Moscow State Univ., Dept. of Mechanics and Mathematics
+X-Operating-System: Linux 2.4.21-rc7-ac1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> [mhf@mhfl2 13:40:27 mhf]$ cat /proc/interrupts
->            CPU0
->   0:    1242348          XT-PIC  timer
->   1:       5253          XT-PIC  i8042
->   2:          0          XT-PIC  cascade
->   5:         88          XT-PIC  Toshiba America Info ToPIC95 PCI to Cardb, serial
->   8:          0          XT-PIC  rtc
->   9:        162          XT-PIC  acpi
->  10:       1003          XT-PIC  eth0
->  12:      23967          XT-PIC  i8042
->  14:       8698          XT-PIC  ide0
-> NMI:          0
-> LOC:          0
-> ERR:          5
-> MIS:          0
+On Sat, Jul 12, 2003 at 03:42:07PM -0500, Wes Janzen wrote:
+> Thanks for the suggestions, here's what I've tried to solve the problem:
+> -->Tested system memory for 4 consecutive days with memtest86
+> -->Replaced SDRAM with new modules tested in every DIMM slot
+> -->Tried the ac patch on 2.5.69
+> -->Clocked K6-2 back to 350 from 400 (FSB still 100Mhz)
+> -->Played with PCI settings in the BIOS
+> -->Removed all other cards except AGP video card
+> -->Disabled all other integrated peripherals in the BIOS (only serial 
+> and parallel in this case).
+> -->Reverted to BIOS defaults.
 > 
-> 
-> lspci shows that IRQ level: byte 3C is FF, it should be 5
-> 
-> 00:12.0 CardBus bridge: Toshiba America Info Systems ToPIC95 PCI to Cardbus Bridge with ZV Support (rev 32)
-> 00: 79 11 17 06 00 00 90 04 32 00 07 06 00 40 82 00
-> 10: 00 10 00 10 80 00 80 04 00 01 04 00 00 00 00 00
-> 20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 30: 00 00 00 00 00 00 00 00 00 00 00 00 ff 01 00 00
-> 40: 79 11 01 00 01 00 00 00 00 00 00 00 00 00 00 00
-> 50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 
-> When this value is used by pci_restore_state, interrupt 
-> obviously dies.
-> 
-> Dunno if this is hardware readback fault or driver issue.
 
-In any case it should be easy to fixup in ToPIC95 driver...
+I was using PA2013, and was having problems with IDE too.
+The data corruption was solved after turning off "Spread spectrum
+modulated" feature in the BIOS setup (AFAIR this misfeature is ON
+by default). But I wasn't able to get on-board IDE working right
+nevertheless. For some strange reason it was OK with kernel 2.2.15
+but produced DMA timeouts with every later kernel version I tested.
+Yes, I did try copying VIA IDE driver from 2.2.15 to later kernel,
+it still didn't help. So I ended up with Promise controller too :(
 
-							Pavel
+:wq
+                                        With best regards, 
+                                           Vladimir Savkin. 
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

@@ -1,71 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270754AbTGPMiX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 08:38:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270763AbTGPMiX
+	id S270726AbTGPMpG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 08:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270729AbTGPMpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 08:38:23 -0400
-Received: from pgramoul.net2.nerim.net ([80.65.227.234]:29174 "EHLO
-	philou.aspic.com") by vger.kernel.org with ESMTP id S270754AbTGPMiS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 08:38:18 -0400
-Date: Wed, 16 Jul 2003 14:53:08 +0200
-From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
-	<philippe.gramoulle@mmania.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test1-mm1
-Message-Id: <20030716145308.44f5eb7b.philippe.gramoulle@mmania.com>
-In-Reply-To: <20030715225608.0d3bff77.akpm@osdl.org>
-References: <20030715225608.0d3bff77.akpm@osdl.org>
-Organization: Lycos Europe
-X-Mailer: Sylpheed version 0.8.11claws141 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 16 Jul 2003 08:45:06 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:23440
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S270726AbTGPMpE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 08:45:04 -0400
+Date: Wed, 16 Jul 2003 14:59:33 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
+Subject: Re: RFC on io-stalls patch
+Message-ID: <20030716125933.GF4978@dualathlon.random>
+References: <20030714054918.GD843@suse.de> <Pine.LNX.4.55L.0307140922130.17091@freak.distro.conectiva> <20030714131206.GJ833@suse.de> <20030714195138.GX833@suse.de> <20030714201637.GQ16313@dualathlon.random> <20030715052640.GY833@suse.de> <1058268126.3857.25.camel@dhcp22.swansea.linux.org.uk> <20030715112737.GQ833@suse.de> <20030716124355.GE4978@dualathlon.random> <20030716124656.GY833@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030716124656.GY833@suse.de>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 16, 2003 at 02:46:56PM +0200, Jens Axboe wrote:
+> Well it's a combined problem. Threshold too high on dirty memory,
+> someone doing a read well get stuck flushing out as well.
 
-Hello Andrew,
+a pure read not. the write throttling should be per-process, then there
+will be little risk.
 
-testing 2.6.0-test1-mm1 right now. Everything's been _really_ good so far.
-I've been using 2.5.72-mm1 before since it's out without a problem.
-
-make -j 16 bzImage + xmms + moving a term window like mad never makes Xmms skip
-which is really good. Term window freezes for few seconds after moving it like mad for ~7/8 sec
-(not a realy day to day typical workload ! :) And it comes back to normal almost as soon as i stop
-moving the Eterm window.
-
-I also have a Xinerama setup and no pb so far when moving like mad the Eterm windows from one
-screen to the other or moving Eterm like mad wile overlapping the 2 screens.
-
-Box is Dell WS 530 MT SMP 512 Mo , 15K RPM SCSI disk (AIC7xxx, 0 TCQ), Nvidia GeForce 256 AGP  NV10DDR + 
-Nvidia NV6 Vanta LT PCI
-
-boot option is : kernel /boot/vmlinuz-2.5.72-mm1 root=/dev/sda2 console=tty1 console=ttyS1,9600n8 elevator=as noirqbalance
-
-Box is running postfix, Mozilla, Opera, NFS server, gnomeICU, etc.. and all is running fine ( subjective
-opinion ;)
-
-Congrats to all kernel hackers :)
-
-Thanks,
-
-Philippe
-
---
-
-Philippe Gramoullé
-philippe.gramoulle@mmania.com
-System & Network Engineer
-NOC France - Lycos Europe
-
-
-
-On Tue, 15 Jul 2003 22:56:08 -0700
-Andrew Morton <akpm@osdl.org> wrote:
-
-  | . Another interactivity patch from Con.  Feedback is needed on this
-  |   please - we cannot make much progress on this fairly subjective work
-  |   without lots of people telling us how it is working for them.
+Andrea

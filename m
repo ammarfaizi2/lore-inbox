@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275096AbTHLI3T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 04:29:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275103AbTHLI3T
+	id S275103AbTHLIjc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 04:39:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275108AbTHLIjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 04:29:19 -0400
-Received: from paloma17.e0k.nbg-hannover.de ([62.181.130.17]:13978 "HELO
-	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id S275096AbTHLI3S convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 04:29:18 -0400
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Chris Mason <mason@suse.com>, Grant Miner <mine0057@mrs.umn.edu>,
-       Jamie Lokier <jamie@shareable.org>
-Subject: Re: Filesystem Tests
-Date: Tue, 12 Aug 2003 10:27:28 +0200
-User-Agent: KMail/1.5.3
-Cc: Szakacsits Szabolcs <szaka@sienet.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-References: <20030809093337.GA28566@mail.jlokier.co.uk> <20030809161930.GA29647@mail.jlokier.co.uk> <3F36B331.9020200@mrs.umn.edu>
-In-Reply-To: <3F36B331.9020200@mrs.umn.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Tue, 12 Aug 2003 04:39:32 -0400
+Received: from 204.Red-213-96-224.pooles.rima-tde.net ([213.96.224.204]:3847
+	"EHLO betawl.net") by vger.kernel.org with ESMTP id S275103AbTHLIjb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 04:39:31 -0400
+Date: Tue, 12 Aug 2003 10:39:00 +0200
+From: Santiago Garcia Mantinan <manty@manty.net>
+To: "Mark W. Alexander" <slash@dotnetslash.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0test3 problems on Acer TravelMate 260 (ALSA,ACPIvsSynaptics,yenta)
+Message-ID: <20030812083900.GA2974@man.beta.es>
+References: <20030811173538.GA2604@man.beta.es> <Pine.LNX.4.44.0308112137340.20222-100000@llave.eproinet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308121027.28026.Dieter.Nuetzel@hamburg.de>
+In-Reply-To: <Pine.LNX.4.44.0308112137340.20222-100000@llave.eproinet.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 10. August 2003 23:03 schrieb Grant Miner:
-> Thanks everybody for suggestions.  I ran again, new benchmark code,
-> 2.6.0-pre3, all times in seconds now.
->
-> http://epoxy.mrs.umn.edu/~minerg/fstests/results.html
->
-> If you want bechmark code it is at
-> http://epoxy.mrs.umn.edu/~minerg/fstests/
+> existance on 2.6. Could you post or send me your PCIC=yenta config file?
+> (Debian /etc/default/pcmcia. I don't know where on other distros.)
 
+I'm running Debian unstable here but I do not have anything special on that
+file, just the defaults changing the driver into yenta_socket, and even this
+is not necesary if you happen to have just yenta compiled.
 
-Chris,
+# Defaults for pcmcia (sourced by /etc/init.d/pcmcia)
+PCMCIA=yes
+PCIC=yenta_socket
+PCIC_OPTS=
+CORE_OPTS=
+CARDMGR_OPTS=
 
-do you have ReiserFS 3.x data-logging Patches ready for 2.6?
-On 2.4.xx (2.4.22-rc at least) ReiserFS 3.x seems to be fastest.
-
-Regards,
-	Dieter
+Regards...
 -- 
-Dieter Nützel
-Graduate Student, Computer Science
-
+Manty/BestiaTester -> http://manty.net

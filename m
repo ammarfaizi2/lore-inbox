@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267410AbUHMUWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267582AbUHMUWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267410AbUHMUWx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 16:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267582AbUHMUSe
+	id S267582AbUHMUWy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 16:22:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267362AbUHMUWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 16:18:34 -0400
-Received: from [66.45.74.15] ([66.45.74.15]:20442 "EHLO sluggardy.net")
-	by vger.kernel.org with ESMTP id S267425AbUHMUPy (ORCPT
+	Fri, 13 Aug 2004 16:22:52 -0400
+Received: from colin2.muc.de ([193.149.48.15]:27914 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S267466AbUHMUQN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 16:15:54 -0400
-Message-ID: <411D20F2.3030101@sluggardy.net>
-Date: Fri, 13 Aug 2004 13:13:38 -0700
-From: Nick Palmer <nick@sluggardy.net>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040405)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: khandelw@cs.fsu.edu
-CC: Alex Riesen <fork0@users.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-Subject: Re: select implementation not POSIX compliant?
-References: <20040811194018.GA3971@steel.home> <1092256397.512046f64c822@system.cs.fsu.edu>
-In-Reply-To: <1092256397.512046f64c822@system.cs.fsu.edu>
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Aug 2004 16:16:13 -0400
+Date: 13 Aug 2004 22:16:12 +0200
+Date: Fri, 13 Aug 2004 22:16:12 +0200
+From: Andi Kleen <ak@muc.de>
+To: Brent Casavant <bcasavan@sgi.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] allocate page caches pages in round robin fasion
+Message-ID: <20040813201612.GB35817@muc.de>
+References: <2sxuC-429-3@gated-at.bofh.it> <m3657nu9dl.fsf@averell.firstfloor.org> <200408130904.00537.jbarnes@engr.sgi.com> <Pine.SGI.4.58.0408131220460.27384@kzerza.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SGI.4.58.0408131220460.27384@kzerza.americas.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-khandelw@cs.fsu.edu wrote:
- > select should work for any type of socket. Its based on the type of file
- > descriptor not whether it is stream/dgram.
+On Fri, Aug 13, 2004 at 12:31:41PM -0500, Brent Casavant wrote:
+> On Fri, 13 Aug 2004, Jesse Barnes wrote:
+> 
+> > On Thursday, August 12, 2004 6:14 pm, Andi Kleen wrote:
+> > > I don't like this approach using a dynamic counter. I think it would
+> > > be better to add a new function that takes the vma and uses the offset
+> > > into the inode for static interleaving (anonymous memory would still
+> > > use the vma offset). This way you would have a good guarantee that the
+> > > interleaving stays interleaved even when the system swaps pages in and
+> > > out and you're less likely to get anomalies in the page distribution.
+> >
+> > That sounds like a good approach, care to show me exactly what you mean
+> > with a
+> > patch? :)
 
-Agreed, but as Alex Riesen has shown with his test case, the behavior
-differs based on the type of socket. This doesn't seem quite right, but
-was not my original point.
+I put it on my todo list. 
 
- > so why should recvmsg return error???? upon closing the socket in 
-other thread?
- > wouldn't the socket linger around for some time...
+> 
+> Make sure to have some sort of offset for the static interleaving that
+> is random or semi-random for each inode, as we discussed on linux-mm last
 
-Only if SO_LINGER is on, and then only for the linger time. I would
-expect recvmsg to set errno to EINTR or EINVAL indicating that the recv
-message was interrupted or is no longer valid since the socket has
-closed. This is not the case. Instead it returns 0, and doesn't set errno.
+inode number (possible with some bits of dev_t, although that is probably
+not needed) 
 
--Nick
+-Andi

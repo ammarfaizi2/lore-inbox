@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135982AbRAWD4w>; Mon, 22 Jan 2001 22:56:52 -0500
+	id <S135997AbRAWEbd>; Mon, 22 Jan 2001 23:31:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136025AbRAWD4m>; Mon, 22 Jan 2001 22:56:42 -0500
-Received: from getafix.lostland.net ([216.29.29.27]:19756 "EHLO
-	getafix.lostland.net") by vger.kernel.org with ESMTP
-	id <S135982AbRAWD4f>; Mon, 22 Jan 2001 22:56:35 -0500
-Date: Mon, 22 Jan 2001 22:56:19 -0500 (EST)
-From: adrian <jimbud@lostland.net>
-To: Mark I Manning IV <mark4@purplecoder.com>
-cc: Ralf Baechle <ralf@uni-koblenz.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Coding Style
-In-Reply-To: <3A6CB402.8265A7B2@purplecoder.com>
-Message-ID: <Pine.BSO.4.30.0101222250360.10699-100000@getafix.lostland.net>
+	id <S136025AbRAWEbX>; Mon, 22 Jan 2001 23:31:23 -0500
+Received: from inet-smtp3.oracle.com ([205.227.43.23]:42940 "EHLO
+	inet-smtp3.oracle.com") by vger.kernel.org with ESMTP
+	id <S135997AbRAWEbN>; Mon, 22 Jan 2001 23:31:13 -0500
+Message-ID: <3A6D090E.6A9A19F3@oracle.com>
+Date: Mon, 22 Jan 2001 23:31:10 -0500
+From: Svein Erik Brostigen <svein.brostigen@oracle.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, Andrew@netledger.com
+Subject: Re:2.2.18 / Oracle 8.1.6 or 8.1.7 any known problems? 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew!
 
+I'm not sure what you been by any known issues. At any time there will
+be and are issues with any Oracle release and kernel release.
 
-On Mon, 22 Jan 2001, Mark I Manning IV wrote:
+If you by issues are meaning: Is there a problem running 8.1.6 and 8.1.7
+on 2.2.18, the answer is no.
+If you for some reason have an issue with running Oracle on these
+platforms, please open an iTAR with oracle at http://metalink.oracle.com
 
-> Ralf Baechle wrote:
-> >
-> > On Sun, Jan 21, 2001 at 03:00:05AM +0100, Matthias Andree wrote:
-> >
-> It is alot neater tho :P~
->
-> // even for multi line comments
-> // no visual clutter over there -->
+I hope this is of some help.
 
-/*
- * I tend to find standard C comments easier to read.  They stand out,
- * especially for multiple lines (although I always try to put the :end:
- * on a separate line for clarity).
- */
+-- 
+Regards
+Svein Erik
 
-int function(int x)
-{
-	/* Bleh.  Comments take up space.
-	 */
-	function body;
-}
+Why is the alphabet in that order?  Is it because of that song?   --
+Steven Wright 
+_____________________________________________________________
+Svein Erik Brostigen       e-mail: svein.brostigen@oracle.com
+Senior Technical Analyst                  Phone: 407.458.7168
+EBC - Extended Business Critical
+Oracle Support Services   
+5955 T.G. Lee Blvd
+Orlando FL, 32822
 
+Enabling the Information Age Through Internet Computing
+_____________________________________________________________
 
-Regards,
-Adrian
-
-
+The statements and opinions expressed here are my own and
+do not necessarily represent those of Oracle Corporation.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

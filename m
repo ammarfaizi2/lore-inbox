@@ -1,83 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315631AbSGNIVI>; Sun, 14 Jul 2002 04:21:08 -0400
+	id <S315634AbSGNI3K>; Sun, 14 Jul 2002 04:29:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315634AbSGNIVH>; Sun, 14 Jul 2002 04:21:07 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:59386 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S315631AbSGNIVG>; Sun, 14 Jul 2002 04:21:06 -0400
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-To: "lkml" <linux-kernel@vger.kernel.org>
-Subject: Pentium IV cache line size
-Date: Sun, 14 Jul 2002 13:57:26 +0530
-Message-ID: <009c01c22b10$4934e6b0$290806c0@wipro.com>
+	id <S315690AbSGNI3J>; Sun, 14 Jul 2002 04:29:09 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26430 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S315634AbSGNI3I>; Sun, 14 Jul 2002 04:29:08 -0400
+To: Chiaki <ishikawa@yk.rim.or.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Q: boot time memory region recognition and clearing.
+References: <3D303700.5030002@yk.rim.or.jp>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 14 Jul 2002 02:20:38 -0600
+In-Reply-To: <3D303700.5030002@yk.rim.or.jp>
+Message-ID: <m14rf2ra95.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPartTM-000-c71e103b-8966-4e29-a28e-8fde7e41d7ff"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chiaki <ishikawa@yk.rim.or.jp> writes:
 
-This is a multi-part message in MIME format.
+> >> I have found that the particular motherboard (and memory sticks)
+> >> that I use at home tends to generate bogus memory problem warning messages
+> >> when I use ecc module.
+> >> Motherboard is Gigabyte 7XIE4 that uses AMD751.
+> >> (Yes, AMD has now provides AMD76x series chipset for
+> >> newer CPUs.)
+> >> I say "bogus" because I have tested the hardware
+> >> many times using memtest86 and found that it doesn't
+> >> detect any memory errors even
+> >
+> >memtest86 isnt (except on the very very latest versions) aware of ECC.
+> >It sees the memory after the ECC rescues minor errors so if the RAM has
+> >
+> >errors but ECC just about saves you it will show up clean
+> >
+> Thank you for the info on the latest memtest86.
+> I will check out.
+> 
+> It might as well be the case that memtest86 (previous versions)
+> was not quite ECC-aware.
+> 
+> I was not clear on the type of error messages
+> I received from ecc.o module.
+> I got both SBE (single bit error detected and corrected)
+> and MBE (multiple bits error detected,
+> which presumably was not correctable!).
+> 
+> My point was that there is something amiss
+> if memtest86 doesn't report errors due to
+> underlying (hardware) ECC fix,
+> but the why ecc.o module does.
+> 
+> In any case, I will run memtest86 (the latest version).
+> Thank you again for the info.
 
-------=_NextPartTM-000-c71e103b-8966-4e29-a28e-8fde7e41d7ff
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Note.  The hardware ECC support in memtest86 3.0
+is limited, so I would check to make certain your chipset
+is supported..
 
-Hello, All,
+> But any comment to my original post and other avenue
+> to achieve similar result welcome.
+> (Maybe  the high reliability computing people
+> have a better idea short of replacement BIOS  or
+> even have some prototype code working on this?
+> Hmm. Come to think of it, maybe I can take
+> the part of free BIOS and see if it will not
+> enlarge setup.S too large, etc.. But thinking of
+> various proprietary chipsets, I would hope that
+> I can insert a short C routine somewhere in the
+> boot chain, preferably on the kernel side, to
+> accomplish my objective.)
 
-Dave Jones sent out a patch about Pentium IV cacheline sizes,
-please refer to
+Your objective is misguided.  Even with a bios that
+is slightly buggy in initializing the ECC bits, what you want is 
+scrubbing.  Then if the error disappears after 5 minutes of uptime 
+you can ignore it.  And if it comes back you know you really have
+something to worry about.  At least for single bit errors this should
+fix the whole problem with something that is useful for other
+purposes. 
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100297450316163&w=2
-
-to which Manfred Spraul responded
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100299763026680&w=2
-
-I think the patch is correct and should be applied.
-
->From Pentium IV, System Programming Guide, Section 9.1, Page 9-2,
-Table 9-1. Order # 245472
-
-
-L1 Data Cache - Pentium 4 and Intel Xeon processors: 8 KBytes, 4-way set
-associative, 64-byte
-cache line size.
-
-
-L2 Unified Cache - Pentium 4 and Intel Xeon processors: 256 KBytes 8-way
-set associative,
-sectored, 64-byte cache line size.
-
-The point is that according to the specs both L1 and L2 cacheline sizes
-are 64-byte.
-
-Comments,
-Balbir
-
-
-------=_NextPartTM-000-c71e103b-8966-4e29-a28e-8fde7e41d7ff
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
-**************************Disclaimer************************************
-
-Information contained in this E-MAIL being proprietary to Wipro Limited is 
-'privileged' and 'confidential' and intended for use only by the individual
- or entity to which it is addressed. You are notified that any use, copying 
-or dissemination of the information contained in the E-MAIL in any manner 
-whatsoever is strictly prohibited.
-
-***************************************************************************
-
-------=_NextPartTM-000-c71e103b-8966-4e29-a28e-8fde7e41d7ff--
+Eric

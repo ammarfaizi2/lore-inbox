@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290943AbSASMCW>; Sat, 19 Jan 2002 07:02:22 -0500
+	id <S289208AbSASMQt>; Sat, 19 Jan 2002 07:16:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290937AbSASMCM>; Sat, 19 Jan 2002 07:02:12 -0500
-Received: from uucp.cistron.nl ([195.64.68.38]:12552 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S290897AbSASMBx>;
-	Sat, 19 Jan 2002 07:01:53 -0500
-From: Miquel van Smoorenburg <miquels@cistron.nl>
+	id <S289209AbSASMQk>; Sat, 19 Jan 2002 07:16:40 -0500
+Received: from pdbn-3e36a8ec.pool.mediaWays.net ([62.54.168.236]:8199 "EHLO
+	mail.citd.de") by vger.kernel.org with ESMTP id <S289208AbSASMQ3>;
+	Sat, 19 Jan 2002 07:16:29 -0500
+Date: Sat, 19 Jan 2002 13:16:00 +0100
+From: Matthias Schniedermeyer <ms@citd.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: rm-ing files with open file descriptors
-Date: Sat, 19 Jan 2002 12:01:52 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <a2bn7g$5hm$1@ncc1701.cistron.net>
-In-Reply-To: <a2bk6e$t2u$1@ncc1701.cistron.net> <Pine.GSO.4.21.0201190627310.3523-100000@weyl.math.psu.edu>
-X-Trace: ncc1701.cistron.net 1011441712 5686 195.64.65.67 (19 Jan 2002 12:01:52 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Message-ID: <20020119131600.A17356@citd.de>
+In-Reply-To: <87lmevjrep.fsf@localhost.localdomain> <Pine.LNX.3.95.1020118163838.3008B-100000@chaos.analogic.com> <a2afsg$73g$2@ncc1701.cistron.net> <a2almg$vtl$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <a2almg$vtl$1@cesium.transmeta.com>; from hpa@zytor.com on Fri, Jan 18, 2002 at 06:29:36PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.GSO.4.21.0201190627310.3523-100000@weyl.math.psu.edu>,
-Alexander Viro  <viro@math.psu.edu> wrote:
->On Sat, 19 Jan 2002, Miquel van Smoorenburg wrote:
+> > Well no. new_fd will refer to a completely new, empty file
+> > which has no relation to the old file at all.
+> > 
+> > There is no way to recreate a file with a nlink count of 0,
+> > well that is until someone adds flink(fd, newpath) to the kernel.
+> > 
 > 
->> This could be hacked around ofcourse in fs/namei.c, so I tried
->> it for fun. And indeed, with a minor correction it works:
->> 
->> % perl flink.pl 
->> Success.
->> 
->> I now have a flink-test2.txt file. That is pretty cool ;)
->
->It's also a security hole.
+> This *might* work:
+> 
+> link("/proc/self/fd/40", newpath);
 
-How is linking back a file into the normal namespace anymore
-a security hole as having it under /proc or keeping an fd to it open?
+cat /proc/<id>/fd/<nr> > whatever
+actually works.
 
-I've searched google on the subject but couldn't find anything relevant.
-Yes this has been proposed a few times for both BSD and Linux, often
-in combination with "unattached open" (O_NULL or somesuch) that opens
-a file with a nlink count of 0. It's supposed to be a perfect way to
-create a new file and link it atomically into place without creating
-(named) tempfiles.
+"Even Better(tm)" would be if
+ln /proc/<id>/fd/<nr> whatever
+or
+ln <Inode> whatever (lsof delivers the needed Inode-nr)
+would work.
 
-Mike.
+Otherwise you have a problem to recover files when you have insufficent
+disc space. Imagine a file that is 1GB in size and you have 512MB left
+on the hdd. Currently i don't see a chance to recover such a file
+without problems.
+
+
+
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
 

@@ -1,81 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263646AbUESPYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264134AbUESP1Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263646AbUESPYM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 11:24:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264134AbUESPYM
+	id S264134AbUESP1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 11:27:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264191AbUESP1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 11:24:12 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:14842 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S263646AbUESPYH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 11:24:07 -0400
-Date: Wed, 19 May 2004 11:19:15 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: overlaping printk
-Message-ID: <Pine.GSO.4.33.0405191110380.14297-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 19 May 2004 11:27:16 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:1266 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264134AbUESP1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 11:27:14 -0400
+Date: Wed, 19 May 2004 17:27:06 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Tim Bird <tim.bird@am.sony.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ANNOUNCE: CE Linux Forum - Specification V1.0 draft
+Message-ID: <20040519152706.GD22742@fs.tum.de>
+References: <40A90D00.7000005@am.sony.com> <20040517201910.A1932@infradead.org> <40A92D15.2060006@am.sony.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40A92D15.2060006@am.sony.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can anyone explain why the kernel does this on a serial console:
+On Mon, May 17, 2004 at 02:22:29PM -0700, Tim Bird wrote:
+> Christoph Hellwig wrote:
+> >On Mon, May 17, 2004 at 12:05:36PM -0700, Tim Bird wrote:
+> >
+> >>I am writing to announce the availability of the first draft of
+> >>the CE Linux Forum's first specification.  This specification
+> >>represents the efforts of six different technical working groups
+> >>over about the last 9 months.
+> >
+> >
+> >If you want my 2Cent:
+> >
+> > - stop these rather useless specifications and provide patchkits instead
+> > - try to actually submit the patches upstream to get a feeling which
+> >   of your 'features' are compltely hopeless, which are okay and which
+> >   can better be solved in different ways.
+> 
+> I should point out that some of the features specified have already been
+> submitted as patchsets.  Some were accepted and are in 2.6.  Some were
+> rejected, and we are considering the feedback received...  (But, we're
+> still hopeful that in the long run, we can make certain things
+> acceptable for inclusion in the mainline tree.)
+> 
+> The submissions, so far, have come from member companies or individuals
+> rather than from the forum itself.
 
-C<PU0 >C2P:U M 3a:ch Mianech iCnhee cCk heExckc epEtxcieopnt: i0o0n0: 0000000000
-0000000000000040
-00C4P
-U 2C:P UE 3IP:: E cI0P:1 0c10fa108 1fEFa8L AEGSF:L AG00S0:0 00200460
-0246    e
-ax:     e 0ax00: 0000000000 0eb00x:  ebfx7f: a6f070f0a4 0ec00x:  e0c2x:a7 a02bea
-7e aebedxe : efdx7f: a6f700f0a4
-000     e
-si      e: sif7: faf76f0a0040 e0d0i e:d ci0: 10c01f107e1f e7be p:eb 0p:00 000000
-00000 e00sp e:s fp:7 faf77ffab45
-fb4*
-** **Ba*n kBa 0nk:  00:00 0000000000000000000000000000[00[0000000000000000000000
-0000000]00] a at t 00000000000000000000000000000000
+A good example that this is true is section 7.9.2 of your 
+"specification".
 
-***** * BaBankn k1 1: :0 000000000000000000000000000000g0eneral protection fault
-: 0000 [#1]
-...
+It lists under "Work in Progress":
+  Kernel SHALL be configuralble with compiler size options, such as -Os.
 
-That's two MCE's being printed at the exact same time. (CPU2 & 3 are a single
-P4 Xeon.)  It makes it real damn hard to debug when the errors are printed
-like that.
+Besides the text in the "Rationale" being obviously wrong, this is 
+already implemented in kernel 2.6. But the people writing this
+"specification" didn't send a patch - the trivial patch was sent by 
+someone who is in no way related to your "Forum".
 
-The GPF was printed correctly:
-CPU:    3
-EIP:    0060:[<c010c0a7>]    Not tainted
-EFLAGS: 00010282   (2.6.6-SMP-rc3+BK@1.1386)
-EIP is at intel_machine_check+0x12b/0x364
-eax: 0000001f   ebx: 00000004   ecx: 00000407   edx: 00006f52
-esi: 00000407   edi: 00000000   ebp: 00000000   esp: f7fa5f04
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 0, threadinfo=f7fa4000 task=f7fa85c0)
-Stack: c0304002 00000001 00000000 00000000 f7fa5fb4 0000000f c0120adc 00000003
-       00000001 00000000 00000004 00000001 00000000 f7fa4000 02a7abee f7fa4000
-       f7fa4000 c0101f7e 00000000 f7fa5fb4 00000246 c0101fa8 00000046 c03cf108
-Call Trace:
- [<c0120adc>] run_timer_softirq+0x110/0x180
- [<c0101f7e>] default_idle+0x0/0x2d
- [<c0101fa8>] default_idle+0x2a/0x2d
- [<c010bf7c>] intel_machine_check+0x0/0x364
- [<c01049b5>] error_code+0x2d/0x38
- [<c0101f7e>] default_idle+0x0/0x2d
- [<c0101fa8>] default_idle+0x2a/0x2d
- [<c010201c>] cpu_idle+0x37/0x40
- [<c0119558>] printk+0x172/0x1a8
- [<c03b2981>] print_cpu_info+0x86/0xd2
+cu
+Adrian
 
-Code: 0f 32 81 c3 02 04 00 00 89 44 24 08 89 54 24 04 c7 04 24 f7
+-- 
 
-I wouldn't trust it as it was on the MCE'ing processor.
-
-Note: The answer to "which kernel" is ALL of them. (even the bastard stepchild
-redhat 2.4 kernel will do it.)
-
-It goes on to have a fit unblanking a never blanked VT.  Stupid kernel!
-
---Ricky
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131501AbQKRWaR>; Sat, 18 Nov 2000 17:30:17 -0500
+	id <S131653AbQKRWbH>; Sat, 18 Nov 2000 17:31:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131519AbQKRWaH>; Sat, 18 Nov 2000 17:30:07 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:5636 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S131356AbQKRW3x>;
-	Sat, 18 Nov 2000 17:29:53 -0500
-Message-ID: <20001118214418.C382@bug.ucw.cz>
-Date: Sat, 18 Nov 2000 21:44:18 +0100
+	id <S131495AbQKRWat>; Sat, 18 Nov 2000 17:30:49 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:6148 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131356AbQKRWaQ>;
+	Sat, 18 Nov 2000 17:30:16 -0500
+Message-ID: <20001118211349.B382@bug.ucw.cz>
+Date: Sat, 18 Nov 2000 21:13:49 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.18pre21
-In-Reply-To: <E13u4XD-0001oe-00@the-village.bc.nu> <20001116150704.A883@emma1.emma.line.org> <20001116171618.A25545@athlon.random> <20001116115249.A8115@wirex.com> <20001117003000.B2918@wire.cadcamlab.org> <20001117112336.A8854@wirex.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>, vojtech@ucw.cz
+Subject: Re: rdtsc to mili secs?
+In-Reply-To: <3A078C65.B3C146EC@mira.net> <20001114222240.A1537@bug.ucw.cz> <3A12FA97.ACFF1577@transmeta.com> <20001116115730.A665@suse.cz> <8v1pfj$p5e$1@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
-In-Reply-To: <20001117112336.A8854@wirex.com>; from jesse on Fri, Nov 17, 2000 at 11:23:36AM -0800
+In-Reply-To: <8v1pfj$p5e$1@cesium.transmeta.com>; from H. Peter Anvin on Thu, Nov 16, 2000 at 03:09:39PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > Two easy "get out of jail free" cards.  There are other, more complex
-> > exploits.  You have added one more.  They all require root privileges.
+> > Anyway, this should be solvable by checking for clock change in the
+> > timer interrupt. This way we should be able to detect when the clock
+> > went weird with a 10 ms accuracy. And compensate for that. It should be
+> > possible to keep a 'reasonable' clock running even through the clock
+> > changes, where reasonable means constantly growing and as close to real
+> > time as 10 ms difference max.
+> > 
 > 
-> Actually, I've heard that a chrooted _non-root_ process can find another
-> process with the same uid that's not chrooted and can ptrace() to pull
-> itself out of the jail.
+> Actually, on machines where RDTSC works correctly, you'd like to use
+> that to detect a lost timer interrupt.
+> 
+> It's tough, it really is :(
 
-Right. Once you have same uid as someone else, you have basically his
-priviledges if you chooseto.
+Well, my patch did not do that but you probably want lost timer
+interrupt detection so that you avoid false alarms.
 
-> I'd imagine dropping CAP_SYS_PTRACE would avoid this, though.
+But that means you can no longer detect speed change after 10msec:
 
-Pardon me, but CAP_SYS_PTRACE is not required for tracing processes of
-same UID. 
+going from 150MHz to 300MHz is very similar to one lost timer
+interrupt.
+
 								Pavel
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."

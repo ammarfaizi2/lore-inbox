@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265997AbTFWLGg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 07:06:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265998AbTFWLGg
+	id S266004AbTFWLLr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 07:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbTFWLLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 07:06:36 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:60041 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S265997AbTFWLGf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 07:06:35 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [PATCH] sleep_decay for interactivity 2.5.72 - testers  needed
-Date: Mon, 23 Jun 2003 21:21:46 +1000
-User-Agent: KMail/1.5.2
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>, Andreas Boman <aboman@midgaard.us>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Mike Galbraith <efault@gmx.de>
-References: <5.2.0.9.2.20030619171843.02299e00@pop.gmx.net> <200306230737.17766.kernel@kolivas.org> <1056366975.587.2.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1056366975.587.2.camel@teapot.felipe-alfaro.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Jun 2003 07:11:47 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22284 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S266004AbTFWLLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 07:11:46 -0400
+Date: Mon, 23 Jun 2003 12:25:48 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Jan De Luyck <lkml@kcore.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: MOD_DEC_USE_COUNT is deprecated
+Message-ID: <20030623122548.B28325@flint.arm.linux.org.uk>
+Mail-Followup-To: Jan De Luyck <lkml@kcore.org>,
+	linux-kernel@vger.kernel.org
+References: <200306231316.21018.lkml@kcore.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306232121.46533.kernel@kolivas.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200306231316.21018.lkml@kcore.org>; from lkml@kcore.org on Mon, Jun 23, 2003 at 01:16:21PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Jun 2003 21:16, Felipe Alfaro Solana wrote:
-> On Sun, 2003-06-22 at 23:37, Con Kolivas wrote:
-> > > > > Yes Mike's patches are definitely better. My patches are designed
-> > > > > for the 2.4-ck patchset which has other workarounds that augment
-> > > > > this patch; however these workarounds are harder to stomach for
-> > > > > mainstream kernels (read nasty hacks). I thought I'd offer the not
-> > > > > so nasty sleep_decay patch in 2.5 form for perusal and comments
-> > > > > since people are more willing to test 2.5 patches.
-> > > >
-> > > > Well, it's nice to know.
-> > > > I'm willing to test nearly any 2.5 patch. So, I'll gladly test any
-> > > > other ideas or patches you (or others) might have.
-> > >
-> > > ANY?
-> > >
-> > > Ok well I guess I have to give away my secret then. This is the change
-> > > that turns 2.5 into a desktop kernel. Note the very slight change to
-> > > Ingo's addon ;-)
->
-> OK, I've tested this patch but I still can easily make XMMS starve for
-> briefs periods of time and can also make X to start behaving jerky. If I
-> put the system under load (while true; do a=2; done) dragging a window
-> fast enough for a long time makes the X server priority decreases to a
-> point where the window moving is not smooth and very jerky. If I stop
-> dragging the window, after a while, the X server prority is restablished
-> and I can start all over again.
+On Mon, Jun 23, 2003 at 01:16:21PM +0200, Jan De Luyck wrote:
+> Little question: With many modules I'm still seeying the MOD_DEC_USE_COUNT is 
+> deprecated message. I've checked the changes that have been done earlier, and 
+> they usually just consist of removing these lines. If so, I'm more than 
+> willing to "search and destroy" those and send 'em over to the patch monkey, 
+> but if what I'm saying is totally idiotic just slap me ;p
 
-Yeah sure if you do it for long enough. Just change the best_sleep_decay from 
-10 seconds to something like 60 if you plan to do that. Are you really going 
-to madly drag a window around for 10 seconds? If so, change it to 60. That's 
-how it works.
+It's not that simple - you need to ensure that there are mechanisms
+in place to ensure that module unloading is safe before removing these.
 
-You didn't specify how you made XMMS starve easily... I don't know if I have 
-an answer for that, but I need to know the question.
+The remaining MOD_{INC,DEC}_USE_COUNT act as markers for code that needs
+to be fixed up.
 
-Con
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271872AbRHUV46>; Tue, 21 Aug 2001 17:56:58 -0400
+	id <S271876AbRHUV4i>; Tue, 21 Aug 2001 17:56:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271871AbRHUV4t>; Tue, 21 Aug 2001 17:56:49 -0400
-Received: from granger.mail.mindspring.net ([207.69.200.148]:64277 "EHLO
-	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S271875AbRHUV4e>; Tue, 21 Aug 2001 17:56:34 -0400
-Subject: Re: [FAQ?] More ram=less performance (maximum cacheable RAM)
-From: Robert Love <rml@tech9.net>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Luca Montecchiani <m.luca@iname.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200108211957.f7LJvEt20846@vindaloo.ras.ucalgary.ca>
-In-Reply-To: <3B82B988.50DE308A@iname.com> 
-	<200108211957.f7LJvEt20846@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain
+	id <S271872AbRHUV4U>; Tue, 21 Aug 2001 17:56:20 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271871AbRHUVz6>; Tue, 21 Aug 2001 17:55:58 -0400
+Subject: Re: PROBLEM: usb not working with 2.4.8-ac8
+To: ranma@gmx.at (Tobias Diedrich)
+Date: Tue, 21 Aug 2001 22:59:10 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010821223724.A588@router.ranmachan.dyndns.org> from "Tobias Diedrich" at Aug 21, 2001 10:37:24 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99+cvs.2001.08.20.07.08 (Preview Release)
-Date: 21 Aug 2001 17:53:36 -0400
-Message-Id: <998430817.3139.41.camel@phantasy>
-Mime-Version: 1.0
+Message-Id: <E15ZJYE-0000N8-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-08-21 at 15:57, Richard Gooch wrote:
-> Er, are you sure about this? The problem isn't the size of your cache,
-> it's the size of your TAG RAM. That's a different beast.
+> usb stopped working. I'm using an usb mouse (MS Intellimouse Explorer).
+> The mouse is not getting initialized at boot. Reconnecting does not
+> help either.  
+> Board is an ASUS P2B (Intel BX chipset)
+> Processor is a Celeron 433A (In slotket adapter)
 
-It also has nothing to do with Linux.  Some motherboard's TAG RAM do not
-allow for caching more than xMB.
+Looks like the change int he usb_start_wait_urb code is a problem. 
 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+I suspect either you need to add wmb() and rmb() to stop misoptimisations
+on done (along with making it (!timeout && !awd.done)
+
+Or
+
+there is a signal related problem - if so  making it set the state
+to TASK_UNINTERRUPTIBLE might cure it
 

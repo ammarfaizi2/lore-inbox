@@ -1,79 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbTDQUlg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 16:41:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbTDQUlf
+	id S262598AbTDQUic (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 16:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbTDQUic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 16:41:35 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:28893 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S262652AbTDQUlb (ORCPT
+	Thu, 17 Apr 2003 16:38:32 -0400
+Received: from mx1.aruba.it ([62.149.128.130]:34976 "HELO mx1.aruba.it")
+	by vger.kernel.org with SMTP id S262598AbTDQUib (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 16:41:31 -0400
-Date: Thu, 17 Apr 2003 13:53:07 -0700
-From: richard offer <offer@sgi.com>
-To: Chris Wright <chris@wirex.com>, Stephen Smalley <sds@epoch.ncsc.mil>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       lsm <linux-security-module@wirex.com>, "Ted Ts'o" <tytso@mit.edu>,
-       Stephen Tweedie <sct@redhat.com>, Andreas Gruenbacher <ag@bestbits.at>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] Extended Attributes for Security Modules
-Message-ID: <1020130000.1050612787@changeling.engr.sgi.com>
-In-Reply-To: <20030417133059.G29431@figure1.int.wirex.com>
-References: <Pine.LNX.4.33.0304140033100.12311-100000@muriel.parsec.at>
- <1050414107.16051.70.camel@moss-huskers.epoch.ncsc.mil>
- <385390000.1050425884@changeling.engr.sgi.com>
- <1050500841.2682.62.camel@moss-huskers.epoch.ncsc.mil>
- <743940000.1050530541@changeling.engr.sgi.com>
- <1050553474.1076.88.camel@moss-huskers.epoch.ncsc.mil>
- <20030417133059.G29431@figure1.int.wirex.com>
-X-Mailer: Mulberry/2.2.0 (Linux/x86)
-X-HomePage: http://www.whitequeen.com/users/richard/
+	Thu, 17 Apr 2003 16:38:31 -0400
+Message-ID: <3E9F138E.8080807@libero.it>
+Date: Thu, 17 Apr 2003 22:50:22 +0200
+From: Dino Golinucci <dinogolinucci@libero.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; it-IT; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: usb modem problem load eci-adsl driver ....usb controller ali ohci
+ not foud........
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Spam-Rating: mx1.aruba.it 1.6.2 0/1000/N
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-* frm chris@wirex.com "04/17/03 13:30:59 -0700" | sed '1,$s/^/* /'
-*
-** Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-*> On Wed, 2003-04-16 at 18:02, richard offer wrote:
-*> > I can see your reasons for the single attribute (known quantity for
-*> > production systems), but think its better at this stage to experiment
-*> > with multiple attributes and see how people use them before forcing
-*> > everyone to a single standard. It allows small steps rather than force
-*> > everyone to make a single large one.
-*> 
-*> Per-module attribute names create no incentive for the security module
-*> writers to provide a consistent API and guarantees a forked userland. 
-* 
-* This is the core issue.  Personally, I'd rather stick to simple strings
-* and per-module attributes rooted at a common point.  This is simplest
-* for userspace tools.  But the attribute namespace is effectively flat,
-* so it's a question of simplicity for locating the attributes.  A simple
-* getxattr(2) vs. a listxattr(2) plus multiple getxattr(2).  Unfortunately,
-* this points at a single standard name I think...
-
-Good point. Okay you've conviced me enough that while I don't agree more
-than 51%, I'm at least going to shut up until the next time.
-
-
-Would it make sense to have a single "backup/restore security label" tool
-that is distributed alongside LSM rather than relying on each module writer
-developing their own.
-
-* 
-* thanks,
-* -chris
-
-richard.
-
--- 
------------------------------------------------------------------------
-Richard Offer                     Technical Lead, Trust Technology, SGI
-"Specialization is for insects"
-_______________________________________________________________________
-
+This is a multi-part message in MIME format.

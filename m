@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289017AbSBMWaD>; Wed, 13 Feb 2002 17:30:03 -0500
+	id <S289039AbSBMWdN>; Wed, 13 Feb 2002 17:33:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289018AbSBMW3y>; Wed, 13 Feb 2002 17:29:54 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:15100
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S289017AbSBMW3k>; Wed, 13 Feb 2002 17:29:40 -0500
-Date: Wed, 13 Feb 2002 14:29:42 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Eugene Chupkin <ace@credit.com>
-Cc: Andreas Dilger <adilger@turbolabs.com>, linux-kernel@vger.kernel.org,
-        tmeagher@credit.com, Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Andrea Arcangeli <andrea@suse.de>
-Subject: Re: 2.4.x ram issues?
-Message-ID: <20020213222942.GB335@matchmail.com>
-Mail-Followup-To: Eugene Chupkin <ace@credit.com>,
-	Andreas Dilger <adilger@turbolabs.com>,
-	linux-kernel@vger.kernel.org, tmeagher@credit.com,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Andrea Arcangeli <andrea@suse.de>
-In-Reply-To: <20020213122159.A16078@lynx.turbolabs.com> <Pine.LNX.4.10.10202131229480.683-100000@mail.credit.com>
-Mime-Version: 1.0
+	id <S289036AbSBMWdD>; Wed, 13 Feb 2002 17:33:03 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54541 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289018AbSBMWcu>; Wed, 13 Feb 2002 17:32:50 -0500
+Subject: Re: What does AddrMarkNotFound mean?
+To: schepler@math.berkeley.edu (Daniel Schepler)
+Date: Wed, 13 Feb 2002 22:46:33 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <873d059gzh.fsf@frobnitz.ddts.net> from "Daniel Schepler" at Feb 13, 2002 02:03:46 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10202131229480.683-100000@mail.credit.com>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16b8Ab-0006f6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 13 Feb 2002, Andreas Dilger wrote:
-> > You may need to use a whole bunch of -aa patches to get it to apply.  In
-> > general, the -aa tree is tuned for large machines such as yours, so you
-> > are probably better off getting the whole thing.
-> > 
-> 
+> Is this typical behavior for a hard drive which has developed bad
+> blocks?  And if I blacklist the affected blocks in the filesystem,
+> should I also blacklist a few previous blocks in order to avoid
+> problems with the readahead feature of the IDE drivers?
 
-On Wed, Feb 13, 2002 at 12:33:37PM -0800, Eugene Chupkin wrote:
-> Whola!!! This fixed my problem. CONFIG_HIGHIO did it. So my kernel is lets
-> see here... 2.4.18pre2aa2+pte-highmem-5. I hope this will be included in
-> the 2.4.18 final. Thanks for all your help.
-> 
+Its a disk error (it can't find the index marks for a sector). In general
+its a bad sign and you might want to check the smart data for the disk.
 
-I don't think that will happen.  pte-highmem is relatively new code, and
-needs more testing before it goes into 2.4.  Hugh, and Andrea fixed some
-potential problems with it recently, so hopefully most of it is ironed out
-now.
+If you bought an IBM disk within the last 18 months or so check for new 
+firmware, flash it if so and reformat it before panicing and assuming
+the worst.
 
-Also, Andrea and Marcelo (CCed) need to take some time to merge some of -aa into
-2.4-pre.  Any comments guys?  We're all watching and waiting to see more
-merging in this area...
-
-Mike

@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263787AbUATCMB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 21:12:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264473AbUATCJJ
+	id S265105AbUATAMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 19:12:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265101AbUATAL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 21:09:09 -0500
-Received: from dp.samba.org ([66.70.73.150]:20902 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265244AbUATCHP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 21:07:15 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] v4l-05 add infrared remote support 
-In-reply-to: Your message of "Thu, 15 Jan 2004 12:56:11 BST."
-             <20040115115611.GA16266@bytesex.org> 
-Date: Tue, 20 Jan 2004 12:55:39 +1100
-Message-Id: <20040120020710.8F8F62C280@lists.samba.org>
+	Mon, 19 Jan 2004 19:11:27 -0500
+Received: from mail.kroah.org ([65.200.24.183]:19884 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265105AbUATAAD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 19:00:03 -0500
+Subject: Re: [PATCH] i2c driver fixes for 2.6.1
+In-Reply-To: <10745567651848@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 19 Jan 2004 15:59:25 -0800
+Message-Id: <10745567653998@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040115115611.GA16266@bytesex.org> you write:
-> +static int repeat = 1;
-> +MODULE_PARM(repeat,"i");
-> +MODULE_PARM_DESC(repeat,"auto-repeat for IR keys (default: on)");
-> +
-> +static int debug = 0;    /* debug level (0,1,2) */
-> +MODULE_PARM(debug,"i");
+ChangeSet 1.1474.98.21, 2004/01/19 12:49:57-08:00, khali@linux-fr.org
 
-Please replace the MODULE_PARM lines with the modern form:
+[PATCH] I2C: Fix i2c-core.c with DEBUG
 
-	module_param(repeat, bool, 0644);
-	module_param(debug, int, 0644);
+At the moment, i2c-core.c fails compiling with DEBUG. Following patch
+should fix that.
 
-(I'm assuming that it's safe to change repeat and debug on the fly
-without any locking.  If not, change to 0444).
 
-For more information, see include/linux/moduleparam.h.
+ drivers/i2c/i2c-core.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Thanks!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+--- a/drivers/i2c/i2c-core.c	Mon Jan 19 15:29:13 2004
++++ b/drivers/i2c/i2c-core.c	Mon Jan 19 15:29:13 2004
+@@ -373,7 +373,7 @@
+ 	}
+ 
+ 	DEB(dev_dbg(&adapter->dev, "client [%s] registered to adapter\n",
+-			client->dev.name));
++			client->name));
+ 
+ 	if (client->flags & I2C_CLIENT_ALLOW_USE)
+ 		client->usage_count = 0;
+

@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261312AbSI3U7V>; Mon, 30 Sep 2002 16:59:21 -0400
+	id <S261328AbSI3VHn>; Mon, 30 Sep 2002 17:07:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261322AbSI3U7V>; Mon, 30 Sep 2002 16:59:21 -0400
-Received: from mail.scram.de ([195.226.127.117]:59085 "EHLO mail.scram.de")
-	by vger.kernel.org with ESMTP id <S261312AbSI3U7V>;
-	Mon, 30 Sep 2002 16:59:21 -0400
-Date: Mon, 30 Sep 2002 23:04:17 +0200
-From: Jochen Friedrich <jochen@scram.de>
-X-X-Sender: jochen@seray.bocc.de
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.3.39 LLC on Alpha broken?
-In-Reply-To: <Pine.LNX.4.44.0209301000260.1068-100000@alpha.bocc.de>
-Message-ID: <Pine.SGI.4.44.0209302302160.1085-100000@seray.bocc.de>
+	id <S261330AbSI3VHn>; Mon, 30 Sep 2002 17:07:43 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:4792 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S261328AbSI3VHn>; Mon, 30 Sep 2002 17:07:43 -0400
+Date: Mon, 30 Sep 2002 16:20:48 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Stephen Tweedie <sct@redhat.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: evict truncated buffers more easily. 
+In-Reply-To: <200209261355.g8QDtWc16998@sisko.scot.redhat.com>
+Message-ID: <Pine.LNX.4.44.0209301619260.32284-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-> Remaining issues:
->
-> - ATY frame buffer not working (black screen with jumpy cursor)
-> - ALSA doesn't compile (this seems to be cause by missing include here and
->   there)
+How extensively has this one been tested?
 
- - After shutting down the Alpha with a "reboot" command, the last message
-on the console was "Rebooting...". After that... nothing. Not even a
-power-off - power-on helped, anymore. I just get 4 beeps from my Alpha
-now, indicating an invalid firmware checksum... So 2.5.39 seems to be an
-alpha2brick release :-(
+At first I prefer leaving this one for 2.4.21-pre.
 
---jochen
+
+
 

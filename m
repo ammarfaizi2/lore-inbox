@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288344AbSACWYD>; Thu, 3 Jan 2002 17:24:03 -0500
+	id <S288354AbSACW1M>; Thu, 3 Jan 2002 17:27:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288346AbSACWX6>; Thu, 3 Jan 2002 17:23:58 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:28166 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S288344AbSACWWy>;
-	Thu, 3 Jan 2002 17:22:54 -0500
-Date: Thu, 3 Jan 2002 15:17:20 -0700
-From: Cort Dougan <cort@fsmlabs.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Who uses hdx=bswap or hdx=swapdata?
-Message-ID: <20020103151720.E20821@ftsoj.fsmlabs.com>
-In-Reply-To: <3C34D6FC.9090207@colorfullife.com>
+	id <S288353AbSACW1F>; Thu, 3 Jan 2002 17:27:05 -0500
+Received: from [217.200.20.72] ([217.200.20.72]:30605 "HELO
+	markolaptop.markoer.net") by vger.kernel.org with SMTP
+	id <S288336AbSACW0u>; Thu, 3 Jan 2002 17:26:50 -0500
+Date: Thu, 3 Jan 2002 23:26:14 +0100
+From: Marco Ermini <markoer@markoer.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Framebuffer...Why oh Why???
+Message-Id: <20020103232614.26f2f5af.markoer@markoer.org>
+In-Reply-To: <Pine.LNX.4.33.0201010152190.3557-100000@localhost.localdomain>
+In-Reply-To: <20020101054301.YWGP617.femail27.sdc1.sfba.home.com@there>
+	<Pine.LNX.4.33.0201010152190.3557-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+User-Agent: Markoer's secret spy software - your computer is under my control!
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C34D6FC.9090207@colorfullife.com>; from manfred@colorfullife.com on Thu, Jan 03, 2002 at 11:11:08PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It used to be necessary on the IBM 830 CDROM but I think those have fallen
-into disrepair and have undergone many changes.  The 830's likely need that
-still but probably can't boot for other reasons now, though.
+On Tue, 1 Jan 2002 02:00:01 -0500 (EST), Werner Puschitz
+<werner.lx@verizon.net> wrote:
 
-} Is the hdx=bswap or hdx=swapdata option actually in use?
-} When is it needed?
-} The current implementation can cause data corruptions on SMP with PIO 
-} transfers:
-} It modifies the source buffer during disk writes, and these temporary
-} modifications (within the irq handler) are visible with mmap on SMP.
-} 
-} Is it possible to remove the option entirely, or should it be fixed?
-} 
-} --
-}     Manfred
-} 
-} -
-} To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-} the body of a message to majordomo@vger.kernel.org
-} More majordomo info at  http://vger.kernel.org/majordomo-info.html
-} Please read the FAQ at  http://www.tux.org/lkml/
+[...]
+> I'm having the exact same problems on my ThinkPad 390X. Sometimes it
+> freezes several times a day with the exact same symptoms. RedHat 6.2
+> worked fine on this laptop. The problems started with 7.1 which uses 
+> XFree86 4.0, and it didn't get better with 7.2 (XFree86 4.1).
+> What makes it even worse is that after a warm reboot, the screen and 
+> keyboard locks up again as soon as gdm gets started (Numlock doesn't work 
+> etc.). So I always have to turn off the power to get the laptop working 
+> again.
+
+A similar things happened to me. I have a Toshiba Satellite 4080 XCDT, and
+switching from XFree to console and back to XFree becomed impossibile with the
+upgrade to Redhat 7.x and XFree 4. The problem is that the apm script use to
+switch to console mode when I suspend (es. closing the laptop) and when it
+resumes it tries to switch to XFree again, but this messes the screen. I am
+still able to come back to console and killall X, but of course I'll lose my
+current not saved works under X.
+
+Under XFree 3 I could switch from X to console and back without problems -
+anyway, after a couple of switches my laptop used to hang. I think X writes to
+the uncorrect memory regions causing my laptop to hang.
+
+
+ciao
+
+-- 
+Marco Ermini
+http://www.markoer.org
+Perche' perdere tempo ad imparare quando l'ignoranza e' istantanea? (Hobbes)

@@ -1,134 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313207AbSDJPrl>; Wed, 10 Apr 2002 11:47:41 -0400
+	id <S313255AbSDJPwg>; Wed, 10 Apr 2002 11:52:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313255AbSDJPrl>; Wed, 10 Apr 2002 11:47:41 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51776 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S313207AbSDJPrj>; Wed, 10 Apr 2002 11:47:39 -0400
-To: suparna@in.ibm.com
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Faster reboots (and a better way of taking crashdumps?)
-In-Reply-To: <1759496962.1018114339@[10.10.2.3]>
-	<m18z80nrxc.fsf@frodo.biederman.org> <3CB1A9A8.1155722E@in.ibm.com>
-	<m1ofgum81l.fsf@frodo.biederman.org> <20020409205636.A1234@in.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 10 Apr 2002 09:40:44 -0600
-Message-ID: <m1y9fvlfyb.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S313260AbSDJPwg>; Wed, 10 Apr 2002 11:52:36 -0400
+Received: from mail.scsiguy.com ([63.229.232.106]:49937 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S313255AbSDJPwe>; Wed, 10 Apr 2002 11:52:34 -0400
+Message-Id: <200204101552.g3AFq5927622@aslan.scsiguy.com>
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.19-pre6 standardize {aic7xxx,aicasm}/Makefile 
+In-Reply-To: Your message of "Wed, 10 Apr 2002 12:41:43 +1000."
+             <2317.1018406503@kao2.melbourne.sgi.com> 
+Date: Wed, 10 Apr 2002 09:52:05 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suparna Bhattacharya <suparna@in.ibm.com> writes:
+>On Sun, 07 Apr 2002 22:27:40 -0600, 
+>"Justin T. Gibbs" <gibbs@scsiguy.com> wrote:
+>>kaos wrote
+>>>Having multiple conglomerates gets messy, especially if you allow a
+>>>mixture of built in and modular selection and if it is possible for
+>>>everything to be a module with no built in stubs.  The generic case
+>>>looks like this
+>>
+>>Since this is the case, and the Makefile will return to this format
+>>as soon as the U320 driver is released, can we come up with an
+>>interrim Makefile that assumes the new driver will show up shortly?
+>
+>I renew my standing offer that goes back to June 2001.  If you agree to
+>
+>* use the standard Linux kernel build methods
 
-> On Mon, Apr 08, 2002 at 11:09:26AM -0600, Eric W. Biederman wrote:
-> > Suparna Bhattacharya <suparna@in.ibm.com> writes:
-> > 
-> > > I have been trying look through this in terms of how it compares with 
-> > > alternate projects (bootimg, monte etc). As I mentioned in an earlier 
-> > > mail, crash dump (mcore) relies on bootimg, and I'm trying to decide if
-> > > there
-> > > could be advantages in using your kexec stuff. 
-> > 
-> > My target it to submit the kexec stuff to Linus.  I seem to be the
-> > only one really actively working on it at this time.  I believe my
-> > code is the most mature at the moment.  The bottom line is the system
-> > call needs to get into the kernel.
-> > 
-> > With respect to bootimg there is a strong similarity it how things are
-> > done.  The big difference is that bootimg interface does everything
-> > per page in asking the kernel where to put things and my kexec call is
-> > does everything with extents.  Which means the kexec data structures
-> > are usually much smaller, plus I rely on odd things like PAGE_SIZE.
-> 
-> OK.
-> 
-> > 
-> > As for monte I can boot other things than the linux kernel.  I'm much
-> > better at doing the work than publisizing it so my variant isn't quite
-> > as well known.  That plus I can late to the game.
-> > 
-> 
-> I'm not sure if I got this right, but unlike bootimg, monte seems 
-> to prefer going through the early real mode setup code (unless one 
-> specifies skip_setup), and also resets the video mode. 
+This is already true of the aic7xxx/Makefile for 2.4 since it will
+have a second target shortly.  I even spent yesturday changing the
+file from AIC7XXX-OBJ to obj-aic7xxx to better follow your example.
+In the next release, scsi/Makefile will also include aic7xxx.o instead
+of aic7xxx_drv.o as you requested.
 
-Going through the early setup code is good.  I do this as well,
-though I have tried the other route as well.
+I have not looked at 2.5.
 
-Reseting the video mode like monte does is questionable.
+>* stop shipping files and overwriting them at run time
+>* make the decision about firmware generation automatic instead of
+>  manual
 
-The basic point though is that the monte kernel interface is not set
-up to support anything but the linux kernel.  The bootimg interface
-if fairly general, the user space just happens to be a little
-immature.
+Not this again.
 
-As for skipping the real mode setup code, I prefer to do that cleanly
-when it is needed.
+>From my own soapbox on this matter:
 
-> At first I
-> thought some of your querybios stuff achieves a similar effect,
-> but then is that for linux bios ?
+SHIPPING GENERATED FILES
 
-Yes that is primarily for linuxbios.  But that is when it is necessary
-to skip the real mode setup.  But all you have to do is specify a
-mem=xyz line and you also skip the real mode setup, if you feel like
-it.
+In general, it is bad practice to even attempt to ship generated files
+in the Linux kernel build with the source of the utilities to build those
+files as in Linux you can't know what miss-match of tools the user is going
+to have.  If you're lucky, they have a compiler with bugs that won't affect
+you, but since there is no "standard toolset" that userland distributions
+include, you cannot rely on even the tools that are necessary to rebuild the
+compiler: lex and yacc.  Even if the tools to build the tools to generate
+your files exist in all cases (toungue twister), triggering the tool build
+from within the kernel build can be "interesting" as you try and dissassociate
+the tool make environment from the kernel build environment which may make
+assumptions that don't apply to your tool.
 
-> > > My main concern of
-> > > course is with regard to these BIOS dependent/related issues
-> > > since at the time of a crash dump we may not be in quite a "friendly 
-> > > state". Guess some the linux power mgmt infrastructure or driverfs
-> > > should help with sane resets etc (I'm not saying its straightforward
-> > > :)).
-> > > in the long run. As such how far does your implementation address
-> > > some of this BIOS/h/w state handling better ?
-> > 
-> > My code works in SMP.   I call the reboot notifier.
-> > I probably should run through the pci bus and disable bus masters, but
-> > I don't right now.
-> 
-> The crash dump code with bootimg seems to work on smp
+The whole reliance on using patches as a general purpose upgrade tool
+in Linux is left for another discussion.  My only hope is that with the
+move to using bitkeeper, this reliance will fade.
 
-Unless I missed something the Linux kernel won't work on smp though.
-It is a matter of resetting the state of the apics, and ensuring you
-are running on the first processor.  I don't believe bootimg did/does that.
+So, we are left with three options:
 
-> Yes, I noticed the reboot notifier part in your code.
-> Disabling the busmaster might be required (monte seems to do that)
+1) Don't bother shipping the code to regenerate the file.
+2) Make it manually selectable for the .00000001% of users that
+   might want or need to modify the generated files.
+3) Make the makefiles rely on sed, md5, and cmp in addition to
+   gmake and sh, an additional generated file and a script to automate
+   a process that really doesn't benefit from being automated.
 
-In general yes.  There are some interesting side effects though.
-Going through the pci bus and shutting off bus masters is a good
-first approximation of what needs to happen.
+Option #3 is simply complicated and overengineered.
 
-In general though (a) there are buggy devices that can hang the system
-if you treat the incorrectly.  (b) Sometimes you need to do more than
-just shutdown bus master DMA.
+The mechanism we have in place today works.  Other than one mixup in
+May or June of 2001, during the early adoption of this driver, it has
+always worked.
 
-Which is why I have for the most part been holding off.
+The old driver included the firmware source but no tools to rebuild it.
+I will happily do the same if this is more aesthetically pleasing.
+Considering that this is an open source project, it just seems silly to
+me to not ship the tools too as there is already a simple mechanism to
+allow their use in place already.
 
-> > And you probably meant:
-> > ftp://downalod.lnxi.com/pub/src/linux-kernel-patches/kexec.
-> 
-> Yes indeed (except for the spelling of download above :))
-> Looks like I can't type straight either :)
+>* remove the BSD'isms from the Linux aic7xxx Makefiles
 
-:)
+Are you talking about aic7xxx/aicasm/Makefile?  That makefile
+does not use kbuild mecanisms becaues it is building a userland
+application.  The aic7xxx/Makefile (at least for 2.4 - again haven't
+even looked at 2.5) seems to follow your own suggestions assuming
+there will be two targets.
 
-> > My other code for cleaning up the boot process is in:
-> >
-> ftp://download.lnxi.com/pub/src/linux-kernel-patches/boot/linux-2.5.7.boot.diff
-> 
-> 
-> Ok got it.
-> Have to get over the tools too and give it a shot.
+>then I will happily write clean aic7xxx makefiles and support them.
+>But if you insist on doing it your own way that does not match the
+>Linux kernel build, then I am afraid that you are on your own.
 
-Thanks.  Please holler if you have problems.   I really need
-to look at building a debugging strategy for this code.  I have gotten
-some failure reports but so far it is hard to track down why any of
-it has problems.
+Then why bother sending a patch to Marcello?
 
-Eric
-
+--
+Justin

@@ -1,67 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbUKVUFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbUKVUKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262583AbUKVUFi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 15:05:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbUKVTzf
+	id S262521AbUKVUKm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 15:10:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbUKVUHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 14:55:35 -0500
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:21380 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S262583AbUKVTur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 14:50:47 -0500
-Date: Mon, 22 Nov 2004 20:49:53 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Andrew Morton <akpm@osdl.org>, j-nomura@ce.jp.nec.com,
-       linux-kernel@vger.kernel.org, riel@redhat.com,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: Lazily add anonymous pages to LRU on v2.4? was Re: [2.4] heavy-load under swap space shortage
-Message-ID: <20041122194953.GJ10782@dualathlon.random>
-References: <20040310.195707.521627048.nomura@linux.bs1.fc.nec.co.jp> <Pine.LNX.4.44.0403141638390.1554-100000@dmt.cyclades> <20040314121503.13247112.akpm@osdl.org> <20040314230138.GV30940@dualathlon.random> <20040314152253.05c58ecc.akpm@osdl.org> <20041122150138.GB27753@logos.cnet>
+	Mon, 22 Nov 2004 15:07:09 -0500
+Received: from rproxy.gmail.com ([64.233.170.201]:44965 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262571AbUKVTz1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 14:55:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=XRqKMlqS5js7oZV3WnduzJYQ/TPAt633VzecMDAhFfMfLHQ7OLNd5/O6htaB2C7gn01Uzmz9M7Z/MTO8hrlUrridVIZk6llvQaGedyyuYyCoOXM1DQe0jem9wS2ztXhr70NL5wFaoAvyl9c3RR8+el2lhu8HFnpF+sJTZ+I+IsY=
+Message-ID: <29495f1d04112211554e78da67@mail.gmail.com>
+Date: Mon, 22 Nov 2004 11:55:23 -0800
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: cranium2003 <cranium2003@yahoo.com>
+Subject: Re: how netfilter handles fragmented packets
+Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org, netdev@oss.sgi.com
+In-Reply-To: <20041121194202.14581.qmail@web41407.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041122150138.GB27753@logos.cnet>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <29495f1d04112109372bb8ebe4@mail.gmail.com>
+	 <20041121194202.14581.qmail@web41407.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22, 2004 at 01:01:38PM -0200, Marcelo Tosatti wrote:
-> On Sun, Mar 14, 2004 at 03:22:53PM -0800, Andrew Morton wrote:
-> > Andrea Arcangeli <andrea@suse.de> wrote:
+On Sun, 21 Nov 2004 11:42:02 -0800 (PST), cranium2003
+<cranium2003@yahoo.com> wrote:
+> 
+> --- Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
+> Hello Nish,
+> 
+> 
+> 
+> > On Sun, 21 Nov 2004 17:15:12 +0100 (MET), Jan
+> > Engelhardt
+> > <jengelh@linux01.gwdg.de> wrote:
+> > > >hello,
+> > > >          In ip_output.c file ip_fragmet function
+> > when
+> > > >create a new fragmented packet given to
+> > output(skb)
+> > > >function. i want to know which function are
+> > actually
+> > > >called by output(skb)?
 > > >
-> > > > 
-> > > > Having a magic knob is a weak solution: the majority of people who are
-> > > > affected by this problem won't know to turn it on.
-> > > 
-> > > that's why I turned it _on_ by default in my tree ;)
-> > 
-> > So maybe Marcelo should apply this patch, and also turn it on by default.
+> > > use stack_dump() (or was it dump_stack()?)
+> >
+> > dump_stack(), if you want to dump the current
+> > process' stack context.
+> >
+> > -Nish
+> >
 > 
-> I've been pondering this again for 2.4.29pre - the thing I'm not sure about 
-> what negative effect will be caused by not adding anonymous pages to LRU 
-> immediately on creation.
-> 
-> The scanning algorithm will apply more pressure to pagecache pages initially 
-> (which are on the LRU) - but that is _hopefully_ no problem because swap_out() will
-> kick-in soon moving anon pages to LRU soon as they are swap-allocated.
-> 
-> I'm afraid that might be a significant problem for some workloads. No?
-> 
-> Marc-Christian-Petersen claims it improves behaviour for him - how so Marc, 
-> and what is your workload/hardware description? 
-> 
-> This is known to decrease contention on pagemap_lru_lock.
-> 
-> Guys, doo you have any further thoughts on this? 
-> I think I'll give it a shot on 2.4.29-pre?
+> can you please tell me how can i use dump_stack()
+> method? so using dump_stack i will come to know which
+> function will be called by output(skb) right? But
+> where i get dump_stack()???
 
-I think you mean the one liner patch that avoids the lru_cache_add
-during anonymous page allocation (you didn't quote it, and I can't see
-the start of the thread). I develoepd that patch for 2.4-aa and I'm
-using it for years, and it runs in all latest SLES8 kernels too, plus
-2.4-aa is the only kernel I'm sure can sustain certain extreme VM loads
-with heavy swapping of shmfs during heavy I/O. So you can apply it
-safely I think.
+Last time i used it, I didn't need to do a darn thing. I believe it's
+part of the traps code, so you can just call dump_stack().
+dump_stack() will throw out the trace of the current task's stack at
+the point when it is called. See what happens when you place it in
+different places. Another option, if you ever have a hanging sytem is
+Alt-SysRq-T (presuming you have the magic option enabled and you are
+able to scrollback still), which pretty much calls dump_stack() for
+all available processes.
+
+-Nish

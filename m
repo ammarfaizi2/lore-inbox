@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263632AbTI2Pun (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 11:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263634AbTI2Pun
+	id S263633AbTI2Puq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 11:50:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263634AbTI2Pup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 29 Sep 2003 11:50:45 -0400
+Received: from web40910.mail.yahoo.com ([66.218.78.207]:7347 "HELO
+	web40910.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263633AbTI2Pun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 29 Sep 2003 11:50:43 -0400
-Received: from main.gmane.org ([80.91.224.249]:28812 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263632AbTI2Pum (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 11:50:42 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andreas Schwarz <usenet.2117@andreas-s.net>
-Subject: 8139too & APIC incompatibility (2.6.0-test6-mm1, 2.4.20)
-Date: Mon, 29 Sep 2003 15:47:29 +0000 (UTC)
-Message-ID: <slrnbngl0o.4e0.usenet.2117@home.andreas-s.net>
-X-Complaints-To: usenet@sea.gmane.org
-X-TCPA-ist-scheisse: yes
-User-Agent: slrn/0.9.8.0 (Linux)
+Message-ID: <20030929155042.53666.qmail@web40910.mail.yahoo.com>
+Date: Mon, 29 Sep 2003 08:50:42 -0700 (PDT)
+From: Bradley Chapman <kakadu_croc@yahoo.com>
+Subject: [BUG] Defunct event/0 processes under 2.6.0-test6-mm1
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When APIC is activated, the following messages appear in syslog from
-time to time:                                                                   
-                                                                                
-kernel: NETDEV WATCHDOG: eth1: transmit timed out
-kernel: eth1: Tx queue start entry 4  dirty entry 0.
-kernel: eth1:  Tx descriptor 0 is 00002000. (queue head)
-kernel: eth1:  Tx descriptor 1 is 00002000.
-kernel: eth1:  Tx descriptor 2 is 00002000.
-kernel: eth1:  Tx descriptor 3 is 00002000.
-kernel: eth1: link up, 100Mbps, full-duplex, lpa 0x45E1
+Mr. Morton,
 
-After this has happened the first time, the card fails to send or
-receive any more packages.
+I am experiencing defunct event/0 kernel daemons under 2.6.0-test6-mm1
+with synaptics_drv 0.11.7, Dmitry Torokhov's gpm-1.20 with synaptics
+support, and XFree86 4.3.0-10. Moving the touchpad in either X or with
+gpm causes defunct event/0 processes to be created. This didn't happen
+with 2.6.0-test5-mm4, using either synaptics_drv 0.11.6 or 0.11.7, and
+I'm pretty sure that it didn't happen with 2.6.0-test6, but I will check
+that.
 
-The problem exists in both tested Kernel versions (2.6.0-test6-mm1 and
-2.4.20).
+I see in your e-mail here: 
 
-lspci -v:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0309.3/0926.html
 
-00:0f.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-        Subsystem: Realtek Semiconductor Co., Ltd. RT8139
-        Flags: bus master, medium devsel, latency 64, IRQ 5
-        I/O ports at d400 [size=256]
-        Memory at cfffde00 (32-bit, non-prefetchable) [size=256]
-        Expansion ROM at cffe0000 [disabled] [size=64K]
-        Capabilities: [50] Power Management version 2
+that you merged a synaptics update in the -mm1 patchset. Do you have a
+link to this patch so that I can revert it and see if it still occurs?
 
+TIA
 
+Brad Chapman
+
+=====
+Brad Chapman
+
+Permanent e-mail: kakadu_croc@yahoo.com
+
+__________________________________
+Do you Yahoo!?
+The New Yahoo! Shopping - with improved product search
+http://shopping.yahoo.com

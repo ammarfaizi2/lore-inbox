@@ -1,90 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283284AbRK2UGq>; Thu, 29 Nov 2001 15:06:46 -0500
+	id <S283140AbRK2UJg>; Thu, 29 Nov 2001 15:09:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282910AbRK2UGg>; Thu, 29 Nov 2001 15:06:36 -0500
-Received: from dandelion.com ([198.186.200.2]:50450 "EHLO dandelion.com")
-	by vger.kernel.org with ESMTP id <S282623AbRK2UGZ>;
-	Thu, 29 Nov 2001 15:06:25 -0500
-Date: Thu, 29 Nov 2001 12:06:23 -0800
-Message-Id: <200111292006.fATK6NMF021272@dandelion.com>
-From: "Leonard N. Zubkoff" <lnz@dandelion.com>
-To: pascal.lengard@wanadoo.fr
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0111291939310.17742-100000@h2o.chezmoi.fr>
-	(message from Pascal Lengard on Thu, 29 Nov 2001 19:42:01 +0100 (CET))
-Subject: Re: dac960 broken ?
+	id <S283133AbRK2UJ1>; Thu, 29 Nov 2001 15:09:27 -0500
+Received: from nat-pool-hsv.redhat.com ([12.150.234.132]:16652 "EHLO
+	dhcp-177.hsv.redhat.com") by vger.kernel.org with ESMTP
+	id <S283200AbRK2UJM>; Thu, 29 Nov 2001 15:09:12 -0500
+Date: Thu, 29 Nov 2001 14:08:35 -0600
+From: Tommy Reynolds <reynolds@redhat.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: seq_open, et. al. are not exported for modules
+Message-Id: <20011129140835.26e8e40e.reynolds@redhat.com>
+In-Reply-To: <20011129133911.4816fe2b.reynolds@redhat.com>
+In-Reply-To: <20011129133911.4816fe2b.reynolds@redhat.com>
+Organization: Red Hat Software, Inc. / Embedded Development
+X-Mailer: Sylpheed version 0.6.5cvs3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.6KI)B)fOEAt3rX"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Date: Thu, 29 Nov 2001 19:42:01 +0100 (CET)
-  From: Pascal Lengard <pascal.lengard@wanadoo.fr>
+--=.6KI)B)fOEAt3rX
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-  On Wed, 28 Nov 2001, Leonard N. Zubkoff wrote:
+More important activities lacking, "Tommy Reynolds" <reynolds@redhat.com> wrote:
 
-  > Hmmm.  Nothing you've described makes any sense to me as I don't believe
-  > the driver has changed in a way that would break the basic detection of the
-  > boards.  When you say that the card is not detected, precisely what do you
-  > mean?  Does the driver report anything at all?
+> Alex,
+> 
+> The patch below, relative to 2.4.16, exports the seq_FOO symbols so they can be
+> used from a loadable kernel module.
 
-  OK, I did not write down the messages, but while testing, with DAC960
-  compiled as module, It did load and initialise but said "no such peripheral"
-  or something equivalent once (I know it's not precise enough ...).
+The patch omitted "seq_printf" ;-(
 
-  I ran some tests to record precise messages today:
+This one doesn't:
 
-  Here are the messages from the kernel 2.4.9-13 shipped by redhat:
-  -----------------------------------------------------------------
-	  Loading scsi_mod module
-	  Loading DAC960 module
-	  /lib/DAC960.o: init_module: Operation not permitted
-	  Hint: insmod errors can be caused by incorrect module parameters, including invalid IO or IRQ parameters
-	  ERROR /bin/insmod exited abnormally!
-	  Loading jbd module
-	  Journalled Block Device driver loaded
-	  Loading ext3 module
-	  Mounting /proc filesystem
-	  Creaing root device
-	  Mounting root filesystem
-	  mount: error 19 mounting ext3
-	  pivotroot: pivot_root(/sysroot,/sysroot/initrd) failed: 2
-	  Freeing unused kernel memory: 216k freed
-	  Kernel panic: No init found. Try passing init= option to kernel
+--- linux/kernel/ksyms.c.orig	Thu Nov 29 13:14:10 2001
++++ linux/kernel/ksyms.c	Thu Nov 29 13:58:27 2001
+@@ -46,6 +46,7 @@
+ #include <linux/tty.h>
+ #include <linux/in6.h>
+ #include <linux/completion.h>
++#include <linux/seq_file.h>
+ #include <asm/checksum.h>
+ 
+ #if defined(CONFIG_PROC_FS)
+@@ -559,3 +560,12 @@ EXPORT_SYMBOL(init_task_union);
+ 
+ EXPORT_SYMBOL(tasklist_lock);
+ EXPORT_SYMBOL(pidhash);
++
++/* Sequential file systems */
++
++EXPORT_SYMBOL(seq_open);
++EXPORT_SYMBOL(seq_read);
++EXPORT_SYMBOL(seq_lseek);
++EXPORT_SYMBOL(seq_release);
++EXPORT_SYMBOL(seq_escape);
++EXPORT_SYMBOL(seq_printf);
 
 
-Hmmm.  Can you check if the following patch is present in the Linux kernel
-you're using:
+---------------------------------------------+-----------------------------
+Tommy Reynolds                               | mailto: <reynolds@redhat.com>
+Red Hat, Inc., Embedded Development Services | Phone:  +1.256.704.9286
+307 Wynn Drive NW, Huntsville, AL 35805 USA  | FAX:    +1.256.837.3839
+Senior Software Developer                    | Mobile: +1.919.641.2923
 
---- linux/init/main.c-	Sat Oct  6 08:49:16 2001
-+++ linux/init/main.c	Wed Oct 10 09:06:07 2001
-@@ -221,6 +221,24 @@
- 	{ "dasdg", (DASD_MAJOR << MINORBITS) + (6 << 2) },
- 	{ "dasdh", (DASD_MAJOR << MINORBITS) + (7 << 2) },
- #endif
-+#if defined(CONFIG_BLK_DEV_DAC960) || defined(CONFIG_BLK_DEV_DAC960_MODULE)
-+	{ "rd/c0d0p",0x3000 },
-+	{ "rd/c0d1p",0x3008 },
-+	{ "rd/c0d2p",0x3010 },
-+	{ "rd/c0d3p",0x3018 },
-+	{ "rd/c0d4p",0x3020 },
-+	{ "rd/c0d5p",0x3028 },
-+	{ "rd/c0d6p",0x3030 },
-+	{ "rd/c0d7p",0x3038 },
-+	{ "rd/c0d8p",0x3040 },
-+	{ "rd/c0d9p",0x3048 },
-+	{ "rd/c0d10p",0x3050 },
-+	{ "rd/c0d11p",0x3058 },
-+	{ "rd/c0d12p",0x3060 },
-+	{ "rd/c0d13p",0x3068 },
-+	{ "rd/c0d14p",0x3070 },
-+	{ "rd/c0d15p",0x3078 },
-+#endif
- #if defined(CONFIG_BLK_CPQ_DA) || defined(CONFIG_BLK_CPQ_DA_MODULE)
- 	{ "ida/c0d0p",0x4800 },
- 	{ "ida/c0d1p",0x4810 },
+--=.6KI)B)fOEAt3rX
+Content-Type: application/pgp-signature
 
-Without this patch, which Linux has repeatedly refused to include in the
-standard sources, it is entirely possible that the root= processing won't work
-correctly.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
 
-		Leonard
+iEYEARECAAYFAjwGlcgACgkQWEn3bOOMcuqjowCfbxhw62uDZZQjtINZE+2dlY/8
+OZAAnj+2ZUkwM54cppIjCDZdUyLwPZ6t
+=4O8M
+-----END PGP SIGNATURE-----
+
+--=.6KI)B)fOEAt3rX--
+

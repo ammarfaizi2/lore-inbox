@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131579AbQKNXUz>; Tue, 14 Nov 2000 18:20:55 -0500
+	id <S131667AbQKNXVp>; Tue, 14 Nov 2000 18:21:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131649AbQKNXUp>; Tue, 14 Nov 2000 18:20:45 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:30735 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131579AbQKNXUa>;
-	Tue, 14 Nov 2000 18:20:30 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Adam J. Richter" <adam@freya.yggdrasil.com>
-cc: linux-kernel@vger.kernel.org, vendor-sec@lst.de
-Subject: Re: Local root exploit with kmod and modutils > 2.1.121 
-In-Reply-To: Your message of "Tue, 14 Nov 2000 12:31:41 -0800."
-             <200011142031.MAA07179@freya.yggdrasil.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 15 Nov 2000 09:50:16 +1100
-Message-ID: <11108.974242216@ocs3.ocs-net>
+	id <S131669AbQKNXVf>; Tue, 14 Nov 2000 18:21:35 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:24049 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S131667AbQKNXVY>; Tue, 14 Nov 2000 18:21:24 -0500
+Date: Tue, 14 Nov 2000 16:51:20 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20001114163154.A3328@hapablap.dyn.dhs.org>
+In-Reply-To: <20001114222843Z131509-521+212@vger.kernel.org> <20001114222843Z131509-521+212@vger.kernel.org>; from ttabi@interactivesi.com on Tue, Nov 14, 2000 at 03:58:38PM -0600
+Subject: Re: "couldn't find the kernel version the module was compiled for" - help!
+X-Mailer: The Polarbar Mailer (pbm 1.17b)
+Message-Id: <20001114232133Z131667-522+140@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2000 12:31:41 -0800, 
-"Adam J. Richter" <adam@freya.yggdrasil.com> wrote:
->>The only secure fix I can see is to add SAFEMODE=1 to modprobe's
->>environment and change exec_modprobe.
->
->	SAFEMODE may mean other things to other programs, so that
+** Reply to message from Steven Walter <srwalter@hapablap.dyn.dhs.org> on Tue,
+14 Nov 2000 16:31:54 -0600
 
-MOD_SAFEMODE.
 
->	It would be much better to just add a command line option
->to modprobe that request_module() would cause it treat the following
+> If my understanding is correct, you need to include version.h without
+> "#define __NO_VERSION__" in one and only one of your module's .c files.
+> More than one, and you get redefinition errors; less than one, and its
+> undefined.
 
-Changing the command line is not an option.  Kernel 2.2 still runs with
-modutils 2.1.121, changing the request_module command line would break
-people using modutils 2.1.121 and force them to upgrade, AC would kill
-me.  I needed a mechanism that would work with modutils 2.3 but have no
-effect on modutils 2.1.121, remember that 2.1.121 does not have this
-security exposure.  It also had to work on 2.2 kernels because many
-people are using moditils 2.3 on 2.2 kernels.  SGI ship a 2.2 kernel
-with devfs for their big machines, that needs modutils 2.3.
+I tried that, and it didn't help.
 
->	Another possible approach would be to create a separate
->/sbin/safe_modprobe.  modprobe already behaves differently
->based on whether argv[0] ends in "modprobe", "insmod", "depmod",
->or "rmmod".  So this would be in keeping with that convention.
->It would also be trivial to retrofit old systems.  Just have
->some system boot script do:
->
->		echo /sbin/safe_modprobe > /proc/sys/kernel/modprobe
 
-I thought about that but it assumes that users will add that line to
-their scripts - not guaranteed.  The fix needed a change that would
-automatically detect that safe mode was required and not rely on manual
-intervention.  Especially with 30+ Linux distributions out there.
 
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262259AbUKKPjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262243AbUKKPmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262259AbUKKPjl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 10:39:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbUKKPjF
+	id S262243AbUKKPmV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 10:42:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbUKKPmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 10:39:05 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:46345 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262259AbUKKPhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 10:37:22 -0500
-Date: Thu, 11 Nov 2004 16:36:50 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Len Brown <len.brown@intel.com>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] [2.6 patch] drivers/acpi: #ifdef unused functions away
-Message-ID: <20041111153650.GD8417@stusta.de>
-References: <20041105215021.GF1295@stusta.de> <1099707007.13834.1969.camel@d845pe> <20041106114844.GK1295@stusta.de> <418CEE3A.40503@conectiva.com.br> <20041106212917.GP1295@stusta.de> <418D403E.30608@conectiva.com.br> <1099933263.13831.9547.camel@d845pe> <20041110012134.GB4089@stusta.de> <20041111151727.GB1108@parcelfarce.linux.theplanet.co.uk>
+	Thu, 11 Nov 2004 10:42:21 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:36069 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262243AbUKKPlJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 10:41:09 -0500
+Subject: Re: mmap vs. O_DIRECT
+From: Robert Love <rml@novell.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <41937C1A.30800@tmr.com>
+References: <cmtsoo$j55$1@gatekeeper.tmr.com>
+	 <1100121230.4739.1.camel@betsy.boston.ximian.com>  <41937C1A.30800@tmr.com>
+Content-Type: text/plain
+Date: Thu, 11 Nov 2004 10:41:56 -0500
+Message-Id: <1100187716.5358.5.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041111151727.GB1108@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 11, 2004 at 03:17:27PM +0000, Matthew Wilcox wrote:
-> On Wed, Nov 10, 2004 at 02:21:34AM +0100, Adrian Bunk wrote:
-> > This patch only #ifdef's completely unused code away - it does not make 
-> > the many global functions only used inside the file they are defined in 
-> > static.
+On Thu, 2004-11-11 at 09:50 -0500, Bill Davidsen wrote:
+
+> I miss your point about synchronous, with hundreds of clients doing 
+> small reads against a 10TB database, the benefit of pushing them through 
+> the page cache isn't obvious. No particular data are in memory long 
+> enough to have much chance of being shared, so it looks like overhead to 
+> me. Feel free to educate me.
+
+There is a difference between being synchronous and not going through
+the page cache, although in Linux we don't really have the distinction.
+
+> I certainly DO want to put more users per server, and direct I/O has 
+> proven itself in actual use. I'm not sure why you think the double copy 
+> is a good thing, but I have good rea$on to want more users per server.
 > 
-> It also ifdefs out the acpi_install_gpe_handler and acpi_remove_gpe_handler
-> calls I use in the driver I posted on Sunday.  Please fix this.
+> Alan: point on MAP_SHARED taken.
 
-????
+BTW, Alan's point on MAP_SHARED is just that you can have the mmap
+region and the page cached region be one and the same.  You still aren't
+doing direct I/O.
 
-My patch doesn't #ifdef these functions away.
+Maybe that is ultimately what you want.
 
+It is rare to see direct I/O perform better when you use it as normal
+file I/O (e.g. don't perform your own caching and scheduling) but if you
+really do measure improvements, and if you never reaccess the data (and
+thus the lack of cache is not a problem), then by all means use it.
 
-cu
-Adrian
+But we still don't want to make normal mmap's be direct.
 
--- 
+	Robert Love
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

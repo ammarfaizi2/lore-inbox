@@ -1,76 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVAGKCu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVAGKh5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261338AbVAGKCu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 05:02:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVAGKCu
+	id S261151AbVAGKh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 05:37:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbVAGKh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 05:02:50 -0500
-Received: from miranda.se.axis.com ([193.13.178.2]:21473 "EHLO
-	miranda.se.axis.com") by vger.kernel.org with ESMTP id S261338AbVAGKCj convert rfc822-to-8bit
+	Fri, 7 Jan 2005 05:37:57 -0500
+Received: from dsl081-060-252.sfo1.dsl.speakeasy.net ([64.81.60.252]:41396
+	"EHLO vitelus.com") by vger.kernel.org with ESMTP id S261151AbVAGKhv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 05:02:39 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH][3/4] let's kill verify_area - convert kernel/compat.c to access_ok()
-Date: Fri, 7 Jan 2005 11:02:15 +0100
-Message-ID: <50BF37ECE4954A4BA18C08D0C2CF88CB010400CA@exmail1.se.axis.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH][3/4] let's kill verify_area - convert kernel/compat.c to access_ok()
-Thread-Index: AcT0WXowBwoUM76tTXqVqFoBMqpfsQARSNkQ
-From: "Peter Kjellerstedt" <peter.kjellerstedt@axis.com>
-To: "Jesper Juhl" <juhl-lkml@dif.dk>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-Cc: "Andrew Morton" <akpm@osdl.org>
-X-OriginalArrivalTime: 07 Jan 2005 10:02:15.0917 (UTC) FILETIME=[F74C59D0:01C4F49F]
+	Fri, 7 Jan 2005 05:37:51 -0500
+Date: Fri, 7 Jan 2005 02:37:50 -0800
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Open hardware wireless cards
+Message-ID: <20050107103750.GF3228@vitelus.com>
+References: <20050105200526.GL5159@ruslug.rutgers.edu> <41DC4B43.7090109@imag.fr> <20050105202626.GN5159@ruslug.rutgers.edu> <200501060902.07502.norbert-kernel@edusupport.nl> <20050106172438.GT5159@ruslug.rutgers.edu> <1105033035.15352.0.camel@krustophenia.net> <1105034339.24896.228.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1105034339.24896.228.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jesper Juhl
-> Sent: Friday, January 07, 2005 02:19
-> To: linux-kernel
-> Cc: Andrew Morton
-> Subject: [PATCH][3/4] let's kill verify_area - convert kernel/compat.c
-to access_ok()
-> 
-> Here's a patch to convert verify_area to access_ok in kernel/compat.c
-> 
-> diff -up linux-2.6.10-bk9-orig/kernel/compat.c 
-> linux-2.6.10-bk9/kernel/compat.c
-> --- linux-2.6.10-bk9-orig/kernel/compat.c	2005-01-06
-22:19:13.000000000 +0100
-> +++ linux-2.6.10-bk9/kernel/compat.c	2005-01-07 02:06:00.000000000
-+0100
+On Thu, Jan 06, 2005 at 05:59:01PM +0000, Alan Cox wrote:
+> Audio is easy. Good audio is rocket science. You can roll yourself a USB
+> audio interface with a microcontroller and a codec ic. Getting that to
+> give you a really good signal/noise ratio is then rather trickier.
 
-[snip]
-
-> @@ -612,7 +612,7 @@ long compat_get_bitmap(unsigned long *ma
->  	/* align bitmap up to nearest compat_long_t boundary */
->  	bitmap_size = ALIGN(bitmap_size, BITS_PER_COMPAT_LONG);
->  
-> -	if (verify_area(VERIFY_READ, umask, bitmap_size / 8))
-> +	if (!access_ok(VERIFY_READ, umask, bitmap_size / 8) != 0)
-
-Please do not use double negations (i.e., drop the '!= 0' test 
-again).
-
->  		return -EFAULT;
->  
->  	nr_compat_longs = BITS_TO_COMPAT_LONGS(bitmap_size);
-> @@ -653,7 +653,7 @@ long compat_put_bitmap(compat_ulong_t __
->  	/* align bitmap up to nearest compat_long_t boundary */
->  	bitmap_size = ALIGN(bitmap_size, BITS_PER_COMPAT_LONG);
->  
-> -	if (verify_area(VERIFY_WRITE, umask, bitmap_size / 8))
-> +	if (!access_ok(VERIFY_WRITE, umask, bitmap_size / 8) != 0)
->  		return -EFAULT;
->  
->  	nr_compat_longs = BITS_TO_COMPAT_LONGS(bitmap_size);
-
-//Peter
+Actually you don't even need a microcontroler: use an IC like the TI
+PCM2902 (http://focus.ti.com/docs/prod/folders/print/pcm2902.html). I
+built a headphone amplifier that uses one and I'm very pleased -
+especially because there's digital passthrough for my speakers via
+S/PDIF. The quality is nothing special, but you can always
+plug a high-end codec into the S/PDIF I/O. I saw a schematic
+somewhere that used the PCM2902 as the USB-audio interface along with
+a high end DAC. However if you need more than 16 bits and 48kHz you
+might need to make something more fancy.

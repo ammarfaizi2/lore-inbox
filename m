@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286722AbRLVIZF>; Sat, 22 Dec 2001 03:25:05 -0500
+	id <S286724AbRLVIhg>; Sat, 22 Dec 2001 03:37:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286723AbRLVIYz>; Sat, 22 Dec 2001 03:24:55 -0500
-Received: from femail25.sdc1.sfba.home.com ([24.254.60.15]:65188 "EHLO
-	femail25.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S286722AbRLVIYp>; Sat, 22 Dec 2001 03:24:45 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Mike Jagdis <jaggy@purplet.demon.co.uk>, esr@thyrsus.com
-Subject: Re: Configure.help editorial policy
-Date: Fri, 21 Dec 2001 19:23:13 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011220143247.A19377@thyrsus.com> <3C2310A4.1010004@purplet.demon.co.uk>
-In-Reply-To: <3C2310A4.1010004@purplet.demon.co.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011222082444.EXOZ22539.femail25.sdc1.sfba.home.com@there>
+	id <S286727AbRLVIhQ>; Sat, 22 Dec 2001 03:37:16 -0500
+Received: from bwbohh.net ([66.96.192.22]:60294 "EHLO garcia.hostnoc.net")
+	by vger.kernel.org with ESMTP id <S286724AbRLVIhG>;
+	Sat, 22 Dec 2001 03:37:06 -0500
+Date: Sat, 22 Dec 2001 03:37:22 -0500
+From: Eric Windisch <ericw@grokthis.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Hello. Patch time (drivers/block/loop.c)
+Message-ID: <20011222033722.C25321@grokthis.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011222031442.A25275@grokthis.net> <20011222012934.B7823@lynx.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011222012934.B7823@lynx.no>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 December 2001 05:36 am, Mike Jagdis wrote:
-> Eric S. Raymond wrote:
-> > I guess it's a pretty quiet week in kernel-hacker land.  Must be,
-> > otherwise people would have better things to do than argue over KB
-> > vs. KiB.  The alternative would be to conclude that significant
-> > portions of the lkml population prefer flaming to coding, and that
-> > couldn't possibly be the case, could it?
->
-> Surely not?
->
-> > However.  In the *absence* of a clear consensus, I will follow best
-> > practices.  Best practice in editing a technical or standards document
-> > is to (a) avoid ambiguous usages, seek clarity and precision; and (b)
-> > to use, follow and reference international standards.
->
-> "Best" practice? That's the *only* practice! Guesswork and assumption
-> has no place in technical documentation!
+On Sat, Dec 22, 2001 at 01:29:34AM -0700, Andreas Dilger wrote:
+> Contact Neil Brown, as this is already done.  That is a "feature" of
+> Linux - most things you want to do have already been done by someone
+> else.
 
-This may be why Andrea Arcangelli refuses to write any documentation at all, 
-Linus seems to have a prediliction for dropping documentation-only patches, 
-why the stuff in /linux/documentation has fallen up to two years out of date 
-at times, and why "Rusty's Unreliable Guides" (the best source of 
-documentation on the netfilter code, made available by the author himself at 
-"http://netfilter.samba.org/unreliable-guides/") says, and I quote:
+I will look into that, do you have a url or email address (otherwise I'll use google or RTFM)?
 
------
+> 
+> > I think it would be really neat if the software-raid could eventually
+> > become compatable with hardware raid.. although much slower
+> 
+> In many cases, software raid is as fast or faster than hardware raid.
+> What do you mean by "compatible"?
 
-The Linux Documentation Project has the noble goal to `create the canonical 
-set of free Linux documentation'. 
+Well, it would be nice if I could easily replace a raid controller with software raid.. if this could be possible, I assume it could be.
 
-The Open Source Writer's Group wants `to put together a comprehensive "card 
-catalogue" of Open Source and Open Source-related documentation'. 
-
-On the other hand, my pet hamster dressed up in a penguin suit, and appeared 
-to me in a dream, telling me to write documentation for random stuff, and 
-include lots of obscenities. 
-
-The LDP guys no longer return my EMails (from me or my hamster). 
-
------
-
-On the net, the way to get information isn't to ask questions, but to post 
-errors.  Questions get ignored more often than errors go unflamed.  Perfect 
-documentation, like perfect code, isn't something you wait until you have 
-before proceeding.
-
-Rob
+--
+Eric Windisch
+http://bwbohh.net

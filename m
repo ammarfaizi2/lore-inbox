@@ -1,56 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263088AbUFSUj5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264640AbUFSUmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263088AbUFSUj5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 16:39:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUFSUj5
+	id S264640AbUFSUmD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 16:42:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264655AbUFSUmD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 16:39:57 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:29575 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S263088AbUFSUjz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 16:39:55 -0400
-Date: Sat, 19 Jun 2004 22:39:54 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: linux-kernel@vger.kernel.org
-Cc: zdzichu@irc.pl
-Subject: Re: Matroxfb in 2.6 still doesn't work in 2.6.7
-Message-ID: <20040619203954.GC17053@vana.vc.cvut.cz>
-References: <20040618211031.GA4048@irc.pl> <20040619190503.GB17053@vana.vc.cvut.cz> <20040619193053.GA3644@irc.pl>
+	Sat, 19 Jun 2004 16:42:03 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3592 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264650AbUFSUlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 16:41:42 -0400
+Date: Sat, 19 Jun 2004 21:41:26 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: David Brownell <david-b@pacbell.net>
+Cc: James Bottomley <James.Bottomley@steeleye.com>, Ian Molton <spyro@f2s.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com,
+       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
+Subject: Re: DMA API issues
+Message-ID: <20040619214126.C8063@flint.arm.linux.org.uk>
+Mail-Followup-To: David Brownell <david-b@pacbell.net>,
+	James Bottomley <James.Bottomley@steeleye.com>,
+	Ian Molton <spyro@f2s.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com,
+	tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
+References: <1087584769.2134.119.camel@mulgrave> <20040618195721.0cf43ec2.spyro@f2s.co <40D34078.5060909@pacbell.net> <20040618204438.35278560.spyro@f2s.com> <1087588627.2134.155.camel@mulgrave <40D359BB.3090106@pacbell.net> <1087593282.2135.176.camel@mulgrave> <40D36EDE.2080803@pacbell.net> <1087600052.2135.197.camel@mulgrave> <40D4849B.3070001@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040619193053.GA3644@irc.pl>
-User-Agent: Mutt/1.5.6+20040523i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40D4849B.3070001@pacbell.net>; from david-b@pacbell.net on Sat, Jun 19, 2004 at 11:23:23AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 19, 2004 at 09:30:53PM +0200, Tomasz Torcz wrote:
-> On Sat, Jun 19, 2004 at 09:05:03PM +0200, Petr Vandrovec wrote:
-> > after you start X? Picture you see happens with some (stupid) monitors
-> > if there are missing sync pulses. 
-> 
->  Samsung SyncMaster 171s doesn't look stupid to me :-) And XFree86/Xorg
-> somehow manages to work.
+On Sat, Jun 19, 2004 at 11:23:23AM -0700, David Brownell wrote:
+> I'm having to guess at your point here, even from other emails.
+> You've asserted a difference, but not what it is.  Maybe it's
+> something to do with the problem's NUMA nature?  Are you for
+> some reason applying DMA _mapping_ requirements (main-memory
+> only) to the DMA memory _allocation_ problem?
 
-It should present you with some "hsync not supported" or something like that.
- 
-> > It works for me, with CRT analog monitor... What if you boot with
-> > video=matroxfb:outputs:010,1280x1024-16@60 (if you plugged your LCD to analog
-> > output)
->  
->  This is how my LCD is connected. Tried that - no change, still no picture.
-> It doesn't work the same way as when no passing 'outputs:' to kernel, so
-> I presume 'output:010' is default.  
+I suspect the problem is concerning how Linux backs the memory and
+what is assumed to be backing memory returned from the DMA coherent
+API.
 
-Default is '111', so you can plug your monitor to any of available outputs.
+Currently, there are drivers which assume that it's possible that
+dma_alloc_coherent memory is backed by system memory, which has
+page structures associated with each page.  For this "new" memory,
+there are no such page structures, so things like bus_to_virt()
+don't work on them (not that they were guaranteed to work on a
+dma_addr_t _anyway_ but that doesn't stop driver authors thinking
+that they do work - and as code presently stands, they do indeed
+work.)
 
-If you want exactly same videomode as you use under X, you should use
+In addition, the ARM implementation of dma_alloc_coherent()
+implicitly believes in struct page pointers - they're a fundamental
+properly of the way that has been implemented, so any deviation from
+"memory with struct page" means more or less a rewrite this.
 
-video=matroxfb:vesa:0x11A,right:48,hslen:112,left:248,hslen:112,lower:1,vslen:3,upper:48
+I would say that, yes, from a perfectly objective view, if you are
+unable to do coherent DMA from system memory, but your system provides
+you with a totally separate memory system which does indeed provide
+coherent DMA, it seems logical to allow dma_alloc_coherent() to use
+it - at risk of breaking some drivers making incorrect assumptions.
 
-maybe with ',sync:3' if +hsync/+vsync are mandatory for your monitor.
-								Petr Vandrovec
+And I don't see _that_ case as being vastly different from Ian's
+case.
 
+So, I think as long as we can ensure that drivers do not make bad
+assumptions about dma_alloc_coherent() _and_ we have a suitable DMA
+MMAP API to solve the cases where device drivers want to mmap DMA
+buffers (and they _do_ want to do this) it should be possible.
 
-							
+Depending on how I look at the problem, I'm oscillating between "yes
+it should be done" (if its an overall system thing like DMA memory
+on a PCI north bridge separate from your normal system non-DMA
+memory) and "no it's out of the question."
 
+> Well, no other memory in the entire system meets the requirements
+> for the dma_alloc_coherent() API, since _only that_ chunk of memory
+> is works with that device's DMA hardware.  Which is the fundamental
+> problem that needs to be solved.  It can clearly done at the platform
+> level, using device- or bus-specific implementations.
+
+The counter-argument here is to consider the case of video cards.
+They do almost continuous DMA from on-board RAM, yet the DMA API
+doesn't get involved...
+
+So I'm afraid I'm sitting on the fence between the two sides not
+really knowing which side to fall off to.  It sounds to me like
+other people here are in a similar situation.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281631AbRKMOKv>; Tue, 13 Nov 2001 09:10:51 -0500
+	id <S281634AbRKMO3p>; Tue, 13 Nov 2001 09:29:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281629AbRKMOKc>; Tue, 13 Nov 2001 09:10:32 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:21772 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S281627AbRKMOKU>; Tue, 13 Nov 2001 09:10:20 -0500
-Message-Id: <200111131410.fADEA9L8023291@pincoya.inf.utfsm.cl>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        sparclinux@vger.kernel.org
-Subject: Re: Linux 2.4.15-pre4 - merge with Alan 
-In-Reply-To: Message from Linus Torvalds <torvalds@transmeta.com> 
-   of "Mon, 12 Nov 2001 11:01:56 -0800." <Pine.LNX.4.33.0111121056260.1078-100000@penguin.transmeta.com> 
-Date: Tue, 13 Nov 2001 11:10:09 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S281633AbRKMO3f>; Tue, 13 Nov 2001 09:29:35 -0500
+Received: from mustard.heime.net ([194.234.65.222]:53209 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S281635AbRKMO3Q>; Tue, 13 Nov 2001 09:29:16 -0500
+Date: Tue, 13 Nov 2001 15:29:13 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+cc: <lars.nakkerud@compaq.com>
+Subject: Tuning Linux for high-speed disk subsystems
+Message-ID: <Pine.LNX.4.30.0111131519440.933-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On CVS as of today for sparc64 I get:
+Hi all
 
-sparc64-linux-gcc -D__KERNEL__ -I/usr/src/linux-2.4/include -Wall -Wstrict-proto
-types -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -
-m64 -pipe -mno-fpu -mcpu=ultrasparc -mcmodel=medlow -ffixed-g4 -fcall-used-g5 -f
-call-used-g7 -Wno-sign-compare -Wa,--undeclared-regs    -c -o ioctl32.o ioctl32.
-c
-ioctl32.c: In function `do_lvm_ioctl':
-ioctl32.c:2636: warning: assignment makes pointer from integer without a cast
-ioctl32.c:2670: structure has no member named `inode'
-ioctl32.c:2711: warning: assignment from incompatible pointer type
-ioctl32.c:2712: structure has no member named `inode'
-ioctl32.c:2719: structure has no member named `inode'
-ioctl32.c:2732: structure has no member named `inode'
-ioctl32.c:2611: warning: `v' might be used uninitialized in this function
-make[1]: *** [ioctl32.o] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.4/arch/sparc64/kernel'
-make: *** [_dir_arch/sparc64/kernel] Error 2
--- 
-Dr. Horst H. von Brand                Usuario #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+After some testing at Compaq's lab in Oslo, I've come to the conclusion
+that Linux cannot scale higher than about 30-40MB/sec in or out of a
+hardware or software RAID-0 set with several stripe/chunk sizes tried out.
+The set is based on 5 18GB 10k disks running SCSI-3 (160MBps) alone on a
+32bit/33MHz PCI bus.
+
+After speking to the storage guys here, I was told the problem generally
+was that the OS should send the data requests at 256kB block sizes, as the
+drives (10k) could handle 100 I/O operations per second, and thereby could
+give a total of (256*100)kB/sec per spindle. When using smaller block
+sizes, the speed would decrease in a linear fasion.
+
+Does anyone know this stuff good enough to help me how to tune the system?
+PS: The CPUs were almost idle during the test. Tested file system was
+ext2.
+
+Regards
+
+roy
+
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+
+

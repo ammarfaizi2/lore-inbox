@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263487AbTLDUX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 15:23:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263496AbTLDUX7
+	id S263496AbTLDUcG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 15:32:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbTLDUcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 15:23:59 -0500
-Received: from smtp.terra.es ([213.4.129.129]:62767 "EHLO tsmtp7.mail.isp")
-	by vger.kernel.org with ESMTP id S263487AbTLDUX6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 15:23:58 -0500
-Date: Thu, 4 Dec 2003 21:23:35 +0100
-From: "grundig@teleline.es" <grundig@teleline.es>
-To: Mathieu Chouquet-Stringer <mathieu@newview.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP Kernel 2.6.0-test11 doesn't boot on a Dell 410
-Message-Id: <20031204212335.6ec1854c.grundig@teleline.es>
-In-Reply-To: <20031204135415.GA9913@shookay.newview.com>
-References: <20031204135415.GA9913@shookay.newview.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Thu, 4 Dec 2003 15:32:06 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:13032
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S263496AbTLDUcE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 15:32:04 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: linux-kernel@vger.kernel.org
+Subject: Is there a "make hole" (truncate in middle) syscall?
+Date: Thu, 4 Dec 2003 14:32:23 -0600
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312041432.23907.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 4 Dec 2003 08:54:15 -0500 Mathieu Chouquet-Stringer <mathieu@newview.com> escribió:
+You can make a file with a hole by seeking past it and never writing to that 
+bit, but is there any way to punch a hole in a file after the fact?  (I mean 
+other with lseek and write.  Having a sparse file as the result....)
 
-> 	Hi all,
-> 
-> I just tried the latest 2.6.0 (test11) on a Dell 410 (a bi-PIII) and the
-> SMP flavor of this kernel doesn't work at all. The non-smp one works well
-> (so I know it's not a case of VT/VGA console missing).
-> 
-> It dies (without any error message) after this:
-> Uncompressing Linux... Ok, booting the kernel
-> 
-> I tried disabling APIC in the BIOS but it doesn't make any difference...
-> 
-> Any idea?
+What are the downsides of holes?  (How big do they have to be to actually save 
+space, is there a performance penalty to having a file with 1000 4k holes in 
+it, etc...)
 
-There's some bugs for other dell spm machines in the bugzilla, don't know
-it it's related but....
-http://bugzilla.kernel.org/show_bug.cgi?id=1379
-http://bugzilla.kernel.org/show_bug.cgi?id=1434
-
+Rob

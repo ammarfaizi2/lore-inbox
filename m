@@ -1,43 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265906AbUFVV3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265885AbUFVUMD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265906AbUFVV3F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 17:29:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265958AbUFVV10
+	id S265885AbUFVUMD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 16:12:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265755AbUFVUKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 17:27:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:41105 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265906AbUFVV1G (ORCPT
+	Tue, 22 Jun 2004 16:10:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:40640 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265655AbUFVUBi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 17:27:06 -0400
-Date: Tue, 22 Jun 2004 14:27:01 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: walt <wa1ter@hotmail.com>
-Cc: Chris Wright <chrisw@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.7-bk] NFS-related kernel panic
-Message-ID: <20040622142656.J22989@build.pdx.osdl.net>
-References: <fa.l7nhc0k.1k1oepm@ifi.uio.no> <fa.gh5h9hv.b2sm3v@ifi.uio.no> <40D8A122.7020806@hotmail.com>
+	Tue, 22 Jun 2004 16:01:38 -0400
+Date: Tue, 22 Jun 2004 13:01:16 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org, rddunlap@osdl.org
+Subject: Re: [profile]: [21/23] use atomic_t for prof_buffer
+Message-Id: <20040622130116.6e12a15a.davem@redhat.com>
+In-Reply-To: <0406220817.2aWaKb4aHb4aMbZaWaLbKb5aLbXaXa0aWaYa2a1aKb5aMb5aXaZa3aIbIbIbHbYa15250@holomorphy.com>
+References: <0406220817.4aXa3aHb5aMb4a3a1aYaZa3aIbXa5aIbKbJbXa1aLbJb4a2a2aZaYa0aHb2aMbYa15250@holomorphy.com>
+	<0406220817.2aWaKb4aHb4aMbZaWaLbKb5aLbXaXa0aWaYa2a1aKb5aMb5aXaZa3aIbIbIbHbYa15250@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <40D8A122.7020806@hotmail.com>; from wa1ter@hotmail.com on Tue, Jun 22, 2004 at 02:14:10PM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* walt (wa1ter@hotmail.com) wrote:
-> Chris Wright wrote:
-> 
-> > The lockless loopback transmission patch mucks up the preempt count.
-> > Can you give this patch a try?
-> 
-> I saw an update to loopback.c from linus which I assume was yours --
-> anyway my panic is fixed.  Thanks.
+On Tue, 22 Jun 2004 08:17:55 -0700
+William Lee Irwin III <wli@holomorphy.com> wrote:
 
-Actually that's from Andrew, and Arthur sent in a minor tweak which has
-yet to hit mainline.  Glad it's working.
+> Convert prof_buffer to an array of atomic_t's.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Part of a data type exported to userspace, is it not?
+Thus, is it really valid to change it like this?

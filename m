@@ -1,72 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbUK0Dw1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbUK0D4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262113AbUK0Dw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 22:52:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbUK0DwK
+	id S262149AbUK0D4l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 22:56:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbUK0D4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 22:52:10 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:5572 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262513AbUKZTdj (ORCPT
+	Fri, 26 Nov 2004 22:56:04 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:53187 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262484AbUKZTcs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:33:39 -0500
-Date: Fri, 26 Nov 2004 01:08:53 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend 2 merge: 35/51: Code always built in to the kernel.
-Message-ID: <20041126000853.GL2711@elf.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams> <1101298112.5805.330.camel@desktop.cunninghams> <20041125233243.GB2909@elf.ucw.cz> <1101427035.27250.161.camel@desktop.cunninghams>
-Mime-Version: 1.0
+	Fri, 26 Nov 2004 14:32:48 -0500
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, hch@infradead.org, matthew@wil.cx, dwmw2@infradead.org,
+       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+References: <19865.1101395592@redhat.com>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: 25 Nov 2004 16:20:06 -0200
+In-Reply-To: <19865.1101395592@redhat.com>
+Message-ID: <orvfbtzt7t.fsf@livre.redhat.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101427035.27250.161.camel@desktop.cunninghams>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Nov 25, 2004, David Howells <dhowells@redhat.com> wrote:
 
-> > You have your own abstraction on the top of /proc? That's no-no.
-> 
-> You'd prefer the same code repeated 20 times?
+> 	SOURCE			INSTALLED AS
+> 	======================	============
+> 	include/user/		/usr/include/user/
+> 	include/user-i386/	/usr/include/user-i386/
+> 				/usr/include/linux -> user
+> 				/usr/include/asm -> user-i386
 
-Rest of kernel is pretty happy with /proc as-is. Why can't suspend2
-just play along?
+Although user/ and user-* make a lot of sense within the kernel source
+tree, I don't think these names would be very clear in /usr/include.
+I'd rather use names in /usr/include that more clearly associate them
+with the kernel.  Heck, even /usr/include/asm is inappropriate, but
+it's been there for so long that we really shouldn't try to get rid of
+it.
 
-How many options are really neccessary? activate is not. selecting of
-reboot can already be done in /sys. Some percentages? There really
-should not be 20 things to configure.
+If I had it my way, we'd have, in the kernel tree, userland-aimed
+headers in include/linux/user and include/asm-<machine>/user, and have
+them installed in /usr/include/linux and /usr/include/asm-<machine>.
 
-> > > +		say("BIG FAT WARNING!! %s\n\n", suspend_print_buf);
-> > > +		if (can_erase_image) {
-> > > +			say("If you want to use the current suspend image, reboot and try\n");
-> > > +			say("again with the same kernel that you suspended from. If you want\n");
-> > > +			say("to forget that image, continue and the image will be erased.\n");
-> > > +		} else {
-> > > +			say("If you continue booting, note that any image WILL NOT BE REMOVED.\n");
-> > > +			say("Suspend is unable to do so because the appropriate modules aren't\n");
-> > > +			say("loaded. You should manually remove the image to avoid any\n");
-> > > +			say("possibility of corrupting your filesystem(s) later.\n");
-> > > +		}
-> > > +		say("Press SPACE to reboot or C to continue booting with this kernel\n");
-> > 
-> > Plus kernel now actually expects user interaction to solve problems
-> > during boot. No, no.
-> 
-> You want your cake and to eat it too? :> We don't want to warn the user
-> before they shoot themselves in the foot, but not loudly enough that
-> they can't help notice and choose to do something before the damage is
-> done?
+This means these headers shouldn't reference each other as
+linux/user/something.h, but rather as linux/something.h, such that
+they still work when installed in /usr/include/linux.  This may
+require headers include/linux/something.h to include
+linux/user/something.h, but that's already part of the proposal.
 
-Kernel boot is not expected to be interactive. I'd do
-
-if (can_erase_image)
-	printk("Incorrect kernel version, image killed\n");
-else
-	panic("Can't kill suspended image");
-
-									Pavel
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

@@ -1,67 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286687AbSAUOPW>; Mon, 21 Jan 2002 09:15:22 -0500
+	id <S286692AbSAUOQM>; Mon, 21 Jan 2002 09:16:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286692AbSAUOPM>; Mon, 21 Jan 2002 09:15:12 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56324 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S286687AbSAUOO5>; Mon, 21 Jan 2002 09:14:57 -0500
-Date: Mon, 21 Jan 2002 14:14:36 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: davej@suse.de, martin.macok@underground.cz, linux-kernel@vger.kernel.org,
-        ak@muc.de
-Subject: Re: [andrewg@tasmail.com: remote memory reading through tcp/icmp]
-Message-ID: <20020121141436.A11489@flint.arm.linux.org.uk>
-In-Reply-To: <20020121015209.A26413@sarah.kolej.mff.cuni.cz> <20020120.175204.18636524.davem@redhat.com> <20020121031211.B29830@suse.de> <20020120.184318.13746427.davem@redhat.com>
+	id <S286712AbSAUOPx>; Mon, 21 Jan 2002 09:15:53 -0500
+Received: from mail2.infineon.com ([192.35.17.230]:7330 "EHLO
+	mail2.infineon.com") by vger.kernel.org with ESMTP
+	id <S286692AbSAUOPp> convert rfc822-to-8bit; Mon, 21 Jan 2002 09:15:45 -0500
+X-Envelope-Sender-Is: Erez.Doron@savan.com (at relayer mail2.infineon.com)
+Subject: Re: non volatile ram disk
+From: Erez Doron <erez@savan.com>
+To: Erez Doron <erez@savan.com>
+Cc: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>,
+        linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1011620576.2978.0.camel@hal.savan.com>
+In-Reply-To: <1011618928.2825.5.camel@hal.savan.com> 
+	<3C4C1A96.3504174D@loewe-komp.de>  <1011620576.2978.0.camel@hal.savan.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 21 Jan 2002 16:10:06 +0200
+Message-Id: <1011622206.2978.3.camel@hal.savan.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020120.184318.13746427.davem@redhat.com>; from davem@redhat.com on Sun, Jan 20, 2002 at 06:43:18PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 20, 2002 at 06:43:18PM -0800, David S. Miller wrote:
->    From: Dave Jones <davej@suse.de>
->    Date: Mon, 21 Jan 2002 03:12:11 +0100
+the exact log i get:
+
+Creating 3 MTD partitions on "SA1100 flash":      
+0x00000000-0x00040000 : "bootldr"
+mtd: Giving out device 0 to bootldr 
+0x00040000-0x02000000 : "root" 
+mtd: Giving out device 1 to root 
+0xc2000000-0xc4000000 : "rd" 
+mtd: partition "rd" is out of reach -- disabled
+
+
+notes:
+1. the flash is at physical adress 0-0x1ffffff (32mb)
+2. the ram is at physical adress 0xc0000000-0xc3ffffff
+i tried to map an mtd device to the second part of the ram, but got
+"partition is out of reach"
+
+any idea ?
+
+On Mon, 2002-01-21 at 15:42, Erez Doron wrote:
+> hi
 > 
->    On Sun, Jan 20, 2002 at 05:52:04PM -0800, David S. Miller wrote:
->     > -	icmp_param.offset=skb_in->nh.raw - skb_in->data;
->     > +	icmp_param.offset=skb_in->data - skb_in->nh.raw;
->    
->     With this fix, I'm seeing lots of really strange things happen.
->     When eth0 comes up, the box slows down to a crawl.
->     5 minutes later when it gets to starting NIS, the
->     broadcast address is bombed with portmap connections.
+> thanks for replying,
 > 
-> Andi?
-
-I've also seen:
-
-127.0.0.1 sent an invalid ICMP error to a broadcast.
-
-from the ipv4 stack after fixing these as per the Andi's patch.  I'm not
-certain what's causing it; it only happens while the box is coming up.
-
-In addition, there was another case in the icmp6 code that Andi confirmed
-last night:
-
---- ref/net/ipv6/icmp.c	Fri Oct  5 17:53:04 2001
-+++ linux/net/ipv6/icmp.c	Sun Jan 20 23:05:01 2002
-@@ -258,7 +258,7 @@
- {
- 	u8 optval;
- 
--	offset += skb->nh.raw - skb->data;
-+	offset += skb->data - skb->nh.raw;
- 	if (skb_copy_bits(skb, offset, &optval, 1))
- 		return 1;
- 	return (optval&0xC0) == 0x80;
-
-(another mail will be following this one with another patch...)
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+> I already tried to map an MTD to physical memory, but got an error and
+> an mtd with size 0
+> 
+> dou you know why ?
+> 
+> regards
+> erez
+> 
+> On Mon, 2002-01-21 at 15:41, Peter Wächtler wrote:
+> > Erez Doron schrieb:
+> > > 
+> > > hi
+> > > 
+> > > I'm looking for a way to make a ramdisk which is not erased on reboot
+> > > this is for use with ipaq/linux.
+> > > 
+> > > i tought of booting with mem=32m and map a block device to the rest of
+> > > the 32M ram i have.
+> > > 
+> > > the probelm is that giving mem=32m to the kernel will cause the kernel
+> > > to map only the first 32m of physical memory to virtual one, so using
+> > > __pa(ptr) on the top 32m causes a kernel oops.
+> > > 
+> > > any idea ?
+> > > 
+> > 
+> > a MTD is the way to go, which uses the "reserved" mem area. 
+> > I assume that the RAM is battery backed
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

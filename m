@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263145AbRE1UxV>; Mon, 28 May 2001 16:53:21 -0400
+	id <S263147AbRE1Uxb>; Mon, 28 May 2001 16:53:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263144AbRE1UxL>; Mon, 28 May 2001 16:53:11 -0400
-Received: from ucu-105-116.ucu.uu.nl ([131.211.105.116]:59697 "EHLO
-	ronald.bitfreak.net") by vger.kernel.org with ESMTP
-	id <S263143AbRE1UxG>; Mon, 28 May 2001 16:53:06 -0400
-From: "Ronald Bultje" <rbultje@ronald.bitfreak.net>
-To: "Ricky Beam" <jfbeam@bluetopia.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [2.4.5] buz.c won't compile
-Date: Mon, 28 May 2001 22:57:59 +0200
-Message-ID: <CDEJIPDFCLGDNEHGCAJPKEDJCBAA.rbultje@ronald.bitfreak.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <Pine.LNX.4.04.10105281512050.1601-100000@beaker.bluetopia.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
-Importance: Normal
+	id <S263144AbRE1UxV>; Mon, 28 May 2001 16:53:21 -0400
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:5715
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S263143AbRE1UxQ>; Mon, 28 May 2001 16:53:16 -0400
+Date: Mon, 28 May 2001 22:53:05 +0200
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: werner@titro.de
+Cc: isdn4linux@listserv.isdn4linux.de, linux-kernel@vger.kernel.org
+Subject: [PATCH] make kmalloc error return unconditional in hysdn_net.c (245ac1)
+Message-ID: <20010528225305.M846@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Actually, it broke at 2.4.3.  Go look at the first change to buz.c from
->that patch.
+Hi.
 
-None at all. It didn't break at 2.4.3, it just didn't compile at all anymore
-in 2.4.3. It was already kind of broken before that.
+The patch below fixes what I believe is a bug in hysdn_net.c.
+I cannot see how we can proceed under _any_ circumstances
+after the kmalloc fails. Applies against 245ac1.
 
->PS: I really hate it when people break "functional" things in the >"stable"
->tree. (functional and stable are both open to debate.)
 
-Nobody broke it. The fact that it didn't compile right was something nobody
-ever looked at - it was already broken before and I really don't suppose
-anyone uses it.
-The words "if it compiles, it'll work" are not true. Really.
+--- linux-245-ac1-clean/drivers/isdn/hysdn/hysdn_net.c	Sun May 27 22:15:22 2001
++++ linux-245-ac1/drivers/isdn/hysdn/hysdn_net.c	Mon May 28 22:44:16 2001
+@@ -304,8 +304,7 @@
+ 	hysdn_net_release(card);	/* release an existing net device */
+ 	if ((dev = kmalloc(sizeof(struct net_local), GFP_KERNEL)) == NULL) {
+ 		printk(KERN_WARNING "HYSDN: unable to allocate mem\n");
+-		if (card->debug_flags & LOG_NET_INIT)
+-			return (-ENOMEM);
++		return (-ENOMEM);
+ 	}
+ 	memset(dev, 0, sizeof(struct net_local));	/* clean the structure */
+ 
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
 
-Ronald
-
-PS, how about just removing it from the kernel? Would spare a lot of
-troubles, and nobody uses it anyway :-).
-
+It has just been discovered that research causes cancer in rats. 

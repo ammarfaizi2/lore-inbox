@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316496AbSE3JB4>; Thu, 30 May 2002 05:01:56 -0400
+	id <S316512AbSE3JFz>; Thu, 30 May 2002 05:05:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316512AbSE3JBz>; Thu, 30 May 2002 05:01:55 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50948 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316496AbSE3JBz>; Thu, 30 May 2002 05:01:55 -0400
-Date: Thu, 30 May 2002 10:01:44 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Erik Andersen <andersen@codepoet.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-        Paul P Komkoff Jr <i@stingr.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.19 - What's up with the kernel build?
-Message-ID: <20020530100144.B10611@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.44.0205292019090.9971-100000@chaos.physics.uiowa.edu> <3CF5E698.2020806@mandrakesoft.com> <20020530085413.GA29170@codepoet.org>
-Mime-Version: 1.0
+	id <S316523AbSE3JFy>; Thu, 30 May 2002 05:05:54 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:51453 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S316512AbSE3JFx>; Thu, 30 May 2002 05:05:53 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15605.60268.673419.701625@wombat.chubb.wattle.id.au>
+Date: Thu, 30 May 2002 19:05:48 +1000
+To: Michael Dunsky <michael.dunsky@p4all.de>
+Cc: linux-kernel@vger.kernel.org, Peter Chubb <peter@chubb.wattle.id.au>
+Subject: Re: Strange code in ide_cdrom_register
+In-Reply-To: <3CF5D424.2060500@p4all.de>
+X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+X-Face: .slVUC18R`%{j(W3ztQe~*ATzet;h`*Wv33MZ]*M,}9AP<`+C=U)c#NzI5vK!0^d#6:<_`a
+ {#.<}~(T^aJ~]-.C'p~saJ7qZXP-$AY==]7,9?WVSH5sQ}g3,8j>u%@f$/Z6,WR7*E~BFY.Yjw,H6<
+ F.cEDj2$S:kO2+-5<]afj@kC!:uw\(<>lVpk)lPZs+2(=?=D/TZPG+P9LDN#1RRUPxdX
+Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 30, 2002 at 02:54:13AM -0600, Erik Andersen wrote:
-> On Thu May 30, 2002 at 04:45:12AM -0400, Jeff Garzik wrote:
-> > A small request to add to the list:
-> > 
-> > Current 2.4.x kernels build (at least on x86) with
-> >     -nostdinc -I /usr/lib/gcc-lib/i586-mandrake-linux-gnu/3.0.4/include
-> 
-> Shockingly, not everyone uses mandrake's gcc 3.0.4...  ;-)
-> 
-> GCCINCDIR:= ${shell $(CC) -print-search-dirs | sed -ne "s/install: \(.*\)/\1include/gp"}
-> CFLAGS+=-nostdinc -I $(GCCINCDIR)
+>>>>> "Michael" == Michael Dunsky <michael.dunsky@p4all.de> writes:
 
-There is a nicer way of achieving the same thing:
+Michael> Hi!  Peter Chubb wrote:
+PeterC> Hi, This code snippet in ide_cdrom_register() seems really
+PeterC> strange...
 
-CFLAGS	+= -nostdinc -iwithprefix include
+>> *(int *)&devinfo->speed = CDROM_STATE_FLAGS
+>> (drive)->current_speed; *(int *)&devinfo->capacity = nslots;
 
-`-iwithprefix DIR'
-     Add a directory to the second include path.  The directory's name
-     is made by concatenating PREFIX and DIR, where PREFIX was
-     specified previously with `-iprefix'.  If you have not specified a
-     prefix yet, the directory containing the installed passes of the
-     compiler is used as the default.
+PeterC> devinfo-> speed and devinfo->capacity are both ints.  So the casts are
+PeterC> just a disaster waiting to happen, if the types of capacity or
+PeterC> speed ever change?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Michael> Just take a quick look in drivers/ide/ide-cd.h: values
+Michael> "nslots" and "current_speed" are of type "byte", so we need
+Michael> to cast to store them (like that) into the
+Michael> integer-vars. Nothing strange there....
 
+Sure, the RHS is a byte.  But devinfo->speed is an int and an lvalue. so
+&devinfo->speed is an (int*) (so the cast in this case is a no-op),
+and *(int*)&devinfo->speed is the same as *&devinfo->speed which is
+the same as devinfo->speed.
+
+But, *(int*)&devinfo->speed is an int no matter what type
+devinfo->speed has.  So if for some reason, you decide to change the
+type of devinfo->speed to a byte, say, the cast will still force
+int format data to be stored, overwriting adjacent bits of memory (or
+causing an unaligned store trap).
+
+The cast is *wrong*, and potentially dangerous.
+
+I'll submit a patch....
+
+--
+Peter C					    peterc@gelato.unsw.edu.au
+You are lost in a maze of BitKeeper repositories, all almost the same.

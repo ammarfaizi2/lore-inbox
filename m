@@ -1,84 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267209AbTBDKbn>; Tue, 4 Feb 2003 05:31:43 -0500
+	id <S267215AbTBDKk2>; Tue, 4 Feb 2003 05:40:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267212AbTBDKbn>; Tue, 4 Feb 2003 05:31:43 -0500
-Received: from gate.perex.cz ([194.212.165.105]:24325 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S267209AbTBDKbm>;
-	Tue, 4 Feb 2003 05:31:42 -0500
-Date: Tue, 4 Feb 2003 11:40:45 +0100 (CET)
-From: Jaroslav Kysela <perex@perex.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Adam Belay <ambx1@neo.rr.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "greg@kroah.com" <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PnP model
-In-Reply-To: <20030203204325.GA7425@neo.rr.com>
-Message-ID: <Pine.LNX.4.44.0302041122031.1278-100000@pnote.perex-int.cz>
+	id <S267217AbTBDKk2>; Tue, 4 Feb 2003 05:40:28 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:14520 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267215AbTBDKkX>; Tue, 4 Feb 2003 05:40:23 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Pete Zaitcev <zaitcev@redhat.com>, thockin@sun.com
+Subject: Re: NGROUPS patch in 2.4
+Date: Tue, 4 Feb 2003 10:38:29 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>
+References: <20030203165115.C21506@devserv.devel.redhat.com>
+In-Reply-To: <20030203165115.C21506@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_5S2S070OQC4EDDBTULKO"
+Message-Id: <200302041038.29019.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Feb 2003, Adam Belay wrote:
 
-> On Mon, Feb 03, 2003 at 02:55:37PM +0100, Jaroslav Kysela wrote:
-> > Hi all,
-> >
-> > 	I think that we need to discuss deeply the right PnP model. The
-> 
-> I'm confident this is the right pnp model.
-> 
-> > actual changes proposed by Adam are going to be more and more complex
-> > without allowing the user interactions inside the "auto" steps. The
-> > auto-configuration might be good and bad as we all know, but having an
-> > method to skip it is necessary.
-> 
-> In many cases, Auto configuration can be better then manual configuration.
+--------------Boundary-00=_5S2S070OQC4EDDBTULKO
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Autoconfiguration is better in perfect world... There are always troubles 
-with some hardware incompatibilities.
+On Monday 03 February 2003 22:51, Pete Zaitcev wrote:
 
-> 1.) The auto configuration engine in my patch is able to resolve almost any
-> resource conflict and provides the greatest chance for all devices to have
-> resources allocated.
-> 2.) Certainly some driver developers would like to manually set resources
-> but many may prefer the option to auto config.
-> 3.) Drivers under the existing system are not aware of many forms of
-> resource conflicts and could set resources incorrectly.
-> 4.) Some users do not want to worry about manual configuration and would
-> welcome an auto configuration system that makes intelligent choices
-> without user input.  This autoconfiguration system monitors many variables
-> that a user would have a hard time keeping track of and never overlooks any
-> potential conflicts in its analysis.
-> 
-> The above stated reasons are why I introduced these auto configuration
-> (Resource Management) improvements.
-> 
-> I feel that one solution is to support both manual and auto configuration so
-> the user can use what he or she prefers, however, I am confident that in most
-> cases the auto configuration will be the best option.
+Hi Pete,
 
-But do we have to enable the auto configuration at boot implicitly?
-I don't think so. Again, it's better if driver decides if auto or manual 
-configuration will be used. The step by step configuration makes the 
-implemenation more rebust (user will know which driver fails). Also, 
-having legacy devices in the system, you cannot determine which resources 
-are required for them before appropriate driver detects and initializes 
-the device. I don't think that this algorithm will be worse than your 
-proposed one. There are usually no resource conflicts for PnP devices so 
-it will work at least on the same number of machines like implicit 
-autoconfiguration at boot.
+> Tim, do you have the NGROUPS fix for 2.4 somewhere,
+> or is it 2.5 only? I'd like to make it working over NFS,
+> but I do not want to bother with new modutils and other
+> little problems of 2.5.
+is the attached one the one you are searching for?! :)
 
-Also, imagine that PnP driver is build into the kernel: you'll no chance
-select the right configuration over sysfs, but there are __setup() macros
-allowing to pass the right resources to a driver.
+ciao, Marc
+--------------Boundary-00=_5S2S070OQC4EDDBTULKO
+Content-Type: application/x-bzip2;
+  name="2.4.20-nfs-ngroups-3.98.patch.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="2.4.20-nfs-ngroups-3.98.patch.bz2"
 
-						Jaroslav
+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
+Rv1A
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
-
+--------------Boundary-00=_5S2S070OQC4EDDBTULKO--
 

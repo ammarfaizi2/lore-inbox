@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263023AbUB0URz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 15:17:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263102AbUB0URv
+	id S263090AbUB0U3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 15:29:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbUB0U3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 15:17:51 -0500
-Received: from mailr-1.tiscali.it ([212.123.84.81]:31316 "EHLO
-	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S263023AbUB0UOc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 15:14:32 -0500
-X-BrightmailFiltered: true
-Date: Fri, 27 Feb 2004 21:14:41 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: "Vojtech Pavlik" <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6.3] Mouse loosing sync (again)
-Message-ID: <20040227201441.GA19946@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
+	Fri, 27 Feb 2004 15:29:23 -0500
+Received: from waste.org ([209.173.204.2]:60033 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S263090AbUB0U3T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 15:29:19 -0500
+Date: Fri, 27 Feb 2004 14:29:06 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Tim Hockin <thockin@hockin.org>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: Why no interrupt priorities?
+Message-ID: <20040227202906.GL3883@waste.org>
+References: <F760B14C9561B941B89469F59BA3A8470255F02D@orsmsx401.jf.intel.com> <20040227185555.GJ3883@waste.org> <20040227190914.GA21737@hockin.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <20040227190914.GA21737@hockin.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I still have troubles with mouse, it keeps jumping here and there and I
-see lots of messages in logs:
+On Fri, Feb 27, 2004 at 11:09:14AM -0800, Tim Hockin wrote:
+> On Fri, Feb 27, 2004 at 12:55:55PM -0600, Matt Mackall wrote:
+> > Let's imagine you have n sources simultaneously interrupting on a
+> > given descriptor. Check the first, it's happening, acknowledge it,
+> > exit, notice interrupt still asserted, check the first, nope, check
+> > the second, yep, exit, etc. By the time we've made it to the nth ISR,
+> > we've banged on the first one n times, the second n-1 times, etc. In
+> > other words, early chain termination has an O(n^2) worst case.
+> 
+> That is a pretty pathological worst case, and n is (almost?) always small.
+> I don't know if it would make a lick of difference, or if it is worth the
+> risk. Someone who has a lot of shared interrupts ought to try it.
 
-Feb 27 20:49:55 dreamland kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
-Feb 27 20:50:42 dreamland kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
-Feb 27 20:51:11 dreamland kernel: psmouse.c: bad data from KBC - bad parity
-Feb 27 20:51:11 dreamland kernel: psmouse.c: bad data from KBC - bad parity
-Feb 27 20:51:12 dreamland kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
-Feb 27 20:55:32 dreamland kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 bytes away.
-Feb 27 20:58:38 dreamland kernel: psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
+For small n, it shouldn't make a difference. With early exit, best
+case you end up walking half the chain on average, worst case you hit
+the quadratic behavior. Given that the likelihood of contention rises
+with chain length, we tend to lean towards the latter for larger n.
+For try-them-all, we test n in all cases. So we've got [n/2] < n <
+n^2/2. The try-them-all approach wins by virtue of being deterministic
+and nicely bounded.
 
-These happened while surfing web with little activity on eth0 and while disks
-were almost idle (-u1 is set on both of them). Using vmstat I see that
-I'm getting around 1300 interrupts per second while moving mouse (less
-than 1100 while doing nothing), so I don't think that there's something 
-spinning in ISR for too long.
+Oh, another concern is that early-exit lets sources in the front of
+the chain starve the remainder and doing bookkeeping on
+last-ISR-succeeded so that we can have some sort of fairness is just
+not worth the trouble. So nix on the whole idea.
 
-Problem first appeared in 2.6.2, 2.6.1 is unaffected. I see that in
-2.6.3 there's a patch which is supposed to fix this, but it still
-happens for me.
-
-Any clue?
-Luca
 -- 
-Home: http://kronoz.cjb.net
-La vasca da bagno fu inventata nel 1850, il telefono nel 1875.
-Se fossi vissuto nel 1850, avrei potuto restare in vasca per 25 anni
-senza sentir squillare il telefono
+Matt Mackall : http://www.selenic.com : Linux development and consulting

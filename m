@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbUJaWv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbUJaW4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbUJaWv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 17:51:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbUJaWv6
+	id S261678AbUJaW4c (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 17:56:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbUJaW4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 17:51:58 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:33240 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261507AbUJaWv5 (ORCPT
+	Sun, 31 Oct 2004 17:56:31 -0500
+Received: from [193.112.238.6] ([193.112.238.6]:54658 "EHLO caveman.xisl.com")
+	by vger.kernel.org with ESMTP id S261678AbUJaW4a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 17:51:57 -0500
-Date: Mon, 1 Nov 2004 09:51:41 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
-Subject: Re: XFS strangeness, xfs_db out of memory
-Message-ID: <20041101095141.E5462300@wobbly.melbourne.sgi.com>
-References: <200410240857.31893.robin.rosenberg.lists@dewire.com> <20041029073723.GH1246@frodo> <200410311758.06096.robin.rosenberg.lists@dewire.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 31 Oct 2004 17:56:30 -0500
+From: John M Collins <jmc@xisl.com>
+Organization: Xi Software Ltd
+To: linux-kernel@vger.kernel.org
+Subject: Fchown on unix domain sockets?
+Date: Sun, 31 Oct 2004 23:55:00 +0100
+User-Agent: KMail/1.6.1
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200410311758.06096.robin.rosenberg.lists@dewire.com>; from robin.rosenberg.lists@dewire.com on Sun, Oct 31, 2004 at 05:58:05PM +0100
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410312255.00621.jmc@xisl.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 31, 2004 at 05:58:05PM +0100, Robin Rosenberg wrote:
-> 
-> You don't happen to know when or where (patch) this was fixed? I'm usually
-> using Mandrake stock kernels, so I'm looking for something to attach to a
-> bug report. I was looking around without luck.
-> 
+Please CC any reply to jmc AT xisl.com as I'm not subscribed.
 
-It was bk changeset 1.1803.135.5 -- I'll send you a patch off-list.
+I wanted to change the ownership on a unix domain socket in a program (running 
+as root) I was writing and I was wondering if "fchown" worked on the socket 
+descriptor (after I'd run "bind" of course).
 
-cheers.
+It doesn't, you have to use "chown" on the path name - however "fchown" 
+silently does nothing, it doesn't report an error.
+
+I don't mind it not working but I think it should report an error. This is on 
+2.6.3 kernel.
+
+I tried it on HP/UX 11 and it gave EINVAL (which the HP manual page doesn't 
+document) and on Solaris 9 which likewise silently did nothing.
 
 -- 
-Nathan
+John Collins Xi Software Ltd www.xisl.com

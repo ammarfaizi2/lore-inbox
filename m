@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317951AbSGLAfS>; Thu, 11 Jul 2002 20:35:18 -0400
+	id <S317952AbSGLAku>; Thu, 11 Jul 2002 20:40:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317952AbSGLAfR>; Thu, 11 Jul 2002 20:35:17 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:42680 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S317951AbSGLAfQ>; Thu, 11 Jul 2002 20:35:16 -0400
-Date: Fri, 12 Jul 2002 02:37:49 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: IDE/ATAPI in 2.5
-In-Reply-To: <agl7ov$p91$1@cesium.transmeta.com>
-Message-ID: <Pine.SOL.4.30.0207120231200.21904-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317953AbSGLAkt>; Thu, 11 Jul 2002 20:40:49 -0400
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:5645
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S317952AbSGLAkt>; Thu, 11 Jul 2002 20:40:49 -0400
+X-All-Your-Base: Are Belong To Us!!!
+X-Envelope-Recipient: linux-kernel@vger.kernel.org
+X-Envelope-Sender: oliver@klozoff.com
+Message-Id: <5.1.0.14.2.20020711201602.022387b0@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 11 Jul 2002 20:36:04 -0400
+To: lkml <linux-kernel@vger.kernel.org>
+From: Stevie O <oliver@klozoff.com>
+Subject: Re: HZ, preferably as small as possible
+In-Reply-To: <3D2D308C.ECE3CA5E@mvista.com>
+References: <Pine.LNX.4.10.10207110847170.6183-100000@zeus.compusonic.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At <time> <date>, <user> [<email>] wrote:
+> <stuff>
 
-On 11 Jul 2002, H. Peter Anvin wrote:
+A lot of people are talking about how HZ needs to be a constant, etc.
 
-> Okay, I have suggested this before, and I haven't quite looked at this
-> in detail, but I would again like to consider the following,
-> especially given the changes in 2.5:
->
-> Please consider deprecating or removing ide-floppy/ide-tape/ide-cdrom
-> and treat all ATAPI devices as what they really are -- SCSI over IDE.
-> It is a source of no ending confusion that a Linux system will not
-> write CDs to an IDE CD-writer out of the box, for the simple reason
-> that cdrecord needs access to the generic packet interface, which is
-> only available in the nonstandard ide-scsi configuration.
->
-> There really seems to be no decent reason to treat ATAPI devices as
-> anything else.  I understand the ide-* drivers contain some
-> workarounds for specific devices, but those really should be moved to
-> their respective SCSI drivers anyway -- after all, manufacturers
-> readily slap IDE or SCSI interfaces on the same devices anyway.
+I don't do much kernel hacking, so allow me to post a query that would (probably) better belong on #kernelnewbies if I wasn't so damn lazy ;) --
 
-Already discussed/planned.
+Why must HZ be the same as 'interrupts per second'?
 
-Also it has to be done with care on evolution, not revolution way.
-
-Regards
 --
-Bartlomiej
+Stevie-O
 
-> Note that this is specific to ATAPI devices.  ATA hard drives are
-> another matter entirely.
->
-> 	-hpa
->
-> --
-> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-> "Unix gives you enough rope to shoot yourself in the foot."
-> http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Real programmers link their executables by hand.
 

@@ -1,110 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263632AbSIQFZa>; Tue, 17 Sep 2002 01:25:30 -0400
+	id <S263633AbSIQF1I>; Tue, 17 Sep 2002 01:27:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263633AbSIQFZa>; Tue, 17 Sep 2002 01:25:30 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:11440 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S263632AbSIQFZ3>;
-	Tue, 17 Sep 2002 01:25:29 -0400
-Date: Tue, 17 Sep 2002 15:30:04 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Trivial Kernel Patches <trivial@rustcorp.com.au>
-Subject: [PATCH][TRIVIAL] sigmask() was mutilply defined
-Message-Id: <20020917153004.45a531e6.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S263634AbSIQF1I>; Tue, 17 Sep 2002 01:27:08 -0400
+Received: from packet.digeo.com ([12.110.80.53]:49084 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S263633AbSIQF1H>;
+	Tue, 17 Sep 2002 01:27:07 -0400
+Message-ID: <3D86BE4F.75C9B6CC@digeo.com>
+Date: Mon, 16 Sep 2002 22:31:59 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-mm@kvack.org, hugh@veritas.com, linux-kernel@vger.kernel.org
+Subject: Re: dbench on tmpfs OOM's
+References: <20020917044317.GZ2179@holomorphy.com> <3D86B683.8101C1D1@digeo.com> <20020917051501.GM3530@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Sep 2002 05:32:00.0428 (UTC) FILETIME=[8BE1D6C0:01C25E0B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+William Lee Irwin III wrote:
+> 
+> William Lee Irwin III wrote:
+> >> MemTotal:     32107256 kB
+> >> MemFree:      27564648 kB
+> 
+> On Mon, Sep 16, 2002 at 09:58:43PM -0700, Andrew Morton wrote:
+> > I'd be suspecting that your node fallback is bust.
+> > Suggest you add a call to show_free_areas() somewhere; consider
+> > exposing the full per-zone status via /proc with a proper patch.
+> 
+> I went through the nodes by hand. It's just a run of the mill
+> ZONE_NORMAL OOM coming out of the GFP_USER allocation. None of
+> the highmem zones were anywhere near ->pages_low.
+> 
 
-Every definition if sigmask() was the same.  In one case it was
-mutilply defined for the arm architecture.  This patch removes all the
-architecture defines of sigmask and moves the generic define from
-the protection of __HAVE_ARCH_SIG_BITOPS.
+erk.  Why is shmem using GFP_USER?
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
-diff -ruN 2.5.35/include/asm-arm/signal.h 2.5.35-si.1/include/asm-arm/signal.h
---- 2.5.35/include/asm-arm/signal.h	2002-05-30 05:12:29.000000000 +1000
-+++ 2.5.35-si.1/include/asm-arm/signal.h	2002-09-17 14:49:55.000000000 +1000
-@@ -185,8 +185,6 @@
- #ifdef __KERNEL__
- #include <asm/sigcontext.h>
- 
--#define sigmask(sig)	(1UL << ((sig) - 1))
--
- #define HAVE_ARCH_GET_SIGNAL_TO_DELIVER
- 
- #endif
-diff -ruN 2.5.35/include/asm-i386/signal.h 2.5.35-si.1/include/asm-i386/signal.h
---- 2.5.35/include/asm-i386/signal.h	2002-01-31 07:12:46.000000000 +1100
-+++ 2.5.35-si.1/include/asm-i386/signal.h	2002-09-17 14:50:38.000000000 +1000
-@@ -209,8 +209,6 @@
- 	 __const_sigismember((set),(sig)) :	\
- 	 __gen_sigismember((set),(sig)))
- 
--#define sigmask(sig)	(1UL << ((sig) - 1))
--
- static __inline__ int sigfindinword(unsigned long word)
- {
- 	__asm__("bsfl %1,%0" : "=r"(word) : "rm"(word) : "cc");
-diff -ruN 2.5.35/include/asm-m68k/signal.h 2.5.35-si.1/include/asm-m68k/signal.h
---- 2.5.35/include/asm-m68k/signal.h	2002-05-30 05:12:29.000000000 +1000
-+++ 2.5.35-si.1/include/asm-m68k/signal.h	2002-09-17 14:51:19.000000000 +1000
-@@ -207,8 +207,6 @@
- 	 __const_sigismember(set,sig) :		\
- 	 __gen_sigismember(set,sig))
- 
--#define sigmask(sig)	(1UL << ((sig) - 1))
--
- extern __inline__ int sigfindinword(unsigned long word)
- {
- 	__asm__("bfffo %1{#0,#0},%0" : "=d"(word) : "d"(word & -word) : "cc");
-diff -ruN 2.5.35/include/asm-sh/signal.h 2.5.35-si.1/include/asm-sh/signal.h
---- 2.5.35/include/asm-sh/signal.h	1999-11-19 14:37:03.000000000 +1100
-+++ 2.5.35-si.1/include/asm-sh/signal.h	2002-09-17 14:52:24.000000000 +1000
-@@ -165,8 +165,6 @@
- #ifdef __KERNEL__
- #include <asm/sigcontext.h>
- 
--#define sigmask(sig)	(1UL << ((sig) - 1))
--
- #endif /* __KERNEL__ */
- 
- #endif /* __ASM_SH_SIGNAL_H */
-diff -ruN 2.5.35/include/asm-x86_64/signal.h 2.5.35-si.1/include/asm-x86_64/signal.h
---- 2.5.35/include/asm-x86_64/signal.h	2002-06-17 13:12:30.000000000 +1000
-+++ 2.5.35-si.1/include/asm-x86_64/signal.h	2002-09-17 14:53:50.000000000 +1000
-@@ -195,8 +195,6 @@
- 	 __const_sigismember((set),(sig)) :	\
- 	 __gen_sigismember((set),(sig)))
- 
--#define sigmask(sig)	(1UL << ((sig) - 1))
--
- extern __inline__ int sigfindinword(unsigned long word)
- {
- 	__asm__("bsfq %1,%0" : "=r"(word) : "rm"(word) : "cc");
-diff -ruN 2.5.35/include/linux/signal.h 2.5.35-si.1/include/linux/signal.h
---- 2.5.35/include/linux/signal.h	2002-08-02 11:11:42.000000000 +1000
-+++ 2.5.35-si.1/include/linux/signal.h	2002-09-17 14:53:23.000000000 +1000
-@@ -60,10 +60,10 @@
- 	return ffz(~word);
- }
- 
--#define sigmask(sig)	(1UL << ((sig) - 1))
--
- #endif /* __HAVE_ARCH_SIG_BITOPS */
- 
-+#define sigmask(sig)	(1UL << ((sig) - 1))
-+
- #ifndef __HAVE_ARCH_SIG_SETOPS
- #include <linux/string.h>
- 
+mnm:/usr/src/25> grep page_address mm/shmem.c
+mnm:/usr/src/25>

@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264029AbUDVNm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264044AbUDVNqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264029AbUDVNm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 09:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264037AbUDVNm1
+	id S264044AbUDVNqy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 09:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264052AbUDVNqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 09:42:27 -0400
-Received: from ns.suse.de ([195.135.220.2]:63409 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264029AbUDVNmT (ORCPT
+	Thu, 22 Apr 2004 09:46:54 -0400
+Received: from denise.shiny.it ([194.20.232.1]:18636 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id S264044AbUDVNqw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 09:42:19 -0400
-Subject: Re: ext3 reservation question.
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, pbadari@us.ibm.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-In-Reply-To: <20040421204036.4e530732.akpm@osdl.org>
-References: <200404211655.47329.pbadari@us.ibm.com>
-	 <Pine.LNX.4.58.0404211959560.18945@ppc970.osdl.org>
-	 <20040421204036.4e530732.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1082641387.12989.61.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 22 Apr 2004 09:43:07 -0400
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Apr 2004 09:46:52 -0400
+Date: Thu, 22 Apr 2004 15:46:05 +0200 (CEST)
+From: Giuliano Pochini <pochini@denise.shiny.it>
+To: jamal <hadi@cyberus.ca>
+cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, cfriesen@nortelnetworks.com,
+       =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Subject: Re: tcp vulnerability?  haven't seen anything on it here...
+In-Reply-To: <1082640135.1059.93.camel@jzny.localdomain>
+Message-ID: <Pine.LNX.4.58.0404221532480.670@denise.shiny.it>
+References: <XFMail.20040422102359.pochini@shiny.it> <1082640135.1059.93.camel@jzny.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-21 at 23:40, Andrew Morton wrote:
 
-> The code I had at the time would reserve space in the filesystem
-> correspnding to the worst-case occupancy based on file offset.  When we
-> actually hit ENOSPC in prepare_write(), we force writeout, which results in
-> those worst-space reservations being collapsed into their _real_ space
-> usage, which is much less.  So writeout reclaims space in the filesystem
-> and prepare_write() can proceed.
-> 
-> That worked fine on ext2.  But on ext3 we have a transaction open in
-> prepare_write(), and the forced writeback will cause arbitrary amounts of
-> unexpected metadata to be pumped into the current transaction, causing the
-> fs to explode.
-> 
-> At least, I _think_ that was the problem.  All is hazy.
-> 
-One possible solution is to allocate holes in the file during
-prepare_write/commit_write, logging the metadata as you go.  Then during
-each commit fill any delayed allocations.  You've still got a
-potentially unbounded operation for logging the bitmaps, maybe solvable
-through creative reservations.
 
--chris
+On Thu, 22 Apr 2004, jamal wrote:
 
+> On Thu, 2004-04-22 at 04:23, Giuliano Pochini wrote:
+>
+> > Yes, but it is possible, expecially for long sessions.
+>
+> In other words, 80% or more of internet traffic would not be affected
+> still using http1.0 would not be affected.
+> And for something like a huge download to just regular joe, this is more
+> of a nuisance assuming some kiddie has access between you and the
+> server.
+
+No, TCP/IP is 100% vulnerable to the man-in-the-middle attach. There is no
+cure for that. Some devices or softwares called "firewall" are designed to
+cut or to modify connections. :)
+This vulnerability is about external attacks.
+
+
+--
+Giuliano.

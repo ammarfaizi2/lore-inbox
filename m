@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263244AbTIVRNM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 13:13:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263247AbTIVRNL
+	id S263249AbTIVRXL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 13:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263232AbTIVRXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 13:13:11 -0400
-Received: from fw.osdl.org ([65.172.181.6]:46466 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263244AbTIVRNJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 13:13:09 -0400
-Date: Mon, 22 Sep 2003 10:06:04 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: rking <rmk@arm.linux.org.uk>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] docs need serial_core file name change
-Message-Id: <20030922100604.681da5a7.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 22 Sep 2003 13:23:11 -0400
+Received: from mail.convergence.de ([212.84.236.4]:17095 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S263249AbTIVRXI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 13:23:08 -0400
+Date: Mon, 22 Sep 2003 19:23:03 +0200
+From: Johannes Stezenbach <js@convergence.de>
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What's the point of __KERNEL_SYSCALLS__?
+Message-ID: <20030922172303.GA3733@convergence.de>
+Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
+	Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+References: <20030919164044.GF21596@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030919164044.GF21596@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthew Wilcox wrote:
+> 
+> Given that, why should they exist?  It only encourages monstrosities
+> like sp8870_read_code() in drivers/media/dvb/frontends/alps_tdlb7.c that
+> probably don't work anyway.
+...
+> read is used by DVB and the wavefront sound driver
+> lseek is only used by DVB
+> open is used by DVB, init/main.c and wavefront.
+> close is used by wavefront.  (DVB calls sys_close directly).
 
-Is serial/serial_core.c remaining as the file name?
-If so, patch is needed in Docs.
+Those binary-only firmwares are a curse :-(
 
---
-~Randy
+Anyway, we want to replace all our firmware loading code and the
+compiled-in firmwares with the firmware_class loader as soon as
+there is a usable hotplug agent available. There already are some
+experimental patches for av7110.c in linuxtv.org CVS.
 
 
-patch_name:	serial_docs.patch
-patch_version:	2003-09-22.10:14:49
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	fix docs for change in source file name;
-product:	Linux
-product_versions: 2.6.0-922
-maintainer:	Russell King
-diffstat:	=
- Documentation/DocBook/kernel-api.tmpl |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -Naurp ./Documentation/DocBook/kernel-api.tmpl~serdocs ./Documentation/DocBook/kernel-api.tmpl
---- ./Documentation/DocBook/kernel-api.tmpl~serdocs	2003-09-22 08:45:07.000000000 -0700
-+++ ./Documentation/DocBook/kernel-api.tmpl	2003-09-22 10:00:26.000000000 -0700
-@@ -234,7 +234,7 @@ X!Isound/sound_firmware.c
- 
-   <chapter id="uart16x50">
-      <title>16x50 UART Driver</title>
--!Edrivers/serial/core.c
-+!Edrivers/serial/serial_core.c
- !Edrivers/serial/8250.c
-   </chapter>
- 
+Johannes

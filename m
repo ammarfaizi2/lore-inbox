@@ -1,130 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbULaAqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbULaAvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261800AbULaAqx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 19:46:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbULaAqx
+	id S261801AbULaAvG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 19:51:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbULaAvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 19:46:53 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:45479 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261800AbULaAqd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 19:46:33 -0500
-Subject: Linux 2.6.10-ac2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	Thu, 30 Dec 2004 19:51:06 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:21078 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S261801AbULaAu4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 19:50:56 -0500
+Message-ID: <41D4A2A6.3060607@tls.msk.ru>
+Date: Fri, 31 Dec 2004 03:51:50 +0300
+From: Michael Tokarev <mjt@tls.msk.ru>
+Organization: Telecom Service, JSC
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: initramfs: is it supposed to work?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1104450153.3415.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 30 Dec 2004 23:42:34 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven is now building RPMS of the kernel and those can be found
-in the RPM subdirectory and should be yum-able. Expect the RPMS to lag the
-diff a little as the RPM builds and tests do take time.
+I tried to play with initramfs (aka cpio "image") and 2.6.10
+kernel, and have several questions, main of them is whenever
+it is supposed to work at all at this stage.
 
+By replacing "standard" initrd filesystem (be it romfs, cramfs,
+or even ext2), when it works with /sbin/init started with pid=1
+and does pivot_root() after mounting real root, with a cpio image
+containing all the same files (plus /init which is just a link
+to /sbin/init), I managed to get it to boot just fine (I used a
+little shell script to generate the cpio archive, quite similar
+to what usr/gen_init_cpio.c does -- fun excersise in shell
+programming).  So far so good.
 
-Key:	o	- only in -ac
-	*	- already fixed upstream
-	X	- discarded later as wrong
-	+	- ac specific (fix not relevant to non -ac)
+But now, the only problem left is that the kernel does not want
+to do the last step: to umount the /initrd (which is initramfs
+after pivot_root) after booting: kernel enters an endless loop
+inside umount() syscall somewhere (system locks up completely
+and starts "eating" cpu which is quite visible on a laptop:
+the fans starts rotating after about half a minute after entering
+the umount() call), not even responding to sysrq requests.
 
-2.6.10-ac2
-o	Fix printk fixes for geometry free drives	(Alan Cox)
-	| Found by Bartlomiej
-o	Bartlomiej's requested cleanups for IT8212	(Alan Cox)
-X	Drop unneeded i810 audio patch
-X	Drop useless kmalloc size patch
-+	Fix proposed ide ISA v PIO change to work	(Alan Cox)
-	| Bug noted by .. everyone
-*	Backport mxser compile fix			(Al Viro)
-*	Backport via acpi irq routing fixes		(Len Brown, Shaohua Li)
-	| Replaces the old -ac fix
-*	Backport further aacraid chipset support	(Mark Haverkamp)
-*	ULi 5281 support				(Peer Chen)
-*	Backport several libata fixes notably problems	(Albert Lee)
-	with PDC20275
-o	FW_LOADER is needed by several dvb devices	(Michal Feix)
-o	Add IT8211 PCI identifiers to IT8212 and	(Alan Cox)
-	rename driver and functions it iT821x
-	| Thanks to Philipp Imhof for the IT8211 idents
-o	Clean up and merge LAN M526X support		(Clear Zhang)
-	| 2.6 port/slight tidy done on the original
+Maybe I did something wrong when creating the initramfs image
+(it is normal cpio archive, and gen_init_cpio.c does the same
+thing given the same set of files).  I tried both with and
+without the root entry in the archive (gen_init_cpio.c does
+not include the entry for /, and there's nothing in docs,
+in early-userspace/buffer-format.txt, about this one) -- the
+same effect, endless loop when trying to umount(/initrd).
 
-2.6.10-ac1
-o	Revert AX.25 protocol breakage			(Alan Cox)
-o	Remove bogus obsolete option junk from 2.6.10	(Alan Cox)
-	ide changes
-	| Options are often useful, so should be kept.
-	| Especially stuff like serialize
-o	Fix bogus dma_ naming in the 2.6.10 patch	(Alan Cox)
-o	Initial CS5520 fixups for VDMA and 2.6.10
-	| Must set vdma flag before command issue
-	| ?? could we just set it at boot and leave it - probably (check)
+After looking at this more closely (but still "outside" the
+kernel), I noticied several more "issues" (or is it the same?).
+Namely, /proc/mounts contains different things when using one
+of the 3 different "boot methods":
 
-Forward ported from 2.6.9-ac
-o	Smbfs improved parsing fixes			(Chuck Ebbert)
-o	Fix several IDE drivers that assumed > 0 was	(Alan Cox)
-	also an error return for pci probe functions
-o	Fix sys5 semaphore wakeups			(Manfred Spraul)
-o	Suggest irqpoll when we get screaming irqs	(Alan Cox)
-o	Fix reset problems with older 3c59x/3c90x	(John Linville)
-o	Configurable 100/1Khz clock for x86		(James Bottomley)
-	| 100Hz is great for battery life
-o	Delkin cardbus IDE support			(Mark Lord)
-o	IT8212 IDE support				(Alan Cox)
-X	Add more AC97 table data
-o	Token ring locking fix
-o	Fix URL for lanana				(Alexander Stohr)
-X	Add a 1620 byte slab cache for ethernet frames	(Arjan van de Ven)
-o	EDD boot options				(Matt Domsch)
-o	Don't probe legacy ISA ide2,3,4,5 on PCI boxes	(Alan Cox)
-o	Restore PWC driver				(Luc Saillard)
-	| Please port away from remap_page_range
-o	Fix AT2701FX AMD PCnet32 on fibre		(Guido Guenther)
-o	Fix build of CS461x gameport			(Adrian Bunk)
-o	Fix crash with aacraid double complete	(Mark Salyzyn, Tom Coughlan,
-						 Alan Cox)
-o	Fix getblk_slow hang				(Chris Mason)
-+	Fix SMP hang with IDE unregister		(Mark Lord)
-o	Working IDE locking				(Alan Cox)
-	| And a great deal of review by Bartlomiej
-o	Allow IDE to grab all unknown generic IDE	(Alan Cox)
-	devices (boot with "all-generic-ide")
-o	More ATI IDE PCI identifiers			(Enrico Scholza)
-o	Initial patch for ide_abort hang		(Alan Cox)
-o	Fix serveral ide timing violations on reset	(Alan Cox)
-o	Support CSB6-R Serverworks raid			(Alan Cox)
-o	Teach ide-cd to use sense data for file system	(Alan Cox)
-	requests
-	- This means you get better diagonstics on CD errors
-	- It means a partial I/O failure will get you back the ok sectors
-	- It may fix the problem some users have with ISO copying and ide-cd
-o	Lock ide-proc against driver unload		(Alan Cox)
-	(very low severity)
-o	Fix ide /proc and legacy devices problem	(Alan Cox)
-*	Watchdog support for early cobalt ALi hardware	(Mike Waychison)
-o	Make sx8 naming follow LANANA			(Jeremy Katz)
-*	Don't warn on scsi ioctl kmalloc fail		(Arjan van de Ven)
-*	Fix Paul Laufer's email address			(Paul Laufer)
-*	Fix misleading microcode message		(Arjan van de Ven)
-o	Allow cross compile of x86_32 kernel on x86_64	(Arjan van de Ven)
-o	Kill "open failed" cdrom message.		(Alan Cox)
-	| This is a natural event from code poking around
-	| doing CD detection etc
-o	Minor typo fix in cdrom driver			(efalk@google)
-*	Add support for newer ALi AGP			(Clear Zhang)
-o	Handle E7xxx boxes with USB legacy flaws	(Alan Cox)
+o When booting the "old way", with root=real_root, and when
+/linuxrc gets executed with pid != 1, /proc/mounts contains
+just one entry for root, which is the right one:
+  /dev/hda1 / ext3 rw 0 0
 
-Cleanups in porting
-o	Drop ->taskfile hooks in the IDE layer 		(Alan Cox)
-	(->fixup replaces)
-o	Fix up IT8212 for 2.6.10 ide_use_dma cleanups	(Alan Cox)
-	and other 2.6.10 cleaning
+o When booting the "new way", whth root=/dev/ram0 and /sbin/init
+from initrd running with pid = 1 and doing pivot_root and execing
+real /sbin/init, there are 2 entries for root in /proc/mounts:
+  rootfs / rootfs rw 0 0
+  /dev/hda1 / ext3 rw 0 0
+or, sometimes, it is like
+  rootfs / rootfs rw 0 0
+  /dev/root / ext3 rw 0 0
+-- this one probably is due to devfs.  (on debian with their initrd
+stuff it looks even worse, something like
+  rootfs / rootfs rw 0 0
+  /dev2/root2 / ext3 rw 0 0
+).
+o And finally, when booting the "right way", using initramfs where
+/init gets executed with pid=1 and should do the same pivot_root
+and things like that, before the umount loop mentioned above,
+it looks almost right:
+  rootfs /initrd rootfs ro 0 0
+  /dev/hda1 / ext3 rw 0 0
+(this is where eg umount from busybox chokes, also entering
+endless loop.. but tha's a different story, it's an obvious
+bug in busybox.. however in order to fix it properly one have
+to know which cases like the 3 mentioned above are possible).
 
-Dropped for now
-o	VIA extra quirk
-o	HP Cardbus routing fixup
+When the "rootfs" thing enters into the game?
+In which cases which lines will be present in /proc/mounts?
+And, is initramfs supposed to work now?
 
+Thank you.
+
+/mjt

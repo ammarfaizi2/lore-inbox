@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291074AbSBXUXd>; Sun, 24 Feb 2002 15:23:33 -0500
+	id <S291086AbSBXU1N>; Sun, 24 Feb 2002 15:27:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291086AbSBXUXY>; Sun, 24 Feb 2002 15:23:24 -0500
-Received: from mailhost.teleline.es ([195.235.113.141]:39742 "EHLO
-	tsmtp4.mail.isp") by vger.kernel.org with ESMTP id <S291074AbSBXUXI>;
-	Sun, 24 Feb 2002 15:23:08 -0500
-Date: Sun, 24 Feb 2002 22:25:31 +0100
-From: Diego Calleja <DiegoCG@teleline.es>
-To: Andrea Arcangeli <andrea@suse.de>
+	id <S291102AbSBXU1D>; Sun, 24 Feb 2002 15:27:03 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45575 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291086AbSBXU0w>; Sun, 24 Feb 2002 15:26:52 -0500
+Subject: Re: [PATCH] Re: [PATCH] IDE clean 12 3rd attempt
+To: ekrout@bucknell.edu (Eric Krout)
+Date: Sun, 24 Feb 2002 20:41:15 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18rc4aa1
-Message-Id: <20020224222531.04f44502.DiegoCG@teleline.es>
-In-Reply-To: <20020224165531.A14179@dualathlon.random>
-In-Reply-To: <20020224165531.A14179@dualathlon.random>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <1014580971.16567.11.camel@ekrout.resnet.bucknell.edu> from "Eric Krout" at Feb 24, 2002 03:02:51 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16f5SO-0002cJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Feb 2002 16:55:31 +0100
-Andrea Arcangeli <andrea@suse.de> wrote:
-
-> URL:
+> > Andries.Brouwer@cwi.nl wrote:
+> > And I think that 2.4.x and above don't run on
+> > i386's anymore anyway.
 > 
-> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18rc4aa1.gz
-> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18rc4aa1/
+> I don't mean to intrude or offend, but please backup your claims with
+> hard facts as opposed to mere suppositions.
 
-
-Andrea, I think there's an error on compressed files.
--2 times downloaded .gz file(1'3 MB?)= unexpected end of file 
--1 time downloaded .bz2 file: Compressed file ends unexpectedly
+2.4 runs on an i386

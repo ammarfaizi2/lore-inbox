@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275994AbRJYTCT>; Thu, 25 Oct 2001 15:02:19 -0400
+	id <S275963AbRJYTAj>; Thu, 25 Oct 2001 15:00:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275989AbRJYTCJ>; Thu, 25 Oct 2001 15:02:09 -0400
-Received: from mailout2.informatik.tu-muenchen.de ([131.159.254.8]:56797 "EHLO
-	mailout2.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S275990AbRJYTCB>; Thu, 25 Oct 2001 15:02:01 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] generic eui-64 addressing
-Reply-To: Daniel Stodden <stodden@in.tum.de>
-From: Daniel Stodden <stodden@in.tum.de>
-Date: 25 Oct 2001 21:02:31 +0200
-Message-ID: <87r8rr35mg.fsf@bitch.localnet>
+	id <S275989AbRJYTA3>; Thu, 25 Oct 2001 15:00:29 -0400
+Received: from [160.131.145.131] ([160.131.145.131]:20230 "EHLO W20303512")
+	by vger.kernel.org with ESMTP id <S275963AbRJYTAS>;
+	Thu, 25 Oct 2001 15:00:18 -0400
+Message-ID: <010201c15d87$5d89e1d0$839183a0@W20303512>
+From: "Wilson" <defiler@null.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kerneli.org
+Date: Thu, 25 Oct 2001 15:00:49 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Does anyone know what has happened to Kerneli.org?
+Host www.kerneli.org. not found: 3(NXDOMAIN)
+
+Check out the expiration date from WHOIS:
+
+   Record last updated on 02-Oct-2001.
+   Record expires on 08-Aug-2001.
+   Record created on 08-Aug-1998.
+   Database last updated on 25-Oct-2001 05:41:00 EDT.
+
+They accused us of suppressing freedom of expression.
+This was a lie and we could not let them publish it.
+-- Nelba Blandon, Nicaraguan Interior Ministry Director of Censorship
 
 
-hi.
 
-
-i'm developing prototype modules[1] for a data link network using
-EUI-64[2] addressing.
-
-what i'm missing are macros for hw type and address length from the
-kernel headers.
-
-could someone please rewrite if_arp.h around the patch below? taken
-from iana values
-
-plus: to make my world perfect, maybe a macro somewhat like
-
-#define EUI64_ALEN 8
-
-not sure where this might go into...
-
-
-thanx,
-dns
-
---- if_arp.h.orig       Thu Oct 25 19:15:19 2001
-+++ if_arp.h    Thu Oct 25 20:46:24 2001
-@@ -39,6 +39,7 @@
- #define ARPHRD_ATM     19              /* ATM                          */
- #define ARPHRD_METRICOM        23              /* Metricom STRIP (new IANA id)*       /
- #define        ARPHRD_IEEE1394 24              /* IEEE 1394 IPv4 - RFC 2734   *       /
-+#define ARPHRD_EUI64    27              /* EUI-64                       */
- 
- /* Dummy types for non ARP hardware */
- #define ARPHRD_SLIP    256
-
--- 
-___________________________________________________________________________
- mailto:stodden@in.tum.de

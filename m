@@ -1,56 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUGZInS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265048AbUGZInO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265051AbUGZInS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 04:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbUGZInS
+	id S265048AbUGZInO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 04:43:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbUGZInO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 04:43:18 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:35005 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S265051AbUGZInM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 04:43:12 -0400
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: Autotune swappiness01
-Date: Mon, 26 Jul 2004 10:52:49 +0200
-User-Agent: KMail/1.5
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <cone.1090801520.852584.20693.502@pc.kolivas.org> <cone.1090803691.689003.20693.502@pc.kolivas.org> <cone.1090804198.848689.20693.502@pc.kolivas.org>
-In-Reply-To: <cone.1090804198.848689.20693.502@pc.kolivas.org>
+	Mon, 26 Jul 2004 04:43:14 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:43716 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S265048AbUGZInH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 04:43:07 -0400
+Date: Mon, 26 Jul 2004 10:18:48 +0100 (BST)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+X-X-Sender: tigran@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3 and SPEC SFS Run rules.
+In-Reply-To: <Pine.LNX.4.44.0407261010400.32233-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0407261016580.32233-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407261052.50178.rjwysocki@sisk.pl>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 of July 2004 03:09, Con Kolivas wrote:
-> Con Kolivas writes:
-> > Andrew Morton writes:
-> >> Seriously, we've seen placebo effects before...
-> >
-> > I am in full agreement there... It's easy to see that applications do not
-> > swap out overnight; but i'm having difficulty trying to find a way to
-> > demonstrate the other part. I guess timing the "linking the kernel with
-> > full debug" on a low memory box is measurable.
->
-> I should have said - finding a swappiness that ensures not swapping out
-> applications with updatedb, then using that same swappiness value to do the
-> linking test.
+I think the important part of rule 1. saying "server adheres to the 
+protocol" is this bit from rfc1813:
 
-Please excuse me, but is that viable at all?  IMHO, it's just like trying to 
-tune a radio including volume with only one knob.  I don't say it won't work, 
-but the probability that it will is rather small, it seems ...
+   The following data modifying procedures are
+   synchronous: WRITE (with stable flag set to FILE_SYNC), CREATE,
+   MKDIR, SYMLINK, MKNOD, REMOVE, RMDIR, RENAME, LINK, and COMMIT.
 
-rjw
+E.g. if a client had a successful SYMLINK and the server crashed, the 
+client is not going to discover on the next reboot (of the server) that 
+the symlink is somehow disappeared...
 
--- 
-Rafael J. Wysocki
-[tel. (+48) 605 053 693]
-----------------------------
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+Kind regards
+Tigran
+
+On Mon, 26 Jul 2004, Tigran Aivazian wrote:
+
+> On Mon, 26 Jul 2004, Andrew Morton wrote:
+> > ext3 should be fully syncing data and metadata for both fsync() and O_SYNC
+> > writes in all three journalling modes.  If not, that's a big bug.
+> 
+> Ok, so, can I conclude that you are therefore saying that ext3 (with 
+> default mount options) is compliant with SPEC SFS Run rules wrt NFS 
+> protocol requirements:
+> 
+>    1.   For NFS Version 2, the server adheres to the protocol 
+> specification and in particular the requirement that for NFS write 
+> operations the NFS server must not reply to the NFS client before any 
+> modified file system data or metadata, with the exception of access times, 
+> are written to stable storage.
+>    2. For NFS Version 3, the server adheres to the protocol specification. 
+> In particular the requirement that for STABLE write requests and COMMIT 
+> operations the NFS server must not reply to the NFS client before any 
+> modified file system data or metadata, with the exception of access times, 
+> are written to stable storage for that specific or related operation. See 
+> RFC 1813, NFSv3 protocol specification for a definition of STABLE and 
+> COMMIT for NFS write requests.
+>    3. For NFS Version 3, operations which are specified to return wcc data 
+> must, in all cases, return TRUE and the correct attribute data. Those 
+> operations are:
+> 
+>       NFS Version 3
+>       SETATTR
+>       READLINK
+>       CREATE
+>       MKDIR
+>       SYMLINK
+>       MKNOD
+>       REMOVE
+>       RMDIR
+>       RENAME
+>       LINK
+> 
+>    4. The server must pass the benchmark validation for the NFS protocol 
+> being tested.
+>    5. When UDP is the network transport, UDP checksums must be calculated 
+> and verified for all NFS request and reply messages. In other words, 
+> checksums must be enabled on both the client and server.
+> 
+> 
+> Kind regards
+> Tigran
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

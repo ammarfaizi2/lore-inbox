@@ -1,112 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbUJXJKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbUJXJeU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbUJXJKW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 05:10:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbUJXJKV
+	id S261400AbUJXJeU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 05:34:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbUJXJeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 05:10:21 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:14820 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261395AbUJXJJ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 05:09:58 -0400
-Date: Sun, 24 Oct 2004 11:08:54 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Christoph Hellwig <hch@infradead.org>,
-       "James E.J. Bottomley" <James.Bottomley@SteelEye.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org
-Subject: Re: qla1280: ISP1020/1040 support
-In-Reply-To: <200410190022.i9J0MgeH006088@hera.kernel.org>
-Message-ID: <Pine.GSO.4.61.0410241106500.7904@waterleaf.sonytel.be>
-References: <200410190022.i9J0MgeH006088@hera.kernel.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 24 Oct 2004 05:34:20 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:39953 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261400AbUJXJeL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 05:34:11 -0400
+Date: Sun, 24 Oct 2004 11:33:40 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, David Hinds <dahinds@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       linux-net@vger.kernel.org, prism54-devel@prism54.org,
+       netdev@oss.sgi.com
+Subject: Re: 2.6.9-mm1: pc_debug multiple definitions
+Message-ID: <20041024093340.GA4216@stusta.de>
+References: <20041022032039.730eb226.akpm@osdl.org> <20041022133929.GA2831@stusta.de> <20041024034152.GB17506@ruslug.rutgers.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041024034152.GB17506@ruslug.rutgers.edu>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Sep 2004, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1832.79.83, 2004/09/29 11:29:12-04:00, jejb@mulgrave.(none)
+On Sat, Oct 23, 2004 at 11:41:52PM -0400, Luis R. Rodriguez wrote:
+> On Fri, Oct 22, 2004 at 03:39:29PM +0200, Adrian Bunk wrote:
+> > 
+> > The following compile error comes from Linus' tree:
+> > 
+> > 
+> > <--  snip  -->
+> > 
+> > ...
+> >   LD      drivers/built-in.o
+> > drivers/pcmcia/built-in.o(.bss+0xf20): multiple definition of `pc_debug'
+> > drivers/net/built-in.o(.data+0x24ae0): first defined here
+> > make[1]: *** [drivers/built-in.o] Error 1
+> > 
+> > <--  snip  -->
+> > 
+> > 
+> > The pc_debug in drivers/pcmcia/ds.c was made non-static in Linus' tree,
+> > but the global definition of a global variable with such a generic name 
+> > in drivers/net/wireless/prism54/islpci_mgt.c seems to be equally wrong.
 > 
-> 	qla1280: ISP1020/1040 support
-> 	
-> 	From: Christoph Hellwig <hch@lst.de>
-> 	
-> 	This patch adds support for the older ISP1020/1040 chips to the qla1280
-> 	driver.  In fact it does not add much support but enables the work
-> 	merged earlier. 
-> 	
-> 	It's been tested to work nicely on x86 and alpha machines by multiple
-> 	people, it unfortunately doesn't work on SGI mips systems yet, but I'm
-> 	pretty sure that's due to bugginess in the pci code for those
-> 	plattforms.
-> 	
-> 	Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
-> 
-> 
-> 
->  Kconfig     |   16 
->  ql1040_fw.h | 2101 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
->  qla1280.c   |   31 
->  3 files changed, 2135 insertions(+), 13 deletions(-)
-> 
-> 
-> diff -Nru a/drivers/scsi/Kconfig b/drivers/scsi/Kconfig
-> --- a/drivers/scsi/Kconfig	2004-10-18 17:22:51 -07:00
-> +++ b/drivers/scsi/Kconfig	2004-10-18 17:22:51 -07:00
-> @@ -1222,7 +1222,7 @@
->  	  module will be called qlogicfas.
->  
->  config SCSI_QLOGIC_ISP
-> -	tristate "Qlogic ISP SCSI support"
-> +	tristate "Qlogic ISP SCSI support (old driver)"
->  	depends on PCI && SCSI
->  	---help---
->  	  This driver works for all QLogic PCI SCSI host adapters (IQ-PCI,
-> @@ -1239,6 +1239,9 @@
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called qlogicisp.
->  
-> +	  These days the hardware is also supported by the more modern qla1280
-> +	  driver.  In doubt use that one instead of qlogicisp.
-> +
->  config SCSI_QLOGIC_FC
->  	tristate "Qlogic ISP FC SCSI support"
->  	depends on PCI && SCSI
-> @@ -1257,13 +1260,20 @@
->  	  qlogicfc driver. This is required on some platforms.
->  
->  config SCSI_QLOGIC_1280
-> -	tristate "Qlogic QLA 1280 SCSI support"
-> +	tristate "Qlogic QLA 1240/1x80/1x160 SCSI support"
->  	depends on PCI && SCSI
->  	help
-> -	  Say Y if you have a QLogic ISP1x80/1x160 SCSI host adapter.
-> +	  Say Y if you have a QLogic ISP1240/1x80/1x160 SCSI host adapter.
->  
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called qla1280.
-> +
-> +config SCSI_QLOGIC_1280_1040
-> +	bool "Qlogic QLA 1020/1040 SCSI support"
+> Great, anyone know why this change was done on ds.c ? The pc_debug on
+> prism54 comes from the original Intersil driver. It is used to for
+> debugging but we should move away from our current debugging mechanism
+> to netif_msg.
+>...
 
-Can we please have a few dependencies here? E.g. PCI, SCSI, and probably
-SCSI_QLOGIC_1280 come into my mind...
+pc_debug is a pretty generic name - it seems too generic in both files.
 
-> +	help
-> +	  Say Y here if you have a QLogic ISP1020/1040 SCSI host adapter and
-> +	  do not want to use the old driver.  This option enables support in
-> +	  the qla1280 driver for those host adapters.
->  
->  config SCSI_QLOGICPTI
->  	tristate "PTI Qlogic, ISP Driver"
+In prism54, couldn't it be called prism54_pc_debug?
 
-Gr{oetje,eeting}s,
+> 	Luis
 
-						Geert
+cu
+Adrian
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+-- 
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

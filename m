@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269225AbTGJLsh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 07:48:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269226AbTGJLsg
+	id S269226AbTGJMAx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 08:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269228AbTGJMAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 07:48:36 -0400
-Received: from neko.kfib.org ([193.12.253.17]:15759 "EHLO neko.kfib.org")
-	by vger.kernel.org with ESMTP id S269225AbTGJLsa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 07:48:30 -0400
-Date: Thu, 10 Jul 2003 14:03:15 +0200
-Message-Id: <200307101203.h6AC3FB17406@neko.kfib.org>
-From: "=^.^=" <martin@kfib.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Bug in initrd-handling while remounting the root
+	Thu, 10 Jul 2003 08:00:52 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:24234 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S269226AbTGJMAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 08:00:51 -0400
+Date: Thu, 10 Jul 2003 09:13:03 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
+Subject: Re: RFC:  what's in a stable series?
+In-Reply-To: <1057835998.8028.6.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.55L.0307100910550.7857@freak.distro.conectiva>
+References: <3F0CBC08.1060201@pobox.com>  <Pine.LNX.4.55L.0307100040271.6629@freak.distro.conectiva>
+  <20030710085338.C28672@infradead.org> <1057835998.8028.6.camel@dhcp22.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At work we've encountered a problem when trying to netboot 2.4.21.
-After /linuxrc has been executed and the kernel tries to remount the
-root, it panics with the all too well known message "Unable to mount
-root fs on ...".
 
-The kernel bugs out in mount_block_root in the file init/do_mounts.c,
-to be more precise in the for-loop. What happens is that it tries to
-mount the file system as type ext2 (which happens to be first in the
-list in our case), but instead of returning -EINVAL it returns -EBUSY,
-the loop exits instead of trying the next (correct) fs-type and the
-kernel panics.
+Linus removed from CC because I think he does not care about 2.4.x
+specific issues - which is what this thread is now about.
 
-Here's a patch:
+On Thu, 10 Jul 2003, Alan Cox wrote:
 
---- linux-2.4.21/init/do_mounts.orig	Thu Jul 10 13:44:03 2003
-+++ linux-2.4.21/init/do_mounts.c	Thu Jul 10 13:46:36 2003
-@@ -359,6 +359,7 @@
- 				flags |= MS_RDONLY;
- 				goto retry;
- 			case -EINVAL:
-+		        case -EBUSY:
- 				continue;
- 		}
- 	        /*
+> On Iau, 2003-07-10 at 08:53, Christoph Hellwig wrote:
+> > Also the quota patches don't change any ABI or API - userland can still
+> > use the old ABI in addition to the new one, 16bit ondisk quotas are
+> > still supported and filesystems couldn't care less which implementation
+> > it plugs into - the API is the same.
+>
+> Because you hacked v1 support out of Jan Kara's stuff the quota bits are
+> pretty useless to most people because they have v1 format files.
 
---
-Martin Persson           martin@kfib.org
-http://martin.kfib.org/  http://ss.kfib.org/
+So Christoph's quota patch does not support vendors "v1" files?
 
-  "esound is junk. The only thing esd has is a good client API for
-   going boing at approximately the right time. Anything else is
-   beyond it." -- Alan Cox
+I must be misunderstanding someone.
+
+

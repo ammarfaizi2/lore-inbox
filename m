@@ -1,77 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbVCYOfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVCYOmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261649AbVCYOfu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 09:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVCYOfu
+	id S261651AbVCYOmz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 09:42:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVCYOmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 09:35:50 -0500
-Received: from mail.dif.dk ([193.138.115.101]:1159 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261649AbVCYOfh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 09:35:37 -0500
-Date: Fri, 25 Mar 2005 15:37:28 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: ecashin@noserose.net, linux-kernel <linux-kernel@vger.kernel.org>,
-       Greg K-H <greg@kroah.com>, axboe@suse.de
-Subject: Re: [PATCH 2.6.11] aoe [5/12]: don't try to free null bufpool
-In-Reply-To: <1111684626.6290.103.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.62.0503251534540.2498@dragon.hyggekrogen.localhost>
-References: <87mztbi79d.fsf@coraid.com> <20050317234641.GA7091@kroah.com> 
- <1111677437.28285@geode.he.net>  <1111679884.6290.93.camel@laptopd505.fenrus.org>
-  <1111683853.31205@geode.he.net> <1111684626.6290.103.camel@laptopd505.fenrus.org>
+	Fri, 25 Mar 2005 09:42:55 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7838 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261651AbVCYOmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 09:42:52 -0500
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: hpa@zytor.com (H. Peter Anvin), linux-kernel@vger.kernel.org
+Subject: Re: Squashfs without ./..
+References: <Pine.LNX.4.61.0503221645560.25571@yvahk01.tjqt.qr>
+	<20050323174925.GA3272@zero>
+	<Pine.LNX.4.62.0503241855350.18295@numbat.sonytel.be>
+	<20050324133628.196a4c41.Tommy.Reynolds@MegaCoder.com>
+	<d1v67l$4dv$1@terminus.zytor.com>
+	<3e74c9409b6e383b7b398fe919418d54@mac.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 25 Mar 2005 07:39:44 -0700
+In-Reply-To: <3e74c9409b6e383b7b398fe919418d54@mac.com>
+Message-ID: <m1k6nvpz67.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Mar 2005, Arjan van de Ven wrote:
+Kyle Moffett <mrmacman_g4@mac.com> writes:
 
-> On Thu, 2005-03-24 at 09:04 -0800, ecashin@noserose.net wrote:
-> > Arjan van de Ven <arjan@infradead.org> writes:
-> > 
-> > > On Thu, 2005-03-24 at 07:17 -0800, ecashin@noserose.net wrote:
-> > >> don't try to free null bufpool
-> > >
-> > > in linux there is a "rule" that all memory free routines are supposed to
-> > > also accept NULL as argument, so I think this patch is not needed (and
-> > > even wrong)
-> > >
-> > 
-> > Hmm.  The mm/mempool.c:mempool_destroy function immediately
-> > dereferences the pointer passed to it:
-> > 
-> > void mempool_destroy(mempool_t *pool)
-> > {
-> > 	if (pool->curr_nr != pool->min_nr)
-> > 		BUG();		/* There were outstanding elements */
-> > 	free_pool(pool);
-> > }
-> > 
-> > ... so I'm not sure mempool_destroy fits the rule.  Are you suggesting
-> > that the patch should instead modify mempool_destroy?
+> Tommy Reynolds wrote:
+> > Then it is broken in several ways.
+> >
+> > First, file systems are not required to implement ".." (only "." is
+> > magical, ".." is a courtesy).
 > 
-> hmm perhaps... Jens?
+> On Mar 24, 2005, at 14:59, H. Peter Anvin wrote:
+> > Doesn't have anything to do with sorting order or US-ASCII, it has to
+> > do with readdir order.  If nothing else, it would be highly surprising
+> > if "." and ".." weren't first; it's certainly a de facto standard, if
+> > not de jure.
 > 
+> IMHO, this is one of those cases where "Be liberal in what you accept
+> and strict in what you emit" applies strongly.  New filesystems should
+> probably always emit "." and ".." in that order with sane behavior,
+> and new programs should probably be able to handle it if they don't. I
+> would add ".." and "." to squashfs, just so that it acts like the rest
+> of the filesystems on the planet, even if it has to emulate them
+> internally.  OTOH, I think that the default behavior of find is broken
+> and should probably be fixed, maybe by making the default use the full
+> readdir and optionally allowing a -fast option that optimizes the
+> search using such tricks.
 
-Having mempool_destroy() be the one that checks seems safer, then callers 
-won't forget to check - easier to just check in one place.
-If that's what you want, then here's a patch. If this is acceptable I can 
-create another one that removes the (then pointless) NULL checks from all 
-callers - let me know if that's wanted.
+Find is doing a full readdir.  It just looks at the link count
+of the directory it is doing the readdir on and if it is the
+minimal unix link count of 2 it knows it does not have to stat
+directory entries to see if they are directories.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+As I recall there is also special handling in find for link count
+of 1 to automatically handle filesystems that don't follow the normal
+unix conventions so every directory entry must be stated.
 
---- linux-2.6.12-rc1-mm3-orig/mm/mempool.c	2005-03-21 23:12:43.000000000 +0100
-+++ linux-2.6.12-rc1-mm3/mm/mempool.c	2005-03-25 15:34:04.000000000 +0100
-@@ -176,6 +176,8 @@ EXPORT_SYMBOL(mempool_resize);
-  */
- void mempool_destroy(mempool_t *pool)
- {
-+	if (!pool)
-+		return;
- 	if (pool->curr_nr != pool->min_nr)
- 		BUG();		/* There were outstanding elements */
- 	free_pool(pool);
-
-
+Eric

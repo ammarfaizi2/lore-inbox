@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129055AbRBLM04>; Mon, 12 Feb 2001 07:26:56 -0500
+	id <S129516AbRBLMoX>; Mon, 12 Feb 2001 07:44:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129920AbRBLM0q>; Mon, 12 Feb 2001 07:26:46 -0500
-Received: from lindy.SoftHome.net ([204.144.232.9]:1038 "HELO
-	lindy.softhome.net") by vger.kernel.org with SMTP
-	id <S131126AbRBLM0d>; Mon, 12 Feb 2001 07:26:33 -0500
-Message-ID: <20010212125314.16109.qmail@lindy.softhome.net>
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-Cc: linux-kernel@vger.kernel.org
+	id <S129213AbRBLMoO>; Mon, 12 Feb 2001 07:44:14 -0500
+Received: from host217-32-141-29.hg.mdip.bt.net ([217.32.141.29]:5124 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S129516AbRBLMoB>;
+	Mon, 12 Feb 2001 07:44:01 -0500
+Date: Mon, 12 Feb 2001 12:46:46 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Brian Grossman <brian@SoftHome.net>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: sysinfo.sharedram not accounted for on i386 ? 
-Organization: SoftHome
-X-URL: http://www.SoftHome.net/
-In-Reply-To: Your message of "Mon, 12 Feb 2001 11:58:35 +0100."
-             <20010212115835.C1691@arthur.ubicom.tudelft.nl> 
-Date: Mon, 12 Feb 2001 05:53:14 -0700
-From: Brian Grossman <brian@SoftHome.net>
+In-Reply-To: <20010212125314.16109.qmail@lindy.softhome.net>
+Message-ID: <Pine.LNX.4.21.0102121239560.745-100000@penguin.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> On Mon, Feb 12, 2001 at 12:05:03AM -0700, Brian Grossman wrote:
-> > On i386, sysinfo.sharedram is not accounted for, leading /proc/meminfo to
-> > always report MemShared as 0.  Is this the intended behavior?
+On Mon, 12 Feb 2001, Brian Grossman wrote:
+> > Yes.
 > 
-> Yes.
+> Thanks.  Is there a preferred way of getting the equivalent info
+> as free(1) did under 2.2?
 
-Thanks.  Is there a preferred way of getting the equivalent info
-as free(1) did under 2.2?
+btw, this is not only x86 behaviour but is also true on all other
+architectures. I.e. Linux defines "shared memory" as a "integer constant
+with value 0". So, to say "zero" is just a shorter form of saying "Linux
+concept of shared memory". However, remember that if you are interested in
+shared _pages_, that information is available and is not identically 0.
+See the show_mem() function in arch/i386/mm/init.c.
 
-I've written a script to derive it from /proc/[0-9]*/statm, but that seems
-like an awkward approach.  A related question: is the page size stored in
-/proc somewhere?
+> 
+> I've written a script to derive it from /proc/[0-9]*/statm, but that seems
+> like an awkward approach.  A related question: is the page size stored in
+> /proc somewhere?
 
-Is there a discussion of this somewhere?  I couldn't find one when I
-searched the linux-kernel archives.
+No, PAGE_SIZE is known at compile time and cannot ever change (especially
+it cannot change ig you stay within i386 architecture). It is available to
+programs by including <asm/page.h> header.
 
-Brian
+Tigran
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

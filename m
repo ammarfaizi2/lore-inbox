@@ -1,83 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262593AbUJ0SOC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262572AbUJ0Rhw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262593AbUJ0SOC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 14:14:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbUJ0SOC
+	id S262572AbUJ0Rhw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 13:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbUJ0Rfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 14:14:02 -0400
-Received: from wproxy.gmail.com ([64.233.184.195]:52356 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262593AbUJ0SMO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 14:12:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=cKr4CRFi0Fp95ILNgDkRc6/GLRkXCbid3wpPu7aCgKGZpmas790BqDsgWIvMh2dQxEojS2hZFiW9UmvTsa58z1Qqs4ZS3aQw0fjlRim1haXS3IXMFgPyBAbEPg4ypAJ0UBfFwKyvzT6N7injyCt+xqVX6g/R4k6HfKm0XpOEb9M=
-Message-ID: <5d6b6575041027111270d3eee8@mail.gmail.com>
-Date: Wed, 27 Oct 2004 20:12:13 +0200
-From: Buddy Lucas <buddy.lucas@gmail.com>
-Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
-To: Larry McVoy <lm@work.bitmover.com>, Linus Torvalds <torvalds@osdl.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Andrea Arcangeli <andrea@novell.com>, Joe Perches <joe@perches.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-In-Reply-To: <20041027041814.GB8493@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 27 Oct 2004 13:35:39 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:42655 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262520AbUJ0R0H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 13:26:07 -0400
+Subject: Re: [PATCH] Add p4-clockmod driver in x86-64
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Andi Kleen <ak@suse.de>, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <417FC96B.8030402@grupopie.com>
+References: <88056F38E9E48644A0F562A38C64FB600333A69D@scsmsx403.amr.corp.intel.com>
+	 <417FB7BA.9050005@grupopie.com> <1098892587.8313.5.camel@krustophenia.net>
+	 <417FC96B.8030402@grupopie.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-References: <20041025114641.GU14325@dualathlon.random>
-	 <20041025133951.GW14325@dualathlon.random>
-	 <20041025162022.GA27979@work.bitmover.com>
-	 <20041025164732.GE14325@dualathlon.random>
-	 <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
-	 <Pine.LNX.4.61.0410252350240.17266@scrub.home>
-	 <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org>
-	 <Pine.LNX.4.61.0410270223080.877@scrub.home>
-	 <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
-	 <20041027041814.GB8493@work.bitmover.com>
+Message-Id: <1098894142.4304.26.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 27 Oct 2004 17:22:23 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Oct 2004 21:18:14 -0700, Larry McVoy <lm@bitmover.com> wrote:
-> On Tue, Oct 26, 2004 at 08:00:18PM -0700, Linus Torvalds wrote:
-> > Larry can tell you that we've discussed the BK license in private, and he
-> > definitely knows that I'd really like for it to be an open source license.
-> > But I also suspect that Larry will tell you that I haven't been whining
-> > about it - I've been trying to come up with ways it could work out for
-> > him, considering that he's got employees to take care of, and I haven't
-> > been able to come up with anything that would convince him. Fair enough.
+On Mer, 2004-10-27 at 17:14, Paulo Marques wrote:
+> > Why don't you try the VIA EPIA mini-ITX boards?  These are designed for
+> > low power applications like yours.  I am running the M-6000 which has a
+> > fanless 600Mhz C3 processor, the newer fanless models run at 1Ghz.  And,
+> > on top of that they support speed scaling so you can slow it down even
+> > more.
 > 
-> We (BitMover) wrestle with this all the time, or at least I do.  I think
-> that the set of people on this list have no idea how painful it has
-> been for me to do what we have done.  I started out as one of you and
-> liked it that way.  I saw a problem, Linus needed a tool, and I saw a
-> solution, I could give him that tool.  So far, so good.  But the effort
-> required to produce that tool cost a lot of money.  So I had to start
+> Yes, we tried those, but floating point calculations completely kill the 
+> performance on those boards.
 
-Open Source projects produce excellent tools too. But I'll take your
-word for it that there was no other way. The thing is, and I'm afraid
-that many among your criticasters do not get this -- even with Linus
-saying it over and over again: trying to refrain people from using the
-software they want to use has nothing to do with freedom.
+You want Geode/NX or Pentium-M ITX boards for that (or the low power
+'Shelton' board although you may need to import that since its only sold
+in "poor countries")
 
-BK's license, the language used to write it, Larry's face, or all of
-the above, are absolutely *no* justification for the way some of you
-come down on Larry.  If you think the BK license interferes in a bad
-way with Linux development and you can back it up with solid reasoning
-or facts, you might have a point and you should speak up (or start
-coding)-- probably using another soapbox, by the way. And drop the
-attitude.
+Agree with you on pricing though.
 
-Otherwise, what tools other people use is no business of yours. If
-that thought bothers you, rethink whether you are really part of a
-community that cares deeply about freedom.
-
-Larry, thanks for what's obviously a great piece of software.
-
-
-Cheers,
-Buddy

@@ -1,60 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317834AbSHCVO5>; Sat, 3 Aug 2002 17:14:57 -0400
+	id <S317786AbSHCVMt>; Sat, 3 Aug 2002 17:12:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317852AbSHCVO5>; Sat, 3 Aug 2002 17:14:57 -0400
-Received: from phobos.hpl.hp.com ([192.6.19.124]:24262 "EHLO phobos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S317834AbSHCVOz>;
-	Sat, 3 Aug 2002 17:14:55 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S317815AbSHCVMt>; Sat, 3 Aug 2002 17:12:49 -0400
+Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:31750 "EHLO
+	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S317786AbSHCVMs>; Sat, 3 Aug 2002 17:12:48 -0400
+Date: Sat, 3 Aug 2002 23:16:19 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+To: linux-kernel@vger.kernel.org
+Cc: Lars Schmitt <lschmitt@e18.physik.tu-muenchen.de>
+Subject: large file IO starving ls -l
+Message-ID: <Pine.LNX.4.44.0208032253260.23040-100000@pc40.e18.physik.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15692.18584.1391.30730@napali.hpl.hp.com>
-Date: Sat, 3 Aug 2002 14:18:15 -0700
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: davidm@hpl.hp.com, "David S. Miller" <davem@redhat.com>,
-       <davidm@napali.hpl.hp.com>, <gh@us.ibm.com>, <frankeh@watson.ibm.com>,
-       <Martin.Bligh@us.ibm.com>, <wli@holomorpy.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: large page patch (fwd) (fwd) 
-In-Reply-To: <Pine.LNX.4.44.0208031240270.9758-100000@home.transmeta.com>
-References: <15692.12093.514064.496253@napali.hpl.hp.com>
-	<Pine.LNX.4.44.0208031240270.9758-100000@home.transmeta.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Sat, 3 Aug 2002 12:43:47 -0700 (PDT), Linus Torvalds <torvalds@transmeta.com> said:
+Dear kernel hackers!
 
-  >> You don't need separate system calls for that: with a transparent
-  >> superpage framework and a privileged & reserved giant-page pool,
-  >> it's trivial to set up things such that your favorite data base
-  >> will always be able to get the giant pages (and hence the giant
-  >> TLB mappings) it wants.  The only thing you lose in the
-  >> transparent case is control over _which_ pages need to use the
-  >> pinned giant pages.  I can certainly imagine cases where this
-  >> would be an issue, but I kind of doubt it would be an issue for
-  >> databases.
+While investigating some issues with our computing farm (*) I came across
+this issue: when writing a 2GB file with 'dd if=/dev/zero of=bigfile
+bs=1024k count=2048' onto a 3ware RAID (5*Maxtor 160GB, RAID-5), ls -l in
+that directory sometimes takes some minutes to complete, thereby
+presenting obviously the file sizes corresponding to the starting time of
+the command. The directory has less than ten entries, the filesystem is 
+reiserfs, kernel 2.4.18-3 from RedHat. Nothing else going on during the 
+test.
 
-  Linus> That's _probably_ true. There aren't that many allocations
-  Linus> that ask for megabytes of consecutive memory that wouldn't
-  Linus> want to do it. However, there might certainly be non-critical
-  Linus> maintenance programs (with the same privileges as the
-  Linus> database program proper) that _do_ do large allocations, and
-  Linus> that we don't want to give large pages to.
+I modified the 3ware driver to provide information on how long each 
+command takes from posting to the controller to receiving the answer via 
+an interrupt:
 
-  Linus> Guessing is always bad, especially since the application
-  Linus> certainly does know what it wants.
+scsi0: 3ware Storage Controller
+Driver version: 1.02.00.025
+Current commands posted:         0
+Max commands posted:           255
+Current pending commands:        0
+Max pending commands:            0
+Last sgl length:                 7
+Max sgl length:                 32
+Last sector count:              56
+Max sector count:              256
+Resets:                          0
+Aborts:                          0
+AEN's:                           0
+      time    read   write   query  capcty   ioctl
+        10     843      14       1       1      17
+        20      86      23       0       0       0
+        40      17      16       0       0       0
+        80      23      54       0       0       0
+       160      59      41       0       0       0
+       320     124     269       0       0       0
+       640     771    2794       0       0       0
+      1280    1386   10917       0       0       2
+      2560    1598    3410       0       0       0
+      5120       0      35       0       0       0
+     10240       0       0       0       0       0
+     20480       0       0       0       0       0
+     40960       0       0       0       0       0
+     81920       0       0       0       0       0
+gliding avg   2036    2124       0       0      11
 
-Yes, but that applies even to a transparent superpage scheme: in those
-instances where an application knows what page size is optimal, it's
-better if the application can express that (saves time
-promoting/demoting pages needlessly).  It's not unlike madvise() or
-the readahead() syscall: use reasonable policies for the ordinary
-apps, and provide the means to let the smart apps tell the kernel
-exactly what they need.
+The time is given in ms (actually jiffies differences, rounded down
+towards the next power of two, then multiplied by ten), the gliding 
+average gives an exponentially weighted average with a lifetime of 200. 
+This sample is from a mount (the reads) and the aforementioned 2GB write. 
+During the writing, 255 commands are posted, nearly all with 256 sectors 
+each, so that the data rate is about 16MB/s which also fits the 
+measurement with the wall clock.
 
-	--david
+Now the question is: who keeps ls from returning? The command never hits 
+the disk (reads in above histogram do not increase), but stays for many 
+seconds (up to one minute) in state D.
+
+Ciao,
+					Roland
+
+(*) It's not actually a CPU intensive task: we call these machines 
+eventbuilders as they gather data from our experiment and write it to disk 
+with an average rate of about 5-10MB/s. The relevance of the ls problem is 
+that sometimes also these eventbuilding jobs get stuck for several 
+seconds and are afterwards unable to catch up again.
+
++---------------------------+-------------------------+
+|    TU Muenchen            |                         |
+|    Physik-Department E18  |  Raum    3558           |
+|    James-Franck-Str.      |  Telefon 089/289-12592  |
+|    85747 Garching         |                         |
++---------------------------+-------------------------+
+

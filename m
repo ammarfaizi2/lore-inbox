@@ -1,43 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130391AbQKAT2i>; Wed, 1 Nov 2000 14:28:38 -0500
+	id <S131152AbQKATai>; Wed, 1 Nov 2000 14:30:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131152AbQKAT22>; Wed, 1 Nov 2000 14:28:28 -0500
-Received: from c266492-a.lakwod1.co.home.com ([24.1.8.253]:45327 "EHLO
-	benatar.snurgle.org") by vger.kernel.org with ESMTP
-	id <S130391AbQKAT2Q>; Wed, 1 Nov 2000 14:28:16 -0500
-Date: Wed, 1 Nov 2000 14:27:36 -0500 (EST)
-From: William T Wilson <fluffy@snurgle.org>
-To: Dennis Bjorklund <dennisb@cs.chalmers.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Broadcast
-In-Reply-To: <Pine.SOL.4.21.0011012010340.19399-100000@muppet17.cs.chalmers.se>
-Message-ID: <Pine.LNX.4.21.0011011423420.21946-100000@benatar.snurgle.org>
+	id <S131510AbQKATa2>; Wed, 1 Nov 2000 14:30:28 -0500
+Received: from nifty.blue-labs.org ([208.179.0.193]:45219 "EHLO
+	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S131152AbQKATaZ>; Wed, 1 Nov 2000 14:30:25 -0500
+Message-ID: <3A006EFB.CD2EAF98@linux.com>
+Date: Wed, 01 Nov 2000 11:28:59 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "M.H.VanLeeuwen" <vanl@megsinet.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.0-test10
+In-Reply-To: <39FFB221.D6A1B5FF@megsinet.net>
+Content-Type: multipart/mixed;
+ boundary="------------DF397E4DA1CD58344D0715C8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2000, Dennis Bjorklund wrote:
+This is a multi-part message in MIME format.
+--------------DF397E4DA1CD58344D0715C8
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> I'm trying to turn of the broadcast flag for a network card. But I
-> can't, why??
+"M.H.VanLeeuwen" wrote:
 
-Broadcast determines the type of connection - broadcast or point-to-point
-(there can be other types also, but you will not see them much).
+> 3. Enabling PIIX4, kernel locks hard when printing the partition
+>    tables for hdc.   hdc has no partitions.
+>    I think this problem is on Ted's problem list???
 
-You wouldn't want to do this anyway.  It means Ethernet broadcasts, not IP
-broadcasts.  IP will not work over Ethernet without broadcasts.
+Disable PIIXn tuning and recompile your kernel.  How does it fare now?
 
-> I have two network-cards in the machine and an application (rwhod)
-> that wants to send it's messages out on every interface that can
-> broadcast. But never want to broadcast anything on this interface so
-> why not turn it of? If I could that is..
+-d
 
-Do you really need rwhod at all?
+--
+"The difference between 'involvement' and 'commitment' is like an
+eggs-and-ham breakfast: the chicken was 'involved' - the pig was
+'committed'."
 
-If rwhod doesn't have an option as to which address to bind to, your only
-choice is to block its communication with ipchains.
+
+
+--------------DF397E4DA1CD58344D0715C8
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="david.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for David Ford
+Content-Disposition: attachment;
+ filename="david.vcf"
+
+begin:vcard 
+n:Ford;David
+x-mozilla-html:TRUE
+org:<img src="http://www.kalifornia.com/images/paradise.jpg">
+adr:;;;;;;
+version:2.1
+email;internet:david@kalifornia.com
+title:Blue Labs Developer
+x-mozilla-cpt:;-12480
+fn:David Ford
+end:vcard
+
+--------------DF397E4DA1CD58344D0715C8--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

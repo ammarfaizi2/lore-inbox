@@ -1,80 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280001AbRKDPeM>; Sun, 4 Nov 2001 10:34:12 -0500
+	id <S280006AbRKDPtt>; Sun, 4 Nov 2001 10:49:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280011AbRKDPeD>; Sun, 4 Nov 2001 10:34:03 -0500
-Received: from unthought.net ([212.97.129.24]:31448 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S280001AbRKDPd4>;
-	Sun, 4 Nov 2001 10:33:56 -0500
-Date: Sun, 4 Nov 2001 16:33:54 +0100
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: linux-kernel@vger.kernel.org
-Cc: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>,
-        Tim Jansen <tim@tjansen.de>
-Subject: PROPOSAL: dot-proc interface [was: /proc stuff]
-Message-ID: <20011104163354.C14001@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	linux-kernel@vger.kernel.org,
-	Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>,
-	Tim Jansen <tim@tjansen.de>
-In-Reply-To: <E15zF9H-0000NL-00@wagner> <160MMf-1ptGtMC@fmrl05.sul.t-online.com> <20011104143631.B1162@pelks01.extern.uni-tuebingen.de> <160Nyq-2ACgt6C@fmrl07.sul.t-online.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <160Nyq-2ACgt6C@fmrl07.sul.t-online.com>; from tim@tjansen.de on Sun, Nov 04, 2001 at 03:13:37PM +0100
+	id <S280012AbRKDPti>; Sun, 4 Nov 2001 10:49:38 -0500
+Received: from postfix2-1.free.fr ([213.228.0.9]:6034 "HELO postfix2-1.free.fr")
+	by vger.kernel.org with SMTP id <S280006AbRKDPt1> convert rfc822-to-8bit;
+	Sun, 4 Nov 2001 10:49:27 -0500
+Date: Sun, 4 Nov 2001 14:04:26 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Linux <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
+Subject: SYM-2 patches against latest kernels available
+Message-ID: <20011104133028.M1354-100000@gerard>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Here's my stab at the problems - please comment,
+Hello,
 
-We want to avoid these problems:
- 1)  It is hard to parse (some) /proc files from userspace
- 2)  As /proc files change, parsers must be changed in userspace
+I have uploaded 2 patches against latest kernels 2.4.13 and 2.2.20.
 
-Still, we want to keep on offering
- 3)  Human readable /proc files with some amount of pretty-printing
- 4)  A /proc fs that can be changed as the kernel needs those changes
+ftp://ftp.tux.org/pub/roudier/drivers/linux/experimental/sym-2.1.16a-for-linux-2.4.13.patch.gz
+ftp://ftp.tux.org/pub/roudier/drivers/linux/experimental/sym-2.1.16b-for-linux-2.2.20.patch.gz
 
+Btw, the patches are experimental but the driver that is embedded in them
+should work just fine. :-)
 
-Taking care of (3) and (4):
+The patch against linux-2.4.13 has been sent to Alan Cox for inclusion in
+newer stable kernels. Alan wants to test it on his machines which is a
+good thing. Anyway, those patches just add the new driver version to
+kernel tree and leave stock sym53c8xx and ncr53c8xx in place.
 
-Maintaining the current /proc files is very simple, and it offers the system
-administrator a lot of functionality that isn't reasonable to take away now. 
+Any report, especially on large memory machines using 64 bit DMA (2.4
+kernels + PCI DAC capable controllers only), is welcome. I can't test 64
+bit DMA, since my fatest machine has only 512 MB of memory.
 
-       * They should stay in a form close to the current one *
+To configure the driver, you must select "SYM53C8XX version 2 driver" from
+kernel config. For large memory machines, a new "DMA addressing mode"
+option is to be configured as follows (help texts have been added to
+Configure.help):
 
+Value 0: 32 bit DMA addressing
+Value 1: 40 bit DMA addressing (upper 24 bytes set to zero)
+Value 2: 64 bit DMA addressing limited to 16 segments of 4 GB (64 GB) max.
 
-Taking care of (1) and (2):
-
-For each file "f" in /proc, there will be a ".f" file which is a
-machine-readable version of "f", with the difference that it may contain extra
-information that one may not want to present to the user in "f".
-
-The dot-proc file is basically a binary encoding of Lisp (or XML), e.g. it is a
-list of elements, wherein an element can itself be a list (or a character string,
-or a host-native numeric type.  Thus, (key,value) pairs and lists thereof are
-possible, as well as tree structures etc.
-
-All data types are stored in the architecture-native format, and a simple
-library should be sufficient to parse any dot-proc file.
+  Gérard.
 
 
-So, we need a small change in procfs that does not in any way break
-compatibility - and we need a few lines of C under LGPL to interface with it.
 
-Tell me what you think - It is possible that I could do this (or something
-close) in the near future, unless someone shows me the problem with the
-approach.
 
-Thank you,
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+
+
+
+
+

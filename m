@@ -1,70 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263381AbTEVXIg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 19:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbTEVXIg
+	id S263428AbTEVXNM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 19:13:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbTEVXNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 19:08:36 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:48109 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263381AbTEVXIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 19:08:34 -0400
-Date: Thu, 22 May 2003 16:20:02 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-fs@cwi.nl, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [patch?] truncate and timestamps
-Message-Id: <20030522162002.1d45a056.akpm@digeo.com>
-In-Reply-To: <UTC200305221909.h4MJ9h903738.aeb@smtp.cwi.nl>
-References: <UTC200305221909.h4MJ9h903738.aeb@smtp.cwi.nl>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 May 2003 23:21:39.0346 (UTC) FILETIME=[E587CF20:01C320B8]
+	Thu, 22 May 2003 19:13:12 -0400
+Received: from ppp-62-245-161-5.mnet-online.de ([62.245.161.5]:1664 "EHLO
+	frodo.midearth.frodoid.org") by vger.kernel.org with ESMTP
+	id S263428AbTEVXNL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 19:13:11 -0400
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.69-mm8] ide_dmaq_intr: stat=40, not expected
+From: Julien Oster <lkml@mf.frodoid.org>
+Organization: FRODOID.ORG
+X-Face: #C"_SRmka_V!KOD9IoD~=}8-P'ekRGm,8qOM6%?gaT(k:%{Y+\Cbt.$Zs<[X|e)<BNuB($kI"KIs)dw,YmS@vA_67nR]^AQC<w;6'Y2Uxo_DT.yGXKkr/s/n'Th!P-O"XDK4Et{`Di:l2e!d|rQoo+C6)96S#E)fNj=T/rGqUo$^vL_'wNY\V,:0$q@,i2E<w[_l{*VQPD8/h5Y^>?:O++jHKTA(
+Date: Fri, 23 May 2003 01:26:14 +0200
+In-Reply-To: <20030522225011$5a69@gated-at.bofh.it> (Bartlomiej
+ Zolnierkiewicz's message of "Fri, 23 May 2003 00:50:11 +0200")
+Message-ID: <frodoid.frodo.87fzn68sx5.fsf@usenet.frodoid.org>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
+References: <20030522224010$6dac@gated-at.bofh.it>
+	<20030522225011$5a69@gated-at.bofh.it>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
->
-> Investigating why some SuSE init script no longer works, I find:
-> The shell command
->     > file
-> does not update the time stamp of file in case it existed and had size 0.
+Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> writes:
 
-oops.  That's due to me "don't call vmtruncate if i_size didn't change"
-speedup.  It was a pretty good speedup too.
+> Hello,
 
-Does this look sane?
+Hello Bartlomiej,
 
+> Can you compile without IDE TCQ and tell whats the difference?
 
- 25-akpm/fs/attr.c |   13 ++++++++++---
- 1 files changed, 10 insertions(+), 3 deletions(-)
+Uh, well.
 
-diff -puN fs/attr.c~a fs/attr.c
---- 25/fs/attr.c~a	Thu May 22 16:16:33 2003
-+++ 25-akpm/fs/attr.c	Thu May 22 16:18:13 2003
-@@ -68,10 +68,17 @@ int inode_setattr(struct inode * inode, 
- 	int error = 0;
- 
- 	if (ia_valid & ATTR_SIZE) {
--		if (attr->ia_size != inode->i_size)
-+		if (attr->ia_size != inode->i_size) {
- 			error = vmtruncate(inode, attr->ia_size);
--		if (error || (ia_valid == ATTR_SIZE))
--			goto out;
-+			if (error)
-+				goto out;
-+		} else {
-+			/*
-+			 * We skipped the truncate but must still update
-+			 * timestamps
-+			 */
-+			ia_valid |= ATTR_MTIME|ATTR_CTIME;
-+		}
- 	}
- 
- 	lock_kernel();
+The message disappeared. However, since keyboard and mouse still
+didn't work (although all input devices are compiled in - did I miss
+something?), I had to press reset again.
 
-_
+Now my system seems quite fucked up. (or, better: "fscked up", since
+the problems appeared there...)
 
+After rebooting (again my stable 2.4.21-rc1 kernel), fsck ate a lot of
+files on the root partition, all with "unused
+inode... CLEARED". Strangely, ONLY on the root filesystem. All other
+filesystems (all on md devices, like the root filesystem) are perfect.
+
+I don't know if that's still an issue of IDE TCQ, but I think I'll
+quit trying it out, since I already lost X right now and have to
+restore quite a few things.
+
+Well, of course I have backups, I wouldn't install a development
+kernel without expecting things that are even much worse, but all
+those recompile, reboot, retry, reset and restore backup cycles are
+currently a bit too time consuming :)
+
+However, if you need additional information to track the TCQ-problem
+down, I see what I can give.
+
+Regards,
+Julien

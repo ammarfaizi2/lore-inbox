@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVBGQEu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVBGQHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbVBGQEu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 11:04:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbVBGQEt
+	id S261170AbVBGQHH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 11:07:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVBGQHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 11:04:49 -0500
-Received: from gprs215-44.eurotel.cz ([160.218.215.44]:48614 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261169AbVBGQEs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 11:04:48 -0500
-Date: Mon, 7 Feb 2005 17:01:05 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-Cc: Paulo Marques <pmarques@grupopie.com>, Adam Sulmicki <adam@cfar.umd.edu>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>,
-       ncunningham@linuxmail.org, ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Li-Ta Lo <ollie@lanl.gov>
-Subject: Re: [RFC] Reliable video POSTing on resume
-Message-ID: <20050207160105.GF8040@elf.ucw.cz>
-References: <4202DF7B.2000506@gmx.net> <1107485504.5727.35.camel@desktop.cunninghams> <9e4733910502032318460f2c0c@mail.gmail.com> <20050204074454.GB1086@elf.ucw.cz> <9e473391050204093837bc50d3@mail.gmail.com> <20050205093550.GC1158@elf.ucw.cz> <1107695583.14847.167.camel@localhost.localdomain> <Pine.BSF.4.62.0502062107000.26868@www.missl.cs.umd.edu> <42077AC4.5030103@grupopie.com> <42077CFD.7030607@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42077CFD.7030607@gmx.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 7 Feb 2005 11:07:06 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:19168 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261170AbVBGQGv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 11:06:51 -0500
+Message-ID: <420791D7.3020408@nortel.com>
+Date: Mon, 07 Feb 2005 10:05:43 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Kyle Moffett <mrmacman_g4@mac.com>, Pavel Roskin <proski@gnu.org>,
+       Joseph Pingenot <trelane@digitasaru.net>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       linux-kernel@vger.kernel.org, Greg Kroah-Hartman <greg@kroah.com>
+Subject: Re: Please open sysfs symbols to proprietary modules
+References: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain>	 <20050203000917.GA12204@digitasaru.net>	 <Pine.LNX.4.62.0502021950040.19812@localhost.localdomain>	 <692795D1-758E-11D9-9D77-000393ACC76E@mac.com> <1107674683.3532.26.camel@krustophenia.net>
+In-Reply-To: <1107674683.3532.26.camel@krustophenia.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > 3 - it's always there and can be executed at *any* time: booting,
-> > returning from suspend, etc. Also it would allow the VESA framebuffer
-> > driver to change graphics mode at any time (for instance).
+Lee Revell wrote:
+> On Wed, 2005-02-02 at 21:50 -0500, Kyle Moffett wrote:
 > 
-> OK, and what would force you to do the above in the kernel? If the code
-> lives in initramfs, it can be called very early, too.
+>>It's not like somebody will have
+>>some innate commercial advantage over you because they have your
+>>driver source code.
+> 
+> 
+> For a hardware vendor that's not a very compelling argument.  Especially
+> compared to what their IP lawyers are telling them.
+> 
+> Got anything to back it up?
 
-It will be easier to debug in kernel than in initramfs, for
-one. Kernel code is bad enough, but initramfs running while kernel is
-not even initialized is going to be even more "fun".
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+I have a friend who works for a company that does reverse-engineering of 
+ICs.  Companies hire them to figure out how their competitor's chips 
+work.  This is the real threat to hardware manufacturers, not publishing 
+the chip specs.
+
+Having driver code gives you the interface to the device.  That can be 
+reverse-engineered from watching bus traces or disassembling binary 
+drivers (which is how many linux drivers were originally written). 
+Companies have these kinds of resources.
+
+If you look at the big chip manufacturers (TI, Maxim, Analog Devices, 
+etc.) they publish specs on everything.  It would be nice if others did 
+the same.
+
+Chris

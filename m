@@ -1,50 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVBDArP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262777AbVBDAve@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261257AbVBDArP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 19:47:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263233AbVBDArC
+	id S262777AbVBDAve (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 19:51:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263261AbVBDArm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 19:47:02 -0500
-Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:9114 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S261733AbVBDAmd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 19:42:33 -0500
-Date: Fri, 4 Feb 2005 01:41:39 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: Christoph Lameter <clameter@sgi.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-ia64@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
-       jlan@sgi.com, Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Subject: Re: move-accounting-function-calls-out-of-critical-vm-code-paths.patch
-In-Reply-To: <20050203150551.4d88f210.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.53.0502040130230.5666@gockel.physik3.uni-rostock.de>
-References: <20050110184617.3ca8d414.akpm@osdl.org>
- <Pine.LNX.4.58.0502031319440.25268@schroedinger.engr.sgi.com>
- <20050203140904.7c67a144.akpm@osdl.org> <Pine.LNX.4.58.0502031436460.26183@schroedinger.engr.sgi.com>
- <20050203150551.4d88f210.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 3 Feb 2005 19:47:42 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:46747
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261757AbVBDAm3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 19:42:29 -0500
+Date: Thu, 3 Feb 2005 16:34:58 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Herbert Xu <herbert@gondor.apana.org.au>, anton@samba.org,
+       anton@au.ibm.com
+Cc: okir@suse.de, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] arp_queue: serializing unlink + kfree_skb
+Message-Id: <20050203163458.6282c3fe.davem@davemloft.net>
+In-Reply-To: <20050203111224.GA3267@gondor.apana.org.au>
+References: <20050131102920.GC4170@suse.de>
+	<E1CvZo6-0001Bz-00@gondolin.me.apana.org.au>
+	<20050202162023.075015d4.davem@davemloft.net>
+	<20050203111224.GA3267@gondor.apana.org.au>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Feb 2005, Andrew Morton wrote:
+On Thu, 3 Feb 2005 22:12:24 +1100
+Herbert Xu <herbert@gondor.apana.org.au> wrote:
 
-> Well your patch certainly cleans things up in there and would be a good
-> thing to have as long as we can be sure that it doesn't break the
-> accounting in some subtle way.
+> This paradigm is repeated throughout the kernel.  I bet the
+> same race can be found in a lot of those places.  So we really
+> need to sit down and audit them one by one or else come up with
+> a magical solution apart from disabling SMP :) 
 
-I think it also fits well with the other accounting data which is only 
-statistically probed at clock ticks.
+Ok.  I'm commenting now considering Anton's atomic_t rules.
+Anton, please read down below, I think there is a hole in the
+PPC memory barriers used for atomic ops on SMP.
 
-> Which implies that we need to see some additional accounting code, so we
-> can verify that the base accumulation infrastructure is doing the expected
-> thing.  As well as an ack from the interested parties.  Does anyone know
-> what's happening with all the new accounting initiatives?  I'm seeing no
-> activity at all.
+I don't see what changes are needed anywhere given those
+rules.  Olaf says the problem shows up on PPC SMP system,
+and since Anton knows the proper rules we hopefully can
+safely assume he implemented them correctly on PPC :-)
 
-Well, I'm here :), but I'm concentrating on making a GNU acct release 
-happen.
-Anyways, as I'm not involved with memory accounting yet, I guess I should 
-leave it to CSA and ELSA people to comment.
+I thought for a moment that the atomic_read() might be
+an issue, and I'd really hate to kill that optimization.
+But I can't see how it is.  Let us restate Olaf's original
+guess as to the problematic sequence of events:
 
-Tim
+	cpu 0			cpu 1
+	skb_get(skb)
+	unlock(neigh)
+				lock(neigh)
+				__skb_unlink(skb)
+				kfree_skb(sb)
+	kfree_skb(skb)
+
+First, __skb_unlink(skb) does an unlocked queue unlink, and
+these memory operations may have their visibility freely reordered
+by the processor.
+
+However, cpu 1 will see the refcount at 2, so it will execute:
+
+	atomic_dec_and_test(&skb->users)
+
+which has the implicit memory barriers, as Anton stated.  This
+means that the cpu will make the __skb_unlink(skb) results visible
+globally before the decrement.
+
+Now the kfree_skb() on cpu 0 executes, the atomic_read() sees it
+at 1, we do the __kfree_skb() and since the __skb_unlink() has been
+made visible before the decrement on the count to "1" the BUG()
+should not trigger in __kfree_skb().
+
+This all assumes, again, that PPC implements these things properly.
+
+Let's take a look (Anton, start reading here).  My understanding of PPC
+memory barriers, wrt. the physical memory coherency domain, is as follows:
+
+	sync	! All previous read/write execute before all subsequent read/write
+	lwsync	! All previous reads execute before all subsequent read/write
+	eieio	! All previous writes execute before all subsequent read/write
+	isync	! All previous memory operations and instructions execute and
+		! reach global visibility before any subsequent instructions execute
+
+What guarentees does isync really make about "read" reordering around
+the atomic increment?  Any descrepencies here would account for the
+case Olaf observed.
+
+All the atomic ops returning values on PPC do this on SMP:
+
+	eieio
+	atomic_op()
+	isync
+
+At a minimum, it seems that the eieio is not strong enough a
+memory barrier.  It is defined to order previous writes against
+future memory operations, but we also need to strictly order
+previous reads as well don't we?
+
+Also, if my understanding of isync is not correct, that could
+have implications as well.
+
+I guess for performance reasons, ppc doesn't use "sync" both
+before and after the atomic ops requiring ordering.  But I
+suspect that might be what is actually needed for proper conformity
+to the atomic_t memory ordering rules.
+
+Anton?

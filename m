@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264581AbRFUFEL>; Thu, 21 Jun 2001 01:04:11 -0400
+	id <S264425AbRFUFXq>; Thu, 21 Jun 2001 01:23:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264844AbRFUFDv>; Thu, 21 Jun 2001 01:03:51 -0400
-Received: from [32.97.182.101] ([32.97.182.101]:32710 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264581AbRFUFDp>;
-	Thu, 21 Jun 2001 01:03:45 -0400
-From: mdaljeet@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
+	id <S264679AbRFUFXg>; Thu, 21 Jun 2001 01:23:36 -0400
+Received: from nw171.netaddress.usa.net ([204.68.24.71]:37111 "HELO
+	nw171.netaddress.usa.net") by vger.kernel.org with SMTP
+	id <S264425AbRFUFX1> convert rfc822-to-8bit; Thu, 21 Jun 2001 01:23:27 -0400
+Message-ID: <20010621052321.24581.qmail@nw171.netaddress.usa.net>
+Date: 20 Jun 2001 23:23:21 MDT
+From: Blesson Paul <blessonpaul@usa.net>
 To: linux-kernel@vger.kernel.org
-Message-ID: <CA256A72.001BA0E4.00@d73mta01.au.ibm.com>
-Date: Thu, 21 Jun 2001 10:22:13 +0530
-Subject: harddisk support
+Subject: RPC vs Socket
+X-Mailer: USANET web-mailer (34FM.0700.17C.01)
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I do not know whether I should ask this question on this mailing list, but
-it definitely has to do either with the kernel confiuration or kernel
-support.
-
-In the '/dev' tree, the device file entries for SCSI harddisks ranges from
-'/dev/sda' to '/dev/sdp'. If I attach 17 scsi harddisks to a system, the
-17th harddisk is shown  as '/dev/sdq' in '/proc/partitions' but there is no
-entry in the '/dev' tree. If I try to access '/dev/sdq' either through
-fdisk or through   any other simple C programs, it gives error saying, can
-not open device '/dev/sdq'.
-
-How can I access more than 16 harddisks?
-
-Regards,
-Daljeet.
+hi all
+                      I am in the way of building  a new remote file system.
+Presently I decided to use sockets for remote communication. Lately I
+understood that RPC is used in coda and nfs file systems(is it so).  I want to
+know the fessibility in using RPC in the new file system.
+                      by
+                           Blesson Paul
 
 

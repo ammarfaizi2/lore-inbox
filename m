@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317551AbSGTWeG>; Sat, 20 Jul 2002 18:34:06 -0400
+	id <S317559AbSGTWuS>; Sat, 20 Jul 2002 18:50:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317552AbSGTWeG>; Sat, 20 Jul 2002 18:34:06 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:58004 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317551AbSGTWeG>;
-	Sat, 20 Jul 2002 18:34:06 -0400
-Date: Sat, 20 Jul 2002 15:27:03 -0700 (PDT)
-Message-Id: <20020720.152703.102669295.davem@redhat.com>
-To: rml@tech9.net
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       riel@conectiva.com.br, wli@holomorphy.com
-Subject: Re: [PATCH] generalized spin_lock_bit
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1027196511.1555.767.camel@sinai>
-References: <1027196511.1555.767.camel@sinai>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S317560AbSGTWuR>; Sat, 20 Jul 2002 18:50:17 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:22515 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S317559AbSGTWuR>; Sat, 20 Jul 2002 18:50:17 -0400
+Date: Sat, 20 Jul 2002 15:48:59 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Robert Love <rml@tech9.net>, Linus Torvalds <torvalds@transmeta.com>
+cc: William Lee Irwin III <wli@holomorphy.com>, akpm@zip.com.au,
+       riel@conectiva.com.br, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] for_each_pgdat
+Message-ID: <244469929.1027180137@[10.10.2.3]>
+In-Reply-To: <1027201039.1085.812.camel@sinai>
+References: <1027201039.1085.812.camel@sinai>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Robert Love <rml@tech9.net>
-   Date: 20 Jul 2002 13:21:51 -0700
-   
-   Thanks to Christoph Hellwig for prodding to make it per-architecture,
-   Ben LaHaise for the loop optimization, and William Irwin for the
-   original bit locking.
+>> Ok guys, you three (and whoever else wants to play? ;) fight it out amonst
+>> yourselves, I'll wait for the end result (iow: I'll just ignore both
+>> patches for now).
+> 
+> No no... the issues are fairly orthogonal.
+> 
+> Attached is a patch with the for_each_pgdat implementation and
+> s/node_next/pgdat_next/ per Martin.
 
-Just note that the implementation of these bit spinlocks will be
-extremely expensive on some platforms that lack "compare and swap"
-type instructions (or something similar like "load locked, store
-conditional" as per mips/alpha).
+I'm happy with this (obviously ;-))
+ 
+> If Bill wants to convert pgdats to lists that is fine but is another
+> step.  Let's get in this first batch and that can be done off this.
 
-Why not just use the existing bitops implementation?  The code is
-going to be mostly identical, ala:
+As we now reference them in only two places (the macro defn and
+numa.c:_alloc_pages) it hardly seems worth converting to lists ... ? 
+(I'm going to take an axe to NUMA _alloc_pages in a minute anyway ;-))
 
-	while (test_and_set_bit(ptr, nr)) {
-		while (test_bit(ptr, nr))
-			barrier();
-	}
-
-This makes less work for architectures to support this thing.
+M.

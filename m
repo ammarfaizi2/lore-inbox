@@ -1,57 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262197AbTI0VTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 17:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbTI0VTZ
+	id S262196AbTI0VOs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 17:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbTI0VOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 17:19:25 -0400
-Received: from gprs144-234.eurotel.cz ([160.218.144.234]:44672 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262197AbTI0VTX (ORCPT
+	Sat, 27 Sep 2003 17:14:48 -0400
+Received: from mailout.mbnet.fi ([194.100.161.24]:61710 "EHLO posti.mbnet.fi")
+	by vger.kernel.org with ESMTP id S262196AbTI0VOp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 17:19:23 -0400
-Date: Sat, 27 Sep 2003 23:18:38 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, akpm@osdl.org,
-       petero2@telia.com, Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 8/8] Add BTN_TOUCH to Synaptics driver. Update mousedev.
-Message-ID: <20030927211838.GC360@elf.ucw.cz>
-References: <10645086121286@twilight.ucw.cz> <200309251323.33416.dtor_core@ameritech.net> <20030925223032.GA32130@ucw.cz> <200309260224.54264.dtor_core@ameritech.net> <20030926075408.GA7330@ucw.cz> <20030927201951.GA401@elf.ucw.cz> <20030927210504.GA18178@ucw.cz> <20030927210948.GA360@elf.ucw.cz> <20030927211606.GA18264@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 27 Sep 2003 17:14:45 -0400
+From: Kimmo Sundqvist <rabbit80@mbnet.fi>
+Organization: Unorganized
+To: linux-kernel@vger.kernel.org
+Subject: Odd floppy disk error
+Date: Sun, 28 Sep 2003 00:13:04 +0300
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030927211606.GA18264@ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Message-Id: <200309280013.04028.rabbit80@mbnet.fi>
+X-OriginalArrivalTime: 27 Sep 2003 21:14:44.0881 (UTC) FILETIME=[5FD4A810:01C3853C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello
 
-> > > > > One thing I tried to avoid is a 'device class' kind of field, that'd
-> > > > > tell if a device is a mouse a touchpad, touchscreen, tablet, whatever.
-> > > > > I tried to avoid it because there are devices that don't fall into any
-> > > > > predefined class and if we make enough classes, someone someday will
-> > > > > make a device that won't fit again.
-> > > > 
-> > > > I believe having "is overlaid over screen" bit gets it right :-).
-> > > 
-> > > Tablets aren't. And they're handled the same way as touchscreens.
-> > 
-> > Ouch, so what's the difference between tablet and touchpad? Is it only
-> > in a way you are expected to use it? In such case "this is touchpad"
-> > bit is probably needed :-(.
-> 
-> For a tablet, the cursor follows the pen movement all the time. For a
-> touchpad, if you lift the finger and place it elsewhere, nothing
-> happens. This way you can move the cursor further by repeatedly stroking
-> the pad.
+I was testing old 1.44MB diskettes with badblocks, like "badblocks -sv 
+/dev/fd0" and this one particular diskette passed the test twice.  I then 
+decided to look into a text file that resided on the diskette.
 
-But difference is only in software, right? You could use synaptics as
-a tablet, its just little small. So perhaps "this is touchpad" bit is
-needed.
+The floppy drive started reading.  It seemed to take longer than expected, so 
+I forgot it and went to do other things.  After some hours had passed, I 
+wondered why the load on the machine was 100% in both CPUs all the time.
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Running top told me that 
+   7   5 -10      0     0    0    0   0  1 SW<  85.1  0.0  12:28 events/1
+  218  25   0     38  2244 1388  856   0  0 R    60.0  0.1  35:54 klogd
+  215  15   0     70  1420  588  832   0  0 R    36.2  0.0  26:33 syslogd
+
+and I quickly figured out that my /var partition was full.  
+
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/hda7               921748    921732        16 100% /var
+	
+Looking for explanations, the syslog was 
+
+-rw-r-----    1 root     adm      212582400 Sep 27 22:44 syslog
+
+and the contents of it were mostly
+
+Sep 27 22:44:04 minjami kernel: end_request: I/O error, dev fd0, sector 1327
+Sep 27 22:44:04 minjami kernel: Buffer I/O error on device fd0, logical block 
+1327
+Sep 27 22:44:04 minjami kernel: floppy0: disk absent or changed during 
+operation
+
+repeated for sectors from 1327 to 1334 in sequence, over and over again.
+
+What puzzles me is, why is the message there 2050 times in one second?  That 
+makes 6150 lines in one second.  It begins around line 850 000, and syslog is 
+around 2 245 000 long.  Timespan of 3 minutes, 46 seconds.  Therefore it's 
+6150 lines per second throughout.
+
+You sure have made a fast floppy driver, congratulations.  But the actual 
+point in writing this is that if there's anything unintentional in this 
+behaviour, I just wanted to let you know.
+
+"Linux minjami 2.6.0-test4-mm2 #1 SMP Thu Aug 28 15:08:11 EEST 2003 i686 
+GNU/Linux" is a mixed Debian 3.0r1 stable/testing/unstable system.
+
+/var/log/messages had only these two lines repeated (equal amount of times is 
+my guess)
+
+Sep 27 22:44:07 minjami kernel: end_request: I/O error, dev fd0, sector 1334
+Sep 27 22:44:07 minjami kernel: floppy0: disk absent or changed during 
+operation
+
+and the contents of /var/log/kern.log were identical to the contents of 
+/var/log/syslog between 22:40:14 and 22:44:07
+
+For more information, mail me, since I'm not subscribed.
+
+-Kimmo Sundqvist
+
+While writing this I gently removed the floppy from the drive, but the busy 
+light has been glowing for minutes after it now, and the load is still up.  
+The system is 100% responsive though.
+

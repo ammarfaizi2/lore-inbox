@@ -1,20 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315442AbSFJPC1>; Mon, 10 Jun 2002 11:02:27 -0400
+	id <S315449AbSFJPLA>; Mon, 10 Jun 2002 11:11:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315446AbSFJPC0>; Mon, 10 Jun 2002 11:02:26 -0400
-Received: from mail.cyberus.ca ([216.191.240.111]:30670 "EHLO cyberus.ca")
-	by vger.kernel.org with ESMTP id <S315442AbSFJPC0>;
-	Mon, 10 Jun 2002 11:02:26 -0400
-Date: Mon, 10 Jun 2002 10:56:36 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Mark Mielke <mark@mark.mielke.cc>
-cc: "David S. Miller" <davem@redhat.com>, <ltd@cisco.com>,
-        <greearb@candelatech.com>, <cfriesen@nortelnetworks.com>,
-        <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
-Subject: Re: RFC: per-socket statistics on received/dropped packets
-In-Reply-To: <Pine.GSO.4.30.0206101033450.22559-100000@shell.cyberus.ca>
-Message-ID: <Pine.GSO.4.30.0206101055370.22559-100000@shell.cyberus.ca>
+	id <S315451AbSFJPK7>; Mon, 10 Jun 2002 11:10:59 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60170 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315449AbSFJPK6>; Mon, 10 Jun 2002 11:10:58 -0400
+Date: Mon, 10 Jun 2002 08:11:21 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Futex Asynchronous Interface
+In-Reply-To: <3D045B85.16136535@aitel.hist.no>
+Message-ID: <Pine.LNX.4.44.0206100810380.30336-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,13 +20,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 10 Jun 2002, jamal wrote:
+On Mon, 10 Jun 2002, Helge Hafting wrote:
+>
+> Not much, but
+> ls /dev/net
+> eth0 eth1 eth2 ippp0
+> would be a convenient way to see what net devices exists.
+> This already works for other devices, when using devfs.
 
-> You may be confusing technical merit to mean the same thing as corporate
-> donation. In Linux its the later that counts.
+You might as well do
 
-Sorry meant the former.
+	cat /proc/net/dev
 
-cheers,
-jamal
+instead.
+
+Which works with existing kernels, going back to whatever..
+
+		Linus
 

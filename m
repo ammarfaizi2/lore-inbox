@@ -1,45 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263600AbTL2P02 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 10:26:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263606AbTL2P02
+	id S263580AbTL2PWk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 10:22:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbTL2PWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 10:26:28 -0500
-Received: from imf17aec.mail.bellsouth.net ([205.152.59.65]:20613 "EHLO
-	imf17aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S263600AbTL2P00 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 10:26:26 -0500
-Subject: Re: 2.4.23 can run with HZ==0!
-From: Rob Love <rml@ximian.com>
-To: Frank van Maarseveen <frankvm@xs4all.nl>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20031229125240.GA4055@janus>
-References: <20031228230522.GA1876@janus>
-	 <1072691126.5223.5.camel@laptop.fenrus.com>  <20031229125240.GA4055@janus>
-Content-Type: text/plain
-Message-Id: <1072711585.4294.8.camel@fur>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Mon, 29 Dec 2003 10:26:25 -0500
+	Mon, 29 Dec 2003 10:22:40 -0500
+Received: from ajax.xo.com ([207.155.248.44]:4330 "EHLO ajax.xo.com")
+	by vger.kernel.org with ESMTP id S263580AbTL2PWh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 10:22:37 -0500
+Message-ID: <3FF04579.1090203@katana-technology.com>
+Date: Mon, 29 Dec 2003 10:17:13 -0500
+From: Larry Sendlosky <lsendlosky@katana-technology.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 and mice
+References: <173901c3cceb$02d68560$43ee4ca5@DIAMONDLX60> <m2pte9cgbu.fsf@telia.com> <18cf01c3cdb0$2ab1cf20$43ee4ca5@DIAMONDLX60>
+In-Reply-To: <18cf01c3cdb0$2ab1cf20$43ee4ca5@DIAMONDLX60>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-12-29 at 07:52, Frank van Maarseveen wrote:
+I can't get my Microsoft wheel mouse to work left-handed via USB or PS/2 
+adaptor.
+This is with 2.6.0 and KDE from RH9.  I can only manage to get both 
+buttons to
+be seen as right-handed mb3 or "normal" right-handed, i.e. mb1 and mb3.  
+I do
+want to run 2.6.0, but I can't!  Any ideas?  (of course it all works 
+fine with 2.4.23).
 
-> Can you give me an example?
+larry
 
-Sure, as this has already been done:
+Norman Diamond wrote:
 
-	http://www.kernel.org/pub/linux/kernel/people/rml/variable-HZ/v2.4/
-
-As you see, that has a ton of fixups, primarily to ensure that
-user-space is always exported jiffies in terms of USER_HZ==100.
-
-> The uptime will be rather limited with 32 bits jiffies ;-) but I can live with that.
-
-There is a patch at that same place that adds 64-bit jiffies.
-
-	Rob Love
-
+>Peter Osterlund replied to me:
+>
+>  
+>
+>>>2.  Also in Input device support, there is a section on Mice, PS/2 mouse,
+>>>and Synaptics TouchPad.  These I compiled in and they don't seem to be
+>>>causing any problems.  It seems that the Alps TouchPad is being recognized
+>>>as an Intelli/Wheel mouse instead of being recognized as a Synaptics
+>>>TouchPad, which is unfortunate but not really causing any problems.  I've
+>>>read that Synaptics is most common in foreign countries but Alps is most
+>>>common in Japan.
+>>>      
+>>>
+>>The synaptics kernel driver doesn't try to recognize alps touchpads.
+>>    
+>>
+>
+>I guess that explains why the Synaptics driver didn't cause any problems
+>:-)
+>
+>  
+>
+>>However, in the XFree86 driver
+>>        http://w1.894.telia.com/~u89404340/touchpad/index.html
+>>there is a kernel patch (alps.patch) that makes the kernel recognize
+>>alps touchpads and generate data compatible with the XFree86 synaptics
+>>driver.
+>>    
+>>
+>
+>Looking at that page, I'll guess that SuSE 8.2's version of XFree86 probably
+>already has that patch, because under X the touchpad is performing more than
+>half of those operations correctly already.
+>
+>  
+>
+>>It doesn't work perfectly though, at least not for some hardware. The
+>>problem seems to be how to interpret the gesture bit in the alps mouse
+>>packets.
+>>    
+>>
+>
+>That's OK, Alps supplies notebook vendors with drivers for Monopolysoft
+>OSes, and it seems that Alps hasn't completely got this working correctly
+>either.
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 

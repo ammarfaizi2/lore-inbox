@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270081AbTHLL1j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 07:27:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270093AbTHLL1j
+	id S270066AbTHLL1c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 07:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270081AbTHLL1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 07:27:39 -0400
-Received: from EPRONET.01.dios.net ([65.222.230.105]:20639 "EHLO
-	mail.eproinet.com") by vger.kernel.org with ESMTP id S270081AbTHLL1h
+	Tue, 12 Aug 2003 07:27:32 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33694 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S270066AbTHLL1b
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 07:27:37 -0400
-Date: Tue, 12 Aug 2003 06:54:22 -0400 (EDT)
-From: "Mark W. Alexander" <slash@dotnetslash.net>
-To: Santiago Garcia Mantinan <manty@manty.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0test3 problems on Acer TravelMate 260 (ALSA,ACPIvsSynaptics,yenta)
-In-Reply-To: <20030812083900.GA2974@man.beta.es>
-Message-ID: <Pine.LNX.4.44.0308120651520.23861-100000@llave.eproinet.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 12 Aug 2003 07:27:31 -0400
+Date: Tue, 12 Aug 2003 12:27:29 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Greg KH <greg@kroah.com>
+Cc: Matthew Wilcox <willy@debian.org>, Robert Love <rml@tech9.net>,
+       CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org,
+       kernel-janitor-discuss@lists.sourceforge.net
+Subject: Re: C99 Initialisers
+Message-ID: <20030812112729.GF3169@parcelfarce.linux.theplanet.co.uk>
+References: <20030812020226.GA4688@zip.com.au> <1060654733.684.267.camel@localhost> <20030812023936.GE3169@parcelfarce.linux.theplanet.co.uk> <20030812053826.GA1488@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030812053826.GA1488@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Aug 2003, Santiago Garcia Mantinan wrote:
-
-> > existance on 2.6. Could you post or send me your PCIC=yenta config file?
-> > (Debian /etc/default/pcmcia. I don't know where on other distros.)
+On Mon, Aug 11, 2003 at 10:38:27PM -0700, Greg KH wrote:
+> On Tue, Aug 12, 2003 at 03:39:36AM +0100, Matthew Wilcox wrote:
+> > I don't think anyone would appreciate you converting that to:
+> > 
+> > static struct pci_device_id tg3_pci_tbl[] __devinitdata = {
+> > 	{
+> > 		.vendor		= PCI_VENDOR_ID_BROADCOM,
+> > 		.device		= PCI_DEVICE_ID_TIGON3_5700,
+> > 		.subvendor	= PCI_ANY_ID,
+> > 		.subdevice	= PCI_ANY_ID,
+> > 		.class		= 0,
+> > 		.class_mask	= 0,
+> > 		.driver_data	= 0,
+> > 	},
 > 
-> I'm running Debian unstable here but I do not have anything special on that
-> file, just the defaults changing the driver into yenta_socket, and even this
-> is not necesary if you happen to have just yenta compiled.
+> I sure would.  Oh, you can drop the .class, .class_mask, and
+> .driver_data lines, and then it even looks cleaner.
 > 
-> # Defaults for pcmcia (sourced by /etc/init.d/pcmcia)
-> PCMCIA=yes
-> PCIC=yenta_socket
-> PCIC_OPTS=
-> CORE_OPTS=
-> CARDMGR_OPTS=
+> I would love to see that kind of change made for pci drivers.
 
-Crap, I was afraid of that. That means my problem is probably BIOS
-related.
+I really strongly disagree.  For a struct that's as well-known as
+pci_device_id, the argument of making it clearer doesn't make sense.
+It's also not subject to change, unlike say file_operations, so the
+argument of adding new elements without breaking anything is also not
+relevant.
 
-Just in case, would you mind sending me your 2.4 config off-list?
+In tg3, the table definition is already 32 lines long with 2 lines per
+device_id.  In the scheme you favour so much, that becomes 92 lines, for
+no real gain that I can see.
 
-Thanks,
-mwa
 -- 
-Mark W. Alexander
-slash@dotnetslash.net
-
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

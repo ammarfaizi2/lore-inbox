@@ -1,74 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbUJaFD2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbUJaFIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbUJaFD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 01:03:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbUJaFD2
+	id S261503AbUJaFIh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 01:08:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbUJaFIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 01:03:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30592 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261501AbUJaFDW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 01:03:22 -0400
-Date: Sat, 30 Oct 2004 22:03:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roland Dreier <roland@topspin.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Sparse "context" checking..
-In-Reply-To: <52d5yzwmqb.fsf@topspin.com>
-Message-ID: <Pine.LNX.4.58.0410302158230.28839@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0410302005270.28839@ppc970.osdl.org>
- <52d5yzwmqb.fsf@topspin.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 31 Oct 2004 01:08:37 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:17066 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261503AbUJaFIg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 01:08:36 -0400
+Subject: Re: PCI->APIC IRQ transform -> 267 ?
+From: Len Brown <len.brown@intel.com>
+To: Robert Clark <lkml@ratty.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1098958286.6342.63.camel@localhost>
+References: <1098958286.6342.63.camel@localhost>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1099199311.18178.4.camel@d845pe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 31 Oct 2004 01:08:31 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 30 Oct 2004, Roland Dreier wrote:
->
->     Linus> In particular, this is designed for doing things like
->     Linus> matching up a "lock" with the pairing "unlock", and right
->     Linus> now that's exactly what the code does: it makes each
->     Linus> spinlock count as "+1" in the context, and each spinunlock
->     Linus> count as "-1", and then hopefully it should all add up.
+On Thu, 2004-10-28 at 06:11, Robert Clark wrote:
+> I'm getting this with 2.4.27 (SMP):
 > 
-> Do you have a plan for how to handle functions like spin_trylock()?  I
-> notice in the current tree you just didn't annotate spin_trylock().
+> PCI: Using IRQ router PIIX [8086/25a1] at 00:1f.0
+...
+> PCI->APIC IRQ transform: (B3,I4,P0) -> 267
 
-Actually, the _current_ tree does actually annotate spin_trylock() (as of
-just before I sent out the email). It looks like
+this is from pcibios_fixup_irqs() which is called only when ACPI is
+disabled.  Let me know if you still have trouble with a kernel built
+with CONFIG_ACPI=y.  Also, it would be good to know if other versions of
+the kernel are known to work, or if they all fail on this box.
 
-	#define spin_trylock(lock)      __cond_lock(_spin_trylock(lock))
+thanks,
+-Len
 
-where __cond_lock() for sparse is
 
-	include/linux/compiler.h:# define __cond_lock(x)        ((x) ? ({ __context__(1); 1; }) : 0)
-
-ie we add a "+1" context marker for the success case.
-
-NOTE! This works with sparse only because sparse does immediate constant 
-folding, so if you do
-
-	if (spin_trylock(lock)) {
-		..
-		spin_unlock(lock);
-	}
-
-sparse linearizes that the right way unconditionally, and even though 
-there is a data-dependency, the data depenency is constant. However, if 
-some code does
-
-	success = spin_trylock(lock);
-	if (success) {
-		..
-		spin_unlock(lock);
-	}
-
-sparse would complain about it, because sparse doesn't do any _real_ data 
-flow analysis.
-
-So sparse can follow all the obvious cases, including trylock and
-"atomic_dec_and_lock()".
-
-			Linus

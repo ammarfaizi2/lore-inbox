@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318282AbSIBNB1>; Mon, 2 Sep 2002 09:01:27 -0400
+	id <S318292AbSIBNQC>; Mon, 2 Sep 2002 09:16:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318292AbSIBNB1>; Mon, 2 Sep 2002 09:01:27 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:56569
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318282AbSIBNB0>; Mon, 2 Sep 2002 09:01:26 -0400
-Subject: Re: Problem with the O(1) scheduler in 2.4.19
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tobias Ringstrom <tori@ringstrom.mine.nu>
-Cc: Ingo Molnar <mingo@elte.hu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0208301822200.2042-100000@boris.prodako.se>
-References: <Pine.LNX.4.44.0208301822200.2042-100000@boris.prodako.se>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 02 Sep 2002 14:07:13 +0100
-Message-Id: <1030972033.3490.57.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318293AbSIBNQC>; Mon, 2 Sep 2002 09:16:02 -0400
+Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:33200 "EHLO
+	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S318292AbSIBNQC>; Mon, 2 Sep 2002 09:16:02 -0400
+Date: Mon, 2 Sep 2002 10:20:18 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+cc: Ed Sweetman <ed.sweetman@wmich.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: Benchmarks for performance patches (-ck) for 2.4.19
+In-Reply-To: <20020902093910.G781@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <Pine.LNX.4.44L.0209021018440.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-09-01 at 22:53, Tobias Ringstrom wrote:
-> While the O(1) scheduler has performed very well for me in most
-> situations, I have one big problem with it.  When running a Counter-Strike
-> game server on Linux 2.4.19 with the sched-2.4.19-rc2-A4 patch applied,
-> the server process is niced from the default value of 15 (interactive) to
-> 25 (background).  This means that every time crond wakes up or a mail
-> arrives the game latency becomes extremely bad and the users experience
-> lag.
-> 
-> The process takes around 70% CPU on these occasions, so I'm surprised that
-> the task is not considered to be interactive.
-> 
-> This does not happen with stock 2.4.19.  Do you have any ideas why this
-> regression is happening?
+On Mon, 2 Sep 2002, Ingo Oeser wrote:
 
-It isnt a regression, its a bug fix. The nice value is now being
-honoured properly.
+> This is not only X. The problem is the software layering bloat.
+> Thats a design mistake we copied from W*ndows in our Linux
+> applications.
+
+Agreed, it is not just in one layer of the system.
+
+However, changing the kernel _has_ resulted in a large
+improvement in interactivity and does allow me to run
+bonnie++ or even a 'bk clone' while playing mp3s and
+without losing interactivity or having the mp3s skip...
+
+On a machine with 192 MB RAM.
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,57 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283655AbRLDOog>; Tue, 4 Dec 2001 09:44:36 -0500
+	id <S283112AbRLDOoc>; Tue, 4 Dec 2001 09:44:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283473AbRLDOmq>; Tue, 4 Dec 2001 09:42:46 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:55218
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S283123AbRLDMbb>; Tue, 4 Dec 2001 07:31:31 -0500
-Date: Tue, 4 Dec 2001 07:21:22 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Woodhouse <dwmw2@infradead.org>, Keith Owens <kaos@ocs.com.au>,
-        kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011204072122.A11746@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Keith Owens <kaos@ocs.com.au>, kbuild-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <20011204065212.A10990@thyrsus.com> <E16BEat-0001w7-00@the-village.bc.nu>
+	id <S283637AbRLDOm5>; Tue, 4 Dec 2001 09:42:57 -0500
+Received: from cm.med.3284844210.kabelnet.net ([195.202.190.178]:17674 "EHLO
+	phobos.hvrlab.org") by vger.kernel.org with ESMTP
+	id <S283664AbRLDNtW>; Tue, 4 Dec 2001 08:49:22 -0500
+Subject: Re: RFC(ry): breaking loop.c's IV calculation
+From: Herbert Valerio Riedel <hvr@hvrlab.org>
+To: Jari Ruusu <jari.ruusu@pp.inet.fi>
+Cc: marcelo@conectiva.com.br, Andrea Arcangeli <andrea@suse.de>, axboe@suse.de,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3C0BFB3F.9111CD2C@pp.inet.fi>
+In-Reply-To: <3C0A51B0.9AD14E74@pp.inet.fi>
+	<Pine.LNX.4.33.0112021716001.2563-100000@janus.txd.hvrlab.org> 
+	<20011202234625.A3447@athlon.random>
+	<1007388763.1674.37.camel@janus.txd.hvrlab.org> 
+	<3C0BFB3F.9111CD2C@pp.inet.fi>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 04 Dec 2001 14:48:35 +0100
+Message-Id: <1007473716.3731.60.camel@janus.txd.hvrlab.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16BEat-0001w7-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Dec 04, 2001 at 12:22:39PM +0000
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> > Unfortunately, the syntax of CML1 is rebarbative, and its imperative 
-> > semantics cannot be mechanically translated to CML2's declarative 
-> > semantics by any means I'm aware of.
-> 
-> The dependancy tree from CML1 is not that hard to obtain. It's not quite
-> complete or correct though
+hello!
 
-That's right -- and the devil would be in the incomplete/incorrect
-details. Areas of special pain: (1) cross-directory constraints, (2)
-derivations, (3) multiple port tree apexes.  These are all areas where
-CML1 has design flaws that human coders get around by applying
-higher-level knowledge of a kind a mechanical translator couldn't
-have.
+On Mon, 2001-12-03 at 20:00, Jari Ruusu wrote:
+> Herbert Valerio Riedel wrote:
+>> well, I've put one patch together (it still needs (constructive)
+>> auditing though! jari?) here it is (it's against 2.4.16's loop.[ch])
+ 
+> 1)  For 2.4 kernels, IV type must remain int, not loop_iv_t, ok?
+>     Make the type loop_iv_t for 2.5 kernels but not for 2.4.
+no problem, the typedef can be changed to
 
-This is, alas, one of those cases where the first 90% of the problem looks 
-easy and the last 10% turns ought to be nigh-impossible -- and the
-first 90% is useless without the last 10%.
+typedef int loop_iv_t;
+
+that way the API does not change; it just looks more consistent...
+ 
+IMHO having a typedef in loop.h instead of hardcoding it to an 'int' is
+more flexible and less error-prone...
+
+> 2)  Get rid of the loop_get_bs() crap.
+btw, what's the motivation for it? I'd also like to know why it was used
+in the first place at all... :-)
+
+On Mon, 2001-12-03 at 23:22, Jari Ruusu wrote:
+> I have attached my version of loop.c bug fixes. These are extracted from
+> loop-AES and are well tested.
+although I'm quite confident you patch is well tested, it goes well
+beyond fixing only the IV calculation and as such represents a major
+change to the loop.c driver -- I'm curious whether it will be accepted
+for 2.4.x... :-) ; but don't get me wrong, I'll be quite happy if it
+goes in nevertheless!
+
+just a minor note regarding source 'aesthetics';
+
+it would be more self-explaining IMNSHO if you used some macro constant
+for the '9' shifting instead of hardcoding it...:
+
+int IV = index * (PAGE_CACHE_SIZE >> 9) + (offset >> 9);
+
+in your patch vs. in my patch:
+
+/* loop.h */
+#define LOOP_IV_SECTOR_BITS 9
+#define LOOP_IV_SECTOR_SIZE (1 << LOOP_IV_SECTOR_BITS)
+
+typedef int loop_iv_t;
+
+/* loop.c */
+const loop_iv_t IV =
+    (index << (PAGE_CACHE_SHIFT - LOOP_IV_SECTOR_BITS))
+  + (offset >> LOOP_IV_SECTOR_BITS);
+
+it makes also life easier for filters which include loop.h, cause you
+can check for the presence of the #defines above, whether a fixed loop.c
+is available or not; and we are also prepared for the (even if unlikely)
+event that those constants are changed some time...
+
+> - IV computed in 512 byte units.
+> - Make device backed loop work with swap by pre-allocating pages.
+btw, just as a side note; IMHO this is a neat feature, but encrypted
+swap shouldn't be done on top of a loop device but more like the bsd
+people do it, as it allows for more interesting IV & key management
+schemes...
+
+> - External encryption module locking bug fixed (from Ingo Rohloff).
+> - Get rid of the loop_get_bs() crap.
+> - grab_cache_page() return value handled properly, avoids Oops.
+> - No more illegal messing with BH_Dirty flag.
+> - No more illegal sleeping in generic_make_request().
+> - Loops can be set-up properly when root partition is still mounted ro.
+> - Default soft block size is set properly for file backed loops.
+> - kmalloc() error case handled properly.
+
+regards,
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Herbert Valerio Riedel       /    Phone: (EUROPE) +43-1-58801-18840
+Email: hvr@hvrlab.org       /    Finger hvr@gnu.org for GnuPG Public Key
+GnuPG Key Fingerprint: 7BB9 2D6C D485 CE64 4748  5F65 4981 E064 883F
+4142
 
-"Among the many misdeeds of British rule in India, history will look
-upon the Act depriving a whole nation of arms as the blackest."
-        -- Mohandas Ghandhi, An Autobiography, pg 446

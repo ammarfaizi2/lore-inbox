@@ -1,50 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129670AbQKFXo2>; Mon, 6 Nov 2000 18:44:28 -0500
+	id <S129729AbQKFXuT>; Mon, 6 Nov 2000 18:50:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129928AbQKFXoS>; Mon, 6 Nov 2000 18:44:18 -0500
-Received: from avocet.prod.itd.earthlink.net ([207.217.121.50]:6136 "EHLO
-	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S129670AbQKFXoK>; Mon, 6 Nov 2000 18:44:10 -0500
-Message-ID: <03f701c0484b$72ec74e0$0a25a8c0@wizardess.wiz>
-From: "J. Dow" <jdow@earthlink.net>
-To: "Leen Besselink" <leen@wirehub.nl>, "Jeff Dike" <jdike@karaya.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1001106195143.2553B-100000@debian.besselink>
-Subject: Re: Play Kernel Hangman!
-Date: Mon, 6 Nov 2000 15:44:02 -0800
+	id <S129928AbQKFXuJ>; Mon, 6 Nov 2000 18:50:09 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:57147 "EHLO
+	amsmta05-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S129729AbQKFXuB>; Mon, 6 Nov 2000 18:50:01 -0500
+Date: Tue, 7 Nov 2000 01:57:34 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Paul Powell <moloch16@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: xterm: no available ptys
+In-Reply-To: <20001106203738.17935.qmail@web110.yahoomail.com>
+Message-ID: <Pine.LNX.4.21.0011070157010.30406-100000@server.serve.me.nl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Leen Besselink" <leen@wirehub.nl>
+On Mon, 6 Nov 2000, Paul Powell wrote:
 
-> On Mon, 6 Nov 2000, Jeff Dike wrote:
->
-> > After a stranger than usual late-night #kernelnewbies session on Thursday, I
-> > was inspired to come up with Kernel Hangman.  This is the traditional game
-of
-> > hangman, except that the words you have to guess are kernel symbols.
-> >
-> > So, test your knowledge of kernel trivia and play it at
-> > http://user-mode-linux.sourceforge.net/cgi-bin/hangman
-> >
-> > Jeff
->
-> Actually, OpenBSD already has this (in the kernel !) After a kernel crash
-> ones, I got in the kerneldebugger. I didn't really know how to use it, but
-> I could play hangman. I just downloaded the source
+> Hello,
+> 
+> I have created a trimmed down /dev directory to be
+> used with my custom bootable Linux CD.  I've run into
+> a problem where I can't start an xterm.  I get the
+> error...
+> 
+> xterm:  no available ptys
+> 
+> I'm not sure which device I'm missing in /dev.  I'm no
+> expert on how the tty's and stuff work so feel free to
+> fill me in. Everything else seems to work fine on the
+> CD.
+> 
+> Here is what my /dev directory looks like now:
+> 
+> /dev:
+> console
+> cua0
+> cua1
+> cua2
+> cua3
+> fb
+> fb0
+> fb1
+> fb2
+> fb3
+> fb4
+> fb5
+> fb6
+> fb7
+> fd0
+> fd1
+> hda
+> hdb
+> hdc
+> hdd
+> kmem
+> listing
+> mem
+> mouse
+> null
+> psaux
+> pts
+>  |...0
 
-Now that might be the best argument for a kernel debugger we've seen yet.
+I'm missing ptmx. You NEED a writable /dev/pts dir.
 
-{O,o}    Joanne Dow, somewhat crazed.
+
+
+	Igmar
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

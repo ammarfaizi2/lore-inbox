@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262280AbTLWSsW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 13:48:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbTLWSsV
+	id S262181AbTLWSo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 13:44:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbTLWSo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 13:48:21 -0500
-Received: from imf20aec.mail.bellsouth.net ([205.152.59.68]:10491 "EHLO
-	imf20aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S262280AbTLWSsI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 13:48:08 -0500
-From: "J.C. Wren" <jcwren@jcwren.com>
-Reply-To: jcwren@jcwren.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: Prevailence of PS/2 Active Muxed devices?
-Date: Tue, 23 Dec 2003 13:47:33 -0500
-User-Agent: KMail/1.5.4
-References: <20031223180429.GA11198@dreamland.darkstar.lan> <200312231325.39712.jcwren@jcwren.com>
-In-Reply-To: <200312231325.39712.jcwren@jcwren.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Dec 2003 13:44:26 -0500
+Received: from gaz.sfgoth.com ([69.36.241.230]:22221 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S262181AbTLWSoY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 13:44:24 -0500
+Date: Tue, 23 Dec 2003 10:45:50 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Linus Torvalds <torvalds@osdl.org>,
+       "Giacomo A. Catenazzi" <cate@pixelized.ch>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "Eric S. Raymond" <esr@thyrsus.com>
+Subject: Re: SCO's infringing files list
+Message-ID: <20031223184550.GE45620@gaz.sfgoth.com>
+References: <Pine.LNX.4.58.0312221337010.6868@home.osdl.org> <20031223002641.GD28269@pegasys.ws> <20031223092847.GA3169@deneb.enyo.de> <3FE811E3.6010708@debian.org> <Pine.LNX.4.58.0312230317450.12483@home.osdl.org> <3FE862E7.1@pixelized.ch> <20031223160425.GB45620@gaz.sfgoth.com> <20031223163926.GC45620@gaz.sfgoth.com> <Pine.LNX.4.58.0312230914090.14184@home.osdl.org> <20031223124024.A30934@discworld.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312231347.33818.jcwren@jcwren.com>
+In-Reply-To: <20031223124024.A30934@discworld.dyndns.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Naturally, after spending 45 minutes looking through mouse and keyboard 
-sources in 2.4.21 on the laptop, I find it in i8042.c in the 2.6 tree.
+Charles Cazabon wrote:
+> Well, it's been recompressed with gzip, but it's here (among other places):
+> ftp://ftp.uni-kassel.de/Mirrors/prep.ai.mit.edu/pub/gnu/glibc/glibc-2.2.2.tar.gz
 
-	Now to see if something can actually be done with it...
+No, we're looking for the pre-glibc-2 versions.  In the early days of linux
+the "libc" version was kept in sync with the gcc it was meant to go with.
+So although (IIRC) the early linux libc was forked from GNU's libc it had
+its own version numbering.  It wasn't until years later that the big merge
+back to glibc happened (1997 or so).
 
-	--jc
+I don't think you'll find any of the old linux libc-2.x.x releases on GNU's
+site.
 
-On Tuesday 23 December 2003 13:25 pm, J.C. Wren wrote:
-> 	I have an application where I'd like to specifically control which PS/2
-> aux device data is sent/received from/to.  Particularly, on a laptop that
-> has an integrated touch pad, I'd like to select the external mouse port.
->
-> 	This document http://www.synaptics-uk.com/decaf/utilities/ps2-mux.PDF
-> describes what appears to be a rather well thought method for multiple aux
-> devices on a single KBC.
->
-> 	Looking through the kernel sources, I see no handling for this.  From a
-> big picture perspective, how does Linux handle a system with an integrated
-> mouse pad, and an external PS/2 mouse port?  Is this whole Synaptics idea
-> dead, or is support for this planned, or even considered?  Does any one
-> have any knowledge the number of KBCs with this muxing?
->
-> 	Seeing some of the parties that partcipated in the standards, it would be
-> a touch surprising if it just completely died.
->
-> 	--jc
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+-Mitch

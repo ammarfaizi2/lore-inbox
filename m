@@ -1,42 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279803AbRJ0K55>; Sat, 27 Oct 2001 06:57:57 -0400
+	id <S279802AbRJ0Ksq>; Sat, 27 Oct 2001 06:48:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279804AbRJ0K5s>; Sat, 27 Oct 2001 06:57:48 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:929 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S279803AbRJ0K5i>; Sat, 27 Oct 2001 06:57:38 -0400
-Message-Id: <200110271058.MAA07477@post.webmailer.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Florian Schmitt <fschmitt@gmx.net>
-To: <ognen@gene.pbi.nrc.ca>
-Subject: Re: crypto api and 2.4.13
-Date: Sat, 27 Oct 2001 12:57:01 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.LNX.4.30.0110261634430.3034-100000@gene.pbi.nrc.ca>
-In-Reply-To: <Pine.LNX.4.30.0110261634430.3034-100000@gene.pbi.nrc.ca>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Cc: <linux-kernel@vger.kernel.org>
+	id <S279803AbRJ0Ksh>; Sat, 27 Oct 2001 06:48:37 -0400
+Received: from dsl092-013-071.sfo1.dsl.speakeasy.net ([66.92.13.71]:3200 "EHLO
+	pelerin.serpentine.com") by vger.kernel.org with ESMTP
+	id <S279802AbRJ0KsV>; Sat, 27 Oct 2001 06:48:21 -0400
+Subject: VIA KT133 data corruption update
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-Gknx28MR2c8G2GONtaLO"
+X-Mailer: Evolution/0.16 (Preview Release)
+Date: 27 Oct 2001 03:48:56 -0700
+Message-Id: <1004179736.1615.19.camel@pelerin.serpentine.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-> Would the same work with 2.4.13 and ext3?
+--=-Gknx28MR2c8G2GONtaLO
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-2.4.13 and ext2 works fine here. You'll need the cvs version from
-cryptoapi.sourceforge.net. I didn't try ext3 though.
+After several months of begrudgingly putting up with my ASUS A7V
+motherboard corrupting roughly 1 byte per 100 million read during
+moderate to heavy PCI bus activity, I flashed VIA's 1009 BIOS this
+evening.
 
-Flo
+I have not been able to reproduce any corruption since then (it was
+ridiculously easy before the new BIOS), and my machine seems otherwise
+as stable as I would hope.  This marks the first time since 2.4.6 that
+I've been able to run a Linus kernel without cowering.
 
+I also discovered, of necessity, a halfway manageable process for
+creating a DOS boot floppy using Windows ME, which Microsoft would
+apparently prefer was not possible.  I'll reproduce the steps here,
+since otherwise flashing a new BIOS is likely to be nightmarish for
+people stuck dual booting into WinME.
+
+Most of these steps occur under Linux, and I'll assume that your Windows
+Me "C:" drive is mounted as /dos/c.
+
+- Format a floppy:
+  fdformat /dev/fd0H1440
+
+- Create a FAT filesystem:
+  mkdosfs /dev/fd0
+
+- Mount the floppy:
+  mount /dev/fd0 /mnt
+
+- Copy across a few files:
+  cp /dos/c/command.com /mnt
+  cp /dos/c/io.sys /mnt
+  cp /dos/c/msdos.sys /mnt
+
+- Edit /mnt/msdos.sys, and change values as follows:
+  [Paths]
+  WinDir=3Da:\
+  WinBootDir=3Da:\
+  HostWinBootDrv=3Da
+
+  [Options]
+  BootMulti=3D0
+  BootGUI=3D0
+  AutoScan=3D0
+
+- Copy across your BIOS flash utility (probably aflash.exe) and BIOS
+  image.  Unmount the floppy (important; don't just reboot):
+  umount /mnt/floppy
+
+- When you reboot to the floppy, it will desperately try to boot into
+  Windows.  When it prompts you for the path to some Windows VXD, just
+  type "a:\command.com", and lo, you've got a DOS prompt.
+
+Cheers,
+
+	<b
+
+--=-Gknx28MR2c8G2GONtaLO
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: You may find my public key at http://www.galois.de/florian.schmitt.pubkey.asc
+Comment: For info see http://www.gnupg.org
 
-iD8DBQE72pL+H7Gei80C0lQRAmELAJ9kqtK+FKhJmvgpjwNU1RNnrD6ytwCcDeXF
-+Rc5Fx4JqwqIouvAWaL5CwQ=
-=b4El
+iD8DBQA72pEYG8PvG6BKogcRAqQSAKC973/O/dbEEQFcOLWQosJqsO+VEgCcCyOV
+zxdVvF1mgWttIXcAo/LCrb8=
+=VRns
 -----END PGP SIGNATURE-----
+
+--=-Gknx28MR2c8G2GONtaLO--

@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261979AbTIMA6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 20:58:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbTIMA6Y
+	id S261976AbTIMAz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 20:55:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbTIMAz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 20:58:24 -0400
-Received: from mrout3.yahoo.com ([216.145.54.173]:15377 "EHLO mrout3.yahoo.com")
-	by vger.kernel.org with ESMTP id S261979AbTIMA6W (ORCPT
+	Fri, 12 Sep 2003 20:55:27 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:26007 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261976AbTIMAz0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 20:58:22 -0400
-Message-ID: <3F626BA9.7040604@bigfoot.com>
-Date: Fri, 12 Sep 2003 17:58:17 -0700
-From: Erik Steffl <steffl@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i386; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: intel D865PERL and DMA for disks (IDE)?
-References: <3F62628B.5060805@bigfoot.com> <200309130236.14814.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200309130236.14814.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Sep 2003 20:55:26 -0400
+From: Cort Dougan <cort@ftsoj.fsmlabs.com>
+Date: Fri, 12 Sep 2003 18:55:37 -0600
+To: Judith Lebzelter <judith@osdl.org>, linux-kernel@vger.kernel.org,
+       plm-devel@lists.sourceforge.net
+Subject: Re: PowerPC Cross-compile of 2.6 kernels
+Message-ID: <20030913005537.GA767@ftsoj.fsmlabs.com>
+References: <20030912165635.GJ13672@ip68-0-152-218.tc.ph.cox.net> <Pine.LNX.4.33.0309121042310.29740-100000@osdlab.pdx.osdl.net> <20030912213243.GB22885@ip68-0-152-218.tc.ph.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030912213243.GB22885@ip68-0-152-218.tc.ph.cox.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On Saturday 13 of September 2003 02:19, Erik Steffl wrote:
-... Intel D965PERL and hdparm -d 1 ...
->>CONFIG_BLK_DEV_PIIX=m
->>CONFIG_SCSI_ATA_PIIX=y
-> 
-> 
-> You should use CONFIG_BLK_DEV_PIIX=y
-> or load piix module (may not be reliable).
+It would be nice to see the 4xx and 8xx chips being tested.  There are a
+lot of rarely tested configurations and targets in the PPC kernel.
 
-   wow:
-
-jojda:/home/erik# modprobe piix
-Segmentation fault
-
-   lsmod | grep piix
-
-piix                    7976   1  (initializing)
-
-   rmmod piix
-
-piix: Device or resource busy
-
-   I guess I'll try to compile it in. thanks,
-
-	erik
-
+} > > > > > In response to requests at OLS, we've added cross-compile
+} > > > > > capability to the PLM, and the first architecture
+} > > > > > implemented is PowerPC.  The powerpc code is
+} > > > > > generated via a cross-compiler set up using Dan
+} > > > > > Kegels's crosstool-0.22 on an i386 host using gcc-3.3.1,
+} > > > > > glibc-2.3.2 and built for the powerpc-750.
+} > > > > >
+} > > > > > The filter run is the compile regress developed by John
+} > > > > > Cherry at OSDL.  Refer to his prior mail on lkml for the
+} > > > > > results of this filter on ia386 and IA64.
+} > > > > >
+} > > > > > Look at
+} > > > > >     http://www.osdl.org/plm-cgi/plm?module=search
+} > > > > > and look up linux-2.6.0-test5 or any later kernels for the
+} > > > > > results of this filter under 'PPC-Cross Compile Regress'.
+} > > > > >
+} > > > > > Does anyone have any input regarding requests for
+} > > > > > additional architectures or improvements to the
+} > > > > > filters?  Please cc me in any responses to lkml as I do
+} > > > > > not currently monitor this list, though other OSDL
+} > > > > > employees do.

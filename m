@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280620AbRLDRuQ>; Tue, 4 Dec 2001 12:50:16 -0500
+	id <S278660AbRLDRuM>; Tue, 4 Dec 2001 12:50:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281566AbRLDRsY>; Tue, 4 Dec 2001 12:48:24 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:29090 "EHLO xfe3.d.ethz.ch")
-	by vger.kernel.org with ESMTP id <S282404AbRLDRru>;
-	Tue, 4 Dec 2001 12:47:50 -0500
-Message-ID: <3C0D0BFD.6080903@dplanet.ch>
-Date: Tue, 04 Dec 2001 18:46:37 +0100
-From: Giacomo Catenazzi <cate@dplanet.ch>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Wayne.Brown@altec.com
-CC: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+	id <S281228AbRLDRsV>; Tue, 4 Dec 2001 12:48:21 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:40884
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S281566AbRLDRrR>; Tue, 4 Dec 2001 12:47:17 -0500
+Date: Tue, 4 Dec 2001 12:38:31 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@caldera.de>,
+        Keith Owens <kaos@ocs.com.au>, kbuild-devel@lists.sourceforge.net,
+        torvalds@transmeta.com
 Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-In-Reply-To: <86256B18.005EE7DC.00@smtpnotes.altec.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Dec 2001 17:47:49.0079 (UTC) FILETIME=[C9F91E70:01C17CEB]
+Message-ID: <20011204123831.J16578@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+	linux-kernel@vger.kernel.org, Christoph Hellwig <hch@caldera.de>,
+	Keith Owens <kaos@ocs.com.au>, kbuild-devel@lists.sourceforge.net,
+	torvalds@transmeta.com
+In-Reply-To: <20011204121950.E16578@thyrsus.com> <E16BJak-0002ng-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16BJak-0002ng-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Dec 04, 2001 at 05:42:49PM +0000
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wayne.Brown@altec.com wrote:
-
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > I'm pretty sure that's true any more, Alan.  Red Hat shipped Python 2 in
+> > 7.1, so the RPM-based distros like KRUD and Mandrake have had it for
+> > seven months. Debian had it before that.   
 > 
-> In fact, here's all I want to know about the whole CML2/kbuild 2.5 issue.  Right
-> now I upgrade my kernel like this (simplified slightly):
-> 
-> <apply latest patches>
-> mv .config ..
-> make mrproper
-> mv ../.config .
-> make oldconfig
-> make dep
-> make bzlilo modules modules_install
-> <reboot>
-> 
-> Will I still be able to do it this simply in 2.5.x?  (Assuming there's
-> eventually a 2.5.x I can get to compile cleanly.  :-)
-> 
+> RH shipped python2 beginning RH 7.2.
 
+Eh?  I'm going to go check my old 7.1 CDs...
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Yes you can do.
-hmm. only for the CML2 part. The new kbuild-2.5 (also the new Makefile)
-will no more work with your command:
-make dep: is no more needed
-make bzlilo modules modules_install: it would be a simble
-make install: (and you configure with CML1/CML2 what install
-means).
-
-	giacomo
-
+Government should be weak, amateurish and ridiculous. At present, it
+fulfills only a third of the role.
+	-- Edward Abbey

@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132511AbRD1NeJ>; Sat, 28 Apr 2001 09:34:09 -0400
+	id <S132479AbRD1NhJ>; Sat, 28 Apr 2001 09:37:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132479AbRD1NeB>; Sat, 28 Apr 2001 09:34:01 -0400
-Received: from quechua.inka.de ([212.227.14.2]:24122 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S132511AbRD1NdJ>;
-	Sat, 28 Apr 2001 09:33:09 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-In-Reply-To: <Pine.LNX.4.21.0104270953280.2067-100000@penguin.transmeta.com> <3AE9A69B.D11F0BBD@evision-ventures.com>
-Organization: private Linux site, southern Germany
-Date: Sat, 28 Apr 2001 15:20:40 +0200
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E14tUeP-0000Vt-00@g212.hadiko.de>
+	id <S132633AbRD1NhA>; Sat, 28 Apr 2001 09:37:00 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:29454 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S132479AbRD1Ngi>; Sat, 28 Apr 2001 09:36:38 -0400
+Date: Sat, 28 Apr 2001 14:36:34 +0100 (BST)
+From: John Levon <moz@compsoc.man.ac.uk>
+To: rgooch@ras.ucalgary.ca
+cc: majordomo linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: kernel newbie question
+In-Reply-To: <20010428145500.N978@arthur.ubicom.tudelft.nl>
+Message-ID: <Pine.LNX.4.21.0104281433180.31246-100000@mrbusy.compsoc.man.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> or such. tar/cpio and friends don't deal properly with
-> a. holes inside of files.
-> b. hardlinks between files.
+On Sat, 28 Apr 2001, Erik Mouw wrote:
 
-GNU tar handles both of these. (Not particularly efficiently in the
-case of sparse files, but that's a minor issue in this case.) See -S flag.
+> On Sat, Apr 28, 2001 at 03:16:34PM +0800, Xiong Zhao wrote:
+> > hello. i read linux kernel internal. are there other books/papers
+> > like that which dwell with linux kernel in detail,especially on 
+> > process mechanism,for example,how pthread and fork are implemented,
+> > how clone actually work.are there other materials on these topics
+> > on internet that can be downloaded freely.
+> 
+> Check out the books and links sections from
+> http://www.kernelnewbies.org/ .
 
-Perhaps more importantly, for a _robust_ backup solution which can
-deal with partially unreadable tapes, you have pretty much no option
-other than tar for the actual storage.
+Richard, can you add this URL to the FAQ ? There is a similar question
+every month or so on lkml. This way we can just flame them instead ;)
 
-Olaf
+thanks
+john
+
+-- 
+"Oh, bra-vo! Well done! You've just fabricated out of thin air a 
+ situation involving waldoj and a police officer, and then scolded 
+ him for the behavior you imagined him displaying !" 
+	- TheFrood, /.
+

@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVBARgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262078AbVBARqw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbVBARgc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 12:36:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVBARgc
+	id S262078AbVBARqw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 12:46:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVBARqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 12:36:32 -0500
-Received: from john.hrz.tu-chemnitz.de ([134.109.132.2]:64490 "EHLO
-	john.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S262078AbVBARg0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 12:36:26 -0500
-Date: Tue, 1 Feb 2005 18:36:24 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.6.11-rc2 hangs on bridge shutdown (br0)
-Message-ID: <20050201173622.GA1206@stilzchen.informatik.tu-chemnitz.de>
-References: <20050131162201.GA1000@stilzchen.informatik.tu-chemnitz.de>
-Mime-Version: 1.0
+	Tue, 1 Feb 2005 12:46:51 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:42462 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S262078AbVBARqr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 12:46:47 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050131162201.GA1000@stilzchen.informatik.tu-chemnitz.de>
-User-Agent: Mutt/1.5.6+20040907i
-From: Mirko Parthey <mirko.parthey@informatik.tu-chemnitz.de>
-X-Scan-Signature: 0e3fbd3f50959cf49c69ab43e98fd2b3
+Content-Transfer-Encoding: 7bit
+Message-ID: <16895.49283.929460.224645@napali.hpl.hp.com>
+Date: Tue, 1 Feb 2005 09:46:43 -0800
+To: baswaraj kasture <kbaswaraj@yahoo.com>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.21 hangs up
+In-Reply-To: <20050201082001.43454.qmail@web51102.mail.yahoo.com>
+References: <41FF0281.6090903@yahoo.com.au>
+	<20050201082001.43454.qmail@web51102.mail.yahoo.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 31, 2005 at 05:22:02PM +0100,  wrote:
-> My Debian machine hangs during shutdown, with messages like this:
-> unregister_netdevice: waiting for br0 to become free. Usage count = 1
-> 
-> I narrowed it down to the command
->   # brctl delbr br0
-> which does not return in the circumstances shown below.
-> 
-> The problem is reproducible with both 2.6.11-rc2 from kernel.org and the
-> Debian kernel-image-2.6.10-1-686.
-> [...]
+[I trimmed the cc-list...]
 
-The problem was introduced between 2.6.8.1 and 2.6.9,
-and it is still present in 2.6.11-rc2-bk9.
+>>>>> On Tue, 1 Feb 2005 00:20:01 -0800 (PST), baswaraj kasture <kbaswaraj@yahoo.com> said:
 
-Mirko
+  Baswaraj> Hi, I compiled kernel 2.4.21 with intel compiler .
+
+That's curious.  Last time I checked, the changes needed to use the
+Intel-compiler have not been backported to 2.4.  What kernel sources
+are you working off of?
+
+Also, even with 2.6 you need a script from Intel which does some
+"magic" GCC->ICC option translations to build the kernel with the
+Intel compiler.  AFAIK, this script has not been released by Intel
+(hint, hint...).
+
+  Baswaraj> While booting it hangs-up . further i found that it
+  Baswaraj> hangsup due to call to "calibrate_delay" routine in
+  Baswaraj> "init/main.c". Also found that loop in the
+  Baswaraj> callibrate_delay" routine goes infinite.
+
+I suspect your kernel was just miscompiled.  We have used the
+Intel-compiler internally on a 2.6 kernel and it worked fine at the
+time, though I haven't tried recently.
+
+	--david

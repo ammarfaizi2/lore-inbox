@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286893AbRL1MlP>; Fri, 28 Dec 2001 07:41:15 -0500
+	id <S282918AbRL1NBI>; Fri, 28 Dec 2001 08:01:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286889AbRL1Mk4>; Fri, 28 Dec 2001 07:40:56 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:20229 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S286887AbRL1Mkg>;
-	Fri, 28 Dec 2001 07:40:36 -0500
-Date: Fri, 28 Dec 2001 10:40:26 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: <isp01ljl@taurus.zsu.edu.cn>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: whether the thread   is implemented in the kernel ?
-In-Reply-To: <586590797.20001228140112@student.zsu.edu.cn>
-Message-ID: <Pine.LNX.4.33L.0112281039380.24031-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282914AbRL1NA6>; Fri, 28 Dec 2001 08:00:58 -0500
+Received: from fepz.post.tele.dk ([195.41.46.133]:20678 "EHLO
+	fepZ.post.tele.dk") by vger.kernel.org with ESMTP
+	id <S286898AbRL1NAr>; Fri, 28 Dec 2001 08:00:47 -0500
+Date: Fri, 28 Dec 2001 14:00:35 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Andre Hedrick <andre@linux-ide.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Daniel Stodden <stodden@in.tum.de>, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+Message-ID: <20011228140035.A1248@suse.de>
+In-Reply-To: <20011228115956.E2973@suse.de> <Pine.LNX.4.33L.0112281028070.24031-100000@imladris.surriel.com> <20011228133350.B834@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011228133350.B834@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Dec 2000 isp01ljl@taurus.zsu.edu.cn wrote:
+On Fri, Dec 28 2001, Jens Axboe wrote:
+> On Fri, Dec 28 2001, Rik van Riel wrote:
+> > On Fri, 28 Dec 2001, Jens Axboe wrote:
+> > > On Thu, Dec 27 2001, Andre Hedrick wrote:
+> > 
+> > > > BUZZIT on your total lack of documention the the changes to the
+> > > > request_struct, otherwise I could follow your mindset and it would not be
+> > > > a pissing contest.
+> > >
+> > > Tried reading the source?
+> > 
+> > As usual, without documentation you only know what the code
+> > does, not what it's supposed to do or why it does it.
+> > 
+> > Documentation is an essential ingredient when hunting for
+> > bugs in the code, because without the docs you have to guess
+> > whether something is a bug or not, while with docs it's much
+> > easier to identify inconsistencies.
+> 
+> please look at the source before making such comments -- it's quite
+> adequately commented.
 
->     I encountered a interesting problem , that is whether the thread
->  is implemented in the kernel ?  if yes , then what is the system
->  call to generate a thread ?  is it similar to fork() ?
+Lest I forget to mention this again -- also see Suparna's excellent
+notes on the new block I/O layer:
 
-clone(2), which is the exact same code path as fork().
+http://lse.sourceforge.net/io/bionotes.txt
 
-For more information, see
-	man 2 clone
-	kernel/fork.c::do_fork()
+And my own write-up right here on lkml:
 
-regards,
+http://marc.theaimsgroup.com/?t=100695031900001&r=1&w=2
 
-Rik
+
 -- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Jens Axboe
 

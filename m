@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130553AbQLHO73>; Fri, 8 Dec 2000 09:59:29 -0500
+	id <S131888AbQLHPDL>; Fri, 8 Dec 2000 10:03:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129786AbQLHO7T>; Fri, 8 Dec 2000 09:59:19 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:42998 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129909AbQLHO7F>; Fri, 8 Dec 2000 09:59:05 -0500
-Date: Fri, 8 Dec 2000 12:27:45 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: NTFS repair tools]
-In-Reply-To: <E144O4d-0003vd-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0012081226160.8655-100000@duckman.distro.conectiva>
+	id <S131878AbQLHPDC>; Fri, 8 Dec 2000 10:03:02 -0500
+Received: from mailhost.mipsys.com ([62.161.177.33]:14887 "EHLO
+	[62.161.177.33]") by vger.kernel.org with ESMTP id <S129786AbQLHPCu>;
+	Fri, 8 Dec 2000 10:02:50 -0500
+From: Benjamin Herrenschmidt <bh40@calva.net>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, <linux-kernel@vger.kernel.org>
+Subject: Re: PCI bridge setup weirdness
+Date: Fri, 8 Dec 2000 15:31:08 +0100
+Message-Id: <19341102080252.6877@192.168.1.2>
+In-Reply-To: <20001208155128.A2926@jurassic.park.msu.ru>
+In-Reply-To: <20001208155128.A2926@jurassic.park.msu.ru>
+X-Mailer: CTM PowerMail 3.0.6 <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Dec 2000, Alan Cox wrote:
+>
+>No, pci_read_bridge_bases() is obsoleted by new pci setup code. ;-)
+>You have to set up bus resources properly in pcibios_fixup_bus().
+>For a single root bus configuration, you don't need to do anything
+>with the root bus itself - its resources already point to ioport_resource
+>and iomem_resource, which should be ok. For pci-pci bridges you have
+>to add something like this:
 
-> I am very firmly against removing something because people do
-> not read manuals, what is next fdisk , mkfs ?.
+The problem I have (and this is why I don't setup host resources
+properly on multi-host PPCs yet) is that some hosts can have several
+non-contiguous ranges (especially with memory, IO is usually a single
+contiguous range).
 
-I must say I like the CONFIG_MORON though. By setting that the
-(l)user exposes his true identity and leaves little for us to
-doubt ;)
+There are simply not enough resource "slots" in the current structures
+to handle all possibles cases.
 
-Added to the Patch of the Month page as suggested by David
-Weinehall:
+They basically have a host bridge register in which each low bit enables
+decoding of a 256Mb region in the range 0xn0000000 and each high bit
+enable decoding of a 16Mb region in the range 0xFn000000
 
-	http://www.surriel.com/potm/
+The typical setup is to have one (or more) 256Mb regions, and one 16Mb
+region, but that can change from model to model.
 
-regards,
-
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+Ben
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

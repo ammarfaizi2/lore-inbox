@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268235AbUHKVZj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268238AbUHKV0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268235AbUHKVZj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 17:25:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268233AbUHKVZj
+	id S268238AbUHKV0n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 17:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268233AbUHKV0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 17:25:39 -0400
-Received: from mail4.bluewin.ch ([195.186.4.74]:63662 "EHLO mail4.bluewin.ch")
-	by vger.kernel.org with ESMTP id S268235AbUHKVZ2 (ORCPT
+	Wed, 11 Aug 2004 17:26:43 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:5572 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268238AbUHKV0g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 17:25:28 -0400
-Date: Wed, 11 Aug 2004 23:25:19 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Peter Schaefer <peter.schaefer@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [VIA-RHINE] Timeouts on EP-HDA3+ Motherboard
-Message-ID: <20040811212519.GA22449@k3.hellgate.ch>
-Mail-Followup-To: Peter Schaefer <peter.schaefer@gmx.de>,
-	linux-kernel@vger.kernel.org
-References: <41181BF7.6060002@gmx.de> <20040809215424.GA12237@k3.hellgate.ch> <4118A534.8050903@gmx.de> <20040810070651.GB11224@k3.hellgate.ch> <411AC46D.6080307@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 11 Aug 2004 17:26:36 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: [TRIVIAL PATCH] use size_t length specifier in mptbase.c
+Date: Wed, 11 Aug 2004 14:26:15 -0700
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <411AC46D.6080307@gmx.de>
-X-Operating-System: Linux 2.6.8-rc3-mm1 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_37oGBd7aAl3enI8"
+Message-Id: <200408111426.15537.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Aug 2004 03:14:21 +0200, Peter Schaefer wrote:
-> As this is a production machine i haven't had the balls to move to
-> 2.6.8-rc3. Instead, i took only the via-rhine.c from 2.6.8-rc4-mm1
-> applied your last patch to it and recompiled the module.
 
-Odd. AFAIK 2.6.8-rc4-mm1 has all the patches merged. My most recent
-patch was for mainline only.
+--Boundary-00=_37oGBd7aAl3enI8
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> What should i say: It works! I wasn't able to trigger the error with
-> my standard test (copying a 680MB ISO image from/to Samba shares in
-> parallel). An this even with "large readwrite" enabled in smb.conf.
+Looks like mptbase.c is using offsetof but trying to use %d instead of %zd 
+when printing a warning.  Fix it up to reduce warnings when compiling on 
+systems where size_t isn't 32 bits.  With this patch and Alex's earlier one 
+to fix up some ACPI warnings applied, the sn2_defconfig target is error and 
+warning free.
 
-Cool. Thanks for the report.
+Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
 
->          (But perhaps you should update the drivers version number)
+Thanks,
+Jesse
 
-2.6.7 had 1.1.20-2.6. The driver in 2.6.8-rc4-mm1 is 1.2.0-2.6. The
-driver in 2.6.8 (mainline) is patch-wise somewhere in between but still
-called 1.1.20-2.6. Ah well.
+--Boundary-00=_37oGBd7aAl3enI8
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="mptbase-size_t-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="mptbase-size_t-fix.patch"
 
-Roger
+===== drivers/message/fusion/mptbase.c 1.26 vs edited =====
+--- 1.26/drivers/message/fusion/mptbase.c	2004-06-26 19:26:07 -07:00
++++ edited/drivers/message/fusion/mptbase.c	2004-08-11 14:09:39 -07:00
+@@ -2416,7 +2416,7 @@
+ 		}
+ 	} else {
+ 		printk(MYIOC_s_ERR_FMT 
+-		     "Invalid IOC facts reply, msgLength=%d offsetof=%d!\n",
++		     "Invalid IOC facts reply, msgLength=%d offsetof=%zd!\n",
+ 		     ioc->name, facts->MsgLength, (offsetof(IOCFactsReply_t,
+ 		     RequestFrameSize)/sizeof(u32)));
+ 		return -66;
+
+--Boundary-00=_37oGBd7aAl3enI8--

@@ -1,161 +1,228 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262667AbVCDIhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262706AbVCDIkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262667AbVCDIhG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 03:37:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262664AbVCDIhG
+	id S262706AbVCDIkO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 03:40:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262664AbVCDIiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 03:37:06 -0500
-Received: from warden3-p.diginsite.com ([208.147.64.186]:14267 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id S262670AbVCDIgc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 03:36:32 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Fri, 4 Mar 2005 00:35:50 -0800 (PST)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: RFD: Kernel release numbering
-In-Reply-To: <20050303234130.GR8880@opteron.random>
-Message-ID: <Pine.LNX.4.62.0503040028180.30069@qynat.qvtvafvgr.pbz>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
- <1109888144.21780.53.camel@localhost.localdomain> <20050303223203.GA24966@havoc.gtf.org>
- <20050303234130.GR8880@opteron.random>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 4 Mar 2005 03:38:14 -0500
+Received: from mailfe04.swip.net ([212.247.154.97]:49395 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S262655AbVCDIgf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 03:36:35 -0500
+X-T2-Posting-ID: icQHdNe7aEavrnKIz+aKnQ==
+Subject: Re: Keyboard doesn't work with CONFIG_PNP in 2.6.11-rc5-mm1
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200503031928.33106.dtor_core@ameritech.net>
+References: <1109887099.2286.15.camel@boxen>
+	 <200503031928.33106.dtor_core@ameritech.net>
+Content-Type: multipart/mixed; boundary="=-mLF2p9UVWvfypLi5ixwc"
+Date: Fri, 04 Mar 2005 09:36:33 +0100
+Message-Id: <1109925393.2285.1.camel@boxen>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the 2.6.x.y numbering scheme has the huge advantage that nobody can ever 
-know if there will be a 2.6.x.2 release (I think it's fairly safe to say 
-that there will probably useually be a 2.6.x.1 release with _some_ fix in 
-it) so people can't fall into the trap of 'waiting for the next release'
 
-given the timeframe that bug reports come in I'd say 2.6.x.1 will probably 
-come out 2-3 days after 2.6.x (although if people decide not to test 2.6.x 
-there won't ever end up being a 2.6.x.1 becouse 2.6.x+1 will be out first 
-:-)
+--=-mLF2p9UVWvfypLi5ixwc
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-avoiding any promises of if/when updates will be released (at least after 
-the first one) combined with the fact that 2.6.x.y will be abandoned 
-shortly after 2.6.x+1 is released will put a very definante cap on the 
-amount of time that it's worth someone to wait in an attempt toget a 
-'perfect' kernel
-
-and if this lifetime is too short for enough people then more people will 
-help maintain the .y releases and they can live a little longer (not too 
-long, becouse they will very quickly devolve into backport kell)
-
-with any odd/even release you are making a promise that you will produce 
-the nect version in a reasonably timely manner so people can just wait for 
-it instead.
-
-David Lang
-
-
-
-  On Fri, 4 Mar 2005, 
-Andrea Arcangeli wrote:
-
-> Date: Fri, 4 Mar 2005 00:41:30 +0100
-> From: Andrea Arcangeli <andrea@suse.de>
-> To: Jeff Garzik <jgarzik@pobox.com>
-> Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
->     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-> Subject: Re: RFD: Kernel release numbering
+> > I had accidently chosen CONFIG_PNP and noticed that my keyboard didn't
+> > work with bk-dtor-input.patch in the tree (backing out makes keyboard
+> > work).
+> > 
+> It looks like some old stuff in my tree overwrites good stuff from
+> Vojtech's tree.. Thanks for letting me know.
 > 
-> On Thu, Mar 03, 2005 at 05:32:03PM -0500, Jeff Garzik wrote:
->> On Thu, Mar 03, 2005 at 10:15:46PM +0000, Alan Cox wrote:
->>> We still need 2.6.x.y updates on a more official footing and with more
->>> than one person as the "2.6.x.y" maintainer. I think that is actually
->>> more important.
->>
->> That appears to be the consensus conclusion we've arrived at.
->
-> FWIW I'm still unconvinced changing the 2.6.x naming scheme in any way
-> is needed to accomplish the goal of having more time to develop some
-> significant feature.
->
-> Another thing I'm unconvinced is that any numbering scheme could change
-> the amount of testing of the non-final stuff. The thing is that a lot of
-> users are just users, and they're not willing to test experimental
-> things, they've no time and no money to do that, they only need the
-> kernel running stable and fast. So I wouldn't even try to change the
-> release numbering if the object is to increase the testing userbase.
->
-> Comparing the number of people downloading the 2.6.11 compared to the
-> number of people downloading 2.6.11-rc5 is just like comparing apples to
-> oranges. We've to work with the oranges and we shouldn't expect
-> the apples to help with that. (this ignoring that lots of apples runs
-> the distro kernels anyways, I do too in my productive environments)
->
-> I don't see why we don't start with a very short 2.7.0/2.7.1/2.7.2
-> semi-stable cycle then after a few months we call it 2.8.0?  What's the
-> point of that 2.6 number, just to waste network bandwidth, disk space,
-> pixels and keypresses?
->
-> This way would be backwards compatible with the old numbering habits.
->
-> Perhaps one day we could even get a 3.0 kernel that way ;)
->
-> This still requires somebody taking care of a 2.6.12 if a security issue
-> showup, but 2.6.12 should not be developed any further since after a few
-> months 2.8.0 would be there already, so perhaps you can take care of the
-> security issues yourself without handing it off to a maintainer
-> dedicated to it.
->
-> This is very similar to what is being suggested except you want to
-> change the numbering scheme to do that, and that seems an unnecessary
-> complication to me.
->
-> The median number could go up to 255 without problems IIRC the limit is
-> 256, like 2.200.0/1/2/3. So if Linus make a new release every week and 3
-> relases per stable/unstable cycle, we'll get 3.0.0 in another 14 years.
->
-> Still you can stack -pre/-rc on top of that.
->
-> So in short I don't really see the point of breaking the number scheme
-> to achieve your plan (whatever your plan is ;), 3 numbers + -pre/-rc
-> seems more than enough for whatever you're planning doing with the new 4th
-> number. You've just not to get emotional about 2.6/2.7 being magical and
-> unchangable, and to "unblock" them since now there seems to be need of
-> them for the first time (since 2.6 is getting mature but still we don't
-> want to slow down the development or wait years for the new features to
-> be usable and get stuck in heavy backports). You should just make clear
-> the semantics of 2.7 will not be the ones that 2.5 and 2.3 had.
->
-> I recall I made the example last year at KS that the 4th level ptes was
-> something that could open up 2.7, as Dave agreed that kind of stuff needs
-> a bit of time to settle, and 2.7 would have been ok for that, and a few
-> days ago you could have shipped a 2.8.0 instead of a 2.6.11! But at the
-> same time if a super security bug in the firewall code would showup
-> you'd be lined up to issue a 2.6.11 immediatly with only that bugfix in
-> it.
->
-> This will allow people to stay with the old rule, i.e. that if they use
-> the *.\..*[02468]\..* releases they're safe. No need to break this rule
-> established by decades to achieve your goal IMHO. Breaking rulings for
-> no good reason will only bring _more_confusion_ to the end user IMHO.
->
-> I've no idea if BK fits this, but (besides the fact I don't actually
-> care about that) it should pose you exactly same technical SCM troubles
-> that a fourth number would introduce, even ignoring the internal kernel
-> breakages with KERNEL_VERSION in include/linux/version.h.
->
-> Even with 2.6.8.1 I never got why it's called 2.6.8.1 and not 2.6.9,
-> what's the cost of a minor number, why to break the numbering? (even
-> ignoring that even 2.6.8.1 has an unstable VM that can underflow while
-> valuating the "min" value in alloc_pages due a NUMA patch, fixed by Nick
-> in 2.6.9-pre of course and is a more serious bug than what was fixed
-> between 2.6.8 and 2.6.8.1 IMHO ;)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> Nonetheless, could you please send me your DSDT - I wonder why
+> your keyboard controller is not detected.
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+--=-mLF2p9UVWvfypLi5ixwc
+Content-Disposition: attachment; filename=dsdt.dat
+Content-Type: video/mpeg; name=dsdt.dat
+Content-Transfer-Encoding: base64
+
+RFNEVEMnAAABRFZJQTY5NEFXUkRBQ1BJABAAAE1TRlQMAAABEBlcX1BSX1uDEVwuX1BSX0NQVTAA
+AAAAAABbgENNNzIBCnIKAluBEENNNzIBQ0k3MghDTzczCFuGEkNJNzJDTzczAQBIIVNVU0YICFNU
+QVQKAAhcX1MwXxIGBAAAAAAIXF9TMV8SCgQKBAoECgQKBHtTVVNGCgFTVEFUCFxfUzRfEgoECgIK
+AgoCCgIIXF9TNV8SCgQKAgoCCgIKAluAXERFQkcBCoAKAVuBDFxERUJHAURCRzEIW4BQTUlPAQsA
+QApQW4EOUE1JTwEAQAhUSFRFCFuAXENPTUEBC/gDCghbgS9cQ09NQQFSQlJBCElDUkEISVNSQQhV
+Q1JBCEhDUkEIVVNSQQhIU1JBCFVEUkEIW4BcTUlSUQEKIAoCW4ERXE1JUlEBQ09OVAhNQVNLCFuA
+RVhUTQAMMPgPAAoQW4EpRVhUTQJST00xEFJNUzEQUk9NMhBSTVMyEFJPTTMQUk1TMxBBTUVNIFuA
+XEdQU1QBCyBACgRbgU4IXEdQU1QBR1MwMAFHUzAxAUdTMDIBR1MwMwFHUzA0AUdTMDUBR1MwNgFH
+UzA3AUdTMDgBR1MwOQFHUzBBAUdTMEIBR1MwQwEAA0dFMDABR0UwMQFHRTAyAUdFMDMBR0UwNAFH
+RTA1AUdFMDYBR0UwNwFHRTA4AUdFMDkBR0UwQQFHRTBCAUdFMEMBAANbgEVMQ1IBC9AECgJbgRBF
+TENSAUVMQzEIRUxDMghbgFxTVFVTAQswQAoBW4EMXFNUVVMBR19TVAhbgFxXSVJRAQsqQAoBW4EM
+XFdJUlEBSVJRUghbgFxTTUlDAQsvQAoBW4EMXFNNSUMBU0NQXwhbgEdQT0IBC0xACgRbgUcKR1BP
+QgFHUDAwAUdQMDEBR1AwMgFHUDAzAUdQMDQBR1AwNQFHUDA2AUdQMDcBR1AwOAFHUDA5AUdQMTAB
+R1AxMQFHUDEyAUdQMTMBR1AxNAFHUDE1AUdQMTYBR1AxNwFHUDE4AUdQMTkBR1AyMAFHUDIxAUdQ
+MjIBR1AyMwFHUDI0AUdQMjUBR1AyNgFHUDI3AUdQMjgBR1AyOQFHUDMwAUdQWFgBCFRIVFQKAAhU
+SE1UCgAIT1NGTAoBFEEFU1RSQwKgCpKTh2iHaaQKAHKHaAoBYAhCVUYwEQJgCEJVRjERAmBwaEJV
+RjBwaUJVRjGiGmB2YKAVkpODiEJVRjBgAIOIQlVGMWAApACkAVuAUlRDTQEKcgoCW4EQUlRDTQFD
+TUlOCENNREEIW4YSQ01JTkNNREEBAEgHU0hVVAhbgFxHUkFNAAsABAsAAVuBF1xHUkFNAQBACEZM
+RzAIAEhUU0ZMRwhbgElORk8ADED4DwAKAVuBJElORk8BS0JESQFSVENXAVBTMkYBSVJGTAJESVNF
+AVNTSFUBW4BCRUVQAQphCgFbgQtCRUVQAVMxQl8IW4BDT05YAQpACgRbgRpDT05YAUNOVDAIQ05U
+MQhDTlQyCENUUkwIFEMGU1BLUgFwUzFCX2BwCrZDVFJMcApVQ05UMnAKA0NOVDJwaGKiN5RiCgB9
+UzFCXwoDUzFCX3AL/19jogeUYwoAdmN7UzFCXwr8UzFCX3AL/w5jogeUYwoAdmN2YnBgUzFCX1uG
+F0NNSU5DTURBAQBAJkRMRUQBQkxFRAEQF1wACFBJQ0YKABQMUFBJQwFwaFBJQ0YUQh1cX1BUUwF9
+aArwYHBgREJHMaA3k2gKAXAAR1AxMqAdk0JMRUQBe1BXQzEK/FBXQzF9UFdDMQoBUFdDMaANk0RM
+RUQBcABHUDAwfWgKUGFwYVNDUF+gRwSTaAoBe0dBUjEK/UdBUjF7R0FSMgoCYH1gR0FSMUdBUjFw
+R19TVGGiEpKTYQoAcGFHX1NUcEdfU1RhfUlSUVIKgElSUVKgC5NoCgVwAEdFMDBwVEhURVRIVFR7
+VEhURQrvVEhURXBcLwRfU0JfUENJMFBNX19USFJNVEhNVHtcLwRfU0JfUENJMFBNX19USFJNCvdc
+LwRfU0JfUENJMFBNX19USFJNe0lDUkEK8ElDUkF9TUFTSwoQTUFTS31IQ1JBCgJIQ1JBcAoAYKIl
+kpNgC/9/fU1BU0sKEE1BU0t7SUNSQQrwSUNSQXBgYHJgCgFgfUlDUkEKAUlDUkF9SENSQQoISENS
+QXtJU1JBCgFgok4FkpNgCgF9TUFTSwoQTUFTS3tJU1JBCg5goAuTYAoEcFJCUkFgoAuTYAoMcFJC
+UkFgoAuTYAoGcFVTUkFgoAuTYAoAcEhTUkFgoAuTYAoCcGBSQlJBe0lTUkEKAWB7TUFTSwrvTUFT
+SxRLBVxfV0FLAXAK/0RCRzGiDpKTR1MwMABwAUdTMDBwAUdQMTKgEpNCTEVEAXtQV0MxCvxQV0Mx
+oA2TRExFRAFwAUdQMDCgFZNSVENXCgCGXC5fU0JfUFdSQgoCECtcX1NJXxQJX01TRwFwYGAUGl9T
+U1QBoAWTaAoDoAWTaAoBoASTaABwYGAQMlxfR1BFFAdfTDA1AKMUB19MMDkAoxQHX0wwOACjFBNf
+TDAwAIZcLl9TQl9TTFBCCoAQj/kBXF9TQl9bghlQV1JCCF9ISUQMQdAMDBQJX1NUQQCkCgtbgiVT
+TFBCCF9ISUQMQdAMDhQJX1NUQQCkCgsIX1BSVxIGAgoACgVbgkocTUVNXwhfSElEDEHQDAEUSRtf
+Q1JTAAhCVUYwEU4HCnqGCQABAAAPAABAAACGCQABAEAPAABAAACGCQABAIAPAABAAACGCQABAMAP
+AABAAACGCQABAAAAAAAAAQCGCQABAAD//wAAAQCGCQABAAAAAAAACgCGCQABAAAQAAAAAACGCQAB
+AADA/gAQAACGCQABAADg/gAQAAB5AIpCVUYwCjRBQ01NikJVRjAKBFJNQTGKQlVGMAoIUlNTMYpC
+VUYwChBSTUEyikJVRjAKFFJTUzKKQlVGMAocUk1BM4pCVUYwCiBSU1MzikJVRjAKKFJNQTSKQlVG
+MAosUlNTNIpCVUYwClxFWFRNdEFNRU0MAAAQAEVYVE2gNZKTUk9NMQBwUk1BMVJNQTJ5Uk9NMQoI
+YHBgUk1BMXlSTVMxCghgcGBSU1MxcAsAgFJTUzKgNZKTUk9NMgBwUk1BMlJNQTN5Uk9NMgoIYHBg
+Uk1BMnlSTVMyCghgcGBSU1MycAsAwFJTUzOgN5KTUk9NMwBwUk1BM1JNQTR5Uk9NMwoIYHBgUk1B
+M3lSTVMzCghgcGBSU1MzcAwAAAEAUlNTNHBBTUVNQUNNTaRCVUYwW4KH2AFQQ0kwCF9ISUQMQdAK
+AwhfQURSCgAIU1MzRAoBW4BHQVJUAgqACgEQG1wAW4EWXC8DX1NCX1BDSTBHQVJUAUdBUjEIW4BH
+QVJBAgqICgEQG1wAW4EWXC8DX1NCX1BDSTBHQVJBAUdBUjIIFAlfU1RBAKQKDxRAEl9DUlMACEJV
+RjARTA0K2IgNAAIBAAAAAAD/AAAAAAFHAfgM+AwBCIgNAAEMAwAAAAD3DAAA+AyIDQABDAMAAAAN
+/z8AAAAzRwEAQABAAYBHAYBAgEABgIgNAAEMAwAAAEH/TwAA/w5HAQBQAFABEIgNAAEMAwAAEFD/
+XwAA7w9HAQBgAGABgIgNAAEMAwAAgGD//wAAf5+HFwAADAMAAAAAAAAKAP//CwAAAAAAAAACAIcX
+AAAMAwAAAAAAAAwA//8NAAAAAAAAAAIAhxcAAAwDAAAAAAAAEAD//+//AAAAAAAA8P95AIpCVUYw
+CsZUQ01NikJVRjAK0lRPTU1yQU1FTQwAAAEAVENNTXQMAADw/1RDTU1UT01NpEJVRjAIUElDTRJL
+KBgSGgQM//8IAAoAXC8DX1NCX1BDSTBMTktBCgASGgQM//8IAAoBXC8DX1NCX1BDSTBMTktCCgAS
+GgQM//8IAAoCXC8DX1NCX1BDSTBMTktDCgASGgQM//8IAAoDXC8DX1NCX1BDSTBMTktECgASGgQM
+//8JAAoAXC8DX1NCX1BDSTBMTktCCgASGgQM//8JAAoBXC8DX1NCX1BDSTBMTktDCgASGgQM//8J
+AAoCXC8DX1NCX1BDSTBMTktECgASGgQM//8JAAoDXC8DX1NCX1BDSTBMTktBCgASGgQM//8KAAoA
+XC8DX1NCX1BDSTBMTktDCgASGgQM//8KAAoBXC8DX1NCX1BDSTBMTktECgASGgQM//8KAAoCXC8D
+X1NCX1BDSTBMTktBCgASGgQM//8KAAoDXC8DX1NCX1BDSTBMTktCCgASGgQM//8PAAoAXC8DX1NC
+X1BDSTBMTktECgASGgQM//8PAAoBXC8DX1NCX1BDSTBMTktBCgASGgQM//8PAAoCXC8DX1NCX1BD
+STBMTktCCgASGgQM//8PAAoDXC8DX1NCX1BDSTBMTktDCgASGgQM//8HAAoAXC8DX1NCX1BDSTBM
+TktBCgASGgQM//8HAAoBXC8DX1NCX1BDSTBMTktCCgASGgQM//8HAAoCXC8DX1NCX1BDSTBMTktD
+CgASGgQM//8HAAoDXC8DX1NCX1BDSTBMTktECgASGgQM//8BAAoAXC8DX1NCX1BDSTBMTktBCgAS
+GgQM//8BAAoBXC8DX1NCX1BDSTBMTktCCgASGgQM//8BAAoCXC8DX1NCX1BDSTBMTktDCgASGgQM
+//8BAAoDXC8DX1NCX1BDSTBMTktECgAIQVBJQxJHGBgSDQQM//8IAAoACgAKEBINBAz//wgACgEK
+AAoREg0EDP//CAAKAgoAChISDQQM//8IAAoDCgAKExINBAz//wkACgAKAAoREg0EDP//CQAKAQoA
+ChISDQQM//8JAAoCCgAKExINBAz//wkACgMKAAoQEg0EDP//CgAKAAoAChISDQQM//8KAAoBCgAK
+ExINBAz//woACgIKAAoQEg0EDP//CgAKAwoAChESDQQM//8PAAoACgAKExINBAz//w8ACgEKAAoQ
+Eg0EDP//DwAKAgoAChESDQQM//8PAAoDCgAKEhIaBAz//wcACgBcLwNfU0JfUENJMExOS0EKABIa
+BAz//wcACgFcLwNfU0JfUENJMExOS0IKABIaBAz//wcACgJcLwNfU0JfUENJMExOS0MKABIaBAz/
+/wcACgNcLwNfU0JfUENJMExOS0QKABINBAz//wEACgAKAAoQEg0EDP//AQAKAQoAChESDQQM//8B
+AAoCCgAKEhINBAz//wEACgMKAAoTFBlfUFJUAKALklBJQ0akUElDTaEGpEFQSUNbgkUEVlQ4Nghf
+QURSDAAABwBbgFBJUlECClUKAxApXABbgSRcLwRfU0JfUENJMFZUODZQSVJRAVBJUkEIUElCQwhQ
+SVJECFuCN1BNX18IX0FEUgwEAAcAW4BTQjc0AgoACwABW4EaU0I3NAEAQCJQSVIwCFBJUjgIADBU
+SFJNCFuCIlVTQjAIX0FEUgwCAAcACF9QUlcSBgIKCQoFCFNTM0QKAVuCIlVTQjEIX0FEUgwDAAcA
+CF9QUlcSBgIKCQoFCFNTM0QKAVuCOlZUQUMIX0FEUgwEAAcAW4BQV0NfAgpUCgEQH1wAW4EaXC8E
+X1NCX1BDSTBWVEFDUFdDXwFQV0MxCFuCSwdQSUJfCF9BRFIMAAAHAFuAU0I3MAIKAAqIW4FOBVNC
+NzABAEAkAAJFVVNCAQAFADhGTERBAkxQREECAARGTElSBExQSVIEVTFJUgRVMklSBAAQAARQSUFf
+BFBJQl8EUElDXwQABFBJRF8EAEgWRVAzQwFFTjNDAQAGW4JNEkxOS0EIX0hJRAxB0AwPCF9VSUQK
+ARQcX1NUQQB7UElSQQrwYKAIk2AKAKQKCaEEpAoLFBpfUFJTAAhCVUZCEQkKBiP63Bh5AKRCVUZC
+FBFfRElTAHtQSVJBCg9QSVJBFEQHX0NSUwAIQlVGQhEJCgYjAAAYeQCMQlVGQgoBSVJCMYxCVUZC
+CgJJUkIycAoAY3AKAGR7UElSQQrwYXphCgRhoC2Sk2EKAKAOlGEKB3RhCghieQFiZKELoAmUYQoA
+eQFhY3BjSVJCMXBkSVJCMqRCVUZCFEYFX1NSUwGMaAoBSVJCMYxoCgJJUkIyeUlSQjIKCGB9YElS
+QjFgcAoAYXpgCgFgogyUYAoAdWF6YAoBYHtQSVJBCg9QSVJBeWEKBGF9UElSQWFQSVJBW4JDEkxO
+S0IIX0hJRAxB0AwPCF9VSUQKAhQcX1NUQQB7UElCQwoPYKAIk2AKAKQKCaEEpAoLFBpfUFJTAAhC
+VUZBEQkKBiP63Bh5AKRCVUZBFBFfRElTAHtQSUJDCvBQSUJDFE8GX0NSUwAIQlVGQREJCgYjAAAY
+eQCMQlVGQQoBSVJBMYxCVUZBCgJJUkEycAoAY3AKAGR7UElCQwoPYaAtkpNhCgCgDpRhCgd0YQoI
+YnkBYmShC6AJlGEKAHkBYWNwY0lSQTFwZElSQTKkQlVGQRRBBV9TUlMBjGgKAUlSQTGMaAoCSVJB
+MnlJUkEyCghgfWBJUkExYHAKAGF6YAoBYKIMlGAKAHVhemAKAWB7UElCQwrwUElCQ31QSUJDYVBJ
+QkNbgk0STE5LQwhfSElEDEHQDA8IX1VJRAoDFBxfU1RBAHtQSUJDCvBgoAiTYAoApAoJoQSkCgsU
+Gl9QUlMACEJVRkMRCQoGI/rcGHkApEJVRkMUEV9ESVMAe1BJQkMKD1BJQkMURAdfQ1JTAAhCVUZD
+EQkKBiMAABh5AIxCVUZDCgFJUkMxjEJVRkMKAklSQzJwCgBjcAoAZHtQSUJDCvBhemEKBGGgLZKT
+YQoAoA6UYQoHdGEKCGJ5AWJkoQugCZRhCgB5AWFjcGNJUkMxcGRJUkMypEJVRkMURgVfU1JTAYxo
+CgFJUkMxjGgKAklSQzJ5SVJDMgoIYH1gSVJDMWBwCgBhemAKAWCiDJRgCgB1YXpgCgFge1BJQkMK
+D1BJQkN5YQoEYX1QSUJDYVBJQkNbgk0STE5LRAhfSElEDEHQDA8IX1VJRAoEFBxfU1RBAHtQSVJE
+CvBgoAiTYAoApAoJoQSkCgsUGl9QUlMACEJVRkQRCQoGI/rcGHkApEJVRkQUEV9ESVMAe1BJUkQK
+D1BJUkQURAdfQ1JTAAhCVUZEEQkKBiMAABh5AIxCVUZECgFJUkQxjEJVRkQKAklSRDJwCgBjcAoA
+ZHtQSVJECvBhemEKBGGgLZKTYQoAoA6UYQoHdGEKCGJ5AWJkoQugCZRhCgB5AWFjcGNJUkQxcGRJ
+UkQypEJVRkQURgVfU1JTAYxoCgFJUkQxjGgKAklSRDJ5SVJEMgoIYH1gSVJEMWBwCgBhemAKAWCi
+DJRgCgB1YXpgCgFge1BJUkQKD1BJUkR5YQoEYX1QSVJEYVBJUkQUQwZcLwNfU0JfUENJMF9JTkkA
+oB1TVFJDXF9PU18NTWljcm9zb2Z0IFdpbmRvd3MAoTKgJ1NUUkNcX09TXw1NaWNyb3NvZnQgV2lu
+ZG93cyBOVABwCgBPU0ZMoQhwCgJPU0ZMW4JDB1NZU1IIX0hJRAxB0AwCCF9VSUQKAQhfQ1JTEUYF
+ClJHARAAEAABEEcBIgAiAAEeRwFEAEQAARxHAWIAYgABAkcBZQBlAAELRwF0AHQAAQxHAZEAkQAB
+A0cBogCiAAEeRwHgAOAAARBHAdAE0AQBAnkAW4IrUElDXwhfSElEC0HQCF9DUlMRGAoVRwEgACAA
+AQJHAaAAoAABAiIEAHkAW4I9RE1BMQhfSElEDEHQAgAIX0NSUxEoCiUqEARHAQAAAAABEEcBgACA
+AAERRwGUAJQAAQxHAcAAwAABIHkAW4IlVE1SXwhfSElEDEHQAQAIX0NSUxEQCg1HAUAAQAABBCIB
+AHkAW4IlUlRDXwhfSElEDEHQCwAIX0NSUxEQCg1HAXAAcAAEBCIAAXkAW4IiU1BLUghfSElEDEHQ
+CAAIX0NSUxENCgpHAWEAYQABAXkAW4IlQ09QUghfSElEDEHQDAQIX0NSUxEQCg1HAfAA8AABECIA
+IHkAW4BTUElPAQvwAwoCW4EQU1BJTwFJTkRYCERBVEEIW4ZLCElORFhEQVRBAQBAcENSQzAIQ1JD
+MQhDUkMyCENSQzMIQ1JDNAhDUkM1CENSQzYIQ1JDNwhDUkM4CENSQzkIQ1JDQQhDUkNCCENSQ0MI
+Q1JDRAhDUkNFCENSQ0YIQ1JEMAhDUkQxCENSRDIIQ1JEMwhDUkQ0CENSRDUIQ1JENghDUkQ3CENS
+RDgIFBtFTkZHAHABXC8EX1NCX1BDSTBQSUJfRU4zQxQbRVhGRwBwAFwvBF9TQl9QQ0kwUElCX0VO
+M0NbgkoZRkRDMAhfSElEDEHQBwAUTgVfU1RBAKAYklwvBF9TQl9QQ0kwUElCX0VQM0OkCgChPUVO
+RkdwQ1JDMmB7YAoQYKANkpNgCgBFWEZHpAoPoR5wQ1JDM2GgDZKTYQoARVhGR6QKDaEIRVhGR6QK
+ABQfX0RJUwBFTkZHcENSQzJge2AK72BwYENSQzJFWEZHFCxfQ1JTAAhCVUZGERsKGEcB8APwAwgG
+RwH3A/cDAQEiQAAqBAR5AKRCVUZGCF9QUlMRGwoYRwHwA/ADCAZHAfcD9wMBASJAACoEBHkAFEwL
+X1NSUwGMaAoCSU9MT4xoCgNJT0hJi2gKEUlSUTCMaAoURE1BMEVORkdwQ1JDMmB7YArvYXBhQ1JD
+MnBJT0xPYHpgCgJge2AK/GBwSU9ISWF5YQoGYX1gYWBwYENSQzOCSVJRMGCgB5RgCgB2YHBgXC8E
+X1NCX1BDSTBQSUJfRkxJUoJETUEwYKAHlGAKAHZgcGBcLwRfU0JfUENJMFBJQl9GTERBcENSQzJg
+fWAKEGFwYUNSQzJFWEZHW4JHH1VBUjEIX0hJRAxB0AUBCF9VSUQKARROBV9TVEEAoBiSXC8EX1NC
+X1BDSTBQSUJfRVAzQ6QKAKE9RU5GR3BDUkMyYHtgCgRgoA2Sk2AKAEVYRkekCg+hHnBDUkM3YaAN
+kpNhCgBFWEZHpAoNoQhFWEZHpAoAFBlfRElTAEVORkd7Q1JDMgr7Q1JDMkVYRkcUSAlfQ1JTAAhC
+RlUxERAKDUcB+AP4AwgIIhAAeQCLQkZVMQoCSU1JTotCRlUxCgRJTUFYi0JGVTEKCUlSUTBFTkZH
+cENSQzdgcGBhe2EKwGF5YQoCYXtgCj9geWAKAmB9YGFgcGBJTUlOcGBJTUFYRVhGR3BcLwRfU0Jf
+UENJMFBJQl9VMUlSYHAKAWF5YWBJUlEwpEJGVTEIX1BSUxE2CjMwRwH4A/gDCAgiEAAwRwH4AvgC
+CAgiCAAwRwHoA+gDCAgiEAAwRwHoAugCCAgiCAA4eQAUQQlfU1JTAYxoCgJJT0xPjGgKA0lPSEmL
+aAoJSVJRMEVORkdwQ1JDMmB7YAr7YXBhQ1JDMnBJT0xPYHpgCgJge2AK/mBwSU9ISWF5YQoGYX1g
+YWBwYENSQzeCSVJRMGCgB5RgCgB2YHBgXC8EX1NCX1BDSTBQSUJfVTFJUnBDUkMyYH1gCgRhcGFD
+UkMyRVhGR1uCQyFVQVIyCF9ISUQMQdAFAQhfVUlECgIUSgdfU1RBAKAYklwvBF9TQl9QQ0kwUElC
+X0VQM0OkCgChSQVFTkZHcENSQ0Vge2AKOGCgPpKTYAoIcENSQzJhe2EKCGGgDZKTYQoARVhGR6QK
+D6EecENSQzhhoA2Sk2EKAEVYRkekCg2hCEVYRkekCgChCEVYRkekCgAUGV9ESVMARU5GR3tDUkMy
+CvdDUkMyRVhGRxRICV9DUlMACEJGVTIREAoNRwH4AvgCCAgiCAB5AItCRlUyCgJJTUlOi0JGVTIK
+BElNQViLQkZVMgoJSVJRMEVORkdwQ1JDOGBwYGF7YQrAYXlhCgJhe2AKP2B5YAoCYH1gYWBwYElN
+SU5wYElNQVhFWEZHcFwvBF9TQl9QQ0kwUElCX1UySVJgcAoBYXlhYElSUTCkQkZVMghfUFJTETYK
+MzBHAfgD+AMICCIQADBHAfgC+AIICCIIADBHAegD6AMICCIQADBHAegC6AIICCIIADh5ABRBCV9T
+UlMBjGgKAklPTE+MaAoDSU9ISYtoCglJUlEwRU5GR3BDUkMyYHtgCvdhcGFDUkMycElPTE9gemAK
+AmB7YAr+YHBJT0hJYXlhCgZhfWBhYHBgQ1JDOIJJUlEwYKAHlGAKAHZgcGBcLwRfU0JfUENJMFBJ
+Ql9VMklScENSQzJgfWAKCGFwYUNSQzJFWEZHW4JJH0lSREEIX0hJRAxB0AUQFEsFX1NUQQCgGJJc
+LwRfU0JfUENJMFBJQl9FUDNDpAoARU5GR3BDUkNFYHtgCjhgoCKTYAoIcENSQzhhoA2Sk2EKAEVY
+RkekCg+hCEVYRkekCg2hCEVYRkekCgAUJV9ESVMAoBuTRElTRQoBRU5GR3tDUkNFCsdDUkNFRVhG
+R3BgYBRICV9DUlMACEJGVTIREAoNRwH4AvgCCAgiCAB5AItCRlUyCgJJTUlOi0JGVTIKBElNQViL
+QkZVMgoJSVJRMEVORkdwQ1JDOGBwYGF7YQrAYXlhCgJhe2AKP2B5YAoCYH1gYWBwYElNSU5wYElN
+QVhFWEZHcFwvBF9TQl9QQ0kwUElCX1UySVJgcAoBYXlhYElSUTCkQkZVMghfUFJTETYKMzBHAfgD
++AMICCIQADBHAfgC+AIICCIIADBHAegD6AMICCIQADBHAegC6AIICCIIADh5ABRBCV9TUlMBjGgK
+AklPTE+MaAoDSU9ISYtoCglJUlEwRU5GR3BDUkMyYHtgCvdhcGFDUkMycElPTE9gemAKAmB7YAr+
+YHBJT0hJYXlhCgZhfWBhYHBgQ1JDOIJJUlEwYKAHlGAKAHZgcGBcLwRfU0JfUENJMFBJQl9VMklS
+cENSQzJgfWAKCGFwYUNSQzJFWEZHW4JKJExQVDEIUElPTREECgEAjFBJT00KAExQVE0IX0hJRAxB
+0AQAFEEHX1NUQQCgGJJcLwRfU0JfUENJMFBJQl9FUDNDpAoAoUAFRU5GR3BDUkMyYHtgCgNgoAyT
+YAoBRVhGR6QKAKAik2AKA3BDUkM2YaANkpNhCgBFWEZHpAoNoQhFWEZHpAoAoQ5wYExQVE1FWEZH
+pAoPFBlfRElTAEVORkd9Q1JDMgoDQ1JDMkVYRkcUQQ1fQ1JTAAhCVUZMERAKDUcBeAN4AwgIIoAA
+eQCLQlVGTAoCSU1JTotCVUZMCgRJTUFYjEJVRkwKBkxBTE6MQlVGTAoHTExFTotCVUZMCglJUlEw
+RU5GR3BDUkM2YEVYRkdwYGF7YQrAYXlhCgJheWAKAmB9YGFgcGBJTUlOcGBJTUFYoBeTSU1JTgu8
+A3AKBExBTE5wCgRMTEVOoQ9wCghMQUxOcAoITExFTnBcLwRfU0JfUENJMFBJQl9MUElSYHAKAWF5
+YWBJUlEwpEJVRkwIX1BSUxEqCicwRwF4A3gDCAgigAAwRwF4AngCCAgiIAAwRwG8A7wDBAQigAA4
+eQAURglfU1JTAYxoCgJJT0xPjGgKA0lPSEmLaAoJSVJRMEVORkdwQ1JDMmB9YAoDYHBgQ1JDMnBJ
+T0xPYHpgCgJgcElPSElheWEKBmF9YGFgcGBDUkM2gklSUTBgoAeUYAoAdmBwYFwvBF9TQl9QQ0kw
+UElCX0xQSVJwQ1JDMmB7YAr8YHBMUFRNYX1gYWFwYUNSQzJFWEZHW4JDL0VDUDEIX0hJRAxB0AQB
+FE0HX1NUQQCgGJJcLwRfU0JfUENJMFBJQl9FUDNDpAoARU5GR3BDUkMyYHtgCgNgoBGRk2AKAJNg
+CgJFWEZHpAoAoAyTYAoBRVhGR6QKD6Auk2AKA6AfkpNcLwRfU0JfUENJMFBJQl9MUERBCgBFWEZH
+pAoNoQhFWEZHpAoAFAZfRElTABRGFl9DUlMACEJVRkURGwoYRwF4A3gDCAhHAXgHeAcICCKAACoI
+AHkAi0JVRkUKAklNSTGLQlVGRQoESU1BMYxCVUZFCgZBTE4xjEJVRkUKB0xFTjGLQlVGRQoKSU1J
+MotCVUZFCgxJTUEyjEJVRkUKDkFMTjKMQlVGRQoPTEVOMotCVUZFChFJUlEwjEJVRkUKFERNQTBF
+TkZHcENSQzZgRVhGR3BgYXthCsBheWEKAmF5YAoCYH1gYWBwYElNSTFwYElNQTFyYAsABGBwYElN
+STJwYElNQTKgJZNJTUkxC7wDcAoEQUxOMXAKBExFTjFwCgRBTE4ycAoETEVOMqEdcAoIQUxOMXAK
+CExFTjFwCgRBTE4ycAoETEVOMnBcLwRfU0JfUENJMFBJQl9MUElSYHAKAWF5YWBJUlEwcFwvBF9T
+Ql9QQ0kwUElCX0xQREFge2AKA2BwCgFheWFgRE1BMKRCVUZFCF9QUlMRNAoxMEcBeAN4AwgIRwF4
+B3gHBAQigAAqCgAwRwF4AngCCAhHAXgGeAYEBCIgACoKADh5ABRMC19TUlMBjGgKAklPTE+MaAoD
+SU9ISYtoChFJUlEwjGgKFERNQTBFTkZHcENSQzJgfWAKA2BwYENSQzJwSU9MT2B6YAoCYHBJT0hJ
+YXlhCgZhfWBhYHBgQ1JDNoJJUlEwYKAHlGAKAHZgcGBcLwRfU0JfUENJMFBJQl9MUElSgkRNQTBg
+oAeUYAoAdmBwYFwvBF9TQl9QQ0kwUElCX0xQREFwQ1JDMmB7YAr8YH1gCgFgcGBDUkMyRVhGR1uC
+QQdQUzJNCF9ISUQMQdAPExQXX1NUQQCgC5NQUzJGCgCkCg+hBKQKABRIBF9DUlMACEJVRjERCAoF
+IgAQeQAIQlVGMhEYChVHAWAAYAABAUcBZABkAAEBIgAQeQCgDZNLQkRJCgGkQlVGMqEGpEJVRjFb
+gkYEUFMySwhfSElEDEHQAwMUF19TVEEAoAuTS0JESQoBpAoAoQSkCg8IX0NSUxEYChVHAWAAYAAB
+AUcBZABkAAEBIgIAeQAUKV9QUlcAe1NVU0YKAVNUQVSgDVNUQVSkEgYCCgUKA6EJpBIGAgoFCgEU
+PVwvBF9TQl9QQ0kwVUFSMV9QUlcAoA1PU0ZMpBIGAgoICgShGaANU1RBVKQSBgIKCAoDoQmkEgYC
+CggKARQ9XC8EX1NCX1BDSTBVQVIyX1BSVwCgDU9TRkykEgYCCggKBKEZoA1TVEFUpBIGAgoICgOh
+CaQSBgIKCAoBFD1cLwRfU0JfUENJMExQVDFfUFJXAKANT1NGTKQSBgIKCAoEoRmgDVNUQVSkEgYC
+CggKA6EJpBIGAgoICgEUPVwvBF9TQl9QQ0kwRUNQMV9QUlcAoA1PU0ZMpBIGAgoICgShGaANU1RB
+VKQSBgIKCAoDoQmkEgYCCggKAQ==
+
+
+--=-mLF2p9UVWvfypLi5ixwc--
+

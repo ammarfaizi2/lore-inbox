@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280589AbRKBHdP>; Fri, 2 Nov 2001 02:33:15 -0500
+	id <S280591AbRKBHxA>; Fri, 2 Nov 2001 02:53:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280592AbRKBHdE>; Fri, 2 Nov 2001 02:33:04 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:34725 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S280589AbRKBHcv>; Fri, 2 Nov 2001 02:32:51 -0500
-Date: Fri, 2 Nov 2001 09:44:35 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: <linux-kernel@vger.kernel.org>
-Subject: Forcing 8259A for one irq.
-Message-ID: <Pine.LNX.4.33.0111020925560.32189-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280593AbRKBHwu>; Fri, 2 Nov 2001 02:52:50 -0500
+Received: from fmfdns01.fm.intel.com ([132.233.247.10]:40170 "EHLO
+	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S280591AbRKBHwg>; Fri, 2 Nov 2001 02:52:36 -0500
+Message-ID: <A9B0C3C90A46D411951400A0C9F4F67103BA56E3@pdsmsx33.pd.intel.com>
+From: "Yan, Noah" <noah.yan@intel.com>
+To: "'Robert Love'" <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: vm documentation
+Date: Fri, 2 Nov 2001 15:53:21 +0800 
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a strange scenario whereupon i have a box with IO-APIC enabled
-(SMP box) and a driver which seems not to be SMP safe and only works if i
-boot the kernel with noapic. My question is, which is the cleanest way of
-making a specific IRQ use the 8259 instead of IOAPIC? (kind of like the
-timer on some boxes).
+Is there any resources(such as programming guide or referrence book) for the C language grammar in gcc, especially for Kernel? Such as what is _init, 1<<12, asmlinkage, etc?
 
-I've looked at the enable_8259A_irq function, but my method looks terribly
-incorrect (and untested too). Would this method work? And is there
-anything i should look out for?
+Thanks
+Noah
 
-irq_num = IRQ below 15 (specified as parameter to module)
-add entry to IO-APIC routing table? (local-apic to CPU#0)
-enable_8259A_irq(irq_num)
+-----Original Message-----
+From: Robert Love [mailto:rml@tech9.net]
+Sent: 2001?11?2? 15:23
+To: David Chow
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vm documentation
 
-This is only a temporary measure until i get the driver completely SMP
-safe and i want to avoid running noapic.
 
-Thanks in advance,
-	Zwane Mwaikambo
+On Fri, 2001-11-02 at 01:53, David Chow wrote:
+> Is there any documentation of the recent changes of the vm in the linux
+> kernel? Also, is there any source of documentation to get start with the
+> linux kernel hacking? It is hard for people to getting start to
+> contribute since is is obviously lack of documentation of the kernel
+> sources... Any help will be appreciated. Thanks.
 
---
-Anyone for a LUG in Swaziland?
+See http://kernelnewbies.org for some introduction to kernel hacking...
 
+The books "Understanding the Linux Kernel" and "Linux Device Drivers",
+both published by O'Reilly, are good starts.
+
+As for the VM, there doesn't seem to be _anything_ yet.  Hopefully soon?
+
+	Robert Love
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

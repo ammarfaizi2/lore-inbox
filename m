@@ -1,76 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263731AbSIVGu7>; Sun, 22 Sep 2002 02:50:59 -0400
+	id <S276786AbSIVHUl>; Sun, 22 Sep 2002 03:20:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276646AbSIVGu5>; Sun, 22 Sep 2002 02:50:57 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:27402 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263731AbSIVGu4>; Sun, 22 Sep 2002 02:50:56 -0400
-Date: Sun, 22 Sep 2002 08:55:04 +0200
-From: Jurriaan <thunder7@xs4all.nl>
+	id <S276792AbSIVHUl>; Sun, 22 Sep 2002 03:20:41 -0400
+Received: from cs180154.pp.htv.fi ([213.243.180.154]:43392 "EHLO
+	devil.pp.htv.fi") by vger.kernel.org with ESMTP id <S276786AbSIVHUk>;
+	Sun, 22 Sep 2002 03:20:40 -0400
+Subject: kernel BUG at /usr/src/linux-2.5.37/include/asm/spinlock.h:123!
+From: Mika Liljeberg <Mika.Liljeberg@welho.com>
 To: linux-kernel@vger.kernel.org
-Subject: ide-scsi problems (identical) in 2.5.38 and 2.4.20-pre7-ac3: CoD != 0 in idescsi_pc_intr
-Message-ID: <20020922065504.GA1009@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 22 Sep 2002 10:25:48 +0300
+Message-Id: <1032679548.2042.5.camel@devil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-selected parts of dmesg:
+This happened on 2.5.37 with KDE artsd and OSS sound drivers.
 
-hdg: LITE-ON LTR-40125W, ATAPI CD/DVD-ROM drive
-ide-cd: passing drive hdg to ide-scsi emulation.
-scsi1 : SCSI host adapter emulation for IDE ATAPI devices
-  Vendor: LITE-ON   Model: LTR-40125W        Rev: WS05
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-sr3: scsi3-mmc drive: 12x/12x writer cd/rw xa/form2 cdda tray
+	MikaL
 
-After writing for a while, it says:
-ide-scsi: CoD != 0 in idescsi_pc_intr
-hdg: ATAPI reset complete
-
-and cdrdao mentions:
-
-sudo cdrdao simulate --device 1,0,0 --driver generic-mmc --speed 12 test.cue
-Cdrdao version 1.1.5 - (C) Andreas Mueller <andreas@daneb.de>
-  SCSI interface library - (C) Joerg Schilling
-  L-EC encoding library - (C) Heiko Eissfeldt
-  Paranoia DAE library - (C) Monty
-
-Check http://cdrdao.sourceforge.net/drives.html#dt for current driver tables.
-
-Using libscg version 'schily-0.5'
-
-1,0,0: LITE-ON LTR-40125W       Rev: WS05
-Using driver: Generic SCSI-3/MMC - Version 1.2 (options 0x0000)
-
-Starting write simulation at speed 12...
-Pausing 10 seconds - hit CTRL-C to abort.
-Process can be aborted with QUIT signal (usually CTRL-\).
-Turning BURN-Proof on
-Writing track 01 (mode MODE2_RAW/MODE2_RAW)...
-Writing track 02 (mode MODE2_RAW/MODE2_RAW)...
-?: Input/output error.  : scsi sendcmd: no error
-CDB:  2A 00 00 01 58 88 00 00 1B 00
-status: 0x2 (CHECK CONDITION)
-Sense Bytes: 70 00 06 00 00 00 00 0A 00 00 00 00 29 00 00 00
-Sense Key: 0x6 Unit Attention, Segment 0
-Sense Code: 0x29 Qual 0x00 (power on, reset, or bus device reset occurred) Fru 0x0
-Sense flags: Blk 0 (not valid)
-cmd finished after 3.160s timeout 180s
-ERROR: Write data failed.
-ERROR: Writing failed - buffer under run?
-ERROR: Simulation failed.
-
-Both 2.4.20-pre7-ac3 and 2.5.38 fail in this way.
-
-Kind regards,
-Jurriaan
--- 
-Lightspeed is too slow. We're going to have to go right to Ludicrous Speed.
-        Spaceballs - The Movie
-GNU/Linux 2.5.37 SMP/ReiserFS 2x1380 bogomips load av: 0.18 0.74 0.57
+Sep 21 22:12:10 devil kernel: eip: c02471a0
+Sep 21 22:12:10 devil kernel: kernel BUG at /usr/src/linux-2.5.37/include/asm/spinlock.h:123!
+Sep 21 22:12:10 devil kernel: invalid operand: 0000
+Sep 21 22:12:10 devil kernel: CPU:    1
+Sep 21 22:12:10 devil kernel: EIP:    0060:[dma_ioctl+920/2634]    Not tainted
+Sep 21 22:12:10 devil kernel: EFLAGS: 00210082
+Sep 21 22:12:10 devil kernel: eax: 0000000e   ebx: 40045010   ecx: d2a87e70   edx: c0368800
+Sep 21 22:12:10 devil kernel: esi: 40045038   edi: d98220fc   ebp: 40045038   esp: d2a87f00
+Sep 21 22:12:10 devil kernel: ds: 0068   es: 0068   ss: 0068
+Sep 21 22:12:10 devil kernel: Process artsd (pid: 545, threadinfo=d2a86000 task=d2dca020)
+Sep 21 22:12:10 devil kernel: Stack: c032bacd c02471a0 40045010 bffff6ec 00000000 40045010 d9822000 00000000 
+Sep 21 22:12:10 devil kernel:        00200202 00000002 d9822574 00000000 d5135a20 c0125226 00000000 00001000 
+Sep 21 22:12:10 devil kernel:        00000000 00000000 c0246a4c 00000000 40045010 bffff6ec 00000004 00000003 
+Sep 21 22:12:10 devil kernel: Call Trace: [dma_ioctl+896/2634] [update_wall_time+18/60] [audio_ioctl+1452/1512] [sound_ioctl+341/380] [sys_ioctl+639/748] 
+Sep 21 22:12:10 devil kernel:    [syscall_call+7/11] 
+Sep 21 22:12:10 devil kernel: 
+Sep 21 22:12:10 devil kernel: Code: 0f 0b 7b 00 a0 ba 32 c0 83 c4 08 f0 fe 0e 0f 88 aa 06 00 00 

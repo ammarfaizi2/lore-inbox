@@ -1,110 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262635AbSI0Wn6>; Fri, 27 Sep 2002 18:43:58 -0400
+	id <S262597AbSI0Wln>; Fri, 27 Sep 2002 18:41:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262634AbSI0Wn6>; Fri, 27 Sep 2002 18:43:58 -0400
-Received: from magic.adaptec.com ([208.236.45.80]:31483 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP
-	id <S262633AbSI0Wnz>; Fri, 27 Sep 2002 18:43:55 -0400
-Date: Fri, 27 Sep 2002 16:48:54 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Patrick Mansfield <patmans@us.ibm.com>
-cc: James Bottomley <James.Bottomley@steeleye.com>, Jens Axboe <axboe@suse.de>,
-       Matthew Jacob <mjacob@feral.com>,
-       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
-       Mathieu Chouquet-Stringer <mathieu@newview.com>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Warning - running *really* short on DMA buffers while doing
- file  transfers
-Message-ID: <2698376224.1033166934@aslan.btc.adaptec.com>
-In-Reply-To: <20020927152842.A18038@eng2.beaverton.ibm.com>
-References: <200209271721.g8RHLTn05231@localhost.localdomain>
- <2628736224.1033160295@aslan.btc.adaptec.com>
- <20020927143841.A17108@eng2.beaverton.ibm.com>
- <2668366224.1033164502@aslan.btc.adaptec.com>
- <20020927152842.A18038@eng2.beaverton.ibm.com>
-X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="==========3294902874=========="
+	id <S262630AbSI0Wln>; Fri, 27 Sep 2002 18:41:43 -0400
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:14576 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S262597AbSI0Wlm>; Fri, 27 Sep 2002 18:41:42 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Fri, 27 Sep 2002 16:44:50 -0600
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Stephen Tweedie <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch 0/7] 2.4.20-pre4/ext3: ext3 minor improvements
+Message-ID: <20020927224450.GE22795@clusterfs.com>
+Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Stephen Tweedie <sct@redhat.com>, linux-kernel@vger.kernel.org
+References: <200209261355.g8QDtRg16986@sisko.scot.redhat.com> <Pine.LNX.4.44.0209271744100.17290-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0209271744100.17290-100000@freak.distro.conectiva>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==========3294902874==========
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Sep 27, 2002  17:44 -0300, Marcelo Tosatti wrote:
+> On Thu, 26 Sep 2002, Stephen Tweedie wrote:
+> > This patch set contains a couple of minor fixups for ext3 on 2.4, plus
+> > a couple of new checks and functionality aimed at helping InterMezzo.
+> > It also brings the ext3 version up to the current cvs version number.
+> 
+> I guess you missed the patch, Stephen ;)
 
-> I turned on the debug flags, there were a bunch of odd messages
-> in there, but otherwise it seems to be working fine. My .config
-> has the following AIC config options:
+No, they were in separate emails following this one (numbered 0/7).
+This was just the overview of all the patches.
 
-<sigh>
-I always run with debugging turned on with the message flags enabled,
-so I missed this in my testing.  I just updated the tarfile.  The
-following patch is all you need to shut the driver up.
-
+Cheers, Andreas
 --
-Justin
-
---==========3294902874==========
-Content-Type: text/plain; charset=us-ascii; name=diff
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename=diff; size=1375
-
-Change 1419 by gibbs@bitkeeper-linux-2.5 on 2002/09/27 16:44:04
-
-	Add a missing pair of curly braces to a conditional debug
-	statement.  This ensures that debug code doesn't trigger if
-	it isn't enabled. <blush>
-
-Affected files ...
-
-... //depot/aic7xxx/aic7xxx/aic7xxx.c#80 edit
-
-Differences ...
-
-==== //depot/aic7xxx/aic7xxx/aic7xxx.c#80 (ktext) ====
-
-***************
-*** 37,43 ****
-   * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-   * POSSIBILITY OF SUCH DAMAGES.
-   *
-!  * $Id: //depot/aic7xxx/aic7xxx/aic7xxx.c#79 $
-   *
-   * $FreeBSD$
-   */
---- 37,43 ----
-   * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-   * POSSIBILITY OF SUCH DAMAGES.
-   *
-!  * $Id: //depot/aic7xxx/aic7xxx/aic7xxx.c#80 $
-   *
-   * $FreeBSD$
-   */
-***************
-*** 2475,2483 ****
-  			panic("HOST_MSG_LOOP interrupt with no active message");
-  
-  #ifdef AHC_DEBUG
-! 		if ((ahc_debug & AHC_SHOW_MESSAGES) != 0)
-  			ahc_print_devinfo(ahc, &devinfo);
-  			printf("INITIATOR_MSG_OUT");
-  #endif
-  		phasemis = bus_phase != P_MESGOUT;
-  		if (phasemis) {
---- 2475,2484 ----
-  			panic("HOST_MSG_LOOP interrupt with no active message");
-  
-  #ifdef AHC_DEBUG
-! 		if ((ahc_debug & AHC_SHOW_MESSAGES) != 0) {
-  			ahc_print_devinfo(ahc, &devinfo);
-  			printf("INITIATOR_MSG_OUT");
-+ 		}
-  #endif
-  		phasemis = bus_phase != P_MESGOUT;
-  		if (phasemis) {
-
---==========3294902874==========--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 

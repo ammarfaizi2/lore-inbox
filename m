@@ -1,78 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbQLaQ2Y>; Sun, 31 Dec 2000 11:28:24 -0500
+	id <S129775AbQLaQnJ>; Sun, 31 Dec 2000 11:43:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129401AbQLaQ2O>; Sun, 31 Dec 2000 11:28:14 -0500
-Received: from air.lug-owl.de ([62.52.24.190]:25101 "HELO air.lug-owl.de")
-	by vger.kernel.org with SMTP id <S129383AbQLaQ2F>;
-	Sun, 31 Dec 2000 11:28:05 -0500
-Date: Sun, 31 Dec 2000 16:57:35 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Whats the problem
-Message-ID: <20001231165734.F15712@lug-owl.de>
-Reply-To: jbglaw@lug-owl.de
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOL.3.96.1001230222916.20774B-100000@kohinoor.csa.iisc.ernet.in>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="A9z/3b/E4MkkD+7G"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.SOL.3.96.1001230222916.20774B-100000@kohinoor.csa.iisc.ernet.in>; from sourav@csa.iisc.ernet.in on Sat, Dec 30, 2000 at 10:46:04PM +0530
-X-Operating-System: Linux air 2.4.0-test8-pre1 
+	id <S129911AbQLaQm7>; Sun, 31 Dec 2000 11:42:59 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62476 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129775AbQLaQmo>; Sun, 31 Dec 2000 11:42:44 -0500
+Subject: Re: Linux 2.2.18: /proc/apm slows system time (was: Linux 2.2.19pre3)
+To: J.A.K.Mouw@ITS.TUDelft.NL (Erik Mouw)
+Date: Sun, 31 Dec 2000 16:13:22 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        matthias.andree@stud.uni-dortmund.de (Matthias Andree),
+        linux-kernel@vger.kernel.org (Linux kernel mailing list)
+In-Reply-To: <20001231165058.H940@arthur.ubicom.tudelft.nl> from "Erik Mouw" at Dec 31, 2000 04:50:58 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Cl6r-0008BG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> But that doesn't solve the problem with corrupted sound, serial drop
+> outs, etc. To solve those issues (well, to decrease their impact),
+> could we cache the results from a previous call and only call the APM
+> BIOS once a minute or so?
 
---A9z/3b/E4MkkD+7G
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Userspace issue. 
 
-On Sat, Dec 30, 2000 at 10:46:04PM +0530, Sourav Sen wrote:
->=20
-> I am unable to compile the following code, can anyone say whats the
-> problem :
->=20
-> The main error msg is like the following:
->=20
-> 	parse error before `EXPORT_SYMTAB_not_defined'
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^
+Alan
 
-Well, the problem is that 'EXPORT_SYMTAB' is not defined;)
->=20
-> CC=3Dgcc
-> MODCFLAGS=3D-Wall -DMODULE -D__KERNEL__ -DLINUX
-
-should be:
-
-MODCFLAGS=3D-Wall -DMODULE -DEXPORT_SYMTAB -D__KERNEL__ -DLINUX
-
-MfG, JBG
-
---=20
-Fehler eingestehen, Gr=F6=DFe zeigen: Nehmt die Rechtschreibreform zur=FCck=
-!!!
-/* Jan-Benedict Glaw <jbglaw@lug-owl.de> -- +49-177-5601720 */
-keyID=3D0x8399E1BB fingerprint=3D250D 3BCF 7127 0D8C A444 A961 1DBD 5E75 83=
-99 E1BB
-     "insmod vi.o and there we go..." (Alexander Viro on linux-kernel)
-
---A9z/3b/E4MkkD+7G
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.2 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjpPV24ACgkQHb1edYOZ4btQLgCfZI9dAIHTLf/CRYeqQsFx3RV3
-HMsAnRl3wRCaIqk+EsuV4qfdtCUSg5/b
-=aCFp
------END PGP SIGNATURE-----
-
---A9z/3b/E4MkkD+7G--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129159AbRBPCaW>; Thu, 15 Feb 2001 21:30:22 -0500
+	id <S129138AbRBPCuM>; Thu, 15 Feb 2001 21:50:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129808AbRBPCaN>; Thu, 15 Feb 2001 21:30:13 -0500
-Received: from zen.via.ecp.fr ([138.195.130.71]:60430 "HELO zen.via.ecp.fr")
-	by vger.kernel.org with SMTP id <S129159AbRBPC37>;
-	Thu, 15 Feb 2001 21:29:59 -0500
-Date: Fri, 16 Feb 2001 03:29:56 +0100
-From: Stéphane Borel <stef@via.ecp.fr>
-To: linux-kernel@vger.kernel.org
-Subject: ServeRaid 4M with IBM netfinity and kernel 2.4.x
-Message-ID: <20010216032956.B11267@via.ecp.fr>
-Mail-Followup-To: Stéphane Borel <stef@via.ecp.fr>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S129746AbRBPCuB>; Thu, 15 Feb 2001 21:50:01 -0500
+Received: from telnet.ask.ne.jp ([203.179.96.6]:55185 "EHLO telnet.ask.ne.jp")
+	by vger.kernel.org with ESMTP id <S129138AbRBPCtt>;
+	Thu, 15 Feb 2001 21:49:49 -0500
+Date: Fri, 16 Feb 2001 11:46:44 +0900 (JST)
+From: bruce@ask.ne.jp
+Message-Id: <200102160246.LAA29212@telnet.ask.ne.jp>
+To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: japanese keyboards
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have a problem here that make the filesystem crash during big files
-transfer (>1M). It only happens with kernel 2.4.x ; with 2.2.18, it is
-very stable and fast.
+> Recently I got some more detailed information on Japanese keyboards
+> and their scancodes. Maybe there are Japanese readers here who
+> can look at
+> 	http://www.win.tue.nl/~aeb/linux/kbd/scancodes-3.html#ss3.3
+> and correct what is wrong?
+> 
+> Andries
 
-I have seen a thread some time ago concerning such problem but is there
-a solution against it now ?
+Well, I can read Japanese, but what exactly is the problem? I haven't
+found anything wrong with my Japanese keyboard that would need to be
+fixed in the kernel. Could you give some more details?
 
-I should add that the behaviour of serveraid under 2.4 is somehow
-strange : during fsck for instance, it seems to get stuck and won't go
-further if we don't strike a key on the keyboard.
+--
+Bruce Harada
+bruce@ask.ne.jp
 
--- 
-Stef

@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266902AbUHOVfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266910AbUHOVgk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266902AbUHOVfU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 17:35:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266910AbUHOVfU
+	id S266910AbUHOVgk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 17:36:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266915AbUHOVgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 17:35:20 -0400
-Received: from ozlabs.org ([203.10.76.45]:3269 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S266902AbUHOVfN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 17:35:13 -0400
-Date: Mon, 16 Aug 2004 07:30:13 +1000
-From: Anton Blanchard <anton@samba.org>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, jrsantos@austin.ibm.com
-Subject: [PATCH] reduce size of struct buffer_head on 64bit
-Message-ID: <20040815213013.GI5637@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040803i
+	Sun, 15 Aug 2004 17:36:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16266 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266910AbUHOVgX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 17:36:23 -0400
+Message-ID: <411FD744.2090308@pobox.com>
+Date: Sun, 15 Aug 2004 17:36:04 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: new tool:  blktool
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Reduce size of buffer_head from 96 to 88 bytes on 64bit architectures by
-putting b_count and b_size together. b_count will still be in the first
-16 bytes on 32bit architectures, so 16 byte cacheline machines shouldnt
-be affected.
+I just posted "blktool" on my SF page,
+	http://sourceforge.net/projects/gkernel/
+and in BitKeeper at
+	bk://gkernel.bkbits.net/blktool
 
-With this change the number of objects per 4kB slab goes up from
-40 to 44 on ppc64.
 
-Signed-off-by: Anton Blanchard <anton@samba.org>
+blktool aims to be an easier to use, and more generic version of the 
+existing utility 'hdparm'.  For example,
 
-diff -puN include/linux/buffer_head.h~optimize_structs include/linux/buffer_head.h
---- gr_work/include/linux/buffer_head.h~optimize_structs	2004-08-14 10:51:08.695492352 -0500
-+++ gr_work-anton/include/linux/buffer_head.h	2004-08-14 10:51:08.716489022 -0500
-@@ -47,12 +47,12 @@ typedef void (bh_end_io_t)(struct buffer
- struct buffer_head {
- 	/* First cache line: */
- 	unsigned long b_state;		/* buffer state bitmap (see above) */
--	atomic_t b_count;		/* users using this block */
- 	struct buffer_head *b_this_page;/* circular list of page's buffers */
- 	struct page *b_page;		/* the page this bh is mapped to */
-+	atomic_t b_count;		/* users using this block */
-+	u32 b_size;			/* block size */
- 
- 	sector_t b_blocknr;		/* block number */
--	u32 b_size;			/* block size */
- 	char *b_data;			/* pointer to data block */
- 
- 	struct block_device *b_bdev;
+	$ hdparm -c1 /dev/hda
+		becomes
+	$ blktool /dev/hda pio-data 32-bit
+
+	and
+
+	$ hdparm -L0 /dev/hda
+		becomes
+	$ blktool /dev/hda media unlock
+
+The utility is currently still fairly specific to IDE devices (as hdparm 
+is), but that will change in the coming weeks as SCSI, I2O, and possibly 
+some bits of hardware RAID control are added.
+
+The audience for this application, like hdparm, is fairly narrow, 
+specific to people who tweak their storage devices and _know what they 
+are doing_.  Improper use of this tool, like hdparm, can turn your disk 
+into a doorstop.
+
+	Jeff
+
+
 

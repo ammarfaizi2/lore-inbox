@@ -1,61 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268489AbUHQWri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268501AbUHQWru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268489AbUHQWri (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 18:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268498AbUHQWre
+	id S268501AbUHQWru (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 18:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268498AbUHQWrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 18:47:34 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33947 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268522AbUHQWqN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 18:46:13 -0400
-Date: Tue, 17 Aug 2004 18:46:13 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "Robert K. Nelson" <rnelson@airflowsciences.com>
+	Tue, 17 Aug 2004 18:47:49 -0400
+Received: from fw.osdl.org ([65.172.181.6]:57784 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268524AbUHQWqe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 18:46:34 -0400
+Date: Tue, 17 Aug 2004 15:50:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kurt Garloff <garloff@suse.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: SCSI Bus Parity errors with all Kernels after 2.4.26\
-Message-ID: <20040817214612.GB5558@logos.cnet>
-References: <41210601.6090202@airflowsciences.com>
+Subject: Re: [PATCH] bio_uncopy_user mem leak
+Message-Id: <20040817155004.70ac4d9e.akpm@osdl.org>
+In-Reply-To: <20040817155918.GA5312@tpkurt.garloff.de>
+References: <20040817155918.GA5312@tpkurt.garloff.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41210601.6090202@airflowsciences.com>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 16, 2004 at 03:07:45PM -0400, Robert K. Nelson wrote:
-> I have a machine configuration with runs fine under a variety of older 
-> kernels and fails under a variety of newer ones.  I was hoping someone 
-> could dircet me to a person who would like to look further into this.
+Kurt Garloff <garloff@suse.de> wrote:
+>
+> When using bounce buffers for SG_IO commands with unaligned 
+> buffers in blk_rq_map_user(), we should free the pages from
+> blk_rq_unmap_user() which calls bio_uncopy_user() for the 
+> non-BIO_USER_MAPPED case. That function failed to free the
+> pages for write requests.
 > 
-> SCSI Configuration -
-> Symbios Logic SYM8951U
->    Quantum Viking II 4.5GB
->    IBM DNES-30917OW 9.0GB
-> ASUS SC875 Symbios Logic
->    IOMEGA ZOP 100
->    Pioneer CD-ROM DR U065
-> 
-> Works under:
->    Various RedHat 4, 5, 6 and 7 systems
->    RedHat 8.0 running 2.4.18
->    RedHat 8.0 running 2.4.20
->    Debian 2.2 running 2.4.5
-> 
-> Fails under
->    Redhat 9.0 running 2.4.26
->    Suse 9.1 running 2.6.5
->    Debian 3.0
-> 
-> It fails with a SCSI bus error, either crashing entirely or refusing to 
-> mount one or more file systems on the second disk.the second disk. 
-> Looks like something has changed, and not for the better for this 
-> configuration.
-> 
-> More information avaiable on request.  I am interested in helping to 
-> trace this down.
-> 
-> Please cc: my personal e-mail in response, since I do not subscribe.
+> So we leaked pages and you machine would go OOM. Rebooting 
+> helped ;-)
 
-What are the exact error messages? CC linux-scsi@vger.kernel.org
+Eureka.  Thanks.
+
+This really should trigger a 2.6.8.2.  We'll see.
+

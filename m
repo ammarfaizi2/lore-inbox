@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262524AbTIJLkI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 07:40:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbTIJLkI
+	id S262613AbTIJLrx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 07:47:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbTIJLrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 07:40:08 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:55952 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262524AbTIJLkF
+	Wed, 10 Sep 2003 07:47:53 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34733 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262613AbTIJLru
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 07:40:05 -0400
-Date: Wed, 10 Sep 2003 12:39:29 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Hugh Dickins <hugh@veritas.com>, Ulrich Drepper <drepper@redhat.com>,
-       Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Andrew Morton <akpm@osdl.org>, Stephen Hemminger <shemminger@osdl.org>,
-       torvalds@transmeta.com, Linux Kernel <linux-kernel@vger.kernel.org>,
-       davem@redhat.com
-Subject: Re: [PATCH] Re: today's futex changes
-Message-ID: <20030910113929.GA21945@mail.jlokier.co.uk>
-References: <20030908175140.GC27097@mail.jlokier.co.uk> <20030909040403.C1AA12C0FF@lists.samba.org>
+	Wed, 10 Sep 2003 07:47:50 -0400
+Date: Wed, 10 Sep 2003 12:47:49 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Marc Zyngier <mzyngier@freesurf.fr>
+Cc: Matthew Wilcox <willy@debian.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, Ralf Baechle <ralf@gnu.org>,
+       Richard Henderson <rth@twiddle.net>
+Subject: Re: [PATCH] Move EISA_bus
+Message-ID: <20030910114749.GR18654@parcelfarce.linux.theplanet.co.uk>
+References: <20030909222937.GH18654@parcelfarce.linux.theplanet.co.uk> <wrpbrttyztg.fsf@hina.wild-wind.fr.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030909040403.C1AA12C0FF@lists.samba.org>
+In-Reply-To: <wrpbrttyztg.fsf@hina.wild-wind.fr.eu.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> BTW, I'm guessing from your preference for multi-line comments that
-> you don't use a color-coding editor for source?  I must say that once
-> I got used to it, I really prefer comments in green.
+On Wed, Sep 10, 2003 at 07:31:23AM +0200, Marc Zyngier wrote:
+> While we're at it, why not setting EISA_bus as 'deprecated', so people
+> will know they'd better move the driver to the EISA probing API ?
 
-You mean the /*
-              *
-              */ style?
+I'd rather not.  It'll cause warnings in arch code that's making
+perfectly legitimate use of it, eg arch/i386/kernel/traps.c that sets
+it or arch/parisc/kernel/pci.c that keys off EISA_bus to know whether
+to direct port access to the EISA or PCI bus adapters.
 
-No, I never use that style, except in futex.c to go along with the
-style that was already there!  I use Emacs with comments in red-orange :) 
-
--- Jamie
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

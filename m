@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262400AbRFBJoH>; Sat, 2 Jun 2001 05:44:07 -0400
+	id <S262421AbRFBKFF>; Sat, 2 Jun 2001 06:05:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262406AbRFBJn5>; Sat, 2 Jun 2001 05:43:57 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:5466 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S262400AbRFBJnu>; Sat, 2 Jun 2001 05:43:50 -0400
-Message-ID: <3B18B484.2090404@kalifornia.com>
-Date: Sat, 02 Jun 2001 02:40:20 -0700
-From: Ben Ford <ben@kalifornia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-14 i686; en-US; rv:0.9+) Gecko/20010525
-X-Accept-Language: en
+	id <S262423AbRFBKEz>; Sat, 2 Jun 2001 06:04:55 -0400
+Received: from [216.6.80.34] ([216.6.80.34]:1796 "EHLO
+	dcmtechdom.dcmtech.co.in") by vger.kernel.org with ESMTP
+	id <S262421AbRFBKEn>; Sat, 2 Jun 2001 06:04:43 -0400
+Message-ID: <7FADCB99FC82D41199F9000629A85D1A01C67B31@dcmtechdom.dcmtech.co.in>
+From: Chanchal Chawla <chanchalx.chawla@dcmtech.co.in>
+To: linux-kernel@vger.kernel.org
+Subject: query
+Date: Sat, 2 Jun 2001 15:38:45 +0530 
 MIME-Version: 1.0
-To: John R Lenton <john@grulic.org.ar>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: should reiserfs root be ro?
-In-Reply-To: <20010601012642.A14424@grulic.org.ar>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John R Lenton wrote:
+Hi All,
+  
+    i'm writing a file system code, i've a query regarding that, i want you
+to help me out if possible, 
+  
+    is it possible to get the absolute mount point of a device at run time
+in that code ? if it is possible then how we can get it ?
 
->Should a box that has its root filesystem on a reiser fs mount
->this root readonly? i.e. should 'read-only' be in lilo.conf?
->
-no.
-
--- 
-/me feel like got big wanker 'cause I be leet and 0wn3d sourceforge.
-        tulare on Slashdot.
-
-
-
+    i'll be thankful.
+   
+Regards
+Chanchal

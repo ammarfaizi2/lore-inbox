@@ -1,45 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277071AbRJKXkg>; Thu, 11 Oct 2001 19:40:36 -0400
+	id <S277074AbRJKXl4>; Thu, 11 Oct 2001 19:41:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277072AbRJKXkS>; Thu, 11 Oct 2001 19:40:18 -0400
-Received: from otter.mbay.net ([206.40.79.2]:38161 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S277071AbRJKXkG> convert rfc822-to-8bit;
-	Thu, 11 Oct 2001 19:40:06 -0400
-From: John Alvord <jalvo@mbay.net>
-To: David Schwartz <davids@webmaster.com>
-Cc: <alan@lxorguk.ukuu.org.uk>, Concerned Programmer <tkhoadfdsaf@hotmail.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Tainted Modules Help Notices
-Date: Thu, 11 Oct 2001 16:40:25 -0700
-Message-ID: <aebcstsuksjmoqvf1rseel7c3sqgobu4tc@4ax.com>
-In-Reply-To: <E15rdDT-0002mg-00@the-village.bc.nu> <20011011224243.AAA24436@shell.webmaster.com@whenever>
-In-Reply-To: <20011011224243.AAA24436@shell.webmaster.com@whenever>
-X-Mailer: Forte Agent 1.8/32.553
-MIME-Version: 1.0
+	id <S277073AbRJKXlr>; Thu, 11 Oct 2001 19:41:47 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:21515 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S277072AbRJKXlo>;
+	Thu, 11 Oct 2001 19:41:44 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Export objs from an external Makefile? 
+In-Reply-To: Your message of "Thu, 11 Oct 2001 09:35:32 MST."
+             <20011011093532.K12016@cpe-24-221-152-185.az.sprintbbd.net> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Date: Fri, 12 Oct 2001 09:42:05 +1000
+Message-ID: <32224.1002843725@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Oct 2001 15:42:41 -0700, David Schwartz
-<davids@webmaster.com> wrote:
+On Thu, 11 Oct 2001 09:35:32 -0700, 
+Tom Rini <trini@kernel.crashing.org> wrote:
+>Hey all.  How do you do the 'export-objs' bits in a kernel module that's
+>outside of the kernel?  Thanks..
 
->
->
->On Thu, 11 Oct 2001 11:37:27 +0100 (BST), Alan Cox wrote:
->
->>>   If this is about maintainability, why not just a simple flag stating if
->>> source is available or not.
->
->>Available under what terms, NDA'd, subject to unacceptable other rules etc..
->>Its not as simple as it looks
->
->	I thought the issue was just whether or not people could get access to the 
->source code for debugging purposes. What we really need is a tag that simply 
->says, 'anyone can get the source code to this module for debugging purposes 
->[from this URL, maybe]'.
+Compile with -DMODULE -DEXPORT_SYMTAB.  If the kernel has modversions,
+add -DMODVERSIONS -include $(HPATH)/linux/modversions.h.  The safest
+way is to compile a module in the kernel that exports the objects then
+copy the command, substituting the file names.
 
-URLs go bad and non-responsive regularly,,,
-
-john

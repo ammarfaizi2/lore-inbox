@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265418AbSJaW1g>; Thu, 31 Oct 2002 17:27:36 -0500
+	id <S265432AbSJaW3p>; Thu, 31 Oct 2002 17:29:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265425AbSJaW1g>; Thu, 31 Oct 2002 17:27:36 -0500
-Received: from ulima.unil.ch ([130.223.144.143]:2182 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S265418AbSJaW1f>;
-	Thu, 31 Oct 2002 17:27:35 -0500
-Date: Thu, 31 Oct 2002 23:34:01 +0100
-From: Gregoire Favre <greg@ulima.unil.ch>
+	id <S265435AbSJaW3p>; Thu, 31 Oct 2002 17:29:45 -0500
+Received: from vsmtp4.tin.it ([212.216.176.224]:64762 "EHLO smtp4.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S265432AbSJaW3j>;
+	Thu, 31 Oct 2002 17:29:39 -0500
+Message-ID: <3DC1B03C.7FDB86E3@denise.shiny.it>
+Date: Thu, 31 Oct 2002 23:35:40 +0100
+From: Giuliano Pochini <pochini@denise.shiny.it>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.19 ppc)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Logitech wheel and 2.5? (PS/2)
-Message-ID: <20021031223401.GB25356@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
+Subject: aic7xxx and error recovery
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-up to 2.5.45:
+I have a magneto-optical drive. Recoverable error rate is quite high
+in this kind of devices (1 bit every 10^5, according to specs, but
+it's actually much lower IMHO). I was playing with the SCSI error
+recovery page and I noticed that when I enable the PER flag (which
+makes the drive to tell the initiator when a recoverable medium
+error occurs) strange things happen. I wrote a small prg that writes
+random patterns and then reads it back and compare it with the
+pattern. It happens that when a recoverable error occurs (as
+reported in the sys logs) read()(2) returns a value smaller then
+requested, and the loaded data is identical to the pattern, or
+read() completes, but the data is wrong. This two cases seem to
+be mutually exclusive, I've tried a lot of times. I don't know why
+this happens, but IMO if read(length)==length then the data I get
+shouldn't be corrupted. I believe there is a bug in the scsi
+driver, because if PER==0 I never get corrupted data, and PER==1
+doesn't affects data sent to the initiator, it only reports
+recovered errors. Comments ?
 
-...
-register interface 'mouse' with class 'input
-mice: PS/2 mouse device common for all mice
-input: PC Speaker
-input: PS2++ Logitech Wheel Mouse on isa0060/serio1
-...
-psmouse.c: Received PS2++ packet #0, but don't know how to handle.
-psmouse.c: Received PS2++ packet #0, but don't know how to handle.
-...
+[Linux Jay 2.4.19 #3 mer ago 14 15:29:00 CEST 2002 ppc unknown]
 
-And very regulary my mouse position is lost and reseted???
-Also the wheel don't work (don't know for the button on the left that I
-never use: the 3 regulars one and the wheel are enough for me...).
-
-Thank you,
-
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+Bye.

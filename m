@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVDEJeq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVDEJkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbVDEJeq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 05:34:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbVDEJcC
+	id S261676AbVDEJkM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 05:40:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVDEJfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 05:32:02 -0400
-Received: from smtpout15.mailhost.ntl.com ([212.250.162.15]:54805 "EHLO
-	mta05-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
-	id S261656AbVDEJbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 05:31:09 -0400
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear
-	copyright notice.
-From: Ian Campbell <ijc@hellion.org.uk>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Sven Luther <sven.luther@wanadoo.fr>, "Theodore Ts'o" <tytso@mit.edu>,
-       Greg KH <greg@kroah.com>, Michael Poole <mdpoole@troilus.org>,
-       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050405091144.GA18219@lst.de>
-References: <20050404141647.GA28649@pegasos>
-	 <20050404175130.GA11257@kroah.com> <20050404182753.GC31055@pegasos>
-	 <20050404191745.GB12141@kroah.com> <20050404192945.GB1829@pegasos>
-	 <20050404205527.GB8619@thunk.org> <20050404211931.GB3421@pegasos>
-	 <1112689164.3086.100.camel@icampbell-debian>
-	 <20050405083217.GA22724@pegasos>
-	 <1112690965.3086.107.camel@icampbell-debian>
-	 <20050405091144.GA18219@lst.de>
+	Tue, 5 Apr 2005 05:35:13 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:47070 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261208AbVDEJdG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 05:33:06 -0400
+Subject: Re: 2.6.12-rc2-mm1
+From: Arjan van de Ven <arjan@infradead.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Dave Airlie <airlied@gmail.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <16978.22617.338768.775203@cargo.ozlabs.ibm.com>
+References: <20050405000524.592fc125.akpm@osdl.org>
+	 <20050405074405.GE26208@infradead.org>
+	 <21d7e99705040502073dfa5e5@mail.gmail.com>
+	 <16978.22617.338768.775203@cargo.ozlabs.ibm.com>
 Content-Type: text/plain
-Date: Tue, 05 Apr 2005 10:30:47 +0100
-Message-Id: <1112693447.3086.116.camel@icampbell-debian>
+Date: Tue, 05 Apr 2005 11:33:00 +0200
+Message-Id: <1112693580.6275.33.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-05 at 11:11 +0200, Christoph Hellwig wrote:
-> On Tue, Apr 05, 2005 at 09:49:25AM +0100, Ian Campbell wrote:
-> > I don't think you did get a rejection, a few people said that _they_
-> > weren't going to do it, but if you want to then go ahead. I think people
-> > are just fed up of people bringing up the issue and then failing to do
-> > anything about it -- so prove them wrong ;-)
+On Tue, 2005-04-05 at 19:20 +1000, Paul Mackerras wrote:
+> Dave Airlie writes:
 > 
-> Actually patches to add firmware loader support to tg3 got rejected.
+> > Paulus these look like your patches care to update them with the "new"
+> > method of doing stuff..
 > 
-> Which is think is very unfortunately as we set the highlevel goal to
-> move drivers over to it.
+> What are we going to do about the DRM CVS?  Change it to the new way
+> and break everyone running 2.6.10 or earlier, or leave it at the old
+> way that will work for people with distro kernels, and have a
+> divergence between it and what's in the kernel?
 
-I didn't know that -- you are right that it is unfortunate.
+(some distros like Fedora Core have modern kernels even for older
+releases)
 
-I thought Sven was talking (at least short term) about adding copyright
-statements/exemptions/something to the binary blobs where they are now.
 
-Ian.
--- 
-Ian Campbell
+> Also, the compat_ioctl method is called without the BKL held, unlike
+> the ioctl method.  What impact will that have?  Do we need to take the
+> BKL in the compat_ioctl method?
 
-It's easier to get forgiveness for being wrong than forgiveness for being 
-right.
+How much does DRM actually depend on the BKL? I would hope not too
+much...
 

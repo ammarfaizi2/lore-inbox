@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267333AbUJRUaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUJRUdw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267333AbUJRUaF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 16:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUJRU26
+	id S265805AbUJRUdw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 16:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267285AbUJRUch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 16:28:58 -0400
-Received: from vanessarodrigues.com ([192.139.46.150]:13543 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S267452AbUJRSyP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 14:54:15 -0400
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, akpm@osdl.org, tony.luck@intel.com
-Subject: Re: [PATCH] General purpose zeroed page slab
-From: "Martin K. Petersen" <mkp@wildopensource.com>
-Organization: Wild Open Source, Inc.
-References: <yq1oej5s0po.fsf@wilson.mkp.net>
-	<20041014180427.GA7973@wotan.suse.de> <yq1ekjvrjd6.fsf@wilson.mkp.net>
-	<20041018184210.GI16153@parcelfarce.linux.theplanet.co.uk>
-Date: Mon, 18 Oct 2004 14:54:13 -0400
-In-Reply-To: <20041018184210.GI16153@parcelfarce.linux.theplanet.co.uk> (Matthew
- Wilcox's message of "Mon, 18 Oct 2004 19:42:10 +0100")
-Message-ID: <yq1acujrh62.fsf@wilson.mkp.net>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+	Mon, 18 Oct 2004 16:32:37 -0400
+Received: from mail3.iserv.net ([204.177.184.153]:59779 "EHLO mail3.iserv.net")
+	by vger.kernel.org with ESMTP id S265805AbUJRUaW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 16:30:22 -0400
+Message-ID: <417427D4.6080704@didntduck.org>
+Date: Mon, 18 Oct 2004 16:30:12 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Matt Domsch <Matt_Domsch@dell.com>
+CC: jmorris@redhat.com, davem@davemloft.net, linux-kernel@vger.kernel.org,
+       Oleg Makarenko <mole@quadra.ru>
+Subject: Re: using crypto_digest() on non-kmalloc'd memory failures
+References: <20041018192952.GB8607@lists.us.dell.com>
+In-Reply-To: <20041018192952.GB8607@lists.us.dell.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Matthew" == Matthew Wilcox <matthew@wil.cx> writes:
+Matt Domsch wrote:
+> James, David,
+> 
+> Oleg noted that when we call crypto_digest() on memory allocated as a
+> static array in a module, rather than kmalloc(GFP_KERNEL), it returns
+> incorrect data, and with other functions, a kernel panic.
+> 
+> Thoughts as to why this may be?  Oleg's test patch appended.
+> 
 
-Matthew> It's probably worth doing this with a static cachep in slab.c
-Matthew> and only exposing a get_zeroed_page() / free_zeroed_page()
-Matthew> interface, with the latter doing the memset to 0.  
+On some arches modules reside in vmalloc space.
 
-*nod*
-
-
-Matthew> I disagree with Andi over the dumbness of zeroing the whole
-Matthew> page.  That makes it cache-hot, which is what you want from a
-Matthew> page you allocate from slab.
-
-Yeah, plus the housekeeping may be more of a hassle than it's worth.
-
-We'll see...
-
--- 
-Martin K. Petersen	Wild Open Source, Inc.
-mkp@wildopensource.com	http://www.wildopensource.com/
+--
+				Brian Gerst

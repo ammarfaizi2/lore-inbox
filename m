@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267103AbRGTQmh>; Fri, 20 Jul 2001 12:42:37 -0400
+	id <S267102AbRGTQqH>; Fri, 20 Jul 2001 12:46:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267089AbRGTQm1>; Fri, 20 Jul 2001 12:42:27 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:8969 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267088AbRGTQmU>; Fri, 20 Jul 2001 12:42:20 -0400
-Date: Fri, 20 Jul 2001 09:42:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jens Axboe <axboe@suse.de>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <viro@math.psu.edu>,
-        "David S. Miller" <davem@redhat.com>,
-        Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@redhat.com>,
-        David Woodhouse <dwmw2@redhat.com>, <linux-scsi@vger.kernel.org>,
-        Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: 2.4.7-pre9..
-In-Reply-To: <20010720102614.A13354@suse.de>
-Message-ID: <Pine.LNX.4.31.0107200937310.1547-100000@p4.transmeta.com>
+	id <S267105AbRGTQp5>; Fri, 20 Jul 2001 12:45:57 -0400
+Received: from sesys.exodata.se ([193.44.92.66]:5848 "EHLO
+	sesys.se.transtec.de") by vger.kernel.org with ESMTP
+	id <S267102AbRGTQpn> convert rfc822-to-8bit; Fri, 20 Jul 2001 12:45:43 -0400
+From: Roland Fehrenbacher <rfehrenb@transtec.de>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-ID: <15192.20739.221470.366449@gargle.gargle.HOWL>
+Date: Fri, 20 Jul 2001 17:40:51 +0200
+Subject: qlogicfc driver
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Hi,
 
+I am testing a SAN setup with a Fibre Channel RAID Controller (GMR) connected
+to a QLA2200/QLA2100 via Gadzoox Cappelix Switches. The RAID controller
+supports 32 LUNs on configurable SCSI target Ids. In the present case I have 3
+RAID sets with pairs (SCSI Id, LUN) (0, 0) (0, 1) (1, 0), i.e. two drives with
+LUN 0 and one with LUN 1. While the controller itself sees all the 3 drives
+when booting up, under Linux I am only able to see the LUN 0 drives.
 
-On Fri, 20 Jul 2001, Jens Axboe wrote:
->
-> > The paging stuff doesn't use any of this. The paging stuff use the page
-> > cache lock bit, and always has.
->
-> Paging still hits a request, I assumed that's what the (really really)
-> old comment meant to say.
+Kernel is stock 2.4.6 using the qlogicfc driver. I also tried to set
+max_scsi_luns=32, even though the default of 8 should be enough. No success.
+Of course, support for multiple LUNs is enabled in the kernel. By the way,
+using the beta driver on the qlogic site (qla2x00src-v4.27Beta.tgz) also
+doesn't help. So the issue might not even be driver related.
 
-No. Tha paging stuff (and _all_ regular IO) uses a regular request, with a
-NULL waiter. That's the normal path. That normal path depends on the
-buffer heads associated with the requests and their "bh->b_end_io()"
-function marking other state up-to-date, and then waits on the page being
-locked.
+Any ideas anyone?
 
-The req->sem (and now req->completion) thing is a very different thing: it
-is a "we are waiting for this particular request", and is used when it's
-not really IO and doesn't have a bh, but something that has side effects.
-Like an ioctl that causes a special command to the disk to change some
-parameters, or query the size of the disk or something.
+Thanks.
 
-So the comment has just always been wrong, I think. It may be that the
-original swapping code was doing raw requests instead of real IO, so maybe
-the comment was actually correct back in 1992 or something. My memory
-isn't good enough..
+Cheers,
 
-		Linus
+Roland
 
+----
+Roland Fehrenbacher
+transtec AG
+Waldhörnlestrasse 18
+D-72072 Tübingen
+Tel.: +49(0)7071/703-320
+Fax: +49(0)7071/703-90320
+EMail: Roland.Fehrenbacher@transtec.de
+http://www.transtec.de

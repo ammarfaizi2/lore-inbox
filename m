@@ -1,53 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269722AbUINVUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269515AbUINSMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269722AbUINVUY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 17:20:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269669AbUINVTw
+	id S269515AbUINSMx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 14:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269662AbUINSJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 17:19:52 -0400
-Received: from mail5.bluewin.ch ([195.186.1.207]:10159 "EHLO mail5.bluewin.ch")
-	by vger.kernel.org with ESMTP id S266186AbUINVNY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 17:13:24 -0400
-Date: Tue, 14 Sep 2004 23:12:19 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Chris Wright <chrisw@osdl.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       Stephen Smalley <sds@epoch.ncsc.mil>,
-       Andrew Morton OSDL <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Paul Jackson <pj@sgi.com>, James Morris <jmorris@redhat.com>
-Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
-Message-ID: <20040914211219.GA7104@k3.hellgate.ch>
-Mail-Followup-To: Chris Wright <chrisw@osdl.org>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Albert Cahalan <albert@users.sourceforge.net>,
-	Stephen Smalley <sds@epoch.ncsc.mil>,
-	Andrew Morton OSDL <akpm@osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>, Paul Jackson <pj@sgi.com>,
-	James Morris <jmorris@redhat.com>
-References: <20040914071058.GH9106@holomorphy.com> <20040914075508.GA10880@k3.hellgate.ch> <20040914080132.GJ9106@holomorphy.com> <20040914092748.GA11238@k3.hellgate.ch> <20040914153758.GO9106@holomorphy.com> <20040914160150.GB13978@k3.hellgate.ch> <20040914163712.GT9106@holomorphy.com> <20040914113736.H1924@build.pdx.osdl.net> <20040914185524.GB2655@k3.hellgate.ch> <20040914120509.I1924@build.pdx.osdl.net>
+	Tue, 14 Sep 2004 14:09:31 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:23210 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S269605AbUINR7X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 13:59:23 -0400
+Date: Tue, 14 Sep 2004 20:01:24 +0200
+From: DervishD <lkml@dervishd.net>
+To: Tom Fredrik Blenning Klaussen <bfg-kernel@blenning.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /proc/config reducing kernel image size
+Message-ID: <20040914180124.GA624@DervishD>
+Mail-Followup-To: Tom Fredrik Blenning Klaussen <bfg-kernel@blenning.no>,
+	linux-kernel@vger.kernel.org
+References: <1095179606.11939.22.camel@host-81-191-110-70.bluecom.no> <20040914172646.GA614@DervishD> <1095183412.1834.7.camel@host-81-191-110-70.bluecom.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040914120509.I1924@build.pdx.osdl.net>
-X-Operating-System: Linux 2.6.8 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1095183412.1834.7.camel@host-81-191-110-70.bluecom.no>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-PopBeforeSMTPSenders: raul@dervishd.net
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Sep 2004 12:05:09 -0700, Chris Wright wrote:
-> Understood.  Question is, if the request is for data that's associated
-> with a task that is in the middle of an execve(setuid_root_app), does
-> the credential-check/skb-fill for response happen atomically w.r.t. said
-> execve?  IOW, is it possible to pass credential check, then fill data
-> that's become sensitive since the check happened?
+    Hi Tom :)
 
-It shouldn't be once we implement access control. I don't pretend to know
-what the best way is to prevent that. Checking several times just shrinks
-the race window, so I suppose we'd have to lock the source data structures
-down prior to checking credentials and copying data.
+ * Tom Fredrik Blenning Klaussen <bfg-kernel@blenning.no> dixit:
+> > > There is no point in storing all the comments and unused options in the
+> > > kernel image. This typically reduces the config size to about 1/5th
+> > > before compressing, and to about 1/4th after compressing.
+> >     I'm with you in that there is no point in storing the comments,
+> > but I disagree about the unused options. Storing the unused options
+> > as comments is more useful than it seems ;)
+> This is why I added a config option.
 
-Roger
+    But removing the comments is a good idea. Even reformatting the
+contents, or something like that.
+ 
+> >     I'm not really sure about it, but I think that the unset options
+> > are left as comments for the sake of automation. The space saving
+> > doesn't (IMHO) worth the pain.
+> I'm not sure either, but I don't know of any programs that uses this.
+
+    Neither do I.
+
+> Putting this config file inside the same source tree as it was compiled
+> with, and then just starting and stopping menuconfig will restore it to
+> it's original form.
+
+    That's true.
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

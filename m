@@ -1,76 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265061AbUAONcO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 08:32:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUAONcO
+	id S265051AbUAONwi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 08:52:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUAONwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 08:32:14 -0500
-Received: from dotnetslash.net ([66.199.224.19]:45830 "EHLO
-	mail.dotnetslash.net") by vger.kernel.org with ESMTP
-	id S265061AbUAONcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 08:32:12 -0500
-Date: Thu, 15 Jan 2004 08:32:10 -0500
-From: "Mark W. Alexander" <slash@dotnetslash.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: BIOS Flash changes PowerNOW frequencies?
-Message-ID: <20040115133209.GB6819@dotnetslash.net>
-Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
-	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-References: <20040111175610.GA26855@dotnetslash.net> <20040115120300.GA12963@elf.ucw.cz>
+	Thu, 15 Jan 2004 08:52:38 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:19126 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S265051AbUAONwh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 08:52:37 -0500
+Subject: Re: [Newbie-warning] MOD_INC_USE_COUNT usage
+From: "Yury V. Umanets" <umka@namesys.com>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Tim Cambrant <tim@cambrant.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m37jzuv14v.fsf@defiant.pm.waw.pl>
+References: <20040114172022.GA2112@cambrant.com>
+	 <m37jzuv14v.fsf@defiant.pm.waw.pl>
+Content-Type: text/plain
+Organization: NAMESYS
+Message-Id: <1074174817.1837.151.camel@firefly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040115120300.GA12963@elf.ucw.cz>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 15 Jan 2004 16:53:37 +0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 01:03:00PM +0100, Pavel Machek wrote:
-> Hi!
+On Wed, 2004-01-14 at 21:25, Krzysztof Halasa wrote:
+> Tim Cambrant <tim@cambrant.com> writes:
 > 
-> > I'm not currently subscribed. Please cc: me on responses.
-> > 
-> > I'm running 2.6.0 on an HP Pavilion ze4420 Athlon version (lspci -v
-> > below).  I recently flashed the BIOS (hoping against all odds for
-> > suspend to ram capability) and the CPU frequencies discovered by
-> > PowerNOW (K7) has changed.  This is obviously caused by the BIOS
-> > update, but the stupid question of the day is "Why?". If the CPU and
-> > chipset support both sets of frequencies with different BIOS,
-> > wouldn't the _real_ set of supported frequencies be the union of the
-> > 2?
+> > So, why shouldn't this patch be applied?:
+> >
+> > --- drivers/ide/pci/generic.c.orig      2004-01-14 17:52:35.000000000 +0100
+> > +++ drivers/ide/pci/generic.c   2003-11-24 13:54:01.000000000 +0100
+> > @@ -121,6 +121,7 @@ static int __devinit generic_init_one(st
+> > 		return 1;
+> > 	}
+> > 	ide_setup_pci_device(dev, d);
+> > +	MOD_INC_USE_COUNT;
+> > 	return 0;
+> >  }
 > 
-> Well, maybe the chipset does not properly support it after all?
+> It isn't that easy - the module must be marked as being in use this
+> way or (preferably) another.
 
-Well, properly or not, everything I tested short of detailed benchmarking
-since -test3 has had no problems and always reported stats fine.
+Hello,
 
-> Anyway, you might want to simply implant old tables into kernel, and
-> use them... Possibly even doing union.
+As I can see, this is really redundant to have a MOD_INC_USE_COUNT for
+almost all the modules. But this should be checked carefully before
+removing ;)
 
-Thanks. I vaguely remember trying something like this, for a completely
-different and forgotten issue, when I first started playing with ACPI.
-It turned out to not be necessary so that file has been erased from my
-memory and apparently over-written too much to be recovered.
 
-It seems the new BIOS has also given me better backlight and IDE
-power saving support (translation watching DVD's while on battery now
-sucks). It seems as if I'm going to have to become an ACPI expert to get
-some control over what this thing's doing and when. Like, it suspends
-fine in Windows but not in Linux. (Actually, it suspends fine in Linux
-too - It just won't wake up.) Can you point me to some references that
-will help be build my own tables without burning my machine up?
-
-> Pavel
-> --
-> When do you have a heart between your knees?
-> [Johanka's followup: and *two* hearts?]
-
-And I've been puzzling over your sig since I first saw it. I still
-don't get it and it's driving me nuts.... When you have 13-15 high card
-points and 5 strong hearts?
-
-mwa
 -- 
-Mark W. Alexander
-slash@dotnetslash.net
+umka
+

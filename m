@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274427AbRITLfZ>; Thu, 20 Sep 2001 07:35:25 -0400
+	id <S274429AbRITL7b>; Thu, 20 Sep 2001 07:59:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274330AbRITLfP>; Thu, 20 Sep 2001 07:35:15 -0400
-Received: from CPE-61-9-150-168.vic.bigpond.net.au ([61.9.150.168]:2432 "EHLO
-	wagner") by vger.kernel.org with ESMTP id <S274428AbRITLfH>;
-	Thu, 20 Sep 2001 07:35:07 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4 vsnprintf fix.
-Date: Thu, 20 Sep 2001 21:29:05 +1000
-Message-Id: <E15k20v-00008w-00@wagner>
+	id <S274434AbRITL7V>; Thu, 20 Sep 2001 07:59:21 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:43142 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S274429AbRITL7P>; Thu, 20 Sep 2001 07:59:15 -0400
+Message-ID: <3BA9D8F7.2030709@antefacto.com>
+Date: Thu, 20 Sep 2001 12:54:31 +0100
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: David Chow <davidchow@rcn.com.hk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: VIA Cyrix C3/MIII CPU
+In-Reply-To: <3BA98E0F.F4C052BD@rcn.com.hk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Following patch fixes calling vsnprintf with (NULL, 0) to get the
-length of the string.  The problem is that the end ptr is set to
-0xFFFFFFFF in this case, causing a write into address 0 as start <
-end.
+Seems like your init is hanging?
+Are you sure you haven't a glibc compiled for 686?
 
-Cheers,
-Rusty. 
---
-Premature optmztion is rt of all evl. --DK
+Padraig.
 
---- working-pmac-module/lib/vsprintf.c.~1~	Mon Sep 17 08:53:56 2001
-+++ working-pmac-module/lib/vsprintf.c	Thu Sep 20 21:26:05 2001
-@@ -246,6 +246,8 @@
- 				/* 'z' support added 23/7/1999 S.H.    */
- 				/* 'z' changed to 'Z' --davidm 1/25/99 */
- 
-+	/* buf = NULL, size = 0 is common for getting length */
-+	if (size == 0) buf = (void *)1;
- 	str = buf;
- 	end = buf + size - 1;
+David Chow wrote:
+
+>Dear all,
+>
+>I am testing my board using the Cyrix C3 733 CPU. After installing the
+>newly compiled kernel 2.4.7 , after the message "freeing unsused memory"
+>and hangs... anyone has this before? I am using the new VIA 694T chipset
+>. Or anyone test the Cyrix C3 CPU? Thanks
+>
+>regards,
+>
+>David
+>
+
+

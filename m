@@ -1,122 +1,363 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbVBISBl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261870AbVBISDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261867AbVBISBl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 13:01:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVBISBl
+	id S261870AbVBISDb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 13:03:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVBISD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 13:01:41 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:45048 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261867AbVBISBf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 13:01:35 -0500
-Date: Wed, 9 Feb 2005 09:59:28 -0800
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: Matthew Dobson <colpatch@us.ibm.com>, dino@in.ibm.com, mbligh@aracnet.com,
-       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, Simon.Derr@bull.net, ak@suse.de,
-       sivanich@sgi.com
-Subject: Re: [ckrm-tech] Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-ID: <20050209175928.GA5710@chandralinux.beaverton.ibm.com>
-References: <415ED3E3.6050008@watson.ibm.com> <415F37F9.6060002@bigpond.net.au> <821020000.1096814205@[10.10.2.4]> <20041003083936.7c844ec3.pj@sgi.com> <834330000.1096847619@[10.10.2.4]> <1097014749.4065.48.camel@arrakis> <420800F5.9070504@us.ibm.com> <20050208095440.GA3976@in.ibm.com> <42090C42.7020700@us.ibm.com> <20050208124234.6aed9e28.pj@sgi.com>
+	Wed, 9 Feb 2005 13:03:27 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:65495 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261868AbVBISC3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 13:02:29 -0500
+Date: Wed, 9 Feb 2005 19:02:19 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, davem@redhat.com,
+       chrisw@osdl.org
+Subject: Re: [patch, BK] clean up and unify asm-*/resource.h files
+Message-ID: <20050209180219.GC23554@elte.hu>
+References: <20050209093927.GA9726@elte.hu> <20050210020333.7941fa6e.sfr@canb.auug.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050208124234.6aed9e28.pj@sgi.com>
+In-Reply-To: <20050210020333.7941fa6e.sfr@canb.auug.org.au>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
+	UPPERCASE_25_50 0.00
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 08, 2005 at 12:42:34PM -0800, Paul Jackson wrote:
-> Matthew wrote:
-> 
-> I found no useful and significant basis for integration of cpusets and
-> CKRM either involving CPU or Memory Node management.
-> 
-> As best as I can figure out, CKRM is a fair share scheduler with a
-> gussied up more modular architecture, so that the components to track
-> usage, control (throttle) tasks, and classify tasks are separate
-> plugins.  I can find no significant and useful overlap on any of these
-> fronts, either the existing plugins or their infrastructure, with what
-> cpusets has and needs.
-> 
-> There are claims that CKRM has some generalized resource management
-> architecture that should be able to handle cpusets needs, but despite my
-> repeated (albeit not entirely successful) efforts to find documentation
-> and read source and my pleadings with Matthew and earlier on this
-> thread, I was never able to figure out what this meant, or find anything
-> that could profitably integrate with cpusets.
 
-I thought Hubertus did talk about this when the last time the thread
-was active. Anyways, Here is how one could do cpuset/memset under the
-ckrm framework(Note that I am not pitching for a marriage :) as there are 
-some small problems, like supporting 128 cpus, changing the parameter names
-that ckrm currently uses):
+* Stephen Rothwell <sfr@canb.auug.org.au> wrote:
 
-First off cpuset and memset has to be implemented as two different
-controllers.
+> Hi Ingo,
+> 
+> On Wed, 9 Feb 2005 10:39:27 +0100 Ingo Molnar <mingo@elte.hu> wrote:
+> >
+> > --- linux/include/asm-sparc/resource.h.orig
+> > +++ linux/include/asm-sparc/resource.h
+> 	.
+> 	.
+> > -#define RLIMIT_NOFILE	6		/* max number of open files */
+> > -#define RLIMIT_NPROC	7		/* max number of processes */
+> 	.
+> 	.
+> > +#define RLIMIT_NPROC		6	/* max number of processes */
+> > +#define RLIMIT_NOFILE		7	/* max number of open files */
+> 
+> Is it too late at night, or should those be reversed to match the ones
+> you are removing (and the sparc64 ones)?
 
-cpuset controller:
-- 'guarantee' parameter to be used for representing cpuset(bitwise)
-- 'limit' parameter to be used for exclusivity and other flags.
-- Highest level class(/rcfs/taskclass) will have all cpus in its list
-- Every class will maintain two sets of cpusets, one that can be inherited,
-  inherit_cpuset(needed when exclusive is set in a child) and the other
-  for use by the class itself, my_cpuset.
-- when a new class is created (under /rcfs/taskclass), it inherits all the 
-  CPUS (from inherit_cpuset).
-- admin can change the cpuset of this class by echoing the new 
-  cpuset(guarantee) into the 'shares' file.
-- admin can set/change the exclusivity(like) flags by echoing the value(limit)
-  to the 'shares' file.
-- When the exclusivity flag is set in a class, the cpuset bits in this class
-  will be cleared in the inherit_cpuset of the parent, and all its other
-  children.
-- At the time of scheduling, my_cpuset in the class of the task will be
-  consulted.
+you are right - the sparc32 ones i got mixed up. (sigh.) The sparc64
+ones (and mips and alpha) seem correct though. New patch below.
 
-memset_controller would be similar to this, before pitching it I will talk
-with Matt about why he thought that there is a problem.
+	Ingo
 
-If I missed some feature of cpuset that shows a bigger problem, please
-let me know.
-> 
-> In sum -- I see a potential for useful integration of cpusets and
-> scheduler domains, I'll have to leave it up to those with expertise in
-> the scheduler to evaluate and perhaps accomplish this.  I do not see any
-> useful integration of cpusets and CKRM.
-> 
-> I continue to be befuddled as to why, Matthew, you confound potential
-> cpuset-scheddomain integration with potential cpuset-CKRM integration.
-> Scheduler domains and CKRM are distinct beasts, in my book, and the
-> contemplations of cpuset integration with these two beasts are also
-> distinct efforts.
-> 
-> And cpusets and CKRM are distinct beasts.
-> 
-> But I repeat myself ...
-> 
-> -- 
->                   I won't rest till it's the best ...
->                   Programmer, Linux Scalability
->                   Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401
-> 
-> 
-> -------------------------------------------------------
-> SF email is sponsored by - The IT Product Guide
-> Read honest & candid reviews on hundreds of IT Products from real users.
-> Discover which products truly live up to the hype. Start reading now.
-> http://ads.osdn.com/?ad_id=6595&alloc_id=14396&op=click
-> _______________________________________________
-> ckrm-tech mailing list
-> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
+--
+this patch does the final consolidation of asm-*/resource.h file,
+without changing any of the rlimit definitions on any architecture.
+Primarily it removes the __ARCH_RLIMIT_ORDER method and replaces it with
+a more compact and isolated one that allows architectures to define only
+the offending rlimits.
 
--- 
+This method has the positive effect that adding a new rlimit can now be
+purely done via changing asm-generic/resource.h alone. Previously one
+would have to patch 4 other (sparc, sparc64, alpha and mips) resource.h
+files.
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+the patch also does style unification, whitespace cleanups and
+simplification of resource.h files and cleans up the
+asm-generic/resource.h file as well. I've added more comments too.
+
+this patch should have no effect on any code on any architecture. (i.e. 
+it's a pure identity patch.)
+
+Tested on x86 and reviewed to make sure that Sparc, Sparc64, MIPS and
+Alpha rlimits are still the same as required by the ABI.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/include/asm-sparc/resource.h.orig
++++ linux/include/asm-sparc/resource.h
+@@ -8,32 +8,18 @@
+ #define _SPARC_RESOURCE_H
+ 
+ /*
+- * Resource limits
++ * These two resource limit IDs have a Sparc/Linux-specific ordering,
++ * the rest comes from the generic header:
+  */
+-
+-#define RLIMIT_CPU	0		/* CPU time in ms */
+-#define RLIMIT_FSIZE	1		/* Maximum filesize */
+-#define RLIMIT_DATA	2		/* max data size */
+-#define RLIMIT_STACK	3		/* max stack size */
+-#define RLIMIT_CORE	4		/* max core file size */
+-#define RLIMIT_RSS	5		/* max resident set size */
+-#define RLIMIT_NOFILE	6		/* max number of open files */
+-#define RLIMIT_NPROC	7		/* max number of processes */
+-#define RLIMIT_MEMLOCK	8		/* max locked-in-memory address space */
+-#define RLIMIT_AS	9		/* address space limit */
+-#define RLIMIT_LOCKS	10		/* maximum file locks held */
+-#define RLIMIT_SIGPENDING 11		/* max number of pending signals */
+-#define RLIMIT_MSGQUEUE 12		/* maximum bytes in POSIX mqueues */
+-
+-#define RLIM_NLIMITS	13
+-#define __ARCH_RLIMIT_ORDER
++#define RLIMIT_NOFILE		6	/* max number of open files */
++#define RLIMIT_NPROC		7	/* max number of processes */
+ 
+ /*
+  * SuS says limits have to be unsigned.
+  * We make this unsigned, but keep the
+- * old value.
++ * old value for compatibility:
+  */
+-#define RLIM_INFINITY	0x7fffffff
++#define RLIM_INFINITY		0x7fffffff
+ 
+ #include <asm-generic/resource.h>
+ 
+--- linux/include/asm-alpha/resource.h.orig
++++ linux/include/asm-alpha/resource.h
+@@ -2,32 +2,20 @@
+ #define _ALPHA_RESOURCE_H
+ 
+ /*
+- * Resource limits
++ * Alpha/Linux-specific ordering of these four resource limit IDs,
++ * the rest comes from the generic header:
+  */
+-
+-#define RLIMIT_CPU	0		/* CPU time in ms */
+-#define RLIMIT_FSIZE	1		/* Maximum filesize */
+-#define RLIMIT_DATA	2		/* max data size */
+-#define RLIMIT_STACK	3		/* max stack size */
+-#define RLIMIT_CORE	4		/* max core file size */
+-#define RLIMIT_RSS	5		/* max resident set size */
+-#define RLIMIT_NOFILE	6		/* max number of open files */
+-#define RLIMIT_AS	7		/* address space limit(?) */
+-#define RLIMIT_NPROC	8		/* max number of processes */
+-#define RLIMIT_MEMLOCK	9		/* max locked-in-memory address space */
+-#define RLIMIT_LOCKS	10		/* maximum file locks held */
+-#define RLIMIT_SIGPENDING 11		/* max number of pending signals */
+-#define RLIMIT_MSGQUEUE 12		/* maximum bytes in POSIX mqueues */
+-
+-#define RLIM_NLIMITS	13
+-#define __ARCH_RLIMIT_ORDER
++#define RLIMIT_NOFILE		6	/* max number of open files */
++#define RLIMIT_AS		7	/* address space limit */
++#define RLIMIT_NPROC		8	/* max number of processes */
++#define RLIMIT_MEMLOCK		9	/* max locked-in-memory address space */
+ 
+ /*
+  * SuS says limits have to be unsigned.  Fine, it's unsigned, but
+  * we retain the old value for compatibility, especially with DU. 
+  * When you run into the 2^63 barrier, you call me.
+  */
+-#define RLIM_INFINITY	0x7ffffffffffffffful
++#define RLIM_INFINITY		0x7ffffffffffffffful
+ 
+ #include <asm-generic/resource.h>
+ 
+--- linux/include/asm-generic/resource.h.orig
++++ linux/include/asm-generic/resource.h
+@@ -2,57 +2,85 @@
+ #define _ASM_GENERIC_RESOURCE_H
+ 
+ /*
+- * Resource limits
++ * Resource limit IDs
++ *
++ * ( Compatibility detail: there are architectures that have
++ *   a different rlimit ID order in the 5-9 range and want
++ *   to keep that order for binary compatibility. The reasons
++ *   are historic and all new rlimits are identical across all
++ *   arches. If an arch has such special order for some rlimits
++ *   then it defines them prior including asm-generic/resource.h. )
+  */
+ 
+-/* Allow arch to control resource order */
+-#ifndef __ARCH_RLIMIT_ORDER
+ #define RLIMIT_CPU		0	/* CPU time in ms */
+ #define RLIMIT_FSIZE		1	/* Maximum filesize */
+ #define RLIMIT_DATA		2	/* max data size */
+ #define RLIMIT_STACK		3	/* max stack size */
+ #define RLIMIT_CORE		4	/* max core file size */
+-#define RLIMIT_RSS		5	/* max resident set size */
+-#define RLIMIT_NPROC		6	/* max number of processes */
+-#define RLIMIT_NOFILE		7	/* max number of open files */
+-#define RLIMIT_MEMLOCK		8	/* max locked-in-memory address space */
+-#define RLIMIT_AS		9	/* address space limit */
++
++#ifndef RLIMIT_RSS
++# define RLIMIT_RSS		5	/* max resident set size */
++#endif
++
++#ifndef RLIMIT_NPROC
++# define RLIMIT_NPROC		6	/* max number of processes */
++#endif
++
++#ifndef RLIMIT_NOFILE
++# define RLIMIT_NOFILE		7	/* max number of open files */
++#endif
++
++#ifndef RLIMIT_MEMLOCK
++# define RLIMIT_MEMLOCK		8	/* max locked-in-memory address space */
++#endif
++
++#ifndef RLIMIT_AS
++# define RLIMIT_AS		9	/* address space limit */
++#endif
++
+ #define RLIMIT_LOCKS		10	/* maximum file locks held */
+ #define RLIMIT_SIGPENDING	11	/* max number of pending signals */
+ #define RLIMIT_MSGQUEUE		12	/* maximum bytes in POSIX mqueues */
+ 
+ #define RLIM_NLIMITS		13
+-#endif
+ 
+ /*
+  * SuS says limits have to be unsigned.
+  * Which makes a ton more sense anyway.
++ *
++ * Some architectures override this (for compatibility reasons):
+  */
+ #ifndef RLIM_INFINITY
+-#define RLIM_INFINITY	(~0UL)
++# define RLIM_INFINITY		(~0UL)
+ #endif
+ 
++/*
++ * RLIMIT_STACK default maximum - some architectures override it:
++ */
+ #ifndef _STK_LIM_MAX
+-#define _STK_LIM_MAX	RLIM_INFINITY
++# define _STK_LIM_MAX		RLIM_INFINITY
+ #endif
+ 
+ #ifdef __KERNEL__
+ 
++/*
++ * boot-time rlimit defaults for the init task:
++ */
+ #define INIT_RLIMITS							\
+ {									\
+-	[RLIMIT_CPU]		= { RLIM_INFINITY, RLIM_INFINITY },	\
+-	[RLIMIT_FSIZE]		= { RLIM_INFINITY, RLIM_INFINITY },	\
+-	[RLIMIT_DATA]		= { RLIM_INFINITY, RLIM_INFINITY },	\
+-	[RLIMIT_STACK]		= {      _STK_LIM, _STK_LIM_MAX  },	\
+-	[RLIMIT_CORE]		= {             0, RLIM_INFINITY },	\
+-	[RLIMIT_RSS]		= { RLIM_INFINITY, RLIM_INFINITY },	\
+-	[RLIMIT_NPROC]		= {             0,             0 },	\
+-	[RLIMIT_NOFILE]		= {      INR_OPEN,     INR_OPEN  },	\
+-	[RLIMIT_MEMLOCK]	= {   MLOCK_LIMIT,   MLOCK_LIMIT },	\
+-	[RLIMIT_AS]		= { RLIM_INFINITY, RLIM_INFINITY },	\
+-	[RLIMIT_LOCKS]		= { RLIM_INFINITY, RLIM_INFINITY },	\
++	[RLIMIT_CPU]		= {  RLIM_INFINITY,  RLIM_INFINITY },	\
++	[RLIMIT_FSIZE]		= {  RLIM_INFINITY,  RLIM_INFINITY },	\
++	[RLIMIT_DATA]		= {  RLIM_INFINITY,  RLIM_INFINITY },	\
++	[RLIMIT_STACK]		= {       _STK_LIM,   _STK_LIM_MAX },	\
++	[RLIMIT_CORE]		= {              0,  RLIM_INFINITY },	\
++	[RLIMIT_RSS]		= {  RLIM_INFINITY,  RLIM_INFINITY },	\
++	[RLIMIT_NPROC]		= {              0,              0 },	\
++	[RLIMIT_NOFILE]		= {       INR_OPEN,       INR_OPEN },	\
++	[RLIMIT_MEMLOCK]	= {    MLOCK_LIMIT,    MLOCK_LIMIT },	\
++	[RLIMIT_AS]		= {  RLIM_INFINITY,  RLIM_INFINITY },	\
++	[RLIMIT_LOCKS]		= {  RLIM_INFINITY,  RLIM_INFINITY },	\
+ 	[RLIMIT_SIGPENDING]	= { MAX_SIGPENDING, MAX_SIGPENDING },	\
+-	[RLIMIT_MSGQUEUE]	= { MQ_BYTES_MAX, MQ_BYTES_MAX },	\
++	[RLIMIT_MSGQUEUE]	= {   MQ_BYTES_MAX,   MQ_BYTES_MAX },	\
+ }
+ 
+ #endif	/* __KERNEL__ */
+--- linux/include/asm-sparc64/resource.h.orig
++++ linux/include/asm-sparc64/resource.h
+@@ -8,25 +8,11 @@
+ #define _SPARC64_RESOURCE_H
+ 
+ /*
+- * Resource limits
++ * These two resource limit IDs have a Sparc/Linux-specific ordering,
++ * the rest comes from the generic header:
+  */
+-
+-#define RLIMIT_CPU	0		/* CPU time in ms */
+-#define RLIMIT_FSIZE	1		/* Maximum filesize */
+-#define RLIMIT_DATA	2		/* max data size */
+-#define RLIMIT_STACK	3		/* max stack size */
+-#define RLIMIT_CORE	4		/* max core file size */
+-#define RLIMIT_RSS	5		/* max resident set size */
+-#define RLIMIT_NOFILE	6		/* max number of open files */
+-#define RLIMIT_NPROC	7		/* max number of processes */
+-#define RLIMIT_MEMLOCK	8		/* max locked-in-memory address space */
+-#define RLIMIT_AS	9		/* address space limit */
+-#define RLIMIT_LOCKS	10		/* maximum file locks held */
+-#define RLIMIT_SIGPENDING 11		/* max number of pending signals */
+-#define RLIMIT_MSGQUEUE 12		/* maximum bytes in POSIX mqueues */
+-
+-#define RLIM_NLIMITS	13
+-#define __ARCH_RLIMIT_ORDER
++#define RLIMIT_NOFILE		6	/* max number of open files */
++#define RLIMIT_NPROC		7	/* max number of processes */
+ 
+ #include <asm-generic/resource.h>
+ 
+--- linux/include/asm-mips/resource.h.orig
++++ linux/include/asm-mips/resource.h
+@@ -9,36 +9,26 @@
+ #ifndef _ASM_RESOURCE_H
+ #define _ASM_RESOURCE_H
+ 
++#include <linux/config.h>
++
+ /*
+- * Resource limits
++ * These five resource limit IDs have a MIPS/Linux-specific ordering,
++ * the rest comes from the generic header:
+  */
+-#define RLIMIT_CPU 0			/* CPU time in ms */
+-#define RLIMIT_FSIZE 1			/* Maximum filesize */
+-#define RLIMIT_DATA 2			/* max data size */
+-#define RLIMIT_STACK 3			/* max stack size */
+-#define RLIMIT_CORE 4			/* max core file size */
+-#define RLIMIT_NOFILE 5			/* max number of open files */
+-#define RLIMIT_AS 6			/* mapped memory */
+-#define RLIMIT_RSS 7			/* max resident set size */
+-#define RLIMIT_NPROC 8			/* max number of processes */
+-#define RLIMIT_MEMLOCK 9		/* max locked-in-memory address space */
+-#define RLIMIT_LOCKS 10			/* maximum file locks held */
+-#define RLIMIT_SIGPENDING 11		/* max number of pending signals */
+-#define RLIMIT_MSGQUEUE 12		/* maximum bytes in POSIX mqueues */
+-
+-#define RLIM_NLIMITS 13			/* Number of limit flavors.  */
+-#define __ARCH_RLIMIT_ORDER
++#define RLIMIT_NOFILE		5	/* max number of open files */
++#define RLIMIT_AS		6	/* address space limit */
++#define RLIMIT_RSS		7	/* max resident set size */
++#define RLIMIT_NPROC		8	/* max number of processes */
++#define RLIMIT_MEMLOCK		9	/* max locked-in-memory address space */
+ 
+ /*
+  * SuS says limits have to be unsigned.
+- * Which makes a ton more sense anyway.
++ * Which makes a ton more sense anyway,
++ * but we keep the old value on MIPS32,
++ * for compatibility:
+  */
+-#include <linux/config.h>
+ #ifdef CONFIG_MIPS32
+-#define RLIM_INFINITY	0x7fffffffUL
+-#endif
+-#ifdef CONFIG_MIPS64
+-#define RLIM_INFINITY	(~0UL)
++# define RLIM_INFINITY		0x7fffffffUL
+ #endif
+ 
+ #include <asm-generic/resource.h>
+

@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262500AbTAaWK2>; Fri, 31 Jan 2003 17:10:28 -0500
+	id <S262780AbTAaWNj>; Fri, 31 Jan 2003 17:13:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262602AbTAaWK2>; Fri, 31 Jan 2003 17:10:28 -0500
-Received: from packet.digeo.com ([12.110.80.53]:16106 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262500AbTAaWK1>;
-	Fri, 31 Jan 2003 17:10:27 -0500
-Date: Fri, 31 Jan 2003 14:22:13 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: David Mansfield <lkml@dm.cobite.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.59-mm7 results with database 'benchmark'
-Message-Id: <20030131142213.37020b31.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0301311641050.17695-100000@admin>
-References: <Pine.LNX.4.44.0301311641050.17695-100000@admin>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S262806AbTAaWNj>; Fri, 31 Jan 2003 17:13:39 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:18187 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S262780AbTAaWNg>;
+	Fri, 31 Jan 2003 17:13:36 -0500
+Date: Fri, 31 Jan 2003 23:22:57 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: Perl in the toolchain
+Message-ID: <20030131222257.GA11011@mars.ravnborg.org>
+Mail-Followup-To: "J.A. Magallon" <jamagallon@able.es>,
+	Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+References: <20030131133929.A8992@devserv.devel.redhat.com> <Pine.LNX.4.44.0301311327480.16486-100000@chaos.physics.uiowa.edu> <20030131194837.GC8298@gtf.org> <20030131213827.GA1541@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 31 Jan 2003 22:19:47.0355 (UTC) FILETIME=[DD28AEB0:01C2C976]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030131213827.GA1541@werewolf.able.es>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mansfield <lkml@dm.cobite.com> wrote:
->
-> 
-> The (slight) advantage that the 2.5.59 series had over the RedHat
-> kernels has evaporated.  But it was marginal to begin with.
+On Fri, Jan 31, 2003 at 10:38:27PM +0100, J.A. Magallon wrote:
+> So in short, kernel people:
+> - do not want perl in the kernel build
+Correct, at least for mainstream architectures.
+The rationale here is that we already put a lot of constraints on what
+tools people need to build a kernel. If we can avoid an extra
+_mandatory_ tool then this will make life easier for a lot of people.
 
-Could you test 2.5.59-base?  Could be that 2.5.59-mm7 is slower for some
-reason.
+For optional features additional requirements are OK, for example
+to geneate docbook documentation a lot of extra stuff is needed.
 
-Or it could be that the increased CPU speed now makes the load alternate
-between 100% cpu-bound and 100% IO-bound rather than some combination of
-both.  (If you understand what I mean by this, please explain it to me some
-time).
+> - allow qt to pollute the kernel to have a decent gui config tool
+It would be good to get a replacement, but until that shows up.
+Then yes an optional frontend that uses qt is OK.
+kconfig is prepared for and one gtk frontend is on the way.
+If someone comes up with a decent perl based frontend ten that could be
+considered.
 
+> - but perl will be needed anyways
+No.
 
+> instead of
+> - do all parsing in perl, that is what perl is for and what is mainly done
+>   in kconfig scripts
+flex and bison is better for this job.
+
+	Sam

@@ -1,79 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267176AbTAKFFS>; Sat, 11 Jan 2003 00:05:18 -0500
+	id <S267159AbTAKFEN>; Sat, 11 Jan 2003 00:04:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267180AbTAKFFS>; Sat, 11 Jan 2003 00:05:18 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:60888 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267166AbTAKFES>;
-	Sat, 11 Jan 2003 00:04:18 -0500
-Date: Fri, 10 Jan 2003 21:09:02 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.5.5x can't find my printer
-In-Reply-To: <Pine.LNX.3.96.1030110220420.5655A-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.33L2.0301102107420.19983-100000@dragon.pdx.osdl.net>
+	id <S267160AbTAKFEM>; Sat, 11 Jan 2003 00:04:12 -0500
+Received: from yossman.net ([209.162.234.20]:40456 "EHLO yossman.net")
+	by vger.kernel.org with ESMTP id <S267159AbTAKFDS>;
+	Sat, 11 Jan 2003 00:03:18 -0500
+Message-ID: <3E1FA7A0.6090305@yossman.net>
+Date: Sat, 11 Jan 2003 00:12:00 -0500
+From: Brian Davids <dlister@yossman.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: robw@optonline.net
+CC: linux-kernel@vger.kernel.org
+Subject: OT: Renaming the kernel??!?!?!? (Was Re: Nvidia and its choice to
+ read the GPL "differently")
+References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com> <20030111025449.GJ9124@work.bitmover.com> <1042253924.1385.70.camel@RobsPC.RobertWilkens.com> <200301110316.WAA00987@onevista.com> <1042256140.1259.99.camel@RobsPC.RobertWilkens.com> <3E1FA07F.7000903@tmsusa.com> <1042260296.1278.181.camel@RobsPC.RobertWilkens.com>
+In-Reply-To: <1042260296.1278.181.camel@RobsPC.RobertWilkens.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Jan 2003, Bill Davidsen wrote:
+Rob Wilkens wrote:
 
-| On Fri, 10 Jan 2003, Randy.Dunlap wrote:
-|
-| > On Fri, 10 Jan 2003, Bill Davidsen wrote:
-| >
-| > | The 2.5.5x kernels can't find my printer. 2.4 kernels work fine. dmesg
-| > | attached, I'll send config if anyone cares.
-| > |
-| > | Known problem, new problem, or just some config error? The modules load
-| > | but don't find anything.
-| > |
-| > | lsmod:
-| > | Module                  Size  Used by
-| > | apm                    15140
-| > | parport_pc             33320
-| > | parport                34496
-| >
-| > I'm having trouble seeing the trouble.
-|
-| The lpr/lpq programs tell me /dev/lp0 "no such device", and catting a file
-| to the device fails. It looks as if the driver isn't listening to the lp0
-| major,minor or something.
-|
-| As noted, all works fine in 2.4.{18,20} when booted.
-|
-| > >From your dmesg:
-| >
-| > | pnp: the driver 'parport_pc' has been registered
-| > | pnp: pnp: match found with the PnP device '00:12' and the driver 'parport_pc'
-| > | pnp: the device '00:12' has been activated
-| > | parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE]
-| > | parport0: irq 7 detected
-| > | parport0: cpp_mux: aa55f00f52ad51(80)
-| > | parport0: cpp_daisy: aa5500ff(80)
-| > | parport0: assign_addrs: aa5500ff(80)
-| > | Module parport cannot be unloaded due to unsafe usage in include/linux/module.h:347
-| > | Module parport_pc cannot be unloaded due to unsafe usage in include/linux/module.h:347
-| > | parport0: cpp_mux: aa55f00f52ad51(80)
-| > | parport0: cpp_daisy: aa5500ff(80)
-| > | parport0: assign_addrs: aa5500ff(80)
-| >
-| > I'm not using PnP.  With 2.5.54, I see:
-| > parport0: PC-style at 0x378 [PCSPP(,...)]
-| > lp0: using parport0 (polling).
-| >
-| > Are you expecting to see the "lp0" line also?
-|
-| I'd settle for a usable device, that isn't happening. I'd believe I need
-| to change config, but I'm at a loss for what.
+> Anyway, I'm here to discuss the kernel.  The issue at hand was
+> whether the kernel should be renamed.  I didn't bring up the topic, I
+> was only chiming in with an opinion.  As the topic went on, things
+> got further off-topic as can happen.
+> 
+> "renaming of a kernel" is a topic relevant to a kernel mailing list.
 
-Well, you could try disabling CONFIG_PNP to see if that works
-for you.  It does for me, but that doesn't mean much on a different
-system with different configs.
+Maybe you should read the e-mails a bit more carefully.  The issue
+you're refering to is NOT renaming the kernel, but rather what people
+believe the collection of kernel, libraries, and user-land tools should
+properly be called.  I don't think I've ever seen RMS (or anyone else
+for that matter) say that the kernel itself should be called anything
+other than Linux.  The controversy is what peoples' ideas of what
+constitutes the operating system are and what to call it.
 
--- 
-~Randy
+
+Brian Davids
 

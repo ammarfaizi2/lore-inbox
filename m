@@ -1,55 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288637AbSADODc>; Fri, 4 Jan 2002 09:03:32 -0500
+	id <S288632AbSADOGC>; Fri, 4 Jan 2002 09:06:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288632AbSADODX>; Fri, 4 Jan 2002 09:03:23 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:30460 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S288635AbSADODM>; Fri, 4 Jan 2002 09:03:12 -0500
-Date: Fri, 4 Jan 2002 08:02:43 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200201041402.IAA80257@tomcat.admin.navo.hpc.mil>
-To: petro@auctionwatch.com, Mark Hahn <hahn@physics.mcmaster.ca>
-Subject: Re: Two hdds on one channel - why so slow?
+	id <S288640AbSADOFw>; Fri, 4 Jan 2002 09:05:52 -0500
+Received: from [217.200.21.164] ([217.200.21.164]:20387 "HELO
+	markolaptop.markoer.net") by vger.kernel.org with SMTP
+	id <S288632AbSADOFp>; Fri, 4 Jan 2002 09:05:45 -0500
+Date: Fri, 4 Jan 2002 15:04:22 +0100
+From: Marco Ermini <markoer@firenze.linux.it>
+To: Tommi Kyntola <kynde@ts.ray.fi>
 Cc: linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+Subject: Re: [OT] Re: [patch] Re: Framebuffer...Why oh Why???
+Message-Id: <20020104150422.3dc4117c.markoer@firenze.linux.it>
+In-Reply-To: <Pine.LNX.4.33.0201041522030.1702-100000@behemoth.ts.ray.fi>
+In-Reply-To: <20020103232614.26f2f5af.markoer@markoer.org>
+	<Pine.LNX.4.33.0201041522030.1702-100000@behemoth.ts.ray.fi>
+X-Mailer: Sylpheed version 0.6.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +"Lyz`Yqn/[+nPre_'A|Svg7k)orL^8-Ry6&@(Al;#ibq)H/"{g<eE,VkFB2lW_"!['Y0;c n~/~.$Y~(MLz'=#v;V9OuYhg9QH:`M5xNTS-V[7~`{M&wQKq#27w,_kNPxyF__Ppk\`h)-9
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.vs4j_MfU5TfFHg"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petro <petro@auctionwatch.com>:
-> On Wed, Jan 02, 2002 at 08:52:31PM -0500, Mark Hahn wrote:
-> > On Wed, 2 Jan 2002, Ricky Beam wrote:
-> > > PS: I once turned down a 360MHz Ultra10 in favor of a 167MHz Ultra1 because
-> > >     of the absolutely shitty IDE performance.  The U1 was actually faster
-> > >     at compiling software. (Solaris 2.6, btw)
-> > yeah, if Sun can't make IDE scream, then no one can eh?
+--=.vs4j_MfU5TfFHg
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+
+On Fri, 4 Jan 2002 15:27:03 +0200 (EET), Tommi Kyntola <kynde@ts.ray.fi>
+wrote:
+
+[...]
+> > A similar things happened to me. I have a Toshiba Satellite 4080 XCDT, and
+> > switching from XFree to console and back to XFree becomed impossibile with
+> > the upgrade to Redhat 7.x and XFree 4. The problem is that the apm script
+> > use to switch to console mode when I suspend (es. closing the laptop) and
+> > when it resumes it tries to switch to XFree again, but this messes the
+> > screen. I am still able to come back to console and killall X, but of
+> > course I'll lose my current not saved works under X.
+> > 
+> > Under XFree 3 I could switch from X to console and back without problems -
+> > anyway, after a couple of switches my laptop used to hang. I think X
+> > writes to the uncorrect memory regions causing my laptop to hang.
 > 
->     If SCSI had the economy of scale that IDE enjoys, it would be a lot
->     cheaper than it is now. Not as cheap as IDE currently is, but still
->     a lot cheaper. 
+> This really is offtopic, because the above symptoms are caused solely by 
+> XFree 4.1. The was discussion about this in XFree mailing lists.
 > 
->     ATA/IDE is trying pick and choose the best parts of SCSI w/out
->     picking up the costs--which is an admirable goal. The question is
->     how close can they get w/out incurring the costs? 
+> A quick fix is to get a newer RedHat Rawhide XFree86 rpm (atleast
+> 4.1.0-8 and later have that bug fixed) or better yet get a newer 
+> tarball of X from xfree86.org 
 
-About the time it attempts to support 16-60 drives on one controller
-(15 targets, 4 luns per target), with full asynchronous operation.
+Anyway, thanks. I'll try it when I'll have a fast connection next week (it's
+more than 18 MB download).
 
-The costs start accumulating with the async operation.
+> yers,
+>  another member of "Linux on a Toshiba Satellite 4080xcdt (TM)" :)
 
-I've always treated IDE as only part - the controller sharing the equivalent
-of a single SCSI target, with two luns. The PCI interface appears about
-equivalent to that of the SCSI controller, but the IDE controller completely
-drops the multiple target feature (as well as the shared data/command bus).
+You are missing "proud" ;-)
 
-IDE boards with 4 drives seem to be two IDE controllers using the same PCI
-interface. 
 
-In my experience, SCSI is not cost effective for systems with a single disk.
-As soon as you go to 4 or more disks, the throughput of SCSI takes over unless
-you are expanding a pre-existing workstation configuration.
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+thanks
 
-Any opinions expressed are solely my own.
+-- 
+Marco Ermini
+http://www.markoer.org
+Never attribute to malice that which is adequately explained
+by stupidity. (a sig from Slashdot postings)
+
+--=.vs4j_MfU5TfFHg
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iD8DBQE8NbZqDT6FNtZ+AP4RAnqKAJ9P7Ogp0CoBC6PS6hiOaYYGHFF8lACfUtW2
+nHPG4bsMhnergO3Q6IbUxWo=
+=T5oL
+-----END PGP SIGNATURE-----
+
+--=.vs4j_MfU5TfFHg--
+

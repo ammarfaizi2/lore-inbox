@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262876AbVAQUjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262878AbVAQUkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262876AbVAQUjp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 15:39:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262877AbVAQUjo
+	id S262878AbVAQUkU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 15:40:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbVAQUkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 15:39:44 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56448 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262876AbVAQUjb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 15:39:31 -0500
-Date: Mon, 17 Jan 2005 20:39:26 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-Cc: "J. Bruce Fields" <bfields@fieldses.org>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] shared subtrees
-Message-ID: <20050117203926.GU26051@parcelfarce.linux.theplanet.co.uk>
-References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk> <41EC0466.9010509@sun.com> <20050117190028.GF24830@fieldses.org> <41EC1253.8080902@sun.com> <20050117193206.GH24830@fieldses.org> <41EC1BE6.1030506@sun.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41EC1BE6.1030506@sun.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 17 Jan 2005 15:40:20 -0500
+Received: from terminus.zytor.com ([209.128.68.124]:55001 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S262878AbVAQUkA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 15:40:00 -0500
+Message-ID: <41EC224D.5080204@zytor.com>
+Date: Mon, 17 Jan 2005 12:38:37 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: Arjan van de Ven <arjan@infradead.org>, Jan Hubicka <jh@suse.cz>,
+       Jack F Vogel <jfv@bluesong.net>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [discuss] booting a kernel compiled with -mregparm=0
+References: <Pine.LNX.4.61.0501141623530.3526@ezer.homenet>	<20050114205651.GE17263@kam.mff.cuni.cz>	<Pine.LNX.4.61.0501141613500.6747@chaos.analogic.com>	<cs9v6f$3tj$1@terminus.zytor.com>	<Pine.LNX.4.61.0501170909040.4593@ezer.homenet>	<1105955608.6304.60.camel@laptopd505.fenrus.org>	<Pine.LNX.4.61.0501171002190.4644@ezer.homenet>	<41EBFF87.6080105@zytor.com> <m1wtubvm8y.fsf@muc.de>
+In-Reply-To: <m1wtubvm8y.fsf@muc.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 17, 2005 at 03:11:18PM -0500, Mike Waychison wrote:
- 
-> I don't think that solves the problem.  B should receive copies (with
-> shared semantics if called for) of all mountpoints C1,..,Cn that are
-> children of A if A->A.  This is regardless of whether or not propagation
-> occurs before or after the attach.
-
-... when that makes sense.  Do you see any real problems with the proposed
-behaviour (i.e. propagation happens before attachment)?
-
-BTW, you do realize that rbind also has "copy before attaching" semantics,
-right?
- 
-> Allowing this is like allowing directory aliasing in the sense that an
-> aliased directory that is nested within itself opens us to
-> badness/headaches 8)
+Andi Kleen wrote:
 > 
-> I still think the only way to handle this is to disallow vfsmounts in a
-> p-node to have (grand)parent-child relationships.  This may have to be
-> extended to the 'owned by' case as well.
+> To be fair there isn't a nice library for it on x86-64.  There
+> is libunwind on IA64, but afaik nobody ported it to x86-64 yet.
+> 
+> Just various projects have their own private unwind
+> implementation. The kernel including KDB has always lived with
+> imprecise backtraces and no argument printing. I don't think it has
+> been a show stopper so far.  If you really want the arguments you can
+> always use kgdb.
+> 
+> However I'm not sure we really want libunwind in the kernel anyways
+> (not even in KDB ;-) If anything better something stripped down and 
+> simple which libunwind isn't.
+> 
+> Unfortunately dwarf2 is not exactly a simple spec so implementing
+> a new backtracer for the kernel is not a trivial task. 
+> 
 
-Not feasible (and think what _that_ will do to --move, especially since
-propagation can span namespace boundaries).
+Seems like the unwinder should be running client-side, like it does on 
+kgdb.  Or does kdb not have a client at all?  (If so, I have no sympathy 
+for it.)
+
+	-hpa
+

@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129415AbQLRVzb>; Mon, 18 Dec 2000 16:55:31 -0500
+	id <S129597AbQLRV6B>; Mon, 18 Dec 2000 16:58:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129697AbQLRVzU>; Mon, 18 Dec 2000 16:55:20 -0500
-Received: from zmamail02.zma.compaq.com ([161.114.64.102]:62727 "HELO
-	zmamail02.zma.compaq.com") by vger.kernel.org with SMTP
-	id <S129415AbQLRVzI>; Mon, 18 Dec 2000 16:55:08 -0500
-Message-ID: <3A3E8096.3010606@zk3.dec.com>
-Date: Mon, 18 Dec 2000 16:24:38 -0500
-From: Peter Rival <frival@zk3.dec.com>
-Organization: Tru64 QMG Performance Engineering
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
+	id <S129524AbQLRV5v>; Mon, 18 Dec 2000 16:57:51 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:9996
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129597AbQLRV5l>; Mon, 18 Dec 2000 16:57:41 -0500
+Date: Mon, 18 Dec 2000 13:27:07 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+Subject: SerialATA Release, sortof........
+Message-ID: <Pine.LNX.4.10.10012181325170.24738-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, axp-list <axp-list@redhat.com>
-Subject: QLogicFC problems with 2.4.x?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-   I was just lent a QLogic ISP2200 FC adapter and have been having a 
-bear of a time trying to get it to work on my Alpha ES40 and GS80.  I've 
-tried both the qlogicfc (with standard kernel) and qla2x00 (from QLogic 
-and Compaq) driver both built-in and as modules but neither of them are 
-working.  Has anyone had success with later (I'm using 2.4.0-test11) 2.4 
-kernels and the QLogic FC adapter?  I'm currently plugged into a Brocade 
-switch (Plaides I, I believe) which is also attached to two pair of 
-HSG80 FC RAID controllers.  AFAIK, the 2200 is supposed to work with an 
-FC fabric, so this should work, right?  Can anyone offer any 
-assistance?  Thanks!
+FYI
 
-  - Pete
+The Serial ATA specification (500 pages) is now available to the public
+under certain "click-to-accept" conditions.  Click the "specification"
+link at the bottom of the home page at http://www.serialata.org/.
+I hope the conditions are acceptable. The file is zipped MS Word.
+
+This just for those that care...please do not ask me for my copy as I am a
+member of this working group and bound under the NDA.
+
+Regards,
+
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

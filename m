@@ -1,120 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275385AbTHIUIy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 16:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275393AbTHIUIy
+	id S275402AbTHIU1c (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 16:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275401AbTHIU1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 16:08:54 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:51588 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S275385AbTHIUIv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 16:08:51 -0400
-Date: Sat, 9 Aug 2003 21:08:40 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Linus Torvalds <torvalds@osdl.org>, Neil Brown <neilb@cse.unsw.edu.au>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] (resent) Fix protocol bugs with NFS and nanoseconds
-Message-ID: <20030809200840.GA30698@mail.jlokier.co.uk>
-References: <20030809173546.GA29917@mail.jlokier.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030809173546.GA29917@mail.jlokier.co.uk>
-User-Agent: Mutt/1.4.1i
+	Sat, 9 Aug 2003 16:27:31 -0400
+Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:44293 "EHLO
+	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S275400AbTHIU13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 16:27:29 -0400
+Message-ID: <3F355AB0.6@kolumbus.fi>
+Date: Sat, 09 Aug 2003 23:33:52 +0300
+From: =?ISO-8859-15?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: cryptoapi incorrect struct page usage
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
+ 18, 2001) at 09.08.2003 23:28:57,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
+ 22, 2002) at 09.08.2003 23:28:19,
+	Serialize complete at 09.08.2003 23:28:19
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Resent because osdl.com != osdl.org...)
+It seems that cryptoapi usage wrt mm is not safe. At least both ipsec 
+and cryptoloop practise these kinds of things :
 
-NFS with 2.5.75 as both client and server is totally broken with GNU
-Make.  Kernel builds fail.  The nanosecond field of timestamps of
-newly touched files is often negative on the client, which is probably
-why Make fails.  The value also bears no relation to the file's
-nanosecond field on the server.
+example from net/xfrm/xfrm_algo.c
 
-The culprit is htons() used where htonl() should be:
+int
+skb_to_sgvec(struct sk_buff *skb, struct scatterlist *sg, int offset, 
+int len)
+{
+    int start = skb_headlen(skb);
+    int i, copy = start - offset;
+    int elt = 0;
 
--	*p++ = htonl((u32) time->tv_sec); *p++ = htons(time->tv_nsec);
-+	*p++ = htonl((u32) time->tv_sec); *p++ = htonl(time->tv_nsec);
+    if (copy > 0) {
+        if (copy > len)
+            copy = len;
+        sg[elt].page = virt_to_page(skb->data + offset);
+        sg[elt].offset = (unsigned long)(skb->data + offset) % PAGE_SIZE;
+        sg[elt].length = copy;
 
-The rest of this patch corrects nfsd to use microseconds in NFSv2, not
-nanoseconds.  (The client already gets this right, but I have
-optimised it slightly to avoid division when possible).
 
-With this patch, kernel builds work again over NFSv3.  The NFSv2
-fix is also tested.
 
-Please apply.
+so unpinned pages are passed to cryptoapi. Nothing prevents these pages 
+from being swapped out. Something like get_user_pages() is needed to pin 
+these pages for the duration of crypto operations. Comments?
 
-Enjoy,
--- Jamie
+--Mika
 
-diff -ur orig-2.5.75/fs/nfs/nfs2xdr.c laptop-2.5.75/fs/nfs/nfs2xdr.c
---- orig-2.5.75/fs/nfs/nfs2xdr.c	2003-07-08 21:40:56.000000000 +0100
-+++ laptop-2.5.75/fs/nfs/nfs2xdr.c	2003-08-09 17:57:08.498827393 +0100
-@@ -90,7 +90,7 @@
- {
- 	*p++ = htonl(timep->tv_sec);
- 	/* Convert nanoseconds into microseconds */
--	*p++ = htonl(timep->tv_nsec / 1000);
-+	*p++ = htonl(timep->tv_nsec ? timep->tv_nsec / 1000 : 0);
- 	return p;
- }
- 
-diff -ur orig-2.5.75/fs/nfsd/nfs3xdr.c laptop-2.5.75/fs/nfsd/nfs3xdr.c
---- orig-2.5.75/fs/nfsd/nfs3xdr.c	2003-07-08 21:55:24.000000000 +0100
-+++ laptop-2.5.75/fs/nfsd/nfs3xdr.c	2003-08-09 17:59:34.416338758 +0100
-@@ -4,6 +4,8 @@
-  * XDR support for nfsd/protocol version 3.
-  *
-  * Copyright (C) 1995, 1996, 1997 Olaf Kirch <okir@monad.swb.de>
-+ *
-+ * 2003-08-09 Jamie Lokier: Use htonl() for nanoseconds, not htons()!
-  */
- 
- #include <linux/types.h>
-@@ -43,7 +45,7 @@
- static inline u32 *
- encode_time3(u32 *p, struct timespec *time)
- {
--	*p++ = htonl((u32) time->tv_sec); *p++ = htons(time->tv_nsec);
-+	*p++ = htonl((u32) time->tv_sec); *p++ = htonl(time->tv_nsec);
- 	return p;
- }
- 
-diff -ur orig-2.5.75/fs/nfsd/nfsxdr.c laptop-2.5.75/fs/nfsd/nfsxdr.c
---- orig-2.5.75/fs/nfsd/nfsxdr.c	2003-07-08 21:54:20.000000000 +0100
-+++ laptop-2.5.75/fs/nfsd/nfsxdr.c	2003-08-09 17:57:52.963829023 +0100
-@@ -123,13 +123,13 @@
- 	if (tmp != (u32)-1 && tmp1 != (u32)-1) {
- 		iap->ia_valid |= ATTR_ATIME | ATTR_ATIME_SET;
- 		iap->ia_atime.tv_sec = tmp;
--		iap->ia_atime.tv_nsec = tmp1; 
-+		iap->ia_atime.tv_nsec = tmp1 * 1000; 
- 	}
- 	tmp  = ntohl(*p++); tmp1 = ntohl(*p++);
- 	if (tmp != (u32)-1 && tmp1 != (u32)-1) {
- 		iap->ia_valid |= ATTR_MTIME | ATTR_MTIME_SET;
- 		iap->ia_mtime.tv_sec = tmp;
--		iap->ia_mtime.tv_nsec = tmp1; 
-+		iap->ia_mtime.tv_nsec = tmp1 * 1000; 
- 	}
- 	return p;
- }
-@@ -171,12 +171,12 @@
- 		*p++ = htonl((u32) stat.dev);
- 	*p++ = htonl((u32) stat.ino);
- 	*p++ = htonl((u32) stat.atime.tv_sec);
--	*p++ = htons(stat.atime.tv_nsec);
-+	*p++ = htonl(stat.atime.tv_nsec ? stat.atime.tv_nsec / 1000 : 0);
- 	lease_get_mtime(dentry->d_inode, &time); 
- 	*p++ = htonl((u32) time.tv_sec);
--	*p++ = htons(time.tv_nsec); 
-+	*p++ = htonl(time.tv_nsec ? time.tv_nsec / 1000 : 0); 
- 	*p++ = htonl((u32) stat.ctime.tv_sec);
--	*p++ = htons(stat.ctime.tv_nsec);
-+	*p++ = htonl(stat.ctime.tv_nsec ? stat.ctime.tv_nsec / 1000 : 0);
- 
- 	return p;
- }
+

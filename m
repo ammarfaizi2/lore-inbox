@@ -1,230 +1,382 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318875AbSHLXdG>; Mon, 12 Aug 2002 19:33:06 -0400
+	id <S318873AbSHLXf4>; Mon, 12 Aug 2002 19:35:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318876AbSHLXdG>; Mon, 12 Aug 2002 19:33:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4615 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318875AbSHLXc5>;
-	Mon, 12 Aug 2002 19:32:57 -0400
-Message-ID: <3D5845FF.C6668B15@zip.com.au>
-Date: Mon, 12 Aug 2002 16:34:23 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Robert Love <rml@tech9.net>, Skip Ford <skip.ford@verizon.net>,
-       "Adam J. Richter" <adam@yggdrasil.com>, ryan.flanigan@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.31: modules don't work at all
-References: <3D57F5D6.C54F5A2A@zip.com.au> <Pine.LNX.4.33.0208121330310.1289-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S318876AbSHLXf4>; Mon, 12 Aug 2002 19:35:56 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:58895 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S318873AbSHLXfr>;
+	Mon, 12 Aug 2002 19:35:47 -0400
+Subject: [PATCH] fast reader/writer lock for gettimeofday 2.5.30
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 12 Aug 2002 16:39:37 -0700
+Message-Id: <1029195577.1978.22.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Mon, 12 Aug 2002, Andrew Morton wrote:
-> >
-> > Gets tricky with nested lock_kernels.
-> 
-> No, lock-kernel already only increments once, at the first lock_kernel. We
-> have a totally separate counter for the BKL depth, see <asm/smplock.h>
-> 
+The following patch generalizes Andrea's trick of using sequence numbers
+to create a reader region/writer lock. It against the 2.5.30 kernel.
 
-There are eighteen smplock.h's, all different.  At least one (SuperH)
-hasn't been converted to preempt.  I'd rather like to decouple the kmap
-optimisation work from that mini-quagmire.  It's very easy to do, with
+A new composite primitive 'frlock' is defined in include/linux/frlock.h
+and used to replace the rwlock xtime_lock enforce consistent access to
+the clock time variables.
 
-	current->flags |= PF_ATOMIC;
-	__copy_to_user(...);
-	current->flags &= ~PF_ATOMIC;
+This should solve the DOS problem when applications spin wildly doing
+gettimeofday (or reading sysinfo) and starve the clock tick from ever
+getting a write lock on xtime_lock
 
-and that all works fine.
+There is no performance difference for normal loads, although since the
+reader does no locking, it should be faster than normal reader locks
 
-However, soldiering on leads us to some difficulties.  You're proposing,
-effectively, that preempt_count gets shifted left one bit and that bit
-zero becomes "has done lock_kernel()".
+The same technique could be used for other rarely updated data that
+needs atomic access. Like owner/group of an inode or 64 bit counters.
 
-So bits 0-31 of preempt_count mean "may not be preempted" and "should
-not preempt self".  And bits 1-31 of preempt count mean "must not
-explicitly call schedule".
+NOTE: this patch works for i386 only, cause that's what I could test.
+Other architectures require trivial changes to time.c to change
+xtime_lock from rwlock to frlock and to use a loop when reading.
 
-Problem is, the semantics of this vary too much between preemptible
-and non-preemptible kernels.  Because non-preemptible kernels do
-not increment preempt_count in spin_lock().
-
-Maybe my penny hasn't dropped yet, but I tend to feel that the
-semantics of my "may_schedule()" below are too fragile for it to
-be part of the API.
-
-(Untested, uncompiled code)
-
-
- arch/i386/mm/fault.c       |    2 -
- include/asm-i386/smplock.h |   20 +++++++++++++-----
- include/linux/preempt.h    |   49 ++++++++++++++++++++++++++++++++-------------
- 3 files changed, 51 insertions, 20 deletions
-
---- 2.5.31/arch/i386/mm/fault.c~fix-faults	Mon Aug 12 16:14:21 2002
-+++ 2.5.31-akpm/arch/i386/mm/fault.c	Mon Aug 12 16:14:21 2002
-@@ -192,7 +192,7 @@ asmlinkage void do_page_fault(struct pt_
- 	 * If we're in an interrupt, have no user context or are running in an
- 	 * atomic region then we must not take the fault..
- 	 */
--	if (preempt_count() || !mm)
-+	if (!may_schedule() || !mm)
- 		goto no_context;
+diff -urN -X dontdiff linux-2.5/arch/i386/kernel/time.c linux-2.5.exp/arch/i386/kernel/time.c
+--- linux-2.5/arch/i386/kernel/time.c	Mon Aug 12 10:17:59 2002
++++ linux-2.5.exp/arch/i386/kernel/time.c	Mon Aug 12 10:32:54 2002
+@@ -43,6 +43,7 @@
+ #include <linux/smp.h>
+ #include <linux/module.h>
+ #include <linux/device.h>
++#include <linux/frlock.h>
  
- #ifdef CONFIG_X86_REMOTE_DEBUG
---- 2.5.31/include/linux/preempt.h~fix-faults	Mon Aug 12 16:14:21 2002
-+++ 2.5.31-akpm/include/linux/preempt.h	Mon Aug 12 16:14:21 2002
-@@ -5,29 +5,60 @@
- 
- #define preempt_count() (current_thread_info()->preempt_count)
- 
-+/*
-+ * Bit zero of preempt_count means "holds lock_kernel".
-+ * So a non-zero value in preempt_count() means "may not be preempted" and a
-+ * non-zero value in bits 1-31 means "may not explicitly schedule".
-+ */
-+
- #define inc_preempt_count() \
- do { \
--	preempt_count()++; \
-+	preempt_count() += 2; \
- } while (0)
- 
- #define dec_preempt_count() \
- do { \
--	preempt_count()--; \
-+	preempt_count() -= 2; \
-+} while (0)
-+
-+#define lock_kernel_enter() \
-+do { \
-+	preempt_count() |= 1; \
-+} while (0)
-+
-+#define lock_kernel_exit() \
-+do { \
-+	preempt_count() &= ~1; \
- } while (0)
- 
-+/*
-+ * The semantics of this depend upon CONFIG_PREEMPT.
-+ *
-+ * With CONFIG_PREEMPT=y, may_schedule() returns false in irq context and
-+ * inside spinlocks, and returns true inside lock_kernel().
-+ *
-+ * With CONFIG_PREEMPT=n, may_schedule() returns false in irq context, returns
-+ * true inside spinlocks and returns true inside lock_kernel().
-+ *
-+ * But may_schedule() will also return false if the task has performed an
-+ * explicit inc_preempt_count(), regardless of CONFIG_PREEMPT.  Which is really
-+ * the only situation in which may_schedule() is useful.
-+ */
-+#define may_schedule()	(!(preempt_count() >> 1))
-+
- #ifdef CONFIG_PREEMPT
- 
- extern void preempt_schedule(void);
- 
- #define preempt_disable() \
- do { \
--	inc_preempt_count(); \
-+	preempt_count() += 2; \
- 	barrier(); \
- } while (0)
- 
- #define preempt_enable_no_resched() \
- do { \
--	dec_preempt_count(); \
-+	preempt_count() -= 2; \
- 	barrier(); \
- } while (0)
- 
-@@ -44,22 +75,12 @@ do { \
- 		preempt_schedule(); \
- } while (0)
- 
--#define inc_preempt_count_non_preempt()	do { } while (0)
--#define dec_preempt_count_non_preempt()	do { } while (0)
--
- #else
- 
- #define preempt_disable()		do { } while (0)
- #define preempt_enable_no_resched()	do {} while(0)
- #define preempt_enable()		do { } while (0)
- #define preempt_check_resched()		do { } while (0)
--
--/*
-- * Sometimes we want to increment the preempt count, but we know that it's
-- * already incremented if the kernel is compiled for preemptibility.
-- */
--#define inc_preempt_count_non_preempt()	inc_preempt_count()
--#define dec_preempt_count_non_preempt()	dec_preempt_count()
- 
- #endif
- 
---- 2.5.31/include/asm-i386/smplock.h~fix-faults	Mon Aug 12 16:14:21 2002
-+++ 2.5.31-akpm/include/asm-i386/smplock.h	Mon Aug 12 16:15:20 2002
-@@ -25,8 +25,10 @@ extern spinlock_t kernel_flag;
+ #include <asm/io.h>
+ #include <asm/smp.h>
+@@ -81,7 +82,7 @@
   */
- #define release_kernel_lock(task)		\
- do {						\
--	if (unlikely(task->lock_depth >= 0))	\
-+	if (unlikely(task->lock_depth >= 0)) {	\
- 		spin_unlock(&kernel_flag);	\
-+		lock_kernel_exit();		\
-+	}					\
- } while (0)
+ unsigned long fast_gettimeoffset_quotient;
+ 
+-extern rwlock_t xtime_lock;
++extern frlock_t xtime_lock;
+ extern unsigned long wall_jiffies;
+ 
+ spinlock_t rtc_lock = SPIN_LOCK_UNLOCKED;
+@@ -269,19 +270,21 @@
+  */
+ void do_gettimeofday(struct timeval *tv)
+ {
+-	unsigned long flags;
++	unsigned long seq;
+ 	unsigned long usec, sec;
+ 
+-	read_lock_irqsave(&xtime_lock, flags);
+-	usec = do_gettimeoffset();
+-	{
+-		unsigned long lost = jiffies - wall_jiffies;
+-		if (lost)
+-			usec += lost * (1000000 / HZ);
+-	}
+-	sec = xtime.tv_sec;
+-	usec += xtime.tv_usec;
+-	read_unlock_irqrestore(&xtime_lock, flags);
++	do {
++		seq = fr_read_begin(&xtime_lock);
++		usec = do_gettimeoffset();
++		{
++			unsigned long lost = jiffies - wall_jiffies;
++			if (lost)
++				usec += lost * (1000000 / HZ);
++		}
++		
++		sec = xtime.tv_sec;
++		usec += xtime.tv_usec;
++	} while (seq != fr_read_end(&xtime_lock));
+ 
+ 	while (usec >= 1000000) {
+ 		usec -= 1000000;
+@@ -294,7 +297,7 @@
+ 
+ void do_settimeofday(struct timeval *tv)
+ {
+-	write_lock_irq(&xtime_lock);
++	fr_write_lock_irq(&xtime_lock);
+ 	/*
+ 	 * This is revolting. We need to set "xtime" correctly. However, the
+ 	 * value in this location is the value at the most recent update of
+@@ -314,7 +317,7 @@
+ 	time_status |= STA_UNSYNC;
+ 	time_maxerror = NTP_PHASE_LIMIT;
+ 	time_esterror = NTP_PHASE_LIMIT;
+-	write_unlock_irq(&xtime_lock);
++	fr_write_unlock_irq(&xtime_lock);
+ }
  
  /*
-@@ -34,8 +36,10 @@ do {						\
+@@ -480,7 +483,7 @@
+ 	 * the irq version of write_lock because as just said we have irq
+ 	 * locally disabled. -arca
+ 	 */
+-	write_lock(&xtime_lock);
++	fr_write_lock(&xtime_lock);
+ 
+ 	if (use_tsc)
+ 	{
+@@ -513,7 +516,7 @@
+  
+ 	do_timer_interrupt(irq, NULL, regs);
+ 
+-	write_unlock(&xtime_lock);
++	fr_write_unlock(&xtime_lock);
+ 
+ }
+ 
+diff -urN -X dontdiff linux-2.5/include/linux/frlock.h linux-2.5.exp/include/linux/frlock.h
+--- linux-2.5/include/linux/frlock.h	Wed Dec 31 16:00:00 1969
++++ linux-2.5.exp/include/linux/frlock.h	Mon Aug 12 10:09:56 2002
+@@ -0,0 +1,99 @@
++#ifndef __LINUX_FRLOCK_H
++#define __LINUX_FRLOCK_H
++
++/*
++ * Fast read-write spinlocks.
++ *
++ * Fast reader/writer locks without starving writers. This type of
++ * lock for data where the reader wants a consitent set of information
++ * and is willing to retry if the information changes.  Readers never
++ * block but they may have to retry if a writer is in
++ * progress. Writers do not wait for readers. 
++ *
++ * Generalization on sequence variables used for gettimeofday on x86-64 
++ * by Andrea Arcangeli
++ *
++ * This is not as cache friendly as brlock. Also, this will not work
++ * for data that contains pointers, because any writer could
++ * invalidate a pointer that a reader was following.
++ *
++ * 
++ * Expected reader usage:
++ * 	do {
++ *	    seq = fr_read_begin();
++ * 	...
++ *      } while (seq != fr_read_end());
++ *
++ * On non-SMP the spin locks disappear but the writer still needs
++ * to increment the sequence variables because an interrupt routine could
++ * change the state of the data.
++ */
++
++#include <linux/config.h>
++#include <linux/spinlock.h>
++
++typedef struct {
++	spinlock_t lock;
++	unsigned pre_sequence;
++	unsigned post_sequence;
++} frlock_t;
++
++#define FR_LOCK_UNLOCKED	{ SPIN_LOCK_UNLOCKED, 0, 0 }
++#define frlock_init(x)		do { *(x) = FR_LOCK_UNLOCKED; } while (0)
++
++static inline void fr_write_lock(frlock_t *rw)
++{
++	spin_lock(&rw->lock);
++	rw->pre_sequence++;
++	wmb();
++}	
++
++static inline void fr_write_unlock(frlock_t *rw) 
++{
++	wmb();
++	rw->post_sequence++;
++	spin_unlock(&rw->lock);
++}
++
++static inline int fr_write_trylock(frlock_t *rw)
++{
++	int ret  = spin_trylock(&rw->lock);
++
++	if (ret) {
++		++rw->pre_sequence;
++		wmb();
++	}
++	return ret;
++}
++
++static inline unsigned fr_read_begin(frlock_t *rw) 
++{
++	rmb();
++	return rw->post_sequence;
++	
++}
++
++static inline unsigned fr_read_end(frlock_t *rw)
++{
++	rmb();
++	return rw->pre_sequence;
++}
++
++/*
++ * Possible sw/hw IRQ protected versions of the interfaces.
++ */
++#define fr_write_lock_irqsave(lock, flags) \
++	do { local_irq_save(flags);	 fr_write_lock(lock); } while (0)
++#define fr_write_lock_irq(lock) \
++	do { local_irq_disable();	 fr_write_lock(lock); } while (0)
++#define fr_write_lock_bh(lock) \
++        do { local_bh_disable();	 fr_write_lock(lock); } while (0)
++
++#define fr_write_unlock_irqrestore(lock, flags)	\
++	do { fr_write_unlock(lock); local_irq_restore(flags); } while(0)
++#define fr_write_unlock_irq(lock) \
++	do { fr_write_unlock(lock); local_irq_enable(); } while(0)
++#define fr_write_unlock_bh(lock) \
++	do { fr_write_unlock(lock); local_bh_enable(); } while(0)
++
++#endif /* __LINUX_FRLOCK_H */
+diff -urN -X dontdiff linux-2.5/kernel/time.c linux-2.5.exp/kernel/time.c
+--- linux-2.5/kernel/time.c	Mon Aug 12 10:18:32 2002
++++ linux-2.5.exp/kernel/time.c	Mon Aug 12 10:07:28 2002
+@@ -27,6 +27,7 @@
+ #include <linux/timex.h>
+ #include <linux/errno.h>
+ #include <linux/smp_lock.h>
++#include <linux/frlock.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -38,7 +39,7 @@
+ 
+ /* The xtime_lock is not only serializing the xtime read/writes but it's also
+    serializing all accesses to the global NTP variables now. */
+-extern rwlock_t xtime_lock;
++extern frlock_t xtime_lock;
+ extern unsigned long last_time_offset;
+ 
+ #if !defined(__alpha__) && !defined(__ia64__)
+@@ -80,7 +81,7 @@
+ 		return -EPERM;
+ 	if (get_user(value, tptr))
+ 		return -EFAULT;
+-	write_lock_irq(&xtime_lock);
++	fr_write_lock_irq(&xtime_lock);
+ 	xtime.tv_sec = value;
+ 	xtime.tv_usec = 0;
+ 	last_time_offset = 0;
+@@ -88,7 +89,7 @@
+ 	time_status |= STA_UNSYNC;
+ 	time_maxerror = NTP_PHASE_LIMIT;
+ 	time_esterror = NTP_PHASE_LIMIT;
+-	write_unlock_irq(&xtime_lock);
++	fr_write_unlock_irq(&xtime_lock);
+ 	return 0;
+ }
+ 
+@@ -127,10 +128,10 @@
   */
- #define reacquire_kernel_lock(task)		\
- do {						\
--	if (unlikely(task->lock_depth >= 0))	\
-+	if (unlikely(task->lock_depth >= 0)) {	\
-+		lock_kernel_enter();		\
- 		spin_lock(&kernel_flag);	\
-+	}					\
- } while (0)
- 
- 
-@@ -49,13 +53,17 @@ do {						\
- static __inline__ void lock_kernel(void)
+ inline static void warp_clock(void)
  {
- #ifdef CONFIG_PREEMPT
--	if (current->lock_depth == -1)
-+	if (current->lock_depth == -1) {
-+		lock_kernel_enter();
- 		spin_lock(&kernel_flag);
-+	}
- 	++current->lock_depth;
- #else
- #if 1
--	if (!++current->lock_depth)
-+	if (!++current->lock_depth) {
-+		lock_kernel_enter();
- 		spin_lock(&kernel_flag);
-+	}
- #else
- 	__asm__ __volatile__(
- 		"incl %1\n\t"
-@@ -73,8 +81,10 @@ static __inline__ void unlock_kernel(voi
- 	if (current->lock_depth < 0)
- 		BUG();
- #if 1
--	if (--current->lock_depth < 0)
-+	if (--current->lock_depth < 0) {
- 		spin_unlock(&kernel_flag);
-+		lock_kernel_exit();
-+	}
- #else
- 	__asm__ __volatile__(
- 		"decl %1\n\t"
+-	write_lock_irq(&xtime_lock);
++	fr_write_lock_irq(&xtime_lock);
+ 	xtime.tv_sec += sys_tz.tz_minuteswest * 60;
+ 	last_time_offset = 0;
+-	write_unlock_irq(&xtime_lock);
++	fr_write_unlock_irq(&xtime_lock);
+ }
+ 
+ /*
+@@ -234,7 +235,7 @@
+ 		if (txc->tick < 900000/HZ || txc->tick > 1100000/HZ)
+ 			return -EINVAL;
+ 
+-	write_lock_irq(&xtime_lock);
++	fr_write_lock_irq(&xtime_lock);
+ 	result = time_state;	/* mostly `TIME_OK' */
+ 
+ 	/* Save for later - semantics of adjtime is to return old value */
+@@ -390,7 +391,7 @@
+ 	txc->errcnt	   = pps_errcnt;
+ 	txc->stbcnt	   = pps_stbcnt;
+ 	last_time_offset = 0;
+-	write_unlock_irq(&xtime_lock);
++	fr_write_unlock_irq(&xtime_lock);
+ 	do_gettimeofday(&txc->time);
+ 	return(result);
+ }
+diff -urN -X dontdiff linux-2.5/kernel/timer.c linux-2.5.exp/kernel/timer.c
+--- linux-2.5/kernel/timer.c	Mon Aug 12 10:18:32 2002
++++ linux-2.5.exp/kernel/timer.c	Mon Aug 12 10:26:47 2002
+@@ -24,6 +24,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/tqueue.h>
+ #include <linux/kernel_stat.h>
++#include <linux/frlock.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -633,7 +634,7 @@
+  * This read-write spinlock protects us from races in SMP while
+  * playing with xtime and avenrun.
+  */
+-rwlock_t xtime_lock __cacheline_aligned_in_smp = RW_LOCK_UNLOCKED;
++frlock_t xtime_lock __cacheline_aligned_in_smp = FR_LOCK_UNLOCKED;
+ unsigned long last_time_offset;
+ 
+ static inline void update_times(void)
+@@ -645,7 +646,7 @@
+ 	 * just know that the irqs are locally enabled and so we don't
+ 	 * need to save/restore the flags of the local CPU here. -arca
+ 	 */
+-	write_lock_irq(&xtime_lock);
++	fr_write_lock_irq(&xtime_lock);
+ 
+ 	ticks = jiffies - wall_jiffies;
+ 	if (ticks) {
+@@ -654,7 +655,7 @@
+ 	}
+ 	last_time_offset = 0;
+ 	calc_load(ticks);
+-	write_unlock_irq(&xtime_lock);
++	fr_write_unlock_irq(&xtime_lock);
+ }
+ 
+ void timer_bh(void)
+@@ -922,20 +923,23 @@
+ asmlinkage long sys_sysinfo(struct sysinfo *info)
+ {
+ 	struct sysinfo val;
++	unsigned long seq;
+ 	unsigned long mem_total, sav_total;
+ 	unsigned int mem_unit, bitcount;
+ 
+ 	memset((char *)&val, 0, sizeof(struct sysinfo));
+ 
+-	read_lock_irq(&xtime_lock);
+-	val.uptime = jiffies / HZ;
++	do {
++		seq = fr_read_begin(&xtime_lock);
++
++		val.uptime = jiffies / HZ;
+ 
+-	val.loads[0] = avenrun[0] << (SI_LOAD_SHIFT - FSHIFT);
+-	val.loads[1] = avenrun[1] << (SI_LOAD_SHIFT - FSHIFT);
+-	val.loads[2] = avenrun[2] << (SI_LOAD_SHIFT - FSHIFT);
++		val.loads[0] = avenrun[0] << (SI_LOAD_SHIFT - FSHIFT);
++		val.loads[1] = avenrun[1] << (SI_LOAD_SHIFT - FSHIFT);
++		val.loads[2] = avenrun[2] << (SI_LOAD_SHIFT - FSHIFT);
+ 
+-	val.procs = nr_threads;
+-	read_unlock_irq(&xtime_lock);
++		val.procs = nr_threads;
++	} while (seq != fr_read_end(&xtime_lock));
+ 
+ 	si_meminfo(&val);
+ 	si_swapinfo(&val);
+@@ -980,7 +984,7 @@
+ 	val.totalhigh <<= bitcount;
+ 	val.freehigh <<= bitcount;
+ 
+-out:
++ out:
+ 	if (copy_to_user(info, &val, sizeof(struct sysinfo)))
+ 		return -EFAULT;
+ 
 
-.

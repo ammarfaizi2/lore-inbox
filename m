@@ -1,71 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpGnQpvrqQE+tQIWhs/JELbPr5Q==
+thread-index: AcQVpK5EWS4lLweWQD2VcqqJibo+eA==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sun, 04 Jan 2004 04:57:43 +0000
-Message-ID: <019c01c415a4$69d5b6d0$d100000a@sbs2003.local>
+Delivery-date: Mon, 05 Jan 2004 08:38:52 +0000
+Message-ID: <02e901c415a4$ae44c9a0$d100000a@sbs2003.local>
 Content-Transfer-Encoding: 7bit
 X-Mailer: Microsoft CDO for Exchange 2000
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 29 Mar 2004 16:42:16 +0100
 Content-Class: urn:content-classes:message
 Importance: normal
 Priority: normal
-From: "Davide Libenzi" <davidel@xmailserver.org>
+Date: Mon, 29 Mar 2004 16:44:11 +0100
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-X-X-Sender: davide@bigblue.dev.mdolabs.com
+From: "Vojtech Pavlik" <vojtech@suse.cz>
 To: <Administrator@smtp.paston.co.uk>
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
-        <mingo@redhat.com>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] kthread_create 
-In-Reply-To: <Pine.LNX.4.44.0401032039350.2022-100000@bigblue.dev.mdolabs.com>
+Cc: "Vojtech Pavlik" <vojtech@suse.cz>, "Andrew Morton" <akpm@osdl.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: New set of input patches
+References: <200401030350.43437.dtor_core@ameritech.net> <200401050059.25031.dtor_core@ameritech.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN;
-	charset="US-ASCII"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <200401050059.25031.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.4i
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:42:18.0390 (UTC) FILETIME=[6ACDAB60:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:44:13.0656 (UTC) FILETIME=[AF81DD80:01C415A4]
 
-On Sat, 3 Jan 2004, Davide Libenzi wrote:
+On Mon, Jan 05, 2004 at 12:59:24AM -0500, Dmitry Torokhov wrote:
 
-> On Sun, 4 Jan 2004, Rusty Russell wrote:
+> I made 3 more input patches:
 > 
-> > In message <Pine.LNX.4.44.0401031021280.1678-100000@bigblue.dev.mdolabs.com> you write:
-> > > Rusty, I took a better look at the patch and I think we can have 
-> > > per-kthread stuff w/out littering the task_struct and by making the thing 
-> > > more robust.
-> > 
-> > Except sharing data with a lock is perfectly robust.
-> > 
-> > > We keep a global list_head protected by a global spinlock. We 
-> > > define a structure that contain all the per-kthread stuff we need 
-> > > (including a task_struct* to the kthread itself). When a kthread starts it 
-> > > will add itself to the list, and when it will die it will remove itself 
-> > > from the list.
-> > 
-> > Yeah, I deliberately didn't implement this, because (1) it seems like
-> > a lot of complexity when using a lock and letting them share a single
-> > structure works fine and is even simpler, and (2) the thread can't
-> > just "do_exit()".
-> > 
-> > You can get around (2) by having a permenant parent "kthread" thread
-> > which is a parent to all the kthreads (it'll get a SIGCHLD when
-> > someone does "do_exit()").  But the implementation was pretty ugly,
-> > since it involved having a communications mechanism with the kthread
-> > parent, which means you have the global ktm_message-like-thing for
-> > this...
+> - compile fix in 98busmose driver (it still had its interrupt routine
+>   returning voooid instead of irqreturn_t)
+> - the rest of mouse devices converted to the new way of handling kernel
+>   parameters and document them in kernel-parametes.txt
+> - convert tsdev module to the new way of handling kernel parameters and
+>   document them in kernle-parameters.txt.
 > 
-> You will lose in any case. What happens if the thread does do_exit() and 
-> you do kthread_stop() after that?
-> With the patch I posted to you, the kthread_stop() will simply miss the 
-> lookup and return -ENOENT.
+> The patches can be found at the following addresses:
+> http://www.geocities.com/dt_or/input/2_6_1-rc1/
+> http://www.geocities.com/dt_or/input/2_6_1-rc1-mm1/
+> 
+> Vojtech, Andrew,
+> 
+> are you interested in these kind of patches and should I take a stab at
+> converting joysticks diectory as well?
 
-Nope, we are screwed in any case. Is it really important to give the 
-ability to do do_exit() for kthreads? I mean, why a simple return would 
-not work?
+Yup, I am. :) Not sure if it's 2.6.[12] stuff, but it needs to be done
+sooner or later.
 
-
-
-- Davide
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

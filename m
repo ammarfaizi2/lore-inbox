@@ -1,122 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262930AbVCQBL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262965AbVCQBOv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbVCQBL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 20:11:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbVCQBL0
+	id S262965AbVCQBOv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 20:14:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbVCQBM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 20:11:26 -0500
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:34473 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262930AbVCQBJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 20:09:33 -0500
-Message-ID: <4238D8C1.3080805@yahoo.com.au>
-Date: Thu, 17 Mar 2005 12:09:21 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Wed, 16 Mar 2005 20:12:27 -0500
+Received: from web13821.mail.yahoo.com ([66.163.176.53]:52338 "HELO
+	web13821.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262940AbVCQBG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 20:06:28 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=WWp8jNghBWeP3UKPjpjkmMYC1ivXAhsxiu0BV6IaJZwBEnfP3c0HVY1b/Kaiiprnxo3I6YVGqdSmm5O5VnJy/x4uCMi5+unzZJ41eLLYxGVMuqOhqnDyE6/LUNPE07X5BWTkHGv9rI4dyc3YTn/K/lIaPZV3nhlwqson0VH4gPo=  ;
+Message-ID: <20050317010625.79052.qmail@web13821.mail.yahoo.com>
+Date: Wed, 16 Mar 2005 17:06:24 -0800 (PST)
+From: G Hertz <gigglehz@yahoo.com>
+Subject: get_user_pages() incomplete mapping to be expected?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Matthew Dobson <colpatch@us.ibm.com>
-CC: linux-kernel@vger.kernel.org, Linux Memory Management <linux-mm@kvack.org>,
-       "Bligh, Martin J." <mbligh@aracnet.com>
-Subject: Re: Bug in __alloc_pages()?
-References: <4238D1DC.8070004@us.ibm.com>
-In-Reply-To: <4238D1DC.8070004@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dobson wrote:
-> While looking at some bugs related to OOM handling in 2.6, Martin Bligh 
-> and I noticed some order 0 page allocation failures from kswapd:
-> 
-> kswapd0: page allocation failure. order:0, mode:0x50
->  [<c0147b92>] __alloc_pages+0x288/0x295
->  [<c0147bb7>] __get_free_pages+0x18/0x24
->  [<c014b2c4>] kmem_getpages+0x15/0x94
->  [<c014c047>] cache_grow+0x154/0x299
->  [<c014c399>] cache_alloc_refill+0x20d/0x23d
->  [<c014c622>] kmem_cache_alloc+0x46/0x4c
->  [<f885a4b0>] journal_alloc_journal_head+0x10/0x5d [jbd]
->  [<f885a523>] journal_add_journal_head+0x1a/0xe1 [jbd]
->  [<f8850be3>] journal_dirty_data+0x2e/0x3a5 [jbd]
->  [<f8883400>] ext3_journal_dirty_data+0xc/0x2a [ext3]
->  [<f888329a>] walk_page_buffers+0x62/0x87 [ext3]
->  [<f888382d>] ext3_ordered_writepage+0xea/0x136 [ext3]
->  [<f8883731>] journal_dirty_data_fn+0x0/0x12 [ext3]
->  [<c014ec31>] pageout+0x83/0xc0
->  [<c014ee80>] shrink_list+0x212/0x55f
->  [<c014de86>] __pagevec_release+0x15/0x1d
->  [<c014f400>] shrink_cache+0x233/0x4d5
->  [<c014fee2>] shrink_zone+0x91/0x9c
->  [<c01501e9>] balance_pgdat+0x15f/0x208
->  [<c0150350>] kswapd+0xbe/0xc0
->  [<c011e1ef>] autoremove_wake_function+0x0/0x2d
->  [<c0308886>] ret_from_fork+0x6/0x20
->  [<c011e1ef>] autoremove_wake_function+0x0/0x2d
->  [<c0150292>] kswapd+0x0/0xc0
->  [<c01041d5>] kernel_thread_helper+0x5/0xb
-> 
-> We decided that seemed odd, as kswapd should be able to get a page as 
-> long as there is even one page left in the system, since being a memory 
-> allocator task (PF_MEMALLOC) should exempt kswapd from any page 
-> watermark restrictions.  Digging into the code I found what looked like 
-> a bug that could potentially cause this situation to be far more common.
-> 
-> This chunk of code from __alloc_pages() demonstrates the problem:
-> 
->     /* This allocation should allow future memory freeing. */
->     if (((p->flags & PF_MEMALLOC) || 
-> unlikely(test_thread_flag(TIF_MEMDIE))) && !in_interrupt()) {
->         /* go through the zonelist yet again, ignoring mins */
->         for (i = 0; (z = zones[i]) != NULL; i++) {
->             if (!cpuset_zone_allowed(z))
->                 continue;
->             page = buffered_rmqueue(z, order, gfp_mask);
->             if (page)
->                 goto got_pg;
->         }
->         goto nopage;
->     }
-> 
->     /* Atomic allocations - we can't balance anything */
->     if (!wait)
->         goto nopage;
-> 
-> rebalance:
->     cond_resched();
-> 
->     /* We now go into synchronous reclaim */
->     p->flags |= PF_MEMALLOC;
->     reclaim_state.reclaimed_slab = 0;
->     p->reclaim_state = &reclaim_state;
-> 
->     did_some_progress = try_to_free_pages(zones, gfp_mask, order);
-> 
->     p->reclaim_state = NULL;
->     p->flags &= ~PF_MEMALLOC;
-> 
-> If, while the system is under memory pressure, something attempts to 
-> allocate a page from interrupt context while current == kswapd we will 
-> obviously fail the !in_interrupt() check and fall through.  If this 
-> allocation request was made with __GFP_WAIT set then we'll fall through 
-> the next !wait check.  We will then set the PF_MEMALLOC flag and set 
-> p->reclaim_state to point to __alloc_pages() local reclaim_state 
-> structure.  kswapd alread has it's own reclaim_state and already has 
-> PF_MEMALLOC set, which would then be lost when, after 
-> try_to_free_pages(), we unconditionally set the reclaim_state to NULL 
-> and turn off the PF_MEMALLOC flag.
-> 
-> I'm not 100% sure that this potential bug is even possible (ie: can we 
-> have an in_interrupt() page request that has __GFP_WAIT set?), or is the 
-> cause of the 0-order page allocation failures we see, but it does seem 
-> like potentially dangerous code.  I have attatched a patch (against 
-> 2.6.11-mm4) to check whether the current task has it's own reclaim_state 
-> or already has PF_MEMALLOC set and if so, no longer throws away this data.
-> 
+Hello,
 
-I don't think in_interrupt allocations can have __GFP_WAIT set, so
-this should probably be OK.
+I would like to be CCed personally on responses, please.
 
-Nick
+I am in the process of porting a driver from kernel 2.4 to 2.6.  I
+noticed that when I switched from using map_user_kiobuf() to 
+get_user_pages() that get_user_pages() can and does sometimes provide
+only a partial mapping, returning with the number of pages
+it succeeded on instead of an error code.  This happens on both
+2.6.8 and 2.6.11.3.
+
+The early return only happens in one direction (from memory on a PCI
+card to a user-allocated buffer) and not the reverse.  It is due to 
+statements such as the following in get_user_pages()
+
+       if (!vma || (vma->vm_flags & VM_IO)
+                || !(flags & vma->vm_flags))
+            return i ? : -EFAULT;
+
+... and others in the function.
+
+My question is: is this an expected/normal behavior that I should code
+to, splitting the operation I want to complete into sections, or does
+it indicate a system config problem or bug elsewhere in my code that 
+I need to fix?
+
+I have looked at the source to the function in mm/memory.c and 
+researched on the web but haven't been able to figure it out.
+It appears that the same situation exists in the 2.4 versions of
+get_user_pages() but for some reason I never experienced it although
+I was I using the function via map_user_kiobuf().
+
+The user's buffersize is about 8MB which doesn't seem exorbitant.  
+Is it?
+
+I am concerned that if I code to the incomplete result, I will have
+to accept the degenerate case where get_user_pages() only handles
+one page at a time and I will have to perform 2026 DMA operations 
+instead of the single one I achieve in 2.4, resulting in performance
+issues. 
+
+I am puzzled that the operation works in one direction but not the
+other, and fails about halfway through (always at 1015 pages out of
+2026), regardles of how much memory I have in my system (controlled
+via the mem= boot option, the system has 2.0GB of physical RAM in it)
+or how many programs I have running.
+
+System info:
+
+Linux localhost 2.6.11.3 #1 SMP Wed Mar 16 13:20:03 PST 2005 i686
+Intel(R) Xeon(TM) CPU 2.80GHz unknown GNU/Linux
+
+# cat /proc/meminfo
+MemTotal:       705876 kB
+MemFree:          9248 kB
+Buffers:          9388 kB
+Cached:         535572 kB
+SwapCached:          0 kB
+Active:         171092 kB
+Inactive:       485232 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       705876 kB
+LowFree:          9248 kB
+SwapTotal:     1124508 kB
+SwapFree:      1123916 kB
+Dirty:              52 kB
+Writeback:           0 kB
+Mapped:         165332 kB
+Slab:            18528 kB
+CommitLimit:   1477444 kB
+Committed_AS:   189412 kB
+PageTables:       1596 kB
+VmallocTotal:   311288 kB
+VmallocUsed:    272308 kB
+VmallocChunk:    36852 kB
+
+Thank you for any guidance.
+
+Shaun
+
 

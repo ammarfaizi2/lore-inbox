@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317542AbSFRSfP>; Tue, 18 Jun 2002 14:35:15 -0400
+	id <S317544AbSFRSrO>; Tue, 18 Jun 2002 14:47:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317544AbSFRSfO>; Tue, 18 Jun 2002 14:35:14 -0400
-Received: from web12302.mail.yahoo.com ([216.136.173.100]:18037 "HELO
-	web12302.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317542AbSFRSfN>; Tue, 18 Jun 2002 14:35:13 -0400
-Message-ID: <20020618183515.13963.qmail@web12302.mail.yahoo.com>
-Date: Tue, 18 Jun 2002 11:35:15 -0700 (PDT)
-From: Myrddin Ambrosius <imipak@yahoo.com>
-Subject: Re: Drivers, Hardware, and their relationship to Bagels.
-To: root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1020618111156.3808B-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317547AbSFRSrN>; Tue, 18 Jun 2002 14:47:13 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:20585 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S317544AbSFRSrN>; Tue, 18 Jun 2002 14:47:13 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Robert Love <rml@tech9.net>
+Subject: Re: latest linus-2.5 BK broken 
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@transmeta.com
+In-reply-to: Your message of "18 Jun 2002 10:46:49 MST."
+             <1024422409.1476.208.camel@sinai> 
+Date: Wed, 19 Jun 2002 04:51:31 +1000
+Message-Id: <E17KO4i-0002xn-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <1024422409.1476.208.camel@sinai> you write:
+> On Tue, 2002-06-18 at 10:18, James Simmons wrote:
+> 
+> >   gcc -Wp,-MD,./.sched.o.d -D__KERNEL__ -I/tmp/fbdev-2.5/include -Wall -Wst
+rict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -f
+no-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -
+nostdinc -iwithprefix include    -fno-omit-frame-pointer -DKBUILD_BASENAME=sche
+d   -c -o sched.o sched.c
+> > sched.c: In function `sys_sched_setaffinity':
+> > sched.c:1329: `cpu_online_map' undeclared (first use in this function)
+> > sched.c:1329: (Each undeclared identifier is reported only once
+> > sched.c:1329: for each function it appears in.)
+> > sched.c: In function `sys_sched_getaffinity':
+> > sched.c:1389: `cpu_online_map' undeclared (first use in this function)
+> > make[1]: *** [sched.o] Error 1
+> 
+> Rusty, I assume this is a side-effect of the hotplug merge?
 
---- "Richard B. Johnson" <root@chaos.analogic.com>
-wrote:
-> No hole you can drive through. A process with a UID
-> of 0 and
-> a GID of 0 can do anything it wants. It can execute
-> iopl(3)
-> and set an I/O permission level that allows it to
-> directly access
-> hardware I/O ports, etc. It can also turn off
-> interrupts. Basically,
-> it can do anything, since such a process can also
-> memory-map anything.
+Yes, sorry.
 
-But since it is the kernel that permits that (by
-definition, since somebody has to check the UID & GID!
-:) then the kernel can also restrict that.
+> Can you fix this or tell me what is the new equivalent of
+> cpu_online_map?
 
-The system admin account (UID/GID 0) could just as
-easily access a virtual memory map, virtual I/O ports,
-etc, with the kernel then handling how that maps onto
-the physical world, and even IF it does.
+Well, I'm heading away from assumptions on the arch representations of
+online CPUs (which the NUMA guys need anyway).
 
-> Users are not supposed to execute as 'root'. Also,
-> only certain
-> priviliged tasks execute as root. Ignore that this
+You could do a loop here, but the real problem is the broken userspace
+interface.  Can you fix this so it takes a single CPU number please?
 
-The problem with priviliged tasks is that (in general)
-they run with absolute privilige. Sure, some of these
-priviliges can be turned off, but if /dev/mem is
-reachable, then they can be turned back on again,
-precicely for the reasons you give.
+ie.
+	/* -1 = remove affinity */
+	sys_sched_setaffinity(pid_t pid, int cpu);
 
-I guess that my understanding for having kernels the
-size and complexity of Linux, as opposed to, say,
-CP/M, is that the kernel can reduce the need for
-userspace apps to have dangerous powers.
+This will work everywhere, and doesn't require userspace to know the
+size of the cpu bitmask etc.
 
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! - Official partner of 2002 FIFA World Cup
-http://fifaworldcup.yahoo.com
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

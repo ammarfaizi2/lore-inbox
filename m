@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316992AbSFKKbe>; Tue, 11 Jun 2002 06:31:34 -0400
+	id <S316993AbSFKKdE>; Tue, 11 Jun 2002 06:33:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316993AbSFKKbd>; Tue, 11 Jun 2002 06:31:33 -0400
-Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:7040 "EHLO
-	DervishD.pleyades.net") by vger.kernel.org with ESMTP
-	id <S316992AbSFKKbc>; Tue, 11 Jun 2002 06:31:32 -0400
-Date: Tue, 11 Jun 2002 12:36:49 +0200
-Organization: Pleyades
-To: kristian.peters@korseby.net, raul@pleyades.net
-Subject: Re: bandwidth 'depredation'
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <3D05D2C1.mailWQ1AVLZ4@viadomus.com>
-In-Reply-To: <3D05AA6E.mailKB1BHA1W@viadomus.com>
- <20020611095426.59a8b717.kristian.peters@korseby.net>
-User-Agent: nail 9.29 12/10/01
+	id <S316994AbSFKKdD>; Tue, 11 Jun 2002 06:33:03 -0400
+Received: from th00.opsion.fr ([195.219.20.10]:36111 "HELO th00.opsion.fr")
+	by vger.kernel.org with SMTP id <S316993AbSFKKdC> convert rfc822-to-8bit;
+	Tue, 11 Jun 2002 06:33:02 -0400
+Send-By: 211.22.33.11 with Mozilla/4.7 [en] (X11; I; Linux 2.4.18 i586)
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: mke2fs (and mkreiserfs) core dumps
+From: <cnliou@eurosport.com>
+X-Priority: 3 (normal)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: DervishD <raul@pleyades.net>
-Reply-To: DervishD <raul@pleyades.net>
-X-Mailer: DervishD TWiSTiNG Mailer
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Tue, 11 Jun 2002 10:32:55 GMT
+Message-id: <200206111032.3758@th00.opsion.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Kristian :)
+Thank you! Andreas,
 
->Maybe QoS (Quality of Service) is the answer.
+I do directly login at the console as root and
+e2fsprogs-1.27 is used. ulimit is not set.
 
-    All of you say the same. I'll give it a try ;)
+CN
+-------------
+<< You must log in directly at the console as root
+(no su or sudo), or disable any ulimit from being
+set.
 
->It does a lot of things for you, i.e. enabling a scheduler for your
->network, that shares your traffic correctly.
->But please don't ask me
->how it exactly works. I haven't enough time yet to get this nice
->piece working. 
+Alternately, if you get the very latest e2fsprogs
+(1.27) then it
+should also be able to work around this problem. >>
 
->You need iproute2-utils for this. (They should be
->shipped with your distri, "which tc" tells you.)
+--------------------------------------------------------
+You too can have your own email address from Eurosport.
+http://www.eurosport.com
 
-    I'll have them. I use just 'ip' by now, but I have also 'tc'.
 
-    Thanks a lot for your answer :)
-    Raul
+
+
+

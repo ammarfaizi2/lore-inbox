@@ -1,55 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263402AbTLXBvo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 20:51:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbTLXBvn
+	id S263325AbTLXBsF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 20:48:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbTLXBq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 20:51:43 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:63123 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S263357AbTLXBss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 20:48:48 -0500
-Message-ID: <3FE8F079.7010906@labs.fujitsu.com>
-Date: Wed, 24 Dec 2003 10:48:41 +0900
-From: Tsuchiya Yoshihiro <tsuchiya@labs.fujitsu.com>
-Reply-To: tsuchiya@labs.fujitsu.com
-Organization: Fujitsu Labs
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: filesystem bug?
-References: <3FDD7DFD.7020306@labs.fujitsu.com>	 <1071582242.5462.1.camel@sisko.scot.redhat.com> <3FDF7BE0.205@jpl.nasa.gov>		 <3FDF95EB.2080903@labs.fujitsu.com> <3FE0E5C6.5040008@labs.fujitsu.com>	 <1071782986.3666.323.camel@sisko.scot.redhat.com>	 <3FE62999.90309@labs.fujitsu.com>  <3FE67362.2070704@labs.fujitsu.com> <1072094621.1967.6.camel@sisko.scot.redhat.com>
-In-Reply-To: <1072094621.1967.6.camel@sisko.scot.redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Dec 2003 20:46:28 -0500
+Received: from zero.voxel.net ([209.123.232.253]:32155 "EHLO zero.voxel.net")
+	by vger.kernel.org with ESMTP id S262882AbTLXBoj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 20:44:39 -0500
+Subject: [PATCH 6/7] more CardServices() removals (drivers/net/wireless)
+From: Andres Salomon <dilinger@voxel.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org,
+       acme@conectiva.com.br
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Jam5LzN+1FBCZAyvxy1d"
+Message-Id: <1072229836.5300.71.camel@spiral.internal>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 23 Dec 2003 20:44:17 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen C. Tweedie wrote:
 
->OK, I'll try your script with a 2.4.21 or 2.4.23 kernel to see if we can
->reproduce this here.  In the mean time, could you possibly try a 2.4.24
->kernel, just in case the clear_inode race has something to do with this?
->
->  
->
-Stephen, I started running the test on ext2 and ext3 on 2.4.24-pre2.
-
-BTW, what exactly is the clear_inode and read_inode race that you mentioned?
-
-I am not familar with the locking model in Linux kernel. I found
-kernel_lock is
-held before ext3_rename/unlink/rmdir, so I think it's ok. But I do not
-understand
-how it is done in the path walk.
-
-Thanks,
-Yoshi
-
---
-Yoshihiro Tsuchiya
+--=-Jam5LzN+1FBCZAyvxy1d
+Content-Type: multipart/mixed; boundary="=-FaTWA7RyE+i9XlVdTL1J"
 
 
+--=-FaTWA7RyE+i9XlVdTL1J
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Part 6 of 7.
+
+--=-FaTWA7RyE+i9XlVdTL1J
+Content-Disposition: attachment; filename=106-cs_remove.patch
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=106-cs_remove.patch; charset=us-ascii
+
+UmV2aXNpb246IGxpbnV4LS1tYWlubGluZS0tMi42LS1wYXRjaC0zNQ0KQXJjaGl2ZTogZGlsaW5n
+ZXJAdm94ZWwubmV0LS0yMDAzLXNwaXJhbA0KQ3JlYXRvcjogQW5kcmVzIFNhbG9tb24gPGRpbGlu
+Z2VyQHZveGVsLm5ldD4NCkRhdGU6IFR1ZSBEZWMgMjMgMTk6MDk6MjEgRVNUIDIwMDMNClN0YW5k
+YXJkLWRhdGU6IDIwMDMtMTItMjQgMDA6MDk6MjEgR01UDQpNb2RpZmllZC1maWxlczogZHJpdmVy
+cy9uZXQvd2lyZWxlc3Mvd2wzNTAxX2NzLmMNCk5ldy1wYXRjaGVzOiBkaWxpbmdlckB2b3hlbC5u
+ZXQtLTIwMDMtc3BpcmFsL2xpbnV4LS1tYWlubGluZS0tMi42LS1wYXRjaC0zNQ0KU3VtbWFyeTog
+Q2FyZFNlcnZpY2VzKCkgcmVtb3ZhbCwgYWN0IDIsIHB0LiA2Lg0KS2V5d29yZHM6IA0KDQpSZW1v
+dmUgY2FsbHMgdG8gQ2FyZFNlcnZpY2VzKCksIGFjdCAyLCBwYXJ0IDY7IHdsMzUwMV9jcy5jLg0K
+DQoqIGFkZGVkIGZpbGVzDQoNCiAgICB7YXJjaH0vbGludXgvbGludXgtLW1haW5saW5lL2xpbnV4
+LS1tYWlubGluZS0tMi42L2RpbGluZ2VyQHZveGVsLm5ldC0tMjAwMy1zcGlyYWwvcGF0Y2gtbG9n
+L3BhdGNoLTM1DQoNCiogbW9kaWZpZWQgZmlsZXMNCg0KLS0tIG9yaWcvZHJpdmVycy9uZXQvd2ly
+ZWxlc3Mvd2wzNTAxX2NzLmMNCisrKyBtb2QvZHJpdmVycy9uZXQvd2lyZWxlc3Mvd2wzNTAxX2Nz
+LmMNCkBAIC0xNTg2LDcgKzE1ODYsNyBAQA0KIA0KIAkvKiBCcmVhayB0aGUgbGluayB3aXRoIENh
+cmQgU2VydmljZXMgKi8NCiAJaWYgKGxpbmstPmhhbmRsZSkNCi0JCUNhcmRTZXJ2aWNlcyhEZXJl
+Z2lzdGVyQ2xpZW50LCBsaW5rLT5oYW5kbGUpOw0KKwkJcGNtY2lhX2RlcmVnaXN0ZXJfY2xpZW50
+KGxpbmstPmhhbmRsZSk7DQogDQogCS8qIFVubGluayBkZXZpY2Ugc3RydWN0dXJlLCBmcmVlIHBp
+ZWNlcyAqLw0KIAkqbGlua3AgPSBsaW5rLT5uZXh0Ow0KQEAgLTIwODMsNyArMjA4Myw3IEBADQog
+CWNsaWVudF9yZWcuZXZlbnRfaGFuZGxlciA9IHdsMzUwMV9ldmVudDsNCiAJY2xpZW50X3JlZy5W
+ZXJzaW9uCSA9IDB4MDIxMDsNCiAJY2xpZW50X3JlZy5ldmVudF9jYWxsYmFja19hcmdzLmNsaWVu
+dF9kYXRhID0gbGluazsNCi0JcmV0ID0gQ2FyZFNlcnZpY2VzKFJlZ2lzdGVyQ2xpZW50LCAmbGlu
+ay0+aGFuZGxlLCAmY2xpZW50X3JlZyk7DQorCXJldCA9IHBjbWNpYV9yZWdpc3Rlcl9jbGllbnQo
+JmxpbmstPmhhbmRsZSwgJmNsaWVudF9yZWcpOw0KIAlpZiAocmV0KSB7DQogCQljc19lcnJvcihs
+aW5rLT5oYW5kbGUsIFJlZ2lzdGVyQ2xpZW50LCByZXQpOw0KIAkJd2wzNTAxX2RldGFjaChsaW5r
+KTsNCkBAIC0yMDk3LDggKzIwOTcsOCBAQA0KIAlnb3RvIG91dDsNCiB9DQogDQotI2RlZmluZSBD
+U19DSEVDSyhmbiwgYXJncy4uLikgXA0KLXdoaWxlICgobGFzdF9yZXQgPSBDYXJkU2VydmljZXMo
+bGFzdF9mbiA9IChmbiksIGFyZ3MpKSAhPSAwKSBnb3RvIGNzX2ZhaWxlZA0KKyNkZWZpbmUgQ1Nf
+Q0hFQ0soZm4sIHJldCkgXA0KK2RvIHsgbGFzdF9mbiA9IChmbik7IGlmICgobGFzdF9yZXQgPSAo
+cmV0KSkgIT0gMCkgZ290byBjc19mYWlsZWQ7IH0gd2hpbGUgKDApDQogDQogLyoqDQogICogd2wz
+NTAxX2NvbmZpZyAtIGNvbmZpZ3VyZSB0aGUgUENNQ0lBIHNvY2tldCBhbmQgbWFrZSBldGggZGV2
+aWNlIGF2YWlsYWJsZQ0KQEAgLTIxMjEsMTIgKzIxMjEsMTIgQEANCiAJLyogVGhpcyByZWFkcyB0
+aGUgY2FyZCdzIENPTkZJRyB0dXBsZSB0byBmaW5kIGl0cyBjb25maWcgcmVnaXN0ZXJzLiAqLw0K
+IAl0dXBsZS5BdHRyaWJ1dGVzCT0gMDsNCiAJdHVwbGUuRGVzaXJlZFR1cGxlCT0gQ0lTVFBMX0NP
+TkZJRzsNCi0JQ1NfQ0hFQ0soR2V0Rmlyc3RUdXBsZSwgaGFuZGxlLCAmdHVwbGUpOw0KKwlDU19D
+SEVDSyhHZXRGaXJzdFR1cGxlLCBwY21jaWFfZ2V0X2ZpcnN0X3R1cGxlKGhhbmRsZSwgJnR1cGxl
+KSk7DQogCXR1cGxlLlR1cGxlRGF0YQkJPSBiZjsNCiAJdHVwbGUuVHVwbGVEYXRhTWF4CT0gc2l6
+ZW9mKGJmKTsNCiAJdHVwbGUuVHVwbGVPZmZzZXQJPSAwOw0KLQlDU19DSEVDSyhHZXRUdXBsZURh
+dGEsIGhhbmRsZSwgJnR1cGxlKTsNCi0JQ1NfQ0hFQ0soUGFyc2VUdXBsZSwgaGFuZGxlLCAmdHVw
+bGUsICZwYXJzZSk7DQorCUNTX0NIRUNLKEdldFR1cGxlRGF0YSwgcGNtY2lhX2dldF90dXBsZV9k
+YXRhKGhhbmRsZSwgJnR1cGxlKSk7DQorCUNTX0NIRUNLKFBhcnNlVHVwbGUsIHBjbWNpYV9wYXJz
+ZV90dXBsZShoYW5kbGUsICZ0dXBsZSwgJnBhcnNlKSk7DQogCWxpbmstPmNvbmYuQ29uZmlnQmFz
+ZQk9IHBhcnNlLmNvbmZpZy5iYXNlOw0KIAlsaW5rLT5jb25mLlByZXNlbnQJPSBwYXJzZS5jb25m
+aWcucm1hc2tbMF07DQogDQpAQCAtMjE0Miw3ICsyMTQyLDcgQEANCiAJCSAqIDB4MjAwLTB4MmZm
+LCBhbmQgc28gb24sIGJlY2F1c2UgdGhpcyBzZWVtcyBzYWZlciAqLw0KIAkJbGluay0+aW8uQmFz
+ZVBvcnQxID0gajsNCiAJCWxpbmstPmlvLkJhc2VQb3J0MiA9IGxpbmstPmlvLkJhc2VQb3J0MSAr
+IDB4MTA7DQotCQlpID0gQ2FyZFNlcnZpY2VzKFJlcXVlc3RJTywgbGluay0+aGFuZGxlLCAmbGlu
+ay0+aW8pOw0KKwkJaSA9IHBjbWNpYV9yZXF1ZXN0X2lvKGxpbmstPmhhbmRsZSwgJmxpbmstPmlv
+KTsNCiAJCWlmIChpID09IENTX1NVQ0NFU1MpDQogCQkJYnJlYWs7DQogCX0NCkBAIC0yMTU0LDEy
+ICsyMTU0LDEyIEBADQogCS8qIE5vdyBhbGxvY2F0ZSBhbiBpbnRlcnJ1cHQgbGluZS4gTm90ZSB0
+aGF0IHRoaXMgZG9lcyBub3QgYWN0dWFsbHkNCiAJICogYXNzaWduIGEgaGFuZGxlciB0byB0aGUg
+aW50ZXJydXB0LiAqLw0KIA0KLQlDU19DSEVDSyhSZXF1ZXN0SVJRLCBsaW5rLT5oYW5kbGUsICZs
+aW5rLT5pcnEpOw0KKwlDU19DSEVDSyhSZXF1ZXN0SVJRLCBwY21jaWFfcmVxdWVzdF9pcnEobGlu
+ay0+aGFuZGxlLCAmbGluay0+aXJxKSk7DQogDQogCS8qIFRoaXMgYWN0dWFsbHkgY29uZmlndXJl
+cyB0aGUgUENNQ0lBIHNvY2tldCAtLSBzZXR0aW5nIHVwIHRoZSBJL08NCiAJICogd2luZG93cyBh
+bmQgdGhlIGludGVycnVwdCBtYXBwaW5nLiAgKi8NCiANCi0JQ1NfQ0hFQ0soUmVxdWVzdENvbmZp
+Z3VyYXRpb24sIGxpbmstPmhhbmRsZSwgJmxpbmstPmNvbmYpOw0KKwlDU19DSEVDSyhSZXF1ZXN0
+Q29uZmlndXJhdGlvbiwgcGNtY2lhX3JlcXVlc3RfY29uZmlndXJhdGlvbihsaW5rLT5oYW5kbGUs
+ICZsaW5rLT5jb25mKSk7DQogDQogCWRldi0+aXJxID0gbGluay0+aXJxLkFzc2lnbmVkSVJROw0K
+IAlkZXYtPmJhc2VfYWRkciA9IGxpbmstPmlvLkJhc2VQb3J0MTsNCkBAIC0yMjQ5LDkgKzIyNDks
+OSBAQA0KIAl9DQogDQogCS8qIERvbid0IGJvdGhlciBjaGVja2luZyB0byBzZWUgaWYgdGhlc2Ug
+c3VjY2VlZCBvciBub3QgKi8NCi0JQ2FyZFNlcnZpY2VzKFJlbGVhc2VDb25maWd1cmF0aW9uLCBs
+aW5rLT5oYW5kbGUpOw0KLQlDYXJkU2VydmljZXMoUmVsZWFzZUlPLCBsaW5rLT5oYW5kbGUsICZs
+aW5rLT5pbyk7DQotCUNhcmRTZXJ2aWNlcyhSZWxlYXNlSVJRLCBsaW5rLT5oYW5kbGUsICZsaW5r
+LT5pcnEpOw0KKwlwY21jaWFfcmVsZWFzZV9jb25maWd1cmF0aW9uKGxpbmstPmhhbmRsZSk7DQor
+CXBjbWNpYV9yZWxlYXNlX2lvKGxpbmstPmhhbmRsZSwgJmxpbmstPmlvKTsNCisJcGNtY2lhX3Jl
+bGVhc2VfaXJxKGxpbmstPmhhbmRsZSwgJmxpbmstPmlycSk7DQogCWxpbmstPnN0YXRlICY9IH5E
+RVZfQ09ORklHOw0KIA0KIAlpZiAobGluay0+c3RhdGUgJiBERVZfU1RBTEVfQ09ORklHKQ0KQEAg
+LTIzMDEsNyArMjMwMSw3IEBADQogCQlpZiAobGluay0+c3RhdGUgJiBERVZfQ09ORklHKSB7DQog
+CQkJaWYgKGxpbmstPm9wZW4pDQogCQkJCW5ldGlmX2RldmljZV9kZXRhY2goZGV2KTsNCi0JCQlD
+YXJkU2VydmljZXMoUmVsZWFzZUNvbmZpZ3VyYXRpb24sIGxpbmstPmhhbmRsZSk7DQorCQkJcGNt
+Y2lhX3JlbGVhc2VfY29uZmlndXJhdGlvbihsaW5rLT5oYW5kbGUpOw0KIAkJfQ0KIAkJYnJlYWs7
+DQogCWNhc2UgQ1NfRVZFTlRfUE1fUkVTVU1FOg0KQEAgLTIzMTAsOCArMjMxMCw3IEBADQogCQkv
+KiBGYWxsIHRocm91Z2guLi4gKi8NCiAJY2FzZSBDU19FVkVOVF9DQVJEX1JFU0VUOg0KIAkJaWYg
+KGxpbmstPnN0YXRlICYgREVWX0NPTkZJRykgew0KLQkJCUNhcmRTZXJ2aWNlcyhSZXF1ZXN0Q29u
+ZmlndXJhdGlvbiwgbGluay0+aGFuZGxlLA0KLQkJCQkgICAgICZsaW5rLT5jb25mKTsNCisJCQlw
+Y21jaWFfcmVxdWVzdF9jb25maWd1cmF0aW9uKGxpbmstPmhhbmRsZSwgJmxpbmstPmNvbmYpOw0K
+IAkJCWlmIChsaW5rLT5vcGVuKSB7DQogCQkJCXdsMzUwMV9yZXNldChkZXYpOw0KIAkJCQluZXRp
+Zl9kZXZpY2VfYXR0YWNoKGRldik7DQoNCg0KDQo=
+
+--=-FaTWA7RyE+i9XlVdTL1J--
+
+--=-Jam5LzN+1FBCZAyvxy1d
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/6O3L78o9R9NraMQRAnV3AJ4pzY0pmYE7WqGz0WtzKfnD++6rFACfcyRS
+s9IqmI5FTiHr1PnIws7aiaQ=
+=G2J+
+-----END PGP SIGNATURE-----
+
+--=-Jam5LzN+1FBCZAyvxy1d--
 

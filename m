@@ -1,371 +1,334 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272265AbRILRac>; Wed, 12 Sep 2001 13:30:32 -0400
+	id <S272282AbRILRiM>; Wed, 12 Sep 2001 13:38:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272282AbRILRaX>; Wed, 12 Sep 2001 13:30:23 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:33672 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S272265AbRILRaF>;
-	Wed, 12 Sep 2001 13:30:05 -0400
-Date: Wed, 12 Sep 2001 13:30:22 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] nosuid/noexec/nodev handling
-Message-ID: <Pine.GSO.4.21.0109121329130.2698-100000@weyl.math.psu.edu>
+	id <S272272AbRILRiF>; Wed, 12 Sep 2001 13:38:05 -0400
+Received: from home.nohrsc.nws.gov ([192.46.108.2]:40576 "HELO nohrsc.nws.gov")
+	by vger.kernel.org with SMTP id <S272282AbRILRhx>;
+	Wed, 12 Sep 2001 13:37:53 -0400
+Date: Wed, 12 Sep 2001 12:38:09 -0500 (CDT)
+From: kelley eicher <keicher@nws.gov>
+X-X-Sender: <keicher@home.nohrsc.nws.gov>
+To: <linux-kernel@vger.kernel.org>
+cc: kelley eicher <keicher@nws.gov>
+Subject: Re: 2.4.9-10pre4 kernel: __alloc_pages errors
+Message-ID: <Pine.LNX.4.33.0109121203490.6363-400000@home.nohrsc.nws.gov>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="784335468-891059326-1000316289=:6363"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	nosuid, noexec and nodev are made vfsmount flags (instead of
-superblock ones).  Places that used to check them switched to checking
-vfsmount->mnt_flags.  get_filesystem_info() updated, ditto for
-do_add_mount() and do_remount().
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-	As the result, these flags are per-mountpoint now.  E.g. we can
-turn them on and off for arbitrary subtree:
-mount --bind /home/luser /home/luser
-mount -o remount,noexec /home/luser
-will turn noexec on for subtree at /hom/luser without affecting the rest
-of /home.  Other obvious applications is mounting a filesystem nosuid for
-chroot jail and normally outside of it, yodda, yodda.
+--784335468-891059326-1000316289=:6363
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-	Patch is completely straightforward.  Works here and it had been in
--ac for a month (i.e. since 2.4.8-ac2).  Please, apply.
+all-
+
+after upgrading to the 2.4.10-pre6 kernel i still have no luck in avoiding
+alloc_pages() errors.
+
+this time i have included an kernel oops dump by calling BUG() from
+mm/page_alloc.c immediately after the call to printk() that prints
+__alloc_pages errors. i have also included the `ksymoops` interpretation
+of that oops. coincidentally, i was able to grab a partial `cat` of
+/proc/slabinfo milliseonds before the oops so i've attached that as well.
+
+again, the alloc_page() errors that i'm constantly seeing are 0-order with
+gfp=0x70/1
+
+oops1.txt --------------------------------------------------------------
+
+ofs1# more oops1.txt
+Sep 12 11:30:15 ofs1 kernel: __alloc_pages: 0-order allocation failed
+(gfp=0x70/1).
+Sep 12 11:30:15 ofs1 kernel: invalid operand: 0000
+Sep 12 11:30:15 ofs1 kernel: CPU:    0
+Sep 12 11:30:15 ofs1 kernel: EIP:    0010:[__alloc_pages+591/604]
+Sep 12 11:30:15 ofs1 kernel: EFLAGS: 00010286
+Sep 12 11:30:15 ofs1 kernel: eax: 0000003a   ebx: 00000000   ecx: f7df6000
+edx: 00000000
+Sep 12 11:30:15 ofs1 kernel: esi: c028b208   edi: 00000000   ebp: f7df6000
+esp: f7df7e74
+Sep 12 11:30:15 ofs1 kernel: ds: 0018   es: 0018   ss: 0018
+Sep 12 11:30:15 ofs1 kernel: Process kswapd (pid: 4, stackpage=f7df7000)
+Sep 12 11:30:15 ofs1 kernel: Stack: 00000070 00000001 00000008 c02f7a00
+00000001 c028b1fc 00000070 c012700e
+Sep 12 11:30:15 ofs1 kernel:        c0415a20 c012a499 c0415a20 c012a5ac
+f4ac0240 00000001 00000008 c02f7a00
+Sep 12 11:30:15 ofs1 kernel:        c01a97c7 00000001 f4ac0240 00003009
+f4ac0240 1f9f8d60 19a175af c02f7a28
+Sep 12 11:30:15 ofs1 kernel: Call Trace: [_alloc_pages+22/24]
+[alloc_bounce_page+13/120] [create_bounce+40/380]
+[__make_request+135/1596] [ip_rcv+806/860]
+Sep 12 11:30:15 ofs1 kernel:    [generic_make_request+288/304]
+[submit_bh+69/96] [ll_rw_block+299/396] [sync_page_buffers+71/84]
+[try_to_free_buffers+281/316] [page_launder+603/1376]
+Sep 12 11:30:15 ofs1 kernel:    [do_try_to_free_pages+64/184]
+[kswapd+105/172] [kernel_thread+40/56]
+Sep 12 11:30:15 ofs1 kernel:
+Sep 12 11:30:15 ofs1 kernel: Code: 0f 0b 31 c0 5b 5e 5f 5d 83 c4 0c c3 90
+83 fa 09 77 09 e8 82
+
+--------------------------------------------------------------------------
 
 
-diff -urN S10-pre8/arch/sparc64/solaris/fs.c S10-pre8-nosuid/arch/sparc64/solaris/fs.c
---- S10-pre8/arch/sparc64/solaris/fs.c	Thu Feb 22 06:47:53 2001
-+++ S10-pre8-nosuid/arch/sparc64/solaris/fs.c	Wed Sep 12 12:45:59 2001
-@@ -406,21 +406,21 @@
- 	u32	f_filler[16];
- };
- 
--static int report_statvfs(struct inode *inode, u32 buf)
-+static int report_statvfs(struct vfsmount *mnt, struct inode *inode, u32 buf)
- {
- 	struct statfs s;
- 	int error;
- 	struct sol_statvfs *ss = (struct sol_statvfs *)A(buf);
- 
--	error = vfs_statfs(inode->i_sb, &s);
-+	error = vfs_statfs(mnt->mnt_sb, &s);
- 	if (!error) {
--		const char *p = inode->i_sb->s_type->name;
-+		const char *p = mnt->mnt_sb->s_type->name;
- 		int i = 0;
- 		int j = strlen (p);
- 		
- 		if (j > 15) j = 15;
- 		if (IS_RDONLY(inode)) i = 1;
--		if (IS_NOSUID(inode)) i |= 2;
-+		if (mnt->mnt_flags & MNT_NOSUID) i |= 2;
- 		if (put_user (s.f_bsize, &ss->f_bsize)		||
- 		    __put_user (0, &ss->f_frsize)		||
- 		    __put_user (s.f_blocks, &ss->f_blocks)	||
-@@ -440,21 +440,21 @@
- 	return error;
- }
- 
--static int report_statvfs64(struct inode *inode, u32 buf)
-+static int report_statvfs64(struct vfsmount *mnt, struct inode *inode, u32 buf)
- {
- 	struct statfs s;
- 	int error;
- 	struct sol_statvfs64 *ss = (struct sol_statvfs64 *)A(buf);
- 			
--	error = vfs_statfs(inode->i_sb, &s);
-+	error = vfs_statfs(mnt->mnt_sb, &s);
- 	if (!error) {
--		const char *p = inode->i_sb->s_type->name;
-+		const char *p = mnt->mnt_sb->s_type->name;
- 		int i = 0;
- 		int j = strlen (p);
- 		
- 		if (j > 15) j = 15;
- 		if (IS_RDONLY(inode)) i = 1;
--		if (IS_NOSUID(inode)) i |= 2;
-+		if (mnt->mnt_flags & MNT_NOSUID) i |= 2;
- 		if (put_user (s.f_bsize, &ss->f_bsize)		||
- 		    __put_user (0, &ss->f_frsize)		||
- 		    __put_user (s.f_blocks, &ss->f_blocks)	||
-@@ -482,7 +482,7 @@
- 	error = user_path_walk((const char *)A(path),&nd);
- 	if (!error) {
- 		struct inode * inode = nd.dentry->d_inode;
--		error = report_statvfs(inode, buf);
-+		error = report_statvfs(nd.mnt, inode, buf);
- 		path_release(&nd);
- 	}
- 	return error;
-@@ -496,7 +496,7 @@
- 	error = -EBADF;
- 	file = fget(fd);
- 	if (file) {
--		error = report_statvfs(file->f_dentry->d_inode, buf);
-+		error = report_statvfs(file->f_vfsmnt, file->f_dentry->d_inode, buf);
- 		fput(file);
- 	}
- 
-@@ -512,7 +512,7 @@
- 	error = user_path_walk((const char *)A(path), &nd);
- 	if (!error) {
- 		struct inode * inode = nd.dentry->d_inode;
--		error = report_statvfs64(inode, buf);
-+		error = report_statvfs64(nd.mnt, inode, buf);
- 		path_release(&nd);
- 	}
- 	unlock_kernel();
-@@ -528,7 +528,7 @@
- 	file = fget(fd);
- 	if (file) {
- 		lock_kernel();
--		error = report_statvfs64(file->f_dentry->d_inode, buf);
-+		error = report_statvfs64(file->f_vfsmnt, file->f_dentry->d_inode, buf);
- 		unlock_kernel();
- 		fput(file);
- 	}
-diff -urN S10-pre8/fs/exec.c S10-pre8-nosuid/fs/exec.c
---- S10-pre8/fs/exec.c	Tue Sep 11 09:28:12 2001
-+++ S10-pre8-nosuid/fs/exec.c	Wed Sep 12 12:45:59 2001
-@@ -347,7 +347,8 @@
- 	if (!err) {
- 		inode = nd.dentry->d_inode;
- 		file = ERR_PTR(-EACCES);
--		if (!IS_NOEXEC(inode) && S_ISREG(inode->i_mode)) {
-+		if (!(nd.mnt->mnt_flags & MNT_NOEXEC) &&
-+		    S_ISREG(inode->i_mode)) {
- 			int err = permission(inode, MAY_EXEC);
- 			file = ERR_PTR(err);
- 			if (!err) {
-@@ -616,7 +617,7 @@
- 	bprm->e_uid = current->euid;
- 	bprm->e_gid = current->egid;
- 
--	if(!IS_NOSUID(inode)) {
-+	if(!(bprm->file->f_vfsmnt->mnt_flags & MNT_NOSUID)) {
- 		/* Set-uid? */
- 		if (mode & S_ISUID)
- 			bprm->e_uid = inode->i_uid;
-diff -urN S10-pre8/fs/fat/inode.c S10-pre8-nosuid/fs/fat/inode.c
---- S10-pre8/fs/fat/inode.c	Thu Aug 16 20:05:50 2001
-+++ S10-pre8-nosuid/fs/fat/inode.c	Wed Sep 12 12:45:59 2001
-@@ -919,9 +919,8 @@
- 	} else { /* not a directory */
- 		inode->i_generation |= 1;
- 		inode->i_mode = MSDOS_MKMODE(de->attr,
--		    ((IS_NOEXEC(inode) || 
--		      (sbi->options.showexec &&
--		       !is_exec(de->ext)))
-+		    ((sbi->options.showexec &&
-+		       !is_exec(de->ext))
- 		    	? S_IRUGO|S_IWUGO : S_IRWXUGO)
- 		    & ~sbi->options.fs_umask) | S_IFREG;
- 		MSDOS_I(inode)->i_start = CF_LE_W(de->start);
-@@ -1039,9 +1038,7 @@
- 
- 	inode_setattr(inode, attr);
- 
--	if (IS_NOEXEC(inode) && !S_ISDIR(inode->i_mode))
--		inode->i_mode &= S_IFMT | S_IRUGO | S_IWUGO;
--	else
-+	if (S_ISDIR(inode->i_mode))
- 		inode->i_mode |= S_IXUGO;
- 
- 	inode->i_mode = ((inode->i_mode & S_IFMT) | ((((inode->i_mode & S_IRWXU
-diff -urN S10-pre8/fs/hfs/inode.c S10-pre8-nosuid/fs/hfs/inode.c
---- S10-pre8/fs/hfs/inode.c	Tue Sep 11 09:28:12 2001
-+++ S10-pre8-nosuid/fs/hfs/inode.c	Wed Sep 12 12:45:59 2001
-@@ -38,7 +38,7 @@
- 	struct hfs_fork *fk;
- 	struct hfs_cat_entry *entry = HFS_I(inode)->entry;
- 
--	if (!IS_NOEXEC(inode) && (fork == HFS_FK_DATA)) {
-+	if (fork == HFS_FK_DATA) {
- 		inode->i_mode = S_IRWXUGO | S_IFREG;
- 	} else {
- 		inode->i_mode = S_IRUGO | S_IWUGO | S_IFREG;
-diff -urN S10-pre8/fs/namei.c S10-pre8-nosuid/fs/namei.c
---- S10-pre8/fs/namei.c	Tue Sep 11 09:28:12 2001
-+++ S10-pre8-nosuid/fs/namei.c	Wed Sep 12 12:45:59 2001
-@@ -1062,7 +1062,7 @@
- 	    	flag &= ~O_TRUNC;
- 	} else if (S_ISBLK(inode->i_mode) || S_ISCHR(inode->i_mode)) {
- 		error = -EACCES;
--		if (IS_NODEV(inode))
-+		if (nd->mnt->mnt_flags & MNT_NODEV)
- 			goto exit;
- 
- 		flag &= ~O_TRUNC;
-diff -urN S10-pre8/fs/super.c S10-pre8-nosuid/fs/super.c
---- S10-pre8/fs/super.c	Tue Sep 11 09:28:12 2001
-+++ S10-pre8-nosuid/fs/super.c	Wed Sep 12 12:45:59 2001
-@@ -410,6 +410,7 @@
- 	mnt->mnt_root = dget(root);
- 	mnt->mnt_mountpoint = mnt->mnt_root;
- 	mnt->mnt_parent = mnt;
-+	mnt->mnt_flags = old->mnt_flags;
- 
- 	atomic_inc(&sb->s_active);
- out:
-@@ -520,16 +521,17 @@
- 	int flag;
- 	char *str;
- } fs_info[] = {
--	{ MS_NOEXEC, ",noexec" },
--	{ MS_NOSUID, ",nosuid" },
--	{ MS_NODEV, ",nodev" },
- 	{ MS_SYNCHRONOUS, ",sync" },
- 	{ MS_MANDLOCK, ",mand" },
- 	{ MS_NOATIME, ",noatime" },
- 	{ MS_NODIRATIME, ",nodiratime" },
--#ifdef MS_NOSUB			/* Can't find this except in mount.c */
--	{ MS_NOSUB, ",nosub" },
--#endif
-+	{ 0, NULL }
-+};
-+
-+static struct proc_fs_info mnt_info[] = {
-+	{ MNT_NOSUID, ",nosuid" },
-+	{ MNT_NODEV, ",nodev" },
-+	{ MNT_NOEXEC, ",noexec" },
- 	{ 0, NULL }
- };
- 
-@@ -580,6 +582,10 @@
- 			if (tmp->mnt_sb->s_flags & fs_infop->flag)
- 				MANGLE(fs_infop->str);
- 		}
-+		for (fs_infop = mnt_info; fs_infop->flag; fs_infop++) {
-+			if (tmp->mnt_flags & fs_infop->flag)
-+				MANGLE(fs_infop->str);
-+		}
- 		if (!strcmp("nfs", tmp->mnt_sb->s_type->name)) {
- 			nfss = &tmp->mnt_sb->u.nfs_sb.s_server;
- 			len += sprintf(buf+len, ",v%d", nfss->rpc_ops->version);
-@@ -917,7 +923,7 @@
- 	if (!S_ISBLK(inode->i_mode))
- 		goto out;
- 	error = -EACCES;
--	if (IS_NODEV(inode))
-+	if (nd.mnt->mnt_flags & MNT_NODEV)
- 		goto out;
- 	bdev = inode->i_bdev;
- 	bdops = devfs_get_ops ( devfs_get_handle_from_inode (inode) );
-@@ -1382,7 +1388,7 @@
-  * on it - tough luck.
-  */
- 
--static int do_remount(struct nameidata *nd, int flags, char *data)
-+static int do_remount(struct nameidata *nd,int flags,int mnt_flags,char *data)
- {
- 	int err;
- 	struct super_block * sb = nd->mnt->mnt_sb;
-@@ -1395,6 +1401,8 @@
- 
- 	down_write(&sb->s_umount);
- 	err = do_remount_sb(sb, flags, data);
-+	if (!err)
-+		nd->mnt->mnt_flags=mnt_flags;
- 	up_write(&sb->s_umount);
- 	return err;
- }
-@@ -1463,7 +1471,7 @@
- }
- 
- static int do_add_mount(struct nameidata *nd, char *type, int flags,
--			char *name, void *data)
-+			int mnt_flags, char *name, void *data)
- {
- 	struct vfsmount *mnt = do_kern_mount(type, flags, name, data);
- 	int retval = PTR_ERR(mnt);
-@@ -1471,6 +1479,8 @@
- 	if (IS_ERR(mnt))
- 		goto out;
- 
-+	mnt->mnt_flags = mnt_flags;
-+
- 	down(&mount_sem);
- 	/* Something was mounted here while we slept */
- 	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
-@@ -1539,6 +1549,7 @@
- {
- 	struct nameidata nd;
- 	int retval = 0;
-+	int mnt_flags = 0;
- 
- 	/* Discard magic */
- 	if ((flags & MS_MGC_MSK) == MS_MGC_VAL)
-@@ -1551,6 +1562,15 @@
- 	if (dev_name && !memchr(dev_name, 0, PAGE_SIZE))
- 		return -EINVAL;
- 
-+	/* Separate the per-mountpoint flags */
-+	if (flags & MS_NOSUID)
-+		mnt_flags |= MNT_NOSUID;
-+	if (flags & MS_NODEV)
-+		mnt_flags |= MNT_NODEV;
-+	if (flags & MS_NOEXEC)
-+		mnt_flags |= MNT_NOEXEC;
-+	flags &= ~(MS_NOSUID|MS_NOEXEC|MS_NODEV);
-+
- 	/* ... and get the mountpoint */
- 	if (path_init(dir_name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd))
- 		retval = path_walk(dir_name, &nd);
-@@ -1558,12 +1578,12 @@
- 		return retval;
- 
- 	if (flags & MS_REMOUNT)
--		retval = do_remount(&nd, flags&~MS_REMOUNT,
-+		retval = do_remount(&nd, flags&~MS_REMOUNT, mnt_flags,
- 				  (char *)data_page);
- 	else if (flags & MS_BIND)
- 		retval = do_loopback(&nd, dev_name);
- 	else
--		retval = do_add_mount(&nd, type_page, flags,
-+		retval = do_add_mount(&nd, type_page, flags, mnt_flags,
- 				      dev_name, data_page);
- 	path_release(&nd);
- 	return retval;
-diff -urN S10-pre8/include/linux/fs.h S10-pre8-nosuid/include/linux/fs.h
---- S10-pre8/include/linux/fs.h	Tue Sep 11 09:28:13 2001
-+++ S10-pre8-nosuid/include/linux/fs.h	Wed Sep 12 12:45:59 2001
-@@ -111,10 +111,10 @@
- #define MS_NOUSER	(1<<31)
- 
- /*
-- * Flags that can be altered by MS_REMOUNT
-+ * Superblock flags that can be altered by MS_REMOUNT
-  */
--#define MS_RMT_MASK	(MS_RDONLY|MS_NOSUID|MS_NODEV|MS_NOEXEC|\
--			MS_SYNCHRONOUS|MS_MANDLOCK|MS_NOATIME|MS_NODIRATIME)
-+#define MS_RMT_MASK	(MS_RDONLY|MS_SYNCHRONOUS|MS_MANDLOCK|MS_NOATIME|\
-+			 MS_NODIRATIME)
- 
- /*
-  * Old magic mount flag and mask
-@@ -147,9 +147,6 @@
- #define __IS_FLG(inode,flg) ((inode)->i_sb->s_flags & (flg))
- 
- #define IS_RDONLY(inode) ((inode)->i_sb->s_flags & MS_RDONLY)
--#define IS_NOSUID(inode)	__IS_FLG(inode, MS_NOSUID)
--#define IS_NODEV(inode)		__IS_FLG(inode, MS_NODEV)
--#define IS_NOEXEC(inode)	__IS_FLG(inode, MS_NOEXEC)
- #define IS_SYNC(inode)		(__IS_FLG(inode, MS_SYNCHRONOUS) || ((inode)->i_flags & S_SYNC))
- #define IS_MANDLOCK(inode)	__IS_FLG(inode, MS_MANDLOCK)
- 
-diff -urN S10-pre8/include/linux/mount.h S10-pre8-nosuid/include/linux/mount.h
---- S10-pre8/include/linux/mount.h	Sat Aug 11 14:59:25 2001
-+++ S10-pre8-nosuid/include/linux/mount.h	Wed Sep 12 12:45:59 2001
-@@ -12,6 +12,10 @@
- #define _LINUX_MOUNT_H
- #ifdef __KERNEL__
- 
-+#define MNT_NOSUID	1
-+#define MNT_NODEV	2
-+#define MNT_NOEXEC	4
-+
- struct vfsmount
- {
- 	struct list_head mnt_hash;
 
+ksymoops output: ---------------------------------------------------------
+
+ofs1# ./ksymoops -m /kernel/System.map < oops1.txt
+ksymoops 2.4.2 on i686 2.4.10-pre6.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.10-pre6/ (default)
+     -m /kernel/System.map (specified)
+
+Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base
+says c01f6a80, System.map says c0145bd0.  Ignoring ksyms_base entry
+Sep 12 11:30:15 ofs1 kernel: invalid operand: 0000
+Sep 12 11:30:15 ofs1 kernel: CPU:    0
+Sep 12 11:30:15 ofs1 kernel: EIP:    0010:[__alloc_pages+591/604]
+Sep 12 11:30:15 ofs1 kernel: EFLAGS: 00010286
+Sep 12 11:30:15 ofs1 kernel: eax: 0000003a   ebx: 00000000   ecx: f7df6000
+edx: 00000000
+Sep 12 11:30:15 ofs1 kernel: esi: c028b208   edi: 00000000   ebp: f7df6000
+esp: f7df7e74
+Sep 12 11:30:15 ofs1 kernel: ds: 0018   es: 0018   ss: 0018
+Sep 12 11:30:15 ofs1 kernel: Process kswapd (pid: 4, stackpage=f7df7000)
+Sep 12 11:30:15 ofs1 kernel: Stack: 00000070 00000001 00000008 c02f7a00
+00000001 c028b1fc 00000070 c012700e
+Sep 12 11:30:15 ofs1 kernel:        c0415a20 c012a499 c0415a20 c012a5ac
+f4ac0240 00000001 00000008 c02f7a00
+Sep 12 11:30:15 ofs1 kernel:        c01a97c7 00000001 f4ac0240 00003009
+f4ac0240 1f9f8d60 19a175af c02f7a28
+Sep 12 11:30:15 ofs1 kernel: Call Trace: [_alloc_pages+22/24]
+[alloc_bounce_page+13/120] [create_bounce+40/380]
+[__make_request+135/1596] [ip_rcv+806/860]
+Sep 12 11:30:15 ofs1 kernel: Code: 0f 0b 31 c0 5b 5e 5f 5d 83 c4 0c c3 90
+83 fa 09 77 09 e8 82
+Using defaults from ksymoops -t elf32-i386 -a i386
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   0f 0b                     ud2a
+Code;  00000002 Before first symbol
+   2:   31 c0                     xorl   %eax,%eax
+Code;  00000004 Before first symbol
+   4:   5b                        popl   %ebx
+Code;  00000004 Before first symbol
+   5:   5e                        popl   %esi
+Code;  00000006 Before first symbol
+   6:   5f                        popl   %edi
+Code;  00000006 Before first symbol
+   7:   5d                        popl   %ebp
+Code;  00000008 Before first symbol
+   8:   83 c4 0c                  addl   $0xc,%esp
+Code;  0000000a Before first symbol
+   b:   c3                        ret
+Code;  0000000c Before first symbol
+   c:   90                        nop
+Code;  0000000c Before first symbol
+   d:   83 fa 09                  cmpl   $0x9,%edx
+Code;  00000010 Before first symbol
+  10:   77 09                     ja     1b <_EIP+0x1b> 0000001a Before
+first symbol
+Code;  00000012 Before first symbol
+  12:   e8 82 00 00 00            call   99 <_EIP+0x99> 00000098 Before
+first symbol
+
+
+1 warning issued.  Results may not be reliable.
+ofs1#
+--------------------------------------------------------------------------
+
+
+
+/proc/slabinfo ---------------*partial*-----------------------------------
+
+kmem_cache            58     68    112    2    2    1
+ip_conntrack          25     33    352    3    3    1
+tcp_tw_bucket          0      0     96    0    0    1
+tcp_bind_bucket        9    113     32    1    1    1
+tcp_open_request       0      0     64    0    0    1
+inet_peer_cache        5     59     64    1    1    1
+ip_fib_hash           10    113     32    1    1    1
+ip_dst_cache          38     48    160    2    2    1
+arp_cache             11     30    128    1    1    1
+blkdev_requests      512    520     96   13   13    1
+nfs_read_data          0      0    384    0    0    1
+nfs_write_data         0      0    384    0    0    1
+nfs_page               0      0     96    0    0    1
+dnotify cache          0      0     20    0    0    1
+file lock cache        2     42     92    1    1    1
+fasync cache           0      0     16    0    0    1
+uid_cache              6    113     32    1    1    1
+skbuff_head_cache    229    264    160   11   11    1
+sock                  31     36    832    4    4    2
+sigqueue               0      0    132    0    0    1
+cdev_cache            16     59     64    1    1    1
+bdev_cache             8     59     64    1    1    1
+
+------------------------------------------------------------------------
+
+i can probide any additional information neccessary to help you debug this
+problem.
+
+for ease of use, i have attached the 3 files pasted above as oops1.txt,
+ksymoops1.txt and slabinfo1.txt respectively.
+
+thanx,
+-kelley
+
+ps: my thoughts to those of you with any family involved in yesterday's
+most heinous event.
+
+
+--784335468-891059326-1000316289=:6363
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ksymoops1.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0109121238090.6363@home.nohrsc.nws.gov>
+Content-Description: 
+Content-Disposition: attachment; filename="ksymoops1.txt"
+
+b2ZzMSMgLi9rc3ltb29wcyAtbSAva2VybmVsL1N5c3RlbS5tYXAgPCBvb3Bz
+MS50eHQNCmtzeW1vb3BzIDIuNC4yIG9uIGk2ODYgMi40LjEwLXByZTYuICBP
+cHRpb25zIHVzZWQNCiAgICAgLVYgKGRlZmF1bHQpDQogICAgIC1rIC9wcm9j
+L2tzeW1zIChkZWZhdWx0KQ0KICAgICAtbCAvcHJvYy9tb2R1bGVzIChkZWZh
+dWx0KQ0KICAgICAtbyAvbGliL21vZHVsZXMvMi40LjEwLXByZTYvIChkZWZh
+dWx0KQ0KICAgICAtbSAva2VybmVsL1N5c3RlbS5tYXAgKHNwZWNpZmllZCkN
+Cg0KV2FybmluZyAoY29tcGFyZV9tYXBzKTogbWlzbWF0Y2ggb24gc3ltYm9s
+IHBhcnRpdGlvbl9uYW1lICAsIGtzeW1zX2Jhc2Ugc2F5cyBjMDFmNmE4MCwg
+U3lzdGVtLm1hcCBzYXlzIGMwMTQ1YmQwLiAgSWdub3Jpbmcga3N5bXNfYmFz
+ZSBlbnRyeQ0KU2VwIDEyIDExOjMwOjE1IG9mczEga2VybmVsOiBpbnZhbGlk
+IG9wZXJhbmQ6IDAwMDANClNlcCAxMiAxMTozMDoxNSBvZnMxIGtlcm5lbDog
+Q1BVOiAgICAwDQpTZXAgMTIgMTE6MzA6MTUgb2ZzMSBrZXJuZWw6IEVJUDog
+ICAgMDAxMDpbX19hbGxvY19wYWdlcys1OTEvNjA0XQ0KU2VwIDEyIDExOjMw
+OjE1IG9mczEga2VybmVsOiBFRkxBR1M6IDAwMDEwMjg2DQpTZXAgMTIgMTE6
+MzA6MTUgb2ZzMSBrZXJuZWw6IGVheDogMDAwMDAwM2EgICBlYng6IDAwMDAw
+MDAwICAgZWN4OiBmN2RmNjAwMCAgIGVkeDogMDAwMDAwMDANClNlcCAxMiAx
+MTozMDoxNSBvZnMxIGtlcm5lbDogZXNpOiBjMDI4YjIwOCAgIGVkaTogMDAw
+MDAwMDAgICBlYnA6IGY3ZGY2MDAwICAgZXNwOiBmN2RmN2U3NA0KU2VwIDEy
+IDExOjMwOjE1IG9mczEga2VybmVsOiBkczogMDAxOCAgIGVzOiAwMDE4ICAg
+c3M6IDAwMTgNClNlcCAxMiAxMTozMDoxNSBvZnMxIGtlcm5lbDogUHJvY2Vz
+cyBrc3dhcGQgKHBpZDogNCwgc3RhY2twYWdlPWY3ZGY3MDAwKQ0KU2VwIDEy
+IDExOjMwOjE1IG9mczEga2VybmVsOiBTdGFjazogMDAwMDAwNzAgMDAwMDAw
+MDEgMDAwMDAwMDggYzAyZjdhMDAgMDAwMDAwMDEgYzAyOGIxZmMgMDAwMDAw
+NzAgYzAxMjcwMGUgDQpTZXAgMTIgMTE6MzA6MTUgb2ZzMSBrZXJuZWw6ICAg
+ICAgICBjMDQxNWEyMCBjMDEyYTQ5OSBjMDQxNWEyMCBjMDEyYTVhYyBmNGFj
+MDI0MCAwMDAwMDAwMSAwMDAwMDAwOCBjMDJmN2EwMCANClNlcCAxMiAxMToz
+MDoxNSBvZnMxIGtlcm5lbDogICAgICAgIGMwMWE5N2M3IDAwMDAwMDAxIGY0
+YWMwMjQwIDAwMDAzMDA5IGY0YWMwMjQwIDFmOWY4ZDYwIDE5YTE3NWFmIGMw
+MmY3YTI4IA0KU2VwIDEyIDExOjMwOjE1IG9mczEga2VybmVsOiBDYWxsIFRy
+YWNlOiBbX2FsbG9jX3BhZ2VzKzIyLzI0XSBbYWxsb2NfYm91bmNlX3BhZ2Ur
+MTMvMTIwXSBbY3JlYXRlX2JvdW5jZSs0MC8zODBdIFtfX21ha2VfcmVxdWVz
+dCsxMzUvMTU5Nl0gW2lwX3Jjdis4MDYvODYwXSANClNlcCAxMiAxMTozMDox
+NSBvZnMxIGtlcm5lbDogQ29kZTogMGYgMGIgMzEgYzAgNWIgNWUgNWYgNWQg
+ODMgYzQgMGMgYzMgOTAgODMgZmEgMDkgNzcgMDkgZTggODIgDQpVc2luZyBk
+ZWZhdWx0cyBmcm9tIGtzeW1vb3BzIC10IGVsZjMyLWkzODYgLWEgaTM4Ng0K
+DQpDb2RlOyAgMDAwMDAwMDAgQmVmb3JlIGZpcnN0IHN5bWJvbA0KMDAwMDAw
+MDAgPF9FSVA+Og0KQ29kZTsgIDAwMDAwMDAwIEJlZm9yZSBmaXJzdCBzeW1i
+b2wNCiAgIDA6ICAgMGYgMGIgICAgICAgICAgICAgICAgICAgICB1ZDJhICAg
+DQpDb2RlOyAgMDAwMDAwMDIgQmVmb3JlIGZpcnN0IHN5bWJvbA0KICAgMjog
+ICAzMSBjMCAgICAgICAgICAgICAgICAgICAgIHhvcmwgICAlZWF4LCVlYXgN
+CkNvZGU7ICAwMDAwMDAwNCBCZWZvcmUgZmlyc3Qgc3ltYm9sDQogICA0OiAg
+IDViICAgICAgICAgICAgICAgICAgICAgICAgcG9wbCAgICVlYngNCkNvZGU7
+ICAwMDAwMDAwNCBCZWZvcmUgZmlyc3Qgc3ltYm9sDQogICA1OiAgIDVlICAg
+ICAgICAgICAgICAgICAgICAgICAgcG9wbCAgICVlc2kNCkNvZGU7ICAwMDAw
+MDAwNiBCZWZvcmUgZmlyc3Qgc3ltYm9sDQogICA2OiAgIDVmICAgICAgICAg
+ICAgICAgICAgICAgICAgcG9wbCAgICVlZGkNCkNvZGU7ICAwMDAwMDAwNiBC
+ZWZvcmUgZmlyc3Qgc3ltYm9sDQogICA3OiAgIDVkICAgICAgICAgICAgICAg
+ICAgICAgICAgcG9wbCAgICVlYnANCkNvZGU7ICAwMDAwMDAwOCBCZWZvcmUg
+Zmlyc3Qgc3ltYm9sDQogICA4OiAgIDgzIGM0IDBjICAgICAgICAgICAgICAg
+ICAgYWRkbCAgICQweGMsJWVzcA0KQ29kZTsgIDAwMDAwMDBhIEJlZm9yZSBm
+aXJzdCBzeW1ib2wNCiAgIGI6ICAgYzMgICAgICAgICAgICAgICAgICAgICAg
+ICByZXQgICAgDQpDb2RlOyAgMDAwMDAwMGMgQmVmb3JlIGZpcnN0IHN5bWJv
+bA0KICAgYzogICA5MCAgICAgICAgICAgICAgICAgICAgICAgIG5vcCAgICAN
+CkNvZGU7ICAwMDAwMDAwYyBCZWZvcmUgZmlyc3Qgc3ltYm9sDQogICBkOiAg
+IDgzIGZhIDA5ICAgICAgICAgICAgICAgICAgY21wbCAgICQweDksJWVkeA0K
+Q29kZTsgIDAwMDAwMDEwIEJlZm9yZSBmaXJzdCBzeW1ib2wNCiAgMTA6ICAg
+NzcgMDkgICAgICAgICAgICAgICAgICAgICBqYSAgICAgMWIgPF9FSVArMHgx
+Yj4gMDAwMDAwMWEgQmVmb3JlIGZpcnN0IHN5bWJvbA0KQ29kZTsgIDAwMDAw
+MDEyIEJlZm9yZSBmaXJzdCBzeW1ib2wNCiAgMTI6ICAgZTggODIgMDAgMDAg
+MDAgICAgICAgICAgICBjYWxsICAgOTkgPF9FSVArMHg5OT4gMDAwMDAwOTgg
+QmVmb3JlIGZpcnN0IHN5bWJvbA0KDQoNCjEgd2FybmluZyBpc3N1ZWQuICBS
+ZXN1bHRzIG1heSBub3QgYmUgcmVsaWFibGUuDQpvZnMxIw0K
+--784335468-891059326-1000316289=:6363
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="slabinfo1.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0109121238091.6363@home.nohrsc.nws.gov>
+Content-Description: 
+Content-Disposition: attachment; filename="slabinfo1.txt"
+
+a21lbV9jYWNoZSAgICAgICAgICAgIDU4ICAgICA2OCAgICAxMTIgICAgMiAg
+ICAyICAgIDENCmlwX2Nvbm50cmFjayAgICAgICAgICAyNSAgICAgMzMgICAg
+MzUyICAgIDMgICAgMyAgICAxDQp0Y3BfdHdfYnVja2V0ICAgICAgICAgIDAg
+ICAgICAwICAgICA5NiAgICAwICAgIDAgICAgMQ0KdGNwX2JpbmRfYnVja2V0
+ICAgICAgICA5ICAgIDExMyAgICAgMzIgICAgMSAgICAxICAgIDENCnRjcF9v
+cGVuX3JlcXVlc3QgICAgICAgMCAgICAgIDAgICAgIDY0ICAgIDAgICAgMCAg
+ICAxDQppbmV0X3BlZXJfY2FjaGUgICAgICAgIDUgICAgIDU5ICAgICA2NCAg
+ICAxICAgIDEgICAgMQ0KaXBfZmliX2hhc2ggICAgICAgICAgIDEwICAgIDEx
+MyAgICAgMzIgICAgMSAgICAxICAgIDENCmlwX2RzdF9jYWNoZSAgICAgICAg
+ICAzOCAgICAgNDggICAgMTYwICAgIDIgICAgMiAgICAxDQphcnBfY2FjaGUg
+ICAgICAgICAgICAgMTEgICAgIDMwICAgIDEyOCAgICAxICAgIDEgICAgMQ0K
+YmxrZGV2X3JlcXVlc3RzICAgICAgNTEyICAgIDUyMCAgICAgOTYgICAxMyAg
+IDEzICAgIDENCm5mc19yZWFkX2RhdGEgICAgICAgICAgMCAgICAgIDAgICAg
+Mzg0ICAgIDAgICAgMCAgICAxDQpuZnNfd3JpdGVfZGF0YSAgICAgICAgIDAg
+ICAgICAwICAgIDM4NCAgICAwICAgIDAgICAgMQ0KbmZzX3BhZ2UgICAgICAg
+ICAgICAgICAwICAgICAgMCAgICAgOTYgICAgMCAgICAwICAgIDENCmRub3Rp
+ZnkgY2FjaGUgICAgICAgICAgMCAgICAgIDAgICAgIDIwICAgIDAgICAgMCAg
+ICAxDQpmaWxlIGxvY2sgY2FjaGUgICAgICAgIDIgICAgIDQyICAgICA5MiAg
+ICAxICAgIDEgICAgMQ0KZmFzeW5jIGNhY2hlICAgICAgICAgICAwICAgICAg
+MCAgICAgMTYgICAgMCAgICAwICAgIDENCnVpZF9jYWNoZSAgICAgICAgICAg
+ICAgNiAgICAxMTMgICAgIDMyICAgIDEgICAgMSAgICAxDQpza2J1ZmZfaGVh
+ZF9jYWNoZSAgICAyMjkgICAgMjY0ICAgIDE2MCAgIDExICAgMTEgICAgMQ0K
+c29jayAgICAgICAgICAgICAgICAgIDMxICAgICAzNiAgICA4MzIgICAgNCAg
+ICA0ICAgIDINCnNpZ3F1ZXVlICAgICAgICAgICAgICAgMCAgICAgIDAgICAg
+MTMyICAgIDAgICAgMCAgICAxDQpjZGV2X2NhY2hlICAgICAgICAgICAgMTYg
+ICAgIDU5ICAgICA2NCAgICAxICAgIDEgICAgMQ0KYmRldl9jYWNoZSAgICAg
+ICAgICAgICA4ICAgICA1OSAgICAgNjQgICAgMSAgICAxICAgIDENCg==
+--784335468-891059326-1000316289=:6363
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="oops1.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0109121238092.6363@home.nohrsc.nws.gov>
+Content-Description: 
+Content-Disposition: attachment; filename="oops1.txt"
+
+U2VwIDEyIDExOjMwOjE1IG9mczEga2VybmVsOiBfX2FsbG9jX3BhZ2VzOiAw
+LW9yZGVyIGFsbG9jYXRpb24gZmFpbGVkIChnZnA9MHg3MC8xKS4NClNlcCAx
+MiAxMTozMDoxNSBvZnMxIGtlcm5lbDogaW52YWxpZCBvcGVyYW5kOiAwMDAw
+DQpTZXAgMTIgMTE6MzA6MTUgb2ZzMSBrZXJuZWw6IENQVTogICAgMA0KU2Vw
+IDEyIDExOjMwOjE1IG9mczEga2VybmVsOiBFSVA6ICAgIDAwMTA6W19fYWxs
+b2NfcGFnZXMrNTkxLzYwNF0NClNlcCAxMiAxMTozMDoxNSBvZnMxIGtlcm5l
+bDogRUZMQUdTOiAwMDAxMDI4Ng0KU2VwIDEyIDExOjMwOjE1IG9mczEga2Vy
+bmVsOiBlYXg6IDAwMDAwMDNhICAgZWJ4OiAwMDAwMDAwMCAgIGVjeDogZjdk
+ZjYwMDAgICBlZHg6IDAwMDAwMDAwDQpTZXAgMTIgMTE6MzA6MTUgb2ZzMSBr
+ZXJuZWw6IGVzaTogYzAyOGIyMDggICBlZGk6IDAwMDAwMDAwICAgZWJwOiBm
+N2RmNjAwMCAgIGVzcDogZjdkZjdlNzQNClNlcCAxMiAxMTozMDoxNSBvZnMx
+IGtlcm5lbDogZHM6IDAwMTggICBlczogMDAxOCAgIHNzOiAwMDE4DQpTZXAg
+MTIgMTE6MzA6MTUgb2ZzMSBrZXJuZWw6IFByb2Nlc3Mga3N3YXBkIChwaWQ6
+IDQsIHN0YWNrcGFnZT1mN2RmNzAwMCkNClNlcCAxMiAxMTozMDoxNSBvZnMx
+IGtlcm5lbDogU3RhY2s6IDAwMDAwMDcwIDAwMDAwMDAxIDAwMDAwMDA4IGMw
+MmY3YTAwIDAwMDAwMDAxIGMwMjhiMWZjIDAwMDAwMDcwIGMwMTI3MDBlIA0K
+U2VwIDEyIDExOjMwOjE1IG9mczEga2VybmVsOiAgICAgICAgYzA0MTVhMjAg
+YzAxMmE0OTkgYzA0MTVhMjAgYzAxMmE1YWMgZjRhYzAyNDAgMDAwMDAwMDEg
+MDAwMDAwMDggYzAyZjdhMDAgDQpTZXAgMTIgMTE6MzA6MTUgb2ZzMSBrZXJu
+ZWw6ICAgICAgICBjMDFhOTdjNyAwMDAwMDAwMSBmNGFjMDI0MCAwMDAwMzAw
+OSBmNGFjMDI0MCAxZjlmOGQ2MCAxOWExNzVhZiBjMDJmN2EyOCANClNlcCAx
+MiAxMTozMDoxNSBvZnMxIGtlcm5lbDogQ2FsbCBUcmFjZTogW19hbGxvY19w
+YWdlcysyMi8yNF0gW2FsbG9jX2JvdW5jZV9wYWdlKzEzLzEyMF0gW2NyZWF0
+ZV9ib3VuY2UrNDAvMzgwXSBbX19tYWtlX3JlcXVlc3QrMTM1LzE1OTZdIFtp
+cF9yY3YrODA2Lzg2MF0gDQpTZXAgMTIgMTE6MzA6MTUgb2ZzMSBrZXJuZWw6
+ICAgIFtnZW5lcmljX21ha2VfcmVxdWVzdCsyODgvMzA0XSBbc3VibWl0X2Jo
+KzY5Lzk2XSBbbGxfcndfYmxvY2srMjk5LzM5Nl0gW3N5bmNfcGFnZV9idWZm
+ZXJzKzcxLzg0XSBbdHJ5X3RvX2ZyZWVfYnVmZmVycysyODEvMzE2XSBbcGFn
+ZV9sYXVuZGVyKzYwMy8xMzc2XSANClNlcCAxMiAxMTozMDoxNSBvZnMxIGtl
+cm5lbDogICAgW2RvX3RyeV90b19mcmVlX3BhZ2VzKzY0LzE4NF0gW2tzd2Fw
+ZCsxMDUvMTcyXSBba2VybmVsX3RocmVhZCs0MC81Nl0gDQpTZXAgMTIgMTE6
+MzA6MTUgb2ZzMSBrZXJuZWw6IA0KU2VwIDEyIDExOjMwOjE1IG9mczEga2Vy
+bmVsOiBDb2RlOiAwZiAwYiAzMSBjMCA1YiA1ZSA1ZiA1ZCA4MyBjNCAwYyBj
+MyA5MCA4MyBmYSAwOSA3NyAwOSBlOCA4MiANCg==
+--784335468-891059326-1000316289=:6363--

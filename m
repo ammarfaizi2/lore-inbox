@@ -1,70 +1,309 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130952AbRCJHUV>; Sat, 10 Mar 2001 02:20:21 -0500
+	id <S130843AbRCJHpe>; Sat, 10 Mar 2001 02:45:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130953AbRCJHUL>; Sat, 10 Mar 2001 02:20:11 -0500
-Received: from relay8.Austria.EU.net ([193.154.160.146]:1186 "EHLO
-	relay8.austria.eu.net") by vger.kernel.org with ESMTP
-	id <S130952AbRCJHUB>; Sat, 10 Mar 2001 02:20:01 -0500
-Message-ID: <3AA9D575.1345EF2@eunet.at>
-Date: Sat, 10 Mar 2001 08:19:17 +0100
-From: Michael Reinelt <reinelt@eunet.at>
-Organization: netWorks
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+	id <S130946AbRCJHpZ>; Sat, 10 Mar 2001 02:45:25 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:16881 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130843AbRCJHpU>;
+	Sat, 10 Mar 2001 02:45:20 -0500
+Date: Sat, 10 Mar 2001 02:44:37 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@chiara.elte.hu>,
+        linux-kernel@vger.kernel.org
+Subject: [RFC][PATCH] read_cache_page() cleanup
+Message-ID: <Pine.GSO.4.21.0103100152290.18115-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: george anzinger <george@mvista.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: nanosleep question
-In-Reply-To: <3AA607E7.6B94D2D@eunet.at> <3AA936B2.D2F26847@mvista.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: OK (checked by AntiVir Version 6.6.0.6)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger wrote:
-> 
-> Michael Reinelt wrote:
-> >
-> > At the moment I implemented by own delay loop using a small assembler
-> > loop similar to the one used in the kernel. This has two disadvantages:
-> > assembler isn't that portable, and the loop has to be calibrated.
-> 
-> Why not use C?  As long as you calibrate it, it should do just fine.
-Because the compiler might optimize it away.
+	Folks, looks like we can simplify both the callers of read_cache_page
+and function itself. Without breaking existing code.
+a) all but two callers do the following:
 
-> On
-> the other hand, since you are looping anyway, why not loop on a system
-> time of day call and have the loop exit when you have the required time
-> in hand.  These calls have microsecond resolution.
-I'm afraid they don't (at least with kernel 2.0, I didn't try this with
-2.4). They have microsecond resolution, but increment only every 1/HZ.
+	page = read_cache_page(...);
+	if (IS_ERR(page))
+		goto fail;
+	wait_on_page(page);
+	if (!PageUptodate(page) {
+		page_cache_release(page);
+		page = ERR_PTR(-EIO);
+		goto fail;
+	}
 
-Someone gave me a hint to loop on rdtsc. I will look into this.
+or equivalents of that.
 
-> > - why are small delays only possible up to 2 msec? what if I needed a
-> > delay of say 5msec? I can't get it?
-> 
-> If you want other times, you can always make more than one call to
-> nanosleep.
-Good point!
+b) two exceptions are in NFS readdir and symlink handling resp. There we
+do not call wait_on_page(). However, in both cases filler _always_ unlocks
+page before returning. I.e. wait_on_page() would be a no-op - could as
+well have it there.
 
-> The question is: Can your task
-> stand the loss of the processor to another task?  This is what happens
-> at normal SCHED_OTHER priority.
+c) after moving the wait_on_page() and check for page being not uptodate
+after it into the read_cache_page() the function itself becomes simpler.
+I've substituted __read_cache_page() in place of its call and did an
+obvious cleanup of the result.
 
-Yes, it can. My delays are 'minimal' values, if it takes longer, there's
-no problem apart from the speed of the display update. I have to wait 40
-microsecs after every character I send to the display, which makes 3.2
-milliseconds for a complete update of a 20x4 display. If every delay
-would be 10 msec, the whole update would last 0.8 seconds (which is
-unusable).
+The bottom line: __read_cache_page() is gone, callers of read_cache_page()
+dropped the waiting/handling of async errors, read_cache_page() returns
+either an uptodate page or error.
 
-bye, Michael
+Notice that read_cache_page() never was really async - only if we had a
+page already in pagecache, not locked and not uptodate. BTW, if page
+was _not_ in pagecache and filler got an asynchronous error we used
+to cald it again. For no good reason. AFAICS patch below cleans the things
+up and shouldn't break anything - code that used to work should work with
+new variant. I'd definitely like to see it applied - IMO it counts as
+obvious cleanup... Comments? 
+							Cheers,
+								Al
+Patch (against 2.4.3-pre3) follows:
+diff -urN S3-pre3/fs/namei.c S3-pre3-read_cache_page/fs/namei.c
+--- S3-pre3/fs/namei.c	Fri Feb 16 21:20:06 2001
++++ S3-pre3-read_cache_page/fs/namei.c	Sat Mar 10 00:47:09 2001
+@@ -1952,18 +1952,11 @@
+ 	page = read_cache_page(mapping, 0, (filler_t *)mapping->a_ops->readpage,
+ 				NULL);
+ 	if (IS_ERR(page))
+-		goto sync_fail;
+-	wait_on_page(page);
+-	if (!Page_Uptodate(page))
+-		goto async_fail;
++		goto fail;
+ 	*ppage = page;
+ 	return kmap(page);
+ 
+-async_fail:
+-	page_cache_release(page);
+-	return ERR_PTR(-EIO);
+-
+-sync_fail:
++fail:
+ 	return (char*)page;
+ }
+ 
+diff -urN S3-pre3/fs/nfs/dir.c S3-pre3-read_cache_page/fs/nfs/dir.c
+--- S3-pre3/fs/nfs/dir.c	Thu Mar  8 06:33:59 2001
++++ S3-pre3-read_cache_page/fs/nfs/dir.c	Sat Mar 10 00:47:45 2001
+@@ -197,8 +197,6 @@
+ 		status = PTR_ERR(page);
+ 		goto out;
+ 	}
+-	if (!Page_Uptodate(page))
+-		goto read_error;
+ 
+ 	/* NOTE: Someone else may have changed the READDIRPLUS flag */
+ 	desc->plus = NFS_USE_READDIRPLUS(inode);
+@@ -210,9 +208,6 @@
+  out:
+ 	dfprintk(VFS, "NFS: find_dirent_page() returns %d\n", status);
+ 	return status;
+- read_error:
+-	page_cache_release(page);
+-	return -EIO;
+ }
+ 
+ /*
+diff -urN S3-pre3/fs/nfs/symlink.c S3-pre3-read_cache_page/fs/nfs/symlink.c
+--- S3-pre3/fs/nfs/symlink.c	Fri Feb 16 22:52:05 2001
++++ S3-pre3-read_cache_page/fs/nfs/symlink.c	Sat Mar 10 00:48:02 2001
+@@ -64,15 +64,10 @@
+ 				(filler_t *)nfs_symlink_filler, inode);
+ 	if (IS_ERR(page))
+ 		goto read_failed;
+-	if (!Page_Uptodate(page))
+-		goto getlink_read_error;
+ 	*ppage = page;
+ 	p = kmap(page);
+ 	return (char*)(p+1);
+ 		
+-getlink_read_error:
+-	page_cache_release(page);
+-	return ERR_PTR(-EIO);
+ read_failed:
+ 	return (char*)page;
+ }
+diff -urN S3-pre3/fs/umsdos/dir.c S3-pre3-read_cache_page/fs/umsdos/dir.c
+--- S3-pre3/fs/umsdos/dir.c	Fri Feb 16 22:52:06 2001
++++ S3-pre3-read_cache_page/fs/umsdos/dir.c	Sat Mar 10 00:48:45 2001
+@@ -692,9 +692,6 @@
+ 	dentry_dst=(struct dentry *)page;
+ 	if (IS_ERR(page))
+ 		goto out;
+-	wait_on_page(page);
+-	if (!Page_Uptodate(page))
+-		goto async_fail;
+ 
+ 	dentry_dst = ERR_PTR(-ENOMEM);
+ 	path = (char *) kmalloc (PATH_MAX, GFP_KERNEL);
+@@ -776,8 +773,6 @@
+ 	dput(hlink);	/* original hlink no longer needed */
+ 	return dentry_dst;
+ 
+-async_fail:
+-	dentry_dst = ERR_PTR(-EIO);
+ out_release:
+ 	page_cache_release(page);
+ 	goto out;
+diff -urN S3-pre3/fs/umsdos/emd.c S3-pre3-read_cache_page/fs/umsdos/emd.c
+--- S3-pre3/fs/umsdos/emd.c	Thu Mar  8 06:33:59 2001
++++ S3-pre3-read_cache_page/fs/umsdos/emd.c	Sat Mar 10 00:51:54 2001
+@@ -125,9 +125,6 @@
+ 			(filler_t*)mapping->a_ops->readpage, NULL);
+ 	if (IS_ERR(page))
+ 		goto sync_fail;
+-	wait_on_page(page);
+-	if (!Page_Uptodate(page))
+-		goto async_fail;
+ 	p = (struct umsdos_dirent*)(kmap(page)+offs);
+ 
+ 	/* if this is an invalid entry (invalid name length), ignore it */
+@@ -150,12 +147,6 @@
+ 			page = page2;
+ 			goto sync_fail;
+ 		}
+-		wait_on_page(page2);
+-		if (!Page_Uptodate(page2)) {
+-			kunmap(page);
+-			page_cache_release(page2);
+-			goto async_fail;
+-		}
+ 		memcpy(entry->spare,p->spare,part);
+ 		memcpy(entry->spare+part,kmap(page2),
+ 				recsize+offs-PAGE_CACHE_SIZE);
+@@ -168,9 +159,6 @@
+ 	page_cache_release(page);
+ 	*pos += recsize;
+ 	return ret;
+-async_fail:
+-	page_cache_release(page);
+-	page = ERR_PTR(-EIO);
+ sync_fail:
+ 	return PTR_ERR(page);
+ }
+@@ -395,9 +383,6 @@
+ 			page = read_cache_page(mapping,index,readpage,NULL);
+ 			if (IS_ERR(page))
+ 				goto sync_fail;
+-			wait_on_page(page);
+-			if (!Page_Uptodate(page))
+-				goto async_fail;
+ 			p = kmap(page);
+ 		}
+ 
+@@ -443,12 +428,6 @@
+ 				page_cache_release(page);
+ 				page = next_page;
+ 				goto sync_fail;
+-			}
+-			wait_on_page(next_page);
+-			if (!Page_Uptodate(next_page)) {
+-				page_cache_release(page);
+-				page = next_page;
+-				goto async_fail;
+ 			}
+ 			q = kmap(next_page);
+ 			if (memcmp(entry->name, rentry->name, len) ||
+diff -urN S3-pre3/mm/filemap.c S3-pre3-read_cache_page/mm/filemap.c
+--- S3-pre3/mm/filemap.c	Thu Mar  8 06:34:01 2001
++++ S3-pre3-read_cache_page/mm/filemap.c	Sat Mar 10 01:38:21 2001
+@@ -2306,8 +2306,11 @@
+ 	return error;
+ }
+ 
+-static inline
+-struct page *__read_cache_page(struct address_space *mapping,
++/*
++ * Make sure that @mapping contains a page with index @index, creating a
++ * new one if needed. If that page is not uptodate - try to fill it.
++ */
++struct page *read_cache_page(struct address_space *mapping,
+ 				unsigned long index,
+ 				int (*filler)(void *,struct page*),
+ 				void *data)
+@@ -2315,7 +2318,8 @@
+ 	struct page **hash = page_hash(mapping, index);
+ 	struct page *page, *cached_page = NULL;
+ 	int err;
+-repeat:
++
++retry:
+ 	page = __find_get_page(mapping, index, hash);
+ 	if (!page) {
+ 		if (!cached_page) {
+@@ -2325,53 +2329,38 @@
+ 		}
+ 		page = cached_page;
+ 		if (add_to_page_cache_unique(page, mapping, index, hash))
+-			goto repeat;
++			goto retry;
+ 		cached_page = NULL;
+-		err = filler(data, page);
+-		if (err < 0) {
++	} else {
++		lock_page(page);
++		if (!page->mapping) {
++			UnlockPage(page);
+ 			page_cache_release(page);
+-			page = ERR_PTR(err);
++			goto retry;
++		}
++		if (Page_Uptodate(page)) {
++			UnlockPage(page);
++			goto out1;
+ 		}
+ 	}
+-	if (cached_page)
+-		page_cache_free(cached_page);
+-	return page;
+-}
+ 
+-/*
+- * Read into the page cache. If a page already exists,
+- * and Page_Uptodate() is not set, try to fill the page.
+- */
+-struct page *read_cache_page(struct address_space *mapping,
+-				unsigned long index,
+-				int (*filler)(void *,struct page*),
+-				void *data)
+-{
+-	struct page *page;
+-	int err;
+-
+-retry:
+-	page = __read_cache_page(mapping, index, filler, data);
+-	if (IS_ERR(page) || Page_Uptodate(page))
+-		goto out;
+-
+-	lock_page(page);
+-	if (!page->mapping) {
+-		UnlockPage(page);
+-		page_cache_release(page);
+-		goto retry;
+-	}
+-	if (Page_Uptodate(page)) {
+-		UnlockPage(page);
+-		goto out;
+-	}
+ 	err = filler(data, page);
+ 	if (err < 0) {
+ 		page_cache_release(page);
+ 		page = ERR_PTR(err);
++		goto out1;
+ 	}
+- out:
++	wait_on_page(page);
++	if (!Page_Uptodate(page))
++		goto async_fail;
++out1:
++	if (cached_page)
++		page_cache_free(cached_page);
+ 	return page;
++async_fail:
++	page_cache_release(page);
++	page = ERR_PTR(-EIO);
++	goto out1;
+ }
+ 
+ static inline struct page * __grab_cache_page(struct address_space *mapping,
 
--- 
-netWorks       	                                  Vox: +43 316  692396
-Michael Reinelt                                   Fax: +43 316  692343
-Geisslergasse 4					  GSM: +43 676 3079941
-A-8045 Graz, Austria			      e-mail: reinelt@eunet.at

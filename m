@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271405AbTHMGUz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 02:20:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271407AbTHMGUz
+	id S271411AbTHMGaH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 02:30:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271412AbTHMGaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 02:20:55 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:41732 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S271405AbTHMGUy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 02:20:54 -0400
-Date: Wed, 13 Aug 2003 07:20:53 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Nufarul Alb <nufarul.alb@home.ro>
+	Wed, 13 Aug 2003 02:30:07 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:40456 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S271411AbTHMGaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 02:30:03 -0400
+Date: Wed, 13 Aug 2003 08:30:01 +0200
+To: Andrey Borzenkov <arvidjaar@mail.ru>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: multibooting the linux kernel
-Message-ID: <20030813072053.A25803@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Nufarul Alb <nufarul.alb@home.ro>, linux-kernel@vger.kernel.org
-References: <3F396C04.90608@home.ro>
+Subject: Re: SOLUTION Re: 2.6.0-test3 cannot mount root fs
+Message-ID: <20030813063001.GE24994@gamma.logic.tuwien.ac.at>
+References: <20030813061546.GB24994@gamma.logic.tuwien.ac.at> <E19mp6A-000Osj-00.arvidjaar-mail-ru@f16.mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3F396C04.90608@home.ro>; from nufarul.alb@home.ro on Wed, Aug 13, 2003 at 01:36:52AM +0300
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <E19mp6A-000Osj-00.arvidjaar-mail-ru@f16.mail.ru>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 13, 2003 at 01:36:52AM +0300, Nufarul Alb wrote:
-> There is a patch for the kernel that make it able to preload modules 
-> before the acutal booting.
-> 
-> I wonder if this feature will be included in the official linux kernel.
+On Mit, 13 Aug 2003, "Andrey Borzenkov"  wrote:
+> congratulations :)
 
-Mutliboot support would be nice, not sure about the module loading thing.
+:-)))
 
-But there's a bunch of issues with the paches:
+> well, I always do make distclean after patch ... I cannot afford
+> loading 30MB every week.
 
-(1) please port to 2.6 first because
-      (a) there's not chance this will get into 2.4
-      (b) 2.6 has the inkernel module loader so you don't have to duplicate
-          so much loader code.
-(2) please convert from GNU to Linux style
-(3) please use the predefined __ASSEMBLY__ instead of ASM
+I *ALWAYS* do 
+	make distclean
+and
+	make mrproper
+and all other incantations of cleaning, too! This was NOT the problem,
+but a wrongly diff file obviously messed up the kernel.
 
+Best wishes
+
+Norbert
+
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+Zaphod grinned two manic grins, sauntered over to the bar
+and bought most of it.
+                 --- Zaphod in paradise.
+                 --- Douglas Adams, The Hitchhikers Guide to the Galaxy

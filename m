@@ -1,54 +1,234 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264939AbSLQLdv>; Tue, 17 Dec 2002 06:33:51 -0500
+	id <S264920AbSLQLbE>; Tue, 17 Dec 2002 06:31:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264940AbSLQLdu>; Tue, 17 Dec 2002 06:33:50 -0500
-Received: from 24.213.60.109.up.mi.chartermi.net ([24.213.60.109]:51875 "EHLO
-	front3.chartermi.net") by vger.kernel.org with ESMTP
-	id <S264939AbSLQLdt>; Tue, 17 Dec 2002 06:33:49 -0500
-Date: Tue, 17 Dec 2002 06:41:49 -0500 (EST)
-From: Nathaniel Russell <reddog83@chartermi.net>
-X-X-Sender: reddog83@reddog.example.net
-To: alan@redhat.com
-cc: linux-kernel@vger.kernel.org
-Subject: Via 8233 flooding of errors [2.4-ac]
-Message-ID: <Pine.LNX.4.44.0212170636420.1698-200000@reddog.example.net>
+	id <S264925AbSLQLbE>; Tue, 17 Dec 2002 06:31:04 -0500
+Received: from gateway.cinet.co.jp ([210.166.75.129]:15686 "EHLO
+	precia.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S264920AbSLQLbB>; Tue, 17 Dec 2002 06:31:01 -0500
+Message-ID: <3DFDE4FE.755F6651@cinet.co.jp>
+Date: Mon, 16 Dec 2002 23:36:46 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.50-ac1-pc98smp i686)
+X-Accept-Language: ja
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1837053877-1040125309=:1698"
+To: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCHSET] PC-9800 addtional for 2.5.50-ac1 (21/21)
+References: <3DFC50E9.656B96D0@cinet.co.jp>
+		<3DFC818F.80E3DC00@cinet.co.jp> <20021215.225942.24871004.yoshfuji@linux-ipv6.org>
+Content-Type: multipart/mixed;
+ boundary="------------7C5D0E388895A6E22EA2E53C"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+This is a multi-part message in MIME format.
+--------------7C5D0E388895A6E22EA2E53C
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 
---8323328-1837053877-1040125309=:1698
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+YOSHIFUJI Hideaki / 吉藤英明 wrote:
+> 
+> In article <3DFC818F.80E3DC00@cinet.co.jp> (at Sun, 15 Dec 2002 22:20:15 +0900), Osamu Tomita <tomita@cinet.co.jp> says:
+> 
+> > +#ifndef CONFIG_PC9800
+> >                       if (mpf->mpf_physptr)
+> >                               reserve_bootmem(mpf->mpf_physptr, PAGE_SIZE);
+> > +#else
+> > +                     /*
+> > +                      * PC-9800's MPC table places on the very last of
+> > +                      * physical memory; so that simply reserving PAGE_SIZE
+> > +                      * from mpg->mpf_physptr yields BUG() in
+> > +                      * reserve_bootmem.
+> > +                      */
+> > +                     if (mpf->mpf_physptr) {
+> > +                             /*
+> > +                              * We cannot access to MPC table to compute
+> > +                              * table size yet, as only few megabytes from
+> > +                              * the bottom is mapped now.
+> > +                              */
+> > +                             unsigned long size = PAGE_SIZE;
+> > +                             unsigned long end = max_low_pfn * PAGE_SIZE;
+> > +                             if (mpf->mpf_physptr + size > end)
+> > +                                     size = end - mpf->mpf_physptr;
+> > +                             reserve_bootmem(mpf->mpf_physptr, size);
+> > +                     }
+> > +#endif
+> > +
+> 
+> I'm not sure if we need this #ifdef;
+> it doesn't seem that this #ifdef CONFIG_PC9800 part is harmful
+> for others at all.
+> 
+> Well, if it is required, I prefer putting #ifdef..#endif inside the
+> if-clause like this:
+> 
+>                         if (mpf->mpf_physptr) {
+>                                 unsigned long size = PAGE_SIZE;
+> #ifdef CONFIG_PC9800
+>                                 /*
+>                                  * PC-9800's MPC table places on the very last of
+>                                  * physical memory; so that simply reserving PAGE_SIZE
+>                                  * from mpg->mpf_physptr yields BUG() in
+>                                  * reserve_bootmem.
+>                                  *
+>                                  * We cannot access to MPC table to compute
+>                                  * table size yet, as only few megabytes from
+>                                  * the bottom is mapped now.
+>                                  */
+>                                 unsigned long end = max_low_pfn * PAGE_SIZE;
+> 
+>                                 if (mpf->mpf_physptr + size > end)
+>                                         size = end - mpf->mpf_physptr;
+> #endif
+>                                 reserve_bootmem(mpf->mpf_physptr, size);
+>                         }
+> 
+Thanks for your advice!
+Indeed, No need "#ifdef" here.
+Because there is a check by "if (mpf->mpf_physptr + size > end)".
+I rewrite patch. Please comment.
 
-Hello
-When i play 3 or more songs in a row i get the error message of
-drained playback and my audio just shuts off until i exit the mp3 program
-and reload it. Every 3rd song though it stops playing. And plus once in
-awhile i get a Assertion failed message. Help please....
-Nathaniel
+-- 
+Osamu Tomita
+--------------7C5D0E388895A6E22EA2E53C
+Content-Type: text/plain; charset=iso-2022-jp;
+ name="smp.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="smp.patch"
 
---8323328-1837053877-1040125309=:1698
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="audio.error"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0212170641490.1698@reddog.example.net>
-Content-Description: Via 8233 Error
-Content-Disposition: attachment; filename="audio.error"
+diff -Nru linux/arch/i386/kernel/mpparse.c linux98/arch/i386/kernel/mpparse.c
+--- linux/arch/i386/kernel/mpparse.c	2002-12-16 09:15:54.000000000 +0900
++++ linux98/arch/i386/kernel/mpparse.c	2002-12-16 17:15:15.000000000 +0900
+@@ -73,6 +73,8 @@
+ int summit_x86 = 0;
+ u8 raw_phys_apicid[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
+ 
++extern int pc98;	/* NEC PC-9800 subarchitecture or not */
++
+ /*
+  * Intel MP BIOS table parsing routines:
+  */
+@@ -683,7 +685,8 @@
+ 		 * Read the physical hardware table.  Anything here will
+ 		 * override the defaults.
+ 		 */
+-		if (!smp_read_mpc((void *)mpf->mpf_physptr)) {
++		if (!smp_read_mpc(pc98 ? phys_to_virt(mpf->mpf_physptr)
++					: (void *)mpf->mpf_physptr)) {
+ 			smp_found_config = 0;
+ 			printk(KERN_ERR "BIOS bug, MP table errors detected!...\n");
+ 			printk(KERN_ERR "... disabling SMP support. (tell your hw vendor)\n");
+@@ -737,8 +740,25 @@
+ 			printk("found SMP MP-table at %08lx\n",
+ 						virt_to_phys(mpf));
+ 			reserve_bootmem(virt_to_phys(mpf), PAGE_SIZE);
+-			if (mpf->mpf_physptr)
+-				reserve_bootmem(mpf->mpf_physptr, PAGE_SIZE);
++			/*
++			 * PC-9800's MPC table places on the very last of
++			 * physical memory; so that simply reserving PAGE_SIZE
++			 * from mpg->mpf_physptr yields BUG() in
++			 * reserve_bootmem.
++			 */
++			if (mpf->mpf_physptr) {
++				/*
++				 * We cannot access to MPC table to compute
++				 * table size yet, as only few megabytes from
++				 * the bottom is mapped now.
++				 */
++				unsigned long size = PAGE_SIZE;
++				unsigned long end = max_low_pfn * PAGE_SIZE;
++				if (mpf->mpf_physptr + size > end)
++					size = end - mpf->mpf_physptr;
++				reserve_bootmem(mpf->mpf_physptr, size);
++			}
++
+ 			mpf_found = mpf;
+ 			return 1;
+ 		}
+@@ -750,8 +770,6 @@
+ 
+ void __init find_smp_config (void)
+ {
+-	unsigned int address;
+-
+ 	/*
+ 	 * FIXME: Linux assumes you have 640K of base ram..
+ 	 * this continues the error...
+@@ -781,11 +799,13 @@
+ 	 * MP1.4 SPEC states to only scan first 1K of 4K EBDA.
+ 	 */
+ 
+-	address = *(unsigned short *)phys_to_virt(0x40E);
+-	address <<= 4;
+-	smp_scan_config(address, 0x400);
+-	if (smp_found_config)
+-		printk(KERN_WARNING "WARNING: MP table in the EBDA can be UNSAFE, contact linux-smp@vger.kernel.org if you experience SMP problems!\n");
++	if (!pc98) {	/* PC-9800 has no EBDA area? */
++		unsigned int address = *(unsigned short *)phys_to_virt(0x40E);
++		address <<= 4;
++		smp_scan_config(address, 0x400);
++		if (smp_found_config)
++			printk(KERN_WARNING "WARNING: MP table in the EBDA can be UNSAFE, contact linux-smp@vger.kernel.org if you experience SMP problems!\n");
++	}
+ }
+ 
+ 
+diff -Nru linux/arch/i386/kernel/smpboot.c linux98/arch/i386/kernel/smpboot.c
+--- linux/arch/i386/kernel/smpboot.c	2002-11-23 06:40:42.000000000 +0900
++++ linux98/arch/i386/kernel/smpboot.c	2002-11-25 11:14:21.000000000 +0900
+@@ -823,13 +823,27 @@
+ 		nmi_low = *((volatile unsigned short *) TRAMPOLINE_LOW);
+ 	} 
+ 
++#ifndef CONFIG_PC9800
+ 	CMOS_WRITE(0xa, 0xf);
++#else
++	/* reset code is stored in 8255 on PC-9800. */
++	outb(0x0e, 0x37);	/* SHUT0 = 0 */
++#endif
+ 	local_flush_tlb();
+ 	Dprintk("1.\n");
+ 	*((volatile unsigned short *) TRAMPOLINE_HIGH) = start_eip >> 4;
+ 	Dprintk("2.\n");
+ 	*((volatile unsigned short *) TRAMPOLINE_LOW) = start_eip & 0xf;
+ 	Dprintk("3.\n");
++#ifdef CONFIG_PC9800
++	/*
++	 * On PC-9800, continuation on warm reset is done by loading
++	 * %ss:%sp from 0x0000:0404 and executing 'lret', so:
++	 */
++	/* 0x3f0 is on unused interrupt vector and should be safe... */
++	*((volatile unsigned long *) phys_to_virt(0x404)) = 0x000003f0;
++	Dprintk("4.\n");
++#endif
+ 
+ 	/*
+ 	 * Be paranoid about clearing APIC errors.
+diff -Nru linux/include/asm-i386/smpboot.h linux98/include/asm-i386/smpboot.h
+--- linux/include/asm-i386/smpboot.h	2002-10-12 13:22:19.000000000 +0900
++++ linux98/include/asm-i386/smpboot.h	2002-10-12 19:33:46.000000000 +0900
+@@ -13,8 +13,17 @@
+  #define TRAMPOLINE_LOW phys_to_virt(0x8)
+  #define TRAMPOLINE_HIGH phys_to_virt(0xa)
+ #else /* !CONFIG_CLUSTERED_APIC */
++ #ifndef CONFIG_PC9800
+  #define TRAMPOLINE_LOW phys_to_virt(0x467)
+  #define TRAMPOLINE_HIGH phys_to_virt(0x469)
++ #else  /* CONFIG_PC9800 */
++  /*
++   * On PC-9800, continuation on warm reset is done by loading
++   * %ss:%sp from 0x0000:0404 and executing 'lret', so:
++   */
++  #define TRAMPOLINE_LOW phys_to_virt(0x4fa)
++  #define TRAMPOLINE_HIGH phys_to_virt(0x4fc)
++ #endif /* !CONFIG_PC9800 */
+ #endif /* CONFIG_CLUSTERED_APIC */
+ 
+ #ifdef CONFIG_CLUSTERED_APIC
 
-W1NOSVBFRF0NClZpYSA2ODZhLzgyMzMvODIzNSBhdWRpbyBkcml2ZXIgMS45
-LjEtYWMNClBDSTogRm91bmQgSVJRIDExIGZvciBkZXZpY2UgMDA6MTEuNQ0K
-UENJOiBTaGFyaW5nIElSUSAxMSB3aXRoIDAwOjA5LjENClBDSTogU2hhcmlu
-ZyBJUlEgMTEgd2l0aCAwMDowYS4wDQp2aWE4MmN4eHg6IFNpeCBjaGFubmVs
-IGF1ZGlvIGF2YWlsYWJsZQ0KUENJOiBTZXR0aW5nIGxhdGVuY3kgdGltZXIg
-b2YgZGV2aWNlIDAwOjExLjUgdG8gNjQNCmFjOTdfY29kZWM6IEFDOTcgQXVk
-aW8gY29kZWMsIGlkOiBJQ0UxNyhJQ0UxMjMyKQ0KdmlhODJjeHh4OiBib2Fy
-ZCAjMSBhdCAweEU4MDAsIElSUSAxMQ0KW1NOSVBFRF0NCkFzc2VydGlvbiBm
-YWlsZWQhIGNoYW4tPmlzX2FjdGl2ZSA9PSBzZ19hY3RpdmUoY2hhbi0+aW9i
-YXNlKSx2aWE4MmN4eHhfYXVkaW8uYyx2aWFfY2hhbl9tYXliZV9zdGFydCxs
-aW5lPTEzNDcNCnZpYV9hdWRpbzogaWdub3JpbmcgZHJhaW4gcGxheWJhY2sg
-ZXJyb3IgLTUxMg0KW1NOSVBFRF0NCg==
---8323328-1837053877-1040125309=:1698--
+--------------7C5D0E388895A6E22EA2E53C--
+

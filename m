@@ -1,89 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129758AbRB0Svk>; Tue, 27 Feb 2001 13:51:40 -0500
+	id <S129759AbRB0SzK>; Tue, 27 Feb 2001 13:55:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129766AbRB0Svb>; Tue, 27 Feb 2001 13:51:31 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:4843 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S129758AbRB0SvL>;
-	Tue, 27 Feb 2001 13:51:11 -0500
-Date: Tue, 27 Feb 2001 13:50:10 -0500 (EST)
-From: Richard A Nelson <cowboy@vnet.ibm.com>
-X-X-Sender: <cowboy@badlands.lexington.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: olympic (tokenring) & IPv6 (was Re: Linux 2.4.1ac20)
-In-Reply-To: <Pine.LNX.4.33.0102231005220.2402-100000@badlands.lexington.ibm.com>
-Message-ID: <Pine.LNX.4.33.0102271345460.2280-100000@badlands.lexington.ibm.com>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
+	id <S129764AbRB0SzA>; Tue, 27 Feb 2001 13:55:00 -0500
+Received: from alto.i-cable.com ([210.80.60.4]:13526 "EHLO alto.i-cable.com")
+	by vger.kernel.org with ESMTP id <S129762AbRB0Syt>;
+	Tue, 27 Feb 2001 13:54:49 -0500
+Message-ID: <3A9BF7F5.E3AE76AB@hkicable.com>
+Date: Wed, 28 Feb 2001 02:54:45 +0800
+From: lkthomas@hkicable.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac4 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Wine + kernel ?? How to do that?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem recap:
-  * modprobe oopses with null pointer right after loading olympic module
-  * problem still occurs upto 2.4.2ac5
-
-I've not been able to capture the oops due to other hardware problems,
-but have narrowed the problem down:
-
- 1) modprobe ipv6
-    modprobe olympic
-    ---> Oops & reboot
-
- 2) modprobe olympic
-    modprobe ipv6
-    ---> still running (ok, so its only been 20 minutes, but hey that
-         is *significantly* better than Oops on bootup)
-
-> On Wed, 21 Feb 2001, Richard A Nelson wrote:
->
-> > On Wed, 21 Feb 2001, Alan Cox wrote:
-> >
-> > >
-> > > Can you stick an if(dev!=NULL) in front of that and let me know if that
-> > > fixes it - just to verify thats the problem spot
-> >
-> > Compiling now, will reboot in the am (if it aint done soon) -
-> > don't want it rebooting all night if this isn't it ;-}
->
-> Sigh, it appears that the problem is actually neither of the above
-> lines.
->
-> I even tried 2.4.2 and had the same problem, then I noticed that 2.4.2
-> also contains the same update ;-}
->
-> I put an if(dev == NULL)printk...else in both spots and rebooted.
->
-> Then (I gotta start drinking more coffee, or increase Copenhagen
-> intake), I noticed that the actual oops is from modprobe!!!!
->
-> I've not been able to get a oops trace because the error either causes
-> a reboot, or hang (either case, e2fsck is run at reboot).
->
-> Heres some system info that might be useful:
-> Kernel modules         2.4.2
-> Gnu C                  2.95.3
-> Gnu Make               3.79.1
-> Binutils               2.10.91.0.2
-> Linux C Library        2.2.2
-> Dynamic linker         ldd (GNU libc) 2.2.2
-> Procps                 2.0.7
-> Mount                  2.10s
-> Net-tools              2.05
-> Console-tools          0.2.3
-> Sh-utils               2.0.11
->
-> I'll be happy to reboot and capture the oops, if someone can help me
-> make sure it gets logged (serial console not a possibility, the other
-> box is currently in pieces).
->
->
-
--- 
-Rick Nelson
-Life'll kill ya                         -- Warren Zevon
-Then you'll be dead                     -- Life'll kill ya
+hey, I hear that wine ( windows emulator ) can port into kernel and make
+it running faster, How can I do it?
+or anyone can make a patch to add wine code into kernel?
+waiting for answer, Thanks
 

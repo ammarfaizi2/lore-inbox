@@ -1,45 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277353AbRKHR52>; Thu, 8 Nov 2001 12:57:28 -0500
+	id <S277258AbRKHR4F>; Thu, 8 Nov 2001 12:56:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277143AbRKHR4H>; Thu, 8 Nov 2001 12:56:07 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:31249 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S277094AbRKHRzq>; Thu, 8 Nov 2001 12:55:46 -0500
-Message-ID: <3BEAC5E2.5A301DB@zip.com.au>
-Date: Thu, 08 Nov 2001 09:50:26 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
+	id <S277143AbRKHRzv>; Thu, 8 Nov 2001 12:55:51 -0500
+Received: from [208.129.208.52] ([208.129.208.52]:17158 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S277068AbRKHRzb>;
+	Thu, 8 Nov 2001 12:55:31 -0500
+Date: Thu, 8 Nov 2001 10:03:52 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [patch] scheduler cache affinity improvement for 2.4 kernels
+In-Reply-To: <Pine.LNX.4.33.0111081909050.18050-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.40.0111080954350.1501-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: Matt <madmatt@bits.bris.ac.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: WOL stops working on halt
-In-Reply-To: <Pine.LNX.4.21.0111080908260.20023-100000@bits.bris.ac.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt wrote:
-> 
-> Hi list,
-> 
-> I have a 3c980 NIC plugged into an Abit KT7-RAID and connected together
-> with a WOL cable. I can't seem to get WOL to work using the ether-wake
-> utility if I power the box down with shutdown(8). The only way I can
-> currently get WOL to work is if I reboot the box, then physically press
-> the power button to turn it off.
+On Thu, 8 Nov 2001, Ingo Molnar wrote:
 
-As far as the driver is concerned, a shutdown and a reboot are identical,
-so we need to look at external causes.  Presumably Linux APM or BIOS.
- 
-> I'm loading the 3c59x.o driver using the enable_wol option, but I'm not
-> currently using ACPI. Looking through the 3c59x.c code, I notice it relies
-> on the box being put into a certain ACPI state. Will the ACPI code do this
-> on shutdown?
+>
+> Davide,
+>
+> On Thu, 8 Nov 2001, Davide Libenzi wrote:
+>
+> > Maybe you missed this :
+> >
+> > http://www.xmailserver.org/linux-patches/mss.html
+> >
+> > where the patch that does this is here :
+> >
+> > http://www.xmailserver.org/linux-patches/lnxsched.html#CPUHist
+>
+> i'm not sure what the patch is trying to achieve, but this part of
+> mcsched-2.4.13-0.4.diff looks incorrect:
+>
+> +               prev->cpu_jtime += (jiffies - prev->sched_jtime) + jiffies;
+>
+> (this is "2*jiffies - prev->sched_jtime" which doesnt appear to make much
+> sense - does it?)
 
-The driver has no dependency on the kernel's ACPI code.  It
-uses a function called `acpi_set_WOL' for historical reasons.
+The optimization is not good ( i left it in that way to make it more clear
+what that operation is meant ) but the mean of the code is ok.
+It sets the time ( in jiffies ) at which the process won't have any more
+scheduling advantage.
 
-Sorry - that wasn't a lot of help :(
+
+> and your patch adds a scheduling advantage to processes with more cache
+> footprint, which is the completely opposite of what we want.
+
+It is exactly what we want indeed :
+<quote>
+it's a fix for a UP and SMP scheduler problem Alan described to me
+recently, the 'CPU intensive process scheduling' problem. The essence of
+the problem: if there are multiple, CPU-intensive processes running,
+intermixed with other scheduling activities such as interactive work or
+network-intensive applications, then the Linux scheduler does a poor job
+of affinizing processes to processor caches. Such scheduler workload is
+common for a large percentage of important application workloads: database
+server workloads, webserver workloads and math-intensive clustered jobs,
+and other applications.
+</quote>
+
+and if you take a look at the LatSched sampling it is achived very well.
+
+
+> but in any case, changing the goodness() function was not a goal of my
+> patch, i change the granularity of how processes lose their 'effective
+> priority'.
+
+I'll test the patch asap with the LatSched sampler and i'll let you know.
+
+
+
+
+- Davide
+
+
+

@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262169AbUKQCXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262166AbUKQCZl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbUKQCXn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 21:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbUKQCXn
+	id S262166AbUKQCZl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 21:25:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbUKQCXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 21:23:43 -0500
-Received: from fw.osdl.org ([65.172.181.6]:18317 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262162AbUKQCWq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 21:22:46 -0500
-Date: Tue, 16 Nov 2004 18:22:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
+	Tue, 16 Nov 2004 21:23:53 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:63978
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262168AbUKQCWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 21:22:16 -0500
+Date: Tue, 16 Nov 2004 18:07:18 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: "David S. Miller" <davem@davemloft.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc2-mm1
-Message-Id: <20041116182233.097d9d85.akpm@osdl.org>
-In-Reply-To: <1100640653.16765.0.camel@krustophenia.net>
-References: <20041116014213.2128aca9.akpm@osdl.org>
-	<1100640653.16765.0.camel@krustophenia.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Subject: Re: loops in get_user_pages() for VM_IO
+Message-Id: <20041116180718.2fa35fbb.davem@davemloft.net>
+In-Reply-To: <20041116175328.5e425e01.davem@davemloft.net>
+References: <20041116175328.5e425e01.davem@davemloft.net>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> wrote:
->
->  On Tue, 2004-11-16 at 01:42 -0800, Andrew Morton wrote:
->  > http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.10-rc2-mm1.gz
->  > 
-> 
->  Why was the VIA DRM removed?  It was in 2.6.9-mm1 but seems to be gone
->  now.
+On Tue, 16 Nov 2004 17:53:28 -0800
+"David S. Miller" <davem@davemloft.net> wrote:
 
-Actually I haven't been updating that for a while, because of ghastly
-conflicts upstream.  Then it disappeared altogether due to administrative
-error.
+> Some time recently, I don't know when, the logic in get_user_pages()
+> appears to have been changed a bit.
 
-I'll see if I can resurrect it.
+Replying to myself, this hang started when do_mmap_pgoff() was
+changed to re-read the vma->vm_flags bits right before we
+vma_link() the vma into the mm.
+
+Previously, only the mmap() call specified vm_flags would
+be used, but now we also get whatever bit changes to
+vma->vm_flags are done by the file->f_op->mmap() method
+as well.
+
+In any event, it is still an open question whether get_user_pages()
+and thus make_pages_present() is meant to be able to handle
+VM_IO areas.

@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129768AbQKPBVD>; Wed, 15 Nov 2000 20:21:03 -0500
+	id <S129045AbQKPBXd>; Wed, 15 Nov 2000 20:23:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129770AbQKPBUx>; Wed, 15 Nov 2000 20:20:53 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:64908 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129768AbQKPBUj>;
-	Wed, 15 Nov 2000 20:20:39 -0500
-Date: Wed, 15 Nov 2000 16:35:45 -0800
-Message-Id: <200011160035.QAA08442@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: adam@yggdrasil.com
-CC: willy@meta-x.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200011160044.QAA24961@adam.yggdrasil.com>
-Subject: Re: 2.4.0-test11-pre5/drivers/net/sunhme.c compile failure on x86
-In-Reply-To: <200011160044.QAA24961@adam.yggdrasil.com>
+	id <S129522AbQKPBXX>; Wed, 15 Nov 2000 20:23:23 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:41222 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129045AbQKPBXR>; Wed, 15 Nov 2000 20:23:17 -0500
+Date: Wed, 15 Nov 2000 16:52:44 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andries Brouwer <aeb@veritas.com>
+cc: Harald Koenig <koenig@tat.physik.uni-tuebingen.de>, emoenke@gwdg.de,
+        eric@andante.org, linux-kernel@vger.kernel.org
+Subject: Re: BUG: isofs broken (2.2 and 2.4)
+In-Reply-To: <20001116011138.A27272@veritas.com>
+Message-ID: <Pine.LNX.4.10.10011151638420.3216-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a better fix:
 
---- drivers/net/sunhme.c.~1~	Sun Nov 12 02:23:30 2000
-+++ drivers/net/sunhme.c	Wed Nov 15 16:34:44 2000
-@@ -1600,6 +1600,10 @@
- 	HMD(("happy_meal_init: old[%08x] bursts<",
- 	     hme_read32(hp, gregs + GREG_CFG)));
- 
-+#ifndef __sparc__
-+	/* It is always PCI and can handle 64byte bursts. */
-+	hme_write32(hp, gregs + GREG_CFG, GREG_CFG_BURST64);
-+#else
- 	if ((hp->happy_bursts & DMA_BURST64) &&
- 	    ((hp->happy_flags & HFLAG_PCI) != 0
- #ifdef CONFIG_SBUS
-@@ -1633,6 +1637,7 @@
- 		HMD(("XXX>"));
- 		hme_write32(hp, gregs + GREG_CFG, 0);
- 	}
-+#endif /* __sparc__ */
- 
- 	/* Turn off interrupts we do not want to hear. */
- 	HMD((", enable global interrupts, "));
-@@ -2887,8 +2892,10 @@
- 	/* And of course, indicate this is PCI. */
- 	hp->happy_flags |= HFLAG_PCI;
- 
-+#ifdef __sparc__
- 	/* Assume PCI happy meals can handle all burst sizes. */
- 	hp->happy_bursts = DMA_BURSTBITS;
-+#endif
- 
- 	hp->happy_block = (struct hmeal_init_block *)
- 		pci_alloc_consistent(pdev, PAGE_SIZE, &hp->hblock_dvma);
+On Thu, 16 Nov 2000, Andries Brouwer wrote:
+> 
+> Has there been a kernel version that could read these?
+> It looks like it proclaims blocksize 512 and uses blocksize 2048 or so.
+
+The (de_len == 0) check in do_isofs_readdir() seems to imply that the
+blocksize is always 2048. So at the very least something is inconsistent.
+We use ISOFS_BUFFER_SIZE(inode) (512 in this case) for some sector sizes,
+and then ISOFS_BLOCK_SIZE (2048) for others. 
+
+But the way isofs_bmap() works, we need to work with
+ISOFS_BUFFER_SIZE(inode). And I don't know if directories are always
+_aligned_ at 2048 bytes even if they should be blocked at 2k.
+
+Looking at the isofs lookup() logic, it will actually handle split
+entries, instead of complaining about them. And I suspect readdir() did
+too at some point, and the code was just removed (probably due to
+excessive confusion) when one of the many readdir() reorganizations was
+done. 
+
+readdir() probably worked a long time ago.
+
+Is the thing documented somewhere? It looks like we should just allow
+entries that are split and not complain about them. We have the temporary
+buffer for it already..
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

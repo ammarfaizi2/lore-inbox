@@ -1,71 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287933AbSA3Bjy>; Tue, 29 Jan 2002 20:39:54 -0500
+	id <S287940AbSA3BkO>; Tue, 29 Jan 2002 20:40:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287924AbSA3Bjf>; Tue, 29 Jan 2002 20:39:35 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:42898
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S287880AbSA3BjT>; Tue, 29 Jan 2002 20:39:19 -0500
-Message-Id: <200201300139.g0U1d2U23149@snark.thyrsus.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S287894AbSA3BkF>; Tue, 29 Jan 2002 20:40:05 -0500
+Received: from front1.mail.megapathdsl.net ([66.80.60.31]:25865 "EHLO
+	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S287880AbSA3Bjr>; Tue, 29 Jan 2002 20:39:47 -0500
 Subject: Re: A modest proposal -- We need a patch penguin
-Date: Tue, 29 Jan 2002 20:40:11 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Skip Ford <skip.ford@verizon.net>, <linux-kernel@vger.kernel.org>,
-        Andrea Arcangeli <andrea@suse.de>
-In-Reply-To: <Pine.LNX.4.33.0201291538530.1747-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0201291538530.1747-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+From: Miles Lane <miles@megapathdsl.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Chris Ricker <kaboom@gatech.edu>,
+        World Domination Now!
+	 <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0201291641090.1747-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0201291641090.1747-100000@penguin.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Evolution/1.1.0.99 (Preview Release)
+Date: 29 Jan 2002 17:38:11 -0800
+Message-Id: <1012354692.1777.4.camel@stomata.megapathdsl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 January 2002 06:50 pm, Linus Torvalds wrote:
-> On Tue, 29 Jan 2002, Rob Landley wrote:
->
-> > Ah.  So being listed in the maintainers list doesn't mean someone is
-> > actually a maintainer it makes sense to forward patches to?
->
-> Sure it does.
->
-> It just doesn't mean that they should send stuff to _me_.
->
-> Did you not understand my point about scalability?
+On Tue, 2002-01-29 at 16:44, Linus Torvalds wrote:
+> 
+> On Tue, 29 Jan 2002, Chris Ricker wrote:
+> >
+> > That's fine, but there's a major problem with your scheme.  What happens
+> > with all the stuff for which no one is listed in MAINTAINERS?
+> 
+> I have to admit that personally I've always found the MAINTAINERS file
+> more of an irritation than anything else. The first place _I_ tend to look
+> personally is actually in the source files themselves (although that may
+> be a false statistic - the kind of people I tend to have to look up aren't
+> the main maintainers at all, but more single driver people etc).
+> 
+> It might not be a bad idea to just make that "mention maintainer at the
+> top of the file" the common case.
 
-I was asking for clarification.
+I do similarly when I am testing Gnome software, but there
+I have the CVS sources to look at, including carefully updated
+ChangeLog files.  I find the ChangeLogs and the output of
+"cvs log ChangeLog" to be highly informative and helpful when
+attempting to track down the appropriate person to contact.
+Is it feasible to set up a read-only anonymous cvs server for
+the kernel tree?  It seems to me that it would be nice to 
+good to have ChangeLogs for the kernel directories as well.
 
-> I can work with a
-> limited number of people, and those people can work with _their_ limited
-> number of people etc etc.
+	Miles
 
-I.E. a tree structure.
-
-> The MAINTAINERS file is _not_ a list of people I work with on a daily
-> basis. In fact, I don't necessarily even recognize the names of all those
-> people.
->
-> Let's take an example. Let's say that you had a patch for ppp. You'd send
-> the patch to Paul Mackerras. He, in turn, would send his patches to David
-> Miller (who knows a hell of a lot better what it's all about than I do).
-> And he in turn sends them to me.
->
-> They are both maintainers. That doesn't mean that I necessarily work with
-> every maintainer directly.
-
-Okay, so there's a tree of maintainers, and some maintainers seem unaware 
-that they should be sending their patches to other maintainers rather than 
-directly to you?
-
-Does this seem like a valid assessment of at least part of the problem?
-
-> Why? Because having hundreds of people emailing me _obviously_ doesn't
-> scale. Never has, never will. It may work over short timeperiods wih lots
-> of energy, but it obviously isn't a stable setup.
-
-Well at least we agree on something. :)
-
-> 			Linus
-
-Rob

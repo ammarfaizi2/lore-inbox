@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262191AbSJJTzy>; Thu, 10 Oct 2002 15:55:54 -0400
+	id <S262196AbSJJUAg>; Thu, 10 Oct 2002 16:00:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262186AbSJJTy2>; Thu, 10 Oct 2002 15:54:28 -0400
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:11086 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S262185AbSJJTuU>; Thu, 10 Oct 2002 15:50:20 -0400
-Date: Thu, 10 Oct 2002 13:04:27 -0700
-From: "Matt D. Robinson" <yakker@aparity.com>
-Message-Id: <200210102004.g9AK4Rh29574@nakedeye.aparity.com>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com, yakker@aparity.com
-Subject: [PATCH] 2.5.41: lkcd (5/8): sysrq changes for dump
+	id <S262197AbSJJUAX>; Thu, 10 Oct 2002 16:00:23 -0400
+Received: from holomorphy.com ([66.224.33.161]:57579 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262202AbSJJUAM>;
+	Thu, 10 Oct 2002 16:00:12 -0400
+Date: Thu, 10 Oct 2002 13:02:40 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: Fork timing numbers for shared page tables
+Message-ID: <20021010200240.GV10722@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Dave McCracken <dmccr@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Linux Memory Management <linux-mm@kvack.org>
+References: <167610000.1034278338@baldur.austin.ibm.com> <3DA5D893.CDD2407C@digeo.com> <175360000.1034279947@baldur.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <175360000.1034279947@baldur.austin.ibm.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add sysrq hooks for dump crash dump handling.
+On Thu, Oct 10, 2002 at 02:59:07PM -0500, Dave McCracken wrote:
+> I ran this test in three cases, 2.5.41, 2.5.41-mm2 without share, and
+> 2.5.41-mm2 with share.
+> Now for the results (all times are in ms):
+
+Hrm, it'd be nice to see how nicely this does things for things like
+500GB-sized processes on 64-bit boxen...
 
 
- sysrq.c |   13 ++++++++++++-
- 1 files changed, 12 insertions(+), 1 deletion(-)
+Any chance you could pass this test along for randomized benchmark
+type stuff?
 
 
-diff -urN -X /home/bharata/dontdiff linux-2.5.41/drivers/char/sysrq.c linux-2.5.41+lkcd/drivers/char/sysrq.c
---- linux-2.5.41/drivers/char/sysrq.c	Mon Oct  7 23:54:50 2002
-+++ linux-2.5.41+lkcd/drivers/char/sysrq.c	Tue Oct  8 13:27:28 2002
-@@ -32,6 +32,7 @@
- #include <linux/buffer_head.h>		/* for fsync_bdev() */
- 
- #include <linux/spinlock.h>
-+#include <linux/dump.h>
- 
- #include <asm/ptrace.h>
- 
-@@ -307,6 +308,16 @@
- 	}
- }
- 
-+static void sysrq_handle_crashdump(int key, struct pt_regs *pt_regs,
-+		struct tty_struct *tty) {
-+	dump("sysrq", pt_regs);
-+}
-+static struct sysrq_key_op sysrq_crashdump_op = {
-+	handler:	sysrq_handle_crashdump,
-+	help_msg:	"Crash",
-+	action_msg:	"Start a Crash Dump (If Configured)",
-+};
-+
- static void sysrq_handle_term(int key, struct pt_regs *pt_regs,
- 			      struct tty_struct *tty) 
- {
-@@ -352,7 +363,7 @@
- 		 it is handled specially on the spark
- 		 and will never arive */
- /* b */	&sysrq_reboot_op,
--/* c */	NULL,
-+/* c */	&sysrq_crashdump_op,
- /* d */	NULL,
- /* e */	&sysrq_term_op,
- /* f */	NULL,
+
+Thanks,
+Bill

@@ -1,63 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262773AbSI1KOf>; Sat, 28 Sep 2002 06:14:35 -0400
+	id <S262654AbSI1KZ6>; Sat, 28 Sep 2002 06:25:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262774AbSI1KOf>; Sat, 28 Sep 2002 06:14:35 -0400
-Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:23022 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S262773AbSI1KOe>; Sat, 28 Sep 2002 06:14:34 -0400
-Subject: Re: [patch] 'virtual => physical page mapping cache',
-	vcache-2.5.38-B8
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@zip.com.au>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0209270922340.2013-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0209270922340.2013-100000@home.transmeta.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-xolLIeQgCcWtsNOWFRFk"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 28 Sep 2002 12:22:09 +0200
-Message-Id: <1033208530.1695.2.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S262691AbSI1KZ6>; Sat, 28 Sep 2002 06:25:58 -0400
+Received: from mail.gmx.net ([213.165.64.20]:48766 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262654AbSI1KZ5>;
+	Sat, 28 Sep 2002 06:25:57 -0400
+From: Felix Seeger <felix.seeger@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: System very unstable
+Date: Sat, 28 Sep 2002 12:31:10 +0200
+User-Agent: KMail/1.4.7
+References: <200209281115.19968.felix.seeger@gmx.de> <200209281134.27362.felix.seeger@gmx.de> <20020928122349.60be48b4.gigerstyle@gmx.ch>
+In-Reply-To: <20020928122349.60be48b4.gigerstyle@gmx.ch>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209281231.11057.felix.seeger@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---=-xolLIeQgCcWtsNOWFRFk
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Am Samstag, 28. September 2002 12:23 schrieb Marc Giger:
+> On Sat, 28 Sep 2002 11:34:27 +0200
+>
+> Felix Seeger <felix.seeger@gmx.de> wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> >
+> > Am Samstag, 28. September 2002 11:32 schrieb Alan Cox:
+> > > > EIP:    0010:[get_new_inode+94/368]    Tainted: P
+> > > > EFLAGS: 00010206
+> > > > eax: f1ec9808   ebx: 00000000   ecx: c1376130 edx: c3761dc8
+> > >
+> > > You appear to have some non typical modules loaded. If they are binary
+> > > ones from people like Nvidia please see if the box is stable without
+> > > them ever being loaded.
+> >
+> > Yes I am using the nvidia module. But I don't think that is the problem,
+> > because I never had such problems with it.
+> > The only thing I can imagine is that:
+> > I installed the new module and I looked very unstable. So I installed the
+> > old one again.
+>
+> Yes and that's the point. You're using the 1.0.3123 Version of nvidia's
+> module, right? 
+> I tried this also, but after 1 hour I removed it again,
+> because they are very instable. I don't know what nvidia thinks. Probably
+> nothing. Their drivers are unworthy. It won't take a long time, until I
+> will buy a graphic-card from another manufacturer. Perhaps Matrox
+> Parhelia:-)
 
-On Fri, 2002-09-27 at 18:26, Linus Torvalds wrote:
->=20
-> On Fri, 27 Sep 2002, Ingo Molnar wrote:
-> >=20
-> > the attached patch implements the virtual =3D> physical cache. Right no=
-w
-> > only the COW code calls the invalidation function, because futexes do n=
-ot
-> > need notification on unmap.
->=20
-> Ok, looks good. Except you make get_user_page() do a write fault on the=20
-> page, and one of the points of this approach was that that shouldn't even=
-=20
-> be needed. Or did I miss some case that does need it?
+No, I installed that module, very unstable and installed the old one again 
+like you ;)
 
-get_user_page() cannot/should not ever do a pagefault via the pagefault
-code otherwise the coredump code will take the mmap semaphore
-recursively and deadlock.
+> > > If its only just begun happening and you didnt change these modules or
+> > > the kernel then it may well be worth checking CPU temperature in the
+> > > BIOS, the fans and/or running memtest86 to see if it is hardware.
+> > >
+> > > If you've changed kernel obviously see if the old one works reliably
+> > > first
 
---=-xolLIeQgCcWtsNOWFRFk
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
+have fun
+Felix
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.0.7 (GNU/Linux)
 
-iD8DBQA9lYLRxULwo51rQBIRAgMuAJoCoE7DaLDsnMh6fh9UayeIrmL5PQCgidBZ
-HG+Ka3rfwoUrwDHCNZ6JspQ=
-=0Vzx
+iD8DBQE9lYTuS0DOrvdnsewRAuPCAJwIKCT4gQUvRxkjKrPdngM8BaiePQCeM3Ms
+vNWRu3N6aGdN+Mkm5z0CXLs=
+=fD9/
 -----END PGP SIGNATURE-----
-
---=-xolLIeQgCcWtsNOWFRFk--
 

@@ -1,76 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287872AbSAPVRc>; Wed, 16 Jan 2002 16:17:32 -0500
+	id <S287874AbSAPVVt>; Wed, 16 Jan 2002 16:21:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287645AbSAPVP6>; Wed, 16 Jan 2002 16:15:58 -0500
-Received: from jester.ti.com ([192.94.94.1]:48619 "EHLO jester.ti.com")
-	by vger.kernel.org with ESMTP id <S287627AbSAPVPe>;
-	Wed, 16 Jan 2002 16:15:34 -0500
-Message-ID: <3C45ED3A.7060403@ti.com>
-Date: Wed, 16 Jan 2002 22:14:34 +0100
-From: christian e <cej@ti.com>
-Organization: Texas Instruments A/S,Denmark
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011202
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: aa works for me..rrmap didn't
-In-Reply-To: <Pine.LNX.4.33L.0201161904270.32617-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S287676AbSAPVUZ>; Wed, 16 Jan 2002 16:20:25 -0500
+Received: from UX3.SP.CS.CMU.EDU ([128.2.198.103]:38260 "HELO
+	ux3.sp.cs.cmu.edu") by vger.kernel.org with SMTP id <S287874AbSAPVT3>;
+	Wed, 16 Jan 2002 16:19:29 -0500
+Subject: Re: [PATCH] I3 sched tweaks...
+From: Justin Carlson <justincarlson@cmu.edu>
+To: Robert Love <rml@tech9.net>
+Cc: mingo@elte.hu, Rusty Russell <rusty@rustcorp.com.au>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1011215440.814.82.camel@phantasy>
+In-Reply-To: <Pine.LNX.4.33.0201162343290.18971-100000@localhost.localdomain> 
+	<1011215440.814.82.camel@phantasy>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-vP/TQ6GOqKKDDhDdkzHT"
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 16 Jan 2002 16:19:05 -0500
+Message-Id: <1011215946.314.14.camel@gs256.sp.cs.cmu.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
 
-> On Wed, 16 Jan 2002, christian e wrote:
-> 
-> 
->>An update yet again for those who may care.I tried both aa patch and
->>rrmap patch and the aa patch works fine.I havent got any swap issues
->>with that patch.The rrmap seemed ok in the beginning but then all hell
->>broke loose and it swapped like map and my apps took minutes to start.
->>Sorry for the lack of details I haven't got time for further debugging :-(
->>
-> 
-> It would be nice if you could at least tell us what workload
-> you're running, this way there really isn't any way for me to
-> find out what to search for ;)
+--=-vP/TQ6GOqKKDDhDdkzHT
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, 2002-01-16 at 16:10, Robert Love wrote:
+> On Wed, 2002-01-16 at 17:46, Ingo Molnar wrote:
+>=20
+> > we pass pointers across functions regularly, even if the pointer could =
+be
+> > calculated within the function. We do this in the timer code too. It's
+> > slightly cheaper to pass an already existing (calculated) 'current'
+> > pointer over to another function, instead of calculating it once more i=
+n
+> > that function. This will be especially true once we make 'current' a ti=
+ny
+> > bit more expensive (Alan's kernel stack coloring rewrite will do that i
+> > think, it will be one more instruction to get 'current'.)
+>=20
+> Maybe we should benchmark it?  It is very easy to calculate current.
+>=20
+> Certainly I see the benefit if we start coloring the pointer (it adds 2
+> instructions I believe) but let's make sure it is worth passing another
+> 32-bit argument.  It could very well be, schedule_tick is called
+> enough...
 
-Sure..No problem..Currently running:
+Don't forget that, in non-x86 land, current tends to be just kept in a=20
+register.  No computations required.  Certainly passing it around on,
+e.g. mips is a clear loss.
 
-* Mozilla mail
-
-* mozilla browser
-
-* 7-8 xterms
-
-* xmms playing loud music :-)
-
-* vmware running my windows XP pro,256 megs of mem reserved for the 
-virtual machine..inside XP two instances of Internet explorer,ICQ,MS 
-Access,MS Excel
-
-* vncviewer to a windows box
-
-
-I think that's about it ;-)
-
-And I did the echo 500 > /proc/sys/vm/vm_mapped_ratio with the aa patch..
-
-At first the rrmap was just as good,but apparently it decided to swap 
-out my vmware so all of a sudden it seemed to be running off the 
-harddrive only and just changing desktops in X took ages...swap was up 
-to 130 MB before I decided to reboot using the aa patch.
-
-Now swap is at 300k and seems stable so far..It will increase I'm sure 
-(did the last time) but not as much as the rrmap..Still I'd like to do 
-without swap altogether but I can't as vmware won't run without it :-(
+-Justin
 
 
-best regards
+--=-vP/TQ6GOqKKDDhDdkzHT
+Content-Type: application/pgp-signature
 
-Christian
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8Re5J47Lg4cGgb74RAkitAKDFhR51z42UJEtDYiZ/IMpQMLfajwCgtptp
+YTfsmlvv+N6o+KzWjYA9qzo=
+=bFaK
+-----END PGP SIGNATURE-----
+
+--=-vP/TQ6GOqKKDDhDdkzHT--
 

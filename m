@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129226AbQK3SpD>; Thu, 30 Nov 2000 13:45:03 -0500
+        id <S129555AbQK3SpE>; Thu, 30 Nov 2000 13:45:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129423AbQK3Sox>; Thu, 30 Nov 2000 13:44:53 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:44273 "EHLO
-        webber.adilger.net") by vger.kernel.org with ESMTP
-        id <S130991AbQK3SSC>; Thu, 30 Nov 2000 13:18:02 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200011301745.eAUHjOE16081@webber.adilger.net>
-Subject: Re: 'holey files' not holey enough.
-In-Reply-To: <Pine.LNX.4.21.0011300929330.1152-200000@eax.student.umd.edu>
- "from Adam at Nov 30, 2000 09:34:37 am"
-To: Adam <adam@eax.com>
-Date: Thu, 30 Nov 2000 10:45:23 -0700 (MST)
-CC: Andreas Dilger <adilger@turbolinux.com>, Marc Mutz <Marc@mutz.com>,
-        linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
-MIME-Version: 1.0
+        id <S129595AbQK3Soy>; Thu, 30 Nov 2000 13:44:54 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:55826 "HELO Cantor.suse.de")
+        by vger.kernel.org with SMTP id <S129226AbQK3Soq>;
+        Thu, 30 Nov 2000 13:44:46 -0500
+Date: Thu, 30 Nov 2000 19:14:14 +0100
+From: Andi Kleen <ak@suse.de>
+To: Ben Mansell <ben@zeus.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: TCP push missing with writev()
+Message-ID: <20001130191414.A13814@gruyere.muc.suse.de>
+In-Reply-To: <Pine.LNX.4.30.0011301710020.8071-100000@artemis.cam.zeus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0011301710020.8071-100000@artemis.cam.zeus.com>; from ben@zeus.com on Thu, Nov 30, 2000 at 05:35:41PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam writes:
-> I just did what suggested, and it seems that DU reports correct values,
-> I have attached 'sript' log of the above example on my filesystem.
-> Here are some highlights:
+On Thu, Nov 30, 2000 at 05:35:41PM +0000, Ben Mansell wrote:
+> (possibly treading on ground covered before:
+>  http://www.uwsg.iu.edu/hypermail/linux/kernel/9904.1/0304.html )
 > 
-> [adam@pepsi /tmp]$ ls -lis holed.file
-> 3085069 5872 -rw-rw-r--    1 adam     adam      6000000 Nov 30 09:11 holed.file
+> To be brief and to the point: Should there be any difference between the
+> following two ways of writing data to a TCP socket?
 > 
-> Block size = 4096, fragment size = 4096
-> Links: 1   Blockcount: 11744
-> TOTAL: 1468
-> 
-> so it seems DU reports correct values as :
-> 	11744/2=5872
-> and
-> 	4096*1468=6012928
+> 1) write( fd, buffer, length )
+> 2) writev( fd, {buffer, length}, {NULL,0} )
 
-I guess the next thing to check is if your "dd" is actually seeking, or
-just pretending to...  Maybe an strace of the "dd" call will tell us if
-it is screwing with our minds.  Also, if you could make a scratch ext2
-filesystem with 1k blocks, and see if it does the same thing.  Even
-better would be to try a different kernel to see if it affects this.
+No.
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+> 
+> The problem is that if data happens to be written via method (2), then
+> the PUSH flag is never set on any packets generated. This is a bug,
+> surely?
+
+I just tried it on 2.2.17 and 2.4.0test11 and it sets PUSH for writev()
+for both cases just fine. Maybe you could supply a test program and tcpdump
+logs for what you think is wrong ? 
+
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

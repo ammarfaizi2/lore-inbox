@@ -1,109 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261494AbSJDFH3>; Fri, 4 Oct 2002 01:07:29 -0400
+	id <S261493AbSJDFE1>; Fri, 4 Oct 2002 01:04:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261495AbSJDFH3>; Fri, 4 Oct 2002 01:07:29 -0400
-Received: from [204.248.145.126] ([204.248.145.126]:34728 "HELO mail.lig.net")
-	by vger.kernel.org with SMTP id <S261494AbSJDFH1>;
-	Fri, 4 Oct 2002 01:07:27 -0400
-Message-ID: <3D9D2354.3090807@lig.net>
-Date: Fri, 04 Oct 2002 01:12:52 -0400
-From: "Stephen D. Williams" <sdw@lig.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Stephen D. Williams" <sdw@lig.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Rsync SSH session hang, AGAIN  -  cancel
-References: <3D99B60C.20303@lig.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261491AbSJDFE1>; Fri, 4 Oct 2002 01:04:27 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:5899 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S261478AbSJDFEZ>; Fri, 4 Oct 2002 01:04:25 -0400
+Date: Fri, 4 Oct 2002 02:09:23 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       netfilter-devel@lists.netfilter.org, usagi@linux-ipv6.org
+Subject: Re: [PATCH] IPv6: Miscellaneous clean-ups
+Message-ID: <20021004050923.GA2728@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>, davem@redhat.com,
+	linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+	netfilter-devel@lists.netfilter.org, usagi@linux-ipv6.org
+References: <20021004.011315.05129566.yoshfuji@linux-ipv6.org> <20021003.103617.04446177.davem@redhat.com> <20021004.073642.125593159.yoshfuji@linux-ipv6.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021004.073642.125593159.yoshfuji@linux-ipv6.org>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I didn't think any of the tools that I know, trust, and have used for 
-years could be failing me, but I hadn't seen quite this failure mode before.
+Em Fri, Oct 04, 2002 at 07:36:42AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ escreveu:
+> In article <20021003.103617.04446177.davem@redhat.com> (at Thu, 03 Oct 2002 10:36:17 -0700 (PDT)), "David S. Miller" <davem@redhat.com> says:
+> 
+> >    -	addr.s6_addr[15] = 1;
+> >    +	addr.s6_addr32[3] = __constant_htonl(0x00000001);
+> >     
+> > Do not use __constant_htonl() in runtime code, use htonl().
+> > Arnaldo de Melo told you this the other day for another one
+> > of your patches, so you must fix this kind of stuff up before
+> > I'll apply any of your patches which have this problem.
+> 
+> I saw many __constant_{hton,ntoh}{s,l}()s, so fixed.
+> 
+>       1. use s6_addrXX instead of in6_u.s6_addrXX.
+>       2. avoid using magic number.
+>       3. use 32bit constants.
+>  -->  4. avoid __constant_{hton,ntoh}{l,s}() in runtime code.
 
-Even though the 'old' system below was reachable via web, ssh command 
-line sessions, etc., any connection between it and another box on the 
-same network at the ISP failed after 100-200KB.  While there were a few 
-ethernet errors, nothing seemed to increase much or at all with each ssh 
-hang.  Nevertheless, it was either a cable or hub/switch at the ISP that 
-was bad.  I now theorize that, having a noisy port, the hub/switch 
-involved would sense an unacceptably bad port and shut it down, but only 
-when burst transfers were between local boxes.  Everything remote was 
-spaced enough to be below that threshold.  After a few seconds of no 
-activity, the port was apparently unlocked.  I knew that switches had 
-bad port sensing, but had never seen a system on the fence like this. 
- It didn't help that these machines were 500 miles away in a colo with 
-only daytime staff.
+Thank you, some still were left, but that is not a problem, we can go on fixing
+it, as long as we don't introduce new instances, its OK.
+ 
+> ===================================================================
+> RCS file: /cvsroot/usagi/usagi-backport/linux24/net/ipv6/addrconf.c,v
+> retrieving revision 1.1.1.1
+> diff -u -r1.1.1.1 addrconf.c
+> --- net/ipv6/addrconf.c	2002/08/20 09:47:02	1.1.1.1
+> +++ net/ipv6/addrconf.c	2002/10/03 22:16:13
+> @@ -172,7 +172,7 @@
+>  
+>  	if ((addr->s6_addr32[0] | addr->s6_addr32[1]) == 0) {
+>  		if (addr->s6_addr32[2] == 0) {
+> -			if (addr->in6_u.u6_addr32[3] == 0)
+> +			if (addr->s6_addr32[3] == 0)
+>  				return IPV6_ADDR_ANY;
+>  
+>  			if (addr->s6_addr32[3] == __constant_htonl(0x00000001))
+                                                  ^^^^^^^^^^^
+                                                  ^^^^^^^^^^^
+not needed as well.
 
-Apologies for the premature post.
-sdw
+> Index: net/ipv6/icmp.c
+> ===================================================================
+> RCS file: /cvsroot/usagi/usagi-backport/linux24/net/ipv6/icmp.c,v
+> retrieving revision 1.1.1.1
+> retrieving revision 1.1.1.1.12.1
+> diff -u -r1.1.1.1 -r1.1.1.1.12.1
+> --- net/ipv6/icmp.c	2002/08/20 09:47:02	1.1.1.1
+> +++ net/ipv6/icmp.c	2002/09/12 09:41:58	1.1.1.1.12.1
+> @@ -198,7 +198,7 @@
+>  		u8 type;
+>  		if (skb_copy_bits(skb, ptr+offsetof(struct icmp6hdr, icmp6_type),
+>  				  &type, 1)
+> -		    || !(type & 0x80))
+> +		    || !(type & ICMPV6_INFOMSG_MASK))
 
-Stephen D. Williams wrote:
+nice, no magic numbers.
 
-> This has been a recurring problem for a couple years which I and 
-> others have experienced.  I was free from it for a while, but after 
-> upgrading OpenSSL/OpenSSH to avoid the recent exploit it is back and 
-> highly repeatable.  This has been persistant enough that I am going to 
-> start with the assumption that it may be a kernel bug, or at least 
-> probably debuggable definitively only by a proficient kernel 
-> developer.  We have got to squash this once and for all; SSH is used 
-> everywhere and it needs to be reliable.  Probably there is a race 
-> condition in ssh, as mentioned below, but it must be subtle.
->
-> rsync/ssh transfers from local system to local system work perfectly. 
-> Between the systems, there is nearly always large delays at certain 
-> times and usually a complete hang.  After a long period, this often 
-> produces a timeout.  These sytems are on 100baseT on the same switch. 
-> One system appears to be having mild packet loss (400 out of 400,000 
-> on both send and receive as frame/carrier erros).  BTW, running a cpio 
-> through the SSH connections causes a nearly immediate hang, so it is 
-> unlikely to be a problem with rsync.
->
-> Both systems work find receiving rsync/ssh from my laptop over a 400Kb 
-> DSL connection with:
-> OpenSSH 3.1p1
-> openssl 0.9.6c
-> rsync 2.5.4
-> gcc 2.96
-> kernel 2.4.19
->
-> (systems are a combination of Suse and Redhat 7.3, upgraded variously 
-> by hand)
->
-> My standard rsync/ssh script looks like:
->
-> brsyncndz (backup rsync no delete or compression):
-> #!/bin/sh
-> if [ "$PORT" = "" ]; then PORT=22; fi
-> rsync -vv -HpogDtSxlra --partial --progress --stats -e "ssh -p $PORT" $*
->
-> On both sides:
-> OpenSSL-0.9.6g
-> Openssh-3.4p1
-> rsync-2.5.5
->
-> On 'old' system:
-> gcc 2.95.2
-> kernel 2.4.3
->
-> On 'new' system:
-> gcc 2.96
-> kernel 2.4.20-pre8
->
->
-> References to past discussions:  (Tried the TCP buffers tuning.)
-> http://lists.insecure.org/linux-kernel/2001/Mar/0374.html
-> http://lists.insecure.org/linux-kernel/2001/Mar/0380.html
-> http://lists.insecure.org/linux-kernel/2001/Mar/0400.html
-> Haven't tried this code yet:
-> http://lists.insecure.org/linux-kernel/2001/Mar/0652.html
->
-> Thanks!
-> sdw
+> RCS file: /cvsroot/usagi/usagi-backport/linux24/net/ipv6/netfilter/ip6_queue.c,v
+> retrieving revision 1.1.1.1
+> retrieving revision 1.1.1.1.12.2
+> diff -u -r1.1.1.1 -r1.1.1.1.12.2
+> --- net/ipv6/netfilter/ip6_queue.c	2002/08/20 09:47:02	1.1.1.1
+> +++ net/ipv6/netfilter/ip6_queue.c	2002/09/19 03:57:51	1.1.1.1.12.2
+> @@ -306,14 +306,8 @@
+>  	 */
+>  	if (e->info->hook == NF_IP_LOCAL_OUT) {
+>  		struct ipv6hdr *iph = e->skb->nh.ipv6h;
+> -		if (!(   iph->daddr.in6_u.u6_addr32[0] == e->rt_info.daddr.in6_u.u6_addr32[0]
+> -                      && iph->daddr.in6_u.u6_addr32[1] == e->rt_info.daddr.in6_u.u6_addr32[1]
+> -                      && iph->daddr.in6_u.u6_addr32[2] == e->rt_info.daddr.in6_u.u6_addr32[2]
+> -                      && iph->daddr.in6_u.u6_addr32[3] == e->rt_info.daddr.in6_u.u6_addr32[3]
+> -		      && iph->saddr.in6_u.u6_addr32[0] == e->rt_info.saddr.in6_u.u6_addr32[0]
+> -		      && iph->saddr.in6_u.u6_addr32[1] == e->rt_info.saddr.in6_u.u6_addr32[1]
+> -		      && iph->saddr.in6_u.u6_addr32[2] == e->rt_info.saddr.in6_u.u6_addr32[2]
+> -		      && iph->saddr.in6_u.u6_addr32[3] == e->rt_info.saddr.in6_u.u6_addr32[3]))
+> +		if (ipv6_addr_cmp(&iph->daddr, &e->rt_info.daddr) ||
+> +		    ipv6_addr_cmp(&iph->saddr, &e->rt_info.saddr))
 
+Cool, thank you.
 
-
-
+- Arnaldo

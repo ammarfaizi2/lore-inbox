@@ -1,69 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263187AbVBDG0l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVBDG13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263187AbVBDG0l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 01:26:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVBDG0k
+	id S261827AbVBDG13 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 01:27:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbVBDG13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 01:26:40 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:4321 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263187AbVBDG00 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 01:26:26 -0500
-Date: Thu, 3 Feb 2005 22:26:07 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Paul Mackerras <paulus@samba.org>
-cc: Rik van Riel <riel@redhat.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       David Woodhouse <dwmw2@infradead.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: A scrub daemon (prezeroing)
-In-Reply-To: <16899.2175.599702.827882@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.58.0502032220430.28851@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0501211228430.26068@schroedinger.engr.sgi.com>
- <1106828124.19262.45.camel@hades.cambridge.redhat.com> <20050202153256.GA19615@logos.cnet>
- <Pine.LNX.4.58.0502021103410.12695@schroedinger.engr.sgi.com>
- <20050202163110.GB23132@logos.cnet> <Pine.LNX.4.61.0502022204140.2678@chimarrao.boston.redhat.com>
- <16898.46622.108835.631425@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.58.0502031650590.26551@schroedinger.engr.sgi.com>
- <16899.2175.599702.827882@cargo.ozlabs.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 4 Feb 2005 01:27:29 -0500
+Received: from smtp103.mail.sc5.yahoo.com ([66.163.169.222]:40283 "HELO
+	smtp103.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263364AbVBDG1S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 01:27:18 -0500
+Subject: Re: page fault scalability patch V16 [3/4]: Drop page_table_lock
+	in handle_mm_fault
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       hugh@veritas.com, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+In-Reply-To: <1107313778.5131.32.camel@npiggin-nld.site>
+References: <41E5B7AD.40304@yahoo.com.au>
+	 <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
+	 <41E5BC60.3090309@yahoo.com.au>
+	 <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
+	 <20050113031807.GA97340@muc.de>
+	 <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
+	 <20050113180205.GA17600@muc.de>
+	 <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com>
+	 <20050114043944.GB41559@muc.de>
+	 <Pine.LNX.4.58.0501140838240.27382@schroedinger.engr.sgi.com>
+	 <20050114170140.GB4634@muc.de>
+	 <Pine.LNX.4.58.0501281233560.19266@schroedinger.engr.sgi.com>
+	 <Pine.LNX.4.58.0501281237010.19266@schroedinger.engr.sgi.com>
+	 <41FF00CE.8060904@yahoo.com.au>
+	 <Pine.LNX.4.58.0502011047330.3205@schroedinger.engr.sgi.com>
+	 <1107304296.5131.13.camel@npiggin-nld.site>
+	 <Pine.LNX.4.58.0502011718240.5549@schroedinger.engr.sgi.com>
+	 <1107308498.5131.28.camel@npiggin-nld.site>
+	 <Pine.LNX.4.58.0502011843570.6511@schroedinger.engr.sgi.com>
+	 <1107313778.5131.32.camel@npiggin-nld.site>
+Content-Type: text/plain
+Date: Fri, 04 Feb 2005 17:27:10 +1100
+Message-Id: <1107498430.5461.17.camel@npiggin-nld.site>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Feb 2005, Paul Mackerras wrote:
+On Wed, 2005-02-02 at 14:09 +1100, Nick Piggin wrote:
+> On Tue, 2005-02-01 at 18:49 -0800, Christoph Lameter wrote:
+> > On Wed, 2 Feb 2005, Nick Piggin wrote:
 
-> The dcbz instruction on the G5 (PPC970) establishes the new cache line
-> in the L2 cache and doesn't disturb the L1 cache (except to invalidate
-> the line in the L1 data cache if it is present there).  The L2 cache
-> is 512kB and 8-way set associative (LRU).  So zeroing a page is
-> unlikely to disturb the cache lines that the page fault handler is
-> using.  Then, when the page fault handler returns to the user program,
-> any cache lines that the program wants to touch are available in 12
-> cycles (L2 hit latency) instead of 200 - 300 (memory access latency).
+> > I mean we could just speculatively copy, risk copying crap and
+> > discard that later when we find that the pte has changed. This would
+> > simplify the function:
+> > 
+> 
+> I think this may be the better approach. Anyone else?
+> 
 
-If the program does not use these cache lines then you have wasted time
-in the page fault handler allocating and handling them. That is what
-prezeroing does for you.
+Not to say it is perfect either. Normal semantics say not to touch
+a page if it is not somehow pinned. So this may cause problems in
+corner cases (DEBUG_PAGEALLOC comes to mind... hopefully nothing else).
 
-> > cpu caches) is extraordinarily fast and the zeroing of large portions of
-> > memory is so too. That is why the impact of scrubd is negligible since
-> > its extremely fast.
->
-> But that also disturbs cache lines that may well otherwise be useful.
+But I think a plain read of the page when it isn't pinned is less
+yucky than writing into the non-pinned struct page.
 
-Yes but its a short burst that only occurs very infrequestly and it takes
-advantage of all the optimizations that modern memory subsystems have for
-linear accesses. And if hardware exists that can offload that from the cpu
-then the cpu caches are only minimally affected.
 
-> As has my scepticism about pre-zeroing actually providing any benefit
-> on ppc64.  Nevertheless, the only definitive answer is to actually
-> measure the performance both ways.
 
-Of course. The optimization depends on the type of load. If you use a
-benchmark that writes to all pages in a page then you will see no benefit
-at all. For a kernel compile you will see a slight benefit. For processing
-of a sparse matrix (page tables are one example) a significant benefit can
-be obtained.

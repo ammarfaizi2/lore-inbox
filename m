@@ -1,43 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVALMYD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVALMbC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbVALMYD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 07:24:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVALMYD
+	id S261162AbVALMbC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 07:31:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVALMbC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 07:24:03 -0500
-Received: from mail.enyo.de ([212.9.189.167]:60891 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S261158AbVALMYB (ORCPT
+	Wed, 12 Jan 2005 07:31:02 -0500
+Received: from pop.gmx.de ([213.165.64.20]:10452 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261162AbVALMaz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 07:24:01 -0500
-From: Florian Weimer <fw@deneb.enyo.de>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Chris Wright <chrisw@osdl.org>, Steve Bergman <steve@rueb.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Proper procedure for reporting possible security vulnerabilities?
-References: <41E2B181.3060009@rueb.com> <87d5wdhsxo.fsf@deneb.enyo.de>
-	<41E2F6B3.9060008@rueb.com>
-	<Pine.LNX.4.61.0501102309270.2987@dragon.hygekrogen.localhost>
-	<20050110164001.Q469@build.pdx.osdl.net>
-	<Pine.LNX.4.61.0501111758290.3368@dragon.hygekrogen.localhost>
-Date: Wed, 12 Jan 2005 13:23:54 +0100
-In-Reply-To: <Pine.LNX.4.61.0501111758290.3368@dragon.hygekrogen.localhost>
-	(Jesper Juhl's message of "Tue, 11 Jan 2005 18:05:05 +0100 (CET)")
-Message-ID: <87pt0aomxx.fsf@deneb.enyo.de>
+	Wed, 12 Jan 2005 07:30:55 -0500
+X-Authenticated: #4512188
+Message-ID: <41E51876.5020703@gmx.de>
+Date: Wed, 12 Jan 2005 13:30:46 +0100
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050107)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: krishna <krishna.c@globaledgesoft.com>,
+       lirc <lirc-list-request@lists.sourceforge.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: LIRC for Infra Red port.
+References: <41E510C7.5060100@globaledgesoft.com> <Pine.LNX.4.61.0501121310010.14535@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0501121310010.14535@yvahk01.tjqt.qr>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigE034F12BA9C44DF9F7382E0E"
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jesper Juhl:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigE034F12BA9C44DF9F7382E0E
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Problem is that the info can then get stuck at a vendor or maintainer 
-> outside of public view and risk being mothballed.
+Jan Engelhardt schrieb:
+>>Hi all,
+>>
+>>  I am working on LIRC-serial.
+>>
+>>But in my main board I also have Infra Red Port. I don't want to use the serial
+>>port so that it I can use for some other purpose.
+>>Does any one know How could I use the IR port instead of Serial port.
+>
+>
+> The BIOS has a switch to reserve COM2 (maybe others) for IR, hopefully.
 
-The submitter can go public anyway.  Most coordinators do not require
-signing NDAs for submitters (some require them from software authors,
-though).
+Or in other words: You'll loose your serial port either way...
 
-A designated security contact would give submitters a choice: either
-go public directly, or try something else first.  And believe, some
-vulnerabilities really need a tested fix which is published at the
-time of disclosure (death by single packet, for example). 
+Prakash
+
+--------------enigE034F12BA9C44DF9F7382E0E
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFB5Rh8xU2n/+9+t5gRAo8VAJ41SzTm9tjDlR6wCGFgYQ4H48xtgACfW8Sj
+mS3xHe0aB2rxOHWMCkJp6cw=
+=km9O
+-----END PGP SIGNATURE-----
+
+--------------enigE034F12BA9C44DF9F7382E0E--

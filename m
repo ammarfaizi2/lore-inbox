@@ -1,109 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263385AbTC2FfI>; Sat, 29 Mar 2003 00:35:08 -0500
+	id <S263387AbTC2Gco>; Sat, 29 Mar 2003 01:32:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263386AbTC2FfI>; Sat, 29 Mar 2003 00:35:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17030 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263385AbTC2FfG>;
-	Sat, 29 Mar 2003 00:35:06 -0500
-Message-ID: <3E85334A.9010303@pobox.com>
-Date: Sat, 29 Mar 2003 00:46:50 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [BK PATCHES] net driver merges
-Content-Type: multipart/mixed;
- boundary="------------070505070003030807080003"
+	id <S263388AbTC2Gco>; Sat, 29 Mar 2003 01:32:44 -0500
+Received: from [61.3.64.2] ([61.3.64.2]:59397 "EHLO Gateway.bksys.co.in")
+	by vger.kernel.org with ESMTP id <S263387AbTC2Gcn>;
+	Sat, 29 Mar 2003 01:32:43 -0500
+Subject: Issues in 2.5.65-ac4
+From: "S.Gopi" <sekargopi@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 29 Mar 2003 12:16:21 +0530
+Message-Id: <1048920381.2383.22.camel@Agni>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070505070003030807080003
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-nothing terribly interesting
+Hai,
+ 
+  I recently downloaded kernel 2.5.65, then applied subsequent patch
+released by linus for 2.5.66 (patch-2.5.66.bz2),and then applied AC
+patch (patch-2.5.66-ac1.bz2)
 
---------------070505070003030807080003
-Content-Type: text/plain;
- name="net-drivers-2.5.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="net-drivers-2.5.txt"
+I got thrugh compilation except few errors in WAN drivers compilation
+and character drivers compilation. Thats not my question is about. 
 
-Linus, please do a
+I am using this kernel on RedHat 7.3 filesystem. I have few questions
+and here they are.
 
-	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.5
+Question 1:
+problem on /proc/cpuinfo. cpuinfo doesnt showup speed in MHz. It shows
+it as 0.00. and it shows different bogomips too.
 
-This will update the following files:
+I compared this with 2.4.18-18(kernel distributed by redhat), I am
+attaching both the outputs below
 
- Documentation/networking/bonding.txt |  142 ++++++--
- drivers/net/3c509.c                  |    2 
- drivers/net/bonding.c                |  581 ++++++++++++++++++++---------------
- drivers/net/gt96100eth.c             |   17 -
- drivers/net/mace.c                   |   36 +-
- drivers/net/r8169.c                  |    2 
- drivers/net/tulip/de4x5.c            |    1 
- drivers/net/tulip/dmfe.c             |    6 
- include/linux/if_bonding.h           |    9 
- 9 files changed, 491 insertions(+), 305 deletions(-)
-
-through these ChangeSets:
-
-<mbligh@aracnet.com> (03/03/29 1.1029)
-   [PATCH] remove warning for 3c509.c
-   
-   Get this compile warning:
-   drivers/net/3c509.c:207: warning: `el3_device_remove' declared `static' but never defined
-   because the function definition is under
-   "#if defined(CONFIG_EISA) || defined(CONFIG_MCA)".
-   
-   This patch puts the declaration under the same conditions.
-   I'd be shocked if it wasn't correct ;-)
-   
-   M.
-
-<paulus@samba.org> (03/03/29 1.1028)
-   [PATCH] MACE ethernet driver update
-   
-   This patch updates the MACE ethernet driver, used on older powermacs,
-   to remove the uses of save_flags/restore_flags/cli/sti and use a
-   spinlock instead.
-   
-   Jeff, please send this on to Linus.
-   
-   Paul.
-
-<davej@codemonkey.org.uk> (03/03/29 1.1027)
-   [PATCH] finish init_etherdev conversion for gt96100eth
-   
-   - No need to alloc dev->priv (due to init_etherdev usage)
-   - No need to kfree dev->priv (kfree'd with (dev) already)
-
-<bunk@fs.tum.de> (03/03/29 1.1026)
-   [PATCH] fix .text.exit error in drivers/net/r8169.c
-   
-   In drivers/net/r8169.c the function rtl8169_remove_one is __devexit but
-   the pointer to it didn't use __devexit_p resulting in a.text.exit
-   compile error when !CONFIG_HOTPLUG.
-   
-   The fix is simple:
-
-<fubar@us.ibm.com> (03/03/29 1.1025)
-   [bonding] bug fixes, and a few minor feature additions
-   
-   Mainly sync w/ 2.4.x version.
-
-<davej@codemonkey.org.uk> (03/03/29 1.1024)
-   [tulip dmfe] add pci id
-
-<bwindle@fint.org> (03/03/28 1.1023)
-   [tulip] remove unnecessary linux/version.h includes
+2.4.18 /proc/cpuinfo
+--------------------
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 15
+model		: 1
+model name	: Intel(R) Pentium(R) 4 CPU 1.60GHz
+stepping	: 2
+cpu MHz		: 1594.840
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips	: 3164.53
 
 
---------------070505070003030807080003--
+
+/proc/cpuinfo from 2.5.65-ac4 (that is what being showed up in
+/proc/version)
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 1
+model name      : Intel(R) Pentium(R) 4 CPU 1.60GHz
+stepping        : 2
+cpu MHz         : 0.000
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 2093.05
+
+either the information provided in 2.4.18 or 2.5.65 is wrong. which is
+correct then?
+
+my /proc/version details
+Linux version 2.5.65-ac4 (root@Agni) (gcc version 2.96 20000731 (Red Hat
+Linux 7.3 2.96-113)) #9 Fri Mar 28 16:13:18 IST 2003
+
+what could be wrong.
+
+Second question: where is /proc/pci gone?
+
+Third question: my KDE kicker doesnt startup, it gets crashed even if i
+run as root. It happens so only in kernel 2.5.x and not 2.4.18. what
+could be wrong for this?
+
+If any of you want further details, i can post in too. 
+
+Thank you,
+Gopi
+
+
+
 

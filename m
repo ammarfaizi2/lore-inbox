@@ -1,127 +1,253 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314702AbSE2SfR>; Wed, 29 May 2002 14:35:17 -0400
+	id <S315245AbSE2SwV>; Wed, 29 May 2002 14:52:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314748AbSE2SfQ>; Wed, 29 May 2002 14:35:16 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:38406 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id <S314702AbSE2SfP>; Wed, 29 May 2002 14:35:15 -0400
-Date: Wed, 29 May 2002 14:34:21 -0400 (EDT)
-From: Paul Clements <kernel@steeleye.com>
-Reply-To: Paul.Clements@steeleye.com
-To: linux-kernel@vger.kernel.org, Paul.Clements@steeleye.com
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [RESEND] [OOPS & PATCH 2.4.18] NULL pointer dereference in ide.c,
- ide_revalidate_disk()
-In-Reply-To: <Pine.LNX.4.10.10205081106060.31335-200000@clements.sc.steeleye.com>
-Message-ID: <Pine.LNX.4.10.10205291357080.28649-200000@clements.sc.steeleye.com>
+	id <S315337AbSE2SwU>; Wed, 29 May 2002 14:52:20 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60178 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315245AbSE2SwS>; Wed, 29 May 2002 14:52:18 -0400
+Date: Wed, 29 May 2002 11:50:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux 2.5.19
+Message-ID: <Pine.LNX.4.33.0205291146510.1344-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="296485894-999928714-1022697261=:28649"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---296485894-999928714-1022697261=:28649
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+More VM/FS interaction updates from Andrew Morton. Block layer (and 
+IDE) updates.  USB and driverfs stuff (the driverfs thing is starting to 
+slowly add flesh on its original promise).
+
+In short, all over the map.
+
+		Linus
+
+-----
+
+Summary of changes from v2.5.18 to v2.5.19
+============================================
+
+<Andries.Brouwer@cwi.nl>
+	o usb-storage
+
+<acher@in.tum.de>
+	o small fixes for usb-uhci-hcd
+
+<acme@conectiva.com.br>
+	o drivers/char/rio/rio_linux.c
+
+Andrew Morton <akpm@zip.com.au>
+	o enable direct-to-BIO readahead for ext3
+	o factor common code in page_alloc.c
+	o relax nr_to_write requirements
+	o ext3 set_page_dirty fix
+	o small fixes in buffer.c
+	o fix loop driver for large BIOs
+	o block_truncate_page fix
+	o mark swapout pages PageWriteback()
+	o direct-to-BIO writeback
+	o remove mem_map_t
+	o rename writeback_mapping to writepages
+	o move BH_JBD out of buffer_head.h
+	o generic_file_write() cleanup
+	o fix ext3 __FUNCTION__ warnings
+	o direct-to-BIO readahead
+	o move nr_active and nr_inactive into per-CPU page
+	o dirsync
+	o avoid sys_sync livelocks
+
+<amunoz@vmware.com>
+	o ia64: Don't assume out registers are preserved across call to
+
+<anton@samba.org>
+	o TLB shootdown infrastructure in 2.5
+
+Jens Axboe <axboe@suse.de>
+	o block documentation updates
+	o a few ll_rw_blk exports missing
+	o block plugging reworked
+	o block plugging reworked/fixed
+
+Brian Gerst <bgerst@didntduck.org>
+	o fix thermal_interrupt
+	o i386 mm init cleanup part 2
+	o i386 head.S cleanup
+	o i386 mm init cleanup part 1
+
+Martin Dalecki <dalecki@evision-ventures.com>
+	o 2.5.18 IDE 71-75
+	o airo
+	o 2.5.18 QUEUE_EMPTY and the unpleasant friends.
+
+<david-b@pacbell.net>
+	o ehci split interrupt transactions
+
+<davidm@tiger.hpl.hp.com>
+	o ia64: Fix misc. merge errors and typos.
+	o ia64: Change local_irq_restore() to restore only psr.i, so that it
+	o ia64: Misc. fixes.
+	o ia64: Make pci_dma_supported() a platform-specific function.  
+	o ia64: Various small fixes.
+	o ia64: Update pte macros for new pfn-based versions.
+	o ia64: Sync up with 2.5.17 tree.
+	o ia64: Sync up with 2.5.18.
+
+<davidm@wailua.hpl.hp.com>
+	o ia64: Force bitkeeper update.
+	o ia64: Rename McKinley to Itanium 2.  Fix some compilation issues.  Fix alignment
+
+<eranian@hpl.hp.com>
+	o ia64: Perfmon update.
+
+<fdavis@si.rr.com>
+	o net/ipv4/ipconfig.c minor fix
+
+<greg@kroah.com>
+	o USB irda driver
+	o USB SL811HS host controller driver.
+
+<hirofumi@mail.parknet.co.jp>
+	o Fix the handling of dentry on msdos_lookup() (1/4)
+	o Fix the utf8 option of vfat (again)
+
+<ink@jurassic.park.msu.ru>
+	o 2.5.18: unnamed PCI bus resources
+	o 2.5.18 pci/setup-bus.c: incorrect BUG() calls
+
+<jack@suse.cz>
+	o Quota update
+
+<jbglaw@lug-owl.de>
+	o Trivial compile fix to fs/binfmt_em86.c
+	o SRM cleanup for generic Alpha kernels
+
+<johann.deneux@laposte.net>
+	o Documentation in usb.c
+
+James Simmons <jsimmons@heisenberg.transvirtual.com>
+	o Moved VESA framebuffer driver over to new fbdev api
+	o Moved VESA framebuffer over to new fbdev api
+	o More porting to new api.
+	o Forgot to include removal of using fbcon-cfb* for the new drivers ported over.
+	o A new new drivers. Also several bug fixes and a few drivers ported over to new fbdev api.
+	o Added in support for new drivers.
+	o More drivers ported over to new API.
+	o More drivers ported over to the new api. Also a bug fix in the software drawing image routine.
+	o More changes for new fbdev subsytem.
+	o Ported Voodoo3+ cards over to new api.
+
+<kai@tp1.ruhr-uni-bochum.de>
+	o kbuild: Figure out flags independently from pass
+	o ISDN/CAPI: Move methods from capi_driver to capi_ctr
+	o kbuild: Simplify rule for just building one subdir
+	o kbuild: Use consistently FORCE instead of dummy
+	o drivers/video/matrox/matroxfb_accel.c: Explicitly export symbols.
+	o ISDN/CAPI: Cleanup /proc/capi
+	o ISDN: CAPI: Remove unused capi_driver::driver_read_proc
+	o ISDN/CAPI: Have hardware driver alloc struct capi_drv
+	o ISDN/CAPI: Export callbacks for CAPI drivers directly
+	o ISDN/CAPI: Remove struct capi_driver
+	o kbuild: built-in and modules in one pass
+	o kbuild: Normal sources should not include <linux/compile.h>
+	o kbuild: Add EXTRA_TARGETS variable
+	o kbuild: Remove remaining O_TARGET in drivers/*/Makefile
+	o kbuild: Don't overwrite Rules.make's first_rule
+	o kbuild: beautify Makefile / Rules.make...
+	o kbuild: Group together descending/linking in drivers/*
+	o kbuild: Build targets locally
+	o kbuild: Provide correct 'make some/dir/file.[iso]'
+	o kbuild: Hand merge link order change form driverfs update.
+
+<ldb@ldb.ods.org>
+	o [2.4] [2.5] Fix PPPoATM crash on disconnection
+
+<mdharm-usb@one-eyed-alien.net>
+	o Additional comments for usb-storage
+
+<mdharm@one-eyed-alien.net>
+	o usb-storage abort path cleanup
+
+<mochel@geena.pdx.osdl.net>
+	o Introduce struct bus_type for describing types of buses
+	o Device Model: do better cleanup on device removal
+	o deivce model: actually compile and use bus drivers
+	o PCI: define pci_bus_type and register it on startup 
+	o driverfs: add and export driverfs_create_symlink for general kernel use
+	o device model: Create symlinks in bus's 'devices' dir for a device when its registered
+	o device model: Need to back up one more directory when creating the symlink between the bus's 'devices' dir and the device's physical dir.
+	o PCI: start to use common fields of struct device_driver more
+	o Beef up centralized driver mgmt:
+
+Paul Mackerras <paulus@samba.org>
+	o PPC32: trivial whitespace fix, from Rusty Russell
+	o PPC32: add definitions for fls(), pmd_free_tlb() and pte_free_tlb(),
+	o PPC32: Updates for PPC405 processors.  A lot of stuff that was under
+	o PPC32: two warning fixes from Rusty Russell, plus fix the PPC603
+	o PPC32: remove some compile warnings in the CHRP and powermac boot
+	o PPC32: Use copy_siginfo_to_user to copy the siginfo stuff to
+	o PPC32: use the standard kernel min macro in a couple of places.
+
+<pavel@suse.cz>
+	o swsusp: cleanup
+
+Russell King <rmk@arm.linux.org.uk>
+	o 2.5.18: Fix ramdisk
+
+<rml@tech9.net>
+	o trivial: no "error" on preempt_count notice
+	o set_cpus_allowed optimization
+	o documentation for the new scheduler
+	o preempt-safe net/ code
+	o real-time info in /proc/<pid>/stats
+	o Robert Love likes leather and chains
+	o O(1) count_active_tasks
+
+<rusty@rustcorp.com.au>
+	o dcache.c spelling
+	o autofs_wqt_t for ppc64
+	o xconfig fix
+	o MAINTAINERS file addition: Al Viro
+	o ppc chrp/start.c warnings removal
+	o do_mounts warning removal
+	o vmscan.c tidy up
+	o CREDITS sort order
+	o semctl SUSv2 compliance
+	o ppc spinlock warning removal
+	o Alpha macro standardize
+	o jiffies.h includes asm/param.h
+	o exit path cleanup in drivers/cdrom/sonycd535.c
+	o irq.h comment fix
+	o check_region cleanup from drivers/char/ip2main.c
+	o DIE "Russel", DIE!
+
+<sfr@canb.auug.org.au>
+	o consolidate errno definitions
+	o consolidate generic peices of the siginfo structures and associated stuff
+	o consolidate arch specific copy_siginfo_to_user
+	o consolidate do_signal
+
+<torvalds@home.transmeta.com>
+	o Fix mmap cornercase with wrong return value for invalid "len".
+	o Merge Keith Whitwell's radeon ring-buffer updates
+	o More drm updates from Keith Whitwell
+	o Add missing thermal interrupt prototype.
+	o Remove re-use of "struct mm_struct" at execve() time.
+	o Allocate new mm_struct for execve() early, so that we have
+	o Fix IDE Makefile typo
+	o Kernel version 2.5.19
+
+<trini@bill-the-cat.bloom.county>
+	o PPC32: Numerous minor platform updates and cleanups.
+	o PPC32: Cleanup the i8259 code slightly.  Allow for polling of interrupts again
+	o PPC32: In the bootwrapper/loader, rename setup_legacy to serial_fixups to
+	o PPC32: Forward-port the /proc/residual stuffs from 2.4.  This is
+
+<trond.myklebust@fys.uio.no>
+	o Clean out routines that were obsoleted by previous
+	o Teach RPC client to send pages rather than iovecs.
+	o RPC client receive deadlock removal on HIGHMEM systems
 
 
-Resending this patch. Looks like it did not make 2.4.19-pre9. Is there some problem in the patch 
-or in my analysis, or has the problem been fixed in some other (better) way?
-
-Thanks,
-Paul
-
-
-On Wed, 8 May 2002, Paul Clements wrote:
-
-> 
-> Looking back at LKML archives, I think this issue was reported by someone back in
-> November 01, and I just saw the same issue on a system a few days ago. I think I
-> have tracked down the cause of the oops. I looked to see if it had been fixed in
-> 2.4.19-pre8 and it had not, so I have attached a patch against 2.4.18. Please apply.
-> 
-> The kernel oops was this:
-> 
-> ----
-> 
-> May  3 23:20:07 liono kernel: hda: ATAPI 32X CD-ROM drive, 256kB Cache, UDMA(33)
-> May  3 23:20:07 liono kernel: Uniform CD-ROM driver Revision: 3.12
-> May  3 23:20:07 liono kernel: hda: ide_cdrom_setup failed to register device with the cdrom driver.
-> May  3 23:20:07 liono kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000028
-> May  3 23:20:07 liono kernel:  printing eip:
-> May  3 23:20:07 liono kernel: c019b54a
-> May  3 23:20:07 liono kernel: *pde = 00000000
-> May  3 23:20:07 liono kernel: Oops: 0000
-> May  3 23:20:07 liono kernel: CPU:    0
-> May  3 23:20:07 liono kernel: EIP:    0010:[ide_revalidate_disk+250/304]    Not tainted
-> May  3 23:20:07 liono kernel: EIP:    0010:[<c019b54a>]    Not tainted
-> May  3 23:20:07 liono kernel: EFLAGS: 00010212
-> May  3 23:20:07 liono kernel: EIP is at ide_revalidate_disk [kernel] 0xfa
-> May  3 23:20:07 liono kernel: eax: 00000000   ebx: 00000300   ecx: 00000000   edx: 00000000
-> May  3 23:20:07 liono kernel: esi: c03bdba0   edi: 00001100   ebp: 00000040   esp: c90e3ee0
-> May  3 23:20:07 liono kernel: ds: 0018   es: 0018   ss: 0018
-> May  3 23:20:07 liono kernel: Process modprobe (pid: 2028, stackpage=c90e3000)
-> May  3 23:20:07 liono kernel: Stack: 00000300 00000000 00000000 00000000 00000000 c03bde7c c019b5d2 00000300
-> May  3 23:20:07 liono kernel:        cd3ce200 00000000 cd3ce348 00000002 c019dba5 d0972aa7 d09759e0 d096f000
-> May  3 23:20:07 liono kernel:        00000001 00000001 00000001 c011c685 d09758dc c903e000 000067d8 c91cd000
-> May  3 23:20:07 liono kernel: Call Trace: [revalidate_drives+82/112] revalidate_drives [kernel] 0x52
-> May  3 23:20:07 liono kernel: Call Trace: [<c019b5d2>] revalidate_drives [kernel] 0x52
-> May  3 23:20:07 liono kernel: [ide_register_module+53/64] ide_register_module [kernel] 0x35
-> May  3 23:20:07 liono kernel: [<c019dba5>] ide_register_module [kernel] 0x35
-> May  3 23:20:07 liono kernel: [aic7xxx_mod:aic7xxx_verbose+1171231/206116241] ide_cdrom_init [ide-cd] 0x187
-> May  3 23:20:07 liono kernel: [<d0972aa7>] ide_cdrom_init [ide-cd] 0x187
-> May  3 23:20:07 liono kernel: [aic7xxx_mod:aic7xxx_verbose+1183320/206104152] __insmod_ide-cd_S.data_L192 [ide-cd] 0xa0
-> May  3 23:20:07 liono kernel: [<d09759e0>] __insmod_ide-cd_S.data_L192 [ide-cd] 0xa0
-> May  3 23:20:07 liono kernel: [sys_init_module+1365/1616] sys_init_module [kernel] 0x555
-> May  3 23:20:07 liono kernel: [<c011c685>] sys_init_module [kernel] 0x555
-> May  3 23:20:07 liono kernel: [aic7xxx_mod:aic7xxx_verbose+1183060/206104412] sense_data_texts [ide-cd] 0x107c
-> May  3 23:20:07 liono kernel: [<d09758dc>] sense_data_texts [ide-cd] 0x107c
-> May  3 23:20:07 liono kernel: [aic7xxx_mod:aic7xxx_verbose+1156312/206131160] __insmod_ide-cd_O/lib/modules/2.4.9-21smp/kernel/drivers/ide/ide-cd.o_M3C472201_V132105 [ide-cd] 0x60
-> May  3 23:20:07 liono kernel: [<d096f060>] __insmod_ide-cd_O/lib/modules/2.4.9-21smp/kernel/drivers/ide/ide-cd.o_M3C472201_V132105 [ide-cd] 0x60
-> May  3 23:20:07 liono kernel: [system_call+51/56] system_call [kernel] 0x33
-> May  3 23:20:07 liono kernel: [<c010719b>] system_call [kernel] 0x33
-> May  3 23:20:07 liono kernel: [__put_unused_buffer_head+107/416] __put_unused_buffer_head [kernel] 0x6b
-> May  3 23:20:07 liono kernel: [<c014002b>] __put_unused_buffer_head [kernel] 0x6b
-> May  3 23:20:07 liono kernel:
-> May  3 23:20:07 liono kernel:
-> May  3 23:20:07 liono kernel: Code: 8b 40 28 85 c0 74 04 56 ff d0 5a 80 a6 b6 00 00 00 fb 8d 86
-> 
-> ----
-> 
-> So what this tells me is that (probably) a NULL pointer was dereferenced while looking for a structure 
-> member with an offset of 40 (0x28) bytes. Looking through the ide_revalidate_disk function (ide.c) I find
-> that the only structure member being referenced, which also has an offset of 40 is drive->driver->revalidate 
-> (via the DRIVER macro):
-> 
->     if (DRIVER(drive)->revalidate)
-> 
-> But there is no check for driver != NULL before it is dereferenced. In many other places throughout ide.c 
-> these explicit checks are present.
-> 
-> The attached patch (against 2.4.18) adds this explicit check.
-> 
-> --
-> Paul Clements
-> SteelEye Technology
-> Paul.Clements@SteelEye.com
-> 
-
---296485894-999928714-1022697261=:28649
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ide_driver_null_2_4_18.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.10.10205291434210.28649@clements.sc.steeleye.com>
-Content-Description: 
-Content-Disposition: attachment; filename="ide_driver_null_2_4_18.diff"
-
-LS0tIGxpbnV4LTIuNC4xOC5QUklTVElORS9kcml2ZXJzL2lkZS9pZGUuYwlN
-b24gQXByIDI5IDEwOjQ0OjEyIDIwMDINCisrKyBsaW51eC0yLjQuMTguYWx0
-L2RyaXZlcnMvaWRlL2lkZS5jCVR1ZSBNYXkgIDcgMTc6MTY6NTMgMjAwMg0K
-QEAgLTE4OTIsNyArMTg5Miw3IEBADQogCQlkcml2ZS0+cGFydFtwXS5ucl9z
-ZWN0cyAgID0gMDsNCiAJfTsNCiANCi0JaWYgKERSSVZFUihkcml2ZSktPnJl
-dmFsaWRhdGUpDQorCWlmIChEUklWRVIoZHJpdmUpICYmIERSSVZFUihkcml2
-ZSktPnJldmFsaWRhdGUpDQogCQlEUklWRVIoZHJpdmUpLT5yZXZhbGlkYXRl
-KGRyaXZlKTsNCiANCiAJZHJpdmUtPmJ1c3kgPSAwOw0K
---296485894-999928714-1022697261=:28649--

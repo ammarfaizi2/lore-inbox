@@ -1,83 +1,167 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263573AbREYG0j>; Fri, 25 May 2001 02:26:39 -0400
+	id <S263578AbREYGat>; Fri, 25 May 2001 02:30:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263575AbREYG03>; Fri, 25 May 2001 02:26:29 -0400
-Received: from kwanon.research.canon.com.au ([203.12.172.254]:30215 "HELO
-	kwanon.research.canon.com.au") by vger.kernel.org with SMTP
-	id <S263573AbREYG0Z>; Fri, 25 May 2001 02:26:25 -0400
-Subject: Re: Big-ish SCSI disks
-To: scott@spiteful.org (Scott Murray)
-Date: Fri, 25 May 2001 16:22:36 +1000 (EST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0105250015550.15333-100000@godzilla.spiteful.org> from "Scott Murray" at May 25, 2001 12:29:05 
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263579AbREYGaj>; Fri, 25 May 2001 02:30:39 -0400
+Received: from smtp1.Stanford.EDU ([171.64.14.23]:36061 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S263578AbREYGa3>; Fri, 25 May 2001 02:30:29 -0400
+Message-Id: <200105250630.f4P6UR400143@smtp1.Stanford.EDU>
+From: Praveen Srinivasan <praveens@stanford.edu>
+Subject: Re: [PATCH] DAC960.c - Null ptr fixes
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk
+Reply-To: praveens@stanford.edu
+Date: Thu, 24 May 2001 23:31:45 -0700
+In-Reply-To: <fa.grcf94v.50qrhi@ifi.uio.no> <fa.nm1gibv.1a2cran@ifi.uio.no> <9eioca$k01$1@news.Stanford.EDU>
+Organization: Stanford University
+User-Agent: KNode/0.5.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20010525062236.8CC1837530@zapff.research.canon.com.au>
-From: gjohnson@research.canon.com.au (Greg Johnson)
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks. Interesting that you mention the Severworks LE chipset. We
-have 2 identical machines with the intel STL MOBO wich uses
-the Severworks LE. They are both dual PIII 1GHz 1GB mem and ultra
-160 drives. I have had nothing but trouble getting RedHat 7.1 beta-1,
-7.1 beta-2 and 7.1 release. The OS tended to install ok 
-but on beta1, only the up kernel would boot. On beta-2 and release
-both up and smp kernels would boot. On neither of the systems
-have I managed to build a kernel up or smp, new or same version
-as was installed. When I tried to boot the kernel I had built,
-the scsi driver would fail to load. This also happen on the Redhat
-installed smp kernel in beta-1 and on any of the redhat installed
-kernels in either of beta-2 or release when I tried to use disk
-striping.
+We revised the DAC960.c patch to include the helpful advice given, as well 
+as improving style issues. Is there a good reason why the code has been 
+copied and pasted so much? This copying and pasting business multiplies the 
+same error very quickly.
 
-Have you experienced any issues like this?
-Have you successfuly built a kernel that booted on these machines?
-
-Regards
-
-Greg.
-
-Quoth Scott Murray:
-> 
-> On Fri, 25 May 2001, Greg Johnson wrote:
-> 
-> > Hi kernel poeple,
-> >
-> > Can anyone out there say for certain that 76GB SCSI disks should
-> > just work with kernel versions 2.2 and/or 2.4? We need to get some
-> > big disk space and have heard reports of problems with disks
-> > bigger than 30GB under linux.
-> 
-> I set up a machine at work a few months ago with two Seagate 73GB
-> Ultra160 drives (model ST173404LW) using the Adaptec AIC-7899 adapter
-> on board a ServerWorks LE chipset based motherboard.  Everything has
-> been working fine using the stock RedHat 7.0 2.2.16-22smp kernel.  I
-> also played with some 2.4.1-ac kernels to try out ReiserFS, and also
-> had no problems using the disks.
-> 
-> Scott
-> 
-> 
-> -- 
-> =============================================================================
-> Scott Murray                                        email: scott@spiteful.org
-> http://www.spiteful.org (coming soon)                 ICQ: 10602428
-> -----------------------------------------------------------------------------
->      "Good, bad ... I'm the guy with the gun." - Ash, "Army of Darkness"
-> 
+Praveen Srinivasan and Frederick Akalin
 
 
--- 
-+------------------------------------------------------+
-| Do you want to know more? www.geocities.com/worfsom/ |
-|              ..ooOO Greg Johnson OOoo..              |
-| HW/SW Engineer        gjohnson@research.canon.com.au |
-| Canon Information Systems Research Australia (CISRA) |
-| 1 Thomas Holt Dr., North Ryde, NSW, 2113,  Australia |
-|      "I FLEXed my BISON and it went YACC!" - me.     |
-+------------------------------------------------------+
+--- ./drivers/block/DAC960.c.orig       Thu May 24 23:27:46 2001
++++ ./drivers/block/DAC960.c    Thu May 24 23:26:16 2001
+@@ -506,8 +506,12 @@
+                                      void *DataPointer)
+ {
+   DAC960_Command_T *Command = DAC960_AllocateCommand(Controller);
+-  DAC960_V1_CommandMailbox_T *CommandMailbox = &Command->V1.CommandMailbox;
++  DAC960_V1_CommandMailbox_T *CommandMailbox;
+   DAC960_V1_CommandStatus_T CommandStatus;
++  if(Command == NULL) {
++          return 0;
++  }
++  CommandMailbox = &Command->V1.CommandMailbox;
+   DAC960_V1_ClearCommand(Command);
+   Command->CommandType = DAC960_ImmediateCommand;
+   CommandMailbox->Type3.CommandOpcode = CommandOpcode;
+@@ -531,9 +535,14 @@
+                                       unsigned char TargetID,
+                                       void *DataPointer)
+ {
++  
+   DAC960_Command_T *Command = DAC960_AllocateCommand(Controller);
+-  DAC960_V1_CommandMailbox_T *CommandMailbox = &Command->V1.CommandMailbox;
++  DAC960_V1_CommandMailbox_T *CommandMailbox;
+   DAC960_V1_CommandStatus_T CommandStatus;
++  if(Command == NULL) {
++          return 0;
++  }
++  CommandMailbox = &Command->V1.CommandMailbox;
+   DAC960_V1_ClearCommand(Command);
+   Command->CommandType = DAC960_ImmediateCommand;
+   CommandMailbox->Type3D.CommandOpcode = CommandOpcode;
+@@ -559,8 +568,12 @@
+                                     unsigned int DataByteCount)
+ {
+   DAC960_Command_T *Command = DAC960_AllocateCommand(Controller);
+-  DAC960_V2_CommandMailbox_T *CommandMailbox = &Command->V2.CommandMailbox;
++  DAC960_V2_CommandMailbox_T *CommandMailbox;
+   DAC960_V2_CommandStatus_T CommandStatus;
++  if(Command == NULL) {
++          return 0;
++  }
++  CommandMailbox = &Command->V2.CommandMailbox;
+   DAC960_V2_ClearCommand(Command);
+   Command->CommandType = DAC960_ImmediateCommand;
+   CommandMailbox->Common.CommandOpcode = DAC960_V2_IOCTL;
+@@ -597,9 +610,12 @@
+                                        unsigned int DataByteCount)
+ {
+   DAC960_Command_T *Command = DAC960_AllocateCommand(Controller);
+-  DAC960_V2_CommandMailbox_T *CommandMailbox = &Command->V2.CommandMailbox;
++  DAC960_V2_CommandMailbox_T *CommandMailbox;
+   DAC960_V2_CommandStatus_T CommandStatus;
+-  DAC960_V2_ClearCommand(Command);
++  if(Command == NULL) {
++          return 0;
++  }
++  CommandMailbox = &Command->V2.CommandMailbox;
+   Command->CommandType = DAC960_ImmediateCommand;
+   CommandMailbox->ControllerInfo.CommandOpcode = DAC960_V2_IOCTL;
+   CommandMailbox->ControllerInfo.CommandControlBits
+@@ -639,8 +655,12 @@
+                                           unsigned int DataByteCount)
+ {
+   DAC960_Command_T *Command = DAC960_AllocateCommand(Controller);
+-  DAC960_V2_CommandMailbox_T *CommandMailbox = &Command->V2.CommandMailbox;
++  DAC960_V2_CommandMailbox_T *CommandMailbox;
+   DAC960_V2_CommandStatus_T CommandStatus;
++  if(Command == NULL) {
++          return 0;
++  }
++  CommandMailbox = &Command->V2.CommandMailbox;
+   DAC960_V2_ClearCommand(Command);
+   Command->CommandType = DAC960_ImmediateCommand;
+   CommandMailbox->LogicalDeviceInfo.CommandOpcode = DAC960_V2_IOCTL;
+@@ -683,8 +703,12 @@
+                                            unsigned int DataByteCount)
+ {
+   DAC960_Command_T *Command = DAC960_AllocateCommand(Controller);
+-  DAC960_V2_CommandMailbox_T *CommandMailbox = &Command->V2.CommandMailbox;
++  DAC960_V2_CommandMailbox_T *CommandMailbox;
+   DAC960_V2_CommandStatus_T CommandStatus;
++  if(Command == NULL) {
++          return 0;
++  }
++  CommandMailbox = &Command->V2.CommandMailbox;
+   DAC960_V2_ClearCommand(Command);
+   Command->CommandType = DAC960_ImmediateCommand;
+   CommandMailbox->PhysicalDeviceInfo.CommandOpcode = DAC960_V2_IOCTL;
+@@ -724,8 +748,12 @@
+                                           OperationDevice)
+ {
+   DAC960_Command_T *Command = DAC960_AllocateCommand(Controller);
+-  DAC960_V2_CommandMailbox_T *CommandMailbox = &Command->V2.CommandMailbox;
++  DAC960_V2_CommandMailbox_T *CommandMailbox;
+   DAC960_V2_CommandStatus_T CommandStatus;
++  if(Command == NULL) {
++          return 0;
++  }
++  CommandMailbox = &Command->V2.CommandMailbox;
+   DAC960_V2_ClearCommand(Command);
+   Command->CommandType = DAC960_ImmediateCommand;
+   CommandMailbox->DeviceOperation.CommandOpcode = DAC960_V2_IOCTL;
+@@ -1435,8 +1463,12 @@
+        InquiryUnitSerialNumber;
+       memset(InquiryUnitSerialNumber, 0,
+             sizeof(DAC960_SCSI_Inquiry_UnitSerialNumber_T));
+-      InquiryUnitSerialNumber->PeripheralDeviceType = 0x1F;
++      InquiryUnitSerialNumber->PeripheralDeviceType = 0x1F;    
+       Command = DAC960_AllocateCommand(Controller);
++      if(Command == NULL) {
++             return DAC960_Failure(Controller, "COMMAND ALLOCATION");
++      }
++
+       CommandMailbox = &Command->V2.CommandMailbox;
+       DAC960_V2_ClearCommand(Command);
+       Command->CommandType = DAC960_ImmediateCommand;
+@@ -6594,6 +6626,8 @@
+        create_proc_read_entry("user_command", S_IWUSR | S_IRUSR,
+                               ControllerProcEntry, DAC960_ProcReadUserCommand,
+                               Controller);
++      if(UserCommandProcEntry == NULL) continue;
++
+       UserCommandProcEntry->write_proc = DAC960_ProcWriteUserCommand;
+       Controller->ControllerProcEntry = ControllerProcEntry;
+     }
+
+
+
+
+
+
+
+
 

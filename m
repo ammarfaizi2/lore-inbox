@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317572AbSHCOXX>; Sat, 3 Aug 2002 10:23:23 -0400
+	id <S317587AbSHCOjZ>; Sat, 3 Aug 2002 10:39:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317578AbSHCOXX>; Sat, 3 Aug 2002 10:23:23 -0400
-Received: from mnh-1-16.mv.com ([207.22.10.48]:34564 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S317572AbSHCOXW>;
-	Sat, 3 Aug 2002 10:23:22 -0400
-Message-Id: <200208031529.KAA01655@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Alan Cox <alan@redhat.com>, mingo@elte.hu
-Cc: rz@linux-m68k.org (Richard Zidlicky), linux-kernel@vger.kernel.org
-Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode 
-In-Reply-To: Your message of "Sat, 03 Aug 2002 08:33:30 -0400."
-             <200208031233.g73CXUB02612@devserv.devel.redhat.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 03 Aug 2002 10:29:42 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S317591AbSHCOjZ>; Sat, 3 Aug 2002 10:39:25 -0400
+Received: from pD952AC04.dip.t-dialin.net ([217.82.172.4]:6854 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317587AbSHCOjY>; Sat, 3 Aug 2002 10:39:24 -0400
+Date: Sat, 3 Aug 2002 08:42:50 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Nico Schottelius <nico-mutt@schottelius.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.29 / 2.5.31 floppy/apm support
+In-Reply-To: <20020803050633.GA459@schottelius.org>
+Message-ID: <Pine.LNX.4.44.0208030842210.5119-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alan@redhat.com said:
-> Which would argue UML ought to have a positively microkernel view of
-> syscalls - sending a message ? 
+Hi,
 
-Indeed.  Ingo's mail got me thinking that
+On Sat, 3 Aug 2002, Nico Schottelius wrote:
+> Then I tried to shutdown the host via network, which fails because of apm
+> module cannot be included in kernel in 2.5.29.
 
-alan@redhat.com said:
-> the alternatives like a seperate process and ptrace are not pretty either
+Well, have you tried built-in apm module yet?
 
-might not be so bad after all.
-
-All I would need to make this work is for one process to be able to change
-the mm of another.
-
-Then, the current UML tracing thread would handle the kernel side of things
-and sit in its own address space nicely protected from its processes.
-
-				Jeff
+			Thunder
+-- 
+.-../../-./..-/-..- .-./..-/.-.././.../.-.-.-
 

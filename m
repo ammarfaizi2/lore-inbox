@@ -1,45 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267518AbTAXDXZ>; Thu, 23 Jan 2003 22:23:25 -0500
+	id <S267513AbTAXD3N>; Thu, 23 Jan 2003 22:29:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267523AbTAXDXZ>; Thu, 23 Jan 2003 22:23:25 -0500
-Received: from web80302.mail.yahoo.com ([66.218.79.18]:11188 "HELO
-	web80302.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267518AbTAXDXY>; Thu, 23 Jan 2003 22:23:24 -0500
-Message-ID: <20030124033230.37656.qmail@web80302.mail.yahoo.com>
-Date: Thu, 23 Jan 2003 19:32:30 -0800 (PST)
-From: Kevin Lawton <kevinlawton2001@yahoo.com>
-Subject: Re: Simple patches for Linux as a guest OS in a plex86 VM (please consider)
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267523AbTAXD3N>; Thu, 23 Jan 2003 22:29:13 -0500
+Received: from imap.gmx.net ([213.165.65.60]:18140 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S267513AbTAXD3L>;
+	Thu, 23 Jan 2003 22:29:11 -0500
+Message-Id: <5.1.1.6.2.20030124035109.00ce15f8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Fri, 24 Jan 2003 04:35:04 +0100
+To: Bill Davidsen <davidsen@tmr.com>, Andrew Morton <akpm@digeo.com>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: copy_from_user broken on i386 since 2.5.57
+Cc: Brice Goglin <bgoglin@ens-lyon.fr>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1030123182133.9688A-100000@gatekeeper.tmr.co
+ m>
+References: <20030122104928.769d72da.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, rev#4 (and hopefully final).  I only renamed a file,
-as per suggestion of Andrew Morton.  Haven't seen anything
-else worth changing.
+At 06:22 PM 1/23/2003 -0500, Bill Davidsen wrote:
+>On Wed, 22 Jan 2003, Andrew Morton wrote:
+>
+> > Brice Goglin <bgoglin@ens-lyon.fr> wrote:
+> > >
+> > > Hi,
+> > >
+> > > Trying to compile a very very simple module for 2.5,
+> > > I got an error from gcc saying that assembly code
+> > > is incorrect.
+> > > This problem appeared in 2.5.57 and is still here
+> > > in 2.5.59.
+> > > I only tried on i386.
+> > >
+> > > Here's a very simple example code :
+> > >
+> > > #define __KERNEL__
+> > > #define MODULE
+> > > #include "linux/module.h"
+> > > #include "asm/uaccess.h"
+> > >
+> > > int func(void *to, const void *from) {
+> > >   return __copy_from_user(to, from, 1);
+> > > }
+> > >
+> > >
+> > > Here's gcc report :
+> > >
+> > > mp760:~/tmp% gcc user.c -c -o user.o -Ipath_to_2.5.57/include
+> > > /tmp/cceAbcRd.s: Assembler messages:
+> > > /tmp/cceAbcRd.s:120: Error: `%al' not allowed with `movl'
+> > > /tmp/cceAbcRd.s:124: Error: `%al' not allowed with `xorl'
+> > > /tmp/cceAbcRd.s:209: Warning: using `%eax' instead of `%ax' due to 
+> `l' suffix
+> > > /tmp/cceAbcRd.s:213: Warning: using `%eax' instead of `%ax' due to 
+> `l' suffix
+> > > /tmp/cceAbcRd.s:213: Warning: using `%eax' instead of `%ax' due to 
+> `l' suffix
+> >
+> > Add `-O2' to the compiler switches.
+> >
+> > No, I don't know either ;)
+>
+>So, does this actually fix the problem or simply optimize the suspect code
+>out of existance until some later date?
 
-Quick recap of the mods involved:
+Compiler bug?  With -O2, gcc-2.95.3 emits movb and xorb at the same spot.
 
-  o Documentation/x86-hal.txt      # added file
-  o include/asm-i386/eflags_if.h   # added file (only used for VM)
-  o arch/i386/Kconfig              # added one menu entry
-  o arch/i386/Makefile             # added one ifdef..endif
-  o arch/i386/boot/Makefile        # added one ifdef..endif
+gcc-3.2.1 doesn't have a problem with that code optimized or not... it flat 
+refuses to suck up any inline assembly unless you use at least -O 
+-finline-limit=1580.  (why 1580?)
 
-Diffs are available at:
+         -Mike
 
-  http://bochs.sourceforge.net/tmp/linux-2.5.59-hal4
-
-The file 'Documentation/x86-hal.txt' explains the rationale for
-these mods and my case for them going into the kernel before 2.6.
-
-No *.{c,h,S} files are modified.
-
--Kevin
-
-__________________________________________________
-Do you Yahoo!?
-New DSL Internet Access from SBC & Yahoo!
-http://sbc.yahoo.com

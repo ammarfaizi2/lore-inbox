@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289413AbSAOEvQ>; Mon, 14 Jan 2002 23:51:16 -0500
+	id <S289456AbSAOJVn>; Tue, 15 Jan 2002 04:21:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289418AbSAOEvG>; Mon, 14 Jan 2002 23:51:06 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:60341 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S289413AbSAOEuw>;
-	Mon, 14 Jan 2002 23:50:52 -0500
-Date: Mon, 14 Jan 2002 23:50:50 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] cleanup file.h and INIT_TASK a bit
-In-Reply-To: <20020114233512.M30639@redhat.com>
-Message-ID: <Pine.GSO.4.21.0201142347380.2614-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289455AbSAOJVe>; Tue, 15 Jan 2002 04:21:34 -0500
+Received: from [195.157.147.30] ([195.157.147.30]:52495 "HELO
+	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
+	id <S289450AbSAOJVW>; Tue, 15 Jan 2002 04:21:22 -0500
+Date: Tue, 15 Jan 2002 09:14:14 +0000
+From: Sean Hunter <sean@dev.sportingbet.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>, Rob Landley <landley@trommello.org>,
+        Charles Cazabon <charlesc@discworld.dyndns.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Eli Carter <eli.carter@inet.com>,
+        "Michael Lazarou \(ETL\)" <Michael.Lazarou@etl.ericsson.se>
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Message-ID: <20020115091414.A3928@dev.sportingbet.com>
+Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
+	"Eric S. Raymond" <esr@thyrsus.com>,
+	Rob Landley <landley@trommello.org>,
+	Charles Cazabon <charlesc@discworld.dyndns.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Eli Carter <eli.carter@inet.com>,
+	"Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>
+In-Reply-To: <20020114125228.B14747@thyrsus.com> <20020114125508.A3358@twoflower.internal.do> <20020114135412.D17522@thyrsus.com> <20020114223042.ENDG28486.femail48.sdc1.sfba.home.com@there> <20020114173423.A23081@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020114173423.A23081@thyrsus.com>; from esr@thyrsus.com on Mon, Jan 14, 2002 at 05:34:23PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 14, 2002 at 05:34:23PM -0500, Eric S. Raymond wrote:
+> Because the second we stop thinking about Aunt Tillie,
+> we start making excuses for badly-designed interfaces and excessive
+> complexity. 
 
+Bollocks.  The second we (including you) stop thinking about the _user_ of the
+technology, we make bad decisions.  This is not the same thing.  
 
-On Mon, 14 Jan 2002, Benjamin LaHaise wrote:
+We don't expect Aunt Tillie to write kernel drivers for her knitting machine.
+She (and we) expect(s) someone else to do that for her.
 
-> Resend.  Several people pointed out they like the cleanup, nobody complained.
-> 
-> On Sun, Jan 13, 2002 at 06:59:47PM -0500, Benjamin LaHaise wrote:
-> > This patches does a couple of things: first off, it removes the sched.h 
-> > include from file.h that was added recently, as we really don't need yet 
-> > another include file chain mess.  To make this a bit more palatable, a 
-> > few of the inlines are moved out of file.h and into fcntl.c, plus the 
-> > files_struct is moved to file.h from sched.h.  Since this meant adding 
-> > file.h to the various arch/*/kernel/init_task.c files, I took the time 
-> > to move the INIT_* bits for initializing the init task out of sched.h 
-> > and into init_task.h.  If this is okay, please apply the patch.  There 
-> > are other cleanups to do if people are interested: the #define for init_task 
-> > is currently duplicated in *all* asm-*/processor.h files to be exactly 
-> > the same thing...  This is a way of testing the waters on include file 
-> > cleanups.  Done properly, they shave ~10-15% off of the kernel compile 
-> > time on my machine.
-> > 
-> > Oh, the file.h cleanup exposed a mess (bug): usb.c was duplicating code 
-> > from daemonize().
+The Aunt Tillies of this world don't install of update Windows (or Mac O/S) for
+themselves except perhaps via "Windows Update" or "Apple Update", which (guess
+what) supplies a prebuilt binary and DOESN'T BUILD THEM A KERNEL.
 
-Please, split it in two chunks - init_task.h stuff and everything else.
-The former is obviously good thing, the latter may need more - I understand
-why you do the #define tricks, but I'm less than sure that it's the best
-way.
+Besides any other factor, the download/install/reboot time is less than the
+download-full-tarball/untar/configure/compile/install/reboot cycle.
 
-As for the USB...  There is a bunch of other places that should do
-daemonize() - I'll dig the patch out and send it.
-
+Sean

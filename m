@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265301AbSJRVTk>; Fri, 18 Oct 2002 17:19:40 -0400
+	id <S265312AbSJRVUP>; Fri, 18 Oct 2002 17:20:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265312AbSJRVTk>; Fri, 18 Oct 2002 17:19:40 -0400
-Received: from mail.firstinspire.net ([212.83.62.162]:3972 "EHLO
-	NS.firstinspire.net") by vger.kernel.org with ESMTP
-	id <S265301AbSJRVTi>; Fri, 18 Oct 2002 17:19:38 -0400
-Date: Fri, 18 Oct 2002 23:25:32 +0200
-From: Wiktor Wodecki <wodecki@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: patch for linux/usb.h
-Message-ID: <20021018212532.GE32609@net-m.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="JBi0ZxuS5uaEhkUZ"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-message-flag: Linux - choice of the GNU generation
-X-Operating-System: Linux 2.4.20-pre5 i586
-X-PGP-KeyID: 182C9783
-X-Info: X-PGP-KeyID, finger me at johoho@212.83.62.165 or send an email with the subject 'public key request' to wodecki@gmx.de
+	id <S265314AbSJRVUO>; Fri, 18 Oct 2002 17:20:14 -0400
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:32740 "EHLO
+	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S265312AbSJRVUL>; Fri, 18 Oct 2002 17:20:11 -0400
+Date: Fri, 18 Oct 2002 14:19:21 -0700 (PDT)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Antonino Daplas <adaplas@pol.net>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] fbdev changes.
+In-Reply-To: <1034813995.563.32.camel@daplas>
+Message-ID: <Pine.LNX.4.33.0210181400360.3591-100000@maxwell.earthlink.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---JBi0ZxuS5uaEhkUZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Hi James,
+>
+> Since you seem to be very busy, here's an idea for the framebuffer
+> cursor API.
 
-hi there,
+I looked over your patch and even tested it out. Then I thought about it a
+long time. The question I had to ask myself is what do we want when we
+have fbdev stand alone and fbdev with framebuffer console. Also how to use
+a little code as possible (for embedded systems). So the goals are
 
-missing urb_t typedef
+1) For stand alone fbdev we want the maximum support for a cursor. But
+   what if we don't have a hardware cursor. In this case we should leave
+   it to userland to handle making it own cursor. The userland app might
+   not even want a cursor. So we avoid having extra code in the kernel for
+   a software cursor.
 
--- 
-Regards,
+2) For fbcon the only thing we need for a cursor is a little rectangle. We
+   could still use imageblit but is seems really heavy when you consider
+   saving a bitmap of the current text under the cursor. True you have a
+   cost at reading the framebuffer when using fillrect but doesn't it cost
+   also to save the text bitmap under the cursor as well ? The question is
+   which cost more.
 
-Wiktor Wodecki      |    http://johoho.eggheads.org
-
---JBi0ZxuS5uaEhkUZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=usb_patch
-
-diff -bur linux/include/linux/usb.h linux-2.4.20-pre9.kirk/include/linux/usb.h
---- linux/include/linux/usb.h	2002-10-18 22:56:49.000000000 +0200
-+++ linux-2.4.20-pre9.kirk/include/linux/usb.h	2002-10-18 23:15:35.000000000 +0200
-@@ -525,7 +525,7 @@
- 	usb_complete_t complete;	// pointer to completion routine
- 	//
- 	struct iso_packet_descriptor iso_frame_desc[0];
-+} urb_t;
--};
- 
- /**
-  * FILL_CONTROL_URB - macro to help initialize a control urb
-
---JBi0ZxuS5uaEhkUZ--

@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbTHTKY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 06:24:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbTHTKY3
+	id S261869AbTHTKfl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 06:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTHTKfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 06:24:29 -0400
-Received: from ee.oulu.fi ([130.231.61.23]:1992 "EHLO ee.oulu.fi")
-	by vger.kernel.org with ESMTP id S261863AbTHTKYT (ORCPT
+	Wed, 20 Aug 2003 06:35:41 -0400
+Received: from ee.oulu.fi ([130.231.61.23]:33999 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S261869AbTHTKfY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 06:24:19 -0400
-Date: Wed, 20 Aug 2003 13:24:12 +0300 (EEST)
+	Wed, 20 Aug 2003 06:35:24 -0400
+Date: Wed, 20 Aug 2003 13:35:22 +0300 (EEST)
 From: Tuukka Toivonen <tuukkat@ee.oulu.fi>
 X-X-Sender: tuukkat@stekt37
 To: davej@codemonkey.org.uk
 cc: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test3: No rule to make target `drivers/char/agp/isoch.s'
-Message-ID: <Pine.GSO.4.55.0308201312130.6320@stekt37>
+Subject: 2.6.0-test3: drm as module -> Cannot allocate memory
+Message-ID: <Pine.GSO.4.55.0308201324450.6320@stekt37>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get the following error when doing "make modules" with kernel
-2.6.0-test3 (config file below):
+If I select AGP and DRM as modules, MGA module refuses to load. Here's a
+log:
 
-  CC [M]  drivers/char/agp/generic.o
-make[3]: *** No rule to make target `drivers/char/agp/isoch.s', needed by
-`drivers/char/agp/isoch.o'.  Stop.
-make[2]: *** [drivers/char/agp] Error 2
-make[1]: *** [drivers/char] Error 2
-make: *** [drivers] Error 2
+powerzone:/video# /usr/local/sbin/modprobe agpgart
+Linux agpgart interface v0.100 (c) Dave Jones
+powerzone:/video# /usr/local/sbin/modprobe mga
+[drm:drm_init] *ERROR* Cannot initialize the agpgart module.
+FATAL: Error inserting mga
+(/lib/modules/2.6.0-test3/kernel/drivers/char/drm/mga.ko): Cannot allocate memory
 
-The problem appears to be missing isoch.c file. However, only one function
-is referenced in that file, agp_3_5_enable(), and by commenting that call
-away and removing isoch.o from makefiles, everything works fine in my setup
-(but it's only a workaround, I guess). It seems 2.6.0-test2 actually has
-the file.
+I'm not using swap, but the system has 1 GB memory so it shouldn't run out.
+If AGP and DRM are compiled statically into kernel, everything works fine.
+This is Dual PentiumIII 933 MHz.
+(I commented away call to agp_3_5_enable() to make it compile).
+gcc 2.95.4, Debian 3.0.
 
 ---
 
@@ -48,7 +48,7 @@ CONFIG_EXPERIMENTAL=y
 
 CONFIG_SYSVIPC=y
 CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=14
+CONFIG_LOG_BUF_SHIFT=17
 CONFIG_KALLSYMS=y
 CONFIG_FUTEX=y
 CONFIG_EPOLL=y
@@ -57,6 +57,7 @@ CONFIG_IOSCHED_DEADLINE=y
 
 CONFIG_MODULES=y
 CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
 CONFIG_OBSOLETE_MODPARM=y
 CONFIG_KMOD=y
 
@@ -141,15 +142,16 @@ CONFIG_IDEDMA_AUTO=y
 
 CONFIG_SCSI=y
 
+CONFIG_BLK_DEV_SD=y
 CONFIG_BLK_DEV_SR=m
 CONFIG_CHR_DEV_SG=m
 
 CONFIG_SCSI_REPORT_LUNS=y
+CONFIG_SCSI_CONSTANTS=y
 
 CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=0
-CONFIG_AIC7XXX_RESET_DELAY_MS=1500
-CONFIG_AIC7XXX_DEBUG_ENABLE=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=32
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
 CONFIG_AIC7XXX_DEBUG_MASK=0
 CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
 
@@ -206,6 +208,7 @@ CONFIG_SERIO_SERPORT=m
 
 CONFIG_INPUT_KEYBOARD=y
 CONFIG_KEYBOARD_ATKBD=y
+CONFIG_KEYBOARD_SUNKBD=m
 CONFIG_INPUT_MOUSE=y
 CONFIG_MOUSE_PS2=m
 CONFIG_MOUSE_SERIAL=m
@@ -291,6 +294,7 @@ CONFIG_FAT_FS=m
 CONFIG_MSDOS_FS=m
 CONFIG_VFAT_FS=m
 CONFIG_NTFS_FS=m
+CONFIG_NTFS_RW=y
 
 CONFIG_PROC_FS=y
 CONFIG_DEVFS_FS=y
@@ -364,7 +368,6 @@ CONFIG_DEBUG_IOVIRT=y
 CONFIG_MAGIC_SYSRQ=y
 CONFIG_DEBUG_SPINLOCK=y
 CONFIG_DEBUG_SPINLOCK_SLEEP=y
-CONFIG_FRAME_POINTER=y
 CONFIG_X86_EXTRA_IRQS=y
 CONFIG_X86_FIND_SMP_CONFIG=y
 CONFIG_X86_MPPARSE=y

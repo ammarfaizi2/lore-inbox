@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263298AbSIPW7H>; Mon, 16 Sep 2002 18:59:07 -0400
+	id <S263292AbSIPW64>; Mon, 16 Sep 2002 18:58:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263310AbSIPW7H>; Mon, 16 Sep 2002 18:59:07 -0400
-Received: from balthasar.nuitari.net ([216.40.249.34]:18664 "HELO
-	nuitari.nuitari.net") by vger.kernel.org with SMTP
-	id <S263298AbSIPW7E>; Mon, 16 Sep 2002 18:59:04 -0400
-Date: Tue, 17 Sep 2002 01:18:01 -0400 (EDT)
-From: Nuitari <nuitari@balthasar.nuitari.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Hi is this critical??
-In-Reply-To: <Pine.LNX.4.43.0209170045080.8244-100000@cibs9.sns.it>
-Message-ID: <Pine.LNX.4.44.0209170114580.20176-100000@balthasar.nuitari.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263298AbSIPW64>; Mon, 16 Sep 2002 18:58:56 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:28402
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263292AbSIPW64>; Mon, 16 Sep 2002 18:58:56 -0400
+Subject: Re: Problem:  RFC1166 addressing
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: tomc@teamics.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <OF298A60D6.2FD15C58-ON86256C36.005B260E@teamics.com>
+References: <OF298A60D6.2FD15C58-ON86256C36.005B260E@teamics.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 17 Sep 2002 00:06:34 +0100
+Message-Id: <1032217594.2906.2.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Sep 2002 venom@sns.it wrote:
+On Mon, 2002-09-16 at 17:50, tomc@teamics.com wrote:
+>  Linux does not enforce this.  I have uncovered some users using this
+> function to attempt to circumvent the firewall.  I am able to "create" 127
+> network traffic as follows:
 
-> On Mon, 16 Sep 2002 jbradford@dial.pipex.com wrote:
-> 
-> >
-> > S.M.A.R.T. is useful to prove that a drive is dying, but it is not useful to prove that it is not.
-> 
-> Yes, of course, and this was exaclty what was asked here in the mail
-> from xavier that started this thread. The point is if S.M.A.R.T will
-> advice before you see seek errors messages from the kernel or not.
-
-It never advised me before seeing problems in the kernel (I had about 5 
-drives dying running Linux machines).
-
-It should be trivial to just grep the kernel log for the error and mail it 
-to some address. 
-
-Another way to prove a dead drive is (after a backup) to drop it some 
-until it made a nice broken drive sound (a very high pitch shriek) and 
-bring it to the store that sold it to you (ideally a small one as they are 
-less technically challenged then big chains).
-
-
+If you choose to configure that way they yes you can. Since any other
+box on the net can also send/received 127.* packets make sure your
+firewall is right 8)
 

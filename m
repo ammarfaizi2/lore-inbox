@@ -1,30 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261855AbTAVQsz>; Wed, 22 Jan 2003 11:48:55 -0500
+	id <S261874AbTAVQvf>; Wed, 22 Jan 2003 11:51:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261857AbTAVQsz>; Wed, 22 Jan 2003 11:48:55 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:11179 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S261855AbTAVQsy>;
-	Wed, 22 Jan 2003 11:48:54 -0500
-Date: Wed, 22 Jan 2003 11:57:58 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: 3c509.c
-Message-ID: <20030122165757.GA20929@gtf.org>
-References: <UTC200301220111.h0M1BQg03940.aeb@smtp.cwi.nl> <200301221644.h0MGion18794@localhost.localdomain>
-Mime-Version: 1.0
+	id <S261894AbTAVQvf>; Wed, 22 Jan 2003 11:51:35 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:64477 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261874AbTAVQve>; Wed, 22 Jan 2003 11:51:34 -0500
+Date: Wed, 22 Jan 2003 09:07:39 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+Reply-To: Hanna Linder <hannal@us.ibm.com>
+To: Hui_Ning@3com.com, linux-kernel@vger.kernel.org
+cc: hannal@us.ibm.com
+Subject: Re: kernel profiling
+Message-ID: <8960000.1043255259@w-hlinder>
+In-Reply-To: <OF36859B84.3678DE43-ON86256CB6.00029EEA@3com.com>
+References: <OF36859B84.3678DE43-ON86256CB6.00029EEA@3com.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200301221644.h0MGion18794@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 22, 2003 at 11:44:50AM -0500, James Bottomley wrote:
-> However, looking through the source, the 3c509 driver is broken anyway for MCA 
-> (done by the eisa sysfs patches), so I think I can probably just add the extra 
-> pieces to convert it to the new sysfs MCA API.
+--On Tuesday, January 21, 2003 06:34:34 PM -0600 Hui_Ning@3com.com wrote:
+> 
+> hi,
+> 
+> I am trying to do kernel profile using kernprof with the patch provided by
+> SGI on 2.4.18. I can't find the 2.95.3 gcc patch that must be used to
+> compile the kernel( the info on sgi's web site somehow is broken).  Does
+> anybody know where the patch is ? or any alternative I can use, like
+> a more stable gcc version without the need for a patch?
 
-Excellent... that's what I was hoping would happen :)
+Hello,
+
+	I found that the default red hat 7.3 compiler (gcc-2.96-110)
+did not need the patch and ran kernprof fine. 
+
+Hanna
 

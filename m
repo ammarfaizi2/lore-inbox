@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265229AbTIJQwG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 12:52:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265251AbTIJQwG
+	id S265253AbTIJQ7v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 12:59:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbTIJQ7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 12:52:06 -0400
-Received: from mailwasher.lanl.gov ([192.16.0.25]:41033 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S265229AbTIJQwD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 12:52:03 -0400
-Subject: Re: Fw: Make Menuconfig and Make Xconfig errors in Mandrake 9.2 rc1
-From: Steven Cole <elenstev@mesatop.com>
-To: Anton Kholodenin <cicprogr@mail.dux.ru>
-Cc: linux-kernel@vger.kernel.org, Juan Quintela <quintela@mandrakesoft.com>
-In-Reply-To: <01ec01c37763$89f183c0$370101c8@antontest>
-References: <01ec01c37763$89f183c0$370101c8@antontest>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1063212461.1663.139.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 10 Sep 2003 10:47:41 -0600
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Sep 2003 12:59:30 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:19084 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S265253AbTIJQ7C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 12:59:02 -0400
+Date: Wed, 10 Sep 2003 18:58:51 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: mathieu.desnoyers@polymtl.ca, linux-kernel@vger.kernel.org,
+       mingo@redhat.com
+Subject: Re: PROBLEM: APIC on a Pentium Classic SMP, 2.4.21-pre2 and 2.4.21-pre3 ksymoops
+In-Reply-To: <16223.20183.242571.608500@gargle.gargle.HOWL>
+Message-ID: <Pine.GSO.3.96.1030910185546.12084B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-09-10 at 00:19, Anton Kholodenin wrote:
-> File /usr/src/linux/3rdparty/lufs/Config.in contains only one line:
+On Wed, 10 Sep 2003, Mikael Pettersson wrote:
+
+> First I found one very strange thing in Mathieu's boot log:
 > 
-> dep_tristate 'LUFS support' CONFIG_LUFS
+> --- mpbug-2.4.20	Wed Sep 10 17:19:05 2003
+> +++ mpbug-2.4.23-pre3	Wed Sep 10 17:18:44 2003
+> ...
+> +DMI not present.
+>  Intel MultiProcessor Specification v1.1
+>  Virtual Wire compatibility mode.
+>  Default MP configuration #6
 > 
-> I have attached Config.in and all files from lufs folder in the message.
+> This means construct_default_ISA_mptable() still gets called.
+> Ok so far.
+
+ Yep -- I've been aware of this.
+
+> At this point I was thinking "memory corruption",
+> and the following struck me:
 > 
-> Best regadrs
-> Anton Kholodenin.
+> What used to be arrays (mp_irqs[] etc) are now pointers to
+> memory which is sized and allocated by smp_read_mpc().
+> In the case when construct_default_ISA_mptable() is called,
+> smp_read_mpc() is _not_ called, the pointers never get initialised,
+> and reads and writes of these arrays end up in la-la land.
 
-Apologies again for the noise.  This should be going to a Mandrake list,
-but this is short and sweet.  Adding Juan Q. to cc-list.
+ Exactly.
 
-It's still broken in 2.4.22-6mdk.  You'll get something like this when
-you do make xconfig:
+> The fix would be to add allocation and initialisation of
+> these pointers at the start of construct_default_ISA_mptable().
 
-./tkparse < ../arch/i386/config.in >> kconfig.tk
-3rdparty/lufs/Config.in: 2: unknown command
+ Possibly -- I haven't thought on how to fix it yet.
 
-This will fix it:
+> I'll prepare a patch doing this sometime tomorrow.
 
---- linux-2.4.22-6mdk/3rdparty/lufs/Config.in.brokenasusual	2003-09-10 10:34:27.000000000 -0600
-+++ linux-2.4.22-6mdk/3rdparty/lufs/Config.in	2003-09-10 10:36:27.000000000 -0600
-@@ -1,2 +1,2 @@
- 
--xtristate 'LUFS support' CONFIG_LUFS
-+tristate 'LUFS support' CONFIG_LUFS
+ Thanks a lot for taking care.
 
-
-
-Steven
-
-
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

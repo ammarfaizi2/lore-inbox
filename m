@@ -1,87 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132683AbRC2IFT>; Thu, 29 Mar 2001 03:05:19 -0500
+	id <S132689AbRC2IR3>; Thu, 29 Mar 2001 03:17:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132684AbRC2IFA>; Thu, 29 Mar 2001 03:05:00 -0500
-Received: from bart.one-2-one.net ([195.94.80.12]:34054 "EHLO
-	bart.one-2-one.net") by vger.kernel.org with ESMTP
-	id <S132683AbRC2IEt>; Thu, 29 Mar 2001 03:04:49 -0500
-Date: Thu, 29 Mar 2001 10:04:28 +0200 (CEST)
-From: Martin Diehl <home@mdiehl.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2-ac27
-In-Reply-To: <E14iKvx-0006Eq-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0103290059580.7191-100000@notebook.diehl.home>
+	id <S132690AbRC2IRT>; Thu, 29 Mar 2001 03:17:19 -0500
+Received: from malcolm.ailis.de ([62.159.58.30]:20746 "HELO malcolm.ailis.de")
+	by vger.kernel.org with SMTP id <S132689AbRC2IRN>;
+	Thu, 29 Mar 2001 03:17:13 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Klaus Reimer <k@ailis.de>
+Organization: Ailis
+To: linux-kernel@vger.kernel.org
+Subject: opl3sa2 in 2.4.2 on Toshiba Tecra 8000
+Date: Thu, 29 Mar 2001 10:12:40 +0200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01032910124007.00454@neo>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-(Linus cc'ed - related thread: 243-pre[78]: mmap changes (breaks) /proc)
+I have switched from 2.2.17 to 2.4.2 and now the sound is no longer working 
+on my Toshiba Tecra 8000 Notebook. In 2.2.17 I used the following modules:
 
-On Wed, 28 Mar 2001, Alan Cox wrote:
+mpu401
+ad1848
+opl3sa2 io=0x538 mss_io=0x530 mpu_io=0x330 irq=5 dma=1 dma2=0
+opl3 io=0x388
 
-> 2.4.2-ac27
-> o	Revert mmap change that broke assumptions (and	(Martin Diehl)
-> 	it seems SuS) 
+This was working perfectly. I was able to control all mixer settings, the 
+microphone was working and xmms was able to play nice sounds.
 
-the reason to suggest keeping the test was not due to len=0 behaviour of
-mmap in general as is suggested by your comment. The breakage that I've
-seen was due to mmap not returning -ENODEV for files from /proc despite
-the lack of valid f_op->mmap (because the test was moved behind the len==0
-check). The point is sed(1) first tries to mmap(2) the file and falls back
-to read(2) in case of -ENODEV (and probably other errors too). This is
-important for /proc since most files there are stat'ed size=0 but return
-stuff when reading. Not getting error for mmap len=0 file makes sed behave
-like at EOF. Anyway, reverting it was not addressed to cases where
-f_op->mmap is valid but request is to mmap len=0 - we still return the 
-startaddr parameter in that case:
+Then I have switched to kernel 2.4.2 and now the kernel says:
 
-$ touch nullfile
-$ strace sed 's/./X/' nullfile
-open("nullfile", O_RDONLY|O_LARGEFILE)  = 4
-fstat64(4, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
-mmap2(NULL, 0, PROT_READ, MAP_PRIVATE, 4, 0) = 0
+2001-03-29 10:02:50.054774500 {kern|info} kernel: ad1848/cs4248 codec driver 
+Copyright (C) by Hannu Savolainen 1993-1996
+2001-03-29 10:02:50.070692500 {kern|notice} kernel: opl3sa2: No cards found
+2001-03-29 10:02:50.070703500 {kern|notice} kernel: opl3sa2: 0 PnP card(s) 
+found.
 
-This is consistent throughout all 2.4.x at least. From your comment I've
-learnt SuS v2 requires -ENODEV for the len=0 case. While this would
-resolve the /proc issue as well there might be some chance to brake code
-which expects mmap(len=0) to succeed.
-BTW, man-pages (1.31) say, mmap(2) returns -EINVAL if called with bad
-start/length/offset values - but makes no claims whether len=0 would be
-valid or not.
+I have nothing changed in the BIOS of the Notebook. I have set up a dual boot 
+so I can switch back to kernel 2.2.17 and the sound is still working there.
 
-In case we want to follow what you've said about SuS, the right thing
-might simply go along
+I was able to enable the 8 Bit Soundblaster emulation of the Tecra with these 
+modules:
 
---- linux-243-pre8/mm/mmap.c	Wed Mar 28 13:14:19 2001
-+++ linux-243p8-md/mm/mmap.c	Thu Mar 29 09:49:34 2001
-@@ -204,8 +204,12 @@
- 	int correct_wcount = 0;
- 	int error;
- 
-+	/* We need to error mmaps of 0 length. The apps rely on this and
-+	   SuS v2 says that we return -ENODEV in this case without mentioning
-+	   returning 0 for 0 length mmap */
-+
- 	if ((len = PAGE_ALIGN(len)) == 0)
--		return addr;
-+		return -ENODEV;
- 
- 	if (len > TASK_SIZE || addr > TASK_SIZE-len)
- 		return -EINVAL;
+uart401
+sb io=0x220 irq=5 dma=0 mpu_io=0x330
+opl3 io=0x388
 
-I really have no idea about what, if any, code might rely on old
-beahviour. Some commonly used tools may get confused with stuff from
-/var/lock/subsys tree for example. So probably it's better not to field
-this change before 2.5 to be able to identify such things in time.
-In this case we could add some clarification to your comment, saying that
-returning error on len=0 is a future thing, leave the current len=0
-semantics untouched, keep the f_op->mmap test at the very beginning (and
-drop the moved one a few lines below).
+But this is very ugly. I can't control all mixer settings, the microphone is 
+not working and xmms is playing scratching noise (mpg123 is working)
 
-Regards
-Martin
+What happened to the kernel? How can I use the opl3sa2 driver in kernel 2.4?
 
+-- 
+Bye, K
+[a735 47ec d87b 1f15 c1e9 53d3 aa03 6173 a723 e391]
+(Finger k@ailis.de to get public key)

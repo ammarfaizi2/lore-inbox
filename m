@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263743AbREYNW2>; Fri, 25 May 2001 09:22:28 -0400
+	id <S263749AbREYN6x>; Fri, 25 May 2001 09:58:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263744AbREYNWS>; Fri, 25 May 2001 09:22:18 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:61965
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S263743AbREYNWF>; Fri, 25 May 2001 09:22:05 -0400
-Date: Fri, 25 May 2001 09:21:26 -0400
-From: Chris Mason <mason@suse.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-cc: Hans Reiser <reiser@namesys.com>, Andi Kleen <ak@suse.de>,
-        Andreas Dilger <adilger@turbolinux.com>,
-        monkeyiq <monkeyiq@users.sourceforge.net>,
-        linux-kernel@vger.kernel.org, Nikita Danilov <god@namesys.com>
-Subject: Re: Dying disk and filesystem choice.
-Message-ID: <208080000.990796886@tiny>
-In-Reply-To: <E1533Pf-0005gt-00@the-village.bc.nu>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
-MIME-Version: 1.0
+	id <S263750AbREYN6e>; Fri, 25 May 2001 09:58:34 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:23680 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S263749AbREYN6b>;
+	Fri, 25 May 2001 09:58:31 -0400
+Date: Thu, 24 May 2001 23:13:50 +0100
+From: Alasdair Kergon <agk@ukuug.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Conference update: Linux Developers', UK, 29 Jun - 1 July
+Message-ID: <20010524231350.B18483@dinopsis.arachsys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The confirmed talks for this year's UK Unix User Group Linux Developers' 
+Conference in Manchester (Friday 29th June to Sunday 1st July) are now 
+listed at:
+  http://www.ukuug.org/events/linux2001/speakers.shtml
+together with short biographies of the speakers (with some photos).
 
+Topics covered by the programme include:
+  vsyscalls, NUMA, zero copy, O_DIRECT, Sledgehammer port,
+  JFFS, Dynamic Probes, Generalised Kernel Hooks Interface, 
+  Powertweak, LVS, Heartbeat, DCE, Samba TNG, KDE Architecture, 
+  Zope, Pymmetry, FlightGear & more
 
-On Thursday, May 24, 2001 11:16:58 PM +0100 Alan Cox
-<alan@lxorguk.ukuu.org.uk> wrote:
+An extra attraction this year will be a demonstration of 'The Baby' 
+(the world's first stored-program electronic digital computer) on
+the Friday evening.
 
->> IMHO we are not that deep into code freeze anymore. Freevxfs got added
->> in linux-2.4.5-pre*, so I think that a patch that adds a useful feature
->> like badblock support would be OK.
-> 
-> FreeVxFS changes precisely nothing in the behaviour of any other fs - its
-> like adding a new driver.
-> 
-> Updating Reiserfs requires a lot more care because it has the potential to
-> harm existing stable setups
+I'm sending this message now to remind those of you on this list who 
+wish to attend (but aren't speaking) that to get into the conference 
+at the cheapest price you need to make your booking by the end of next 
+week.  The price is low this year because of financial support 
+from IBM (who've been particularly generous) and Sistina Software.
 
-This has been mostly covered, but just in case.  There are two different
-freezes, the kernel, and in reiserfs.  The reiserfs part isn't something
-Alan or Linus have imposed on us, we just wanted to limit the reiserfs
-changes as much as possible during the early kernel releases.
-
-The end result is that some larger scale issues are unfixed (memory
-pressure from VM, lost files after a crash), but we have been able to focus
-on the critical hoses-my-files/crashes-my-box kinds of bugs.
-
--chris
-
+Alasdair
+-- 
+agk@ukuug.org
+http://www.oxlug.org/majorevents.html - Links to major Linux events

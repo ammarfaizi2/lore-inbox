@@ -1,79 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263711AbUDRUEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 16:04:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264174AbUDRUEQ
+	id S264174AbUDRU0B (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 16:26:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264181AbUDRU0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 16:04:16 -0400
-Received: from pD9FFA1BA.dip.t-dialin.net ([217.255.161.186]:54691 "EHLO
-	router.zodiac.dnsalias.org") by vger.kernel.org with ESMTP
-	id S263711AbUDRUEO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 16:04:14 -0400
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: screen garbage with radeonfb on 2.6.5-mm6
-Date: Sun, 18 Apr 2004 22:03:53 +0200
-User-Agent: KMail/1.6.2
-X-Ignorant-User: yes
+	Sun, 18 Apr 2004 16:26:01 -0400
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:49719 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264174AbUDRUZ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 16:25:59 -0400
+From: wim delvaux <wim.delvaux@adaptiveplanet.com>
+Organization: adaptive planet
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.5-mm4 :  problems with sis 648 and AGPv3
+Date: Sun, 18 Apr 2004 22:25:58 +0200
+User-Agent: KMail/1.6.1
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-03=_w8tgAS65KVMc4H4";
-  charset="iso-8859-15"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404182204.12037@zodiac.zodiac.dnsalias.org>
+Message-Id: <200404182225.58057.wim.delvaux@adaptiveplanet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
+I checked the archive and noticed that for some reason the sis 648 cards with 
+a minor level < 5 do not do agpv3 well.  Using v2 the aperture size IS 
+detected on v3 isn't
 
---Boundary-03=_w8tgAS65KVMc4H4
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+I wonder why because my cards SAYS it supports agp3 and my graphics cards says 
+it too (about the cards and the agp -> according to xfree log)
 
-Hi,
+So I checked source and added some printk statements to see what was going on.
 
-I'm using radeonfb on an IBM Thinkpad, Ati Radeon M9
-After booting it looks like the radeonfb doesn't clear or reset the screen=
-=20
-correctly
-(see http://zodiac.dnsalias.org/images/garbage.jpg )
-The area below the tux is cleared when text scrolls along.
-relevant dmesg output:
-radeonfb: Invalid ROM signature 0 should be 0xaa55
-radeonfb: Retreived PLL infos from BIOS
-radeonfb: Reference=3D27.00 MHz (RefDiv=3D12) Memory=3D252.00 Mhz, System=
-=3D200.00 MHz
-Non-DDC laptop panel detected
-radeonfb: Monitor 1 type LCD found
-radeonfb: Monitor 2 type no found
-radeonfb: panel ID string: SXGA+ Single (85MHz)
-radeonfb: detected LVDS panel size from BIOS: 1400x1050
-radeondb: BIOS provided dividers will be used
-radeonfb: Power Management enabled for Mobility chipsets
-radeonfb: ATI Radeon Lf  DDR SGRAM 64 MB
+In regular v2 level (using sis-... functions) the card returns in 
+sis_get_driver a temp_size for 0x40.  This means that the code in the 
+sis_get_driver that checks for apeture size the & ~0x03  comparison makes the 
+test match. and selects the proper aperture of 64.
 
-I'm using 2.6.5-mm6.
+When 'forcing' the code to agp3 (because the bridge says it supports agp3) and 
+hence using the generic_... functions from generic.c temp_size is 0xff09 and 
+no entry in the aperture table matches.
 
-regards
-Alex
+So what might be wrong with the card/code/table or whatever to make a card 
+that claims to be agv3 not being detected ?  Sure would like to find out and 
+help finding out ...
 
-=2D-=20
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
-
---Boundary-03=_w8tgAS65KVMc4H4
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAgt8w/aHb+2190pERAhLzAKCZEjVXndLeMCk/qT26tki4bhG47gCgsXb3
-u6uNPPIePSblxZSwQvM3FuE=
-=1wQ9
------END PGP SIGNATURE-----
-
---Boundary-03=_w8tgAS65KVMc4H4--
+W

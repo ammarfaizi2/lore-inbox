@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263870AbTLTKdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 05:33:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263871AbTLTKdZ
+	id S263918AbTLTKlO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 05:41:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263922AbTLTKlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 05:33:25 -0500
-Received: from 50.69-93-3.reverse.theplanet.com ([69.93.3.50]:4252 "EHLO
-	spring.persianhosted.com") by vger.kernel.org with ESMTP
-	id S263870AbTLTKdY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 05:33:24 -0500
-From: Armin <Zoup@zoup.org>
-Organization: Zoup
-Subject: Re: Xircom RealPort Pccard under 2.6.0
-Date: Sat, 20 Dec 2003 13:58:26 -0900
-User-Agent: KMail/1.5.4
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Sat, 20 Dec 2003 05:41:13 -0500
+Received: from fw.osdl.org ([65.172.181.6]:42457 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263918AbTLTKlL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 05:41:11 -0500
+Date: Sat, 20 Dec 2003 02:41:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: John Hawkes <hawkes@babylon.engr.sgi.com>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       johnstul@us.ibm.com
+Subject: Re: [RFC][PATCH] 2.6.0-test11 sched_clock() broken for "drifty ITC"
+Message-Id: <20031220024159.49145807.akpm@osdl.org>
+In-Reply-To: <200312182044.hBIKiCLY5477429@babylon.engr.sgi.com>
+References: <200312182044.hBIKiCLY5477429@babylon.engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312201358.26257.Zoup@zoup.org>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - spring.persianhosted.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - zoup.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: Re: Xircom RealPort Pccard under 2.6.0
-Date: Saturday 20 December 2003 13:55
-From: Armin <Zoup@zoup.org>
-To: Armin <Zoup@zoup.org>
-
-On Friday 19 December 2003 01:11, Armin wrote:
-> im unable to get Xircom RealPort  RBEM56G under 2.6.0 .
-> Yanta cardbus can install the bridge , but cardmgr can not detect it , i
-> have installed last version of cardmanager ...
+John Hawkes <hawkes@babylon.engr.sgi.com> wrote:
 >
-> also kernel compiled with Xircom Net Driver .
->
-> many thanks , Great Release !
+> David Mosberger suggests raising this issue on LKML to encourage a search
+>  for a more general solution to my ia64 problem.
+> 
+>  My specific problem is that the generic ia64 sched_clock() is broken for
+>  "drifty ITC" (the per-CPU cycle counter clock) platforms, such as the SGI
+>  sn.  sched_clock() currently uses its local CPU's ITC and therefore on
+>  drifty platforms its values are not synchronized across the CPUs.  This
+>  results (in part) in an invalid load_balance() is-the-cache-hot-or-not
+>  calculation.
 
-for 16-bit cards like xircom , its needed to enable pcmcia 16 bit support in
-character devices and update pcmcia package to last version .
-now its working :)
+Requiring that sched_clock() be synchronised is difficult for some
+platforms.  Clearly, it is better if we can relax that.
 
---
-Kissing a fish is like smoking a bicycle.
+> However, David Mosberger rejected this patch, and he seeks instead some
+> hypothetical more generic approach to "drifty timebase platforms".  One
+> possible generic change would be to relax the semantics of sched_clock() to
+> no longer expect that the values be synchronized across all CPUs.
+
+Your patch to kernel/sched.c looks good: low overhead, simple, Ingo likes
+it.
+
+Could you please finalise it, cook up the ia64 and numaq implementations
+and send it over?
+
 

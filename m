@@ -1,101 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262793AbVCWFUu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262795AbVCWFXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262793AbVCWFUu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 00:20:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbVCWFUu
+	id S262795AbVCWFXP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 00:23:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262797AbVCWFXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 00:20:50 -0500
-Received: from lantana.tenet.res.in ([202.144.28.166]:61837 "EHLO
-	lantana.cs.iitm.ernet.in") by vger.kernel.org with ESMTP
-	id S262793AbVCWFUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 00:20:37 -0500
-Date: Wed, 23 Mar 2005 10:51:07 +0530 (IST)
-From: Payasam Manohar <pmanohar@lantana.cs.iitm.ernet.in>
-To: linux-kernel@vger.kernel.org
-Subject: segmentation fault while loading modules
-Message-ID: <Pine.LNX.4.60.0503231042480.21050@lantana.cs.iitm.ernet.in>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Mail-scanner Found to be clean
-X-MailScanner-From: pmanohar@lantana.cs.iitm.ernet.in
+	Wed, 23 Mar 2005 00:23:15 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:10421 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262795AbVCWFXJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 00:23:09 -0500
+Date: Tue, 22 Mar 2005 21:23:18 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-05
+Message-ID: <20050323052318.GB1294@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050319191658.GA5921@elte.hu> <20050320174508.GA3902@us.ibm.com> <20050321085332.GA7163@elte.hu> <20050321090122.GA8066@elte.hu> <20050321090622.GA8430@elte.hu> <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu> <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu> <20050322100153.GA23143@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050322100153.GA23143@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 22, 2005 at 11:01:53AM +0100, Ingo Molnar wrote:
+> 
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > hm, another thing: i think call_rcu() needs to take the read-lock.
+> > Right now it assumes that it has the data structure private, but
+> > that's only statistically true on PREEMPT_RT: another CPU may have
+> > this CPU's RCU control structure in use. So IRQs-off (or preempt-off)
+> > is not a guarantee to have the data structure, the read lock has to be
+> > taken.
+> 
+> i've reworked the code to use the read-lock to access the per-CPU data
+> RCU structures, and it boots with 2 CPUs and PREEMPT_RT now. The -40-05
+> patch can be downloaded from the usual place:
+> 
+>   http://redhat.com/~mingo/realtime-preempt/
+> 
+> had to add two hacks though:
+> 
+>  static void rcu_advance_callbacks(struct rcu_data *rdp)
+>  {
+>         if (rdp->batch != rcu_ctrlblk.batch) {
+>                 if (rdp->donetail) // HACK
+>                         *rdp->donetail = rdp->waitlist;
+> 		...
+> 
+>  void fastcall call_rcu(struct rcu_head *head,
+>           void (*func)(struct rcu_head *rcu))
+>  [...]
+>         rcu_advance_callbacks(rdp);
+>         if (rdp->waittail) // HACK
+>                 *rdp->waittail = head;
+> 	...
+> 
+> without them it crashes during bootup.
 
-hai,
+Probably also the cause of the memory leakage.  More evidence that
+list macros are useful, just in case anyone needed any more.
 
-   I have  a problem in loading a module ,it is giving segmentation fault,
-when I do the /sbin/lsmod
-  signal4 944 (initializing)
+> maybe we are better off with the completely unlocked read path and the
+> long grace periods.
 
-here signal4 is my module name.I am using 2.4.20-8 kernel.
-And I am unable to remove this module also.
+Might well be...  But doesn't there need to be an smp_mb() right after
+the increment in rcu_read_lock() and before the rcu_qsctr_inc(cpu)
+in rcu_read_unlock(), at least for non-x86 CPUs?
 
-following is the code of my module
+On the long grace periods...
 
-#include <bits/signum.h> /* signal number macros SIGHUP etc. */
-#include <linux/kernel.h> /* printk level */
-#include <linux/module.h> /* kernel version etc. */
-#include <linux/sched.h> /* task_struct */
+It should be possible to force the grace periods to end by providing a
+pair of active_readers counters per rcu_data structure, one "current",
+the other "expiring".  New rcu_read_lock() invocations get a pointer
+to the "current" active_readers counter for their current CPU,
+and rcu_read_unlock() decrements whichever one the corresponding
+rcu_read_lock() got a pointer to.
 
-MODULE_LICENSE("GPL v2");
-MODULE_DESCRIPTION("Signal to a user-space app from a kernel module");
+When it is necessary to force a grace period, the roles of the "current"
+and the "expiring" counters are reversed.  Once all CPUs' "expiring"
+counters have gone to zero, then we know that all RCU read-side critical
+sections that were executing at the time of the role reversal have
+completed.  It is necessary to wait for all the "expiring" counters to
+go to zero before doing a second role reversal.
 
-int pid=0;
-MODULE_PARM(pid,"i");
+This is very similar to some mechanism in the K42 and in Dipankar's
+rcu.  See page 18 of http://www.rdrop.com/users/paulmck/RCU/rcu.2002.07.08.pdf
+for a better description.  There is a patch against a very early
+2.5 that I can dig up if anyone is interested.
 
-int
-ksignal(int pid,int signum)
-{
-struct task_struct x;
-struct task_struct *p;
-/* run through the task list of linux until we find our pid */
-//for (p = &init_task ; (p = next_task(p)) != &init_task ; ){
-for (p = &x ; (p = next_task(p)) != &x ; ){
-if(p->pid == pid){
-printk("sending signal %d for pid %d\n",signum,(int)p->pid);
-/* don't have a sig_info struct to send along - pass 0 */
-return send_sig(signum,p,0);
-}
-}
-/* did not find the requested pid */
-return -1;
-}
+Once I get the lock-based method working, I might have the confidence
+to take this on.  If someone wants to try it out in the meantime, I
+would of course be happy to review their code.
 
-int
-init_module(void)
-{
-/* send pid a SIGKILL */
-ksignal(2345,SIGKILL);
-return 0;
-}
-
-void
-cleanup_module(void)
-{
-printk("out of here\n");
-}
------------------------
-my makefile is:
-
-TARGET  := signal4
-WARN    := -W -Wall -Wstrict-prototypes -Wmissing-prototypes
-INCLUDE := -isystem /lib/modules/2.4.20-8feb9.1/build/include
-CFLAGS  := -O2 -DMODULE -D__KERNEL__ ${WARN} ${INCLUDE}
-CC      := gcc
-
-${TARGET}.o: ${TARGET}.c
-
-.PHONY: clean
-
-
-Any suggestions are welcome.
-
-
-
-
-
-Thanks&Regards,
-   P.Manohar.
-
+						Thanx, Paul

@@ -1,59 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261834AbTIYUES (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 16:04:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbTIYUES
+	id S261885AbTIYUTk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 16:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbTIYUTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 16:04:18 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20820 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261834AbTIYUER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 16:04:17 -0400
+	Thu, 25 Sep 2003 16:19:40 -0400
+Received: from [209.195.52.120] ([209.195.52.120]:21467 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S261885AbTIYUTc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 16:19:32 -0400
+From: David Lang <david.lang@digitalinsight.com>
 To: Larry McVoy <lm@bitmover.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, andrea@kernel.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew Wilcox <willy@debian.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Thu, 25 Sep 2003 13:15:38 -0700 (PDT)
 Subject: Re: log-buf-len dynamic
-References: <Pine.LNX.4.44.0309231924540.27467-100000@home.osdl.org>
-	<m1n0csiybu.fsf@ebiederm.dsl.xmission.com>
-	<20030925184906.GD18749@work.bitmover.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 25 Sep 2003 14:02:15 -0600
-In-Reply-To: <20030925184906.GD18749@work.bitmover.com>
-Message-ID: <m1zngshc1k.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+In-Reply-To: <20030925182921.GA18749@work.bitmover.com>
+Message-ID: <Pine.LNX.4.58.0309251313560.7784@dlang.diginsite.com>
+References: <m1n0csiybu.fsf@ebiederm.dsl.xmission.com>
+ <Pine.LNX.4.44.0309251026550.29320-100000@home.osdl.org>
+ <20030925122838.A16288@discworld.dyndns.org> <20030925182921.GA18749@work.bitmover.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy <lm@bitmover.com> writes:
+Larry, have you or could you publish the BK->?? export code?, This way
+even if you do not host the exported stuff it would be trivial for a
+person who is willing to use bk to setup a server to mirror any 'bk-only'
+project.
 
-> On Thu, Sep 25, 2003 at 11:15:33AM -0600, Eric W. Biederman wrote:
-> > In addition there are some major gains to be had in standardizing on a
-> > distributed version control system that everyone can use, and
-> > unfortunately BK does not fill that position.  So I think it is good
-> > that there is enough general discontent it the air that people
-> > continue to look for alternatives. 
-> 
-> Let's just postulate that my claim that this is harder than it looks is
-> true.  You don't have to agree with it, just pretend you do.  Given that,
-> it's going to be a while before any alternative shows up.  People mumble
-> about arch until they go use it for a while and realize it is about 3-5
-> years behind BK.  Linus isn't about to step backwards that far.
+David Lang
 
-Nope. I won't.  I would much rather postulate that it is easier than
-it looks so someone will get started :)  
 
-> > The current situation with version control is painful.  
-> 
-> No kidding.  Do you have any suggestions, _realistic_ suggestions, that 
-> we could do to help?  Beyond making plain text patches/tarballs available
-> from every repo hosted on bkbits?
+On Thu, 25 Sep 2003, Larry McVoy wrote:
 
-patches/tarballs and a clear way to find them would certainly help.
-And would pretty much put a project on bkbits on par with the non bk
-alternatives, for usability.
+> Date: Thu, 25 Sep 2003 11:29:22 -0700
+> From: Larry McVoy <lm@bitmover.com>
+> To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+>      Larry McVoy <lm@bitmover.com>
+> Subject: Re: log-buf-len dynamic
+>
+> On Thu, Sep 25, 2003 at 12:28:38PM -0600, Charles Cazabon wrote:
+> > Perhaps BitMover could release a client that can't do anything but keep a
+> > local (unmodified) tree in sync with a public repository tree, so that the
+> > "politically objectionable" (to some) parts of the BK license don't matter.
+> >
+> > In an idea world, this read-only client could be released in source form, but
+> > I'm under no illusions there :).
+>
+> People ask us for this all the time and it just highlights the point that
+> people don't understand how BK works.  It isn't client server, it's peer
+> to peer, every so-called client has to have all the smarts built in that
+> the so-called server has.
+>
+> There isn't any way to release a stripped down version that makes sense.
+> If there was, we would.
+> --
+> ---
+> Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Eric
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

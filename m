@@ -1,39 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263405AbSIPXxK>; Mon, 16 Sep 2002 19:53:10 -0400
+	id <S263427AbSIPX5A>; Mon, 16 Sep 2002 19:57:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263427AbSIPXxK>; Mon, 16 Sep 2002 19:53:10 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:15112
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263405AbSIPXxJ>; Mon, 16 Sep 2002 19:53:09 -0400
-Subject: Re: [PATCH] BUG(): sched.c: Line 944
-From: Robert Love <rml@tech9.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0209161644210.2029-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0209161644210.2029-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 16 Sep 2002 19:58:09 -0400
-Message-Id: <1032220689.1203.85.camel@phantasy>
-Mime-Version: 1.0
+	id <S263433AbSIPX5A>; Mon, 16 Sep 2002 19:57:00 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31244 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263427AbSIPX46>;
+	Mon, 16 Sep 2002 19:56:58 -0400
+Message-ID: <3D8670D4.9040801@mandrakesoft.com>
+Date: Mon, 16 Sep 2002 20:01:24 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: dwmw2@infradead.org, linux-kernel@vger.kernel.org, todd-lkml@osogrande.com,
+       hadi@cyberus.ca, tcw@tempest.prismnet.com, netdev@oss.sgi.com,
+       pfeather@cs.unm.edu
+Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
+References: <3D86645F.5030401@mandrakesoft.com>	<20020916.160210.70782700.davem@redhat.com>	<3D866DD5.4080207@mandrakesoft.com> <20020916.164343.128145825.davem@redhat.com>
+Content-Type: multipart/mixed;
+ boundary="------------060600040500080402020405"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-09-16 at 19:45, Linus Torvalds wrote:
+This is a multi-part message in MIME format.
+--------------060600040500080402020405
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Ahhah! I know. You just make lock_depth 0 when you exit, without actually 
-> taking the kernel lock. Which fools the logic into accepting a 
-> preempt-disable, since it thinks that the preempt disable is due to 
-> holding the kernel lock.
+David S. Miller wrote:
+>    From: Jeff Garzik <jgarzik@mandrakesoft.com>
+>    Date: Mon, 16 Sep 2002 19:48:37 -0400
+> 
+>    I dunno when it happened, but 2.5.x now returns EINVAL for all 
+>    file->file cases.
+>    
+>    In 2.4.x, if sendpage is NULL, file_send_actor in mm/filemap.c faked a 
+>    call to fops->write().
+>    In 2.5.x, if sendpage is NULL, EINVAL is unconditionally returned.
+>    
+> 
+> What if source and destination file and offsets match?
 
-I was this -> <- close to celebrating.  Not so fast, smarty.
 
-What about release_kernel_lock() ?
+The same data is written out.  No deadlock.
+(unless the attached test is wrong)
 
-It sees task->lock_depth>=0 and calls spin_unlock() on a lock that it
-does not hold.
+	Jeff
 
-	Robert Love
+
+
+--------------060600040500080402020405
+Content-Type: text/plain;
+ name="sendfile-test-2.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sendfile-test-2.c"
+
+#include <sys/sendfile.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <string.h>
+#include <stdio.h>
+
+int main (int argc, char *argv[])
+{
+	int in, out;
+	struct stat st;
+	off_t off = 0;
+	ssize_t rc;
+
+	in = open("test.data", O_RDONLY);
+	if (in < 0) {
+		perror("test.data read");
+		return 1;
+	}
+
+	fstat(in, &st);
+
+	out = open("test.data", O_WRONLY);
+	if (out < 0) {
+		perror("test.data write");
+		return 1;
+	}
+
+	rc = sendfile(out, in, &off, st.st_size);
+	if (rc < 0) {
+		perror("sendfile");
+		close(in);
+		unlink("out");
+		close(out);
+		return 1;
+	}
+
+	close(in);
+	close(out);
+	return 0;
+}
+
+
+--------------060600040500080402020405--
 

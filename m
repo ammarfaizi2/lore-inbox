@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317662AbSGRJb3>; Thu, 18 Jul 2002 05:31:29 -0400
+	id <S317522AbSGRJ3a>; Thu, 18 Jul 2002 05:29:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317681AbSGRJb3>; Thu, 18 Jul 2002 05:31:29 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58382 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317662AbSGRJb1>; Thu, 18 Jul 2002 05:31:27 -0400
-Message-ID: <3D368B9E.1070208@zytor.com>
-Date: Thu, 18 Jul 2002 02:34:22 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: linux-kernel@vger.kernel.org, Art Haas <ahaas@neosoft.com>
-Subject: Re: Remain Calm: Designated initializer patches for 2.5
-References: <20020718085813.8DF8C41A3@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317537AbSGRJ3a>; Thu, 18 Jul 2002 05:29:30 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:28679 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S317522AbSGRJ33>; Thu, 18 Jul 2002 05:29:29 -0400
+Date: Thu, 18 Jul 2002 11:32:26 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+Message-ID: <20020718093226.GC4763@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <1026490866.5316.41.camel@thud> <20020716122756.GD4576@merlin.emma.line.org> <20020716124331.GJ7955@tahoe.alcove-fr> <20020716125301.GI4576@merlin.emma.line.org> <ah4ebd$2vc$1@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ah4ebd$2vc$1@gatekeeper.tmr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> In message <3D366103.8010403@zytor.com> you write:
-> 
->>As far as I could tell, *ALL* of these changes broke text alignment in 
->>columns.
-> 
-> 
-> True.
-> 
-> 
->>It would have been a lot better if they had maintained spacing; I
->>find the new code much more cluttered and hard to read.
-> 
-> 
-> I thought about this: I agree it doesn't look as neat, but "hard to
-> read" for what purpose?  It's just as easy to find a particular field
-> you're looking for and it's just as easy to find the end of the
-> declaration: I couldn't come up with a convincing argument for needing
-> to skim-read these declarations, so I didn't complain to the author.
-> 
+On Wed, 17 Jul 2002, bill davidsen wrote:
 
-Neatness is about making it easy to read code *quickly*.  The pattern 
-recognizer in your brain doesn't work as well on a jumbled mess.
+> In article <20020716125301.GI4576@merlin.emma.line.org>,
+> Matthias Andree  <matthias.andree@stud.uni-dortmund.de> wrote:
+> 
+> | dsmc fstat()s the file it is currently reading regularly and retries the
+> | dump as the changes, and gives up if it is updated too often. Not sure
+> | about the server side, and certainly not a useful option for sequential
+> | devices that you directly write on. Looks like a cache for the biggest
+> | file is necessary.
+> 
+> Which doesn't address the issue of data in files A, B and C, with
+> indices in X and Y. This only works if you flush and freeze all the
+> files at one time, making a perfect backup of one at a time results in
+> corruption if the database is busy.
 
-	-hpa
+Right, but this would have to be taken up with Tivoli "do snapshot as
+dsmc starts, backup from snapshot and discard snapshot on exit"
 
+> My favorite example is usenet news on INN, a bunch of circular spools, a
+> linear history with two index files, 30-40k overview files, and all of
+> it changing with perhaps 3.5MB/sec data and 20-50/sec index writes. Far
+> better done with an application backup!
 
-
+In that case, when you are restoring from backups, you can also
+regenerate index files (at least with tradspool, I never looked at the
+"News in Dosen" aggregated spools like CNFS or whatever). It's really
+hard if you have .dir/.pag style dbm data bases that don't mirror some
+other single-file format.

@@ -1,75 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267308AbTAGF36>; Tue, 7 Jan 2003 00:29:58 -0500
+	id <S267307AbTAGF3R>; Tue, 7 Jan 2003 00:29:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267309AbTAGF36>; Tue, 7 Jan 2003 00:29:58 -0500
-Received: from h80ad273a.async.vt.edu ([128.173.39.58]:47232 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267308AbTAGF3z>; Tue, 7 Jan 2003 00:29:55 -0500
-Message-Id: <200301070538.h075cICR004033@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Oliver Xymoron <oxymoron@waste.org>
+	id <S267308AbTAGF3R>; Tue, 7 Jan 2003 00:29:17 -0500
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:12499 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S267307AbTAGF3Q>; Tue, 7 Jan 2003 00:29:16 -0500
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!) 
-In-Reply-To: Your message of "Mon, 06 Jan 2003 22:20:46 CST."
-             <20030107042045.GA10045@waste.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.10.10301051924140.421-100000@master.linux-ide.org> <3E19B401.7A9E47D5@linux-m68k.org> <17360000.1041899978@localhost.localdomain>
-            <20030107042045.GA10045@waste.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-787681340P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 07 Jan 2003 00:38:18 -0500
+Subject: Re: [PATCH] Embed __this_module in module itself.
+References: <20021227104328.143DD2C05D@lists.samba.org>
+	<buou1gma6bz.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 07 Jan 2003 14:36:54 +0900
+In-Reply-To: <buou1gma6bz.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Message-ID: <buoadid1pxl.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-787681340P
-Content-Type: text/plain; charset=us-ascii
+Miles Bader <miles@lsi.nec.co.jp> writes:
+> When I try to build modules using 2.5.54, the resulting .ko files lack
+> the .gnu.linkonce.* sections, which causes the kernel module loader to
+> fail on them -- those sections _are_ present in the .o files, but the
+> linker apparently removes them!
 
-On Mon, 06 Jan 2003 22:20:46 CST, Oliver Xymoron said:
+Ok, I found out why this is happening -- the v850 default linker
+scripts, for whatever reason, merge any section called `.gnu.linker.t*'
+with .text.
 
-> What was the underlying error rate and distribution you assumed? I
-> figure if it were high enough to get to your 1%, you'd have such high
-> retry rates (and resulting throughput loss) that the operator would
-> notice his LAN was broken weeks before said transfer completed.
+I can prevent this by adding the option `--unique=.gnu.linkonce.this_module'
+to the linker flags (specifically, to LDFLAGS_MODULE in the top-level
+Makefile).  I suppose another way to do it would be to rename the
+section something that doesn't match `.gnu.linker.t*'.
 
-The average ISP wouldn't notice things were broken unless enough magic
-smoke escaped to cause a Halon dump.
+What's the right way to handle this?
 
-Consider as evidence the following NANOG presentation:
+[from perusing the ld srcs, a few other archs seem to have the same
+`feature,' though the only that I think has linux support is `cris']
 
-http://www.nanog.org/mtg-0210/wessels.html
+Thanks,
 
-Some *98* percent of all queries at one of the root nameservers over a 24-hour
-period were broken in some way.  And there wasn't even a DDoS in progress
-at the time...
-
-Also, I think Andrew was computing the chances that *SOME* packet in the
-100T would be mangled in an undetected fashion, so 99% of the time all 100T
-would be OK, but 1% of the time there was some subtle block mangling some
-dozens of terabytes into the transfer.  Given that the TCP slow-start code
-is currently busticated for gigabit and higher (it takes *hours* without a
-packet drop to get the window open *all* the way - there's IETF drafts
-in process about this), it's quite possible that you'd not notice packet
-drops due to error among all the congestion drops kicking the window size
-down.....
+-Miles
 -- 
-				Valdis Kletnieks
-				Computer Systems Senior Engineer
-				Virginia Tech
-
-
---==_Exmh_-787681340P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+GmfKcC3lWbTT17ARAsSOAKDpTo3YCPQfaJEouVyV1Z6ZLcHQZQCgqQQ6
-9VZ+kwKpL64+SGtiOJIudeQ=
-=6lgg
------END PGP SIGNATURE-----
-
---==_Exmh_-787681340P--
+The secret to creativity is knowing how to hide your sources.
+  --Albert Einstein

@@ -1,69 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264182AbTEWUgh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 16:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264183AbTEWUgh
+	id S264183AbTEWUj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 16:39:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264185AbTEWUj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 16:36:37 -0400
-Received: from inet-mail1.oracle.com ([148.87.2.201]:34241 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id S264182AbTEWUge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 16:36:34 -0400
-Date: Fri, 23 May 2003 13:47:59 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: linux-kernel@vger.kernel.org
-Subject: WimMark I report for 2.5.69-mm8
-Message-ID: <20030523204759.GE32128@ca-server1.us.oracle.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.4i
+	Fri, 23 May 2003 16:39:26 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:14846 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S264183AbTEWUjV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 16:39:21 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: /proc/kcore - how to fix it
+Date: Fri, 23 May 2003 13:52:25 -0700
+Message-ID: <DD755978BA8283409FB0087C39132BD101B00E06@fmsmsx404.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: /proc/kcore - how to fix it
+Thread-Index: AcMhY1Kxs6Y+F2jHSWqw2tADsIWWeAABldOQ
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@linuxia64.org>,
+       <rmk@arm.linux.org.uk>, <davidm@napali.hpl.hp.com>, <akpm@digeo.com>
+X-OriginalArrivalTime: 23 May 2003 20:52:25.0762 (UTC) FILETIME=[37311020:01C3216D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-WimMark I report for 2.5.69-mm8
+> /dev/mem / dev/kmem has the same problem, it could use that too.
 
-Runs (deadline): 1087.95 1053.95 1043.80 1086.53 1049.23 1097.63
-Runs (anticipatory):  670.52 967.77 977.69
+Hmmm ... so "kclist" needs to be globally visible instead of static,
+probably needs to be maintained by the mem driver rather than kcore.c
+(which might not be configured) ... and would need a new name to
+reflect its many uses (kvmlist?)
+ 
+> > Other blocks of kernel virtual space can be added as needed, and
+> > removed again (with kclist_del()).  E.g. discontiguous memory
+> 
+> Remove could get racy - /proc/kcore can sleep while accessing such
+> a block. You would need a sleeping lock hold all the time.
+> 
+> What would you need remove for?
 
-	WimMark I is a rough benchmark we have been running
-here at Oracle against various kernels.  Each run tests an OLTP
-workload on the Oracle database with somewhat restrictive memory
-conditions.  This reduces in-memory buffering of data, allowing for
-more I/O.  The I/O is read and sync write, random and seek-laden.  The
-runs all do ramp-up work to populate caches and the like.
-	The benchmark is called "WimMark I" because it has no
-official standing and is only a relative benchmark useful for comparing
-kernel changes.  The benchmark is normalized an arbitrary kernel, which
-scores 1000.0.  All other numbers are relative to this.  A bigger number
-is a better number.  All things being equal, a delta <50 is close to
-unimportant, and a delta < 20 is very identical.
-	This benchmark is sensitive to random system events.  I run
-three runs because of this.  If two runs are nearly identical and the
-remaining run is way off, that run should probably be ignored (it is
-often a low number, signifying that something on the system impacted
-the benchmark).
-	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
-of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
-10K RPM U2W SCSI of similar vintage.  The data files are living on an
-ext3 filesystem.  Unless mentioned, all runs are
-on this machine (variation in hardware would indeed change the
-benchmark).
-	WimMark I run results are archived at
-http://oss.oracle.com/~jlbec/wimmark/wimmark_I.html
+Someday we'll support memory hot-add and hot-remove.  But in the
+more immediate future I think that arch/arm allocates space for
+modules outside of vmalloc-land ... so might want to add space to
+the list on module insert, and remove at rmmod time.
 
+Races are a problem ... I'm just not sure how big of a problem.  The
+virtual address to offset mapping stuff below is set up so that the
+offsets of sections in the virtual /proc/kcore file do not change as
+sections appear/disappear (just like the existing kcore code). So
+if you are accessing some vmalloc'd structure and the kernel vfree()s
+some other structure, then you won't get hurt.  But opening /proc/kcore
+and reading the headers doesn't make any promises that memory listed
+in an elf_phdr will still be there by the time you lseek and read,
+which is no different from the existing implementation.
 
--- 
+> 
+> > The second piece of abstraction is the kc_vaddr_to_offset() and
+> > kc_offset_to_vaddr() macros.  These provide mappings from kernel
+> > virtual addresses to offsets in the virtual file that /proc/kcore
+> > instantiates.  I hope they are sufficient to avoid negative offset
+> > problems that plagued the old /proc/kcore.  Default versions are
+> > provided for the old behaviour (mapping simply adds/subtracts
+> > PAGE_OFFSET).  For ia64 I just need to use a different offset
+> > as all kernel virtual allocations are in the high 37.5% of the
+> > 64-bit virtual address space.
+> 
+> I'm not sure it is a good idea from the interface standpoint, 
+> especially for /dev/kmem.  It would surely be confusing for the user.
 
-"One of the symptoms of an approaching nervous breakdown is the
- belief that one's work is terribly important."
-         - Bertrand Russell 
+I agree. /dev/kmem should provide a flat 1:1 map ... and leave users
+to deal with all the negative addresses.  Applications already expect
+this (because on x86 the kernel is already in negative space).
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+/proc/kcore is a bit different because it's trying to present
+a regular file view, rather than a char-special file view to
+any tool that wants to use it.  If someone fixes up gdb, objdump,
+readelf, etc. then the macros can be easily removed to provide 1:1
+(though even then it isn't quite 1:1 ... offset in file would be
+"vaddr + elf_buflen" to allow space for the elf headers at the start
+of the file.
+
+-Tony

@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266555AbUGPPb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266558AbUGPPvx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266555AbUGPPb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 11:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266554AbUGPPb7
+	id S266558AbUGPPvx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 11:51:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUGPPvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 11:31:59 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:32562 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S266555AbUGPPbt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 11:31:49 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Chris Wedgwood <cw@f00f.org>
-Subject: Re: [PATCH] reduce inter-node balancing frequency
-Date: Fri, 16 Jul 2004 11:30:44 -0400
-User-Agent: KMail/1.6.2
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       John Hawkes <hawkes@sgi.com>
-References: <200407151829.20069.jbarnes@engr.sgi.com> <200407161045.38983.jbarnes@engr.sgi.com> <20040716150418.GA5195@taniwha.stupidest.org>
-In-Reply-To: <20040716150418.GA5195@taniwha.stupidest.org>
-MIME-Version: 1.0
+	Fri, 16 Jul 2004 11:51:53 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:13219 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S266558AbUGPPvv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 11:51:51 -0400
+Date: Fri, 16 Jul 2004 21:20:49 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, dipankar@in.ibm.com
+Subject: Re: [RFC] Refcounting of objects part of a lockfree collection
+Message-ID: <20040716155049.GC1257@obelix.in.ibm.com>
+References: <20040714045345.GA1220@obelix.in.ibm.com> <20040714070700.GA12579@kroah.com> <20040714085758.GA4165@obelix.in.ibm.com> <20040714170800.GC4636@kroah.com> <20040715080204.GC1312@obelix.in.ibm.com> <20040716143235.GC8282@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407161130.44616.jbarnes@engr.sgi.com>
+In-Reply-To: <20040716143235.GC8282@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, July 16, 2004 11:04 am, Chris Wedgwood wrote:
-> On Fri, Jul 16, 2004 at 10:45:38AM -0400, Jesse Barnes wrote:
-> > For sn2 at least, there are quite a few ways we could dice up the
-> > topology.  We'll have to experiment with things a bit to find some
-> > good defaults.
->
-> The PROM can export topology details so presumably there is enough to
-> derive something sane on boot surely?
+On Fri, Jul 16, 2004 at 07:32:35AM -0700, Greg KH wrote:
+>... 
+> > We (Dipankar and myslef) had a discussion
+> > and decided:
+> > 1. I will make a patch to shrink kref and feed it to Greg
+> > 2. Add new set kref api for lockfree refcounting --
+> > 	kref_lf_xxx.  (kref_lf_get, kref_lf_get_rcu etc.,)
+> 
+> kref_*_rcu() as Dipankar noted is much nicer.
 
-Yep, we should have all the information we need, it's just a matter of 
-translating it into something useful.  Since routers tend to group together 
-nodes in groups of 4 or 8, a node herd with that many nodes might make sense, 
-but also might be too small.  We might want everything within a set of 
-metarouters in a group instead, or in addition, or...
+Do you mean Dipankar had noted as in:
 
-Jesse
+<Dipankar's earlier post>
+> Would this work -
+> 
+> kref_get - just atomic inc
+> kref_put - just atomic dec
+> kref_get_rcu - cmpxchg if arch has or hashed spinlock
+> kref_put_rcu - dec if has cmpxchg else hashed spinlock
+
+> If the object has lock-free look-up, it must use kref_get_rcu.
+> You can use kref_get on such an object if the look-up is being
+> done with lock. Is there a situation that is not covered by this ?
+
+</>
+
+If that is what you want, the api cannot work well.
+The problem with this case is I cannot use hashed spinlock _just_ for
+kref_get_rcu as Dipankar mentions above.  If I do that the atomic_inc s
+in kref_get will race with the 'hashed spinlock' kref_get_rcu when 
+both have to be used on the same refcounter.  (I mentioned this in an 
+earlier post).  So I have to take the same hashed spinlock for kref_gets as 
+well to maintain correctness -- obviously not a good thing for arches 
+with no cmpxchg which use krefs for non lock free purposes only.  
+Hence, the proposal now is to add kref_lf_get, kref_lf_put, kref_lf_get_rcu 
+to the kref api.  kref_lf_xxx is to be used when the kref refcounter
+is used atleast one place lock free -- that is kref_lf_get_rcu is used
+at atleast once on the struct kref.  Does that sound ok?
+
+Thanks,
+Kiran

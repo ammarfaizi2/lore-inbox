@@ -1,53 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265502AbUFCEzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265508AbUFCFd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265502AbUFCEzb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 00:55:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265503AbUFCEza
+	id S265508AbUFCFd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 01:33:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265509AbUFCFd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 00:55:30 -0400
-Received: from main.gmane.org ([80.91.224.249]:19387 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265502AbUFCEz3 (ORCPT
+	Thu, 3 Jun 2004 01:33:57 -0400
+Received: from mail.gmx.net ([213.165.64.20]:47258 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265508AbUFCFdy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 00:55:29 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Thu, 3 Jun 2004 01:33:54 -0400
+X-Authenticated: #4512188
+Message-ID: <40BEB840.8060305@gmx.de>
+Date: Thu, 03 Jun 2004 07:33:52 +0200
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040525)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-From: Calvin Spealman <calvin@ironfroggy.com>
-Subject: Re: Possible bug: ext3 misreporting filesystem usage
-Date: Thu, 03 Jun 2004 00:49:40 +0000
-Message-ID: <1707149.1mCcARGuB2@ironfroggy.com>
-References: <1275157.LnyMtzroWT@ironfroggy.com> <c9l0me$cf1$1@news.cistron.nl>
-Reply-To: calvin@ironfroggy.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cpe-069-132-046-251.carolina.rr.com
-User-Agent: KNode/0.7.7
+CC: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: 2.6.7-rc1-mm1: libata flooding my log
+References: <40B8E8D4.1010905@gmx.de> <40B8EB07.6000700@pobox.com> <40B8F601.2000600@gmx.de> <40BD8B7A.2010901@gmx.de>
+In-Reply-To: <40BD8B7A.2010901@gmx.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miquel van Smoorenburg wrote:
-
-> In article <1275157.LnyMtzroWT@ironfroggy.com>,
-> Calvin Spealman  <calvin@ironfroggy.com> wrote:
->>I've been getting a possible bug after running my system a few weeks. The
->>ext3 partition's usage is being misreported. Right now, df -h says ive got
->>no space left, but according to du /, I'm only using 17 gigs of my 40 gig
->>drive. Restarting fixes the problem, so I'm thinking it might be some
->>mis-handled variable in memory, not something on the disc itself? And,
->>yes, I do know that du is right, not df, because I keep good track of my
->>disc usage. This is pretty serious, it killed a 40+ hour process that i'll
->>have to start over again from the beginning!
+Prakash K. Cheemplavam wrote:
+> Prakash K. Cheemplavam wrote:
 > 
-> There's a process holding on to a 23 GB logfile that has been
-> deleted. Try "ls -l /proc/*/fd/* 2>&1 | grep deleted" . Kill the
-> process and you'll have your space back.
+>> Jeff Garzik wrote:
+>>
+>>> Prakash K. Cheemplavam wrote:
+>>>
+>> [snip]
+>>
+>>>> FAILED
+>>>>   status = 1, message = 00, host = 0, driver = 08
+>>>>   Current sd: sense = 70  5
+>>>> ASC=20 ASCQ= 0
+>>>> Raw sense data:0x70 0x00 0x05 0x00 0x00 0x00 0x00 0x06 0x00 0x00 
+>>>> 0x00 0x00 0x20 0x00
+>>>> FAILED
+>>>>   status = 1, message = 00, host = 0, driver = 08
+>>>>   Current sd: sense = 70  5
+>>>> ASC=20 ASCQ= 0
+>>>> Raw sense data:0x70 0x00 0x05 0x00 0x00 0x00 0x00 0x06 0x00 0x00 
+>>>> 0x00 0x00 0x20 0x00
+>>>> FAILED
+>>>>   status = 1, message = 00, host = 0, driver = 08
+>>>>   Current sd: sense = 70  5
+>>>> ASC=20 ASCQ= 0
+>>>> Raw sense data:0x70 0x00 0x05 0x00 0x00 0x00 0x00 0x06 0x00 0x00 
+>>>> 0x00 0x00 0x20 0x00
+>>>>
+>>>>
+>>>
 > 
-> Mike.
+>>
+>>
+>>>
+>>> I wonder if you have a bad SATA cable, initially, though.
+>>
+>>
+>>
+>> I don't think so, because previous mm kernels didn't show anything 
+>> like this.
+>>
 
-All that shows is a couple things from konq's http cache, nothing adding
-nearly to the 23 gigs.
+So I tried something new. I enabled the SCSI error reporting and now get 
+this:
 
-If i delete some files, i have more space, but then the used space steadily
-increases until i have nothing left again. i am running a 2.6.6_rc1 kernel.
+FAILED
+   status = 1, message = 00, host = 0, driver = 08
+   Current sd: sense key Illegal Request
+Additional sense: Invalid command operation code
+FAILED
+   status = 1, message = 00, host = 0, driver = 08
+   Current sd: sense key Illegal Request
+Additional sense: Invalid command operation code
 
+
+I found another interesting thing: It seems those errors only appear 
+when I use mozilla thunderbird! Any idea what tb is trying to do to the 
+hd? As I said earlier kernels didn't report such errors. (Are those 
+actually errors?)
+
+Prakash

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAIRrp>; Tue, 9 Jan 2001 12:47:45 -0500
+	id <S129226AbRAIRsf>; Tue, 9 Jan 2001 12:48:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129431AbRAIRrf>; Tue, 9 Jan 2001 12:47:35 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22029 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129324AbRAIRra>; Tue, 9 Jan 2001 12:47:30 -0500
-Subject: Re: wavelan has fatal error with 2.4.0 (but worked in 2.4.0-test12)
-To: jt@hpl.hp.com
-Date: Tue, 9 Jan 2001 17:48:47 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rutt@chezrutt.com (John Ruttenberg),
-        linux-kernel@vger.kernel.org (Linux kernel mailing list)
-In-Reply-To: <20010109094217.A30225@bougret.hpl.hp.com> from "Jean Tourrilhes" at Jan 09, 2001 09:42:17 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129431AbRAIRsZ>; Tue, 9 Jan 2001 12:48:25 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:56842 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129784AbRAIRsN>;
+	Tue, 9 Jan 2001 12:48:13 -0500
+Date: Tue, 9 Jan 2001 18:47:55 +0100
+From: Andi Kleen <ak@suse.de>
+To: Venkatesh Ramamurthy <Venkateshr@ami.com>
+Cc: "'Andi Kleen'" <ak@suse.de>, Matti Aarnio <matti.aarnio@zmailer.org>,
+        "'Pavel Machek'" <pavel@suse.cz>, adefacc@tin.it,
+        linux-kernel@vger.kernel.org, timw@splhi.com
+Subject: Re: Confirmation request about new 2.4.x. kernel limits
+Message-ID: <20010109184755.A7377@gruyere.muc.suse.de>
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E9513D@ATL_MS1>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14G2t8-00074Q-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E9513D@ATL_MS1>; from Venkateshr@ami.com on Tue, Jan 09, 2001 at 12:35:02PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It is a bug in the driver.
+On Tue, Jan 09, 2001 at 12:35:02PM -0500, Venkatesh Ramamurthy wrote:
 > 
-> 	Please check again the code and point me the invalid
-> udelay(). You will realise that there is no delay in the driver that
-> is longer than 100ms.
+> > Problem is that it needs a driver interface change and cooperation from
+> > the
+> > drivers. 
+> 	[Venkatesh Ramamurthy]  Atleast the spec for this new interface,
+> that the driver has to support be prepared? Once this is done we can port
+> driver by driver to this new standard.
 
-The udelay limit is set a lot lower than 100mS. It has to be somewhat lower
-otherwise you have to do two levels of loops which will throw small udelay
-timings a fair whack.
+AFAIK there is no spec yet. Just supporting 64bit DMA on 32bit hosts would 
+probably only minor changes (like pushing the dma_mask flag a bit more out so
+that it is visible by scsi or ll_rw_blk), but 2.5 will probably also see more
+extensive changes for block drivers, like moving them to kiovecs.  
 
-> 	The bug is that udelay() can't be passed a variable but only a
-> constant. Therefore bug in udelay().
+Your input would be probably welcome.
 
-Sounds like a compiler bug.
-
-#define udelay(n) (__builtin_constant_p(n) ? \
-	((n) > 20000 ? __bad_udelay() : __const_udelay((n) * 0x10c6ul)) : \
-	__udelay(n))
-
-non constants are covered.
-
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

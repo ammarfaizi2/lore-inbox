@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272635AbTHKOZR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 10:25:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272584AbTHKNlx
+	id S272661AbTHKOeY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 10:34:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272665AbTHKOeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 09:41:53 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:42123 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S272635AbTHKNlH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 09:41:07 -0400
-To: torvalds@transmeta.com
-From: davej@redhat.com
-Cc: linux-kernel@vger.kernel.org, jgarzik@redhat.com
-Subject: [PATCH] misc 3c505 bits
-Message-Id: <E19mCuP-0003dp-00@tetrachloride>
-Date: Mon, 11 Aug 2003 14:40:25 +0100
+	Mon, 11 Aug 2003 10:34:24 -0400
+Received: from matav-4.matav.hu ([145.236.252.35]:43062 "EHLO
+	Forman.fw.matav.hu") by vger.kernel.org with ESMTP id S272661AbTHKOeV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 10:34:21 -0400
+Message-ID: <3F37A962.4030505@narancs.tii.matav.hu>
+Date: Mon, 11 Aug 2003 16:34:10 +0200
+From: narancs <narancs@narancs.tii.matav.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.3) Gecko/20030312
+X-Accept-Language: hu, en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: DEC KZPSA SCSI card - is there a linux driver?
+X-Enigmail-Version: 0.74.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- Remove unneeded breaks
-- Fix double spin_unlock_irqrestore problem
+Hi people,
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/net/3c505.c linux-2.5/drivers/net/3c505.c
---- bk-linus/drivers/net/3c505.c	2003-05-26 12:57:43.000000000 +0100
-+++ linux-2.5/drivers/net/3c505.c	2003-06-04 14:07:40.000000000 +0100
-@@ -449,18 +449,18 @@ static int send_pcb(struct net_device *d
- 		case ASF_PCB_ACK:
- 			adapter->send_pcb_semaphore = 0;
- 			return TRUE;
--			break;
-+
- 		case ASF_PCB_NAK:
- #ifdef ELP_DEBUG
- 			printk(KERN_DEBUG "%s: send_pcb got NAK\n", dev->name);
- #endif
- 			goto abort;
--			break;
- 		}
- 	}
- 
- 	if (elp_debug >= 1)
- 		printk(KERN_DEBUG "%s: timeout waiting for PCB acknowledge (status %02x)\n", dev->name, inb_status(dev->base_addr));
-+	goto abort;
- 
-       sti_abort:
- 	spin_unlock_irqrestore(&adapter->lock, flags);
+I guess this mail should have gone to a mailing list like linux-scsi, 
+but I just couldn't find that list's address - sorry if this mail is not 
+to be here :)
+
+so I have just got a DEC PCI SCSI card which has a sym53c720 chip and an 
+intel 930 chip and an LSI chip on board. it is a full-length 32bit PCI 
+scsi card. (it was working fine in an alpha axp system with true64 unix, 
+and now it is installed in a PC.)
+
+with linux kernel 2.4.20 (suse8.2) trying all the modules, I just 
+couldn't get it working.
+I moved the card to other PCI slots and play with irqs, but no success.
+
+please help that which driver should get it working if this card is 
+supported at all.
+
+thanks!
+
+00:0d.0 SCSI storage controller: Digital Equipment Corporation KZPSA [KZPSA]
+        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- 
+ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz- UDF+ FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 66 (2000ns min, 31750ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 7
+        BIST result: 00
+        Region 0: Memory at fedfd000 (64-bit, non-prefetchable) [size=4K]
+        Region 2: I/O ports at d000 [size=4K]
+        Region 3: Memory at feb00000 (64-bit, non-prefetchable) [size=1M]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+
+

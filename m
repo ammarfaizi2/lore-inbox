@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVBCWXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVBCWZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261683AbVBCWXo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 17:23:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbVBCWXm
+	id S261275AbVBCWZe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 17:25:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263238AbVBCWZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 17:23:42 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:29972 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262698AbVBCWXK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 17:23:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=tPopuRkAdk0qWxMEBV5vvRGHY0pklWQkflbB50hE/JBwaL31c4aKOjCOrMYEZVD5I+dcwV2yO1zuGacrj+Jz8DdaLP3NuHyyK3dBkKf/+v4KXbKgEKXJKe2uTnOMGv6TUH0EApvMBbgSbNBC0uXBCTfWFXp1fSX2THFRPAyltuE=
-Message-ID: <58cb370e05020314231d3237d9@mail.gmail.com>
-Date: Thu, 3 Feb 2005 23:23:06 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: via82cxxx resume failure.
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <4202A25A.9050700@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1105953931.26551.314.camel@hades.cambridge.redhat.com>
-	 <58cb370e05020312296060f4bf@mail.gmail.com>
-	 <4202A25A.9050700@pobox.com>
+	Thu, 3 Feb 2005 17:25:33 -0500
+Received: from out014pub.verizon.net ([206.46.170.46]:65529 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S261275AbVBCWZL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 17:25:11 -0500
+Message-Id: <200502032224.j13MOExF013592@localhost.localdomain>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Con Kolivas <kernel@kolivas.org>, "Bill Huey (hui)" <bhuey@lnxw.com>,
+       "Jack O'Quin" <joq@io.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature 
+In-reply-to: Your message of "Thu, 03 Feb 2005 22:59:27 +0100."
+             <20050203215927.GA28634@elte.hu> 
+Date: Thu, 03 Feb 2005 17:24:14 -0500
+From: Paul Davis <paul@linuxaudiosystems.com>
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [151.197.43.196] at Thu, 3 Feb 2005 16:25:09 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 03 Feb 2005 17:14:50 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > Sorry for the delay.
-> >
-> > On Mon, 17 Jan 2005 09:25:30 +0000, David Woodhouse <dwmw2@infradead.org> wrote:
-> >
-> >>On resume from sleep, via_set_speed() doesn't reinstate the correct DMA
-> >>mode, because it thinks the drive is already configured correctly. This
-> >>one-line hack is sufficient to make it refrain from dying a horrible
-> >>death immediately after resume, but presumably has other problems...
-> >
-> >
-> > I applied this to libata-dev so it gets some testing in -mm.
-> 
-> Chuckle -- you mean ide-dev, presumably :)
+>that might be all well and good, but i believe you still dont understand
+>my point: for yield_to() to work the target task _needs to be running_. 
 
-yes, obviously :)
+correct, i did not understand. perhaps Con didn't either. my idea was
+related to:
+
+>in theory it would be possible to add two new syscalls: sys_suspend()
+>and sys_wakeup(tid), where suspend would just enter TASK_INTERRUPTIBLE
+
+but more like:
+
+    sys_suspend_and_wake (tid)
+
+where current enters TASK_INTERRUPTIBLE, and process_wakeup() is
+called on tid.
+
+>having this API on 2.4 kernels. But it would have one big advantage: it
+>would be evidently and trivially RT-safe :-)
+
+no small advantage.
+
+it has another big advantage from the user space perspective: no other
+information is required apart from <tid>. no state needs to be
+maintained by the system that uses this. thats a huge win over the
+baroque collection of FIFOs (or futexes) that we have to look after now.
+
+--p

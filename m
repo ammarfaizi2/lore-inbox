@@ -1,73 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbUKHWao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbUKHWbX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbUKHWao (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 17:30:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbUKHWan
+	id S261279AbUKHWbX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 17:31:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbUKHWat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 17:30:43 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:9999 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261278AbUKHWaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 17:30:25 -0500
-Date: Mon, 8 Nov 2004 23:29:52 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-os@analogic.com
-Cc: Pawe?? Sikora <pluto@pld-linux.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] kill IN_STRING_C
-Message-ID: <20041108222952.GJ15077@stusta.de>
-References: <20041107142445.GH14308@stusta.de> <20041108161935.GC2456@wotan.suse.de> <20041108163101.GA13234@stusta.de> <200411081904.13969.pluto@pld-linux.org> <20041108183120.GB15077@stusta.de> <Pine.LNX.4.61.0411081410560.6407@chaos.analogic.com> <20041108212713.GH15077@stusta.de> <Pine.LNX.4.61.0411081640320.8258@chaos.analogic.com>
+	Mon, 8 Nov 2004 17:30:49 -0500
+Received: from fw.osdl.org ([65.172.181.6]:42131 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261273AbUKHWak (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 17:30:40 -0500
+Date: Mon, 8 Nov 2004 14:34:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: dhowells@redhat.com
+Cc: torvalds@osdl.org, davidm@snapgear.com, linux-kernel@vger.kernel.org,
+       uclinux-dev@uclinux.org
+Subject: Re: [PATCH] Termio userspace access error handling
+Message-Id: <20041108143409.79bf7fd8.akpm@osdl.org>
+In-Reply-To: <200411081432.iA8EWewv023403@warthog.cambridge.redhat.com>
+References: <200411081432.iA8EWewv023403@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0411081640320.8258@chaos.analogic.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 05:15:14PM -0500, linux-os wrote:
-> >...
-> >Are you using exactly my example file?
-> >Are you using the complete gcc command line as shown by "make V=1"?
-> >Which gcc 3.3.3 are you using?
-> >
-> 
-> No, I am using (no headers):
-> -------------------
-> extern int sprintf(char *, const char *,...);
-> extern int puts(const char *);
-> static const char hello[]="Hello";
-> int xxx(void);
-> int xxx(){
->    char buf[0x100];
->    sprintf(buf, "%s", hello);
->    puts(buf);
->    return 0;
-> }
-> --------------------
-> 
-> Compiled as:
-> 
-> gcc -O2 -Wall -S -o xxx xxx.c
->...
+dhowells@redhat.com wrote:
+>
+> The attached patch creates a generic set of termio userspace access functions
+> with proper error handling. None of the current archs check for errors in this
+> case.
 
-If you don't compile the code as it would be compiled inside the kernel, 
-that's your fault...
-
-Please reply only if you can reproduce this with
-#include <linux/string.h>, #include <linux/kernel.h> _and_ a gcc command
-line as it would be in the kernel - everything else is useless.
-
-> Cheers,
-> Dick Johnson
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Why are they inlined?

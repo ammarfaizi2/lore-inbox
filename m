@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263960AbTJFDJC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 23:09:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263961AbTJFDJC
+	id S263958AbTJFDHK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 23:07:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263959AbTJFDHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 23:09:02 -0400
-Received: from ozlabs.org ([203.10.76.45]:44486 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S263960AbTJFDI5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 23:08:57 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16256.56491.671416.205944@cargo.ozlabs.ibm.com>
-Date: Mon, 6 Oct 2003 13:08:27 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Patrick Mansfield <patmans@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: oops when removing sbp2 module
-In-Reply-To: <20031005074902.A26284@beaverton.ibm.com>
-References: <16256.6322.388402.857084@cargo.ozlabs.ibm.com>
-	<20031005074902.A26284@beaverton.ibm.com>
-X-Mailer: VM 7.17 under Emacs 21.3.1
+	Sun, 5 Oct 2003 23:07:10 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:30213 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263958AbTJFDHH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 23:07:07 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
+Date: 6 Oct 2003 02:57:30 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <blqlmq$dgn$1@gatekeeper.tmr.com>
+References: <Pine.LNX.4.44.0310010803530.23860-100000@home.osdl.org> <3F7B9CF9.4040706@redhat.com> <blgol5$vd0$1@news.cistron.nl>
+X-Trace: gatekeeper.tmr.com 1065409050 13847 192.168.12.62 (6 Oct 2003 02:57:30 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mansfield writes:
+In article <blgol5$vd0$1@news.cistron.nl>,
+Miquel van Smoorenburg <miquels@cistron.nl> wrote:
+| In article <3F7B9CF9.4040706@redhat.com>,
+| Ulrich Drepper  <drepper@redhat.com> wrote:
+| >Linus Torvalds wrote:
+| >
+| >> I think /proc/self most likely _should_ point into the thread, not the 
+| >> task. 
+| >
+| >As much as I want to not see this, I fear I have to agree.
+| >
+| >There is, for instance, no guarantee that all CLONE_THREAD clones also
+| >have CLONE_FILES set.  Then using /proc/self/%d for some thread-local
+| >file descriptor will return the process group leaders file descriptor,
+| >not the own.
+| 
+| How about use /proc/self/task/self/fd/%d if /proc/self/task/self
+| exists, /proc/self/fd/%d otherwise ?
 
-> There is a typo on a change to the access_count check. 
-> 
-> Try this patch:
-> 
-> --- bleed-2.5/drivers/scsi/scsi_sysfs.c-orig	Mon Sep 29 12:21:09 2003
-> +++ bleed-2.5/drivers/scsi/scsi_sysfs.c	Mon Sep 29 16:19:22 2003
-> @@ -412,7 +412,7 @@
->  		set_bit(SDEV_DEL, &sdev->sdev_state);
->  		if (sdev->host->hostt->slave_destroy)
->  			sdev->host->hostt->slave_destroy(sdev);
-> -		if (atomic_read(&sdev->access_count))
-> +		if (!atomic_read(&sdev->access_count))
->  			device_del(&sdev->sdev_gendev);
->  		up_write(&class->subsys.rwsem);
->  	}
+Let me bend your suggestion slightly and suggest that for a task which
+shares fd with the leader, /proc/N/task/M/fd would be a symlink to
+/proc/M/fd, and if fd's were not shared it would be a directory. That
+would make it easy for programs like lsof to know when to look and whn
+not.
 
-That fixes it, it no longer oopses on removing sbp2.  As before I get
-a message saying "Device 'fw-host0' does not have a release()
-function, it is broken and must be fixed."  I assume that is a problem
-with the sbp2 module.
-
-The code in the patch looks a little worrying to me, though.  Is there
-some lock we have taken to ensure that no other process could be
-modifying sdev->access_count at the same time?  Also, what is to stop
-some other process from noticing that sdev->access_count is 0 and
-calling device_del(&sdev->sdev_gendev) ?
-
-Regards,
-Paul.
+This doesn't prevent your suggestion which triggered the thought, it
+just seems to avoid having a boatload of symlinks for the most common
+case when one would do.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

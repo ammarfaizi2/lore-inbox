@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267636AbSLSM2z>; Thu, 19 Dec 2002 07:28:55 -0500
+	id <S267624AbSLSM0a>; Thu, 19 Dec 2002 07:26:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267637AbSLSM2z>; Thu, 19 Dec 2002 07:28:55 -0500
-Received: from cc125153-a.ensch1.ov.home.nl ([217.120.134.19]:10488 "HELO
-	luggage.discworld.org") by vger.kernel.org with SMTP
-	id <S267636AbSLSM2y>; Thu, 19 Dec 2002 07:28:54 -0500
-Message-ID: <3E01BD20.4080608@home.nl>
-Date: Thu, 19 Dec 2002 13:35:44 +0100
-From: Robert Boermans <r.boermans@home.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pawel Kot <pkot@linuxnews.pl>
-CC: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.24-rc1
-References: <Pine.LNX.4.33.0212170113350.14563-100000@urtica.linuxnews.pl>
-In-Reply-To: <Pine.LNX.4.33.0212170113350.14563-100000@urtica.linuxnews.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267626AbSLSM0a>; Thu, 19 Dec 2002 07:26:30 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:163 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267624AbSLSM03>;
+	Thu, 19 Dec 2002 07:26:29 -0500
+Date: Thu, 19 Dec 2002 18:19:29 +0530
+From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (4/5) improved notifier callback mechanism - read copy update
+Message-ID: <20021219181929.A5265@in.ibm.com>
+Reply-To: vamsi@in.ibm.com
+References: <1040249652.14364.192.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1040249652.14364.192.camel@dell_ss3.pdx.osdl.net>; from shemminger@osdl.org on Wed, Dec 18, 2002 at 11:06:08PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pawel Kot wrote:
+Hi Stephen,
 
->Is it the following chunk? (I can't find anything more appropriate)
->@@ -1378,7 +1378,8 @@
->                        return;
->
->                case X86_VENDOR_AMD:
->-                       init_amd(c);
->+                       if(init_amd(c))
->+                               return;
->                        return;
->
->                case X86_VENDOR_CENTAUR:
->What does it fix?
->
->pkot
+On Wed, Dec 18, 2002 at 11:06:08PM +0000, Stephen Hemminger wrote:
+> The notifier interface was only partially locked. The
+> notifier_call_chain needs to be called in places where it is impossible
+> to safely without having deadlocks; for example, NMI watchdog timeout.
+> 
+> This patch uses read-copy-update to manage the list.  One extra bit of
+> safety is using a reference count on the notifier_blocks to allow for
+> cases like oprofile which need to sleep in a callback.
+> 
+<snip>
+>   
+>  int notifier_call_chain(struct list_head *list, unsigned long val, void
+> *v)
+>  {
+> -	struct list_head *p;
+> +	struct list_head *p, *nxtp;
+>  	int ret = NOTIFY_DONE;
 >  
->
-i assume there was more to the patch?
+> -	list_for_each(p, list) {
+> +	rcu_read_lock();
+> +	list_for_each_safe_rcu(p, nxtp, list) {
+>  		struct notifier_block *nb =
+>  			list_entry(p, struct notifier_block, link);
+>  
+> +		atomic_inc(&nb->inuse);
+>  		ret = nb->notifier_call(nb,val,v);
+> +		atomic_dec(&nb->inuse);
+> +
 
-i mean first it did init_amd(c) and then return
-now it does init_amd(c) and returns in the if or right on the next line, 
-so that's the same with extra bloat.
+There could be a small problem here. When rcu_read_lock() is called,
+it bumps the preempt_count, so when the called handler attempts
+to sleep, it will oops with "Bad: scheduling in atomic region".
 
-confused,
-
-Robert Boermans.
-
+-- 
+Vamsi Krishna S.
+Linux Technology Center,
+IBM Software Lab, Bangalore.
+Ph: +91 80 5044959
+Internet: vamsi@in.ibm.com

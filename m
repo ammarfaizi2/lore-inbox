@@ -1,50 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283914AbRLADfw>; Fri, 30 Nov 2001 22:35:52 -0500
+	id <S283915AbRLADkb>; Fri, 30 Nov 2001 22:40:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283915AbRLADfm>; Fri, 30 Nov 2001 22:35:42 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:27654 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S283914AbRLADfe>;
-	Fri, 30 Nov 2001 22:35:34 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Did someone try to boot 2.4.16 on a 386 ? [SOLVED] 
-In-Reply-To: Your message of "Sat, 01 Dec 2001 01:42:47 BST."
-             <20011201004247.90162.qmail@web20510.mail.yahoo.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 01 Dec 2001 14:35:21 +1100
-Message-ID: <11661.1007177721@ocs3.intra.ocs.com.au>
+	id <S283916AbRLADkV>; Fri, 30 Nov 2001 22:40:21 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23311 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S283915AbRLADkE>; Fri, 30 Nov 2001 22:40:04 -0500
+Date: Fri, 30 Nov 2001 19:34:30 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Larry McVoy <lm@bitmover.com>
+cc: Victor Yodaiken <yodaiken@fsmlabs.com>,
+        Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@zip.com.au>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Henning Schmiedehausen <hps@intermeta.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Coding style - a non-issue
+In-Reply-To: <20011130193047.H19152@work.bitmover.com>
+Message-ID: <Pine.LNX.4.33.0111301927510.1296-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Dec 2001 01:42:47 +0100 (CET), 
-=?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr> wrote:
->Just to say that I finally solved my problem. It came
->from a wrong vmlinux.lds that had been modified by a
->TUX patch applied to an earlier kernel sharing a hard
->link with this one. Although I think an unlink before
->a regeneration of this file would have been better,
 
-A perfect example of why having the same tree for source and generated
-files and using cp -al is a bad idea.  cp -al picks up both source and
-objects and you have to hope that anything that is overwritten is hard
-link safe (I can tell you now that it is not).  kbuild 2.5 allows
-multiple builds from the same source tree into separate object trees
-with different configs and is safe.
+On Fri, 30 Nov 2001, Larry McVoy wrote:
+>
+> I can't believe the crap you are spewing on this one and I don't think you
+> do either.  If you do, you need a break.  I'm all for letting people explore,
+> let software evolve, that's all good.  But somebody needs to keep an eye on
+> it.
 
->I'll check around to see if there are other parts
->which risk to modify a file on disk without previously
->unlink it.
+Like somebody had to keep an eye on our evolution so that you had a chance
+to be around?
 
-Any Makefile that does "some_command > target_file" or runs a utility
-that does open(O_TRUNC) instead of unlink(), open(O_EXCL).
+Who's naive?
 
-BTW, cp -al of a pristine source tree to multiple source trees followed
-by multiple compiles in parallel is not safe either.  make dep relies
-on changing time stamps for include files, because the include files
-are hard linked, a change in one compile affects the other trees, with
-undefined results.  Also fixed in kbuild 2.5.
+> If that's not true, Linus, then bow out.   You aren't needed and *you*
+> just proved it.
+
+Oh, absolutely.
+
+I wish more people realized it. Some people realize it only when they get
+really pissed off at me and say "Go screw yourself, I can do this on my
+own". And you know what? They are right too, even if they come to that
+conclusion for what I consider the wrong reasons.
+
+The reason I'm doing Linux is not because I think I'm "needed". It's
+because I enjoy it, and because I happen to believe that I'm better than
+most at it. Not necessarily better than everybody else around there, but
+good enough, and with the social ties to make me unbeatable right now.
+
+But "indispensable"? Grow up, Larry. You give me too much credit.
+
+And why should I bow out just because I'm not indispenable? Are you
+indispensable for the continued well-being of humanity? I believe not,
+although you are of course free to disagree. Should you thus "bow out" of
+your life just because you're strictly speaking not really needed?
+
+Do I direct some stuff? Yes. But, quite frankly, so do many others. Alan
+Cox, Al Viro, David Miller, even you. And a lot of companies, which are
+part of the evolution whether they realize it or not. And all the users,
+who end up being part of the "fitness testing".
+
+And yes, I actually do believe in what I'm saying.
+
+		Linus
 

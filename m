@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264334AbUACWd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 17:33:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264337AbUACWd3
+	id S263788AbUACWee (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 17:34:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbUACWee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 17:33:29 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:9225 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264334AbUACWdZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 17:33:25 -0500
-Date: Sat, 3 Jan 2004 22:33:21 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: Witukind <witukind@nsbm.kicks-ass.org>, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: udev and devfs - The final word
-Message-ID: <20040103223321.A11963@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Greg KH <greg@kroah.com>, Witukind <witukind@nsbm.kicks-ass.org>,
-	linux-kernel@vger.kernel.org,
-	linux-hotplug-devel@lists.sourceforge.net
-References: <20031231002942.GB2875@kroah.com> <20040101011855.GA13628@hh.idb.hist.no> <20040103055938.GD5306@kroah.com> <20040103140140.3b848e9f.witukind@nsbm.kicks-ass.org> <20040103221604.GJ11061@kroah.com>
-Mime-Version: 1.0
+	Sat, 3 Jan 2004 17:34:34 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:26003 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S263788AbUACWeb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 17:34:31 -0500
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: GCC 3.4 Heads-up
+References: <bsgav5$4qh$1@cesium.transmeta.com>
+	<Pine.LNX.4.58.0312252021540.14874@home.osdl.org>
+	<3FF5E952.70308@tmr.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sat, 03 Jan 2004 22:11:36 +0100
+In-Reply-To: <3FF5E952.70308@tmr.com> (Bill Davidsen's message of "Fri, 02
+ Jan 2004 16:57:38 -0500")
+Message-ID: <m365fsu48n.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040103221604.GJ11061@kroah.com>; from greg@kroah.com on Sat, Jan 03, 2004 at 02:16:04PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 03, 2004 at 02:16:04PM -0800, Greg KH wrote:
-> > If devfs works good on FreeBSD, it probably means that the current
-> > devfs for Linux is badly designed, not that the idea of devfs is bad.
-> 
-> I have no idea how FreeBSD implemented devfs.
-> 
-> If you know how FreeBSD implemented devfs, and how it solves all of the
-> problems that I detailed in my original posting, I would be interested.
+Bill Davidsen <davidsen@tmr.com> writes:
 
-The FreeBSD implementation is pretty similar to the devfs we have in 2.6
-API- and implementation wise.  Just because it works somehow in most
-situation doesn't mean it's right..
+> I would probably write
+>    ( a ? b : c ) = d;
+> instead, having learned C when some compilers parsed ? wrong without
+> parens. Actually I can't imagine writing that at all, but at least
+> with parens humans can read it easily. Ugly code.
+>
+> Your suggestion is not portable, if b or c are declared "register"
+> there are compilers which will not allow taking the address, and gcc
+> will give you a warning.
 
+One can write as well:
+
+if (a)
+        b = d;
+else
+        c = d;
+
+Might be more readable and it is what the compiler does.
+-- 
+Krzysztof Halasa, B*FH

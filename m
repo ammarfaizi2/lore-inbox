@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262764AbVCWEIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262763AbVCWEHx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262764AbVCWEIR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 23:08:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbVCWEIA
+	id S262763AbVCWEHx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 23:07:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbVCWEHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 23:08:00 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:5351 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262760AbVCWEHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 22 Mar 2005 23:07:52 -0500
-Subject: RE: [PATCH] - Fusion-MPT much faster as module
+Received: from stat16.steeleye.com ([209.192.50.48]:4839 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262758AbVCWEHo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 23:07:44 -0500
+Subject: Re: [PATCH scsi-misc-2.6 01/08] scsi: remove unused bounce-buffer
+	release path
 From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Moore, Eric Dean" <Eric.Moore@lsil.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, kenneth.w.chen@intel.com
-In-Reply-To: <91888D455306F94EBD4D168954A9457C01AEB1F7@nacos172.co.lsil.com>
-References: <91888D455306F94EBD4D168954A9457C01AEB1F7@nacos172.co.lsil.com>
+To: Tejun Heo <htejun@gmail.com>
+Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050323021335.F07B64D9@htj.dyndns.org>
+References: <20050323021335.960F95F8@htj.dyndns.org>
+	 <20050323021335.F07B64D9@htj.dyndns.org>
 Content-Type: text/plain
-Date: Tue, 22 Mar 2005 22:07:43 -0600
-Message-Id: <1111550863.5520.92.camel@mulgrave>
+Date: Tue, 22 Mar 2005 22:07:26 -0600
+Message-Id: <1111550846.5520.90.camel@mulgrave>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-22 at 13:35 -0700, Moore, Eric Dean wrote:
-> I still wonder if the SPI transport layer will work for RAID volumes.  
-> Do you know if the spi transport layer supports dv on hidden devices in a
-> raid volume? 
-> Meaning these hidden physical disks will not been seen by the block layer,
-> however 
-> spi transport layer would be aware so dv can be performed those hidden disk?
+On Wed, 2005-03-23 at 11:14 +0900, Tejun Heo wrote:
+> 01_scsi_remove_scsi_release_buffers.patch
+> 
+> 	Buffer bouncing hasn't been done inside the scsi midlayer for
+> 	quite sometime now, but bounce-buffer release paths are still
+> 	around.  This patch removes these unused paths.
 
-I recall this being discussed, and the conclusion being that we could
-allow a flag to bar attachment of the ULD.  So the underlying discs
-would have a scsi_device but no sd device.  Then the spi_transport class
-will work fine on them but the user wouldn't be able to open them or
-mount anything.
+Yes, but scsi_release_buffers isn't referring to bounce buffers anymore,
+it's simply releasing the sg buffers.
+
+[...]
+> -	else if (cmd->buffer != req->buffer) {
+> -		if (rq_data_dir(req) == READ) {
+> -			unsigned long flags;
+> -			char *to = bio_kmap_irq(req->bio, &flags);
+> -			memcpy(to, cmd->buffer, cmd->bufflen);
+> -			bio_kunmap_irq(to, &flags);
+> -		}
+> -		kfree(cmd->buffer);
+> -	}
+
+I'll defer to Jens here, but I don't thing you can just remove this ...
+sg_io with a misaligned buffer will fail without this.
+
+That rather nasty code freeing cmd->buffer needs to be in there as
+well ... so it does make sense to keep this API
 
 James
 

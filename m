@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263022AbVCXEi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263025AbVCXEkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263022AbVCXEi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 23:38:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263025AbVCXEi6
+	id S263025AbVCXEkG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 23:40:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263027AbVCXEkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 23:38:58 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:397 "EHLO
-	moreton.com.au") by vger.kernel.org with ESMTP id S263022AbVCXEim
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 23:38:42 -0500
-Date: Thu, 24 Mar 2005 14:38:38 +1000
-From: David McCullough <davidm@snapgear.com>
-To: cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org
-Subject: ocf-linux-20050324 - Asynchronous Crypto support for linux
-Message-ID: <20050324043838.GA3124@beast>
+	Wed, 23 Mar 2005 23:40:05 -0500
+Received: from fire.osdl.org ([65.172.181.4]:64211 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263025AbVCXEj7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 23:39:59 -0500
+Date: Wed, 23 Mar 2005 20:38:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David McCullough <davidm@snapgear.com>
+Cc: cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org, jmorris@redhat.com,
+       herbert@gondor.apana.org.au
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy
+ (2.6.11)
+Message-Id: <20050323203856.17d650ec.akpm@osdl.org>
+In-Reply-To: <20050324042708.GA2806@beast>
+References: <20050315133644.GA25903@beast>
+	<20050324042708.GA2806@beast>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David McCullough <davidm@snapgear.com> wrote:
+>
+> Here is a small patch for 2.6.11 that adds a routine:
+> 
+>  	add_true_randomness(__u32 *buf, int nwords);
 
-Hi all,
+It neither applies correctly nor compiles in current kernels.  2.6.11 is
+very old in kernel time.
 
-The latest release of ocf-linux (20050324) is available for download
-from the project page:
-
-  http://ocf-linux.sourceforge.net/
-
-This release includes the following changes:
-
-  * Added random number generator support for the hifn and safenet drivers.
-
-  * Added patch for 2.4/2.6 kernels to allow RNG code to add entropy easily,
-    implements add_true_randomness in both kernels.
-
-  * First working version of the Public Key routines on the safenet.
-
-  * Fixed a couple of nasty bugs in the existing key framework/driver support.
-
-Cheers,
-Davidm
-
--- 
-David McCullough, davidm@snapgear.com  Ph:+61 7 34352815 http://www.SnapGear.com
-Custom Embedded Solutions + Security   Fx:+61 7 38913630 http://www.uCdot.org
+Are we likely to see any in-kernel users of this?

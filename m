@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316519AbSGGTjl>; Sun, 7 Jul 2002 15:39:41 -0400
+	id <S316532AbSGGTlu>; Sun, 7 Jul 2002 15:41:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316532AbSGGTjk>; Sun, 7 Jul 2002 15:39:40 -0400
-Received: from pD952A04C.dip.t-dialin.net ([217.82.160.76]:26575 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316519AbSGGTjj>; Sun, 7 Jul 2002 15:39:39 -0400
-Date: Sun, 7 Jul 2002 13:41:35 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-       M?ns Rullg?rd <mru@users.sourceforge.net>,
-       Mohamed Ghouse Gurgaon <MohamedG@ggn.hcltech.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Diff b/w 32bit & 64-bit
-In-Reply-To: <20020707191232.A11999@kushida.apsleyroad.org>
-Message-ID: <Pine.LNX.4.44.0207071338570.10105-100000@hawkeye.luckynet.adm>
+	id <S316538AbSGGTlt>; Sun, 7 Jul 2002 15:41:49 -0400
+Received: from vvv.conterra.de ([212.124.44.162]:55054 "EHLO vvv.conterra.de")
+	by vger.kernel.org with ESMTP id <S316532AbSGGTls>;
+	Sun, 7 Jul 2002 15:41:48 -0400
+Message-ID: <3D289A14.29B713C5@conterra.de>
+Date: Sun, 07 Jul 2002 21:44:20 +0200
+From: Dieter Stueken <stueken@conterra.de>
+Organization: con terra GmbH
+X-Accept-Language: German, de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: [FREEZE] 2.4.19-pre10 + Promise ATA100 tx2 ver 2.20
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jussi Laako wrote:
 
-On Sun, 7 Jul 2002, Jamie Lokier wrote:
-> > don't cast from "foo *" to "bar *" if sizeof(foo)<sizeof(bar)
+> No matter which one of the
+> installations is booted, the system will lock up if the VIA controller is in
+> use at the same time as the PDC. However, system seems to be stable (short
+> test priod though) if only the PDC controller is in use. (I left the old
+> drives attached to the VIA controller unmounted.)
 > 
-> What is the reason for this?  I do it quite routinely ("poor man's
-> inheritance").
+> Does this problem sound similar to yours?
 
-This should only be OK if you pad bar before.
+seems similar to my problem. If I connect large (75-120G) disks on
+both PDC channels and run /sbin/badblocks in parallel (dd might do, too)
+I get a kernel panic/freeze. I get it even with no disk on the onboard
+controller. I can reproduce this on two different VIA boards with both,
+a PDC20267 and a PDC20262, too. On a board with Ali chiset, however
+no error occured during a short (5 minutes) test. On a board with an
+Intel
+chipset I got some "DMA timeout" after 3 hours, but may be this was
+an unrelated problem.
 
-The reason is this one:
-foo:
-[00111001000011111101001010010101]
-(bar *)foo
-[00111001000011111101001010010101xunpredictablex]
-
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
-
+Dieter.

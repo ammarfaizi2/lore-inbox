@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261304AbSJHOa1>; Tue, 8 Oct 2002 10:30:27 -0400
+	id <S263212AbSJHOZ5>; Tue, 8 Oct 2002 10:25:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261364AbSJHOa1>; Tue, 8 Oct 2002 10:30:27 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:58502 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S261304AbSJHOaY>; Tue, 8 Oct 2002 10:30:24 -0400
-Date: Tue, 8 Oct 2002 09:35:56 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: vpath broken in 2.5.41 
-In-Reply-To: <29031.1034071743@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.44.0210080932210.32256-100000@chaos.physics.uiowa.edu>
+	id <S263213AbSJHOZ4>; Tue, 8 Oct 2002 10:25:56 -0400
+Received: from [217.144.230.27] ([217.144.230.27]:53517 "HELO
+	lexx.infeline.org") by vger.kernel.org with SMTP id <S263212AbSJHOZ4>;
+	Tue, 8 Oct 2002 10:25:56 -0400
+Date: Tue, 8 Oct 2002 16:31:33 +0200 (CEST)
+From: Ketil Froyn <ketil-kernel@froyn.net>
+X-X-Sender: ketil@ketil.np
+To: "jbradford@dial.pipex.com" <jbradford@dial.pipex.com>
+cc: Alexander Viro <viro@math.psu.edu>,
+       "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>,
+       "mochel@osdl.org" <mochel@osdl.org>,
+       "torvalds@transmeta.com" <torvalds@transmeta.com>,
+       "andre@linux-ide.org" <andre@linux-ide.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] IDE driver model update
+In-Reply-To: <200210081325.g98DP6MY000340@darkstar.example.net>
+Message-ID: <Pine.LNX.4.40L0.0210081627480.1519-100000@ketil.np>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Oct 2002, Keith Owens wrote:
+On Tue, 8 Oct 2002, jbradford@dial.pipex.com wrote:
 
-> >On Tue, 8 Oct 2002, John Levon wrote:
-> >> I see vpath seems to have become broken in 2.5.41 build.
-> >> How now can I build the oprofile.o target from two directories ?
+> This raises the interesting possibility of being able to refer to
+> things like removable media directly, instead of the device the media
+> is inserted in.
 >
-> This is one of the problems that kbuild 2.5 was designed to handle, to
-> cope with modules built from code in multiple directories.  I support
-> what the developer wants to do, not restrict the developer to what the
-> kernel build can handle.
+> The Amiga was doing this years ago.  You could access floppy drives
+> as, E.G. df0:, df1:, etc, but if you formatted a volume and called it
+> foobar, you could access foobar: no matter which floppy drive you put
+> it in to.
 
-So would you mind telling me what arch/i386/drivers/Makefile.in would 
-look like for a module which is built from sources in arch/i386/drivers 
-and drivers/oprofile ?
+Isn't this possible in /etc/fstab already? Standard redhat-installs seem
+to put in the labels of the volume instead of referring to the device.
 
-(And no, I won't get into another general kbuild-2.5 flamewar, just in 
-case this should start one again).
+> Also, Plan 9 does similar interesting things - you can do the
+> equivilent of:
+>
+> ls /internet/websites/kernel.org/
+>
+> and treat the website as a filesystem.
 
---Kai
+Wouldn't you just need a filesystem driver for this? I don't know that
+it's a good idea, though ;)
 
-
-
+Ketil
 

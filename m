@@ -1,37 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131422AbRAWRJR>; Tue, 23 Jan 2001 12:09:17 -0500
+	id <S129975AbRAWR3H>; Tue, 23 Jan 2001 12:29:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131398AbRAWRJG>; Tue, 23 Jan 2001 12:09:06 -0500
-Received: from postfix.conectiva.com.br ([200.250.58.155]:36621 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131331AbRAWRJA>; Tue, 23 Jan 2001 12:09:00 -0500
-Message-ID: <3A6DBAA2.C95329DA@conectiva.com.br>
-Date: Tue, 23 Jan 2001 15:08:50 -0200
-From: Andrew Clausen <clausen@conectiva.com.br>
-Organization: Conectiva
-X-Mailer: Mozilla 4.76 [pt_BR] (X11; U; Linux 2.2.17-14cl i586)
-X-Accept-Language: en
+	id <S130164AbRAWR25>; Tue, 23 Jan 2001 12:28:57 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:62726
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129975AbRAWR2o>; Tue, 23 Jan 2001 12:28:44 -0500
+Date: Tue, 23 Jan 2001 09:28:34 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Andy Galasso <andy@adgsoftware.com>
+cc: "David D.W. Downey" <pgpkeys@hislinuxbox.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: VIA chipset discussion
+In-Reply-To: <20010120033950.A16350@adgsoftware.com>
+Message-ID: <Pine.LNX.4.10.10101230924510.10071-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Bryan Henderson <hbryan@us.ibm.com>, linux-fsdevel@vger.kernel.org],
-        bug-parted@gnu.org, linux-kernel@vger.kernel.org
-Subject: Re: Partition IDs in the New World TM
-In-Reply-To: <OF03708398.46274A87-ON872569DD.005CA0DE@LocalDomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bryan Henderson wrote:
-> If you're going to complain about the way partition IDs are assigned,
-> a valid complaint would be that "83" is defined as "Linux," instead
-> of as something that actually indicates the kind of filesystem on the
-> partition.
+On Sat, 20 Jan 2001, Andy Galasso wrote:
 
-OK.  s/Linux/Well behaved operationing systems that look for
-file system signatures, rather than relying on stupid Partition IDs/
+> I'm not sure how relevant it is, but FWIW here's what I've got:
+> 
+> MSI 694D Pro Motherboard 2xPIII-800 100MHz FSB
+> Linux-2.4.0-prerelease SMP
+> Promise FastTrak100 controller card
+> 4 IBM DTLA-307030 drives attached to Promise card
+> boot params: ide2=0xac00 ide3=0xb400
 
-Andrew Clausen
+DON'T the above silly "ide2=0xac00 ide3=0xb400"!
+
+> hde: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
+> hdf: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
+> hdg: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
+> hdh: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
+
+You have no altstatus register because of using 2.2 crippled access on 2.4
+fully enabled.
+
+> ide1 at 0x170-0x177,0x376 on irq 15
+> ide2 at 0xac00-0xac07,0xae06 on irq 16
+> ide3 at 0xb400-0xb407,0xb606 on irq 16 (shared with ide2)
+
+You have now lost your interrupt parser in the driver :-(
+
+>  hde:hde: irq timeout: status=0x50 { DriveReady SeekComplete }
+
+No one is to every override the driver on setting up the IO base.
+
+Cheers,
+
+
+Andre Hedrick
+Linux ATA Development
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

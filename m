@@ -1,77 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbUCSIFt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 03:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbUCSIFt
+	id S261913AbUCSITj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 03:19:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUCSITj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 03:05:49 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:6630 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id S261844AbUCSIFr (ORCPT
+	Fri, 19 Mar 2004 03:19:39 -0500
+Received: from fw.osdl.org ([65.172.181.6]:440 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261913AbUCSITT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 03:05:47 -0500
-Message-ID: <405AA9D9.40109@namesys.com>
-Date: Fri, 19 Mar 2004 11:05:45 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: Peter Zaitsev <peter@mysql.com>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: True  fsync() in Linux (on IDE)
-References: <1079572101.2748.711.camel@abyss.local>	 <20040318064757.GA1072@suse.de> <1079639060.3102.282.camel@abyss.local>	 <20040318194745.GA2314@suse.de>  <1079640699.11062.1.camel@watt.suse.com>	 <1079641026.2447.327.camel@abyss.local>	 <1079642001.11057.7.camel@watt.suse.com>	 <1079642801.2447.369.camel@abyss.local>	 <1079643740.11057.16.camel@watt.suse.com>	 <1079644190.2450.405.camel@abyss.local> <1079644743.11055.26.camel@watt.suse.com>
-In-Reply-To: <1079644743.11055.26.camel@watt.suse.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 19 Mar 2004 03:19:19 -0500
+Date: Fri, 19 Mar 2004 00:19:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: markw@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm2
+Message-Id: <20040319001921.269380a3.akpm@osdl.org>
+In-Reply-To: <20040319075704.GD22234@suse.de>
+References: <20040314172809.31bd72f7.akpm@osdl.org>
+	<200403181737.i2IHbCE09261@mail.osdl.org>
+	<20040318100615.7f2943ea.akpm@osdl.org>
+	<20040318192707.GV22234@suse.de>
+	<20040318191530.34e04cb2.akpm@osdl.org>
+	<20040319073919.GY22234@suse.de>
+	<20040318235200.25c376a9.akpm@osdl.org>
+	<20040319075704.GD22234@suse.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason wrote:
+Jens Axboe <axboe@suse.de> wrote:
+>
+> > Is it not the case that two dm maps can refer to the same queue?  Say, one
+> > map uses /dev/hda1 and another map uses /dev/hda2?
+> > 
+> > If so, then when the /dev/hda queue is plugged we need to tell both the
+> > higher-level maps that this queue needs an unplug.  So blk_plug_device()
+> > and the various unplug functions need to perform upcalls to an arbitrary
+> > number of higher-level drivers, and those drivers need to keep track of the
+> > currently-plugged queues without adding data structures to the
+> > request_queue structure.
+> > 
+> > It can be done of course, but could get messy.
+> 
+> That would get nasty, it's much more natural to track it from the other
+> end. I view it as a dm (or whatever problem) that they need to track who
+> has pending io on their behalf, which is pretty easy to to from eg
+> __map_bio().
 
->On Thu, 2004-03-18 at 16:09, Peter Zaitsev wrote:
->  
->
->>On Thu, 2004-03-18 at 13:02, Chris Mason wrote:
->>
->>    
->>
->>>>In the former case cache is surely not flushed. 
->>>>
->>>>        
->>>>
->>>Hmmm, is it reiser?  For both 2.4 reiserfs and ext3, the flush happens
->>>when you commit.  ext3 always commits on fsync and reiser only commits
->>>when you've changed metadata.
->>>      
->>>
->>Oh. Yes. This is Reiser, I did not think it is FS issue.
->>I'll know to stay away from ReiserFS now.
->>    
->>
->
->For reiserfs data=ordered should be enough to trigger the needed
->commits.  If not, data=journal.  Note that neither fs does barriers for
->O_SYNC, so we're just not perfect in 2.4.
->
->-chris
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
-You are not listening to Peter.  As I understand it from what Peter says 
-and your words, your implementation is wrong, and makes fsync 
-meaningless.  If so, then you need to fix it.  fsync should not be 
-meaningless even for metadata only journaling.  This is a serious bug 
-that needs immediate correction, if Peter and I understand it correctly 
-from your words.
+But dm doesn't know enough.  Suppose it is managing a map which includes
+/dev/hda1 and I do some I/O against /dev/hda2 which plugs the queue.  dm
+needs to know about that plug.
 
--- 
-Hans
+Actually the data structure isn't toooo complex.
+
+- In the request_queue add a list_head of "interested drivers"
+
+- In a dm map, add:
+
+	struct interested_driver {
+		list_head list;
+		void (*plug_upcall)(struct request_queue *q, void *private);
+		void (*unplug_upcall)(struct request_queue *q, void *private);
+		void *private;
+	}
+
+  and when setting up a map, dm does:
+
+  blk_register_interested_driver(struct request_queue *q,
+			struct interested_driver *d)
+  {
+	list_add(&d->list, q->interested_driver_list);
+  }
+
+- In blk_device_plug():
+
+     list_for_each_entry(d, q->interested_driver_list, list) {
+	(*d->plug_upcall)(q, d->private);
+     }
+
+- Similar in the unplug functions.
+
+
+And in dm, maintain a dynamically allocated array of request_queue*'s:
+
+  dm_plug_upcall(struct request_queue *q, void *private)
+  {
+	map = private;
+
+	map->plugged_queues[map->nr_plugged_queues++] = q;
+  }
+
+  dm_unplug_upcall(struct request_queue *q, void *private)
+  {
+	map = private;
+
+ 	for (i = 0; i < map->nr_plugged_queues; i++) {
+		if (map->plugged_queues[i] == q) {
+			memcpy(&map->plugged_queues[i],
+				&map->plugged_queues[i+1],
+				<whatever>
+		}
+	}
+  }
+
+unplug_upcall is a bit sucky, but they're much less frequent than the
+current unplug downcalls.  
+
+Frankly, I wouldn't bother.  0.5% CPU when hammering the crap out of a
+56-disk LVM isn't too bad.  I'd suggest you first try to simply reduce the
+number of cache misses in the inner loop, see what that leaves us with.
+
 

@@ -1,79 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVDETAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVDETAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbVDETAV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 15:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVDES6C
+	id S261892AbVDETAU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 15:00:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbVDES6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 14:58:02 -0400
-Received: from vbo91-1-82-238-217-224.fbx.proxad.net ([82.238.217.224]:35209
-	"EHLO mirchusko.localnet") by vger.kernel.org with ESMTP
-	id S261891AbVDES4Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 14:56:16 -0400
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear
-	copyright notice.
-From: Josselin Mouette <joss@debian.org>
-To: Chris Friesen <cfriesen@nortel.com>
-Cc: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4252DDE6.5040500@nortel.com>
-References: <lLj-vC.A.92G.w4pUCB@murphy> <4252A821.9030506@almg.gov.br>
-	 <Pine.LNX.4.61.0504051123100.16479@chaos.analogic.com>
-	 <1112723637.4878.14.camel@mirchusko.localnet> <4252DDE6.5040500@nortel.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-a2vsdpsx0AWDhKydMk4E"
-Date: Tue, 05 Apr 2005 20:56:09 +0200
-Message-Id: <1112727369.4878.25.camel@mirchusko.localnet>
+	Tue, 5 Apr 2005 14:58:30 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37388 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261909AbVDESzN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 14:55:13 -0400
+Date: Tue, 5 Apr 2005 19:55:06 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, "David S. Miller" <davem@davemloft.net>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: iomapping a big endian area
+Message-ID: <20050405195506.A16617@flint.arm.linux.org.uk>
+Mail-Followup-To: James Bottomley <James.Bottomley@SteelEye.com>,
+	Matthew Wilcox <matthew@wil.cx>,
+	"David S. Miller" <davem@davemloft.net>,
+	SCSI Mailing List <linux-scsi@vger.kernel.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1112475134.5786.29.camel@mulgrave> <20050403013757.GB24234@parcelfarce.linux.theplanet.co.uk> <20050402183805.20a0cf49.davem@davemloft.net> <20050403031000.GC24234@parcelfarce.linux.theplanet.co.uk> <1112499639.5786.34.camel@mulgrave> <20050405084219.A21615@flint.arm.linux.org.uk> <1112709915.5764.4.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1112709915.5764.4.camel@mulgrave>; from James.Bottomley@SteelEye.com on Tue, Apr 05, 2005 at 09:05:15AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 05, 2005 at 09:05:15AM -0500, James Bottomley wrote:
+> On Tue, 2005-04-05 at 08:42 +0100, Russell King wrote:
+> > Not so.  There are two different styles of big endian.  (Lets just face
+> > it, BE is fucked in the head anyway...)
+> > 
+> > physical bus:	31...24	23...16	15...8	7...0
+> > 
+> > BE version 1 (word invariant)
+> >   byte access	byte 0	byte 1	byte 2	byte 3
+> >   word access	31-24	23-16	15-8	7-0
+> > 
+> > BE version 2 (byte invariant)
+> >   byte access	byte 3	byte 2	byte 1	byte 0
+> >   word access	7-0	15-8	23-16	31-24
+> 
+> These are just representations of the same thing.  However, I did
+> deliberately elect not to try to solve this problem in the accessors.  I
+> know all about the register relayout, because 53c700 has to do that on
+> parisc.
 
---=-a2vsdpsx0AWDhKydMk4E
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+They aren't.  On some of our platforms, we have to exclusive-or the address
+for byte accesses with 3 to convert to the right endian-ness.
 
-Le mardi 05 avril 2005 =C3=A0 12:50 -0600, Chris Friesen a =C3=A9crit :
-> Josselin Mouette wrote:
->=20
-> > The fact is also that mixing them with a GPLed software gives
-> > an result you can't redistribute - although it seems many people
-> > disagree with that assertion now.
->=20
-> This is only true if the result is considered a "derivative work" of the=20
-> gpl'd code.
->=20
-> The GPL states "In addition, mere aggregation of another work not based=20
-> on the Program with the Program (or with a work based on the Program) on=20
-> a volume of a storage or distribution medium does not bring the other=20
-> work under the scope of this License."
->=20
-> Since the main cpu does not actually run the binary firmware, the fact=20
-> that it lives in main memory with the code that the cpu *does* run is=20
-> irrelevent.  In this case, the Debian stance is that the kernel proper=20
-> and the binary firmware are "merely aggregated" in a volume of storage (=20
-> ie. system memory).
+Sure, from the point of view of which byte each byte of a word represents,
+it's true that they're indentical.  But as far as the hardware is concerned,
+they're definitely different.
 
-It merely depends on the definition of "aggregation". I'd say that two
-works that are only aggregated can be easily distinguished and
-separated. This is not the case for a binary kernel module, from which
-you cannot easily extract the firmware and code parts.
---=20
- .''`.           Josselin Mouette        /\./\
-: :' :           josselin.mouette@ens-lyon.org
-`. `'                        joss@debian.org
-  `-  Debian GNU/Linux -- The power of freedom
+See the Intel IXP platforms for an example.
 
---=-a2vsdpsx0AWDhKydMk4E
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCUt9JrSla4ddfhTMRAnd5AKD0KNlQR2AT75PDYjjAgpo3gCOf9wCfbx1X
-iurvf25OcXHY+XyoNW/PXy0=
-=E9qC
------END PGP SIGNATURE-----
-
---=-a2vsdpsx0AWDhKydMk4E--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

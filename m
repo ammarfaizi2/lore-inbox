@@ -1,51 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265326AbRGPTvc>; Mon, 16 Jul 2001 15:51:32 -0400
+	id <S265801AbRGPUQP>; Mon, 16 Jul 2001 16:16:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265337AbRGPTvV>; Mon, 16 Jul 2001 15:51:21 -0400
-Received: from cr626425-a.bloor1.on.wave.home.com ([24.156.35.8]:54027 "EHLO
-	spqr.damncats.org") by vger.kernel.org with ESMTP
-	id <S265326AbRGPTvU>; Mon, 16 Jul 2001 15:51:20 -0400
-Message-ID: <3B534555.345015EC@damncats.org>
-Date: Mon, 16 Jul 2001 15:49:41 -0400
-From: John Cavan <johnc@damncats.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-pre6 i686)
+	id <S267585AbRGPUQG>; Mon, 16 Jul 2001 16:16:06 -0400
+Received: from archive.osdlab.org ([65.201.151.11]:34184 "EHLO fire.osdlab.org")
+	by vger.kernel.org with ESMTP id <S265801AbRGPUPz>;
+	Mon, 16 Jul 2001 16:15:55 -0400
+Message-ID: <3B534B36.3A69DBF@osdlab.org>
+Date: Mon, 16 Jul 2001 13:14:46 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Jeff Hartmann <jhartmann@valinux.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 4.1.0 DRM (was Re: Linux 2.4.6-ac3)
-In-Reply-To: <E15M6jC-0005PK-00@the-village.bc.nu> <3B532BB7.1050300@valinux.com> <3B533578.A4B6C25F@damncats.org> <3B53413A.6060501@valinux.com>
+To: Dave Johnson <ddj@cascv.brown.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Unexpected IO-APIC messages
+In-Reply-To: <20010716150447.A13358@mookie.cis.brown.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Hartmann wrote:
-> > Would it not be a bit more robust to have a wrapper module that pulls in
-> > the correct one on demand? In other words, for the radeon, you would
-> > still have the radeon.o module, but it would determine which child
-> > module to load depending on the version of X that is requesting it. Thus
-> > XFree86 would not require any changes and the backwards compatibility
-> > would be maintained invisibly.
-> >
-> > John
-> >
-> No, because the 2D ddx module is the one doing all the versioning.  It
-> doesn't tell the kernel its version number etc., but the ddx module gets
-> the version from the kernel, and fails if its the wrong one.  If the
-> kernel was the one doing the checking, then your suggestiong would be a
-> nice way of handling it.
+Hi-
 
-Okay, that makes sense. However, this can still work with minimal change
-to the 2D module if the next revision passes in the version information
-to the kernel module. It doesn't solve the 4.0 to 4.1 transition, but it
-still puts the module on a (better?) track. For the 4.0/4.1 modules,
-that would have to be a compile time decision or option in the
-/etc/modules.conf (options radeon version=x.y.z). Actually, having an
-override in the modules.conf would be pretty handy in general.
+The linux-smp mailing list is still alive (I won't say Active,
+although some emails there do get replies).
 
-Also, if you don't want to make changes to the 2D code, the modules.conf
-scenario still makes it feasible all around.
+The geocrawler archive isn't a good one to check.
+Try this one instead:
+http://marc.theaimsgroup.com/?l=linux-smp
 
-John
+You are right about the noisy message(s).  The newer
+IO APICs aren't in the kernel's known devices list yet.
+There was a patch submitted about 2 months ago for this.
+It hasn't been added to the kernel tree yet, but it
+does need to be added IMO.
+
+~Randy
+
+Dave Johnson wrote:
+> 
+> When booting up 2.4.2-2smp (RH 7.1) on a new system here, the kernel
+> complains about the IO-APIC register contents, and asks that mail be
+> sent to linux-smp@vger.kernel.org.
+> 
+> It appears that the linux-smp list is defunct; at least there have been
+> no new messages archived on geocrawler since August 2000.  It also
+> appears that the new IO APIC reg01.version of 0x20 was reported about
+> a year ago on the linux-smp list, and reg_01.__reserved_2 of 0x80 was
+> reported on this list around February 2001.
+> 
+> The relevant dmesg info from our machine follows:
+> ----
+> testing the IO APIC.......................
+> 
+> IO APIC #2......
+> .... register #00: 02000000
+> .......    : physical APIC id: 02
+> .... register #01: 00178020
+> .......     : max redirection entries: 0017
+> .......     : IO APIC version: 0020
+>  WARNING: unexpected IO-APIC, please mail
+>           to linux-smp@vger.kernel.org
+>  WARNING: unexpected IO-APIC, please mail
+>           to linux-smp@vger.kernel.org
+> .... register #02: 00000000
+> .......     : arbitration: 00
+> ----
+> 
+> The APIC information from lspci -v follows:
+> ----
+> 03:00.0 PIC: Intel Corporation 82806AA PCI64 Hub Advanced Programmable Interrupt
+>  Controller (rev 01) (prog-if 20 [IO(X)-APIC])
+>         Subsystem: Intel Corporation 82806AA PCI64 Hub Advanced Programmable Int
+> errupt Controller
+>         Flags: fast devsel
+>         Memory at fe400000 (32-bit, non-prefetchable) [disabled] [size=4K]
+> ----
+> 
+> If anyone is planning to do anything about new IO-APIC versions and stuff,
+> at least the mailing list address should be corrected.
+> 
+> If nobody cares until a bug comes along, perhaps the message should be
+> changed to say "unrecognized" or "unknown" rather than unexpected, so
+> the d**n users don't pee in their pants when they see the boot log
+> scrolling by.
+> 
+> Or maybe just parse and print out the values and refer the user to
+> linux/Documentation/i386/IO-APIC.txt (which also still refers to the
+> linux-smp mailing list) for further information.

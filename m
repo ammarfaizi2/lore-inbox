@@ -1,65 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263645AbUCUNZl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 08:25:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbUCUNZl
+	id S263646AbUCUNrW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 08:47:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263651AbUCUNrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 08:25:41 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:54756
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263645AbUCUNZj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 08:25:39 -0500
-Date: Sun, 21 Mar 2004 14:26:30 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: 2.6.5-rc1-aa3
-Message-ID: <20040321132630.GO10787@dualathlon.random>
-References: <20040320210306.GA11680@dualathlon.random> <2910700000.1079849836@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2910700000.1079849836@[10.10.2.4]>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Sun, 21 Mar 2004 08:47:22 -0500
+Received: from pop.gmx.net ([213.165.64.20]:55448 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263646AbUCUNrU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 08:47:20 -0500
+X-Authenticated: #7370606
+Message-ID: <405D9CDA.6070107@gmx.at>
+Date: Sun, 21 Mar 2004 14:47:06 +0100
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjanv@redhat.com>
+CC: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Device mapper devel list <dm-devel@redhat.com>
+Subject: Re: ATARAID/FakeRAID/HPTRAID/PDCRAID as dm targets?
+References: <405C8B39.8080609@gmx.net> <405CAEC7.9080104@pobox.com> <405CFC85.70004@backtobasicsmgmt.com> <20040321074711.GA13232@devserv.devel.redhat.com>
+In-Reply-To: <20040321074711.GA13232@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 20, 2004 at 10:17:16PM -0800, Martin J. Bligh wrote:
-> > Fixed the sigbus in nopage and improved the page_t layout per Hugh's
-> > suggestion. BUG() with discontigmem disabled if somebody returns non-ram
-> > via do_no_page, that cannot work right on numa anyways.
+Arjan van de Ven wrote:
+> On Sat, Mar 20, 2004 at 07:23:01PM -0700, Kevin P. Fleming wrote:
 > 
-> OK, well it doesn't oops any more. But sshd still dies as soon as it starts,
-> so accessing the box is tricky ;-) And now I have no obvious diagnostics
-> either ...
+>>Jeff Garzik wrote:
+>>
+>>
+>>>So go ahead, and I'll lend you as much help as I can.  I have the full 
+>>>Promise RAID docs, and it seems like another guy on the lists has full 
+>>>Silicon Image "medley" RAID docs...
 
-Jens sent me the perfect strace log, after his help it has not been
-difficult to spot the bug. this incremental should fix it
-MAP_SHARED|MAP_ANONYMOUS isn't very common and my userspace never
-triggered it. I placed the pgoff anon setting in the path of the shared
-memory too, that generated the sigbus. Leaving the setting only in the
-MAP_PRIVATE should fix it, the anonymous memory is only MAP_PRIVATE.
+I am the only one without docs? Oh, Crap!
 
-patch is untested at the moment, as soon as I get confirmation I'll
-upload an update.
+>>
+>>If these "soft" RAID implementations only support RAID-0/1/0+1/1+0, is 
+>>there really any need for a new DM target? Wouldn't you just need a 
+>>userspace tool to recognize the array and do the "dmsetup" operations to 
+>>make it usable?
+> 
+> 
+> the later.
 
-thanks!
+Why not join my evms-plugin work? This has 4 advantages over the 
+"stand-alone binary" approach:
 
---- x/mm/mmap.c.~1~	2004-03-20 22:12:43.000000000 +0100
-+++ x/mm/mmap.c	2004-03-21 14:15:17.269882800 +0100
-@@ -622,11 +622,11 @@ unsigned long do_mmap_pgoff(struct file 
- 			return -EINVAL;
- 		case MAP_PRIVATE:
- 			vm_flags &= ~(VM_SHARED | VM_MAYSHARE);
--			/* fall through */
-+			pgoff = addr >> PAGE_SHIFT;
-+			break;
- 		case MAP_SHARED:
- 			break;
- 		}
--		pgoff = addr >> PAGE_SHIFT;
- 	}
- 
- 	error = security_file_mmap(file, prot, flags);
+1. its all within evms
+There is no need for additional tools required to setup the volume 
+(thinking about installers and initrd...).
+
+2. evms comes with partition handling.
+Otherwise someone has to write another tool/library that does the 
+partition setup.
+
+3. it works for 2.6 and (patched) 2.4 kernels
+
+4. nice clickety-click user interface
+Especially useful for lazy people like me. ;)
+
+My plugin has to be a bit redesigned to allow easier integration of 
+support code for other controllers. What is required is basically to 
+split the plugin in a common and a per-controller module. No big deal. 
+Or we can make a new plugin for every controller...
+
+see: http://marc.theaimsgroup.com/?l=evms-devel&m=107936928618685&w=2
+
+Apropos: If we do evms plugins then we might want to have the 
+possibility to detect if some ataraid module aleady has picked up the 
+disk. In this case we should not create a volume because of someone 
+might try to mount the same volume via the ataraid and evms devicefiles 
+which leads to filesystem corruption. I thought about makeing a /proc 
+ataraid entry that contains the claimed disks. I think this should be 
+supported by all ataraid modules if this is done so I am asking you: 
+What do you think?
+
+Regards,
+Wilfried

@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261818AbSJDV3j>; Fri, 4 Oct 2002 17:29:39 -0400
+	id <S262085AbSJDVif>; Fri, 4 Oct 2002 17:38:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261804AbSJDV3j>; Fri, 4 Oct 2002 17:29:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31244 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261818AbSJDV3i>;
-	Fri, 4 Oct 2002 17:29:38 -0400
-Message-ID: <3D9E0970.70903@pobox.com>
-Date: Fri, 04 Oct 2002 17:34:40 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] pcibios_* removals for 2.5.40
-References: <20021003224011.GA2289@kroah.com> <Pine.LNX.4.44.0210040930581.1723-100000@home.transmeta.com> <20021004165955.GC6978@kroah.com> <20021004205121.GA8346@kroah.com> <20021004205222.GB8346@kroah.com> <20021004205305.GC8346@kroah.com> <20021004205410.GD8346@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262092AbSJDVif>; Fri, 4 Oct 2002 17:38:35 -0400
+Received: from gw.openss7.com ([142.179.199.224]:21779 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id <S262085AbSJDVic>;
+	Fri, 4 Oct 2002 17:38:32 -0400
+Date: Fri, 4 Oct 2002 15:44:05 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: export of sys_call_table
+Message-ID: <20021004154405.A9439@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
+	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+References: <20021003153943.E22418@openss7.org> <1033682560.28850.32.camel@irongate.swansea.linux.org.uk> <20021004.140629.89147658.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021004.140629.89147658.davem@redhat.com>; from davem@redhat.com on Fri, Oct 04, 2002 at 02:06:29PM -0700
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> @@ -1563,13 +1562,11 @@
->  
->      if (pci_present()) {
+David,
 
-an example of pci_present() that can be eliminated, as I described earlier
+How many other architecture-specific exported symbols are there?
 
+It appears to me that many of the system calls themselves are
+architecture-specific, particularly so where 64-bit machines
+are involved.  Is that a reason to not make them accessible?
 
->  	for (i = 0; i < NPCI_CHIP_IDS; ++i) 
-> -	    for (pci_index = 0;
-> -		!pcibios_find_device (PCI_VENDOR_ID_NCR, 
-> -		    pci_chip_ids[i].pci_device_id, pci_index, &pci_bus, 
-> -		    &pci_device_fn); 
-> -    		++pci_index)
-> +	    while ((pdev = pci_find_device (PCI_VENDOR_ID_NCR,
-> +					    pci_chip_ids[i].pci_device_id,
-> +					    pdev)))
->  		if (!ncr_pci_init (tpnt, BOARD_GENERIC, pci_chip_ids[i].chip, 
-> -		    pci_bus, pci_device_fn, /* no options */ 0))
-> +		    pdev->bus->number, pdev->devfn, /* no options */ 0))
+--brian
 
+On Fri, 04 Oct 2002, David S. Miller wrote:
 
-can you eliminate the need of ncr_pci_init to have number/devfn args?
+>    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>    Date: 03 Oct 2002 23:02:40 +0100
+>    
+>    Overwriting syscall table entries is not safe. Its not safe because
+>    there is no locking mechanism, and its not safe because of the pentium
+>    III errata.
+> 
+> It is also non-portable, such syscall overwriting requires knowledge
+> of the layout of the table on every architecture.  On some platforms
+> it is a list of pointers + argument count, on some 64-bit platforms
+> it is a list of 32-bit truncated pointers to save space.
+> 
+> There is simply no portable way to make changes to the system call
+> table, so exporting it makes zero sense.
 
-
+-- 
+Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
+bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
+http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
+                        ¦ Therefore  all  progress  depends on the ¦
+                        ¦ unreasonable man. -- George Bernard Shaw ¦

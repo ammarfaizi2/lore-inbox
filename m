@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265361AbSK1Jmo>; Thu, 28 Nov 2002 04:42:44 -0500
+	id <S265355AbSK1Ji6>; Thu, 28 Nov 2002 04:38:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265368AbSK1Jmn>; Thu, 28 Nov 2002 04:42:43 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:46758 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S265361AbSK1Jmn>; Thu, 28 Nov 2002 04:42:43 -0500
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: Linux v2.5.50
-Date: 28 Nov 2002 09:10:55 GMT
-Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
-Message-ID: <slrnaubncv.7ef.kraxel@bytesex.org>
-References: <Pine.LNX.4.44.0211271456160.18214-100000@penguin.transmeta.com> <20021128014905.5378c5b2.us15@os.inf.tu-dresden.de>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 1038474655 7632 127.0.0.1 (28 Nov 2002 09:10:55 GMT)
-User-Agent: slrn/0.9.7.4 (Linux)
+	id <S265361AbSK1Ji6>; Thu, 28 Nov 2002 04:38:58 -0500
+Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:49414 "EHLO
+	carlsberg.amagerkollegiet.dk") by vger.kernel.org with ESMTP
+	id <S265355AbSK1Ji6> convert rfc822-to-8bit; Thu, 28 Nov 2002 04:38:58 -0500
+Date: Thu, 28 Nov 2002 10:46:12 +0100 (CET)
+From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PROBLEM] NFS trouble - file corruptions
+In-Reply-To: <shsptsq4oy9.fsf@charged.uio.no>
+Message-ID: <Pine.LNX.4.44.0211280930530.1818-100000@grignard.amagerkollegiet.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  bttv still doesn't compile in all cases. What is needed to make things work
->  is this patch from Gerd Knorr which applied cleanly to 2.5.48 and 2.5.49.
->  With the compile fix introduced in 2.5.50 there's one reject.
+On 27 Nov 2002, Trond Myklebust wrote:
 
-I'll rediff and put up a new patch later today for download (and resend
-stuff to Linus ...).
+> >>>>> " " == Rasmus Bøg Hansen <moffe@amagerkollegiet.dk> writes:
+>
+>      > [1.] One line summary of the problem: Files created with
+>      > bzip2/gzip directly to NFS file system gets corrupted
+>
+> Can you reproduce with 2.4.20-pre4?
 
-  Ge- "downloading 2.5.50" rd
+I assume, you mean rc4 and not pre4?
+
+Both client and server now running 2.4.20-rc4, but unfortunately this
+does not solve the problem:
+
+# md5sum n?.tar.bz2
+6d8f530d420fb56fa590cdf1d8da9c59  n1.tar.bz2
+3fa4100e6a204d1e5ad8d43d9aa9a8de  n2.tar.bz2
+
+(both files created after reboot of both machines).
+
+/Rasmus
+
+-- 
+-- [ Rasmus "Møffe" Bøg Hansen ] ---------------------------------------
+There are three kinds of lies:
+lies, politics and statistics.
+----------------------------------[ moffe at amagerkollegiet dot dk ] --
+
 

@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292234AbSBOW3c>; Fri, 15 Feb 2002 17:29:32 -0500
+	id <S292231AbSBOWcJ>; Fri, 15 Feb 2002 17:32:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292230AbSBOW3P>; Fri, 15 Feb 2002 17:29:15 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42769 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292231AbSBOW2T>; Fri, 15 Feb 2002 17:28:19 -0500
-Subject: Re: Disgusted with kbuild developers
-To: esr@thyrsus.com
-Date: Fri, 15 Feb 2002 22:41:40 +0000 (GMT)
-Cc: rgooch@ras.ucalgary.ca (Richard Gooch), davej@suse.de (Dave Jones),
-        lm@work.bitmover.com (Larry McVoy),
-        arjan@pc1-camc5-0-cust78.cam.cable.ntl.com (Arjan van de Ven),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020215165029.C14418@thyrsus.com> from "Eric S. Raymond" at Feb 15, 2002 04:50:29 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S292244AbSBOWaq>; Fri, 15 Feb 2002 17:30:46 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:40207 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S292227AbSBOWa0>; Fri, 15 Feb 2002 17:30:26 -0500
+Date: Fri, 15 Feb 2002 23:30:21 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] queue barrier support
+Message-ID: <20020215223021.GA12204@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3998280000.1013790514@tiny> <200202151651.g1FGpjs02083@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16br2y-0004WB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <200202151651.g1FGpjs02083@localhost.localdomain>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If that's so, then why are the likes of Jeff Garzik and Al Viro 
-> spending so much effort trying to make *me* into the bad guy?
+On Fri, 15 Feb 2002, James Bottomley wrote:
 
-I don't think they are. They are just watching you do it yourself
+> Note also that on system shutdown, most devices that use write back caching 
+> are also expecting a cache flush instruction from the node, which Linux 
+> doesn't send.
 
-> Time for somebody to up Jeff's Thorazine dosage...
+Hair splitting: it looks as though Andre Hedrick's IDE patch did this at
+least. Of course, that does not affect SCSI drives, but since you wrote
+"Linux", I thought this could be mentioned in this thread again. At
+least, my ATA drives are powered down some seconds before my ATX PC is,
+and the kernel says about flushing the cache.
 
-See...
+-- 
+Matthias Andree
+
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety."         Benjamin Franklin

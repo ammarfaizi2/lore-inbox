@@ -1,35 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264004AbSKUF4v>; Thu, 21 Nov 2002 00:56:51 -0500
+	id <S266356AbSKUGXB>; Thu, 21 Nov 2002 01:23:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264629AbSKUF4v>; Thu, 21 Nov 2002 00:56:51 -0500
-Received: from packet.digeo.com ([12.110.80.53]:1968 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264004AbSKUF4u>;
-	Thu, 21 Nov 2002 00:56:50 -0500
-Message-ID: <3DDC7746.200ACDE2@digeo.com>
-Date: Wed, 20 Nov 2002 22:03:50 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S266363AbSKUGXB>; Thu, 21 Nov 2002 01:23:01 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:40198
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S266356AbSKUGXA>; Thu, 21 Nov 2002 01:23:00 -0500
+Date: Wed, 20 Nov 2002 22:29:42 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Osamu Tomita <tomita@cinet.co.jp>
+cc: "'LKML '" <linux-kernel@vger.kernel.org>,
+       "'Alan Cox '" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.5.47-ac6 IDE test result
+In-Reply-To: <E6D19EE98F00AB4DB465A44FCF3FA46903A318@ns.cinet.co.jp>
+Message-ID: <Pine.LNX.4.10.10211202218280.3892-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Manish Lachwani <manish@Zambeel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 SMP hangs ..
-References: <233C89823A37714D95B1A891DE3BCE5202AB1975@xch-a.win.zambeel.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Nov 2002 06:03:51.0301 (UTC) FILETIME=[C3B3AB50:01C29123]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manish Lachwani wrote:
+
+Osamu,
+
+I know the fix need for taskfile but have not architech the solution in
+closed form yet.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+
+On Thu, 21 Nov 2002, Osamu Tomita wrote:
+
+> Hi.
+> I've tested IDE HDD performance on 2.5.47-ac6.
+> Using old pentium-classic PC-9800 box, it has no DMA mode.
 > 
-> I am seeing system hangs with 2.4.17 SMP kernel when doing mke2fs accros 12
-> drives in parallel. However, the hangs only occur when the I/O rate from
-> vmstat is high:
+>  1. "hdparm -t /dev/hda3" results (PIO mode)
+>   2.5.47-ac6 with Task file IO:    2.86MB/s
+>   2.5.47-ac6 without Task file IO: 2.90MB/s
+>   2.4.19 without Task file IO:     2.93MB/s
+> 
+>  2. Heavy usage test
+>   "cp -pr /usr/src /tmp/foo" (in same HDD)
+>   about 92000files/total size 2.3GB
+>   I had always "lost interrupt" message and FS corruption
+>    by this test at 2.5.20 days.
+>   2.5.47-ac6 works fine. (takes about 30 minutes.)
+> 
+> Thanks,
+> Osamu Tomita
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
-Quite possibly it has not hung.  You just need to wait half an
-hour or so.
-
-The algorithm isn't very good.

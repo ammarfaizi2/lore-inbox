@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273424AbRI0Ptg>; Thu, 27 Sep 2001 11:49:36 -0400
+	id <S273442AbRI0PtR>; Thu, 27 Sep 2001 11:49:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273448AbRI0PtT>; Thu, 27 Sep 2001 11:49:19 -0400
-Received: from mx3out.umbc.edu ([130.85.253.53]:45443 "EHLO mx3out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S273440AbRI0PtF>;
-	Thu, 27 Sep 2001 11:49:05 -0400
-Date: Thu, 27 Sep 2001 11:49:30 -0400
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: "George R. Kasica" <georgek@netwrx1.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.10
-In-Reply-To: <vsg6rto5cqtmj8dld5mc41mpvlbrf4s9vl@4ax.com>
-Message-ID: <Pine.SGI.4.31L.02.0109271145190.5561307-100000@irix2.gl.umbc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273414AbRI0Ps5>; Thu, 27 Sep 2001 11:48:57 -0400
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:18645 "EHLO
+	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S273424AbRI0Psw>; Thu, 27 Sep 2001 11:48:52 -0400
+Date: Thu, 27 Sep 2001 17:48:57 +0200
+From: Marc Schiffbauer <marc.schiffbauer@links2linux.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10 (SMP, highmem) solid freeze
+Message-ID: <20010927174857.A26656@lisa.links2linux.home>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <15282.60654.52083.446184@proizd.camtp.uni-mb.si>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15282.60654.52083.446184@proizd.camtp.uni-mb.si>; from igor.mozetic@uni-mb.si on Thu, Sep 27, 2001 at 11:10:06AM +0200
+X-Operating-System: Linux 2.4.7 i586
+X-Editor: VIM 5.7.8
+X-Homepage: http://www.links2linux.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Sep 2001, George R. Kasica wrote:
+* Igor Mozetic schrieb am 27.09.01 um 11:10 Uhr:
+> After two days of uptime under load 2-3 (no swapping, not much I/O),
+> the box froze completely. Only hard reboot brought it back.
+> Nothing in logs, sorry ...
+> Hardware seems OK, other machines (UP, no highmem) run fine so far.
+> 
+> Hardware:
+> dual Xeon 550Mhz, C440GX+, 2GB RAM, 1GB swap, SCSI AIC-7896/7
+> 
 
-> I'm currently running 2.4.5 here and I'm considering 2.4.10 but am
-> somewhat more nervous about this release than others based on the
-> number of reports of problems I'm seeing...
->
-> What would be the advice of others in terms of moving up from 2.4.5
-> which has been rock solid here?
->
-> Would you recommend doing the upgrade or waiting for 2.4.11 or is
-> there a middle ground release (2.4.6,7,8,9) that you'd recommend.
+Hi Igor,
 
-2.4.4 was the last kernel to pass the first stage of internal validation
-where I work. (Okay, the first stage is me. :P). And the last to make it
-out to the developers.
+try to disable swap. Or use swap size >= 2* ram.
+I had some lockups (SMP, 2GB too) on Kernel 2.4.3-pre3 after some
+days until I disabled swap completely since it was not needed... now
+the machines are stable.
 
-2.4.5 was pulled because of lkml reports of panics when unmounting
-filesystems, and 2.4.7-9 all died or skrewed up on my test battery (a
-couple of dd's to /dev/null, ping -f localhost, make -j32 && make modules
--j32 in /usr/src/linux)
+-Marc
 
-2.4.10 just passed the first stage, and is entering the second stage of
-evaluation, of which I know not what they do to it.
-
-I'd say try it on a non-production system, beat on it for a while, and see
-what comes out ...
-
-
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
-
+-- 
+BUGS My programs  never  have  bugs.  They  just  develop  random
+     features.  If you discover such a feature and you want it to
+     be removed: please send an email to bug@links2linux.de 

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267179AbTAHLvi>; Wed, 8 Jan 2003 06:51:38 -0500
+	id <S267244AbTAHL5B>; Wed, 8 Jan 2003 06:57:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267213AbTAHLvh>; Wed, 8 Jan 2003 06:51:37 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:5012 "EHLO
+	id <S267276AbTAHL5B>; Wed, 8 Jan 2003 06:57:01 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:19861 "EHLO
 	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S267179AbTAHLvZ>; Wed, 8 Jan 2003 06:51:25 -0500
+	id <S267244AbTAHL41>; Wed, 8 Jan 2003 06:56:27 -0500
 X-Envelope-From: kraxel@bytesex.org
-Date: Wed, 8 Jan 2003 13:03:54 +0100
+Date: Wed, 8 Jan 2003 13:11:23 +0100
 From: Gerd Knorr <kraxel@bytesex.org>
 To: Linus Torvalds <torvalds@transmeta.com>,
        Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] add bt832 module
-Message-ID: <20030108120354.GA17225@bytesex.org>
+Subject: [patch] media/video i2c updates
+Message-ID: <20030108121123.GA17347@bytesex.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
@@ -23,614 +23,711 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
   Hi,
 
-This patch adds a driver module for the bt832 chip.  It is needed
-by the bttv driver to support the Pixelview Digital Camera.  The
-bt832 is connected using the GPIO pins of the bt878 chip.
+This patch updates a bunch of i2c modules in drivers/media/video.
+Most of it are adaptions to the recent i2c changes in the kernel.
+While being at it I also did some other cleanups like deleting
+unused+dead code, using name-based initialization for some not-yet
+converted structs, ...
+
+The patch also has a few small fixes here and there, but no major
+functional changes.
 
 Please apply,
 
   Gerd
 
---- linux-2.5.54/drivers/media/video/bt832.c	2003-01-08 10:59:58.000000000 +0100
-+++ linux/drivers/media/video/bt832.c	2003-01-08 10:59:58.000000000 +0100
-@@ -0,0 +1,289 @@
-+/* Driver for Bt832 CMOS Camera Video Processor
-+    i2c-adresses: 0x88 or 0x8a
-+
-+  The BT832 interfaces to a Quartzsight Digital Camera (352x288, 25 or 30 fps)
-+  via a 9 pin connector ( 4-wire SDATA, 2-wire i2c, SCLK, VCC, GND).
-+  It outputs an 8-bit 4:2:2 YUV or YCrCb video signal which can be directly
-+  connected to bt848/bt878 GPIO pins on this purpose.
-+  (see: VLSI Vision Ltd. www.vvl.co.uk for camera datasheets)
-+  
-+  Supported Cards:
-+  -  Pixelview Rev.4E: 0x8a
-+		GPIO 0x400000 toggles Bt832 RESET, and the chip changes to i2c 0x88 !
-+
-+  (c) Gunther Mayer, 2002
-+
-+  STATUS:
-+  - detect chip and hexdump
-+  - reset chip and leave low power mode
-+  - detect camera present
-+
-+  TODO:
-+  - make it work (find correct setup for Bt832 and Bt878)
-+*/
-+
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/i2c.h>
-+#include <linux/types.h>
-+#include <linux/videodev.h>
-+#include <linux/init.h>
-+#include <linux/errno.h>
-+#include <linux/slab.h>
-+
-+#include "id.h"
-+#include "audiochip.h"
-+#include "bttv.h"
-+#include "bt832.h"
-+
-+MODULE_LICENSE("GPL");
-+
-+/* Addresses to scan */
-+static unsigned short normal_i2c[] = {I2C_CLIENT_END};
-+static unsigned short normal_i2c_range[] = {I2C_BT832_ALT1>>1,I2C_BT832_ALT2>>1,I2C_CLIENT_END};
+--- linux-2.5.54/drivers/media/video/audiochip.h	2003-01-08 10:59:58.000000000 +0100
++++ linux/drivers/media/video/audiochip.h	2003-01-08 10:59:59.000000000 +0100
+@@ -30,44 +30,6 @@
+  * make sense in v4l context only.  So I think that's acceptable...
+  */
+ 
+-#if 0
+-
+-/* TODO (if it is ever [to be] accessible in the V4L[2] spec):
+- *   maybe fade? (back/front)
+- * notes:
+- * NEWCHANNEL and SWITCH_MUTE are here because the MSP3400 has a special
+- * routine to go through when it tunes in to a new channel before turning
+- * back on the sound.
+- * Either SET_RADIO, NEWCHANNEL, and SWITCH_MUTE or SET_INPUT need to be
+- * implemented (MSP3400 uses SET_RADIO to select inputs, and SWITCH_MUTE for
+- * channel-change mute -- TEA6300 et al use SET_AUDIO to select input [TV, 
+- * radio, external, or MUTE]).  If both methods are implemented, you get a
+- * cookie for doing such a good job! :)
+- */
+-
+-#define AUDC_SET_TVNORM       _IOW('m',1,int)  /* TV mode + PAL/SECAM/NTSC  */
+-#define AUDC_NEWCHANNEL       _IO('m',3)       /* indicate new chan - off mute */
+-
+-#define AUDC_GET_VOLUME_LEFT  _IOR('m',4,__u16)
+-#define AUDC_GET_VOLUME_RIGHT _IOR('m',5,__u16)
+-#define AUDC_SET_VOLUME_LEFT  _IOW('m',6,__u16)
+-#define AUDC_SET_VOLUME_RIGHT _IOW('m',7,__u16)
+-
+-#define AUDC_GET_STEREO       _IOR('m',8,__u16)
+-#define AUDC_SET_STEREO       _IOW('m',9,__u16)
+-
+-#define AUDC_GET_DC           _IOR('m',10,__u16)/* ??? */
+-
+-#define AUDC_GET_BASS         _IOR('m',11,__u16)
+-#define AUDC_SET_BASS         _IOW('m',12,__u16)
+-#define AUDC_GET_TREBLE       _IOR('m',13,__u16)
+-#define AUDC_SET_TREBLE       _IOW('m',14,__u16)
+-
+-#define AUDC_GET_UNIT         _IOR('m',15,int) /* ??? - unimplemented in MSP3400 */
+-#define AUDC_SWITCH_MUTE      _IO('m',16)      /* turn on mute */
+-#endif
+-
+-
+ /* misc stuff to pass around config info to i2c chips */
+ #define AUDC_CONFIG_PINNACLE  _IOW('m',32,int)
+ 
+--- linux-2.5.54/drivers/media/video/msp3400.c	2003-01-08 10:34:37.000000000 +0100
++++ linux/drivers/media/video/msp3400.c	2003-01-08 10:59:59.000000000 +0100
+@@ -62,17 +62,7 @@
+ /* Addresses to scan */
+ static unsigned short normal_i2c[] = {I2C_CLIENT_END};
+ static unsigned short normal_i2c_range[] = {0x40,0x40,I2C_CLIENT_END};
+-static unsigned short probe[2]        = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short probe_range[2]  = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short ignore[2]       = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short ignore_range[2] = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short force[2]        = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static struct i2c_client_address_data addr_data = {
+-	normal_i2c, normal_i2c_range, 
+-	probe, probe_range, 
+-	ignore, ignore_range, 
+-	force
+-};
 +I2C_CLIENT_INSMOD;
-+
-+/* ---------------------------------------------------------------------- */
-+
-+#define dprintk     if (debug) printk
-+
-+static int bt832_detach(struct i2c_client *client);
-+
-+
-+static struct i2c_driver driver;
-+static struct i2c_client client_template;
-+
-+struct bt832 {
-+        struct i2c_client client;
-+};
-+
-+int bt832_hexdump(struct i2c_client *i2c_client_s, unsigned char *buf)
-+{
-+	int i,rc;
-+	buf[0]=0x80; // start at register 0 with auto-increment
-+        if (1 != (rc = i2c_master_send(i2c_client_s,buf,1)))
-+                printk("bt832: i2c i/o error: rc == %d (should be 1)\n",rc);
-+
-+        for(i=0;i<65;i++)
-+                buf[i]=0;
-+        if (65 != (rc=i2c_master_recv(i2c_client_s,buf,65)))
-+                printk("bt832: i2c i/o error: rc == %d (should be 65)\n",rc);
-+
-+        // Note: On READ the first byte is the current index
-+        //  (e.g. 0x80, what we just wrote)
-+
-+        if(1) {
-+                int i;
-+                printk("BT832 hexdump:\n");
-+                for(i=1;i<65;i++) {
-+			if(i!=1) {
-+			  if(((i-1)%8)==0) printk(" ");
-+                          if(((i-1)%16)==0) printk("\n");
-+			}
-+                        printk(" %02x",buf[i]);
-+                }
-+                printk("\n");
-+        }
-+	return 0;
-+}
-+
-+// Return: 1 (is a bt832), 0 (No bt832 here)
-+int bt832_init(struct i2c_client *i2c_client_s)
-+{
-+	unsigned char *buf;
-+	int rc;
-+
-+	buf=kmalloc(65,GFP_KERNEL);
-+	bt832_hexdump(i2c_client_s,buf);
-+	
-+	if(buf[0x40] != 0x31) {
-+		printk("bt832: this i2c chip is no bt832 (id=%02x). Detaching.\n",buf[0x40]);
-+		kfree(buf);
-+		return 0;
-+	}
-+
-+        printk("Write 0 tp VPSTATUS\n");
-+        buf[0]=BT832_VP_STATUS; // Reg.52
-+        buf[1]= 0x00;
-+        if (2 != (rc = i2c_master_send(i2c_client_s,buf,2)))
-+                printk("bt832: i2c i/o error VPS: rc == %d (should be 2)\n",rc);
-+
-+        bt832_hexdump(i2c_client_s,buf);
-+
-+
-+	// Leave low power mode:
-+	printk("Bt832: leave low power mode.\n");
-+	buf[0]=BT832_CAM_SETUP0; //0x39 57
-+	buf[1]=0x08;
-+	if (2 != (rc = i2c_master_send(i2c_client_s,buf,2)))
-+                printk("bt832: i2c i/o error LLPM: rc == %d (should be 2)\n",rc);
-+
-+        bt832_hexdump(i2c_client_s,buf);
-+
-+	printk("Write 0 tp VPSTATUS\n");
-+        buf[0]=BT832_VP_STATUS; // Reg.52
-+        buf[1]= 0x00;
-+        if (2 != (rc = i2c_master_send(i2c_client_s,buf,2)))
-+                printk("bt832: i2c i/o error VPS: rc == %d (should be 2)\n",rc);
-+
-+        bt832_hexdump(i2c_client_s,buf);
-+
-+
-+	// Enable Output
-+	printk("Enable Output\n");
-+	buf[0]=BT832_VP_CONTROL1; // Reg.40
-+	buf[1]= 0x27 & (~0x01); // Default | !skip
-+	if (2 != (rc = i2c_master_send(i2c_client_s,buf,2)))
-+                printk("bt832: i2c i/o error EO: rc == %d (should be 2)\n",rc);
-+	
-+        bt832_hexdump(i2c_client_s,buf);
-+
-+#if 0
-+	// Full 30/25 Frame rate
-+	printk("Full 30/25 Frame rate\n");
-+	buf[0]=BT832_VP_CONTROL0; // Reg.39
-+        buf[1]= 0x00;
-+        if (2 != (rc = i2c_master_send(i2c_client_s,buf,2)))
-+                printk("bt832: i2c i/o error FFR: rc == %d (should be 2)\n",rc);
-+
-+        bt832_hexdump(i2c_client_s,buf);
+ 
+ /* insmod parameters */
+ static int debug   = 0;    /* debug output */
+@@ -145,17 +135,33 @@
+ /* ----------------------------------------------------------------------- */
+ /* functions for talking to the MSP3400C Sound processor                   */
+ 
++#ifndef I2C_M_IGNORE_NAK
++# define I2C_M_IGNORE_NAK 0x1000
 +#endif
 +
-+#if 1
-+	// for testing (even works when no camera attached)
-+	printk("bt832: *** Generate NTSC M Bars *****\n");
-+	buf[0]=BT832_VP_TESTCONTROL0; // Reg. 42
-+	buf[1]=3; // Generate NTSC System M bars, Generate Frame timing internally
-+        if (2 != (rc = i2c_master_send(i2c_client_s,buf,2)))
-+                printk("bt832: i2c i/o error MBAR: rc == %d (should be 2)\n",rc);
-+#endif
-+
-+	printk("Bt832: Camera Present: %s\n",
-+		(buf[1+BT832_CAM_STATUS] & BT832_56_CAMERA_PRESENT) ? "yes":"no");
-+
-+        bt832_hexdump(i2c_client_s,buf);
-+	kfree(buf);
-+	return 1;
-+}
-+
-+
-+
-+static int bt832_attach(struct i2c_adapter *adap, int addr,
-+			  unsigned short flags, int kind)
-+{
-+	struct bt832 *t;
-+
-+	printk("bt832_attach\n");
-+
-+        client_template.adapter = adap;
-+        client_template.addr    = addr;
-+
-+        printk("bt832: chip found @ 0x%x\n", addr<<1);
-+
-+        if (NULL == (t = kmalloc(sizeof(*t), GFP_KERNEL)))
-+                return -ENOMEM;
-+	memset(t,0,sizeof(*t));
-+	t->client = client_template;
-+        t->client.data = t;
-+        i2c_attach_client(&t->client);
-+
-+	MOD_INC_USE_COUNT;
-+	if(! bt832_init(&t->client)) {
-+		bt832_detach(&t->client);
+ static int msp3400c_reset(struct i2c_client *client)
+ {
+-        static char reset_off[3] = { 0x00, 0x80, 0x00 };
+-        static char reset_on[3]  = { 0x00, 0x00, 0x00 };
+-
+-        i2c_master_send(client,reset_off,3);  /* XXX ignore errors here */
+-        if (3 != i2c_master_send(client,reset_on, 3)) {
+-		printk(KERN_ERR "msp3400: chip reset failed, penguin on i2c bus?\n");
+-                return -1;
+-	}
+-        return 0;
++	/* reset and read revision code */
++	static char reset_off[3] = { 0x00, 0x80, 0x00 };
++	static char reset_on[3]  = { 0x00, 0x00, 0x00 };
++	static char write[3]     = { I2C_MSP3400C_DFP + 1, 0x00, 0x1e };
++	char read[2];
++	struct i2c_msg reset[2] = {
++		{ client->addr, I2C_M_IGNORE_NAK, 3, reset_off },
++		{ client->addr, I2C_M_IGNORE_NAK, 3, reset_on  },
++	};
++	struct i2c_msg test[2] = {
++		{ client->addr, 0,        3, write },
++		{ client->addr, I2C_M_RD, 2, read  },
++	};
++	
++	if ( (1 != i2c_transfer(client->adapter,&reset[0],1)) ||
++	     (1 != i2c_transfer(client->adapter,&reset[1],1)) ||
++	     (2 != i2c_transfer(client->adapter,test,2)) ) {
++		printk(KERN_ERR "msp3400: chip reset failed\n");
 +		return -1;
-+	}
-+        
-+	return 0;
-+}
-+
-+static int bt832_probe(struct i2c_adapter *adap)
-+{
-+	int rc;
-+
-+	printk("bt832_probe\n");
-+
-+	switch (adap->id) {
-+	case I2C_ALGO_BIT | I2C_HW_B_BT848:
-+	case I2C_ALGO_BIT | I2C_HW_B_RIVA:
-+	case I2C_ALGO_SAA7134:
-+		printk("bt832: probing %s i2c adapter [id=0x%x]\n",
-+		       adap->name,adap->id);
-+		rc = i2c_probe(adap, &addr_data, bt832_attach);
-+		break;
-+	default:
-+		printk("bt832: ignoring %s i2c adapter [id=0x%x]\n",
-+		       adap->name,adap->id);
-+		rc = 0;
-+		/* nothing */
-+	}
-+	return rc;
-+}
-+
-+static int bt832_detach(struct i2c_client *client)
-+{
-+	struct bt832 *t = (struct bt832*)client->data;
-+
-+	printk("bt832: detach.\n");
-+	i2c_detach_client(client);
-+	kfree(t);
-+	MOD_DEC_USE_COUNT;
-+	return 0;
-+}
-+
-+static int
-+bt832_command(struct i2c_client *client, unsigned int cmd, void *arg)
-+{
-+	struct bt832 *t = (struct bt832*)client->data;
-+
-+	printk("bt832: command %x\n",cmd);
-+
-+        switch (cmd) {
-+		case BT832_HEXDUMP: {
-+			unsigned char *buf;
-+			buf=kmalloc(65,GFP_KERNEL);
-+			bt832_hexdump(&t->client,buf);
-+			kfree(buf);
-+		}
-+		break;
-+		case BT832_REATTACH:
-+			printk("bt832: re-attach\n");
-+			i2c_del_driver(&driver);
-+			i2c_add_driver(&driver);
-+		break;
-+	}
-+	return 0;
-+}
-+
-+/* ----------------------------------------------------------------------- */
-+
-+static struct i2c_driver driver = {
++        }
++	return 0; 
+ }
+ 
+ static int
+@@ -1213,19 +1219,20 @@
+ static int msp_command(struct i2c_client *client, unsigned int cmd, void *arg);
+ 
+ static struct i2c_driver driver = {
+-	.name		= "i2cmsp3400driver",
+-	.id		= I2C_DRIVERID_MSP3400,
+-	.flags		= I2C_DF_NOTIFY,
+-	.attach_adapter	= msp_probe,
+-	.detach_client	= msp_detach,
+-	.command	= msp_command,
 +	.owner          = THIS_MODULE,
-+        .name           = "i2c bt832 driver",
-+        .id             = -1, /* FIXME */
++        .name           = "i2c msp3400 driver",
++        .id             = I2C_DRIVERID_MSP3400,
 +        .flags          = I2C_DF_NOTIFY,
-+        .attach_adapter = bt832_probe,
-+        .detach_client  = bt832_detach,
-+        .command        = bt832_command,
-+};
-+static struct i2c_client client_template =
-+{
-+        .name   = "bt832",
++        .attach_adapter = msp_probe,
++        .detach_client  = msp_detach,
++        .command        = msp_command,
+ };
+ 
+ static struct i2c_client client_template = 
+ {
+-	.name	= "(unset)",
+-	.flags	= I2C_CLIENT_ALLOW_USE,
+-	.driver	= &driver,
++	.name   = "(unset)",
 +	.flags  = I2C_CLIENT_ALLOW_USE,
 +        .driver = &driver,
-+};
+ };
+ 
+ static int msp_attach(struct i2c_adapter *adap, int addr,
+@@ -1258,6 +1265,7 @@
+ 	msp->bass   = 32768;
+ 	msp->treble = 32768;
+ 	msp->input  = -1;
++	msp->muted  = 1;
+ 	for (i = 0; i < DFP_COUNT; i++)
+ 		msp->dfp_regs[i] = -1;
+ 
+@@ -1283,8 +1291,9 @@
+ 
+ #if 0
+ 	/* this will turn on a 1kHz beep - might be useful for debugging... */
+-	msp3400c_write(client,I2C_MSP3400C_DFP, 0x0014, 0x1040);
++	msp3400c_write(c,I2C_MSP3400C_DFP, 0x0014, 0x1040);
+ #endif
++	msp3400c_setvolume(c,msp->muted,msp->left,msp->right);
+ 
+ 	sprintf(c->name,"MSP34%02d%c-%c%d",
+ 		(rev2>>8)&0xff, (rev1&0xff)+'@', ((rev1>>8)&0xff)+'@', rev2&0x1f);
+--- linux-2.5.54/drivers/media/video/tda7432.c	2003-01-08 10:34:51.000000000 +0100
++++ linux/drivers/media/video/tda7432.c	2003-01-08 10:59:59.000000000 +0100
+@@ -18,8 +18,12 @@
+  *
+  * loudness - set between 0 and 15 for varying degrees of loudness effect
+  *
++ * maxvol   - set maximium volume to +20db (1), default is 0db(0)
+  *
+  *
++ *  Revision: 0.7 - maxvol module parm to set maximium volume 0db or +20db
++ *  				store if muted so we can return it
++ *  				change balance only if flaged to
+  *  Revision: 0.6 - added tone controls
+  *  Revision: 0.5 - Fixed odd balance problem
+  *  Revision: 0.4 - added muting
+@@ -48,12 +52,19 @@
+ #include "audiochip.h"
+ #include "id.h"
+ 
++#ifndef VIDEO_AUDIO_BALANCE
++# define VIDEO_AUDIO_BALANCE 32
++#endif
 +
-+
-+int bt832_init_module(void)
+ MODULE_AUTHOR("Eric Sandeen <eric_sandeen@bigfoot.com>");
+ MODULE_DESCRIPTION("bttv driver for the tda7432 audio processor chip");
+ MODULE_LICENSE("GPL");
+ 
+ MODULE_PARM(debug,"i");
+ MODULE_PARM(loudness,"i");
++MODULE_PARM_DESC(maxvol,"Set maximium volume to +20db (0), default is 0db(1)");
++MODULE_PARM(maxvol,"i");
++static int maxvol = 0;
+ static int loudness = 0; /* disable loudness by default */
+ static int debug = 0;	 /* insmod parameter */
+ 
+@@ -61,19 +72,10 @@
+ /* Address to scan (I2C address of this chip) */
+ static unsigned short normal_i2c[] = {
+ 	I2C_TDA7432 >> 1,
+-	I2C_CLIENT_END};
+-static unsigned short normal_i2c_range[] = {I2C_CLIENT_END};
+-static unsigned short probe[2]        = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short probe_range[2]  = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short ignore[2]       = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short ignore_range[2] = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short force[2]        = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static struct i2c_client_address_data addr_data = {
+-	normal_i2c, normal_i2c_range, 
+-	probe, probe_range, 
+-	ignore, ignore_range, 
+-	force
++	I2C_CLIENT_END,
+ };
++static unsigned short normal_i2c_range[] = { I2C_CLIENT_END, I2C_CLIENT_END };
++I2C_CLIENT_INSMOD;
+ 
+ /* Structure of address and subaddresses for the tda7432 */
+ 
+@@ -81,12 +83,12 @@
+ 	int addr;
+ 	int input;
+ 	int volume;
++	int muted;
+ 	int bass, treble;
+ 	int lf, lr, rf, rr;
+ 	int loud;
+ 	struct i2c_client c;
+ };
+-
+ static struct i2c_driver driver;
+ static struct i2c_client client_template;
+ 
+@@ -291,9 +293,10 @@
+ 	t->input  = TDA7432_STEREO_IN |  /* Main (stereo) input   */
+ 		    TDA7432_BASS_SYM  |  /* Symmetric bass cut    */
+ 		    TDA7432_BASS_NORM;   /* Normal bass range     */ 
+-	t->volume = TDA7432_VOL_0DB;	 /* 0dB Volume            */
++	t->volume =  0x3b ;				 /* -27dB Volume            */
+ 	if (loudness)			 /* Turn loudness on?     */
+ 		t->volume |= TDA7432_LD_ON;	
++	t->muted    = VIDEO_AUDIO_MUTE;
+ 	t->treble   = TDA7432_TREBLE_0DB; /* 0dB Treble            */
+ 	t->bass		= TDA7432_BASS_0DB; 	 /* 0dB Bass              */
+ 	t->lf     = TDA7432_ATTEN_0DB;	 /* 0dB attenuation       */
+@@ -374,17 +377,24 @@
+ 
+ 		va->flags |= VIDEO_AUDIO_VOLUME |
+ 			VIDEO_AUDIO_BASS |
+-			VIDEO_AUDIO_TREBLE;
++			VIDEO_AUDIO_TREBLE |
++			VIDEO_AUDIO_MUTABLE;
++		if (t->muted)
++			va->flags |= VIDEO_AUDIO_MUTE;
+ 		va->mode |= VIDEO_SOUND_STEREO;
+ 		/* Master volume control
+ 		 * V4L volume is min 0, max 65535
+ 		 * TDA7432 Volume: 
+ 		 * Min (-79dB) is 0x6f
+-		 * Max (+20dB) is 0x07
++		 * Max (+20dB) is 0x07 (630)
++		 * Max (0dB) is 0x20 (829)
+ 		 * (Mask out bit 7 of vol - it's for the loudness setting)
+ 		 */
+-
+-		va->volume = ( 0x6f - (t->volume & 0x7F) ) * 630;
++		if (!maxvol){  /* max +20db */
++			va->volume = ( 0x6f - (t->volume & 0x7F) ) * 630;
++		} else {       /* max 0db   */
++			va->volume = ( 0x6f - (t->volume & 0x7F) ) * 829;
++		}
+ 		
+ 		/* Balance depends on L,R attenuation
+ 		 * V4L balance is 0 to 65535, middle is 32768
+@@ -401,15 +411,15 @@
+ 			/* left is attenuated, balance shifted right */
+ 			va->balance = (32768 + 1057*(t->lf));
+ 		
+-		/* Bass/treble */	
++		/* Bass/treble 4 bits each */	
+ 		va->bass=t->bass;
+ 		if(va->bass >= 0x8)
+-				va->bass = ~(va->bass - 0x8) & 0xf;
+-		va->bass = va->bass << 12;
++			va->bass = ~(va->bass - 0x8) & 0xf;
++		va->bass = (va->bass << 12)+(va->bass << 8)+(va->bass << 4)+(va->bass);
+ 		va->treble=t->treble;
+ 		if(va->treble >= 0x8)
+-				va->treble = ~(va->treble - 0x8) & 0xf;
+-		va->treble = va->treble << 12;
++			va->treble = ~(va->treble - 0x8) & 0xf;
++		va->treble = (va->treble << 12)+(va->treble << 8)+(va->treble << 4)+(va->treble);
+ 								
+ 		break; /* VIDIOCGAUDIO case */
+ 	}
+@@ -420,26 +430,35 @@
+ 		struct video_audio *va = arg;
+ 		dprintk("tda7432: VIDEOCSAUDIO\n");
+ 
+-		t->volume = 0x6f - ( (va->volume)/630 );
++		if(va->flags & VIDEO_AUDIO_VOLUME){
++			if(!maxvol){ /* max +20db */
++				t->volume = 0x6f - ((va->volume)/630);
++			} else {    /* max 0db   */
++				t->volume = 0x6f - ((va->volume)/829);
++			}
+ 		
+ 		if (loudness)		/* Turn on the loudness bit */
+ 			t->volume |= TDA7432_LD_ON;
+ 		
++			tda7432_write(client,TDA7432_VL, t->volume);
++		}
++		
+ 		if(va->flags & VIDEO_AUDIO_BASS)
+ 		{
+ 			t->bass = va->bass >> 12;
+ 			if(t->bass>= 0x8)
+ 					t->bass = (~t->bass & 0xf) + 0x8 ;
+-			t->bass = t->bass | 0x10;
+ 		}
+ 		if(va->flags & VIDEO_AUDIO_TREBLE)
+ 		{
+ 			t->treble= va->treble >> 12;
+ 			if(t->treble>= 0x8)
+ 					t->treble = (~t->treble & 0xf) + 0x8 ;
+-						
+ 		}
++		if(va->flags & (VIDEO_AUDIO_TREBLE| VIDEO_AUDIO_BASS))
++			tda7432_write(client,TDA7432_TN, 0x10 | (t->bass << 4) | t->treble );
+ 		
++		if(va->flags & VIDEO_AUDIO_BALANCE)	{
+ 		if (va->balance < 32768) 
+ 		{
+ 			/* shifted to left, attenuate right */
+@@ -464,20 +483,17 @@
+ 			t->lf = TDA7432_ATTEN_0DB;
+ 			t->lr = TDA7432_ATTEN_0DB;
+ 		}
++		}
+ 					
+-		tda7432_write(client,TDA7432_TN, (t->bass << 4)| t->treble );		
+-		tda7432_write(client,TDA7432_VL, t->volume);
+-		
+-		if (va->flags & VIDEO_AUDIO_MUTE)
++	 	t->muted=(va->flags & VIDEO_AUDIO_MUTE);	
++		if (t->muted)
+ 		{
+ 			/* Mute & update balance*/	
+ 			tda7432_write(client,TDA7432_LF, t->lf | TDA7432_MUTE);
+ 			tda7432_write(client,TDA7432_LR, t->lr | TDA7432_MUTE);
+ 			tda7432_write(client,TDA7432_RF, t->rf | TDA7432_MUTE);
+ 			tda7432_write(client,TDA7432_RR, t->rr | TDA7432_MUTE);
+-		}
+-		else
+-		{	
++		} else {
+ 			tda7432_write(client,TDA7432_LF, t->lf);
+ 			tda7432_write(client,TDA7432_LR, t->lr);
+ 			tda7432_write(client,TDA7432_RF, t->rf);
+@@ -498,35 +514,29 @@
+ 	return 0;
+ }
+ 
+-
+ static struct i2c_driver driver = {
+-        "i2c tda7432 driver",
+-	I2C_DRIVERID_TDA7432,
+-        I2C_DF_NOTIFY,
+-	tda7432_probe,
+-        tda7432_detach,
+-        tda7432_command,
++	.owner           = THIS_MODULE,
++        .name            = "i2c tda7432 driver",
++	.id              = I2C_DRIVERID_TDA7432,
++        .flags           = I2C_DF_NOTIFY,
++	.attach_adapter  = tda7432_probe,
++        .detach_client   = tda7432_detach,
++        .command         = tda7432_command,
+ };
+ 
+ static struct i2c_client client_template =
+ {
+-        "(unset)",		/* name */
+-        -1,
+-        0,
+-        0,
+-        NULL,
+-        &driver
++        .name   = "tda7432",
++        .id     = -1,
++	.driver = &driver, 
+ };
+ 
+ static int tda7432_init(void)
+ {
+-
+-	if ( (loudness < 0) || (loudness > 15) )
+-	{
++	if ( (loudness < 0) || (loudness > 15) ) {
+ 		printk(KERN_ERR "tda7432: loudness parameter must be between 0 and 15\n");
+ 		return -EINVAL;
+ 	}
+-
+ 	i2c_add_driver(&driver);
+ 	return 0;
+ }
+--- linux-2.5.54/drivers/media/video/tda9875.c	2003-01-08 10:34:24.000000000 +0100
++++ linux/drivers/media/video/tda9875.c	2003-01-08 10:59:59.000000000 +0100
+@@ -42,19 +42,10 @@
+ /* Addresses to scan */
+ static unsigned short normal_i2c[] =  {
+     I2C_TDA9875 >> 1,
+-    I2C_CLIENT_END};
+-static unsigned short normal_i2c_range[] = {I2C_CLIENT_END};
+-static unsigned short probe[2]        = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short probe_range[2]  = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short ignore[2]       = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short ignore_range[2] = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short force[2]        = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static struct i2c_client_address_data addr_data = {
+-	normal_i2c, normal_i2c_range, 
+-	probe, probe_range, 
+-	ignore, ignore_range, 
+-	force
++    I2C_CLIENT_END
+ };
++static unsigned short normal_i2c_range[] = {I2C_CLIENT_END};
++I2C_CLIENT_INSMOD;
+ 
+ /* This is a superset of the TDA9875 */
+ struct tda9875 {
+@@ -64,7 +55,6 @@
+ 	struct i2c_client c;
+ };
+ 
+-
+ static struct i2c_driver driver;
+ static struct i2c_client client_template;
+ 
+@@ -397,22 +387,20 @@
+ 
+ 
+ static struct i2c_driver driver = {
+-        "i2c tda9875 driver",
+-        I2C_DRIVERID_TDA9875, /* Get new one for TDA9875 */
+-        I2C_DF_NOTIFY,
+-	tda9875_probe,
+-        tda9875_detach,
+-        tda9875_command,
++	.owner          = THIS_MODULE,
++        .name           = "i2c tda9875 driver",
++        .id             = I2C_DRIVERID_TDA9875,
++        .flags          = I2C_DF_NOTIFY,
++	.attach_adapter = tda9875_probe,
++        .detach_client  = tda9875_detach,
++        .command        = tda9875_command,
+ };
+ 
+ static struct i2c_client client_template =
+ {
+-        "(unset)",		/* name */
+-        -1,
+-        0,
+-        0,
+-        NULL,
+-        &driver
++        .name    = "tda9875",
++        .id      = -1,
++        .driver  = &driver,
+ };
+ 
+ static int tda9875_init(void)
+--- linux-2.5.54/drivers/media/video/tda9887.c	2003-01-08 10:59:58.000000000 +0100
++++ linux/drivers/media/video/tda9887.c	2003-01-08 10:59:59.000000000 +0100
+@@ -26,17 +26,7 @@
+ /* Addresses to scan */
+ static unsigned short normal_i2c[] = {I2C_CLIENT_END};
+ static unsigned short normal_i2c_range[] = {0x86>>1,0x86>>1,I2C_CLIENT_END};
+-static unsigned short probe[2]        = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short probe_range[2]  = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short ignore[2]       = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short ignore_range[2] = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short force[2]        = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static struct i2c_client_address_data addr_data = {
+-	normal_i2c, normal_i2c_range, 
+-	probe, probe_range, 
+-	ignore, ignore_range, 
+-	force
+-};
++I2C_CLIENT_INSMOD;
+ 
+ /* insmod options */
+ static int debug =  0;
+@@ -145,8 +135,8 @@
+ 	u8   bOutPort2    = cOutputPort2Inactive;
+ #endif
+ 	u8   bVideoTrap   = cVideoTrapBypassOFF;
+-#if 0
+-	u8   bTopAdjust   = mbAGC;
++#if 1
++	u8   bTopAdjust   = 0x0e /* -2dB */;
+ #else
+ 	u8   bTopAdjust   = 0;
+ #endif
+@@ -456,18 +446,19 @@
+ /* ----------------------------------------------------------------------- */
+ 
+ static struct i2c_driver driver = {
+-        name:           "i2c tda9887 driver",
+-        id:             -1, /* FIXME */
+-        flags:          I2C_DF_NOTIFY,
+-        attach_adapter: tda9887_probe,
+-        detach_client:  tda9887_detach,
+-        command:        tda9887_command,
++	.owner          = THIS_MODULE,
++        .name           = "i2c tda9887 driver",
++        .id             = -1, /* FIXME */
++        .flags          = I2C_DF_NOTIFY,
++        .attach_adapter = tda9887_probe,
++        .detach_client  = tda9887_detach,
++        .command        = tda9887_command,
+ };
+ static struct i2c_client client_template =
+ {
+-        name:   "tda9887",
+-	flags:  I2C_CLIENT_ALLOW_USE,
+-        driver: &driver,
++        .name   = "tda9887",
++	.flags  = I2C_CLIENT_ALLOW_USE,
++        .driver = &driver,
+ };
+ 
+ static int tda9887_init_module(void)
+--- linux-2.5.54/drivers/media/video/tvaudio.c	2003-01-08 10:34:09.000000000 +0100
++++ linux/drivers/media/video/tvaudio.c	2003-01-08 10:59:59.000000000 +0100
+@@ -146,17 +146,7 @@
+ 	I2C_PIC16C54  >> 1,
+ 	I2C_CLIENT_END };
+ static unsigned short normal_i2c_range[2] = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short probe[2]            = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short probe_range[2]      = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short ignore[2]           = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short ignore_range[2]     = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static unsigned short force[2]            = { I2C_CLIENT_END, I2C_CLIENT_END };
+-static struct i2c_client_address_data addr_data = {
+-	normal_i2c, normal_i2c_range, 
+-	probe, probe_range, 
+-	ignore, ignore_range, 
+-	force
+-};
++I2C_CLIENT_INSMOD;
+ 
+ static struct i2c_driver driver;
+ static struct i2c_client client_template;
+@@ -1088,6 +1078,19 @@
+ static int tda8425_shift10(int val) { return (val >> 10) | 0xc0; }
+ static int tda8425_shift12(int val) { return (val >> 12) | 0xf0; }
+ 
++static int tda8425_initialize(struct CHIPSTATE *chip)
 +{
-+	i2c_add_driver(&driver);
++	struct CHIPDESC *desc = chiplist + chip->type;
++	int inputmap[8] = { /* tuner	*/ TDA8425_S1_CH2, /* radio  */ TDA8425_S1_CH1,
++			    /* extern	*/ TDA8425_S1_CH1, /* intern */ TDA8425_S1_OFF,
++			    /* off	*/ TDA8425_S1_OFF, /* on     */ TDA8425_S1_CH2};
++
++	if (chip->c.adapter->id == (I2C_ALGO_BIT | I2C_HW_B_RIVA)) {
++		memcpy (desc->inputmap, inputmap, sizeof (inputmap));
++	}
 +	return 0;
 +}
 +
-+static void bt832_cleanup_module(void)
-+{
-+	i2c_del_driver(&driver);
-+}
-+
-+module_init(bt832_init_module);
-+module_exit(bt832_cleanup_module);
-+
---- linux-2.5.54/drivers/media/video/bt832.h	2003-01-08 10:59:58.000000000 +0100
-+++ linux/drivers/media/video/bt832.h	2003-01-08 10:59:58.000000000 +0100
-@@ -0,0 +1,305 @@
-+/* Bt832 CMOS Camera Video Processor (VP)
-+
-+ The Bt832 CMOS Camera Video Processor chip connects a Quartsight CMOS 
-+  color digital camera directly to video capture devices via an 8-bit,
-+  4:2:2 YUV or YCrCb video interface.
-+
-+ i2c adresses: 0x88 or 0x8a
-+ */
-+
-+/* The 64 registers: */
-+
-+// Input Processor
-+#define BT832_OFFSET 0
-+#define BT832_RCOMP	1
-+#define BT832_G1COMP	2
-+#define BT832_G2COMP	3
-+#define BT832_BCOMP	4
-+// Exposures:
-+#define BT832_FINEH	5
-+#define BT832_FINEL	6
-+#define BT832_COARSEH	7
-+#define BT832_COARSEL   8
-+#define BT832_CAMGAIN	9
-+// Main Processor:
-+#define BT832_M00	10
-+#define BT832_M01	11
-+#define BT832_M02	12
-+#define BT832_M10	13
-+#define BT832_M11	14
-+#define BT832_M12	15
-+#define BT832_M20	16
-+#define BT832_M21	17
-+#define BT832_M22	18
-+#define BT832_APCOR	19
-+#define BT832_GAMCOR	20
-+// Level Accumulator Inputs
-+#define BT832_VPCONTROL2	21
-+#define BT832_ZONECODE0	22
-+#define BT832_ZONECODE1	23
-+#define BT832_ZONECODE2	24
-+#define BT832_ZONECODE3	25
-+// Level Accumulator Outputs:
-+#define BT832_RACC	26
-+#define BT832_GACC	27
-+#define BT832_BACC	28
-+#define BT832_BLACKACC	29
-+#define BT832_EXP_AGC	30
-+#define BT832_LACC0	31
-+#define BT832_LACC1	32
-+#define BT832_LACC2	33
-+#define BT832_LACC3	34
-+#define BT832_LACC4	35
-+#define BT832_LACC5	36
-+#define BT832_LACC6	37
-+#define BT832_LACC7	38
-+// System:
-+#define BT832_VP_CONTROL0	39
-+#define BT832_VP_CONTROL1	40
-+#define BT832_THRESH	41
-+#define BT832_VP_TESTCONTROL0	42
-+#define BT832_VP_DMCODE	43
-+#define BT832_ACB_CONFIG	44
-+#define BT832_ACB_GNBASE	45
-+#define BT832_ACB_MU	46
-+#define BT832_CAM_TEST0	47
-+#define BT832_AEC_CONFIG	48
-+#define BT832_AEC_TL	49
-+#define BT832_AEC_TC	50
-+#define BT832_AEC_TH	51
-+// Status:
-+#define BT832_VP_STATUS	52
-+#define BT832_VP_LINECOUNT	53
-+#define BT832_CAM_DEVICEL	54 // e.g. 0x19
-+#define BT832_CAM_DEVICEH	55 // e.g. 0x40  == 0x194 Mask0, 0x194 = 404 decimal (VVL-404 camera)
-+#define BT832_CAM_STATUS		56
-+ #define BT832_56_CAMERA_PRESENT 0x20
-+//Camera Setups:
-+#define BT832_CAM_SETUP0	57
-+#define BT832_CAM_SETUP1	58
-+#define BT832_CAM_SETUP2	59
-+#define BT832_CAM_SETUP3	60
-+// System:
-+#define BT832_DEFCOR		61
-+#define BT832_VP_TESTCONTROL1	62
-+#define BT832_DEVICE_ID		63
-+# define BT832_DEVICE_ID__31		0x31 // Bt832 has ID 0x31
-+
-+/* STMicroelectronivcs VV5404 camera module 
-+   i2c: 0x20: sensor address
-+   i2c: 0xa0: eeprom for ccd defect map
-+ */
-+#define VV5404_device_h		0x00  // 0x19
-+#define VV5404_device_l		0x01  // 0x40
-+#define VV5404_status0		0x02
-+#define VV5404_linecountc	0x03 // current line counter
-+#define VV5404_linecountl	0x04
-+#define VV5404_setup0		0x10
-+#define VV5404_setup1		0x11
-+#define VV5404_setup2		0x12
-+#define VV5404_setup4		0x14
-+#define VV5404_setup5		0x15
-+#define VV5404_fine_h		0x20  // fine exposure
-+#define VV5404_fine_l		0x21
-+#define VV5404_coarse_h		0x22  //coarse exposure
-+#define VV5404_coarse_l		0x23
-+#define VV5404_gain		0x24 // ADC pre-amp gain setting
-+#define VV5404_clk_div		0x25
-+#define VV5404_cr		0x76 // control register
-+#define VV5404_as0		0x77 // ADC setup register
-+
-+
-+// IOCTL
-+#define BT832_HEXDUMP   _IOR('b',1,int)
-+#define BT832_REATTACH	_IOR('b',2,int)
-+
-+/* from BT8x8VXD/capdrv/dialogs.cpp */
-+
-+/*
-+typedef enum { SVI, Logitech, Rockwell } CAMERA;
-+
-+static COMBOBOX_ENTRY gwCameraOptions[] =
-+{
-+   { SVI,      "Silicon Vision 512N" },
-+   { Logitech, "Logitech VideoMan 1.3"  },
-+   { Rockwell, "Rockwell QuartzSight PCI 1.0"   }
-+};
-+
-+// SRAM table values
-+//===========================================================================
-+typedef enum { TGB_NTSC624, TGB_NTSC780, TGB_NTSC858, TGB_NTSC392 } TimeGenByte;
-+
-+BYTE SRAMTable[][ 60 ] =
-+{
-+   // TGB_NTSC624
-+   {
-+      0x33, // size of table = 51
-+      0x0E, 0xC0, 0x00, 0x00, 0x90, 0x02, 0x03, 0x10, 0x03, 0x06,
-+      0x10, 0x04, 0x12, 0x12, 0x05, 0x02, 0x13, 0x04, 0x19, 0x00,
-+      0x04, 0x39, 0x00, 0x06, 0x59, 0x08, 0x03, 0x85, 0x08, 0x07,
-+      0x03, 0x50, 0x00, 0x91, 0x40, 0x00, 0x11, 0x01, 0x01, 0x4D,
-+      0x0D, 0x02, 0x03, 0x11, 0x01, 0x05, 0x37, 0x00, 0x37, 0x21, 0x00
-+   },
-+   // TGB_NTSC780
-+   {
-+      0x33, // size of table = 51
-+      0x0e, 0xc0, 0x00, 0x00, 0x90, 0xe2, 0x03, 0x10, 0x03, 0x06,
-+      0x10, 0x34, 0x12, 0x12, 0x65, 0x02, 0x13, 0x24, 0x19, 0x00,
-+      0x24, 0x39, 0x00, 0x96, 0x59, 0x08, 0x93, 0x85, 0x08, 0x97,
-+      0x03, 0x50, 0x50, 0xaf, 0x40, 0x30, 0x5f, 0x01, 0xf1, 0x7f,
-+      0x0d, 0xf2, 0x03, 0x11, 0xf1, 0x05, 0x37, 0x30, 0x85, 0x21, 0x50
-+   },
-+   // TGB_NTSC858
-+   {
-+      0x33, // size of table = 51
-+      0x0c, 0xc0, 0x00, 0x00, 0x90, 0xc2, 0x03, 0x10, 0x03, 0x06,
-+      0x10, 0x34, 0x12, 0x12, 0x65, 0x02, 0x13, 0x24, 0x19, 0x00,
-+      0x24, 0x39, 0x00, 0x96, 0x59, 0x08, 0x93, 0x83, 0x08, 0x97,
-+      0x03, 0x50, 0x30, 0xc0, 0x40, 0x30, 0x86, 0x01, 0x01, 0xa6,
-+      0x0d, 0x62, 0x03, 0x11, 0x61, 0x05, 0x37, 0x30, 0xac, 0x21, 0x50
-+   },
-+   // TGB_NTSC392
-+   // This table has been modified to be used for Fusion Rev D
-+   {
-+      0x2A, // size of table = 42
-+      0x06, 0x08, 0x04, 0x0a, 0xc0, 0x00, 0x18, 0x08, 0x03, 0x24,
-+      0x08, 0x07, 0x02, 0x90, 0x02, 0x08, 0x10, 0x04, 0x0c, 0x10,
-+      0x05, 0x2c, 0x11, 0x04, 0x55, 0x48, 0x00, 0x05, 0x50, 0x00,
-+      0xbf, 0x0c, 0x02, 0x2f, 0x3d, 0x00, 0x2f, 0x3f, 0x00, 0xc3,
-+      0x20, 0x00
-+   }
-+};
-+
-+//===========================================================================
-+// This is the structure of the camera specifications
-+//===========================================================================
-+typedef struct tag_cameraSpec
-+{
-+   SignalFormat signal;       // which digital signal format the camera has
-+   VideoFormat  vidFormat;    // video standard
-+   SyncVideoRef syncRef;      // which sync video reference is used
-+   State        syncOutput;   // enable sync output for sync video input?
-+   DecInputClk  iClk;         // which input clock is used
-+   TimeGenByte  tgb;          // which timing generator byte does the camera use
-+   int          HReset;       // select 64, 48, 32, or 16 CLKx1 for HReset
-+   PLLFreq      pllFreq;      // what synthesized frequency to set PLL to
-+   VSIZEPARMS   vSize;        // video size the camera produces
-+   int          lineCount;    // expected total number of half-line per frame - 1
-+   BOOL         interlace;    // interlace signal?
-+} CameraSpec;
-+
-+//===========================================================================
-+// <UPDATE REQUIRED>
-+// Camera specifications database. Update this table whenever camera spec
-+// has been changed or added/deleted supported camera models
-+//===========================================================================
-+static CameraSpec dbCameraSpec[ N_CAMERAOPTIONS ] =
-+{  // Silicon Vision 512N
-+   { Signal_CCIR656, VFormat_NTSC, VRef_alignedCb, Off, DecClk_GPCLK, TGB_NTSC624, 64, KHz19636,
-+      // Clkx1_HACTIVE, Clkx1_HDELAY, VActive, VDelay, linesPerField; lineCount, Interlace
-+   {         512,           0x64,       480,    0x13,      240 },         0,       TRUE
-+   },
-+   // Logitech VideoMan 1.3
-+   { Signal_CCIR656, VFormat_NTSC, VRef_alignedCb, Off, DecClk_GPCLK, TGB_NTSC780, 64, KHz24545,
-+      // Clkx1_HACTIVE, Clkx1_HDELAY, VActive, VDelay, linesPerField; lineCount, Interlace
-+      {      640,           0x80,       480,    0x1A,      240 },         0,       TRUE
-+   },
-+   // Rockwell QuartzSight
-+   // Note: Fusion Rev D (rev ID 0x02) and later supports 16 pixels for HReset which is preferable.
-+   //       Use 32 for earlier version of hardware. Clkx1_HDELAY also changed from 0x27 to 0x20.
-+   { Signal_CCIR656, VFormat_NTSC, VRef_alignedCb, Off, DecClk_GPCLK, TGB_NTSC392, 16, KHz28636,
-+      // Clkx1_HACTIVE, Clkx1_HDELAY, VActive, VDelay, linesPerField; lineCount, Interlace
-+      {      352,           0x20,       576,    0x08,      288 },       607,       FALSE
-+   }
-+};
-+*/
-+
-+/*
-+The corresponding APIs required to be invoked are:
-+SetConnector( ConCamera, TRUE/FALSE );
-+SetSignalFormat( spec.signal );
-+SetVideoFormat( spec.vidFormat );
-+SetSyncVideoRef( spec.syncRef );
-+SetEnableSyncOutput( spec.syncOutput );
-+SetTimGenByte( SRAMTable[ spec.tgb ], SRAMTableSize[ spec.tgb ] );
-+SetHReset( spec.HReset );
-+SetPLL( spec.pllFreq );
-+SetDecInputClock( spec.iClk );
-+SetVideoInfo( spec.vSize );
-+SetTotalLineCount( spec.lineCount );
-+SetInterlaceMode( spec.interlace );
-+*/
-+
-+/* from web:
-+ Video Sampling
-+Digital video is a sampled form of analog video. The most common sampling schemes in use today are:
-+                  Pixel Clock   Horiz    Horiz    Vert
-+                   Rate         Total    Active
-+NTSC square pixel  12.27 MHz    780      640      525
-+NTSC CCIR-601      13.5  MHz    858      720      525
-+NTSC 4FSc          14.32 MHz    910      768      525
-+PAL  square pixel  14.75 MHz    944      768      625
-+PAL  CCIR-601      13.5  MHz    864      720      625
-+PAL  4FSc          17.72 MHz   1135      948      625
-+
-+For the CCIR-601 standards, the sampling is based on a static orthogonal sampling grid. The luminance component (Y) is sampled at 13.5 MHz, while the two color difference signals, Cr and Cb are sampled at half that, or 6.75 MHz. The Cr and Cb samples are colocated with alternate Y samples, and they are taken at the same position on each line, such that one sample is coincident with the 50% point of the falling edge of analog sync. The samples are coded to either 8 or 10 bits per component.
-+*/
-+
-+/* from DScaler:*/
-+/*
-+//===========================================================================
-+// CCIR656 Digital Input Support: The tables were taken from DScaler proyect
-+//
-+// 13 Dec 2000 - Michael Eskin, Conexant Systems - Initial version
-+//
-+
-+//===========================================================================
-+// Timing generator SRAM table values for CCIR601 720x480 NTSC
-+//===========================================================================
-+// For NTSC CCIR656 
-+BYTE BtCard::SRAMTable_NTSC[] =
-+{
-+    // SRAM Timing Table for NTSC
-+    0x0c, 0xc0, 0x00, 
-+    0x00, 0x90, 0xc2, 
-+    0x03, 0x10, 0x03, 
-+    0x06, 0x10, 0x34, 
-+    0x12, 0x12, 0x65, 
-+    0x02, 0x13, 0x24, 
-+    0x19, 0x00, 0x24, 
-+    0x39, 0x00, 0x96, 
-+    0x59, 0x08, 0x93, 
-+    0x83, 0x08, 0x97,
-+    0x03, 0x50, 0x30, 
-+    0xc0, 0x40, 0x30, 
-+    0x86, 0x01, 0x01, 
-+    0xa6, 0x0d, 0x62, 
-+    0x03, 0x11, 0x61, 
-+    0x05, 0x37, 0x30, 
-+    0xac, 0x21, 0x50
-+};
-+
-+//===========================================================================
-+// Timing generator SRAM table values for CCIR601 720x576 NTSC
-+//===========================================================================
-+// For PAL CCIR656
-+BYTE BtCard::SRAMTable_PAL[] =
-+{
-+    // SRAM Timing Table for PAL
-+    0x36, 0x11, 0x01,
-+    0x00, 0x90, 0x02,
-+    0x05, 0x10, 0x04,
-+    0x16, 0x14, 0x05,
-+    0x11, 0x00, 0x04,
-+    0x12, 0xc0, 0x00,
-+    0x31, 0x00, 0x06,
-+    0x51, 0x08, 0x03,
-+    0x89, 0x08, 0x07,
-+    0xc0, 0x44, 0x00,
-+    0x81, 0x01, 0x01,
-+    0xa9, 0x0d, 0x02,
-+    0x02, 0x50, 0x03,
-+    0x37, 0x3d, 0x00,
-+    0xaf, 0x21, 0x00,
-+};
-+*/
+ static void tda8425_setmode(struct CHIPSTATE *chip, int mode)
+ {
+ 	int s1 = chip->shadow.bytes[TDA8425_S1+1] & 0xe1;
+@@ -1188,7 +1191,7 @@
+ 		.inputreg   = TDA9873_SW,
+ 		.inputmute  = TDA9873_MUTE | TDA9873_AUTOMUTE,
+ 		.inputmap   = {0xa0, 0xa2, 0xa0, 0xa0, 0xc0},
+-		.inputmask  = TDA9873_INP_MASK | TDA9873_MUTE | TDA9873_AUTOMUTE
++		.inputmask  = TDA9873_INP_MASK|TDA9873_MUTE|TDA9873_AUTOMUTE,
+ 		
+ 	},
+ 	{
+@@ -1285,8 +1288,8 @@
+ 		.registers  = 9,
+ 		.flags      = CHIP_HAS_VOLUME | CHIP_HAS_BASSTREBLE | CHIP_HAS_INPUTSEL,
+ 
+-		.leftreg    = TDA8425_VR,
+-		.rightreg   = TDA8425_VL,
++		.leftreg    = TDA8425_VL,
++		.rightreg   = TDA8425_VR,
+ 		.bassreg    = TDA8425_BA,
+ 		.treblereg  = TDA8425_TR,
+ 		.volfunc    = tda8425_shift10,
+@@ -1298,6 +1301,7 @@
+ 		.inputmute  = TDA8425_S1_OFF,
+ 
+ 		.setmode    = tda8425_setmode,
++		.initialize = tda8425_initialize,
+ 	},
+ 	{
+ 		.name       = "pic16c54 (PV951)",
+@@ -1316,7 +1320,7 @@
+ 			     PIC16C54_MISC_SND_NOTMUTE},
+ 		.inputmute  = PIC16C54_MISC_SND_MUTE,
+ 	},
+-	{ .name = NULL } /* EOF */
++	{ name: NULL } /* EOF */
+ };
+ 
+ 
+@@ -1544,19 +1548,20 @@
+ 
+ 
+ static struct i2c_driver driver = {
+-	.name		= "generic i2c audio driver",
+-	.id		= I2C_DRIVERID_TVAUDIO,
+-	.flags		= I2C_DF_NOTIFY,
+-	.attach_adapter	= chip_probe,
+-	.detach_client	= chip_detach,
+-	.command	= chip_command,
++	.owner           = THIS_MODULE,
++        .name            = "generic i2c audio driver",
++        .id              = I2C_DRIVERID_TVAUDIO,
++        .flags           = I2C_DF_NOTIFY,
++        .attach_adapter  = chip_probe,
++        .detach_client   = chip_detach,
++        .command         = chip_command,
+ };
+ 
+ static struct i2c_client client_template =
+ {
+-	.name		= "(unset)",
+-	.flags		= I2C_CLIENT_ALLOW_USE,
+-	.driver		= &driver,
++        .name   = "(unset)",
++	.flags  = I2C_CLIENT_ALLOW_USE,
++        .driver = &driver,
+ };
+ 
+ static int audiochip_init_module(void)
+--- linux-2.5.54/drivers/media/video/tvmixer.c	2003-01-08 10:35:01.000000000 +0100
++++ linux/drivers/media/video/tvmixer.c	2003-01-08 10:59:59.000000000 +0100
+@@ -195,9 +195,8 @@
+ 
+ 	/* lock bttv in memory while the mixer is in use  */
+ 	file->private_data = mix;
+-
+-	if (!try_module_get(client->adapter->owner))
+-		return -ENODEV;
++	if (client->adapter->owner)
++		try_module_get(client->adapter->owner);
+         return 0;
+ }
+ 
+@@ -211,25 +210,26 @@
+ 		return -ENODEV;
+ 	}
+ 
+-	module_put(client->adapter->owner);
++	if (client->adapter->owner)
++		module_put(client->adapter->owner);
+ 	return 0;
+ }
+ 
+-
+ static struct i2c_driver driver = {
+-	.name		= "tv card mixer driver",
+-	.id		= I2C_DRIVERID_TVMIXER,
+-	.flags		= I2C_DF_DUMMY,
+-	.attach_adapter	= tvmixer_adapters,
+-	.detach_client	= tvmixer_clients,
++	.owner           = THIS_MODULE,
++	.name            = "tv card mixer driver",
++        .id              = I2C_DRIVERID_TVMIXER,
++	.flags           = I2C_DF_DUMMY,
++        .attach_adapter  = tvmixer_adapters,
++        .detach_client   = tvmixer_clients,
+ };
+ 
+ static struct file_operations tvmixer_fops = {
+ 	.owner		= THIS_MODULE,
+-	.llseek		= no_llseek,
+-	.ioctl		= tvmixer_ioctl,
+-	.open		= tvmixer_open,
+-	.release	= tvmixer_release,
++	.llseek         = no_llseek,
++	.ioctl          = tvmixer_ioctl,
++	.open           = tvmixer_open,
++	.release        = tvmixer_release,
+ };
+ 
+ /* ----------------------------------------------------------------------- */
 
 -- 
 Weil die späten Diskussionen nicht mal mehr den Rotwein lohnen.

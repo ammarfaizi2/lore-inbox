@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261818AbTI3Xyr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 19:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbTI3Xw1
+	id S261778AbTI3Xbv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 19:31:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbTI3Xbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 19:52:27 -0400
-Received: from panda.sul.com.br ([200.219.150.4]:18436 "EHLO panda.sul.com.br")
-	by vger.kernel.org with ESMTP id S261797AbTI3XwM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 19:52:12 -0400
-Date: Wed, 1 Oct 2003 20:51:44 -0300
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: keyboard repeat / sound [was Re: Linux 2.6.0-test6]
-Message-ID: <20031001235144.GB1318@cathedrallabs.org>
-References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <20030928085902.GA3742@k3.hellgate.ch> <20030929151643.GA15992@ucw.cz> <20030930075024.GA1620@squish.home.loc> <20030930125126.GA24122@ucw.cz> <20030930132134.GA17242@cathedrallabs.org> <20030930134453.GA25198@ucw.cz> <20030930140521.GB17242@cathedrallabs.org> <20030930141651.GB25492@ucw.cz>
-Mime-Version: 1.0
+	Tue, 30 Sep 2003 19:31:51 -0400
+Received: from mail008.syd.optusnet.com.au ([211.29.132.212]:8611 "EHLO
+	mail008.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261778AbTI3Xbt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 19:31:49 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030930141651.GB25492@ucw.cz>
-From: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
+Content-Transfer-Encoding: 7bit
+Message-ID: <16250.4701.976132.141380@wombat.chubb.wattle.id.au>
+Date: Wed, 1 Oct 2003 09:31:41 +1000
+To: Henrik Christian Grove <grove@sslug.dk>
+Cc: linux-kernel@vger.kernel.org, ajoshi@shell.unixbox.com
+Subject: Radeon framebuffer problems i 2.6.0-test6
+In-Reply-To: <7gisna11e1.fsf@serena.fsr.ku.dk>
+References: <7gisna11e1.fsf@serena.fsr.ku.dk>
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ahh, I think I remember. Well, you can still try with atkbd_softrepeat=1
-> to see if the too fast autorepeat still happens if software autorepeat
-> is used. It doesn't work with test6, but test7 will hopefully include a
-> fix.
-it's already fixed in test6 :)
 
-thanks,
 
--- 
-aris
+Try this patch that's been floating around for a while.
 
+Ani, can you please push this patch to Linus?  It fixes the Radeon
+problems for a lot of people.
+
+
+===== drivers/video/radeonfb.c 1.30 vs edited =====
+--- 1.30/drivers/video/radeonfb.c	Fri Aug  1 01:58:45 2003
++++ edited/drivers/video/radeonfb.c	Tue Sep  9 13:18:36 2003
+@@ -2090,7 +2090,7 @@
+ 	
+ 	}
+ 	/* Update fix */
+-        info->fix.line_length = rinfo->pitch*64;
++        info->fix.line_length = mode->xres_virtual*(mode->bits_per_pixel/8);
+         info->fix.visual = rinfo->depth == 8 ? FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_DIRECTCOLOR;
+ 
+ #ifdef CONFIG_BOOTX_TEXT

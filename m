@@ -1,67 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135249AbREACjH>; Mon, 30 Apr 2001 22:39:07 -0400
+	id <S135264AbREACl1>; Mon, 30 Apr 2001 22:41:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135264AbREACir>; Mon, 30 Apr 2001 22:38:47 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:19726 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S135249AbREACih>;
-	Mon, 30 Apr 2001 22:38:37 -0400
-Date: Mon, 30 Apr 2001 23:38:23 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
-        "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.4 sluggish under fork load
-In-Reply-To: <20010430195149.F19620@athlon.random>
-Message-ID: <Pine.LNX.4.21.0104302335490.19012-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135609AbREAClR>; Mon, 30 Apr 2001 22:41:17 -0400
+Received: from marine.sonic.net ([208.201.224.37]:7472 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S135264AbREACk7>;
+	Mon, 30 Apr 2001 22:40:59 -0400
+Message-ID: <20010430194009.A16921@sonic.net>
+Date: Mon, 30 Apr 2001 19:40:09 -0700
+From: David Hinds <dhinds@sonic.net>
+To: linux-kernel@vger.kernel.org
+Cc: Evan Montgomery-Recht <evanrecht@yahoo.com>
+Subject: Re: Cardbus conflicts...
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Apr 2001, Andrea Arcangeli wrote:
-> On Sun, Apr 29, 2001 at 10:26:57AM +0200, Peter Osterlund wrote:
+> exclude port 0x2f8-0x2ff
 
-> > -	p->counter = current->counter;
-> > -	current->counter = 0;
-> > +	p->counter = (current->counter + 1) >> 1;
-> > +	current->counter >>= 1;
-> > +	current->policy |= SCHED_YIELD;
-> >  	current->need_resched = 1;
-> 
-> please try to reproduce the bad behaviour with 2.4.4aa2. There's a bug
-> in the parent-timeslice patch in 2.4 that I fixed while backporting it
-> to 2.2aa and that I now forward ported the fix to 2.4aa. The fact
-> 2.4.4 gives the whole timeslice to the child just gives more light to
-> such bug.
+This exclusion is to block out the port range used by the IBM MWave
+DSP chip; this is your modem, not your sound card.  Whatever your
+sound problem is, I don't think it is related to this specific item.
 
-The fact that 2.4.4 gives the whole timeslice to the child
-is just bogus to begin with.
+I would recommend going to the linux-laptops site and checking out the
+pages devoted to the IBM TP 600E; it is likely that for a common model
+like this, people have put together detailed recipies for how to get
+sound, pcmcia, etc working.
 
-The problem people tried to solve was "make sure the kernel
-runs the child first after a fork", this has just about
-NOTHING to do with how the timeslice is distributed.
+As for your specific questions, there are several better ways of
+handling this sort of thing automatically.  If you build the PCMCIA
+drives with "PnP BIOS support" enabled, they will discover this and
+any other resource conflicts automatically.  I think this option is
+also available in the newest 2.4.X kernels.  PnP BIOS support is not
+enabled by default because there are compatibility problems on some
+systems.  In the longer term ACPI support should also be able to
+handle this sort of conflict detection but I don't think it is
+sufficiently mature at this stage.
 
-Now, since we are in a supposedly stable branch of the kernel,
-why mess with the timeslice distribution between parent and
-child?  The timeslice distribution that has worked very well
-for the last YEARS...
-
-I agree when people want to fix problems, but I really don't
-think 2.4 is the time to also "fix" non-problems.
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+-- Dave Hinds

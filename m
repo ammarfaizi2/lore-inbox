@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263007AbUCSPKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 10:10:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263010AbUCSPKQ
+	id S263018AbUCSPRd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 10:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263023AbUCSPRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 10:10:16 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19387 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263007AbUCSPKM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 10:10:12 -0500
-Message-ID: <405B0D44.9070902@pobox.com>
-Date: Fri, 19 Mar 2004 10:09:56 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark <mark@harddata.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH,RFT] latest libata (includes Silicon Image work)
-References: <4059EBB8.4010807@pobox.com> <200403181628.33558.mark@harddata.com>
-In-Reply-To: <200403181628.33558.mark@harddata.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Mar 2004 10:17:33 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:5005 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S263018AbUCSPRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 10:17:32 -0500
+Message-Id: <5.1.0.14.2.20040319155257.00ac0af8@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 19 Mar 2004 16:17:45 +0100
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: 2.6.xx - linux/firmware.h - missing include
+Cc: ranty@debian.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Seen: false
+X-ID: EwzOJ-ZCYeWRfOBEeVvr4NDaYNLUvM9ydW8RdLmLsB32O6E+TBP9cF
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark wrote:
-> On March 18, 2004 11:34 am, Jeff Garzik <jgarzik@pobox.com> wrote:
-> 
->>Attached is the latest libata patch against 2.6.x mainline.  Although
->>not 100% of content, most of this patch resolves around getting Silicon
->>Image into better shape.  As I mentioned in my last post, this patch
->>affects all libata users, so plenty of testing is requested.
->>
-> 
-> Jeff,
-> 
-> After applying this to and rebuilding arjanv newest redhat kernel 
-> (2.6.4-1.275), sd_mod doesn't load when at sata_sil is loaded. It did before 
-> I patched the kernel rpm.
-
-
-That's a configuration problem of some sort...  libata doesn't change 
-any of that.
-
-	Jeff
-
+The prototype for request_firmware uses a struct device parameter.
+This is only defined if linux/device.h is included.
+Fix is simple : include linux/device.h in linux/firmware.h
+(Yes, I know we can do the include in a driver, as per the
+  example in Documentation;however, the above obviates the need
+  for ugly ifdef's for common 2.4/2.6 code and has no downside)
+Manuel, can you implement if you agree ?
 
 

@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262487AbUCRKHO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 05:07:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbUCRKHO
+	id S262497AbUCRKLC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 05:11:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbUCRKLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 05:07:14 -0500
-Received: from math.ut.ee ([193.40.5.125]:55174 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S262487AbUCRKGl (ORCPT
+	Thu, 18 Mar 2004 05:11:01 -0500
+Received: from fw.osdl.org ([65.172.181.6]:17076 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262497AbUCRKK6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 05:06:41 -0500
-Date: Thu, 18 Mar 2004 12:06:38 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: linux-kernel@vger.kernel.org
-Subject: whiteheat USB serial compile failure on PPC (2.6)
-Message-ID: <Pine.GSO.4.44.0403181205080.15185-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 18 Mar 2004 05:10:58 -0500
+Date: Thu, 18 Mar 2004 02:10:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: drepper@redhat.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: sched_setaffinity usability
+Message-Id: <20040318021057.287f4f67.akpm@osdl.org>
+In-Reply-To: <20040318014517.3cd232c4.akpm@osdl.org>
+References: <40595842.5070708@redhat.com>
+	<20040318014517.3cd232c4.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Whiteheat USB serial driver doesn't compile on PPC in 2.6 (in fact,
-hasn't compiled fo some time):
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> +		if (find_next_bit(&u, nr_bits, 0) >= nr_bits)
 
-drivers/usb/serial/whiteheat.c: In function `firm_setup_port':
-drivers/usb/serial/whiteheat.c:1225: error: `CMSPAR' undeclared (first use in this function)
-drivers/usb/serial/whiteheat.c:1225: error: (Each undeclared identifier is reported only once
-drivers/usb/serial/whiteheat.c:1225: error: for each function it appears in.)
+Make that:
 
--- 
-Meelis Roos (mroos@linux.ee)
+> +		if (find_next_bit(&u, nr_bits, 0) < nr_bits)
 

@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266796AbTBCQJk>; Mon, 3 Feb 2003 11:09:40 -0500
+	id <S266761AbTBCQHf>; Mon, 3 Feb 2003 11:07:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266795AbTBCQJk>; Mon, 3 Feb 2003 11:09:40 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:6581 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S266796AbTBCQJj>;
-	Mon, 3 Feb 2003 11:09:39 -0500
-Date: Mon, 3 Feb 2003 17:19:10 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: John Bradford <john@grabjohn.com>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>, davem@redhat.com,
-       greearb@candelatech.com, linux-kernel@vger.kernel.org
-Subject: Re: problems achieving decent throughput with latency.
-Message-ID: <20030203161910.GA13371@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	John Bradford <john@grabjohn.com>,
-	Chris Friesen <cfriesen@nortelnetworks.com>, davem@redhat.com,
-	greearb@candelatech.com, linux-kernel@vger.kernel.org
-References: <3E3E8CAC.7010807@nortelnetworks.com> <200302031611.h13GBl9D019119@darkstar.example.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302031611.h13GBl9D019119@darkstar.example.net>
-User-Agent: Mutt/1.3.28i
+	id <S266765AbTBCQHf>; Mon, 3 Feb 2003 11:07:35 -0500
+Received: from ool-4351594a.dyn.optonline.net ([67.81.89.74]:28435 "EHLO
+	badula.org") by vger.kernel.org with ESMTP id <S266761AbTBCQHd>;
+	Mon, 3 Feb 2003 11:07:33 -0500
+Date: Mon, 3 Feb 2003 11:16:58 -0500
+Message-Id: <200302031616.h13GGwwm005678@buggy.badula.org>
+From: Ion Badulescu <ionut@badula.org>
+To: James Williams <fido@tcob1.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: 3Comm 3CR990-TX-97 NIC
+In-Reply-To: <3E3DF2A5.7060504@pobox.com>
+User-Agent: tin/1.5.12-20020427 ("Sugar") (UNIX) (Linux/2.4.20 (i586))
+X-Spam-Flag: NO
+X-Spam-Score: -1.9, 7 required, IN_REP_TO,QUOTED_EMAIL_TEXT,SIGNATURE_SHORT_DENSE,SPAM_PHRASE_01_02,USER_AGENT
+X-Spam-Report: ---- Start SpamAssassin results
+ 
+	-1.90 hits, 7 required;
+ 
+	* -0.8 -- Found a In-Reply-To header
+ 
+	* -0.5 -- Found a User-Agent header
+ 
+	*  0.5 -- BODY: Spam phrases score is 01 to 02 (low)
+ 
+	          [score: 1]
+ 
+	* -0.8 -- BODY: Contains what looks like a quoted email text
+ 
+	* -0.3 -- Short signature present (no empty lines)
+ 
+	---- End of SpamAssassin results
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 03, 2003 at 04:11:46PM +0000, John Bradford wrote:
-> > > TCP can only send into a pipe as fast as it can see the
-> > > ACKs coming back.  That is how TCP clocks its sending rate,
-> > > and latency thus affects that.
-> > 
-> > Wouldn't you just need larger windows?  The problem is latency, not 
-> > bandwidth.
+On Sun, 02 Feb 2003 23:40:05 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
 > 
-> Exactly - the original post says that no problems are experienced
-> using UDP, which backs that up.
+> There are two Linux drivers for it.  One is 3com's, a bit shoddy but Ion 
+> B. did a nice job of cleaning it up.  The other is David Dillow's; DD's 
+> driver looks really good, supports NAPI and all sorts of bells and whistles.
+> 
+> I'm currently waiting to see if DD's driver gets the stamp of approval 
+> from a certain legal department.  If that doesn't come through soon, the 
+> "backup plan" kicks into effect, and Ion's cleanup of 3com's driver gets 
+> merged.
 
-My TCP may be getting hazy but with latency, TCP may limit the amount of
-packets 'in flight'. I think this is called the 'cwnd', congestion window. I
-also seem to recall that this window is limited to the actually negotiated
-TCP window size.
+In the mean time, you can get my cleaned up version from
+<http://www.badula.org/3c990/>. The 2.5 patch might not apply anymore
+to the latest and greatest; let me know if that's indeed the case so
+I can generate a new one.
 
-But here I leave this discussion as I've swapped out the finer details of
-congestion windows to the Stevens books which other's have probably read
-more recently than I did.
+> Neither driver hooks into the 2.5.x CryptoAPI, AFAIK...
 
-Regards,
+Correct as far as the 3Com driver is concerned: it doesn't implement any
+crypto stuff, I have no docs for it, and no free driver (OpenBSD in
+particular) implements any of that stuff either.
 
-bert
+Ion
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
-http://netherlabs.nl                         Consulting
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

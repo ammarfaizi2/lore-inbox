@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbULCWDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262408AbULCWFB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbULCWDh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 17:03:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbULCWDf
+	id S262408AbULCWFB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 17:05:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbULCWEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 17:03:35 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:63371 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262406AbULCWBu (ORCPT
+	Fri, 3 Dec 2004 17:04:44 -0500
+Received: from smtp.istop.com ([66.11.167.126]:16272 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S262408AbULCWC5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 17:01:50 -0500
-Subject: [ANNOUNCE] December Release of LTP available
-To: linux-kernel@vger.kernel.org, ltp-list@lists.sf.net,
-       ltp-announce@lists.sf.net
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFD1A425D5.EF1E32C4-ON85256F5F.0078D558-86256F5F.0078FD7D@us.ibm.com>
-From: Marty Ridgeway <mridge@us.ibm.com>
-Date: Fri, 3 Dec 2004 16:01:48 -0600
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.5.3 HF2 (6.53IBM1)|October
- 29, 2004) at 12/03/2004 17:01:49
+	Fri, 3 Dec 2004 17:02:57 -0500
+From: Daniel Phillips <phillips@istop.com>
+To: Avi Kivity <avi@argo.co.il>
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+Date: Fri, 3 Dec 2004 17:07:45 -0500
+User-Agent: KMail/1.7
+Cc: Miklos Szeredi <miklos@szeredi.hu>, alan@lxorguk.ukuu.org.uk,
+       torvalds@osdl.org, hbryan@us.ibm.com, akpm@osdl.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       pavel@ucw.cz
+References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com> <E1CZFJP-0004uZ-00@dorka.pomaz.szeredi.hu> <41ACE816.50104@argo.co.il>
+In-Reply-To: <41ACE816.50104@argo.co.il>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412031707.46114.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Avi,
 
+On Tuesday 30 November 2004 16:37, Avi Kivity wrote:
+> The situation with userspace filesystems is:
+>
+>   some process allocates memory, blocking on kswapd as memory is full
+>   kswapd calls userspace filesystem to free memory
+>   userspace filesystem calls kernel, which allocates memory and blocks
+> on kswapd
+>   eventually all processes in the system block on kswapd
+>
+> I have observed (and fixed) this on a real system.
 
+What was your fix?
 
+Regards,
 
-LTP-20041203
-- Change to fix file creation error on certain filesystems.
-- gf15 and gf18 failed on both 32-bits and 64-bits,
-  Growfile used lseek and fstat to operate file. When file grows
-  beyond 4G,lseek and fstat would fail on 32-bits machine.
-- Added fs-bench by Hironobu SUZUKI and additional JFFS
-  testscript by G.BANU PRAKASH.
-- Added mongo filesystem test by namesys and additional testscript from
-G.BANU PRAKASH.
-- Applied patch from Jacky Malcles to allow test to run on IA64.
-- settimeofday01 fails on some platforms(ia64,41611   x86-64) occasionally.
-  The testcase did not consider the situation when
-CONFIG_TIME_INTERPOLATION is enabled.
-- Remove case from password query since the distros use both upper and
-lower case P/p.
-
-
-Linux Test Project
-Linux Technology Center
-IBM Corporation
-
-
-Internet E-Mail : mridge@us.ibm.com
-IBM, 11501 Burnet Rd, Austin, TX  78758
-Phone (512) 838-1356 - T/L 678-1356 - Bldg. 908/1C005
-Austin, TX.
-
+Daniel

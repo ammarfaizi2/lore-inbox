@@ -1,78 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVCUWy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVCUXLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262167AbVCUWy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 17:54:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbVCUWyF
+	id S262201AbVCUXLw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 18:11:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVCUXIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 17:54:05 -0500
-Received: from fire.osdl.org ([65.172.181.4]:44751 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262130AbVCUWxP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 17:53:15 -0500
-Date: Mon, 21 Mar 2005 14:53:01 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: covici@ccs.covici.com
-Cc: linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Dave Airlie <airlied@linux.ie>
-Subject: Re: X not working with Radeon 9200 under 2.6.11
-Message-Id: <20050321145301.3511c097.akpm@osdl.org>
-In-Reply-To: <16937.54786.986183.491118@ccs.covici.com>
-References: <16937.54786.986183.491118@ccs.covici.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 21 Mar 2005 18:08:47 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:64195
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262185AbVCUXD1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 18:03:27 -0500
+Date: Mon, 21 Mar 2005 15:02:05 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: hugh@veritas.com, akpm@osdl.org, nickpiggin@yahoo.com.au,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
+Message-Id: <20050321150205.4af39064.davem@davemloft.net>
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F03210DD4@scsmsx401.amr.corp.intel.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F03210DD4@scsmsx401.amr.corp.intel.com>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John covici <covici@ccs.covici.com> wrote:
->
-> Hi.  I Have a Radeon 9200c and ever since some time in the 2.6.9
-> series, I cannot get X to start using this card.  It dies in such a
-> way that there is no way to get the vga console out of that console
-> and chvt from another terminal just hangs and xinit cannot be
-> cancelled.
+On Mon, 21 Mar 2005 14:31:36 -0800
+"Luck, Tony" <tony.luck@intel.com> wrote:
 
-John, it would be useful if you could test 2.6.12-rc1-mm1, which has a few
-fixes in this area.
-
-Would it be correct to assume that you are not using either of the radeon
-fbdev drivers?
-
-And are you using the kernel's DRI drivers?
-
-Thanks.
-
-> This is the lspci for the agp card.
-> 0000:01:00.0 VGA compatible controller: ATI Technologies Inc RV280
-> [Radeon 9200 SE] (rev 01) (prog-if 00 [VGA])
->      Subsystem: PC Partner Limited: Unknown device 7c26
->      Flags: bus master, 66MHz, medium devsel, latency 64, IRQ 16
->      Memory at e8000000 (32-bit, prefetchable) [size=128M]
->      I/O ports at e000 [size=256]
->      Memory at fbe00000 (32-bit, non-prefetchable) [size=64K]
->      Expansion ROM at fbd00000 [disabled] [size=128K]
->      Capabilities: [58] AGP version 3.0
->      Capabilities: [50] Power Management version 2
+> Builds clean and boots on ia64.
 > 
-> 0000:01:00.1 Display controller: ATI Technologies Inc RV280 [Radeon
-> 9200 SE] (Secondary) (rev 01)
->      Subsystem: PC Partner Limited: Unknown device 7c27
->      Flags: bus master, 66MHz, medium devsel, latency 64
->      Memory at f0000000 (32-bit, prefetchable) [size=128M]
->      Memory at fbf00000 (32-bit, non-prefetchable) [size=64K]
->      Capabilities: [50] Power Management version 2
-> 
-> Any assistance would be appreciated.
-> 
-> -- 
-> Your life is like a penny -- how are you going to spend it?
-> 
->          John Covici
->          covici@ccs.covici.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> I haven't tried any hugetlb operations on it though.
+
+It works on ia64 because it doesn't actually do anything
+in flush_tlb_pgtables(), I bet.
+
+Hugh, I know the exact trigger case, it's unmapping a VMA
+right before the stack segment.  So the free_pgtables() call
+happens with this state:
+
+prev->vm_end    == 0x70186000
+next->vm_start  == 0xefab8000
+vma->vm_start   == 0x70186000
+vma->vm_end     == 0x70188000
+
+(so we're doing munmap(0x70186000, PAGE_SIZE), the sparc64
+ stack segment for 32-bit tasks grows down from 0xf0000000,
+ the bottom of it is at 0xefab8000 at this point in time)
+
+So the free_pgtables() call will be with:
+
+floor   == 0x70186000
+ceiling == 0xefab8000
+
+This should be fairly simple, so let's analyze exactly what
+happens:
+
+1) vma == the munmap() call's VMA
+   next == stack segment VMA, which sits right after "vma"
+   addr == 0x70186000 (base of munmap() area)
+
+2) VMA optimization loop runs:
+      next->vm_start is 0xefab8000 
+      vma->vm_end is 0x70188000
+      on sparc64 PMD_SIZE is 1UL << 23 or 0x800000
+      therefore vma->vm_end + (2 * PMD_SIZE) is 0x71188000
+      this is much less than 0xefab8000 so the loop terminates
+      immediately
+
+    Therefore, next is unchanged.
+
+3) free_pgd_range() is invoked with:
+    addr    == 0x70186000
+    end     == 0x70188000
+    floor   == 0x70186000
+    ceiling == 0xefab8000
+
+4) We mask addr with PMD_MASK (which is 0xffffffffff800000)
+   This sets addr to 0x70000000, which makes it less
+   than floor, therefore addr has PMD_SIZE added to it.
+   Now, addr is 0x70800000, this is the source of the
+   problems as this value determines the "start" argument
+   passed to flush_tlb_pgtables().  Note how it is larger
+   than "end".
+
+5) We also mask ceiling with PMD_MASK.
+   This sets ceiling to 0xef800000.
+   Now addr is less than or equal to ceiling - 1 so
+   we continue.
+
+6) start is set to addr, which as stated is 0x70800000,
+   the free_pud_range() loop is executed
+
+7) start is 0x70800000 and end is 0x70188000
+   and here we have the problem that start > end,
+   flush_tlb_pgtables() is called with the arguments
+   like this and we trigger the aforementioned BUG().
+
+This adjustment of addr relative to floor is very
+strange, it can advance "addr" (and thus "start")
+past the end of the VMA we are unmapping.
+
+In fact, it is miraculious that this free_pud_range()
+calling loop terminates properly!  Actually, it is
+no mystery, since the next PGD address is the same
+for both the original and adjusted value of "addr".
+So the loop terminates after the first iteration.
+
+Anyways, there's the full analysis, what do you make
+of this Hugh? :-)

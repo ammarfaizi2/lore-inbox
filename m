@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318925AbSG1IFH>; Sun, 28 Jul 2002 04:05:07 -0400
+	id <S318929AbSG1ILY>; Sun, 28 Jul 2002 04:11:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318929AbSG1IFH>; Sun, 28 Jul 2002 04:05:07 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:12463 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S318925AbSG1IFF>;
-	Sun, 28 Jul 2002 04:05:05 -0400
-Date: Sun, 28 Jul 2002 10:08:12 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Brad Hards <bhards@bigpond.net.au>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       linuxconsole-dev@lists.sourceforge.net
-Subject: Re: [cset] Add the EVIOCSABS ioctl for X people.
-Message-ID: <20020728100812.A12268@ucw.cz>
-References: <20020725083716.A20717@ucw.cz> <200207260047.20953.bhards@bigpond.net.au> <20020725170850.A24176@ucw.cz> <200207281732.53842.bhards@bigpond.net.au>
+	id <S318931AbSG1ILY>; Sun, 28 Jul 2002 04:11:24 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39690 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318929AbSG1ILX>; Sun, 28 Jul 2002 04:11:23 -0400
+Date: Sun, 28 Jul 2002 09:14:40 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Thomas Molina <tmolina@cox.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5 Problem Report Status for 2.5.29
+Message-ID: <20020728091440.A12389@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.44.0207272154080.5213-100000@dad.molina>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200207281732.53842.bhards@bigpond.net.au>; from bhards@bigpond.net.au on Sun, Jul 28, 2002 at 05:32:53PM +1000
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0207272154080.5213-100000@dad.molina>; from tmolina@cox.net on Sat, Jul 27, 2002 at 10:03:23PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 28, 2002 at 05:32:53PM +1000, Brad Hards wrote:
+On Sat, Jul 27, 2002 at 10:03:23PM -0500, Thomas Molina wrote:
+>    Oops w/PCMCIA modem & 8250_cs       open         2.5.28
 
-> On Fri, 26 Jul 2002 01:08, Vojtech Pavlik wrote:
-> > On Fri, Jul 26, 2002 at 12:47:20AM +1000, Brad Hards wrote:
-> > No problem. Send me a patch that does it for both the EVIOSGABS and
-> > EVIOCSABS and I'll take it. You can either just do it in evdev.c, or
-> > change every driver to use the struct.
-> I am just doing the evdev.c (ie the ABI) at this stage. I may look at the
-> internal representation later.
-> Patch against 2.5.29. Looks OK?
+Actually closed; the "update" patch I sent to lkml fixes it, and that's
+also in 2.5.29.
 
-Yes.
+As far as 2.5.29 goes, there is one outstanding serial problem - a
+missing include of <asm/io.h> into 8250_pci.c (oddly my builds don't
+find it.)  Oh, and 2.5.29 just has other problems elsewhere which
+them cause the serial driver (and I'd imagine other subsystems) to
+oops.
 
-> > > I could live with curr, min and max instead of *_value, but it
-> > > would be nicer if it was a bit more descriptive.
-> >
-> > You can make it current, minimum, and maximum, if you wish.  I'm a
-> > minimalist when it comes to naming, and I don't really think "_value" is
-> > bringing much information here. All of them are values after all.
-> "current" is a bad idea. I used curr_value.
-
-How about just "value" then?
-
-> Also, it is nice if you can retain the attributions (so I can get some
-> ego satisfaction, and so people know who to blame). This is generally
-> done by maintainers - any chance you can do this too?
-
-I'm stil fighting with BK to use something else than my e-mail address
-in the changesets. So far I've always put the author of the patch into
-the BK comment at least, but still haven't found how to change the cset
-author.
-
-If you find out, please tell me. Or anybody else.
-
-Thanks.
+If someone knows of other serial problems, bring 'em on down. 8)
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,67 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280037AbRKSRCy>; Mon, 19 Nov 2001 12:02:54 -0500
+	id <S280153AbRKSRHe>; Mon, 19 Nov 2001 12:07:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280051AbRKSRCo>; Mon, 19 Nov 2001 12:02:44 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32776 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280037AbRKSRCi>; Mon, 19 Nov 2001 12:02:38 -0500
-Date: Mon, 19 Nov 2001 08:57:32 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-        Andrea Arcangeli <andrea@suse.de>, <ehrhardt@mathematik.uni-ulm.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: VM-related Oops: 2.4.15pre1 
-In-Reply-To: <588.1006159468@redhat.com>
-Message-ID: <Pine.LNX.4.33.0111190839520.8103-100000@penguin.transmeta.com>
+	id <S280251AbRKSRHY>; Mon, 19 Nov 2001 12:07:24 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:28384 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S280191AbRKSRHN>;
+	Mon, 19 Nov 2001 12:07:13 -0500
+Importance: Normal
+Subject: Re: [patch] scheduler cache affinity improvement in 2.4 kernels by Ingo
+ Molnar
+To: "Partha Narayanan" <partha@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF81E1FC57.F55302B5-ON85256B09.005DA446@pok.ibm.com>
+From: "Shailabh Nagar" <nagar@us.ibm.com>
+Date: Mon, 19 Nov 2001 12:06:52 -0500
+X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 11/19/2001 12:06:54 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 19 Nov 2001, David Woodhouse wrote:
->
-> Is it worth making put_unaligned and get_unaligned on x86 avoid this by
-> loading/storing the two halves of the required datum separately, then?
+Hi Partha,
 
-No, modern CPU's do it well enough - starting from the Pentium, Intel does
-all locking internally in the caches, and depends on the cache coherency
-protocol to show the atomicity to the rest of the world. Only an i486 will
-actually show the locked cycles on the bus, if I remember correctly.
+Sorry to see the "shoot-the-messenger" replies to your posting. I've yet to
+understand why lmbench is relevant
+in an SMP setting.....
 
-In fact, I think the CPU will do a unaligned non-cache-crossing operation
-as fast as a aligned store. The cacheline-crossing case is noticeably
-slower, at least on a PPro (the Pentium had some optimizations where it
-would pair the two cacheline accesses, and could do two cacheline accesses
-in one cycle - so the cacheline crosser could execute at full speed, but
-it would hurt pairing with _other_ memory instructions).
+Shailabh Nagar
+Enterprise Linux Group, IBM TJ Watson Research Center
+(914) 945 2851, T/L 862 2851
 
-Testing shows:
- - PPro core:
-	single-cycle stores, whether aligned or not, within a
-	cacheline.
 
-	8 cycles for cacheline crossing stores
+Partha Narayanan/Austin/IBM@IBMUS@vger.kernel.org on 11/17/2001 11:58:05 AM
 
- - Athlon:
-	single cycle for unaligned, whether cache-line croesser or not.
+Sent by:  linux-kernel-owner@vger.kernel.org
 
-(And as mentioned, I think Pentiums act the same as athlons).
 
-In short, unaligned integer ops are not affected very much at all. They do
-take more resources internally (ie they use two write-ports to the cache
-when cache-crossing), so even when they run at the "same" speed, it pairs
-etc better if aligned, but x86 is very very good at unaligned handling.
+To:   linux-kernel@vger.kernel.org
+cc:
+Subject:  [patch] scheduler cache affinity improvement in 2.4 kernels by
+      Ingo Molnar
 
-One of the advantages of a legacy of crap: x86 never had the choice to be
-designed for "the good case". In order to run fast, an x86 has to run fast
-even on bad code.
 
-Because in real life, it doesn't matter how well you do on spec benchmarks
-with good compilers.
 
-		Linus
+Folks,
+
+
+The above patch for scheduler cache affinity improvement in 2.4 kernels by
+Ingo Molnar was applied to 2.4.14 kernel;
+a run of Volano LoopBack BenchMark on a Netfinity 8500 R 1MB 700 MHz PIII
+1MB-L2 cache and 1GB memory support produced
+the following results:
+
+     The UniProcessor throughput  was reduced by 40%.
+     The 4-way throughput showed a very slight degradation of 1%.
+     The 8-way throughput showed an improvemnet of 10%.
+
+
+I do not subscribe to lkml and hence please address any future
+correspondence on this topic to partha@us.ibm.,com.
+
+Thanks,
+Partha
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
 

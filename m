@@ -1,63 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269967AbUJNEod@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269970AbUJNEwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269967AbUJNEod (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 00:44:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269970AbUJNEoc
+	id S269970AbUJNEwj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 00:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269971AbUJNEwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 00:44:32 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:24812 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S269967AbUJNEoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 00:44:04 -0400
-Date: Thu, 14 Oct 2004 13:49:40 +0900
-From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: bug in 2.6.9-rc4-mm1 ia64/mm/init.c
-In-reply-to: <416CEF0E.1060406@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: davidm@hpl.hp.com, akepner@sgi.com, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, jbarnes@sgi.com
-Message-id: <416E0564.9030002@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.3)
- Gecko/20040910
-References: <Pine.LNX.4.33.0410121705510.31839-100000@localhost.localdomain>
- <16748.57721.66330.638048@napali.hpl.hp.com> <416CEADA.2060207@jp.fujitsu.com>
- <16748.60002.875945.950324@napali.hpl.hp.com> <416CEF0E.1060406@jp.fujitsu.com>
+	Thu, 14 Oct 2004 00:52:39 -0400
+Received: from fw.osdl.org ([65.172.181.6]:1427 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269970AbUJNEwh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 00:52:37 -0400
+Date: Wed, 13 Oct 2004 21:50:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc4-mm1
+Message-Id: <20041013215049.7ccd73ae.akpm@osdl.org>
+In-Reply-To: <416E03CD.8080701@jp.fujitsu.com>
+References: <20041011032502.299dc88d.akpm@osdl.org>
+	<416E03CD.8080701@jp.fujitsu.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew
+Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+>
+> Hi, Andrew
+> 
+> I need this patch for compiling 2.6.9-rc4-mm1 on my ia64 box (tiger4).
+> I don't know this patch is enough good or not.
 
-this patch removes problematic GRANULEROUNDDOWN/GRANULEROUNDUP lines
-from 2.6.9-rc4-mm1, arch/ia64m/mm/init.c.
+Well I can tell just from looking at it that the patch is
+whitespace-mangled.  It seems that a quarter of the patches I get nowadays
+are unusable due to this.  What's going on out there?
 
-I think aligning memmap patch should be removed now,
-and be discussed when it really looks necessary.
-
-Thanks.
-
-Kame <kamezawa.hiroyu@jp.fujitsu.com>
-
----
-
-  linux-2.6.9-rc4-mm1-kamezawa/arch/ia64/mm/init.c |    2 --
-  1 files changed, 2 deletions(-)
-
-diff -puN arch/ia64/mm/init.c~ia64_bugfix arch/ia64/mm/init.c
---- linux-2.6.9-rc4-mm1/arch/ia64/mm/init.c~ia64_bugfix	2004-10-14 07:26:04.283256397 +0900
-+++ linux-2.6.9-rc4-mm1-kamezawa/arch/ia64/mm/init.c	2004-10-14 07:26:23.644584285 +0900
-@@ -410,8 +410,6 @@ virtual_memmap_init (u64 start, u64 end,
-  	struct page *map_start, *map_end;
-
-  	args = (struct memmap_init_callback_data *) arg;
--	start = GRANULEROUNDDOWN(start);
--	end = GRANULEROUNDUP(end);
-  	map_start = vmem_map + (__pa(start) >> PAGE_SHIFT);
-  	map_end   = vmem_map + (__pa(end) >> PAGE_SHIFT);
-
-
-_
+Please resend the patch, and also your full .config.  Thanks.
 

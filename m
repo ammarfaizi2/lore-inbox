@@ -1,116 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269893AbUJMWwY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269897AbUJMWzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269893AbUJMWwY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 18:52:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269897AbUJMWwY
+	id S269897AbUJMWzH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 18:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269898AbUJMWzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 18:52:24 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:5760 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S269893AbUJMWwS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 18:52:18 -0400
-Date: Wed, 13 Oct 2004 18:51:59 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.6.8 Hates DOS partitions
-In-Reply-To: <20041013213519.GA3379@pclin040.win.tue.nl>
-Message-ID: <Pine.LNX.4.61.0410131833370.12624@chaos.analogic.com>
-References: <Pine.LNX.4.61.0410131329110.3818@chaos.analogic.com>
- <20041013213519.GA3379@pclin040.win.tue.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 13 Oct 2004 18:55:07 -0400
+Received: from fw.osdl.org ([65.172.181.6]:10953 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269897AbUJMWzD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 18:55:03 -0400
+Subject: Re: Announcing Binary Compatibility/Testing
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <416DAEB7.4050108@pobox.com>
+References: <1097705813.6077.52.camel@wookie-zd7>
+	 <416DAEB7.4050108@pobox.com>
+Content-Type: text/plain
+Organization: Open Source Development Lab, Inc.
+Date: Wed, 13 Oct 2004 15:55:09 -0700
+Message-Id: <1097708109.6077.61.camel@wookie-zd7>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Oct 2004, Andries Brouwer wrote:
+On Wed, 2004-10-13 at 18:39 -0400, Jeff Garzik wrote:
+> Timothy D. Witham wrote:
+> > Announcing Binary Compatibility/Testing 
+> [...]
+> > Let the flaming start. :-)
+> 
+> 
+> Userland ABI compatibility has always been a strongly held value in 
+> Linux, I don't think we would flame any efforts to support that...
+> 
+   And hence the smile. 
 
-> On Wed, Oct 13, 2004 at 01:31:34PM -0400, Richard B. Johnson wrote:
->
->> Only the DOS partitions and the swap are used in this new configuration.
->> This is a new "Fedora Linux 2" installation on a completely
->> different IDE hard disk, in which I have to enable boot disks in
->> the BIOS to boot the new system.
->>
->> Immediately after installing the new system I reverted (in the BIOS)
->> to the original to make sure that I was still able to boot the old
->> system and the DOS partition. Everything was fine.
->>
->> Then I installed linux-2.6.8 after building a new kernel with
->> the old ".config" file used as `make oldconfig`. Everything was
->> fine after that, also.
->>
->> I have now run for about a week and I can't boot the DOS partition
->> anymore!
->>
->> I can copy everything  from C: and D: from within Linux
->> and then re-do the DOS partitions, BUT.... bad stuff
->> will happen again unless the cause is found.
->
-> Well, if you do and the same thing happens, we know that there is something
-> reproducible here. That is always good to know. It might be that you did
-> something a week ago and forgot all about it and now have a strange bug.
->
-> If this is reproducible, then there are lots of possible explanations.
->
-> Have you considered the numbering of the disks? You changed things in
-> the BIOS. Did the Linux SCSI disk numbering remain the same?
->
-> Andries
->
-
-I just had to reinstall the "Fedora Linux 2" release from scratch the
-second time. What it does is, even though I told it to leave my
-SCSI disks alone, and even though I bought a new ATA Disk just for
-it, and even though I carefully told the installation program to
-use ONLY /dev/hda... Guess what? It installed a piece of GRUB
-on my first SCSI, /dev/sda, where the LILO boot-loader for DOS
-and linux-2.4.26 exists! It looks like it put it in a partition
-table!
-
-So, every time I install a new Linux version, GRUB writes something
-else there. Eventually it probably gets big enough to make the DOS D: 
-partition go away, and soon DOS drive C: becomes unbootable. I can't
-find any other reason.
-
-The GRUB configuraton file on a pristine install does not
-seem to access /dev/sda, but it does...
-
-# grub.conf generated by anaconda
-#
-# Note that you do not have to rerun grub after making changes to this file
-# NOTICE:  You do not have a /boot partition.  This means that
-#          all kernel and initrd paths are relative to /, eg.
-#          root (hd0,0)
-#          kernel /boot/vmlinuz-version ro root=/dev/hda1
-#          initrd /boot/initrd-version.img
-#boot=/dev/hda
-default=0
-timeout=10
-splashimage=(hd0,0)/boot/grub/splash.xpm.gz
-title Fedora Core (2.6.5-1.358)
- 	root (hd0,0)
- 	kernel /boot/vmlinuz-2.6.5-1.358 ro root=LABEL=/ rhgb quiet
- 	initrd /boot/initrd-2.6.5-1.358.img
-title Other
- 	rootnoverify (hd1,0)
- 	chainloader +1
-
-
-I just got this installed again and configured sendmail to receive
-mail when I got your message. I now have to configure a printer
-and install a non-kerberos versions of ftp, telnet, and rlogin
-before I can go home. The ones supplied with this distribution are
-incompatible with my old Sun Workstations and people use those
-to communicate with this machine.
-
-This is the second time I've had to reinstall everything from
-scratch in the past two weeks and I can tell you that there is
-nothing "free" about free software.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.5-1.358 on an i686 machine (5537.79 BogoMips).
-             Note 96.31% of all statistics are fiction.
+> 	Jeff
+> 
+-- 
+Timothy D. Witham - Chief Technology Officer - wookie@osdl.org
+Open Source Development Lab Inc - A non-profit corporation
+12725 SW Millikan Way - Suite 400 - Beaverton OR, 97005
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
 

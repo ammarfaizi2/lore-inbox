@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311871AbSD1RfM>; Sun, 28 Apr 2002 13:35:12 -0400
+	id <S311884AbSD1RlL>; Sun, 28 Apr 2002 13:41:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311884AbSD1RfL>; Sun, 28 Apr 2002 13:35:11 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:55534 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S311871AbSD1RfK>;
-	Sun, 28 Apr 2002 13:35:10 -0400
-Message-ID: <3CCC32B5.1DF5EA5A@mvista.com>
-Date: Sun, 28 Apr 2002 10:34:45 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Why HZ on i386 is 100 ?
-In-Reply-To: <E171kjK-0003oh-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S311898AbSD1RlK>; Sun, 28 Apr 2002 13:41:10 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:31400 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S311884AbSD1RlK>; Sun, 28 Apr 2002 13:41:10 -0400
+Date: Sun, 28 Apr 2002 11:40:56 -0600
+Message-Id: <200204281740.g3SHeuw25285@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Larry McVoy <lm@bitmover.com>, Daniel Phillips <phillips@bonn-fries.net>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+In-Reply-To: <Pine.LNX.4.21.0204272141210.23113-100000@serv>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Roman Zippel writes:
+> Hi,
 > 
-> > so, what?  We will have a timer interrupt prior to the slice end, and
-> > will have to make this decision all over again.  However, the real rub
+> On Sat, 27 Apr 2002, Richard Gooch wrote:
 > 
-> Only on unusual occasions.
+> > I've added two subsections to the FAQ about this, which I hope will
+> > avoid some future flamewars:
+> > http://www.tux.org/lkml/#s1-21
 > 
-> > is that we have to keep track of elapsed time and account for that (i.e.
-> > shorten the remaining slice) not only in the timer interrupt, but each
-> 
-> We do anyway
+> You should fix the first paragraph, read
 
-Yes, but now we do all this in the timer tick, not in schedule().  This
-occures much less often.  
-> 
-> Alan
+You should learn to not say "you should" but instead "I suggest".
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+> http://www.gnu.org/philosophy/free-sw.html if you don't know anymore what
+> free software is.
+
+OK, I'll add this link, but I'd feel more comfortable adding this if
+there was a URL I could quote for the opposing view, and hence be more
+balanced. But I guess no-one has bothered to write a manifesto. If
+someone has or does, let me know.
+
+The purpose of the FAQ entry isn't to support a particular view, but
+to serve as a "State of the Community" notice.
+
+> "at no charge" is questionable, Larry wants no money in some cases,
+> but he wants log entries, so please just link to the license ("bk
+> help bkl" is useless, if one just to know the licence) and advise
+> the user to carefully read it, before using bk.
+
+Adding a URL is good. Fortunately, some other people have sent me the
+URL, so I can include that as well now.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

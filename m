@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271320AbTGQBsh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 21:48:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271322AbTGQBsh
+	id S271328AbTGQBza (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 21:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271329AbTGQBza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 21:48:37 -0400
-Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:13440 "EHLO
-	finwe.eu.org") by vger.kernel.org with ESMTP id S271320AbTGQBsg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 21:48:36 -0400
-Date: Thu, 17 Jul 2003 04:03:24 +0200
-From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: vojtech@suse.cz, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
-       davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: PS2 mouse going nuts during cdparanoia session.
-Message-ID: <20030717020324.GA1685@finwe.eu.org>
-Mail-Followup-To: Mikael Pettersson <mikpe@csd.uu.se>,
-	vojtech@suse.cz, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
-	davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
-References: <200307162343.h6GNh5iu016584@harpo.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 16 Jul 2003 21:55:30 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:17298
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S271328AbTGQBz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 21:55:29 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] O6.1int
+Date: Thu, 17 Jul 2003 12:13:02 +1000
+User-Agent: KMail/1.5.2
+Cc: Andrew Morton <akpm@osdl.org>, Wade <neroz@ii.net>,
+       Eugene Teo <eugene.teo@eugeneteo.net>, Wiktor Wodecki <wodecki@gmx.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200307162343.h6GNh5iu016584@harpo.it.uu.se>
-Organization: Kreatorzy Kreacji Bialej
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307171213.02643.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
+The bug in the O6int patch probably wasn't responsible for WIktor's problem 
+actually. It shouldn't manifest for a very long time. Anyway here is the fix 
+and a couple of minor cleanups.
 
-> >This is basically because the check for lost bytes wasn't present in
-> >2.4. Now that it is there, it works well with real lost bytes, but will
-> >fire also in case when the mouse interrupt was delayed for more than
-> >half a second, or if indeed a mouse interrupt gets lost. The 2.5 kernel
-> >by default programs the mouse to high speed reporting (up to 200 updates
-> >per second). This may, possibly make the problem show up easier.
-> This was interesting: 2.5 programs the mouse differently than 2.4.
-> I've been having ps2 mouse problems with the 2.5 input layer,
-> including having to move the mouse much further for a given
-> cursor movement, and a general jerky/unstable feeling of the mouse.
+--- linux-2.6.0-test1-mm1/kernel/sched.c	2003-07-17 11:24:54.000000000 +1000
++++ linux-2.6.0-testck1/kernel/sched.c	2003-07-17 11:59:01.000000000 +1000
+@@ -78,7 +78,7 @@
+ #define STARVATION_LIMIT	(10*HZ)
+ #define SLEEP_BUFFER		(HZ/100)
+ #define NODE_THRESHOLD		125
+-#define MAX_BONUS		(40 * PRIO_BONUS_RATIO / 100)
++#define MAX_BONUS		(MAX_USER_PRIO * PRIO_BONUS_RATIO / 100)
+ 
+ /*
+  * If a task is 'interactive' then we reinsert it in the active
+@@ -390,8 +390,6 @@ static inline void activate_task(task_t 
+ 	long sleep_time = jiffies - p->last_run - 1;
+ 
+ 	if (sleep_time > 0) {
+-		unsigned long runtime = jiffies - p->avg_start;
+-
+ 		/*
+ 		 * Tasks that sleep a long time are categorised as idle and
+ 		 * will get just under interactive status with a small runtime
+@@ -402,6 +400,11 @@ static inline void activate_task(task_t 
+ 			p->sleep_avg = MIN_SLEEP_AVG * (MAX_BONUS - INTERACTIVE_DELTA - 2) /
+ 				MAX_BONUS;
+ 		} else {
++			unsigned long runtime = jiffies - p->avg_start;
++
++			if (runtime > MAX_SLEEP_AVG)
++				runtime = MAX_SLEEP_AVG;
++
+ 			/*
+ 			 * This code gives a bonus to interactive tasks.
+ 			 *
 
-Strange. Here I've got problems with my mouse being actually 'to fast'
-(when working with X-Window; I had to slow it down about 2 times via
-xset to be able to work 'normally'; Actually -since I could not find
-any related bugreports or complains - I thought it was something with 
-how my version of X works with new layer) 
-
-> 2.4's pc_keyb.c has (disabled by default) init code which puts the
-> mouse in 100 samples/s and 2:1 scaling, whereas 2.5 puts it into
-> 200 samples/s and 1:1 scaling. So I hacked psmouse-base.c to mimic
-> 2.4, and VOILA! now my mouse feels A LOT better.
-
-And here it goes even faster than before. 
-Live is indeed full of suprises :)
-
-[cut]
-
-jk
-
--- 
-Jacek Kawa  

@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266406AbTAPLbu>; Thu, 16 Jan 2003 06:31:50 -0500
+	id <S266540AbTAPLYr>; Thu, 16 Jan 2003 06:24:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266478AbTAPLbu>; Thu, 16 Jan 2003 06:31:50 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:59801 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266406AbTAPLbt>;
-	Thu, 16 Jan 2003 06:31:49 -0500
-Date: Thu, 16 Jan 2003 11:38:25 +0000
+	id <S266560AbTAPLYr>; Thu, 16 Jan 2003 06:24:47 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:56473 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S266540AbTAPLYq>;
+	Thu, 16 Jan 2003 06:24:46 -0500
+Date: Thu, 16 Jan 2003 11:30:41 +0000
 From: Dave Jones <davej@codemonkey.org.uk>
-To: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
+To: "Joshua M. Kwan" <joshk@mspencer.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: any brand recomendation for a linux laptop ?
-Message-ID: <20030116113825.GB21239@codemonkey.org.uk>
+Subject: Re: [2.5] X losing keyboard
+Message-ID: <20030116113041.GA21239@codemonkey.org.uk>
 Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Nicolas Turro <Nicolas.Turro@sophia.inria.fr>,
-	linux-kernel@vger.kernel.org
-References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>
+	"Joshua M. Kwan" <joshk@mspencer.net>, linux-kernel@vger.kernel.org
+References: <20030116042853.GA1636@fuuma>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>
+In-Reply-To: <20030116042853.GA1636@fuuma>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 16, 2003 at 11:00:45AM +0100, Nicolas Turro wrote:
- > 
- > Hi, 
- > I am software engineer at a french research institute, in charge of the linux 
- > support on about 600 computers. I am looking for laptops whith linux
- > support/certification. I couln't find any recent laptop model on your
- > certification page. Would you recomend me any brand of computer ?
- > We curently buy Compaq Evos laptops, but enabling linux on those laptops
- > is terrible :
- > - power management seems to be ACPI only (which linux barely supports)
- > - sound is hard or impossible to setup correctly.
+On Wed, Jan 15, 2003 at 08:28:53PM -0800, Joshua M. Kwan wrote:
+ > X loses the keyboard after switching to a TTY in 2.5.58-dj1-bk and then 
+ > back to X. This is 100% reproducible. Is this a known bug?
 
-I have an Evo 1015v, which is a bit of a pain to get working.
-You need a very recent kernel just to be able to boot the thing, or
-it'll lock up during hardware detection. Installer kernels typically
-need to be booted with 'nomce', or probing causes a machine check.
-The ATi Xserver locks up with a pretty display of garbage, (use
-the vesa driver). Sound is currently not working afaik.
-Power management: ACPI worked on it. Up until recently. Latest
-2.5 seems to lock up very early in the boot.
-Native Athlon Powernow support for cpufreq I'm working on, and am
-making progress. IDE is a bit hit and miss. It works, but it's
-no screamer in the performance dept. (Likely because no-one has
-the relevant info from ATi on their south bridge).
-AGP support is also lacking due to missing docs. DRI support
-for that onboard Radeon mobility is afaik also missing.
-Vesafb works.
+I've been meaning to investigate - for me quitting X causes the machine
+to just die completely. On two of my test boxes. I'm suspecting that
+may be frame buffer related however.
+There shouldn't be any patches in my tree to the input stuff any more,
+so I'm a little puzzled. There are some console bits that I should 
+probably just drop though.
 
-So.. it's not that bad when you know the pitfalls, and it gets a good
-3hrs or so on battery. (Which is pretty good for a 1300MHz CPU & large
-display).
+ > Also, I get a lot of MTRR 1 and MTRR 2 not used notices after I quit X. 
+ > But the performance seems the same either way (X performance compared 
+ > between 2.4 and 2.5 kernels,) so is this a false positive?
 
-The key to why this one was such a pain was very likely the
-"Designed for Windows XP" logo stuck to it.
+Yep, I spotted those too. They only started appearing recently,
+not sure what the meaning of them is.
 
 		Dave
 

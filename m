@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261541AbSJMPuP>; Sun, 13 Oct 2002 11:50:15 -0400
+	id <S261540AbSJMQTs>; Sun, 13 Oct 2002 12:19:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261542AbSJMPuO>; Sun, 13 Oct 2002 11:50:14 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:62732 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S261541AbSJMPuO>; Sun, 13 Oct 2002 11:50:14 -0400
-Date: Sun, 13 Oct 2002 16:56:01 +0100
-From: John Levon <levon@movementarian.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: jcdutton@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: kernel api for application profiling
-Message-ID: <20021013155601.GB89058@compsoc.man.ac.uk>
-References: <200210131328.PAA14675@harpo.it.uu.se>
+	id <S261542AbSJMQTs>; Sun, 13 Oct 2002 12:19:48 -0400
+Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:23534 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S261540AbSJMQTr>; Sun, 13 Oct 2002 12:19:47 -0400
+Subject: Re: Linux v2.5.42
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Brian Jackson <brian-kernel-list@mdrx.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       evms-devel@lists.sourceforge.net
+In-Reply-To: <20021013161151.29293.qmail@escalade.vistahp.com>
+References: <F87rkrlMjzmfv2NkkSD000144a9@hotmail.com>
+	<3DA969F0.1060109@metaparadigm.com> <20021013144926.B16668@infradead.org>
+	<3DA98E48.9000001@metaparadigm.com> <20021013163551.A18184@infradead.org> 
+	<20021013161151.29293.qmail@escalade.vistahp.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-bqx0koyHj/jLrKdlJtBp"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 13 Oct 2002 18:26:02 +0200
+Message-Id: <1034526363.2989.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210131328.PAA14675@harpo.it.uu.se>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 13, 2002 at 03:28:44PM +0200, Mikael Pettersson wrote:
 
-> And before people ask me: perfctr is not yet in official kernels,
-> I'm working on a cleaned up version for 2.5 submission RSN,
+--=-bqx0koyHj/jLrKdlJtBp
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-This is going to clash head-on with oprofile. However, the two systems
-are both useful in their own rights: oprofile isn't useful for
-interstitial timings as described above, whereas perfctr isn't really
-designed for system profiling.
+On Sun, 2002-10-13 at 18:11, Brian Jackson wrote:
 
-So I suspect the simplest solution would be to make the config options
-for them exclusive. Comments ?
+> p.s. Maybe you could keep your replies to constructive criticism, instead=
+ of=20
+> just dogging EVMS. Some people actually do want linux to improve.=20
 
-regards
-john
+In case you missed is: EVMS is not the only way you can do volume
+management in 2.5... and Christoph is pointing out valid design flaws
+(and serious code bugs) in EVMS. Code bugs you can fix after merge;
+design flaws should at least be discussed before merging in my opinion.
 
--- 
-"That's just kitten-eating wrong."
-	- Richard Henderson
+
+--=-bqx0koyHj/jLrKdlJtBp
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9qZ6axULwo51rQBIRAtqsAKCo1h2wfj14WRLyfagb1zraVjOkKwCeMHE/
+gVve+8IpwsHid00TxsFbWpo=
+=Pz+5
+-----END PGP SIGNATURE-----
+
+--=-bqx0koyHj/jLrKdlJtBp--
+

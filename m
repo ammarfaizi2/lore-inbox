@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273333AbRI3MQ3>; Sun, 30 Sep 2001 08:16:29 -0400
+	id <S273358AbRI3MZt>; Sun, 30 Sep 2001 08:25:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273345AbRI3MQU>; Sun, 30 Sep 2001 08:16:20 -0400
-Received: from colorfullife.com ([216.156.138.34]:19979 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S273333AbRI3MQL>;
-	Sun, 30 Sep 2001 08:16:11 -0400
-Message-ID: <3BB70D24.8C4367DC@colorfullife.com>
-Date: Sun, 30 Sep 2001 14:16:36 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Oliver Seemann <oseemann@cs.tu-berlin.de>, linux-kernel@vger.kernel.org
-Subject: Re: rtl8139 nic dies with load (2.4.10, kt266)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S273361AbRI3MZk>; Sun, 30 Sep 2001 08:25:40 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:32999 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S273349AbRI3MZZ>; Sun, 30 Sep 2001 08:25:25 -0400
+Date: Sun, 30 Sep 2001 06:25:33 -0600
+Message-Id: <200109301225.f8UCPXl16936@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Kenneth Johansson <ken@canit.se>, <mingo@elte.hu>,
+        "Randy.Dunlap" <rddunlap@osdlab.org>,
+        Andreas Dilger <adilger@turbolabs.com>, <linux-kernel@vger.kernel.org>,
+        <linux-net@vger.kernel.org>, <netdev@oss.sgi.com>
+Subject: Re: [patch] netconsole-2.4.10-B1
+In-Reply-To: <Pine.LNX.4.33L.0109300448210.19147-100000@imladris.rielhome.conectiva>
+In-Reply-To: <3BB693AC.6E2DB9F4@canit.se>
+	<Pine.LNX.4.33L.0109300448210.19147-100000@imladris.rielhome.conectiva>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> no matter if ftp or smb, when transferring files over eth0 to a win2k
-> pc (3com nic), after some seconds or mbytes transfer, suddenly all
-> network activity on eth0 dies. the adsl connection over eth1 remains
-> alive.
+Rik van Riel writes:
+> Owww crap.  The majority of web traffic is _from_ the
+> server _to_ the client. Same for ftp, realaudio, etc...
+> 
+> In fact, usually the server is the _remote_ machine and
+> the client is the _local_ machine. Anybody who believes
+> in having the client remote and the server local should
+> be shipped off to whereever the server is ;)
 
-Could you enable debugging in the 8139too driver and send us the dmesg
-log?
+Let's see, with X, the server is local (at least, it's local to where
+I've placed my ass) and the client is remote.
 
-Around line 170 in linux/drivers/net/8139too.c
-replace
-	#undef RTL8139_DEBUG
-with
-	#define RTL8139_DEBUG	1
+I usually think of "server" as the box that's running all the time,
+providing a service to multiple clients. In this case, the netconsole
+server should always be running, accepting log messages for
+storage. The clients (which are transitory, otherwise netconsole
+wouldn't be needed:-), initiate work for the server to do.
 
-Recompile, reboot, load eth0 until it locks up, and send us the dmesg
-output.
+Face it, Ingo's use of "client" and "server" is contrary to accepted
+usage. You can't finesse around it.
 
---
-	Manfred
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

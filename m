@@ -1,101 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270721AbTGUUgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 16:36:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270696AbTGUUgQ
+	id S270725AbTGUUm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 16:42:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270726AbTGUUm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 16:36:16 -0400
-Received: from nouse194035.ris.at ([212.52.194.36]:18899 "EHLO
-	mail.gibraltar.at") by vger.kernel.org with ESMTP id S270721AbTGUUfy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 16:35:54 -0400
-Message-ID: <3F1C52B7.3040308@gibraltar.at>
-Date: Mon, 21 Jul 2003 22:53:11 +0200
-From: Rene Mayrhofer <rene.mayrhofer@gibraltar.at>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.3.1-3 StumbleUpon/1.73
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: pivot_root seems to be broken in 2.4.21-ac4
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jul 2003 16:42:56 -0400
+Received: from mailf.telia.com ([194.22.194.25]:7679 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id S270725AbTGUUmz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 16:42:55 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+Subject: Re: driver error in mm2 compilation
+From: Christian Axelsson <smiler@lanil.mine.nu>
+To: Pedro Ribeiro <deadheart@netcabo.pt>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F1CA198.2040603@netcabo.pt>
+References: <3F1CA198.2040603@netcabo.pt>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-G2txtyu4FZChumXpHIz0"
+Message-Id: <1058821069.11592.2.camel@sm-wks1.lan.irkk.nu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 21 Jul 2003 22:57:50 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-[Please CC me in replies, I am currently not subsribed to this list.]
+--=-G2txtyu4FZChumXpHIz0
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I am currently using 2.4.21-ac4 (with a few other patches, but none of 
-them seems to touch pivot_root in any way) on a VIA EPIA M6000 board, 
-with works pretty fine and seems more stable than the previsouly used 
-2.4.21-rc2. However, there is one problem that I am unable to solve:
+On Tue, 2003-07-22 at 04:29, Pedro Ribeiro wrote:
+> I get this error when I try to compile mm2:
+>=20
+> drivers/video/riva/fbdev.c: In function `rivafb_cursor':
+> drivers/video/riva/fbdev.c:1525: warning: passing arg 2 of=20
+> `move_buf_aligned' from incompatible pointer type
+> drivers/video/riva/fbdev.c:1525: warning: passing arg 4 of=20
+> `move_buf_aligned' makes pointer from integer without a cast
+> drivers/video/riva/fbdev.c:1525: too few arguments to function=20
+> `move_buf_aligned'
+> drivers/video/riva/fbdev.c:1527: warning: passing arg 2 of=20
+> `move_buf_aligned' from incompatible pointer type
+> drivers/video/riva/fbdev.c:1527: warning: passing arg 4 of=20
+> `move_buf_aligned' makes pointer from integer without a cast
+> drivers/video/riva/fbdev.c:1527: too few arguments to function=20
+> `move_buf_aligned'
+> make[3]: *** [drivers/video/riva/fbdev.o] Error 1
+> make[2]: *** [drivers/video/riva] Error 2
+> make[1]: *** [drivers/video] Error 2
+> make: *** [drivers] Error 2
 
-When switching the root filesystem on the fly basically with:
+The rivafb driver is broken. It's beeing worked on by James Simmons.
 
-<prepare the new root fs, which is in fact a cramfs>
-mount -t cramfs /dev/rd/0 $mntpoint
-cd $mntpoint
-mount -nt proc none proc/
-mount -nt devfs none dev/
-/sbin/pivot_root . mnt <dev/console >dev/console 2>&1
-<snip, some further preparations on the new root fs>
-/usr/sbin/chroot . /sbin/telinit u <dev/console >/dev/console 2>&1
-<snip>
-exit 0
+--=20
+Christian Axelsson
+  smiler@lanil.mine.nu
 
-it no longer works as expected. I should probably note that the 
-redirections to /dev/console were not necessary for 2.4.21-rc2, I tried 
-them with 2.4.21-ac4. While the above commands did the trick for 
-2.4.21-rc2, with 2.4.21-ac4 the kernel processes leave the console on 
-the old root fs open:
+GPG ID:
+  6C3C55D9 @ ldap://keyserver.pgp.com
 
-lsof -n | grep mnt
-keventd     2   root    0u   CHR        5,1               16 
-/mnt/dev/console
-keventd     2   root    1u   CHR        5,1               16 
-/mnt/dev/console
-keventd     2   root    2u   CHR        5,1               16 
-/mnt/dev/console
-ksoftirqd   3   root    0u   CHR        5,1               16 
-/mnt/dev/console
-ksoftirqd   3   root    1u   CHR        5,1               16 
-/mnt/dev/console
-ksoftirqd   3   root    2u   CHR        5,1               16 
-/mnt/dev/console
-kswapd      4   root    0u   CHR        5,1               16 
-/mnt/dev/console
-kswapd      4   root    1u   CHR        5,1               16 
-/mnt/dev/console
-kswapd      4   root    2u   CHR        5,1               16 
-/mnt/dev/console
-bdflush     5   root    0u   CHR        5,1               16 
-/mnt/dev/console
-bdflush     5   root    1u   CHR        5,1               16 
-/mnt/dev/console
-bdflush     5   root    2u   CHR        5,1               16 
-/mnt/dev/console
-kupdated    6   root    0u   CHR        5,1               16 
-/mnt/dev/console
-kupdated    6   root    1u   CHR        5,1               16 
-/mnt/dev/console
-kupdated    6   root    2u   CHR        5,1               16 
-/mnt/dev/console
-kjournald   7   root    0u   CHR        5,1               16 
-/mnt/dev/console
-kjournald   7   root    1u   CHR        5,1               16 
-/mnt/dev/console
-kjournald   7   root    2u   CHR        5,1               16 
-/mnt/dev/console
-scsi_eh_0  81   root    0u   CHR        5,1               16 
-/mnt/dev/console
-scsi_eh_0  81   root    1u   CHR        5,1               16 
-/mnt/dev/console
-scsi_eh_0  81   root    2u   CHR        5,1               16 
-/mnt/dev/console
+--=-G2txtyu4FZChumXpHIz0
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Does anybody have an idea what might be wrong here ?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-best regards,
-Rene
+iD8DBQA/HFPNyqbmAWw8VdkRArOmAJ9eSlKrdDFECiLDVk6OmcYYWu5mNwCgsNJz
+gVc6S2gUjYSFCr4eNCFuwPY=
+=pxeU
+-----END PGP SIGNATURE-----
+
+--=-G2txtyu4FZChumXpHIz0--
 

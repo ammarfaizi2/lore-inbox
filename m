@@ -1,148 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbULMGso@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbULMGsh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262211AbULMGso (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 01:48:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262212AbULMGso
+	id S262210AbULMGsh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 01:48:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262212AbULMGse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 01:48:44 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:60824 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262211AbULMGs2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 01:48:28 -0500
-Date: Mon, 13 Dec 2004 07:47:19 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: Mark_H_Johnson@raytheon.com, Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15
-Message-ID: <20041213064719.GA3681@elte.hu>
-References: <OF8AB2B6D9.572374AA-ON86256F66.0061EFA8-86256F66.0061F00A@raytheon.com> <1102897004.31218.8.camel@cmn37.stanford.edu>
+	Mon, 13 Dec 2004 01:48:34 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:25068 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262210AbULMGsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 01:48:23 -0500
+Subject: [PATCH] Re: Improved console UTF-8 support for the Linux kernel?
+From: Chris Heath <chris@heathens.co.nz>
+To: aeb@cwi.nl
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1102920623.30543.1820.camel@linux.heathens.co.nz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1102897004.31218.8.camel@cmn37.stanford.edu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 13 Dec 2004 01:50:24 -0500
+Content-Transfer-Encoding: 7bit
+X-Antirelay: Good relay from local net4 192.168.0.0/16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here is the patch that makes compose keys work.  I consider it a hack...
+but it's simple and effective enough that it may be worth including. 
+It's a hack because:
 
-* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
+* Compose keys are still stored as 8-bit chars internally, but get
+converted to UTF-8 as they are output.  Therefore you are still
+restricted to a single 8-bit character set.
 
-> Something that just happened to me: running 0.7.32-14
-> (PREEMPT_DESKTOP) and trying to install 0.7.32-19 from a custom built
-> rpm package completely hangs the machine (p4 laptop - I tried twice).
-> No clues left behind. If I boot into 0.7.32-9 I can install 0.7.32-19
-> with no problems. 
+* Logically, keyboard input and console display are separated in the
+kernel. When you switch in and out of Unicode mode you have to switch
+both the keyboard and the display separately.  However, this patch
+intertwines the two because it does its 8-bit to Unicode conversion
+using a table that is designed for use by the display module.  (When the
+display is in Unicode mode, this conversion table is unused, so why not
+use it for the keyboard module?)
 
-does 0.7.32-19 work better if you reverse (patch -R) the loop.h and
-loop.c bits (see below)?
+As you have already figured out, Suse is using this patch in their
+distribution, so I figure it has had pretty wide testing already.
 
-	Ingo
+I have a couple of other patches on my website, which I am happy to
+submit (or you are welcome to take), but this is the simplest and the
+most popular.
 
---- linux/drivers/block/loop.c.orig
-+++ linux/drivers/block/loop.c
-@@ -378,7 +378,7 @@ static void loop_add_bio(struct loop_dev
- 		lo->lo_bio = lo->lo_biotail = bio;
- 	spin_unlock_irqrestore(&lo->lo_lock, flags);
+Chris
+
+
+--- a/include/linux/consolemap.h	2003-08-03 21:10:43.000000000 -0400
++++ b/include/linux/consolemap.h	2003-08-02 10:55:33.000000000 -0400
+@@ -13,3 +13,4 @@
+ extern unsigned char inverse_translate(struct vc_data *conp, int
+glyph);
+ extern unsigned short *set_translate(int m,int currcons);
+ extern int conv_uni_to_pc(struct vc_data *conp, long ucs);
++extern u32 conv_8bit_to_uni(unsigned char c);
+--- a/drivers/char/consolemap.c	2003-08-03 21:10:43.000000000 -0400
++++ b/drivers/char/consolemap.c	2003-08-02 10:52:55.000000000 -0400
+@@ -633,6 +633,19 @@
+ 	if (p) p->readonly = rdonly;
+ }
  
--	up(&lo->lo_bh_mutex);
-+	complete(&lo->lo_bh_done);
++/* may be called during an interrupt */
++u32 conv_8bit_to_uni(unsigned char c)
++{
++	/* 
++	 * Always use USER_MAP. This function is used by the keyboard,
++	 * which shouldn't be affected by G0/G1 switching, etc.
++	 * If the user map still contains default values, i.e. the 
++	 * direct-to-font mapping, then assume user is using Latin1.
++	 */
++	unsigned short uni = translations[USER_MAP][c];
++	return uni == (0xf000 | c) ? c : uni;
++}
++
+ int
+ conv_uni_to_pc(struct vc_data *conp, long ucs) 
+ {
+--- a/drivers/char/keyboard.c	2003-08-03 21:10:43.000000000 -0400
++++ b/drivers/char/keyboard.c	2003-08-02 10:58:49.000000000 -0400
+@@ -35,6 +35,7 @@
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ 
++#include <linux/consolemap.h>
+ #include <linux/kbd_kern.h>
+ #include <linux/kbd_diacr.h>
+ #include <linux/vt_kern.h>
+@@ -347,6 +348,15 @@
+     	}
+ }
+ 
++static void put_8bit(struct vc_data *vc, u8 c)
++{
++	if (kbd->kbdmode != VC_UNICODE || c < 32 || c == 127) 
++		/* Don't translate control chars */
++		put_queue(vc, c);
++	else
++		to_utf8(vc, conv_8bit_to_uni(c));
++}
++
+ /* 
+  * Called after returning from RAW mode or when changing consoles -
+recompute
+  * shift_down[] and shift_state from key_down[] maybe called when
+keymap is
+@@ -407,7 +417,7 @@
+ 	if (ch == ' ' || ch == d)
+ 		return d;
+ 
+-	put_queue(vc, d);
++	put_8bit(vc, d);
+ 	return ch;
+ }
+ 
+@@ -417,7 +427,7 @@
+ static void fn_enter(struct vc_data *vc, struct pt_regs *regs)
+ {
+ 	if (diacr) {
+-		put_queue(vc, diacr);
++		put_8bit(vc, diacr);
+ 		diacr = 0;
+ 	}
+ 	put_queue(vc, 13);
+@@ -626,7 +636,7 @@
+ 		diacr = value;
+ 		return;
+ 	}
+-	put_queue(vc, value);
++	put_8bit(vc, value);
  }
  
  /*
-@@ -427,7 +427,7 @@ static int loop_make_request(request_que
- 	return 0;
- err:
- 	if (atomic_dec_and_test(&lo->lo_pending))
--		up(&lo->lo_bh_mutex);
-+		complete(&lo->lo_bh_done);
- out:
- 	bio_io_error(old_bio, old_bio->bi_size);
- 	return 0;
-@@ -495,12 +495,12 @@ static int loop_thread(void *data)
- 	/*
- 	 * up sem, we are running
- 	 */
--	up(&lo->lo_sem);
-+	complete(&lo->lo_done);
- 
- 	for (;;) {
--		down_interruptible(&lo->lo_bh_mutex);
-+		wait_for_completion_interruptible(&lo->lo_bh_done);
- 		/*
--		 * could be upped because of tear-down, not because of
-+		 * could be completed because of tear-down, not because of
- 		 * pending work
- 		 */
- 		if (!atomic_read(&lo->lo_pending))
-@@ -521,7 +521,7 @@ static int loop_thread(void *data)
- 			break;
- 	}
- 
--	up(&lo->lo_sem);
-+	complete(&lo->lo_done);
- 	return 0;
- }
- 
-@@ -708,7 +708,7 @@ static int loop_set_fd(struct loop_devic
- 	set_blocksize(bdev, lo_blocksize);
- 
- 	kernel_thread(loop_thread, lo, CLONE_KERNEL);
--	down(&lo->lo_sem);
-+	wait_for_completion(&lo->lo_done);
- 	return 0;
- 
-  out_putf:
-@@ -773,10 +773,10 @@ static int loop_clr_fd(struct loop_devic
- 	spin_lock_irq(&lo->lo_lock);
- 	lo->lo_state = Lo_rundown;
- 	if (atomic_dec_and_test(&lo->lo_pending))
--		up(&lo->lo_bh_mutex);
-+		complete(&lo->lo_bh_done);
- 	spin_unlock_irq(&lo->lo_lock);
- 
--	down(&lo->lo_sem);
-+	wait_for_completion(&lo->lo_done);
- 
- 	lo->lo_backing_file = NULL;
- 
-@@ -1153,8 +1153,8 @@ int __init loop_init(void)
- 		if (!lo->lo_queue)
- 			goto out_mem4;
- 		init_MUTEX(&lo->lo_ctl_mutex);
--		init_MUTEX_LOCKED(&lo->lo_sem);
--		init_MUTEX_LOCKED(&lo->lo_bh_mutex);
-+		init_completion(&lo->lo_done);
-+		init_completion(&lo->lo_bh_done);
- 		lo->lo_number = i;
- 		spin_lock_init(&lo->lo_lock);
- 		disk->major = LOOP_MAJOR;
---- linux/include/linux/loop.h.orig
-+++ linux/include/linux/loop.h
-@@ -58,9 +58,9 @@ struct loop_device {
- 	struct bio 		*lo_bio;
- 	struct bio		*lo_biotail;
- 	int			lo_state;
--	struct semaphore	lo_sem;
-+	struct completion	lo_done;
-+	struct completion	lo_bh_done;
- 	struct semaphore	lo_ctl_mutex;
--	struct semaphore	lo_bh_mutex;
- 	atomic_t		lo_pending;
- 
- 	request_queue_t		*lo_queue;
+
+

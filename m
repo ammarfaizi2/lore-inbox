@@ -1,84 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277562AbRJET1s>; Fri, 5 Oct 2001 15:27:48 -0400
+	id <S277546AbRJETYv>; Fri, 5 Oct 2001 15:24:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277561AbRJET1k>; Fri, 5 Oct 2001 15:27:40 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:13561 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S277562AbRJET1O>; Fri, 5 Oct 2001 15:27:14 -0400
-Date: Fri, 5 Oct 2001 14:27:43 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200110051927.OAA36321@tomcat.admin.navo.hpc.mil>
-To: tyler@captainjack.com, "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.x, smp, eepro100
-X-Mailer: [XMailTool v3.1.2b]
+	id <S277558AbRJETYm>; Fri, 5 Oct 2001 15:24:42 -0400
+Received: from [204.177.156.37] ([204.177.156.37]:54157 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S277546AbRJETYa>; Fri, 5 Oct 2001 15:24:30 -0400
+Date: Fri, 5 Oct 2001 20:26:06 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: pre4 oom too soon
+Message-ID: <Pine.LNX.4.21.0110051945080.1199-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2.4.11-pre4 gives me oom_kill I never got before.
+All numbers decimal in 4kB pages:
 
-> 
-> Hello everyone,
-> 
-> I've been having major troubles with a machine here.  Here's my setup:
-> 
-> OS: Slackware 8.0
-> Kernel: 2.4.5_nosmp, 2.4.5, and 2.4.10
-> NIC: eepro100
-> 
-> Anyway, installed Slackware with the default scsi kernel.  Everything worked
-> fine.  I re-compiled 2.4.5 to enable smp support.  After re-compiling
-> everything is stable until a few hundred megs gets uploaded to the box.
-> After a few hundred megs get upped to the box (through ftp), eth0 just dies.
-> The same thing happened in 2.4.9 and now also happens in 2.4.10.  There's
-> some odd messages coming from dmesg:
-> eth0:        8   0000a022.
-> eth0:        9   0000a020.
-> eth0:        10 0000a020.
-> eth0:        11 0000a020.
-> eth0:        12 0000a022.
-> eth0:        13 0000a022.
-> eth0:        14 0000a020.
-> eth0:        15 0000a020.
-> eth0:        16 0000a020.
-> eth0:        17 00000001.
-> eth0:        18 00000001.
-> 
-> I have no idea why this is happening.  My ethernet card uses the eepro100
-> module.  When I re-compile the kernel, I use the default config file for
-> slackware (so it should be like the default Slackware scsi kernel).  The
-> only thing I do is add SMP support.
-> 
-> Any ideas anyone?
+num_physpages         65520
+free or freeable      56000	(from MemFree after swapoff afterwards)
+total_swap_pages     132526
+prog tries to hog    153600
 
-Is the eepro a loadable module? I'll almost bet that it is.
+At oom_kill time:
 
-You are most likely using the UP version of the module.
+all_zones_low           yes    (DMA & Normal well above min, no Highmem)
+nr_swap_pages             0
+page_cache_size       59013
+swapper_space.nrpages 58202
 
-This can happen because the kernel parameters modified will build everything
-properly, BUT, you have to remember that the default name in the build
-is UP rather than SMP.
+I'm not sure exactly what to blame in out_of_memory(), but it does
+look wrong to depend so much on whether nr_swap_pages happens to be
+0 at that instant or not, and a lot of that full swap is duplicated
+in the swap cache.  Probably that should be taken into consideration?
 
-What I do is:
+(I wonder whether, before my 2.4.10 fix to lowest_bit and highest_bit
+in scan_swap_map, it was rarer to find nr_swap_pages 0 - swap pages
+could be free, but invisible to scan_swap_map.)
 
-1. change the EXTRAVERSION in the makefile to "-SMP"
-2. build/install the kernel (don't boot yet)
-3. build/install modules.
+Hugh
 
-When the EXTRAVERSION different than the default, a new module directory
-gets created (/lib/modules/2.2.19-SMP) to hold the new modules.
-
-This also allows me to boot uniprocessor if something happens. Otherwise
-you suddenly have a mix of some uniprocessor modules and SMP modules. If
-the kernel is 2.2.19 (like mine), you will get network failures in SMP.
-If you build the network modules, you now get network failures in UP.
-
-If I'm going to be working in both, then I'll first copy the UP distribution
-(cp -rp 2.2.19 2.2.19-SMP), and then change the Makefile in the SMP tree.
-
-Keeps things separate, and works.
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266640AbSKGXvX>; Thu, 7 Nov 2002 18:51:23 -0500
+	id <S266665AbSKGX53>; Thu, 7 Nov 2002 18:57:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266649AbSKGXvX>; Thu, 7 Nov 2002 18:51:23 -0500
-Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:28861 "EHLO
-	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
-	id <S266640AbSKGXvW>; Thu, 7 Nov 2002 18:51:22 -0500
-Date: Thu, 7 Nov 2002 16:57:58 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Templates and tweaks (for size performance and more)
-Message-ID: <20021107235758.GG6164@opus.bloom.county>
-References: <20021107190910.GC6164@opus.bloom.county> <20021107210304.C11437@flint.arm.linux.org.uk> <20021107210808.D11437@flint.arm.linux.org.uk> <20021107221017.GB12151@opus.bloom.county>
+	id <S266666AbSKGX53>; Thu, 7 Nov 2002 18:57:29 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:38157
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S266665AbSKGX52>; Thu, 7 Nov 2002 18:57:28 -0500
+Subject: Re: [BENCHMARK] 2.5.46-mm1 with contest
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3DCAFE38.16DED3BF@digeo.com>
+References: <200211080953.22903.conman@kolivas.net>
+	<1036712891.764.2055.camel@phantasy>  <3DCAFE38.16DED3BF@digeo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 07 Nov 2002 19:04:08 -0500
+Message-Id: <1036713848.764.2107.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021107221017.GB12151@opus.bloom.county>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 07, 2002 at 03:10:17PM -0700, Tom Rini wrote:
-> On Thu, Nov 07, 2002 at 09:08:08PM +0000, Russell King wrote:
-> > Oh, there's another problem built into this method as well.
+On Thu, 2002-11-07 at 18:58, Andrew Morton wrote:
+
+> Robert Love wrote:
 > > 
-> > Instead of one "tweak" depending on one configuration option, it suddenly
-> > depends on a whole load of configuration options.  You change one of these
-> > options, and you rebuild everything that uses the asm/tweaks.h (or whatever
-> > the filename was.)
+> > On Thu, 2002-11-07 at 17:53, Con Kolivas wrote:
 > > 
-> > IMHO this is a backward step. ;(
+> > > io_load:
+> > > Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> > > 2.5.44-mm6 [3]          284.1   28      20      10      3.98
+> > > 2.5.46 [1]              600.5   13      48      12      8.41
+> > > 2.5.46-mm1 [5]          134.3   58      6       8       1.88
+> > >
+> > > Big change here. IO load is usually the one we feel the most.
+> > 
+> > Nice.
 > 
-> That is annoying.  But I'm not quite sure how this doesn't happen for
-> <linux/config.h>.  Is it just the <linux/config.h> -> <linux/autoconf.h>
-> which is what is actually changed?  Or is there more magic to it?
+> Mysterious.
 
-I've found fixdep and split-include (Thanks Kai!) and I'm going to try
-and figure out a clean way to do this.
+Why?  We are preempting during the generic file write/read routines, I
+bet, which can otherwise be long periods of latency.  CPU is up and I
+bet the throughput is down, but his test is getting the attention it
+wants.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+	Robert Love
+

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266801AbUF3RRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266481AbUF3RSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266801AbUF3RRp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 13:17:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266779AbUF3RRM
+	id S266481AbUF3RSn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 13:18:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266767AbUF3RSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 13:17:12 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:33494 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S266786AbUF3RI0
+	Wed, 30 Jun 2004 13:18:43 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:47611 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S266481AbUF3RIm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 13:08:26 -0400
-Date: Wed, 30 Jun 2004 19:08:51 +0200
+	Wed, 30 Jun 2004 13:08:42 -0400
+Date: Wed, 30 Jun 2004 19:09:06 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390: network driver changes.
-Message-ID: <20040630170851.GD3266@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390: zfcp host adapter.
+Message-ID: <20040630170906.GE3266@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,485 +21,479 @@ User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] s390: network driver changes.
+[PATCH] s390: zfcp host adapter.
 
-From: Ursula Braun-Krahl <braunu@de.ibm.com>
-From: Frank Pavlic <pavlic@de.ibm.com>
-From: Thomas Spatzier <tspat@de.ibm.com>
-From: Peter Tiedemann <ptiedem@de.ibm.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Andreas Herrmann <aherrman@de.ibm.com>
+From: Maxim Shchetynin <maxim@de.ibm.com>
 
-s390 network driver changes:
- - ctc: replace snprintf by strlcpy.
- - lcs: change info text for lcs cards from "OSA2 card" to "OSA LCS card".
- - lcs: fix alignment of lcs_cmd structure to get multicast pings working.
- - lcs: first call in_dev_put then register multicast addresses.
- - netiucv: remove unused device timer and unused flags field.
- - netiucv: include interrupt type in pathid mismatch message.
- - qeth: don't start a new kernel thread for every new ip address.
- - qeth: fix IP assist command sequence numbers.
+zfcp host adapter changes:
+ - Exploit FC transport class and autoselect SCSI_FC_ATTRS for zfcp.
+ - Fix acl download to zfcp controller.
+ - Change message loglevels to make zfcp less noisy.
+ - Don't wait for SBAL to finish for command aborts after a timeout
+   and for logical unit or target resets.
+ - Force reopen of port if link test failed.
+ - Fix race between qdio_shutdown and do_QDIO.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 diffstat:
- drivers/s390/net/ctcmain.c   |   10 +++---
- drivers/s390/net/cu3088.c    |    4 +-
- drivers/s390/net/lcs.c       |    6 ++--
- drivers/s390/net/lcs.h       |    6 ++--
- drivers/s390/net/netiucv.c   |   20 +++----------
- drivers/s390/net/qeth.h      |    6 ++--
- drivers/s390/net/qeth_main.c |   63 +++++++++++++++++++++++--------------------
- drivers/s390/net/qeth_mpc.h  |    4 +-
- 8 files changed, 57 insertions(+), 62 deletions(-)
+ arch/s390/defconfig           |    2 
+ drivers/s390/scsi/zfcp_aux.c  |   13 ++++--
+ drivers/s390/scsi/zfcp_def.h  |   20 +++++----
+ drivers/s390/scsi/zfcp_erp.c  |   87 +++++++++++++++++-------------------------
+ drivers/s390/scsi/zfcp_ext.h  |    4 +
+ drivers/s390/scsi/zfcp_fsf.c  |   23 +++++++----
+ drivers/s390/scsi/zfcp_scsi.c |   51 +++++++++++++++++++++---
+ drivers/scsi/Kconfig          |    1 
+ 8 files changed, 123 insertions(+), 78 deletions(-)
 
-diff -urN linux-2.6/drivers/s390/net/ctcmain.c linux-2.6-s390/drivers/s390/net/ctcmain.c
---- linux-2.6/drivers/s390/net/ctcmain.c	Wed Jun 16 07:19:13 2004
-+++ linux-2.6-s390/drivers/s390/net/ctcmain.c	Wed Jun 30 17:06:37 2004
-@@ -1,5 +1,5 @@
- /*
-- * $Id: ctcmain.c,v 1.59 2004/04/21 17:10:13 ptiedem Exp $
-+ * $Id: ctcmain.c,v 1.60 2004/06/18 15:13:51 ptiedem Exp $
-  *
-  * CTC / ESCON network driver
-  *
-@@ -36,7 +36,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.59 $
-+ * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.60 $
-  *
+diff -urN linux-2.6/arch/s390/defconfig linux-2.6-s390/arch/s390/defconfig
+--- linux-2.6/arch/s390/defconfig	Wed Jun 30 17:06:35 2004
++++ linux-2.6-s390/arch/s390/defconfig	Wed Jun 30 17:06:38 2004
+@@ -124,7 +124,7 @@
+ # SCSI Transport Attributes
+ #
+ # CONFIG_SCSI_SPI_ATTRS is not set
+-# CONFIG_SCSI_FC_ATTRS is not set
++CONFIG_SCSI_FC_ATTRS=y
+ 
+ #
+ # SCSI low-level drivers
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_aux.c linux-2.6-s390/drivers/s390/scsi/zfcp_aux.c
+--- linux-2.6/drivers/s390/scsi/zfcp_aux.c	Wed Jun 16 07:20:26 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_aux.c	Wed Jun 30 17:06:38 2004
+@@ -29,7 +29,7 @@
   */
- 
-@@ -319,7 +319,7 @@
- print_banner(void)
- {
- 	static int printed = 0;
--	char vbuf[] = "$Revision: 1.59 $";
-+	char vbuf[] = "$Revision: 1.60 $";
- 	char *version = vbuf;
  
- 	if (printed)
-@@ -3052,9 +3052,9 @@
+ /* this drivers version (do not edit !!! generated and updated by cvs) */
+-#define ZFCP_AUX_REVISION "$Revision: 1.108 $"
++#define ZFCP_AUX_REVISION "$Revision: 1.114 $"
+ 
+ #include "zfcp_ext.h"
+ 
+@@ -310,6 +310,10 @@
+ 	/* initialize adapters to be removed list head */
+ 	INIT_LIST_HEAD(&zfcp_data.adapter_remove_lh);
+ 
++	zfcp_transport_template = fc_attach_transport(&zfcp_transport_functions);
++	if (!zfcp_transport_template)
++		return -ENODEV;
++
+ #ifdef CONFIG_S390_SUPPORT
+ 	retval = register_ioctl32_conversion(zfcp_ioctl_trans.cmd,
+ 					     zfcp_ioctl_trans.handler);
+@@ -414,7 +418,7 @@
+ 		retval = -ENOMEM;
+ 		goto out;
  	}
+-	sg_list->count = 0;
++	memset(sg_list, 0, sizeof(*sg_list));
  
- 	if (privptr->protocol == CTC_PROTO_LINUX_TTY)
--		snprintf(dev->name, 8, "ctctty%%d");
-+		strlcpy(dev->name, "ctctty%d", IFNAMSIZ);
- 	else
--		snprintf(dev->name, 8, "ctc%%d");
-+		strlcpy(dev->name, "ctc%d", IFNAMSIZ);
- 
- 	for (direction = READ; direction <= WRITE; direction++) {
- 		privptr->channel[direction] =
-diff -urN linux-2.6/drivers/s390/net/cu3088.c linux-2.6-s390/drivers/s390/net/cu3088.c
---- linux-2.6/drivers/s390/net/cu3088.c	Wed Jun 16 07:19:10 2004
-+++ linux-2.6-s390/drivers/s390/net/cu3088.c	Wed Jun 30 17:06:37 2004
-@@ -1,5 +1,5 @@
- /*
-- * $Id: cu3088.c,v 1.33 2003/10/14 12:10:19 cohuck Exp $
-+ * $Id: cu3088.c,v 1.34 2004/06/15 13:16:27 pavlic Exp $
-  *
-  * CTC / LCS ccw_device driver
-  *
-@@ -38,7 +38,7 @@
- 	"ESCON channel",
- 	"FICON channel",
- 	"P390 LCS card",
--	"OSA2 card",
-+	"OSA LCS card",
- 	"unknown channel type",
- 	"unsupported channel type",
- };
-diff -urN linux-2.6/drivers/s390/net/lcs.c linux-2.6-s390/drivers/s390/net/lcs.c
---- linux-2.6/drivers/s390/net/lcs.c	Wed Jun 16 07:18:58 2004
-+++ linux-2.6-s390/drivers/s390/net/lcs.c	Wed Jun 30 17:06:37 2004
-@@ -11,7 +11,7 @@
-  *			  Frank Pavlic (pavlic@de.ibm.com) and
-  *		 	  Martin Schwidefsky <schwidefsky@de.ibm.com>
-  *
-- *    $Revision: 1.81 $	 $Date: 2004/05/14 13:54:33 $
-+ *    $Revision: 1.83 $	 $Date: 2004/06/30 12:48:14 $
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -58,7 +58,7 @@
- /**
-  * initialization string for output
-  */
--#define VERSION_LCS_C  "$Revision: 1.81 $"
-+#define VERSION_LCS_C  "$Revision: 1.83 $"
- 
- static char version[] __initdata = "LCS driver ("VERSION_LCS_C "/" VERSION_LCS_H ")";
- static char debug_buffer[255];
-@@ -1046,8 +1046,8 @@
+ 	if (command != ZFCP_CFDC_IOC) {
+ 		ZFCP_LOG_INFO("IOC request code 0x%x invalid\n", command);
+@@ -599,6 +603,7 @@
+ 	sg_list->sg = kmalloc(sg_list->count * sizeof(struct scatterlist),
+ 			      GFP_KERNEL);
+ 	if (sg_list->sg == NULL) {
++		sg_list->count = 0;
+ 		retval = -ENOMEM;
+ 		goto out;
  	}
- 	spin_unlock(&card->ipm_lock);
- 	read_unlock(&in4_dev->lock);
--	lcs_fix_multicast_list(card);
- 	in_dev_put(in4_dev);
-+	lcs_fix_multicast_list(card);
- 	return 0;
+@@ -635,11 +640,13 @@
+ 	unsigned int i;
+ 	int retval = 0;
+ 
+-	BUG_ON((sg_list->sg == NULL) || (sg_list == NULL));
++	BUG_ON(sg_list == NULL);
+ 
+ 	for (i = 0, sg = sg_list->sg; i < sg_list->count; i++, sg++)
+ 		__free_pages(sg->page, 0);
+ 
++	kfree(sg_list->sg);
++
+ 	return retval;
  }
- /**
-diff -urN linux-2.6/drivers/s390/net/lcs.h linux-2.6-s390/drivers/s390/net/lcs.h
---- linux-2.6/drivers/s390/net/lcs.h	Wed Jun 16 07:19:43 2004
-+++ linux-2.6-s390/drivers/s390/net/lcs.h	Wed Jun 30 17:06:38 2004
-@@ -6,7 +6,7 @@
- #include <linux/workqueue.h>
+ 
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_def.h linux-2.6-s390/drivers/s390/scsi/zfcp_def.h
+--- linux-2.6/drivers/s390/scsi/zfcp_def.h	Wed Jun 16 07:19:36 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_def.h	Wed Jun 30 17:06:38 2004
+@@ -33,7 +33,7 @@
+ #define ZFCP_DEF_H
+ 
+ /* this drivers version (do not edit !!! generated and updated by cvs) */
+-#define ZFCP_DEF_REVISION "$Revision: 1.73 $"
++#define ZFCP_DEF_REVISION "$Revision: 1.75 $"
+ 
+ /*************************** INCLUDES *****************************************/
+ 
+@@ -47,6 +47,8 @@
+ #include <scsi/scsi_cmnd.h>
+ #include <scsi/scsi_device.h>
+ #include <scsi/scsi_host.h>
++#include <scsi/scsi_transport.h>
++#include <scsi/scsi_transport_fc.h>
+ #include "../../fc4/fc.h"
+ #include "zfcp_fsf.h"
  #include <asm/ccwdev.h>
+@@ -509,14 +511,14 @@
  
--#define VERSION_LCS_H "$Revision: 1.16 $"
-+#define VERSION_LCS_H "$Revision: 1.17 $"
+ /* all log-level defaults are combined to generate initial log-level */
+ #define ZFCP_LOG_LEVEL_DEFAULTS \
+-	(ZFCP_SET_LOG_NIBBLE(ZFCP_LOG_LEVEL_INFO, ZFCP_LOG_AREA_OTHER) | \
+-	 ZFCP_SET_LOG_NIBBLE(ZFCP_LOG_LEVEL_INFO, ZFCP_LOG_AREA_SCSI) | \
+-	 ZFCP_SET_LOG_NIBBLE(ZFCP_LOG_LEVEL_INFO, ZFCP_LOG_AREA_FSF) | \
+-	 ZFCP_SET_LOG_NIBBLE(ZFCP_LOG_LEVEL_INFO, ZFCP_LOG_AREA_CONFIG) | \
+-	 ZFCP_SET_LOG_NIBBLE(ZFCP_LOG_LEVEL_INFO, ZFCP_LOG_AREA_CIO) | \
+-	 ZFCP_SET_LOG_NIBBLE(ZFCP_LOG_LEVEL_INFO, ZFCP_LOG_AREA_QDIO) | \
+-	 ZFCP_SET_LOG_NIBBLE(ZFCP_LOG_LEVEL_INFO, ZFCP_LOG_AREA_ERP) | \
+-	 ZFCP_SET_LOG_NIBBLE(ZFCP_LOG_LEVEL_INFO, ZFCP_LOG_AREA_FC))
++	(ZFCP_SET_LOG_NIBBLE(ZFCP_LOG_LEVEL_NORMAL, ZFCP_LOG_AREA_OTHER) | \
++	 ZFCP_SET_LOG_NIBBLE(ZFCP_LOG_LEVEL_NORMAL, ZFCP_LOG_AREA_SCSI) | \
++	 ZFCP_SET_LOG_NIBBLE(ZFCP_LOG_LEVEL_NORMAL, ZFCP_LOG_AREA_FSF) | \
++	 ZFCP_SET_LOG_NIBBLE(ZFCP_LOG_LEVEL_NORMAL, ZFCP_LOG_AREA_CONFIG) | \
++	 ZFCP_SET_LOG_NIBBLE(ZFCP_LOG_LEVEL_NORMAL, ZFCP_LOG_AREA_CIO) | \
++	 ZFCP_SET_LOG_NIBBLE(ZFCP_LOG_LEVEL_NORMAL, ZFCP_LOG_AREA_QDIO) | \
++	 ZFCP_SET_LOG_NIBBLE(ZFCP_LOG_LEVEL_NORMAL, ZFCP_LOG_AREA_ERP) | \
++	 ZFCP_SET_LOG_NIBBLE(ZFCP_LOG_LEVEL_NORMAL, ZFCP_LOG_AREA_FC))
  
- #define LCS_DBF_TEXT(level, name, text) \
- 	do { \
-@@ -221,8 +221,8 @@
- 				struct lcs_ip_mac_pair
- 				ip_mac_pair[32];
- 				__u32	  response_data;
--			} lcs_ipass_ctlmsg;
--		} lcs_qipassist;
-+			} lcs_ipass_ctlmsg __attribute ((packed));
-+		} lcs_qipassist __attribute__ ((packed));
- #endif /*CONFIG_IP_MULTICAST */
- 	} cmd __attribute__ ((packed));
- }  __attribute__ ((packed));
-diff -urN linux-2.6/drivers/s390/net/netiucv.c linux-2.6-s390/drivers/s390/net/netiucv.c
---- linux-2.6/drivers/s390/net/netiucv.c	Wed Jun 16 07:19:36 2004
-+++ linux-2.6-s390/drivers/s390/net/netiucv.c	Wed Jun 30 17:06:38 2004
-@@ -1,5 +1,5 @@
- /*
-- * $Id: netiucv.c,v 1.54 2004/05/28 08:04:14 braunu Exp $
-+ * $Id: netiucv.c,v 1.57 2004/06/30 09:26:40 braunu Exp $
-  *
-  * IUCV network driver
-  *
-@@ -30,7 +30,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * RELEASE-TAG: IUCV network driver $Revision: 1.54 $
-+ * RELEASE-TAG: IUCV network driver $Revision: 1.57 $
-  *
-  */
- 
-@@ -98,7 +98,6 @@
- 	spinlock_t                collect_lock;
- 	int                       collect_len;
- 	int                       max_buffsize;
--	int                       flags;
- 	fsm_timer                 timer;
- 	fsm_instance              *fsm;
- 	struct net_device         *netdev;
-@@ -106,8 +105,6 @@
- 	char                      userid[9];
- };
+ /* check whether we have the right level for logging */
+ #define ZFCP_LOG_CHECK(level) \
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_erp.c linux-2.6-s390/drivers/s390/scsi/zfcp_erp.c
+--- linux-2.6/drivers/s390/scsi/zfcp_erp.c	Wed Jun 16 07:19:01 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_erp.c	Wed Jun 30 17:06:38 2004
+@@ -31,7 +31,7 @@
+ #define ZFCP_LOG_AREA			ZFCP_LOG_AREA_ERP
  
--#define CONN_FLAGS_BUFSIZE_CHANGED 1
--
- /**
-  * Linked list of all connection structs.
-  */
-@@ -131,7 +128,6 @@
- 	fsm_instance            *fsm;
-         struct iucv_connection  *conn;
- 	struct device           *dev;
--	fsm_timer               timer;
- };
+ /* this drivers version (do not edit !!! generated and updated by cvs) */
+-#define ZFCP_ERP_REVISION "$Revision: 1.54 $"
++#define ZFCP_ERP_REVISION "$Revision: 1.56 $"
  
- /**
-@@ -232,7 +228,6 @@
- 	DEV_EVENT_STOP,
- 	DEV_EVENT_CONUP,
- 	DEV_EVENT_CONDOWN,
--	DEV_EVENT_TIMER,
- 	/**
- 	 * MUST be always the last element!!
- 	 */
-@@ -244,7 +239,6 @@
- 	"Stop",
- 	"Connection up",
- 	"Connection down",
--	"Timer",
- };
- 
- /**
-@@ -701,7 +695,7 @@
- 	iucv_sever(eib->ippathid, udata);
- 	if (eib->ippathid != conn->pathid) {
- 		printk(KERN_INFO
--			"%s: IR pathid %d does not match original pathid %d\n",
-+			"%s: IR Connection Pending; pathid %d does not match original pathid %d\n",
- 			netdev->name, eib->ippathid, conn->pathid);
- 		iucv_sever(conn->pathid, udata);
- 	}
-@@ -722,7 +716,7 @@
- 	fsm_newstate(fi, CONN_STATE_IDLE);
- 	if (eib->ippathid != conn->pathid) {
- 		printk(KERN_INFO
--			"%s: IR pathid %d does not match original pathid %d\n",
-+			"%s: IR Connection Complete; pathid %d does not match original pathid %d\n",
- 			netdev->name, eib->ippathid, conn->pathid);
- 		conn->pathid = eib->ippathid;
- 	}
-@@ -1372,7 +1366,6 @@
- 	priv->conn->max_buffsize = bs1;
- 	if (!(ndev->flags & IFF_RUNNING))
- 		ndev->mtu = bs1 - NETIUCV_HDRLEN - NETIUCV_HDRLEN;
--	priv->conn->flags |= CONN_FLAGS_BUFSIZE_CHANGED;
+ #include "zfcp_ext.h"
  
- 	return count;
+@@ -435,8 +435,20 @@
+ 	u8 req_code, resp_code;
+ 	int retval = 0;
  
-@@ -1756,8 +1749,6 @@
- 
- 	privptr = (struct netiucv_priv *)dev->priv;
- 	if (privptr) {
--		if (privptr->fsm)
--			fsm_deltimer(&privptr->timer);
- 		if (privptr->conn)
- 			netiucv_remove_connection(privptr->conn);
- 		if (privptr->fsm)
-@@ -1819,7 +1810,6 @@
- 		free_netdev(dev);
- 		return NULL;
- 	}
--	fsm_settimer(privptr->fsm, &privptr->timer);
- 	fsm_newstate(privptr->fsm, DEV_STATE_STOPPED);
- 
- 	return dev;
-@@ -1949,7 +1939,7 @@
- static void
- netiucv_banner(void)
- {
--	char vbuf[] = "$Revision: 1.54 $";
-+	char vbuf[] = "$Revision: 1.57 $";
- 	char *version = vbuf;
- 
- 	if ((version = strchr(version, ':'))) {
-diff -urN linux-2.6/drivers/s390/net/qeth.h linux-2.6-s390/drivers/s390/net/qeth.h
---- linux-2.6/drivers/s390/net/qeth.h	Wed Jun 16 07:18:52 2004
-+++ linux-2.6-s390/drivers/s390/net/qeth.h	Wed Jun 30 17:06:38 2004
-@@ -23,7 +23,7 @@
- 
- #include "qeth_mpc.h"
- 
--#define VERSION_QETH_H 		"$Revision: 1.110 $"
-+#define VERSION_QETH_H 		"$Revision: 1.111 $"
- 
- #ifdef CONFIG_QETH_IPV6
- #define QETH_VERSION_IPV6 	":IPv6"
-@@ -610,14 +610,14 @@
- 	__u32 trans_hdr;
- 	__u32 pdu_hdr;
- 	__u32 pdu_hdr_ack;
--	__u32 ipa;
-+	__u16 ipa;
- };
- 
- struct qeth_reply {
- 	struct list_head list;
- 	wait_queue_head_t wait_q;
- 	int (*callback)(struct qeth_card *,struct qeth_reply *,unsigned long);
-- 	int seqno;
-+ 	u32 seqno;
- 	unsigned long offset;
- 	int received;
- 	int rc;
-diff -urN linux-2.6/drivers/s390/net/qeth_main.c linux-2.6-s390/drivers/s390/net/qeth_main.c
---- linux-2.6/drivers/s390/net/qeth_main.c	Wed Jun 16 07:19:23 2004
-+++ linux-2.6-s390/drivers/s390/net/qeth_main.c	Wed Jun 30 17:06:38 2004
-@@ -1,6 +1,6 @@
- /*
-  *
-- * linux/drivers/s390/net/qeth_main.c ($Revision: 1.121 $)
-+ * linux/drivers/s390/net/qeth_main.c ($Revision: 1.125 $)
-  *
-  * Linux on zSeries OSA Express and HiperSockets support
-  *
-@@ -12,7 +12,7 @@
-  *			  Frank Pavlic (pavlic@de.ibm.com) and
-  *		 	  Thomas Spatzier <tspat@de.ibm.com>
-  *
-- *    $Revision: 1.121 $	 $Date: 2004/06/11 16:32:15 $
-+ *    $Revision: 1.125 $	 $Date: 2004/06/29 17:28:24 $
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -78,7 +78,7 @@
- #include "qeth_mpc.h"
- #include "qeth_fs.h"
- 
--#define VERSION_QETH_C "$Revision: 1.121 $"
-+#define VERSION_QETH_C "$Revision: 1.125 $"
- static const char *version = "qeth S/390 OSA-Express driver";
- 
- /**
-@@ -818,14 +818,20 @@
- static void qeth_add_multicast_ipv6(struct qeth_card *);
- #endif
- 
--static void
-+static inline int
- qeth_set_thread_start_bit(struct qeth_card *card, unsigned long thread)
- {
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&card->thread_mask_lock, flags);
-+	if ( !(card->thread_allowed_mask & thread) ||
-+	      (card->thread_start_mask & thread) ) {
-+		spin_unlock_irqrestore(&card->thread_mask_lock, flags);
-+		return -EPERM;
+-	if (send_els->status != 0)
++	if (send_els->status != 0) {
++		ZFCP_LOG_NORMAL("ELS request timed out, physical port reopen "
++				"of port 0x%016Lx on adapter %s failed\n",
++				port->wwpn, zfcp_get_busid_by_port(port));
++		debug_text_event(port->adapter->erp_dbf, 3, "forcreop");
++		retval = zfcp_erp_port_forced_reopen(port, 0);
++		if (retval != 0) {
++			ZFCP_LOG_NORMAL("reopen of remote port 0x%016Lx "
++					"on adapter %s failed\n", port->wwpn,
++					zfcp_get_busid_by_port(port));
++			retval = -EPERM;
++		}
+ 		goto skip_fsfstatus;
 +	}
- 	card->thread_start_mask |= thread;
- 	spin_unlock_irqrestore(&card->thread_mask_lock, flags);
-+	return 0;
- }
  
- static void
-@@ -952,8 +958,8 @@
- {
- 	QETH_DBF_TEXT(trace,2,"startrec");
+ 	req = (void*)((page_to_pfn(send_els->req->page) << PAGE_SHIFT) + send_els->req->offset);
+ 	resp = (void*)((page_to_pfn(send_els->resp->page) << PAGE_SHIFT) + send_els->resp->offset);
+@@ -2286,7 +2298,6 @@
+ 	int i;
+ 	volatile struct qdio_buffer_element *sbale;
+ 	struct zfcp_adapter *adapter = erp_action->adapter;
+-	int retval_cleanup = 0;
  
--	qeth_set_thread_start_bit(card, QETH_RECOVER_THREAD);
--	schedule_work(&card->kernel_thread_starter);
-+	if (qeth_set_thread_start_bit(card, QETH_RECOVER_THREAD) == 0)
-+		schedule_work(&card->kernel_thread_starter);
- }
- 
- static int
-@@ -1568,9 +1574,9 @@
- 	QETH_DBF_TEXT(trace, 2, "rstipadd");
- 
- 	qeth_clear_ip_list(card, 0, 1);
--	qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD);
--	qeth_set_thread_start_bit(card, QETH_SET_MC_THREAD);
--	schedule_work(&card->kernel_thread_starter);
-+	if ( (qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD) == 0) ||
-+	     (qeth_set_thread_start_bit(card, QETH_SET_MC_THREAD) == 0) )
-+		schedule_work(&card->kernel_thread_starter);
- }
- 
- static struct qeth_ipa_cmd *
-@@ -4718,10 +4724,9 @@
- 	if (card->vlangrp)
- 		card->vlangrp->vlan_devices[vid] = NULL;
- 	spin_unlock_irqrestore(&card->vlanlock, flags);
--	qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD);
--	/* delete mc addresses for this vlan dev */
--	qeth_set_thread_start_bit(card, QETH_SET_MC_THREAD);
--	schedule_work(&card->kernel_thread_starter);
-+ 	if ( (qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD) == 0) ||
-+	     (qeth_set_thread_start_bit(card, QETH_SET_MC_THREAD) == 0) )
-+		schedule_work(&card->kernel_thread_starter);
- }
- #endif
- 
-@@ -4950,8 +4955,8 @@
- 	QETH_DBF_TEXT(trace,3,"setmulti");
- 	card = (struct qeth_card *) dev->priv;
- 
--	qeth_set_thread_start_bit(card, QETH_SET_MC_THREAD);
--	schedule_work(&card->kernel_thread_starter);
-+	if (qeth_set_thread_start_bit(card, QETH_SET_MC_THREAD) == 0)
-+		schedule_work(&card->kernel_thread_starter);
- }
- 
- static void
-@@ -6422,8 +6427,8 @@
- 	rtnl_lock();
- 	dev_open(card->dev);
- 	rtnl_unlock();
--	qeth_set_thread_start_bit(card, QETH_SET_MC_THREAD);
--	schedule_work(&card->kernel_thread_starter);
-+ 	if (qeth_set_thread_start_bit(card, QETH_SET_MC_THREAD) == 0)
-+		schedule_work(&card->kernel_thread_starter);
- }
- 
- static int
-@@ -6809,8 +6814,8 @@
+ 	if (atomic_test_mask(ZFCP_STATUS_ADAPTER_QDIOUP, &adapter->status)) {
+ 		ZFCP_LOG_NORMAL("bug: second attempt to set up QDIO on "
+@@ -2301,7 +2312,7 @@
+ 			      zfcp_get_busid_by_adapter(adapter));
+ 		goto failed_qdio_establish;
  	}
- 	if (!qeth_add_ip(card, ipaddr))
- 		kfree(ipaddr);
--	qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD);
--	schedule_work(&card->kernel_thread_starter);
-+ 	if (qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD) == 0)
-+		schedule_work(&card->kernel_thread_starter);
- 	return rc;
- }
+-	ZFCP_LOG_DEBUG("queues established\n");
++	debug_text_event(adapter->erp_dbf, 3, "qdio_est");
  
-@@ -6838,8 +6843,8 @@
- 		return;
- 	if (!qeth_delete_ip(card, ipaddr))
- 		kfree(ipaddr);
--	qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD);
--	schedule_work(&card->kernel_thread_starter);
-+ 	if (qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD) == 0)
-+		schedule_work(&card->kernel_thread_starter);
- }
- 
- /*
-@@ -6882,8 +6887,8 @@
+ 	if (qdio_activate(adapter->ccw_device, 0) != 0) {
+ 		ZFCP_LOG_INFO("error: activation of QDIO queues failed "
+@@ -2309,7 +2320,7 @@
+ 			      zfcp_get_busid_by_adapter(adapter));
+ 		goto failed_qdio_activate;
  	}
- 	if (!qeth_add_ip(card, ipaddr))
- 		kfree(ipaddr);
--	qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD);
--	schedule_work(&card->kernel_thread_starter);
-+ 	if (qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD) == 0)
-+		schedule_work(&card->kernel_thread_starter);
- 	return 0;
+-	ZFCP_LOG_DEBUG("queues activated\n");
++	debug_text_event(adapter->erp_dbf, 3, "qdio_act");
+ 
+ 	/*
+ 	 * put buffers into response queue,
+@@ -2357,19 +2368,15 @@
+ 	/* NOP */
+ 
+  failed_qdio_activate:
+-	/* DEBUG */
+-	//__ZFCP_WAIT_EVENT_TIMEOUT(timeout, 0);
+-	/* cleanup queues previously established */
+-	retval_cleanup = qdio_shutdown(adapter->ccw_device,
+-				       QDIO_FLAG_CLEANUP_USING_CLEAR);
+-	if (retval_cleanup) {
+-		ZFCP_LOG_NORMAL("bug: shutdown of QDIO queues failed "
+-				"(retval=%d)\n", retval_cleanup);
++	debug_text_event(adapter->erp_dbf, 3, "qdio_down1a");
++	while (qdio_shutdown(adapter->ccw_device,
++			     QDIO_FLAG_CLEANUP_USING_CLEAR) == -EINPROGRESS) {
++		set_current_state(TASK_UNINTERRUPTIBLE);
++		schedule_timeout(HZ);
+ 	}
++	debug_text_event(adapter->erp_dbf, 3, "qdio_down1b");
+ 
+  failed_qdio_establish:
+-	atomic_clear_mask(ZFCP_STATUS_ADAPTER_QDIOUP, &adapter->status);
+-
+  failed_sanity:
+ 	retval = ZFCP_ERP_FAILED;
+ 
+@@ -2401,42 +2408,22 @@
+ 		goto out;
+ 	}
+ 
+-	/* cleanup queues previously established */
+-
+ 	/*
+-	 * MUST NOT LOCK - qdio_cleanup might call schedule
+-	 * FIXME: need another way to make cleanup safe
++	 * Get queue_lock and clear QDIOUP flag. Thus it's guaranteed that
++	 * do_QDIO won't be called while qdio_shutdown is in progress.
+ 	 */
+-	/* Note:
+-	 * We need the request_queue lock here, otherwise there exists the 
+-	 * following race:
+-	 * 
+-	 * queuecommand calls create_fcp_commmand_task...calls req_create, 
+-	 * gets sbal x to x+y - meanwhile adapter reopen is called, completes 
+-	 * - req_send calls do_QDIO for sbal x to x+y, i.e. wrong indices.
+-	 *
+-	 * with lock:
+-	 * queuecommand calls create_fcp_commmand_task...calls req_create, 
+-	 * gets sbal x to x+y - meanwhile adapter reopen is called, waits 
+-	 * - req_send calls do_QDIO for sbal x to x+y, i.e. wrong indices 
+-	 * but do_QDIO fails as adapter_reopen is still waiting for the lock
+-	 * OR
+-	 * queuecommand calls create_fcp_commmand_task...calls req_create 
+-	 * - meanwhile adapter reopen is called...completes,
+-	 * - gets sbal 0 to 0+y, - req_send calls do_QDIO for sbal 0 to 0+y, 
+-	 * i.e. correct indices...though an fcp command is called before 
+-	 * exchange config data...that should be fine, however
+-	 */
+-	if (qdio_shutdown(adapter->ccw_device, QDIO_FLAG_CLEANUP_USING_CLEAR)) {
+-		/*
+-		 * FIXME(design):
+-		 * What went wrong? What to do best? Proper retval?
+-		 */
+-		ZFCP_LOG_NORMAL("bug: shutdown of QDIO queues failed on "
+-				"adapter %s\n",
+-				zfcp_get_busid_by_adapter(adapter));
+-	} else
+-		ZFCP_LOG_DEBUG("queues cleaned up\n");
++
++	write_lock_irq(&adapter->request_queue.queue_lock);
++	atomic_clear_mask(ZFCP_STATUS_ADAPTER_QDIOUP, &adapter->status);
++	write_unlock_irq(&adapter->request_queue.queue_lock);
++
++	debug_text_event(adapter->erp_dbf, 3, "qdio_down2a");
++	while (qdio_shutdown(adapter->ccw_device,
++			     QDIO_FLAG_CLEANUP_USING_CLEAR) == -EINPROGRESS) {
++		set_current_state(TASK_UNINTERRUPTIBLE);
++		schedule_timeout(HZ);
++	}
++	debug_text_event(adapter->erp_dbf, 3, "qdio_down2b");
+ 
+ 	/*
+ 	 * First we had to stop QDIO operation.
+@@ -2459,8 +2446,6 @@
+ 	adapter->request_queue.free_index = 0;
+ 	atomic_set(&adapter->request_queue.free_count, 0);
+ 	adapter->request_queue.distance_from_int = 0;
+-
+-	atomic_clear_mask(ZFCP_STATUS_ADAPTER_QDIOUP, &adapter->status);
+  out:
+ 	return retval;
+ }
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_ext.h linux-2.6-s390/drivers/s390/scsi/zfcp_ext.h
+--- linux-2.6/drivers/s390/scsi/zfcp_ext.h	Wed Jun 16 07:19:01 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_ext.h	Wed Jun 30 17:06:38 2004
+@@ -31,7 +31,7 @@
+ #ifndef ZFCP_EXT_H
+ #define ZFCP_EXT_H
+ /* this drivers version (do not edit !!! generated and updated by cvs) */
+-#define ZFCP_EXT_REVISION "$Revision: 1.50 $"
++#define ZFCP_EXT_REVISION "$Revision: 1.51 $"
+ 
+ #include "zfcp_def.h"
+ 
+@@ -136,6 +136,8 @@
+ 				   struct scsi_cmnd *scsi_cmnd);
+ extern int zfcp_scsi_command_sync(struct zfcp_unit *unit,
+ 				  struct scsi_cmnd *scsi_cmnd);
++extern struct scsi_transport_template *zfcp_transport_template;
++extern struct fc_function_template zfcp_transport_functions;
+ 
+ /******************************** ERP ****************************************/
+ extern void zfcp_erp_modify_adapter_status(struct zfcp_adapter *, u32, int);
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_fsf.c linux-2.6-s390/drivers/s390/scsi/zfcp_fsf.c
+--- linux-2.6/drivers/s390/scsi/zfcp_fsf.c	Wed Jun 16 07:19:43 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_fsf.c	Wed Jun 30 17:06:38 2004
+@@ -29,7 +29,7 @@
+  */
+ 
+ /* this drivers version (do not edit !!! generated and updated by cvs) */
+-#define ZFCP_FSF_C_REVISION "$Revision: 1.47 $"
++#define ZFCP_FSF_C_REVISION "$Revision: 1.49 $"
+ 
+ #include "zfcp_ext.h"
+ 
+@@ -3997,15 +3997,14 @@
+ 	scpnt->result |= fcp_rsp_iu->scsi_status;
+ 	if (unlikely(fcp_rsp_iu->scsi_status)) {
+ 		/* DEBUG */
+-		ZFCP_LOG_NORMAL("status for SCSI Command:\n");
+-		ZFCP_HEX_DUMP(ZFCP_LOG_LEVEL_NORMAL,
++		ZFCP_LOG_DEBUG("status for SCSI Command:\n");
++		ZFCP_HEX_DUMP(ZFCP_LOG_LEVEL_DEBUG,
+ 			      scpnt->cmnd, scpnt->cmd_len);
+-
+-		ZFCP_LOG_NORMAL("SCSI status code 0x%x\n",
++		ZFCP_LOG_DEBUG("SCSI status code 0x%x\n",
+ 				fcp_rsp_iu->scsi_status);
+-		ZFCP_HEX_DUMP(ZFCP_LOG_LEVEL_NORMAL,
++		ZFCP_HEX_DUMP(ZFCP_LOG_LEVEL_DEBUG,
+ 			      (void *) fcp_rsp_iu, sizeof (struct fcp_rsp_iu));
+-		ZFCP_HEX_DUMP(ZFCP_LOG_LEVEL_NORMAL,
++		ZFCP_HEX_DUMP(ZFCP_LOG_LEVEL_DEBUG,
+ 			      zfcp_get_fcp_sns_info_ptr(fcp_rsp_iu),
+ 			      fcp_rsp_iu->fcp_sns_len);
+ 	}
+@@ -4782,6 +4781,16 @@
+                 goto failed_sbals;
+ 	}
+ 
++	/*
++	 * We hold queue_lock here. Check if QDIOUP is set and let request fail
++	 * if it is not set (see also *_open_qdio and *_close_qdio).
++	 */
++
++	if (!atomic_test_mask(ZFCP_STATUS_ADAPTER_QDIOUP, &adapter->status)) {
++		write_unlock_irqrestore(&req_queue->queue_lock, *lock_flags);
++		goto failed_sbals;
++	}
++
+ 	fsf_req->adapter = adapter;	/* pointer to "parent" adapter */
+ 	fsf_req->fsf_command = fsf_cmd;
+ 	fsf_req->sbal_number = 1;
+diff -urN linux-2.6/drivers/s390/scsi/zfcp_scsi.c linux-2.6-s390/drivers/s390/scsi/zfcp_scsi.c
+--- linux-2.6/drivers/s390/scsi/zfcp_scsi.c	Wed Jun 16 07:19:17 2004
++++ linux-2.6-s390/drivers/s390/scsi/zfcp_scsi.c	Wed Jun 30 17:06:38 2004
+@@ -31,7 +31,7 @@
+ #define ZFCP_LOG_AREA			ZFCP_LOG_AREA_SCSI
+ 
+ /* this drivers version (do not edit !!! generated and updated by cvs) */
+-#define ZFCP_SCSI_REVISION "$Revision: 1.62 $"
++#define ZFCP_SCSI_REVISION "$Revision: 1.65 $"
+ 
+ #include "zfcp_ext.h"
+ 
+@@ -51,6 +51,8 @@
+ 
+ static struct device_attribute *zfcp_sysfs_sdev_attrs[];
+ 
++struct scsi_transport_template *zfcp_transport_template;
++
+ struct zfcp_data zfcp_data = {
+ 	.scsi_host_template = {
+ 	      name:	               ZFCP_NAME,
+@@ -508,8 +510,7 @@
+ 	ZFCP_LOG_DEBUG("unit 0x%016Lx (%p)\n", unit->fcp_lun, unit);
+ 
+ 	/*
+-	 * The 'Abort FCP Command' routine may block (call schedule)
+-	 * because it may wait for a free SBAL.
++	 * We block (call schedule)
+ 	 * That's why we must release the lock and enable the
+ 	 * interrupts before.
+ 	 * On the other hand we do not need the lock anymore since
+@@ -518,8 +519,7 @@
+ 	write_unlock_irqrestore(&adapter->abort_lock, flags);
+ 	/* call FSF routine which does the abort */
+ 	new_fsf_req = zfcp_fsf_abort_fcp_command((unsigned long) old_fsf_req,
+-						 adapter,
+-						 unit, ZFCP_WAIT_FOR_SBAL);
++						 adapter, unit, 0);
+ 	ZFCP_LOG_DEBUG("new_fsf_req=%p\n", new_fsf_req);
+ 	if (!new_fsf_req) {
+ 		retval = FAILED;
+@@ -657,7 +657,7 @@
+ 
+ 	/* issue task management function */
+ 	fsf_req = zfcp_fsf_send_fcp_command_task_management
+-	    (adapter, unit, tm_flags, ZFCP_WAIT_FOR_SBAL);
++		(adapter, unit, tm_flags, 0);
+ 	if (!fsf_req) {
+ 		ZFCP_LOG_INFO("error: creation of task management request "
+ 			      "failed for unit 0x%016Lx on port 0x%016Lx on  "
+@@ -768,6 +768,7 @@
+ 	adapter->scsi_host->max_channel = 0;
+ 	adapter->scsi_host->unique_id = unique_id++;	/* FIXME */
+ 	adapter->scsi_host->max_cmd_len = ZFCP_MAX_SCSI_CMND_LENGTH;
++	adapter->scsi_host->transportt = zfcp_transport_template;
+ 	/*
+ 	 * Reverse mapping of the host number to avoid race condition
+ 	 */
+@@ -823,6 +824,44 @@
+ 	add_timer(&adapter->scsi_er_timer);
  }
  
-@@ -6911,8 +6916,8 @@
- 		return;
- 	if (!qeth_delete_ip(card, ipaddr))
- 		kfree(ipaddr);
--	qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD);
--	schedule_work(&card->kernel_thread_starter);
-+ 	if (qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD) == 0)
-+		schedule_work(&card->kernel_thread_starter);
- }
++/*
++ * Support functions for FC transport class
++ */
++static void
++zfcp_get_port_id(struct scsi_device *sdev)
++{
++	struct zfcp_unit *unit;
++
++	unit = (struct zfcp_unit *) sdev->hostdata;
++	fc_port_id(sdev) = unit->port->d_id;
++}
++
++static void
++zfcp_get_port_name(struct scsi_device *sdev)
++{
++	struct zfcp_unit *unit;
++
++	unit = (struct zfcp_unit *) sdev->hostdata;
++	fc_port_name(sdev) = unit->port->wwpn;
++}
++
++static void
++zfcp_get_node_name(struct scsi_device *sdev)
++{
++	struct zfcp_unit *unit;
++
++	unit = (struct zfcp_unit *) sdev->hostdata;
++	fc_node_name(sdev) = unit->port->wwnn;
++}
++
++struct fc_function_template zfcp_transport_functions = {
++	.get_port_id = zfcp_get_port_id,
++	.get_port_name = zfcp_get_port_name,
++	.get_node_name = zfcp_get_node_name,
++	.show_port_id = 1,
++	.show_port_name = 1,
++	.show_node_name = 1,
++};
  
  /**
-@@ -6952,8 +6957,8 @@
- 	default:
- 		break;
- 	}
--	qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD);
--	schedule_work(&card->kernel_thread_starter);
-+ 	if (qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD) == 0)
-+		schedule_work(&card->kernel_thread_starter);
- out:
- 	return NOTIFY_DONE;
- }
-@@ -7005,8 +7010,8 @@
- 	default:
- 		break;
- 	}
--	qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD);
--	schedule_work(&card->kernel_thread_starter);
-+ 	if (qeth_set_thread_start_bit(card, QETH_SET_IP_THREAD) == 0)
-+		schedule_work(&card->kernel_thread_starter);
- out:
- 	return NOTIFY_DONE;
- }
-diff -urN linux-2.6/drivers/s390/net/qeth_mpc.h linux-2.6-s390/drivers/s390/net/qeth_mpc.h
---- linux-2.6/drivers/s390/net/qeth_mpc.h	Wed Jun 16 07:19:22 2004
-+++ linux-2.6-s390/drivers/s390/net/qeth_mpc.h	Wed Jun 30 17:06:38 2004
-@@ -14,7 +14,7 @@
- 
- #include <asm/qeth.h>
- 
--#define VERSION_QETH_MPC_H "$Revision: 1.35 $"
-+#define VERSION_QETH_MPC_H "$Revision: 1.36 $"
- 
- extern const char *VERSION_QETH_MPC_C;
- 
-@@ -36,7 +36,7 @@
- 
- #define QETH_TIMEOUT 		(10 * HZ)
- #define QETH_IPA_TIMEOUT 	(45 * HZ)
--#define QETH_IDX_COMMAND_SEQNO 	-1
-+#define QETH_IDX_COMMAND_SEQNO 	0xffff0000
- #define SR_INFO_LEN		16
- 
- #define QETH_CLEAR_CHANNEL_PARM	-10
+  * ZFCP_DEFINE_SCSI_ATTR
+diff -urN linux-2.6/drivers/scsi/Kconfig linux-2.6-s390/drivers/scsi/Kconfig
+--- linux-2.6/drivers/scsi/Kconfig	Wed Jun 30 17:06:16 2004
++++ linux-2.6-s390/drivers/scsi/Kconfig	Wed Jun 30 17:06:38 2004
+@@ -1738,6 +1738,7 @@
+ config ZFCP
+ 	tristate "FCP host bus adapter driver for IBM eServer zSeries"
+ 	depends on ARCH_S390 && SCSI
++	select SCSI_FC_ATTRS
+ 	help
+           If you want to access SCSI devices attached to your IBM eServer
+           zSeries by means of Fibre Channel interfaces say Y.

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282597AbRLICpM>; Sat, 8 Dec 2001 21:45:12 -0500
+	id <S282687AbRLIC5H>; Sat, 8 Dec 2001 21:57:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282598AbRLICox>; Sat, 8 Dec 2001 21:44:53 -0500
-Received: from dsl-213-023-038-245.arcor-ip.net ([213.23.38.245]:63239 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S282597AbRLICot>;
-	Sat, 8 Dec 2001 21:44:49 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Hans Reiser <reiser@namesys.com>,
-        Ragnar =?iso-8859-1?q?Kj=F8rstad?= <reiserfs@ragnark.vestdata.no>
-Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and benchmarks
-Date: Sun, 9 Dec 2001 03:47:31 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
-        Nikita Danilov <god@namesys.com>, green@thebsh.namesys.com
-In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <20011208201639.B12687@vestdata.no> <3C12701A.10904@namesys.com>
-In-Reply-To: <3C12701A.10904@namesys.com>
+	id <S282922AbRLIC45>; Sat, 8 Dec 2001 21:56:57 -0500
+Received: from mta02ps.bigpond.com ([144.135.25.134]:38104 "EHLO
+	mta02ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S282687AbRLIC4k>; Sat, 8 Dec 2001 21:56:40 -0500
+Message-ID: <3C12D227.2595EEC1@yahoo.com>
+Date: Sun, 09 Dec 2001 13:53:27 +1100
+From: YH <yh86us@yahoo.com>
+Reply-To: yh86us@yahoo.com
+X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Cu08-00014I-00@starship.berlin>
+To: linux-kernel@vger.kernel.org
+Subject: Re: device video0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 8, 2001 08:55 pm, Hans Reiser wrote:
-> Daniel, you didn't mention though whether leaking collision bits is a 
-> problem for Htrees.  Is it?  Do you need to rehash every so often to 
-> solve it?  Or it is rare enough that the performance cost can be ignored?
+Hi,
 
-It's a problem of course, and I put considerable effort into handling it.  I 
-never have to rehash because the htree isn't a hash table, it's a tree of 
-hash ranges.  I explicitly flag every instance where a collision could force 
-a search to continue in a successor block.  Even though it's every rare, it 
-does happen and it has to be handled.  This is described in some detail in my 
-paper.
+I have a quickcam module linked to /dev/video0. It was fine to run modprobe
+char-major-81-0, but the /dev/video0 (major=81, minor=0) cannot be opened, the
+errno=19 (No such device). There was no error of loading module in
+/var/log/messages. 
 
-After all the effort that went into this, the result was just a few lines of 
-code, which was nice.
+My understand is that calling open() to open video0, the system invokes
+"modprobe char-major-81-0", if the module (alias char-major-81-0) can be
+loaded, the device should be opened. What was I missing here? How can I
+further diagnose it?
 
---
-Daniel
+System: Dell Pentium III, Kernel 2.4.2-2 in RH 7.1 (no permission problem, I
+am in both root and users. No problem with the USB and videodev module)
+
+Hardware: logitech quickcam express webcam (USB) (no problem running it on the
+Window of my dual-boot platform.)
+
+Thank you.
+
+yh

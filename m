@@ -1,79 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262873AbUC2OSH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 09:18:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262885AbUC2OSH
+	id S262506AbUC2OTd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 09:19:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262880AbUC2OTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 09:18:07 -0500
-Received: from ms-smtp-04.texas.rr.com ([24.93.47.43]:17885 "EHLO
-	ms-smtp-04.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262873AbUC2OSC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 09:18:02 -0500
-Date: Mon, 29 Mar 2004 08:17:56 -0600
-From: Dan Hopper <ku4nf@austin.rr.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-mm4
-Message-ID: <20040329141756.GA6367@yoda.dummynet>
-Mail-Followup-To: Dan Hopper <ku4nf@austin.rr.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <1E741-Sh-5@gated-at.bofh.it> <20040328235928.GA32243@obiwan.dummynet> <20040328164613.18316ab8.akpm@osdl.org>
-Mime-Version: 1.0
+	Mon, 29 Mar 2004 09:19:33 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:22790 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262506AbUC2OTc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 09:19:32 -0500
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       areiter@preventsys.com, rmk+serial@arm.linux.org.uk, tytso@mit.edu
+Subject: Re: Subject: Re: NULL pointer in proc_pid_stat -- oops.
+References: <1080524145.2233.1877.camel@cube>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Mon, 29 Mar 2004 23:18:47 +0900
+In-Reply-To: <1080524145.2233.1877.camel@cube>
+Message-ID: <87d66vd9dk.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040328164613.18316ab8.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> remarked:
-> Dan Hopper <ku4nf@austin.rr.com> wrote:
+Albert Cahalan <albert@users.sf.net> writes:
+
+> >  if (task->tty) {
+> >   tty_pgrp = task->tty->pgrp;
+> >   tty_nr = new_encode_dev(tty_devnum(task->tty));
+> >  }
 > >
-> > On a Thinkpad T40p, 2.6.5-rc2-mm4 does not boot successfully,
-> >  whereas 2.6.5-rc2 does.  All the typical things (ACPI, CPUFREQ, APIC
-> >  & IOAPIC, etc.) are built in.  The -mm4 kernel config was derived
-> >  from the working config for 2.6.5-rc2.  
-> > 
-> >  I have to pass the nolapic kernel option to disable the local APIC
-> >  in order to successfully boot 2.6.x kernels.  It appears that with
-> >  2.6.5-rc2-mm4, this option is ignored, or perhaps there's a ordering
-> >  issue with when it is checked.  With -mm4, a message saying that it
-> >  is enabling the local APIC appears _before_ the "Kernel command
-> >  line: ... nolapic" line appears.
-> > 
-> >  Without the -mm4 patch, the nolapic command line option is parsed
-> >  before it would have tried to reenable the local APIC.  With -mm4,
-> >  it is parsed after it tries to renable it.  Boom, and then it locks
-> >  on "Calibrating delay loop...".
-> > 
-> >  Any relevant config options I should try with/without to help narrow
-> >  it down?
+> > Some place doesn't take the any lock for ->tty.
+> > I think we need to take the lock for ->tty.
 > 
-> Does this fix it?
+> Probably this isn't the thing for 2.6.xx,
 
-Yep, it sure does.  Thanks!
+Ah, sorry for confusing. This is 2.6.x (maybe also 2.4.x).
 
-Dan
-
-
-> 
-> ---
-> 
->  25-akpm/arch/i386/kernel/apic.c |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff -puN arch/i386/kernel/apic.c~early-param-i386-nolapic-fix arch/i386/kernel/apic.c
-> --- 25/arch/i386/kernel/apic.c~early-param-i386-nolapic-fix	2004-03-28 16:41:06.685335888 -0800
-> +++ 25-akpm/arch/i386/kernel/apic.c	2004-03-28 16:42:17.299600888 -0800
-> @@ -616,7 +616,7 @@ static int __init lapic_disable(char *st
->  	clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
->  	return 0;
->  }
-> -__setup("nolapic", lapic_disable);
-> +__early_param("nolapic", lapic_disable);
->  
->  static int __init lapic_enable(char *str)
->  {
-> 
-> _
-> 
+e.g. the above take the task_lock(). But disassociate_ctty() just take
+read_lock(&tasklist_lock), etc. etc. So looks like racy.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,79 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289103AbSA1Dkl>; Sun, 27 Jan 2002 22:40:41 -0500
+	id <S289106AbSA1DvN>; Sun, 27 Jan 2002 22:51:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289105AbSA1DkV>; Sun, 27 Jan 2002 22:40:21 -0500
-Received: from harddata.com ([216.123.194.198]:33040 "EHLO mail.harddata.com")
-	by vger.kernel.org with ESMTP id <S289103AbSA1DkR>;
-	Sun, 27 Jan 2002 22:40:17 -0500
-Date: Sun, 27 Jan 2002 20:40:02 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Michal Jaegermann <michal@harddata.com>, dalecki@evision-ventures.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: CRAP in 2.4.18-pre7
-Message-ID: <20020127204002.A5220@mail.harddata.com>
-In-Reply-To: <20020126171545.GB11344@fefe.de> <3C52E671.605FA2F3@mandrakesoft.com> <3C540A90.5020904@evision-ventures.com> <20020127114642.A2288@mail.harddata.com> <20020127225845.1bc1453a.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020127225845.1bc1453a.skraw@ithnet.com>; from skraw@ithnet.com on Sun, Jan 27, 2002 at 10:58:45PM +0100
+	id <S289107AbSA1DvC>; Sun, 27 Jan 2002 22:51:02 -0500
+Received: from ausxc08.us.dell.com ([143.166.227.176]:50954 "EHLO
+	ausxc08.us.dell.com") by vger.kernel.org with ESMTP
+	id <S289106AbSA1Duu>; Sun, 27 Jan 2002 22:50:50 -0500
+Message-ID: <71714C04806CD5119352009027289217022C42DD@ausxmrr502.us.dell.com>
+From: Matt_Domsch@Dell.com
+To: brownfld@irridia.com, ivan@es.usyd.edu.au
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Physical memory versus detected memory 2.4.7-10
+Date: Sun, 27 Jan 2002 21:50:42 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 27, 2002 at 10:58:45PM +0100, Stephan von Krawczynski wrote:
-> On Sun, 27 Jan 2002 11:46:42 -0700
-> Michal Jaegermann <michal@harddata.com> wrote:
-> 
-> > Well, from what I know 'tulip' driver in later 2.4 kernels simply does
-> > NOT work with any of my tulip cards, on x86 or on alpha,
+> | My server detects less memory than it available. 
+> | 
+> | 	Available memory according to the BIOS 4049MB.
+> | 
+> | 	System sees only 3.7GB ???
+> | 	Mem:  3799580K av, 1606816K used, 2192764K free, 468K shrd, 376972K
+buff
+> | 	Swap: 8192992K av, 0K used, 8192992K free 1037532K cached
 
-> Hm, maybe you should shortly state which vendor (OEM or the like) you are
-> using.
+The difference is space assigned to PCI cards or reserved for hot-plug PCI
+cards.  You should be able to run a CONFIG_HIGHMEM64G-enabled kernel (such
+as the Red Hat 2.4.x-enterprise kernels instead of the -smp kernel) and be
+able to use the remaining memory, at the performance cost of enabling PAE.
 
-Ok, how about these:
+Thanks,
+Matt
 
-# lspci -v -s 2:5.0
-02:05.0 Ethernet controller: Digital Equipment Corporation DECchip 21142/43 (rev 41)
-	Subsystem: Digital Equipment Corporation DE500 Fast Ethernet
-	Flags: bus master, medium devsel, latency 96, IRQ 3
-	I/O ports at c400 [size=128]
-	Memory at db002000 (32-bit, non-prefetchable) [size=1K]
-	Expansion ROM at <unassigned> [disabled] [size=256K]
-
-# lspci -n -s 2:5.0
-02:05.0 Class 0200: 1011:0019 (rev 41)
-
-and (another machine runing something "old" at the moment):
-
-# lspci -v -s 0:5.0
-00:05.0 Ethernet controller: Digital Equipment Corporation DECchip 21140 [FasterNet] (rev 22)
-        Subsystem: Unknown device 1025:0310
-        Flags: bus master, medium devsel, latency 32, IRQ 18
-        I/O ports at 8000
-        Memory at 0000000004200000 (32-bit, non-prefetchable)
-
-# lspci -n -s 0:5.0
-00:05.0 Class 0200: 1011:0009 (rev 22)
-
-This is what I happen to have on hands right now.
-
-> I generally cannot confirm any problems with tulip-driver in 2.4.
-
-Lucky you!  The same goes for me if you do s/2.4/2.2/. :-)
-
-> Maybe this is a specific problem with a certain vendor or board type?
-
-Well, the vendor seems to be tulip designers and for a board type I had
-exactly the same results with various x86 and Alpha boards.
-
-If you will search through linux-kernel archives you will notice that
-some people were able to restart a network with 2.4 tulip drivers by
-unplugging a cable and plugging it back.  Even this trick does not work
-in my case.  Yes, I am aware about negotiation troubles with tulips.
-Forcing speed also does not help. 'de4x5' is still fine or you will be
-not reading this. :-)
-
-  Michal
-
+-- 
+Matt Domsch
+Sr. Software Engineer
+Dell Linux Solutions www.dell.com/linux
+#1 US Linux Server provider with 24.5% (IDC Dec 2001)
+#2 Worldwide Linux Server provider with 18.5% (IDC Dec 2001)

@@ -1,73 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263093AbTCSQm5>; Wed, 19 Mar 2003 11:42:57 -0500
+	id <S263071AbTCSQkl>; Wed, 19 Mar 2003 11:40:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263100AbTCSQm5>; Wed, 19 Mar 2003 11:42:57 -0500
-Received: from tag.witbe.net ([81.88.96.48]:29196 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id <S263089AbTCSQmR>;
-	Wed, 19 Mar 2003 11:42:17 -0500
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Dave Jones'" <davej@codemonkey.org.uk>
-Cc: "'Juha Poutiainen'" <pode@iki.fi>, <linux-kernel@vger.kernel.org>
-Subject: Re: L2 cache detection in Celeron 2GHz (P4 based)
-Date: Wed, 19 Mar 2003 17:53:13 +0100
-Message-ID: <013d01c2ee38$0812e330$6100a8c0@witbe>
+	id <S263080AbTCSQkl>; Wed, 19 Mar 2003 11:40:41 -0500
+Received: from zeke.inet.com ([199.171.211.198]:26025 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S263071AbTCSQkj>;
+	Wed, 19 Mar 2003 11:40:39 -0500
+Message-ID: <3E78A002.70004@inet.com>
+Date: Wed, 19 Mar 2003 10:51:14 -0600
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-In-Reply-To: <20030319135841.GC28770@suse.de>
+To: Xavier Bestel <xavier.bestel@free.fr>
+CC: Matthias Schniedermeyer <ms@citd.de>,
+       "Richard B. Johnson" <johnson@quark.analogic.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Everything gone!
+References: <Pine.LNX.4.53.0303191041370.27397@quark.analogic.com>	 <20030319160437.GA22939@citd.de> <1048091858.989.10.camel@bip.localdomain.fake>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
->  > You can also add that the L1 detection doesn't seem to be correct
->  > either : 
->  > 0K Instruction cache, and 8K data cache for L1... This is not much
->  > for instruction, it seems it should be 12K...
+Xavier Bestel wrote:
+> Le mer 19/03/2003 à 17:04, Matthias Schniedermeyer a écrit :
 > 
-> That should be fixed in recent 2.4s (and not-so-recent 2.5s).
-> What version are you seeing this problem on?
+> 
+>>rm -rf *
+>>Should do the same(*) but with much better speed.
+>>
+>>Normaly the system should lockup at sometime while doing it.
+>>
+>>
+>>
+>>
+>>*: OK. The version above will "break" in the middle after "/bin/rm" (or
+>>"/lib/libc.so.6") got deleted.
+> 
+> 
+> That would be surprising. Did you actually try it ? :)
 
-Quite a recent one : 2.4.20.
+The complex version that you snipped would break because it invokes rm 
+for each file.  The simpler version he gave would not break at that 
+point because it is already running.  Hence the footnote ton the word 
+'same'.
 
-Here are the traces :
+HTH,
 
-bash-2.05$ dmesg | grep -i L1 
-CPU: L1 I cache: 0K, L1 D cache: 8K
-CPU: L1 I cache: 0K, L1 D cache: 8K
-bash-2.05$ uname -a
-Linux addx-01.PAR 2.4.20-watchdog #4 SMP Mon Mar 17 10:57:00 GMT 2003
-i686 unknown
-
-bash-2.05$ cat /proc/cpuinfo 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Celeron(R) CPU 2.00GHz
-stepping        : 7
-cpu MHz         : 2000.356
-cache size      : 8 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-bogomips        : 3984.58
-
-Regards,
-Paul
-
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 

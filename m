@@ -1,138 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132378AbRAXE3t>; Tue, 23 Jan 2001 23:29:49 -0500
+	id <S132401AbRAXEga>; Tue, 23 Jan 2001 23:36:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132401AbRAXE3k>; Tue, 23 Jan 2001 23:29:40 -0500
-Received: from [213.221.172.237] ([213.221.172.237]:20748 "EHLO
-	smtp-relay2.barrysworld.com") by vger.kernel.org with ESMTP
-	id <S132378AbRAXE3V>; Tue, 23 Jan 2001 23:29:21 -0500
-Date: Wed, 24 Jan 2001 04:28:26 +0000
-From: Scaramanga <scaramanga@barrysworld.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Firewall netlink question...
-Message-ID: <20010124042826.A3452@lemsip.lan>
-Reply-To: scaramanga@barrysworld.com
-In-Reply-To: <20010122073343.A3839@lemsip.lan> <Pine.LNX.4.21.0101221045380.25503-100000@titan.lahn.de> <20010122102600.A4458@lemsip.lan> <E14Kf9W-0008PJ-00@kabuki.eyep.net> <20010122115826.A11297@lemsip.lan>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="AWniW0JNca5xppdA"
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20010122115826.A11297@lemsip.lan>; from scaramanga@barrysworld.com on Mon, Jan 22, 2001 at 11:58:26 +0000
-X-Mailer: Balsa 1.0.1
+	id <S132435AbRAXEgL>; Tue, 23 Jan 2001 23:36:11 -0500
+Received: from ausxc07.us.dell.com ([143.166.99.215]:19776 "EHLO
+	ausxc07.us.dell.com") by vger.kernel.org with ESMTP
+	id <S132401AbRAXEgF>; Tue, 23 Jan 2001 23:36:05 -0500
+Message-ID: <CDF99E351003D311A8B0009027457F1403BF9C0C@ausxmrr501.us.dell.com>
+From: Matt_Domsch@Dell.com
+To: ttsig@tuxyturvy.com, linux-kernel@vger.kernel.org
+Subject: RE: No SCSI Ultra 160 with Adaptec Controller
+Date: Tue, 23 Jan 2001 22:34:42 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Tom.  Thanks for writing.
 
---AWniW0JNca5xppdA
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+> Since this machine has Quantum drives I guess this is my 
+> problem.  Does anyone 
+> know if this code is still actually necessary?  It seems 
+> it's been there a 
+> while.  It's disappointing to not get full performance out of 
+> the hardware you 
+> have.
 
+Yes, that code is still necessary.  There's a new aic7xxx driver by Justin
+Gibbs at Adaptec which is now being beta tested which corrects this issue.
+Something to note, however: the media transfer rate for those disks is at
+most ~20MB/sec.  Therefore, you only exceed the 80MB/sec bus speed if you
+have more than 4 disks all doing maximum I/O at the same time.  Since the
+PowerApp.web 100 has at most 2 disks internally, you really shouldn't see
+any significant performance difference.
 
-On 2001.01.22 11:58:26 +0000 Scaramanga wrote:
-> I wonder, would there be any interest/point in my NETLINK module, which
-> provides a backward compatible netlink interface. There are a good few
-> apps out there which rely on it, and its nice not to have to run a daemon
-> and install a new library, and re-write them just to continue using them...
+Hope this helps.
+Thanks for buying Dell!
+Matt Domsch
+Dell Linux Systems Group
+Linux OS Development
 
-Well, here it is, kernel module, and iptables plugin. Emjoy :)
-
---
-// Gianni Tedesco <scaramanga@barrysworld.com>
-Fingerprint: FECC 237F B895 0379 62C4  B5A9 D83B E2B0 02F3 7A68
-Key ID: 02F37A68
-
-egg.microsoft.com: Remote operating system guess: Solaris 2.6 - 2.7
---AWniW0JNca5xppdA
-Content-Type: application/x-compressed-tar
-Content-Disposition: attachment; filename="netlink.tar.gz"
-Content-Transfer-Encoding: base64
-
-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
-uqVbuqVbuqVbuuUTXv4XpPUccABQAAA=
-
---AWniW0JNca5xppdA--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130007AbQK1CLh>; Mon, 27 Nov 2000 21:11:37 -0500
+        id <S130072AbQK1CVs>; Mon, 27 Nov 2000 21:21:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130195AbQK1CL1>; Mon, 27 Nov 2000 21:11:27 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:2823 "EHLO
-        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S130127AbQK1CLP>; Mon, 27 Nov 2000 21:11:15 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: KERNEL BUG: console not working in linux
-Date: 27 Nov 2000 17:40:58 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8vv2fa$7n6$1@cesium.transmeta.com>
-In-Reply-To: <E140Pc3-0003AI-00@the-village.bc.nu> <8vubeq$r5r$1@cesium.transmeta.com> <20001127202738.A25168@vana.vc.cvut.cz> <20001128023652.A9368@veritas.com>
+        id <S130146AbQK1CV2>; Mon, 27 Nov 2000 21:21:28 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:5395
+        "EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+        id <S130072AbQK1CVU>; Mon, 27 Nov 2000 21:21:20 -0500
+Date: Mon, 27 Nov 2000 17:50:36 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Bjorn Wesen <bjorn@sparta.lu.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE-driver not generalized enough ?
+In-Reply-To: <Pine.LNX.3.96.1001128011205.21838E-100000@medusa.sparta.lu.se>
+Message-ID: <Pine.LNX.4.10.10011271735210.16898-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20001128023652.A9368@veritas.com>
-By author:    Andries Brouwer <aeb@veritas.com>
-In newsgroup: linux.dev.kernel
+
+Yes, I have been working on that for some time.
+This requires that the macros be exported the arch-xxx/ide.h
+Additionally it takes more work to modify the request_io and release_io,
+but it is all doable.
+
+On Tue, 28 Nov 2000, Bjorn Wesen wrote:
+
+> Hi! Quick question: is it possible to write an IDE driver for a controller
+> that is not mappable using outp and those memory-mapped thingys ? 
 > 
-> What about adding an additional
+> I see all the nice overrideables in struct hwif_s but the main code still
+> uses OUT_BYTE which is hardcoded to an outb_p.. non-overrideable. Same
+> thing with ide_input/output_bytes, they do direct in/out accesses also
+> without consulting any hwif specific routine.
 > 
-> 	andb	$0xfe, %al
+> So what do I do if my controller does not have a simple memory-mapping for
+> each IDE-register into the memory ? Do I have to clutter ide.h and ide.c
+> with #ifdef's or is there any cleaner abstraction on the way (something
+> like adding a hwif field to perform the OUT/IN-byte stuff, and
+> ide_xxput_bytes) ?
 > 
-> in front of the outb?
-> If I understand things correctly, bit 0 of 0x92 is write-only
-> on some hardware, and writing 1 to it causes a reset, so we
-> never want that.
+> (I have a solution working by replacing OUT_BYTE and ide_xxput_bytes, but
+> wanted to make it without having to patch the "official" ide.c/ide.h)
+> 
+> Regards,
+> Bjorn
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 > 
 
-Already in test12-pre1.  Admittedly, this bit is defined to always
-read back as 0, but this is the PC architecture (using the term *very*
-loosely here!!!) we're talking about.
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

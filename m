@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263537AbTL2PRp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 10:17:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbTL2PRp
+	id S263600AbTL2P02 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 10:26:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263606AbTL2P02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 10:17:45 -0500
-Received: from net4visions.de ([217.160.106.106]:58441 "EHLO
-	smtp.net4visions.de") by vger.kernel.org with ESMTP id S263537AbTL2PRn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 10:17:43 -0500
-Message-ID: <3FF04584.9010606@tower-net.de>
-Date: Mon, 29 Dec 2003 16:17:24 +0100
-From: Markus Kolb <usenet@tower-net.de>
-Organization: tower networks
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: tcp socks at close_wait for days without process
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 29 Dec 2003 10:26:28 -0500
+Received: from imf17aec.mail.bellsouth.net ([205.152.59.65]:20613 "EHLO
+	imf17aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S263600AbTL2P00 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 10:26:26 -0500
+Subject: Re: 2.4.23 can run with HZ==0!
+From: Rob Love <rml@ximian.com>
+To: Frank van Maarseveen <frankvm@xs4all.nl>
+Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20031229125240.GA4055@janus>
+References: <20031228230522.GA1876@janus>
+	 <1072691126.5223.5.camel@laptop.fenrus.com>  <20031229125240.GA4055@janus>
+Content-Type: text/plain
+Message-Id: <1072711585.4294.8.camel@fur>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Mon, 29 Dec 2003 10:26:25 -0500
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.16; AVE: 6.23.0.2; VDF: 6.23.0.19; host: mail.tower-net.all)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I have a problem with this close_wait state in tcp connections.
+On Mon, 2003-12-29 at 07:52, Frank van Maarseveen wrote:
 
-There is no process left in the process list which could belong to the
-specific port.
-It is known that the application has bugs, but shouldn't the Linux
-kernel manage this close_wait state and free the port after a while?
-I believe I could wait for months and years and the close_wait won't go
-away without a reboot.
+> Can you give me an example?
 
-At the moment I am using a Debian kernel-image 2.4.22-1.
-But with older Debian kernel-images and SuSE images (I think I have also
-tried a 2.4 vanilla) you can watch this behavior, too.
+Sure, as this has already been done:
 
-I have watched a 2nd strange kernel behavior. For that I don't know how
-to reproduce.
-A server application listened at a specific port. The application
-crashed and no process belonging to this application was in process list
-anymore. But the listening socket alives for about 5 minutes although
-there was no process. How this can be? A listening port without a daemon
-process belonging to it?
-After the 5 minutes I have rebooted.
+	http://www.kernel.org/pub/linux/kernel/people/rml/variable-HZ/v2.4/
 
-Am I wrong about the possibilities of the kernel?
+As you see, that has a ton of fixups, primarily to ensure that
+user-space is always exported jiffies in terms of USER_HZ==100.
 
-Bye
-Markus
+> The uptime will be rather limited with 32 bits jiffies ;-) but I can live with that.
+
+There is a patch at that same place that adds 64-bit jiffies.
+
+	Rob Love
 
 

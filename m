@@ -1,149 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263205AbTESWu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 18:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbTESWu6
+	id S263309AbTESXCX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 19:02:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTESW5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 18:50:58 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:27307 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S263205AbTESWur (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 18:50:47 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Mon, 19 May 2003 18:57:48 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:15350 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263309AbTESW5i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 18:57:38 -0400
+Date: Mon, 19 May 2003 16:11:56 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: [BK PATCH] Yet more i2c driver changes for 2.5.69
+Message-ID: <20030519231156.GA27535@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16073.25296.659748.225474@napali.hpl.hp.com>
-Date: Mon, 19 May 2003 16:03:44 -0700
-To: "David S. Miller" <davem@redhat.com>
-Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, akpm@digeo.com, ak@muc.de,
-       arjanv@redhat.com, johnstul@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: time interpolation hooks
-In-Reply-To: <20030519.153758.71094061.davem@redhat.com>
-References: <16069.24454.349874.198470@napali.hpl.hp.com>
-	<1053139080.7308.6.camel@rth.ninka.net>
-	<16073.5555.158600.61609@napali.hpl.hp.com>
-	<20030519.153758.71094061.davem@redhat.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 19 May 2003 15:37:58 -0700 (PDT), "David S. Miller" <davem@redhat.com> said:
+Hi,
 
-  DaveM> That's not the issue, if I have only ONE way to do this on my
-  DaveM> platform, I can INLINE this thing and I DO NOT need function
-  DaveM> pointers.
+Here are yet more minor i2c fixups for 2.5.69.  They add another i2c bus
+driver, and fix some bugs in the existing drivers (i287 and i2c-dev.)
 
-With the present code, an architecture does not have to use any
-indirect function calls if there is only one known interpolator
-(presumably based on a CPU cycle counter).  The only extra overhead is
-the (inlined) read of variable time_interpolator and a check against
-NULL.  Is this acceptable?
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.5
 
-For convenience, I attached the current proposal.  In the SPARC case,
-you'd simply never call register_time_interpolator() and use
-arch-specific code to calculate (and update) last_nsec_offset.  The
-time_interpolator_update() and time_interpolator_reset() code then
-take care of the rest.
+thanks,
 
-	--david
+greg k-h
 
-#ifdef CONFIG_TIME_INTERPOLATION
+ drivers/i2c/busses/Kconfig      |   25 ++
+ drivers/i2c/busses/Makefile     |    1 
+ drivers/i2c/busses/i2c-piix4.c  |    4 
+ drivers/i2c/busses/i2c-sis96x.c |  376 ++++++++++++++++++++++++++++++++++++++++
+ drivers/i2c/chips/it87.c        |    1 
+ drivers/i2c/i2c-dev.c           |  228 +++++++++++++++++-------
+ drivers/pci/quirks.c            |   80 ++++++++
+ include/linux/i2c-id.h          |    2 
+ include/linux/pci_ids.h         |    3 
+ 9 files changed, 648 insertions(+), 72 deletions(-)
+-----
 
-struct time_interpolator {
-	/* cache-hot stuff first: */
-	unsigned long (*get_offset) (void);
-	void (*update) (long);
-	void (*reset) (void);
+<mhoffman:lightlink.com>:
+  o i2c: Add SiS96x I2C/SMBus driver
 
-	/* cache-cold stuff follows here: */
-	struct time_interpolator *next;
-	unsigned long frequency;	/* frequency in counts/second */
-	long drift;			/* drift in parts-per-million (or -1) */
-};
+<warp:mercury.d2dc.net>:
+  o I2C: And yet another it87 patch
 
-extern volatile unsigned long last_nsec_offset;
-#ifndef __HAVE_ARCH_CMPXCHG
-extern spin_lock_t last_nsec_offset_lock;
-#endif
-extern struct time_interpolator *time_interpolator;
+Greg Kroah-Hartman:
+  o i2c: fix up i2c-dev driver based on previous core changes
+  o i2c: piix4 driver: turn common error message to a debug level and rename the sysfs driver name
 
-extern void register_time_interpolator (struct time_interpolator *);
-extern void unregister_time_interpolator (struct time_interpolator *);
-
-/* Called with xtime read- OR write-lock acquired.  */
-static inline void
-time_interpolator_update (long delta_nsec)
-{
-	struct time_interpolator *ti = time_interpolator;
-
-	if (last_nsec_offset > 0) {
-#ifdef __HAVE_ARCH_CMPXCHG
-		unsigned long new, old;
-
-		do {
-			old = last_nsec_offset;
-			if (old > delta_nsec)
-				new = old - delta_nsec;
-			else
-				new = 0;
-		} while (cmpxchg(&last_nsec_offset, old, new) != old);
-#else
-		/*
-		 * This really hurts, because it serializes gettimeofday(), but without an
-		 * atomic single-word compare-and-exchange, there isn't all that much else
-		 * we can do.
-		 */
-		spin_lock(&last_nsec_offset_lock);
-		{
-			last_nsec_offset -= min(last_nsec_offset, delta_nsec);
-		}
-		spin_unlock(&last_nsec_offset_lock);
-#endif
-	}
-
-	if (ti)
-		(*ti->update)(delta_nsec);
-}
-
-/* Called with xtime read- or write-lock acquired.  */
-static inline void
-time_interpolator_reset (void)
-{
-	struct time_interpolator *ti = time_interpolator;
-
-	last_nsec_offset = 0;
-	if (ti)
-		(*ti->reset)();
-}
-
-static inline unsigned long
-time_interpolator_get_offset (void)
-{
-	struct time_interpolator *ti = time_interpolator;
-	if (ti)
-		return (*ti->get_offset)();
-	return last_nsec_offset;
-}
-
-#else /* !CONFIG_TIME_INTERPOLATION */
-
-static inline void
-time_interpolator_update (long delta_nsec)
-{
-}
-
-static inline void
-time_interpolator_reset (void)
-{
-}
-
-static inline unsigned long
-time_interpolator_get_offset (void)
-{
-	return 0;
-}
-
-#endif /* !CONFIG_TIME_INTERPOLATION */

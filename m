@@ -1,87 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289175AbSAVRqT>; Tue, 22 Jan 2002 12:46:19 -0500
+	id <S289250AbSAVRr3>; Tue, 22 Jan 2002 12:47:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289201AbSAVRqI>; Tue, 22 Jan 2002 12:46:08 -0500
-Received: from unthought.net ([212.97.129.24]:16842 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S289175AbSAVRqB>;
-	Tue, 22 Jan 2002 12:46:01 -0500
-Date: Tue, 22 Jan 2002 18:46:00 +0100
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: "Alok K. Dhir" <alok@dhir.net>, linux-kernel@vger.kernel.org
-Subject: Re: Autostart RAID 1+0 (root)
-Message-ID: <20020122184600.C11697@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Bill Davidsen <davidsen@tmr.com>, "Alok K. Dhir" <alok@dhir.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <001201c1a03e$e654acd0$9865fea9@pcsn630778> <Pine.LNX.3.96.1020122120342.27404A-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.3.96.1020122120342.27404A-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Tue, Jan 22, 2002 at 12:15:28PM -0500
+	id <S289201AbSAVRrT>; Tue, 22 Jan 2002 12:47:19 -0500
+Received: from mail.loewe-komp.de ([62.156.155.230]:38412 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S289250AbSAVRrI>; Tue, 22 Jan 2002 12:47:08 -0500
+Message-ID: <3C4DA68A.D3DEC61D@loewe-komp.de>
+Date: Tue, 22 Jan 2002 18:51:06 +0100
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: LOEWE. Hannover
+X-Mailer: Mozilla 4.78 [de] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <Pine.LNX.4.33.0201221206320.20907-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 22, 2002 at 12:15:28PM -0500, Bill Davidsen wrote:
-> On Fri, 18 Jan 2002, Alok K. Dhir wrote:
+Mark Hahn schrieb:
 > 
-> > I want to test using a software RAID 1+0 partition as root: md0 and md1
-> > set up as mirrors between two disks each, and md2 set up as a stripe
-> > between md0 and md1.  However, the RedHat 7.2 installer doesn't allow
-> > creating nested RAID partitions.
+> > So the time between the interrupt handler wanting to schedule a specific
+> > task/thread and the next scheduling decision is crucial, right?
 > 
-> Here's my understanding. If you are using hardware RAID you can do
-> anything your controller supports, and it looks like a single drive to the
-> CPU. But if you are looking for reliable boot, you need to use /boot as a
-> RAID-1 partition on the first two drives, and make that partition the
-> active partition (that may not be needed with your BIOS).
-
-I think he is referring to software RAID. And yes, it is indeed a problem
-that the RedHat installer cannot create nested RAIDs (at least, I too was
-unable to do that, so either it's impossible, or I'm equally blind).
-
-> This is because if the first disk fails totally, the 2nd will be used to
-> boot. You also should use an initrd image to be sure all you need to get
-> up is on that small mirrored partition. After that your other partitions
-> can be whatever pleases you.
-
-Also, GRUB/LILO only support booting from RAID-1 (or no RAID).
-
-...
-> > 
-> > Does the kernel support autostarting nested RAID partitions?
-> > 
-
-Yes it does.  If you have persistent superblocks on all arrays, they
-*should* autostart.
-
-If you boot from the 4G disk, does the array start properly ?  Does
-it start properly even if you remove your /etc/raidtab ?
-
-Please check that you have the correct RAID levels either compiled
-into your kernel, or on an initrd.
-
-> > Is doing software 1+0 a bad idea anyway due to performance issues?
+> sure, if there's some reason for user-space to run immediately
+> after the irq.  that's certainly not the case in general.
 > 
-> It should outperform most other RAID configs under heavy load, but in most
-> cases RAID-5 is fine for system which don't need the absolute highest
-> performance. Note that the extra writes are queued and there are no extra
-> reads unless it is in recovery mode. RAID-1 can be faster, because there
-> are two copies of the data, if one drive is busy the other can be used. I
-> haven't checked to see that software RAID does that correctly and gets the
-> benefit.
+> remember, we're talking about what mainline Linux should do.
+> 
+> > I have no hard numbers, but I can imagine that this can also lead to
+> > better IO (in terms of latency AND IO throughput but with the cost of
+> > cpu cycles [user space CPU throughput]).
+> 
+> poorer throughput in general, since there's no chunking
+> (write gathering, etc.)  this is my complaint about the
+> eager-preempt patches: that the *mandate* eager wakeup.
+> the traditional kernel design *can* implement eager wakeup,
+> but can also express chunking.
+> 
 
-A performance improvement went into 2.4 at some stage - all newer 2.4 kernels
-will schedule reads to the mirror which has it's head nearest to where the
-read should occur.  This works very well in my experience.
+So can the interrupt handler code. The handler decides what to do,
+depending on the status of the device. The higher level woken up task can
+also do what it wants/ see fits in. The only difference is that higher level 
+gets notified a bit earlier - nothing more.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+Does the current preempt patch unconditionally mandates preemption to occur?
+This would be indeed a design flaw. The handler has to make the decision -
+he knows it best.
+
+> > I don't know the Linux kernel good enough right now, but if you shorten
+> > the scheduling latency: that could be a win for faster IO. But there's always
+> > a tradeoff: if you spent too much time in scheduling decisions/preparations
+> > the overhead eats the lower latency (especially if your mutexes have to deal
+> > with priority inversion, giving a lock holder at least the same priority as
+> > the lock contender for the period it holds the lock).
+> 
+> no, my criticism is strictly based on the fact that
+> eager wakeup is often bad.
+
+Ooh, that sounds different.
+But where does a delayed wakeup makes sense in the _general_ case?
+You wouldn't want slow interrupts. Kernel preemption allows you a quicker
+notify of higher levels. It does not imply any policy on what to do 
+with this event.
+Of course it's still bad to flood the system with interrupts.
+The interrupt handler has to decide if he has to wakeup a higher
+level thread, immediatly, on the next schedule or not (if he can
+handle it on its own).

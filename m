@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279482AbRJXHjA>; Wed, 24 Oct 2001 03:39:00 -0400
+	id <S279529AbRJXK6Z>; Wed, 24 Oct 2001 06:58:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279483AbRJXHiv>; Wed, 24 Oct 2001 03:38:51 -0400
-Received: from [62.14.144.124] ([62.14.144.124]:29956 "EHLO ragnar-hojland.com")
-	by vger.kernel.org with ESMTP id <S279457AbRJXHik>;
-	Wed, 24 Oct 2001 03:38:40 -0400
-Date: Wed, 24 Oct 2001 01:45:12 +0200
-From: Ragnar Hojland Espinosa <ragnar@ragnar-hojland.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: drevil@warpcore.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
-Message-ID: <20011024014512.A7356@ragnar-hojland.com>
-In-Reply-To: <20011022211622.B20411@virtucon.warpcore.org> <20011022172742.B445@virtucon.warpcore.org> <E15vnuN-0003jW-00@the-village.bc.nu> <20011022203159.A20411@virtucon.warpcore.org> <20011022214324.A18888@alcove.wittsend.com> <20011022211622.B20411@virtucon.warpcore.org> <17998.1003830655@redhat.com>
+	id <S279532AbRJXK6P>; Wed, 24 Oct 2001 06:58:15 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:12804 "EHLO
+	bug.ucw.cz") by vger.kernel.org with ESMTP id <S279529AbRJXK6E>;
+	Wed, 24 Oct 2001 06:58:04 -0400
+Date: Wed, 24 Oct 2001 01:01:10 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+        Swsusp mailing list <swsusp@lister.fornax.hu>,
+        ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>
+Subject: swsusp for 2.4.12 -- please read
+Message-ID: <20011024010109.B386@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <17998.1003830655@redhat.com>; from dwmw2@infradead.org on Tue, Oct 23, 2001 at 10:50:55AM +0100
-Organization: Mediocrity Naysayers Ltd
-X-Homepage: http://lightside.eresmas.com
+User-Agent: Mutt/1.3.23i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 23, 2001 at 10:50:55AM +0100, David Woodhouse wrote:
-> 
-> drevil@warpcore.org said:
-> >  What I am advocating is a little bit more sanity. The OS should not
-> > break compatability with existing drivers so often for a 'stable'
-> > release.
-> 
-> Name a driver in the 2.4.13-pre6 tree which doesn't compile and work with 
-> the 2.4.13-pre6 kernel. 
+Hi!
 
-Mitsumi (non-IDE CDROMs), broke at the 2.3.41-pre3 and 2.3.41-pre4
-transition, and IIRC was still broken at 2.4.0 .. haven't got the drive here
-so I can't test.
+Few days ago, someone asked me for copy of latest swsusp (asking if I
+still work on it and offering help). I did crude diff -ur |
+mail. Then, swsusp ate my filesystem so badly that I lost latest copy
+of sources.
 
+So
+
+*) be very carefull about swsusp on 2.4.12
+
+*) could that person please contact me and mail that sources back?
+
+								Pavel
 -- 
-____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
-\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
- =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
-   U     chaos and madness await thee at its end."
+STOP THE WAR! Someone killed innocent Americans. That does not give
+U.S. right to kill people in Afganistan.
+
+

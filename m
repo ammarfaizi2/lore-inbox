@@ -1,120 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285589AbSAEVPa>; Sat, 5 Jan 2002 16:15:30 -0500
+	id <S284659AbSAEVaH>; Sat, 5 Jan 2002 16:30:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284659AbSAEVPU>; Sat, 5 Jan 2002 16:15:20 -0500
-Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:51597 "EHLO
-	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S284144AbSAEVPG>; Sat, 5 Jan 2002 16:15:06 -0500
-From: "Karol Pietrzak" <noodlez84@earthlink.net>
+	id <S285130AbSAEV3r>; Sat, 5 Jan 2002 16:29:47 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:58628 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S284659AbSAEV3q>; Sat, 5 Jan 2002 16:29:46 -0500
+Date: Sat, 5 Jan 2002 22:06:14 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
 To: linux-kernel@vger.kernel.org
-Date: Sat, 5 Jan 2002 15:03:01 -0500
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: slow CD ripping from moving from 2.4.4 to 2.4.17
-Reply-to: noodlez84@earthlink.net
-Message-ID: <3C3715A5.13473.4360DD@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Subject: RFC: The Big Patch List (was: Linux Kernel-2.4.18-nj1)
+Message-ID: <20020105210614.GA19599@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020105180601.GC756@cpe-24-221-152-185.az.sprintbbd.net> <20020105194140.67038.qmail@web20504.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20020105194140.67038.qmail@web20504.mail.yahoo.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
-I am the original poster, and I am happy to say that my problem 
-has been solved thanks to Mark Hahn.  The solution was to tweak 
-the VM (via /proc/sys/vm/bdflush).
+On Sat, 05 Jan 2002, willy tarreau wrote:
 
-Here's the excerpt from fs/buffer.c which I looked at:
+> Perhaps people who have a solid personal tree would
+> like to continue this discussion off-list and find
+> an arrangement about a single test tree. Concerning
+> stable trees, I think that both Marcello's and
+> Andrea's are rock solid. Othe people may want to use
+> their distributor's.
 
-union bdflush_param {
-	struct {
-		int nfract;	/* Percentage of buffer cache dirty to 
-				   activate bdflush */
-		int dummy1;	/* old "ndirty" */
-		int dummy2;	/* old "nrefill" */
-		int dummy3;	/* unused */
-		int interval;	/* jiffies delay between kupdate flushes */
-		int age_buffer;	/* Time for normal buffer to age before we 
-flush it */
-		int nfract_sync;/* Percentage of buffer cache dirty to 
-				   activate bdflush synchronously */
-		int dummy4;	/* unused */
-		int dummy5;	/* unused */
-	} b_un;
-	unsigned int data[N_PARAM];
-} bdf_prm = {{40, 0, 0, 0, 5*HZ, 30*HZ, 60, 0, 0}};
+What *I* personally would greatly appreciate: the Big List of Kernel
+Patches. It would list a patch, what it does, what version of the kernel
+it is against, where it can be found, and maybe where other versions can
+be found or conflicts.
 
-After a little tinkering, this is now in my 
-/etc/init.d./boot.local :
-echo "10 0 0 0 500 3000 5 0 0" > /proc/sys/vm/bdflush 
+This list could e. g. look like (cast into any form you like, an
+extensible one is a good idea); I've just picked a random patch that I
+use, without any recommendation:
 
-Thus, the only modified numbers are:
-1. nfract : from 40% to 10% (Percentage of buffer cache dirty to 
+PATCH: Pre-Emptive Kernel
+AUTHOR: Robert M. Love
+SUMMARY: Makes most parts of the kernel preemptive to reduce latency.
+URL: http://www.tech9.net/rml/linux/
+PATCHES-STABLE: 2.4.16, 2.4.17   <- only list patches yielding working releases
+PATCHES-STABLE-PRE: 2.4.18-pre1
+PATCHES-DEVEL: 2.5.1
+PATCHES-DEVEL-PRE: 2.5.2-pre1
+REQUISITES: -
+CONFLICTS: O(1) scheduler
 
-activate bdflush)
-2. nfract_sync : from 60% to 5% (Percentage of buffer cache 
-dirty to activate bdflush synchronously)
+Resembles MAINTAINERS? Rightly so, just more detail given.
 
-I don't quite understand what all that means (my knowledge of C 
-is very limited), but it works :)
+That way, we would not need to have so many distinct trees, but this
+could easily grow into a patch repository where people could pull their
+patches from. I presume that conflicts between patches meant for
+inclusion will be worked out; maybe this list should announce
+sub-versions of the patches, like Willy mentioned:
 
-Once again, thank you.  You've made me a happy Linux user...  
-Ripping performance, with these changes in place, is now around 
-26-30X, where before, it was 13-15X.
+PATCH: ReiserFS for ext3-enabled kernels
+AUTHOR: Hans Reiser et al.; Matthias Andree et al. (ext3 compatibility)
+URL: http://mandree.home.pages.de/kernelpatches/v2.2/v2.2.19/
+PATCHES-STABLE: 2.2.19
+PATCHES-STABLE-PRE: -
+PATCHES-DEVEL: -
+PATCHES-DEVEL-PRE: -
+REQUISITES: -
+CONFLICTS: -
 
-On 31 Dec 2001, linux-kernel@vger.kernel.org wrote:
+You get the idea. Comments?
 
-> Hello.
-> Using 2.4.4 up to, I believe, 2.4.14, CD ripping was fine.  My
-> Plextor 12/10/32S (S for SCSI) ripped audio CDs at around 25X,
-> even sometimes at 30X.  While ripping, my hard drive would work
-> continuously, and so would my CDRW drive.
-> 
-> Now with 2.4.17, my hard drive can't keep up with my CDRW drive:
-> everything happens in bursts.  My CDRW drive starts ripping as
-> fast as possible, but my hard drive doesn't do anything (0-5
-> seconds).  Then, my hard drive decides to start writing, which
-> stops the CD ripping process (5-8 seconds).  Now that the hard
-> drive is done, the CDRW drive continues ripping... for 4 seconds
-> and the process continues over and over again.  This brings down
-> the ripping speed down to ~18X, a far cry from the 30X achieved
-> with 2.4.4 and very close to the writing speed of my CDRW drive
-> (12X), which is ridiculous.
-> 
-> As stated before, ripping is fine in 2.4.4 (which I still keep
-> around because of this problem).  What does help in 2.4.17,
-> however, is manually entering running the 'sync' command ever
-> second or so on another console.  This makes the ripping process
-> a lot more "continuous," like 2.4.4.
-> 
-> I can't burn CDs in 2.4.4, however, because that freezes up my
-> computer, for some reason.  That happens a lot less often in
-> 2.4.17 (but that's another matter).
-> 
-> I am using SuSE 7.2 Pro with the latest cdda2wav (1.11a12).
-> 
-> Linux linux 2.4.17 #2 Fri Dec 21 17:14:19 EST 2001 i586 unknown
-> 
-> Gnu C                  2.95.3
-> Gnu make               3.79.1
-> binutils               2.10.91.0.4
-> util-linux             2.11b
-> mount                  2.11b
-> modutils               2.4.5
-> e2fsprogs              1.19
-> reiserfsprogs          3.x.0k-pre15
-> PPP                    2.4.0
-> Linux C Library        x    1 root     root      1343073 May 11 
-> 2001 /lib/libc.so.6 Dynamic linker (ldd)   2.2.2 Procps          
->       2.0.7 Net-tools              1.60 Kbd                   
-> 1.04 Sh-utils               2.0 Modules Loaded         ppp_async
-> ppp_generic slhc nls_cp437 vfat fat
-> 
-> I am using a Pentium I 233 with 32MB of RAM.  I have an Advansys
-> Ultra SCSI card with 3 devices total hooked up to it.
-> 
-> Anyone have any ideas?  Anything I can do?
+-- 
+Matthias Andree
 
---
-Karol Pietrzak
-PGP KeyID: 3A1446A0
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety."         Benjamin Franklin

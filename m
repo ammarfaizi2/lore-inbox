@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263622AbTL2QNm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 11:13:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbTL2QNl
+	id S263523AbTL2QS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 11:18:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263539AbTL2QS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 11:13:41 -0500
-Received: from mta01.mail.tds.net ([216.170.230.81]:38375 "EHLO
-	mta01.mail.tds.net") by vger.kernel.org with ESMTP id S263622AbTL2QNg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 11:13:36 -0500
-Date: Mon, 29 Dec 2003 10:13:33 -0600 (CST)
-From: David Lloyd <dmlloyd@tds.net>
-To: Andy Isaacson <adi@hexapodia.org>
-cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GCC 3.4 Heads-up
-In-Reply-To: <20031226005840.A30827@hexapodia.org>
-Message-ID: <Pine.LNX.4.58.0312291013120.4466@tomservo.workpc.tds.net>
-References: <1072403207.17036.37.camel@clubneon.clubneon.com>
- <bsgav5$4qh$1@cesium.transmeta.com> <Pine.LNX.4.58.0312252021540.14874@home.osdl.org>
- <20031226005840.A30827@hexapodia.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 29 Dec 2003 11:18:29 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:8688 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263523AbTL2QS1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 11:18:27 -0500
+Date: Mon, 29 Dec 2003 10:18:19 -0600
+Subject: Re: [OT] working mini-pci wlan cards in thinkpads
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v553)
+Cc: lkml <linux-kernel@vger.kernel.org>
+To: Joel Jaeggli <joelja@darkwing.uoregon.edu>, Disconnect <lkml@sigkill.net>
+From: Hollis Blanchard <hollisb@us.ibm.com>
+In-Reply-To: <Pine.LNX.4.44.0312161506130.6253-100000@twin.uoregon.edu>
+Message-Id: <9D779E6A-3A1A-11D8-A21C-000A95A0560C@us.ibm.com>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.553)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Dec 2003, Andy Isaacson wrote:
+On Tuesday, Dec 16, 2003, at 17:10 US/Central, Joel Jaeggli wrote:
+> On Monday, Dec 15, 2003, at 18:03 US/Central, Disconnect wrote:
+>>
+>> And yet I was able to call dell and just order an older card to go in
+>> my Inspiron.  (A standard 802.11b card; orinoco on a pci->cardbus 
+>> bridge.)
+>> The only regulatory info they mentioned was including a pack of the
+>> certified-by stickers to replace the ones that were on the laptop from
+>> the original card.
+>
+> the truemobile 1150 is just an off the shelf avaya/agere/orinoco/proxim
+> minipci card... I happen to have one with an acer label in my inspiron
+> 4150 but since they all have the same fcc id they were all made by 
+> agere.
 
-> On Thu, Dec 25, 2003 at 08:34:33PM -0800, Linus Torvalds wrote:
-> > The cast/conditional expression as lvalue are _particularly_ ugly 
-> > extensions, since there is absolutely zero point to them. They are very 
-> > much against what C is all about, and writing something like this:
-> > 
-> > 	a ? b : c = d;
-> > 
-> > is something that only a high-level language person could have come up 
-> > with. The _real_ way to do this in C is to just do
-> > 
-> > 	*(a ? &b : &c) = d;
-> > 
-> > which is portable C, does the same thing, and has no strange semantics.
-> 
-> But doesn't the first one potentially let the compiler avoid spilling to
-> memory, if b and c are both in registers?
+Thanks for the recommendation! I installed a Dell Truemobile 1150 in a 
+(gift) Thinkpad R40 last week. Worked perfectly in WinXP and Knoppix 
+3.3, no fussing with (PrismII) drivers in either case.
 
-I can't imagine anything wrong with:
+Also, the antenna leads were plenty long enough, and I didn't see any 
+BIOS authorization problems (as mentioned at 
+http://www.ussg.iu.edu/hypermail/linux/kernel/0312.2/0147.html).
 
-if (a) b = d else c = d;
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
 
-- D

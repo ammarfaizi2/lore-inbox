@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267589AbUHJRYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267599AbUHJRbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267589AbUHJRYd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 13:24:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267470AbUHJRXv
+	id S267599AbUHJRbt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 13:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267586AbUHJR25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 13:23:51 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:26580 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267523AbUHJRUa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 13:20:30 -0400
-Date: Tue, 10 Aug 2004 13:20:24 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@dhcp83-102.boston.redhat.com
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: linux-kernel@vger.kernel.org, Matt Domsch <Matt_Domsch@dell.com>,
-       Ernie Petrides <petrides@redhat.com>
-Subject: [PATCH] reserved buffers only for PF_MEMALLOC
-Message-ID: <Pine.LNX.4.44.0408101310580.7156-100000@dhcp83-102.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Aug 2004 13:28:57 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:35533 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267603AbUHJR23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 13:28:29 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Florian Schmidt <mista.tapas@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+In-Reply-To: <1092157841.3290.3.camel@mindpipe>
+References: <20040726083537.GA24948@elte.hu>
+	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
+	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
+	 <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
+	 <20040809130558.GA17725@elte.hu> <20040809190201.64dab6ea@mango.fruits.de>
+	 <1092103522.761.2.camel@mindpipe>  <20040810085849.GC26081@elte.hu>
+	 <1092157841.3290.3.camel@mindpipe>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092155147.16979.33.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 10 Aug 2004 17:25:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maw, 2004-08-10 at 18:10, Lee Revell wrote:
+> OK, with CONFIG_M586TSC, I am getting a lot of lockups.  A few happened
+> during normal desktop use, and it locks up hard when starting jackd. 
+> Could this have anything to do with the ALSA drivers (which I am
+> compiling seperately from ALSA cvs) detecting my build system as i686? 
+> I have read that the C3 is more like a 486 (with MMX & 3DNow) than a
+> 686.
 
-The buffer allocation path in 2.4 has a long standing bug,
-where non-PF_MEMALLOC tasks can dig into the reserved pool
-in get_unused_buffer_head().  The following patch makes the
-reserved pool only accessible to PF_MEMALLOC tasks.
+The C3 is a full 686 instruction set. The kernel is different because
+the GNU tool people couldn't read manuals and once the error was made 
+it was a bit too late to fix it.
 
-Other processes will loop in create_buffers() - the only
-function that calls get_unused_buffer_head() - and will call
-try_to_free_pages(GFP_NOIO), freeing any buffer heads that
-have become freeable due to IO completion.
-
-Note that PF_MEMALLOC tasks will NOT do anything inside
-try_to_free_pages(), so it is needed that they are able to
-dig into the reserved buffer heads while other tasks are
-not.
-
-Signed-off-by:  Rik van Riel <riel@redhat.com>
-
---- linux/fs/buffer.c.deadlock	2004-08-10 11:33:08.000000000 -0400
-+++ linux/fs/buffer.c	2004-08-10 11:34:54.000000000 -0400
-@@ -1260,8 +1260,9 @@ struct buffer_head * get_unused_buffer_h
- 
- 	/*
- 	 * If we need an async buffer, use the reserved buffer heads.
-+	 * Non-PF_MEMALLOC tasks can just loop in create_buffers().
- 	 */
--	if (async) {
-+	if (async && (current->flags & PF_MEMALLOC)) {
- 		spin_lock(&unused_list_lock);
- 		if (unused_list) {
- 			bh = unused_list;
+Thus ALSA deciding its 686 is fine.
 

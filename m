@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288871AbSAIGMK>; Wed, 9 Jan 2002 01:12:10 -0500
+	id <S288855AbSAIGJa>; Wed, 9 Jan 2002 01:09:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288866AbSAIGMA>; Wed, 9 Jan 2002 01:12:00 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:19859
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S288864AbSAIGLn>; Wed, 9 Jan 2002 01:11:43 -0500
-Date: Wed, 9 Jan 2002 00:57:00 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: CML2-2.0.4 is available
-Message-ID: <20020109005700.A10305@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S288857AbSAIGJU>; Wed, 9 Jan 2002 01:09:20 -0500
+Received: from ike-ext.ab.videon.ca ([206.75.216.35]:58600 "HELO
+	ike-ext.ab.videon.ca") by vger.kernel.org with SMTP
+	id <S288855AbSAIGJI>; Wed, 9 Jan 2002 01:09:08 -0500
+Date: Tue, 8 Jan 2002 23:09:06 -0700 (MST)
+From: Jason Gunthorpe <jgg@debian.org>
+To: linux-kernel@vger.kernel.org
+cc: quinlan@transmeta.com
+Subject: cramfs + initrd bug in 2.4.15
+Message-ID: <Pine.LNX.3.96.1020108225839.9606E-100000@wakko.deltatee.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version is always available at http://www.tuxedo.org/~esr/cml2/
+[Please CC all replies]
 
-Release 2.0.4: Tue Jan  8 22:55:43 EST 2002
-	* Rulebase and help sync with 2.4.18-pre2/2.5.2-pre10.
-	* kxref.py can report dependency/ancestry relationships and
-	  label status now.
-	* More autoconfigurator improvements, including --standalone option.
+Hi,
 
-Bug queue is empty.  The compiler and interactive configurators are looking
-stable at this point; most of my effeort is going into improving the
-autoconfigurator.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+I just found a small bug in the way ramdisks work - it was introduced
+sometime between 2.4.10 and 2.4.15. I haven't yet been able to try 2.4.17,
+but I didn't see anything too evident in the patch/changelog.
 
-A human being should be able to change a diaper, plan an invasion,
-butcher a hog, conn a ship, design a building, write a sonnet, balance
-accounts, build a wall, set a bone, comfort the dying, take orders, give
-orders, cooperate, act alone, solve equations, analyze a new problem,
-pitch manure, program a computer, cook a tasty meal, fight efficiently,
-die gallantly. Specialization is for insects.
-	-- Robert A. Heinlein, "Time Enough for Love"
+Basically, if you use a filesystem with a blocksize that is not BLOCK_SIZE
+then when the filesystem super block is loaded set_blocksize will be
+called which will call kill_bdev which calls truncate_inode_pages on the
+rd mapping - that ends up destroying the ramdisk.
+
+I found this while using cramfs as an initrd, a hackish work around in my
+case is to change the default block size of the ramdisk - I'm not sure
+what the real fix should be.
+
+Hope this helps,
+Jason
+

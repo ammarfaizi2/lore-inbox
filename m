@@ -1,107 +1,334 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266041AbTABGmE>; Thu, 2 Jan 2003 01:42:04 -0500
+	id <S266069AbTABGm4>; Thu, 2 Jan 2003 01:42:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266069AbTABGmE>; Thu, 2 Jan 2003 01:42:04 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:33820 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S266041AbTABGmD>;
-	Thu, 2 Jan 2003 01:42:03 -0500
-From: <Hell.Surfers@cwctv.net>
-To: andersen@codepoet.org, billh@gnuppy.monkey.org, paul@clubi.ie,
-       riel@conectiva.com.br, linux-kernel@vger.kernel.org, rms@gnu.org
-Date: Thu, 2 Jan 2003 06:48:33 +0000
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+	id <S266100AbTABGmz>; Thu, 2 Jan 2003 01:42:55 -0500
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:55510 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S266069AbTABGmo> convert rfc822-to-8bit; Thu, 2 Jan 2003 01:42:44 -0500
+x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1041490113993"
-Message-ID: <0a9503844060213DTVMAIL4@smtp.cwctv.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: 2.5.53-mm3
+Date: Thu, 2 Jan 2003 12:20:58 +0530
+Message-ID: <94F20261551DC141B6B559DC491086720447DE@blr-m3-msg.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.5.53-mm3
+Thread-Index: AcKyBRZyEdlTY/AKTuGYkXzByq9pEQAJYoeQ
+From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
+To: "Andrew Morton" <akpm@digeo.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 02 Jan 2003 06:50:58.0630 (UTC) FILETIME=[4E455660:01C2B22B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Failed while booting up.
+It executed mem_init()
+Then during execution of  kmem_cache_sizes_init(),
+It created generic caches.
+After that following error came,
+Invalid operand: 0000
+...
+Unable to handle kernel paging request at virtual address b08e3fef 
+eip 00000000
 
---1041490113993
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-I say we start a driver based on the UTAHs. MR. Anderson had a good schedule :), knock knock neo... ;-))
-
-Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
-
-On 	Wed, 1 Jan 2003 23:12:33 -0700 	Erik Andersen <andersen@codepoet.org> wrote:
-
---1041490113993
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Thu, 2 Jan 2003 06:13:35 +0000
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265725AbTABGEE>; Thu, 2 Jan 2003 01:04:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265754AbTABGEE>; Thu, 2 Jan 2003 01:04:04 -0500
-Received: from codepoet.org ([166.70.99.138]:8417 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S265725AbTABGEC>;
-	Thu, 2 Jan 2003 01:04:02 -0500
-Received: by winder.codepoet.org (Postfix, from userid 1000)
-	id 2CF801579E0; Wed,  1 Jan 2003 23:12:33 -0700 (MST)
-Date: Wed, 1 Jan 2003 23:12:33 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Bill Huey <billh@gnuppy.monkey.org>
-Cc: Paul Jakma <paul@clubi.ie>, Rik van Riel <riel@conectiva.com.br>,
-	Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org, rms@gnu.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-ID: <20030102061233.GA20916@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Bill Huey <billh@gnuppy.monkey.org>, Paul Jakma <paul@clubi.ie>,
-	Rik van Riel <riel@conectiva.com.br>, Hell.Surfers@cwctv.net,
-	linux-kernel@vger.kernel.org, rms@gnu.org
-References: <Pine.LNX.4.50L.0301011439540.2429-100000@imladris.surriel.com> <Pine.LNX.4.44.0301012356270.8691-100000@fogarty.jakma.org> <20030102013736.GA2708@gnuppy.monkey.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030102013736.GA2708@gnuppy.monkey.org>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk2, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
-
-On Wed Jan 01, 2003 at 05:37:36PM -0800, Bill Huey wrote:
-> Obviously a GPL rewrite of this would entail a lot of replicated effort
-> and would also depend on things that are incomplete, non-existent and
-> don't have a lot direct interest from the GPL community. 3D isn't a hot
-> commodity in Linux, FreeBSD unlike with dedicated SGI machines (although
-> faded).
-
-Ahh, but replicated effort is something that open source people
-do very well at indeed.  If nvidia provided non-functional GPL
-source code with all the proprietary 3rd party bits ripped out, 
-I would expect a hoard of developers would jump at the chance to
-fixup the non-functional mess, clean it up, reimplement all the
-missing proprietary bits.  I'd bet you $20 US we could have a
-functional driver within 2 weeks.  And have a high quality driver
-roughly equal to their proprietary one within 6 months.  Thats
-the way things work around these parts of the net.  I bought a
-copy of Quake when they GPLd their code to show support.  I
-similarly bought a copy of Quake II after they GPLd their code.
-If Nvidia released their code under the GPL, I'd buy one of their
-cards.  As is, I'm sticking with my ATI card...
-
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>-----Original Message-----
+>From: Andrew Morton [mailto:akpm@digeo.com] 
+>Sent: Thursday, January 02, 2003 7:44 AM
+>To: lkml; linux-mm@kvack.org
+>Subject: 2.5.53-mm3
+>
+>
+>
+>http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.53/2.5.53-mm3/
+>
+>. 2.5.53-mm2 was a bit sick in the timekeeping and slab 
+>department.  That
+>  should be fixed here.
+>
+>. The idea of using the slab head arrays for object 
+>preallocation has been
+>  abandoned.  It involved too many slab changes, and slab just 
+>explodes in
+>  your face when touched.  So I've used a custom reservation 
+>pool in the
+>  radix-tree code instead.
+>
+>. I've spent two days chasing the memory leak which Con has 
+>reported and
+>  have thus far not been able to reproduce it (managed to collaterally 
+>  discover a swapoff lockup and an htree leak though).  It's 
+>probably an
+>  ext3/VM interaction.  Please keep an eye out for this.
+>
+>
+>
+>Changes since 2.5.53-mm2:
+>
+>
+>-aic-bounce.patch
+>-ga2.patch
+>-reduce-random-context-switch-rate.patch
+>-file-nr-doc-fix.patch
+>-remove-memshared.patch
+>-bin2bcd.patch
+>-semtimedop-update.patch
+>-drain_local_pages.patch
+>-kmalloc_percpu.patch
+>-dont-aligns-vmas.patch
+>-remove-swappable.patch
+>-remove-hugetlb-syscalls.patch
+>
+> Merged
+>
+>-slab-preallocation.patch
+>-slab-export-tuning.patch
+>-rat-preallocation.patch
+>
+> Dropped
+>
+>+rat-preload.patch
+>
+> Do the preallocation as a custom radix-tree thing, not generically.
+>
+>+i_shared_sem.patch
+>
+> Turn i_shared_lock into a semaphore.  Will be needed for 
+>scheduling latency  reasons.  Is needed to avoid a shared 
+>pagetable deadlock.
+>
+>+cond_resched_lock-rework.patch
+>
+> Tidy up a couple of low-latency things
+>
+>+mempool_resize-fix.patch
+>
+> Fix a problem in mempool_resize()
+>
+>+slab-redzone-cleanup.patch
+>
+> Clean up the slab redzoning debug code, add useful messages.
+>
+>+shrink-kmap-space.patch
+>
+> Save some wasted kernel virtual address space
+>
+>+setuid-exec-no-lock_kernel.patch
+>
+> Locking cleanup
+>
+>+fix-ethernet-hash.patch
+>
+> Fix for the ethernet crc function
+>
+>+route-cache-kmalloc-per-cpu.patch
+>
+> Use kmalloc_per_cpu for the route cache stats
+>
+>-config_page_offset.patch
+>-config_hz.patch
+>
+> Dropped.   Not to Linus' taste.
+>
+>+page-walk-api-2.5.53-mm2-update.patch
+>
+> New stuff from Ingo
+>
+>-page-walk-api-update.patch
+>-gup-check-valid.patch
+>
+> Folded into other patches
+>
+>+page-walk-scsi-2.5.53-mm2.patch
+>
+> More from Ingo
+>
+>
+>
+>
+>All 64 patches:
+>
+>
+>linus.patch
+>  cset-1.911.4.10-to-1.932.txt.gz
+>
+>kgdb.patch
+>
+>log_buf_size.patch
+>  move LOG_BUF_SIZE to header/config
+>
+>rcf.patch
+>  run-child-first after fork
+>
+>devfs-fix.patch
+>
+>dio-return-partial-result.patch
+>
+>aio-direct-io-infrastructure.patch
+>  AIO support for raw/O_DIRECT
+>
+>deferred-bio-dirtying.patch
+>  bio dirtying infrastructure
+>
+>aio-direct-io.patch
+>  AIO support for raw/O_DIRECT
+>
+>aio-dio-debug.patch
+>
+>dio-reduce-context-switch-rate.patch
+>  Reduced wakeup rate in direct-io code
+>
+>cputimes_stat.patch
+>  Retore per-cpu time accounting, with a config option
+>
+>misc.patch
+>  misc fixes
+>
+>inlines-net.patch
+>
+>rbtree-iosched.patch
+>  rbtree-based IO scheduler
+>
+>deadsched-fix.patch
+>  deadline scheduler fix
+>
+>quota-smp-locks.patch
+>  Subject: Quota SMP locks
+>
+>copy_page_range-cleanup.patch
+>  copy_page_range: minor cleanup
+>
+>pte_chain_alloc-fix.patch
+>
+>page_add_rmap-rework.patch
+>
+>rat-preload.patch
+>
+>use-rat-preallocation.patch
+>
+>i_shared_sem.patch
+>  turn i_shared_lock into a semaphore
+>
+>cond_resched_lock-rework.patch
+>  simplify and generalise cond_resched_lock
+>
+>shpte-ng.patch
+>  pagetable sharing for ia32
+>
+>teeny-mem-limits.patch
+>
+>smaller-head-arrays.patch
+>
+>mempool_resize-fix.patch
+>  mempool_resize fix
+>
+>slab-redzone-cleanup.patch
+>  slab: redzoning cleanup
+>
+>shrink-kmap-space.patch
+>  shrink the amount of vmalloc space reserved for kmap
+>
+>setuid-exec-no-lock_kernel.patch
+>  remove lock_kernel() from exec of setuid apps
+>
+>fix-ethernet-hash.patch
+>  fix ethernet hash function
+>
+>ptrace-flush.patch
+>  Subject: [PATCH] ptrace on 2.5.44
+>
+>buffer-debug.patch
+>  buffer.c debugging
+>
+>warn-null-wakeup.patch
+>
+>pentium-II.patch
+>  Pentium-II support bits
+>
+>rcu-stats.patch
+>  RCU statistics reporting
+>
+>auto-unplug.patch
+>  self-unplugging request queues
+>
+>less-unplugging.patch
+>  Remove most of the blk_run_queues() calls
+>
+>ext3-fsync-speedup.patch
+>  Clean up ext3_sync_file()
+>
+>lockless-current_kernel_time.patch
+>  Lockless current_kernel_timer()
+>
+>scheduler-tunables.patch
+>  scheduler tunables
+>
+>dio-always-kmalloc.patch
+>  direct-io: dynamically allocate struct dio
+>
+>set_page_dirty_lock.patch
+>  fix set_page_dirty vs truncate&free races
+>
+>htlb-2.patch
+>  hugetlb: fix MAP_FIXED handling
+>
+>route-cache-kmalloc-per-cpu.patch
+>  use kmalloc-per-cpu for the routecache stats
+>
+>wli-01_numaq_io.patch
+>  (undescribed patch)
+>
+>wli-02_do_sak.patch
+>  (undescribed patch)
+>
+>wli-03_proc_super.patch
+>  (undescribed patch)
+>
+>wli-06_uml_get_task.patch
+>  (undescribed patch)
+>
+>wli-07_numaq_mem_map.patch
+>  (undescribed patch)
+>
+>wli-08_numaq_pgdat.patch
+>  (undescribed patch)
+>
+>wli-09_has_stopped_jobs.patch
+>  (undescribed patch)
+>
+>wli-10_inode_wait.patch
+>  (undescribed patch)
+>
+>wli-11_pgd_ctor.patch
+>  (undescribed patch)
+>
+>wli-12_pidhash_size.patch
+>  Dynamically size the pidhash hash table.
+>
+>wli-13_rmap_nrpte.patch
+>  (undescribed patch)
+>
+>dcache_rcu-2.patch
+>  dcache_rcu-2-2.5.51.patch
+>
+>dcache_rcu-3.patch
+>  dcache_rcu-3-2.5.51.patch
+>
+>page-walk-api.patch
+>
+>page-walk-api-2.5.53-mm2-update.patch
+>  pagewalk API update
+>
+>page-walk-scsi.patch
+>
+>page-walk-scsi-2.5.53-mm2.patch
+>  pagewalk scsi update
+>-
+>To unsubscribe from this list: send the line "unsubscribe 
+>linux-kernel" in the body of a message to 
+>majordomo@vger.kernel.org More majordomo info at  
+http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
---1041490113993--
-
-

@@ -1,71 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262486AbTCRQN3>; Tue, 18 Mar 2003 11:13:29 -0500
+	id <S262510AbTCRQRz>; Tue, 18 Mar 2003 11:17:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262490AbTCRQN3>; Tue, 18 Mar 2003 11:13:29 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:17644 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S262486AbTCRQN2>; Tue, 18 Mar 2003 11:13:28 -0500
-Date: Tue, 18 Mar 2003 17:24:25 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: top Stack (l)users for 2.5.65
-Message-ID: <20030318162425.GA10424@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.44.0303171429040.2827-100000@penguin.transmeta.com>
+	id <S262520AbTCRQRz>; Tue, 18 Mar 2003 11:17:55 -0500
+Received: from mail.ithnet.com ([217.64.64.8]:61962 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S262510AbTCRQRx>;
+	Tue, 18 Mar 2003 11:17:53 -0500
+Date: Tue, 18 Mar 2003 17:28:25 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Oleg Drokin <green@namesys.com>
+Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
+       neilb@cse.unsw.edu.au
+Subject: Re: kernel nfsd
+Message-Id: <20030318172825.07b7b66b.skraw@ithnet.com>
+In-Reply-To: <20030318190733.A29438@namesys.com>
+References: <20030318155731.1f60a55a.skraw@ithnet.com>
+	<15991.15327.29584.246688@charged.uio.no>
+	<20030318164204.03eb683f.skraw@ithnet.com>
+	<20030318190733.A29438@namesys.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0303171429040.2827-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-32 functions using >=1k of kernel stack on i386
+On Tue, 18 Mar 2003 19:07:33 +0300
+Oleg Drokin <green@namesys.com> wrote:
 
-The list is _much_ shorter than the 2.5.64 one. But I don't know how
-to interpret that yet.
+> Hello!
+> 
+> On Tue, Mar 18, 2003 at 04:42:04PM +0100, Stephan von Krawczynski wrote:
+> 
+> > > The comment in the code just above the printk() reads
+> > >                 /* Now that IS odd.  I wonder what it means... */
+> > > Looks like you and Neil (and possibly the ReiserFS team) might want to
+> > > have a chat...
+> > I'm all for it. Who has a glue? I have in fact tons of these messages, it's
+> > a pretty large nfs server.
+> 
+> What is the typical usage pattern for files whose names are printed?
+> Are they created/deleted often by multiple clients/processes by any chance?
 
-oldconfig created about the same amount of work as allyesconfig and
-hand-pruning of breaking drivers. The resulting .config might have
-changed a lot, enough to account for 19 lost functions.
-
-0xc01b6994 presto_get_fileid:                            sub    $0x1164,%esp
-0xc01b5634 presto_copy_kml_tail:                         sub    $0x1018,%esp
-0xc06b2704 i2o_proc_read_ddm_table:                      sub    $0xb48,%esp
-0xc056daf9 v4l_compat_translate_ioctl:                   sub    $0x924,%esp
-0xc05beed6 ide_unregister:                               sub    $0x8a0,%esp
-0xc05403d4 writerids:                                    sub    $0x820,%esp
-0xc05855f4 w9966_v4l_read:                               sub    $0x820,%esp
-0xc06b53f4 i2o_proc_read_lan_alt_addr:                   sub    $0x81c,%esp
-0xc06b4c74 i2o_proc_read_lan_mcast_addr:                 sub    $0x81c,%esp
-0xc0540224 readrids:                                     sub    $0x810,%esp
-0xc06b2bb4 i2o_proc_read_groups:                         sub    $0x810,%esp
-0xc0105409 huft_build:                                   sub    $0x598,%esp
-0xc0106e59 huft_build:                                   sub    $0x598,%esp
-0xc023e794 dohash:                                       sub    $0x580,%esp
-0xc0438ad4 ida_ioctl:                                    sub    $0x53c,%esp
-0xc0107bd4 inflate_dynamic:                              sub    $0x52c,%esp
-0xc0106104 inflate_dynamic:                              sub    $0x51c,%esp
-0xc08eb604 device_new_if:                                sub    $0x518,%esp
-0xc01ad654 presto_ioctl:                                 sub    $0x4fc,%esp
-0xc05ced04 ide_config:                                   sub    $0x494,%esp
-0xc0107a67 inflate_fixed:                                sub    $0x490,%esp
-0xc0105f97 inflate_fixed:                                sub    $0x490,%esp
-0xc08e7bf9 br_ioctl_device:                              sub    $0x490,%esp
-0xc0425034 parport_config:                               sub    $0x47c,%esp
-0xc07c6d04 ixj_config:                                   sub    $0x478,%esp
-0xc0333b66 sha512_transform:                             sub    $0x440,%esp
-0xc09326e4 gss_pipe_downcall:                            sub    $0x43c,%esp
-0xc02a8c74 ciGetLeafPrefixKey:                           sub    $0x41c,%esp
-0xc064a804 aic7xxx_detect:                               sub    $0x404,%esp
-0xc050a998 hex_dump:                                     sub    $0x400,%esp
-0xc0323942 befs_warning:                                 sub    $0x400,%esp
-0xc03238f2 befs_error:                                   sub    $0x400,%esp
-
-Jörn
+This is a nfs-server who serves web-servers (apache). I find a lot of these
+messages, but they (upto now) only point to 3 different filenames. And these
+are in fact all directories. The box never crashed and has currently 20 days
+uptime. It is dual P-III and has 6 GB of RAM.
+The questionable directories were created long before they first showed this
+message and have never changed (regarding name-change). Their contents were
+possible changed but surely not often meaning no more than once a day or once a
+week.
+It may well occur that multiple nfs-client systems _read_ them, as well as
+multiple processes on one client.
+The nfs-clients are 2.4.19 boxes and one 2.2.21.
 
 -- 
-Courage is not the absence of fear, but rather the judgement that
-something else is more important than fear.
--- Ambrose Redmoon
+Regards,
+Stephan
+

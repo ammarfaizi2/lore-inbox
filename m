@@ -1,79 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291148AbSBGO41>; Thu, 7 Feb 2002 09:56:27 -0500
+	id <S291141AbSBGPA1>; Thu, 7 Feb 2002 10:00:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291150AbSBGO4T>; Thu, 7 Feb 2002 09:56:19 -0500
-Received: from hanoi.cronyx.ru ([144.206.181.53]:56840 "EHLO hanoi.cronyx.ru")
-	by vger.kernel.org with ESMTP id <S291148AbSBGO4O>;
-	Thu, 7 Feb 2002 09:56:14 -0500
-Message-ID: <3C629514.6080209@cronyx.ru>
-Date: Thu, 07 Feb 2002 17:54:12 +0300
-From: Roman Kurakin <rik@cronyx.ru>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S291151AbSBGPAH>; Thu, 7 Feb 2002 10:00:07 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:35090 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S291141AbSBGO7x>;
+	Thu, 7 Feb 2002 09:59:53 -0500
+Date: Thu, 7 Feb 2002 15:59:53 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Oleg Drokin <green@namesys.com>
+cc: reiserfs-dev@namesys.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [reiserfs-dev] oops with reiserfs and kernel 2.5.4-pre1 on
+ sparc64
+In-Reply-To: <20020207130356.A18577@namesys.com>
+Message-ID: <Pine.LNX.4.44.0202071557350.27176-100000@Expansa.sns.it>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Serial.c driver problem 2.4.17
-Content-Type: multipart/mixed;
- boundary="------------090908010502060800080003"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090908010502060800080003
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+IT says that the kernel BUG is at buffer.c at line 2243; that is:
 
-Hi,
+ /* Size must be within 512 bytes and PAGE_SIZE */
+        if (size < 512 || size > PAGE_SIZE)
+                BUG();
 
-   I have found a bug. It is in support of serial cards which uses 
-memory for I/O
-insted of ports. I made a patch for serial.c and fix one place, but 
-probably the
-problem like this one could be somewhere else.
+Luigi
 
-Description:
-   If you try to use setserial with such cards you will get "Address in 
-use" (-EADDRINUSE)
+On Thu, 7 Feb 2002, Oleg Drokin wrote:
 
-Best regards,
-                       Kurakin Roman
-
-
---------------090908010502060800080003
-Content-Type: text/plain;
- name="serial_2.4.17.pch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="serial_2.4.17.pch"
-
---- serial.c.orig	Fri Dec 21 20:41:54 2001
-+++ serial.c	Fri Jan 25 15:00:20 2002
-@@ -2084,6 +2084,7 @@
- 	unsigned int		i,change_irq,change_port;
- 	int 			retval = 0;
- 	unsigned long		new_port;
-+	unsigned long		new_mem;
- 
- 	if (copy_from_user(&new_serial,new_info,sizeof(new_serial)))
- 		return -EFAULT;
-@@ -2094,6 +2095,8 @@
- 	if (HIGH_BITS_OFFSET)
- 		new_port += (unsigned long) new_serial.port_high << HIGH_BITS_OFFSET;
- 
-+	new_mem = new_serial.iomem_base;
-+	
- 	change_irq = new_serial.irq != state->irq;
- 	change_port = (new_port != ((int) state->port)) ||
- 		(new_serial.hub6 != state->hub6);
-@@ -2134,6 +2137,7 @@
- 		for (i = 0 ; i < NR_PORTS; i++)
- 			if ((state != &rs_table[i]) &&
- 			    (rs_table[i].port == new_port) &&
-+			    (rs_table[i].iomem_base == new_mem) &&
- 			    rs_table[i].type)
- 				return -EADDRINUSE;
- 	}
-
---------------090908010502060800080003--
+> Hello!
+>
+> On Thu, Feb 07, 2002 at 10:58:27AM +0100, Luigi Genoni wrote:
+>
+> > > Can any of sparc64 people comment on what kind of exception will one
+> > > get for __builtin_trap?
+> > > Second BUG() seems to be out of the question, though.
+> > > Do you have CONFIG_DEBUG_BUGVERBOSE enabled?
+> > No, I have not
+> If you'd enable it, you'd get a message on a next crash, where this BUG()
+> happened exactly (so that we can verify my guess)
+>
+> Bye,
+>     Oleg
+>
 

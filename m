@@ -1,68 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263210AbRFCPGr>; Sun, 3 Jun 2001 11:06:47 -0400
+	id <S263733AbRFDOzh>; Mon, 4 Jun 2001 10:55:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263167AbRFCPFh>; Sun, 3 Jun 2001 11:05:37 -0400
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:41454 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S263015AbRFCPF0>; Sun, 3 Jun 2001 11:05:26 -0400
-Date: Sun, 3 Jun 2001 11:02:39 -0400
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Michael Rothwell <rothwell@holly-springs.nc.us>, Andries.Brouwer@cwi.nl,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: keyboard hook?
-Message-ID: <20010603110239.A4982@513.holly-springs.nc.us>
-Mail-Followup-To: Michael Rothwell <rothwell@holly-springs.nc.us>,
-	James Simmons <jsimmons@transvirtual.com>, Andries.Brouwer@cwi.nl,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linux console project <linuxconsole-dev@lists.sourceforge.net>
-In-Reply-To: <991518977.5581.0.camel@gromit> <Pine.LNX.4.10.10106022028040.9396-100000@transvirtual.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10106022028040.9396-100000@transvirtual.com>; from jsimmons@transvirtual.com on Sat, Jun 02, 2001 at 08:40:04PM -0700
+	id <S264302AbRFDOwq>; Mon, 4 Jun 2001 10:52:46 -0400
+Received: from wdskppp2.mpls.uswest.net ([63.226.148.2]:16234 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S264301AbRFDOwf>; Mon, 4 Jun 2001 10:52:35 -0400
+Date: Mon, 4 Jun 2001 09:39:21 -0500 (CDT)
+From: Nitebirdz <nitebirdz@qwest.net>
+X-X-Sender: <nitebirdz@localhost.localdomain>
+To: Peter Rasmussen <plr@udgaard.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Swap problems persisting?
+In-Reply-To: <200105300442.GAA01571@udgaard.com>
+Message-ID: <Pine.LNX.4.33.0106040933510.20186-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, I'm loking through your driver now. Does the input api already/currently support ps2 keyboards?
+On Wed, 30 May 2001, Peter Rasmussen wrote:
 
--M
+>
+> By "sudden shutdown" I meant that the machine freezes hard and when running X
+> using the Magic SysRq key combinations don't seem to work so power cycling was
+> the only option. It seems that it wasn't just the keyboard that had frozen
+> because a webserver I'm running on the machine also stopped serving pages.
+>
+> Thanks,
+>
+> Peter
 
-On Sat, Jun 02, 2001 at 08:40:04PM -0700, James Simmons wrote:
-> 
-> Hi!
-> 
->    Your best bet for a kernel driver is to use the linux input api like
-> the usb keyboard do. The drivers are pretty simple to write and since all
-> the keyboard drivers will be port over to this api it will save a lot of 
-> work done the road. If you need help let me know. I will be glad to help.
-> It sounds alot alike the p2 to serial driver just placed in our CVS. You
-> can access our CVS by doing 
-> 
-> cvs -d:pserver:anonymous@cvs.linuxconsole.sourceforge.net:/cvsroot/linuxconsole login
-> 
-> cvs -z3 -d:pserver:anonymous@cvs.linuxconsole.sourceforge.net:/cvsroot/linuxconsole co ruby
-> 
-> The driver is in ruby/linux/drivers/input as ps2serkbd.c.
-> 
-> > I'm beginning the process of writing a driver for the "Qoder"
-> > keyboard-fob barcode scanner made by InterMec. It communicates with the
-> > host computer using the PS/2 port by way of a "dock" that sits in
-> > between the keyboard and the computer.
->  
-> > One of them is "turn
-> > numlock light on," which I can do with an ioctl from userspace (as root,
-> > anyway), but also caps lock, num lock and carriage-return scancodes.
-> 
-> EV_LED
-> 
-> > The CueCat driver written by Pierre Coupard also modifies the keyboard
-> > driver. It would be nice if it was possible to load modules that hook
-> > into keyboard processing without requiring a kernel patch. And perhaps
-> > there is, but I haven't run across it yet.
-> 
-> input api :-)
->  
+
+I ignore if this has been reported somewhere but I experience the very same
+problem _only_ if the "using_dma" flag in hdparm is enabled.  It doesn't
+only happen with DVDs, but apparently with several other devices such as
+CD-ROMS, playing MP3s, reading from the /dev/pilot device...  My system
+also freezes, I cannot access it via the network, I can only reboot and
+when I take a look at the logs there is no clue at all as to what might have
+happened.  I also have a report from a friend of mine who experienced the
+same problem while burning CDs.  It also seemed to ba caused by hdparm.
+
+Are you using hdparm too by any chance?  Can you try to reproduce the
+problem _without_ enabling the flag?
+
+
+Just my 2 cents.  I hope I'm not wasting anybody's time.  Now, I'll shut
+up again and read what you guys have to say, as usual.  :-)
+
+
+
+-- 
+------------------------------------------------------
+Nitebirdz
+------------------------------------------------------
+http://www.linuxnovice.org
+News, tips, articles, links...
+
+*** http://www.mozilla.org ***
+

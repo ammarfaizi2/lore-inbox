@@ -1,76 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268396AbUILB4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268400AbUILCAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268396AbUILB4q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 21:56:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268400AbUILB4q
+	id S268400AbUILCAM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 22:00:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268405AbUILCAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 21:56:46 -0400
-Received: from web11901.mail.yahoo.com ([216.136.172.185]:16401 "HELO
-	web11901.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S268396AbUILBz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 21:55:59 -0400
-Message-ID: <20040912015559.73765.qmail@web11901.mail.yahoo.com>
-Date: Sat, 11 Sep 2004 18:55:59 -0700 (PDT)
-From: Mike Mestnik <cheako911@yahoo.com>
-Subject: Re: radeon-pre-2
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Vladimir Dergachev <volodya@mindspring.com>
-Cc: Michel =?ISO-8859-1?Q?=20=22D=E4nzer=22?= <michel@daenzer.net>,
-       Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@gmail.com>,
-       Felix =?ISO-8859-1?Q?=20=22K=FChling=22?= <fxkuehl@gmx.de>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <1094915671.21290.77.camel@localhost.localdomain>
+	Sat, 11 Sep 2004 22:00:12 -0400
+Received: from dpvc-162-83-93-166.fred.east.verizon.net ([162.83.93.166]:21960
+	"EHLO ccs.covici.com") by vger.kernel.org with ESMTP
+	id S268400AbUILCAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 22:00:02 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16707.44449.107574.400402@ccs.covici.com>
+Date: Sat, 11 Sep 2004 22:00:01 -0400
+From: John covici <covici@ccs.covici.com>
+To: Will Beers <whbeers@mbio.ncsu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: asus Motherboard's usb failing with 2.6.8
+In-Reply-To: <41433FD5.1020807@mbio.ncsu.edu>
+References: <16706.57937.202228.211164@ccs.covici.com>
+	<41433FD5.1020807@mbio.ncsu.edu>
+X-Mailer: VM 7.17 under Emacs 21.3.50.2
+Reply-To: covici@ccs.covici.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Well, getting the BIOS now in beta has helped a lot -- I still get
+the failure, however before the failure it seems to load the module
+and initialize the mass storage driver for at least 4 ports -- so
+they may still need to fix something or maybe the 6.9 will fix it.
 
---- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+Thanks much.
 
-> On Sad, 2004-09-11 at 16:53, Vladimir Dergachev wrote:
-> >      Lastly, I am not saying you have to put all the code in the same
-> file.
-> > All I am saying we can mandate that all Radeon HW specific code is
-> linked
-> > in one module - and this would make things easier for developers.
-> 
-> And if I want dri but not frame buffer, or vice versa, as the majority
-> of current users do 
-> 
-Hopefully any change to the kernel will allow building FB without DRM. 
-This is a trivial seperation of code, that I might add has allready been
-done, a good point that we should keep it this way.  Yes, there will be
-some new memory mngmt code, posibly optonal as well, that is needed for
-multi-headed setups.
+on Saturday 09/11/2004 Will Beers(whbeers@mbio.ncsu.edu) wrote
+ > Update to the latest BIOS, and it's fixed.  The code was also modified to 
+ > not fail in this instance in 2.6.9-rc1.
+ > 
+ > Will Beers
+ > 
+ > John covici wrote:
+ > > I have an Asus Motherboard and I cannot get usb2.0 to work properly.
+ > > I get the following messages:
+ > > ehci_hcd 0000:00:10.4: VIA Technologies, Inc. USB 2.0
+ > > ehci_hcd 0000:00:10.4: BIOS handoff failed (104, 1010001)
+ > > ehci_hcd 0000:00:10.4: can't reset
+ > > ehci_hcd 0000:00:10.4: init 0000:00:10.4 fail, -95
+ > > ehci_hcd: probe of 0000:00:10.4 failed with error -95
+ > > 
+ > > The relevant lspci listings are:
+ > > 0000:00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81) (prog-if 00 [UHCI])
+ > > 	Subsystem: Asustek Computer, Inc. A7V600 motherboard
+ > > 	Flags: bus master, medium devsel, latency 64, IRQ 21
+ > > 	I/O ports at c400 [size=32]
+ > > 	Capabilities: [80] Power Management version 2
+ > > 
+ > > 0000:00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81) (prog-if 00 [UHCI])
+ > > 	Subsystem: Asustek Computer, Inc. A7V600 motherboard
+ > > 	Flags: bus master, medium devsel, latency 64, IRQ 21
+ > > 	I/O ports at c800 [size=32]
+ > > 	Capabilities: [80] Power Management version 2
+ > > 
+ > > 0000:00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81) (prog-if 00 [UHCI])
+ > > 	Subsystem: Asustek Computer, Inc. A7V600 motherboard
+ > > 	Flags: bus master, medium devsel, latency 64, IRQ 21
+ > > 	I/O ports at d000 [size=32]
+ > > 	Capabilities: [80] Power Management version 2
+ > > 
+ > > 0000:00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81) (prog-if 00 [UHCI])
+ > > 	Subsystem: Asustek Computer, Inc. A7V600 motherboard
+ > > 	Flags: bus master, medium devsel, latency 64, IRQ 21
+ > > 	I/O ports at d400 [size=32]
+ > > 	Capabilities: [80] Power Management version 2
+ > > 
+ > > 0000:00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86) (prog-if 20 [EHCI])
+ > > 	Subsystem: Asustek Computer, Inc. A7V600 motherboard
+ > > 	Flags: bus master, medium devsel, latency 64, IRQ 21
+ > > 	Memory at fbc00000 (32-bit, non-prefetchable) [size=256]
+ > > 	Capabilities: [80] Power Management version 2
+ > > 
+ > > Any assistance would be appreciated.
+ > > 
 
-> >      I would agree that this can be coded as well - but why bother ?
-> Or is 
-> > it done and working already ?
-> 
-> Splitting the modules up is the easy bit. The API is the hard bit so you
-> might as well formalize it. It also gives the users the ability to not
-> load huge radeon modules.
-> 
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by: YOU BE THE JUDGE. Be one of 170
-> Project Admins to receive an Apple iPod Mini FREE for your judgement on
-> who ports your project to Linux PPC the best. Sponsored by IBM. 
-> Deadline: Sept. 13. Go here: http://sf.net/ppc_contest.php
-> --
-> _______________________________________________
-> Dri-devel mailing list
-> Dri-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/dri-devel
-> 
-
-
-
-		
-_______________________________
-Do you Yahoo!?
-Express yourself with Y! Messenger! Free. Download now. 
-http://messenger.yahoo.com
+-- 
+         John Covici
+         covici@ccs.covici.com

@@ -1,37 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319370AbSIKWer>; Wed, 11 Sep 2002 18:34:47 -0400
+	id <S319371AbSIKWhL>; Wed, 11 Sep 2002 18:37:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319371AbSIKWer>; Wed, 11 Sep 2002 18:34:47 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:12215 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S319370AbSIKWeq>;
-	Wed, 11 Sep 2002 18:34:46 -0400
-Date: Wed, 11 Sep 2002 15:31:32 -0700 (PDT)
-Message-Id: <20020911.153132.63843642.davem@redhat.com>
-To: sim@erik.ca
-Cc: greearb@candelatech.com, linux-kernel@vger.kernel.org
-Subject: Re: 802.1q + device removal causing hang
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020911223252.GA12517@erik.ca>
-References: <20020911223252.GA12517@erik.ca>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S319373AbSIKWhL>; Wed, 11 Sep 2002 18:37:11 -0400
+Received: from schroeder.cs.wisc.edu ([128.105.6.11]:36616 "EHLO
+	schroeder.cs.wisc.edu") by vger.kernel.org with ESMTP
+	id <S319371AbSIKWhK>; Wed, 11 Sep 2002 18:37:10 -0400
+Message-Id: <200209112241.g8BMfug17254@schroeder.cs.wisc.edu>
+Content-Type: text/plain; charset=US-ASCII
+From: Nick LeRoy <nleroy@cs.wisc.edu>
+To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
+Subject: Re: XFS?
+Date: Wed, 11 Sep 2002 17:41:54 -0500
+X-Mailer: KMail [version 1.3.2]
+References: <p73wupuq34l.fsf@oldwotan.suse.de> <200209110820.36925.nleroy@cs.wisc.edu> <20020911212146.GC10315@pegasys.ws>
+In-Reply-To: <20020911212146.GC10315@pegasys.ws>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > I'm not sure if you're saying that this is a bad thing or a good thing. 
+> > FWIW,
+>
+> Unless you like tyrany choice is a good thing(TM).  Trust
+> me, i don't like tyrany.
 
-Try this:
+I like the way you phrased that...
 
---- net/8021q/vlan.c.~1~	Wed Sep 11 15:34:49 2002
-+++ net/8021q/vlan.c	Wed Sep 11 15:34:59 2002
-@@ -626,7 +626,7 @@
- 			ret = unregister_vlan_dev(dev,
- 						  VLAN_DEV_INFO(vlandev)->vlan_id);
- 
--			unregister_netdev(vlandev);
-+			unregister_netdevice(vlandev);
- 
- 			/* Group was destroyed? */
- 			if (ret == 1)
+> On Solaris and some other platforms you can, with lots of
+> money, buy a license to run the Veritas journaling
+> filesystem.  It comes with a license manager and you have to
+> get license keys to mount the filesystems.  Ever had a
+> filesystem not come up after a reboot because the license
+> expired, i have (ouch, i told management to renew the
+> license).  Is veritas fast? I don't know.  They hype the
+> journaling, not speed.  And what are you going to benchmark
+> against?.
+
+Wow..  I thought it was a pain in the ass when we had licencing problems with 
+ClearCase.
+
+> Recently Veritas announced they were going to support Linux.
+> I'm curious to see how they fare in a shootout with the
+> other journaling filesystems.  Of course i wouldn't taint MY
+> kernel to run it when i have four others to choose from.
+
+Why, oh, why would anybody _pay_ for something like that when there's a 
+plethora of excellent filesystems for Linux already?!
+
+> Fantastic.  And that is largly without competition.  Just
+> wait and watch what the JFS and XFS developers do to improve
+> their products to keep up.
+
+At least there seems to be active & open development on them.
+
+Thanks for the reply!
+
+-Nick

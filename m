@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbTIKQZV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 12:25:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbTIKQZV
+	id S261355AbTIKQZK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 12:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbTIKQZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 12:25:21 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:40593 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261356AbTIKQZM
+	Thu, 11 Sep 2003 12:25:10 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8374 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261355AbTIKQZF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 12:25:12 -0400
-Date: Thu, 11 Sep 2003 17:25:10 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Virtual alias cache coherency results (was: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this)
-Message-ID: <20030911162510.GA29532@mail.jlokier.co.uk>
-References: <20030910210416.GA24258@mail.jlokier.co.uk> <20030910233951.Q30046@flint.arm.linux.org.uk> <20030910233720.GA25756@mail.jlokier.co.uk> <20030911010702.W30046@flint.arm.linux.org.uk> <20030911123535.GB28180@mail.jlokier.co.uk> <20030911160929.A19449@flint.arm.linux.org.uk>
+	Thu, 11 Sep 2003 12:25:05 -0400
+Date: Thu, 11 Sep 2003 17:25:04 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: Memory mapped IO vs Port IO
+Message-ID: <20030911162504.GL21596@parcelfarce.linux.theplanet.co.uk>
+References: <20030911160116.GI21596@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73oexri9kx.fsf@oldwotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030911160929.A19449@flint.arm.linux.org.uk>
+In-Reply-To: <p73oexri9kx.fsf@oldwotan.suse.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> Maybe those StrongARM chips don't exhibit the write buffer bug?  Remember,
-> I said _SOME_ StrongARM-110 chips exhibit the problem.  I did not say
-> _ALL_ StrongARM-110 chips exhibit the problem.
+On Thu, Sep 11, 2003 at 06:17:02PM +0200, Andi Kleen wrote:
+> The overhead of checking for PIO vs mmio at runtime in the drivers
+> should be completely in the noise on any non ancient CPU (both MMIO
+> and PIO typically take hundreds or thousands of CPU cycles for the bus
+> access, having an dynamic function call or an if before that is makes
+> no difference at all)
 
-I never assumed they all have the bug.  Credit me with at least
-reading what you wrote before! :)
+That's not true for MMIO writes which are posted.  They should take
+no longer than a memory write.  For MMIO reads and PIO reads & writes,
+you are, of course, correct.
 
-The results indicate some StrongARM-110 systems which _don't_ exhibit
-the write buffer bug _do_ exhibit some _other_ cause of non-coherence.
-
-> > It means that your VIVT explanation and workaround does not explain
-> > those results, so I cannot have confidence that your workaround fixes
-> > those particular ARM devices.
-> 
-> Well, as far as I'm concerned, I completely believe that I have explained
-> it entirely, and I still don't know why you're trying to make this more
-> difficult than it factually is.
-
-I'm thinking the same of you! :)
-
-All I asked is whether _all_ ARMs appear coherent to userspace now, and
-you replied with:
-
-> It's relatively simple, and I'm not sure why its causing such
-> misunderstanding.  Let me try one more time:
-
-and proceeding to answer a different question to the one I asked.
-
-So, neither of us knows if all ARMs appear coherent to userspace, with
-the latest kernel, ...
-
-> Well, once you collect the kernel information and forward it to me, I
-> can have a look.
-
-...until we learn what kernel versions the Netwinder folks are
-running, or they kindly run the test on a new kernel.
-
-Thanks,
--- Jamie
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

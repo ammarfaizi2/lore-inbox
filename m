@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290593AbSERMmC>; Sat, 18 May 2002 08:42:02 -0400
+	id <S312601AbSERMr6>; Sat, 18 May 2002 08:47:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312449AbSERMmB>; Sat, 18 May 2002 08:42:01 -0400
-Received: from mail.s3.kth.se ([130.237.48.5]:13067 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id <S290593AbSERMmA>;
-	Sat, 18 May 2002 08:42:00 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: ide cd/dvd with 2.4.19-pre8
-In-Reply-To: <Pine.LNX.4.10.10205180238160.774-100000@master.linux-ide.org>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 18 May 2002 14:42:00 +0200
-Message-ID: <yw1xoffdhbl3.fsf@gladiusit.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S312973AbSERMr5>; Sat, 18 May 2002 08:47:57 -0400
+Received: from pc-62-31-66-178-ed.blueyonder.co.uk ([62.31.66.178]:60032 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S312601AbSERMr5>; Sat, 18 May 2002 08:47:57 -0400
+Date: Sat, 18 May 2002 13:47:50 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>, Neil Brown <neilb@cse.unsw.edu.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Thoughts on using fs/jbd from drivers/md
+Message-ID: <20020518134750.B2594@redhat.com>
+In-Reply-To: <15587.18828.934431.941516@notabene.cse.unsw.edu.au> <20020516161749.D2410@redhat.com> <20020517182942.GF627@matchmail.com> <20020517193410.W2693@redhat.com> <20020518013537.GH627@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick <andre@linux-ide.org> writes:
+Hi,
 
-> The driver pulled your system back into safe data io ranges.
-> Either your cable routing is poor,
-I use the cable that came with the controller. It runs as strait as the
-box allows. How sensitive are these things really?
-
-> your power supply is marginal, possible
-It's 300 W. Isn't that enough?
-
-> but not likely (hardware combination does not like the odd or even cable
-> grounding setup), regardless it did the correct thing.
+On Fri, May 17, 2002 at 06:35:37PM -0700, Mike Fedyk wrote:
+> On Fri, May 17, 2002 at 07:34:10PM +0100, Stephen C. Tweedie wrote:
+> > Degraded mode relies on the parity disk being in sync at all times ---
 > 
-> The problem is a feature to prevent the driver from dropping out of DMA
-> to PIO when it is better to down grade the transfer rate.
-> 
-> The next issue is whether your ATAPI is in DMA, and it should not be.
-> The driver core does not use split dma engines yet.
+> Doesn't degraded mode imply that there are not any parity
+> disk(raid4)/stripe(raid5) updates?
 
-Was there some change from 2.4.18 to 19-pre8 in this area?
+Nope, partity updates still occur.  It's more expensive than in
+non-degraded mode, but parity still gets updated.  If it wasn't, you
+would not be able to write to a degraded array at all, as updating
+parity is the only way that you can write to a block which maps to a
+failed disk.  By using parity, we only ever fail requests if there are
+two or more failed disks in the array.
 
-Is there any way to use the disk in udma5? Can there be compatibility
-problems with the disk?
-
--- 
-Måns Rullgård
-mru@users.sf.net
+Cheers,
+ Stephen

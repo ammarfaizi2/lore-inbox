@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261966AbREYWBg>; Fri, 25 May 2001 18:01:36 -0400
+	id <S261969AbREYWUu>; Fri, 25 May 2001 18:20:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261969AbREYWB1>; Fri, 25 May 2001 18:01:27 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:15113 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261966AbREYWBX>;
-	Fri, 25 May 2001 18:01:23 -0400
-Date: Sat, 26 May 2001 00:01:19 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alexandr Andreev <andreev@niisi.msk.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Disabling interrupts before block device request call
-Message-ID: <20010526000119.A23273@suse.de>
-In-Reply-To: <3B0EE8CF.7040502@niisi.msk.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B0EE8CF.7040502@niisi.msk.ru>; from andreev@niisi.msk.ru on Fri, May 25, 2001 at 07:20:47PM -0400
+	id <S261984AbREYWUa>; Fri, 25 May 2001 18:20:30 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:8711 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S261969AbREYWU1>; Fri, 25 May 2001 18:20:27 -0400
+Date: Fri, 25 May 2001 19:20:20 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [with-PATCH-really] highmem deadlock removal, balancing & cleanup
+In-Reply-To: <Pine.LNX.4.31.0105251410040.7867-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0105251919480.10469-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 25 2001, Alexandr Andreev wrote:
-> Hi, list
-> In ll_rw_block.c, before calling block device specific request function 
-> ( i mean do_hd_request, do_ftl_request, ... ) the io_request_lock is 
-> locking, and all interrupts are disabling. I know, that request handler 
-> routine have to be atomic, but when we read data from a flash device ( 
-> for example ) we use a timeouts. Where do we have to enable timer 
-> interrupts, or should we disable all interrupts?
+On Fri, 25 May 2001, Linus Torvalds wrote:
+> On Fri, 25 May 2001, Rik van Riel wrote:
+> >
+> > OK, shoot me.  Here it is again, this time _with_ patch...
+>
+> I'm not going to apply this as long as it plays experimental games with
+> "shrink_icache()" and friends. I haven't seen anybody comment on the
+> performance on this,
 
-Even with dropping io_request_lock, it's not recommended to sleep inside
-the request_fn. WIth plugging, you are basically preventing the other
-plugged queues from being run until you return.
+Yeah, I guess the way Linux 2.2 balances things is way too
+experimental ;)
 
-You could use a timer or similar to call you on a specified timeout
-instead.
 
--- 
-Jens Axboe
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

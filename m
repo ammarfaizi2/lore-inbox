@@ -1,77 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269777AbRH0XQF>; Mon, 27 Aug 2001 19:16:05 -0400
+	id <S269752AbRH0XOp>; Mon, 27 Aug 2001 19:14:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269739AbRH0XPv>; Mon, 27 Aug 2001 19:15:51 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:7705 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S269770AbRH0XPd>; Mon, 27 Aug 2001 19:15:33 -0400
-Date: Tue, 28 Aug 2001 01:15:49 +0200
-From: Kurt Garloff <kurt@garloff.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: patch-2.4.10-pre1
-Message-ID: <20010828011549.J12566@gum01m.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <kurt@garloff.de>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0108271323290.5985-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VSaCG/zfRnOiPJtU"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0108271323290.5985-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.20i
-X-Operating-System: Linux 2.4.7 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+	id <S269739AbRH0XOg>; Mon, 27 Aug 2001 19:14:36 -0400
+Received: from dfw-smtpout3.email.verio.net ([129.250.36.43]:57230 "EHLO
+	dfw-smtpout3.email.verio.net") by vger.kernel.org with ESMTP
+	id <S269726AbRH0XO3>; Mon, 27 Aug 2001 19:14:29 -0400
+Message-ID: <3B8AD463.C196B9B6@bigfoot.com>
+Date: Mon, 27 Aug 2001 16:14:43 -0700
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20p9ai i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Nicholas Lee <nj.lee@plumtree.co.nz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Crashing with Abit KT7, 2.2.19+ide patches
+In-Reply-To: <20010827200106.A26175@cone.kiwa.co.nz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> [nic@hoppa:~] dmesg | grep -i DMA
+> VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci00:07.1
+>     ide0: BM-DMA at 0xec00-0xec07, BIOS settings: hda:DMA, hdb:pio
+>     ide1: BM-DMA at 0xec08-0xec0f, BIOS settings: hdc:DMA, hdd:pio
+> hda: ST320420A, 19458MB w/2048kB Cache, CHS=2480/255/63, UDMA(66)
+> hdc: ATAPI 48X CD-ROM drive, 120kB Cache, UDMA(33)
+> 
+> Aug 26 13:59:05 hoppa kernel: hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> Aug 26 13:59:05 hoppa kernel: hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
 
---VSaCG/zfRnOiPJtU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I've a similar machine
 
-On Mon, Aug 27, 2001 at 01:25:45PM -0700, Linus Torvalds wrote:
->=20
-> Ok, I'm back from Finland, and there's a 2.4.10-pre1 update on kernel.org.
-> Changelog appended..
->=20
-> The most noticeable one (under the right loads) is probably the one-liner
-> by Daniel that avoids some bad behaviour when swapping.
+[15:45] abit:~ > dmesg | grep -i DMA
+VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci00:07.1
+    ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:DMA
+hda: IBM-DTLA-307020, 19623MB w/1916kB Cache, CHS=2501/255/63, UDMA(66)
+hdc: Maxtor 32049H2, 19541MB w/2048kB Cache, CHS=39704/16/63, UDMA(66)
 
-Looks like a good one.
-Actually, I got two wishes for 2.4.10:
-* It hopefully overcomes all the VM trouble
-  (this list is full of reports; some of my observation look like creating
-   dirty pages in the page cache at a high rate makes your system crawl.
-   An efficient way is use mkfs with Andrea's blkdev-pgcache patch, but
-   it's not the only way.)
-* It'll hopefully be identical to 2.5.0,
-  so people have a kernel to put experimental stuff in instead of 2.4.x
-  Good things can always be backported, once proven stable.
+and have had this problem in the past.  Make sure you are using the
+latest 2.2.19 ide patch (ide.2.2.19.05042001).  My problem was marginal
+ATA/66 IDE cables that came with my motherboard (Abit KA7).  Other than
+upgrading cables I also use kernel param 'ide0=ata66' at boot and these
+.config entries:
 
-Regards,
---=20
-Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
-Physics: Plasma simulations  <K.Garloff@Phys.TUE.NL>  [TU Eindhoven, NL]
-Linux: SCSI, Security          <garloff@suse.de>    [SuSE Nuernberg, DE]
- (See mail header or public key servers for PGP2 and GPG public keys.)
+CONFIG_M686=y
+CONFIG_MTRR=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_VIA82CXXX=y
 
---VSaCG/zfRnOiPJtU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Also it could be EIDE cables too long or not fully inserted or damaged
+(pinched), or an actual disk failing, or excessive heat in the box if
+the disk is very hot to the touch.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+rgds,
+tim.
 
-iD8DBQE7itSlxmLh6hyYd04RAmA9AJ4+rBDZHrJhvuLmWqjxKEMzqwE9KACg2aeL
-8KYa7l7ysbB6+C9/68uezLE=
-=CslR
------END PGP SIGNATURE-----
-
---VSaCG/zfRnOiPJtU--
+--

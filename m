@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131430AbQLYPbP>; Mon, 25 Dec 2000 10:31:15 -0500
+	id <S130635AbQLYPjj>; Mon, 25 Dec 2000 10:39:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130635AbQLYPbF>; Mon, 25 Dec 2000 10:31:05 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:39180 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131560AbQLYPa6>;
-	Mon, 25 Dec 2000 10:30:58 -0500
-Date: Mon, 25 Dec 2000 16:00:30 +0100
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.0test13pre4ac2
-Message-ID: <20001225160030.A19858@gruyere.muc.suse.de>
-In-Reply-To: <E149bsl-0005NV-00@the-village.bc.nu> <3A473192.ED7EE89C@uow.edu.au>
+	id <S131150AbQLYPj3>; Mon, 25 Dec 2000 10:39:29 -0500
+Received: from coruscant.franken.de ([193.174.159.226]:7945 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S130635AbQLYPjR>; Mon, 25 Dec 2000 10:39:17 -0500
+Date: Mon, 25 Dec 2000 16:06:21 +0100
+From: Harald Welte <laforge@gnumonks.org>
+To: Mike Elmore <mwelmor@kre8tive.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Masquerade hangups
+Message-ID: <20001225160621.L6217@coruscant.gnumonks.org>
+In-Reply-To: <20001224090212.A1218@kre8tive.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A473192.ED7EE89C@uow.edu.au>; from andrewm@uow.edu.au on Mon, Dec 25, 2000 at 10:37:54PM +1100
+In-Reply-To: <20001224090212.A1218@kre8tive.org>; from mwelmor@kre8tive.org on Sun, Dec 24, 2000 at 09:02:12AM -0600
+X-Operating-System: 2.4.0-test11p4
+X-Date: Today is Boomtime, the 65th day of The Aftermath in the YOLD 3166
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 25, 2000 at 10:37:54PM +1100, Andrew Morton wrote:
-> Alan Cox wrote:
-> > 
-> > 2.4.0test13pre4-ac2
-> >
-> > o       Make smp cpu halt synchronous                   (Andi Kleen)
+On Sun, Dec 24, 2000 at 09:02:12AM -0600, Mike Elmore wrote:
+> Hello,
 > 
-> errr, Andi. 
 > 
-> We're asking all the other CPUs to call stop_this_cpu(), and then waiting
-> for them to complete the call.
-> 
-> But stop_this_cpu() never returns, so the machine gets stuck.
+> I seem to get pretty good performance from 
+> internet->masq box and from masq box->internal
+> lan, but when a internal box tries to get to the
+> net through the masquerade, connection seem to time
+> out.  I'll get a pretty good initial burst, then
+> connections stall.
 
-Right, it's wrong. Thanks for spotting that.
+please join the netfilter/iptables mailinglist (instructions on
+http://netfilter.kernelnotes.org) and file us a detailed report.
 
--Andi
+It's a good idea to save linux-kernel from all the nifty details :)
+
+> I'm using test13-pre4.  I saw some iptables stuff on
+> the list a week or so ago, was this fixed in pre4 or
+> is this my problem?
+
+we (the netfilter core team) are currently not aware
+of any bugs at the moment. The behaviour you've described
+wasn't reported by anybody else.
+
+> -mwe
+> mike@kre8tive.org
+
+-- 
+Live long and prosper
+- Harald Welte / laforge@gnumonks.org                http://www.gnumonks.org
+============================================================================
+GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
+V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270926AbUJVETo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270899AbUJVE0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270926AbUJVETo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 00:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270940AbUJVEQc
+	id S270899AbUJVE0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 00:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270851AbUJVEYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 00:16:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:27885 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270899AbUJVELX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 00:11:23 -0400
-Message-ID: <41788761.8020508@osdl.org>
-Date: Thu, 21 Oct 2004 21:06:57 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Fri, 22 Oct 2004 00:24:09 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:16247 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S270930AbUJVEUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 00:20:35 -0400
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+X-Message-Flag: Warning: May contain useful information
+References: <200410211910.i9LJAKjf029014@hera.kernel.org>
+	<20041021203110.GA1532@smtp.west.cox.net>
+From: Roland Dreier <roland@topspin.com>
+Date: Thu, 21 Oct 2004 21:20:26 -0700
+In-Reply-To: <20041021203110.GA1532@smtp.west.cox.net> (Tom Rini's message
+ of "Thu, 21 Oct 2004 13:31:10 -0700")
+Message-ID: <52sm87gz91.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-To: pavel@suse.cz, linux-kernel@vger.kernel.org
-Subject: __init & __initdata during resume
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: [PATCH] ppc: fix build with O=$(output_dir)
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 22 Oct 2004 04:20:31.0592 (UTC) FILETIME=[77F5E680:01C4B7EE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel,
+    Tom> Can we back this out please?  As I noted on lkml once I saw
+    Tom> this, it still doesn't fix the problem of overwriting files
+    Tom> in lib/zlib_inflate/ if ZLIB_INFLATE!=n, and adding explicit
+    Tom> rules for lib/zlib_inflate/foo.c
+    -> ./foo.o looks quite bad (it's 2 calls if we want checker to get
+    Tom> invoked, one if we skip doing that).  At the end of the
+    Tom> thread, both Roland and I were hoping Sam knew of a clever
+    Tom> solution to this.
 
-'make buildcheck' reports:
-Error: ./arch/x86_64/ia32/syscall32.o .text refers to 0000000000000002
-R_X86_64_PC32     .init.data+0x000000000000152b
-Error: ./arch/x86_64/ia32/syscall32.o .text refers to 0000000000000017
-R_X86_64_PC32     .init.data+0x000000000000152c
+I can't really object to backing this out, but I'll just point out
+that without this patch, in the situations where mainline builds at
+all, it still overwrites files in lib/zlib_inflate/.  (And builds with
+O=xxx don't work at all)
 
+It might make more sense to leave this patch in for now and beg Sam
+for a better fix in the future.
 
-I'm looking at a recent (2 weeks) changeset:
-[PATCH] Fix random crashes in x86-64 swsusp
-
-http://linux.bkbits.net:8080/linux-2.5/cset@4166a52aYzzfOE3F63Kkb966K2Qz3g?nav=index.html|src/|src/arch|src/arch/x86_64|src/arch/x86_64/ia32|related/arch/x86_64/ia32/syscall32.c
-
-in which this change was made:
-
--void __init syscall32_cpu_init(void)
-+/* May not be __init: called during resume */
-+void syscall32_cpu_init(void)
-
-but syscall32_cpu_init() uses <use_sysenter>, which is:
-static int use_sysenter __initdata = -1;
-
-so the question is:  does that "__initdata" need to removed also?
-
---
-~Randy
-
+Thanks,
+  Roland

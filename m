@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUK3NEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbUK3NHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbUK3NEM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 08:04:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbUK3NEL
+	id S262063AbUK3NHK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 08:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbUK3NHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 08:04:11 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:48796 "EHLO
+	Tue, 30 Nov 2004 08:07:10 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:50844 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262062AbUK3NED (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 08:04:03 -0500
-Subject: Re: Looking for a single patch file for the ITE8212 kernel
-	2.6.10-rc2
+	id S262063AbUK3NHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 08:07:03 -0500
+Subject: Re: [PATCH][2/2] ide-tape: small cleanups - handle  
+	copy_to|from_user() failures
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mws <mws@twisted-brains.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200411291910.53740.mws@twisted-brains.org>
-References: <200411291910.53740.mws@twisted-brains.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Gadi Oxman <gadio@netvision.net.il>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0411300018240.3389@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.61.0411281731050.3389@dragon.hygekrogen.localhost>
+	 <Pine.LNX.4.61.0411281731050.3389@dragon.hygekrogen.localhost>
+	 <1101663266.16761.43.camel@localhost.localdomain>
+	 <41ABA6EE.6080502@tmr.com>
+	 <Pine.LNX.4.61.0411300018240.3389@dragon.hygekrogen.localhost>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1101816038.25603.17.camel@localhost.localdomain>
+Message-Id: <1101816200.25603.19.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 30 Nov 2004 12:00:41 +0000
+Date: Tue, 30 Nov 2004 12:03:23 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-11-29 at 18:10, Mws wrote:
-> hi,
-> 
-> does somebody, or you alan, have a single patch to support the ite8212 ide chip?
-> i now that it is contained in the latest ac patch - but that is against kernel 2.6.9
+On Llu, 2004-11-29 at 23:23, Jesper Juhl wrote:
+> Alan: Would you mind explaining why this is not safe? If there's something 
+> I'm missing I'd really like to know.
 
-The IT8212 driver depends on other -ac IDE changes. There was an earlier
-version that didn't but that has some other bugs and since Bartlomiej
-rejected it I've no interest in maintaining that version.
+Wrong question. Prove it is safe.
 
-I'm afraid you'll need the -ac patches to use the IT8212. That isn't how
-I wanted it either. Once 2.6.10 is out I'll maybe do a 2.6.10-ac. Right
-now however both the released 10rc trees crashed or hung on boot on my
-test boxes and I've not got the time to mess with random -bk snapshots.
-
-Alan
+Otherwise you are risking errors in critical devices (think backups) for
+the sake of fixing an essentially irrelevant limitation.
 

@@ -1,54 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbUAUVWN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 16:22:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264229AbUAUVWN
+	id S264142AbUAUVZs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 16:25:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264141AbUAUVZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 16:22:13 -0500
-Received: from dsl-213-023-011-163.arcor-ip.net ([213.23.11.163]:57226 "EHLO
-	fusebox.fsfeurope.org") by vger.kernel.org with ESMTP
-	id S264147AbUAUVWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 16:22:11 -0500
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: "Martin Loschwitz" <madkiss@madkiss.org>, <linux-kernel@vger.kernel.org>,
-       "Brown, Len" <len.brown@intel.com>, <acpi-devel@lists.sourceforge.net>
-Subject: Re: PROBLEM: ACPI freezes 2.6.1 on boot
-References: <7F740D512C7C1046AB53446D3720017361885C@scsmsx402.sc.intel.com>
-From: "Georg C. F. Greve" <greve@gnu.org>
-Organisation: Free Software Foundation Europe - GNU Project
-X-PGP-Fingerprint: 2D68 D553 70E5 CCF9 75F4 9CC9 6EF8 AFC2 8657 4ACA
-X-PGP-Affinity: will accept encrypted messages for GNU Privacy Guard
-X-Home-Page: http://gnuhh.org
-X-Accept-Language: en, de
-Date: Wed, 21 Jan 2004 22:21:52 +0100
-In-Reply-To: <7F740D512C7C1046AB53446D3720017361885C@scsmsx402.sc.intel.com> (Jun
- Nakajima's message of "Wed, 21 Jan 2004 08:32:50 -0800")
-Message-ID: <m3u12pgfpr.fsf@reason.gnu-hamburg>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Jan 2004 16:25:48 -0500
+Received: from relay2.EECS.Berkeley.EDU ([169.229.60.28]:51129 "EHLO
+	relay2.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id S264142AbUAUVZp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 16:25:45 -0500
+Subject: 2.4.23: user/kernel pointer bugs in drivers/pcmcia/ds.c
+From: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
+To: dhinds@zen.stanford.edu
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 21 Jan 2004 13:25:43 -0800
+Message-Id: <1074720344.28494.1354.camel@dooby.cs.berkeley.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- || On Wed, 21 Jan 2004 08:32:50 -0800
- || "Nakajima, Jun" <jun.nakajima@intel.com> wrote: 
+I think there are several user/kernel pointer bugs in
+drivers/pcmcia/ds.c:ds_ioctl().  I haven't made a patch because the
+fixes aren't obvious (to me).  Here they are:
 
- nj> Right now I forwarded this to linux-acpi@intel.com, but copying
- nj> the ACPI mailing list acpi-devel@lists.sourceforge.net would be
- nj> helpful in general. Len can provide more specific directions for
- nj> reporting ACPI bugs.
+** ds.c:748   
+    if (cmd & IOC_IN) copy_from_user((char *)&buf, (char *)arg, size);
+    // The fields of buf are now under user control
 
-Thanks.
+** ds.c:809   
+    pcmcia_get_first_window(&buf.win_info.handle, &buf.win_info.window);
 
-FYI, there is a bug on the Linux kernel bugzilla corresponding to this
-problem: 
+** cs.c:1199
+int pcmcia_get_first_window(window_handle_t *win, win_req_t *req)
+{
+    if ((win == NULL) || ((*win)->magic != WINDOW_MAGIC))
+	return CS_BAD_HANDLE;
+    return pcmcia_get_window(win, 0, req);
+}
 
-         http://bugzilla.kernel.org/show_bug.cgi?id=1774
+So *win is a pointer under user control, and ((*win)->magic derefs it.
+I think it gets derefed again in pcmcia_get_window.  The call to
+pcmcia_get_next_window() on ds.c:812 has the the same problem.
 
-Regards,
-Georg
 
--- 
-Georg C. F. Greve                                       <greve@gnu.org>
-Free Software Foundation Europe	                 (http://fsfeurope.org)
-Brave GNU World	                           (http://brave-gnu-world.org)
+
+Similarly:
+
+** ds.c:805
+	ret = pcmcia_get_next_region(s->handle, &buf.region);
+
+** bulkmem.c: 439
+int pcmcia_get_next_region(client_handle_t handle, region_info_t *rgn)
+{
+    if (CHECK_HANDLE(handle))
+	return CS_BAD_HANDLE;
+    return match_region(handle, rgn->next, rgn);
+} /* get_next_region */
+
+The memory pointed to by rgn is under user control, so rgn->next
+is under user control.
+
+** bulkmem.c: 406
+static int match_region(client_handle_t handle, memory_handle_t list,
+			region_info_t *match)
+{
+    while (list != NULL) {
+	if (!(handle->Attributes & INFO_MTD_CLIENT) ||
+	    (strcmp(handle->dev_info, list->dev_info) == 0)) {
+	    *match = list->info;
+	    return CS_SUCCESS;
+	}
+	list = list->info.next;
+    }
+    return CS_NO_MORE_ITEMS;
+} /* match_region */
+
+So list is a pointer under user control, and strcmp(.., list->dev_info)
+derefs it
+(and list->info, etc.).
+
+There are similar problems with the calls
+pcmcia_get_first_region()    on ds.c:802,
+pcmcia_get_mem_page()        on ds.c:815 (first argument)
+
+
+Thanks for looking at these.
+
+Best,
+Rob
+
+P.S. These bugs were found using the source code verification
+tool, CQual, developed by Jeff Foster, myself, and others, and available
+from http://www.cs.umd.edu/~jfoster/cqual/.
+
+

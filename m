@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262976AbUCRVXY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 16:23:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262973AbUCRVXY
+	id S262977AbUCRVX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 16:23:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262973AbUCRVX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 16:23:24 -0500
-Received: from zero.aec.at ([193.170.194.10]:34055 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S262951AbUCRVXW (ORCPT
+	Thu, 18 Mar 2004 16:23:56 -0500
+Received: from [144.51.25.10] ([144.51.25.10]:26565 "EHLO epoch.ncsc.mil")
+	by vger.kernel.org with ESMTP id S262951AbUCRVXw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 16:23:22 -0500
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: sched_setaffinity usability
-References: <1B0Ls-lY-27@gated-at.bofh.it> <1B42z-3Lx-5@gated-at.bofh.it>
-	<1B4Fh-4sQ-3@gated-at.bofh.it> <1B86P-8gq-69@gated-at.bofh.it>
-	<1Bars-2s6-29@gated-at.bofh.it> <1BaKU-2Lg-49@gated-at.bofh.it>
-	<1BaKX-2Lg-61@gated-at.bofh.it> <1BaUR-2V0-41@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 18 Mar 2004 22:23:18 +0100
-In-Reply-To: <1BaUR-2V0-41@gated-at.bofh.it> (Ingo Molnar's message of "Thu,
- 18 Mar 2004 20:00:37 +0100")
-Message-ID: <m3r7vponnd.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 18 Mar 2004 16:23:52 -0500
+Subject: Re: [Lse-tech] Re: Hugetlbpages in very large memory
+	machines.......
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andy Whitcroft <apw@shadowen.org>, anton@samba.org, ak@suse.de,
+       raybry@sgi.com, lse-tech@lists.sourceforge.net,
+       linux-ia64@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
+       mbligh@aracnet.com
+In-Reply-To: <20040318122524.3904db7d.akpm@osdl.org>
+References: <40528383.10305@sgi.com> <20040313034840.GF4638@wotan.suse.de>
+	 <20040313184547.6e127b51.akpm@osdl.org>
+	 <20040314040634.GC19737@krispykreme>
+	 <37640233.1079550324@42.150.104.212.access.eclipse.net.uk>
+	 <20040318122524.3904db7d.akpm@osdl.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1079644967.12704.216.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 18 Mar 2004 16:22:47 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
+On Thu, 2004-03-18 at 15:25, Andrew Morton wrote:
+> Seems reasonable, although "vm_enough_acctdom" makes my eyes pop.  Why not
+> keep the "vm_enough_memory" identifier?
+> 
+> I've asked Stephen for comment - assuming he's OK with it I'd ask you to
+> finish this off please.
 
-> * Ingo Molnar <mingo@elte.hu> wrote:
->
->> x86-64 has a VDSO page as well, [...]
->
-> hm, i'm not sure this is the case. It does have a vsyscall page but
-> doesnt fill out AT_SYSINFO. ia64 seems to have something like a vdso,
-> passed down via AT_SYSINFO.
+To keep the name, he needs to update all callers, right?  Current patch
+appears to add a static inline for security_vm_enough_memory that
+retains the old interface to avoid having to update most callers.
 
-Yes, the x86-64 64bit vsyscalls predate all the vDSO work and haven't
-been updated. It has a vDSO for 32bit programs though.
+I don't have any fundamental problem with the nature of the change.  As
+a side note, patch was malformed (at least as I received it), not sure
+if that was just a problem on my end.
 
-I guess it would be not that much work to add it for 64bit too. 
-I would not be opposed to it if somebody sends me patches. 
-
-This means my only objection is that an dwarf2 unwind table written
-without the .cfi_* support in the assembler is incredibly ugly and
-unmaintainable. I really don't want to have more such ugly tables.  I
-guess it would be best to force an binutils update for dwarf2
-information.
-
--Andi
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

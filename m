@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbULCBEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbULCBOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261830AbULCBEh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 20:04:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbULCBEg
+	id S261833AbULCBOg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 20:14:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbULCBOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 20:04:36 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:12010 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261830AbULCBE1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 20:04:27 -0500
-Date: Thu, 2 Dec 2004 17:04:17 -0800
-Message-Id: <200412030104.iB314HtA001566@magilla.sf.frob.com>
+	Thu, 2 Dec 2004 20:14:35 -0500
+Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:35040 "EHLO
+	mail.inprovide.com") by vger.kernel.org with ESMTP id S261833AbULCBOa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 20:14:30 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: dma errors with sata_sil and Seagate disk
+References: <20041201115045.3ab20e03@homer.sarvega.com>
+	<1101944482.30990.74.camel@localhost.localdomain>
+	<yw1xpt1tuihe.fsf@ford.inprovide.com>
+	<1102030431.7175.9.camel@localhost.localdomain>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Date: Fri, 03 Dec 2004 02:14:27 +0100
+In-Reply-To: <1102030431.7175.9.camel@localhost.localdomain> (Alan Cox's
+ message of "Thu, 02 Dec 2004 23:33:53 +0000")
+Message-ID: <yw1xvfbkrxn0.fsf@ford.inprovide.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-X-Fcc: ~/Mail/linus
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use pid_alive in proc_pid_status
-In-Reply-To: Manfred Spraul's message of  Monday, 29 November 2004 18:58:30 +0100 <41AB6346.2080601@colorfullife.com>
-X-Shopping-List: (1) Prestigious digressions
-   (2) Luxurious lips
-   (3) Heterogeneous superstitious witches
-   (4) Obsequious persuaders
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But I don't understand the lines in wait_task_zombie that reset 
-> exit_state from DEAD to ZOMBIE, so perhaps I overlook something.
+Alan Cox <alan@lxorguk.ukuu.org.ak> writes:
 
-This happens when a sys_wait* call tries to reap a process, but then has
-some problem like EFAULT.  It then abandons the reaping attempt by turning
-DEAD back into ZOMBIE, so another sys_wait* call can succeed later.  So,
-during this brief window it can be in DEAD though it in fact is never
-reaped and the PID remains bound to that task_struct throughout.
-If you don't want to rule out ZOMBIE, you can't really rule out DEAD.
+> On Iau, 2004-12-02 at 10:01, Måns Rullgård wrote:
+>> Is there some problem with Seagate drives in general?  I'm using two
+>> ST3160827AS drives on an SI3114 controller, and haven't seen any
+>> glitches yet.  That model is not in the blacklist, and performance is
+>> what I'd usually expect.  Is it pure luck that has kept me away from
+>> problems?
+>
+> I've never been able to get a non NDA list of the affected drives. Got
+> to love vendors some days
 
+Does this mean it is the drives which are faulty, not the controller?
+These drives are both new, so I suppose known problems might have been
+fixed.  FWIW, they are reported by the kernel thusly:
 
-Thanks,
-Roland
+  Vendor: ATA       Model: ST3160827AS       Rev: 3.03
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+  Vendor: ATA       Model: ST3160827AS       Rev: 3.00
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+
+-- 
+Måns Rullgård
+mru@inprovide.com

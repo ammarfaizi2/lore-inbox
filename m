@@ -1,108 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264361AbTLKGla (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 01:41:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264362AbTLKGla
+	id S264354AbTLKGmB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 01:42:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264360AbTLKGmB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 01:41:30 -0500
-Received: from secure.comcen.com.au ([203.23.236.73]:778 "EHLO
-	xavier.etalk.net.au") by vger.kernel.org with ESMTP id S264361AbTLKGl2
+	Thu, 11 Dec 2003 01:42:01 -0500
+Received: from cs2417481-26.houston.rr.com ([24.174.81.26]:10720 "EHLO
+	dmdtech.org") by vger.kernel.org with ESMTP id S264354AbTLKGly
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 01:41:28 -0500
-From: Ross Dickson <ross@datscreative.com.au>
-Reply-To: ross@datscreative.com.au
-Organization: Dat's Creative Pty Ltd
-To: asia.support@amd.com
-Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
-Date: Thu, 11 Dec 2003 12:50:53 +1000
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org, AMartin@nvidia.com
+	Thu, 11 Dec 2003 01:41:54 -0500
+Message-ID: <001801c3bfb1$e734ce20$1e01a8c0@dmdtech2>
+From: "Darren Dupre" <darren@dmdtech.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: cifs causes high system load avg, oopses when unloaded on 2.6.0-test11
+Date: Thu, 11 Dec 2003 00:42:10 -0600
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312111250.53334.ross@datscreative.com.au>
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to draw AMD into the picture using their ask AMD web form
-but I think it is broken.
+Using CIFS causes a very high load average (approx. 12 according to uptime).
+After I umout all filesystems (CIFS ones) and then unload the module, it
+oopses (below).
 
-Could asia support please take this seriously and forward it to the appropriate
-AMD technical personel. I believe the issue is not restricted to linux but
-to any code which executes the same way.
+CC me replies if more information is needed.
 
-The ask AMD submission follows:
-
-Subject Details:
-Possible CPU ERRATA: re: bus disconnect and apic timer interrupt
-
-Greetings:
-I and many others have been tracking down a hard lockup problem on linux and 
-nforce2 chipset.
-
-Please find continuing discussion including a copy of this submission here:
-
-http://linux.derkeiler.com/Mailing-Lists/Kernel/2003-12/1528.html
-
-My current level of knowledge (best estimate) on the problem is that if a cpu 
-disconnect cycle is in progress or has occurred and the local apic timer interrupt
-is the trigger to return to a connected state then an undocumented timing
-constraint exists. The constraint is that the local apic acknowledge will not be
-correctly received by the local apic if it occurs earlier than about 500us 
-after the processor continues execution. That is if the processor issues
-the ack earlier than 500us after resuming execution then an unrecoverable
-hard lockup of the system occurs.
-
-Possible causes include a slow start to the local system bus in relation to
-the reconnection of the cpu to the local apic as per earlier model athlon CPU's?
-Or system bus connect disconnect signal timing problems with the nforce2 northbridge?
-
-What I would like to know is:
-
-a) Can you please isolate- verify cause assuming you have hardware testing facilities.
-
-b) Does this problem affect all local apic interrupt sources including those which
- have come from an io-apic.
-
-c) Is there is a chipset independent way of finding out if we are coming out of
- a disconnect state prior to issuing the local apic acknowledge. 
- i.e. is there a readable status bit within the processor that we can use to see
- if it is safe to immediately ACK the local apic or if we should wait for 500ns or so.
-
-I have experienced this problem on XP2500 barton and XP2200 thoroughbred cores.
-Others have experienced it on other model barton cores. At least 4 makes of
-motherboard are involved.
-
-So far it appears to affect all current and pending linux releases for the nforce2 chipsets. 
-One could say this relates to a good quantity of potential AMD athlon cpu sales
-and bugs with nforce2 and AMD may sour uptake of nforce3 and x64.........
-
-Regards
-Ross Dickson.
-Director.
-Dat's Creative Pty Ltd
-Gold Coast
-Australia
-
-
-I don't know if it got through, I received this after the submit button
-
-The page cannot be displayed
-There is a problem with the page you are trying to reach and it cannot be displayed.
-Please try the following:
-Click the Refresh button, or try again later; it does not normally take a long time for an application to restart.
-Open the 139.95.253.214 home page, and then look for links to the information you want.
-HTTP Error 500-12 Application Restarting
- Internet Information Services
-Technical Information (for support personnel)
-
-Background:
- The request cannot be processed while the Web site is restarting. 
-
-More information:
- Microsoft Support 
+Dec 11 00:33:09 dmdtech kernel: slab error in kmem_cache_destroy(): cache
+`cifs_request': Can't free all objects
+Dec 11 00:33:09 dmdtech kernel: Call Trace:
+Dec 11 00:33:09 dmdtech kernel:  [<c013a955>] kmem_cache_destroy+0x85/0x100
+Dec 11 00:33:09 dmdtech kernel:  [<e08f96e0>]
+cifs_destroy_request_bufs+0x10/0x30 [cifs]
+Dec 11 00:33:09 dmdtech kernel:  [<e0910823>] exit_cifs+0x23/0x9d [cifs]
+Dec 11 00:33:09 dmdtech kernel:  [<c0130d08>] sys_delete_module+0x138/0x1b0
+Dec 11 00:33:09 dmdtech kernel:  [<c014392c>] do_munmap+0x14c/0x190
+Dec 11 00:33:09 dmdtech kernel:  [<c0109165>] sysenter_past_esp+0x52/0x71
+Dec 11 00:33:09 dmdtech kernel:
+Dec 11 00:33:09 dmdtech kernel: cifs_destroy_request_cache: error not all
+structures were freed
+Dec 11 00:33:09 dmdtech kernel: Unable to handle kernel paging request at
+virtual address e0900b92
+Dec 11 00:33:09 dmdtech kernel:  printing eip:
+Dec 11 00:33:09 dmdtech kernel: e0900b92
+Dec 11 00:33:09 dmdtech kernel: *pde = 1ff6d067
+Dec 11 00:33:09 dmdtech kernel: *pte = 00000000
+Dec 11 00:33:09 dmdtech kernel: Oops: 0000 [#1]
+Dec 11 00:33:09 dmdtech kernel: CPU:    0
+Dec 11 00:33:09 dmdtech kernel: EIP:    0060:[<e0900b92>]    Not tainted
+Dec 11 00:33:09 dmdtech kernel: EFLAGS: 00010292
+Dec 11 00:33:09 dmdtech kernel: EIP is at 0xe0900b92
+Dec 11 00:33:09 dmdtech kernel: eax: 00000000   ebx: 00000000   ecx:
+d5dc8644   edx: 00000000
+Dec 11 00:33:09 dmdtech kernel: esi: c92fbf34   edi: c92fbf30   ebp:
+cfe50000   esp: cfe51f48
+Dec 11 00:33:09 dmdtech kernel: ds: 007b   es: 007b   ss: 0068
+Dec 11 00:33:09 dmdtech kernel: Process cifsd (pid: 27573,
+threadinfo=cfe50000 task=c8a9e0c0)
+Dec 11 00:33:09 dmdtech kernel: Stack: 00000002 00000001 00000006 c92fbf30
+c92fbf00 c92fbf34 c92fbf30 e08ff46f
+Dec 11 00:33:09 dmdtech kernel:        c92fbf34 c92fbf30 00000000 fffffe00
+c94c0200 c92fbf00 fffffffc ce0fbac0
+Dec 11 00:33:09 dmdtech kernel:        e08ff6a8 c92fbf00 cfe51fc0 00000024
+00000002 c92fbf4c cfe50000 00000027
+Dec 11 00:33:09 dmdtech kernel: Call Trace:
+Dec 11 00:33:09 dmdtech kernel:  [<c01070c9>] kernel_thread_helper+0x5/0xc
+Dec 11 00:33:09 dmdtech kernel:
+Dec 11 00:33:09 dmdtech kernel: Code:  Bad EIP value.
+Dec 11 00:33:09 dmdtech kernel:  <1>Unable to handle kernel paging request
+at virtual address e0900b1d
+Dec 11 00:33:09 dmdtech kernel:  printing eip:
+Dec 11 00:33:09 dmdtech kernel: e0900b1d
+Dec 11 00:33:09 dmdtech kernel: *pde = 1ff6d067
+Dec 11 00:33:09 dmdtech kernel: *pte = 00000000
+Dec 11 00:33:09 dmdtech kernel: Oops: 0000 [#2]
+Dec 11 00:33:09 dmdtech kernel: CPU:    0
+Dec 11 00:33:09 dmdtech kernel: EIP:    0060:[<e0900b1d>]    Not tainted
+Dec 11 00:33:09 dmdtech kernel: EFLAGS: 00010246
+Dec 11 00:33:09 dmdtech kernel: EIP is at 0xe0900b1d
+Dec 11 00:33:09 dmdtech kernel: eax: cd308cc0   ebx: fffffe00   ecx:
+00000287   edx: cd308cd8
+Dec 11 00:33:09 dmdtech kernel: esi: c92fbab4   edi: c92fbab0   ebp:
+df812000   esp: df813f48
+Dec 11 00:33:09 dmdtech kernel: ds: 007b   es: 007b   ss: 0068
+Dec 11 00:33:09 dmdtech kernel: Process cifsd (pid: 18107,
+threadinfo=df812000 task=cfae0080)
+Dec 11 00:33:09 dmdtech kernel: Stack: cd308cc0 c92fbab4 00000010 00000000
+c92fba80 c92fbab4 c92fbab0 e08ff46f
+Dec 11 00:33:09 dmdtech kernel:        c92fbab4 c92fbab0 0000007b fffffe00
+d2dc8140 c92fba80 fffffffc d2fe3040
+Dec 11 00:33:09 dmdtech kernel:        e08ff6a8 c92fba80 df813fc0 00000024
+00000002 c92fbacc df812000 00000027
+Dec 11 00:33:09 dmdtech kernel: Call Trace:
+Dec 11 00:33:09 dmdtech kernel:  [<c01070c9>] kernel_thread_helper+0x5/0xc
+Dec 11 00:33:09 dmdtech kernel:
+Dec 11 00:33:09 dmdtech kernel: Code:  Bad EIP value.
+Dec 11 00:33:09 dmdtech kernel:  <1>Unable to handle kernel paging request
+at virtual address e0900b5f
+Dec 11 00:33:09 dmdtech kernel:  printing eip:
+Dec 11 00:33:09 dmdtech kernel: e0900b5f
+Dec 11 00:33:09 dmdtech kernel: *pde = 1ff6d067
+Dec 11 00:33:09 dmdtech kernel: *pte = 00000000
+Dec 11 00:33:09 dmdtech kernel: Oops: 0000 [#3]
+Dec 11 00:33:09 dmdtech kernel: CPU:    0
+Dec 11 00:33:09 dmdtech kernel: EIP:    0060:[<e0900b5f>]    Not tainted
+Dec 11 00:33:09 dmdtech kernel: EFLAGS: 00010292
+Dec 11 00:33:09 dmdtech kernel: EIP is at 0xe0900b5f
+Dec 11 00:33:09 dmdtech kernel: eax: fffffe00   ebx: 00000000   ecx:
+00000202   edx: db955258
+Dec 11 00:33:09 dmdtech kernel: esi: c92fbb74   edi: c92fbb70   ebp:
+c38e8000   esp: c38e9f48
+Dec 11 00:33:09 dmdtech kernel: ds: 007b   es: 007b   ss: 0068
+Dec 11 00:33:09 dmdtech kernel: Process cifsd (pid: 11564,
+threadinfo=c38e8000 task=dd85a100)
+Dec 11 00:33:09 dmdtech kernel: Stack: db955240 c92fbb74 00000010 00000000
+c92fbb40 c92fbb74 c92fbb70 e08ff46f
+Dec 11 00:33:09 dmdtech kernel:        c92fbb74 c92fbb70 c38e9fc0 fffffe00
+c20a0040 c92fbb40 fffffffc db955240
+Dec 11 00:33:09 dmdtech kernel:        e08ff6a8 c92fbb40 c38e9fc0 00000024
+00000002 c92fbb8c c38e8000 00000027
+Dec 11 00:33:09 dmdtech kernel: Call Trace:
+Dec 11 00:33:09 dmdtech kernel:  [<c01070c9>] kernel_thread_helper+0x5/0xc
+Dec 11 00:33:09 dmdtech kernel:
+Dec 11 00:33:09 dmdtech kernel: Code:  Bad EIP value.
 

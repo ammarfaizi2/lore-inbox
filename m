@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbTIMT5X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 15:57:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbTIMT5X
+	id S262177AbTIMUHs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 16:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbTIMUHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 15:57:23 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:52628 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S262176AbTIMT5V (ORCPT
+	Sat, 13 Sep 2003 16:07:47 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:28164 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S262177AbTIMUHp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 15:57:21 -0400
-Date: Sat, 13 Sep 2003 15:57:19 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: axboe@suse.de, torvalds@osdl.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
-Message-ID: <20030913195719.GA17576@gtf.org>
-References: <200309131101.h8DB1WNd021570@harpo.it.uu.se> <1063476275.8702.35.camel@dhcp23.swansea.linux.org.uk> <20030913184934.GB10047@gtf.org> <200309132124.05974.bzolnier@elka.pw.edu.pl>
+	Sat, 13 Sep 2003 16:07:45 -0400
+Date: Sat, 13 Sep 2003 22:07:43 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Dmitri Katchalov <dmitrik@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test5 atkbd.c: Unknown key (100% reproduceable)
+Message-ID: <20030913220743.B3295@pclin040.win.tue.nl>
+References: <1063443074.3f62da82a7e24@webmail.netregistry.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200309132124.05974.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1063443074.3f62da82a7e24@webmail.netregistry.net>; from dmitrik@users.sourceforge.net on Sat, Sep 13, 2003 at 06:51:14PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 13, 2003 at 09:24:05PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> On Saturday 13 of September 2003 20:49, Jeff Garzik wrote:
-> > For 2.6, libata (unfortunately) requires the SCSI layer for ATA
-> > devices, and libata drives real hardware that noone else can drive.
-> >
-> > For 2.7, when all this code "moves up" -- basically adding a bunch of
-> > helper functions to the block layer -- libata won't need to treat ATA
-> > devices as SCSI devices.
+On Sat, Sep 13, 2003 at 06:51:14PM +1000, Dmitri Katchalov wrote:
+
+> I'm consistently getting this error:
 > 
-> s/ATA/SATA/
+> atkbd.c: Unknown key (set 2, scancode 0xab, on isa0060/serio0) pressed.
+> This happens whenever I type 'f' in "<F7>usbdevfs". It then keeps 
+> repeating the 'f' until I press another key. I first noticed it when 
+> doing a search in mcedit but it also happens on command line and 
+> everywhere. It does not matter if I type it slow of fast. If I type 
+> less then the whole string (eg. "devf") the error does not occur but 
+> the letter 'f' occasionally gets eaten away.
 > 
-> ATA and SATA will still need their own driver(s) aware of driver-model,
-> sysfs, ATA quirks/tuning etc.
+> H/W: P4 (w/HT), ABIT IS7 M/B with Intel i865/ICH5 chipset, 
+> bog-standard cheap PS/2 kbd.
+> S/W: Debian mid-way between stable and testing, 2.6.0-test5 
+> with SMP and preemptive, no extra tasks running (I can reproduce it at 
+> the login prompt immediately after reboot).
 
-Agreed.  Though I think some of your work in sysfs area can be made
-common.
+Question 1: Does the error remain if you switch off preemptive?
 
+Question 2: Can you enable DEBUG in i8042.c, repeat the error
+and mail me the resulting output?
 
-> I am working on this part currently, so you can
-> concentrate on new, sexy SATA, leaving all dirty, legacy ATA for me.
+Andries
 
-Sounds good to me ;-)  Though I'll definitely want to work together with
-you on several issues in 2.7...
-
-
-> For all other stuff described in your mail I can only say: HELL YEAH!.
-
-;-)
-
-	Jeff
-
-
+aeb@cwi.nl
 

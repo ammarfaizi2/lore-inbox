@@ -1,79 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262288AbUKKXI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262292AbUKKXKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262288AbUKKXI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 18:08:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbUKKXF4
+	id S262292AbUKKXKk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 18:10:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbUKKXIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 18:05:56 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:29829 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262288AbUKKXEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 18:04:44 -0500
-Subject: [PATCH 0/3] Fix sysdev time support
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Andrew Morton <akpm@digeo.com>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1100213485.6031.18.camel@desktop.cunninghams>
+	Thu, 11 Nov 2004 18:08:45 -0500
+Received: from fw.osdl.org ([65.172.181.6]:58522 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262405AbUKKXHS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 18:07:18 -0500
+Date: Thu, 11 Nov 2004 15:07:10 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Terence Ripperda <tripperda@nvidia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] VM accounting change
+Message-Id: <20041111150710.6855398a.akpm@osdl.org>
+In-Reply-To: <20041111223245.GA15759@hygelac>
+References: <20041111223245.GA15759@hygelac>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 12 Nov 2004 09:58:51 +1100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew et al.
+Terence Ripperda <tripperda@nvidia.com> wrote:
+>
+> I've been told that recent changes in vm accounting in mmap have
+>  caused some problems with our driver during mmap.
+> 
+>  the problem seems to stem from us oring vma->vm_flags w/ (VM_LOCKED 
+>  | VM_IO). we do this for agp and pci pages that are mapped to push
+>  buffers. VM_LOCKED since we don't want the pages to move and VM_IO so
+>  they are not dumped during a core dump.
 
-Since Suspend2 (and swsusp) have begun to use the sysdev_suspend and
-_resume methods, I've discovered some issues with the time support.
+VM_LOCKED|VM_IO doesn't seem to be a sane combination.  VM_LOCKED means
+"don't page it out" and VM_IO means "an IO region".  The kernel never even
+attempts to page out IO regions because they don't have reverse mappings. 
+Heck, they don't even have pageframes.
 
-time_suspend and _resume call get_cmos_time twice, resulting
-(!CONFIG_EFI) in an extra second delay for each call (see below). For
-suspend2, and probably for swsusp (I haven't seen Pavel's handling yet),
-a call to the _suspend method is almost immediately followed by a call
-to the _resume method (with the atomic save/restore of memory in
-between), so that the user sees at least a 3 second delay (ave 1.5 for
-suspend + 1.5 for resume) simply because of these calls.
+How about you drop the VM_LOCKED?
 
-get_cmos_time may call efi_get_time, which is marked __init and
-(according to comments in its header) designed to run in physical mode;
-I assume, not understanding PAE yet, that this will need further
-consideration.
+>  diff -ru linux-2.6.10-rc1-bk8/mm/mmap.c linux-2.6.10-rc1-bk8-2/mm/mmap.c
+>  --- linux-2.6.10-rc1-bk8/mm/mmap.c	2004-11-06 15:04:28.000000000 +0100
+>  +++ linux-2.6.10-rc1-bk8-2/mm/mmap.c	2004-11-06 15:39:47.000000000 +0100
+>  @@ -1011,7 +1011,8 @@
+>   	__vm_stat_account(mm, vm_flags, file, len >> PAGE_SHIFT);
+>   	if (vm_flags & VM_LOCKED) {
+>   		mm->locked_vm += len >> PAGE_SHIFT;
+>  -		make_pages_present(addr, addr + len);
+>  +		if (!(vm_flags & VM_IO))
+>  +			make_pages_present(addr, addr + len);
 
-get_cmos_time may instead call mach_get_cmos_time (or equiv for other
-archs), which waits (!x86_64) until the end of a cmos time update before
-returning the value. For suspending, we don't need to wait for the
-'edge' of a second when suspending; we just need a consistent value.
-
-Finally, the calculation of the clock skew due to suspending uses a
-mixture of signed and unsigned longs. This can result (based on
-empirical results) in the clock being out by 1 hr, 11 minutes and 31s
-post resume.
-
-I proposed three patches:
-1) Optimise time_suspend and time_resume so that get_cmos_time is called
-exactly once in each case. This drops 1 second from each call.
-2) Add a new parameter & appropriate logic to get_cmos_time and to
-mach_get_cmos_time and equivalents, allowing the caller to specify
-whether we should wait for the beginning of a new second. When
-suspending, don't wait; when resuming, do.
-3) Switch sleep_start in arch/i386/kernel/time from a long to an
-unsigned long, thereby addressing the math issue.
-
-I also wonder if the jiffies+= logic in the x86 code should be applied
-to x86_64 too?
-
-Regards,
-
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
+Spose we could do that on the basis of "don't break existing drivers which
+are doing peculiar things".
 

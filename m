@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269814AbTGOWUA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 18:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269819AbTGOWTz
+	id S269841AbTGOW1y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 18:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269843AbTGOW1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 18:19:55 -0400
-Received: from 90.Red-213-97-199.pooles.rima-tde.net ([213.97.199.90]:62415
-	"HELO fargo") by vger.kernel.org with SMTP id S269814AbTGOWQS (ORCPT
+	Tue, 15 Jul 2003 18:27:54 -0400
+Received: from [212.34.224.163] ([212.34.224.163]:50437 "HELO rod.elitel.it")
+	by vger.kernel.org with SMTP id S269841AbTGOW1x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 18:16:18 -0400
-Date: Wed, 16 Jul 2003 00:30:53 +0200
-From: David =?iso-8859-15?Q?G=F3mez?= <david@pleyades.net>
-To: Joe Pranevich <jpranevich@lycos.com>
-Cc: linux-kernel@vger.kernel.org, jpranevich@kniggit.net, lwn@lwn.net
-Subject: Re: Wonderful World of Linux 2.6 - Linux 2.6 features document (first revision)
-Message-ID: <20030715223053.GA17146@fargo>
-Mail-Followup-To: Joe Pranevich <jpranevich@lycos.com>,
-	linux-kernel@vger.kernel.org, jpranevich@kniggit.net, lwn@lwn.net
-References: <GCCBBPJABOOLMBAA@mailcity.com>
+	Tue, 15 Jul 2003 18:27:53 -0400
+Date: Wed, 16 Jul 2003 00:19:04 +0200
+From: Federico Stella <derfel@alessandria.linux.it>
+To: linux-kernel@vger.kernel.org
+Subject: Re: DVD/CD Read Problem: cdrom_decode_status: status=0x51 {DriveReady SeekComplete Error}
+Message-ID: <20030715221904.GC14744@lorien.arda>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200307131950.44923.arvidjaar@mail.ru> <20030715000350.GA2004@lorien.arda>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <GCCBBPJABOOLMBAA@mailcity.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030715000350.GA2004@lorien.arda>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ;),
+* martedì 15 luglio 2003, alle 02:03, Federico Stella scrive:
 
-Great document :) !! It was definetily more interesting that BitKeeper
-Changelogs ;). I think you should mail this document to linux documentation
-projects, kernelnewbies and such, sure it'll be useful for a lot of people.
+> Yesterday I've found a similar problem using 2.5.75. Trying to read a DVD
+> with a ASUS CD-S500/A the machine gives some errors in log then freezes.
+s/CD-S500\/A/DVD-ROM E616/
+
+I should have more sleep overnight :|
 
 
--- 
-David Gómez
 
-"The question of whether computers can think is just like the question of
- whether submarines can swim." -- Edsger W. Dijkstra

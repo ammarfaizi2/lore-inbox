@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbVBIRiy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVBIRmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbVBIRiy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 12:38:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVBIRix
+	id S261863AbVBIRmz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 12:42:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbVBIRmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 12:38:53 -0500
-Received: from rproxy.gmail.com ([64.233.170.201]:30117 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261861AbVBIRiK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 12:38:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=o3PpBRxkcZZOpvUGyKHxHI9PQMg9SSEs9R7asx0rXAe4Ct/XSG/6hjbkgLaXDwgDPl6qDl6wHQKawUMk+jX4SrFrPXU/uNRyheWB5SzZ+kDeluCpovXP7oS+ZH6n8/DAuIdA7dlY9c8RuZ88VH/qIAJtUi+U/AFTrMthuKV+2Yc=
-Message-ID: <9e473391050209093856ce68bd@mail.gmail.com>
-Date: Wed, 9 Feb 2005 12:38:09 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Nicolas Pitre <nico@cam.org>
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Cc: Larry McVoy <lm@bitmover.com>, Roman Zippel <zippel@linux-m68k.org>,
-       "Theodore Ts'o" <tytso@mit.edu>, Stelian Pop <stelian@popies.net>,
-       Francois Romieu <romieu@fr.zoreil.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0502091128070.7836@localhost.localdomain>
+	Wed, 9 Feb 2005 12:42:55 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:45039 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261863AbVBIRmx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 12:42:53 -0500
+Subject: Re: Preempt Real-time for ARM
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Sven Dietrich <sdietrich@mvista.com>,
+       Russell King - ARM Linux <linux@arm.linux.org.uk>
+In-Reply-To: <20050209125044.A6312@flint.arm.linux.org.uk>
+References: <1107628604.5065.54.camel@dhcp153.mvista.com>
+	 <1107948492.17747.31.camel@tglx.tec.linutronix.de>
+	 <20050209113140.GB13274@elte.hu>
+	 <20050209125044.A6312@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Organization: MontaVista
+Message-Id: <1107970869.10177.12.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 09 Feb 2005 09:41:10 -0800
 Content-Transfer-Encoding: 7bit
-References: <20050208155845.GB14505@bitmover.com>
-	 <Pine.LNX.4.61.0502081942200.6118@scrub.home>
-	 <20050209000733.GA6308@thunk.org>
-	 <Pine.LNX.4.61.0502090208580.6118@scrub.home>
-	 <9e47339105020818242fd9f6fa@mail.gmail.com>
-	 <Pine.LNX.4.61.0502090328490.30794@scrub.home>
-	 <20050209023928.GB4828@bitmover.com>
-	 <Pine.LNX.4.61.0502090346470.30794@scrub.home>
-	 <20050209034030.GC4828@bitmover.com>
-	 <Pine.LNX.4.61.0502091128070.7836@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Feb 2005 12:17:48 -0500 (EST), Nicolas Pitre <nico@cam.org> wrote:
-> On Tue, 8 Feb 2005, Larry McVoy wrote:
+On Wed, 2005-02-09 at 04:50, Russell King wrote:
+
+
+> What you'll find is that the ARM interrupt structure is designed to
+> efficiently meet the requirements of our wide range of hardware interrupt
+> controllers, with chained interrupt controllers, with as low latency as
+> possible.
 > 
-> Larry, why can't you compete only on the tool instead of claiming
-> exclusive rights on the test bench as well?
+> In essence, I'm opposed to completely rewriting the ARM interrupt
+> handling at this stage.
 
-Nicolas, Larry has not said he won't make the changes that Roman
-wants, instead he has said he won't make the changes for FREE!.  There
-is a perfectly reasonable solution. Raise the funds to pay for the
-needed changes.
 
-It is just not reasonable to expect Larry to fund work whose sole
-purpose is to compete with himself. He is going a long way in saying
-he will do the work if paid at standard rates.
+	Everyone wants this as the final solution, but all I want right now is
+to have a clean patch for ARM RT .. It would be nice if ARM had the
+generics, but It's not _my_ goal. 
 
-Again, this is not Larry's fault, it is Linus that picked the tool.
+	All I want to do is integrate the common IRQ threading code. To do that
+I need things , from Russell, like per descriptor locks .. And I need
+things , from Ingo, like pulling out the IRQ threading code..
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+
+Daniel
+

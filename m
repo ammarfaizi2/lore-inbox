@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270595AbTGTB4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 21:56:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270596AbTGTB4Z
+	id S270593AbTGTBwl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 21:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270594AbTGTBwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 21:56:25 -0400
-Received: from ore.jhcloos.com ([64.240.156.239]:16389 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S270595AbTGTB4F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 21:56:05 -0400
-To: "David S. Miller" <davem@redhat.com>
+	Sat, 19 Jul 2003 21:52:41 -0400
+Received: from cm61.gamma179.maxonline.com.sg ([202.156.179.61]:42764 "EHLO
+	amaryllis.anomalistic.org") by vger.kernel.org with ESMTP
+	id S270593AbTGTBwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 21:52:40 -0400
+Date: Sun, 20 Jul 2003 10:07:34 +0800
+From: Eugene Teo <eugene.teo@eugeneteo.net>
+To: Walter Harms <WHarms@bfs.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: SET_MODULE_OWNER
-References: <1058446580.18647.11.camel@ezquiel.nara.homeip.net>
-	<3F16C190.3080205@pobox.com>
-	<200307171756.19826.schlicht@uni-mannheim.de>
-	<3F16C83A.2010303@pobox.com>
-	<20030717125942.7fab1141.davem@redhat.com>
-	<1058477803.754.11.camel@ezquiel.nara.homeip.net>
-	<20030717144031.3bbacee5.davem@redhat.com>
-	<m3isq0d0wi.fsf@lugabout.jhcloos.org>
-	<20030717222651.2747a93e.davem@redhat.com>
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <20030717222651.2747a93e.davem@redhat.com>
-Date: 19 Jul 2003 22:10:57 -0400
-Message-ID: <m3oezqx80e.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
-MIME-Version: 1.0
+Subject: Re: bug alpha configure linux-2.6.0-test1
+Message-ID: <20030720020734.GA16983@eugeneteo.net>
+Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
+References: <vines.sxdD+KAO4zA@SZKOM.BFS.DE>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <vines.sxdD+KAO4zA@SZKOM.BFS.DE>
+X-Operating-System: Linux 2.2.20
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David S Miller <davem@redhat.com> writes:
+Perhaps you might want to first copy your dotconfig
+to /path/to/linux-version/ then run make menuconfig,
+then save it, then compile it. 
 
-David> I really think [ipv6] is the issue, try to eliminate it from your
-David> environment to verify.
+> boolean symbol BINFMT_ZFLAT tested for 'm'? test forced to 'n'
 
-Verified.  e100.ko rmmod(8)ed fine when ipv6 was not compiled in.
+This means that it is a new boolean symbol that your
+config don't have.
 
-The netfilters and ppp0 were up; v6 ws the only variable.
+> arch/alpha/defconfig:244: trying to assign nonexistent symbol SCSI_NCR53C8XX
 
--JimC
+I believe this is a symbol that exists in your config
+but the kernel doesn't have this in the menu anymore.
 
+Eugene
+
+> hope that helps
+> walter
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

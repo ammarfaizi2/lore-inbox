@@ -1,47 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135221AbRDLUXY>; Thu, 12 Apr 2001 16:23:24 -0400
+	id <S135214AbRDLUcF>; Thu, 12 Apr 2001 16:32:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135311AbRDLUXS>; Thu, 12 Apr 2001 16:23:18 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:1199 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S135214AbRDLUW0>; Thu, 12 Apr 2001 16:22:26 -0400
-Message-ID: <3AD60D7F.1682DC7C@uow.edu.au>
-Date: Thu, 12 Apr 2001 13:18:07 -0700
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18-0.22 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Rod Stewart <stewart@dystopia.lab43.org>, linux-kernel@vger.kernel.org,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: 8139too: defunct threads
-In-Reply-To: <3AD5F9FE.9A49374D@uow.edu.au> from "Andrew Morton" at Apr 12, 2001 11:54:54 AM <E14nmpr-0001KH-00@the-village.bc.nu>
+	id <S135313AbRDLUb4>; Thu, 12 Apr 2001 16:31:56 -0400
+Received: from bobas.nowytarg.top.pl ([212.244.190.69]:43275 "EHLO
+	bobas.nowytarg.top.pl") by vger.kernel.org with ESMTP
+	id <S135214AbRDLUbt>; Thu, 12 Apr 2001 16:31:49 -0400
+Date: Thu, 12 Apr 2001 22:31:28 +0200
+From: Daniel Podlejski <underley@underley.eu.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Incorect signal handling ?
+Message-ID: <20010412223128.A11625@witch.underley.eu.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-PGP-Fingerprint: 4D 72 53 F8 FE 8C 53 B9  66 AD F6 EA C9 17 CD 82
+X-GPG-Fingerprint: 299F 1820 582B 283A 5F50  37D9 AA0B 6E10 03D4 EA5D
+X-Homepage: http://www.underley.eu.org/
+X-Cert: http://www.brainbench.com/transcript.jsp?pid=124954
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > <slaps head> swapper doesn't know how to reap children, and
-> > AFAIK there's no way for a kernel thread to fully clean itself
-> > up.  This is always done by the parent.
-> 
-> Make daemonize() move threads with parent 0 to parent 1
+Hi,
 
-Reparenting would require diving inside this lot:
+there is litlle programm:
 
-        /* 
-         * pointers to (original) parent process, youngest child, younger sibling,
-         * older sibling, respectively.  (p->father can be replaced with 
-         * p->p_pptr->pid)
-         */
-        struct task_struct *p_opptr, *p_pptr, *p_cptr, *p_ysptr, *p_osptr;
-        struct list_head thread_group;
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <signal.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
-plus maybe rewriting pgrps, sessions, gids, etc.  Challenging.
+static void empty(int sig)
+{
+	printf ("hello\n");
+	return;
+}
 
-Plus it would mean that the kernel requires, for its
-correct operation, that process "1" is a child reaper.
-Is this a good thing?
+void main()
+{
+        int fd, a;
+        char buf[512];
+
+	if (fd = open("/tmp/nic", O_RDONLY) < 0)
+	{
+		perror ("open");
+		exit(1);
+	}
+
+	signal (SIGALRM, empty);
+	alarm (1);
+
+        a = read(fd, buf, 511);
+
+        while (a && a != -1) a = read(fd, buf, 511);
+
+	if (a == -1)
+	{
+		perror ("read");
+		exit(1);
+	}
+	else printf ("EOF\n");
+
+        exit(0);
+}
+
+I open /tmp/nic and run compiled program.
+There should be error EINTR in read, but isn't.
+Why ?
+
+-- 
+Daniel Podlejski <underley@underley.eu.org>
+   ... Here await the birth of the son
+   The seventh, the heavenly, the chosen one ...

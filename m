@@ -1,44 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277176AbRJHWGp>; Mon, 8 Oct 2001 18:06:45 -0400
+	id <S277178AbRJHWKP>; Mon, 8 Oct 2001 18:10:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277172AbRJHWGg>; Mon, 8 Oct 2001 18:06:36 -0400
-Received: from node181b.a2000.nl ([62.108.24.27]:58629 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id <S277170AbRJHWGc>;
-	Mon, 8 Oct 2001 18:06:32 -0400
-Date: Tue, 9 Oct 2001 00:07:29 +0200 (CEST)
-From: kernel@ddx.a2000.nu
-To: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
-cc: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-        "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>,
-        <sparclinux@vger.kernel.org>
-Subject: Re: sun + gigabit nic
-In-Reply-To: <1002559480.2837.11.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.40.0110090001300.28619-100000@ddx.a2000.nu>
+	id <S277181AbRJHWKG>; Mon, 8 Oct 2001 18:10:06 -0400
+Received: from mailf.telia.com ([194.22.194.25]:17860 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id <S277178AbRJHWJx>;
+	Mon, 8 Oct 2001 18:09:53 -0400
+Message-ID: <3BC2243C.2512BFCB@canit.se>
+Date: Tue, 09 Oct 2001 00:10:04 +0200
+From: Kenneth Johansson <ken@canit.se>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-ac8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rui Sousa <rui.p.m.sousa@clix.pt>
+CC: Robert Love <rml@tech9.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        emu10k1-devel@opensource.creative.com
+Subject: Re: [BUG] emu10k1 and SMP
+In-Reply-To: <Pine.LNX.4.33.0110081245150.3012-100000@sophia-sousar2.nice.mindspeed.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+processor : 0
+vendor_id : GenuineIntel
+cpu family : 6
+model  : 8
+model name : Pentium III (Coppermine)
+stepping : 3
+cpu MHz  : 701.604
+cache size : 256 KB
 
-On 8 Oct 2001, Thomas Duffy wrote:
 
-> On Sat, 2001-10-06 at 09:44, kernel@ddx.a2000.nu wrote:
+Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x] (rev 196).
+
+Rui Sousa wrote:
+
+> On Mon, 8 Oct 2001, Kenneth Johansson wrote:
 >
-> > so will the netgear gigabit adapter work with the ultrasparc linux kernel
-> > ?
-> > (the netgear ga622t ?)
+> Which processor and chipset do you have?
 >
-> this is netgear's gige over copper card. it does not use the acenic
-> chip.  instead it uses the national semiconductor 83820 chip and a
-> different driver. this driver did not go into the kernel until ~2.4.10
-> (ns83820.c) and does not work under sparc64 so far -- it seems to
-
-so any gigabit copper cards that DO work under sparc64 ?
-i looked at the intel source (on support.intel.com)
-but it gives me some errors when i try to compile it on sparc
-
-what about the 3Com 3C996-T ? (which has also drivers for linux on the
-support page)
-
+> Rui Sousa
+>
+> > Robert Love wrote:
+> >
+> > > On Sun, 2001-10-07 at 18:23, Kenneth Johansson wrote:
+> > > > I have a problem with my sblive card with some program when I compile
+> > > > 2.4.10 and -ac8 for SMP.
+> > > >
+> > > > This happens with programs from loki and the machine stops or power down
+> > > > (yes an actuall power down). I'am sure this is sound related as stuff
+> > > > works if I don't load the emu10k1 driver and it only happens with SMP.
+> > >
+> > > Can you give a better description of the problem?
+> > >
+> > > Are you using the sblive driver from the kernel or CVS or ALSA?
+> > >
+> >
+> > The kernel.
+> >
+> > >
+> > > Does the problem go away if you recompile with CONFIG_SMP=n ?
+> > >
+> >
+> > Yes.
+> >
+> > >
+> > > What exactly happens? Oops?  Can you debug?  Reproduce?  Anything?
+> > >
+> >
+> > No oops . I get a power down or a hung system. I can reproduce this easy but
+> > I can't get any information out of the system it is really dead it dose not
+> > repond to anything even when hung and when it's powerd down it's kind of to
+> > late to do something about it then.
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
 

@@ -1,120 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262823AbULRCkg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262818AbULRDAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262823AbULRCkg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 21:40:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262826AbULRCkf
+	id S262818AbULRDAV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 22:00:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262825AbULRDAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 21:40:35 -0500
-Received: from rproxy.gmail.com ([64.233.170.205]:3283 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262823AbULRCju (ORCPT
+	Fri, 17 Dec 2004 22:00:21 -0500
+Received: from mail.kroah.org ([69.55.234.183]:3518 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262818AbULRDAN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 21:39:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=SSbFCuc5vRQeU2yDU3av7wvTxcyTPQHhlWee7gkmQqQZc+sasw5NlRNI5cspLjaRjBnl/SeRAua1Zo757D/axeuYkgEjzsgfdpL1KanAfzDPC0yYvvzEPn2XhKoKyNS00/gKcjn+7Z97lZaUm7tYofZ4a0k42dX7t0ubk9IlZgQ=
-Message-ID: <41C3B839.2070208@gmail.com>
-Date: Sat, 18 Dec 2004 04:55:21 +0000
-From: Mikkel Krautz <krautz@gmail.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: vojtech@suse.cz
-Subject: Re: [PATCH] hid-core: Configurable USB HID Mouse Interrupt Polling
- Interval
-References: <1103335970.15567.15.camel@localhost> <20041218012725.GB25628@kroah.com>
-In-Reply-To: <20041218012725.GB25628@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Dec 2004 22:00:13 -0500
+Date: Fri, 17 Dec 2004 18:59:48 -0800
+From: Greg KH <greg@kroah.com>
+To: Mikkel Krautz <krautz@gmail.com>
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: [PATCH] hid-core: Configurable USB HID Mouse Interrupt Polling Interval
+Message-ID: <20041218025948.GB27152@kroah.com>
+References: <1103335970.15567.15.camel@localhost> <20041218012725.GB25628@kroah.com> <41C3B546.2040105@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41C3B546.2040105@gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-*Shrug*
+On Sat, Dec 18, 2004 at 04:42:46AM +0000, Mikkel Krautz wrote:
+> Greg KH wrote:
+> >On Sat, Dec 18, 2004 at 02:12:50AM +0000, Mikkel Krautz wrote:
+> >>
+> >>This patch adds the option "USB HID Mouse Interrupt Polling Interval"
+> >>to drivers/usb/input/Kconfig, and a few lines of code to
+> >>drivers/usb/input/hid-core.c, to make the config option function.
+> >>
+> >>It allows people to change the interval, at which their USB HID mice
+> >>are polled at. This is extremely useful for people who require high
+> >>precision, or just likes the feeling of a very precise mouse. ;)
+> >>
+> >>As the Kconfig help implies, setting a lower polling interval is known
+> >>to work on several mice produced by Logitech and Microsoft. I only
+> >>have a Logitech MX500 to test it on. My results have been positive,
+> >>and so have many other people's.
+> >
+> >Why not just make it a sysfs file, so you can tune it per device?  That
+> >way you also don't have to make it a Kconfig option.
+> >
+> I'm not too familiar with sysfs, so I really don't know.
 
-Ugh stupid me. This just doesn't seem to be my day.
+Poke around in it, I think it's the natural place for stuff like this.
 
-I apologise.
+> The interval is set when the device is configured - that's only once.
 
-Let's hope this is the last time:
+So it can never change?  Why not add that feature at the same time?
 
+> Therefore I think a static value in Kconfig is fine. Wouldn't a sysfs 
+> entry be a little overkill for this?
 
+What about makeing it a module paramater then, that is exported to
+sysfs?  That makes it easier to adjust on the fly (before the mouse is
+inserted), and doesn't require the kernel to be rebuilt.
 
+Just trying to make things easier for users :)
 
-Signed-off-by: Mikkel Krautz <krautz@gmail.com>
----
+thanks,
 
-Kconfig | 32 ++++++++++++++++++++++++++++++++
-hid-core.c | 8 +++++++-
-2 files changed, 39 insertions(+), 1 deletion(-)
-
-
---- clean/drivers/usb/input/Kconfig
-+++ dirty/drivers/usb/input/Kconfig
-@@ -24,6 +24,38 @@
-       To compile this driver as a module, choose M here: the
-       module will be called usbhid.
- 
-+config USB_HID_MOUSE_POLLING_INTERVAL
-+    int "USB HID Mouse Interrupt Polling Interval"
-+    default 10
-+    depends on USB_HID
-+    help
-+      The "USB HID Mouse Interrupt Polling Interval" is the interval, at
-+      which your USB HID mouse is to be polled at. The interval is
-+      specified in miliseconds.
-+
-+      Decreasing the interval will, of course, give you a much more
-+      precise mouse.
-+
-+      Generally speaking, a polling interval of 2 ms should be more than
-+      enough for most people, and is great for gaming and other things
-+      that require high precision.
-+
-+      An interval lower than the default is not guaranteed work on your
-+      specific piece of hardware. If you want to play it safe, don't
-+      change this value.
-+
-+      Now, if you indeed want to feel the joy of a precise mouse, the
-+      following mice are known to work without problems, when the interval
-+      is set to at least 2 ms:
-+
-+        * Logitech's MX-family
-+        * Logitech Mouse Man Dual Optical
-+        * Logitech iFeel
-+        * Microsoft Intellimouse Explorer
-+        * Microsoft Intellimouse Optical 1.1
-+
-+      If unsure, keep it at 10 ms.
-+
- comment "Input core support is needed for USB HID input layer or HIDBP 
-support"
-     depends on USB_HID && INPUT=n
- 
---- clean/drivers/usb/input/hid-core.c
-+++ dirty/drivers/usb/input/hid-core.c
-@@ -37,7 +37,7 @@
-  * Version Information
-  */
- 
--#define DRIVER_VERSION "v2.0"
-+#define DRIVER_VERSION "v2.01"
- #define DRIVER_AUTHOR "Andreas Gal, Vojtech Pavlik"
- #define DRIVER_DESC "USB HID core driver"
- #define DRIVER_LICENSE "GPL"
-@@ -1663,6 +1663,12 @@
-         if ((endpoint->bmAttributes & 3) != 3)        /* Not an 
-interrupt endpoint */
-             continue;
- 
-+        /* Set the interrupt polling interval of mice, to the one 
-specified in the config. */
-+        if (hid->collection->usage == HID_GD_MOUSE
-+                && CONFIG_USB_HID_MOUSE_POLLING_INTERVAL > 0
-+                && CONFIG_USB_HID_MOUSE_POLLING_INTERVAL < 255)
-+            endpoint->bInterval = CONFIG_USB_HID_MOUSE_POLLING_INTERVAL;
-+
-         /* handle potential highspeed HID correctly */
-         interval = endpoint->bInterval;
-         if (dev->speed == USB_SPEED_HIGH)
-
+greg k-h

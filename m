@@ -1,125 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317454AbSGIX1R>; Tue, 9 Jul 2002 19:27:17 -0400
+	id <S317457AbSGIXh5>; Tue, 9 Jul 2002 19:37:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317455AbSGIX1Q>; Tue, 9 Jul 2002 19:27:16 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:44806 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S317454AbSGIX1P>;
-	Tue, 9 Jul 2002 19:27:15 -0400
+	id <S317458AbSGIXh4>; Tue, 9 Jul 2002 19:37:56 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:51462 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S317457AbSGIXhz>;
+	Tue, 9 Jul 2002 19:37:55 -0400
 X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Patrick Mochel <mochel@osdl.org>
+From: Keith Owens <kaos@sgi.com>
+To: kdb@oss.sgi.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Driverfs updates 
-In-reply-to: Your message of "Tue, 09 Jul 2002 09:56:55 MST."
-             <Pine.LNX.4.33.0207090947140.961-100000@geena.pdx.osdl.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 10 Jul 2002 09:29:45 +1000
-Message-ID: <31410.1026257385@ocs3.intra.ocs.com.au>
+Subject: Announce: kdb v2.2 is available for kernel 2.4.19-rc1 
+Date: Wed, 10 Jul 2002 09:40:28 +1000
+Message-ID: <31535.1026258028@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jul 2002 09:56:55 -0700 (PDT), 
-Patrick Mochel <mochel@osdl.org> wrote:
->On Tue, 9 Jul 2002, Keith Owens wrote:
->> struct device_driver * get_driver(struct device_driver * drv)
->> {
->>         if (drv && drv->owner)
->>                 if (!try_inc_mod_count(drv->owner))
->>                         return NULL;
->>         return drv;
->> }
->> 
->> is racy.  The module can be unloaded after if (drv->owner) and before
->> try_inc_mod_count.  To prevent that race, drv itself must be locked
->> around calls to get_driver().
->> 
->> The "normal" method is to have a high level lock that controls the drv
->> list and to take that lock in the register and unregister routines and
->> around the call to try_inc_mod_count.  drv->bus->lock is no good,
->> anything that relies on reading drv without a lock or module reference
->> count is racy.  I suggest you add a global driverfs_lock.
->
->This race really sucks. 
->
->Adding a high level lock is no big deal, but I don't think it will solve 
->the problem. Hopefully you can educate me a bit more. 
->
->If you add a driver_lock, you might have something like:
->
->	struct device_driver * d = NULL;
->
->	spin_lock(&driver_lock);
->	if (drv && drv->owner)
->		if (try_inc_mod_count(drv->owner))
->			d = drv;
->
->	spin_unlock(&driver_lock):
->	return d;
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-That code is not quite correct, you need something like this.
+Content-Type: text/plain; charset=us-ascii
 
-	spin_lock(&driver_lock);
-	drv = scan_driver_list();	
-	if (drv && drv->owner)
-		if (!try_inc_mod_count(drv->owner))
-			drv = NULL;
-	spin_unlock(&driver_lock);	/* either failed or protected by use count */
-	if (drv && drv->open)
-		drv->open();
+ftp://oss.sgi.com/projects/kdb/download/v2.2/
 
->...but, what if someone has unloaded the module before you get to the if 
->statement? The memory for the module has been freed, including drv itself. 
+  kdb-v2.2-2.4.19-rc1-common-1.bz2
+  kdb-v2.2-2.4.19-rc1-i386-1.bz2
 
-It is assumed that the module unload routine will call
-driver_unregister() which will also take the driver_lock.  The
-interaction between driver_lock in your code and the unregister routine
-via module unload, together with the interaction between unload_lock in
-sys_delete_module and try_inc_mod_count will prevent races, provided
-you code it right.  And provided that your code that does
-try_inc_mod_count is in built in code, not in the module itself.
+Starting with kdb v2.0 there is a common patch against each kernel which
+contains all the architecture independent code plus separate architecture
+dependent patches.  Apply the common patch for your kernel plus at least
+one architecture dependent patch, the architecture patches activate kdb.
 
-An alternative to driver_lock is BKL, provided you do not have high
-activity on your open routine.
+The naming convention for kdb patches is :-
 
-open:
-	lock_kernel();
-	drv = scan_driver_list();	
-	if (drv && drv->owner)
-		if (!try_inc_mod_count(drv->owner))
-			drv = NULL;
-	unlock_kernel();
-	if (drv && drv->open)
-		drv->open();
+vx.y    The version of kdb.  x.y is updated as new features are added to kdb.
+- -v.p.s  The kernel version that the patch applies to.  's' may include -pre,
+        -rc or whatever numbering system the kernel keepers have thought up this
+        week.
+- -common The common kdb code.  Everybody needs this.
+- -i386   Architecture dependent code for i386.
+- -ia64   Architecture dependent code for ia64, etc.
+- -n      If there are multiple kdb patches against the same kernel version then
+        the last number is incremented.
 
-That works because sys_delete_module(), including all the module clean
-up code, runs under BKL.  The module_cleanup routine will unregister
-from driver_list under BKL so it cannot race with the open code.
+To build kdb for your kernel, apply the common kdb patch which is less
+than or equal to the kernel v.p.s, taking the highest value of '-n'
+if there is more than one.  Apply the relevant arch dependent patch
+with the same value of 'vx.y-v.p.s-', taking the highest value of '-n'
+if there is more than one.
 
-use:
-	drv->func();	/* protected by non-zero mod use count */
+For example, to use kdb v2.2 for i386 on kernel 2.4.19-rc1, apply
+  kdb-v2.2-2.4.19-rc1-common-<n>	(use highest value of <n>)
+  kdb-v2.2-2.4.19-rc1-i386-<n>		(use highest value of <n>)
+in that order.
 
-You only need to lock drv and do try_inc_mod_count() if the use count
-might be 0 at the start of the call.  IOW, you only need that code on a
-drv->open() or equivalent function.  Once the use count is non-zero,
-the module is locked down; it is assumed that drv belongs to the module
-and is also protected.
+Changelog extracts.
 
-close:
-	if (drv->owner)	/* protected by non-zero mod use count */
-		__MOD_INC_USE_COUNT(drv->owner);
-	drv->close();
-	if (drv->owner)
-		__MOD_DEC_USE_COUNT(drv->owner);
+common
 
-There is a very small race on close where the module does
-MOD_DEC_USE_COUNT() which can take the count to 0 but the close routine
-has not returned from the module yet.  Bumping the use count around the
-close call closes that race.
+2002-07-09 Keith Owens <kaos@sgi.com>
 
-Preventing module unload races with the current infrastructure is
-complex and fragile.  But I've said that before :).
+       * Upgrade to 2.4.19-rc1.
+       * Add dmesg command.
+       * Clean up copyrights, Eric Sandeen.
+       * kdb v2.2-2.4.19-rc1-common-1.
 
-ps.  I am going to be off the net for a few days.
+i386
+
+2002-07-09 Keith Owens  <kaos@sgi.com>
+
+       * Upgrade to 2.4.19-rc1.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE9K3Rri4UHNye0ZOoRAggaAJ4le5YLWqMju1okBHGZFYlI5CeyvACg6c8x
+EcJU6z5UptMlTt332yZAOlc=
+=Vhs9
+-----END PGP SIGNATURE-----
 

@@ -1,75 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271246AbRICE5k>; Mon, 3 Sep 2001 00:57:40 -0400
+	id <S271254AbRICFAV>; Mon, 3 Sep 2001 01:00:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271254AbRICE5a>; Mon, 3 Sep 2001 00:57:30 -0400
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:33733 "EHLO snfc21.pbi.net")
-	by vger.kernel.org with ESMTP id <S271246AbRICE5V>;
-	Mon, 3 Sep 2001 00:57:21 -0400
-Date: Sun, 02 Sep 2001 21:58:21 -0700
-From: Patrick Chase <pchase2@pacbell.net>
-Subject: Re: Status of the VIA KT133a and 2.4.x debacle?
-To: linux-kernel@vger.kernel.org, g.vanderzouw@chello.nl
-Message-id: <999493106.15509.33.camel@homebase.localdomain>
-MIME-version: 1.0
-X-Mailer: Evolution/0.12 (Preview Release)
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+	id <S271260AbRICFAM>; Mon, 3 Sep 2001 01:00:12 -0400
+Received: from teranet244-12-200.monarch.net ([24.244.12.200]:35835 "HELO
+	lustre.dyn.ca.clusterfilesystem.com") by vger.kernel.org with SMTP
+	id <S271254AbRICE7w>; Mon, 3 Sep 2001 00:59:52 -0400
+Date: Sun, 2 Sep 2001 22:58:49 -0600
+From: "Peter J. Braam" <braam@clusterfilesystem.com>
+To: intermezzo-announce@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [ANNOUNCEMENT] InterMezzo 1.0.5.1 available
+Message-ID: <20010902225849.G14471@lustre.dyn.ca.clusterfilesystem.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Gerbrand van der Zouw wrote:
-> I have a MSI K7T Turbo board with Athlon 1.2 GHz. Recently I 
-> upgraded my Award Bios from 2.7 to 2.9. This new version has 
-> "memory bank interleaving". It also improves the stability of 
-> my system a lot. I do not know if these are related, but is 
-> may be a hint for some of the experts out there.
+I have just rolled up some packages for InterMezzo 1.0.5.1. This is a
+test version ramping up for a fully stable Linux 2.4 release.  This
+code is released under the GPL.
 
-Are you enabling or disabling bank interleaving with the new BIOS?
+WHAT IS INTERMEZZO:
 
-I would say that given the nature of the prefetch optimizations 
-which appear to be causing instabilities, problems related to
-SDRAM bank interleaving of lack thereof should be near the top 
-of any list of suspects.
+InterMezzo is a high availability file system which replicates
+directory trees among systems.  It provides disconnected operation,
+journal recovery and kernel level write back caching.  It can use the
+rsync algorithm for synchronization.  It uses protocols somewhat
+similar to Coda's. 
 
-Very briefly, SDRAM parts have multiple banks (either 2 or 4 
-depending on capacity). Bank select lines are used to control 
-which bank is active for a given access cycle. The existence 
-of the banks is significant for two reasons:
+This release includes a kernel rpm (2.4.9-ac5). The 2.4 -ac series
+includes intermezzo and this kernel includes a minor extra intermezzo
+patch to pure -ac. 
 
-1.	Each bank can have a separate page (~= row address) 
-open. If you're alternating accesses between two separate address
-ranges, then performance may be higher if they're in separate 
-banks, as this could potentially avoid a lot of page openings.
+DISCLAIMER:
 
-2.	Unselected banks can process previously issued multi-
-cycle commands while the selected bank is returning data. For 
-example, you could request a new address from one bank, and 
-then transfer previously requested data from another bank during 
-the first bank's CAS latency. 
+Read the file COPYING in the distribution to see the conditions under
+which this software is made available.  Please use this version at
+your own risk and exercise care (back up your systems etc).  [With the
+2.2.19 kernels fewer problems are known, but a 2.2.19 kernel RPM is
+not included.]
 
-The "native" address layout of SDRAM devices has each bank a 
-contiguous region (i.e. no interleave). An SDRAM controller may 
-instead cause the banks to appear interleaved to the processor 
-by simply remapping a few address bits. The "interleave" option
-in your BIOS enables exactly such a remapping in the north 
-bridge's SDRAM controller.
+WHERE TO GET IT:
 
-Here's why the Athlon prefetch optimization could potentially
-interact with the interleave setting: The entire point of 
-prefetching is to cause consecutive cache lines to be fetched
-with as much overlap as possible (i.e. the next line is 
-requested before the current one has been read in). When 
-this is done with interleave enabled, the result is consecutive 
-accesses to alternating pages, in which case the chipset will
-be able to exploit overlap as described in (2) above to hide
-latencies. I can come up with rationales for why this could either 
-cause instability or help it, though I think I'll leave that to
-those who knows more than I.
+You can get sources and rpms from 
 
--- Patrick Chase
+ftp://ftp.inter-mezzo.org/pub/intermezzo/1.0.5.1
+
+Documentation is included and available at:
+http://www.inter-mezzo.org/
+
+Or get it from the intermezzo project on sourceforge.  Check out the
+CVS tag r1_0_5_1. 
+
+KNOWN BUGS:
+
+There are some known problems with full disks and interrupting
+mounts.  There are also a large number of known good things about it,
+such as stability under heavy i/o loads. 
+
+THANKS: 
+
+Shirish Phatak from Tacit Networks has made more contributions to this
+release than anybody else. Bill Stearns and Gord Matzigkeit have
+helped seriously as well as many others and Cluster File Systems still
+coordinates the project and leads the design.
+
+HELP NEEDED:
+
+We could use some help: frequent packaging (there are good packaging
+instructions now), bug reporting or fixing is most welcome too. 
+
+Thanks for your interest in InterMezzo, let us know about problems.
 
 
-
-
+- Peter J. Braam -

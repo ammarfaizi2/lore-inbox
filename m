@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318248AbSHPHfL>; Fri, 16 Aug 2002 03:35:11 -0400
+	id <S318274AbSHPHrr>; Fri, 16 Aug 2002 03:47:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318252AbSHPHfL>; Fri, 16 Aug 2002 03:35:11 -0400
-Received: from smtp.hexanet.fr ([81.23.32.141]:1802 "EHLO smtp.hexanet.fr")
-	by vger.kernel.org with ESMTP id <S318248AbSHPHfL>;
-	Fri, 16 Aug 2002 03:35:11 -0400
-Date: Fri, 16 Aug 2002 09:38:47 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: starfire@dplanet.ch
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Bug in 2.4.19
-Message-Id: <20020816093847.4ae5544e.khali@linux-fr.org>
-Organization: linux-fr
-X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i386-portbld-freebsd4.5)
+	id <S318275AbSHPHrr>; Fri, 16 Aug 2002 03:47:47 -0400
+Received: from f159.law15.hotmail.com ([64.4.23.159]:40976 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S318274AbSHPHrq>;
+	Fri, 16 Aug 2002 03:47:46 -0400
+X-Originating-IP: [202.56.162.141]
+From: "Misha Alex" <misha_zant@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 16 Aug 2002 07:51:37 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+Message-ID: <F159156pqkw3Wctbnyd0000b29b@hotmail.com>
+X-OriginalArrivalTime: 16 Aug 2002 07:51:38.0132 (UTC) FILETIME=[C02A0540:01C244F9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello
 
-> After compiling 2.4.19 (Debian kernel-source-2.4.19-1), I've had
-> several kernel bugs. I've added the messages of two that I got in the
-> log. The others are similar. I re-changed to 2.4.18 (Debian
-> kernel-source-2.4.18-5) and everything works fine.
+Hi,
+   1)How do convert C,H,S into bytes.
+     How can one read in linux if we know the C,H,S.
 
-Are you able to reproduce the problem without loading the NVidia
-drivers? If no, you know who to complain to.
+      Also i tried the linear addressing linear = c*H*S + h*S +s -1 .But 
+linear or linear*512 never gave me the exact byte offset to seek.
 
-Second question, are the Zip100-drive-related errors in dmesg something
-unusual and thus probably related to the problem?
+I am working in linux and using a hexeditor to seek .How many exact bytes 
+should i seek to find out the extended partition.I read the MBR and found 
+the exteneded partiton.
+00 01 01 00 02 fe 3f 01 3f 00 00 00 43 7d 00 00
+80 00 01 02 0b fe bf 7e 82 7d 00 00 3d 26 9c 00
+00 00 81 7f 0f fe ff ff bf a3 9c 00 f1 49 c3 01
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-> I/O error: dev 08:00, sector 0
-> unable to read partition table
 
-If yes, I'd suggest you disable ppa for a while and see if it solves the
-problem.
+See the third column it is 0f(extended windows).The cylinder is 639(7f81 h)
+and sector is 1 .I don't know where to exactly read for the next partiton.
+The byte offset for finding out the next partitions.
 
--- 
-Jean Delvare
+If i open hda3(Mind you hda3 is an extended partition on hda) with a
+hexeditor i get
+
+00 01 81 7f 83 fe ff 7d 3f 00 00 00 00 82 3e 00
+00 00 c1 7e 05 fe ff ff 3f 82 3e 00 7e 04 7d 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+.Now the first partition is of type 83 which is linux and the next
+extended partition is of type 05(extended) and cylinder894 and sec1.
+
+
+
+*************************************
+How do i find the next chain of extended partitions.I mean how do i convert 
+cylinder 894 ,sec1 and head 0 into absolute bytes so that i can hexdump the 
+next partition table for finding out ?
+************************************
+
+Thank you,
+Misha
+
+_________________________________________________________________
+Send and receive Hotmail on your mobile device: http://mobile.msn.com
 

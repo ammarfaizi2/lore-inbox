@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131189AbQKIOz6>; Thu, 9 Nov 2000 09:55:58 -0500
+	id <S129132AbQKIPV1>; Thu, 9 Nov 2000 10:21:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131208AbQKIOzs>; Thu, 9 Nov 2000 09:55:48 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:47899 "EHLO
-	amsmta06-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S131189AbQKIOzc>; Thu, 9 Nov 2000 09:55:32 -0500
-Date: Thu, 9 Nov 2000 17:03:21 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: malloc(1/0) ??
-In-Reply-To: <8ucj2m$oiq$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0011091702360.4116-100000@server.serve.me.nl>
+	id <S129186AbQKIPVS>; Thu, 9 Nov 2000 10:21:18 -0500
+Received: from selene.educ.disi.unige.it ([130.251.152.1]:52402 "EHLO
+	selene.educ.disi.unige.it") by vger.kernel.org with ESMTP
+	id <S129132AbQKIPVF>; Thu, 9 Nov 2000 10:21:05 -0500
+Date: Thu, 9 Nov 2000 17:20:22 +0200 (GMT+0200)
+From: Andrea Pintori <1997s112@educ.disi.unige.it>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.2.17 bug found
+Message-ID: <Pine.LNX.3.91.1001109171915.5142B-100000@aries>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've a Debian dist, Kernel 2.2.17, no patches, all packages are stable.
 
-> Where the heck did you get idea?
+here what I found:
 
-By reading the man page in the middle of the night and reading
-realloc() as malloc().
+[/tmp] mkdir old
+[/tmp] chdir old
+[/tmp/old] mv . ../new
+[/tmp/old]                    (should be /tmp/new !!)
+[/tmp/old] mkdir fff
+error: cannot write...
+[tmp/old] ls > fff
+error: cannot write...
+[/tmp/old] ls -la
+total 0                         (?)
+[/tmp/old] cd ..
+[/tmp] ls -la
+*****************       ./
+*****************       ../
+*****************       new/
 
-My error.
-
-> 	-hpa
-
-
-	Igmar
-
+Does anybody knew this bug?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

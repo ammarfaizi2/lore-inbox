@@ -1,73 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310577AbSCPUNB>; Sat, 16 Mar 2002 15:13:01 -0500
+	id <S310579AbSCPUQB>; Sat, 16 Mar 2002 15:16:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310576AbSCPUMx>; Sat, 16 Mar 2002 15:12:53 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:15116 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S310570AbSCPUMn>;
-	Sat, 16 Mar 2002 15:12:43 -0500
-Date: Sat, 16 Mar 2002 13:12:19 -0700
-From: yodaiken@fsmlabs.com
-To: Andi Kleen <ak@suse.de>
-Cc: yodaiken@fsmlabs.com, Paul Mackerras <paulus@samba.org>,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S310580AbSCPUPx>; Sat, 16 Mar 2002 15:15:53 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56584 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S310579AbSCPUPl>; Sat, 16 Mar 2002 15:15:41 -0500
+Date: Sat, 16 Mar 2002 12:14:06 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: <yodaiken@fsmlabs.com>
+cc: Andi Kleen <ak@suse.de>, Paul Mackerras <paulus@samba.org>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-Message-ID: <20020316131219.C20436@hq.fsmlabs.com>
-In-Reply-To: <20020316113536.A19495@hq.fsmlabs.com.suse.lists.linux.kernel> <Pine.LNX.4.33.0203161037160.31913-100000@penguin.transmeta.com.suse.lists.linux.kernel> <20020316115726.B19495@hq.fsmlabs.com.suse.lists.linux.kernel> <p73g0301f79.fsf@oldwotan.suse.de> <20020316125711.B20436@hq.fsmlabs.com> <20020316210504.A24097@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20020316210504.A24097@wotan.suse.de>; from ak@suse.de on Sat, Mar 16, 2002 at 09:05:04PM +0100
-Organization: FSM Labs
+In-Reply-To: <20020316125711.B20436@hq.fsmlabs.com>
+Message-ID: <Pine.LNX.4.33.0203161203050.31971-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 16, 2002 at 09:05:04PM +0100, Andi Kleen wrote:
-> On Sat, Mar 16, 2002 at 12:57:11PM -0700, yodaiken@fsmlabs.com wrote:
-> > On Sat, Mar 16, 2002 at 08:32:26PM +0100, Andi Kleen wrote:
-> > > x86-64 aka AMD Hammer does hardware (or more likely microcode) search of 
-> > > page tables.
-> > > It has a 4 level page table with 4K pages. Generic Linux MM code only sees
-> > > the first slot in 4th level page limit user space to 512GB with 3 levels. 
-> > 
-> > What about 2M pages?
+
+On Sat, 16 Mar 2002 yodaiken@fsmlabs.com wrote:
 > 
-> They are not supported for user space, but used in private mappings
-> for kernel text and direct memory mappings. Generic code never sees them.
-> 
-> That will hopefully change eventually because 2M pages are a bit help for
-> a lot of applications that are limited by TLB thrashing, but needs some 
-> thinking on how to avoid the fragmentation trap (e.g. I'm considering
-> to add a highmem zone again just for that and use rmap with targetted
-> physical freeing to allocating them) 
+> What about 2M pages?
 
-To me, once you have a G of memory, wasting a few meg on unused process 
-memory seems no big deal.
+Not useful for generic loads right now, and the latencies for clearing or
+copying them them etc (ie single page faults - nopage or COW) are still
+big enough that it would likely be a performance problem at that level.  
+And while doing IO in 2MB chunks sounds like fun, since most files are
+still just a few kB, your page cache memory overhead would be prohibitive
+(ie even if you had 64GB of memory, you might want to cache more than a
+few thousand files at the same time).
 
-> > There was something in some AMD doc about preventing tlbflush on process
-> > switch - through a context like thing perhaps? Any idea?
-> 
-> There are global pages which are normally not flushed over context switch.
-> That is used for all kernel mappings. 
-> 
-> There is also some optimization in the CPU that tries to do a selective
-> flush only when you reload CR3, but as far as I can see doesn't help
-> for the Linux context switch. It only works around broken TLB flushing
-> algorithms in some Windows version.
+So then you'd need to do page caching at a finer granularity than you do
+mmap, which imples absolutely horrible things from a coherency standpoint
+(mmap/read/write are supposed to be coherent in a nice UNIX - even if
+there are some of non-nice unixes still around).
 
-They say:
-	Hammer microarchitecture features a flush filter allowing multiple
-	processes to share TLB without SW intervention.
+We may get there some day, but right now 2M pages are not usable for use 
+access.
 
-Not a lot of technical detail in that.
+64kB would be fine, though.
 
-> 
-> -Andi
+Oh, and in the specific case of hammer, one of the main advantages of the 
+thing is of course running old binaries unchanged. And old binaries 
+certainly do mmap's at smaller granularity than 2M (and have to, because a 
+3G user address space won't fit all that many 2M chunks).
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+Give up on large pages - it's just not happening. Even when a 64kB page 
+would make sense from a technology standpoint these days, backwards 
+compatibility makes people stay at 4kB.
+
+Instead of large pages, you should be asking for larger and wider TLB's
+(for example, nothign says that a TLB entry has to be a single page:
+people already do the kind of "super-entries", where one TLB entry
+actually contains data for 4 or 8 aligned pages, so you get the _effect_
+of a 32kB page that really is 8 consecutive 4kB pages).
+
+Such a "wide" TLB entry has all the advantages of small pages (no 
+memory fragmentation, backwards compatibility etc), while still being able 
+to load 64kB worth of translations in one go.
+
+(One of the advantages of a page table tree over a hashed setup becomes
+clear in this kind of situation: you cannot usefully load multiple entries
+from the same cacheline into one TLB entry in a hashed table, while in a
+tree it's truly trivial)
+
+		Linus
 

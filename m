@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264094AbTEGP7n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 11:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbTEGP7n
+	id S263680AbTEGQEt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 12:04:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263970AbTEGQEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 11:59:43 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:49457 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S264094AbTEGP7k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 11:59:40 -0400
-Subject: 2.5.69 Interrupt Latency
-From: Paul Fulghum <paulkf@microgate.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052323940.2360.7.camel@diemos>
+	Wed, 7 May 2003 12:04:49 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:21519 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263680AbTEGQEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 12:04:47 -0400
+Date: Wed, 7 May 2003 18:17:20 +0200
+From: Jan Kara <jack@suse.cz>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] dquot_transfer() fix
+Message-ID: <20030507161720.GH28363@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 07 May 2003 11:12:20 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Starting with kernel version 2.5.69, I am
-encountering what appears to be increased
-interrupt latency or spikes in interrupt latency.
+  Hello,
 
-I noticed this on two serial drivers that use programmed
-I/O with FIFOs. On 2.5.68, no problems. On 2.5.69
-plenty of underruns. Inspecting the driver tracing, it
-does not look like lost interrupts.
+  I'm sending a fix which fixes potential problems (dropping references
+which were not acquired) when dquot_transfer() fails. Please apply.
 
-I see this on 2 different machines
-(one SMP server and one laptop).
+								Honza
 
-There were changes involving the return type of
-interrupt handlers (from void to irqreturn_t) in 2.5.69.
-Could this be related?
-
-Has anyone else seen similar results?
-
-If I can get time, I'll try and hook up a scope
-to measure the latencies precisely. I want to
-check to see if this is a known problems before doing so.
-
--- 
-Paul Fulghum, paulkf@microgate.com
-Microgate Corporation, http://www.microgate.com
-
-
+diff -ruNX /home/jack/.kerndiffexclude linux-2.5.68-1-ext3dfix/fs/dquot.c linux-2.5.68-2-dqtransfix/fs/dquot.c
+--- linux-2.5.68-1-ext3dfix/fs/dquot.c	Sun May  4 12:32:23 2003
++++ linux-2.5.68-2-dqtransfix/fs/dquot.c	Wed May  7 14:17:23 2003
+@@ -1055,9 +1055,12 @@
+ 	spin_unlock(&dq_data_lock);
+ 	flush_warnings(transfer_to, warntype);
+ 	
+-	for (cnt = 0; cnt < MAXQUOTAS; cnt++)
+-		if (transfer_from[cnt] != NODQUOT)
++	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
++		if (ret == QUOTA_OK && transfer_from[cnt] != NODQUOT)
+ 			dqput(transfer_from[cnt]);
++		if (ret == NO_QUOTA && transfer_to[cnt] != NODQUOT)
++			dqput(transfer_to[cnt]);
++	}
+ 	up_write(&sb_dqopt(inode->i_sb)->dqptr_sem);
+ 	return ret;
+ }

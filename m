@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265806AbUAIARS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 19:17:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265669AbUAIARS
+	id S265649AbUAIAIv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 19:08:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265662AbUAIAIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 19:17:18 -0500
-Received: from out010pub.verizon.net ([206.46.170.133]:15050 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S265806AbUAIAN0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 19:13:26 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None that appears to be detectable by casual observers
-To: Dave Jones <davej@redhat.com>, Samuel Flory <sflory@rackable.com>
-Subject: Re: Howto use diff compatibly
-Date: Thu, 8 Jan 2004 19:13:24 -0500
-User-Agent: KMail/1.5.1
-Cc: Maciej Zenczykowski <maze@cela.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0401082300421.1739-100000@gaia.cela.pl> <3FFDDF0C.7080307@rackable.com> <20040108231722.GC20616@redhat.com>
-In-Reply-To: <20040108231722.GC20616@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401081913.25073.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [151.205.61.108] at Thu, 8 Jan 2004 18:13:24 -0600
+	Thu, 8 Jan 2004 19:08:51 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:9203 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S265649AbUAIAIt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 19:08:49 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 9 Jan 2004 01:08:40 +0100 (MET)
+Message-Id: <UTC200401090008.i0908eb24625.aeb@smtp.cwi.nl>
+To: akpm@osdl.org, torvalds@osdl.org, vojtech@suse.cz
+Subject: Broken keycodes in recent kernels
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 08 January 2004 18:17, Dave Jones wrote:
->On Thu, Jan 08, 2004 at 02:51:56PM -0800, Samuel Flory wrote:
-> >   That would be the maintainer for drivers/ide/ide-floppy.c.  I
-> > don't think there is a maintainer for drivers/block/floppy.c.
->
->floppy.c is one of those 'last person who touched it' hot-potatoes
-> 8-)
->
->		Dave
 
-Humm, precisely what I was afraid of...  And I don't want to 'adopt' 
-that puppy, not knowing near enough about it to be able to address 
-every potential problem.
+Just received my tenth complaint this year about the fact
+that kbd and recent kernels disagree as to what the right
+keycodes are. Since I maintain kbd it follows that recent
+kernels are broken.
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+What is right?
+The old Linux convention is that for 1-88 keycode equals scancode.
+Above that things are a bit messy, mainly because the 128 scancodes
+xx and the 128 escaped scancodes e0 xx and the single combination
+e1 1d 45 are put into 127 keycodes, and that doesnt fit.
 
+OK. So we want at least to preserve this 1-88 range, and may worry
+about the rest later. All common keys should keep their keycode.
+See also setkeycodes(8).
+
+2.6 does first an untranslate and then a map to keycode,
+so the fact that keycode equals (translated) scancode
+now becomes atkbd_set2_keycode[atkbd_unxlate_table[i]] == i
+for i=1,...,88.
+
+Looking at 2.6.0 we see a single mistake: scancode 84 is
+translated incorrectly. And many Japanese complained.
+Looking at 2.6.1-rc1 we see two mistakes: also scancode 85
+is now mistranslated.
+
+So, I think the change of 2.6.1-rc1 was not necessarily an
+improvement, but 2.6.0 needs a fix.
+
+I can look at the details, but perhaps Vojtech wants to comment.
+
+Andries

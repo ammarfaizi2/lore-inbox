@@ -1,67 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131457AbRDMQCR>; Fri, 13 Apr 2001 12:02:17 -0400
+	id <S131480AbRDMQIS>; Fri, 13 Apr 2001 12:08:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131459AbRDMQCH>; Fri, 13 Apr 2001 12:02:07 -0400
-Received: from unthought.net ([212.97.129.24]:10112 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S131457AbRDMQBx>;
-	Fri, 13 Apr 2001 12:01:53 -0400
-Date: Fri, 13 Apr 2001 18:01:52 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Andreas Peter <ujq7@rz.uni-karlsruhe.de>
-Cc: linux-kernel@vger.kernel.org
+	id <S131472AbRDMQII>; Fri, 13 Apr 2001 12:08:08 -0400
+Received: from npt12056206.cts.com ([216.120.56.206]:34059 "HELO
+	forty.greenhydrant.com") by vger.kernel.org with SMTP
+	id <S131477AbRDMQH7>; Fri, 13 Apr 2001 12:07:59 -0400
+Date: Fri, 13 Apr 2001 09:07:52 -0700
+From: David Rees <dbr@greenhydrant.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: SW-RAID0 Performance problems
-Message-ID: <20010413180152.A13740@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Andreas Peter <ujq7@rz.uni-karlsruhe.de>,
+Message-ID: <20010413090751.E4557@greenhydrant.com>
+Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
 	linux-kernel@vger.kernel.org
-In-Reply-To: <01041313473002.00533@debian>
+In-Reply-To: <Pine.LNX.4.10.10104131048550.1669-100000@coffee.psychology.mcmaster.ca> <01041317365500.00665@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <01041313473002.00533@debian>; from ujq7@rz.uni-karlsruhe.de on Fri, Apr 13, 2001 at 01:47:30PM +0200
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01041317365500.00665@debian>; from ujq7@rz.uni-karlsruhe.de on Fri, Apr 13, 2001 at 05:36:55PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 13, 2001 at 01:47:30PM +0200, Andreas Peter wrote:
-> Hi,
-> I've successfully set up SW-RAID0 with Kernel 2.4.3 and Raidtools 0.9.
-> I did this to increase the performance of my HD, but nothig happens.
-> The hdparm results:
-> hdparm -t /dev/md0 : 20.25 MB/sec
-> hdparm -t /dev/hda : 20.51 MB/sec
-> hdaprm -t /dev/hdc : 20.71 MB/sec
+On Fri, Apr 13, 2001 at 05:36:55PM +0200, Andreas Peter wrote:
+> Mark Hahn schrieb:
+> > > hdparm -t /dev/md0 : 20.25 MB/sec
+> > > hdparm -t /dev/hda : 20.51 MB/sec
+> > > hdaprm -t /dev/hdc : 20.71 MB/sec
+> >
+> > md0 is composed of partitions located where on hda and hdc?
+> > also, what's your CPU?
 > 
-> I thougt the performnace of RAID0 should near 40MB/sec.
-> I played with different chunk-sizes, but the result was everytime the same.
-> The drives are both Maxtor DiamondMax VL40, 30GB, DMA on. 
-> No other drive is attached on the bus.
-> 
-> Here are also some bonnie++ results:
-...
+> This is my raidtab file:
 
-I can't say much about this... It looks like your setup is perfectly allright,
-and the performance *should* go up.   Instead it looks like you get a small
-performance drop from using the RAID.   Most odd.
+<snip>
 
-Do you have more controllers in the machine ? If so could you try to move eg.
-hdc to the second controller ?  The only thing I can imagine being the cause of
-the poor performance is, if your controller somehow doesn't handle both
-channels very well simultaneously.   It's far fetched, but it's the only
-suggestion I can think of.
+Cconfig and setup looks OK.
 
-Maybe Andre has comments ?
+What happens if your run hdparm -t /dev/hda and /dev/hdc at the same time?
 
-I usually get a good speedup from using RAID-0 on 2.4.3 with IDE.  Both with
-two disks and with six.   This is with Intel PIIX4 and Promise 20262
-controllers.
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+-Dave

@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268374AbTBSMQk>; Wed, 19 Feb 2003 07:16:40 -0500
+	id <S268376AbTBSMVq>; Wed, 19 Feb 2003 07:21:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268376AbTBSMQk>; Wed, 19 Feb 2003 07:16:40 -0500
-Received: from h214n1fls32o988.telia.com ([62.20.176.214]:15624 "EHLO
-	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
-	id <S268374AbTBSMQj>; Wed, 19 Feb 2003 07:16:39 -0500
-Message-Id: <200302191226.h1JCQfpC044413@sirius.nix.badanka.com>
-Date: Wed, 19 Feb 2003 13:26:40 +0100
-From: Henrik Persson <nix@socialism.nu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: What language has Alan's portaloo changed to?
-In-Reply-To: <1045625090.5611.318.camel@localhost.localdomain>
-References: <Pine.LNX.4.44.0302171812050.15078-100000@twin.uoregon.edu>
-	<001f01c2d761$1fdea640$0201a8c0@pluto>
-	<20030218171832.GC351@lug-owl.de>
-	<1045618881.25795.1.camel@irongate.swansea.linux.org.uk>
-	<1045625090.5611.318.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S268379AbTBSMVq>; Wed, 19 Feb 2003 07:21:46 -0500
+Received: from kiruna.synopsys.com ([204.176.20.18]:16322 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP
+	id <S268376AbTBSMVq>; Wed, 19 Feb 2003 07:21:46 -0500
+Date: Wed, 19 Feb 2003 13:31:38 +0100
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: Meino Christian Cramer <mccramer@s.netic.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.62 fails to boot, Uncompressing... and then nothing
+Message-ID: <20030219123138.GQ5239@riesen-pc.gr05.synopsys.com>
+Reply-To: alexander.riesen@synopsys.COM
+References: <20030219073221.GR29983@holomorphy.com> <20030219.095905.92587466.mccramer@s.netic.de> <200302191052.47663.baldrick@wanadoo.fr> <20030219.131909.59461826.mccramer@s.netic.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030219.131909.59461826.mccramer@s.netic.de>
+User-Agent: Mutt/1.4i
+Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Feb 2003 20:24:48 -0700
-Steven Cole <elenstev@mesatop.com> wrote:
+Meino Christian Cramer, Wed, Feb 19, 2003 13:19:09 +0100:
+>  Another thing is that make menuconfig fails to write back
+>  configurations as alternate files into directories owned by root
+>  and set drwxr-xr-x....but it is able to write into the . directory,
+>  even if it is set with drwxr-xr-x also...
 
-SC> On this side of the pond we sometimes have Homeowners Association
-SC> restrictive covenants.  See the X-files episode where Mulder and Scully
-SC> shack up undercover in a gated community and Mulder gets flak for
-SC> setting up a basketball goal.
+is the "." also owned by root?
 
-...and then a garbage-monster comes and tries to kill people. Scary.
-
-A bit off topic? :P
-
--- 
-Henrik Persson
-e-mail: nix@socialism.nu
-WWW: http://nix.badanka.com            ICQ: 26019058
-PGP-key: http://nix.badanka.com/pgp    PGP-KeyID: 0x43B68116

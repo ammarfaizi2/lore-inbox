@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265063AbUBEArC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 19:47:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbUBEAqC
+	id S265139AbUBEArB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 19:47:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbUBEAqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 19:46:02 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:44936 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265063AbUBEAg7 (ORCPT
+	Wed, 4 Feb 2004 19:46:12 -0500
+Received: from gprs148-146.eurotel.cz ([160.218.148.146]:28033 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265139AbUBEAkf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 19:36:59 -0500
-Date: Wed, 04 Feb 2004 16:36:40 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm mailing list <linux-mm@kvack.org>, kmannth@us.ibm.com,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [Bugme-new] [Bug 2019] New: Bug from the mm subsystem involving X  (fwd)
-Message-ID: <64260000.1075941399@flay>
-In-Reply-To: <60330000.1075939958@flay>
-References: <51080000.1075936626@flay> <Pine.LNX.4.58.0402041539470.2086@home.osdl.org> <60330000.1075939958@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 4 Feb 2004 19:40:35 -0500
+Date: Thu, 5 Feb 2004 01:39:44 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "La Monte H.P. Yarroll" <piggy@timesys.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Amit S. Kale" <amitkale@emsyssoft.com>
+Subject: Re: kgdb support in vanilla 2.6.2
+Message-ID: <20040205003944.GB8768@elf.ucw.cz>
+References: <20040204230133.GA8702@elf.ucw.cz> <20040204152137.500e8319.akpm@osdl.org> <402182B8.7030900@timesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <402182B8.7030900@timesys.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
->> which seems to be the "PageReserved(pfn_to_page(pfn))" test.
->> 
->> This implies that you have either:
->>  - a buggy "pfn_valid()" macro (do you use CONFIG_DISCONTIGMEM?)
+> >I wouldn't support inclusion of i386 kgdb until it has had a lot of
+> >cleanup, possible de-featuritisification and some thought has been applied
+> >to splitting it into arch and generic bits.  It's quite a lot of work.
 > 
-> Yup.
-># define pfn_valid(pfn)          ((pfn) < num_physpages)
+> Amit has started at least the third activity--he has split much of kgdb
+> into arch and generic bits.
 > 
-> Which is wrong. There's a even a comment above it that says:
+> Could you elaborate a little on the first two?
 > 
-> /*
->  * pfn_valid should be made as fast as possible, and the current definition
->  * is valid for machines that are NUMA, but still contiguous, which is what
->  * is currently supported. A more generalised, but slower definition would
->  * be something like this - mbligh:
->  * ( pfn_to_pgdat(pfn) && ((pfn) < node_end_pfn(pfn_to_nid(pfn))) )
->  */
+> What major kinds of cleanup are we talking about?  Style issues?
 > 
-> ;-)
+> What features (or classes of features) do you find excessive?  Would
+> it be sufficient to add a few config items to control subfeatures
+> of kgdb?
 > 
-> Which I still don't think is correct, as there's a hole in the middle of
-> node 0 ... I'll make a new patch up somehow and give to Keith to test ;-)
+> These are not idle questions.  If the amount of work to get it ready
+> for acceptance is tractable, I know a company that may be willing to
+> pay to have the work done.
 
-Oh hell ... I remember what's wrong with this whole bit. pfn_valid is
-used inconsistently in different places, IIRC. Linus / Andrew ... what
-do you actually want it to mean? Some things seem to use it to say
-"the memory here is valid accessible RAM", some things "there is a 
-valid struct page for this pfn". I was aiming for the latter, but a
-few other arches seemed to disagree.
+Well, I guess I know two more such companies. Seems like everyone and
+their aunt want kgdb these days :-).
+								Pavel
 
-Could I get a ruling on this? ;-)
-
-Thanks,
-
-M.
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

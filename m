@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVCLDrc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVCLDyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261836AbVCLDrc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 22:47:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVCLDrc
+	id S261841AbVCLDyr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 22:54:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVCLDyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 22:47:32 -0500
-Received: from fire.osdl.org ([65.172.181.4]:4514 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261836AbVCLDra (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 22:47:30 -0500
-Date: Fri, 11 Mar 2005 19:43:49 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] Prefaulting
-Message-Id: <20050311194349.1e546d8c.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503111913560.24817@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503110444220.19419@schroedinger.engr.sgi.com>
-	<20050311172228.773cf03d.akpm@osdl.org>
-	<Pine.LNX.4.58.0503111913560.24817@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 11 Mar 2005 22:54:47 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:57273 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261842AbVCLDyp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 22:54:45 -0500
+Subject: Re: 2.6.11: USB broken on nforce4, ipv6 still broken, centrino
+	speedstep even more broken than in 2.6.10
+From: Adam Belay <abelay@novell.com>
+To: Felix von Leitner <felix-linuxkernel@fefe.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <20050311202122.GA13205@fefe.de>
+References: <20050311202122.GA13205@fefe.de>
+Content-Type: text/plain
+Date: Fri, 11 Mar 2005 22:51:57 -0500
+Message-Id: <1110599518.12485.275.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@sgi.com> wrote:
->
-> There is even a slight performance win in the
->  uniprocessor case:
+On Fri, 2005-03-11 at 20:21 +0000, Felix von Leitner wrote:
+> Linux is getting less and less usable for me. :-(
 > 
->  w/o any patch:
 > 
->   Mb Rep Thr CLine  User      System   Wall  flt/cpu/s fault/wsec
->  200  3    1   1    0.01s      0.15s   0.01s846860.493 848882.424
->  200  3    1   1    0.01s      0.16s   0.01s827724.160 830841.482
->  200  3    1   1    0.00s      0.16s   0.01s827724.160 827364.176
-> 
->  w/prefault patch
-> 
->  200 MB allocation
-> 
->   Mb Rep Thr CLine  User      System   Wall  flt/cpu/s fault/wsec
->  200  3    1   1    0.02s      0.48s   0.05s860119.275 859918.989
->  200  3    1   1    0.02s      0.46s   0.04s886129.730 886551.621
->  200  3    1   1    0.01s      0.47s   0.04s887920.166 886855.775
+> My new nForce 4 mainboard has 10 or so USB 2.0 outlets.  In Windows,
+> they all work.  In Linux, two of them work.  Putting my USB stick or
+> anything else in one of the others produces nothing in Linux.
+> Apparently no IRQ getting through or something?
 
-But the system time went through the roof.  Would that be accounting
-inaccuracy?
+Could you also include lspci -vv.
+
+Thanks,
+Adam
+
 

@@ -1,86 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290596AbSAaKws>; Thu, 31 Jan 2002 05:52:48 -0500
+	id <S291020AbSAaLZZ>; Thu, 31 Jan 2002 06:25:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290600AbSAaKwj>; Thu, 31 Jan 2002 05:52:39 -0500
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:52673 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S290596AbSAaKw2>; Thu, 31 Jan 2002 05:52:28 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix xconfig help
-From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
-Date: 31 Jan 2002 11:52:05 +0100
-Message-ID: <878zaeiyi2.fsf@tigram.bogus.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
+	id <S291021AbSAaLZF>; Thu, 31 Jan 2002 06:25:05 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:49930 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S291020AbSAaLZD>; Thu, 31 Jan 2002 06:25:03 -0500
+Message-ID: <3C59297C.20607@evision-ventures.com>
+Date: Thu, 31 Jan 2002 12:24:44 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Christoph Hellwig <hch@ns.caldera.de>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, axboe@suse.de
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <E16VYXy-0003xa-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan Cox wrote:
 
-here is a small patch to fix the missing help in make xconfig.
+>>I still don't think maintainig this array is worth just for hfs
+>>readahead, so the below patch disables it and gets rid of read_ahead.
+>>
+>>Jens, could you check the patch and include it in your next batch of
+>>block-layer changes for Linus?
+>>
+>
+>What would be significantly more useful would be to make it actually work.
+>Lots of drivers benefit from control over readahead sizes - both the
+>stunningly slow low end stuff and the high end raid cards that often want
+>to get hit by very large I/O requests (eg 128K for the ami megaraid)
+>
+No you are wrong. This array is supposed to provide a readahead setting 
+on the driver level, which is bogous, since
+it's something that *should* not be exposed to the upper layers at all. 
+Please note as well that
+ we have already max_readahead in struut block_device as well. Please 
+note that this array only has
+a granularity of major block device numbers which is compleatly bogous 
+for example for a disk and
+cd-rom hanging on a IDE interface. And so on and so on... It's really 
+better to let it go.
 
-Regards, Olaf.
 
-diff -X dontdiff -urN v2.5.3/scripts/header.tk linux/scripts/header.tk
---- v2.5.3/scripts/header.tk	Thu Jan 31 11:46:23 2002
-+++ linux/scripts/header.tk	Thu Jan 31 11:38:30 2002
-@@ -449,29 +449,24 @@
- 	catch {destroy $w}
- 	toplevel $w -class Dialog
- 
--	set filefound 0
- 	set found 0
--	set lineno 0
- 
--	if { [file readable Documentation/Configure.help] == 1} then {
--		set filefound 1
--		# First escape sed regexp special characters in var:
--		set var [exec echo "$var" | sed s/\[\]\[\/.^$*\]/\\\\&/g]
--		# Now pick out right help text:
--		set message [exec sed -n "
--			/^$var\[ 	\]*\$/,\${
--				/^$var\[ 	\]*\$/c\\
-+	# First escape sed regexp special characters in var:
-+	set var [exec echo "$var" | sed s/\[\]\[\/.^$*\]/\\\\&/g]
-+	# Now pick out right help text:
-+	set message [exec find . -name Config.help | xargs sed -n "
-+		/^$var\[ 	\]*\$/,\${
-+			/^$var\[ 	\]*\$/c\\
- ${var}:\\
- 
--				/^#/b
--				/^\[^ 	\]/q
--				s/^  //
--				/<file:\\(\[^>\]*\\)>/s//\\1/g
--				p
--			}
--			" Documentation/Configure.help]
--		set found [expr [string length "$message"] > 0]
--	}
-+			/^#/b
-+			/^\[^ 	\]/q
-+			s/^  //
-+			/<file:\\(\[^>\]*\\)>/s//\\1/g
-+			p
-+		}
-+		" ]
-+	set found [expr [string length "$message"] > 0]
- 
- 	frame $w.f1
- 	pack $w.f1 -fill both -expand on
-@@ -494,13 +489,8 @@
- 	pack $w.f1.canvas -side right -fill y -expand on
- 
- 	if { $found == 0 } then {
--		if { $filefound == 0 } then {
--		message $w.f1.f.m -width 750 -aspect 300 -relief flat -text \
--			"No help available - unable to open file Documentation/Configure.help.  This file should have come with your kernel."
--		} else {
- 		message $w.f1.f.m -width 400 -aspect 300 -relief flat -text \
- 			"No help available for $var"
--		}
- 		label $w.f1.bm -bitmap error
- 		wm title $w "RTFM"
- 	} else {

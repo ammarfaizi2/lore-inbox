@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277396AbRJEOjx>; Fri, 5 Oct 2001 10:39:53 -0400
+	id <S277399AbRJEOhD>; Fri, 5 Oct 2001 10:37:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277398AbRJEOjn>; Fri, 5 Oct 2001 10:39:43 -0400
-Received: from host-150.subnet-93.med.umich.edu ([141.214.93.150]:11187 "EHLO
-	mail-02.med.umich.edu") by vger.kernel.org with ESMTP
-	id <S277396AbRJEOj0> convert rfc822-to-8bit; Fri, 5 Oct 2001 10:39:26 -0400
-Message-Id: <sbbd8e9c.096@mail-02.med.umich.edu>
-X-Mailer: Novell GroupWise Internet Agent 6.0
-Date: Fri, 05 Oct 2001 10:42:16 -0400
-From: "Nicholas Berry" <nikberry@med.umich.edu>
-To: <root@mauve.demon.co.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Odd keyboard related crashes.
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	id <S277398AbRJEOgy>; Fri, 5 Oct 2001 10:36:54 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:44299 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S277394AbRJEOgi>; Fri, 5 Oct 2001 10:36:38 -0400
+Message-Id: <200110051435.f95EZrvw027128@pincoya.inf.utfsm.cl>
+To: Juha Siltala <juha.siltala@mail.suomi.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Fw: Re: Past CREDITS files 
+In-Reply-To: Your message of "Fri, 05 Oct 2001 10:38:22 +0300."
+             <20011005103822.21d1f663.juha.siltala@mail.suomi.net> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Fri, 05 Oct 2001 10:35:53 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+[...]
 
->>> Ian Stirling <root@mauve.demon.co.uk> 10/05/01 05:01AM >>>
->I'm running 2.4.10, and the ps/2 keyboard came out of it's socket.
+> Now this is not too much but a couple of developments are emerging:
+> checking out the geographical distribution of kernel hackers and some other
+> analysis based on the info that the files yield. I'm not the one doing this
+> but Dr. Silvonen (jussi.silvonen@helsinki.fi). I'm looking for a good way
+> of extracting names from the kernel sources instead of CREDITS, since Dr
+> Silvonen seems to be really getting into this and is data hungry now :)
 
->On plugging back in, all worked fine, until 10 seconds later there was a
->crash. (the keyboard worked after being plugged in)
->No oops, just a reboot.
->Thinking this must just have been a wierd coincidence, after the system
->came back up, I tried it again, and again it crashed a few seconds afterwards.
+Check the list of people on lkml, I think that is a much more accurate list
+of "current developers" than CREDITS. Or look at who posted on the list.
+You might classify by includes/doesn't include a patch, perhaps (people who
+comment on a patch are helping development too... only flamers don't ;)
 
->It doesn't seem to want to do this again though.
+> I've been getting a lot of warnings (from Brian Gerst, Horst von Brand, and
+> Mark Hahn and others) about the data above. For my own purposes, that is,
+> to just show that linux is not "witten by Linus Torvalds in 1991" like we
+> hear from the media, the data would do. But If we (Dr. Silvonen and perhaps
+> I too) are going to elaborate on this, we obviously need something more
+> reliable. Everyone puts their name in their files and patches right?
 
-When the keyboard is powered up (or plugged in), it goes through a self test, and reports the status back to the PC. Normally, a start up dialogue takes place between the PC and the keyboard at this point.
-That's fine when you boot your PC, but if you unplug then re-plug the keyboard, the PC will be sent data it's really not expecting, and the BIOS will be very confused.
-If you ever want to switch a keyboard between PCs, make sure you leave power supplied to it at all times.
-
-
+No... I have posted several patches, most of those that did get included
+went in without my name (to be fair, they were mostly very small/simple).
+Others I sent directly to the maintainers, some went in with my name on a
+changelog or in the modified file(s), others without any mention at all.
+Policy on this clearly varies from maintainer to maintainer (and perhaps
+phase of the moon), so your idea will give data skewed at least by
+subsystem.
+-- 
+Dr. Horst H. von Brand                Usuario #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264845AbSJVSFw>; Tue, 22 Oct 2002 14:05:52 -0400
+	id <S264810AbSJVSDd>; Tue, 22 Oct 2002 14:03:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264851AbSJVSFL>; Tue, 22 Oct 2002 14:05:11 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:35078 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262006AbSJVSDw>; Tue, 22 Oct 2002 14:03:52 -0400
-Date: Tue, 22 Oct 2002 19:09:15 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: James Blackwell <jblack@linuxguru.net>, linux-kernel@vger.kernel.org,
-       Larry McVoy <lm@bitmover.com>
-Subject: Re: Listmaster request: Do not blacklist rms@gnu.org
-Message-ID: <20021022190915.A2937@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	James Blackwell <jblack@linuxguru.net>,
-	linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>
-References: <20021022184610.C2142@infradead.org> <Pine.LNX.4.44.0210222006160.8911-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210222006160.8911-100000@serv>; from zippel@linux-m68k.org on Tue, Oct 22, 2002 at 08:06:53PM +0200
+	id <S264816AbSJVSC5>; Tue, 22 Oct 2002 14:02:57 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:24072 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S264800AbSJVSCH>; Tue, 22 Oct 2002 14:02:07 -0400
+Date: Tue, 22 Oct 2002 14:06:55 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Dave McCracken <dmccr@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
+In-Reply-To: <2666588581.1035278080@[10.10.2.3]>
+Message-ID: <Pine.LNX.3.96.1021022135649.7820C-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 08:06:53PM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Tue, 22 Oct 2002, Christoph Hellwig wrote:
-> 
-> > Mine neither.  And I guess that's true for most kernel developers.
-> > Why can't you have an own opinion for gods fsckin' sake instead
-> > of blindly following so-called leaders? This blind following
-> > of fundamentalists is what has caused the biggest problem of mankind.
-> 
-> Blind hate doesn't help either.
+On Tue, 22 Oct 2002, Martin J. Bligh wrote:
 
-Of course - pure hate is an ideology aswell.  
+> > Actually, per-object reverse mappings are nowhere near as good
+> > a solution as shared page tables.  At least, not from the points
+> > of view of space consumption and the overhead of tearing down
+> > the mappings at pageout time.
+> > 
+> > Per-object reverse mappings are better for fork+exec+exit speed,
+> > though.
+> > 
+> > It's a tradeoff: do we care more for a linear speedup of fork(),
+> > exec() and exit() than we care about a possibly exponential
+> > slowdown of the pageout code ?
 
-p.s. I don't see how this fits into this thread, though ;-)
+That tradeoff makes the case for spt being a kbuild or /proc/sys option. A
+linear speedup of fork/exec/exit is likely to be more generally useful,
+most people just don't have huge shared areas. On the other hand, those
+who do would get a vast improvement, and that would put Linux a major step
+forward in the server competition.
+ 
+> As long as the box doesn't fall flat on it's face in a jibbering
+> heap, that's the first order of priority ... ie I don't care much
+> for now ;-)
+
+I'm just trying to decide what this might do for a news server with
+hundreds of readers mmap()ing a GB history file. Benchmarks show the 2.5
+has more latency the 2.4, and this is likely to make that more obvious.
+
+Is there any way to to have this only on processes which really need it?
+define that any way you wish, including hanging a capability on the
+executable to get spt.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

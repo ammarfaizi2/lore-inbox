@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265678AbUBBQEj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 11:04:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265681AbUBBQEj
+	id S265700AbUBBQLo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 11:11:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265701AbUBBQLo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 11:04:39 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:52098 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265678AbUBBQEi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 11:04:38 -0500
-Date: Mon, 2 Feb 2004 11:06:50 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Flashing keyboard LEDS upon boot.
-In-Reply-To: <Pine.LNX.4.53.0402021043450.24519@chaos>
-Message-ID: <Pine.LNX.4.53.0402021105560.24632@chaos>
-References: <Pine.LNX.4.53.0402021043450.24519@chaos>
+	Mon, 2 Feb 2004 11:11:44 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:11700 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S265700AbUBBQKs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 11:10:48 -0500
+Date: Mon, 2 Feb 2004 17:10:40 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: linux-dvb-maintainer@linuxtv.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] DVB compile fix
+Message-ID: <Pine.GSO.4.58.0402021709560.19699@waterleaf.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Feb 2004, Richard B. Johnson wrote:
 
->
-> Sometimes, when booting Linux-2.3.24 from bzImage, machines
-                                  ^
-Typo                      Linux-2.4.24
+Never include <asm/delay.h> directly
 
-> display "Uncompressing Linux ..., Ok. Booting the kernel."
-> Then the machine just sits there with the keyboard LEDS
-> (Num-Lock, Caps-lock, and Scroll-lock) flashing at about
-> a 1-second interval. It will do this "forever".
->
-> Can anybody tell me what it has found "wrong" that prevents
-> it from continuing the boot? A whole bunch of new Dell Computers
-> display this problem. The second boot will always work, but
-> the first cold-start boot will often result in this problem.
->
+--- linux-2.6.2-rc3/drivers/media/dvb/frontends/dst.c	2004-01-06 15:29:13.000000000 +0100
++++ linux-m68k-2.6.2-rc3/drivers/media/dvb/frontends/dst.c	2004-01-10 17:10:35.000000000 +0100
+@@ -28,8 +28,8 @@
+ #include <linux/string.h>
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
++#include <linux/delay.h>
+ #include <asm/div64.h>
+-#include <asm/delay.h>
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+ #include "dvb_frontend.h"
+ #include "dvb_functions.h"
 
+Gr{oetje,eeting}s,
 
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

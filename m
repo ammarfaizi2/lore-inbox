@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318878AbSHEU5U>; Mon, 5 Aug 2002 16:57:20 -0400
+	id <S318316AbSHEU7f>; Mon, 5 Aug 2002 16:59:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318314AbSHEU5T>; Mon, 5 Aug 2002 16:57:19 -0400
-Received: from pa91.banino.sdi.tpnet.pl ([213.76.211.91]:38405 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
-	id <S318878AbSHEU5S>; Mon, 5 Aug 2002 16:57:18 -0400
-Subject: parport_serial / serial init order wrong?
-To: twaugh@redhat.com
-Date: Mon, 5 Aug 2002 23:00:52 +0200 (CEST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL95 (25)]
+	id <S318879AbSHEU7f>; Mon, 5 Aug 2002 16:59:35 -0400
+Received: from pdbn-d9b8caad.pool.mediaWays.net ([217.184.202.173]:5641 "EHLO
+	korben.citd.de") by vger.kernel.org with ESMTP id <S318316AbSHEU7e>;
+	Mon, 5 Aug 2002 16:59:34 -0400
+Date: Mon, 5 Aug 2002 23:03:04 +0200 (CEST)
+From: Matthias Schniedermeyer <ms@citd.de>
+To: linux-kernel@vger.kernel.org
+Subject: Heavy Clock-Drift after update from Kernel 2.4.9 to 2.4.19
+Message-ID: <Pine.LNX.4.44.0208052251170.21076-100000@korben.citd.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E17boyC-0004rp-00@alf.amelek.gda.pl>
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+#include <hallo.h>
 
-I'm trying to make a PCI 2S1P Multi I/O card (NM9835 chip) work with
-Linux 2.4.19.  I've applied the 2.5.x linux-netmos.patch (with manual
-patching of rejected hunks), and I can see this in the boot messages:
 
-parport0: PC-style at 0x378 [PCSPP,TRISTATE,EPP]
-parport_pc: Via 686A parallel port: io=0x378
-PCI parallel port detected: 9710:9835, I/O at 0xb800(0x0)
-parport1: PC-style at 0xb800 [PCSPP,TRISTATE,EPP]
-ttyS00 at port 0xb000 (irq = 9) is a 16550A
-ttyS00 at port 0xb400 (irq = 9) is a 16550A
-.....
-Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_PCI ISAPNP enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-lp0: using parport0 (polling).
-lp0: console ready
-lp1: using parport1 (polling).
 
-The two PCI serial ports (incorrectly reported as ttyS00) are really
-ttyS4 and ttyS5, but setserial reports unknown UART (with correct I/O
-and IRQ), so they don't work until I do this:
+I updated to 2.4.19 the day after it was released. Since then i have a
+heavy clock-drift problem.
 
-setserial /dev/ttyS4 autoconfig
-setserial /dev/ttyS5 autoconfig
+Some time there is no clock drift, other times there is heavy clock drift.
 
-I suspect that the parport_serial driver should be initialized after
-the serial driver, so it can register the detected UARTs properly.
-(I have the necessary drivers compiled into the kernel, no modules.)
+e.g. When i load a page with mozilla. The "rotating thing" spins
+randomly fast/normal.
+Or when i play a movie with "xine". Every few seconds the playing gets
+faster and then back to normal.
 
-The serial ports appear to work fine after the setserial autoconfig
-commands.  I haven't tested the NM9835 parallel port just yet - what
-I really needed is more serial ports, but a PCI card with only two
-serial ports (no parallel) was hard to find and twice as expensive ;)
+With 2.4.9 the clock was "rock solid" for weeks.
 
-I suspect the NM9835 may be a quite popular chip - any chances of
-making support for it available in 2.4.x kernel series?
+A bit strange is that it seems to depend on load. Higher load seems to
+cause less/none clock drift.
+(e.g. when i compile something in background, the "rotating thing" in
+mozilla doesn't spin to fast)
 
-Thanks,
-Marek
+Hardware is a Dual-PIII-933Mhz. Kernel is configured as SMP.
+Any more details needed?
+
+
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated,
+cryptic, powerful, unforgiving, dangerous.
+
 

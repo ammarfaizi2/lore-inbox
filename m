@@ -1,70 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263208AbSJOUXx>; Tue, 15 Oct 2002 16:23:53 -0400
+	id <S264694AbSJOUdr>; Tue, 15 Oct 2002 16:33:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264648AbSJOUXx>; Tue, 15 Oct 2002 16:23:53 -0400
-Received: from inrete-46-20.inrete.it ([81.92.46.20]:63915 "EHLO
-	pdamail1-pdamail.inrete.it") by vger.kernel.org with ESMTP
-	id <S263208AbSJOUXt>; Tue, 15 Oct 2002 16:23:49 -0400
-Message-ID: <3DAC7AAC.B81A406E@inrete.it>
-Date: Tue, 15 Oct 2002 22:29:32 +0200
-From: Daniele Lugli <genlogic@inrete.it>
-Organization: General Logic srl
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rthal5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: unhappy with current.h
-References: <20021014202404.GA10777@tapu.f00f.org>
-		<Pine.LNX.4.44L.0210142159580.22993-100000@imladris.surriel.com> <15788.8728.734070.225906@kim.it.uu.se>
+	id <S264742AbSJOUdr>; Tue, 15 Oct 2002 16:33:47 -0400
+Received: from jdike.solana.com ([198.99.130.100]:10113 "EHLO karaya.com")
+	by vger.kernel.org with ESMTP id <S264694AbSJOUdp>;
+	Tue, 15 Oct 2002 16:33:45 -0400
+Message-Id: <200210152042.g9FKgP615722@karaya.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Assorted UML fixes and cleanups
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 15 Oct 2002 16:42:25 -0400
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
-> 
-> Rik van Riel writes:
->  > On Mon, 14 Oct 2002, Chris Wedgwood wrote:
->  > > On Mon, Oct 14, 2002 at 09:46:08PM +0200, Daniele Lugli wrote:
->  > >
->  > > > I recently wrote a kernel module which gave me some mysterious
->  > > > problems. After too many days spent in blood, sweat and tears, I found the cause:
->  > >
->  > > > *** one of my data structures has a field named 'current'. ***
->  > >
->  > > gcc -Wshadow
->  >
->  > Would it be a good idea to add -Wshadow to the kernel
->  > compile options by default ?
-> 
-> While I'm not defending macro abuse, please note that Daniele's problem
-> appears to have been caused by using g++ instead of gcc or gcc -x c to
-> compile a kernel module. Daniele's later example throws a syntax error
-> in gcc, since the cpp output isn't legal C ...
-> 
-> Hence I fail to see the utility of hacking in kludges for something
-> that's not supposed to work anyway.
+Please pull
+	http://jdike.stearns.org:5000/fixes-2.5
 
-Yes i confess, i'm writing a kernel module in c++ (and i'm not the only
-one).
-Anyway my consideration was general and IMHO applies to C too. What is
-the benefit of redefining commonly used words? I would say nothing
-against eg #define _I386_current get_current(), but just #define current
-get_current() seems to me a little bit dangerous. What is the limit?
-What do you consider a bad practice? Would #define i j be tolerated?
+A number of crashes caused by UML being brought down by a signal are gone
+A bunch of unused and redundant variables were removed
+The tempfile code was moved into its own file
+Removed a number of declarations of functions which no longer exist
+More code calls into the OS interface when necessary
 
-I wouldn't like to open a discussion about using c++ for kernel modules
-because i know that the large majority of kernel developers is against.
-And in fact i had to make my own version of the kernel sources turning
-all 'new' into 'nEw', 'class' into 'klass' and so on, but this last
-problem was more subtle.
+				Jeff
+	
 
-But let me at least summarize my poor-programmer-not-kernel-developer
-point of view: at present the kernel if a mined field for c++ and i
-understand it is not viable nor interesting for the majority to rewrite
-it in a more c++-friendly way. But why not at least keep in mind, while
-writing new stuff (not the case of current.h i see), that kernel headers
-could be included by c++?
+ arch/um/Makefile                |    5 --
+ arch/um/Makefile-i386           |    2 
+ arch/um/drivers/line.c          |    3 -
+ arch/um/drivers/net_kern.c      |    2 
+ arch/um/drivers/port_kern.c     |    1 
+ arch/um/drivers/ssl.c           |   47 ++++++++++++-----------
+ arch/um/drivers/stdio_console.c |   21 +++++-----
+ arch/um/drivers/ubd_kern.c      |   27 ++++---------
+ arch/um/include/line.h          |    5 --
+ arch/um/include/tempfile.h      |   21 ++++++++++
+ arch/um/include/user_util.h     |   18 --------
+ arch/um/kernel/Makefile         |   13 +++---
+ arch/um/kernel/ksyms.c          |    1 
+ arch/um/kernel/process_kern.c   |    4 -
+ arch/um/kernel/signal_user.c    |    2 
+ arch/um/kernel/tempfile.c       |   79 +++++++++++++++++++++++++++++++++++++++
+ arch/um/kernel/time_kern.c      |    1 
+ arch/um/kernel/trap_user.c      |   13 +++---
+ arch/um/kernel/tty_log.c        |    2 
+ arch/um/kernel/um_arch.c        |    7 +--
+ arch/um/kernel/user_util.c      |   81 ----------------------------------------
+ arch/um/ptproxy/proxy.c         |    1 
+ 22 files changed, 178 insertions(+), 178 deletions(-)
 
-Regards, Daniele
+ChangeSet@1.786, 2002-10-15 11:09:15-04:00, jdike@uml.karaya.com
+  Fixed a bug caused by moving the location of the include of the
+  arch and os Makefiles.
+
+ChangeSet@1.785, 2002-10-14 12:00:06-04:00, jdike@uml.karaya.com
+  Made a small fix to arch/um/kernel/Makefile.
+
+ChangeSet@1.784, 2002-10-14 11:33:59-04:00, jdike@uml.karaya.com
+  Added some code to arch/um/kernel/tempfile.c.
+
+ChangeSet@1.783, 2002-10-13 23:41:50-04:00, jdike@uml.karaya.com
+  Cleaned up a bunch of things noticed while merging the SMP support.
+  The tempfile code is in its own file.
+  A bunch of unused stuff is now gone.
+  A bunch of code that could be called from the tracing thread was
+  made safe for that to happen.
+

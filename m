@@ -1,52 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262920AbUC2Mfs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 07:35:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbUC2Mec
+	id S262925AbUC2Mh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 07:37:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbUC2MgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 07:34:32 -0500
-Received: from ns.suse.de ([195.135.220.2]:60577 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262870AbUC2MdI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 07:33:08 -0500
-Date: Mon, 29 Mar 2004 09:10:25 +0200
-From: Andi Kleen <ak@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, jun.nakajima@intel.com,
-       ricklind@us.ibm.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       kernel@kolivas.org, rusty@rustcorp.com.au, anton@samba.org,
-       lse-tech@lists.sourceforge.net, mbligh@aracnet.com
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups,
- sched-2.6.5-rc2-mm2-A3
-Message-Id: <20040329091025.6030d127.ak@suse.de>
-In-Reply-To: <20040329090301.42dc9f97.ak@suse.de>
-References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com>
-	<20040325154011.GB30175@wotan.suse.de>
-	<20040325190944.GB12383@elte.hu>
-	<20040325162121.5942df4f.ak@suse.de>
-	<20040325193913.GA14024@elte.hu>
-	<20040325203032.GA15663@elte.hu>
-	<20040329084531.GB29458@wotan.suse.de>
-	<4068066C.507@yahoo.com.au>
-	<20040329080150.4b8fd8ef.ak@suse.de>
-	<20040329114635.GA30093@elte.hu>
-	<20040329090301.42dc9f97.ak@suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Mar 2004 07:36:11 -0500
+Received: from chello081018200050.chello.pl ([81.18.200.50]:14981 "EHLO
+	pioneer.space.nemesis.pl") by vger.kernel.org with ESMTP
+	id S262909AbUC2Mfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 07:35:42 -0500
+Date: Mon, 29 Mar 2004 15:32:49 +0200 (CEST)
+From: Tomasz Rola <rtomek@cis.com.pl>
+To: Larry McVoy <lm@bitmover.com>
+cc: linux-kernel@vger.kernel.org, Tomasz Rola <rtomek@cis.com.pl>
+Subject: Re: who is merlin.fit.vutbr.cz?
+In-Reply-To: <200403290108.i2T18T8d024595@work.bitmover.com>
+Message-ID: <Pine.LNX.3.96.1040329151755.5234B-100000@pioneer.space.nemesis.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Mar 2004 09:03:01 +0200
-Andi Kleen <ak@suse.de> wrote:
-> 
-> I'm trying to, but -mm5 doesn't work at all on the 4 way machine.
-> It goes through the full boot up sequence, but then never opens a login
-> on the console and sshd also doesn't work.
-> 
-> Andrew, maybe that's related to your tty fixes?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Reverting the two makes login work again
+On Sun, 28 Mar 2004, Larry McVoy wrote:
 
--Andi
+> Folks, I need your help.
+> 
+> I can't tell if this is a DOS attack or someone with a REALLY slow net
+> connection.  Whoever this is has been cloning the linux 2.6 (aka 2.5)
+> tree on bkbits so slowly that the tree is locked for days and can't
+> be updated.  About once a day I go kill the clone because stracing it
+> shows it doing nothing.
+> 
+> Linus and Andrew M are annoyed enough that the tree isn't getting updates
+> that they complained to me.  Makes me feel bad when they do that so that's
+> why I'm looking for help.
+[...]
+> Anyway, we've suffered more than enough bad press so before I
+> assume that this host is a rogue and filter them, does anyone know who
+> merlin.fit.vutbr.cz is?  If they really have that slow of a connection
+> we'll burn a CD and Fedex it to them, nobody should suffer that much.
+> But if this is just a DOS, we'll nuke 'em.
+
+I don't know details of bk, so please forgive me if I am writing about
+something already existing, but isn't it possible to implement a timeout
+and some kind of intelligent retry in a similar manner to nowadays
+http/ftp ? A server could then check if someone has made something with
+his connection during last, say, minute and then drop the connection if
+nothing was pulled during that time. Next, if someone has really slow
+connection, give him the ability to start transfer from specified offset
+so that he could retry from the place he had been dropped.
+
+To prevent instant locking, maybe some kind of queuing? FIFO and if you
+don't pull what you locked, you get kicked out. If you return, wait for
+your turn until Linus ;) (or someone else) does his updates.
+
+BTW, if I understand correctly, to read something from the tree one
+doesn't really need to lock it. Only writes should be locked.
+
+bye
+T.
+
+- --
+** A C programmer asked whether computer had Buddha's nature.      **
+** As the answer, master did "rm -rif" on the programmer's home    **
+** directory. And then the C programmer became enlightened...      **
+**                                                                 **
+** Tomasz Rola          mailto:tomasz_rola@bigfoot.com             **
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 5.0i for non-commercial use
+Charset: noconv
+
+iQA/AwUBQGglixETUsyL9vbiEQJ3mwCg0XFzTQG9rhugOerAnQBzu8ObszMAni9i
+9ggm8ENBVL/TDJ+N2UtvBWo7
+=lLpf
+-----END PGP SIGNATURE-----
+
+

@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310654AbSDDGDL>; Thu, 4 Apr 2002 01:03:11 -0500
+	id <S310441AbSDDF7l>; Thu, 4 Apr 2002 00:59:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310666AbSDDGDB>; Thu, 4 Apr 2002 01:03:01 -0500
-Received: from server3.suhplains1.com ([12.152.193.124]:27403 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S310654AbSDDGCu>; Thu, 4 Apr 2002 01:02:50 -0500
-Subject: Re: Request for 2.4.20 to be a non-trivial-bugfixes-only version
-From: "Daniel E. Shipton" <dshipton@vrac.iastate.edu>
-To: Erik =?ISO-8859-1?Q?Ljungstr=F6m?= <insight@metalab.unc.edu>
-Cc: Rene Rebe <rene.rebe@gmx.net>, pabloa@laotraesquina.com.ar,
-        mtopper@xarch.tu-graz.ac.at, Ruth.Ivimey-Cook@ivimey.org,
-        hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org
-In-Reply-To: <20020402205918.36a94648.insight@metalab.unc.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 04 Apr 2002 00:02:53 -0600
-Message-Id: <1017900173.18439.10.camel@localhost.localdomain>
+	id <S310654AbSDDF7b>; Thu, 4 Apr 2002 00:59:31 -0500
+Received: from tapu.f00f.org ([66.60.186.129]:29126 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S310441AbSDDF7X>;
+	Thu, 4 Apr 2002 00:59:23 -0500
+Date: Wed, 3 Apr 2002 21:59:02 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        Gerd Knorr <kraxel@bytesex.org>, linux-kernel@vger.kernel.org,
+        Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+Message-ID: <20020404055902.GA6889@tapu.f00f.org>
+In-Reply-To: <Pine.LNX.4.33.0204032327360.2006-100000@einstein.homenet> <Pine.LNX.4.44L.0204031937560.18660-100000@imladris.surriel.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What's wrong with the 2.4.17 kernel? I have'n had a better one since the 2.2.19 :)
-I'm with you on that....i put it on one machine and threw away the
-redhat rpm to find that i needed it a week later for another machine and
-redhat had released their 2.4.18. So had to make it by hand for a
-change. 2.4.17 does well at everything while not giving oopses.
-also alan's 2.4.13 was really good too.
+On Wed, Apr 03, 2002 at 07:39:04PM -0300, Rik van Riel wrote:
 
-daniel.e.shipton
+    Indeed, Veritas has contributed significantly to kernel
+    development, but I can't remember ever seeing anything but
+    troubled users from companies like nvidia or vmware.
+
+Considering the fact we are much more likely to hear complaints when
+things are broken and people are seeking a fix than praise otherwise,
+I think this is a little unfair.  For the vast numbers of nvidia users
+I don't think there are that many problems reported and I'm not
+convinced the CURRENT nvidia drivers are necessarily doing anything
+bad[1].
+
+
+  --cw
+
+[1] People are welcome to provide code to prove me wrong.  I use the
+    nv hardware at times and it works very well, the machines don't
+    suffer filesystem corruption, crashes or memory leaks.

@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291782AbSBNQrr>; Thu, 14 Feb 2002 11:47:47 -0500
+	id <S291787AbSBNQrQ>; Thu, 14 Feb 2002 11:47:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291781AbSBNQrV>; Thu, 14 Feb 2002 11:47:21 -0500
-Received: from ns.suse.de ([213.95.15.193]:11789 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S291784AbSBNQrC>;
-	Thu, 14 Feb 2002 11:47:02 -0500
-To: Michael Sinz <msinz@wgate.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Core dump file control
-In-Reply-To: <3C6BE18F.7B849129@wgate.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 14 Feb 2002 17:37:46 +0100
-In-Reply-To: Michael Sinz's message of "14 Feb 2002 17:15:32 +0100"
-Message-ID: <p73lmdw10kl.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S291781AbSBNQq7>; Thu, 14 Feb 2002 11:46:59 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39952 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291790AbSBNQqR>;
+	Thu, 14 Feb 2002 11:46:17 -0500
+Message-ID: <3C6BE9D5.23D596A9@mandrakesoft.com>
+Date: Thu, 14 Feb 2002 11:46:13 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Howells <dhowells@redhat.com>
+CC: torvalds@transmeta.com, davidm@hpl.hp.com,
+        "David S. Miller" <davem@redhat.com>, anton@samba.org,
+        linux-kernel@vger.kernel.org, zippel@linux-m68k.org
+Subject: Re: [PATCH] move task_struct allocation to arch
+In-Reply-To: <12086.1013704379@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Sinz <msinz@wgate.com> writes:
+David Howells wrote:
+> > Is this the first in a multi-step patch series, or something like that?
 > 
-> This then causes core dumps to be of the format:
+> What makes you ask that?
+
+Because your patch just flat out duplicates code line for line into two
+arches.
+
+
+> > You just duplicated code in a generic location and pasted it into the
+> > arch.  Where's the gain in that?  I do see the gain in letting the arch
+> > allocate the task struct, but surely your patch should provide a generic
+> > mechanism for an arch to call by default, instead of duplicating code??
 > 
->         /coredumps/whale.sinz.org-badprogram-13917.core
+> Hmmm... Is it worth going through all fun of creating another CONFIG_xxxx
+> option to govern the inclusion of such code?
 
-I had something like this for a long time on my todo list. The idea
-was to set core_name_format to the name of a named pipe and have an 
-daemon on the other end that logs backtraces to syslogd (something a 
-bit like dr.watson) 
-Only problem is that it won't handle parallel coredumps very well
-without some additional (deadlock prone) global locking or alternatively 
-support AF_UNIX stream sockets too that have the concept of multiple 
-streams over a single name. 
+I am wondering where you want to go with this, short term and long
+term.  Is the implementation of this on other arches gonna look the same
+-- just line for line copy of code?  With maybe ia64 as the lone
+exception?
 
--Andi
+	Jeff
+
+
+-- 
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

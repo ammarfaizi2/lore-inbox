@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbTJCXw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 19:52:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbTJCXms
+	id S261595AbTJCX64 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 19:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbTJCX6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 19:42:48 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:25044 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261574AbTJCXkG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 19:40:06 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kill dummy init_dma_* from drivers/ide/pci/
-Date: Sat, 4 Oct 2003 01:43:32 +0200
-User-Agent: KMail/1.5.4
-References: <200310040138.08690.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200310040138.08690.bzolnier@elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Oct 2003 19:58:55 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:43554 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S261595AbTJCX6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 19:58:42 -0400
+Date: Sat, 4 Oct 2003 00:58:02 +0100
+From: Dave Jones <davej@redhat.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FDC motor left on
+Message-ID: <20031003235801.GA5183@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Richard B. Johnson" <root@chaos.analogic.com>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.53.0310031322430.499@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310040143.32386.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <Pine.LNX.4.53.0310031322430.499@chaos>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 03, 2003 at 01:25:30PM -0400, Richard B. Johnson wrote:
+ > In linux-2.4.22 and earlier, if there is no FDC driver installed,
+ > the FDC motor may continue to run after boot if the motor was
+ > started as part of the BIOS boot sequence.
+ > This patch turns OFF the motor once Linux gets control.
+ > 
+ > 
+ > --- linux-2.4.22/arch/i386/boot/setup.S.orig	Fri Aug  2 20:39:42 2002
+ > +++ linux-2.4.22/arch/i386/boot/setup.S	Fri Oct  3 11:50:43 2003
+ > @@ -59,6 +59,8 @@
 
-[IDE] ns87415: kill dummy init_dma_ns87415()
+Does this mean the 'kill_motor' function in bootsect.S isn't doing
+what it should be? If so, maybe that needs fixing instead of turning
+it off in two places ?
 
- drivers/ide/pci/ns87415.c |    5 -----
- drivers/ide/pci/ns87415.h |    2 --
- 2 files changed, 7 deletions(-)
+		Dave
 
-diff -puN drivers/ide/pci/ns87415.c~ide-ns87415-init_dma drivers/ide/pci/ns87415.c
---- linux-2.6.0-test6-bk2/drivers/ide/pci/ns87415.c~ide-ns87415-init_dma	2003-10-04 01:00:59.548345088 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/ns87415.c	2003-10-04 01:00:59.554344176 +0200
-@@ -217,11 +217,6 @@ static void __init init_hwif_ns87415 (id
- 	hwif->drives[1].autodma = hwif->autodma;
- }
- 
--static void __init init_dma_ns87415 (ide_hwif_t *hwif, unsigned long dmabase)
--{
--	ide_setup_dma(hwif, dmabase, 8);
--}
--
- extern void ide_setup_pci_device(struct pci_dev *, ide_pci_device_t *);
- 
- static int __devinit ns87415_init_one(struct pci_dev *dev, const struct pci_device_id *id)
-diff -puN drivers/ide/pci/ns87415.h~ide-ns87415-init_dma drivers/ide/pci/ns87415.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/ns87415.h~ide-ns87415-init_dma	2003-10-04 01:00:59.550344784 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/ns87415.h	2003-10-04 01:01:36.634707104 +0200
-@@ -6,7 +6,6 @@
- #include <linux/ide.h>
- 
- static void init_hwif_ns87415(ide_hwif_t *);
--static void init_dma_ns87415(ide_hwif_t *, unsigned long);
- 
- static ide_pci_device_t ns87415_chipsets[] __devinitdata = {
- 	{	/* 0 */
-@@ -16,7 +15,6 @@ static ide_pci_device_t ns87415_chipsets
- 		.init_chipset	= NULL,
- 		.init_iops	= NULL,
- 		.init_hwif	= init_hwif_ns87415,
--                .init_dma	= init_dma_ns87415,
- 		.channels	= 2,
- 		.autodma	= AUTODMA,
- 		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
-
-_
-
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

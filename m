@@ -1,71 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275355AbTHSGDm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 02:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275358AbTHSGDl
+	id S275368AbTHSGXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 02:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275372AbTHSGXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 02:03:41 -0400
-Received: from core.kaist.ac.kr ([143.248.147.118]:10391 "EHLO
-	core.kaist.ac.kr") by vger.kernel.org with ESMTP id S275355AbTHSGDk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 02:03:40 -0400
-Message-ID: <003f01c36617$01c3dc80$a5a5f88f@core8fyzomwjks>
-From: "Cho, joon-woo" <jwc@core.kaist.ac.kr>
-To: <linux-kernel@vger.kernel.org>
-Subject: [Q] IDE drive DMA failure
-Date: Tue, 19 Aug 2003 14:59:09 +0900
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	Tue, 19 Aug 2003 02:23:09 -0400
+Received: from f6.mail.ru ([194.67.57.36]:44040 "EHLO f6.mail.ru")
+	by vger.kernel.org with ESMTP id S275368AbTHSGXF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 02:23:05 -0400
+From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	<arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6 - synaptics touchpad not handled by any driver
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [212.248.25.26]
+Date: Tue, 19 Aug 2003 10:23:06 +0400
+Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	  <arvidjaar@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E19ozta-0002R3-00.arvidjaar-mail-ru@f6.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
 
-I send some data from ide disk to some PCI device's RAM directly.
+It appeared recently on a.o.l.m. Synaptics touchpad is not handled
+by any driver except evdev. It is located in drivers/input/mouse and
+is part of psmouse so one would logically assume it is handled by
+mousedev - but it does not advertise any capability accepted by mousedev.
 
-At above sentence, 'directly' means that data is not transferred through
-RAM.
+I: Bus=0011 Vendor=0002 Product=0007 Version=0000
+N: Name="Synaptics Synaptics TouchPad"
+P: Phys=isa0060/serio1/input0
+H: Handlers=
+B: EV=1b
+B: KEY=670000 0 0 0 0 0 0 0 0
+B: ABS=1000003
+B: MSC=4
 
-Data path is only from ide disk controller to PCI device's RAM.
+the buttons advertised are
 
-Anyway data can be transferred by PIO.
+BTN_LEFT, BTN_RIGHT, BTN_MIDDLE, BTN_FORWARD, BTN_BACK.
 
-But DMA method can't operate. Below is error message.
+mousedev accepts device with absolute coordinates only if it
+advertises BTN_TOUCH:
 
-Aug 18 15:08:12 localhost kernel: hdc: dma_timer_expiry: status=0x58 {
-DriveReady SeekComplete DataRequest }
-Aug 18 15:08:12 localhost kernel: hdc: timeout waiting for DMA
-Aug 18 15:08:12 localhost kernel: ide_dmaproc: chipset supported
-ide_dma_timeout func only: 14
+        {
+              .flags    = INPUT_DEVICE_ID_MATCH_EVBIT | INPUT_DEVICE_ID_MATCH_KE
+YBIT | INPUT_DEVICE_ID_MATCH_ABSBIT,
+              .evbit    = { BIT(EV_KEY) | BIT(EV_ABS) },
+              .keybit   = { [LONG(BTN_TOUCH)] = BIT(BTN_TOUCH) },
+              .absbit   = { BIT(ABS_X) | BIT(ABS_Y) },
+         },/* A tablet like device, at least touch detection, two absolute axes
 
-After this DMA timeout error, data is transferred by PIO.
+the same as tsdev.
 
-Do you have similar experience?
+something is fishy :) poor guy expected it to work like a mouse -
+just like 2.4 did.
 
-I want to send data by DMA method.
-
-What is problem? Kernel? Hardware?
-
-And how can I solve this problem?
-
-Please give me anser or hint, Thanks!
-
-
-Below is my system spec
-
-CPU
-celeron 400
-
-Motherboard
-440BX
-
-IDE interface
-Intel Corporation 82371AB PIIX4 IDE (rev 1).
-
-
-HDD
-hdc: IC35L040AVVA07-0, ATA DISK drive (Hitachi)
-
+-andrey
 

@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261793AbREPFqb>; Wed, 16 May 2001 01:46:31 -0400
+	id <S261796AbREPGPm>; Wed, 16 May 2001 02:15:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261795AbREPFqW>; Wed, 16 May 2001 01:46:22 -0400
-Received: from mail.uni-kl.de ([131.246.137.52]:34259 "EHLO mail.uni-kl.de")
-	by vger.kernel.org with ESMTP id <S261794AbREPFqJ>;
-	Wed, 16 May 2001 01:46:09 -0400
-Message-ID: <XFMail.20010516074607.backes@rhrk.uni-kl.de>
-X-Mailer: XFMail 1.4.4 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S261797AbREPGPc>; Wed, 16 May 2001 02:15:32 -0400
+Received: from www.wen-online.de ([212.223.88.39]:9747 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S261796AbREPGPT>;
+	Wed, 16 May 2001 02:15:19 -0400
+Date: Wed, 16 May 2001 08:15:11 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove silly beep macro from pgtable.h
+In-Reply-To: <p05100314b72729920e83@[207.213.214.37]>
+Message-ID: <Pine.LNX.4.33.0105160807190.904-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Date: Wed, 16 May 2001 07:46:07 +0200 (CEST)
-X-Face: B^`ajbarE`qo`-u#R^.)e]6sO?X)FpoEm\>*T:H~b&S;U/h$2>my}Otw5$+BDxh}t0TGU?>
- O8Bg0/jQW@P"eyp}2UMkA!lMX2QmrZYW\F,OpP{/s{lA5aG'0LRc*>n"HM@#M~r8Ub9yV"0$^i~hKq
- P-d7Vz;y7FPh{XfvuQA]k&X+CDlg"*Y~{x`}U7Q:;l?U8C,K\-GR~>||pI/R+HBWyaCz1Tx]5
-Reply-To: Joachim Backes <backes@rhrk.uni-kl.de>
-Organization: University of Kaiserslautern,
- Computer Center [Supercomputing division]
-From: Joachim Backes <backes@rhrk.uni-kl.de>
-To: LINUX Kernel <linux-kernel@vger.kernel.org>
-Subject: IRQ usage for PCI devices, Kernel 2.4.4
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 15 May 2001, Jonathan Lundell wrote:
 
-sometimes the following messages appear in /var/log/messages:
+> At 7:36 PM +0200 2001-05-15, Mike Galbraith wrote:
+> >On Tue, 15 May 2001, Jeff Golds wrote:
+> >
+> >>  Hi folks,
+> >>
+> >>  Found this bit of unused code in the i386 and sh architectures.
+> >>As it's not being used, let's get rid of it.  Also, pgtable.h seems
+> >>to be an odd place for this.
+> >
+> >I'd leave it.. folks with early boot troubles might find it useful.
+> >
+> >	-Mike
+>
+> Consider small rant about literal IO references to magic locations
+> hereby ranted. Especially in header files completely unrelated to the
+> IO function in question.
+>
+> -#define __beep() asm("movb $0x3,%al; outb %al,$0x61")
+>
+> Let's please not assume that every i386 implementation has a full set
+> of legacy PC IO hardware.
 
-        May 13 14:24:41 sunny kernel: PCI: Found IRQ 10 for device 00:0e.0
-        May 13 14:24:41 sunny kernel: PCI: The same IRQ used for device 00:0a.0
+Is there a generic form of hello() that could be tucked away somewhere?
 
-"0e" is my PCI sound card, and "0a" is my PCI ethernet card. The messages apppear in
-the following environment: I send from another linux machine (per ssh) a command
-wich plays some sound on my sound card, therefore the eth0 event and the sound
-event occur at almost the same time.
-
-Question: Can I ignore these messages, or is there any buggy behaviour?
-
-Regards
-
-
-Joachim Backes
-
---
-
-Joachim Backes <backes@rhrk.uni-kl.de>       | Univ. of Kaiserslautern
-Computer Center, High Performance Computing  | Phone: +49-631-205-2438 
-D-67653 Kaiserslautern, PO Box 3049, Germany | Fax:   +49-631-205-3056 
----------------------------------------------+------------------------
-WWW: http://hlrwm.rhrk.uni-kl.de/home/staff/backes.html  
+	-Mike
 

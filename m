@@ -1,81 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266685AbUF3Oqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266686AbUF3O7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266685AbUF3Oqq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 10:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266686AbUF3Oqq
+	id S266686AbUF3O7u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 10:59:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266688AbUF3O7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 10:46:46 -0400
-Received: from duchamp.tecgraf.puc-rio.br ([139.82.85.1]:33544 "EHLO
-	tecgraf.puc-rio.br") by vger.kernel.org with ESMTP id S266685AbUF3Oqn
+	Wed, 30 Jun 2004 10:59:50 -0400
+Received: from mail.shareable.org ([81.29.64.88]:17581 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S266686AbUF3O7s
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 10:46:43 -0400
-Date: Wed, 30 Jun 2004 11:51:43 -0300
-From: Andre Costa <costa@tecgraf.puc-rio.br>
-To: tom st denis <tomstdenis@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.26: IDE drives become unavailable randomly
-Message-Id: <20040630115143.3748d296.costa@tecgraf.puc-rio.br>
-In-Reply-To: <20040630135907.98538.qmail@web41115.mail.yahoo.com>
-References: <20040630084142.10a3598b.costa@tecgraf.puc-rio.br>
-	<20040630135907.98538.qmail@web41115.mail.yahoo.com>
-Organization: TecGraf
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 30 Jun 2004 10:59:48 -0400
+Date: Wed, 30 Jun 2004 15:59:42 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Ian Molton <spyro@f2s.com>, linux-arm-kernel@lists.arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: A question about PROT_NONE on ARM and ARM26
+Message-ID: <20040630145942.GH29285@mail.shareable.org>
+References: <20040630024434.GA25064@mail.shareable.org> <20040630091621.A8576@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040630091621.A8576@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(please cc me on any replies, because I am not subscribed to this list)
-
-Hi Tom,
-
-On Wed, 30 Jun 2004 06:59:07 -0700 (PDT)
-tom st denis <tomstdenis@yahoo.com> wrote:
-
-> --- Andre Costa <costa@tecgraf.puc-rio.br> wrote:
-> > (please cc me on any replies, because I am not subscribed to this
-> > list;
-> > if I do need to subscribe, just let me know)
-> > 
-> > Hi,
-> > 
-> > I am using 2.4.26 SMP on a ABIT AT7 mobo, with a 2.8GHz P4 processor
-> > with hyper-threading enabled. I have one 80GB Seagate IDE disk
-> > as /dev/hda, and from time to time it seems to "disappear", usually
-> > after these messages appear a couple of trimes on/var/log/messages:
+Russell King wrote:
+> There are two different types of privileged accesses on ARM.  One is the
+> standard load/store instruction, which checks the permissions for the
+> current processor mode.  The other is one which simulates a user mode
+> access to the address.
 > 
-> I get a similar problem on my Presario laptop.  In my case "all of a
-> suddend" hda3 becomes write-only.  Next time it happens I'll see if I
-> can capture a dmesg log or something.  It only seems to happen when I
-> enable my wifi and do a lot of disk activity [but only once in a
-> while].  Could be that my wifi and IDE0 share an IRQ?
+> We use the latter for get_user/put_user/copy_to_user/copy_from_user.
+> 
+> > This means that calling write() with a PROT_NONE region would succeed,
+> > wouldn't it?
+> 
+> No, because the uaccess.h function will fault, and we'll end up returning
+> -EFAULT.
 
-I can't say the situation is the same here -- actually, it seems to be
-more related (in my case) to idle times: usually this happens when the
-system is under light load (or under no load at all), like between
-0:00am and 6:00am. This is why my primary suspect is APM (I could be
-completely wrong, of course). Also, I don't have wifi.
+Ok, that answers my question, thanks.  ARM and ARM26 are fine with PROT_NONE.
 
-> Of course I'm more apt to blame my laptop than Linux since the same
-> kernel [well diff build options but you know what I mean] works just
-> fine on my two desktops in the house...
+Those are the "ldrlst" instructions in getuser.S, right?
 
-Yeah, I know what you mean: the same Linux distro has been running
-flawlessly on other boxes around here for months (with different
-hardware specs, though). Mine OTOH has a sad uptime record of 5 days...
-=(
+Here's a question, for ARM only (not ARM26):
+...........................................
 
-I agree Linux works (actually, it rocks =)), been using it for years
-both at home and at work, but sometimes a specific hardware combination
-(or buggy hardware/BIOS/firmware etc.) pushes it to the edge, reaching
-some weak spots that need to be "hardened". Some hardware simply doesn't
-work at all (I hope that's not my case...)
+getuser.S uses "ldrlst", but unlike ARM26 has no TASK_SIZE check and
+matching "ldrge".  If kernel C code uses set_fs(), then get_user()
+_should_ permit reading from kernel addresses.  Will that work on ARM?
 
-Best,
+I ask because it's interesting to see that ARM and ARM26 have quite
+different code in getuser.S and putuser.S.  The ARM code is shorter.
 
-Andre
+Here's an optimisation idea, for ARM26 only:
+...........................................
 
--- 
-Andre Oliveira da Costa
-(costa@tecgraf.puc-rio.br)
+Do you need the "strlst" instructions in putuser.S?  They're followed
+by "strge" instructions.
+
+For storing, it looks as though the protections set in pgtable.h will
+trigger a write fault whether it's a user mode access or not.  Thus
+you _might_ be able to shave an instruction or two off each put_user,
+by simply doing a single unconditional kernel mode store.  (The check
+against TASK_SIZE has already been done).
+
+Just an idea, I don't know ARM26 well enough to know if that'd work.
+
+-- Jamie

@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314085AbSEYIJC>; Sat, 25 May 2002 04:09:02 -0400
+	id <S314096AbSEYIPH>; Sat, 25 May 2002 04:15:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314101AbSEYIJB>; Sat, 25 May 2002 04:09:01 -0400
-Received: from surf.viawest.net ([216.87.64.26]:16540 "EHLO surf.viawest.net")
-	by vger.kernel.org with ESMTP id <S314085AbSEYIJA>;
-	Sat, 25 May 2002 04:09:00 -0400
-Date: Sat, 25 May 2002 01:08:58 -0700
-From: A Guy Called Tyketto <tyketto@wizard.com>
-To: Miles Lane <miles@megapathdsl.net>
+	id <S314101AbSEYIPG>; Sat, 25 May 2002 04:15:06 -0400
+Received: from postfix1-2.free.fr ([213.228.0.130]:31717 "EHLO
+	postfix1-2.free.fr") by vger.kernel.org with ESMTP
+	id <S314096AbSEYIPF>; Sat, 25 May 2002 04:15:05 -0400
+Message-Id: <200205250800.g4P80F124063@colombe.home.perso>
+Date: Sat, 25 May 2002 10:00:12 +0200 (CEST)
+From: fchabaud@free.fr
+Reply-To: fchabaud@free.fr
+Subject: Re: 2.4.19-pre8-ac5 swsusp panic
+To: matthias.andree@stud.uni-dortmund.de
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.18 -- build failure -- suspend.c:1052: dereferencing pointer to incomplete type
-Message-ID: <20020525080858.GA26997@wizard.com>
-In-Reply-To: <3CEF2DAA.8030902@megapathdsl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux/2.5.7 (i686)
-X-uptime: 1:01am  up 2 days, 10:15,  2 users,  load average: 0.32, 0.33, 0.15
-X-RSA-KeyID: 0xE9DF4D85
-X-DSA-KeyID: 0xE319F0BF
-X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
+In-Reply-To: <20020524011322.GA6612@merlin.emma.line.org>
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 11:22:34PM -0700, Miles Lane wrote:
-> I have included the error, the output of ver_linux and
-> snippets of .config.
+Le 24 Mai, Matthias Andree a écrit :
+> I tried SysRq-D and finally got a kernel "panic: Request while ide driver
+> is blocked?"
 > 
-> gcc -D__KERNEL__ -I/usr/src/linux-2.5.18/include -Wall 
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
-> -march=athlon
->  -DKBUILD_BASENAME=suspend -DEXPORT_SYMTAB -c -o suspend.o suspend.c
-> suspend.c: In function `freeze_processes':
-> suspend.c:240: warning: implicit declaration of function `signal_wake_up'
-> suspend.c: In function `fill_suspend_header':
-> suspend.c:292: warning: comparison between pointer and integer
+> Before that, I saw "waiting for tasks to stop... suspending kreiserfsd",
+> nfsd exiting, "Freeing memory", "Syncing disks beofre copy", then some
+> "Probem while suspending", then some "Resume" and finally the panic.
+> 
+> It may be worth noting that one swap partition is on a SCSI drive, and
+> that my IDE drives were in standby (not idle) mode, i. e. their spindle
+> motors were stopped.
+> 
 
- [ snip ]
- 
-> I don't know what options might be involved in causing this build
-> failure, so I will only include some of the higher level ones:
+AFAIK swap partition under SCSI is not supported for the moment.
 
-> CONFIG_SOFTWARE_SUSPEND=y
-  ^^^^^^^^^^^^^^^^^^^^^^^^^
-
-        This, I believe is what is causing it. in looking through the 2.5.18 
-patch, this is new to the kernel, and is a newly configurable option to the 
-kernel. For testing, I could see you adding it in, but you need this? 
-especially if you have APM or ACPI? This doesn't rely on those, but if you're 
-using APM or ACPI for suspend, this really wouldn't be needed.
-
-                                                        BL. 
--- 
-Brad Littlejohn                         | Email:        tyketto@wizard.com
-Unix Systems Administrator,             |           tyketto@ozemail.com.au
-Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
-  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
+--
+Florent Chabaud
 

@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265627AbUA0Tta (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 14:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265595AbUA0Tta
+	id S265648AbUA0TnR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 14:43:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265755AbUA0TnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 14:49:30 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:13271 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S265784AbUA0Tso (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 14:48:44 -0500
-Date: Tue, 27 Jan 2004 19:46:20 +0000
-From: Dave Jones <davej@redhat.com>
-To: Tom Rini <trini@kernel.crashing.org>, akpm@osdl.org, george@mvista.com,
-       amitkale@emsyssoft.com, Andi Kleen <ak@suse.de>,
-       jim.houston@comcast.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BitKeeper repo for KGDB
-Message-ID: <20040127194620.GW29296@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Tom Rini <trini@kernel.crashing.org>, akpm@osdl.org,
-	george@mvista.com, amitkale@emsyssoft.com, Andi Kleen <ak@suse.de>,
-	jim.houston@comcast.net,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040127184029.GI32525@stop.crashing.org> <20040127193149.GA2023@mars.ravnborg.org>
+	Tue, 27 Jan 2004 14:43:16 -0500
+Received: from 104.engsoc.carleton.ca ([134.117.69.104]:24484 "EHLO
+	quickman.certainkey.com") by vger.kernel.org with ESMTP
+	id S265648AbUA0TnI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 14:43:08 -0500
+Date: Tue, 27 Jan 2004 14:39:45 -0500
+From: Jean-Luc Cooke <jlcooke@certainkey.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] crypto/sha256.c crypto/sha512.c
+Message-ID: <20040127193945.GA15559@certainkey.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040127193149.GA2023@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 27, 2004 at 08:31:49PM +0100, Sam Ravnborg wrote:
- > On Tue, Jan 27, 2004 at 11:40:29AM -0700, Tom Rini wrote:
- > > 
- > > [1]: If anyone here won't / can't use BitKeeper, I'll happily move over
- > > to a repo someone else sets up in something else.
- > 
- > Or you could ask Dave Jones if he can take nightly snapshots - as
- > he does for sparse and udev.
+Optimized the choice and majority fuctions a bit.
 
-Hmm, reminds me, the scripts to make those snapshots broke when I migrated to
-the new box. I'll go fix them up.  But yeah, sure. If you want me to
-add them to the snapshot list, just mail me the bk: url and I'll
-add it.
+Patch:
+  http://jlcooke.ca/lkml/faster_sha2.patch
 
-		Dave
+Test suite:
+  http://jlcooke.ca/lkml/faster_sha2.c
+  build with:
+    gcc -O3 -s faster_sha2.c -o faster_sha2
 
+JLC
+
+-- 
+http://www.certainkey.com
+Suite 4560 CTTC
+1125 Colonel By Dr.
+Ottawa ON, K1S 5B6

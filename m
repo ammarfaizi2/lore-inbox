@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129044AbRBFOml>; Tue, 6 Feb 2001 09:42:41 -0500
+	id <S129176AbRBHWmY>; Thu, 8 Feb 2001 17:42:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129107AbRBFOmb>; Tue, 6 Feb 2001 09:42:31 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:2564 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129067AbRBFOmW>;
-	Tue, 6 Feb 2001 09:42:22 -0500
-Message-ID: <20010203135518.A1203@bug.ucw.cz>
-Date: Sat, 3 Feb 2001 13:55:18 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Robert Kaiser <rob@sysgo.de>, Patrizio Bruno <patrizio@dada.it>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Disk is cheap?
-In-Reply-To: <01013114393200.01502@rob> <Pine.LNX.4.10.10101311550150.3588-100000@blacksheep.at.dada.it> <200101311612.RAA02360@rob.devdep.sysgo.de>
+	id <S129213AbRBHWmO>; Thu, 8 Feb 2001 17:42:14 -0500
+Received: from SNAP.THUNK.ORG ([216.175.175.173]:26119 "EHLO snap.thunk.org")
+	by vger.kernel.org with ESMTP id <S129176AbRBHWmA>;
+	Thu, 8 Feb 2001 17:42:00 -0500
+From: tytso@snap.thunk.org
+Date: Thu, 1 Feb 2001 08:39:39 -0500
+To: "W. Michael Petullo" <mike@flyn.org>
+Cc: edschulz@lucent.com, linux-kernel@vger.kernel.org
+Subject: Re: Lucent Microelectronics Venus Modem, serial 5.05, and Linux 2.4.0
+Message-ID: <20010201083939.A12285@think>
+In-Reply-To: <20010114201045.A1787@dragon.flyn.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <200101311612.RAA02360@rob.devdep.sysgo.de>; from Robert Kaiser on Wed, Jan 31, 2001 at 05:12:47PM +0100
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010114201045.A1787@dragon.flyn.org>; from mike@flyn.org on Sun, Jan 14, 2001 at 08:10:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I built a embedded dvd/cdda/mp3 player based on linux, using a p200mmx
-> > with 24mb with a bus of 75mhx, but it still takes about 20 seconds to boot,
-> > I think that an embedded device (for home use) should boot in less than
-> > 5 seconds, how could be possible with a slow p133? (I've also tried a p133
-> > on 66mhz of bus and it takes almost 35 seconds to boot)
+On Sun, Jan 14, 2001 at 08:10:45PM +0100, W. Michael Petullo wrote:
+> > In serial.c, you seem to perform a check by writing to a possible
+> > modem's interrupt enable register and reading the result.  This seems to
+> > be one of the points at which the auto-configuration process occasionally
+> > fails.  If I make the following change to this code my modem seems to
+> > be auto-detected correctly all of the time:
 > 
-> Usually most of the startup time is spent by the BIOS doing
-> extensive self-test stuff and for firing up services (http,
-> inetd, sendmail, ...) that many embedded systems have little use
-> for.
+> >                scratch = serial_inp(info, UART_IER);
+> >		serial_outp(info, UART_IER, 0);
+> > #ifdef __i386__
+> >		outb(0xff, 0x080);
+> > #endif
+> >		scratch2 = serial_inp(info, UART_IER);
+> >		serial_outp(info, UART_IER, 0x0F);
+> > #ifdef __i386__
+> >		outb(0, 0x080);
+> > #endif
+> > -             scratch3 = serial_inp(info, UART_IER); /* REMOVE */
+> > +             scratch3 = 0x0f                        /* ADD */
+> > 		serial_outp(info, UART_IER, scratch);
 
-Actually, most of that time is spent running bash/sleep 1. Startup
-scripts tend to be poorly designed.
+The problem is that if this doesn't work, there are some serious
+questions about the correctness of the Lucent Microelectronic Venus
+modem.  I've forwarded this to someone in the Lucent Modem group, who
+can hopefully look at this (and maybe can ship me a sample hardware so
+I can play with it, although I'd much rather that he tell me how to
+work around the hardware bug, or tell me that all you need is a
+firmware upgrade to fix the bug in the modem).....
 
-> I have a 25MHz 386EX (~2.2 Bogomips) here that boots Linux out of ROM
-> in roughly 30 seconds. Most of _that_ time however is spent decompressing
-> the kernel.
-
-You might want to set up XIP and run kernel directly off the ROM...
-
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+							- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

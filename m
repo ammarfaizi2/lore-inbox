@@ -1,55 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262508AbUBXWdM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 17:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262502AbUBXWdL
+	id S262509AbUBXWiB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 17:38:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbUBXWhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 17:33:11 -0500
-Received: from fep01-0.kolumbus.fi ([193.229.0.41]:2536 "EHLO
-	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S262506AbUBXWc5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 17:32:57 -0500
-Date: Wed, 25 Feb 2004 00:32:54 +0200 (EET)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Greg KH <greg@kroah.com>
-cc: Kai Makisara <Kai.Makisara@kolumbus.fi>,
-       Patrick Mansfield <patmans@us.ibm.com>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] SCSI update for 2.6.3
-In-Reply-To: <20040224220946.GA2389@kroah.com>
-Message-ID: <Pine.LNX.4.58.0402250024450.3713@kai.makisara.local>
-References: <Pine.LNX.4.58.0402240919490.1129@spektro.metla.fi>
- <20040224170412.GA31268@kroah.com> <1077642529.1804.170.camel@mulgrave>
- <20040224171629.GA31369@kroah.com> <20040224101512.A19617@beaverton.ibm.com>
- <Pine.LNX.4.58.0402242028370.3713@kai.makisara.local> <20040224220946.GA2389@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Feb 2004 17:37:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12729 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262511AbUBXWeg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 17:34:36 -0500
+Date: Tue, 24 Feb 2004 14:36:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rik van Riel <riel@redhat.com>
+Cc: cw@f00f.org, piggin@cyberone.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vm-fix-all_zones_ok (was Re: 2.6.3-mm3)
+Message-Id: <20040224143618.368dfdca.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0402241553550.21522-100000@chimarrao.boston.redhat.com>
+References: <20040224012222.453e7db7.akpm@osdl.org>
+	<Pine.LNX.4.44.0402241553550.21522-100000@chimarrao.boston.redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Feb 2004, Greg KH wrote:
-
-> On Tue, Feb 24, 2004 at 11:48:32PM +0200, Kai Makisara wrote:
-...
-> > convenient. Parsing the st names should really be able to extract at 
-> > least two fields. With an external program, anything can be done. Maybe 
-> > udev can some day do this internally.
+Rik van Riel <riel@redhat.com> wrote:
+>
+> On Tue, 24 Feb 2004, Andrew Morton wrote:
+> > Chris Wedgwood <cw@f00f.org> wrote:
+> > > On Tue, Feb 24, 2004 at 03:11:40PM +1100, Nick Piggin wrote:
+> > > 
+> > > > Out of interest, what is the worst you can make it do with
+> > > > contrived cases?
+> > > 
+> > > 700MB slab used.
+> > 
+> > Sigh.  There is absolutely nothing wrong with having a large slab cache. 
+> > And there is nothing necessarily right about having a small one.
 > 
-> Well, udev didn't think that anyone would do such a looney thing in
-> nameing devices :)
-> 
-However the SCSI tape names are formed, there are three variables. But 
-I see your smiley :-)
+> Could it be that the lower zone protection stuff simply means
+> that Chris's system only ever allocates page cache and anonymous
+> memory from his 600 MB highmem, leaving the 900 MB lowmem for
+> the slab cache to roam freely ?
 
-> But yes, I'll be glad to fix up udev if you all fix up the tape sysfs
-> names to match device.txt.
-> 
-OK. Unless anyone provides strong arguments for the "new" naming or 
-some other naming, I will make tomorrow (or actually later today) a patch 
-that changes the sysfs file naming to the one in device.txt.
+The lower-zone protection code will only preserve an extra megabyte or so
+of the normal zone in response to __GFP_HIGHMEM allocations, so it won't be
+coming into play here.
 
--- 
-Kai
+I'd prefer to replace the lower-zone/incremental-min code with 2.4's
+watermark code.  It's pretty much equivalent, but makes the calculations
+once-only and it is easier to observe and understand its effects.  But
+there's too much work going on in there to make this change at present.
+
+
+> I guess highmem allocations really should put some pressure on
+> lowmem, even when there is enough lowmem free, because otherwise
+> you end up effectively not using half of the memory on 1.5-2 GB
+> systems for paging ...
+
+Yup.  With the current -mm patches the reclaim rate from lowmem and highmem
+is nicely proportional to each zone's size for pagecache-heavy workloads. 
+For lowmem-intensive workloads the reclaim rate from lowmem is higher, as
+one would expect.  It seems to be working OK now.
+

@@ -1,92 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVCAGSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVCAGXB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261257AbVCAGSv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 01:18:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVCAGSu
+	id S261256AbVCAGXB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 01:23:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbVCAGXB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 01:18:50 -0500
-Received: from pop-6.dnv.wideopenwest.com ([64.233.207.24]:28820 "EHLO
-	pop-6.dnv.wideopenwest.com") by vger.kernel.org with ESMTP
-	id S261257AbVCAGRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 01:17:41 -0500
-Date: Tue, 1 Mar 2005 01:17:33 -0500
-From: Paul <set@pobox.com>
-To: packet-writing@suse.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Data corruption with pktcdvd, kernel 2.6.10 (additional results)
-Message-ID: <20050301061733.GA7884@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>, packet-writing@suse.com,
-	linux-kernel@vger.kernel.org
-References: <20050301035022.GH8097@squish.home.loc>
+	Tue, 1 Mar 2005 01:23:01 -0500
+Received: from fire.osdl.org ([65.172.181.4]:2245 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261256AbVCAGWf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 01:22:35 -0500
+Date: Mon, 28 Feb 2005 22:21:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-mm@kvack.org, kmannth@us.ibm.com, linux-kernel@vger.kernel.org,
+       haveblue@us.ibm.com, ygoto@us.fujitsu.com, apw@shadowen.org
+Subject: Re: [PATCH 3/5] abstract discontigmem setup
+Message-Id: <20050228222159.0c21a48e.akpm@osdl.org>
+In-Reply-To: <E1D5q2Q-0007eV-00@kernel.beaverton.ibm.com>
+References: <E1D5q2Q-0007eV-00@kernel.beaverton.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050301035022.GH8097@squish.home.loc>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi;
+Dave Hansen <haveblue@us.ibm.com> wrote:
+>
+> memory_present() is how each arch/subarch will tell sparsemem
+>  and discontigmem where all of its memory is.  This is what
+>  triggers sparse to go out and create its mappings for the memory,
+>  as well as allocate the mem_map[].
 
-	Out of curiosity, I tried using the ide-scsi driver, instead
-of the default ide-cdrom driver. These attempts failed in various
-ways, including an oops, which I wont try to detail, as I seem to
-recall this is known not working.
-	From some of the error message that experiment resulted in,
-and recent comments on linux-kernel about how the ide-cdrom driver
-might not propogate errors, I tried again, but with 'hdparm -a0 -d0'
-on the drive. This also had files ending in blocks of zeros and completely
-zero files, but far fewer....
-	Next, I tried making an ext2 fs instead of udf on the dvd+rw
-disc, in addition to the -a0 -d0 hdparm settings. This made a dramatic
-difference. The copy of the 2.6.10 kernel tree took around 2 minutes
-from start to sync completion, vs. around 30 minutes on the udf fs.
-And there was no corruption of files, as verifed by diff -r afterwards.
-	(all this using the pktcdvd device)
-	To me, this implies that write support for udf is shady,
-or that it simply triggers some deeper bug. At the very least it
-is grossly less efficient than ext2 for this task. Having udf
-working well for this would be best, however, for portability.
+There are cross-compilers at http://developer.osdl.org/dev/plm/cross_compile/
 
-Paul
-set@pobox.com
-	
-Paul <set@pobox.com>, on Mon Feb 28, 2005 [10:50:22 PM] said:
-> 	Hi;
-> 
-> 	I have played with the pktcdvd patch in the past, and most
-> recently with the implementation in the 2.6.10 kernel, but never
-> really stressed it. However, someone recently complained to me that
-> it quite often resulted in corrupted files for them, so I performed
-> a stress test; copy a kernel source tree to a cdrw and a dvd+rw.
-> (mount /dev/pktcdvd/cdrw /cdrw -o rw,noatime)
-> (cp -a /foo/2.6.10 /cdrw)
-> 	Well, diff -r shows many corrupt files in both cases.
-> The corruption is either that the file is completely zero, or at
-> some point it ends in zero data. In other words, all or part of
-> the file end up as zero's.
-> 	Simpler tests, like copying a flat dir filled with 50meg
-> of images did not turn up corruption.
-> 	I would have liked to compare writing to dvd+rw without
-> pktcdvd, but although I could make a udf fs on the disc, mount it and
-> start writing to it, the throughput was impossibly slow. (like 1meg in
-> several minutes-- at best.) Using pktcdvd was much faster, but it
-> seems to bog down after a while into the kernel tree copy-- and if you
-> look at the drive light, it seems to be doing lots of reading and 
-> then little blips of writing. 'vmstat 1' shows very little bi/bo,
-> often times 0/0.
-> 	Can anyone suggest what might be done to find out what is
-> going wrong here? I am using vanilla 2.6.10, udftools-1.0.0b-r3,
-> a liteon LDW-451S dvd writer. The kernel is SMP with preempt enabled.
-> The writer and the hardisc are both ATA.
-> 	Let me know if I can help with more information or testing.
-> 
-> Thanks;
-> 
-> Paul
-> set@pobox.com
-> 
-> 
-> -- 
-> To unsubscribe, e-mail: packet-writing-unsubscribe@suse.com
-> For additional commands, e-mail: packet-writing-help@suse.com
-> 
+This also needs runtime testing on ppc64, does it not?
+
+
+arch/ppc64/mm/numa.c:63: error: redefinition of `memory_present'
+include/linux/mmzone.h:285: error: `memory_present' previously defined here
+arch/ppc64/mm/numa.c: In function `memory_present':
+arch/ppc64/mm/numa.c:65: error: `start' undeclared (first use in this function)
+arch/ppc64/mm/numa.c:65: error: (Each undeclared identifier is reported only once
+arch/ppc64/mm/numa.c:65: error: for each function it appears in.)
+arch/ppc64/mm/numa.c:66: error: `end' undeclared (first use in this function)
+arch/ppc64/mm/numa.c:65: warning: unused variable `start_addr'
+arch/ppc64/mm/numa.c:66: warning: unused variable `end_addr'
+
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ 25-akpm/arch/ppc64/Kconfig   |   10 ++++++++++
+ 25-akpm/arch/ppc64/mm/numa.c |    6 +++---
+ 2 files changed, 13 insertions(+), 3 deletions(-)
+
+diff -puN arch/ppc64/Kconfig~x86-abstract-discontigmem-setup-ppc64-fix arch/ppc64/Kconfig
+--- 25/arch/ppc64/Kconfig~x86-abstract-discontigmem-setup-ppc64-fix	2005-03-01 03:58:15.000000000 -0700
++++ 25-akpm/arch/ppc64/Kconfig	2005-03-01 03:58:15.000000000 -0700
+@@ -203,6 +203,16 @@ config DISCONTIGMEM
+ 	bool "Discontiguous Memory Support"
+ 	depends on SMP && PPC_PSERIES
+ 
++config HAVE_MEMORY_PRESENT
++	bool
++	depends on DISCONTIGMEM
++	default y
++
++config NEED_NODE_MEMMAP_SIZE
++	bool
++	depends on DISCONTIGMEM
++	default y
++
+ config NUMA
+ 	bool "NUMA support"
+ 	depends on DISCONTIGMEM
+diff -puN arch/ppc64/mm/numa.c~x86-abstract-discontigmem-setup-ppc64-fix arch/ppc64/mm/numa.c
+--- 25/arch/ppc64/mm/numa.c~x86-abstract-discontigmem-setup-ppc64-fix	2005-03-01 03:58:37.000000000 -0700
++++ 25-akpm/arch/ppc64/mm/numa.c	2005-03-01 03:59:15.000000000 -0700
+@@ -62,10 +62,10 @@ void memory_present(int nid, unsigned lo
+ 			     unsigned long end_pfn)
+ {
+ 	unsigned long i;
+-	unsigned long start_addr = start << PAGE_SHIFT;
+-	unsigned long end_addr = end << PAGE_SHIFT;
++	unsigned long start_addr = start_pfn << PAGE_SHIFT;
++	unsigned long end_addr = end_pfn << PAGE_SHIFT;
+ 
+-	for (i = start ; i < end; i += MEMORY_INCREMENT)
++	for (i = start_addr; i < end_addr; i += MEMORY_INCREMENT)
+ 		numa_memory_lookup_table[i >> MEMORY_INCREMENT_SHIFT] = nid;
+ }
+ 
+_
+

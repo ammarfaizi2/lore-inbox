@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274627AbRIYK5k>; Tue, 25 Sep 2001 06:57:40 -0400
+	id <S274628AbRIYLBU>; Tue, 25 Sep 2001 07:01:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274628AbRIYK5a>; Tue, 25 Sep 2001 06:57:30 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:41744 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S274627AbRIYK5U>; Tue, 25 Sep 2001 06:57:20 -0400
-Date: Tue, 25 Sep 2001 13:55:37 +0300
-From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <2418997466.20010925135537@port.imtp.ilyichevsk.odessa.ua>
-To: "Dan Mann" <daniel_b_mann1@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux VM design
-In-Reply-To: <OE53f3LSW50Pfs56PHo00002624@hotmail.com>
-In-Reply-To: <20010916204528.6fd48f5b.skraw@ithnet.com>
- <Pine.LNX.3.96.1010920231251.26679B-100000@gatekeeper.tmr.com>
- <20010921124338.4e31a635.skraw@ithnet.com>
- <20010922105332Z16449-2757+1233@humbolt.nl.linux.org>
- <6514162334.20010924123631@port.imtp.ilyichevsk.odessa.ua>
- <OE53f3LSW50Pfs56PHo00002624@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S274630AbRIYLBK>; Tue, 25 Sep 2001 07:01:10 -0400
+Received: from hastur.andastra.de ([212.172.44.2]:42511 "HELO mail.andastra.de")
+	by vger.kernel.org with SMTP id <S274628AbRIYLBD>;
+	Tue, 25 Sep 2001 07:01:03 -0400
+Date: Tue, 25 Sep 2001 13:01:46 +0200 (CEST)
+From: <ben-lists@andastra.de>
+To: <linux-kernel@vger.kernel.org>, <reiserfs-list@namesys.com>
+Subject: Re: [PATCH] 2.4.10 improved reiserfs a lot, but could still be better
+In-Reply-To: <20010925124440.B1390@emma1.emma.line.org>
+Message-ID: <Pine.LNX.4.30L2.0109251251300.8383-100000@intra.andastra.priv>
+X-Cthulu: HASTUR
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Dan,
-Monday, September 24, 2001, 10:11:08 PM, you wrote:
+On Tue, 25 Sep 2001, Matthias Andree wrote:
+> > before doing the write. With the write cache enabled, several requests can
+> > be placed into the drive buffer and written in the single revolution of
+> > the drive.
+>
+> Might be an explanation. How big are the chunks of data that the
+> kernel sends to the disk?
 
-DM> I hope this isn't the wrong place to ask this but,  wouldn't it be better to
-DM> increase ram size and decrease swap size as memory requirements grow?  For
-DM> instance, say I have a lightly loaded machine, that has 192MB of ram.  From
-DM> everything I've heard in the past, I'd use roughly 192MB of swap with this
-DM> machine.  The problem I would imagine is that if all 192MB got used wouldn't
-DM> it be terribly slow to read/write that much data back in?  Would less swap,
-DM> say 32 MB make the kernel more restrictive with it's available memory and
-DM> make the box more responsive when it's heavily using swap?
+I would think that if you send enought data, the drive's cache would be
+full and speed would drop to that of the data going to the disk itself. So
+the drive must be able to write to the disk at the speed that the os sends
+the data, even with write cache on. So maybe the speed difference is
+caused by the protocol:  the system has to wait for the write to be ack'd
+by the drive longer ( -> throughput goes down) when the write cache is
+off.
 
-If you want everything to be fast, buy more RAM and use no swap whatsoever.
+/Benno
 
-Swap is useful if your total memory requirements are big but working
-set is significantly smaller. You need RAM to cover working set
-and RAM+swap to cover total memory requirements.
-
-As you can see, amount of RAM and swap thus *application dependent*.
 -- 
-Best regards, VDA
-mailto:VDA@port.imtp.ilyichevsk.odessa.ua
-
+Sebastian Benoit <ben-lists@andastra.de>
 

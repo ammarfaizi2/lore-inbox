@@ -1,89 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129495AbRCPCxq>; Thu, 15 Mar 2001 21:53:46 -0500
+	id <S129624AbRCPC5q>; Thu, 15 Mar 2001 21:57:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129598AbRCPCxg>; Thu, 15 Mar 2001 21:53:36 -0500
-Received: from mail.cis.nctu.edu.tw ([140.113.23.5]:39433 "EHLO
-	mail.cis.nctu.edu.tw") by vger.kernel.org with ESMTP
-	id <S129495AbRCPCxY>; Thu, 15 Mar 2001 21:53:24 -0500
-Message-ID: <000b01c0adc4$2482c8c0$ae58718c@cis.nctu.edu.tw>
-Reply-To: "gis88530" <gis88530@cis.nctu.edu.tw>
-From: "gis88530" <gis88530@cis.nctu.edu.tw>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0103152222121.1320-100000@duckman.distro.conectiva>
-Subject: kernel benchmark
-Date: Fri, 16 Mar 2001 10:52:27 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+	id <S129679AbRCPC5g>; Thu, 15 Mar 2001 21:57:36 -0500
+Received: from baghira.han.de ([212.63.63.2]:13836 "EHLO baghira.han.de")
+	by vger.kernel.org with ESMTP id <S129624AbRCPC52>;
+	Thu, 15 Mar 2001 21:57:28 -0500
+Message-ID: <20010316033712.A11658@ichabod.han.de>
+Date: Fri, 16 Mar 2001 03:37:12 +0100
+From: Michail Brzitwa <michail@brzitwa.de>
+To: linux-kernel@vger.kernel.org
+Cc: Andries.Brouwer@cwi.nl
+Subject: Re: [util-linux] Re: magic device renumbering was -- Re: Linux 2.4.2ac20
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.91.1i
+In-Reply-To: <mng==UTC200103152331.AAA2159588.aeb@vlet.cwi.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In article <mng==UTC200103152331.AAA2159588.aeb@vlet.cwi.nl> you wrote:
+> The real problem is that our disks usually do not have a volume label.
+> Outside of all file systems.
+> The "signatures" that we rely on today are located in different places,
+> so that a filesystem can have several valid signatures at the same time.
+> And we first know where to look when we know the type already.
+>
+> Design a Linux partition table format, where a partition descriptor
+> has fields start, end, fstype, fslabel, and the whole disk has a vollabel.
+> Put it in sector 0-N for an all-Linux disk, and in sectors pointed at
+> by a classical DOS-type partition table entry when the disk is shared.
 
-I use kernprof+gprof to measure the 2.2.16 kernel,
-but the scale is mini-second. 
-So I use do_gettimeofday( ) kernel function call to measure 
-the latency. (This function support micro-second scale.)
+I don't understand that. Do you propose something like *BSD or Solaris
+disklabels? In that case a whole new set of user utilities would be
+needed to create your new tables as well as maintaining the old style
+partition tables.
 
-Moreover, I use SmartBits packet generator to generate
-the specific network traffic load. The environment is
-as follows. However, the result are very funny. I think 
-that latency should increase progressively when load
-increase, but the result are unable explaining.
-Could you give me some hint? Thanks a lot.
+The process of copying or moving fs around disks seems to be quite common
+as tools like partition magic or parted suggest. Your idea would make
+that process more difficult and less user-friendly. It should imho always
+be simple to backup an fs to tape from a dying disk and restore it to
+a new one without losing the label etc.
 
-1518byte packet
-load    latency(us)
-1%    13.1284
-10%    14.1629
-20%    12.6558
-30%    11.1056
-40%    10.7510
-50%    10.4148
-60%    10.3337
-70%    10.1038
-80%    10.1103
-90%    10.3634
-100%    11.2367
+Perhaps putting this kind of information into a generalized start sector
+for all Linux fs would be a better idea (is that what you meant?). Copying
+an fs would again be as easy as using dd or cp. Of course this means
+that most Linux fs types including swap partitions should leave this
+start sector alone. A common mkfs would create that leading block after
+the mkfs.<fs type> successfully created the fs meta-contents.
 
-64byte packet
-load    latency(us)
-1%    3.6767
-10%    2.7696
-20%    4.3926
-30%    2.8135
-40%    8.2552
-50%    5.3088
-60%    9.3744
-70%    23.6247
-80%    8.5351
-90%    9.7217
-100%    13.065
+It would be optimal imho if the partition table entry contains the start
+sector and size only, and all other information like type, uuid, label
+etc. is within the fs disk space. No out-of-band fs information anymore.
 
-Benchmark Environment:
-+---smartbits<---+
-|                         |
-+---->Linux-----+
-
-
-* The do_gettimeofday function call is as follows:
---------------
-do_gettimeofday(&begin);
-...
-(kernel do something)
-...
-do_gettimeofday(&end);
-if (end.tv_usec < begin.tv_usec) {
-    end.tv_usec += 1000000; end.tv_sec--;
-}
-end.tv_sedc -= begin.tv_sec;
-end.tv_usec -= begin.tv_usec;
-return ((end.tv_sec*1000000) + end.tv_usec);
-
-
+The disk volume label should be located outside all fs as you mentioned
+but separated from the actual fs labels.
+-- 
+Michail Brzitwa           <michail@brzitwa.de>            +49-511-343215

@@ -1,63 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263803AbTLXTFf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 14:05:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263805AbTLXTFb
+	id S263806AbTLXTGB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 14:06:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263809AbTLXTGB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 14:05:31 -0500
-Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:3408 "HELO
-	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S263803AbTLXTFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 14:05:24 -0500
-From: BlaisorBlade <blaisorblade_spam@yahoo.it>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [NEW FEATURE]Partitions on loop device for 2.6
-Date: Wed, 24 Dec 2003 20:04:14 +0100
-User-Agent: KMail/1.5
-References: <200312241341.23523.blaisorblade_spam@yahoo.it>
-In-Reply-To: <200312241341.23523.blaisorblade_spam@yahoo.it>
+	Wed, 24 Dec 2003 14:06:01 -0500
+Received: from mx2.mail.ru ([194.67.23.22]:57872 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S263806AbTLXTF6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 14:05:58 -0500
+Message-ID: <3FE9E391.7060702@mail.ru>
+Date: Wed, 24 Dec 2003 14:05:53 -0500
+From: Yaroslav Klyukin <skintwin@mail.ru>
+User-Agent: Mozilla/5.0 (ICQ: 1045670, AIM: infiniteparticle)
+X-Accept-Language: ru, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312242004.14750.blaisorblade_spam@yahoo.it>
+To: Mark Haverkamp <markh@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: aacraid issues
+References: <1648C-3LJ-9@gated-at.bofh.it> <164in-3Zu-25@gated-at.bofh.it>
+In-Reply-To: <164in-3Zu-25@gated-at.bofh.it>
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigDB71B501F91045151B454EEC"
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Answering to Sean Estabrooks:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigDB71B501F91045151B454EEC
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-1st, I asked to be CC'ed on replies, as I'm not subscribed. In fact I'm sorry 
-your mail is not properly quoted, as I did this by hand.
+Mark Haverkamp wrote:
+> Try this, someone else with a 2200 had a similar problem that this patch
+> fixed. It will apply to 2.6.0.
 
-On Wed, 24 Dec 2003 18:20:22 +0100
-BlaisorBlade <blaisorblade_spam@yahoo.it> wrote:
->> NEED:
->> I have the need to loop mount files containing not plain filesystems,
->> but whole disk images.
->> 
->
->What does your proposed feature
-Note that I propose also beta-code(not actually ready due to the BLKRRPART 
-problem).
-> add to the kernel that can't be
->accomplished with the "losetup" command and its offset parameter?
-If you read my mail, I already noted the existance of the offset parameter, 
-but do you prefer:
-1) to run fdisk, shoot some commands and get the offset and then put that 
-offset into losetup or mount, saving some code but losing a lot of 
-time(remember computers are all about saving time for humans); this could 
-actually be scripted, and if you post a script to do this I could even use 
-it.
-2) or use existing code in the kernel to automate all this, with minimal 
-intrusiveness?
-I know that moving things to userspace is useful if it helps reduce kernel 
-bloating(and this patch will not bloat anything); yet we could move partition 
-handling to the userspace by adding an offset param for general mounts, but 
-this doesn't happen.
-However for this it's matter of taste.
+Thanks for the patch.
+The RAID seems to work now without I/O errors.
 
-Good bye and merry Christmas!
--- 
-Paolo Giarrusso, aka Blaisorblade
+
+> ===== drivers/scsi/aacraid/aachba.c 1.20 vs edited =====
+> --- 1.20/drivers/scsi/aacraid/aachba.c	Fri May  2 12:30:49 2003
+> +++ edited/drivers/scsi/aacraid/aachba.c	Wed Dec  3 15:10:22 2003
+
+
+
+--------------enigDB71B501F91045151B454EEC
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE/6eORXtaNP/qDgm8RAlEJAJ9H+5YBn1MA1XVu4PMCNGOfehWLZgCfWgBU
+Pux3tGkHCWBuGOzt8As3G1o=
+=ay0A
+-----END PGP SIGNATURE-----
+
+--------------enigDB71B501F91045151B454EEC--
 

@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261481AbSJ1TEM>; Mon, 28 Oct 2002 14:04:12 -0500
+	id <S261436AbSJ1TKQ>; Mon, 28 Oct 2002 14:10:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261476AbSJ1TEM>; Mon, 28 Oct 2002 14:04:12 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19209 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261448AbSJ1TEL>;
-	Mon, 28 Oct 2002 14:04:11 -0500
-Message-ID: <3DBD8B6F.2070707@pobox.com>
-Date: Mon, 28 Oct 2002 14:09:35 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, jdavid@farfalle.com
-Subject: Re: [PATCH][2.5] 3c509 increase udelay in *read_eeprom
-References: <Pine.LNX.4.44.0210281349350.1722-100000@montezuma.mastecende.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261457AbSJ1TKP>; Mon, 28 Oct 2002 14:10:15 -0500
+Received: from bozo.vmware.com ([65.113.40.131]:28168 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id <S261436AbSJ1TKO>; Mon, 28 Oct 2002 14:10:14 -0500
+Date: Mon, 28 Oct 2002 11:17:45 -0800
+From: chrisl@vmware.com
+To: Andrew Morton <akpm@digeo.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       chrisl@gnuchina.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: writepage return value check in vmscan.c
+Message-ID: <20021028191745.GA1564@vmware.com>
+References: <20021024082505.GB1471@vmware.com> <3DB7B11B.9E552CFF@digeo.com> <20021024175718.GA1398@vmware.com> <20021024183327.GS3354@dualathlon.random> <20021024191531.GD1398@vmware.com> <3DB990FE.A1B8956@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DB990FE.A1B8956@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
+On Fri, Oct 25, 2002 at 11:44:14AM -0700, Andrew Morton wrote:
+> chrisl@vmware.com wrote:
+> > 
+> > bigmm -i 3 -t 2 -c 1024
+> 
+> That's a nice little box killer you have there.
 
->Hi Jeff,
->This is David's patch, find his reasoning and patch below.
->
->"... I had to set the udelay() call parameters to 2000 in  read_eeprom() 
->and 4000 in id_read_eeprom() to get the system to boot reliably with 2 
->3c509's in it. If I didn't set these values high enough, I got an oops 
->about 1/3 of the time when I booted....somehow (I'm guessing) it just 
->took the cards longer to initialize/respond when there were two of them 
->on the bus.
->
->I know the possibility of this (and the fix, setting the values higher) is 
->mentioned in Becker's 3c509 instructions, but I wanted to relay my 
->experience to you as well. Since AFAIK these subroutines are only called 
->at initialization time (we don't need to read the EEPROM after init), what 
->would be the harm of setting these values higher - at least 1000 for both, 
->say - in the standard driver? Certainly a millisecond or two means nothing 
->at boot time, and if it prevents even a few machines from mysteriously 
->oopsing when they're started, it's a win overall ..."
->  
->
+Thanks. It kills on all our customer's kernel, they don't use the
+bleeding edge kernel at all. It is interesting to see vmware
+serve as some heavy load stress test tool. It will give some real
+world load to the OS, e.g. the load need to boot a windows etc. You
+can stack many of them to abuse the OS.
 
+> 
+> With mem=4G, running bigmm -i 5 -t 2 -c 1024:
+> 
+> 2.4.19: Ran for a few minutes, got slower and slower and
+> eventually stopped.  kupdate had taken 30 seconds CPU and
+> all CPUs were spinning in shrink_cache().  Had to reset.
+> 
+> 2.4.20-pre8-ac1: Ran for a minute, froze up for a couple of
+> minutes then recovered and remained comfortable.
 
-lol... big udelays are almost always wrong.
+How many instance of bigmm left there? It should be 10 bigmm
+processes before oom kickin.
 
-First, long delays lock out everybody, thus you should do operations 
-that require long waits via a timer or schedule_timeout() in process 
-context.
-Second, udelay of 1000 or greater is a bug, use mdelay() instead.
+> 
+> 2.5.44-mm5: had a few 0.5-second stalls in vmstat output, no
+> other problems.
+> 
+> It's probably the list search failure, but I can't say for sure
+> at this time.
+
+Chris
 
 

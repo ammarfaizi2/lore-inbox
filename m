@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261357AbSI2Rah>; Sun, 29 Sep 2002 13:30:37 -0400
+	id <S261394AbSI2Ril>; Sun, 29 Sep 2002 13:38:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261362AbSI2Rah>; Sun, 29 Sep 2002 13:30:37 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30728 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261357AbSI2Rag>;
-	Sun, 29 Sep 2002 13:30:36 -0400
-Message-ID: <3D9739DF.8080704@pobox.com>
-Date: Sun, 29 Sep 2002 13:35:27 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S261409AbSI2Ril>; Sun, 29 Sep 2002 13:38:41 -0400
+Received: from mxzilla4.xs4all.nl ([194.109.6.48]:60941 "EHLO
+	mxzilla4.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261394AbSI2Rik>; Sun, 29 Sep 2002 13:38:40 -0400
+Date: Sun, 29 Sep 2002 19:44:03 +0200 (CEST)
+From: Yuri van Oers <yvanoers@xs4all.nl>
+To: video4linux-list@redhat.com, <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCEMENT] RivaTV 0.8.1 - update
+Message-ID: <20020929182857.N10370-100000@xs1.xs4all.nl>
 MIME-Version: 1.0
-To: Jochen Friedrich <jochen@scram.de>
-CC: Andi Kleen <ak@muc.de>, jbradford@dial.pipex.com,
-       linux-kernel@vger.kernel.org, debian-ipv6@debian.org
-Subject: Re: v2.6 vs v3.0
-References: <Pine.LNX.4.44.0209291914220.18326-100000@alpha.bocc.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jochen Friedrich wrote:
-> So IPv6 is returned by the resolver even though IPv6 isn't available in
-> the kernel. The default of the resolver options should be dependent
-> on the presence or absence of IPv6 in the currently running kernel IMHO.
 
+Several people requested a URL for this, which I forgot to include with
+the original announcement. Sorry all.
 
-That sounds like glibc's problem...
+http://rivatv.sourceforge.net/
 
-glibc also has really stupid and annoying /etc/hosts behavior which 
-needs fixing, and IIRC it is related to IPv6...
+Regards,
+Yuri van Oers
 
-	Jeff
+--- Original announcement follows ---
 
+RivaTV version 0.8.1 has been released.
+
+The RivaTV project is trying to produce Linux drivers for graphics boards
+with nVidia chips that have a video-in feature.
+
+Changes in this release:
+
+  This release includes support for GeForce 4, a lot of new cards and
+several bugfixes. Also, tuner support has been improved and RivaTV now
+comes with the relevant BTTV modules to get your tuner going - simply and
+easily. Finally, the installation process tries to detect pitfalls
+preventing the use of RivaTV on your machine.
+
+Everyone is strongly encouraged to update to this version!
+
+Regards,
+
+RivaTV team
 
 

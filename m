@@ -1,48 +1,89 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317469AbSFDJtp>; Tue, 4 Jun 2002 05:49:45 -0400
+	id <S317473AbSFDJzi>; Tue, 4 Jun 2002 05:55:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317470AbSFDJto>; Tue, 4 Jun 2002 05:49:44 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:60107 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S317469AbSFDJtn>;
-	Tue, 4 Jun 2002 05:49:43 -0400
-Date: Tue, 4 Jun 2002 19:47:42 +1000
-From: Anton Blanchard <anton@samba.org>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Use page_to_pfn in BIO code
-Message-ID: <20020604094741.GA17665@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S317466AbSFDJzh>; Tue, 4 Jun 2002 05:55:37 -0400
+Received: from vivi.uptime.at ([62.116.87.11]:29612 "EHLO vivi.uptime.at")
+	by vger.kernel.org with ESMTP id <S317473AbSFDJzh>;
+	Tue, 4 Jun 2002 05:55:37 -0400
+Reply-To: <o.pitzeier@uptime.at>
+From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
+To: "'Ivan Kokshaysky'" <ink@jurassic.park.msu.ru>
+Cc: "'Richard Henderson'" <rth@twiddle.net>, <linux-kernel@vger.kernel.org>
+Subject: RE: [patch] Re: kernel 2.5.18 on alpha
+Date: Tue, 4 Jun 2002 11:55:30 +0200
+Organization: =?us-ascii?Q?UPtime_Systemlosungen?=
+Message-ID: <000001c20bad$f6aa7850$010b10ac@sbp.uptime.at>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
+In-Reply-To: <20020528191753.A5254@jurassic.park.msu.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ivan Kokshaysky wrote:
+> On Tue, May 28, 2002 at 04:29:15PM +0200, Oliver Pitzeier wrote:
+> > I get this error when trying to compile kernel 2.5.18 on alpha.
+> 
+> Just intended to post the patch... :-)
+> 
+> - sync up with new pte/pfn/page/tlb macros
+> - pcibios_init() should return int;
+> - find last bit set: ctlz for ev67 and above, generic for others.
+> 
+> > /root/linux-2.5.18/include/linux/suspend.h:4:25: asm/suspend.h: No 
+> > such file or directory
+> 
+> I'm not sure what to do with this. I doubt that we ever want 
+> this file on alpha. For myself I moved "#include 
+> <asm/suspend.h>" under #ifdef CONFIG_SOFTWARE_SUSPEND and 
+> everything compiles.
 
-Hi,
+Yes. It does! Great job! But there are new problems with 2.5.20. I try
+to catch 'em. I may find the gizmo... :o)
 
-While porting the DISCONTIGMEM code to ppc64 (in order to do NUMA memory
-allocation) I noticed the bio code uses page_to_phys. We should instead
-be using the recently introduced page_to_pfn code.
+I you want to know the error:
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.20/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev5
+-Wa,-mev6    -DKBUILD_BASENAME=main  -c -o main.o main.c
+In file included from /usr/src/linux-2.5.20/include/linux/pagemap.h:10,
+                 from /usr/src/linux-2.5.20/include/linux/blkdev.h:9,
+                 from /usr/src/linux-2.5.20/include/linux/blk.h:4,
+                 from main.c:25:
+/usr/src/linux-2.5.20/include/linux/highmem.h:80:42: macro
+"clear_user_page" passed 3 arguments, but takes just 2
+/usr/src/linux-2.5.20/include/linux/highmem.h:114:45: macro
+"copy_user_page" passed 4 arguments, but takes just 3
+In file included from /usr/src/linux-2.5.20/include/linux/pagemap.h:10,
+                 from /usr/src/linux-2.5.20/include/linux/blkdev.h:9,
+                 from /usr/src/linux-2.5.20/include/linux/blk.h:4,
+                 from main.c:25:
+/usr/src/linux-2.5.20/include/linux/highmem.h: In function
+`clear_user_highpage':
+/usr/src/linux-2.5.20/include/linux/highmem.h:80: `clear_user_page'
+undeclared (first use in this function)
+/usr/src/linux-2.5.20/include/linux/highmem.h:80: (Each undeclared
+identifier is reported only once
+/usr/src/linux-2.5.20/include/linux/highmem.h:80: for each function it
+appears in.)
+/usr/src/linux-2.5.20/include/linux/highmem.h:79: warning: unused
+variable `addr'
+/usr/src/linux-2.5.20/include/linux/highmem.h: In function
+`copy_user_highpage':
+/usr/src/linux-2.5.20/include/linux/highmem.h:114: `copy_user_page'
+undeclared (first use in this function)
+make[1]: *** [main.o] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.5.20/init'
+make: *** [init] Error 2
 
-This now limits the direct usage of mem_map (at least on ppc64) to 
-two spots - page_to_pfn/pfn_to_page which makes DISCONTIGMEM support
-quite trivial.
+Greetz,
+ Oliver
 
-Anton
 
-diff -urN linux-2.5_ppc64/include/linux/bio.h linux-2.5_work/include/linux/bio.h
---- linux-2.5_ppc64/include/linux/bio.h	Wed May  8 10:31:25 2002
-+++ linux-2.5_work/include/linux/bio.h	Tue Jun  4 16:20:41 2002
-@@ -128,8 +130,8 @@
- /*
-  * will die
-  */
--#define bio_to_phys(bio)	(page_to_phys(bio_page((bio))) + (unsigned long) bio_offset((bio)))
--#define bvec_to_phys(bv)	(page_to_phys((bv)->bv_page) + (unsigned long) (bv)->bv_offset)
-+#define bio_to_phys(bio)	((page_to_pfn(bio_page((bio))) << PAGE_SHIFT) + (unsigned long) bio_offset((bio)))
-+#define bvec_to_phys(bv)	((page_to_pfn((bv)->bv_page) << PAGE_SHIFT) + (unsigned long) (bv)->bv_offset)
- 
- /*
-  * queues that have highmem support enabled may still need to revert to

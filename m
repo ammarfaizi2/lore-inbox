@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280656AbRKBLRy>; Fri, 2 Nov 2001 06:17:54 -0500
+	id <S280655AbRKBL0Q>; Fri, 2 Nov 2001 06:26:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280655AbRKBLRp>; Fri, 2 Nov 2001 06:17:45 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:30469 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S280656AbRKBLRi>;
-	Fri, 2 Nov 2001 06:17:38 -0500
-Date: Fri, 2 Nov 2001 09:17:16 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: safemode <safemode@speakeasy.net>
-Cc: Mark Hahn <hahn@physics.mcmaster.ca>, <linux-kernel@vger.kernel.org>
-Subject: Re: graphical swap comparison of aa and rik vm
-In-Reply-To: <20011102041819.4C36238C0A@perninha.conectiva.com.br>
-Message-ID: <Pine.LNX.4.33L.0111020915390.2963-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S280657AbRKBL0F>; Fri, 2 Nov 2001 06:26:05 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:23248 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S280655AbRKBLZp>; Fri, 2 Nov 2001 06:25:45 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: David Chow <davidchow@rcn.com.hk>
+Date: Fri, 2 Nov 2001 22:25:16 +1100 (EST)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15330.33436.410959.372796@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vm documentation
+In-Reply-To: message from David Chow on Friday November 2
+In-Reply-To: <3BE242D4.AC94A544@rcn.com.hk>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Nov 2001, safemode wrote:
+On Friday November 2, davidchow@rcn.com.hk wrote:
+> Dear all,
+> 
+> Is there any documentation of the recent changes of the vm in the linux
+> kernel? Also, is there any source of documentation to get start with the
+> linux kernel hacking? It is hard for people to getting start to
+> contribute since is is obviously lack of documentation of the kernel
+> sources... Any help will be appreciated. Thanks.
+> 
 
-> I think the answer of why AA's kernel beat rik's has nothing to do
-> with how much swap rik is using or how much swap is being swapped back
-> in.  It has to do with how rik decides what to swap.  Apparently the
-> algorithm used by rik to play with memory is taking seriously too much
-> cpu and it leaves little for the actual process to work.
+I would very seriously suggest that a good way to get started is to
+write some documentation yourself.
 
-Note that this is likely to be a side effect of running
-completely out of swap, because that means many of the
-"obvious candidates" of what to swap out cannot be swapped
-out, meaning we have to scan more pages until we find
-something which already has swap backing.
+Pick a piece of the kernel that interests you and start reading
+through the code.  Then try to describe how it works in writing.  If
+there is some bit that really stumps you,. then ask on some
+appropriate mailing list (such as this one).  Try to put together a
+reasonably coherent document that describes how that bit of the kernel
+works.  Once you have done that:
+ a/ you will know how it works
+ b/ you will have been exposed to lots of kernel code and have some
+    idea of the 'typical' way to do things
+ c/ you will probably have identified a number of incongurities or
+    errors for which you can submit patches.
+ d/ you will have created some documentation that is useful for
+    others.
+ e/ you will have lots of ideas about what to do next.
 
-Before you draw conclusions like the one above, please test
-again with more swap.
+There is no easy way to just "start contributing".  You need to put a
+lot of work in before your contributions will really be valuable.
+Reading code is a great way to start, and documenting it makes sure
+that you read it properly.
 
-regards,
+It's how I started.
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+NeilBrown

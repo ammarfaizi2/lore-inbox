@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270707AbTGUT5p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 15:57:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270711AbTGUT5p
+	id S270692AbTGUUBe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 16:01:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270696AbTGUUBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 15:57:45 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:413 "HELO heather-ng.ithnet.com")
-	by vger.kernel.org with SMTP id S270707AbTGUT5o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 15:57:44 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Mon, 21 Jul 2003 22:12:45 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: andrea@suse.de, mason@suse.com, riel@redhat.com,
-       linux-kernel@vger.kernel.org, maillist@jg555.com
-Subject: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
-Message-Id: <20030721221245.1a2d423a.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.55L.0307211624410.26518@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0307150859130.5146@freak.distro.conectiva>
-	<1058297936.4016.86.camel@tiny.suse.com>
-	<Pine.LNX.4.55L.0307160836270.30825@freak.distro.conectiva>
-	<20030718112758.1da7ab03.skraw@ithnet.com>
-	<20030721162033.GA4677@x30.linuxsymposium.org>
-	<20030721212453.4139a217.skraw@ithnet.com>
-	<Pine.LNX.4.55L.0307211624410.26518@freak.distro.conectiva>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jul 2003 16:01:34 -0400
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:48297 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP id S270692AbTGUUAu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 16:00:50 -0400
+Date: Mon, 21 Jul 2003 13:18:26 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: Support sharp zaurus C-750
+In-reply-to: <20030720230530.GA2075@elf.ucw.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: dbrownell@users.sourceforge.net,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>
+Message-id: <3F1C4A92.2000305@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+References: <20030720230530.GA2075@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jul 2003 16:40:27 -0300 (BRT)
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+Pavel Machek wrote:
+> Hi!
+> 
+> This adds support for another handheld from sharp to 2.6.0-test1,
+> please apply:
 
-> If that doesnt make us spot the problem, can you PLEASE find out in which
-> -pre the problem starts ?
+I'll tweak it a bit, so that it's identifed as a C-7x0 not as
+an A-300, and merge it through Greg into 2.6 and 2.4.  Thanks
+for the patch!
 
-Right away I can tell you there was no problem up to the pre that did not boot
-on my box, I thing it was pre3, right? Meaing pre1 and pre2 work.
+Here's where I wish Sharp took a more enlightened approach to
+their firmware:  they _could_ just modify the firmware revision
+number and descriptive strings.  They're gratuitously requiring
+a new host-side driver for each new product variant, which is
+just a PITA.  Maybe by the time these get distributed in the US,
+that can be resolved.
 
-pre5 was the first one that booted again - and the first I can tell has the
-problem.
+You wouldn't happen to have the C-760 product ID too, would you?
+(That's got more flash and battery power.)
 
-I can "port" the mini-patch from chris back to pre3 and try this one as next
-step...
+- Dave
 
-Regards,
-Stephan
+
+

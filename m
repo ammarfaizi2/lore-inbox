@@ -1,81 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269812AbTGOWND (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 18:13:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269814AbTGOWNB
+	id S269824AbTGOWQl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 18:16:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269826AbTGOWQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 18:13:01 -0400
-Received: from h24-76-142-122.wp.shawcable.net ([24.76.142.122]:32780 "HELO
-	signalmarketing.com") by vger.kernel.org with SMTP id S269812AbTGOWM3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 18:12:29 -0400
-Date: Tue, 15 Jul 2003 17:27:19 -0500 (CDT)
-From: derek@signalmarketing.com
-X-X-Sender: manmower@uberdeity.signalmarketing.com
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: IDE performance problems on 2.6.0-pre1
-In-Reply-To: <1058306624.584.5.camel@teapot.felipe-alfaro.com>
-Message-ID: <Pine.LNX.4.56.0307151705190.2911@uberdeity.signalmarketing.com>
-References: <Pine.LNX.4.56.0307151617430.2932@uberdeity.signalmarketing.com>
- <1058306624.584.5.camel@teapot.felipe-alfaro.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 15 Jul 2003 18:16:22 -0400
+Received: from mail.kroah.org ([65.200.24.183]:3307 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269824AbTGOWP5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 18:15:57 -0400
+Date: Tue, 15 Jul 2003 15:30:11 -0700
+From: Greg KH <greg@kroah.com>
+To: Fernando Sanchez <fsanchez@mail.usfq.edu.ec>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: modules problems with 2.6.0
+Message-ID: <20030715223010.GA6372@kroah.com>
+References: <3F147B8F.5000103@mail.usfq.edu.ec>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F147B8F.5000103@mail.usfq.edu.ec>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 16 Jul 2003, Felipe Alfaro Solana wrote:
-
-> On Tue, 2003-07-15 at 23:49, derek@signalmarketing.com wrote:
-> > Hello,
-> > 
-> > My ide performance seems to have dropped noticably from 2.4.x to 
-> > 2.6.0-pre1...
+On Tue, Jul 15, 2003 at 05:09:19PM -0500, Fernando Sanchez wrote:
+> Hi,
 > 
-> What does "hdparm /dev/hde" tell us?
+> I've been trying to get 2.6.0 to work, I've enabled modules support, but 
+> I get this error on my logs:
+> 
+> Jul 15 15:38:36 Darakemba kernel: No module symbols loaded - kernel 
+> modules not enabled.
+> 
+> Is there any thing like a new modutils that should be used with 2.6.x 
+> family?
 
-hdparm /dev/hde  from 2.6.0-pre1
+Yes there is.  Please read the Documentation/Changes file for this info.
 
-/dev/hde:
- multcount    = 16 (on)
- IO_support   =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- readonly     =  0 (off)
- readahead    = 256 (on)
- geometry     = 50765/16/63, sectors = 117231408, start = 0
+(hint, you need to get the module-init-tools package.)
 
----
+Good luck,
 
-hdparm /dev/hde from 2.4
-
-/dev/hde:
- multcount    = 16 (on)
- IO_support   =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 116301/16/63, sectors = 117231408, start = 0
-
-
-I hadn't noticed the change in readahead previously, so I tried setting it 
-to 8 in 2.6.0-pre1 with hdparm -a 8 /dev/hde
-
-hdparm -t /dev/hde
-
-/dev/hde:
- Timing buffered disk reads:   32 MB in  3.01 seconds =  10.64 MB/sec
-
-hdparm -a 512 on the other hand...
-
- Timing buffered disk reads:  140 MB in  3.03 seconds =  46.18 MB/sec
-
-and I get my previous numbers back.
-
-I guess the meaning of the parameter has changed dramatically?  (what was 
-once sectors is now bytes?)
+greg k-h

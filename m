@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbUKEXUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbUKEXUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbUKEXUV (ORCPT <rfc822;willy@w.ods.org>);
+	id S261261AbUKEXUV (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 5 Nov 2004 18:20:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbUKEXSe
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbUKEXSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 18:18:34 -0500
-Received: from mail.kroah.org ([69.55.234.183]:42705 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261264AbUKEXRU (ORCPT
+	Fri, 5 Nov 2004 18:18:22 -0500
+Received: from mail.kroah.org ([69.55.234.183]:7890 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261261AbUKEXSF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 18:17:20 -0500
-Date: Fri, 5 Nov 2004 15:06:53 -0800
+	Fri, 5 Nov 2004 18:18:05 -0500
+Date: Fri, 5 Nov 2004 15:06:07 -0800
 From: Greg KH <greg@kroah.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Matthew Wilcox <willy@debian.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Martin Mares <mj@ucw.cz>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-Message-ID: <20041105230653.GF31080@kroah.com>
-References: <20040908031537.92163.qmail@web14929.mail.yahoo.com> <20040908235046.GB8361@kroah.com> <9e4733910410071920531730a3@mail.gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] kill old PCI changelog
+Message-ID: <20041105230607.GD31080@kroah.com>
+References: <20041027205512.GD2713@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9e4733910410071920531730a3@mail.gmail.com>
+In-Reply-To: <20041027205512.GD2713@stusta.de>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 07, 2004 at 10:20:39PM -0400, Jon Smirl wrote:
-> Linus has requested that the sysfs rom attribute be changed to require
-> enabling before it works. echo "0" to the attribute to disable,
-> echoing anything else enables the rom output. The concern is that
-> something like a file browser could inadvertently read the attribute
-> and change the state of the hardware without the user's knowledge.
+On Wed, Oct 27, 2004 at 10:55:13PM +0200, Adrian Bunk wrote:
+> There's not much value in shipping a changelog who's last update was 
+> five years ago.
 > 
-> The attached patch includes the previous patch plus the enabling logic.
+> diffstat output:
+>  arch/i386/pci/changelog |   62 ----------------------------------------
+>  1 files changed, 62 deletions(-)
 
 
 Applied, thanks.

@@ -1,81 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbTEMQfp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 12:35:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTEMQfo
+	id S261989AbTEMQgR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 12:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbTEMQgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 12:35:44 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52237 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S261939AbTEMQfj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 12:35:39 -0400
-Date: Tue, 13 May 2003 09:47:59 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Howells <dhowells@warthog.cambridge.redhat.com>
-cc: David Howells <dhowells@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <linux-fsdevel@vger.kernel.org>, <openafs-devel@openafs.org>
-Subject: Re: [PATCH] in-core AFS multiplexor and PAG support 
-In-Reply-To: <8812.1052841957@warthog.warthog>
-Message-ID: <Pine.LNX.4.44.0305130929340.1678-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 13 May 2003 12:36:17 -0400
+Received: from havoc.daloft.com ([64.213.145.173]:47316 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261956AbTEMQgK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 12:36:10 -0400
+Date: Tue, 13 May 2003 12:48:57 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
+Subject: Re: [PATCH] PAG support only
+Message-ID: <20030513164856.GC30944@gtf.org>
+References: <8943.1052843591@warthog.warthog>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8943.1052843591@warthog.warthog>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 13, 2003 at 05:33:11PM +0100, David Howells wrote:
+> Due to the slight unpopularity of the AFS multiplexor, here's a patch with
 
-On Tue, 13 May 2003, David Howells wrote:
-> > 
-> > I think the code looks pretty horrible,
-> 
-> Any particular bits?
+I think of it as "bitter pill we will be forced to swallow", and then
+hope and pray that we can use your AFS stuff as a transition step to --
+after many years -- migrate people away from AFS altogether.  ;-)
 
-I htink the table-driven approach is just generally pretty nasty, even if
-it's clever and concise. I personally prefer a table of function pointers 
-over a table of constraints.
+Or maybe that's just wishful thinking.
 
-Right now you have one table of constraints, and then later on when you
-actually implement the code that _does_ anything, you'll end up having
-another table (or switch statment) per filesystem of actual actions.  And
-neither with any kind of compile-time type checking, since the actual
-interfaces to pass stuff around are just extended ioctls.
 
-The Linux way of doing things is to have a per-object "operations
-structure", which is not an anonymous table (array of identical entries),
-but a list of unique entries (a structure of strongly typed function
-pointers). And then you never de-multiplex (which inherently loses type
-information), or you at least do it only _once_ and make sure that you
-stronly type things at that point so that any downstream stuff is typed.
+> diff -uNr linux-2.5.69/fs/open.c linux-2.5.69-cred/fs/open.c
+> --- linux-2.5.69/fs/open.c	2003-05-06 15:04:45.000000000 +0100
+> +++ linux-2.5.69-cred/fs/open.c	2003-05-13 11:28:08.000000000 +0100
+> @@ -46,7 +46,7 @@
+>  	struct nameidata nd;
+>  	int error;
+>  
+> -	error = user_path_walk(path, &nd);
+> +	error = user_path_walk(path,&nd);
 
-> Maybe... There are arguments either way, but if the token ring is kept in
-> struct user, a task can't detach from it and pass a token-less set of keys
-> onto another process it wants to run.
+a bit of noise
 
-Oh, but it can. The pointer should be kept at two places: the "struct 
-task_struct" contains the initial pre-process value, and at file open time 
-that pointer should get copied (and the user count incremented) and put 
-into the "struct file". 
 
-So you can pass the set of keys the way UNIX _always_ passes rights - 
-through the file descriptor. 
+> --- linux-2.5.69/include/asm-i386/posix_types.h	2003-05-06 15:04:37.000000000 +0100
+> +++ linux-2.5.69-cred/include/asm-i386/posix_types.h	2003-05-12 10:19:15.000000000 +0100
+> @@ -13,6 +13,7 @@
+>  typedef unsigned short	__kernel_nlink_t;
+>  typedef long		__kernel_off_t;
+>  typedef int		__kernel_pid_t;
+> +typedef int		__kernel_pag_t;
+>  typedef unsigned short	__kernel_ipc_pid_t;
+>  typedef unsigned short	__kernel_uid_t;
+>  typedef unsigned short	__kernel_gid_t;
+[...]
+> +int sys_setpag(pag_t pag)
+> +int sys_getpag(void)
 
-> Also, using a separate PAG structure means that you can lend your keys to an
-> SUID program and conversely it means a SUID program can't so easily gain
-> access to keys it didn't inherit from its caller.
+Surely you want s/int/long/ here?
 
-"task->user" always follows uid ("real uid"), and as such you can always
-switch back and forth by just changing uid.
+Two other comments:
 
-The advantage of associating the PAG with the real uid rather than make it
-per-process is that it's a lot easier to administer that way, I think. You
-don't need to log out or anything like that to have changes take effect
-for your session, and it is very natural to say "this user now gets key
-X". Which is what I think you really want when you do something like enter
-a key to an encrypted filesystem, for example.
+* even though you're referencing 'current', I'm a bit surprised you
+  don't need any locking at all in sys_getpag.  Is that guaranteed
+  through judicious use of xchg()?
 
-Put another way: you'd usually add the PAG's at filesystem _mount_ time,
-no? And at that point you'd usually want to add it "retroactively" to the 
-session processes that caused the mount to happen, no? Not just to the 
-children of the mount.
+* is it reasonable to make credentials support a config option?
+  Long term I worry about Linux kernel becoming another Irix, supporting
+  thousands of rarely used syscalls unconditionally.
 
-			Linus
+	Jeff
+
+
+
+P.S.  Looking forward to the "cachefs" code you have in your cvs repo
+hitting mainline.  That will be fun for NFS.  <grin>
 

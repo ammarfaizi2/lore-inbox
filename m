@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265828AbSLIRls>; Mon, 9 Dec 2002 12:41:48 -0500
+	id <S265797AbSLIRTy>; Mon, 9 Dec 2002 12:19:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265798AbSLIRls>; Mon, 9 Dec 2002 12:41:48 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45580 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265828AbSLIRlr>; Mon, 9 Dec 2002 12:41:47 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Intel P6 vs P7 system call performance
-Date: Mon, 9 Dec 2002 17:48:45 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <at2l1t$g5n$1@penguin.transmeta.com>
-References: <200212090830.gB98USW05593@flux.loup.net>
-X-Trace: palladium.transmeta.com 1039456160 26934 127.0.0.1 (9 Dec 2002 17:49:20 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 9 Dec 2002 17:49:20 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S265798AbSLIRTy>; Mon, 9 Dec 2002 12:19:54 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:16585 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S265797AbSLIRTy>;
+	Mon, 9 Dec 2002 12:19:54 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15860.53866.127553.424553@napali.hpl.hp.com>
+Date: Mon, 9 Dec 2002 09:27:06 -0800
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Daniel Jacobowitz <dan@debian.org>, george anzinger <george@mvista.com>,
+       Jim Houston <jim.houston@ccur.com>,
+       Stephen Rothwell <sfr@canb.auug.org.au>,
+       LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
+       "David S. Miller" <davem@redhat.com>, <ak@muc.de>, <davidm@hpl.hp.com>,
+       <schwidefsky@de.ibm.com>, <ralf@gnu.org>, <willy@debian.org>
+Subject: Re: [PATCH] compatibility syscall layer (lets try again)
+In-Reply-To: <Pine.LNX.4.44.0212090828460.3397-100000@home.transmeta.com>
+References: <20021209154142.GA22901@nevyn.them.org>
+	<Pine.LNX.4.44.0212090828460.3397-100000@home.transmeta.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200212090830.gB98USW05593@flux.loup.net>,
-Mike Hayward  <hayward@loup.net> wrote:
->
->I have been benchmarking Pentium 4 boxes against my Pentium III laptop
->with the exact same kernel and executables as well as custom compiled
->kernels.  The Pentium III has a much lower clock rate and I have
->noticed that system call performance (and hence io performance) is up
->to an order of magnitude higher on my Pentium III laptop.  1k block IO
->reads/writes are anemic on the Pentium 4, for example, so I'm trying
->to figure out why and thought someone might have an idea.
+>>>>> On Mon, 9 Dec 2002 08:48:13 -0800 (PST), Linus Torvalds <torvalds@transmeta.com> said:
 
-P4's really suck at system calls.  A 2.8GHz P4 does a simple system call
-a lot _slower_ than a 500MHz PIII. 
+  Linus> Architecture maintainers, can you comment on how easy/hard it
+  Linus> is to do the same thing on your architectures? I _assume_
+  Linus> it's trivial (akin to the three-liner register state change
+  Linus> in i386/kernel/signal.c).
 
-The P4 has problems with some other things too, but the "int + iret"
-instruction combination is absolutely the worst I've seen.  A 1.2GHz
-Athlon will be 5-10 times faster than the fastest P4 on system call
-overhead. 
+It's not trivial on ia64: we keep the syscall arguments in registers
+(the stacked registers, to be precise), so to modify them, we need to
+(a) flush the stacked registers to memory and (b) find the frame that
+contains the syscall arguments, (c) patch the values in memory, and
+(d) reload the stacked registers.  It's doable (like you say, ptrace()
+does it already), but that's about the best I can say about it...
 
-HOWEVER, the P4 is really good at a lot of other things. On average, a
-P4 tends to perform quite well on most loads, and hyperthreading (if you
-have a Xeon or one of the newer desktop CPU's) also tends to work quite
-well to smooth things out in real life.
-
-In short: the P4 architecture excels at some things, and it sucks at
-others. It _mostly_ tends to excel more than suck.
-
-			Linus
+	--david

@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265657AbSJXUkO>; Thu, 24 Oct 2002 16:40:14 -0400
+	id <S265674AbSJXUzp>; Thu, 24 Oct 2002 16:55:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265659AbSJXUkO>; Thu, 24 Oct 2002 16:40:14 -0400
-Received: from packet.digeo.com ([12.110.80.53]:49042 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265657AbSJXUkN>;
-	Thu, 24 Oct 2002 16:40:13 -0400
-Message-ID: <3DB85C1B.62D14184@digeo.com>
-Date: Thu, 24 Oct 2002 13:46:19 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S265678AbSJXUzp>; Thu, 24 Oct 2002 16:55:45 -0400
+Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:17083 "HELO
+	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S265674AbSJXUzo> convert rfc822-to-8bit; Thu, 24 Oct 2002 16:55:44 -0400
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT] faster athlon/duron memory copy implementation
+Date: Thu, 24 Oct 2002 23:01:53 +0200
+User-Agent: KMail/1.4.7
+Cc: Manfred Spraul <manfred@colorfullife.com>, Robert Love <rml@tech9.net>
+References: <200210242251.26776.Dieter.Nuetzel@hamburg.de>
+In-Reply-To: <200210242251.26776.Dieter.Nuetzel@hamburg.de>
 MIME-Version: 1.0
-To: chrisl@vmware.com
-CC: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       chrisl@gnuchina.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: writepage return value check in vmscan.c
-References: <20021024082505.GB1471@vmware.com> <3DB7B11B.9E552CFF@digeo.com> <20021024175718.GA1398@vmware.com> <20021024183327.GS3354@dualathlon.random> <20021024191531.GD1398@vmware.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Oct 2002 20:46:19.0247 (UTC) FILETIME=[67920FF0:01C27B9E]
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200210242301.53292.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chrisl@vmware.com wrote:
-> 
-> ...
-> See the comment at the source for parameter. basically, if you want
-> 3 virtual machine, each have 2 process, using 1 G ram each you can do:
-> 
-> bigmm -i 3 -t 2 -c 1024
-> 
-> I run it on two 4G and 8G smp machine. Both can dead lock if I mmap
-> enough memory.
-> 
+Am Donnerstag, 24. Oktober 2002 22:51 schrieb Dieter Nützel:
+> Rober Love wrote:
+> > The majority of the program is inline assembly so I do not think
+> > compiler is playing a huge role here.
+>
+> I think they are...
+>
+> > Regardless, the numbers are all pretty uniform in saying the new no
+> > prefetch method is superior so its a mute point.
+>
+> But all "your" numbers are slow.
+> Look at mine with the "right" (TM) flags ;-)
+>
+> processor       : 0
+> vendor_id       : AuthenticAMD
+> cpu family      : 6
+> model           : 6
+> model name      : AMD Athlon(tm) MP 1900+
 
-Are you sure it's a deadlock?  A large MAP_SHARED load like this
-on a 2.4 highmem machine can go into a spin, but it will come back
-to life after several minutes.
+Ups, lost something during cut'n paste:
+
+dual Athlon MP 1900+
+MSI MS-6501 Rev 1.0 (aka K7D Master-L), AMD 760MPX, BIOS 1.5
+2x 512MB DDR266, CL2, unregistered, NO ECC (stinky "normal" stuff ;-)
+
+Cheers,
+	Dieter

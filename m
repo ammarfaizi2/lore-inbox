@@ -1,61 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131152AbRACUz3>; Wed, 3 Jan 2001 15:55:29 -0500
+	id <S131079AbRACU4S>; Wed, 3 Jan 2001 15:56:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131079AbRACUzK>; Wed, 3 Jan 2001 15:55:10 -0500
-Received: from femail3.rdc1.on.home.com ([24.2.9.90]:62176 "EHLO
-	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S131183AbRACUxF>; Wed, 3 Jan 2001 15:53:05 -0500
-Message-ID: <3A53910D.CAEDF4FF@home.net>
-Date: Wed, 03 Jan 2001 15:52:29 -0500
-From: Shawn Starr <shawn.starr@home.net>
-Reply-To: shawn.starr@home.net
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-prerelease i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Doug McNaught <doug@wireboard.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: SHM Not working in 2.4.0-prerelease
-In-Reply-To: <3A537EA8.45889173@home.net> <m3g0j0l7e6.fsf@belphigor.mcnaught.org>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+	id <S131113AbRACU4K>; Wed, 3 Jan 2001 15:56:10 -0500
+Received: from jalon.able.es ([212.97.163.2]:22748 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S131079AbRACUzv>;
+	Wed, 3 Jan 2001 15:55:51 -0500
+Date: Wed, 3 Jan 2001 21:55:41 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.19pre6
+Message-ID: <20010103215541.A743@werewolf.able.es>
+In-Reply-To: <E14DsXi-0004Mt-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <E14DsXi-0004Mt-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Jan 03, 2001 at 19:21:43 +0100
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ahh ok, so everythings fine then. It would be nice though to see that
-value perhaps in future they'll be a way.
 
-Thanks,
+On 2001.01.03 Alan Cox wrote:
+> 
+> 2.2.19pre6
+> o	Yamaha PCI sound updates			(Pete Zaitcev)
+> o	Alpha SMP ASN reuse races			(Andrea Arcangeli)
+> o	Alpha bottom half SMP race fixes		(Andrea Arcangeli)
+> o	Alpha SMP read_unloc race fix			(Andrea
+> Arcangeli)
+> o	Show registers across CPUs on SMP alpha death	(Andrea
+> Arcangeli)
+> o	Print the 8K of stack not the top 4K on x86	(Andrea Arcangeli)
+> o	Dcache aging					(Andrea Arcangeli)
+> o	Kill unused parameter in free_inode_memory	(Andrea Arcangeli)
+> 
 
-Shawn.
+Please apply this patchlet, corrects some ugly KERN_INFOs in ne2k-pci.
 
-Doug McNaught wrote:
+--- linux-2.2.19-pre6/drivers/net/ne2k-pci.c.org	Wed Jan  3 21:06:16 2001
++++ linux-2.2.19-pre6/drivers/net/ne2k-pci.c	Wed Jan  3 21:15:57 2001
+@@ -33,10 +33,9 @@
+ */
+ 
+ /* These identify the driver base version and may not be removed. */
+-static const char version1[] =
+-"ne2k-pci.c:v1.02 10/19/2000 D. Becker/P. Gortmaker\n";
+-static const char version2[] =
+-"  http://www.scyld.com/network/ne2k-pci.html\n";
++static const char* version =
++"ne2k-pci.c: v1.02 for Linux 2.2, 10/19/2000, D. Becker/P. Gortmaker,"
++" http://www.scyld.com/network/ne2k-pci.html";
+ 
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+@@ -159,8 +158,7 @@
+ init_module(void)
+ {
+ 	/* We must emit version information. */
+-	if (debug)
+-		printk(KERN_INFO "%s" KERN_INFO "%s", version1, version2);
++	printk(KERN_INFO "%s\n", version);
+ 
+ 	if (ne2k_pci_probe(0)) {
+ 		printk(KERN_NOTICE "ne2k-pci.c: No useable cards found, driver
+NOT installed.\n");
+@@ -243,7 +241,7 @@
+ 		{
+ 			static unsigned version_printed = 0;
+ 			if (version_printed++ == 0)
+-				printk(KERN_INFO "%s %s", version1, version2);
++				printk(KERN_INFO "%s\n", version);
+ 		}
+ #endif
+ 
 
-> Shawn Starr <shawn.starr@home.net> writes:
->
-> > [spstarr@coredump /etc]$ free
-> >              total       used       free     shared    buffers
-> > cached
-> > Mem:         62496      61264       1232          0       1248
-> > 28848
-> >
-> >
-> > There's no shared memory being used?
->
-> [...]
->
-> > the shmfs is mounted. Is there any configuration i need to get shm
-> > memory activiated?
->
-> The 'shared' field in /proc/meminfo (source for 'top' and 'free') has
-> nothing to do with {SysV,POSIX} shared memory.  The 'shared' field
-> referred to memory that was used by more than one process (shared
-> libraries, shared text segments etc).  As I understand it, under 2.4
-> the 'shared' field is very expensive to calculate, so we don't--the
-> zero value is there to avoid breaking programs that parse
-> /proc/meminfo.
->
-> -Doug
+-- 
+J.A. Magallon                                         $> cd pub
+mailto:jamagallon@able.es                             $> more beer
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272295AbRH3Pwk>; Thu, 30 Aug 2001 11:52:40 -0400
+	id <S272291AbRH3PzU>; Thu, 30 Aug 2001 11:55:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272293AbRH3PwU>; Thu, 30 Aug 2001 11:52:20 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54032 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272291AbRH3PwO>; Thu, 30 Aug 2001 11:52:14 -0400
-Subject: Re: A possible direction for the next LVM driver
-To: thornber@btconnect.com (Joe Thornber)
-Date: Thu, 30 Aug 2001 16:55:56 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010830164547.A807@btconnect.com> from "Joe Thornber" at Aug 30, 2001 04:45:47 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272292AbRH3PzK>; Thu, 30 Aug 2001 11:55:10 -0400
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:7180 "EHLO nyc.rr.com")
+	by vger.kernel.org with ESMTP id <S272291AbRH3Py6>;
+	Thu, 30 Aug 2001 11:54:58 -0400
+Message-ID: <3B8E61E2.5030608@nyc.rr.com>
+Date: Thu, 30 Aug 2001 11:55:14 -0400
+From: John Weber <weber@nyc.rr.com>
+Organization: My House
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010802
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ATAPI Floppy Problem
+In-Reply-To: <fa.c2tt6vv.1d7aebo@ifi.uio.no> <fa.oqtt0gv.1ikomhe@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15cUAe-0001IO-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When the logical device is accessed, the make_request function looks
-> up the correct target for the given sector, and then asks this target
-> to do the remapping.
+Ignacio Vazquez-Abrams wrote:
+> On Thu, 30 Aug 2001, John Weber wrote:
+> 
+> 
+>>I get the following error on reboot...
+>>
+>>Aug 30 02:31:17 boolean kernel: ide-floppy: hdc: I/O error, pc = 5a, key
+>>=  5, asc = 24, ascq =  0
+>>
+>>I have a ZIP 100, and am currently using ide-floppy driver 0.97
+>>(included with linux 2.4.9).
+>>
+>>Suggestions?
+>>
+> 
+> Do you have media in the drive? The only time I've ever seen that is with my
+> LS-120 when there's no disk in it. If that's the case then you can ignore it.
+> 
+> 
 
-Interesting.
-
-> A btree structure is used to hold the sector range -> target mapping.
-> Since we know all the entries in the btree in advance we can make a
-> very compact tree, omitting pointers to child nodes, (child nodes
-> locations can be calculated).  Typical users would find they only have
-> a handful of targets for each logical volume LV.
-> Benchmarking with bonnie++ suggests that this is certainly no slower
-> than current LVM.
-
-Will it represent single segment filesystems as one node (ie extremely
-efficiently). The reason I ask is that one thing EVMS does that I think is
-right is that it lets you throw away the whole partitioning business.
-Instead  DOS partition format, BSD disklabel etc are simply very limited
-logical volumes
+Media in drive.
 

@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263567AbUDNKCM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 06:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264004AbUDNKCM
+	id S264025AbUDNKE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 06:04:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264024AbUDNKE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 06:02:12 -0400
-Received: from p4.ensae.fr ([195.6.240.202]:18080 "EHLO pc809.ensae.fr")
-	by vger.kernel.org with ESMTP id S263567AbUDNKCL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 06:02:11 -0400
-From: Guillaume =?iso-8859-1?q?Lac=F4te?= <Guillaume@Lacote.name>
-Reply-To: Guillaume@Lacote.name
-Organization: Guillaume@Lacote.name
-To: =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>
-Subject: Re: Using compression before encryption in device-mapper
-Date: Wed, 14 Apr 2004 12:02:07 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org, Linux@glacote.com
-References: <200404131744.40098.Guillaume@Lacote.name> <200404140854.56387.Guillaume@Lacote.name> <20040414094334.GA25975@wohnheim.fh-wedel.de>
-In-Reply-To: <20040414094334.GA25975@wohnheim.fh-wedel.de>
+	Wed, 14 Apr 2004 06:04:28 -0400
+Received: from hellhawk.shadowen.org ([212.13.208.175]:7172 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S264022AbUDNKEZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 06:04:25 -0400
+Date: Wed, 14 Apr 2004 11:08:14 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+To: arjanv@redhat.com, "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, raybry@sgi.com,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: hugetlb demand paging patch part [0/3]
+Message-ID: <8822415.1081940894@42.150.104.212.access.eclipse.net.uk>
+In-Reply-To: <1081933442.4688.6.camel@laptop.fenrus.com>
+References: <200404132317.i3DNH4F21162@unix-os.sc.intel.com>
+ <1081933442.4688.6.camel@laptop.fenrus.com>
+X-Mailer: Mulberry/3.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200404141202.07021.Guillaume@Lacote.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Oops ! I thought it was possible to guarantee with the Huffman encoding
-> > (which is more basic than Lempev-Zif) that the compressed data use no
-> > more than 1 bit for every byte (i.e. 12,5% more space).
->
-> Makes sense, although I'd like to see the proof first.  Shouldn't be
-> too hard to do.
->
-I was referring to the paper by Jeffrey Scott Vitter "Design and Analysis of 
-Dynamic Huffman Codes" (accessible through http://acm.org). It defines a 
-refinement of the well-known dynamic Huffman algorithm by Faller, Gallager 
-and Knuth such that the encoded length will use at most _one_ more bit per 
-encoded letter than the optimal two-pass Huffman algorithm (it is also shown 
-that the FGK algorithm an use twice the optimal length + on more bit per 
-letter).
+--On 14 April 2004 11:04 +0200 Arjan van de Ven <arjanv@redhat.com> wrote:
 
-My conclusion comes from the fact that for every text, the optimal two-pass 
-huffman encoding can _not_ be longer than the native encoding (apart from the 
-dictionnary encoding). 
+> On Wed, 2004-04-14 at 01:17, Chen, Kenneth W wrote:
+>> In addition to the hugetlb commit handling that we've been working on
+>> off the list, Ray Bryant of SGI and I are also working on demand paging
+>> for hugetlb page.  Here are our final version that has been heavily
+>> tested on ia64 and x86.  I've broken the patch into 3 pieces so it's
+>> easier to read/review, etc.
+> 
+> Ok I think it's time to say "HO STOP" here.
 
-Actually I plan to implement the easier FGK algorithm first - if the whole 
-matter makes sense.
+I would say yes for 2.7.  Then things like actual swapping of large pages
+and the like could be done properly.
 
+> If you're going to make the kernel deal with different, concurrent page
+> sizes then please do it for real. Or alternatively leave hugetlb to be
+> the kludge/hack it is right now. Anything inbetween is the road to
+> madness...
+
+The original request was not to generify for 2.6.  Thus all of this work
+has been to fix or improve the usability of the kludge without removing its
+cancerous sore like nature.  I think that requires a radical rethink and is
+not 2.6 material.
+
+-apw

@@ -1,40 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVC0TcQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261486AbVC0Tba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbVC0TcQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 14:32:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbVC0Tbg
+	id S261486AbVC0Tba (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 14:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVC0Tba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 14:31:36 -0500
-Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:40197 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S261488AbVC0Tb2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 14:31:28 -0500
-Date: Sun, 27 Mar 2005 21:31:24 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: [PATCH] typo fix in Documentation/eisa.txt
-Message-Id: <20050327213124.1e82828b.khali@linux-fr.org>
-In-Reply-To: <200503271554.44382.eike-kernel@sf-tec.de>
-References: <200503271554.44382.eike-kernel@sf-tec.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 27 Mar 2005 14:31:30 -0500
+Received: from smtpout.mac.com ([17.250.248.71]:32755 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261486AbVC0TbQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 14:31:16 -0500
+In-Reply-To: <1111951014.9831.4.camel@localhost>
+References: <1111886147.1495.3.camel@localhost> <490243b66dc7c3f592df7a7d0769dcb7@mac.com> <1111913399.6297.28.camel@laptopd505.fenrus.org> <16d78e9ea33380a1f1ad90c454fb6e1d@mac.com> <20050327180417.GD3815@gallifrey> <20050327183522.GM4285@stusta.de> <1111951014.9831.4.camel@localhost>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <32bdf7ca3e679d0b61d1ae06d69d1623@mac.com>
 Content-Transfer-Encoding: 7bit
+Cc: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Adrian Bunk <bunk@stusta.de>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+Date: Sun, 27 Mar 2005 14:30:41 -0500
+To: Aaron Gyes <floam@sh.nu>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Eike,
+On Mar 27, 2005, at 14:16, Aaron Gyes wrote:
+> So what? Sure, GPL'd drivers are easier for an end-user in that case.
+> What does that have to do with law?
 
-> Trivial typo fix.
-> (...)
->  Force the probing code to probe EISA slots even when it cannot find an
-> -EISA compliant mainboard (nothing appears on slot 0). Defaultd to 0
-> +EISA compliant mainboard (nothing appears on slot 0). Default to 0
->  (don't force), and set to 1 (force probing) when either
->  CONFIG_ALPHA_JENSEN or CONFIG_EISA_VLB_PRIMING are set.
+Well, under most interpretations of the GPL, you are *NOT* allowed to
+even _link_ non-GPL code with GPL code. (Basically, by distributing such
+a linked binary, you are certifying that you have permission to GPL the
+entire source-code and are doing so.
 
-Wouldn't it rather be "Defaults"?
 
--- 
-Jean Delvare
+> What about what's better for the company that made the device?
+
+Who says that free maintenance and bugfixes *isn't* better for said
+company?
+
+
+> Should NVIDIA be forced to give up their secrets to all their
+> competitors because some over zealous developers say so?
+
+We don't care about their secrets, we just want to be able to interface
+with their hardware.  Really, we don't care how the hardware does what
+it does internally, we just care how to tell it to do that.  It's the
+difference between telling an artist to paint a big picture and
+watching every thought he makes while he does the painting with a brain
+scanner.
+
+
+> Should the end-users of the current drivers be forced to lose out
+> on features such as sysfs and udev compatability?
+
+Should the end-users even *have* features such as sysfs and udev?  If
+the *open-source* developers hadn't *opened* their *source*, then that
+code wouldn't exist.  One condition they made when they gave that code
+for free was that *only* people who also gave their code for free
+could use it.
+
+
+> I love Linux, and a I love that free software has become mildly
+> successful, but the zealots are hurting both.
+
+On the contrary, the zealots are what protect us from the even worse
+proprietary software zealots.  You may not agree with them, but if
+there were only one kind of zealot then the world would be much
+worse off.
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
+

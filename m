@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264282AbRFLJ1g>; Tue, 12 Jun 2001 05:27:36 -0400
+	id <S264297AbRFLJ4E>; Tue, 12 Jun 2001 05:56:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264286AbRFLJ10>; Tue, 12 Jun 2001 05:27:26 -0400
-Received: from mx3.sac.fedex.com ([199.81.208.11]:46858 "EHLO
-	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S264282AbRFLJ1S>; Tue, 12 Jun 2001 05:27:18 -0400
-Date: Tue, 12 Jun 2001 17:25:46 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Jeff Chua <jchua@silk.corp.fedex.com>
-Subject: reiserfs problem on SMP
-Message-ID: <Pine.LNX.4.33.0106121714030.26519-100000@boston.corp.fedex.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264300AbRFLJzz>; Tue, 12 Jun 2001 05:55:55 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:5833 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S264297AbRFLJzm>; Tue, 12 Jun 2001 05:55:42 -0400
+Date: Tue, 12 Jun 2001 11:53:38 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Roberto Di Cosmo <Roberto.Di-Cosmo@pps.jussieu.fr>,
+        linux-kernel@vger.kernel.org, demolinux@demolinux.org,
+        dicosmo@pps.jussieu.fr
+Subject: Re: [isocompr PATCH]: announcing stable port to kernel 2.2.18
+Message-ID: <20010612115338.J754@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <200106110929.f5B9T5Q27584@foobar.pps.jussieu.fr> <20010611225944.B959@bug.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010611225944.B959@bug.ucw.cz>; from pavel@suse.cz on Mon, Jun 11, 2001 at 10:59:44PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 11, 2001 at 10:59:44PM +0200, Pavel Machek wrote:
+> > The current version of the patch for 2.2.18 is very stable
+> > (we use it for DemoLinux [see www.demolinux.org] heavily),
+> > and I wonder if it could not be a good idea to see if this
+> > code can be folded into the official releases sometime in the
+> > future (I have been looking at 2.4.x code, but the new page
+> > cache means some changes might be needed: I will try to post
+> > a first version for 2.4.x soon).
+> 
+> I think that 2.5.0 should be your target... It is definitely new
+> feature, and both 2.4.X and 2.2.X are in feature freeze.
 
-Got the following journaling error on 2.4.5 SMP during shutdown ...
+Right. And besides: HPA coded a similar patch for 2.4.x, while he
+fixed some issues.
 
-....
+So you might try his work or even come to an agreement on the
+format.
 
-Unmounting local file systems.
-journal_begin called without kernel lock held
-kernel BUG at journal.c:423!
-invalid operand: 0000
-CPU1:   1
-EIP:    0010:[<f8854140>]
-EFLAGS: 00010286
-eax: 0000001d   ebx: f0951f2c   ecx: 00000001   edx: 00000001
-esi: c3d26000   edi: f0951f2c   ebp: 0000000a   esp: f0951ec4
-ds: 0018    es: 0018  ss: 0018
-Process umount (pid: 265, stackpage=f0951000)
+Regards
 
-...
-
-This bug only shows up on my SMP (2CPU) machine. It's been running fine on
-1CPU non-smp machines.
-
-
-Here's the difference for compiling ...
-
-boston:root:/u2/src/linux> diff .config /root/src2/.config-2.4.5
-54,55c54,55
-< # CONFIG_NOHIGHMEM is not set
-< CONFIG_HIGHMEM4G=y
----
-> CONFIG_NOHIGHMEM=y
-> # CONFIG_HIGHMEM4G is not set
-57d56
-< CONFIG_HIGHMEM=y
-60,61c59,60
-< CONFIG_SMP=y
-< CONFIG_HAVE_DEC_LOCK=y
----
-> # CONFIG_SMP is not set
-> # CONFIG_X86_UP_IOAPIC is not set
-68,69d66
-< CONFIG_X86_IO_APIC=y
-< CONFIG_X86_LOCAL_APIC=y
-
-
-
-Thanks,
-Jeff
-[ jchua@fedex.com ]
-
+Ingo Oeser
+-- 
+Use ReiserFS to get a faster fsck and Ext2 to fsck slowly and gently.

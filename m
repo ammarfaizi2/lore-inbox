@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293635AbSCUJHF>; Thu, 21 Mar 2002 04:07:05 -0500
+	id <S293627AbSCUJGD>; Thu, 21 Mar 2002 04:06:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293656AbSCUJG4>; Thu, 21 Mar 2002 04:06:56 -0500
-Received: from f257.law7.hotmail.com ([216.33.236.135]:20241 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S293632AbSCUJGo>;
-	Thu, 21 Mar 2002 04:06:44 -0500
-X-Originating-IP: [216.251.50.73]
-From: "sakib mondal" <sakib@hotmail.com>
-Date: Thu, 21 Mar 2002 09:06:37 
+	id <S293626AbSCUJFw>; Thu, 21 Mar 2002 04:05:52 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:18569 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S293619AbSCUJFu> convert rfc822-to-8bit; Thu, 21 Mar 2002 04:05:50 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <flygong@yahoo.com>, <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.51 (1003) - Registered Version
+Date: Thu, 21 Mar 2002 01:05:47 -0800
+In-Reply-To: <20020321051219.9811.qmail@web14510.mail.yahoo.com>
+Subject: Re: The network performance of linux
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F257IdkQqK4sD8TeABB00007ecd@hotmail.com>
-X-OriginalArrivalTime: 21 Mar 2002 09:06:38.0772 (UTC) FILETIME=[B59E2F40:01C1D0B7]
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <20020321090548.AAA17336@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-My applogoies if you have received multiple copies of this message.
+On Wed, 20 Mar 2002 21:12:19 -0800 (PST), Bergs wrote:
 
-I am looking for a solution/help in porting a freebsd networking application 
-written at tcp and ip-level (involves mbuf, socketbuf structures and 
-associated routines) to linux platform.  I am not able to trace any good 
-source of help on this. I shall appreciate any pointers/help in this regard.
+>I work on a linux 2.2.14 kernel to test the network
+>throughput of a linux  box used as a firewall.
 
-TIA.
-Sakib
+>I find that when the IP packet length is 512B,the
+>throughput is the highest 71%. IP packet length is
+>smaller than 512B or bigger than 512B,the throughput
+>is the lower.
 
-_________________________________________________________________
-Send and receive Hotmail on your mobile device: http://mobile.msn.com
+>I don't know why this ? Can I have some solutions
+>to improve the throughput of linux box ?
+
+	I don't understand what you're measuring. Are you using TCP or UDP? If UDP, 
+what exactly are you measuring? If TCP, how are you changing the packet size?
 

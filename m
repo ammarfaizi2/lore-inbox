@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293680AbSHXUw6>; Sat, 24 Aug 2002 16:52:58 -0400
+	id <S315439AbSHXU62>; Sat, 24 Aug 2002 16:58:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313563AbSHXUw5>; Sat, 24 Aug 2002 16:52:57 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:34055 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S293680AbSHXUw5>; Sat, 24 Aug 2002 16:52:57 -0400
-Date: Sat, 24 Aug 2002 17:56:51 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-cc: conman@kolivas.net, <linux-kernel@vger.kernel.org>
-Subject: Re: Combined performance patches update for 2.4.19
-In-Reply-To: <20020824185838.2961.qmail@linuxmail.org>
-Message-ID: <Pine.LNX.4.44L.0208241753490.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S315758AbSHXU62>; Sat, 24 Aug 2002 16:58:28 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32266
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S315439AbSHXU61>; Sat, 24 Aug 2002 16:58:27 -0400
+Date: Sat, 24 Aug 2002 14:01:30 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: IDE janitoring comments
+In-Reply-To: <1030220051.3196.5.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10208241400360.20141-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Aug 2002, Paolo Ciarrocchi wrote:
-> From: conman@kolivas.net
->
-> > > Sure, but your "performance" approach is really intersting! Do you use a
-> > > benchmark?
-> >
-> > I don't really have the time to benchmark these things any more than "it feels
-> > faster". Really I'm spending way too much time on this as it is and I'm not
-> > remotely any authority on what benchmarks to use.
->
-> Maybe I can find the time to run a few tests, can anyone suggest me an
-> "intersting" test?
 
-Bob Matthews has a benchmark called irman, which tries to measure
-response time during a number of background loads.
+Yep, just be careful of how to decouple the hwif->iops from procfs for pci
+and the general lameness of x86 centric issues.
 
-I'm not sure it is too interesting in this case, though. People
-don't really care about the exact latency of sub-millisecond
-responses (should be the vast majority) but about the few times
-per minute where their mp3 skips.
+On 24 Aug 2002, Alan Cox wrote:
 
-Simple averages won't show the mp3 skips, because the number of
-fast responses are bound to be hundreds of thousands of times
-more common then the "mp3 skipping hickups".
+> On Sat, 2002-08-24 at 16:15, Benjamin Herrenschmidt wrote:
+> >  - Do we really want to keep all those _P versions around ?
+> > A quick grep showed _only_ by the non-portable x86 specific
+> > recovery timer stuff that taps ISA timers (well, I think ports
+> > 0x40 and 0x43 and an ISA timer). I would strongly suggest to
+> 
+> I'd like to keep them around for the moment. They should be using
+> udelay() but thats a general issue with _p inb/outb etc.
+> 
+> > After much thinking about the above, I came to the conslusion
+> > we probably want to just kill all the IN_BYTE, OUT_BYTE, etc.
+> 
+> Agreed entirely
+> 
+> 
+> > Also, getting rid of the _P version would make things a lot
+> > easier as well here too.
+> 
+> What currently uses the _P versions ?
+> 
 
-Maybe the histogram mode of irman might show something useful ?
-
-(then again, maybe it doesn't ... haven't tried yet)
-
-http://people.redhat.com/bmatthews/irman/
-
-kind regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Andre Hedrick
+LAD Storage Consulting Group
 

@@ -1,69 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbUEQV1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbUEQVjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbUEQV1n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 17:27:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUEQV1m
+	id S262370AbUEQVjX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 17:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbUEQVjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 17:27:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12675 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262339AbUEQV1a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 17:27:30 -0400
-Date: Mon, 17 May 2004 14:29:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: mason@suse.com, torvalds@osdl.org, lm@bitmover.com, wli@holomorphy.com,
-       hugh@veritas.com, adi@bitmover.com, support@bitmover.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s &&
- s->tree' failed: The saga continues.)
-Message-Id: <20040517142946.571a3e91.akpm@osdl.org>
-In-Reply-To: <1084828124.26340.22.camel@spc0.esa.lanl.gov>
-References: <200405132232.01484.elenstev@mesatop.com>
-	<20040517022816.GA14939@work.bitmover.com>
-	<Pine.LNX.4.58.0405161936490.25502@ppc970.osdl.org>
-	<200405162136.24441.elenstev@mesatop.com>
-	<Pine.LNX.4.58.0405162152290.25502@ppc970.osdl.org>
-	<20040517141427.GD29054@work.bitmover.com>
-	<Pine.LNX.4.58.0405170717080.25502@ppc970.osdl.org>
-	<20040517145217.GA30695@work.bitmover.com>
-	<Pine.LNX.4.58.0405170758260.25502@ppc970.osdl.org>
-	<1084807424.20437.60.camel@watt.suse.com>
-	<1084825489.20437.390.camel@watt.suse.com>
-	<1084828124.26340.22.camel@spc0.esa.lanl.gov>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 17 May 2004 17:39:23 -0400
+Received: from disk.smurf.noris.de ([192.109.102.53]:33413 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S262370AbUEQVjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 17:39:22 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: 2.6.6 breaks kmail (nfs related?)
+Date: Mon, 17 May 2004 23:35:41 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2004.05.17.21.35.41.845953@smurf.noris.de>
+References: <200405131411.52336.amann@physik.tu-berlin.de> <Pine.LNX.4.58.0405161149430.25502@ppc970.osdl.org> <1084734612.6331.8.camel@lade.trondhjem.org> <200405171331.35688.amann@physik.tu-berlin.de>
+NNTP-Posting-Host: kiste.smurf.noris.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Trace: server.smurf.noris.de 1084829740 6232 192.109.102.35 (17 May 2004 21:35:40 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Mon, 17 May 2004 21:35:40 +0000 (UTC)
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Cole <elenstev@mesatop.com> wrote:
->
-> 1) Apply your patch to 2.6.6-current, build with PREEMPT
-> 2) Test bk pull via ppp on reiserfs until and if it breaks.
-> 3) Test bk pull via ppp on ext3 and take a look at the s.ChangeSet file
-> if/when the failure occurs.
-> 4) Apply akpm's patch here:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=108478018304305&w=2
-> 5) Repeat 2,3
+Hi, Andreas Amann wrote:
 
-Nope.  Please just see if this makes the problem go away:
+> (I also tried "strace -f", but apparently exim does not like to be traced?)
 
---- 25/fs/buffer.c~a	Mon May 17 14:28:51 2004
-+++ 25-akpm/fs/buffer.c	Mon May 17 14:29:02 2004
-@@ -2723,7 +2723,6 @@ int block_write_full_page(struct page *p
- 	 * writes to that region are not written out to the file."
- 	 */
- 	kaddr = kmap_atomic(page, KM_USER0);
--	memset(kaddr + offset, 0, PAGE_CACHE_SIZE - offset);
- 	flush_dcache_page(page);
- 	kunmap_atomic(kaddr, KM_USER0);
- 	return __block_write_full_page(inode, page, get_block, wbc);
+Exim's setuid. Tracing setuid programs generally is fraught with peril,
+especially if that program changes uids, drops privileges and then
+re-execs itself (as exim does, IIRC). :-/
 
-_
-
-If this patch is confirmed to fix things up, then and only then should you
-bother testing the vmtruncate patch.
-
-Thanks.
+-- 
+Matthias Urlichs

@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288983AbSANTWE>; Mon, 14 Jan 2002 14:22:04 -0500
+	id <S288958AbSANTFe>; Mon, 14 Jan 2002 14:05:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288977AbSANTUi>; Mon, 14 Jan 2002 14:20:38 -0500
-Received: from [200.10.161.32] ([200.10.161.32]:65166 "EHLO lila.inti.gov.ar")
-	by vger.kernel.org with ESMTP id <S288969AbSANTRl>;
-	Mon, 14 Jan 2002 14:17:41 -0500
-Message-ID: <3C432F31.CE9652BC@inti.gov.ar>
-Date: Mon, 14 Jan 2002 16:19:13 -0300
-From: salvador <salvador@inti.gov.ar>
-Reply-To: salvador@inti.gov.ar
-Organization: INTI
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: es-AR, en, es
-MIME-Version: 1.0
-To: Jeremy Lumbroso <j.lumbroso@noos.fr>
-CC: Raul Sanchez Sanchez <raul@dif.um.es>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Paul Lorenz <p1orenz@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Driver via ac97 sound problem (VT82C686B)
-In-Reply-To: <E16PZOe-0003fZ-00@the-village.bc.nu> <1010956965.3260.0.camel@raul> <3C4311BC.A99CEF31@inti.gov.ar> <E16QCE9-0003hR-00@samantha.inti.gov.ar>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S288922AbSANTEg>; Mon, 14 Jan 2002 14:04:36 -0500
+Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:44929 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S288932AbSANTDn>;
+	Mon, 14 Jan 2002 14:03:43 -0500
+Message-Id: <m16QCNJ-000OVeC@amadeus.home.nl>
+Date: Mon, 14 Jan 2002 19:02:29 +0000 (GMT)
+From: arjan@fenrus.demon.nl
+To: esr@thyrsus.com
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020114132618.G14747@thyrsus.com>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Lumbroso wrote:
+In article <20020114132618.G14747@thyrsus.com> you wrote:
+> Not that I'm running down distro makers.  They do a valuable job, and in fact
+> my approach relies on Aunt Tillie's machine starting life with an all-modular
+> distro kernel.
 
-> i apply the patch and compile with the two values but i still heard no sound .
+> But the point of this game is for Aunt Tillie to have more and better
+> choices.  Isn't that what we're supposed to be about?
 
-:-(
-Check the routines are really called, but then we should look in other place
-because it discards the EAPD theory.
+While I'm absolutely not disputing the right of anyone to compile their own
+kernel (I'm not trying to lock customers into my special platform like some
+unnamed industrial giant *cough*), I just wonder why an AUTOMATIC generated
+kernel with all the _relevant_ drivers modules will be "more and better"
+than a (distro) kernel with _all_ drivers modules. That's the POINT of
+modules -> be there or not, nothing else cares. If that's not the case
+right now it's something we ought to fix first I'd say.
 
-SET
+Of course there are other settings that do have impact (CPU type mostly,
+maybe memory layout) but other than that... distros already ship several
+binary versions (last I counted Red Hat ships 11 or so with RHL72) to
+account for CPU type and amount etc.
 
---
-Salvador Eduardo Tropea (SET). (Electronics Engineer)
-Visit my home page: http://welcome.to/SetSoft or
-http://www.geocities.com/SiliconValley/Vista/6552/
-Alternative e-mail: set@computer.org set@ieee.org
-Address: Curapaligue 2124, Caseros, 3 de Febrero
-Buenos Aires, (1678), ARGENTINA Phone: +(5411) 4759 0013
-
-
-
+Greetings,
+   Arjan van d Ven

@@ -1,67 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263040AbTHVG3w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 02:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263045AbTHVG3w
+	id S263049AbTHVHcu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 03:32:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263057AbTHVHbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 02:29:52 -0400
-Received: from smtp.mailix.net ([216.148.213.132]:9329 "EHLO smtp.mailix.net")
-	by vger.kernel.org with ESMTP id S263040AbTHVG3u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 02:29:50 -0400
-Date: Fri, 22 Aug 2003 08:29:45 +0200
-From: Alex Riesen <fork0@users.sf.net>
-To: andrew.grover@intel.com
-Cc: acpi-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test3+bk: ACPI does not switch off the computer
-Message-ID: <20030822062945.GA1128@steel.home>
-Reply-To: Alex Riesen <fork0@users.sf.net>
+	Fri, 22 Aug 2003 03:31:46 -0400
+Received: from smtp016.mail.yahoo.com ([216.136.174.113]:24593 "HELO
+	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263042AbTHVHFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 03:05:14 -0400
+Date: Fri, 22 Aug 2003 04:04:31 -0300
+From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Gerd Knorr <kraxel@bytesex.org>
+Subject: [PATCH][resend] 4/13 2.4.22-rc2 fix __FUNCTION__ warnings
+ drivers/media/video
+Message-Id: <20030822040431.4a958f05.vmlinuz386@yahoo.com.ar>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i486-slackware-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually it started happening from -test3.
-The last I see on screen is "Power down." and the system is halted.
-CAD reboots it.
+Hi people,
+this patch fix the warning: concatenation of string literals with __FUNCTION__ is deprecated
 
--alex
+ cpia.h |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-#
-# Power management options (ACPI, APM)
-#
-CONFIG_PM=y
-# CONFIG_SOFTWARE_SUSPEND is not set
+--- linux-2.4.22-rc2/drivers/media/video/cpia.h	2003-06-13 11:51:34.000000000 -0300
++++ linux-2.4.22-rc2-fix/drivers/media/video/cpia.h	2003-08-21 00:08:28.000000000 -0300
+@@ -393,12 +393,12 @@
+ /* ErrorCode */
+ #define ERROR_FLICKER_BELOW_MIN_EXP     0x01 /*flicker exposure got below minimum exposure */
+ 
+-#define ALOG(lineno,fmt,args...) printk(fmt,lineno,##args)
+-#define LOG(fmt,args...) ALOG((__LINE__),KERN_INFO __FILE__":"__FUNCTION__"(%d):"fmt,##args)
++#define ALOG(fmt,args...) printk(fmt, ##args)
++#define LOG(fmt,args...) ALOG(KERN_INFO __FILE__ ":%s(%d):" fmt, __FUNCTION__ , __LINE__ , ##args)
+ 
+ #ifdef _CPIA_DEBUG_
+-#define ADBG(lineno,fmt,args...) printk(fmt, jiffies, lineno, ##args)
+-#define DBG(fmt,args...) ADBG((__LINE__),KERN_DEBUG __FILE__"(%ld):"__FUNCTION__"(%d):"fmt,##args)
++#define ADBG(fmt,args...) printk(fmt, jiffies, ##args)
++#define DBG(fmt,args...) ADBG(KERN_DEBUG __FILE__" (%ld):%s(%d):" fmt, __FUNCTION__, __LINE__ , ##args)
+ #else
+ #define DBG(fmn,args...) do {} while(0)
+ #endif
 
-#
-# ACPI (Advanced Configuration and Power Interface) Support
-#
-CONFIG_ACPI_HT=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-CONFIG_ACPI_AC=m
-CONFIG_ACPI_BATTERY=m
-CONFIG_ACPI_BUTTON=m
-CONFIG_ACPI_FAN=m
-CONFIG_ACPI_PROCESSOR=m
-CONFIG_ACPI_THERMAL=m
-# CONFIG_ACPI_ASUS is not set
-# CONFIG_ACPI_TOSHIBA is not set
-# CONFIG_ACPI_DEBUG is not set
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
+ciao,
+ djgera
 
-#
-# APM (Advanced Power Management) BIOS Support
-#
-# CONFIG_APM is not set
 
+-- 
+Gerardo Exequiel Pozzi ( djgera )
+http://www.vmlinuz.com.ar http://www.djgera.com.ar
+KeyID: 0x1B8C330D
+Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D

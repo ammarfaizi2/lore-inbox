@@ -1,120 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129759AbQLUUbF>; Thu, 21 Dec 2000 15:31:05 -0500
+	id <S130281AbQLUUvB>; Thu, 21 Dec 2000 15:51:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130127AbQLUUay>; Thu, 21 Dec 2000 15:30:54 -0500
-Received: from acct2.voicenet.com ([207.103.26.205]:32415 "HELO voicenet.com")
-	by vger.kernel.org with SMTP id <S129759AbQLUUan>;
-	Thu, 21 Dec 2000 15:30:43 -0500
-Message-ID: <3A426150.1545FC96@voicenet.com>
-Date: Thu, 21 Dec 2000 15:00:16 -0500
-From: safemode <safemode@voicenet.com>
-Organization: none
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10-pre3-scsi-ide i686)
-X-Accept-Language: en
+	id <S130442AbQLUUuw>; Thu, 21 Dec 2000 15:50:52 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:5391
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S130281AbQLUUuk>; Thu, 21 Dec 2000 15:50:40 -0500
+Date: Thu, 21 Dec 2000 12:19:37 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: safemode <safemode@voicenet.com>
+cc: Zdenek Kabelac <kabi@fi.muni.cz>, xOr <xor@x-o-r.net>,
+        linux-kernel@vger.kernel.org
+Subject: Blow Torch (Re: lockups from heavy IDE/CD-ROM usage)
+In-Reply-To: <3A426150.1545FC96@voicenet.com>
+Message-ID: <Pine.LNX.4.10.10012211216060.566-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Zdenek Kabelac <kabi@fi.muni.cz>
-CC: xOr <xor@x-o-r.net>, linux-kernel@vger.kernel.org
-Subject: Re: lockups from heavy IDE/CD-ROM usage
-In-Reply-To: <Pine.LNX.4.31.0012210421450.284-100000@bitch.x-o-r.net> <3A41FFD8.531DF534@fi.muni.cz>
-Content-Type: multipart/alternative;
- boundary="------------66AE11821577481D6704D491"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 21 Dec 2000, safemode wrote:
 
---------------66AE11821577481D6704D491
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+> I get this on the 440LX with the same DMA timeout message.  Everyone says it's
+> the board's fault as well.  Funny.   Anyways this happens accross just about
+> any Dev kernel but more so in the -test12 and up versions. .   Test10 works
+> fine without locking.  Blaming the hardware reminds me of the help given by
+> some other company I can't seem to remember the name to.
 
-Zdenek Kabelac wrote:
+29063507.pdf Page 22 sections 9,10
+What is the Intel solution to the is system hang?
 
-> > Problem: When i am using my harddrive and cdrom, my computer will freeze.
-> > It freezes in two different ways.. sometimes just the harddrive access
-> > will freeze (can still do things in X as long as they dont require the
-> > harddrive), and then everything freezes within a few seconds. or else
-> > everything just locks instntly. the problem is reproducable, all i need to
-> > do is be using the harddrive extensively for a couple separate functions
-> > (like compiling the kernel, and copying a large file) and ripping cd audio
-> > (cd paranoia) and i can lock the system in as little as seconds, or a few
-> > minutes sometimes.  This will happen more reliably, and much quicker and
->
-> This is really very similar to my problem with BP6 I'm reporting for a
-> long long time.
-> But everyone says its faulty board.
->
-> For BP6 somehow helps to set UDMA to mode 2.
-> (I'm not getting these locks when I'm just using ATA33 controler)
-> (hdparm -X66 /dev/hdX)
->
-> Also could you look at what is being written to console ?
-> (run those intesive programs and stay on console - BP6 lock with
-> this message displayed:
->
-> hdf: timeout waiting for DMA
-> ide_dmaproc: chipset supported ide_dma_timeout: func only 14
->
-> In this point it looks like timers are dead... :(
-> And the situation is the same with SMP & NoSMP kernel with apic &
-> noapic.
->
+29063507.pdf Page 25 section 16
+Is this erratum valid to include all PIIX4-AB/EB, PIIX3, and PIIX a/b.
 
-I get this on the 440LX with the same DMA timeout message.  Everyone says it's
-the board's fault as well.  Funny.   Anyways this happens accross just about
-any Dev kernel but more so in the -test12 and up versions. .   Test10 works
-fine without locking.  Blaming the hardware reminds me of the help given by
-some other company I can't seem to remember the name to.
+It is the DAMN hardware and quit BITCHING.
+I told everyone once that I was working on this issue.
+If you think you can fix it before me, be my guest.
 
+I have given you the INTEL doc numbers and the page and the section.
+Go read.
 
---------------66AE11821577481D6704D491
-Content-Type: text/html; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Regards
 
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html>
-Zdenek Kabelac wrote:
-<blockquote TYPE=CITE>> Problem: When i am using my harddrive and cdrom,
-my computer will freeze.
-<br>> It freezes in two different ways.. sometimes just the harddrive access
-<br>> will freeze (can still do things in X as long as they dont require
-the
-<br>> harddrive), and then everything freezes within a few seconds. or
-else
-<br>> everything just locks instntly. the problem is reproducable, all
-i need to
-<br>> do is be using the harddrive extensively for a couple separate functions
-<br>> (like compiling the kernel, and copying a large file) and ripping
-cd audio
-<br>> (cd paranoia) and i can lock the system in as little as seconds,
-or a few
-<br>> minutes sometimes.&nbsp; This will happen more reliably, and much
-quicker and
-<p>This is really very similar to my problem with BP6 I'm reporting for
-a
-<br>long long time.
-<br>But everyone says its faulty board.
-<p>For BP6 somehow helps to set UDMA to mode 2.
-<br>(I'm not getting these locks when I'm just using ATA33 controler)
-<br>(hdparm -X66 /dev/hdX)
-<p>Also could you look at what is being written to console ?
-<br>(run those intesive programs and stay on console - BP6 lock with
-<br>this message displayed:
-<p>hdf: timeout waiting for DMA
-<br>ide_dmaproc: chipset supported ide_dma_timeout: func only 14
-<p>In this point it looks like timers are dead... :(
-<br>And the situation is the same with SMP &amp; NoSMP kernel with apic
-&amp;
-<br>noapic.
-<br><a href="http://www.tux.org/lkml/"></a>&nbsp;</blockquote>
-I get this on the 440LX with the same DMA&nbsp;timeout message.&nbsp; Everyone
-says it's the board's fault as well.&nbsp; Funny.&nbsp;&nbsp; Anyways this
-happens accross just about any Dev kernel but more so in the -test12 and
-up versions. .&nbsp;&nbsp; Test10 works fine without locking.&nbsp; Blaming
-the hardware reminds me of the help given by some other company I can't
-seem to remember the name to.
-<br>&nbsp;</html>
+Andre Hedrick
+Linux ATA Development
 
---------------66AE11821577481D6704D491--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

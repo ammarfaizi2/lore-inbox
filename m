@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276628AbRJPSoo>; Tue, 16 Oct 2001 14:44:44 -0400
+	id <S276627AbRJPSoN>; Tue, 16 Oct 2001 14:44:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276631AbRJPSod>; Tue, 16 Oct 2001 14:44:33 -0400
-Received: from [213.96.124.18] ([213.96.124.18]:1263 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S276628AbRJPSo0>;
-	Tue, 16 Oct 2001 14:44:26 -0400
-Date: Tue, 16 Oct 2001 20:47:53 +0000
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jdomingo@internautas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: looking for a preempt-patch for 2.4.10-ac12
-Message-ID: <20011016204753.B1472@dardhal.mired.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <01101619524411.00955@ElkOS>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <01101619524411.00955@ElkOS>
-User-Agent: Mutt/1.3.22i
+	id <S276628AbRJPSoD>; Tue, 16 Oct 2001 14:44:03 -0400
+Received: from w035.z208037068.nyc-ny.dsl.cnc.net ([208.37.68.35]:40599 "EHLO
+	datatekcorp.com") by vger.kernel.org with ESMTP id <S276627AbRJPSnr>;
+	Tue, 16 Oct 2001 14:43:47 -0400
+Message-ID: <3BCC821E.9EA2C71C@datatekcorp.com>
+Date: Tue, 16 Oct 2001 14:53:18 -0400
+From: Puneet Jain <pjain@datatekcorp.com>
+X-Mailer: Mozilla 4.7 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: how to invoke canonical processing in kernel
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 16 October 2001, at 19:52:44 +0200,
-elko wrote:
+I am trying to figure out the correct approach a porting issue I am
+dealing
+with and would appreciate any pointers.
 
-> 
-> Where can I find a preempt-patch for Linux-2.4.10-ac12 ?
-> 
-http://tech9.net/rml/linux
+I am working on porting one of our communication products which works on
+a
+variety of OSs including Solaris, AIX etc to Linux. Basically the
+product
+provides a raw and canonical terminal interface to the applications and
+has been implemented in STREAMS framework.
 
-But there isn't a patch for this specific kernel version, so you will have to
-download the most similar one and apply it in the hope of not getting too
-much and complex .rej
+I have downloaded the LiS - Linux STREAMS (implemented by Dave Grothe)
+from gcom.com. The only problem is that it is does not have any support
+for terminal I/O
+subsystem. So the processing that was handled by the 'ldterm' module on
+other OSs now has to be handled by the available line disciplines in the
+Linux kernel. While browsing the source I noticed that the default line
+discipline N_TTY is probably sufficient to do the job but I am not sure
+of the hooks. I am wondering if I can invoke the default line discipline
+somehow or would I have to implement the canonical processing all over
+again.
 
--- 
-José Luis Domingo López
-Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
- 
-jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
-jdomingo AT internautas DOT   org  => Spam at your own risk
+Any suggestions would be greatly appreciated.
+
+Thanks,
+Puneet
+
+
 

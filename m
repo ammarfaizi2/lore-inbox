@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278653AbRKHWCj>; Thu, 8 Nov 2001 17:02:39 -0500
+	id <S278604AbRKHWFB>; Thu, 8 Nov 2001 17:05:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278649AbRKHWCa>; Thu, 8 Nov 2001 17:02:30 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:4350 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S278643AbRKHWCO>;
-	Thu, 8 Nov 2001 17:02:14 -0500
-Date: Thu, 8 Nov 2001 15:01:58 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: aputhiya <aputhiya@temple.edu>
-Cc: linux-smp@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: APIC Cluster Model
-Message-ID: <20011108150158.D9043@lynx.no>
-Mail-Followup-To: aputhiya <aputhiya@temple.edu>, linux-smp@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3BFC7A20@smaug.ocis.temple.edu>
-Mime-Version: 1.0
+	id <S278617AbRKHWEu>; Thu, 8 Nov 2001 17:04:50 -0500
+Received: from a245d15hel.dial.kolumbus.fi ([212.54.8.245]:47364 "EHLO
+	porkkala.jlaako.pp.fi") by vger.kernel.org with ESMTP
+	id <S278604AbRKHWEk>; Thu, 8 Nov 2001 17:04:40 -0500
+Message-ID: <3BEB0168.2034F140@kolumbus.fi>
+Date: Fri, 09 Nov 2001 00:04:24 +0200
+From: Jussi Laako <jussi.laako@kolumbus.fi>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Cyrus <cyjamten@ihug.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: AMD761Agpgart+Radeon64DDR+kernel+2.4.14...no go...
+In-Reply-To: <20011108113615.F27652@suse.de> <Pine.LNX.4.33.0111081322570.8555-100000@localhost.localdomain> <20011108123808.I27652@suse.de> <3BEA7525.7070807@ihug.com.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3BFC7A20@smaug.ocis.temple.edu>; from aputhiya@temple.edu on Thu, Nov 08, 2001 at 04:28:51PM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 08, 2001  16:28 -0500, aputhiya wrote:
-> Linux uses FLAT MODEL for setting up the IO APIC for SMP machines (Intel
-> IA-32  arch). I was wondering if the CLUSTER MODEL has been implemented
-> in any of  later SMP kernels?
+Cyrus wrote:
+> 
+> if anyone could have pity on us amd and radeon owners and point us to
+> the right path i would really appreciate it... i don't really want to
+> spend more money to buy some new hardware again just to keep my system
 
-Yes, the IBM folks implemented this for CONFIG_MULITQUAD.  I don't know
-the details, but it is in stock 2.4.13+ kernels at least.
+I have similar configuration. Solution is to use latest -ac kernels and CVS
+version on XFree86...
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+A7M266, RADEON DDR VE
 
+
+ - Jussi Laako
+
+-- 
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers

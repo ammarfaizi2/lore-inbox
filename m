@@ -1,72 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266009AbUAKWdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 17:33:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266010AbUAKWdJ
+	id S265999AbUAKW1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 17:27:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266001AbUAKW1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 17:33:09 -0500
-Received: from adsl-67-114-19-185.dsl.pltn13.pacbell.net ([67.114.19.185]:4745
-	"EHLO bastard.smallmerchant.com") by vger.kernel.org with ESMTP
-	id S266009AbUAKWdG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 17:33:06 -0500
-Message-ID: <4001CF1F.9080901@tupshin.com>
-Date: Sun, 11 Jan 2004 14:33:03 -0800
-From: Tupshin Harper <tupshin@tupshin.com>
-User-Agent: Mozilla Thunderbird 0.5a (20031216)
-X-Accept-Language: en-us, en
+	Sun, 11 Jan 2004 17:27:24 -0500
+Received: from smtp0.libero.it ([193.70.192.33]:43666 "EHLO smtp0.libero.it")
+	by vger.kernel.org with ESMTP id S265999AbUAKW1T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 17:27:19 -0500
+From: "Mario ''Jorge'' Di Nitto" <jorge78@inwind.it>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.24 doesn't compile clearly...
+Date: Sun, 11 Jan 2004 23:30:50 +0100
+User-Agent: KMail/1.5.4
+References: <200401111315.40950.jorge78@inwind.it> <20040111124804.GH545@alpha.home.local>
+In-Reply-To: <20040111124804.GH545@alpha.home.local>
 MIME-Version: 1.0
-To: The NeverGone <never@delfin.klte.hu>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: UML (user-mode-linux) kernel-2.6.x
-References: <Pine.LNX.4.58.0401112222030.1401@localhost> <4001C68D.4010108@tupshin.com> <Pine.LNX.4.58.0401112300020.1585@localhost> <4001C9DC.4070505@tupshin.com> <Pine.LNX.4.58.0401112313350.1696@localhost>
-In-Reply-To: <Pine.LNX.4.58.0401112313350.1696@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200401112330.50255.jorge78@inwind.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The NeverGone wrote:
+Alle 13:48, domenica 11 gennaio 2004, Willy Tarreau ha scritto:
 
->On Sun, 11 Jan 2004, Tupshin Harper wrote:
+Hi Willy,
+> > Hi to all.
+> > I've download 2.4.24 and I patched it with ck1 and lm_sensor 2.8.2.
 >
->  
+> [...]
 >
->>Is that guest 2.4.23 kernel stock, with only the mentioned patch (pasted
->>below) applied?
->>
->>Are you absolutely positive that you rebuilt that guest kernel with the
->>patch???(I'm guessing that this is really the problem)
->>
->>Are you still getting the same error message? ("I'm tracing myself...")
->>
->>-Tupshin
->>
->>
->>    
->>
+> > PS: Sorry for lexical mistakes I made...
 >
->Hi...
+> no lexical mistakes, but misleading information. It's not 2.4.24 which
+> does not compile for you, but a patched 2.4.24. Your message is only
+> relevant if you get the same error on plain 2.4.24.
 >
->It's also included in the host kernel (2.6.1-mm2) ...
->
->Thx...
->
->The NeverGone :)
->
->  
->
-You didn't answer any of my questions. I'm forced to believe that the 
-guest is either not properly patched, not properly rebuilt, or not 
-actually the version that you're running. Not much I can suggest other 
-than to recheck those things.
+> Willy
 
-On the odd chance that 2.6.1-mm2 reintroduces a new version of this 
-problem that the mentioned patch doesn't fix, you could try the host 
-running stock 2.6.1.
+Now I've compiled a vanilla 2.4.24 and it breaks exactly like the one I 
+patched: sisfb was compiled as module.
 
-Also, I inadvertently referred to stock 2.4.23, but of course you would 
-have had to apply a large uml patch to it in order to compile it at all. 
-Did you? If so, which patch, from where?
 
--Tupshin
+------ Vanilla -------- 
+make[2]: Nothing to be done for `all_targets'.
+make[2]: Leaving directory `/work/linux-2.4.24/drivers'
+make[1]: Leaving directory `/work/linux-2.4.24/drivers'
+ld -m elf_i386 -T /work/linux-2.4.24/arch/i386/vmlinux.lds -e stext 
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o 
+init/version.o init/do_mounts.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o 
+fs/fs.o ipc/ipc.o \
+         drivers/acpi/acpi.o drivers/char/char.o drivers/block/block.o 
+drivers/misc/misc.o drivers/net/net.o drivers/char/agp/agp.o 
+drivers/char/drm/drm.o drivers/atm/atm.o drivers/ide/idedriver.o 
+drivers/scsi/scsidrv.o drivers/ieee1394/ieee1394drv.o drivers/cdrom/driver.o 
+drivers/pci/driver.o drivers/pcmcia/pcmcia.o drivers/net/pcmcia/pcmcia_net.o 
+drivers/pnp/pnp.o drivers/video/video.o drivers/usb/usbdrv.o 
+drivers/media/media.o drivers/input/inputdrv.o drivers/message/i2o/i2o.o 
+drivers/i2c/i2c.o \
+        net/network.o \
+        /work/linux-2.4.24/arch/i386/lib/lib.a /work/linux-2.4.24/lib/lib.a /work/linux-2.4.24/arch/i386/lib/lib.a 
+\
+        --end-group \
+        -o vmlinux
+drivers/char/drm/drm.o(.text+0x71be): In function `sis_fb_alloc':
+: undefined reference to `sis_malloc'
+drivers/char/drm/drm.o(.text+0x726f): In function `sis_fb_alloc':
+: undefined reference to `sis_free'
+drivers/char/drm/drm.o(.text+0x72d0): In function `sis_fb_free':
+: undefined reference to `sis_free'
+drivers/char/drm/drm.o(.text+0x771f): In function `sis_final_context':
+: undefined reference to `sis_free'
+make: *** [vmlinux] Error 1
+
+
+Regards,
+							Jorge
 

@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266870AbUJINtV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266880AbUJINzM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266870AbUJINtV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 09:49:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266878AbUJINtV
+	id S266880AbUJINzM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 09:55:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266884AbUJINzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 09:49:21 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:37337 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S266870AbUJINtT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 09:49:19 -0400
-Date: Sat, 9 Oct 2004 14:49:18 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: dri-devel@lists.sf.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [rfc] VIA drm patch and bk tree for inclusion in kernel..
-Message-ID: <Pine.LNX.4.58.0410091447170.25574@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 9 Oct 2004 09:55:12 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:62377 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S266880AbUJINzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 09:55:08 -0400
+Subject: Re: Inconsistancies in /proc (status vs statm) leading to wrong
+	documentation (proc.txt)
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: eric.valette@free.fr
+Content-Type: text/plain
+Organization: 
+Message-Id: <1097329771.2674.4036.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 09 Oct 2004 09:49:32 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric Valette writes:
 
-Hi,
-       Okay the VIA DRM people have asked to include it in the kernel, it
-only allows accelerated XvMC for non-root users, and 3d for root users
-(the 3d paths are still not secure)...
+> I'm currently trying use mlockall for a soft RT application and was 
+> concerned by the memory usage of my (big) RT process. So I stated to
+> look at /proc/<PID>/status and /proc/<PID>/statm and then to the  
+> documentation of statm (Documentation/filesystem/proc.txt) because
+> unexplained values are rather useless.
+>
+> The doc currently says :
+> -------------------------------------------------------------------------
+>   Field    Content
+>   size     total program size (pages)  (same as VmSize in status)
 
-The bk tree at
+The documentation is incorrect. It was written to match a buggy
+implementation in early 2.6.x kernels.
 
-bk://drm.bkbits.net/drm-via
+VmSize is the address space occupied, excluding memory-mapped IO.
+The statm value is the address space occupied.
 
-the patch against Linus latest (along with some cleanup patches...)
+> May I suggest :
+>  - To use consistent memory size units between status and statm,
 
-is at (it is quite big...)
+No way. This would instantly break the "top" program.
 
-http://www.skynet.ie/~airlied/patches/dri/via_unichrome_patch.diff
-
-Can VIA people test this tree for me? either use bk or grab Linus latest
-and apply the patch...
-
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
 

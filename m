@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135687AbRDSOqi>; Thu, 19 Apr 2001 10:46:38 -0400
+	id <S135688AbRDSOrS>; Thu, 19 Apr 2001 10:47:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135688AbRDSOqU>; Thu, 19 Apr 2001 10:46:20 -0400
-Received: from rcum.uni-mb.si ([164.8.2.10]:29704 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S135687AbRDSOqP>;
-	Thu, 19 Apr 2001 10:46:15 -0400
-Date: Thu, 19 Apr 2001 16:46:03 +0200
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: ATA 100
-To: vojtech@suse.cz,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3ADEFA2B.2DCEAE41@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (WinNT; U)
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
-X-Accept-Language: en
+	id <S135689AbRDSOrI>; Thu, 19 Apr 2001 10:47:08 -0400
+Received: from oboe.it.uc3m.es ([163.117.139.101]:7184 "EHLO oboe.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S135688AbRDSOqz>;
+	Thu, 19 Apr 2001 10:46:55 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200104191446.f3JEkiZ30750@oboe.it.uc3m.es>
+Subject: Re: block devices don't work without plugging in 2.4.3
+In-Reply-To: <20010419155930.G22517@suse.de> from "Jens Axboe" at "Apr 19, 2001
+ 03:59:30 pm"
+To: "Jens Axboe" <axboe@suse.de>
+Date: Thu, 19 Apr 2001 16:46:44 +0200 (MET DST)
+CC: "Peter T. Breuer" <ptb@it.uc3m.es>,
+        "linux kernel" <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik (vojtech@suse.cz) wrote :
-
-> On Wed, Apr 18, 2001 at 10:21:53PM -0400, Manuel Ignacio Monge Garcia wrote: 
+"Jens Axboe wrote:"
+> [ptb wrote]
+> > through merge_reqeusts function controls.
+> > My unease derives, I think, from the fact that I have occasionally used
+> > plugging for other purposes. Namely for throttling the device. These
+> > uses have always been experimental and uniformly unsuccessful, because
+> > throttling that way backs up the VFS with dirty buffers and provokes
+> > precisely the deadlock against VFS that I was trying to avoid. So ..
+> > 
+> >  ... how can I tell when VFS is nearly full?  In those circumstances I
+> > want to sync every _other_ device, thus giving me enough buffers at
+> > least to flush something to the net with, thus freeing a request of
+> > mine, plus its buffers.
 > 
-> > El Mié 18 Abr 2001 15:16, escribiste: 
-> > > I don't know about other possible problems with the kernel, but you must 
-> > > use an 80 wire IDE cable for UDMA66/100 to work. 
-> > > 
-> > > > -----------------------Primary IDE-------Secondary IDE------ 
-> > > > Cable Type: 40w 40w 
-> > 
-> > 
-> > Strange thing. With previous version of kernel (2.4.1 I think), I 
-> > haven't got this problem. May be a bios detection problem? 
-> > 
-> > Extract from /usr/src/linux/drivers/ide/via82cxxx..c: 
-> > 
-> > * 
-> > * PIO 0-5, MWDMA 0-2, SWDMA 0-2 and UDMA 0-5 
-> > * 
-> > * (this includes UDMA33, 66 and 100) modes. UDMA66 and higher modes are 
-> > * autoenabled only in case the BIOS has detected a 80 wire cable. To ignore 
-> > * the BIOS data and assume the cable is present, use 'ide0=ata66' or 
-> > * 'ide1=ata66' on the kernel command line. 
-> > * 
-> > 
-> > I've tried with ide0=ata100, but this options doesn't work. 
-> 
-> Try ide0=ata66 instead. The option should have been named ide0=80wire, 
-> but, well, "ata66" was chosen as the name, because that was it at the 
-> time. 
+> You can't, there's currently no way of doing what you suggest. The block
+> layer will throttle locked buffers for you. Besides, this would be the
+> very wrong place to do it. If you reject or throttle requests, you are
+> effectively throttling stuff that is already locked down and cannot be
+> touched.
 
-Any chance of auto detecting this ?
-I just hate when linux is relaying on the BIOS ...
+Oh, I agree. Exactly. It's pointless to throttle via requests/plugging.
 
-BTW , why are there 666 CONFIG_.*IDE.*DMA.* switches ?
+However, it appears possible to deadlock if there is no way to detect
+generic VFS fullness.  Let me explain the setting: part of the driver is
+in user space, and it sends requests over the net.  It holds onto the
+requests and their buffers while the user space process does the
+networking (over ssl, sometimes) until an ack comes back.  There is an
+obvious deadlock against VFS if the remote is on localhost (it has to
+write the received requests to disk before acking, and it needs buffers
+to do so ..), but there have been persistent sporadic reports that the
+driver can occasionally deadlock even against a true remote host.
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+No such reports arise when I have forced a sync on the sender every
+thousand requests or so, and people with problems report that mounting
+an FS sync on the device solves their problem completely. This is
+empirical evidence, but it suggests that there is a problem to be
+avoided here. Thus I am keen to be able to detect how many buffers
+there are that could be liberated by fsyncing _other_ devices, and
+doing it.
+
+I've never seen a way.
+
+Peter

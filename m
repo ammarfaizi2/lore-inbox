@@ -1,26 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292587AbSBTXpR>; Wed, 20 Feb 2002 18:45:17 -0500
+	id <S292582AbSBTXrh>; Wed, 20 Feb 2002 18:47:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292582AbSBTXpH>; Wed, 20 Feb 2002 18:45:07 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:65247 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S292588AbSBTXot>; Wed, 20 Feb 2002 18:44:49 -0500
-Date: Wed, 20 Feb 2002 18:44:47 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200202202344.g1KNilR00457@devserv.devel.redhat.com>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+	id <S292588AbSBTXr1>; Wed, 20 Feb 2002 18:47:27 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11023 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292590AbSBTXrQ>; Wed, 20 Feb 2002 18:47:16 -0500
+Subject: Re: lseek SEEK_END fails on a Toshiba 6007MB disk.
+To: kallol@efi.com (Kallol Biswas)
+Date: Thu, 21 Feb 2002 00:01:37 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ioremap()/PCI sickness in 2.4.18-rc2 (FIXED ALMOST)
-In-Reply-To: <mailman.1014247349.21244.linux-kernel2news@redhat.com>
-In-Reply-To: <20020220152011.A1252@vger.timpanogas.org> <E16dfoX-00050r-00@the-village.bc.nu> <mailman.1014247349.21244.linux-kernel2news@redhat.com>
+In-Reply-To: <3C7433F8.8FB86B39@efi.com> from "Kallol Biswas" at Feb 20, 2002 03:40:40 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16dgg5-0005BQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff,
+> # ./seek
+> lseek: Value too large for defined data type
+> 
+> The system runs 2.4.17 kernel.
 
-did you look at some hardware other than Dolphin?
-I understand that they have the expertise and so on,
-but hey... There must be better ways.
-
--- Pete
+This is correct behaviour

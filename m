@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130069AbQL1Rrn>; Thu, 28 Dec 2000 12:47:43 -0500
+	id <S131020AbQL1RyQ>; Thu, 28 Dec 2000 12:54:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131020AbQL1Rrc>; Thu, 28 Dec 2000 12:47:32 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18450 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130069AbQL1RrS>; Thu, 28 Dec 2000 12:47:18 -0500
-Subject: Re: Repeatable Oops in 2.4t13p4ac2
-To: marcelo@conectiva.com.br (Marcelo Tosatti)
-Date: Thu, 28 Dec 2000 17:18:30 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), chris@freedom2surf.net,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0012281305530.12295-100000@freak.distro.conectiva> from "Marcelo Tosatti" at Dec 28, 2000 01:06:09 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131230AbQL1Rx4>; Thu, 28 Dec 2000 12:53:56 -0500
+Received: from dsl081-135-024-nyc1.dsl-isp.net ([64.81.135.24]:44811 "EHLO
+	monolith") by vger.kernel.org with ESMTP id <S131020AbQL1Rxt>;
+	Thu, 28 Dec 2000 12:53:49 -0500
+To: fpieraut@casi.polymtl.ca
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Activating APIC on single processor
+In-Reply-To: <Pine.LNX.4.10.10012281242140.9711-100000@thales.casi.polymtl.ca>
+From: David Huggins-Daines <dhd@eradicator.org>
+Organization: None worth mentioning
+Date: 28 Dec 2000 12:15:45 -0500
+In-Reply-To: <fpieraut@casi.polymtl.ca>'s message of "Thu, 28 Dec 2000 17:00:15 GMT"
+Message-ID: <87ae9g8o1q.fsf@monolith.cepstral.com>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14BghF-0003wu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Alan, 
-> > > 
-> > > Do you remember if the reports you've got always oopsed the same
-> > > address (0040000) ? 
-> > 
-> > They vary in report
-> 
-> Doesn't it sounds like memory problems? 
+<fpieraut@casi.polymtl.ca> writes:
 
-For -ac Im working on the assumption I introduced a bug into the mm code
+> I activate APIC interruption with the configuration of linux kernel
+> 2.4.0test-11. In the linux kernel configuration under processor type and
+> features I activate "APIC and IO-APIC support on uniprocessor",  and I
+> desactivate "Symmetric multi-processing support". The only way I found to
+> check APIC activation is looking into /proc/interrupts, no "IO-APIC" can
+> be found there. So I read IO-APIC.txt and I suppose there sould be
+> conflicts with IRQ of my PCI cards. So I remove all my PCI cards and still
+> have no APIC interrupt. 
+> Is there another way to check APIC activation? 
+> Am-I doing to right things to activate IO-APIC?
 
+You might not actually have an IO-APIC or even a local APIC.  This is
+the case with the Mobile PIII for instance (I puzzled over this myself
+for a long time).
+
+To find out for sure, run:
+
+grep 'flags.*apic' /proc/cpuinfo
+
+-- 
+David Huggins-Daines		-		dhd@eradicator.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

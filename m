@@ -1,65 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266817AbUG1HyI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266838AbUG1H5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266817AbUG1HyI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 03:54:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266819AbUG1HxF
+	id S266838AbUG1H5R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 03:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266835AbUG1H4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 03:53:05 -0400
-Received: from monster.roma2.infn.it ([141.108.255.100]:39655 "EHLO
-	monster.roma2.infn.it") by vger.kernel.org with ESMTP
-	id S266817AbUG1HeK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 03:34:10 -0400
-From: "Emiliano 'AlberT' Gabrielli" <AlberT@SuperAlberT.it>
-Reply-To: AlberT@SuperAlberT.it
-Organization: SuperAlberT.it
-To: linux-kernel@vger.kernel.org
-Subject: Re: tty1 and italian charset ...
-Date: Wed, 28 Jul 2004 09:34:00 +0200
-User-Agent: KMail/1.6.2
-References: <200407261647.40006.AlberT@SuperAlberT.it> <ce6u0e$c3t$1@terminus.zytor.com>
-In-Reply-To: <ce6u0e$c3t$1@terminus.zytor.com>
-Cc: hpa@zytor.com (H. Peter Anvin)
+	Wed, 28 Jul 2004 03:56:55 -0400
+Received: from services.exanet.com ([212.143.73.102]:62805 "EHLO
+	services.exanet.com") by vger.kernel.org with ESMTP id S266826AbUG1HpT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 03:45:19 -0400
+Message-ID: <41075986.8020401@exanet.com>
+Date: Wed, 28 Jul 2004 10:45:10 +0300
+From: Avi Kivity <avi@exanet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031027
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8bit
-Message-Id: <200407280934.00373.AlberT@SuperAlberT.it>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Deadlock during heavy write activity to userspace NFS
+ server on local NFS mount
+References: <41050300.90800@exanet.com> <20040726210229.GC21889@openzaurus.ucw.cz> <4106B992.8000703@exanet.com> <20040727203438.GB2149@elf.ucw.cz> <4106C2E8.905@exanet.com> <41070183.5000701@yahoo.com.au> <4107357C.9080108@exanet.com> <410739BD.2040203@yahoo.com.au> <41075034.7080701@exanet.com> <410752BE.80808@yahoo.com.au>
+In-Reply-To: <410752BE.80808@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Jul 2004 07:45:18.0363 (UTC) FILETIME=[D3EBDEB0:01C47476]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03:03, mercoledì 28 luglio 2004, you wrote:
-> > I already used "loadkeys it" and it seems to success, but tty1 still
-> > doesn't prints "Ã²Ã Ã¨Ã¬Ã¹" characters.
+Nick Piggin wrote:
 
-uh ??
+> Avi Kivity wrote:
+>
+>> Nick Piggin wrote:
+>
+>
+>>>
+>>> The solution is that PF_MEMALLOC tasks are allowed to access the 
+>>> reserve
+>>> pool. Dependencies don't matter to this system. It would be your job to
+>>> ensure all tasks that might need to allocate memory in order to free
+>>> memory have the flag set.
+>>
+>>
+>>
+>> In the general case that's not sufficient. What if the NFS server 
+>> wrote to ext3 via the VFS? We might have a ton of ext3 pagecache 
+>> waiting for kswapd to reclaim NFS memory, while kswapd is waiting on 
+>> the NFS server writing to ext3.
+>>
+>
+> It is sufficient.
+>
+> You didn't explain your example very well, but I'll assume it is the
+> following:
+>
+> dirty NFS data -> NFS server on localhost -> ext3 filesystem. 
 
-no sorry, you are not seeing the characters I'm trying to type...
-my charset is setted (on system-wide basis) to it_IT@EURO, no UTF-8 ... btw, 
-tryng to use UTF-8, iso-15, iso-1 and so on does not affect the problem.
-
-The characters I'm tring to print are the "italian single letter" that on a us 
-keyboard I would type as " a` ", " e` ", " e' ", " i` ", "o` ", " u` " ...
-
-I repeat that the strange thing is that _only_ tty1 as this strange 
-beahviour .. not dipending on the user logged in (infact I have this problem 
-already at login time, when I have to type the login name... If I'd have a 
-login name containing one of this characters I could not login from tty1)...
-
-Is tty1 somehow special in respect to other ttys ???
-
+That's what I meant, sorry for not making it clear.
 
 >
-> Sounds like you're trying to print Latin-1 on an UTF-8 console or vice
-> versa.
 >
->         echo -ne '\\033%G'      -- Enable UTF-8
->         echo -ne '\\033%@'      -- Disable UTF-8
+> So kswapd tries to reclaim some memory and writes out the dirty NFS
+> data. The NFS server then writes this data to ext3 (it can do this
+> because it is PF_MEMALLOC). The data gets written out, the NFS server
+> tells the client it is clean, kswapd continues.
 >
->         -hpa
+> Right?
+
+What's stopping the NFS server from ooming the machine then? Every time 
+some bit of memory becomes free, the server will consume it instantly. 
+Eventually ext3 will not be able to write anything out because it is out 
+of memory.
+
+An even more complex case is when ext3 depends on some other process, 
+say it is mounted on a loopback nbd.
+
+  dirty NFS data -> NFS server -> ext3 -> nbd -> nbd server on localhost 
+-> ext3/raw device
+
+You can't have both the NFS server and the nbd server PF_MEMALLOC, since 
+the NFS server may consume all memory, then wait for the nbd server to 
+reclaim.
+
+The solution I have in mind is to replace the sync allocation logic from
+
+    if (free_mem() < some_global_limit && !current->PF_MEMALLOC)
+        wait_for_kswapd()
+
+to
+
+    if (free_mem() < current->limit)
+        wait_for_kswapd()
+
+kswapd would have the lowest ->limit, other processes as their place in 
+the food chain dictates.  
 
 -- 
-<?php echo '       Emiliano `AlberT` Gabrielli       ',"\n",
-           '  E-Mail: AlberT_AT_SuperAlberT_it  ',"\n",
-           '  Web:    http://SuperAlberT.it  ',"\n",
-'  IRC:    #php,#AES azzurra.com ',"\n",'ICQ: 158591185'; ?>
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+
+

@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144867AbRA2DrW>; Sun, 28 Jan 2001 22:47:22 -0500
+	id <S145107AbRA2Dsv>; Sun, 28 Jan 2001 22:48:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S145027AbRA2DrM>; Sun, 28 Jan 2001 22:47:12 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:10253 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S144867AbRA2DrD>;
-	Sun, 28 Jan 2001 22:47:03 -0500
-Date: Mon, 29 Jan 2001 04:46:40 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Dieter Nützel <Dieter.Nuetzel@hamburg.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
+	id <S145106AbRA2Dsl>; Sun, 28 Jan 2001 22:48:41 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:40456 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S145105AbRA2Dsc>;
+	Sun, 28 Jan 2001 22:48:32 -0500
+Message-ID: <3A74E7FE.D0EFDA06@mandrakesoft.com>
+Date: Sun, 28 Jan 2001 22:48:14 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: drew@drewb.com
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        "Dieter Nützel" <Dieter.Nuetzel@hamburg.de>,
+        Andrew Grover <andrew.grover@intel.com>,
         Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.1-pre11 / ll_rw_b watermark metric?
-Message-ID: <20010129044640.B15679@suse.de>
-In-Reply-To: <01012904435200.00697@SunWave1>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <01012904435200.00697@SunWave1>; from Dieter.Nuetzel@hamburg.de on Mon, Jan 29, 2001 at 04:43:52AM +0100
+Subject: Re: Linux-2.4.1-pre11
+In-Reply-To: <Pine.LNX.4.10.10101281346030.4151-100000@penguin.transmeta.com>
+		<3A7494B1.70799C19@mandrakesoft.com>
+		<14964.41681.126496.746739@champ.drew.net> <14964.44473.518811.451472@champ.drew.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 29 2001, Dieter Nützel wrote:
-> I have pre11 running with Andrea's suggested fix.
+Drew Bertola wrote:
 > 
->         high_queued_sectors = total_ram / 3;
->         low_queued_sectors = high_queued_sectors / 2;
->         if (low_queued_sectors < 0)
->                 low_queued_sectors = total_ram / 2;
->  
->         /*
->          * for big RAM machines (>= 384MB), use more for I/O
->          */
->         /*
->         if (total_ram >= MB(384)) {
->                 high_queued_sectors = (total_ram * 4) / 5;
->                 low_queued_sectors = high_queued_sectors - MB(128);
->         }
->         */
+> Drew Bertola writes:
+> > Andrew's latest ACPI fixes (acpica-linux-20000125 patched against
+> > 2.4.0) compile fine here and don't hang on my Vaio after loading
+> > tables.
+> >
+> > That's a start.  I'll play around some more.
 > 
-> Shouldn't it be clean for a 2.4.1 release?
+> Unfortunately, pcmcia modules fail to load.  I can't understand the
+> interaction.
+> 
+> The message displayed on boot when starting the service says:
+> 
+> ds: no socket drivers loaded
 
-With enough swap the numbers I saw were not conclusive. I promised
-to test which I haven't gotten done yet, I will do this tomorrow
-and make sure we have the right ratios. However, I don't think
-the pre11 numbers are much off - do you have any results?
+Personally I advocate building all pcmcia stuff into the kernel.  It has
+never failed before, and its core hardware on your laptop, so it will
+always be there.  Why bother with modules at all for core
+functionality...
+
+	Jeff
+
 
 -- 
-Jens Axboe
-
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

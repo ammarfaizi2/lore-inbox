@@ -1,81 +1,180 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318159AbSGQAH5>; Tue, 16 Jul 2002 20:07:57 -0400
+	id <S318157AbSGQAFc>; Tue, 16 Jul 2002 20:05:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318161AbSGQAH4>; Tue, 16 Jul 2002 20:07:56 -0400
-Received: from egil.codesourcery.com ([66.92.14.122]:48773 "EHLO
-	egil.codesourcery.com") by vger.kernel.org with ESMTP
-	id <S318159AbSGQAHz>; Tue, 16 Jul 2002 20:07:55 -0400
-Date: Tue, 16 Jul 2002 17:10:32 -0700
-From: Zack Weinberg <zack@codesourcery.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S318159AbSGQAFb>; Tue, 16 Jul 2002 20:05:31 -0400
+Received: from bitmover.com ([192.132.92.2]:28853 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S318157AbSGQAF3>;
+	Tue, 16 Jul 2002 20:05:29 -0400
+Date: Tue, 16 Jul 2002 17:08:21 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: marcelo@conectiva.com.br
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: close return value (was Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks)
-Message-ID: <20020717001032.GI358@codesourcery.com>
-References: <20020716232225.GH358@codesourcery.com> <1026867782.1688.108.camel@irongate.swansea.linux.org.uk>
+Subject: [PATCH for 2.4] fix find to not stumble over BK
+Message-ID: <20020716170821.A8462@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1026867782.1688.108.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 17, 2002 at 02:03:02AM +0100, Alan Cox wrote:
-> On Wed, 2002-07-17 at 00:22, Zack Weinberg wrote:
-> > Making use of the close return value is also never any good.
-> 
-> This is untrue
+Marcelo,
 
-I beg to differ.
+here's a backport of the patch I did for 2.5 which fixes up all the targets
+in the top level Makefile which do things like 
 
-> > Consider: There is no guarantee that close will detect errors.  Only
-> > NFS and Coda implement f_op->flush methods.  For files on all other
-> > file systems, sys_close will always return success (assuming the file
-> > descriptor was open in the first place); the data may still be sitting
-> > in the page cache.  If you need the data pushed to the physical disk,
-> > you have to call fsync.
-> 
-> close() checking is not about physical disk guarantees. It's about more
-> basic "I/O completed". In some future Linux only close() might tell you
-> about some kinds of I/O error.
+	find dir dir2 -name '*.h' | xargs etags -
 
-I think we're talking past each other.
+Note that common usage
 
-My first point is that a portable application cannot rely on close to
-detect any error.  Only fsync guarantees to detect any errors at all
-(except ENOSPC/EDQUOT, which should come back on write; yes, I know
-about the buggy NFS implementations that report them only on close).
+	find . -name '*.[chS]' | whatever
 
-My second point, which you deleted, is that if some hypothetical close
-implementation reports an error under some circumstances, an
-immediately preceding fsync call MUST also report the same error under
-the same circumstances.
+becomes
 
-Therefore, if you've checked the return value of fsync, there's no
-point in checking the subsequent close; and if you don't care to call
-fsync, the close return value is useless since it isn't guaranteed to
-detect anything.
+	find . -name SCCS -prune -o -name BitKeeper -prune -o \
+		-name '*.[chS]' -print | whatever
+		                ^^^^^^
 
-> > There's also an ugly semantic bind if you make close detect errors.
-> > If close returns an error other than EBADF, has that file descriptor
-> > been closed?  The standards do not specify.  If it has not been
-> > closed, you have a descriptor leak.  But if it has been closed, it is
-> > too late to recover from the error.  [As far as I know, Unix
-> > implementations generally do close the descriptor.]
-> 
-> If it bothers you close it again 8)
+The -print is needed or find will produce nothing, it's now multiple clauses.
 
-And watch it come back with an error again, repeat ad infinitum?
+Please pull
 
-> > The manpage that was quoted earlier in this thread is incorrect in
-> > claiming that errors will be detected by close; it should be fixed.
-> 
-> The man page matches the stsndard. Implementation may be a subset of the
-> allowed standard right now, but don't program to implementation
-> assumptions, it leads to nasty accidents
+	bk pull bk://linux.bkbits.net/lm-2.4
 
-You missed the point.  The manpage asserts that I/O errors are
-guaranteed to be detected by close; there is no such guarantee.
+Here are the diffs:
 
-zw
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.620   -> 1.621  
+#	            Makefile	1.174   -> 1.175  
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/07/16	lm@disks.bitmover.com	1.621
+# Do not descend into BitKeeper/SCCS directories when running find
+# to generate lists of files.
+# --------------------------------------------
+#
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	Tue Jul 16 16:57:21 2002
++++ b/Makefile	Tue Jul 16 16:57:21 2002
+@@ -367,16 +367,25 @@
+ 	$(MAKE) CFLAGS="$(CFLAGS) $(CFLAGS_KERNEL)" $(subst $@, _dir_$@, $@)
+ 
+ TAGS: dummy
+-	{ find include/asm-${ARCH} -name '*.h' -print ; \
+-	find include -type d \( -name "asm-*" -o -name config \) -prune -o -name '*.h' -print ; \
+-	find $(SUBDIRS) init arch/${ARCH} -name '*.[chS]' ; } | grep -v SCCS | etags -
++	{ find include/asm-${ARCH} \
++		-name SCCS -prune -o -name BitKeeper -prune -o \
++		-name '*.h' -print ; \
++	find include -name SCCS -prune -o -name BitKeeper -prune -o \
++		-type d \( -name "asm-*" -o -name config \) -prune -o \
++		-name '*.h' -print ; \
++	find $(SUBDIRS) init arch/${ARCH} \
++		-name SCCS -prune -o -name BitKeeper -prune -o \
++		-name '*.[chS]' -print ; } | etags -
+ 
+ # Exuberant ctags works better with -I
+ tags: dummy
+ 	CTAGSF=`ctags --version | grep -i exuberant >/dev/null && echo "-I __initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_NOVERS"`; \
+-	ctags $$CTAGSF `find include/asm-$(ARCH) -name '*.h'` && \
+-	find include -type d \( -name "asm-*" -o -name config \) -prune -o -name '*.h' -print | xargs ctags $$CTAGSF -a && \
+-	find $(SUBDIRS) init -name '*.[ch]' | xargs ctags $$CTAGSF -a
++	ctags $$CTAGSF `find include/asm-$(ARCH) -name SCCS -prune -o -name BitKeeper -prune -o -name '*.h' -print` && \
++	find include -name SCCS -prune -o -name BitKeeper -prune -o \
++		-type d \( -name "asm-*" -o -name config \) -prune -o \
++		-name '*.h' -print | xargs ctags $$CTAGSF -a && \
++	find $(SUBDIRS) init -name SCCS -prune -o -name BitKeeper -prune -o \
++		-name '*.[ch]' -print | xargs ctags $$CTAGSF -a
+ 
+ ifdef CONFIG_MODULES
+ ifdef CONFIG_MODVERSIONS
+@@ -440,23 +449,29 @@
+ endif
+ 
+ clean:	archclean
+-	find . \( -name '*.[oas]' -o -name core -o -name '.*.flags' \) -type f -print \
++	find . -name SCCS -prune -o -name BitKeeper -prune -o \
++		\( -name '*.[oas]' -o -name core -o -name '.*.flags' \) \
++		-type f -print \
+ 		| grep -v lxdialog/ | xargs rm -f
+ 	rm -f $(CLEAN_FILES)
+ 	rm -rf $(CLEAN_DIRS)
+ 	$(MAKE) -C Documentation/DocBook clean
+ 
+ mrproper: clean archmrproper
+-	find . \( -size 0 -o -name .depend \) -type f -print | xargs rm -f
++	find . -name SCCS -prune -o -name BitKeeper -prune -o \
++		\( -size 0 -o -name .depend \) \
++		-type f -print | xargs rm -f
+ 	rm -f $(MRPROPER_FILES)
+ 	rm -rf $(MRPROPER_DIRS)
+ 	$(MAKE) -C Documentation/DocBook mrproper
+ 
+ distclean: mrproper
+-	rm -f core `find . \( -not -type d \) -and \
++	@find . -name SCCS -prune -o -name BitKeeper -prune -o \
++		\( -not -type d \) -and \
+ 		\( -name '*.orig' -o -name '*.rej' -o -name '*~' \
+ 		-o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
+-		-o -name '.*.rej' -o -name '.SUMS' -o -size 0 \) -type f -print` TAGS tags
++		-o -name '.*.rej' -o -name '.SUMS' -o -size 0 \) -type f \
++		-print | xargs rm -f
+ 
+ backup: mrproper
+ 	cd .. && tar cf - linux/ | gzip -9 > backup.gz
+@@ -483,11 +498,12 @@
+ 	$(MAKE) -C Documentation/DocBook man
+ 
+ sums:
+-	find . -type f -print | sort | xargs sum > .SUMS
++	find . -name SCCS -prune -o -name BitKeeper -prune -o \
++		-type f -print | sort | xargs sum > .SUMS
+ 
+ dep-files: scripts/mkdep archdep include/linux/version.h
+ 	scripts/mkdep -- init/*.c > .depend
+-	scripts/mkdep -- `find $(FINDHPATH) -name SCCS -prune -o -follow -name \*.h ! -name modversions.h -print` > .hdepend
++	scripts/mkdep -- `find $(FINDHPATH) -name SCCS -prune -o -name BitKeeper -prune -o -follow -name \*.h ! -name modversions.h -print` > .hdepend
+ 	$(MAKE) $(patsubst %,_sfdep_%,$(SUBDIRS)) _FASTDEP_ALL_SUB_DIRS="$(SUBDIRS)"
+ ifdef CONFIG_MODVERSIONS
+ 	$(MAKE) update-modverfile
+@@ -503,13 +519,19 @@
+ depend dep: dep-files
+ 
+ checkconfig:
+-	find * -name '*.[hcS]' -type f -print | sort | xargs $(PERL) -w scripts/checkconfig.pl
++	find * -name SCCS -prune -o -name BitKeeper -prune -o \
++		-name '*.[hcS]' -type f -print \
++		| sort | xargs $(PERL) -w scripts/checkconfig.pl
+ 
+ checkhelp:
+-	find * -name [cC]onfig.in -print | sort | xargs $(PERL) -w scripts/checkhelp.pl
++	find * -name SCCS -prune -o -name BitKeeper -prune -o \
++		-name [cC]onfig.in -print \
++		| sort | xargs $(PERL) -w scripts/checkhelp.pl
+ 
+ checkincludes:
+-	find * -name '*.[hcS]' -type f -print | sort | xargs $(PERL) -w scripts/checkincludes.pl
++	find * -name SCCS -prune -o -name BitKeeper -prune -o \
++		-name '*.[hcS]' -type f -print \
++		| sort | xargs $(PERL) -w scripts/checkincludes.pl
+ 
+ ifdef CONFIGURATION
+ ..$(CONFIGURATION):
+@@ -559,7 +581,9 @@
+ #	   will become invalid
+ #
+ rpm:	clean spec
+-	find . \( -size 0 -o -name .depend -o -name .hdepend \) -type f -print | xargs rm -f
++	find . -name SCCS -prune -o -name BitKeeper -prune -o \
++		\( -size 0 -o -name .depend -o -name .hdepend \) \
++		-type f -print | xargs rm -f
+ 	set -e; \
+ 	cd $(TOPDIR)/.. ; \
+ 	ln -sf $(TOPDIR) $(KERNELPATH) ; \

@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbTEESaj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 14:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbTEESaj
+	id S261203AbTEESbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 14:31:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbTEESbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 14:30:39 -0400
-Received: from [12.47.58.20] ([12.47.58.20]:62647 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S261202AbTEESah (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 14:30:37 -0400
-Date: Mon, 5 May 2003 11:44:44 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Andrei Ivanov <andrei.ivanov@ines.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69-mm1
-Message-Id: <20030505114444.0a22a180.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.50L0.0305051826500.4098-100000@webdev.ines.ro>
-References: <20030504231650.75881288.akpm@digeo.com>
-	<Pine.LNX.4.50L0.0305051826500.4098-100000@webdev.ines.ro>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 5 May 2003 14:31:23 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:64417 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP id S261203AbTEESbT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 14:31:19 -0400
+Message-ID: <3EB6B0DD.2000404@tmsusa.com>
+Date: Mon, 05 May 2003 11:43:41 -0700
+From: jjs <jjs@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux kernel <linux-kernel@vger.kernel.org>
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.5.69-mm1 OOPS: modprobe usbcore
+References: <1052151088.1052.0.camel@teapot.felipe-alfaro.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 May 2003 18:43:03.0388 (UTC) FILETIME=[290549C0:01C31336]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrei Ivanov <andrei.ivanov@ines.ro> wrote:
->
-> And... about the "Trying to free free IRQ12" messages and 
-> 
->  12:          1          XT-PIC  acpi, i8042, i8042, i8042, i8042
-> 
-> should I worry ?
+Felipe Alfaro Solana wrote:
 
-That's probably due to the "let i8042 share IRQs" patch.  It seems to be
-harmless, but I need to look into it.
+>Process modprobe (pid: 62, threadinfo=df9f2000 task=dfdb8e00)
+>
+>
+>[<c0118ab8>] module_finalize+0x7f/0x8b
+>[<c013de18>] load_module+0x61c/0x821
+>[<c013e0b1>] sys_init_module+0x94/0x340
+>[<c0109e01>] sysenter_past_esp+0x52/0x71
+>
+>This error is reproducble 100% of the time when trying to boot Red Hat
+>Linux 9 with a 2.5.69-mm1 kernel. Config attached.
+>
+
+Just a me too, I see the same thing in 2.5.69-mm1.
+
+I first saw it in 2.5.68-mm4,  2.5.68-mm3 was fine -
+
+I suspect 2.5.69 vanilla is fine as well, currently
+compiling to verify -
+
+Joe
+

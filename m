@@ -1,216 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262113AbRE2WBU>; Tue, 29 May 2001 18:01:20 -0400
+	id <S262088AbRE2WHb>; Tue, 29 May 2001 18:07:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262099AbRE2WBK>; Tue, 29 May 2001 18:01:10 -0400
-Received: from csl.Stanford.EDU ([171.64.66.149]:33253 "EHLO csl.Stanford.EDU")
-	by vger.kernel.org with ESMTP id <S262088AbRE2WA7>;
-	Tue, 29 May 2001 18:00:59 -0400
-From: Dawson Engler <engler@csl.Stanford.EDU>
-Message-Id: <200105292200.PAA29842@csl.Stanford.EDU>
-Subject: [CHECKER] 4 security holes in 2.4.4-ac8
-To: linux-kernel@vger.kernel.org
-Date: Tue, 29 May 2001 15:00:56 -0700 (PDT)
-Cc: mc@cs.Stanford.EDU
-X-Mailer: ELM [version 2.5 PL1]
+	id <S262119AbRE2WHV>; Tue, 29 May 2001 18:07:21 -0400
+Received: from highland.isltd.insignia.com ([195.217.222.20]:51469 "EHLO
+	highland.isltd.insignia.com") by vger.kernel.org with ESMTP
+	id <S262088AbRE2WHB>; Tue, 29 May 2001 18:07:01 -0400
+Message-ID: <3B141DCD.C2CE9BCD@insignia.com>
+Date: Tue, 29 May 2001 23:08:13 +0100
+From: Stephen Thomas <stephen.thomas@insignia.com>
+Organization: Insignia Solutions
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: vojtech@suse.cz
+CC: linux-kernel@vger.kernel.org
+Subject: Reproducible oops when loading ns558.o in 2.4.5-ac4
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+ksymoops 2.3.7 on i686 2.4.5-ac4.  Options used
+     -v linux-2.4.5-ac4/vmlinux (specified)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.5-ac4/ (default)
+     -m linux-2.4.5-ac4/System.map (specified)
 
-Enclosed are four bugs where 2.4.4-ac8 kernel code appears to directly
-read/write user space pointers.  The latter three were found after
-forming equivalence classes by:
-	(1) recording all routines assigned to the same function pointer
-	    field in a structure
-	(2) if any member of the equiv class treated a parameter as a
-	    user-space pointer, checking that they all do.
+May 29 22:40:52 wycliffe kernel: Unable to handle kernel paging request at virtual address 3d83537a 
+May 29 22:40:52 wycliffe kernel: c01a8d27 
+May 29 22:40:52 wycliffe kernel: *pde = 00000000 
+May 29 22:40:52 wycliffe kernel: Oops: 0000 
+May 29 22:40:52 wycliffe kernel: CPU:    0 
+May 29 22:40:52 wycliffe kernel: EIP:    0010:[isapnp_find_dev+59/256] 
+May 29 22:40:52 wycliffe kernel: EFLAGS: 00010213 
+May 29 22:40:52 wycliffe kernel: eax: 3d835356   ebx: cc8a36e4   ecx: 00000000   edx: cc8a348c 
+May 29 22:40:52 wycliffe kernel: esi: 00000002   edi: 00000002   ebp: 00000100   esp: cb12dedc 
+May 29 22:40:52 wycliffe kernel: ds: 0018   es: 0018   ss: 0018 
+May 29 22:40:52 wycliffe kernel: Process modprobe (pid: 662, stackpage=cb12d000) 
+May 29 22:40:52 wycliffe kernel: Stack: cc8a36e4 cc8a348c 00000001 cc8a382c cc8a3000 cc8a3824 000000ff 0002382c  
+May 29 22:40:52 wycliffe kernel:        cc8a34f5 00000000 00000002 00000100 cc8a348c cc8a3000 cc8a348c c0114b28  
+May 29 22:40:52 wycliffe kernel:        cb12c000 0804b52b 08061d70 bfffc45c 00000001 cc8a1000 cc8a1000 cc8a3818  
+May 29 22:40:52 wycliffe kernel: Call Trace: [<cc8a36e4>] [<cc8a348c>] [<cc8a382c>] [<cc8a3000>] [<cc8a3824>]  
+May 29 22:40:52 wycliffe kernel:    [<cc8a34f5>] [<cc8a348c>] [<cc8a3000>] [<cc8a348c>] [sys_init_module+1424/1588] [<cc8a1000>]  
+May 29 22:40:52 wycliffe kernel:    [<cc8a1000>] [<cc8a3818>] [<cc8a1000>] [<cc8a3060>] [system_call+51/56]  
+May 29 22:40:52 wycliffe kernel: Code: 66 39 78 24 75 0a 66 39 68 26 0f 84 ab 00 00 00 31 c9 8d 70  
+Using defaults from ksymoops -t elf32-i386 -a i386
 
-Let me know if any of these are wrong.  The first one seems pretty bad.
+Trace; cc8a36e4 <[ns558]pnp_devids+4/48>
+Trace; cc8a348c <[ns558]init_module+0/0>
+Trace; cc8a382c <[ns558].bss.end+15/1d>
+Trace; cc8a3000 <[gameport]__kstrtab_gameport_cooked_read+1a47/1aa7>
+Trace; cc8a3824 <[ns558].bss.end+d/1d>
+Trace; cc8a34f5 <[ns558]ns558_init+69/90>
+Trace; cc8a348c <[ns558]init_module+0/0>
+Trace; cc8a3000 <[gameport]__kstrtab_gameport_cooked_read+1a47/1aa7>
+Trace; cc8a348c <[ns558]init_module+0/0>
+Trace; cc8a1000 <[joydev]__module_device+185d/18bd>
+Trace; cc8a3818 <[ns558].bss.end+1/1d>
+Trace; cc8a1000 <[joydev]__module_device+185d/18bd>
+Trace; cc8a3060 <[ns558]ns558_isa_probe+0/2b8>
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   66 39 78 24               cmp    %di,0x24(%eax)
+Code;  00000004 Before first symbol
+   4:   75 0a                     jne    10 <_EIP+0x10> 00000010 Before first symbol
+Code;  00000006 Before first symbol
+   6:   66 39 68 26               cmp    %bp,0x26(%eax)
+Code;  0000000a Before first symbol
+   a:   0f 84 ab 00 00 00         je     bb <_EIP+0xbb> 000000bb Before first symbol
+Code;  00000010 Before first symbol
+  10:   31 c9                     xor    %ecx,%ecx
+Code;  00000012 Before first symbol
+  12:   8d 70 00                  lea    0x0(%eax),%esi
 
-Dawson
--------------------------------------------------------------------------------
-[BUG] raddr seems to be a user pointer, but is written at the end of
-      the system call.
+The module loaded OK in 2.4.5-ac3.  input, joydev, ns558, gameport and analog
+are all configured as modules.
 
-ipc/shm.c: ERROR: system call 'sys_shmat' derefs non-tainted param= 3
-
-asmlinkage long sys_shmat (int shmid, char *shmaddr, int shmflg, ulong *raddr)
-{
-        struct shmid_kernel *shp;
-
-
-	...
-        *raddr = (unsigned long) user_addr;
-        err = 0;
-        if (IS_ERR(user_addr))
-                err = PTR_ERR(user_addr);
-        return err;
-
------------------------------------------------------------------------------
-[BUG] ./drivers/usb/bluetooth.c: dereference of 'buf' at the beginning of
-      the switch, and then does a copyin.
-
-	ERROR: equivalence class <struct tty_driver:write> contains 
-	2 functions that taint parameter <2>, and 1
-	functions that dereference it raw.
-
-	Tainting functions
-		[ acm_tty_write:acm.c ]
-		[ serial_write:usbserial.c ]
-	Dereferencing functions
-		[ bluetooth_write:bluetooth.c ]
-
-
-        switch (*buf) {
-                /* First byte indicates the type of packet */
-                case CMD_PKT:
-                        /* dbg(__FUNCTION__ "- Send cmd_pkt len:%d", count);*/
-
-                        if (in_interrupt()){
-                                printk("cmd_pkt from interrupt!\n");
-                                return count;
-                        }
-
-                        new_buffer = kmalloc (count-1, GFP_KERNEL);
-
-                        if (!new_buffer) {
-                                err (__FUNCTION__ "- out of memory.");
-                                return -ENOMEM;
-                        }
-
-                        if (from_user)
-                                copy_from_user (new_buffer, buf+1, count-1);
-                        else
-                                memcpy (new_buffer, buf+1, count-1);
-
--------------------------------------------------------
-In the equivalence class for file_operations:write: 55 functions treat
-their second parameter as tainted, but two functions use it raw.
-
-[BUG]
-/* drivers/char/sbc60xxwdt.c: buf is tainted */
-static ssize_t fop_write(struct file * file, const char * buf, size_t count, loff_t * ppos)
-{       
-        /* We can't seek */
-        if(ppos != &file->f_pos)
-                return -ESPIPE;
-        
-        /* See if we got the magic character */
-        if(count) 
-        {
-                size_t ofs;
-                
-                /* note: just in case someone wrote the magic character
-                 * five months ago... */
-                wdt_expect_close = 0;
-                
-                /* now scan */
-                for(ofs = 0; ofs != count; ofs++)
-                        if(buf[ofs] == 'V')
-                                wdt_expect_close = 1;
- 
-                /* Well, anyhow someone wrote to us, we should return that favour */
-                next_heartbeat = jiffies + WDT_HEARTBEAT;
-        }
-        return 0;
-}               
-
-
-[BUG]
-/* drivers/usb/mdc800.c: buf is tainted */
-static ssize_t mdc800_device_write (struct file *file, const char *buf, size_t len, loff_t *pos)
-{               
-        int i=0;
- 
-        spin_lock (&mdc800->io_lock);
-        if (mdc800->state != READY)
-        {       
-                spin_unlock (&mdc800->io_lock);
-                return -EBUSY;
-        }       
-        if (!mdc800->open )
-        {       
-                spin_unlock (&mdc800->io_lock);
-                return -EBUSY;
-        }       
- 
-        while (i<len)
-        {       
-                if (signal_pending (current))
-                { 
-                        spin_unlock (&mdc800->io_lock);
-                        return -EINTR;
-                }
-        
-                /* check for command start */
-                if (buf [i] == (char) 0x55)
-                { 
-                        mdc800->in_count=0;
-
-
-
-Here's the equiv classes:
-
-	Tainting functions
-		[ ac_write:applicom.c ]
-		[ affs_file_write:file.c ]
-		[ block_write:ksyms.c ]
-		[ camera_write:dc2xx.c ]
-		[ cap_info_write:file_cap.c ]
-		[ capi_write:capi.c ]
-		[ capinc_raw_write:capi.c ]
-		[ coda_file_write:file.c ]
-		[ coda_psdev_write:psdev.c ]
-		[ cs4281_midi_write:cs4281m.c ]
-		[ cs4281_write:cs4281m.c ]
-		[ dev_irnet_write:irnet_ppp.h ]
-		[ dev_write:raw1394.c ]
-		[ ds_write:ds.c ]
-		[ dtlk_write:dtlk.c ]
-		[ emu10k1_audio_write:audio.c ]
-		[ emu10k1_midi_write:midi.c ]
-		[ generic_file_write:ksyms.c ]
-		[ hdr_write:file_hdr.c ]
-		[ hfs_file_write:file.c ]
-		[ hpfs_file_write:inode.c ]
-		[ i2cdev_write:i2c-dev.c ]
-		[ idetape_chrdev_write:ide-tape.c ]
-		[ isapnp_info_entry_write:isapnp_proc.c ]
-		[ isdn_write:isdn_common.c ]
-		[ ixj_enhanced_write:ixj.c ]
-		[ lp_write:lp.c ]
-		[ mem_write:pcilynx.c ]
-		[ microcode_write:microcode.c ]
-		[ mtd_write:mtdchar.c ]
-		[ mtrr_write:mtrr.c ]
-		[ ncp_file_write:file.c ]
-		[ nfs_file_write:file.c ]
-		[ nvram_write:nvram.c ]
-		[ osst_write:osst.c ]
-		[ pg_write:pg.c ]
-		[ pipe_write:pipe.c ]
-		[ ppp_write:ppp_generic.c ]
-		[ proc_bus_pci_write:proc.c ]
-		[ proc_mpc_write:mpoa_proc.c ]
-		[ qic02_tape_write:tpqic02.c ]
-		[ sg_write:sg.c ]
-		[ shmem_file_write:shmem.c ]
-		[ smb_file_write:file.c ]
-		[ st_write:st.c ]
-		[ tun_chr_write:tun.c ]
-		[ usb_audio_write:audio.c ]
-		[ vcs_write:vc_screen.c ]
-		[ write_kmem:mem.c ]
-		[ write_mem:mem.c ]
-		[ write_port:mem.c ]
-		[ write_profile:proc_misc.c ]
-		[ write_rio:rio500.c ]
-		[ write_scanner:scanner.c ]
-		[ zft_write:zftape-init.c ]
-	Dereferencing functions
-		[ fop_write:sbc60xxwdt.c ]
-		[ mdc800_device_write:mdc800.c ]
+Stephen Thomas

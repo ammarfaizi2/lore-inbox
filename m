@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbUJYWFL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbUJYWD7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261267AbUJYWFL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 18:05:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbUJYWEy
+	id S261315AbUJYWD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 18:03:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbUJYV4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 18:04:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:16551 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261267AbUJYWBm (ORCPT
+	Mon, 25 Oct 2004 17:56:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:50650 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261294AbUJYVwP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 18:01:42 -0400
-Date: Mon, 25 Oct 2004 15:05:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: smurf@smurf.noris.de, linux-kernel@vger.kernel.org
-Subject: Re: BK kernel workflow
-Message-Id: <20041025150506.258edc58.akpm@osdl.org>
-In-Reply-To: <417D203B.4030508@pobox.com>
-References: <41752E53.8060103@pobox.com>
-	<20041019153126.GG18939@work.bitmover.com>
-	<41753B99.5090003@pobox.com>
-	<4d8e3fd304101914332979f86a@mail.gmail.com>
-	<20041019213803.GA6994@havoc.gtf.org>
-	<4d8e3fd3041019145469f03527@mail.gmail.com>
-	<20041019232710.GA10841@kroah.com>
-	<pan.2004.10.25.13.01.49.824742@smurf.noris.de>
-	<417D203B.4030508@pobox.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Oct 2004 17:52:15 -0400
+Date: Mon, 25 Oct 2004 17:51:48 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Javier Marcet <javier@marcet.info>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Con Kolivas <kernel@kolivas.org>
+Subject: Re: Mem issues in 2.6.9 (ever since 2.6.9-rc3) and possible cause
+In-Reply-To: <20041023125948.GC9488@marcet.info>
+Message-ID: <Pine.LNX.4.44.0410251735470.21539-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
+Content-ID: <Pine.LNX.4.44.0410251735472.21539@chimarrao.boston.redhat.com>
+Content-Disposition: INLINE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> wrote:
->
-> Matthias Urlichs wrote:
-> > Andrew also does things like
-> > 
-> > bk-netdev.patch
-> > e1000-module_param-fix.patch
-> > ne2k-pci-pci-build-fix.patch
-> > r8169-module_param-fix.patch
-> > 
-> > which my mind translates as "there's something stupid, incomplete or
-> > outdated in the bk-netdev tree", or "that tree's maintainer should apply
-> > these patches. Now." (Ideally, of course, my import script should do the
-> > same thing.)
-> 
-> Wrong on all counts.
+On Sat, 23 Oct 2004, Javier Marcet wrote:
 
-"wrong" became "right".  Those patches need to be applied now.  I'll resend them.
+> I'm not saying everything within the patch is needed, not even that it's
+> the right thing to change.
 
-But Matthias has described the algorithm correctly: I try to keep "fixups"
-as close as possible to the patches which they fix.
+I suspect the following (still untested) patch might be
+needed, too.  Basically when the VM gets tight, it could
+still ignore swappable pages with the referenced bit set.
+Both really referenced pages and pages from the process
+that currently has the swap token.
 
-I also try to keep patches in when-to-go-to-linus order, but that's much
-harder to achieve, for various reasons.
+Forcefully deactivating a few pages when we run with
+priority 0 might get rid of the false OOM kills.
+
+I'm about to test this on a very small system here, and
+will let you know how things go.
+
+
+===== mm/vmscan.c 1.231 vs edited =====
+--- 1.231/mm/vmscan.c	Sun Oct 17 01:07:24 2004
++++ edited/mm/vmscan.c	Mon Oct 25 17:38:56 2004
+@@ -379,7 +379,7 @@
+ 
+ 		referenced = page_referenced(page, 1);
+ 		/* In active use or really unfreeable?  Activate it. */
+-		if (referenced && page_mapping_inuse(page))
++		if (referenced && sc->priority && page_mapping_inuse(page))
+ 			goto activate_locked;
+ 
+ #ifdef CONFIG_SWAP
+@@ -715,7 +715,7 @@
+ 		if (page_mapped(page)) {
+ 			if (!reclaim_mapped ||
+ 			    (total_swap_pages == 0 && PageAnon(page)) ||
+-			    page_referenced(page, 0)) {
++			    (page_referenced(page, 0) && sc->priority)) {
+ 				list_add(&page->lru, &l_active);
+ 				continue;
+ 			}
+
 

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbVASIMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVASIGz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261615AbVASIMM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 03:12:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVASILg
+	id S261639AbVASIGz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 03:06:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVASIGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 03:11:36 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:55999 "EHLO
+	Wed, 19 Jan 2005 03:06:22 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54463 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261615AbVASHdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 02:33:50 -0500
+	id S261639AbVASHdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 02:33:45 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <fastboot@lists.osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 10/29] x86_64-vmlinux-fix-physical-addrs
+Subject: [PATCH 15/29] x86-machine_shutdown
 Date: Wed, 19 Jan 2005 0:31:37 -0700
-Message-ID: <x86-64-vmlinux-fix-physical-addrs-11061198972723@ebiederm.dsl.xmission.com>
+Message-ID: <x86-machine-shutdown-1106119897775@ebiederm.dsl.xmission.com>
 X-Mailer: patch-bomb.pl@ebiederm.dsl.xmission.com
-In-Reply-To: <x86-vmlinux-fix-physical-addrs-11061198971192@ebiederm.dsl.xmission.com>
+In-Reply-To: <kexec-kexec-generic-11061198974111@ebiederm.dsl.xmission.com>
 References: <overview-11061198973484@ebiederm.dsl.xmission.com>
 	<x86-rename-apic-mode-exint-11061198973109@ebiederm.dsl.xmission.com>
 	<x86-local-apic-fix-11061198972413@ebiederm.dsl.xmission.com>
@@ -27,262 +27,152 @@ References: <overview-11061198973484@ebiederm.dsl.xmission.com>
 	<x86-64-apic-virtwire-on-shutdown-11061198973345@ebiederm.dsl.xmission.com>
 	<vmlinux-fix-physical-addrs-11061198973860@ebiederm.dsl.xmission.com>
 	<x86-vmlinux-fix-physical-addrs-11061198971192@ebiederm.dsl.xmission.com>
+	<x86-64-vmlinux-fix-physical-addrs-11061198972723@ebiederm.dsl.xmission.com>
+	<x86-64-entry64-1106119897218@ebiederm.dsl.xmission.com>
+	<x86-config-kernel-start-1106119897152@ebiederm.dsl.xmission.com>
+	<x86-64-config-kernel-start-11061198972987@ebiederm.dsl.xmission.com>
+	<kexec-kexec-generic-11061198974111@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The vmlinux on x86_64 does not report the correct physical address of
-the kernel.  Instead in the physical address field it currently
-reports the virtual address of the kernel.
+Factor out the apic and smp shutdown code from machine_restart so it can be
+called by in the kexec reboot path as well.
 
-This is patch is a bug fix that corrects vmlinux to report the
-proper physical addresses.
-
-This is potentially a help for crash dump analysis tools.
-
-This definitiely allows bootloaders that load vmlinux as a standard
-ELF executable.  Bootloaders directly loading vmlinux become of
-practical importance when we consider the kexec on panic case.
+By switching to the bootstrap cpu by default on reboot I can delete/simplify
+some motherboard fixups well.
 
 Signed-off-by: Eric Biederman <ebiederm@xmission.com>
 ---
 
- Makefile             |    2 
- kernel/vmlinux.lds.S |  130 ++++++++++++++++++++++++++++++++++-----------------
- 2 files changed, 88 insertions(+), 44 deletions(-)
+ reboot.c |   82 +++++++++++++++++++--------------------------------------------
+ 1 files changed, 26 insertions(+), 56 deletions(-)
 
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86-vmlinux-fix-physical-addrs/arch/x86_64/Makefile linux-2.6.11-rc1-mm1-nokexec-x86_64-vmlinux-fix-physical-addrs/arch/x86_64/Makefile
---- linux-2.6.11-rc1-mm1-nokexec-x86-vmlinux-fix-physical-addrs/arch/x86_64/Makefile	Fri Jan 14 04:28:33 2005
-+++ linux-2.6.11-rc1-mm1-nokexec-x86_64-vmlinux-fix-physical-addrs/arch/x86_64/Makefile	Tue Jan 18 22:46:07 2005
-@@ -35,7 +35,7 @@
+diff -uNr linux-2.6.11-rc1-mm1-nokexec-kexec-kexec-generic/arch/i386/kernel/reboot.c linux-2.6.11-rc1-mm1-nokexec-x86-machine_shutdown/arch/i386/kernel/reboot.c
+--- linux-2.6.11-rc1-mm1-nokexec-kexec-kexec-generic/arch/i386/kernel/reboot.c	Fri Jan  7 12:53:43 2005
++++ linux-2.6.11-rc1-mm1-nokexec-x86-machine_shutdown/arch/i386/kernel/reboot.c	Tue Jan 18 22:58:00 2005
+@@ -23,7 +23,6 @@
+ int reboot_thru_bios;
  
- LDFLAGS		:= -m elf_x86_64
- OBJCOPYFLAGS	:= -O binary -R .note -R .comment -S
--LDFLAGS_vmlinux := -e stext
-+LDFLAGS_vmlinux :=
+ #ifdef CONFIG_SMP
+-int reboot_smp = 0;
+ static int reboot_cpu = -1;
+ /* shamelessly grabbed from lib/vsprintf.c for readability */
+ #define is_digit(c)	((c) >= '0' && (c) <= '9')
+@@ -46,7 +45,6 @@
+ 			break;
+ #ifdef CONFIG_SMP
+ 		case 's': /* "smp" reboot by executing reset on BSP or other CPU*/
+-			reboot_smp = 1;
+ 			if (is_digit(*(str+1))) {
+ 				reboot_cpu = (int) (*(str+1) - '0');
+ 				if (is_digit(*(str+2))) 
+@@ -85,33 +83,9 @@
+ 	return 0;
+ }
  
- CHECKFLAGS      += -D__x86_64__ -m64
+-/*
+- * Some machines require the "reboot=s"  commandline option, this quirk makes that automatic.
+- */
+-static int __init set_smp_reboot(struct dmi_system_id *d)
+-{
+-#ifdef CONFIG_SMP
+-	if (!reboot_smp) {
+-		reboot_smp = 1;
+-		printk(KERN_INFO "%s series board detected. Selecting SMP-method for reboots.\n", d->ident);
+-	}
+-#endif
+-	return 0;
+-}
+-
+-/*
+- * Some machines require the "reboot=b,s"  commandline option, this quirk makes that automatic.
+- */
+-static int __init set_smp_bios_reboot(struct dmi_system_id *d)
+-{
+-	set_smp_reboot(d);
+-	set_bios_reboot(d);
+-	return 0;
+-}
+-
+ static struct dmi_system_id __initdata reboot_dmi_table[] = {
+ 	{	/* Handle problems with rebooting on Dell 1300's */
+-		.callback = set_smp_bios_reboot,
++		.callback = set_bios_reboot,
+ 		.ident = "Dell PowerEdge 1300",
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
+@@ -295,41 +269,32 @@
+ 				: "i" ((void *) (0x1000 - sizeof (real_mode_switch) - 100)));
+ }
  
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86-vmlinux-fix-physical-addrs/arch/x86_64/kernel/vmlinux.lds.S linux-2.6.11-rc1-mm1-nokexec-x86_64-vmlinux-fix-physical-addrs/arch/x86_64/kernel/vmlinux.lds.S
---- linux-2.6.11-rc1-mm1-nokexec-x86-vmlinux-fix-physical-addrs/arch/x86_64/kernel/vmlinux.lds.S	Fri Jan  7 12:53:50 2005
-+++ linux-2.6.11-rc1-mm1-nokexec-x86_64-vmlinux-fix-physical-addrs/arch/x86_64/kernel/vmlinux.lds.S	Tue Jan 18 22:46:07 2005
-@@ -2,36 +2,41 @@
-  * Written by Martin Mares <mj@atrey.karlin.mff.cuni.cz>;
-  */
- 
-+#define LOAD_OFFSET __START_KERNEL_map
-+
- #include <asm-generic/vmlinux.lds.h>
-+#include <asm/page.h>
- #include <linux/config.h>
- 
- OUTPUT_FORMAT("elf64-x86-64", "elf64-x86-64", "elf64-x86-64")
- OUTPUT_ARCH(i386:x86-64)
--ENTRY(_start)
-+ENTRY(stext)
- jiffies_64 = jiffies;
- SECTIONS
+-void machine_restart(char * __unused)
++void machine_shutdown(void)
  {
--  . = 0xffffffff80100000;
-+  . = __START_KERNEL;
-   _text = .;			/* Text and read-only data */
--  .text : {
-+  .text :  AT(ADDR(.text) - LOAD_OFFSET) {
- 	*(.text)
- 	SCHED_TEXT
- 	LOCK_TEXT
- 	*(.fixup)
- 	*(.gnu.warning)
- 	} = 0x9090
--  .text.lock : { *(.text.lock) }	/* out-of-line lock text */
-+  				/* out-of-line lock text */
-+  .text.lock : AT(ADDR(.text.lock) - LOAD_OFFSET) { *(.text.lock) }
- 
-   _etext = .;			/* End of text section */
- 
-   . = ALIGN(16);		/* Exception table */
-   __start___ex_table = .;
--  __ex_table : { *(__ex_table) }
-+  __ex_table : AT(ADDR(__ex_table) - LOAD_OFFSET) { *(__ex_table) }
-   __stop___ex_table = .;
- 
-   RODATA
- 
--  .data : {			/* Data */
-+				/* Data */
-+  .data : AT(ADDR(.data) - LOAD_OFFSET) {
- 	*(.data)
- 	CONSTRUCTORS
+ #ifdef CONFIG_SMP
+-	int cpuid;
+-	
+-	cpuid = GET_APIC_ID(apic_read(APIC_ID));
+-
+-	if (reboot_smp) {
+-
+-		/* check to see if reboot_cpu is valid 
+-		   if its not, default to the BSP */
+-		if ((reboot_cpu == -1) ||  
+-		      (reboot_cpu > (NR_CPUS -1))  || 
+-		      !physid_isset(cpuid, phys_cpu_present_map))
+-			reboot_cpu = boot_cpu_physical_apicid;
+-
+-		reboot_smp = 0;  /* use this as a flag to only go through this once*/
+-		/* re-run this function on the other CPUs
+-		   it will fall though this section since we have 
+-		   cleared reboot_smp, and do the reboot if it is the
+-		   correct CPU, otherwise it halts. */
+-		if (reboot_cpu != cpuid)
+-			smp_call_function((void *)machine_restart , NULL, 1, 0);
++	int reboot_cpu_id;
++
++	/* The boot cpu is always logical cpu 0 */
++	reboot_cpu_id = 0;
++
++	/* See if there has been given a command line override */
++	if ((reboot_cpu_id != -1) && (reboot_cpu < NR_CPUS) &&
++		cpu_isset(reboot_cpu, cpu_online_map)) {
++		reboot_cpu_id = reboot_cpu;
  	}
-@@ -39,62 +44,95 @@
-   _edata = .;			/* End of data section */
  
-   __bss_start = .;		/* BSS */
--  .bss : {
-+  .bss : AT(ADDR(.bss) - LOAD_OFFSET) {
- 	*(.bss.page_aligned)	
- 	*(.bss)
+-	/* if reboot_cpu is still -1, then we want a tradional reboot, 
+-	   and if we are not running on the reboot_cpu,, halt */
+-	if ((reboot_cpu != -1) && (cpuid != reboot_cpu)) {
+-		for (;;)
+-		__asm__ __volatile__ ("hlt");
++	/* Make certain the cpu I'm rebooting on is online */
++	if (!cpu_isset(reboot_cpu_id, cpu_online_map)) {
++		reboot_cpu_id = smp_processor_id();
  	}
-   __bss_end = .;
+-	/*
+-	 * Stop all CPUs and turn off local APICs and the IO-APIC, so
+-	 * other OSs see a clean IRQ state.
++
++	/* Make certain I only run on the appropriate processor */
++	set_cpus_allowed(current, cpumask_of_cpu(reboot_cpu_id));
++
++	/* O.K. Now that I'm on the appropriate processor, stop
++	 * all of the others, and disable their local APICs.
+ 	 */
++
+ 	smp_send_stop();
+ #endif /* CONFIG_SMP */
  
-+  . = ALIGN(PAGE_SIZE);
-   . = ALIGN(CONFIG_X86_L1_CACHE_BYTES);
--  .data.cacheline_aligned : { *(.data.cacheline_aligned) }
-+  .data.cacheline_aligned : AT(ADDR(.data.cacheline_aligned) - LOAD_OFFSET) {
-+	*(.data.cacheline_aligned)
-+  }
+@@ -338,6 +303,11 @@
+ #ifdef CONFIG_X86_IO_APIC
+ 	disable_IO_APIC();
+ #endif
++}
++
++void machine_restart(char * __unused)
++{
++	machine_shutdown();
  
--#define AFTER(x)      BINALIGN(LOADADDR(x) + SIZEOF(x), 16)
--#define BINALIGN(x,y) (((x) + (y) - 1)  & ~((y) - 1))
--#define CACHE_ALIGN(x) BINALIGN(x, CONFIG_X86_L1_CACHE_BYTES)
-+#define VSYSCALL_ADDR (-10*1024*1024)
-+#define VSYSCALL_PHYS_ADDR ((LOADADDR(.data.cacheline_aligned) + SIZEOF(.data.cacheline_aligned) + 4095) & ~(4095))
-+#define VSYSCALL_VIRT_ADDR ((ADDR(.data.cacheline_aligned) + SIZEOF(.data.cacheline_aligned) + 4095) & ~(4095))
-+
-+#define VLOAD_OFFSET (VSYSCALL_ADDR - VSYSCALL_PHYS_ADDR)
-+#define VLOAD(x) (ADDR(x) - VLOAD_OFFSET)
-+
-+#define VVIRT_OFFSET (VSYSCALL_ADDR - VSYSCALL_VIRT_ADDR)
-+#define VVIRT(x) (ADDR(x) - VVIRT_OFFSET)
-+
-+  . = VSYSCALL_ADDR;
-+  .vsyscall_0 :	 AT(VSYSCALL_PHYS_ADDR) { *(.vsyscall_0) }
-+  __vsyscall_0 = VSYSCALL_VIRT_ADDR;
- 
--  .vsyscall_0 -10*1024*1024: AT ((LOADADDR(.data.cacheline_aligned) + SIZEOF(.data.cacheline_aligned) + 4095) & ~(4095)) { *(.vsyscall_0) }
--  __vsyscall_0 = LOADADDR(.vsyscall_0);
-   . = ALIGN(CONFIG_X86_L1_CACHE_BYTES);
--  .xtime_lock : AT CACHE_ALIGN(AFTER(.vsyscall_0)) { *(.xtime_lock) }
--  xtime_lock = LOADADDR(.xtime_lock);
--  .vxtime : AT AFTER(.xtime_lock) { *(.vxtime) }
--  vxtime = LOADADDR(.vxtime);
--  .wall_jiffies : AT AFTER(.vxtime) { *(.wall_jiffies) }
--  wall_jiffies = LOADADDR(.wall_jiffies);
--  .sys_tz : AT AFTER(.wall_jiffies) { *(.sys_tz) }
--  sys_tz = LOADADDR(.sys_tz);
--  .sysctl_vsyscall : AT AFTER(.sys_tz) { *(.sysctl_vsyscall) }
--  sysctl_vsyscall = LOADADDR(.sysctl_vsyscall); 
--  .xtime : AT AFTER(.sysctl_vsyscall) { *(.xtime) }
--  xtime = LOADADDR(.xtime);
-+  .xtime_lock : AT(VLOAD(.xtime_lock)) { *(.xtime_lock) }
-+  xtime_lock = VVIRT(.xtime_lock);
-+
-+  .vxtime : AT(VLOAD(.vxtime)) { *(.vxtime) }
-+  vxtime = VVIRT(.vxtime);
-+
-+  .wall_jiffies : AT(VLOAD(.wall_jiffies)) { *(.wall_jiffies) }
-+  wall_jiffies = VVIRT(.wall_jiffies);
-+
-+  .sys_tz : AT(VLOAD(.sys_tz)) { *(.sys_tz) }
-+  sys_tz = VVIRT(.sys_tz);
-+
-+  .sysctl_vsyscall : AT(VLOAD(.sysctl_vsyscall)) { *(.sysctl_vsyscall) }
-+  sysctl_vsyscall = VVIRT(.sysctl_vsyscall);
-+
-+  .xtime : AT(VLOAD(.xtime)) { *(.xtime) }
-+  xtime = VVIRT(.xtime);
-+
-   . = ALIGN(CONFIG_X86_L1_CACHE_BYTES);
--  .jiffies : AT CACHE_ALIGN(AFTER(.xtime)) { *(.jiffies) }
--  jiffies = LOADADDR(.jiffies);
--  .vsyscall_1 ADDR(.vsyscall_0) + 1024: AT (LOADADDR(.vsyscall_0) + 1024) { *(.vsyscall_1) }
--  . = LOADADDR(.vsyscall_0) + 4096;
-+  .jiffies : AT(VLOAD(.jiffies)) { *(.jiffies) }
-+  jiffies = VVIRT(.jiffies);
-+
-+  .vsyscall_1 ADDR(.vsyscall_0) + 1024: AT(VLOAD(.vsyscall_1)) { *(.vsyscall_1) }
-+  .vsyscall_2 ADDR(.vsyscall_0) + 2048: AT(VLOAD(.vsyscall_2)) { *(.vsyscall_2) }
-+  .vsyscall_3 ADDR(.vsyscall_0) + 3072: AT(VLOAD(.vsyscall_3)) { *(.vsyscall_3) }
-+
-+  . = VSYSCALL_VIRT_ADDR + 4096;
-+
-+#undef VSYSCALL_ADDR
-+#undef VSYSCALL_PHYS_ADDR
-+#undef VSYSCALL_VIRT_ADDR
-+#undef VLOAD_OFFSET
-+#undef VLOAD
-+#undef VVIRT_OFFSET
-+#undef VVIRT
- 
-   . = ALIGN(8192);		/* init_task */
--  .data.init_task : { *(.data.init_task) }
-+  .data.init_task : AT(ADDR(.data.init_task) - LOAD_OFFSET) {
-+	*(.data.init_task)
-+  }
- 
-   . = ALIGN(4096);
--  .data.page_aligned : { *(.data.page_aligned) }
-+  .data.page_aligned : AT(ADDR(.data.page_aligned) - LOAD_OFFSET) {
-+	*(.data.page_aligned)
-+  }
- 
-   . = ALIGN(4096);		/* Init code and data */
-   __init_begin = .;
--  .init.text : { 
-+  .init.text : AT(ADDR(.init.text) - LOAD_OFFSET) {
- 	_sinittext = .;
- 	*(.init.text)
- 	_einittext = .;
-   }
-   __initdata_begin = .;
--  .init.data : { *(.init.data) }
-+  .init.data : AT(ADDR(.init.data) - LOAD_OFFSET) { *(.init.data) }
-   __initdata_end = .;
-   . = ALIGN(16);
-   __setup_start = .;
--  .init.setup : { *(.init.setup) }
-+  .init.setup : AT(ADDR(.init.setup) - LOAD_OFFSET) { *(.init.setup) }
-   __setup_end = .;
-   __initcall_start = .;
--  .initcall.init : {
-+  .initcall.init : AT(ADDR(.initcall.init) - LOAD_OFFSET) {
- 	*(.initcall1.init) 
- 	*(.initcall2.init) 
- 	*(.initcall3.init) 
-@@ -105,32 +143,38 @@
-   }
-   __initcall_end = .;
-   __con_initcall_start = .;
--  .con_initcall.init : { *(.con_initcall.init) }
-+  .con_initcall.init : AT(ADDR(.con_initcall.init) - LOAD_OFFSET) {
-+	*(.con_initcall.init)
-+  }
-   __con_initcall_end = .;
-   SECURITY_INIT
-   . = ALIGN(8);
-   __alt_instructions = .;
--  .altinstructions : { *(.altinstructions) } 
-+  .altinstructions : AT(ADDR(.altinstructions) - LOAD_OFFSET) {
-+	*(.altinstructions)
-+  } 
-   __alt_instructions_end = .; 
-- .altinstr_replacement : { *(.altinstr_replacement) }
-+  .altinstr_replacement : AT(ADDR(.altinstr_replacement) - LOAD_OFFSET) {
-+	*(.altinstr_replacement)
-+  }
-   /* .exit.text is discard at runtime, not link time, to deal with references
-      from .altinstructions and .eh_frame */
--  .exit.text : { *(.exit.text) }
--  .exit.data : { *(.exit.data) }	
-+  .exit.text : AT(ADDR(.exit.text) - LOAD_OFFSET) { *(.exit.text) }
-+  .exit.data : AT(ADDR(.ext.data) - LOAD_OFFSET) { *(.exit.data) }
-   . = ALIGN(4096);
-   __initramfs_start = .;
--  .init.ramfs : { *(.init.ramfs) }
-+  .init.ramfs : AT(ADDR(.init.ramfs) - LOAD_OFFSET) { *(.init.ramfs) }
-   __initramfs_end = .;	
-   . = ALIGN(32);
-   __per_cpu_start = .;
--  .data.percpu  : { *(.data.percpu) }
-+  .data.percpu  : AT(ADDR(.data.percpu) - LOAD_OFFSET) { *(.data.percpu) }
-   __per_cpu_end = .;
-   . = ALIGN(4096);
-   __init_end = .;
- 
-   . = ALIGN(4096);
-   __nosave_begin = .;
--  .data_nosave : { *(.data.nosave) }
-+  .data_nosave : AT(ADDR(.data_nosave) - LOAD_OFFSET) { *(.data.nosave) }
-   . = ALIGN(4096);
-   __nosave_end = .;
- 
+ 	if (!reboot_thru_bios) {
+ 		if (efi_enabled) {

@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263371AbTH0MU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 08:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263377AbTH0MU6
+	id S263335AbTH0MbH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 08:31:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263341AbTH0MbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 08:20:58 -0400
-Received: from [203.145.184.221] ([203.145.184.221]:26129 "EHLO naturesoft.net")
-	by vger.kernel.org with ESMTP id S263371AbTH0MU4 (ORCPT
+	Wed, 27 Aug 2003 08:31:07 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:5530 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263335AbTH0MbF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 08:20:56 -0400
-From: "Krishnakumar. R" <krishnakumar@naturesoft.net>
-Reply-To: krishnakumar@naturesoft.net
-Organization: Naturesoft
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH-2.6.0-test4-mm2]Removal of warning net/ipv4/route.c
-Date: Wed, 27 Aug 2003 17:53:49 +0530
-User-Agent: KMail/1.5
+	Wed, 27 Aug 2003 08:31:05 -0400
+Date: Wed, 27 Aug 2003 14:30:55 +0200
+From: Vojtech Pavlik <vojtech@ucw.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2.6: Synaptics TouchPad and GPM (GPM patches)
+Message-ID: <20030827123055.GA25720@ucw.cz>
+References: <200308222146.56381.dtor_core@ameritech.net> <20030826074542.GA12430@ucw.cz> <200308270210.14939.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308271753.49644.krishnakumar@naturesoft.net>
+In-Reply-To: <200308270210.14939.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Andrew,
+On Wed, Aug 27, 2003 at 02:10:14AM -0500, Dmitry Torokhov wrote:
 
-The patch removes the following warning.
+> On Tuesday 26 August 2003 02:45 am, Vojtech Pavlik wrote:
+> > On Fri, Aug 22, 2003 at 09:46:56PM -0500, Dmitry Torokhov wrote:
+> > >
+> > > Kernel has to support EV_SYNC for touchpad and synaptics support,
+> > > relative and absolute modes can be used with 2.4 kernels by specifying
+> > > nosync option.
+> >
+> > You should not need any options for this - it's all queryable via ioctls
+> > ...
+> 
+> Done, along with implementing new type "auto" which selects best mode for 
+> the device.
 
-net/ipv4/route.c: In function `ip_rt_init':
-net/ipv4/route.c:2811: warning: passing arg 2 of `create_proc_read_entry' makes integer from pointer without a cast
+Cool.
 
-The patch is against 2.6.0-test4-mm2.
-Applied against the file net/ipv4/route.c
+You could even make it search for all mouse-like input devices ...
 
-Please apply, if found okay !
-
-Regards
-KK
-
-================================================
-diffstat output:
-route.c |    2 +-
-1 files changed, 1 insertion(+), 1 deletion(-)
-================================================
-The following is the patch:
-
-
---- linux-2.6.0-test4-mm2/net/ipv4/route.orig.c	2003-08-27 13:57:14.000000000 +0530
-+++ linux-2.6.0-test4-mm2/net/ipv4/route.c	2003-08-27 17:20:13.000000000 +0530
-@@ -2808,7 +2808,7 @@
- 		goto out_enomem;
- 
- #ifdef CONFIG_NET_CLS_ROUTE
--	create_proc_read_entry("rt_acct", proc_net, 0, ip_rt_acct_read, NULL);
-+	create_proc_read_entry("rt_acct", 0, proc_net, ip_rt_acct_read, NULL);
- #endif
- #endif
- #ifdef CONFIG_XFRM
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

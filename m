@@ -1,31 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273818AbRJBNht>; Tue, 2 Oct 2001 09:37:49 -0400
+	id <S273819AbRJBNiT>; Tue, 2 Oct 2001 09:38:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273819AbRJBNh3>; Tue, 2 Oct 2001 09:37:29 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2311 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S273818AbRJBNh1>; Tue, 2 Oct 2001 09:37:27 -0400
-Subject: Re: Athlon optimized kernels?
-To: devilkin@gmx.net (DevilKin)
-Date: Tue, 2 Oct 2001 14:43:02 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20011002115402.00ad1c88@pop.gmx.net> from "DevilKin" at Oct 02, 2001 11:56:30 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S273904AbRJBNiK>; Tue, 2 Oct 2001 09:38:10 -0400
+Received: from sushi.toad.net ([162.33.130.105]:44754 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S273819AbRJBNh5>;
+	Tue, 2 Oct 2001 09:37:57 -0400
+Subject: Re: [PATCH] PnPBIOS 2.4.9-ac1[56] Vaio fix
+To: linux-kernel@vger.kernel.org
+Date: Tue, 2 Oct 2001 09:37:50 -0400 (EDT)
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15oPp8-0004fX-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20011002133751.074DA10E6@thanatos.toad.net>
+From: jdthood@home.dhs.org (Thomas Hood)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've been hearing a lot here lately about optimized kernels for Athlons. Is 
-> this a kernel patch of some sort? And where can I find it - as I have a 
-> thunderbird system, I would love to try those out and help finding bugs in it!
+>> However, if is_sony_vaio_laptop is 0 at pnpbios init
+>> time then if you look in /proc/bus/pnp you'll see numerical
+>> entries there.  
+>
+>Yes:
+># cd /proc/bus/pnp/
+># ls
+>00  01  02  03  04  05  06  07  08  09  0b  0c  0d  0e  boot  devices
+># ls boot
+>00  01  02  03  04  05  06  07  08  09  0b  0c  0d  0e
+>
+>> Want to crash your machine?  Just read from
+>> them.  (The numerically named entries in /proc/bus/pnp/boot 
+>> should be okay to read and write, though.)
+>
+>It doesn't crash. I did a "cat /proc/bus/pnp/0* > /dev/null" 
+>and the laptop is still alive.
 
-The 2.4 kernels can be built with athlon optimised prefetch and memory
-copying. Pretty much all of the athlon related stuff is in Linus tree now
-(actually it may even all be there). 
+Well!  That's interesting.  Reading from those files
+induces the same calls to the PnP BIOS that crashed
+your system before.  A mystery.  Perhaps there's a way
+to use the "current" config of your PnP BIOS after all---
+so long as you avoid the particular [sequences of] calls that
+cause crashes.  You'll have to experiment with this yourself.
 
-Alan
+In the meantime, though, it's safest to disable use of
+the "current" config entirely on Sony Vaio Laptops.  I'll
+test your patch now.
+
+-- 
+Thomas Hood
+(Don't reply to the From: address but to jdthood_AT_yahoo.co.uk)

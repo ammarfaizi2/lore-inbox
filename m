@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbULKIgI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbULKIvb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbULKIgI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 03:36:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbULKIgI
+	id S261892AbULKIvb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 03:51:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbULKIvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 03:36:08 -0500
-Received: from chello083144090118.chello.pl ([83.144.90.118]:4868 "EHLO
-	plus.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S261863AbULKIgE convert rfc822-to-8bit (ORCPT
+	Sat, 11 Dec 2004 03:51:31 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:15757 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261892AbULKIv2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 03:36:04 -0500
-From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@pld-linux.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10rc3+cset == oops (fs).
-Date: Sat, 11 Dec 2004 09:36:01 +0100
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-References: <200412102330.02459.pluto@pld-linux.org> <20041210152555.5c579892.akpm@osdl.org> <200412110051.35050.pluto@pld-linux.org>
-In-Reply-To: <200412110051.35050.pluto@pld-linux.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+	Sat, 11 Dec 2004 03:51:28 -0500
+Date: Sat, 11 Dec 2004 09:50:41 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: time slice cfq comments
+Message-ID: <20041211085040.GB3033@suse.de>
+References: <41BA2131.4040608@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200412110936.02646.pluto@pld-linux.org>
+In-Reply-To: <41BA2131.4040608@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 11 of December 2004 00:51, Paweł Sikora wrote:
-> On Saturday 11 of December 2004 00:25, Andrew Morton wrote:
-> > Pawe__ Sikora <pluto@pld-linux.org> wrote:
-> > > I've just tried to boot the 2.6.10rc3+cset20041210_0507.
-> > >
-> > > [handcopy of the ooops]
-> > >
-> > > dereferencing null pointer
-> > > eip at: radix_tree_tag_clear
->
->  407:lib/radix-tree.c ****
->  408:lib/radix-tree.c ****   if (*pathp->slot == NULL)     <=== ooopses
-> here 409:lib/radix-tree.c ****    goto out;
->  410:lib/radix-tree.c ****
->
+On Sat, Dec 11 2004, Con Kolivas wrote:
+> Hi Jens
+> 
+> Just thought I'd make a few comments about some of the code in your time 
+> sliced cfq.
+> 
+> +	if (p->array)
+> +		return min(cpu_curr(task_cpu(p))->time_slice,
+> +					(unsigned int)MAX_SLEEP_AVG);
+> 
+> MAX_SLEEP_AVG is basically 10 * the average time_slice so this will 
+> always return task_cpu(p)->time_slice as the min value (except for the 
+> race you described in your comments). What you probably want is
+> 
+> +		return min(cpu_curr(task_cpu(p))->time_slice,
+> +					(unsigned int)DEF_TIMESLICE);
+> 
+> 
+> Further down you do:
+> +	/*
+> +	 * for blocked tasks, return half of the average sleep time.
+> +	 * (because this is the average sleep-time we'll see if we
+> +	 * sample the period randomly.)
+> +	 */
+> +	return NS_TO_JIFFIES(p->sleep_avg) / 2;
+> 
+> unfortunately p->sleep_avg is a non-linear value (weighted upwards 
+> towards MAX_SLEEP_AVG). I suspect here you want
+> 
+> +	return NS_TO_JIFFIES(p->sleep_avg) / MAX_BONUS;
+> 
+> I don't see any need for / 2.
 
-after deep analysis i conclude that this bug is related to the gcc4.
-with gcc343 kernel doesn't oops during boot time.
-now i'm working on reduced testcase...
+Ingo donoted that code, perhaps he would like to comment?
 
 -- 
-/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
+Jens Axboe
 
-                           #define say(x) lie(x)

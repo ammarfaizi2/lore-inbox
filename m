@@ -1,59 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269691AbUHZV3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269643AbUHZV3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269691AbUHZV3R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 17:29:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269679AbUHZV1m
+	id S269643AbUHZV3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 17:29:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269691AbUHZV2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 17:27:42 -0400
-Received: from mail.shareable.org ([81.29.64.88]:16327 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S269680AbUHZVVE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 17:21:04 -0400
-Date: Thu, 26 Aug 2004 22:19:18 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Christophe Saout <christophe@saout.de>, Rik van Riel <riel@redhat.com>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826211918.GF5733@mail.shareable.org>
-References: <Pine.LNX.4.44.0408261152340.27909-100000@chimarrao.boston.redhat.com> <1093536282.5482.6.camel@leto.cs.pocnet.net> <Pine.LNX.4.60.0408261348370.27825@dlang.diginsite.com>
+	Thu, 26 Aug 2004 17:28:06 -0400
+Received: from hostmaster.org ([212.186.110.32]:13458 "HELO hostmaster.org")
+	by vger.kernel.org with SMTP id S269643AbUHZVZR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 17:25:17 -0400
+Subject: Re: netfilter IPv6 support
+From: Thomas Zehetbauer <thomasz@hostmaster.org>
+To: linux-kernel@vger.kernel.org
+Cc: netfilter-devel@lists.netfilter.org
+In-Reply-To: <20040826130024.6ff83dff.davem@redhat.com>
+References: <1093546367.3497.23.camel@hostmaster.org>
+	 <20040826130024.6ff83dff.davem@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-XrcRMAdNuVNjVm2Zh+Tn"
+Date: Thu, 26 Aug 2004 23:25:10 +0200
+Message-Id: <1093555510.3497.33.camel@hostmaster.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0408261348370.27825@dlang.diginsite.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 1.5.93 (1.5.93-2) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang wrote:
-> I also don't see why the VFS/Filesystem can't decide that (for example) 
-> this tar.gz is so active that instead of storing it as a tar.gz and 
-> providing a virtual directory of the contents that it instead stores the 
-> directory of the contents and makes the tar.gz virtual (regenerating it as 
-> needed or as extra system resources are available)
 
-Absolutely.  It could keep both views, if they're both actively being
-used.  Or more than both, if there are more.  (You could think of
-compression being an alternate view, and both compressed and
-uncompressed may as well remain on disk if there's space and it's
-being actively accessed.
+--=-XrcRMAdNuVNjVm2Zh+Tn
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> implementation wise I see headaches in doing this, but conceptually this 
-> is just an optimization that could take place in the future if we fine 
-> that it's needed.
+On Don, 2004-08-26 at 13:00 -0700, David S. Miller wrote:
+> Stateful netfilter is not there because it's a total waste
+> to completely duplicate all of the connection tracking et al.
+> code into ipv6 counterparts when %80 of the code is roughly
+> the same.  People are working on a consolidation of these
+> things so that there is no code duplication but it is a lot
+> of work and there are bigger fires to put out at the moment.
 
-untarring a big source tree takes ages.  I wouldn't like to do it
-after every reboot, if there was a .tar.bz2 tree I looked at often.
-That's why I have things like glibc untarred in my home directory.
+Of course it's a waste to duplicate the code but as far as I remember
+the status of netfilter for IPv6 has not changed for almost a year. As
+said there is still not even the basic REJECT target available.
 
-With good cacheing, I could cd into the .tar.bz2 files and
-_effectively_ have the performance of untarred source trees for the
-ones I look at often on my disk -- automatically cleaned if the space
-if needed for something else, too.  It would be quite nice.
+Tom
 
--- Jamie
+--=20
+  T h o m a s   Z e h e t b a u e r   ( TZ251 )
+  PGP encrypted mail preferred - KeyID 96FFCB89
+      finger thomasz@hostmaster.org for key
+
+The three Rs of Microsoft support: Retry, Reboot, Reinstall.
+
+
+
+--=-XrcRMAdNuVNjVm2Zh+Tn
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iQEVAwUAQS5VNmD1OYqW/8uJAQKj+Af+KX8fHtgVq2vziIu508/BOXQ7U7TOn+7m
+sLy7/n+mC516PjTlq1fP0m4tKAo+MI6bFDfWRvjsqnBp3sW2nL6G2jiCSvgxWSR1
+ImucDWvlyUpxkrH3zab/GYpW9l2+CkN7NuxrmFaUfHrWsKLVJ4ZoBSZkoTxwSOuj
+P9Hp5IHEiNHVS/C8isj6S0mxDUQAmSzFwuSKQvVQ0cx+JuyxC8kLG4EsKIxd8r4U
+KflZDAfPNnm6On9akp7UohYLGAqWy7tFtXEa0pro2sxSIzLMbw1Kopau5zFEioPh
+N2RYA7Ch5YnPtEH0QaC3NJ7ThImxWeDS+o5l2ttU2YIxFfT0ZnmqxA==
+=atN8
+-----END PGP SIGNATURE-----
+
+--=-XrcRMAdNuVNjVm2Zh+Tn--
+

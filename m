@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130400AbRBGTxn>; Wed, 7 Feb 2001 14:53:43 -0500
+	id <S130460AbRBGT6n>; Wed, 7 Feb 2001 14:58:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130389AbRBGTxe>; Wed, 7 Feb 2001 14:53:34 -0500
-Received: from Cantor.suse.de ([213.95.15.193]:11794 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129032AbRBGTxY>;
-	Wed, 7 Feb 2001 14:53:24 -0500
-Date: Wed, 7 Feb 2001 20:53:22 +0100
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: changed proc permissions in 2.4
-Message-ID: <20010207205322.A13246@suse.de>
-In-Reply-To: <20010207204304.C457@suse.de>
-Mime-Version: 1.0
+	id <S130476AbRBGT6d>; Wed, 7 Feb 2001 14:58:33 -0500
+Received: from larnyx.timpanogas.net ([207.109.151.235]:16903 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S130460AbRBGT6S>; Wed, 7 Feb 2001 14:58:18 -0500
+Message-ID: <3A81A789.3F73FAA7@timpanogas.com>
+Date: Wed, 07 Feb 2001 12:52:41 -0700
+From: Larry <langus@timpanogas.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.18-27 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+CC: langus@timpanogas.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jakub Jelinek <jakub@redhat.com>, linux-kernel@vger.kernel.org,
+        jmerkey@timpanogas.org
+Subject: Re: PCI-SCI Build Problems on RedHat 7.1
+In-Reply-To: <20010207131439.A28015@vger.timpanogas.org> <E14QaAX-00016d-00@the-village.bc.nu> <20010207132426.A28159@vger.timpanogas.org> <20010207133515.A28268@vger.timpanogas.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010207204304.C457@suse.de>; from olh@suse.de on Wed, Feb 07, 2001 at 08:43:04PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 07, Olaf Hering wrote:
-
-> Is this the way it should be? 
-> The real problem is X, it tries to open /proc/bus/pci/*/* rw, that
-> fails, no devices detected. Its all on ppc, just in case that matters.
-
-oh yeah ...
-
-allen:~/olh # mount -oro -n -tproc none proc 
-allen:~/olh # grep proc /proc/mounts 
-proc /proc proc rw 0 0
-usbdevfs /proc/bus/usb usbdevfs rw 0 0
-none /root/olh/proc proc rw 0 0
-allen:~/olh # cat /proc/version 
-Linux version 2.4.0-4GB (root@Pentium.suse.de) (gcc version 2.95.2
-19991024 (release)) #1 Wed Jan 24 15:55:09 GMT 2001
-
-
-Any ideas where to look for a fix?
-ppc is ro and i386 stays rw...
+Larry Angus wrote:
+This is the RedHat "fisher" beta,  version 7.0.90 available from RedHat
+the Kernel is:  version 2.4.0-0.99.11
+gcc is:  version 2.96  release 71 (which came with fisher)
+make is:   version 3.79.1  release 5   (came with fisher)
+glibc is:   version 2.2.1  release 3   (also came with fisher)
+for further info:
+langus@timpanogas.com
 
 
 
-Gruss Olaf
+"Jeff V. Merkey" wrote:
 
--- 
- $ man clone
+> On Wed, Feb 07, 2001 at 01:24:26PM -0700, Jeff V. Merkey wrote:
+>
+> Larry,
+>
+> Please provide to Alan Cox the exact versions and revision levels of
+> the RedHat 7.1 build used for the SCI testing.  Please provide him
+> any other information he requests concerning the setup of this
+> system.
+>
+> Jeff
+>
+> > On Wed, Feb 07, 2001 at 07:22:19PM +0000, Alan Cox wrote:
+> > > > In file included from init.c:30:
+> > > > ../../prolog.h:344:8: invalid #ident
+> > >
+> > > It doesnt say #ident isnt supported it says your use of it is invalid. What
+> > > precisely does that line read ?
+> >
+> > JJ tried it and it worked on some version he was running, but fails on
+> > the 7.1 build.  Here is the code that produces the offending messages.
+> > I got an "invalid keyword" (sorry, it was not "unknown" but "invalid", that was
+> > a different error message on gcc 2.96).
+> >
+> > Jeff
+> >
+> >
 
-BUGS
-       Main feature not yet implemented...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,101 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130516AbRCLR6F>; Mon, 12 Mar 2001 12:58:05 -0500
+	id <S130518AbRCLSGZ>; Mon, 12 Mar 2001 13:06:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130529AbRCLR54>; Mon, 12 Mar 2001 12:57:56 -0500
-Received: from [193.120.151.1] ([193.120.151.1]:42736 "EHLO mail.asitatech.com")
-	by vger.kernel.org with ESMTP id <S130516AbRCLR5r>;
-	Mon, 12 Mar 2001 12:57:47 -0500
-From: "John Brosnan" <jbrosnan@asitatech.ie>
-To: <tulip@scyld.com>, <linux-kernel@vger.kernel.org>
-Cc: "John Brosnan" <jbrosnan@asitatech.ie>
-Subject: Linux 2.2.16/Tulip Smartbits testing. 
-Date: Mon, 12 Mar 2001 18:18:04 -0000
-Message-ID: <015001c0ab20$c7ae0e70$8d7fa8c0@NTWIGGY.asitatech.ie>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
+	id <S130532AbRCLSGP>; Mon, 12 Mar 2001 13:06:15 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:13062 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S130518AbRCLSGC>;
+	Mon, 12 Mar 2001 13:06:02 -0500
+Date: Mon, 12 Mar 2001 19:05:27 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Adrian Cox <adrian@humboldt.co.uk>
+Cc: george anzinger <george@mvista.com>, Rik van Riel <riel@conectiva.com.br>,
+        Boris Dragovic <lynx@falcon.etf.bg.ac.yu>,
+        Oswald Buddenhagen <ob6@inf.tu-dresden.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: static scheduling - SCHED_IDLE?
+Message-ID: <20010312190527.A23065@pcep-jamie.cern.ch>
+In-Reply-To: <Pine.LNX.4.33.0103081747010.1314-100000@duckman.distro.conectiva> <3AA93124.EC22CC8A@mvista.com> <3AA93ABE.7000707@humboldt.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AA93ABE.7000707@humboldt.co.uk>; from adrian@humboldt.co.uk on Fri, Mar 09, 2001 at 08:19:10PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adrian Cox wrote:
+> Unfortunately the kernel is already full of counting semaphores. 
+> Priority inheritance won't save you, as the task which is going to call 
+> up() need not be the same one that called down().
+> 
+> Jamie Lokier's suggestion of raising priority when in the kernel doesn't 
+> help. You need to raise the priority of the task which is currently in 
+> userspace and will call up() next time it enters the kernel. You don't 
+> know which task that is.
 
-Hi,
+Dear oh dear.  I was under the impression that kernel semaphores are
+supposed to be used as mutexes only -- there are other mechanisms for
+signalling between processes.
 
-we've been running some throughput tests (Smartbits
-test box) using Donald Becker's tulip.c:v0.92 on Linux 2.2.16,
-on a Pentium 3 800Mhz and a 4 port Dlink DFE-570TX see log below.
-Basically Smartbits allows one to set the packet size, speed, protocol,
-etc. For example if you start at 64 byte size packets and set
-an initial rate of 20Mb/s and a max of 80 Mb/s it goes
-up and down until it finds the optimum rate. At the moment
-w're trying some UDP tests.
+Do any processes ever enter userspace holding a critical semaphore?
 
-The problem is that as the rate increases, the number of
-packets received decreases until is goes to zero, then for all
-further iterations of that 64 packet size test, no matter
-how slow the rate gets, the number of packets received is always
-0. It does not recover from being flooded until the Smartbits moves to
-the next packet size, performs learning frames and then the same
-eventually thing happens again.
+(Things like userspace signalling another userspace don't count -- it's
+your own fault and your own problem if _that_ deadlocks).
 
-Has anybody ever run any tests like this before ?
-Is it a driver or a kernel issue ? Any ideas ?
-
-Performance also looks pretty bad for the smaller packet sizes
-but does improve as the packet size increases.
-
-We're just trying to figure out why absolutely no packets
-are received no matter how slow the rate gets.
-
-thanks in advance for any help,
-
-John.
-
-
-Mar  9 15:52:41 : tulip.c:v0.92 4/17/2000  Written by Donald Becker
-<becker@scyld.com>
-Mar  9 15:52:41 :   http://www.scyld.com/network/tulip.html
-Mar  9 15:52:41 : eth1: Digital DS21143 Tulip rev 65 at 0xc8812c00,
-00:80:C8:CF:BE:D1, IRQ 11.
-Mar  9 15:52:41 : eth1:  EEPROM default media type Autosense.
-Mar  9 15:52:41 : eth1:  Index #0 - Media MII (#11) described by a 21142 MII
-PHY (3) block.
-Mar  9 15:52:41 : eth1:  MII transceiver #1 config 3100 status 7869
-advertising 01e1.
-Mar  9 15:52:41 : eth2: Digital DS21143 Tulip rev 65 at 0xc8814800,
-00:80:C8:CF:BE:D2, IRQ 10.
-Mar  9 15:52:41 : eth2:  EEPROM default media type Autosense.
-Mar  9 15:52:41 : eth2:  Index #0 - Media MII (#11) described by a 21142 MII
-PHY (3) block.
-Mar  9 15:52:41 : eth2:  MII transceiver #1 config 3100 status 7869
-advertising 01e1.
-Mar  9 15:52:41 : eth3: Digital DS21143 Tulip rev 65 at 0xc8816400,
-00:80:C8:CF:BE:D3, IRQ 9.
-Mar  9 15:52:41 : eth3:  EEPROM default media type Autosense.
-Mar  9 15:52:41 : eth3:  Index #0 - Media MII (#11) described by a 21142 MII
-PHY (3) block.
-
-Mar  9 15:52:41 : eth3:  MII transceiver #1 config 3100 status 7869
-advertising 01e1.
-Mar  9 15:52:41 : eth4: Digital DS21143 Tulip rev 65 at 0xc8818000,
-00:80:C8:CF:BE:D4, IRQ 12.
-Mar  9 15:52:41 : eth4:  EEPROM default media type Autosense.
-Mar  9 15:52:41 : eth4:  Index #0 - Media MII (#11) described by a 21142 MII
-PHY (3) block.
-Mar  9 15:52:41 : eth4:  MII transceiver #1 config 3100 status 7849
-advertising 01e1.
-Mar  9 15:52:41 : eth1: Setting full-duplex based on MII #1 link partner
-capability of 41e1.
-Mar  9 15:52:41 : eth2: Setting full-duplex based on MII #1 link partner
-capability of 41e1.
-Mar  9 15:52:41 : eth3: Setting full-duplex based on MII #1 link partner
-capability of 41e1.
-Mar  9 15:52:42
-
-
+-- Jamie

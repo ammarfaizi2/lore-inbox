@@ -1,310 +1,318 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262907AbTIVXuM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 19:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbTIVXtd
+	id S263051AbTIWABL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 20:01:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbTIWAA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 19:49:33 -0400
-Received: from mail.kroah.org ([65.200.24.183]:13217 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262788AbTIVXbC convert rfc822-to-8bit
+	Mon, 22 Sep 2003 20:00:29 -0400
+Received: from mail.kroah.org ([65.200.24.183]:29345 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262814AbTIVXb3 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 19:31:02 -0400
+	Mon, 22 Sep 2003 19:31:29 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10642734172743@kroah.com>
+Message-Id: <10642734221213@kroah.com>
 Subject: Re: [PATCH] i2c driver fixes for 2.6.0-test5
-In-Reply-To: <1064273416272@kroah.com>
+In-Reply-To: <10642734221409@kroah.com>
 From: Greg KH <greg@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 22 Sep 2003 16:30:17 -0700
+Date: Mon, 22 Sep 2003 16:30:22 -0700
 Content-Transfer-Encoding: 7BIT
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1153.85.3, 2003/08/27 15:32:28-07:00, hirofumi@mail.parknet.co.jp
+ChangeSet 1.1315.1.11, 2003/09/22 11:15:16-07:00, greg@kroah.com
 
-[PATCH] DEVICE_NAME_SIZE/_HALF removal (I2C stuff)
+[PATCH] I2C: add the i2c-voodoo3 i2c bus driver
 
-
- drivers/i2c/busses/i2c-ali1535.c |    2 +-
- drivers/i2c/busses/i2c-ali15x3.c |    2 +-
- drivers/i2c/busses/i2c-amd756.c  |    2 +-
- drivers/i2c/busses/i2c-amd8111.c |    2 +-
- drivers/i2c/busses/i2c-i801.c    |    2 +-
- drivers/i2c/busses/i2c-nforce2.c |    2 +-
- drivers/i2c/busses/i2c-piix4.c   |    2 +-
- drivers/i2c/busses/i2c-sis96x.c  |    2 +-
- drivers/i2c/busses/i2c-viapro.c  |    2 +-
- drivers/i2c/chips/adm1021.c      |    2 +-
- drivers/i2c/chips/it87.c         |    2 +-
- drivers/i2c/chips/lm75.c         |    2 +-
- drivers/i2c/chips/lm78.c         |    2 +-
- drivers/i2c/chips/lm85.c         |   10 +++++-----
- drivers/i2c/chips/via686a.c      |    2 +-
- drivers/i2c/chips/w83781d.c      |    4 ++--
- drivers/i2c/scx200_acb.c         |    2 +-
- include/linux/i2c.h              |    6 ++++--
- 18 files changed, 26 insertions(+), 24 deletions(-)
+This is based on the lmsensor cvs version of the driver, but is cleaned
+it up and ported it to 2.6.
 
 
-diff -Nru a/drivers/i2c/busses/i2c-ali1535.c b/drivers/i2c/busses/i2c-ali1535.c
---- a/drivers/i2c/busses/i2c-ali1535.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/busses/i2c-ali1535.c	Mon Sep 22 16:16:54 2003
-@@ -507,7 +507,7 @@
- 	/* set up the driverfs linkage to our parent device */
- 	ali1535_adapter.dev.parent = &dev->dev;
+ drivers/i2c/busses/Kconfig       |   11 +
+ drivers/i2c/busses/Makefile      |    1 
+ drivers/i2c/busses/i2c-voodoo3.c |  248 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 260 insertions(+)
+
+
+diff -Nru a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+--- a/drivers/i2c/busses/Kconfig	Mon Sep 22 16:14:18 2003
++++ b/drivers/i2c/busses/Kconfig	Mon Sep 22 16:14:18 2003
+@@ -189,4 +189,15 @@
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-viapro.
  
--	snprintf(ali1535_adapter.name, DEVICE_NAME_SIZE, 
-+	snprintf(ali1535_adapter.name, I2C_NAME_SIZE, 
- 		"SMBus ALI1535 adapter at %04x", ali1535_smba);
- 	return i2c_add_adapter(&ali1535_adapter);
- }
-diff -Nru a/drivers/i2c/busses/i2c-ali15x3.c b/drivers/i2c/busses/i2c-ali15x3.c
---- a/drivers/i2c/busses/i2c-ali15x3.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/busses/i2c-ali15x3.c	Mon Sep 22 16:16:54 2003
-@@ -498,7 +498,7 @@
- 	/* set up the driverfs linkage to our parent device */
- 	ali15x3_adapter.dev.parent = &dev->dev;
- 
--	snprintf(ali15x3_adapter.name, DEVICE_NAME_SIZE,
-+	snprintf(ali15x3_adapter.name, I2C_NAME_SIZE,
- 		"SMBus ALI15X3 adapter at %04x", ali15x3_smba);
- 	return i2c_add_adapter(&ali15x3_adapter);
- }
-diff -Nru a/drivers/i2c/busses/i2c-amd756.c b/drivers/i2c/busses/i2c-amd756.c
---- a/drivers/i2c/busses/i2c-amd756.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/busses/i2c-amd756.c	Mon Sep 22 16:16:54 2003
-@@ -369,7 +369,7 @@
- 	/* set up the driverfs linkage to our parent device */
- 	amd756_adapter.dev.parent = &pdev->dev;
- 
--	snprintf(amd756_adapter.name, DEVICE_NAME_SIZE,
-+	snprintf(amd756_adapter.name, I2C_NAME_SIZE,
- 		"SMBus AMD75x adapter at %04x", amd756_ioport);
- 
- 	error = i2c_add_adapter(&amd756_adapter);
-diff -Nru a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
---- a/drivers/i2c/busses/i2c-amd8111.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/busses/i2c-amd8111.c	Mon Sep 22 16:16:54 2003
-@@ -356,7 +356,7 @@
- 		goto out_kfree;
- 
- 	smbus->adapter.owner = THIS_MODULE;
--	snprintf(smbus->adapter.name, DEVICE_NAME_SIZE,
-+	snprintf(smbus->adapter.name, I2C_NAME_SIZE,
- 		"SMBus2 AMD8111 adapter at %04x", smbus->base);
- 	smbus->adapter.id = I2C_ALGO_SMBUS | I2C_HW_SMBUS_AMD8111;
- 	smbus->adapter.class = I2C_ADAP_CLASS_SMBUS;
-diff -Nru a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
---- a/drivers/i2c/busses/i2c-i801.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/busses/i2c-i801.c	Mon Sep 22 16:16:54 2003
-@@ -598,7 +598,7 @@
- 	/* set up the driverfs linkage to our parent device */
- 	i801_adapter.dev.parent = &dev->dev;
- 
--	snprintf(i801_adapter.name, DEVICE_NAME_SIZE,
-+	snprintf(i801_adapter.name, I2C_NAME_SIZE,
- 		"SMBus I801 adapter at %04x", i801_smba);
- 	return i2c_add_adapter(&i801_adapter);
- }
-diff -Nru a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
---- a/drivers/i2c/busses/i2c-nforce2.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/busses/i2c-nforce2.c	Mon Sep 22 16:16:54 2003
-@@ -321,7 +321,7 @@
- 	smbus->adapter = nforce2_adapter;
- 	smbus->adapter.algo_data = smbus;
- 	smbus->adapter.dev.parent = &dev->dev;
--	snprintf(smbus->adapter.name, DEVICE_NAME_SIZE,
-+	snprintf(smbus->adapter.name, I2C_NAME_SIZE,
- 		"SMBus nForce2 adapter at %04x", smbus->base);
- 
- 	error = i2c_add_adapter(&smbus->adapter);
-diff -Nru a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
---- a/drivers/i2c/busses/i2c-piix4.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/busses/i2c-piix4.c	Mon Sep 22 16:16:54 2003
-@@ -451,7 +451,7 @@
- 	/* set up the driverfs linkage to our parent device */
- 	piix4_adapter.dev.parent = &dev->dev;
- 
--	snprintf(piix4_adapter.name, DEVICE_NAME_SIZE,
-+	snprintf(piix4_adapter.name, I2C_NAME_SIZE,
- 		"SMBus PIIX4 adapter at %04x", piix4_smba);
- 
- 	retval = i2c_add_adapter(&piix4_adapter);
-diff -Nru a/drivers/i2c/busses/i2c-sis96x.c b/drivers/i2c/busses/i2c-sis96x.c
---- a/drivers/i2c/busses/i2c-sis96x.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/busses/i2c-sis96x.c	Mon Sep 22 16:16:54 2003
-@@ -318,7 +318,7 @@
- 	/* set up the driverfs linkage to our parent device */
- 	sis96x_adapter.dev.parent = &dev->dev;
- 
--	snprintf(sis96x_adapter.name, DEVICE_NAME_SIZE,
-+	snprintf(sis96x_adapter.name, I2C_NAME_SIZE,
- 		"SiS96x SMBus adapter at 0x%04x", sis96x_smbus_base);
- 
- 	if ((retval = i2c_add_adapter(&sis96x_adapter))) {
-diff -Nru a/drivers/i2c/busses/i2c-viapro.c b/drivers/i2c/busses/i2c-viapro.c
---- a/drivers/i2c/busses/i2c-viapro.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/busses/i2c-viapro.c	Mon Sep 22 16:16:54 2003
-@@ -376,7 +376,7 @@
- 	dev_dbg(&pdev->dev, "VT596_smba = 0x%X\n", vt596_smba);
- 
- 	vt596_adapter.dev.parent = &pdev->dev;
--	snprintf(vt596_adapter.name, DEVICE_NAME_SIZE,
-+	snprintf(vt596_adapter.name, I2C_NAME_SIZE,
- 			"SMBus Via Pro adapter at %04x", vt596_smba);
- 	
- 	return i2c_add_adapter(&vt596_adapter);
-diff -Nru a/drivers/i2c/chips/adm1021.c b/drivers/i2c/chips/adm1021.c
---- a/drivers/i2c/chips/adm1021.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/chips/adm1021.c	Mon Sep 22 16:16:54 2003
-@@ -320,7 +320,7 @@
- 	}
- 
- 	/* Fill in the remaining client fields and put it into the global list */
--	strlcpy(new_client->name, client_name, DEVICE_NAME_SIZE);
-+	strlcpy(new_client->name, client_name, I2C_NAME_SIZE);
- 	data->type = kind;
- 
- 	new_client->id = adm1021_id++;
-diff -Nru a/drivers/i2c/chips/it87.c b/drivers/i2c/chips/it87.c
---- a/drivers/i2c/chips/it87.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/chips/it87.c	Mon Sep 22 16:16:54 2003
-@@ -692,7 +692,7 @@
- 	}
- 
- 	/* Fill in the remaining client fields and put it into the global list */
--	strlcpy(new_client->name, name, DEVICE_NAME_SIZE);
-+	strlcpy(new_client->name, name, I2C_NAME_SIZE);
- 
- 	data->type = kind;
- 
-diff -Nru a/drivers/i2c/chips/lm75.c b/drivers/i2c/chips/lm75.c
---- a/drivers/i2c/chips/lm75.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/chips/lm75.c	Mon Sep 22 16:16:54 2003
-@@ -194,7 +194,7 @@
- 	}
- 
- 	/* Fill in the remaining client fields and put it into the global list */
--	strlcpy(new_client->name, name, DEVICE_NAME_SIZE);
-+	strlcpy(new_client->name, name, I2C_NAME_SIZE);
- 
- 	new_client->id = lm75_id++;
- 	data->valid = 0;
-diff -Nru a/drivers/i2c/chips/lm78.c b/drivers/i2c/chips/lm78.c
---- a/drivers/i2c/chips/lm78.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/chips/lm78.c	Mon Sep 22 16:16:54 2003
-@@ -638,7 +638,7 @@
- 	}
- 
- 	/* Fill in the remaining client fields and put into the global list */
--	strlcpy(new_client->name, client_name, DEVICE_NAME_SIZE);
-+	strlcpy(new_client->name, client_name, I2C_NAME_SIZE);
- 	data->type = kind;
- 
- 	data->valid = 0;
-diff -Nru a/drivers/i2c/chips/lm85.c b/drivers/i2c/chips/lm85.c
---- a/drivers/i2c/chips/lm85.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/chips/lm85.c	Mon Sep 22 16:16:54 2003
-@@ -853,19 +853,19 @@
- 	/* Fill in the chip specific driver values */
- 	if ( kind == any_chip ) {
- 		type_name = "lm85";
--		strlcpy(new_client->name, "Generic LM85", DEVICE_NAME_SIZE);
-+		strlcpy(new_client->name, "Generic LM85", I2C_NAME_SIZE);
- 	} else if ( kind == lm85b ) {
- 		type_name = "lm85b";
--		strlcpy(new_client->name, "National LM85-B", DEVICE_NAME_SIZE);
-+		strlcpy(new_client->name, "National LM85-B", I2C_NAME_SIZE);
- 	} else if ( kind == lm85c ) {
- 		type_name = "lm85c";
--		strlcpy(new_client->name, "National LM85-C", DEVICE_NAME_SIZE);
-+		strlcpy(new_client->name, "National LM85-C", I2C_NAME_SIZE);
- 	} else if ( kind == adm1027 ) {
- 		type_name = "adm1027";
--		strlcpy(new_client->name, "Analog Devices ADM1027", DEVICE_NAME_SIZE);
-+		strlcpy(new_client->name, "Analog Devices ADM1027", I2C_NAME_SIZE);
- 	} else if ( kind == adt7463 ) {
- 		type_name = "adt7463";
--		strlcpy(new_client->name, "Analog Devices ADT7463", DEVICE_NAME_SIZE);
-+		strlcpy(new_client->name, "Analog Devices ADT7463", I2C_NAME_SIZE);
- 	} else {
- 		dev_dbg(&adapter->dev, "Internal error, invalid kind (%d)!", kind);
- 		err = -EFAULT ;
-diff -Nru a/drivers/i2c/chips/via686a.c b/drivers/i2c/chips/via686a.c
---- a/drivers/i2c/chips/via686a.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/chips/via686a.c	Mon Sep 22 16:16:54 2003
-@@ -727,7 +727,7 @@
- 	new_client->dev.parent = &adapter->dev;
- 
- 	/* Fill in the remaining client fields and put into the global list */
--	snprintf(new_client->name, DEVICE_NAME_SIZE, client_name);
-+	snprintf(new_client->name, I2C_NAME_SIZE, client_name);
- 
- 	data->valid = 0;
- 	init_MUTEX(&data->update_lock);
-diff -Nru a/drivers/i2c/chips/w83781d.c b/drivers/i2c/chips/w83781d.c
---- a/drivers/i2c/chips/w83781d.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/chips/w83781d.c	Mon Sep 22 16:16:54 2003
-@@ -1117,7 +1117,7 @@
- 		data->lm75[i]->driver = &w83781d_driver;
- 		data->lm75[i]->flags = 0;
- 		strlcpy(data->lm75[i]->name, client_name,
--			DEVICE_NAME_SIZE);
-+			I2C_NAME_SIZE);
- 		if ((err = i2c_attach_client(data->lm75[i]))) {
- 			dev_err(&new_client->dev, "Subclient %d "
- 				"registration at address 0x%x "
-@@ -1326,7 +1326,7 @@
- 	}
- 
- 	/* Fill in the remaining client fields and put into the global list */
--	strlcpy(new_client->name, client_name, DEVICE_NAME_SIZE);
-+	strlcpy(new_client->name, client_name, I2C_NAME_SIZE);
- 	data->type = kind;
- 
- 	data->valid = 0;
-diff -Nru a/drivers/i2c/scx200_acb.c b/drivers/i2c/scx200_acb.c
---- a/drivers/i2c/scx200_acb.c	Mon Sep 22 16:16:54 2003
-+++ b/drivers/i2c/scx200_acb.c	Mon Sep 22 16:16:54 2003
-@@ -456,7 +456,7 @@
- 	memset(iface, 0, sizeof(*iface));
- 	adapter = &iface->adapter;
- 	i2c_set_adapdata(adapter, iface);
--	snprintf(adapter->name, DEVICE_NAME_SIZE, "SCx200 ACB%d", index);
-+	snprintf(adapter->name, I2C_NAME_SIZE, "SCx200 ACB%d", index);
- 	adapter->owner = THIS_MODULE;
- 	adapter->id = I2C_ALGO_SMBUS;
- 	adapter->algo = &scx200_acb_algorithm;
-diff -Nru a/include/linux/i2c.h b/include/linux/i2c.h
---- a/include/linux/i2c.h	Mon Sep 22 16:16:54 2003
-+++ b/include/linux/i2c.h	Mon Sep 22 16:16:54 2003
-@@ -146,6 +146,8 @@
- 
- extern struct bus_type i2c_bus_type;
- 
-+#define I2C_NAME_SIZE	50
++config I2C_VOODOO3
++	tristate "Voodoo 3"
++	depends on I2C && PCI && EXPERIMENTAL
++	help
 +
- /*
-  * i2c_client identifies a single device (i.e. chip) that is connected to an 
-  * i2c bus. The behaviour is defined by the routines of the driver. This
-@@ -166,7 +168,7 @@
- 					/* to the client		*/
- 	struct device dev;		/* the device structure		*/
- 	struct list_head list;
--	char name[DEVICE_NAME_SIZE];
-+	char name[I2C_NAME_SIZE];
- 	struct completion released;
- };
- #define to_i2c_client(d) container_of(d, struct i2c_client, dev)
-@@ -253,7 +255,7 @@
- 	int nr;
- 	struct list_head clients;
- 	struct list_head list;
--	char name[DEVICE_NAME_SIZE];
-+	char name[I2C_NAME_SIZE];
- 	struct completion dev_released;
- 	struct completion class_dev_released;
- };
++	  If you say yes to this option, support will be included for the
++	  Voodoo 3 I2C interface.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called i2c-voodoo3.
++
+ endmenu
+diff -Nru a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+--- a/drivers/i2c/busses/Makefile	Mon Sep 22 16:14:18 2003
++++ b/drivers/i2c/busses/Makefile	Mon Sep 22 16:14:18 2003
+@@ -17,3 +17,4 @@
+ obj-$(CONFIG_I2C_SIS96X)	+= i2c-sis96x.o
+ obj-$(CONFIG_I2C_VIA)		+= i2c-via.o
+ obj-$(CONFIG_I2C_VIAPRO)	+= i2c-viapro.o
++obj-$(CONFIG_I2C_VOODOO3)	+= i2c-voodoo3.o
+diff -Nru a/drivers/i2c/busses/i2c-voodoo3.c b/drivers/i2c/busses/i2c-voodoo3.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/i2c/busses/i2c-voodoo3.c	Mon Sep 22 16:14:18 2003
+@@ -0,0 +1,248 @@
++/*
++    voodoo3.c - Part of lm_sensors, Linux kernel modules for hardware
++              monitoring
++    Copyright (c) 1998, 1999  Frodo Looijaard <frodol@dds.nl>,
++    Philip Edelbrock <phil@netroedge.com>,
++    Ralph Metzler <rjkm@thp.uni-koeln.de>, and
++    Mark D. Studebaker <mdsxyz123@yahoo.com>
++    
++    Based on code written by Ralph Metzler <rjkm@thp.uni-koeln.de> and
++    Simon Vogl
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++/* This interfaces to the I2C bus of the Voodoo3 to gain access to
++    the BT869 and possibly other I2C devices. */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/pci.h>
++#include <linux/i2c.h>
++#include <linux/i2c-algo-bit.h>
++
++/* the only registers we use */
++#define REG		0x78
++#define REG2 		0x70
++
++/* bit locations in the register */
++#define DDC_ENAB	0x00040000
++#define DDC_SCL_OUT	0x00080000
++#define DDC_SDA_OUT	0x00100000
++#define DDC_SCL_IN	0x00200000
++#define DDC_SDA_IN	0x00400000
++#define I2C_ENAB	0x00800000
++#define I2C_SCL_OUT	0x01000000
++#define I2C_SDA_OUT	0x02000000
++#define I2C_SCL_IN	0x04000000
++#define I2C_SDA_IN	0x08000000
++
++/* initialization states */
++#define INIT2		0x2
++#define INIT3		0x4
++
++/* delays */
++#define CYCLE_DELAY	10
++#define TIMEOUT		(HZ / 2)
++
++
++static void *ioaddr;
++
++/* The voo GPIO registers don't have individual masks for each bit
++   so we always have to read before writing. */
++
++static void bit_vooi2c_setscl(void *data, int val)
++{
++	unsigned int r;
++	r = readl(ioaddr + REG);
++	if (val)
++		r |= I2C_SCL_OUT;
++	else
++		r &= ~I2C_SCL_OUT;
++	writel(r, ioaddr + REG);
++	readl(ioaddr + REG);	/* flush posted write */
++}
++
++static void bit_vooi2c_setsda(void *data, int val)
++{
++	unsigned int r;
++	r = readl(ioaddr + REG);
++	if (val)
++		r |= I2C_SDA_OUT;
++	else
++		r &= ~I2C_SDA_OUT;
++	writel(r, ioaddr + REG);
++	readl(ioaddr + REG);	/* flush posted write */
++}
++
++/* The GPIO pins are open drain, so the pins always remain outputs.
++   We rely on the i2c-algo-bit routines to set the pins high before
++   reading the input from other chips. */
++
++static int bit_vooi2c_getscl(void *data)
++{
++	return (0 != (readl(ioaddr + REG) & I2C_SCL_IN));
++}
++
++static int bit_vooi2c_getsda(void *data)
++{
++	return (0 != (readl(ioaddr + REG) & I2C_SDA_IN));
++}
++
++static void bit_vooddc_setscl(void *data, int val)
++{
++	unsigned int r;
++	r = readl(ioaddr + REG);
++	if (val)
++		r |= DDC_SCL_OUT;
++	else
++		r &= ~DDC_SCL_OUT;
++	writel(r, ioaddr + REG);
++	readl(ioaddr + REG);	/* flush posted write */
++}
++
++static void bit_vooddc_setsda(void *data, int val)
++{
++	unsigned int r;
++	r = readl(ioaddr + REG);
++	if (val)
++		r |= DDC_SDA_OUT;
++	else
++		r &= ~DDC_SDA_OUT;
++	writel(r, ioaddr + REG);
++	readl(ioaddr + REG);	/* flush posted write */
++}
++
++static int bit_vooddc_getscl(void *data)
++{
++	return (0 != (readl(ioaddr + REG) & DDC_SCL_IN));
++}
++
++static int bit_vooddc_getsda(void *data)
++{
++	return (0 != (readl(ioaddr + REG) & DDC_SDA_IN));
++}
++
++static int config_v3(struct pci_dev *dev)
++{
++	unsigned int cadr;
++
++	/* map Voodoo3 memory */
++	cadr = dev->resource[0].start;
++	cadr &= PCI_BASE_ADDRESS_MEM_MASK;
++	ioaddr = ioremap_nocache(cadr, 0x1000);
++	if (ioaddr) {
++		writel(0x8160, ioaddr + REG2);
++		writel(0xcffc0020, ioaddr + REG);
++		dev_info(&dev->dev, "Using Banshee/Voodoo3 I2C device at %p\n", ioaddr);
++		return 0;
++	}
++	return -ENODEV;
++}
++
++static struct i2c_algo_bit_data voo_i2c_bit_data = {
++	.setsda		= bit_vooi2c_setsda,
++	.setscl		= bit_vooi2c_setscl,
++	.getsda		= bit_vooi2c_getsda,
++	.getscl		= bit_vooi2c_getscl,
++	.udelay		= CYCLE_DELAY,
++	.mdelay		= CYCLE_DELAY,
++	.timeout	= TIMEOUT
++};
++
++static struct i2c_adapter voodoo3_i2c_adapter = {
++	.owner		= THIS_MODULE,
++	.name		= "I2C Voodoo3/Banshee adapter",
++	.algo_data	= &voo_i2c_bit_data,
++};
++
++static struct i2c_algo_bit_data voo_ddc_bit_data = {
++	.setsda		= bit_vooddc_setsda,
++	.setscl		= bit_vooddc_setscl,
++	.getsda		= bit_vooddc_getsda,
++	.getscl		= bit_vooddc_getscl,
++	.udelay		= CYCLE_DELAY,
++	.mdelay		= CYCLE_DELAY,
++	.timeout	= TIMEOUT
++};
++
++static struct i2c_adapter voodoo3_ddc_adapter = {
++	.owner		= THIS_MODULE,
++	.name		= "DDC Voodoo3/Banshee adapter",
++	.algo_data	= &voo_ddc_bit_data,
++};
++
++static struct pci_device_id voodoo3_ids[] __devinitdata = {
++	{ PCI_DEVICE(PCI_VENDOR_ID_3DFX, PCI_DEVICE_ID_3DFX_VOODOO3) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_3DFX, PCI_DEVICE_ID_3DFX_BANSHEE) },
++	{ 0, }
++};
++
++static int __devinit voodoo3_probe(struct pci_dev *dev, const struct pci_device_id *id)
++{
++	int retval;
++
++	retval = config_v3(dev);
++	if (retval)
++		return retval;
++
++	/* set up the sysfs linkage to our parent device */
++	voodoo3_i2c_adapter.dev.parent = &dev->dev;
++	voodoo3_ddc_adapter.dev.parent = &dev->dev;
++
++	retval = i2c_bit_add_bus(&voodoo3_i2c_adapter);
++	if (retval)
++		return retval;
++	retval = i2c_bit_add_bus(&voodoo3_ddc_adapter);
++	if (retval)
++		i2c_bit_del_bus(&voodoo3_i2c_adapter);
++	return retval;
++}
++
++static void __devexit voodoo3_remove(struct pci_dev *dev)
++{
++	i2c_bit_del_bus(&voodoo3_i2c_adapter);
++ 	i2c_bit_del_bus(&voodoo3_ddc_adapter);
++	iounmap(ioaddr);
++}
++
++static struct pci_driver voodoo3_driver = {
++	.name		= "voodoo3 smbus",
++	.id_table	= voodoo3_ids,
++	.probe		= voodoo3_probe,
++	.remove		= __devexit_p(voodoo3_remove),
++};
++
++static int __init i2c_voodoo3_init(void)
++{
++	return pci_module_init(&voodoo3_driver);
++}
++
++static void __exit i2c_voodoo3_exit(void)
++{
++	pci_unregister_driver(&voodoo3_driver);
++}
++
++
++MODULE_AUTHOR("Frodo Looijaard <frodol@dds.nl>, "
++		"Philip Edelbrock <phil@netroedge.com>, "
++		"Ralph Metzler <rjkm@thp.uni-koeln.de>, "
++		"and Mark D. Studebaker <mdsxyz123@yahoo.com>");
++MODULE_DESCRIPTION("Voodoo3 I2C/SMBus driver");
++MODULE_LICENSE("GPL");
++
++module_init(i2c_voodoo3_init);
++module_exit(i2c_voodoo3_exit);
 

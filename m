@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131502AbRBNOTq>; Wed, 14 Feb 2001 09:19:46 -0500
+	id <S132278AbRBNOWq>; Wed, 14 Feb 2001 09:22:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132278AbRBNOTg>; Wed, 14 Feb 2001 09:19:36 -0500
-Received: from smtp7.us.dell.com ([143.166.224.233]:30990 "EHLO
-	smtp7.us.dell.com") by vger.kernel.org with ESMTP
-	id <S132221AbRBNOTZ>; Wed, 14 Feb 2001 09:19:25 -0500
-Date: Wed, 14 Feb 2001 08:19:22 -0600 (CST)
-From: Michael E Brown <michael_e_brown@dell.com>
-Reply-To: Michael E Brown <michael_e_brown@dell.com>
-To: <Andries.Brouwer@cwi.nl>
-cc: <Matt_Domsch@exchange.dell.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: block ioctl to read/write last sector
-In-Reply-To: <UTC200102132349.AAA97331.aeb@vlet.cwi.nl>
-Message-ID: <Pine.LNX.4.30.0102140810500.1882-100000@carthage.michaels-house.net>
+	id <S132247AbRBNOW0>; Wed, 14 Feb 2001 09:22:26 -0500
+Received: from srv01s4.cas.org ([134.243.50.9]:25011 "EHLO srv01.cas.org")
+	by vger.kernel.org with ESMTP id <S132277AbRBNOVz>;
+	Wed, 14 Feb 2001 09:21:55 -0500
+From: Mike Harrold <mharrold@cas.org>
+Message-Id: <200102141421.JAA11930@mah21awu.cas.org>
+Subject: Re: *grin* Windows 2000 & HPC: Scalable, Inexpensive
+To: chromi@cyberspace.org (Jonathan Morton)
+Date: Wed, 14 Feb 2001 09:21:24 -0500 (EST)
+Cc: dhowells@cambridge.redhat.com (David Howells),
+        linux-kernel@vger.kernel.org, jjb@nexor.co.uk
+In-Reply-To: <l03130328b6b03a746ec4@[192.168.239.101]> from "Jonathan Morton" at Feb 14, 2001 01:38:26 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Feb 2001 Andries.Brouwer@cwi.nl wrote:
+> 
+> At 9:10 am +0000 14/2/2001, David Howells wrote:
+> >How this for a laugh:
+> >
+> >http://www.microsoft.com/WINDOWS2000/hpc/indstand.asp
+> >
+> 
+> Can anybody say "Beowulf cluster"?  I bet you need a W2K license for every
+> box you hook up, too.
 
-> But it changes the idea of odd and even.
-> A partition can start on an odd sector.
->
+The sad thing is, 3/4 of the page is an outright lie. It isn't
+a first, W2k is not the de facto standard OS, and the TCO is
+significantly higher than any cluster running Linux.
 
-That is orthogonal to the issue that I am trying to solve with my patch.
-My code is trying to make it possible to access sectors at the _end_ of
-the disk that you cannot access any other way. Example:
+It's a sad day when companies can get away with blatant lies
+all in the name of "marketing."
 
-Disk with 1001 blocks. Hardware 512-byte sector size. The block layer uses
-1024-byte soft blocksize. This means that, at the _end_ of the disk there
-is a single sector that represents half of a software sector. The block
-layer will not normally let you read or write that sector because it is
-not a full sector.
-
-Another example: Disk with 7 blocks (very small disk :-). Hardware
-blocksize=512, Block layer uses 4096-byte blocksize. Now you have _three_
-hardware blocks at the end of the disk that the block layer will not let
-you read or write.
-
-My patch allows an alternate method to access these sectors. My patch has
-nothing to do with partitioning.
-
---
-Michael Brown
-Linux Systems Group
-Dell Computer Corp
+/Mike
 

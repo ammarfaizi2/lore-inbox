@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272208AbRHWDzO>; Wed, 22 Aug 2001 23:55:14 -0400
+	id <S272213AbRHWEFq>; Thu, 23 Aug 2001 00:05:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272209AbRHWDzF>; Wed, 22 Aug 2001 23:55:05 -0400
-Received: from age.cs.columbia.edu ([128.59.22.100]:36364 "EHLO
-	age.cs.columbia.edu") by vger.kernel.org with ESMTP
-	id <S272208AbRHWDyq>; Wed, 22 Aug 2001 23:54:46 -0400
-Date: Wed, 22 Aug 2001 23:54:58 -0400 (EDT)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Nicholas Knight <tegeran@home.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH,RFC] make ide-scsi more selective
-In-Reply-To: <01082215391200.00490@c779218-a>
-Message-ID: <Pine.LNX.4.33.0108222350170.18397-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272212AbRHWEFg>; Thu, 23 Aug 2001 00:05:36 -0400
+Received: from femail27.sdc1.sfba.home.com ([24.254.60.17]:24279 "EHLO
+	femail27.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S272211AbRHWEFa>; Thu, 23 Aug 2001 00:05:30 -0400
+From: Josh McKinney <forming@home.com>
+Date: Wed, 22 Aug 2001 23:05:39 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9: GCC 3.0 problem in "acct.c"
+Message-ID: <20010822230539.A5013@home.com>
+Mail-Followup-To: josh, linux-kernel@vger.kernel.org
+In-Reply-To: <200108222251.BAA04797@ares.sot.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200108222251.BAA04797@ares.sot.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Aug 2001, Nicholas Knight wrote:
+On approximately Thu, Aug 23, 2001 at 01:51:33AM +0300, Santeri Kannisto wrote:
+> Except that a similar problem with capi existed allready with gcc 3.0 +
+> kernels 2.4.*, and that problem was reported to gcc people multiple 
+> times. But it is still broken in gcc 3.0.1:
+> 
+> bp2.c:414: warning: `sbp2_host_info_lock' defined but not used
+> capi.c: In function `capi_ioctl':
+> capi.c:1031: Unrecognizable insn:
+> (insn/i 1675 3103 3100 (parallel[ capi.c:1031: Internal error: Segmentation fault
+> Please submit a full bug report,
+> with preprocessed source if appropriate.
+> See <URL:http://www.gnu.org/software/gcc/bugs.html> for instructions.
+> 
+> So, does anyone have any ideas? That problem is critical because
+> it makes ISDN (capi 2) unusable with kernels 2.4.* + gcc 3.0.* 
+> 
+> All other things seem to function pretty well with 2.4.9 + 3.0.1.
 
-> Could you elaborate on this? I almost never use modules for my primary 
-> desktop system, SCSI emulation support and SCSI generic driver were both 
-> compiled in, and I had "hdc=ide-scsi" and later also tried "hdc=scsi" and 
+I get the same sort of Unrecognizable insn: error in signal.c with my setup.
+This is true today with the latest cvs gcc.
 
-Well, hdc=ide-scsi is for 2.2 and hdc=scsi is for 2.4. Yup, yet another of 
-those gratuitious incompatibilities.
-
-> I was unable to read from it with any device, /dev/sr0 /dev/sda /dev/scd0 
-> were all dead-ends, but I was able to WRITE just fine... I just don't 
-> want to reboot every time I want to write to the drive, nor reboot when I 
-> want to READ from it.
-
-I'm not sure why this is happening for you, my CDR drive works for both 
-reading and writing using the ide-scsi driver. But it's a known fact that 
-ide-scsi is not perfect, so that could explain it.
-
-> Disabling ATAPI CD-ROM support, and enabling SCSI CD-ROM (along with SCSI 
-> emulation support and SCSI generic support) worked, and now I just access 
-> both my CD-RW drive and my DVD-ROM drive through /dev/sr0 and /dev/sr1.
-
-So now you're saying it *does* work with ide-scsi? I'm utterly confused...
-
-> My primary concern here is other users who haven't figured this out, I 
-> know at least one ATAPI/IDE CD-R(W) in Linux HOWTO tells the user that 
-> they'll have to use two seperate kernel images, one to allow reading from 
-> their drive and the other for writing, infact that was my original method.
-
-Nope. Ide-scsi should be fine for both reading and writing.
-
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+Josh

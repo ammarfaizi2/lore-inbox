@@ -1,93 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271520AbRHTReb>; Mon, 20 Aug 2001 13:34:31 -0400
+	id <S271487AbRHTRmw>; Mon, 20 Aug 2001 13:42:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271483AbRHTReV>; Mon, 20 Aug 2001 13:34:21 -0400
-Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:16644 "HELO
-	ocean.lucon.org") by vger.kernel.org with SMTP id <S271520AbRHTReL>;
-	Mon, 20 Aug 2001 13:34:11 -0400
-Date: Mon, 20 Aug 2001 10:34:18 -0700
-From: "H . J . Lu" <hjl@lucon.org>
-To: kaos@ocs.com.au
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: PATCH: Fix modutils to check ELF symbol index
-Message-ID: <20010820103418.A15514@lucon.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S271496AbRHTRmn>; Mon, 20 Aug 2001 13:42:43 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:1290 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271487AbRHTRm3>; Mon, 20 Aug 2001 13:42:29 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: llx@swissonline.ch, linux-kernel@vger.kernel.org
+Subject: Re: misc questions about kernel 2.4.x internals
+Date: Mon, 20 Aug 2001 19:49:05 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <200108201452.f7KEqxk18219@mail.swissonline.ch>
+In-Reply-To: <200108201452.f7KEqxk18219@mail.swissonline.ch>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010820174231Z16441-32386+48@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Keith,
+On August 20, 2001 04:52 pm, Christian Widmer wrote:
+> 3) i had a look at the ll_rw_block and realised that it can block when there 
+> are to many buffers locked. when i use generic_make_request can i be 
+> shure that i wont block so that i can call it in a tasklet and don't need to
+> switch to a kernel thread? i think that also needs that clustering function 
+> __make_request may not block. does it or does it not?
 
-All my previous email sent to you are bounced. I am sending this to the
-kernel mailing list, hoping you will read it..
+It blocks on the availability of a struct request, look at __get_request_wait.
+This is how we do IO throttling in 2.4.8/9.
 
-H.J.
----
---- modutils-2.4.6/obj/obj_load.c.symbol	Mon Aug 20 10:13:50 2001
-+++ modutils-2.4.6/obj/obj_load.c	Mon Aug 20 10:23:00 2001
-@@ -257,7 +257,7 @@ obj_load (int fp, Elf32_Half e_type, con
- 	{
- 	case SHT_RELM:
- 	  {
--	    unsigned long nrel, j;
-+	    unsigned long nrel, j, nsyms;
- 	    ElfW(RelM) *rel;
- 	    struct obj_section *symtab;
- 	    char *strtab;
-@@ -273,6 +273,7 @@ obj_load (int fp, Elf32_Half e_type, con
- 	    nrel = sec->header.sh_size / sizeof(ElfW(RelM));
- 	    rel = (ElfW(RelM) *) sec->contents;
- 	    symtab = f->sections[sec->header.sh_link];
-+	    nsyms = symtab->header.sh_size / symtab->header.sh_entsize;
- 	    strtab = f->sections[symtab->header.sh_link]->contents;
- 
- 	    /* Save the relocate type in each symbol entry.  */
-@@ -284,6 +285,13 @@ obj_load (int fp, Elf32_Half e_type, con
- 		symndx = ELFW(R_SYM)(rel->r_info);
- 		if (symndx)
- 		  {
-+		    if (symndx >= nsyms)
-+		      {
-+			error("%s: Bad symbol index: %08lx >= %08lx",
-+			      filename, symndx, nsyms);
-+			continue;
-+		      }
-+
- 		    extsym = ((ElfW(Sym) *) symtab->contents) + symndx;
- 		    if (ELFW(ST_BIND)(extsym->st_info) == STB_LOCAL)
- 		      {
---- modutils-2.4.6/obj/obj_reloc.c.symbol	Mon Aug 20 10:20:52 2001
-+++ modutils-2.4.6/obj/obj_reloc.c	Mon Aug 20 10:24:32 2001
-@@ -284,6 +284,7 @@ obj_relocate (struct obj_file *f, ElfW(A
-       ElfW(RelM) *rel, *relend;
-       ElfW(Sym) *symtab;
-       const char *strtab;
-+      unsigned long nsyms;
- 
-       relsec = f->sections[i];
-       if (relsec->header.sh_type != SHT_RELM)
-@@ -296,6 +297,7 @@ obj_relocate (struct obj_file *f, ElfW(A
-       rel = (ElfW(RelM) *)relsec->contents;
-       relend = rel + (relsec->header.sh_size / sizeof(ElfW(RelM)));
-       symtab = (ElfW(Sym) *)symsec->contents;
-+      nsyms = symsec->header.sh_size / symsec->header.sh_entsize;
-       strtab = (const char *)strsec->contents;
- 
-       for (; rel < relend; ++rel)
-@@ -312,6 +314,13 @@ obj_relocate (struct obj_file *f, ElfW(A
- 	  if (symndx)
- 	    {
- 	      /* Note we've already checked for undefined symbols.  */
-+
-+	      if (symndx >= nsyms)
-+		{
-+		  error("Bad symbol index: %08lx >= %08lx",
-+			symndx, nsyms);
-+		  continue;
-+		}
- 
- 	      extsym = &symtab[symndx];
- 	      if (ELFW(ST_BIND)(extsym->st_info) == STB_LOCAL)
+--
+Daniel

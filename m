@@ -1,87 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262622AbSJBVsw>; Wed, 2 Oct 2002 17:48:52 -0400
+	id <S262620AbSJBWIw>; Wed, 2 Oct 2002 18:08:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262620AbSJBVso>; Wed, 2 Oct 2002 17:48:44 -0400
-Received: from hdfdns02.hd.intel.com ([192.52.58.11]:30173 "EHLO
-	mail2.hd.intel.com") by vger.kernel.org with ESMTP
-	id <S262628AbSJBVrw>; Wed, 2 Oct 2002 17:47:52 -0400
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD0236DEFA@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: linux-kernel@vger.kernel.org
-Subject: ACPI patches updated (20021002)
-Date: Wed, 2 Oct 2002 14:53:14 -0700 
+	id <S262632AbSJBWIv>; Wed, 2 Oct 2002 18:08:51 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:36528 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262620AbSJBWIt>;
+	Wed, 2 Oct 2002 18:08:49 -0400
+Message-ID: <3D9B6F7E.1060004@us.ibm.com>
+Date: Wed, 02 Oct 2002 15:13:18 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: Benjamin LaHaise <bcrl@redhat.com>
+CC: linux-kernel@vger.kernel.org, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       linux-mm@kvack.org
+Subject: Re: [RFC][PATCH]  4KB stack + irq stack for x86
+References: <3D9B62AC.30607@us.ibm.com> <20021002174320.J28857@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Benjamin LaHaise wrote:
+> On Wed, Oct 02, 2002 at 02:18:36PM -0700, Dave Hansen wrote:
+> 
+>>I've resynced Ben's patch against 2.5.40.  However, I'm getting some 
+>>strange failures.  The patch is good enough to pass LTP, but 
+>>consistently freezes when I run tcpdump on it.
+> 
+> Try running tcpdump with the stack checking patch applied.  That should 
+> give you a decent backtrace for the problem.
 
-There is a new release available at http://sf.net/projects/acpi . It
-incorporates many fixes from people on the acpi-devel list (thanks to
-everyone) as well as some interpreter enhancements.
+My first suspicion was that it was just overflowing, but not getting 
+the message out.  I just realized that my latest testing (the last 24 
+hours) was on the original patch, not the updated one that you posted 
+later, which included the stack checking.  I'm sure that I was having 
+the same problem with the overflow checking enabled and _not_ getting 
+any errors from it, but I'll redo the testing for my sanity's sake.
 
-Regards -- Andy
-
-----------------------------------------
-
-02 October 2002.  Summary of changes for this release.
-
-1) Linux
-
-Initialize thermal driver's timer before it is used. (Knut
-Neumann)
-
-Allow handling negative celsius values. (Kochi Takayoshi)
-
-Fix thermal management and make trip points. R/W (Pavel
-Machek)
-
-Fix /proc/acpi/sleep. (P. Christeas)
-
-IA64 fixes. (David Mosberger)
-
-Fix reversed logic in blacklist code. (Sergio Monteiro Basto)
-
-Replace ACPI_DEBUG define with ACPI_DEBUG_OUTPUT. (Dominik
-Brodowski)
-
-2) ACPI CA Core Subsystem version 20021002:
-
-Fixed a problem where a store/copy of a string to an existing
-string did not always set the string length properly in the
-String object.
-
-Fixed a reported problem with the ToString operator where the
-behavior was identical to the ToHexString operator instead of
-just simply converting a raw buffer to a string data type.
-
-Fixed a problem where CopyObject and the other "explicit"
-conversion operators were not updating the internal namespace
-node type as part of the store operation.
-
-Fixed a memory leak during implicit source operand conversion
-where the original object was not deleted if it was converted
-to a new object of a different type.
-
-Enhanced error messages for all problems associated with
-namespace lookups.  Common procedure generates and prints the
-lookup name as well as the formatted status.
-
-Completed implementation of a new design for the Alias support
-within the namespace.  The existing design did not handle the
-case where a new object was assigned to one of the two names
-due to the use of an explicit conversion operator, resulting
-in the two names pointing to two different objects.  The new
-design simply points the Alias name to the original name node
-- not to the object.  This results in a level of indirection
-that must be handled in the name resolution mechanism.
-
-
------------------------------
-Andrew Grover
-Intel Labs / Mobile Architecture
-andrew.grover@intel.com
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

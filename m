@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129977AbQLVXnv>; Fri, 22 Dec 2000 18:43:51 -0500
+	id <S129906AbQLVXvN>; Fri, 22 Dec 2000 18:51:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130133AbQLVXnm>; Fri, 22 Dec 2000 18:43:42 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:33037 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129977AbQLVXne>;
-	Fri, 22 Dec 2000 18:43:34 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200012222311.eBMNBgr459298@saturn.cs.uml.edu>
-Subject: Re: bigphysarea support in 2.2.19 and 2.4.0 kernels
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Fri, 22 Dec 2000 18:11:42 -0500 (EST)
-Cc: middelink@polyware.nl (Pauline Middelink), linux-kernel@vger.kernel.org,
-        jmerkey@timpanogas.org
-In-Reply-To: <E149O2D-0004M0-00@the-village.bc.nu> from "Alan Cox" at Dec 22, 2000 08:58:39 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S130133AbQLVXvD>; Fri, 22 Dec 2000 18:51:03 -0500
+Received: from d185fcbd7.rochester.rr.com ([24.95.203.215]:25860 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S129906AbQLVXus>; Fri, 22 Dec 2000 18:50:48 -0500
+Date: Fri, 22 Dec 2000 18:18:51 -0500
+From: Chris Mason <mason@suse.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Andreas Dilger <adilger@turbolinux.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Russell Cattelan <cattelan@thebarn.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
+Message-ID: <84320000.977527131@coffee>
+In-Reply-To: <Pine.LNX.4.21.0012221730270.3382-100000@freak.distro.conectiva>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> bigmem is 'last resort' stuff. I'd much rather it is as now a
-> seperate allocator so you actually have to sit and think and
-> decide to give up on kmalloc/vmalloc/better algorithms and
-> only use it when the hardware sucks
 
-It isn't just for sucky hardware. It is for performance too.
 
-1. Linux isn't known for cache coloring ability. Even if it was,
-   users want to take advantage of large pages or BAT registers
-   to reduce TLB miss costs. (that is, mapping such areas into
-   a process is needed... never mind security for now)
+On Friday, December 22, 2000 17:52:28 -0200 Marcelo Tosatti
+<marcelo@conectiva.com.br> wrote:
 
-2. Programming a DMA controller with multiple addresses isn't
-   as fast as programming it with one.
+> There is one more nasty issue to deal with. 
+> 
+> You only want to take into account the buffer flushtime if
+> "check_flushtime" parameter is passed as true to flush_dirty_buffers
+> (which is done by kupdate).
+> 
+> Thinking a bit more about the issue, I dont see any reason why we want to
+> write all buffers of an anonymous page at
+> sync_buffers/flush_dirty_buffers.
+> 
+> I think we could simply write the buffer with ll_rw_block() if the page
+> which this buffer is sitting on does not have mapping->a_ops->writepage
+> operation defined.
+> 
 
-Consider what happens when you have the ability to make one
-compute node DMA directly into the physical memory of another.
-With a large block of physical memory, you only need to have
-the destination node give the writer a single physical memory
-address to send the data to. With loose pages, the destination
-has to transmit a great big list. That might be 30 thousand!
+It is enough to leave buffer heads we don't flush on the dirty list (and
+redirty the page), they'll get written by a future loop through
+flush_dirty_pages, or by page_launder.  We could use ll_rw_block instead,
+even though anon pages do have a writepage with this patch (just check if
+page->mapping == &anon_space_mapping).
 
-The point of all this is to crunch data as fast as possible,
-with Linux mostly getting out of the way. Perhaps you want
-to generate real-time high-resolution video of a human heart
-as it beats inside somebody. You process raw data (audio, X-ray,
-magnetic resonance, or whatever) on one group of processors,
-then hand off the data to another group of processors for the
-rendering task. Actually there might be many stages. Playing
-games with individual pages will cut into your performance.
-The data stream is fat and relentless.
+There are lots of things we could try here, including some logic inside
+block_write_anon_page to check the current memory pressure/dirty levels to
+see how much work should be done.
+
+I'll play with this a bit, but more ideas would be appreciated.
+
+BTW, recent change to my local code was to remove the ll_rw_block call from
+sync_page_buffers.  It seemed cleaner than making try_to_free_buffers
+understand that sometimes writepage will be called, and sometimes the page
+will end up unlocked because of it....comments?
+
+-chris
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbVCUOkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbVCUOqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbVCUOkN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 09:40:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVCUOkM
+	id S261809AbVCUOqE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 09:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVCUOqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 09:40:12 -0500
-Received: from rproxy.gmail.com ([64.233.170.206]:22690 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261798AbVCUOkF (ORCPT
+	Mon, 21 Mar 2005 09:46:04 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:29906 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261809AbVCUOp7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 09:40:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=C1WZV3snv7zJQUVR1cT+mKKQHYhNq3LI+NjxATSfKWbYwqe9F5+hkn8CalmE6mqXk6TL2CvPokuVzt8WlkgYraUtoGrflW7OQAhEXDsJrbC/lAZeCxfEzGGiA+yuIGEzX7FtVQ/7fL4DU2eb8kolyu8E6eZzXU155M0LU2mN/nk=
-Message-ID: <d120d500050321064028e255fe@mail.gmail.com>
-Date: Mon, 21 Mar 2005 09:40:04 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Tejun Heo <htejun@gmail.com>
-Subject: Re: [PATCH] driver model/scsi: synchronize pm calls with probe/remove
-Cc: mochel@digitalimplant.org, James.Bottomley@steeleye.com,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <20050321091846.GA25933@htj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 21 Mar 2005 09:45:59 -0500
+Subject: Re: 2.6.11 AC patch CD/DVD issues
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: takisd@alphalink.com.au
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1111332446.8418.47.camel@localhost>
+References: <1111332446.8418.47.camel@localhost>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-References: <20050321091846.GA25933@htj.dyndns.org>
+Message-Id: <1111416216.14877.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 21 Mar 2005 14:43:39 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Mar 2005 18:18:46 +0900, Tejun Heo <htejun@gmail.com> wrote:
-> Hello, Dmitry, Mochel and James.
-> 
-> I've been looking at sd code and found seemingly bogus 'if (!sdkp)'
-> tests with /* this can happen */ comment.  I've digged changelog and
-> found out that this was to prevent oops which occurs if some driver
-> gets stuck inside ->probe and the machine goes down and calls back
-> ->remove.  IMHO, we should avoid this problem by fixing driver ->probe
-> or ->remove callbacks instead of detecting and bypassing
-> half-initialized/destroyed devices in pm callbacks.
-> 
-> This patch read-locks a device's bus using device_pm_down_read_bus()
-> before invoking any pm callback.
+On Sul, 2005-03-20 at 15:27, Takis Diakoumis wrote:
+> other ata controllers which then report errors as they can't be unloaded
+> - though i read somewhere on this list that this was by design???).
 
-Hi Tejun,
+IDE is designed to be compiled in. There is a lot to do to fix that. -ac
+has hackish unload support in test but the right solution is refcounting
+and driver model based and is in Bartlomiej's dev tree.
 
-There are talks about getting rid of bus's rwsem and replacing it with
-a per-device semaphore to serialize probe, remove, suspend and resume.
-This should resolve entire host of problems including this one, if I
-unrerstand it correctly.
+> all cd ripping/reading tools for audio/multimedia cds report unable to
+> initialize /dev/cdrom (a link to cdrom device).
 
-Please take a look here:
-http://seclists.org/lists/linux-kernel/2005/Mar/5847.html
+Are you sure it points to the right device. I've seen similar reports
+where
+/dev/cdrom ended up pointing at the hard disk when the it8212 is added.
+Seems
+some distributions get confused when an IDE controller decides it wants
+to be first.
 
--- 
-Dmitry
+> mode anyway. no change with either setting. if i disable the controller
+> from the bios, all is ok and i have full expected access to both cd and
+> dvd drives with all tools/apps etc. enabling again, i lose them beyond
+> simple data mounts.
+
+Sounds like the /dev/cdrom link is wrong
+
+

@@ -1,47 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269378AbRGaRLU>; Tue, 31 Jul 2001 13:11:20 -0400
+	id <S269363AbRGaRZv>; Tue, 31 Jul 2001 13:25:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269377AbRGaRLK>; Tue, 31 Jul 2001 13:11:10 -0400
-Received: from mail1.qualcomm.com ([129.46.64.223]:17105 "EHLO
-	mail1.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S269373AbRGaRKz>; Tue, 31 Jul 2001 13:10:55 -0400
-Message-Id: <4.3.1.0.20010731100209.05fce100@mail1>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
-Date: Tue, 31 Jul 2001 10:11:49 -0700
-To: "David S. Miller" <davem@redhat.com>
-From: Maksim Krasnyanskiy <maxk@qualcomm.com>
-Subject: Re: [PATCH] netif_rx from non interrupt context
-Cc: linux-kernel@vger.kernel.org, andrea@suse.de, torvalds@transmeta.com,
-        kuznet@ms2.inr.ac.ru
-In-Reply-To: <15206.3993.800893.762127@pizda.ninka.net>
-In-Reply-To: <4.3.1.0.20010730121828.05eaf310@mail1>
- <4.3.1.0.20010730121828.05eaf310@mail1>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S269373AbRGaRZl>; Tue, 31 Jul 2001 13:25:41 -0400
+Received: from ns1.austin.rr.com ([24.93.35.62]:43782 "EHLO ns1.austin.rr.com")
+	by vger.kernel.org with ESMTP id <S269363AbRGaRZY>;
+	Tue, 31 Jul 2001 13:25:24 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Marvin Justice <mjustice@austin.rr.com>
+Reply-To: mjustice@austin.rr.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: Serverworks LE, 4GB RAM, and MTRR
+Date: Tue, 31 Jul 2001 12:29:12 -0500
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <01073018370207.04012@bozo>
+In-Reply-To: <01073018370207.04012@bozo>
+MIME-Version: 1.0
+Message-Id: <01073112291200.04928@bozo>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Sorry, I checked again and enabling write-combining was not the solution. 
+Apparently, I forgot to remove an append="mem=0xf8000000" statement when 
+testing the mtrr.c modification. Limiting the memory to 4GB - 128 MB was the 
+real reason for the performance improvement. As far as we're concerned, 
+simply telling the kernel to ignore the last 128MB is an acceptable solution.
 
->  > Generic function for the net drivers that call netif_rx from non interrupt context.
->  > And TUN/TAP driver patch.
+For what it's worth, enabling write-combining does make X noticeably faster, 
+however :)
+
+Marvin Justice
+
+> Slow performance on Serverworks LE boards with 4GB of RAM seem to be
+> related to mtrr misconfiguration. Here is the /proc/mtrr for a Tyan 2510 (
+> 2.4.7-ac2):
 >
->No, let us do it explicitly in the drivers, not create a new API for this.
-Well, the thing is that we can probably optimize that function (like you guys did for a local_bh_enable) because it's
-a critical path. Also it makes sense (to me) to hide softirq implementation details from the net drivers.
-If softirqs are changed again we can fix one place instead of auditing net drivers.
-
->Maybe we should add "Send to socket with BH disabled" or a "insert to generic linked list with spinlock held" interfaces too ? :-)
-:-) 
-
-Max
-
-Maksim Krasnyanskiy	
-Senior Kernel Engineer
-Qualcomm Incorporated
-
-maxk@qualcomm.com
-http://bluez.sf.net
-http://vtun.sf.net
-
+> reg00: base=0x00000000 (   0MB), size=2048MB: write-back, count=1
+> reg01: base=0x80000000 (2048MB), size=1024MB: write-back, count=1
+> reg02: base=0xc0000000 (3072MB), size= 512MB: write-back, count=1
+> reg03: base=0xe0000000 (3584MB), size= 256MB: write-back, count=1
+> reg04: base=0xf0000000 (3840MB), size= 128MB: write-back, count=1
+> reg05: base=0xf8000000 (3968MB), size=  64MB: write-back, count=1
+> reg06: base=0xfc000000 (4032MB), size=  64MB: uncachable, count=1
+>
+> Also, the framebuffer is 4MB starting at 0xfd000000 (4048MB) on this
+> system. The last entry seems to be the culprit. Why should there be 64MB
+> uncachable starting at 4032?
+>
+> Back in April there was a thread concering the mtrr setup for the LE
+> chipset. A patch for mtrr.c was submitted (but never accepted, apparently)
+> that allows write-combining (which is currently disabled for all
+> Serverworks LE) for revisions >5.  If I modify mtrr.c to allow
+> write-combining the system works normally with 4G. /proc/mtrr is unchanged
+> but the following line shows up in the syslog when the X-server is started:
+>
+> mtrr: type mismatch for fd000000,400000 old: uncachable new:
+> write-combining
+>
+> The slowness of the system without write-combining is independent of
+> whether X is started.
+>
+> Marvin Justice
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313773AbSEFAzR>; Sun, 5 May 2002 20:55:17 -0400
+	id <S313943AbSEFA77>; Sun, 5 May 2002 20:59:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313943AbSEFAzQ>; Sun, 5 May 2002 20:55:16 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2823 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S313773AbSEFAzQ>; Sun, 5 May 2002 20:55:16 -0400
-Date: Mon, 6 May 2002 01:55:05 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-Message-ID: <20020506015505.B14956@flint.arm.linux.org.uk>
-In-Reply-To: <20020502180632.I11414@dualathlon.random> <E173LwB-00027n-00@starship> <20020503071554.P11414@dualathlon.random> <E174Vq8-0004BK-00@starship>
-Mime-Version: 1.0
+	id <S313946AbSEFA76>; Sun, 5 May 2002 20:59:58 -0400
+Received: from c9mailgw01.amadis.com ([216.163.188.202]:525 "EHLO
+	C9Mailgw03.amadis.com") by vger.kernel.org with ESMTP
+	id <S313943AbSEFA75>; Sun, 5 May 2002 20:59:57 -0400
+Message-ID: <3CD5D57D.DED89DFC@starband.net>
+Date: Sun, 05 May 2002 20:59:41 -0400
+From: Justin Piszcz <war@starband.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Linux & X11 & IRQ Interrupts
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 06, 2002 at 01:54:52AM +0200, Daniel Phillips wrote:
-> I must be guilty of not explaining clearly.  Suppose you have the following
-> physical memory map:
-> 
-> 	          0: 128 MB
-> 	  8000,0000: 128 MB
-> 	1,0000,0000: 128 MB
-> 	1,8000,0000: 128 MB
-> 	2,0000,0000: 128 MB
-> 	2,8000,0000: 128 MB
-> 	3,0000,0000: 128 MB
-> 	3,8000,0000: 128 MB
-> 
-> The total is 1 GB of installed ram.  Yet the kernel's 1G virtual space,
-> can only handle 128 MB of it.
+When I move the mouse under X11 I hear a buzzing sound in the computer,
+first, I found it was the console speaker.
 
-I see no problem with the above with the existing discontigmem stuff.
-discontigmem does *not* require a linear relationship between kernel
-virtual and physical memory.  I've been running kernels for a while
-on such systems.
+Yet, I still hear a very faint sound when I move the mouse cursor, this
+is after I've disconnected the console speaker, no matter what the rate
+of interrupts.
 
-Which was the reason for my comment at the start of this thread:
-| On ARM, however, we have cherry to add here.  __va() may alias certain
-| physical memory addresses to the same virtual memory address, which
-| makes:
+from itop:
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+INT                NAME          RATE             MAX
+  0 [             timer]   101 Ints/s     (max:   101)
+  1 [          keyboard]     1 Ints/s     (max:     1)
+  5 [              eth0]     2 Ints/s     (max:     4)
+ 12 [        PS/2 Mouse]   276 Ints/s     (max:   276)
+
+Other people have also reported this problem but there hasn't been an
+apparent fix for it yet?
+
+With the console speaker attached, it can be clearly heard, as well as
+performing fast packet movements (nmap (with insane option)) or such you
+can literally hear the packets.
+
+When I am compiling an application or spending interrupts on disk
+access (copying files/doing a find), moving the mouse/holding a key on
+the keyboard does not make noise.
+
+Does anyone know the source of this problem, and possibly a solution, or
+something one can do to mute this annoying noise?
+
+This noise does not occur in any version of MS windows, so I am curious
+as to what the kernel? or x11? is doing to produce this noise?
+
 

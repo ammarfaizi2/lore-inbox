@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265685AbSKAKfr>; Fri, 1 Nov 2002 05:35:47 -0500
+	id <S265681AbSKAKlr>; Fri, 1 Nov 2002 05:41:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265686AbSKAKfr>; Fri, 1 Nov 2002 05:35:47 -0500
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:65411 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S265685AbSKAKfq>;
-	Fri, 1 Nov 2002 05:35:46 -0500
-Date: Fri, 1 Nov 2002 04:41:30 -0600 (CST)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: Gregoire Favre <greg@ulima.unil.ch>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Logitech wheel and 2.5? (PS/2)
-In-Reply-To: <20021031223401.GB25356@ulima.unil.ch>
-Message-ID: <Pine.LNX.4.44.0211010438550.22868-100000@dad.molina>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265684AbSKAKlr>; Fri, 1 Nov 2002 05:41:47 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:27083 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265681AbSKAKlq>;
+	Fri, 1 Nov 2002 05:41:46 -0500
+Date: Fri, 01 Nov 2002 02:37:18 -0800 (PST)
+Message-Id: <20021101.023718.64663422.davem@redhat.com>
+To: jagana@us.ibm.com
+Cc: yoshfuji@wide.ad.jp, kkumar@beaverton.ibm.com, kuznet@ms2.inr.ac.ru,
+       ajtuomin@tml.hut.fi, lpetande@tml.hut.fi, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCHSET] Mobile IPv6 for 2.5.45
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <OFFA13F15A.27343A7E-ON88256C64.00238392@boulder.ibm.com>
+References: <OFFA13F15A.27343A7E-ON88256C64.00238392@boulder.ibm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Oct 2002, Gregoire Favre wrote:
+   From: "Venkata Jagana" <jagana@us.ibm.com>
+   Date: Thu, 31 Oct 2002 22:51:13 -0800
 
-> Hello,
-> 
-> up to 2.5.45:
-> 
-> ...
-> register interface 'mouse' with class 'input
-> mice: PS/2 mouse device common for all mice
-> input: PC Speaker
-> input: PS2++ Logitech Wheel Mouse on isa0060/serio1
-> ...
-> psmouse.c: Received PS2++ packet #0, but don't know how to handle.
-> psmouse.c: Received PS2++ packet #0, but don't know how to handle.
-> ...
-> 
-> And very regulary my mouse position is lost and reseted???
-> Also the wheel don't work (don't know for the button on the left that I
-> never use: the 3 regulars one and the wheel are enough for me...).
+   I believe even the registration part should belong to kernel and
+   here are the reasons why.
+   
+   The Home Agent needs to ...
 
-How is your mouse configured/detected?  If your boot up sequence specifies 
-to gpm that you have a Logitech Wheel Mouse try redoing it for an MS 
-Intellimouse.  I have several Logitech mice which work as imps/2 and don't 
-when configured as a logitech.
+None of the things you've listed make it desirable to put the home
+agent registration into the kernel.  All of the operations you
+describe could be invoked by the userland home agent daemon using very
+minimal glue logic in the kernel (invoked, for example, via netlink
+messages).
 
+(Hint: this glue logic could even be useful for other things)
+
+Look, it is bad enough we have to put pfkey2 security database into
+the kernel (and that most IKE daemons duplicate the whole database in
+the user process as well), so let's not continue with such disasters.
+
+Just like a router changes and monitors routes, a home agent daemon
+would change and monitor mipv6 state.  So for the same reason we don't
+put OSPF routing databases into the kernel, we do not put the home
+agent registration into the kernel :-)

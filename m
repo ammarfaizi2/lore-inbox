@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbUDSVxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbUDSVyb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbUDSVxF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 17:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbUDSVxF
+	id S261914AbUDSVyb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 17:54:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbUDSVyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 17:53:05 -0400
-Received: from zero.aec.at ([193.170.194.10]:27915 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261907AbUDSVxD (ORCPT
+	Mon, 19 Apr 2004 17:54:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:43432 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261914AbUDSVy3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 17:53:03 -0400
-To: Fabiano Ramos <ramos_fabiano@yahoo.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: task switching at Page Faults
-References: <1MN62-7wz-5@gated-at.bofh.it> <1MNpu-7QI-35@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 19 Apr 2004 23:52:48 +0200
-In-Reply-To: <1MNpu-7QI-35@gated-at.bofh.it> (Fabiano Ramos's message of
- "Mon, 19 Apr 2004 22:20:16 +0200")
-Message-ID: <m3zn97tz2n.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 19 Apr 2004 17:54:29 -0400
+Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ulrich Drepper <drepper@redhat.com>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20040416223548.GA27540@mail.shareable.org>
+References: <1080771361.1991.73.camel@sisko.scot.redhat.com>
+	 <20040416223548.GA27540@mail.shareable.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1082411657.2237.128.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 19 Apr 2004 22:54:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fabiano Ramos <ramos_fabiano@yahoo.com.br> writes:
-> kernel", about 2.4, and the authors: 
->     1)assure that there is no process switch during
-> the execution of an eception handler (aka syscall).
-> they emphasize it.
+Hi,
 
-They're wrong. First the system call or exception can
-block and then when kernel code returns to user space
-it always checks if the time slice hasn't expired.
+On Fri, 2004-04-16 at 23:35, Jamie Lokier wrote:
+> Stephen C. Tweedie wrote:
+> > I've been looking at a discrepancy between msync() behaviour on 2.4.9
+> > and newer 2.4 kernels, and it looks like things changed again in
+> > 2.5.68.
+> 
+> When you say a discrepancy between 2.4.9 and newer 2.4 kernels, do you
+> mean that the msync() behaviour changed during the 2.4 series?
 
->     2) say that the execption handler may not generate
-> exceptions, except for page faults.
+Yes.
 
-That's also incorrect. e.g. it can generate GPFs
-(e.g. when trying to load a segment register supplied
-by the user and it is not correct)
-and a few other exceptions in extreme cases. Usually
-these exceptions are handled without sleeping though.
+> If so, what was the change?
 
--Andi
+2.4.9 behaved like current 2.6 --- on MS_ASYNC, it did a
+set_page_dirty() which means the page will get picked up by the next
+5-second bdflush pass.  But later 2.4 kernels were changed so that they
+started MS_ASYNC IO immediately with filemap_fdatasync() (which is
+asynchronous regarding the new IO, but which blocks synchronously if
+there is already old IO in flight on the page.)
+
+That was reverted back to the earlier, 2.4.9 behaviour in the 2.5
+series.
+
+Cheers,
+ Stephen
 

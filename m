@@ -1,172 +1,371 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbVB0Rmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbVB0Rog@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261467AbVB0Rmz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 12:42:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVB0Rmy
+	id S261479AbVB0Rog (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 12:44:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVB0RoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 12:42:54 -0500
-Received: from mail.suse.de ([195.135.220.2]:13731 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261467AbVB0RXG (ORCPT
+	Sun, 27 Feb 2005 12:44:07 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:13219 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261465AbVB0RXF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 12:23:06 -0500
-Message-Id: <20050227170313.353432000@blunzn.suse.de>
+	Sun, 27 Feb 2005 12:23:05 -0500
+Message-Id: <20050227170314.033611000@blunzn.suse.de>
 References: <20050227165954.566746000@blunzn.suse.de>
-Date: Sun, 27 Feb 2005 18:00:01 +0100
+Date: Sun, 27 Feb 2005 18:00:02 +0100
 From: Andreas Gruenbacher <agruen@suse.de>
 To: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
        Trond Myklebust <trond.myklebust@fys.uio.no>
 Cc: Olaf Kirch <okir@suse.de>, "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
        Andrew Morton <akpm@osdl.org>
-Subject: [nfsacl v2 07/16] Lazy RPC receive buffer allocation
-Content-Disposition: inline; filename=nfsacl-lazy-rpc-receive-buffer-allocation.patch
+Subject: [nfsacl v2 08/16] Encode and decode arbitrary XDR arrays
+Content-Disposition: inline; filename=nfsacl-encode-and-decode-arbitrary-xdr-arrays.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allow to allocate pages in the receive buffer lazily.  Used for the GETACL
-RPC, which has a big maximum reply size, but a small average reply size.
+Add xdr_encode_array2 and xdr_decode_array2 functions for encoding end
+decoding arrays with arbitrary entries, such as acl entries.  The goal here is
+to do this without allocating a contiguous temporary buffer.
 
-Signed-off-by: Olaf Kirch <okir@suse.de>
 Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+Acked-by: Olaf Kirch <okir@suse.de>
 
 Index: linux-2.6.11-rc5/include/linux/sunrpc/xdr.h
 ===================================================================
 --- linux-2.6.11-rc5.orig/include/linux/sunrpc/xdr.h
 +++ linux-2.6.11-rc5/include/linux/sunrpc/xdr.h
-@@ -160,7 +160,7 @@ typedef struct {
+@@ -146,7 +146,8 @@ extern void xdr_shift_buf(struct xdr_buf
+ extern void xdr_buf_from_iov(struct kvec *, struct xdr_buf *);
+ extern int xdr_buf_subsegment(struct xdr_buf *, struct xdr_buf *, int, int);
+ extern int xdr_buf_read_netobj(struct xdr_buf *, struct xdr_netobj *, int);
+-extern int read_bytes_from_xdr_buf(struct xdr_buf *buf, int base, void *obj, int len);
++extern int read_bytes_from_xdr_buf(struct xdr_buf *, int, void *, int);
++extern int write_bytes_to_xdr_buf(struct xdr_buf *, int, void *, int);
  
- typedef size_t (*skb_read_actor_t)(skb_reader_t *desc, void *to, size_t len);
+ /*
+  * Helper structure for copying from an sk_buff.
+@@ -168,6 +169,22 @@ struct sockaddr;
+ extern int xdr_sendpages(struct socket *, struct sockaddr *, int,
+ 		struct xdr_buf *, unsigned int, int);
  
--extern void xdr_partial_copy_from_skb(struct xdr_buf *, unsigned int,
-+extern int xdr_partial_copy_from_skb(struct xdr_buf *, unsigned int,
- 		skb_reader_t *, skb_read_actor_t);
- 
- struct socket;
++extern int xdr_encode_word(struct xdr_buf *, int, u32);
++extern int xdr_decode_word(struct xdr_buf *, int, u32 *);
++
++struct xdr_array2_desc;
++typedef int (*xdr_xcode_elem_t)(struct xdr_array2_desc *desc, void *elem);
++struct xdr_array2_desc {
++	unsigned int elem_size;
++	unsigned int array_len;
++	xdr_xcode_elem_t xcode;
++};
++
++extern int xdr_decode_array2(struct xdr_buf *buf, unsigned int base,
++                             struct xdr_array2_desc *desc);
++extern int xdr_encode_array2(struct xdr_buf *buf, unsigned int base,
++			     struct xdr_array2_desc *desc);
++
+ /*
+  * Provide some simple tools for XDR buffer overflow-checking etc.
+  */
+Index: linux-2.6.11-rc5/net/sunrpc/sunrpc_syms.c
+===================================================================
+--- linux-2.6.11-rc5.orig/net/sunrpc/sunrpc_syms.c
++++ linux-2.6.11-rc5/net/sunrpc/sunrpc_syms.c
+@@ -129,6 +129,10 @@ EXPORT_SYMBOL(xdr_encode_netobj);
+ EXPORT_SYMBOL(xdr_encode_pages);
+ EXPORT_SYMBOL(xdr_inline_pages);
+ EXPORT_SYMBOL(xdr_shift_buf);
++EXPORT_SYMBOL(xdr_encode_word);
++EXPORT_SYMBOL(xdr_decode_word);
++EXPORT_SYMBOL(xdr_encode_array2);
++EXPORT_SYMBOL(xdr_decode_array2);
+ EXPORT_SYMBOL(xdr_buf_from_iov);
+ EXPORT_SYMBOL(xdr_buf_subsegment);
+ EXPORT_SYMBOL(xdr_buf_read_netobj);
 Index: linux-2.6.11-rc5/net/sunrpc/xdr.c
 ===================================================================
 --- linux-2.6.11-rc5.orig/net/sunrpc/xdr.c
 +++ linux-2.6.11-rc5/net/sunrpc/xdr.c
-@@ -176,7 +176,7 @@ xdr_inline_pages(struct xdr_buf *xdr, un
- 	xdr->buflen += len;
+@@ -868,8 +868,34 @@ out:
+ 	return status;
  }
  
--void
+-static int
+-read_u32_from_xdr_buf(struct xdr_buf *buf, int base, u32 *obj)
++/* obj is assumed to point to allocated memory of size at least len: */
 +int
- xdr_partial_copy_from_skb(struct xdr_buf *xdr, unsigned int base,
- 			  skb_reader_t *desc,
- 			  skb_read_actor_t copy_actor)
-@@ -190,7 +190,7 @@ xdr_partial_copy_from_skb(struct xdr_buf
- 		len -= base;
- 		ret = copy_actor(desc, (char *)xdr->head[0].iov_base + base, len);
- 		if (ret != len || !desc->count)
--			return;
-+			return 0;
- 		base = 0;
- 	} else
- 		base -= len;
-@@ -210,6 +210,13 @@ xdr_partial_copy_from_skb(struct xdr_buf
- 	do {
- 		char *kaddr;
- 
-+		/* ACL likes to be lazy in allocating pages - ACLs
-+		 * are small by default but can get huge. */
-+		if (unlikely(*ppage == NULL)) {
-+			if (!(*ppage = alloc_page(GFP_ATOMIC)))
-+				return -ENOMEM;
-+		}
++write_bytes_to_xdr_buf(struct xdr_buf *buf, int base, void *obj, int len)
++{
++	struct xdr_buf subbuf;
++	int this_len;
++	int status;
 +
- 		len = PAGE_CACHE_SIZE;
- 		kaddr = kmap_atomic(*ppage, KM_SKB_SUNRPC_DATA);
- 		if (base) {
-@@ -226,13 +233,15 @@ xdr_partial_copy_from_skb(struct xdr_buf
- 		flush_dcache_page(*ppage);
- 		kunmap_atomic(kaddr, KM_SKB_SUNRPC_DATA);
- 		if (ret != len || !desc->count)
--			return;
-+			return 0;
- 		ppage++;
- 	} while ((pglen -= len) != 0);
- copy_tail:
- 	len = xdr->tail[0].iov_len;
- 	if (base < len)
- 		copy_actor(desc, (char *)xdr->tail[0].iov_base + base, len - base);
++	status = xdr_buf_subsegment(buf, &subbuf, base, len);
++	if (status)
++		goto out;
++	this_len = min(len, (int)subbuf.head[0].iov_len);
++	memcpy(subbuf.head[0].iov_base, obj, this_len);
++	len -= this_len;
++	obj += this_len;
++	this_len = min(len, (int)subbuf.page_len);
++	if (this_len)
++		_copy_to_pages(subbuf.pages, subbuf.page_base, obj, this_len);
++	len -= this_len;
++	obj += this_len;
++	this_len = min(len, (int)subbuf.tail[0].iov_len);
++	memcpy(subbuf.tail[0].iov_base, obj, this_len);
++out:
++	return status;
++}
 +
-+	return 0;
++int
++xdr_decode_word(struct xdr_buf *buf, int base, u32 *obj)
+ {
+ 	u32	raw;
+ 	int	status;
+@@ -881,6 +907,14 @@ read_u32_from_xdr_buf(struct xdr_buf *bu
+ 	return 0;
  }
  
++int
++xdr_encode_word(struct xdr_buf *buf, int base, u32 obj)
++{
++	u32	raw = htonl(obj);
++
++	return write_bytes_to_xdr_buf(buf, base, &raw, sizeof(obj));
++}
++
+ /* If the netobj starting offset bytes from the start of xdr_buf is contained
+  * entirely in the head or the tail, set object to point to it; otherwise
+  * try to find space for it at the end of the tail, copy it there, and
+@@ -891,7 +925,7 @@ xdr_buf_read_netobj(struct xdr_buf *buf,
+ 	u32	tail_offset = buf->head[0].iov_len + buf->page_len;
+ 	u32	obj_end_offset;
  
-Index: linux-2.6.11-rc5/net/sunrpc/xprt.c
-===================================================================
---- linux-2.6.11-rc5.orig/net/sunrpc/xprt.c
-+++ linux-2.6.11-rc5/net/sunrpc/xprt.c
-@@ -725,7 +725,8 @@ csum_partial_copy_to_xdr(struct xdr_buf 
- 		goto no_checksum;
+-	if (read_u32_from_xdr_buf(buf, offset, &obj->len))
++	if (xdr_decode_word(buf, offset, &obj->len))
+ 		goto out;
+ 	obj_end_offset = offset + 4 + obj->len;
  
- 	desc.csum = csum_partial(skb->data, desc.offset, skb->csum);
--	xdr_partial_copy_from_skb(xdr, 0, &desc, skb_read_and_csum_bits);
-+	if (xdr_partial_copy_from_skb(xdr, 0, &desc, skb_read_and_csum_bits) < 0)
-+		return -1;
- 	if (desc.offset != skb->len) {
- 		unsigned int csum2;
- 		csum2 = skb_checksum(skb, desc.offset, skb->len - desc.offset, 0);
-@@ -737,7 +738,8 @@ csum_partial_copy_to_xdr(struct xdr_buf 
- 		return -1;
- 	return 0;
- no_checksum:
--	xdr_partial_copy_from_skb(xdr, 0, &desc, skb_read_bits);
-+	if (xdr_partial_copy_from_skb(xdr, 0, &desc, skb_read_bits) < 0)
-+		return -1;
- 	if (desc.count)
- 		return -1;
- 	return 0;
-@@ -907,6 +909,7 @@ tcp_read_request(struct rpc_xprt *xprt, 
- 	struct rpc_rqst *req;
- 	struct xdr_buf *rcvbuf;
- 	size_t len;
-+	int r;
- 
- 	/* Find and lock the request corresponding to this xid */
- 	spin_lock(&xprt->sock_lock);
-@@ -927,16 +930,30 @@ tcp_read_request(struct rpc_xprt *xprt, 
- 		len = xprt->tcp_reclen - xprt->tcp_offset;
- 		memcpy(&my_desc, desc, sizeof(my_desc));
- 		my_desc.count = len;
--		xdr_partial_copy_from_skb(rcvbuf, xprt->tcp_copied,
-+		r = xdr_partial_copy_from_skb(rcvbuf, xprt->tcp_copied,
- 					  &my_desc, tcp_copy_data);
- 		desc->count -= len;
- 		desc->offset += len;
- 	} else
--		xdr_partial_copy_from_skb(rcvbuf, xprt->tcp_copied,
-+		r = xdr_partial_copy_from_skb(rcvbuf, xprt->tcp_copied,
- 					  desc, tcp_copy_data);
- 	xprt->tcp_copied += len;
- 	xprt->tcp_offset += len;
- 
-+	if (r < 0) {
-+		/* Error when copying to the receive buffer,
-+		 * usually because we weren't able to allocate
-+		 * additional buffer pages. All we can do now
-+		 * is turn off XPRT_COPY_DATA, so the request
-+		 * will not receive any additional updates,
-+		 * and time out.
-+		 * Any remaining data from this record will
-+		 * be discarded.
-+		 */
-+		xprt->tcp_flags &= ~XPRT_COPY_DATA;
-+		goto out;
+@@ -924,3 +958,219 @@ xdr_buf_read_netobj(struct xdr_buf *buf,
+ out:
+ 	return -1;
+ }
++
++/* Returns 0 on success, or else a negative error code. */
++static int
++xdr_xcode_array2(struct xdr_buf *buf, unsigned int base,
++		 struct xdr_array2_desc *desc, int encode)
++{
++	char *elem = NULL, *c;
++	unsigned int copied = 0, todo, avail_here;
++	struct page **ppages = NULL;
++	int err;
++
++	if (encode) {
++		if (xdr_encode_word(buf, base, desc->array_len) != 0)
++			return -EINVAL;
++	} else {
++		if (xdr_decode_word(buf, base, &desc->array_len) != 0 ||
++		    (unsigned long) base + 4 + desc->array_len *
++				    desc->elem_size > buf->len)
++			return -EINVAL;
++	}
++	base += 4;
++
++	if (!desc->xcode)
++		return 0;
++
++	todo = desc->array_len * desc->elem_size;
++
++	/* process head */
++	if (todo && base < buf->head->iov_len) {
++		c = buf->head->iov_base + base;
++		avail_here = min_t(unsigned int, todo,
++				   buf->head->iov_len - base);
++		todo -= avail_here;
++
++		while (avail_here >= desc->elem_size) {
++			err = desc->xcode(desc, c);
++			if (err)
++				goto out;
++			c += desc->elem_size;
++			avail_here -= desc->elem_size;
++		}
++		if (avail_here) {
++			if (!elem) {
++				elem = kmalloc(desc->elem_size, GFP_KERNEL);
++				err = -ENOMEM;
++				if (!elem)
++					goto out;
++			}
++			if (encode) {
++				err = desc->xcode(desc, elem);
++				if (err)
++					goto out;
++				memcpy(c, elem, avail_here);
++			} else
++				memcpy(elem, c, avail_here);
++			copied = avail_here;
++		}
++		base = buf->head->iov_len;  /* align to start of pages */
 +	}
 +
- 	if (xprt->tcp_copied == req->rq_private_buf.buflen)
- 		xprt->tcp_flags &= ~XPRT_COPY_DATA;
- 	else if (xprt->tcp_offset == xprt->tcp_reclen) {
-@@ -949,6 +966,7 @@ tcp_read_request(struct rpc_xprt *xprt, 
- 				req->rq_task->tk_pid);
- 		xprt_complete_rqst(xprt, req, xprt->tcp_copied);
- 	}
++	/* process pages array */
++	base -= buf->head->iov_len;
++	if (todo && base < buf->page_len) {
++		unsigned int avail_page;
++
++		avail_here = min(todo, buf->page_len - base);
++		todo -= avail_here;
++
++		base += buf->page_base;
++		ppages = buf->pages + (base >> PAGE_CACHE_SHIFT);
++		base &= ~PAGE_CACHE_MASK;
++		avail_page = min_t(unsigned int, PAGE_CACHE_SIZE - base,
++					avail_here);
++		c = kmap(*ppages) + base;
++
++		while (avail_here) {
++			avail_here -= avail_page;
++			if (copied || avail_page < desc->elem_size) {
++				unsigned int l = min(avail_page,
++					desc->elem_size - copied);
++				if (!elem) {
++					elem = kmalloc(desc->elem_size,
++						       GFP_KERNEL);
++					err = -ENOMEM;
++					if (!elem)
++						goto out;
++				}
++				if (encode) {
++					if (!copied) {
++						err = desc->xcode(desc, elem);
++						if (err)
++							goto out;
++					}
++					memcpy(c, elem + copied, l);
++					copied += l;
++					if (copied == desc->elem_size)
++						copied = 0;
++				} else {
++					memcpy(elem + copied, c, l);
++					copied += l;
++					if (copied == desc->elem_size) {
++						err = desc->xcode(desc, elem);
++						if (err)
++							goto out;
++						copied = 0;
++					}
++				}
++				avail_page -= l;
++				c += l;
++			}
++			while (avail_page >= desc->elem_size) {
++				err = desc->xcode(desc, c);
++				if (err)
++					goto out;
++				c += desc->elem_size;
++				avail_page -= desc->elem_size;
++			}
++			if (avail_page) {
++				unsigned int l = min(avail_page,
++					    desc->elem_size - copied);
++				if (!elem) {
++					elem = kmalloc(desc->elem_size,
++						       GFP_KERNEL);
++					err = -ENOMEM;
++					if (!elem)
++						goto out;
++				}
++				if (encode) {
++					if (!copied) {
++						err = desc->xcode(desc, elem);
++						if (err)
++							goto out;
++					}
++					memcpy(c, elem + copied, l);
++					copied += l;
++					if (copied == desc->elem_size)
++						copied = 0;
++				} else {
++					memcpy(elem + copied, c, l);
++					copied += l;
++					if (copied == desc->elem_size) {
++						err = desc->xcode(desc, elem);
++						if (err)
++							goto out;
++						copied = 0;
++					}
++				}
++			}
++			if (avail_here) {
++				kunmap(*ppages);
++				ppages++;
++				c = kmap(*ppages);
++			}
++
++			avail_page = min(avail_here,
++				 (unsigned int) PAGE_CACHE_SIZE);
++		}
++		base = buf->page_len;  /* align to start of tail */
++	}
++
++	/* process tail */
++	base -= buf->page_len;
++	if (todo) {
++		c = buf->tail->iov_base + base;
++		if (copied) {
++			unsigned int l = desc->elem_size - copied;
++
++			if (encode)
++				memcpy(c, elem + copied, l);
++			else {
++				memcpy(elem + copied, c, l);
++				err = desc->xcode(desc, elem);
++				if (err)
++					goto out;
++			}
++			todo -= l;
++			c += l;
++		}
++		while (todo) {
++			err = desc->xcode(desc, c);
++			if (err)
++				goto out;
++			c += desc->elem_size;
++			todo -= desc->elem_size;
++		}
++	}
++	err = 0;
++
 +out:
- 	spin_unlock(&xprt->sock_lock);
- 	tcp_check_recm(xprt);
- }
++	if (elem)
++		kfree(elem);
++	if (ppages)
++		kunmap(*ppages);
++	return err;
++}
++
++int
++xdr_decode_array2(struct xdr_buf *buf, unsigned int base,
++		  struct xdr_array2_desc *desc)
++{
++	if (base >= buf->len)
++		return -EINVAL;
++
++	return xdr_xcode_array2(buf, base, desc, 0);
++}
++
++int
++xdr_encode_array2(struct xdr_buf *buf, unsigned int base,
++		  struct xdr_array2_desc *desc)
++{
++	if ((unsigned long) base + 4 + desc->array_len * desc->elem_size >
++	    buf->head->iov_len + buf->page_len + buf->tail->iov_len)
++		return -EINVAL;
++
++	return xdr_xcode_array2(buf, base, desc, 1);
++}
 
 --
 Andreas Gruenbacher <agruen@suse.de>

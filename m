@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268231AbTBNILX>; Fri, 14 Feb 2003 03:11:23 -0500
+	id <S268239AbTBNIL1>; Fri, 14 Feb 2003 03:11:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268232AbTBNILX>; Fri, 14 Feb 2003 03:11:23 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:594
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S268231AbTBNILX>; Fri, 14 Feb 2003 03:11:23 -0500
-Date: Fri, 14 Feb 2003 03:19:49 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH][2.5] small PPC32 smp_message_pass buglet
-Message-ID: <Pine.LNX.4.50.0302140316140.3518-100000@montezuma.mastecende.com>
+	id <S268238AbTBNIL0>; Fri, 14 Feb 2003 03:11:26 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3341 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S268232AbTBNILZ>;
+	Fri, 14 Feb 2003 03:11:25 -0500
+Message-ID: <3E4CA6E1.7060500@pobox.com>
+Date: Fri, 14 Feb 2003 03:20:49 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Dillow <dillowd@y12.doe.gov>
+CC: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: 3Com 3cr990 driver release
+References: <3E4C9FAA.FC8A2DC7@y12.doe.gov>
+In-Reply-To: <3E4C9FAA.FC8A2DC7@y12.doe.gov>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks like this define is missing a brace, otherwise we might just hit a 
-NULL dereference.
+I know it was a long time coming :)
 
-Index: linux-2.5.60-uml/arch/ppc/kernel/smp.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.60/arch/ppc/kernel/smp.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 smp.c
---- linux-2.5.60-uml/arch/ppc/kernel/smp.c	10 Feb 2003 22:14:40 -0000	1.1.1.1
-+++ linux-2.5.60-uml/arch/ppc/kernel/smp.c	14 Feb 2003 06:46:37 -0000
-@@ -78,9 +78,10 @@
- #define PPC_MSG_XMON_BREAK	3
- 
- #define smp_message_pass(t,m,d,w) \
--    do { if (smp_ops) \
-+    do { if (smp_ops) {\
- 	     atomic_inc(&ipi_sent); \
- 	     smp_ops->message_pass((t),(m),(d),(w)); \
-+	 } \
-        } while(0)
- 
- /* 
+Thanks, queued for 2.4 and 2.5.
 
--- 
-function.linuxpower.ca
+	Jeff
+
+
+

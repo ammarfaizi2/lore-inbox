@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267172AbSKSXtn>; Tue, 19 Nov 2002 18:49:43 -0500
+	id <S267582AbSKSXv7>; Tue, 19 Nov 2002 18:51:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267582AbSKSXtn>; Tue, 19 Nov 2002 18:49:43 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:9344 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267172AbSKSXtm>; Tue, 19 Nov 2002 18:49:42 -0500
-Subject: Re: AMD 760MPX dma_intr: error=0x40 { UncorrectableError }
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Steven Timm <timm@fnal.gov>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.31.0211191529360.12125-100000@boxer.fnal.gov>
-References: <Pine.LNX.4.31.0211191529360.12125-100000@boxer.fnal.gov>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 20 Nov 2002 00:24:59 +0000
-Message-Id: <1037751899.1401.1.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S267612AbSKSXv7>; Tue, 19 Nov 2002 18:51:59 -0500
+Received: from guru.webcon.net ([66.11.168.140]:62400 "EHLO guru.webcon.net")
+	by vger.kernel.org with ESMTP id <S267582AbSKSXv6>;
+	Tue, 19 Nov 2002 18:51:58 -0500
+Date: Tue, 19 Nov 2002 18:58:54 -0500 (EST)
+From: Ian Morgan <imorgan@webcon.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.4.20-rc2-ac1 io_apic.c
+Message-ID: <Pine.LNX.4.44.0211191847240.2942-100000@light.webcon.net>
+Organization: "Webcon, Inc."
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-19 at 21:36, Steven Timm wrote:
-> There are many entries in this mailing list saying that
-> the above error is a sign of a bad disk.  Seagate diagnostics
-> say so too.. It is just hard to believe that 30 hard drives could
-> go bad in less than a month.
+A previous email did not clearly mark this as a patch for submission, so you
+probably missed it.
 
-Really ? - if they came from the same batch, with the same fault or
-dropped off the back of the same truck. One of the problems with raid
-setups is exactly this.
+This patch fixes a linking error in kernel.o due to a missed change in
+io_apic.c (you and Marcelo seem to be stepping on each other's toes):
 
-This error has nothing to do with the chipset, the drive itself provided
-that assessment of its state and Seagates own diagnostics are querying
-the drive data.
+--- io_apic.c~	Tue Nov 19 18:46:36 2002
++++ io_apic.c	Tue Nov 19 18:46:36 2002
+@@ -1894,7 +1894,7 @@
+ 
+ 	entry.delivery_mode = dest_LowestPrio;
+ 	entry.dest_mode = INT_DELIVERY_MODE;
+-	entry.dest.logical.logical_dest = target_cpus();
++	entry.dest.logical.logical_dest = TARGET_CPUS;
+ 	entry.mask = 1;					 /* Disabled (masked) */
+ 	entry.trigger = 1;				   /* Level sensitive */
+ 	entry.polarity = 1;					/* Low active */
+
+
+Regards,
+Ian Morgan
+
+-- 
+-------------------------------------------------------------------
+ Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
+ imorgan@webcon.ca          PGP: #2DA40D07           www.webcon.ca
+    *  Customized Linux network solutions for your business  *
+-------------------------------------------------------------------
 

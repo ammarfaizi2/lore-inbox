@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264134AbRFFUJi>; Wed, 6 Jun 2001 16:09:38 -0400
+	id <S261217AbRFFUWA>; Wed, 6 Jun 2001 16:22:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264135AbRFFUJ2>; Wed, 6 Jun 2001 16:09:28 -0400
-Received: from colorfullife.com ([216.156.138.34]:45316 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S264134AbRFFUJX>;
-	Wed, 6 Jun 2001 16:09:23 -0400
-Message-ID: <3B1E8DCC.442431CA@colorfullife.com>
-Date: Wed, 06 Jun 2001 22:08:44 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S264140AbRFFUVt>; Wed, 6 Jun 2001 16:21:49 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:59659 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S264138AbRFFUVh>; Wed, 6 Jun 2001 16:21:37 -0400
+Date: Wed, 6 Jun 2001 13:20:53 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Vojtech Pavlik <vojtech@suse.cz>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        linux-kernel@vger.kernel.org, tytso@mit.edu
+Subject: Re: [driver] New life for Serial mice
+In-Reply-To: <20010606182221.B30546@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10106061317180.12135-100000@transvirtual.com>
 MIME-Version: 1.0
-To: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>,
-        linux-kernel@vger.kernel.org,
-        "David Gordon (LMC)" <David.Gordon@ericsson.ca>
-Subject: RE: kHTTPd hangs 2.4.5 boot when moduled
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 	
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
+> > > hmmm.  I just looked over this, and drivers/char/joystick/ser*.[ch].
+> > > 
+> > > Bad trend.
+> > > 
+> > > Serial needs to be treated just like parport: the basic hardware code,
+> > > then on top of that, a selection of drivers, all peers:  dumb serial
+> > > port, serial mouse, joystick, etc.
+> > 
+> > Agreed. Completely.
 > 
-> package RH7.0 has...    2.4.2 and on needs...
-> util-linux      2.10m           2.10o
-> modutils        2.3.21          2.4.2
-> e2fsprogs       1.18            1.19
+> I suggest that if someone is thinking about this that they look at
+> serial_core.c in the ARM patch hunk.
+>    (ftp.arm.linux.org.uk/pub/armlinux/source/kernel-patches/v2.4/)
+> 
+> Note that you shouldn't apply the whole patch - it probably won't compile
+> for anything but ARM atm.
 
-Which compiler do you use? The default compiler from 7.0 is known to
-produce buggy kernels, and Linus didn't include the kgcc detection.
+Never noticed it until now. Very nice patch :-) I have to agree as well.
+It would be nice if we had 
 
-Could you check that kgcc is used for compiling?
-Just replace '$(CROSS_COMPILE)gcc' in /usr/src/linux/Makefile with
-'$(CROSS_COMPILE)kgcc'
+1) A seperate serial directory under drivers.
 
-Or upgrade to the gcc compiler from 7.1?
+2) A nice structure that input devices and the tty layer can use. It is
+   just a waste to go threw the tty layer for input devices. It would also
+   make serial driver writing easier if the api is designed right :-) 
 
---
-	Manfred
+

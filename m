@@ -1,98 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267982AbUHPWaa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267998AbUHPWcD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267982AbUHPWaa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 18:30:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267986AbUHPWa2
+	id S267998AbUHPWcD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 18:32:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267996AbUHPWcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 18:30:28 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:42911 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267982AbUHPWaJ
+	Mon, 16 Aug 2004 18:32:02 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:54687 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267992AbUHPWbu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 18:30:09 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Alan Cox <alan@redhat.com>
-Subject: Re: PATCH: straighten out the IDE layer locking and add hotplug
-Date: Mon, 16 Aug 2004 23:43:35 +0200
+	Mon, 16 Aug 2004 18:31:50 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] HPT374 kernel panic - regression in 2.6.8
+Date: Tue, 17 Aug 2004 00:30:45 +0200
 User-Agent: KMail/1.6.2
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-References: <20040815151346.GA13761@devserv.devel.redhat.com>
-In-Reply-To: <20040815151346.GA13761@devserv.devel.redhat.com>
+Cc: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <411DF42E.5030504@kmlinux.fjfi.cvut.cz> <1092496584.27144.3.camel@localhost.localdomain>
+In-Reply-To: <1092496584.27144.3.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Disposition: inline
+Message-Id: <200408170030.45553.bzolnier@elka.pw.edu.pl>
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408162343.35588.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 14 August 2004 17:16, Alan Cox wrote:
+> On Sad, 2004-08-14 at 12:14, Jindrich Makovicka wrote:
+> > Hello,
+> >
+> > HighPoint 374 driver in 2.6.8 can cause kernel panic on boot with
+> > non-33MHz timings because some lines from an older version have been
+> > included in the source again. After removing the check, HPT374 works
+> > just fine using internal PLL.
+>
+> The HPT374 only supports 33Mhz timings. If you are overclocking it then
+> its probably going to mostly work. The lines added are not "from an
+> older source file" but form a port forwards of long missing and
+> important fixes from 2.4 that have been there for a long long time.
 
-> +/**
-> + *	ide_hwif_restore	-	restore hwif to template
-> + *	@hwif: hwif to update
-> + *	@tmp_hwif: template
-> + *
-> + *	Restore hwif to a default state by copying most settngs
+2.4 driver also misses some fixes...
 
-it restores hwif to previous state not the default one
+> So the first question is why does your late series HPT37x think its
+> running at > 33Mhz ? Are you overclocking it ?
 
-> +/**
-> + *	ide_add_generic_settings	-	generic /proc settings
-> + *	@drive: drive being configured
-> + *
-> + *	Add the generic parts of the system settings to the /proc files
-> + *	for this IDE device. The caller must not be holding the settings_sem
-> + *	.lock
-> + */
+http://linus.bkbits.net:8080/linux-2.5/cset@40586b50zsHhQgPLGTlje7g_f5wGTw?nav=index.html|
+src/|src/drivers|src/drivers/ide|src/drivers/ide/pci|
+related/drivers/ide/pci/hpt366.c
 
-ide settings are not limited to /proc, remember about ioctls
-
-> +/**
-> + *	system_bus_clock	-	clock guess
-> + *
-> + *	External version of the bus clock guess used by old old IDE drivers
-
-old old?
-
-> +/**
-> + *	ata_attach		-	attach an ATA/ATAPI device
-> + *	@drive: drive to attach
-> + *
-> + *	Takes a drive that is as yet not assigned to any midlayer IDE
-> + *	module and figures out which driver would like to own it. If
-
-drive maybe assinged to midlayer ide-default driver
-
-> + *	nobody claims the driver then it is automatically attached
-
-the drive
-
-> +/**
-> + *	ide_unregister_subdriver	-	disconnect drive from driver
-> + *	@drive: drive to unplug
-> + *
-> + *	Disconnect a drive from the driver it was attached to and then
-> + *	clean up the various proc files and other objects attached to it.
-> + *	Takes ide_sem, ide_lock, and drive_lock. Caller must hold none of
-> + *	the locks.
-> + *
-> + *	No locking versus subdriver unload because we are moving to the
-> + *	default driver anyway. Wants double checking.
-
-yep, locking needs checking  (removing hwif vs removing driver)
-
-> +/**
-> + *	ide_register_driver	-	new driver loaded
-> + *	@driver: the IDE driver module
-
-driver doesn't have to be a module
-
-IDE device driver
-
-> +/**
-> + *	ide_unregister_driver	-	IDE module unload
-> + *	@driver: IDE driver module
-> + *
-> + *	Unload a driver module and reattach any devices to whatever
-
-it doesn't unload given IDE device driver
+please read bugzilla bugs mentioned in the changelong and fix this

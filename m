@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVBJVie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbVBJVms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261617AbVBJVie (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 16:38:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVBJVie
+	id S261682AbVBJVms (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 16:42:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVBJVms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 16:38:34 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:56005 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261617AbVBJVic
+	Thu, 10 Feb 2005 16:42:48 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:62149 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261682AbVBJVmh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 16:38:32 -0500
+	Thu, 10 Feb 2005 16:42:37 -0500
 Subject: Re: [RFC][PATCH] add driver matching priorities
 From: Adam Belay <abelay@novell.com>
-To: dtor_core@ameritech.net
+To: Russell King <rmk+lkml@arm.linux.org.uk>
 Cc: Greg KH <greg@kroah.com>, rml@novell.com, linux-kernel@vger.kernel.org
-In-Reply-To: <d120d5000502101046d87d13f@mail.gmail.com>
+In-Reply-To: <20050210184508.B5800@flint.arm.linux.org.uk>
 References: <1106951404.29709.20.camel@localhost.localdomain>
 	 <20050210084113.GZ32727@kroah.com>
 	 <1108055918.3423.23.camel@localhost.localdomain>
-	 <20050210183338.GA9308@kroah.com>
-	 <d120d5000502101046d87d13f@mail.gmail.com>
+	 <20050210184508.B5800@flint.arm.linux.org.uk>
 Content-Type: text/plain
-Date: Thu, 10 Feb 2005 16:32:56 -0500
-Message-Id: <1108071176.3423.41.camel@localhost.localdomain>
+Date: Thu, 10 Feb 2005 16:37:03 -0500
+Message-Id: <1108071423.3423.46.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-10 at 13:46 -0500, Dmitry Torokhov wrote:
-> On Thu, 10 Feb 2005 10:33:38 -0800, Greg KH <greg@kroah.com> wrote:
-> > On Thu, Feb 10, 2005 at 12:18:37PM -0500, Adam Belay wrote:
-> > >
-> > > The second "*match" function in "struct device_driver" gives the driver
-> > > a chance to evaluate it's ability of controlling the device and solves a
-> > > few problems with the current implementation.  (ex. it's not possible to
-> > > detect ISA Modems with only a list of PnP IDs, and some PCI devices
-> > > support a pool of IDs that is too large to put in an ID table).
+On Thu, 2005-02-10 at 18:45 +0000, Russell King wrote:
+> On Thu, Feb 10, 2005 at 12:18:37PM -0500, Adam Belay wrote:
+> > > I think the issue that Al raises about drivers grabbing devices, and
+> > > then trying to unbind them might be a real problem.
 > > 
-> > What deficiancy in the current id tables do you see?  What driver has a
-> > id table that is "too big"?  Is there some way we can change it to make
-> > it work better?
-> > 
+> > I agree.  Do you think registering every in-kernel driver before probing
+> > hardware would solve this problem?
 > 
-> Stepping a bit farther away - sometimes generinc matching is not
-> enough to determine if driver suits for a device - actual probing is
-> needed (consider atkbd and psmouse - they can both attach to the same
-> port but we can't determine if it is a keyboard or mouse until we
-> started probing)
+> In which case, consider whether we should be tainting the kernel if
+> someone loads a device driver, it binds to a device, and then they
+> unload that driver.
+> 
+> It's precisely the same situation, and precisely the same mechanics
+> as what I've suggested should be going on here.  If one scenario is
+> inherently buggy, so is the other.
+> 
 
-Also, another example I remember seeing a while back...  Some pcmcia
-devices have identical IDs but different chipsets.  The only way to find
-the correct driver is to poke around.
+I think it would depend on whether the user makes the device busy before
+the driver is unloaded.  Different device classes may have different
+requirements for when and how a device can be removed.  Are there other
+issues as well?  Maybe there are ways to improve driver start and stop
+mechanics.
 
 Thanks,
 Adam

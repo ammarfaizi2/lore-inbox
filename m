@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314082AbSDZR2B>; Fri, 26 Apr 2002 13:28:01 -0400
+	id <S314088AbSDZR3j>; Fri, 26 Apr 2002 13:29:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314088AbSDZR2A>; Fri, 26 Apr 2002 13:28:00 -0400
-Received: from B52e2.pppool.de ([213.7.82.226]:19984 "HELO Nicole.fhm.edu")
-	by vger.kernel.org with SMTP id <S314082AbSDZR16>;
-	Fri, 26 Apr 2002 13:27:58 -0400
-Subject: UFS work
-From: Daniel Egger <degger@fhm.edu>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 26 Apr 2002 16:43:50 +0200
-Message-Id: <1019832230.1366.4.camel@sonja.de.interearth.com>
-Mime-Version: 1.0
+	id <S314089AbSDZR3i>; Fri, 26 Apr 2002 13:29:38 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:60638 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S314088AbSDZR3h>;
+	Fri, 26 Apr 2002 13:29:37 -0400
+Date: Fri, 26 Apr 2002 13:29:33 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Pavel Machek <pavel@ucw.cz>
+cc: Michael Dreher <dreher@math.tu-freiberg.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre7: rootfs mounted twice
+In-Reply-To: <20020426161540.GF3783@elf.ucw.cz>
+Message-ID: <Pine.GSO.4.21.0204261326580.22065-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hija,
 
-is anyone currently working on the UFS filesystem. I'd be really
-interested in getting a stable support for read/write on OS X native
-partitions; the current code is more than flaky in this regard in
-the sense that it doesn't work at all:
-- It allocates space for not written data
-- It writes empty files into the directory
-- It claims to be read-only after filecreation but still the above
-  mentioned items apply.
 
--- 
-Servus,
-       Daniel
+On Fri, 26 Apr 2002, Pavel Machek wrote:
+
+> > does statfs("/", &buf); for both.  Surprise, surprise, results of
+> > two calls of statf2(2) are identical - what with arguments being
+> > the same both times - and refer to the filesystem where your "/"
+> > lives.  I.e. to ext3.
+> 
+> df might be wrong, but lets say that this /proc/mounts become
+> interesting. This could not have happened in the past. That means you
+
+This _could_ happen in past - as the matter of fact, I can reproduce it
+on any 2.4 kernel.  Mount something over the root of already mounted
+filesystem and watch the show.
+
+Now, we could disable showing rootfs in /proc/mounts and it might be a
+good idea for 2.4,  I'm not all that sure that it's a right thing, though.
 

@@ -1,60 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266950AbRGHR7p>; Sun, 8 Jul 2001 13:59:45 -0400
+	id <S266956AbRGHS1t>; Sun, 8 Jul 2001 14:27:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266945AbRGHR7Z>; Sun, 8 Jul 2001 13:59:25 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:52487 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266944AbRGHR7U>; Sun, 8 Jul 2001 13:59:20 -0400
-Date: Sun, 8 Jul 2001 10:58:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Mike Galbraith <mikeg@wen-online.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: VM in 2.4.7-pre hurts...
-In-Reply-To: <Pine.LNX.4.33L.0107081241280.22014-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.33.0107081039420.7044-100000@penguin.transmeta.com>
+	id <S266957AbRGHS13>; Sun, 8 Jul 2001 14:27:29 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:57095 "EHLO
+	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S266956AbRGHS1U>; Sun, 8 Jul 2001 14:27:20 -0400
+Message-ID: <3B48A643.124AA832@t-online.de>
+Date: Sun, 08 Jul 2001 20:28:19 +0200
+From: Gunther.Mayer@t-online.de (Gunther Mayer)
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Gregory (Grisha) Trubetskoy" <grisha@ispol.com>
+Subject: ESCD Support for 2.4.6-ac1/PNPBIOS (was: reading/writing CMOS beyond 256 
+ bytes?)
+In-Reply-To: <E15IXCD-0004Uu-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+with a litte patch to linux-2.4.6ac1 (which includes PNPBIOS)
+the ESCD data is easily accessible.
 
-On Sun, 8 Jul 2001, Rik van Riel wrote:
->
-> ... Bingo.  You hit the infamous __wait_on_buffer / ___wait_on_page
-> bug. I've seen this for quite a while now on our quad xeon test
-> machine, with some kernel versions it can be reproduced in minutes,
-> with others it won't trigger at all.
+Then "lsescd" will verbosely decode /proc/bus/pnp/escd.
 
-Hmm.. That would explain why the "tar" gets stuck, but why does the whole
-machine grind to a halt with all other processes being marked runnable?
+This lets you access important info which would be beneficial for correctly
+configuring PnP in Linux (e.g. when you set an IRQ to "reserved for legacy ISA"
+in your BIOS setup or you can see what's the difference between selecting
+"_PNP OS_" to yes/no in your BIOS setup screen).
 
-> I hope there is somebody out there who can RELIABLY trigger
-> this bug, so we have a chance of tracking it down.
->
-> > tar
-> > Trace; c012f2da <__wait_on_buffer+6a/8c>
-> > Trace; c01303c9 <bread+45/64>
+Regards, Gunther
 
-I wonder if "getblk()" returned a locked not-up-to-date buffer.. That
-would explain how the buffer stays locked forever - the "ll_rw_block()"
-will not actually submit any IO on a locked buffer, so there won't be any
-IO to release it.
+P.S. There is an additional potential benefit for ISAPNP: you can
+get the PNP Port configured by your BIOS. Previously all cards had
+to be reset to use a new port. Linux suffers serverly from not
+doing PnP failsafe, burdening configuration tasks onto the user.
 
-And it's interesting to see that this happens for a _inode_ block, not a
-data block - which could easily have been dirty and scheduled for a
-write-out. So I wonder if there is some race between "write buffer and try
-to free it" and "getblk()".
+cat /proc/bus/pnp/pnpconfig_info 
+Revision=1 No_Csn=1 ISAPNP_Port=0x20b
+                                  ^^^
 
-The locking in "try_to_free_buffers()" is rather anal, so I don't see how
-this could happen, but..
+Download from:
+http://home.t-online.de/home/gunther.mayer/lsescd-0.10.tar.bz2
 
-That still doesn't explain why everybody is busy running. I'd have
-expected all the processes to end up waiting for the page or buffer, not
-stuck in a live-lock.
 
-		Linus
 
+Alan Cox wrote:
+> 
+> > Unfortunately, it seems that some settings are not in the 128 (or 256)
+> > bytes accessible this way, so they must be stored elsewhere.
+> 
+> Large numbers of BIOS settings are in the NVRAM ESCD area in modern systems
+> (EISA config, ISAPNP config, etc)
+> 
+> > Does anyone know where I should look for the remaining parts of CMOS
+> > (short of having to sign some NDA with Intel?)?
+> 
+> The PnPBIOS and ESCD specs are publically available if a little impenetrable
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

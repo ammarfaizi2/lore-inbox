@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261837AbUAFKsM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 05:48:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbUAFKsM
+	id S261868AbUAFLDL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 06:03:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbUAFLDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 05:48:12 -0500
-Received: from colin2.muc.de ([193.149.48.15]:271 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261837AbUAFKsL (ORCPT
+	Tue, 6 Jan 2004 06:03:11 -0500
+Received: from main.gmane.org ([80.91.224.249]:11241 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261868AbUAFLDK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 05:48:11 -0500
-Date: 6 Jan 2004 11:49:04 +0100
-Date: Tue, 6 Jan 2004 11:49:04 +0100
-From: Andi Kleen <ak@colin2.muc.de>
-To: Mika Penttil? <mika.penttila@kolumbus.fi>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@muc.de>,
-       David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
-Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
-Message-ID: <20040106104904.GA87428@colin2.muc.de>
-References: <1aJdi-7TH-25@gated-at.bofh.it> <m37k054uqu.fsf@averell.firstfloor.org> <Pine.LNX.4.58.0401051937510.2653@home.osdl.org> <20040106040546.GA77287@colin2.muc.de> <Pine.LNX.4.58.0401052100380.2653@home.osdl.org> <20040106081203.GA44540@colin2.muc.de> <3FFA7BB9.1030803@kolumbus.fi> <20040106094442.GB44540@colin2.muc.de> <3FFA8AEE.5090007@kolumbus.fi>
+	Tue, 6 Jan 2004 06:03:10 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: RAID1 resync speed in 2.6.0
+Date: Tue, 06 Jan 2004 12:03:07 +0100
+Message-ID: <yw1xhdz9xrtg.fsf@ford.guide>
+References: <yw1xptdy15hu.fsf@ford.guide>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FFA8AEE.5090007@kolumbus.fi>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:598gpIUXdmbVxOIKQSUCZtm45Qs=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 06, 2004 at 12:16:14PM +0200, Mika Penttil? wrote:
-> But AGP aperture is controlled with the standard APBASE pci base 
-> register, so you always know where it is, can relocate it and reserve 
-> address space for it. Of course there may exist other uncontrollable hw, 
-> which may cause problems.
+mru@kth.se (Måns Rullgård) writes:
 
-Actually not. There are quite a lot of chipsets that require special
-programming for the AGP aperture (why do you think drivers/char/agp/*.c
-is so big?). And not even everything AGPv2 compliant. 
+> I just set up a largish (~100 GB) RAID1 array under Linux 2.6.0.  Now,
+> /proc/mdstat is happily telling me that the resync will be completed
+> in 3700 minutes.  This seems terribly slow to me.  At first, it
+> wouldn't work at all, complaining about "bio too big", so I changed
+> RESYNC_BLOCK_SIZE to 32k.
 
-And as Linus points out you would likely need to do some Northbridge
-specific magic to make that area usable for PCI then.
+I found it.  It's a raid1 on top of raid0.  Apparently the raid1
+resync considered the I/O from the raid0 devices to the physical disks
+as normal I/O and reduced the speed.  I increased the min rate in
+/proc/... and now it's resyncing at 40 MB/s.  Much better.
 
-Also you would need to put it over RAM because again there is no 
-reliable way to find a hole.
-
--Andi
+-- 
+Måns Rullgård
+mru@kth.se
 

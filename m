@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263599AbTCUMVh>; Fri, 21 Mar 2003 07:21:37 -0500
+	id <S263607AbTCUMYw>; Fri, 21 Mar 2003 07:24:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263600AbTCUMVh>; Fri, 21 Mar 2003 07:21:37 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:59013 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S263599AbTCUMVg>; Fri, 21 Mar 2003 07:21:36 -0500
-Date: Fri, 21 Mar 2003 12:32:14 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Daniel Pittman <daniel@rimspace.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux <-> Linux NFS issues.
-Message-ID: <20030321123214.GB6664@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Daniel Pittman <daniel@rimspace.net>, linux-kernel@vger.kernel.org
-References: <87isudm2ee.fsf@enki.rimspace.net>
+	id <S263606AbTCUMYw>; Fri, 21 Mar 2003 07:24:52 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:27068 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S263605AbTCUMYv> convert rfc822-to-8bit; Fri, 21 Mar 2003 07:24:51 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <ifilipau@sussdd.de>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Fri, 21 Mar 2003 04:35:50 -0800
+In-Reply-To: <7A5D4FEED80CD61192F2001083FC1CF9065139@CHARLY>
+Subject: Re: read() & close()
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87isudm2ee.fsf@enki.rimspace.net>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Illegal-Object: Syntax error in Message-ID: value found on vger.kernel.org:
+	Message-ID:	<20030321123536.AAA18341@shell.webmaster.com@whenever>
+									    ^-illegal end of message identification
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Message-Id: <20030321122452Z263606-25575+33907@vger.kernel.org>
 
-On Fri, Mar 21, 2003 at 09:37:13PM +1100, Daniel Pittman wrote:
+On Thu, 20 Mar 2003 15:14:52 +0100, Filipau, Ihar wrote:
 
- > The client machine reports, in dmesg:
- > NFS: server cheating in read reply: count 4096 > recvd 1000
- > The 'count' value is occasionally higher, but not often, and the 'recvd'
- > never seems to differ from 1000.
+>I have/had a simple issue with multi-threaded programs:
+>
+>one thread is doing blocking read(fd) or poll({fd}) on
+>file/socket.
+>
+>another thread is doing close(fd).
+>
+>I expected first thread will unblock with some kind
+>of error - but nope! It is blocked!
+>
+>Is it expected behaviour?
 
-When I was last seeing this, there was also a lot of 'crap' packets
-on the wire, with bogus header lengths etc (some of which were so
-malformed they broke ethereal).
+	It is impossible to make this work reliably, so *please* don't do 
+that. For example, how can you possibly assure that the first thread 
+is actually in 'poll' when call 'close'? There is no atomic 'release 
+mutex and poll' function.
 
-I've not retried any NFS tests since 2.5.60, sounds like the problem
-is still there, so I'll do some more investigation soon.
+	So what happens if the system pre-empts the thread right before it 
+calls 'poll'. Then you call 'close'. Perhaps next a thread started by 
+some library function calls 'socket' and gets the file descriptor you 
+just 'close'd. Now your call to 'poll' polls on the *wrong* socket!
 
-		Dave
+	You simply must accept the fact that you cannot free a resource in 
+one thread while another thread is or might be using it.
+
+	DS
+
 

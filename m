@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbUJZFAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbUJZFF0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262155AbUJZFAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 01:00:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbUJZFAN
+	id S262161AbUJZFF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 01:05:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbUJZFA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 01:00:13 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:59870
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262062AbUJZE76 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 00:59:58 -0400
-Date: Mon, 25 Oct 2004 21:52:16 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: wa@almesberger.net, hch@lst.de, davem@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove dead tcp exports
-Message-Id: <20041025215216.54b362f9.davem@davemloft.net>
-In-Reply-To: <1098765665.9404.5.camel@krustophenia.net>
-References: <20041024134309.GB20267@lst.de>
-	<20041026000710.D3841@almesberger.net>
-	<20041025204147.667ee2b1.davem@davemloft.net>
-	<1098765665.9404.5.camel@krustophenia.net>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 26 Oct 2004 01:00:59 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:30179 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262108AbUJZE6I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 00:58:08 -0400
+Subject: [Proposal]Another way to save/restore PCI config space for
+	suspend/resume
+From: Li Shaohua <shaohua.li@intel.com>
+To: ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Cc: Len Brown <len.brown@intel.com>, greg@kroah.com,
+       Pavel Machek <pavel@suse.cz>
+Content-Type: text/plain
+Message-Id: <1098766257.8433.7.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 26 Oct 2004 12:50:57 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Oct 2004 00:41:05 -0400
-Lee Revell <rlrevell@joe-job.com> wrote:
+Hi,
+We suffer from PCI config space issue for a long time, which causes many
+system can't correctly resume. Current Linux mechanism isn't sufficient.
+Here is a another idea: 
+Record all PCI writes in Linux kernel, and redo all the write after
+resume in order. The idea assumes Firmware will restore all PCI config
+space to the boot time state, which is true at least for IA32.
 
-> Is this really a compelling reason to remove them?  For example ALSA
-> provides an API for driver writers, just because a certain function
-> happens not to be used by any does not mean is never will be or that it
-> should not.
+Reason:
+1. Current PCI save/restore routines only cover first 64 bytes
+2. No PCI bridge driver currently.
+3. Some special devices can't or are difficult to save/restore config
+space with current model. Such as PCI link device, it's a sysdev, but
+its resume code can't be invoked with irq disabled.
+4. ACPI possibly changes special devices' config space, such as host
+bridge or LPC bridge. The special devices generally are vender specific,
+and possibly will not have a driver forever.
 
-These are actually TCP internals, not a "well defined driver API"
-as ALSA defines.
+Possibly we must consider other factors:
+1.tracking writes alone will not be enough. Some PCI devices may have
+restrictions such as something has to be written after it is read and
+the like. Still we should be able to do this if we can trace all pci
+reads and writes and repeat it at restore.
+2. For support hotplug, add a callback for hotplug PCI remove. When a
+device is removed, all records about it are removed.
+What's your opinions?
+
+Thanks,
+Shaohua
+

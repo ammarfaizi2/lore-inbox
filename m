@@ -1,71 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315760AbSFYRrb>; Tue, 25 Jun 2002 13:47:31 -0400
+	id <S314395AbSFYRzU>; Tue, 25 Jun 2002 13:55:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315758AbSFYRr3>; Tue, 25 Jun 2002 13:47:29 -0400
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:35011 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
-	id <S315748AbSFYRr0>; Tue, 25 Jun 2002 13:47:26 -0400
-Date: Tue, 25 Jun 2002 10:47:07 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: driverfs bus_id, name (was: [PATCH] /proc/scsi/map)
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Nick Bellinger <nickb@attheoffice.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Message-id: <3D18AC9B.8050306@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <Pine.LNX.4.33.0206250920150.8496-100000@geena.pdx.osdl.net>
+	id <S314396AbSFYRzT>; Tue, 25 Jun 2002 13:55:19 -0400
+Received: from pieck.student.uva.nl ([146.50.96.22]:38558 "EHLO
+	pieck.student.uva.nl") by vger.kernel.org with ESMTP
+	id <S314395AbSFYRzS>; Tue, 25 Jun 2002 13:55:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rudmer van Dijk <rvandijk@science.uva.nl>
+Reply-To: rvandijk@science.uva.nl
+Organization: UvA
+To: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.24-dj2
+Date: Tue, 25 Jun 2002 19:58:43 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <20020625163824.GA20888@suse.de>
+In-Reply-To: <20020625163824.GA20888@suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020625175518Z314395-22020+10471@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > The bus_id of the device is intended to represent the bus-specific ID of
- > the device, and is the name of the driverfs directory.
+On Tuesday 25 June 2002 18:38, Dave Jones wrote:
+> Just some small bits for now (other than 40kb of bits from 2.4),
+> more stuff pending will probably wait until after I get back from
+> KS/OLS/UKUUG conferences.
 
-Right, I was just commenting that the SCSI folk seem to like a particular
-historical usage (based on driver enumeration order) that'd seem good to
-do away with ... since it's not necessary (given the _real_ bus-specific
-ID from their parent device) and has _always_ been problematic (those
-enumeration-related IDs can change unexpectedly).
+This is working great!
+No more trouble with X (writing this mail with KMail in 2.5.24-dj2)
 
+using these options:
+CONFIG_PREEMPT=y
+CONFIG_AGP=y
+CONFIG_AGP_SIS=y
+CONFIG_DRM=y
+CONFIG_DRM_MGA=y
 
- > The name should user-friendly. It shouldn't be a unique name. Use
- > something nice and pretty.
+turned preemt on a long time ago and never noticed anymore since I use make 
+oldconfig, so if there was any trouble with preempt in 23-dj it is fixed now
 
-I've been wondering about that.  Right now PCI and USB both use fairly
-unfriendly/unpretty values in device.name ... "{PCI,USB} device VVVV:PPPP".
+also the '__iounmap: bad address d0802030' message is gone thanks to Andi.
 
-Let me make sure I understand you right here, by examples of two
-changes I'd like to see.  Correct me if these seem wrong:
+so it looks solid (at least for the 10 min it is running (seti@home) now)
 
-- It'd be more appropriate for PCI devices to copy pci_device.name into
-   device.name and get the user-friendly names from the PCI device name
-   database (when available), and only fallback to those nasty strings
-   when the more user-friendly names aren't available.
-
-- Likewise it'd be more appropriate for USB devices to take the
-   descriptive strings from the devices, like "Philips USB Digital
-   Speaker System", than "USB device 0471:0104".
-
-In both cases the current strings might make reasonable fallbacks
-for the case when something better isn't available.  But as examples,
-I don't think they match a "user friendly, pretty" model ... :)
-
-Would it be appropriate for device drivers to set the "name" in
-some cases, or is that something you'd only expect bus drivers
-to be setting up (once, and read-only)?
-
-Given that in one common usage the "bus_id" is the "true name" of
-those devices, I've thought that "description" might be a slightly
-better way identify that attribute.  "Name" is a word with a thousand
-meanings, all of them context-dependent, and easily confused.
-
-- Dave
-
-
-
-
-
+	Rudmer

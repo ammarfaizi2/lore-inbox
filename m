@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261624AbSKLPqj>; Tue, 12 Nov 2002 10:46:39 -0500
+	id <S261732AbSKLPzA>; Tue, 12 Nov 2002 10:55:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261627AbSKLPqj>; Tue, 12 Nov 2002 10:46:39 -0500
-Received: from ns.suse.de ([213.95.15.193]:61705 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261624AbSKLPqi>;
-	Tue, 12 Nov 2002 10:46:38 -0500
+	id <S261742AbSKLPzA>; Tue, 12 Nov 2002 10:55:00 -0500
+Received: from borg.org ([208.218.135.231]:7142 "HELO borg.org")
+	by vger.kernel.org with SMTP id <S261732AbSKLPy7>;
+	Tue, 12 Nov 2002 10:54:59 -0500
+Date: Tue, 12 Nov 2002 11:01:49 -0500
+From: Kent Borg <kentborg@borg.org>
 To: Adam Voigt <adam@cryptocomm.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: File Limit in Kernel?
-References: <1037115535.1439.5.camel@beowulf.cryptocomm.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 12 Nov 2002 16:53:26 +0100
-In-Reply-To: Adam Voigt's message of "12 Nov 2002 16:45:43 +0100"
-Message-ID: <p738yzywzrd.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+Message-ID: <20021112110149.A9492@borg.org>
+References: <1037115535.1439.5.camel@beowulf.cryptocomm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1037115535.1439.5.camel@beowulf.cryptocomm.com>; from adam@cryptocomm.com on Tue, Nov 12, 2002 at 10:38:55AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Voigt <adam@cryptocomm.com> writes:
-
-> --=-gjU1b+qYiuNy2hSLpQYr
-> Content-Type: text/plain
-> Content-Transfer-Encoding: quoted-printable
-> 
+On Tue, Nov 12, 2002 at 10:38:55AM -0500, Adam Voigt wrote:
 > I have a directory with 39,000 files in it, and I'm trying to use the cp
-> command to copy them into another directory, and neither the cp or the
-> mv command will work, they both same "argument list too long" when I
-> use:
-> 
-> cp -f * /usr/local/www/images
+> command to copy them into another directory, 
+> [...]
+> "argument list too long"
 
-Kind of. The * is expanded by the shell. The kernel limits the max
-length of program arguments, which is biting you here. In theory you
-could increase the MAX_ARG_PAGES #define in linux/binfmts.h and
-recompile. No guarantee that it won't have any bad side effects
-though. The default is rather low, it should be probably increased 
-(I also regularly run into this)
+No, it is not a kernel limit, it is a limit to your shell (bash, for
+example).  Look at xargs to get around it.
 
-The actual limit of files per directory is usually around 65000 in
-most fs.
-
-For your immediate problem you can use
-
-find -type f | xargs cp -iX -f X /usr/local/www/images
+A related limit is that the popular ext2 and 3 file systems get
+inefficient when directories have so many files.  The work-around for
+that is to have your files either hashed or organized across a
+collection of directories.
 
 
--Andi
+-kb

@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262459AbTFBP2t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 11:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbTFBP2s
+	id S262458AbTFBPcN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 11:32:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbTFBPcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 11:28:48 -0400
-Received: from mail5.iserv.net ([204.177.184.155]:13469 "EHLO mail5.iserv.net")
-	by vger.kernel.org with ESMTP id S262459AbTFBP2r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 11:28:47 -0400
-Message-ID: <3EDB7053.3040707@didntduck.org>
-Date: Mon, 02 Jun 2003 11:42:11 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stuart MacDonald <stuartm@connecttech.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Redundant code?
-References: <00e301c3291c$22d4f270$294b82ce@stuartm>
-In-Reply-To: <00e301c3291c$22d4f270$294b82ce@stuartm>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 2 Jun 2003 11:32:13 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:7655
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262458AbTFBPcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 11:32:12 -0400
+Subject: Re: impact of Athlon's slower front-side-bus (FSB)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: joe briggs <jbriggs@briggsmedia.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200306020947.44520.jbriggs@briggsmedia.com>
+References: <200306020947.44520.jbriggs@briggsmedia.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054565258.7494.34.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 02 Jun 2003 15:47:40 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stuart MacDonald wrote:
-> Seems to me the following is redundant code, since get_fd_set also
-> memsets the fds.res_* bitmaps.
+On Llu, 2003-06-02 at 14:47, joe briggs wrote:
+> The fastest AMD single processor Athlon XP is 3200 with 400 Mhz FSB.
+> The fastest AMD dual processor Athlon MP is 2800 but with only 266 Mhz FSB.
 > 
-> ..Stu
-> 
-> --- linux-2.5.70/fs/select.c	2003-05-26 21:00:21.000000000 -0400
-> +++ linux-2.5.70-new/fs/select.c	2003-06-02 11:40:24.000000000 -0400
-> @@ -344,9 +344,6 @@
->  	    (ret = get_fd_set(n, outp, fds.out)) ||
->  	    (ret = get_fd_set(n, exp, fds.ex)))
->  		goto out;
-> -	zero_fd_set(n, fds.res_in);
-> -	zero_fd_set(n, fds.res_out);
-> -	zero_fd_set(n, fds.res_ex);
->  
->  	ret = do_select(n, &fds, &timeout);
->  
-> 
+> So, for a multimedia application, which platform would be faster?  How does 
+> the much slower FSB of the dual processor impact its ability to grab and 
+> crunch.  Does its onboard cache make the slower speed FSB less important?  
 
-fds.in != fds.res_in
+Its really hard to tell. The 3200 has a bigger cache too if I remember
+rightly. If you are planning on buying big boxes for this you might want
+to ask the vendor if you can do a test run or two.
 
---
-				Brian Gerst
+> Also, does a dual processor platform distribute the interrupt loading as well 
+> as process loading?  I my systems I have between 1 and 8 frame identical 
+> frame grabbers.  Would the interrupt processing of these devices be 
+> distributed evenly on the dual processor platforms?
+
+Yes. You would probably want to tie different cards/encoders to
+different processors and the IRQ to the same one. You can do this via
+/proc and with the -ac or most vendor trees (and 2.5) you can tie
+processes to CPUs with syscalls
 

@@ -1,77 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbTHYP4G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 11:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbTHYP4A
+	id S262002AbTHYP5e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 11:57:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbTHYP5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 11:56:00 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:10197 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261741AbTHYPzz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 11:55:55 -0400
-Message-ID: <3F4A2FC7.1060602@namesys.com>
-Date: Mon, 25 Aug 2003 19:48:23 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nikita Danilov <Nikita@Namesys.COM>
-CC: Helge Hafting <helgehaf@aitel.hist.no>,
-       Stephan von Krawczynski <skraw@ithnet.com>,
-       linux-kernel@vger.kernel.org, Reiserfs List <reiserfs-list@namesys.com>
-Subject: Re: FS: hardlinks on directories
-References: <20030804141548.5060b9db.skraw@ithnet.com>	<03080409334500.03650@tabby>	<20030804170506.11426617.skraw@ithnet.com>	<03080416092800.04444@tabby>	<20030805003210.2c7f75f6.skraw@ithnet.com>	<3F2FA862.2070401@aitel.hist.no>	<20030805150351.5b81adfe.skraw@ithnet.com>	<20030805220831.GA893@hh.idb.hist.no>	<3F48F77D.7040907@namesys.com> <16201.51310.181117.716100@laputa.namesys.com>
-In-Reply-To: <16201.51310.181117.716100@laputa.namesys.com>
-X-Enigmail-Version: 0.76.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Aug 2003 11:57:34 -0400
+Received: from ns.suse.de ([195.135.220.2]:13263 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262002AbTHYP5b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 11:57:31 -0400
+Date: Mon, 25 Aug 2003 17:57:28 +0200
+From: ak@suse.de
+Message-Id: <200308251557.h7PFvSNV014402@oldwotan.suse.de>
+To: paul.devriendt@amd.com
+Cc: davej@redhat.com, linux-kernel@vger.kernel.org, aj@suse.de,
+       mark.la@suse.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov wrote:
+ngsdorf@amd.com, richard.brunner@amd.com, pavel@suse.cz
+Subject: Re: Cpufreq for opteron
+References: <99F2150714F93F448942F9A9F112634C080EF014@txexmtae.amd.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 25 Aug 2003 17:57:27 +0200
+In-Reply-To: <99F2150714F93F448942F9A9F112634C080EF014@txexmtae.amd.com.suse.lists.linux.kernel>
+Message-ID: <p731xv9687s.fsf@oldwotan.suse.de>
+Lines: 41
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 
->Hans Reiser writes:
-> >
->
->[...]
->
-> > So, he needs links that count as references, links that don't count as 
-> > references but disappear if the object disappears (without dangling like 
-> > symlinks), and unlinkall(), which removes an object and all of its 
-> > links.  He needs for the first reference to a directory to be removable 
-> > only by removing all links to the object, or designating another link to 
-> > be the "first" reference.
-> > 
-> > Sounds clean to me.  
->
->Will surely continue to be this way until you start implementing. :)
->
-> >                      This is not to say that I am funded to write 
-> > it.;-)  I'd look at a patch though.....;-)
-> > 
-> > I need to write up a taxonomy of links..... after reiser4 ships.....
->
->http://www.namesys.com/v4/links-taxonomy.html
->
-> > 
-> > -- 
-> > Hans
-> > 
->
->Nikita.
->
-> > 
->
->
->  
->
-I meant one that is intelligible to the reader and comes with a detailed 
-explanation.;-)
+paul.devriendt@amd.com writes:
 
-Also, I am sure we need another round of seminars on it.
+> > -----Original Message-----
+> > From: Pavel Machek [mailto:pavel@suse.cz]
+> > Sent: Monday, August 25, 2003 8:51 AM
+> > To: Devriendt, Paul
+> > Cc: davej@redhat.com; linux-kernel@vger.kernel.org; aj@suse.de;
+> > Langsdorf, Mark; Brunner, Richard
+> > Subject: Re: Cpufreq for opteron
+> > 
+> > 
+> > Hi!
+> > 
+> > > > 4) given good hardware and debugged driver, will any of those
+> > > > BUG_ON()s ever trigger?
+> > > 
+> > > Only if there are BIOS problems. 
+> > 
+> > In such case, I believe best idea is to leave them in as BUG_ON(). On
+> > broken BIOS, it will kill machine cleanly, and hopefully bios is going
+> > to be fixed.
+> > 
+> > If broken BIOS is seen in retail, we'll need to solve this other way.
+> > 
+> > Does this seem okay to you?
+> 
+> My concerns with the BUG_ON() approach are :
+>   1. Ease of me debugging the problem, as some of the state data I would
+>      want to see is global, so it might not be in a backtrace.
+>   2. Taking the machine down when exestuation could continue.
+> 
+> You have more kernel experience than I do, so I am willing to accept your
+> advice. I am ok with it.
 
--- 
-Hans
+I agree with your concerns. I would not back down.
 
+BUG_ON to handle non fatal BIOS issues is just the wrong tool.
+BUG_ON is for internal code problems, it is not an appropiate error handler
+for external issues (like a broken BIOS)
 
+-Andi

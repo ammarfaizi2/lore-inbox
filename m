@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266631AbRGOOuO>; Sun, 15 Jul 2001 10:50:14 -0400
+	id <S266629AbRGOPHl>; Sun, 15 Jul 2001 11:07:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266629AbRGOOuF>; Sun, 15 Jul 2001 10:50:05 -0400
-Received: from weta.f00f.org ([203.167.249.89]:1924 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S266618AbRGOOt6>;
-	Sun, 15 Jul 2001 10:49:58 -0400
-Date: Mon, 16 Jul 2001 02:50:02 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Ken Hirsch <kenhirsch@myself.com>
-Cc: John Alvord <jalvo@mbay.net>, Daniel Phillips <phillips@bonn-fries.net>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Andrew Morton <andrewm@uow.edu.au>,
+	id <S266641AbRGOPHb>; Sun, 15 Jul 2001 11:07:31 -0400
+Received: from geos.coastside.net ([207.213.212.4]:57990 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S266621AbRGOPHX>; Sun, 15 Jul 2001 11:07:23 -0400
+Mime-Version: 1.0
+Message-Id: <p05100317b7775fc2bd15@[207.213.214.37]>
+In-Reply-To: <20010716023911.A10576@weta.f00f.org>
+In-Reply-To: <E15LL3Y-0000yJ-00@the-village.bc.nu>
+ <0107142211300W.00409@starship> <20010715153607.A7624@weta.f00f.org>
+ <01071515442400.05609@starship> <20010716023911.A10576@weta.f00f.org>
+Date: Sun, 15 Jul 2001 08:06:39 -0700
+To: Chris Wedgwood <cw@f00f.org>, Daniel Phillips <phillips@bonn-fries.net>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: [PATCH] 64 bit scsi read/write
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <andrewm@uow.edu.au>,
         Andreas Dilger <adilger@turbolinux.com>,
         "Albert D. Cahalan" <acahalan@cs.uml.edu>,
         Ben LaHaise <bcrl@redhat.com>,
         Ragnar Kjxrstad <kernel@ragnark.vestdata.no>,
         linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         mike@bigstorage.com, kevin@bigstorage.com, linux-lvm@sistina.com
-Subject: Re: [PATCH] 64 bit scsi read/write
-Message-ID: <20010716025002.B10576@weta.f00f.org>
-In-Reply-To: <Pine.LNX.4.20.0107142304010.17541-100000@otter.mbay.net> <20010715180752.B7993@weta.f00f.org> <005501c10d30$54e0e260$7c853dd0@hppav>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <005501c10d30$54e0e260$7c853dd0@hppav>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 15, 2001 at 09:16:09AM -0400, Ken Hirsch wrote:
+At 2:39 AM +1200 2001-07-16, Chris Wedgwood wrote:
+>On Sun, Jul 15, 2001 at 03:44:14PM +0200, Daniel Phillips wrote:
+>
+>     The only requirement here is that the checksum be correct.  And
+>     sure, that's not a hard guarantee because, on average, you will
+>     get a good checksum for bad data once every 4 billion power events
+>     that mess up the final superblock transfer.  Let me see, if that
+>     happens once a year, your data should still be good when the
+>     warrantee on the sun expires.  :-)
+>
+>the sun will probably last a tad longer than that even contuing to
+>burn hydrogen, if you allow for helium burning, you will probably get
+>errors to sneak by
+>
+>     Surely it can't be that *all* IDE disks can fail in that way?  And
+>     it seems the jury is still out on SCSI, I'm interested to see
+>     where that discussion goes.
+>
+>Alan said *ALL* disks appear to lie, and I'm not going to argue with
+>him :)
+>
+>I only have SCSI disks to test with, but they are hot-plug, so I guess
+>I can write a whole bunch of blocks with different numbers on them,
+>all over the disk, if I can figure out how to place SCSI barriers and
+>then pull the drive and see what gives?
 
-    The first technique is not sufficient with modern disk
-    controllers, which may reorder sector writes within a block.  A
-    checksum, especially a robust CRC32, is sufficient, but rather
-    expensive.
+Consider the possibility (probability, I think) that SCSI drives blow 
+away their (unwritten) write cache buffers on a SCSI bus reset, and 
+that a SCSI bus reset is a routine, albeit last-resort, error 
+recovery technique. (It's also necessary; by the time a driver gets 
+to a bus reset, all else has failed. It's also, in my experience, not 
+especially rare.)
 
-So you write the number to the start and end of each sector, or, you
-only assume sector-wide 'block-sizes' for integrity.
+The fix for that particular problem--disabling write caching--is 
+simple enough, though it presumably has a performance consequence. A 
+second benefit of disabling write caching is that the drive can't 
+reorder writes (though of course the system still might).
 
-A 32-bit CRC is plenty cheap enough on modern CPUs and especially
-considering how often you need to calculate it.
-
-    Mohan has a clever technique that is computationally trivial and
-    only uses one bit per sector:
-    http://www.almaden.ibm.com/u/mohan/ICDE95.pdf
-    
-    Unfortunately, it's also patented:
-    http://www.delphion.com/details?pn=US05418940__
-    
-    Perhaps IBM will clarify their position with respect to free
-    software and patents in the upcoming conference.
-
-Wow... pretty neat, but fortunately not necessary.
-
-
-
-  --cw
+At first glance, by the way, the only write barrier I see in the SCSI 
+command set is the synchronize-cache command, which completes only 
+after all the drive's dirty buffers are written out. Of course, 
+without write caching, it's not an issue.
+-- 
+/Jonathan Lundell.

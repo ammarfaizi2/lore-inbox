@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263215AbTCEVeJ>; Wed, 5 Mar 2003 16:34:09 -0500
+	id <S262780AbTCEVl5>; Wed, 5 Mar 2003 16:41:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266175AbTCEVeJ>; Wed, 5 Mar 2003 16:34:09 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:46769 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S263215AbTCEVeE>; Wed, 5 Mar 2003 16:34:04 -0500
-Date: Wed, 05 Mar 2003 13:34:22 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Gerrit Huizenga <gh@us.ibm.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-cc: "Reed, Timothy A" <timothy.a.reed@lmco.com>,
-       "Linux Kernel ML (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: High Mem Options 
-Message-ID: <655220000.1046900062@flay>
-In-Reply-To: <E18qgAh-00033w-00@w-gerrit2>
-References: <E18qgAh-00033w-00@w-gerrit2>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S262789AbTCEVl5>; Wed, 5 Mar 2003 16:41:57 -0500
+Received: from [12.36.124.2] ([12.36.124.2]:9095 "EHLO intranet.resilience.com")
+	by vger.kernel.org with ESMTP id <S262780AbTCEVl4>;
+	Wed, 5 Mar 2003 16:41:56 -0500
+Mime-Version: 1.0
+Message-Id: <p05210507ba8c20241329@[10.2.0.101]>
+In-Reply-To: <20030305205032.GD2958@atrey.karlin.mff.cuni.cz>
+References: <20030303123029.GC20929@atrey.karlin.mff.cuni.cz>
+ <Pine.LNX.4.33.0303041434220.1438-100000@localhost.localdomain>
+ <20030305205032.GD2958@atrey.karlin.mff.cuni.cz>
+Date: Wed, 5 Mar 2003 13:52:16 -0800
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Jonathan Lundell <linux@lundell-bros.com>
+Subject: Linux vs Windows temperature anomaly
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ah, if you are referring to a number from me, that was with 2.4 and
-> that number seemed high to me at the time.  I don't believe that 10%
-> *should* be the amount of degradation.  But I don't have current numbers
-> (that I can share, anyway ;-) that prove anything less than that.
-> 
-> I expect that we'll be diving into this more over the next few months
-> as we can generate some large workloads and find the cause of the
-> degradation (and hopefully minimize it).
+We've been seeing a curious phenomenon on some PIII/ServerWorks 
+CNB30-LE systems.
 
-Would also be useful to measure the overhead on a machine with < 4Gb
-of RAM ... otherwise you have two effects to deal with:
+The systems fail at relatively low temperatures. While the failures 
+are not specifically memory related (ECC errors are never a factor), 
+we have a memory test that's pretty good at triggering them. Data is 
+apparently getting corrupted on the front-side bus.
 
-1. the PAE overhead.
-2. The increase in RAM - more data to manage, and potential bounce-buffers.
+Here's the curious thing: when we run the same memory test on a 
+Windows 2000 system (same hardware; we just swap the disk), we can 
+run the ambient temperature up to 60C with no problem at all; the 
+test will run for days. (It occurred to us to try Win2K because the 
+hardware vendor was using it to test systems at temperature without 
+seeing problems.)
 
-M.
+Swap in the Linux disk, and at that temperature it'll barely run at 
+all. The memory test fails quickly at 40C ambient.
 
+FWIW, CPU cooling is pretty good in this box.
+
+So, the puzzle: what might account for temperature sensitivity, of 
+all things, under Linux 2.4.9-31 (RH 7.2), but not Win2K?
+-- 
+/Jonathan Lundell.

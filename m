@@ -1,101 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbVBIR3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbVBIRbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261855AbVBIR3z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 12:29:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVBIR3z
+	id S261858AbVBIRbY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 12:31:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbVBIRbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 12:29:55 -0500
-Received: from styx.suse.cz ([82.119.242.94]:29073 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261855AbVBIR3Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 12:29:25 -0500
-Date: Wed, 9 Feb 2005 18:30:26 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: LKML <linux-kernel@vger.kernel.org>,
-       Linux-Input <linux-input@atrey.karlin.mff.cuni.cz>,
-       Paulo Marques <pmarques@grupopie.com>
-Subject: Re: [RFC/RFT] [patch] Elo serial touchscreen driver
-Message-ID: <20050209173026.GA17797@ucw.cz>
-References: <20050208164227.GA9790@ucw.cz> <420A0ECF.3090406@grupopie.com> <20050209170015.GC16670@ucw.cz> <20050209171438.GI10594@lug-owl.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050209171438.GI10594@lug-owl.de>
-User-Agent: Mutt/1.5.6i
+	Wed, 9 Feb 2005 12:31:23 -0500
+Received: from modemcable096.213-200-24.mc.videotron.ca ([24.200.213.96]:37768
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261858AbVBIRbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 12:31:14 -0500
+Date: Wed, 9 Feb 2005 12:30:54 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@localhost.localdomain
+To: Larry McVoy <lm@bitmover.com>
+cc: Alexandre Oliva <aoliva@redhat.com>, Stelian Pop <stelian@popies.net>,
+       Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+In-Reply-To: <20050209155113.GA10659@bitmover.com>
+Message-ID: <Pine.LNX.4.61.0502091219430.7836@localhost.localdomain>
+References: <20050204183922.GC27707@bitmover.com> <20050204200507.GE5028@deep-space-9.dsnet>
+ <20050204201157.GN27707@bitmover.com> <20050204214015.GF5028@deep-space-9.dsnet>
+ <20050204233153.GA28731@electric-eye.fr.zoreil.com> <20050205193848.GH5028@deep-space-9.dsnet>
+ <20050205233841.GA20875@bitmover.com> <20050208154343.GH3537@crusoe.alcove-fr>
+ <20050208155845.GB14505@bitmover.com> <ord5vatdph.fsf@livre.redhat.lsd.ic.unicamp.br>
+ <20050209155113.GA10659@bitmover.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 09, 2005 at 06:14:38PM +0100, Jan-Benedict Glaw wrote:
+On Wed, 9 Feb 2005, Larry McVoy wrote:
 
-> > I want serious support for ALL touchscreens in Linux.
+> On Wed, Feb 09, 2005 at 05:06:02AM -0200, Alexandre Oliva wrote:
+> > So you've somehow managed to trick most kernel developers into
+> > granting you power over not only the BK history
 > 
-> Maybe I'd write drivers for the T-Sharc and fujitsu controllers, too.
-> These are in a lot of POS hardware, too, and sometimes they're a pain to
-> use (esp. calibration).
+> It's exactly the same as a file system.  If you put some files into a
+> file system does the file system creator owe you the knowledge of how
+> those files are maintained in the file system?
 
-Well, if you write them, send them my way. :)
+No, this is not a good analogy at all.
 
-> If I find a minute, I'll possibly give it a test run. I've got actual
-> hardware around.
+If I don't want to use a certain filesystem, I mount it and copy the 
+files over to another filesystem.  What users are interested in are the 
+files themselves of course, and the efficiency with which the filesystem 
+handles those files.  BK is the efficient filesystem here, but anyone 
+should be able to freely copy files over to another filesystem without 
+any need for the filesystem internals knowledge.  If the target 
+filesystem is 8.3 without lowercase support then so be it and people 
+will need to use a separate file to hold the extra details that cannot 
+berepresented natively in the target filesystem.  But absolutely 0% of 
+the information is lost.
 
-Thanks!
-
-> > > Also, I've already seen touchscreens where the POS manufacturer got the 
-> > > pin-out wrong (or something like that) so the touch reports the X 
-> > > coordinate where the Y should be, and vice-versa. I really don't know 
-> > > where this should be handled (driver, input layer, application?), but it 
-> > > must be handled somewhere for the applications to work.
-> > 
-> > I think the best place would be in the X event driver, if X is used, or
-> > the graphics toolkit, and worst case the application.
-> 
-> First of all, we need a really properly working Linux event driver in
-> XFree86/X.Org.  I'm not sure if this is already the case.
-
-There is 'evtouch'. It's probably not perfect, but a good start.
-
-> > I don't believe the mirroring/flipping is kernel's job, since it tries
-> > to always pass the data with the least amount of transformation applied
-> > to achieve hardware abstraction.
-> 
-> ACK. Should be handled by XFree86's driver.
-> 
-> Additionally, there are two other things that need to be addressed (and
-> I'm willing to actually write code for this, but need input from other
-> parties, too:)
-> 
-> 	- Touchscreen calibration
-> 		Basically all these touchscreens are capable of being
-> 		calibrated. It's not done with just pushing the X/Y
-> 		values the kernel receives into the Input API. These
-> 		beasts may get physically mis-calibrated and eg. report
-> 		things like (xmax - xmin) <= 20, so resolution would be
-> 		really bad and kernel reported min/max values were only
-> 		"theoretical" values, based on the protocol specs.
-> 
-> 		I think about a simple X11 program for this. Comments?
-
-How would the program communicate with the devices?
-
-> 	- POS keyboards
-> 		These are real beasties. Next to LEDs and keycaps, they
-> 		can contain barcode scanners, magnetic card readers and
-> 		displays. Right now, there's no good API to pass
-> 		something as complex as "three-track magnetic stripe
-> 		data" or a whole scanned EAN barcode. Also, some
-> 		keyboards can be written to (change display contents,
-> 		switch on/off scanners, ...).
-
-We probably don't want magnetic stripe data to go through the input
-event stream (although it is possible to do that), so a new interface
-would be most likely necessary.
-
-> 		This is usually "solved" with a little patch that allows
-> 		userspace to write to the keyboard (/dev/psaux like),
-> 		but this is a bad hack (just look at the patches
-> 		floating around for this...).
+Again, the BK value is in the efficiency and reliability it has to 
+handle a tree like the Linux kernel, not in the Linux kernel tree.  It's 
+not necessary for you to give away that value in order to provide the 
+simple information needed to reconstruct the Linux tree structure as 
+people are asking.
 
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Nicolas

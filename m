@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262531AbVBDKRO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbVBDKTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262531AbVBDKRO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 05:17:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbVBDKRO
+	id S261743AbVBDKTE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 05:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262428AbVBDKTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 05:17:14 -0500
-Received: from mail.mellanox.co.il ([194.90.237.34]:65207 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S262531AbVBDKQs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 05:16:48 -0500
-Date: Fri, 4 Feb 2005 12:18:27 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Stelian Pop <stelian@popies.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050204101827.GA13455@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Mime-Version: 1.0
+	Fri, 4 Feb 2005 05:19:04 -0500
+Received: from ozlabs.org ([203.10.76.45]:13195 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261205AbVBDKSt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 05:18:49 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050202155403.GE3117@crusoe.alcove-fr>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16899.19273.299040.73067@cargo.ozlabs.ibm.com>
+Date: Fri, 4 Feb 2005 21:15:37 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: jimix@watson.ibm.com, anton@samba.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix devfs name for the hvcs driver
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch is from Jimi Xenidis <jimix@watson.ibm.com>.
 
-Hi, Stelian!
-One thing everyone creating kernel patches with subversion
-must be aware of, is the fact that the subversion built-in diff command does
-not understand the gnu diff -p flag (or indeed, any gnu diff flags at all,
-with the exception of -u, which is the default anyway).
+The hvcs driver does not register a devfs_name resulting in devfs
+creating /dev/<NULL>* entries.
+The following one line patch remedies the problem.
 
-Thus you must use an external diff command to create kernel patches,
-passing the -up flags to gnu diff, otherwise the patch is much less readable. 
-There are two good ways to do this that I know of:
+Signed-off-by: Jimi Xenidis <jimix@watson.ibm.com>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-1. Remember to always generate patches with:
-	svn diff --diff-cmd=/usr/bin/diff -x -up
-
-2. Make subversion use gnu diff -up by defult to generate patches.
-
-To do this, create a script that runs diff -up, passing any additional
-parameters exactly as they are:
-
-cat > /usr/bin/svndiff << EOF
-#!/usr/bin/perl
-
-exec("diff","-up",@ARGV);
-EOF
-
-chmod +x /usr/bin/svndiff
-
-And set it as the default diff command in subversion:
-
-cat >> ~/.subversion/config << EOF
-
-[helpers]
-diff-cmd = /usr/bin/svndiff
-
-EOF
-
-Tested with subversion 1.1.3.
-
--- 
-MST - Michael S. Tsirkin
+--- orig/drivers/char/hvcs.c
++++ mod/drivers/char/hvcs.c
+@@ -1363,6 +1363,7 @@
+ 
+ 	hvcs_tty_driver->driver_name = hvcs_driver_name;
+ 	hvcs_tty_driver->name = hvcs_device_node;
++	hvcs_tty_driver->devfs_name = hvcs_device_node;
+ 
+ 	/*
+ 	 * We'll let the system assign us a major number, indicated by leaving

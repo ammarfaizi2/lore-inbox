@@ -1,77 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263361AbTIWOIG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 10:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263366AbTIWOIG
+	id S261183AbTIWObQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 10:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbTIWObQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 10:08:06 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:2310 "EHLO www.home.local")
-	by vger.kernel.org with ESMTP id S263361AbTIWOIA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 10:08:00 -0400
-Date: Tue, 23 Sep 2003 16:06:47 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: log-buf-len dynamic
-Message-ID: <20030923140647.GB3113@alpha.home.local>
-References: <20030922194833.GA2732@velociraptor.random> <20030923042855.GF589@alpha.home.local> <20030923124951.GB23111@velociraptor.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030923124951.GB23111@velociraptor.random>
-User-Agent: Mutt/1.4i
+	Tue, 23 Sep 2003 10:31:16 -0400
+Received: from 81-202-66-245.user.ono.com ([81.202.66.245]:12163 "EHLO
+	subhal1.tecnoxarxa.com") by vger.kernel.org with ESMTP
+	id S261183AbTIWObP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 10:31:15 -0400
+Message-ID: <3F7059AA.2060504@tecnoxarxa.com>
+Date: Tue, 23 Sep 2003 16:33:14 +0200
+From: german aracil boned <german@tecnoxarxa.com>
+Organization: Tecnoxarxa
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: es-es, es
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: iptables kernel
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrea,
- 
-> The point here is that the default must work for 99% of the userbase.
-> Either that or the default is totally broken.
 
-You're only thinking about what distro vendors should do. If all kernels should
-suit their needs, then there would not be any config anymore, and everyone
-would have the same kernel with the same wagon of command line arguments.
 
-Lots of people actually do recompile their kernel to change a few options from
-the vendor config, and that's the expected behaviour. And be it 1%, I consider
-that 1% of Linux users are *lots* of people.
+I have problems with iptables and openmosix system. The kernel is halted
+  when I write DENY by default in INPUT keys. This machine boot from net
+and have root in other coputer..
 
-> And only this 1% would be the one recompiling the kernel
-> by themself anyways, and if they can recompile the kernel they can as
-> well edit the defaults in kernel/printk.c without pain.
+What is the solution ? ( and problem:( )
 
-I don't agree. That's what I did for a long time, and finally got bored of it.
-Then I wrote a patch and proposed it. Randy Dunlap had one included in 2.6, and
-Marcelo thought this one would be useful to lots of people, *exactly* because
-it avoids what you describe here, ie. changins constants by hand.
+My kernel 2.4.20 - with openmosix patch
+(same problem if don't work with openmosix patch)
 
-> I don't buy much the lazyness argument in changing lilo.conf, the people
-> who need this feature is a marginal part so they must be ok with the
-> parmeter. And don't tell me that you don't pass root= to the kernel at
-> boot. Do you want to fix that too? I do pass plenty of argumetns all the
-> time, starting from profile=0 (and often acpi=off).
+Can this kernel work with DENY politic boot first from net ?
 
-sorry, I don't agree with you on this. My lilo.conf contains "root=/dev/root"
-and "boot=/dev/mbr" on nearly all my systems, just because it's easier ton
-maintain, especially those which are patched remotely. You are speaking about
-a developer's system, and I too have lots of crap on my desktop machines, and I
-too am regularly annoyed because lilo tells me that 19 boot images is the max.
-But on production systems, you need to avoid tricks, and even more when other
-people manage the system after you install it.
+thanks
 
-> however I won't complain if you put the compile time configurator on top
-> of my patch (that's easy) but personaly I think it's not needed, and
-> having it dyanmic is an order of magnitude more important than having it
-> static
+wrote:
+> Kills those virus spams to 100% with 0% false positives so far.
+> 
+> Problem solved, EOT.
 
-I said I agree on the dynamic advantage. BTW, you didn't reply me about what
-the statically allocated 64 kB became with your patch. Will this memory be
-wasted forever or is there a way to free it ? If I want to pre-allocate it
-dynamically with alloc_space() as you did, what can I use to free it ? is
-kfree() the right thing ?
+I build an automatic system. This read mails from any folder of my
+client, update a list with bad ip's (spamers) and update firewall with
+new ips. Now the attack to my system is very small. I have more of 1000
+senders checked ;)
 
-Cheers,
-Willy
+Thanks to all !
+
+
+-- 
+La riqueza consiste mucho más en el disfrute que en la posesión".
+                 Aristóteles (384 a.C.-322 a.C.)
+
+
+-- 
+La riqueza consiste mucho más en el disfrute que en la posesión".
+                 Aristóteles (384 a.C.-322 a.C.)
 

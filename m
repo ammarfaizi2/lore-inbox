@@ -1,64 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130497AbRAHV3M>; Mon, 8 Jan 2001 16:29:12 -0500
+	id <S132314AbRAHVam>; Mon, 8 Jan 2001 16:30:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131388AbRAHV3D>; Mon, 8 Jan 2001 16:29:03 -0500
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:41975 "EHLO
-	mf2.private") by vger.kernel.org with ESMTP id <S130497AbRAHV2x>;
-	Mon, 8 Jan 2001 16:28:53 -0500
-Date: Mon, 8 Jan 2001 13:30:56 -0800 (PST)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: <whitney@math.berkeley.edu>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: LKML <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        "William A. Stein" <was@math.harvard.edu>
-Subject: Re: Subtle MM bug
-In-Reply-To: <Pine.LNX.4.21.0101081514180.21675-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.30.0101081312290.762-100000@mf2.private>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132560AbRAHVaW>; Mon, 8 Jan 2001 16:30:22 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:62990 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S132314AbRAHVaP>; Mon, 8 Jan 2001 16:30:15 -0500
+Date: Mon, 8 Jan 2001 22:25:35 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Giacomo Catenazzi <cate@student.ethz.ch>
+Cc: "J . A . Magallon" <jamagallon@able.es>,
+        "Giacomo A . Catenazzi" <cate@dplanet.ch>,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Coppermine is a PIII or a Celeron?
+Message-ID: <20010108222535.A3472@arthur.ubicom.tudelft.nl>
+In-Reply-To: <fa.dl37erv.6j04hb@ifi.uio.no> <fa.hcv7gqv.s3k9qk@ifi.uio.no> <3A5991BC.64525AF7@student.ethz.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A5991BC.64525AF7@student.ethz.ch>; from cate@student.ethz.ch on Mon, Jan 08, 2001 at 11:09:00AM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2001, Rik van Riel wrote:
+On Mon, Jan 08, 2001 at 11:09:00AM +0100, Giacomo Catenazzi wrote:
+> Thus the older Celerons should be compiled with CONFIG_M686 (Pentium
+> Pro),
+> but the Celeron Coppermine can be compiled with CONFIG_M686FXSR (Pentium
+> III), right?
 
-> How does 2.4 perform when you add an extra GB of swap ?
+Yes.
 
-OK, some more data:
+> In this case we should update the files Configure.help and the config.in
+> files.
 
-First, I tried booting 2.4.0 with "nosmp" to see if the behavior I observe
-is SMP related.  It isn't, there was no difference under 2.4.0 between
-512MB/512MB/1CPU and 512MB/512MB/2CPUs.
+I supplied a patch which did that, but Linus dropped all patches (on
+purpose). Here it is again:
 
-Second, I tried going to 2GB of swap with 2.4.0, so 512MB/2GB/2CPUs.
-Again, there is no difference:  as soon as swapping begins with two MAGMA
-processes, interactivity suffers.  I notice that while swapping in this
-situation, the HD light is blinking only intermittently.
+Index: Documentation/Configure.help
+===================================================================
+RCS file: /home/erik/cvsroot/elinux/Documentation/Configure.help,v
+retrieving revision 1.1.1.57
+diff -u -r1.1.1.57 Configure.help
+--- Documentation/Configure.help	2000/12/13 15:10:53	1.1.1.57
++++ Documentation/Configure.help	2000/12/23 22:58:12
+@@ -2868,7 +2868,7 @@
+    - "Pentium-Classic" for the Intel Pentium.
+    - "Pentium-MMX" for the Intel Pentium MMX.
+    - "Pentium-Pro" for the Intel Pentium Pro/Celeron/Pentium II.
+-   - "Pentium-III" for the Intel Pentium III.
++   - "Pentium-III" for the Intel Pentium III/Celeron Coppermine.
+    - "Pentium-4" for the Intel Pentium 4
+    - "K6" for the AMD K6, K6-II and K6-III (aka K6-3D).
+    - "Athlon" for the AMD Athlon (K7).
+Index: arch/i386/config.in
+===================================================================
+RCS file: /home/erik/cvsroot/elinux/arch/i386/config.in,v
+retrieving revision 1.1.1.13
+diff -u -r1.1.1.13 config.in
+--- arch/i386/config.in	2000/12/13 15:09:15	1.1.1.13
++++ arch/i386/config.in	2000/12/23 23:12:55
+@@ -33,7 +33,7 @@
+ 	 Pentium-Classic		CONFIG_M586TSC \
+ 	 Pentium-MMX			CONFIG_M586MMX \
+ 	 Pentium-Pro/Celeron/Pentium-II	CONFIG_M686 \
+-	 Pentium-III			CONFIG_M686FXSR \
++	 Pentium-III/Celeron Coppermine	CONFIG_M686FXSR \
+ 	 Pentium-4			CONFIG_MPENTIUM4 \
+ 	 K6/K6-II/K6-III		CONFIG_MK6 \
+ 	 Athlon/K7			CONFIG_MK7 \
 
-I also tried logging in to a fourth VT during this second test, and it got
-nowhere.  In fact, this stopped the top updates completely and the HD
-light also stopped.  After 30 seconds of nothing (all I could do is switch
-VT's), I gave up and sent a ^Z to one MAGMA process; this eventually was
-received, and the system immediately recovered.
 
-Perhaps there is some sort of I/O starvation triggered by two swapping
-processes?
+Erik
 
-Again, under 2.2.19pre6, the exact same tests yield hardly any loss of
-interactivity, I can log in fine (a little slowly) during the top / two
-MAGMA process test.  And once swapping begins, the HD light is continually
-lit.
-
-Again, I'd be happy to do any additional tests, provide more info about my
-machine, etc.
-
-Cheers,
-Wayne
-
-
-
-
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262570AbTKDVkU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 16:40:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTKDVkU
+	id S262598AbTKDVlE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 16:41:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbTKDVlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 16:40:20 -0500
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:19945 "EHLO
-	ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S262570AbTKDVkQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 16:40:16 -0500
-Date: Tue, 4 Nov 2003 16:39:59 -0500
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Paul Venezia <pvenezia@jpj.net>, linux-kernel@vger.kernel.org
+	Tue, 4 Nov 2003 16:41:03 -0500
+Received: from fw.osdl.org ([65.172.181.6]:20199 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262598AbTKDVlA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 16:41:00 -0500
+Date: Tue, 4 Nov 2003 13:40:51 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+cc: Paul Venezia <pvenezia@jpj.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ulrich Drepper <drepper@redhat.com>
 Subject: Re: ext3 performance inconsistencies, 2.4/2.6
-Message-ID: <20031104213959.GD30612@ti19.telemetry-investments.com>
-Reply-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	Linus Torvalds <torvalds@osdl.org>, Paul Venezia <pvenezia@jpj.net>,
-	linux-kernel@vger.kernel.org
-References: <20031104202037.GB30612@ti19.telemetry-investments.com> <Pine.LNX.4.44.0311041227180.20373-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311041227180.20373-100000@home.osdl.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20031104212813.GC30612@ti19.telemetry-investments.com>
+Message-ID: <Pine.LNX.4.44.0311041335200.20373-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 04, 2003 at 12:30:23PM -0800, Linus Torvalds wrote:
-> But there really should be zero contention on the stdio data structures, 
-> so the locking would have to be _seriously_ broken to make that kind o 
-> fdifference (not necessarily buggy, but seriously badly implemented). 
+
+On Tue, 4 Nov 2003, Bill Rugolsky Jr. wrote:
 > 
-> A non-contended lock should be at most one locked instruction if well 
-> done, both on LinuxThreads and NPTL.
+> Well, I'm too lazy to wait for a long test, but with a mere
+> 100MB file, on 1GHz P3:
+> 
+> Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
+>                     -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+> NPTL          100M  7735  99 127068  98 63048  84  7890  98 +++++ +++ +++++ +++
+> LinuxThreads  100M 11000  99 127928  97 59075  84 11290  98 +++++ +++ +++++ +++
+> 
+> So something is amiss.
 
-The results that I just posted are also for Red Hat 9, kernel 2.4.20-20.9.
+Ok, so NPTL locking (even in the absense of any threads and thus any 
+contention) seems to be noticeably higher-overhead than the old 
+LinuxThreads. 
 
-rugolsky@ti31: getconf GNU_LIBPTHREAD_VERSION
-NPTL 0.34
+90% of the overhead of a putc()/getc() implementation these days is likely
+just locking. Even so, this implies that NPTL locking is about twice as 
+expensive as the old LinuxThreads one.
 
-Ulrich's release notes for nptl-0.57 says:
+Don't ask me why. But I'm cc'ing Uli, who can probably tell us. Maybe the 
+RH-9 libraries are just not very good, and LinuxThreads has had a lot 
+longer to optimize their lock behaviour..
 
-   The changes are numerous and most of them were made by Jakub:
+			Linus
 
-   ...
 
-   ~ better stdio locking
-
-I don't have my laptop running Fedora handy, but that's the next thing
-to test.
-
-Regards,
-
-	Bill Rugolsky

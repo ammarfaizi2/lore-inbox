@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267846AbUGWRfp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267855AbUGWRie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267846AbUGWRfp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 13:35:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267854AbUGWRfp
+	id S267855AbUGWRie (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 13:38:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267857AbUGWRid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 13:35:45 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16595 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267846AbUGWRfm (ORCPT
+	Fri, 23 Jul 2004 13:38:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:33748 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267855AbUGWRiZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 13:35:42 -0400
-Date: Fri, 23 Jul 2004 13:34:25 -0400
-From: Alan Cox <alan@redhat.com>
-To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-Cc: Solar Designer <solar@openwall.com>, Alan Cox <alan@redhat.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: question about /proc/<PID>/mem in 2.4 (fwd)
-Message-ID: <20040723173425.GA15472@devserv.devel.redhat.com>
-References: <20040707234852.GA8297@openwall.com> <Pine.LNX.4.44.0407181336040.2374-100000@einstein.homenet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0407181336040.2374-100000@einstein.homenet>
-User-Agent: Mutt/1.4.1i
+	Fri, 23 Jul 2004 13:38:25 -0400
+Date: Fri, 23 Jul 2004 13:37:15 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@devserv.devel.redhat.com
+To: Steve G <linux_4ever@yahoo.com>
+cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: Ext3 problems in dual booting machine with SE Linux
+In-Reply-To: <20040723153715.81677.qmail@web50610.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.58.0407231333000.4446@devserv.devel.redhat.com>
+References: <20040723153715.81677.qmail@web50610.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 18, 2004 at 01:41:34PM +0100, Tigran Aivazian wrote:
-> > | 	setuidapp < /proc/self/mem
-> > 
-> > ... 
-> > See Alan's example I've quoted above.  In this scenario, it would be
-> > the program being attacked which will be checked for possession of the
-> > capability... if it is SUID root, the attack will succeed.
-> 
-> In the above example there is nothing forbidden and the current state of 
-> things doesn't prevent the program from reading it's own address space.
+On Fri, 23 Jul 2004, Steve G wrote:
 
-I meant to say exec setuidapp </proc/self/mem
+> Something seems wrong in either 2.4.20's handling of Ext3 or 2.6.7-1.437's use of
+> Ext3.
 
+You may have hit either the 2.4/2.6 xattr compatibility bug, or some other
+xattr bug since fixed in the kernel.  I'd suggest using a 2.4.25 or
+greater kernel if you want to access ext2/ext3 xattrs which were created
+under 2.6.  2.4 kernels below this do not have 2.6 compatible xattrs for
+ext2 and ext3.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 

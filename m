@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267022AbTAFQOS>; Mon, 6 Jan 2003 11:14:18 -0500
+	id <S267021AbTAFQNq>; Mon, 6 Jan 2003 11:13:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267025AbTAFQOR>; Mon, 6 Jan 2003 11:14:17 -0500
-Received: from smtp.mailix.net ([216.148.213.132]:26795 "EHLO smtp.mailix.net")
-	by vger.kernel.org with ESMTP id <S267022AbTAFQOQ>;
-	Mon, 6 Jan 2003 11:14:16 -0500
-Date: Mon, 6 Jan 2003 17:22:51 +0100
-From: Alex Riesen <fork0@users.sf.net>
-To: Dirk Bull <dirkbull102@hotmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: shmat problem
-Message-ID: <20030106162251.GA15900@steel>
-Reply-To: Alex Riesen <fork0@users.sf.net>
+	id <S267022AbTAFQNq>; Mon, 6 Jan 2003 11:13:46 -0500
+Received: from pusa.informat.uv.es ([147.156.10.98]:21192 "EHLO
+	pusa.informat.uv.es") by vger.kernel.org with ESMTP
+	id <S267021AbTAFQNp>; Mon, 6 Jan 2003 11:13:45 -0500
+Date: Mon, 6 Jan 2003 17:22:17 +0100
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_X86_TSC_DISABLE question
+Message-ID: <20030106162217.GC10554@pusa.informat.uv.es>
+References: <20030103225806.GA10646@pusa.informat.uv.es> <Pine.LNX.4.44.0301031800370.29107-100000@coffee.psychology.mcmaster.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0301031800370.29107-100000@coffee.psychology.mcmaster.ca>
+User-Agent: Mutt/1.3.28i
+From: uaca@alumni.uv.es
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Doug, thanks for the reply. I've set SHM_RND in the call and used
-> "__attribute__ ((aligned(4096)))" during the the declaration of variable 
-> global01_
-> (as shown below) such that it is aligned on a page boundary. I'm porting 
-> code that was
-> written for a Unix system to Linux and the example shown below is how the 
-> code is implemented on Unix.
-
-on which exactly?
-
-> The example included executed correctly on:
-> mandrake - ? (Can't remember, but it was an old version)
+On Fri, Jan 03, 2003 at 06:01:13PM -0500, Mark Hahn wrote:
+> > I think that CONFIG_X86_TSC_DISABLE should be more informative on this
 > 
-> but fails to work on:
-> redhat - 2.2.14-5.0
-> debian - 2.2.9
-> mandrake - 2.4.19-16mdk
-> 
-> We are currently working on mandrake - kernel 2.4.19-16mdk.
+> at most, it should say "don't worry about this unless you need to.
+> and you'll know it if you need to".
 
-You have to add SHM_REMAP to shmat flags (see definitions of SHM_ flags).
 
-> 
-> 	if ( (shmptr = shmat(shmid, &global01_, SHM_RND)) == (void *) -1)
-> 		printf("shmat error: %d %s\n",errno, strerror(errno));
-> 	else
+And It should say that the kernel test TSCs are syncroniced across CPUS at
+boot time, which I've just have found:
 
-add SHM_REMAP.
+The message is the following in a 2.4.19-pre6 kernel
 
--alex
+checking TSC synchronization across CPUs: passed.
 
+
+I hope this helps somebody
+
+
+	Ulisses
+
+                Debian GNU/Linux: a dream come true
+-----------------------------------------------------------------------------
+"Computers are useless. They can only give answers."            Pablo Picasso
+
+--->	Visita http://www.valux.org/ para saber acerca de la	<---
+--->	Asociación Valenciana de Usuarios de Linux		<---
+ 

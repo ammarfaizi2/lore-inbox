@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312339AbSDCTKE>; Wed, 3 Apr 2002 14:10:04 -0500
+	id <S312344AbSDCTLY>; Wed, 3 Apr 2002 14:11:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312337AbSDCTJz>; Wed, 3 Apr 2002 14:09:55 -0500
-Received: from abulafia.fciencias.unam.mx ([132.248.28.60]:57099 "HELO
-	abulafia.fciencias.unam.mx") by vger.kernel.org with SMTP
-	id <S312335AbSDCTJu>; Wed, 3 Apr 2002 14:09:50 -0500
-To: Pablo Alcaraz <pabloa@laotraesquina.com.ar>
-Cc: Jens Schmidt <j.schmidt@paradise.net.nz>,
-        Erik =?iso-8859-1?q?Ljungstr=F6m?= <insight@metalab.unc.edu>,
-        Diego Calleja <DiegoCG@teleline.es>, linux-kernel@vger.kernel.org
-Subject: Re: Linux needs new leadership.
-In-Reply-To: <Pine.LNX.4.01.2002ApR11F0015.31337-101723@transmeta.com>
-	<16ryZS-0LkEnAC@fmrl07.sul.t-online.com>
-	<20020331225641.GA1653@werewolf.able.es>
-	<20020402185605.247760f8.DiegoCG@teleline.es>
-	<20020402211744.0c947d68.insight@metalab.unc.edu>
-	<3CA9FD21.636C02B6@paradise.net.nz>
-	<3CAA46C2.1070504@laotraesquina.com.ar>
-From: canek@abulafia.fciencias.unam.mx (Canek\
-  =?iso-8859-1?q?Pel=E1ez_Vald=E9s?=)
-Organization: Facultad de Ciencias, UNAM
-Date: 03 Apr 2002 13:10:17 -0600
-Message-ID: <81d6xgzjhi.fsf@abulafia.fciencias.unam.mx>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S312345AbSDCTLK>; Wed, 3 Apr 2002 14:11:10 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41225 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S312344AbSDCTKm>; Wed, 3 Apr 2002 14:10:42 -0500
+Date: Wed, 3 Apr 2002 11:10:19 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrea Arcangeli <andrea@suse.de>,
+        Arjan van de Ven <arjanv@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Stelian Pop <stelian.pop@fr.alcove.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+In-Reply-To: <Pine.LNX.4.33.0204031947210.1163-100000@einstein.homenet>
+Message-ID: <Pine.LNX.4.33.0204031106420.3004-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pablo> Yeah, december 28, as the rest of LatinAmerica (and Argentina, and
-Pablo> Chile, and Uruguay) ;-)
 
-Since when Argentina, Chile and Urugay are not part of LatinAmerica?
- 
-Canek
--- 
-A bachelor never quite gets over the idea that he is a thing of beauty
-and a boy for ever.
-		-- Helen Rowland
+Well, you're all wrong, bthththt...
+
+Removing the .._GPL() is in this case correct, but not for any of the 
+reasons mentioned, but simply because even Ingo agreed that it shouldn't 
+be _GPL since it's explicitly meant for drivers that shouldn't have any 
+knowledge whatsoever about the VM internals. GPL or not.
+
+The fact that the code was back-ported from 2.5.x and that the _GPL still 
+is there too is just a mistake, partly because I've not gotten any updates 
+from Ingo..
+
+		Linus
+

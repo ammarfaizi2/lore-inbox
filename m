@@ -1,164 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVBNX5b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVBOAC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbVBNX5b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 18:57:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVBNX5b
+	id S261348AbVBOAC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 19:02:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVBOAC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 18:57:31 -0500
-Received: from smtp09.auna.com ([62.81.186.19]:8183 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id S261367AbVBNX5I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 18:57:08 -0500
-Date: Mon, 14 Feb 2005 23:57:07 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: udev and cdsymlinks
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Greg KH <gregkh@suse.de>
-X-Mailer: Balsa 2.3.0
-Message-Id: <1108425427l.23313l.1l@werewolf.able.es>
+	Mon, 14 Feb 2005 19:02:59 -0500
+Received: from smtp-out.hotpop.com ([38.113.3.61]:51656 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S261348AbVBOAC4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 19:02:56 -0500
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Matt Mackall <mpm@selenic.com>
+Subject: Re: Radeon FB troubles with recent kernels
+Date: Tue, 15 Feb 2005 08:02:46 +0800
+User-Agent: KMail/1.5.4
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, adaplas@pol.net
+References: <20050214203902.GH15058@waste.org> <1108420723.12740.17.camel@gaston> <1108422492.12653.30.camel@gaston>
+In-Reply-To: <1108422492.12653.30.camel@gaston>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA1;
-	protocol="application/pgp-signature"; boundary="=-+tQ5BUxpbw6DOLkdcO+U"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502150802.46361.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-+tQ5BUxpbw6DOLkdcO+U
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tuesday 15 February 2005 07:08, Benjamin Herrenschmidt wrote:
+> > Appeared ? hah... that's strange. X is known to fuck up the chip when
+> > quit, but I wouldn't have expected any change due to the new version of
+> > radeonfb. From what you describe, it looks like an offset register is
+> > changed by X, or the surface control.
+> >
+> > My patch did not change any of radeonfb accel code though...
+> >
+> > I'll catch up with you on IRC ...
+>
+> Ok, from our discussions, it's not related to the power management code,
+> and an engine reset triggered by fbset fixes it. So at this point, I can
+> see no change in the driver explaining it...
+>
+> We did some changes to the VT layer to force a mode setting (and thus an
+> engine reset) when going away from X, so I can't see why that wouldn't
+> work, while using fbset later on works ... this goes through the same
+> code path in the driver... unless we are facing a timing issue...
 
-Hi all...
+You can also try inserting something like this before register_framebuffer()
 
-There are some problems with current udev. I wil try to propose an acceptab=
-le
-solution (ie, patch ;) ).
+info->flags |= FBINFO_MISC_MODESWITCHLATE;
 
-My problems are with cdsymlinks (the C version, mandrake cooker uses that;
-all I say is applicable also to the bash version).
+to delay the call to set_par as late as possible.  It's the same hack used
+in rivafb, but there were reports before that it does not work with a few 
+radeon setups.
 
-Problems with udev-053:cdymlinks.c:
+Tony
 
-- Does not obey the NUMBERED_LINKS flag. Just a problem with string lengths=
-.
-  Fixed below.
-- The nunbered links sould always be present (ie, kill NUMBERED_LINKS).
-  Why ?
-    - In a box with several optical units, you obviously need numbered link=
-s.
-      You also need a 'default' unit for each class (cdrom, dvd, cdrw...)
-    - In a box with only one unit, you also need the numbered links for
-      compatibility (a program can try to open cdrom{i}, i in 0.., ) until
-      it fails...)
-- In a box with just one DVDRW it fails, typo in the strtok.
+>
+> X is known to play funny tricks, like touching the engine when it's in
+> the background (not frontmost VT) and quit, or possibly other bad things
+> on console switch. Maybe I changed enough delays (speeded up) the mode
+> switch so that we fall into a case where X has not finished mucking up
+> with us...
+>
+> Can you try adding some msleep(200) or so at the beginning at
+> radeonfb_set_par() or radeon_write_mode() to see if that makes any
+> difference ?
+>
+> Some printk's in there would help to... I expect calls to
+> radeon_engine_init() to fix it and such a call is present in the mode
+> restore unless accel is disabled...
+>
+> Can you check what's happening ?
+>
+> Ben.
 
-Is this patch acceptable ?
-
-TIA
-
---- cdsymlinks.c.orig	2005-02-14 23:18:16.000000000 +0100
-+++ cdsymlinks.c	2005-02-15 00:30:16.000000000 +0100
-@@ -55,7 +55,6 @@
-=20
- /* Configuration variables */
- static struct list_t allowed_output =3D {0};
--static int numbered_links =3D 1;
-=20
- /* Available devices */
- static struct list_t Devices =3D {0};
-@@ -218,7 +217,7 @@
- list_assign_split (struct list_t *list, char *text)
- {
-   char *token =3D strchr (text, ':');
--  token =3D strtok (token ? token + 1 : text, " \t");
-+  token =3D strtok (token ? token + 1 : text, " \t\n");
-   while (token)
-   {
-     list_prepend (list, token);
-@@ -267,8 +266,6 @@
-             list_delete (&allowed_output);
-             list_assign_split (&allowed_output, p.we_wordv[0] + 7);
-           }
--          else if (!strncmp (p.we_wordv[0], "NUMBERED_LINKS=3D", 14))
--            numbered_links =3D atoi (p.we_wordv[0] + 14);
-           break;
- 	}
- 	/* fall through */
-@@ -325,9 +322,9 @@
-       list_assign_split (&cap_CDRW, text);
-     else if (!strncasecmp (text, "Can write CD-R", 14))
-       list_assign_split (&cap_CDR, text);
--    else if (!strncasecmp (text, "Can read MRW", 14))
-+    else if (!strncasecmp (text, "Can read MRW", 12))
-       list_assign_split (&cap_CDMRW, text);
--    else if (!strncasecmp (text, "Can write MRW", 14))
-+    else if (!strncasecmp (text, "Can write MRW", 13))
-       list_assign_split (&cap_CDWMRW, text);
-   }
-   if (!feof (info))
-@@ -408,24 +405,30 @@
-        */
-       present =3D 1;
-       if (isdev)
--        printf (" %s", list_nth (&devls, li)->data);
-+        printf ("%s ", list_nth (&devls, li)->data);
-     }
-=20
-     /* If we found no existing symlinks for the target device... */
-     if (!present)
-     {
-       char buf[256];
--      snprintf (buf, sizeof (buf), count ? "%s%d" : "%s", link, count);
--      /* Find the next available (not present) symlink name.
--       * We always need to do this for reasons of output consistency: if a
--       * symlink is created by udev as a result of use of this program, we
--       * DON'T want different output!
--       */
--      while (list_search (&devls, buf))
--        snprintf (buf, sizeof (buf), "%s%d", link, ++count);
--      /* If ISDEV, output it. */
--      if (isdev && (numbered_links || count =3D=3D 0))
--        printf (" %s", buf);
-+      if (!count)=20
-+	  {
-+        snprintf (buf, sizeof (buf), "%s", link);
-+        if (isdev && !list_search (&devls, buf))
-+          printf ("%s ", buf);
-+	  }
-+	  /* Find the next available (not present) symlink name.
-+	   * We always need to do this for reasons of output consistency: if a
-+	   * symlink is created by udev as a result of use of this program, we
-+	   * DON'T want different output!
-+	   */
-+	  snprintf (buf, sizeof (buf), "%s%d", link, count);
-+	  while (list_search (&devls, buf))
-+		snprintf (buf, sizeof (buf), "%s%d", link, ++count);
-+	  /* If ISDEV, output it. */
-+	  if (isdev)
-+		printf ("%s ", buf);
-       /* If the link isn't in our "existing links" list, add it and increm=
-ent
-        * our counter.
-        */
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandrakelinux release 10.2 (Cooker) for i586
-Linux 2.6.10-jam9 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #1
-
-
---=-+tQ5BUxpbw6DOLkdcO+U
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCETrTRlIHNEGnKMMRAiljAJ0Q10NMvvhf5vLSiFlm+RP1zmaT7wCeIr08
-NZ3CJbQdQFGnnf8H9vdlZA4=
-=oPG/
------END PGP SIGNATURE-----
-
---=-+tQ5BUxpbw6DOLkdcO+U--
 

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263485AbTCNUQq>; Fri, 14 Mar 2003 15:16:46 -0500
+	id <S263474AbTCNUSN>; Fri, 14 Mar 2003 15:18:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263474AbTCNUQq>; Fri, 14 Mar 2003 15:16:46 -0500
-Received: from comtv.ru ([217.10.32.4]:47514 "EHLO comtv.ru")
-	by vger.kernel.org with ESMTP id <S263485AbTCNUQp>;
-	Fri, 14 Mar 2003 15:16:45 -0500
-X-Comment-To: Andrew Morton
-To: Andrew Morton <akpm@digeo.com>
-Cc: Alex Tomas <bzzz@tmi.comex.ru>, jlnance@unity.ncsu.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.64-mm6
-References: <20030313032615.7ca491d6.akpm@digeo.com>
-	<1047572586.1281.1.camel@ixodes.goop.org>
-	<20030313113448.595c6119.akpm@digeo.com>
-	<1047611104.14782.5410.camel@spc1.mesatop.com>
-	<20030313192809.17301709.akpm@digeo.com>
-	<20030314133126.GB2679@ncsu.edu>
-	<20030314120537.715e5bf0.akpm@digeo.com>
-	<m3y93haevn.fsf@lexa.home.net>
-	<20030314122222.1b55e7ab.akpm@digeo.com>
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: 14 Mar 2003 23:19:28 +0300
-In-Reply-To: <20030314122222.1b55e7ab.akpm@digeo.com>
-Message-ID: <m3hea5aegf.fsf@lexa.home.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263476AbTCNUSN>; Fri, 14 Mar 2003 15:18:13 -0500
+Received: from h-64-105-35-119.SNVACAID.covad.net ([64.105.35.119]:8328 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S263474AbTCNUSM>; Fri, 14 Mar 2003 15:18:12 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Fri, 14 Mar 2003 12:28:47 -0800
+Message-Id: <200303142028.MAA02437@adam.yggdrasil.com>
+To: EdV@macrolink.com
+Subject: RE: devfs + PCI serial card = no extra serial ports
+Cc: driver@jpl.nasa.gov, dwmw2@infradead.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Andrew Morton (AM) writes:
+On Fri, 14 Mar 2003 at 11:49:54, Ed Vance wrote:
+>The largest gotcha that I am aware of for the PCI/setserial command 
+>combination is the inability to automatically "follow" the card when 
+>its address changes due to adding or removing an unrelated PCI device. 
+>Even so, the system is unlikely to crash because the driver checks the 
+>LSR register for impossible values and cuts off access when the UART 
+>is not present.
 
- AM> Absolutely.  XFS shouldn't have this problem.
+	I would expect that setserial should only be used in cases
+where this information is not reliably determinable by the kernel
+through hardware device ID facilities, such as what we have in PCI,
+USB, etc.  If that is not already the case, it should be
+straightforward to fix in the kernel sources, which seemed to be most
+of what the "3 Serial issues up for discussion" thread was about
+(thanks for the pointer).  There was tangential mention in that thread
+of a "/proc/serialdev" interface, but nobody really identified any
+real benefit to it over the existing "uart: unknown" system.
 
- AM> I have patches (against 2.5.7!) which get it all working for ext2
- AM> as well.
+	Anyhow, my primary point in this discussion is just to say
+that, as far as I can tell, devfs does not impede the serial driver
+from doing what Ted Ts'o seemed to be describing.
 
-it's really strange that these patches aren't in 2.5 yet
-
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
 

@@ -1,72 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289484AbSDIO2M>; Tue, 9 Apr 2002 10:28:12 -0400
+	id <S290797AbSDIO23>; Tue, 9 Apr 2002 10:28:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290797AbSDIO2L>; Tue, 9 Apr 2002 10:28:11 -0400
-Received: from brule.borg.umn.edu ([160.94.232.10]:29460 "EHLO
-	brule.borg.umn.edu") by vger.kernel.org with ESMTP
-	id <S289484AbSDIO2K>; Tue, 9 Apr 2002 10:28:10 -0400
-From: Peter Bergner <bergner@brule.borg.umn.edu>
-Date: Tue, 9 Apr 2002 09:28:03 -0500
-To: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /arch/ppc64/kernel/setup.c
-Message-ID: <20020409092803.A416306@brule.borg.umn.edu>
-In-Reply-To: <Pine.GSO.4.05.10204051725280.19854-100000@mausmaki.cosy.sbg.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2i
+	id <S290818AbSDIO23>; Tue, 9 Apr 2002 10:28:29 -0400
+Received: from donna.siteprotect.com ([64.41.120.44]:12298 "EHLO
+	donna.siteprotect.com") by vger.kernel.org with ESMTP
+	id <S290797AbSDIO22>; Tue, 9 Apr 2002 10:28:28 -0400
+Date: Tue, 9 Apr 2002 10:28:27 -0400 (EDT)
+From: Vince Weaver <vince@deater.net>
+X-X-Sender: <vince@hal.deaternet.vmw>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: system call for finding the number of cpus??
+In-Reply-To: <a8t3qk$cga$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.31.0204091022001.9726-100000@hal.deaternet.vmw>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas 'Dent' Mirlacher wrote:
-: can someone please explain to me who calibrate_delay works in
-: arch/ppc64/kernel/setup.c?
-: 
-: as i can see it calibrate.c is a global function defined in init/main.h.
-: arch/ppc64/kernel/setup.c sets a pointer to the address of this function
-: extern void (*calibrate_delay)(void); and assigns its own routine to that
-: pointer. - hmm, every time i tried to do similar things (by mistake :),
-: the program segfaulted on me.
-: 
-: - can someone please explain how this should work?
 
-What's you're not seeing is the additional patch to the "offical"
-sources which is required to get a working ppc64 kernel.  It's not
-in the offical sources due to it touching non-arch specific files.
-I've included the relevent part of the patch you're not seeing below.  
-You can find the full patch at www.penguinppc64.org.
+On 8 Apr 2002, H. Peter Anvin wrote:
+> By author:    Christoph Hellwig <hch@infradead.org>
+> > On Mon, Apr 08, 2002 at 05:25:08PM -0400, Robert Love wrote:
+> > > Linux does not implement such a syscall.  Note
+> > >
+> > > 	cat /proc/cpuinfo | grep processor | wc -l
+> >
+> > I guess there is at least one architecture on which it breaks..
+> >
+>
+> Then that architecture should be fixed.
 
-Peter
+Back in 1999 or so I actually came up with a patch that more-or-less came
+up with an arch-independent /proc/cpuinfo file.  It touched off a
+mini-flamewar on linux-kernel, none of the arch maintainers wanted to
+change their pet format, and Linus silently dropped the patch.
+
+As maintainer of linux_logo I have to have a separate cpuinfo parser for
+each architecture.
+
+For number of CPU's..... x86 uses the "count processor/bogomips" type
+thing.  Some architectures actually have an "active cpus:" type field.
+Some have a "processors total:" type field.  And often the method that
+works changes from kernel to kernel, sometimes even within stable
+releases.
+
+But no, counting processors or bogomips doesn't work across the board.
+
+Should this be rectified somehow?  I think it would take a proclomation
+from on high.
+
+What to do in the meantime?  Well the sysconf() method sounds promising.
+If not you can dig out the sysinfo library included with linux_logo which
+does a reasonable job with most of the common architectures.
+
+Vince
+
+-- 
+____________
+\  /\  /\  /  Vince Weaver        Linux 2.4.9 on a K6-2+, Up 45 days
+ \/__\/__\/   vince@deater.net    http://www.deater.net/weave
 
 
-
-diff -uNr --exclude=CVS /kernels/64/linux-2.4.18-rc3/init/main.c linuxppc64_2_4/init/main.c
---- /kernels/64/linux-2.4.18-rc3/init/main.c	Thu Feb 21 17:04:28 2002
-+++ linuxppc64_2_4/init/main.c	Thu Feb 21 21:02:01 2002
-@@ -129,7 +129,6 @@
- char *execute_command;
- char root_device_name[64];
- 
--
- static char * argv_init[MAX_INIT_ARGS+2] = { "init", NULL, };
- static char * envp_init[MAX_INIT_ENVS+2] = { "HOME=/", "TERM=linux", NULL, };
- 
-@@ -336,7 +335,7 @@
-    better than 1% */
- #define LPS_PREC 8
- 
--void __init calibrate_delay(void)
-+void __init do_calibrate_delay(void)
- {
- 	unsigned long ticks, loopbit;
- 	int lps_precision = LPS_PREC;
-@@ -376,6 +375,8 @@
- 		loops_per_jiffy/(500000/HZ),
- 		(loops_per_jiffy/(5000/HZ)) % 100);
- }
-+
-+void (*calibrate_delay)(void) = do_calibrate_delay;
- 
- static int __init readonly(char *str)
- {

@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281462AbRKHEkp>; Wed, 7 Nov 2001 23:40:45 -0500
+	id <S281466AbRKHE4Q>; Wed, 7 Nov 2001 23:56:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281463AbRKHEke>; Wed, 7 Nov 2001 23:40:34 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:5518 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S281462AbRKHEkX>;
-	Wed, 7 Nov 2001 23:40:23 -0500
-Date: Wed, 07 Nov 2001 20:39:54 -0800 (PST)
-Message-Id: <20011107.203954.118627544.davem@redhat.com>
-To: adilger@turbolabs.com
-Cc: tim@physik3.uni-rostock.de, jgarzik@mandrakesoft.com, andrewm@uow.edu.au,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        netdev@oss.sgi.com, ak@muc.de, kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011107213218.U5922@lynx.no>
-In-Reply-To: <20011107173626.S5922@lynx.no>
-	<20011107.164426.35502643.davem@redhat.com>
-	<20011107213218.U5922@lynx.no>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S281464AbRKHE4G>; Wed, 7 Nov 2001 23:56:06 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:6094 "EHLO
+	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S281463AbRKHEzz>; Wed, 7 Nov 2001 23:55:55 -0500
+Date: Thu, 8 Nov 2001 05:55:42 +0100 (CET)
+From: Oktay Akbal <oktay.akbal@s-tec.de>
+X-X-Sender: oktay@omega.hbh.net
+To: Sasha Pachev <sasha@mysql.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Suspected bug - System slowdown under unexplained excessive disk
+ I/O - 2.4.13
+In-Reply-To: <200111080425.fA84Pdb04541@mysql.sashanet.com>
+Message-ID: <Pine.LNX.4.40.0111080546030.12366-100000@omega.hbh.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: OK (checked by AntiVir Version 6.10.0.25)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andreas Dilger <adilger@turbolabs.com>
-   Date: Wed, 7 Nov 2001 21:32:18 -0700
+On Wed, 7 Nov 2001, Sasha Pachev wrote:
 
-   I don't see that it harms anything to use the macros instead.
+> Summary:
+>
+> System slowdown under unexplained excessive disk I/O
+>
+> Full description:
+>
+> While running X, KDE, having a few windows open, I ran make -j4 on MySQL
+> source tree. I do this all the time and it usually works just fine - the
+> system is a little bit unresponsive. However, occasionally the system becomes
+> completely unresponsive - the disk goes crazy, the machine pings but neither
+> ssh or telnet work - connection to the port is established, but nothing
+> further than that. It does respond to magic SysRQ. I was able to get a memory
+> info dump + stack traces into syslog, included below. The filesystem is
+> ReiserFS.
 
-Maybe if this code were literally etched into the back your skull like
-it is for some of us, you'd understand what a detriment it is to make
-changes like this when it isn't necessary :-)
+I had a similar Problem while running sql-bench on Mysql ( must be mysql :-) ).
+First I thought it happened since the Mysql-Tables were on the root-fs and
+the Disk did not manage to retrieve normal libs and files for login usw.
+But the System (2.4.14-pre8) took about 25 seconds to give a screen after
+wakening from  apm (triggered by xscreensaver under gnome).
+Console-Switching took even longer. Mouse-Movement stopped etc.
+Disk-Activity was very high.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+I had seen smaller Problems with huge loads on the root-fs earlier. But
+never had a Problem with switching consoles or mouse.
+
+Oktay
 

@@ -1,85 +1,385 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbTLPLYU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 06:24:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbTLPLYU
+	id S261506AbTLPMP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 07:15:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbTLPMP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 06:24:20 -0500
-Received: from mail3.bluewin.ch ([195.186.1.75]:18917 "EHLO mail3.bluewin.ch")
-	by vger.kernel.org with ESMTP id S261492AbTLPLYS (ORCPT
+	Tue, 16 Dec 2003 07:15:29 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:14616 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S261506AbTLPMPO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 06:24:18 -0500
-Date: Tue, 16 Dec 2003 12:23:07 +0100
-From: Roger Luethi <rl@hellgate.ch>
+	Tue, 16 Dec 2003 07:15:14 -0500
+Date: Tue, 16 Dec 2003 04:15:04 -0800
+From: Paul Jackson <pj@sgi.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Andrea Arcangeli <andrea@suse.de>, wli@holomorphy.com, kernel@kolivas.org,
-       chris@cvine.freeserve.co.uk, riel@redhat.com,
-       linux-kernel@vger.kernel.org, mbligh@aracnet.com
-Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
-Message-ID: <20031216112307.GA5041@k3.hellgate.ch>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Andrea Arcangeli <andrea@suse.de>, wli@holomorphy.com,
-	kernel@kolivas.org, chris@cvine.freeserve.co.uk, riel@redhat.com,
-	linux-kernel@vger.kernel.org, mbligh@aracnet.com
-References: <200311041355.08731.kernel@kolivas.org> <20031208135225.GT19856@holomorphy.com> <20031208194930.GA8667@k3.hellgate.ch> <20031208204817.GA19856@holomorphy.com> <20031210215235.GC11193@dualathlon.random> <20031210220525.GA28912@k3.hellgate.ch> <20031210224445.GE11193@dualathlon.random> <20031215153122.1d915475.akpm@osdl.org> <20031215233746.GO6730@dualathlon.random> <20031215155427.6faff1d8.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Take 2: rearrange cpumask.h headers in conventional
+ structure
+Message-Id: <20031216041504.1b82952d.pj@sgi.com>
+In-Reply-To: <20031215090331.2ca5a755.akpm@osdl.org>
+References: <20031215001045.41b98136.pj@sgi.com>
+	<20031215090331.2ca5a755.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031215155427.6faff1d8.akpm@osdl.org>
-X-Operating-System: Linux 2.6.0-test11 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Dec 2003 15:54:27 -0800, Andrew Morton wrote:
->  One tends to adjust the test case so that it takes a reasonable amount of
-> time.  So the process is:
-> 
-> Run 1: took five seconds.
-> 
->        "hmm, it didn't swap at all.  I'll use some more threads"
-> 
-> Run 2: takes 4 hours.
-> 
->        "man, that sucked.  I'll use a few less threads"
-> 
-> Run 3: takes ten minutes.
-> 
->        "ah, that's nice.  I'll use that many threads from now on".
-> 
-> [...]
-> 
-> It could well be that something is simply misbehaving in there and that we
-> can pull back significant benefits with some inspired tweaking rather than
-> with radical changes.  Certainly some of Roger's measurements indicate that
-> this is the case, although I worry that he may have tuned himself onto the
-> knee of the curve.
+Andrew,
 
-No worries, mate :-). The efax benchmark I run is a replica of the
-case that started this thread. "make main.o" for efax with 32 MB. The
-kbuild benchmark is very different as far as compile benchmarks go:
-"make -j 24" for the Linux kernel with 64 MB -- the time was adjusted
-not by using fewer processes but by only building a small part of the
-kernel, which does not change the character of the test. As benchmarks,
-efax and kbuild seem different enough to warrant the conclusion that
-compiling under tight memory conditions is slow on 2.6.
+Please consider the following patch for inclusion.  It applies to test11.
 
-The qsbench benchmarks is clearly a different type from the other two.
-Improvements in qsbench coincided several times with losses for efax/kbuild
-and vice versa. Exceptions exist like 2.5.65 which brought no change for
-efax but big improvements for kbuild and qsbench (which was back on par
-with 2.5.0 for two releases). It is at least conceivable, though, that the
-damage for one type of benchmark (qsbench) was mitigated at the expense of
-others.
+==
 
-One potential problem with the benchmarks is that my test box has
-just one bar with 256 MB RAM. The kbuild and efax tests were run with
-mem=64M and mem=32M, respectively. If the difference between mem=32M
-and a real 32 MB machine is significant for the benchmark, the results
-will be less than perfect. I plan to do some testing on a machine with
-more than one memory module to get an idea of the impact, provided I
-can dig up some usable hardware.
+Here is my second version of the patch to rearrange the cpumask headers.
+Following Andrew's suggestion, include/linux/cpumask.h is retained,
+and contains arch-independent cpumask things.  The using files are
+no longer changed from including linux/cpumask.h to including asm/cpumask.h
 
-Roger
+See my original post in this thread for further explanation of the
+motivations for this change.
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1496  -> 1.1497 
+#	include/linux/cpumask.h	1.1     -> 1.3     include/asm-generic/cpumask.h (moved)
+#	               (new)	        -> 1.2     include/linux/cpumask.h
+#	               (new)	        -> 1.1     include/asm-m68knommu/cpumask.h
+#	               (new)	        -> 1.1     include/asm-um/cpumask.h
+#	               (new)	        -> 1.1     include/asm-cris/cpumask.h
+#	               (new)	        -> 1.1     include/asm-s390/cpumask.h
+#	               (new)	        -> 1.1     include/asm-arm26/cpumask.h
+#	               (new)	        -> 1.1     include/asm-v850/cpumask.h
+#	               (new)	        -> 1.1     include/asm-mips/cpumask.h
+#	               (new)	        -> 1.1     include/asm-sh/cpumask.h
+#	               (new)	        -> 1.1     include/asm-arm/cpumask.h
+#	               (new)	        -> 1.1     include/asm-alpha/cpumask.h
+#	               (new)	        -> 1.1     include/asm-h8300/cpumask.h
+#	               (new)	        -> 1.1     include/asm-x86_64/cpumask.h
+#	               (new)	        -> 1.1     include/asm-ppc/cpumask.h
+#	               (new)	        -> 1.1     include/asm-parisc/cpumask.h
+#	               (new)	        -> 1.1     include/asm-i386/cpumask.h
+#	               (new)	        -> 1.1     include/asm-sparc64/cpumask.h
+#	               (new)	        -> 1.1     include/asm-m68k/cpumask.h
+#	               (new)	        -> 1.1     include/asm-sparc/cpumask.h
+#	               (new)	        -> 1.1     include/asm-ppc64/cpumask.h
+#	               (new)	        -> 1.1     include/asm-ia64/cpumask.h
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/12/16	pj@sgi.com	1.1497
+# Apply conventions used by all other generic headers to cpumask.h:
+#  1) Each arch has its own include/asm-<arch>/cpumask.h file
+#  2) That arch-specific header file can include <asm-generic/cpumask.h>,
+#     if it wants to make use of the generic cpumask implementation.
+#  3) Using code should continue to include linux/cpumask.h, which
+#     in turn includes asm/cpumask.h.  Some common implementation
+#     independent cpumask related items, such as the cpu_online_map,
+#     are declared directly in linux/cpumask.h.
+# Following the conventions used by all other such headers simplifies
+# understanding the code, and enables an arch to have its own cpumask
+# implementation details without affecting other arch's.
+# --------------------------------------------
+#
+diff -Nru a/include/asm-alpha/cpumask.h b/include/asm-alpha/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-alpha/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_ALPHA_CPUMASK_H
++#define _ASM_ALPHA_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_ALPHA_CPUMASK_H */
+diff -Nru a/include/asm-arm/cpumask.h b/include/asm-arm/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-arm/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_ARM_CPUMASK_H
++#define _ASM_ARM_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_ARM_CPUMASK_H */
+diff -Nru a/include/asm-arm26/cpumask.h b/include/asm-arm26/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-arm26/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_ARM26_CPUMASK_H
++#define _ASM_ARM26_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_ARM26_CPUMASK_H */
+diff -Nru a/include/asm-cris/cpumask.h b/include/asm-cris/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-cris/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_CRIS_CPUMASK_H
++#define _ASM_CRIS_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_CRIS_CPUMASK_H */
+diff -Nru a/include/asm-generic/cpumask.h b/include/asm-generic/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-generic/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,40 @@
++#ifndef __ASM_GENERIC_CPUMASK_H
++#define __ASM_GENERIC_CPUMASK_H
++
++#include <linux/config.h>
++#include <linux/kernel.h>
++#include <linux/threads.h>
++#include <linux/types.h>
++#include <linux/bitmap.h>
++
++#if NR_CPUS > BITS_PER_LONG && NR_CPUS != 1
++#define CPU_ARRAY_SIZE		BITS_TO_LONGS(NR_CPUS)
++
++struct cpumask
++{
++	unsigned long mask[CPU_ARRAY_SIZE];
++};
++
++typedef struct cpumask cpumask_t;
++
++#else
++typedef unsigned long cpumask_t;
++#endif
++
++#ifdef CONFIG_SMP
++#if NR_CPUS > BITS_PER_LONG
++#include <asm-generic/cpumask_array.h>
++#else
++#include <asm-generic/cpumask_arith.h>
++#endif
++#else
++#include <asm-generic/cpumask_up.h>
++#endif
++
++#if NR_CPUS <= 4*BITS_PER_LONG
++#include <asm-generic/cpumask_const_value.h>
++#else
++#include <asm-generic/cpumask_const_reference.h>
++#endif
++
++#endif /* __ASM_GENERIC_CPUMASK_H */
+diff -Nru a/include/asm-h8300/cpumask.h b/include/asm-h8300/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-h8300/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_H8300_CPUMASK_H
++#define _ASM_H8300_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_H8300_CPUMASK_H */
+diff -Nru a/include/asm-i386/cpumask.h b/include/asm-i386/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_I386_CPUMASK_H
++#define _ASM_I386_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_I386_CPUMASK_H */
+diff -Nru a/include/asm-ia64/cpumask.h b/include/asm-ia64/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-ia64/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_IA64_CPUMASK_H
++#define _ASM_IA64_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_IA64_CPUMASK_H */
+diff -Nru a/include/asm-m68k/cpumask.h b/include/asm-m68k/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-m68k/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_M68K_CPUMASK_H
++#define _ASM_M68K_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_M68K_CPUMASK_H */
+diff -Nru a/include/asm-m68knommu/cpumask.h b/include/asm-m68knommu/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-m68knommu/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_M68KNOMMU_CPUMASK_H
++#define _ASM_M68KNOMMU_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_M68KNOMMU_CPUMASK_H */
+diff -Nru a/include/asm-mips/cpumask.h b/include/asm-mips/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-mips/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_MIPS_CPUMASK_H
++#define _ASM_MIPS_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_MIPS_CPUMASK_H */
+diff -Nru a/include/asm-parisc/cpumask.h b/include/asm-parisc/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-parisc/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_PARISC_CPUMASK_H
++#define _ASM_PARISC_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_PARISC_CPUMASK_H */
+diff -Nru a/include/asm-ppc/cpumask.h b/include/asm-ppc/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-ppc/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_PPC_CPUMASK_H
++#define _ASM_PPC_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_PPC_CPUMASK_H */
+diff -Nru a/include/asm-ppc64/cpumask.h b/include/asm-ppc64/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-ppc64/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_PPC64_CPUMASK_H
++#define _ASM_PPC64_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_PPC64_CPUMASK_H */
+diff -Nru a/include/asm-s390/cpumask.h b/include/asm-s390/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-s390/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_S390_CPUMASK_H
++#define _ASM_S390_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_S390_CPUMASK_H */
+diff -Nru a/include/asm-sh/cpumask.h b/include/asm-sh/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-sh/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_SH_CPUMASK_H
++#define _ASM_SH_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_SH_CPUMASK_H */
+diff -Nru a/include/asm-sparc/cpumask.h b/include/asm-sparc/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-sparc/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_SPARC_CPUMASK_H
++#define _ASM_SPARC_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_SPARC_CPUMASK_H */
+diff -Nru a/include/asm-sparc64/cpumask.h b/include/asm-sparc64/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-sparc64/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_SPARC64_CPUMASK_H
++#define _ASM_SPARC64_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_SPARC64_CPUMASK_H */
+diff -Nru a/include/asm-um/cpumask.h b/include/asm-um/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-um/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_UM_CPUMASK_H
++#define _ASM_UM_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_UM_CPUMASK_H */
+diff -Nru a/include/asm-v850/cpumask.h b/include/asm-v850/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-v850/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_V850_CPUMASK_H
++#define _ASM_V850_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_V850_CPUMASK_H */
+diff -Nru a/include/asm-x86_64/cpumask.h b/include/asm-x86_64/cpumask.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-x86_64/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -0,0 +1,6 @@
++#ifndef _ASM_X86_64_CPUMASK_H
++#define _ASM_X86_64_CPUMASK_H
++
++#include <asm-generic/cpumask.h>
++
++#endif /* _ASM_X86_64_CPUMASK_H */
+diff -Nru a/include/linux/cpumask.h b/include/linux/cpumask.h
+--- a/include/linux/cpumask.h	Tue Dec 16 03:09:14 2003
++++ b/include/linux/cpumask.h	Tue Dec 16 03:09:14 2003
+@@ -1,42 +1,9 @@
+ #ifndef __LINUX_CPUMASK_H
+ #define __LINUX_CPUMASK_H
+ 
+-#include <linux/config.h>
+-#include <linux/kernel.h>
+ #include <linux/threads.h>
+-#include <linux/types.h>
+-#include <linux/bitmap.h>
+-
+-#if NR_CPUS > BITS_PER_LONG && NR_CPUS != 1
+-#define CPU_ARRAY_SIZE		BITS_TO_LONGS(NR_CPUS)
+-
+-struct cpumask
+-{
+-	unsigned long mask[CPU_ARRAY_SIZE];
+-};
+-
+-typedef struct cpumask cpumask_t;
+-
+-#else
+-typedef unsigned long cpumask_t;
+-#endif
+-
+-#ifdef CONFIG_SMP
+-#if NR_CPUS > BITS_PER_LONG
+-#include <asm-generic/cpumask_array.h>
+-#else
+-#include <asm-generic/cpumask_arith.h>
+-#endif
+-#else
+-#include <asm-generic/cpumask_up.h>
+-#endif
+-
+-#if NR_CPUS <= 4*BITS_PER_LONG
+-#include <asm-generic/cpumask_const_value.h>
+-#else
+-#include <asm-generic/cpumask_const_reference.h>
+-#endif
+-
++#include <asm/cpumask.h>
++#include <asm/bug.h>
+ 
+ #ifdef CONFIG_SMP
+ 
+
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274880AbTGaVim (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 17:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274882AbTGaVh7
+	id S269612AbTGaVcT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 17:32:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269685AbTGaVcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 17:37:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:59040 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S274880AbTGaVhj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 17:37:39 -0400
-Date: Thu, 31 Jul 2003 14:25:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: dipankar@in.ibm.com
-Cc: rusty@rustcorp.com.au, andrea@suse.de, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com
-Subject: Re: [PATCH] RCU: Reduce size of rcu_head 1 of 2
-Message-Id: <20030731142545.7bcb50fb.akpm@osdl.org>
-In-Reply-To: <20030731213103.GB17709@in.ibm.com>
-References: <20030731185806.GC1990@in.ibm.com>
-	<20030731134954.54108d95.akpm@osdl.org>
-	<20030731213103.GB17709@in.ibm.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 31 Jul 2003 17:32:17 -0400
+Received: from AMarseille-201-1-5-189.w217-128.abo.wanadoo.fr ([217.128.250.189]:29223
+	"EHLO gaston") by vger.kernel.org with ESMTP id S269623AbTGaVbW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 17:31:22 -0400
+Subject: Re: [linux-usb-devel] Re: OHCI problems with suspend/resume
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Dominik Brugger <ml.dominik83@gmx.net>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20030731140908.GB16463@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.44L0.0307251057300.724-100000@ida.rowland.org>
+	 <1059153629.528.2.camel@gaston> <3F21B3BF.1030104@pacbell.net>
+	 <20030726210123.GD266@elf.ucw.cz> <3F288CAB.6020401@pacbell.net>
+	 <20030731094231.GA464@elf.ucw.cz> <3F291B9E.10109@pacbell.net>
+	 <20030731140908.GB16463@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1059687033.2417.164.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 31 Jul 2003 23:30:33 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dipankar Sarma <dipankar@in.ibm.com> wrote:
->
-> The linked-list change is internal enough for a future backport from
-> 2.7. The only concern here is the change in call_rcu() API. What would
-> be a good way to manage that ?
 
-Oh I'd be okay with merging a change like this into (say) 2.6.3-pre1,
-without it having had a run in 2.7.  We need to be able to do things like
-that.
+> For what kind of I/O? I do not see a reason for disk to veto
+> suspend. CD-burner might want to do that, but it still would be bad
+> idea... (Running on battery, battery goes low, and you destroy your CD
+> *and* your filesystem.
 
-But right now we need to be fully focussed upon important features which
-are late (cpumask_t, 64-bit dev_t, 4G+4G, etc) and upon stabilisation of the
-current tree.
+Well... that's userland policy. You can have a notion of "severity" of
+the suspend request, like vetoing a user-requested suspend request but
+not one issuing from a very-low-battery warning...
+
+This is a part of the PM playfield that still is mostly to be done...
+
+Ben.
 

@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286521AbSAKA7J>; Thu, 10 Jan 2002 19:59:09 -0500
+	id <S289817AbSAKBHU>; Thu, 10 Jan 2002 20:07:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289816AbSAKA6u>; Thu, 10 Jan 2002 19:58:50 -0500
-Received: from host213-1-172-96.btinternet.com ([213.1.172.96]:25477 "EHLO
-	x.nat") by vger.kernel.org with ESMTP id <S286521AbSAKA6k>;
-	Thu, 10 Jan 2002 19:58:40 -0500
-Date: Fri, 11 Jan 2002 00:59:35 +0000
-From: acrimon.beet@gmx.co.uk
-To: linux-kernel@vger.kernel.org
-Subject: via sound acting very dodgy
-Message-ID: <20020111005935.C5983@x.nat>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S289818AbSAKBHK>; Thu, 10 Jan 2002 20:07:10 -0500
+Received: from adsl-63-192-223-74.dsl.snfc21.pacbell.net ([63.192.223.74]:51504
+	"EHLO gateway.berkeley.innomedia.com") by vger.kernel.org with ESMTP
+	id <S289817AbSAKBGx>; Thu, 10 Jan 2002 20:06:53 -0500
+Message-ID: <3C3E3AAB.749B1D51@berkeley.innomedia.com>
+Date: Thu, 10 Jan 2002 17:06:51 -0800
+From: Christopher James <cjames@berkeley.innomedia.com>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test1-rtl i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chris Wright <chris@wirex.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Multicast fails when interface changed
+In-Reply-To: <3C3C8D4D.621A4696@berkeley.innomedia.com> <20020109131013.C24733@figure1.int.wirex.com>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from base64 to 8bit by mangalore.zipworld.com.au id MAA18137
 
-Are there any known problems with via82cxxx_audio.c in 2.4.17?
+Chris Wright wrote:
 
-Yesterday when I tried to record from my sound card, my machine
-locked up completely. It did the same thing when I tried again
-after reboot.
+> * Christopher James (cjames@berkeley.innomedia.com) wrote:
+> > We are running an application that uses multicasting
+> > on Linux kernel 2.2.19. The application is
+> > connected to two network interfaces for redundancy
+> > purposes - only one interface is active at a time.
+> > When the application starts up on the first interface,
+> > the application can send and receive multicast messages.
+> > We then use ifconfig to bring down the first interface,
+> > and use ifconfig to bring up the second interface. The application
+> > works with the exception that it cannot receive multicast
+> > packets (it can still send multicast packets).
+>
+> does your app use INADDR_ANY for imr_interface when you join the
+> multicast group?
+>
+> -chris
 
-Today I was careful not to try and record from the soundcard. But
-after playing a couple of samples, playback went silent. The following
-message started appearing repeatedly in /var/log/messages:
+the app (vocal 1.2) does not use INADDR_ANY for imr_interface when
+joining the multicast group
 
-kernel: Assertion failed! chan->is_active == sg_active(chan->iobase),via82cxxx_audio.c,via_chan_maybe_start,line=1198
-
-At the moment I'm pretty much assuming I've got broken hardware, but
-I'd be interested to know if there are any known problems with
-the driver.
-
-Thanks,
-
-ABeet.
+-Christopher
+ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨ş)ß£ømšSåy«­æ¶…­†ÛiÿÿğÃí»è®å’i

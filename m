@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283696AbRK3QXh>; Fri, 30 Nov 2001 11:23:37 -0500
+	id <S283703AbRK3Qeh>; Fri, 30 Nov 2001 11:34:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283704AbRK3QXY>; Fri, 30 Nov 2001 11:23:24 -0500
-Received: from pop.digitalme.com ([193.97.97.75]:43979 "EHLO digitalme.com")
-	by vger.kernel.org with ESMTP id <S283706AbRK3QVr>;
-	Fri, 30 Nov 2001 11:21:47 -0500
-Subject: Re: Slow start -- Linux vs. NT -- it's time to acknowledge the
-	problem!
-From: "Trever L. Adams" <vichu@digitalme.com>
-To: Jessica Blank <jessica@twu.net>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.40.0111301002110.3351-100000@twu.net>
-In-Reply-To: <Pine.LNX.4.40.0111301002110.3351-100000@twu.net>
-Content-Type: text/plain
+	id <S283702AbRK3Qe2>; Fri, 30 Nov 2001 11:34:28 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30737 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S283701AbRK3QeR>; Fri, 30 Nov 2001 11:34:17 -0500
+Subject: Re: New driver for Adaptec AAC based raid cards
+To: jon_fraser@adaptec.com (Fraser, Jon)
+Date: Fri, 30 Nov 2001 16:43:00 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk ('alan@lxorguk.ukuu.org.uk'),
+        linux-kernel@vger.kernel.org, AACRaid@adaptec.com (AACRaid),
+        linux-aacraid-devel@dell.com
+In-Reply-To: <E9EF680C48EAD311BDF400C04FA07B617EA5F2@ntcexc02.ntc.adaptec.com> from "Fraser, Jon" at Nov 30, 2001 11:21:04 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 30 Nov 2001 11:20:43 -0500
-Message-Id: <1007137256.1244.0.camel@aurora>
-Mime-Version: 1.0
+Message-Id: <E169qke-00042a-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-11-30 at 11:02, Jessica Blank wrote:
-> Sooo... having the Windows-type person remove NetBEUI and Windows
-> filesharing (SMB) would fix this if this is indeed the cause of problems?
-> 
+> 	I'm sorry to see such a duplication of work.  I wish you'd
+> checked with us first.  We've done the same work, as well as making
 
-Partially.  SMB can be an ok netizen given that you disable NetBEUI and
-possibly IPX.  It won't be the best netizen, but it won't be so insanely
-broken.
+I sent a couple of mails a while ago and got no response
 
-Trever
+> it work on the IA64 platform.  We were close to submitting the code.
 
+Probably worth comparing the two, I make no claim mine is better or that
+there aren't good ideas in both.
+
+Alan

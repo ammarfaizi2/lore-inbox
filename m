@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVAMTyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVAMThW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbVAMTyn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 14:54:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbVAMTv1
+	id S261328AbVAMThW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 14:37:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVAMTgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 14:51:27 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:43928 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261442AbVAMTsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 14:48:13 -0500
-Date: Thu, 13 Jan 2005 19:48:07 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Christian Borntraeger <cborntra@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] reintroduce EXPORT_SYMBOL(task_nice) for binfmt_elf32
-Message-ID: <20050113194807.GA28010@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Christian Borntraeger <cborntra@de.ibm.com>,
-	linux-kernel@vger.kernel.org,
-	Arjan van de Ven <arjan@infradead.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <200501132042.31215.cborntra@de.ibm.com>
+	Thu, 13 Jan 2005 14:36:18 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:25262 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261232AbVAMTeK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 14:34:10 -0500
+Date: Thu, 13 Jan 2005 11:34:03 -0800
+From: Greg KH <greg@kroah.com>
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: add Ever UPS vendor/product id to ftdi_sio driver
+Message-ID: <20050113193403.GA29645@kroah.com>
+References: <200501132014.34558.arekm@pld-linux.org> <20050113192517.GA29433@kroah.com> <200501132030.33996.arekm@pld-linux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200501132042.31215.cborntra@de.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <200501132030.33996.arekm@pld-linux.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 08:42:30PM +0100, Christian Borntraeger wrote:
-> export was the fact, that binfmt_elf is no longer modular. Unfortunately 
-> that is not true in the emulation case on s390 and (untested) sparc64. 
+On Thu, Jan 13, 2005 at 08:30:33PM +0100, Arkadiusz Miskiewicz wrote:
+> On Thursday 13 of January 2005 20:25, Greg KH wrote:
+> 
+> > Your email client got hungry and ate all of the tabs for lunch. 
+> Hungry bastard.
+> 
+> > Care to 
+> > resend it?
+> This time as attachment.
 
-I'd suggest putting it under CONFIG_COMPAT.
+But you lost the description of the patch and the Signed-off-by: line :(
 
+Third time's a charm.
+
+greg k-h

@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317517AbSHHMU4>; Thu, 8 Aug 2002 08:20:56 -0400
+	id <S317340AbSHHMgS>; Thu, 8 Aug 2002 08:36:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317520AbSHHMU4>; Thu, 8 Aug 2002 08:20:56 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:7949 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S317517AbSHHMUz>;
-	Thu, 8 Aug 2002 08:20:55 -0400
-Message-ID: <3D5261AD.9000706@evision.ag>
-Date: Thu, 08 Aug 2002 14:18:53 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
+	id <S317489AbSHHMgS>; Thu, 8 Aug 2002 08:36:18 -0400
+Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:15113 "EHLO
+	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S317340AbSHHMgR>; Thu, 8 Aug 2002 08:36:17 -0400
+Date: Thu, 8 Aug 2002 14:39:56 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: kwijibo@zianet.com, <linux-kernel@vger.kernel.org>
+Subject: Re: kernel BUG at tg3.c:1557
+In-Reply-To: <Pine.LNX.4.44.0208081029320.4709-100000@pc40.e18.physik.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.44.0208081431210.4739-100000@pc40.e18.physik.tu-muenchen.de>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: martin@dalecki.de, Ingo Molnar <mingo@elte.hu>,
-       "Adam J. Richter" <adam@yggdrasil.com>, Andries.Brouwer@cwi.nl,
-       johninsd@san.rr.com, linux-kernel@vger.kernel.org
-Subject: Re: [bug, 2.5.29, IDE] partition table corruption?
-References: <Pine.LNX.4.44.0208081129420.3210-100000@localhost.localdomain>		<3D523B25.5080105@evision.ag>	<1028809830.28883.13.camel@irongate.swansea.linux.org.uk> 	<3D525489.3050209@evision.ag> <1028813033.28882.37.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Alan Cox napisa³:
+On Thu, 8 Aug 2002, Roland Kuhn wrote:
+
+> On Wed, 7 Aug 2002, David S. Miller wrote:
 > 
-> So why did you take it out ?
+> >    From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+> >    Date: Thu, 8 Aug 2002 00:10:31 +0200 (CEST)
+> > 
+> >    Since the insertion of a dummy write solved the problem, I would say it's 
+> >    the chipset's PCI reordering, which is malfunctioning in the 2466.
+> > 
+> > Roland can you retry using this patch?  The difference from
+> > my previous one is that when we use the indirect register
+> > writing of the mailbox registers, we offset into the GRCMBOX
+> > area of the chip registers.
+> > 
+> > This seems to be how Broadcom's driver does indirect accesses
+> > to mailbox registers.
+> > 
+> Will try in a minute. Do I understand it correctly, that only the mailbox 
+> writes must be done this way? And how do the pci_write_config_dword() 
+> functions ensure the right ordering? (Sorry, it was late yesterday and I 
+> somehow didn't find the definition of pci_*_config_*().)
+> 
+Sorry, this was a long minute, however after applying your patch to
+vanilla 2.4.19 (tg3 v0.99) by hand (the TG3_FLAG_WOL_SPEED_100MB already
+is 0x800 there, and no adjacent bits are free), the kernel simply freezes
+when I do "/etc/init.d/network start". The insmod is okay, the messages
+look like always, but I could not get any more info on the freeze because
+nothing gets written to disk, no output on the screen, no sysrq, ...
 
-I say it n-th time already dd if=/dev/hda of=/dev/hdb should give
-a prefect sector by sector disk clone.
+If I can do more to help sort this out, please tell me. With my fix to 
+prefix every write with a dummy read, the system is rock solid, not a 
+single glitch on 12 machines in the last 14 hours.
 
-The bugs should be fixed in lilo and not worked around in the kernel.
-We have the goal (and in fact obligation for scalability issues) to move
-partition scanning out of the kernel space.
+I'm very curious on how this all works, so would somebody please give me a 
+pointer where to start reading concerning linux and PCI 
+reordering/pci_write_config_dword?
 
-Did you ever bother looking the the function in question?
+Ciao,
+					Roland
 
-Did you ever look at the missordered code in lilo I cited here?
++---------------------------+-------------------------+
+|    TU Muenchen            |                         |
+|    Physik-Department E18  |  Raum    3558           |
+|    James-Franck-Str.      |  Telefon 089/289-12592  |
+|    85747 Garching         |                         |
++---------------------------+-------------------------+
 
-Did you ever think about what to do about the recurring complains
-from people about disk order differences between BIOS and Linux?
-
-Or the whole GET_GEO_BIG confusion ioctl()?
-
-Please compare it with the proper formulas provided at www.phoenix.com
-in excellent white papers. (Which can't be linked to directly, since
-they  check the refferrer.)
-
-It did contain 'heuristics" which stopped to annoy people just becouse
-many have developed the immediate reflex of always adding the linear
-parameter during lilo configuration already a very very long time ago
-becouse anything else doesn't make much sense and disks have passed the 
-512MB or even 4G barrier quite a time ago.
 

@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292178AbSCONCE>; Fri, 15 Mar 2002 08:02:04 -0500
+	id <S292231AbSCONHe>; Fri, 15 Mar 2002 08:07:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292229AbSCONBy>; Fri, 15 Mar 2002 08:01:54 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:46604 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S292178AbSCONBp>; Fri, 15 Mar 2002 08:01:45 -0500
-Date: Fri, 15 Mar 2002 13:01:33 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com,
-        "Marcelo W. Tosatti" <marcelo@conectiva.com.br>
-Subject: Re: execve() fails to report errors
-Message-ID: <20020315130133.A24984@flint.arm.linux.org.uk>
-In-Reply-To: <20020305233437.GA130@elf.ucw.cz>
-Mime-Version: 1.0
+	id <S292229AbSCONHY>; Fri, 15 Mar 2002 08:07:24 -0500
+Received: from kim.it.uu.se ([130.238.12.178]:36337 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S292270AbSCONHJ>;
+	Fri, 15 Mar 2002 08:07:09 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020305233437.GA130@elf.ucw.cz>; from pavel@ucw.cz on Wed, Mar 06, 2002 at 12:34:37AM +0100
+Content-Transfer-Encoding: 7bit
+Message-ID: <15505.61940.536141.204015@kim.it.uu.se>
+Date: Fri, 15 Mar 2002 14:07:00 +0100
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IO-APIC -- lockup on machine if enabled
+In-Reply-To: <20020315100502.GA12793@merlin.emma.line.org>
+In-Reply-To: <200203132052.VAA08581@harpo.it.uu.se>
+	<20020315100502.GA12793@merlin.emma.line.org>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 06, 2002 at 12:34:37AM +0100, Pavel Machek wrote:
-> Now, I do not know if this is the right fix (binfmt_elf looks
-> spaghetty to me) but its certainly better than it was.
+Matthias Andree writes:
+ > On Wed, 13 Mar 2002, Mikael Pettersson wrote:
+ > 
+ > > p.s. The update for 2.4.19-pre3 and the full kit for 2.4.18 are
+ > > at <http://www.csd.uu.se/~mikpe/linux/patches/2.4/> as usual.
+ > 
+ > Does that also fix the "crashes on switch back from X11 to text (or
+ > frame buffer) console" that's been around since 2.4.9 or 2.4.10, but not
+ > before, that bites so many users of SuSE Linux 7.3?
+ > de.comp.os.unix.linux.* has at least one report every week. SuSE shipped
+ > kernel 2.4.10 with 7.3.
 
-Here's another fix in this area.  If setup_arg_pages() fails, we continue
-although nothing went wrong.  The following patch kills the process
-instead.
+The dmi-apic-fixups patch ONLY deals with disabling use of the local
+APIC (or parts of it in some cases, e.g. AL440LX) when a known broken
+BIOS or machine is detected by the DMI scan.
 
-Linus/Marcelo - please apply.
+Without an adequate analysis of the problem you describe above I can't
+even guess what the fix might be.
 
---- orig/fs/binfmt_elf.c	Fri Mar 15 10:14:29 2002
-+++ linux/fs/binfmt_elf.c	Mon Mar 11 17:29:03 2002
-@@ -585,7 +585,12 @@
- 	/* Do this so that we can load the interpreter, if need be.  We will
- 	   change some of these later */
- 	current->mm->rss = 0;
--	setup_arg_pages(bprm); /* XXX: check error */
-+	retval = setup_arg_pages(bprm);
-+	if (retval < 0) {
-+		send_sig(SIGKILL, current, 0);
-+		return retval;
-+	}
-+	
- 	current->mm->start_stack = bprm->p;
- 
- 	/* Now we do a little grungy work by mmaping the ELF image into
-
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+/Mikael

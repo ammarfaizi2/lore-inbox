@@ -1,60 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265278AbSJRSy4>; Fri, 18 Oct 2002 14:54:56 -0400
+	id <S265624AbSJRS5W>; Fri, 18 Oct 2002 14:57:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265350AbSJRSv1>; Fri, 18 Oct 2002 14:51:27 -0400
-Received: from f89.pav1.hotmail.com ([64.4.31.89]:20999 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S265278AbSJRSpl>;
-	Fri, 18 Oct 2002 14:45:41 -0400
-X-Originating-IP: [193.153.111.132]
-From: "Hermann =?ISO-8859-1?Q?K=E4ser=22?= <hermzz@hotmail.com>"@vax.home.local
-To: linux-kernel@vger.kernel.org
-Subject: Kernel panic! Unable to handle kernel NULL pointer dereference...
-Date: Fri, 18 Oct 2002 18:51:37 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F89v91ySHW1HSAHwNKL00004d8c@hotmail.com>
-X-OriginalArrivalTime: 18 Oct 2002 18:51:37.0685 (UTC) FILETIME=[635C8850:01C276D7]
+	id <S265622AbSJRS4d>; Fri, 18 Oct 2002 14:56:33 -0400
+Received: from mtao-m02.ehs.aol.com ([64.12.52.8]:30684 "EHLO
+	mtao-m02.ehs.aol.com") by vger.kernel.org with ESMTP
+	id <S265623AbSJRS4T>; Fri, 18 Oct 2002 14:56:19 -0400
+Date: Fri, 18 Oct 2002 12:02:10 -0700
+From: John Gardiner Myers <jgmyers@netscape.com>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+In-reply-to: <Pine.LNX.4.44.0210171121390.1631-100000@blue1.dev.mcafeelabs.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Benjamin LaHaise <bcrl@redhat.com>, Dan Kegel <dank@kegel.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Message-id: <3DB05AB2.3010907@netscape.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2b)
+ Gecko/20021016
+References: <Pine.LNX.4.44.0210171121390.1631-100000@blue1.dev.mcafeelabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel panic! Unable to handle kernel NULL pointer dereference
+Davide Libenzi wrote:
 
-This happens during boot time after compiling latest stable kernel version 
-2.4.19
+>Look, I'm usually very polite but you're really wasting my time. You
+>should know that an instruction at line N is usually executed before an
+>instruction at line N+1. Now this IS your code :
+>
+>[N-1] for (;;) {
+>[N  ]     fd = event_wait(...);
+>[N+1]     while (do_io(fd) != EAGAIN);
+>[N+2} }
+>
+>I will leave you as an exercise to understand what happens when you call
+>the first event_wait(...); and there is still data to be read/write on the
+>file descriptor.
+>
+Your claim was that even if the API will drop an event at registration 
+time, my code scheme would not work.  Thus, we can take "the API will 
+drop an event at registration time" as postulated.  That being 
+postulated, if there is still data to be read/written on the file 
+descriptor then the first event_wait will return immediately.
 
-kernel-2.4.19, boot, kernel panic
+In fact, given that postulate and the appropriate axioms about the 
+behavior of event_wait() and do_io(), one can prove that my code scheme 
+is equivalent to yours.  The logical conclusion from that and your claim 
+would be that you don't understand how edge triggered APIs have to be used.
 
-2.4.19
+>The reason you're asking /dev/epoll to drop an event at
+>fd insertion time shows very clearly that you're going to use the API is
+>the WRONG way and that you do not understand how such APIs works.
+>
+The wrong way as defined by what?  Having /dev/epoll drop appropriate 
+events at registration time permits a useful simplification/optimization 
+and makes the system significantly less prone to subtle progamming errors.
 
-printing eip:
-c02037aa
-*pde = 00000000
-Oops: 0000
-CPU: 0
-EIP: 0010:[<c02037aa>]  Not tainted
-EFLAGS: 00010282
-eax: 00000000  ebx: c02037aa  ecx: c116b380  edx: c116b384
-esi: c0372894 edi: c7fd82e4  ebp: 00000016  esp: c11ddef8
-ds: 0018  es: 0018  ss: 0018
-Process swapper: (pid:1, stackpage: c11dd0000)
-Stack: c01cf344 c031ffe0 c0430008 c0430114 c7fd8314 c7fds2e4 00000001 
-00000282
-00000001 00000001 c0119ccb c037cce1 00000246 c0119bdd c031f102 c031f1bd
-c7fd8200 c0430008 c01fc72b c031ebec c0430008 c1181437 c031f2e0 c7fd8200
-Call Trace: [<c01ff394>] [<c0119ccb>] [<c0119bdd>] [<c01fc72b>] [<c01fc204>] 
-[<c01fccca>] [<c01ff394>] [<c0105079>] [<c0107044>]
-Code: 8b 40 20 c7 40 24 00 00 00 00 a1 80 24 37 c0 a3 88 22 43 c0
-<0> Kernel panic: Attempted to kill init!
+I do understand how such APIs work, to the extent that I am pointing out 
+a flaw in their current models.
 
-Software: Linux Debian
+>And the fact that there're users currently using the rt-sig and epoll APIs means
+>that either those guys are genius or you're missing something.
+>  
+>
+Nonsense.  People are able to use flawed APIs all of the time.
 
-Processor Info: Pentium III Celeron (Coppermine)
-
-
-
-
-_________________________________________________________________
-Broadband? Dial-up? Get reliable MSN Internet Access. 
-http://resourcecenter.msn.com/access/plans/default.asp
 

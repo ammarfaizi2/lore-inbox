@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277258AbRKMRPX>; Tue, 13 Nov 2001 12:15:23 -0500
+	id <S277165AbRKMRRx>; Tue, 13 Nov 2001 12:17:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277165AbRKMRPE>; Tue, 13 Nov 2001 12:15:04 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:45066 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277112AbRKMRO4>; Tue, 13 Nov 2001 12:14:56 -0500
-Subject: Re: Merge BUG in 2.4.15-pre4 serial.c
-To: dalecki@evision.ag
-Date: Tue, 13 Nov 2001 17:11:22 +0000 (GMT)
-Cc: rmk@arm.linux.org.uk (Russell King), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <3BF15A72.793A1BF2@evision-ventures.com> from "Martin Dalecki" at Nov 13, 2001 06:37:54 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S277282AbRKMRRr>; Tue, 13 Nov 2001 12:17:47 -0500
+Received: from pD903CAF1.dip.t-dialin.net ([217.3.202.241]:23261 "EHLO
+	no-maam.dyndns.org") by vger.kernel.org with ESMTP
+	id <S277165AbRKMRR0>; Tue, 13 Nov 2001 12:17:26 -0500
+Date: Tue, 13 Nov 2001 18:16:51 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux readahead setting?
+Message-ID: <20011113181650.A30354@no-maam.dyndns.org>
+In-Reply-To: <Pine.LNX.4.30.0111131619230.1290-100000@mustard.heime.net> <Pine.LNX.4.33L.0111131355030.20809-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E163h5m-0001kJ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0111131355030.20809-100000@duckman.distro.conectiva>
+User-Agent: Mutt/1.3.23i
+From: erik.tews@gmx.net (Erik Tews)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well I still think that the 8 lines can be deleted. Once again my famous
-> notbook is perfectly __i386__ and doesn't contain any devices served by
-> serial.c
-> unless I configure IrDA. Pushing the port numbers artificially behind
-> doesn't make sense for me and makes some setserial unknown tricks
-> neccessary
+On Tue, Nov 13, 2001 at 01:55:42PM -0200, Rik van Riel wrote:
+> On Tue, 13 Nov 2001, Roy Sigurd Karlsbakk wrote:
+> 
+> > I heard linux does <= 32 page readahead from block devices
+> > (scsi/ide/que?). Is there a way to double this? I want to read 256kB
+> > chunks from the SCSI drives, as to get the best speed. These numbers are
+> > based on some testing and information I've got from Compaq's storage guys.
+> 
+> The -ac kernels have a way to tune this dynamically,
+> I guess we might want to push this change into 2.4
+> later on...
 
-Renumbering everyones serial ports by suprise seems to be a 2.5 thing
+I got an other question related to this. I got a System with 7
+Filesystems on LVM. One Filesystem contains only one file, a 10 GB
+disk-image which is exported via ftp. Sometimes, 15 clients are
+downloading the file at the same time. What would be theoretical the
+best way to tune these downloads. It would be wise if linux would try to
+read the file in big blocks to minimize seeking on the disk. The file is
+usually only downloaded in one piece. So if a ftpd-process access the
+file, I can be very sure that it will read the whole file. The best
+would be if data is requested from the file if linux would read a block
+of 256k data from the file before serving the next request from an other
+process.

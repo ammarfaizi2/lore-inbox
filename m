@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261923AbSIZApE>; Wed, 25 Sep 2002 20:45:04 -0400
+	id <S261393AbSIZA6y>; Wed, 25 Sep 2002 20:58:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261925AbSIZApE>; Wed, 25 Sep 2002 20:45:04 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:27009 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261923AbSIZApD>;
-	Wed, 25 Sep 2002 20:45:03 -0400
-Date: Wed, 25 Sep 2002 17:44:05 -0700 (PDT)
-Message-Id: <20020925.174405.102576685.davem@redhat.com>
-To: ak@suse.de
-Cc: niv@us.ibm.com, linux-kernel@vger.kernel.org
+	id <S261497AbSIZA6y>; Wed, 25 Sep 2002 20:58:54 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:25051 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261393AbSIZA6y>; Wed, 25 Sep 2002 20:58:54 -0400
+Message-ID: <3D925E65.F0A4F45D@us.ibm.com>
+Date: Wed, 25 Sep 2002 18:09:57 -0700
+From: Nivedita Singhvi <niv@us.ibm.com>
+X-Mailer: Mozilla 4.78 [en] (Win98; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020926024645.A15246@wotan.suse.de>
-References: <p73n0q5sib2.fsf@oldwotan.suse.de>
-	<20020925.172931.115908839.davem@redhat.com>
-	<20020926024645.A15246@wotan.suse.de>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+References: <3D924F9D.C2DCF56A@us.ibm.com>
+		<20020925.170336.77023245.davem@redhat.com>
+		<3D9259C3.6CA5D211@us.ibm.com> <20020925.174019.21928114.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andi Kleen <ak@suse.de>
-   Date: Thu, 26 Sep 2002 02:46:45 +0200
+"David S. Miller" wrote:
 
-   > Also not necessary, only the top level cache really needs to be
-   > top performance.
-   
-   Sure, but if they were unified (that is what I understood what the original
-   poster wanted to do) then they would be suddenly much more performance
-   critical and need fine grained locking.
-   
-This can be made, if necessary.  If the toplevel flow cache lookup
-table is sized appropriately, I doubt anything will be needed.
-   
-   P.S.: One big performance problem currently is ip_conntrack. It has a bad
-   hash function and tends to have a too big working set (beyond cache size)
-   Some tuning in this regard would help a lot of workloads.
-   
-This is well understood problem and a fix is in the works.
-See the netfilter lists.
+>    Well, true - we have per hashchain locks, but are we now adding
+>    the times we need to lookup something on this chain because we now
+>    have additional info other than the route, is what I was
+>    wondering..?
+> 
+> That's what I meant by "extending the lookup key", consider if we
+> took "next protocol, src port, dst port" into account.
+
+Aah!. thick head <-- understanding. 
+
+thanks,
+Nivedita

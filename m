@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264987AbTL1J1m (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 04:27:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbTL1J1m
+	id S265051AbTL1KBL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 05:01:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265052AbTL1KBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 04:27:42 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:6589 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264987AbTL1J1l (ORCPT
+	Sun, 28 Dec 2003 05:01:10 -0500
+Received: from mail.rdslink.ro ([193.231.236.20]:2019 "EHLO mail.rdslink.ro")
+	by vger.kernel.org with ESMTP id S265051AbTL1KBI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 04:27:41 -0500
-Date: Sun, 28 Dec 2003 01:23:29 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: acme@conectiva.com.br, mpm@selenic.com, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH-2.6.0-tiny] "uninline" {lock,release}_sock
-Message-Id: <20031228012329.43003de5.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0312280017060.2274@home.osdl.org>
-References: <20031228075426.GB24351@conectiva.com.br>
-	<Pine.LNX.4.58.0312280017060.2274@home.osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 28 Dec 2003 05:01:08 -0500
+Date: Sat, 27 Dec 2003 19:38:30 +0200 (EET)
+From: caszonyi@rdslink.ro
+X-X-Sender: sony@grinch.ro
+Reply-To: Calin Szonyi <caszonyi@rdslink.ro>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: linux-kernel@vger.kernel.org, kraxel@bytesex.org
+Subject: Re: panic in bttv_risc_planar
+In-Reply-To: <3320000.1072499450@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.53.0312271935150.573@grinch.ro>
+References: <Pine.LNX.4.53.0312262105560.537@grinch.ro> <2850000.1072477728@[10.10.2.4]>
+ <Pine.LNX.4.53.0312270235570.7966@grinch.ro> <3320000.1072499450@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Dec 2003 00:23:07 -0800 (PST)
-Linus Torvalds <torvalds@osdl.org> wrote:
+On Fri, 26 Dec 2003, Martin J. Bligh wrote:
 
-> Function calls aren't all that expensive, especially with FASTCALL() etc 
-> to show that you don't have to follow the common calling conventions. 
-> Right now I think FASTCALL() only matters on x86, but some other 
-> architectures could make it mean "smaller call clobbered list" or similar.
-> 
-> Have you benchmarked with the smaller kernel? 
+> Dec 26 17:59:08 grinch kernel: Unable to handle kernel paging request at virtual address c4bea00c
+> Dec 26 17:59:08 grinch kernel:  printing eip:
+> Dec 26 17:59:08 grinch kernel: c0333f60
+> ...
+> and yet ...
+> ...
+> > 0xc0333f63 <bttv_risc_planar+579>:	mov    %eax,(%ecx)
+> > 0xc0333f65 <bttv_risc_planar+581>:	add    %edx,0x5c(%esp,1)
+>
+> Mmm. you *sure* nothing else changed? You didn't take out -O2 when you
+> put in -g or change the config file at all or anything?
+>
 
-To be honest I think {lock,release}_sock() should both be uninlined
-always.
+yes (almost)
+the *only* thing i did was to select
+ [*]   Compile the kernel with debug info
+in menuconfig
+I have no ideea what gcc options will change if i select this option in
+kernel config.
 
-It almost made sense to inline these things before the might_sleep()
-was added, now it definitely makes no sense.
-
+> M.
+>

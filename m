@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbUKSDIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbUKSDMD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbUKSDIA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 22:08:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbUKSDIA
+	id S261247AbUKSDMD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 22:12:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbUKSDMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 22:08:00 -0500
-Received: from sol.linkinnovations.com ([203.94.173.142]:1410 "EHLO
-	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S261258AbUKSDHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 22:07:52 -0500
-Date: Fri, 19 Nov 2004 14:07:41 +1100
-From: CaT <cat@zip.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-ac10
-Message-ID: <20041119030741.GC1231@zip.com.au>
-References: <1100789415.6005.1.camel@localhost.localdomain>
+	Thu, 18 Nov 2004 22:12:03 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:34280 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261247AbUKSDMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 22:12:00 -0500
+Subject: Re: [patch 2.6.10-rc2] oss: AC97 quirk facility
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Andrew Morton <akpm@osdl.org>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       linux-kernel@vger.kernel.org, alan@redhat.com
+In-Reply-To: <20041118184524.GA19606@havoc.gtf.org>
+References: <20041117163016.A5351@tuxdriver.com>
+	 <20041117145644.005e54ff.akpm@osdl.org> <419CE98B.2090304@pobox.com>
+	 <Pine.LNX.4.53.0411181936050.8260@yvahk01.tjqt.qr>
+	 <419CEC33.3010208@pobox.com>
+	 <Pine.LNX.4.53.0411181940580.8260@yvahk01.tjqt.qr>
+	 <20041118184524.GA19606@havoc.gtf.org>
+Content-Type: text/plain
+Date: Thu, 18 Nov 2004 20:23:01 -0500
+Message-Id: <1100827381.11044.7.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1100789415.6005.1.camel@localhost.localdomain>
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18, 2004 at 02:50:16PM +0000, Alan Cox wrote:
-> The it8212 still doesn't default to DMA on - that is on the TODO list. The
+On Thu, 2004-11-18 at 13:45 -0500, Jeff Garzik wrote:
+> On Thu, Nov 18, 2004 at 07:41:44PM +0100, Jan Engelhardt wrote:
+> > >Until it's gone, the current users would prefer not-broken to broken.
+> > 
+> > Well, leave it broken and reason it with "come over to ALSA".
+> 
+> i810 audio still locks up in ALSA ATM...
+> 
 
-Are you sure?
+Fixed in ALSA CVS on Tuesday.  This fix needs to go in 2.6.10 IMO.
 
-# hdparm  -v /dev/hdg
+Lee
 
-/dev/hdg:
- multcount    = 16 (on)
- I/O support  =  0 (default 16-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    = 256 (on)
- geometry     = 24321/255/63, sectors = 390721968, start = 0
- busstate     =  1 (on)
-
-IT8212: IDE controller at PCI slot 0000:03:05.0
-IT8212: chipset revision 17
-IT8212: 100% native mode on irq 29
-    ide2: BM-DMA at 0x4420-0x4427, BIOS settings: hde:pio, hdf:pio
-it8212: controller in pass through mode.
-    ide3: BM-DMA at 0x4428-0x442f, BIOS settings: hdg:DMA, hdh:pio
-Probing IDE interface ide2...
-Probing IDE interface ide3...
-hdg: WDC WD2000JB-00FUA0, ATA DISK drive
-ide3 at 0x4410-0x4417,0x441a on irq 29
-hdg: max request size: 1024KiB
-hdg: 390721968 sectors (200049 MB) w/8192KiB Cache, CHS=24321/255/63,
-UDMA(100)
-hdg: cache flushes supported
- hdg: hdg1
-
--- 
-    Red herrings strewn hither and yon.

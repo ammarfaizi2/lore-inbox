@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129940AbQKHWEW>; Wed, 8 Nov 2000 17:04:22 -0500
+	id <S130033AbQKHWFM>; Wed, 8 Nov 2000 17:05:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129938AbQKHWEM>; Wed, 8 Nov 2000 17:04:12 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:26884 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S129118AbQKHWD4>; Wed, 8 Nov 2000 17:03:56 -0500
-Date: Thu, 9 Nov 2000 01:03:36 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Richard Henderson <rth@twiddle.net>
-Cc: axp-list@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: PCI-PCI bridges mess in 2.4.x
-Message-ID: <20001109010336.A1367@jurassic.park.msu.ru>
-In-Reply-To: <20001101153420.A2823@jurassic.park.msu.ru> <20001101093319.A18144@twiddle.net> <20001103111647.A8079@jurassic.park.msu.ru> <20001103011640.A20494@twiddle.net> <20001106192930.A837@jurassic.park.msu.ru> <20001108013931.A26972@twiddle.net> <20001108142513.A5244@jurassic.park.msu.ru> <20001108093744.D27324@twiddle.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20001108093744.D27324@twiddle.net>; from rth@twiddle.net on Wed, Nov 08, 2000 at 09:37:44AM -0800
+	id <S129938AbQKHWEw>; Wed, 8 Nov 2000 17:04:52 -0500
+Received: from puce.csi.cam.ac.uk ([131.111.8.40]:6811 "EHLO
+	puce.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129118AbQKHWET>; Wed, 8 Nov 2000 17:04:19 -0500
+From: "James A. Sutherland" <jas88@cam.ac.uk>
+To: George Anzinger <george@mvista.com>
+Subject: Re: Installing kernel 2.4
+Date: Wed, 8 Nov 2000 22:01:41 +0000
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200011081205.eA8C5ui27838@pincoya.inf.utfsm.cl> <00110819463200.01915@dax.joh.cam.ac.uk> <3A09B856.EC897A92@mvista.com>
+In-Reply-To: <3A09B856.EC897A92@mvista.com>
+MIME-Version: 1.0
+Message-Id: <00110822033500.04252@dax.joh.cam.ac.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2000 at 09:37:44AM -0800, Richard Henderson wrote:
-> Interesting.  I hadn't known that.  It didn't actually fail with
-> the ALI bridge, I just assumed it was a mistake.  Can anyone with
-> docs on non-DEC bridges confirm that this is a common thing?
+On Wed, 08 Nov 2000, George Anzinger wrote:
+> "James A. Sutherland" wrote:
+> > 
+> > On Wed, 08 Nov 2000, George Anzinger wrote:
+> > > But, here the customer did run the configure code (he said he did not
+> > > change anything).  Isn't this where the machine should be diagnosed and
+> > > the right options chosen?  Need a way to say it is a cross build, but
+> > > that shouldn't be too hard.
+> > 
+> > Why default to incompatibility?! If the user explicitly says "I really do want
+> > a kernel which only works on this specific machine as it is now, and I want it
+> > to break otherwise", fine. Don't make it a default!
+> 
+> I could go along with this.  The user, however, had the default break,
+> and, to my knowledge, there are no tools to diagnose the current (or any
+> other) machine anywhere in the kernel.  Maybe it is time to do such a
+> tool with exports that the configure programs could use as defaults.  My
+> thought is that the tool could run independently on the target system
+> (be it local or otherwise) with the results fed back to configure.
 
-It would be better if someone who has "PCI-to-PCI Bridge Architecture
-Specification" handy could confirm this. Non-conforming hardware
-must live in quirks/fixups etc. ;-)
+I think a default whereby the kernel built will run on any Linux-capable
+machine of that architecture would be sensible - so if I grab the 2.4.0t10
+tarball and build it now, with no changes, I'll be able to boot the kernel on
+any x86 machine.
 
-I've found some interesting info today - application note on programming
-the DEC 21052 bridge (ruffian has this chip, btw):
-http://download.sourceforge.net/mirrors/NetBSD/misc/dec-docs/ec-qlzba-te.ps.gz
+> (Oops, corollary to the rule that "The squeaking wheel gets the grease."
+> is "S/he who complains most about the squeaking gets to do the
+> greasing."  I better keep quiet :)
 
-Particularly, there are examples for setting up that bridge for IO or MEM
-only configurations. For example, with IO disabled:
-1. Set IO base = 0xffff, limit = 0
-2. Set command register = PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER
+I'm still not convinced the wheel IS squeaking - anyone got those benchmarks??
 
-> Certainly the fact should be commented if the old code goes back
-> in to avoid disruption by helpful folks like myself.  :-)
 
-That change wasn't bad at all - at least it's 100% safe :-)
-But of course, it would be better to have unused regions disabled
-in a clean way.
-
-But actually I'm concerned that all this code doesn't work at all -
-see reports from Michal Jaegermann (the bridge acts as if it drops
-config space transactions randomly). I have a lot of suggestions, but
-it's a pain to debug something without access to real hardware - just
-a waste of the precious time of everyone who is involved...
-So I would probably wait a week or two until I'll have something with
-bridges :-(
-
-Ivan.
+James.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

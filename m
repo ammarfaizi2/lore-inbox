@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264781AbUGMKqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264884AbUGMKtL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264781AbUGMKqA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 06:46:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264857AbUGMKqA
+	id S264884AbUGMKtL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 06:49:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264882AbUGMKtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 06:46:00 -0400
-Received: from mail.eris.qinetiq.com ([128.98.1.1]:7450 "HELO
-	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
-	id S264781AbUGMKp6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 06:45:58 -0400
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: linux-kernel@vger.kernel.org
-Subject: Re: HDIO_SET_DMA failed on a Dell Latitude C400 Laptop
-Date: Tue, 13 Jul 2004 11:41:21 +0100
-User-Agent: KMail/1.6.1
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-References: <200407121407.14428.m.watts@eris.qinetiq.com> <200407121422.00841.m.watts@eris.qinetiq.com> <200407121737.34189.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200407121737.34189.bzolnier@elka.pw.edu.pl>
-MIME-Version: 1.0
+	Tue, 13 Jul 2004 06:49:11 -0400
+Received: from herkules.viasys.com ([194.100.28.129]:46221 "HELO
+	mail.viasys.com") by vger.kernel.org with SMTP id S264884AbUGMKtI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 06:49:08 -0400
+Date: Tue, 13 Jul 2004 13:49:05 +0300
+From: Ville Herva <vherva@viasys.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christopher Swingley <cswingle@iarc.uaf.edu>, linux-kernel@vger.kernel.org
+Subject: Re: IRQ issues, (nobody cared, disabled), not USB
+Message-ID: <20040713104905.GI16073@viasys.com>
+Reply-To: vherva@viasys.com
+References: <20040708155356.GG22065@iarc.uaf.edu> <20040708220522.73839ea3.akpm@osdl.org> <20040711083912.GG16073@viasys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200407131141.21973.m.watts@eris.qinetiq.com>
+In-Reply-To: <20040711083912.GG16073@viasys.com>
+User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux herkules.viasys.com 2.4.25-rc2+mremap-unmap
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, Jul 11, 2004 at 11:39:12AM +0300, you [Ville Herva] wrote:
+> On Thu, Jul 08, 2004 at 10:05:22PM -0700, you [Andrew Morton] wrote:
+> > Christopher Swingley <cswingle@iarc.uaf.edu> wrote:
+> > >
+> > > Greetings!
+> > > 
+> > > For the past few iterations of 2.6 (including the vanilla 2.6.7 I'm 
+> > > running now) I've had this problem:
+> > > 
+> > >  03:27:26 kernel: irq 7: nobody cared!
+> 
+> 
+> Second Box: Toshiba Satellite Laptop, 650MHz PIII Fedora Core 2 2.6.5-1.358
+> and kernel-2.6.6-1.435.2.3 kernels.
+
+Happens with 2.6.7-mm7, too. I added the details to
+
+http://bugme.osdl.org/show_bug.cgi?id=2243
 
 
-> Make sure that you have the driver for your IDE chipset compiled-in or
-> (if you are using IDE as module) that you load it and not ide-generic.
 
-Fixed - thanks.
+-- v -- 
 
-Mark.
+v@iki.fi
 
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ Trusted Information Management
-Trusted Solutions and Services group
-GPG Public Key ID: 455420ED
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA87xRBn4EFUVUIO0RAtzHAJkBflHLY/ZwYPaBUanexrmOxJlF5gCg61cD
-SlpyH+LHjozE6FUGZNSRjrI=
-=wh7k
------END PGP SIGNATURE-----

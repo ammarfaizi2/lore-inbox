@@ -1,57 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262061AbTIZL5S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 07:57:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbTIZL5S
+	id S262066AbTIZMPC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 08:15:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbTIZMOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 07:57:18 -0400
-Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:45306 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S262061AbTIZL5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 07:57:17 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: s390 patches: descriptions.
-Date: Fri, 26 Sep 2003 13:51:38 +0200
-User-Agent: KMail/1.5.3
-Cc: Pete Zaitcev <zaitcev@redhat.com>
-X-PRIORITY: 2 (High)
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200309261347.25861.arnd@arndb.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Sep 2003 08:14:05 -0400
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:16428 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262070AbTIZMNr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 08:13:47 -0400
+Date: Fri, 26 Sep 2003 14:14:10 +0200
+Message-Id: <200309261214.h8QCEAC2005030@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 120] Amiga Zorro bus doc updates
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi Pete,
-> 
-> > Are you going to submit zfcp and zcrypt and if yes, when?
-> 
-> The zfcp rework is going well but isn't quite finished yet.
-> It's up to Heiko when he consideres the driver to be in state
-> for inclusion into 2.6. For the zcrypt driver the news aren't
-> so good. It very likely won't make it for 2.6.0.
+Amiga Zorro bus: Update the docs to match the current situation.
 
-Actually, the latest z90crypt driver for 2.4.21 compiles on 2.6
-with only one trivial patch (see below). The chances are good
-that it works just as much as on older kernels. It's mostly
-just a matter of style and the fact that there is no standard
-API for linux hardware crypto driver yet that keeps us from
-submitting the driver.
-
-	Arnd <><
-
-diff -u ../linux-2.3/drivers/s390/misc/z90main.c drivers/s390/misc/z90main.c
---- ../linux-2.3/drivers/s390/misc/z90main.c	2003-08-18 18:51:14.000000000 +0200
-+++ drivers/s390/misc/z90main.c	2003-09-26 13:15:49.000000000 +0200
-@@ -567,7 +567,6 @@
- 	int result,nresult;
- 	struct proc_dir_entry * entry;
+--- linux-2.4.23-pre5/Documentation/zorro.txt	21 Oct 2001 23:54:30 -0000	1.1.1.1
++++ linux-m68k-2.4.23-pre5/Documentation/zorro.txt	23 Sep 2003 13:03:44 -0000
+@@ -2,7 +2,7 @@
+ 		----------------------------------------
  
--	EXPORT_NO_SYMBOLS;
- 	PDEBUG("init_module -> PID %d\n", PID());
+ Written by Geert Uytterhoeven <geert@linux-m68k.org>
+-Last revised: February 27, 2000
++Last revised: September 5, 2003
  
- 	//
+ 
+ 1. Introduction
+@@ -77,7 +77,7 @@
+ The treatment of these regions depends on the type of Zorro space:
+ 
+   - Zorro II address space is always mapped and does not have to be mapped
+-    explicitly using ioremap().
++    explicitly using z_ioremap().
+     
+     Conversion from bus/physical Zorro II addresses to kernel virtual addresses
+     and vice versa is done using:
+@@ -85,22 +85,20 @@
+ 	virt_addr = ZTWO_VADDR(bus_addr);
+ 	bus_addr = ZTWO_PADDR(virt_addr);
+ 
+-  - Zorro III address space must be mapped explicitly using ioremap() first
++  - Zorro III address space must be mapped explicitly using z_ioremap() first
+     before it can be accessed:
+  
+-	virt_addr = ioremap(bus_addr, size);
++	virt_addr = z_ioremap(bus_addr, size);
+ 	...
+-	iounmap(virt_addr);
++	z_iounmap(virt_addr);
+ 
+ 
+ 5. References
+ -------------
+ 
+ linux/include/linux/zorro.h
+-linux/include/linux/ioport.h
+-linux/include/asm-m68k/io.h
+-linux/include/asm-m68k/amigahw.h
+-linux/include/asm-ppc/io.h
++linux/include/asm-{m68k,ppc}/zorro.h
++linux/include/linux/zorro_ids.h
+ linux/drivers/zorro
+ /proc/bus/zorro
+ 
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

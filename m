@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310412AbSCLFRC>; Tue, 12 Mar 2002 00:17:02 -0500
+	id <S310414AbSCLFTM>; Tue, 12 Mar 2002 00:19:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310414AbSCLFQw>; Tue, 12 Mar 2002 00:16:52 -0500
-Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:52405 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S310412AbSCLFQl>;
-	Tue, 12 Mar 2002 00:16:41 -0500
-Message-ID: <3C8D8F35.7090608@tmsusa.com>
-Date: Mon, 11 Mar 2002 21:16:37 -0800
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020207
-X-Accept-Language: en-us
+	id <S310415AbSCLFTC>; Tue, 12 Mar 2002 00:19:02 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:50439
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S310414AbSCLFSw>; Tue, 12 Mar 2002 00:18:52 -0500
+Date: Mon, 11 Mar 2002 21:17:36 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Davide Libenzi <davidel@xmailserver.org>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.6 IDE 19
+In-Reply-To: <Pine.LNX.4.44L.0203111819130.2181-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.10.10203112116460.13480-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Shawn Starr <spstarr@sh0n.net>
-CC: Linux <linux-kernel@vger.kernel.org>
-Subject: Re: uname reports 'unknown'
-In-Reply-To: <1015897420.3054.0.camel@coredump>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shawn Starr wrote:
 
->Linux coredump 2.4.19-pre2-ac4-xfs-shawn10 #2 Mon Mar 11 03:36:35 EST
->2002 i586 unknown
->
->
->what should 'unknown' really be? I've never seen it different on Intel
->systems.
->
+Please drop me off the thread I am not the Maintainer for 2.5
 
-Many vendors ship a broken sh-utils.
+Regards,
 
-They don't have to:
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
 
-Linux neo.mirai.cx 2.4.19-pre2aa1 #1 Fri Mar 8 19:55:24 PST 2002 i686 
-GenuineIntel
+On Mon, 11 Mar 2002, Rik van Riel wrote:
 
-Linux emerald.mirai.cx 2.4.19pre1aa1 #1 Sat Mar 2 20:55:06 PST 2002 i586 
-AuthenticAMD
-
-Cheers,
-
-Joe
-
+> On Mon, 11 Mar 2002, Davide Libenzi wrote:
+> 
+> > When you guys finished beating each other would you mind trying to solve
+> > the IDE timer issue that still hit my 2.5.6 ( not pre3 Linus sorry, i
+> > swear i didn't drink :) ). Please ...
+> 
+> Personally I've given up on using 2.5 on my machines.
+> 
+> regards,
+> 
+> Rik
+> -- 
+> <insert bitkeeper endorsement here>
+> 
+> http://www.surriel.com/		http://distro.conectiva.com/
+> 
 

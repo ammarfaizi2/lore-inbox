@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263104AbUCMOfi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 09:35:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263105AbUCMOfg
+	id S263102AbUCMOj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 09:39:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263105AbUCMOj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 09:35:36 -0500
-Received: from cibs9.sns.it ([192.167.206.29]:16394 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id S263104AbUCMOfe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 09:35:34 -0500
-Date: Sat, 13 Mar 2004 15:34:57 +0100 (CET)
-From: venom@sns.it
-To: Nerijus Baliunas <nerijus@users.sourceforge.net>
-cc: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NVIDIA and 2.6.4?
-In-Reply-To: <20040311131027.051055D9A@mx.ktv.lt>
-Message-ID: <Pine.LNX.4.43.0403131532170.26664-100000@cibs9.sns.it>
+	Sat, 13 Mar 2004 09:39:58 -0500
+Received: from av7-2-sn2.hy.skanova.net ([81.228.8.109]:42134 "EHLO
+	av7-2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S263102AbUCMOj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 09:39:57 -0500
+Message-ID: <40531D3D.2090702@comhem.se>
+Date: Sat, 13 Mar 2004 15:39:57 +0100
+From: Danjel McGougan <danjel.mcgougan@comhem.se>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ppc32 copy_to_user dcbt fixup
+References: <1z8Na-5hH-1@gated-at.bofh.it>
+In-Reply-To: <1z8Na-5hH-1@gated-at.bofh.it>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bryan Rittmeyer wrote:
+> copy_tofrom_user and copy_page use dcbt to prefetch source data [1].
+> Since at least 2.4.17, these functions have been prefetching
+> beyond the end of the source buffer, leading to two problems:
+> 
+> 1. Subtly broken software cache coherency. If the area following src
+> was invalidate_dcache_range'd prior to submitting for DMA,
+> an out-of-bounds dcbt from copy_to_user of a separate slab object
+> may read in the area before DMA completion. When the DMA does complete,
+> data will not be loaded from RAM because stale data is already in cache.
+> Thus you get a corrupt network packet, bogus audio capture, etc.
+> 
+[snip]
 
-on x86 all nvidia driver will compile and run with 2.6 kernels using nimion
-patches.
+I am no expert on the ppc arch, but in my humble opinion it seems 
+strange to invalidate the dcache *before* the memory-writing 
+DMA-transaction. The obvious solution is to invalidate the dcache 
+*after* DMA completion. It seems hard to guarantee that nobody will 
+touch the memory area in question during the DMA.
 
-nvidia driver on 2.6.4 won't run if you compile the kernel with
--mregparm=3 (CONFIG_REGPARM enabled). Then you will get the most wonderfull oops
-of your life.
+Just some clue-less comments from a linux-kernel lurker.
 
-bests
-Luigi
-
-
-On Thu, 11 Mar 2004, Nerijus Baliunas wrote:
-
-> Date: Thu, 11 Mar 2004 15:07:03 +0200 (EET)
-> From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-> To: Robert L. Harris <Robert.L.Harris@rdlg.net>
-> Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-> Subject: Re: NVIDIA and 2.6.4?
->
-> On Thu, 11 Mar 2004 07:31:00 -0500 "Robert L. Harris" <Robert.L.Harris@rdlg.net> wrote:
->
-> > And that's just for starters.  Does anyone know if there's a way to get
-> > this to compile cleanly or is it SoL until a new driver is released
-> > (running 1.0.4191 currently).
->
-> At least for x86 the latest driver (1.0-5336) is compatible with 2.6.x
-> (didn't test on 2.6.4 though).
->
-> Regards,
-> Nerijus
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+Regards,
+Danjel

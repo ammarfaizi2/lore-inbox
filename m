@@ -1,73 +1,156 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291519AbSBHKBv>; Fri, 8 Feb 2002 05:01:51 -0500
+	id <S291520AbSBHKDV>; Fri, 8 Feb 2002 05:03:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291522AbSBHKBm>; Fri, 8 Feb 2002 05:01:42 -0500
-Received: from dns.uni-trier.de ([136.199.8.101]:20930 "EHLO
-	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
-	id <S291519AbSBHKBd>; Fri, 8 Feb 2002 05:01:33 -0500
-Date: Fri, 8 Feb 2002 11:01:19 +0100 (CET)
-From: Daniel Nofftz <nofftz@castor.uni-trier.de>
-X-X-Sender: nofftz@hades.uni-trier.de
-To: Wayne Whitney <whitney@math.berkeley.edu>
-cc: Rasmus =?iso-8859-1?Q?B=F8g?= Hansen <moffe@amagerkollegiet.dk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: status on northbridge disconnection apm saving?
-In-Reply-To: <200202071633.g17GXuX01867@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-Message-ID: <Pine.LNX.4.40.0202081053570.7911-100000@hades.uni-trier.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291525AbSBHKDN>; Fri, 8 Feb 2002 05:03:13 -0500
+Received: from coruscant.franken.de ([193.174.159.226]:10122 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S291520AbSBHKDB>; Fri, 8 Feb 2002 05:03:01 -0500
+Date: Fri, 8 Feb 2002 10:55:48 +0100
+From: Harald Welte <laforge@gnumonks.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.samba.org,
+        stelian.pop@fr.alcove.com, hpa@zytor.com
+Subject: [SOLUTION] Re: Fw: 2.4.18-pre9: iptables screwed?
+Message-ID: <20020208105548.P26676@sunbeam.de.gnumonks.org>
+Mail-Followup-To: Harald Welte <laforge@gnumonks.org>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+	netfilter-devel@lists.samba.org, stelian.pop@fr.alcove.com,
+	hpa@zytor.com
+In-Reply-To: <20020208.010839.112626203.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20020208.010839.112626203.davem@redhat.com>; from davem@redhat.com on Fri, Feb 08, 2002 at 01:08:39AM -0800
+X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.17
+X-Date: Today is Pungenday, the 28th day of Chaos in the YOLD 3168
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Feb 2002, Wayne Whitney wrote:
+On Fri, Feb 08, 2002 at 01:08:39AM -0800, David Miller wrote:
 
-> I have an ASUS A7V (KT133) motherboard, BIOS 1009, with Athlon 100MHz
-> (100MHz FSB).  I also find that if the PCI Master Read Caching is
-> disabled in the BIOS, then the amd_disconnect kills audio playback (it
-> sounds like molasses or something).  There are actually three related
-> BIOS options on this motherboard:
->
-> System Performance:		Optimal or Normal
-> PCI Master Read Caching:	Enabled or Disabled
-> PCI Delayed Transaction:	Enabled or Disabled
->
-> This System Performance option is a sort of master option, setting it
-> to normal forces the other two to disabled.
->
-> Anyway, below are some diffs of the output of "lspci -s 0:0 -xxx".
-> What is surprising to me is that setting the PCI Master Read Caching
-> to Disabled changes the Northbridge settings in a way that is a
-> superset of just setting PCI Delayed Transaction to Disabled.
->
-> Hope this helps.
->
-> Cheers, Wayne
+> Stelian has analyzed the bug already.
 
-of cause this helps ... thank you :)
-we know now, that there are pci setting which affect the behavior in
-relation fot audio playback.
-as far as i know on some boards it could be, that the system bus hangs for
-a short time, when the cpu is reconnected after a disconnect. it looks
-like some caching for the pci bus could "cure" the sound skips which
-happens when the system bus hangs for a short time.
-so everyone who has problems with his audio and vidio playback while the
-diconnect patch is active should look at his bios settings ... maybe he
-could activate this pci master read cashing and his problems went away.
+This is strange.
 
-hmmm ... by the way: i could not reproduce your experiences, cause i have
-no bios siwtch for pci master read cashing ...
+> From: Stelian Pop <stelian.pop@fr.alcove.com>
+> To: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+> Subject: Re: 2.4.18-pre9: iptables screwed?
+> Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+> In-Reply-To: <a3vjts$r7l$1@cesium.transmeta.com>
+> 
+> On Thu, Feb 07, 2002 at 08:24:28PM -0800, H. Peter Anvin wrote:
+> 
+> > I get the following error with iptables on 2.4.18-pre9:
+> > 
+> > sudo iptables-restore < /etc/sysconfig/iptables
+> > iptables-restore: libiptc/libip4tc.c:384: do_check: Assertion
+> > `h->info.valid_hooks == (1 << 0 | 1 << 3)' failed.
+> > Abort (core dumped)
 
-oh ... and the pci delayed transaction could be dangerous on older via
-chipsets cause the famous soutbridge bug in combination with an sound
-blaster card. so be carefull if you have a sound blaster live  ....
+The code you are quoting is only defined if debugging is compiled into 
+the iptables package. The default distribution of the iptables package
+does _not_ ship with debugging enabled.
 
-daniel
+The Makefile of all iptables versions between 1.1.1 (released way before
+the linux 2.4.0 kernel came out!) and 1.2.5 (current) have the following
+line in the Makefile:
+
+COPT_FLAGS:=-O2 -DNDEBUG
+
+reads: define no debug
+
+> > However, if I apply the rules manually (using iptables), I have no
+> > problem; only if I'm using iptables-save or iptables-restore do I get
+> > a dump...
+> 
+> I have this since the netfilter update from pre6 or pre7...
+> 
+> It seems to be caused by a change in the logic for the mangle table:
+> the userspace tools check only for PREROUTING and OUTPUT chains
+> (the 1 << 0 | 1 << 3 check), but the kernel code was recently updated
+> to support more chains in this table (POSTROUTING etc).
+
+This is true.  We introduced this change after some testing since it 
+is needed for complex policy routing scenarios. It's the so-called
+mangle5hooks.patch
+
+> So it would seem that we need to have a more recent version of 
+> the userspace tools (CVS maybe, since the latest released version
+> has the same bug), or the netfilter people should check the
+> userspace tools version before introducing this kind of 
+> incompatible change.
+
+I'm running the same iptables-1.2.2 binary (compiled at a 2.4.x kernel in July
+2001) with a mangle5hooks-patch'ed linux kernel.
+
+just re-checked it again:
+======================================================================
+sunbeam# rpm -qi iptables
+Name        : iptables                     Relocations: (not relocateable)
+Version     : 1.2.2                             Vendor: Conectiva
+Release     : 2cl                           Build Date: Sun 17 Jun 2001 08:17:20 PM CEST
+Install date: Thu 08 Nov 2001 01:42:57 PM CET      Build Host: mapi2.distro.conectiva
+Group       : Networking                    Source RPM: iptables-1.2.2-2cl.src.rpm
+Size        : 439232                           License: GPL
+URL         : http://netfilter.samba.org
+Summary     : Packet filtering tool for kernel-2.4.x
+Description :
+This is the packet filtering tool for kernel-2.4.x. It is much more
+advanced than ipchains and can take full advantage of the new
+features within the 2.4.x packet filtering code. It allows you to
+set up masquerading, full NAT, stateful inspection rules, etc.
+sunbeam# rpm -V iptables
+sunbeam# cat foo
+# Generated by iptables-save v1.2.2 on Fri Feb  8 10:35:05 2002
+*mangle
+:PREROUTING ACCEPT [36557505:30073123582]
+:INPUT ACCEPT [31280258:26426457730]
+:FORWARD ACCEPT [5276687:3646630572]
+:OUTPUT ACCEPT [28690202:18841029987]
+:POSTROUTING ACCEPT [34105840:22505172519]
+:knf - [0:0]
+-A PREROUTING -p tcp -m tcp --dport 25 -j knf 
+-A PREROUTING -p tcp -m tcp --dport 6667 -j knf 
+-A POSTROUTING -p tcp -m tcp --tcp-flags SYN,RST,ACK SYN -j TCPMSS --clamp-mss-to-pmtu 
+-A knf -j MARK --set-mark 0xa 
+COMMIT
+sunbeam# iptables-restore < foo
+sunbeam# iptables -t nat -L -n
+Chain PREROUTING (policy ACCEPT)
+target     prot opt source               destination         
+
+Chain POSTROUTING (policy ACCEPT)
+target     prot opt source               destination         
+MASQUERADE  all  --  192.168.100.0/24     0.0.0.0/0          
+MASQUERADE  all  --  192.168.101.0/24     0.0.0.0/0          
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination         
+======================================================================
+
+Because it was working on several systems, we have decided to forward
+this patch to the mainstream kerel. 
+
+We always want to make sure that nobody needs to update the iptables
+package during the 2.4.x stable kernel series. Because of this (sane)
+policy, we are keeping back a whole bunch of changes.  We can't just
+silently abandon backwards compatibility.
+
+> (BTW, the quick and dirty fix for me was to hand edit 
+> /etc/sysconfig/iptables and remove all references to the mangle table,
+> since I don't use it).
+
+this is of coruse no possible 'solution'.
+
+> Stelian Pop <stelian.pop@fr.alcove.com>
 
 
-
-# Daniel Nofftz
-# Sysadmin CIP-Pool Informatik
-# University of Trier(Germany), Room V 103
-# Mail: daniel@nofftz.de
-
+-- 
+Live long and prosper
+- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
+============================================================================
+GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M+ 
+V-- PS++ PE-- Y++ PGP++ t+ 5-- !X !R tv-- b+++ !DI !D G+ e* h--- r++ y+(*)

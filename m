@@ -1,73 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265145AbTFMFdc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 01:33:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbTFMFdc
+	id S265136AbTFMFkM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 01:40:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbTFMFkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 01:33:32 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:59564 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265145AbTFMFda (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 01:33:30 -0400
-Date: Fri, 13 Jun 2003 11:20:01 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: John M Flinchbaugh <glynis@butterfly.hjsoft.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-       Maneesh Soni <maneesh@in.ibm.com>
-Subject: Re: 2.5.70-bk16: nfs crash
-Message-ID: <20030613055001.GA1331@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20030612125630.GA19842@butterfly.hjsoft.com> <20030612135254.GA2482@in.ibm.com> <16104.40370.828325.379995@charged.uio.no> <20030612155345.GB1438@in.ibm.com> <16104.43445.918001.683257@charged.uio.no> <20030612195302.GH1438@in.ibm.com> <16105.24576.901270.856844@charged.uio.no>
-Mime-Version: 1.0
+	Fri, 13 Jun 2003 01:40:12 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:5636 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S265136AbTFMFkH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 01:40:07 -0400
+Date: Thu, 12 Jun 2003 22:53:25 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alfie John <alfiejohn@hotmail.com>
+cc: jobs@interlogic.com.au, vox@lists.lugod.org, linux-kernel@vger.kernel.org,
+       ajug@yahoogroups.com
+Subject: Re: [OT] joining the "elite" team
+In-Reply-To: <Law10-F26GCl9FopYC900000100@hotmail.com>
+Message-ID: <Pine.LNX.4.10.10306122250301.806-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16105.24576.901270.856844@charged.uio.no>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 12, 2003 at 10:24:16PM -0700, Trond Myklebust wrote:
-> Wrong. Look at the VFS code. In all cases the test is of the form.
+
+Alfie,
+
+Did you not get hired, and your arse is a weee bit on the chapped side?
+
+grep -in hotmail /etc/mail/access
+534:hotmail.com                 REJECT
+
+I am a weee bit chapped because "hotmail.com" did not get rejected!
+
+Have a good'ay
+
+Cheer,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Fri, 13 Jun 2003, Alfie John wrote:
+
+> Hello,
 > 
->     spin_lock(&dcache_lock);
->     /* Are we the sole users of this dentry */
->     if (atomic_read(&dentry->d_count) == 1) {
->        /* Yes - do some operation */
->     }
+> I write to you in response to an add I saw at seek.com.au, "OBJECT ORIENTED 
+> PROGRAMMER -MELBOURNE RECENT GRADUATE" - 
+> http://it.seek.com.au/users/viewdetails.asp?Action=jobsearch&JobListAction=ViewOneAd&JobSearch=true&AdID=2731247
 > 
+> I find this add highly arrogant and highly contradictive.
 > 
-> Knowing that d_lookup() can *increase* d_count is not a plus here. The
-> whole idea is to have a test for sole use.
-
-Well, d_lookup() isn't the only place that does a dget() without
-holding dcache_lock. There are *many* places where dget() is
-done without holding dcache_lock. That didn't seem to be a
-requirement in the pre-RCU dcache model.
-
+> You start with "seeking for ...FIRST CLASS HONOURS", however your add is 
+> basically searching for a top class, 313373 computer geek. As history shows, 
+> even hacker's hackers like RMS and Linus had not-so "first class" grades 
+> while in high school AND at uni because they were too busy with selfish 
+> delites such as churning through kernel code.
 > 
-> In most cases, the "do some operation" above is
+> The next contradictive statement is "She or he must have an INTRINSIC 
+> understanding of computing". But later you provide insight to your company 
+> with "The applications are an amalgam of complex business processes, 
+> maximisation of resources, and require considerable mathematical acumen." In 
+> other words, you need MS Excel shitkickers with knowledge in business 
+> management with contemporary management skills and not elite coders with 
+> sk1llZ. Also, I don't really understand why "indepth knowledge of OOP" is 
+> going to help me with optimizing functions with spreadsheets.
 > 
-> 	d_drop(dentry);
+> "The company only employs THE BEST AND BRIGHTEST"; followed by "It is very 
+> sophisticated." and the even more arrogant "An average person will be unable 
+> to keep up with the high intellectual horsepower generated by the members of 
+> this elite team.". This tells the reader that you MUST have the worlds best 
+> coders under your organization and yet you are "GROWING AND PROFITABLE".
+> 
+> I must go now with my pittyful programming skills which are no where near 
+> the "EXCEPTIONALLY GOOD" skills that your company is looking for, but I 
+> smile just to know that this email is going to be forwarded to programmers 
+> around the world with a link to your add to show just what an "elite team" 
+> you really are!
+> 
+> int 20h;
+> Alfie John
+> 
+> _________________________________________________________________
+> Get mobile Hotmail. Go to  http://ninemsn.com.au/mobilecentral/signup.asp
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
-I don't think that would work in pre or post-RCU dcache.
-
-> in order (for instance) to ensure that nobody else can look up this
-> dentry while we're working on it (e.g. rename or unlink,...).
-
-rename, unlink etc. hold the per-dentry lock, so they are protected
-against lockfree d_lookup().
-
-> 
-> Your d_lookup() screws the above example of code which you can find in
-> any number of VFS functions. dput(), d_delete(), d_invalidate(),
-> d_prune_aliases(), prune_dcache(), shrink_dcache_sb() are but a few
-> functions that rely on the above code snippet working to keep
-> d_lookup() from intruding.
-
-Those routines hold the per-dentry lock as required and that protects
-them from intruding lockfree d_lookup().
-
-Thanks
-Dipankar

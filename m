@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbUB0KAW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 05:00:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbUB0KAW
+	id S261772AbUB0KDz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 05:03:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbUB0KDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 05:00:22 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:1757 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261764AbUB0KAS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 05:00:18 -0500
-Date: Fri, 27 Feb 2004 10:59:50 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Boszormenyi Zoltan <zboszor@freemail.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.3-mmX locks up reading scratched SVCD
-Message-ID: <20040227095950.GK5996@suse.de>
-References: <403F120C.5090200@freemail.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <403F120C.5090200@freemail.hu>
+	Fri, 27 Feb 2004 05:03:55 -0500
+Received: from web11803.mail.yahoo.com ([216.136.172.157]:55166 "HELO
+	web11803.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261772AbUB0KDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 05:03:53 -0500
+Message-ID: <20040227100352.52071.qmail@web11803.mail.yahoo.com>
+Date: Fri, 27 Feb 2004 11:03:52 +0100 (CET)
+From: =?iso-8859-1?q?Etienne=20Lorrain?= <etienne_lorrain@yahoo.fr>
+Subject: Re: BOOT_CS
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200402262349.59273.vda@port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 27 2004, Boszormenyi Zoltan wrote:
-> Hi,
+ --- Denis Vlasenko wrote:
+> On Thursday 26 February 2004 14:17, Etienne Lorrain wrote:
+> >   If the user of this boot floppy has not allocated some VCPI memory,
+> >  usual for a boot floppy, the VCPI server is not active - only the
+> >  GEMMIS interface is useable.
 > 
-> I have a scratched SVCD and reading it back with vcdimager-0.7.14
-> locks up the machine completely. I tried it with kernels is 2.6.3-mm[1234].
-> I have not tried older kernel.
-> 
-> A flawless SVCD can be read back. I also tried reading back a bad 
-> overburned SVCD,
-> (cdrdao-1.1.8 reported error at the end) and it also locked up the machine.
-> I fixated this disk, tried reading back -> lockup.
-> Two IDE CD-RWs produce the same effect: LG 52/24/52 and Sony 48/24/48.
-> Something must be bad in the ide-cd driver, it should at least report an
-> error instead of locking up.
+> What's GEMMIS?
 
-With damaged media, the problem is often the hardware locking up. In
-that case there's really not much the kernel can do. That said, does the
-keyboard LED's blink when the machine hangs?
+  Checked if it was still search-able and available while writing
+ the message - seems that it not enough - provide clickable area:
+http://search.yahoo.com/search?p=GEMMIS
+  gives as hit nb four:
+http://dgi_il.tripod.com/gemmis.txt
 
--- 
-Jens Axboe
+ Google needs "GEMMIS PC" to give:
+http://www.nondot.org/sabre/os/files/ProtectedMode/GEMMIS.txt
+ Altavista gives:
+http://www.nondot.org/sabre/os/articles
+ Even MSN search:
+http://search.msn.com/pass/results.aspx?q=GEMMIS+PC&FORM=SMCRT
+ Gives you a pointer to a pointer to it:
+http://www.cyberscriptorium.com/bookmarks.html
 
+  Enough?
+
+
+	
+
+	
+		
+Yahoo! Mail : votre e-mail personnel et gratuit qui vous suit partout ! 
+Créez votre Yahoo! Mail sur http://fr.benefits.yahoo.com/
+
+Dialoguez en direct avec vos amis grâce à Yahoo! Messenger !Téléchargez Yahoo! Messenger sur http://fr.messenger.yahoo.com

@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314267AbSDZV4I>; Fri, 26 Apr 2002 17:56:08 -0400
+	id <S314275AbSDZWAC>; Fri, 26 Apr 2002 18:00:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314275AbSDZV4H>; Fri, 26 Apr 2002 17:56:07 -0400
-Received: from p5082864A.dip0.t-ipconnect.de ([80.130.134.74]:44672 "EHLO
-	leonov.stosberg.net") by vger.kernel.org with ESMTP
-	id <S314267AbSDZV4H>; Fri, 26 Apr 2002 17:56:07 -0400
-Date: Fri, 26 Apr 2002 23:55:37 +0200
-From: Dennis Stosberg <dennis@stosberg.net>
-To: tomas szepe <kala@pinerecords.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre7-ac2: Promise Ultra100TX2 broken
-Message-ID: <20020426215537.GA554@leonov.stosberg.net>
-In-Reply-To: <20020426214218.A27868@louise.pinerecords.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-ICQ: 63537718
-X-PGP-Key: http://stosberg.net/dennis.asc
+	id <S314285AbSDZWAB>; Fri, 26 Apr 2002 18:00:01 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:48137 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S314275AbSDZWAB>;
+	Fri, 26 Apr 2002 18:00:01 -0400
+Date: Fri, 26 Apr 2002 18:58:28 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Ian Molton <spyro@armlinux.org>
+Cc: Jeff Garzik <garzik@havoc.gtf.org>, <phillips@bonn-fries.net>,
+        <zippel@linux-m68k.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+In-Reply-To: <20020422003620.6dea3db6.spyro@armlinux.org>
+Message-ID: <Pine.LNX.4.44L.0204261858170.1960-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26.04.2002 at 9:42pm tomas szepe wrote:
+On Mon, 22 Apr 2002, Ian Molton wrote:
+> Jeff Garzik Awoke this dragon, who will now respond:
+>
+> >  If Linus had applied your patch, there would be a lag time during which
+> >  the doc would have no home at all.
+>
+> He merely provided the patch. he didnt try to force it through in a
+> hurry, which left plenty of time for relocation in the meantime.
 
-> The U100TX2's BIOS rev. is 2.20.0.11
+You're volunteering ?
 
-My controller uses the same BIOS version.
-
-> Email me should you need my '.config'.
-
-I would appreciate that. Maybe the problem is caused by some
-combinations of the configuration.
-
-
-Regards, 
-Dennis
-
+Rik
 -- 
-Dennis Stosberg
-  eMail: dennis@stosberg.net
-         dstosber@techfak.uni-bielefeld.de
-pgp key: http://stosberg.net/dennis.asc
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

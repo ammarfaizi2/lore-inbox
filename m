@@ -1,56 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280975AbSAPRG3>; Wed, 16 Jan 2002 12:06:29 -0500
+	id <S280126AbSAPRPR>; Wed, 16 Jan 2002 12:15:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279798AbSAPRGQ>; Wed, 16 Jan 2002 12:06:16 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:19328
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S281214AbSAPRF7>; Wed, 16 Jan 2002 12:05:59 -0500
-Date: Wed, 16 Jan 2002 10:05:54 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        "Eric S. Raymond" <esr@thyrsus.com>
-Cc: linux-kernel@vger.kernel.org, Lukas Geyer <geyer@ml.kva.se>
-Subject: Re: Two issues with 2.4.18pre3 on PPC
-Message-ID: <20020116170554.GA771@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <Pine.LNX.4.33.0201161417540.6868-100000@cauchy.ml.kva.se> <20020116163737.29030@mailhost.mipsys.com>
+	id <S281214AbSAPRO5>; Wed, 16 Jan 2002 12:14:57 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:40839 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S279798AbSAPROt>; Wed, 16 Jan 2002 12:14:49 -0500
+Date: Wed, 16 Jan 2002 17:16:04 +0000
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.5.2-dj1
+Message-ID: <20020116171604.A29530@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020116163737.29030@mailhost.mipsys.com>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 16, 2002 at 05:37:37PM +0100, benh@kernel.crashing.org wrote:
-> >- The generic RTC driver in drivers/char/rtc.c does not work for this
-> >  iBook. The driver in drivers/macintosh/rtc.c does work, but it only
-> >  implements the two ioctls RTC_RD_TIME and RTC_SET_TIME. (Is this due to
-> >  hardware limitations?) Anyway, it is confusing to have both drivers
-> >  configurable for PPC, maybe the corresponding Config.in files should be
-> >  adjusted. (In addition, this is complicated by the fact that both
-> >  configuration options appear in different submenus and if you select
-> >  both as modules, then the generic driver will "shadow" the macintosh
-> >  one.)
-> 
-> That's a weirdness we haven't solved yet. Part of the problem is
-> that a common kernel can boot pmac, chrp and prep, and the later
-> ones can use the drivers/char/rtc.c driver. Actually, the
-> drivers/macintosh/rtc.c one may work on these too as it's just
-> a wrapper on some platform code selected at runtime depending on
-> the machine class.
+Resyncing up with Linus & fix build errors,
+I'll resync with Marcelo next time, along with the other
+pending items people have sent me. I'll also start pushing
+bits to Linus again real soon.
 
-drivers/macintosh/rtc.c works on every PPC system, except for APUS (they
-have their own generic rtc driver from m68k they use).  This is a know
-'issue' with 2.4, that's not really solvable for the reason Ben
-mentioned.  In 2.5 hopefully we'll replace drivers/char/rtc.c with a
-generic rtc driver (and remove the PPC, MIPS and m68k generic drivers at
-the same time).
+Patch against 2.5.2 vanilla is available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
 
-Eric, do you think you could modify the CONFIG_RTC help entry to mention
-that on PPC you should use the CONFIG_PPC_RTC option and not CONFIG_RTC,
-if in doubt?  That's probably the best fix for 2.4.x
+ -- Davej.
+
+2.5.2-dj1
+o   Merge 2.5.2 final.
+o   Merge 2.5.3pre1
+o   Numerous compile fixes.				(Various)
+o   Fix crc32 JFFS2 problem.				(Russell King)
+o   Remove left over ARM bits from 2.5.1-dj15.		(Me)
+o   Mips Magnum fb compile fix.				(Me)
+o   Update to sched-I3					(Ingo Molnar)
+o   Add missing cp1250 file.				(Me)
+
+
+2.5.1-dj15
+o   Merge selective bits of 2.4.18pre3ac1 & ac2
+    | Drop rmap (except for rate-limit oom_kill change),
+    | IDE changes & 32bit uid quota
+o   Add 'nowayout' module param for watchdogs.		(Matt Domsch)
+o   BSD partition fixes.				(Andries Brouwer)
+o   wavelan_cs update					(Jean Tourrilhes)
+o   Numerous LVM fixes.					(andersg)
+o   Prevent ramdisk buffercache corruption.		(Andrea Arcangeli)
+o   MS_ASYNC implementation.				(Andrea, Andrew Morton)
+o   Truncate blocks when prepare_write() fails.		(Andrea, Andrew Morton)
+o   winbond-840 OOM handling.				(Manfred Spraul)
+o   Natsemi OOM handling.				(Manfred Spraul)
+o   Eliminate some stalls in i386 syscall path.		(Alex Khripin)
+o   Export release_console_sem()			(Andrew Morton)
+o   Remove bogus sbp2 changes.				(Christoph Hellwig)
+o   Remove i386 mmu_context.h				(Me)
+o   Remove reiserfs build warnings.			(Me)
+o   Fix ignorance of SCSI I/O errors.			(Peter Osterlund)
+o   Fix IDE floppy thinko.				(Luc Van Oostenryck)
+o   Radeonfb compile fixes.				(Erik Andersen)
+o   Radeonfb flat panel support.			(Michael Clark)
+o   Remove bogus extraneous return.			(Paul Gortmaker)
+o   Fix potential oom-killer race.			(Andres Salomon)
+o   Fix bio + highmem bounce BUG().			(Jens Axboe)
+o   PATH_MAX fixes.					(Rusty Russell)
+o   Frame buffer _setcolreg changes.			(James Simmons)
+
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

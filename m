@@ -1,102 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269124AbTGUBGq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 21:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269131AbTGUBGq
+	id S269151AbTGUBmt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 21:42:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269169AbTGUBmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 21:06:46 -0400
-Received: from mx2.it.wmich.edu ([141.218.1.94]:32510 "EHLO mx2.it.wmich.edu")
-	by vger.kernel.org with ESMTP id S269124AbTGUBGo (ORCPT
+	Sun, 20 Jul 2003 21:42:49 -0400
+Received: from skamp.net1.nerim.net ([62.212.117.209]:1152 "EHLO tatooine")
+	by vger.kernel.org with ESMTP id S269151AbTGUBmr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 21:06:44 -0400
-Message-ID: <3F1B4027.2010301@wmich.edu>
-Date: Sun, 20 Jul 2003 21:21:43 -0400
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030628
-X-Accept-Language: en
+	Sun, 20 Jul 2003 21:42:47 -0400
+Message-ID: <3F1B47F3.60309@laposte.net>
+Date: Mon, 21 Jul 2003 03:54:59 +0200
+From: Guillaume Cocatre-Zilgien <guillaume.cocatre-zilgien@laposte.net>
+Reply-To: guillaume.cocatre-zilgien@laposte.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030704 Thunderbird/0.1a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christian Axelsson <smiler@lanil.mine.nu>
-CC: Lukas Kolbe <lucky@knup.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1-mm2 music skips
-References: <1058733270.1169.32.camel@tigris.chaoswg> <1058744854.32319.7.camel@sm-wks1.lan.irkk.nu>
-In-Reply-To: <1058744854.32319.7.camel@sm-wks1.lan.irkk.nu>
+To: linux-kernel@vger.kernel.org
+Subject: user feedback on 2.6.0-test1
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Axelsson wrote:
-> On Sun, 2003-07-20 at 22:34, Lukas Kolbe wrote:
-> 
->>Hi!
->>
->>Just wanted to let you know that on my System (Debian Sid, Kernel
->>2.6.0-test1-mm2, .config attached) I get sound-skips with all recent
->>Kernels (tested 2.5.69 'til 2.6.0-test1-mm2). 
->>With each new version it gets better, but I still can produce
->>audio-skips.
->>
->>For music-hearing-pleasure I use xmms, it plays .oggs, .mp3s.
->>With .mp3s I potentially get more skips than with .oggs.
->>The skips occur while switching desktops in Gnome 2.2 with many windows
->>open, or while marking the Desktop drawn by Nautilus with it's
->>nice-looking shading square, or while starting large apps like the Gimp
->>or Mozilla.
->>
->>Intersting though is that I'm not able to produce audio-skips for Mod's
->>(.mt2, .xm, .it) in xmms.
->>
->>A switch from X to a VC and back also reproducibly produces a ~1.5
->>seconds skip.
->>
->>System is as follows:
->>
->>Duron 1.3
->>256MB DDR-RAM
->>Elitegroup K7S5A
->>WDC WD800BB-00CAA0
->>Ensoniq 5880 AudioPCI (rev 02)
->>nVidia Corporation NV11 [GeForce2 MX/MX 400] (rev a1)
->>
->>And no, Xfree is not reniced :)
->>I'm not on the list, so pleas Cc me on reply. Although I'm periodically
->>reading the archives.
->>
->>Can I help somehow?
-> 
-> 
-> Please read the O*int threads.
-> It's probably Con's new scheduler that is causing these problems.
-> If you are using alsa, try the OSS emulation as it seems to help abit.
-> 
+Hello,
 
-I've been using the 2.5 kernel for a long time now and the 2.4 kernel 
-since it was just turned into 2.3. There have been these "problems" 
-since 2.3, this is not something new caused by any new schedulers. The 
-schedulers can cause problems, no doubt, but they also make userspace 
-programming issues apparent. The fact that going to oss emu only proves 
-that this is mostly a userspace problem. ALSA drivers have to be coded 
-with much more attention to latency because it's very specific about 
-being run on time. You can only send it a small amount of data every 
-write you make to the soundcard.  It's a tradeoff for low latency.  Some 
-of the plugins in these programs are just going to need to be 
-streamlined.  The scheduler problems are problems when something is not 
-getting it's time on the cpu when it's niced to -20 by programs not 
-niced at that level.  This is a scheduler problem.  But i'm still rather 
-confident that the majority of skipping in audio playing is a userspace 
-problem brought on by being too lenient with how the decoder is looping 
-and deciding to loop.   Players have to balance how much cpu they want 
-to be reported as using to how skip resistant they want to be.  If you 
-only loop around once a second and you expect 3/4 of a second or a 
-second to be played by then, then you're likely to get skips when 
-something steal the cpu or is really using it. Players do this to use 
-less cpu because people assume less cpu usage automatically means it's 
-better.  You could also simply tune that plugin to loop every 1/4 second 
-  and it would be exponentially harder to cause a skip but it would use 
-more cpu. And that's not counting less than efficient decoding loops. 
-etc etc.
+I've been testing the new kernel for a few days, so I thought someone 
+could use my feedback about it. I installed it on my Dell Latitude C400 
+laptop, which has a jp-106 keyboard; see the output of lspci at the end.
+http://www.cse.unsw.edu.au/~chak/linux/c400.html
 
-I'd suggest testing against players using different decoders (different 
-players as well) and seeing if the problem is exactly the same for all 
-of them. I seriously doubt it will be found that it is.
+Problems:
+- the "pipe" key is not responding anymore in text mode (init 3), 
+although it works in xterm. Pressing the key doesn't print out anything.
+- music is skipping when using xmms under CPU load, only during the 
+first seconds of each track (until the entire file is cached?). xmms 
+NEVER skipped with kernel 2.4.20, even under heavy CPU load. My hard 
+drive has DMA enabled.
+- the cursor under XFree86 4.3.0 gets "jumpy" under CPU load; as with 
+xmms, it never did that with kernel 2.4.20.
+- monitoring ACPI status (with WM dockapps) is overly CPU intensive: it 
+takes from 5% to 35% of the CPU!!! I did not test ACPI with the stable 
+kernel, and I couln't tell if the problem lies in user-land applications...
+
+Improvements:
+- ripping audio CD's with cdparanoia and the new ide-cd driver is waaaay 
+faster now, as expected (jumped from 2 - 3x to 10x and up). I didn't 
+manage to get cdda2wav to work with that driver, though.
+- XFree86 loads faster.
+- glxgears shows 260 FPS now, versus 150 FPS with the older driver, with 
+my i830M chipset (I assume I have to thank the new driver for that?). 
+Quake III Arena didn't gain from it though, I don't know why.
+
+I've switched back to kernel 2.4.21, mainly because I know better how to 
+handle it than the new one. I'm eager to see the stable version of linux 
+2.6.0.
+
+I didn't subscribe to the ML, but I read the newsgroup, so there's no 
+need to CC me.
+
+lspci:
+00:00.0 Host bridge: Intel Corp. 82830 830 Chipset Host Bridge (rev 03)
+00:02.0 VGA compatible controller: Intel Corp. 82830 CGC [Chipset 
+Graphics Controller] (rev 03)
+00:02.1 Display controller: Intel Corp. 82830 CGC [Chipset Graphics 
+Controller]
+00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #1) (rev 01)
+00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 41)
+00:1f.0 ISA bridge: Intel Corp. 82801CAM ISA Bridge (LPC) (rev 01)
+00:1f.1 IDE interface: Intel Corp. 82801CAM IDE U100 (rev 01)
+00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 Audio 
+(rev 01)
+00:1f.6 Modem: Intel Corp. 82801CA/CAM AC'97 Modem (rev 01)
+02:00.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] 
+(rev 78)
+02:01.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus 
+Controller (rev 02)
+
+Best regards to the kernel hackers,
+
+-- 
+Guillaume Cocatre-Zilgien
+http://www.skamp.net/
 

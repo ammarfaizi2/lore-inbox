@@ -1,1043 +1,955 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265488AbSJaXIr>; Thu, 31 Oct 2002 18:08:47 -0500
+	id <S265721AbSJaXNd>; Thu, 31 Oct 2002 18:13:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265483AbSJaXHh>; Thu, 31 Oct 2002 18:07:37 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:13228 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265470AbSJaXF1>;
-	Thu, 31 Oct 2002 18:05:27 -0500
-Message-ID: <3DC1B594.812B8200@us.ibm.com>
-Date: Thu, 31 Oct 2002 14:58:28 -0800
-From: mingming cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre5 i686)
-X-Accept-Language: en
+	id <S265726AbSJaXN3>; Thu, 31 Oct 2002 18:13:29 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:33739 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S265611AbSJaXL3>;
+	Thu, 31 Oct 2002 18:11:29 -0500
+Message-ID: <3DC1BA20.4050403@colorfullife.com>
+Date: Fri, 01 Nov 2002 00:17:52 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: [PATCH] Latest IPC lock patch- 2.5.44
-References: <1036102379.3365.16.camel@dell_ss3.pdx.osdl.net>
+To: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] slab ctor prototype change
 Content-Type: multipart/mixed;
- boundary="------------3E7808A0117B063146435ED0"
+ boundary="------------050900020002010500030604"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------3E7808A0117B063146435ED0
-Content-Type: text/plain; charset=us-ascii
+--------------050900020002010500030604
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Stephen Hemminger wrote:
-> 
-> With all the discussion, I lost track of what the current IPC patch is
-> for 2.5.44 (or 2.5.45).  Where is it located? Could you send me a copy?
+The patch adds a return value to the ctor callback for custom slab 
+caches: this is needed for complex constructors, for example for
+constructors that internally allocate further memory.
 
-Here is the latest ipc lock patch for 2.5.44 kernel. 
+This was always the intention of the constructors - the GFP_ATOMIC flag 
+is forwarded to the constructor, but without the ability to fail
+it was useless.
+The patch is quite large because it changes the prototype of the slab 
+constructor, and every filesystem has a custom slab with a constructor.
 
-Thanks for your interest.
+Sent to Linus a few minutes ago.
 
-Mingming
---------------3E7808A0117B063146435ED0
-Content-Type: text/plain; charset=us-ascii;
- name="44-ipc.patch"
+--
+    Manfred
+
+--------------050900020002010500030604
+Content-Type: text/plain;
+ name="patch-slab-fail"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="44-ipc.patch"
+ filename="patch-slab-fail"
 
-diff -urN linux-2.5.44/include/linux/ipc.h 2544-ipc/include/linux/ipc.h
---- linux-2.5.44/include/linux/ipc.h	Fri Oct 18 21:00:42 2002
-+++ 2544-ipc/include/linux/ipc.h	Thu Oct 31 09:05:46 2002
-@@ -56,6 +56,8 @@
- /* used by in-kernel data structures */
- struct kern_ipc_perm
+// $Header$
+// Kernel Version:
+//  VERSION = 2
+//  PATCHLEVEL = 5
+//  SUBLEVEL = 45
+//  EXTRAVERSION =
+--- 2.5/include/linux/slab.h	Sat Oct 26 21:02:12 2002
++++ build-2.5/include/linux/slab.h	Thu Oct 31 19:18:00 2002
+@@ -50,8 +50,8 @@
+ 
+ extern kmem_cache_t *kmem_find_general_cachep(size_t, int gfpflags);
+ extern kmem_cache_t *kmem_cache_create(const char *, size_t, size_t, unsigned long,
+-				       void (*)(void *, kmem_cache_t *, unsigned long),
+-				       void (*)(void *, kmem_cache_t *, unsigned long));
++				       int (*ctor)(void *, kmem_cache_t *, unsigned long),
++				       void (*dtor)(void *, kmem_cache_t *, unsigned long));
+ extern int kmem_cache_destroy(kmem_cache_t *);
+ extern int kmem_cache_shrink(kmem_cache_t *);
+ extern void *kmem_cache_alloc(kmem_cache_t *, int);
+--- 2.5/mm/slab.c	Thu Oct 31 18:48:19 2002
++++ build-2.5/mm/slab.c	Thu Oct 31 19:15:23 2002
+@@ -255,7 +255,7 @@
+ 	unsigned int		dflags;		/* dynamic flags */
+ 
+ 	/* constructor func */
+-	void (*ctor)(void *, kmem_cache_t *, unsigned long);
++	int (*ctor)(void *, kmem_cache_t *, unsigned long);
+ 
+ 	/* de-constructor func */
+ 	void (*dtor)(void *, kmem_cache_t *, unsigned long);
+@@ -822,6 +822,7 @@
+  * Cannot be called within a int, but can be interrupted.
+  * The @ctor is run when new pages are allocated by the cache
+  * and the @dtor is run before the pages are handed back.
++ * The @ctor must return 0 to indicate a successful initialization.
+  *
+  * @name must be valid until the cache is destroyed. This implies that
+  * the module calling this has to destroy the cache before getting 
+@@ -844,7 +845,7 @@
+  */
+ kmem_cache_t *
+ kmem_cache_create (const char *name, size_t size, size_t offset,
+-	unsigned long flags, void (*ctor)(void*, kmem_cache_t *, unsigned long),
++	unsigned long flags, int (*ctor)(void*, kmem_cache_t *, unsigned long),
+ 	void (*dtor)(void*, kmem_cache_t *, unsigned long))
  {
-+	spinlock_t	lock;
-+	int		deleted;
- 	key_t		key;
- 	uid_t		uid;
- 	gid_t		gid;
-diff -urN linux-2.5.44/ipc/msg.c 2544-ipc/ipc/msg.c
---- linux-2.5.44/ipc/msg.c	Fri Oct 18 21:00:43 2002
-+++ 2544-ipc/ipc/msg.c	Thu Oct 31 09:05:46 2002
-@@ -65,7 +65,7 @@
- static struct ipc_ids msg_ids;
- 
- #define msg_lock(id)	((struct msg_queue*)ipc_lock(&msg_ids,id))
--#define msg_unlock(id)	ipc_unlock(&msg_ids,id)
-+#define msg_unlock(msq)	ipc_unlock(&(msq)->q_perm)
- #define msg_rmid(id)	((struct msg_queue*)ipc_rmid(&msg_ids,id))
- #define msg_checkid(msq, msgid)	\
- 	ipc_checkid(&msg_ids,&msq->q_perm,msgid)
-@@ -93,7 +93,7 @@
- 	int retval;
- 	struct msg_queue *msq;
- 
--	msq  = (struct msg_queue *) kmalloc (sizeof (*msq), GFP_KERNEL);
-+	msq  = ipc_rcu_alloc(sizeof(*msq));
- 	if (!msq) 
- 		return -ENOMEM;
- 
-@@ -103,14 +103,14 @@
- 	msq->q_perm.security = NULL;
- 	retval = security_ops->msg_queue_alloc_security(msq);
- 	if (retval) {
--		kfree(msq);
-+		ipc_rcu_free(msq, sizeof(*msq));
- 		return retval;
- 	}
- 
- 	id = ipc_addid(&msg_ids, &msq->q_perm, msg_ctlmni);
- 	if(id == -1) {
- 		security_ops->msg_queue_free_security(msq);
--		kfree(msq);
-+		ipc_rcu_free(msq, sizeof(*msq));
- 		return -ENOSPC;
- 	}
- 
-@@ -122,7 +122,7 @@
- 	INIT_LIST_HEAD(&msq->q_messages);
- 	INIT_LIST_HEAD(&msq->q_receivers);
- 	INIT_LIST_HEAD(&msq->q_senders);
--	msg_unlock(id);
-+	msg_unlock(msq);
- 
- 	return msg_buildid(id,msq->q_perm.seq);
- }
-@@ -271,7 +271,7 @@
- 
- 	expunge_all(msq,-EIDRM);
- 	ss_wakeup(&msq->q_senders,1);
--	msg_unlock(id);
-+	msg_unlock(msq);
- 		
- 	tmp = msq->q_messages.next;
- 	while(tmp != &msq->q_messages) {
-@@ -282,7 +282,7 @@
- 	}
- 	atomic_sub(msq->q_cbytes, &msg_bytes);
- 	security_ops->msg_queue_free_security(msq);
--	kfree(msq);
-+	ipc_rcu_free(msq, sizeof(struct msg_queue));
+ 	const char *func_nm = KERN_ERR "kmem_create: ";
+@@ -1254,7 +1255,7 @@
+ 	return (kmem_bufctl_t *)(slabp+1);
  }
  
- asmlinkage long sys_msgget (key_t key, int msgflg)
-@@ -308,7 +308,7 @@
- 			ret = -EACCES;
- 		else
- 			ret = msg_buildid(id, msq->q_perm.seq);
--		msg_unlock(id);
-+		msg_unlock(msq);
- 	}
- 	up(&msg_ids.sem);
- 	return ret;
-@@ -488,7 +488,7 @@
- 		tbuf.msg_qbytes = msq->q_qbytes;
- 		tbuf.msg_lspid  = msq->q_lspid;
- 		tbuf.msg_lrpid  = msq->q_lrpid;
--		msg_unlock(msqid);
-+		msg_unlock(msq);
- 		if (copy_msqid_to_user(buf, &tbuf, version))
- 			return -EFAULT;
- 		return success_return;
-@@ -541,7 +541,7 @@
- 		 * due to a larger queue size.
+-static void cache_init_objs (kmem_cache_t * cachep,
++static int cache_init_objs (kmem_cache_t * cachep,
+ 			struct slab * slabp, unsigned long ctor_flags)
+ {
+ 	int i;
+@@ -1277,8 +1278,10 @@
+ 		 * the same cache which they are a constructor for.
+ 		 * Otherwise, deadlock. They must also be threaded.
  		 */
- 		ss_wakeup(&msq->q_senders,0);
--		msg_unlock(msqid);
-+		msg_unlock(msq);
- 		break;
- 	}
- 	case IPC_RMID:
-@@ -553,10 +553,10 @@
- 	up(&msg_ids.sem);
- 	return err;
- out_unlock_up:
--	msg_unlock(msqid);
-+	msg_unlock(msq);
- 	goto out_up;
- out_unlock:
--	msg_unlock(msqid);
-+	msg_unlock(msq);
- 	return err;
- }
+-		if (cachep->ctor && !(cachep->flags & SLAB_POISON))
+-			cachep->ctor(objp, cachep, ctor_flags);
++		if (cachep->ctor && !(cachep->flags & SLAB_POISON)) {
++			if (cachep->ctor(objp, cachep, ctor_flags) != 0)
++				goto failed;
++		}
  
-@@ -651,7 +651,7 @@
- 			goto out_unlock_free;
- 		}
- 		ss_add(msq, &s);
--		msg_unlock(msqid);
-+		msg_unlock(msq);
- 		schedule();
- 		current->state= TASK_RUNNING;
- 
-@@ -684,7 +684,7 @@
- 	msg = NULL;
- 
- out_unlock_free:
--	msg_unlock(msqid);
-+	msg_unlock(msq);
- out_free:
- 	if(msg!=NULL)
- 		free_msg(msg);
-@@ -766,7 +766,7 @@
- 		atomic_sub(msg->m_ts,&msg_bytes);
- 		atomic_dec(&msg_hdrs);
- 		ss_wakeup(&msq->q_senders,0);
--		msg_unlock(msqid);
-+		msg_unlock(msq);
- out_success:
- 		msgsz = (msgsz > msg->m_ts) ? msg->m_ts : msgsz;
- 		if (put_user (msg->m_type, &msgp->mtype) ||
-@@ -777,7 +777,6 @@
- 		return msgsz;
- 	} else
- 	{
--		struct msg_queue *t;
- 		/* no message waiting. Prepare for pipelined
- 		 * receive.
- 		 */
-@@ -795,7 +794,7 @@
- 		 	msr_d.r_maxsize = msgsz;
- 		msr_d.r_msg = ERR_PTR(-EAGAIN);
- 		current->state = TASK_INTERRUPTIBLE;
--		msg_unlock(msqid);
-+		msg_unlock(msq);
- 
- 		schedule();
- 		current->state = TASK_RUNNING;
-@@ -804,21 +803,19 @@
- 		if(!IS_ERR(msg)) 
- 			goto out_success;
- 
--		t = msg_lock(msqid);
--		if(t==NULL)
--			msqid=-1;
-+		msq = msg_lock(msqid);
- 		msg = (struct msg_msg*)msr_d.r_msg;
- 		if(!IS_ERR(msg)) {
- 			/* our message arived while we waited for
- 			 * the spinlock. Process it.
- 			 */
--			if(msqid!=-1)
--				msg_unlock(msqid);
-+			if(msq)
-+				msg_unlock(msq);
- 			goto out_success;
- 		}
- 		err = PTR_ERR(msg);
- 		if(err == -EAGAIN) {
--			if(msqid==-1)
-+			if(!msq)
+ 		if (cachep->flags & SLAB_RED_ZONE) {
+ 			objp -= BYTES_PER_WORD;
+@@ -1289,13 +1292,29 @@
  				BUG();
- 			list_del(&msr_d.r_list);
- 			if (signal_pending(current))
-@@ -828,8 +825,8 @@
  		}
+ #else
+-		if (cachep->ctor)
+-			cachep->ctor(objp, cachep, ctor_flags);
++		if (cachep->ctor) {
++			if (cachep->ctor(objp, cachep, ctor_flags) != 0)
++				goto failed;
++		}
+ #endif
+ 		slab_bufctl(slabp)[i] = i+1;
  	}
- out_unlock:
--	if(msqid!=-1)
--		msg_unlock(msqid);
-+	if(msq)
-+		msg_unlock(msq);
- 	return err;
+ 	slab_bufctl(slabp)[i-1] = BUFCTL_END;
+ 	slabp->free = 0;
++	return 0;
++failed:
++	if (cachep->dtor) {
++		i--;
++		for (;i >= 0;i--) {
++			void* objp = slabp->s_mem+cachep->objsize*i;
++#if DEBUG
++			if (cachep->flags & SLAB_RED_ZONE)
++				objp += BYTES_PER_WORD;
++#endif
++			cachep->dtor(objp, cachep, 0);
++		}
++	}
++	return -1;
  }
  
-@@ -862,7 +859,7 @@
- 				msq->q_stime,
- 				msq->q_rtime,
- 				msq->q_ctime);
--			msg_unlock(i);
-+			msg_unlock(msq);
+ static void kmem_flagcheck(kmem_cache_t *cachep, int flags)
+@@ -1386,7 +1405,8 @@
+ 		page++;
+ 	} while (--i);
  
- 			pos += len;
- 			if(pos < offset) {
-diff -urN linux-2.5.44/ipc/sem.c 2544-ipc/ipc/sem.c
---- linux-2.5.44/ipc/sem.c	Fri Oct 18 21:01:48 2002
-+++ 2544-ipc/ipc/sem.c	Thu Oct 31 09:05:46 2002
-@@ -69,7 +69,7 @@
+-	cache_init_objs(cachep, slabp, ctor_flags);
++	if (cache_init_objs(cachep, slabp, ctor_flags) < 0)
++		goto opps2;
  
- 
- #define sem_lock(id)	((struct sem_array*)ipc_lock(&sem_ids,id))
--#define sem_unlock(id)	ipc_unlock(&sem_ids,id)
-+#define sem_unlock(sma)	ipc_unlock(&(sma)->sem_perm)
- #define sem_rmid(id)	((struct sem_array*)ipc_rmid(&sem_ids,id))
- #define sem_checkid(sma, semid)	\
- 	ipc_checkid(&sem_ids,&sma->sem_perm,semid)
-@@ -126,7 +126,7 @@
- 		return -ENOSPC;
- 
- 	size = sizeof (*sma) + nsems * sizeof (struct sem);
--	sma = (struct sem_array *) ipc_alloc(size);
-+	sma = ipc_rcu_alloc(size);
- 	if (!sma) {
- 		return -ENOMEM;
- 	}
-@@ -138,14 +138,14 @@
- 	sma->sem_perm.security = NULL;
- 	retval = security_ops->sem_alloc_security(sma);
- 	if (retval) {
--		ipc_free(sma, size);
-+		ipc_rcu_free(sma, size);
- 		return retval;
- 	}
- 
- 	id = ipc_addid(&sem_ids, &sma->sem_perm, sc_semmni);
- 	if(id == -1) {
- 		security_ops->sem_free_security(sma);
--		ipc_free(sma, size);
-+		ipc_rcu_free(sma, size);
- 		return -ENOSPC;
- 	}
- 	used_sems += nsems;
-@@ -156,7 +156,7 @@
- 	/* sma->undo = NULL; */
- 	sma->sem_nsems = nsems;
- 	sma->sem_ctime = CURRENT_TIME;
--	sem_unlock(id);
-+	sem_unlock(sma);
- 
- 	return sem_buildid(id, sma->sem_perm.seq);
- }
-@@ -189,7 +189,7 @@
- 			err = -EACCES;
- 		else
- 			err = sem_buildid(id, sma->sem_perm.seq);
--		sem_unlock(id);
-+		sem_unlock(sma);
- 	}
- 
- 	up(&sem_ids.sem);
-@@ -205,12 +205,12 @@
- 	if(smanew==NULL)
- 		return -EIDRM;
- 	if(smanew != sma || sem_checkid(sma,semid) || sma->sem_nsems != nsems) {
--		sem_unlock(semid);
-+		sem_unlock(smanew);
- 		return -EIDRM;
- 	}
- 
- 	if (ipcperms(&sma->sem_perm, flg)) {
--		sem_unlock(semid);
-+		sem_unlock(smanew);
- 		return -EACCES;
- 	}
- 	return 0;
-@@ -423,12 +423,12 @@
- 		q->prev = NULL;
- 		wake_up_process(q->sleeper); /* doesn't sleep */
- 	}
--	sem_unlock(id);
-+	sem_unlock(sma);
- 
- 	used_sems -= sma->sem_nsems;
- 	size = sizeof (*sma) + sma->sem_nsems * sizeof (struct sem);
- 	security_ops->sem_free_security(sma);
--	ipc_free(sma, size);
-+	ipc_rcu_free(sma, size);
+ 	if (local_flags & __GFP_WAIT)
+ 		local_irq_disable();
+@@ -1399,6 +1419,9 @@
+ 	list3_data(cachep)->free_objects += cachep->num;
+ 	spin_unlock(&cachep->spinlock);
+ 	return 1;
++opps2:
++	if (OFF_SLAB(cachep))
++		kmem_cache_free(cachep->slabp_cache, slabp);
+ opps1:
+ 	kmem_freepages(cachep, objp);
+ failed:
+@@ -1600,6 +1623,30 @@
+ #endif
  }
  
- static unsigned long copy_semid_to_user(void *buf, struct semid64_ds *in, int version)
-@@ -456,6 +456,7 @@
- static int semctl_nolock(int semid, int semnum, int cmd, int version, union semun arg)
++#if DEBUG
++/*
++ * Return an object to the slab lists if the ctor failed.
++ * Debug only, doesn't have to be efficient.
++ */
++static void cache_return_obj (kmem_cache_t *cachep, void *objp)
++{
++	unsigned long flags;
++	if (cachep->flags & SLAB_RED_ZONE) {
++		objp -= BYTES_PER_WORD;
++		/* Set alloc red-zone, and check old one. */
++		if (xchg((unsigned long *)objp, RED_MAGIC1) !=
++							 RED_MAGIC2)
++			BUG();
++		if (xchg((unsigned long *)(objp+cachep->objsize -
++			  BYTES_PER_WORD), RED_MAGIC1) != RED_MAGIC2)
++			BUG();
++	}
++	local_irq_save(flags);
++	free_block(cachep, &objp, 1);
++	local_irq_restore(flags);
++}
++#endif
++
+ static inline void *cache_alloc_debugcheck_after (kmem_cache_t *cachep, unsigned long flags, void *objp)
  {
- 	int err = -EINVAL;
-+	struct sem_array *sma;
+ #if DEBUG
+@@ -1624,7 +1671,10 @@
+ 		if (!flags & __GFP_WAIT)
+ 			ctor_flags |= SLAB_CTOR_ATOMIC;
  
- 	switch(cmd) {
- 	case IPC_INFO:
-@@ -489,7 +490,6 @@
- 	}
- 	case SEM_STAT:
- 	{
--		struct sem_array *sma;
- 		struct semid64_ds tbuf;
- 		int id;
- 
-@@ -511,7 +511,7 @@
- 		tbuf.sem_otime  = sma->sem_otime;
- 		tbuf.sem_ctime  = sma->sem_ctime;
- 		tbuf.sem_nsems  = sma->sem_nsems;
--		sem_unlock(semid);
-+		sem_unlock(sma);
- 		if (copy_semid_to_user (arg.buf, &tbuf, version))
- 			return -EFAULT;
- 		return id;
-@@ -521,7 +521,7 @@
- 	}
- 	return err;
- out_unlock:
--	sem_unlock(semid);
-+	sem_unlock(sma);
- 	return err;
+-		cachep->ctor(objp, cachep, ctor_flags);
++		if (cachep->ctor(objp, cachep, ctor_flags) != 0) {
++			cache_return_obj(cachep, objp);
++			objp = NULL;
++		}
+ 	}	
+ #endif
+ 	return objp;
+--- 2.5/./fs/xfs/linux/xfs_super.c	Sat Oct 26 21:11:33 2002
++++ build-2.5/./fs/xfs/linux/xfs_super.c	Thu Oct 31 19:33:24 2002
+@@ -362,7 +362,7 @@
+ 	kmem_cache_free(linvfs_inode_cachep, LINVFS_GET_VP(inode));
  }
  
-@@ -555,7 +555,7 @@
- 		int i;
- 
- 		if(nsems > SEMMSL_FAST) {
--			sem_unlock(semid);			
-+			sem_unlock(sma);			
- 			sem_io = ipc_alloc(sizeof(ushort)*nsems);
- 			if(sem_io == NULL)
- 				return -ENOMEM;
-@@ -566,7 +566,7 @@
- 
- 		for (i = 0; i < sma->sem_nsems; i++)
- 			sem_io[i] = sma->sem_base[i].semval;
--		sem_unlock(semid);
-+		sem_unlock(sma);
- 		err = 0;
- 		if(copy_to_user(array, sem_io, nsems*sizeof(ushort)))
- 			err = -EFAULT;
-@@ -577,7 +577,7 @@
- 		int i;
- 		struct sem_undo *un;
- 
--		sem_unlock(semid);
-+		sem_unlock(sma);
- 
- 		if(nsems > SEMMSL_FAST) {
- 			sem_io = ipc_alloc(sizeof(ushort)*nsems);
-@@ -619,7 +619,7 @@
- 		tbuf.sem_otime  = sma->sem_otime;
- 		tbuf.sem_ctime  = sma->sem_ctime;
- 		tbuf.sem_nsems  = sma->sem_nsems;
--		sem_unlock(semid);
-+		sem_unlock(sma);
- 		if (copy_semid_to_user (arg.buf, &tbuf, version))
- 			return -EFAULT;
- 		return 0;
-@@ -665,7 +665,7 @@
- 	}
- 	}
- out_unlock:
--	sem_unlock(semid);
-+	sem_unlock(sma);
- out_free:
- 	if(sem_io != fast_sem_io)
- 		ipc_free(sem_io, sizeof(ushort)*nsems);
-@@ -750,18 +750,18 @@
- 		ipcp->mode = (ipcp->mode & ~S_IRWXUGO)
- 				| (setbuf.mode & S_IRWXUGO);
- 		sma->sem_ctime = CURRENT_TIME;
--		sem_unlock(semid);
-+		sem_unlock(sma);
- 		err = 0;
- 		break;
- 	default:
--		sem_unlock(semid);
-+		sem_unlock(sma);
- 		err = -EINVAL;
- 		break;
- 	}
- 	return err;
- 
- out_unlock:
--	sem_unlock(semid);
-+	sem_unlock(sma);
- 	return err;
+-STATIC void
++STATIC int 
+ init_once(
+ 	void			*data,
+ 	kmem_cache_t		*cachep,
+@@ -373,6 +373,7 @@
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(LINVFS_GET_IP(vp));
++	return 0;
  }
  
-@@ -914,7 +914,7 @@
- 	saved_add_count = 0;
- 	if (current->sysvsem.undo_list != NULL)
- 		saved_add_count = current->sysvsem.undo_list->add_count;
--	sem_unlock(semid);
-+	sem_unlock(sma);
- 	unlock_semundo();
+ STATIC int
+--- 2.5/./fs/jfs/super.c	Sat Oct 26 21:04:38 2002
++++ build-2.5/./fs/jfs/super.c	Thu Oct 31 19:23:56 2002
+@@ -395,7 +395,7 @@
+ extern void txExit(void);
+ extern void metapage_exit(void);
  
- 	error = get_undo_list(&undo_list);
-@@ -1052,18 +1052,17 @@
- 	current->sysvsem.sleep_list = &queue;
- 
- 	for (;;) {
--		struct sem_array* tmp;
- 		queue.status = -EINTR;
- 		queue.sleeper = current;
- 		current->state = TASK_INTERRUPTIBLE;
--		sem_unlock(semid);
-+		sem_unlock(sma);
- 		unlock_semundo();
- 
- 		schedule();
- 
- 		lock_semundo();
--		tmp = sem_lock(semid);
--		if(tmp==NULL) {
-+		sma = sem_lock(semid);
-+		if(sma==NULL) {
- 			if(queue.prev != NULL)
- 				BUG();
- 			current->sysvsem.sleep_list = NULL;
-@@ -1098,7 +1097,7 @@
- 	if (alter)
- 		update_queue (sma);
- out_unlock_semundo_free:
--	sem_unlock(semid);
-+	sem_unlock(sma);
- out_semundo_free:
- 	unlock_semundo();
- out_free:
-@@ -1185,7 +1184,7 @@
- 			remove_from_queue(q->sma,q);
- 		}
- 		if(sma!=NULL)
--			sem_unlock(semid);
-+			sem_unlock(sma);
- 	}
- 
- 	undo_list = current->sysvsem.undo_list;
-@@ -1233,7 +1232,7 @@
- 		/* maybe some queued-up processes were waiting for this */
- 		update_queue(sma);
- next_entry:
--		sem_unlock(semid);
-+		sem_unlock(sma);
- 	}
- 	__exit_semundo(current);
- 
-@@ -1265,7 +1264,7 @@
- 				sma->sem_perm.cgid,
- 				sma->sem_otime,
- 				sma->sem_ctime);
--			sem_unlock(i);
-+			sem_unlock(sma);
- 
- 			pos += len;
- 			if(pos < offset) {
-diff -urN linux-2.5.44/ipc/shm.c 2544-ipc/ipc/shm.c
---- linux-2.5.44/ipc/shm.c	Fri Oct 18 21:01:54 2002
-+++ 2544-ipc/ipc/shm.c	Thu Oct 31 09:09:44 2002
-@@ -37,9 +37,7 @@
- static struct ipc_ids shm_ids;
- 
- #define shm_lock(id)	((struct shmid_kernel*)ipc_lock(&shm_ids,id))
--#define shm_unlock(id)	ipc_unlock(&shm_ids,id)
--#define shm_lockall()	ipc_lockall(&shm_ids)
--#define shm_unlockall()	ipc_unlockall(&shm_ids)
-+#define shm_unlock(shp)	ipc_unlock(&(shp)->shm_perm)
- #define shm_get(id)	((struct shmid_kernel*)ipc_get(&shm_ids,id))
- #define shm_buildid(id, seq) \
- 	ipc_buildid(&shm_ids, id, seq)
-@@ -92,7 +90,7 @@
- 	shp->shm_atim = CURRENT_TIME;
- 	shp->shm_lprid = current->pid;
- 	shp->shm_nattch++;
--	shm_unlock(id);
-+	shm_unlock(shp);
- }
- 
- /* This is called by fork, once for every shm attach. */
-@@ -113,11 +111,11 @@
+-static void init_once(void *foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void *foo, kmem_cache_t * cachep, unsigned long flags)
  {
- 	shm_tot -= (shp->shm_segsz + PAGE_SIZE - 1) >> PAGE_SHIFT;
- 	shm_rmid (shp->id);
--	shm_unlock(shp->id);
-+	shm_unlock(shp);
- 	shmem_lock(shp->shm_file, 0);
- 	fput (shp->shm_file);
- 	security_ops->shm_free_security(shp);
--	kfree (shp);
-+	ipc_rcu_free (shp, sizeof(struct shmid_kernel));
+ 	struct jfs_inode_info *jfs_ip = (struct jfs_inode_info *) foo;
+ 
+@@ -409,6 +409,7 @@
+ 		jfs_ip->active_ag = -1;
+ 		inode_init_once(&jfs_ip->vfs_inode);
+ 	}
++	return 0;
+ }
+ 
+ static int __init init_jfs_fs(void)
+--- 2.5/./fs/jfs/jfs_metapage.c	Sun Sep 22 06:25:04 2002
++++ build-2.5/./fs/jfs/jfs_metapage.c	Thu Oct 31 19:28:32 2002
+@@ -90,7 +90,7 @@
+ static kmem_cache_t *metapage_cache;
+ static mempool_t *metapage_mempool;
+ 
+-static void init_once(void *foo, kmem_cache_t *cachep, unsigned long flags)
++static int init_once(void *foo, kmem_cache_t *cachep, unsigned long flags)
+ {
+ 	struct metapage *mp = (struct metapage *)foo;
+ 
+@@ -105,6 +105,7 @@
+ 		set_bit(META_free, &mp->flag);
+ 		init_waitqueue_head(&mp->wait);
+ 	}
++	return 0;
+ }
+ 
+ static inline struct metapage *alloc_metapage(int no_wait)
+--- 2.5/./fs/nfs/inode.c	Sat Oct 26 21:12:08 2002
++++ build-2.5/./fs/nfs/inode.c	Thu Oct 31 19:22:14 2002
+@@ -1548,7 +1548,7 @@
+ 	kmem_cache_free(nfs_inode_cachep, NFS_I(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct nfs_inode *nfsi = (struct nfs_inode *) foo;
+ 
+@@ -1565,6 +1565,7 @@
+ 		nfsi->npages = 0;
+ 		init_waitqueue_head(&nfsi->nfs_i_wait);
+ 	}
++	return 0;
+ }
+  
+ int nfs_init_inodecache(void)
+--- 2.5/./fs/hfs/super.c	Sat Oct 26 21:04:37 2002
++++ build-2.5/./fs/hfs/super.c	Thu Oct 31 19:23:26 2002
+@@ -58,13 +58,14 @@
+ 	kmem_cache_free(hfs_inode_cachep, HFS_I(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct hfs_inode_info *ei = (struct hfs_inode_info *) foo;
+ 
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(&ei->vfs_inode);
++	return 0;
+ }
+  
+ static int init_inodecache(void)
+--- 2.5/./fs/ufs/super.c	Sat Oct 26 21:04:41 2002
++++ build-2.5/./fs/ufs/super.c	Thu Oct 31 19:24:49 2002
+@@ -1014,13 +1014,14 @@
+ 	kmem_cache_free(ufs_inode_cachep, UFS_I(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct ufs_inode_info *ei = (struct ufs_inode_info *) foo;
+ 
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(&ei->vfs_inode);
++	return 0;
+ }
+  
+ static int init_inodecache(void)
+--- 2.5/./fs/jffs2/super.c	Sat Oct 26 21:04:38 2002
++++ build-2.5/./fs/jffs2/super.c	Thu Oct 31 19:23:46 2002
+@@ -46,7 +46,7 @@
+ 	kmem_cache_free(jffs2_inode_cachep, JFFS2_INODE_INFO(inode));
+ }
+ 
+-static void jffs2_i_init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int jffs2_i_init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct jffs2_inode_info *ei = (struct jffs2_inode_info *) foo;
+ 
+@@ -55,6 +55,7 @@
+ 		init_MUTEX(&ei->sem);
+ 		inode_init_once(&ei->vfs_inode);
+ 	}
++	return 0;
+ }
+ 
+ static struct super_operations jffs2_super_operations =
+--- 2.5/./fs/coda/inode.c	Sat Oct 26 21:04:35 2002
++++ build-2.5/./fs/coda/inode.c	Thu Oct 31 19:27:54 2002
+@@ -56,13 +56,14 @@
+ 	kmem_cache_free(coda_inode_cachep, ITOC(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct coda_inode_info *ei = (struct coda_inode_info *) foo;
+ 
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(&ei->vfs_inode);
++	return 0;
+ }
+  
+ int coda_init_inodecache(void)
+--- 2.5/./fs/ext2/super.c	Thu Oct 31 18:37:21 2002
++++ build-2.5/./fs/ext2/super.c	Thu Oct 31 19:21:45 2002
+@@ -165,7 +165,7 @@
+ 	kmem_cache_free(ext2_inode_cachep, EXT2_I(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct ext2_inode_info *ei = (struct ext2_inode_info *) foo;
+ 
+@@ -174,6 +174,7 @@
+ 		rwlock_init(&ei->i_meta_lock);
+ 		inode_init_once(&ei->vfs_inode);
+ 	}
++	return 0;
+ }
+  
+ static int init_inodecache(void)
+--- 2.5/./fs/adfs/super.c	Sat Oct 26 21:04:33 2002
++++ build-2.5/./fs/adfs/super.c	Thu Oct 31 19:22:31 2002
+@@ -220,13 +220,14 @@
+ 	kmem_cache_free(adfs_inode_cachep, ADFS_I(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct adfs_inode_info *ei = (struct adfs_inode_info *) foo;
+ 
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(&ei->vfs_inode);
++	return 0;
+ }
+  
+ static int init_inodecache(void)
+--- 2.5/./fs/udf/super.c	Sat Oct 26 21:04:41 2002
++++ build-2.5/./fs/udf/super.c	Thu Oct 31 19:24:39 2002
+@@ -127,13 +127,14 @@
+ 	kmem_cache_free(udf_inode_cachep, UDF_I(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct udf_inode_info *ei = (struct udf_inode_info *) foo;
+ 
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(&ei->vfs_inode);
++	return 0;
+ }
+  
+ static int init_inodecache(void)
+--- 2.5/./fs/proc/inode.c	Sat Oct 26 21:02:10 2002
++++ build-2.5/./fs/proc/inode.c	Thu Oct 31 19:30:55 2002
+@@ -109,13 +109,14 @@
+ 	kmem_cache_free(proc_inode_cachep, PROC_I(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct proc_inode *ei = (struct proc_inode *) foo;
+ 
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(&ei->vfs_inode);
++	return 0;
+ }
+  
+ int __init proc_init_inodecache(void)
+--- 2.5/./fs/bfs/inode.c	Sat Oct 26 21:04:34 2002
++++ build-2.5/./fs/bfs/inode.c	Thu Oct 31 19:26:58 2002
+@@ -226,13 +226,14 @@
+ 	kmem_cache_free(bfs_inode_cachep, BFS_I(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct bfs_inode_info *bi = foo;
+ 
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(&bi->vfs_inode);
++	return 0;
+ }
+  
+ static int init_inodecache(void)
+--- 2.5/./fs/reiserfs/super.c	Sat Oct 26 21:04:40 2002
++++ build-2.5/./fs/reiserfs/super.c	Thu Oct 31 19:24:27 2002
+@@ -424,7 +424,7 @@
+ 	kmem_cache_free(reiserfs_inode_cachep, REISERFS_I(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct reiserfs_inode_info *ei = (struct reiserfs_inode_info *) foo;
+ 
+@@ -433,6 +433,7 @@
+ 		INIT_LIST_HEAD(&ei->i_prealloc_list) ;
+ 		inode_init_once(&ei->vfs_inode);
+ 	}
++	return 0;
+ }
+  
+ static int init_inodecache(void)
+--- 2.5/./fs/ncpfs/inode.c	Sat Oct 26 21:04:38 2002
++++ build-2.5/./fs/ncpfs/inode.c	Thu Oct 31 19:34:02 2002
+@@ -56,7 +56,7 @@
+ 	kmem_cache_free(ncp_inode_cachep, NCP_FINFO(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct ncp_inode_info *ei = (struct ncp_inode_info *) foo;
+ 
+@@ -65,6 +65,7 @@
+ 		init_MUTEX(&ei->open_sem);
+ 		inode_init_once(&ei->vfs_inode);
+ 	}
++	return 0;
+ }
+  
+ static int init_inodecache(void)
+--- 2.5/./fs/ntfs/super.c	Sat Oct 26 21:04:39 2002
++++ build-2.5/./fs/ntfs/super.c	Thu Oct 31 19:24:16 2002
+@@ -1598,7 +1598,7 @@
+ kmem_cache_t *ntfs_big_inode_cache;
+ 
+ /* Init once constructor for the inode slab cache. */
+-static void ntfs_big_inode_init_once(void *foo, kmem_cache_t *cachep,
++static int ntfs_big_inode_init_once(void *foo, kmem_cache_t *cachep,
+ 		unsigned long flags)
+ {
+ 	ntfs_inode *ni = (ntfs_inode *)foo;
+@@ -1606,6 +1606,7 @@
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 			SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(VFS_I(ni));
++	return 0;
  }
  
  /*
-@@ -143,7 +141,7 @@
- 	   shp->shm_flags & SHM_DEST)
- 		shm_destroy (shp);
- 	else
--		shm_unlock(id);
-+		shm_unlock(shp);
- 	up (&shm_ids.sem);
+--- 2.5/./fs/sysv/inode.c	Sat Oct 26 21:04:40 2002
++++ build-2.5/./fs/sysv/inode.c	Thu Oct 31 19:34:13 2002
+@@ -301,13 +301,14 @@
+ 	kmem_cache_free(sysv_inode_cachep, SYSV_I(inode));
  }
  
-@@ -180,7 +178,7 @@
- 	if (shm_tot + numpages >= shm_ctlall)
- 		return -ENOSPC;
- 
--	shp = (struct shmid_kernel *) kmalloc (sizeof (*shp), GFP_USER);
-+	shp = ipc_rcu_alloc(sizeof(*shp));
- 	if (!shp)
- 		return -ENOMEM;
- 
-@@ -190,7 +188,7 @@
- 	shp->shm_perm.security = NULL;
- 	error = security_ops->shm_alloc_security(shp);
- 	if (error) {
--		kfree(shp);
-+		ipc_rcu_free(shp, sizeof(*shp));
- 		return error;
- 	}
- 
-@@ -216,14 +214,14 @@
- 	file->f_dentry->d_inode->i_ino = shp->id;
- 	file->f_op = &shm_file_operations;
- 	shm_tot += numpages;
--	shm_unlock (id);
-+	shm_unlock(shp);
- 	return shp->id;
- 
- no_id:
- 	fput(file);
- no_file:
- 	security_ops->shm_free_security(shp);
--	kfree(shp);
-+	ipc_rcu_free(shp, sizeof(*shp));
- 	return error;
- }
- 
-@@ -252,7 +250,7 @@
- 			err = -EACCES;
- 		else
- 			err = shm_buildid(id, shp->shm_perm.seq);
--		shm_unlock(id);
-+		shm_unlock(shp);
- 	}
- 	up(&shm_ids.sem);
- 	return err;
-@@ -409,14 +407,12 @@
- 
- 		memset(&shm_info,0,sizeof(shm_info));
- 		down(&shm_ids.sem);
--		shm_lockall();
- 		shm_info.used_ids = shm_ids.in_use;
- 		shm_get_stat (&shm_info.shm_rss, &shm_info.shm_swp);
- 		shm_info.shm_tot = shm_tot;
- 		shm_info.swap_attempts = 0;
- 		shm_info.swap_successes = 0;
- 		err = shm_ids.max_id;
--		shm_unlockall();
- 		up(&shm_ids.sem);
- 		if(copy_to_user (buf, &shm_info, sizeof(shm_info)))
- 			return -EFAULT;
-@@ -454,7 +450,7 @@
- 		tbuf.shm_cpid	= shp->shm_cprid;
- 		tbuf.shm_lpid	= shp->shm_lprid;
- 		tbuf.shm_nattch	= shp->shm_nattch;
--		shm_unlock(shmid);
-+		shm_unlock(shp);
- 		if(copy_shmid_to_user (buf, &tbuf, version))
- 			return -EFAULT;
- 		return result;
-@@ -481,7 +477,7 @@
- 			shmem_lock(shp->shm_file, 0);
- 			shp->shm_flags &= ~SHM_LOCKED;
- 		}
--		shm_unlock(shmid);
-+		shm_unlock(shp);
- 		return err;
- 	}
- 	case IPC_RMID:
-@@ -514,7 +510,7 @@
- 			shp->shm_flags |= SHM_DEST;
- 			/* Do not find it any more */
- 			shp->shm_perm.key = IPC_PRIVATE;
--			shm_unlock(shmid);
-+			shm_unlock(shp);
- 		} else
- 			shm_destroy (shp);
- 		up(&shm_ids.sem);
-@@ -554,12 +550,12 @@
- 
- 	err = 0;
- out_unlock_up:
--	shm_unlock(shmid);
-+	shm_unlock(shp);
- out_up:
- 	up(&shm_ids.sem);
- 	return err;
- out_unlock:
--	shm_unlock(shmid);
-+	shm_unlock(shp);
- 	return err;
- }
- 
-@@ -616,17 +612,17 @@
- 		return -EINVAL;
- 	err = shm_checkid(shp,shmid);
- 	if (err) {
--		shm_unlock(shmid);
-+		shm_unlock(shp);
- 		return err;
- 	}
- 	if (ipcperms(&shp->shm_perm, acc_mode)) {
--		shm_unlock(shmid);
-+		shm_unlock(shp);
- 		return -EACCES;
- 	}
- 	file = shp->shm_file;
- 	size = file->f_dentry->d_inode->i_size;
- 	shp->shm_nattch++;
--	shm_unlock(shmid);
-+	shm_unlock(shp);
- 
- 	down_write(&current->mm->mmap_sem);
- 	if (addr && !(shmflg & SHM_REMAP)) {
-@@ -655,7 +651,7 @@
- 	   shp->shm_flags & SHM_DEST)
- 		shm_destroy (shp);
- 	else
--		shm_unlock(shmid);
-+		shm_unlock(shp);
- 	up (&shm_ids.sem);
- 
- 	*raddr = (unsigned long) user_addr;
-@@ -727,7 +723,7 @@
- 				shp->shm_atim,
- 				shp->shm_dtim,
- 				shp->shm_ctim);
--			shm_unlock(i);
-+			shm_unlock(shp);
- 
- 			pos += len;
- 			if(pos < offset) {
-diff -urN linux-2.5.44/ipc/util.c 2544-ipc/ipc/util.c
---- linux-2.5.44/ipc/util.c	Fri Oct 18 21:01:49 2002
-+++ 2544-ipc/ipc/util.c	Thu Oct 31 09:05:46 2002
-@@ -8,6 +8,8 @@
-  *            Chris Evans, <chris@ferret.lmh.ox.ac.uk>
-  * Nov 1999 - ipc helper functions, unified SMP locking
-  *	      Manfred Spraul <manfreds@colorfullife.com>
-+ * Oct 2002 - One lock per IPC id. RCU ipc_free for lock-free grow_ary().
-+ *            Mingming Cao <cmm@us.ibm.com>
-  */
- 
- #include <linux/config.h>
-@@ -20,6 +22,7 @@
- #include <linux/slab.h>
- #include <linux/highuid.h>
- #include <linux/security.h>
-+#include <linux/workqueue.h>
- 
- #if defined(CONFIG_SYSVIPC)
- 
-@@ -69,13 +72,12 @@
- 		 	ids->seq_max = seq_limit;
- 	}
- 
--	ids->entries = ipc_alloc(sizeof(struct ipc_id)*size);
-+	ids->entries = ipc_rcu_alloc(sizeof(struct ipc_id)*size);
- 
- 	if(ids->entries == NULL) {
- 		printk(KERN_ERR "ipc_init_ids() failed, ipc service disabled.\n");
- 		ids->size = 0;
- 	}
--	ids->ary = SPIN_LOCK_UNLOCKED;
- 	for(i=0;i<ids->size;i++)
- 		ids->entries[i].p = NULL;
- }
-@@ -84,7 +86,8 @@
-  *	ipc_findkey	-	find a key in an ipc identifier set	
-  *	@ids: Identifier set
-  *	@key: The key to find
-- *
-+ *	
-+ *	Requires ipc_ids.sem locked.
-  *	Returns the identifier if found or -1 if not.
-  */
-  
-@@ -92,8 +95,9 @@
+-static void init_once(void *p, kmem_cache_t *cachep, unsigned long flags)
++static int init_once(void *p, kmem_cache_t *cachep, unsigned long flags)
  {
- 	int id;
- 	struct kern_ipc_perm* p;
-+	int max_id = ids->max_id;
+ 	struct sysv_inode_info *si = (struct sysv_inode_info *)p;
  
--	for (id = 0; id <= ids->max_id; id++) {
-+	for (id = 0; id <= max_id; id++) {
- 		p = ids->entries[id].p;
- 		if(p==NULL)
- 			continue;
-@@ -103,6 +107,9 @@
- 	return -1;
- }
- 
-+/*
-+ * Requires ipc_ids.sem locked
-+ */
- static int grow_ary(struct ipc_ids* ids, int newsize)
- {
- 	struct ipc_id* new;
-@@ -114,21 +121,21 @@
- 	if(newsize <= ids->size)
- 		return newsize;
- 
--	new = ipc_alloc(sizeof(struct ipc_id)*newsize);
-+	new = ipc_rcu_alloc(sizeof(struct ipc_id)*newsize);
- 	if(new == NULL)
- 		return ids->size;
- 	memcpy(new, ids->entries, sizeof(struct ipc_id)*ids->size);
- 	for(i=ids->size;i<newsize;i++) {
- 		new[i].p = NULL;
- 	}
--	spin_lock(&ids->ary);
--
- 	old = ids->entries;
--	ids->entries = new;
- 	i = ids->size;
-+	
-+	ids->entries = new;
-+	wmb();
- 	ids->size = newsize;
--	spin_unlock(&ids->ary);
--	ipc_free(old, sizeof(struct ipc_id)*i);
-+
-+	ipc_rcu_free(old, sizeof(struct ipc_id)*i);
- 	return ids->size;
- }
- 
-@@ -166,7 +173,10 @@
- 	if(ids->seq > ids->seq_max)
- 		ids->seq = 0;
- 
--	spin_lock(&ids->ary);
-+	new->lock = SPIN_LOCK_UNLOCKED;
-+	new->deleted = 0;
-+	rcu_read_lock();
-+	spin_lock(&new->lock);
- 	ids->entries[id].p = new;
- 	return id;
- }
-@@ -180,6 +190,8 @@
-  *	fed an invalid identifier. The entry is removed and internal
-  *	variables recomputed. The object associated with the identifier
-  *	is returned.
-+ *	ipc_ids.sem and the spinlock for this ID is hold before this function
-+ *	is called, and remain locked on the exit.
-  */
-  
- struct kern_ipc_perm* ipc_rmid(struct ipc_ids* ids, int id)
-@@ -188,6 +200,7 @@
- 	int lid = id % SEQ_MULTIPLIER;
- 	if(lid >= ids->size)
- 		BUG();
-+	
- 	p = ids->entries[lid].p;
- 	ids->entries[lid].p = NULL;
- 	if(p==NULL)
-@@ -202,6 +215,7 @@
- 		} while (ids->entries[lid].p == NULL);
- 		ids->max_id = lid;
- 	}
-+	p->deleted = 1;
- 	return p;
- }
- 
-@@ -224,14 +238,14 @@
- }
- 
- /**
-- *	ipc_free	-	free ipc space
-+ *	ipc_free        -       free ipc space
-  *	@ptr: pointer returned by ipc_alloc
-  *	@size: size of block
-  *
-  *	Free a block created with ipc_alloc. The caller must know the size
-  *	used in the allocation call.
-  */
-- 
-+
- void ipc_free(void* ptr, int size)
- {
- 	if(size > PAGE_SIZE)
-@@ -240,6 +254,85 @@
- 		kfree(ptr);
- }
- 
-+struct ipc_rcu_kmalloc
-+{
-+	struct rcu_head rcu;
-+	/* "void *" makes sure alignment of following data is sane. */
-+	void *data[0];
-+};
-+
-+struct ipc_rcu_vmalloc
-+{
-+	struct rcu_head rcu;
-+	struct work_struct work;
-+	/* "void *" makes sure alignment of following data is sane. */
-+	void *data[0];
-+};
-+
-+static inline int rcu_use_vmalloc(int size)
-+{
-+	/* Too big for a single page? */
-+	if (sizeof(struct ipc_rcu_kmalloc) + size > PAGE_SIZE)
-+		return 1;
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 			SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(&si->vfs_inode);
 +	return 0;
-+}
-+
-+/**
-+ *	ipc_rcu_alloc	-	allocate ipc and rcu space 
-+ *	@size: size desired
-+ *
-+ *	Allocate memory for the rcu header structure +  the object.
-+ *	Returns the pointer to the object.
-+ *	NULL is returned if the allocation fails. 
-+ */
-+ 
-+void* ipc_rcu_alloc(int size)
-+{
-+	void* out;
-+	/* 
-+	 * We prepend the allocation with the rcu struct, and
-+	 * workqueue if necessary (for vmalloc). 
-+	 */
-+	if (rcu_use_vmalloc(size)) {
-+		out = vmalloc(sizeof(struct ipc_rcu_vmalloc) + size);
-+		if (out) out += sizeof(struct ipc_rcu_vmalloc);
-+	} else {
-+		out = kmalloc(sizeof(struct ipc_rcu_kmalloc)+size, GFP_KERNEL);
-+		if (out) out += sizeof(struct ipc_rcu_kmalloc);
-+	}
-+
-+	return out;
-+}
-+
-+/**
-+ *	ipc_schedule_free	- free ipc + rcu space
-+ * 
-+ * Since RCU callback function is called in bh,
-+ * we need to defer the vfree to schedule_work
-+ */
-+static void ipc_schedule_free(void* arg)
-+{
-+	struct ipc_rcu_vmalloc *free = arg;
-+
-+	INIT_WORK(&free->work, vfree, free);
-+	schedule_work(&free->work);
-+}
-+
-+void ipc_rcu_free(void* ptr, int size)
-+{
-+	if (rcu_use_vmalloc(size)) {
-+		struct ipc_rcu_vmalloc *free;
-+		free = ptr - sizeof(*free);
-+		call_rcu(&free->rcu, ipc_schedule_free, free);
-+	} else {
-+		struct ipc_rcu_kmalloc *free;
-+		free = ptr - sizeof(*free);
-+		/* kfree takes a "const void *" so gcc warns.  So we cast. */
-+		call_rcu(&free->rcu, (void (*)(void *))kfree, free);
-+	}
-+
-+}
-+
- /**
-  *	ipcperms	-	check IPC permissions
-  *	@ipcp: IPC permission set
-diff -urN linux-2.5.44/ipc/util.h 2544-ipc/ipc/util.h
---- linux-2.5.44/ipc/util.h	Fri Oct 18 21:01:57 2002
-+++ 2544-ipc/ipc/util.h	Thu Oct 31 09:05:46 2002
-@@ -4,6 +4,7 @@
-  *
-  * ipc helper functions (c) 1999 Manfred Spraul <manfreds@colorfullife.com>
-  */
-+#include <linux/rcupdate.h>
+ }
  
- #define USHRT_MAX 0xffff
- #define SEQ_MULTIPLIER	(IPCMNI)
-@@ -19,7 +20,6 @@
- 	unsigned short seq;
- 	unsigned short seq_max;
- 	struct semaphore sem;	
--	spinlock_t ary;
- 	struct ipc_id* entries;
+ struct super_operations sysv_sops = {
+--- 2.5/./fs/hpfs/super.c	Sat Oct 26 21:04:37 2002
++++ build-2.5/./fs/hpfs/super.c	Thu Oct 31 19:23:33 2002
+@@ -174,7 +174,7 @@
+ 	kmem_cache_free(hpfs_inode_cachep, hpfs_i(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct hpfs_inode_info *ei = (struct hpfs_inode_info *) foo;
+ 
+@@ -183,6 +183,7 @@
+ 		init_MUTEX(&ei->i_sem);
+ 		inode_init_once(&ei->vfs_inode);
+ 	}
++	return 0;
+ }
+  
+ static int init_inodecache(void)
+--- 2.5/./fs/fat/inode.c	Thu Oct 31 18:48:07 2002
++++ build-2.5/./fs/fat/inode.c	Thu Oct 31 19:26:41 2002
+@@ -672,7 +672,7 @@
+ 	kmem_cache_free(fat_inode_cachep, MSDOS_I(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct msdos_inode_info *ei = (struct msdos_inode_info *) foo;
+ 
+@@ -681,6 +681,7 @@
+ 		INIT_LIST_HEAD(&ei->i_fat_hash);
+ 		inode_init_once(&ei->vfs_inode);
+ 	}
++	return 0;
+ }
+  
+ int __init fat_init_inodecache(void)
+--- 2.5/./fs/ext3/super.c	Thu Oct 31 18:48:06 2002
++++ build-2.5/./fs/ext3/super.c	Thu Oct 31 19:23:16 2002
+@@ -464,7 +464,7 @@
+ 	kmem_cache_free(ext3_inode_cachep, EXT3_I(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct ext3_inode_info *ei = (struct ext3_inode_info *) foo;
+ 
+@@ -474,6 +474,7 @@
+ 		init_rwsem(&ei->truncate_sem);
+ 		inode_init_once(&ei->vfs_inode);
+ 	}
++	return 0;
+ }
+  
+ static int init_inodecache(void)
+--- 2.5/./fs/smbfs/inode.c	Sat Oct 26 21:04:40 2002
++++ build-2.5/./fs/smbfs/inode.c	Thu Oct 31 19:34:28 2002
+@@ -64,13 +64,14 @@
+ 	kmem_cache_free(smb_inode_cachep, SMB_I(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct smb_inode_info *ei = (struct smb_inode_info *) foo;
+ 	unsigned long flagmask = SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR;
+ 
+ 	if ((flags & flagmask) == SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(&ei->vfs_inode);
++	return 0;
+ }
+  
+ static int init_inodecache(void)
+--- 2.5/./fs/isofs/inode.c	Sat Oct 26 21:04:37 2002
++++ build-2.5/./fs/isofs/inode.c	Thu Oct 31 19:28:09 2002
+@@ -92,13 +92,14 @@
+ 	kmem_cache_free(isofs_inode_cachep, ISOFS_I(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct iso_inode_info *ei = (struct iso_inode_info *) foo;
+ 
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(&ei->vfs_inode);
++	return 0;
+ }
+  
+ static int init_inodecache(void)
+--- 2.5/./fs/efs/super.c	Sat Oct 26 21:04:35 2002
++++ build-2.5/./fs/efs/super.c	Thu Oct 31 19:23:03 2002
+@@ -44,13 +44,14 @@
+ 	kmem_cache_free(efs_inode_cachep, INODE_INFO(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct efs_inode_info *ei = (struct efs_inode_info *) foo;
+ 
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(&ei->vfs_inode);
++	return 0;
+ }
+  
+ static int init_inodecache(void)
+--- 2.5/./fs/affs/super.c	Sat Oct 26 21:04:33 2002
++++ build-2.5/./fs/affs/super.c	Thu Oct 31 19:22:41 2002
+@@ -100,7 +100,7 @@
+ 	kmem_cache_free(affs_inode_cachep, AFFS_I(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct affs_inode_info *ei = (struct affs_inode_info *) foo;
+ 
+@@ -110,6 +110,7 @@
+ 		init_MUTEX(&ei->i_ext_lock);
+ 		inode_init_once(&ei->vfs_inode);
+ 	}
++	return 0;
+ }
+ 
+ static int init_inodecache(void)
+--- 2.5/./fs/romfs/inode.c	Sat Oct 26 21:04:40 2002
++++ build-2.5/./fs/romfs/inode.c	Thu Oct 31 19:34:42 2002
+@@ -563,13 +563,14 @@
+ 	kmem_cache_free(romfs_inode_cachep, ROMFS_I(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct romfs_inode_info *ei = (struct romfs_inode_info *) foo;
+ 
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(&ei->vfs_inode);
++	return 0;
+ }
+  
+ static int init_inodecache(void)
+--- 2.5/./fs/minix/inode.c	Sat Oct 26 21:04:38 2002
++++ build-2.5/./fs/minix/inode.c	Thu Oct 31 19:28:56 2002
+@@ -65,13 +65,14 @@
+ 	kmem_cache_free(minix_inode_cachep, minix_i(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct minix_inode_info *ei = (struct minix_inode_info *) foo;
+ 
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(&ei->vfs_inode);
++	return 0;
+ }
+  
+ static int init_inodecache(void)
+--- 2.5/./fs/qnx4/inode.c	Sat Oct 26 21:11:32 2002
++++ build-2.5/./fs/qnx4/inode.c	Thu Oct 31 19:31:26 2002
+@@ -520,7 +520,7 @@
+ 	kmem_cache_free(qnx4_inode_cachep, qnx4_i(inode));
+ }
+ 
+-static void init_once(void *foo, kmem_cache_t * cachep,
++static int init_once(void *foo, kmem_cache_t * cachep,
+ 		      unsigned long flags)
+ {
+ 	struct qnx4_inode_info *ei = (struct qnx4_inode_info *) foo;
+@@ -528,6 +528,7 @@
+ 	if ((flags & (SLAB_CTOR_VERIFY | SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(&ei->vfs_inode);
++	return 0;
+ }
+ 
+ static int init_inodecache(void)
+--- 2.5/./fs/befs/linuxvfs.c	Thu Oct 31 18:48:05 2002
++++ build-2.5/./fs/befs/linuxvfs.c	Thu Oct 31 19:26:12 2002
+@@ -293,7 +293,7 @@
+         kmem_cache_free(befs_inode_cachep, BEFS_I(inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+         struct befs_inode_info *bi = (struct befs_inode_info *) foo;
+ 	
+@@ -301,6 +301,7 @@
+ 		            SLAB_CTOR_CONSTRUCTOR) {
+ 			inode_init_once(&bi->vfs_inode);
+ 		}
++	return 0;
+ }
+ 
+ static void
+--- 2.5/./fs/cifs/cifsfs.c	Sat Oct 26 21:04:34 2002
++++ build-2.5/./fs/cifs/cifsfs.c	Thu Oct 31 19:27:30 2002
+@@ -296,7 +296,7 @@
+ 	.release = cifs_closedir,
  };
  
-@@ -27,7 +27,6 @@
- 	struct kern_ipc_perm* p;
- };
+-static void
++static int 
+ cifs_init_once(void *inode, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct cifsInodeInfo *cifsi = (struct cifsInodeInfo *) inode;
+@@ -306,6 +306,7 @@
+ 		inode_init_once(&cifsi->vfs_inode);
+ 		INIT_LIST_HEAD(&cifsi->lockList);
+ 	}
++	return 0;
+ }
  
--
- void __init ipc_init_ids(struct ipc_ids* ids, int size);
- 
- /* must be called with ids->sem acquired.*/
-@@ -44,44 +43,69 @@
+ int
+--- 2.5/./fs/afs/super.c	Sat Oct 26 21:11:31 2002
++++ build-2.5/./fs/afs/super.c	Thu Oct 31 19:22:51 2002
+@@ -541,7 +541,7 @@
+  * initialise an inode cache slab element prior to any use
   */
- void* ipc_alloc(int size);
- void ipc_free(void* ptr, int size);
-+/* for allocation that need to be freed by RCU
-+ * both function can sleep
-+ */
-+void* ipc_rcu_alloc(int size);
-+void ipc_rcu_free(void* arg, int size);
- 
--extern inline void ipc_lockall(struct ipc_ids* ids)
--{
--	spin_lock(&ids->ary);
--}
--
-+/*
-+ * ipc_get() requires ipc_ids.sem down, otherwise we need a rmb() here
-+ * to sync with grow_ary();
-+ *
-+ * So far only shm_get_stat() uses ipc_get() via shm_get().  So ipc_get()
-+ * is called with shm_ids.sem locked.  Thus a rmb() is not needed here,
-+ * as grow_ary() also requires shm_ids.sem down(for shm).
-+ *
-+ * But if ipc_get() is used in the future without ipc_ids.sem down,
-+ * we need to add a rmb() before accessing the entries array
-+ */
- extern inline struct kern_ipc_perm* ipc_get(struct ipc_ids* ids, int id)
+ #if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
+-static void afs_i_init_once(void *_vnode, kmem_cache_t *cachep, unsigned long flags)
++static int afs_i_init_once(void *_vnode, kmem_cache_t *cachep, unsigned long flags)
  {
- 	struct kern_ipc_perm* out;
- 	int lid = id % SEQ_MULTIPLIER;
- 	if(lid >= ids->size)
- 		return NULL;
--
-+	rmb();
- 	out = ids->entries[lid].p;
- 	return out;
+ 	afs_vnode_t *vnode = (afs_vnode_t *) _vnode;
+ 
+@@ -554,6 +554,7 @@
+ 		INIT_LIST_HEAD(&vnode->cb_hash_link);
+ 		afs_timer_init(&vnode->cb_timeout,&afs_vnode_cb_timed_out_ops);
+ 	}
++	return 0;
+ 
+ } /* end afs_i_init_once() */
+ #endif
+--- 2.5/./fs/buffer.c	Thu Oct 31 18:48:06 2002
++++ build-2.5/./fs/buffer.c	Thu Oct 31 19:19:33 2002
+@@ -2609,7 +2609,7 @@
+ }
+ EXPORT_SYMBOL(free_buffer_head);
+ 
+-static void init_buffer_head(void *data, kmem_cache_t *cachep, unsigned long flags)
++static int init_buffer_head(void *data, kmem_cache_t *cachep, unsigned long flags)
+ {
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 			    SLAB_CTOR_CONSTRUCTOR) {
+@@ -2618,6 +2618,7 @@
+ 		memset(bh, 0, sizeof(*bh));
+ 		INIT_LIST_HEAD(&bh->b_assoc_buffers);
+ 	}
++	return 0;
  }
  
--extern inline void ipc_unlockall(struct ipc_ids* ids)
--{
--	spin_unlock(&ids->ary);
--}
- extern inline struct kern_ipc_perm* ipc_lock(struct ipc_ids* ids, int id)
- {
- 	struct kern_ipc_perm* out;
- 	int lid = id % SEQ_MULTIPLIER;
--	if(lid >= ids->size)
-+
-+	rcu_read_lock();
-+	if(lid >= ids->size) {
-+		rcu_read_unlock();
- 		return NULL;
-+	}
+ static void *bh_mempool_alloc(int gfp_mask, void *pool_data)
+--- 2.5/./fs/block_dev.c	Thu Oct 31 18:48:05 2002
++++ build-2.5/./fs/block_dev.c	Thu Oct 31 19:19:59 2002
+@@ -223,7 +223,7 @@
+ 	 ((struct block_device *) kmem_cache_alloc(bdev_cachep, SLAB_KERNEL))
+ #define destroy_bdev(bdev) kmem_cache_free(bdev_cachep, (bdev))
  
--	spin_lock(&ids->ary);
-+	/* we need a barrier here to sync with grow_ary() */
-+	rmb();
- 	out = ids->entries[lid].p;
--	if(out==NULL)
--		spin_unlock(&ids->ary);
-+	if(out == NULL) {
-+		rcu_read_unlock();
-+		return NULL;
-+	}
-+	spin_lock(&out->lock);
-+	
-+	/* ipc_rmid() may have already freed the ID while ipc_lock
-+	 * was spinning: here verify that the structure is still valid
-+	 */
-+	if (out->deleted) {
-+		spin_unlock(&out->lock);
-+		rcu_read_unlock();
-+		return NULL;
-+	}
- 	return out;
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct block_device * bdev = (struct block_device *) foo;
+ 
+@@ -234,6 +234,7 @@
+ 		sema_init(&bdev->bd_sem, 1);
+ 		INIT_LIST_HEAD(&bdev->bd_inodes);
+ 	}
++	return 0;
  }
  
--extern inline void ipc_unlock(struct ipc_ids* ids, int id)
-+extern inline void ipc_unlock(struct kern_ipc_perm* perm)
+ void __init bdev_cache_init(void)
+--- 2.5/./fs/char_dev.c	Sun Sep 22 06:25:06 2002
++++ build-2.5/./fs/char_dev.c	Thu Oct 31 19:20:18 2002
+@@ -20,7 +20,7 @@
+ 	 ((struct char_device *) kmem_cache_alloc(cdev_cachep, SLAB_KERNEL))
+ #define destroy_cdev(cdev) kmem_cache_free(cdev_cachep, (cdev))
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
  {
--	spin_unlock(&ids->ary);
-+	spin_unlock(&perm->lock);
-+	rcu_read_unlock();
+ 	struct char_device * cdev = (struct char_device *) foo;
+ 
+@@ -30,6 +30,7 @@
+ 		memset(cdev, 0, sizeof(*cdev));
+ 		sema_init(&cdev->sem, 1);
+ 	}
++	return 0;
  }
  
- extern inline int ipc_buildid(struct ipc_ids* ids, int id, int seq)
+ void __init cdev_cache_init(void)
+--- 2.5/./fs/inode.c	Thu Oct 31 18:37:22 2002
++++ build-2.5/./fs/inode.c	Thu Oct 31 19:20:40 2002
+@@ -181,13 +181,14 @@
+ 	INIT_LIST_HEAD(&inode->i_data.i_mmap_shared);
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct inode * inode = (struct inode *) foo;
+ 
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(inode);
++	return 0;
+ }
+ 
+ /*
+--- 2.5/./fs/locks.c	Sat Oct 26 21:12:08 2002
++++ build-2.5/./fs/locks.c	Thu Oct 31 23:17:18 2002
+@@ -195,15 +195,16 @@
+  * Initialises the fields of the file lock which are invariant for
+  * free file_locks.
+  */
+-static void init_once(void *foo, kmem_cache_t *cache, unsigned long flags)
++static int init_once(void *foo, kmem_cache_t *cache, unsigned long flags)
+ {
+ 	struct file_lock *lock = (struct file_lock *) foo;
+ 
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) !=
+ 					SLAB_CTOR_CONSTRUCTOR)
+-		return;
++		return 0;
+ 
+ 	locks_init_lock(lock);
++	return 0;
+ }
+ 
+ /*
+--- 2.5/./lib/radix-tree.c	Thu Oct 31 18:48:18 2002
++++ build-2.5/./lib/radix-tree.c	Thu Oct 31 19:47:57 2002
+@@ -338,9 +338,10 @@
+ }
+ EXPORT_SYMBOL(radix_tree_delete);
+ 
+-static void radix_tree_node_ctor(void *node, kmem_cache_t *cachep, unsigned long flags)
++static int radix_tree_node_ctor(void *node, kmem_cache_t *cachep, unsigned long flags)
+ {
+ 	memset(node, 0, sizeof(struct radix_tree_node));
++	return 0;
+ }
+ 
+ static void *radix_tree_node_pool_alloc(int gfp_mask, void *data)
+--- 2.5/./mm/rmap.c	Thu Oct 31 18:37:25 2002
++++ build-2.5/./mm/rmap.c	Thu Oct 31 19:17:53 2002
+@@ -514,11 +514,12 @@
+  ** functions.
+  **/
+ 
+-static void pte_chain_ctor(void *p, kmem_cache_t *cachep, unsigned long flags)
++static int pte_chain_ctor(void *p, kmem_cache_t *cachep, unsigned long flags)
+ {
+ 	struct pte_chain *pc = p;
+ 
+ 	memset(pc, 0, sizeof(*pc));
++	return 0;
+ }
+ 
+ void __init pte_chain_init(void)
+--- 2.5/./mm/shmem.c	Thu Oct 31 18:48:19 2002
++++ build-2.5/./mm/shmem.c	Thu Oct 31 19:35:35 2002
+@@ -1739,7 +1739,7 @@
+ 	kmem_cache_free(shmem_inode_cachep, SHMEM_I(inode));
+ }
+ 
+-static void init_once(void *foo, kmem_cache_t *cachep, unsigned long flags)
++static int init_once(void *foo, kmem_cache_t *cachep, unsigned long flags)
+ {
+ 	struct shmem_inode_info *p = (struct shmem_inode_info *) foo;
+ 
+@@ -1747,6 +1747,7 @@
+ 	    SLAB_CTOR_CONSTRUCTOR) {
+ 		inode_init_once(&p->vfs_inode);
+ 	}
++	return 0;
+ }
+ 
+ static int init_inodecache(void)
+--- 2.5/./net/core/skbuff.c	Thu Oct 31 18:48:20 2002
++++ build-2.5/./net/core/skbuff.c	Thu Oct 31 19:47:19 2002
+@@ -225,7 +225,7 @@
+ /*
+  *	Slab constructor for a skb head.
+  */
+-static inline void skb_headerinit(void *p, kmem_cache_t *cache,
++static inline int skb_headerinit(void *p, kmem_cache_t *cache,
+ 				  unsigned long flags)
+ {
+ 	struct sk_buff *skb = p;
+@@ -257,6 +257,7 @@
+ #ifdef CONFIG_NET_SCHED
+ 	skb->tc_index	  = 0;
+ #endif
++	return 0;
+ }
+ 
+ static void skb_drop_fraglist(struct sk_buff *skb)
+--- 2.5/./net/socket.c	Thu Oct 31 18:48:24 2002
++++ build-2.5/./net/socket.c	Thu Oct 31 19:35:58 2002
+@@ -297,13 +297,14 @@
+ 			container_of(inode, struct socket_alloc, vfs_inode));
+ }
+ 
+-static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++static int init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
+ {
+ 	struct socket_alloc *ei = (struct socket_alloc *) foo;
+ 
+ 	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
+ 	    SLAB_CTOR_CONSTRUCTOR)
+ 		inode_init_once(&ei->vfs_inode);
++	return 0;
+ }
+  
+ static int init_inodecache(void)
 
---------------3E7808A0117B063146435ED0--
+--------------050900020002010500030604--
 

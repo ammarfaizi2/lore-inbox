@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135772AbRD2NC2>; Sun, 29 Apr 2001 09:02:28 -0400
+	id <S135773AbRD2Nc6>; Sun, 29 Apr 2001 09:32:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135771AbRD2NCR>; Sun, 29 Apr 2001 09:02:17 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:45298 "EHLO
-	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S135770AbRD2NCK>; Sun, 29 Apr 2001 09:02:10 -0400
-Message-Id: <l03130304b711bfd8bac3@[192.168.239.105]>
-In-Reply-To: <20010429123454.364E06808@mail.clouddancer.com>
+	id <S135774AbRD2Ncr>; Sun, 29 Apr 2001 09:32:47 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:41682 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S135773AbRD2Ncb>; Sun, 29 Apr 2001 09:32:31 -0400
+Date: Sun, 29 Apr 2001 15:32:29 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
+Message-ID: <20010429153229.L679@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <Pine.LNX.4.33.0104281752290.10866-100000@localhost.localdomain> <20010428215301.A1052@gruyere.muc.suse.de> <200104282256.f3SMuRW15999@vindaloo.ras.ucalgary.ca> <9cg7t7$gbt$1@cesium.transmeta.com> <3AEBF782.1911EDD2@mandrakesoft.com> <15083.64180.314190.500961@pizda.ninka.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Sun, 29 Apr 2001 14:00:04 +0100
-To: klink@clouddancer.com, linux-kernel@vger.kernel.org
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: OOM stupidity
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <15083.64180.314190.500961@pizda.ninka.net>; from davem@redhat.com on Sun, Apr 29, 2001 at 04:27:48AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Where is a patch to allow the sensible OOM I had in prior kernels?
->(cause this crap is getting pitched)
+On Sun, Apr 29, 2001 at 04:27:48AM -0700, David S. Miller wrote:
+> The idea is that the one thing one tends to optimize for new cpus
+> is the memcpy/memset implementation.  What better way to shield
+> libc from having to be updated for new cpus but to put it into
+> the kernel in this magic page?
 
-I gave Alan a patch to fix the problem where the OOM activates too early
-(eg. when there's still plenty of swap and buffer memory to eat).  I don't
-know whether this made it into the mainstream kernel, but from the sound of
-it, it didn't.
+Hehe, you have read this MXT patch on linux-mm, too? ;-)
 
-I also did some work on the OOM killer itself (so that it tries to be more
-intelligent about *what* it kills), and I'm fairly certain that didn't get
-accepted.
+There we have 10x faster memmove/memcpy/bzero for 1K blocks
+granularity (== alignment is 1K and size is multiple of 1K), that
+is done by the memory controller.
 
-If you like, I can post a patch containing these two fixes.
+This can only be done in the kernel, because it is critical we
+access here.
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
+Good idea.
 
-The key to knowledge is not to rely on people to teach you it.
+Regards
 
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
-
-
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

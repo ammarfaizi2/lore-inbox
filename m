@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268812AbRG0JyA>; Fri, 27 Jul 2001 05:54:00 -0400
+	id <S268802AbRG0J5a>; Fri, 27 Jul 2001 05:57:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268811AbRG0Jxu>; Fri, 27 Jul 2001 05:53:50 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:27210 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S268814AbRG0Jxk>;
-	Fri, 27 Jul 2001 05:53:40 -0400
-Message-ID: <20010727115350.A9407@win.tue.nl>
-Date: Fri, 27 Jul 2001 11:53:50 +0200
-From: Guest section DW <dwguest@win.tue.nl>
-To: "J . A . Magallon" <jamagallon@able.es>,
-        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: mount-2.11e bug ?
-In-Reply-To: <20010727013138.A4186@werewolf.able.es>
-Mime-Version: 1.0
+	id <S268815AbRG0J5W>; Fri, 27 Jul 2001 05:57:22 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:30086 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S268802AbRG0J5F>;
+	Fri, 27 Jul 2001 05:57:05 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20010727013138.A4186@werewolf.able.es>; from J . A . Magallon on Fri, Jul 27, 2001 at 01:31:38AM +0200
+Content-Transfer-Encoding: 7bit
+Message-ID: <15201.15059.75725.225907@pizda.ninka.net>
+Date: Fri, 27 Jul 2001 02:56:35 -0700 (PDT)
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Minor net/core/sock.c security issue?
+In-Reply-To: <200107242224.CAA00437@mops.inr.ac.ru>
+In-Reply-To: <15196.45004.237634.928656@pizda.ninka.net>
+	<200107242224.CAA00437@mops.inr.ac.ru>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Fri, Jul 27, 2001 at 01:31:38AM +0200, J . A . Magallon wrote:
 
-> Can anybody tell me if there was a bug in mount from util-linux-2.11e that could
-> do things like this with new kernels:
-> 
-> /etc/fstab:
-> ...
-> tmpfs /dev/shm tmpfs defaults,size=128M 0 0
-> ...
-> 
-> werewolf:~/soft/util/util-linux-2.11e/mount# df
-> Filesystem           1k-blocks      Used Available Use% Mounted on
-> /dev/sda1               248895     83086    152959  36% /
-> /dev/sda2              3099292   2092872    848984  72% /usr
-> /dev/sda3              4095488   1603796   2283652  42% /home
-> /dev/sda5              1027768         8    975552   1% /toast
-> /home/soft/util/util-linux-2.11e/mount/tmpfs
->                         131072         0    131072   0% /dev/shm
-> 
-> 2.11h works ok.
+Alexey Kuznetsov writes:
+ > > 1) have standard inline functions with names that suggest the
+ > >    signedness, much like Rusty's netfilter macros.
+ > 
+ > min/max are macros. I do not know how to make a valid inline
+ > for it: cast to long has problems with unsigned longs, cast to unsigned long
+ > have the same problems with signedness.
 
-Yes, there was.
+For the time being I've just killed that bogus min define
+from sock.c and also open-coded the min/max usage in the
+rest of sock.c
 
-Mount does a canonicalize() on the path names of device and mount point.
-Thus, tmpfs when your current directory is ~/soft/util/util-linux-2.11e/mount
-becomes /home/soft/util/util-linux-2.11e/mount/tmpfs.
+This solves the original report, but later I'd like to do
+something more satisfactory here.
 
-However, this only happens when the thus obtained pathname points at an
-actual file. In a few mount versions the realpath() routine also did this
-when there is no such file.
+I mean, grep for "define [min|max]" in just the networking
+sources right now, yuck!
 
-Andries
+Later,
+David S. Miller
+davem@redhat.com

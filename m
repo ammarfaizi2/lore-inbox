@@ -1,59 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313864AbSDPUBE>; Tue, 16 Apr 2002 16:01:04 -0400
+	id <S313862AbSDPUA5>; Tue, 16 Apr 2002 16:00:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313865AbSDPUBE>; Tue, 16 Apr 2002 16:01:04 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:34209 "HELO atlrel6.hp.com")
-	by vger.kernel.org with SMTP id <S313864AbSDPUBC>;
-	Tue, 16 Apr 2002 16:01:02 -0400
-Message-ID: <3CBC8281.5A2BEDA3@hp.com>
-Date: Tue, 16 Apr 2002 13:58:57 -0600
-From: Khalid Aziz <khalid_aziz@hp.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre7, ppp problem
-In-Reply-To: <3CBC7D8E.5CC95F13@wanadoo.fr>
+	id <S313864AbSDPUA4>; Tue, 16 Apr 2002 16:00:56 -0400
+Received: from splat.lanl.gov ([128.165.17.254]:40111 "EHLO
+	balance.radtt.lanl.gov") by vger.kernel.org with ESMTP
+	id <S313862AbSDPUAz>; Tue, 16 Apr 2002 16:00:55 -0400
+Date: Tue, 16 Apr 2002 14:00:45 -0600
+From: Eric Weigle <ehw@lanl.gov>
+To: "X.Xiao" <joyhaa@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au
+Subject: Re: tcp/ip stack in user space (possible FAQ addition?)
+Message-ID: <20020416200045.GO3651@lanl.gov>
+In-Reply-To: <20020416185419.52395.qmail@web13208.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Eric-Unconspiracy: There ought to be a conspiracy
+X-Editor: Vim, http://www.vim.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try the following patch and see if it works:
-
---
-Khalid
-
---- linux-2.4.18-hcdpold/include/asm-i386/serial.h      Tue Apr 16
-12:05:27 2002
-+++ linux-2.4.18-hcdp/include/asm-i386/serial.h Tue Apr 16 12:02:54 2002
-@@ -140,8 +140,8 @@
- #endif
- 
- #define SERIAL_PORT_DFNS               \
--       HCDP_SERIAL_PORT_DEFNS          \
-        STD_SERIAL_PORT_DEFNS           \
-+       HCDP_SERIAL_PORT_DEFNS          \
-        EXTRA_SERIAL_PORT_DEFNS         \
-        HUB6_SERIAL_PORT_DFNS           \
-        MCA_SERIAL_PORT_DFNS
-
-
-Jean-Luc Coulon wrote:
+> i want to move tcp/ip stack(including routing and
+> netfilter) to userspace, my goal is to trace all the
+> instructions involved in a firewall and router since i
+> don't know how to trace these instructions inside the
+> kernel. i want to get something like:
 > 
-> Hi,
+> incoming ip packets(a file)-->fake ISR-->tcp/ip
+> stack-->outgoing ip packets( to /dev/null).
 > 
-> I have a serial modem and I use ppp to connect my isp.
-> With 2.4.19-pre7 it does not works. Nothing happens after loading the
-> ppp module.
-> All is fine with pre5 and pre6
-> 
-> ----
-> Regards
+> my question is: is it possible and relatively easy to
+> move tcp/ip stack to user space?
+This comes up fairly frequently, it might be a good addition to the FAQ.
+Here's my attempt at an answer culled from prior messages.
 
-====================================================================
-Khalid Aziz                              Linux Systems Operation R&D
-(970)898-9214                                        Hewlett-Packard
-khalid@fc.hp.com                                    Fort Collins, CO
+Several people have user-mode network stacks at various levels of
+development, but it is *highly* unlikely for them ever to get into
+the kernel proper (see the monolithic versus microkernel debate at
+http://www.kernel.org/pub/linux/docs/lkml/#s15-4).
+
+Here are some URLs to which you can refer for more information:
+	http://www.cl.cam.ac.uk/Research/SRG/netos/arsenic/
+	http://www.cs.nwu.edu/~pdinda/minet/minet.html
+	http://www.joerch.org/tcpip/
+	http://freshmeat.net/projects/libutcp/
+
+However, for security purposes, you probably do not want a user-mode stack.
+You want an extensible packet handling mechanism, and can be found with:
+	iptables/ipchains -- the native Linux firewalling tools,
+		http://netfilter.samba.org/
+	tc -- the Traffic control program,
+		http://www.sparre.dk/pub/linux/tc/
+	libpcap -- packet capture library,
+		http://www.tcpdump.org
+
+Thanks,
+-Eric
+
+-- 
+--------------------------------------------
+ Eric H. Weigle   CCS-1, RADIANT team
+ ehw@lanl.gov     Los Alamos National Lab
+ (505) 665-4937   http://home.lanl.gov/ehw/
+--------------------------------------------

@@ -1,135 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbTJ2BPc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 20:15:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbTJ2BPc
+	id S261869AbTJ2Btk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 20:49:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTJ2Btk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 20:15:32 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:27356 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261823AbTJ2BP2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 20:15:28 -0500
-Subject: [PATCH] linxu-2.4.23-pre8_cpu-map-fix_A0
-From: john stultz <johnstul@us.ibm.com>
-To: marcelo <marcelo.tosatti@cyclades.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>, James <jamesclv@us.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1067390071.23152.63.camel@cog.beaverton.ibm.com>
+	Tue, 28 Oct 2003 20:49:40 -0500
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:21906 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S261869AbTJ2Bti
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 20:49:38 -0500
+Subject: [PATCH] Re: PS/2 Slowness w/ 2.6.0-test9-bk2
+From: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <rrey@ranty.pantax.net>
+Reply-To: ramon.rey@hispalinux.es
+To: walt <wa1ter@myrealbox.com>
+Cc: Shawn Starr <spstarr@sh0n.net>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F9F0E72.2010606@myrealbox.com>
+References: <fa.k5maq39.1h6g0b7@ifi.uio.no> <3F9F0E72.2010606@myrealbox.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-HWh3NqC9JrKW5+Uv+Rv7"
+Message-Id: <1067392135.1052.4.camel@debian>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 28 Oct 2003 17:14:31 -0800
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 29 Oct 2003 02:48:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo, All,
 
-        I noticed on x440s that when HT is disabled in the BIOS I was
-having problems properly booting 2.4 in ACPI mode. Further investigation
-found a subtle problem w/ smp_boot_cpus() when clustered_acpi_mode is
-set. 
-
-During bootup, phys_cpu_present_map is initialized by ORing
-apicid_to_phys_cpu_present() for each cpu apicid(see MP_processor_info).
-On flat mode boxes this translates to "phys_cpu_present_map |=
-(1<<apicid)". 
-
-On clustered_apic_mode boxes, since we're using phyiscal apic addresses,
-the apicids are not sequential so it is possible the
-phys_cpu_present_map can have holes in it (see
-apicid_to_phys_cpu_present()). 
-
-The problem arises in smp_boot_cpus() because when we are booting the
-cpus, we iterate through each apicid, however we bit-AND
-phys_cpu_present_map w/ (1<<apicid)  rather then using
-apicid_to_phys_cpu_present(apicid). This may cause us to try to boot
-apicids that do not exist. 
-
-The following patch corrects the problem by always bit-ANDing
-phys_cpu_present_map with apicid_to_phys_cpu_present(). This is safe for
-flat mode boxes, as apicid_to_phys_cpu_present(apicid) translates to
-(1<<apicid). 
-
-Additionally, the patch insures we do not try to boot BAD_APICIDs and
-removes a hack that was added to mpparse.c which worked around this
-problem in the non-ACPI boot path.
-
-In 2.5 we do not have this problem as we use logical rather then
-physical apic addressing. 
-
-Please consider for inclusion into your tree.
-
-thanks
--john
+--=-HWh3NqC9JrKW5+Uv+Rv7
+Content-Type: multipart/mixed; boundary="=-jHE22hNutbrLEL6rwEL3"
 
 
-diff -Nru a/arch/i386/kernel/mpparse.c b/arch/i386/kernel/mpparse.c
---- a/arch/i386/kernel/mpparse.c	Tue Oct 28 16:53:53 2003
-+++ b/arch/i386/kernel/mpparse.c	Tue Oct 28 16:53:53 2003
-@@ -587,10 +587,6 @@
- 		++mpc_record;
- 	}
- 
--	if (clustered_apic_mode){
--		phys_cpu_present_map = logical_cpu_present_map;
--	}
--
- 
- 	printk("Enabling APIC mode: ");
- 	if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
-diff -Nru a/arch/i386/kernel/process.c b/arch/i386/kernel/process.c
---- a/arch/i386/kernel/process.c	Tue Oct 28 16:53:53 2003
-+++ b/arch/i386/kernel/process.c	Tue Oct 28 16:53:53 2003
-@@ -44,6 +44,7 @@
- #include <asm/irq.h>
- #include <asm/desc.h>
- #include <asm/mmu_context.h>
-+#include <asm/smpboot.h>
- #ifdef CONFIG_MATH_EMULATION
- #include <asm/math_emu.h>
- #endif
-@@ -377,7 +378,7 @@
- 		   if its not, default to the BSP */
- 		if ((reboot_cpu == -1) ||  
- 		      (reboot_cpu > (NR_CPUS -1))  || 
--		      !(phys_cpu_present_map & (1<<cpuid))) 
-+		      !(phys_cpu_present_map & apicid_to_phys_cpu_present(cpuid)))
- 			reboot_cpu = boot_cpu_physical_apicid;
- 
- 		reboot_smp = 0;  /* use this as a flag to only go through this once*/
-diff -Nru a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
---- a/arch/i386/kernel/smpboot.c	Tue Oct 28 16:53:53 2003
-+++ b/arch/i386/kernel/smpboot.c	Tue Oct 28 16:53:53 2003
-@@ -1108,13 +1108,17 @@
- 
- 	for (bit = 0; bit < NR_CPUS; bit++) {
- 		apicid = cpu_present_to_apicid(bit);
-+		
-+		/* don't try to boot BAD_APICID */
-+		if (apicid == BAD_APICID)
-+			continue; 
- 		/*
- 		 * Don't even attempt to start the boot CPU!
- 		 */
- 		if (apicid == boot_cpu_apicid)
- 			continue;
- 
--		if (!(phys_cpu_present_map & (1ul << bit)))
-+		if (!(phys_cpu_present_map & apicid_to_phys_cpu_present(apicid)))
- 			continue;
- 		if (max_cpus <= cpucount+1)
- 			continue;
-@@ -1125,7 +1129,8 @@
- 		 * Make sure we unmap all failed CPUs
- 		 */
- 		if ((boot_apicid_to_cpu(apicid) == -1) &&
--				(phys_cpu_present_map & (1ul << bit)))
-+			(phys_cpu_present_map & 
-+				apicid_to_phys_cpu_present(apicid)))
- 			printk("CPU #%d/0x%02x not responding - cannot use it.\n",
- 								bit, apicid);
- 	}
+--=-jHE22hNutbrLEL6rwEL3
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
+El mi=E9, 29-10-2003 a las 01:48, walt escribi=F3:
 
+> I have the same problem, but I find that booting with the psmouse_noext
+> kernel parameter reverses the unwanted behavior.
+
+I've made a patch with a workaround, a new MOUSE_PS2_FORCE_RATE option
+:). I hope this help somebody while Linus/someone find the perfect
+solution
+--=20
+Ram=F3n Rey Vicente       <ramon dot rey at hispalinux dot es>
+        jabber ID       <rreylinux at jabber dot org>
+GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
+
+--=-jHE22hNutbrLEL6rwEL3
+Content-Disposition: inline; filename=mouse_ps2_force_rate.patch
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=mouse_ps2_force_rate.patch; charset=iso-8859-15
+
+SW5kZXg6IEtjb25maWcNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0tLSBLY29uZmlnCShyZXZpc2lvbiAxMzY3NCkN
+CisrKyBLY29uZmlnCSh3b3JraW5nIGNvcHkpDQpAQCAtMjgsNiArMjgsMTMgQEANCiAJICBUbyBj
+b21waWxlIHRoaXMgZHJpdmVyIGFzIGEgbW9kdWxlLCBjaG9vc2UgTSBoZXJlOiB0aGUNCiAJICBt
+b2R1bGUgd2lsbCBiZSBjYWxsZWQgcHNtb3VzZS4NCiANCitjb25maWcgTU9VU0VfUFMyX0ZPUkNF
+X1JBVEUNCisJYm9vbCAiRm9yY2UgcmF0ZSBvZiBQUy8yIG1vdXNlIg0KKwlkZWZhdWx0IG4NCisJ
+ZGVwZW5kcyBvbiBNT1VTRV9QUzINCisJLS0taGVscC0tLQ0KKwkgIFNheSBZIGlmIHlvdSBleHBl
+cmltZW50IHNsb3duZXNzIHByb2JsZW1zIHdpdGggeW91ciBQUy8yIG1vdXNlLg0KKw0KIGNvbmZp
+ZyBNT1VTRV9QUzJfU1lOQVBUSUNTDQogCWJvb2wgIlN5bmFwdGljcyBUb3VjaFBhZCINCiAJZGVm
+YXVsdCBuDQpJbmRleDogcHNtb3VzZS1iYXNlLmMNCj09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0tLSBwc21vdXNlLWJh
+c2UuYwkocmV2aXNpb24gMTQyNDEpDQorKysgcHNtb3VzZS1iYXNlLmMJKHdvcmtpbmcgY29weSkN
+CkBAIC00MCw3ICs0MCwxMyBAQA0KIA0KIHN0YXRpYyBpbnQgcHNtb3VzZV9ub2V4dDsNCiBpbnQg
+cHNtb3VzZV9yZXNvbHV0aW9uOw0KKw0KKyNpZmRlZiBDT05GSUdfTU9VU0VfUFMyX0ZPUkNFX1JB
+VEUNCit1bnNpZ25lZCBpbnQgcHNtb3VzZV9yYXRlID0gNjA7DQorI2Vsc2UNCiB1bnNpZ25lZCBp
+bnQgcHNtb3VzZV9yYXRlOw0KKyNlbmRpZg0KKw0KIGludCBwc21vdXNlX3NtYXJ0c2Nyb2xsID0g
+UFNNT1VTRV9MT0dJVEVDSF9TTUFSVFNDUk9MTDsNCiB1bnNpZ25lZCBpbnQgcHNtb3VzZV9yZXNl
+dGFmdGVyOw0KIA0KQEAgLTQ3MSwxNiArNDc3LDIzIEBADQogICogV2Ugc2V0IHRoZSBtb3VzZSBy
+ZXBvcnQgcmF0ZS4NCiAgKi8NCiANCisjaWZkZWYgQ09ORklHX01PVVNFX1BTMl9GT1JDRV9SQVRF
+DQorCXBzbW91c2Vfc2V0X3JhdGUocHNtb3VzZSk7DQorI2Vsc2UNCiAJaWYgKHBzbW91c2VfcmF0
+ZSkNCiAJCXBzbW91c2Vfc2V0X3JhdGUocHNtb3VzZSk7DQorI2VuZGlmDQogDQogLyoNCiAgKiBX
+ZSBhbHNvIHNldCB0aGUgcmVzb2x1dGlvbiBhbmQgc2NhbGluZy4NCiAgKi8NCiANCisjaWZkZWYg
+Q09ORklHX01PVVNFX1BTMl9GT1JDRV9SQVRFDQorCSBwc21vdXNlX3NldF9yZXNvbHV0aW9uKHBz
+bW91c2UpOw0KKyNlbHNlDQogCWlmIChwc21vdXNlX3Jlc29sdXRpb24pDQogCQlwc21vdXNlX3Nl
+dF9yZXNvbHV0aW9uKHBzbW91c2UpOw0KLQ0KKyNlbmRpZg0KIAlwc21vdXNlX2NvbW1hbmQocHNt
+b3VzZSwgIE5VTEwsIFBTTU9VU0VfQ01EX1NFVFNDQUxFMTEpOw0KIA0KIC8qDQpAQCAtNjU0LDE3
+ICs2NjcsMjIgQEANCiAJcmV0dXJuIDE7DQogfQ0KIA0KKyNpZm5kZWYgQ09ORklHX01PVVNFX1BT
+Ml9GT1JDRV9SQVRFDQogc3RhdGljIGludCBfX2luaXQgcHNtb3VzZV9yYXRlX3NldHVwKGNoYXIg
+KnN0cikNCiB7DQogCWdldF9vcHRpb24oJnN0ciwgJnBzbW91c2VfcmF0ZSk7DQogCXJldHVybiAx
+Ow0KIH0NCisjZW5kaWYNCiANCiBfX3NldHVwKCJwc21vdXNlX25vZXh0IiwgcHNtb3VzZV9ub2V4
+dF9zZXR1cCk7DQogX19zZXR1cCgicHNtb3VzZV9yZXNvbHV0aW9uPSIsIHBzbW91c2VfcmVzb2x1
+dGlvbl9zZXR1cCk7DQogX19zZXR1cCgicHNtb3VzZV9zbWFydHNjcm9sbD0iLCBwc21vdXNlX3Nt
+YXJ0c2Nyb2xsX3NldHVwKTsNCiBfX3NldHVwKCJwc21vdXNlX3Jlc2V0YWZ0ZXI9IiwgcHNtb3Vz
+ZV9yZXNldGFmdGVyX3NldHVwKTsNCisNCisjaWZuZGVmIENPTkZJR19NT1VTRV9QUzJfRk9SQ0Vf
+UkFURQ0KIF9fc2V0dXAoInBzbW91c2VfcmF0ZT0iLCBwc21vdXNlX3JhdGVfc2V0dXApOw0KKyNl
+bmRpZg0KIA0KICNlbmRpZg0KIA0K
+
+--=-jHE22hNutbrLEL6rwEL3--
+
+--=-HWh3NqC9JrKW5+Uv+Rv7
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/nxyGRGk68b69cdURAnNsAJ9HBlgyUTkFMaVX9TPnmTgKmrA9UwCfZhMQ
+D8u9tfTn4fsv/wjmcMCAIoU=
+=Eil2
+-----END PGP SIGNATURE-----
+
+--=-HWh3NqC9JrKW5+Uv+Rv7--
 

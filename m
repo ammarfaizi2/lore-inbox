@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130487AbRDMMyI>; Fri, 13 Apr 2001 08:54:08 -0400
+	id <S130493AbRDMM4S>; Fri, 13 Apr 2001 08:56:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130493AbRDMMx6>; Fri, 13 Apr 2001 08:53:58 -0400
-Received: from ns.caldera.de ([212.34.180.1]:37383 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S130487AbRDMMxs>;
-	Fri, 13 Apr 2001 08:53:48 -0400
-Date: Fri, 13 Apr 2001 14:52:49 +0200
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Wayne.Brown@altec.com, linux-kernel@vger.kernel.org
-Subject: Re: badly punctuated parameter list in `#define' (2.4.3-ac5 and 2.4.4 -pre2)
-Message-ID: <20010413145249.A29264@caldera.de>
-Mail-Followup-To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-	Wayne.Brown@altec.com, linux-kernel@vger.kernel.org
-In-Reply-To: <86256A2C.0068BA0C.00@smtpnotes.altec.com> <200104121931.VAA02438@ns.caldera.de> <20010413123939.B30971@pcep-jamie.cern.ch>
+	id <S130507AbRDMM4I>; Fri, 13 Apr 2001 08:56:08 -0400
+Received: from sgi.SGI.COM ([192.48.153.1]:38490 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S130493AbRDMM4A>;
+	Fri, 13 Apr 2001 08:56:00 -0400
+Date: Fri, 13 Apr 2001 07:55:53 -0500
+From: Michael Raymond <mraymond@sgi.com>
+To: Mark Salisbury <gonar@mediaone.net>
+Cc: george anzinger <george@mvista.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Andre Hedrick <andre@linux-ide.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, schwidefsky@de.ibm.com,
+        linux-kernel@vger.kernel.org,
+        high-res-timers-discourse@lists.sourceforge.net
+Subject: Re: Linux-Kernel Archive: No 100 HZ timer !
+Message-ID: <20010413075553.A102611@fsgi654.americas.sgi.com>
+In-Reply-To: <Pine.LNX.4.10.10104122102170.4564-100000@master.linux-ide.org> <m1snjdtgcc.fsf@frodo.biederman.org> <3AD6B894.39848F3F@mvista.com> <002d01c0c414$346b2140$6501a8c0@gonar.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <20010413123939.B30971@pcep-jamie.cern.ch>; from lk@tantalophile.demon.co.uk on Fri, Apr 13, 2001 at 12:39:39PM +0200
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <002d01c0c414$346b2140$6501a8c0@gonar.com>; from gonar@mediaone.net on Fri, Apr 13, 2001 at 08:20:56AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 13, 2001 at 12:39:39PM +0200, Jamie Lokier wrote:
-> Christoph Hellwig wrote:
-> > So the /* old gcc */ part should probably be enabled based on a define for the
-> > old compiler.  The right ifdef seems to be:
-> > 
-> >   #if __GNUC__ == 2 && __GNUC_MINOR__ < 95
+On Fri, Apr 13, 2001 at 08:20:56AM -0400, Mark Salisbury wrote:
+> inner loop, i.e. interrupt timer code should never have to convert from some
+> real time value into number of decrementer ticks in order to set up the next
+> interrupt as that requires devides (and 64 bit ones at that) in a tickless
+> system.
 > 
-> The current GCC supports the old syntax and will do so for a while yet,
-> so perhaps this is not required?
+> this is why any variable interval list/heap/tree/whatever should be kept in
+> local ticks.  frequently used values can be pre-computed at boot time to
+> speed up certain calculations (like how many local ticks/proc quantum)
 
-If that's true (I have no gcc3.0 to verify it) that's the better soloution
-in my eyes.
-
-	Christoph
+    What about machines without synchronized local ticks?  We're going to
+have to end up doing conversions anyway because of drift and machines
+without even the same speed CPUs.  A time based system using local cached
+values such as cycles_per_usec would better be able to handle this.
+       	       		       	     	       	    Michael
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+Michael A. Raymond              Office: (651) 683-3434
+Irix Core Kernel Group

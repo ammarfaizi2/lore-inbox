@@ -1,183 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262018AbTELJpH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 05:45:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbTELJpG
+	id S262054AbTELJt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 05:49:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbTELJtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 05:45:06 -0400
-Received: from amsfep12-int.chello.nl ([213.46.243.18]:5149 "EHLO
+	Mon, 12 May 2003 05:49:22 -0400
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:58425 "EHLO
 	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262018AbTELJpC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 05:45:02 -0400
-Date: Mon, 12 May 2003 11:54:30 +0200
-Message-Id: <200305120954.h4C9sUix000948@callisto.of.borg>
+	id S262056AbTELJpO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 05:45:14 -0400
+Date: Mon, 12 May 2003 11:54:42 +0200
+Message-Id: <200305120954.h4C9sgW4001039@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] M68k IRQ API updates [1/20]
+Subject: [PATCH] M68k IRQ API updates [15/20]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k core: Update to the new irq API (from Roman Zippel and me) [1/20]
+M68k input drivers: Update to the new irq API (from Roman Zippel and me) [15/20]
 
-Linus: I sent these to you before in one chunk, but because of the size they
-never reached lkml. If you already applied them, please ignore.
-
---- linux-2.5.69/arch/m68k/kernel/ints.c	Tue Nov  5 10:09:41 2002
-+++ linux-m68k-2.5.69/arch/m68k/kernel/ints.c	Tue May  6 13:50:49 2003
-@@ -60,14 +60,14 @@
- static void dummy_enable_irq(unsigned int irq);
- static void dummy_disable_irq(unsigned int irq);
- static int dummy_request_irq(unsigned int irq,
--		void (*handler) (int, void *, struct pt_regs *),
-+		irqreturn_t (*handler) (int, void *, struct pt_regs *),
- 		unsigned long flags, const char *devname, void *dev_id);
- static void dummy_free_irq(unsigned int irq, void *dev_id);
+--- linux-2.5.69/drivers/input/joystick/amijoy.c	Sun Feb 16 12:16:23 2003
++++ linux-m68k-2.5.69/drivers/input/joystick/amijoy.c	Fri May  9 10:21:31 2003
+@@ -52,7 +52,7 @@
  
- void (*enable_irq) (unsigned int) = dummy_enable_irq;
- void (*disable_irq) (unsigned int) = dummy_disable_irq;
+ static char *amijoy_name = "Amiga joystick";
  
--int (*mach_request_irq) (unsigned int, void (*)(int, void *, struct pt_regs *),
-+int (*mach_request_irq) (unsigned int, irqreturn_t (*)(int, void *, struct pt_regs *),
-                       unsigned long, const char *, void *) = dummy_request_irq;
- void (*mach_free_irq) (unsigned int, void *) = dummy_free_irq;
- 
-@@ -121,7 +121,7 @@
-  * include/asm/irq.h.
-  */
- int request_irq(unsigned int irq,
--		void (*handler) (int, void *, struct pt_regs *),
-+		irqreturn_t (*handler) (int, void *, struct pt_regs *),
- 		unsigned long flags, const char *devname, void *dev_id)
+-static void amijoy_interrupt(int irq, void *dummy, struct pt_regs *fp)
++static irqreturn_t amijoy_interrupt(int irq, void *dummy, struct pt_regs *fp)
  {
- 	return mach_request_irq(irq, handler, flags, devname, dev_id);
-@@ -133,7 +133,7 @@
- }
+ 	int i, data = 0, button = 0;
  
- int sys_request_irq(unsigned int irq, 
--                    void (*handler)(int, void *, struct pt_regs *), 
-+                    irqreturn_t (*handler)(int, void *, struct pt_regs *), 
-                     unsigned long flags, const char *devname, void *dev_id)
- {
- 	if (irq < IRQ1 || irq > IRQ7) {
-@@ -215,7 +215,7 @@
- }
+@@ -74,6 +74,7 @@
  
- static int dummy_request_irq(unsigned int irq,
--		void (*handler) (int, void *, struct pt_regs *),
-+		irqreturn_t (*handler) (int, void *, struct pt_regs *),
- 		unsigned long flags, const char *devname, void *dev_id)
- {
- 	printk("calling uninitialized request_irq()\n");
---- linux-2.5.69/arch/m68k/kernel/setup.c	Mon May  5 10:30:22 2003
-+++ linux-m68k-2.5.69/arch/m68k/kernel/setup.c	Fri May  9 10:21:30 2003
-@@ -67,14 +67,14 @@
- 
- char m68k_debug_device[6] = "";
- 
--void (*mach_sched_init) (void (*handler)(int, void *, struct pt_regs *)) __initdata = NULL;
-+void (*mach_sched_init) (irqreturn_t (*handler)(int, void *, struct pt_regs *)) __initdata = NULL;
- /* machine dependent irq functions */
- void (*mach_init_IRQ) (void) __initdata = NULL;
--void (*(*mach_default_handler)[]) (int, void *, struct pt_regs *) = NULL;
-+irqreturn_t (*(*mach_default_handler)[]) (int, void *, struct pt_regs *) = NULL;
- void (*mach_get_model) (char *model) = NULL;
- int (*mach_get_hardware_list) (char *buffer) = NULL;
- int (*mach_get_irq_list) (struct seq_file *, void *) = NULL;
--void (*mach_process_int) (int, struct pt_regs *) = NULL;
-+irqreturn_t (*mach_process_int) (int, struct pt_regs *) = NULL;
- /* machine dependent timer functions */
- unsigned long (*mach_gettimeoffset) (void);
- int (*mach_hwclk) (int, struct rtc_time*) = NULL;
---- linux-2.5.69/arch/m68k/kernel/time.c	Tue Mar 25 10:06:08 2003
-+++ linux-m68k-2.5.69/arch/m68k/kernel/time.c	Tue May  6 13:50:49 2003
-@@ -57,7 +57,7 @@
-  * timer_interrupt() needs to keep up the real-time clock,
-  * as well as call the "do_timer()" routine every clocktick
-  */
--static void timer_interrupt(int irq, void *dummy, struct pt_regs * regs)
-+static irqreturn_t timer_interrupt(int irq, void *dummy, struct pt_regs * regs)
- {
- 	do_timer(regs);
- 
-@@ -87,6 +87,7 @@
- 	    }
- 	}
- #endif /* CONFIG_HEARTBEAT */
+ 			input_sync(amijoy_dev + i);
+ 		}
 +	return IRQ_HANDLED;
  }
  
- void time_init(void)
---- linux-2.5.69/include/asm-m68k/irq.h	Mon May  5 10:32:45 2003
-+++ linux-m68k-2.5.69/include/asm-m68k/irq.h	Tue May  6 13:50:50 2003
-@@ -2,6 +2,7 @@
- #define _M68K_IRQ_H_
+ static int amijoy_open(struct input_dev *dev)
+--- linux-2.5.69/drivers/input/keyboard/amikbd.c	Sun Apr 20 12:28:34 2003
++++ linux-m68k-2.5.69/drivers/input/keyboard/amikbd.c	Fri May  9 10:21:31 2003
+@@ -71,7 +71,7 @@
+ static char *amikbd_name = "Amiga keyboard";
+ static char *amikbd_phys = "amikbd/input0";
  
- #include <linux/config.h>
-+#include <linux/interrupt.h>
+-static void amikbd_interrupt(int irq, void *dummy, struct pt_regs *fp)
++static irqreturn_t amikbd_interrupt(int irq, void *dummy, struct pt_regs *fp)
+ {
+ 	unsigned char scancode, down;
  
- /*
-  * # of m68k interrupts
-@@ -76,7 +77,7 @@
- struct pt_regs;
+@@ -93,16 +93,14 @@
+ 			input_report_key(&amikbd_dev, scancode, 1);
+ 			input_report_key(&amikbd_dev, scancode, 0);
+ 			input_sync(&amikbd_dev);
+-			return;
++		} else {
++			input_report_key(&amikbd_dev, scancode, down);
++			input_sync(&amikbd_dev);
+ 		}
++	} else				/* scancodes >= 0x78 are error codes */
++		printk(amikbd_messages[scancode - 0x78]);
  
- extern int sys_request_irq(unsigned int, 
--	void (*)(int, void *, struct pt_regs *), 
-+	irqreturn_t (*)(int, void *, struct pt_regs *), 
- 	unsigned long, const char *, void *);
- extern void sys_free_irq(unsigned int, void *);
+-		input_report_key(&amikbd_dev, scancode, down);
+-		input_sync(&amikbd_dev);
+-
+-		return;
+-	}
+-
+-	printk(amikbd_messages[scancode - 0x78]);	/* scancodes >= 0x78 are error codes */
++	return IRQ_HANDLED;
+ }
  
-@@ -98,7 +99,7 @@
-  * interrupt source (if it supports chaining).
-  */
- typedef struct irq_node {
--	void		(*handler)(int, void *, struct pt_regs *);
-+	irqreturn_t	(*handler)(int, void *, struct pt_regs *);
- 	unsigned long	flags;
- 	void		*dev_id;
- 	const char	*devname;
-@@ -109,7 +110,7 @@
-  * This structure has only 4 elements for speed reasons
-  */
- typedef struct irq_handler {
--	void		(*handler)(int, void *, struct pt_regs *);
-+	irqreturn_t	(*handler)(int, void *, struct pt_regs *);
- 	unsigned long	flags;
- 	void		*dev_id;
- 	const char	*devname;
---- linux-2.5.69/include/asm-m68k/machdep.h	Fri Jan 17 12:09:37 2003
-+++ linux-m68k-2.5.69/include/asm-m68k/machdep.h	Fri May  9 10:21:35 2003
-@@ -2,6 +2,7 @@
- #define _M68K_MACHDEP_H
+ static int __init amikbd_init(void)
+--- linux-2.5.69/drivers/input/mouse/amimouse.c	Sun Feb 16 12:16:23 2003
++++ linux-m68k-2.5.69/drivers/input/mouse/amimouse.c	Tue May  6 13:50:50 2003
+@@ -40,7 +40,7 @@
+ static char *amimouse_name = "Amiga mouse";
+ static char *amimouse_phys = "amimouse/input0";
  
- #include <linux/seq_file.h>
-+#include <linux/interrupt.h>
+-static void amimouse_interrupt(int irq, void *dummy, struct pt_regs *fp)
++static irqreturn_t amimouse_interrupt(int irq, void *dummy, struct pt_regs *fp)
+ {
+ 	unsigned short joy0dat, potgor;
+ 	int nx, ny, dx, dy;
+@@ -73,6 +73,8 @@
+ 	input_report_key(&amimouse_dev, BTN_RIGHT,  potgor & 0x0400);
  
- struct pt_regs;
- struct mktime;
-@@ -9,17 +10,17 @@
- struct rtc_pll_info;
- struct buffer_head;
+ 	input_sync(&amimouse_dev);
++
++	return IRQ_HANDLED;
+ }
  
--extern void (*mach_sched_init) (void (*handler)(int, void *, struct pt_regs *));
-+extern void (*mach_sched_init) (irqreturn_t (*handler)(int, void *, struct pt_regs *));
- /* machine dependent irq functions */
- extern void (*mach_init_IRQ) (void);
--extern void (*(*mach_default_handler)[]) (int, void *, struct pt_regs *);
--extern int (*mach_request_irq) (unsigned int irq, void (*handler)(int, void *, struct pt_regs *),
-+extern irqreturn_t (*(*mach_default_handler)[]) (int, void *, struct pt_regs *);
-+extern int (*mach_request_irq) (unsigned int irq, irqreturn_t (*handler)(int, void *, struct pt_regs *),
-                                 unsigned long flags, const char *devname, void *dev_id);
- extern void (*mach_free_irq) (unsigned int irq, void *dev_id);
- extern void (*mach_get_model) (char *model);
- extern int (*mach_get_hardware_list) (char *buffer);
- extern int (*mach_get_irq_list) (struct seq_file *p, void *v);
--extern void (*mach_process_int) (int irq, struct pt_regs *fp);
-+extern irqreturn_t (*mach_process_int) (int irq, struct pt_regs *fp);
- /* machine dependent timer functions */
- extern unsigned long (*mach_gettimeoffset)(void);
- extern int (*mach_hwclk)(int, struct rtc_time*);
+ static int amimouse_open(struct input_dev *dev)
 
 Gr{oetje,eeting}s,
 

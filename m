@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315794AbSFJTMx>; Mon, 10 Jun 2002 15:12:53 -0400
+	id <S315805AbSFJTOj>; Mon, 10 Jun 2002 15:14:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315805AbSFJTMw>; Mon, 10 Jun 2002 15:12:52 -0400
-Received: from codepoet.org ([166.70.99.138]:2454 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S315794AbSFJTMv>;
-	Mon, 10 Jun 2002 15:12:51 -0400
-Date: Mon, 10 Jun 2002 13:12:53 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Andre Bonin <kernel@bonin.ca>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Firewire Disks. (fwd)
-Message-ID: <20020610191253.GA3059@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Andre Bonin <kernel@bonin.ca>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.95.1020610141042.17451B-100000@chaos.analogic.com> <3D04EDC1.8010402@drugphish.ch> <3D04F704.5090202@bonin.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.18-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S315860AbSFJTOi>; Mon, 10 Jun 2002 15:14:38 -0400
+Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:33474 "EHLO
+	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
+	id <S315805AbSFJTOh>; Mon, 10 Jun 2002 15:14:37 -0400
+Date: Mon, 10 Jun 2002 21:14:35 +0200 (MET DST)
+From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
+To: Roland Dreier <roland@topspin.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 kill warnings 4/19
+In-Reply-To: <52lm9n7y07.fsf@topspin.com>
+Message-ID: <Pine.GSO.4.05.10206102114030.17299-100000@mausmaki.cosy.sbg.ac.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Jun 10, 2002 at 02:59:16PM -0400, Andre Bonin wrote:
-> A lot of caddies that wrap hd's have started coming out and, as you may 
-> know, USB 2.0 supports 480mbps x-fer rate (ideal).  So it's pretty 
-> intreguing.
+thanks roland ...
 
-The 480mbps ideal is more like 240 in practice....
+On 10 Jun 2002, Roland Dreier wrote:
 
-> Does the SCSI layer via sbp2 provide functionality for USB 2.0 (EHCI) 
-> disks?
+> >>>>> "Thomas" == Thomas Mirlacher <Thomas> writes:
+> 
+>     Thomas> and what about C99 style named initializers for structs?
+> 
+>     Thomas> struct blah = { .open = driver_open };
+> 
+> C99 named initializers were already supported at least as early as gcc
+> 2.95.2
 
-USB 2.0 mass storage devices are a horse of an entirely 
-different color....
+good. which means we can switch over to those for future patches.
 
- -Erik
+	tm
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+-- 
+in some way i do, and in some way i don't.
+

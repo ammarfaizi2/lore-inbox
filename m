@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310435AbSD1VvF>; Sun, 28 Apr 2002 17:51:05 -0400
+	id <S314514AbSD1WKJ>; Sun, 28 Apr 2002 18:10:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310666AbSD1VvE>; Sun, 28 Apr 2002 17:51:04 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:29432 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S310435AbSD1VvD>;
-	Sun, 28 Apr 2002 17:51:03 -0400
-Message-ID: <3CCC6EAD.22A439F7@mvista.com>
-Date: Sun, 28 Apr 2002 14:50:37 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S314527AbSD1WKJ>; Sun, 28 Apr 2002 18:10:09 -0400
+Received: from dsl-213-023-040-044.arcor-ip.net ([213.23.40.44]:36749 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S314514AbSD1WKI>;
+	Sun, 28 Apr 2002 18:10:08 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Date: Sun, 28 Apr 2002 00:10:20 +0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020426192711.D18350@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Why HZ on i386 is 100 ?
-In-Reply-To: <E171ttN-0004YP-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E171aOa-0001Q6-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Friday 26 April 2002 20:27, Russell King wrote:
+> Hi,
 > 
-> > > We do anyway
-> >
-> > Yes, but now we do all this in the timer tick, not in schedule().  This
-> > occures much less often.
+> I've been looking at some of the ARM discontigmem implementations, and
+> have come across a nasty bug.  To illustrate this, I'm going to take
+> part of the generic kernel, and use the Alpha implementation to
+> illustrate the problem we're facing on ARM.
 > 
-> Well in the timer tick code we already hold the locks needed to check
-> the front of the timer queue safely, we already have current and the top
-> timer needing to touch cache (current for accounting stats at the least).
-> So thats what an extra compare and cmov - 1 clock maybe 2 ?
+> I'm going to argue here that virt_to_page() can, in the discontigmem
+> case, produce rather a nasty bug when used with non-direct mapped
+> kernel memory arguments.
 
-The problem is the extra code in the schedule() path, not in the timer
-tick path.  It is traversed FAR more often.
+It's tough to follow, even when you know the code.  While cooking my
+config_nonlinear patch I noticed the line you're concerned about and
+regarded it with deep suspicion.  My patch does this:
 
-The current tick at 1/HZ is really quite relaxed.  Given the PIT (ugh!)
-the longest we can put off a tick is about 50 ms.  This means that any
-time greater than this will require more than one interrupt, i.e. the
-best case improvement by going tick less (again given the PIT) is about
-5 times.  Other platforms/ hardware, of course, change this.
+-               page = virt_to_page(__va(phys_addr));
++               page = phys_to_page(phys_addr);
+
+And of course took care that phys_to_page does the right thing in all
+cases.
+
+<plug>
+The new config_nonlinear was designed as a cleaner, more powerful
+replacement for all non-numa uses of config_discontigmem.
+</plug>
+
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Daniel

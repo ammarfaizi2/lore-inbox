@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262585AbSJBVHE>; Wed, 2 Oct 2002 17:07:04 -0400
+	id <S262600AbSJBVHy>; Wed, 2 Oct 2002 17:07:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262590AbSJBVHE>; Wed, 2 Oct 2002 17:07:04 -0400
-Received: from gaea.projecticarus.com ([195.10.228.71]:58263 "EHLO
-	gaea.projecticarus.com") by vger.kernel.org with ESMTP
-	id <S262585AbSJBVHD>; Wed, 2 Oct 2002 17:07:03 -0400
-Message-ID: <3D9B6F39.2040609@walrond.org>
-Date: Wed, 02 Oct 2002 23:12:09 +0100
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020831
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Torben Mathiasen <torben.mathiasen@hp.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Serverworks IDE driver broken in 2.5.40
-References: <3D9B3AE1.2000902@walrond.org> <20021002183044.GA1487@tmathiasen>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262601AbSJBVHy>; Wed, 2 Oct 2002 17:07:54 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:63984 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262600AbSJBVHv>; Wed, 2 Oct 2002 17:07:51 -0400
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20021002210609.575031EA74@alan.localdomain> 
+References: <20021002210609.575031EA74@alan.localdomain>  <20021002103932.C35A21EA74@alan.localdomain> <4631.1033558083@passion.cambridge.redhat.com> 
+To: Alessandro Amici <alexamici@tiscali.it>
+Cc: linux-kernel@vger.kernel.org, James.Bottomley@HansenPartnership.com
+Subject: Re: 2.5.37+ i386 arch split broke external module builds 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 02 Oct 2002 22:13:19 +0100
+Message-ID: <20770.1033593199@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-RCC Champion South Bridge 5.0 (CSB5)
+alexamici@tiscali.it said:
+>  average users may have either a kernel-headers package that matches
+> their  running kernel and/or a souce package without the configuration
+> stuff. in  both cases 'the hacker way' doesn't work :)
 
-on the Asus PR-DLS dual xeon m/b.
+Often nowadays they'll not have 'kernel-headers' but instead 
+'glibc-kernheaders' which is littered with '#ifdef __KERNEL__ #error' to 
+prevent people from doing that.
 
-Hope this helps
+If you don't have the corresponding source and configuration, you cannot
+build a module with any reasonable chance of success -- at least for my
+definition of 'reasonable' in the context of shipping drivers to the Great
+Unwashed.
 
-Andrew
+> OTOH, for small device drivers you don't need the full blown kernel
+> CFLAGS,  you know what you need anyway. 
 
-Torben Mathiasen wrote:
+Build for Alpha and tell me that again :)
 
->On Wed, Oct 02 2002, Andrew Walrond wrote:
->  
->
->>With the driver built-in, the drives are not recognised. Built as a 
->>module, it crashes on loading.
->>
->>However I can see everything fine with the generic IDE driver
->>
->>Works fine in 2.4.19+
->>
->>    
->>
->
->Which serverworks chipset are you using?
->
->
->Torben
->
->  
->
+--
+dwmw2
 
 

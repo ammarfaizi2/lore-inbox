@@ -1,68 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269329AbUIICJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269190AbUIICaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269329AbUIICJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 22:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269341AbUIICJ7
+	id S269190AbUIICaL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 22:30:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269220AbUIICaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 22:09:59 -0400
-Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:3557 "EHLO
-	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S269329AbUIICJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 22:09:56 -0400
-MIME-Version: 1.0
+	Wed, 8 Sep 2004 22:30:11 -0400
+Received: from holomorphy.com ([207.189.100.168]:7853 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269190AbUIICaI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 22:30:08 -0400
+Date: Wed, 8 Sep 2004 19:30:05 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm4
+Message-ID: <20040909023005.GQ3106@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040907020831.62390588.akpm@osdl.org> <20040909020105.GP3106@holomorphy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16703.47979.243728.396215@wombat.chubb.wattle.id.au>
-Date: Thu, 9 Sep 2004 12:09:47 +1000
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Duncan Sands <baldrick@free.fr>
-Cc: Matt Mackall <mpm@selenic.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] netpoll endian fixes
-In-Reply-To: <77423609@toto.iv>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+In-Reply-To: <20040909020105.GP3106@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Duncan" == Duncan Sands <baldrick@free.fr> writes:
+On Tue, Sep 07, 2004 at 02:08:31AM -0700, Andrew Morton wrote:
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm4/
+>> - Added Dave Howells' mysterious CacheFS.
+>> - Various new fixes, cleanups and bugs, as usual.
 
-Duncan> Hi Matt, I agree that it should be 0x45 everywhere.  After
-Duncan> thinking a bit I concluded that the
+On Wed, Sep 08, 2004 at 07:01:05PM -0700, William Lee Irwin III wrote:
+> So far so good with minimal patchwerk on ia64, and sparc64. ppc64 comes
+> up but the JS20 tg3 issues are still biting me and the backout patches
+> I was using don't apply anymore.
 
-Duncan> #if defined(__LITTLE_ENDIAN_BITFIELD) 
-Duncan>        __u8 ihl:4, version:4;
-Duncan> #elif defined (__BIG_ENDIAN_BITFIELD) 
-Duncan>        __u8 version:4, ihl:4;
+x86-64 comes up fine as well.
 
-Duncan> in the definition of struct iphdr is to make sure that
-Duncan> compiler uses the first four bits of the byte to refer to
-Duncan> version, rather than the last four; and this only matters when
-Duncan> you are accessing the nibbles via the ihl or version structure
-Duncan> fields.  Thus it makes sure that if you write 0x45 to the
-Duncan> byte, then version will return 4 and ihl will return 5.
-Duncan> Presumably the C standard specifies how bitfield expressions
-Duncan> should be laid out in the byte, and ihl:4, version:4; gives
-Duncan> opposite results on little-endian and big-endian machines...
 
-Actually, the C standard
-
-	  -- leaves unspecified whether bitfields start at the low or
-	  high address of the word they're in, and
-
-	  -- states that the type of a bitfield may be ignored (except
-	  for signed/unsigned), and that the size of the object
-	  containing a bitfield is the same as the size of an int.
-
-It's a GCC extension that allows 
-     __u8 ihl:4;
-to allocate only 8 bits and use four of them; GCC still assumes
-integer alignment for the whole bitfield block.  Other compilers could
-allocate 32 bits.
-
--- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+-- wli

@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318381AbSGRWTj>; Thu, 18 Jul 2002 18:19:39 -0400
+	id <S318410AbSGRW02>; Thu, 18 Jul 2002 18:26:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318382AbSGRWTj>; Thu, 18 Jul 2002 18:19:39 -0400
-Received: from postfix2-1.free.fr ([213.228.0.9]:13197 "EHLO
-	postfix2-1.free.fr") by vger.kernel.org with ESMTP
-	id <S318381AbSGRWTh>; Thu, 18 Jul 2002 18:19:37 -0400
-Date: Fri, 19 Jul 2002 01:17:17 +0200
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Adrian Sun <asun@cobaltnet.com>
-Cc: linux-kernel@vger.kernel.org, kaos@ocs.com.au
-Subject: Re: Generic modules documentation is outdated
-Message-ID: <20020718231717.GA8165@bylbo.nowhere.earth>
-References: <20020704212240.GB659@bylbo.nowhere.earth> <20020718210259.GJ19580@bylbo.nowhere.earth> <1027032521.8154.48.camel@irongate.swansea.linux.org.uk>
+	id <S318413AbSGRW02>; Thu, 18 Jul 2002 18:26:28 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:31997 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S318410AbSGRWYt>; Thu, 18 Jul 2002 18:24:49 -0400
+Subject: Re: [PATCH] strict VM overcommit
+From: Robert Love <rml@tech9.net>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org, alan@redhat.com
+In-Reply-To: <Pine.NEB.4.44.0207182359300.17300-100000@mimas.fachschaften.tu-muenchen.de>
+References: <Pine.NEB.4.44.0207182359300.17300-100000@mimas.fachschaften.tu-muenchen.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 18 Jul 2002 15:27:26 -0700
+Message-Id: <1027031246.1086.158.camel@sinai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1027032521.8154.48.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-From: Yann Dirson <ydirson@altern.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 18, 2002 at 11:48:41PM +0100, Alan Cox wrote:
-> On Thu, 2002-07-18 at 22:02, Yann Dirson wrote:
-> > - I have installed no proprietary driver, all loaded drivers declare to be
-> > "GPL" or "Dual BSD/GPL". 
+On Thu, 2002-07-18 at 15:08, Adrian Bunk wrote:
+
+> Out of interest:
 > 
-> Something you loaded was missing a MODULE_LICENSE tag - modern insmod
-> will warn on this one
+> How is assured that it's impossible to OOM when the amount of memory
+> shrinks?
+> 
+> IOW:
+> - allocate very much memory
+> - "swapoff -a"
 
-OK.  I found a good candidate in the Apple HFS module.  Although I only have
-it compiled "just in case" and don't use it, possibly some
-filesystem-probing stuff has it loaded.
+Well, seriously: don't do that.
 
-Unfortunately, the fact that it is insmod telling this results in no
-messages in the logs...
+But `swapoff' will not succeed if there is not enough swap or physical
+memory to move the pages to... if it does succeed, then there is enough
+storage elsewhere.  At that point, you are not OOM but you may now have
+more address space allocated than the strict accounting would typically
+allow - thus no allocations will succeed so you should not be able to
+OOM.
 
-Adrian: you're listed as HFS maintainer - could you please take care of
-adding that module information ?  (my appologies if it's done in 2.4.19rc)
+	Robert Love
 
-Regards,
--- 
-Yann Dirson    <ydirson@altern.org> |    Why make M$-Bill richer & richer ?
-Debian-related: <dirson@debian.org> |   Support Debian GNU/Linux:
-Pro:    <yann.dirson@fr.alcove.com> |  Freedom, Power, Stability, Gratuity
-     http://ydirson.free.fr/        | Check <http://www.debian.org/>

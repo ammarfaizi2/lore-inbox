@@ -1,53 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263147AbUGHR5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUGHSHR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263147AbUGHR5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 13:57:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbUGHR5Z
+	id S262418AbUGHSHR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 14:07:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUGHSHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 13:57:25 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:63731 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S263147AbUGHR5W (ORCPT
+	Thu, 8 Jul 2004 14:07:17 -0400
+Received: from pop.gmx.net ([213.165.64.20]:41383 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262418AbUGHSHL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 13:57:22 -0400
-Date: Thu, 8 Jul 2004 19:57:00 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Dave Jones <davej@redhat.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Miles Bader <miles@gnu.org>,
-       "David S. Miller" <davem@redhat.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>, chrisw@osdl.org,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       sds@epoch.ncsc.mil, jmorris@redhat.com, mika@osdl.org
-Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
-In-Reply-To: <20040708162357.GB19685@redhat.com>
-Message-ID: <Pine.GSO.4.58.0407081956030.20943@waterleaf.sonytel.be>
-References: <20040707122525.X1924@build.pdx.osdl.net>
- <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au> <20040707202746.1da0568b.davem@redhat.com>
- <buo7jtfi2p9.fsf@mctpc71.ucom.lsi.nec.co.jp> <Pine.LNX.4.58.0407072220060.1764@ppc970.osdl.org>
- <buosmc3gix6.fsf@mctpc71.ucom.lsi.nec.co.jp> <Pine.LNX.4.58.0407080855120.1764@ppc970.osdl.org>
- <20040708162357.GB19685@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 8 Jul 2004 14:07:11 -0400
+X-Authenticated: #5374206
+Date: Thu, 8 Jul 2004 20:07:09 +0200
+From: Thomas Moestl <moestl@ibr.cs.tu-bs.de>
+To: linux-kernel@vger.kernel.org
+Subject: umount() and NFS races in 2.4.26
+Message-ID: <20040708180709.GA7704@timesink.dyndns.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="uAKRQypu60I7Lcqm"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Jul 2004, Dave Jones wrote:
-> On Thu, Jul 08, 2004 at 08:58:18AM -0700, Linus Torvalds wrote:
->
->  > Me, I don't accept the kind of entries the OCC accepts.
->
-> drivers/char/drm/ disagrees 8-)
 
-In that case... Linus, please remove those drivers, unless someone (DaveJ?)
-converts them from OCC to LKC.
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Gr{oetje,eeting}s,
+Hi,
 
-						Geert
+after deploying an SMP machine at work, we started to experience Oopses
+in file-system related code relatively frequently. Investigation
+revealed that they were caused by references using junk pointers from
+freed super blocks via dangling inodes from unmounted file systems;
+Oopses would always be preceded by the warning
+  VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice day...
+on an unmount (unmount activity is high on this machine due to heavy use
+of the automounter). The predecessor to this machine, a UP system with
+otherwise almost identical configuration, did never encounter such
+problems, so I went looking for possible SMP races.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+I believe that I have found two problems:
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+- The NFS async unlink code (fs/nfs/unlink.c) does keep a dentry for
+  later asynchronous processing, but the mount point is unbusied via
+  path_release() once sys_unlink() returns (fs/namei.c). While it
+  does a dget() on the dentry, this is insufficient to prevent an
+  umount(); when one would happen in the right time window, it seems
+  that it would initially get past the busy check:
+	if (atomic_read(&mnt->mnt_count) == 2 || flags & MNT_DETACH) {
+  (fs/namespace.c, do_umount()), but invalidate_inodes() in kill_super()
+  (fs/super.c) would then fail because of the inode referenced from
+  the dentry needed for the async unlink (which cannot be removed
+  by shrink_dcache_parent() because the NFS code did dget() it).
+
+  Please note that this problem is only conjectured, as it turned out
+  to not be our culprit. It looks not completely trivial to fix to me,
+  I believe it might require some changes that would affect other FS
+  implementations. It is not a true SMP race, if it exists it would
+  affect UP systems as well.
+
+- There is a SMP race between the shrink_dcache_parent() (fs/dcache.c)
+  called from kill_super() and prune_dache() called via
+  shrink_dache_memory() (called by kswapd), as follows:
+  shrink_dache_parent() calls select_parent() to both prepare the LRU
+  list for purge_cache() and return the number of unused dcache
+  entries that can likely be removed in the next prune_dache() run.
+  If select_parent() returns 0, shrink_dcache_parent() assumes that
+  its work is done and returns. Now, assume for simplicity that there
+  are only two remaining dcache entries: one for "foo/bar" and for
+  the directory "foo/", which is referenced by the "foo/bar" entry.
+  Furthermore, prune_dcache() is currently running, called from kswapd,
+  and has decided to remove the "foo/bar" entry. To that end, it
+  calls prune_one_dentry(), which dentry_iput()s then "foo/bar" dentry.
+  This causes the dache_lock() to be dropped. Just now select_parent()
+  comes along, and can obtain the dcache_lock(). It now looks for unused
+  dentries; but there is only the "foo/" one left, which has a non-zero
+  d_count because "foo/bar" referenced it as parent, and
+  prune_one_dentry() did not yet have a chance to dput() it because it
+  has to wait for the dcache_lock(). Thus, select_parent() finds no
+  unused dentries, assumes that all is fine and does not purge any
+  more; the "foo/" entry can remain in the cache for much longer
+  because it may have DCACHE_REFERENCED set, so that the kswapd
+  purge_dcache() will leave it alone. The inode corresponding to the
+  dangling dcache entry will still be referenced, and end up dangling,
+  too. kill_super() will print the warning mentioned above.
+  When dentry or inode are touched again later (for example in another
+  purge_dcache() later on) we can end up accessing the super block
+  freed during the unmount, leading to an Oops.
+  This was partially verified by inspecting the dcache state via
+  /dev/kmem after the busy inodes warning had occured (the directory
+  dentry was not busy any more, but still remained in the unused list).
+
+  In the attached patch, I have used a semaphore to serialize purging
+  accesses to the dentry_unused list. With a kernel so patched, the
+  problem seems to have disappeared. The patch is just a quick hack,
+  the semantics of the semaphore is not really well-defined; but maybe
+  it can serve as a starting point.
+  
+I have not checked whether any of these issues pertain to the 2.6 series
+as well.
+
+	- Thomas
+
+P.S: please CC me in replies, as I am not subscribed to this list.
+
+
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="dcachesem.diff"
+
+--- dcache.c.orig	Wed Jun 16 00:22:03 2004
++++ dcache.c	Wed Jun 16 01:00:47 2004
+@@ -51,6 +51,7 @@
+ static unsigned int d_hash_shift;
+ static struct list_head *dentry_hashtable;
+ static LIST_HEAD(dentry_unused);
++struct semaphore dcache_lru_sem;
+ 
+ /* Statistics gathering. */
+ struct dentry_stat_t dentry_stat = {0, 0, 45, 0,};
+@@ -381,6 +382,7 @@
+ 	struct list_head *tmp, *next;
+ 	struct dentry *dentry;
+ 
++	down(&dcache_lru_sem);
+ 	/*
+ 	 * Pass one ... move the dentries for the specified
+ 	 * superblock to the most recent end of the unused list.
+@@ -416,6 +418,7 @@
+ 		goto repeat;
+ 	}
+ 	spin_unlock(&dcache_lock);
++	up(&dcache_lru_sem);
+ }
+ 
+ /*
+@@ -548,8 +551,10 @@
+ {
+ 	int found;
+ 
++	down(&dcache_lru_sem);
+ 	while ((found = select_parent(parent)) != 0)
+ 		prune_dcache(found);
++	up(&dcache_lru_sem);
+ }
+ 
+ /*
+@@ -581,9 +586,11 @@
+ 	if (!(gfp_mask & __GFP_FS))
+ 		return 0;
+ 
++	down(&dcache_lru_sem);
+ 	count = dentry_stat.nr_unused / priority;
+ 
+ 	prune_dcache(count);
++	up(&dcache_lru_sem);
+ 	return kmem_cache_shrink(dentry_cache);
+ }
+ 
+@@ -1247,6 +1254,7 @@
+ 		d++;
+ 		i--;
+ 	} while (i);
++	sema_init(&dcache_lru_sem, 1);
+ }
+ 
+ static void init_buffer_head(void * foo, kmem_cache_t * cachep, unsigned long flags)
+
+--uAKRQypu60I7Lcqm--

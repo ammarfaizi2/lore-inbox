@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265225AbRGEN7o>; Thu, 5 Jul 2001 09:59:44 -0400
+	id <S264883AbRGEOA0>; Thu, 5 Jul 2001 10:00:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265189AbRGEN7e>; Thu, 5 Jul 2001 09:59:34 -0400
-Received: from gherkin.sa.wlk.com ([192.158.254.49]:43780 "HELO
-	gherkin.sa.wlk.com") by vger.kernel.org with SMTP
-	id <S264883AbRGEN7V>; Thu, 5 Jul 2001 09:59:21 -0400
-Message-Id: <m15I9eu-0005khC@gherkin.sa.wlk.com>
-From: rct@gherkin.sa.wlk.com (Bob_Tracy)
-Subject: Re: PROBLEM: [2.4.6] kernel BUG at softirq.c:206!
-In-Reply-To: <E15I8gj-0002W7-00@the-village.bc.nu> "from Alan Cox at Jul 5, 2001
- 01:56:57 pm"
+	id <S264896AbRGEOAP>; Thu, 5 Jul 2001 10:00:15 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:6916 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S264883AbRGEN76>; Thu, 5 Jul 2001 09:59:58 -0400
+Date: Thu, 5 Jul 2001 15:59:42 +0200
+From: Andrea Arcangeli <andrea@suse.de>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Thu, 5 Jul 2001 08:59:08 -0500 (CDT)
-CC: "Bob_Tracy" <rct@gherkin.sa.wlk.com>, Mircea Damian <dmircea@kappa.ro>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Cc: Dan Kegel <dank@kegel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: O_DIRECT please; Sybase 12.5
+Message-ID: <20010705155942.P17051@athlon.random>
+In-Reply-To: <3B3C4CB4.6B3D2B2F@kegel.com> <E15Fuul-0008SJ-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E15Fuul-0008SJ-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jun 29, 2001 at 10:50:15AM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Intriguing its all Cyrix.
+On Fri, Jun 29, 2001 at 10:50:15AM +0100, Alan Cox wrote:
+> > the boss say "If Linux makes Sybase go through the page cache on
+> > reads, maybe we'll just have to switch to Solaris.  That's
+> > a serious performance problem."
+> 
+> Thats something you'd have to benchmark. It depends on a very large number
+> of factors including whether the database uses mmap, the average I/O size
+> and the like
 
-That was the first thing that hit me (stood out).
+correct, here the benchmarks:
 
-> What compiler, what processor choice in the build.
+	http://boudicca.tux.org/hypermail/linux-kernel/2001week17/1175.html
+        http://boudicca.tux.org/hypermail/linux-kernel/2001week17/att-1175/01-directio.png
 
-compiler:
-gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
+of course the huge improvement is also because of broken VM in the
+buffered-io case.
 
-processor choice:
-586/K5/5x86/6x86/6x86MX                CONFIG_M586
-
-> It looks like it is time
-> to run 2.4.6ac on my Cyrix MII/233 and take a look.
-
-Any chance this might be an "APIC support on uniprocessor" kind of thing?
-I haven't tried disabling that yet to see if it makes any difference,
-and it will be several hours before I'll get a chance to try it :-(.
-
---Bob
+Andrea

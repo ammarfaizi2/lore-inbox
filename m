@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265529AbTFMUhp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 16:37:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbTFMUho
+	id S265527AbTFMUqt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 16:46:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbTFMUqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 16:37:44 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:19206 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265529AbTFMUhn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 16:37:43 -0400
-Date: Fri, 13 Jun 2003 21:51:29 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Vojtech Pavlik <vojtech@ucw.cz>
-cc: Peter Berg Larsen <pebl@math.ku.dk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
-In-Reply-To: <20030613223846.A9080@ucw.cz>
-Message-ID: <Pine.LNX.4.44.0306132140520.29353-100000@phoenix.infradead.org>
+	Fri, 13 Jun 2003 16:46:48 -0400
+Received: from windsormachine.com ([206.48.122.28]:44305 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id S265527AbTFMUqr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 16:46:47 -0400
+Date: Fri, 13 Jun 2003 17:00:35 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: 3ware and two drive hardware raid1
+In-Reply-To: <49562.10.10.10.1.1055537200.squirrel@www.greenhydrant.com>
+Message-ID: <Pine.LNX.4.33.0306131657250.10271-100000@router.windsormachine.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 13 Jun 2003, David Rees wrote:
 
-> > Just as a idea for API. How about ABS_AREA or REL_AREA instead of 
-> > ABS_MISC. The idea is the pressure value returned should be about 
-> > the same if one presses hard with one finger or softly with a whole 
-> > hand.
-> 
-> Huh? Force = Pressure x Area ... I think you're mixing up force and
-> pressure here.
+> Mike Dresser said:
+> > On Fri, 13 Jun 2003, Stephan von Krawczynski wrote:
+> >> I can confirm that the 3dm daemon is very handy. Especially the media
+> >> scan is highly recommended, as it finds problems on areas where there
+> >> is no production data yet. So there always is a good chance for
+> >> replacement before actual failure.
+> >
+> > The tw_cli has a similar function, in that you can maint verify c# u#
+>
+> Were you using it to confirm the status of your disks?
 
-OOps. Your right. I'm thinking the hardware returns a force value. What I 
-meant is since we have the hardware returning the pressure and the area 
-this data can be used. Knowing the area over which a pressure is applied 
-is a good thing. What do you think?
+Yes.
 
+The other Windows PC onsite that I was working on turned out to be
+rebooting randomly.  When I investigated, turned out that it's the battery
+backup.  Unplug the battery backup, and a few seconds later(maybe 10), the
+computer would reboot.
+
+Based on that damaged batterybackup, and that it just started doing it
+yesterday morning, I'd say we had a lightning hit on the two buildings,
+especially since we had a storm that night.
+
+Both drives in the backup server were damaged, one was completely dead,
+the other was barely running.  I was able to copy off all but about 10
+files, of which all of it was easily replaceable anyways.
+
+The drives were functional before the lightning hit.
+
+Mike
 

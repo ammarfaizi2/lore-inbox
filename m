@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266733AbTAZHvM>; Sun, 26 Jan 2003 02:51:12 -0500
+	id <S266735AbTAZIJ2>; Sun, 26 Jan 2003 03:09:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266735AbTAZHvM>; Sun, 26 Jan 2003 02:51:12 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:61161 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S266733AbTAZHvL> convert rfc822-to-8bit; Sun, 26 Jan 2003 02:51:11 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Arun Dharankar <ADharankar@ATTBI.Com>
-Reply-To: ADharankar@ATTBI.Com
-To: linux-kernel@vger.kernel.org
-Subject: Re: NFS/UDP/IP performance - 2.4.19 v/s 2.4.20, 2.4.20-pre3
-Date: Sun, 26 Jan 2003 02:58:35 -0500
-User-Agent: KMail/1.4.3
-References: <200301250105.27293.ADharankar@ATTBI.Com>
-In-Reply-To: <200301250105.27293.ADharankar@ATTBI.Com>
+	id <S266736AbTAZIJ2>; Sun, 26 Jan 2003 03:09:28 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:47113
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S266735AbTAZIJ1>; Sun, 26 Jan 2003 03:09:27 -0500
+Date: Sun, 26 Jan 2003 00:13:39 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Manish Lachwani <m_lachwani@yahoo.com>
+cc: Bryan Andersen <bryan@bogonomicon.net>, linux-kernel@vger.kernel.org
+Subject: Re: FW: PDC202XX DMA loss in 2.4.21-pre3-ac4
+In-Reply-To: <20030126071524.57299.qmail@web20509.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.10.10301252349550.1744-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301260258.35851.ADharankar@ATTBI.Com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello...
+On Sat, 25 Jan 2003, Manish Lachwani wrote:
 
-I had posted question yesterday. That post can be seen at
-    http://www.lkml.org/archive/2003/1/25/4/index.html
+> The "Hardware ECC Recovered" indicates the number of
+> ECC errors corrected in the drive. Do one thing. Try
+> to swap the drive with the drive on another ATA cable.
+> So, swap /dev/hde with /dev/hda (or whatever)
+> physically and check if the error follows the drive or
+> the ATA cable. 
+> 
+> If it follows the drive, you may have to replace the
+> drive. Additionally, from the SMART error log #5:
+> 
+> 00   04   01   0b   4f   c2    e0   51     279972
 
-After doing some more testing with standalone UDP program, 
-the transfer rates are normal and as expected on 2.4.20.
-The same performance can be seen on 2.4.19.
-
-
-There is a similar posting at:
-    http://www.uwsg.iu.edu/hypermail/linux/kernel/0210.0/1116.html
-
---- Re: linux-2.4.20-pre8-ac3: NFS performance regression
---- From: Alan Cox (alan@lxorguk.ukuu.org.uk)
---- Date: Thu Oct 03 2002 - 17:13:04 EST 
---- In reply to: Andreas Pfaller: "linux-2.4.20-pre8-ac3: 
----    NFS performance regression"
---- On Thu, 2002-10-03 at 19:32, Andreas Pfaller wrote: 
---- > However I noticed a significant NFS performance drop with 
---- > 2.4.20-pre8-ac3. Other network throughput is not affected. 
----
---- I see this with all recent 2.4.20pre and 2.4.20pre-ac 
---- kernels. I've not had time to retest with Trond's fixes to 
---- recheck it all
+NO!
+       command aborted
+            amount to transfer == 1 sector
+                 have to dig through notes to decode ...
+                      lcyl smart passcode
+                           hcyl smart passcode
+                                 primary device
+                                      ready_seek_error
 
 
-So, the problem may be with NFS. NFS is not an issue for me 
-and I can do with this problem. Hope this helps whoever is
-testing or working on related areas.
+It barfed the command ...
+
+try -e first
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
 
 
-Best regards,
--Arun.
+

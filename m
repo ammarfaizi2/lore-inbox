@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261790AbREPFZF>; Wed, 16 May 2001 01:25:05 -0400
+	id <S261793AbREPFqb>; Wed, 16 May 2001 01:46:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261791AbREPFYz>; Wed, 16 May 2001 01:24:55 -0400
-Received: from cx595243-c.okc1.ok.home.com ([24.6.27.53]:42128 "EHLO
-	quark.localdomain") by vger.kernel.org with ESMTP
-	id <S261790AbREPFYn>; Wed, 16 May 2001 01:24:43 -0400
-From: Vincent Stemen <linuxkernel@AdvancedResearch.org>
-Date: Wed, 16 May 2001 00:25:08 -0500
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-Cc: hahn@coffee.psychology.mcmaster.ca
-To: "Jacky Liu" <jq419@my-deja.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200105150713.AAA18791@mail7.bigmailbox.com>
-In-Reply-To: <200105150713.AAA18791@mail7.bigmailbox.com>
-Subject: Re: 2.4.4 kernel freeze for unknown reason
+	id <S261795AbREPFqW>; Wed, 16 May 2001 01:46:22 -0400
+Received: from mail.uni-kl.de ([131.246.137.52]:34259 "EHLO mail.uni-kl.de")
+	by vger.kernel.org with ESMTP id <S261794AbREPFqJ>;
+	Wed, 16 May 2001 01:46:09 -0400
+Message-ID: <XFMail.20010516074607.backes@rhrk.uni-kl.de>
+X-Mailer: XFMail 1.4.4 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Message-Id: <01051600250800.24906@quark>
-Content-Transfer-Encoding: 7BIT
+Date: Wed, 16 May 2001 07:46:07 +0200 (CEST)
+X-Face: B^`ajbarE`qo`-u#R^.)e]6sO?X)FpoEm\>*T:H~b&S;U/h$2>my}Otw5$+BDxh}t0TGU?>
+ O8Bg0/jQW@P"eyp}2UMkA!lMX2QmrZYW\F,OpP{/s{lA5aG'0LRc*>n"HM@#M~r8Ub9yV"0$^i~hKq
+ P-d7Vz;y7FPh{XfvuQA]k&X+CDlg"*Y~{x`}U7Q:;l?U8C,K\-GR~>||pI/R+HBWyaCz1Tx]5
+Reply-To: Joachim Backes <backes@rhrk.uni-kl.de>
+Organization: University of Kaiserslautern,
+ Computer Center [Supercomputing division]
+From: Joachim Backes <backes@rhrk.uni-kl.de>
+To: LINUX Kernel <linux-kernel@vger.kernel.org>
+Subject: IRQ usage for PCI devices, Kernel 2.4.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 May 2001 02:13, Jacky Liu wrote:
-> Hi everyone,
->
-> Mark, I got your point about the dma/udma stuffs. My hdparm setting is
-> UDMA w/ MultiSector 16..
->
-> I had recompiled my kernel and disabled the FB option but my linux box
-> still hanged (another completely freeze) yesterday... Oh well..
->
-> I have been tracking this thread for a few days and it seem the source of
-> this problem is related to swap space. Vincent, would you mind to send me
-> the patch for swap space problem if Alan had sent it to you? So I can
-> test it on my machine and report the result later.
->
+Hi,
 
-I havn't received the patch but, on Byron Stanoszek's suggestion, I
-have compiled 2.4.4 with gcc-2.95.3 to run on it a few days to see if
-it is any better.  So far, it appears at least as stable as with
-egcs-1.1.2 and most of the swap was freed up this morning for the
-first time since 2.4.0.  However, it is pretty full tonight.  I should
-know tomorrow if it really made a difference.  This is usually the
-state in which I find it locked up the next morning.  It has been up a
-little over 2 days now.  Byron actually suggested I use the ac7 patch
-but I first wanted to see if the compiler had anything to do with it
-without changing anything else.
+sometimes the following messages appear in /var/log/messages:
 
-> Mark, please suggest a setting for the hdparm so I can test it on my
-> machine. Thanks alot for your time.
->
-> Best Regards,
-> Jacky Liu
->
+        May 13 14:24:41 sunny kernel: PCI: Found IRQ 10 for device 00:0e.0
+        May 13 14:24:41 sunny kernel: PCI: The same IRQ used for device 00:0a.0
+
+"0e" is my PCI sound card, and "0a" is my PCI ethernet card. The messages apppear in
+the following environment: I send from another linux machine (per ssh) a command
+wich plays some sound on my sound card, therefore the eth0 event and the sound
+event occur at almost the same time.
+
+Question: Can I ignore these messages, or is there any buggy behaviour?
+
+Regards
+
+
+Joachim Backes
+
+--
+
+Joachim Backes <backes@rhrk.uni-kl.de>       | Univ. of Kaiserslautern
+Computer Center, High Performance Computing  | Phone: +49-631-205-2438 
+D-67653 Kaiserslautern, PO Box 3049, Germany | Fax:   +49-631-205-3056 
+---------------------------------------------+------------------------
+WWW: http://hlrwm.rhrk.uni-kl.de/home/staff/backes.html  
+

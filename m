@@ -1,62 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280275AbRKIXK5>; Fri, 9 Nov 2001 18:10:57 -0500
+	id <S280281AbRKIXRR>; Fri, 9 Nov 2001 18:17:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280281AbRKIXKs>; Fri, 9 Nov 2001 18:10:48 -0500
-Received: from pc3-redb4-0-cust118.bre.cable.ntl.com ([213.106.223.118]:49903
-	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
-	id <S280275AbRKIXKj>; Fri, 9 Nov 2001 18:10:39 -0500
-Date: Fri, 9 Nov 2001 23:10:37 +0000
-From: Mark Zealey <mark@zealos.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
-Message-ID: <20011109231037.C25361@itsolve.co.uk>
-In-Reply-To: <20011109223053.A964@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.21.0111092247070.14996-100000@Consulate.UFP.CX>
-Mime-Version: 1.0
+	id <S280288AbRKIXQ5>; Fri, 9 Nov 2001 18:16:57 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14093 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280281AbRKIXQv>; Fri, 9 Nov 2001 18:16:51 -0500
+Subject: Re: Disk Performance
+To: andersen@codepoet.org
+Date: Fri, 9 Nov 2001 23:24:01 +0000 (GMT)
+Cc: riel@conectiva.com.br (Rik van Riel), ben@genesis-one.com (Ben Israel),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20011109155309.A14308@codepoet.org> from "Erik Andersen" at Nov 09, 2001 03:53:10 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0111092247070.14996-100000@Consulate.UFP.CX>; from rhw@MemAlpha.cx on Fri, Nov 09, 2001 at 10:54:10PM +0000
-X-Operating-System: Linux sunbeam 2.2.19 
-X-Homepage: http://zealos.org/
+Content-Transfer-Encoding: 7bit
+Message-Id: <E162L0D-0004dJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 09, 2001 at 10:54:10PM +0000, Riley Williams wrote:
-
-> Hi Pavel.
+> > # hdparm -d1 /dev/hda
+> > 
+> > (not enabled by default because it corrupts data with some
+> > old chipsets and/or disks)
 > 
-> >>>> According to your comments, you prefer (2).
-> >>>> I most definitely prefer (1).
-> 
-> >>> Hmm, and if some malicious software insmods kernel module to
-> >>> work around your printk()?
-> 
-> >> ...it gets "Port busy" when it tries to access the RTC ports that the
-> >> RTC driver built into the kernel already has opened exclusively. At
-> >> least, that's my understanding of the situation at present.
-> 
-> > It does not work that way. Userland does iopl(0), and then it just
-> > bangs any port it wants to.
-> 
-> If any user can do that, then Linux is borken solid.
-> 
-> Just out of curiosity, what is wrong with the idea of having the kernel
-> at iopl(0), any kernel modules at either iopl(1) or iopl(2) and apps at
-> iopl(3) ??? There is obviously something, but I've no idea what.
+> But wouldn't it make more sense to enable DMA by default, except 
+> for a set of blacklisted chipsets, rather then disabling it for 
+> everybody just because some older chipsets are crap?
 
-Kernel stuff (kernel, modules) run at iopl(0). Only root programs can request
-iopl(0) for itself, otherwise all hell would break loose (eg, user 'nobody'
-writing to the hdd etc...)
-
--- 
-
-Mark Zealey
-mark@zealos.org
-mark@itsolve.co.uk
-
-UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a16! C++++>$ P++++>+++++$ L+++>+++++$
-!E---? W+++>$ N- !o? !w--- O? !M? !V? !PS !PE--@ PGP+? r++ !t---?@ !X---?
-!R- b+ !tv b+ DI+ D+? G+++ e>+++++ !h++* r!-- y--
-
-(www.geekcode.com)
+Its a configuration option. Most vendors I know set it to enable DMA except
+on blacklisted or non PCI devices

@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132318AbRDJVlQ>; Tue, 10 Apr 2001 17:41:16 -0400
+	id <S132224AbRDJVgf>; Tue, 10 Apr 2001 17:36:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132352AbRDJVlG>; Tue, 10 Apr 2001 17:41:06 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:34130 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S132318AbRDJVk5>; Tue, 10 Apr 2001 17:40:57 -0400
-Date: Tue, 10 Apr 2001 23:42:58 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rajagopal Ananthanarayanan <ananth@sgi.com>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de, torvalds@transmeta.com
-Subject: Re: BH_Req question
-Message-ID: <20010410234258.B6030@athlon.random>
-In-Reply-To: <3AD36912.1F9E0654@sgi.com>
-Mime-Version: 1.0
+	id <S132301AbRDJVgY>; Tue, 10 Apr 2001 17:36:24 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:57475 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S132224AbRDJVgO>;
+	Tue, 10 Apr 2001 17:36:14 -0400
+Message-ID: <3AD37CCD.DB0CCCD@mandrakesoft.com>
+Date: Tue, 10 Apr 2001 17:36:13 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Manuel A. McLure" <mmt@unify.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Still IRQ routing problems with VIA
+In-Reply-To: <419E5D46960FD211A2D5006008CAC79902E5C1A7@pcmailsrv1.sac.unify.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3AD36912.1F9E0654@sgi.com>; from ananth@sgi.com on Tue, Apr 10, 2001 at 01:12:02PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 10, 2001 at 01:12:02PM -0700, Rajagopal Ananthanarayanan wrote:
-> 
-> Hi,
-> 
-> It seems BH_Req is set on a buffer_head by submit_bh.
-> What part of the code unsets this flag during normal
-> operations? One path seems to be block_flushpage->unmap_buffer
-> ->clear_bit(BH_Req), but IIRC block_flushpage is used only
-> for truncates. There must be another path to unset BH_Req
-> under normal memory pressure, or (more unambiguously) on IO completion.
-> 
-> So: in what ways can BH_Req be unset?
+"Manuel A. McLure" wrote:
+> I'd do that if this wasn't also my Windows 98 gaming machine - I'm supposing
+> that the Windows drivers do use the IRQ even if XFree86/Linux doesn't. I
+> dunno if Windows is smart enough to assign an IRQ even if the BIOS doesn't.
+> Anyway, things are working now (specially since the last tulip patches) and
+> I like it that way :-)
 
-BH_Req is never unset until the buffer is destroyed (put back on the freelist).
-BH_Req only says if such a buffer ever did any I/O yet or not. It is basically
-only used to deal with I/O errors in sync_buffers().
+Well, as the old saying goes, "if it ain't broke, don't fix it."
 
-> PS: In case why the question: I've got a system with tons of
-> pages with buffers marked BH_Req, so try_to_free_buffers() bails
-> out thinking that the buffer is busy ...
+Theoretically, with PNP OS enabled, the driver will assign VGA an IRQ if
+it needs one, under both Windows and Linux.
 
-Either your debugging is wrong or you broke try_to_free_buffers because a
-buffer with BH_Req must still be perfectly freeable.
+	Jeff
 
-Andrea
+
+-- 
+Jeff Garzik       | Sam: "Mind if I drive?"
+Building 1024     | Max: "Not if you don't mind me clawing at the dash
+MandrakeSoft      |       and shrieking like a cheerleader."

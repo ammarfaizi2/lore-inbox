@@ -1,77 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbULaRao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbULaRhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbULaRao (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 12:30:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbULaRao
+	id S262123AbULaRhS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 12:37:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbULaRhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 12:30:44 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55993 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262121AbULaRaf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 12:30:35 -0500
-Date: Fri, 31 Dec 2004 09:30:04 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Andi Kleen <ak@muc.de>, Mike Hearn <mh@codeweavers.com>,
-       Thomas Sailer <sailer@scs.ch>, Eric Pouech <pouech-eric@wanadoo.fr>,
-       Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
-Subject: Re: ptrace single-stepping change breaks Wine
-In-Reply-To: <Pine.LNX.4.58.0412310654280.10484@bigblue.dev.mdolabs.com>
-Message-ID: <Pine.LNX.4.58.0412310921050.2280@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0412292050550.22893@ppc970.osdl.org>
- <Pine.LNX.4.58.0412292055540.22893@ppc970.osdl.org>
- <Pine.LNX.4.58.0412292106400.454@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0412292256350.22893@ppc970.osdl.org>
- <Pine.LNX.4.58.0412300953470.2193@bigblue.dev.mdolabs.com>
- <53046857041230112742acccbe@mail.gmail.com> <Pine.LNX.4.58.0412301130540.22893@ppc970.osdl.org>
- <Pine.LNX.4.58.0412301436330.22893@ppc970.osdl.org> <m1mzvvjs3k.fsf@muc.de>
- <Pine.LNX.4.58.0412301628580.2280@ppc970.osdl.org> <20041231123538.GA18209@muc.de>
- <Pine.LNX.4.58.0412310654280.10484@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 31 Dec 2004 12:37:18 -0500
+Received: from dialin-163-34.tor.primus.ca ([216.254.163.34]:7040 "EHLO
+	node1.opengeometry.net") by vger.kernel.org with ESMTP
+	id S262123AbULaRhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 12:37:12 -0500
+Date: Fri, 31 Dec 2004 12:36:43 -0500
+From: William Park <opengeometry@yahoo.ca>
+To: Andrew Morton <akpm@osdl.org>
+Cc: pmarques@grupopie.com, juhl-lkml@dif.dk, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: waiting 10s before mounting root filesystem?
+Message-ID: <20041231173643.GA2741@node1.opengeometry.net>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, pmarques@grupopie.com,
+	juhl-lkml@dif.dk, marcelo.tosatti@cyclades.com,
+	linux-kernel@vger.kernel.org
+References: <20041227201015.GB18911@sweep.bur.st> <41D07D56.7020702@netshadow.at> <20041229005922.GA2520@node1.opengeometry.net> <20041230152531.GB5058@logos.cnet> <Pine.LNX.4.61.0412310011400.3494@dragon.hygekrogen.localhost> <Pine.LNX.4.61.0412310234040.4725@dragon.hygekrogen.localhost> <20041231035834.GA2421@node1.opengeometry.net> <20041231014905.30b05a11.akpm@osdl.org> <41D5376A.8000705@grupopie.com> <20041231034257.7d2f7d39.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041231034257.7d2f7d39.akpm@osdl.org>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 31 Dec 2004, Davide Libenzi wrote:
+On Fri, Dec 31, 2004 at 03:42:57AM -0800, Andrew Morton wrote:
+> Paulo Marques <pmarques@grupopie.com> wrote:
+> >
+> > Andrew Morton wrote:
+> > > Why is this patch needed?  If it is to offer the user a chance to
+> > > insert the correct medium or to connect the correct device, why
+> > > not rely upon the user doing that thing and then hitting reset?
+> > 
+> > No, no. The problem is not user interaction.
+> > 
+> > The problem is that the USB subsystem takes a lot of time to go
+> > through the hostcontrollers -> hubs -> devices. By the time it finds
+> > the USB mass storage that is supposed to be used as root filesystem,
+> > the kernel had already panic'ed.
 > 
-> I don't think that the Wine problem resolution is due to the POPF 
-> instruction handling. Basically Linus patch does a nice cleanup plus POPF 
-> handling, so maybe the patch can be split.
+> That would be a USB bug, surely.  If /dev/usb/foo is present and
+> functioning correctly, and higher-level code tries to access that
+> device, USB should _not_ error out - it should block the caller until
+> everything is sorted out.
 
-The popf part is very nice in that it allows you to single-step and debug 
-this thing.
+My USB key drive takes 5s to show up as SCSI, from the moment 'uhci_hcd'
+and 'usb-storage' spit out message.  I don't know why.  Internally, USB
+key drive is solid state flash memory, so it should be faster than any
+spinning disks.
 
-The fact is, I can't debug Wine. The code-base is just too alien for me, 
-so to debug this thing I needed to come up with a silly example of TF 
-usage, and try to debug _that_ instead as if it were something unknown (ie 
-debugging by knowing what the program does is a no-no, since that would 
-have defeated the whole exercise).
-
-And handlign "popf" correctly really was the only sane way to debug it, 
-anything else would never have worked in a real-life debugging situation. 
-It's easy enough to say "well, just do it by hand", but that's not 
-practical when you debug with "si 1000" to try to pinpoint the behaviour a 
-bit.
-
-And clearly my debuggability exercise seem to have worked, since the end
-result apparently ended up doing the right thing for Wine.
-
-This is why debuggability is important. I realize that people may think 
-I'm inconsistent (since I abhor kernel debuggers), but while _I_ abhor 
-debuggers, I also think that the primary objective of an operating system 
-is to make easy things easy, and hard things possible, so while I don't 
-much like debuggers, I consider it a fundamental failure if the kernel 
-doesn't have proper support for them.
-
-So I think it's worth splitting out the "popf" part of the patch, but even
-if that one doesn't actually matter for Warcraft, I'd put it in just so 
-that we have a state where we're _supposed_ to be able to debug things 
-with TF in them. Just having the mental expectation that things like that 
-should work is important - otherwise we'll eventually end up having some 
-other subtle problem with TF handling.
-
-			Linus
+The USB key drive works when I load the USB/SCSI modules as modules.
+But, when I boot all-compiled-in-kernel and try to mount /dev/sda1 as
+root device, the kernel panicks before the USB key drive has chance to
+register.  This means that in order to do 'usbboot', one must go through
+the contorted process of 'initrd' which is advocated only by special
+interest group whose embedded world is one patch way from becoming
+obsolete.

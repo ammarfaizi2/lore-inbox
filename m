@@ -1,69 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263032AbTHWRAI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 13:00:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263059AbTHWQ72
+	id S262802AbTHWSwy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 14:52:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263455AbTHWSwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 12:59:28 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:35077 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263288AbTHWQAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 12:00:01 -0400
-Subject: Re: [parisc-linux] Re: Problems with kernel mmap (failing
-	tst-mmap-eofsync in glibc on parisc)
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: "David S. Miller" <davem@redhat.com>, willy@debian.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       PARISC list <parisc-linux@lists.parisc-linux.org>, drepper@redhat.com
-In-Reply-To: <Pine.LNX.4.44.0308230820020.3590-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0308230820020.3590-100000@localhost.localdomain>
-Content-Type: multipart/mixed; boundary="=-twwyVK3YP0a7nX0FTdaG"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 23 Aug 2003 10:59:48 -0500
-Message-Id: <1061654391.1995.74.camel@mulgrave>
-Mime-Version: 1.0
+	Sat, 23 Aug 2003 14:52:54 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:56830 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S263634AbTHWSwv convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 14:52:51 -0400
+From: Patrick Dreker <patrick@dreker.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Subject: Re: nforce2 lockups
+Date: Sat, 23 Aug 2003 20:52:40 +0200
+User-Agent: KMail/1.5.9
+Cc: kenton.groombridge@us.army.mil, linux-kernel@vger.kernel.org
+References: <200308231550.h7NFoZtr022365@harpo.it.uu.se>
+In-Reply-To: <200308231550.h7NFoZtr022365@harpo.it.uu.se>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200308232052.46684.patrick@dreker.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---=-twwyVK3YP0a7nX0FTdaG
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Am Samstag, 23. August 2003 17:50 schrieb Mikael Pettersson <mikpe@csd.uu.se> 
+zum Thema Re: nforce2 lockups:
+> On Sat, 23 Aug 2003 14:48:06 +0200, Patrick Dreker <patrick@dreker.de> 
+> > >Am Samstag, 23. August 2003 14:20 schrieb Mikael Pettersson 
+> >zum Thema Re: nforce2 lockups:
+> >> On Sat, 23 Aug 2003 10:41:46 +0900, kenton.groombridge@us.army.mil
+> >> "noapic" (note: no "l") might very well fix your board, but that's
+> >see above. noapic had no effect on the freezes. On boot it still said
+> > "found and enabling local APIC"
+> Of course it did. "noapic" and BIOS APIC mode relate to the I/O-APIC,
+> not the local APIC.
+Well it's my first board which has an APIC, so I'm still learning how that all 
+belongs together...
 
-On Sat, 2003-08-23 at 02:22, Hugh Dickins wrote:
-> Good idea.  It's VM_MAYSHARE you need to check for.
+> My guess is that your BIOS or graphics card can't handle the local
+> APIC, presumably due to a crap SMM# handler or you using APM's
+> CPU_IDLE or DISPLAY_BLANK options.
+Someone else already hinted, that it might be the BIOS/SMM problem. APM is 
+completely disabled
+> Kernel 2.6.0-test4 supports "nolapic", so that's an option too.
+> I'll send that patch to Marcelo for 2.4.23-pre so it should be
+> in 2.4 eventually.
+I'll try that, and Asus have updated their BIOS for the Board, so I'll give 
+that a shot, too.
+- -- 
+Patrick Dreker
 
-OK, to get all this to work, there's a corner case in do_mremap() that I
-need to be fixed:
+GPG KeyID  : 0xFCC2F7A7 (Patrick Dreker)
+Fingerprint: 7A21 FC7F 707A C498 F370  1008 7044 66DA FCC2 F7A7
+Key available from keyservers or http://www.dreker.de/pubkey.asc
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-When choosing the flags for the new area, it keys off VM_SHARED to
-determine whether MAP_SHARED is passed to the mapping.  It has to key of
-VM_MAYSHARE to preserve VM_MAYSHARE on the new mapping.
-
-Patch below.
-
-James
-
-
-
---=-twwyVK3YP0a7nX0FTdaG
-Content-Disposition: inline; filename=tmp.diff
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; name=tmp.diff; charset=ISO-8859-1
-
-=3D=3D=3D=3D=3D mremap.c 1.32 vs edited =3D=3D=3D=3D=3D
---- 1.32/mm/mremap.c	Thu Aug  7 12:29:10 2003
-+++ edited/mremap.c	Sat Aug 23 10:54:21 2003
-@@ -420,7 +420,7 @@
- 	if (flags & MREMAP_MAYMOVE) {
- 		if (!(flags & MREMAP_FIXED)) {
- 			unsigned long map_flags =3D 0;
--			if (vma->vm_flags & VM_SHARED)
-+			if (vma->vm_flags & VM_MAYSHARE)
- 				map_flags |=3D MAP_SHARED;
-=20
- 			new_addr =3D get_unmapped_area(vma->vm_file, 0, new_len,
-
---=-twwyVK3YP0a7nX0FTdaG--
-
+iD8DBQE/R7f+cERm2vzC96cRAvwXAJ9M49KQUWCI37LJXAUamJiM0628lwCfXPjO
+eapurx/Indgk60tVCJ96ztc=
+=bebd
+-----END PGP SIGNATURE-----

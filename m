@@ -1,84 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268000AbUI1RdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268029AbUI1ReM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268000AbUI1RdG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 13:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267998AbUI1R1V
+	id S268029AbUI1ReM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 13:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268011AbUI1Rd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 13:27:21 -0400
-Received: from mail.kroah.org ([69.55.234.183]:57252 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267928AbUI1R0i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 13:26:38 -0400
-Date: Tue, 28 Sep 2004 10:25:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>,
-       davej@codemonkey.org.uk, hpa@zytor.com, kernel-janitors@lists.osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hanna Linder <hannal@us.ibm.com>
-Subject: Re: Create new function to see if pci dev is present
-Message-ID: <20040928172523.GB29529@kroah.com>
-References: <2480000.1095978400@w-hlinder.beaverton.ibm.com> <20040924200231.A30391@infradead.org> <20040924211912.GC7619@kroah.com> <1096059645.10797.1.camel@localhost.localdomain> <20040926141002.GA24942@kroah.com> <20040928172426.GA29529@kroah.com>
+	Tue, 28 Sep 2004 13:33:27 -0400
+Received: from sb0-cf9a48a7.dsl.impulse.net ([207.154.72.167]:59852 "EHLO
+	madrabbit.org") by vger.kernel.org with ESMTP id S268052AbUI1Rc4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 13:32:56 -0400
+Subject: Re: [RFC][PATCH] inotify 0.10.0
+From: Ray Lee <ray-lk@madrabbit.org>
+To: Robert Love <rml@novell.com>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>, Andrew Morton <akpm@osdl.org>,
+       ttb@tentacle.dhs.org, Linux Kernel <linux-kernel@vger.kernel.org>,
+       gamin-list@gnome.org, viro@parcelfarce.linux.theplanet.co.uk,
+       iggy@gentoo.org
+In-Reply-To: <1096390398.4911.30.camel@betsy.boston.ximian.com>
+References: <1096250524.18505.2.camel@vertex>
+	 <20040926211758.5566d48a.akpm@osdl.org>
+	 <1096318369.30503.136.camel@betsy.boston.ximian.com>
+	 <1096350328.26742.52.camel@orca.madrabbit.org>
+	 <20040928120830.7c5c10be.akpm@osdl.org>
+	 <41599456.6040102@nortelnetworks.com>
+	 <1096390398.4911.30.camel@betsy.boston.ximian.com>
+Content-Type: text/plain
+Organization: http://madrabbit.org/
+Date: Tue, 28 Sep 2004 10:32:51 -0700
+Message-Id: <1096392771.26742.96.camel@orca.madrabbit.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040928172426.GA29529@kroah.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 28, 2004 at 10:24:26AM -0700, Greg KH wrote:
-> Ok, here's the patch that I applied to my trees, and I'll follow this up
-> with a conversion of Hanna's two patches that I respun to use the new
-> parameters of this function.
+On Tue, 2004-09-28 at 12:53 -0400, Robert Love wrote:
+> On Tue, 2004-09-28 at 10:41 -0600, Chris Friesen wrote:
+> > Andrew Morton wrote:
+> > 
+> > > Why don't you pass a file descriptor into the syscall instead of a pathname?
+> > > You can then take a ref on the inode and userspace can close the file.
+> > > That gets you permission checking for free.
+> > 
+> > For passing in the data, that would work.  Wouldn't you still need a name or 
+> > path when getting data back though?
+> 
+> Does Andrew mean an fd on the thing being watched?
+> 
+> That is what we are trying to fix with dnotify: the open fd's are pin
+> the device and prevent unmount, making notification on removable devices
+> impossible.
 
-Here's the cyrix.c patch.
+That's why he said to close the fd right after the syscall. But yeah,
+for a case of someone wanting to watch their 1700 directories underneath
+~/, thems a lot of open calls.
 
--------
+> Such a 1:1 relationship also opens way too many fd's.
 
-PCI: change cyrix.c driver to use pci_dev_present
+...I'm not sure I follow. If you're talking about the IN_CREATE and
+IN_DELETE events available when watching a parent directory, then I
+don't think anything would change. IOW, why not do an open(2) on the
+directory in question, and pass that fd in?
 
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+Regardless, Andrew's point still stands. What do we want the permission
+semantics to be? One would think that a normal user account should not
+be able to watch the contents of some other user's 0600 directories, for
+example. open(2) already does all the correct checks. We should inherit
+that work if at all possible.
 
-diff -Nru a/arch/i386/kernel/cpu/cyrix.c b/arch/i386/kernel/cpu/cyrix.c
---- a/arch/i386/kernel/cpu/cyrix.c	2004-09-28 10:21:10 -07:00
-+++ b/arch/i386/kernel/cpu/cyrix.c	2004-09-28 10:21:10 -07:00
-@@ -187,12 +187,19 @@
- }
- 
- 
-+#ifdef CONFIG_PCI
-+static struct pci_device_id cyrix_55x0[] = {
-+	{ PCI_DEVICE(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5510) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5520) },
-+	{ },
-+};
-+#endif
-+
- static void __init init_cyrix(struct cpuinfo_x86 *c)
- {
- 	unsigned char dir0, dir0_msn, dir0_lsn, dir1 = 0;
- 	char *buf = c->x86_model_id;
- 	const char *p = NULL;
--	struct pci_dev *dev;
- 
- 	/* Bit 31 in normal CPUID used for nonstandard 3DNow ID;
- 	   3DNow is IDd by bit 31 in extended CPUID (1*32+31) anyway */
-@@ -275,16 +282,8 @@
- 		/*
- 		 *  The 5510/5520 companion chips have a funky PIT.
- 		 */  
--		dev = pci_get_device(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5510, NULL);
--		if (dev) {
--			pci_dev_put(dev);
--			pit_latch_buggy = 1;
--		}
--		dev =  pci_get_device(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5520, NULL);
--		if (dev) {
--			pci_dev_put(dev);
-+		if (pci_dev_present(cyrix_55x0))
- 			pit_latch_buggy = 1;
--		}
- 
- 		/* GXm supports extended cpuid levels 'ala' AMD */
- 		if (c->cpuid_level == 2) {
+Another benefit of passing in an fd, by the way, would be to make it
+easier to make a write(2) interface to inotify, and get rid of the ioctl
+one.
+
+ ~ ~
+
+As Chris points out, we still need a way to pass the name or path back
+to userspace when an event occurs, which is the interface I was harping
+on a few messages back.
+
+It seems we're trying to recreate a variant struct dirent for
+communicating changes to userspace. Perhaps we can learn something from
+already trodden ground? Just sayin'.
+
+Ray
+

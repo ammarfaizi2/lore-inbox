@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278364AbRKNXMB>; Wed, 14 Nov 2001 18:12:01 -0500
+	id <S276369AbRKNXTV>; Wed, 14 Nov 2001 18:19:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278450AbRKNXLw>; Wed, 14 Nov 2001 18:11:52 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:55950 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S278364AbRKNXLq>; Wed, 14 Nov 2001 18:11:46 -0500
-Date: Wed, 14 Nov 2001 16:01:41 -0700
-Message-Id: <200111142301.fAEN1fD10739@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: [PATCH] devfs v197 available
+	id <S276591AbRKNXTB>; Wed, 14 Nov 2001 18:19:01 -0500
+Received: from ivy.tec.in.us ([168.91.1.1]:55214 "EHLO otter.ivy.tec.in.us")
+	by vger.kernel.org with ESMTP id <S276369AbRKNXSv>;
+	Wed, 14 Nov 2001 18:18:51 -0500
+Message-ID: <50915.168.215.193.74.1005779564.squirrel@mail.ivy.tec.in.us>
+Date: Wed, 14 Nov 2001 18:12:44 -0500 (EST)
+Subject: 2.4.14 reboot on/before boot
+From: "John Madden" <jmadden@ivy.tec.in.us>
+To: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.0 [rc2])
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 197 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
+Two machines, identical hardware (Dell 2450's, Dual PIII/667, 1gig ram).
+One one, 2.4.14 boots and runs nicely, as one would expect.  On the other,
+"as close to exact as I can imagine" compile configs, the machine reboots
+just after LILO's "Loading Linux..."  Same version of LILO on both as well.
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
+Has anyone else experienced this?  Any ideas on a fix?
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
 
-This is against 2.4.15-pre4. Highlights of this release:
+Thanks,
+  John
 
-- First release of new locking code for devfs core (v1.0)
 
-- Fixed bug in drivers/cdrom/cdrom.c
 
-				Regards,
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+
+-- 
+John Madden
+UNIX Systems Engineer
+Ivy Tech State College
+jmadden@ivy.tec.in.us
+
+
+

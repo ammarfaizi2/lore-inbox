@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263013AbUK0Bvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262369AbUK0Bvz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263013AbUK0Bvy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 20:51:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbUK0BrO
+	id S262369AbUK0Bvz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 20:51:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263035AbUK0BrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 20:47:14 -0500
+	Fri, 26 Nov 2004 20:47:07 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:10692 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263019AbUKZTi1 (ORCPT
+	by vger.kernel.org with ESMTP id S262369AbUKZTi2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:38:27 -0500
-Subject: Re: PROBLEM: Compatibility problem with C++, i386 & ia64 platform
+	Fri, 26 Nov 2004 14:38:28 -0500
+Subject: Re: ide-cd problem
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Joakim Bentholm XQ (AS/EAB)" <joakim.xq.bentholm@ericsson.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <D6A41B94D27EA643BAE9319F5348603F17D6B3@ESEALNT895.al.sw.ericsson.se>
-References: <D6A41B94D27EA643BAE9319F5348603F17D6B3@ESEALNT895.al.sw.ericsson.se>
+To: Jens Axboe <axboe@suse.de>
+Cc: Alan Chandler <alan@chandlerfamily.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041125152922.GC12098@suse.de>
+References: <200411211613.54713.alan@chandlerfamily.org.uk>
+	 <200411220752.28264.alan@chandlerfamily.org.uk>
+	 <20041122080122.GM26240@suse.de>
+	 <E1CWBSN-0003mF-4s@home.chandlerfamily.org.uk>
+	 <20041122105157.GB10463@suse.de>
+	 <E1CWCOC-0003so-Ao@home.chandlerfamily.org.uk>
+	 <20041122113150.GF10463@suse.de>
+	 <E1CWDhN-00040Y-E6@home.chandlerfamily.org.uk>
+	 <20041122130202.GO10463@suse.de>
+	 <1101338347.2571.8.camel@localhost.localdomain>
+	 <20041125152922.GC12098@suse.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1101398087.18214.21.camel@localhost.localdomain>
+Message-Id: <1101399946.18177.25.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 25 Nov 2004 15:54:47 +0000
+Date: Thu, 25 Nov 2004 16:25:47 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-11-23 at 12:54, Joakim Bentholm XQ (AS/EAB) wrote:
-> Maybe the system.h is not supposed to be included outside the kernel?
-> Is there a less crude way of getting hold of the macros?
+On Iau, 2004-11-25 at 15:29, Jens Axboe wrote:
+> Something is funky with this drive, it requires an extra delay after it
+> has raised an interrupt. But we can restrict it to ide-cd once it's
+> fully understood.
 
-Nobody has really done serious C++ work with the base kernel. Getting
-things like interrupt safe C++ memory and exception handling is not
-exactly trivial
-stuff. As such the kernel isn't really designed to be C++ friendly so
-there are various uses of names like "new" in the kernel.
-
-Developing kernel modules with C++ probably isn't ideal but I don't see
-any problem in fixing the users of variables like "new" if you want to
-do it and submit tested patches to akpm@osdl.org.
-
-Alan
+You are assuming its a drive issue. Some controllers have errata around
+this area that might be involved too. We can certainly stick a quirk for
+IRQ delay into the drive tho
 

@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263335AbTDLQjM (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 12:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263336AbTDLQjM (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 12:39:12 -0400
-Received: from siaag2ad.compuserve.com ([149.174.40.134]:32656 "EHLO
-	siaag2ad.compuserve.com") by vger.kernel.org with ESMTP
-	id S263335AbTDLQjM (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 12:39:12 -0400
-Date: Sat, 12 Apr 2003 12:47:30 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: RE: kernel support for non-English user messages
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200304121250_MC3-1-3426-17FF@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	id S263338AbTDLRGG (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 13:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbTDLRGG (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 13:06:06 -0400
+Received: from uni01du.unity.ncsu.edu ([152.1.13.101]:54657 "EHLO
+	uni01du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id S263338AbTDLRGG (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 13:06:06 -0400
+From: jlnance@unity.ncsu.edu
+Date: Sat, 12 Apr 2003 13:17:42 -0400
+To: Tim Connors <tconnors@astro.swin.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bytesex.org -> censored (Was Re: 2.4.21-pre7: error compiling aic7(censored)/aicasm/aicasm.c)
+Message-ID: <20030412171742.GA8466@ncsu.edu>
+References: <20030406130015$057f@gated-at.bofh.it> <20030410171009$6b00@gated-at.bofh.it> <200304111040.h3BAe1806090@tellurium.ssi.swin.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200304111040.h3BAe1806090@tellurium.ssi.swin.edu.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 11, 2003 at 08:40:01PM +1000, Tim Connors wrote:
 
-> You are right about needing to log parameters, but given a log line
-> of the form
->
-> %s: went up in flames\n\0eth0\0\0
->
-> that can be handled by the log viewer
+> Speaking of s/xxx/censored/, some moron decided at uni to block all
+> domains with sex in them. Any idea how to download v4l drivers of
+> www.bytesex.org? Concidering www.bytesex.org is vhosted, so one can't
+> use its IP address.
 
+Go find the privoxy source.  They contain a list of sites running public
+proxy servers.  You should be able to use one of them.
 
-  How about this scheme instead?
+Thanks,
 
-    printk("%s: went up in flames\n", "eth0");
-
-would become
-
-    \0eth0\0: went up in flames\n\0\0
-
-i.e. the zeros would mark a transition between text that came from
-parameters and what was from the format string.  This would be a
-lot easier to write to the console.
-
-
---
- "Let's fight till six, and then have dinner," said Tweedledum.
-  --Lewis Carroll, _Through the Looking Glass_
+Jim

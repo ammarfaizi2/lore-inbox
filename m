@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265971AbUGIWGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266002AbUGIWHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265971AbUGIWGr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 18:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265985AbUGIWGr
+	id S266002AbUGIWHs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 18:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUGIWHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 18:06:47 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:64689 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265971AbUGIWGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 18:06:45 -0400
-Date: Fri, 9 Jul 2004 23:06:44 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Modular filesystem using drop_inode would need inode_lock
-Message-ID: <20040709220644.GA6945@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Luck, Tony" <tony.luck@intel.com>, linux-kernel@vger.kernel.org
-References: <B8E391BBE9FE384DAA4C5C003888BE6F019FB78F@scsmsx401.amr.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 9 Jul 2004 18:07:47 -0400
+Received: from lakermmtao09.cox.net ([68.230.240.30]:57225 "EHLO
+	lakermmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S265985AbUGIWH0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 18:07:26 -0400
+From: keysersoze <keysersoze@pureehosting.com>
+To: linux-kernel@vger.kernel.org
+Subject: Realtek 8180 specs--would they help?
+Date: Fri, 9 Jul 2004 17:08:10 -0500
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F019FB78F@scsmsx401.amr.corp.intel.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407091708.10451.keysersoze@pureehosting.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 09, 2004 at 02:43:32PM -0700, Luck, Tony wrote:
-> This is mostly a logical inconsistency at the moment (since the
-> only filesystem that has a "drop_inode" function defined in its
-> super_operations is hugetlbfs, and it is unlikely to move out of
-
-And btw, ->drop_inode usage in hugetlbfs is also a really bad idea,
-it's duplicating large parts of fs/inode.c and is already missing
-all kinds of updates.
-
+Recently, I emailed Realtek and asked if they would A) Update the 8180 driver, 
+B)Open all of the source for the driver, or C) Provide the specifications of 
+the chipset so a driver could be written.  They responded by sending me what 
+appears to be the same document as was posted here last year by someone, who 
+was accused of acquiring it in an illegal manner.  I searched the kernel 
+archives and found that development for a driver for the 2.6 kernel has 
+apparently either ceased or at least slowed.
+My questions are:  Is there a chance this document (90 page pdf) be helpful in 
+writing a new driver?  Is development for a new driver more active than it 
+appears?  If the document could be helpful, exactly what measures would I 
+have to take to assure the community that it was obtained exactly as I stated 
+(and with Realtek's blessing)?
+I don't want to do the wrong thing here, and as such I will not post the 
+document until receiving feedback.  I am not subscribed to the list, so 
+please cc any answers.  
+Thank you for your time.
+Wayne

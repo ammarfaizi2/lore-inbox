@@ -1,65 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315472AbSGIPhM>; Tue, 9 Jul 2002 11:37:12 -0400
+	id <S315480AbSGIPiC>; Tue, 9 Jul 2002 11:38:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315480AbSGIPhL>; Tue, 9 Jul 2002 11:37:11 -0400
-Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:44485 "EHLO
-	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S315472AbSGIPhL>; Tue, 9 Jul 2002 11:37:11 -0400
-Message-ID: <3D2B03C2.1010407@earthlink.net>
-Date: Tue, 09 Jul 2002 11:39:46 -0400
-From: Stephen Clark <sclark46@earthlink.net>
-Reply-To: sclark46@earthlink.net
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: bonganilinux@mweb.co.za
-CC: Michael Gruner <stockraser@yahoo.de>, linux-kernel@vger.kernel.org
-Subject: Re: freezing afer switching from graphical to console
-References: <E17Rrf9-0003wV-00@laibach.mweb.co.za>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315481AbSGIPiC>; Tue, 9 Jul 2002 11:38:02 -0400
+Received: from mnh-1-21.mv.com ([207.22.10.53]:55812 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S315480AbSGIPh7>;
+	Tue, 9 Jul 2002 11:37:59 -0400
+Message-Id: <200207091642.LAA02424@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
+Subject: Re: [uml-user] Re: user-mode port 0.58-2.4.18-36 
+In-Reply-To: Your message of "Tue, 09 Jul 2002 05:16:18 +0200."
+             <20020709031618.GC113@elf.ucw.cz> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 09 Jul 2002 11:42:37 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bonganilinux@mweb.co.za wrote:
+pavel@ucw.cz said:
+> ...and using CAP_SYS_RAWIO... 
 
->>Hi,
->>
->>since 2.4.17 I have got a problem: trying to switch from graphical
->>screen to console or to stop my X-session my box freezes. The screen
->>gets black and nothing more happens. Pressing any keys or trying to
->>    
->>
->
->This only happens to me if I load the NVidia drivers if you are using
->them that could be you
->problem.
->
->---------------------------------------------
->This message was sent using M-Web Airmail.
->JUST LIKE THAT
->Are you ready for 10-digit dialling on the 8th of May?
->To find out how this will affect your Internet connection go to www.mweb.co.za/ten
->http://airmail.mweb.co.za/
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+Do you really think I'm that stupid?
 
-I am also having this problem with an ATI r128 card and KDM. I found that by
-setting:
+CAP_SYS_RAWIO is removed from the bounding set.
 
-TerminateServer=true
-
-in the kdmrc file helped a lot.
-
-HTH,
-Steve
+				Jeff
 

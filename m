@@ -1,87 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266169AbRF2Tns>; Fri, 29 Jun 2001 15:43:48 -0400
+	id <S266170AbRF2TsI>; Fri, 29 Jun 2001 15:48:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266167AbRF2Tnj>; Fri, 29 Jun 2001 15:43:39 -0400
-Received: from cx48762-a.cv1.sdca.home.com ([24.0.158.22]:65085 "EHLO
-	train.sweet-haven.com") by vger.kernel.org with ESMTP
-	id <S266166AbRF2Tnf>; Fri, 29 Jun 2001 15:43:35 -0400
-Date: Fri, 29 Jun 2001 12:41:51 -0700 (PDT)
-From: Lew Wolfgang <wolfgang@train.sweet-haven.com>
-To: Pavel Machek <pavel@suse.cz>
-cc: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>, <lm@bitmover.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: The latest Microsoft FUD.  This time from BillG, himself.
-In-Reply-To: <20010629000255.B525@bug.ucw.cz>
-Message-ID: <Pine.LNX.4.33.0106291207140.5284-100000@train.sweet-haven.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266167AbRF2Tr6>; Fri, 29 Jun 2001 15:47:58 -0400
+Received: from hacksaw.org ([216.41.5.170]:61929 "EHLO
+	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
+	id <S266166AbRF2Tri>; Fri, 29 Jun 2001 15:47:38 -0400
+Message-Id: <200106291947.f5TJlUE26243@habitrail.home.fools-errant.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.3
+To: Craig.McLean@Sun.COM
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Cosmetic JFFS patch. 
+In-Reply-To: Your message of "Fri, 29 Jun 2001 13:00:11 BST."
+             <3B3C6DCB.5711888E@Sun.COM> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 29 Jun 2001 15:47:30 -0400
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Jun 2001, Pavel Machek wrote:
+>No 'debug=' could then simply cause the kernel to kprint any info from
+>drivers/modules that failed to load, else keep schtum.
 
-> > The biggest improvement would be that users could remain with a version
-> > that works for them and NOT be forced to pay more money for the same
-> > functionality (watch out for the XP license virus... also known as
-> > a logic bomb).
->
-> What is XP license virus?
+My idea is that the driver announces itself, and then what it has 
+found/initialized, in the minimum number of screen lines possible. I'd want 
+that to be the default, because it gives you a decent idea of where it was if 
+it failed.
 
-Hi Pavel,
+I am envisioning an algorithm like this:
 
-I'm not sure it's like a virus, maybe more like a genetic defect.
+1. Printk name and version
+2. initialize self
+3. Hunt for devices, printk when you find one
+4. Initialize this device
+5. Go back to 3 until you don't detect any more devices
+6. Do whatever final thing needs doing
 
-This is Micro$oft's new licensing scheme that made its first
-appearance with the SR1 edition of Office 2000.  I've been subjected
-to it twice now, with Office 2000 and Office XP.  Windows XP will
-use the same scheme.
+Note that I only advocate the two printk's mentioned explicitly. I think this 
+provides just enough of a clue to give one an idea of what might have gone 
+wrong, so you might be able to make a quick fix even before needing to enter a 
+"tell me everything you are doing" mode for debugging. More might be nice, but 
+balance is good.
 
-It seems to be a multifaceted license manager that does the following
-when installed:
+I agree with some folks that this is way too much from some drivers. The giant 
+per CPU tables are an example. That's a useful thing if you are a kernel 
+developer, or are trying to debug something weird, but it too much information 
+for someone like me, who knows the code works most of the time. If I see an 
+error, I'm going to replace the CPU, not write new code.
 
-1.  Sniffs around the hardware, building a list of what's installed.
-    This serves as a "fingerprint" for the Pea Sea.
+On the other hand, I do like the v for version, etc thing, but I think I would 
+have it like this:
 
-2.  The user enters the CD "key", a unique serial number for the
-    software you purchased.
+v for version
+i for initiation progress (devices and options)
+d for debugging (or tell me every major step you take)
+q for quiet (Just the kernel version and the word "Loading" and a spinner of 
+some sort)
+s for "shut up shuttin' up!" (Nothing, or maybe some custom module for the 
+embedded installations)
 
-3.  A new encrypted string containing the sftwe key and the hardware
-    fingerprint is now generated.  This new key must be provided to
-    Microsoft where they then generate a third key based on the
-    second.  This new key must be entered to "unlock" the software.
+Obviously, the last two are exclusive with the first three. I'd make it so 
+including them after the other cancels them, so you could add something 
+temporarily without losing your default.
 
-If this sequence is not followed, Office will run only 50 times, then
-shut itself down.  (I bet it leaves "spoor" somewhere to prevent the
-average user from just reinstalling from the CD.  I heard that
-Windows XP will run only 5 times before shutdown without the final key.
+I would default to "vi", no pun intended.
 
-Note that the manager encourages the user to use the automatic method
-for sending the key to Micro$oft.  A form is filled out with name,
-organization, address, phone number and such before a button is
-pressed to send your personal profile off to the Borg.  The return
-address has to be valid or you can't get the final, third key.
-(In all fairness, they will allow telephone key transmittal that
-can be anonymous.  This is what I did from a public phone booth)
-
-So, Micro$oft now has lots of information about you.  If the
-CD key is used again they just refuse to send the final key.
-Further, if your hardware environment changes (adding a new
-frame buffer, scsi controller, etc) the license manager assumes
-you copied the whole disk to another computer and are therefore
-a pirate.  It shuts down the package until a new key can be
-obtained from Micro$oft, presumably after you convince them
-that you aren't really a crook.  "I just added a disk!  Please
-turn my Windows on again!  I promise to be good and send you
-more money in the future.", can be heard across the land.
-
-This whole thing will probably be good for the Open Source
-Movement.  We won't have to "pull" users from the Borg,
-the Borg will start "pushing" them to us.
-
-Interesting times in which we live, what?
-
-Regards,
-Lew Wolfgang
 
 

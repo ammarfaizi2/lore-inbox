@@ -1,76 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266851AbTAZRaq>; Sun, 26 Jan 2003 12:30:46 -0500
+	id <S266859AbTAZRew>; Sun, 26 Jan 2003 12:34:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266852AbTAZRaq>; Sun, 26 Jan 2003 12:30:46 -0500
-Received: from kunde0416.oslo-asen.alfanett.no ([62.249.189.163]:33034 "EHLO
-	kunde0416.oslo-asen.alfanett.no") by vger.kernel.org with ESMTP
-	id <S266851AbTAZRao>; Sun, 26 Jan 2003 12:30:44 -0500
-Date: Sun, 26 Jan 2003 18:39:54 +0100 (CET)
-From: Peter Karlsson <peter@softwolves.pp.se>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 kernel crashes while scanning partition list
-In-Reply-To: <m365sclylx.fsf@varsoon.wireboard.com>
-Message-ID: <Pine.LNX.4.43.0301261833330.28040-100000@perkele>
-Mail-Copies-To: Peter Karlsson <peter@softwolves.pp.se>
-X-Warning: Junk / bulk email will be reported
-X-Rating: This message is not to be eaten by humans
-Organization: /universe/earth/europe/norway/oslo
+	id <S266865AbTAZRew>; Sun, 26 Jan 2003 12:34:52 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:5576 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S266859AbTAZRev>; Sun, 26 Jan 2003 12:34:51 -0500
+Date: Sun, 26 Jan 2003 11:43:44 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Mark Fasheh <mark.fasheh@oracle.com>
+cc: Thomas Schlichter <schlicht@uni-mannheim.de>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: no version magic, tainting kernel.
+In-Reply-To: <20030123193540.GD13137@ca-server1.us.oracle.com>
+Message-ID: <Pine.LNX.4.44.0301261054250.15538-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug McNaught:
+On Thu, 23 Jan 2003, Mark Fasheh wrote:
 
-> Have you tried 2.4.21pre?  It may have fixes to handle newer hardware.
+> Can't the stuff in init/vermagic.c be moved into a header file? Maybe
+> vermagic.h? Most of the code can be cut 'n pasted right out of vermagic.c
+> and the bit that defines "const char vermagic[]..." could be placed inside a
+> macro which modules would then stick in the bottom of one of their c files.
+> This is what I'm getting at (warning I haven't checked this code or even
+> tried to clean it up):
 
-Not yet, I did try 2.4.19, to see if that worked better, but got the
-same crash. 2.4.18 seems to be different, however, since it does not
-autodetect the drives (and does not crash when I pass the IDE addresses
-manually).
+Your suggestion is sensible, yet it is just an indication that you're 
+using the wrong way to build your external module.
 
-> Does the machine pass memtest86?
+The thing is, open source projects like the linux kernel tend to move 
+fast, and they don't care about changing the interfaces are the way to 
+build things much, since you get the source and can recompile yourself. 
+Due to that fact, all solutions which try to build modules externally are 
+bound to fail sooner or later. IMO the only sensible way to overcome this 
+is to accept help from the kernel build system instead of adding one 
+kludge after the other to your home-made Makefile.
 
-No errors were reported.
+The kernel build provides this facility today, use the
 
+	make -C $KERNELSRC SUBDIRS=$PWD approach 
 
-Mark Hahn:
+that Sam Ravnborg pointed out. It's true that it has not been clearly 
+separated how much of the kernel source tree is needed to do that, (it's 
+at least include/*, .config, scripts, init/, ...) so the rule is: You need 
+the entire configured kernel tree.
 
-> well, posting an undecoded oops is one mistake.
+Now, is that so bad? When you're building kernels yourself, you obviously 
+have enough room for a full tree anyway. When you're using a distribution, 
+you have to install the kernel source rpm anyway, to get the headers. For 
+all I know, these days the headers are not distributed separately from the 
+rest of the kernel source anymore..
 
-Someone decoded it and posted a decoded trace. Did that not arrive to
-the list properly?
+You might say that this is a regression w.r.t 2.4. But actually, even in 
+2.4, you need e.g. Makefile and arch/i386/Makefile to figure out the 
+correct flags and things for your compile, and those are not headers, 
+either.
 
-> can you dispense with the silly hardware dumb-raid, and just use
-> kernel software raid? (faster, more robust).
+> in my_external_module.c, and init/vermagic.c I'd just do:
+> #include <linux/vermagic.h>
+> KERNEL_VERSIONMAGIC();
 
-I'd prefer to use the on-board RAID to be compatible with other OSes.
-And, according to people I have asked, the Linux software-RAID is not
-very reliable either, so I don't feel especially inclined to switch.
+This is a good solution to this specific problem. But it does not solve 
+the rest, e.g. your Makefile doesn't set -fomit-frame-pointer depending on 
+CONFIG_FRAME_POINTER. It doesn't set the proper march=x86 flags. IA-64 
+even needs a special flag just for modules. And it'll get even worse with 
+the reintroduction of module symbol versioning.
 
-> I decoded your oops, below.  it's not much use without someone also
-> running objdump -D drivers/block/ll_rw_blk.o on your system and
-> figuring out how the eip=0 happened.  it's obviously some callback.
+So the above would work around this specific problem, leaving the other
+more subtle ones unsolved. And if you're using modules which have been
+built in such a fragile way with subtle differences, I think it's
+justified to have your kernel tainted.
 
-If I run this (I can boot the machine using 2.4.18), what should I
-look for? I haven't debugged the kernel before, it has just always
-worked for me, on all the machines I've tried it. I've only ever had
-the kernel crash once on me before since 1996.
-
-> it's also somewhat odd that prink is in the backtrace.
-
-That might be a typo on my part.
-
-> there are no printk's before the oops?
-
-The last thing that happens before the crash is that it tries to
-enumerate the hard disk partitions. I lists a few but then crashes.
-
--- 
-\\//
-Peter - http://www.softwolves.pp.se/
-
-  I do not read or respond to mail with HTML attachments.
+--Kai
 
 

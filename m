@@ -1,106 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264178AbTH1S3e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 14:29:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264179AbTH1S3e
+	id S264188AbTH1SuM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 14:50:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264214AbTH1SuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 14:29:34 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:19346 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S264178AbTH1S3b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 14:29:31 -0400
-Message-ID: <3F4E4A78.5020409@namesys.com>
-Date: Thu, 28 Aug 2003 22:31:20 +0400
-From: Vladimir Demidov <demidov@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
-X-Accept-Language: en-us, ru
+	Thu, 28 Aug 2003 14:50:12 -0400
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:63365 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id S264188AbTH1Ss1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 14:48:27 -0400
+From: Matt Gibson <gothick@gothick.org.uk>
+Organization: The Wardrobe Happy Cow Emporium
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4 and hardware reports a non fatal incident
+Date: Thu, 28 Aug 2003 18:28:12 +0100
+User-Agent: KMail/1.5.3
+References: <200308281548.44803.tomasz_czaus@go2.pl> <20030828084640.68fe827d.rddunlap@osdl.org>
+In-Reply-To: <20030828084640.68fe827d.rddunlap@osdl.org>
+X-Pointless-MIME-Header: yes
+X-Archive: encrypt
 MIME-Version: 1.0
-To: Steven Cole <elenstev@mesatop.com>
-CC: Oleg Drokin <green@namesys.com>, reiserfs-dev@namesys.com,
-       reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: reiser4 snapshot for August 26th.
-References: <20030826102233.GA14647@namesys.com> <1061922037.1670.3.camel@spc9.esa.lanl.gov>
-In-Reply-To: <1061922037.1670.3.camel@spc9.esa.lanl.gov>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308281828.12833.gothick@gothick.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thursday 28 Aug 2003 16:46, Randy.Dunlap wrote:
+> On Thu, 28 Aug 2003 15:48:44 +0200 Tomasz Czaus <tomasz_czaus@go2.pl> 
+wrote:
+> | Hello,
+> |
+> | when my system is booting I can see such a message:
+> |
+> | kernel: MCE: The hardware reports a non fatal, correctable incident
+> | occurred on CPU 0.
+> | kernel: Bank 0: e664000000000185
 
-Steven Cole wrote:
+Yeah, I get one of those on boot, too.  Or at least I did.  I was going to 
+turn the processor checking stuff back on to see if it happened 
+consistently.  What processor is it, Tomasz?  Mine's an Athlon.  Output of 
+"cat /proc/cpuinfo" at the end, if anyone's remotely interested...
 
-|On Tue, 2003-08-26 at 04:22, Oleg Drokin wrote:
-|
-|>Hello!
-|>
-|>   I have just released another reiser4 snapshot that I hope all 
-interested
-|>   parties will try. It is released against 2.6.0-test4.
-|>   You can find it at http://namesys.com/snapshots/2003.08.26
-|>   I include release notes below.
-|>
-|>Reiser4 snapshot for 2003.08.26
-|>
-|
-|I got this error while attempting to compile with reiser4.
-|Snippet from .config follows.
-|
-|Steven
-|
-|  CC      fs/reiser4/plugin/file/tail_conversion.o
+> Use "parsemce" from here:
+>   http://www.codemonkey.org.uk/projects/parsemce/
+> to decode it.
+>
+> So 2.6 has more/better/different processor error checking.
 
-befor compile "fs/reiser4/sys_reiser4.o" yacc mast be create 
-"fs/reiser4/parser/parser.code.c:"
-why it not created?
-Is yacc installed on your computer and patched?
+Thanks for the link, Randy, I'll give it a go tonight.  Although with my 
+knowledge of current processor archictecture, I'm guessing it'll parse it 
+from one format I don't have a clue about into a more verbose format I don't 
+have a clue about ;-)
 
-|
-|  CC      fs/reiser4/sys_reiser4.o
-|fs/reiser4/sys_reiser4.c:54:32: parser/parser.code.c: No such file or 
-directory
-|fs/reiser4/sys_reiser4.c: In function `sys_reiser4':
-|fs/reiser4/sys_reiser4.c:75: warning: implicit declaration of function 
-`reiser4_pars_init'
-|fs/reiser4/sys_reiser4.c:75: warning: assignment makes pointer from 
-integer without a cast
-|fs/reiser4/sys_reiser4.c:80: error: dereferencing pointer to incomplete 
-type
-|fs/reiser4/sys_reiser4.c:82: warning: implicit declaration of function 
-`yyparse'
-|fs/reiser4/sys_reiser4.c:83: warning: implicit declaration of function 
-`reiser4_pars_free'
-|fs/reiser4/sys_reiser4.c:66: warning: unused variable `Gencode'
-|fs/reiser4/sys_reiser4.c: At top level:
-|fs/reiser4/parser/parser.h:333: warning: `Fistmsg' defined but not used
-|fs/reiser4/parser/parser.h:342: warning: `typesOfCommand' defined but 
-not used
-|fs/reiser4/parser/parser.h:354: warning: `Code' defined but not used
-|make[2]: *** [fs/reiser4/sys_reiser4.o] Error 1
-|make[1]: *** [fs/reiser4] Error 2
-|make: *** [fs] Error 2
-|[steven@spc1 linux-2.6.0-test4-r4]$ grep REISER4 .config
-|CONFIG_REISER4_FS=y
-|CONFIG_REISER4_FS_SYSCALL=y
-|CONFIG_REISER4_LARGE_KEY=y
-|# CONFIG_REISER4_CHECK is not set
-|CONFIG_REISER4_USE_EFLUSH=y
-|# CONFIG_REISER4_BADBLOCKS is not set
-|
-|
-|
-|
+Cheers,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+M
 
-iD8DBQE/Tkp21LHFcKwUya8RAkPqAKCYI9+/8nAlz/4fOrcTCdz1FfKDpwCeIP3q
-aOfMgqqX7Jgo1hM5kVdTcbc=
-=rzM5
------END PGP SIGNATURE-----
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) Processor
+stepping        : 4
+cpu MHz         : 1195.130
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov 
+pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 2367.48
 
 
+-- 
+"It's the small gaps between the rain that count,
+ and learning how to live amongst them."
+	      -- Jeff Noon

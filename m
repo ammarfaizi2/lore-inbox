@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130417AbRCBMBg>; Fri, 2 Mar 2001 07:01:36 -0500
+	id <S130420AbRCBM0a>; Fri, 2 Mar 2001 07:26:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130418AbRCBMB0>; Fri, 2 Mar 2001 07:01:26 -0500
-Received: from colargol.tihlde.hist.no ([158.38.48.10]:51986 "HELO
-	colargol.tihlde.org") by vger.kernel.org with SMTP
-	id <S130417AbRCBMBN>; Fri, 2 Mar 2001 07:01:13 -0500
-To: Pavel Machek <pavel@suse.cz>
-Cc: Alexander Viro <viro@math.psu.edu>, "H. Peter Anvin" <hpa@transmeta.com>,
+	id <S130422AbRCBM0K>; Fri, 2 Mar 2001 07:26:10 -0500
+Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:14350 "EHLO
+	tellus.mine.nu") by vger.kernel.org with ESMTP id <S130420AbRCBMZ4>;
+	Fri, 2 Mar 2001 07:25:56 -0500
+Date: Fri, 2 Mar 2001 13:26:15 +0100 (CET)
+From: Tobias Ringstrom <tori@tellus.mine.nu>
+To: Oystein Viggen <oysteivi@tihlde.org>
+cc: Pavel Machek <pavel@suse.cz>, Alexander Viro <viro@math.psu.edu>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
         Bill Crawford <billc@netcomuk.co.uk>,
         Linux Kernel <linux-kernel@vger.kernel.org>,
         Daniel Phillips <phillips@innominate.de>
 Subject: Re: Hashing and directories
-In-Reply-To: <3A9EB984.C1F7E499@transmeta.com>
-	<Pine.GSO.4.21.0103011608360.11577-100000@weyl.math.psu.edu>
-	<20010302100410.I15061@atrey.karlin.mff.cuni.cz>
-From: Oystein Viggen <oysteivi@tihlde.org>
-Organization: Tihlde
-X-URL: http://www.tihlde.org/~oysteivi/
-X-Phone-Number: +47 97 11 48 58
-X-Address: Tordenskioldsgt. 12, 7012 Trondheim, Norway
-X-MSMail-Priority: High
-X-Face: R=b-K(^1#]KR?6moG:Wrc/t>p)?p`?bgHg36M3hZ>^?\akat3!nX*8xZpIvZrI#]ZzN`I<+
- L{8#pdH*1SOB$Zu-_e1<>iE$5cGiLhRem.ct.QtE=&v@9\S_6slX4='![%,F3^&ed5Y5g-#!N'Lr[s
- &Gfs3c}pYq^oUo{8l-qD87s[P1~+f([41~gD}Pj)nX|KcVv;tF4IIx%pnN\UL|SNT
-Date: 02 Mar 2001 13:01:09 +0100
-In-Reply-To: <20010302100410.I15061@atrey.karlin.mff.cuni.cz>
-Message-ID: <03ofvkcrcq.fsf@colargol.tihlde.hist.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+In-Reply-To: <03ofvkcrcq.fsf@colargol.tihlde.hist.no>
+Message-ID: <Pine.LNX.4.30.0103021313430.30991-100000@svea.tellus>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote: 
+On 2 Mar 2001, Oystein Viggen wrote:
+> Pavel Machek wrote:
+> > xargs is very ugly. I want to rm 12*. Just plain "rm 12*". *Not* "find
+> These you work around using the smarter, \0 terminated, version:
 
-> xargs is very ugly. I want to rm 12*. Just plain "rm 12*". *Not* "find
-> . -name "12*" | xargs rm, which has terrible issues with files names
-> 
-> "xyzzy"
-> "bla"
-> "xyzzy bla"
-> "12 xyzzy bla"
+Another example demonstrating why xargs is not always good (and why a
+bigger command line is needed) is when you combine it with e.g. wc:
 
-These you work around using the smarter, \0 terminated, version:
+	find . -type f -print0 | xargs -0 wc
 
-find . -name "12*" -print0 | xargs -0 rm
+You cannot trust the summary line from wc, since xargs may have decided to
+run wc may times, and thus you have may summary lines.  If the kernel
+would allow a larger command line, you could run
 
-"This version would also deal with
- this filename  ;)"
+	wc `find . -type f`
 
-Oystein
--- 
-ssh -c rot13 otherhost
+and get exacly what you want.  And if I'm not mistaken, Linux accepts a
+much smaller command line than other "unices" such as Solaris.
+
+...but it's not _that_ important...  obviously there has to be an upper
+limit somewhere...
+
+/Tobias
+
+

@@ -1,37 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267542AbTA3QAf>; Thu, 30 Jan 2003 11:00:35 -0500
+	id <S261353AbTA3Pzy>; Thu, 30 Jan 2003 10:55:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267541AbTA3QAf>; Thu, 30 Jan 2003 11:00:35 -0500
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:61143 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267539AbTA3QAe> convert rfc822-to-8bit; Thu, 30 Jan 2003 11:00:34 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rmap 15c
-Date: Thu, 30 Jan 2003 17:09:09 +0100
-User-Agent: KMail/1.4.3
-Cc: Rik van Riel <riel@conectiva.com.br>, linux-mm@kvack.org
-References: <Pine.LNX.4.50L.0301301131220.27926-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.50L.0301301131220.27926-100000@imladris.surriel.com>
+	id <S267530AbTA3Pzy>; Thu, 30 Jan 2003 10:55:54 -0500
+Received: from mail.mailservice.ms ([64.246.26.124]:21955 "EHLO
+	mail.mailservice.ms") by vger.kernel.org with ESMTP
+	id <S261353AbTA3Pzx>; Thu, 30 Jan 2003 10:55:53 -0500
+Message-ID: <1043938576.3e393d10414fb@mailservice.ms>
+Date: Thu, 30 Jan 2003 09:56:16 -0500
+From: maryamaba@mailservice.ms
+To: maryama@zwallet.com
+Subject: FROM DR.(MRS).MARYAM ABACHA.
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200301301709.09692.m.c.p@wolk-project.de>
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 January 2003 14:32, Rik van Riel wrote:
+URGENT NEED OF A BUSNIESS PARTNER/CONFIDANT
 
-Hi Rik,
+MY NAME IS MRS.MARYAM ABACHA, THE WIFE OF THE LATE
+HEAD OF STATE OF THE FEDERAL REPUBLIC OF NIGERIA. I
+GOT YOUR NAME AND EMAIL ADDRESS IN YOUR COUNTRY'S
+ELECTRONIC EMAIL DIRECTORY.
 
-> rmap 15c:
->   - backport and audit akpm's reliable pte_chain alloc
->     code from 2.5                                         (me)
->   - reintroduce cache size tuning knobs in /proc          (me)
->     | on very, very popular request
+IT IS FIVE YEARS SINCE MY HUSBAND PASSED AWAY AND
+THE TIGHT GRIP ON MY HUSBAND'S ASSESTS BOTH HOME
+AND ABROAD IS NOW TELLING ON THE FAMILY,SINCE THE
+NEW CIVILAIN REGIME CAME INTO PLACE. I AM NOW IN
+URGENT NEED OF A PARTNER/CONFIDANT THROUGH WHOM I
+CAN DEPOSIT SOME MONEY IN HIS/HER BANK ACCOUNT AND
+ALSO INVEST IT FOR ME IN GOOD BUSINESS.
 
-GREAT to see this. Already merged for wolk4.0s-pre10 :)
+THIS MONEY WAS DEPOSITED BY MY LATE HUSBAND IN A
+SECURITY COMPANY IN ABROAD WITH THE ASSISTANCE OF A
+DIPLOMAT, AMOUNTING TO THE SUM OF (US$30.5M DOLLARS ONLY).
+THE PARTNER I SEEK MUST BE ONE THAT IS
+TRUSTWORTHY,AND READY TO TRAVEL TO CLAIM THE
+COSIGNMENTS(FUNDS)IN THE COUNTRY WHERE THE SECURITY
+COMPANY IS.ALSO,YOU MUST SEND ME A LETTER OF ASSURANCE
+THAT HE/SHE IS NOT GOING TO BETRAY ME IN THIS BUSINESS.
 
-ciao, Marc
+PLEASE,IF YOU LACK SUCH CAPABILITY TO HANDLE A
+TRANSACTION OF THIS MAGNITUDE DO NOT HESITATE TO
+LINK ME TO A RELIABLE FRIEND,OLD SCHOOL MATE OR A
+COMMUNITY LEADER WITH A RELIABLE GRIP ON THE SYSTEM.
+THIS IS VERY IMPORTANT.
+
+THE DETAILS OF WHAT WOULD ACCRUE TO PAY FOR YOUR
+EFFORTS WILL BE DISCLOSE TO YOU WHEN YOU INDICATE
+YOUR INTEREST. YOU ARE TO WORK DIRECTLY WITH THE
+DIPLOMAT AND MY FAMILY ATTORNEY,AS I HAVE BEEN UNDER
+HOUSE ARREST FOR THE PAST TWO YEARS.
+
+BE FURTHER INFORMED THAT THESE FUNDS ARE SECURED IN
+A SECURITY VAULT IN ABROAD, DEFACED AND CODED FOR
+SECURITY REASONS,THIS COULD BE RELEASED AT SHORT
+NOTICE WHEN A WILLING AND ACCEPTABLE PARTNER
+EMERGES. YOU ARE EXPECTED TO CONTACT THE DIPLOMAT IN
+DUE COURSE WHO WILL HELP YOU TO GET THE DETAILS
+ABOUT THE CONSIGNMENT(FUNDS)WITH
+THE SECURITY COMPANY.
+
+YOU ARE REQUIRED TO SEND TO ME YOUR TELEPHONE AND
+FAX NUMBERS SO THAT MY FAMILY ATTORNEY CAN HAVE
+CONTACT WITH YOU.PLEASE, DO NOTE THAT YOU ARE TO
+HANDLE THE DEMURRAGES AND TAXES, WHILE REFUND WILL
+BE MADE AT THE END OF TRANSACTION, WHEN THE FUND
+WOULD HAVE BEEN CLAIMED BY YOU AND SECURED IN YOUR
+BANK ACCOUNT.
+
+REGARDS,
+
+FROM DR.(MRS).MARYAM ABACHA.
+email address:maryama@zwallet.com
+
+
+
+-------------------------------------------------
+This mail sent through MailService.MS -> http://www.MailService.ms 

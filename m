@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262577AbVBXXkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbVBXXty@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262577AbVBXXkO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 18:40:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbVBXXfo
+	id S262575AbVBXXty (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 18:49:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbVBXXkd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 18:35:44 -0500
-Received: from fire.osdl.org ([65.172.181.4]:36774 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262564AbVBXXdN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 18:33:13 -0500
-Date: Thu, 24 Feb 2005 15:32:49 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Chris Friesen <cfriesen@nortel.com>
-Cc: chad@tindel.net, helge.hafting@aitel.hist.no, linux-kernel@vger.kernel.org
-Subject: Re: Xterm Hangs - Possible scheduler defect?
-Message-Id: <20050224153249.1bf4db1e.akpm@osdl.org>
-In-Reply-To: <421E61CC.5090302@nortel.com>
-References: <20050223230639.GA33795@calma.pair.com>
-	<20050223183634.31869fa6.akpm@osdl.org>
-	<20050224052630.GA99960@calma.pair.com>
-	<421DD5CC.5060106@aitel.hist.no>
-	<20050224173356.GA11593@calma.pair.com>
-	<20050224150026.69b1862f.akpm@osdl.org>
-	<421E61CC.5090302@nortel.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 24 Feb 2005 18:40:33 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:54537 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262533AbVBXXhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 18:37:00 -0500
+Date: Fri, 25 Feb 2005 00:36:58 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fs/proc/kcore.c: make a function static
+Message-ID: <20050224233657.GN8651@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen <cfriesen@nortel.com> wrote:
->
-> Andrew Morton wrote:
-> 
->  > 	chrt -r 99 -9 $i
+This patch makes a needlessly global function static.
 
-Make that
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-	chrt -r 99 -p $i
+---
+
+This patch was already sent on:
+- 8 Jan 2005
+
+--- linux-2.6.10-mm2-full/fs/proc/kcore.c.old	2005-01-08 17:13:25.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/proc/kcore.c	2005-01-08 17:13:37.000000000 +0100
+@@ -97,7 +97,7 @@
+ /*
+  * determine size of ELF note
+  */
+-int notesize(struct memelfnote *en)
++static int notesize(struct memelfnote *en)
+ {
+ 	int sz;
+ 
+

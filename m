@@ -1,73 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbRAERpu>; Fri, 5 Jan 2001 12:45:50 -0500
+	id <S130163AbRAERqu>; Fri, 5 Jan 2001 12:46:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129857AbRAERpk>; Fri, 5 Jan 2001 12:45:40 -0500
-Received: from athena.intergrafix.net ([206.245.154.69]:9484 "HELO
-	athena.intergrafix.net") by vger.kernel.org with SMTP
-	id <S129436AbRAERpZ>; Fri, 5 Jan 2001 12:45:25 -0500
-Date: Fri, 5 Jan 2001 12:45:24 -0500 (EST)
-From: Admin Mailing Lists <mlist@intergrafix.net>
+	id <S131633AbRAERqa>; Fri, 5 Jan 2001 12:46:30 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:48134 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129857AbRAERq2>; Fri, 5 Jan 2001 12:46:28 -0500
+Date: Fri, 5 Jan 2001 13:54:59 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
 To: Rik van Riel <riel@conectiva.com.br>
-Cc: Chris Evans <chris@scary.beasts.org>, Chris Mason <mason@suse.com>,
-        reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: reiserfs patch for 2.4.0-final
-In-Reply-To: <Pine.LNX.4.21.0101051454110.1295-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.10.10101051243200.323-100000@athena.intergrafix.net>
+cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: MM/VM todo list
+In-Reply-To: <Pine.LNX.4.21.0101051505430.1295-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0101051344270.2745-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Is ext2 upgradable to reiserfs or ext3?
-If so, is it transparent..or like a umount, convert, mount..or do you like
-have to import to a whole new partition?
-Pointers to any docs of this sort would work for an answer
-
-Thanx,
-
--Tony
-.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-Anthony J. Biacco                       Network Administrator/Engineer
-thelittleprince@asteroid-b612.org       Intergrafix Internet Services
-
-    "Dream as if you'll live forever, live as if you'll die today"
-http://www.asteroid-b612.org                http://www.intergrafix.net
-.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-
 On Fri, 5 Jan 2001, Rik van Riel wrote:
 
-> On Fri, 5 Jan 2001, Chris Evans wrote:
-> > On Fri, 5 Jan 2001, Chris Mason wrote:
-> > 
-> > > > Could someone create one single patch for the 2.4.0 ?
-> > > >
-> > > I put all the code into CVS, and Yura is making the official patch now.
-> > 
-> > Since 2.4.0 final should fix a few i/o performance issues
-> > (particuarly under heavy write loads), a quick few ext2 vs.
-> > reiserfs benchmarks would make very interesting reading ;-)
+> Hi,
 > 
-> An easy way to gain a performance edge on ext2 would
-> be to do proper write clustering in the reiserfs
-> ->writepage() function...  </hint>
+> here is a TODO list for the memory management area of the
+> Linux kernel, with both trivial things that could be done
+> for later 2.4 releases and more complex things that really
+> have to be 2.5 things.
 > 
-> regards,
+> Most of these can be found on http://linux24.sourceforge.net/ too
 > 
-> Rik
-> --
-> Virtual memory is like a game you can't win;
-> However, without VM there's truly nothing to loose...
-> 
-> 		http://www.surriel.com/
-> http://www.conectiva.com/	http://distro.conectiva.com.br/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+> Trivial stuff:
+> * VM: better IO clustering for swap (and filesystem) IO
+>   * Marcelo's swapin/out clustering code
+    * Swap space preallocation at try_to_swap_out()
+
+>   * ->writepage() IO clustering support
+
+Hum, IMO this should be in the "2.5" list because 
+
+1) It involves changes to the PageDirty scheme if we want to support write
+clustering for normal writes, and not only shared writable mappings like
+we do now. (basically this changes are in Chris Mason's patch)
+
+2) It involves changes to the filesystem code if we want to support
+generic write clustering for fs's which use block_write_full_page.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

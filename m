@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316343AbSEOGCF>; Wed, 15 May 2002 02:02:05 -0400
+	id <S316346AbSEOGOx>; Wed, 15 May 2002 02:14:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316344AbSEOGCE>; Wed, 15 May 2002 02:02:04 -0400
-Received: from lbpx02.dfait-maeci.gc.ca ([198.103.104.26]:37394 "EHLO
-	lbpx02.dfait-maeci.gc.ca") by vger.kernel.org with ESMTP
-	id <S316343AbSEOGCD> convert rfc822-to-8bit; Wed, 15 May 2002 02:02:03 -0400
-Message-ID: <3546CB810699D311994900E0292655680E55880C@lbpx02.dfait-maeci.gc.ca>
-From: MAIL_GW2@dfait-maeci.gc.ca
+	id <S316347AbSEOGOx>; Wed, 15 May 2002 02:14:53 -0400
+Received: from ra.elvis.ru ([194.190.192.34]:21199 "EHLO ra.elvis.ru")
+	by vger.kernel.org with ESMTP id <S316346AbSEOGOw>;
+	Wed, 15 May 2002 02:14:52 -0400
+Date: Wed, 15 May 2002 10:14:51 +0400
+From: Oleg Amiton <alick@elvis.ru>
 To: linux-kernel@vger.kernel.org
-Subject: =?iso-8859-1?Q?Antigen_Notification=3ARE=3A_Your_message_Inc=2E?=
-	=?iso-8859-1?Q?_All_rights_reserved=2E_/_Votre_message_intitul=E9_Inc=2E?=
-	=?iso-8859-1?Q?_All_rights_reserved=2E?=
-Date: Wed, 15 May 2002 01:55:31 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Subject: i810_audio support
+Message-ID: <20020515061450.GB1250@elvis.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organization: Elvis+
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Your message Inc. All rights reserved. contained file width.exe as an
-attachment.  The file width.exe was an executable file.  The file width.exe
-was removed from the message and replaced with a text file informing the
-recipient of the action taken.  This is in accordance with DFAIT policy.
+Hello!
 
-Votre message intitulé Inc. All rights reserved. contenait le fichier
-width.exe en pièce jointe. Comme width.exe était un fichier exécutable, il a
-été supprimé de votre message puis remplacé par un fichier texte informant
-le destinataire de la mesure prise, conformément à la politique du MAECI.
+I've just tried to use this sound card (embedded on motherboard) and
+got the much of crackling and noise with proper sound.
+Is this problem known and fixed already?
+
+modprobe'ing of i810_audio.o and ac97_codec results here:
+
+-- cut --
+i810: Intel ICH2 found at IO 0xe000 and 0xdc00, IRQ 9
+i810_audio: Audio Controller supports 6 channels.
+ac97_codec: AC97 Audio codec, id: 0x8384:0x7600 (SigmaTel STAC????)
+i810_audio: only 48Khz playback available.
+i810_audio: AC'97 codec 0 Unable to map surround DAC's (or DAC's not present), total channels = 2
+-- end --
+
+why last two lines appeared?

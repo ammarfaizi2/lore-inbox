@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289064AbSANVKm>; Mon, 14 Jan 2002 16:10:42 -0500
+	id <S289069AbSANVNw>; Mon, 14 Jan 2002 16:13:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289055AbSANVK1>; Mon, 14 Jan 2002 16:10:27 -0500
-Received: from ns.suse.de ([213.95.15.193]:28434 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S289057AbSANVId>;
-	Mon, 14 Jan 2002 16:08:33 -0500
-Date: Mon, 14 Jan 2002 22:08:32 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery --
- the elegant solution)
-Message-ID: <Pine.LNX.4.33.0201142208070.21352-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289067AbSANVNc>; Mon, 14 Jan 2002 16:13:32 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:26364 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S289069AbSANVMV>;
+	Mon, 14 Jan 2002 16:12:21 -0500
+Date: Mon, 14 Jan 2002 14:12:09 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: dylang+kernel@thock.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4 NFS bug (annoying sylmlinx breakage)
+Message-ID: <20020114141209.W26688@lynx.adilger.int>
+Mail-Followup-To: dylang+kernel@thock.com,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C43447D.9000504@thock.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C43447D.9000504@thock.com>; from dylang@thock.com on Mon, Jan 14, 2002 at 02:50:05PM -0600
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 03:38:44PM -0500, Eric S. Raymond wrote:
+On Jan 14, 2002  14:50 -0600, Dylan Griffiths wrote:
+> I've noticed this bug before.  Between two hosts on a 100Mbps switched lan, 
+> symlinks are trashed into garbage.  Based on the output. I'm guessing a 
+> string loses its null somewhere.
+> 
+> Client is 2.4.14.  Server is 2.4.10.  Server has RAID 5 IDE softraid and 
+> an hpt370 driver patch provided by Tim Hockin to fix the deadlocks and 
+> oopsies of the hpt366 driver on my hpt370.
 
- > Right now, neither lsmod nor the boot time messages  necessarily give you that
- > information.
+Upgrade your kernel before reporting such bugs.  I'm pretty sure it has
+already been fixed.  Something about the NFSv3 calling an inappropriate
+(but similarly named) function in the symlink path.
 
- One of the great things about Linux (or at least I think so) kernel
- is it's incredibly verbose startup.
- If you have a configured network, boot messages WILL tell you
- what driver is controlling that card.  If built as a module
- lsmod WILL tell you.
-
- > /var/log/dmesg contains no message from the NIC on my motherboard.
-
- Then that's a driver issue. What NIC ?
-
- > And going from the driver to the config symbol isn't trivial even
- > if you *have* the lsmod or dmesg information.
-
- Then we need better descriptions in the CML2 rules.
-
- > And anyway there are settings you can't even recover by looking at the
- > hardware, such as whether KHTTPD or BSD process accounting were turned
- > on.
-
- ls /proc/sys/net/khttpd
- ls /proc/sys/kernel/acct
-
- > Sure, Melvin could remember a whole bunch of state, or a whole bunch
- > of rules for reconstructing it. But isn't sweating that kind of detail
- > exactly what *computers* are for?
-
- If Melvin really does have a mind like a sieve,he'd  put .config
- somewhere sensible after building a kernel.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

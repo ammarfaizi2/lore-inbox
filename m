@@ -1,58 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263771AbUCXQwS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 11:52:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263774AbUCXQwS
+	id S263769AbUCXQzj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 11:55:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263776AbUCXQzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 11:52:18 -0500
-Received: from gamemakers.de ([217.160.141.117]:16857 "EHLO www.gamemakers.de")
-	by vger.kernel.org with ESMTP id S263771AbUCXQwR (ORCPT
+	Wed, 24 Mar 2004 11:55:39 -0500
+Received: from mx.deam.org ([195.24.105.112]:275 "EHLO mx.deam.org")
+	by vger.kernel.org with ESMTP id S263769AbUCXQzg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 11:52:17 -0500
-Message-ID: <4061BD2E.2060900@gamemakers.de>
-Date: Wed, 24 Mar 2004 17:54:06 +0100
-From: =?ISO-8859-1?Q?R=FCdiger_Klaehn?= <rudi@gamemakers.de>
-Reply-To: rudi@lambda-computing.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] dnotify: enhance or replace?
-References: <4061986E.6020208@gamemakers.de>	 <1080142815.8108.90.camel@localhost.localdomain> <1080146269.23224.5.camel@vertex>
-In-Reply-To: <1080146269.23224.5.camel@vertex>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 24 Mar 2004 11:55:36 -0500
+In-Reply-To: <Pine.LNX.4.44.0403131238120.19494-100000@dmt.cyclades>
+References: <Pine.LNX.4.44.0403131238120.19494-100000@dmt.cyclades>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <C161B40C-7DB3-11D8-B311-000A9575DB74@deam.org>
 Content-Transfer-Encoding: 7bit
+Cc: <andrea@suse.de>, <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
+       <mingo@redhat.com>
+From: "Klaus M. Brantl" <kmb@deam.org>
+Subject: Re: bug-report about a stability-problem with highmem and nfs
+Date: Wed, 24 Mar 2004 17:53:20 +0100
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John McCutchan wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-[snip]
-> Maybe adding a rate limiter on these write events would be a better
-> idea, live updates are usefull for the desktop. Also with a netlink
-> socket I think the overhead of many events would drop siginificantly.
-> 
-You could always merge read/write events if you get too many of them. 
-E.g. write [10,11] + write [11,12] => write [10,12]. But I never had 
-event buffer overflows with my tests. And a buffer of a few kbytes per 
-file system for fam won't be that bad, so I am not sure wether it is 
-nessecary to do something as complicated as rate limiting or merging.
+dear marcelo,
 
-> Also a couple other items I think need to be on the list of features,
-> 
-> * Some way to not have an open file descriptor for each directory you
-> are monitoring. This causes so many problems when unmounting, and this
-> is really the most noticable problem for the user.
-> 
-You can monitor a whole tree with a single file descriptor. But you need 
-at least one open fd per file system, so it would indeed be a problem 
-when unmounting.
+On 13.03.2004, at 16:52, Marcelo Tosatti wrote:
 
-> * Better event vocabulary, we should fire events for all VFS ops. I
-> think right now it is limited to delete,create,written to. It would be
-> good to tell the listener exactly what happened, moved,renamed, etc.
-> 
-I had this for a short time, but I threw it away since I wanted to 
-concentrate on the event dispatch infrastructure first. It would not be 
-a big problem to add this again.
+we finally had some time today to get the serial-console up and running 
+with another test.
+
+> Can you please plug in a serial cable, turn the NMI oopser on
+> (Documentation/nmi_watchdog.txt), and rerun the tests with 6GB to crash
+> the box? This should get us an output of what is happening.
+
+the problem is: there was no output. really nothing.
+we tried it two times but there was nothing on the serial console like 
+there is nothing on the main output.
+
+the only additional info that i can give is the behaviour of the 
+ssh-service:
+1. i am logged in to the server.
+2. the crash is indicated with the stop of any output.
+3. you cannot connect anymore.
+4. if you try a "telnet server 22" you receive the ssh-greeting.
+5. after around a minute or so even the telnet to port 22 won't 
+establish a connection.
+then finally the server is 100% gone.
+
+without any trace of information in the local logfiles or on the screen.
+
+
+is there some "hardware-way" that we could try?
+i am sure that i can bring my superior to some point of investing/ 
+lending something to figure out more. it's also possible that we can 
+ask compaq about this, but it might not be very successful, because 
+they officially support only specific distributions and dist-kernels.
+
+with regards
+klaus m. brantl
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (Darwin)
+
+iD8DBQFAYb0CvkHn/oGTPXURAiq6AKC5EniyZVybaqnMOoEbAAE6V/ITgwCghlm/
+ByBt0ijczuORDbbAacLiLJo=
+=o2MY
+-----END PGP SIGNATURE-----
+

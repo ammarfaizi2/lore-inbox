@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262573AbRE0ABP>; Sat, 26 May 2001 20:01:15 -0400
+	id <S262659AbRE0ABP>; Sat, 26 May 2001 20:01:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262618AbRE0ABH>; Sat, 26 May 2001 20:01:07 -0400
+	id <S262675AbRE0ABG>; Sat, 26 May 2001 20:01:06 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:20146 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262659AbRE0AAz>;
-	Sat, 26 May 2001 20:00:55 -0400
-Date: Sat, 26 May 2001 22:48:46 +1000
-From: Gavin <glang02@dingoblue.net.au>
-To: linux-kernel@vger.kernel.org
-Subject: umount segfault on shutdown
-Message-Id: <20010526224846.0b1df420.glang02@dingoblue.net.au>
-X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	by vger.kernel.org with ESMTP id <S262660AbRE0ABA>;
+	Sat, 26 May 2001 20:01:00 -0400
+Message-ID: <20010525144446.A15304@bug.ucw.cz>
+Date: Fri, 25 May 2001 14:44:46 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Alexander Viro <viro@math.psu.edu>, Aaron Lehmann <aaronl@vitelus.com>
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, adam@yggdrasil.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Fwd: Copyright infringement in linux/drivers/usb/serial/keyspan*fw.h
+In-Reply-To: <20010524230321.B23155@vitelus.com> <Pine.GSO.4.21.0105250229220.24864-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.GSO.4.21.0105250229220.24864-100000@weyl.math.psu.edu>; from Alexander Viro on Fri, May 25, 2001 at 02:34:05AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Hope this is enough info :P
+Hi!
 
-Unmounting file systems: journal_begin called without kernel lock held
-kernel BUG at journal.c:423!
-423: invalid operand: 0000
-CPU: 0
-EIP: 0010: [<c016d740>]
-EFLAGS: 00010286
-eax: 0000001d ebx: c42edf38 ecx: 00000001 edx:00000001
-esi: c12dc800 edi: c42edf38 ebp: 0000000a esp: c42eded0
+> > explicit about defining source code:
+> > 	The source code for a work means the preferred form of the work for
+> > 	making modifications to it.
+> 
+> Erm... May I point you to the sysdep/libm-ieee754/e_j0.c? There's a bunch
+> of constants of unknown origin. If you want to modify the implementation
+> you most certainly want more than numeric values.
+> 
+> Same goes for any tables that contain anything besides well-known constants.
 
-that's all I wrote down. There was more, please reply to reply-to if
-you need more info and anything else I can do to provide more
-information. Running Via apollo pro-a on smp MSI694D pro/2x366
-reiserfs on /dev/hde8 (/usr) <promise ata100 controller> which seems
-to be the cause of the segfault. I can reproduce this everytime with
-2.4.5, doesn't happen with earlier versions.
-
-best regards,
-Gavin
+Imagine the hell opening when you generate table of random numbers
+with hardware generator :-). How do you write source of hardware
+random generator?
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

@@ -1,135 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265655AbTFSAox (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 20:44:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265658AbTFSAox
+	id S265649AbTFSAnd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 20:43:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265655AbTFSAnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 20:44:53 -0400
-Received: from r2d2.aoltw.net ([64.236.137.26]:56808 "EHLO netscape.com")
-	by vger.kernel.org with ESMTP id S265655AbTFSAot (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 20:44:49 -0400
-Message-ID: <3EF10AC5.3040301@netscape.com>
-Date: Wed, 18 Jun 2003 17:58:45 -0700
-From: jgmyers@netscape.com (John Myers)
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joel Becker <jlbec@evilplan.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-Subject: Re: [PATCH 2.5.71-mm1] aio process hang on EINVAL
-References: <1055810609.1250.1466.camel@dell_ss5.pdx.osdl.net> <3EEE6FD9.2050908@netscape.com> <20030617085408.A1934@in.ibm.com> <1055884008.1250.1479.camel@dell_ss5.pdx.osdl.net> <3EEFAC58.905@netscape.com> <20030618001534.GJ7895@parcelfarce.linux.theplanet.co.uk> <3EEFB165.5070208@netscape.com> <20030618004214.GK7895@parcelfarce.linux.theplanet.co.uk> <3EF104D7.5050905@netscape.com> <20030619004130.GP7895@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20030619004130.GP7895@parcelfarce.linux.theplanet.co.uk>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms050205090002030808040500"
+	Wed, 18 Jun 2003 20:43:33 -0400
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:39413 "EHLO
+	mail.kroptech.com") by vger.kernel.org with ESMTP id S265649AbTFSAnb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 20:43:31 -0400
+Date: Wed, 18 Jun 2003 20:36:53 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Dave Bentham <dave.bentham@ntlworld.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.4.21 crash
+Message-ID: <20030618203653.A17687@mail.kroptech.com>
+References: <200306162148.h5GLmXsN002578@telekon.davesnet> <20030618234020.18252c84.dave@telekon>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030618234020.18252c84.dave@telekon>; from dave.bentham@ntlworld.com on Wed, Jun 18, 2003 at 11:40:20PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+On Wed, Jun 18, 2003 at 11:40:20PM +0100, Dave Bentham wrote:
+> However, I think I need some advice on setting up the serial console. I
+> have attached another PC (WinXP with HyperTerminal) serially to my panic
+> Linux PC. Following the Remote Terminal HOWTO I have achieved some
+> success... but all I see on HyperTerminal is:
+> 
+>    LILO 22.3.2 boot:
+>    Loading Linux_2.4.21................
+>    BIOS data check successful
 
---------------ms050205090002030808040500
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+That output is from LILO...
 
-Joel Becker wrote:
+>    Mandrake Linux release 9.0 (dolphin) for i586
+>    Kernel 2.4.21 on an i686 / ttyS0
+>    telekon.davesnet login:
 
->	The slippery slope isn't important.  POSIX specifies EAGAIN (you concede that), EBADF, and EINVAL against nbytes|offset|reqprio.
->The kernel does these checks already (where applicable).
->
-EAGAIN doesn't require user space to fire any per-operation callbacks or 
-take any per-operation action.  One merely needs to retry the io_submit().
+...and that bit is from the getty launched in /etc/inittab.
 
-The existing EBADF and EFAULT conditions indicate buggy code.  Correctly 
-written programs will never encounter these.  An appropriate action is 
-to assert or otherwise shut down the entire process.  Similarly for 
-EINVAL against the reserved fields, aio_buf, and nbytes.  I'll also 
-grant that EINVAL against offset and reqprio would also indicate buggy code.
+> a few progress-dots: I'm missing the main kernel blurb (its all on the
+> attached monitor), and also the panic stuff appears only on the attached
+> monitor.
 
-EINVAL caused by a fd that doesn't support the particular opcode could 
-be encountered by a correctly written program which is given the wrong 
-sort of file by a user.  I would prefer such errors be reported through 
-io_getevents() so they can be handled by the operation's callback/event 
-handling code.
+Yeah, the kernel's serial console isn't kicking in.
 
+> Excerpt of butchered lilo.conf
 
---------------ms050205090002030808040500
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
+<snip>
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIL0zCC
-A9YwggM/oAMCAQICBAIAAeYwDQYJKoZIhvcNAQEFBQAwRTELMAkGA1UEBhMCVVMxGDAWBgNV
-BAoTD0dURSBDb3Jwb3JhdGlvbjEcMBoGA1UEAxMTR1RFIEN5YmVyVHJ1c3QgUm9vdDAeFw0w
-MTA2MDExMjQ3MDBaFw0wNDA2MDEyMzU5MDBaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMC
-Q0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIElu
-YzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlm
-aWNhdGUgQXV0aG9yaXR5MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDi718sdkOJSxpf
-s+X4qm+LL4FNZ/+9Sg9jLsTchfaeLEkmIP8AF+SIiGne/YNX4KMRGRGq1ty877PSFS5Uxm58
-v9m5w0bTCQWE5VNcSO2EhZoOOz0WB1zws3mrmhClvMGk0XhMBuVkQfwFJWMm6+8Mx25UoYzO
-VFe2H5LashJLjQIDAQABo4IBgjCCAX4wTQYDVR0fBEYwRDBCoECgPoY8aHR0cDovL3d3dzEu
-dXMtaG9zdGluZy5iYWx0aW1vcmUuY29tL2NnaS1iaW4vQ1JML0dURVJvb3QuY2dpMB0GA1Ud
-DgQWBBQp27Itg35/iyO7wsxmuTnoKfMChjBmBgNVHSAEXzBdMEYGCiqGSIb4YwECAQUwODA2
-BggrBgEFBQcCARYqaHR0cDovL3d3dy5iYWx0aW1vcmUuY29tL0NQUy9PbW5pUm9vdC5odG1s
-MBMGAyoDBDAMMAoGCCsGAQUFBwIBMFgGA1UdIwRRME+hSaRHMEUxCzAJBgNVBAYTAlVTMRgw
-FgYDVQQKEw9HVEUgQ29ycG9yYXRpb24xHDAaBgNVBAMTE0dURSBDeWJlclRydXN0IFJvb3SC
-AgGjMCsGA1UdEAQkMCKADzIwMDEwNjAxMTI0NzMwWoEPMjAwMzA5MDEyMzU5MDBaMA4GA1Ud
-DwEB/wQEAwIBBjAPBgNVHRMECDAGAQH/AgEBMA0GCSqGSIb3DQEBBQUAA4GBAEpiDtn6RncE
-CmwN3f7SIjmZEAquiC2GPVeE5hIkN2n7WV7iEbD5n6RXhoppHwZj0X3uMzZJECAPH5cXLCds
-PWw5BHviReiHG1S2YEFtHa4F8535OjSa43trTHH466grg7A1kEwZaHHt8GMiXsJb7CB6tbBR
-c+kH7oFndnlT95XUMIID+DCCA2GgAwIBAgICbfowDQYJKoZIhvcNAQEFBQAwgZMxCzAJBgNV
-BAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMS
-QW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQD
-Ex5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwHhcNMDMwNjAzMDA1NjI3WhcNMDMx
-MTMwMDA1NjI3WjB9MQswCQYDVQQGEwJVUzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5j
-MRcwFQYKCZImiZPyLGQBARMHamdteWVyczEjMCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRz
-Y2FwZS5jb20xEzARBgNVBAMTCkpvaG4gTXllcnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJ
-AoGBAK/NyY2CaWvkVG9fLKJvcJauEYngiqm3s4wwDjlMlhbRhRkLqzimtHIKOq3uJj/c6DwL
-f1MhgLZJFDjQwpZO6XDOmmFnFP78G6bH0wd8oGyR309Lx/chgHS9uZqoBWnBa2vQw4KVIPAd
-NNmRhh/29ruE+DdrCUj8de/vyJuGu6QNAgMBAAGjggFuMIIBajAOBgNVHQ8BAf8EBAMCBSAw
-HQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMEMEMGCWCGSAGG+EIBDQQ2FjRJc3N1ZWQg
-YnkgTmV0c2NhcGUgQ2VydGlmaWNhdGUgTWFuYWdlbWVudCBTeXN0ZW0gNC41MIGPBgNVHREE
-gYcwgYSBFGpnbXllcnNAbmV0c2NhcGUuY29tgRBqZ215ZXJzQG1jb20uY29tgRNqb2huX215
-ZXJzQG1jb20uY29tgRdqb2huX215ZXJzQG5ldHNjYXBlLmNvbYEXam9obmdteWVyc0BuZXRz
-Y2FwZS5jb22BE2pvaG5nbXllcnNAbWNvbS5jb20wHwYDVR0jBBgwFoAUKduyLYN+f4sju8LM
-Zrk56CnzAoYwQQYIKwYBBQUHAQEENTAzMDEGCCsGAQUFBzABhiVodHRwOi8vY2VydGlmaWNh
-dGVzLm5ldHNjYXBlLmNvbS9vY3NwMA0GCSqGSIb3DQEBBQUAA4GBAFo11Z0i3LS3v79ERUII
-kQw/Of200mw1k4qgUe5+ZCHJCT/NMUGpsVufSQhLHsAxgUtOsQU7Llcgkv2HxSJ0YcI339p1
-fEh6cWL4g8UL/tq6Xgxa9JBDwZ0TXcaOR1Ue+boWazl1O9wAGVZLZbmhpAtK/rR0Xtubw5lL
-eLeJOK5jMIID+TCCA2KgAwIBAgICbfswDQYJKoZIhvcNAQEEBQAwgZMxCzAJBgNVBAYTAlVT
-MQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmlj
-YSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRy
-YW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwHhcNMDMwNjAzMDA1NjI3WhcNMDMxMTMwMDA1
-NjI3WjB9MQswCQYDVQQGEwJVUzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRcwFQYK
-CZImiZPyLGQBARMHamdteWVyczEjMCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRzY2FwZS5j
-b20xEzARBgNVBAMTCkpvaG4gTXllcnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMcZ
-B138GfG/ZBtJtdSEKALNz7NxibeihURffNrSGi53bXO/jcmBqkdHTCd3tpwmdXGWYkymXO56
-t15Mj1eaq85VcATNhl7O9n8DDjktYgsh8yXptYLfED5BEWtrlaBOPgGpBG11X9YafUMRy2Ki
-mwKcaDvqY7ZTxiA64u9GkuqRAgMBAAGjggFvMIIBazAPBgNVHQ8BAf8EBQMDB4AAMB0GA1Ud
-JQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDBDBglghkgBhvhCAQ0ENhY0SXNzdWVkIGJ5IE5l
-dHNjYXBlIENlcnRpZmljYXRlIE1hbmFnZW1lbnQgU3lzdGVtIDQuNTCBjwYDVR0RBIGHMIGE
-gRRqZ215ZXJzQG5ldHNjYXBlLmNvbYEQamdteWVyc0BtY29tLmNvbYETam9obl9teWVyc0Bt
-Y29tLmNvbYEXam9obl9teWVyc0BuZXRzY2FwZS5jb22BF2pvaG5nbXllcnNAbmV0c2NhcGUu
-Y29tgRNqb2huZ215ZXJzQG1jb20uY29tMB8GA1UdIwQYMBaAFCnbsi2Dfn+LI7vCzGa5Oegp
-8wKGMEEGCCsGAQUFBwEBBDUwMzAxBggrBgEFBQcwAYYlaHR0cDovL2NlcnRpZmljYXRlcy5u
-ZXRzY2FwZS5jb20vb2NzcDANBgkqhkiG9w0BAQQFAAOBgQDLhP1VKAUm7V4tbVY4eI/QY1O0
-LahSTyvFj4sF+pAHcRi9rXVnOYCvGKDS3cRxkraJnwKbrtUeCTlkt207yaqHkXNPGMEXK5a/
-Zq/woS11zjrri3vDkykfF/VfSKsaa0E6GJ0lrC6/IdZsdXCHd3SmuuC3X+Gq2uVRytDh5bl/
-UTGCA1QwggNQAgEBMIGaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcT
-DU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQ
-QU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9y
-aXR5AgJt+zAJBgUrDgMCGgUAoIICDzAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
-SIb3DQEJBTEPFw0wMzA2MTkwMDU4NDVaMCMGCSqGSIb3DQEJBDEWBBStouO1smk66R/fimQg
-8DIrq19CvDBSBgkqhkiG9w0BCQ8xRTBDMAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDAN
-BggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDCBqwYJKwYBBAGCNxAEMYGd
-MIGaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZp
-ZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xv
-Z2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJt+jCBrQYL
-KoZIhvcNAQkQAgsxgZ2ggZowgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UE
-BxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQL
-ExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRo
-b3JpdHkCAm36MA0GCSqGSIb3DQEBAQUABIGAjzrPQUXc6CBobQl3dm7rcwFS2EZV61pgUp3H
-PKdgtAGf5uNjYpog4dbFluYm3fPqrbcNw6lD1BtQg9F+A7MrytgJZhEcKFcDMQ0hcMWp061G
-5HAE/KQaR8T33UJxrOLs2thB0OowhbTjJxt3AfpaRqLHPFxWOgMnn6dDxNGSvfEAAAAAAAA=
---------------ms050205090002030808040500--
+> image = /boot/vmlinuz-2.4.21
+> 	root = /dev/hda3
+> 	label = Linux_2.4.21
+> 	read-only
+> #	vga=788
+> 	append = "devfs=mount hdd=ide-scsi console=tty0 console=ttyS0,9600n8"
+
+That looks basically right. The kernel you're running may not be
+compiled with serial console support. Also, you might want to swap the
+order of the two console= options so that /dev/console refers to your
+real virtual console, but that shouldn't keep the serial console from
+working. You might try dropping the 'n8'...I don't use it here although
+it is documented. I vaguely recall having problems that went away when 
+I stopped (redundantly) specifying the character format --but that could
+be hogwash. My bet is the kernel not being built with serial console
+support.
+
+--Adam
 

@@ -1,30 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262415AbSLJQKD>; Tue, 10 Dec 2002 11:10:03 -0500
+	id <S262452AbSLJQMU>; Tue, 10 Dec 2002 11:12:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262416AbSLJQKD>; Tue, 10 Dec 2002 11:10:03 -0500
-Received: from ma-northadams1b-112.bur.adelphia.net ([24.52.166.112]:640 "EHLO
-	ma-northadams1b-112.bur.adelphia.net") by vger.kernel.org with ESMTP
-	id <S262415AbSLJQKC>; Tue, 10 Dec 2002 11:10:02 -0500
-Date: Tue, 10 Dec 2002 11:18:35 -0500
-From: Eric Buddington <eric@ma-northadams1b-112.bur.adelphia.net>
+	id <S262472AbSLJQMU>; Tue, 10 Dec 2002 11:12:20 -0500
+Received: from uranus.lan-ks.de ([194.45.71.1]:15624 "EHLO uranus.lan-ks.de")
+	by vger.kernel.org with ESMTP id <S262452AbSLJQMR>;
+	Tue, 10 Dec 2002 11:12:17 -0500
+X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.51 won't boot with devfs enabled
-Message-ID: <20021210111835.A92@ma-northadams1b-112.bur.adelphia.net>
-Reply-To: ebuddington@wesleyan.edu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: ECS Labs
-X-Eric-Conspiracy: there is no conspiracy
+Subject: [2.5.51, FB] missing EXPORT_SYMBOL(fb_blank) in fbmem.c
+Message-Id: <E18Lmj7-00011o-00@gswi1164.jochen.org>
+From: Jochen Hein <jochen@delphi.lan-ks.de>
+Date: Tue, 10 Dec 2002 16:55:17 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.5.51 (gcc-3.2, Athlon, mostly modules, DEVFS=y, DEVFS_DEBUG=y),
-boot panics with "VFS: Cannot open root device "hda1" or
-03:01".
 
-I had the same problem with 2.5.50, avoidable by disabling devfs entirely.
+I compiled fbcon and neofb as modules, when loading fbcon I get:
 
--Eric
+root@gswi1164:~# modprobe fbcon
+fbcon: Unknown symbol fb_blank
+FATAL: Error inserting fbcon (/lib/modules/2.5.51/kernel/fbcon.ko): Unknown symbol in module
+
+Jochen

@@ -1,58 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbTDHQve (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 12:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbTDHQve (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 12:51:34 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:18416 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261528AbTDHQvd (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 12:51:33 -0400
-Subject: Re: Uncompressing Linux... Ok, booting the kernel.
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: FRODRIGUEZC@REPSOLYPF.COM
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <B93FC7A08A0B954C9590761383E59C9F4951A9@dti.ypf.com.ar>
-References: <B93FC7A08A0B954C9590761383E59C9F4951A9@dti.ypf.com.ar>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-vNL5LITckNkcLkE5cuXS"
-Organization: Red Hat, Inc.
-Message-Id: <1049821384.1580.7.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 08 Apr 2003 19:03:04 +0200
+	id S261608AbTDHRDe (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 13:03:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbTDHRDe (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 13:03:34 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:24193 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261608AbTDHRDd convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 13:03:33 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.66 Unable to update partition table 
+Date: Tue, 8 Apr 2003 09:12:04 -0800
+User-Agent: KMail/1.4.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200304081012.04370.pbadari@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-vNL5LITckNkcLkE5cuXS
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I am not able to update partition table with 2.5.66.
+I get following error message when I try to create a
+new partition.
 
-On Tue, 2003-04-08 at 18:51, FRODRIGUEZC@REPSOLYPF.COM wrote:
-> Please, if someone can help me... the problem is, that all I see is:
->=20
-> Uncompressing Linux... Ok, booting the kernel.=20
->=20
-> The kernel type is OK, because the same kernel is happily running on anot=
-her Pentium III Xeon.
-> Actually this kernel was compiled by the people at SAP and I am supposed =
-to make it run without
-> making any changes. Actually I do not have the info on how this kernel wa=
-s compiled
-> (or with what patches).
+WARNING: Re-reading the partition table failed with error 16: Device or resource busy.
+The kernel still uses the old table.
+The new table will be used at the next reboot.
+Syncing disks.
 
-You can just ask SAP about that... the GPL specifies that they have to
-give that to you then.
+Any ideas on why ? Is this expected ?
+
+Thanks,
+Badari
+
+[root@elm3b78 root]# df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda6               381139    322588     38873  90% /
+/dev/sda1                46636     43116      1112  98% /boot
+none                   1941612         0   1941612   0% /dev/shm
+/dev/sda2              9890888   8442076    946380  90% /usr
+/dev/sdb5             16476952  10891916   4748052  70% /home
+/dev/sda7               256667     80265    163150  33% /var
 
 
---=-vNL5LITckNkcLkE5cuXS
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+[root@elm3b78 root]# fdisk /dev/sdb
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+The number of cylinders for this disk is set to 2212.
+There is nothing wrong with that, but this is larger than 1024,
+and could in certain setups cause problems with:
+1) software that runs at boot time (e.g., old versions of LILO)
+2) booting and partitioning software from other OSs
+   (e.g., DOS FDISK, OS/2 FDISK)
 
-iD8DBQA+kwDHxULwo51rQBIRAgCAAKCiAGm8z3fKb+EMWnDElAYnj9lUxwCeOnKl
-yJxvqouERqkiHNgkeXaNMK8=
-=cCe/
------END PGP SIGNATURE-----
+Command (m for help): p
 
---=-vNL5LITckNkcLkE5cuXS--
+Disk /dev/sdb: 255 heads, 63 sectors, 2212 cylinders
+Units = cylinders of 16065 * 512 bytes
+
+   Device Boot    Start       End    Blocks   Id  System
+/dev/sdb2           129      2212  16739730    5  Extended
+/dev/sdb5           129      2212  16739698+  83  Linux
+
+Command (m for help): n
+Command action
+   l   logical (5 or over)
+   p   primary partition (1-4)
+Partition number (1-4): 1
+First cylinder (1-2212, default 1):
+Using default value 1
+Last cylinder or +size or +sizeM or +sizeK (1-128, default 128):
+Using default value 128
+
+Command (m for help): p
+
+Disk /dev/sdb: 255 heads, 63 sectors, 2212 cylinders
+Units = cylinders of 16065 * 512 bytes
+
+   Device Boot    Start       End    Blocks   Id  System
+/dev/sdb1             1       128   1028128+  83  Linux
+/dev/sdb2           129      2212  16739730    5  Extended
+/dev/sdb5           129      2212  16739698+  83  Linux
+
+Command (m for help): w
+The partition table has been altered!
+
+Calling ioctl() to re-read partition table.
+
+WARNING: Re-reading the partition table failed with error 16: Device or resource busy.
+The kernel still uses the old table.
+The new table will be used at the next reboot.
+Syncing disks.
+

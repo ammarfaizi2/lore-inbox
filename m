@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVCCBOo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbVCCBP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbVCCBOo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 20:14:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVCCBLJ
+	id S261368AbVCCBP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 20:15:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVCCBP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 20:11:09 -0500
-Received: from [213.188.213.77] ([213.188.213.77]:26775 "EHLO
-	server1.navynet.it") by vger.kernel.org with ESMTP id S261336AbVCCBGZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 20:06:25 -0500
-From: "Massimo Cetra" <mcetra@navynet.it>
-To: "'Linus Torvalds'" <torvalds@osdl.org>,
-       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel release numbering
-Date: Thu, 3 Mar 2005 02:04:11 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-reply-to: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Thread-Index: AcUfeR0eVyiJ0gHERv+WGuqv4kaRKgAEeSWA
-Message-Id: <20050303010615.3C7F184008@server1.navynet.it>
+	Wed, 2 Mar 2005 20:15:27 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:9418 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S261368AbVCCBON (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 20:14:13 -0500
+Date: Thu, 3 Mar 2005 02:14:13 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: eis@baty.hanse.de, linux-x25@vger.kernel.org
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: x25_create initializing socket data twice ...
+Message-ID: <20050303011413.GB11516@mail.13thfloor.at>
+Mail-Followup-To: eis@baty.hanse.de, linux-x25@vger.kernel.org,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
 
-> Namely that we could adopt the even/odd numbering scheme that 
-> we used to do on a minor number basis, and instead of 
-> dropping it entirely like we did, we could have just moved it 
-> to the release number, as an indication of what was the 
-> intent of the release.
+Hi Folks!
 
-> Comments?
+x25_create() [net/x25/af_x25.c] is calling sock_init_data()
+twice ... once indirectly via x25_alloc_socket() and a
+second time directly via sock_init_data(sock, sk);
 
-This is surely a good idea because end users (not developers) like me would
-have greater possibility not to occur in a regression with an even release.
+while this might not look as critical as it seems, it can
+easily break stuff which assumes that sock_init_data()
+isn't called twice on the same socket ...
 
-The real solution to the problem of having a really stable kernel is, IMHO,
-to have a wide base of testers.
-Usually, following a new stable release announce, lots of bugs get out
-because people starts using the new kernel, just because they didn't try any
-of the previous -RC releases.
+maybe something like this might be appropriate?
 
-So, why moving from 2.6.14 to 2.6.15 when, in 2/4 weeks, i'll have a more
-stable 2.6.16 ? 
-Will users help testing an odd release to have a good even release ? Or will
-they consider an even release as important as a -RC release ?
-
-My thought is that the community should do some marketing on the actual
-developing model to obtain a wider testing base, or, with the new proposed
-model, let people know that their help is necessary to have a stable kernel
-and they should download, compile and install odd releases.
-
-Sincerely,
+--- ./net/x25/af_x25.c.orig	2005-03-02 12:39:11 +0100
++++ ./net/x25/af_x25.c	2005-03-03 02:12:11 +0100
+@@ -490,7 +490,6 @@ static int x25_create(struct socket *soc
  
- Massimo Cetra
+ 	x25 = x25_sk(sk);
+ 
+-	sock_init_data(sock, sk);
+ 	sk_set_owner(sk, THIS_MODULE);
+ 
+ 	x25_init_timers(sk);
 
 
-
-
-
-
-
+best,
+Herbert
 

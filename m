@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262203AbVAECTX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262200AbVAECT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262203AbVAECTX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 21:19:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbVAECTX
+	id S262200AbVAECT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 21:19:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbVAECT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 21:19:23 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:34783 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S262203AbVAECTO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 21:19:14 -0500
-Message-ID: <41DB4E99.3060200@didntduck.org>
-Date: Tue, 04 Jan 2005 21:19:05 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
-X-Accept-Language: en-us, en
+	Tue, 4 Jan 2005 21:19:58 -0500
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:29334 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262200AbVAECTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 21:19:54 -0500
+Message-ID: <41DB4EC7.9070608@yahoo.com.au>
+Date: Wed, 05 Jan 2005 13:19:51 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-To: James Nelson <james4765@cwazy.co.uk>
-CC: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, paulus@samba.org
-Subject: Re: [PATCH 0/7] ppc: remove cli()/sti() from arch/ppc/*
-References: <20050104214048.21749.85722.89116@localhost.localdomain>
-In-Reply-To: <20050104214048.21749.85722.89116@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: David Howells <dhowells@redhat.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] FRV: Change PML4 -> PUD
+References: <18003.1104868971@redhat.com>
+In-Reply-To: <18003.1104868971@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Nelson wrote:
-> This series of patches is to remove the last cli()/sti() function calls in arch/ppc.
+David Howells wrote:
+> The attached patch changes the PML4 bits of the FRV arch to the new PUD way.
 > 
-> These are the only instances in active code that grep could find.
 
-Are you sure none of these need real spinlocks instead of just disabling 
-interrupts?
+Looks OK... any reason you aren't using the asm-generic folding headers?
+(asm-generic/pgtable-nopmd.h or asm-generic/pgtable-nopud.h). I sent some
+notes to the arch list about getting those working, but apparently it
+hasn't come though yet.
 
---
-				Brian Gerst
+Of course I do think it is sensible that you just get it working first,
+before getting too fancy.
+
+Nick

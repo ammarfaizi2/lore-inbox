@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264126AbUA0W1T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 17:27:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264366AbUA0W1T
+	id S264366AbUA0Wbt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 17:31:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265143AbUA0Wbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 17:27:19 -0500
-Received: from ns.suse.de ([195.135.220.2]:31439 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264126AbUA0W1S (ORCPT
+	Tue, 27 Jan 2004 17:31:49 -0500
+Received: from colin2.muc.de ([193.149.48.15]:10249 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S264366AbUA0Wbr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 17:27:18 -0500
-Date: Tue, 27 Jan 2004 23:26:46 +0100
-From: Andi Kleen <ak@suse.de>
-To: Jan Kasprzak <kas@informatics.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP AMD64 (Tyan S2882) problems.
-Message-Id: <20040127232646.1efda527.ak@suse.de>
-In-Reply-To: <20040127224931.D24747@fi.muni.cz>
-References: <20040127190911.B13769@fi.muni.cz.suse.lists.linux.kernel>
-	<p73fze1fdk4.fsf@nielsen.suse.de>
-	<20040127224931.D24747@fi.muni.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 27 Jan 2004 17:31:47 -0500
+Date: 27 Jan 2004 23:30:09 +0100
+Date: Tue, 27 Jan 2004 23:30:09 +0100
+From: Andi Kleen <ak@muc.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@muc.de>, eric@cisu.net, stoffel@lucent.com,
+       Valdis.Kletnieks@vt.edu, bunk@fs.tum.de, cova@ferrara.linux.it,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
+Message-ID: <20040127223009.GA81095@colin2.muc.de>
+References: <200401232253.08552.eric@cisu.net> <200401261326.09903.eric@cisu.net> <20040126115614.351393f2.akpm@osdl.org> <200401262343.35633.eric@cisu.net> <20040126215056.4e891086.akpm@osdl.org> <20040127162043.GA98702@colin2.muc.de> <20040127125447.31631e14.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040127125447.31631e14.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jan 2004 22:49:31 +0100
-Jan Kasprzak <kas@informatics.muni.cz> wrote:
-
-
+> I've moved the enabling of -funit-at-a-time out of Makefile and down into
+> arch/i386/Makefile, and I changed to require gcc-3.4 or higher.
 > 
-> 	Does not work:
-> 
-> ioctl32(tw_cli:32216): Unknown cmd fd(3) cmd(0000001f){00} arg(080dd2e0) on /dev/twe0
-> 
-> I have asked 3ware.
+> So if you want to use -funit-at-a-time on gcc-3.3/hammer you can do so.
 
-You can probably fix that yourself by adding ioctl translation to the 3ware driver.
-See http://www.firstfloor.org/~andi/writing-ioctl32 for details.
+Please undo that and apply this patch instead. It fixes the bug that
+broke booting with older gcc 3.3-hammer compilers (confirmed by
+two people on l-k). It was plain luck that it worked with the other
+compilers. 
 
 -Andi
+
+
+diff -u linux-2.6.2rc1mm3-test/arch/i386/kernel/process.c-o linux-2.6.2rc1mm3-test/arch/i386/kernel/process.c
+--- linux-2.6.2rc1mm3-test/arch/i386/kernel/process.c-o	2004-01-27 02:26:39.000000000 +0100
++++ linux-2.6.2rc1mm3-test/arch/i386/kernel/process.c	2004-01-27 19:09:41.131460832 +0100
+@@ -253,13 +253,15 @@
+  * the "args".
+  */
+ extern void kernel_thread_helper(void);
+-__asm__(".align 4\n"
++__asm__(".section .text\n"
++	".align 4\n"
+ 	"kernel_thread_helper:\n\t"
+ 	"movl %edx,%eax\n\t"
+ 	"pushl %edx\n\t"
+ 	"call *%ebx\n\t"
+ 	"pushl %eax\n\t"
+-	"call do_exit");
++	"call do_exit\n"
++	".previous");
+ 
+ /*
+  * Create a kernel thread

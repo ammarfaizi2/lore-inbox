@@ -1,86 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277905AbRJISzJ>; Tue, 9 Oct 2001 14:55:09 -0400
+	id <S277911AbRJITBA>; Tue, 9 Oct 2001 15:01:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277907AbRJISzA>; Tue, 9 Oct 2001 14:55:00 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:26720 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S277905AbRJISyv>; Tue, 9 Oct 2001 14:54:51 -0400
-Date: Tue, 9 Oct 2001 20:55:16 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: Robert Macaulay <robert_macaulay@dell.com>,
-        Stephan von Krawczynski <skraw@ithnet.com>
-Subject: 2.4.11pre6aa1
-Message-ID: <20011009205516.F724@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S277915AbRJITAw>; Tue, 9 Oct 2001 15:00:52 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:29450 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S277911AbRJITAi>; Tue, 9 Oct 2001 15:00:38 -0400
+Date: Tue, 9 Oct 2001 14:55:41 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Chris Siebenmann <cks@utcc.utoronto.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Breaking system configuration in stable kernels
+In-Reply-To: <01Oct8.234022edt.62391@gpu.utcc.utoronto.ca>
+Message-ID: <Pine.LNX.3.96.1011009144430.31112A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allocation faliures with highmem seems cured (at least under heavy
-emulation, didn't tested real hardware yet).  Robert, could you give it
-a spin and see if you can still reproduce the faliures now?
+On Mon, 8 Oct 2001, Chris Siebenmann wrote:
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.11pre6aa1.bz2
+> You write:
+> |   I've beaten this dead horse before, but Linux will not look to
+> | management like a viable candidate for default o/s until whoever releases
+> | new versions of *stable* kernel series with cosmetic changes which break
+> | existing systems running earlier releases of the same stable kernel
+> | series.
+> [...]
+> |   I love getting problems like this on my vacation, [...]
+> 
+>  Although I sympathise, I have to ask: why are you rolling new kernels
+> (or new anythings) onto production servers without testing and a
+> reversion plan? In years of experience with all sorts of vendors as well
+> as Linux, I have yet to see *anyone* be reliable about this (the worst
+> offender I've ever had to deal with was SGI, who would release 'urgent'
+> kernel patches with crash bugs).
 
-Thanks,
+I certainly had a reversion plan and backups, but I don't have in-house
+hardware duplicating every client configuration. But there's only so much
+testing you can do before you put user load on the machine. Also, existing
+machines doesn't mean irreplacable mission critical machines, I don't
+upgrade unless I have a reason, and piss-poor VM performance certainly is
+a reason.
+ 
+>  I strive to never put anything on our servers that I have not tested
+> on an expendable machine that is configured as closely as possible to
+> the server. And I also try not to be anywhere near the leading edge
+> on production servers, unless there is some strong benefit to it.
+> 
+>  The only time I roll something out 'right now stat!' is when it is
+> an urgent security fix.
 
---
-Only in 2.4.11pre3aa1: 00_3.5G-address-space-1
-Only in 2.4.11pre6aa1: 00_3.5G-address-space-2
+I don't have that luxury. I can't afford to have a copy of most machines,
+and after load and stability testing I have to try on production machines.
+None of which addresses the issue that parameter name changes buy nothing
+functional, and can cause serious problems. If the module in question was
+needed for boot and in the initrd file the system wouldn't boot at all and
+there would be little to tell why.
 
-	Rediffed.
+I'd like Linux to be more widely used, and things like this are not
+invisible to the people who choose standards.
 
-Only in 2.4.11pre3aa1: 00_debug-gfp-1
-Only in 2.4.11pre6aa1: 10_debug-gfp-1
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-	Renamed.
-
-Only in 2.4.11pre6aa1: 00_rb-export-1
-
-	Patch from Mark J Roberts to export the rb library function to modules
-	(he's using rb trees in a module).
-
-Only in 2.4.11pre3aa1: 00_rwsem-fair-20
-Only in 2.4.11pre3aa1: 00_rwsem-fair-20-recursive-4
-Only in 2.4.11pre6aa1: 00_rwsem-fair-22
-Only in 2.4.11pre6aa1: 00_rwsem-fair-22-recursive-4
-
-	Rediffed.
-
-Only in 2.4.11pre3aa1: 00_unmap-dirty-pte-2
-
-	Dropped, it generated a false positive on s390 that implements
-	slightly different semantics for pte_dirty (using per-page
-	physical dirty bitflag maintained by hardware).
-
-Only in 2.4.11pre6aa1: 00_vm-1
-Only in 2.4.11pre3aa1: 00_vm-tweaks-3
-
-	Allocation faliures with highmem should be cured. Swap seems
-	smooth and Andrew's workload also seems ok. Still untested
-	on real highmem at the moment and I'd love feedback on it.
-	I will be able to test very soon on real highmem too thanks
-	to osdlab.org resources.
-
-Only in 2.4.11pre3aa1: 10_highmem-debug-4
-Only in 2.4.11pre6aa1: 10_highmem-debug-5
-
-	Rediffed.
-
-Only in 2.4.11pre3aa1: 10_numa-sched-10
-Only in 2.4.11pre6aa1: 10_numa-sched-11
-
-	Rediffed.
-
-Only in 2.4.11pre3aa1: 50_uml-patch-2.4.10-5.bz2
-Only in 2.4.11pre6aa1: 50_uml-patch-2.4.10-6.bz2
-Only in 2.4.11pre6aa1: 52_uml-export-objs-1
-
-	Picked last update from sourceforge.
-
-Andrea

@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132180AbRCVUb1>; Thu, 22 Mar 2001 15:31:27 -0500
+	id <S132188AbRCVUe1>; Thu, 22 Mar 2001 15:34:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132186AbRCVUbR>; Thu, 22 Mar 2001 15:31:17 -0500
-Received: from mail-oak-3.pilot.net ([198.232.147.18]:50337 "EHLO
-	mail03-oak.pilot.net") by vger.kernel.org with ESMTP
-	id <S132185AbRCVUbJ>; Thu, 22 Mar 2001 15:31:09 -0500
-Message-ID: <973C11FE0E3ED41183B200508BC7774C0124F06D@csexchange.crystal.cirrus.com>
-From: "Woller, Thomas" <twoller@crystal.cirrus.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Incorrect mdelay() results on Power Managed Machines x86
-Date: Thu, 22 Mar 2001 14:29:48 -0600
+	id <S132185AbRCVUeI>; Thu, 22 Mar 2001 15:34:08 -0500
+Received: from netel-gw.online.no ([193.215.46.129]:7181 "EHLO
+	InterJet.networkgroup.no") by vger.kernel.org with ESMTP
+	id <S132181AbRCVUd5>; Thu, 22 Mar 2001 15:33:57 -0500
+Message-ID: <3ABA6167.309E6DB2@powertech.no>
+Date: Thu, 22 Mar 2001 21:32:39 +0100
+From: Geir Thomassen <geirt@powertech.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: Theodore Tso <tytso@mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Serial port latency
+In-Reply-To: <3ABA42A8.A806D0E7@powertech.no> <20010322140852.A4110@think>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem: Certain Laptops (IBM Thinkpads is where i see the issue) reduce the
-CPU frequency based upon whether the unit is on battery power or direct
-power.  When the Linux kernel boots up, then the cpu_khz (time.c) value is
-determined based upon the current cpu speed. But if the unit's power source
-is subsequently changed (plugged into the power outlet from battery power;
-or unplugged and moved to battery power), then the delay resulting from
-mdelay() (i.e. udelay) is off by the same factor.  cpu_khz is only
-calculated
-during init/boot time, and not on a change in the power source.  This seems
-to be a serious problem since the result is off by a factor of 4 in some
-cases which impacts the mdelay() wait times in the same proportion (130 Mhz
-cpu speed on battery and 500 Mhz CPU speed direct power, on an IBM
-Thinkpad).
+Theodore Tso wrote:
+> 
+> On Thu, Mar 22, 2001 at 07:21:28PM +0100, Geir Thomassen wrote:
+> > My program controls a device (a programmer for microcontrollers) via the
+> > serial port. The program sits in a tight loop, writing a few (typical 6)
+> > bytes to the port, and waits for a few (typ. two) bytes to be returned from
+> > the programmer.
+> 
+> Check out the man page for the "low_latency" configuration parameter
+> in the setserial man page.  This will cause the serial driver to burn
+> a small amount of additional CPU overhead when processing characters,
+> but it will lower the time between when characters arrive at the
+> RS-232 port and when they are made available to the user program.  The
+> preferable solution is to use a intelligent windowing protocol that
+> isn't heavily latency dependent (all modern protocols, such as kermit,
+> zmodem, tcp/ip, etc. do this).  But if you can't, using setserial to
+> set the "low_latency" flag will allow you to work around a dumb
+> communications protocol.
+> 
 
-During resume the IBM thinkpad with the cs46xx driver needs to delay 700
-milleseconds, so if the machine is booted up on battery power, then to
-ensure that the delay is long enough, then a value of 3000 milleseconds is
-must be programmed into the driver (3 seconds!).  all the mdelay and udelay
-wait times are incorrect by the same factor, resulting in some serious
-problems when attempting to wait specific delay times in other parts of the
-driver.  
+I have tried this on both a stock Redhat 7.0 kernel and on 2.2.19pre5 with
+your serial-5.05 driver, and I could not measure any difference with and
+without the "low_latency" parameter to setserial ....
 
-this issue seems like it would be a problem for quite a few drivers that are
-used on laptops that need some fairly precise delays, but maybe this is only
-an IBM Thinkpad issue.  I know that there have been some DMA timeout errors
-when resuming on IBM Thinkpads and maybe these errors that have been seen
-are due to the invalid delay times generated.  
+#setserial -a /dev/ttyS1
+/dev/ttyS1, Line 1, UART: 16550A, Port: 0x02f8, IRQ: 3
+	Baud_base: 115200, close_delay: 50, divisor: 0
+	closing_wait: 3000
+	Flags: spd_normal skip_test low_latency
 
-solutions:
-using schedule() during resume is not an option, as it causes an oops under
-2.2, and causes a second resume to be entered in the pci_driver resume table
-entry for some reason.  also, schedule() is not fine enough granularity for
-some of the micro second delays needed.
 
-re-initing by reinvoking time_init() on each resume cycle doesn't seem to be
-an option that i can see.
+The serial port chip is 16550A, which has a built in fifo. Can this be
+the source of my problems ?
 
-Appreciate any responses or thoughts on the subject, 
-
-Tom Woller
-twoller@crystal.cirrus.com
-Cirrus Logic/Crystal Semiconductor
-(512) 912-3920
-
+Geir

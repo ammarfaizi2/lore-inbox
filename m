@@ -1,56 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285516AbSAUMla>; Mon, 21 Jan 2002 07:41:30 -0500
+	id <S285747AbSAUNIn>; Mon, 21 Jan 2002 08:08:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285720AbSAUMlL>; Mon, 21 Jan 2002 07:41:11 -0500
-Received: from mailhost.uni-koblenz.de ([141.26.64.1]:16815 "EHLO
-	mailhost.uni-koblenz.de") by vger.kernel.org with ESMTP
-	id <S285593AbSAUMkw>; Mon, 21 Jan 2002 07:40:52 -0500
-Message-Id: <200201211240.g0LCef201970@bliss.uni-koblenz.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Rainer Krienke <krienke@uni-koblenz.de>
-Organization: Uni Koblenz
-To: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17:Increase number of anonymous filesystems beyond 256?
-Date: Mon, 21 Jan 2002 13:40:41 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: nfs@lists.sourceforge.net
-In-Reply-To: <mailman.1011275640.16596.linux-kernel2news@redhat.com> <200201171855.g0HIt1314492@devserv.devel.redhat.com>
-In-Reply-To: <200201171855.g0HIt1314492@devserv.devel.redhat.com>
+	id <S285783AbSAUNIe>; Mon, 21 Jan 2002 08:08:34 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:10384 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S285747AbSAUNIT>;
+	Mon, 21 Jan 2002 08:08:19 -0500
+Date: Mon, 21 Jan 2002 16:05:41 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: <linux-kernel@vger.kernel.org>
+Subject: [patch] O(1) scheduler, -J4
+Message-ID: <Pine.LNX.4.33.0201211541250.8699-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 17. January 2002 19:55, Pete Zaitcev wrote:
-> >[from linux-kernel]
-> > I have to increase the number of anonymous filesystems the kernel can
-> > handle and found the array unnamed_dev_in_use fs/super.c and changed the
-> > array size from the default of 256 to 1024. Testing this patch by
-> > mounting more and more NFS-filesystems I found that still no more than
-> > 800 NFS mounts are possible. One more mount results in the kernel saying:
-> >
-> > Jan 17 14:03:11 gl kernel: RPC: Can't bind to reserved port (98).
-> > Jan 17 14:03:11 gl kernel: NFS: cannot create RPC transport.
-> > Jan 17 14:03:11 gl kernel: nfs warning: mount version older than kernel
->
-> I did that. You also need a small fix to mount(8) that adds
-> a mount argument "-o nores". I've got an RPM at my website.
->
-> Initially I did a sysctl, but Trond M. asked for a mount
-> argument, in case you have to mount from several servers,
-> some of which require reserved ports, some do not.
-> Our NetApps work ok with non-reserved ports on clients.
->
 
-Anyone has the patch Pete mentioned above for mount. He mailed the kernel 
-patches but I am unable to find the mount fix he talked about.
+the -J4 scheduler patch is available:
 
-Thanks Rainer
--- 
----------------------------------------------------------------------
-Rainer Krienke                     krienke@uni-koblenz.de
-Universitaet Koblenz, 		   http://www.uni-koblenz.de/~krienke
-Rechenzentrum,                     Voice: +49 261 287 - 1312
-Rheinau 1, 56075 Koblenz, Germany  Fax:   +49 261 287 - 1001312
----------------------------------------------------------------------
+    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.3-pre2-J4.patch
+    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.17-J4.patch
+
+there are no open/reported bugs, and no bugs were found since -J2. The
+scheduler appears to be stabilizing steadily.
+
+-J4 includes two changes to further improve interactiveness:
+
+1)  the introduction of 'super-long' timeslices, max timeslice is 500
+    msecs - it was 180 msecs before. The new default timeslice is 250
+    msecs, it was 90 msecs before.
+
+the reason for super-long timeslices is that IMO we now can afford them.
+The scheduler is pretty good at identifying true interactive tasks these
+days. So we can increase timeslice length without risking the loss of good
+interacte latencies. Long timeslices have a number of advantages:
+
+ - nice +19 CPU hogs take up less CPU time than they used to.
+
+ - interactive tasks can gather a bigger 'reserve' timeslice they can use
+   up to do bursts of processing.
+
+ - CPU hogs will get better cache affinity, due to longer timeslices
+   and less context-switching.
+
+Long timeslices also have a disadvantage:
+
+ - under high load, if an interactive task manages to fall into the
+   CPU-bound hell then it will take longer for it to get the next slice of
+   processing.
+
+i have measured the pros to beat the cons under the workloads i tried, but
+YMMV - more testing by more people is needed, comparing -J4's interactive
+feel (and nice behavior, and kernel compilation performance) against -J2's
+interactive feel/performance.
+
+
+2)  slight shrinking of the bonus/penalty range a task can get.
+
+i've shrunk the bonus/penalty range from +-19 priority levels to +-14
+priority levels. (from 90% of the full range to 70% of the full range.)
+The reason why this can be done without hurting interactiveness is that
+it's no longer a necessity to use the maximum range of priorities - the
+interactiviness information is stored in p->sleep_avg, which is not
+sensitive to the range of priority levels.
+
+The shrinking has two benefits:
+
+ - slightly denser priority arrays, slightly better cache utilization.
+
+ - more isolation of nice levels from each other. Eg. nice -20 tasks now
+   have a 6 priority levels 'buffer zone' which cannot be reached by
+   normal interactive tasks. nice -20 audio daemons should benefit from
+   this. Also, normal CPU hogs are better isolated from nice +19 CPU hogs,
+   with the same 6 priority levels 'buffer zone'.
+
+(by shrinking the bonus/penalty range, the -3 rule in the TASK_INTERACTIVE
+definition was shrunk as well, to -2.)
+
+Changelog:
+
+ - Erich Focht: optimize max_load, remove prev_max_load.
+
+ - Robert Love: simplify unlock_task_rq().
+
+ - Robert Love: fix the ->cpu offset value in x86's entry.S, used by the
+                preemption patch.
+
+ - me: interactiveness updates.
+
+ - me: sched_rr_get_interval() should return the timeslice value based on
+       ->__nice, not based on ->prio.
+
+Bug reports, comments, suggestions welcome. (any patch/fix that is not in
+-J4 is lost and should be resent.)
+
+	Ingo
+

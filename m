@@ -1,35 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275002AbTHLC3A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 22:29:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275003AbTHLC3A
+	id S274988AbTHLCjk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 22:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274990AbTHLCjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 22:29:00 -0400
-Received: from core.kaist.ac.kr ([143.248.147.118]:30082 "EHLO
-	core.kaist.ac.kr") by vger.kernel.org with ESMTP id S275002AbTHLC27
+	Mon, 11 Aug 2003 22:39:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56967 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S274988AbTHLCjj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 22:28:59 -0400
-Message-ID: <003801c36078$e23b1250$a5a5f88f@core8fyzomwjks>
-From: "Cho, joon-woo" <jwc@core.kaist.ac.kr>
-To: <linux-kernel@vger.kernel.org>
-Subject: [Q] Is  'I/O memory'  managed as page?
-Date: Tue, 12 Aug 2003 11:24:40 +0900
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	Mon, 11 Aug 2003 22:39:39 -0400
+Date: Tue, 12 Aug 2003 03:39:36 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Robert Love <rml@tech9.net>
+Cc: CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org,
+       kernel-janitor-discuss@lists.sourceforge.net
+Subject: Re: C99 Initialisers
+Message-ID: <20030812023936.GE3169@parcelfarce.linux.theplanet.co.uk>
+References: <20030812020226.GA4688@zip.com.au> <1060654733.684.267.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1060654733.684.267.camel@localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Mon, Aug 11, 2003 at 07:18:53PM -0700, Robert Love wrote:
+> Convert GNU-style to C99-style.  I think converting unnamed initializers
+> to named initializers is a Good Thing, too.
 
-'I/O memory' is memory in device (like PCI/ISA device).
+By and large ... here's a counterexample:
 
-And that memory is mapped into virtual memory by ioremap function.
+static struct pci_device_id tg3_pci_tbl[] __devinitdata = {
+        { PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5700,
+          PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
+        { PCI_VENDOR_ID_BROADCOM, PCI_DEVICE_ID_TIGON3_5701,
+          PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0UL },
+...
 
+I don't think anyone would appreciate you converting that to:
 
-After mapping, is 'I/O memory' managed as page like memory on host?
+static struct pci_device_id tg3_pci_tbl[] __devinitdata = {
+	{
+		.vendor		= PCI_VENDOR_ID_BROADCOM,
+		.device		= PCI_DEVICE_ID_TIGON3_5700,
+		.subvendor	= PCI_ANY_ID,
+		.subdevice	= PCI_ANY_ID,
+		.class		= 0,
+		.class_mask	= 0,
+		.driver_data	= 0,
+	},
+	{
+		.vendor		= PCI_VENDOR_ID_BROADCOM,
+		.device		= PCI_DEVICE_ID_TIGON3_5701,
+		.subvendor	= PCI_ANY_ID,
+		.subdevice	= PCI_ANY_ID,
+		.class		= 0,
+		.class_mask	= 0,
+		.driver_data	= 0,
+	},
+...
 
-Please answer, thanks!
+Not unless they're paid by the line ;-)
 
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

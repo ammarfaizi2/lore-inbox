@@ -1,65 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131326AbRAMS27>; Sat, 13 Jan 2001 13:28:59 -0500
+	id <S131221AbRAMS3K>; Sat, 13 Jan 2001 13:29:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131029AbRAMS2v>; Sat, 13 Jan 2001 13:28:51 -0500
+	id <S131029AbRAMS3C>; Sat, 13 Jan 2001 13:29:02 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:59872 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131332AbRAMSZ6>;
-	Sat, 13 Jan 2001 13:25:58 -0500
-Date: Sat, 13 Jan 2001 15:22:38 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Thomas Molina <tmolina@home.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: VIA IDE corruption - anyone experiencing it with 2.4.0?
-Message-ID: <20010113152238.G1155@suse.cz>
-In-Reply-To: <20010112212427.A2829@suse.cz> <Pine.LNX.4.30.0101130559060.19743-100000@wr5z.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0101130559060.19743-100000@wr5z.localdomain>; from tmolina@home.com on Sat, Jan 13, 2001 at 06:03:11AM -0600
+	by vger.kernel.org with ESMTP id <S131162AbRAMSZg>;
+	Sat, 13 Jan 2001 13:25:36 -0500
+Date: Sat, 13 Jan 2001 16:16:59 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200101131516.QAA24636@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] enable K7 nmi watchdog
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 13, 2001 at 06:03:11AM -0600, Thomas Molina wrote:
+This patch (against 2.4.0-ac8) _may_ enable the NMI watchdog on
+some K7 systems. It won't help if you have an old K7 without a
+local APIC, or if your BIOS disables it.
 
-> Are you looking for specific chipsets or configurations?  Following is
-> my VP3/MVP3 chipset lspci output if you are gathering a group of
-> testers.  I've enabled autoDMA at various points in the testing cycle
-> (not consistently) but haven't noticed any fs corruption.
+This is a quick hack to test the mechanism -- I'll submit a
+cleaner patch later if this one works.
 
-Ok. So what I'm exactly looking for:
+If you try this, please cc: me the result (positive or negative)
+and a copy of the kernel's boot log.
 
-Cases of harddrive corruption (that is, trashing your fs,
-reading/writing bad data) on VIA chipsets. UDMA-caused CRC errors don't
-fall into this category, they're harmless to the data.
+/Mikael
 
-Preferably with the driver from the 2.4.0 kernel. If possible, try also
-the VIA 3.11 driver posted to the list earlier. If you don't have it, I
-can e-mail it to you.
-
-Don't use any hdparm command in your init scripts (this is important)
-with the VIA driver and 2.4.0, setting the speed or dma usage with
-hdparm would interfere with the driver autotuning.
-
-If you fear to test, you can mount your fs readonly (no corruption can
-happen) and use your swap partition for read-write test. You can even
-mke2fs the swap for a while.
-
-Anyone who experienced this kind of problems with 2.4 and the VIA
-driver, please speak up, so I can fix it.
-
-I'm not currently looking for success reports, I've already got success
-reports for every type VIA IDE chip out there. 
-
-I'll need the motherboard type and revision, lspci -vvxxx, dmesg,
-hdparm -i and /proc/ide/via listings ...
-
-Thanks.
-
--- 
-Vojtech Pavlik
-SuSE Labs
+--- linux-2.4.0-ac8/arch/i386/kernel/nmi.c.~1~	Sat Jan 13 14:57:09 2001
++++ linux-2.4.0-ac8/arch/i386/kernel/nmi.c	Sat Jan 13 16:00:27 2001
+@@ -64,6 +64,10 @@
+ 			(boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) &&
+ 			(boot_cpu_data.x86 == 6))
+ 		nmi_watchdog = nmi;
++	if ((nmi == NMI_LOCAL_APIC) &&
++			(boot_cpu_data.x86_vendor == X86_VENDOR_AMD) &&
++			(boot_cpu_data.x86 == 6))
++		nmi_watchdog = nmi;
+ 	/*
+ 	 * We can enable the IO-APIC watchdog
+ 	 * unconditionally.
+@@ -80,10 +84,34 @@
+  * Original code written by Keith Owens.
+  */
+ 
++#define MSR_K7_EVNTSEL0 0xC001000
++#define MSR_K7_PERFCTR0 0xC001004
++
+ void setup_apic_nmi_watchdog (void)
+ {
+ 	int value;
+ 
++	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD &&
++	    boot_cpu_data.x86 == 6) {
++		unsigned evntsel = (1<<20)|(3<<16);	/* INT, OS, USR */
++#if 1	/* listed in old docs */
++		evntsel |= 0x76;	/* CYCLES_PROCESSOR_IS_RUNNING */
++#else	/* try this if the above doesn't work */
++		evntsel |= 0xC0;	/* RETIRED_INSTRUCTIONS */
++#endif
++		wrmsr(MSR_K7_EVNTSEL0, 0, 0);
++		wrmsr(MSR_K7_PERFCTR0, 0, 0);
++		wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
++		printk("setting K7_PERFCTR0 to %08lx\n", -(cpu_khz/HZ*1000));
++		wrmsr(MSR_K7_PERFCTR0, -(cpu_khz/HZ*1000), 0);
++		printk("setting K7 LVTPC to DM_NMI\n");
++		apic_write(APIC_LVTPC, APIC_DM_NMI);
++		evntsel |= (1<<22);	/* ENable */
++		printk("setting K7_EVNTSEL0 to %08x\n", evntsel);
++		wrmsr(MSR_K7_EVNTSEL0, evntsel, 0);
++		return;
++	}
++
+ 	/* clear performance counters 0, 1 */
+ 
+ 	wrmsr(MSR_IA32_EVNTSEL0, 0, 0);
+@@ -162,7 +190,14 @@
+ 		last_irq_sums[cpu] = sum;
+ 		alert_counter[cpu] = 0;
+ 	}
+-	if (cpu_has_apic && (nmi_watchdog == NMI_LOCAL_APIC))
+-		wrmsr(MSR_IA32_PERFCTR1, -(cpu_khz/HZ*1000), 0);
++	if (cpu_has_apic && (nmi_watchdog == NMI_LOCAL_APIC)) {
++		/* XXX: nmi_watchdog should carry this info */
++		unsigned msr;
++		if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD)
++			msr = MSR_K7_PERFCTR0;
++		else
++			msr = MSR_IA32_PERFCTR1;
++		wrmsr(msr, -(cpu_khz/HZ*1000), 0);
++	}
+ }
+ 
+--- linux-2.4.0-ac8/arch/i386/kernel/setup.c.~1~	Sat Jan 13 14:57:09 2001
++++ linux-2.4.0-ac8/arch/i386/kernel/setup.c	Sat Jan 13 14:57:48 2001
+@@ -1926,14 +1926,6 @@
+ 			c->x86 = 4;
+ 		}
+ 
+-		/*
+-		 * Athlons have an APIC, but the APIC-programming
+-		 * MSRs are in different places. If you want NMI-watchdog
+-		 * on Athlons, please fix setup_apic_nmi_watchdog().
+-		 */
+-		if (c->x86_vendor == X86_VENDOR_AMD)
+-			clear_bit(X86_FEATURE_APIC, &c->x86_capability);
+-
+ 		/* AMD-defined flags: level 0x80000001 */
+ 		xlvl = cpuid_eax(0x80000000);
+ 		if ( (xlvl & 0xffff0000) == 0x80000000 ) {
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

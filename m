@@ -1,66 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287647AbSBCTtK>; Sun, 3 Feb 2002 14:49:10 -0500
+	id <S287676AbSBCT7E>; Sun, 3 Feb 2002 14:59:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287658AbSBCTtA>; Sun, 3 Feb 2002 14:49:00 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2832 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287647AbSBCTsy>; Sun, 3 Feb 2002 14:48:54 -0500
-Message-ID: <3C5D940D.4000406@zytor.com>
-Date: Sun, 03 Feb 2002 11:48:29 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S287681AbSBCT6z>; Sun, 3 Feb 2002 14:58:55 -0500
+Received: from mail.tcb.net.au ([210.9.195.45]:49412 "EHLO mail.impulse.net.au")
+	by vger.kernel.org with ESMTP id <S287676AbSBCT6k>;
+	Sun, 3 Feb 2002 14:58:40 -0500
+Date: Mon, 4 Feb 2002 06:57:12 +1100
+From: Ben Ryan <ben@bssc.edu.au>
+X-Mailer: The Bat! (v1.53d) UNREG / CD5BF9353B3B7091
+Reply-To: Ben Ryan <ben@bssc.edu.au>
+X-Priority: 3 (Normal)
+Message-ID: <175147695064.20020204065712@bssc.edu.au>
+To: linux-kernel@vger.kernel.org
+CC: Eberhard Moenkeberg <emoenke@gwdg.de>
+Subject: compile failed: sbpcd.c under 2.5.2
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: "Erik A. Hendriks" <hendriks@lanl.gov>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org, Werner Almesberger <wa@almesberger.net>
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org>	<3C586355.A396525B@zip.com.au> <m1zo2vb5rt.fsf@frodo.biederman.org>	<3C58B078.3070803@zytor.com> <m1vgdjb0x0.fsf@frodo.biederman.org>	<3C58CAE0.4040102@zytor.com> <20020131103516.I26855@lanl.gov>	<m1elk6t7no.fsf@frodo.biederman.org> <3C59DB56.2070004@zytor.com>	<m1r8o5a80f.fsf@frodo.biederman.org> <3C5A5F25.3090101@zytor.com>	<m1hep19pje.fsf@frodo.biederman.org> <3C5ADDD1.6000608@zytor.com>	<m1665fame3.fsf@frodo.biederman.org> <3C5C54D2.2030700@zytor.com>	<m1k7tv8p2z.fsf@frodo.biederman.org> <3C5C98E6.2090701@zytor.com> <m1y9ia76f7.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
 
-> 
-> O.k. I have been thinking about this some more, and I have come up with a couple
-> alternate of solutions.
-> 
-> The simplest is the observation that right now 10MB is about what it
-> takes to hold every Linux driver out there.  So all you really need is
-> a 16MB system, to avoid a device probing loader.  And probably
-> noticeably less than that.  The only systems I see having real
-> problems are old systems where device enumeration is not reliable, and
-> require human intervention anyway.
-> 
-> A second is to just make certain there is some kind of fallback path
-> so if the image is too large have a way to load a smaller one.  When
-> you consider that older systems had less memory it has a reasonable
-> chance of working properly.
-> 
-> My final and favorite is to take an ELF image, define a couple of ELF
-> note types, and add a bunch those notes saying which pieces are
-> hardware dependent.  So a smart ELF loader can prune the image as it
-> is loaded, and a stupid one will just attempt to load everything.  And
-> with the setup for this not being bootloader specific it will probably
-> encourage device pruning loaders.
-> 
-> Am I being optimistic or are there any pressing cases for callbacks to
-> the firmware?
-> 
+greets 'n stuph,
+
+compiling clean from 2.5.2 tarball, inclusion of sbpcd driver broke the compile.
+saw mention of a problem with sbpcd a fair while ago, didn't find a resolution to it.
+is this a known bug? is there a patch available, or in the pipeline?
+looks straightforward, well, to somebody that can code, and that isn't myself ;)
 
 
-Ok, now let me ask the question that hopefully should be obvious to 
-everyone now...
 
-WHAT'S THE POINT?
+..
 
-All you're doing is an awfully complex song and dance to *avoid* 
-implementing a solution that, while imperfect, is thoroughly established 
-and has worked for 20 years.
+sbpcd.c: In function `sbpcd_end_request':
+sbpcd.c:4890: structure has no member named `queue'
+sbpcd.c: In function named `sbpcd_init':
+sbpcd.c:5867: too few arguments to function `blk_init_queue'
+        ..69: warning: assignment from incompatible pointer type
+        ..70: warning: assignment from incompatible pointer type
+        ..71: warning: assignment from incompatible pointer type
+sbpcd.c:5925: incompatible types in assignment
+make[3]: *** [sbpcd.o] Error 1
 
-	-hpa
+..
 
+
+
+
+
+
+thanks
+ben
 

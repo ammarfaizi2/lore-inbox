@@ -1,70 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVCaMMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVCaMOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbVCaMMt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 07:12:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVCaMMt
+	id S261382AbVCaMOq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 07:14:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbVCaMOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 07:12:49 -0500
-Received: from general.keba.co.at ([193.154.24.243]:42429 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S261157AbVCaMMq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 07:12:46 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.11, USB: High latency?
-Date: Thu, 31 Mar 2005 14:12:38 +0200
-Message-ID: <AAD6DA242BC63C488511C611BD51F3673231D1@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.11, USB: High latency?
-Thread-Index: AcU1fBU2T0AYox1PRwqOXOwJeq//cAAbiKAA
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "David Brownell" <david-b@pacbell.net>, <linux-kernel@vger.kernel.org>
+	Thu, 31 Mar 2005 07:14:46 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:58603 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261382AbVCaMOm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 07:14:42 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.OSF.4.05.10503311301210.11827-100000@da410.phys.au.dk>
+References: <Pine.OSF.4.05.10503311301210.11827-100000@da410.phys.au.dk>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 31 Mar 2005 07:14:30 -0500
+Message-Id: <1112271270.3691.209.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I couldn't find that previous email in the MARC archives.
+On Thu, 2005-03-31 at 13:03 +0100, Esben Nielsen wrote:
+> On Thu, 31 Mar 2005, Ingo Molnar wrote:
 > 
-> Regardless, you'd have to provide a small bit of information about
-> your hardware configuration.  What device speed:  full or high?
-> What controller:  EHCI, OHCI, UHCI, something else?  Which driver
-> for the stick:  usb-storage, or ub?  What else was using memory
-> and PCI bandwidth at the time?  SMP?
+> > 
+> > * Steven Rostedt <rostedt@goodmis.org> wrote:
+> > 
+> > > Well, here it finally is. There's still things I don't like about it. 
+> > > But it seems to work, and that's the important part.
+> > > 
+> > > I had to reluctantly add two items to the task_struct.  I was hoping 
+> > > to avoid that. But because of race conditions it seemed to be the only 
+> > > way.
+> > 
+> > well it's not a big problem, and we avoided having to add flags to the 
+> > rt_lock structure, which is the important issue.
+> > 
+> I was going to say the opposit. I know that there are many more rt_locks
+> locks around and the fields thus will take more memory when put there but
+> I believe it is more logical to have the fields there.
 
-The error occurred on an intel Pentium 3 (500 MHz) embedded system with
-440BX chipset and 192 MB RAM. USB is handled by the 440BX (intel 82371
-PIIX4). The UHCI driver shares interrupt 7 with an intel 82559ER 100
-Mbit ethernet controller (which is driven by the e100 driver and active:
-As there is no local keyboard, I access the system by ssh). 
+It seems logical to be there, but in practicality, it's not. 
 
-The system "disk" is a 128 MB CF card directly connected to the 440BX
-primary IDE port and running in PIO mode 2 at about 2 MB/sec peak (but
-it is idle most of the time). There is a SM712 VGA chip running in text
-mode, a 1000 HZ std PC timer, and no other "interesting" device (nothing
-else on the PCI bus or causing any interrupts).
+The problem is that the flags represent a state of the task with respect
+to a single lock.  When the task loses ownership of a lock, the state of
+the task changes. But the the lock has a different state at that moment
+(it has a new onwner).  Now when it releases the lock, it might give the
+lock to another task, and that becomes the pending owner. Now the state
+of the lock is the same as in the beginning. But the first task needs to
+see this change.
 
-The error was reproduced with statically linked (no modules)
-vanilla-2.6.11, 2.6.11-gentoo-r3, and
-realtime-preempt-2.6.12-rc1-V0.7.41-11 kernels, all built with gcc
-3.4.3. No SMP. USB-storage for the sticks.
+You can still pull this off by testing the state of the lock and compare
+it to the current owner, but I too like the fact that you don't increase
+the size of the kernel statically.  There are a lot more locks in the
+kernel than tasks on most systems. And those systems that will have more
+tasks than locks, need a lot of memory anyway.  So we only punish the
+big systems (that expect to be punished) and keep the little guys safe.
 
-I tried with two different sticks (an old 64 MB USB 1.x and a 1 GB USB
-2.x), both show the same problem on all USB interfaces on the target.
-The same dd command works fine on both sticks on my office PC. 
+-- Steve
 
--- 
-Klaus Kusche
-Entwicklung Software - Steuerung
-Software Development - Control
 
-KEBA AG
-A-4041 Linz
-Gewerbepark Urfahr
-Tel +43 / 732 / 7090-3120
-Fax +43 / 732 / 7090-8919
-E-Mail: kus@keba.com
-www.keba.com

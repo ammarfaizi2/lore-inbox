@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285380AbRLNOEm>; Fri, 14 Dec 2001 09:04:42 -0500
+	id <S285382AbRLNOif>; Fri, 14 Dec 2001 09:38:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285381AbRLNOEc>; Fri, 14 Dec 2001 09:04:32 -0500
-Received: from serv02.lahn.de ([195.211.46.202]:29255 "EHLO serv02.lahn.de")
-	by vger.kernel.org with ESMTP id <S285380AbRLNOEZ>;
-	Fri, 14 Dec 2001 09:04:25 -0500
-X-Spam-Filter: check_local@serv02.lahn.de by digitalanswers.org
-Date: Fri, 14 Dec 2001 08:38:34 +0100
-From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-To: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: emu10k1 - interrupt storm?
-Message-ID: <20011214073834.GA10100@titan.lahn.de>
-In-Reply-To: <Pine.LNX.4.33.0112121112450.2868-100000@sophia-sousar2.nice.mindspeed.com> <3C175A7C.6C532320@roadnet.com.br> <878zc8az65.fsf@atlas.iskon.hr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <878zc8az65.fsf@atlas.iskon.hr>
-User-Agent: Mutt/1.3.24i
-Organization: UUCP-Freunde Lahn e.V.
+	id <S285384AbRLNOiP>; Fri, 14 Dec 2001 09:38:15 -0500
+Received: from natwar.webmailer.de ([192.67.198.70]:18836 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S285382AbRLNOiI>; Fri, 14 Dec 2001 09:38:08 -0500
+Message-ID: <3C1A0DF6.5030401@korseby.net>
+Date: Fri, 14 Dec 2001 15:34:30 +0100
+From: Kristian Peters <kristian.peters@korseby.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011209
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Wakko Warner <wakko@animx.eu.org>
+CC: Kristian Peters <kristian.peters@korseby.net>,
+        Jeff <piercejhsd009@earthlink.net>,
+        kernel <linux-kernel@vger.kernel.org>
+Subject: Re: cdrecord reports size vs. capabilities error....
+In-Reply-To: <3C1880F4.8CE5AC8F@earthlink.net> <3C19DEAF.4080703@korseby.net> <20011214064202.A24719@animx.eu.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo Zlatko!
+Wakko Warner wrote:
 
-On Wed, Dec 12, 2001 at 10:47:30PM +0100, Zlatko Calusic wrote:
-> Unfortunately esd is started by the gnome desktop environment and I
-> can disable or enable it, but can't set any parameters (as far as I
-> can see). Probably I'll disable it for good, as emu10k1 driver already
-> does a great job mixing multiple sound streams.
-Say ever no:
+> I get this same thing with a scsi cdrom at work.  I have 2 of the exact same
+> drives.  a Teac cd-535s v1.0a  the first one I get that message, the second
+> works.  However, the first one won't pull the tray back in via software.
 
-$ fuser /dev/dsp 
-/dev/dsp:             1555
-$ esdctl off
-$ fuser /dev/dsp 
-$ ps 1555
-  PID TTY      STAT   TIME COMMAND
- 1555 ?        S      0:00 esd -nobeeps
 
-BYtE
-Philipp
--- 
-  / /  (_)__  __ ____  __ Philipp Hahn
- / /__/ / _ \/ // /\ \/ /
-/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
+Is the first drive connected to /dev/hdb ? Does eject work on /dev/scd0 or 
+/dev/hdb ?
+
+*Kristian
+

@@ -1,75 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbULUQYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261790AbULUQ1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbULUQYG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 11:24:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbULUQXp
+	id S261790AbULUQ1V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 11:27:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbULUQ1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 11:23:45 -0500
-Received: from [203.152.41.3] ([203.152.41.3]:6302 "EHLO picard.ine.co.th")
-	by vger.kernel.org with ESMTP id S261786AbULUQXZ (ORCPT
+	Tue, 21 Dec 2004 11:27:21 -0500
+Received: from mail.gadugi.org ([69.155.252.3]:52352 "EHLO mail.gadugi.org")
+	by vger.kernel.org with ESMTP id S261790AbULUQYi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 11:23:25 -0500
-Subject: Re: kernel (64bit) 4GB memory support
-From: Rudolf Usselmann <rudi@asics.ws>
-Reply-To: rudi@asics.ws
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: "Frank Denis (Jedi/Sector One)" <j@pureftpd.org>,
-       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <Pine.LNX.4.61.0412201246180.12334@montezuma.fsmlabs.com>
-References: <41BAC68D.6050303@pobox.com> <1102760002.10824.170.camel@cpu0>
-	 <41BB32A4.2090301@pobox.com> <1102824735.17081.187.camel@cpu0>
-	 <Pine.LNX.4.61.0412112141180.7847@montezuma.fsmlabs.com>
-	 <1102828235.17081.189.camel@cpu0>
-	 <Pine.LNX.4.61.0412120131570.7847@montezuma.fsmlabs.com>
-	 <1102842902.10322.200.camel@cpu0>
-	 <Pine.LNX.4.61.0412120934160.14734@montezuma.fsmlabs.com>
-	 <1103027130.3650.73.camel@cpu0>  <20041216074905.GA2417@c9x.org>
-	 <1103213359.31392.71.camel@cpu0>
-	 <Pine.LNX.4.61.0412201246180.12334@montezuma.fsmlabs.com>
-Content-Type: text/plain
-Organization: ASICS.ws - Solutions for your ASICS & FPGA needs -
-Message-Id: <1103646195.3652.196.camel@cpu0>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 21 Dec 2004 23:23:15 +0700
+	Tue, 21 Dec 2004 11:24:38 -0500
+Message-ID: <41C84EC7.5050004@gadugi.org>
+Date: Tue, 21 Dec 2004 09:26:47 -0700
+From: "Jeff V. Merkey" <jmerkey@gadugi.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: gene.heskett@verizon.net
+CC: linux-kernel@vger.kernel.org, "Jeff V. Merkey" <jmerkey@mail.gadugi.org>,
+       Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: Linux 2.6.9 and the GPL Buyout
+References: <20041220212723.GA8634@mail.gadugi.org> <Pine.LNX.4.61.0412210002590.3581@dragon.hygekrogen.localhost> <20041220225733.GA9771@mail.gadugi.org> <200412202140.49006.gene.heskett@verizon.net>
+In-Reply-To: <200412202140.49006.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-12-21 at 02:49, Zwane Mwaikambo wrote:
-> 
-> Rudolf, thanks for collecting that information. Since you said that 
-> 2.6.10-rc3 also had similar results it counts out a number of suspects i 
-> had in the -mm tree. Could you work towards isolating a working kernel 
-> version? You could try these;
-> 
-> 2.6.8.1
-> 2.6.9
-> 2.6.9-mm1
-> 
-> Thanks,
-> 	Zwane
+Gene Heskett wrote:
 
-Zwane,
+>At severe risk of starting a flame war all over again, here goes.
+>
+>In other words, that $50 million offer was also just so much
+>vaporware.  Thats not a question, its a statement, because you
+>personally sure as h--- don't have $50 million to back it up and I
+>have serious doubts the council would have backed you.  $50 million is
+>a decent sum of money, even if they do have their own casino that may
+>be quite profitable.
+>
+>  
+>
 
-is there a more scientific approach to this problem ?
+It was for 50K not 50 million, and it was for real.
 
-See my problem is that I have a very expensive motherboard
-and very expensive simm modules which I already inserted and
-removed several dozen times. I would like to avoid doing this
-experimenting as much as possible. Specially if there might
-be a more contractive way. We don't know if there ever has
-been a kernel that has worked with this configuration, right ?
+>Really now, are *you* doing the Cherokee Nation any good at all? 
+>
+>  
+>
+I am transferring all the knowledge I have ammased in my lifetime and 
+career into our young men and women. We own a college of information 
+technology, and guess who was just appointed a vice-chair to the board 
+of regents for the university. Can you say "Professor Merkey I presume."
 
-memtest86 seems to detect and test all 4gb just fine. So there
-must be some way to find the problem ...
 
-I mean you guys must have a pretty good idea what is going wrong.
-Is it possible to add some debugging information ? The latest
-mm4-jeda kernel seems to be able to "recover" from panics/crashes.
-It doesn't "die" it just kills the offending app (at least thats
-my limited understanding).
+>Or are you just another promoter trying to take advantage of a
+>re-organization as they 
+>
+I am a part of "they". I have been a member of the Cherokee Nation all 
+my life.
 
-Kind Regards,
-rudi
+>bring their government into the 21st century
+>and learn to cope with the effects of having their own casino and
+>(in your opinion) money to burn from it.  
+>
+We own dozens of casinos, the entire northeastern corner of Oklahoma, 
+and we hold
+more assets and cash than even IBM. We are not in any need of cash, BTW.
+
+>Maybe they see the
+>advantages of getting technical, in fact I'm sure they do, and can
+>probably do that far better for them without your kind of help.
+>  
+>
+It's to help our young men and women.
+
+>I have visited the web site, as I'm sure some of the other
+>commentators here have also done, and viewed what I saw while keeping
+>in mind some of the many fine Cherokee people I've had the
+>pleasure of knowing in my 70 years.  Make no mistake, some of them
+>have been my mental superiors, and they will catch you up at some
+>point, if not this one.  Wilma would have run you off long ago, if she
+>were still President.
+>
+>  
+>
+I know Wilma and my people love me. That server you visited in housed at 
+the Cherokee Nation tribal complex and was put their by the Chief and 
+Tribal council. You had better know what you are talking about, Gene.
+
+>That said, I personally applaud them for the future direction they
+>seem to have chosen, but will not pass judgement on this new license
+>until the legal beagles have had a chance to disect the proposed
+>license when its finally published, and the chances of its being held
+>as valid in the courts of the rest of the world.  Believe me, I've
+>seen fine Cherokees screwed in the courts of this (great?) nation
+>several times, just because they were of Original American 
+>bloodlines.   Now I'd like them to be treated as equals for a change.
+>  
+>
+I think we view ourselves as equals.
+
+>The feds say they are sovereign, but lets see if the acts match the
+>words.
+>
+>  
+>
+
+>Until then Jeff, the GPL is a damned fine license.  And I would like
+>to see it kept.
+>
+>  
+>
+There will be other options.
+
+Jeff
 

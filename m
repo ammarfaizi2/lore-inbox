@@ -1,70 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268889AbTCDAXJ>; Mon, 3 Mar 2003 19:23:09 -0500
+	id <S268894AbTCDAYT>; Mon, 3 Mar 2003 19:24:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268890AbTCDAXJ>; Mon, 3 Mar 2003 19:23:09 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:30095 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP
-	id <S268889AbTCDAXI>; Mon, 3 Mar 2003 19:23:08 -0500
-Date: Tue, 04 Mar 2003 13:36:41 +1300
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: [ACPI] Re: S4bios support for 2.5.63
-In-reply-to: <20030303233923.GA2234@k3.hellgate.ch>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: Troels Haugboelle <troels_h@astro.ku.dk>, Pavel Machek <pavel@suse.cz>,
-       bert hubert <ahu@ds9a.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1046738201.3809.18.camel@laptop-linux.cunninghams>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <20030302202118.GA2201@outpost.ds9a.nl>
- <20030303003940.GA13036@k3.hellgate.ch>
- <1046657290.8668.33.camel@laptop-linux.cunninghams>
- <20030303113153.GA18563@outpost.ds9a.nl>
- <20030303122325.GA20929@atrey.karlin.mff.cuni.cz>
- <20030303123551.GA19859@outpost.ds9a.nl>
- <20030303124133.GH20929@atrey.karlin.mff.cuni.cz>
- <1046700474.3782.197.camel@localhost> <20030303143006.GA1289@k3.hellgate.ch>
- <1046729210.1850.8.camel@laptop-linux.cunninghams>
- <20030303233923.GA2234@k3.hellgate.ch>
+	id <S268898AbTCDAYT>; Mon, 3 Mar 2003 19:24:19 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19974 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S268894AbTCDAYR>;
+	Mon, 3 Mar 2003 19:24:17 -0500
+Message-ID: <3E63F495.5070005@pobox.com>
+Date: Mon, 03 Mar 2003 19:34:29 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Matt Domsch <Matt_Domsch@Dell.com>
+CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: Displaying/modifying PCI device id tables via sysfs
+References: <20BF5713E14D5B48AA289F72BD372D6803945AB6-100000@AUSXMPC122.aus.amer.dell.com>
+In-Reply-To: <20BF5713E14D5B48AA289F72BD372D6803945AB6-100000@AUSXMPC122.aus.amer.dell.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-03-04 at 12:39, Roger Luethi wrote:
-> On Tue, 04 Mar 2003 11:06:50 +1300, Nigel Cunningham wrote:
-> > You were hitting the BUG_ON before swsusp was even trying to write the
-> > image?!! That is interesting! Since count_and_copy is first called post
-> > driver suspend in the current version, perhaps they are somehow related.
-> > (This is before swsusp tries to write any of the image to disk).
-> 
-> Huh? After a glance at the code I agree that drivers_suspend happens before
-> count_and_copy_data_pages, but that means hitting the BUG_ON in
-> idedisk_suspend before the panic in count_and_copy_data_pages is what I'd
-> expect. How is that remarkable? ... My current kernel has HIGHMEM enabled,
-> but previous ones that failed the same way didn't.
+Matt Domsch wrote:
+> Adding IDs to drivers at runtime is definitely a stop-gap measure, and 
+> only works when drivers don't need other changes, but it solves an 
+> important subset of the problem space.
 
-I was surprised because I thought you were getting the BUG_ON during
-writing the image. Now I see that it's well beforehand.
 
-> Anyway, a few more tests showed that hdparm -u1 helps if I have lots of
-> memory used (say for fs caches). In two out of two tests, I saw Pavel's
-> request to send him 1 GB RAM via email.
+Agreed on both points -- it's a stopgap measure, and also one that 
+happens solve quite a few cases in the field.
 
-On this topic, would you be willing to test a 2.4 version that supported
-highmem? I haven't written support yet, but hope to do it shortly. (I
-don't have that much ram myself so you can send me 1GB if you prefer
-:>).
+Field-replacement of PCI id tables is a todo item for a while now :)
 
-> Suspending directly from a clean boot (after issuing the same hdparm -u1
-> commands for both disks) I hit the BUG_ON in idedisk_suspend (two out of
-> two tests, too).
+However, anything beyond PCI id table replacement requires code changes 
+and recompilation, and that can be handled by existing patch submission 
+procedures...
 
-Hmmm.. strange.
+	Jeff
 
-Regards,
 
-Nigel
 

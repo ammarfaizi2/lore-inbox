@@ -1,67 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263962AbUHVArT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264980AbUHVBIm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263962AbUHVArT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 20:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264936AbUHVArT
+	id S264980AbUHVBIm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 21:08:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264984AbUHVBIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 20:47:19 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30142 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263962AbUHVArR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 20:47:17 -0400
-Date: Sat, 21 Aug 2004 17:36:54 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: bero@arklinux.org, Thomas.Duffy.99@alumni.brown.edu
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: [PATCH] 2.6.8.1 modprobe tg3 oopses
-Message-Id: <20040821173654.6e5b9982.rddunlap@osdl.org>
-In-Reply-To: <20040820161141.28043ee8.rddunlap@osdl.org>
-References: <20040820161141.28043ee8.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 21 Aug 2004 21:08:42 -0400
+Received: from qfep05.superonline.com ([212.252.122.162]:37336 "EHLO
+	qfep05.superonline.com") by vger.kernel.org with ESMTP
+	id S264980AbUHVBIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 21:08:38 -0400
+From: "Josan Kadett" <corporate@superonline.com>
+To: "'Chris Siebenmann'" <cks@utcc.utoronto.ca>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Entirely ignoring TCP and UDP checksum in kernel level
+Date: Sun, 22 Aug 2004 04:08:39 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <04Aug21.205911edt.41960@gpu.utcc.utoronto.ca>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Thread-Index: AcSH40GIonQ78bpfQVGhXh32Uqb8rwACIc2g
+Message-Id: <S264980AbUHVBIi/20040822010839Z+1297@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-| Subject: 2.6.8.1 "modprobe tg3" oopses with gcc 3.4.1
-| 
-| 
-| I get this when trying to modprobe tg3 on an Acer Aspire 1500 notebook (32bit 
-| mode) when the kernel [tried 2.6.8.1 and 2.6.8.1-mm1] is compiled with gcc 
-| 3.4.1 (3.3.4 works):
+Well, the device fails only in one type of operation, that is when it has to
+receive packets from an internal port, it sends packets via its external IP
+address. 
 
-I wouldn't expect this to be compiler-dependent.  There's an obvious
-problem with add_pin_to_irq().  It shouldn't be __init.  Patch below.
-(I thought that I had already mailed this one time, but I don't
-see it anywhere.)
+I have managed to disable IP header checksumming by hacking the kernel (in
+file ip_input.c). Now I have to do the same for tcp_input.c and udp.c .
+Packet mangling will not be required because when I turn the rp_filter off,
+the kernel does not care whether it is coming from the intended source or
+not.
 
-| CPU:    0
-| EIP:    0060:[<c03ba270>]    Not tainted VLI
-| EFLAGS: 00210216   (2.6.8-1ark)
-| EIP is at add_pin_to_irq+0x0/0x60     <<<<< code is gone
+Now after disabling IP protocol checksumming, I passed to udp checksumming.
+However; now the code is more complicated. And for the TCP there is 100K of
+code. Well of course, with correct patch it would work, but as far as I can
+see, there are many locations that needs to be changed in order to get this
+work.
 
---
+I also thought about packet mangling, but again something needs to be done
+for checksums. By the way, it is not necessary to do as such. Perhaps, I
+would later need it in case I see such errors in future but my current
+problem has a rather easy solution.
 
-add_pin_to_irq() should not be __init; it is used after init code.
+I have received many replies about what to change in these codes. However;
+none of them were correct at all. Either they disabled some part of
+checksumming or cast the TCP/IP totally unavailable.
 
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+Any reference to code would be appreciated.
+Regards...
 
-diffstat:=
- arch/i386/kernel/io_apic.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+-----Original Message-----
+From: Chris Siebenmann [mailto:cks@utcc.utoronto.ca] 
+Sent: Sunday, August 22, 2004 2:59 AM
+To: Josan Kadett
+Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
 
-diff -Naurp ./arch/i386/kernel/io_apic.c~ioapic_non_init ./arch/i386/kernel/io_apic.c
---- ./arch/i386/kernel/io_apic.c~ioapic_non_init	2004-08-14 03:55:10.000000000 -0700
-+++ ./arch/i386/kernel/io_apic.c	2004-08-21 17:26:52.695599728 -0700
-@@ -85,7 +85,7 @@ int vector_irq[NR_VECTORS] = { [0 ... NR
-  * shared ISA-space IRQs, so we have to support them. We are super
-  * fast in the common case, and fast for shared ISA-space IRQs.
-  */
--static void __init add_pin_to_irq(unsigned int irq, int apic, int pin)
-+static void add_pin_to_irq(unsigned int irq, int apic, int pin)
- {
- 	static int first_free_entry = NR_IRQS;
- 	struct irq_pin_list *entry = irq_2_pin + irq;
+ At least with TCP, I believe that if TCP is establishing a circuit
+between (IP1, port1) and (IP2, port2), SYN+ACKs from (IP3, port2) will
+generally be ignored. So it seems likely that you will not only have
+to ignore the checksum failure but also mangle the IP packets that you
+receive that claim to be from 'IP3' to claim to be from 'IP2' instead,
+so that they match up with what the kernel expects.
+
+ (The alternative approach is to mangle on the outgoing path, such
+that the Linux box at the high level thinks it's talking to IP3, but
+IP3 is replaced by IP2 as each packet goes out.)
+
+ Has this particular chunk of hardware ever successfully talked to
+anything via TCP/IP?
+
+[And just to check: you are entirely 100% certain that the IP checksum
+ on incoming packets is incorrect?]
+---
+	"I shall clasp my hands together and bow to the corners of the
+world."
+			Number Ten Ox, "Bridge of Birds"
+cks@utcc.toronto.edu
+utgpu!cks
+
+
+

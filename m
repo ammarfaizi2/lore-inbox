@@ -1,70 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317355AbSHOTtV>; Thu, 15 Aug 2002 15:49:21 -0400
+	id <S317359AbSHOTwA>; Thu, 15 Aug 2002 15:52:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317359AbSHOTtT>; Thu, 15 Aug 2002 15:49:19 -0400
-Received: from mta11n.bluewin.ch ([195.186.1.211]:33317 "EHLO
-	mta11n.bluewin.ch") by vger.kernel.org with ESMTP
-	id <S317355AbSHOTtS>; Thu, 15 Aug 2002 15:49:18 -0400
-Date: Thu, 15 Aug 2002 21:52:31 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Dax Kelson <dax@gurulabs.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Kendrick M. Smith" <kmsmith@umich.edu>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "nfs@lists.sourceforge.net" <nfs@lists.sourceforge.net>,
-       beepy@netapp.com, trond.myklebust@fys.uio.no
-Subject: Re: Will NFSv4 be accepted?
-Message-ID: <20020815195231.GA18239@k3.hellgate.ch>
-References: <Pine.LNX.4.44.0208141938350.31203-100000@mooru.gurulabs.com> <Pine.LNX.4.44.0208151027510.3130-100000@home.transmeta.com>
+	id <S317362AbSHOTwA>; Thu, 15 Aug 2002 15:52:00 -0400
+Received: from mail.gmx.de ([213.165.64.20]:39748 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S317359AbSHOTv7>;
+	Thu, 15 Aug 2002 15:51:59 -0400
+Date: Thu, 15 Aug 2002 21:55:23 +0200
+From: gigerstyle@gmx.ch
+To: linux-kernel@vger.kernel.org
+Subject: Problem with PCMCIA 8139too
+Message-Id: <20020815215523.3071a528.gigerstyle@gmx.ch>
+X-Mailer: Sylpheed version 0.8.1claws (GTK+ 1.2.10; )
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208151027510.3130-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.4.19 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Aug 2002 10:35:40 -0700, Linus Torvalds wrote:
-> 
-> On Wed, 14 Aug 2002, Dax Kelson wrote:
-> > 
-> > Q for Linus: What's the prospect of adding crypto to the kernel?
-> 
-> For a good enough excuse, and with a good enough argument that it's not 
-> likely to be a big export problem, I don't think it's impossible any more.
-> 
-> However, the "good enough excuse" has to be better than "some technically 
-> excellent, but not very widespread" thing. 
+Hi!
 
-While I'm all for adding crypto to the standard kernel, I contend the
-crucial part is not strong crypto, but the API. With a stock kernel that
-merely offered rot13 type algorithms and a simple way to add more, we could
-sidestep the export issue [1] if necessary and still get important
-benefits.
+I have successfully installed the PCMCIA CardBus NIC with realtek 8139 chip. I'm using the yenta_socket module and of course the 8139too module.
 
-There have been some efforts to find a common platform (e.g. between the
-freeswan and the cryptoapi folks recently), but the driving force that
-brought us LSM is sorely missing with crypto, although the issue seems less
-complex.
+As test I set up the interface with 
 
-I won't comment on the technical excellence of the currently available
-solutions, but VPNs and disk encryption (especially for laptop owners) are
-quite likely to see (even more) widespread use in the near future. With
-Reiser4 it seems there is soon going to be another contender in local
-filesystems besides the loopback based ones. RedHat, Mandrake, and SuSE are
-already selling products using kernel space encryption (i.e. VPNs and/or
-encrypted filesystems).
+	ifconfig eth0 192.168.0.5 up
 
-IMHO the case for crypto in the kernel has already been made. The questions
-are rather: what would a kernel crypto facility look like if it was to be
-useful for all those projects out there, and who could pull an LSM on this
-one?
+and made a ping to another host.
 
-Roger
+Seems all to be ok.. no problems there.
 
-[1] Assuming that the times when even crypto _hooks_ were likely a felony
-    are gone for good (for many countries anyway). IANAL, obviously.
+
+When I put my Notebook in sleeping mode and resume it, ifconfig shows still the same network configuration, BUT now I can't ping any other hosts.
+
+A
+	ifconfig eth0 down
+and
+	ifconfig eth0 192.168.0.5 up
+
+doesn't help.
+
+Ping says only:
+
+PING 192.168.0.1 (192.168.0.1) from 192.168.0.5 : 56(84) bytes of data.
+>From 192.168.0.5: icmp_seq=1 Destination Host Unreachable
+>From 192.168.0.5 icmp_seq=1 Destination Host Unreachable
+>From 192.168.0.5 icmp_seq=2 Destination Host Unreachable
+>From 192.168.0.5 icmp_seq=3 Destination Host Unreachable
+>From 192.168.0.5 icmp_seq=4 Destination Host Unreachable
+>From 192.168.0.5 icmp_seq=5 Destination Host Unreachable
+>From 192.168.0.5 icmp_seq=6 Destination Host Unreachable
+
+--- 192.168.0.1 ping statistics ---
+10 packets transmitted, 0 received, +7 errors, 100% loss, time 9025ms
+
+
+Have also tried many other things like reloading modules,
+shutting down pcmcia before sleeping etc etc....
+As last I used the hotplugging scripts...but also without success.
+
+There are no errors in message or something else:-(
+After a standby I have to reboot the Notebook for a proper working NIC:-(
+
+Is there any way that it will work? I like standby and hate booting;-)
+
+Other cards have no problems (older realtek, aironet 340) but they aren't cardbus.
+
+
+/varr/log/messages:
+
+Aug 15 21:18:59 vaio kernel: cs: cb_alloc(bus 6): vendor 0x10ec, device 0x8139
+Aug 15 21:18:59 vaio kernel: PCI: Enabling device 06:00.0 (0000 -> 0003)
+Aug 15 21:19:00 vaio cardmgr[533]: socket 1: CardBus hotplug device
+Aug 15 21:19:00 vaio kernel: 8139too Fast Ethernet driver 0.9.25
+Aug 15 21:19:00 vaio kernel: PCI: Setting latency timer of device 06:00.0 to 64
+Aug 15 21:19:00 vaio kernel: eth0: RealTek RTL8139 Fast Ethernet at 0xccb99000, 00:30:4f:1d:53:7a, IRQ 9
+Aug 15 21:19:00 vaio kernel: eth0:  Identified 8139 chip type 'RTL-8139C'
+Aug 15 21:19:00 vaio insmod: Using /lib/modules/2.4.19/kernel/drivers/net/mii.o
+Aug 15 21:19:00 vaio insmod: Symbol version prefix ''
+Aug 15 21:19:00 vaio insmod: Using /lib/modules/2.4.19/kernel/drivers/net/8139too.o
+Aug 15 21:19:19 vaio kernel: eth0: Setting 100mbps half-duplex based on auto-negotiated partner ability 40a1.
+
+Loaded modules:
+
+Module                  Size  Used by    Not tainted
+8139too                14272   1
+mii                     1056   0  [8139too]
+soundcore               3268   0  (autoclean)
+ipv6                  124928  -1  (autoclean)
+ds                      6368   2
+yenta_socket            8704   2
+pcmcia_core            34240   0  [ds yenta_socket]
+isa-pnp                27388   0  (unused)
+joydev                  6816   0  (unused)
+evdev                   4096   0  (unused)
+mousedev                3808   1
+hid                    18944   0  (unused)
+usbmouse                1792   0  (unused)
+input                   3072   0  [joydev evdev mousedev hid usbmouse]
+uhci                   23816   0  (unused)
+usbcore                54272   1  [hid usbmouse uhci]
+nls_iso8859-1           2848   1  (autoclean)
+nls_cp437               4384   1  (autoclean)
+
+
+Ah before I forget: I'm using Kernel Version 2.4.19
+
+More info needed? No problem..
+
+
+Marc Giger
+

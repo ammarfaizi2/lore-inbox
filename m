@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267053AbRGYWfU>; Wed, 25 Jul 2001 18:35:20 -0400
+	id <S267199AbRGYWud>; Wed, 25 Jul 2001 18:50:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267159AbRGYWfK>; Wed, 25 Jul 2001 18:35:10 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:898 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267053AbRGYWfB>;
-	Wed, 25 Jul 2001 18:35:01 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S267220AbRGYWuX>; Wed, 25 Jul 2001 18:50:23 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:31090 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S267199AbRGYWuR>; Wed, 25 Jul 2001 18:50:17 -0400
+Date: Thu, 26 Jul 2001 00:49:57 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Chris Friesen <cfriesen@nortelnetworks.com>,
+        Jeff Dike <jdike@karaya.com>,
+        user-mode-linux-user <user-mode-linux-user@lists.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>, Jan Hubicka <jh@suse.cz>
+Subject: Re: user-mode port 0.44-2.4.7
+Message-ID: <20010726004957.F32148@athlon.random>
+In-Reply-To: <20010724020413.A29561@athlon.random> <Pine.LNX.4.33.0107240849240.29354-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15199.18841.458617.411246@pizda.ninka.net>
-Date: Wed, 25 Jul 2001 15:35:05 -0700 (PDT)
-To: Leif Sawyer <lsawyer@gci.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Sparc-64 kernel build fails on version.h during 'make oldconfig'
-In-Reply-To: <BF9651D8732ED311A61D00105A9CA315053E1265@berkeley.gci.com>
-In-Reply-To: <BF9651D8732ED311A61D00105A9CA315053E1265@berkeley.gci.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0107240849240.29354-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jul 24, 2001 at 09:04:28AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+On Tue, Jul 24, 2001 at 09:04:28AM -0700, Linus Torvalds wrote:
+> 
+> On Tue, 24 Jul 2001, Andrea Arcangeli wrote:
+> > On Mon, Jul 23, 2001 at 05:47:04PM -0600, Richard Gooch wrote:
+> > > I don't think it should be allowed to do that. That's a whipping
+> >
+> > it is allowed to do that, period. This is not your choice or my choice.
+> > You may ask gcc folks not to do that and I think they just do.
+> 
+> Stop this stupid argument.
 
-Leif Sawyer writes:
- > When 'bootstrapping' a new kernel:
- > 
- > cp ../oldlinux/.config .
- > make oldconfig
- > make dep
- > ...
- > /usr/src/linux/include/linux/udf_fs_sb.h:22: linux/version.h: No such file
- > or directory
+I will if Honza assures me that no future version of gcc will cause me to
+crash if I don't declare xtime volatile and I play with it while it can
+change under me (which seems not the case from his last email).
 
-Something is terribly wrong with either your system tools or
-this ".config" you are using.
+Of course I know that this is more a theorical thing and that if we
+consider that a bug we have also many other bugs of the same kind.
 
-If you cannot simply do:
+Honza? Do you assure me that? In case you don't, could you suggest
+another way besides volatile and spinlocks around the access to the
+variable to avoid gcc to get confused?
 
-cp arch/sparc64/defconfig .config
-make oldconfig; make dep; make clean; make vmlinux; make modules
-
-Then something is truly screwed on your machine.  Watch
-for other errors in the make logs if it fails.  I have a
-strange feeling that one of the make sub-shells died on
-you or something.
-
-Later,
-David S. Miller
-davem@redhat.com
+Andrea

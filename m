@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbTIOIJE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 04:09:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbTIOIJE
+	id S261290AbTIOINO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 04:13:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTIOINO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 04:09:04 -0400
-Received: from rth.ninka.net ([216.101.162.244]:51598 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S261227AbTIOIJC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 04:09:02 -0400
-Date: Mon, 15 Sep 2003 01:06:19 -0700
+	Mon, 15 Sep 2003 04:13:14 -0400
+Received: from rth.ninka.net ([216.101.162.244]:65422 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S261290AbTIOINN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 04:13:13 -0400
+Date: Mon, 15 Sep 2003 01:11:59 -0700
 From: "David S. Miller" <davem@redhat.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: andersen@codepoet.org, miller@techsource.com, davids@webmaster.com,
-       der.eremit@email.de, linux-kernel@vger.kernel.org
-Subject: Re: People, not GPL  [was: Re: Driver Model]
-Message-Id: <20030915010619.225b0380.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.10.10309131934360.16744-100000@master.linux-ide.org>
-References: <20030914015719.GA16947@codepoet.org>
-	<Pine.LNX.4.10.10309131934360.16744-100000@master.linux-ide.org>
+To: =?ISO-8859-1?B?RGFuaets?= Mantione <daniel@deadlock.et.tudelft.nl>
+Cc: mroos@linux.ee, linux-kernel@vger.kernel.org
+Subject: Re: atyfb still broken on 2.4.23-pre4 (on sparc64)
+Message-Id: <20030915011159.250f3346.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0309141117030.15181-100000@deadlock.et.tudelft.nl>
+References: <Pine.GSO.4.44.0309141155480.22863-100000@math.ut.ee>
+	<Pine.LNX.4.44.0309141117030.15181-100000@deadlock.et.tudelft.nl>
 X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Sep 2003 19:40:52 -0700 (PDT)
-Andre Hedrick <andre@linux-ide.org> wrote:
+On Sun, 14 Sep 2003 11:35:46 +0200 (CEST)
+Daniël Mantione <daniel@deadlock.et.tudelft.nl> wrote:
 
-> Go have your "DADDY" write another legal letter for you and send it my
-> way.  I will be happy to shove it down your pie hole.
+> Ok. The sparc code has not been modified; something weird is going on. (By
+> the way, the Sparc code could use some design improvement, as a special
+> exception, the Sparc does backcalculation and it is hacky implemented).
 
-Umm, that's enough of this thread ok?
+Any time someone messes with the clock timing code, they always
+break Sparc.
 
-Take it to gnu.misc.discuss or whipme.beatme.i.like.it
+We have to make assumptions about several things, one of which
+is the clock crystal used because the Sun firmware provides
+no way to just guess this so we just have to know what it is.
 
-And this is a one time warning, open defiance and continuing this
-thread will cost anyone their access to vger.  This kind of
-"let's abuse people" threads cannot continue unchecked, and Andre
-you are on terribly thin ice ok?
+Second, as you mention we reverse calculate the clocks to turn the
+video mode the firmware brought the card up in into the parameters the
+driver wants.
+
+Please, can we revert your changes if we can't fix Sparc quickly?
+This is a pretty serious regression you've added and I have this
+feeling it's going to stay broke for some time as you go back and
+forth with us trying to resolve this.

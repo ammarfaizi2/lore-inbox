@@ -1,47 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262993AbUKTHF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262870AbUKTHLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262993AbUKTHF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 02:05:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262926AbUKTHFy
+	id S262870AbUKTHLr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 02:11:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbUKTHLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 02:05:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:3997 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262897AbUKTHEi (ORCPT
+	Sat, 20 Nov 2004 02:11:47 -0500
+Received: from gate.crashing.org ([63.228.1.57]:45971 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263073AbUKTHJ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 02:04:38 -0500
-Date: Fri, 19 Nov 2004 23:04:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: nickpiggin@yahoo.com.au, wli@holomorphy.com, torvalds@osdl.org,
-       clameter@sgi.com, benh@kernel.crashing.org, hugh@veritas.com,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V11 [0/7]: overview
-Message-Id: <20041119230418.6070ab89.akpm@osdl.org>
-In-Reply-To: <20041119225701.0279f846.akpm@osdl.org>
-References: <Pine.LNX.4.58.0411190704330.5145@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0411191155180.2222@ppc970.osdl.org>
-	<20041120020306.GA2714@holomorphy.com>
-	<419EBBE0.4010303@yahoo.com.au>
-	<20041120035510.GH2714@holomorphy.com>
-	<419EC205.5030604@yahoo.com.au>
-	<20041120042340.GJ2714@holomorphy.com>
-	<419EC829.4040704@yahoo.com.au>
-	<20041120053802.GL2714@holomorphy.com>
-	<419EDB21.3070707@yahoo.com.au>
-	<20041120062341.GM2714@holomorphy.com>
-	<419EE911.20205@yahoo.com.au>
-	<20041119225701.0279f846.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 20 Nov 2004 02:09:56 -0500
+Subject: Re: [PATCH 1/2] pci: Block config access during BIST
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: brking@us.ibm.com, Greg KH <greg@kroah.com>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1100917635.9398.12.camel@localhost.localdomain>
+References: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
+	 <1100917635.9398.12.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sat, 20 Nov 2004 18:09:27 +1100
+Message-Id: <1100934567.3669.12.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> I'd expect that just shoving a pointer into mm_struct which points at a
->  dynamically allocated array[NR_CPUS] of longs would suffice.
 
-One might even be able to use percpu_counter.h, although that might end up
-hurting many-cpu fork times, due to all that work in __alloc_percpu().
+> Even better, put that code in your private debug tree. Replace the
+> locked cases with BUG() and fix the driver to get its internal locking
+> right in this situation.
+> 
+> It seems wrong to put expensive checks in core code paths when you could
+> just as easily provide
+> 
+> 	my_device_is_stupid_pci_read_config_byte()
+> 
+> and equivalent lock taking functions that wrap the existing ones and are
+> locked against the reset path without hurting sane computing devices
+> (and PC's).
+
+Unfortunately, Alan, the cases where it matters aren't a driver with bad
+locking or some something that can be fixed at the driver level. There
+are already 2 uses of the above:
+
+ - The device he's working on, which sometimes need to trigger a BIST
+(built-in self test). During this operation, the device stops responding
+on the PCI bus, which can be sort-of fatal if anything (userland playing
+with /sys/bus/pci/* for example) touches the config space.
+
+ - On Macs, I can turn the clock of some PCI devices on/off for power
+management (and I do). However, when such a device is powered off, it
+will not respond to config cycles neither, resulting in all-1's reads on
+some HW setups or even in deadlock iirc on the G5. We need to "cloack"
+them properly while the kernel still has the pci_dev entry for them
+since they are just locally power managed by their driver , while
+retaining userland visibility in /proc/pci or /sysfs or things like
+kudzu stops finding them.
+
+Also, the "Mac" case here (power management) is something I've seen
+doable in a variety of embedded setups.
+
+I would add: Config space accesses are slow anyways. They are even
+horribly slow. They are worse than IO accesses. I _VERY_MUCH_ doubt that
+a test of a variable member of pci_dev like the above would have any
+noticeable impact here.
+
+Ben.
+ 
+

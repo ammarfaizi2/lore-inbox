@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129632AbRAIB0r>; Mon, 8 Jan 2001 20:26:47 -0500
+	id <S129775AbRAIB3d>; Mon, 8 Jan 2001 20:29:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129775AbRAIB0X>; Mon, 8 Jan 2001 20:26:23 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:2055 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S129324AbRAIB0N>; Mon, 8 Jan 2001 20:26:13 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cramfs is ro only, so honour this in inode->mode 
-In-Reply-To: Your message of "Mon, 08 Jan 2001 09:37:03 PDT."
-             <Pine.LNX.4.10.10101080930410.3750-100000@penguin.transmeta.com> 
-Date: Tue, 09 Jan 2001 12:25:58 +1100
-Message-Id: <E14FnXz-0000oy-00@halfway>
+	id <S130144AbRAIB3X>; Mon, 8 Jan 2001 20:29:23 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:4615
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S129775AbRAIB3O>; Mon, 8 Jan 2001 20:29:14 -0500
+Date: Mon, 8 Jan 2001 20:37:22 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Benson Chow <blc@q.dyndns.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: `rmdir .` doesn't work in 2.4
+Message-ID: <20010108203722.B10936@animx.eu.org>
+In-Reply-To: <20010108225451.A968@stefan.sime.com> <Pine.LNX.4.31.0101081501560.10554-100000@q.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <Pine.LNX.4.31.0101081501560.10554-100000@q.dyndns.org>; from Benson Chow on Mon, Jan 08, 2001 at 03:11:08PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.10.10101080930410.3750-100000@penguin.transmeta.com> you
- write:
-> I've been thinking of doing a cramfs2, and the only thing I'd change is
-> (a) slightly bigger blocksize (maybe 8k or 16k) and (b) re-order the
-> meta-data and the real data so that I could easily compress the metadata
-> too. cramfs doesn't have any traditional meta-data (no bitmap blocks or
-> anything like that), but it wouldn't be that hard to put the directory
-> structure in the page cache and just compress the directories the same way
-> the real data is compressed.
+> Not very portable at all...
+> 
+> hpux = HP/UX 10.2
+> 
+> hpux:~$ mkdir foo
+> hpux:~$ cd foo
+> hpux:~/foo$ rmdir "`pwd`"
+> rmdir: /home/blc/foo: Cannot remove mountable directory
+> hpux:~/foo$ rmdir .
+> rmdir: cannot remove .. or .
+> hpux:~/foo$ rmdir /home/blc/foo
+> rmdir: /home/blc/foo: Cannot remove mountable directory
+> hpux:~/foo$ rmdir ./
+> rmdir: ./: Cannot remove mountable directory
+> hpux:~/foo$
+> 
+> Maybe HP/UX is messed up as well.
 
-And you'd still be worse than compressed loopback w/32k blocks, and
-more complex.  Now most of the loopback bugs seem fixed in 2.4, I'll
-port the cloop stuff, and we can compare.
+Nor solaris
+[wakko@<removed>:/home/wakko/test] rmdir "`pwd`"
+rmdir: /home/wakko/test: Invalid argument
+[wakko@<removed>:/home/wakko/test] uname -a
+SunOS <removed> 5.8 Generic_108528-03 sun4d sparc SUNW,SPARCcenter-2000
+[wakko@<removed>:/home/wakko/test] 
 
-Time to stop this cramfs madness!
-Rusty.
---
-http://linux.conf.au The Linux conference Australia needed.
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

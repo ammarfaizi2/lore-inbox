@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267156AbTAKH7c>; Sat, 11 Jan 2003 02:59:32 -0500
+	id <S267154AbTAKIGP>; Sat, 11 Jan 2003 03:06:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267158AbTAKH7c>; Sat, 11 Jan 2003 02:59:32 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:9491 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S267156AbTAKH7b>;
-	Sat, 11 Jan 2003 02:59:31 -0500
-Date: Sat, 11 Jan 2003 09:08:14 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: John Cherry <cherry@osdl.org>,
-       Guillaume Boissiere <boissiere@nl.linux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [STABILITY] Compile / STP metrics for 2.5.56
-Message-ID: <20030111080814.GA1240@mars.ravnborg.org>
-Mail-Followup-To: John Cherry <cherry@osdl.org>,
-	Guillaume Boissiere <boissiere@nl.linux.org>,
-	linux-kernel@vger.kernel.org
-References: <1042246990.32624.30.camel@cherrytest.pdx.osdl.net>
+	id <S267157AbTAKIGP>; Sat, 11 Jan 2003 03:06:15 -0500
+Received: from waste.org ([209.173.204.2]:4770 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S267154AbTAKIGO>;
+	Sat, 11 Jan 2003 03:06:14 -0500
+Date: Sat, 11 Jan 2003 02:14:40 -0600
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Andre Hedrick <andre@pyxtechnologies.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: More on Linux and iSCSI [info, not flame :)]
+Message-ID: <20030111081440.GU14778@waste.org>
+References: <Pine.LNX.4.10.10301102139200.31168-100000@master.linux-ide.org> <Pine.LNX.4.10.10301102353000.31168-100000@master.linux-ide.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1042246990.32624.30.camel@cherrytest.pdx.osdl.net>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.10.10301102353000.31168-100000@master.linux-ide.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 10, 2003 at 05:03:11PM -0800, John Cherry wrote:
-> Compile statistics have been for kernel releases from 2.5.46 to 2.5.56
-> at: www.osdl.org/archive/cherry/stability
+On Sat, Jan 11, 2003 at 12:01:05AM -0800, Andre Hedrick wrote:
 > 
-> Not much change in the warnings and errors between 2.5.55 and 2.5.56. 
-> However, from 2.5.54 onward, there was a significant increase in both
-> warnings and errors (see web site).
-Introduction of deprecated warnings counts for most of the added warnings...
+> Oliver et al.
+> 
+> http://downloadfinder.intel.com/scripts-df/filter_results.asp?strOSs=19%2C24%2C39&strTypes=DRV%2CFRM%2CUTL&ProductID=844&OSFullName=&submit=Go%21
+> http://downloadfinder.intel.com/scripts-df/proc/T8Clearance.asp?url=/4461/eng/Zama2_1.0.8_Linux_42715.tgz&agr=N
+> 
+> This self extracting file contains the firmware and software for the 
+> upgrading to 0.8 iSCSI specification.
+> 
+> I own this product, and have to install RH 7.1 w/ 2.4.2 kernels to use and
+> test with it.
 
-I like this kind summary, which is good to take the temperatue on 
-the full kernel build.
-Small nit-pick on the pages. Could you plave the most relevant
-figures first. That is add new kernels on the top of the table.
-It does not matter now, but after 30 more kernels is matters.
+Which means, like every other binary module, it's pretty much
+worthless. Though I'm guessing that's not the point you're trying to
+make.
 
-[Btw. nice to see that someone actually uses KBUILD_VERBOSE=0]
+(For the record, there's not much value in iSCSI NICs, or TCP offload
+in general at the moment, except to avoid potential deadlock issues
+with trying to do network buffer allocation down in the block layer)
 
-Guillaume - maybe a link from your status page?
-
-	Sam
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

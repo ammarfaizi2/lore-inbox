@@ -1,44 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316580AbSIIHXb>; Mon, 9 Sep 2002 03:23:31 -0400
+	id <S316594AbSIIHjM>; Mon, 9 Sep 2002 03:39:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316582AbSIIHXb>; Mon, 9 Sep 2002 03:23:31 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:44816 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S316580AbSIIHX3>; Mon, 9 Sep 2002 03:23:29 -0400
-Message-ID: <3D7C4DE0.2D1C9909@aitel.hist.no>
-Date: Mon, 09 Sep 2002 09:29:36 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.33 i686)
-X-Accept-Language: no, en, en
+	id <S316595AbSIIHjM>; Mon, 9 Sep 2002 03:39:12 -0400
+Received: from aurora.nsu.ru ([193.124.215.195]:61351 "EHLO aurora.nsu.ru")
+	by vger.kernel.org with ESMTP id <S316594AbSIIHjL>;
+	Mon, 9 Sep 2002 03:39:11 -0400
+Date: Mon, 9 Sep 2002 14:43:45 +0700 (NOVST)
+From: "Dmitry N. Hramtsov" <hdn@nsu.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Connectivity problem (kernel bug?)
+Message-ID: <Pine.LNX.4.44.0209091432120.16415-100000@aurora.nsu.ru>
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: clean before or after dep?
-References: <1031490782.26902.4.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0209081206590.21724-100000@redshift.mimosa.com> <20020908205011.A1671@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
 
-> With the 2.5 kernel, if make clean or make mrproper is ever _required_
-> I would say you had triggered an error in the kernel build system.
-> 
-> > - theory: a clean should be done after a failing build so that
-> >   a subsequent build won't use the results of the failing build.
-> Should not be needed with the build system in the 2.5 kernel.
+Hello All,
 
-Make clean is nice to have for a couple of occations:
+I've expiriencing a problem using 802.1q vlan in linux.
+It is possible a bug in Linux networking code.
+I've posted this problem to linux-vlan list too.
 
-1. Before making a tar.bz2 of the tree as a backup.  Why 
-   waste space on .o files?
-   A backup is useful for a number of reasons, such as
-   before testing a mix of patches that might
-   interferre badly.  Or even patches for another version. 
-   Getting the tree again takes time.
+Ok, about the problem in details.
+Here is my network scheme:
 
-2. The pc hardware clock screwed up again and timestamps
-   are spread all over past and future :-(  Make clean time.
+  __________________________________
+ | Smart switch with 802.1Q support |
+ |-------------------------------------------------------------+
+ |      Port1                Port2                Port3        |
+ |  VLAN1: untagged      VLAN1: untagged      VLAN1: untagged  |
+ |  VLAN2: 802.1Q        VLAN2: 802.1Q        VLAN2: no        |
+ |       [*]                   [*]                 [*]         |
+ +--------|---------------------|-------------------|----------+
+          |                     |                   |
+          |                     |                   |
+        Cisco                 Linux1              Linux2
+  (default gateway)
 
-Helge Hafting
+
+*** Cisco configuration:
+
+!
+interface FastEthernet0/0.1
+	ip address 10.0.0.1 255.255.255.0
+	encapsulation dot1Q 1 native
+!
+interface FastEthernet0/0.2
+	ip address 10.1.0.1 255.255.255.0
+	encapsulation dot1Q 2
+!
+
+
+
+*** Linux1 configuration
+
+interface eth0
+	ip	10.0.0.2
+	mask	255.255.255.0
+	gateway	10.0.0.1
+
+interface eth0.2
+	VLAN ID	2
+	ip	10.1.0.2
+	mask	255.255.255.0
+
+
+
+*** Linux2 configuration
+
+interface eth0
+	ip      10.0.0.3
+	mask    255.255.255.0
+	gateway 10.0.0.1
+
+
+
+Now about the problem.
+In this scheme all hosts can ping each other by 10.0.0.0/24 ip addresses.
+And also cisco and Linux1 can ping each other by 10.1.0.0/24 ip addresses.
+
+But when I am doing "ping 10.1.0.2" from Linux2 i did not receive response.
+And even more. Linux1 (10.1.0.2) *sends* no response at all.
+
+I've tried to analyse this and come to a conclusion that this is Linux1 fault.
+Well, what is going on:
+
+1. Linux2 (10.0.0.3) send icmp echo request to 10.1.0.2 thru 10.0.0.1
+     10.0.0.3 -> 10.0.0.1
+2. Cisco receives it and forwards to Linux2 thru VLAN 2
+     10.1.0.1 -> 10.1.0.2
+3. Linux1 receives icmp request thru eth0.2
+
+All of this stages may be observed using tcpdump on Linux1 and Linux2.
+
+4. Nothing happened any more! ==8-O
+No reply sends from Linux1!
+Not from eth0 nor from eth0.2!
+
+I am expecting that Linux1 will send reply to 10.0.0.3 using eth0 but it
+is not happening.
+
+This bug affects not only icmp packets. No communication can be
+established between Linux2 and ip 10.1.0.2 at Linux1.
+
+Any ideas? Comments?
+
+Best regards,
+Dmitry N. Hramtsov
+
+p.s. my kernel on Linux1 is 2.4.18
+
+
+

@@ -1,118 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265218AbUF1VL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265225AbUF1VQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265218AbUF1VL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 17:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbUF1VL3
+	id S265225AbUF1VQK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 17:16:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265224AbUF1VQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 17:11:29 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:45745 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S265212AbUF1VLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 17:11:20 -0400
-Subject: PATCH] dma_get_required_mask()
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	Mon, 28 Jun 2004 17:16:10 -0400
+Received: from mail011.syd.optusnet.com.au ([211.29.132.65]:13786 "EHLO
+	mail011.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265225AbUF1VPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 17:15:30 -0400
+Message-ID: <40E08A5B.7040808@kolivas.org>
+Date: Tue, 29 Jun 2004 07:15:07 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Nice 19 process still gets some CPU
+References: <40E03C2D.5000809@techsource.com> <40E0449F.5050104@nortelnetworks.com> <200406281824.01836.mbuesch@freenet.de>
+In-Reply-To: <200406281824.01836.mbuesch@freenet.de>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 28 Jun 2004 16:10:43 -0500
-Message-Id: <1088457050.2004.40.camel@mulgrave>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch implements dma_get_required_mask() which may be used by
-drivers to probe the optimal DMA descriptor type they should be
-implementing on the platform.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I've also tested it this time with the sym_2 driver...making it chose
-the correct descriptors for the platform.  (although I don't have a 64
-bit platform with >4GB memory, so I only confirmed it selects the 32 bit
-descriptors all the time...)
+Michael Buesch wrote:
+| Quoting Chris Friesen <cfriesen@nortelnetworks.com>:
+|
+|>>Timothy Miller wrote:
+|>>
+|>>>
+|>>>Con Kolivas wrote:
+|>>>
+|>>> >
+|>>> > It definitely should _not_ starve. That is the unixy way of doing
+|>>> > things. Everything must go forward. Around 5% cpu for nice 19 sounds
+|>>> > just right. If you want scheduling only when there's spare cpu cycles
+|>>> > you need a sched batch(idle) implementation.
+|>>> >
+|>>> >
+|>>>
+|>>>Well, since I can't rewrite the app, I can't make it sched batch.  Nice
+|>>>values are an easy thing to get at for anything that's running.
+|>>
+|>>Sure you can.  You can set the scheduler policy on any process in the
+system,
+|>>while its running.
+|>>
+|>>int sched_setscheduler(pid_t pid, int policy, const struct
+sched_param *p);
+|>>
+|>>Takes about two minutes to write an equivalent to "nice" to set
+scheduler
+|>>policies and priorities.
+|
+|
+| Sounds cool. I was searching this syscall for a long time, now. :)
+| But batch scheduling is available in -ck only, so this works only
+| with -ck kernels. Correct?
 
-It should be ready for inclusion.
+Easy to do with the wrapper too:
+schedtool -B $pid
 
-James
+or if it's not running yet:
+schedtool -B -e $application
 
-===== Documentation/DMA-API.txt 1.7 vs edited =====
---- 1.7/Documentation/DMA-API.txt	2004-03-23 12:12:38 -06:00
-+++ edited/Documentation/DMA-API.txt	2004-06-28 10:12:19 -05:00
-@@ -162,6 +162,20 @@
- 
- Returns: 1 if successful and 0 if not
- 
-+u64
-+dma_get_required_mask(struct device *dev)
-+
-+After setting the mask with dma_set_mask(), this API returns the
-+actual mask (within that already set) that the platform actually
-+requires to operate efficiently.  Usually this means the returned mask
-+is the minimum required to cover all of memory.  Examining the
-+required mask gives drivers with variable descriptor sizes the
-+opportunity to use smaller descriptors as necessary.
-+
-+Requesting the required mask does not alter the current mask.  If you
-+wish to take advantage of it, you should issue another dma_set_mask()
-+call to lower the mask again.
-+
- 
- Part Id - Streaming DMA mappings
- --------------------------------
-===== include/linux/dma-mapping.h 1.3 vs edited =====
---- 1.3/include/linux/dma-mapping.h	2004-03-30 19:53:54 -06:00
-+++ edited/include/linux/dma-mapping.h	2004-06-28 10:07:55 -05:00
-@@ -19,6 +19,29 @@
- #define dma_sync_single		dma_sync_single_for_cpu
- #define dma_sync_sg		dma_sync_sg_for_cpu
- 
-+#ifndef ARCH_HAS_DMA_GET_REQUIRED_MASK
-+static inline u64 dma_get_required_mask(struct device *dev)
-+{
-+	extern unsigned long max_pfn; /* defined in bootmem.h but may
-+					 not be included */
-+	u32 low_totalram = ((max_pfn - 1) << PAGE_SHIFT);
-+	u32 high_totalram = ((max_pfn - 1) >> (32 - PAGE_SHIFT));
-+	u64 mask;
-+
-+	if (!high_totalram) {
-+		/* convert to mask just covering totalram */
-+		low_totalram = (1 << (fls(low_totalram) - 1));
-+		low_totalram += low_totalram - 1;
-+		mask = low_totalram;
-+	} else {
-+		high_totalram = (1 << (fls(high_totalram) - 1));
-+		high_totalram += high_totalram - 1;
-+		mask = (((u64)high_totalram) << 32) + 0xffffffff;
-+	}
-+	return mask & *dev->dma_mask;
-+}
-+#endif
-+		
- #endif
- 
+schedtool is here:
+http://freshmeat.net/projects/schedtool/?topic_id=136
 
-===== mm/bootmem.c 1.26 vs edited =====
---- 1.26/mm/bootmem.c	2004-06-27 02:19:26 -05:00
-+++ edited/mm/bootmem.c	2004-06-28 11:12:00 -05:00
-@@ -16,6 +16,7 @@
- #include <linux/init.h>
- #include <linux/bootmem.h>
- #include <linux/mmzone.h>
-+#include <linux/module.h>
- #include <asm/dma.h>
- #include <asm/io.h>
- 
-@@ -26,6 +27,10 @@
- unsigned long max_low_pfn;
- unsigned long min_low_pfn;
- unsigned long max_pfn;
-+
-+EXPORT_SYMBOL(max_pfn);		/* This is exported so
-+				 * dma_get_required_mask(), which uses
-+				 * it, can be an inline function */
- 
- /* return the number of _pages_ that will be allocated for the boot bitmap */
- unsigned long __init bootmem_bootmap_pages (unsigned long pages)
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
+iD8DBQFA4IpbZUg7+tp6mRURAkx/AJ9fRpPkp5itK9cgPjiG9dArVe0emwCfe8KV
+144Ax1BFUBYy7OskVVNU7Ys=
+=Hm9h
+-----END PGP SIGNATURE-----

@@ -1,94 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVAMPdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVAMPdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbVAMPdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 10:33:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVAMPbx
+	id S261658AbVAMPdI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 10:33:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVAMPbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 10:31:53 -0500
-Received: from www.ssc.unict.it ([151.97.230.9]:59908 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S261656AbVAMPbJ (ORCPT
+	Thu, 13 Jan 2005 10:31:41 -0500
+Received: from www.ssc.unict.it ([151.97.230.9]:58628 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S261655AbVAMPbH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 10:31:09 -0500
-Subject: [patch 7/8] uml: fail xterm_open when we have no $DISPLAY
+	Thu, 13 Jan 2005 10:31:07 -0500
+Subject: [patch 1/8] uml: avoid NULL dereference in line.c
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, jdike@addtoit.com,
        user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it,
-       cw@f00f.org
+       frank@tuxrocks.com
 From: blaisorblade_spam@yahoo.it
-Date: Thu, 13 Jan 2005 06:13:39 +0100
-Message-Id: <20050113051339.7ED0363257@zion>
+Date: Thu, 13 Jan 2005 06:13:24 +0100
+Message-Id: <20050113051325.63FB163245@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Chris Wedgwood <cw@f00f.org>
+From: Frank Sorenson <frank@tuxrocks.com>
 
-If UML wants to open an xterm channel and the xterm does not run properly (eg.
-terminates soon after starting) we will get a hang (a comment added in the
-patch explains why).
+This patch reorders two lines to check a variable for NULL before using 
+the variable.
 
-This avoids the most common cause for this and adds a comment (which long term
-will go away with a rewrite of that code); the complete fix would be to catch
-the xterm process dying, up(&data->sem), and -EIO all requests from that point
-onwards.
-
-That applies for some of the other channels too, so part of the code should
-probably be abstracted a little and generalized.
-
-Signed-off-by: Chris Wedgwood <cw@f00f.org>
+Signed-off-by: Frank Sorenson <frank@tuxrocks.com>
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
 ---
 
- linux-2.6.11-paolo/arch/um/drivers/xterm.c      |    7 +++++++
- linux-2.6.11-paolo/arch/um/drivers/xterm_kern.c |    9 ++++++++-
- 2 files changed, 15 insertions(+), 1 deletion(-)
+ linux-2.6.11-paolo/arch/um/drivers/line.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-diff -puN arch/um/drivers/xterm_kern.c~uml-xterm-clarify arch/um/drivers/xterm_kern.c
---- linux-2.6.11/arch/um/drivers/xterm_kern.c~uml-xterm-clarify	2005-01-13 02:02:52.984641072 +0100
-+++ linux-2.6.11-paolo/arch/um/drivers/xterm_kern.c	2005-01-13 02:02:52.988640464 +0100
-@@ -46,6 +46,8 @@ int xterm_fd(int socket, int *pid_out)
- 		printk(KERN_ERR "xterm_fd : failed to allocate xterm_wait\n");
- 		return(-ENOMEM);
+diff -puN arch/um/drivers/line.c~uml-reorder_null_check arch/um/drivers/line.c
+--- linux-2.6.11/arch/um/drivers/line.c~uml-reorder_null_check	2005-01-13 01:54:17.163057872 +0100
++++ linux-2.6.11-paolo/arch/um/drivers/line.c	2005-01-13 01:54:17.166057416 +0100
+@@ -593,8 +593,8 @@ irqreturn_t winch_interrupt(int irq, voi
+ 		}
  	}
-+
-+	/* This is a locked semaphore... */
- 	*data = ((struct xterm_wait) 
- 		{ .sem  	= __SEMAPHORE_INITIALIZER(data->sem, 0),
- 		  .fd 		= socket,
-@@ -55,12 +57,17 @@ int xterm_fd(int socket, int *pid_out)
- 	err = um_request_irq(XTERM_IRQ, socket, IRQ_READ, xterm_interrupt, 
- 			     SA_INTERRUPT | SA_SHIRQ | SA_SAMPLE_RANDOM, 
- 			     "xterm", data);
--	if(err){
-+	if (err){
- 		printk(KERN_ERR "xterm_fd : failed to get IRQ for xterm, "
- 		       "err = %d\n",  err);
- 		ret = err;
- 		goto out;
- 	}
-+
-+	/* ... so here we wait for an xterm interrupt.
-+	 *
-+	 * XXX Note, if the xterm doesn't work for some reason (eg. DISPLAY
-+	 * isn't set) this will hang... */
- 	down(&data->sem);
- 
- 	free_irq_by_irq_and_dev(XTERM_IRQ, data);
-diff -puN arch/um/drivers/xterm.c~uml-xterm-clarify arch/um/drivers/xterm.c
---- linux-2.6.11/arch/um/drivers/xterm.c~uml-xterm-clarify	2005-01-13 02:02:52.985640920 +0100
-+++ linux-2.6.11-paolo/arch/um/drivers/xterm.c	2005-01-13 02:02:52.988640464 +0100
-@@ -97,6 +97,13 @@ int xterm_open(int input, int output, in
- 	if(os_access(argv[4], OS_ACC_X_OK) < 0)
- 		argv[4] = "port-helper";
- 
-+	/* Check that DISPLAY is set, this doesn't guarantee the xterm
-+	 * will work but w/o it we can be pretty sure it won't. */
-+	if (!getenv("DISPLAY")) {
-+		printk("xterm_open: $DISPLAY not set.\n");
-+		return -ENODEV;
-+	}
-+
- 	fd = mkstemp(file);
- 	if(fd < 0){
- 		printk("xterm_open : mkstemp failed, errno = %d\n", errno);
+ 	tty  = winch->tty;
+-	line = tty->driver_data;
+ 	if (tty != NULL) {
++		line = tty->driver_data;
+ 		chan_window_size(&line->chan_list,
+ 				 &tty->winsize.ws_row, 
+ 				 &tty->winsize.ws_col);
 _

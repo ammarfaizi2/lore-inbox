@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316569AbSHSAZV>; Sun, 18 Aug 2002 20:25:21 -0400
+	id <S316573AbSHSAZX>; Sun, 18 Aug 2002 20:25:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316573AbSHSAZV>; Sun, 18 Aug 2002 20:25:21 -0400
-Received: from dp.samba.org ([66.70.73.150]:47749 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S316569AbSHSAZV>;
-	Sun, 18 Aug 2002 20:25:21 -0400
+	id <S316574AbSHSAZX>; Sun, 18 Aug 2002 20:25:23 -0400
+Received: from dp.samba.org ([66.70.73.150]:49541 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S316573AbSHSAZW>;
+	Sun, 18 Aug 2002 20:25:22 -0400
+Date: Mon, 19 Aug 2002 10:04:11 +1000
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Rupert Eibauer <Rupert@ces.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Fwd: Re: Fwd: Linux Kernel: down_timeout 
-In-reply-to: Your message of "Thu, 15 Aug 2002 11:57:17 +0200."
-             <200208151157327.SM00152@there> 
-Date: Sat, 17 Aug 2002 17:54:35 +1000
-Message-Id: <20020818192948.78EA62C12F@lists.samba.org>
+To: Greg KH <greg@kroah.com>
+Cc: haveblue@us.ibm.com, linux-kernel@vger.kernel.org, Martin.Bligh@us.ibm.com
+Subject: Re: [PATCH] add buddyinfo /proc entry
+Message-Id: <20020819100411.018ac784.rusty@rustcorp.com.au>
+In-Reply-To: <20020816143925.GA3957@kroah.com>
+References: <3D5C6410.1020706@us.ibm.com>
+	<20020816043140.GA2478@kroah.com>
+	<3D5CBCFC.2090006@us.ibm.com>
+	<20020816143925.GA3957@kroah.com>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200208151157327.SM00152@there> you write:
-> I'm no kernel guru, but this looks really useful.  You
-> should probably send it to the linux-kernel list and to
-> Rusty Russel -- it would be a particularly useful extra
-> feature for his futexes.
+On Fri, 16 Aug 2002 07:39:25 -0700
+Greg KH <greg@kroah.com> wrote:
 
-Hi Rupert,
-	That's Russell (two l's) 8)
+> On Fri, Aug 16, 2002 at 01:51:08AM -0700, Dave Hansen wrote:
+> > Greg KH wrote:
+> > > On Thu, Aug 15, 2002 at 07:31:44PM -0700, Dave Hansen wrote:
+> > >
+> > >> Not _another_ proc entry!
+> > >
+> > > Yes, not another one.  Why not move these to driverfs, where they
+> > > belong.
+> > 
+> > Could you show us how this particular situation might be laid out in a 
+> > driverfs/kfs/gregfs tree?
+> 
+> root/vm/buddyinfo   ?
 
-> > Does anybody of you know why it hasnt been implemented in
-> > the kernel until now?
-
-I think because it can be faked up with SIGALRM.  And if that's too
-slow, you can use futexes which have this anyway.
+root/memory please.  vm is a little obscure.
 
 Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

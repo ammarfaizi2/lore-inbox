@@ -1,59 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135548AbRDSEuC>; Thu, 19 Apr 2001 00:50:02 -0400
+	id <S135549AbRDSFBP>; Thu, 19 Apr 2001 01:01:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135549AbRDSEto>; Thu, 19 Apr 2001 00:49:44 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:52988 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S135548AbRDSEtW>; Thu, 19 Apr 2001 00:49:22 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200104190449.f3J4n2LF032522@webber.adilger.int>
-Subject: Re: Cross-referencing frenzy
-In-Reply-To: <20010418233445.A28628@thyrsus.com> "from Eric S. Raymond at Apr
- 18, 2001 11:34:45 pm"
-To: esr@thyrsus.com
-Date: Wed, 18 Apr 2001 22:49:01 -0600 (MDT)
-CC: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S135550AbRDSFBF>; Thu, 19 Apr 2001 01:01:05 -0400
+Received: from mail.kdt.de ([195.8.224.4]:32517 "EHLO mail.kdt.de")
+	by vger.kernel.org with ESMTP id <S135549AbRDSFAo>;
+	Thu, 19 Apr 2001 01:00:44 -0400
+Mail-Copies-To: never
+To: "Robert G. Brown" <rgb@phy.duke.edu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: FPE's
+In-Reply-To: <Pine.LNX.4.30.0104181920140.32745-100000@ganesh.phy.duke.edu>
+From: Andreas Jaeger <aj@suse.de>
+Date: 19 Apr 2001 06:50:29 +0200
+In-Reply-To: <Pine.LNX.4.30.0104181920140.32745-100000@ganesh.phy.duke.edu> ("Robert G. Brown"'s message of "Wed, 18 Apr 2001 19:23:52 -0400 (EDT)")
+Message-ID: <u8r8yp4hnu.fsf@gromit.rhein-neckar.de>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric writes:
-> So.  I've written a cross-reference analyzer for the configuration symbol
-> namespace.  It's included with CML 1.2.0, which I just released.  The
-> main reason I wrote it was to detect broken symbols.
-> 
-> A symbol is non-broken when:
-> 	* It is used in either code or a Makefile
-> 	* It is set in a (CML1) configuration file
-> 	* It is either derived from other non-broken symbols 
->           or described in Configure.help
-> If it fails any one of these conditions, it's cruft that makes the kernel
-> code harder to maintain and understand.  The least bad way to be broken is
-> to be useful but not documented.  The most bad way is to lurk in code, doing
-> nothing but making the code harder to understand and maintain.
 
-Could you make a list that splits the symbols up by each of the above
-failure conditions?  It would make the task of deciding how to fix the
-"problem" more apparent.
+ISO C demands that at process startup all FPU traps are masked.  You
+can set specific traps with the functions in <fenv.h> from the C
+library, for details read the manual: info libc 
 
-Also, it appears that some of the symbols you are matching are only in
-documentation (which isn't necessarily a bad thing).  I would start with:
-
-*.[chS] Config.in Makefile Configure.help
-
-
-However, I'm not sure that your reasoning for removing these is correct.
-For example, one symbol that I saw was CONFIG_EXT2_CHECK, which is code
-that used to be enabled in the kernel, but is currently #ifdef'd out with
-the above symbol.  When Ted changed this, he wasn't sure whether we would
-need the code again in the future.  I enable it sometimes when I'm doing
-ext2 development, but it may not be worthy of a separate config option
-that 99.9% of people will just be confused about.
-
-Cheers, Andreas
+Andreas
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+ Andreas Jaeger
+  SuSE Labs aj@suse.de
+   private aj@arthur.inka.de
+    http://www.suse.de/~aj

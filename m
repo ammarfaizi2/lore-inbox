@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136496AbREDUB2>; Fri, 4 May 2001 16:01:28 -0400
+	id <S136491AbREDT7I>; Fri, 4 May 2001 15:59:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136494AbREDUBS>; Fri, 4 May 2001 16:01:18 -0400
-Received: from bitmover.com ([207.181.251.162]:14864 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S136492AbREDUBG>;
-	Fri, 4 May 2001 16:01:06 -0400
-Date: Fri, 4 May 2001 13:01:03 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: 3ware 6410 RAID 10 performance?
-Message-ID: <20010504130103.T22922@work.bitmover.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
+	id <S136492AbREDT67>; Fri, 4 May 2001 15:58:59 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:1777 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S136491AbREDT6j>;
+	Fri, 4 May 2001 15:58:39 -0400
+Date: Fri, 4 May 2001 15:58:38 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, volodya@mindspring.com,
+        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+In-Reply-To: <200105041936.f44JaVY11944@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.GSO.4.21.0105041539360.21896-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm looking for people who know about the 3ware 6410 driver.  I've got one
-of these and sometimes it goes fast and sometimes it doesn't.  The bad 
-case seems to happen after memory has a lot of cached blocks in it.
 
-I've tried 2.2.15, 2.4.4, and 2.4.3-ac9 and they all behave pretty similarly.
 
-I'm most interested in seeing this fixed in the 2.4 series so if there is
-someone who wants to go into a test/debug cycle with me, speak up.  I'd
-really like this thing to work well.
+On Fri, 4 May 2001, Richard Gooch wrote:
 
-hardware config:
+> I don't bother splitting /usr off /. I gave up doing that when disc
+> became cheap. There's no point anymore. And since I have a lightweight
 
-K7 @ 750Mhz
-ASUS K7V motherboard
-512MB
-4x 3c905
-boot disk on the motherboard
-4 WD 40GB 7200 drives on one 3ware 6410
-matrox g200 AGP
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Yes, there is. Locality. Resistance to fs fuckups. Resistance to disk
+fuckups. Easier to restore from tape. Different tunefs optimum (higher
+inodes/blocks ratio, for one thing). Ability to keep /usr read-only.
+Enough?
+
+> distribution (500 MiB and I get X, LaTeX, emacs, compilers, netscrap
+> and a pile of other things), it makes even less sense to split /usr
+> off. Sorry, I don't have those fancy desktops. Don't need 'em. I spend
+> most of my day in emacs and xterm.
+
+What desktops? None of that crap on my boxen either. EMACS? What EMACS?
+LaTeX is unfortunately needed (I prefer troff and AMSTeX on the TeX side).
+Netrape? No chance in hell. bash <spit> is there, but I prefer to use
+rc.
+
+I don't see what does it have to keeping root on a separate filesystem,
+though - the reasons have nothing to bloat in /usr/bin.
+

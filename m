@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131217AbQKATFV>; Wed, 1 Nov 2000 14:05:21 -0500
+	id <S130985AbQKATVf>; Wed, 1 Nov 2000 14:21:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131260AbQKATFL>; Wed, 1 Nov 2000 14:05:11 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:42735 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S131217AbQKATFD>;
-	Wed, 1 Nov 2000 14:05:03 -0500
-Date: Wed, 1 Nov 2000 11:04:26 -0800
-From: Greg KH <greg@wirex.com>
-To: "Carlos E. Gorges" <carlos@vb.com.br>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ipac usb abnt2 (others?) keyboard fix
-Message-ID: <20001101110426.A5890@wirex.com>
-Mail-Followup-To: Greg KH <greg@wirex.com>,
-	"Carlos E. Gorges" <carlos@vb.com.br>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <00110100263206.01274@quarks.techlinux>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <00110100263206.01274@quarks.techlinux>; from carlos@vb.com.br on Tue, Oct 31, 2000 at 11:46:26PM -0200
-X-Operating-System: Linux 2.2.17-immunix (i686)
+	id <S130525AbQKATVZ>; Wed, 1 Nov 2000 14:21:25 -0500
+Received: from animal.cs.chalmers.se ([129.16.225.30]:10959 "EHLO
+	animal.cs.chalmers.se") by vger.kernel.org with ESMTP
+	id <S130985AbQKATVP>; Wed, 1 Nov 2000 14:21:15 -0500
+Date: Wed, 1 Nov 2000 20:21:07 +0100 (MET)
+From: Dennis Bjorklund <dennisb@cs.chalmers.se>
+To: linux-kernel@vger.kernel.org
+Subject: Broadcast
+Message-ID: <Pine.SOL.4.21.0011012010340.19399-100000@muppet17.cs.chalmers.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2000 at 11:46:26PM -0200, Carlos E. Gorges wrote:
-> 2.2.17 fix need a suse usb backport patch ( I use test2-pre2 ).
+I'm trying to turn of the broadcast flag for a network card. But I
+can't, why??
 
-FWIW, if you are using USB on the 2.2.x series, use 2.2.18preX as the
-backport patch is in there, plus a whole lot of other updates.
+I have two network-cards in the machine and an application (rwhod) that
+wants to send it's messages out on every interface that can broadcast. But
+never want to broadcast anything on this interface so why not turn it
+of? If I could that is..
 
-thanks,
+This is what happens:
 
-greg k-h
+$ ifconfig eth1
+eth1      Link encap:Ethernet  HWaddr 00:50:BA:6E:76:63  
+          inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:143190 errors:0 dropped:194 overruns:0 frame:0
+          TX packets:143584 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:100 
+          Interrupt:9 Base address:0xe400 
 
--- 
-greg@(kroah|wirex).com
-http://immunix.org/~greg
+$ ifconfig eth1 -broadcast
+$ ifconfig eth1
+eth1      Link encap:Ethernet  HWaddr 00:50:BA:6E:76:63  
+          inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:143228 errors:0 dropped:194 overruns:0 frame:0
+          TX packets:143622 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:100 
+          Interrupt:9 Base address:0xe400 
+
+As you can see. It still says BROADCAST.
+
+This is on the 2.2.16 kernel and
+
+$ ifconfig -V
+net-tools 1.54
+ifconfig 1.39 (1999-03-18)
+
+/Dennis
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVDEIqv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbVDEIsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261629AbVDEIqv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 04:46:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVDEIqs
+	id S261635AbVDEIsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 04:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbVDEIsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 04:46:48 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:28333 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261634AbVDEIqH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 04:46:07 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Tue, 5 Apr 2005 04:48:09 -0400
+Received: from wproxy.gmail.com ([64.233.184.195]:26764 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261636AbVDEIrN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 04:47:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=YXVi0cCqOYUCMww1eYziN8Go4t0bPGJVpQooE1ojwo7fL5cvQjxPwPqRMoK5FxBNdF6/FgvEuewORy/Zrve2CRxzvH9mpJBTb8FajdxM0siX9xzEplgauWFSvFKyeLOStYkLTV6BrEt5rxVDFLgTyafWV9uJcsCDYcaqyH1U1tw=
+Message-ID: <58cb370e05040501476c2cb71f@mail.gmail.com>
+Date: Tue, 5 Apr 2005 10:47:08 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12-rc2-mm1
-Date: Tue, 5 Apr 2005 10:46:22 +0200
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-References: <20050405000524.592fc125.akpm@osdl.org>
-In-Reply-To: <20050405000524.592fc125.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504051046.23378.rjw@sisk.pl>
+Subject: Re: 2.6.12-rc1-mm4 crash while mounting a reiserfs3 filesystem
+Cc: =?ISO-8859-1?Q?Mathieu_B=E9rard?= <Mathieu.Berard@crans.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050403145606.51ffeb72.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+References: <42500F5E.9090604@crans.org>
+	 <20050403145606.51ffeb72.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tuesday, 5 of April 2005 09:05, Andrew Morton wrote:
+On Apr 3, 2005 11:56 PM, Andrew Morton <akpm@osdl.org> wrote:
+> Mathieu Bérard <Mathieu.Berard@crans.org> wrote:
+> >
+> > Hi,
+> > I get a 100% reproductible oops while booting linux 2.6.12-rc1-mm4.
+> > (Everyting run smoothly using 2.6.11-mm1)
+> > It seems to be related with mounting a reiserfs3 filesystem.
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm1/
+> It looks more like an IDE bug.
 > 
-> - x86 NMI handling seems to be bust in 2.6.12-rc2.  Try using
->   `nmi_watchdog=0' if you experience weird crashes.
+> > ReiserFS: hdg1: checking transaction log (hdg1)
+> > Unable to handle kernel paging request at virtual address 0a373138
+> >   printing eip:
+> > df6d1211
+> > *pde = 00000000
+> > Oops: 0002 [#1]
+> > PREEMPT
+> > Modules linked in: ext2 mbcache w83627hf i2c_sensor i2c_isa ppp_generic
+> > slhc w83627hf_wdt msr cpuid
+> > rtc
+> > CPU:    0
+> > EIP:    0060:[<df6d1211>]    Not tainted VLI
+> > EFLAGS: 00010202   (2.6.12-rc1-mm4)
+> > EIP is at 0xdf6d1211
+> > eax: c9393266   ebx: df6d1c84   ecx: d84eab1e   edx: c155ccf8
+> > esi: c039242c   edi: c039239c   ebp: 700d580a   esp: df6d1c80
+> > ds: 007b   es: 007b   ss: 0068
+> > Process mount (pid: 1132, threadinfo=df6d1000 task=df711a50)
+> > Stack: c039242c c0229945 c039239c df6d1000 df6d1000 c039242c c155ccf8
+> > c0223051
+> >         00000088 00001388 c159ae28 df6d1000 c039242c c155ccf8 c039239c
+> > c022333e
+> >         df6d1d1c ffffffff c153d6e0 c155bd78 00000000 df6d1d1c c14007f0
+> > c0212260
+> > Call Trace:
+> >   [<c0229945>] flagged_taskfile+0x125/0x380
+> >   [<c0223051>] start_request+0x1f1/0x2a0
+> >   [<c022333e>] ide_do_request+0x20e/0x3c0
+> >   [<c0212260>] __generic_unplug_device+0x20/0x30
+> >   [<c0212281>] generic_unplug_device+0x11/0x30
+> >   [<c02122ac>] blk_backing_dev_unplug+0xc/0x10
+> >   [<c0156336>] sync_buffer+0x26/0x40
+> >   [<c02a0b22>] __wait_on_bit+0x42/0x70
+> >   [<c0156310>] sync_buffer+0x0/0x40
+> >   [<c0156310>] sync_buffer+0x0/0x40
+> >   [<c02a0bcd>] out_of_line_wait_on_bit+0x7d/0x90
+> >   [<c012bf80>] wake_bit_function+0x0/0x60
+> >   [<c01563c9>] __wait_on_buffer+0x29/0x30
+> >   [<c01b0dd7>] _update_journal_header_block+0xf7/0x140
+> >   [<c01b290d>] journal_read+0x31d/0x470
+> >   [<c01b3241>] journal_init+0x4e1/0x650
+> >   [<c011748b>] printk+0x1b/0x20
+> >   [<c01a3ced>] reiserfs_fill_super+0x34d/0x770
+> >   [<c01c9470>] snprintf+0x20/0x30
+> >   [<c0189ab6>] disk_name+0x96/0xf0
+> >   [<c015bf75>] get_sb_bdev+0xe5/0x130
+> >   [<c0163945>] link_path_walk+0x65/0x140
+> >   [<c01a4168>] get_super_block+0x18/0x20
+> >   [<c01a39a0>] reiserfs_fill_super+0x0/0x770
+> >   [<c015c194>] do_kern_mount+0x44/0xf020 30 20 30 20 30 20 30 20 30 20
+> > 30 20 30 20 30 20 <1>general p
 > 
-> - The possible kernel-timer related hangs might possibly be fixed.  We
->   haven't heard yet.
-> 
-> - Nobody said anything about the PM resume and DRI behaviour in
->   2.6.12-rc1-mm4.  So it's all perfect now?
+> It appears that we might have jumped from flagged_taskfile into something
+> at 0xdf6d1211, which is rather odd.
 
-Well, "my" problem with the PM suspend has turned out to be at least partially
-hardware/BIOS-related, so it is not easily reproducible.  It is being worked on,
-however, AFAICS, so I didn't reported it all over again.
-
-There also is a problem with the ACPI battery driver, which is known to the
-right people, too.
-
-Anyway, the patches that cause these issues to appear have been identified
-(they both come from the ACPI -bk tree).
-
-Greets,
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+It is very odd, we shouldn't hit flagged_taskfile() in the first 
+place.  This function currently is executed only for special
+HDIO_DRIVE_TASKFILE ioctl requests.

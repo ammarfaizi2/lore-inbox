@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbTHSSxY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 14:53:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTHSSvA
+	id S261304AbTHSTJA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 15:09:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbTHSTG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 14:51:00 -0400
-Received: from zero.aec.at ([193.170.194.10]:28933 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261274AbTHSStI (ORCPT
+	Tue, 19 Aug 2003 15:06:59 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:45327 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S261276AbTHSTGZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 14:49:08 -0400
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 19 Aug 2003 20:48:47 +0200
-In-Reply-To: <miMw.5yo.31@gated-at.bofh.it> (Lars Marowsky-Bree's message of
- "Tue, 19 Aug 2003 19:50:16 +0200")
-Message-ID: <m365ktxz3k.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <mdtk.Zy.1@gated-at.bofh.it> <mgUv.3Wb.39@gated-at.bofh.it>
-	<mgUv.3Wb.37@gated-at.bofh.it> <miMw.5yo.31@gated-at.bofh.it>
-MIME-Version: 1.0
+	Tue, 19 Aug 2003 15:06:25 -0400
+Date: Tue, 19 Aug 2003 21:06:23 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: NFS regression in 2.6
+Message-ID: <20030819210623.A2195@pclin040.win.tue.nl>
+References: <3F4268C1.9040608@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F4268C1.9040608@redhat.com>; from drepper@redhat.com on Tue, Aug 19, 2003 at 11:13:21AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lars Marowsky-Bree <lmb@suse.de> writes:
+On Tue, Aug 19, 2003 at 11:13:21AM -0700, Ulrich Drepper wrote:
 
-> Yes, both are "correct" in the sense that the RFC allows this
-> interpretation. The _sensible_ interpretation for practical networking
-> however is #2, and the only persons who seem to believe differently are
-> those in charge of the Linux network code...
+> This is a problem which pops up in the glibc test suite.  It's been like
+> this for many weeks, even months.  I just hadn't time to investigate.
+> But the problem is actually very easy.
+> 
+> Go into a directory mounted via NFS.  You need write access.  Then
+> execute this little program:
+> 
+> The result is always, 100% of the time, a failure in ftruncate.  The
+> kernel reports ESTALE.  This has not been a problem in 2.4 and not even
+> in 2.6 until <mumble> months ago.  And of course it works with local disks.
 
-Just spend a minute to think about multihoming and failover
-between multiple links on a host.
+I just tried NFS client 2.6.0-test3, NFS server 2.0.34, try test on client.
+No problems. ftruncate did not fail.
 
-For that the Linux default makes a lot of sense - you get automatic
-transparent failover between interfaces without any effort.
-
-In my experience everybody who wants a different behaviour use some
-more or less broken stateful L2/L3 switching hacks (like ipvs) or
-having broken routing tables. While such hacks may be valid for some
-uses they should not impact the default case.
-
--Andi
+(Do you require some NFS version?)
 

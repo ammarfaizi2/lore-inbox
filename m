@@ -1,43 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264227AbTE1Hvy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 03:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264463AbTE1Hvy
+	id S264463AbTE1HyB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 03:54:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264555AbTE1HyB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 03:51:54 -0400
-Received: from gw.enyo.de ([212.9.189.178]:50192 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S264227AbTE1Hvx (ORCPT
+	Wed, 28 May 2003 03:54:01 -0400
+Received: from [209.123.232.252] ([209.123.232.252]:10452 "EHLO zero.voxel.net")
+	by vger.kernel.org with ESMTP id S264463AbTE1Hx6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 03:51:53 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.69] ext3 error: rec_len %% 4 != 0
-From: Florian Weimer <fw@deneb.enyo.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Wed, 28 May 2003 10:05:07 +0200
-Message-ID: <8765nva43w.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 May 2003 03:53:58 -0400
+Subject: Re: [PATCH] register_ioctl32_conversion symbol exports fix
+From: Andres Salomon <dilinger@voxel.net>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030528074701.GA17449@fs.tum.de>
+References: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com>
+	 <bb1i9v$t9b$1@main.gmane.org>  <20030528074701.GA17449@fs.tum.de>
+Content-Type: multipart/mixed; boundary="=-xKLjnWYNY3C59rJwzqhd"
+Organization: 
+Message-Id: <1054109128.598.4.camel@nrop>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 28 May 2003 04:05:28 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sometimes, our 2.5 test machine (actually, it's a production machine,
-please don't ask why we can't use 2.4 *sigh*) stops with an ext3 error
-message.  We have now activated proper logging, and that's what we
-got:
 
-May 28 03:23:00 kernel: EXT3-fs error (device md0): ext3_readdir: bad entry in directory #16056745: rec_len %% 4 != 0 - offset=52, inode=431743, rec_len=37017, name_len=41 
-May 28 03:23:00 kernel: Aborting journal on device md0. 
-May 28 03:23:00 kernel: ext3_abort called. 
-May 28 03:23:00 kernel: EXT3-fs abort (device md0): ext3_journal_start: Detected aborted journal 
-May 28 03:23:00 kernel: Remounting filesystem read-only 
-May 28 03:23:00 kernel: EXT3-fs error (device md0) in ext3_commit_write: IO failure 
-May 28 03:23:00 kernel: EXT3-fs error (device md0) in start_transaction: Journal has aborted 
+--=-xKLjnWYNY3C59rJwzqhd
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-What could cause this?  Spurious data transmission errors?  md0 is a
-RAID-5, the machine is a Siemens Primergy H450 (Quad Pentium 4/Xeon, 4
-GB RAM, two-channel Adaptec aic7899 Ultra160 SCSI adapter).
+Oops, sorry.  One of these days, I will find an NNTP client that suck..
 
-According to fsck.ext3, the on-disk data structures are clean, and if
-I run "find" across the file system after the reboot, it doesn't
-complain about bad directory entries, either.
+
+On Wed, 2003-05-28 at 03:47, Adrian Bunk wrote:
+> On Wed, May 28, 2003 at 01:45:33AM -0400, Andres Salomon wrote:
+> >...
+> > altogether from the arch-specific stuff; so, that's what this patch does
+> > (to both {,un}register_ioctl32_conversion).  Please apply (or correct me
+> >...
+> 
+> -ENOPATCH
+> 
+> cu
+> Adrian
+
+--=-xKLjnWYNY3C59rJwzqhd
+Content-Disposition: attachment; filename=ioctl32.diff
+Content-Type: text/x-patch; name=ioctl32.diff; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 7bit
+
+diff -urN a/arch/ppc64/kernel/ppc_ksyms.c b/arch/ppc64/kernel/ppc_ksyms.c
+--- a/arch/ppc64/kernel/ppc_ksyms.c	2003-05-26 21:00:25.000000000 -0400
++++ b/arch/ppc64/kernel/ppc_ksyms.c	2003-05-28 01:15:26.000000000 -0400
+@@ -49,8 +49,6 @@
+ 
+ extern int sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg);
+ extern int do_signal(sigset_t *, struct pt_regs *);
+-extern int register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int, unsigned int, unsigned long, struct file *));
+-extern int unregister_ioctl32_conversion(unsigned int cmd);
+ 
+ int abs(int);
+ 
+@@ -66,9 +64,6 @@
+ EXPORT_SYMBOL(synchronize_irq);
+ #endif /* CONFIG_SMP */
+ 
+-EXPORT_SYMBOL(register_ioctl32_conversion);
+-EXPORT_SYMBOL(unregister_ioctl32_conversion);
+-
+ EXPORT_SYMBOL(isa_io_base);
+ EXPORT_SYMBOL(pci_io_base);
+ 
+diff -urN a/arch/sparc64/kernel/sparc64_ksyms.c b/arch/sparc64/kernel/sparc64_ksyms.c
+--- a/arch/sparc64/kernel/sparc64_ksyms.c	2003-05-26 21:00:46.000000000 -0400
++++ b/arch/sparc64/kernel/sparc64_ksyms.c	2003-05-28 01:14:54.000000000 -0400
+@@ -94,8 +94,6 @@
+ extern int compat_sys_ioctl(unsigned int fd, unsigned int cmd, u32 arg);
+ extern int (*handle_mathemu)(struct pt_regs *, struct fpustate *);
+ extern long sparc32_open(const char * filename, int flags, int mode);
+-extern int register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int, unsigned int, unsigned long, struct file *));
+-extern int unregister_ioctl32_conversion(unsigned int cmd);
+ extern int io_remap_page_range(struct vm_area_struct *vma, unsigned long from, unsigned long offset, unsigned long size, pgprot_t prot, int space);
+                 
+ extern int __ashrdi3(int, int);
+@@ -234,10 +232,6 @@
+ EXPORT_SYMBOL(pci_dma_supported);
+ #endif
+ 
+-/* IOCTL32 emulation hooks. */
+-EXPORT_SYMBOL(register_ioctl32_conversion);
+-EXPORT_SYMBOL(unregister_ioctl32_conversion);
+-
+ /* I/O device mmaping on Sparc64. */
+ EXPORT_SYMBOL(io_remap_page_range);
+ 
+
+--=-xKLjnWYNY3C59rJwzqhd--
+

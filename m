@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132395AbRDJQOg>; Tue, 10 Apr 2001 12:14:36 -0400
+	id <S132407AbRDJQS0>; Tue, 10 Apr 2001 12:18:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132406AbRDJQO0>; Tue, 10 Apr 2001 12:14:26 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:33808 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S132395AbRDJQOP>;
-	Tue, 10 Apr 2001 12:14:15 -0400
-Date: Tue, 10 Apr 2001 12:15:09 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: "Dunlap, Randy" <randy.dunlap@intel.com>
-Cc: "'Eric S. Raymond'" <esr@snark.thyrsus.com>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] CML2 1.0.0 release announcement
-Message-ID: <20010410121509.A31649@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	"Dunlap, Randy" <randy.dunlap@intel.com>,
-	"'Eric S. Raymond'" <esr@snark.thyrsus.com>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE1BB@orsmsx31.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE1BB@orsmsx31.jf.intel.com>; from randy.dunlap@intel.com on Tue, Apr 10, 2001 at 08:45:56AM -0700
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S132402AbRDJQSQ>; Tue, 10 Apr 2001 12:18:16 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:43535 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S132407AbRDJQSE>;
+	Tue, 10 Apr 2001 12:18:04 -0400
+Date: Tue, 10 Apr 2001 13:10:10 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: george anzinger <george@mvista.com>
+Cc: SodaPop <soda@xirr.com>, linux-kernel@vger.kernel.org
+Subject: Re: [QUESTION] 2.4.x nice level
+In-Reply-To: <3AD27FE6.4987E792@mvista.com>
+Message-ID: <Pine.LNX.4.21.0104101308320.11038-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dunlap, Randy <randy.dunlap@intel.com>:
-> I'd like to see one of the prominent web pages inform
-> people that Python version x.yy(?) is required to use CML2.
+On Mon, 9 Apr 2001, george anzinger wrote:
+> SodaPop wrote:
+> > 
+> > I too have noticed that nicing processes does not work nearly as
+> > effectively as I'd like it to.  I run on an underpowered machine,
+> > and have had to stop running things such as seti because it steals too
+> > much cpu time, even when maximally niced.
 
-It's in the README.  Is that good enough?
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+> In kernel/sched.c for HZ < 200 an adjustment of nice to tick is set up
+> to be nice>>2 (i.e. nice /4).  This gives the ratio of nice to time
+> slice.  Adjustments are made to make the MOST nice yield 1 jiffy, so
+	[snip 2.4 nice scale is too limited]
 
-"Boys who own legal firearms have much lower rates of delinquency and
-drug use and are even slightly less delinquent than nonowners of guns."
-	-- U.S. Department of Justice, National Institute of
-	   Justice, Office of Juvenile Justice and Delinquency Prevention,
-	   NCJ-143454, "Urban Delinquency and Substance Abuse," August 1995.
+I'll try to come up with a recalculation change that will make
+this thing behave better, while still retaining the short time
+slices for multiple normal-priority tasks and the cache footprint
+schedule() and friends currently have...
+
+[I've got some vague ideas ... give me a few hours to put them
+into code ;)]
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+

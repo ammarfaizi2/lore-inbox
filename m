@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312447AbSDXRuZ>; Wed, 24 Apr 2002 13:50:25 -0400
+	id <S312459AbSDXRvZ>; Wed, 24 Apr 2002 13:51:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312459AbSDXRuW>; Wed, 24 Apr 2002 13:50:22 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:19589 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S312447AbSDXRuG>;
-	Wed, 24 Apr 2002 13:50:06 -0400
-Date: Wed, 24 Apr 2002 10:40:37 -0700 (PDT)
-Message-Id: <20020424.104037.109544858.davem@redhat.com>
-To: jd@epcnet.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AW: Re: AW: Re: AW: Re: VLAN and Network Drivers 2.4.x
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <210844917.avixxmail@nexxnet.epcnet.de>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S312460AbSDXRvY>; Wed, 24 Apr 2002 13:51:24 -0400
+Received: from holomorphy.com ([66.224.33.161]:23735 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S312459AbSDXRu2>;
+	Wed, 24 Apr 2002 13:50:28 -0400
+Date: Wed, 24 Apr 2002 10:49:18 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4: Any plans for new bootmem and waitq patches?
+Message-ID: <20020424174918.GL21206@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200204240013.53960.Dieter.Nuetzel@hamburg.de> <20020424003222.GK21206@holomorphy.com> <E16zwot-0002N7-00@starship>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: jd@epcnet.de
-   Date: Wed, 24 Apr 2002 19:42:24 +0200
+On Wednesday 24 April 2002 02:32, William Lee Irwin III wrote:
+>> The bootmem patch's benefits are not very visible (if at all) for
+>> machines other than simulators and some unusual large systems. I
+>> am not pressing for its inclusion in mainline for the basic reason
+>> that what it addresses does not affect the systems I'm using anymore,
+>> if only because the systems changed. =)
 
-   > Von: <davem@redhat.com>
-   > Gesendet: 24.04.2002 19:10
-   > Yes, the "cannot do VLAN" flag is there in 2.4.x
-   
-   Mhh, did not found the symbol in netdevice.h on stock 2.4.18.
-   
-See 2.4.19-preX
+On Tue, Apr 23, 2002 at 11:42:43AM +0200, Daniel Phillips wrote:
+> What changed exactly?
+
+I don't use the affected systems anymore. I moved from one group to
+another within my company just before the beginning of the year.
+
+
+Cheers,
+Bill

@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129909AbQLCL7e>; Sun, 3 Dec 2000 06:59:34 -0500
+	id <S130140AbQLCMLM>; Sun, 3 Dec 2000 07:11:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130356AbQLCL7P>; Sun, 3 Dec 2000 06:59:15 -0500
-Received: from r109m245.cybercable.tm.fr ([195.132.109.245]:61703 "HELO alph")
-	by vger.kernel.org with SMTP id <S129909AbQLCL64>;
-	Sun, 3 Dec 2000 06:58:56 -0500
-To: rusty@linuxcare.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch-2.4.0-test12-pre3] ip_conntrack_proto_tcp.c compilation fix.
-In-Reply-To: <87sno6gwsy.fsf@mandrakesoft.com>
-From: Yoann Vandoorselaere <yoann@mandrakesoft.com>
-Date: 03 Dec 2000 12:28:27 +0100
-In-Reply-To: Yoann Vandoorselaere's message of "03 Dec 2000 01:42:21 +0100"
-Message-ID: <87ofytyc9w.fsf@mandrakesoft.com>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S130150AbQLCMLC>; Sun, 3 Dec 2000 07:11:02 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:14976 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S130140AbQLCMKz>; Sun, 3 Dec 2000 07:10:55 -0500
+From: Tobias Hunger <tobias@berlin-consortium.org>
+To: linux-kernel@vger.kernel.org
+Subject: Bugs in test8 and test11
+Date: Sun, 3 Dec 2000 12:40:13 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Message-Id: <00120312401300.00493@c3po>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yoann Vandoorselaere <yoann@mandrakesoft.com> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> --- linux/net/ipv4/netfilter/ip_conntrack_proto_tcp.c.orig	Sat Dec  2 16:18:05 2000
-> +++ linux/net/ipv4/netfilter/ip_conntrack_proto_tcp.c	Sat Dec  2 16:19:04 2000
-> @@ -228,6 +228,6 @@
->  }
->  
->  struct ip_conntrack_protocol ip_conntrack_protocol_tcp
-> -= { { NULL, NULLpkt_IPPROTO_TCP, "tcp",
-> -    tcp_ableto_tuple, tcp_invert_tuple, tcp_print_tuple, tcp_print_conntrack,
-> += { { NULL, NULL }, IPPROTO_TCP, "tcp",
-> +    tcp_pkt_to_tuple, tcp_invert_tuple, tcp_print_tuple, tcp_print_conntrack,
->      tcp_packet, tcp_new, NULL };
+Hello!
 
-Just ignore this patch, it seem this file got corrupted on my FS...
+I encountered some wiered bugs in test8 -- and after an upgrade to test11 
+there too -- yesterday. I hope this address is not totally inadequate for 
+this report.
 
--- 
-		-- Yoann http://www.mandrakesoft.com/~yoann/
-   An engineer from NVidia, while asking him to release cards specs said :
-	"Actually, we do write our drivers without documentation."
+test8:
+
+I noticed for a while now, that the keyboard on my console does not work 
+sometimes. Yesterday I figured out, that this only happens when I have my 
+Printer turned on. I have A Gigabyte 6BXDS Mainboard an a HP 6P Laserprinter. 
+The rest of my system is quite recent (I do regular updates to whatever is in 
+debian's unstable branch, the last update for this computer was about 4 weeks 
+ago).
+
+test11:
+
+Doesen't start, but hangs right after "Uncompressing the kernel".
+
+I since I overwrote the test8 kernel with the new one I can't produce more 
+informations (I had to reinstall the kernel from my newest LInux CDs which 
+unfortunatly did not allow access to my disc. I used the new e2fs-features 
+that are incompatible to pre-2.2 kernels:( ). Well, it does not really matter 
+because of the data, but it is bad that I can't add the informations you 
+requested to this mail.
+
+Please feel free to contact me for more information (or additional tests). 
+I'll do what I can to help.
+
+- -- 
+Gruss,
+Tobias
+
+- -------------------------------------------------------------------
+Tobias Hunger                  The box said: 'Windows 95 or better'
+tobias@berlin-consortium.org                  So I installed Linux.
+- -------------------------------------------------------------------
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Weitere Infos: siehe http://www.gnupg.org
+
+iD8DBQE6KjEiVND+cGpk748RAoMHAJ9jpQfyrryGu83fXuiVQr8QVhonggCeIT4N
+OVPHDsZ6h2QAmoCe2jQhMEg=
+=rrWu
+-----END PGP SIGNATURE-----
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

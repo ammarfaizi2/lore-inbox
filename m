@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129601AbRAaFbq>; Wed, 31 Jan 2001 00:31:46 -0500
+	id <S129810AbRAaGPH>; Wed, 31 Jan 2001 01:15:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129921AbRAaFb0>; Wed, 31 Jan 2001 00:31:26 -0500
-Received: from cs.rice.edu ([128.42.1.30]:8100 "EHLO cs.rice.edu")
-	by vger.kernel.org with ESMTP id <S129601AbRAaFbP>;
-	Wed, 31 Jan 2001 00:31:15 -0500
-From: Mohit Aron <aron@cs.rice.edu>
-Message-Id: <200101310531.XAA09534@cs.rice.edu>
-Subject: gprof cannot profile multi-threaded programs 
-To: linux-kernel@vger.kernel.org
-Date: Tue, 30 Jan 2001 23:31:13 -0600 (CST)
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S129860AbRAaGO5>; Wed, 31 Jan 2001 01:14:57 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:63753 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129810AbRAaGOx>; Wed, 31 Jan 2001 01:14:53 -0500
+Date: Wed, 31 Jan 2001 00:14:40 -0600
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Keith Owens <kaos@ocs.com.au>, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Version 2.4.1 cannot be built.
+Message-ID: <20010131001440.B18746@cadcamlab.org>
+In-Reply-To: <Pine.LNX.3.95.1010130175517.3672A-100000@chaos.analogic.com> <Pine.LNX.3.95.1010130180303.4483A-100000@chaos.analogic.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.3.95.1010130180303.4483A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Jan 30, 2001 at 06:07:32PM -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	I'm using Linux-2.2 and discovered a problem with the profiling of
-a multi-threaded program (uses Linux pthreads). Basically, upon compiling
-the program with '-pg' option, running it and invoking gprof on the 
-gmon.out file only shows the profile information corresponding to the  
-computation done by the first thread (that starts in main()). The computation
-performed by any other thread (created using pthread_create()) is not 
-accounted for.
 
-I analyzed the problem to be the following. Linux uses periodic SIGPROF signals
-for profiling (Linux doesn't use the profil system call used in other OS's like
-Solaris where the kernel does the profiling on behalf of the process). All
-profile information is collected in the context of the signal handler for the
-SIGPROF signal in Linux. Unfortunately, any thread that's created using
-pthread_create() does not get these periodic SIGPROF signals. Hence any thread
-other than the first thread is not profiled. The fix is to use setitimer()
-system call immediately in the thread startup function for any new thread to
-make the SIGPROF signal to be delivered at the designated interrupt frequency
-(every 10ms). With this fix, the profile produced by gprof reflects the overall
-computation done by all threads in the process. A more general fix would be
-to fix the kernel to make any new threads inherit the setitimer() settings
-for the parent thread.
+[Richard B. Johnson]
+> Bob Tracy found the problem: the second ':' really needs to be
+> escaped even though newer versions of make allow what was written.
 
-Does anyone know if this problem has already been fixed ? If so, please send me
-a pointer to the patch. Thanks,
+> -$(MODINCL)/%.ver: CFLAGS := -I./include $(CFLAGS)
+> +$(MODINCL)/%.ver: CFLAGS \:= -I./include $(CFLAGS)
 
+No, that's a workaround in that it subverts the purpose of the line.
+(In which case, better to delete the line entirely.)  The correct fix
+is to upgrade to a version of 'make' that understands the syntax used
+there.  Yes, the FSF being the FSF, they keep adding features to their
+software.  And yes, some of us are using some of those features.
 
-- Mohit
+It could have been worse.  Documentation/Changes lists version 3.77,
+from July 1998.  We (at least I) actually considered using features
+from 3.78, but that was quickly shot down since 3.78 is too new -
+September 1999.
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

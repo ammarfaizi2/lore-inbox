@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbULUX1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbULUXaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbULUX1M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 18:27:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbULUX1M
+	id S261895AbULUXaI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 18:30:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbULUXaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 18:27:12 -0500
-Received: from smtp-vbr6.xs4all.nl ([194.109.24.26]:39441 "EHLO
-	smtp-vbr6.xs4all.nl") by vger.kernel.org with ESMTP id S261895AbULUX1A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 18:27:00 -0500
-Message-ID: <41C8B128.7010201@xs4all.nl>
-Date: Wed, 22 Dec 2004 00:26:32 +0100
-From: Pjotr Kourzanov <peter.kourzanov@xs4all.nl>
-Organization: Appose.org
-User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dan Sturtevant <sturtx@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fork/clone external to a process?
-References: <7d92433304122107491b8b624a@mail.gmail.com>
-In-Reply-To: <7d92433304122107491b8b624a@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Dec 2004 18:30:08 -0500
+Received: from mail.kroah.org ([69.55.234.183]:29831 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261895AbULUXaC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 18:30:02 -0500
+Date: Tue, 21 Dec 2004 15:29:47 -0800
+From: Greg KH <greg@kroah.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>, torvalds@osdl.org
+Subject: Re: Cleanup PCI power states
+Message-ID: <20041221232947.GA11236@kroah.com>
+References: <20041116130445.GA10085@elf.ucw.cz> <20041116155613.GA1309@kroah.com> <20041117120857.GA6952@openzaurus.ucw.cz> <20041124234057.GF4649@kroah.com> <20041125113631.GB1027@elf.ucw.cz> <20041217220208.GA22752@kroah.com> <20041217235051.GC29084@elf.ucw.cz> <20041221200333.GA9577@kroah.com> <20041221232510.GB1218@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041221232510.GB1218@elf.ucw.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Sturtevant wrote:
-> Hi,
+On Wed, Dec 22, 2004 at 12:25:10AM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> Is there any clean way to fork a process from outside the process itself?
+> > > This should reduce number of warnings in pci.c. It will still warn on
+> > > comparison (because we are using __bitwise, but in fact we want
+> > > something like "this is unique but arithmetic is still ok"), but that
+> > > probably needs to be fixed in sparse.
+> > > 
+> > > Also killed "function does not return anything" warning.
+> > > 
+> > > Please apply,
+> > 
+> > What kernel tree is this against?  I get rejects in the second hunk.
 > 
-> I'm running a commercial application that I only have a binary copy
-> of.  All the usual Posix fork stuff only works from inside the running
-> process.
+> Strange, it applied okay here over latest -bk. What tree should I
+> generate it against?
 
-   Have you tried playing with LD_PRELOAD (libc.so hack)?
+Ah, ok, it's my fault, I have some changes by someone else in my tree.
+I'll merge it in by hand.  Sorry about that.
 
-> 
-> Is there any reason it's not possible to do so?  Obviously threading
-> and file desciptors open a whole can of worms, but in the base case,
-> is it possible?
-> 
-> Thanks in advance, and sorry if it's a stupid question.
-> 
-> Dan Sturtevant
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+greg k-h

@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264520AbRFJLxr>; Sun, 10 Jun 2001 07:53:47 -0400
+	id <S264522AbRFJMAr>; Sun, 10 Jun 2001 08:00:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264522AbRFJLxi>; Sun, 10 Jun 2001 07:53:38 -0400
-Received: from as73.astro.ch ([192.53.104.1]:58120 "EHLO as73.astro.ch")
-	by vger.kernel.org with ESMTP id <S264520AbRFJLw5>;
-	Sun, 10 Jun 2001 07:52:57 -0400
-Message-ID: <3B235F96.E161B138@astro.ch>
-Date: Sun, 10 Jun 2001 13:52:54 +0200
-From: Alois Treindl <alois@astro.ch>
-Organization: Astrodienst AG   Zollikon/Zurich Switzerland
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Oops with kernel 2.4.5 on heavy disk traffic - reproduce
+	id <S264523AbRFJMA1>; Sun, 10 Jun 2001 08:00:27 -0400
+Received: from t2.redhat.com ([199.183.24.243]:19194 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S264522AbRFJMAQ>; Sun, 10 Jun 2001 08:00:16 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <m1593mW-001RQEC@mozart> 
+In-Reply-To: <m1593mW-001RQEC@mozart> 
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
+        Dawson Engler <engler@csl.Stanford.EDU>
+Subject: Re: [CHECKER] a couple potential deadlocks in 2.4.5-ac8 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sun, 10 Jun 2001 12:59:29 +0100
+Message-ID: <20904.992174369@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have reported before a kernel oops.
 
-I now oberserved the same oops, with the same stack trace,
-and a Dell Poweredge 1550 with dual CPU, 1 gb RAM, only
-one disk and with little disk usage (most file activity via
-NFS, where this system is a client).
+rusty@rustcorp.com.au said:
+> In message <19317.992115181@redhat.com> you write:
+> > torvalds@transmeta.com said:
+> > >  Good point. Spinlocks (with the exception of read-read locks, of
+> > > course) and semaphores will deadlock on recursive use, while the BKL
+> > > has this "process usage counter" recursion protection.
+> > 
+> > Obtaining a read lock twice can deadlock too, can't it
+> > Or do we not make new readers sleep if there's a writer waiting?
+>
+> We can never[1] make new readers sleep if there's a writer waiting, as
+> Linus guaranteed that an IRQ handler which only ever grabs a read lock
+> means the rest of the code doesn't need to block interrupts on its
+> read locks (see Documentation/spinlock.txt IIRC).
 
-The kernel is identical to the one reported before,
-and the stack trace is identical too.
+You're right. Despite the fact that upon closer examination it's obvious
+that Linus was only referring to rw-spinlocks as safe, I was actually
+thinking of rw-semaphores. 
 
-The oops occurred with the process 'top'
+--
+dwmw2
 
-I have not yet found a way to reproduce the crash in a systematic
-way, I am running the kernel now on 4 different machines
-under heavy load, and will try to reproduce.
+

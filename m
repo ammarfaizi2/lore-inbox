@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288499AbSAHWTq>; Tue, 8 Jan 2002 17:19:46 -0500
+	id <S288502AbSAHWSq>; Tue, 8 Jan 2002 17:18:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288503AbSAHWTh>; Tue, 8 Jan 2002 17:19:37 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:18702 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S288499AbSAHWT3>;
-	Tue, 8 Jan 2002 17:19:29 -0500
-Date: Tue, 8 Jan 2002 14:17:20 -0800
-From: Greg KH <greg@kroah.com>
-To: "Ian S. Nelson" <nelcomp@attglobal.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: __FUNCTION__
-Message-ID: <20020108221719.GA15986@kroah.com>
-In-Reply-To: <3C3B664B.3060103@intel.com> <3C3B6BD2.9070201@attglobal.net>
-Mime-Version: 1.0
+	id <S288499AbSAHWSh>; Tue, 8 Jan 2002 17:18:37 -0500
+Received: from mail.missioncriticallinux.com ([208.51.139.18]:8464 "EHLO
+	missioncriticallinux.com") by vger.kernel.org with ESMTP
+	id <S288503AbSAHWS0>; Tue, 8 Jan 2002 17:18:26 -0500
+Message-ID: <3C3B702C.4BF3819@MissionCriticalLinux.com>
+Date: Tue, 08 Jan 2002 14:18:20 -0800
+From: Bruce Blinn <blinn@MissionCriticalLinux.com>
+Organization: Mission Critical Linux
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.6-mclx-hp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@zip.com.au>
+CC: Dave Anderson <anderson@mclinux.com>, linux-kernel@vger.kernel.org,
+        blinn@mclinux.com
+Subject: Re: [BUG][PATCH] 2.4.* mlockall(MCL_FUTURE) is broken -- child inherits 
+ VM_LOCKED
+In-Reply-To: <3C3B5D1B.45CBF593@mclinux.com> <3C3B6ADF.4AAABE58@zip.com.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C3B6BD2.9070201@attglobal.net>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Tue, 11 Dec 2001 20:13:21 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 08, 2002 at 02:59:46PM -0700, Ian S. Nelson wrote:
+Andrew Morton wrote:
 > 
-> I suspect this might be about as religious an issue as there is but has 
-> anyone thought about coming up with some "standard" debugging macros, 
-> perhaps something that can be configured at compile time from the 
-> configuration for everyone to use everywhere?  I've got my own debug 
-> macros,  essentially a printk with the file, function and line added 
-> wrapped in #ifdef DEBUG.  I've seen several other schemes in other parts 
-> of the kernel and now some of them aren't correct.
+> Dave Anderson wrote:
+> >
+> > In 2.4.*, mlockall(MCL_FUTURE) is erroneously inherited by child processes
+> > across fork() and exec():
+> 
+> The Linux manpage says that it is not inherited across either.
+> 
+> However SUS says that it is not inherited across exec, and
+> doesn't mention fork() at all.
+> http://www.opengroup.org/onlinepubs/007908799/xsh/mlockall.html
+> 
+> So...  Shouldn't we be clearing it in the exec() path?
+> 
 
-Jeff Garzik and others have talked about unifying the network driver's
-debug statements and levels with a common set of macros and level
-values.  I want to do the same thing with the USB drivers, but was
-waiting for them to finalize their scheme first (and hopefully use the
-same thing.)
+But, the SUS documentation for fork() says that it does not inherit the
+memory locks of the parent.  It explicitly mentions mlockall().
 
-So yes, I think there can be some kind of "standard" debugging macros,
-but the "standard" will probably be limited to a subset of the kernel.
-
-greg k-h
+	http://www.opengroup.org/onlinepubs/007908799/xsh/fork.html

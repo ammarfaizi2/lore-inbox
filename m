@@ -1,44 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVC0Mv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVC0M5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbVC0Mv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 07:51:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbVC0Mv0
+	id S261631AbVC0M5e (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 07:57:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVC0M5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 07:51:26 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:8710 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261630AbVC0MvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 07:51:25 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Arjan van de Ven <arjan@infradead.org>, linux-os@analogic.com
-Subject: Re: [PATCH] no need to check for NULL before calling kfree() -fs/ext2/
-Date: Sun, 27 Mar 2005 15:51:18 +0300
-User-Agent: KMail/1.5.4
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, ext2-devel@lists.sourceforge.net,
-       Linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost> <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com> <1111913130.6297.24.camel@laptopd505.fenrus.org>
-In-Reply-To: <1111913130.6297.24.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503271551.18342.vda@ilport.com.ua>
+	Sun, 27 Mar 2005 07:57:34 -0500
+Received: from mailgate2.urz.uni-halle.de ([141.48.3.8]:22151 "EHLO
+	mailgate2.uni-halle.de") by vger.kernel.org with ESMTP
+	id S261631AbVC0M5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 07:57:31 -0500
+Date: Sun, 27 Mar 2005 14:57:24 +0200 (MEST)
+From: Bert Wesarg <wesarg@informatik.uni-halle.de>
+Subject: [PATCH] kernel/param.c: don't use .max when .num is NULL in
+ param_array_set()
+X-X-Sender: wesarg@turing
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <Pine.GSO.4.56.0503271455190.25037@turing>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+X-Scan-Signature: 629ca88677f1133e8c9b638e5f64dd99
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It's impossible to be otherwise. A call requires
-> > that the return address be written to memory (the stack),
-> > using register indirection (the stack-pointer).
-> 
-> and it's a so common pattern that it's optimized to death. Internally a
-> call gets transformed to 2 uops or so, one is push eip, the other is the
-> jmp (which gets then just absorbed by the "what is the next eip" logic,
-> just as a "jmp"s are 0 cycles)
+Hello,
 
-Arjan, you overlook the fact that kfree() contains 'if(!p) return;' too.
-call + test-and-branch can never be faster than test+and+branch.
-Maybe on the really clever CPU it can take the same time, but not faster...
---
-vda
+there seems to be a bug, at least for me, in kernel/param.c for arrays
+with .num == NULL. If .num == NULL, the function param_array_set() uses
+&.max for the call to param_array(), wich alters the .max value to the
+number of arguments. The result is, you can't set more array arguments as
+the last time you set the parameter.
 
+example:
+
+# a module 'example' with
+# static int array[10] = { 0, };
+# module_param_array(array, int, NULL, 0644);
+
+$ insmod example.ko array=1,2,3
+$ cat /sys/module/example/parameters/array
+1,2,3
+$ echo "4,3,2,1" > /sys/module/example/parameters/array
+$ dmesg | tail -n 1
+kernel: array: can take only 3 arguments
+
+Patch is against 2.6.12-rc1.
+
+Signed-off-by: Bert Wesarg <wesarg@informatik.uni-halle.de>
+
+--- linux-2.6.12-rc1.orig/kernel/params.c	2005-03-27 14:44:00.000000000 +0200
++++ linux-2.6.12-rc1/kernel/params.c	2005-03-27 14:45:55.000000000 +0200
+@@ -314,9 +314,10 @@ int param_array(const char *name,
+ int param_array_set(const char *val, struct kernel_param *kp)
+ {
+ 	struct kparam_array *arr = kp->arg;
++	unsigned int temp_num;
+
+ 	return param_array(kp->name, val, 1, arr->max, arr->elem,
+-			   arr->elemsize, arr->set, arr->num ?: &arr->max);
++			   arr->elemsize, arr->set, arr->num ?: &temp_num);
+ }
+
+ int param_array_get(char *buffer, struct kernel_param *kp)

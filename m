@@ -1,147 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317066AbSEXJNf>; Fri, 24 May 2002 05:13:35 -0400
+	id <S317078AbSEXJW3>; Fri, 24 May 2002 05:22:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317078AbSEXJNe>; Fri, 24 May 2002 05:13:34 -0400
-Received: from wiproecmx2.wipro.com ([164.164.31.6]:17099 "EHLO
-	wiproecmx2.wipro.com") by vger.kernel.org with ESMTP
-	id <S317066AbSEXJNc>; Fri, 24 May 2002 05:13:32 -0400
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-To: <dipankar@in.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>, "Rusty Russell" <rusty@rustcorp.com.au>,
-        "Paul McKenney" <paul.mckenney@us.ibm.com>,
-        <lse-tech@lists.sourceforge.net>
-Subject: RE: [Lse-tech] Re: [RFC] Dynamic percpu data allocator
-Date: Fri, 24 May 2002 14:08:50 +0530
-Message-ID: <AAEGIMDAKGCBHLBAACGBKEKPCJAA.balbir.singh@wipro.com>
+	id <S317079AbSEXJW2>; Fri, 24 May 2002 05:22:28 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51725 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317078AbSEXJW1>;
+	Fri, 24 May 2002 05:22:27 -0400
+Message-ID: <3CEE0758.27110CAD@zip.com.au>
+Date: Fri, 24 May 2002 02:26:48 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPartTM-000-abf5409b-42a7-47e8-ab21-678863ab28e0"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-In-Reply-To: <20020524114318.A11249@in.ibm.com>
+To: Giuliano Pochini <pochini@shiny.it>
+CC: linux-kernel@vger.kernel.org, "chen, xiangping" <chen_xiangping@emc.com>
+Subject: Re: Poor read performance when sequential write presents
+In-Reply-To: <3CED4843.2783B568@zip.com.au> <XFMail.20020524105942.pochini@shiny.it>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Giuliano Pochini wrote:
+> 
+> >> I did a IO test with one sequential read and one sequential write
+> >> to different files. I expected somewhat similar throughput on read
+> >> and write. But it seemed that the read is blocked until the write
+> >> finishes. After the write process finished, the read process slowly
+> >> picks up the speed. Is Linux buffer cache in favor of write? How
+> >> to tune it?
+> > [...]
+> > 2: Apply http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.19-pre5/read-latency2.patch
+> 
+> Hmmm, someone wrote a patch to fix another related problem: the fact
+> that multiple readers read at a very different speed. It's not unusual
+> that one reader gets stuck until all other have finished. I don't
+> remember who wrote that patch, sorry.
 
-This is a multi-part message in MIME format.
+Oh absolutely.   That's the reason why 2.4 is beating 2.5 at tiobench with
+more than one thread.  2.5 is alternating fairly between threads and 2.4
+is not.  So 2.4 seeks less.
 
-------=_NextPartTM-000-abf5409b-42a7-47e8-ab21-678863ab28e0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+I've been testing this extensively on 2.5 + multipage BIO I/O and when you
+increase readahead from 32 pages (two BIOs) to 64 pages (4 BIOs), 2.5 goes
+from perfect to horrid - each threads grabs the disk head and performs many,
+many megabytes of read before any other thread gets a share.  Net effect is
+that the tiobench numbers are great, but any operation which involves
+reading disk has 30 or 60 second latencies.
 
+Interestingly, it seems specific to IDE.  SCSI behaves well.
 
-|> Hello, Dipankar,
-|>
-|> I would prefer to use the existing slab allocator for this.
-|> I am not sure if I understand your requirements for the per-cpu
-|> allocator correctly, please correct me if I do not.
-|>
-|> What I would like to see
-|>
-|> 1. Have per-cpu slabs instead of per-cpu cpucache_t. One should
-|>    be able to tell for which caches we want per-cpu slabs. This
-|>    way we can make even kmalloc per-cpu. Since most of the kernel
-|>    would use and dispose memory before they migrate across cpus.
-|>    I think this would be useful, but again no data to back it up.
-|
-|Allocating cpu-local memory is a different issue altogether.
-|Eventually for NUMA support, we will have to do such allocations
-|that supports choosing memory closest to a group of CPUs.
-|
-|The per-cpu data allocator allocates one copy for *each* CPU.
-|It uses the slab allocator underneath. Eventually, when/if we have
-|per-cpu/numa-node slab allocation, the per-cpu data allocator
-|can allocate every CPU's copy from memory closest to it.
-|
-|I suppose you worked on DYNIX/ptx ? Think of this as dynamic
-|plocal.
+I have tons of traces and debug code - I'll bug Jens about this in a week or
+so.
 
-
-Sure, I understand what you are talking about now. That makes a lot
-of sense, I will go through your document once more and read it.
-I was thinking of the two combined (allocating CPU local memory
-for certain data structs also includes allocating one copy per CPU).
-Is there a reason to delay the implementation of CPU local memory,
-or are we waiting for NUMA guys to do it? Is it not useful in an
-SMP system to allocate CPU local memory?
-
-
-|
-|>
-|> 2. I hate the use of NR_CPUS. If I compiled an SMP kernel on a two
-|>    CPU machine, I still end up with support for 32 CPUs. What I would
-|
-|If you don't like it, just define NR_CPUS to 2 and recompile.
-|
-
-That does make sense, but I would like to keep my headers in sync, so that
-all patches apply cleanly.
-
-|
-|>    like to see is that in new kernel code, we should use treat equivalent
-|>    classes of CPUs as belonging to the same CPU. For example
-|>
-|>    void *blkaddrs[NR_CPUS];
-|>
-|>    while searching, instead of doing
-|>
-|>    blkaddrs[smp_processor_id()], if the slot for
-|smp_processor_id() is full,
-|>    we should look through
-|>
-|>    for (i = 0; i < NR_CPUS; i++) {
-|>      look into blkaddrs[smp_processor_id() + i % smp_number_of_cpus()(or
-|> whatever)]
-|>      if successful break
-|>    }
-|
-|How will it work ? You could be accessing memory beyond blkaddrs[].
-|
-
-Sorry that could happen, it should be (smp_processor_id + i) %
-smp_number_of_cpus().
-
-
-|I use NR_CPUS for allocations because if I don't, supporting CPU
-|hotplug will be a nightmare. Resizing so many data structures is
-|not an option. I believe Rusty and/or cpu hotplug work is
-|adding a for_each_cpu() macro to walk the CPUs that take
-|care of everything including sparse CPU numbers. Until then,
-|I would use for (i = 0; i < smp_num_cpus; i++).
-
-I think that does make a whole lot of sense, I was not thinking
-about HotPluging CPUs (dumb me).
-
-
-|
-|Thanks
-|--
-|Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-|Linux Technology Center, IBM Software Lab, Bangalore, India.
-|
-|_______________________________________________________________
-
-
-------=_NextPartTM-000-abf5409b-42a7-47e8-ab21-678863ab28e0
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
-**************************Disclaimer************************************
-
-Information contained in this E-MAIL being proprietary to Wipro Limited is 
-'privileged' and 'confidential' and intended for use only by the individual
- or entity to which it is addressed. You are notified that any use, copying 
-or dissemination of the information contained in the E-MAIL in any manner 
-whatsoever is strictly prohibited.
-
-***************************************************************************
-
-------=_NextPartTM-000-abf5409b-42a7-47e8-ab21-678863ab28e0--
+-

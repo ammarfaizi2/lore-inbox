@@ -1,226 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283758AbRLWF53>; Sun, 23 Dec 2001 00:57:29 -0500
+	id <S283757AbRLWGXh>; Sun, 23 Dec 2001 01:23:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283757AbRLWF5U>; Sun, 23 Dec 2001 00:57:20 -0500
-Received: from embolism.psychosis.com ([216.242.103.100]:40198 "EHLO
-	embolism.psychosis.com") by vger.kernel.org with ESMTP
-	id <S283860AbRLWF5D>; Sun, 23 Dec 2001 00:57:03 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Cinege <dcinege@psychosis.com>
-Reply-To: dcinege@psychosis.com
-To: Ryan Cumming <bodnar42@phalynx.dhs.org>,
-        Alexander Viro <viro@math.psu.edu>
-Subject: Re: Booting a modular kernel through a multiple streams file
-Date: Sun, 23 Dec 2001 00:52:32 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0112222109050.21702-100000@weyl.math.psu.edu> <E16Hysa-0002kc-00@schizo.psychosis.com> <E16I0S3-00019e-00@phalynx>
-In-Reply-To: <E16I0S3-00019e-00@phalynx>
+	id <S283786AbRLWGX2>; Sun, 23 Dec 2001 01:23:28 -0500
+Received: from nycsmtp3out.rdc-nyc.rr.com ([24.29.99.227]:6354 "EHLO
+	nycsmtp3out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S283757AbRLWGXL>; Sun, 23 Dec 2001 01:23:11 -0500
+Message-ID: <3C257842.79A3C59B@nyc.rr.com>
+Date: Sun, 23 Dec 2001 01:22:58 -0500
+From: John Weber <weber@nyc.rr.com>
+Organization: WorldWideWeber
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16I1Yc-0003eD-00@schizo.psychosis.com>
+To: linux-kernel@vger.kernel.org
+Subject: OOPS Kernel 2.4.17
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 22 December 2001 23:41, Ryan Cumming wrote:
-> On December 22, 2001 19:00, Dave Cinege wrote:
-> > Excellent! You've settled on using using an archiver format nobody uses,
->
-> Many file formats that require 'embedded' archives use cpio. RPM is one
-> such file format.
+As previously posted, this oops occurs on boot (and somewhere after or
+during the loading of the floppy driver).
 
-I know this, and have taken rpm's apart buy hand, and wrote 
-a small util to take them apart using cpio. I consider it a good
-example of Redhat's many screw up's. Deb's use a pair of .tgz's
-and header. Much more sane.
+$ ksymoops --no-ksyms --no-lsmod -o /lib/modules/2.4.17/ -m
+/boot/System.map-2.4.17 Oops.file 
+ksymoops 2.4.1 on i686 2.4.16.  Options used
+     -V (default)
+     -K (specified)
+     -L (specified)
+     -o /lib/modules/2.4.17/ (specified)
+     -m /boot/System.map-2.4.17 (specified)
 
-> I think every single RPM distribution relying on cpio for
+No modules in ksyms, skipping objects
+Unable to handle kernel paging request at virual address 0000413d
+c0106ea6
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c0106ea6>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286
+eax: c7faff2c   ebx: c7fae000   ecx: 00000000   edx: 00000001
+esi: c7faff60   edi: c7fae246   ebp: 00004111   esp: c7fafe84
+ds: 0018   es: 0018   ss: 0018
+Process keventd (pid: 2, stackpage=c7faf000)
+Stack: 00000202 c02962e0 c7fae000 00000000 c02e8500 c7fae000 c7fafef4
+c02eab80
+       c7fafed4 c0112fec 00000000 c7fae000 00000000 00000000 00000001
+c7fae000
+       c7fafef8 c7fafef8 c7f62000 00000008 00004000 c0114b13 00000000
+00004111
+Call Trace: [<c0112fec>] [<c0114b13>] [<c0121ec0>] [<c0105abf>]
+[<c0107384>]
+   [<c0121ec0>] [<c0105655>] [<c0121f33>] [<c0121ec0>] [<c011a54a>]
+[<c01224dc>]
+   [<c0122310>] [<c0105000>] [<c010565e>] [<c0122310>]
+Code: 8b 45 2c 83 e0 03 83 f8 03 74 0f 81 c4 94 00 00 00 89 d0 5b
 
-Hardly. It relies on rpm, which uses the cpio for the data archive.
-It does not use the cpio command to make or unpackage archives. 
-
-We're talking about a raw archive type, not something embedded in
-a broader applicaiton. 
-
-> the core of its package management system discounts your claim of 'nobody
-> using it'. Just because you have not seen cpio directly used as an archive
-> format doesn't mean it's unused.
-
-How many times have you seen ANYTHING ditributed that way?
-
-> As far as having tar already being implemented by at least two people, it
-> really doesn't matter for a format as simple as cpio. Having a reference
-> implementation for tar would be nice, as it is a hairy, complicated
-> standard. 
-
-You have no idea what you're talkig about, do you? Basic untar'ing is
-quite simple. Now, GNU's tar as implented is pretty fucked up, but
-that's not relevant to this.
-
-> The cpio format can be fully described in less than a page.
-
-Untar is implemented in less then 2. It doesn't get much smaller.
-
->From rd.dyn.c
----------------------
-// This is called by flush_window to flush the gzip output
-// buffer (containing part of a tar image).
-UNTAR_WRITE
-{
-	int	i, scoop, err, file_written = 0;
-	char	*to;
-	kdev_t	fdev;
-	struct	utimbuf ut;
-	struct	untar_context *Untar;
-#ifndef DEBUG_UNTAR
-#ifndef CONFIG_ARCH_S390
-	char rotator[4] = { '|' , '/' , '-' , '\\' };
-
-	// pointer to our context structure is passed thru ioctl fop
-	Untar = (struct untar_context*)fp->f_op->ioctl;
-
-	printk("%c\b", rotator[Untar->rotate & 0x3]);
-	Untar->rotate++;
-#endif
-#endif
-	// Note: the gunzip routines call this only when
-	//       a) the gunzip buffer is full -> count = WSIZE = 64 * TARBLOCKSIZE
-	// or    b) to flush the last bytes out
-	while(count) {	// What is our current state ?
-		err = 0;	
-		switch(Untar->state) {
-			case READING_HEADER:
-				// Get the tar header
-				if(count < TARBLOCKSIZE) {
-					count = 0;
-					break;
-				}
-				to = (char*)&Untar->tarInfo;
-				for(i = 0; i < TARBLOCKSIZE; i++) {
-					*to++ = *buf++;
-					--count;
-				}
-	
-				// Tar usually pads the output byte to a multiple of it's block size usually
-				// 10 KB, appending zeroes if necessary. Here we skip those zeroes:
-				if(Untar->tarInfo.header.name[0] == '\0'  &&
-				   Untar->tarInfo.header.mode[0] == '\0' &&
-				   Untar->tarInfo.header.mode[0] == '\0') {
-					if(count < TARBLOCKSIZE)
-						count = 0;
-					break;
-				}
-				// determine mode, size, uid, gid
-				Untar->fmode = strtoul(Untar->tarInfo.header.mode,NULL,8);
-				Untar->fsize = strtoul(Untar->tarInfo.header.size,NULL,8);
-				Untar->uid = strtoul(Untar->tarInfo.header.uid,NULL,8);
-				Untar->gid = strtoul(Untar->tarInfo.header.gid,NULL,8);
-#ifdef DEBUG_UNTAR
-				printk("\ntype: %c ",Untar->tarInfo.header.typeflag);   
-				printk("name: %s ",Untar->tarInfo.header.name);
-				printk("Untar->fsize: %ld ",Untar->fsize); 
-				udelay(100000);
-#endif
-				// check the type
-				switch(Untar->tarInfo.header.typeflag) {
-					case AREGTYPE : 
-					case REGTYPE  :
-						Untar->out = sys_open(Untar->tarInfo.header.name,
-					             O_CREAT|O_WRONLY|O_TRUNC, Untar->fmode);
-
-						if(Untar->out == -1) {
-							err = 1;
-							break;
-						}
-						Untar->state = READING_DATA;
-						break;
-					case LNKTYPE  :
-						err = sys_link(Untar->tarInfo.header.linkname,
-						                  Untar->tarInfo.header.name);
-						break;
-
-					case SYMTYPE  :
-						err = sys_symlink(Untar->tarInfo.header.linkname,
-						                 Untar->tarInfo.header.name);
-						break;
-
-					case CHRTYPE  :	
-					case BLKTYPE  :	
-					case FIFOTYPE :	
-						fdev = MKDEV(strtoul(Untar->tarInfo.header.devmajor,NULL,8),
-						   strtoul(Untar->tarInfo.header.devminor,NULL,8));
-						err = sys_mknod(Untar->tarInfo.header.name,Untar->fmode,fdev);
-   	    				break;
-
-					case DIRTYPE  :
-						if((Untar->tarInfo.header.name[0] != '.' &&	// Skip if name is "" "./" "." ".." */
-						    Untar->tarInfo.header.name[0] != '\0') &&
-						   (Untar->tarInfo.header.name[1] != '/' &&
-						    Untar->tarInfo.header.name[1] != '\0') &&
-						   (Untar->tarInfo.header.name[1] != '\0')) {
-							err = sys_mkdir(Untar->tarInfo.header.name,Untar->fmode);
-						}
-						break;
-					default:
-						printk(KERN_ERR "RAMDISK: corrupt tar archive\n");
-						Untar->state = SKIPPING_REST;
-						return(-1);
-				}
-				break;
-			case READING_DATA:
-				scoop = 0;
-				while(count > 0 && Untar->fsize > 0) {
-					scoop = Untar->fsize > TARBLOCKSIZE ? TARBLOCKSIZE : Untar->fsize;
-					if(sys_write(Untar->out, buf, scoop) < scoop)
-						err = 1;
-					count -= scoop;
-					buf   += scoop;
-					Untar->fsize -= scoop;
-				}
-				if(Untar->fsize == 0) {	//skip to the next tar block
-					sys_close(Untar->out);
-					scoop = count % TARBLOCKSIZE;
-					buf   += scoop;
-					count -= scoop;
-					Untar->state = READING_HEADER;
-					file_written = 1;
-				}
-				break;
-
-			case SKIPPING_REST:
-				count = 0;
-				break;
-		}
-		if(err)
-			printk("!");
-			//printk("\nError making %s", Untar->tarInfo.header.name);
-
-		if(file_written) {
-		
-			err = sys_chown(Untar->tarInfo.header.name, Untar->uid, Untar->gid);
-		
-			if(Untar->tarInfo.header.typeflag != LNKTYPE &&
-			   Untar->tarInfo.header.typeflag != SYMTYPE) {
-				err += sys_chmod(Untar->tarInfo.header.name, Untar->fmode);
-			}
-
-			if(err)
-				printk("\nError chown and/or chmod %s", Untar->tarInfo.header.name);
-			ut.actime=sys_time(NULL);
-			ut.modtime=strtoul(Untar->tarInfo.header.mtime,NULL,8);
-			sys_utime(Untar->tarInfo.header.name,&ut);
-			file_written = 0;
-		}
-	}
-	return(0);
-}
-
-> > G-E-N-I-U-S!
->
-> Grow up. Please.
-
-Shut up Sit down!
-
--- 
-The time is now 22:54 (Totalitarian)  -  http://www.ccops.org/
+>>EIP; c0106ea6 <do_signal+16/2e0>   <=====
+Trace; c0112fec <wait_for_completion+6c/90>
+Trace; c0114b13 <do_fork+4b3/640>
+Trace; c0121ec0 <____call_usermodehelper+0/50>
+Trace; c0105abf <sys_clone+2f/40>
+Trace; c0107384 <signal_return+14/18>
+Trace; c0121ec0 <____call_usermodehelper+0/50>
+Trace; c0105655 <kernel_thread+25/40>
+Trace; c0121f33 <__call_usermodehelper+23/40>
+Trace; c0121ec0 <____call_usermodehelper+0/50>
+Trace; c011a54a <__run_task_queue+5a/70>
+Trace; c01224dc <context_thread+1cc/1e0>
+Trace; c0122310 <context_thread+0/1e0>
+Trace; c0105000 <_stext+0/0>
+Trace; c010565e <kernel_thread+2e/40>
+Trace; c0122310 <context_thread+0/1e0>
+Code;  c0106ea6 <do_signal+16/2e0>
+00000000 <_EIP>:
+Code;  c0106ea6 <do_signal+16/2e0>   <=====
+   0:   8b 45 2c                  mov    0x2c(%ebp),%eax   <=====
+Code;  c0106ea9 <do_signal+19/2e0>
+   3:   83 e0 03                  and    $0x3,%eax
+Code;  c0106eac <do_signal+1c/2e0>
+   6:   83 f8 03                  cmp    $0x3,%eax
+Code;  c0106eaf <do_signal+1f/2e0>
+   9:   74 0f                     je     1a <_EIP+0x1a> c0106ec0
+<do_signal+30/2e0>
+Code;  c0106eb1 <do_signal+21/2e0>
+   b:   81 c4 94 00 00 00         add    $0x94,%esp
+Code;  c0106eb7 <do_signal+27/2e0>
+  11:   89 d0                     mov    %edx,%eax
+Code;  c0106eb9 <do_signal+29/2e0>
+  13:   5b                        pop    %ebx

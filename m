@@ -1,52 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261696AbSJUVPS>; Mon, 21 Oct 2002 17:15:18 -0400
+	id <S261705AbSJUVWJ>; Mon, 21 Oct 2002 17:22:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261698AbSJUVPR>; Mon, 21 Oct 2002 17:15:17 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:43667 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261696AbSJUVPL>; Mon, 21 Oct 2002 17:15:11 -0400
-Date: Mon, 21 Oct 2002 14:16:28 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm mailing list <linux-mm@kvack.org>
-Subject: Re: ZONE_NORMAL exhaustion (dcache slab)
-Message-ID: <308170000.1035234988@flay>
-In-Reply-To: <3DB46DFA.DFEB2907@digeo.com>
-References: <302190000.1035232837@flay> <3DB46DFA.DFEB2907@digeo.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261703AbSJUVWI>; Mon, 21 Oct 2002 17:22:08 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:13494 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261705AbSJUVWH>; Mon, 21 Oct 2002 17:22:07 -0400
+Subject: Re: FusionMPT in 2.4.18
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michael Thorpe <MThorpe@cucbc.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <38FF1187FD1C714F956F723270D108530BA25B@c2kmail.cucbc.com>
+References: <38FF1187FD1C714F956F723270D108530BA25B@c2kmail.cucbc.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Oct 2002 22:44:05 +0100
+Message-Id: <1035236645.27309.244.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> My big NUMA box went OOM over the weekend and started killing things
->> for no good reason (2.5.43-mm2). Probably running some background
->> updatedb for locate thing, not doing any real work.
->> 
->> meminfo:
->> 
-> 
-> Looks like a plain dentry leak to me.  Very weird.
-> 
-> Did the machine recover and run normally?
+Your mail client isnt wrapping lines btw which is the only rule you 
+might possibly have broken.
 
-Nope, kept OOMing and killing everything .
- 
-> Was it possible to force the dcache to shrink? (a cat /dev/hda1
-> would do that nicely)
+2.4.19 has pretty close to current MPT fusion drivers. LSI provide
+regular updates that go into the -ac tree and then rapidly onto Marcelo
+so the controllers are very well supported by the vendor (nice hardware
+too)
 
-Well, I didn't try that, but even looking at man pages got oom killed,
-so I guess not ... were you looking at the cat /dev/hda1 to fill pagecache
-or something? I have 16Gb of highmem (pretty much all ununsed) so 
-presumably that'd fill the highmem first (pagecache?)
-
-> Is it reproducible?
-
-Will try again. Presumably "find /" should do it? ;-)
-
-M.
+If you need the specific drivers they are GPL code, so ask SuSE where
+the source is.
 

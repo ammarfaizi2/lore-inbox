@@ -1,53 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S130638AbQIJCQl>; Sat, 9 Sep 2000 22:16:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S130632AbQIJCQb>; Sat, 9 Sep 2000 22:16:31 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:39428 "HELO mail.ocs.com.au") by vger.kernel.org with SMTP id <S130631AbQIJCQS>; Sat, 9 Sep 2000 22:16:18 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Announce: modutils 2.3.16 is available 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 10 Sep 2000 13:17:25 +1100
-Message-ID: <20520.968552245@ocs3.ocs-net>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S130962AbQIJQIu>; Sun, 10 Sep 2000 12:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S130957AbQIJQIj>; Sun, 10 Sep 2000 12:08:39 -0400
+Received: from [194.242.209.130] ([194.242.209.130]:44804 "EHLO em.gardena.net") by vger.kernel.org with ESMTP id <S130946AbQIJQId>; Sun, 10 Sep 2000 12:08:33 -0400
+From: Benno Senoner <sbenno@gardena.net>
+To: linux-kernel@vger.kernel.org, linux-audio-dev@ginette.musique.umontreal.ca
+Subject: Montavista's preemptive & preempt-rtsched kernels benchmarked ( still 50msec latencies )
+Date: Sun, 10 Sep 2000 19:56:19 +0200
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: juns@mvista.com, Ingo Molnar <mingo@elte.hu>, Andrew Morton <andrewm@uow.edu.au>
+MIME-Version: 1.0
+Message-Id: <00091020131600.00958@linuxhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fastest download from kernel.org.
-Mirror at ftp://ftp.**.kernel.org/pub/linux/utils/kernel/modutils/v2.3
-           replace '**' with your favourite kernel.org mirror.
-Master at ftp://ftp.ocs.com.au/pub/modutils/v2.3.  (slow)
+Hi,
 
-patch-modutils-2.3.16.gz        Patch from modutils 2.3.15 to 2.3.16
-modutils-2.3.16.tar.gz          Source tarball, includes RPM spec file
-modutils-2.3.16-1.src.rpm       As above, in SRPM format
-modutils-2.3.16-1.i386.rpm      Compiled with egcs-2.91.66, glibc 2.1.2
+I  benchmarked Montavista's premptive and preemtive-rtsched kernels
+( patches for 2.4.0-test6) using "latencytest".
 
-Changelog extract
+summary:
 
-        * Increase maximum symbols in map from 10,000 to 100,000.
-        * Add __archdata section on architectures that need arch
-          specific data in loaded modules (IA64 is first).
-        * Ignore unresolved references if there are no relocation
-          entries for them.  Some versions of gcc generate spurious
-          unresolved externals which are not actually used.
-        * Update modules.conf man page by John Levon.
-        * Simplify path list, defaults are almost all [toplevel] only.
-        * Add prune command to modules.conf man page.
+both patches do not improve latencies very much over standard kernels
+I believe around factor 2, but far away from the factor 10 ( 12msec) claimed in
+the pressrelease.
 
-The change to simplify the path list should give the same behaviour as
-the previous messy list of directories, for kernel and pcmcia files
-This change means that modutils now scans *all* directories under
-/lib/modules/<version> by default.  If you have other directories under
-LMV (e.g. LMV/vmware) those directories are now scanned automatically.
-Let me know ASAP if this change causes any problems.
+To note that the preempt-rtsched gives excellent latencies , below 1msec
+during the x11 and /proc stresstest, while the -preempt patch produces 10-20sec
+latencies in these two test cases.
 
-Third party modules whose source is compiled separately from the kernel
-source tree should install into their own directory under LMV, they
-should not pollute the LMV/kernel directory.  Kernel builds from
-2.4.0-test6 onwards remove all of LMV/kernel during modules install, to
-ensure that the kernel directory contains no old modules.  So anything
-that pollutes LMV/kernel will be lost during kernel install.
+Unfortunately during the disk I/O tests both kernels produce 40-50msec
+latencies.
+
+here are the graphs:
+
+preemp-rtsched patch:
+
+http://www.linuxdj.com/latency/2.4.0-test6-preemp-rtsched/2048.html
+
+preemp patch:
+
+http://www.linuxdj.com/latency/2.4.0-test6-preemp/2048.html
+
+
+I ran all my test on my reference PII400 box,
+
+I used the RTC tests (instead of the audio tests) because I am having problems
+with modules loading on my Redhat 6.1 box (with modutils-2.3.9-6).
+BTW: do I need newer modutils in order to load the 2.4.0-test6 modules
+correctly ?
+(It seems that newer -test* kernels place the modules in
+/lib/modules/KERNEL_VERSION/kernel/ instead in /lib/modules/KERNEL_VERSION.
+Can anyone help me to solve my module loading troubles ?)
+
+Again, for comparision this is what Ingo's 2.2.10-lowlatency patch produces
+on an old P133
+http://www.gardena.net/benno/linux/audio/rtc2048-cpu80/2048.html
+
+all latencies below 1msec on a vastly inferiour machine.
+This should be the goal for a 2.4 patch (for now I don't care if it is
+preemption point based or preemptive in montavista's style).
+At this point realtime mutimedia on kernel 2.4 will be usable
+(and no one is asking for short term inclusion anymore, the important thing is
+that users have the possiblity to download and use a patched kernel which suits
+their realtime needs)
+
+cheers,
+Benno.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261498AbUCPVGG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 16:06:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbUCPVGG
+	id S261678AbUCPVJG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 16:09:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUCPVJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 16:06:06 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:28816 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S261498AbUCPVGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 16:06:04 -0500
-Date: Tue, 16 Mar 2004 21:05:40 +0000
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: fix ppc compile
-Message-ID: <20040316210540.GD24623@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	Tue, 16 Mar 2004 16:09:06 -0500
+Received: from cimice4.lam.cz ([212.71.168.94]:3200 "EHLO beton.cybernet.src")
+	by vger.kernel.org with ESMTP id S261678AbUCPVI7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 16:08:59 -0500
+Date: Tue, 16 Mar 2004 21:09:14 +0000
+From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
+To: linux-kernel@vger.kernel.org
+Subject: SCSI emulation interface description
+Message-ID: <20040316210914.B606@beton.cybernet.src>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.5rc1 changes this function, but there is no 'dev' argument there.
-This makes it look a little more sane, but I've no hardware to test it on.
+Hello
 
-		Dave
+I would like to know, if I switch on "SCSI emulation" in my
+2.4.25 kernel,
+1) Will some kind of interface be added to my kernel?
+2) If yes, where is this interface specified?
 
---- linux-2.6.4/arch/ppc/syslib/indirect_pci.c~	2004-03-16 21:03:20.000000000 +0000
-+++ linux-2.6.4/arch/ppc/syslib/indirect_pci.c	2004-03-16 21:03:31.000000000 +0000
-@@ -44,8 +44,8 @@
- 			cfg_type = 1;
- 
- 	PCI_CFG_OUT(hose->cfg_addr, 					 
--		 (0x80000000 | ((dev->bus->number - hose->bus_offset) << 16) 
--		  | (dev->devfn << 8) | ((offset & 0xfc) | cfg_type)));	
-+		 (0x80000000 | ((bus->number - hose->bus_offset) << 16) 
-+		  | (devfn << 8) | ((offset & 0xfc) | cfg_type)));	
- 
- 	/*
- 	 * Note: the caller has already checked that offset is
+Bugreport:
+"man bootparam" mentioned in help for SCSI emulation option doesn't work
+on all systems (at least my LFS)
+
+"see documentation of your boot loader for how to pass options
+to your kernel":
+1) proper place for kernel commandline option specification is not boot loader
+doc but kernel doc
+2) where is the "linux kernel boot time parameter interface" specified?
+
+Cl<

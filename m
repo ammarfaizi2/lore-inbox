@@ -1,66 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261541AbSIXDRd>; Mon, 23 Sep 2002 23:17:33 -0400
+	id <S261542AbSIXDee>; Mon, 23 Sep 2002 23:34:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261543AbSIXDRd>; Mon, 23 Sep 2002 23:17:33 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:34564 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S261541AbSIXDRc>;
-	Mon, 23 Sep 2002 23:17:32 -0400
-Date: Mon, 23 Sep 2002 23:20:17 -0400
+	id <S261543AbSIXDee>; Mon, 23 Sep 2002 23:34:34 -0400
+Received: from findaloan-online.cc ([216.209.85.42]:36868 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S261542AbSIXDed>;
+	Mon, 23 Sep 2002 23:34:33 -0400
+Date: Mon, 23 Sep 2002 23:37:14 -0400
 From: Mark Mielke <mark@mark.mielke.cc>
-To: Bill Huey <billh@gnuppy.monkey.org>
-Cc: Peter W?chtler <pwaechtler@mac.com>, Ingo Molnar <mingo@elte.hu>,
-       Larry McVoy <lm@bitmover.com>, Bill Davidsen <davidsen@tmr.com>,
-       linux-kernel@vger.kernel.org
+To: Peter Chubb <peter@chubb.wattle.id.au>
+Cc: =?iso-8859-1?Q?Peter_W=E4chtler?= <pwaechtler@mac.com>,
+       Ingo Molnar <mingo@elte.hu>, Larry McVoy <lm@bitmover.com>,
+       Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
 Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-Message-ID: <20020923232017.A2880@mark.mielke.cc>
-References: <Pine.LNX.4.44.0209232233250.2343-100000@localhost.localdomain> <3D8F82E5.90A64E8@mac.com> <20020923184423.B26887@mark.mielke.cc> <20020923230122.GA3642@gnuppy.monkey.org> <20020923191132.D26887@mark.mielke.cc> <20020924002135.GB3797@gnuppy.monkey.org>
+Message-ID: <20020923233714.B2880@mark.mielke.cc>
+References: <987738530@toto.iv> <15759.53896.973330.270617@wombat.chubb.wattle.id.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020924002135.GB3797@gnuppy.monkey.org>; from billh@gnuppy.monkey.org on Mon, Sep 23, 2002 at 05:21:35PM -0700
+In-Reply-To: <15759.53896.973330.270617@wombat.chubb.wattle.id.au>; from peter@chubb.wattle.id.au on Tue, Sep 24, 2002 at 12:48:40PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 23, 2002 at 05:21:35PM -0700, Bill Huey wrote:
-> ...
-> The incorrect example where you outline what you think is a M:N call
-> conversion is (traditional async wrappers instead of upcalls), is something
-> that don't want to be a future technical strawman that folks create in
-> this community to attack M:N threading. It may very well still have
-> legitimacy in the same way that part of the performance of the JVM depends
-> on accessibilty to a thread's ucontext and run state, which seem to be
-> initial oversight (unknown reason) when this was originally conceived.
-> Those are kind of things are what I'm most worried about that eventually
-> hurt what application folks are on building on top of Linux and its
-> kernel facilities.
-> ...
-> That's the core of my rant and it took quite a while to write up. ;)
+On Tue, Sep 24, 2002 at 12:48:40PM +1000, Peter Chubb wrote:
+> >>>>> "Mark" == Mark Mielke <mark@mark.mielke.cc> writes:
+> Mark>     OS threads: 1) thread#1 invokes a system call 2) OS switches
+> Mark> tasks to thread#2 and returns from blocking
+> Mark>     user-space threads: 1) thread#1 invokes a system call 2)
+> Mark> thread#1 returns from system call, EWOULDBLOCK 3) thread#1
+> Mark> invokes poll(), select(), ioctl() to determine state 4) thread#1
+> Mark> returns from system call 5) thread#1 switches stack pointer to
+> Mark> be thread#2 upon determination that the resource thread#2 was
+> Mark> waiting on is ready.
+> No way!  THe Solaris M:N model notices when all threads belonging to a
+> process have blocked, and wakes up the master thread, which can then
+> create a new kernel thread if there are any user-mode threads that can
+> do work.
 
-My part in the rant (really somebody else's rant...) is that if kernel
-threads can be made to out-perform current implementations of M:N
-threading, then all that has really been proven is that current M:N
-practices are not fully optimal. 1:1 in an N:N system is just one face
-of M:N in an N:N system. A fully functional M:N system _may choose_ to
-allow M to equal N.
+As I said, far from accurate, and M:N is really a compromise between
+the two approaches, it is not an extreme.
 
-Worst possibly cases that I expect to see from people experimenting
-with this stuff and having a 1:1 system that out-performs commonly
-available M:N systems: 1) The M:N people innovate, potentially using
-the new technology made available from the 1:1 people, making a
-_better_ M:N system 2) The 1:1 system is better, and people use it.
+M:N really doesn't mean much at all except that it makes no guarantees
+that each thread requires an OS thread, or that only one thread will
+be active at any given time.
 
-As long as they all use a POSIX, or other standard interface, there
-isn't a problem.
+M:N makes no promises to be faster, although, as with any innovation
+designed by engineers who take pride in their work, it is a method of
+achieving a goal... that is, getting around costly system invocations
+by optimizing system invocations in user space. Is it better? Maybe? 
+Has it traditionally allowed standard applications that make use of
+threads to perform better than if the application used only kernel
+threads? Yes.
 
-If the changes to the kernel made by the 1:1 people are bad, they will
-be stopped by Linus and many other people, probably including
-yourself... :-)
+Can the rules be broken? I have not seen a single reason to show why
+they cannot be broken. M:N is a necessity for kernels that have heavy
+weight thread synchronization primitives, or heavy weight context
+switching. Are the rules the same with thread synchronization primitives
+that have the similar weight whether 1:1 or M:N? (i.e. FUTEX) Are the
+rules the same if context switching in kernel space can be made cheaper,
+if the scheduling issues can be addressed, or if M:N must rely on just as
+many kernel invocations?
 
-In any case, I see the 1:1 vs. M:N as a distraction from the *actual*
-enhancements being designed, which seem to be, support for cheaper
-kernel threads, something that benefits both parties.
+Is M:N really cheaper in your Solaris example, where a new thread is
+created by the master thread on demand? If threads were sufficiently
+light-weight, I do not see how you could consider a master thread
+sitting on SIGIO/select()/poll()/ioctl() switching to a thread in the
+pool could be cheaper than the kernel pulling a stopped thread into
+the run queue.
+
+This is one of those things where the 'proof is in the pudding'. It is
+difficult to theorize anything as almost all theory on this subject is
+based on comparing performance under a different set of rules. M:N was
+necessary before as 1:1 was not feasible. Now that 1:1 may be reaching
+the state of being feasible, the rules change, and previous attempts
+at analyzing the data mean very little. Previous conclusions mean very
+little.
+
+I am one who wants to see what happens. Worst case, M:N
+implementations can use the same enhancements that were designed for
+1:1, and benefit. The most obviously example, that needs to be
+mentioned once again, is FUTEX. By each application, it might benefit
+1:1, or M:N, but as a kernel feature, it benefits anybody who can
+invent a use for it.
+
+Fast thread switching? This provides a benefit for M:N. In fact, I would
+suspect that the people comparing the best 1:1 implementation with the best
+M:N implementation will find that once all the patches are applied, the
+race will be closer than most people thought, but that BOTH will perform
+better on 2.5.x than either ever did on 2.4.x and earlier.
 
 mark
 

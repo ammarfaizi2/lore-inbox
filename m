@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267280AbSKPOls>; Sat, 16 Nov 2002 09:41:48 -0500
+	id <S267284AbSKPPBC>; Sat, 16 Nov 2002 10:01:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267278AbSKPOls>; Sat, 16 Nov 2002 09:41:48 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:13586 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S267280AbSKPOlr>; Sat, 16 Nov 2002 09:41:47 -0500
-Message-Id: <200211161448.gAGEmYl02479@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       grundler@dsl2.external.hp.com, willy@debian.org
-Subject: Re: [RFC][PATCH] move dma_mask into struct device 
-In-Reply-To: Message from Mike Anderson <andmike@us.ibm.com> 
-   of "Fri, 15 Nov 2002 16:19:14 PST." <20021116001914.GA3153@beaverton.ibm.com> 
-Mime-Version: 1.0
+	id <S267285AbSKPPBC>; Sat, 16 Nov 2002 10:01:02 -0500
+Received: from marcie.netcarrier.net ([216.178.72.21]:5651 "HELO
+	marcie.netcarrier.net") by vger.kernel.org with SMTP
+	id <S267284AbSKPPBB>; Sat, 16 Nov 2002 10:01:01 -0500
+Message-ID: <3DD660D8.7C9D901A@compuserve.com>
+Date: Sat, 16 Nov 2002 10:14:32 -0500
+From: Kevin Brosius <cobra@compuserve.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.16-4GB i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: kernel <linux-kernel@vger.kernel.org>, David Crooke <dave@convio.com>
+Subject: Re: Dual athlon XP 1800 problems
+References: <3DD66036.3129FF70@compuserve.com>
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 16 Nov 2002 09:48:31 -0500
-From: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andmike@us.ibm.com said:
-> I got a compile error here. This should be.
-> 	dev->dev.dma_mask = &dev->dma_mask; 
+Kevin Brosius wrote:
+> 
+> >
+> > 8. Rebooted again, now it's up and running and appears stable (still 1
+> > CPU), so I took it up to full init 5 and it stayed up (and so I'm
+> > writing this email :-)  Once or twice seemed to stall again for 1-2
+> > seconds (interrupt storm ???) but recovered.
+> >
+> > Anyone have suggestions? I'm thinking to leave it running and see if it
+> > stays up. Smells of a hardware issue, but also the BIOS seems a bit
+> > funny (there is a message in the Help which says "this setting for debug
+> > only - remove for production" !!)
+> 
+> I've noticed some oddities on 2.4.19 with a dual Athlon Tyan S2462 that
+> look like stalls under heavy load.  If you're really curious, you might
+> try 2.4.18, as this was not a problem there. (I'm running SuSE kernels
+> shipped with SuSE 8.0 and 8.1, although I saw similar trouble with a
+> stock 2.4.19 build and stopped using it.  The stalls are only minor
+> though, so I haven't investigated.  Maybe they are worse on that
+> motherboard.)
 
-Oops, yes, that's what comes of making changes in code you don't compile.
+Oh, and there's a Beta BIOS available from Tyan, which mentions a fix
+for IRQ routing.  Don't know if that would help or not.
 
-> The machine is a 2x pci systems with the following drivers loaded:
-> 	aic7xxx, ips, qlogicisp. 
+http://www.tyan.com/support/html/b_tg_mp.html
 
-Thanks for testing it.
-
-James
-
-
+-- 
+Kevin

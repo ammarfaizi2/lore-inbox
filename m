@@ -1,118 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287743AbSANRUc>; Mon, 14 Jan 2002 12:20:32 -0500
+	id <S287764AbSANRVC>; Mon, 14 Jan 2002 12:21:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287764AbSANRUN>; Mon, 14 Jan 2002 12:20:13 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:3674 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S287743AbSANRUA> convert rfc822-to-8bit; Mon, 14 Jan 2002 12:20:00 -0500
-Date: Mon, 14 Jan 2002 18:20:19 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020114182019.E22791@athlon.random>
-In-Reply-To: <20020114165430.421B01ED55@Cantor.suse.de>
+	id <S287794AbSANRUx>; Mon, 14 Jan 2002 12:20:53 -0500
+Received: from mout01.kundenserver.de ([195.20.224.132]:22309 "EHLO
+	mout01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S287764AbSANRUl>; Mon, 14 Jan 2002 12:20:41 -0500
+Date: Mon, 14 Jan 2002 18:20:10 +0100
+From: Heinz Diehl <hd@cavy.de>
+To: linux-kernel@vger.kernel.org
+Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+        mingo@redhat.com
+Subject: Re: slowdown with new scheduler.
+Message-ID: <20020114172010.GA173@elfie.cavy.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>,
+	mingo@redhat.com
+In-Reply-To: <20020114124541.A32412@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20020114165430.421B01ED55@Cantor.suse.de>; from Dieter.Nuetzel@hamburg.de on Mon, Jan 14, 2002 at 05:53:15PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20020114124541.A32412@suse.de>
+User-Agent: Mutt/1.3.25-current-20020102i (Linux 2.4.17-h7 i586)
+Organization: private site in Mannheim/Germany
+X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 05:53:15PM +0100, Dieter Nützel wrote:
-> On Mon, Jan 14, 2002 at 11:39, Andrea Arcangeli wrote:
-> > On Sun, Jan 13, 2002 at 01:22:57PM -0500, Robert Love wrote:
-> > > Again, preempt seems to reign supreme.  Where is all the information
-> >
-> > those comparison are totally flawed. There's nothing to compare in
-> > there. 
-> >
-> > minill misses the O(1) scheduler, and -aa has faster vm etc... there's
-> > absolutely nothing to compare in the above numbers, all variables
-> > changes at the same time.
-> >
-> > I'm amazed I've to say this, but in short:
-> >
-> > 1) to compare minill with preempt, apply both patches to 18-pre3, as the
-> >    only patch applied (no O(1) in the way of preempt!!!!)
-> > 2) to compare -aa with preempt, apply -preempt on top of -aa and see
-> >    what difference it makes
-> 
-> Oh Andrea,
-> 
-> I know your -aa VM is _GREAT_. I've used it all the time when I have the muse 
-> to apply your vm-XX patch "by hand" to the "current" tree.
-> If you only get to the point and _send_ the requested patch set to Marcelo...
+On Mon Jan 14 2002, Dave Jones wrote:
 
-I need to finish one thing in the next two days, so it won't be before
-Thursday probably, sorry.
+>  After adding H7 to 2.4.18pre3, I noticed that kernel compiles
+> on one of my test boxes got much slower.
+> Uniprocessor system (Cyrix 3) building a 2.4.18pre3 tree,
+> with the same .config, and a distclean before starting the compile.
+> 
+> 2.4.18pre3        13.38s                       
+> 2.4.18pre+H7      17.53s
 
-> 
-> All (most) of my preempt Test were running with your -aa VM and I saw the 
-> speed up with your VM _AND_ preempt especially for latency (interactivity, 
-> system start time and latencytest0.42-png). O(1) gave additional "smoothness"
-> 
-> What should I run for you?
-> 
-> Below are the dbench 32 (yes, I know...) numbers for 2.4.18-pre3-VM-22 and 
-> 2.4.18-pre3-VM-22-preempt+lock-break.
-> Sorry, both with O(1)...
-> 
-> 2.4.18-pre3
-> sched-O1-2.4.17-H7.patch
-> 10_vm-22
-> 00_nanosleep-5
-> bootmem-2.4.17-pre6
-> read-latency.patch
-> waitq-2.4.17-mainline-1
-> plus
-> all 2.4.18-pre3.pending ReiserFS stuff
-> 
-> dbench/dbench> time ./dbench 32
-> 32 clients started
-> ..............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................+..........................................................................................................................................................................................................................................................++....................................................................................................++...................................+................................+...+...+........................................+..+......+................+...........++....................++++...++..++.....+...+....+........+...+++++********************************
-> Throughput 41.5565 MB/sec (NBQ.9456 MB/sec  415.565 MBit/sec)
-> 14.860u 48.320s 1:41.66 62.1%   0+0k 0+0io 938pf+0w
-> 
-> 
-> preempt-kernel-rml-2.4.18-pre3-ingo-2.patch
-> lock-break-rml-2.4.18-pre1-1.patch
-> 2.4.18-pre3
-> sched-O1-2.4.17-H7.patch
-> 10_vm-22
-> 00_nanosleep-5
-> bootmem-2.4.17-pre6
-> read-latency.patch
-> waitq-2.4.17-mainline-1
-> plus
-> all 2.4.18-pre3.pending ReiserFS stuff
-> 
-> dbench/dbench> time ./dbench 32
-> 32 clients started
-> ..................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................+...................................+.....................................................................+...............................................................................................................................+.....+........................................+........................+............................................................................+...........................................................+..............+...................+........+.......+...............+...............+.....+..................+..+......+...++.........+....+..+...+....+......+.....................................+.+..+.......++********************************
-> Throughput 47.0049 MB/sec (NBX.7561 MB/sec  470.049 MBit/sec)
-> 14.280u 49.370s 1:30.88 70.0%   0+0k 0+0io 939pf+0w
+I did the same; same config, fresh tree, reboot between the test. 
+The machine is a (single-processor) AMD K6-2/400 with 256 MB RAM.
+Here are the results:
 
-It would also be nice to see what changes by replacing lock-break and
-preempt-kernel with 00_lowlatency-fixes-4. Also you should have a look
-at lock-break and port the same breaking point on top of
-lowlatency-fixes-4, but just make sure lock-break doesn't introduce the
-usual live locks that I keep seeing over the time again and again,
-I'_ve_ to reject some of those lowlat stuff because of that, at the very
-least one variable on the stack should be used so we keep going at the
-second/third/whatever pass, lock-break seems just a big live-lock thing.
+2.4.18-pre3	 	    real    7m55.243s
+			    user    6m34.080s
+			    sys     0m27.610s
 
-Also a pass with only preempt  would be interesting. You should also run
-more than one pass for each kernel (I always suggest 3) to be sure there
-are no suprious results.
+2.4.18-pre+H7		    real    7m35.962s
+			    user    6m34.270s
+			    sys     0m27.700s
 
-thanks,
+2.4.18-pre3-ac2		    real    7m39.203s
+			    user    6m34.110s
+			    sys     0m28.740s
 
-Andrea
+Ingo's scheduler rocks, it runs like hell (and is absolutely stable here)  ;)
+
+-- 
+# Heinz Diehl, 68259 Mannheim, Germany

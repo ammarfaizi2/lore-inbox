@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266186AbUAGLUt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 06:20:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265510AbUAGLUt
+	id S266187AbUAGL05 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 06:26:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266191AbUAGL05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 06:20:49 -0500
-Received: from gizmo10ps.bigpond.com ([144.140.71.20]:48792 "HELO
-	gizmo10ps.bigpond.com") by vger.kernel.org with SMTP
-	id S266186AbUAGLUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 06:20:37 -0500
-From: Srihari Vijayaraghavan <harisri@bigpond.com>
-To: Dave Jones <davej@redhat.com>
-Subject: Re: agpgart issue on 2.6.1-rc1-bk3 (x86-64)
-Date: Wed, 7 Jan 2004 22:21:20 +1100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200401041228.22987.harisri@bigpond.com> <20040104021246.GB10650@redhat.com>
-In-Reply-To: <20040104021246.GB10650@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jan 2004 06:26:57 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:59652 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266187AbUAGL0v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 06:26:51 -0500
+Date: Wed, 7 Jan 2004 11:26:48 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jes Sorensen <jes@wildopensource.com>
+Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] allow SGI IOC4 chipset support
+Message-ID: <20040107112648.A27801@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jes Sorensen <jes@wildopensource.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20040106010924.GA21747@sgi.com> <20040106102538.A14492@infradead.org> <yq04qv8ypkp.fsf@wildopensource.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401072221.21219.harisri@bigpond.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <yq04qv8ypkp.fsf@wildopensource.com>; from jes@wildopensource.com on Wed, Jan 07, 2004 at 06:18:30AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Dave,
+On Wed, Jan 07, 2004 at 06:18:30AM -0500, Jes Sorensen wrote:
+> What about adding this?
+> 
+> Though shall not use weak symbols in though kernel ....
 
-On Sunday 04 January 2004 13:12, Dave Jones wrote:
-> Wrong fix.  Amongst another bunch of AGP fixes going to Linus/Andrew
-> on Monday is the following..
->
-> (Andi also sent me another amd64 update, which I'll merge before
->  pushing Linuswards)
->
-
-The agpgart is working fine under 2.6.1-rc2 kernel.
-
-Thanks
-Hari
-harisri@bigpond.com 
+That's stupid.  You should just not be allowed to compile the driver
+if it can work anywork.
 

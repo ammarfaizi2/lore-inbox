@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261905AbUB1UIW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 15:08:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbUB1UIW
+	id S261909AbUB1UYl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 15:24:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbUB1UYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 15:08:22 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46570 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261909AbUB1UIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 15:08:20 -0500
-Date: Sat, 28 Feb 2004 21:08:13 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] small doc fix for CONFIG_SWAP (fwd)
-Message-ID: <20040228200813.GO5499@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
+	Sat, 28 Feb 2004 15:24:41 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:3200 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261909AbUB1UYk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 15:24:40 -0500
+Date: Sat, 28 Feb 2004 20:25:17 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200402282025.i1SKPHbE000241@81-2-122-30.bradfords.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, andersen@codepoet.org
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       John Bradford <john@grabjohn.com>, Erik van Engelen <Info@vanE.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1077984093.31248.0.camel@dhcp23.swansea.linux.org.uk>
+References: <403F2178.70806@vanE.nl>
+ <200402272114.23108.bzolnier@elka.pw.edu.pl>
+ <20040227224431.GB984@codepoet.org>
+ <200402280220.22324.bzolnier@elka.pw.edu.pl>
+ <20040228012630.GA3074@codepoet.org>
+ <1077984093.31248.0.camel@dhcp23.swansea.linux.org.uk>
+Subject: Re: Errors on 2th ide channel of promise ultra100 tx2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+Quote from Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> On Sad, 2004-02-28 at 01:26, Erik Andersen wrote:
+> > > Now I remember why this wasn't applied.
+> > > It breaks braindamaged HDIO_GETGEO_BIG_RAW ioctl
+> > > (because changes way drive->cyls is calculated).
+> > > We workaround-ed it in 2.6 by removing this ioctl. :)
+> > > I think we really should do the same for 2.4.
+> > 
+> > I did just that but it was rejected by Alan Cox...
+> > http://www.ussg.iu.edu/hypermail/linux/kernel/0308.2/0193.html
+> 
+> You can't go around randomly removing bad ideas during a stable
+> tree.
 
-the trivial patch forwarded below still applies against 2.6.3-mm4.
+Ironically, you can add as many bad ideas as you like, but not remove
+them :-)
 
-Please apply
-Adrian
-
-
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
-
-Date:	Wed, 21 Jan 2004 00:17:18 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] small doc fix for CONFIG_SWAP
-
-"swap" is more known than "Support for paging of anonymous memory".
-The patch below adds "(swap)" to the prompt of CONFIG_SWAP.
-
-Please apply
-Adrian
-
-
---- linux-2.6.1-mm5/init/Kconfig.old	2004-01-21 00:10:59.000000000 +0100
-+++ linux-2.6.1-mm5/init/Kconfig	2004-01-21 00:11:10.000000000 +0100
-@@ -66,7 +66,7 @@
- menu "General setup"
- 
- config SWAP
--	bool "Support for paging of anonymous memory"
-+	bool "Support for paging of anonymous memory (swap)"
- 	depends on MMU
- 	default y
- 	help
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
+John.

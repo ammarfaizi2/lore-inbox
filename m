@@ -1,97 +1,187 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271124AbTG1VNY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 17:13:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271149AbTG1VNY
+	id S271112AbTG1VMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 17:12:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271144AbTG1VMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 17:13:24 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:46547 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S271124AbTG1VNM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 17:13:12 -0400
-Message-ID: <3F259195.7070707@intel.com>
-Date: Mon, 28 Jul 2003 14:11:49 -0700
-From: Arun Sharma <arun.sharma@intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: binfmt handler searching issues
-Content-Type: multipart/mixed;
- boundary="------------060605010007070605050505"
+	Mon, 28 Jul 2003 17:12:25 -0400
+Received: from luli.rootdir.de ([213.133.108.222]:55247 "HELO luli.rootdir.de")
+	by vger.kernel.org with SMTP id S271112AbTG1VJR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 17:09:17 -0400
+Date: Mon, 28 Jul 2003 23:09:10 +0200
+From: Claas Langbehn <claas@rootdir.de>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2 has i8042 mux problems
+Message-ID: <20030728210910.GA832@rootdir.de>
+References: <20030728052614.GA5022@rootdir.de> <20030728113626.GA1706@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030728113626.GA1706@win.tue.nl>
+Reply-By: Don Jul 31 23:07:12 CEST 2003
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.0-test1-ac3 i686
+X-No-archive: yes
+X-Uptime: 23:07:12 up 1 min,  2 users,  load average: 0.87, 0.30, 0.10
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060605010007070605050505
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello!
 
-A script such as
+its strange. After switching debug on, it suddenly works.
+Below my debug info.
 
-#!/bin/foo.bar
-...
+Regards, claas
 
-where /bin/foo.bar is handled by binfmt_misc, is not handled correctly i.e. the interpreter of foo.bar doesn't receive the correct arguments.
 
-The binfmt_misc handler requires that bprm->filename is appropriately filled so that the argv[1] could be correctly passed to the interpreter.
 
-However, binfmt_script, as it exists today doesn't populate bprm->filename correctly.
+>From syslog:
+22:53:08 kernel: drivers/input/serio/i8042.c: 20 -> i8042 (command) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 67 <- i8042 (return) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 76 -> i8042 (parameter) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: d3 -> i8042 (command) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: f0 -> i8042 (parameter) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 0f <- i8042 (return) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: d3 -> i8042 (command) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: a9 <- i8042 (return) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: d3 -> i8042 (command) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: a4 -> i8042 (parameter) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 5b <- i8042 (return) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: d3 -> i8042 (command) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 5a -> i8042 (parameter) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: a5 <- i8042 (return) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: a7 -> i8042 (command) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 20 -> i8042 (command) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 76 <- i8042 (return) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: a8 -> i8042 (command) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 20 -> i8042 (command) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 56 <- i8042 (return) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 74 -> i8042 (parameter) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 54 -> i8042 (parameter) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [0]
+22:53:08 kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [99]
+22:53:08 kernel: drivers/input/serio/i8042.c: ed -> i8042 (parameter) [99]
+22:53:08 kernel: drivers/input/serio/i8042.c: fe <- i8042 (interrupt, aux, 0, timeout) [99]
+22:53:08 kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [99]
+22:53:08 kernel: drivers/input/serio/i8042.c: 54 -> i8042 (parameter) [99]
+22:53:08 kernel: drivers/input/serio/i8042.c: fe <- i8042 (flush, kbd) [113]
+22:53:08 kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [113]
+22:53:08 kernel: drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [113]
+22:53:08 kernel: drivers/input/serio/i8042.c: d4 -> i8042 (command) [113]
+22:53:08 kernel: drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [113]
+22:53:08 kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [212]
+22:53:08 kernel: drivers/input/serio/i8042.c: 54 -> i8042 (parameter) [212]
+22:53:08 kernel: drivers/input/serio/i8042.c: fe <- i8042 (flush, kbd) [212]
+22:53:08 kernel: serio: i8042 AUX port at 0x60,0x64 irq 12
+22:53:08 kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [212]
+22:53:08 kernel: drivers/input/serio/i8042.c: 44 -> i8042 (parameter) [212]
+22:53:08 kernel: drivers/input/serio/i8042.c: 60 -> i8042 (command) [212]
+22:53:08 kernel: drivers/input/serio/i8042.c: 45 -> i8042 (parameter) [212]
+22:53:08 kernel: drivers/input/serio/i8042.c: f2 -> i8042 (kbd-data) [212]
+22:53:08 kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [215]
+22:53:08 kernel: drivers/input/serio/i8042.c: ab <- i8042 (interrupt, kbd, 1) [217]
+22:53:08 kernel: drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, 1) [218]
+22:53:08 kernel: drivers/input/serio/i8042.c: ed -> i8042 (kbd-data) [218]
+22:53:08 kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [221]
+22:53:08 kernel: drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [221]
+22:53:08 kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [224]
+22:53:08 kernel: drivers/input/serio/i8042.c: f8 -> i8042 (kbd-data) [224]
+22:53:08 kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [227]
+22:53:08 kernel: drivers/input/serio/i8042.c: f4 -> i8042 (kbd-data) [227]
+22:53:08 kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [231]
+22:53:08 kernel: drivers/input/serio/i8042.c: f0 -> i8042 (kbd-data) [231]
+22:53:08 kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [234]
+22:53:08 kernel: drivers/input/serio/i8042.c: 02 -> i8042 (kbd-data) [234]
+22:53:08 kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [237]
+22:53:08 kernel: drivers/input/serio/i8042.c: f0 -> i8042 (kbd-data) [237]
+22:53:08 kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [240]
+22:53:08 kernel: drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [240]
+22:53:08 kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [243]
+22:53:08 kernel: drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, 1) [244]
+22:53:08 kernel: input: AT Set 2 keyboard on isa0060/serio0
+22:53:08 kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
 
-Another motivation for this patch is the output of ps. Emulators which use binfmt_misc may want to keep the output of ps consistent with native execution. This requires preserving bprm->filename. The attached patch guarantees this even if we have to go through several binfmt handlers (think of finite loops involving  binfmt_script and binfmt_misc).
-
-        -Arun
-
---------------060605010007070605050505
-Content-Type: text/plain;
- name="binfmt_interp.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="binfmt_interp.patch"
-
-LS0tIGxpbnV4L2ZzL2V4ZWMuYy0JVGh1IE1hciAxMyAxMTo0Mjo1MSAyMDAzCisrKyBsaW51
-eC9mcy9leGVjLmMJVGh1IE1hciAxMyAxMTo0MzowNSAyMDAzCkBAIC04ODIsNiArODgyLDcg
-QEAKIAogCWJwcm0uZmlsZSA9IGZpbGU7CiAJYnBybS5maWxlbmFtZSA9IGZpbGVuYW1lOwor
-CWJwcm0uaW50ZXJwID0gZmlsZW5hbWU7CiAJYnBybS5zaF9iYW5nID0gMDsKIAlicHJtLmxv
-YWRlciA9IDA7CiAJYnBybS5leGVjID0gMDsKLS0tIGxpbnV4L2ZzL2JpbmZtdF9zY3JpcHQu
-Yy0JVGh1IE1hciAxMyAxMjowOToyOCAyMDAzCisrKyBsaW51eC9mcy9iaW5mbXRfc2NyaXB0
-LmMJVGh1IE1hciAxMyAxMjowOTo0NiAyMDAzCkBAIC03OCw2ICs3OCw4IEBACiAJcmV0dmFs
-ID0gY29weV9zdHJpbmdzX2tlcm5lbCgxLCAmaV9uYW1lLCBicHJtKTsKIAlpZiAocmV0dmFs
-KSByZXR1cm4gcmV0dmFsOyAKIAlicHJtLT5hcmdjKys7CisJYnBybS0+aW50ZXJwID0gaW50
-ZXJwOworCQogCS8qCiAJICogT0ssIG5vdyByZXN0YXJ0IHRoZSBwcm9jZXNzIHdpdGggdGhl
-IGludGVycHJldGVyJ3MgZGVudHJ5LgogCSAqLwotLS0gbGludXgvaW5jbHVkZS9saW51eC9i
-aW5mbXRzLmgtCVRodSBNYXIgMTMgMTE6NDA6NDEgMjAwMworKysgbGludXgvaW5jbHVkZS9s
-aW51eC9iaW5mbXRzLmgJVGh1IE1hciAxMyAxMTo0MjowNSAyMDAzCkBAIC0zMCw3ICszMCwx
-MCBAQAogCWludCBlX3VpZCwgZV9naWQ7CiAJa2VybmVsX2NhcF90IGNhcF9pbmhlcml0YWJs
-ZSwgY2FwX3Blcm1pdHRlZCwgY2FwX2VmZmVjdGl2ZTsKIAlpbnQgYXJnYywgZW52YzsKLQlj
-aGFyICogZmlsZW5hbWU7CS8qIE5hbWUgb2YgYmluYXJ5ICovCisJY2hhciAqIGZpbGVuYW1l
-OwkvKiBOYW1lIG9mIGJpbmFyeSBhcyBzZWVuIGJ5IHByb2NwcyAqLworCWNoYXIgKiBpbnRl
-cnA7CQkvKiBOYW1lIG9mIHRoZSBiaW5hcnkgcmVhbGx5IGV4ZWN1dGVkLiBNb3N0CisJCQkJ
-ICAgb2YgdGhlIHRpbWUgc2FtZSBhcyBmaWxlbmFtZSwgYnV0IGNvdWxkIGJlCisJCQkJICAg
-ZGlmZmVyZW50IGZvciBiaW5mbXRfe21pc2Msc2NyaXB0fSAqLwogCXVuc2lnbmVkIGxvbmcg
-bG9hZGVyLCBleGVjOwogfTsKCi0tLSBsaW51eC9mcy9iaW5mbXRfc2NyaXB0LmMtCU1vbiBN
-YXIgMTcgMDg6MTA6NTYgMjAwMworKysgbGludXgvZnMvYmluZm10X3NjcmlwdC5jCU1vbiBN
-YXIgMTcgMDg6MTM6MDcgMjAwMwpAQCAtNjcsNyArNjcsNyBAQAogCSAqIHVzZXIgZW52aXJv
-bm1lbnQgYW5kIGFyZ3VtZW50cyBhcmUgc3RvcmVkLgogCSAqLwogCXJlbW92ZV9hcmdfemVy
-byhicHJtKTsKLQlyZXR2YWwgPSBjb3B5X3N0cmluZ3Nfa2VybmVsKDEsICZicHJtLT5maWxl
-bmFtZSwgYnBybSk7CisJcmV0dmFsID0gY29weV9zdHJpbmdzX2tlcm5lbCgxLCAmYnBybS0+
-aW50ZXJwLCBicHJtKTsKIAlpZiAocmV0dmFsIDwgMCkgcmV0dXJuIHJldHZhbDsgCiAJYnBy
-bS0+YXJnYysrOwogCWlmIChpX2FyZykgewogCi0tLSBsaW51eC9mcy9iaW5mbXRfbWlzYy5j
-Lm9yaWcJV2VkIE1hciAxOSAxNTo0NTozNCAyMDAzCisrKyBsaW51eC9mcy9iaW5mbXRfbWlz
-Yy5jCVdlZCBNYXIgMTkgMTU6NDk6MzkgMjAwMwpAQCAtNTgsNyArNTgsNyBAQAogICovCiBz
-dGF0aWMgTm9kZSAqY2hlY2tfZmlsZShzdHJ1Y3QgbGludXhfYmlucHJtICpicHJtKQogewot
-CWNoYXIgKnAgPSBzdHJyY2hyKGJwcm0tPmZpbGVuYW1lLCAnLicpOworCWNoYXIgKnAgPSBz
-dHJyY2hyKGJwcm0tPmludGVycCwgJy4nKTsKIAlzdHJ1Y3QgbGlzdF9oZWFkICpsOwogCiAJ
-Zm9yIChsID0gZW50cmllcy5uZXh0OyBsICE9ICZlbnRyaWVzOyBsID0gbC0+bmV4dCkgewpA
-QCAtMTI1LDEzICsxMjUsMTMgQEAKIAlpZiAoIShmbXQtPmZsYWdzICYgTUlTQ19GTVRfUFJF
-U0VSVkVfQVJHVjApKSB7CiAJCXJlbW92ZV9hcmdfemVybyhicHJtKTsKIAl9Ci0JcmV0dmFs
-ID0gY29weV9zdHJpbmdzX2tlcm5lbCgxLCAmYnBybS0+ZmlsZW5hbWUsIGJwcm0pOworCXJl
-dHZhbCA9IGNvcHlfc3RyaW5nc19rZXJuZWwoMSwgJmJwcm0tPmludGVycCwgYnBybSk7CiAJ
-aWYgKHJldHZhbCA8IDApIGdvdG8gX3JldDsgCiAJYnBybS0+YXJnYysrOwogCXJldHZhbCA9
-IGNvcHlfc3RyaW5nc19rZXJuZWwoMSwgJmluYW1lX2FkZHIsIGJwcm0pOwogCWlmIChyZXR2
-YWwgPCAwKSBnb3RvIF9yZXQ7IAogCWJwcm0tPmFyZ2MrKzsKLQlicHJtLT5maWxlbmFtZSA9
-IGluYW1lOwkvKiBmb3IgYmluZm10X3NjcmlwdCAqLworCWJwcm0tPmludGVycCA9IGluYW1l
-OwkvKiBmb3IgYmluZm10X3NjcmlwdCAqLwogCiAJZmlsZSA9IG9wZW5fZXhlYyhpbmFtZSk7
-CiAJcmV0dmFsID0gUFRSX0VSUihmaWxlKTsK
---------------060605010007070605050505--
+>From dmesg:
+drivers/input/serio/i8042.c: 20 -> i8042 (command) [0]
+drivers/input/serio/i8042.c: 67 <- i8042 (return) [0]
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [0]
+drivers/input/serio/i8042.c: 76 -> i8042 (parameter) [0]
+drivers/input/serio/i8042.c: d3 -> i8042 (command) [0]
+drivers/input/serio/i8042.c: f0 -> i8042 (parameter) [0]
+drivers/input/serio/i8042.c: 0f <- i8042 (return) [0]
+drivers/input/serio/i8042.c: d3 -> i8042 (command) [0]
+drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [0]
+drivers/input/serio/i8042.c: a9 <- i8042 (return) [0]
+drivers/input/serio/i8042.c: d3 -> i8042 (command) [0]
+drivers/input/serio/i8042.c: a4 -> i8042 (parameter) [0]
+drivers/input/serio/i8042.c: 5b <- i8042 (return) [0]
+drivers/input/serio/i8042.c: d3 -> i8042 (command) [0]
+drivers/input/serio/i8042.c: 5a -> i8042 (parameter) [0]
+drivers/input/serio/i8042.c: a5 <- i8042 (return) [0]
+drivers/input/serio/i8042.c: a7 -> i8042 (command) [0]
+drivers/input/serio/i8042.c: 20 -> i8042 (command) [0]
+drivers/input/serio/i8042.c: 76 <- i8042 (return) [0]
+drivers/input/serio/i8042.c: a8 -> i8042 (command) [0]
+drivers/input/serio/i8042.c: 20 -> i8042 (command) [0]
+drivers/input/serio/i8042.c: 56 <- i8042 (return) [0]
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [0]
+drivers/input/serio/i8042.c: 74 -> i8042 (parameter) [0]
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [0]
+drivers/input/serio/i8042.c: 54 -> i8042 (parameter) [0]
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [0]
+drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [0]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [0]
+drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [0]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [99]
+drivers/input/serio/i8042.c: ed -> i8042 (parameter) [99]
+drivers/input/serio/i8042.c: fe <- i8042 (interrupt, aux, 0, timeout) [99]
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [99]
+drivers/input/serio/i8042.c: 54 -> i8042 (parameter) [99]
+drivers/input/serio/i8042.c: fe <- i8042 (flush, kbd) [113]
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [113]
+drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [113]
+drivers/input/serio/i8042.c: d4 -> i8042 (command) [113]
+drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [113]
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [212]
+drivers/input/serio/i8042.c: 54 -> i8042 (parameter) [212]
+drivers/input/serio/i8042.c: fe <- i8042 (flush, kbd) [212]
+serio: i8042 AUX port at 0x60,0x64 irq 12
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [212]
+drivers/input/serio/i8042.c: 44 -> i8042 (parameter) [212]
+drivers/input/serio/i8042.c: 60 -> i8042 (command) [212]
+drivers/input/serio/i8042.c: 45 -> i8042 (parameter) [212]
+drivers/input/serio/i8042.c: f2 -> i8042 (kbd-data) [212]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [215]
+drivers/input/serio/i8042.c: ab <- i8042 (interrupt, kbd, 1) [217]
+drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, 1) [218]
+drivers/input/serio/i8042.c: ed -> i8042 (kbd-data) [218]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [221]
+drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [221]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [224]
+drivers/input/serio/i8042.c: f8 -> i8042 (kbd-data) [224]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [227]
+drivers/input/serio/i8042.c: f4 -> i8042 (kbd-data) [227]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [231]
+drivers/input/serio/i8042.c: f0 -> i8042 (kbd-data) [231]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [234]
+drivers/input/serio/i8042.c: 02 -> i8042 (kbd-data) [234]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [237]
+drivers/input/serio/i8042.c: f0 -> i8042 (kbd-data) [237]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [240]
+drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [240]
+drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [243]
+drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, 1) [244]
+input: AT Set 2 keyboard on isa0060/serio0
+serio: i8042 KBD port at 0x60,0x64 irq 1
 

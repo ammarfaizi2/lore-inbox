@@ -1,92 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265996AbUITEYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266006AbUITEYB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265996AbUITEYk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 00:24:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbUITEYj
+	id S266006AbUITEYB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 00:24:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbUITEWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 00:24:39 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:9619 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S265996AbUITEWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 00:22:48 -0400
-Subject: Re: 2.6.9-rc2-mm1
-From: Albert Cahalan <albert@users.sf.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton OSDL <akpm@osdl.org>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040920023452.GR9106@holomorphy.com>
-References: <20040916024020.0c88586d.akpm@osdl.org>
-	 <20040920023452.GR9106@holomorphy.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1095653925.4969.100.camel@cube>
+	Mon, 20 Sep 2004 00:22:31 -0400
+Received: from mail.kroah.org ([69.55.234.183]:16579 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265996AbUITEWW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 00:22:22 -0400
+Date: Sun, 19 Sep 2004 21:11:02 -0700
+From: Greg KH <greg@kroah.com>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: udev is too slow creating devices
+Message-ID: <20040920041101.GB5344@kroah.com>
+References: <414C9003.9070707@softhome.net> <1095568704.6545.17.camel@gaston> <414D42F6.5010609@softhome.net> <cijrui$g9s$1@sea.gmane.org> <20040919173221.GB2345@kroah.com> <Pine.LNX.4.60.0409192004020.30139@alpha.polcom.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 20 Sep 2004 00:18:45 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.60.0409192004020.30139@alpha.polcom.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-09-19 at 22:34, William Lee Irwin III wrote:
-> On Thu, Sep 16, 2004 at 02:40:20AM -0700, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm1/
-> > - Added lots of Ingo's low-latency patches
-> > - Lockmeter doesn't compile.  Don't enable CONFIG_LOCKMETER.
-> > - Several architecture updates
-> 
-> top(1) shows no tasks on sparc64.
+On Sun, Sep 19, 2004 at 08:43:50PM +0200, Grzegorz Kulewski wrote:
+> I have Gentoo with udev (with 100% modular kernel). And I have speedtouch 
+> USB ADSL modem. I am using paralell startup scripts feature. And 
+> speedtouch tries to initialize itself (load firmware and so on) before USB 
+> bus (or how to call it) is discovered.
 
-It would be nice if I had such a box. I can't even
-find a user account on one. I have 32-bit ppc, plus
-non-root accounts on alpha, i386, and x86_64 boxes
-with obsolete kernels.
+That's not good.
 
-> Large negative inode numbers appear
-> to be showing up for /proc/stat and other /proc/ special files on
-> 64-bit irrespective of endianness, and all processes appear to have the
-> same inode number once again irrespective of endianness.
+> I can imagine moving firmware loader to udev.d scripts but where
+> should I place pppd launching (for example I might have pppd or
+> ifconfig binary on nfs mounted /usr from my LAN...).
 
-The inode numbering patch looks sane enough...
+The firmware downloader should be in the usb hotplug agent notifier
+location.  See the linux-hotplug documentation for how to do this
+properly (I thought the speedtouch driver package already did this
+properly for some reason...)
 
-> It's unclear
-> why top(1) enumerates tasks on x86-64 and does not do so on sparc64,
-> unless 2.6.9-rc2-mm1 shows some behavior procps-3.2.3 is sensitive to
-> that 3.2.1 is not, or some numbers are overflowing on 32-bit apps but
-> not 64-bit ones (top(1) is 64-bit on x86-64 but 32-bit on sparc64)
+Use the network scripts to start up the connection when it is seen by
+the system.  Gentoo currently does this already today.
 
-In no place does procps itself care about ino_t.
+> And how udev, hotlpug and the rest of the system should hadle SATA disk 
+> unpluggged in the middle of writing? And what if it will be plugged back?
 
-Perhaps your 32-bit glibc chokes on 64-bit inode numbers.
-If so, yuck. It's really sad that we have a zillion
-versions of stat(), many with oversize dev_t, and still
-we use 32-bit ino_t in many places.
+udev will delete the device node.  As for your data the user is screwed
+as they did something very stupid :)
 
-Whether or not that's the problem...
+Plug the device back in, and it gets discovered, device node gets
+created, and then mounted.  That is if your SATA kernel driver supports
+hotpluggable disks.
 
-1. install a 64-bit or bi-arch gcc
-2. install a 64-bit libc
-3. install a 64-bit ncurses
-4. install a 64-bit procps
+thanks,
 
-(suggestion: keep going until /bin is done)
-
-That's pretty much it. The procps package goes to
-great lengths to compile itself 64-bit, even passing
-the -m64 option and installing to /lib64 as needed.
-If you've broken this, you get to keep the pieces.
-
-In other words: seriously unsupported
-
-I see no reason why 32-bit SPARC users should have
-to suffer the pain of running code bloated up to
-handle 64-bit SPARC. The 32-bit SPARC hardware is
-slow enough already. Just try to look a 32-bit SPARC
-user in the eye and tell him "Your system should run
-even slower now, so that my hot new hardware can keep
-running old 32-bit executables meant for you"
-
-
-
-
-
+greg k-h

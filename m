@@ -1,77 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263362AbVCDXH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261962AbVCEF0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263362AbVCDXH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 18:07:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbVCDWQM
+	id S261962AbVCEF0X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 00:26:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbVCDXH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 17:16:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:40865 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263113AbVCDUyS convert rfc822-to-8bit
+	Fri, 4 Mar 2005 18:07:58 -0500
+Received: from mail.kroah.org ([69.55.234.183]:36514 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263182AbVCDUyy convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 15:54:18 -0500
-Cc: brking@us.ibm.com
-Subject: [PATCH] PCI: Dynids - passing driver data
-In-Reply-To: <11099696371419@kroah.com>
+	Fri, 4 Mar 2005 15:54:54 -0500
+Cc: johnpol@2ka.mipt.ru
+Subject: [PATCH] w1: dscore cleanups. 2/2
+In-Reply-To: <110996878287@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 4 Mar 2005 12:53:57 -0800
-Message-Id: <11099696371910@kroah.com>
+Date: Fri, 4 Mar 2005 12:39:42 -0800
+Message-Id: <11099687822751@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+To: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7BIT
 From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1998.11.15, 2005/02/08 12:23:18-08:00, brking@us.ibm.com
+ChangeSet 1.2081, 2005/03/02 16:58:36-08:00, johnpol@2ka.mipt.ru
 
-[PATCH] PCI: Dynids - passing driver data
+[PATCH] w1: dscore cleanups. 2/2
 
-Currently, code exists in the pci layer to allow userspace to specify
-driver data when adding a pci dynamic id from sysfs. However, this data
-is never used and there exists no way in the existing code to use it.
-This patch allows device drivers to indicate that they want driver data
-passed to them on dynamic id adds by initializing use_driver_data in their
-pci_driver->pci_dynids struct. The documentation has also been updated
-to reflect this.
+Trivial cleanups, mostly static/non static, removed unneded exports.
 
-Signed-off-by: Brian King <brking@us.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- Documentation/pci.txt    |    8 ++++----
- drivers/pci/pci-driver.c |    1 -
- 2 files changed, 4 insertions(+), 5 deletions(-)
+ drivers/w1/dscore.c |   24 ++++++++++++++----------
+ 1 files changed, 14 insertions(+), 10 deletions(-)
 
 
-diff -Nru a/Documentation/pci.txt b/Documentation/pci.txt
---- a/Documentation/pci.txt	2005-03-04 12:42:31 -08:00
-+++ b/Documentation/pci.txt	2005-03-04 12:42:31 -08:00
-@@ -99,10 +99,10 @@
- Users need pass only as many fields as necessary; vendor, device,
- subvendor, and subdevice fields default to PCI_ANY_ID (FFFFFFFF),
- class and classmask fields default to 0, and driver_data defaults to
--0UL.  Device drivers must call
--   pci_dynids_set_use_driver_data(pci_driver *, 1)
--in order for the driver_data field to get passed to the driver.
--Otherwise, only a 0 is passed in that field.
-+0UL.  Device drivers must initialize use_driver_data in the dynids struct
-+in their pci_driver struct prior to calling pci_register_driver in order
-+for the driver_data field to get passed to the driver. Otherwise, only a
-+0 is passed in that field.
- 
- When the driver exits, it just calls pci_unregister_driver() and the PCI layer
- automatically calls the remove hook for all devices handled by the driver.
-diff -Nru a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
---- a/drivers/pci/pci-driver.c	2005-03-04 12:42:31 -08:00
-+++ b/drivers/pci/pci-driver.c	2005-03-04 12:42:31 -08:00
-@@ -115,7 +115,6 @@
- static inline void
- pci_init_dynids(struct pci_dynids *dynids)
- {
--	memset(dynids, 0, sizeof(*dynids));
- 	spin_lock_init(&dynids->lock);
- 	INIT_LIST_HEAD(&dynids->list);
+diff -Nru a/drivers/w1/dscore.c b/drivers/w1/dscore.c
+--- a/drivers/w1/dscore.c	2005-03-04 12:38:18 -08:00
++++ b/drivers/w1/dscore.c	2005-03-04 12:38:18 -08:00
+@@ -148,7 +148,7 @@
+ 	return count;
  }
+ 
+-int ds_recv_status(struct ds_device *dev, struct ds_status *st)
++static int ds_recv_status(struct ds_device *dev, struct ds_status *st)
+ {
+ 	unsigned char buf[64];
+ 	int count, err = 0, i;
+@@ -206,7 +206,7 @@
+ 	return err;
+ }
+ 
+-int ds_recv_data(struct ds_device *dev, unsigned char *buf, int size)
++static int ds_recv_data(struct ds_device *dev, unsigned char *buf, int size)
+ {
+ 	int count, err;
+ 	struct ds_status st;
+@@ -234,7 +234,7 @@
+ 	return count;
+ }
+ 
+-int ds_send_data(struct ds_device *dev, unsigned char *buf, int len)
++static int ds_send_data(struct ds_device *dev, unsigned char *buf, int len)
+ {
+ 	int count, err;
+ 	
+@@ -774,15 +774,19 @@
+ EXPORT_SYMBOL(ds_write_byte);
+ EXPORT_SYMBOL(ds_write_bit);
+ EXPORT_SYMBOL(ds_write_block);
++EXPORT_SYMBOL(ds_reset);
++EXPORT_SYMBOL(ds_get_device);
++EXPORT_SYMBOL(ds_put_device);
++
++/*
++ * This functions can be used for EEPROM programming, 
++ * when driver will be included into mainline this will 
++ * require uncommenting.
++ */
++#if 0
+ EXPORT_SYMBOL(ds_start_pulse);
+ EXPORT_SYMBOL(ds_set_speed);
+-EXPORT_SYMBOL(ds_reset);
+ EXPORT_SYMBOL(ds_detect);
+ EXPORT_SYMBOL(ds_stop_pulse);
+-EXPORT_SYMBOL(ds_send_data);
+-EXPORT_SYMBOL(ds_recv_data);
+-EXPORT_SYMBOL(ds_recv_status);
+ EXPORT_SYMBOL(ds_search);
+-EXPORT_SYMBOL(ds_get_device);
+-EXPORT_SYMBOL(ds_put_device);
+-
++#endif
 

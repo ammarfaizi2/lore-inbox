@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265385AbSLQSk7>; Tue, 17 Dec 2002 13:40:59 -0500
+	id <S265475AbSLQSmX>; Tue, 17 Dec 2002 13:42:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265400AbSLQSk7>; Tue, 17 Dec 2002 13:40:59 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44050 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265385AbSLQSk6>; Tue, 17 Dec 2002 13:40:58 -0500
-Date: Tue, 17 Dec 2002 10:49:31 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Ulrich Drepper <drepper@redhat.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <hpa@transmeta.com>
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <1040153030.20804.8.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0212171046550.1095-100000@home.transmeta.com>
+	id <S265477AbSLQSmX>; Tue, 17 Dec 2002 13:42:23 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:51636
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S265475AbSLQSmV>; Tue, 17 Dec 2002 13:42:21 -0500
+Message-ID: <3DFF717C.90006@redhat.com>
+Date: Tue, 17 Dec 2002 10:48:28 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20021216
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hpa@transmeta.com
+Subject: Re: Intel P6 vs P7 system call performance
+References: <Pine.LNX.4.44.0212170858510.2702-100000@home.transmeta.com> 	<3DFF6501.3080106@redhat.com> <1040153030.20804.8.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1040153030.20804.8.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
 
-
-On 17 Dec 2002, Alan Cox wrote:
->
 > Is there any reason you can't just keep the linker out of the entire
 > mess by generating
->
+> 
 > 	.byte whatever
 > 	.dword 0xFFFF0000
->
+> 
 > instead of call ?
 
-Alan, the problem is that there _is_ no such instruction as a "call
-absolute".
+There is no such instruction.  Unless you know about some secret
+undocumented opcode...
 
-There is only a "call relative" or "call indirect-absolute". So you either
-have to indirect through memory or a register, or you have to fix up the
-call at link-time.
-
-Yeah, I know it sounds strange, but it makes sense. Absolute calls are
-actually very unusual, and using relative calls is _usually_ the right
-thing to do. It's only in cases like this that we really want to call a
-specific address.
-
-			Linus
+-- 
+--------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
 

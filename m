@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S768056AbUKBIrd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S291732AbUKBIq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S768056AbUKBIrd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 03:47:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265290AbUKBIrc
+	id S291732AbUKBIq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 03:46:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S276411AbUKBIq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 03:47:32 -0500
-Received: from sullivan.realtime.net ([205.238.132.76]:32006 "EHLO
-	sullivan.realtime.net") by vger.kernel.org with ESMTP
-	id S384469AbUKBIrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 03:47:17 -0500
-Date: Tue, 2 Nov 2004 02:46:58 -0600 (CST)
-Message-Id: <200411020846.iA28kw3g051219@sullivan.realtime.net>
-To: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <greg@kroah.com>,
-       Maneesh Soni <maneesh@in.ibm.com>
-From: Milton Miller <miltonm@bga.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: sysfs backing store error path confusion
+	Tue, 2 Nov 2004 03:46:59 -0500
+Received: from wasp.net.au ([203.190.192.17]:55731 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S454824AbUKBIpb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 03:45:31 -0500
+Message-ID: <4187494F.5090009@wasp.net.au>
+Date: Tue, 02 Nov 2004 12:46:07 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 0.8+ (X11/20041029)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-rc1-bk page allocation failure. order:2, mode:0x20
+References: <41873452.8040804@wasp.net.au> <41873F38.7030609@yahoo.com.au> <418742BE.4040200@wasp.net.au> <4187468E.3050709@yahoo.com.au>
+In-Reply-To: <4187468E.3050709@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sysfs_new_dirent returns ERR_PTR(-ENOMEM) if kmalloc fails but the callers
-were expecting NULL.  
+Nick Piggin wrote:
 
-Compile & link tested.  (Yes, changing the callee would be a smaller change).
+>> Always willing to test specific patches. Can I just grab the broken 
+>> out patches, or pull some specific csets from a bk tree? I'm not 
+>> particularly keen on running an -mm kernel on this box if I can avoid 
+>> it (It's a server in 24hr use with 2.5TB of data where the backup 
+>> media is 7,000km away).
+>>
+> 
+> OK fair enough.
+> 
+> Here is a rollup of the 3 patches that are supposed to help with
+> the problem. It is diffed against 2.6.10-rc1-bk8, which you probably
+> wouldn't want to run either.
+> 
+> Not sure how cleanly it will apply onto 2.6.9... shouldn't be too bad
+> I think.
+>
 
-===== fs/sysfs/dir.c 1.24 vs edited =====
---- 1.24/fs/sysfs/dir.c	2004-11-01 21:46:46 +01:00
-+++ edited/fs/sysfs/dir.c	2004-11-02 09:12:31 +01:00
-@@ -55,8 +55,8 @@ int sysfs_make_dirent(struct sysfs_diren
- 	struct sysfs_dirent * sd;
- 
- 	sd = sysfs_new_dirent(parent_sd, element);
--	if (!sd)
--		return -ENOMEM;
-+	if (IS_ERR(sd))
-+		return PTR_ERR(sd);
- 
- 	sd->s_mode = mode;
- 	sd->s_type = type;
-@@ -332,13 +332,18 @@ static int sysfs_dir_open(struct inode *
- {
- 	struct dentry * dentry = file->f_dentry;
- 	struct sysfs_dirent * parent_sd = dentry->d_fsdata;
-+	struct sysfs_dirent * sd;
- 
- 	down(&dentry->d_inode->i_sem);
--	file->private_data = sysfs_new_dirent(parent_sd, NULL);
-+	sd = sysfs_new_dirent(parent_sd, NULL);
- 	up(&dentry->d_inode->i_sem);
- 
--	return file->private_data ? 0 : -ENOMEM;
-+	if (IS_ERR(sd))
-+		return PTR_ERR(sd);
-+	
-+	file->private_data = sd;
- 
-+	return 0;
- }
- 
- static int sysfs_dir_close(struct inode *inode, struct file *file)
+I'm actually running a reasonably recent BK pull of 2.6.10-rc1 as of a couple of days ago, but I did 
+some pretty severe testing and evaluation with my raid disks removed and replaced with spares before 
+I let it loose on the real media. I have applied those patches and I'll beat on it for a few hours 
+and see how it goes. I have some pretty defined cron jobs that make it easy to reproduce.
+
+Regards,
+Brad

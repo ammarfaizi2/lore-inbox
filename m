@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265414AbRF0Vby>; Wed, 27 Jun 2001 17:31:54 -0400
+	id <S265417AbRF0Vcy>; Wed, 27 Jun 2001 17:32:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265417AbRF0Vbo>; Wed, 27 Jun 2001 17:31:44 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:44050 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S265414AbRF0Vbc>;
-	Wed, 27 Jun 2001 17:31:32 -0400
-Date: Wed, 27 Jun 2001 22:31:22 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Allocating non-contigious memory
-In-Reply-To: <E15FKQh-0005ef-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0106272229250.26936-100000@infradead.org>
+	id <S265421AbRF0Vck>; Wed, 27 Jun 2001 17:32:40 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:56072 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S265418AbRF0Vcb>;
+	Wed, 27 Jun 2001 17:32:31 -0400
+Message-ID: <3B3A50DE.C8A6C419@linux-m68k.org>
+Date: Wed, 27 Jun 2001 23:32:14 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+CC: Jonathan Lundell <jlundell@pobox.com>,
+        Mike Galbraith <mikeg@wen-online.de>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+        Paul.Russell@rustcorp.com.au
+Subject: Re: [PATCH] proc_file_read() (Was: Re: proc_file_read() question)
+In-Reply-To: <Pine.LNX.4.30.0106271919520.16282-100000@biker.pdb.fsc.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan.
+Hi,
 
- >> What is the Right Way[tm] as of 2.4.6 to allocate 16Mb as 4K
- >> pages and get the pci bus address for each page?  Bonus points
- >> is they're virtually contiguous, but that's not necessary.
- >> IIRC, the old vmalloc-then-walk-the-pagetables trick is
- >> considered out-of-bounds nowadays.
+Martin Wilck wrote:
 
- > If you want it virtually contiguous then copy the code from bttv
- > that out-of-bounds or otherwise is now found in about 8 drivers
- > in the kernel.
+> Hum - is there no simple way to determine whether a pointer is
+> a valid pointer to something returned by __get_free_pages ()? You are
+> right, S390 in particular seems to allow arbitrary addresses starting from
+> 0.
 
-Would it be useful to turn that particular code into a subroutine that
-is called from each driver, or would that cause other problems?
+M68k does so too, although the first page is never used and usually
+unmapped to catch NULL pointers.
 
-Best wishes from Riley.
-
+bye, Roman

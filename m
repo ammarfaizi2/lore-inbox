@@ -1,58 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbUJYSER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbUJYSES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbUJYSER (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 14:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbUJYSDm
+	id S261174AbUJYSES (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 14:04:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbUJYSDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 14:03:42 -0400
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:27038 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S261174AbUJYRZS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 13:25:18 -0400
-Date: Mon, 25 Oct 2004 19:22:31 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Joe Perches <joe@perches.com>, Larry McVoy <lm@work.bitmover.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-Message-ID: <20041025172231.GG14325@dualathlon.random>
-References: <4d8e3fd304102403241e5a69a5@mail.gmail.com> <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com> <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random> <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random> <Pine.LNX.4.58.0410250812300.3016@ppc970.osdl.org> <20041025154318.GA14325@dualathlon.random> <Pine.LNX.4.58.0410250904340.3016@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410250904340.3016@ppc970.osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Mon, 25 Oct 2004 14:03:16 -0400
+Received: from nwkea-mail-1.sun.com ([192.18.42.13]:63955 "EHLO
+	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id S261198AbUJYRZs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 13:25:48 -0400
+Date: Mon, 25 Oct 2004 13:25:33 -0400
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [PATCH 13/28] VFS: Introduce soft reference counts
+In-reply-to: <417D35F0.1070501@kolumbus.fi>
+To: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       raven@themaw.net
+Message-id: <417D370D.3090700@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <10987154731896@sun.com> <10987155032816@sun.com>
+ <417D35F0.1070501@kolumbus.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 09:10:47AM -0700, Linus Torvalds wrote:
-> I doubt arch is there today either, but hey, if it displaces CVS, I 
-> certainyl won't complain. How are the gcc people doing with it?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-gcc people are stuck with CVS AFIK. Apparently CVS is good enough for
-them.
+Mika Penttilä wrote:
+> Mike Waychison wrote:
+> 
+>> This patch introduces the concept of a 'soft' reference count for a
+>> vfsmount.
+>> This type of reference count allows for references to be held on
+>> mountpoints
+>> that do not affect their busy states for userland unmounting.  Some might
+>> argue that this is wrong because 'when I unmount a filesystem, I want the
+>> resources associated with it to go away too', but this way of thinking
+>> was
+>> deprecated with the addition of namespaces and --bind back in the 2.4
+>> series.
+>>
+>> A future addition may see a callback mechanism so that in kernel users
+>> can
+>> use a given mountpoint and have it deregistered some way (quota and
+>> accounting come to mind).
+>>
+>> These soft reference counts are used by a later patch that adds an
+>> interface
+>> for holding and manipulating mountpoints using filedescriptors.
+>>
+>> Signed-off-by: Mike Waychison <michael.waychison@sun.com>
+>>
+>> +static inline struct vfsmount *mntsoftget(struct vfsmount *mnt)
+>> +{
+>> +    if (mnt) {
+>> +        read_lock(&vfsmountref_lock);
+>> +        atomic_inc(&mnt->mnt_softcount);
+>> +        mntgroupget(mnt);
+>> +        read_unlock(&vfsmountref_lock);
+>> +    }
+>> +    return mnt;
+>> +}
+>> +
+>> +static inline void mntsoftput(struct vfsmount *mnt)
+>> +{
+>> +    struct vfsmount *cleanup;
+>> +    might_sleep();
+>> +    if (mnt) {
+>> +        if (atomic_dec_and_test(&mnt->mnt_count))
+>> +            __mntput(mnt);
+>> +        read_lock(&vfsmountref_lock);
+>> +        cleanup = mntgroupput(mnt);
+>> +        atomic_dec(&mnt->mnt_softcount);
+>> +        read_unlock(&vfsmountref_lock);
+>> +        if (cleanup)
+>> +            __mntgroupput(cleanup);
+>> +    }
+>> +}
+>> +
+>> extern void free_vfsmnt(struct vfsmount *mnt);
+>>  
+>>
+> What is this against? What are mntgroupput and mntgroupget? 
 
-arch isn't ready for prime time with the kernel. It would be ready if we
-were ok to limit it to say 5000 changesets and to obsolete the older
-changesets once in a while. the backend needs a rewrite to handle that.
+This is against patch [PATCH 11/28] VFS: Allow detachable subtrees.
 
-Thanks to various improvements we did (I only did one that allows
-caching with hardlinked trees, Chris and others did more), probably arch
-would be already way faster than BK in a daily checkout checkin and
-cloning (nobody on the open source side can verify since we cannot use
-BK, AFIK Miles tried to buy a copy of BK but Larry refused to sell it,
-but I seriously doubt BK has such an advanced hardlinking cache
-mechanism like arch), but the very first setup on a new machine would be
-very inefficient (if compared to CVS) and the local copy of the
-repository would take more space (again if compared to CVS).
+In that patch, mntgroup(get|put) handles the count of all non-glue
+references for a given tree of vfsmounts.
 
-The user interface isn't nice either, it'd be nicer at least to avoid
-overlaps between commands.
 
-I believe this all can be fixed, it just needs a critical mass of users
-and some big initial pain.
+> Why does soft put decrement mnt_count which isn't increment by soft get? 
+
+Ah, thanks for pointing that out.  It got messed up when I created the
+patchset from the bk tree. Will fix.
+
+> How do
+> soft references allow userland umount? I don't see soft references used
+> anywhere...
+
+Soft references are used by the mountpoint file descriptor patch
+[14/28].  They allow references to be had on a vfsmount such that the
+mountpoint itself is not kept busy in the namespace.  This allows a
+program to 'grab a mountpoint' by a magic file (gotten by sys_mountfd),
+and perform ops on it.   The mountfd holds a reference to the vfsmount,
+but it doesn't keep userspace from trying to umount(2) the path.
+
+Does that help?
+
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBfTcNdQs4kOxk3/MRAnZwAKCTv7SMsT/+o4WLMJGapFVKURsbNwCeI+iF
+sZCOzRRNcnesK8rFN2haEww=
+=eFwD
+-----END PGP SIGNATURE-----

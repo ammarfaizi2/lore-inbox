@@ -1,78 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267559AbTAGSGl>; Tue, 7 Jan 2003 13:06:41 -0500
+	id <S267564AbTAGSJZ>; Tue, 7 Jan 2003 13:09:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267560AbTAGSGl>; Tue, 7 Jan 2003 13:06:41 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:49536 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S267559AbTAGSGj>; Tue, 7 Jan 2003 13:06:39 -0500
-Date: Tue, 7 Jan 2003 13:17:35 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Max Valdez <maxvaldez@yahoo.com>
-cc: Jan Hudec <bulb@ucw.cz>, kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Undelete files on ext3 ??
-In-Reply-To: <1041961118.13635.10.camel@garaged.fis.unam.mx>
-Message-ID: <Pine.LNX.3.95.1030107131613.3523A-100000@chaos.analogic.com>
+	id <S267566AbTAGSJZ>; Tue, 7 Jan 2003 13:09:25 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39438 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267564AbTAGSJY>; Tue, 7 Jan 2003 13:09:24 -0500
+Date: Tue, 7 Jan 2003 09:44:53 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Grant Grundler <grundler@cup.hp.com>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, <davidm@hpl.hp.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.5] PCI: allow alternative methods for probing the BARs
+In-Reply-To: <1041942820.20658.2.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0301070942440.1913-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Jan 2003, Max Valdez wrote:
 
-> 
+On 7 Jan 2003, Alan Cox wrote:
+>
+> On Tue, 2003-01-07 at 00:13, Grant Grundler wrote:
+> > On Mon, Jan 06, 2003 at 03:19:09PM -0800, Linus Torvalds wrote:
+> > > In particular, we can make the first phase disable DMA on the devices we 
+> > > find, which means that we know they won't be generating PCI traffic during 
+> > > the second phase - so now the second phase (which does the BAR sizing) can 
+> > > do sizing and be safe in the knowledge that there should be no random PCI 
+> > > activity ongoing at the same time.
 > > 
-> > By the way, there used to be undelete tool for ext2. It created a list
-> > of deleted inodes with correct stat, but no names, only their inode
-> > numbers. You could then pick the corect inode and give it a name, thus
-> > bringing it back to life. Since ext3 is just ext2 with journal, I guess
-> > it might work. It existed as a standalone tool and integrated to
-> > midnight commander.
-> > 
-> I think there must be some other differences between ext2 and ext3, I've
-> tryed e2undel and unrm, both made for ext2, and none of them found any
-> deleted inode.
+> > Did you expect the PCI_COMMAND_MASTER disabled in the USB Controller
+> > or something else in the controller turned off?
 > 
-> I umonted immediately the drive, and nothing has been writen on it after
-> the rm *
-> 
-> Thanks for the comments !
-> I will keep searching !
-> Max
+> There is another problem too. Some devices ignore the master bit disable.
+> VIA 8233/8235 being a fine example.
 
+Well, I was actually thinking of really _stopping_ the USB controller and
+disable DMA that way.  That's easy to do with a few trivial fixups - one
+for each USB controller type (and there are only three).
 
-There is a project waiting for someone who wants
-to contribute. It only slightly involves the kernel,
-but is quite useful.
+Because of legacy USB handling by the SMM BIOS, USB really ends up being a
+special case. There may be other special cases, of course, but the whole 
+point of the fixups is exactly to handle special cases.
 
-As more people are switching from the Redmond stuff
-to Linux, many have "learned" from the Redmond stuff
-that `rm` isn't permanent. You can always get it
-back from the `wastebasket`.  Of course, the Unix
-gurus know you can't. Therefore, it's time for somebody
-to put a 'dumpster` in all the Linux file-systems.
-Somebody should then modify `rm` and the kernel unlink
-to `mv' files to the dumpster directory on the
-file-system, instead of really deleting them. Then,
-just like the Redmond stuff, a separate program can
-be used to clear out the "dumpster" or `mv` them back.
-
-Since sys_unlink() takes only a path-name, there isn't
-a current mechanism whereby it could take a flag to
-tell it to 'really' delete a file (or is there?). So,
-maybe we need a new kernel function? Just hacking existing
-utilities won't do the whole thing because we need programs
-that delete files to transparently put them into the
-dumpster as well.
-
-The wastebasket should be called a hopper or a dumpster so
-Redmond doesn't get confused and send lawyers.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+		Linus
 

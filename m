@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311252AbSCQBzD>; Sat, 16 Mar 2002 20:55:03 -0500
+	id <S311259AbSCQCFJ>; Sat, 16 Mar 2002 21:05:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311251AbSCQByy>; Sat, 16 Mar 2002 20:54:54 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:34323 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S311252AbSCQBys>;
-	Sat, 16 Mar 2002 20:54:48 -0500
-Date: Sat, 16 Mar 2002 18:54:21 -0700
-From: yodaiken@fsmlabs.com
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: yodaiken@fsmlabs.com, Robert Love <rml@tech9.net>,
-        Mikael Pettersson <mikpe@csd.uu.se>,
-        linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18 Preempt Freezeups
-Message-ID: <20020316185421.A26719@hq.fsmlabs.com>
-In-Reply-To: <3C9153A7.292C320@ianduggan.net> <E16mObg-0000mZ-00@starship> <20020316181338.A26242@hq.fsmlabs.com> <E16mPFW-0000mo-00@starship>
+	id <S311255AbSCQCEz>; Sat, 16 Mar 2002 21:04:55 -0500
+Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:29130 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S311257AbSCQCEm>; Sat, 16 Mar 2002 21:04:42 -0500
+Date: Sun, 17 Mar 2002 02:01:45 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+Cc: Andreas Dilger <adilger@clusterfs.com>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Cleanup port 0x80 use (was: Re: IO delay ...)
+Message-ID: <20020317020145.A20307@kushida.apsleyroad.org>
+In-Reply-To: <20020315185722.GA920@turbolinux.com> <Pine.LNX.4.33.0203152102430.9609-100000@biker.pdb.fsc.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E16mPFW-0000mo-00@starship>; from phillips@bonn-fries.net on Sun, Mar 17, 2002 at 02:14:14AM +0100
-Organization: FSM Labs
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0203152102430.9609-100000@biker.pdb.fsc.net>; from Martin.Wilck@fujitsu-siemens.com on Fri, Mar 15, 2002 at 09:17:12PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 17, 2002 at 02:14:14AM +0100, Daniel Phillips wrote:
-> On March 17, 2002 02:13 am, yodaiken@fsmlabs.com wrote:
-> > On Sun, Mar 17, 2002 at 01:33:04AM +0100, Daniel Phillips wrote:
-> > > On March 16, 2002 01:40 am, yodaiken@fsmlabs.com wrote:
-> > > > 
-> > > > Without preempt:
-> > > > 	x = movefrom processor register;
-> > 		// if preemption is on, we can be preempted and restart
-> > 		// on another processor so x will be wrong
-> > > >         do_something with x
-> > > > 
-> > > > is safe in SMP
-> > > > With [preempt] it requires a lock.
-> > > 
-> > > It must be a trick question.  Why would it?
-> > 
-> > See comment.
+Martin Wilck wrote:
+> > > +#define __SLOW_DOWN_IO_PORT 0x80
+> > > +#define __SLOW_DOWN_IO "\noutb %%al,$0x80"
+> >
+> > You may want to change the above to:
+> > #define __SLOW_DOWN_IO_ASM	"\noutb %%al,$__SLOW_DOWN_IO_PORT"
 > 
-> Which processor register were you thinking of?  Surely not anything in the 
-> general register set, and otherwise, it's just another example of per-cpu 
-> data.  It needs to be protected, and the protection is lightweight.
+> Won't work, cpp doesn't substitute between double quotes.
+> (at least the one I'm using). Or am I gettimng something wrong here??
 
+As long as __SLOW_DOWN_IO_PORT is a simple constant, you can just use
+this instead:
 
-So what didn't you understand? Your (dubious)
-assertion that the lock is "lightweight"
-has absolutely no bearing on whether a lock is needed or not.
+    #define __SLOW_DOWN_IO_ASM	"\noutb %%al,$" #__SLOW_DOWN_IO_PORT
 
-
-
-
-
-> 
-> -- 
-> Daniel
-
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
-
+-- Jamie

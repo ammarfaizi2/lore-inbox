@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130153AbRCBXxQ>; Fri, 2 Mar 2001 18:53:16 -0500
+	id <S130162AbRCBX5Z>; Fri, 2 Mar 2001 18:57:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130162AbRCBXxF>; Fri, 2 Mar 2001 18:53:05 -0500
-Received: from h170n1fls20o70.telia.com ([213.64.50.170]:40579 "EHLO
-	garbo.localnet") by vger.kernel.org with ESMTP id <S130153AbRCBXwt>;
-	Fri, 2 Mar 2001 18:52:49 -0500
-Message-ID: <3AA0323A.2ED09AB@canit.se>
-Date: Sat, 03 Mar 2001 00:52:26 +0100
-From: Kenneth Johansson <ken@canit.se>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2 i686)
+	id <S130167AbRCBX5Q>; Fri, 2 Mar 2001 18:57:16 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:5556 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S130162AbRCBX5G>; Fri, 2 Mar 2001 18:57:06 -0500
+Message-ID: <3AA03354.A07F5179@uow.edu.au>
+Date: Sat, 03 Mar 2001 10:57:08 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Matt_Domsch@Dell.com
+To: Collectively Unconscious <swarm@warpcore.provalue.net>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and 2GB swap partition limit
-In-Reply-To: <CDF99E351003D311A8B0009027457F1403BF9DFB@ausxmrr501.us.dell.com>
+Subject: Re: I/O problem with sustained writes
+In-Reply-To: <3AA00D5A.44FA21D0@mandrakesoft.com> <Pine.LNX.4.10.10103021455500.29369-100000@warpcore.provalue.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt_Domsch@Dell.com wrote:
+Collectively Unconscious wrote:
+> 
+> We are having a problem with writes.
+> They start at 14 M/s for the first hour and then drop to 2.5 M/s and stay
+> that way. Reads do not seem effected and we've noticed this on the 2.2.16,
+> 2.2.17, 2.2.18 and now the 2.2.19pre11 kernels.
+> 
+> These are SMP P-IIIs from 450 to 800 MHz. Redhat 6.2
 
-> Linus has spoken, and 2.4.x now requires swap = 2x RAM.
-> But, the 2GB per swap partition limit still exists, best as we can tell.
-> So, we sell machines with say 8GB RAM.  We need 16GB swap, but really we
-> need like an 18GB disk with 8 2GB swap partitions, or ideally 8 disks with a
-> 2GB swap partition on each.  That's ugly.
->
-> Is the 2GB per swap partition going to go away any time soon?
->
-> Thanks,
-> Matt
->
+I've seen something similar on Seagate ST313021A IDE drives.
+After a few minutes their read throughput falls from 20
+megs/sec to about 5.  Issuing *any* drive-setting command
+brings the throughput back.  Even a command which the disk
+doesn't support.
 
-I know Rik have some plans but I don't know the time table.
+So I have a cron job which runs `hdparm -A1' once per minute.
 
-On the other hand do you really need swap partitions how about using swap
-files? That way you don't need to manage alot of partitons and you can test if
-you really do need to go all the way to 2xRAM. It dose look a bit silly to have
-
-16GB swap. Are you really going to load the machine with work that needs more
-than 8GB?? if not you don't really need any swap.
-
-I have not created any swap partitons in years and mostly run without any swap
-whatsoever. It's easy to create one temporary if I know I'am going to use more
-memory than I have. Obviously on a server it's better to be safe than sorry.
-
-
-
+-

@@ -1,82 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267034AbSLQUN5>; Tue, 17 Dec 2002 15:13:57 -0500
+	id <S267101AbSLQUSC>; Tue, 17 Dec 2002 15:18:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267033AbSLQUN5>; Tue, 17 Dec 2002 15:13:57 -0500
-Received: from poup.poupinou.org ([195.101.94.96]:61191 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP
-	id <S267034AbSLQUNz>; Tue, 17 Dec 2002 15:13:55 -0500
-Date: Tue, 17 Dec 2002 21:21:42 +0100
-To: Pavel Machek <pavel@suse.cz>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] acpi_wakeup fixes
-Message-ID: <20021217202142.GB1012@poup.poupinou.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="UugvWAfsgieZRqgk"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: Ducrot Bruno <poup@poupinou.org>
+	id <S267102AbSLQUSC>; Tue, 17 Dec 2002 15:18:02 -0500
+Received: from fep02.superonline.com ([212.252.122.41]:27893 "EHLO
+	fep02.superonline.com") by vger.kernel.org with ESMTP
+	id <S267101AbSLQUSB>; Tue, 17 Dec 2002 15:18:01 -0500
+Message-ID: <3DFF85BB.4090708@superonline.com>
+Date: Tue, 17 Dec 2002 22:14:51 +0200
+From: "O.Sezer" <sezero@superonline.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: tr, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Andrew McGregor <andrew@indranet.co.nz>
+Subject: Re: rmap and nvidia?
+References: <3DFE522A.6010803@superonline.com> <49770000.1040153722@localhost.localdomain>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+So, we should thank to wli for the information.
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-Hi Pavel.
 
-This diff should be OK (I hope)
+Andrew McGregor wrote:
+> So, first apply the patch for 4191 from www.minion.de, then the attached 
+> one based on yours.  Been running overnight and beaten on by 
+> XScreesaver, no memory leak anymore.
+> 
+> Andrew
+> 
+> --On Tuesday, December 17, 2002 00:22:34 +0200 "O.Sezer" 
+> <sezero@superonline.com> wrote:
+> 
+>> Is this patch correct in any way?
+>> (Ripped out of the 2.5 patch and modified some).
+>>
+>> Thanks.
+>>
+> 
 
--- 
-Ducrot Bruno
-http://www.poupinou.org        Page profaissionelle
-http://toto.tu-me-saoules.com  Haume page
-
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="00_acpi_wakeup.S.fix"
-
---- linux-2.5.52/arch/i386/kernel/acpi_wakeup.S	2002/12/17 19:15:12	1.1
-+++ linux-2.5.52/arch/i386/kernel/acpi_wakeup.S	2002/12/17 20:03:40
-@@ -41,7 +41,7 @@
- 	cmpl	$0x12345678, %eax
- 	jne	bogus_real_magic
- 
--#if 1
-+#if 0
- 	lcall   $0xc000,$3
- #endif
- #if 0
-@@ -69,8 +69,12 @@
- 
- 	movl	real_save_cr0 - wakeup_code, %eax
- 	movl	%eax, %cr0
-+
-+	# flush the prefetch queue.
- 	jmp 1f
-+1:	jmp 1f
- 1:
-+
- 	movw	$0x0e00 + 'n', %fs:(0x14)
- 
- 	movl	real_magic - wakeup_code, %eax
-@@ -160,11 +164,12 @@
- 	ALIGN
- 
- 
--.org	0x2000
-+.org	0x800
- wakeup_stack:
--.org	0x3000
-+.org	0x900
- ENTRY(wakeup_end)
--.org	0x4000
-+# .org	0x1000
-+	.align 4096
- 
- wakeup_pmode_return:
- 	movl	$__KERNEL_DS, %eax
-
---UugvWAfsgieZRqgk--

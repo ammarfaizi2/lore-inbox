@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130830AbRBGBUn>; Tue, 6 Feb 2001 20:20:43 -0500
+	id <S129285AbRBGAAF>; Tue, 6 Feb 2001 19:00:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130799AbRBGBUd>; Tue, 6 Feb 2001 20:20:33 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:58631 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130830AbRBGBUU>; Tue, 6 Feb 2001 20:20:20 -0500
-Date: Tue, 6 Feb 2001 17:19:58 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jens Axboe <axboe@suse.de>
-cc: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        "Stephen C. Tweedie" <sct@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-        Ben LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        kiobuf-io-devel@lists.sourceforge.net
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <20010207020221.B13647@suse.de>
-Message-ID: <Pine.LNX.4.10.10102061713160.2193-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129686AbRBFX7t>; Tue, 6 Feb 2001 18:59:49 -0500
+Received: from jalon.able.es ([212.97.163.2]:15017 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129285AbRBFX72>;
+	Tue, 6 Feb 2001 18:59:28 -0500
+Date: Wed, 7 Feb 2001 00:59:20 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Juraj Bednar <juraj@bednar.sk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: smp_num_cpus redefined? (compiling 2.2.18 for non-SMP?)
+Message-ID: <20010207005920.C949@werewolf.able.es>
+In-Reply-To: <20010207005203.A19812@rak.isternet.sk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20010207005203.A19812@rak.isternet.sk>; from juraj@bednar.sk on Wed, Feb 07, 2001 at 00:52:04 +0100
+X-Mailer: Balsa 1.1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Wed, 7 Feb 2001, Jens Axboe wrote:
+On 02.07 Juraj Bednar wrote:
+> Hello,
 > 
-> I don't see anything that would break doing this, in fact you can
-> do this as long as the buffers are all at least a multiple of the
-> block size. All the drivers I've inspected handle this fine, noone
-> assumes that rq->bh->b_size is the same in all the buffers attached
-> to the request.
+> 
+>   the same for vanilla 2.4.1 and 2.4.1ac3. Everything works ok until I turn
+> off SMP
+> support (which is required to make it possible to turn off the machine using
+> APM, since
+> ACPI is completely broken in 2.4.1 for me).
+> 
 
-It's really easy to get this wrong when going forward in the request list:
-you need to make sure that you update "request->current_nr_sectors" each
-time you move on to the next bh.
+You do not need to do that. Enable both SMP and APM (just APM support, no
+ACPI nor any other apm option). And add to your lilo.conf file a line:
+append="apm=power-off".
 
-I would not be surprised if some of them have been seriously buggered. 
+At boot you will see a log message like:
 
-On the other hand, I would _also_ not be surprised if we've actually fixed
-a lot of them: one of the things that the RAID code and loopback test is
-exactly getting these kinds of issues right (not this exact one, but
-similar ones).
+apm: BIOS version 1.2 Flags 0x03 (Driver version 1.14)
+apm: disabled - APM is not SMP safe (power off active).
 
-And let's remember things like the old ultrastor driver that was totally
-unable to handle anything but 1kB devices etc. I would not be _totally_
-surprised if it turns out that there are still drivers out there that
-remember the time when Linux only ever had 1kB buffers. Even if it is 7
-years ago or so ;)
+So kernel diables APM but lets the power-off feature active.
 
-(Also, there might be drivers that are "optimized" - they set the IO
-length once per request, and just never set it again as they do partial
-end_io() calls. None of those kinds of issues would ever be found under
-normal load, so I would be _really_ nervous about just turning it on
-silently. This is all very much a 2.5.x-kind of thing ;)
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
 
-		Linus
+Linux werewolf 2.4.1-ac4 #1 SMP Tue Feb 6 22:06:38 CET 2001 i686
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

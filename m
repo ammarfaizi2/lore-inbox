@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288234AbSAQG65>; Thu, 17 Jan 2002 01:58:57 -0500
+	id <S288238AbSAQHLJ>; Thu, 17 Jan 2002 02:11:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288233AbSAQG6q>; Thu, 17 Jan 2002 01:58:46 -0500
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:27910 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S288225AbSAQG6k>; Thu, 17 Jan 2002 01:58:40 -0500
-Date: Thu, 17 Jan 2002 14:59:44 +0800
-From: Barry Wu <wqb123@yahoo.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: how many cpus can linux support for SMP?
-X-mailer: FoxMail 3.0 beta 2 [cn]
+	id <S288245AbSAQHK7>; Thu, 17 Jan 2002 02:10:59 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:61060
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S288238AbSAQHKx>; Thu, 17 Jan 2002 02:10:53 -0500
+Date: Thu, 17 Jan 2002 01:54:56 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Calling EISA experts
+Message-ID: <20020117015456.A628@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="GB2312"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20020117065841Z288225-13996+7386@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, all,
+Does anything in /proc or elswhere reliably register the presence of EISA?  
 
-I am new to this mail list. I do not know how many CPUs linux can
-support well using SMP. If some one knows, please give me
-a reply. Thanks.
+Failing that, have any motherboards existed that had both PCI and EISA slots?
 
-Barry
+(Yes, I have RTFD.  That's why I'm asking.)
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
-
+Certainly one of the chief guarantees of freedom under any government,
+no matter how popular and respected, is the right of the citizens to
+keep and bear arms.  [...] the right of the citizens to bear arms is
+just one guarantee against arbitrary government and one more safeguard
+against a tyranny which now appears remote in America, but which
+historically has proved to be always possible.
+        -- Hubert H. Humphrey, 1960

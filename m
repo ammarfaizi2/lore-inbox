@@ -1,49 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVA1A7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVA1A7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbVA1A7m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 19:59:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVA1A5M
+	id S261343AbVA1A7n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 19:59:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVA1A4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 19:57:12 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:63170
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261360AbVA1AxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 19:53:13 -0500
-Date: Thu, 27 Jan 2005 16:48:43 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       greg@kroah.com, akpm@osdl.org
-Subject: Re: [ANN] removal of certain net drivers coming soon: eepro100,
- xircom_tulip_cb, iph5526
-Message-Id: <20050127164843.08bdb307.davem@davemloft.net>
-In-Reply-To: <20050128001430.C22695@flint.arm.linux.org.uk>
-References: <41F952F4.7040804@pobox.com>
-	<20050127225725.F3036@flint.arm.linux.org.uk>
-	<20050127153114.72be03e2.davem@davemloft.net>
-	<20050128001430.C22695@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 27 Jan 2005 19:56:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:9904 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261352AbVA1Axg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 19:53:36 -0500
+Date: Thu, 27 Jan 2005 16:58:22 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: Advice sought on how to lock multiple pages in ->prepare_write
+ and ->writepage
+Message-Id: <20050127165822.291dbd2d.akpm@osdl.org>
+In-Reply-To: <1106822924.30098.27.camel@imp.csi.cam.ac.uk>
+References: <1106822924.30098.27.camel@imp.csi.cam.ac.uk>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Jan 2005 00:14:30 +0000
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+>
+> What would you propose can I do to perform the required zeroing in a
+> deadlock safe manner whilst also ensuring that it cannot happen that a
+> concurrent ->readpage() will cause me to miss a page and thus end up
+> with non-initialized/random data on disk for that page?
 
-> The fact of the matter is that eepro100.c works on ARM, e100.c doesn't.
-> There's a message from me back on 30th June 2004 at about 10:30 BST on
-> this very list which generated almost no interest from anyone...
+The only thing I can think of is to lock all the pages.  There's no other
+place in the kernel above you which locks multiple pagecache pages, but we
+can certainly adopt the convention that multiple-page-locking must proceed
+in ascending file offset order.
 
-I see.  Since eepro100 just uses a fixed set of RX buffers in the
-ring (ie. the DMA links are never changed) it works.
+Which means that you'll need to drop and reacquire the page lock in
+->prepare_write and in ->writepage, which could get unpleasant.
 
-This adapter was definitely developed for a system that has to have
-PCI device DMA and CPU cached data accesses in the same coherency
-space in order to use their weird RX chaining thing.
+For ->prepare_write it should be OK: the caller has a ref on the inode and
+you can check ->mapping after locking the page to see if a truncate flew
+past (OK, you have i_sem, but writepage will need to do this check).
 
-So essentially, e100 needs to have it's RX logic rewritten so that
-it uses a static RX descriptor set of buffers and skb_copy()'s them
-to push the packets into the stack.
+For writepage() or writepages() with for_reclaim=0 you're OK: the caller
+has a ref on the inode and has taken sb->s_umount, so you can safely drop
+and retake the page lock.
+
+For ->writepage with for_reclaim=1 the problem is that the inode can
+disappear on you altogether: you have no inode ref and if you let go of
+that page lock, truncate+reclaim or truncate+umount can zap the inode.
+
+So hrm.  I guess your ->writepage(for_reclaim=1) could do a trylock on
+s_umount and fail the writepage if that didn't work out.
+
+That leaves the problem of preventing truncate+reclaim from zapping the
+inode when you've dropped the page lock.  I don't think you'll want to take
+a ref on the inode because the subsequent iput() can cause a storm of
+activity and I have vague memories that iput() inside
+->writepage(for_reclaim=1) is a bad deal.  Maybe do a trylock on i_sem and
+fail the writepage if that doesn't work out?
+
+That way, once you have i_sem and s_umount you can unlock the target page
+then populate+lock all the pages in the 64k segment.
+
+Not very pretty though.

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314052AbSEFBtE>; Sun, 5 May 2002 21:49:04 -0400
+	id <S314061AbSEFBwE>; Sun, 5 May 2002 21:52:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314057AbSEFBtD>; Sun, 5 May 2002 21:49:03 -0400
-Received: from dsl-213-023-038-176.arcor-ip.net ([213.23.38.176]:10430 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314052AbSEFBtC>;
-	Sun, 5 May 2002 21:49:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-Date: Mon, 6 May 2002 03:48:30 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Russell King <rmk@arm.linux.org.uk>,
-        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020502180632.I11414@dualathlon.random> <E174XFK-0004CJ-00@starship> <20020506034218.H6712@dualathlon.random>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E174Xc6-0004CU-00@starship>
+	id <S314065AbSEFBwD>; Sun, 5 May 2002 21:52:03 -0400
+Received: from c-24-98-8-129.atl.client2.attbi.com ([24.98.8.129]:65288 "EHLO
+	c-24-98-8-129.atl.client2.attbi.com") by vger.kernel.org with ESMTP
+	id <S314061AbSEFBwC>; Sun, 5 May 2002 21:52:02 -0400
+Subject: [Patch] SiS 740/961 chipset
+From: Blue Lizard <webmaster@dofty.zzn.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-q0ZVlti2gvFXW+4bU9SX"
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 05 May 2002 21:52:29 -0400
+Message-Id: <1020649949.12612.13.camel@c-24-98-8-129.atl.client2.attbi.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 May 2002 03:42, Andrea Arcangeli wrote:
-> On Mon, May 06, 2002 at 03:24:58AM +0200, Daniel Phillips wrote:
-> > What do you mean by 'implement a static view of them'?
-> 
-> See the attached email. assuming chunks of 256M ram every 1G, 1G phys
-> goes at 3G+256M virt, 2G goes at 3G+512M etc...
 
-So, __va(0x40000000) = 0xc0000000, and __va(0x80000000) = 0, i.e., not a kernel
-address at all, because with config_discontigmem __va is a simple linear
-relation.  What do you do about that?
+--=-q0ZVlti2gvFXW+4bU9SX
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
--- 
-Daniel
+Greets.  I made a very simple 2 line (plain english and all) patch for
+pci.ids to support the SiS 740/961 chipset.  AFAICT it works, given that
+the patched kernel can now detect my pci devices (unpatched can't).
+The patch is against 2.5.13, backporting to 2.4.19 is simply a matter of
+noting the right line numbers.
+
+Regards
+-MG
+
+
+--=-q0ZVlti2gvFXW+4bU9SX
+Content-Disposition: attachment; filename=pci.ids.diff
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=pci.ids.diff; charset=ISO-8859-1
+
+856a857
+> 	0740  740 Host
+858a860
+> 	0961  961 PCI Chip
+
+--=-q0ZVlti2gvFXW+4bU9SX--

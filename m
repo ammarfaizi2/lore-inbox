@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUJARFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264980AbUJARLB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265768AbUJARFr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 13:05:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUJARFq
+	id S264980AbUJARLB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 13:11:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUJARLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 13:05:46 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:36554 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S265195AbUJARDV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 13:03:21 -0400
-Subject: Re: [patch] make dnotify compile-time configurable
-From: Robert Love <rml@novell.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: mpm@selenic.com, ttb@tentacle.dhs.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, gamin-list@gnome.org
-In-Reply-To: <20041001085823.05adc9b5.rddunlap@osdl.org>
-References: <1096611874.4803.18.camel@localhost>
-	 <20041001151124.GQ31237@waste.org>
-	 <1096644076.7676.6.camel@betsy.boston.ximian.com>
-	 <20041001083110.76a58fd2.rddunlap@osdl.org>
-	 <1096645479.7676.15.camel@betsy.boston.ximian.com>
-	 <20041001085823.05adc9b5.rddunlap@osdl.org>
-Content-Type: text/plain
-Date: Fri, 01 Oct 2004 13:01:55 -0400
-Message-Id: <1096650115.7676.20.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Oct 2004 13:11:01 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:53457 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S264980AbUJARKb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 13:10:31 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: 2.6.9-rc2-mm4 - Getting dev->irq equals 0
+Date: Fri, 1 Oct 2004 10:10:00 -0700
+Message-ID: <468F3FDA28AA87429AD807992E22D07E02B9512F@orsmsx408>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.9-rc2-mm4 - Getting dev->irq equals 0
+Thread-Index: AcSn2XvdGIBFQ4FUSq6XTIB18iOG9Q==
+From: "Sy, Dely L" <dely.l.sy@intel.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 01 Oct 2004 17:10:01.0751 (UTC) FILETIME=[7CD85270:01C4A7D9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-01 at 08:58 -0700, Randy.Dunlap wrote:
+Andrew,
 
-> Sorry, that's about all that I was trying to say.  If patches A & B
-> are logically separate, don't combine them.  Nothing new there.
+I encountered a problem in running shpchp & pciehp drivers on
+2.6.9-rc2-mm4 kernel.  With ACPI & MSI enabled in the kernel, I 
+got dev->irq properly for the hot-plug controllers.  With ACPI 
+enabled and MSI not-enabled in this kernel, I got dev->irq 
+equal 0 for the controllers. With the same options set in 
+2.6.8.1 & 2.6.9-rc2, things worked fine on the same system.
 
-In this case I offer A or A&B.
+Do you know of any changes in the -mm4 that might have caused this
+problem?
 
-> Well, the patch shouldn't remove dnotify unconditionally, or not
-> until we have that elusive stable kernel series that people keep
-> mentioning elsewhere.
-
-No patch I posted removes dnotify unconditionally.
-
-	Robert Love
-
-
+Thanks,
+Dely

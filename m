@@ -1,76 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbUK2UXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbUK2U02@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbUK2UXM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 15:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbUK2UXM
+	id S261781AbUK2U02 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 15:26:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbUK2U02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 15:23:12 -0500
-Received: from moutng.kundenserver.de ([212.227.126.176]:29417 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261775AbUK2UW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 15:22:28 -0500
-Message-ID: <41AB853D.8010909@akik-ffm.de>
-Date: Mon, 29 Nov 2004 21:23:25 +0100
-From: Christoph Zimmermann <cz@akik-ffm.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en, de
-MIME-Version: 1.0
+	Mon, 29 Nov 2004 15:26:28 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:54292 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261781AbUK2U0W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 15:26:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=b0S1co8OP+CpruHMufDWzazvITJlwIdjQ+b6FlNEdMIFFF5n+HcxSZEPsGwgKZLxSxjZBBZIyzIbUd72uaFW44B1A2QvVU8hcNf9WNp1y9qi/nXoCM5r1ABFagqjpoDbvr3Kva3BBYgtHrJou1lWrRXlI2Rk1NtlB5LlPvlZWrw=
+Message-ID: <aec7e5c30411291226104ae711@mail.gmail.com>
+Date: Mon, 29 Nov 2004 21:26:20 +0100
+From: Magnus Damm <magnus.damm@gmail.com>
+Reply-To: Magnus Damm <magnus.damm@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Potential race condition in SMP version of 2.6.9?
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: yenta: Fish. Please report.
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:81682f751c3aefccc5fcfa92aabe61f9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-I'm having severe problems getting the SMP version of 2.6.9 up
-and running. I'm using a stock-version of FC2 without
-modificiation bar the kernel and the kudzu modification / removal
-as suggested in linux.redhat.install on 2004-9-25/26 when facing
-similar problems.
+I am unable to use yenta from 2.6.9 on my laptop.  The module loads
+but "cardctl insert" and "cardctl status" does not work what I can
+tell. 2.4.28 seems to work ok, so does 2.4.19.
 
-The problem manifests during the level 5 boot phase when certain scripts 
-in /etc/rc5.d are executed, more precisely the S90xfs and S96readahead
-scripts. I first observed the problem when booting the SMP version
-of the kernel (configuration: all experimental features switched off,
-SMP enabled with 2 CPUs and hyperthreading scheduler support enabled).
-The font server apparently never returns and thus the init sequence
-seems to hang. So I moved the execution of the script to S98xfs just
-to check. Now S96readahead stalls with the same symptoms and
-boot sequence hangs again. Trying any of the sys-rq features
-(although enabled in the kernel config) to get some initial debug info
-does not work. I'm using a single-CPU Pentium 4 system with
-ACPI and HT enabled in the BIOS (see copy of /proc/cpuinfo below).
+The laptop model is uniwill 223ii0, BIOS 1.03. 
 
-The initialisation sequence works perfectly well when using the
-kernel that came with FC2 or 2.6.9 without SMP support. Thus,
-I'm suspecting a race condiition / deadlock within the kernel.
+2.6.9-kernel output from "modprobe yenta_socket":
 
-Any thoughts on this or pointers to hints? I'd be glad to
-provide any additional information (strace dumps, etc.) as required.
+ACPI: PCI interrupt 0000:01:03.0[A] -> GSI 3 (level, low) -> IRQ 3
+Yenta: CardBus bridge found at 0000:01:03.0 [1584:3200]
+Yenta: Using CSCINT to route CSC interrupts to PCI
+Yenta: Routing CardBus interrupts to PCI
+Yenta TI: socket 0000:01:03.0, mfunc 0x000c1002, devctl 0x44
+Yenta TI: socket 0000:01:03.0 probing PCI interrupt failed, trying to fix
+Yenta TI: socket 0000:01:03.0 no PCI interrupts. Fish. Please report.
+Yenta: ISA IRQ mask 0x0000, PCI irq 0
+Socket status: 00000000
 
-This is my cpuinfo data:
+Output from 2.4.28:
 
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 15
-model		: 2
-model name	: Intel(R) Pentium(R) 4 CPU 3.20GHz
-stepping	: 9
-cpu MHz		: 3200.961
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov 
-pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
-bogomips	: 6324.22
+Yenta ISA IRQ mask 0x00d0, PCI irq 3
+Socket status: 30000020
 
-     Cheers, Christoph
+Output from "lspci -vn":
+[snip]
+0000:01:03.0 Class 0607: 104c:ac50 (rev 02)
+        Subsystem: 1584:3200
+        Flags: bus master, medium devsel, latency 168, IRQ 3
+        Memory at 7e001000 (32-bit, non-prefetchable)
+        Bus: primary=01, secondary=02, subordinate=05, sec-latency=176
+        Memory window 0: 7e400000-7e7ff000 (prefetchable)
+        Memory window 1: 7e800000-7ebff000
+        I/O window 0: 00004000-000040ff
+        I/O window 1: 00004400-000044ff
+        16-bit legacy interface ports at 0001
+[snip]
+
+Let me know how to proceed, full dmesg output, non-numeric lspci etc.
+
+Thanks!
+
+/ magnus

@@ -1,99 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVAGBp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVAGBlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbVAGBp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 20:45:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVAGBmj
+	id S261284AbVAGBlq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 20:41:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVAGBkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 20:42:39 -0500
-Received: from [220.248.27.114] ([220.248.27.114]:61673 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S261253AbVAGBkv (ORCPT
+	Thu, 6 Jan 2005 20:40:53 -0500
+Received: from holomorphy.com ([207.189.100.168]:31171 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261284AbVAGBfp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 20:40:51 -0500
-Date: Fri, 7 Jan 2005 09:40:23 +0800
-From: hugang@soulinfo.com
-To: Pavel Machek <pavel@ucw.cz>
+	Thu, 6 Jan 2005 20:35:45 -0500
+Date: Thu, 6 Jan 2005 17:32:30 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Adrian Bunk <bunk@stusta.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [hugang@soulinfo.com: [PATH]software suspend for ppc.]
-Message-ID: <20050107014023.GA29740@hugang.soulinfo.com>
-References: <20050103122653.GB8827@hugang.soulinfo.com> <20050103221718.GC25250@elf.ucw.cz> <20050106160306.GA20127@hugang.soulinfo.com> <20050106223132.GD25913@elf.ucw.cz>
+Subject: Re: [2.6 patch] fs/hugetlbfs/inode.c: make 4 functions static
+Message-ID: <20050107013230.GG9636@holomorphy.com>
+References: <20050107012900.GD14108@stusta.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="AqsLC8rIMeq19msA"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050106223132.GD25913@elf.ucw.cz>
-User-Agent: Mutt/1.3.28i
-X-Virus-Checked: Checked
+In-Reply-To: <20050107012900.GD14108@stusta.de>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 07, 2005 at 02:29:00AM +0100, Adrian Bunk wrote:
+> The patch below makes four needlessly global functions static.
+> diffstta output:
+>  fs/hugetlbfs/inode.c |    8 ++++----
+>  1 files changed, 4 insertions(+), 4 deletions(-)
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Thu, Jan 06, 2005 at 11:31:32PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > adding a option to freeze/thaw_processes, first freeze all user
-> > processess, from now only kernel processess running, Now we can shrink
-> > more memory than current version, after that freeze all processes.
-> > that's mean if your swap space enough, swsusp will not fail. 
-> 
-> Thanks for the port... ...what is the test case this fixes?
-> 
-> Patch is pretty pretty simple, that's good...
-
-# free
-....
-Mem:        256368     198148
-...
-Swap:       524280     140108
-
-# ./eatmem 256
-
-now do swsusp, the current swsusp will fail, with the patch it works.
+Acked-by: William Irwin <wli@holomorphy.com>
 
 
--- 
-Hu Gang       .-.
-              /v\
-             // \\ 
-Linux User  /(   )\  [204016]
-GPG Key ID   ^^-^^   http://soulinfo.com/~hugang/hugang.asc
-
---AqsLC8rIMeq19msA
-Content-Type: text/x-csrc; charset=us-ascii
-Content-Disposition: attachment; filename="eatmem.c"
-
-#include <stdio.h>
-
-static int
-do_malloc(int size)
-{
-	char *p;
-	int i;
-
-	for (i = 0; i < size; i++) {
-		p = malloc(1024 * 1024);
-		if (p == NULL) return -1;
-		memset(p, 1, 1024 * 1024);
-		printf("%2d\r", i);
-		fflush(stdout);
-	}
-	return (0);
-}
-
-int 
-main(int argc, char *argv[])
-{
-	int size = 200;
-
-	if (argc == 2) {
-		size = atoi(argv[1]);
-	}
-
-	do_malloc(size);
-
-	pause();
-}
-
---AqsLC8rIMeq19msA--
+-- wli

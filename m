@@ -1,103 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269102AbUJMPaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269208AbUJMP3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269102AbUJMPaO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 11:30:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269103AbUJMPaO
+	id S269208AbUJMP3r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 11:29:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269190AbUJMP3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 11:30:14 -0400
-Received: from blanca.radiantdata.com ([64.207.39.196]:41042 "EHLO
-	blanca.peakdata.loc") by vger.kernel.org with ESMTP id S269146AbUJMP3q
+	Wed, 13 Oct 2004 11:29:47 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:33021 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S269102AbUJMP3d
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 11:29:46 -0400
-Message-ID: <416D49FF.10003@radiantdata.com>
-Date: Wed, 13 Oct 2004 09:30:07 -0600
-From: "Peter W. Morreale" <morreale@radiantdata.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Martijn Sipkema <martijn@entmoot.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: waiting on a condition
-References: <02bb01c4b138$8a786f10$161b14ac@boromir>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 13 Oct 2004 11:29:33 -0400
+Subject: Re: [patch 2/3] lsm: add bsdjail module
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Ulrich Drepper <drepper@redhat.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041013012206.GA368@IBM-BWN8ZTBWA01.austin.ibm.com>
+References: <1097094103.6939.5.camel@serge.austin.ibm.com>
+	 <1097094270.6939.9.camel@serge.austin.ibm.com>
+	 <20041006162620.4c378320.akpm@osdl.org>
+	 <20041007190157.GA3892@IBM-BWN8ZTBWA01.austin.ibm.com>
+	 <20041010104113.GC28456@infradead.org>
+	 <1097502444.31259.19.camel@localhost.localdomain>
+	 <20041012131124.GA2484@IBM-BWN8ZTBWA01.austin.ibm.com>
+	 <416C5C26.9020403@redhat.com>
+	 <20041013005856.GA3364@IBM-BWN8ZTBWA01.austin.ibm.com>
+	 <416C8048.1000602@redhat.com>
+	 <20041013012206.GA368@IBM-BWN8ZTBWA01.austin.ibm.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1097681181.32468.291.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 13 Oct 2004 11:26:21 -0400
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Oct 2004 15:31:47.0578 (UTC) FILETIME=[C099E5A0:01C4B139]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Have you looked at the wait_event() family yet?       Adapting that 
-methodolgy might
-suit your needs.
+On Tue, 2004-10-12 at 21:22, Serge E. Hallyn wrote:
+> Then they would have to check for an optional "selinux: " at the front
+> of each security_setprocattr entry read in the kernel, in order to handle
+> an lsm infrastructure change which might never be accepted into the kernel
+> anyway.  I suppose it's pretty trivial anyway, but then why would they
+> bother...
 
-I don't know much about preemption yet, however I suspect it would be a 
-bug to allow
-preemption while the spinlock was held.  In other words, you might need 
-to do something like
-
-disable preemption
-spinlock
-rc = condition
-spin_unlock
-enable preemption
-if (rc)
-...
-
-In other words, perform the test on the condition outside of the 
-critical region protected by the spin lock.
-
--PWM
-
-
-Martijn Sipkema wrote:
-
->L.S.
->
->I'd like to do something similar as can be done using a POSIX condition
->variable in the kernel, i.e. wait for some condition to become true. The
->pthread_cond_wait() function allows atomically unlocking a mutex and
->waiting on a condition. I think I should do something like:
->(the condition is updated from an interrupt handler)
->
->disable interrupts
->acquire spinlock
->if condition not satisfied
->    add task to wait queue
->    set task to sleep
->release spinlock
->restore interrupts
->schedule
->
->Now, this will only work with preemption disabled within the critical
->section. How would something like this be done whith preemption
->enabled?
->
->
->--ms
->
->
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+The changes to libselinux and procps and any scripts that directly
+access /proc/pid/attr to deal with multi-entry values would be more
+important; changing the kernel to prepend "selinux: " on getprocattr and
+to strip it on setprocattr would indeed be trivial (but one wonders
+whether we can be confident that userspace will never try to pass one of
+these multi-entry values read from /proc/pid/attr to another interface
+that expects a single context, e.g. selinuxfs or
+setxattr("security.selinux")).
 
 -- 
-Peter W. Morreale                            email: morreale@radiantdata.com
-Director of Engineering                      Niwot, Colorado, USA
-Radiant Data Corporation                     voice: (303) 652-0870 x108 
------------------------------------------------------------------------------
-This transmission may contain information that is privileged, confidential
-and/or exempt from disclosure under applicable law. If you are not the
-intended recipient, you are hereby notified that any disclosure, copying,
-distribution, or use of the information contained herein (including any
-reliance thereon) is STRICTLY PROHIBITED. If you received this transmission
-in error, please immediately contact the sender and destroy the material in
-its entirety, whether in electronic or hard copy format. Thank you.
-
-
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

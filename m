@@ -1,82 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271206AbTHCPtD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 11:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271204AbTHCPtD
+	id S271204AbTHCQAF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 12:00:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271207AbTHCQAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 11:49:03 -0400
-Received: from dsl093-172-075.pit1.dsl.speakeasy.net ([66.93.172.75]:61090
-	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S271233AbTHCPs4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 11:48:56 -0400
-Date: Sun, 3 Aug 2003 11:48:34 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: Matt Mercer <floyd@unpunk.com>
+	Sun, 3 Aug 2003 12:00:05 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:30937 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S271204AbTHCQAC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 12:00:02 -0400
+Date: Sun, 3 Aug 2003 17:59:18 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Marcelo Abreu <skewer@terra.com.br>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: unknown ethernet device
-Message-ID: <20030803154834.GF6541@kurtwerks.com>
-References: <20030803153024.GA3602@unpunk.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030803153024.GA3602@unpunk.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.21-krw
-X-Woot: Woot!
+Subject: Re: 2.6.0-test2-mm3
+In-Reply-To: <3F2D2686.308@terra.com.br>
+Message-ID: <Pine.LNX.4.44.0308031758410.27587-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoth Matt Mercer:
-> 
-> Hi,
-> 
-> I discovered an unknown onboard ethernet device recently. I'm
-> thinking it is either an e100. Adding the ID to the
-> list in the e100 driver and the nic seems to work fine. 
-> 
-> Anyone know anything about this device, should it be added
-> to the e100 driver?
-> 
-> lspci -s00:04.0 -xxx
-> 00:04.0 Ethernet controller: Intel Corp.: Unknown device 0105 (rev 0d)
-> 00: 86 80 05 01 17 01 90 02 0d 00 00 02 10 40 80 00
-> 10: 00 d0 7f fe 01 af 00 00 00 00 7a fe 00 00 00 00
-> 20: 00 00 00 00 00 00 00 00 00 00 00 00 86 80 11 10
-> 30: 00 00 7e fe dc 00 00 00 00 00 00 00 09 01 08 38
-> 40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 22 fe
-> e0: 00 40 00 4b 00 00 00 00 00 00 00 00 00 00 00 00
-> f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-This matches up pretty close with Ethernet Pro 100:
+On Sun, 3 Aug 2003, Marcelo Abreu wrote:
 
-# lspci -s 00:11.0 -xxx
-00:11.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
-00: 86 80 29 12 17 01 90 02 08 00 00 02 08 40 00 00
-10: 00 f0 bf fe 01 ef 00 00 00 00 a0 fe 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 86 80 0c 00
-30: 00 00 90 fe dc 00 00 00 00 00 00 00 09 01 08 38
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 01 00 22 7e
-e0: 00 40 00 3a 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 	The 4G patch has changed the 'ldt' member of mm_context_t, calling
+> it 'ldt_pages'. Patch from Raphael fixes fpu_system.h for correct
+> compilation, but system won't boot with 'no387' parameter. So semantics
+> must have been changed too.
 
-Kurt
--- 
-Stay away from hurricanes for a while.
+i sent the correct patch to Andrew already:
+
+--- linux/arch/i386/math-emu/fpu_system.h.orig	
++++ linux/arch/i386/math-emu/fpu_system.h	
+@@ -15,6 +15,7 @@
+ #include <linux/sched.h>
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
++#include <asm/atomic_kmap.h>
+ 
+ /* This sets the pointer FPU_info to point to the argument part
+    of the stack frame of math_emulate() */
+@@ -22,7 +23,7 @@
+ 
+ /* s is always from a cpu register, and the cpu does bounds checking
+  * during register load --> no further bounds checks needed */
+-#define LDT_DESCRIPTOR(s)	(((struct desc_struct *)current->mm->context.ldt)[(s) >> 3])
++#define LDT_DESCRIPTOR(s)	(((struct desc_struct *)__kmap_atomic_vaddr(KM_LDT_PAGE0))[(s) >> 3])
+ #define SEG_D_SIZE(x)		((x).b & (3 << 21))
+ #define SEG_G_BIT(x)		((x).b & (1 << 23))
+ #define SEG_GRANULARITY(x)	(((x).b & (1 << 23)) ? 4096 : 1)
+
+

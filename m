@@ -1,100 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267309AbSLRSMK>; Wed, 18 Dec 2002 13:12:10 -0500
+	id <S267308AbSLRSJn>; Wed, 18 Dec 2002 13:09:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267311AbSLRSMK>; Wed, 18 Dec 2002 13:12:10 -0500
-Received: from 216-239-45-4.google.com ([216.239.45.4]:6651 "EHLO
+	id <S267310AbSLRSJn>; Wed, 18 Dec 2002 13:09:43 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:47726 "EHLO
 	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id <S267309AbSLRSMI>; Wed, 18 Dec 2002 13:12:08 -0500
-Message-ID: <3E00BC48.3040506@google.com>
-Date: Wed, 18 Dec 2002 10:19:52 -0800
+	id <S267308AbSLRSJm>; Wed, 18 Dec 2002 13:09:42 -0500
+Message-ID: <3E00BBC0.6020807@google.com>
+Date: Wed, 18 Dec 2002 10:17:36 -0800
 From: Ross Biro <rossb@google.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: John Bradford <john@bradfords.org.uk>
-CC: "D.A.M. Revok" <marvin@synapse.net>, linux-kernel@vger.kernel.org
+To: "D.A.M. Revok" <marvin@synapse.net>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus A7V133
  Promise ctrlr, or...
-References: <200212152337.gBFNbZp9002196@darkstar.example.net>
+References: <200212151549.37661.marvin@synapse.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The promise chips often respond to starnge situations by locking up the 
-PCI bus.  In particular they assert the wait signal and do not release 
-it.  This locks the system up had the next time the CPU tries to access 
-the PCI bus.  The machine is dead in your case and needs to be reset.
+There is a bug in the Promise driver that clears an important PIO bit 
+when switching into DMA mode.  When you do an hdparm -I, it issues a 
+drive command that attempts to transfer data in PIO mode, but since the 
+PIO mode timing registers are hosed, the machine locks up.  It's easy to 
+reproduce and applies to all drive commands that return data including 
+SMART commands.
 
-I've sent a PCI bus trace of this happening to Promise and have not yet 
-heard anything back yet.
+The bit in particular is bit 4 of PCI config register 0x61+4*channel 
+number (PB bit 4 in Promise terms.)  I've got a very unclean fix that I 
+will attempt to clean up once I can put a few more important issues to bed.
+
+For the time being, you can try to do a work around by putting the drive 
+into PIO mode with hdparm -X 12  before issuing any drive commands.
 
     Ross
 
-John Bradford wrote:
+D.A.M. Revok wrote:
 
->>man, the Magic SysReq key didn't work ( at all ):
->>it were DEAD
->>The drive-light stayed on for 10+ hours, nothing happening ( that I could 
->>figure out ) the whole time.  It /stayed/ dead.
->>
->>/dev/hde is part of a RAID-5 in my system ( because I no longer trust 
->>anything else ), and this only happens on drives connected onto the 
->>Promise controller.
->>
->>Oh, yeah, I forgot to include this:
->>trying to touch/activate/read the S.M.A.R.T. in any drive on the Promise 
->>kills it, too.  Can't activate the reliability-system without killing 
->>the kernel? /that's/ ironic, eh?
->>
->>
->>As for having another terminal connected to my home machine...
->>1. if the kernel's dead, then how's that gonna work, and
->>    
->>
+>( that's a capital-aye in the hdparm line )
 >
->Maybe just the console was not responding.
+>not even the Magic SysReq key will work.
 >
->If I start X with /dev/null as the core pointer, the console locks
->completely, but I can still log in on a serial terminal.
+>also, don't
 >
->I have seen machines which will mostly stop responding when you issue
->a sleep command to a disk, E.G.
+>"cd /proc/ide/hde ; cat identify"
 >
->hdparm -Y /dev/hda
+>... same thing
+>drive-light comes on, but have to use the power-switch to get the machine 
+>back, ( lost stuff again, fuck )
 >
->you can't terminate the process with control-C, for example, but if
->you are logged in on another virtual terminal, or have another
->terminal window open in X, you can reset the interface, and the
->machine will respond again.
 >
->  
+>proc says it's pdc202xx
 >
->>2. why have 2 terminals on one machine when I'm a hermit?
->>    
->>
+>Promise Ultra series driver Ver 1.20.0.7 2002-05-23
+>Adapter: Ultra100 on M/B
 >
->Why not?  I read and write a lot of E-Mail on a serial terminal right
->next to my main console, and what about debugging SVGALIB applications?
->
->  
->
->>I /do/ thank you for the interface-reset tip, though, I hope I never need 
->>that info  : )
->>    
->>
->
->It can be useful for recovering from a spun-down disk that won't spin
->up again :-)
->
->John
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
 >  
 >
 

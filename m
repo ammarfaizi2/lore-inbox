@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbUERLDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbUERLKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262175AbUERLDv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 07:03:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbUERLDu
+	id S263003AbUERLKq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 07:10:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbUERLKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 07:03:50 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:41436 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262175AbUERLDt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 07:03:49 -0400
-Date: Tue, 18 May 2004 13:03:43 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "J. Bruce Fields" <bfields@fieldses.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: RPC request reserved 0 but used 96
-Message-ID: <20040518110342.GE30348@suse.de>
-References: <20040515083831.GR17326@suse.de> <20040515085819.GS17326@suse.de> <20040515103650.GB24600@suse.de> <20040518040613.GB10633@fieldses.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040518040613.GB10633@fieldses.org>
+	Tue, 18 May 2004 07:10:46 -0400
+Received: from va-wynsbro-cmts4a-182.chvlva.adelphia.net ([67.20.190.182]:42765
+	"HELO yahoo.com") by vger.kernel.org with SMTP id S262910AbUERLKn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 07:10:43 -0400
+Message-ID: <6a8c01c43cbc$399e9970$e21f34a0@efenuvvvju>
+Reply-To: newhsave@yahoo.com
+From: newhsave@yahoo.com
+To: Administrator@vger.kernel.org
+Subject: fire your boss
+Date: Tue, 18 May 2004 01:40:59 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2314.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 18 2004, J. Bruce Fields wrote:
-> On Sat, May 15, 2004 at 12:36:51PM +0200, Jens Axboe wrote:
-> > 2.6.6-BK with shares exported sync show the same behaviour. I get:
-> > 
-> > RPC request reserved 0 but used 32900
-> > RPC request reserved 0 but used 32900
-> > RPC request reserved 0 but used 96
-> 
-> Does this end the messages?
-> 
-> --Bruce Fields
-> 
-> svc_recv may call svc_sock_release before rqstp->rq_res is initialized.
-> 
->  net/sunrpc/svcsock.c |    1 +
->  1 files changed, 1 insertion(+)
-> 
-> diff -puN net/sunrpc/svcsock.c~svc_reserve_debugging net/sunrpc/svcsock.c
-> --- linux-2.6.6/net/sunrpc/svcsock.c~svc_reserve_debugging	2004-05-17 23:46:51.000000000 -0400
-> +++ linux-2.6.6-bfields/net/sunrpc/svcsock.c	2004-05-17 23:50:54.000000000 -0400
-> @@ -1255,6 +1255,7 @@ svc_recv(struct svc_serv *serv, struct s
->  
->  	/* No data, incomplete (TCP) read, or accept() */
->  	if (len == 0 || len == -EAGAIN) {
-> +		rqstp->rq_res.len = 0;
->  		svc_sock_release(rqstp);
->  		return -EAGAIN;
->  	}
+Ask yourself the following questions right NOW! 
 
-Seems to have fixed it, at least I haven't seen any messages of this
-sort since applying the patch and switching back to nfs over tcp.
-Thanks!
+Are you ready to start making money? 
+Are you ready to control your own future? 
+Do you want to fire your boss? 
 
--- 
-Jens Axboe
+If you answer yes to any of the previous questions then go ahead and tell
+us where you are located and we will take you right to the hottest
+moneymakers for your area.
+
+
+http://www.zxcrere.com/Unifiercoils/index.htm
+
+Opt out on internetpage
+
+Or write to
+
+# 25 NanTong DaSha, FangXiang Street, ShiChuan, ChongQing 452135, China
 

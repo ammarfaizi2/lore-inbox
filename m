@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129994AbQKNBtQ>; Mon, 13 Nov 2000 20:49:16 -0500
+	id <S129170AbQKNB6s>; Mon, 13 Nov 2000 20:58:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130031AbQKNBtH>; Mon, 13 Nov 2000 20:49:07 -0500
-Received: from vp175103.reshsg.uci.edu ([128.195.175.103]:60422 "EHLO
-	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
-	id <S129994AbQKNBs7>; Mon, 13 Nov 2000 20:48:59 -0500
-Date: Mon, 13 Nov 2000 17:18:56 -0800
-Message-Id: <200011140118.eAE1IuV17166@moisil.dev.hydraweb.com>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-To: David Hinds <dhinds@valinux.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Pcmcia/Cardbus/xircom_tulip in 2.4.0-test10.
-In-Reply-To: <20001113121833.A1725@valinux.com>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18pre21 (i586))
+	id <S129245AbQKNB6i>; Mon, 13 Nov 2000 20:58:38 -0500
+Received: from ha2.rdc2.tx.home.com ([24.14.77.21]:32474 "EHLO
+	mail.rdc2.tx.home.com") by vger.kernel.org with ESMTP
+	id <S129170AbQKNB63>; Mon, 13 Nov 2000 20:58:29 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Problem autonegotiation with tulip driver?
+Reply-To: minyard@acm.org
+From: Corey Minyard <minyard@acm.org>
+Date: 13 Nov 2000 18:28:46 -0600
+Message-ID: <m2em0fwg5d.fsf@c469597-a.grlnd1.tx.home.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Nov 2000 12:18:33 -0800, David Hinds <dhinds@valinux.com> wrote:
+In the current version (and may previous versions) of the tulip driver
+in media.c in the function tulip_select_media() with mleaf->type being
+2 or 4, we have the following code:
 
-> The effect of "ifconfig eth0 -multicast" (which should be a no-op) is
-> that it calls set_rx_mode() with the same set of parameters it was
-> called with before.  Doing this one or more times may kick the card so
-> that it starts working.  The number of times is constant for a given
-> network configuration, and varies between 0 and 3.
+  if (p[1] & 0x40) {      /* SIA (CSR13-15) setup values are provided. */
+      csr13val = setup[0];
+      csr14val = setup[1];
+      csr15dir = (setup[3]<<16) | setup[2];
+      csr15val = (setup[4]<<16) | setup[2];
+      outl(0, ioaddr + CSR13);
+      outl(csr14val, ioaddr + CSR14);
+      outl(csr15dir, ioaddr + CSR15); /* Direction */
+      outl(csr15val, ioaddr + CSR15); /* Data */
+      outl(csr13val, ioaddr + CSR13);
+  } else {
+      csr13val = 1;
+      csr14val = 0x0003FF7F;
+	         ^^^^^^^^^^
+      csr15dir = (setup[0]<<16) | 0x0008;
+      csr15val = (setup[1]<<16) | 0x0008;
 
-If you want another datapoint, this doesn't help on my own Xircom card.
-The only way to make it receive packets while not in promisc mode was
-to add back the "+ 4" to the buffer address in the descriptor -- reverting
-one of the changes that went into 3.1.21.
+In the value underscored above, autonegotiation of the media is turned
+off if the eeprom doesn't provide the CSR14 value.  This doesn't seem
+right (and doesn't work on our Ramix cards), it seems like you would
+want to leave autonegotiation on here (the value would be 0x0003FFFF).
+Without this, our Ramix cards will not autonegotiate.  With the
+change, they work great.
 
-Anything else I've tried didn't help: filling up all slots with my MAC,
-adding them at the end of the list, at the beginning, as little/big endian,
-in reverse order... you name it. The "+ 4" however made it work reliably.
-
-The card is a Xircom RealPort CardBus Ethernet 10/100, code RBE-100. This
-is the lspci entry for it:
-
-20:00.0 Class 0200: 115d:0003 (rev 03)
-        Subsystem: 115d:0181
-        Flags: bus master, medium devsel, latency 64, IRQ 11
-        I/O ports at 0200
-        Memory at a000d000 (32-bit, non-prefetchable)
-        Memory at a000c000 (32-bit, non-prefetchable)
-        Expansion ROM at a0008000 [disabled]
-        Capabilities: [dc] Power Management version 1
-
-Thanks,
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+Corey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

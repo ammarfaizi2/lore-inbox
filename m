@@ -1,37 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273102AbRI0Odj>; Thu, 27 Sep 2001 10:33:39 -0400
+	id <S273108AbRI0OeU>; Thu, 27 Sep 2001 10:34:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273108AbRI0Od3>; Thu, 27 Sep 2001 10:33:29 -0400
-Received: from vena.lwn.net ([206.168.112.25]:46600 "HELO eklektix.com")
-	by vger.kernel.org with SMTP id <S273102AbRI0OdL>;
-	Thu, 27 Sep 2001 10:33:11 -0400
-Message-ID: <20010927143338.20730.qmail@eklektix.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Question about ioremap and io_remap_page_range 
-From: corbet-lk@lwn.net (Jonathan Corbet)
-In-Reply-To: Your message of "Thu, 27 Sep 2001 08:52:02 +0200."
-             <Pine.LNX.4.33.0109270847070.2745-100000@localhost.localdomain> 
-Date: Thu, 27 Sep 2001 08:33:38 -0600
+	id <S273109AbRI0OeK>; Thu, 27 Sep 2001 10:34:10 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:26375 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S273108AbRI0Odz>; Thu, 27 Sep 2001 10:33:55 -0400
+Date: Thu, 27 Sep 2001 16:34:21 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: move resume before mounting root [diff against vanilla 2.4.9]
+Message-ID: <20010927163421.C23647@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20010926101914.A28339@atrey.karlin.mff.cuni.cz> <200109270302.f8R32pl12537@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200109270302.f8R32pl12537@saturn.cs.uml.edu>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >      VIRT_ADDR = ioremap(BUS_ADDR); to map a section of PCI memory, and
-> >      X_ADDR = virt_to_phys(VIRT_ADDR);
+Hi!
+
+> >> Solution for the filesystem problems:
+> >>
+> >> 1. at suspend, basically unmount the filesystem (keep the mount tree)
+> >> 2. at resume, re-validate open files
+> >
+> > Wrong solution. ;-).
+> >
+> > Solution to filesystem problems: at suspend, sync but don't do
+> > anything more. At resume, don't try to mount anything (so that you
+> > don't replay transactions or damage disk in any other way).
 > 
-> i'd suggest to read Documentation/DMA-mapping.txt in any recent kernel
-> source, the bus_to_virt()/virt_to_phys() interface is obsolete and has
-> been replaced by the pci_alloc_*/pci_map_*/pci_free_*() dynamic
-> DMA-mapping API.
+> That is totally broken, because I may mount the disk in between
+> the suspend and resume. I might even:
+> 
+> 1. boot kernel X
+> 2. suspend kernel X
+> 3. boot kernel Y
+> 4. suspend kernel Y
+> 5. resume kernel X
+> 6. suspend kernel X
+> 7. resume kernel Y
+> 8. suspend kernel Y
+> 9. goto #5
+> 
+> You really have to close the logs and mark the disks clean
+> when you suspend. The problems here are similar the the ones
 
-...or, of course, _Linux_Device_Drivers_, Second Edition, available online
-at http://www.xml.com/ldd/chapter/book/index.html.  The DMA chapter covers
-this API as well.
+I can't do that: open deleted files.
 
-</self-promotion>
+> NFS faces. Between the suspend and resume, filesystems may be
+> modified in arbitrary ways.
 
-jon
+No, you don't want to do that. This is swsusp package, meant to
+replace suspend-to-disk on your notebook. If you choose random
+notebook, it will allow you to suspend to disk, but not to suspend,
+boot X, poweron, boot Y, reboot, boot X.
 
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net
+If you do what you described, you'll corrupt your filesystem. It is
+designed that way.
+								Pavel
+-- 
+Casualities in World Trade Center: 6453 dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261316AbSJIH3B>; Wed, 9 Oct 2002 03:29:01 -0400
+	id <S261390AbSJIHiB>; Wed, 9 Oct 2002 03:38:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261360AbSJIH3B>; Wed, 9 Oct 2002 03:29:01 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:33030 "HELO
+	id <S261397AbSJIHiB>; Wed, 9 Oct 2002 03:38:01 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:41478 "HELO
 	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S261316AbSJIH3A>; Wed, 9 Oct 2002 03:29:00 -0400
-Message-ID: <3DA3DC25.F383E92D@aitel.hist.no>
-Date: Wed, 09 Oct 2002 09:35:01 +0200
+	id <S261390AbSJIHiA>; Wed, 9 Oct 2002 03:38:00 -0400
+Message-ID: <3DA3DE41.B9C218AE@aitel.hist.no>
+Date: Wed, 09 Oct 2002 09:44:01 +0200
 From: Helge Hafting <helgehaf@aitel.hist.no>
 X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.40mm1 i686)
 X-Accept-Language: no, en, en
 MIME-Version: 1.0
-To: Brad Chapman <jabiru_croc@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [QUESTION] Is 2.5.41 useable?
-References: <20021008105729.79814.qmail@web40019.mail.yahoo.com>
+To: Stuart Inglis <stuart@reeltwo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Floppy Raid
+References: <002101c26e53$37df09a0$2a01410a@nz.reeltwo.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brad Chapman wrote:
+Stuart Inglis wrote:
 > 
-> Sir,
+> Hi all,
 > 
-> --- jbradford@dial.pipex.com wrote:
-> > > Is 2.5.41 useable, i.e. will it mostly work without Oopsing or crashing?
-> >
-> > It is way too soon for anybody to be able to say - it's only been released
-> > for a day!
+> I've been playing with RAID over floppy (2x3.5" /dev/fd0, /dev/fd1) and
+> have a few questions. (With 2.4.18)
 > 
-> Hmmm. Perhaps I should have asked the question, "Does 2.5.41 contain any code
-> that would be likely to impact performance or stability?"
+> It seems clear that you can only read/write to one floppy device at a
+> time. Is this a hardware limit or a linux limit? fdformat to a single
+> drive takes around 100 seconds, whereas running two fdformats in
+> parallel takes close to 400 seconds (2.4.18). It looks like this is
+> because the lock changes when the fdformat switches from writing to
+> verifying.
 
-Depends on what you use.  Much of 2.5.41 is great, but RAID is
-broken in several ways:
+Hardware limit _if_ you have two pc floppies on the same cable.
+Use separate floppy controllers if you want simultaneous
+access.  That worked fine for me back in 1992 or so.
 
-1. raid-0 simply doesn't work.  There is an excellent patch 
-   fixing it, but it isn't in 2.5.41.
-2. raid-1 kills the kernel after a minute or so 
-   if it need to resync a array big enough to take that much 
-   time with my 20MB/s disks.
-   If you need a "big" resync, reboot to something safe like 2.5.7
-   or earlier.
-3. raid-1 on the root is always dirty needing a resync after shutdown,
-   so a root-raid1 had better be "small".  Or you can't boot it.
-
-This should not bother you if you don't use software raid.
-
-The nfs client have some trouble too, see the thread called
-"invalidate_inode_pages".  I were unable to reproduce
-my problems on 2.5.41 so perhaps it is fixed and I
-missed the announcement.
-
-Again, nothing to worry about if you don't use a nfs client.
-
-2.5.41 seems just fine otherwise for my uses.
+The relieblility of floppies makes me hope you're going
+for raid-1 and not raid-0...
 
 Helge Hafting

@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261518AbSKRGG3>; Mon, 18 Nov 2002 01:06:29 -0500
+	id <S261523AbSKRGRC>; Mon, 18 Nov 2002 01:17:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261523AbSKRGG3>; Mon, 18 Nov 2002 01:06:29 -0500
-Received: from rivmkt61.wintek.com ([206.230.0.61]:23168 "EHLO comcast.net")
-	by vger.kernel.org with ESMTP id <S261518AbSKRGG2>;
-	Mon, 18 Nov 2002 01:06:28 -0500
-Date: Mon, 18 Nov 2002 01:16:03 +0000 (UTC)
-From: Alex Goddard <agoddard@purdue.edu>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.48 Compilation Failure
-Message-ID: <Pine.LNX.4.44.0211180113460.22038-100000@dust.ebiz-gw.wintek.com>
-X-GPG-PUBLIC_KEY: N/a
-X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261524AbSKRGRB>; Mon, 18 Nov 2002 01:17:01 -0500
+Received: from pop.gmx.de ([213.165.64.20]:20812 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261523AbSKRGRB>;
+	Mon, 18 Nov 2002 01:17:01 -0500
+Message-Id: <5.1.1.6.2.20021118070215.00cb8f98@wen-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Mon, 18 Nov 2002 07:20:58 +0100
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: 2.5.47 scheduler problems?
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During make bzImage:
+Greetings,
 
-gcc -Wp,-MD,fs/devfs/.base.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=athlon -Iarch/i386/mach-generic -nostdinc -iwithprefix include
--DKBUILD_BASENAME=base -DKBUILD_MODNAME=devfs -DEXPORT_SYMTAB -c -o
-fs/devfs/base.o fs/devfs/base.c
-fs/devfs/base.c: In function `devfs_symlink':
-fs/devfs/base.c:3032: incompatible types in assignment
-fs/devfs/base.c:3033: incompatible types in assignment
-fs/devfs/base.c:3034: incompatible types in assignment
-fs/devfs/base.c: In function `devfs_mkdir':
-fs/devfs/base.c:3063: incompatible types in assignment
-fs/devfs/base.c:3064: incompatible types in assignment
-fs/devfs/base.c:3065: incompatible types in assignment
-fs/devfs/base.c: In function `devfs_mknod':
-fs/devfs/base.c:3132: incompatible types in assignment
-fs/devfs/base.c:3133: incompatible types in assignment
-fs/devfs/base.c:3134: incompatible types in assignment
-make[2]: *** [fs/devfs/base.o] Error 1
-make[1]: *** [fs/devfs] Error 2
-make: *** [fs] Error 2
+For testing swap throughput, I like to run make -j30 bzImage on my 500Mhz 
+PIII w. 128Mb ram.  For testing interactivity, I fire up KDE, start a 
+smaller make -j, grab a window, and wave it around.
 
-I'm unsure of exactly what other information would be needed by whomever 
-will go after this, but just say something and I'll send what you want.
+With 2.4.20rc2+rc1aa1, running a -j10 build (not swapping) is very very 
+bad.  However, if I set all tasks in the system to SCHED_FIFO or SCHED_RR 
+prior to this light make -j, I have a ~pretty smooth system.
 
--- 
-Alex Goddard
-agoddard@purdue.edu
+If I do the same in 2.5.47, I have no control of my box.  Setting all tasks 
+to SCHED_FIFO or SCHED_RR prior to starting make -j10 bzImage, I can regain 
+control, but interactivity under load is basically not present.
+
+I used to be able to wave a window poorly at make -j25 (swapping heftily), 
+fairly smoothly at make -j20, and smoothly at make -j15 or below.  This 
+with no SCHED_RR/SCHED_FIFO.  (I haven't done much testing like this in 
+quite a while though)
+
+	-Mike
 

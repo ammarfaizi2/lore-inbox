@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266878AbUJBA0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266879AbUJBAg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266878AbUJBA0z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 20:26:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266879AbUJBA0z
+	id S266879AbUJBAg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 20:36:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266888AbUJBAg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 20:26:55 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:46039 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S266878AbUJBA0w
+	Fri, 1 Oct 2004 20:36:29 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:25028 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S266879AbUJBAg0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 20:26:52 -0400
+	Fri, 1 Oct 2004 20:36:26 -0400
 Subject: Re: 2.6.9-rc2-mm4 ps hang ?
 From: Badari Pulavarty <pbadari@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
@@ -22,10 +22,10 @@ References: <1096646925.12861.50.camel@dyn318077bld.beaverton.ibm.com>
 	 <20041001164938.3231482e.akpm@osdl.org>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1096676374.12861.91.camel@dyn318077bld.beaverton.ibm.com>
+Message-Id: <1096676949.12861.96.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 Oct 2004 17:19:34 -0700
+Date: 01 Oct 2004 17:29:10 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -36,46 +36,41 @@ On Fri, 2004-10-01 at 16:49, Andrew Morton wrote:
 > > Here is the full sysrq-t output.
 > 
 > What's this guy up to?
-...
+> 
+> db2fmcd       D 0000000000000000     0 11032      1          1373 11031 (NOTLB)
+> 00000101b9b9bef8 0000000000000002 0000003700000037 00000101c13608a0 
+>        000000010000009f 0000010199649250 0000010199649588 0000000000000000 
+>        0000000000000206 ffffffff801353db 
+> Call Trace:<ffffffff801353db>{try_to_wake_up+971} <ffffffff80445570>{__down_write+128} 
+>        <ffffffff80125e7f>{sys32_mmap+143} <ffffffff80124b01>{ia32_sysret+0} 
+>        
 > 
 > Something is seriously screwed up if it's stuck in try_to_wake_up().  Tried
 > generating a few extra traces?
 > 
 > Then again, maybe we're missing an up_read() somewhere.  hrm, I'll check.
 > 
+Doesn't make any sense..
 
-It reproduced again. I think this is the one causing all the troubles..
+According to my objdump
 
-db2fmcd       D ffffffff80132e2a     0 10854   7636                    
-(NOTLB)
-00000101bae85ef8 0000000000000002 0000020800000018 00000101d9ddd550
-       0000000100000084 000001016d490e20 000001016d491158
-00000101d9ddd550
-       0000000000000206 ffffffff801353cb
-Call Trace:<ffffffff801353cb>{try_to_wake_up+971}
-<ffffffff804455f0>{__down_write+128}
-       <ffffffff80125e6f>{sys32_mmap+143}
-<ffffffff80124af1>{ia32_sysret+0}
+try_to_wake_up+971 ==> task_rq_unlock()
 
-when I tried looking at /proc/10854 - it hung.
-
-elm3b29:~ # cd /proc/10854
-elm3b29:/proc/10854 # l
-
-ls            D 000000000051bb70     0 28029  27737                    
-(NOTLB)
-00000101ac9b1e28 0000000000000006 702e6d6574737973 ffffffff8054f240
-       000000000000009f 00000101df4fa9a0 00000101df4facd8
-0000000000000000
-       000000d000000002 00000101ac9b1e68
-Call Trace:<ffffffff80445692>{__down_read+130}
-<ffffffff801b79a9>{proc_exe_link+73}
-       <ffffffff801b7745>{proc_pid_readlink+165}
-<ffffffff8018a511>{sys_readlink+161}
-       <ffffffff8011075e>{system_call+126}
+kernel/sched.c:580
+    265f:       48 8b 75 d0             mov   
+0xffffffffffffffd0(%rbp),%rsi
+    2663:       4c 89 ff                mov    %r15,%rdi
+    2666:       e8 00 00 00 00          callq  266b
+<try_to_wake_up+0x3cb>   
 
 
-I have no idea what db2fmcd is stuck on. I will try to find out more..
+    578 static inline void task_rq_unlock(spinlock_t *rql, unsigned long
+*flags)
+    579 {
+    580         spin_unlock_irqrestore(rql, *flags);
+    581 }
+
+Why would I be stuck in spin_unlock() ?
 
 Thanks,
 Badari

@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132561AbRAJLtm>; Wed, 10 Jan 2001 06:49:42 -0500
+	id <S132541AbRAJMDl>; Wed, 10 Jan 2001 07:03:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135270AbRAJLtc>; Wed, 10 Jan 2001 06:49:32 -0500
-Received: from styx.suse.cz ([195.70.145.226]:61943 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S135351AbRAJLtP>;
-	Wed, 10 Jan 2001 06:49:15 -0500
-Date: Wed, 10 Jan 2001 12:49:11 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Benson Chow <blc@q.dyndns.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB Keyboards for x86/uhci in 2.4- kernels?
-Message-ID: <20010110124911.A2134@suse.cz>
-In-Reply-To: <Pine.LNX.4.31.0101091640470.21522-100000@q.dyndns.org>
-Mime-Version: 1.0
+	id <S135270AbRAJMDb>; Wed, 10 Jan 2001 07:03:31 -0500
+Received: from colorfullife.com ([216.156.138.34]:8973 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S132541AbRAJMDL>;
+	Wed, 10 Jan 2001 07:03:11 -0500
+Message-ID: <3A5C4FAC.CA6E46A9@colorfullife.com>
+Date: Wed, 10 Jan 2001 13:03:56 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: mingo@elte.hu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <Pine.LNX.4.30.0101101222540.833-100000@e2>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.31.0101091640470.21522-100000@q.dyndns.org>; from blc@q.dyndns.org on Tue, Jan 09, 2001 at 11:55:14PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2001 at 11:55:14PM -0700, Benson Chow wrote:
-> Anyone tried using these beasts on a x86?
+Ingo Molnar wrote:
 > 
-> Anyway, what's happening:   In BIOS my USB keyboard works really poorly -
-> it almost seems scancodes get dropped left and right.  Ok, so I don't mind
-> too much, i'm sure BIOS has a very limited driver.  After booting
-> Microsoft's offerring, it would work fine after it installs its driver.
-> I also tried this same keyboard on a HPUX Visualize C3600 workstation and
-> it also works nicely.
+> On Wed, 10 Jan 2001, Manfred Spraul wrote:
 > 
-> However linux would never fix  this "scancode drop" syndrome even after
-> loading the hid or usbkbd driver.  Both my Via uhci USB motherboard and
-> PIIX3 USB motherboard exhibit this usb keyboard strangeness
-> with the hid or usbkbd driver is installed.  I think the PIIX3
-> motherboard's bios doesnt handle USB properly so it doesn't even work in
-> BIOS setup.  Any idea what's going on?  Is there some other driver or
-> utility I need to install/run to get it working?  Maybe just my bad bios?
+> > That means sendmsg() changes the page tables? I measures
+> > smp_call_function on my Dual Pentium 350, and it took around 1950 cpu
+> > ticks.
 > 
-> BTW: my USB Mouse, and USB Printer seem to work nicely in 2.4.0-release.
+> well, this is a performance problem if you are using threads. For normal
+> processes there is no need for a SMP cross-call, there TLB flushes are
+> local only.
 > 
-> USB KBD: NMB USB 104-key PC-Style
-> USB Mouse: Microsoft Intellimouse w/Intellieye 1.0, Logitech Optical Wheel
-> USB Printer: HP Deskjet 880C
-> USB Hub: Belkin 4-port
-> Intel 82437SB(?) PIIX3 and Via 82C686(?) USB controller
-> 
-> Working: Stock HPUX10.2 HP Visualize C3600 PARISC2 Workstation
-> Working: Microsoft Windows 98 First Edition on the Via.
+But that would be ugly as hell:
+so apache 2.0 would become slower with MSG_NOCOPY, whereas samba 2.2
+would become faster.
 
-What modules are loaded?
-What's in /proc/bus/usb/devices?
-What's in dmesg?
+Is is possible to move the responsibility for maitaining the copy to the
+caller?
 
--- 
-Vojtech Pavlik
-SuSE Labs
+e.g. use msg_control, and then the caller can request either that a
+signal is sent when that data is transfered, or that a variable is set
+to 0.
+
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

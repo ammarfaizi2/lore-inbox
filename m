@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263960AbSJOJad>; Tue, 15 Oct 2002 05:30:33 -0400
+	id <S264620AbSJOJcm>; Tue, 15 Oct 2002 05:32:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263968AbSJOJad>; Tue, 15 Oct 2002 05:30:33 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:13445 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S263960AbSJOJab>;
-	Tue, 15 Oct 2002 05:30:31 -0400
-Date: Tue, 15 Oct 2002 11:36:08 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Cc: Austin Gonyou <austin@coremetrics.com>, linux-lvm@sistina.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S264622AbSJOJcm>; Tue, 15 Oct 2002 05:32:42 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29969 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264620AbSJOJcl>; Tue, 15 Oct 2002 05:32:41 -0400
+Date: Tue, 15 Oct 2002 10:38:33 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: James Simmons <jsimmons@infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-lvm] Re: [PATCH] 2.5 version of device mapper submission
-Message-ID: <20021015093608.GF5294@suse.de>
-References: <1034453946.15067.22.camel@irongate.swansea.linux.org.uk> <1034614756.29775.5.camel@UberGeek.coremetrics.com> <20021014175608.GA14963@fib011235813.fsnet.co.uk> <20021015082152.GA4827@suse.de> <20021015093244.GA3782@fib011235813.fsnet.co.uk>
+Subject: Re: [BK PATCHS] fbdev updates.
+Message-ID: <20021015103833.C9771@flint.arm.linux.org.uk>
+References: <20021015100024.A9771@flint.arm.linux.org.uk> <Pine.GSO.4.21.0210151109180.25245-100000@vervain.sonytel.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021015093244.GA3782@fib011235813.fsnet.co.uk>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.21.0210151109180.25245-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Tue, Oct 15, 2002 at 11:14:03AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15 2002, Joe Thornber wrote:
-> On Tue, Oct 15, 2002 at 10:21:52AM +0200, Jens Axboe wrote:
-> > On Mon, Oct 14 2002, Joe Thornber wrote:
-> > > 10.patch
-> > >   [Device-mapper]
-> > >   Add call to blk_queue_bounce() at the beginning of the request function.
-> > 
-> > What on earth for? I also see that you are setting BLK_BOUNCE_HIGH as
-> > the bounce limit unconditionally for your queue. Puzzled.
+On Tue, Oct 15, 2002 at 11:14:03AM +0200, Geert Uytterhoeven wrote:
+> So the generic part of the code should behave like this:
 > 
-> This is just me stupidly copying loop.c, already found out it doesn't
-> work.  Please ignore.
-
-Well it should work, but dm never ever wants to bounce any data on its
-own. That should only happen at the target queue, if at all.
-
-> > When does dm even have to touch the data in the bio?
+>   if (info->fbops->fb_blank && info->fbops->fb_blank(blank_flag)) {
+>       /* use hardware blanking */
+>   } else if (info->fix.visual == FB_VISUAL_PSEUDOCOLOR ||
+> 	     info->fix.visual == FB_VISUAL_DIRECTCOLOR) {
+>       /* use software blanking */
+>   } else {
+>       /* no blanking possible, except for filling the screen with black, which
+> 	 is not appropriate (unless we save/restore the contents?) */
+>   }
 > 
-> Tell me; if I'm splitting a bio using bio_clone, and then map the bio
-> to a driver that calls blk_queue_bounce.  How can I avoid the
-> 
->         BUG_ON((*bio_orig)->bi_idx);
-> 
-> triggering ?  Or is bio_clone not to be used anymore ?
+> Is that OK for you?
 
-(btw, do you have a complete patch against a recent kernel?)
+That's fine for me, but I'd expect other people to find problems with it.
 
-Bouncing has just never been used with a cloned bio, so there might be a
-corner case or two that needs to be fixed up. But walk me through your
-request handling, please. It seems you are always allocating a
-clone_info and bio clone for io?
+Would it not be better to allow drivers to decide which type of blanking
+they want to use depending on the current parameters set via the set_par
+callback?  Only the drivers themselves know what their fb_blank method is
+capable of performing.
+
+I think with the above you'll inadvertently encourage drivers to mundge
+the fb_blank function pointer in their set_par method.
+
+There is also the argument about wanting soft blanking, but hardware power
+saving.
 
 -- 
-Jens Axboe
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbULZRHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbULZRIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbULZRHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 12:07:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbULZRHJ
+	id S261714AbULZRIq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 12:08:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbULZRIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 12:07:09 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:31424 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261710AbULZRG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 12:06:58 -0500
-From: kernel-stuff@comcast.net (Parag Warudkar)
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: linux-usb-users@lists.sourceforge.net, vojtech@suse.cz
-Subject: Re: Ho ho ho - Linux v2.6.10 [USB Issues]
-Date: Sun, 26 Dec 2004 17:06:56 +0000
-Message-Id: <122620041706.3380.41CEEFB0000A4B8400000D34220588448400009A9B9CD3040A029D0A05@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Nov 22 2004)
-X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
+	Sun, 26 Dec 2004 12:08:45 -0500
+Received: from [62.206.217.67] ([62.206.217.67]:51131 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S261711AbULZRH5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Dec 2004 12:07:57 -0500
+Message-ID: <41CEEFB5.1080904@trash.net>
+Date: Sun, 26 Dec 2004 18:07:01 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Max Kellermann <max@duempel.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: problem with 2.6.10 + ipsec/tunnel + netfilter
+References: <20041226164022.GA2631@roonstrasse.net>
+In-Reply-To: <20041226164022.GA2631@roonstrasse.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The mouse started working after I did rmmod ohci-hcd and modprobe ohci-hcd no_handshake=1. So it doesn't seem to like the HC takeover.
-
-Still not sure why the read/64 error on usb-storage.
-
-Parag
-
-
-> The USB mouse (Kensington Pocket Pro) on my laptop (Athlon64) stopped working 
-> after I switched to 2.6.10 from FC3-2.6.9 (I get an USB HC Takeover failed 
-> message after I connect the mouse). Also my other two USB storage devices (iPod 
-> and Maxtor External drive) generate an 'read/64' error when connected but work 
-> fine.
+Max Kellermann wrote:
+> Hi,
 > 
-> dmesg | grep -i usb
-> =========================
-> usbcore: registered new driver usbfs
-> usbcore: registered new driver hub
-> usbcore: registered new driver hiddev
-> usbcore: registered new driver usbhid
-> drivers/usb/input/hid-core.c: v2.0:USB HID core driver
-> USB0 USB1 USB2 PS2K PS2M MAC0
-> ehci_hcd 0000:00:02.2: new USB bus registered, assigned bus number 1
-> ehci_hcd 0000:00:02.2: USB 2.0 initialized, EHCI 1.00, driver 26 Oct 2004
-> hub 1-0:1.0: USB hub found
-> ohci_hcd: 2004 Nov 08 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
-> usb 1-1: new high speed USB device using ehci_hcd and address 2
-> usb 1-1: device descriptor read/64, error -71
-> Initializing USB Mass Storage driver...
-> scsi0 : SCSI emulation for USB Mass Storage devices
-> usbcore: registered new driver usb-storage
-> USB Mass Storage support registered.
-> usb-storage: device found at 2
-> usb-storage: waiting for device to settle before scanning
-> ohci_hcd 0000:00:02.0: USB HC TakeOver failed!
-> usb-storage: device scan complete
-> ohci_hcd 0000:00:02.1: USB HC TakeOver failed!
-> usb 1-2: new high speed USB device using ehci_hcd and address 4
-> usb 1-2: device descriptor read/64, error -71
-> scsi1 : SCSI emulation for USB Mass Storage devices
-> usb-storage: device found at 4
-> usb-storage: waiting for device to settle before scanning
-> usb-storage: device scan complete
+> I upgraded my router today to 2.6.10, from 2.6.9-rc3. It has three
+> network adapters: ppp0(eth0) for Internet, eth2 is WLAN and eth0 is
+> ethernet. My notebooks connected on eth2 use ipsec (tunnel mode,
+> 172.28.1.x/32 - 0.0.0.0/32) to secure the wireless connection.
 > 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Since I upgraded to 2.6.10, the router won't route packets which come
+> from the tunnel. It used to receive ESP packets, decrypted them, got
+> the new destination IP address, and routed them like normal incoming
+> packets. Downgrading to 2.6.9-rc3 makes the problem disappear.
+
+Cut-n-paste from previous answer to the same problem:
+
+Since Linux 2.6.10-rcX. packets from a tunnel-mode SA are dropped if
+no policy exists. You most likely only have an input policy, but no
+forward policy. If you use setkey to configure your policies,
+duplicate the input policy and replace "-P in" with "-P fwd". If you
+let racoon generate the policy you need to upgrade to the latest
+version. pluto should already get it right.
+
+Regards
+Patrick

@@ -1,99 +1,193 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313628AbSDHOKj>; Mon, 8 Apr 2002 10:10:39 -0400
+	id <S313630AbSDHORY>; Mon, 8 Apr 2002 10:17:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313629AbSDHOKi>; Mon, 8 Apr 2002 10:10:38 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:30472 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S313628AbSDHOKh>;
-	Mon, 8 Apr 2002 10:10:37 -0400
-Date: Mon, 8 Apr 2002 16:10:40 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][CFT] IDE tagged command queueing support
-Message-ID: <20020408141040.GF25984@suse.de>
-In-Reply-To: <20020408120713.GB25984@suse.de> <3CB1806F.9090103@evision-ventures.com> <20020408125350.GE25984@suse.de> <3CB187AC.2040604@evision-ventures.com>
+	id <S313631AbSDHORX>; Mon, 8 Apr 2002 10:17:23 -0400
+Received: from zero.tech9.net ([209.61.188.187]:47629 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S313630AbSDHORW>;
+	Mon, 8 Apr 2002 10:17:22 -0400
+Subject: [PATCH] 2.5: task cpu affinity syscalls
+From: Robert Love <rml@tech9.net>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 08 Apr 2002 10:17:22 -0400
+Message-Id: <1018275443.857.159.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 08 2002, Martin Dalecki wrote:
-> >- Separate scatterlist and dma table out from hwgroup. This is not
-> >  really needed for TCQ, but saves doing a blk_rq_map_sg on a request
-> >  more than once. If future ATA hardware would support more than one
-> >  pending DMA operation per hwgroup, this would be useful even without
-> >  TCQ.
-> 
-> Agreed.
+Linus,
 
-If we do this, we need to make a decision about how many segments to
-enable per command. As I stated, current is 32 which gives us (at least)
-128kb per request. This is all we need right now, and I'm not too
-convinced that doing much larger requests with 48-bit lba will buys us
-_anything_ but bigger latency problems :-). This is just my speculation,
-I have no numbers to back this up so far. Now, with a 1kb fs we are
-limited to 32kb requests if we don't get good clustering. This might be
-a small performance hit, but if you are writing big blocks in a 1kb fs
-chances are good thaat you _will_ get good clustering (writing out the 4
-consecutive buffer_heads stringed to the page) so I'm not convinced that
-this will be a problem either.
+Attached is a resync to 2.5.8-pre2 of my CPU affinity syscalls for 2.5's
+scheduler.
 
-So I'd just stick with PRD_SEGMENTS at 32 so far. The over head of going
-to, eg, 64 would be 8 * 64 == 512 bytes per ata_request instead of the
-current 256 right now. Ok, that's not a lot, but still :-)
+This patch implements two new syscalls:
 
-> >- Use ata_request_t as the main request command. This is where I really
-> >  want to go. I'm not saying that we need a complete IDE mid layer, but
-> >  a private request type is a nice way to unify the passing of a general
-> >  command around. So the taskfile stuff would remain very low level,
-> >  ata_request would add the higher level parts. I could expand lots more
-> >  on this, but I'm quite sure you know where I'm going :-)
-> 
-> Well I can assure you that we are not dragging the towell in two different
-> directions - please see for example my notes about the ata_taskfile
-> function having too much parameters ;-).
+	int sched_setaffinity(pid_t pid, unsigned int len,
+				unsigned long *new_mask_ptr)
 
-ata_taskfile(drive, ar);
+	int sched_getaffinity(pid_t pid, unsigned int *user_len_ptr,
+				unsigned long *user_mask_ptr)
 
-or something to that effect should be very possible, it just requires
-taking my generalization a bit further.
+which set and get a task's CPU affinity, respectively.  I think we do
+indeed need to export an interface for setting affinity for specific
+needs, but a simple exported bitmask representation of cpus_allowed is
+more than enough and these calls fit into our existing sched_* family.
 
-> >Note that the ata_request_t usage is a bit messy in the current patch,
-> 
-> I noted it already ;-)
+These syscalls provide forward-compatibility with cpus_allowed changes,
+implement security, and use Ingo's existing set_cpus_allowed method.
 
-I didn't want ata_request_t changes to pollute the patch too much :-)
+These syscalls are based on code of Ingo's for 2.4.
 
-> >that's merely because I was more focused on getting TCQ stable than
-> >designing this out right now. So I think we should let it mature in the
-> >TCQ patch for just a while before making any final commitments. Agreed?
-> 
-> No problem with me. I will just pull out the generally good stuff
-> out of it OK? I hope this will not make the tracking of the
-> alpha patches too difficult for you...
+Changes since last post:
 
-Yes that's fine with me, and feel free to extend the ata_request stuff
-(and anything else). I'll adapt the tcq stuff and submit when ready.
+- drop tasklist_lock before calling set_cpus_allowed.  Holding it across
+  the call may not be safe.  Instead, pin the specific task_struct with
+  get_task_struct.
+- remove ifdef in code
+- minor cleanups, resync, et cetera
 
-> >In addition, there are small buglet fixes in the patch that should go to
-> >general. I will extract these, I already send you one of these earlier
-> >today.
-> 
-> Yes I have noticed this as well. However let's wait and see
-> whatever maybe I'm able to save you the trobule and pull them
-> out myself. Your alpha patch is "interresting" enough to have me
-> a walk over it line by line anyway :-).
+Well-tested on both UP and SMP.  A test program and a tool for setting
+affinity of processes is available at
+	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/cpu-affinity
+and your favorite mirror.  Please apply.
 
-Alright, I'll let you ponder the stuff for a while and pull what you
-want.
+	Robert Love
 
-> I have to catch up with 2.5.8-pre2 anyway, since apparently this
-> weekend was more about alcohol consumption for me then hacking...
+diff -urN linux-2.5.8-pre2/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
+--- linux-2.5.8-pre2/arch/i386/kernel/entry.S	Sat Apr  6 14:04:16 2002
++++ linux/arch/i386/kernel/entry.S	Sat Apr  6 19:44:29 2002
+@@ -717,6 +717,8 @@
+ 	.long SYMBOL_NAME(sys_tkill)
+ 	.long SYMBOL_NAME(sys_sendfile64)
+ 	.long SYMBOL_NAME(sys_futex)		/* 240 */
++	.long SYMBOL_NAME(sys_sched_setaffinity)
++	.long SYMBOL_NAME(sys_sched_getaffinity)
+ 
+ 	.rept NR_syscalls-(.-sys_call_table)/4
+ 		.long SYMBOL_NAME(sys_ni_syscall)
+diff -urN linux-2.5.8-pre2/include/asm-i386/unistd.h linux/include/asm-i386/unistd.h
+--- linux-2.5.8-pre2/include/asm-i386/unistd.h	Mon Mar 18 15:37:16 2002
++++ linux/include/asm-i386/unistd.h	Sat Apr  6 19:44:29 2002
+@@ -245,6 +245,8 @@
+ #define __NR_tkill		238
+ #define __NR_sendfile64		239
+ #define __NR_futex		240
++#define __NR_sched_setaffinity	241
++#define __NR_sched_getaffinity	242
+ 
+ /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
+ 
+diff -urN linux-2.5.8-pre2/kernel/sched.c linux/kernel/sched.c
+--- linux-2.5.8-pre2/kernel/sched.c	Sat Apr  6 14:04:16 2002
++++ linux/kernel/sched.c	Sat Apr  6 19:44:29 2002
+@@ -1234,6 +1234,103 @@
+ 	return retval;
+ }
+ 
++/**
++ * sys_sched_setaffinity - set the cpu affinity of a process
++ * @pid: pid of the process
++ * @len: length of new_mask
++ * @new_mask: user-space pointer to the new cpu mask
++ */
++asmlinkage int sys_sched_setaffinity(pid_t pid, unsigned int len,
++				      unsigned long *new_mask_ptr)
++{
++	unsigned long new_mask;
++	task_t *p;
++	int retval;
++
++	if (len < sizeof(new_mask))
++		return -EINVAL;
++
++	if (copy_from_user(&new_mask, new_mask_ptr, sizeof(new_mask)))
++		return -EFAULT;
++
++	new_mask &= cpu_online_map;
++	if (!new_mask)
++		return -EINVAL;
++
++	read_lock(&tasklist_lock);
++
++	p = find_process_by_pid(pid);
++	if (!p) {
++		read_unlock(&tasklist_lock);
++		return -ESRCH;
++	}
++
++	/*
++	 * It is not safe to call set_cpus_allowed with the
++	 * tasklist_lock held.  We will bump the task_struct's
++	 * usage count and then drop tasklist_lock.
++	 */
++	get_task_struct(p);
++	read_unlock(&tasklist_lock);
++
++	retval = -EPERM;
++	if ((current->euid != p->euid) && (current->euid != p->uid) &&
++			!capable(CAP_SYS_NICE))
++		goto out_unlock;
++
++	retval = 0;
++	set_cpus_allowed(p, new_mask);
++
++out_unlock:
++	put_task_struct(p);
++	return retval;
++}
++
++/**
++ * sys_sched_getaffinity - get the cpu affinity of a process
++ * @pid: pid of the process
++ * @user_len_ptr: userspace pointer to the length of the mask
++ * @user_mask_ptr: userspace pointer to the mask
++ */
++asmlinkage int sys_sched_getaffinity(pid_t pid, unsigned int *user_len_ptr,
++				      unsigned long *user_mask_ptr)
++{
++	unsigned long mask;
++	unsigned int len, user_len;
++	task_t *p;
++	int retval;
++
++	len = sizeof(mask);
++
++	if (copy_from_user(&user_len, user_len_ptr, sizeof(user_len)))
++		return -EFAULT;
++
++	/* return to the user the actual size of the bitmask */
++	if (copy_to_user(user_len_ptr, &len, sizeof(len)))
++		return -EFAULT;
++
++	if (user_len < len)
++		return -EINVAL;
++
++	read_lock(&tasklist_lock);
++
++	retval = -ESRCH;
++	p = find_process_by_pid(pid);
++	if (!p)
++		goto out_unlock;
++
++	retval = 0;
++	mask = p->cpus_allowed & cpu_online_map;
++
++out_unlock:
++	read_unlock(&tasklist_lock);
++	if (retval)
++		return retval;
++	if (copy_to_user(user_mask_ptr, &mask, sizeof(mask)))
++		return -EFAULT;
++	return 0;
++}
++
+ asmlinkage long sys_sched_yield(void)
+ {
+ 	runqueue_t *rq;
 
-Ahem, yes that part I know too :)
 
--- 
-Jens Axboe
 

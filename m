@@ -1,226 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269889AbUJMWfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269888AbUJMWiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269889AbUJMWfY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 18:35:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269888AbUJMWfX
+	id S269888AbUJMWiY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 18:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269890AbUJMWiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 18:35:23 -0400
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:8204 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S269878AbUJMWeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 18:34:07 -0400
-Date: Wed, 13 Oct 2004 17:33:44 -0500
-From: mike.miller@hp.com
-To: Joe Perches <joe@perches.com>
-Cc: akpm@osdl.org, axboe@suse.de, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: cciss update [1/2] updates our SCSI support to not use deprecated headers pass 3
-Message-ID: <20041013223344.GB6019@beardog.cca.cpqcorp.net>
-Reply-To: mikem@beardog.cca.cpqcorp.net
-References: <20041013211302.GA9866@beardog.cca.cpqcorp.net> <20041013212105.GA4438@havoc.gtf.org> <20041013213626.GA10273@beardog.cca.cpqcorp.net> <1097704228.3062.1.camel@localhost.localdomain>
+	Wed, 13 Oct 2004 18:38:24 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:50324 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S269888AbUJMWiI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 18:38:08 -0400
+Date: Thu, 14 Oct 2004 00:33:40 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       kernel-janitors <kernel-janitors@lists.osdl.org>, chas@cmf.nrl.navy.mil,
+       greg@kroah.com
+Subject: Re: [KJ] [PATCH 2.6] firestream.c replace pci_find_device with pci_get_device
+Message-ID: <20041013223340.GA32276@electric-eye.fr.zoreil.com>
+References: <194130000.1097705759@w-hlinder.beaverton.ibm.com> <196320000.1097705843@w-hlinder.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1097704228.3062.1.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <196320000.1097705843@w-hlinder.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 13, 2004 at 02:50:28PM -0700, Joe Perches wrote:
-> On Wed, 2004-10-13 at 16:36 -0500, mikem wrote:
-> > @@ -552,11 +547,15 @@ cciss_scsi_setup(int cntl_num)
-> >  static void
-> >  complete_scsi_command( CommandList_struct *cp, int timeout, __u32 tag)
-> >  {
-> > -	Scsi_Cmnd *cmd;
-> > +	struct scsi_cmnd *cmd;
-> >  	ctlr_info_t *ctlr;
-> >  	u64bit addr64;
-> >  	ErrorInfo_struct *ei;
-> >  
-> > +	if(cmd = kmalloc(sizeof(struct scsi_cmnd), GFP_ATOMIC) == NULL) {
-> > +		printk(KERN_WARNING "out of memory\n");
-> > +		return -ENOMEM;
-> > +	}
-> 
-> q: Do you even bother to compile this?
-> a: no
-> 
-> function is static void
-> 
-> 1:	don't return anything
-> 2:	put kmalloc and test on 2 separate lines
-> 
-Sorry, I was in too much of a hurry. This time its been compiled AND tested.
+Hanna Linder <hannal@us.ibm.com> :
+[...]
 
-mikem
-------------------------------------------------------------------------------
+Too complicated.
 
-diff -burNp lx269-rc4.orig/drivers/block/cciss_scsi.c lx269-rc4-p001/drivers/block/cciss_scsi.c
---- lx269-rc4.orig/drivers/block/cciss_scsi.c	2004-08-14 00:36:32.000000000 -0500
-+++ lx269-rc4-p001/drivers/block/cciss_scsi.c	2004-10-13 17:07:55.269865288 -0500
-@@ -28,7 +28,9 @@
-    through the array controller.  Note in particular, neither 
-    physical nor logical disks are presented through the scsi layer. */
+
+Removal of dead code.
+
+Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+
+diff -puN drivers/atm/firestream.c~firestream-10 drivers/atm/firestream.c
+--- linux-2.6.9-rc3/drivers/atm/firestream.c~firestream-10	2004-10-14 00:28:36.000000000 +0200
++++ linux-2.6.9-rc3-fr/drivers/atm/firestream.c	2004-10-14 00:29:18.000000000 +0200
+@@ -2012,66 +2012,6 @@ void __devexit firestream_remove_one (st
+ 	func_exit ();
+ }
  
--#include "../scsi/scsi.h" 
-+#include <scsi/scsi.h> 
-+#include <scsi/scsi_cmnd.h>
-+#include <scsi/scsi_device.h>
- #include <scsi/scsi_host.h> 
- #include <asm/atomic.h>
- #include <linux/timer.h>
-@@ -61,15 +63,8 @@ int cciss_scsi_proc_info(
- 		int length, 	   /* length of data in buffer */
- 		int func);	   /* 0 == read, 1 == write */
- 
--int cciss_scsi_queue_command (Scsi_Cmnd *cmd, void (* done)(Scsi_Cmnd *));
+-
 -#if 0
--int cciss_scsi_abort(Scsi_Cmnd *cmd);
--#if defined SCSI_RESET_SYNCHRONOUS && defined SCSI_RESET_ASYNCHRONOUS
--int cciss_scsi_reset(Scsi_Cmnd *cmd, unsigned int reset_flags);
+-int __init fs_detect(void)
+-{
+-	struct pci_dev  *pci_dev;
+-	int devs = 0;
+-
+-	func_enter ();
+-	pci_dev = NULL;
+-	while ((pci_dev = pci_find_device(PCI_VENDOR_ID_FUJITSU_ME,
+-					  PCI_DEVICE_ID_FUJITSU_FS50, 
+-					  pci_dev))) {
+-		if (fs_register_and_init (pci_dev, &fs_pci_tbl[0]))
+-			break;
+-		devs++;
+-	}
+-
+-	while ((pci_dev = pci_find_device(PCI_VENDOR_ID_FUJITSU_ME,
+-					  PCI_DEVICE_ID_FUJITSU_FS155, 
+-					  pci_dev))) {
+-		if (fs_register_and_init (pci_dev, FS_IS155)) 
+-			break;
+-		devs++;
+-	}
+-	func_exit ();
+-	return devs;
+-}
 -#else
--int cciss_scsi_reset(Scsi_Cmnd *cmd);
+-
+-#if 0
+-int __init init_PCI (void)
+-{ /* Begin init_PCI */
+-	
+-	int pci_count;
+-	printk ("init_PCI\n");
+-	/*
+-	  memset (&firestream_driver, 0, sizeof (firestream_driver));
+-	  firestream_driver.name = "firestream";
+-	  firestream_driver.id_table = firestream_pci_tbl;
+-	  firestream_driver.probe = fs_register_and_init;
+-	*/
+-	pci_count = pci_register_driver (&firestream_driver);
+-	
+-	if (pci_count <= 0) {
+-		pci_unregister_driver (&firestream_driver);
+-		pci_count = 0;
+-	}
+-
+-	return(pci_count);
+-
+-} /* End init_PCI */
 -#endif
 -#endif
-+int cciss_scsi_queue_command (struct scsi_cmnd *cmd, 
-+		void (* done)(struct scsi_cmnd *));
- 
- static struct cciss_scsi_hba_t ccissscsi[MAX_CTLR] = {
- 	{ .name = "cciss0", .ndevices = 0 },
-@@ -82,7 +77,7 @@ static struct cciss_scsi_hba_t ccissscsi
- 	{ .name = "cciss7", .ndevices = 0 },
- };
- 
--static Scsi_Host_Template cciss_driver_template = {
-+static struct scsi_host_template cciss_driver_template = {
- 	.module			= THIS_MODULE,
- 	.name			= "cciss",
- 	.proc_name		= "cciss",
-@@ -552,11 +547,16 @@ cciss_scsi_setup(int cntl_num)
- static void
- complete_scsi_command( CommandList_struct *cp, int timeout, __u32 tag)
- {
--	Scsi_Cmnd *cmd;
-+	struct scsi_cmnd *cmd;
- 	ctlr_info_t *ctlr;
- 	u64bit addr64;
- 	ErrorInfo_struct *ei;
- 
-+	cmd = kmalloc(sizeof(struct scsi_cmnd), GFP_ATOMIC);
-+	if(cmd == NULL) {
-+		printk(KERN_WARNING "out of memory\n");
-+		return;
-+	}
- 	ei = cp->err_info;
- 
- 	/* First, see if it was a message rather than a command */
-@@ -565,7 +565,7 @@ complete_scsi_command( CommandList_struc
- 		return;
- 	}
- 
--	cmd = (Scsi_Cmnd *) cp->scsi_cmd;	
-+	cmd = (struct scsi_cmnd *) cp->scsi_cmd;	
- 	ctlr = hba[cp->ctlr];
- 
- 	/* undo the DMA mappings */
-@@ -573,14 +573,14 @@ complete_scsi_command( CommandList_struc
- 	if (cmd->use_sg) {
- 		pci_unmap_sg(ctlr->pdev,
- 			cmd->buffer, cmd->use_sg,
--				scsi_to_pci_dma_dir(cmd->sc_data_direction)); 
-+				cmd->sc_data_direction); 
- 	}
- 	else if (cmd->request_bufflen) {
- 		addr64.val32.lower = cp->SG[0].Addr.lower;
-                 addr64.val32.upper = cp->SG[0].Addr.upper;
-                 pci_unmap_single(ctlr->pdev, (dma_addr_t) addr64.val,
-                 	cmd->request_bufflen, 
--				scsi_to_pci_dma_dir(cmd->sc_data_direction));
-+				cmd->sc_data_direction);
- 	}
- 
- 	cmd->result = (DID_OK << 16); 		/* host byte */
-@@ -783,9 +783,8 @@ cciss_scsi_do_simple_cmd(ctlr_info_t *c,
- 	cp->Request.Type.Direction = direction;
- 
- 	/* Fill in the SG list and do dma mapping */
--	cciss_map_one(c->pdev, cp, 
--			(unsigned char *) buf, bufsize,
--			scsi_to_pci_dma_dir(SCSI_DATA_READ)); 
-+	cciss_map_one(c->pdev, cp, (unsigned char *) buf,
-+			bufsize, DMA_FROM_DEVICE); 
- 
- 	cp->waiting = &wait;
- 
-@@ -799,9 +798,7 @@ cciss_scsi_do_simple_cmd(ctlr_info_t *c,
- 	wait_for_completion(&wait);
- 
- 	/* undo the dma mapping */
--	cciss_unmap_one(c->pdev, cp, bufsize,
--				scsi_to_pci_dma_dir(SCSI_DATA_READ)); 
 -
-+	cciss_unmap_one(c->pdev, cp, bufsize, DMA_FROM_DEVICE);
- 	return(0);
- }
- 
-@@ -1180,14 +1177,14 @@ cciss_scsi_info(struct Scsi_Host *sa)
- }
- 
- 
--/* cciss_scatter_gather takes a Scsi_Cmnd, (cmd), and does the pci 
-+/* cciss_scatter_gather takes a struct scsi_cmnd, (cmd), and does the pci 
-    dma mapping  and fills in the scatter gather entries of the 
-    cciss command, cp. */
- 
- static void
- cciss_scatter_gather(struct pci_dev *pdev, 
- 		CommandList_struct *cp,	
--		Scsi_Cmnd *cmd)
-+		struct scsi_cmnd *cmd)
- {
- 	unsigned int use_sg, nsegs=0, len;
- 	struct scatterlist *scatter = (struct scatterlist *) cmd->buffer;
-@@ -1200,7 +1197,7 @@ cciss_scatter_gather(struct pci_dev *pde
- 			addr64 = (__u64) pci_map_single(pdev, 
- 				cmd->request_buffer, 
- 				cmd->request_bufflen, 
--				scsi_to_pci_dma_dir(cmd->sc_data_direction)); 
-+				cmd->sc_data_direction); 
- 	
- 			cp->SG[0].Addr.lower = 
- 			  (__u32) (addr64 & (__u64) 0x00000000FFFFFFFF);
-@@ -1213,7 +1210,7 @@ cciss_scatter_gather(struct pci_dev *pde
- 	else if (cmd->use_sg <= MAXSGENTRIES) {	/* not too many addrs? */
- 
- 		use_sg = pci_map_sg(pdev, cmd->buffer, cmd->use_sg, 
--			scsi_to_pci_dma_dir(cmd->sc_data_direction));
-+			cmd->sc_data_direction);
- 
- 		for (nsegs=0; nsegs < use_sg; nsegs++) {
- 			addr64 = (__u64) sg_dma_address(&scatter[nsegs]);
-@@ -1234,7 +1231,7 @@ cciss_scatter_gather(struct pci_dev *pde
- 
- 
- int 
--cciss_scsi_queue_command (Scsi_Cmnd *cmd, void (* done)(Scsi_Cmnd *))
-+cciss_scsi_queue_command (struct scsi_cmnd *cmd, void (* done)(struct scsi_cmnd *))
- {
- 	ctlr_info_t **c;
- 	int ctlr, rc;
-@@ -1302,11 +1299,10 @@ cciss_scsi_queue_command (Scsi_Cmnd *cmd
- 	cp->Request.Type.Attribute = ATTR_SIMPLE;
- 	switch(cmd->sc_data_direction)
- 	{
--	  case SCSI_DATA_WRITE: cp->Request.Type.Direction = XFER_WRITE; break;
--	  case SCSI_DATA_READ: cp->Request.Type.Direction = XFER_READ; break;
--	  case SCSI_DATA_NONE: cp->Request.Type.Direction = XFER_NONE; break;
+-/*
+-#ifdef MODULE
+-#define firestream_init init_module
+-#endif 
+-*/
 -
--	  case SCSI_DATA_UNKNOWN:
-+	  case DMA_TO_DEVICE: cp->Request.Type.Direction = XFER_WRITE; break;
-+	  case DMA_FROM_DEVICE: cp->Request.Type.Direction = XFER_READ; break;
-+	  case DMA_NONE: cp->Request.Type.Direction = XFER_NONE; break;
-+	  case DMA_BIDIRECTIONAL:
- 		// This can happen if a buggy application does a scsi passthru
- 		// and sets both inlen and outlen to non-zero. ( see
- 		// ../scsi/scsi_ioctl.c:scsi_ioctl_send_command() )
+ static struct pci_device_id firestream_pci_tbl[] = {
+ 	{ PCI_VENDOR_ID_FUJITSU_ME, PCI_DEVICE_ID_FUJITSU_FS50, 
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, FS_IS50},
+
+_

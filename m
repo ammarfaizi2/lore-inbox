@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290654AbSARK1S>; Fri, 18 Jan 2002 05:27:18 -0500
+	id <S290656AbSARKe2>; Fri, 18 Jan 2002 05:34:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290656AbSARK1I>; Fri, 18 Jan 2002 05:27:08 -0500
-Received: from dpt-info.u-strasbg.fr ([130.79.44.193]:23562 "EHLO
-	dpt-info.u-strasbg.fr") by vger.kernel.org with ESMTP
-	id <S290654AbSARK07>; Fri, 18 Jan 2002 05:26:59 -0500
-Date: Fri, 18 Jan 2002 11:26:40 +0100
-From: Sven <luther@dpt-info.u-strasbg.fr>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH] fbdev fbgen cleanup
-Message-ID: <20020118112640.A23763@dpt-info.u-strasbg.fr>
-In-Reply-To: <Pine.LNX.4.10.10201151702130.31251-100000@www.transvirtual.com>
-Mime-Version: 1.0
+	id <S290658AbSARKeT>; Fri, 18 Jan 2002 05:34:19 -0500
+Received: from indyio.rz.uni-sb.de ([134.96.7.3]:4889 "EHLO
+	indyio.rz.uni-sb.de") by vger.kernel.org with ESMTP
+	id <S290656AbSARKeG>; Fri, 18 Jan 2002 05:34:06 -0500
+Message-ID: <3C47FA17.A0ACA25C@stud.uni-saarland.de>
+Date: Fri, 18 Jan 2002 10:33:59 +0000
+From: Studierende der Universitaet des Saarlandes 
+	<masp0008@stud.uni-saarland.de>
+Reply-To: manfred@colorfullife.com
+Organization: Studierende Universitaet des Saarlandes
+X-Mailer: Mozilla 4.08 [en] (X11; I; Linux 2.0.36 i686)
+MIME-Version: 1.0
+To: marko milovanovic <m.milo@ifrance.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.4.7 on a 7.2 redha
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.10.10201151702130.31251-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Tue, Jan 15, 2002 at 05:07:00PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 05:07:00PM -0800, James Simmons wrote:
-> 
-> Hi folks!!
-> 
->     On to the massive fbdev cleanup. The second patch requires the first
-> patch. The first patch is the currcon one that I posted earlier. Every
+> hi everyone,
+> we're running a 2.4.7-10smp kernel on a hp lh3000 server with 1gb ram scsi
+> disks and 2 pentium iii cpus
+>
 
-Mmm, what is the current status on all this.
+Normal memory or ECC memory? It seems that a bit flip corrupted a data
+structure.
 
-How does the new fbdev api compare with ruby, is it the same thing or not, and
-how does the ruby tree compare with the -dj one ?
+> we have one a day a kernel panic  with this message :
+> *********************************************
+> Unable to handle kernel NULL pointer dereference at virtual address 0000000d
+> [snip]
+> Oops:
+> eax: e6d9842c   ebx: daabf760   ecx: d763daa0   edx: 00000001
+> [snip]
+> Code;  c01f35ad <tcp_v4_get_port+14d/290>   <=====
+>    0:   8b 42 0c                  mov    0xc(%edx),%eax   <=====
 
-And what is the current status of fbdev in 2.5.x ? 2.5.1 + ruby hang my box
-early in the boot process, but that is probably because pm3fb is not working
-yet for ruby. Does matroxfb work ? i have an older pci matrox board that i
-could install to test and do some pm3fb work if needed (and if i get the time
-for it :(((0
+%edx is 1, probably 0 would have been correct.
 
-Friendly,
-
-Sven Luther
+--
+	Manfred

@@ -1,106 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266805AbUHCSeH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266815AbUHCSgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266805AbUHCSeH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 14:34:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266796AbUHCSeH
+	id S266815AbUHCSgr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 14:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUHCSeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 14:34:07 -0400
-Received: from ishtar.tlinx.org ([64.81.245.74]:43921 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S266805AbUHCSdp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 14:33:45 -0400
-Message-ID: <410FDA19.9020805@tlinx.org>
-Date: Tue, 03 Aug 2004 11:31:53 -0700
-From: L A Walsh <lkml@tlinx.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-CC: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: XFS: how to NOT null files on fsck?
-References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx> <40EEC9DC.8080501@tlinx.org> <20040729013049.GE800@frodo>
-In-Reply-To: <20040729013049.GE800@frodo>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 3 Aug 2004 14:34:24 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:61906 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S266798AbUHCSeL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 14:34:11 -0400
+Subject: Re: [RFC] dev_acpi: device driver for userspace access to ACPI
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Alex Williamson <alex.williamson@hp.com>
+Cc: acpi-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1091557050.4981.135.camel@tdi>
+References: <1091552426.4981.103.camel@tdi>
+	 <1091554271.27397.5327.camel@nighthawk>  <1091557050.4981.135.camel@tdi>
+Content-Type: text/plain
+Message-Id: <1091558040.27397.5523.camel@nighthawk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 03 Aug 2004 11:34:01 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07-28-04 Nathan Scott blissfully wrote:
+On Tue, 2004-08-03 at 11:17, Alex Williamson wrote:
+> On Tue, 2004-08-03 at 10:31 -0700, Dave Hansen wrote:
+> > So, what kinds of generic, arch-independent interfaces should we
+> > implement in the kernel that would reduce the need for something like
+> > your driver?
+> 
+>    I agree with your intent, but I'm not sure a common kernel interface
+> is feasible or desired.  This driver would be much more useful if it was
+> cleverly abstracted by a userspace library.  Should we try to make the
+> common layer be the library interface?  Obviously the more similar the
+> kernel interface, the easier, but I'm not ready to sign-up to architect
+> a generic interface.
 
->On Fri, Jul 09, 2004 at 09:37:48AM -0700, L A Walsh wrote:
->
->>It's a feature! :-)
->>It's been in the code for years to randomly write nulls to some files 
->>
->Pfft, nonsense. 
->
-The above was meant somewhat tongue-in-cheek, ya know...
+Instead of architecting a generic interface, might you simply exclude
+access from your driver to things that already have generic interfaces? 
+I think there are things that we exclude from /proc/device-tree on ppc64
+because there's a generic equivalent elsewhere.  
 
-> The problem relates to an updated inode size
->being flushed ahead of the data behind it (hence a size update
->can make it out before delayed allocate extents do, and we end
->up with a hole beyond the end of file, which reads as zeroes).
->
-I believe I understand the scenario you are talking about, but I don't
-think it fits the examples I have referred to.  In particular, "/etc/fstab".
-I update 'fstab' on Tuesday, say, it works fine...gets backed up just
-fine...and I forget about it and move on.  Then, 2-3 days later, my
-system crashes and doesn't want to some up.  That's odd, usually after
-a crash, it just burps a bit and comes back up.  I grumble and go for
-single user.  Turns out my 1.2k fstab file is all "nulls".  Coinidentally,
-I find, _maybe_, a couple of other files written around the same time,
-also nulled, including times when the nulls appeared in the system log
-for that time period! 
+>    The ACPI interface could be used to do everything from switching a
+> laptop display between the interfaces to listing and configuring/de-
+> configuring specific pieces of hardware.  There will be a set of
+> functionality that's common across multiple interfaces, but I don't want
+> to prevent the usage that is very specific to the underlying
+> implementation.
 
-Now I know it takes a while before data may end up on disk and that it
-may not go out to disk in an ordered fashion, but 2-3 days?  This isn't
-a case of a multi-extent file.  My current fstab is only 1335 bytes long.
-I doubt it has ever been more than 2.  
+There are certainly some very platform-specific things that obviously
+need to be done with direct access to the firmware, and that we don't
+want to pollute the kernel with.  Parsing some of the firmware error
+logs on ppc64 comes to mind.  You just need to be *very* careful with
+the application authors because it's such a big gun :)
 
-My filesystems all use the Allocation unit (AU) size allowed.  I wish
-for something larger than a 4k AU size but I'm told it is limited by
-the linux page size and to find a PC that uses the IA64 page size to
-use larger file AU size (but I haven't seen to many of these IA64 machines
-available from Dell or Gateway...:-)  Maybe the code in FAT32 that handles
-larger AU's could be ported to XFS?  If FAT32 can do it...nevermind...
-I'm sure there are more important issues on the plate.
-
->>Apparently not easily reproduced, no one has a clue why it does it.  
->>Just does. 
->>
->No, its actually well known why it behaves this way.
->We are looking into ways to address this, and have some
->ideas - the trick is fixing it without hurting write
->performance - which we will do, its just not trivial.
->
-You could increase the max AU size :-)  But more seriously, is my
-example of writing a 1 AU sized file that becomes zeroed days later
-an example of the problem you are speaking of?
-
->There are several techiques to reduce the impact of this
->behaviour, as others have described (or see the linux-xfs
->archives).
->
-Like setting the disk for synchronous writes?  Why not something
-in between, like guaranteeing the info on a mostly quiescent machine
-will be written to disk within an hour or so?  Or is that not "it"?
-
-I haven't seen an incidence of this behavior in several months on
-my machines so my particular problem may have been fixed and the
-problem you speak of is unrelated to my own, but the number of unplanned 
-shutdowns on my system has only increased recently, since I upgraded
-to the stable 2.6 series, whereas before, with 2.4, it could be months
-between "blue screens".
-
-Sad was the day that it was decided that the linux-kernel "corp" decided
-on feature development vs. stability in the "stable" kernel series. 
-Isn't that criticism lodged most often against MS. It seems most 
-"companies",
-incorporated or not, seem to follow similar growth patterns.  Wasn't
-there an Eastern saying about choosing your enemies wisely for you
-will eventually become like them?
-
--l
+-- Dave
 

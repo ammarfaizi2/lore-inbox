@@ -1,40 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282861AbSALCpb>; Fri, 11 Jan 2002 21:45:31 -0500
+	id <S283244AbSALCzY>; Fri, 11 Jan 2002 21:55:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282945AbSALCpV>; Fri, 11 Jan 2002 21:45:21 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:60354 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S282861AbSALCpK>;
-	Fri, 11 Jan 2002 21:45:10 -0500
-Date: Fri, 11 Jan 2002 18:44:55 -0800
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Wireless Extension - new driver API - more drivers
-Message-ID: <20020111184455.A15923@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S283286AbSALCzP>; Fri, 11 Jan 2002 21:55:15 -0500
+Received: from mx.fluke.com ([129.196.128.53]:15367 "EHLO
+	evtvir03.tc.fluke.com") by vger.kernel.org with ESMTP
+	id <S283268AbSALCy6>; Fri, 11 Jan 2002 21:54:58 -0500
+Date: Fri, 11 Jan 2002 18:55:07 -0800 (PST)
+From: David Dyck <dcd@tc.fluke.com>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: IDE cdrom  cdrom_read_intr: data underrun / end_request: I/O error
+ --- was Re: Patch: linux-2.5.2-pre7/drivers/cdrom additional kdev_t fixes
+In-Reply-To: <200201120124.RAA10614@adam.yggdrasil.com>
+Message-ID: <Pine.LNX.4.33.0201111841320.193-100000@dd.tc.fluke.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
+On Fri, 11 Jan 2002 at 17:24 -0800, Adam J. Richter <adam@yggdrasil.com> wrote:
 
-	I've converted to new drivers to the new driver API for
-Wireless Extensions, wavelan_cs and netwave_cs. I've added the
-bloat/unbloat number in my comments.
-	I've updated all that on my web page :
-http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html#newapi
+> >I had been testing 2.5.2-pre11 and earlier, but hadn't looked at
+> >reading from my cdrom for a while.  Yesterday I created examined several
+> >large cdrom sets that had been readable earlier and they read partially
+> >but get read errors.  These same cdroms can be read reliable on
+> >2.4.18-pre3 using the same hardware, and are readable on other
+> >PC's runing older kernels.
+>
+> >Has anyone else seen cdrom read errors with 2.5.2-pre* kernels?
 
-	If Linus is in a receptive mood, I would like to start feeding
-those changes to kernel 2.5.X...
+Thanks for your response Adam,
 
-	Have fun...
+> 	Please indicate what kind of interface your CDROM drive
+> has (and preferably make and model of the drive) and what
+> errors you saw.
+>
+> 	If you are using an IDE or SCSI CDROM drive, then the problems
+> you are experiencing have nothing to do with my patch.  My patch was
+> only for the very old "proprietary interface" CDROM drives, which are
+> almost all "1X" or "2X" speed drives.
 
-	Jean
+Using 2.5.2-pre11
+
+# mount /cdrom && md5sum /cdrom/*
+md5sum: /cdrom/dcd-c.tar.gz: I/O error
+md5sum: /cdrom/dcd-d.tar.gz: I/O error
+
+
+An example of some of the messages were
+
+    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
+hdc: NEC CD-ROM DRIVE:28B, ATAPI CD/DVD-ROM drive
+hdc: ATAPI 32X CD-ROM drive, 256kB Cache
+
+
+VFS: Disk change detected on device ide1(22,0)
+ISO 9660 Extensions: Microsoft Joliet Level 3
+ISOFS: changing to secondary root
+hdc: cdrom_read_intr: data underrun (4294967256 blocks)
+end_request: I/O error, dev 16:00, sector 299300
+hdc: cdrom_read_intr: data underrun (4294967260 blocks)
+end_request: I/O error, dev 16:00, sector 299304
+
+  errors repeated with sector and blocks increasing by 4
+  repeating 118 times
+
+
+but using 2.4.18-pre3 I get no errors
+

@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262628AbTCNV4U>; Fri, 14 Mar 2003 16:56:20 -0500
+	id <S262630AbTCNWEo>; Fri, 14 Mar 2003 17:04:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262630AbTCNV4U>; Fri, 14 Mar 2003 16:56:20 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:50833 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S262628AbTCNV4T>; Fri, 14 Mar 2003 16:56:19 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 14 Mar 2003 14:16:34 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Jonathan Lemon <jlemon@flugsvamp.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch, rfc] lt-epoll ( level triggered epoll ) ...
-In-Reply-To: <200303142143.h2ELheqx076668@mail.flugsvamp.com>
-Message-ID: <Pine.LNX.4.50.0303141412260.1903-100000@blue1.dev.mcafeelabs.com>
-References: <local.mail.linux-kernel/Pine.LNX.4.50.0303101139520.1922-100000@blue1.dev.mcafeelabs.com>
- <local.mail.linux-kernel/20030311142447.GA14931@bjl1.jlokier.co.uk.lucky.linux.kernel>
- <local.mail.linux-kernel/20030314155947.GD13106@netch.kiev.ua>
- <200303142143.h2ELheqx076668@mail.flugsvamp.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262631AbTCNWEo>; Fri, 14 Mar 2003 17:04:44 -0500
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:2578
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
+	id <S262630AbTCNWEn>; Fri, 14 Mar 2003 17:04:43 -0500
+Subject: Re: 2.5.64-mm6: oops in elv_remove_request
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+In-Reply-To: <20030314203324.GD791@suse.de>
+References: <1047576167.1318.4.camel@ixodes.goop.org>
+	 <20030313175454.GP836@suse.de> <1047578690.1322.17.camel@ixodes.goop.org>
+	 <20030313190247.GQ836@suse.de> <1047633884.1147.3.camel@ixodes.goop.org>
+	 <20030314203324.GD791@suse.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1047680131.1510.0.camel@ixodes.goop.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 14 Mar 2003 14:15:31 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Mar 2003, Jonathan Lemon wrote:
+On Fri, 2003-03-14 at 12:33, Jens Axboe wrote:
+> On Fri, Mar 14 2003, Jeremy Fitzhardinge wrote:
+> > With the version or cdrtools I compiled, I get an instant oops+lockup
+> > with the above command when running with anticipatory scheduler in
+> > 2.5.64-mm6 (hand written):
+> > 
+> > elv_remove_request
+> > ide_end_request
+> > cdrom_end_request
+> > cdrom_decode_status
+> > cdrom_newpc_intr
+> 
+> 
+> --- drivers/block/as-iosched.c~	2003-03-14 21:32:14.000000000 +0100
+> +++ drivers/block/as-iosched.c	2003-03-14 21:32:38.000000000 +0100
+> @@ -1341,6 +1341,8 @@
+>  			insert_here = ad->dispatch->prev;
+>  
+>  		list_add(&rq->queuelist, insert_here);
+> +		if (arq)
+> +			RB_CLEAR(&arq->rb_node);
+>  		
+>  		if (!list_empty(ad->dispatch) && rq_data_dir(rq) == READ
+>  			&& (ad->antic_status == ANTIC_WAIT_REQ
 
-> In article <local.mail.linux-kernel/Pine.LNX.4.50.0303140845480.1903-100000@blue1.dev.mcafeelabs.com> you write:
-> >On Fri, 14 Mar 2003, Valentin Nechayev wrote:
-> >
-> >>  Tue, Mar 11, 2003 at 14:27:50, jamie wrote about "Re: [patch, rfc]
-> >lt-epoll ( level triggered epoll ) ...":
-> >>
-> >> > Actually I think _this_ is cleanest: A three-way flag per registered
-> >> > fd interest saying whether to:
-> >> >
-> >> > 	1. Report 0->1 edges for this interest.  (Initial 1 counts as an event).
-> >> > 	2. Continually report 1 levels for this interest.
-> >> > 	3. One-shot, report the first time 1 is noted and unregister.
-> >> >
-> >> > ET poll is equivalent to 1.  LT poll is equivalent to 2.  dnotify's
-> >> > one-shot mode is equivalent to 3.
-> >>
-> >> kqueue can do all three variants (1st with EV_CLEAR, 3rd with EV_ONESHOT).
-> >>
-> >> So, result of this whole epoll work is trivially predictable - Linux will have
-> >> analog of "overbloated" and "poorly designed" kqueue, but more poor
-> >> and with incompatible interface, adding its own stone to hell of
-> >> different APIs. Congratulations.
-> >
-> >See, this is a free world, and I very much respect your opinion. On the
-> >other side you might want to actually *read* the kqueue man page and find
-> >out of its 24590 flags, where 99% of its users will use only 1% of its
-> >functionality. Talking about overbloating. You might also want to know
-> >that quite a few kqueue users currently running on your favourite OS, are
-> >moving to Linux+epoll. The reason is still unclear to me, but I can leave
-> >you to discover it as exercise.
->
-> FUD. You should know that in the normal case, kq users don't use any
-> flags, but they are available for those people who are doing specific
-> things.  But I bet you knew that already and just want to slam something
-> that isn't epoll.
+No joy, I'm afraid.  Same crash.
 
-Please, consider reading the message that generated the response before
-generating superfluous noise. Expecially those "overbloated" and "poorly
-designed" thingies. In my books overbloat is the presence of features that
-99% of users simply ignore.
-
-
-
-- Davide
+	J
 

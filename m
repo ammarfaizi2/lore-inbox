@@ -1,50 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275042AbRJJHg5>; Wed, 10 Oct 2001 03:36:57 -0400
+	id <S275045AbRJJHw7>; Wed, 10 Oct 2001 03:52:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275043AbRJJHgs>; Wed, 10 Oct 2001 03:36:48 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:25609 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S275042AbRJJHgn>;
-	Wed, 10 Oct 2001 03:36:43 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15299.64114.664515.425183@cargo.ozlabs.ibm.com>
-Date: Wed, 10 Oct 2001 17:36:18 +1000 (EST)
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+	id <S275082AbRJJHwt>; Wed, 10 Oct 2001 03:52:49 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:1273 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S275045AbRJJHwj>;
+	Wed, 10 Oct 2001 03:52:39 -0400
+Date: Wed, 10 Oct 2001 13:28:30 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, Paul McKenney <paul.mckenney@us.ibm.com>
 Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
-In-Reply-To: <9q0ku6$175$1@penguin.transmeta.com>
-In-Reply-To: <OF296D0EDC.4D1AE07A-ON88256AE0.00568638@boulder.ibm.com>
-	<20011010040502.A726@athlon.random>
-	<9q0ku6$175$1@penguin.transmeta.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Message-ID: <20011010132830.A17135@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
+In article <Pine.LNX.4.33.0110092323450.1360-100000@penguin.transmeta.com> Linus Torvalds wrote:
+> On Wed, 10 Oct 2001, Paul Mackerras wrote:
+>> The difficulty is in making sure that no reader is still inspecting
+>> the list element you just removed before you free it, or modify any
+>> field that the reader would be looking at (particularly the `next'
+>> field :).
 
-> And THAT is the hard part. Doing lookup without locks ends up being
-> pretty much worthless, because you need the locks for the removal
-> anyway, at which point the whole thing looks pretty moot.
-> 
-> Did I miss something?
+> ..which implies _some_ sort of locking, even if it may be deferred.
 
-I believe this all becomes (much more) useful when you are doing
-read-copy-update.
+> The locking can be per-CPU, whatever - have a per-CPU count for "this many
+> traversals in progress", and have every lookup increment it before
+> starting, and decrement it after stopping.
 
-There is an assumption that anyone modifying the list (inserting or
-deleting) would take a lock first, so the deletion is just a pointer
-assignment.  Any reader traversing the list (without a lock) sees
-either the old pointer or the new, which is fine.
+> Then the deleter can actually free the thing once he has seen every CPU go
+> down to zero, with the proper memory barriers.
 
-The difficulty is in making sure that no reader is still inspecting
-the list element you just removed before you free it, or modify any
-field that the reader would be looking at (particularly the `next'
-field :).  One way of doing that is to defer the free or modification
-to a quiescent point.  If you have a separate `next_free' field, you
-could safely put the element on a list of elements to be freed at the
-next quiescent point.
+> Yes, I see that it can work. But it sounds like a _lot_ of complexity for
+> not very much gain.
 
-Paul.
+It can get really ugly since the deleter has to keep
+checking periodically for zero-traversal-count. During that peiod more
+deletions can happen and the resulting in the need to maintain
+deleters as well.
+
+An alternative approach is to divide the timeline
+of the kernel into cycles - periods where every CPU does atleast
+one context switch thereby losing reference to any pointer to
+kernel data. You can now batch all the deletions prior to the
+start of a period and finish them after the end of that period. Any
+new deletions that happens during  such a period get batched to the
+next such period. Any new traversal will see not see the older
+copy of the data since the global pointer(s) was updated.
+
+
+> Right now, you already have to have eight CPU's to see locking as a large
+> problem in normal life. People have normal patches to bring that easily up
+> to 16. Then how much hard-to-debug-with-subtle-memory-ordering-issues code
+> do you want to handle the few machines that aren't in that range?
+
+Yes, various degrees of weakness of memory ordering will make writing code
+harder, but it can be dealt with be defining primitives that
+behaves uniformly across different architectures. As for large machines
+are concerned, I hope the answer is "yes as long as it doesn't adversely
+affect the lower end" :-)
+
+Thanks
+Dipankar
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

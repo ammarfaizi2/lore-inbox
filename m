@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271569AbRIBDvd>; Sat, 1 Sep 2001 23:51:33 -0400
+	id <S271574AbRIBEGf>; Sun, 2 Sep 2001 00:06:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271572AbRIBDvW>; Sat, 1 Sep 2001 23:51:22 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:57354 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S271569AbRIBDvJ>; Sat, 1 Sep 2001 23:51:09 -0400
-From: Linus Torvalds <torvalds@transmeta.com>
-Date: Sat, 1 Sep 2001 20:48:12 -0700
-Message-Id: <200109020348.f823mCs01183@penguin.transmeta.com>
-To: andy@spylog.ru, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10-pre3 - bug report
-Newsgroups: linux.dev.kernel
-In-Reply-To: <20010902053338.A26119@spylog.ru>
-In-Reply-To: <Pine.LNX.4.33.0109011212380.922-100000@penguin.transmeta.com>
+	id <S271575AbRIBEGZ>; Sun, 2 Sep 2001 00:06:25 -0400
+Received: from web10403.mail.yahoo.com ([216.136.130.95]:36103 "HELO
+	web10403.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S271574AbRIBEGK>; Sun, 2 Sep 2001 00:06:10 -0400
+Message-ID: <20010902040628.91587.qmail@web10403.mail.yahoo.com>
+Date: Sun, 2 Sep 2001 14:06:28 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: OOPS (possible) 2.4.9-ac5 (Was OOPS (possible) 2.4.9 with intel810)
+To: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010902021144.22893.qmail@web10408.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010902053338.A26119@spylog.ru> you write:
->
->		run
->		test:/spylog/test/tiobench-0.3.1 # ./tiobench.pl 
->		No size specified, using 1792 MB
->	
->    syslog level "kern.*":
->	
->ep  2 05:20:18 test kernel: Inspecting /boot/System.map
->Sep  2 05:20:18 test kernel: Loaded 12509 symbols from /boot/System.map.
->Sep  2 05:20:18 test kernel: Symbols match kernel version 2.4.10.
->Sep  2 05:20:18 test kernel: No module symbols loaded - kernel modules not enabled. 
->Sep  2 05:24:52 test kernel: __alloc_pages: 0-order allocation failed (gfp=0x70/1).
->Sep  2 05:24:54 test last message repeated 77 times
->Sep  2 05:24:54 test kernel: __alloc_pages: 0-order allocation failed (gfp=0x30/1).
 
-These are bounce buffer allocations - they do fail, but the failures
-should be temporary and the machine should make progress. 
+Today I got one more time similar with 2.4.9-ac5. I am
+going to compile using old DRI for XFree 4.0.x to see
+if it will solve the problem.
 
-There are some nasty issues with HIGHMEM that will be seriously improved
-during 2.5.x when we start doing IO directly from highmem for
-controllers that can handle it, but that 2.4.x is not likely to really
-fix.  So you should expect to see messages like the above that are about
-"we couldn't allocate memory for bounce buffers", and they _will_ imply
-that performance isn't going to be as good as it possibly should be, but
-at the same time it shouldn't be a real problem either.
 
-Does the machine stay up and perform reasonably well?
+ --- Steve Kieu <haiquy@yahoo.com> wrote: > HI,
+> 
+> I got once and unable to reproduce it. It might be
+> an
+> OOP and related to the graphic driver.
+> 
+> When I exit from X (logout from gnome) all I got is
+> blank black screen. No keys works, even Ctr+Alt+Del
+> .
+> Can not turn off the computer using its power button
+> which makes me think it is an OOP. I have to unplug
+> the power cord.
+> 
+> Kernel 2.4.9 with ext3 patch and SetPageReferenced
+> patch
+> 
+> System: i810 video chip with Intel celeron medocino
+> 400Mh 128 Mb RAM
+> 
+> If more infor needed pls tell me
+> 
+> Regards
+> 
+> 
+> 
+> 
+> =====
+> S.KIEU
+> 
+> http://travel.yahoo.com.au - Yahoo! Travel
+> - Got Itchy feet? Get inspired!
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/ 
 
-(Where "reasonable" doesn't necessarily mean "really well", but means
-"it's not absolutely horrible").
+=====
+S.KIEU
 
-		Linus
+http://travel.yahoo.com.au - Yahoo! Travel
+- Got Itchy feet? Get inspired!

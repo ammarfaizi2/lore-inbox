@@ -1,73 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129256AbRBBCC3>; Thu, 1 Feb 2001 21:02:29 -0500
+	id <S129288AbRBBCDb>; Thu, 1 Feb 2001 21:03:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129288AbRBBCCU>; Thu, 1 Feb 2001 21:02:20 -0500
-Received: from raven.toyota.com ([63.87.74.200]:34316 "EHLO raven.toyota.com")
-	by vger.kernel.org with ESMTP id <S129256AbRBBCCD>;
-	Thu, 1 Feb 2001 21:02:03 -0500
-Message-ID: <3A7A1519.E140A726@toyota.com>
-Date: Thu, 01 Feb 2001 18:02:01 -0800
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
+	id <S129548AbRBBCDV>; Thu, 1 Feb 2001 21:03:21 -0500
+Received: from ns1.BayNetworks.COM ([134.177.3.20]:24983 "EHLO
+	baynet.baynetworks.com") by vger.kernel.org with ESMTP
+	id <S129288AbRBBCDJ>; Thu, 1 Feb 2001 21:03:09 -0500
+From: "Paul D. Smith" <pausmith@nortelnetworks.com>
 MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: A buglet with LVM-0.9.1
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14970.5436.897143.934189@lemming.engeast.baynetworks.com>
+Date: Thu, 1 Feb 2001 21:02:36 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SO_REUSEADDR redux
+In-Reply-To: <E14OSOC-0005FD-00@the-village.bc.nu>
+In-Reply-To: <14969.57896.331183.374489@lemming.engeast.baynetworks.com>
+	<E14OSOC-0005FD-00@the-village.bc.nu>
+X-Mailer: VM 6.89 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+%% Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-I discovered that lvm seems to have a problem
-with compaq raid controllers - the partitions
-don't have the normal names like /dev/sda1,
-but instead names like /dev/ida/c0d0p1 -
+  >> This application uses SO_REUSEADDR in conjunction with INADDR_ANY.  What
+  >> it does is bind() to INADDR_ANY, then listen().  Then, it proceeds to
+  >> bind (but _not_ listen) various other specific addresses.
 
-lvm seems to works OK, but lvmdiskscan freaks...
+  ac> That should be ok if its setting SO_REUSEADDR
 
-lvmdiskscan works normally on other systems,
-which have conventional disk controllers.
+I agree, and so does Solaris/FreeBSD, but Linux doesn't.  See below for
+a test program.  Maybe I'm doing something screwed up.
 
-This is OK -
-case: /tmp
-(tty/dev/pts/1): bash: 623 > lvscan
-lvscan -- ACTIVE           "/dev/lxlvm/lvm1" [3.12 GB]
-lvscan -- 1 logical volumes with 3.12 GB total in 1 volume group
-lvscan -- 1 active logical volumes
+-------------------------8>< snip ><8-------------------------
+#include <stdio.h>
+#include <errno.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
-This is OK too -
-case: /tmp
-(tty/dev/pts/1): bash: 622 > df
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/ida/c0d0p1        1007928    220124    736604  24% /
-/dev/ida/c0d0p8        2015904    251196   1662304  14% /home
-/dev/ida/c0d0p7        1007928       240    956488   1% /opt
-/dev/ida/c0d0p9        4031856   1660664   2166380  44% /usr
-/dev/ida/c0d0p3        2015920     61768   1851744   4% /var
-/dev/lxlvm/lvm1        3225352   1888308   1173204  62% /disks/backup
-
-But this is not in agreement:
-case: /tmp
-(tty/dev/pts/1): bash: 625 > lvmdiskscan -v
-lvmdiskscan -- reading all disks / partitions (this may take a while...)
-
-lvmdiskscan -- filling directory cache...
-lvmdiskscan -- walking through all found disks / partitions
-lvmdiskscan -- /dev/ida/c0d0p1  [    1000.06 MB] free whole disk
-lvmdiskscan -- no valid disks / partitions found
-lvmdiskscan -- please check your disk device special files!
-
-Hope this is of use -
-
-jjs
+#define MY_PORT     10000
 
 
+int
+main(int argc, char *argv[])
+{
+  int any_fd, this_fd;
+  int val = 1;
+  struct sockaddr_in addr;
+
+  if ((any_fd = socket(PF_INET, SOCK_STREAM, 0)) < 0
+      || fcntl(any_fd, F_SETFL, O_NONBLOCK) < 0
+      || setsockopt(any_fd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof val) < 0) {
+    perror("setup(any)");
+    return 1;
+  }
+
+  if ((this_fd = socket(PF_INET, SOCK_STREAM, 0)) < 0
+      || fcntl(this_fd, F_SETFL, O_NONBLOCK) < 0
+      || setsockopt(this_fd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof val) < 0) {
+    perror("setup(this)");
+    return 1;
+  }
+
+  addr.sin_family = AF_INET;
+  addr.sin_port = MY_PORT;
+  memset(addr.sin_zero, 0, sizeof (addr.sin_zero));
+
+  addr.sin_addr.s_addr = INADDR_ANY;
+
+  if (bind(any_fd, (struct sockaddr *)&addr, sizeof (addr)) < 0) {
+    perror("bind(any)");
+    return 1;
+  }
+
+  if (listen(any_fd, 10) < 0) {
+    perror("listen(any)");
+    return 1;
+  }
+
+  addr.sin_addr.s_addr = INADDR_LOOPBACK;
+
+  if (bind(this_fd, (struct sockaddr *)&addr, sizeof (addr)) < 0) {
+    perror("bind(this)");
+    return 1;
+  }
+
+  return 0;
+}
+-------------------------8>< snip ><8-------------------------
+
+  solaris$ gcc -o reuseaddr{,.c} -lsocket -lnsl
+  solaris$ ./reuseaddr
+
+Works.  Now:
+
+  linux$ gcc -o reuseaddr{,.c}
+  linux$ ./reuseaddr
+  bind(this): Cannot assign requested address
+
+:(  The real code doesn't use LOOPBACK, of course.
+
+This is Linux 2.2.17, but I tried with 2.2.18 too.  I haven't tried
+2.4.x.
 
 
+Thanks...
 
+-- 
+-------------------------------------------------------------------------------
+ Paul D. Smith <psmith@baynetworks.com>    HASMAT--HA Software Methods & Tools
+ "Please remain calm...I may be mad, but I am a professional." --Mad Scientist
+-------------------------------------------------------------------------------
+   These are my opinions---Nortel Networks takes no responsibility for them.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

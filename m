@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272320AbSISTCb>; Thu, 19 Sep 2002 15:02:31 -0400
+	id <S272449AbSISTNs>; Thu, 19 Sep 2002 15:13:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272334AbSISTCb>; Thu, 19 Sep 2002 15:02:31 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:25746 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S272320AbSISTCb>; Thu, 19 Sep 2002 15:02:31 -0400
-Date: Thu, 19 Sep 2002 12:05:36 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Bond, Andrew" <Andrew.Bond@hp.com>, linux-kernel@vger.kernel.org
-Subject: Re: TPC-C benchmark used standard RH kernel
-Message-ID: <434201548.1032437133@[10.10.2.3]>
-In-Reply-To: <45B36A38D959B44CB032DA427A6E106402D09E42@cceexc18.americas.cpqcorp.net>
-References: <45B36A38D959B44CB032DA427A6E106402D09E42@cceexc18.americas.cpqcorp.net>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S272493AbSISTNs>; Thu, 19 Sep 2002 15:13:48 -0400
+Received: from khms.westfalen.de ([62.153.201.243]:29093 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S272449AbSISTNq>; Thu, 19 Sep 2002 15:13:46 -0400
+Date: 19 Sep 2002 21:10:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Message-ID: <8XBysGvmw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.44.0209190938340.1594-100000@home.transmeta.com>
+Subject: Re: [patch] generic-pidhash-2.5.36-D4, BK-curr
+X-Mailer: CrossPoint v3.12d.kh10 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Organization: Organisation? Me?! Are you kidding?
+References: <Pine.LNX.4.44.0209190938340.1594-100000@home.transmeta.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Could we have gotten better performance by patching the kernel?  Sure.  There are many new features in 2.5 that would enhance database performance.  However, the fairly strict support requirements of TPC benchmarking mean that we need to benchmark a kernel that a Linux distributor ships and can support.  
-> Modifications could also be taken to the extreme, and we could have built a screamer kernel that runs Oracle TPC-C's and nothing else.  However, that doesn't really tell us anything useful and doesn't help those customers thinking about running Linux.  The question also becomes "Who would provide customer support for that kernel?" 
+torvalds@transmeta.com (Linus Torvalds)  wrote on 19.09.02 in <Pine.LNX.4.44.0209190938340.1594-100000@home.transmeta.com>:
 
-Unofficial results for 2.5 vs 2.4 (or 2.4-redhatAS) would be most
-interesting if you're able to gather them, and still have the
-machine. Most times you can avoid their draconian rules by saying
-"on a large benchmark test that I can't name but you all know what
-it is ..." instead of naming it ... ;-)
+> On Thu, 19 Sep 2002, Andries Brouwer wrote:
 
-M.
+> > [POSIX 1003.1-2001]
 
+> > The controlling terminal is inherited by a child process during a fork()
+> > function call. A process relinquishes its controlling terminal when it
+> > creates a new session with the setsid() function; other processes
+> > remaining in the old session that had this terminal as their controlling
+> > terminal continue to have it.
+>
+> Well, that certainly clinches the fact that the controlling terminal _can_
+> and does continue to be hold by processes outside the current session
+> group.
+
+On the contrary: it says that this can never happen - the new session has  
+no controlling terminal, and can't get the old one unless the old session  
+loses it first.
+
+MfG Kai

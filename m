@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262756AbTIJMZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 08:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbTIJMZZ
+	id S262857AbTIJMaf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 08:30:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbTIJMaf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 08:25:25 -0400
-Received: from mid-2.inet.it ([213.92.5.19]:38605 "EHLO mid-2.inet.it")
-	by vger.kernel.org with ESMTP id S262756AbTIJMZV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 08:25:21 -0400
-Message-ID: <03fb01c37797$33f706a0$5aaf7450@wssupremo>
-Reply-To: "Luca Veraldi" <luca.veraldi@katamail.com>
-From: "Luca Veraldi" <luca.veraldi@katamail.com>
-To: <alexander.riesen@synopsys.COM>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <20030910115259.GA28632@Synopsys.COM> <03ae01c37795$063561a0$5aaf7450@wssupremo> <20030910121143.GA28858@Synopsys.COM>
-Subject: Re: Efficient IPC mechanism on Linux
-Date: Wed, 10 Sep 2003 14:29:37 +0200
+	Wed, 10 Sep 2003 08:30:35 -0400
+Received: from pf138.torun.sdi.tpnet.pl ([213.76.207.138]:40719 "EHLO
+	centaur.culm.net") by vger.kernel.org with ESMTP id S262857AbTIJMae convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 08:30:34 -0400
+From: Witold Krecicki <adasi@kernel.pl>
+To: linux-kernel@vger.kernel.org
+Subject: [2.4] siimage locks hard on high load
+Date: Fri, 12 Sep 2003 13:44:43 +0200
+User-Agent: KMail/1.5.9
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200309121344.43573.adasi@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> it is widely accepted one.
+I've got Asus a7n8x deluxe with on-board Silicon Image SATA and 2xBarracuda 
+120GB connected to it in software RAID array.
+On high disk load (e.g. cp -Rf /usr/src/linux somewhere_else) kernel locks 
+hard after about 10 seconds (magic sysrq is not working).
+It happens only when DMA is enabled. 
+/dev/hda:
+ multcount    = 16 (on)
+ IO_support   =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    = 16 (on)
+ geometry     = 14593/255/63, sectors = 234441648, start = 0
 
-Widely accepted does not necessary implies clear.
-
-Sorry if I consider more readable this:
-ch=acquire(CHANNEL_ID);
-
-instead of this:
-while((fd = open("fifo", O_WRONLY)) < 0) ;
-
-But this is quite an aestethical fact.
-
-If you like "open" and "write", open Emacs and do a global replace
-"acquire" with "open"
-and
-"zc_send" with "write".
-
-Few other minor details will make it a compatible interface.
-
-------------------------------
-Fashion is a variable
-but style is a constant
------------------------------- Larry Wall
-
-Bye,
-Luca
+Also, I'm not really satisfied with speed of this array:
+/dev/md1:
+ Timing buffered disk reads:  64 MB in  1.77 seconds = 36.16 MB/sec
+Any solutions/fixes?
+-- 
+Witold Krêcicki (adasi) adasi [at] culm.net
+GPG key: 7AE20871
+http://www.culm.net

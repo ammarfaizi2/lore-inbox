@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131983AbRBFABa>; Mon, 5 Feb 2001 19:01:30 -0500
+	id <S131908AbRBFABl>; Mon, 5 Feb 2001 19:01:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132156AbRBFABL>; Mon, 5 Feb 2001 19:01:11 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:63245 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S131983AbRBFABH>; Mon, 5 Feb 2001 19:01:07 -0500
-Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE644@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Juraj Bednar'" <juraj@bednar.sk>,
-        acpi@phobos.fachschaften.tu-muenchen.de
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: [Acpi] acpi breaks async interface
-Date: Mon, 5 Feb 2001 15:59:26 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S136046AbRBFABa>; Mon, 5 Feb 2001 19:01:30 -0500
+Received: from 200-221-84-35.dsl-sp.uol.com.br ([200.221.84.35]:530 "HELO
+	dumont.rtb.ath.cx") by vger.kernel.org with SMTP id <S131908AbRBFABP>;
+	Mon, 5 Feb 2001 19:01:15 -0500
+Date: Mon, 5 Feb 2001 22:01:09 -0200
+From: Rogerio Brito <rbrito@iname.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Slowing down CDROM drives (was: Re: ATAPI CDRW which doesn't work)
+Message-ID: <20010205220109.A9945@iname.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010203230544.A549@MourOnLine.dnsalias.org> <20010205020952.B1276@suse.de> <20010205013424.A15384@iname.com> <20010205144803.B5285@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010205144803.B5285@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, someone else had PPP slowness due to ACPI idle, so I'd guess that's
-the problem here too.
+On Feb 05 2001, Jens Axboe wrote:
+> 	ioctl(cd_fd, CDROM_SELECT_SPEED, speed);
 
-Workin' on it -- Andy
+	I'd like to thank everybody that replied either on the list
+	and privately. I didn't know that I could just use the /proc
+	entries to change the IDE driver speed with a simple:
 
-> From: Juraj Bednar [mailto:juraj@bednar.sk]
->  I just found a strange thing in 2.4.1 (don't know, if the same
-> occured in 2.4.0) and 2.4.1-ac3. When I enable ACPI, my serial
-> port starts to drop some characters. When making ppp over this
-> and doing ping, it causes great packet losts. If I turn ACPI in
-> this configuration off, it works with no problems. I tried to
-> switch serial port IRQ to other one (was 4, switched to 3 and
-> tested) and it didn't help. Maybe something's broken.
+	echo current_speed:4 > /proc/ide/hdc/settings
 
-Where is ACPI below???
+	(Thanks Mark for this).
 
-> [root@idoru log]# cat /proc/interrupts 
->            CPU0       
->   0:      57278          XT-PIC  timer
->   1:       2658          XT-PIC  keyboard
->   2:          0          XT-PIC  cascade
->   4:      49530          XT-PIC  serial
->   5:          1          XT-PIC  soundblaster
->  10:         15          XT-PIC  aha152x
->  11:         60          XT-PIC  eth0
->  12:      27772          XT-PIC  PS/2 Mouse
->  14:     213118          XT-PIC  ide0
->  15:       3298          XT-PIC  ide1
-> NMI:          0 
-> LOC:          0 
-> ERR:          0
+	I'd also like to thank Andries about the tip on the mount
+	option. I didn't find anything in the util-linux (mount)
+	manpage before I asked (I'm using Debian potato's util-linux
+	2.10q-1).
 
+	The option that I chose was to cook a little proggie to call
+	the ioctl to set the speed. This is the most flexible solution
+	(as it doesn't involve messing with fstab or being root to
+	pass the mount option to mount). Thanks, Jens!
+
+	Thank you all very, very much for the amazing (and fast) help!
+
+
+	[]s, Roger...
+
+-- 
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  Rogerio Brito - rbrito@iname.com - http://www.ime.usp.br/~rbrito/
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,193 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269127AbTBZW52>; Wed, 26 Feb 2003 17:57:28 -0500
+	id <S268891AbTBZXJb>; Wed, 26 Feb 2003 18:09:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269131AbTBZW52>; Wed, 26 Feb 2003 17:57:28 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:56729 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S269127AbTBZW51>;
-	Wed, 26 Feb 2003 17:57:27 -0500
-From: Mikael Pettersson <mikpe@user.it.uu.se>
+	id <S269030AbTBZXJb>; Wed, 26 Feb 2003 18:09:31 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:29585 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S268891AbTBZXJZ>; Wed, 26 Feb 2003 18:09:25 -0500
+Date: Wed, 26 Feb 2003 15:19:37 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.5.63-mjb1 (scalability / NUMA patchset)
+Message-ID: <5880000.1046301577@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15965.18601.973394.137184@gargle.gargle.HOWL>
-Date: Thu, 27 Feb 2003 00:07:21 +0100
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ion Badulescu <ionut@badula.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
-       <mingo@redhat.com>
-Subject: Re: [BUG] 2.5.63: ESR killed my box!
-In-Reply-To: <Pine.LNX.4.44.0302261400160.3156-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0302261637560.8828-100000@guppy.limebrokerage.com>
-	<Pine.LNX.4.44.0302261400160.3156-100000@home.transmeta.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
- > > 1) apic_write_around(APIC_ID, boot_cpu_physical_apicid) places the APIC 
- > > value in the lower 8 bits of APIC_ID, when it should be in the upper 8. As 
- > > as result, it effectively forces the APIC id to always be 0 for the boot 
- > > CPU, which is fatal on SMP AMD boxes.
- > 
- > Wouldn't it be nicer to just fix the write instead? I can see the 
- > potential to actually want to change the APIC ID - in particular, if the 
- > SMP MP tables say that the APIC ID for the BP should be X, maybe we should 
- > actually write X to it instead of just using what is there.
- > 
- > In particular, Mikaels patch will BUG() if the MP tables don't match the 
- > APIC ID. I think that's extremely rude: we should select one of the two 
- > and just run with it, instead of unconditionally failing.
+The patchset contains mainly scalability and NUMA stuff, and anything 
+else that stops things from irritating me. It's meant to be pretty stable, 
+not so much a testing ground for new stuff.
 
-Yes, but that was just a test patch to test my suspicions about why
-a UP_APIC kernel failed on an SMP K7 box. (CPU #1 was BSP and was
-programmed with CPU #0's local APIC ID.)
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
-I assume that an SMP machine once booted by the BIOS will have
-unique local APIC IDs. They're typically either hardwired or programmed
-by the BIOS. If the MP table then disagrees with what's in the
-CPUs' local APIC IDs, who do you trust: the MP table or the CPUs?
-I personally would trust the CPUs and leave the local APIC IDs alone,
-in particular since writing to them always risks collisions, especially
-in the UP-kernel-on-SMP-HW case.
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.63/patch-2.5.63-mjb
+1.bz2
 
-So I think the BUG should be a warning, but we shouldn't clobber APIC_ID.
+additional:
 
-/Mikael
+http://www.aracnet.com/~fletch/linux/2.5.59/pidmaps_nodepages
+
+Since 2.5.62-mjb3 (~ = changed, + = added, - = dropped)
+
+Notes:
+
+Merged with Linus:
+
+- fix_was_sched					Ingo / wli / Rick Lindsley
+- kirq_clustered_fix				Dave Hansen / Martin J. Bligh
+
+Dropped:
+
+- acpi_x440_hack (proper fix merged)		Anonymous Coward
+- auto_disable_tsc				John Stultz
+
+New:
+
++ acpi_16way					John Stultz
++ schedstat2					Rick Lindsley
++ nfs_fix					Trond Myklebust
++ nonzero_apicid				Martin J. Bligh
++ objrmap_fix					Dave McCracken
+
+Pending:
+scheduler callers profiling (Anton)
+PPC64 NUMA patches (Anton)
+Child runs first (akpm)
+Kexec
+e1000 fixes
+Non-PAE aligned kernel splits (Dave Hansen)
+Update the lost timer ticks code
+Ingo scheduler updates
+
+Present in this patch:
+
+early_printk					Dave Hansen et al.
+	Allow printk before console_init
+
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
+
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+vmalloc_stats					Dave Hansen
+	Expose useful vmalloc statistics
+
+local_pgdat					William Lee Irwin
+	Move the pgdat structure into the remapped space with lmem_map
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+notsc						Martin Bligh
+	Enable notsc option for NUMA-Q (new version for new config system)
+
+mpc_apic_id					Martin J. Bligh
+	Fix null ptr dereference (optimised away, but ...)
+
+doaction					Martin J. Bligh
+	Fix cruel torture of macros and small furry animals in io_apic.c
+
+kgdb						Andrew Morton / Various People
+	The older version of kgdb, synched with 2.5.54-mm1
+
+noframeptr					Martin Bligh
+	Disable -fomit_frame_pointer
+
+ingosched					Ingo Molnar
+	Modify NUMA scheduler to have independant tick basis.
+
+schedstat					Rick Lindsley
+	Provide stats about the scheduler under /proc/stat
+
+schedstat2					Rick Lindsley
+	Provide more stats about the scheduler under /proc/stat
+
+sched_tunables					Robert Love
+	Provide tunable parameters for the scheduler (+ NUMA scheduler)
+
+early_ioremap					Dave Hansen
+	Provide ioremap in very early boot when we only have 8Mb address space
+
+x440disco_A0					Pat Gaughen / IBM NUMA team
+	SLIT/SRAT parsing for x440 discontigmem
+
+acpi_16way					John Stultz
+	Make ACPI cope with multi-page something-or-others.
+
+numa_pci_fix					Dave Hansen
+	Fix a potential error in the numa pci code from Stanford Checker
+
+pfn_to_nid					William Lee Irwin
+	Turn pfn_to_nid into a macro
+
+kprobes						Vamsi Krishna S
+	Add kernel probes hooks to the kernel
+
+dmc_exit1					Dave McCracken
+	Speed up the exit path, pt 1.
+
+dmc_exit2					Dave McCracken
+	Speed up the exit path, pt 1.
+
+shpte						Dave McCracken
+	Shared pagetables (as a config option)
+
+thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
+	Prep work to reduce kernel stacks to 4K
+	
+interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
+	Create a per-cpu interrupt stack.
+
+stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
+	Check for kernel stack overflows.
+
+4k_stack            (4K stacks pt 4)		Dave Hansen
+	Config option to reduce kernel stacks to 4K
+
+fix_kgdb					Dave Hansen
+	Fix interaction between kgdb and 4K stacks
+
+stacks_from_slab				William Lee Irwin
+	Take kernel stacks from the slab cache, not page allocation.
+
+thread_under_page				William Lee Irwin
+	Fix THREAD_SIZE < PAGE_SIZE case
+
+lkcd						LKCD team
+	Linux kernel crash dump support
+
+percpu_loadavg					Martin J. Bligh
+	Provide per-cpu loadaverages, and real load averages
+
+irq_affinity					Martin J. Bligh
+	Workaround for irq_affinity on clustered apic mode systems (eg x440)
+
+no_kirq						Martin J. Bligh
+	Allow disabling of kirq to work properly
+
+cleaner_inodes					Andrew Morton
+	Make noatime filesystems more efficient
+
+nfs_fix						Trond Myklebust
+	Fix some bug or other in NFS that seems to bite people as a race.
+
+nonzero_apicid					Martin J. Bligh
+	Cope with boot cpu != mpstable boot cpu.
+
+partial_objrmap					Dave McCracken
+	Object based rmap for filebacked pages.
+
+objrmap_fix					Dave McCracken
+	Fix detection of anon pages
+
+-mjb						Martin J. Bligh
+	Add a tag to the makefile
+

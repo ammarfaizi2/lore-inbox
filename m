@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290547AbSBGR0p>; Thu, 7 Feb 2002 12:26:45 -0500
+	id <S289829AbSBGR1E>; Thu, 7 Feb 2002 12:27:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290490AbSBGR0f>; Thu, 7 Feb 2002 12:26:35 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:43025 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S289829AbSBGR0Y>;
-	Thu, 7 Feb 2002 12:26:24 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Patrick Mochel <mochel@osdl.org>
-Date: Thu, 7 Feb 2002 18:25:57 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] read() from driverfs files can read more bytes 
-CC: <linux-kernel@vger.kernel.org>
-X-mailer: Pegasus Mail v3.50
-Message-ID: <11240BA04440@vcnet.vc.cvut.cz>
+	id <S290490AbSBGR1A>; Thu, 7 Feb 2002 12:27:00 -0500
+Received: from bitmover.com ([192.132.92.2]:15578 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S289829AbSBGR0o>;
+	Thu, 7 Feb 2002 12:26:44 -0500
+Date: Thu, 7 Feb 2002 09:26:40 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Stelian Pop <stelian.pop@fr.alcove.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+Message-ID: <20020207092640.P27932@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Stelian Pop <stelian.pop@fr.alcove.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020207080714.GA10860@come.alcove-fr> <Pine.LNX.4.33.0202070833400.2269-100000@athlon.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0202070833400.2269-100000@athlon.transmeta.com>; from torvalds@transmeta.com on Thu, Feb 07, 2002 at 08:36:20AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  7 Feb 02 at 8:45, Patrick Mochel wrote:
-> On Thu, 7 Feb 2002, Andrey Panin wrote:
-> > Attached patch adds check that returned value is less then requested 
-> > byte count. I know that actual callback function device_read_status()
-> > should also be fixed, but I found this bug after midnight and 
-> > decided to sleep a little :)
+On Thu, Feb 07, 2002 at 08:36:20AM -0800, Linus Torvalds wrote:
+> > What about people who send you occasionnal patches, and happen to
+> > be using Bitkeeper too ?
 > 
-> That sanity check was in there, once upon a time. However, in moving the 
-> weight from the driver callbacks to the driverfs read_file() and 
-> write_file(), it must have got dropped...
-> 
-> Thank you. It's been applied and will be pushed forward.
+> For those people, "bk send -d torvalds@transmeta.com" is fine. It ends up
 
-[I have only 2.5.3 sources here yet]
-
-Can you also check for size >= PAGE_SIZE on enter to entry->show()
-procedure? It looks ugly to me that each driver has to check for this
-constant unless it wants to smash some innocent kernel memory.
-
-And neither of driverfs_read_file nor driverfs_write_file supports
-semantic we use with other filesystems: If at least one byte was 
-read/written, return byte count (even if error happens). Only if zero 
-bytes was written, return error code.
-                                Thanks,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-
+No!  This will send the entire repository.  Do a "bk help send", you probably
+want "bk send -d -r+ torvalds@transmeta.com" to send the most recent cset.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

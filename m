@@ -1,53 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262131AbVAYVXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVAYVYG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262131AbVAYVXn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 16:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbVAYVUC
+	id S262157AbVAYVYG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 16:24:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbVAYVMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 16:20:02 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33664 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262131AbVAYVR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 16:17:29 -0500
-Date: Tue, 25 Jan 2005 21:17:24 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: Linus Torvalds <torvalds@osdl.org>, Bill Davidsen <davidsen@tmr.com>,
-       Valdis.Kletnieks@vt.edu, Arjan van de Ven <arjan@infradead.org>,
-       Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       marcelo.tosatti@cyclades.com, Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-Message-ID: <20050125211723.GE8859@parcelfarce.linux.theplanet.co.uk>
-References: <1106157152.6310.171.camel@laptopd505.fenrus.org> <200501191947.j0JJlf3j024206@turing-police.cc.vt.edu> <41F6604B.4090905@tmr.com> <Pine.LNX.4.58.0501250741210.2342@ppc970.osdl.org> <41F6816D.1020306@tmr.com> <41F68975.8010405@comcast.net> <Pine.LNX.4.58.0501251025510.2342@ppc970.osdl.org> <41F691D6.8040803@comcast.net> <Pine.LNX.4.58.0501251054400.2342@ppc970.osdl.org> <41F6A5F8.5030100@comcast.net>
+	Tue, 25 Jan 2005 16:12:42 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:27588 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262146AbVAYVHf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 16:07:35 -0500
+Subject: Re: [RFC] shared subtrees
+From: Ram <linuxram@us.ibm.com>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050117173213.GC24830@fieldses.org>
+References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk>
+	 <20050116160213.GB13624@fieldses.org>
+	 <20050116180656.GQ26051@parcelfarce.linux.theplanet.co.uk>
+	 <20050116184209.GD13624@fieldses.org>
+	 <20050117061150.GS26051@parcelfarce.linux.theplanet.co.uk>
+	 <20050117173213.GC24830@fieldses.org>
+Content-Type: text/plain
+Organization: IBM 
+Message-Id: <1106687232.3298.37.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41F6A5F8.5030100@comcast.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 25 Jan 2005 13:07:12 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 03:03:04PM -0500, John Richard Moser wrote:
-> > and combining them has _zero_ advantages (whatever bug the combined patch
-> > fix _will_ be fixed by the series of individual patches too - even if the
-> > splitting was buggy in some respect, you are pretty much guaranteed of
-> > this, since the bug you were trying to fix is the _one_ thing you are
-> > really testing for). 
+On Mon, 2005-01-17 at 09:32, J. Bruce Fields wrote:
+> On Mon, Jan 17, 2005 at 06:11:50AM +0000, Al Viro wrote:
+> > No - I have been missing a typo.  Make that "if mountpoint of what we
+> > are moving...".
 > 
-> Lots of work to split up a patch though.
+> OK, got it, so the point is that its not clear how you'd propagate the
+> removal of the subtree from the vfsmount of the source mountpoint.
+> 
+> By the way, I wrote up some notes this weekend in an attempt to explain
+> the shared subtrees RFC to myself.  They may or may not be helpful to
+> anyone else:
+> 
+> http://www.fieldses.org/~bfields/kernel/viro_mount_propagation.txt
 
-Exactly.  And since that's a prerequisite for any meaningful review,
-some equivalent of that work will have to be done at some point.
-The only question is who will be doing that work - proponents of patch
-or reviewers?
 
-Look at it that way: when you are submitting a paper for publication,
-it's your responsibility to get it into form that would allow review.
+Question 1:
 
-Sending a lump of something that might, given considerable efforts, be
-massaged into readable and understandable text is not going to fly.
-And doing that with "it's a lot of work [so could reviewers please do
-that work themselves and spare me the efforts]" as rationale...
+If there exists a private subtree in a larger shared subtree, what
+happens when the larger shared subtree is rbound to some other place? 
+Is a new private subtree created in the new larger shared subtree? or
+will that be pruned out in the new larger subtree?
+
+Concrete example:
+
+        mount <device1> /tmp/mnt1
+        mount <device2> /tmp/mnt1/mnt1.1
+        mount <device3> /tmp/mnt1/mnt1.1/mnt1.1.1
+        make --make-shared /tmp/mnt1
+        mount --make-private /tmp/mnt1/mnt1.1
+        make --rbind /tmp/mnt1  /tmp/mnt2
+
+        Question: will I see the mount at /tmp/mnt2/mnt1.1/mnt1.1.1 ?
+
+        My guess is since /tmp/mnt1/mnt1.1 is private that subtree
+	should not be even seen under /tmp/mnt2/mnt1.1 , Is that 
+	the case? Or does the subtree get mirrored in /tmp/mnt2/mnt1.1;
+        however propogation is not set between the vfsstruct  of
+	/mnt/mnt1/mnt1.1 and /mnt/mnt2/mnt1.1 ?
+
+        I believe its the former case.
+
+
+Question 2:
+
+When a mount gets propogated to a slave, but the slave
+has mounted something else at the same place, and hence 
+that mount point is masked, what will happen?
+
+        Concrete example:
+
+        mount <device1> /tmp/mnt1
+        mkdir -p /tmp/mnt1/a/b
+        mount --rbind /tmp/mnt1 /tmp/mnt2
+        mount --make-slave /tmp/mnt2
+        mount <device2> /tmp/mnt2/a
+        rm -f /tmp/mnt2/a/*
+
+        what happens when a mount is attempted on /tmp/mnt1/a/b?
+        will that be reflected in /tmp/mnt2/a ?
+
+        I believe the answer is 'no', because that part of the subtree 
+        in /tmp/mnt2 no more mirrors its parent subtree.
+
+RP 
+

@@ -1,45 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265698AbUBRLm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 06:42:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266186AbUBRLm5
+	id S264286AbUBRLzf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 06:55:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264329AbUBRLzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 06:42:57 -0500
-Received: from main.gmane.org ([80.91.224.249]:50132 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265698AbUBRLm4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 06:42:56 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Patrick Beard" <patrick@scotcomms.co.uk>
-Subject: Kernel 2.60 i810 Framebuffer.
-Date: Wed, 18 Feb 2004 11:42:49 -0000
-Message-ID: <c0vj3p$4go$1@sea.gmane.org>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: gateway.scotcomms.co.uk
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Wed, 18 Feb 2004 06:55:35 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:9098 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S264286AbUBRLy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 06:54:28 -0500
+Date: Wed, 18 Feb 2004 12:54:14 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: M?ns Rullg?rd <mru@kth.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.3
+Message-ID: <20040218115414.GE12322@louise.pinerecords.com>
+References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org> <yw1xad3gd7l5.fsf@ford.guide>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yw1xad3gd7l5.fsf@ford.guide>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Feb-18 2004, Wed, 11:07 +0100
+<mru@kth.se> wrote:
 
-Not a show stopper problem, but its annoying.
+> What?  No new code name?
 
-I'm using kernel 2.60 with framebuffer support for i810. All is working
-well except when I shutdown from while in iceWM. If I issue a shutdown
-from xterm, then X stops and the console displays normally i.e. the text
-that was there before X started, but it doesn't refresh and show the
-shutdown sequence, instead the screen remains static. If I log into a
-console on tty(x) and then shutdown, the shutdown sequence is shown.
-
-Hope I explained this ok.
-
-Any Ideas?
-
---
-Patrick
-
-
-
+Feisty Dunnart Jr., obviously :)

@@ -1,52 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290693AbSAYPbB>; Fri, 25 Jan 2002 10:31:01 -0500
+	id <S290697AbSAYPdF>; Fri, 25 Jan 2002 10:33:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290697AbSAYPas>; Fri, 25 Jan 2002 10:30:48 -0500
-Received: from cpe.atm2-0-105125.0x3ef2066b.hrnxx2.customer.tele.dk ([62.242.6.107]:6483
-	"HELO mars.ravnborg.org") by vger.kernel.org with SMTP
-	id <S290693AbSAYPae>; Fri, 25 Jan 2002 10:30:34 -0500
-Date: Fri, 25 Jan 2002 16:32:13 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [ANNOUNCE] kernelconf-0.1.2
-Message-ID: <20020125163213.A1635@mars.ravnborg.org>
-Mail-Followup-To: Anuradha Ratnaweera <anuradha@gnu.org>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20020124124548.A2435@lklug.pdn.ac.lk> <20020124234704.A968@mars.ravnborg.org> <20020125160734.A3372@lklug.pdn.ac.lk>
+	id <S290706AbSAYPcs>; Fri, 25 Jan 2002 10:32:48 -0500
+Received: from gumby.it.wmich.edu ([141.218.23.21]:33666 "EHLO
+	gumby.it.wmich.edu") by vger.kernel.org with ESMTP
+	id <S290697AbSAYPci>; Fri, 25 Jan 2002 10:32:38 -0500
+Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+To: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
+Cc: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Daniel Nofftz <nofftz@castor.uni-trier.de>,
+        Vojtech Pavlik <vojtech@suse.cz>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0201251535520.11551-100000@skiathos.physics.auth.gr>
+In-Reply-To: <Pine.GSO.4.21.0201251535520.11551-100000@skiathos.physics.auth.gr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 25 Jan 2002 10:31:51 -0500
+Message-Id: <1011972717.22707.42.camel@psuedomode>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020125160734.A3372@lklug.pdn.ac.lk>; from anuradha@gnu.org on Fri, Jan 25, 2002 at 04:07:34PM +0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 25, 2002 at 04:07:34PM +0600, Anuradha Ratnaweera wrote:
-> > 
-> > This is an incomplete implementation of a CML2 parser + semantic analysis in
-> > C utilising a bison parser.
+On Fri, 2002-01-25 at 09:17, Liakakis Kostas wrote:
 > 
-> My program is not related to neither CML2 nor yacc nor bison.
+> Hi,
+> 
+> I have been watching this thread for a while now. I am surprised everybody
+> is happy with the temperature drops they get and don't look a bit
+> further. I might be sounding like a *ickhead but here go my .02 euros:
+> 
+> With STOPGNT enabled, the disconnection happens by the northbridge
+> actually halting the FSB for the CPU until the next interrupt. The
+> continuous dis/reconnection causes increased lattency on the PCI bus and
+> strictly timed PCI transfers needed by TV-Tuner cards/software or sound
+> software suffer greatly from this. It also results in poorer hd
+> performance.
+>  
+> Also with such a power hungry CPU as the Athlon, bus dis/reconnection
+> results in current demand changing from 40A to 5A to 40A ... every few ms.
+> This puts your motherboards' voltage regulator under unecessary strain as
+> well those in your PSU.
+> 
+> Furthermore, CPUs do like lower operating temperatures, but even more they
+> like constant temperatures. Differences like 10-15C every now and then
+> (load/idle) put the cpu die under mechanichal strain from thermal
+> contraction/expansion.
+> 
+> Finally, this procedure can actually *hide* severe cooling inefficiency of
+> the system. People seem to go with the moto: STOPGNT lowers my
+> temperature, so it is a good thing. Well, it doesn't. Run SETI@HOME and
+> you are back where you started. It can take only a hot summer day and you
+> have a fried chip.
+> 
+> There was a thought by somebody, that you should only enable disconnection
+> after some time of inactivity. This sounds better, but then, don't we 
+> have S1/S3 for this already?
+> 
+> This feature of the AMD processors seemed like a real bargain once but
+> now, I doupt there is one motherboard vendor out there that allows you to
+> control it in the BIOS (like they used too). Even more, they suggest you
+> leave this feature alone. A walk in troubleshooting/support forums
+> suggests the same: It is a feature you can do without, you'd be better off
+> with a cooler that can cool and a well ventilated case.
+> 
+> Sorry for the length,
+> 
+> -Kostas
+> 
 
-It was not obvious from the context but I was referring to a mail you
-sent some time ago when you announced this project:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=101168996304715&w=2
+I was getting at this earlier. Though the Athlon XP's are much better
+power-wise than the earlier athlon's.  I wouldn't suggest doing it to
+any athlon under XP. But then again, the XP is supposed to have
+something similar to clock stepping to gradually move from full power to
+lower power, which decreases mechanical stress and psu stress.  I
+remember when the same concerns were brought over the HLT idle trick but
+obviously the HLT instruction isn't harmful enough.  Would be nice to
+look at the latencies with say, Robert Love's preempt stat patch of a
+kernel running with no power management, then with HLT, then with the
+vcl patch.
 
-"I'd love to write a CML2 compiler in
-C, but it doesn't look like a viable alternative."
+Nice rule of thumb though.   If your cpu _ever_ gets into the 50C range
+your case and or hsf is not efficient enough for your hardware. Anything
+above 50 and you're shortening the life of the cpu. Relying on idle
+tricks isn't going to help you.  
 
-Following the discussion on LKML and the KBUILD list people
-dislike the choice of Phython version 2.x for the actual
-implementation of the CML2 "compiler" and frontends.
-In general few people has argued against the language itself.
+I'd recommend this patch for Athlon XP's since they're the only chips
+that have motherboards built to handle this kind of thing (assuming you
+didn't buy some cheap brand). Don't use it on anything earlier. Not that
+I dont believe that the chip can take the punishment, but I dont believe
+that the motherboard and cpu can if not built to XP specifications.  
 
-Therefore my intention was to point you in the direction of
-an although incomplete implementation of a CML2 compiler
-written in C.
-This could give you the possibility to use the well documented
-and by several people already accepted CML2 language, but at the
-same time you had the flexibility to create your own front-end.
 
-	Sam
+
+

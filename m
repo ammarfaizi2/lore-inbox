@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318262AbSHKKai>; Sun, 11 Aug 2002 06:30:38 -0400
+	id <S318272AbSHKKe2>; Sun, 11 Aug 2002 06:34:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318264AbSHKKah>; Sun, 11 Aug 2002 06:30:37 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12293 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318262AbSHKKah>; Sun, 11 Aug 2002 06:30:37 -0400
-Date: Sun, 11 Aug 2002 11:34:18 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: Ivan Gyurdiev <ivangurdiev@attbi.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.31
-Message-ID: <20020811113418.A29786@flint.arm.linux.org.uk>
-References: <200208100551.46142.ivangurdiev@attbi.com.suse.lists.linux.kernel> <p73r8h5itu7.fsf@oldwotan.suse.de>
+	id <S318281AbSHKKe2>; Sun, 11 Aug 2002 06:34:28 -0400
+Received: from [213.4.129.135] ([213.4.129.135]:58554 "EHLO tnetmx1.mail.isp")
+	by vger.kernel.org with ESMTP id <S318272AbSHKKe2>;
+	Sun, 11 Aug 2002 06:34:28 -0400
+Date: Sun, 11 Aug 2002 12:35:58 +0200
+From: Luciano Campal Vazquez <luch0@telefonica.net>
+To: Stephane Wirtel <stephane.wirtel@belgacom.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: An oops on 2.4.19
+Message-Id: <20020811123558.74f99446.luch0@telefonica.net>
+In-Reply-To: <20020811102159.GC27346@stargate.lan>
+References: <20020811121405.251fe90e.luch0@telefonica.net>
+	<20020811102159.GC27346@stargate.lan>
+Organization: CoALA
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <p73r8h5itu7.fsf@oldwotan.suse.de>; from ak@suse.de on Sun, Aug 11, 2002 at 12:16:16PM +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 11, 2002 at 12:16:16PM +0200, Andi Kleen wrote:
-> Ivan Gyurdiev <ivangurdiev@attbi.com> writes:
-> > 
-> > drivers/built-in.o: In function `parport_pc_probe_port':
-> > drivers/built-in.o(.text+0x2dbf6): undefined reference to `request_dma'
-> > drivers/built-in.o(.text+0x2dc98): undefined reference to `free_dma'
-> > drivers/built-in.o: In function `parport_pc_unregister_port':
-> > drivers/built-in.o(.text+0x2df94): undefined reference to `free_dma'
-> > drivers/built-in.o(.data+0x4c20): undefined reference to `request_dma'
-> > drivers/built-in.o(.data+0x4c24): undefined reference to `free_dma'
-> > make: *** [vmlinux] Error 1
-> 
-> make oldconfig and recompiling should fix that.
 
-Hmm, is it time to make .config depend on arch/$(ARCH)/config.in and all
-Config.in files?
+> can you send a report of the bug ?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+There's nothing special, i turn on my computer and just connect to
+internet by modem as other hundred times, i didn't overload it, not too
+much disk access and not too much swapping, and after four hours i shutted
+down, previously i check one downloaded avi with the mplayer, but no rtc
+access or something similar who could cause a bug. I have a laptop and
+move it one hour before i plug in the battery, unplug the elec. adapter,
+then plug it again, nothing unnormal. But as the oops happend just before
+shut down, i only remenber "page_alloc.c" sorry.
 

@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUHVB3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUHVB3Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264984AbUHVB3N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 21:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265029AbUHVB3N
+	id S265029AbUHVB3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 21:29:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265038AbUHVB3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 21:29:13 -0400
-Received: from zero.aec.at ([193.170.194.10]:10246 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S264984AbUHVB3M (ORCPT
+	Sat, 21 Aug 2004 21:29:25 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:32660 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265029AbUHVB3W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 21:29:12 -0400
-To: "James M." <dart@windeath.2y.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Obvious one-liner - Use 3DNOW on MK8
-References: <2vOfA-7Vg-7@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Sun, 22 Aug 2004 03:29:08 +0200
-In-Reply-To: <2vOfA-7Vg-7@gated-at.bofh.it> (James M.'s message of "Sun, 22
- Aug 2004 02:20:06 +0200")
-Message-ID: <m34qmwx8nv.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Sat, 21 Aug 2004 21:29:22 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.8.1-mm3
+Date: Sat, 21 Aug 2004 18:27:45 -0700
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       John Hawkes <hawkes@sgi.com>
+References: <20040820031919.413d0a95.akpm@osdl.org> <4126A4DC.1050103@yahoo.com.au> <200408211605.50975.jbarnes@engr.sgi.com>
+In-Reply-To: <200408211605.50975.jbarnes@engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408211827.46591.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"James M." <dart@windeath.2y.net> writes:
+On Saturday, August 21, 2004 1:05 pm, Jesse Barnes wrote:
+> On Friday, August 20, 2004 9:26 pm, Nick Piggin wrote:
+> > Jesse Barnes wrote:
+> > > On Friday, August 20, 2004 6:19 am, Andrew Morton wrote:
+> > >>- This is (very) lightly tested.  Mainly a resync with various parties.
+> > >
+> > > Woo-hoo!  This boots *without changes* on a 512p Altix!  Now to re-run
+> > > the profiles and try wli's new per-cpu profiling buffers.
+> >
+> > What changes were needed to achieve this previously?
+>
+> The arch specific SD_NODE_INIT was the missing piece from previous -mm
+> releases.  Now that it's there, things seem to work.  I still have to poke
+> around to see if there are places where we're trying to scan across all
+> CPUs looking for busy ones and *then* checking to see if they're in a
+> domain. John said he'd take a closer look.
 
-> Title says it...my Athlon 64 definitely uses 3DNOW. Patch changes
-> arch/i386/Kconfig and has a 3 line fudge factor(I created it a few
-> kernels back). Might want to check other arches for the same bug.
+It looks like the group span code will still try to look at everything in the 
+system.  That'll also have to be fixed to use the span from the associated 
+node's domain, since it looks like there are still places where we'll walk 
+all the CPUs in the system if it's not.  I'll take a closer look and see if I 
+can come up with something useful.
 
-It it's not a bug, it is a feature. The K8 is better off not using 
-the 3dnow memcpy, which is the only feature this CONFIG controls.
-
-Please don't apply.
-
--Andi
-
+Thanks,
+Jesse

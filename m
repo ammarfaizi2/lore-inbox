@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316579AbSFZN3e>; Wed, 26 Jun 2002 09:29:34 -0400
+	id <S316582AbSFZNwT>; Wed, 26 Jun 2002 09:52:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316580AbSFZN3e>; Wed, 26 Jun 2002 09:29:34 -0400
-Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:35215 "EHLO
-	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S316579AbSFZN3d>; Wed, 26 Jun 2002 09:29:33 -0400
-Date: Wed, 26 Jun 2002 14:29:25 +0100 (BST)
-From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
-X-X-Sender: alastair@gerber
-To: garana@uolsinectis.com.ar
-cc: linux-kernel@vger.kernel.org
-Subject: Re: athlon 800MHz (Via82*) - Pentium4 Intel D845WN
-Message-ID: <Pine.GSO.4.44.0206261424060.17994-100000@gerber>
+	id <S316585AbSFZNwS>; Wed, 26 Jun 2002 09:52:18 -0400
+Received: from iris.mc.com ([192.233.16.119]:45732 "EHLO mc.com")
+	by vger.kernel.org with ESMTP id <S316582AbSFZNwR>;
+	Wed, 26 Jun 2002 09:52:17 -0400
+Message-Id: <200206261352.JAA09553@mc.com>
+Content-Type: text/plain; charset=US-ASCII
+From: mbs <mbs@mc.com>
+To: linux-kernel@vger.kernel.org
+Subject: advice on benchmarks for smp/scsi system
+Date: Wed, 26 Jun 2002 09:54:21 -0400
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi - your Red Hat installation will have used the Athlon-optimised
-kernel by default, so it will not boot on a non-Athlon machine. You will
-probably need to boot from a boot floppy, mount your filesystems, and
-install a new i686-optimised kernel RPM. Or compile your own kernel on
-another machine and get it in there.
+what tools are the state of the art benchmarking tools for network, disk and 
+interrupt latency testing?
 
-I can't immediately give you the full details - look at Red Hat's
-documentation or other help on the web....
+I need to do some kernel performance characterization on a dual xeon, dual Gb 
+ethernet, SCSI320/RAID system.
 
-Cheers
-Alastair                            .-=-.
-__________________________________,'     `.
-                                           \   www.mrc-bsu.cam.ac.uk
-Alastair Stevens, Systems Management Team   \       01223 330383
-MRC Biostatistics Unit, Cambridge UK         `=.......................
+I need to measure network throughput vs CPU load, disk throughput, interrupt 
+latency, network to disk streaming and disk to net streaming.
 
+I need to characterize the stock rh7.3 2.4 smp kernel, stock + pre-emption 
+patch, stock + latency patch and stock + both.  I also need to test the same 
+basic combinations, but stripped and optimized for my specific hardware. I 
+know in a general way that I will probably find the most joy with 
+stripped/optimized + both, but I need specifics.
+
+I also need to compare compiled in scsi and e-net vs modules
+
+any recommendations for which sets of benchmarking tools to use would be 
+appreciated greatly
+
+	Thanks for your time,
+
+		Mark
+-- 
+/**************************************************
+**   Mark Salisbury       ||      mbs@mc.com     **
+**************************************************/

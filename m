@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132590AbRC1Vrp>; Wed, 28 Mar 2001 16:47:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132592AbRC1VrJ>; Wed, 28 Mar 2001 16:47:09 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:18962 "EHLO master.linux-ide.org") by vger.kernel.org with ESMTP id <S132600AbRC1Vqc>; Wed, 28 Mar 2001 16:46:32 -0500
-Date: Wed, 28 Mar 2001 13:44:50 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@transmeta.com>, Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, tytso@MIT.EDU
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132600AbRC1Vuz>; Wed, 28 Mar 2001 16:50:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132592AbRC1Vrq>; Wed, 28 Mar 2001 16:47:46 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:43775 "EHLO math.psu.edu") by vger.kernel.org with ESMTP id <S132593AbRC1VrR>; Wed, 28 Mar 2001 16:47:17 -0500
+Date: Wed, 28 Mar 2001 16:46:34 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Martin Dalecki <dalecki@evision-ventures.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@transmeta.com>, Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, tytso@MIT.EDU
 Subject: Re: Larger dev_t
-In-Reply-To: <3AC25657.6CC01DFB@evision-ventures.com>
-Message-ID: <Pine.LNX.4.10.10103281343270.17821-100000@master.linux-ide.org>
+In-Reply-To: <3AC256A3.BABF7141@transmeta.com>
+Message-ID: <Pine.GSO.4.21.0103281635580.26500-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Mar 2001, Martin Dalecki wrote:
 
-> Then please please please demangle other cases as well!
-> IDE is the one which is badging my head most. SCSI as well...
+
+On Wed, 28 Mar 2001, H. Peter Anvin wrote:
+
+> Martin Dalecki wrote:
+> > >
+> > > devfs -- in the abstract -- really isn't that bad of an idea; after all,
+> > 
+> > Devfs is from a desing point of view the duplication for the bad /proc
+> > design for devices. If you need a good design for general device
+> > handling with names - network interfaces are the thing too look at.
+> > mount() should be more like a select()... accept()!
+> > 
 > 
-> Granted I wouldn't mind a rebot with new /dev/* once!
+> And what on earth makes this better?  I have always thought the socket
+> interface to be hideously ugly and full of ad-hockery.  Its abstractions
+> for handle multiple address families by and large don't work, and it
+> introduces new system calls left, right and center -- sometimes for good
+> reasons, but please do tell me why I can't open() an AF_UNIX socket, but
+> have to use a special system call called connect() instead.
 
-diff -urN linux-2.4.3-p8-pristine/include/linux/major.h linux-2.4.3-p8/include/linux/major.h
---- linux-2.4.3-p8-pristine/include/linux/major.h       Sat Dec 30
-11:23:14 2000+++ linux-2.4.3-p8/include/linux/major.h        Sun Mar 25
-22:16:42 2001
-@@ -171,4 +171,18 @@
-        return SCSI_BLK_MAJOR(m);
- }
+Aye. The real problem with mount is that it always had been pretty
+heavy-weight. Especially mount(8). I've done some (very rough) testing
+on my tree - for ramfs-style filesystem latency of mount(2) is about
+20% worse than latency of open(2). And it definitely can be improved -
+right now I'm interested in getting the code cleaned.
 
-+/*
-+ * Tests for IDE devices
-+ */
-+#define IDE_DISK_MAJOR(M)      ((M) == IDE0_MAJOR || (M) == IDE1_MAJOR || \
-+                               (M) == IDE2_MAJOR || (M) == IDE3_MAJOR || \
-+                               (M) == IDE4_MAJOR || (M) == IDE5_MAJOR || \
-+                               (M) == IDE6_MAJOR || (M) == IDE7_MAJOR || \
-+                               (M) == IDE8_MAJOR || (M) == IDE9_MAJOR)
-+
-+static __inline__ int ide_blk_major(int m)
-+{
-+       return IDE_DISK_MAJOR(m);
-+}
-+
- #endif
-
-Well I banged my head and learned a scsi-trick....
- 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+mount(8) is a problem, but in nosuid namespace we can seriously cut
+down on checks in the thing. And I'm very interested in designs that
+would allow killing /etc/mtab - dropping it would allow very easy
+mounting.
 

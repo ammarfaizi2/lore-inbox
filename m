@@ -1,109 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261897AbUDQCZw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 22:25:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbUDQCZw
+	id S262389AbUDQDHa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 23:07:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbUDQDHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 22:25:52 -0400
-Received: from 228.17.30.61.isp.tfn.net.tw ([61.30.17.228]:32539 "EHLO
-	cm-msg-02.cmedia.com.tw") by vger.kernel.org with ESMTP
-	id S261897AbUDQCZt convert rfc822-to-8bit (ORCPT
+	Fri, 16 Apr 2004 23:07:30 -0400
+Received: from main.gmane.org ([80.91.224.249]:16569 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262389AbUDQDH2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 22:25:49 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH]: cmpci 6.82 released
-Date: Sat, 17 Apr 2004 09:52:27 +0800
-Message-ID: <92C0412E07F63549B2A2F2345D3DB515F7D438@cm-msg-02.cmedia.com.tw>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH]: cmpci 6.82 released
-Thread-Index: AcQj84x0hDT/S+zzTA+f1VXb3SK0xAAKn50S
-From: =?big5?B?Qy5MLiBUaWVuIC0gpdCp08Kn?= <cltien@cmedia.com.tw>
-To: "Adrian Bunk" <bunk@fs.tum.de>
-Cc: <linux-kernel@vger.kernel.org>
+	Fri, 16 Apr 2004 23:07:28 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joshua Kwan <joshk@triplehelix.org>
+Subject: [2.6.5] Oversized FB logos
+Date: Fri, 16 Apr 2004 20:07:24 -0700
+Message-ID: <pan.2004.04.17.03.07.22.362894@triplehelix.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-68-126-186-145.dsl.pltn13.pacbell.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did you mean __devinit should be __devexit for cm_remove? Indeed, when I first change it, this question rose. There are still many other driver in kernel 2.4.25 use the same way. But I checked the driver in kernel 2.6 tree use the __devexit already for correct semantic meaning. I made following change, thanks for your correction.
+Hi everyone,
 
-retrieving revision 6.82
-retrieving revision 6.83
-diff -a -u -r6.82 -r6.83
---- cmpci.c	13 Apr 2004 16:02:58 -0000	6.82
-+++ cmpci.c	17 Apr 2004 01:39:20 -0000	6.83
-@@ -3275,7 +3275,7 @@
- MODULE_DESCRIPTION("CM8x38 Audio Driver");
- MODULE_LICENSE("GPL");
- 
--static void __devinit cm_remove(struct pci_dev *dev)
-+static void __devexit cm_remove(struct pci_dev *dev)
- {
- 	struct cm_state *s = pci_get_drvdata(dev);
- 
-@@ -3332,12 +3332,12 @@
-        .name	 = "cmpci",
-        .id_table = id_table,
-        .probe	 = cm_probe,
--       .remove	 = cm_remove
-+       .remove	 = __devexit_p(cm_remove),
- };
- 
- static int __init init_cmpci(void)
- {
--	printk(KERN_INFO "cmpci: version $Revision: 6.82 $ time " __TIME__ " " __DATE__ "\n");
-+	printk(KERN_INFO "cmpci: version $Revision: 6.83 $ time " __TIME__ " " __DATE__ "\n");
- 	return pci_module_init(&cm_driver);
- }
+I'm coming up with a grandma-proof laptop so I made a 800x580 PPM boot
+logo and added it into my 2.6 kernel source. The machine does boot using
+the image, HOWEVER, the first 11 lines of kernel messages after switching
+to FB mode appear on top of the logo.
 
+Console: switching to colour frame buffer device 100x37
+lp: driver loaded but no devices found
+Real Time Clock Driver v1.12
+Hangcheck: starting hangcheck timer 0.5.0 (tick is 180 seconds, margin is 60 seconds).
+Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
+ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE]
+parport0: irq 7 detected
+lp0: using parport0 (polling).
+Using anticipatory io scheduler
+Floppy drive(s): fd0 is 1.44M
 
------Original Message-----
-From:	Adrian Bunk [mailto:bunk@fs.tum.de]
-Sent:	2004/4/16 [星期五] 下午 04:43
-To:	C.L. Tien - 田承禮
-Cc:	linux-kernel@vger.kernel.org
-Subject:	Re: [PATCH]: cmpci 6.82 released
-On Thu, Apr 15, 2004 at 01:15:31AM +0800, C.L. Tien - ?????? wrote:
-> Hi,
-> 
-> I made several changes for cmpci.6.77, so the version is now 6.82.
-> 
-> The patch is mostly from kernel 2.6, which change to support newer gcc,
-> fix possible security hole. I also use the same include files for both
-> kernel versions.
-> 
-> The cmpci-6.82-patch2.4.tar.bz2 is made from official kernel 2.4.25, but should  be able to patch other 2.4 kernel.
-> 
-> The cmpci-6.82-patch2.6.tar.bz2 is from official kernel 2.6.5, it will
-> show error when patch cmpci.c for kernel 2.6.4 or earlier, that's ok.
+As expected, though, the first line of kernel messages prints;
+the console won't function without at least one line anyway.
 
-There seem to be some bugs in the __{,dev}{init,exit} changes.
+This renders the concept of the friendly logo to prevent grandma from
+bugging out from all the kernel messages pretty useless.
 
-E.g. in the 2.6 patch:
+Note that I'd be using bootsplash for this but vesafb only works up to
+8bit color and bootsplash requires 16bit color.
 
-  static void __devinit cm_remove(struct pci_dev *dev)
-                   ^^^^
+Are boot logos in any way supported in this fashion? I'm tempted to just
+nuke the emit_log_char call in printk.c, which I think might serve my
+purpose temporarily...
 
-
-> Sincerely,
-> ChenLi Tien
-
-
-cu
-Adrian
+Any hints/help provided would be highly appreciated. Thanks
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
-
-
+Joshua Kwan
 
 

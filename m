@@ -1,76 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbVAYJNi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVAYJZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261751AbVAYJNi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 04:13:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVAYJNi
+	id S261827AbVAYJZo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 04:25:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbVAYJZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 04:13:38 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59858 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261751AbVAYJNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 04:13:32 -0500
-To: Len Brown <len.brown@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6/29] x86-apic-virtwire-on-shutdown
-References: <x86-apic-virtwire-on-shutdown-11061198973730@ebiederm.dsl.xmission.com>
-	<1106625259.2395.232.camel@d845pe>
-	<m1y8eiggge.fsf@ebiederm.dsl.xmission.com>
-	<1106638610.2397.267.camel@d845pe>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 25 Jan 2005 02:11:53 -0700
-In-Reply-To: <1106638610.2397.267.camel@d845pe>
-Message-ID: <m1oefdhnza.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Tue, 25 Jan 2005 04:25:44 -0500
+Received: from gate.adanco.com ([212.25.16.151]:30212 "EHLO johnny.adanco.com")
+	by vger.kernel.org with ESMTP id S261827AbVAYJZb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 04:25:31 -0500
+From: Adrian von Bidder <avbidder@fortytwo.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Re: forestalling GNU incompatibility - proposal for binary relative dynamic linking
+Date: Tue, 25 Jan 2005 10:25:29 +0100
+User-Agent: KMail/1.7.2
+References: <20050124222449.GB16078@venus>
+In-Reply-To: <20050124222449.GB16078@venus>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  boundary="nextPart3054908.r1YR6YK8Y2";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200501251025.29624@fortytwo.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Len Brown <len.brown@intel.com> writes:
+--nextPart3054908.r1YR6YK8Y2
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> On Tue, 2005-01-25 at 01:39, Eric W. Biederman wrote:
-> > Yes there are bleeding edge systems that fail without this patch.
-> > And I have them.  That is why I wrote the code.
-> 
-> What bleeding edge system support MPS and does not support ACPI?
+On Monday 24 January 2005 23.24, Edward Peschko wrote:
+[ Linux interoperability in danger - libc !=3D libc ]
 
-All I was talking about is the hardware here.  Last I looked the
-errata on the E7520 E7525 and E7530 chipsets listed using the IOAPIC
-in virtual wire mode the only way to get them to get the system
-to work stably if you did not have an SMP kernel.  If there is an
-updated errata work around I'd love to hear it.
+Hi,
 
-The fact that ACPI is quite common is one of the reasons this code
-path needs more work.
+[this may be just ignorance - I only use one distro (Debian), and don't try=
+=20
+to mix binaries]
 
-I have not seen the problems with ACPI as I have yet to see a
-compelling reason to turn it on.  And my few experiences with
-it have lead me to put acpi=off on my kernel command-line by default.
+Before discussing solutions: Is there a survey on how bad the problem reall=
+y=20
+is?  IIRC some minor API changes were done between some gcc versions, but=20
+mostly on the C++ side.  I know Debian, too, ships with a quite heavily=20
+patched toolchain, but the Debian libc/binutils/gcc packagers work together=
+=20
+with the upstream developers, and many Debian specific patches end up in=20
+the official releases sooner or later. (And most of Debian's patches=20
+concern architectures like ARM, m68k, HPPA etc., which the big=20
+distributions don't support anyway.)
 
-> I belive we don't touch the IO_APICS in either MPS or ACPI mode before
-> setup_IO_APIC.
+So, I guess, the survey would need to compare only C programs (not C++),=20
+since you explicitly are talking about libc - C++ has always been more=20
+difficult.  And, it would be important to differentiate between=20
+incompatibilites caused by gcc versions from incompatibilities really=20
+caused by vendor specific modifications.
 
-Thanks I will have a lookup.  That sounds like a likely place.
+cheers
+=2D- vbi
 
-> If the goal of this patch is to restore the hardware to the state
-> that it was before Linux scribbed on it, then it might be a better
-> ideal to save/restore the actual register values the BIOS gave us rather
-> than writing hard-coded values, no?
+P.S.: looking at Debian's libc6 glibc package (2.3.2.ds1-20):
+ - 106 patches total
+Going by the name of the patch files only:
+ - 8 hurd specific
+ - 4 arm specific
+ - 9 hppa specific
+ - 4 m68k specific
+ - 3 alpha specific
+ - 1 amd64 specific
+ - 1 x86 specific
+ - 4 sparc specific
+ - 5 mips specific
+ - 3 ppc specific
+ - 1 ia64 specific
+ - 3 s390 specific
+ - 4 correcting paths/build system only (wouldn't affect the libc API as=20
+such)
+ - 15 locale specific (dito)
 
-Nope that is not the goal.  The goal is to place system devices in
-a state close enough to pc compatibility mode that an unpatched kernel
-will start.  A secondary goal is to place the system in a state where
-the firmware is likely not to have problems.  
+So, over half of the patches will likely not affect 95% of Linux users.  Of=
+=20
+the rest, a good number clearly affect multithreaded programs only (which,=
+=20
+admittedly, are much more widespread now than a few years back.)  I didn't=
+=20
+look at any patches at all, so I can't judge how much the patches do really=
+=20
+change the libc.  Also, I can't say how intrusive the patches of other=20
+distributions are.
 
-As the apics are architectural hardware and we only touch the bits we
-understand there is no reason for us to be modest and pretend we don't
-know what we are doing.  The architecture defines a very narrow
-set of states that are valid when you are not using the apics.  The
-question is only which of those states will work?  pic_mode,
-virt_wire mode in local apic, virt_wire mode in ioapic.  Looking at
-the hardware is probably the most consistently reliable method of
-determining that as the kernel will not boot if the firmware
-sets it up wrong.
+=2D-=20
+We are not loved by our friends for what we are; rather, we are loved in
+spite of what we are.
+  -- Victor Hugo
 
-Eric
+--nextPart3054908.r1YR6YK8Y2
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: get my key from http://fortytwo.ch/gpg/92082481
+
+iKcEABECAGcFAkH2EIlgGmh0dHA6Ly9mb3J0eXR3by5jaC9sZWdhbC9ncGcvZW1h
+aWwuMjAwMjA4MjI/dmVyc2lvbj0xLjUmbWQ1c3VtPTVkZmY4NjhkMTE4NDMyNzYw
+NzFiMjVlYjcwMDZkYTNlAAoJECqqZti935l6+AgAoIykhWjVuNA2S1LJEBqtmaN8
+JASrAJ9Ms2ZN/Q6Dpdy3CGvD1qq3xzDI/Q==
+=XkFU
+-----END PGP SIGNATURE-----
+
+--nextPart3054908.r1YR6YK8Y2--

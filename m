@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268035AbUHZKCv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268069AbUHZKCw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268035AbUHZKCv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 06:02:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268039AbUHZKBv
+	id S268069AbUHZKCw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 06:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267928AbUHZKB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 06:01:51 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:32909 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S268070AbUHZJ5Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 05:57:16 -0400
-Date: Thu, 26 Aug 2004 11:59:59 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <1565398922.20040826115959@tnonline.net>
-To: Matt Mackall <mpm@selenic.com>
-CC: Nicholas Miell <nmiell@gmail.com>, Wichert Akkerman <wichert@wiggy.net>,
-       Jeremy Allison <jra@samba.org>, Andrew Morton <akpm@osdl.org>,
-       <torvalds@osdl.org>, <reiser@namesys.com>, <hch@lst.de>,
-       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <flx@namesys.com>, <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <20040826053200.GU31237@waste.org>
-References: <20040825152805.45a1ce64.akpm@osdl.org>
- <112698263.20040826005146@tnonline.net>
- <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>
- <1453698131.20040826011935@tnonline.net>
- <20040825163225.4441cfdd.akpm@osdl.org>
- <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net>
- <1093480940.2748.35.camel@entropy> <20040826044425.GL5414@waste.org>
- <1093496948.2748.69.camel@entropy> <20040826053200.GU31237@waste.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Aug 2004 06:01:27 -0400
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:42368
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268034AbUHZJyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 05:54:46 -0400
+To: akpm@osdl.org
+Subject: [PATCH] i386 bootmem restrictions
+Cc: apw@shadowen.org, linux-kernel@vger.kernel.org
+Message-Id: <E1C0Gxq-00039Q-DE@localhost.localdomain>
+From: Andy Whitcroft <apw@shadowen.org>
+Date: Thu, 26 Aug 2004 10:54:38 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> cp, grep, cat, and tar will continue to work just fine on files with
->> multiple streams.
+The bootmem allocator is initialised before the kernel virtual address space
+has been fully established.  As a result, any allocations which are made
+before paging_init() has completed may point to invalid kernel addresses.
+This patch notes this limitation and indicates where the allocator is
+fully available.
 
-> Find some silly person with an iBook and open a shell on OS X. Use cp
-> to copy a file with a resource fork. Oh look, the Finder has no idea
-> what the new file is, even though it looks exactly identical in the
-> shell. Isn't that _wonderful_? Now try cat < a > b on a file with a
-> fork. How is that ever going to work?
+Revision: $Rev: 572 $
 
-  It  should  work  on  the main file, the extra streams and meta data
-  won't be copied.  Just as it is now with special attributes etc. Cat
-  reads the content of a file stream, not the file container.
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
 
-> I like cat < a > b. You can keep your progress.
+diffstat 100-ia32_bootmem
+---
+ setup.c |   11 ++++++++++-
+ 1 files changed, 10 insertions(+), 1 deletion(-)
 
-
-
-
-
+diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/arch/i386/kernel/setup.c current/arch/i386/kernel/setup.c
+--- reference/arch/i386/kernel/setup.c	2004-08-25 12:13:32.000000000 +0100
++++ current/arch/i386/kernel/setup.c	2004-08-26 10:27:59.000000000 +0100
+@@ -1350,7 +1350,12 @@ void __init setup_arch(char **cmdline_p)
+ 
+ 	/*
+ 	 * NOTE: before this point _nobody_ is allowed to allocate
+-	 * any memory using the bootmem allocator.
++	 * any memory using the bootmem allocator.  Although the
++	 * alloctor is now initialised only the first 8Mb of the kernel
++	 * virtual address space has been mapped.  All allocations before
++	 * paging_init() has completed must use the alloc_bootmem_low_pages()
++	 * variant (which allocates DMA'able memory) and care must be taken
++	 * not to exceed the 8Mb limit.
+ 	 */
+ 
+ #ifdef CONFIG_SMP
+@@ -1358,6 +1363,10 @@ void __init setup_arch(char **cmdline_p)
+ #endif
+ 	paging_init();
+ 
++	/*
++	 * NOTE: at this point the bootmem allocator is fully available.
++	 */
++
+ #ifdef CONFIG_EARLY_PRINTK
+ 	{
+ 		char *s = strstr(*cmdline_p, "earlyprintk=");

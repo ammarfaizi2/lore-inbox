@@ -1,46 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317366AbSHOT57>; Thu, 15 Aug 2002 15:57:59 -0400
+	id <S317393AbSHOUEJ>; Thu, 15 Aug 2002 16:04:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317373AbSHOT57>; Thu, 15 Aug 2002 15:57:59 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:18682 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S317366AbSHOT57>; Thu, 15 Aug 2002 15:57:59 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Thu, 15 Aug 2002 13:59:33 -0600
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: henrique <henrique@cyclades.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with random.c and PPC
-Message-ID: <20020815195933.GW9642@clusterfs.com>
-Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
-	henrique <henrique@cyclades.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <200208151514.51462.henrique@cyclades.com> <20020815182556.GV9642@clusterfs.com> <20020815190336.GN22974@opus.bloom.county>
-Mime-Version: 1.0
+	id <S317398AbSHOUEI>; Thu, 15 Aug 2002 16:04:08 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41998 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317393AbSHOUEH>;
+	Thu, 15 Aug 2002 16:04:07 -0400
+Message-ID: <3D5C0995.CEE36FC8@zip.com.au>
+Date: Thu, 15 Aug 2002 13:05:41 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: j-nomura@ce.jp.nec.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18(19) swapcache oops
+References: <20020815.213929.846960657.nomura@hpc.bs1.fc.nec.co.jp> <Pine.LNX.4.44.0208151515420.1610-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020815190336.GN22974@opus.bloom.county>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 15, 2002  12:03 -0700, Tom Rini wrote:
-> On Thu, Aug 15, 2002 at 12:25:56PM -0600, Andreas Dilger wrote:
-> > Maybe the PPC keyboard/mouse drivers do not add randomness?
+Hugh Dickins wrote:
 > 
-> Well, how is this set for the i386 ones?  I grepped around and I didn't
-> really see anything, so I'm sort-of confused.
+> On Thu, 15 Aug 2002 j-nomura@ce.jp.nec.com wrote:
+> >
+> > I'm using 2.4.18 kernel and suspect there are swapcache race.
+> > I looked into 2.4.19 patch but could not find the fix to it.
+> 
+> I see a benign race but no oops.
+> 
 
-I think it is something like "add_mouse_entropy" and "add_keyboard_entropy"
-or similar.  If you look at the random.c sources you can find the actual
-function names and work backwards from there.
+But look at lru_cache_add():
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+void lru_cache_add(struct page * page)
+{
+        if (!TestSetPageLRU(page)) {
+/* window here */
+                spin_lock(&pagemap_lru_lock);
+                add_page_to_inactive_list(page);
+                spin_unlock(&pagemap_lru_lock);
+        }
+}
 
+It sets PG_lru before adding the page to the LRU.
+
+static inline void activate_page_nolock(struct page * page)
+{
+        if (PageLRU(page) && !PageActive(page)) {
+                del_page_from_inactive_list(page);
+                add_page_to_active_list(page);
+        }
+}
+
+void activate_page(struct page * page)
+{
+        spin_lock(&pagemap_lru_lock);
+        activate_page_nolock(page);
+        spin_unlock(&pagemap_lru_lock);
+}
+
+So if activate_page gets the lock inside that window, it will
+delete a page from the LRU which isn't on it (memory corruption).
+Then activate_page will set PG_active and will drop the lock.
+
+lru_cache_add gets the lock, runs add_page_to_inactive_list which
+BUGs over PG_active.
+
+
+--- 2.4.19/mm/swap.c~lru-race	Thu Aug 15 13:03:48 2002
++++ 2.4.19-akpm/mm/swap.c	Thu Aug 15 13:04:19 2002
+@@ -57,9 +57,10 @@ void activate_page(struct page * page)
+  */
+ void lru_cache_add(struct page * page)
+ {
+-	if (!TestSetPageLRU(page)) {
++	if (!PageLRU(page)) {
+ 		spin_lock(&pagemap_lru_lock);
+-		add_page_to_inactive_list(page);
++		if (!TestSetPageLRU(page))
++			add_page_to_inactive_list(page);
+ 		spin_unlock(&pagemap_lru_lock);
+ 	}
+ }
+
+.

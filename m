@@ -1,91 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264368AbUAMQ0n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 11:26:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUAMQ0n
+	id S264356AbUAMQ0P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 11:26:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbUAMQ0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 11:26:43 -0500
-Received: from unthought.net ([212.97.129.88]:15287 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S264368AbUAMQ0i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 11:26:38 -0500
-Date: Tue, 13 Jan 2004 17:26:36 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Scott Long <scott_long@adaptec.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Proposed enhancements to MD
-Message-ID: <20040113162636.GT346@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Scott Long <scott_long@adaptec.com>, linux-kernel@vger.kernel.org
-References: <40033D02.8000207@adaptec.com>
+	Tue, 13 Jan 2004 11:26:15 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:7916 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264356AbUAMQ0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 11:26:14 -0500
+Date: Tue, 13 Jan 2004 17:26:05 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Oleg Drokin <green@linuxhacker.ru>
+Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
+       mfedyk@matchmail.com, Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: Suspected bug infilesystems (UFS,ADFS,BEFS,BFS,ReiserFS) related to sector_t being unsigned, advice requested
+Message-ID: <20040113162605.GM9677@fs.tum.de>
+References: <Pine.LNX.4.56.0401052343350.7407@jju_lnx.backbone.dif.dk> <3FFA7717.7080808@namesys.com> <Pine.LNX.4.56.0401061218320.7945@jju_lnx.backbone.dif.dk> <20040106174650.GD1882@matchmail.com> <200401062135.i06LZAOY005429@car.linuxhacker.ru> <3FFB46B0.9060101@namesys.com> <20040106235335.GC415627@linuxhacker.ru> <3FFBD0B1.50909@namesys.com> <20040107100113.GE415627@linuxhacker.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40033D02.8000207@adaptec.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040107100113.GE415627@linuxhacker.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 12, 2004 at 05:34:10PM -0700, Scott Long wrote:
-> All,
+On Wed, Jan 07, 2004 at 12:01:13PM +0200, Oleg Drokin wrote:
+> Hello!
 > 
-> Adaptec has been looking at the MD driver for a foundation for their
-> Open-Source software RAID stack.  This will help us provide full
-> and open support for current and future Adaptec RAID products (as
-> opposed to the limited support through closed drivers that we have now).
-
-Interesting...
-
+> On Wed, Jan 07, 2004 at 12:26:09PM +0300, Hans Reiser wrote:
+> > >As for why gcc is finding this, but scripts (e.g. smatch) do not is because
+> > >scripts generally know nothing about variable types, so they cannot tell
+> > >this comparison was always false (and since gcc can do this for long time
+> > >already, there is no point in implementing it in scripts anyway).
+> > can we get gcc to issue us a warning?  there might be other stuff 
+> > lurking around also....
 > 
-> While MD is fairly functional and clean, there are a number of 
-> enhancements to it that we have been working on for a while and would
-> like to push out to the community for review and integration.  These
-> include:
-> 
-> - partition support for md devices:  MD does not support the concept of
->   fdisk partitions; the only way to approximate this right now is by
->   creating multiple arrays on the same media.  Fixing this is required
->   for not only feature-completeness, but to allow our BIOS to recognise
->   the partitions on an array and properly boot them as it would boot a
->   normal disk.
+> If you add -W switch to CFLAGS, you'd get A LOT of more warnings.
+> Also just reading manpage on gcc around description of that flag will
+> give you a list of options to individually turn on certain check types.
+> Also gcc 3.3 have this sort of " unsigned < 0 | unsigned > 0" checks on by
+> default, I think.
 
-This change is probably not going to go into 2.6.X anytime soon anyway,
-so what's your thoughts on doing this "right" - getting MD moved into
-DM ?
+IIRC this was only in prerelease versions of gcc 3.3 (including one SuSE
+ships). For released version of gcc you need -Wsign-compare.
 
-That would solve the problem, as I see it.
+> Bye,
+>     Oleg
 
-I'm not currently involved in either of those development efforts, but I
-thought I'd bring your attention to the DM/MD issue - there was some
-talk about it in the past.
+cu
+Adrian
 
-Also, since DM will do on-line resizing and we want MD to do this as
-well some day, I really think this is the way to be going.  Getting
-partition support on MD devices will solve a problem now, but for the
-long run I really think MD should be a part of DM.
+-- 
 
-Anyway, that's my 0.02 Euro on that issue.
-
-...
-> - Metadata abstraction:  We intend to support multiple on-disk metadata
->   formats, along with the 'native MD' format.  To do this, specific
->   knowledge of MD on-disk structures must be abstracted out of the core
->   and personalities modules.
-
-I think this one touches the DM issue as well.
-
-So, how about Adaptec and IBM get someone to move MD into DM, and while
-you're at it, add hot resizing and hot conversion between RAID levels  :)
-
-2.7.1?  ;)
-
-Jokes aside, I'd like to hear your oppinions on this longer-term
-perspective on things...
-
-The RAID conversion/resize code for userspace exists already, and it
-works except for some cases with RAID-5 and disks of non-equal size,
-where it breaks horribly (fixable bug though).
-
-
- / jakob
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267871AbTB1OCO>; Fri, 28 Feb 2003 09:02:14 -0500
+	id <S267935AbTB1OL5>; Fri, 28 Feb 2003 09:11:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267881AbTB1OCO>; Fri, 28 Feb 2003 09:02:14 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19219 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267871AbTB1OCN>;
-	Fri, 28 Feb 2003 09:02:13 -0500
-Date: Fri, 28 Feb 2003 14:12:34 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+	id <S267937AbTB1OL5>; Fri, 28 Feb 2003 09:11:57 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:30865
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267935AbTB1OL4>; Fri, 28 Feb 2003 09:11:56 -0500
 Subject: Re: Proposal: Eliminate GFP_DMA
-Message-ID: <20030228141234.H23865@parcelfarce.linux.theplanet.co.uk>
-References: <20030228064631.G23865@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73heao7ph2.fsf@amdsimf.suse.de>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030228141234.H23865@parcelfarce.linux.theplanet.co.uk>
+References: <20030228064631.G23865@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel>
+	 <p73heao7ph2.fsf@amdsimf.suse.de>
+	 <20030228141234.H23865@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046445897.16599.60.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <p73heao7ph2.fsf@amdsimf.suse.de>; from ak@suse.de on Fri, Feb 28, 2003 at 09:56:41AM +0100
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 28 Feb 2003 15:24:58 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 28, 2003 at 09:56:41AM +0100, Andi Kleen wrote:
-> Matthew Wilcox <willy@debian.org> writes:
-> > -
-> > +#define GFP_ATOMIC_DMA (GFP_ATOMIC | __GFP_DMA)
-> > +#define GFP_KERNEL_DMA (GFP_KERNEL | __GFP_DMA)
-> > 
-> > combined with changing some users to use __GFP_DMA if they really do mean
-> > the bitmask.  Comments?
+On Fri, 2003-02-28 at 14:12, Matthew Wilcox wrote:
+> i'm not the kind of person who just changes the header file and breaks all
+> the drivers.  plan:
 > 
-> Sounds like a good 2.7.x early project. Currently we still have too much
-> driver breakage for the next release to break even more right now.
+>  - Add the GFP_ATOMIC_DMA & GFP_KERNEL_DMA definitions
+>  - Change the drivers
+>  - Delete the GFP_DMA definition
 
-i'm not the kind of person who just changes the header file and breaks all
-the drivers.  plan:
+Needless pain for people maintaining cross release drivers. Save it for
+2.7 where we should finally do the honourable deed given x86-64 may well
+be mainstream, and simply remove GFP_DMA and expect people to use 
+pci_*
 
- - Add the GFP_ATOMIC_DMA & GFP_KERNEL_DMA definitions
- - Change the drivers
- - Delete the GFP_DMA definition
-
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk

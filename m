@@ -1,66 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266527AbUHSPu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266553AbUHSPwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266527AbUHSPu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 11:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266535AbUHSPu6
+	id S266553AbUHSPwt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 11:52:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbUHSPwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 11:50:58 -0400
-Received: from apate.telenet-ops.be ([195.130.132.57]:42905 "EHLO
-	apate.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S266527AbUHSPu4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 11:50:56 -0400
-Subject: Re: ati_remote for medion
-From: Karel Demeyer <kmdemeye@vub.ac.be>
-To: Tom Felker <tcfelker@mtco.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200408191016.06528.tcfelker@mtco.com>
-References: <1092904136.3352.5.camel@kryptonix>
-	 <200408191016.06528.tcfelker@mtco.com>
-Content-Type: text/plain
-Date: Thu, 19 Aug 2004 17:51:14 +0200
-Message-Id: <1092930674.6966.6.camel@kryptonix>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 
+	Thu, 19 Aug 2004 11:52:49 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:56561 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266553AbUHSPwa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 11:52:30 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Mark Lord <lkml@rtr.ca>
+Subject: Re: new tool:  blktool
+Date: Thu, 19 Aug 2004 17:51:19 +0200
+User-Agent: KMail/1.6.2
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+References: <411FD744.2090308@pobox.com> <4120E693.8070700@pobox.com> <4124C135.7050200@rtr.ca>
+In-Reply-To: <4124C135.7050200@rtr.ca>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408191751.19101.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Are the keycodes unique enough that you can just put the keymaps for both 
-> remotes into the same table?  I.E. when you wrote your keymaps, did you have 
-> to remove some of the others to get it to work, or was that just for 
-> cleanliness?  Otherwise, we'd need to have multiple tables and choose which 
-> to use based on which remote is being used.
-> 
-> Oh, and do stick around, Karel, someone will need to test the result.
-> 
-> BTW, does anyone know whether the probe function actually needs to check 
-> whether the product and vendor IDs match the device?  I've seen docs that 
-> imply yes, but many drivers don't check, and I feel stupid iterating thru the 
-> table if no.
-> 
-> Have fun,
+Hi,
 
+On Thursday 19 August 2004 17:03, Mark Lord wrote:
+> >> But HDIO_DRIVE_CMD is rather easy to implement as well,
+> >> and perhaps both should be there for an overlap.
+> >>
+> >> Especially since the former is in rather widespread use right now.
+> >> Yup, it's missing a separate data-phase parameter,
+> >> and lots of taskfile stuff, but it's configured by default
+> >> into every kernel (the same is not true for taskfile support),
+> >> and there's really only a few limited cases of it being used
+> >> for non-data commands:  IDENTIFY, SMART, and the odd READ/WRITE
+> >> SECTOR (pio, single sector).
+> >
+> > If HDIO_DRIVE_CMD was easy to do, I would have already done it.  I agree
+> > with you that supporting it has benefits, but you are ignoring the
+> > obstacles:
+>
+> "Ignoring"?  Hardly.  I even listed a few of them above.
+> But in practice, HDIO_DRIVE_CMD only requires support for a very
+> limited set of commands.  It was never intended for arbitrary
+> command acceptance.  And it's not like Joe User can abuse it,
 
-I don't know if anything I say is usefull, but: The keys on my remote
-and those on the ati-remotes doesn't seem to share the same 'hex-
-code' (?).  I had to manually find out each code per key (I didn't know
-how to do it).  The hardwarealso has other (and maybe more) keys.  The
-ati remote has mouse-buttons for example.  In the code I sent earlier, I
-made a ASCII-scetch of how my remote looks like (if someone wants it,
-I'll put a photot online ;)).  So, I think the driver will need to
-separate tables to choose from when it knows which remote is used.  
+Most people used it for as much arbitrary commands as they could.
 
-Secondly, I'd like to say that I HAD to change the Vendor_ID - thing to
-let it work with my remote (found it out using lsusb ;)).
+> since it requires SYSADMIN and RAWIO capabilities to execute.
+>
+> The command subset that accounts for just about all uses of it today is:
+>
+> SET_FEATURES, SMART, IDENTIFY, READ_SECTOR, WRITE_SECTOR.
+> Period.
 
+WRITE_SECTOR?
 
-Don't shoot me if I say anything irrevelant, and I'll stay around for
-testing and stuff, even my evolution-filters arenot what they should be
-- they copy it both in my Inbox and my 'Linux-kernel'-directory :|
+IDE version of HDIO_DRIVE_CMD only implements READ_SECTOR and it is
+already an abuse of this ioctl (because it does PIO-in command if buffer
+is provided and no-data command otherwise).
 
-greets,
+> Pretty easy to support those, especially in SATA.
+> I know, since I've just taken a couple of hours and added it
+> to my SATA/RAID driver (a queuing controller with tag support).
+>
+> For more generic interface, Curtis's document looks rather good.
+> But for backward compatibility with existing tools like the
+> smartmontools and hdparm, all that is needed is a limited subset
+> of HDIO_DRIVE_CMD (for the opcodes listed above) and also
+> the closely related HDIO_DRIVE_TASK ioctl for some of the SMART
+> commands (all non-data).
 
-Karel "scapor" Demeyer.
+IMO it is a perfect moment to add one generic interface and start
+deprecating three strange ioctls (HDIO_DRIVE_CMD / HDIO_DRIVE_TASK / 
+HDIO_DRIVE_TASKFILE).
 
-
+Bartlomiej

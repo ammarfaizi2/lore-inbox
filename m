@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282778AbRLOQKQ>; Sat, 15 Dec 2001 11:10:16 -0500
+	id <S282784AbRLOQTi>; Sat, 15 Dec 2001 11:19:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282784AbRLOQKG>; Sat, 15 Dec 2001 11:10:06 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:43789 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S282778AbRLOQJ6>; Sat, 15 Dec 2001 11:09:58 -0500
-Date: Sat, 15 Dec 2001 10:09:55 -0600
-From: Ken Brownfield <brownfld@irridia.com>
-To: Chris Chabot <chabotc@reviewboard.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-        marcelo@conectiva.com.br
-Subject: Re: Unfreeable buffer/cache problem in 2.4.17-rc1 still there
-Message-ID: <20011215100955.B13598@asooo.flowerfire.com>
-In-Reply-To: <1008419776.6780.0.camel@gandalf.chabotc.com> <20011215152446.P2431@athlon.random> <1008432321.13025.0.camel@gandalf.chabotc.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <1008432321.13025.0.camel@gandalf.chabotc.com>; from chabotc@reviewboard.com on Sat, Dec 15, 2001 at 05:05:20PM +0100
+	id <S282793AbRLOQT3>; Sat, 15 Dec 2001 11:19:29 -0500
+Received: from tux.rsn.bth.se ([194.47.143.135]:19384 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S282784AbRLOQTT>;
+	Sat, 15 Dec 2001 11:19:19 -0500
+Date: Sat, 15 Dec 2001 17:18:22 +0100 (CET)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Dave Jones <davej@suse.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com
+Subject: Re: fsx for Linux showing up reiserfs problem?
+In-Reply-To: <20011215154029.A3954@suse.de>
+Message-ID: <Pine.LNX.4.21.0112151715490.30396-100000@tux.rsn.bth.se>
+X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think "updatedb" at 4am is what you're looking for...  How much disk
-space do you have on this system?
+On Sat, 15 Dec 2001, Dave Jones wrote:
 
--- 
-Ken.
-brownfld@irridia.com
 
-On Sat, Dec 15, 2001 at 05:05:20PM +0100, Chris Chabot wrote:
-| Ok, rc1-aa1 is installed, up and running. Since it took a little more
-| then a day last time for this behavour to be displayed, i'll have to
-| wait before i can report back anything usefull.
-| 
-| Ps, a side question. if this is 'inode' and 'dentry' cache, why isnt it
-| reported as 'used by cache' in free, top, gtop, etc?
-| 
-| Also, why is this such a progressive problem? Even if i do a find on the
-| full +/- 400 gigs, create and remove 2 gig files, create 1000 temp
-| files, etc, in the first day the memory isnt 'disapearing' yet.
-| (ofcource it uses a lot of mem for cache/buffers, but no 'unaccounted
-| for in free or top' memory.
-| 
-| Will report back soon,
-| 
-| 	-- Chris
-| 
-| 
-| On Sat, 2001-12-15 at 15:24, Andrea Arcangeli wrote:
-| > On Sat, Dec 15, 2001 at 01:36:11PM +0100, Chris Chabot wrote:
-| > > inode_cache       686896 686896    480 85862 85862    1 :  124   62
-| > > dentry_cache      696810 696810    128 23227 23227    1 :  252  126
-| > 
-| > this is an icache/dcache problem, can you reproduce on 2.4.17rc1aa1, it
-| > will shrink more aggressively.
-| > 
-| > really to get an even better balance we should add the icache/dcache
-| > slab pages into the lru as well... that would trigger the icache/dcache
-| > flushes more easily when too much ram is in those caches.
-| > 
-| > Andrea
-| 
-| 
-| -
-| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-| the body of a message to majordomo@vger.kernel.org
-| More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| Please read the FAQ at  http://www.tux.org/lkml/
+> I've done a few tests on local filesystems, and so far Ext2 & Ext3
+> seem to be holding up..
+
+I've tested ext3 on 2.4.17-pre8 and it works fine.
+
+> Reiserfs however dies very early into the test..
+> 
+>   truncating to largest ever: 0x3f15f
+>   READ BAD DATA: offset = 0x1d3d4, size = 0x962f
+>   OFFSET  GOOD    BAD     RANGE
+>   0x1d3d4 0x177d  0x0000  0x  563
+>   operation# (mod 256) for the bad data unknown, check HOLE and EXTEND ops
+
+I tested with reiserfs on 2.4.9-ac14 and 2.4.15-pre4-xfs and it fails in
+the same way on both.
+
+I tested on a xfs partition on the 2.4.15-pre4-xfs kernel and didn't get
+any errors either.
+
+/Martin
+
+Never argue with an idiot. They drag you down to their level, then beat you with experience.
+

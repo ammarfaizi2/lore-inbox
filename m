@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262604AbTBESFk>; Wed, 5 Feb 2003 13:05:40 -0500
+	id <S261742AbTBESMf>; Wed, 5 Feb 2003 13:12:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262807AbTBESFk>; Wed, 5 Feb 2003 13:05:40 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:63243 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262604AbTBESFj>; Wed, 5 Feb 2003 13:05:39 -0500
-Date: Wed, 5 Feb 2003 18:15:12 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Nicolas Pitre <nico@cam.org>
-Cc: andrea.glorioso@binary-only.com, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Monta Vista software license terms
-Message-ID: <20030205181512.A24002@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Nicolas Pitre <nico@cam.org>, andrea.glorioso@binary-only.com,
-	lkml <linux-kernel@vger.kernel.org>
-References: <87d6m6fx4c.fsf@topo.binary-only.priv> <Pine.LNX.4.44.0302051247280.8496-100000@xanadu.home>
+	id <S262394AbTBESMf>; Wed, 5 Feb 2003 13:12:35 -0500
+Received: from zok.sgi.com ([204.94.215.101]:32960 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S261742AbTBESMd>;
+	Wed, 5 Feb 2003 13:12:33 -0500
+Date: Wed, 5 Feb 2003 10:22:07 -0800
+From: Jesse Barnes <jbarnes@sgi.com>
+To: marcelo@hera.kernel.org
+Cc: jh@sgi.com, linux-kernel@vger.kernel.org
+Subject: MAINTAINERS update for 2.4 SN support
+Mail-Followup-To: marcelo@freak.distro.conectiva, jh@sgi.com,
+	linux-ia64@linuxia64.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0302051247280.8496-100000@xanadu.home>; from nico@cam.org on Wed, Feb 05, 2003 at 12:57:49PM -0500
+User-Agent: KMail/1.5
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200302051022.07973.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 05, 2003 at 12:57:49PM -0500, Nicolas Pitre wrote:
-> I find it quite saddening that a lot of people only care about making up shit 
-> while the company in question is devoting a lot of money in salary to hire 
-> kernel developers full time whose work has always been merged to community 
-> trees so far.
+Just a quick add of John Hesterberg as official maintainer of SN
+support in the 2.4 tree.
 
-Blah.  Why can't mvista put up the source to their products on some ftp
-server like suse/redhat/caldera/mandrake/etc??  That's the whole point of
-this discussion.  mvista doesn't do anything illegal, but they certainly
-don't play nice.
+Thanks,
+Jesse
+
+
+--- linux-2.4.20/MAINTAINERS	Thu Nov 28 15:53:08 2002
++++ linux-2.4.20-ia64/MAINTAINERS	Mon Feb  3 14:35:02 2003
+@@ -710,6 +710,13 @@
+ W:	http://www.linuxia64.org/
+ S:	Maintained
+ 
++SN-IA64 (Itanium) SUB-PLATFORM
++P:	John Hesterberg
++M:	jh@sgi.com
++L:	linux-ia64@linuxia64.org
++W:	http://www.sgi.com/altix
++S:	Maintained
++
+ IBM MCA SCSI SUBSYSTEM DRIVER
+ P:	Michael Lang
+ M:	langa2@kph.uni-mainz.de
 

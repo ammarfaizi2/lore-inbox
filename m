@@ -1,68 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUEFMW4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbUEFMZk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbUEFMW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 08:22:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbUEFMW4
+	id S262052AbUEFMZk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 08:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbUEFMZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 08:22:56 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18908 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262052AbUEFMWl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 08:22:41 -0400
-Subject: Re: [2.6.6 PATCH] Exposing EFI memory map
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Matthew Wilcox <willy@debian.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Sourav Sen <souravs@india.hp.com>,
-       Matt_Domsch@dell.com, matthew.e.tolentino@intel.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040506115919.GZ2281@parcelfarce.linux.theplanet.co.uk>
-References: <003801c43347$812a1590$39624c0f@india.hp.com>
-	 <20040506114414.A14543@infradead.org>
-	 <20040506115919.GZ2281@parcelfarce.linux.theplanet.co.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-DWk91SIcPBHtFP7OtNPg"
-Organization: Red Hat UK
-Message-Id: <1083845904.3844.2.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 06 May 2004 14:18:24 +0200
+	Thu, 6 May 2004 08:25:40 -0400
+Received: from userel174.dsl.pipex.com ([62.188.199.174]:49287 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id S262052AbUEFMZZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 08:25:25 -0400
+Date: Thu, 6 May 2004 13:23:42 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: tigran@einstein.homenet
+To: Simon Trimmer <simon@urbanmyth.org>
+cc: kim.jensen2@hp.com, <linux-kernel@vger.kernel.org>
+Subject: Re: microcode_ctl question (fwd)
+In-Reply-To: <Pine.LNX.4.53.0405052017190.31452@calcium.webfusion.co.uk>
+Message-ID: <Pine.LNX.4.44.0405061307310.3358-100000@einstein.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---=-DWk91SIcPBHtFP7OtNPg
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+(cc'd linux-kernel so they can also participate in the discussion)
 
-On Thu, 2004-05-06 at 13:59, Matthew Wilcox wrote:
-> On Thu, May 06, 2004 at 11:44:14AM +0100, Christoph Hellwig wrote:
-> > On Thu, May 06, 2004 at 02:22:46PM +0530, Sourav Sen wrote:
-> > > Hi,
-> > >=20
-> > > The following simple patch creates a read-only file
-> > > "memmap" under <mount point>/firmware/efi/ in sysfs
-> > > and exposes the efi memory map thru it.
-> >=20
-> > doesn't exactly fit into the one value per file approach, does it?
->=20
-> It's not exactly modifiable.=20
+The microcode driver could be enhanced to support the operation which Kim 
+is asking for, i.e. to query for the current revision (and possibly other 
+flags). But we should carefully design the API, namely to take care 
+of multiple CPUs potentially having multiple revisions of microcode. So, 
+the user application should first interrogate the number of CPUs 
+present, by some other means (e.g. reading /proc/cpuinfo or calling 
+sysconf(_NPROCESSORS_ONLN), which is the same thing btw) and then pass
+to the ioctl the address of a data structure like this:
 
-come on, it's the ideal hotplug memory interface ;)
-should we try to unify the memory map exports between architectures
-instead of matching the firmware-of-the-day for each architecture ??
+struct microcode_query {
+	unsigned int sig; /* signature */
+	unsigned int pf;  /* processor flags */
+	unsigned int rev; /* revision */
+} microcode_query[]; /* as many elements as the number of cpus present */
 
+then the driver would do an IPI with collect_cpu_info() as a function 
+which would fill in all the data and the rest of the ioctl code would just 
+copy it back to userspace. The only problem here is for the application to 
+not get confused about the ordering of CPUs.
 
---=-DWk91SIcPBHtFP7OtNPg
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+The driver would order them in the "natural", i.e. smp_processor_id() 
+order and so that should be the order expected by the applications (maybe 
+this should be documented somewhere after such ioctl is implemented).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+And after all this is done, microcode_ctl is the natural place to call the 
+ioctl (as a separate command line option).
 
-iD8DBQBAmi0PxULwo51rQBIRAqbCAJ9C12H6pTCO+gt2IxF+DJ+LZj3NywCgnLdO
-fDAMqM95/kUeLPXyqUYb97Y=
-=EC3X
------END PGP SIGNATURE-----
+Btw, I have just noticed what may be a bug wrt not being aware of kernel
+preemption, i.e. we cache the CPU id in a local variable and later use it,
+but then there seems to be no protection against kernel preemption (i.e.
+we hold no spinlocks, only a semaphore) at that point, so the original CPU
+id may not be quite the same as the CPU id for which the data was
+collected. I should fix this if it is a problem. The question to
+linux-kernel guys is to confirm that this is indeed a bug, i.e. to clarify
+under which condition the kernel preemption can and cannot occur.
 
---=-DWk91SIcPBHtFP7OtNPg--
+In particular can such preemption occur while executing a function called 
+via IPI mechanism?
+
+Kind regards
+Tigran
+
+> ---------- Forwarded message ----------
+> Date: Wed, 5 May 2004 20:17:06 +0100 (BST)
+> From: Simon Trimmer <simon@urbanmyth.org>
+> To: "JENSEN,KIM (HP-FtCollins,ex1)" <kim.jensen2@hp.com>
+> Subject: Re: microcode_ctl question
+> 
+> Hi Kim,
+> Not off the top of my head; Tigran?
+> 
+> The driver used to print it out as it seeks to load the new microcode, I
+> guess you could attempt to reload it (it'll cope with the revisions being the
+> same and it'll print out the version in the detail).
+> 
+> -Simon
+> 
+> On Wed, 5 May 2004, JENSEN,KIM (HP-FtCollins,ex1) wrote:
+> > Simon,
+> >
+> > Do you know of any linux tools that allow one to query the version of ia32
+> > intel microcode that has been loaded?
+> >
+> > Thanks!
+> > Kim Jensen
+> >
+> > Linux Workstations R&D
+> > Hewlett Packard
+
 

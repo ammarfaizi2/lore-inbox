@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263605AbVBDXT3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVBEAe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263605AbVBDXT3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 18:19:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266342AbVBDW7N
+	id S261559AbVBEAe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 19:34:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265039AbVBDWtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 17:59:13 -0500
-Received: from ozlabs.org ([203.10.76.45]:49320 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264425AbVBDW0E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 17:26:04 -0500
+	Fri, 4 Feb 2005 17:49:51 -0500
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:25021 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263197AbVBDWPw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 17:15:52 -0500
+Message-ID: <4203F40C.8040707@yahoo.com.au>
+Date: Sat, 05 Feb 2005 09:15:40 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+CC: Roland Mc Grath <roland@redhat.com>, Jeff Dike <jdike@addtoit.com>,
+       BlaisorBlade <blaisorblade_spam@yahoo.it>,
+       user-mode-linux devel 
+	<user-mode-linux-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Race condition in ptrace
+References: <42021E35.8050601@fujitsu-siemens.com> <4202C18F.5010605@yahoo.com.au> <42036C2C.5040503@fujitsu-siemens.com>
+In-Reply-To: <42036C2C.5040503@fujitsu-siemens.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16899.63089.492768.89353@cargo.ozlabs.ibm.com>
-Date: Sat, 5 Feb 2005 09:25:53 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Rik van Riel <riel@redhat.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       David Woodhouse <dwmw2@infradead.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: A scrub daemon (prezeroing)
-In-Reply-To: <Pine.LNX.4.58.0502040900450.759@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0501211228430.26068@schroedinger.engr.sgi.com>
-	<1106828124.19262.45.camel@hades.cambridge.redhat.com>
-	<20050202153256.GA19615@logos.cnet>
-	<Pine.LNX.4.58.0502021103410.12695@schroedinger.engr.sgi.com>
-	<20050202163110.GB23132@logos.cnet>
-	<Pine.LNX.4.61.0502022204140.2678@chimarrao.boston.redhat.com>
-	<16898.46622.108835.631425@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.58.0502031650590.26551@schroedinger.engr.sgi.com>
-	<16899.2175.599702.827882@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.58.0502032220430.28851@schroedinger.engr.sgi.com>
-	<16899.15980.791820.132469@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.58.0502040900450.759@schroedinger.engr.sgi.com>
-X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter writes:
+Bodo Stroesser wrote:
+> Nick Piggin wrote:
+> 
+>> Bodo Stroesser wrote:
 
-> scrubd clears pages of orders 7-4 by default. That means 2^4 to 2^7
-> pages are cleared at once.
+>> I don't see how this could help because AFAIKS, child->saving is only
+>> set and cleared while the runqueue is locked. And the same runqueue lock
+>> is taken by wait_task_inactive.
+>>
+> 
+> Sorry, that not right. There are some routines called by sched(), that 
+> release
+> and reacquire the runqueue lock.
+> 
 
-So are you saying that clearing an order 4 page will take measurably
-less time than clearing 16 order 0 pages?  I find that hard to
-believe.
+Oh yeah, it is the wake_sleeping_dependent / dependent_sleeper crap.
+Sorry, you are right. And that's definitely a bug in sched.c, because
+it breaks wait_task_inactive, as you've rightly observed.
 
-Paul.
+Andrew, IMO this is another bug to hold 2.6.11 for.
+

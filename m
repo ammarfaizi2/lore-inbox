@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbULQXAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbULQXK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262219AbULQXAn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 18:00:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbULQXAm
+	id S262224AbULQXK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 18:10:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbULQXK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 18:00:42 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:16298 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262219AbULQXAP (ORCPT
+	Fri, 17 Dec 2004 18:10:28 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:9886 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262224AbULQXKX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 18:00:15 -0500
-Date: Fri, 17 Dec 2004 14:59:59 -0800
-From: Greg KH <greg@kroah.com>
-To: Kylene Hall <kjhall@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, sailer@watson.ibm.com,
-       leendert@watson.ibm.com, emilyr@us.ibm.com, toml@us.ibm.com,
-       tpmdd-devel@lists.sourceforge.net
-Subject: Re: [PATCH 1/1] driver: Tpm hardware enablement --updated version
-Message-ID: <20041217225959.GA23572@kroah.com>
-References: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com> <Pine.LNX.4.58.0412161632200.4219@jo.austin.ibm.com> <Pine.LNX.4.58.0412171642570.9229@jo.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0412171642570.9229@jo.austin.ibm.com>
-User-Agent: Mutt/1.5.6i
+	Fri, 17 Dec 2004 18:10:23 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20041217154018.C21393@almesberger.net> 
+References: <20041217154018.C21393@almesberger.net>  <20041217153602.D31842@almesberger.net> 
+To: Werner Almesberger <werner@almesberger.net>
+Cc: linux-kernel@vger.kernel.org,
+       Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 3/3] prio_tree: move general code from mm/ to lib/ 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.3
+Date: Fri, 17 Dec 2004 23:10:15 +0000
+Message-ID: <3700.1103325015@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 17, 2004 at 04:47:18PM -0600, Kylene Hall wrote:
-> +static struct pci_device_id tpm_pci_tbl[] __devinitdata = {
-> +	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_0)},
-> +	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801CA_12)},
-> +	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_0)},
-> +	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_12)},
-> +	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_0)},
-> +	{PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8111_LPC)},
-> +	{0,}
-> +};
-> +
-> +MODULE_DEVICE_TABLE(pci, tpm_pci_tbl);
+Werner Almesberger <werner@almesberger.net> wrote:
 
-Please do not put this in a .h file.  It belongs in the .c files.  If
-both tpm drivers could be on all of the above pci devices, then that's
-fine.  But odds are, eventually the table will start to differenciate.
+> 
+> Note that this patch conflicts with a patch in 2.6.10-rc3-mm1
+> (frv-better-mmap-support-in-uclinux.patch), which removes
+> mm/prio_tree in systems without an MMU. Not making that other
+> patch provide a dummy for prio_tree_init should resolve the
+> conflict. (That's just from reading the patch - I haven't
+> actually tried this.)
 
-This is also not a good idea, as the main tpm core module will end up
-with this pci device table, and it should not, as it does not support
-any pci devices itself.
+The prio_tree stuff can go back in for the nommu stuff. I've given Andrew a
+patch to that effect (copied to LKML).
 
-thanks,
+	Subject: [PATCH] Cross-reference nommu VMAs with mappings
+	Date: 	Wed, 15 Dec 2004 15:55:35 +0000
 
-greg k-h
+David

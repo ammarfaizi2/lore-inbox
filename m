@@ -1,46 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317995AbSGWIUp>; Tue, 23 Jul 2002 04:20:45 -0400
+	id <S317997AbSGWIYI>; Tue, 23 Jul 2002 04:24:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317996AbSGWIUp>; Tue, 23 Jul 2002 04:20:45 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:38158 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S317995AbSGWIUo>;
-	Tue, 23 Jul 2002 04:20:44 -0400
-Date: Tue, 23 Jul 2002 10:16:15 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Larry McVoy <lm@work.bitmover.com>,
-       Roger Gammans <roger@computer-surgery.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: using bitkeeper to backport subsystems?
-Message-ID: <20020723081615.GB1176@marowsky-bree.de>
-References: <20020721233410.GA21907@lukas> <20020722071510.GG16559@boardwalk> <20020722102930.A14802@lst.de> <20020722102705.GB21907@lukas> <20020722152031.GB692@opus.bloom.county> <20020722232941.A10083@computer-surgery.co.uk> <20020722154443.E19057@work.bitmover.com>
+	id <S318007AbSGWIYH>; Tue, 23 Jul 2002 04:24:07 -0400
+Received: from mail12.svr.pol.co.uk ([195.92.193.215]:21008 "EHLO
+	mail12.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S317997AbSGWIYG>; Tue, 23 Jul 2002 04:24:06 -0400
+Date: Tue, 23 Jul 2002 09:26:55 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+Message-ID: <20020723082655.GC1393@fib011235813.fsnet.co.uk>
+References: <OF493E1C65.D443AFFF-ON85256BFE.005D57E7@pok.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020722154443.E19057@work.bitmover.com>
+In-Reply-To: <OF493E1C65.D443AFFF-ON85256BFE.005D57E7@pok.ibm.com>
 User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-07-22T15:44:43,
-   Larry McVoy <lm@bitmover.com> said:
+On Mon, Jul 22, 2002 at 01:31:11PM -0500, Ben Rafanello wrote:
+> I believe you are referring to Device Mapper, which could, in theory,
+> handle the AIX metadata layout.  However, AFAIK, there are no tools
+> currently available or under development for Device Mapper to make
+> this happen.  Currently, EVMS is the only way to read/write to AIX
+> volumes under Linux.
 
-> > With all due respect to Larry and the bk team, I think you'll
-> > find determining 'needed changesets' in this case is a _hard_ problem.
-> Thanks, we agree completely.  It's actually an impossible problem
-> for a program since it requires semantic knowledge of the content
-> under revision control. 
+This is absolutely correct, LVM2 does not currently support AIX
+metadata.  However the LVM2 tools were designed to support multiple
+metadata formats, and it really would be very little work to write the
+code to do this (after all this is just a little bit of userland code,
+rather than kernel code in EVMS).  ATM Sistina are not willing to pay
+for this work, so it will have to come from some other part of the
+community.
 
-So, another option would be to have the developer define explicit dependencies
-for his changesets, but I fear that might prove to cumbersome, too.
+> EVMS can snapshot anything it sees - partitions, LVM volumes, MD devices,
+> OS/2 volumes, AIX volumes, etc.  LVM2 does do snapshots of LVM2 volumes,
+> but if it isn't an LVM volume, LVM2 can not snapshot it.  Device Mapper,
+> however, could snapshot partitions and other non-LVM volumes if only the
+> tools were available.
 
+There is a little tool called dmsetup:
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+http://people.sistina.com/~thornber/dmsetup_8.html
 
--- 
-Immortality is an adequate definition of high availability for me.
-	--- Gregory F. Pfister
+that is essentially a very simple volume manager.  But it does give
+you full access to all the facilities of device-mapper.  eg, I just
+used it to create writeable snapshots of a CD, very useful for
+demonstrating distros.  LVM2 will support physical volumes that it is
+not allowed to write metadata to very soon.
+
+>  As for resizing partitions, EVMS has the code to
+> manipulate partition tables, including the resizing of partitions.  There
+> does not appear to be anything in either LVM2 or Device Mapper for
+> manipulating partition tables and resizing partitions.
+
+There will never be partition manipulation code in LVM2, there are
+plenty of excellent tools for resizing partitions (eg, parted).  We
+have better things to do than reinventing wheels.
+
+Personally I would remove the partition recognition code from the
+kernel completely, and setup partitions from userland using
+device-mapper.  You need root permissions to read a partition table,
+*not* kernel perms.  But somehow I can't see people going along with
+this plan :)
+
+- Joe
 

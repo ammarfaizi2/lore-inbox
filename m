@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265631AbUEZPzB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265636AbUEZP4s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265631AbUEZPzB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 11:55:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265632AbUEZPzB
+	id S265636AbUEZP4s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 11:56:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265633AbUEZP4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 11:55:01 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:17281 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S265631AbUEZPy7 convert rfc822-to-8bit
+	Wed, 26 May 2004 11:56:47 -0400
+Received: from nat-ph3-wh.rz.uni-karlsruhe.de ([129.13.73.33]:1664 "EHLO
+	au.hadiko.de") by vger.kernel.org with ESMTP id S265632AbUEZP4h
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 11:54:59 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
+	Wed, 26 May 2004 11:56:37 -0400
+From: Jens =?iso-8859-1?q?K=FCbler?= <cleanerx@au.hadiko.de>
+To: linux-kernel@vger.kernel.org
+Subject: nforce2 keeps crashing with 2.4.27pre3
+Date: Wed, 26 May 2004 17:56:35 +0200
+User-Agent: KMail/1.5.3
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.7-rc1-bk: SMT scheduler bug / crashes on kernel boot
-Date: Wed, 26 May 2004 08:54:46 -0700
-Message-ID: <7F740D512C7C1046AB53446D372001730182B346@scsmsx402.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.7-rc1-bk: SMT scheduler bug / crashes on kernel boot
-thread-index: AcRDFunMKzCoKooYR9uKzbfsdSf6zgAIZFQQ
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "Anton Altaparmakov" <aia21@cam.ac.uk>
-Cc: <mingo@elte.hu>, "lkml" <linux-kernel@vger.kernel.org>,
-       "Zwane Mwaikambo" <zwane@zwane.ca>
-X-OriginalArrivalTime: 26 May 2004 15:54:47.0793 (UTC) FILETIME=[C570FE10:01C44339]
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405261756.35333.cleanerx@au.hadiko.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Nick Piggin [mailto:nickpiggin@yahoo.com.au]
->Sent: Wednesday, May 26, 2004 4:45 AM
->To: Anton Altaparmakov
->Cc: mingo@elte.hu; lkml; Zwane Mwaikambo; Nakajima, Jun
->Subject: Re: 2.6.7-rc1-bk: SMT scheduler bug / crashes on kernel boot
->
->Anton Altaparmakov wrote:
->> On Wed, 2004-05-26 at 12:28, Nick Piggin wrote:
->>
->
->The problem is smp_num_siblings is set to 2, but phys_proc_id
->doesn't seem to be set up right (or it could be cpu_callout_map).
->That would cause the sched-domains to get set up wrong, sure. Maybe
->we should just go bug in this case? Or try to fix up?
->
->Anyone have any idea why this is happening?
->
-Does this happen when you run the kernel on top of VMWare, as far as I
-understand? If so, it is likely that VMWare is not simulating the
-behavior of cpuid regarding HT support (especially, mapping between
-logical and processor package). Then, you should get the same result
-even when you run 2.6.6 kernel. Do you have dmesg output from some older
-kernel or 2.6.6?
+Hi
 
-Jun
+I have grabbed the latest pre of the kernel and compiled everything. At bootup 
+the nforce2 fixup message appears but as soon as I cause heavy network 
+traffic the system still locks up. 
+I'm using a rtl8169 1Gbit network card which reads data from a 1Gbit connected 
+raid10 so transfer rates can get pretty high (some tests gave me about 70MB/s 
+reading)
+
+The system runs fine with the apic tack patch that i use since december 
+(kernel 2.4.23) except for my new gigabit network card.
+I'm importing different network shares via nfs and the gigabit seems to have 
+problems with this patch. When traffic rises the kernel considers that the 
+nfs server is not responding and waits for it to come back. It does after 
+some time and then this cycle starts again and again. Transfer rates drop due 
+to this to less than 1Mb/s.
+
+When I installed 2.4.27pre3 i had none of these nfs timeouts but the system 
+halt. The whole home directory is imported via nfs and it seemed for me much 
+more responsive than with the apic tack patched kernel.
+
+I will be greatful for any suggestions.
+
+Btw: I'm not subscribed so please send cc to me ;-)
+
+Jens
 

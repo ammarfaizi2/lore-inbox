@@ -1,103 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282978AbSBGGPb>; Thu, 7 Feb 2002 01:15:31 -0500
+	id <S284144AbSBGGSb>; Thu, 7 Feb 2002 01:18:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284144AbSBGGPW>; Thu, 7 Feb 2002 01:15:22 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46354 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S282978AbSBGGPF>;
-	Thu, 7 Feb 2002 01:15:05 -0500
-Message-ID: <3C621B44.10C424B9@zip.com.au>
-Date: Wed, 06 Feb 2002 22:14:28 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+	id <S284305AbSBGGSV>; Thu, 7 Feb 2002 01:18:21 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:34512 "EHLO
+	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S284144AbSBGGSL>; Thu, 7 Feb 2002 01:18:11 -0500
+Message-ID: <3C621DD2.5AE6448A@nortelnetworks.com>
+Date: Thu, 07 Feb 2002 01:25:22 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: Manfred Spraul <manfred@colorfullife.com>,
-        Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] VM_IO fixes
+To: Andi Kleen <ak@suse.de>
+Cc: Ion Badulescu <ionut@cs.columbia.edu>, linux-kernel@vger.kernel.org
+Subject: Re: want opinions on possible glitch in 2.4 network error reporting
+In-Reply-To: <E16Ydys-0007D6-00@the-village.bc.nu.suse.lists.linux.kernel> <Pine.LNX.4.44.0202062101390.4832-100000@age.cs.columbia.edu.suse.lists.linux.kernel> <p73zo2mqa7f.fsf@oldwotan.suse.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We've had a few bugs recently where device drivers were forgetting
-to set vma->vm_flags:VM_IO in their mmap() methods.
+Andi Kleen wrote:
+> 
+> Ion Badulescu <ionut@cs.columbia.edu> writes:
+> > I'll state again: if data (UDP or otherwise) is lost after sendto()
+> > returns success but before it hits the wire, something is BROKEN in that
+> > IP stack.
+> 
+> Your proposal would break select(). It would require UDP sendmsg to block
+> when the TX queue is full. Most applications using select do
+> not send the socket non blocking. If they select for writing and the
+> kernel signals the socket writable they expect not to block in the write.
+> As long as the only thing controlling the blocking is the per socket
+> send buffer that works out as long as the application is careful enough
+> not to fill its send buffer. If you would put the TX queue into the
+> blocking equation too this cannot be guaranteed anymore because the TX queue
+> is shared between all local processes and even forwarding. You would
+> get random blocking on select based applications, breaking them.
 
-This causes kernel deadlocks when applications which have the
-relevant device mapped try to dump core (the pagefault handler
-deadlocks on mmap_sem).
+I don't see the problem.  So sendto() blocks if there is no room on the socket
+buffer.  Fine.  So if there's room on the socket buffer we take the packet and
+put in on the buffer, and sendto() returns.
 
-Failing to set VM_IO also causes kernel oopses when PTRACE_PEEKUSR
-tries to read the device mapping - the region has no page structs,
-but access_process_vm() acts as if it does.
+Now, for each socket we've got a buffer of packets that want to get onto the
+device driver tx queue.  So we use some kind of algorithm to pick which packets
+to move from the group of socket buffers to the device driver tx queue.  If the
+app calls sendto() before there is space in the socket buffer, then sendto()
+blocks.  select() should return whether or not there is space in the socket
+buffer.  Eventually, every packet that gets put into a socket buffer makes it
+out onto the wire.  Congestion is dealt with by leaving packets in the socket
+buffers until they can be guaranteed a spot in the device tx queue.  I assume we
+would try and add it to the tx queue, and remove it from the socket buffer if
+the add succeeds.
 
-This patch doesn't fix the PTRACE_PEEKUSR bug - for that we need
-this patch as well as the patch Andrea, Manfred and I pieced
-together - it's at http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18pre7aa2/00_get_user_pages-2
-I understand that Manfred will be sending you a version of that patch.
+I just don't see why sendto() would accept the packet and then later on it gets
+dropped.
 
-The drivers which are forgetting to set VM_IO include a whole bunch
-of fbmem drivers, one or more AGP drivers and I don't know what else.
+Chris
 
-It's simpler to make VM_IO default to `on', and to only clear it
-in places where we know that it's safe to dump the memory to a
-core file, and where it's safe to PTRACE_PEEKUSR it.  That's
-what this patch does.  We only clear VM_IO in generic_file_mmap()
-and in ncp_mmap() and in coda_file_mmap().
-
-Any filesystem which implements its own mmap() method, and which
-does not call generic_file_mmap() needs to be changed to clear
-VM_IO inside its mmap function.  All in-kernel filesystems are
-OK, as is XFS.  And the only breakage this can cause to out-of-kernel
-filesystems is failure to include mappings in core files, and
-inability to use PEEKUSR.
-
-With this patch in place we can go through and remove the setting of
-VM_IO in all the drivers which _do_ remember to set it.  But that's
-a cleanup which can await 2.4.19-pre.
-
-
---- linux-2.4.18-pre8/mm/mmap.c	Mon Nov  5 21:01:12 2001
-+++ linux-akpm/mm/mmap.c	Sat Feb  2 17:36:55 2002
-@@ -534,6 +534,11 @@ munmap_back:
- 		}
- 		vma->vm_file = file;
- 		get_file(file);
-+		/*
-+		 * Subdrivers can clear VM_IO if their mappings are
-+		 * valid pages inside mem_map[]
-+		 */
-+		vma->vm_flags |= VM_IO;
- 		error = file->f_op->mmap(file, vma);
- 		if (error)
- 			goto unmap_and_free_vma;
---- linux-2.4.18-pre8/mm/filemap.c	Tue Feb  5 00:33:05 2002
-+++ linux-akpm/mm/filemap.c	Sat Feb  2 17:36:55 2002
-@@ -2111,6 +2111,7 @@ int generic_file_mmap(struct file * file
- 		return -ENOEXEC;
- 	UPDATE_ATIME(inode);
- 	vma->vm_ops = &generic_file_vm_ops;
-+	vma->vm_flags &= ~VM_IO;
- 	return 0;
- }
- 
---- linux-2.4.18-pre8/fs/coda/file.c	Tue Feb  5 00:33:05 2002
-+++ linux-akpm/fs/coda/file.c	Wed Feb  6 21:50:16 2002
-@@ -97,6 +97,7 @@ coda_file_mmap(struct file *file, struct
- 	if (!cfile->f_op || !cfile->f_op->mmap)
- 		return -ENODEV;
- 
-+	vma->vm_flags &= ~VM_IO;
- 	down(&inode->i_sem);
- 	ret = cfile->f_op->mmap(cfile, vma);
- 	UPDATE_ATIME(inode);
---- linux-2.4.18-pre8/fs/ncpfs/mmap.c	Mon Sep 10 09:04:53 2001
-+++ linux-akpm/fs/ncpfs/mmap.c	Wed Feb  6 21:49:28 2002
-@@ -119,5 +119,6 @@ int ncp_mmap(struct file *file, struct v
- 	}
- 
- 	vma->vm_ops = &ncp_file_mmap;
-+	vma->vm_flags &= ~VM_IO;
- 	return 0;
- }
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131527AbRAXBCI>; Tue, 23 Jan 2001 20:02:08 -0500
+	id <S131517AbRAXBDi>; Tue, 23 Jan 2001 20:03:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131588AbRAXBB7>; Tue, 23 Jan 2001 20:01:59 -0500
-Received: from duck.doc.ic.ac.uk ([146.169.1.46]:53773 "EHLO duck.doc.ic.ac.uk")
-	by vger.kernel.org with ESMTP id <S131527AbRAXBBq>;
-	Tue, 23 Jan 2001 20:01:46 -0500
-To: Timur Tabi <ttabi@interactivesi.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: ioremap_nocache problem?
-In-Reply-To: <3A6D5D28.C132D416@sangate.com>
-        <20010123183847Z131216-18594+636@vger.kernel.org>
-From: David Wragg <dpw@doc.ic.ac.uk>
-Date: 24 Jan 2001 01:01:29 +0000
-Message-ID: <y7rg0i9epau.fsf@sytry.doc.ic.ac.uk>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+	id <S131967AbRAXBD2>; Tue, 23 Jan 2001 20:03:28 -0500
+Received: from smtp1.jp.psi.net ([154.33.63.111]:40714 "EHLO smtp1.jp.psi.net")
+	by vger.kernel.org with ESMTP id <S131517AbRAXBDW>;
+	Tue, 23 Jan 2001 20:03:22 -0500
+From: "Rainer Mager" <rmager@vgkk.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Is this kernel related (signal 11)?
+Date: Wed, 24 Jan 2001 09:56:00 +0900
+Message-ID: <NEBBJBCAFMMNIHGDLFKGIENPCNAA.rmager@vgkk.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGKEMACNAA.rmager@vgkk.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timur Tabi <ttabi@interactivesi.com> writes:
-> ** Reply to message from Roman Zippel <zippel@fh-brandenburg.de> on
-> Tue, 23 Jan 2001 19:12:36 +0100 (MET)
-> > ioremap creates a new mapping that shouldn't interfere with MTRR,
-> >whereas you can map a MTRR mapped area into userspace. But I'm not
-> >sure if it's correct that no flag is set for boot_cpu_data.x86 <=
-> >3...
-> 
-> I was under the impression that the "don't cache" bit that
-> ioremap_nocache sets overrides any MTRR.
-
-Nope.  There's a table explaining how page flags and MTRRs interact in
-the Intel x86 manual, volume 3 (it's in section 9.5.1 "Precedence of
-Cache Controls" in the fairly recent edition I have here).
-
-For example, with PCD set, PWT clear, and the MTRRs saying WC, the
-effective memory type is WC.  In addition, there's a note saying this
-may change in future models.  So you have to set PCD | PWT if you want
-to get uncached in all cases.
+As per Russell King's suggestion, I ran memtest86 on my system for about 12
+hours last night. I found no memory errors. Note that the tests did not
+complete because I had to stop them this morning. I'll contiue them tonight.
+They got through test 9 of 11.
 
 
-David Wragg
+As per David Ford's suggestion, I am looking into upgrading to glibc 2.2.1.
+Can someone please give hints on doing this. I tried to upgrade to 2.2 a few
+weeks ago and after the 'make install' and then reboot my system was very
+broken and I had to reinstall the RedHat glibc RPM from CD to recover. I
+found a howto but it seems pretty old. How do other people do this?
+
+
+I've also done a strace on X. Now what do I do with this 4 MB log file?
+
+
+Thanks,
+
+--Rainer
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

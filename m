@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbVDAPxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262771AbVDAQBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbVDAPxg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 10:53:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262771AbVDAPxg
+	id S262771AbVDAQBL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 11:01:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262773AbVDAQBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 10:53:36 -0500
-Received: from smtp2.netcabo.pt ([212.113.174.29]:14275 "EHLO
-	exch01smtp09.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S261785AbVDAPxe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 10:53:34 -0500
-Message-ID: <46028.195.245.190.93.1112370726.squirrel@www.rncbc.org>
-In-Reply-To: <20050401150620.GA6618@elte.hu>
-References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu>
-    <20050401104724.GA31971@elte.hu>
-    <55598.195.245.190.93.1112357613.squirrel@www.rncbc.org>
-    <20050401125219.GA2560@elte.hu>
-    <8294.195.245.190.93.1112366538.squirrel@www.rncbc.org>
-    <20050401150620.GA6618@elte.hu>
-Date: Fri, 1 Apr 2005 16:52:06 +0100 (WEST)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
-       "Steven Rostedt" <rostedt@goodmis.org>
-User-Agent: SquirrelMail/1.4.4
+	Fri, 1 Apr 2005 11:01:11 -0500
+Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:52191 "EHLO
+	mail.inprovide.com") by vger.kernel.org with ESMTP id S262771AbVDAQBI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 11:01:08 -0500
+To: linux-os@analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] : remove unreliable, unused and unmainained arch from
+ kernel.
+References: <11123574931907@2ka.mipt.ru>
+	<Pine.LNX.4.61.0504010805130.12910@chaos.analogic.com>
+	<yw1xbr8yr0ow.fsf@ford.inprovide.com>
+	<Pine.LNX.4.61.0504011018260.13298@chaos.analogic.com>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Date: Fri, 01 Apr 2005 18:01:07 +0200
+In-Reply-To: <Pine.LNX.4.61.0504011018260.13298@chaos.analogic.com> (Richard
+ B. Johnson's message of "Fri, 1 Apr 2005 10:22:18 -0500 (EST)")
+Message-ID: <yw1x7jjmqyf0.fsf@ford.inprovide.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 01 Apr 2005 15:53:33.0469 (UTC) FILETIME=[F5328CD0:01C536D2]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> * Rui Nuno Capela wrote:
+"Richard B. Johnson" <linux-os@analogic.com> writes:
+
+> On Fri, 1 Apr 2005, [iso-8859-1] Måns Rullgård wrote:
 >
->> > thx - i've uploaded -43-01 which should fix this.
->> >
+>> linux-os <linux-os@analogic.com> writes:
 >>
->> Now it's dying-on-the-beach:
+>>> [PATCH snipped]
+>>>
+>>> Cruel joke. Now 80 percent of the Intel clones won't boot.
+>>> Those are the ones that run industry, you know, the stuff that
+>>> is necessary to earn money.
+>>
+>> For now, yes.  Hopefully it will change some day.
+>>
+>>> Without i386 support, you don't have any embedded systems. You
+>>> need to use the garbage Motorola CPUs and the proprietary
+>>> operating systems in embedded stuff.
+>>
+>> In front me at the moment are two embedded devices, one PPC based, the
+>> other MIPS, both running Linux.
 >
->> needs unknown symbol __compat_down_failed_interruptible
->
-> ok - does -43-02 work any better?
->
+> You can't be serious. Software doesn't get the opportunity
+> to select the hardware. With Linux on PC-like machines, we
+> have been able to write and debug 90 or more percent of the
+> software on our work-stations before embedding it in the
+> target machines.
 
-Nope. Same error output as last report.
+The point being?
+
+> You get rid of that capability just because you don't
+> __like__ i386???
+
+What capability?  That of running Linux on embedded PPC and MIPS?
+You're not making sense, even as an April Fool's joke.
+
+> Did you ever have a job?
+
+How is that relevant?
+
 -- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
-
+Måns Rullgård
+mru@inprovide.com

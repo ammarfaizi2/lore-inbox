@@ -1,92 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291401AbSDRQv1>; Thu, 18 Apr 2002 12:51:27 -0400
+	id <S314397AbSDRQzc>; Thu, 18 Apr 2002 12:55:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292130AbSDRQv0>; Thu, 18 Apr 2002 12:51:26 -0400
-Received: from sendmail.avnet.com ([12.9.139.96]:65272 "EHLO lager.avnet.com")
-	by vger.kernel.org with ESMTP id <S291401AbSDRQv0> convert rfc822-to-8bit;
-	Thu, 18 Apr 2002 12:51:26 -0400
-Message-ID: <C08678384BE7D311B4D70004ACA371050B7633CA@amer22.avnet.com>
-From: "Kerl, John" <John.Kerl@Avnet.com>
-To: "'Lars Marowsky-Bree'" <lmb@suse.de>, linux-kernel@vger.kernel.org
-Subject: RE: Versioning File Systems?
-Date: Thu, 18 Apr 2002 09:51:13 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id <S314398AbSDRQzb>; Thu, 18 Apr 2002 12:55:31 -0400
+Received: from borg.org ([208.218.135.231]:35979 "HELO borg.org")
+	by vger.kernel.org with SMTP id <S314397AbSDRQza>;
+	Thu, 18 Apr 2002 12:55:30 -0400
+Date: Thu, 18 Apr 2002 12:55:30 -0400
+From: Kent Borg <kentborg@borg.org>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Versioning File Systems?
+Message-ID: <20020418125530.C16135@borg.org>
+In-Reply-To: <20020418110558.A16135@borg.org> <20020418082025.N2710@work.bitmover.com> <20020418172758.Q4498@marowsky-bree.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is it just me or is this sounding a lot like
-ClearCase?  In their filesystem (I don't know
-if they implement it in user space or kernel
-space, but I do remember ClearCase on Solaris
-did do some kernel mods), file names are really
-directories, e.g. foo.c is current; foo.c/main/3
-is a (perhaps different) specified version.
+On Thu, Apr 18, 2002 at 05:27:58PM +0200, Lars Marowsky-Bree wrote:
+> Either that, or heuristics - file not written to / opened for writing in x
+> minutes -> commit.
 
-& for recovering from editor screwups, one could
-easily imagine "vi foo.c/-3" to recover the file
-from 3 saves ago, etc.
+Something like that.  
 
-By "deducing change sets", is the question, how
-to associate various versions of *different* files?
-I.e. recovering an editor screw-up of a single
-file is easy, but how do you back out that RPM
-you just installed, which might have affected
-many files?  Here ClearCase uses "labels",
-which associates *one* name with the specified
-versions of many files.  So you could set your
-"view" (in ClearCase terms) to /tuesday, etc.
+We already have a hierarchy of degrees of saving:
 
-When I used ClearCase in prior jobs, I loved
-it -- it was a joy *because* it looked like
-a plain old filesystem (e.g. vi foo.c) when you
-wanted to think of it that way, but it also
-had full-featured version control.
+ 1. live state - the state of a program's data, possibly extended by
+    undo/redo features.
 
-Is the idea being discussed to open-source
-something of that nature, and make it into
-a filesystem?
+ 2. file - saved file, possibly extended by features like emacs'
+    "file.c~"
 
+ 3. revision - revision checked into some revision control system
 
+ 4. checkpoint or tag - revision branded with a symbolic name in a
+    revision control system
 
+I am envisioning a richer version of the file stage.  Just as users
+currently decide when to check in a version and when to checkpoint
+versions, I am imagining that sort of decision would still be made,
+but there would be a lower level of granularity that could be looked
+at if desired.  Big infrequent changes to a file would all be
+recorded, and frequent little changes would be subject to some
+heuristic.  It doesn't make sense to record a file's state so often
+that it isn't even self-consistent.  For example, recording all the
+changes over the course of the save of a big Star Office drawing would
+be silly, most would be intermediate and dependent on the changing
+epheneral internal state of Star Office.  I don't know the details of
+a reasonable heuristic other than obvious things such as when a file
+of flushed or closed or not touched for some significant time.
 
------Original Message-----
-From: Lars Marowsky-Bree [mailto:lmb@suse.de]
-Sent: Thursday, April 18, 2002 8:28 AM
-To: linux-kernel@vger.kernel.org
-Subject: Re: Versioning File Systems?
+> That would actually be pretty interesting because it might also allow you to
+> back out editor screwups ;-)
 
+Writing an editor to take advantage of such underlying features would
+be pretty interesting too, it could be integrated into undo/redo
+features.  
 
-On 2002-04-18T08:20:25,
-   Larry McVoy <lm@bitmover.com> said:
+Navigating such an historical fabric turns into a really interesting
+user interface problem.
 
-> It's certainly a fun space, file system hacking is always fun.  There
-> doesn't seem to be a good match between file system operations and
-> SCM operations, especially stuff like checkin.  write != checkin.
-> But you can handle that with
+> However, deducing change sets is more difficult.
 
-Either that, or heuristics - file not written to / opened for writing in x
-minutes -> commit.
+I think change sets for source code would still be based on versions
+declared by a human to be of some specific interest.  But changes sets
+for a computer's configuration might be implicit in the running of rpm
+or chkconfig, or reboots of the system, or saved edits to
+configuration files.  Etc.
 
-That would actually be pretty interesting because it might also allow you to
-back out editor screwups ;-)
-
-However, deducing change sets is more difficult.
+Certainly what I am envisioning would have immediate use in looking at
+changes to specific files, but would require more structure imposed to
+be useful a system configuration management tool or source code
+control system.
 
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+I do point out that recently Microsoft announced some sort of feature
+to let users backout system changes.  It sounds useful to me and I run
+Linux, but should that have some basic system support and not be
+kludged in?  (For example, such a feature could be added to rpm, but
+it would only be good at capturing things done by rpm.)  Would a
+versioning filesystem be part of doing it the right way?
 
--- 
-Immortality is an adequate definition of high availability for me.
-	--- Gregory F. Pfister
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+-kb

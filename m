@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135654AbRDXOpj>; Tue, 24 Apr 2001 10:45:39 -0400
+	id <S135659AbRDXOt3>; Tue, 24 Apr 2001 10:49:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135657AbRDXOpa>; Tue, 24 Apr 2001 10:45:30 -0400
-Received: from ma-northadams1-47.nad.adelphia.net ([24.51.236.47]:64008 "EHLO
-	sparrow.net") by vger.kernel.org with ESMTP id <S135654AbRDXOpU>;
-	Tue, 24 Apr 2001 10:45:20 -0400
-Date: Tue, 24 Apr 2001 10:45:18 -0400
-From: Eric Buddington <eric@sparrow.nad.adelphia.net>
-To: linux-kernel@vger.kernel.org
-Subject: capabilities carried over execve()
-Message-ID: <20010424104518.J18326@sparrow.nad.adelphia.net>
-Reply-To: ebuddington@wesleyan.edu
+	id <S135658AbRDXOtT>; Tue, 24 Apr 2001 10:49:19 -0400
+Received: from theirongiant.weebeastie.net ([203.62.148.50]:35085 "EHLO
+	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S135656AbRDXOtJ>; Tue, 24 Apr 2001 10:49:09 -0400
+Date: Wed, 25 Apr 2001 00:47:10 +1000
+From: CaT <cat@zip.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Alexander Viro <viro@math.psu.edu>, "Mohammad A. Haque" <mhaque@haque.net>,
+        ttel5535@artax.karlin.mff.cuni.cz,
+        "Mike A. Harris" <mharris@opensourceadvocate.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC] Re: [PATCH] Single user linux
+Message-ID: <20010425004710.F1245@zip.com.au>
+In-Reply-To: <Pine.GSO.4.21.0104241022040.6992-100000@weyl.math.psu.edu> <E14s3wf-0002CR-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-Organization: ECS Labs
-X-Eric-Conspiracy: there is no conspiracy
+In-Reply-To: <E14s3wf-0002CR-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Apr 24, 2001 at 03:37:34PM +0100
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am attempting to write an init replacement that is capability-smart.
-Though I'm pleased that prctl() lets me keep capabilities across a
-setreuid(), maintaining caps over execve() seems impossible to do right.
+On Tue, Apr 24, 2001 at 03:37:34PM +0100, Alan Cox wrote:
+> What role requires priviledge once the port is open ?
+> 
+> 	DNS lookup does not
+> 	Spooling to disk does not
+> 	Accepting a connection from a client does not
+> 	Doing peercred auth with a client does not
+> 	Copying spool articles matching the peercred to the client does not
 
-I currently see a few options:
-	- use the CLOEXEC-pipe hack that execcap uses (parent notices
-	  when pipe closes then rushes to set caps on child before
-	  child notices they're gone). This looks like a race to me.
-	- tweak linux/fs/exec.c (prepare_binprm) to pretend that all
-	  files have cap_inheritable and cap_effective fully set.
-	  This seems a more elegant solution, but requires a kernel
-	  patch.
-	- exec the child in a stopped state, mess with caps, then
-	  send it SIGCONT. AFAIK, there is no way to do
-	  execve_and_stop.
+Running procmail as the user who is to receive the email for local mail
+delivery as running it with gid mail (for eg) would allow one user to
+modify another's mail.
 
-Is there a better solution available, or one in the works?
-I think capabilites may be a key to achieving Pretty Good (tm) security
-- but then again, so is running bind as non-root, and nobody even
-bothers to do that...
+(just a thought - the above's valid with sendmail at least)
 
--Eric
+-- 
+CaT (cat@zip.com.au)		*** Jenna has joined the channel.
+				<cat> speaking of mental giants..
+				<Jenna> me, a giant, bullshit
+				<Jenna> And i'm not mental
+					- An IRC session, 20/12/2000
+

@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263790AbTEMXQH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 19:16:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263791AbTEMXQG
+	id S263789AbTEMXOe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 19:14:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263790AbTEMXOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 19:16:06 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:14279 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S263790AbTEMXQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 19:16:05 -0400
-Date: Tue, 13 May 2003 18:28:20 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: "Mika Penttil?" <mika.penttila@kolumbus.fi>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Race between vmtruncate and mapped areas?
-Message-ID: <266860000.1052868500@baldur.austin.ibm.com>
-In-Reply-To: <20030513232038.GB8978@holomorphy.com>
-References: <154080000.1052858685@baldur.austin.ibm.com>
- <3EC15C6D.1040403@kolumbus.fi> <199610000.1052864784@baldur.austin.ibm.com>
- <20030513224929.GX8978@holomorphy.com>
- <220550000.1052866808@baldur.austin.ibm.com>
- <20030513231139.GZ8978@holomorphy.com>
- <247390000.1052867776@baldur.austin.ibm.com>
- <20030513232038.GB8978@holomorphy.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Tue, 13 May 2003 19:14:34 -0400
+Received: from holomorphy.com ([66.224.33.161]:14526 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263789AbTEMXOd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 19:14:33 -0400
+Date: Tue, 13 May 2003 16:26:59 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Zach Brown <zab@zabbo.net>
+Cc: Andrew Morton <akpm@digeo.com>, paulmck@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, mjbligh@us.ibm.com
+Subject: Re: [RFC][PATCH] Interface to invalidate regions of mmaps
+Message-ID: <20030513232659.GC8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Zach Brown <zab@zabbo.net>, Andrew Morton <akpm@digeo.com>,
+	paulmck@us.ibm.com, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, mjbligh@us.ibm.com
+References: <20030513133636.C2929@us.ibm.com> <20030513152141.5ab69f07.akpm@digeo.com> <3EC17BA3.7060403@zabbo.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <3EC17BA3.7060403@zabbo.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 13, 2003 at 04:11:31PM -0700, Zach Brown wrote:
+> but on the other hand, this doesn't solve another problem we have with
+> opportunistic lock extents and sparse page cache populations.  Ideally
+> we'd like a FS specific pointer in struct page so we can associate pages
+> in the cache with a lock, but I can't imagine suggesting such a thing
+> within earshot of wli.  so we'd still have to track the dirty offsets to
+> avoid having to pass through offsets 0 ... i_size only to find that one
+> page in the 8T file that was cached.
 
---On Tuesday, May 13, 2003 16:20:38 -0700 William Lee Irwin III
-<wli@holomorphy.com> wrote:
+Nah, don't worry about sizeof(struct page) anymore; I'll just jack up
+PAGE_SIZE to compensate.
 
-> The mmap_sem works because then ->i_size can't be sampled by
-> filemap_nopage() before the pagetable wiping operation starts.
 
-So why isn't that the right way to do it?  Waiting for mmap_sem guarantees
-we won't catch a page fault in flight, which is the cause of the problem in
-the first place.
-
-Dave
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
-
+-- wli

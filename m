@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287978AbSABXQY>; Wed, 2 Jan 2002 18:16:24 -0500
+	id <S287967AbSABXQe>; Wed, 2 Jan 2002 18:16:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287988AbSABXQU>; Wed, 2 Jan 2002 18:16:20 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19211 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287978AbSABXQG>; Wed, 2 Jan 2002 18:16:06 -0500
-Message-ID: <3C33918E.7080409@zytor.com>
-Date: Wed, 02 Jan 2002 15:02:38 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S287989AbSABXQ3>; Wed, 2 Jan 2002 18:16:29 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:25358 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S287982AbSABXQN>;
+	Wed, 2 Jan 2002 18:16:13 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Dave Jones <davej@suse.de>, Robert Schwebel <robert@schwebel.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
-        Jason Sodergren <jason@mugwump.taiga.com>,
-        Anders Larsen <anders@alarsen.net>, rkaiser@sysgo.de
-Subject: Re: [PATCH][RFC] AMD Elan patch
-In-Reply-To: <E16LuX4-0005wH-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15411.37236.181936.39729@argo.ozlabs.ibm.com>
+Date: Thu, 3 Jan 2002 10:02:12 +1100 (EST)
+To: Bernard Dautrevaux <Dautrevaux@microprocess.com>
+Cc: "'Tom Rini'" <trini@kernel.crashing.org>,
+        Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
+        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org
+Subject: RE: [PATCH] C undefined behavior fix
+In-Reply-To: <17B78BDF120BD411B70100500422FC6309E3ED@IIS000>
+In-Reply-To: <17B78BDF120BD411B70100500422FC6309E3ED@IIS000>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Bernard Dautrevaux writes:
 
+> > 1) gcc shouldn't be making this optimization, and Paulus (who 
+> > wrote the
+> > code) disliked this new feature.  
 > 
-> The 400/410 this isnt a problem for. Its discontinued and the 5x0 detect
-> differently (and actually have working serial ports I believe). So its
-> an end of life core
-> 
+> Why? If memcpy can then be expanded in line, and the string is short, this
+> can be a *huge* win...
 
-It's end of lifed in this particular product, does that mean the core 
-itself won't find itself embedded in something? ...
+Show me a place in the kernel which is performance-critical where we
+do strcpy(p, "string").  I can't think of one.  The stuff in prom.c
+isn't performance-critical.
 
-	-hpa
+> I think we MUST modify the RELOC macro. Currently the code has an undefined
+> meaning WRT th eC standard, so is allowed to do almost anything from working
+> as expected (quite bad in fact: it may suddenly fail when sth is modified
+> elsewhere), to triggering the 3rd World War :-)
 
+As I said in another email, if the gcc maintainers want to change gcc
+so that pointer arithmetic can do anything other than an ordinary 2's
+complement addition operation, then we will stop using gcc.
+
+Paul.

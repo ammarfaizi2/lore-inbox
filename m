@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317787AbSFMRmi>; Thu, 13 Jun 2002 13:42:38 -0400
+	id <S317793AbSFMRwq>; Thu, 13 Jun 2002 13:52:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317788AbSFMRmi>; Thu, 13 Jun 2002 13:42:38 -0400
-Received: from dsl-213-023-039-067.arcor-ip.net ([213.23.39.67]:47253 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317787AbSFMRmg>;
-	Thu, 13 Jun 2002 13:42:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alexander Viro <viro@math.psu.edu>,
-        Dawson Engler <engler@csl.Stanford.EDU>
-Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
-Date: Thu, 13 Jun 2002 19:41:04 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
-        mc@cs.Stanford.EDU
-In-Reply-To: <Pine.GSO.4.21.0206130254360.18281-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17IYam-0000Qh-00@starship>
+	id <S317790AbSFMRwp>; Thu, 13 Jun 2002 13:52:45 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:42000 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S317791AbSFMRwn>; Thu, 13 Jun 2002 13:52:43 -0400
+Message-Id: <200206131752.g5DHqdm24049@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Roland Dreier <roland@topspin.com>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] 2.4 use __dma_buffer in scsi.h 
+In-Reply-To: Message from Roland Dreier <roland@topspin.com> 
+   of "13 Jun 2002 10:42:16 PDT." <52fzzr2hzb.fsf@topspin.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 13 Jun 2002 13:52:39 -0400
+From: James Bottomley <James.Bottomley@SteelEye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 June 2002 08:59, Alexander Viro wrote:
-> On Wed, 12 Jun 2002, Dawson Engler wrote:
-> 
-> > > Not realistic - we have a recursion through the ->follow_link(), and
-> > > a lot of stuff can be called from ->follow_link().  We _do_ have a
-> > > limit on depth of recursion here, but it won't be fun to deal with.
-> > 
-> > You mean following function pointers is not realistic?  Actually the
-> > function pointers in linxu are pretty easy to deal with since, by
-> > and large, they are set by static structure initialization and not
-> > really fussed with afterwards.
-> 
-> I mean that due to the loop (link_path_walk->do_follow_link->foofs_follow_link
-> ->vfs_follow_link->link_path_walk) you will get infinite maximal depth
-> for everything that can be called by any of these functions.  And that's
-> a _lot_ of stuff.
+roland@topspin.com said:
+> Out of curiousity, how do you deal with someone writing to Scsi_Cmnd
+> _before_ the DMA and having that data lost when pci_map_single() with
+> PCI_DMA_FROMDEVICE invalidates the cache before writeback? 
 
-Then at the point of recursion a dynamic check for stack space is
-needed, and [checker]'s role would be to determine the deepest static
-depth, to plug into the stack check.  If we want to be sure about 
-stack integrity there isn't any way around this.
+The the pci_map_single with PCI_DMA_FROMDEVICE is supposed to do a writeback 
+invalidate cycle on the cache when pci_sync_single is called (at least this is 
+how it is implemented on parisc) so any writes up to the sync point are 
+flushed to memory before the cache line is trashed.
 
--- 
-Daniel
+James
+
+

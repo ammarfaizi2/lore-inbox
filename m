@@ -1,93 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268970AbUIHCQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268971AbUIHCVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268970AbUIHCQU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 22:16:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268971AbUIHCQU
+	id S268971AbUIHCVR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 22:21:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268972AbUIHCVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 22:16:20 -0400
-Received: from coverity.dreamhost.com ([66.33.192.105]:63424 "EHLO
-	coverity.dreamhost.com") by vger.kernel.org with ESMTP
-	id S268970AbUIHCPx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 22:15:53 -0400
-Date: Tue, 7 Sep 2004 19:15:52 -0700 (PDT)
-From: Dawson Engler <engler@coverity.dreamhost.com>
-To: linux-kernel@vger.kernel.org
-Cc: developers@coverity.com
-Subject: [CHECKER] 2.6.8.1 deadlock in rpc_queue_lock <<===>>  rpc_sched_lock
-Message-ID: <Pine.LNX.4.58.0409071915020.23546@coverity.dreamhost.com>
+	Tue, 7 Sep 2004 22:21:17 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:17821 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S268971AbUIHCVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 22:21:12 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C4954A.7B2A6DBA"
+Subject: RE: [ACPI] Re: [PATCH] Oops and panic while unloading holder of pm_idle
+Date: Wed, 8 Sep 2004 10:20:59 +0800
+Message-ID: <16A54BF5D6E14E4D916CE26C9AD30575120967@pdsmsx402.ccr.corp.intel.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] Re: [PATCH] Oops and panic while unloading holder of pm_idle
+Thread-Index: AcSU885iMCehqemiQcmgE2lhitbGxgATzjNw
+From: "Li, Shaohua" <shaohua.li@intel.com>
+To: "Zwane Mwaikambo" <zwane@linuxpower.ca>,
+       "BlaisorBlade" <blaisorblade_spam@yahoo.it>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       <acpi-devel@lists.sourceforge.net>, "Brown, Len" <len.brown@intel.com>
+X-OriginalArrivalTime: 08 Sep 2004 02:21:00.0472 (UTC) FILETIME=[7B76D380:01C4954A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+This is a multi-part message in MIME format.
 
-below is a possible deadlock in linux-2.6.8.1 found by a static deadlock
-checker I'm writing.  Let me know if it looks valid and/or whether the
-output is too cryptic.  (Note, the error is in debugging code so maybe
-not such a big deal).
+------_=_NextPart_001_01C4954A.7B2A6DBA
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
+
+Zwane Mwaikambo wrote:
+>To: BlaisorBlade
+>Cc: linux-kernel@vger.kernel.org; acpi-devel@lists.sourceforge.net;
+Brown,
+>Len
+>Subject: [ACPI] Re: [PATCH] Oops and panic while unloading holder of
+>pm_idle
+>
+>On Sun, 5 Sep 2004, BlaisorBlade wrote:
+>
+>> > There aren't many users of pm_idle
+>> > outside of arch/*/kernel/process.c
+>> Both APM and ACPI set pm_idle, and both can be modular. It seems,
+however,
+>> they are the only such ones. And since they APM and ACPI refuse to be
+>both
+>> loaded, we cannot have (actually) two modules which override pm_idle.
+So
+>> you're right.
+>
+>There are a few other issues with pm_idle, preempt and modular drivers
+>which someone else is looking at, we'll see how things go from there.
+Yes, preempt will cause oops in pc_idle. Attached patch should close the
+final race corner.=20
 
 Thanks,
-Dawson
+Shaohua
 
-     rpc_queue_lock <<===>>  rpc_sched_lock
+------_=_NextPart_001_01C4954A.7B2A6DBA
+Content-Type: application/octet-stream;
+	name="idle.patch"
+Content-Transfer-Encoding: base64
+Content-Description: idle.patch
+Content-Disposition: attachment;
+	filename="idle.patch"
 
-   thread 1: rpc_queue_lock ==>> rpc_sched_lock
+PT09PT0gYXJjaC9pMzg2L2tlcm5lbC9hcG0uYyAxLjY3IHZzIGVkaXRlZCA9PT09PQotLS0gMS42
+Ny9hcmNoL2kzODYva2VybmVsL2FwbS5jCTIwMDQtMDgtMjQgMTc6MDg6NDcgKzA4OjAwCisrKyBl
+ZGl0ZWQvYXJjaC9pMzg2L2tlcm5lbC9hcG0uYwkyMDA0LTA5LTA4IDA4OjQ4OjEyICswODowMApA
+QCAtMjM2Miw4ICsyMzYyLDEzIEBAIHN0YXRpYyB2b2lkIF9fZXhpdCBhcG1fZXhpdCh2b2lkKQog
+ewogCWludAllcnJvcjsKIAotCWlmIChzZXRfcG1faWRsZSkKKwlpZiAoc2V0X3BtX2lkbGUpIHsK
+IAkJcG1faWRsZSA9IG9yaWdpbmFsX3BtX2lkbGU7CisJCS8qIFdhaXQgdGhlIGlkbGUgdGhyZWFk
+IHRvIHJlYWQgdGhlIG5ldyB2YWx1ZSwgCisJCSAqIG90aGVyd2lzZSB3ZSBPb3BzLgorCQkgKi8K
+KwkJc3luY2hyb25pemVfa2VybmVsKCk7CisJfQogCWlmICgoKGFwbV9pbmZvLmJpb3MuZmxhZ3Mg
+JiBBUE1fQklPU19ESVNFTkdBR0VEKSA9PSAwKQogCSAgICAmJiAoYXBtX2luZm8uY29ubmVjdGlv
+bl92ZXJzaW9uID4gMHgwMTAwKSkgewogCQllcnJvciA9IGFwbV9lbmdhZ2VfcG93ZXJfbWFuYWdl
+bWVudChBUE1fREVWSUNFX0FMTCwgMCk7Cj09PT09IGFyY2gvaTM4Ni9rZXJuZWwvcHJvY2Vzcy5j
+IDEuNzUgdnMgZWRpdGVkID09PT09Ci0tLSAxLjc1L2FyY2gvaTM4Ni9rZXJuZWwvcHJvY2Vzcy5j
+CTIwMDQtMDgtMjQgMTc6MDg6NDQgKzA4OjAwCisrKyBlZGl0ZWQvYXJjaC9pMzg2L2tlcm5lbC9w
+cm9jZXNzLmMJMjAwNC0wOS0wOCAwOTowMDowNiArMDg6MDAKQEAgLTE0Miw2ICsxNDIsMTAgQEAg
+dm9pZCBjcHVfaWRsZSAodm9pZCkKIAkvKiBlbmRsZXNzIGlkbGUgbG9vcCB3aXRoIG5vIHByaW9y
+aXR5IGF0IGFsbCAqLwogCXdoaWxlICgxKSB7CiAJCXdoaWxlICghbmVlZF9yZXNjaGVkKCkpIHsK
+KwkJCS8qIElmIHBtX2lkbGUgaXMgaW4gYSBtb2R1bGUgYW5kIGlzIHByZWVtcHRlZCwKKwkJCSAq
+IG9vcHMgb2NjdXJzLiBEaXNhYmxlIHByZWVtcHQuCisJCQkgKi8KKwkJCXJjdV9yZWFkX2xvY2so
+KTsKIAkJCXZvaWQgKCppZGxlKSh2b2lkKSA9IHBtX2lkbGU7CiAKIAkJCWlmICghaWRsZSkKQEAg
+LTE0OSw2ICsxNTMsNyBAQCB2b2lkIGNwdV9pZGxlICh2b2lkKQogCiAJCQlpcnFfc3RhdFtzbXBf
+cHJvY2Vzc29yX2lkKCldLmlkbGVfdGltZXN0YW1wID0gamlmZmllczsKIAkJCWlkbGUoKTsKKwkJ
+CXJjdV9yZWFkX3VubG9jaygpOwogCQl9CiAJCXNjaGVkdWxlKCk7CiAJfQo9PT09PSBhcmNoL2lh
+NjQva2VybmVsL3Byb2Nlc3MuYyAxLjYyIHZzIGVkaXRlZCA9PT09PQotLS0gMS42Mi9hcmNoL2lh
+NjQva2VybmVsL3Byb2Nlc3MuYwkyMDA0LTA3LTI3IDEzOjI2OjUwICswODowMAorKysgZWRpdGVk
+L2FyY2gvaWE2NC9rZXJuZWwvcHJvY2Vzcy5jCTIwMDQtMDktMDggMDk6MDQ6NTggKzA4OjAwCkBA
+IC0yMjgsMTggKzIyOCwyNCBAQCBjcHVfaWRsZSAodm9pZCAqdW51c2VkKQogCiAJLyogZW5kbGVz
+cyBpZGxlIGxvb3Agd2l0aCBubyBwcmlvcml0eSBhdCBhbGwgKi8KIAl3aGlsZSAoMSkgewotCQl2
+b2lkICgqaWRsZSkodm9pZCkgPSBwbV9pZGxlOwotCQlpZiAoIWlkbGUpCi0JCQlpZGxlID0gZGVm
+YXVsdF9pZGxlOwotCiAjaWZkZWYgQ09ORklHX1NNUAogCQlpZiAoIW5lZWRfcmVzY2hlZCgpKQog
+CQkJbWluX3h0cCgpOwogI2VuZGlmCiAJCXdoaWxlICghbmVlZF9yZXNjaGVkKCkpIHsKKwkJCXZv
+aWQgKCppZGxlKSh2b2lkKSA9IE5VTEw7CisJCQkKIAkJCWlmIChtYXJrX2lkbGUpCiAJCQkJKCpt
+YXJrX2lkbGUpKDEpOworCQkJLyogSWYgcG1faWRsZSBpcyBpbiBhIG1vZHVsZSBhbmQgaXMgcHJl
+ZW1wdGVkLAorCQkJICogb29wcyBvY2N1cnMuIERpc2FibGUgcHJlZW1wdC4KKwkJCSAqLworCQkJ
+cmN1X3JlYWRfbG9jaygpOworCQkJaWRsZT0gcG1faWRsZTsKKwkJCWlmICghaWRsZSkKKwkJCQlp
+ZGxlID0gZGVmYXVsdF9pZGxlOwogCQkJKCppZGxlKSgpOworCQkJcmN1X3JlYWRfdW5sb2NrKCk7
+CiAJCX0KIAogCQlpZiAobWFya19pZGxlKQo9PT09PSBhcmNoL3g4Nl82NC9rZXJuZWwvcHJvY2Vz
+cy5jIDEuMzUgdnMgZWRpdGVkID09PT09Ci0tLSAxLjM1L2FyY2gveDg2XzY0L2tlcm5lbC9wcm9j
+ZXNzLmMJMjAwNC0wOC0yNCAxNzowODo0NCArMDg6MDAKKysrIGVkaXRlZC9hcmNoL3g4Nl82NC9r
+ZXJuZWwvcHJvY2Vzcy5jCTIwMDQtMDktMDggMDk6MDQ6MzEgKzA4OjAwCkBAIC0xMzAsMTEgKzEz
+MCwxOCBAQCB2b2lkIGNwdV9pZGxlICh2b2lkKQogewogCS8qIGVuZGxlc3MgaWRsZSBsb29wIHdp
+dGggbm8gcHJpb3JpdHkgYXQgYWxsICovCiAJd2hpbGUgKDEpIHsKLQkJdm9pZCAoKmlkbGUpKHZv
+aWQpID0gcG1faWRsZTsKLQkJaWYgKCFpZGxlKQotCQkJaWRsZSA9IGRlZmF1bHRfaWRsZTsKLQkJ
+d2hpbGUgKCFuZWVkX3Jlc2NoZWQoKSkKKwkJd2hpbGUgKCFuZWVkX3Jlc2NoZWQoKSkgeworCQkJ
+dm9pZCAoKmlkbGUpKHZvaWQpID0gTlVMTDsKKwkJCS8qIElmIHBtX2lkbGUgaXMgaW4gYSBtb2R1
+bGUgYW5kIGlzIHByZWVtcHRlZCwKKwkJCSAqIG9vcHMgb2NjdXJzLiBEaXNhYmxlIHByZWVtcHQu
+CisJCQkgKi8KKwkJCXJjdV9yZWFkX2xvY2soKTsKKwkJCWlkbGUgPSBwbV9pZGxlOworCQkJaWYg
+KCFpZGxlKQorCQkJCWlkbGUgPSBkZWZhdWx0X2lkbGU7CiAJCQlpZGxlKCk7CisJCQlyY3VfcmVh
+ZF91bmxvY2soKTsKKwkJfQogCQlzY2hlZHVsZSgpOwogCX0KIH0KPT09PT0gZHJpdmVycy9hY3Bp
+L3Byb2Nlc3Nvci5jIDEuNjEgdnMgZWRpdGVkID09PT09Ci0tLSAxLjYxL2RyaXZlcnMvYWNwaS9w
+cm9jZXNzb3IuYwkyMDA0LTA4LTMxIDIzOjI3OjI5ICswODowMAorKysgZWRpdGVkL2RyaXZlcnMv
+YWNwaS9wcm9jZXNzb3IuYwkyMDA0LTA5LTA4IDA5OjEyOjM0ICswODowMApAQCAtMjQxOSw2ICsy
+NDE5LDkgQEAgYWNwaV9wcm9jZXNzb3JfcmVtb3ZlICgKIAkvKiBVbnJlZ2lzdGVyIHRoZSBpZGxl
+IGhhbmRsZXIgd2hlbiBwcm9jZXNzb3IgIzAgaXMgcmVtb3ZlZC4gKi8KIAlpZiAocHItPmlkID09
+IDApIHsKIAkJcG1faWRsZSA9IHBtX2lkbGVfc2F2ZTsKKwkJLyogV2FpdCB0aGUgaWRsZSB0aHJl
+YWQgdG8gcmVhZCB0aGUgbmV3IHZhbHVlLAorCQkgKiBvdGhlcndpc2Ugd2UgT29wcy4KKwkJICov
+CiAJCXN5bmNocm9uaXplX2tlcm5lbCgpOwogCX0KIAo=
 
-       trace 1:
-       /u2/engler/mc/oses/linux/linux-2.6.8.1/net/sunrpc/sched.c:rpc_child_exit
-          1023: rpc_child_exit(struct rpc_task *child)
-          1024: {
-          1025: 	struct rpc_task	*parent;
-          1026:
-===>      1027: 	spin_lock_bh(&rpc_queue_lock);
-             1028: 	if ((parent = rpc_find_parent(child)) != NULL) {
-             1029: 		parent->tk_status = child->tk_status;
-===>         1030: 		__rpc_wake_up_task(parent);
-
-             /u2/engler/mc/oses/linux/linux-2.6.8.1/net/sunrpc/sched.c:__rpc_wake_up_task
-                430: __rpc_wake_up_task(struct rpc_task *task)
-                431: {
-                432: 	dprintk("RPC: %4d __rpc_wake_up_task (now %ld inh %d)\n",
-                433: 					task->tk_pid, jiffies, rpc_inhibit);
-                434:
-                435: #ifdef RPC_DEBUG
-                436: 	if (task->tk_magic != 0xf00baa) {
-                437: 		printk(KERN_ERR "RPC: attempt to wake up non-existing task!\n");
-                438: 		rpc_debug = ~0;
-===>            439: 		rpc_show_tasks();
-                /u2/engler/mc/oses/linux/linux-2.6.8.1/net/sunrpc/sched.c:rpc_show_tasks
-                   1247: void rpc_show_tasks(void)
-                   1248: {
-                   1249: 	struct list_head *le;
-                   1250: 	struct rpc_task *t;
-                   1251:
-===>               1252: 	spin_lock(&rpc_sched_lock);
-
-     -----------
-   thread 2: rpc_sched_lock:spinlock_t:<global lock> ==>> rpc_queue_lock:spinlock_t:<global lock>>
-       trace 1: ncalls=1, ncond=1
-       /u2/engler/mc/oses/linux/linux-2.6.8.1/net/sunrpc/sched.c:rpc_killall_tasks
-          1070: rpc_killall_tasks(struct rpc_clnt *clnt)
-          1071: {
-          1072: 	struct rpc_task	*rovr;
-          1073: 	struct list_head *le;
-          1074:
-          ...
-          1076:
-          1077: 	/*
-          1078: 	 * Spin lock all_tasks to prevent changes...
-          1079: 	 */
-===>      1080: 	spin_lock(&rpc_sched_lock);
-             1081: 	alltask_for_each(rovr, le, &all_tasks)
-             1082: 		if (!clnt || rovr->tk_client == clnt) {
-             1083: 			rovr->tk_flags |= RPC_TASK_KILLED;
-             1084: 			rpc_exit(rovr, -EIO);
-===>         1085: 			rpc_wake_up_task(rovr);
-             /u2/engler/mc/oses/linux/linux-2.6.8.1/net/sunrpc/sched.c:rpc_wake_up_task
-                475: rpc_wake_up_task(struct rpc_task *task)
-                476: {
-                477: 	if (RPC_IS_RUNNING(task))
-                478: 		return;
-===>            479: 	spin_lock_bh(&rpc_queue_lock);
-
+------_=_NextPart_001_01C4954A.7B2A6DBA--

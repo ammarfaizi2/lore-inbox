@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262792AbUCJTmx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 14:42:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262799AbUCJTmw
+	id S262802AbUCJTjA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 14:39:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262689AbUCJTgj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 14:42:52 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:16137 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262792AbUCJTmn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 14:42:43 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Andi Kleen <ak@suse.de>, Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Subject: Re: ip a flush problem on 2.6 kernels (fine on 2.4 kernels)
-Date: Wed, 10 Mar 2004 21:37:40 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-References: <200403040308.15880.arekm@pld-linux.org> <20040304141319.2d1cb112.ak@suse.de>
-In-Reply-To: <20040304141319.2d1cb112.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Mar 2004 14:36:39 -0500
+Received: from holomorphy.com ([207.189.100.168]:44557 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262801AbUCJTf7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 14:35:59 -0500
+Date: Wed, 10 Mar 2004 11:35:54 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Miek Gieben <miekg@atoom.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pts/X counts on
+Message-ID: <20040310193554.GM655@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Miek Gieben <miekg@atoom.net>, linux-kernel@vger.kernel.org
+References: <20040310190902.GA2226@atoom.net> <20040310192415.GL655@holomorphy.com> <20040310193340.GB2278@atoom.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403102137.40073.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <20040310193340.GB2278@atoom.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 March 2004 15:13, Andi Kleen wrote:
-> On Thu, 4 Mar 2004 03:08:15 +0100
->
-> Arkadiusz Miskiewicz <arekm@pld-linux.org> wrote:
-> > The problem is that
-> >
-> > ip a a 192.168.0.1/24 dev eth0
-> > ip link set eth0 down
-> > ip a flush dev eth0
-> >
-> > Here on my vanilla 2.6.2 it locks eating CPU - it does netlink
-> > communication over and over. This ,,hang'' doesn't happen when
-> > interface is in UP state. Also doesn't happen on 2.4 kernels.
->
-> I fixed it with this patch for iproute2 here. It's not clear to me at
-> all how it ever worked before. The loop seems to be just wrong.
+[On 10 Mar, @20:24, William wrote in "Re: pts/X counts on ..."]
+>> This change in behavior was intentional. It should not affect your
+>> applications. The change was part of a patch that made pty's
+>> completely dynamic.
 
-Does iproute2 have a homepage again? Where?
---
-vda
+On Wed, Mar 10, 2004 at 08:33:40PM +0100, Miek Gieben wrote:
+> ah, it's a feature :-) But I'm not seeing it on all my systems....(running
+> 2.6.3)
+> Thanks,
+> grtz Miek
 
+Odd. Maybe it's -mm vs. non -mm.
+
+
+-- wli

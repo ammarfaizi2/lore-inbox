@@ -1,59 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbTI3Etl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 00:49:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263118AbTI3Etl
+	id S263115AbTI3E4v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 00:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263118AbTI3E4v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 00:49:41 -0400
-Received: from h80ad253c.async.vt.edu ([128.173.37.60]:15488 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263117AbTI3Etj (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 00:49:39 -0400
-Message-Id: <200309300449.h8U4nSvl002308@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: -mregparm=3 (was Re: [PATCH] i386 do_machine_check() is redundant. 
-In-Reply-To: Your message of "Mon, 29 Sep 2003 23:36:06 +0200."
-             <Pine.LNX.4.58.0309292309050.7824@artax.karlin.mff.cuni.cz> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.44.0309281121470.15408-100000@home.osdl.org> <1064775868.5045.4.camel@laptop.fenrus.com> <Pine.LNX.4.58.0309292214100.3276@artax.karlin.mff.cuni.cz> <20030929202604.GA23344@nevyn.them.org>
-            <Pine.LNX.4.58.0309292309050.7824@artax.karlin.mff.cuni.cz>
+	Tue, 30 Sep 2003 00:56:51 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:53188 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263115AbTI3E4t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 00:56:49 -0400
+Date: Tue, 30 Sep 2003 06:56:47 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Danny ter Haar <dth@ncc1701.cistron.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test[56] pcnet32 problems
+Message-ID: <20030930045647.GA20742@ucw.cz>
+References: <blasc7$jfi$1@news.cistron.nl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1727047812P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 30 Sep 2003 00:49:28 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <blasc7$jfi$1@news.cistron.nl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1727047812P
-Content-Type: text/plain; charset=us-ascii
+On Tue, Sep 30, 2003 at 03:13:11AM +0000, Danny ter Haar wrote:
+> Got an cyrix box with built in ethernet & 2 extra ethernet cards
+> as a firewall at home with a dsl line (connected to eth0)
+> 
+> pcnet32.c:v1.27b 01.10.2002 tsbogend@alpha.franken.de
+> PCI: Found IRQ 11 for device 0000:00:0f.0
+> IRQ routing conflict for 0000:00:0f.0, have irq 9, want irq 11
+> pcnet32: PCnet/FAST III 79C973 at 0xfca0, warning: CSR address invalid,
+>     using instead PROM address of 00 00 e2 24 41 1d assigned IRQ 9.
+> eth0: registered as PCnet/FAST III 79C973
+> pcnet32: 1 cards_found.
+> 
+> Sometimes (even during low traffic) eth0 simply locks up:
+> In dmesg i see:
+> kernel: eth0: Bus master arbitration failure, status 88f3.
+> 
+> rmmod pcnet32 results in kernel-panic.
+> Only reboot works.
+> tried:
+> acpi == disabled
+> pci=noacpi
+> 
+> Another weird thing is output of ifconfig eth0:
+> 
+> eth0      Link encap:Ethernet  HWaddr 00:00:E2:24:41:1D  
+>           inet addr:195.64.94.48  Bcast:195.64.94.255  Mask:255.255.255.0
+>           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+>           RX packets:30345 errors:0 dropped:0 overruns:0 frame:0
+>           TX packets:0 errors:16042 dropped:0 overruns:0 carrier:16042
+>           collisions:0 txqueuelen:1000 
+>           RX bytes:38404293 (36.6 MiB)  TX bytes:1298028 (1.2 MiB)
+>           Interrupt:9 Base address:0xfca0 
+> 
+> 0 packets transmitted , all errors ans carrier faults ?
+> Still it works! (this could be counters that are wrong)
+> 
+> kernel config, lspci -v and dmesg output available at:
+> 
+> http://dth.net/kernel/
+> 
+> Any help/suggestions/hints appreciated.
 
-On Mon, 29 Sep 2003 23:36:06 +0200, Mikulas Patocka said:
+Upgrade ifconfig?
 
-> and compile programs with -mregparm=3 -ffreestanding even on normal linux
-> distribution. I didn't try it for larger program, for simple it works. (it
-> works as long as program doesn't call libc function via pointer to
-> function).
-
-I discovered that -test6-mm1 doesn't build with -ffreestanding with gcc 3.3.1,
-for an odd reason:  when I specify -ffreestanding, it generates 'call abs' calls
-where it was able to do it inline otherwise. -ffreestanding says there's no library,
-so it can't inline the library call (which leaves no external call to 'abs()').
-
-
-
---==_Exmh_1727047812P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/eQtXcC3lWbTT17ARAkFeAJ4qwGJVfZLbcrBsctmKUQxODnD6DQCeLNm1
-YSLu18cXFseZ/qjiMJoCqwA=
-=Vknt
------END PGP SIGNATURE-----
-
---==_Exmh_1727047812P--
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

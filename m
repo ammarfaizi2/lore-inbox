@@ -1,69 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284755AbRLKAmm>; Mon, 10 Dec 2001 19:42:42 -0500
+	id <S284765AbRLKBCB>; Mon, 10 Dec 2001 20:02:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284762AbRLKAmd>; Mon, 10 Dec 2001 19:42:33 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:13261 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S284755AbRLKAmX>; Mon, 10 Dec 2001 19:42:23 -0500
-Message-ID: <3C15566B.7010803@redhat.com>
-Date: Mon, 10 Dec 2001 19:42:19 -0500
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011010 Netscape6/6.1b1
-X-Accept-Language: en-us
+	id <S284766AbRLKBBu>; Mon, 10 Dec 2001 20:01:50 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:35853 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S284765AbRLKBBg>; Mon, 10 Dec 2001 20:01:36 -0500
+Date: Mon, 10 Dec 2001 20:01:25 -0500 (EST)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@marabou.research.att.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@redhat.com>
+Subject: Re: [PATCH] 2.4.17-pre7: fdomain_16x0_release undeclared
+In-Reply-To: <E16DY8J-0003Z7-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0112101950320.8097-100000@marabou.research.att.com>
 MIME-Version: 1.0
-To: Andris Pavenis <pavenis@latnet.lv>
-CC: Nathan Bryant <nbryant@optonline.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i810_audio fix for version 0.11
-In-Reply-To: <Pine.A41.4.05.10112081022560.23064-100000@ieva06> <200112080925.fB89PJ200926@hal.astr.lu.lv> <3C11DF15.1020107@redhat.com> <200112080945.fB89jAC00998@hal.astr.lu.lv>
-Content-Type: text/plain; charset=ISO-8859-13; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andris Pavenis wrote:
+Hi, Alan!
 
-> Why returning non zero from __start_dac() and similar procedures when 
-> something real has been done there is so bad. 
+> > > I wonder if the patches that introduce warnings should be allowed in the 
+> > > stable branch?  Anyway, comparing with other SCSI drivers I see that 0 
+> > > should be returned and scsi_unregister(shpnt) should be called before 
+> > > that.
+> 
+> All the drivers I looked at return 1 and don't call scsi_unregister(shpnt).
 
+Strange.  That's what I see:
 
-Personal preference.
+advansys.c:5777    scsi_unregister, return 0
+eata.c:2069        scsi_unregister, return FALSE (i.e. 0)
+inia100.c:790      no scsi_unregister, return 0
+aha152x.c:1409     scsi_unregister, return 0
+gdth.c:4373        scsi_unregister, return 0
+ibmmca.c:1851      no scsi_unregister, return 0
+53c7,8xx.c:6431    no scsi_unregister, return 1
+eata_dma.c:146     no scsi_unregister, return 1
 
-> Using such return code would
-> ensure we never try to wait for results of __start_dac() if nothing is done 
-> by this procedure.
+> Inspecting the core code shows that 
+> 
+> 	1.	The return code is ignored (see I did test it worked 8))
+> 	2.	scsi_unregister() is done by the core code for us
 
+Anyway, if it doesn't matter then let's not waste time on it.
 
-That's part of the point.  In this driver, I try to control when things are 
-done and keep track of them in a deterministic way.  Using a return code to 
-tell us a function we called did nothing when we shouldn't have called it in 
-the first place if it wasn't going to do anything is backwards from the way 
-I prefer to handle things.  Namely, find out why the function was called 
-when it shouldn't have been and solve the problem.  Note: I don't follow 
-that philosophy on all functions, only on very simple ones like this, there 
-are a lot of complex functions where you want the function to make those 
-decisions.  So, like I said, personal preference on how to handle these things.
+> So I believe it simply needs a 
+> 
+> 	return 1 
+> 
+> on the end
 
-> I think such way is also more safe against possible future 
-> modifications as real conditions are only in a single place. Keeping them in 
-> 2 places is possible source of bitrot if driver will be updated in future.
+Fine.  That's the updated patch:
 
-
-It's intended to do exactly that.  A lot of what makes this driver work 
-properly right now is the LVI handling.  That was severly busted when I 
-first got hold of the driver.  I *want* things to break if the LVI handling 
-is changed by someone else because that will alert me to the fact that the 
-LVI handling is then busted (at least, if they change it incorrectly, if 
-they do things right then they will catch problems like this and fix them 
-properly and I won't have to do anything).
-
-
-
-
+======================================
+--- linux.orig/drivers/scsi/fdomain.c
++++ linux/drivers/scsi/fdomain.c
+@@ -2042,6 +2042,7 @@ int fdomain_16x0_release(struct Scsi_Hos
+ 	if (shpnt->io_port && shpnt->n_io_port)
+ 		release_region(shpnt->io_port, shpnt->n_io_port);
+ 
++	return 1;
+ }
+ 
+ MODULE_LICENSE("GPL");
+--- linux.orig/drivers/scsi/fdomain.h
++++ linux/drivers/scsi/fdomain.h
+@@ -34,6 +34,7 @@
+ int        fdomain_16x0_biosparam( Disk *, kdev_t, int * );
+ int        fdomain_16x0_proc_info( char *buffer, char **start, off_t offset,
+ 				   int length, int hostno, int inout );
++int        fdomain_16x0_release(struct Scsi_Host *shpnt);
+ 
+ #define FDOMAIN_16X0 { proc_info:      fdomain_16x0_proc_info,           \
+ 		       detect:         fdomain_16x0_detect,              \
+======================================
 
 -- 
-
-  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-       Please check my web site for aic7xxx updates/answers before
-                       e-mailing me about problems
+Regards,
+Pavel Roskin
 

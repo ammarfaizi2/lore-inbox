@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268096AbTBYRHD>; Tue, 25 Feb 2003 12:07:03 -0500
+	id <S268091AbTBYRKo>; Tue, 25 Feb 2003 12:10:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268097AbTBYRHD>; Tue, 25 Feb 2003 12:07:03 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:51334 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S268096AbTBYRHC>;
-	Tue, 25 Feb 2003 12:07:02 -0500
-Date: Tue, 25 Feb 2003 18:17:27 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sf.et,
-       linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030225171727.GN29467@dualathlon.random>
-References: <96700000.1045871294@w-hlinder> <20030222192424.6ba7e859.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030222192424.6ba7e859.akpm@digeo.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+	id <S268095AbTBYRKn>; Tue, 25 Feb 2003 12:10:43 -0500
+Received: from ns.suse.de ([213.95.15.193]:54032 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S268091AbTBYRKm>;
+	Tue, 25 Feb 2003 12:10:42 -0500
+To: "John W. M. Stevens" <john@betelgeuse.us>
+Cc: linux-kernel@vger.kernel.org, lse-tech@projects.sourceforge.net
+Subject: Re: Horrible L2 cache effects from kernel compile
+References: <3E5ABBC1.8050203@us.ibm.com.suse.lists.linux.kernel> <b3ekil$1cp$1@penguin.transmeta.com.suse.lists.linux.kernel> <20030225170546.GA23772@morningstar.nowhere.lie.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 25 Feb 2003 18:20:57 +0100
+In-Reply-To: "John W. M. Stevens"'s message of "25 Feb 2003 18:11:19 +0100"
+Message-ID: <p733cmc8efa.fsf@amdsimf.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 22, 2003 at 07:24:24PM -0800, Andrew Morton wrote:
-> 2.4.21-pre4:                    8.10 seconds
-> 2.5.62-mm3 with objrmap:        9.95 seconds	(+1.85)
-> 2.5.62-mm3 without objrmap:     10.86 seconds   (+0.91)
-> 
-> Current 2.5 is 2.76 seconds slower, and this patch reclaims 0.91 of those
-> seconds.
-> 
-> 
-> So whole stole the remaining 1.85 seconds?   Looks like pte_highmem.
+"John W. M. Stevens" <john@betelgeuse.us> writes:
 
-would you mind to add the line for 2.4.21-pre4aa3? it has pte-highmem so
-you can easily find it out for sure if it is pte_highmem that stole >10%
-of your fast cpu. A line for the 2.4-rmap patch would be also
-interesting.
+> http://www.sourcejudy.com/downloads/10minutes.htm
 
-> Note one second spent in pte_alloc_one().
+Feel free to code it up. If you did I'm sure someone would be willing
+to test it on large boxes too.
 
-note the seconds spent in the rmap affected paths too.
+However with RCU in the equation looking may get very interesting...
+Hash tables have the advantage that they're simply enough for lockless
+tricks; balanced trees are likely not so lucky.
 
-Andrea
+-Andi (who took a look at judy some time ago but it looked horribly 
+complicated, even worse so than skiplists)

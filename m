@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317888AbSHPBpE>; Thu, 15 Aug 2002 21:45:04 -0400
+	id <S317946AbSHPBrE>; Thu, 15 Aug 2002 21:47:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317898AbSHPBpE>; Thu, 15 Aug 2002 21:45:04 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:15264 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S317888AbSHPBpC>;
-	Thu, 15 Aug 2002 21:45:02 -0400
-Date: Thu, 15 Aug 2002 21:48:57 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jeff Dike <jdike@karaya.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Eliminate root_dev_names - part 1 of 2
-In-Reply-To: <200208151938.OAA02692@ccure.karaya.com>
-Message-ID: <Pine.GSO.4.21.0208152146100.11149-100000@weyl.math.psu.edu>
+	id <S317950AbSHPBrE>; Thu, 15 Aug 2002 21:47:04 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36100 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317946AbSHPBrD>; Thu, 15 Aug 2002 21:47:03 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Problem with random.c and PPC
+Date: 15 Aug 2002 18:50:32 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <ajhlp8$qse$1@cesium.transmeta.com>
+References: <200208151514.51462.henrique@cyclades.com> <20020815190336.GN22974@opus.bloom.county> <20020815195933.GW9642@clusterfs.com> <20020815210449.GA26993@opus.bloom.county>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 15 Aug 2002, Jeff Dike wrote:
-
-> This patch changes all instances of get_gendisk to get_gendisk_by_kdev_t.
+Followup to:  <20020815210449.GA26993@opus.bloom.county>
+By author:    Tom Rini <trini@kernel.crashing.org>
+In newsgroup: linux.dev.kernel
 > 
-> The following patch, which actually removes the root_dev_names array,
-> introduces get_gendisk_by_name, so this keeps the naming somewhat consistent.
+> Ah, thanks.  In that case, no.  It doesn't look like the input-layer USB
+> keyboards contribute to entropy (but mice do), and I don't think the ADB
+> ones do.  I'll take a crack at adding this to keyboards monday maybe.
+> 
 
-Leave it alone for now.  I'm one driver away from per-disk gendisks
-(i2o is the last remaining) and as soon as I'm done with it there will
-be a lot of changes in that area.  I.e. tonight.
+Be careful... USB devices are *always* going to speak at the same
+place in the USB cycle... I believe that is 1 ms.  Thus,
+submillisecond resolution is *not* random.
 
-BTW, disk_name() and get_gendisk() will disappear from the export
-list, being replaced by partition_name() (taken out of md.c, exported
-and sans the "cache" - it doesn't give any benefits anymore).
+	-hpa
 
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

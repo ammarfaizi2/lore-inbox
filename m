@@ -1,76 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132075AbQLaBPO>; Sat, 30 Dec 2000 20:15:14 -0500
+	id <S135532AbQLaBPx>; Sat, 30 Dec 2000 20:15:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132103AbQLaBPE>; Sat, 30 Dec 2000 20:15:04 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:10000 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S132075AbQLaBOx>; Sat, 30 Dec 2000 20:14:53 -0500
-Date: Sun, 31 Dec 2000 01:44:16 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: davej@suse.de
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-usb-devel@lists.sourceforge.net
-Subject: Re: Problems with ov511/USB on test13-pre7
-Message-ID: <20001231014414.A940@arthur.ubicom.tudelft.nl>
-In-Reply-To: <Pine.LNX.4.21.0012302312580.13297-100000@neo.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0012302312580.13297-100000@neo.local>; from davej@suse.de on Sat, Dec 30, 2000 at 11:24:40PM +0000
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S132103AbQLaBPo>; Sat, 30 Dec 2000 20:15:44 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:4224 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S135521AbQLaBPd>;
+	Sat, 30 Dec 2000 20:15:33 -0500
+Message-ID: <3A4E8190.DA4CB916@pobox.com>
+Date: Sat, 30 Dec 2000 16:45:04 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: Mirai Consulting
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test13-pre7 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: tdfx.o and -test13
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 30, 2000 at 11:24:40PM +0000, davej@suse.de wrote:
->  Problems with Creative Webcam III. This worked fine
-> in test13-pre4, haven't tried pre5 & 6.
+Dieter Nützel wrote:
 
-[snip]
+> It haven't loaded since test13-pre1 for me.
+> Only the 'module version' was broken.
+> Last test12-pre7 was fine, here.
+> It was introduced with the Makefile cleanups.
+>
+>  --- linux/drivers/char/drm/drmP.old        Thu Dec 28 16:27:34 2000
+>  +++ linux/drivers/char/drm/drmP.h        Sat Dec 23 13:57:08 2000
+>  @@ -40,6 +40,7 @@
+>   #include <asm/current.h>
+>   #endif /* __alpha__ */
+>   #include <linux/config.h>
+>  +#include <linux/modversions.h>
+>   #include <linux/module.h>
+>   #include <linux/kernel.h>
+>   #include <linux/miscdevice.h>
 
-> USB controller is:
-> 
-> 00:04.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 10) (prog-if
-> 00 [UHCI])
->         Subsystem: Unknown device 0925:1234
->         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop-
-> ParErr- Stepping- SERR- FastB2B-
->         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-> <TAbort- <MAbort- >SERR- <PERR-
->         Latency: 32, cache line size 08
->         Interrupt: pin D routed to IRQ 5
->         Region 4: I/O ports at d400 [size=32]
->         Capabilities: [80] Power Management version 2
->                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
-> PME(D0-,D1-,D2-,D3hot-,D3cold-)
->                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+I just want to confirm that this small fix solves my drm
+problems as well - currently running -test13-pre7
 
-This looks like some kind of UHCI problem. I have the same camera
-(well, it is a Creative Webcam plus, but same chipset) with an Intel
-UHCI controller and I haven't seen any errors. Here is my USB
-controller:
+Er, has anybody sent a patch to the maintainers?
 
-00:07.2 USB Controller: Intel Corporation 82440MX USB Universal Host
-Controller (prog-if 00 [UHCI])
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium
->TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64
-        Interrupt: pin D routed to IRQ 11
-        Region 4: I/O ports at fcc0 [size=32]
+jjs
 
 
-Erik
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

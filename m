@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130646AbRCIWaC>; Fri, 9 Mar 2001 17:30:02 -0500
+	id <S130721AbRCIWhM>; Fri, 9 Mar 2001 17:37:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130721AbRCIW3v>; Fri, 9 Mar 2001 17:29:51 -0500
-Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:46094 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP
-	id <S130649AbRCIW3q>; Fri, 9 Mar 2001 17:29:46 -0500
-Date: Fri, 9 Mar 2001 15:29:02 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: quicksort for linked list
-Message-ID: <20010309152902.A1219@mail.harddata.com>
-In-Reply-To: <3AA89624.46DBADD7@idb.hist.no> <200103091152.MAA31645@cave.bitwizard.nl>
+	id <S130730AbRCIWhC>; Fri, 9 Mar 2001 17:37:02 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:23815 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S130721AbRCIWgq>; Fri, 9 Mar 2001 17:36:46 -0500
+Date: Fri, 9 Mar 2001 17:34:40 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: "David S. Miller" <davem@redhat.com>,
+        Johannes Erdfelt <johannes@erdfelt.com>,
+        linux-usb-devel@lists.sourceforge.net,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Russell King <rmk@arm.linux.org.uk>, zaitcev@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: SLAB vs. pci_alloc_xxx in usb-uhci patch [RFC: API]
+Message-ID: <20010309173440.A21429@devserv.devel.redhat.com>
+In-Reply-To: <00d401c0a5c6$f289d200$6800000a@brownell.org> <20010305232053.A16634@flint.arm.linux.org.uk> <15012.27969.175306.527274@pizda.ninka.net> <055e01c0a8b4$8d91dbe0$6800000a@brownell.org> <3AA91B2C.BEB85D8C@colorfullife.com> <15017.7950.106874.276894@pizda.ninka.net> <20010309133502.R31345@sventech.com> <06a701c0a8d1$199377e0$6800000a@brownell.org> <15017.14312.932929.194773@pizda.ninka.net> <071c01c0a8dd$e0ac4940$6800000a@brownell.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.5us
-In-Reply-To: <200103091152.MAA31645@cave.bitwizard.nl>; from Rogier Wolff on Fri, Mar 09, 2001 at 12:52:22PM +0100
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <071c01c0a8dd$e0ac4940$6800000a@brownell.org>; from david-b@pacbell.net on Fri, Mar 09, 2001 at 01:14:03PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 09, 2001 at 12:52:22PM +0100, Rogier Wolff wrote:
-> 
-> Quicksort however is an algorithm that is recursive. This means that
-> it can use unbounded amounts of stack -> This is not for the kernel.
+> Date: Fri, 09 Mar 2001 13:14:03 -0800
+> From: David Brownell <david-b@pacbell.net>
 
-Well, not really in this situation, after a simple modification.  It is
-trivial to show that using "shorter interval sorted first" approach one
-can bound an amount of an extra memory, on stack or otherwise, and by a
-rather small number.  This assumes that one knows what one is sorting -
-which is obviously the case here.
+>[...]
+> It feels to me like you're being inconsistent here, objecting
+> to a library API for some functionality (mapping) yet not for
+> any of the other functionality (alignment, small size, poisoning
+> and so on).  And yet when Pete Zaitcev described what that
+> mapping code actually involved, you didn't object.  So you've
+> succeeded in confusing me.  Care to unconfuse?
 
-Also my copy of Reingold, Nivergelt, Deo from 1977 presents a
-"non-recursive" variant of quicksort as a kind of an "old hat" solution.
-One would think that this piece of information would spread during those
-years. :-)  It is a simple exercise anyway.
+I did not propose an API or library which would be equal amond equals
+with first rate citizens of pci_alloc_xxx and friends. I pointed out
+that driver can do tracking of reverse mappings at very little cost
+by using offset [Alan remarked to that how hash can use page number];
+so, one may say that I supported DaveM's viewpoint. No wonder he did
+not object.
 
-> Quicksort has a very bad "worst case": quadratic sort-time. Are you
-> sure this won't happen?
-
-This is much more serious objection.  You can nearly guarantee in an
-itended application that somebody will find a way to feed you packets
-which will ensure the worst case behaviour.  The same gotcha will
-probably kill quite a few other ways to sort here.
-
-  Michal
+-- Pete

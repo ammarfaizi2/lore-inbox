@@ -1,79 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266905AbUHTEIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267357AbUHTFHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266905AbUHTEIb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 00:08:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267199AbUHTEIb
+	id S267357AbUHTFHw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 01:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267556AbUHTFHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 00:08:31 -0400
-Received: from utep.el.utwente.nl ([130.89.16.10]:32402 "EHLO
-	utep.el.utwente.nl") by vger.kernel.org with ESMTP id S266905AbUHTEIZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 00:08:25 -0400
-Date: Fri, 20 Aug 2004 06:07:53 +0200
-From: Anton Starikov <A.Starikov@utwente.nl>
-To: Simon Kirby <sim@netnation.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: sata_promise pata connector
-Message-Id: <20040820060753.5025d889@tncms14.tnw.utwente.nl>
-In-Reply-To: <20040820031344.GB22682@netnation.com>
-References: <20040820031344.GB22682@netnation.com>
-Organization: CMS/TN/UT
-X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 20 Aug 2004 01:07:52 -0400
+Received: from smtp-out1.blueyonder.co.uk ([195.188.213.4]:13404 "EHLO
+	smtp-out1.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S267357AbUHTFHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 01:07:19 -0400
+Message-ID: <41258706.1050103@blueyonder.co.uk>
+Date: Fri, 20 Aug 2004 06:07:18 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm2 make ?config fails
+References: <41251DCC.9070601@blueyonder.co.uk>
+In-Reply-To: <41251DCC.9070601@blueyonder.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-eltn-site-MailScanner-Information: Please contact the administrator, tel. 2826, for more information
-X-eltn-site-MailScanner: Found to be clean
+X-OriginalArrivalTime: 20 Aug 2004 05:07:40.0600 (UTC) FILETIME=[9E280380:01C48673]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I even wanted to port original driver from promise to 2.6 kernel...but
-because at that time it was one of the moments when pata port "is coming
-soon", I decided to not spent time for useless thing :)
-Later my PATA drive which was connected  to this port has died , so I
-have lost interest and migrate to 2.6 kernel without any problems :)
+FIXED! I had some header file in /usr/include that was mangled.
+Regards
+Sid.
 
-I don't know how it is going now, but...
-I still can do it. 
+Sid Boyce wrote:
 
-Jeff, has it sense to port that damn driver finally or not?
+> make xconfig/config/menuconfig/oldconfig - SuSE 9.1 Athlon 3000+. All 
+> is fine on x86_64 Athlon 3000+ laptop with SuSE 9.1 x86_64.
+> barrabas:/usr/src/linux-2.6.8.1-mm2 # make mrproper
+>  CLEAN   scripts/basic
+>  CLEAN   scripts/kconfig
+>  CLEAN   .config .config.old
+> barrabas:/usr/src/linux-2.6.8.1-mm2 # make xconfig
+>  HOSTCC  scripts/basic/fixdep
+> scripts/basic/fixdep.c: In function `do_config_file':
+> scripts/basic/fixdep.c:275: warning: implicit declaration of function 
+> `close'
+>  HOSTCC  scripts/basic/split-include
+> scripts/basic/split-include.c: In function `main':
+> scripts/basic/split-include.c:97: warning: implicit declaration of 
+> function `chdir'
+>  HOSTCC  scripts/basic/docproc
+> scripts/basic/docproc.c: In function `exec_kernel_doc':
+> scripts/basic/docproc.c:84: warning: implicit declaration of function 
+> `fork'
+> scripts/basic/docproc.c:89: warning: implicit declaration of function 
+> `execvp'
+>  SHIPPED scripts/kconfig/zconf.tab.h
+>  HOSTCC  scripts/kconfig/conf.o
+> scripts/kconfig/conf.c: In function `main':
+> scripts/kconfig/conf.c:498: warning: implicit declaration of function 
+> `isatty'
+> sed < scripts/kconfig/lkc_proto.h > scripts/kconfig/lkc_defs.h 
+> 's/P(\([^,]*\),.*/#define \1 (\*\1_p)/'
+>  HOSTCC  scripts/kconfig/kconfig_load.o
+>  HOSTCC  scripts/kconfig/mconf.o
+> scripts/kconfig/mconf.c: In function `init_wsize':
+> scripts/kconfig/mconf.c:116: error: `STDIN_FILENO' undeclared (first 
+> use in this function)
+> scripts/kconfig/mconf.c:116: error: (Each undeclared identifier is 
+> reported only once
+> scripts/kconfig/mconf.c:116: error: for each function it appears in.)
+> scripts/kconfig/mconf.c: In function `exec_conf':
+> scripts/kconfig/mconf.c:223: warning: implicit declaration of function 
+> `pipe'
+> scripts/kconfig/mconf.c:224: warning: implicit declaration of function 
+> `fork'
+> scripts/kconfig/mconf.c:227: warning: implicit declaration of function 
+> `dup2'
+> scripts/kconfig/mconf.c:228: warning: implicit declaration of function 
+> `close'
+> scripts/kconfig/mconf.c:230: warning: implicit declaration of function 
+> `execv'
+> scripts/kconfig/mconf.c:231: warning: implicit declaration of function 
+> `_exit'
+> scripts/kconfig/mconf.c:238: warning: implicit declaration of function 
+> `read'
+> scripts/kconfig/mconf.c: In function `conf':
+> scripts/kconfig/mconf.c:441: warning: implicit declaration of function 
+> `unlink'
+> scripts/kconfig/mconf.c: In function `show_textbox':
+> scripts/kconfig/mconf.c:551: warning: implicit declaration of function 
+> `write'
+> make[1]: *** [scripts/kconfig/mconf.o] Error 1
+> make: *** [xconfig] Error 2
+>
+> Regards
+> Sid.
+>
 
-Anton.
 
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+=====LINUX ONLY USED HERE=====
 
-On Thu, 19 Aug 2004 20:13:44 -0700
-Simon Kirby <sim@netnation.com> wrote:
-
-> [ Resend as the last didn't seem to appear on the list... ]
-> 
-> I've seen it brought up a few times and I believe one email where you
-> mention trying it -- what's involved in getting the PATA connector of
-> certain Promise SATA chips working?  I'd be willing to hack, test, and
-> help in general.
-> 
-> Thanks,
-> 
-> Simon-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ide"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-On Thu, 19 Aug 2004 20:13:44 -0700
-Simon Kirby <sim@netnation.com> wrote:
-
-> [ Resend as the last didn't seem to appear on the list... ]
-> 
-> I've seen it brought up a few times and I believe one email where you
-> mention trying it -- what's involved in getting the PATA connector of
-> certain Promise SATA chips working?  I'd be willing to hack, test, and
-> help in general.
-> 
-> Thanks,
-> 
-> Simon-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ide"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html

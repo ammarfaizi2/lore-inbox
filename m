@@ -1,158 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVADMuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVADNAc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261532AbVADMuI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 07:50:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVADMuI
+	id S261593AbVADNAc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 08:00:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVADNAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 07:50:08 -0500
-Received: from gprs214-29.eurotel.cz ([160.218.214.29]:27558 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261532AbVADMt4 (ORCPT
+	Tue, 4 Jan 2005 08:00:32 -0500
+Received: from smtpout.mac.com ([17.250.248.45]:55753 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261593AbVADNAX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 07:49:56 -0500
-Date: Tue, 4 Jan 2005 13:46:59 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: mark older power managment as deprecated
-Message-ID: <20050104124659.GA22256@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 4 Jan 2005 08:00:23 -0500
+In-Reply-To: <Pine.LNX.4.61.0501040735410.25392@chimarrao.boston.redhat.com>
+References: <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl> <0F9DCB4E-5DD1-11D9-892B-000D9352858E@mac.com> <Pine.LNX.4.61.0501031648300.25392@chimarrao.boston.redhat.com> <5B2E0ED4-5DD3-11D9-892B-000D9352858E@mac.com> <20050103221441.GA26732@infradead.org> <20050104054649.GC7048@alpha.home.local> <20050104063622.GB26051@parcelfarce.linux.theplanet.co.uk> <9F909072-5E3A-11D9-A816-000D9352858E@mac.com> <Pine.LNX.4.61.0501040735410.25392@chimarrao.boston.redhat.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <85546E06-5E50-11D9-A816-000D9352858E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: Adrian Bunk <bunk@stusta.de>, Willy Tarreau <willy@w.ods.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       William Lee Irwin III <wli@debian.org>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+From: Felipe Alfaro Solana <lkml@mac.com>
+Subject: Re: starting with 2.7
+Date: Tue, 4 Jan 2005 13:59:51 +0100
+To: Rik van Riel <riel@redhat.com>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 4 Jan 2005, at 13:36, Rik van Riel wrote:
 
-What about this patch? It marks old power managemnt as obsolete (and
-also adds some sparse-style type checking; typedefs were already there
-so why not use them?). I think it should go in, so that we can get a
-rid of old power managment infrastructure post-2.6.11.
+> On Tue, 4 Jan 2005, Felipe Alfaro Solana wrote:
+>
+>> I don't pretend that kernel interfaces stay written in stone, for 
+>> ages. What I would like is that, at least, those interfaces were 
+>> stable enough, let's say for a few months for a stable kernel series, 
+>> so I don't have to keep bothering my propietary VMWare vendor to fix 
+>> the problems for me, since the
+>
+> How much work are you willing to do to make this happen ? ;)
 
-								Pavel
+As much as needed :-)
 
---- clean-mm/include/linux/pm.h	2005-01-03 17:15:43.000000000 +0100
-+++ linux-mm/include/linux/pm.h	2005-01-04 13:11:18.000000000 +0100
-@@ -28,44 +28,28 @@
- #include <asm/atomic.h>
- 
- /*
-- * Power management requests
-+ * Power management requests... these are passed to pm_send_all() and friends.
-+ *
-+ * these functions are old and deprecated, see below.
-  */
--enum
--{
--	PM_SUSPEND, /* enter D1-D3 */
--	PM_RESUME,  /* enter D0 */
--
--	PM_SAVE_STATE,  /* save device's state */
-+typedef int __bitwise pm_request_t;
- 
--	/* enable wake-on */
--	PM_SET_WAKEUP,
-+#define PM_SUSPEND	((__force pm_request_t) 1)	/* enter D1-D3 */
-+#define PM_RESUME	((__force pm_request_t) 2)	/* enter D0 */
- 
--	/* bus resource management */
--	PM_GET_RESOURCES,
--	PM_SET_RESOURCES,
--
--	/* base station management */
--	PM_EJECT,
--	PM_LOCK,
--};
--
--typedef int pm_request_t;
- 
- /*
-- * Device types
-+ * Device types... these are passed to pm_register
-  */
--enum
--{
--	PM_UNKNOWN_DEV = 0, /* generic */
--	PM_SYS_DEV,	    /* system device (fan, KB controller, ...) */
--	PM_PCI_DEV,	    /* PCI device */
--	PM_USB_DEV,	    /* USB device */
--	PM_SCSI_DEV,	    /* SCSI device */
--	PM_ISA_DEV,	    /* ISA device */
--	PM_MTD_DEV,	    /* Memory Technology Device */
--};
-+typedef int __bitwise pm_dev_t;
- 
--typedef int pm_dev_t;
-+#define PM_UNKNOWN_DEV	((__force pm_request_t) 0)	/* generic */
-+#define PM_SYS_DEV	((__force pm_request_t) 1)	/* system device (fan, KB controller, ...) */
-+#define PM_PCI_DEV	((__force pm_request_t) 2)	/* PCI device */
-+#define PM_USB_DEV	((__force pm_request_t) 3)	/* USB device */
-+#define PM_SCSI_DEV	((__force pm_request_t) 4)	/* SCSI device */
-+#define PM_ISA_DEV	((__force pm_request_t) 5)	/* ISA device */
-+#define	PM_MTD_DEV	((__force pm_request_t) 6)	/* Memory Technology Device */
- 
- /*
-  * System device hardware ID (PnP) values
-@@ -119,32 +103,27 @@
- /*
-  * Register a device with power management
-  */
--struct pm_dev *pm_register(pm_dev_t type,
--			   unsigned long id,
--			   pm_callback callback);
-+struct pm_dev __deprecated *pm_register(pm_dev_t type, unsigned long id, pm_callback callback);
- 
- /*
-  * Unregister a device with power management
-  */
--void pm_unregister(struct pm_dev *dev);
-+void __deprecated pm_unregister(struct pm_dev *dev);
- 
- /*
-  * Unregister all devices with matching callback
-  */
--void pm_unregister_all(pm_callback callback);
-+void __deprecated pm_unregister_all(pm_callback callback);
- 
- /*
-  * Send a request to a single device
-  */
--int pm_send(struct pm_dev *dev, pm_request_t rqst, void *data);
-+int __deprecated pm_send(struct pm_dev *dev, pm_request_t rqst, void *data);
- 
- /*
-  * Send a request to all devices
-  */
--int pm_send_all(pm_request_t rqst, void *data);
--
--static inline void pm_access(struct pm_dev *dev) {}
--static inline void pm_dev_idle(struct pm_dev *dev) {}
-+int __deprecated pm_send_all(pm_request_t rqst, void *data);
- 
- #else /* CONFIG_PM */
- 
-@@ -171,16 +150,10 @@
- 	return 0;
- }
- 
--static inline struct pm_dev *pm_find(pm_dev_t type, struct pm_dev *from)
--{
--	return 0;
--}
--
--static inline void pm_access(struct pm_dev *dev) {}
--static inline void pm_dev_idle(struct pm_dev *dev) {}
--
- #endif /* CONFIG_PM */
- 
-+/* Functions above this comment are list-based old-style power
-+ * managment. Please avoid using them.  */
- 
- /*
-  * Callbacks for platform drivers to implement.
+> It would be easy enough for you to take 2.6.9 and add only
+> security fixes and critical bugfixes to it for the next 6
+> months - that would give your binary vendors a stable
+> source base to work with...
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+I would... if it was easy enough to find some form of a security 
+patches pool. It's usually difficult to find a site where I can 
+download security patches for older versions of vanilla kernels. I have 
+the feeling that this security fixes go mainstream onto the latest 
+kernel versions, leaving users in hands of their distribution (either 
+to upgrade to a new distribution kernel, or waiting for the 
+distribution vendor to backport).
+
+Thus, sometimes people are forced to upgrade to a new kernel version as 
+such security patches either don't exist for older kernel versions, are 
+difficult to find, or need backporting (and I'm not knowledgeable 
+enough to backport nearly half of them), and since the new kernel 
+version introduces new features -- which sometimes do break existing 
+propietary software -- users starts complaining.
+
+However, it's true that distributions, like Red Hat or Fedora, try at 
+its best to keep the kernel as stable as possible. For example, FC3 
+seems to sport something like a 2.6.9 kernel, but sometimes those 
+kernels are so heavily patched that some closed-source software doesn't 
+work.
+
+I know I can choose open software and hardware vendors compatible with 
+Linux, but sometimes I cannot. I like VMware, and I use it a lot. I'm 
+not willing to sacrifice it, and that's the reason I think 2.6 must 
+fork as soon as possible into 2.7.
+

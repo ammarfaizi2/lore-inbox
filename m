@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274080AbRIXRkh>; Mon, 24 Sep 2001 13:40:37 -0400
+	id <S274084AbRIXRlQ>; Mon, 24 Sep 2001 13:41:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274082AbRIXRk2>; Mon, 24 Sep 2001 13:40:28 -0400
-Received: from codepoet.org ([166.70.14.212]:47937 "HELO winder.codepoet.org")
-	by vger.kernel.org with SMTP id <S274080AbRIXRkM>;
-	Mon, 24 Sep 2001 13:40:12 -0400
-Date: Mon, 24 Sep 2001 11:40:37 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.10
-Message-ID: <20010924114037.A7561@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010924002854.A25226@codepoet.org> <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com> <16995.1001284442@redhat.com> <32737.1001314127@redhat.com>
+	id <S274082AbRIXRlE>; Mon, 24 Sep 2001 13:41:04 -0400
+Received: from opengraphics.com ([216.208.162.194]:36235 "EHLO
+	hurricane.opengraphics.com") by vger.kernel.org with ESMTP
+	id <S274081AbRIXRko>; Mon, 24 Sep 2001 13:40:44 -0400
+Date: Mon, 24 Sep 2001 13:41:10 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Problem with md software raid in 2.4.10 (2.4.9 works it seems)
+Message-ID: <20010924134110.A25448@concord.opengraphics.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <32737.1001314127@redhat.com>
-User-Agent: Mutt/1.3.20i
-X-Operating-System: Linux 2.4.9-ac10-rmk1, Rebel-NetWinder(Intel sa110 rev 3), 262.14 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.3.18i
+From: Len Sorensen <lsorense@opengraphics.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Sep 24, 2001 at 07:48:47AM +0100, David Woodhouse wrote:
-> 
-> andersen@codepoet.org said:
-> > Is jffs2 still showing the
-> >     Child dir "." (ino #1) of dir ino #1 appears to be a hard link
-> > problem?  I saw you patched mkfs.jffs2 after my changes -- do you
-> > still need me to hunt down that bug I added? 
-> 
-> Yes please. The patch I committed just made it happier with a relative (or
-> no) root directory - it was changing into the specified directory and then
-> still prepending its name to every path. I assume it's still emitting a
-> dirent for '.' in the root directory as it was before. The JFFS2 kernel code
-> doesn't like that very much.
+I am having a problem with the md software raid in 2.4.10.  I have
+tried 2.4.10 final and 2.4.10-pre13, and both exhibit the same problem.
+The problem does not appear in 2.4.9 so far.
 
-This seems to fix it, but I'm not certain this is correct?
-Should / on jffs2 have neither inode nor dirent added?
+The problem is that when adding a device to a degraded raid, the system
+locks up.  If I boot 2.4.9 it adds it fine, and starts the recovery.
+If the raid is recovered, 2.4.10 boots fine of the raid.
 
---- mkfs.jffs2.c	2001/09/17 13:43:32	1.16
-+++ mkfs.jffs2.c	2001/09/24 17:37:40
-@@ -924,10 +924,11 @@
- 		name = tmp_dir->name;
- 		sb = tmp_dir->sb;
- 		if (!tmp_dir->parent) {
-+			/* Cope with the root directory */
- 			ino = highest_ino++;
--			debug_msg("writing '/' ino=%lu", (unsigned long) ino);
--			output_pipe(ino, &sb);
--			write_dirent(ino, version++, ino, timestamp, DT_DIR, name);
-+			debug_msg("writing '%s' ino=%lu", name, (unsigned long) ino);
-+			//output_pipe(ino, &sb);
-+			//write_dirent(ino, version++, ino, timestamp, DT_DIR, name);
- 			tmp_dir = tmp_dir->next;
- 			continue;
- 		}
+The system is using 2 x 18G IBM U160 hot swap scsi drives on an aic7xxx
+controller.
 
- -Erik
+Does anyone know what the md changes between 2.4.9 and 2.4.10 were and
+if any of them could be causing the lockups I am seeing?
 
---
-Erik B. Andersen   email:  andersee@debian.org, formerly of Lineo
---This message was written using 73% post-consumer electrons--
+It seems like occationally 2.4.10 will succeed at adding a drive to the
+raid without crashing, but most of the time it does crash.
+
+Please let me know if there is any logs or such that I can provide to
+possibly help figure out what is going on.
+
+The system is an IBM 8654-51Y.  P3 1GHz, 256M ram.
+
+Len Sorensen

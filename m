@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291440AbSAaX6r>; Thu, 31 Jan 2002 18:58:47 -0500
+	id <S291438AbSBAACh>; Thu, 31 Jan 2002 19:02:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291443AbSAaX6j>; Thu, 31 Jan 2002 18:58:39 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:22259 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S291438AbSAaX6W>; Thu, 31 Jan 2002 18:58:22 -0500
-Message-ID: <3C59DA19.5060403@us.ibm.com>
-Date: Thu, 31 Jan 2002 15:58:17 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020126
-X-Accept-Language: en-us
+	id <S291443AbSBAAC1>; Thu, 31 Jan 2002 19:02:27 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39432 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291438AbSBAACT>;
+	Thu, 31 Jan 2002 19:02:19 -0500
+Message-ID: <3C59D956.4F2B85DB@zip.com.au>
+Date: Thu, 31 Jan 2002 15:55:02 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Dan Maas <dmaas@dcine.com>, Ben Collins <bcollins@debian.org>
-Subject: Revealing unload_lock to everyone
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Bob Miller <rem@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.3 remove global semaphore_lock spin lock.
+In-Reply-To: <20020131150139.A1345@doc.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This came up in a conversation about ieee1394_core.c.  In 2.5.3, the BKL 
-is used to protect a module from being unloaded.  The code looks like this:
+Bob Miller wrote:
+> 
+> Below is a patch for i386 that replaces the global spin lock semaphore_lock,
+> with the rwlock_t embedded in the wait_queue_head_t in the struct semaphore.
+> 
 
-         lock_kernel();
-         read_lock(&ieee1394_chardevs_lock);
-         file_ops = ieee1394_chardevs[blocknum].file_ops;
-         module = ieee1394_chardevs[blocknum].module;
-         read_unlock(&ieee1394_chardevs_lock);
-	...
-         INCREF(module);
-         unlock_kernel();
-	
+Looks sane.  In practice, the speedup is unmeasurable, but...
 
-The question is, how can we keep the module from being unloaded between 
-the file_ops assignment, and the INCREF.  Do we have a general purpose 
-way, other than the BKL, to keep a module from being unloaded?  There is 
-unload_lock, but it is static to module.c.  We can always make it 
-global, but is there a better solution?
+> ...
+> +       unsigned long flags;
+> +       wq_write_lock_irqsave(&sem->wait.lock, flags);
+> -       spin_lock_irq(&semaphore_lock);
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+I rather dislike spin_lock_irq(), because it's fragile (makes
+assumptions about the caller's state).  But in this case,
+it's probably a reasonable micro-optimisation to not have to
+save the flags.  Nobody should be calling down() with local
+interrupts disabled.
 
+> ...
+> +/*
+> + * Same as __wake_up but called with the wait_queue_head_t lock held
+> + * in at least read mode.
+> + */
+> +void __wake_up_locked(wait_queue_head_t *q, unsigned int mode, int nr)
+> +{
+> +       if (q) {
+
+I don't think we need to test `q' here.  It's a new function,
+and we don't need to support broken callers.  So __wake_up_locked()
+can become a macro direct call to __wake_up_common().
+
+> +               __wake_up_common(q, mode, nr, 0);
+
+This one breaks the camel's back :)
+
+Let's un-inline __wake_up_common and EXPORT_SYMBOL it.
+
+It'd be good if you could also verify that the code still
+works when the use-rwlocks-for-waitqueues option is turned
+on.   (wait.h:USE_RW_WAIT_QUEUE_SPINLOCK)
+
+ 
+-

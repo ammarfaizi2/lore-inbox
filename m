@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129176AbRBMJlF>; Tue, 13 Feb 2001 04:41:05 -0500
+	id <S129131AbRBMJ43>; Tue, 13 Feb 2001 04:56:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129134AbRBMJky>; Tue, 13 Feb 2001 04:40:54 -0500
-Received: from bastion.power-x.co.uk ([62.232.19.201]:56838 "EHLO
-	bastion.power-x.co.uk") by vger.kernel.org with ESMTP
-	id <S129114AbRBMJke>; Tue, 13 Feb 2001 04:40:34 -0500
-Date: Tue, 13 Feb 2001 09:41:48 +0000 (GMT)
-From: "Dr. David Gilbert" <gilbertd@treblig.org>
-To: Tigran Aivazian <tigran@veritas.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: lost charaters -- this is becoming annoying!
-In-Reply-To: <Pine.LNX.4.21.0102130915490.927-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.30.0102130940550.1611-100000@springhead.px.uk.com>
+	id <S129169AbRBMJ4U>; Tue, 13 Feb 2001 04:56:20 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64516 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129131AbRBMJ4B>;
+	Tue, 13 Feb 2001 04:56:01 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200102130950.f1D9ohq01768@flint.arm.linux.org.uk>
+Subject: Re: [PATCH] swapin flush cache bug
+To: marcelo@conectiva.com.br (Marcelo Tosatti)
+Date: Tue, 13 Feb 2001 09:50:42 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), gniibe@m17n.org (NIIBE Yutaka),
+        linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <Pine.LNX.4.21.0102122107550.29855-100000@freak.distro.conectiva> from "Marcelo Tosatti" at Feb 12, 2001 09:21:55 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Feb 2001, Tigran Aivazian wrote:
+Marcelo Tosatti writes:
+> If lookup_swap_cache() finds a page in the swap cache, and that page was
+> in memory because of the swapin readahead, the cache is not flushed.
+> 
+> Here is a patch to fix the problem by always flushing the cache including
+> for pages in the swap cache:
 
-> Hi,
->
-> I amtyping this without correcting -- allthe lost characters you see
-> (including spaces!) are exactly what the pseudo-tty driver does! This is
-> 2.4.1 a it definitely (oh, see "nd" of the ave "and" disappeared? and
-> "above" turned into "ave"!) did work fine previously -- like in the days
-> of 2.3.99 and 2.4.0-teX series (yes, teX was meant to be "testX"!)
->
-> So, the keyboard or pty driver is badly broken.
+> -
+> -               flush_page_to_ram(page);
+> -               flush_icache_page(vma, page);
+>         }
+>  
+>         mm->rss++;
+> +
+> +       flush_page_to_ram(page);
+> +       flush_icache_page(vma, page);
 
-Hell I'm glad you said that - I thought I was going mad the other day when
-I reported the missing return thing.
-(On Linux/Alpha, 2.4.1-ac9, PS/2 keyboard)
+Surely if the page is in the swap cache, we don't need the
+flush_page_to_ram() because the data is already written to the page.  Yes,
+there may be some reminents of it in the cache due to it being written
+to disk via PIO.
 
-Dave
+Thinking about it some more - we have a process.  It used to contain page
+P at address V.  We unmapped the page (and did the right thing with the
+caches).  Now, something wants to access address V, so we pull the page
+from the swap cache, and place page P back at address V.  We therefore
+shouldn't need any cache manipulation at this point.
 
--- 
-/------------------------------------------------------------------\
-| Dr. David Alan Gilbert | Work:dg@px.uk.com +44-161-286-2000 Ex258|
-| -------- G7FHJ --------|---------------------------------------- |
-| Home: dave@treblig.org            http://www.treblig.org         |
-\------------------------------------------------------------------/
+What was the problem?  The old code seems to behave well on a virtual
+address indexed virtual address tagged cache.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

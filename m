@@ -1,108 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263359AbTJUU2s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 16:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263361AbTJUU2r
+	id S263336AbTJUUhF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 16:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263337AbTJUUhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 16:28:47 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:17655 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S263359AbTJUU2j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 16:28:39 -0400
-Date: Tue, 21 Oct 2003 21:28:36 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: "B. D. Elliott" <bde@nwlink.com>
-cc: David Woodhouse <dwmw2@infradead.org>,
-       Roman Zippel <zippel@linux-m68k.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Slram doesn't work
-In-Reply-To: <20031021050245.9083A6F661@smtp1.pacifier.net>
-Message-ID: <Pine.LNX.4.44.0310212102300.1445-100000@localhost.localdomain>
+	Tue, 21 Oct 2003 16:37:05 -0400
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:2736 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S263336AbTJUUg5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 16:36:57 -0400
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: Helge Hafting <helgehaf@aitel.hist.no>,
+       James Simmons <jsimmons@infradead.org>
+Subject: Re: 2.6.0-test8-mm1
+Date: Tue, 21 Oct 2003 22:36:29 +0200
+User-Agent: KMail/1.5.9
+Cc: Andrew Morton <akpm@osdl.org>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20031020185613.7d670975.akpm@osdl.org> <Pine.LNX.4.44.0310211846210.32738-100000@phoenix.infradead.org> <20031021202310.GA14993@hh.idb.hist.no>
+In-Reply-To: <20031021202310.GA14993@hh.idb.hist.no>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_YjZl/Jtv1E9pek1";
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200310212236.41476.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Oct 2003, B. D. Elliott wrote:
-> I have an old (x86) machine that does not cache the upper half of memory.
-> Under 2.4.x, I used "slram=slr0,64M,+64M" to reserve that half, and then
-> used it as a swap device.
-> 
-> This fails on 2.6.0-test8, with an "ioremap failed" message during booting.
-> The boot messages plus capturing the page flags in ioremap() shows the
-> following:
-> 
-> ...
-> slram: devname = slr0
-> slram: devstart = 64M
-> slram: devlength = +64M
-> slram: devname=slr0, devstart=0x4000000, devlength=0x4000000
-> .. ioremap failed: line 145 (approximately)
-> .. phys_addr: 04000000 t_addr: c4000000 t_end: c7ffffff page0: c10a0000 page: c10a0000
-> .. page-1 flags: 01000000
-> .. page   flags: 01000080
-> .. page+1 flags: 01000080
-> .. page+2 flags: 01000080
-> .. page+3 flags: 01000080
-> .. PageReserved(page): 0
-> slram: ioremap failed
-> ...
-> 
-> The failure occurs where "PageReserved" is checked.  "page0" is the address
-> of the first page entry for the region, which is also where it failed.
-> ("PageReserved" is bit 11.)  Apparently, "PageReserved" is no longer set
-> when slram initialization occurs.
 
-The ioremap failure occurs because the 2.6 "mem=" bootparam currently
-behaves slightly differently from the 2.4 one, and your slram ends up
-overlapping memory used by the kernel.  That was noticed a few days
-ago, and a fix to setup.c is already queued up in 2.6.0-test8-mm1.
+--Boundary-02=_YjZl/Jtv1E9pek1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-But when you fix that, you'll find mkswap (and any other write to it)
-fails: a small change to mtdblock_writesect seems to work fine for me,
-but it might not be the right fix - MTD handles a lot more than just
-slram, I've never delved in there before, David is the maintainer,
-and sure to grasp the issues.
+On Tuesday 21 October 2003 22:23, Helge Hafting wrote:
+> On Tue, Oct 21, 2003 at 06:47:41PM +0100, James Simmons wrote:
+> > Okay I see people are having alot of problems in the -mm tree. I don't
+> > have any problems but I'm working against Linus tree. Could people try
+> > the patch against 2.6.0-test8 and tell me if they still have the same
+> > results.
+>
+> This patch was fine.  2.6.0-test8 with this patch booted and
+> looked no different from plain 2.6.0-test8.  I am using it for
+> writing this.  The problems must be in mm1 somehow.
+>
+> Helge Hafting
 
-Many thanks for leading me to drivers/mtd/devices/slram.c: I'd long
-thought such a driver should exist, but never discovered that it does
-already exist.  Looks like just what's needed to eliminate one of my
-betes noirs, arch/m68k/atari/stram.c.  (Though something else I'd like
-to try with it, is using i386 mem above 4GB for swap: but it's not at
-present suitable for that, since it's using permanent ioremap space.)
+Well here I've got same problems for -test8 + fbdev-patch as with -test8-mm=
+1.=20
+I've compiled the kernel with most DEBUG_* options enabled (all but=20
+DEBUG_INFO and KGDB) and see the same cursor and image corruption as with=20
+=2Dmm1 and the same options enabled.
 
-Hugh
+Should I try compiling this kernel without the DEBUG_* options and watch if=
+ I=20
+get the invalidate_list Oops again?
 
---- 2.6.0-test8/arch/i386/kernel/setup.c	2003-10-08 20:24:56.000000000 +0100
-+++ linux/arch/i386/kernel/setup.c	2003-10-21 18:10:02.000000000 +0100
-@@ -141,14 +141,14 @@ static void __init probe_roms(void)
- 
- static void __init limit_regions (unsigned long long size)
- {
-+	unsigned long long current_addr = 0;
- 	int i;
--	unsigned long long current_size = 0;
- 
- 	for (i = 0; i < e820.nr_map; i++) {
- 		if (e820.map[i].type == E820_RAM) {
--			current_size += e820.map[i].size;
--			if (current_size >= size) {
--				e820.map[i].size -= current_size-size;
-+			current_addr = e820.map[i].addr + e820.map[i].size;
-+			if (current_addr >= size) {
-+				e820.map[i].size -= current_addr-size;
- 				e820.nr_map = i + 1;
- 				return;
- 			}
---- 2.6.0-test8/drivers/mtd/mtdblock.c	2003-07-02 21:59:59.000000000 +0100
-+++ linux/drivers/mtd/mtdblock.c	2003-10-21 20:44:43.000000000 +0100
-@@ -248,7 +248,7 @@ static int mtdblock_writesect(struct mtd
- 			      unsigned long block, char *buf)
- {
- 	struct mtdblk_dev *mtdblk = mtdblks[dev->devnum];
--	if (unlikely(!mtdblk->cache_data)) {
-+	if (unlikely(!mtdblk->cache_data && mtdblk->mtd->erasesize)) {
- 		mtdblk->cache_data = vmalloc(mtdblk->mtd->erasesize);
- 		if (!mtdblk->cache_data)
- 			return -EINTR;
+I use vesafb on a Nvidia GeForce 2 MX 440 with 64MB Video-RAM.
 
+Regards
+   Thomas
+
+--Boundary-02=_YjZl/Jtv1E9pek1
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA/lZjYYAiN+WRIZzQRArP6AKDS+v3MRHYCcF1RZZrWfzhVn4PtCQCfedlj
+mzpldGtLWRRC1ZwzgrrNNlY=
+=/dzU
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_YjZl/Jtv1E9pek1--

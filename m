@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263408AbTDGMTY (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 08:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263409AbTDGMTY (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 08:19:24 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:40339
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263408AbTDGMTX (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 08:19:23 -0400
-Subject: Re: [PATCH 2.5.66-ac2] PC-9800 sub architecture support (5/9) IDE
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Osamu Tomita <tomita@cinet.co.jp>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030407035231.GE4840@yuzuki.cinet.co.jp>
-References: <20030407033627.GA4798@yuzuki.cinet.co.jp>
-	 <20030407035231.GE4840@yuzuki.cinet.co.jp>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049715151.2965.40.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 Apr 2003 12:32:32 +0100
+	id S263409AbTDGMTw (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 08:19:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263410AbTDGMTv (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 08:19:51 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:28422 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id S263409AbTDGMTu (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 08:19:50 -0400
+Date: Mon, 7 Apr 2003 14:31:11 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Olivier Galibert <galibert@pobox.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new syscall: flink
+In-Reply-To: <20030407091120.GA50075@dspnet.fr.eu.org>
+Message-ID: <Pine.LNX.4.44.0304071422580.12110-100000@serv>
+References: <Pine.BSO.4.44.0304062250250.9407-100000@kwalitee.nolab.conman.org>
+ <b6qruf$elf$1@cesium.transmeta.com> <b6r9cv$jof$1@news.cistron.nl>
+ <20030407081800.GA48052@dspnet.fr.eu.org> <20030407043555.G13397@devserv.devel.redhat.com>
+ <20030407091120.GA50075@dspnet.fr.eu.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-04-07 at 04:52, Osamu Tomita wrote:
-> This is the patch to support NEC PC-9800 subarchitecture
-> against 2.5.66-ac2. (5/9)
-> 
-> PC98 standard IDE I/F support.
->  - Change default IO port address and IRQ.
->  - Request region exactly for other optional cards.
+Hi,
 
-I'm ignoring this one for the moment because one of the jobs I need
-to do is to move all the resource handling in IDE into the drivers
-not the core code. When that is done the problem goes away
+> That breaks one of the main uses, creating with open a temporary file
+> in /tmp, unlinking it, then later hooking it up somewhere else in the
+> filesystem.
+
+I wouldn't rely on this functionality, not all filesystems might like it 
+to have to recreate a deleted fs entry. Most filesystems should be able to 
+do this, but all fs drivers have to be checked, that they do the right 
+thing.
+
+bye, Roman
 

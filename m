@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263276AbTJKLtl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 07:49:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263278AbTJKLtl
+	id S263290AbTJKMAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 08:00:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263291AbTJKMAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 07:49:41 -0400
-Received: from gprs147-20.eurotel.cz ([160.218.147.20]:47488 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263276AbTJKLtk (ORCPT
+	Sat, 11 Oct 2003 08:00:25 -0400
+Received: from mail2.scram.de ([195.226.127.112]:57355 "EHLO mail2.scram.de")
+	by vger.kernel.org with ESMTP id S263290AbTJKMAY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 07:49:40 -0400
-Date: Sat, 11 Oct 2003 13:49:14 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jens Axboe <axboe@suse.de>
-Cc: Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       marcelo.tosatti@cyclades.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] laptop mode
-Message-ID: <20031011114913.GA516@elf.ucw.cz>
-References: <200310091103.h99B31ug014566@hera.kernel.org> <3F856A7E.2010607@pobox.com> <20031009140547.GD1232@suse.de> <20031009141734.GB23545@redhat.com> <20031009142632.GI1232@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031009142632.GI1232@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Sat, 11 Oct 2003 08:00:24 -0400
+Date: Sat, 11 Oct 2003 13:59:42 +0200 (CEST)
+From: Jochen Friedrich <jochen@scram.de>
+X-X-Sender: jochen@ayse.bocc.de
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/14] firmware update for av7110 dvb driver
+In-Reply-To: <1065624307.5470.242.camel@pegasus>
+Message-ID: <Pine.LNX.4.58.0310111355380.24459@ayse.bocc.de>
+References: <10656197272107@convergence.de> <1065624307.5470.242.camel@pegasus>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Marcel,
 
-> > Right now laptopmode/aam is just a suspect. There are still 1-2 other
-> > small patches against IDE which could be the reason.  We've dropped
-> > laptopmode/aam for the time being to see if the folks seeing repeatable
-> > corruption suddenly start behaving again.
-> 
-> aam patch is far more risky, it's a far more likely suspect. That patch
-> never reall did go out of beta. Dropping laptop-mode and aam at the same
-> time is bad engineering practice :).
-> 
-> laptop-mode cannot cause corruption that cannot show otherwise.
+> the request_firmware() framework is part of Linux 2.4 and 2.6 and so for
+> most drivers the firmware file can be loaded from userspace through proc
+> or sysfs. Please take a look at it.
 
-Well, if fireballs have data-corrupting that happens just after spinup
-(for example), I can see how laptop-mode affects that. W/o
-laptop-mode, disk is spinning all the time so sleep bugs can not
-manifest themselves. You add laptop-mode, and...
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Is there a way to use this for ISA devices? I'd like to convert my
+tms380tr request_firmware() as i want to get rid of hardcoded, binary
+only firmware. However, there is no struct device for ISA devices (and
+in particular, no bus id) and unlike the old style PCI DMA mapping, which
+accepts NULL as pci_dev and assumes ISA in this case, request_firmware()
+absolutely needs the parameter...
+
+--jochen

@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130017AbRABWdn>; Tue, 2 Jan 2001 17:33:43 -0500
+	id <S129267AbRABWeb>; Tue, 2 Jan 2001 17:34:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129267AbRABWdb>; Tue, 2 Jan 2001 17:33:31 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:12300 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130017AbRABWdT>; Tue, 2 Jan 2001 17:33:19 -0500
-Date: Tue, 2 Jan 2001 14:01:57 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Mike Galbraith <mikeg@wen-online.de>,
-        Anton Blanchard <anton@linuxcare.com.au>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: scheduling problem?
-In-Reply-To: <20010102225230.D7563@athlon.random>
-Message-ID: <Pine.LNX.4.10.10101021357180.1292-100000@penguin.transmeta.com>
+	id <S130879AbRABWeW>; Tue, 2 Jan 2001 17:34:22 -0500
+Received: from raven.toyota.com ([63.87.74.200]:42509 "EHLO raven.toyota.com")
+	by vger.kernel.org with ESMTP id <S129267AbRABWeK>;
+	Tue, 2 Jan 2001 17:34:10 -0500
+Message-ID: <3A52503E.13F20539@toyota.com>
+Date: Tue, 02 Jan 2001 14:03:42 -0800
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-prerelease i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: LVM 0_9-1 woes on 2.4.0-prerelease+diffs
+In-Reply-To: <3A52357C.FCB7B187@toyota.com> <20010102225844.E7563@athlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrea Arcangeli wrote:
 
+> On Tue, Jan 02, 2001 at 12:09:32PM -0800, J Sloan wrote:
+> > # vgscan
+> > vgscan: error while loading shared libraries: vgscan: undefined symbol:
+> > lvm_remove_recursive
+>
+> This looks like an userspace compilation/installation problem of the new lvm
+> tools. Make sure you removed the old (0.8*) shared librarians. You can check
+> which librarains you're using with:
+>
+>         ldd `which vgscan`
 
-On Tue, 2 Jan 2001, Andrea Arcangeli wrote:
-> 
-> > NOTE! I think that throttling writers is fine and good, but as it stands
-> > now, the dirty buffer balancing will throttle anybody, not just the
-> > writer. That's partly because of the 2.4.x mis-feature of doing the
-> 
-> How can it throttle everybody and not only the writers? _Only_ the
-> writers calls balance_dirty.
+Ah, that was it! the old libs were in /lib, the
+new libs are in /usr/lib, so I missed it.
 
-A lot of people call mark_buffer_dirty() on one or two buffers. Things
-like file creation etc. Think about inode bitmap blocks that are marked
-dirty with the superblock held.. Ugh.
+Thanks, all is running smoothly again!
 
-> Right way to avoid blocking with lock helds is to replace mark_buffer_dirty
-> with __mark_buffer_dirty() and to call balance_dirty() later when the locks are
-> released.
+jjs
 
-The point being that because _everybody_ should do this, we shouldn't have
-the "mark_buffer_dirty()" that we have. There are no really valid uses of
-the automatic rebalancing: either we're writing meta-data (which
-definitely should balance on its own _after_ the fact), or we're writing
-normal data (which already _does_ balance after the fact).
-
-Right now, the automatic balancing only hurts. The stuff that hasn't been
-converted is probably worse off doing balancing when they don't want to,
-than we would be to leave the balancing altogether.
-
-Which is why I don't like it.
-
-		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

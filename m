@@ -1,68 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272159AbTHKGG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 02:06:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272281AbTHKGG5
+	id S271417AbTHKGS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 02:18:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272141AbTHKGS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 02:06:57 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:11023 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S272159AbTHKGGw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 02:06:52 -0400
-Date: Mon, 11 Aug 2003 01:55:02 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Robert Love <rml@tech9.net>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, cmrivera@ufl.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: /proc/stat's intr field looks odd, although /proc/interrupts
- seems correct
-In-Reply-To: <Pine.LNX.4.53.0308110121090.19193@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.53.0308110148080.19193@montezuma.mastecende.com>
-References: <1060572792.1113.10.camel@boobies.awol.org> 
- <34161.4.4.25.4.1060573727.squirrel@www.osdl.org>  <1060574873.684.41.camel@localhost>
-  <34253.4.4.25.4.1060576385.squirrel@www.osdl.org>  <1060576517.684.47.camel@localhost>
-  <34268.4.4.25.4.1060576870.squirrel@www.osdl.org> <1060577118.684.52.camel@localhost>
- <Pine.LNX.4.53.0308110121090.19193@montezuma.mastecende.com>
+	Mon, 11 Aug 2003 02:18:27 -0400
+Received: from nontri.ku.ac.th ([158.108.2.71]:46302 "EHLO ku.ac.th")
+	by vger.kernel.org with ESMTP id S271417AbTHKGS0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 02:18:26 -0400
+From: "Aphirak Jansang" <g4365035@ku.ac.th>
+To: <linux-kernel@vger.kernel.org>
+Subject: VIARAID(VT6410) Driver: Does any one have this driver for linux 2.4.21
+Date: Mon, 11 Aug 2003 13:16:47 +0700
+Message-ID: <000b01c35fd0$285c4dc0$175a6c9e@apjnote>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Aug 2003, Zwane Mwaikambo wrote:
+Does anyone have this driver work on linux-2.4.21? I have tried to seek
+this driver from via-tech website, related web and news group. 
 
-> On i386 you can find out the last irq line number during MP table parsing 
-> (ACPI bits are also in mpparse.c), for the hotplug case i suppose the 
-> hotplug code could bump this up as devices get attached. But unless we do 
-> dynamic NR_IRQs its all just too much effort.
+I can't see anything about VT6410.
 
-Boring weekend...
-
-Index: linux-2.6.0-test3-huge_kpage/fs/proc/proc_misc.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test3/fs/proc/proc_misc.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 proc_misc.c
---- linux-2.6.0-test3-huge_kpage/fs/proc/proc_misc.c	10 Aug 2003 08:42:45 -0000	1.1.1.1
-+++ linux-2.6.0-test3-huge_kpage/fs/proc/proc_misc.c	11 Aug 2003 05:49:54 -0000
-@@ -411,8 +411,19 @@ static int kstat_read_proc(char *page, c
- 	len += sprintf(page + len, "intr %u", sum);
  
- #if !defined(CONFIG_PPC64) && !defined(CONFIG_ALPHA)
--	for (i = 0 ; i < NR_IRQS ; i++)
-+{
-+	static int last_irq = 0;
-+	
-+	for (i = last_irq; i < NR_IRQS; i++) {
-+		if (irq_desc[i].action) {
-+			if (i > last_irq)
-+				last_irq = i;
-+		}
-+	}
-+
-+	for (i = 0 ; i <= last_irq ; i++)
- 		len += sprintf(page + len, " %u", kstat_irqs(i));
-+}
- #endif
+
+Anyone can tell me what can I do?
+
  
- 	len += sprintf(page + len,
+
+Thanks
+
+Aphirak Jansang  
+
+

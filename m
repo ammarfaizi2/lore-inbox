@@ -1,96 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288296AbSAHUh4>; Tue, 8 Jan 2002 15:37:56 -0500
+	id <S288297AbSAHUlG>; Tue, 8 Jan 2002 15:41:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288297AbSAHUhh>; Tue, 8 Jan 2002 15:37:37 -0500
-Received: from codepoet.org ([166.70.14.212]:6665 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S288296AbSAHUhb>;
-	Tue, 8 Jan 2002 15:37:31 -0500
-Date: Tue, 8 Jan 2002 13:37:30 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] klibc requirements
-Message-ID: <20020108203730.GA31371@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020108192450.GA14734@kroah.com>
-Mime-Version: 1.0
+	id <S288299AbSAHUk4>; Tue, 8 Jan 2002 15:40:56 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:18447 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S288297AbSAHUkw>; Tue, 8 Jan 2002 15:40:52 -0500
+Message-ID: <3C3B579D.7B8E534F@zip.com.au>
+Date: Tue, 08 Jan 2002 12:33:33 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "marc. h." <heckmann@hbe.ca>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [problem captured] Re: cerberus on 2.4.17-rc2 UP
+In-Reply-To: <20020108164816.A5453@hbe.ca> from "marc. h." at Jan 08, 2002 04:48:17 PM <E16Nysp-0006tn-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020108192450.GA14734@kroah.com>
-User-Agent: Mutt/1.3.24i
-X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue Jan 08, 2002 at 11:24:50AM -0800, Greg KH wrote:
-> 	- portable, runs on all platforms that the kernel currently
-> 	  works on, but doesn't have to run on any non-Linux based OS.
+Alan Cox wrote:
+> 
+> > end_request: buffer-list destroyed
+> > hda1: bad access: block=12440, count=-8
+> > end_request: I/O error, dev 03:01 (hda), sector 12440
+> > hda1: bad access: block=12448, count=-16
+> 
+> That looks like a race in the IDE/block layer (or somewhere above it maybe)
+> Someone trashed a request in progress.
+> 
+> > Is this a bug or could it be the hardware's fault? The hardware is new lspci
+> 
+> Other people have reported it too. Its clearly a kernel race
 
-uClibc currently only runs on arm, i386, m68k, mips, powerpc, sh,
-and v850, with full shared lib support on arm, i386, and powerpc.
-Porting to a new arch typically involves writing just a few asm
-files.  I don't bother with anything non-Linux...
+Yes, I can generate it at will on two quite different IDE machines
+with the run-bash-shared-mapping script from
+http://www.zip.com.au/~akpm/ext3-tools.tar.gz
 
-> 	- tiny.  If we link statically it should be _small_.  Both
-> 	  dietLibc and uClibc are good examples of the size goal.  We do
-> 	  not need to support all of POSIX here, only what we really
-> 	  need.
+It's on my list of things-to-do, filed under "hard".  It even happens
+on uniprocessor, with unmask_irq=0.
 
-uClibc does tiny static stuff just fine.  Though these days,
-uClibc passes POSIX conformance tests (with some exceptions for
-stupid things which have been omitted).
+Interestingly, I _think_ it only ever occurs against the
+swap device.  But I need to confirm this.  Marc, do you
+have swap on /dev/hda1?
 
-> 	- If we end up having a lot of different programs in initramfs,
-> 	  a dynamic version of the library should be available.  This
-> 	  shared library should be _small_ and only contain the symbols
-> 	  that are needed by the programs to run.  This should be able
-> 	  to be determined at build time.
-
-uClibc currently has shared lib support only on arm, i386, and powerpc.
-There is a library reducer script (to include only needed
-symbols) in uClibc/extra/libstrip/libstrip which does a fine job.
-
-I personally think busybox + uClibc are ideal for building
-initramfs stuff, since you can build everything you need into 
-a single multi-call binary (eliminating the need for shared libs
-in most cases).
-
-> 	- It has to "not suck" :)  This is a lovely relative feeling
-> 	  about the quality of the code base, ease at building the
-> 	  library, ease at understanding the code, and responsiveness of
-> 	  the developers of the library.
-
-Well, I do my best.  :)
-
-As for ease of building the library, most people can just copy
-the Config file into place and compile.  I build a fake
-gcc-wrapper toolchain, so using the library is as simple as 
-'make install' then running 'CC=/usr/i386-linux-uclibc/bin/gcc make'
-
-I think one big advantage uClibc has in the "not suck"
-department, is that it uses the header files from glibc 2.2.4
-(with minor changes), meaning that for most apps, if it compiles
-with glibc it will compile with uClibc.
-
-> response.  Hence my post.  I would love to work with the authors of an
-> existing libc to build such a library, as I have other things I would
-> rather work on than a libc :)
-
-Ok.  here I am.   Work with me.  :) 
-
-> Comments from the various libc authors?  Comments from other kernel
-> developers about requirements and goals they would like to see from such
-> a libc?
-
-If folks have requirements and goals, I'm very interested in
-hearing them...
-
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+-

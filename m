@@ -1,115 +1,174 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264524AbUEVC2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUEVCcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264524AbUEVC2e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 22:28:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264824AbUEVCZt
+	id S262730AbUEVCcU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 22:32:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265244AbUEUWhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 22:25:49 -0400
-Received: from pop.gmx.de ([213.165.64.20]:8076 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264834AbUEVCXD (ORCPT
+	Fri, 21 May 2004 18:37:48 -0400
+Received: from mail.kroah.org ([65.200.24.183]:32955 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264648AbUEUWdx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 22:23:03 -0400
-X-Authenticated: #1892127
-In-Reply-To: <Pine.LNX.4.44.0405170100430.766-100000@serv.local>
-References: <Pine.LNX.4.44.0405170100430.766-100000@serv.local>
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <FD7764A6-AB9F-11D8-853B-0003931E0B62@gmx.li>
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Martin Schaffner <schaffner@gmx.li>
-Subject: Re: hfsplus bugs in linux-2.6.5
-Date: Sat, 22 May 2004 04:27:44 +0100
-To: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Apple Mail (2.613)
+	Fri, 21 May 2004 18:33:53 -0400
+Date: Fri, 21 May 2004 13:44:31 -0700
+From: Greg KH <greg@kroah.com>
+To: nardelli <jnardelli@infosciences.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] [PATCH] visor: Fix Oops on disconnect
+Message-ID: <20040521204430.GA5875@kroah.com>
+References: <40AD3A88.2000002@infosciences.com> <20040521043032.GA31113@kroah.com> <40AE5DBB.6030003@infosciences.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40AE5DBB.6030003@infosciences.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 21, 2004 at 03:51:23PM -0400, nardelli wrote:
+> I've made all of the changes that recommended below.  If it looks like
+> I've missed anything, please indicate so.
+> 
+> 
+> 
+> --- linux-2.6.6.old/drivers/usb/serial/visor.c	2004-05-09 
+> 22:32:27.000000000 -0400
+> +++ linux-2.6.6.new/drivers/usb/serial/visor.c	2004-05-21 
+> 15:02:30.938875280 -0400
 
-On 17.05.2004, at 00:19, Roman Zippel wrote:
+Patch is line-wrapped, so I can't apply it :(
 
->> Here's how to trigger a hfsplus bug in linux-2.6.5:
->> [...]
->> mkdir a; mkdir b
->> mv a b
->
-> Thanks for the report, renames of directories were broken, the patch 
-> below
-> fixes this. Could you please try again, if it solves your problem?
+> @@ -456,7 +460,8 @@ static void visor_close (struct usb_seri
+> 		return;
+> 	
+> 	/* shutdown our urbs */
+> -	usb_unlink_urb (port->read_urb);
+> +	if (port->read_urb)
+> +		usb_unlink_urb (port->read_urb);
 
-Your patch fixes the above problem, thanks.
-
-Unfortunately, the first bug I encountered (which lead me to 
-stress-test hfsplus support in the first place) is still present.
-
-I still wasn't able to reproduce it on another partition than my Mac OS 
-X root partition. :-(
-
-The symptoms are as follows: Whenever I try to write a sufficently 
-large file (always larger than 512k), or try to read a sufficiently 
-large file (say a 4 MB file) with any program, I get:
-
-   HFS+-fs: request for non-existent node 1929183232 in B*Tree
-
-after which the I/O operation fails like this:
-
-   dd: writing 'bla': Cannot allocate memory
-
-The number of the non-existent node will not change until I do a fsck.
-
-After linux handled the partition, Apple's fsck_hfs will always report 
-errors, which it usually can't fix, but TechTool Deluxe can.
-
-In the past, hpfsck (from ftp.penguinppc.org/users/hasi/) would report 
-lots of cases of:
-
-   Backpointers in Node 239 index 70 out of order (0x1001e982 >= 
-0x1002298e)
-
-with differing indices but constant node number (until the next fsck).
-
-However, lately, all I get is:
-
-   [...]
-   *** Checking Backup Volume Header:
-   Unexpected Volume signature '  ' expected 'H+'
-   hpfsck: hpfsck: This is not a HFS+ volume (Unknown error 4294967295)
+I really do not think these extra checks for read_urb all of the place
+need to be added.  We take care of it in the open() call, right?
 
 
-However, I think I have narrowed it down somewhat: If I apply:
+> 	if (port->interrupt_in_urb)
+> 		usb_unlink_urb (port->interrupt_in_urb);
+> 
+> @@ -622,15 +627,20 @@ static void visor_read_bulk_callback (st
+> 	bytes_in += urb->actual_length;
+> 
+> 	/* Continue trying to always read  */
+> -	usb_fill_bulk_urb (port->read_urb, serial->dev,
+> -			   usb_rcvbulkpipe (serial->dev,
+> -					    port->bulk_in_endpointAddress),
+> -			   port->read_urb->transfer_buffer,
+> -			   port->read_urb->transfer_buffer_length,
+> -			   visor_read_bulk_callback, port);
+> -	result = usb_submit_urb(port->read_urb, GFP_ATOMIC);
+> -	if (result)
+> -		dev_err(&port->dev, "%s - failed resubmitting read urb, 
+> error %d\n", __FUNCTION__, result);
+> +	if (port->read_urb) {
+> +		usb_fill_bulk_urb (port->read_urb, serial->dev,
+> +				usb_rcvbulkpipe (serial->dev,
+> +				port->bulk_in_endpointAddress),
+> +				port->read_urb->transfer_buffer,
+> +				port->read_urb->transfer_buffer_length,
+> +				visor_read_bulk_callback, port);
+> +		result = usb_submit_urb(port->read_urb, GFP_ATOMIC);
+> +		if (result)
+> +			dev_err(&port->dev,
+> +				"%s - failed resubmitting read urb, error 
+> %d\n",
+> +				__FUNCTION__, result);
+> +	}
+> +  
+> 	return;
+> }
+> 
+> @@ -675,7 +685,9 @@ exit:
+> static void visor_throttle (struct usb_serial_port *port)
+> {
+> 	dbg("%s - port %d", __FUNCTION__, port->number);
+> -	usb_unlink_urb (port->read_urb);
+> +	if (port->read_urb) {
+> +		usb_unlink_urb (port->read_urb);
+> +	}
+> }
+> 
+> 
+> @@ -685,10 +697,14 @@ static void visor_unthrottle (struct usb
+> 
+> 	dbg("%s - port %d", __FUNCTION__, port->number);
+> 
+> -	port->read_urb->dev = port->serial->dev;
+> -	result = usb_submit_urb(port->read_urb, GFP_ATOMIC);
+> -	if (result)
+> -		dev_err(&port->dev, "%s - failed submitting read urb, error 
+> %d\n", __FUNCTION__, result);
+> +	if (port->read_urb) {
+> +		port->read_urb->dev = port->serial->dev;
+> +		result = usb_submit_urb(port->read_urb, GFP_ATOMIC);
+> +		if (result)
+> +			dev_err(&port->dev,
+> +				"%s - failed submitting read urb, error 
+> %d\n",
+> +				__FUNCTION__, result);
+> +	}
+> }
+> 
+> static int palm_os_3_probe (struct usb_serial *serial, const struct 
+> usb_device_id *id)
+> @@ -721,41 +737,55 @@ static int palm_os_3_probe (struct usb_s
+> 			__FUNCTION__, retval);
+> 		goto exit;
+> 	}
+> -		
+> -	connection_info = (struct visor_connection_info *)transfer_buffer;
+> -
+> -	le16_to_cpus(&connection_info->num_ports);
+> -	num_ports = connection_info->num_ports;
+> -	/* handle devices that report invalid stuff here */
+> -	if (num_ports > 2)
+> -		num_ports = 2;
+> -	dev_info(dev, "%s: Number of ports: %d\n", serial->type->name,
+> -		connection_info->num_ports);
+> -
+> -	for (i = 0; i < num_ports; ++i) {
+> -		switch (connection_info->connections[i].port_function_id) {
+> -			case VISOR_FUNCTION_GENERIC:
+> -				string = "Generic";
+> -				break;
+> -			case VISOR_FUNCTION_DEBUGGER:
+> -				string = "Debugger";
+> -				break;
+> -			case VISOR_FUNCTION_HOTSYNC:
+> -				string = "HotSync";
+> -				break;
+> -			case VISOR_FUNCTION_CONSOLE:
+> -				string = "Console";
+> -				break;
+> -			case VISOR_FUNCTION_REMOTE_FILE_SYS:
+> -				string = "Remote File System";
+> -				break;
+> -			default:
+> -				string = "unknown";
+> -				break;	
+> +	else if (retval != sizeof(*connection_info)) {
+> +		/* real invalid connection info handling is below */
+> +		num_ports = 0;
+> +	}
 
-diff -ur linux-2.6.6/fs/hfsp.bak/bfind.c linux-2.6.6/fs/hfsplus/bfind.c
---- linux-2.6.6/fs/hfsp.bak/bfind.c     Fri May 21 11:38:33 2004
-+++ linux-2.6.6/fs/hfsplus/bfind.c      Fri May 21 15:31:16 2004
-@@ -64,7 +64,7 @@
-                 else
-                         e = rec - 1;
-         } while (b <= e);
--       //printk("%d: %d,%d,%d\n", bnode->this, b, e, rec);
-+       printk("problem is here: %d: %d,%d,%d\n", bnode->this, b, e, 
-rec);
-         if (rec != e && e >= 0) {
-                 len = hfs_brec_lenoff(bnode, e, &off);
-                 keylen = hfs_brec_keylen(bnode, e);
+Change this to a "if" instead of a "else if".
+Actually just set num_ports to 0 at the beginning of the function, and
+then just check for a valud retval and do the code below...
 
-then, this new printk happens often. More importantly, it happens 
-ALWAYS before the "request for non-existent node" message and 
-subsequent failure.
+> +	else {
+> +	        connection_info = (struct visor_connection_info *)
+> +			transfer_buffer;
 
+<snip>
 
-I guess that sometimes, the bnodes aren't ordered correctly, and 
-therefore we don't find the correct one. If the while loop is 
-terminated without "goto done;", shouldn't we fall back to checking all 
-bnodes for a matching key, in case the inodes aren't ordered correctly? 
-I've tried to implement exactly that, but this resulted in lots of 
-Oopses - I guess I'd have to dig deeper, guess less, and understand 
-more to find out more. Unfortunately, I can't debug the problem while 
-it's happening, because my ibook doesn't have a serial port...
+Also, don't quote the whole previous message, that's not nice...
 
+thanks,
 
-How could I get to the root of the problem?
-
-Thanks,
-
-Martin
-
+greg k-h

@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266971AbSLKCg2>; Tue, 10 Dec 2002 21:36:28 -0500
+	id <S266975AbSLKCrK>; Tue, 10 Dec 2002 21:47:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266972AbSLKCg2>; Tue, 10 Dec 2002 21:36:28 -0500
-Received: from packet.digeo.com ([12.110.80.53]:23495 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266971AbSLKCg1>;
-	Tue, 10 Dec 2002 21:36:27 -0500
-Message-ID: <3DF6A673.D406BC7F@digeo.com>
-Date: Tue, 10 Dec 2002 18:44:03 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Wil Reichert <wilreichert@yahoo.com>, Jens Axboe <axboe@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: "bio too big" error
-References: <1039572597.459.82.camel@darwin>
-Content-Type: text/plain; charset=us-ascii
+	id <S266977AbSLKCrK>; Tue, 10 Dec 2002 21:47:10 -0500
+Received: from rth.ninka.net ([216.101.162.244]:15082 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S266975AbSLKCrK>;
+	Tue, 10 Dec 2002 21:47:10 -0500
+Subject: Re: IBM spamms me with error messages
+From: "David S. Miller" <davem@redhat.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021210205611.GH20049@atrey.karlin.mff.cuni.cz>
+References: <20021210205611.GH20049@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Dec 2002 02:44:06.0576 (UTC) FILETIME=[2C82C300:01C2A0BF]
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 10 Dec 2002 19:20:43 -0800
+Message-Id: <1039576843.23937.0.camel@rth.ninka.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wil Reichert wrote:
+On Tue, 2002-12-10 at 12:56, Pavel Machek wrote:
+> I replied to some mail on l-k and IBM spammed me with 20+ error
+> messages. Now it is apparently going to do that again.
 > 
-> Hi,
-> 
-> I'm getting a "bio too big" error with 2.5.50.  I've got a 330G lvm2
-> partition formatted with ext3 using the -T largefile4 parameter.
-> Everything seems ok at first, but any sort of access will die very
-> unhappily with said error messsage after about 10 seconds of operation
-> or so.  The only google search results are the patch submission.  Eeek.
-> 
+> IBM: I asked your postmasters to fix your mail systems, and you
+> apparently don't know how to do that. Can you fix it?!
 
-How odd.
+Pavel, you're not the only person seeing this, and you're
+certainly not the only one sending emails to IBM's postmasters
+asking them to fix this.
 
-Please send the full diagnostic output.
+The lack of any response or actions by IBM's postmasters is certainly
+quite disturbing.  Is there that much red tape at the company? :-)
 
-And add this:
-
-
---- 25/drivers/block/ll_rw_blk.c~a	Tue Dec 10 18:42:54 2002
-+++ 25-akpm/drivers/block/ll_rw_blk.c	Tue Dec 10 18:43:13 2002
-@@ -1921,6 +1921,7 @@ end_io:
- 			       bdevname(bio->bi_bdev),
- 			       bio_sectors(bio),
- 			       q->max_sectors);
-+			dump_stack();
- 			goto end_io;
- 		}
- 
-
-_

@@ -1,90 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262564AbVCVIrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262566AbVCVIvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262564AbVCVIrO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 03:47:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbVCVIrO
+	id S262566AbVCVIvA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 03:51:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbVCVIvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 03:47:14 -0500
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:13451 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S262564AbVCVIrH (ORCPT
+	Tue, 22 Mar 2005 03:51:00 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:3795 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262566AbVCVIu3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 03:47:07 -0500
-Date: Tue, 22 Mar 2005 09:47:01 +0100
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-mm3: SIS5513 DMA problem (set_drive_speed_status)
-Message-ID: <20050322094701.1d17b401@phoebee>
-In-Reply-To: <20050314211755.5e686c50.akpm@osdl.org>
-References: <20050314161528.575f3a77@phoebee>
-	<20050314211755.5e686c50.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
- CPU 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
+	Tue, 22 Mar 2005 03:50:29 -0500
+Date: Tue, 22 Mar 2005 09:50:15 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: "Magnus Naeslund(t)" <mag@fbab.net>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-01
+Message-ID: <20050322085015.GA16804@elte.hu>
+References: <20050319191658.GA5921@elte.hu> <20050320174508.GA3902@us.ibm.com> <20050321085332.GA7163@elte.hu> <20050321090122.GA8066@elte.hu> <20050321090622.GA8430@elte.hu> <423F5456.5010908@fbab.net> <20050322054025.GA1296@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
- boundary="Signature_Tue__22_Mar_2005_09_47_01_+0100_=0FAmgMoLP_VqaZf";
- protocol="application/pgp-signature"; micalg=pgp-sha1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050322054025.GA1296@us.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature_Tue__22_Mar_2005_09_47_01_+0100_=0FAmgMoLP_VqaZf
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, 14 Mar 2005 21:17:55 -0800
-Andrew Morton <akpm@osdl.org> bubbled:
+* Paul E. McKenney <paulmck@us.ibm.com> wrote:
 
-> Martin Zwickel <martin.zwickel@technotrend.de> wrote:
-> >
-> > Hi,
-> >=20
-> > just tried the 2.6.11-mm3 and at boot-time my start scripts try to
-> > enable DMA on my disk (hdparm -m16 -c1 -u1 -X69 /dev/hda).
-> >=20
-> > But while running hdparm, the kernel waits many seconds and gives me
-> > some DMA warnings/errors:
-> >
-> > ...
-> >
-> > hda: set_drive_speed_status: status=3D0xd0 { Busy }
-> >=20
-> > ide: failed opcode was: unknown
-> > hda: dma_timer_expiry: dma status =3D=3D 0x41
-> > hda: DMA timeout error
-> > hda: dma timeout error: status=3D0xd0 { Busy }
-> > ...
-> >=20
-> > That happened also with 2.6.11-rc3 since I thought I should switch
-> > away from my 2.6.8-rc2-mm1 (the best kernel ever ;)).
->=20
-> Could you please check whether 2.6.11-rc1 does this?  It should be
-> released mid-week.  Thanks.
+>  		return;
+>  	}
+>  	rdp->donelist = NULL;
+> -	rdp->donetail = &rdp->waitlist;
+> +	rdp->donetail = &rdp->donelist;
+>  	put_cpu_var(rcu_data);
+>  	while (list) {
+>  		next = list->next;
 
-ps.: just booted 2.6.12-rc1-mm1 and hdparm works now much better on boot
-     than 2.6.11-mm3. ;)
+seems like the RCU code should use list.h primitives, to avoid bugs like
+this and to make the code more readable.
 
---=20
-MyExcuse:
-We're upgrading /dev/null
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---Signature_Tue__22_Mar_2005_09_47_01_+0100_=0FAmgMoLP_VqaZf
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFCP9uHmjLYGS7fcG0RApSCAJ40sKRmjYHRE/HqMfNR1djF3m1LtQCfcmzl
-IksENmDtg/4PPljrseZN/oM=
-=K8vS
------END PGP SIGNATURE-----
-
---Signature_Tue__22_Mar_2005_09_47_01_+0100_=0FAmgMoLP_VqaZf--
+	Ingo

@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUHTIAz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264261AbUHTICw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbUHTIAz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 04:00:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264261AbUHTIAz
+	id S264261AbUHTICw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 04:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267620AbUHTICv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 04:00:55 -0400
-Received: from main.gmane.org ([80.91.224.249]:64979 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264113AbUHTIAx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 04:00:53 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Stefan Seyfried <seife@suse.de>
-Subject: swsusp: avoid emergency disk parking in "platform" mode
-Date: Fri, 20 Aug 2004 09:50:37 +0200
-Message-ID: <4125AD4D.7090102@suse.de>
+	Fri, 20 Aug 2004 04:02:51 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:26742 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S264261AbUHTICo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 04:02:44 -0400
+Message-ID: <d577e56904082001023b2faad9@mail.gmail.com>
+Date: Fri, 20 Aug 2004 04:02:40 -0400
+From: Patrick McFarland <diablod3@gmail.com>
+Reply-To: Patrick McFarland <diablod3@gmail.com>
+To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       kernel@wildsau.enemy.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4124BA65.7010509@bio.ifi.lmu.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------010704060102000900070006"
-X-Complaints-To: usenet@sea.gmane.org
-Cc: Pavel Machek <pavel@suse.cz>
-X-Gmane-NNTP-Posting-Host: charybdis-ext.suse.de
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+References: <200408041233.i74CX93f009939@wildsau.enemy.org>	 <d577e5690408190004368536e9@mail.gmail.com> <4124A024.nail7X62HZNBB@burner> <1092919260.28141.30.camel@localhost.localdomain> <4124BA65.7010509@bio.ifi.lmu.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010704060102000900070006
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Thu, 19 Aug 2004 16:34:13 +0200, Frank Steiner
+<fsteiner-mail@bio.ifi.lmu.de> wrote:
+> Here's what I see when I call cdrecord on SuSE 9.1:
+> 
+> Cdrecord-Clone-dvd 2.01a27 (i686-suse-linux) Copyright (C) 1995-2004 Jörg Schilling
+> Note: This version is an unofficial (modified) version with DVD support
+> Note: and therefore may have bugs that are not present in the original.
+> Note: Please send bug reports or support requests to http://www.suse.de/feedback
+> Note: The author of cdrecord should not be bothered with problems in this version.
 
-Hi,
+And debian does:
 
-although the issue seems fixed on normal shutdown and with swsusp in
-"shutdown" mode, i still get the ugly "clunk" of my emergency-parking
-disk in platform mode.
-The attached patch fixes this for me, although i am not sure this is the
-correct way to do. Probably some device_suspend(SOMETHING) would be
-better and maybe the device_power_down is no longer needed, but
-something needs to be done at this point.
+Cdrecord-Clone 2.01a34 (i686-pc-linux-gnu) Copyright (C) 1995-2004
+Jorg Schilling
+Note: This version of cdrecord is an inofficial (modified) release of cdrecord
+and thus may have bugs that are not present in the original version.
+Please send bug reports and support requests to <cdrtools@packages.debian.org>.
+The original author should not be bothered with problems of this version
 
-   Stefan
 
---------------010704060102000900070006
-Content-Type: text/x-patch;
- name="platform_device_shutdown.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="platform_device_shutdown.diff"
 
-diff -ru --exclude '*.o' linux-orig/kernel/power/disk.c linux/kernel/power/disk.c
---- linux-orig/kernel/power/disk.c	2004-08-17 19:56:33.000000000 +0200
-+++ linux/kernel/power/disk.c	2004-08-20 09:40:40.581304056 +0200
-@@ -49,6 +49,7 @@
- 	local_irq_save(flags);
- 	switch(mode) {
- 	case PM_DISK_PLATFORM:
-+		device_shutdown();
- 		device_power_down(PM_SUSPEND_DISK);
- 		error = pm_ops->enter(PM_SUSPEND_DISK);
- 		break;
 
---------------010704060102000900070006--
-
+-- 
+Patrick "Diablo-D3" McFarland || diablod3@gmail.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd 
+all be running around in darkened rooms, munching magic pills and listening to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989

@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268234AbUIGSJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268263AbUIGSIv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268234AbUIGSJR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 14:09:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268288AbUIGSJJ
+	id S268263AbUIGSIv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 14:08:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268233AbUIGSHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 14:09:09 -0400
-Received: from mail.mellanox.co.il ([194.90.237.34]:29591 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S268247AbUIGSIl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 14:08:41 -0400
-Date: Tue, 7 Sep 2004 21:07:19 +0300
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel
-Message-ID: <20040907180719.GA2154@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <20040901072245.GF13749@mellanox.co.il> <20040903080058.GB2402@wotan.suse.de> <20040907104017.GB10096@mellanox.co.il> <20040907121418.GC25051@wotan.suse.de> <20040907134517.GA1016@mellanox.co.il> <20040907141524.GA13862@wotan.suse.de> <20040907142530.GB1016@mellanox.co.il> <20040907142945.GB20981@wotan.suse.de> <20040907150312.GB19354@MAIL.13thfloor.at>
+	Tue, 7 Sep 2004 14:07:03 -0400
+Received: from verein.lst.de ([213.95.11.210]:59037 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S268247AbUIGSGV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 14:06:21 -0400
+Date: Tue, 7 Sep 2004 20:06:16 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] unexport do_execve/do_select
+Message-ID: <20040907180616.GB12434@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040907150028.GA9235@lst.de> <1094576549.9599.2.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040907150312.GB19354@MAIL.13thfloor.at>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1094576549.9599.2.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-Quoting r. Herbert Poetzl (herbert@13thfloor.at) "Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel":
-> On Tue, Sep 07, 2004 at 04:29:46PM +0200, Andi Kleen wrote:
-> > On Tue, Sep 07, 2004 at 05:25:30PM +0300, Michael S. Tsirkin wrote:
-> > > > It may help your module, but won't solve the general problem shorter
-> > > > term.
-> > > But longer term it will be better, so why not go there?
-> > > Once the infrastructure is there, drivers will be able to be
-> > > migrated as required.
-> > 
-> > I have no problems with that. You would need two new entry points:
-> > one 64bit one without BKL and a 32bit one also without BKL. 
-> > 
-> > I think there were some objections to this scheme in the past,
-> > but I cannot think of a good alternative. 
+On Tue, Sep 07, 2004 at 06:02:30PM +0100, Alan Cox wrote:
+> On Maw, 2004-09-07 at 16:00, Christoph Hellwig wrote:
+> > These are basically shared code for native/32bit compat code, but as
+> > CONFIG_COMPAT is a bool there's no need to export them.
 > 
-> uhm, apologies for dropping in, for what exactly
-> are two (new) separate entry points needed?
-> 
-> somehow lost context here ...
-> 
-> TIA,
-> Herbert
+> do_select at least used to be used by the xABI compatibility modules, is
+> that no longer the case ?
 
-There are two uses BKL in the ioctl call path:
-1. BKL is kept across the whole ioctl call
-2. BKL is used to protect the compat hash lookup
-
-So ioctl_native is to let drivers declare they dont need the BKL
-in they ioctl.
-
-ioctl_compat is to let drivers declare 
-they dont need the hash lookup so it can be replaced by direct call by pointer.
-MST
+For Sparc, the only inkernel one that can be modular - no.  For the x86
+ABI modules half of the syscalls needs to be exported so the patch is
+huge anyway.

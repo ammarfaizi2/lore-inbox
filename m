@@ -1,85 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270448AbUJUBXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270562AbUJTXKG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270448AbUJUBXY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 21:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270441AbUJTX3O
+	id S270562AbUJTXKG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 19:10:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270435AbUJTXAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 19:29:14 -0400
-Received: from cantor.suse.de ([195.135.220.2]:41901 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S270465AbUJTXZP (ORCPT
+	Wed, 20 Oct 2004 19:00:11 -0400
+Received: from gprs214-102.eurotel.cz ([160.218.214.102]:6528 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S269066AbUJTW4w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 19:25:15 -0400
-Date: Thu, 21 Oct 2004 01:25:09 +0200
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Andi Kleen <ak@suse.de>, dhowells@redhat.com, torvalds@osdl.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       sparclinux@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-m68k@vger.kernel.org, linux-sh@m17n.org,
-       linux-arm-kernel@lists.arm.linux.org.uk, parisc-linux@parisc-linux.org,
-       linux-ia64@vger.kernel.org, linux-390@vm.marist.edu,
-       linux-mips@linux-mips.org
-Subject: Re: [discuss] Re: [PATCH] Add key management syscalls to non-i386 archs
-Message-ID: <20041020232509.GF995@wotan.suse.de>
-References: <3506.1098283455@redhat.com> <20041020150149.7be06d6d.davem@davemloft.net> <20041020225625.GD995@wotan.suse.de> <20041020160450.0914270b.davem@davemloft.net>
+	Wed, 20 Oct 2004 18:56:52 -0400
+Date: Thu, 21 Oct 2004 00:56:39 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Re: [ACPI] Machines self-power-up with 2.6.9-rc3 (evo N620c, ASUS, ...)
+Message-ID: <20041020225639.GD29863@elf.ucw.cz>
+References: <20041020191531.GC21315@elf.ucw.cz> <1098311478.4989.100.camel@desktop.cunninghams>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041020160450.0914270b.davem@davemloft.net>
+In-Reply-To: <1098311478.4989.100.camel@desktop.cunninghams>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 20, 2004 at 04:04:50PM -0700, David S. Miller wrote:
-> On Thu, 21 Oct 2004 00:56:25 +0200
-> Andi Kleen <ak@suse.de> wrote:
+Hi!
+
+> > I'm seeing bad problem with N620c notebook (and have reports of more
+> > machines behaving like this, for example ASUS L8400C.) If I shutdown
+> > machine with lid closed, opening lid will power the machine up. Ouch.
+> > 2.6.7 behaves okay.
 > 
-> > I don't think that's a good idea.  Normally new system calls 
-> > are relatively obscure and the system works fine without them,
-> > so urgent action is not needed.
-> > 
-> > And I think we can trust architecture maintainers to regularly
-> > sync the system calls with i386.
-> 
-> I disagree quite strongly.  One major frustration for users of
-> non-x86 platforms is that functionality is often missing for some
-> time that we can make trivial to keep in sync.
+> :> Some people would love to have the machine power up when they open
+> the lid! Wish my XE3 would do that!
 
-I'm not sure really if the users of some embedded platform
-are all sheering for key management system calls...
-
-I guess they will prefer just something that compiles.
-
-> 
-> I religiously watch what goes into Linus's tree for this purpose,
-> but that is kind of a rediculious burdon to expect every platform
-> maintainer to do.  It's not just system calls, we have signal handling
-> bug fixes, trap handling infrastructure, and now the nice generic
-> IRQ handling subsystem as other examples.
-
-Most of that is optional. When the arch maintainer choses not to
-use it you have just unnecessarily  broken the build.
-
-IMHO breaking the build unnecessarily is extremly bad because
-it will prevent all testing. And would you really want to hold
-up the whole linux testing machinery just for some obscure 
-system call? IMHO not a good tradeoff.
-
-> 
-> Simply put, if you're not watching the tree in painstaking detail
-> every day, you miss all of these enhancements.
-
-I would assume the other maintainers go at least from time to 
-time through the i386 diffs and check if they miss anything
-(that is what I do). For system calls they do definitely, although
-it may take some time.
-
-> 
-> The knowledge should come from the person putting the changes into
-> the tree, therefore it gets done once and this makes it so that
-> the other platform maintainers will find out about it automatically
-> next time they update their tree.
-
-And causing merging headaches and all kind of other problems.
-
--Andi
-
+:-). Well for some other people it powers up when they unplug AC
+power, and *that* is nasty. I'd like my machine to stay powered down
+when I tell it so.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,80 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263986AbTI2Rq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 13:46:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263967AbTI2Rou
+	id S264082AbTI2R6k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 13:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264060AbTI2Ryq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 13:44:50 -0400
-Received: from users.linvision.com ([62.58.92.114]:62439 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S263969AbTI2Rlb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 13:41:31 -0400
-Date: Mon, 29 Sep 2003 19:41:27 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, cesarb@nitnet.com.br
-Subject: Re: [Bug 1284] New: Asus P5AB broken BIOS reading ESCD
-Message-ID: <20030929174127.GD26491@bitwizard.nl>
-References: <42150000.1064850644@[10.10.2.4]>
+	Mon, 29 Sep 2003 13:54:46 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:40185 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S264051AbTI2RyR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 13:54:17 -0400
+Date: Mon, 29 Sep 2003 18:53:55 +0100
+From: Dave Jones <davej@redhat.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Correct address in MAINTAINERS
+Message-ID: <20030929175355.GU5507@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <E1A41Rq-0000Mv-00@hardwired> <20030929175026.GE6526@gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42150000.1064850644@[10.10.2.4]>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+In-Reply-To: <20030929175026.GE6526@gtf.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 29, 2003 at 08:50:44AM -0700, Martin J. Bligh wrote:
->            Summary: Asus P5AB broken BIOS reading ESCD
->     Kernel Version: 2.6.0-test6
->             Status: NEW
->           Severity: normal
->              Owner: mbligh@aracnet.com
->          Submitter: cesarb@nitnet.com.br
-> 
-> 
-> Distribution: Debian testing/unstable
-> Hardware Environment: Asus P5AB
-> Software Environment:
-> Problem Description:
-> 
-> Trying to read /proc/bus/pnp/escd causes an oops. Looks like the PnPBIOS is
-> broken. However, it's not exploding_pnp_bios, since only reading the escd causes
-> it (the boot probe works fine).
->
-> I think a new function should be added to the DMI blacklist to block trying to
-> read the ESCD.
+On Mon, Sep 29, 2003 at 01:50:26PM -0400, Jeff Garzik wrote:
+ > On Mon, Sep 29, 2003 at 06:04:34PM +0100, davej@redhat.com wrote:
+ > > diff -urpN --exclude-from=/home/davej/.exclude bk-linus/MAINTAINERS linux-2.5/MAINTAINERS
+ > > --- bk-linus/MAINTAINERS	2003-09-24 19:48:35.000000000 +0100
+ > > +++ linux-2.5/MAINTAINERS	2003-09-24 20:19:53.000000000 +0100
+ > > @@ -624,7 +624,7 @@ DIGIBOARD PC/XE AND PC/XI DRIVER
+ > >  P:	Christoph Lameter
+ > >  M:	christoph@lameter.com
+ > >  W:	http://www.digi.com
+ > > -L:	digilnux@dgii.com
+ > > +L:	digilnux@digi.com
+ > >  S:	Orphaned
+ > 
+ > Actually both addresses work equally well...
 
-[...]
+Ok, feel free to drop.
 
-> DMI:
-> # dmidecode 2.2
-> Legacy DMI 2.0 present.
-> 29 structures occupying 946 bytes.
-> Table at 0x000F545A.
-> Handle 0x0000
-> 	DMI type 0, 18 bytes.
-> 	BIOS Information
-> 		Vendor: Award Software, Inc.
-> 		Version: ASUS P5A-B ACPI BIOS Revision 1004 .............................
-
-FWIW: I used to have a similar board (Asus P5A, it actually died a week
-ago, so I can't check anything anymore). Never tried 2.6 on it, but I
-know it had a flakey PnPBIOS implementation: if you put in a Sound
-Blaster AWE64 Gold, you couldn't use the floppy drive anymore. The
-latest "Y2K compliant" BIOS (revision 1.005 IIRC) fixed that, it might
-also fix this particular bug.
-
-(Asus website seems to be broken, I get a "runtime error" from their
-web server when I want to get a list of downloads, so I have no idea if
-you have the latest BIOS right now :-/ )
-
-
-Erik
+		Dave
 
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
-| Data lost?!
-| Stay calm and contact Harddisk-recovery.com!
+ Dave Jones     http://www.codemonkey.org.uk

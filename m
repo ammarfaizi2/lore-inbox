@@ -1,44 +1,75 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313157AbSEEQAd>; Sun, 5 May 2002 12:00:33 -0400
+	id <S313162AbSEEQIY>; Sun, 5 May 2002 12:08:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313162AbSEEQAc>; Sun, 5 May 2002 12:00:32 -0400
-Received: from smtp02.web.de ([217.72.192.151]:40990 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S313157AbSEEQAZ>;
-	Sun, 5 May 2002 12:00:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Sebastian Huber <sebastian-huber@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: modversion.h improvement suggestion
-Date: Sun, 5 May 2002 18:00:51 +0200
-X-Mailer: KMail [version 1.3.1]
+	id <S313163AbSEEQIX>; Sun, 5 May 2002 12:08:23 -0400
+Received: from ool-182c923d.dyn.optonline.net ([24.44.146.61]:7309 "EHLO
+	www.milanese.cc") by vger.kernel.org with ESMTP id <S313162AbSEEQIW>;
+	Sun, 5 May 2002 12:08:22 -0400
+Message-ID: <1020614971.3cd5593b0f908@www.milanese.cc>
+Date: Sun,  5 May 2002 12:09:31 -0400
+From: "Peter J. Milanese" <peterm@milanese.cc>
+To: Urban Widmark <urban@teststation.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SMBfs / Unicode problem perhaps?
+In-Reply-To: <Pine.LNX.4.33.0205051720470.4444-100000@cola.enlightnet.local>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E174OQu-0007H2-00@smtp.web.de>
+User-Agent: Internet Messaging Program (IMP) 3.0
+X-Originating-IP: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I tried to compile a device driver module and got the error that 
-'modversion.h' cannot be found. My first questions were:
-	Are the include paths ok?
-	Do the maintainer now what he or she is doing?
-	Uses this driver code obsolete kernel stuff?
-	Has SuSE forgotten something to install?
-Then I started a google search for 'modversion.h' and noticed that this was a 
-common problem. And after a while I found the solution -> modversion.h is an 
-automatically generated file.
+Bah...
 
-So what about a default modversion.h file:
-/* This is an automatically generated file. Do not edit it. */
-#error You have not generated the module versions. You have to ...
+I did find some old libs on the box...
 
-This hint may save some time for those who are not so fit in kernel issues.
+I've cleaned that all up, and I'm currently compiling 2.2.4 to see how it goes.
+I will back it to 2.2.3a again (clean) if there's a problem with that, but the 
+notes don't say anything negative. I will go with the patch below IF it comes 
+to that, but I'd imagine the old libs were suspect.
 
-Ciao
-	Sebastian
+Thanks for openning my mind.... :)
+
+P
 
 
-PS:
-I'm not a member of this mailing list, so please cc me mails related to that 
-subject.
+Quoting Urban Widmark <urban@teststation.com>:
+
+> On Sun, 5 May 2002, Peter J. Milanese wrote:
+> 
+> > :\ - I am running 2.2.3a... I'll look at those messages and see if there is
+> a
+> > corelation. Thanks for the tip-
+> 
+> Are you sure your smbmount is 2.2.3a and that you don't have a mix of an
+> old 2.2.1a install? smbmount from 2.2.3a should not negotiate unicode
+> unless you told it to ...
+> 
+> You could also try the untested patch below that only enables it if you
+> also specify "codepage=unicode" as a mount option.
+> 
+> /Urban
+> 
+> 
+> diff -urN -X exclude linux-2.5.13-kbuild-orig/fs/smbfs/proc.c
+> linux-2.5.13-kbuild-smbfs/fs/smbfs/proc.c
+> --- linux-2.5.13-kbuild-orig/fs/smbfs/proc.c	Fri May  3 02:22:42 2002
+> +++ linux-2.5.13-kbuild-smbfs/fs/smbfs/proc.c	Sun May  5 14:53:08 2002
+> @@ -979,7 +979,9 @@
+>  		SB_of(server)->s_maxbytes = ~0ULL >> 1;
+>  		VERBOSE("LFS enabled\n");
+>  	}
+> -	if (server->opt.capabilities & SMB_CAP_UNICODE) {
+> +	if (server->opt.capabilities & SMB_CAP_UNICODE &&
+> +	    server->remote_nls == &unicode_table) {
+> +		/* Only enable unicode if the remote nls is also unicode */
+>  		server->mnt->flags |= SMB_MOUNT_UNICODE;
+>  		VERBOSE("Unicode enabled\n");
+>  	} else {
+> 
+> 
+
+
+

@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293465AbSCEQqK>; Tue, 5 Mar 2002 11:46:10 -0500
+	id <S293459AbSCEQxA>; Tue, 5 Mar 2002 11:53:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293459AbSCEQqA>; Tue, 5 Mar 2002 11:46:00 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:52463 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S293465AbSCEQor>;
-	Tue, 5 Mar 2002 11:44:47 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15492.62946.952197.632931@napali.hpl.hp.com>
-Date: Tue, 5 Mar 2002 08:44:18 -0800
-To: "David S. Miller" <davem@redhat.com>
-Cc: sp@scali.com, adam@yggdrasil.com, linux-kernel@vger.kernel.org
-Subject: Re: Does kmalloc always return address below 4GB?
-In-Reply-To: <20020305.074722.25911127.davem@redhat.com>
-In-Reply-To: <200203051112.DAA03159@adam.yggdrasil.com>
-	<20020305.031636.63129004.davem@redhat.com>
-	<3C84E785.1D102FF9@scali.com>
-	<20020305.074722.25911127.davem@redhat.com>
-X-Mailer: VM 7.01 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+	id <S293483AbSCEQwu>; Tue, 5 Mar 2002 11:52:50 -0500
+Received: from mailer.zib.de ([130.73.108.11]:59084 "EHLO mailer.zib.de")
+	by vger.kernel.org with ESMTP id <S293459AbSCEQwj>;
+	Tue, 5 Mar 2002 11:52:39 -0500
+Date: Tue, 5 Mar 2002 17:52:33 +0100
+From: Sebastian Heidl <heidl@zib.de>
+To: Scott Laird <laird@internap.com>
+Cc: Thomas =?iso-8859-1?Q?Lang=E5s?= <tlan@stud.ntnu.no>,
+        linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>,
+        jgarzik@mandrakesoft.com, linux-net@vger.kernel.org
+Subject: Re: [BETA-0.95] Sixth test release of Tigon3 driver
+Message-ID: <20020305175233.M8471@csr-pc6.local>
+Mail-Followup-To: Sebastian Heidl <heidl@zib.de>,
+	Scott Laird <laird@internap.com>,
+	Thomas =?iso-8859-1?Q?Lang=E5s?= <tlan@stud.ntnu.no>,
+	linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>,
+	jgarzik@mandrakesoft.com, linux-net@vger.kernel.org
+In-Reply-To: <20020305.055204.44939648.davem@redhat.com> <20020305150204.A7174@stud.ntnu.no> <20020305.060323.99455532.davem@redhat.com> <20020305.060604.68157839.davem@redhat.com> <20020305153025.A12473@stud.ntnu.no> <2532693.1015317048@[0.0.0.0]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <2532693.1015317048@[0.0.0.0]>; from laird@internap.com on Tue, Mar 05, 2002 at 08:30:48AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 05 Mar 2002 07:47:22 -0800 (PST), "David S. Miller" <davem@redhat.com> said:
+On Tue, Mar 05, 2002 at 08:30:48AM -0800, Scott Laird wrote:
+> --On Tuesday, March 5, 2002 3:30 PM +0100 Thomas Langås 
+> <tlan@stud.ntnu.no> wrote:
+> 
+> > David S. Miller:
+> >> Most gigabit switches don't support 9000 byte mtu :-)
+> >
+> > Hmm, I found a document through google; Cisco Catalyst 4006 doesn't
+> > support 9KB MTUs, so I'll contact the networking guys and fix this,
+> > we want switches that supports large MTUs :)
+> 
+> Good luck; they're fairly rare.
 
-  DaveM>    I know pci_map_single (and _sg) will use bounce buffers on
-  DaveM> platforms without an IOMMU,
+just an add-on:
+NortelNetworks http://www.nortelnetworks.com sells Alteon Switches which are
+Jumbo-capable. I'm sure the're also available elsewhere. Don't know about the
+price though...
 
-  DaveM> 64-bit platforms without IOMMU use HIGHMEM.
+_sh_
 
-Not true for ia64 linux.
-
-  DaveM>    It could for example be solved with a GFP_32BIT flag or
-  DaveM> something (on IA64 I know GFP_DMA is used in
-  DaveM> pci_alloc_consistent() to get memory below 4GB but that can't
-  DaveM> be used on all platforms).
-
-  DaveM> IA64 was broken, it now uses HIGHMEM.
-
-No it doesn't.  Perhaps you meant to say that the Red Hat version of
-the ia64 linux kernel uses highmem?
-
-	--david

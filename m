@@ -1,48 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263368AbTC2BMJ>; Fri, 28 Mar 2003 20:12:09 -0500
+	id <S263371AbTC2BTI>; Fri, 28 Mar 2003 20:19:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263370AbTC2BMJ>; Fri, 28 Mar 2003 20:12:09 -0500
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:39383 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S263368AbTC2BMJ>; Fri, 28 Mar 2003 20:12:09 -0500
-Subject: Re: 3c59x gives HWaddr FF:FF:...
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: jamagallon@able.es, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030328164419.0fe82430.akpm@digeo.com>
-References: <20030328145159.GA4265@werewolf.able.es>
-	 <20030328124832.44243f83.akpm@digeo.com>
-	 <20030328230510.GA5124@werewolf.able.es> <1048897765.601.5.camel@teapot>
-	 <20030328164419.0fe82430.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048900997.597.19.camel@teapot>
+	id <S263372AbTC2BTI>; Fri, 28 Mar 2003 20:19:08 -0500
+Received: from smtp06.iddeo.es ([62.81.186.16]:57042 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id <S263371AbTC2BTG>;
+	Fri, 28 Mar 2003 20:19:06 -0500
+Date: Sat, 29 Mar 2003 02:30:22 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, vortex@scyld.com
+Subject: Bad PCI IDs-Names table in 3c59x.c
+Message-ID: <20030329013022.GA2711@werewolf.able.es>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 29 Mar 2003 02:23:17 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 2.0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-29 at 01:44, Andrew Morton wrote:
-> > I had exactly the same issue as you, but this time it was on my laptop
-> > when using a 3CCFE575CT CardBus 10/100 NIC.
-> 
-> Don't think so.  You were getting 0xff when reading all PCI registers.  In
-> this case it is only the MAC address (which comes from an external eeprom)
-> which is coming up as 0xff.
+Hi al...
 
-Nah! The problem I described in this mail happened a long, long time ago
-(in a galaxy far, far away) and was exactly a "no command response"
-(IIRC) error logged continuously to the console. Now, the problem I'm
-experiencing is the slowdown-when-sending you may have read about which,
-unfortunately, doesn't throw any kind of errors to the console ;-)
+I have a 3c980-TX (at least that is what is printed in the card), that
+is recognized as this by the kernel pci subsystem:
 
-Thanks for your support, Andrew.
+werewolf:/usr/src/linux/drivers/net# cat /proc/pci
+...
+  Bus  0, device  18, function  0:
+    Ethernet controller: 3Com Corporation 3c980-TX 10/100baseTX NIC [Python-T] (rev 120).
+..
 
-________________________________________________________________________
-        Felipe Alfaro Solana
-   Linux Registered User #287198
-http://counter.li.org
+by lspci:
+00:12.0 Ethernet controller: 3Com Corporation 3c980-TX 10/100baseTX NIC [Python-T] (rev 78)
+        Subsystem: 3Com Corporation: Unknown device 1000
 
+but not by 3c59x.c (version 1.1.8-ac):
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+See Documentation/networking/vortex.txt
+00:12.0: 3Com PCI 3c982 Dual Port Server Cyclone at 0xec00. Vers LK1.1.18-ac
+
+Possible patch below, if I have not a bad understanding of drivers/pci/pci.ids.
+
+Two questions remaining:
+- rev 120 vs. rev 78 ???
+- Unknown device 1000 ?? (that's userspace, so I understand it does not matter
+  in this list...)
+
+TIA
+
+--- linux/drivers/net/3c59x.c.orig	2003-03-29 01:50:24.000000000 +0100
++++ linux/drivers/net/3c59x.c	2003-03-29 02:11:00.000000000 +0100
+@@ -432,6 +432,8 @@
+ 	CH_3C905C2,
+ 	CH_3C980,
+ 	CH_3C9805,
++	CH_3C982A,
++	CH_3C982B,
+ 
+ 	CH_3CSOHO100_TX,
+ 	CH_3C555,
+@@ -505,7 +507,11 @@
+ 	 PCI_USES_IO|PCI_USES_MASTER, IS_TORNADO|HAS_NWAY|HAS_HWCKSM, 128, },
+ 	{"3c980 Cyclone",
+ 	 PCI_USES_IO|PCI_USES_MASTER, IS_CYCLONE|HAS_HWCKSM, 128, },
+-	{"3c982 Dual Port Server Cyclone",
++	{"3c980 Python-T",
++	 PCI_USES_IO|PCI_USES_MASTER, IS_CYCLONE|HAS_HWCKSM, 128, },
++	{"3c982 Hydra Dual Port A",
++	 PCI_USES_IO|PCI_USES_MASTER, IS_CYCLONE|HAS_HWCKSM, 128, },
++	{"3c982 Hydra Dual Port B",
+ 	 PCI_USES_IO|PCI_USES_MASTER, IS_CYCLONE|HAS_HWCKSM, 128, },
+ 
+ 	{"3cSOHO100-TX Hurricane",
+@@ -572,6 +578,8 @@
+ 	{ 0x10B7, 0x9201, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C905C2 },
+ 	{ 0x10B7, 0x9800, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C980 },
+ 	{ 0x10B7, 0x9805, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C9805 },
++	{ 0x10B7, 0x1201, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C982A },
++	{ 0x10B7, 0x1202, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C982B },
+ 
+ 	{ 0x10B7, 0x7646, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3CSOHO100_TX },
+ 	{ 0x10B7, 0x5055, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CH_3C555 },
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Bamboo) for i586
+Linux 2.4.21-pre6-jam1 (gcc 3.2.2 (Mandrake Linux 9.1 3.2.2-3mdk))

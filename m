@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267765AbUIUPeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267766AbUIUPgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267765AbUIUPeX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 11:34:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267760AbUIUPeX
+	id S267766AbUIUPgG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 11:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267760AbUIUPgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 11:34:23 -0400
-Received: from imap.gmx.net ([213.165.64.20]:24993 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267765AbUIUPeW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 11:34:22 -0400
-X-Authenticated: #271361
-Date: Tue, 21 Sep 2004 17:34:04 +0200
-From: Edgar Toernig <froese@gmx.de>
-To: Robert Love <rml@novell.com>
-Cc: John McCutchan <ttb@tentacle.dhs.org>, linux-kernel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC][PATCH] inotify 0.9.2
-Message-Id: <20040921173404.0b8795c9.froese@gmx.de>
-In-Reply-To: <1095744091.2454.56.camel@localhost>
-References: <1095652572.23128.2.camel@vertex>
-	<1095744091.2454.56.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Sep 2004 11:36:05 -0400
+Received: from web53505.mail.yahoo.com ([206.190.37.66]:36488 "HELO
+	web53505.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267749AbUIUPfu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 11:35:50 -0400
+Message-ID: <20040921153415.73737.qmail@web53505.mail.yahoo.com>
+Date: Tue, 21 Sep 2004 08:34:15 -0700 (PDT)
+From: roger blofeld <blofeldus@yahoo.com>
+Subject: [PATCH] serial: 2.6.9rc1 pick nearest baud rate divider
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
->
-> +/*
-> + * struct inotify_event - structure read from the inotify device for each event
-> + *
-> + * When you are watching a directory, you will receive the filename for events
-> + * such as IN_CREATE, IN_DELETE, IN_OPEN, IN_CLOSE, and so on ...
-> + *
-> + * Note: When reading from the device you must provide a buffer that is a
-> + * multiple of sizeof(struct inotify_event)
-> + */
->  struct inotify_event {
->  	int wd;
->  	int mask;
-> -	char filename[256];
-> +	char filename[PATH_MAX];
->  };
+This patch modifies uart_get_divisor to select the nearest baud rate
+divider rather than the lowest. It minimizes baud rate errors.
 
-You really want to shove >4kB per event to userspace???
+For example, if uartclk is 33000000 and baud is 115200 the ratio is
+about 17.9
+The current code selects 17 (5% error) but should select 18 (0.5%
+error)
 
-Ciao, ET.
+-roger
+
+===== drivers/serial/serial_core.c 1.87 vs edited =====
+--- 1.87/drivers/serial/serial_core.c   2004-06-29 09:43:58 -05:00
++++ edited/drivers/serial/serial_core.c 2004-09-15 14:04:34 -05:00
+@@ -403,7 +403,7 @@
+        if (baud == 38400 && (port->flags & UPF_SPD_MASK) ==
+UPF_SPD_CUST)
+                quot = port->custom_divisor;
+        else
+-               quot = port->uartclk / (16 * baud);
++               quot = (port->uartclk + (8 * baud)) / (16 * baud);
+ 
+        return quot;
+ }
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265881AbTGADPt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 23:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265956AbTGADPt
+	id S265964AbTGADS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 23:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265956AbTGADS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 23:15:49 -0400
-Received: from imladris.surriel.com ([66.92.77.98]:40348 "EHLO
-	imladris.surriel.com") by vger.kernel.org with ESMTP
-	id S265881AbTGADPr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 23:15:47 -0400
-Date: Tue, 1 Jul 2003 03:29:54 +0000 (UTC)
-From: Rik van Riel <riel@imladris.surriel.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Andrew Morton <akpm@digeo.com>, mel@csn.ul.ie, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: What to expect with the 2.6 VM
-In-Reply-To: <20030701032248.GM3040@dualathlon.random>
-Message-ID: <Pine.LNX.4.55L.0307010327250.1638@imladris.surriel.com>
-References: <Pine.LNX.4.53.0307010238210.22576@skynet>
- <20030701022516.GL3040@dualathlon.random> <20030630200237.473d5f82.akpm@digeo.com>
- <20030701032248.GM3040@dualathlon.random>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	Mon, 30 Jun 2003 23:18:28 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:17298 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S265964AbTGADS1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 23:18:27 -0400
+Message-ID: <3F0100DE.1080105@nortelnetworks.com>
+Date: Mon, 30 Jun 2003 23:32:46 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: simple question about signal.c
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Jul 2003, Andrea Arcangeli wrote:
 
-> Also think if you've a 1G box, the highmem list would be very small and
-> if you shrink it first, you'll waste an huge amount of cache. Maybe you
-> go shrink the zone normal list first in such case of unbalance?
+In do_notify_parent() we fire off a signal to the parent of the process 
+in question.  Then we explicitly wake up the parent.  Why?  Won't the 
+process of sending the signal also wake up the parent?
 
-That's why you have low and high watermarks and try to balance
-the shrinking and allocating in both zones.  Not sure how
-classzone would influence this balancing though, maybe it'd be
-harder maybe it'd be easier, but I guess it would be different.
+Chris
 
-> Overall I think rotating too fast a global list sounds much better in this
-> respect (with less infrequent GFP_KERNELS compared to the
-> highmem/pagecache/anonmemory allocation rate) as far as I can tell, but
-> I admit I didn't do any math (I didn't feel the need of a demonstration
-> but maybe we should?).
-
-Remember that on large systems ZONE_NORMAL is often under much
-more pressure than ZONE_HIGHMEM.  Need any more arguments ? ;)
-
-Rik
 -- 
-Engineers don't grow up, they grow sideways.
-http://www.surriel.com/		http://kernelnewbies.org/
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264624AbTDZGlO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 02:41:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbTDZGlO
+	id S264620AbTDZGwN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 02:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264621AbTDZGwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 02:41:14 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:49536 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S264624AbTDZGlN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 02:41:13 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304260657.h3Q6v0u7000394@81-2-122-30.bradfords.org.uk>
-Subject: Re: 9-track tape drive (Was: Re: versioned filesystems in linux)
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Sat, 26 Apr 2003 07:57:00 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <b8d952$162$1@cesium.transmeta.com> from "H. Peter Anvin" at Apr 25, 2003 11:32:02 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	Sat, 26 Apr 2003 02:52:13 -0400
+Received: from dp.samba.org ([66.70.73.150]:57754 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264620AbTDZGwM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 02:52:12 -0400
+Date: Sat, 26 Apr 2003 16:30:39 +1000
+From: David Gibson <hermes@gibson.dropbear.id.au>
+To: Christoph Hellwig <hch@infradead.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org, Jean Tourrilhes <jt@hpl.hp.com>,
+       David Hinds <dhinds@sonic.net>
+Subject: Re: Update to orinoco driver (2.4)
+Message-ID: <20030426063039.GB14509@zax>
+Mail-Followup-To: David Gibson <hermes@gibson.dropbear.id.au>,
+	Christoph Hellwig <hch@infradead.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org, Jean Tourrilhes <jt@hpl.hp.com>,
+	David Hinds <dhinds@sonic.net>
+References: <20030423054636.GG25455@zax> <20030423060520.GI25455@zax> <20030425153706.A2024@infradead.org> <20030426003018.GA14509@zax> <20030426062240.A19146@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030426062240.A19146@infradead.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > actually measure the real speed you can presumably vary the speed
-> > > arbitrarily, all the way up to the breaking point of the medium.
+On Sat, Apr 26, 2003 at 06:22:40AM +0100, Christoph Hellwig wrote:
+> On Sat, Apr 26, 2003 at 10:30:18AM +1000, David Gibson wrote:
+> > On Fri, Apr 25, 2003 at 03:37:06PM +0100, Christoph Hellwig wrote:
+> > > > +static void __exit exit_hermes(void)
+> > > > +{
+> > > > +}
+> > > > +
+> > > >  module_init(init_hermes);
+> > > > +module_exit(exit_hermes);
+> > > 
+> > > Please don't add exmpty functions without a reak good reason.
 > > 
-> > I suspect that method is patented, as I have seen this implemented on
-> > both Travan tapes, and cassette tapes.
-> > 
-> > However, there seems to have been a flaw in the implementation, where the
-> > breaking point was underestimated.
-> > 
+> > And the real good reason would be that the module can't be unloaded
+> > without an exit function.
 > 
-> Presumably any patents on this have since long expired (they would
-> have had to have been filed no earlier than 1983.)
+> That braindamage fortunately is not true for 2.4 and still needs
+> fixing for 2.5.
 
-Using two heads, you should be able to write at variable speed as well
-- if the heads are spaced two blocks apart, whatever speed you read a
-block at with the first head, you could write the new data using the
-second head at the same speed.
+Removing one empty function is insufficient cause for me to maintain
+separate 2.4 and 2.5 versions.  When and if this changes in 2.5, I'll
+remove the function.
 
-As long as the tape is formatted correctly, it should work.
-
-John.
+-- 
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314503AbSEHQV0>; Wed, 8 May 2002 12:21:26 -0400
+	id <S314559AbSEHQ0F>; Wed, 8 May 2002 12:26:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314513AbSEHQV0>; Wed, 8 May 2002 12:21:26 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:38645 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S314503AbSEHQVZ>; Wed, 8 May 2002 12:21:25 -0400
-Subject: Re: x86 question: Can a process have > 3GB memory?
-From: Robert Love <rml@tech9.net>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Clifford White <ctwhite@us.ibm.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020508102934.Z31998@dualathlon.random>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
-Date: 08 May 2002 09:21:38 -0700
-Message-Id: <1020874898.2147.102.camel@bigsur>
-Mime-Version: 1.0
+	id <S314556AbSEHQ0E>; Wed, 8 May 2002 12:26:04 -0400
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:6626 "HELO
+	openlab.rtlab.org") by vger.kernel.org with SMTP id <S314513AbSEHQ0D>;
+	Wed, 8 May 2002 12:26:03 -0400
+Date: Wed, 8 May 2002 12:26:03 -0400 (EDT)
+From: "Calin A. Culianu" <calin@ajvar.org>
+X-X-Sender: <calin@rtlab.med.cornell.edu>
+To: Der Herr Hofrat <der.herr@mail.hofr.at>
+Cc: "Serguei I. Ivantsov" <administrator@svitonline.com>,
+        <linux-gcc@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Measure time
+In-Reply-To: <200205081200.g48C0a805476@hofr.at>
+Message-ID: <Pine.LNX.4.33L2.0205081224390.9196-100000@rtlab.med.cornell.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-05-08 at 01:29, Andrea Arcangeli wrote:
+On Wed, 8 May 2002, Der Herr Hofrat wrote:
 
-> On Tue, May 07, 2002 at 04:08:55PM -0700, Robert Love wrote:
+> > Hello!
+> >
+> > Is there any function for high precision time measuring.
+> > time() returns only in second. I need nanoseconds.
+> >
+> you can directly read the TSC but that will not realy give you nanoseconds
+> resolution as the actual read access even on a PIII/1GHz is going to take
+> up to a few 100 nanoseconds, and depending on what you want to time
+> stamp the overall jitter of that code can easaly be in the
+> range of a microsecond.
 >
-> > The attached patch (for which credit goes elsewhere - Ingo or Randy, I
-> > think?) implements the full range of 1 to 3.5GB user space partitioning,
-> 
-> actually I'm the one who wrote the 3.5G config option both in 2.2 and
-> recently I forward ported it to 2.4 due the number of requests I was
-> getting.
+> There are some hard-realtime patches to the Linux kernel that will
+> allow time precission of aprox. 1us (the TSC has a precission of 32ns)
+> but I don't think you can get below that without dedicated hardware.
+>
+> for RTLinux check at ftp://ftp.rtlinux.org/pub/rtlinux/
 
-Apologies - credit where credit is due.  It clearly came from -aa, what
-with the 00_ naming prefix :)
+I recommend RTAI instead.  It's more feature-rich, and works with newer
+kernels.. the url is http://www.aero.polimi.it/~rtai/, or
+http://www.rtai.org.
 
-Nice patch.
+-Calin
 
-	Robert Love
-
+>
+> hofrat
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

@@ -1,68 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270757AbTHANzH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 09:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270760AbTHANzH
+	id S270765AbTHAOL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 10:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270767AbTHAOL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 09:55:07 -0400
-Received: from [65.244.37.61] ([65.244.37.61]:13755 "EHLO
-	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
-	id S270757AbTHANzD convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 09:55:03 -0400
-Message-ID: <170EBA504C3AD511A3FE00508BB89A920234CD6C@exnanycmbx4.ipc.com>
-From: "Downing, Thomas" <Thomas.Downing@ipc.com>
-To: "'Stuart Longland'" <stuartl@longlandclan.hopto.org>,
-       linux-kernel@vger.kernel.org
-Subject: RE: fun or real: proc interface for module handling?
-Date: Fri, 1 Aug 2003 09:54:24 -0400 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Fri, 1 Aug 2003 10:11:56 -0400
+Received: from slimnet.xs4all.nl ([194.109.194.192]:39068 "EHLO
+	gatekeeper.slim") by vger.kernel.org with ESMTP id S270765AbTHAOLy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 10:11:54 -0400
+Subject: 2.6.0-test2: irq 18: nobody cared...Disabling irq #18 (i875P SATA)
+From: Jurgen Kramer <gtm.kramer@inter.nl.net>
+To: ML-linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1059747024.2418.8.camel@paragon.slim>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-1) 
+Date: 01 Aug 2003 16:10:24 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Stuart Longland [mailto:stuartl@longlandclan.hopto.org]
-> On Thu, Jul 31, 2003 at 02:34:01PM +0200, Måns Rullgård wrote:
-> 
-> | Nico Schottelius <nico-kernel@schottelius.org> writes:
-> | > Modul options could be passed my
-> | >   echo "psmouse_noext=1" > /proc/mods/psmouse/options
-> | > which would also make it possible to change module options while
-> running..
-> |
-> | How would options be passed when loading?  Some modules require that
-> | to load properly.
-> 
-> Possibility, why not just have a file, /proc/mods/initial, that you
-> write the initial kernel module options to, e.g.
-> 
-> # echo "ne2000 io=0x300 irq=11" > /proc/mods/initial
-> 
-> Then you load the module using:
-> 
-> # mkdir /proc/mods/ne2000/
-> 
-> although you could skip this necessity and just load the module when
-> someone writes to /proc/mods/initial.
-> 
-> Just a thought.
+Hi,
 
->From an newbie:
+While booting 2.6.0-test2 on my i875P based PC I get the following:
 
-How about having a dir for each available module created earliest moment
-in boot process, (point where depmod is done now I guess).  Each dir has
-files 'options' and 'load'.  then you could:
+<snip>
+Adding 787176k swap on /dev/hda3.  Priority:-1 extents:1
+irq 18: nobody cared!
+Call Trace:
+ [<c010cf76>] __report_bad_irq+0x2a/0x8b
+ [<c010d060>] note_interrupt+0x6f/0x9f
+ [<c010d38d>] do_IRQ+0x175/0x1a6
+ [<c010884e>] default_idle+0x0/0x2d
+ [<c010884e>] default_idle+0x0/0x2d
+ [<c010b5c4>] common_interrupt+0x18/0x20
+ [<c010884e>] default_idle+0x0/0x2d
+ [<c010884e>] default_idle+0x0/0x2d
+ [<c0108878>] default_idle+0x2a/0x2d
+ [<c01088ee>] cpu_idle+0x39/0x42
+ [<c0105000>] rest_init+0x0/0x65
+ [<c035a83e>] start_kernel+0x191/0x1ca
+ [<c035a403>] unknown_bootoption+0x0/0xff
 
-# echo "io=0x300 irq=11" > /proc/mods/ne2000/options
+handlers:
+[<c01ef51c>] (ide_intr+0x0/0x1d4)
+Disabling IRQ #18
 
-followed by
 
-# echo "1" > /proc/mods/ne2000/load
+IRQ 18 belongs to the SATA interface:
 
-Of course, I am probably missing the point or something :-(
+ide2 at 0xefe0-0xefe7,0xefae on irq 18
 
-td
+Funny thing is that the SATA drive is still usable while the irq
+is disabled.
+
+I also noticed that the interrupt count for IRQ 18 is still rather high
+(as I mention in a previous mail):
+
+           CPU0       CPU1
+  0:     552358          0    IO-APIC-edge  timer
+  2:          0          0          XT-PIC  cascade
+  9:          0          0   IO-APIC-level  acpi
+ 14:      11122          0    IO-APIC-edge  ide0
+ 15:          1          0    IO-APIC-edge  ide1
+ 16:      42146          0   IO-APIC-level  uhci-hcd, nvidia
+ 17:          0          0   IO-APIC-level  Intel ICH5
+ 18:     100013      99992   IO-APIC-level  ide2
+ 19:      14627          0   IO-APIC-level  uhci-hcd
+ 20:          2          0   IO-APIC-level  ohci1394
+ 21:        530          0   IO-APIC-level  eth0
+ 23:          0          0   IO-APIC-level  ehci_hcd
+NMI:          0          0
+LOC:     552289     552628
+ERR:          0
+MIS:          4
+
+Any solutions?
+
+Cheers,
+
+Jurgen	
+

@@ -1,66 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261388AbTEKKvt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 06:51:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbTEKKvs
+	id S261360AbTEKKuv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 06:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbTEKKuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 06:51:48 -0400
-Received: from pat.uio.no ([129.240.130.16]:17113 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261388AbTEKKvk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 06:51:40 -0400
-From: Terje Malmedal <terje.malmedal@usit.uio.no>
-To: arjanv@redhat.com
-Cc: Ahmed Masud <masud@googgun.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jesse Pollard <jesse@cats-chateau.net>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       "viro@parcelfarce.linux.theplanet.co.uk" 
-	<viro@parcelfarce.linux.theplanet.co.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Terje Eggestad <terje.eggestad@scali.com>
-Subject: Re: The disappearing sys_call_table export.
-References: <Pine.LNX.4.33.0305100957100.23680-100000@marauder.googgun.com>
-	<1052585430.1367.6.camel@laptop.fenrus.com>
+	Sun, 11 May 2003 06:50:51 -0400
+Received: from mta03-svc.ntlworld.com ([62.253.162.43]:4525 "EHLO
+	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S261360AbTEKKrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 06:47:07 -0400
+Message-ID: <3EBE2D24.1030208@POGGS.CO.UK>
+Date: Sun, 11 May 2003 11:59:48 +0100
+From: Peter Hicks <Peter.Hicks@POGGS.CO.UK>
+Organization: Poggs Computer Services
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030430 Debian/1.3-5
+X-Accept-Language: en-gb, en-us, en-au, en-ie, en
 MIME-Version: 1.0
-Message-Id: <E19EoaN-0000OJ-00@aqualene.uio.no>
-Date: Sun, 11 May 2003 13:01:43 +0200
+To: jw schultz <jw@pegasys.ws>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Trivial, pedantic spelling mistakes for 2.4.21-rc2
+References: <3EBDAB7F.4000905@wanadoo.es> <3EBE2436.80504@POGGS.CO.UK> <20030511104229.GE16654@pegasys.ws>
+In-Reply-To: <20030511104229.GE16654@pegasys.ws>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+jw schultz wrote:
 
-[Arjan van de Ven]
-> On Sat, 2003-05-10 at 16:38, Ahmed Masud wrote:
->> Case in point, I wrote a security module for Linux that overrides _all_
->> 237 systemcalls to audit and control the use of the system calls on a per
->> uid basis.  (i.e. if the user was actually allowed to make the system call
->> or not) and return -EPERM or jump to system call proper.
+>>Your mailer ate it.  Wordwrap, tab2space and unchanged lines
+>>are missing a leading space.
+>>    
+>>
+I give up, I'm going home!  
 
-> I'm pretty sure that auditing by your module can easily be avoided.
+http://journal.poggs.com/2003/05/10/spell-2.4.21rc2.patch
 
-> examle: pseudocode for the unlink syscall
+Its definitely there.  Intact.  Untouched by Mozilla.
 
-> long your_wrapped_syscall(char *userfilename)
-> {
->     char kernelpointer[something];
->     copy_from_user(kernelpointer, usefilename, ...);
->     audit_log(kernelpointer);
->     return original_syscall(userfilename);
-> }
 
-> now.... the original syscall does ANOTHER copy_from_user().
-> Eg I can easily fool your logging by having a second thread change the
-> filename between the time your code copies it and the time the original
-> syscall copies it again. The chances of getting the timing right are 50%
-> at least (been there done that ;)
+Peter.
 
-> The only solution for this is to check/audit/log things after the ONE
-> copy. Eg not by overriding the syscall but inside the syscall.
 
-just replace 
-     return original_syscall(userfilename);
-with
-     return original_syscall(kernelpointer);
 
--- 
- - Terje
-tm@basefarm.no

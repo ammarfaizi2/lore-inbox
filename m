@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263212AbRFEEcW>; Tue, 5 Jun 2001 00:32:22 -0400
+	id <S263219AbRFEFDE>; Tue, 5 Jun 2001 01:03:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263208AbRFEEcM>; Tue, 5 Jun 2001 00:32:12 -0400
-Received: from smtp7.xs4all.nl ([194.109.127.133]:22753 "EHLO smtp7.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S263212AbRFEEcF>;
-	Tue, 5 Jun 2001 00:32:05 -0400
-From: thunder7@xs4all.nl
-Date: Mon, 4 Jun 2001 20:31:39 +0200
-To: Pavel Roskin <proski@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: (lkml)2.4.5-ac7 usb-uhci appears twice in /proc/interrupts
-Message-ID: <20010604203139.A8060@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-In-Reply-To: <Pine.LNX.4.33.0106040258200.2088-100000@portland.hansa.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0106040258200.2088-100000@portland.hansa.lan>
-User-Agent: Mutt/1.3.18i
+	id <S263221AbRFEFCy>; Tue, 5 Jun 2001 01:02:54 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:23049 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263219AbRFEFCl>; Tue, 5 Jun 2001 01:02:41 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Reg mkdir syscall
+Date: 4 Jun 2001 22:02:23 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9fhp4v$aad$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.10.10106031716330.3971-100000@blrmail> <Pine.LNX.4.10.10106042157410.10477-100000@blrmail>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 04, 2001 at 03:07:56AM -0400, Pavel Roskin wrote:
-> Hello!
+Followup to:  <Pine.LNX.4.10.10106042157410.10477-100000@blrmail>
+By author:    "SATHISH.J" <sathish.j@tatainfotech.com>
+In newsgroup: linux.dev.kernel
 > 
-> I don't know, maybe it's Ok, but it looks confusing - usb-uhci is listed
-> twice on the same IRQ 9.
+> Actually I had written a small file system(on 2.2.14 kernel) similar  to
+> RAMFS on 2.4 kernel. I am able to mount it but when I try to create
+> directory under it, it gives EEXIST error saying" file already exists" but
+> when I check the directory again that file gets created. But the link
+> count of the parent remains the same. I do not know how this directory
+> gets created but with an error message. Please also tell me what all
+> functions mkdir passes thro' while creating a directory. One more thing is
+> when I took an strace of mkdir command the syscall mkdir fails with
+> EEXIST error.
+> Please help me with your thoughts.
 > 
-My Abit VP6 (VIA694) says in dmesg:
 
-usb.c: registered new driver hub
-uhci.c: USB UHCI at I/O 0xa000, IRQ 19
-usb.c: new USB bus registered, assigned bus number 1
-hub.c: USB hub found
-hub.c: 2 ports detected
-uhci.c: USB UHCI at I/O 0xa400, IRQ 19
-usb.c: new USB bus registered, assigned bus number 2
-hub.c: USB hub found
-hub.c: 2 ports detected
-uhci.c:  Linus Torvalds, Johannes Erdfelt, Randy Dunlap, Georg Acher, Deti Fliegl, Thomas Sailer, Roman Weissgaerber
-uhci.c: USB Universal Host Controller Interface driver
-Initializing USB Mass Storage driver...
-usb.c: registered new driver usb-storage
-USB Mass Storage support registered.
+Your code is broken.
 
-And more, if I read the handbook I get an adapter to get another two usb
-plugs at the backside. So yes, this motherboard has 2 usb controllers.
-
-I think it is okay - you may want to check your own manual.
-
-Good luck,
-Jurriaan
+	-hpa
 -- 
-BOFH excuse #131:
-
-telnet: Unable to connect to remote host: Connection refused
-GNU/Linux 2.4.5-ac7 SMP/ReiserFS 2x1402 bogomips load av: 0.00 0.00 0.00
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

@@ -1,94 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130151AbRADHwR>; Thu, 4 Jan 2001 02:52:17 -0500
+	id <S129267AbRADHwR>; Thu, 4 Jan 2001 02:52:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130356AbRADHwH>; Thu, 4 Jan 2001 02:52:07 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:43792 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130151AbRADHvw>;
-	Thu, 4 Jan 2001 02:51:52 -0500
-Date: Thu, 4 Jan 2001 08:51:37 +0100
-From: Andi Kleen <ak@suse.de>
-To: Asang K Dani <asang@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, sct@redhat.com,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: generic_file_write code segment in 2.2.18
-Message-ID: <20010104085137.A18532@gruyere.muc.suse.de>
-In-Reply-To: <20010104052948.12042.qmail@web2303.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010104052948.12042.qmail@web2303.mail.yahoo.com>; from asang@yahoo.com on Wed, Jan 03, 2001 at 09:29:48PM -0800
+	id <S130151AbRADHwI>; Thu, 4 Jan 2001 02:52:08 -0500
+Received: from [204.143.97.92] ([204.143.97.92]:40719 "EHLO arisen.learn.ac.lk")
+	by vger.kernel.org with ESMTP id <S129267AbRADHvu>;
+	Thu, 4 Jan 2001 02:51:50 -0500
+Date: Thu, 4 Jan 2001 13:54:17 +0600 (LKT)
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: brian@worldcontrol.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: soffice, 2.2.18, cpu 97% idle, loadavg 6.05
+In-Reply-To: <20010103155540.A6026@top.worldcontrol.com>
+Message-ID: <Pine.LNX.4.04.10101041354050.26494-100000@hantana.pdn.ac.lk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 03, 2001 at 09:29:48PM -0800, Asang K Dani wrote:
-> hi everyone,
->    I was trying to understand following piece of code in
-> 'generic_file_read' (mm/filemap.c) for 2.2.18 kernel. The code
-> segment
-> is as follows:
+
+What is the compiler?
+
+On Wed, 3 Jan 2001 brian@worldcontrol.com wrote:
+
+> linux 2.2.18 with VM-global patch
+> 128MB RAM
+> AMD K6-3/366
+> Star Office 5.2
 > 
-> ----------------------------------------------------------------
-> 		dest = (char *) page_address(page) + offset;
-> 		if (dest != buf) { /* See comment in
->                                       update_vm_cache_cond. */
-> 			bytes -= copy_from_user(dest, buf, bytes);
-> 			flush_dcache_page(page_address(page));
-> 		}
-> 		status = -EFAULT;
-> 		if (bytes)
-> 			status = inode->i_op->updatepage(file, page,                      
->                       offset, bytes, sync);
+> I exiting StarOffice, and a little later noticed my loadavg display
+> widget was showing a high load average. top reports it at 6.
 > 
->  unlock:
-> 		/* Mark it unlocked again and drop the page.. */
-> 		clear_bit(PG_locked, &page->flags);
-> 		wake_up(&page->wait);
-> 		page_cache_release(page);
+> Poking about, I found all the soffice.bin processes still hanging
+> around.
 > 
-> 		if (status < 0)
-> 			break;
+> Looking with top, all the soffice.bin processes are in the 'D N' state.
+> In top's 'no idle' mode they are listed.
 > 
-> 		written += status;
-> 		count -= status;
-> 		pos += status;
-> 		buf += status;
-> ----------------------------------------------------------------
-> copy_from_user returns the number of bytes copied from userspace
-> to 'dest'. In case it succeeds, 'bytes' will be set to 0 after the
-> call. However, 'status' is set to -EFAULT. So wouldn't it break
-> out of the while loop (prematurely)?
-
-The code is buggy as far as I can see. copy_from_user doesn't return the 
-number of bytes copied, but the number of bytes not copied when an error
-occurs (or 0 on success).  
-
-
-Correct would be:
-
-	
---- linux-work/mm/filemap.c-o	Wed Jan  3 17:37:27 2001
-+++ linux-work/mm/filemap.c	Thu Jan  4 08:48:42 2001
-@@ -1685,11 +1685,11 @@
- 		 */
- 		dest = (char *) page_address(page) + offset;
- 		if (dest != buf) { /* See comment in update_vm_cache_cond. */
--			bytes -= copy_from_user(dest, buf, bytes);
-+			if (copy_from_user(dest, buf, bytes))
-+				status = -EFAULT; 
- 			flush_dcache_page(page_address(page));
- 		}
--		status = -EFAULT;
--		if (bytes)
-+		if (!status)
- 			status = inode->i_op->updatepage(file, page, offset, bytes, sync);
- 
-  unlock:
-
-
-
--Andi
+> The CPU is hanging around 97% idle, the loadavg has been sitting
+> at 6+ for almost 15 minutes.  It seems likely this state will
+> continue forever.
+> 
+> I tried a 'kill' on all the soffice.bin process and there was
+> no change.  a 'kill -9' also had no effect.
+> 
+> What is going on?
+> 
+> Shouldn't I be able to tear down the processes?
+> 
+> Here is status on the soffice.bin process with the lowest PID:
+> 
+> # cat /proc/5294/status
+> Name:   soffice.bin
+> State:  D (disk sleep)
+> Pid:    5294
+> PPid:   775
+> Uid:    101     101     101     101
+> Gid:    101     101     101     101
+> Groups: 101 0 10 228 229 500 
+> VmSize:   103600 kB
+> VmLck:         0 kB
+> VmRSS:     49588 kB
+> VmData:    13008 kB
+> VmStk:      1104 kB
+> VmExe:        88 kB
+> VmLib:     73604 kB
+> SigPnd: 0000000000004100
+> SigBlk: 0000000080000000
+> SigIgn: 8000000000001000
+> SigCgt: 00000003bfc064ff
+> CapInh: 0000000000000000
+> CapPrm: 0000000000000000
+> CapEff: 0000000000000000
+> 
+> Thanks,
+> 
+> -- 
+> Brian Litzinger <brian@worldcontrol.com>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

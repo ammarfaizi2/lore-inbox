@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133105AbRD1XHB>; Sat, 28 Apr 2001 19:07:01 -0400
+	id <S135506AbRD1XKU>; Sat, 28 Apr 2001 19:10:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135506AbRD1XGv>; Sat, 28 Apr 2001 19:06:51 -0400
-Received: from www.topmail.de ([212.255.16.226]:130 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S133105AbRD1XGl>;
-	Sat, 28 Apr 2001 19:06:41 -0400
-Message-ID: <010a01c0d037$e17e66b0$de00a8c0@homeip.net>
-From: "mirabilos" <eccesys@topmail.de>
-To: <linux-kernel@vger.kernel.org>, "Rogier Wolff" <R.E.Wolff@BitWizard.nl>
-In-Reply-To: <200104282236.AAA06021@cave.bitwizard.nl>
-Subject: Re: Sony Memory stick format funnies... 
-Date: Sat, 28 Apr 2001 23:06:37 -0000
-Organization: eccesys.net Linux development
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S135586AbRD1XKK>; Sat, 28 Apr 2001 19:10:10 -0400
+Received: from ferret.phonewave.net ([208.138.51.183]:44548 "EHLO
+	tarot.mentasm.org") by vger.kernel.org with ESMTP
+	id <S135506AbRD1XKD>; Sat, 28 Apr 2001 19:10:03 -0400
+Date: Sat, 28 Apr 2001 16:09:54 -0700
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.19 locks up on SMP
+Message-ID: <20010428160954.A25712@ferret.phonewave.net>
+In-Reply-To: <Pine.LNX.4.33.0104281402090.2487-100000@age.cs.columbia.edu> <20010429011604.A976@home.ds9a.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010429011604.A976@home.ds9a.nl>; from ahu@ds9a.nl on Sun, Apr 29, 2001 at 01:16:04AM +0200
+From: idalton@ferret.phonewave.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 001b0  00 00 00 00 00 00 00 00   00 00 00 00 00 00 80 02
-................
-> 001c0  08 00 01 07 d0 dd 27 00   00 00 d9 ee 01 00 00 00
-....P]'...Yn....
-> 001f0  00 00 00 00 00 00 00 00   00 00 00 00 00 00 55 aa
-..............U*
-> 04e00  e9 00 00 20 20 20 20 20   20 20 20 00 02 20 01 00 i..        ..
-..
-> 04e10  02 00 02 00 00 f8 0c 00   10 00 08 00 27 00 00 00
-.....x......'...
-> 04e20  d9 ee 01 00 00 00 29 00   00 00 00 00 00 00 00 00
-Yn....).........
-> 04e30  00 00 00 00 00 00 46 41   54 31 32 20 20 20 00 00 ......FAT12
-..
-> 04ff0  00 00 00 00 00 00 00 00   00 00 00 00 00 00 55 aa
-..............U*
+On Sun, Apr 29, 2001 at 01:16:04AM +0200, bert hubert wrote:
+> On Sat, Apr 28, 2001 at 02:21:29PM -0700, Ion Badulescu wrote:
+> > Hi Alan,
+> > 
+> > Over the last week I've tried to upgrade a 4-CPU Xeon box to 2.2.19, but 
+> > the it keeps locking up whenever the disks are stresses a bit, e.g. when 
+> > updatedb is running. I get the following messages on the console:
+> > 
+> > wait_on_bh, CPU 1:
+> > irq:  1 [1 0]
+> > bh:   1 [1 0]
+> > <[8010af71]>
+> 
+> Obvious question is, which compiler.
 
-I didnt look further but IMO it must be PARTITIONED???
-(I'd start the partition at +1 rather than +0x27)
+I hadn't seen any locks, but (on a dual Pmmx 200) it started crawling
+right after the NIC module (tulip) was loaded. System load decided to
+skyrocket.
 
-No, the directory is not on the disk, and I've been DEBUG.COMing
-FAT drives since I was 9 years old.
+Yadda... 2.2.19 with devfs patch.
+bicycle:~# gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.3/specs
+gcc version 2.95.3 20010315 (Debian release)
 
--mirabilos
+Might be the same problem.
 
-
+-- Ferret

@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbVCBSBu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbVCBSEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262378AbVCBSBu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 13:01:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbVCBSBI
+	id S262391AbVCBSEo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 13:04:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbVCBSCB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 13:01:08 -0500
-Received: from fire.osdl.org ([65.172.181.4]:43726 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262378AbVCBR7M (ORCPT
+	Wed, 2 Mar 2005 13:02:01 -0500
+Received: from rproxy.gmail.com ([64.233.170.206]:3383 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262383AbVCBSBg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 12:59:12 -0500
-Date: Wed, 2 Mar 2005 09:58:52 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Muthian Sivathanu <muthian_s@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 journal commit performance
-Message-Id: <20050302095852.3d4da20b.akpm@osdl.org>
-In-Reply-To: <20050302165814.70651.qmail@web53704.mail.yahoo.com>
-References: <20050302165814.70651.qmail@web53704.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 2 Mar 2005 13:01:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=VActDiJDZRBFVcXcJkOleNKVvmm/C3oeAB1U8vqHpEU4k+H2OBdgg5dTRfHn1AheNnDQ0bdsK4UgIR/xm3KXjw33BhJ7bUQBC6BSFYxZB3cKGG9iLSOs9lewYA0ihpcLdZfeHTnqN4leaSlqH8eaEthnltJtJyVbAsLmSFuCSRo=
+Message-ID: <9e47339105030210012e98d658@mail.gmail.com>
+Date: Wed, 2 Mar 2005 13:01:33 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Paul Mundt <lethal@linux-sh.org>, Adrian Bunk <bunk@stusta.de>,
+       adaplas@pol.net, linux-fbdev-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC: disallow modular framebuffers
+In-Reply-To: <20050302121744.GA2871@linux-sh.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20050301024118.GF4021@stusta.de>
+	 <20050302121744.GA2871@linux-sh.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Muthian Sivathanu <muthian_s@yahoo.com> wrote:
->
-> Hi,
-> 
-> I have a question on ext3 journal commit code.  When a
-> transaction is committed in the ordered mode, ext3
-> first issues the data writes, waits for them to
-> finish, then issues the journal writes, waits for them
-> to finish, and then writes out the commit record. 
-> 
-> It appears that the first wait (for the data blocks)
-> is unnecessary because all that is required is that
-> before the commit, both the data and the metadata
-> blocks should be on disk.  This extra wait can
-> potentially reduce performance in cases where the
-> journal is on a separate disk, because you lose
-> parallelism between data writes and the metadata
-> writes.
+On Wed, 2 Mar 2005 14:17:44 +0200, Paul Mundt <lethal@linux-sh.org> wrote:
+> It seems more sensible to just fix up the drivers that don't do this
+> right.. most of the broken drivers seem to be geared at x86 anyways where
+> people generally don't seem to care.
 
-	1) write the data
-	2) wait on the data write
-	3) write the journal
-	4) wait on the journal write
+X86 people don't care because they have VGA (with all of it's warts).
+But that doesn't mean that VGA is a good thing. VGA lets X86 systems
+run without needing framebuffer support.
 
-If we were to omit step 2), we wouldn't be ordering data any more: we will
-commit the journal while there are still data writes in flight.
-
-However, what you are proposing is, I think,
-
-	1) write the data
-	2) write the journal
-	3) wait on the data write
-	4) wait on the journal write
-
-That would work, and could possibly speed things up a little.
-
-But bear in mind that the journal write is just a single seek, and the
-journal tends to be at one end of the disk, and we need to seek to it
-anyway.  There would be some opportunity for the elevator and the disk to
-optimise away a seek.
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

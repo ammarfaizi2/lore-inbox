@@ -1,54 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261409AbSJYNzE>; Fri, 25 Oct 2002 09:55:04 -0400
+	id <S261419AbSJYOHg>; Fri, 25 Oct 2002 10:07:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261413AbSJYNzE>; Fri, 25 Oct 2002 09:55:04 -0400
-Received: from kim.it.uu.se ([130.238.12.178]:18626 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S261409AbSJYNzD>;
-	Fri, 25 Oct 2002 09:55:03 -0400
-From: Mikael Pettersson <mikpe@csd.uu.se>
-MIME-Version: 1.0
+	id <S261421AbSJYOHg>; Fri, 25 Oct 2002 10:07:36 -0400
+Received: from hazard.jcu.cz ([160.217.1.6]:19850 "EHLO hazard.jcu.cz")
+	by vger.kernel.org with ESMTP id <S261419AbSJYOHf>;
+	Fri, 25 Oct 2002 10:07:35 -0400
+Date: Fri, 25 Oct 2002 16:13:47 +0200
+From: Jan Marek <linux@hazard.jcu.cz>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [linux@hazard.jcu.cz: Re: [miniPATCH][RFC] Compilation fixes in the 2.5.44]
+Message-ID: <20021025141346.GB2057@hazard.jcu.cz>
+References: <20021025112923.GB1073@hazard.jcu.cz> <20021025131824.GA1766@suse.de> <20021025134159.GA2057@hazard.jcu.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15801.20136.556691.985301@kim.it.uu.se>
-Date: Fri, 25 Oct 2002 16:01:12 +0200
-To: Cajoline <cajoline@andaxin.gau.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ASUS TUSL2-C and Promise Ultra100 TX2
-In-Reply-To: <Pine.LNX.4.44.0210251530530.4572-100000@andaxin.gau.hu>
-References: <Pine.LNX.4.44.0210251530530.4572-100000@andaxin.gau.hu>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <20021025134159.GA2057@hazard.jcu.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cajoline writes:
- > I recently setup a box with the following components:
- > Intel Celeron 1300 MHz
- > ASUS TUSL2-C motherboard
- > 2 x Promise Ultra100 TX2 controllers
+Hallo,
 
-Those have the 20268 chip, right?
+On Fri, Oct 25, 2002 at 03:41:59PM +0200, Jan Marek wrote:
+> Hallo Dave and l-k,
+> 
+> On Fri, Oct 25, 2002 at 02:18:24PM +0100, Dave Jones wrote:
+> > On Fri, Oct 25, 2002 at 01:29:23PM +0200, Jan Marek wrote:
+> >  > > This fragment must be fixed, look at Documentation/Changes:
+> >  > gcc-2.95.4-17 on my Debian works fine on that and without any
+> >  > messages... You can try it, if you have other version of compiler...
+> > 
+> > Try testing with CONFIG_DEBUG_STACKOVERFLOW=y
+> 
+> I'm sorry, I don't think about it :-(... Yes, error or warning can be
+> generated, when I compile #ifdef'ed code...
+> 
+> But I tried it and everythink was OK:
 
- > Any 2.4 kernel I have tried on this machine displays this strange
- > behavior: any drives attached to the PDC controllers only work at udma
- > mode 2 (UDMA33).
+I'm sorry: with my fix compiler show error and ended... In the previous
+case I've compiled 2.5.44-mm5 kernel, where is esp declared as follows:
 
-I've recently installed a Ultra133 TX2 (PDC 20269) in a box, and it
-also only does UDMA33 in 2.4.20-pre11. 2.5.44 with the PDC driver
-for "new" chips does UDMA100, however. (The disk is only UDMA100.)
+#ifdef CONFIG_DEBUG_STACKOVERFLOW
+        /* Debugging check for stack overflow: is there less than 1KB
+ * free? */
+        {
+                long esp;
 
-The latest 2.4.20-pre-ac is supposed to have new IDE drivers, but
-I haven't had time to test it myself.
+                __asm__ __volatile__("andl %%esp,%0" :
+                                        "=r" (esp) : "0" (8191));
+                if (unlikely(esp < (sizeof(struct task_struct) + 1024)))
+{
+                        printk("do_IRQ: stack overflow: %ld\n",
+                                esp - sizeof(struct task_struct));
+                        dump_stack();
+                }
+        }
+#endif
 
- > So I have come to the conclusion there must be some rather bizarre
- > incompatibility between the PDCs and this motherboard.
+and on this code compiler is silent...
 
-Unlikely.
+I'm one's more sorry...
 
- > Let me note that the PDC controllers do work just fine with other older
- > motherboards. And another thing, during boot-up, the PDCs do show the
- > drives attached to it, detected at the right udma mode.
+This errorlog is from the compilation of 2.5.44-mm5:
 
-Did those boards also use standard 2.4 kernels?
+> arch/i386/kernel/traps.c: In function `do_int3':
+> arch/i386/kernel/traps.c:428: warning: label `skip_trap' defined but not used
+> arch/i386/kernel/traps.c: In function `do_overflow':
+> arch/i386/kernel/traps.c:429: warning: label `skip_trap' defined but not used
+> arch/i386/kernel/traps.c: In function `do_bounds':
+> arch/i386/kernel/traps.c:430: warning: label `skip_trap' defined but not used
+> arch/i386/kernel/traps.c: In function `do_device_not_available':
+> arch/i386/kernel/traps.c:432: warning: label `skip_trap' defined but not used
+> arch/i386/mm/hugetlbpage.c:272: warning: `unlink_vma' defined but not used
+> drivers/char/agp/agp.h:87: warning: `global_cache_flush' defined but not used
+> drivers/char/agp/agp.h:87: warning: `global_cache_flush' defined but not used
+> drivers/ide/pci/generic.h:138: warning: `unknown_chipset' defined but not used
+> drivers/ide/ide.c: In function `start_request':
+> drivers/ide/ide.c:881: warning: unused variable `hwif'
+> drivers/ide/ide.c: In function `ide_do_drive_cmd':
+> drivers/ide/ide.c:1518: warning: unused variable `major'
+> Root device is (8, 1)
+> Boot sector 512 bytes.
+> Setup is 4854 bytes.
+> System is 1253 kB
+> warning: kernel is too big for standalone boot from floppy
 
-/Mikael
+Sincerely
+Jan Marek
+-- 
+Ing. Jan Marek
+University of South Bohemia
+Academic Computer Centre
+Phone: +420-38-7772080

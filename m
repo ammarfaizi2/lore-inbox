@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313645AbSDURXo>; Sun, 21 Apr 2002 13:23:44 -0400
+	id <S313624AbSDUR1v>; Sun, 21 Apr 2002 13:27:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313653AbSDURXn>; Sun, 21 Apr 2002 13:23:43 -0400
-Received: from bitmover.com ([192.132.92.2]:6555 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S313645AbSDURXm>;
-	Sun, 21 Apr 2002 13:23:42 -0400
-Date: Sun, 21 Apr 2002 10:23:39 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Jeff Garzik <garzik@havoc.gtf.org>
-Cc: Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org,
-        Wayne Scott <wscott@bitmover.com>
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-ID: <20020421102339.E10525@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Jeff Garzik <garzik@havoc.gtf.org>,
-	Alexander Viro <viro@math.psu.edu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org,
-	Wayne Scott <wscott@work.bitmover.com>
-In-Reply-To: <20020421044616.5beae559.spyro@armlinux.org> <Pine.GSO.4.21.0204202347010.27210-100000@weyl.math.psu.edu> <20020421131354.C4479@havoc.gtf.org>
-Mime-Version: 1.0
+	id <S313633AbSDUR1u>; Sun, 21 Apr 2002 13:27:50 -0400
+Received: from zork.zork.net ([66.92.188.166]:12552 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id <S313624AbSDUR1t>;
+	Sun, 21 Apr 2002 13:27:49 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: possible GPL violation involving linux kernel code
+In-Reply-To: <Pine.LNX.4.33.0204200024030.24652-100000@tweedle.cabbey.net>
+From: Sean Neakums <sneakums@zork.net>
+X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
+X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
+X-Message-Flag: Message text advisory: EXCRETORY SPEECH, ARGUMENTUM AD
+ HOMINEM
+X-Mailer: Norman
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Sun, 21 Apr 2002 18:27:48 +0100
+Message-ID: <6uk7r1m06j.fsf@zork.zork.net>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.2
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> IOW, I propose to create a "linuspush" script that replaces his current
-> "bk push" command.  Linus pushes batches of csets out at a time,
-> make these cset batches the pre-patches...
+Chris,
 
-This is easily doable as a trigger.  I'm pretty sure that all you want
-is
+You have omitted documentation of your attempt(s) to contact Promise
+asking them to fix the problem, and their response(s).  Please supply
+same.
 
-	cat > BitKeeper/triggers/pre-incoming.diffs
-	#!/bin/sh
-	bk prs -hr+ -nd:KEY: ChangeSet > BitKeeper/log/save_key
-	^D
+Regards,
 
-	cat > BitKeeper/triggers/post-incoming.diffs
-	#!/bin/sh
-	
-	i=0
-	while test -f BitKeeper/tmp/diffs-$i
-	do	i=`expr $i + 1`
-	done
-	bk diffs -C`cat BitKeeper/log/save_key` > BitKeeper/tmp/diffs-$i
-	^D
+        Sean
 
-	chmod +x BitKeeper/triggers/*incoming.diffs
-
-The only reason I don't do this on bkbits.net is that regular style patches
-eat a lot more bandwidth than BK patches and we can't afford to offer up
-the bandwidth for free. 
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+ /////////////////  |                  | The spark of a pin
+<sneakums@zork.net> |  (require 'gnu)  | dropping, falling feather-like.
+ \\\\\\\\\\\\\\\\\  |                  | There is too much noise.

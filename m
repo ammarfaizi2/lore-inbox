@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263289AbUC3AUu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 19:20:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263301AbUC3AUu
+	id S263309AbUC3ATQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 19:19:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263346AbUC3ATP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 19:20:50 -0500
-Received: from dh132.citi.umich.edu ([141.211.133.132]:57987 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S263289AbUC3AUp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 19:20:45 -0500
-Subject: Re: [patch] silence nfs mount messages
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040329234643.GB17179@apps.cwi.nl>
-References: <UTC200403291900.i2TJ0sC14336.aeb@smtp.cwi.nl>
-	 <1080587480.2410.61.camel@lade.trondhjem.org>
-	 <20040329195435.GA19426@apps.cwi.nl>
-	 <1080602653.2410.192.camel@lade.trondhjem.org>
-	 <20040329234643.GB17179@apps.cwi.nl>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1080606053.2410.260.camel@lade.trondhjem.org>
+	Mon, 29 Mar 2004 19:19:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:23975 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263309AbUC3ATM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 19:19:12 -0500
+Date: Mon, 29 Mar 2004 16:21:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG_ON(!cpus_equal(cpumask, tmp));
+Message-Id: <20040329162123.4c57734d.akpm@osdl.org>
+In-Reply-To: <006701c415a4$01df0770$d100000a@sbs2003.local>
+References: <006701c415a4$01df0770$d100000a@sbs2003.local>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 29 Mar 2004 19:20:53 -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På må , 29/03/2004 klokka 18:46, skreiv Andries Brouwer:
-> The present situation is that the kernel comes with messages when
-> mount is recent and the kernel is old, and also when the kernel
-> is recent and mount is old. I object to both.
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
+> The bug is on "BUG_ON(!cpus_equal(cpumask, tmp));" in flush_tlb_others
+> This was from 2.6.1-rc1-mjb1, and seems to be a race on shutdown
+> (prints after "Power Down"), but I've no reason to believe it's specific
+> to the patchset I have - it's not an area I'm touching, I think.
 > 
-> Mount tries the latest version it knows about, when that fails
-> goes back to an earlier version until either the mount succeeds
-> or we give up. The same binary must work over a large range of
-> kernel versions.
+> I presume we've got a race between taking CPUs offline and the 
+> tlbflush code ... tlb_flush_mm reads the value from mm->cpu_vm_mask,
+> and then presumably some other cpu changes cpu_online_map before it
+> gets to calling flush_tlb_others ... does that sound about right?
 
-That will break functionality for the user, and sounds like a bug in
-"mount". See my objection w.r.t. the user who thinks he is getting
-secure authentication via RPCSEC_GSS.
+Looks like it, yes.  I don't think there's a sane way of fixing that - we'd
+need the flush_tlb_others() caller to hold some lock which keeps the cpu
+add/remove code away.
 
-> If you think that it would be terrible to have a nfs-v3 mount
-> succeed on a kernel that knows about nfs-v4 then I would prefer
-> to change the name of the filesystem to nfs4.
-
-The changes you are complaining about have *NOTHING* whatsoever to do
-with NFSv4, which already has its own filesystem name (yes: it is called
-"nfs4") with its own struct nfs4_mount.
-
-
-The 2 changes to the NFSv2/v3 mount structure are as follows:
-
-        int             pseudoflavor;           /* 5 */
-        char            context[NFS_MAX_CONTEXT_LEN + 1];       /* 6 */
-
-"pseudoflavor" adds support for the RPCSEC_GSS authentication flavours,
-so that people can use it for improving NFSv2/v3 security.
-
-"context" is an SELinux construct for passing their security context
-information (whatever that may be) down to their private handler.
-
-See? no NFSv4...
-
-Cheers,
-  Trond
+I'd propose removing the assertion?

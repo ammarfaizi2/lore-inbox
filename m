@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263214AbUCSAiv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 19:38:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbUCSAed
+	id S263290AbUCSAWI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 19:22:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263332AbUCRXxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 19:34:33 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:42881
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263196AbUCSAcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 19:32:25 -0500
-Date: Fri, 19 Mar 2004 01:33:10 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.5-rc1-aa2
-Message-ID: <20040319003310.GA3135@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 18 Mar 2004 18:53:53 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:64145 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263313AbUCRXh1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 18:37:27 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: linux-kernel@vger.kernel.org, mbligh@aracnet.com
+Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
+Date: Thu, 18 Mar 2004 15:37:10 -0800
+User-Agent: KMail/1.6.1
+References: <1079651064.8149.158.camel@arrakis> <200403181523.10670.jbarnes@sgi.com> <8090000.1079652747@flay>
+In-Reply-To: <8090000.1079652747@flay>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403181537.10060.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There was one smp race condition in anon_vma plus bugs in shmfs
-truncate, now it seems stable.
+On Thursday 18 March 2004 3:32 pm, Martin J. Bligh wrote:
+> I think the closest answer we have is that it's a grouping of cpus and
+> memory, where either may be NULL. 
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc1-aa2.gz
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc1-aa2/
+Yep, that seems to make the most sense, but then part of me wants to
+drop the term node and never use it again :)
 
-Only in 2.6.5-rc1-aa1: 00000_extraversion-1
-Only in 2.6.5-rc1-aa2: 00000_extraversion-2
+> I/O isn't directly associated with a node, though it should fit into the 
+> topo infrastructure, to give distances from io buses to nodes (for which 
+> I think we currently use cpumasks, which is probably wrong in retrospect, 
+> but then life is tough and flawed ;-))
 
-	Rediffed.
+It's probably not too late to change this to
+pcibus_to_nodemask(pci_bus *), or pci_to_nodemask(pci_dev *), there
+aren't that many callers, are there (my grep is still running)?
 
-Only in 2.6.5-rc1-aa1: 00101_anon_vma-1.gz
-Only in 2.6.5-rc1-aa2: 00101_anon_vma-2.gz
+Thanks,
+Jesse
 
-	Fixed race condition during swapping, manage the PG_anon inside
-	page_map_lock always.
-
-	Merged Hugh's fixes for truncate.
-
-	Changed my mind the second time and removed the union
-	(per Hugh's suggestion), to reduce the size of the patch.
-
-	Dropped some dozen of BUG_TO now that the code is (apparently) rock
-	solid.

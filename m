@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268377AbTCCGPV>; Mon, 3 Mar 2003 01:15:21 -0500
+	id <S268383AbTCCGXl>; Mon, 3 Mar 2003 01:23:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268383AbTCCGPV>; Mon, 3 Mar 2003 01:15:21 -0500
-Received: from csl.Stanford.EDU ([171.64.73.43]:60622 "EHLO csl.stanford.edu")
-	by vger.kernel.org with ESMTP id <S268377AbTCCGPU>;
-	Mon, 3 Mar 2003 01:15:20 -0500
-From: Dawson Engler <engler@csl.stanford.edu>
-Message-Id: <200303030625.h236Pgj08874@csl.stanford.edu>
-Subject: Re: [CHECKER] potential deadlocks
-To: akpm@digeo.com (Andrew Morton)
-Date: Sun, 2 Mar 2003 22:25:42 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030302221806.59836766.akpm@digeo.com> from "Andrew Morton" at Mar 02, 2003 10:18:06 PM
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S268386AbTCCGXl>; Mon, 3 Mar 2003 01:23:41 -0500
+Received: from smtp1.clear.net.nz ([203.97.33.27]:56963 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP
+	id <S268383AbTCCGXk>; Mon, 3 Mar 2003 01:23:40 -0500
+Date: Mon, 03 Mar 2003 19:36:49 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: Software Suspend Functionality in 2.5
+In-reply-to: <20030303095824.A2312@in.ibm.com>
+To: suparna@in.ibm.com
+Cc: Pavel Machek <pavel@ucw.cz>, Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1046673408.27945.5.camel@laptop-linux.cunninghams>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1046238339.1699.65.camel@laptop-linux.cunninghams>
+ <20030227181220.A3082@in.ibm.com>
+ <1046369790.2190.9.camel@laptop-linux.cunninghams>
+ <20030228121725.B2241@in.ibm.com>
+ <20030228130548.GA8498@atrey.karlin.mff.cuni.cz>
+ <20030228190924.A3034@in.ibm.com>
+ <20030228134406.GA14927@atrey.karlin.mff.cuni.cz>
+ <20030228204831.A3223@in.ibm.com>
+ <20030228151744.GB14927@atrey.karlin.mff.cuni.cz>
+ <1046458775.1720.5.camel@laptop-linux.cunninghams>
+ <20030303095824.A2312@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Dawson Engler <engler@csl.stanford.edu> wrote:
-> >
-> > BTW, are there known deadlocks (harmless or otherwise)?  Debugging
-> > the checker is a bit hard since false negatives are silent...
-> 
-> Known deadlocks tend to get fixed.  But I am surprised that you did not
-> encounter more of them.
+Hi.
 
-;-)
+On Mon, 2003-03-03 at 17:28, Suparna Bhattacharya wrote:
+> If you add to that the possibility of being able to save more 
+> in less space if you have compression, would it be useful ?
 
-I sent out a *very* small subset of the checker's output.  There are
-hundreds of messages.  I wanted to check on validity before flooding
-people.
+I'm not sure that it would because we don't know how much compression
+we're going to get ahead of time, so we don't know how many extra pages
+we can save. The compression/decompression also takes extra time and
+puts more drain on a potentially low battery.
 
+I suppose it could be included as an option if it was going to already
+be there for LKCD anyway, but I'm not sure it would be helpful for the
+usual use of swsusp.
 
-> btw, the filesystem transaction operations can be treated as sleeping locks. 
-> So for ext3, journal_start()/journal_stop() may, for lock-ranking purposes,
-> be treated in the same way as taking and releasing a per-superblock
-> semaphore.  Other filesystems probably have similar restrictions.
-> 
-> Other such "hidden" sleeping locks are lock_sock() and wait_on_inode().  The
-> latter is rather messy because there is no clear API function which sets
-> I_LOCK.
-> 
-> And pte_chain_lock() is a custom spinlock.
+Regards,
 
-Good deal.  Thanks for the pointers, I was missing all of these besides
-lock_sock.
+Nigel
 
-One nice thing is that the race detector has been OK at pointing out
-when a locking function is missing from our list.
-
-Dawson

@@ -1,70 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264861AbUD3BjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265000AbUD3CFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264861AbUD3BjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 21:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264991AbUD3BjJ
+	id S265000AbUD3CFi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 22:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265039AbUD3CFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 21:39:09 -0400
-Received: from ms-smtp-04-smtplb.ohiordc.rr.com ([65.24.5.138]:14056 "EHLO
-	ms-smtp-04-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
-	id S264861AbUD3BjG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 21:39:06 -0400
-From: Rob Couto <rpc@cafe4111.org>
-Reply-To: rpc@cafe4111.org
-Organization: Cafe 41:11
-To: carloschoenberg@yahoo.com
-Subject: Re: well-supported motherboard
-Date: Thu, 29 Apr 2004 21:38:22 -0400
-User-Agent: KMail/1.6.1
-References: <S263174AbUDYRbv/20040425173151Z+1925@vger.kernel.org>
-In-Reply-To: <S263174AbUDYRbv/20040425173151Z+1925@vger.kernel.org>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 29 Apr 2004 22:05:37 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:59808 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S265000AbUD3CFR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 22:05:17 -0400
+Subject: Re: 2.6.6-rc2-mm2
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040430002455.GA996@holomorphy.com>
+References: <20040426013944.49a105a8.akpm@osdl.org>
+	<20040429184126.GB783@holomorphy.com>
+	<20040429134546.5e9515d8.akpm@osdl.org>
+	<20040429211825.GC783@holomorphy.com>  <20040430002455.GA996@holomorphy.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404292138.22352.rpc@cafe4111.org>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 29 Apr 2004 21:05:06 -0500
+Message-Id: <1083290708.1804.191.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 25 April 2004 01:31 pm, you wrote:
-> I am looking for a motherboard that is known to work well with Linux.
-> "Known to work well" means:
-> 1) working open source drivers exist for all onboard components
-> 2) most people are not experiencing random crashes or data corruption,
-> or the reason for such is understood and a proper fix exists.
-> 3) multiple people are using the board successfully
-> 4) no VIA northbridge/southbridge, though other VIA components might
-> be OK.  Although there are people successfully using VIA chipsets, I
-> do not believe that VIA considers the stability of their products to
-> be an important concern.
+On Thu, 2004-04-29 at 19:24, William Lee Irwin III wrote:
+> # ChangeSet
+> #   2004/04/25 09:10:30-05:00 akpm@osdl.org 
+> #   [PATCH] aic7xxx: fix oops whe hardware is not present
+> #   From: Herbert Xu <herbert@gondor.apana.org.au>
 
-a friend has nothing wrong with his 845PE-based ABIT BE7. everything works, 
-down to the sensors (which i still have to tweak in /etc/sensors.conf for 
-accuracy). no 1394, only 4x agp, and 1 ethernet, so not quite your speed. 
-also 2GB is the RAM ceiling.
+OK, well, on inspection that patch is fairly comprehensively incorrect.
 
-now if the 875P-based IC7-MAX3 is as good, it has most if not all of what 
-you're after, I wonder: has anyone tried this board? I'm thinking in that 
-direction, dual channel DDR, 1394, etc. and especially the CSA gigabit 
-ethernet. I would like to keep it free from butterfly infestation... 
+Can you try out the attached?  I've compiled it but have nothing to test
+installation with.
 
-> It seems that no one does proper testing of motherboards with Linux.
-> Although I can find reviews that put a variety of boards through a
-> handful of tests in Windows, I can't find any reviews that properly
-> test Linux.
+Thanks,
 
-this BE7 cheerfully runs a 2.0A P4 at 3.1GHz, Vcore at +15%, about 70 deg. 
-*celsius* core temp in an air-conditioned room at 100% load for as long as 
-you want. GCC stabilizes at 2.8~2.9GHz where you can get away with Vcore at 
-+10%. The AGP is quick, in fact, opengl (and lately some direct3d) in wine is 
-about as fast as that other OS. never got 3dMark2001 to run in wine, so it's 
-hard to say for sure... it only screws up when you get irresponsible with 
-gentoo's optimizer settings. a stock slackware is solid, also with a -ck 
-patchset.
+James
 
--- 
-Rob Couto [rpc@cafe4111.org]
-computer safety tip: use only a non-conducting, static-free hammer.
---
+===== aic7770_osm.c 1.5 vs edited =====
+--- 1.5/drivers/scsi/aic7xxx/aic7770_osm.c	Tue Apr  6 23:09:31 2004
++++ edited/aic7770_osm.c	Thu Apr 29 20:07:39 2004
+@@ -159,10 +159,10 @@
+ void
+ ahc_linux_eisa_exit(void)
+ {
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
+-	eisa_driver_unregister(&aic7770_driver);
+-	free(aic7770_driver.id_table, M_DEVBUF);
+-#endif
++	if(aic7xxx_probe_eisa_vl != 0 && aic7770_driver.id_table != NULL) {
++		eisa_driver_unregister(&aic7770_driver);
++		free(aic7770_driver.id_table, M_DEVBUF);
++	}
+ }
+ 
+ static int
+===== aic7xxx_osm.c 1.51 vs edited =====
+--- 1.51/drivers/scsi/aic7xxx/aic7xxx_osm.c	Sun Apr 25 09:11:53 2004
++++ edited/aic7xxx_osm.c	Thu Apr 29 20:32:32 2004
+@@ -843,7 +843,8 @@
+ ahc_linux_detect(Scsi_Host_Template *template)
+ {
+ 	struct	ahc_softc *ahc;
+-	int     found;
++	int     found = 0;
++	int	eisa_err, pci_err;
+ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+ 	/*
+@@ -891,21 +892,12 @@
+ 	 */
+ 	ahc_list_lockinit();
+ 
+-#ifdef CONFIG_PCI
+-	found = ahc_linux_pci_init();
+-	if (found)
+-		goto out;
+-#endif
++	pci_err = ahc_linux_pci_init();
++	eisa_err = ahc_linux_eisa_init();
+ 
+-#ifdef CONFIG_EISA
+-	found = ahc_linux_eisa_init();
+-	if (found) {
+-#ifdef CONFIG_PCI
+-		ahc_linux_pci_exit();
+-#endif
++	if(pci_err && eisa_err)
+ 		goto out;
+-	}
+-#endif
++
+ 
+ 	/*
+ 	 * Register with the SCSI layer all
+@@ -916,12 +908,13 @@
+ 		if (ahc_linux_register_host(ahc, template) == 0)
+ 			found++;
+ 	}
++out:
++
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+ 	spin_lock_irq(&io_request_lock);
+ #endif
+ 	aic7xxx_detect_complete++;
+ 
+-out:
+ 	return (found);
+ }
+ 
+@@ -5078,7 +5071,7 @@
+ 	}
+ }
+ 
+-static void __exit ahc_linux_exit(void);
++static void ahc_linux_exit(void);
+ 
+ static int __init
+ ahc_linux_init(void)
+@@ -5101,7 +5094,7 @@
+ #endif
+ }
+ 
+-static void __exit
++static void
+ ahc_linux_exit(void)
+ {
+ 	struct ahc_softc *ahc;
+@@ -5128,12 +5121,8 @@
+ 	 */
+ 	scsi_unregister_module(MODULE_SCSI_HA, &aic7xxx_driver_template);
+ #endif
+-#ifdef CONFIG_PCI
+ 	ahc_linux_pci_exit();
+-#endif
+-#ifdef CONFIG_EISA
+ 	ahc_linux_eisa_exit();
+-#endif
+ }
+ 
+ module_init(ahc_linux_init);
+===== aic7xxx_osm.h 1.52 vs edited =====
+--- 1.52/drivers/scsi/aic7xxx/aic7xxx_osm.h	Tue Apr  6 23:09:31 2004
++++ edited/aic7xxx_osm.h	Thu Apr 29 20:39:50 2004
+@@ -845,6 +845,12 @@
+ int			 aic7770_map_registers(struct ahc_softc *ahc,
+ 					       u_int port);
+ int			 aic7770_map_int(struct ahc_softc *ahc, u_int irq);
++#else
++static inline int	ahc_linux_eisa_init(void) {
++	return -ENODEV;
++}
++static inline void	ahc_linux_eisa_exit(void) {
++}
+ #endif
+ 
+ /******************************* PCI Routines *********************************/
+@@ -931,6 +937,12 @@
+ ahc_get_pci_bus(ahc_dev_softc_t pci)
+ {
+ 	return (pci->bus->number);
++}
++#else
++static inline int ahc_linux_pci_init(void) {
++	return -ENODEV;
++}
++static inline void ahc_linux_pci_exit(void) {
+ }
+ #endif
+ 
+

@@ -1,48 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264401AbUGBMfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263725AbUGBMvC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264401AbUGBMfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 08:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264430AbUGBMfJ
+	id S263725AbUGBMvC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 08:51:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUGBMvC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 08:35:09 -0400
-Received: from smtpout.azz.ru ([81.176.67.34]:7096 "HELO mailserver.azz.ru")
-	by vger.kernel.org with SMTP id S264401AbUGBMfD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 08:35:03 -0400
-Message-ID: <40E556E5.90708@vlnb.net>
-Date: Fri, 02 Jul 2004 16:36:53 +0400
-From: Vladislav Bolkhovitin <vst@vlnb.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040512
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Dependant modules question
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Jul 2004 08:51:02 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:20474 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263725AbUGBMu6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 08:50:58 -0400
+Date: Fri, 2 Jul 2004 18:30:30 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Cc: linux-osdl@osdl.org
+Subject: [PATCH 0/22] fsaio, pipe aio and aio poll upgraded to 2.6.7
+Message-ID: <20040702130030.GA4256@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Its been a while since I last posted the retry based AIO patches
+that I've been accumulating. Janet Morgan recently brought
+the whole patchset up-to to 2.6.7.
 
-I need some assistance with the kernel build system. It looks like this 
-topic is not covered anywhere, at least I didn't find anything.
+The patchset contains modifications and fixes to the AIO core
+to support the full retry model, an implementation of AIO
+support for buffered filesystem AIO reads and O_SYNC writes
+(the latter courtesy O_SYNC speedup changes from Andrew Morton),
+an implementation of AIO reads and writes to pipes (from
+Chris Mason) and AIO poll (again from Chris Mason).
 
-I have two modules, A and B, where B is dependant from A, i.e. uses some 
-exported from it symbols. Both modules are built outside of the kernel 
-tree.
+Full retry infrastructure and fixes
+[1] aio-retry.patch
+[2] 4g4g-aio-hang-fix.patch
+[3] aio-retry-elevated-refcount.patch
+[4] aio-splice-runlist.patch
 
-With A everything is fine, it's compiled and installed with other kernel 
-modules in /lib/modules/2.6.7/extra.
+FS AIO read
+[5] aio-wait-page.patch
+[6] aio-fs_read.patch
+[7] aio-upfront-readahead.patch
 
-Then module B is built. Here I have a problem. Module A is not listed as 
-the module from which B depends in .mod.c file, therefore there are 
-"Undefined symbols" warnings and it is impossible to load B, even though 
-A is loaded.
+AIO for pipes
+[8] aio-cancel-fix.patch
+[9] aio-read-immediate.patch
+[10] aio-pipe.patch
+[11] aio-context-switch.patch
 
-So, the question is: what should I do to make A be seen as exporting 
-some symbols by the kernel and its build system?
+Concurrent O_SYNC write speedups using radix-tree walks
+[12] writepages-range.patch
+[13] fix-writeback-range.patch
+[14] fix-writepages-range.patch
+[15] fdatawrite-range.patch
+[16] O_SYNC-speedup.patch
 
-The kernel is 2.4.7, EXPORT_SYMBOL() used in A as required.
+AIO O_SYNC write
+[17] aio-wait_on_page_writeback_range.patch
+[18] aio-O_SYNC.patch
+[19] O_SYNC-write-fix.patch
 
-Thanks,
-Vlad
+AIO poll
+[20] aio-poll.patch
+
+Infrastructure fixes
+[21] aio-putioctx-flushworkqueue.patch
+[22] aio-context-stall.patch
+
+Next steps: Code changes for filtered wakeups per wli
+
+Regards
+Suparna
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

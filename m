@@ -1,85 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293562AbSCEDUy>; Mon, 4 Mar 2002 22:20:54 -0500
+	id <S293580AbSCEDlg>; Mon, 4 Mar 2002 22:41:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293556AbSCEDUq>; Mon, 4 Mar 2002 22:20:46 -0500
-Received: from phobos.hpl.hp.com ([192.6.19.124]:23264 "EHLO phobos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S293559AbSCEDUh>;
-	Mon, 4 Mar 2002 22:20:37 -0500
-Date: Mon, 4 Mar 2002 19:19:47 -0800
-To: Paul Mackerras <paulus@samba.org>
-Cc: jt@hpl.hp.com, linux-ppp@vger.kernel.org,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: PPP feature request (Tx queue len + close)
-Message-ID: <20020304191947.A32730@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <20020304144200.A32397@bougret.hpl.hp.com> <15492.13788.572953.6546@argo.ozlabs.ibm.com>
-Mime-Version: 1.0
+	id <S293566AbSCEDl3>; Mon, 4 Mar 2002 22:41:29 -0500
+Received: from office.mandrakesoft.com ([195.68.114.34]:5619 "EHLO
+	office.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S293563AbSCEDlU>; Mon, 4 Mar 2002 22:41:20 -0500
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: davej@suse.de, torvalds@transmeta.com, viro@math.psu.edu,
+        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] [PATCH] 2.5.5-dj2 - Fast Walk Dcache to Decrease Cacheline Bouncing
+In-Reply-To: <33110000.1015293677@w-hlinder.des>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <33110000.1015293677@w-hlinder.des>
+Date: 05 Mar 2002 04:30:00 +0100
+Message-ID: <m2sn7f8zev.fsf@localhost.mandrakesoft.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15492.13788.572953.6546@argo.ozlabs.ibm.com>; from paulus@samba.org on Tue, Mar 05, 2002 at 02:05:00PM +1100
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 05, 2002 at 02:05:00PM +1100, Paul Mackerras wrote:
-> Jean Tourrilhes writes:
-> 
-> > 	Problem : IrDA does its buffering (IrTTP is a sliding window
-> > protocol). PPP does its buffering (1 packet in ppp_generic +
-> > dev->tx_queue_len = 3). End result : a large number of packets queued
-> > for transmissions, which result in some network performance issues.
-> 
-> How much buffering does IrTTP do?  How large is its window?  It is
-> much more critical IMO to reduce the buffering below ppp_generic than
-> it is to reduce the buffering above it.  The ppp_generic layer itself
-> does as little buffering as possible.
+>>>>> "hanna" == Hanna Linder <hannal@us.ibm.com> writes:
 
-	IrTTP is another problem. If I were to use TCP instead of
-IrTTP, would you still ask me to reduce the window size of TCP ? Let's
-try to be fair...
-	I'm taking the approach that every little thing helps. There
-is a trivial win in PPP, and I would be stupid to not exploit it.
-	On the other hand, you are right that with IrTTP. I was
-spending the day investigating this issue. As usual with Linux-IrDA,
-it's very messy. I think I will need some architecture change to
-implement proper flow control between IrLAP and IrTTP. And then
-qualify that with all IrTTP users :-(
+Hi
+hanna> --- linux-2.5.5-dj2/fs/dcache.c	Mon Mar  4 15:56:20 2002
+hanna> +++ linux-2.5.5-fastwalk/fs/dcache.c	Fri Mar  1 16:21:40 2002
+hanna> @@ -705,13 +705,23 @@
+  
+hanna> struct dentry * d_lookup(struct dentry * parent, struct qstr * name)
+hanna> {
+hanna> +	struct dentry *dentry = NULL;
 
-> > 	Solution : could we allow the PPP channel to overwrite
-> > dev->tx_queue_len ?
-> > 	This is similar to the channel beeing able to set the MTUs and
-> > other parameters...
-> 
-> Not really, the channel can't set the bundle MTU, only its own MTU.
-> It can set the header length (the desired amount of headroom) but that
-> is really only an optimization.
-> 
-> What would happen in the case where two channels connected to the
-> same ppp unit want to set the queue length to two different values?
+Not needed.
 
-	No idea, never had this case ;-) This is exactly for this
-reason I ask you.
 
-> In general I think it would be better to get pppd to set the transmit
-> queue length than to have the channel magically influencing stuff two
-> levels above it.
+hanna> +int path_lookup(const char *name, unsigned int flags, struct nameidata *nd)
+hanna> +{
+hanna> +	nd->last_type = LAST_ROOT; /* if there are only slashes... */
+hanna> +	nd->flags = flags;
+hanna> +	if (*name=='/'){
+hanna> +		read_lock(&current->fs->lock);
+hanna> +		if (current->fs->altroot && !(nd->flags & LOOKUP_NOALT)) {
+hanna> +			nd->mnt = mntget(current->fs->altrootmnt);
+hanna> +			nd->dentry = dget(current->fs->altroot);
+hanna> +			read_unlock(&current->fs->lock);
+hanna> +			if (__emul_lookup_dentry(name,nd))
+hanna> +				return 0;
+hanna> +			read_lock(&current->fs->lock);
+hanna> +		}
+hanna> +		spin_lock(&dcache_lock); /*to avoid cacheline bouncing with d_count*/
+hanna> +		nd->mnt = current->fs->rootmnt;
+hanna> +		nd->dentry = current->fs->root;
+hanna> +		read_unlock(&current->fs->lock);
+hanna> +	}
+hanna> +	else{
+hanna> +		read_lock(&current->fs->lock);
+hanna> +		spin_lock(&dcache_lock);
+hanna> +		nd->mnt = current->fs->pwdmnt;
+hanna> +		nd->dentry = current->fs->pwd;
+hanna> +		read_unlock(&current->fs->lock);
+hanna> +	}
+hanna> +	nd->flags |= LOOKUP_LOCKED;
+hanna> +	return (path_walk(name, nd));
+hanna> +}
+hanna> +
 
-	I must have missed this option. I'll look again in the pppd
-man page. That may be good enough...
-	For stuff influencing level above, just think of
-ap->chan.hdrlen. In my case, it goes from IrLAP to TCP via IrLMP,
-IrTTP, IrNET, PPP and IP.
+Would you mean retest if the speed is the same using lik the old code
 
-> Could you produce some numbers showing better throughput, fewer
-> retransmissions, or whatever, with a smaller transmit queue length?
+(already static inline)
+/* SMP-safe */
+static inline int
+walk_init_root(const char *name, struct nameidata *nd)
+{
+	read_lock(&current->fs->lock);
+	if (current->fs->altroot && !(nd->flags & LOOKUP_NOALT)) {
+		nd->mnt = mntget(current->fs->altrootmnt);
+		nd->dentry = dget(current->fs->altroot);
+		read_unlock(&current->fs->lock);
+		if (__emul_lookup_dentry(name,nd))
+			return 0;
+		read_lock(&current->fs->lock);
+	}
+	nd->mnt = mntget(current->fs->rootmnt);
+	nd->dentry = dget(current->fs->root);
+	read_unlock(&current->fs->lock);
+	return 1;
+}
 
-	Don't have number, but I don't need number to know that.
+/* SMP-safe */
+int path_lookup(const char *name, unsigned int flags, struct nameidata *nd)
+{
+	nd->last_type = LAST_ROOT; /* if there are only slashes... */
+	nd->flags = flags;
+	if (*name=='/')
+		walk_init_root(name,nd);
+        else {
+        	read_lock(&current->fs->lock);
+                nd->mnt = mntget(current->fs->pwdmnt);
+                nd->dentry = dget(current->fs->pwd);
+                read_unlock(&current->fs->lock);
+        }
+	nd->flags |= LOOKUP_LOCKED;
+	return (path_walk(name, nd));
+}
 
-> Paul.
+I think that it should not made difference, and code is IMHO, more
+readadble (and you don't duplicate walk_init_root).
 
-	Jean
+Later, Juan.
+
+-- 
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268957AbUIRRqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269603AbUIRR5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268957AbUIRRqq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 13:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269597AbUIRRqq
+	id S269603AbUIRR5T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 13:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269584AbUIRR5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 13:46:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11743 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269610AbUIRRq2
+	Sat, 18 Sep 2004 13:57:19 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38623 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269130AbUIRR5Q
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 13:46:28 -0400
-Date: Sat, 18 Sep 2004 11:02:43 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] trivial patch for 2.4: resolve megaraid_info name collision
-Message-ID: <20040918140243.GB3435@logos.cnet>
-References: <200409161428.27425.vda@port.imtp.ilyichevsk.odessa.ua> <200409172155.29561.vda@port.imtp.ilyichevsk.odessa.ua> <200409181657.23833.vda@port.imtp.ilyichevsk.odessa.ua> <200409181702.35550.vda@port.imtp.ilyichevsk.odessa.ua>
+	Sat, 18 Sep 2004 13:57:16 -0400
+Date: Sat, 18 Sep 2004 18:57:14 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Grant Grundler <grundler@parisc-linux.org>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>,
+       Andrew Vasquez <andrew.vasquez@qlogic.com>, pj@sgi.com,
+       linux-scsi@vger.kernel.org, mdr@cthulhu.engr.sgi.com,
+       jeremy@cthulhu.engr.sgi.com, djh@cthulhu.engr.sgi.com,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Documentation/io_ordering.txt is wrong
+Message-ID: <20040918175714.GD642@parcelfarce.linux.theplanet.co.uk>
+References: <20040917183029.GW642@parcelfarce.linux.theplanet.co.uk> <20040918061001.GC21456@colo.lackof.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200409181702.35550.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20040918061001.GC21456@colo.lackof.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 18, 2004 at 05:03:12PM +0300, Denis Vlasenko wrote:
-> I'm not sure whether it make sense to compile in
-> megaraid and megaraid2 at once, 
+On Sat, Sep 18, 2004 at 12:10:01AM -0600, Grant Grundler wrote:
+> Jesse Barnes wrote:
+> ...
+> > Btw Andrew (Vasquez), there's a small doc I put together that should describe 
+> > when you have to worry about PCI posting.  It's in the tree:  
+> > Documentation/io_ordering.txt.  If it's incomplete or confusing, just let me 
+> > know and I'll update it.
+> 
+> Jesse,
+> Both. incomplete and confusing.
+> "concrete example of a hypothetical driver" wasn't my first warning
+> this document needed work. :^)
 
-It doesnt.
+Not just incomplete and confusing, but actively wrong.  spin_lock/
+spin_unlock should imply ordering of readb().  What you're describing
+there is __readb().  See Documentation/DocBook/deviceiobook.tmpl.  Also,
+rmb() should ensure ordering of io reads; there should be no need to
+touch the device.
 
-> but it does not build without this patch.
-
-Its intentional.
-
-
-
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,59 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261365AbSKTQXA>; Wed, 20 Nov 2002 11:23:00 -0500
+	id <S261450AbSKTQqr>; Wed, 20 Nov 2002 11:46:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261446AbSKTQXA>; Wed, 20 Nov 2002 11:23:00 -0500
-Received: from rj.sgi.com ([192.82.208.96]:41945 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S261365AbSKTQWy>;
-	Wed, 20 Nov 2002 11:22:54 -0500
-Message-ID: <3DDBB8B5.6D0F1CC8@engr.sgi.com>
-Date: Wed, 20 Nov 2002 10:30:45 -0600
-From: Ray Bryant <raybry@engr.sgi.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Call for [More] Papers -- OT
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261456AbSKTQqr>; Wed, 20 Nov 2002 11:46:47 -0500
+Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:40936 "EHLO
+	rrzs2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S261450AbSKTQqq>; Wed, 20 Nov 2002 11:46:46 -0500
+Date: Wed, 20 Nov 2002 17:53:50 +0100
+From: Christian Guggenberger 
+	<Christian.Guggenberger@physik.uni-regensburg.de>
+To: Karsten Desler <soohrt@soohrt.org>
+Cc: u.wiederhold@gmx.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-rc1-ac4 HPT374 doesn't find connected ide drives
+Message-ID: <20021120175350.A6312@pc9391.uni-regensburg.de>
+References: <20021119105955.A23008@pc9391.uni-regensburg.de> <20021119102338.GA24510@sit0.ifup.net> <20021119113300.C23008@pc9391.uni-regensburg.de> <20021119152244.GA26989@sit0.ifup.net> <20021119180317.A2597@pc9391.uni-regensburg.de> <20021119193530.GA915@sit0.ifup.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20021119193530.GA915@sit0.ifup.net>; from soohrt@soohrt.org on Tue, Nov 19, 2002 at 20:35:30 +0100
+X-Mailer: Balsa 1.2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I know this is off topic for this list, but the Freenix track of the
-2003 Usenix Conference is looking for additional papers.  The submission
-deadline was Monday, Nov 18th, but this has been extended to Monday, 
-Nov 25th.
+On 19.11.2002   20:35 Karsten Desler wrote:
+> > okay, my brain really shrinks; with only one hdd attached, you can't create
+> an
+> > array. So here it seems to work out of the box. I just tried 2.4.20-rc-ac1,
+> 
+> > which detects my drive connected to that hpt374 (hde).
+> >
+> > Maybe you can give this one a try?
+> 
+Karsten,
 
-Freenix is a special track within the Usenix Annual Technical
-Conference. The Freenix Program Committee is looking for papers about
-projects with a solid emphasis on nurturing the open source and
-freely-available software communities.  Freenix papers should advance
-the state of the art of freely-redistributable software or otherwise
-provide useful information to those faced with deploying, selling, or
-using free software in the field.
+so today I added 4 more drives to my hpt374, tried 2.5.47-ac6 and works 
+flawlessy...
+Sorry, but I can't try 2.4-ac-latest, cause of missing xfs support.
 
-Freenix is also designed to assist an free or open source developer who
-has an interesting project but does not have experience in writing a
-conference paper and who would like to write such a paper.  A member of
-the program committee will be assigned as a shepherd to assist in
-getting the paper ready for final publication. 
+There are some things you could be bitten with:
+My Distribution (Debian) only ships with device names up to /dev/hdh ...
 
-Submission is easy.  While you can submit a full paper, you can also
-submit just an extended abstract.  Freenix is thus well suited to
-projects that are currently underway but are not necessarily complete at
-the present time.  Freenix is also a useful forum for you to increase
-the exposure of your free or open source project in order to obtain more
-users or collaborators.
+So, by default, you'll see the drives attached to ide4(hdi,j) and to 
+ide5(hdk,l) in the kernel messages, but you can't use 'em...
 
-Further details are given at: 
+You have to make device nodes yourself:
 
-http://www.usenix.org/events/usenix03/cfp/freenix.html
+mknod /dev/hd* b MAJOR MINOR
 
--- 
-Best Regards,
-Ray
------------------------------------------------
-Ray Bryant               SGI
-512-453-9679 (work)      512-507-7807 (cell)
-raybry@sgi.com           raybry@austin.rr.com
------------------------------------------------
+where:
+hdi : 56 0
+hdi1: 56 1
+...
+
+hdj : 56 64
+hdj1: 56 65
+...
+
+hdk : 57 0
+hdk1: 57 1
+...
+
+hdl : 57 64
+hdl1: 57 65
+...
+
+see Documentation/devices.txt in the linux kernel sources.
+
+hope this helps for ya!
+Good Luck
+CHristian
+
+
+
+
+

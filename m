@@ -1,65 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283599AbRLDXog>; Tue, 4 Dec 2001 18:44:36 -0500
+	id <S283588AbRLEAHi>; Tue, 4 Dec 2001 19:07:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283588AbRLDXo0>; Tue, 4 Dec 2001 18:44:26 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:17695 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S280357AbRLDXoJ>; Tue, 4 Dec 2001 18:44:09 -0500
-Message-ID: <3C0D5FC7.3040408@redhat.com>
-Date: Tue, 04 Dec 2001 18:44:07 -0500
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011129
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Nathan Bryant <nbryant@optonline.net>
-CC: Mario Mikocevic <mozgy@hinet.hr>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i810 audio patch
-In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com> <3C0D5CB6.1080600@optonline.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S283604AbRLEAH2>; Tue, 4 Dec 2001 19:07:28 -0500
+Received: from sproxy.gmx.net ([213.165.64.20]:48572 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S283588AbRLEAHZ>;
+	Tue, 4 Dec 2001 19:07:25 -0500
+Date: Wed, 5 Dec 2001 01:07:18 +0100
+From: Rene Rebe <rene.rebe@gmx.net>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org
+Subject: Re: IDE controller detection 2.4 +devfs
+Message-Id: <20011205010718.7c964efd.rene.rebe@gmx.net>
+In-Reply-To: <200111300210.fAU2AqU06657@vindaloo.ras.ucalgary.ca>
+In-Reply-To: <20011130001138.78ab1242.rene.rebe@gmx.net>
+	<200111300017.fAU0Hx704241@vindaloo.ras.ucalgary.ca>
+	<20011130012752.0fd5380a.rene.rebe@gmx.net>
+	<200111300034.fAU0YB904723@vindaloo.ras.ucalgary.ca>
+	<20011130015538.68b09e03.rene.rebe@gmx.net>
+	<200111300111.fAU1BLR05033@vindaloo.ras.ucalgary.ca>
+	<20011130022637.290ad791.rene.rebe@gmx.net>
+	<200111300210.fAU2AqU06657@vindaloo.ras.ucalgary.ca>
+Organization: FreeSourceCommunity ;-)
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Bryant wrote:
+Are there any new results or comments regarding this issue ??
 
-> Doug Ledford wrote:
+On Thu, 29 Nov 2001 19:10:52 -0700
+Richard Gooch <rgooch@ras.ucalgary.ca> wrote:
+
+> Rene Rebe writes:
+> > On Thu, 29 Nov 2001 18:11:21 -0700
+> > Richard Gooch <rgooch@ras.ucalgary.ca> wrote:
+> > 
+> > > But it is actually predictable, isn't it? Think of it this way: the
+> > > IDE subsystem reserves "slots" (host numbers) for installed hardware.
+> > > If a piece of hardware is disabled in the BIOS, it doesn't mean that
+> > > the slot won't be reserved.
+> > 
+> > It would be nice if it would be that way - se below.
+> > 
+> > > > (All info from my very first mail ...)
+> > > > 
+> > > > The other bug is: On a Athlon-600 workstation based on an Irongate
+> > > > board (Asus-K7M) I have to disable the first (primarry) channel of
+> > > > the onbaord IDE controller, because it has problem with the UDMA-66
+> > > > mode. But when I disable this channel, Linux generates a /dev/ide/host1
+> > > > entry - No host0 entry is there. Sure it works - but sucks, too!
+> > > > (Generates a very unstable feeling in me ...)
+> > > 
+> > > The "host0" entry isn't shown, because it is disabled. But to say
+> > > "when I disable this channel, Linux generates a /dev/ide/host1" isn't
+> > > correct, and implies a problem where there isn't. The correct way to
+> > > describe this is:
+> > > "host0" is my primary onboard IDE controller. It might not appear if I
+> > > disable it.
+> > > "host1" is my secondary onboard IDE controller. It has the same name
+> > > whether or not I disable the primary.
+> > 
+> > No!!!! On the Althon box:
+> > - nothing disabled in BIOS:
+> > /dev/ide/host0/bus0/ - on-board primary channel
+> > /deV/ide/host0/bus1/ - on-board secondary channel
+> > 
+> > - when I disable the primary channel I get this:
+> > /dev/ide/host1/bus1/ - on-board secondary channel
+> > 
+> > So as you can see it moves!! From host0 to host1!
 > 
->> Yes, on underrun the DAC is stopped and dmabuf->enable is cleared. 
->> That's clearly a bug in this case.  However, it should only cause your 
->> problem if you are in fact getting an underrun.  Anyway, here's a 
->> proposed fix you can try to see if that's what's causing the problem:
+> Oh, fuck! Now I see why you're complaining. Yeah, that is busted. I
+> don't know why this happens. It may be due to some deep and subtle
+> workings of the IDE code.
 > 
+> Andre: any idea why this is happening?
 > 
-> [snip]
+> > > And this is a Feature[tm]. It means that tomorrow when a shiny new
+> > > drive arrives, you can plug it into your primary channel and enable
+> > > the channel in the BIOS. You can then boot without having to fix your
+> > > /etc/fstab, because /dev/ide/host1 is still pointing to the same
+> > > devices.
+> > 
+> > Yes that is a really cool advantage I now for months (over a year!)!
+> > But here is the next example again:
+> > 
+> > The K6 server (on-board ALI-Aladin-5 + PCI-Card Promisse controller):
+> > 
+> > /dev/ide/host0/bus0/ - on-board primary channel
+> > /dev/ide/host0/bus1/ - on-board secondary channel
+> > /dev/ide/host2/bus0/ - Promisse primary channel
+> > /dev/ide/host2/bus1/ - Promisse secondarychannel
+> > 
+> > So where is host1 ??????
 > 
-> That works.
+> Good question. I wonder what's taking up the "host1" slot?
+> 
+> 				Regards,
+> 
+> 					Richard....
+> Permanent: rgooch@atnf.csiro.au
+> Current:   rgooch@ras.ucalgary.ca
 
 
-OK, good.  I've fixed another bug related to MMAPed stuff (for the 
-people that like to play Quake on these sound cards).  I've put up a 
-0.08 version of the file on my web page.  If people could please verify 
-that this version works for them I would appreciate it.  Once I've 
-gotten a few "It works here" reports and no "It blew my computer up" 
-reports, I'll submit it to Marcello and Linus so we can finally get 
-these things working a bit more reliably.
-
-Highlights of this release:
-
-Fix GETOPTR and GETIPTR (thinko/typo in an if statement)
-Fix i810_poll() (side effect of fixing overrun/underrun handling in 0.06)
-Make handling of dmabuf->trigger more consistent throughout the source code
-
-http://people.redhat.com/dledford/i810_audio.c.gz
-
-
-
-
+k33p h4ck1n6
+  René
 
 -- 
+René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
 
-  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-       Please check my web site for aic7xxx updates/answers before
-                       e-mailing me about problems
+eMail:    rene.rebe@gmx.net
+          rene@rocklinux.org
 
+Homepage: http://www.tfh-berlin.de/~s712059/index.html
+
+Anyone sending unwanted advertising e-mail to this address will be
+charged $25 for network traffic and computing time. By extracting my
+address from this message or its header, you agree to these terms.

@@ -1,61 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262793AbSI3Rw2>; Mon, 30 Sep 2002 13:52:28 -0400
+	id <S262801AbSI3RxN>; Mon, 30 Sep 2002 13:53:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262801AbSI3Rw1>; Mon, 30 Sep 2002 13:52:27 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:49679 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S262793AbSI3Rw0>; Mon, 30 Sep 2002 13:52:26 -0400
-Date: Mon, 30 Sep 2002 13:36:55 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Roberto Nibali <ratz@drugphish.ch>
-cc: "David S. Miller" <davem@redhat.com>, ak@suse.de, niv@us.ibm.com,
-       linux-kernel@vger.kernel.org, jamal <hadi@cyberus.ca>
-Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
-In-Reply-To: <3D92CCC5.5000206@drugphish.ch>
-Message-ID: <Pine.LNX.3.96.1020930133306.20863A-100000@gatekeeper.tmr.com>
+	id <S262808AbSI3RxM>; Mon, 30 Sep 2002 13:53:12 -0400
+Received: from packet.digeo.com ([12.110.80.53]:58556 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262801AbSI3RxK>;
+	Mon, 30 Sep 2002 13:53:10 -0400
+Message-ID: <3D9890D4.FA7A5415@digeo.com>
+Date: Mon, 30 Sep 2002 10:58:44 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Steven Cole <elenstev@mesatop.com>
+CC: Andrew Morton <akpm@zip.com.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.37-bk2 maybe new traceback for $BLAH at slab.c:1374
+References: <1033406872.32409.82.camel@spc9.esa.lanl.gov>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Sep 2002 17:58:29.0100 (UTC) FILETIME=[FB6192C0:01C268AA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Sep 2002, Roberto Nibali wrote:
-
-> I've done extensive testing in this field trying to achive fast packet 
-> filtering with a huge set of not ordered rules loaded into the kernel.
+Steven Cole wrote:
 > 
-> According to my findings I had reason to believe that after around 1000 
-> rules for ipchains and around 4800 rules for iptables the L2 cache was 
-> the limiting factor (of course given the slowish iptables/conntrack 
-> table lookup).
+> I got the other init_irq() stuff just like many other people, but here's
+> one which I haven't seen reported yet.  Kernel is 2.5.39bk2.  I just got
+> this once on boot up.  This system is UP, IDE.
 > 
-> Those are rule thresholds I achieved with a PIII Tualatin and 512KB L2 
-> cache. With a sluggish Celeron with I think 128KB L2 cache I achieved 
-> about 1/8 of the above treshold. That's why I thought the L2 cache plays 
-> a bigger role in this than the CPU FSB clock.
+> Debug: sleeping function called from illegal context at slab.c:1374
+> cc57bf74 cc57bf94 c013204b c02a89e1 0000055e cc57a000 cd0103e0 00000000
+>        cc57bfbc c010bb13 c12832e8 000001d0 c012b317 bffffb88 00000000 cc57a000
+>        00000000 00000004 bffffb28 c010781b 00000000 00000400 00000001 00000000
+> Call Trace:
+>  [<c013204b>]__kmem_cache_alloc+0x10b/0x110
+>  [<c010bb13>]sys_ioperm+0x83/0x150
+>  [<c012b317>]sys_munmap+0x57/0x80
+>  [<c010781b>]syscall_call+0x7/0xb
 > 
-> I concluded that if the ruleset to be matched would exceed the treshold 
-> of what can be loaded into the L2 cache we see cache trashing and that's 
-> why performance goes right to hell. I wanted to test this using oprofile 
-> but haven't found the correct cpu performance counter yet :).
-> 
-> > Also not necessary, only the top level cache really needs to be
-> > top performance.
-> 
-> I will do a new round of testing this weekend for a speech I'll be 
-> giving. This time I will include ipchains, iptables (of course I am 
-> willing to apply every interesting patch regarding hash table 
-> optimisation and whatnot you want me to test), nf-hipac, the OpenBSD pf 
-> and of course the work done by Jamal.
 
-Look forward to any info you can provide.
-
-I particularly like that nf-hipac can be put in and tried in one-to-one
-comparison, that leaves an easy route to testing and getting confidence in
-the code.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Yup, thanks.  The sys_ioperm() one is known.  I'll fix it up.

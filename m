@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318078AbSHHXsr>; Thu, 8 Aug 2002 19:48:47 -0400
+	id <S318071AbSHHXyO>; Thu, 8 Aug 2002 19:54:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318079AbSHHXsq>; Thu, 8 Aug 2002 19:48:46 -0400
-Received: from quattro.sventech.com ([205.252.248.110]:27404 "EHLO
-	quattro.sventech.com") by vger.kernel.org with ESMTP
-	id <S318078AbSHHXsq>; Thu, 8 Aug 2002 19:48:46 -0400
-Date: Thu, 8 Aug 2002 19:52:29 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       mjr@znex.org
-Subject: Re: [linux-usb-devel] Re: USBLP_WRITE_TIMEOUT too short for Kyocera FS-1010.
-Message-ID: <20020808195229.C3414@sventech.com>
-References: <200208082333.QAA11560@adam.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200208082333.QAA11560@adam.yggdrasil.com>; from adam@yggdrasil.com on Thu, Aug 08, 2002 at 04:33:20PM -0700
+	id <S318079AbSHHXyO>; Thu, 8 Aug 2002 19:54:14 -0400
+Received: from pD9E23ABF.dip.t-dialin.net ([217.226.58.191]:3818 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318071AbSHHXyN>; Thu, 8 Aug 2002 19:54:13 -0400
+Date: Thu, 8 Aug 2002 17:57:32 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+cc: Peter Samuelson <peter@cadcamlab.org>, Andi Kleen <ak@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
+       <linux-kbuild@lists.sourceforge.net>
+Subject: Re: 64bit clean drivers was Re: Linux 2.4.20-pre1
+In-Reply-To: <Pine.LNX.4.44.0208081142390.23063-100000@chaos.physics.uiowa.edu>
+Message-ID: <Pine.LNX.4.44.0208081757020.10270-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 08, 2002, Adam J. Richter <adam@yggdrasil.com> wrote:
-> Mark J Roberts writes:
-> >Printing complicated postscript documents makes my Kyocera FS-1010
-> >hit that timeout. I increased it to 240 seconds and the problem
-> >seems to have disappeared.
-> >
-> >I guess there ought to be a blacklist or something.
+Hi,
+
+On Thu, 8 Aug 2002, Kai Germaschewski wrote:
+> As you're hacking Configure anyway, what about "fixing"
 > 
-> 	I saw a similar thing a few weeks ago (under 2.5.27?) with the
-> Hewlett-Packard 656C ink jet printer, which only occurred when I would
-> send a page with images on it, so the printer really would need a long
-> time before it was ready to accept more data.
+> 	dep_tristate ' ..' CONFIG_FOO $CONFIG_BAR,
 > 
-> 	I would hope that the kernel should be able to wait as long
-> as the printer wants before the printer indicates that it is ready for
-> more data.  I don't know if this is a bug in these printers' USB
-> implementations or if it is a real kernel bug.  I just haven't had
-> time to investigate it yet (and I no longer have access to that printer,
-> although 656C's are only $30 at Fry's).
+> which doesn't work as expected when CONFIG_BAR is not set (as opposed to 
+> "n"), to consider an unset CONFIG_BAR equivalent to "n" in this case?
+> 
+> (The rather hacky way I'd imagine to do so is to look at all used 
+> $CONFIG_* in a Config.in file before sourcing it and setting them to "n")
 
-I suspect it's a bug in the kernel.
+Hyphenation might help you to see that there has actually been 
+something...
 
-It sounds like the printer is NAKing all of the transfers while it's
-busy flushing out the data sent to it. This is to be expected because it
-can only store so much data and sending data is MUCH faster than it can
-print it.
-
-I think the problem is that the printer driver has a timeout. I don't
-think it should. It just doesn't make sense in this case. I say let the
-device NAK as long as it wants. It's the applications job to decide if
-it's been too long or not.
-
-JE
+			Thunder
+-- 
+.-../../-./..-/-..- .-./..-/.-.././.../.-.-.-
 

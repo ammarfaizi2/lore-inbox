@@ -1,61 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319249AbSHNREQ>; Wed, 14 Aug 2002 13:04:16 -0400
+	id <S319246AbSHNRCI>; Wed, 14 Aug 2002 13:02:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319250AbSHNREQ>; Wed, 14 Aug 2002 13:04:16 -0400
-Received: from ppp77-4-71.miem.edu.ru ([194.226.32.71]:19328 "EHLO null.ru")
-	by vger.kernel.org with ESMTP id <S319249AbSHNREP>;
-	Wed, 14 Aug 2002 13:04:15 -0400
-Message-ID: <3D5A8948.7060201@yahoo.com>
-Date: Wed, 14 Aug 2002 20:46:00 +0400
-From: Stas Sergeev <stssppnn@yahoo.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
-X-Accept-Language: ru, en
-MIME-Version: 1.0
-To: Michael Knigge <Michael.Knigge@set-software.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] New PC-Speaker driver
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S319248AbSHNRCI>; Wed, 14 Aug 2002 13:02:08 -0400
+Received: from host213-121-104-171.in-addr.btopenworld.com ([213.121.104.171]:32130
+	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
+	id <S319246AbSHNRCH>; Wed, 14 Aug 2002 13:02:07 -0400
+Subject: Re: sundance.o only two ports working
+From: Matthew Hall <matt@ecsc.co.uk>
+To: Holger.Woehle@arcor.net
+Cc: Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <41256C15.00613A82.00@ffm-hq-gtw01.Arcor.net>
+References: <41256C15.00613A82.00@ffm-hq-gtw01.Arcor.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-28rOb2MtWr/o/Mui5sOB"
+Organization: ECSC Ltd.
+Message-Id: <1029344756.18578.6.camel@smelly.dark.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 14 Aug 2002 18:05:57 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
 
-Michael Knigge wrote:
- > Oh, I would love to see that thing in the Standard-Kernel....
-Yes, I'd also like to see it there, but
-for now I don't know if/when this can be
-achieved.
-As pointed by David Woodhouse (from whom
-I've stolen the code just because I felt
-it was not updated for tooo long:) the main
-problem is that this driver, dispite no longer
-touching irq.c (the latest patch doesn't touch
-it) still speeds up the timer (this is
-unavoidable). Well, as in 2.5 HZ is configurable,
-this is probably a way to go (but I haven't
-yet played with 2.5).
-However, since 2.5 uses ALSA rather than OSS, I
-think I have to make an ALSA port before thinking
-about an integration. But even if this is done,
-somehow this must be dealt with:
-http://www.alsa-project.org/archive/alsa-user/msg04284.html
+--=-28rOb2MtWr/o/Mui5sOB
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-So there are anough of long-term issues and for
-2.4 solving them is not possible.
-My goal for 2.4 is to get rid of the native fops
-and use OSS fops instead (USE_OSS_FOPS in pcsp.h
-must be set to 1) but even this doesn't work very
-well: when CPU load is high, my output routines
-are called with the sound buffer entirely zeroed
-out! I don't know who wipes out the buffer on a
-high CPU load and as the problem is deeply buried
-in the OSS internals (not in my driver) I don't
-know how to deal with that.
+On Wed, 2002-08-14 at 18:37, Holger.Woehle@arcor.net wrote:
+> Hello,
+> i have a strange problem with two of my machines:
+> They are identical P4 systems with Intel Chipset with two epro100 adapter=
+s
+> onboard and a d-link dfe-580TX quad ethernet card.
+> I am using Kernel 2.4.18 and sundance.o v1.07a 7/9/2002.
 
- > Thanks for your work! This is something I was missing for
- > years!
-Thanks:) I'll try to make this driver acceptable
-for inclusion, but this will take *a lot* of time.
+I experienced problems with the sundance on the dfe580tx a while back=20
+too, and I made a patch for 2.4.18 a while back (it on my site (in the
+sig)), donald becker then released v1.08 on his site a while back
+(www.scyld.com) which fixed the problem (my patch now includes this).=20
+Please apply this patch and try again, (or try db's original version).
+Fyi, the dfe580tx doesn't support mii-diag afaik. The best error check
+was to check the output of ifconfig and see whether the RX bytes
+equalled the TX bytes (unless running lo, these shouldn't be the same,
+and they were the first time I had a problem).
+Hope this helps,
+Matt
+
+> The problem is, that i only can use the two first ports of the d-link car=
+d.
+> I can set up all four with no problems according to mii-diag and alta-dia=
+g.
+> Each port recognises link up/down and negotiates to the right speed and
+> flowcontrol.
+> But when i send traffic over the ports 4&5, at first nothing happens and =
+of
+> course i can't see any interrupts in /proc/interrupts eth4 eth5 and after=
+ a
+> while i get
+> the console message:
+> eth4: Transmit timed out, status c0, resetting...
+>=20
+> Having a look at alta-diag i noticed, that the column
+> " Interrupt status is..." differs between Index#1 / #2 and Index#3 / #4
+> Index#1 and #2 tells: Interrupt status is 0000: No interrupts pending.
+> Index#3 and #4 tells: Interrupt status is 0101: Interrupt summary Link st=
+atus
+> changed
+>=20
+> and after genrating some traffic that line changes at Index#3 & #4 to:
+>=20
+> Interrupt status is 0301: Interrupt summary Link status changed Tx DMA do=
+ne.
+>=20
+> The beehavier is identical on both machines.
+>=20
+> For better analysing i can send a file including cat /proc/pic, pci-confi=
+g,
+> alta-diag -e and alta-diag -m bevor and after sending some pings.
+> This file is a some more pages long so i don't know if it is ok to send i=
+t to
+> the mailing list.
+>=20
+> with regards
+> Holger
+>=20
+>=20
+>=20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
+n
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+--=20
+Matthew Hall -- matt@ecsc.co.uk -- http://people.ecsc.co.uk/~matt/
+Sig: Printed on 100% recycled electrons.
+
+--=-28rOb2MtWr/o/Mui5sOB
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA9Wo30w5xT5S6r89URAth+AJ4llhm5QM5c24x8ic+cA/d6Dz+HyACfZ4lW
+5Us5z/QVK097AMxwXX66u9c=
+=hAVt
+-----END PGP SIGNATURE-----
+
+--=-28rOb2MtWr/o/Mui5sOB--
 

@@ -1,67 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbVBAN70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbVBAORx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbVBAN70 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 08:59:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262021AbVBAN70
+	id S262023AbVBAORx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 09:17:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbVBAORx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 08:59:26 -0500
-Received: from zone4.gcu-squad.org ([213.91.10.50]:52950 "EHLO
-	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S262020AbVBAN7R convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 08:59:17 -0500
-Date: Tue, 1 Feb 2005 14:52:37 +0100 (CET)
-To: adobriyan@mail.ru
-Subject: Re: [PATCH 2.6] I2C: New chip driver: sis5595
-X-IlohaMail-Blah: khali@localhost
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
-Message-ID: <w2Am1HDp.1107265957.3006340.khali@localhost>
-In-Reply-To: <200502011612.27220.adobriyan@mail.ru>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: "Aurelien Jarno" <aurelien@aurel32.net>, "Greg KH" <greg@kroah.com>,
-       "LKML" <linux-kernel@vger.kernel.org>,
-       "LM Sensors" <sensors@Stimpy.netroedge.com>
+	Tue, 1 Feb 2005 09:17:53 -0500
+Received: from smtp08.web.de ([217.72.192.226]:4257 "EHLO smtp08.web.de")
+	by vger.kernel.org with ESMTP id S262023AbVBAORw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 09:17:52 -0500
+Message-ID: <41FF9001.5090607@web.de>
+Date: Tue, 01 Feb 2005 15:19:45 +0100
+From: Victor Hahn <victorhahn@web.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: dtor_core@ameritech.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Really annoying bug in the mouse driver
+References: <41E91795.9060609@web.de>	 <200501280206.06747.dtor_core@ameritech.net> <41FF43CD.7080901@web.de> <d120d5000502010556629fdb48@mail.gmail.com>
+In-Reply-To: <d120d5000502010556629fdb48@mail.gmail.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dmitry Torokhov wrote:
 
-Hi Alexey,
+>Sorry, I think it will apply to 2.6.11-rc2, I'll try to rediff against
+>2.6.10 later tonight.
+>
 
-> What about making sis5595_update_device() a simple jiffies-related wrapper
-> around function that updates "struct sis5595" unconditionally. I'm not sure
-> I plugged sis5595_do_update_client right, but you'll get the idea.
+You don't need to do extra work to make it compatible with 2.6.10, I 
+just applied it to 2.6.11-rc2, thanks. I'm just compiling it now, I'm 
+looking forward to see the result!
 
-Yeah I get the idea, I think I had something similar in mind some times
-ago but it failed to please me for the following reasons:
+Regards,
+Victor
 
-1* It forces a chip update (i.e. full register read) on driver load (or
-more precisely on client detection). Since I2C/SMBus accesses are really
-slow, it will result in a significant time penalty. As the read values
-are only considered valid for 1.5 second (or equivalent duration for the
-other drivers), this penalty brings statistically no benefit in return.
-
-2* Each subsequent update (or attempt thereof) will conditionally require
-an additional function call, which represents a small time penalty again
-(much more than a comparison if I'm not mistaken).
-
-We are only trying to avoid a conditional test and to get rid of a local
-variable, and end up with a much slower init and an additional function
-call later. The loss seems to overweight the gain, don't you think?
-
-So I wouldn't go that way. To me, the only acceptable simplification is
-the initialization of "last_updated" to something which ensures that
-the first update attempt will succeed - providing we actually can do
-that.
-
-Now I wonder, this is certainly not the only drivers in the kernel which
-need to do this, right? Didn't the other ones solve the issue already?
-Would be worth taking a look.
-
-Thanks,
---
-Jean Delvare

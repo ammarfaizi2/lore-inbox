@@ -1,76 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263311AbUCTKRp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 05:17:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263318AbUCTKRp
+	id S263313AbUCTKSG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 05:18:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263318AbUCTKSG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 05:17:45 -0500
-Received: from gizmo01bw.bigpond.com ([144.140.70.11]:61863 "HELO
-	gizmo01bw.bigpond.com") by vger.kernel.org with SMTP
-	id S263311AbUCTKRn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 05:17:43 -0500
-From: Ross Dickson <ross@datscreative.com.au>
-Reply-To: ross@datscreative.com.au
-Organization: Dat's Creative Pty Ltd
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
-       Len Brown <len.brown@intel.com>
-Subject: Re: idle Athlon with IOAPIC is 10C warmer since 2.6.3-bk1
-Date: Sat, 20 Mar 2004 20:19:44 +1000
-User-Agent: KMail/1.5.1
-Cc: Thomas Schlichter <thomas.schlichter@web.de>, linux-kernel@vger.kernel.org
-References: <200403181019.02636.ross@datscreative.com.au> <1079738422.7279.308.camel@dhcppc4> <405C0EF1.1060104@gmx.de>
-In-Reply-To: <405C0EF1.1060104@gmx.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Mar 2004 05:18:06 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:37093 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263313AbUCTKSB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 05:18:01 -0500
+Date: Sat, 20 Mar 2004 11:17:50 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Russell Cattelan <cattelan@xfs.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Small bug in bio_clone?
+Message-ID: <20040320101750.GE2711@suse.de>
+References: <1079734269.3373.42.camel@naboo.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403202019.44612.ross@datscreative.com.au>
+In-Reply-To: <1079734269.3373.42.camel@naboo.americas.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 March 2004 19:29, Prakash K. Cheemplavam wrote:
-> Len Brown wrote:
-> > On Fri, 2004-03-19 at 14:22, Prakash K. Cheemplavam wrote:
-> > 
-> > 
-> >>Hmm, I just did a cat /proc/acpi/processor/CPU0/power:
-> >>active state:            C1
-> >>default state:           C1
-> >>bus master activity:     00000000
-> >>states:
-> >>    *C1:                  promotion[--] demotion[--] latency[000] 
-> >>usage[00000000]
-> >>     C2:                  <not supported>
-> >>     C3:                  <not supported>
-> >>
-> >>I am currently NOT using APIC mode (nforce2, as well) and using vanilla 
-> >>2.6.4. It seems C1 halt state isn't used, which exlains why I am having 
-> [snip]
-> > 
-> > 
-> > Actually I think it is that we don't _count_ C1 usage.
+On Fri, Mar 19 2004, Russell Cattelan wrote:
+> Shouldn't __bio_clone be checking the state flags
+> of the src bio?
 > 
-> Hmm, OK, then I am really puzzled what specifically about mm sources 
-> make my idle temps hotter, as I still couldn't properly resolve it what 
-> is causing it. I thought ACPI, but no, using APM only does the same (apm 
-> only with vanilla is low temp though.)
+> --- /usr/tmp/TmpDir.29150-0/fs/bio.c_1.3        2004-03-19
+> 16:07:12.000000000 -0600
+> +++ fs/bio.c    2004-03-19 16:06:24.348491070 -0600
+> @@ -225,7 +225,7 @@
+>          */
+>         bio->bi_vcnt = bio_src->bi_vcnt;
+>         bio->bi_idx = bio_src->bi_idx;
+> -       if (bio_flagged(bio, BIO_SEG_VALID)) {
+> +       if (bio_flagged(bio_src, BIO_SEG_VALID)) {
+>                 bio->bi_phys_segments = bio_src->bi_phys_segments;
+>                 bio->bi_hw_segments = bio_src->bi_hw_segments;
+>                 bio->bi_flags |= (1 << BIO_SEG_VALID);
 
-Hi Prakash,
+Yes, in theory. What is done now is for sure a mistake, however I'm
+thinking it's probably safer to just delete the check and setting of
+segments, and do it on-demand the next time (if ever) someone calls
+bio_*_segments(bio). Hmm, should be done every time someone assigns
+->bi_bdev(), maybe it would be a good idea to add something like that.
 
-Have you seen this thread, it may be relevant?
-Re: [2.6.4-rc2] bogus semicolon behind if()
-http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-03/4170.html
+static inline void bio_set_bdev(struct bio *bio, struct block_device *bdev)
+{
+	bio->bi_bdev = bdev;
+	bio->bi_flags &= ~(1 << BIO_SEG_VALID);
+}
 
-I have not looked to see which kern sources besides 2.6.4-rc2 may have it.
-
-Regards
-Ross.
-
-
-> 
-> Prakash
-> 
-> 
-> 
+-- 
+Jens Axboe
 

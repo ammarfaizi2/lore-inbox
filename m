@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316882AbSHGEdg>; Wed, 7 Aug 2002 00:33:36 -0400
+	id <S316896AbSHGEjA>; Wed, 7 Aug 2002 00:39:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316896AbSHGEdg>; Wed, 7 Aug 2002 00:33:36 -0400
-Received: from goshen.rutgers.edu ([165.230.180.150]:11906 "HELO
-	goshen.rutgers.edu") by vger.kernel.org with SMTP
-	id <S316882AbSHGEdf>; Wed, 7 Aug 2002 00:33:35 -0400
-Date: Wed, 7 Aug 2002 00:37:09 -0400 (EDT)
-From: Vasisht Tadigotla <vasisht@eden.rutgers.edu>
-To: kuznet@ms2.inr.ac.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: multiple connect on a socket
-In-Reply-To: <200208070210.GAA26429@sex.inr.ac.ru>
-Message-ID: <Pine.GSO.4.21.0208070024110.19932-100000@er3.rutgers.edu>
+	id <S316996AbSHGEjA>; Wed, 7 Aug 2002 00:39:00 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:33996 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S316896AbSHGEi7>; Wed, 7 Aug 2002 00:38:59 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Ivan Gyurdiev <ivangurdiev@attbi.com>
+Reply-To: ivangurdiev@attbi.com
+Organization: ( )
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: OT: Authentication question...
+Date: Tue, 6 Aug 2002 00:48:07 -0400
+User-Agent: KMail/1.4.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <200208060048.07267.ivangurdiev@attbi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> >				Shouldn't it throw an error when I
-> > try to connect to it a second time ? Am I missing something here.
-> 
-> Yes, it used to return success once upon connection is complete.
-> 
-> When the connection is in progress, it returns EALREADY,
-> after this it returns EISCONN, but success is indicated when it goes
-> from unconnected to connected state. Maybe, this is wrong but it used
-> to work in this way.
+This is off-topic, but since people on this list 
+are so much better educated than myself on Linux issues,
+I thought I could seek help.
 
-since O_NONBLOCK is set for the socket fd, the initial connect will fail
-with an EINPROGRESS, and the connection request is established
-asynchronously. If there is another connect during this period before the
-connection is established, as you said it returns EALREADY. This is after
-the connection is established and I read data from the socket. Since the
-connection is already established, a further connect attempt should return
-EISCONN. This is the behaviour on SunOS and IRIX. 
+My system will reject any attempt
+to login as a user other than root:
 
-On Linux if I attempt to connect to the same socket after the connection
-has been established, connect() returns 0. I'm not sure if this is the
-correct behaviour.
+[root@cobra root]# su phantom
+could not open session
+[root@cobra root]# su ftp
+could not open session
+[root@cobra root]# su lp
+could not open session
+[root@cobra root]# su root
+[root@cobra root]# 
 
+An strace showed the following notable difference between a working backup 
+system and the broken one:
 
-thanks,
+Broken:
+setfsuid32(0x1f4)                       = 0                                     
+setfsgid32(0x1f4)                       = 0
+open("/etc/passwd", O_RDONLY)           = -1 EACCES (Permission denied)
 
-vasisht
+Working:
+setfsuid32(0x1f4)                       = 0
+setfsgid32(0x1f4)                       = 0
+open("/etc/passwd", O_RDONLY)           = 3
 
-
-
-
+Which makes me very confused, since /etc/passwd is a world-readable file.
+Any ideas what could be the problem?
+ 
+Thank you for any help in advance...

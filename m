@@ -1,63 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbUKWOkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbUKWOmv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbUKWOkH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 09:40:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbUKWOkG
+	id S261271AbUKWOmv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 09:42:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbUKWOke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 09:40:06 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:40167 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261262AbUKWOjB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 09:39:01 -0500
-Subject: [PATCH 2.6.9] fork: move security_task_alloc() after p->parent
-	initialization
-From: Guillaume Thouvenin <Guillaume.Thouvenin@Bull.net>
-To: Greg KH <greg@kroah.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       guillaume.thouvenin@bull.net
-Date: Tue, 23 Nov 2004 15:38:51 +0100
-Message-Id: <1101220731.6210.142.camel@frecb000711.frec.bull.fr>
+	Tue, 23 Nov 2004 09:40:34 -0500
+Received: from pop.gmx.de ([213.165.64.20]:49123 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261261AbUKWOkA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 09:40:00 -0500
+X-Authenticated: #4399952
+Date: Tue, 23 Nov 2004 15:41:03 +0100
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>,
+       Paul Davis <paul@linuxaudiosystems.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
+Message-ID: <20041123154103.56c25300@mango.fruits.de>
+In-Reply-To: <20041123152126.GB22714@elte.hu>
+References: <20041122020741.5d69f8bf@mango.fruits.de>
+	<20041122094602.GA6817@elte.hu>
+	<56781.195.245.190.93.1101119801.squirrel@195.245.190.93>
+	<20041122132459.GB19577@elte.hu>
+	<20041122142744.0a29aceb@mango.fruits.de>
+	<65529.195.245.190.94.1101133129.squirrel@195.245.190.94>
+	<20041122154516.GC2036@elte.hu>
+	<9182.195.245.190.93.1101142412.squirrel@195.245.190.93>
+	<20041123144622.GA20085@elte.hu>
+	<20041123145718.250a7649@mango.fruits.de>
+	<20041123152126.GB22714@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 23/11/2004 15:45:56,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 23/11/2004 15:46:04,
-	Serialize complete at 23/11/2004 15:46:04
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If we register a LSM hook and if we use the parameter passed to
-security_task_alloc(struct task_struct *p), the value of p->parent is
-wrong. This patch move the call to security_task_alloc() after the
-initialization of the field p->parent. 
+On Tue, 23 Nov 2004 16:21:26 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
-Guillaume,
+> 
+> * Florian Schmidt <mista.tapas@gmx.net> wrote:
+> 
+> > ~$ ps -C jack_test -cmL
+> >   PID   LWP CLS PRI TTY          TIME CMD
+> >   988     - -     - pts/1    00:00:00 jack_test
+> >     -   988 TS   20 -        00:00:00 -
+> >     -   989 FF   99 -        00:00:00 -
+> > 
+> > So when you ctrl-z out of jack_test you cause its process() thread to
+> > be suspended, too, thus jackd cannot finish processing its graph.
+> 
+> so in theory any scheduling delay of PID 988 in the above setup (the
+> SCHED_OTHER task) should not be able to negatively influence jackd,
+> correct? 
 
-Signed-Off-By: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+correct
 
---- kernel/fork.c.orig	2004-10-19 08:41:53.000000000 +0200
-+++ kernel/fork.c	2004-11-23 15:29:25.799903744 +0100
-@@ -1006,8 +1006,6 @@ static task_t *copy_process(unsigned lon
-  	}
- #endif
- 
--	if ((retval = security_task_alloc(p)))
--		goto bad_fork_cleanup_policy;
- 	if ((retval = audit_alloc(p)))
- 		goto bad_fork_cleanup_security;
- 	/* copy all the process information */
-@@ -1092,6 +1090,9 @@ static task_t *copy_process(unsigned lon
- 		p->real_parent = current;
- 	p->parent = p->real_parent;
- 
-+	if ((retval = security_task_alloc(p)))
-+		goto bad_fork_cleanup_policy;
-+
- 	if (clone_flags & CLONE_THREAD) {
- 		spin_lock(&current->sighand->siglock);
- 		/*
+> In fact, does in this particular jack_test case PID 988 do
+> anything substantial?
 
+Well, it registers the client with jackd, sets up the ports, registers
+the process() callback and then simply goes to sleep() for the desired
+runtime of the program. All these are non RT ops and should never be
+able to cause any xruns.
 
+All the work is done by the process() callback which is called by
+libjack in a SCHED_FIFO thread. The process() callback is called once
+for each buffer that jackd processes.
+
+I cannot explain the detailed mechanism of how jackd wakes its clients
+and communicates with them myself too well, so i'll leave this to Paul
+Davis (CC'ed). Care to elaborate, Paul?
+
+flo

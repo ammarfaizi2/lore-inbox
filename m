@@ -1,85 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264488AbUDZLh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263171AbUDZLfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264488AbUDZLh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 07:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbUDZLh2
+	id S263171AbUDZLfo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 07:35:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264495AbUDZLfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 07:37:28 -0400
-Received: from gizmo04bw.bigpond.com ([144.140.70.14]:45749 "HELO
-	gizmo04bw.bigpond.com") by vger.kernel.org with SMTP
-	id S264488AbUDZLhY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 07:37:24 -0400
-From: Ross Dickson <ross@datscreative.com.au>
-Reply-To: ross@datscreative.com.au
-Organization: Dat's Creative Pty Ltd
-To: Len Brown <len.brown@intel.com>, Jesse Allen <the3dfxdude@hotmail.com>
-Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH] for idle=C1halt, 2.6.5
-Date: Mon, 26 Apr 2004 21:41:24 +1000
-User-Agent: KMail/1.5.1
-Cc: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
-       Craig Bradney <cbradney@zip.com.au>, christian.kroener@tu-harburg.de,
-       linux-kernel@vger.kernel.org, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-       Jamie Lokier <jamie@shareable.org>, Daniel Drake <dan@reactivated.net>,
-       Ian Kumlien <pomac@vapor.com>, a.verweij@student.tudelft.nl,
-       Allen Martin <AMartin@nvidia.com>
-References: <200404131117.31306.ross@datscreative.com.au> <20040422163958.GA1567@tesore.local> <1082654469.16333.351.camel@dhcppc4>
-In-Reply-To: <1082654469.16333.351.camel@dhcppc4>
+	Mon, 26 Apr 2004 07:35:44 -0400
+Received: from host16.apollohosting.com ([209.239.37.142]:46475 "EHLO
+	host16.apollohosting.com") by vger.kernel.org with ESMTP
+	id S263171AbUDZLfh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 07:35:37 -0400
+Date: Mon, 26 Apr 2004 13:35:27 +0200
+To: "Linux Kernel ML" <linux-kernel@vger.kernel.org>
+Subject: 8139too not working in 2.6
+From: "Mirko Caserta" <mirko@mcaserta.com>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404262141.24616.ross@datscreative.com.au>
+Content-Transfer-Encoding: 7BIT
+Message-ID: <opr62ahdvlpsnffn@mail.mcaserta.com>
+User-Agent: Opera M2/7.50 (Linux, build 663)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 23 April 2004 03:21, Len Brown wrote:
-> On Thu, 2004-04-22 at 12:39, Jesse Allen wrote:
-> 
-> > On the Shuttle AN35N, the C1 disconnect option default is auto.  If you're
-> > talking about this board, or another board Shuttle seemingly fixed, then I
-> > can tell you that I haven't been able to get my to hang with vanilla kernels.
-> 
-> Have you been able to hang the AN35N under any conditions?
-> Old BIOS, non-vanilla kernel?
-> 
-> > As for your patch, I get a fast timer, and gain about 1 sec per 5 minutes.
-> > The only patch that seemed to work without a fast timer so far was the one 
-> > removed by Linus in a testing version.  The AN35N has the timer override 
-> > bug.
-> 
-> Hmm, I didn't notice fast time on my FN41, i'll look for it.
-> 
-> I'm not familiar with the "one removed by Linux in a testing version",
-> perhaps you could point me to that?
 
-This is Maciej's patch - latest posting of it that I have seen,
-http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-04/3174.html
+Yes, I know, it's a damn cheap eth card and I should get it replaced :)
 
-His fix up of the 8259 ack issue (when used without routing 8254 pit into
-io-apic INTIN0) successfully establishes a virtual wire mode input of the timer
-which the nforce2 seems happy with albeit without being able to use
-"nmi_debug=1"
+Besides that, this card works just fine with 2.4.25 while it refuses to  
+work on a recent 2.6 kernel. I tried 2.6.5 and even  
+2.6.5-rc2-mm2-broken-out with no luck.
 
-It is that timer ack issue tied up with the integrated apic.
-http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-04/2143.html
+The card is correctly recognized but the kernel refuses to transmit any  
+packet:
 
-This refers to when it was in the 2.6.3-rc1-mm1
-http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-02/2658.html 
+8139too Fast Ethernet driver 0.9.27
+eth0: RealTek RTL8139 at 0xe0821000, MAC_ADDR_REMOVED, IRQ 5
+eth0:  Identified 8139 chip type 'RTL-8139C'
+eth0: link up, 100Mbps, full-duplex, lpa 0x45E1
+eth0: Transmit timeout, status 0c 0005 c07f media 10.
+eth0: Tx queue start entry 4  dirty entry 0.
+eth0:  Tx descriptor 0 is 0008a03c. (queue head)
+eth0:  Tx descriptor 1 is 0008a03c.
+eth0:  Tx descriptor 2 is 0008a03c.
+eth0:  Tx descriptor 3 is 0008a03c.
 
-Regards
-Ross.
+Someone told me to play around with the driver options but the machine is  
+in production and I cannot play much with reboots :/
 
-> 
-> > Attached is the dmidecode for the AN35N.
-> 
-> applied.
-> 
-> thanks,
-> -Len
-> 
-> 
-> 
-> 
-> 
+Any help would be very appreciated.
+
+Mirko
 

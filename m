@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266737AbUBGJxh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 04:53:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266757AbUBGJxh
+	id S266709AbUBGJsy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 04:48:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266710AbUBGJsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 04:53:37 -0500
-Received: from dp.samba.org ([66.70.73.150]:52139 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266737AbUBGJxE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 04:53:04 -0500
-Date: Sat, 7 Feb 2004 20:50:57 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Rick Lindsley <ricklind@us.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, dvhltc@us.ibm.com
-Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1
-Message-ID: <20040207095057.GS19011@krispykreme>
-References: <200402062311.i16NBdF14365@owlet.beaverton.ibm.com> <40242152.5030606@cyberone.com.au> <231480000.1076110387@flay> <4024261E.5070702@cyberone.com.au> <232690000.1076111266@flay> <40242D14.6070908@cyberone.com.au> <242810000.1076113505@flay> <402431C5.3030205@cyberone.com.au>
+	Sat, 7 Feb 2004 04:48:54 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43935 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266709AbUBGJsw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 04:48:52 -0500
+Date: Sat, 7 Feb 2004 09:48:47 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Andrew Morton <akpm@osdl.org>
+Cc: thockin@sun.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       viro@math.psu.edu
+Subject: Re: PATCH - raise max_anon limit
+Message-ID: <20040207094846.GZ21151@parcelfarce.linux.theplanet.co.uk>
+References: <20040206221545.GD9155@sun.com> <20040207005505.784307b8.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <402431C5.3030205@cyberone.com.au>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040207005505.784307b8.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Feb 07, 2004 at 12:55:05AM -0800, Andrew Morton wrote:
+> Tim Hockin <thockin@sun.com> wrote:
+> >
+> > Attached is a patch to raise the limit of anonymous block devices.  The
+> >  sysctl allows the admin to set the order of pages allocated for the unnamed
+> >  bitmap from 1 page to the full MINORBITS limit.
+> 
+> It would be better to lose the sysctl and do it all dynamically.
+> 
+> Options are:
+> 
+> a) realloc the bitmap when it fills up
+> 
+>    Simple, a bit crufty, doesn't release memory.
+> 
+> b) lib/radix-tree.c
+> 
+>    Each entry in the radix tree can be a bitmap (radix-tree.c should
+>    have been defined to store unsigned longs, not void*'s.  Oh well), so
+>    you get good space utilisation, but finding a new entry will take ten or
+>    so lines of code.
+> 
+> c) lib/idr.c
+> 
+>    Worst space utilisation, but simplest code.
 
-> OK, use the revision of Rick's patch I posted, and don't use
-> CONFIG_SCHED_SMT because I think there is a problem with it.
+d) grab a couple of pages and be done with that.  That gives us 64Kbits.
 
-Missed this email :) I gave your last patch a spin and im seeing similar
-behaviour.
+e) grab max(1/8000 of entire memory, 128Kb).  That will guarantee that
+we run out of memory or minors before we fill the bitmap.
 
-Its got to be an overly enthuiastic active balance, the migration threads 
-have used about 10 minutes of cpu time and a single cpu bound process
-will never sleep (assuming there is nothing else to run) and so cannot be
-moved by normal means.
-
-Anton
+PS: psu.edu address is still valid, but I rarely read that mailbox...

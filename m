@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287044AbSABW3O>; Wed, 2 Jan 2002 17:29:14 -0500
+	id <S287040AbSABWcP>; Wed, 2 Jan 2002 17:32:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287115AbSABW2i>; Wed, 2 Jan 2002 17:28:38 -0500
-Received: from dot.cygnus.com ([205.180.230.224]:2571 "HELO dot.cygnus.com")
-	by vger.kernel.org with SMTP id <S287102AbSABW12>;
-	Wed, 2 Jan 2002 17:27:28 -0500
-Date: Wed, 2 Jan 2002 14:27:12 -0800
-From: Richard Henderson <rth@redhat.com>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
-        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020102142712.B10474@redhat.com>
-Mail-Followup-To: Richard Henderson <rth@redhat.com>,
-	Tom Rini <trini@kernel.crashing.org>,
-	Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
-	gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
-	Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-	Paul Mackerras <paulus@samba.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Corey Minyard <minyard@acm.org>
-In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102133632.C10362@redhat.com> <20020102220548.GL1803@cpe-24-221-152-185.az.sprintbbd.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020102220548.GL1803@cpe-24-221-152-185.az.sprintbbd.net>; from trini@kernel.crashing.org on Wed, Jan 02, 2002 at 03:05:48PM -0700
+	id <S287069AbSABWb7>; Wed, 2 Jan 2002 17:31:59 -0500
+Received: from tourian.nerim.net ([62.4.16.79]:7690 "HELO tourian.nerim.net")
+	by vger.kernel.org with SMTP id <S287040AbSABW33>;
+	Wed, 2 Jan 2002 17:29:29 -0500
+Message-ID: <3C3389C7.405@free.fr>
+Date: Wed, 02 Jan 2002 23:29:27 +0100
+From: Lionel Bouton <Lionel.Bouton@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020101
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: David Golden <david.golden@oceanfree.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: system.map
+In-Reply-To: <20020102191157.49760.qmail@web21204.mail.yahoo.com> <200201022028.04945@xsebbi.de> <3C337AC8.2020900@free.fr> <02010222155300.11915@golden1.goldens.ie>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 03:05:48PM -0700, Tom Rini wrote:
-> Well, the problem is that we aren't running where the compiler thinks we
-> are yet.  So what would the right fix be for this?
+David Golden wrote:
 
-Assembly.
+> On Wednesday 02 January 2002 21:25, Lionel Bouton wrote:
+> it and
+> 
+>>search it in numerous places : with or without `-uname -r` appended (at
+>>least in / /boot /usr/src/linux).
+>>
+>>
+> 
+> :-( Pity it apparently doesn't search
+> 
+> /boot/`uname -r`/System.map
+> 
+> That way the /boot/kernelver/* scheme (see previous post) would work...
+> 
+> 
 
 
-r~
+As these utilities already look in several locations (most `uname -r` 
+dependent), a patch to make them look in /boot/`uname -r` too would 
+probably be trivial.
+
+rgrep -r "/usr/src/linux" utility-src
+vi files_found
+diff -r -u old-src new-src \
+	| mail -s "Small cool patch" utility-maintainer
+
+LB.
+

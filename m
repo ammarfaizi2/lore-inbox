@@ -1,90 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263862AbTJEURL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 16:17:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263864AbTJEURL
+	id S263866AbTJEUWG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 16:22:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263852AbTJEUWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 16:17:11 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:30738
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S263862AbTJEURE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 16:17:04 -0400
-Date: Sun, 5 Oct 2003 13:14:35 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Rob Landley <rob@landley.net>,
-       "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-In-Reply-To: <1065384197.3129.4.camel@lapdancer.baythorne.internal>
-Message-ID: <Pine.LNX.4.10.10310051303450.21746-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 5 Oct 2003 16:22:05 -0400
+Received: from lewis.CNS.CWRU.Edu ([129.22.104.62]:27605 "EHLO
+	lewis.CNS.CWRU.Edu") by vger.kernel.org with ESMTP id S263866AbTJEUWD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 16:22:03 -0400
+Date: Sun, 05 Oct 2003 16:21:06 -0400
+From: Justin Hibbits <jrh29@po.cwru.edu>
+Subject: regression between 2.4.18 and 2.4.21/22
+To: linux-kernel@vger.kernel.org
+Message-id: <7342FA76-F771-11D7-86F4-000A95841F44@po.cwru.edu>
+MIME-version: 1.0
+X-Mailer: Apple Mail (2.552)
+Content-type: text/plain; format=flowed; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Something very strange is going on with my machine.  With 2.4.18, I was 
+getting 38MB/s on my main system disk (IBM Deskstar 60gxp), and 35 for 
+the other drives (Western Digital).  The IBM drive is on a Promise IDE 
+controller (ASUS A7V266-E motherboard), and the others are on a PROMISE 
+2069 UDMA133 controller.  However, with 2.4.21 and 2.4.22, it will not 
+set the using_dma flag for my IBM drive, but sets it for the others, 
+which now get sustained transfer rates of 46MB/s or greater.  I'm using 
+the same options for all 3 kernels (at least, for the ATA/IDE options). 
+  Any help would be appreciated, and I'll see if maybe I could do 
+something with it when I get time.
 
-On Sun, 5 Oct 2003, David Woodhouse wrote:
+Thanks,
 
-> On Sun, 2003-10-05 at 12:21 -0700, Andre Hedrick wrote:
-> > David,
-> > 
-> > It is about the fact that Linus on his own set a position that modules are
-> > permitted. 
-> 
-> It is indeed. And about that fact that by the time he made that
-> declaration, he was not in a position to make it unilaterally.
-
-Regardless, nobody stopped him at that time and thus a right of way has
-been granted and can not be revoked.
-
-> 
-> >  Now if you want to take the position that one can not modify
-> > and redistribute the modified kernel in source, you are imposing a
-> > restriction.
-> 
-> A restriction in this case which I assert was present in the original
-> licence; not an 'additional restriction'.
-
-See above, the boss changed the rules and nobody challanged it.
-It sticks like glue and we all have to suck up the point and move forward.
-
-> If I wanted to distribute my code without restrictions, I'd have
-> contributed to a BSD kernel, or released my code under the terms 
-> "GPL but not if you really really don't fancy it".
-> 
-> I don't. I didn't.
-> 
-> > If I wanted to be rude, I could take the changes I made and copyright the
-> > combined work and make it so others could not use that version without
-> > permission. 
-> 
-> Not without being in violation of the original licence. This isn't about
-> the resulting combined work, but about your permission to use the
-> _original_.
-> 
-> > Neither you or I can do anything, provide the vendor who is using Linux
-> > publishes their source fork.  I also dare you to stop them, because you
-> > can't.
-> 
-> Believe me, there are ways this can be achieved.
-
-Sure, and I am out there proving the points that will undermine your
-arguements.
-
-Whatever happened to "World Domination" according to TUX ?
-Whatever happened to 'having a choice' ?
-
-Lets assume you are correct, and the effect is a "Tar Baby".
-
-Your claims that anything which loads into a kernel is automatically a
-derived work.  Thus the effect of an original work loading into a gpl work
-force the original work to be GPL.  This is a joke and will never see a
-second in any court.
-
-Cheers,
-
-Andre
-
-For those who do not know about history and english archers, go read.
+Justin
 

@@ -1,51 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262472AbTIEMgK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 08:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbTIEMgK
+	id S262499AbTIEMZC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 08:25:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbTIEMZC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 08:36:10 -0400
-Received: from smtphost.cis.strath.ac.uk ([130.159.196.96]:15543 "EHLO
-	smtphost.cis.strath.ac.uk") by vger.kernel.org with ESMTP
-	id S262472AbTIEMgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 08:36:09 -0400
-Date: Fri, 5 Sep 2003 13:35:58 +0100
-From: iain d broadfoot <ibroadfo@cis.strath.ac.uk>
-To: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Same problem with pcmcia in 2.4.22 as in 2.6.0-test4
-Message-ID: <20030905123558.GE4928@iain-vaio-fx405>
-Mail-Followup-To: kernel <linux-kernel@vger.kernel.org>
-References: <1061936739.10642.6.camel@garaged.fis.unam.mx> <20030826223405.GA2746@iain-vaio-fx405> <20030831121019.GB22771@iain-vaio-fx405> <20030831133846.C3017@flint.arm.linux.org.uk> <20030902203043.GA12997@iain-vaio-fx405> <20030902224433.F9345@flint.arm.linux.org.uk> <20030904123258.GA7674@iain-vaio-fx405> <20030904180351.G8414@flint.arm.linux.org.uk>
+	Fri, 5 Sep 2003 08:25:02 -0400
+Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:61825
+	"HELO leto2.endorphin.org") by vger.kernel.org with SMTP
+	id S262499AbTIEMY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 08:24:59 -0400
+Date: Fri, 5 Sep 2003 14:25:01 +0200
+To: John Bradford <john@grabjohn.com>
+Cc: joern@wohnheim.fh-wedel.de, linux-kernel@vger.kernel.org
+Subject: Re: nasm over gas?
+Message-ID: <20030905122501.GA3250@leto2.endorphin.org>
+References: <200309051225.h85CPOYr000323@81-2-122-30.bradfords.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
 Content-Disposition: inline
-In-Reply-To: <20030904180351.G8414@flint.arm.linux.org.uk>
-X-Editor: Vim http://www.vim.org/
-X-Operating-System: Linux/2.6.0-test3 (i686)
-X-Uptime: 13:34:53 up  4:07,  4 users,  load average: 0.81, 0.38, 0.39
-X-Message-Flag: Outlook viruses can be made to send private documents from your hard drive to any or all recipients from your address book. But it only happens about once a month or so, so it's okay. Just keep on using it.
-User-Agent: Mutt/1.5.4i
-X-CIS-MailScanner: Found to be clean
-X-CIS-MailScanner-SpamCheck: not spam, SpamAssassin (score=-9, required 5,
-	BAYES_01 -5.40, IN_REP_TO -0.37, QUOTED_EMAIL_TEXT -0.38,
-	REFERENCES -0.00, REPLY_WITH_QUOTES 0.00, USER_AGENT_MUTT -2.80)
+In-Reply-To: <200309051225.h85CPOYr000323@81-2-122-30.bradfords.org.uk>
+User-Agent: Mutt/1.3.28i
+From: Fruhwirth Clemens <clemens-dated-1063628701.d72f@endorphin.org>
+X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Russell King (rmk@arm.linux.org.uk) wrote:
-> Unfortunately I can't look into the issue as deeply as I'd like at
-> present, so I'll create a "wouldn't it be nice if" (WIBNI) list of
-> things to do on pcmcia.arm.linux.org.uk.
 
-Sorry to harass again, I'm just wondering if there's anything I can do
-to help fix this issue - I'd hate to be stuck on test3 forever! :)
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-cheers,
+On Fri, Sep 05, 2003 at 01:25:24PM +0100, John Bradford wrote:
+> > > Are there any buffer overflows or other security holes?
+> > > How can you be sure about it?
+> >
+> > How can you be sure? Mathematical program verification applies quite ba=
+dly
+> > to assembler.
+>=20
+> The point is, if somebody does find a bug they will want to
+> re-assemble with Gas after they've fixed it.
 
-iain
+If you referring to my precompiled masm binaries, yes, if one wants to
+change the source, getting masm is not nice.
 
--- 
-"If sharing a thing in no way diminishes it, it is not rightly owned if it is
-not shared." -- St. Augustine
+But if the source is writting in nasm, nasm (LGPL) can be installed
+easily..=20
 
-"As for compromises: no. Free or fuck off." -- Andrew Suffield, on debian-legal
+However, the kernel folks seem to dislike to depend on an additional tool.
+Actually that's the answer to my original question. Now I just have to
+ponder if I favour the preferences of the kernel over the prefs of user spa=
+ce
+programs. There are lots of user space crypto implementations, which are
+potential candidates.. and for theses apps an additional dependency on nasm
+is no problem.
+
+Regards, Clemens
+
+--PNTmBPCT7hxwcZjr
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE/WICdW7sr9DEJLk4RAluPAJwMwLNNSlT2rc3WfSafPhMFsBMmywCgkEn1
+0bzcn991DbapHo82cZLq0bY=
+=VlrY
+-----END PGP SIGNATURE-----
+
+--PNTmBPCT7hxwcZjr--

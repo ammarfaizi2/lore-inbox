@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280957AbRKTIFY>; Tue, 20 Nov 2001 03:05:24 -0500
+	id <S280954AbRKTIEy>; Tue, 20 Nov 2001 03:04:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280958AbRKTIFO>; Tue, 20 Nov 2001 03:05:14 -0500
-Received: from femail48.sdc1.sfba.home.com ([24.254.60.42]:9365 "EHLO
-	femail48.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S280957AbRKTIFF>; Tue, 20 Nov 2001 03:05:05 -0500
-From: "Sameer K S" <kssameer@home.com>
-To: "Akshat Kapoor" <akshat@mercurykr.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Query - How to Send Signal to application from kernel module !
-Date: Tue, 20 Nov 2001 00:05:08 -0800
-Message-ID: <JPEEJKELOKAGJLNKDMJPCEAECJAA.kssameer@home.com>
+	id <S280957AbRKTIEn>; Tue, 20 Nov 2001 03:04:43 -0500
+Received: from smtprt15.wanadoo.fr ([193.252.19.210]:34209 "EHLO
+	smtprt15.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S280954AbRKTIEh>; Tue, 20 Nov 2001 03:04:37 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: Robert Love <rml@tech9.net>
+Subject: Re: [bug report] System hang up with Speedtouch USB hotplug
+Date: Tue, 20 Nov 2001 09:03:59 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Kilobug <kilobug@freesurf.fr>, linux-kernel@vger.kernel.org
+In-Reply-To: <E165lQB-0001DZ-00@baldrick> <1006204883.826.0.camel@phantasy>
+In-Reply-To: <1006204883.826.0.camel@phantasy>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <001401c17192$ebf8ce80$150d85a5@mercurykr.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1665su-0000rl-00@baldrick>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You might want to check out async notification stuff at
-http://www.xml.com/ldd/chapter/book/ch05.html#t4
+On Monday 19 November 2001 10:21 pm, Robert Love wrote:
+> On Mon, 2001-11-19 at 05:12, Duncan Sands wrote:
+> > Johan Verrept's driver has two parts: a kernel module and
+> > a user space management utility.  The kernel module is open
+> > source (GPL).  It has problems with SMP and preempt, but
+> > otherwise works well.
+>
+> Anything that has problems with SMP is going to have problems with
+> preempt.  Further, most any module will need to be compiled as a
+> preemptible kernel version, just like you need SMP versions.
 
-Sameer.
+Yes, it has problems with preempt because it has problems
+with SMP.  But it seemed clearer to say "with SMP and preempt".
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Akshat Kapoor
-Sent: Monday, November 19, 2001 11:14 PM
-To: linux-kernel@vger.kernel.org
-Subject: Query - How to Send Signal to application from kernel module !
+> Binary modules just are always going to be a problem unless we
+> standardize more, and I'm not saying that is a good idea ...
 
+Lucky this isn't a binary module we're talking about then!
 
-Hi All,
-         I'm writing a network device driver.  I want to communicate with an
-application running in user mode. I want to send a signal (using
-something like kill) on which the application would be listening.
-Subsequently the application will send an IOCTL call to the driver to fetch
-the information.
-Is it possible in Linux to send  a signal to an application from a driver ?
-I've done this in Windows NT but Idont know how to do it in Linux. I
-searched
-the archives but couldn't find any relevant thread. I tried to use the kill
-system call but when I compiled the driver with  <signal.h> it gave me all
-sorts of errors. Also the equivalent signal.h in kernel source tree doesn't
-have a proto for kill().
-Am I missing something ?
-Sorry if I'm asking something silly as I'm new to this but can somebody
-kindly point me to the right direction ?
-
-TIA,
-Regards,
-Akshat
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+Duncan.

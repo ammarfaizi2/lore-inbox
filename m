@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262190AbSJ2T2D>; Tue, 29 Oct 2002 14:28:03 -0500
+	id <S262207AbSJ2TaB>; Tue, 29 Oct 2002 14:30:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262196AbSJ2T17>; Tue, 29 Oct 2002 14:27:59 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:27664 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S262190AbSJ2T0x>; Tue, 29 Oct 2002 14:26:53 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove the conv option of fat (1/3)
-References: <Pine.LNX.4.44.0210290949120.6190-100000@home.transmeta.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Wed, 30 Oct 2002 04:33:09 +0900
-In-Reply-To: <Pine.LNX.4.44.0210290949120.6190-100000@home.transmeta.com>
-Message-ID: <87d6pt82h6.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S262209AbSJ2T3q>; Tue, 29 Oct 2002 14:29:46 -0500
+Received: from steve.prima.de ([62.72.84.2]:44981 "HELO steve.prima.de")
+	by vger.kernel.org with SMTP id <S262207AbSJ2T2f>;
+	Tue, 29 Oct 2002 14:28:35 -0500
+Date: Tue, 29 Oct 2002 20:34:03 +0100
+From: Patrick Mau <mau@oscar.prima.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: coreteam@netfilter.org
+Subject: Compile fix for 2.5 BK current
+Message-ID: <20021029193403.GA19754@oscar.homelinux.net>
+Reply-To: Patrick Mau <mau@oscar.prima.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+Hallo List,
 
-> This patch was damaged in interesting ways, in particular the number of 
-> lines in the patch description was wrong, causing the patch program to get 
-> very confused.
-> 
-> That implies that you're using some kind of post-processing tool to remove
-> lines from the diff, without fixing up the diff numeric output. Correct?  
-> If so, your tools are broken.
-> 
-> I ended up hand-editing the diff to make it apply, please don't make me do 
-> it again.
+I need the following two patches to make BK 2.5 current compile.
+Hope it's OK to Cc the netfilter core team ?
 
-Whoops, sorry. The tools was correct. The 8bit char in that mail was
-encoded by mailer. Probably, because `=' in my patch was broken by it,
-patch command was confused.
+Please apply,
+Patrick
 
-So I made the mailer a setting which doesn't encode iso-8859-1 for the
-moment.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+--- net/ipv4/netfilter/ip_conntrack_standalone.c	2002-10-29 20:27:56.000000000 +0100
++++ net/ipv4/netfilter/ip_conntrack_standalone.c.new	2002-10-29 20:23:06.000000000 +0100
+@@ -201,7 +201,7 @@
+ 	/* Local packets are never produced too large for their
+ 	   interface.  We degfragment them at LOCAL_OUT, however,
+ 	   so we have to refragment them here. */
+-	if ((*pskb)->len > rt->u.dst.pmtu) {
++	if ((*pskb)->len > dst_pmtu(&rt->u.dst)) {
+ 		/* No hook can be after us, so this should be OK. */
+ 		ip_fragment(*pskb, okfn);
+ 		return NF_STOLEN;
+
+
+--- net/ipv4/netfilter/ipt_REJECT.c	2002-10-29 20:27:56.000000000 +0100
++++ net/ipv4/netfilter/ipt_REJECT.c.new	2002-10-29 20:26:45.000000000 +0100
+@@ -148,7 +148,7 @@
+ 	nskb->dst = &rt->u.dst;
+ 
+ 	/* "Never happens" */
+-	if (nskb->len > nskb->dst->pmtu)
++	if (nskb->len > dst_pmtu(nskb->dst))
+ 		goto free_nskb;
+ 
+ 	connection_attach(nskb, oldskb->nfct);
+@@ -225,8 +225,8 @@
+ 	/* RFC says return as much as we can without exceeding 576 bytes. */
+ 	length = skb_in->len + sizeof(struct iphdr) + sizeof(struct icmphdr);
+ 
+-	if (length > rt->u.dst.pmtu)
+-		length = rt->u.dst.pmtu;
++	if (length > dst_pmtu(&rt->u.dst))
++		length = dst_pmtu(&rt->u.dst);
+ 	if (length > 576)
+ 		length = 576;
+ 
+

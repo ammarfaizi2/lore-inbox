@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVCaLLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVCaLMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261327AbVCaLLR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 06:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVCaLLR
+	id S261332AbVCaLMU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 06:12:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVCaLMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 06:11:17 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:44502 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S261327AbVCaLLJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 06:11:09 -0500
-Date: Thu, 31 Mar 2005 21:10:59 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Andi Kleen <ak@suse.de>
-Cc: blaisorblade@yahoo.it, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [patch 2/3] x86_64: remove duplicated sys_time64
-Message-Id: <20050331211059.0ddc078c.sfr@canb.auug.org.au>
-In-Reply-To: <20050331103834.GC1623@wotan.suse.de>
-References: <20050330173216.426CFEFECF@zion>
-	<20050331103834.GC1623@wotan.suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Thu__31_Mar_2005_21_10_59_+1000_wpXNfHsnfN7QMpsR"
+	Thu, 31 Mar 2005 06:12:20 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:55556 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261329AbVCaLMM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 06:12:12 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: dedekind@infradead.org
+Subject: Re: [RFC] CryptoAPI & Compression
+Cc: herbert@gondor.apana.org.au, dwmw2@infradead.org,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
+Organization: Core
+In-Reply-To: <1112265786.21585.16.camel@sauron.oktetlabs.ru>
+X-Newsgroups: apana.lists.os.linux.cryptoapi,apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au>
+Date: Thu, 31 Mar 2005 21:11:23 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Thu__31_Mar_2005_21_10_59_+1000_wpXNfHsnfN7QMpsR
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Artem B. Bityuckiy <dedekind@infradead.org> wrote:
+> 
+>> Good catch.  I'll apply this one.
+> Only one small note: I've spotted this but didn't test. I didn't make
+> sure this is OK if we haven't ever used the compression and remove the
+> deflate module. (i.e, in this case we call zlib_[in|de]flateEnd() while
+> we haven't ever called zlib_[in|de]flate()). Although I believe it must
+> be OK, we need to try it.
 
-On Thu, 31 Mar 2005 12:38:34 +0200 Andi Kleen <ak@suse.de> wrote:
->
-> Nack. The generic sys_time still writes to int, not long.
-> That is why x86-64 has a private one. Please keep that.
+It's OK because deflateReset == deflateEnd + deflateInit.  Feel free
+to test it though.  You can find my tree at
 
-It writes to a time_t which is a __kernel_time_t which is a long on
-x86-64, isn't it?
+bk://herbert.bkbits.net/cryptodev-2.6
 
---=20
+> So, it seems I can't just port the JFFS2 stuff. I need to explore zlib
+> more closely. Thus, I need some time. I'll inform you about my results.
+
+For the default zlib parameters (which crypto/deflate.c does not use)
+the maximum overhead is 5 bytes every 16KB plus 6 bytes.  So for input
+streams less than 16KB the figure of 12 bytes is correct.  However,
+in general the overhead needs to grow proportionally to the number of
+blocks in the input.
+
 Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
---Signature=_Thu__31_Mar_2005_21_10_59_+1000_wpXNfHsnfN7QMpsR
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCS9rI4CJfqux9a+8RAuMdAKCNXShwuUo83cma2Q6KFuo1h/kKKQCdEw8I
-Ly3toM5drcwLwxJPLAT44pk=
-=n49y
------END PGP SIGNATURE-----
-
---Signature=_Thu__31_Mar_2005_21_10_59_+1000_wpXNfHsnfN7QMpsR--
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269146AbUJMPeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269190AbUJMPjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269146AbUJMPeY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 11:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269190AbUJMPeY
+	id S269190AbUJMPjk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 11:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269255AbUJMPjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 11:34:24 -0400
-Received: from havoc.gtf.org ([69.28.190.101]:13456 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S269146AbUJMPeQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 11:34:16 -0400
-Date: Wed, 13 Oct 2004 11:31:52 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@linux.kernel.org
-Subject: Re: PATCH: IDE generic tweak
-Message-ID: <20041013153152.GA5458@havoc.gtf.org>
-References: <1097677476.4764.9.camel@localhost.localdomain>
+	Wed, 13 Oct 2004 11:39:40 -0400
+Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:1465 "EHLO
+	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S269190AbUJMPep (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 11:34:45 -0400
+Subject: Re: waiting on a condition
+From: Christophe Saout <christophe@saout.de>
+To: Martijn Sipkema <martijn@entmoot.nl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <02bb01c4b138$8a786f10$161b14ac@boromir>
+References: <02bb01c4b138$8a786f10$161b14ac@boromir>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kYX7nfUx5Mrj0BHHGAXw"
+Date: Wed, 13 Oct 2004 17:34:39 +0200
+Message-Id: <1097681679.4724.26.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1097677476.4764.9.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 13, 2004 at 03:24:48PM +0100, Alan Cox wrote:
-> This allows the user to force ide-generic to claim any remaining
-> IDE_STORAGE_CLASS devices. It isnt a good default to turn on because of
-> loadable driver modules and confusion with SATA however it is very
-> useful faced with a mainboard device that isn't supported any other way.
-> Note that the entry has to come last - if it looks OK I'll comment that
-> a bit more and update the option docs.
-> 
-> Comments ?
 
-nVidia and others have been pushing for a similar module for libata...
-at least make sure one doesn't preclude the other.
+--=-kYX7nfUx5Mrj0BHHGAXw
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-	Jeff
+Am Mittwoch, den 13.10.2004, 16:23 +0100 schrieb Martijn Sipkema:
+
+> I'd like to do something similar as can be done using a POSIX condition
+> variable in the kernel, i.e. wait for some condition to become true. The
+> pthread_cond_wait() function allows atomically unlocking a mutex and
+> waiting on a condition. I think I should do something like:
+> (the condition is updated from an interrupt handler)
+
+You can take a look at reiser4, it has such an implementation. It's
+called kcond (fs/reiser4/kcond.c). It's using semaphores, waitqueues and
+a spinlock to emulate POSIX conditions.
 
 
+--=-kYX7nfUx5Mrj0BHHGAXw
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBbUsPZCYBcts5dM0RAj+AAKCplzFTbuxtMNTZbbSwHxCBLSbeAgCfYYRd
+kgfInq5gs+GOi2vHuHTWmYg=
+=QoaP
+-----END PGP SIGNATURE-----
+
+--=-kYX7nfUx5Mrj0BHHGAXw--
 

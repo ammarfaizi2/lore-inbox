@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279105AbRJaKep>; Wed, 31 Oct 2001 05:34:45 -0500
+	id <S280130AbRJaKlf>; Wed, 31 Oct 2001 05:41:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278755AbRJaKe0>; Wed, 31 Oct 2001 05:34:26 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:12556 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S279968AbRJaKeP>;
-	Wed, 31 Oct 2001 05:34:15 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Sureshkumar Kamalanathan <skk@sasken.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to write System calls? 
-In-Reply-To: Your message of "Mon, 29 Oct 2001 16:46:49 +0530."
-             <3BDD3AA1.18FCC633@sasken.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 31 Oct 2001 12:35:54 +1100
-Message-ID: <15176.1004492154@kao2.melbourne.sgi.com>
+	id <S280010AbRJaKlZ>; Wed, 31 Oct 2001 05:41:25 -0500
+Received: from tahallah.demon.co.uk ([158.152.175.193]:10995 "EHLO
+	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S279961AbRJaKlV>; Wed, 31 Oct 2001 05:41:21 -0500
+Date: Wed, 31 Oct 2001 10:41:29 +0000 (GMT)
+From: Alex Buell <alex.buell@tahallah.demon.co.uk>
+X-X-Sender: <alex@tahallah.demon.co.uk>
+Reply-To: <alex.buell@tahallah.demon.co.uk>
+To: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [sparc] Weird ioctl() bug in 2.2.19 (fwd)
+Message-ID: <Pine.LNX.4.33.0110311040180.10416-100000@tahallah.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Oct 2001 16:46:49 +0530, 
-Sureshkumar Kamalanathan <skk@sasken.com> wrote:
->  I have 2.4.4 kernel.  I have to write some system calls for
->interaction with the kernel from the userland.  Can any of you tell me
->where I can get the information regarding this?  
->  I have the Linux Kernel Internals by Beck and others.  But it gives
->the procedure only for 2.2.x.
->  Moreover I need to implement these system calls as Loadable modules.
+Right now I'm looking into why SNDCTL_DSP_SETFMT is failing on 2.2.19
+sparc. I've been trying to get ESD to work on my SS20 box so I can play
+music.
 
-Syscall entries are hard coded into the syscall table, usually in
-arch/$(ARCH)/entry.S.
+The situation is that the ioctl() is failing with -EINVAL for a perfectly
+valid argument.
 
-There is no generic way to add a syscall that is serviced by a module.
-I know that the modutils HOWTO gives examples of syscalls in modules
-but that doc is out of date, on some architectures you have to adjust
-additional registers to make a remote function call.  On those systems
-the syscall table works because the kernel is compiled with special
-flags, that will not work for modules.  Also Linus has said that he
-does not want modules to be able to override syscalls.
+Here's the strace output from running ESD (snipped for brevity)
+
+open("/dev/dsp", O_WRONLY)              = 3
+ioctl(3, 0x6004500a, 0xefffe944)        = 0
+write(1, "DEBUG: 60045005\n", 16DEBUG: 60045005)       = 16
+write(1, "DEBUG: 00000010\n", 16DEBUG: 00000010)       = 16
+ioctl(3, 0x60045005, 0xefffe944)        = -1 EINVAL (Invalid argument)
+
+The debug statements I put in ESD shows the right argument with the right
+value is being passed by the ioctl() call. 0x00000010 is AFTM_S16_BE, by
+the way.
+
+I've had a look at audio.c in /drivers/sbus/audio (lines 1046 to 1144),
+and everything looks correct, down to the parameters, so why is it
+returning -EINVAL?
+
+Weird. Any ideas?
+
+-- 
+Top posters will be automatically killfiled.
+
+http://www.tahallah.demon.co.uk
 

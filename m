@@ -1,77 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266249AbUHWR4l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266274AbUHWSHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266249AbUHWR4l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 13:56:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUHWR4k
+	id S266274AbUHWSHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 14:07:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUHWSHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 13:56:40 -0400
-Received: from [82.154.233.158] ([82.154.233.158]:33920 "EHLO
-	puma-vgertech.no-ip.com") by vger.kernel.org with ESMTP
-	id S266249AbUHWR4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 13:56:21 -0400
-Message-ID: <412A2FC5.8090402@vgertech.com>
-Date: Mon, 23 Aug 2004 18:56:21 +0100
-From: Nuno Silva <nuno.silva@vgertech.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040528 Thunderbird/0.6 Mnenhy/0.6.0.103
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Patrick McHardy <kaber@trash.net>
-Cc: "David S. Miller" <davem@redhat.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
-       master@sectorb.msk.ru, netdev@oss.sgi.com
-Subject: Re: 2.6.8-rc4-bk1 problem: unregister_netdevice: waiting for ppp0
- to become free. Usage count = 1
-References: <E1BynUy-0007t1-00@gondolin.me.apana.org.au> <4128941D.9030000@trash.net>
-In-Reply-To: <4128941D.9030000@trash.net>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Aug 2004 14:07:16 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56073 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S266274AbUHWSFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 14:05:48 -0400
+Date: Mon, 23 Aug 2004 19:05:39 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adam Belay <ambx1@neo.rr.com>, linux@dominikbrodowski.de, akpm@osdl.org,
+       rml@ximian.com, linux-kernel@vger.kernel.org,
+       linux-pcmcia@lists.infradead.org
+Subject: Re: [PATCH] pcmcia driver model support [4/5]
+Message-ID: <20040823190539.B31791@flint.arm.linux.org.uk>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, linux@dominikbrodowski.de,
+	akpm@osdl.org, rml@ximian.com, linux-kernel@vger.kernel.org,
+	linux-pcmcia@lists.infradead.org
+References: <20040805222820.GE11641@neo.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040805222820.GE11641@neo.rr.com>; from ambx1@neo.rr.com on Thu, Aug 05, 2004 at 10:28:20PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Aug 05, 2004 at 10:28:20PM +0000, Adam Belay wrote:
+>...
+> The event is then eventually reported to the ds.c client.  DS then informs
+> userspace of the ejection request and waits for userspace to reply with whether
+> the request was successful.  pcmcia-cs, in turn, calls DS_GET_FIRST_TUPLE while
+> verifying the ejection request.
 
-Patrick McHardy wrote:
-| Herbert Xu wrote:
-|
-|> Nuno Silva <nuno.silva@vgertech.com> wrote:
-|>
-|>
-|>> The problem is in the QoS code. If I start ppp whithout the
-|>
-|>
-|> OK, this appears to be due to the changeset titled
-|>
-|> [PKT_SCHED]: Refcount qdisc->dev for __qdisc_destroy rcu-callback
-|>
-|> It adds a reference to dev.
-|>
-|> I don't see any code that cleans up that reference when the dev goes
-|> down.  So someone needs to add that similar to the code in
-|> net/core/dst.c.
-|>
-|> Patrick, could you please have a look at this?
-|>
-|>
-| The reference is dropped in __qdisc_destroy. The problem lies in the CBQ
-| qdisc, it doesn't destroy the root-class and leaks the inner qdisc. These
-| two patches for 2.4 and 2.6 fix the problem.
+The alternative is that we avoid taking the lock when we know that
+we don't need to re-validate the regions.  How does this look?
 
-Hi!
+--- ../bk/linux-2.6-pcmcia/drivers/pcmcia/rsrc_mgr.c	Sun Aug 22 15:42:36 2004
++++ drivers/pcmcia/rsrc_mgr.c	Mon Aug 23 18:01:10 2004
+@@ -88,6 +88,9 @@
+ };
+ 
+ static DECLARE_MUTEX(rsrc_sem);
++static unsigned int rsrc_mem_probe;
++#define MEM_PROBE_LOW	(1 << 0)
++#define MEM_PROBE_HIGH	(1 << 1)
+ 
+ #ifdef CONFIG_PCMCIA_PROBE
+ 
+@@ -451,24 +454,22 @@
+     return do_mem_probe(m->base, m->num, s);
+ }
+ 
+-static void validate_mem(struct pcmcia_socket *s)
++static void validate_mem(struct pcmcia_socket *s, unsigned int probe_mask)
+ {
+     resource_map_t *m, mm;
+     static u_char order[] = { 0xd0, 0xe0, 0xc0, 0xf0 };
+     static int hi = 0, lo = 0;
+     u_long b, i, ok = 0;
+-    int force_low = !(s->features & SS_CAP_PAGE_REGS);
+ 
+-    down(&rsrc_sem);
+     /* We do up to four passes through the list */
+-    if (!force_low) {
+-	if (hi++ || (inv_probe(mem_db.next, s) > 0))
+-	    goto out;
++    if (probe_mask & MEM_PROBE_HIGH) {
++	if (inv_probe(mem_db.next, s) > 0)
++	    return;
+ 	printk(KERN_NOTICE "cs: warning: no high memory space "
+ 	       "available!\n");
+     }
+-    if (lo++)
+-	goto out;
++    if ((probe_mask & MEM_PROBE_LOW) == 0)
++	return;
+     for (m = mem_db.next; m != &mem_db; m = mm.next) {
+ 	mm = *m;
+ 	/* Only probe < 1 MB */
+@@ -488,38 +489,51 @@
+ 	    }
+ 	}
+     }
+- out:
+-    up(&rsrc_sem);
+ }
+ 
+ #else /* CONFIG_PCMCIA_PROBE */
+ 
+-static void validate_mem(struct pcmcia_socket *s)
++static void validate_mem(struct pcmcia_socket *s, unsigned int probe_mask)
+ {
+-    resource_map_t *m, mm;
+-    static int done = 0;
++	resource_map_t *m, mm;
+     
+-    if (done++ == 0) {
+-	down(&rsrc_sem);
+ 	for (m = mem_db.next; m != &mem_db; m = mm.next) {
+-	    mm = *m;
+-	    if (do_mem_probe(mm.base, mm.num, s))
+-		break;
++		mm = *m;
++		if (do_mem_probe(mm.base, mm.num, s))
++			break;
+ 	}
+-	up(&rsrc_sem);
+-    }
+ }
+ 
+ #endif /* CONFIG_PCMCIA_PROBE */
+ 
++/*
++ * Locking note: this is the only place where we take
++ * both rsrc_sem and skt_sem.
++ */
+ void pcmcia_validate_mem(struct pcmcia_socket *s)
+ {
+-	down(&s->skt_sem);
++	if (probe_mem) {
++		unsigned int probe_mask;
++
++		down(&rsrc_sem);
++
++		probe_mask = PROBE_MEM_LOW;
++		if (s->features & SS_CAP_PAGE_REGS)
++			probe_mask = PROBE_MEM_HIGH;
+ 
+-	if (probe_mem && s->state & SOCKET_PRESENT)
+-		validate_mem(s);
++		if (probe_mask & ~rsrc_mem_probe) {
++			rsrc_mem_probe |= probe_mask;
+ 
+-	up(&s->skt_sem);
++			down(&s->skt_sem);
++
++			if (s->state & SOCKET_PRESENT)
++				validate_mem(s, probe_mask);
++
++			up(&s->skt_sem);
++		}
++
++		up(&rsrc_sem);
++	}
+ }
+ 
+ EXPORT_SYMBOL(pcmcia_validate_mem);
 
-Just to give some feedback: IT WORKS! Thanks!
 
-Didn't try with 2.4, but it works very well with 2.6.8.1.
-Thanks again,
-Nuno Silva
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBKi/FOPig54MP17wRAiYBAJ41ZGzauhY6dDVtylWkLSD3V+vx9QCgteNF
-21sEmv0wqP+9hdnXEc4DNBE=
-=ByPY
------END PGP SIGNATURE-----
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

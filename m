@@ -1,39 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbVCZKQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbVCZKTs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261819AbVCZKQV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 05:16:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbVCZKQV
+	id S261845AbVCZKTs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 05:19:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVCZKTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 05:16:21 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:37841 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261819AbVCZKQT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 05:16:19 -0500
-Date: Sat, 26 Mar 2005 11:16:09 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Luca <kronos@kronoz.cjb.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Garbage on serial console after serial driver loads
-In-Reply-To: <20050325210132.GA11201@dreamland.darkstar.lan>
-Message-ID: <Pine.LNX.4.61.0503261115480.28431@yvahk01.tjqt.qr>
-References: <20050325202414.GA9929@dreamland.darkstar.lan>
- <20050325203853.C12715@flint.arm.linux.org.uk> <20050325210132.GA11201@dreamland.darkstar.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 26 Mar 2005 05:19:48 -0500
+Received: from smtp-106-saturday.noc.nerim.net ([62.4.17.106]:43273 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S261845AbVCZKTq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 05:19:46 -0500
+Date: Sat, 26 Mar 2005 11:19:45 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       Jaroslav Kysela <perex@suse.cz>
+Subject: Re: 2.6.12-rc1-mm3, sound card lost id
+Message-Id: <20050326111945.5eb58343.khali@linux-fr.org>
+In-Reply-To: <20050325002154.335c6b0b.akpm@osdl.org>
+References: <20050325002154.335c6b0b.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Well, serial_core seems to think so:
->
->Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
->ttyS0 at I/O 0x3f8 (irq = 4) is a NS16550A
->ttyS1 at I/O 0x2f8 (irq = 3) is a NS16550A
->ttyS0 at I/O 0x3f8 (irq = 4) is a NS16550A
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/2.6.12-rc1-mm3/
+> (...)
+>  bk-alsa.patch
 
-Does it work if you set the baud rate manually, as a bootloader option?
+This one made /proc/asound/card0/id change from "Live" to "Unknown" on
+one of my systems, preventing alsatcl from properly restoring my mixer
+settings.
 
+I guess this wasn't exactly expected?
 
+00:0d.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 06)
+        Subsystem: Creative Labs CT4832 SBLive! Value
+        Flags: bus master, medium devsel, latency 48, IRQ 5
+        I/O ports at 8800 [size=32]
 
-Jan Engelhardt
+Class:     0401
+Device:    1102:0002
+Subsystem: 1102:8027
+
+Thanks,
 -- 
-No TOFU for me, please.
+Jean Delvare

@@ -1,87 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271896AbRIMRHl>; Thu, 13 Sep 2001 13:07:41 -0400
+	id <S271906AbRIMRJC>; Thu, 13 Sep 2001 13:09:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271900AbRIMRHc>; Thu, 13 Sep 2001 13:07:32 -0400
-Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:35591 "EHLO
-	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S271896AbRIMRHT> convert rfc822-to-8bit; Thu, 13 Sep 2001 13:07:19 -0400
-Date: Thu, 13 Sep 2001 19:07:41 +0200
-From: =?iso-8859-2?Q?Martin_Ma=E8ok?= <martin.macok@underground.cz>
-To: linux-kernel@vger.kernel.org
-Subject: some possible bugs around (race conditions etc.)
-Message-ID: <20010913190741.A8184@sarah.kolej.mff.cuni.cz>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.2.5i
+	id <S271911AbRIMRIw>; Thu, 13 Sep 2001 13:08:52 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:20668 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S271910AbRIMRIo>; Thu, 13 Sep 2001 13:08:44 -0400
+Message-ID: <3BA111FD.499BBF1D@us.ibm.com>
+Date: Thu, 13 Sep 2001 10:07:25 -1000
+From: Mingming cao <cmm@us.ibm.com>
+Organization: Linux Technology Center
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
+CC: linux-kernel@vger.kernel.org, manfreds@colorfullife.com
+Subject: [PATCH]Fix bug in msgsnd
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-we (Kamil Toman <ktoman@email.cz> and me) were studying linux source
-and trying to make some "audit". We went over 2.4.7 source and in the
-time of this writing I'm looking at 2.4.9-ac10 to compare if it was
-changed. This is a list of possible things we have found:
+Hello linus & Alan,
 
-[ definitely - we're kernel newbies so take us easy ;-) ]
+This patch fixes a bug in msgsnd.  If a message is sent via
+pipelined_send(), the q_lrpid field of the associated message queue
+(last pid receive) is not updated correctly.  The existing code
+(apparently by mistake) updates the lspid field instead. The second
+problem is that, for the pipelinesend case, q_lstime(last msgsnd time)
+is set AFTER q_lrtime(last msgrcv time), yielding a negative time delta.
 
-lines according to 2.4.9-ac10:
+This patch is against kernel 2.4.9 and has been tested.  Please
+apply.  
 
-kernel/capability.c:
-59-63, 91-93, 203-206: SMP race, possible fix: rwlock
-
-kernel/exit.c:
-485: sys_exit doesn't return anything (nor long type)
-        why it isn't void ?
-442-447: is this signal handling correct?
-501: task INTERRUPTIBLE - possible ineffectivity, couldn't this task
-        be woken up too often (early)?
-
-kernel/fork.c:
-586: isn't memcpy() more effective?
-
-kernel/acct.c:
-SMP race ?:
-----------------------------------------------------
-CPU1                            CPU2
-
-sys_acct(file)
-{
-    ....
-    if (old_acct)
-
-                                sys_acct(NULL)
-                                sys_acct(nextfile)
-                                {
-
-                                    ....
-        do_acct_process() -- BUG!
-        filp_close() -- BUG!
-----------------------------------------------------
-
-kernel/sys.c:
-1217: mixed signed/unsigned - doesn't it return EINVAL even when it
-        shouldn't?
-1042: what if strlen < len? can we get rid of chars after null?
-428: why wmb() ?
-
-kernel/sched.c:
-1303-1309: isn't there a same race cond. as in kmod.c:65 ?
-1323: is this needed on UP?
-603:  is this correct on SMP? shouldn't there be some penalty
-        accounted for being "randomly" woken/run?
-
-kernel/kmod.c
-211: shouldn't module_name be tested a bit?
-
-Comments are welcomed.
-
-Have a nice day
+Please CC your feedback to me also, thanks.
 
 -- 
-   Martin Maèok
-  underground.cz
-    openbsd.cz
+Mingming Cao
+IBM Linux Technology Center
+
+diff -urN -X dontdiff linux/ipc/msg.c linux-tk/ipc/msg.c
+--- linux/ipc/msg.c	Tue Sep 11 16:21:42 2001
++++ linux-tk/ipc/msg.c	Tue Sep 11 16:21:31 2001
+@@ -613,7 +613,7 @@
+ 				wake_up_process(msr->r_tsk);
+ 			} else {
+ 				msr->r_msg = msg;
+-				msq->q_lspid = msr->r_tsk->pid;
++				msq->q_lrpid = msr->r_tsk->pid;
+ 				msq->q_rtime = CURRENT_TIME;
+ 				wake_up_process(msr->r_tsk);
+ 				return 1;
+@@ -683,6 +683,9 @@
+ 		goto retry;
+ 	}
+ 
++	msq->q_lspid = current->pid;
++	msq->q_stime = CURRENT_TIME;
++
+ 	if(!pipelined_send(msq,msg)) {
+ 		/* noone is waiting for this message, enqueue it */
+ 		list_add_tail(&msg->m_list,&msq->q_messages);
+@@ -694,8 +697,6 @@
+ 	
+ 	err = 0;
+ 	msg = NULL;
+-	msq->q_lspid = current->pid;
+-	msq->q_stime = CURRENT_TIME;
+ 
+ out_unlock_free:
+ 	msg_unlock(msqid);

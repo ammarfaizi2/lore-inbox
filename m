@@ -1,80 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292610AbSBPX0T>; Sat, 16 Feb 2002 18:26:19 -0500
+	id <S291194AbSBQWep>; Sun, 17 Feb 2002 17:34:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292611AbSBPX0J>; Sat, 16 Feb 2002 18:26:09 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:12166 "EHLO softhome.net")
-	by vger.kernel.org with ESMTP id <S292610AbSBPXZu>;
-	Sat, 16 Feb 2002 18:25:50 -0500
-From: Raphael Derosso Pereira - DephiNit <dephinit@softhome.net>
-To: linux-kernel@vger.kernel.org
-Subject: Changing PCI board's IRQ
-Date: Sat, 16 Feb 2002 21:25:27 -0200
-X-Mailer: KMail [version 1.3.2]
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S291197AbSBQWeg>; Sun, 17 Feb 2002 17:34:36 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:8717 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S291194AbSBQWeV>; Sun, 17 Feb 2002 17:34:21 -0500
+Message-ID: <3C702FE3.B914C0D@delusion.de>
+Date: Sun, 17 Feb 2002 23:34:11 +0100
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5-pre1 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Greg Kroah Hartmann <greg@kroah.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: khubd blocking in D state with 2.5.5-pre1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16cECu-0000Lh-00@mushroom>
-X-Mime-Autoconverted: from 8bit to 7bit by courier 0.36.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-One computer that I administer have a IRQ conflict between a sound card and a 
-ethernet card. Both share the IRQ 11.
-I don't have physical access to the computer, so I tried to change the IRQ 
-using the 'setpci' command.
+Hi Greg,
 
-# setpci -v -s 0:7.5 INTERRUPT_LINE=08
-00:07.5:3c 08
-#
+Since 2.5.5-pre1 I'm using the normal UCHI driver (used the JE one before).
 
-But, after that, when I did a 
+The USB system is as follows:
 
-# lspci -vv -s 0:7.5
-00:07.5 Multimedia audio controller: VIA Technologies, Inc. AC97 Audio 
-Controller (rev 50)
-        Subsystem: Biostar Microtech Int'l Corp: Unknown device 0032
-        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin C routed to IRQ 11
-        Region 0: I/O ports at dc00 [size=256]
-        Region 1: I/O ports at e000 [size=4]
-        Region 2: I/O ports at e400 [size=4]
-        Capabilities: [c0] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+/proc/bus/usb/devices 
+T:  Bus=02 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
+B:  Alloc= 11/900 us ( 1%), #Int=  1, #Iso=  0
+D:  Ver= 1.00 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 0.00
+S:  Product=USB UHCI Root Hub
+S:  SerialNumber=d000
+C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=255ms
+T:  Bus=02 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  2 Spd=12  MxCh= 4
+D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=058f ProdID=9254 Rev= 1.00
+S:  Manufacturer=ALCOR
+S:  Product=Generic USB Hub
+C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=100mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=255ms
+T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
+B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 1.00 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 0.00
+S:  Product=USB UHCI Root Hub
+S:  SerialNumber=d400
+C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=255ms
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12  MxCh= 0
+D:  Ver= 1.00 Cls=ff(vend.) Sub=ff Prot=ff MxPS=64 #Cfgs=  1
+P:  Vendor=04b8 ProdID=0110 Rev= 1.10
+S:  Manufacturer=EPSON
+S:  Product=EPSON Scanner
+C:* #Ifs= 1 Cfg#= 1 Atr=c0 MxPwr=  2mA
+I:  If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=usbscanner
+E:  Ad=81(I) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=  0ms
 
+My monitor acts as USB hub. When the monitor is switched off and then back
+on the khubd kernel thread blocks in D state:
 
-After some experience (like rebooting... arg!) i tried:
+PID TT       USER     COMMAND  TMOUT   F WCHAN   WCHAN
+ 12 ?        root     khubd        - 140 down   1075e6
 
-# lspci -vv -H1 -s 0:7.5
-<cut>
-        Interrupt: pin C routed to IRQ 8
-        Region 0: I/O ports at dc00
-<cut>
+dmesg shows:
 
-So, it seems that either I cannot change the Interrupt line number throught 
-software (and the -H1 is tricky) or the /proc/pci (and /proc/bus/pci) is not 
-getting updated.
+hub.c: new USB device on bus 1 path /1, assigned address 2
+hub.c: new USB device on bus 1 path /2, assigned address 3
+hub.c: USB hub found at /2
+hub.c: 5 ports detected
+hub.c: new USB device on bus 1 path /2/1, assigned address 4
+usb-uhci.c: interrupt, status 2, frame# 1932
+usb.c: USB device not responding, giving up (error=-84)
+hub.c: new USB device on bus 1 path /2/1, assigned address 5
+usb.c: USB device 5 (vend/prod 0x56d/0x2) is not claimed by any active driver.
+usb.c: USB disconnect on device 3
 
-Is that a problem or am I missing the point?
+Is this a known problem?
 
-P.S.: Please Reply direct to me (or send me a copy) because I can not 
-"afford" the traffic of linux-kernel. :)
-
--- 
- Raphael Derosso Pereira - DephiNit
-
-     *-=-*-=--=-*-=-*-=--=*=-*
-    / dephinit@softhome.net /
-   *-=-*-=--=-*-=-*-=--=*=-*
-
- -=*=--=*=--=*=--=*=--=*=--=*=--=*=-
-|  Debian GNU/Linux Addicted User   |
-|  Use it, Abuse it. It's Free!!!   |
- -=*=--=*=--=*=--=*=--=*=--=*=--=*=-
+Regards,
+Udo.

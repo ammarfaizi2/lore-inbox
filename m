@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279838AbRKAWzg>; Thu, 1 Nov 2001 17:55:36 -0500
+	id <S279852AbRKAXCH>; Thu, 1 Nov 2001 18:02:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279846AbRKAWz0>; Thu, 1 Nov 2001 17:55:26 -0500
-Received: from smtp-rt-3.wanadoo.fr ([193.252.19.155]:39890 "EHLO
-	apicra.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S279838AbRKAWzK>; Thu, 1 Nov 2001 17:55:10 -0500
-Date: Thu, 1 Nov 2001 23:54:49 +0100
-From: David Odin <dindinx@wanadoo.fr>
-To: linux-kernel@vger.kernel.org
-Subject: [OT] Linux Progress Patch for 2.4.13
-Message-ID: <20011101235449.A356@bigfoot.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.6us
+	id <S279845AbRKAXBr>; Thu, 1 Nov 2001 18:01:47 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:64007 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S279846AbRKAXBl>; Thu, 1 Nov 2001 18:01:41 -0500
+Message-ID: <3BE1D439.8A5C81AE@namesys.com>
+Date: Fri, 02 Nov 2001 02:01:13 +0300
+From: Hans Reiser <reiser@namesys.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-4GB i686)
+X-Accept-Language: en, ru
+MIME-Version: 1.0
+To: Andreas Dilger <adilger@turbolabs.com>
+CC: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
+Subject: Re: writing a plugin for reiserfs compression
+In-Reply-To: <Pine.LNX.4.30.0111011754580.2106-100000@mustard.heime.net> <20011101130721.D16554@lynx.no>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andreas Dilger wrote:
 
-     Hi,
+> As a note to whoever at namesys created the reiserfs patch to add the
+> "notail" flag (overloading the "nodump" flag).  I would much rather
+> that a new "notail" flag be allocated for this.  I will contact Ted
+> Ted Ts'o to get a flag assigned.  This will avoid any problems in the
+> future, and may also be useful at some time for ext2.
 
-  I've updated the Linux-Progress patch for the 2.4.13 kernel. It works
-pretty well. Though, I need more information about the order in which
-each of the kernel parts are loaded (a look-in-this-file answer would be
-perfect to me). Also, I don't know where to put such a patch to every
-one can use it (it is too big to be sent to this list).
-  The lpp project on sourceforge seems dead :-(.
+Sounds correct to do to me.
 
-
-           DindinX
-
--- 
-dindinx@wanadoo.fr
+Hans

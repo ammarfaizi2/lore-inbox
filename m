@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135491AbREEVnG>; Sat, 5 May 2001 17:43:06 -0400
+	id <S135504AbREEWMO>; Sat, 5 May 2001 18:12:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135463AbREEVmq>; Sat, 5 May 2001 17:42:46 -0400
-Received: from [200.181.138.61] ([200.181.138.61]:35832 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S135491AbREEVmm>; Sat, 5 May 2001 17:42:42 -0400
-Date: Sat, 5 May 2001 00:46:48 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: davem@redhat.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: [PATCH] tcp.c: TCP_LINGER2 small bug
-Message-ID: <20010505004648.C2859@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	davem@redhat.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S135506AbREEWMF>; Sat, 5 May 2001 18:12:05 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:8087 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S135504AbREEWLu>;
+	Sat, 5 May 2001 18:11:50 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
+Message-ID: <15092.31381.395563.889405@pizda.ninka.net>
+Date: Sat, 5 May 2001 15:11:33 -0700 (PDT)
+To: "Svenning Soerensen" <svenning@post5.tele.dk>
+Cc: <linux-kernel@vger.kernel.org>, <linux-ipsec@freeswan.org>
+Subject: RE: Problem with PMTU discovery on ICMP packets
+In-Reply-To: <015401c0d56e$ee293250$1400a8c0@sss.intermate.com>
+In-Reply-To: <15091.59308.315685.312632@pizda.ninka.net>
+	<015401c0d56e$ee293250$1400a8c0@sss.intermate.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-	Please apply.
+Svenning Soerensen writes:
+ > Yes, I see your point. I guess I made an incorrect assumption about it
+ > being changed between reboots. It could be related to routing or something
+ > instead. I'll have to dig a bit further to find a pattern. 
+ > 
+ > However, even if I *do* find the pattern, I still think it is reasonable
+ > to turn off PMTU discovery for ICMP explicitly, instead of based on the
+ > setting of ipv4_config:
 
-- Arnaldo
+I totally agree with you.
 
---- linux-2.4.4-ac5/net/ipv4/tcp.c	Sat May  5 18:24:59 2001
-+++ linux-2.4.4-ac5.acme/net/ipv4/tcp.c	Sat May  5 18:33:32 2001
-@@ -2352,7 +2352,7 @@
- 		break;
- 	case TCP_LINGER2:
- 		val = tp->linger2;
--		if (val > 0)
-+		if (val >= 0)
- 			val = (val ? : sysctl_tcp_fin_timeout)/HZ;
- 		break;
- 	case TCP_DEFER_ACCEPT:
+But I first want to know the real story behind this reboot anomaly.
+Then we will fix any new bug we discover, and apply the icmp patch as
+well.
+
+Later,
+David S. Miller
+davem@redhat.com

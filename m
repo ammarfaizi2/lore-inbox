@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275822AbRJYSeQ>; Thu, 25 Oct 2001 14:34:16 -0400
+	id <S275861AbRJYShi>; Thu, 25 Oct 2001 14:37:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275861AbRJYSeG>; Thu, 25 Oct 2001 14:34:06 -0400
-Received: from [213.96.124.18] ([213.96.124.18]:5358 "HELO dardhal")
-	by vger.kernel.org with SMTP id <S275822AbRJYSdw>;
-	Thu, 25 Oct 2001 14:33:52 -0400
-Date: Thu, 25 Oct 2001 20:37:43 +0000
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jdomingo@internautas.org>
+	id <S275963AbRJYSh2>; Thu, 25 Oct 2001 14:37:28 -0400
+Received: from vger.timpanogas.org ([207.109.151.240]:522 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S275861AbRJYSh0>; Thu, 25 Oct 2001 14:37:26 -0400
+Date: Thu, 25 Oct 2001 12:40:36 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux Scheduler and Compilation
-Message-ID: <20011025203743.B504@dardhal.mired.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <007501c15d68$94f12c60$8630fdd4@3232424>
+Cc: jmerkey@timpanogas.org
+Subject: SCSI Tape Device FATAL error on 2.4.10
+Message-ID: <20011025124036.A11885@vger.timpanogas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <007501c15d68$94f12c60$8630fdd4@3232424>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 25 October 2001, at 18:20:25 +0300,
-Omer Sever wrote:
 
->      I have a project on Linux CPU Scheduler to make it Fair Share
-> Scheduler.I will make some changes on some files such as sched.c vs...I will
-> want to see the effect ot the change but recompilation of the kernel takes
-> about half an hour on my machine.How can I minimize this time?Which part
-> should I necessarily include in my config file for the kernel to minimize
-> it?
-> 
-make is your friend: it will only recompile those files that changed from
-the last compilation. If you modify some #includes in the code, I believe
-you will have to also run "make dep" before, to get dependencies right.
 
-Another approach would be to compile the kernel on another different
-machine, should you have one more powerful that the one you expect to try
-the kernel on.
+On a ServerWorks HE Chipset system with an Exabyte EXB-480 
+Robotics Tape library we are seeing a fatal SCSI IO problem
+that results in a SCSI bus hang on the system.  This error
+is very fatal, and requires that the machine be rebooted 
+to recover.   Following this error, the Linux 
+Operating System is still running OK, but the affected 
+SCSI bus does not respond to any commands nor do any 
+devices attached to this bus.   
 
--- 
-José Luis Domingo López
-Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
- 
-jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
-jdomingo AT internautas DOT   org  => Spam at your own risk
+The Tape Drive is an Exabyte SCSI Tape.  The error occurs when
+the device reaches end of tape (EOT) during a write operation
+while writing to the tape.
+
+With tape programming, there really is no good way to know where
+the end of tape is while archiving data real time, so this error 
+is pretty much fatal.  We are using tape partitioning, which we
+have noticed not many applications in Linux use at present, so
+these code paths may be related to the problem.  I have reviewed
+st.c but it is not readily apparent where the problem may be
+in this code, which is leading me to suspect it's related to 
+some interaction between st.c and the drivers with regard to
+multiple seeks and writes between tape partitions.
+
+Configuration is:
+
+2.4.10
+AIC7XXX
+ST
+EXSCH (Exabyte Robotics Library for Linux 2.2.X/2.4.X) We wrote this.
+
+The EXB-480 has 4 Exabyte tape drives and 30 150GB Tape slots with 
+an import/export port.
+
+THe system we are using is the SuperMicro Serverworks HE Motherboard with
+2GB of memory and 3Ware IDE Controllers.  We are not using the 3Ware 
+controllers for any of the tape support.
+
+Please advise,
+
+Jeff Merkey
+TRG
+
+
 

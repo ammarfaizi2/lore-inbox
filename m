@@ -1,82 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265094AbUAVXxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 18:53:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266340AbUAVXxY
+	id S266478AbUAVXsx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 18:48:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266481AbUAVXsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 18:53:24 -0500
-Received: from c-24-99-36-145.atl.client2.attbi.com ([24.99.36.145]:33802 "EHLO
-	babylon.d2dc.net") by vger.kernel.org with ESMTP id S265094AbUAVXxW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 18:53:22 -0500
-Date: Thu, 22 Jan 2004 18:53:20 -0500
-From: "Zephaniah E. Hull" <warp@babylon.d2dc.net>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       Mark Borgerding <mark@borgerding.net>, linux-kernel@vger.kernel.org
-Subject: Re: ALSA vs. OSS
-Message-ID: <20040122235320.GA21836@babylon.d2dc.net>
-Mail-Followup-To: Jaroslav Kysela <perex@suse.cz>,
-	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-	Mark Borgerding <mark@borgerding.net>, linux-kernel@vger.kernel.org
-References: <1074532714.16759.4.camel@midux> <200401201046.24172.hus@design-d.de> <400D2AB2.7030400@borgerding.net> <200401201513.45564.s0348365@sms.ed.ac.uk> <Pine.LNX.4.58.0401201615480.2010@pnote.perex-int.cz>
+	Thu, 22 Jan 2004 18:48:52 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:57094 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S266478AbUAVXsv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 18:48:51 -0500
+Date: Fri, 23 Jan 2004 00:48:33 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Eduard Roccatello <lilo@roccatello.it>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] net/ipv4/tcp.c little cleanup
+Message-ID: <20040122234833.GL545@alpha.home.local>
+References: <200401222253.37426.lilo@roccatello.it>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0401201615480.2010@pnote.perex-int.cz>
-X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
-X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
-X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
-X-Notice-4: policy and agree to the fee.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <200401222253.37426.lilo@roccatello.it>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi !
 
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, Jan 22, 2004 at 10:53:37PM +0100, Eduard Roccatello wrote:
+> Hello,
+> i've done a little cleanup to net/ipv4/tcp.c
+> 
+> I hope it is ok :-)
 
-On Tue, Jan 20, 2004 at 04:19:29PM +0100, Jaroslav Kysela wrote:
-> On Tue, 20 Jan 2004, Alistair John Strachan wrote:
-> > If ALSA does or could support working with the programmable dsp, I'd be=
- happy=20
-> > to switch to it. Right now my "deprecated" SBLive! OSS drivers output h=
-igher=20
-> > quality audio.
->=20
-> We don't have user space tools to update DSP code although our emu10k1
-> driver is capable to do it. Sure, we are doing things differently than OSS
-> driver so you cannot simply use the OSS utilities.
->=20
-> Perhaps, time to help us?
+I haven't looked at sysctl_max_syn_backlog type, but if it's unsigned, there's
+a risk of infinite loop for values above 2^31 on 32 bits machines, or 2^63 on
+64 bits machine. This is because many processors leave the result undefined
+when you shift more bits that the word size. Often, only the lowest bits are
+used for the shift count, resulting in a modulo.
 
-Is there any documentation on the interface for uploading new DSP code
-to the emu10k1?
+Eg, on ia32, if sysctl_max_syn_backlog is >2^31, the test will never work, and
+when max_qlen_log becomes 32, it will give the same result as if it were 0.
+Another case is if sysctl_max_syn_backlog is above 2^30, and the shift returns
+a signed result, because 1<<31 will be negative, thus validating the test and
+maintain the loop.
 
-Such would be /very/ useful for the task of writing tools to do the job.
+Note that this potential problem is also present in the code you replaced.
 
---=20
-	1024D/E65A7801 Zephaniah E. Hull <warp@babylon.d2dc.net>
-	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
-	    CCs of replies from mailing lists are requested.
+Cheers,
+Willy
 
-   "Never attribute to malice that which can be adequately explained by
-stupidity" - Hanlon's Razor
+> --- net/ipv4/tcp.c.orig	2004-01-22 22:49:38.000000000 +0100
+> +++ net/ipv4/tcp.c	2004-01-22 22:42:38.000000000 +0100
+> @@ -549,9 +549,9 @@ int tcp_listen_start(struct sock *sk)
+>  	 	return -ENOMEM;
+>  
+> 	memset(lopt, 0, sizeof(struct tcp_listen_opt));
+> -	for (lopt->max_qlen_log = 6; ; lopt->max_qlen_log++)
+> -		if ((1 << lopt->max_qlen_log) >= sysctl_max_syn_backlog)
+> -			break;
+> +	lopt->max_qlen_log = 6;
+> +	while (sysctl_max_syn_backlog > (1 << lopt->max_qlen_log))
+> +		lopt->max_qlen_log++;
+>  	get_random_bytes(&lopt->hash_rnd, 4);
+>  
+>  	write_lock_bh(&tp->syn_wait_lock);
+> 
 
---PEIAKu/WMn1b1Hv9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAEGJwRFMAi+ZaeAERAvXcAJ4lH75rl1eZ6oj1RXuUyVOpwbFD+gCg1npe
-AyR6vGqxFQVMV0LcYwY6B08=
-=TJ+p
------END PGP SIGNATURE-----
-
---PEIAKu/WMn1b1Hv9--

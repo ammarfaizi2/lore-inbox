@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279865AbRJ3Eov>; Mon, 29 Oct 2001 23:44:51 -0500
+	id <S279867AbRJ3Eta>; Mon, 29 Oct 2001 23:49:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279866AbRJ3Eol>; Mon, 29 Oct 2001 23:44:41 -0500
-Received: from longsword.omniti.com ([216.0.51.134]:53010 "EHLO
-	longsword.omniti.com") by vger.kernel.org with ESMTP
-	id <S279865AbRJ3Eoh>; Mon, 29 Oct 2001 23:44:37 -0500
-Message-ID: <3BDE3174.7718D64B@omniti.com>
-Date: Mon, 29 Oct 2001 23:49:56 -0500
-From: Robert Scussel <rscuss@omniti.com>
-Reply-To: rscuss@omniti.com
-Organization: OmniTI, Inc.
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: torvalds@transmeta.com
-CC: andre@sam.com.br, linux-kernel@vger.kernel.org, jesus@omniti.com
-Subject: Re: linux-2.4.13 high SWAP
+	id <S279861AbRJ3EtU>; Mon, 29 Oct 2001 23:49:20 -0500
+Received: from [63.231.122.81] ([63.231.122.81]:11312 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S279853AbRJ3EtF>;
+	Mon, 29 Oct 2001 23:49:05 -0500
+Date: Mon, 29 Oct 2001 21:49:18 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] random.c bugfix
+Message-ID: <20011029214918.A27370@lynx.no>
+Mail-Followup-To: Oliver Xymoron <oxymoron@waste.org>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011029163920.F806@lynx.no> <Pine.LNX.4.30.0110291814100.30096-100000@waste.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.LNX.4.30.0110291814100.30096-100000@waste.org>; from oxymoron@waste.org on Mon, Oct 29, 2001 at 06:23:31PM -0600
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just thought that I would add our experience.
+On Oct 29, 2001  18:23 -0600, Oliver Xymoron wrote:
+> Backport to 2.2 might be a good idea too..
 
-We have experienced the same kind of swap symptoms described, however we
-have no mounted tmpfs, or ramfs partitions. We have, in fact,
-experienced the same symptoms on the 2.4.2,2.4.5,2.4.7 and 2.4.12
-kernel, haven't yet tried the 2.4.13 kernel.  The symptoms include hung
-processes which can not be killed, system cannot right to disk, and
-files accessed during this time are filled with binary zeros.  As sync
-does not work as well, the only resolution is to do a reboot -f -n.
+Note that the 2.2 kernel code is (AFAIK) quite different from the 2.4
+kernel code for drivers/char/random.c.  The serious bug - not incrementing
+"in" was introduced in 2.3.16.  The other real bug - trunctating the pool
+entropy to the number of words in the pool, does not exist in 2.2.  It
+correctly compares it agains POOLBITS.
 
-All systems are comprised of exclusively SGI XFS partitions, with dual
-pentium II/III processors.
-
-Any insight would be helpful,
-
-Robert Scussel
+Cheers, Andreas
 --
-Robert Scussel
-1024D/BAF70959/0036 B19E 86CE 181D 0912  5FCC 92D8 1EA1 BAF7 0959
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

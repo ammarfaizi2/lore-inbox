@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbULPSpS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbULPSrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261977AbULPSpS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 13:45:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbULPSpS
+	id S261981AbULPSrY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 13:47:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbULPSrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 13:45:18 -0500
-Received: from dsl027-176-166.sfo1.dsl.speakeasy.net ([216.27.176.166]:26284
-	"EHLO waste.org") by vger.kernel.org with ESMTP id S261977AbULPSpL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 13:45:11 -0500
-Date: Thu, 16 Dec 2004 10:44:38 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: What's the matter with build-in netconsole?
-Message-ID: <20041216184438.GH2767@waste.org>
-References: <20041216143537.41770.qmail@web51502.mail.yahoo.com>
-Mime-Version: 1.0
+	Thu, 16 Dec 2004 13:47:24 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:8158 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S261981AbULPSqN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 13:46:13 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041216143537.41770.qmail@web51502.mail.yahoo.com>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16833.55270.601527.754270@napali.hpl.hp.com>
+Date: Thu, 16 Dec 2004 10:45:58 -0800
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, willy@debian.org
+Subject: Re: [PATCH] add legacy I/O port & memory APIs to /proc/bus/pci
+In-Reply-To: <200412160850.20223.jbarnes@engr.sgi.com>
+References: <200412160850.20223.jbarnes@engr.sgi.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 06:35:37AM -0800, Park Lee wrote:
-> Hi,
->   I try to use netconsole to keep Linux kernel oops to
-> another machine. I've compiled netconsole into the
-> kernel (i.e. select CONFIG_NETCONSOLE=y, when run
-> 'make menuconfig'). 
->   After that, I put
-> "netconsole=@/,514@192.168.0.1/00:02:3F:03:D2:59"
-> (which is described in
-> /usr/src/linux/Documentation/networking/netconsole.txt)
+>>>>> On Thu, 16 Dec 2004 08:50:19 -0800, Jesse Barnes <jbarnes@engr.sgi.com> said:
 
-You have to configure a source IP address for built-in netconsole, as
-interfaces normally don't have addresses assigned to them until init.
+  Jesse> +int ia64_pci_legacy_read(struct pci_dev *dev, u16 port, u32 *val, u8 size)
+  Jesse> +{
+  Jesse> +	int ret = 0;
+  Jesse>         :
+  Jesse> +	case 1:
+  Jesse> +		addr = (unsigned long *)paddr;
+  Jesse> +		*val = (u8)(*(volatile u8 *)(addr));
+  Jesse> +		break;
+  Jesse> +	case 2:
+  Jesse> +		addr = (unsigned long *)paddr;
+  Jesse> +		*val = (u16)(*(volatile u16 *)(addr));
+  Jesse> +		break;
+  Jesse>          :
+  Jesse> +}
 
-> to the kernel command line as provided by grub and
-> rerun my machine with the new compiled kernel.
->   But then, when the system is booting, it shows the
-> following message:
-> 
-> ... ...
-> Uncompressing Linux... Ok, booting the kernel.
-> audit(1103234064.4294965842:0): initialized
-> netconsole: eth0 doesn't exist, aborting.
-> ... ...
-> 
->   Then, What's the matter with the build-in
-> netconsole? Have I misconfiged the netconsole? and How
-> to really run build-in netconsole?
+  Jesse> +int ia64_pci_legacy_write(struct pci_dev *dev, u16 port, u32 val, u8 size)
+  Jesse> +{
+  Jesse> +	switch (size) {
+  Jesse> +	case 1:
+  Jesse> +		addr = (unsigned long *)paddr;
+  Jesse> +		*(volatile u8 *)(addr) = (u8)(val);
+  Jesse> +		break;
+  Jesse> +	case 2:
+  Jesse> +		addr = (unsigned long *)paddr;
+  Jesse> +		*(volatile u16 *)(addr) = (u16)(val);
+  Jesse> +		break;
+  Jesse>           :
+  Jesse> +	}
 
-Is your network driver built in? Is it eth0 (you let netconsole use
-the default)? Is it initialized before netconsole? Please send your
-_entire_ dmesg.
+No offense, but what's up with this castamania?
 
--- 
-Mathematics is the supreme nostalgia of our time.
+	--david

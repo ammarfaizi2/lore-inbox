@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272897AbRIGXX6>; Fri, 7 Sep 2001 19:23:58 -0400
+	id <S272905AbRIGXhb>; Fri, 7 Sep 2001 19:37:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272902AbRIGXXs>; Fri, 7 Sep 2001 19:23:48 -0400
-Received: from test.astound.net ([24.219.123.215]:34820 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S272897AbRIGXXd>; Fri, 7 Sep 2001 19:23:33 -0400
-Date: Fri, 7 Sep 2001 16:23:59 -0700 (PDT)
-From: Andre Hedrick <andre@aslab.com>
-To: Alex Deucher <agd5f@yahoo.com>
-cc: linux-on-portege@yahoogroups.com, linux-kernel@vger.kernel.org
-Subject: Re: Toshiba IDE DMA support
-In-Reply-To: <20010907163513.62384.qmail@web11304.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.10.10109071623370.5088-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S272906AbRIGXhU>; Fri, 7 Sep 2001 19:37:20 -0400
+Received: from mail.scsiguy.com ([63.229.232.106]:40199 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S272905AbRIGXhI>; Fri, 7 Sep 2001 19:37:08 -0400
+Message-Id: <200109072337.f87NbPY92715@aslan.scsiguy.com>
+To: SPATZ1@t-online.de (Frank Schneider)
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors) 
+In-Reply-To: Your message of "Sat, 08 Sep 2001 00:51:32 +0200."
+             <3B994F74.F97196BC@t-online.de> 
+Date: Fri, 07 Sep 2001 17:37:25 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Sep 2001, Alex Deucher wrote:
+>> You need to be running with aic7xxx=verbose for these messages to be
+>> useful.  In the 6.2.2 driver release I've turned these messages on
+>> by default.
+>
+>Could you please shortly explain what this option does...(before it
+>fills my logfiles with notes "succesfully wrote 1 Byte to disk abc"..:-)
 
-> I just received the documention for the IDE conrollers
-> in may older Toshiba notebooks.  These controllers are
-> capable of DMA, but at the moment do not have it
-> implemented.  I know nothing about programming IDE
-> drivers, so if anyone is interested in developing
-> these drivers shoot me an email and I can send you the
-> docs and help with testing (I have several notebooks
-> to test on).  I'd like to get into it myself, but just
-> don't have the time.
-> 
-> Alex
+It turns on some diagnostics regarding:
 
-Sure send the docs over!
+1) Card initialization
+2) Transfer Negotiation (occurs with every check condition that occurs
+			 prior to sending data, so while not rare, is
+			 not a common occurrence).
+3) Abort/Timeout processing
 
-Andre Hedrick
-CTO ASL, Inc.
-Linux ATA Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Tel: (510) 857-0055 x103
-38875 Cherry Street                           Fax: (510) 857-0010
-Newark, CA 94560                              Web: www.aslab.com
+It should not fill your log file unless you have a timeout.  This is
+exactly the time you want it to fill your logs, so I can help diagnose
+and fix your problem.
 
+>> This is 8 times the tag load the old driver defaults to.
+>
+>Thats true, and e.g., my relatively new IBM-drives (DGHS18V, 2x
+>DNES-309170W,  DDRS-39130W, all Server-disks according to IBM) can only
+>64...and the kernel complains, if i compile it with 255 and locks to
+>64...
+
+Its not really "complaining", its just telling you that it has determined
+the proper setting for this device.  There is an advantage to setting
+your tag depth to the locked value - the SCSI layer cannot be told
+dynamically to lower the tag depth, so there may be extra transactions
+sitting in the driver queue for no real purpose - but its not that
+big of a deal.
+
+>as i have played with this feature a while ago, i did not realize a
+>big performance-plus from 8 to 64, so i switched to 32...and i would go
+>down to <8 if i where in doubt....
+
+It all depends on your workload.  If you run a news server or have lots
+of concurrent active users on the machine, you are more likely to see
+a difference.
+
+--
+Justin

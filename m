@@ -1,93 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310426AbSCSHtd>; Tue, 19 Mar 2002 02:49:33 -0500
+	id <S310430AbSCSH6q>; Tue, 19 Mar 2002 02:58:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310428AbSCSHtY>; Tue, 19 Mar 2002 02:49:24 -0500
-Received: from [61.149.37.113] ([61.149.37.113]:24332 "HELO linux.tcpip.cxm")
-	by vger.kernel.org with SMTP id <S310426AbSCSHtM>;
-	Tue, 19 Mar 2002 02:49:12 -0500
-Date: Tue, 19 Mar 2002 15:48:53 +0800
-From: hugang <gang_hu@soul.com.cn>
-To: Roberto Nibali <ratz@drugphish.ch>
-Cc: adasi@kernel.pl, linux-kernel@vger.kernel.org
-Subject: Re: [2.5.7] compilation problem
-Message-Id: <20020319154853.43fbe03b.gang_hu@soul.com.cn>
-In-Reply-To: <3C967FB2.1080706@drugphish.ch>
-Organization: soul
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S310438AbSCSH60>; Tue, 19 Mar 2002 02:58:26 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:62471 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S310430AbSCSH6Y>; Tue, 19 Mar 2002 02:58:24 -0500
+Message-ID: <3C96EF17.32C9B8A0@zip.com.au>
+Date: Mon, 18 Mar 2002 23:56:07 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: vda@port.imtp.ilyichevsk.odessa.ua
+CC: Russ Weight <rweight@us.ibm.com>, mingo@elte.hu,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Scalable CPU bitmasks
+In-Reply-To: <20020318140700.A4635@us.ibm.com> <200203190728.g2J7Srq31344@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Mar 2002 01:00:50 +0100
-Roberto Nibali <ratz@drugphish.ch> wrote:
+Denis Vlasenko wrote:
+> 
+> On 18 March 2002 20:07, Russ Weight wrote:
+> >           While systems with more than 32 processors are still
+> >   out in the future, these interfaces provide a path for gradual
+> >   code migration. One of the primary goals is to provide current
+> >   functionality without affecting performance.
+> 
+> Not so far in the future. "7.52 second kernel compile" thread is about
+> timing kernel compile on the 32 CPU SMP box.
 
-> Hi,
-> 
-> > make[3]: Entering `/home/users/adasi/rpm/BUILD/linux-2.5.7/net/core'
-> > egcs -D__KERNEL__ -I/home/users/adasi/rpm/BUILD/linux-2.5.7/include -Wall -W
-> > strict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasi
-> > ng -fno-common -pipe  -march=i686   -DKBUILD_BASENAME=dev  -c -o dev.o dev.c
-> > dev.c: In function `netif_receive_skb':
-> > dev.c:1465: void value not ignored as it ought to be
-> > Part of .config:
-> > <cite>
-> > #
-> > # Networking options
-> > #
-> > CONFIG_PACKET=m
-> 
-> [removed unimportant part]
-> 
-> > CONFIG_IP_PIMSM_V2=y
-> > # CONFIG_ARPD is not set
-> > # CONFIG_INET_ECN is not set
-> > CONFIG_SYN_COOKIES=y
-> 
-> You forgot to post the important rest: CONFIG_NET_DIVERT=y
-> 
-> > How to fix it?
-> 
-> --- linux-2.5.7/net/core/dev.c	Mon Mar 18 23:17:40 2002
-> +++ /usr/src/linux-2.5.7/net/core/dev.c	Tue Mar 19 00:53:10 2002
-> @@ -1462,7 +1462,7 @@
-> 
->   #ifdef CONFIG_NET_DIVERT
->   	if (skb->dev->divert && skb->dev->divert->divert)
-> - 
-> 	ret = handle_diverter(skb);
-> + 
-> 	handle_diverter(skb);
->   #endif /* CONFIG_NET_DIVERT */
->   	 
-> 	
->   #if defined(CONFIG_BRIDGE) || defined(CONFIG_BRIDGE_MODULE)
-> 
-> 
-> I don't know why this has been changed since it doesn't differ much from 
-> the 2.4.x code in its invariant (CONFIG_NET_DIVERT) handling. Maybe 
-> DaveM had a bad day ;)
-> 
-> Cheers,
-> Roberto Nibali, ratz
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+The x86 spinlock implementation underflows at 128 CPUs [1].
+ 
+> I don't know whether BUG() in inlines makes them too big,
 
-Today I download the latest patch, And I patch it into the 2.5.6 tree, But it do't have that problem.? I chech dev.c , that is right.
--- 
-thanks with regards!
-hugang.
+It does, on all but very recent gcc's.  Strings in inlines
+generally cause vast kernel bloatage.
 
-***********************************
-Beijing Soul Technology Co.,Ltd.
-Tel:010-68425741/42/43/44
-Fax:010-68425745
-email:gang_hu@soul.com.cn
-web:http://www.soul.com.cn
-***********************************
+> but _for() _loops_ in inline functions definitely do that.
+> Here's one of the overgrown inlines:
+
+Sigh.  There is far too much inlining in Linux.
+
+[1] Untested.
+
+-

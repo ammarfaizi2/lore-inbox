@@ -1,177 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267383AbUGNN1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267386AbUGNN2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267383AbUGNN1t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 09:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267382AbUGNN1t
+	id S267386AbUGNN2e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 09:28:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267387AbUGNN2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 09:27:49 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12165 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267383AbUGNN1F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 09:27:05 -0400
-Date: Wed, 14 Jul 2004 09:26:55 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Mark Hamilton <man@ucs.co.za>
-Cc: linux-kernel@vger.kernel.org, Berend <bds@ucs.co.za>
-Subject: Re: HP Proliant ML350 kernel panic
-Message-ID: <20040714122655.GB12431@logos.cnet>
-References: <1088165491.2255.62.camel@man.ucs.co.za>
+	Wed, 14 Jul 2004 09:28:34 -0400
+Received: from holomorphy.com ([207.189.100.168]:48540 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267386AbUGNN2Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 09:28:25 -0400
+Date: Wed, 14 Jul 2004 06:22:56 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Can't make use of swap memory in 2.6.7-bk19
+Message-ID: <20040714132256.GR3411@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Peter Osterlund <petero2@telia.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <m2brir9t6d.fsf@telia.com> <40ECADF8.7010207@yahoo.com.au> <m2fz82hq8c.fsf@telia.com> <20040708012005.6232a781.akpm@osdl.org> <40ED049B.2020406@yahoo.com.au> <Pine.LNX.4.58.0407081126360.3104@telia.com> <20040714052010.GE3411@holomorphy.com> <m2u0wayisp.fsf@telia.com> <20040714105713.GP3411@holomorphy.com> <m2hdsabvdu.fsf@telia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1088165491.2255.62.camel@man.ucs.co.za>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <m2hdsabvdu.fsf@telia.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 14, 2004 at 02:55:57PM +0200, Peter Osterlund wrote:
+> Out of memory: pid 2655, comm xterm        , gfp 0x466, order 0
+[...]
+>  [<c0131d69>] out_of_memory+0xb2/0x105
+>  [<c013a0bd>] try_to_free_pages+0x143/0x190
+>  [<c0132bae>] __alloc_pages+0x1c3/0x347
+>  [<c013595b>] do_page_cache_readahead+0x13b/0x197
+>  [<c012fb50>] filemap_nopage+0x2d8/0x371
+>  [<c013cfe9>] do_no_page+0xb7/0x30f
+>  [<c013d431>] handle_mm_fault+0xd6/0x171
+>  [<c0111076>] do_page_fault+0x346/0x548
+>  [<c01d5868>] __copy_to_user_ll+0x48/0x6c
+>  [<c015c7c3>] sys_select+0x228/0x4b0
+>  [<c0110d30>] do_page_fault+0x0/0x548
+>  [<c01040a1>] error_code+0x2d/0x38
+> Out of Memory: Killed process 2666 (memalloc2).
+
+$ printf "%lx\n" $(( 0x100 | 0x80 | 0x40 | 0x10 | 0x2 ))
+1d2
+$ egrep '(0x100|0x80|0x40|0x10) |0x02' /mnt/dm0/laptop-2.6.8-rc1/include/linux/gfp.h                               
+#define __GFP_HIGHMEM   0x02
+#define __GFP_WAIT      0x10    /* Can wait and reschedule? */
+#define __GFP_IO        0x40    /* Can start physical IO? */
+#define __GFP_FS        0x80    /* Can call down to low-level FS? */
+#define __GFP_COLD      0x100   /* Cache-cold page required */
+
+Hmm, I wonder why we didn't just fail the allocation. Maybe we should
+check (gfp_mask & __GFP_NOFAIL) instead of !(gfp_mask & __GFP_NORETRY);
+everything else should be allowed to fail, except things loop if
+without __GFP_NORETRY, as presumably only __GFP_NOFAIL allocations are
+ones that supposedly can't handle failures in-context.
+
+The only difference laptop_mode should have is dirty memory handling,
+but you don't have any dirty memory. Maybe swapcache is fooling things.
+Most notably, add_to_swap() sets the page dirty...
+
+Something is very wrong here... could you try this?
 
 
-Hi Mark,
+- wli
 
-Sorry for the long delay...
-
-On Fri, Jun 25, 2004 at 02:11:31PM +0200, Mark Hamilton wrote:
-> I'm running RH9.0 with a 2.4.26 kernel on an HP Proliant ML350 server.
-> This is one of 3 identical machines, the other 2 servers are live
-> without any problems, so far.
-> 
-> The kernel panic is intermittent. This particular instance occurred at
-> boot time, but it will reoccur randomly while the machine is up and
-> under various load conditions. I've been unable to trigger the panic.
-
-Couple of questions
-
-Is it always the same oops / Do you have other oopses saved ? 
-
-Can you run the oopses through ksymoops ? 
-
-Is the hardware exactly the same in the three boxes ?
-
-
-> =========
-> The Panic
-> =========
-> 
-> 
-> Unable to handle kernel NULL pointer dereference at virtual address 00000001
-> 
-> *pde = 00000000
-> Oops = 0000
-> CPU: 0
-> EIP: 0010:[<00000001>] Not tainted
-> EFLAGS: 00010282
-> eax: f779e900 ebx: 00000001 ecx: f779e900 edx: f779e900
-> esi: 00000000 edi: 00001875 edp: f67c5a18 esp: f67bbda0
-> ds: 0018 es: 0018 ss: 0018
-> Process  (pid: 0, stackpage=f67bb000)
-> Stack:  00000000 00000000 00000000 f67c5a28 c02b7380 00000000 f7fad880 00000000
-> 	00000000 00000000 c02b77f8 c02b77f8 c02b78f8 00000002 f67edb80 c013ecb5
-> 	4001c000 c1a85e40 f6906a80 f67edc80 4001c000 f67ba000 c02b77f8 c02b78f4
-> Call Trace: [<c013ecb5>][<c0136e15>][<c012bd75>][<c012be21>][<c011f9b8>]
-> 
-> Code: Bad EIP value.
->  <0> kernel panic: Attempted to kill the idle task!
-> In idle task - not syncing.
-
-
-> ======================
-> % sh scripts/ver_linux
-> ======================
-> 
-> Linux b900700.co.za 2.4.26 #1 SMP Thu Jun 24 04:35:03 SAST 2004 i686 i686 i386 GNU/Linux
->  
-> Gnu C                  3.2.2
-> Gnu make               3.79.1
-> util-linux             2.11y
-> mount                  2.11y
-> modutils               2.4.22
-> e2fsprogs              1.32
-> jfsutils               1.0.17
-> reiserfsprogs          3.6.4
-> pcmcia-cs              3.1.31
-> quota-tools            3.06.
-> PPP                    2.4.1
-> Linux C Library        2.3.2
-> Dynamic linker (ldd)   2.3.2
-> Procps                 2.0.11
-> Net-tools              1.60
-> Kbd                    1.08
-> Sh-utils               4.5.3
-> Modules Loaded         vga16fb fbcon-vga-planes parport_pc lp parport tg3 ide-scsi ide-cd cdrom dm-mod lvm-mod keybdev mousedev input hid usb-ohci usbcore ext3 jbd cciss aic7xxx sd_mod scsi_mod
-
-> =====================
-> % cat /proc/cpuinfo
-> =====================
-> 
-> 
-> processor	: 0
-> vendor_id	: GenuineIntel
-> cpu family	: 15
-> model		: 2
-> model name	: Intel(R) Xeon(TM) CPU 2.40GHz
-> stepping	: 9
-> cpu MHz		: 2392.328
-> cache size	: 512 KB
-> fdiv_bug	: no
-> hlt_bug		: no
-> f00f_bug	: no
-> coma_bug	: no
-> fpu		: yes
-> fpu_exception	: yes
-> cpuid level	: 2
-> wp		: yes
-> flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
-> bogomips	: 4771.02
-> 
-> processor	: 1
-> vendor_id	: GenuineIntel
-> cpu family	: 15
-> model		: 2
-> model name	: Intel(R) Xeon(TM) CPU 2.40GHz
-> stepping	: 9
-> cpu MHz		: 2392.328
-> cache size	: 512 KB
-> fdiv_bug	: no
-> hlt_bug		: no
-> f00f_bug	: no
-> coma_bug	: no
-> fpu		: yes
-> fpu_exception	: yes
-> cpuid level	: 2
-> wp		: yes
-> flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
-> bogomips	: 4784.12
-> 
-
-> =====================
-> % cat /proc/modules
-> =====================
-> 
-> 
-> 
-> vga16fb                11712  63
-> fbcon-vga-planes        5480   0 [vga16fb]
-> parport_pc             19204   1 (autoclean)
-> lp                      9188   0 (autoclean)
-> parport                39040   1 (autoclean) [parport_pc lp]
-> tg3                    57736   1
-> ide-scsi               12336   0
-> ide-cd                 35776   0 (autoclean)
-> cdrom                  34176   0 (autoclean) [ide-cd]
-> dm-mod                 60036   2
-> lvm-mod                62784   0 (unused)
-> keybdev                 3136   0 (unused)
-> mousedev                5688   0 (unused)
-> input                   6144   0 [keybdev mousedev]
-> hid                    12476   0 (unused)
-> usb-ohci               22184   0 (unused)
-> usbcore                82560   1 [hid usb-ohci]
-> ext3                   74468   3
-> jbd                    56656   3 [ext3]
-> cciss                  59264   4
-> aic7xxx               165296   0 (unused)
-> sd_mod                 13356   0 (unused)
-> scsi_mod              111320   3 [ide-scsi cciss aic7xxx sd_mod]
-
-
-
+Index: oom-2.6.8-rc1/mm/vmscan.c
+===================================================================
+--- oom-2.6.8-rc1.orig/mm/vmscan.c	2004-07-14 06:17:13.876343912 -0700
++++ oom-2.6.8-rc1/mm/vmscan.c	2004-07-14 06:22:15.986416200 -0700
+@@ -417,7 +417,8 @@
+ 				goto keep_locked;
+ 			if (!may_enter_fs)
+ 				goto keep_locked;
+-			if (laptop_mode && !sc->may_writepage)
++			if (laptop_mode && !sc->may_writepage &&
++							!PageSwapCache(page))
+ 				goto keep_locked;
+ 
+ 			/* Page is dirty, try to write it out here */

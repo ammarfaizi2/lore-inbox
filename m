@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132888AbRDJAfz>; Mon, 9 Apr 2001 20:35:55 -0400
+	id <S132887AbRDJAdf>; Mon, 9 Apr 2001 20:33:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132889AbRDJAfp>; Mon, 9 Apr 2001 20:35:45 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:24091 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S132888AbRDJAfa>; Mon, 9 Apr 2001 20:35:30 -0400
-Date: Tue, 10 Apr 2001 02:37:14 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Manfred Spraul <manfred@colorfullife.com>, geirt@powertech.no,
-        linux-kernel@vger.kernel.org
-Subject: Re: Serial port latency
-Message-ID: <20010410023714.B1024@athlon.random>
-In-Reply-To: <000401c0b319517fea9@local> <20010325231013.A34@(none)>
-Mime-Version: 1.0
+	id <S132888AbRDJAdZ>; Mon, 9 Apr 2001 20:33:25 -0400
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:20740
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S132887AbRDJAdQ>; Mon, 9 Apr 2001 20:33:16 -0400
+Date: Mon, 9 Apr 2001 17:33:13 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+Subject: ide.2.2.19.04092001.patch
+Message-ID: <Pine.LNX.4.10.10104091720030.1878-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010325231013.A34@(none)>; from pavel@suse.cz on Sun, Mar 25, 2001 at 11:10:14PM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 25, 2001 at 11:10:14PM +0000, Pavel Machek wrote:
-> I've seen similar bugs. If you hook something on schedule_tq and forget
-> to set current->need_resched, this is exactly what you get.
 
-keventd fixes tq_scheduler case (tq_scheduler is dead).
+This is up with some updates
 
-Andrea
+Short notice development for Promise Ultra100 TX2 sponsored by
+Penguin Computer and again little/no help from Promise.
+
+This is a unique chipset that does setfeatures sensing of the transfer
+rates and thus it is counter to the standard Promise design.  It does
+still use the pdc202xx.c chipset code, but much of it is skipped over to
+preserve the hidden settings calls.  The one issue for this chipset is
+that it may not be ideal for hotswap as the unknown states are issues.
+
+DiskPerf /dev/hde
+Device: IBM-DTLA-307075 Serial Number: YSDYSFA5874
+LBA 0 DMA Read Test                      = 63.35 MB/Sec (3.95 Seconds)
+Outer Diameter Sequential DMA Read Test  = 35.89 MB/Sec (6.97 Seconds)
+Inner Diameter Sequential DMA Read Test  = 17.64 MB/Sec (14.17 Seconds)
+
+CR3's adjusted:	for kernel transfer rates and conservative
+LBA 0 DMA Read Test                      = 85.52 MB/Sec
+Outer Diameter Sequential DMA Read Test  = 48.45 MB/Sec
+Inner Diameter Sequential DMA Read Test  = 23.81 MB/Sec
+
+There is about a 35%-40% under reporting of performance from kernel to
+user-space ioctl calls.
+
+Cheers,
+
+Andre Hedrick
+Linux ATA Development
+
+
+

@@ -1,383 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263200AbVCJVaS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263151AbVCJVae@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263200AbVCJVaS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 16:30:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbVCJV2K
+	id S263151AbVCJVae (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 16:30:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263191AbVCJV2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 16:28:10 -0500
-Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:25730 "EHLO
-	yoda.timesys") by vger.kernel.org with ESMTP id S263151AbVCJVVT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 16:21:19 -0500
-Date: Thu, 10 Mar 2005 16:21:16 -0500
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org, manas.saksena@timesys.com
-Subject: [PATCH] realtime-preempt: update inherited priorities on setscheduler
-Message-ID: <20050310212116.GA2420@yoda.timesys>
+	Thu, 10 Mar 2005 16:28:48 -0500
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:49817 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S263156AbVCJVWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 16:22:03 -0500
+Date: Thu, 10 Mar 2005 16:21:33 -0500
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: binary drivers and development
+Message-ID: <20050310212133.GE17865@csclub.uwaterloo.ca>
+References: <423075B7.5080004@comcast.net> <423082BF.6060007@comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Scott Wood <scott@gw.timesys.com>
+In-Reply-To: <423082BF.6060007@comcast.net>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch (against realtime-preempt v0.7.39-02) makes
-setscheduler calls behave properly with respect to priority
-inheritance.  If a task's priority is raised, it will be propagated
-to tasks on which it is blocked.  If it is lowered, it will check
-whether there's a higher priority that could be inherited, and
-whether priorities that had been inherited from the changing task
-need to be changed.
+On Thu, Mar 10, 2005 at 12:24:15PM -0500, John Richard Moser wrote:
+> I've done more thought, here's a small list of advantages on using
+> binary drivers, specifically considering UDI.  You can consider a
+> different implementation for binary drivers as well, with most of the
+> same advantages.
+> 
+>  - Smaller kernel tree
+>    The kernel tree would no longer contain all of the drivers; they'd
+>    slowly have to bleed into UDI until most were there
 
-It also prevents the scheduler from overwriting the RT priority
-(which may be inherited) with the base priority in places where
-recalculation of non-RT priority is done.
+Users would have to go hunting for drivers to add to their kernel to get
+hardware supported.  Making a CD with a kernel and drivers for a wide
+variety of hardware would be a nightmare.
 
-Adjusting the priority inheritance chain on setscheduler is important
-for dynamic priority schemes, where the proper functioning of the
-system may depend on setscheduler taking effect within a bounded
-amount of time.
+>  - Better focused development
+>    The kernel's core would be the core.  Driver code would be isolated,
+>    so work on the kernel would affect the kernel only and not any
+>    drivers.  UDI is a standard interface that shouldn't be broken.  This
+>    means that work on the high-level drivers will not need to be sanity
+>    checked a thousand times against the PCI Bus interface or the USB
+>    host controler API or whatnot.
 
-For the same reason, it'd also be best to revoke an inheritance as
-soon as the lender aborts a down_interruptible(), but this patch does
-not address that issue.
+But anything that runs in kernel memory space can still go trampling on
+memory in the kernel by accident and is very difficult to debug without
+the sources.
 
-Signed-off-by: Scott Wood <scott.wood@timesys.com>
+>  - Faster rebuilding for developers
+>    The isolation between drivers and core would make rebuilding involve
+>    the particular component (driver, core).  A "broken driver" would
+>    just require recoding and rebuilding the driver; a "broken kernel"
+>    would require building pretty much a skeletal core
 
---- rttmp/include/linux/sched.h.ORIG	2005-02-25 16:19:50.000000000 -0500
-+++ rttmp/include/linux/sched.h	2005-03-09 19:28:03.000000000 -0500
-@@ -945,6 +945,10 @@
- extern void mutex_setprio(task_t *p, int prio);
- extern int mutex_getprio(task_t *p);
- 
-+void mutex_recalc_pi(task_t *p, int force_first_iteration);
-+void mutex_lock_pi(unsigned long *flags);
-+void mutex_unlock_pi(unsigned long *flags);
-+
- void yield(void);
- 
- /*
---- rttmp/kernel/sched.c.ORIG	2005-02-25 16:19:43.000000000 -0500
-+++ rttmp/kernel/sched.c	2005-03-09 19:28:04.000000000 -0500
-@@ -784,7 +784,11 @@
- 		}
- 	}
- 
--	p->prio = effective_prio(p);
-+	/* Don't overwrite an inherited RT priority with the static
-+	   RT priority. */
-+
-+	if (!rt_task(p))
-+		p->prio = effective_prio(p);
- }
- 
- /*
-@@ -3836,6 +3840,10 @@
- 	prio_array_t *array;
- 	unsigned long flags;
- 	runqueue_t *rq;
-+#ifdef CONFIG_PREEMPT_RT
-+	unsigned long pi_flags;
-+	unsigned long old_mutex_prio;
-+#endif
- 
- recheck:
- 	/* double check policy once rq lock held */
-@@ -3868,11 +3876,19 @@
- 	 * To be able to change p->policy safely, the apropriate
- 	 * runqueue lock must be held.
- 	 */
-+#ifdef CONFIG_PREEMPT_RT
-+	mutex_lock_pi(&pi_flags);
-+	old_mutex_prio = mutex_getprio(p);
-+#endif
-+
- 	rq = task_rq_lock(p, &flags);
- 	/* recheck policy now with rq lock held */
- 	if (unlikely(oldpolicy != -1 && oldpolicy != p->policy)) {
- 		policy = oldpolicy = -1;
- 		task_rq_unlock(rq, &flags);
-+#ifdef CONFIG_PREEMPT_RT
-+		mutex_unlock_pi(&pi_flags);
-+#endif
- 		goto recheck;
- 	}
- 	array = p->array;
-@@ -3894,6 +3910,29 @@
- 			resched_task(rq->curr);
- 	}
- 	task_rq_unlock(rq, &flags);
-+	
-+#ifdef CONFIG_PREEMPT_RT
-+	/* If the task's priority decreased, it may be able to inherit a
-+	   higher priority.  With either an increase or a decrease, any task
-+	   inheriting from this task needs to be adjusted.
-+	   
-+	   This must be done without allowing preemption between the actual
-+	   priority change and the PI code, in case a thread is calling
-+	   setscheduler on itself.  In this case, if the new priority is lower
-+	   than what will keep the thread running, but it could inherit a
-+	   higher priority due to a held lock, disabling preemption will allow
-+	   it to continue the PI re-evaluation without being immediately
-+	   kicked off of the CPU.
-+
-+	   Additionally, pi_lock is held to keep any changes to
-+	   p->prio from happening in parallel to any PI operations. */
-+
-+	if (old_mutex_prio != mutex_getprio(p))
-+		mutex_recalc_pi(p, 1);
-+
-+	mutex_unlock_pi(&pi_flags);
-+#endif
-+
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(sched_setscheduler);
---- rttmp/kernel/rt.c.ORIG	2005-02-25 16:19:46.000000000 -0500
-+++ rttmp/kernel/rt.c	2005-03-10 14:16:24.000000000 -0500
-@@ -527,16 +527,14 @@
- 
- int pi_walk, pi_null, pi_prio;
- 
--static void pi_setprio(struct rt_mutex *lock, struct task_struct *p, int prio)
--{
--	if (unlikely(!p->pid)) {
--		pi_null++;
--		return;
--	}
--
- #ifdef CONFIG_RT_DEADLOCK_DETECT
-+static void pi_setprio_check(struct task_struct *p, int prio)
-+{
- 	pi_prio++;
- 	if (p->policy != SCHED_NORMAL && prio > mutex_getprio(p)) {
-+		struct rt_mutex_waiter *w = p->blocked_on;
-+		struct rt_mutex *lock = w->lock;
-+
- 		TRACE_OFF();
- 
- 		printk("huh? (%d->%d??)\n", p->prio, prio);
-@@ -549,7 +547,55 @@
- 		dump_stack();
- 		local_irq_disable();
- 	}
-+}
-+#else
-+static inline void pi_setprio_check(struct task_struct *p, int prio)
-+{
-+}
- #endif
-+
-+static void pi_walk_common(task_t *p, struct rt_mutex_waiter *w, int was_rt)
-+{
-+	/*
-+	 * If the task is blocked on a lock, and we just made
-+	 * it RT, then register the task in the PI list and
-+	 * requeue it to the head of the wait list:
-+	 */
-+	struct rt_mutex *lock = w->lock;
-+	TRACE_BUG_ON(!lock);
-+	TRACE_BUG_ON(!lock->owner);
-+	if (rt_task(p) && list_empty(&w->pi_list)) {
-+		TRACE_BUG_ON(was_rt);
-+		list_add_tail(&w->pi_list, &lock->owner->pi_waiters);
-+		list_del(&w->list);
-+		list_add(&w->list, &lock->wait_list);
-+	}
-+	/*
-+	 * If the task is blocked on a lock, and we just restored
-+	 * it from RT to non-RT then unregister the task from
-+	 * the PI list and requeue it to the tail of the wait
-+	 * list:
-+	 *
-+	 * (TODO: this can be unfair to SCHED_NORMAL tasks if they
-+	 *        get PI handled.)
-+	 */
-+	if (!rt_task(p) && !list_empty(&w->pi_list)) {
-+		TRACE_BUG_ON(!was_rt);
-+		list_del_init(&w->pi_list);
-+		list_del(&w->list);
-+		list_add_tail(&w->list, &lock->wait_list);
-+	}
-+
-+	pi_walk++;
-+}
-+
-+static void pi_setprio(struct task_struct *p, int prio)
-+{
-+	if (unlikely(!p->pid)) {
-+		pi_null++;
-+		return;
-+	}
-+
- 	/*
- 	 * If the task is blocked on some other task then boost that
- 	 * other task (or tasks) too:
-@@ -558,43 +604,17 @@
- 		struct rt_mutex_waiter *w = p->blocked_on;
- 		int was_rt = rt_task(p);
- 
-+		pi_setprio_check(p, prio);
-+
- 		mutex_setprio(p, prio);
- 		if (!w)
- 			break;
--		/*
--		 * If the task is blocked on a lock, and we just made
--		 * it RT, then register the task in the PI list and
--		 * requeue it to the head of the wait list:
--		 */
--		lock = w->lock;
--		TRACE_BUG_ON(!lock);
--		TRACE_BUG_ON(!lock->owner);
--		if (rt_task(p) && list_empty(&w->pi_list)) {
--			TRACE_BUG_ON(was_rt);
--			list_add_tail(&w->pi_list, &lock->owner->pi_waiters);
--			list_del(&w->list);
--			list_add(&w->list, &lock->wait_list);
--		}
--		/*
--		 * If the task is blocked on a lock, and we just restored
--		 * it from RT to non-RT then unregister the task from
--		 * the PI list and requeue it to the tail of the wait
--		 * list:
--		 *
--		 * (TODO: this can be unfair to SCHED_NORMAL tasks if they
--		 *        get PI handled.)
--		 */
--		if (!rt_task(p) && !list_empty(&w->pi_list)) {
--			TRACE_BUG_ON(!was_rt);
--			list_del(&w->pi_list);
--			list_del(&w->list);
--			list_add_tail(&w->list, &lock->wait_list);
--		}
- 
--		pi_walk++;
-+ 		pi_walk_common(p, w, was_rt);
- 
--		p = lock->owner;
-+		p = w->lock->owner;
- 		TRACE_BUG_ON(!p);
-+		
- 		/*
- 		 * If the dependee is already higher-prio then
- 		 * no need to boost it, and all further tasks down
-@@ -605,6 +625,55 @@
- 	}
- }
- 
-+void mutex_recalc_pi(struct task_struct *p, int force_first_iteration)
-+{
-+	if (unlikely(!p->pid)) {
-+		pi_null++;
-+		return;
-+	}
-+
-+	for (;;) {
-+		struct rt_mutex_waiter *w = p->blocked_on;
-+		int was_rt = rt_task(p);
-+		int prio = mutex_getprio(p);
-+		struct list_head *curr;
-+		
-+		/* It might be better to maintain a sorted list so that
-+		   that recalculating priorities isn't O(n^2)...  Now that
-+		   there's a setscheduler hook, this could be done. */
-+		
-+		list_for_each(curr, &p->pi_waiters) {
-+			struct rt_mutex_waiter *tmpw;
-+			tmpw = list_entry(curr, struct rt_mutex_waiter, pi_list);
-+			if (tmpw->task->prio < prio)
-+				prio = tmpw->task->prio;
-+			trace_special_pid(tmpw->task->pid, tmpw->task->prio, 0);
-+		}
-+
-+		/* The caller can request that the first iteration be forced
-+		   even if the priorities are equal.  This is done so that
-+		   priority changes in sched_setscheduler() are reflected
-+		   in the inheritance chain, even if an additional priority
-+		   change is not required. */
-+
-+		if (p->prio == prio && !force_first_iteration)
-+			break;
-+		
-+		force_first_iteration = 0;
-+
-+		pi_setprio_check(p, prio);
-+		
-+		mutex_setprio(p, prio);
-+		if (!w)
-+			break;
-+
-+ 		pi_walk_common(p, w, was_rt);
-+
-+		p = w->lock->owner;
-+		TRACE_BUG_ON(!p);
-+	}
-+}
-+
- static void
- task_blocks_on_lock(struct rt_mutex_waiter *waiter, struct task_struct *task,
- 		   struct rt_mutex *lock, unsigned long eip)
-@@ -639,7 +708,7 @@
- 	 * then temporarily boost the owner:
- 	 */
- 	if (task->prio < lock->owner->prio)
--		pi_setprio(lock, lock->owner, task->prio);
-+		pi_setprio(lock->owner, task->prio);
- 	spin_unlock(&pi_lock);
- }
- 
-@@ -1132,16 +1201,26 @@
- 	return __down_trylock(&rwsem->lock, CALLER_ADDR0);
- }
- 
-+void mutex_lock_pi(unsigned long *flags)
-+{
-+	trace_lock_irqsave(&trace_lock, *flags);
-+	TRACE_BUG_ON(!irqs_disabled());
-+	spin_lock(&pi_lock);
-+}
-+
-+void mutex_unlock_pi(unsigned long *flags)
-+{
-+	spin_unlock(&pi_lock);
-+	trace_unlock_irqrestore(&trace_lock, *flags);
-+}
-+
- /*
-  * release the lock:
-  */
- static void __up_mutex(struct rt_mutex *lock, int save_state, unsigned long eip)
- {
- 	struct task_struct *old_owner, *new_owner;
--	struct rt_mutex_waiter *w;
--	struct list_head *curr;
- 	unsigned long flags;
--	int prio;
- 
- 	TRACE_WARN_ON(save_state != lock->save_state);
- 
-@@ -1168,20 +1247,8 @@
- 	if (!list_empty(&lock->wait_list))
- 		new_owner = pick_new_owner(lock, old_owner, save_state, eip);
- 
--	/*
--	 * If the owner got priority-boosted then restore it
--	 * to the previous priority (or to the next highest prio
--	 * waiter's priority):
--	 */
--	prio = mutex_getprio(old_owner);
--	list_for_each(curr, &old_owner->pi_waiters) {
--		w = list_entry(curr, struct rt_mutex_waiter, pi_list);
--		if (w->task->prio < prio)
--			prio = w->task->prio;
--		trace_special_pid(w->task->pid, w->task->prio, 0);
--	}
--	if (prio != old_owner->prio)
--		pi_setprio(lock, old_owner, prio);
-+	mutex_recalc_pi(old_owner, 0);
-+
- 	if (new_owner) {
- 		if (save_state)
- 			wake_up_process_mutex(new_owner);
+That can already be done basicly.  The makefiles work just fine for
+rebuilding only what has changed in general.
+
+>  - UDI supplies SMP safety
+>    The UDI page brags[1]:
+> 
+>    "An advanced scheduling model. Multiple driver instances can be run
+>     in parallel on multiple processors with no lock management performed
+>     by the driver. Free paralllism and scalability!"
+> 
+>    Drivers can be considered SMP safe, apparently.  Inside the same
+>    driver, however, I have my doubts; I can see a driver maintaining a
+>    linked list that needs to be locked during insertions or deletions,
+>    which needs lock managment for the driver.  Still, no consideration
+>    for anything outside the driver need be made, apparently.
+>  - Vendor drivers and religious issues
+>    Vendors can supply third party drivers until there are open source
+>    alternatives, since they have this religious thing where they don't
+>    want people to see their driver code, which is kind of annoying and
+>    impedes progress
+
+I imagine a driver writer could still easily do something not SMP safe,
+but I don't know that for sure.  It sounds like a very complex thing to
+promise a perfect solution for.
+
+> Disadvantages:
+> 
+>  - Preemption
+>    Is it still possible to implement a soft realtime kernel that
+>    responds to interrupts quickly?
+>  - Performance
+>    UDI's developers claim that the performance overhead is negligible.
+>    It's still added work, but it remains to be seen if it's significant
+>    enough to degrade performance.
+>  - Religious battles
+>    People have this religious thing about binary drivers, which is kind
+>    of annoying and impedes progress
+
+Many of the disadvantages are a good reason why they have these opinions
+on binary drivers.  They do impede getting work done if you have to use
+them on your system and something isn't working right.
+
+>  - Constriction
+>    This would of course create an abstraction layer that constricts the
+>    driver developer's ability to do low level complex operations for any
+>    portable binary driver
+
+You forgot the very important:
+   - Only works on architecture it was compiled for.  So anyone not
+     using i386 (and maybe later x86-64) is simply out of luck.  What do
+     nvidia users that want accelerated nvidia drivers for X DRI do
+     right now if they have a powerpc or a sparc or an alpha?  How about
+     porting Linux to a new architecture.  With binary drivers you now
+     start out with no drivers on the new architecture except for the
+     ones you have source for.  Not very productive.
+
+[snip]
+
+Len Sorensen

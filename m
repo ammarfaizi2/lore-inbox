@@ -1,291 +1,196 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265890AbSLCBDL>; Mon, 2 Dec 2002 20:03:11 -0500
+	id <S265854AbSLCA72>; Mon, 2 Dec 2002 19:59:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265894AbSLCBDK>; Mon, 2 Dec 2002 20:03:10 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:21916 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265890AbSLCBDG>; Mon, 2 Dec 2002 20:03:06 -0500
-Subject: [PATCH] linux-2.4.20_summit_A0 (4/4)
+	id <S265851AbSLCA72>; Mon, 2 Dec 2002 19:59:28 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:30929 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265854AbSLCA7X>;
+	Mon, 2 Dec 2002 19:59:23 -0500
+Subject: [PATCH] linux-2.4.20_summit_A0 (2/4)
 From: john stultz <johnstul@us.ibm.com>
 To: marcelo <marcelo@conectiva.com.br>
 Cc: lkml <linux-kernel@vger.kernel.org>, James <jamesclv@us.ibm.com>,
        "Martin J. Bligh" <mbligh@aracnet.com>
-In-Reply-To: <1038877458.6878.29.camel@w-jstultz2.beaverton.ibm.com>
+In-Reply-To: <1038877322.6884.24.camel@w-jstultz2.beaverton.ibm.com>
 References: <1038877250.6884.21.camel@w-jstultz2.beaverton.ibm.com>
 	 <1038877322.6884.24.camel@w-jstultz2.beaverton.ibm.com>
-	 <1038877399.6878.27.camel@w-jstultz2.beaverton.ibm.com>
-	 <1038877458.6878.29.camel@w-jstultz2.beaverton.ibm.com>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1038877550.6878.32.camel@w-jstultz2.beaverton.ibm.com>
+Message-Id: <1038877399.6878.27.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.0 
-Date: 02 Dec 2002 17:05:50 -0800
+Date: 02 Dec 2002 17:03:19 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Marcelo,
-	4/4: CONFIG_X86_SUMMIT, auto-detection, cleanup
+	2/4: Logical/Physical apicid additions
 
 Please apply.
 
 Thanks
 -john
 
-
-diff -Nru a/Documentation/Configure.help b/Documentation/Configure.help
---- a/Documentation/Configure.help	Mon Dec  2 13:41:44 2002
-+++ b/Documentation/Configure.help	Mon Dec  2 13:41:44 2002
-@@ -246,13 +246,21 @@
- 
-   If unsure, say N.
- 
--Multiquad support for NUMA systems
--CONFIG_MULTIQUAD
-+Multiquad support for NUMAQ systems
-+CONFIG_X86_NUMAQ
-   This option is used for getting Linux to run on a (IBM/Sequent) NUMA 
-   multiquad box. This changes the way that processors are bootstrapped,
-   and uses Clustered Logical APIC addressing mode instead of Flat Logical.
-   You will need a new lynxer.elf file to flash your firmware with - send
-   email to Martin.Bligh@us.ibm.com
-+
-+Support for IBM Summit (EXA) systems
-+CONFIG_X86_SUMMIT
-+  This option is needed for IBM systems that use the Summit/EXA chipset.
-+  (EXA: Extendable Xseries Architecture)In particular, it is needed for 
-+  the x440 (even for the 4-CPU model).
-+
-+  If you don't have this computer, you may safely say N.
- 
- IO-APIC support on uniprocessors
- CONFIG_X86_UP_IOAPIC
-diff -Nru a/arch/i386/config.in b/arch/i386/config.in
---- a/arch/i386/config.in	Mon Dec  2 13:41:43 2002
-+++ b/arch/i386/config.in	Mon Dec  2 13:41:43 2002
-@@ -216,7 +216,19 @@
-       define_bool CONFIG_X86_IO_APIC y
-    fi
- else
--   bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
-+   bool 'Multi-node NUMA system support' CONFIG_X86_NUMA
-+   if [ "$CONFIG_X86_NUMA" = "y" ]; then
-+      #Platform Choices
-+      bool ' Multiquad (IBM/Sequent) NUMAQ support' CONFIG_X86_NUMAQ
-+      if [ "$CONFIG_X86_NUMAQ" = "y" ]; then
-+         define_bool CONFIG_X86_CLUSTERED_APIC y
-+		 define_bool CONFIG_MULTIQUAD y
-+      fi
-+      bool ' IBM x440 (Summit/EXA) support' CONFIG_X86_SUMMIT
-+      if [ "$CONFIG_X86_SUMMIT" = "y" ]; then
-+         define_bool CONFIG_X86_CLUSTERED_APIC y
-+      fi
-+   fi
- fi
- 
- bool 'Unsynced TSC support' CONFIG_X86_TSC_DISABLE
 diff -Nru a/arch/i386/kernel/mpparse.c b/arch/i386/kernel/mpparse.c
---- a/arch/i386/kernel/mpparse.c	Mon Dec  2 13:41:43 2002
-+++ b/arch/i386/kernel/mpparse.c	Mon Dec  2 13:41:43 2002
-@@ -67,8 +67,11 @@
+--- a/arch/i386/kernel/mpparse.c	Mon Dec  2 11:45:12 2002
++++ b/arch/i386/kernel/mpparse.c	Mon Dec  2 11:45:12 2002
+@@ -65,9 +65,12 @@
+ 
+ /* Bitmask of physically existing CPUs */
  unsigned long phys_cpu_present_map;
- unsigned long logical_cpu_present_map;
++unsigned long logical_cpu_present_map;
  
-+#ifdef CONFIG_X86_CLUSTERED_APIC
  unsigned char esr_disable = 0;
--
-+unsigned char clustered_apic_mode = CLUSTERED_APIC_NONE;
-+unsigned int apic_broadcast_id = APIC_BROADCAST_ID_APIC;
-+#endif
- unsigned char raw_phys_apicid[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
  
- /*
-@@ -400,7 +403,7 @@
- 
- static int __init smp_read_mpc(struct mp_config_table *mpc)
- {
--	char str[16];
-+	char oem[16], prod[14];
- 	int count=sizeof(*mpc);
- 	unsigned char *mpt=((unsigned char *)mpc)+count;
- 
-@@ -425,14 +428,16 @@
- 		printk(KERN_ERR "SMP mptable: null local APIC address!\n");
- 		return 0;
- 	}
--	memcpy(str,mpc->mpc_oem,8);
--	str[8]=0;
--	printk("OEM ID: %s ",str);
--
--	memcpy(str,mpc->mpc_productid,12);
--	str[12]=0;
--	printk("Product ID: %s ",str);
-+	memcpy(oem,mpc->mpc_oem,8);
-+	oem[8]=0;
-+	printk("OEM ID: %s ",oem);
++unsigned char raw_phys_apicid[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
 +
-+	memcpy(prod,mpc->mpc_productid,12);
-+	prod[12]=0;
-+	printk("Product ID: %s ",prod);
- 
-+	detect_clustered_apic(oem, prod);
-+	
- 	printk("APIC at: 0x%lX\n",mpc->mpc_lapic);
- 
- 	/* save the local APIC address, it might be non-default,
-@@ -512,9 +517,18 @@
+ /*
+  * Intel MP BIOS table parsing routines:
+  */
+@@ -231,11 +234,9 @@
  	}
+ 	ver = m->mpc_apicver;
+ 
+-	if (clustered_apic_mode == CLUSTERED_APIC_NUMAQ) {
+-		phys_cpu_present_map |= (logical_apicid&0xf) << (4*quad);
+-	} else {
+-		phys_cpu_present_map |= 1 << m->mpc_apicid;
+-	}
++	logical_cpu_present_map |= 1 << (num_processors-1);
++ 	phys_cpu_present_map |= apicid_to_phys_cpu_present(m->mpc_apicid);
++ 
+ 	/*
+ 	 * Validate version
+ 	 */
+@@ -244,6 +245,7 @@
+ 		ver = 0x10;
+ 	}
+ 	apic_version[m->mpc_apicid] = ver;
++	raw_phys_apicid[num_processors - 1] = m->mpc_apicid;
+ }
+ 
+ static void __init MP_bus_info (struct mpc_config_bus *m)
+@@ -511,6 +513,7 @@
  
  	if (clustered_apic_mode){
--		esr_disable = 1;
- 		phys_cpu_present_map = logical_cpu_present_map;
+ 		esr_disable = 1;
++		phys_cpu_present_map = logical_cpu_present_map;
  	}
-+
-+
-+	printk("Enabling APIC mode: ");
-+	if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
-+		printk("Clustered Logical.	");
-+	else if(clustered_apic_mode == CLUSTERED_APIC_XAPIC)
-+		printk("Physical.	");
-+	else
-+		printk("Flat.	");
-+	printk("Using %d I/O APICs\n",nr_ioapics);
  
  	if (!num_processors)
- 		printk(KERN_ERR "SMP mptable: no processors registered!\n");
-diff -Nru a/include/asm-i386/apicdef.h b/include/asm-i386/apicdef.h
---- a/include/asm-i386/apicdef.h	Mon Dec  2 13:41:43 2002
-+++ b/include/asm-i386/apicdef.h	Mon Dec  2 13:41:43 2002
-@@ -110,7 +110,12 @@
+diff -Nru a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
+--- a/arch/i386/kernel/smpboot.c	Mon Dec  2 11:45:12 2002
++++ b/arch/i386/kernel/smpboot.c	Mon Dec  2 11:45:12 2002
+@@ -525,12 +525,12 @@
+ 	int apicid, cpu;
  
- #define APIC_BASE (fix_to_virt(FIX_APIC_BASE))
- 
-+#ifdef CONFIG_X86_CLUSTERED_APIC
-+#define MAX_IO_APICS 32
-+#else
- #define MAX_IO_APICS 8
-+#endif
-+
- 
- /*
-  * The broadcast ID is 0xF for old APICs and 0xFF for xAPICs.  SAPICs
-diff -Nru a/include/asm-i386/mpspec.h b/include/asm-i386/mpspec.h
---- a/include/asm-i386/mpspec.h	Mon Dec  2 13:41:43 2002
-+++ b/include/asm-i386/mpspec.h	Mon Dec  2 13:41:43 2002
-@@ -15,12 +15,13 @@
- 
- /*
-  * a maximum of 16 APICs with the current APIC ID architecture.
-+ * xAPICs can have up to 256.  SAPICs have 16 ID bits.
-  */
--#ifdef CONFIG_MULTIQUAD
-+#ifdef CONFIG_X86_CLUSTERED_APIC
- #define MAX_APICS 256
--#else /* !CONFIG_MULTIQUAD */
-+#else
- #define MAX_APICS 16
--#endif /* CONFIG_MULTIQUAD */
-+#endif
- 
- #define MAX_MPC_ENTRY 1024
- 
-diff -Nru a/include/asm-i386/smpboot.h b/include/asm-i386/smpboot.h
---- a/include/asm-i386/smpboot.h	Mon Dec  2 13:41:43 2002
-+++ b/include/asm-i386/smpboot.h	Mon Dec  2 13:41:43 2002
-@@ -8,40 +8,42 @@
- 	CLUSTERED_APIC_NUMAQ
- };
- 
--#ifdef CONFIG_MULTIQUAD
-- #define clustered_apic_mode (CLUSTERED_APIC_NUMAQ)
--#else /* !CONFIG_MULTIQUAD */
-- #define clustered_apic_mode (CLUSTERED_APIC_NONE)
--#endif /* CONFIG_MULTIQUAD */
--
--#ifdef CONFIG_X86_LOCAL_APIC
-+#ifdef CONFIG_X86_CLUSTERED_APIC
-+extern unsigned int apic_broadcast_id;
-+extern unsigned char clustered_apic_mode;
- extern unsigned char esr_disable;
--static inline int target_cpus(void)
-+extern unsigned char int_delivery_mode;
-+extern unsigned int int_dest_addr_mode;
-+static inline void detect_clustered_apic(char* oem, char* prod)
- {
--	switch(clustered_apic_mode){
--		case CLUSTERED_APIC_NUMAQ:
--			/* Broadcast intrs to local quad only. */
--			return APIC_BROADCAST_ID_APIC;
--		default:
-+	/*
-+	 * Can't recognize Summit xAPICs at present, so use the OEM ID.
-+	 */
-+	if (!strncmp(oem, "IBM ENSW", 8) && !strncmp(prod, "VIGIL SMP", 9)){
-+		clustered_apic_mode = CLUSTERED_APIC_XAPIC;
-+		apic_broadcast_id = APIC_BROADCAST_ID_XAPIC;
-+		int_dest_addr_mode = APIC_DEST_PHYSICAL;
-+		int_delivery_mode = dest_Fixed;
-+		esr_disable = 1;
-+	}
-+	else if (!strncmp(oem, "IBM NUMA", 8)){
-+		clustered_apic_mode = CLUSTERED_APIC_NUMAQ;
-+		apic_broadcast_id = APIC_BROADCAST_ID_APIC;
-+		int_dest_addr_mode = APIC_DEST_LOGICAL;
-+		int_delivery_mode = dest_LowestPrio;
-+		esr_disable = 1;
+ 	for (apicid = 0; apicid < MAX_APICID; apicid++) {
+-		physical_apicid_2_cpu[apicid] = -1;
+-		logical_apicid_2_cpu[apicid] = -1;
++		physical_apicid_2_cpu[apicid] = BAD_APICID;
++		logical_apicid_2_cpu[apicid] = BAD_APICID;
  	}
--	return cpu_online_map;
+ 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+-		cpu_2_physical_apicid[cpu] = -1;
+-		cpu_2_logical_apicid[cpu] = -1;
++		cpu_2_physical_apicid[cpu] = BAD_APICID;
++		cpu_2_logical_apicid[cpu] = BAD_APICID;
+ 	}
  }
--#ifdef CONFIG_X86_IO_APIC
--extern unsigned char int_delivery_mode;
--extern unsigned int int_dest_addr_mode;
- #define	INT_DEST_ADDR_MODE (int_dest_addr_mode)
- #define	INT_DELIVERY_MODE (int_delivery_mode)
--#endif /* CONFIG_X86_IO_APIC */
--#else /* CONFIG_X86_LOCAL_APIC */
-+#else /* CONFIG_X86_CLUSTERED_APIC */
-+#define apic_broadcast_id (APIC_BROADCAST_ID_APIC)
-+#define clustered_apic_mode (CLUSTERED_APIC_NONE)
- #define esr_disable (0)
--#define target_cpus() (0x01)
--#ifdef CONFIG_X86_IO_APIC
-+#define detect_clustered_apic(x,y)
- #define INT_DEST_ADDR_MODE (APIC_DEST_LOGICAL)	/* logical delivery */
- #define INT_DELIVERY_MODE (dest_LowestPrio)
--#endif /* CONFIG_X86_IO_APIC */
--#endif /* CONFIG_X86_LOCAL_APIC */
+ 
+@@ -540,7 +540,7 @@
+  * else physical apic ids
+  */
+ {
+-	if (clustered_apic_mode) {
++	if (clustered_apic_mode == CLUSTERED_APIC_NUMAQ) {
+ 		logical_apicid_2_cpu[apicid] = cpu;	
+ 		cpu_2_logical_apicid[cpu] = apicid;
+ 	} else {
+@@ -555,12 +555,12 @@
+  * else physical apic ids
+  */
+ {
+-	if (clustered_apic_mode) {
+-		logical_apicid_2_cpu[apicid] = -1;	
+-		cpu_2_logical_apicid[cpu] = -1;
++	if (clustered_apic_mode == CLUSTERED_APIC_NUMAQ) {
++		logical_apicid_2_cpu[apicid] = BAD_APICID;
++		cpu_2_logical_apicid[cpu] = BAD_APICID;
+ 	} else {
+-		physical_apicid_2_cpu[apicid] = -1;	
+-		cpu_2_physical_apicid[cpu] = -1;
++		physical_apicid_2_cpu[apicid] = BAD_APICID;
++		cpu_2_physical_apicid[cpu] = BAD_APICID;
+ 	}
+ }
+ 
+@@ -785,7 +785,7 @@
+ 	unsigned long boot_error = 0;
+ 	int timeout, cpu;
+ 	unsigned long start_eip;
+-	unsigned short nmi_high, nmi_low;
++	unsigned short nmi_high = 0, nmi_low = 0;
+ 
+ 	cpu = ++cpucount;
+ 	/*
+@@ -1111,7 +1111,7 @@
+ 		if (apicid == boot_cpu_apicid)
+ 			continue;
+ 
+-		if (!(phys_cpu_present_map & (1 << bit)))
++		if (!(phys_cpu_present_map & (1ul << bit)))
+ 			continue;
+ 		if ((max_cpus >= 0) && (max_cpus <= cpucount+1))
+ 			continue;
+@@ -1122,9 +1122,9 @@
+ 		 * Make sure we unmap all failed CPUs
+ 		 */
+ 		if ((boot_apicid_to_cpu(apicid) == -1) &&
+-				(phys_cpu_present_map & (1 << bit)))
+-			printk("CPU #%d not responding - cannot use it.\n",
+-								apicid);
++				(phys_cpu_present_map & (1ul << bit)))
++			printk("CPU #%d/0x%02x not responding - cannot use it.\n",
++								bit, apicid);
+ 	}
+ 
+ 	/*
+diff -Nru a/include/asm-i386/smpboot.h b/include/asm-i386/smpboot.h
+--- a/include/asm-i386/smpboot.h	Mon Dec  2 11:45:12 2002
++++ b/include/asm-i386/smpboot.h	Mon Dec  2 11:45:12 2002
+@@ -42,13 +42,15 @@
+ #endif /* CONFIG_X86_LOCAL_APIC */
+ 
+ #define apic_broadcast_id (APIC_BROADCAST_ID_APIC)
 -
--#define apic_broadcast_id (APIC_BROADCAST_ID_APIC)
-+#endif /* CONFIG_X86_CLUSTERED_APIC */
- #define BAD_APICID 0xFFu
++#define BAD_APICID 0xFFu
  
  #define TRAMPOLINE_LOW phys_to_virt((clustered_apic_mode == CLUSTERED_APIC_NUMAQ)?0x8:0x467)
-@@ -93,4 +95,23 @@
- #define cpu_to_boot_apicid(cpu) cpu_2_physical_apicid[cpu]
- #endif /* CONFIG_MULTIQUAD */
+ #define TRAMPOLINE_HIGH phys_to_virt((clustered_apic_mode == CLUSTERED_APIC_NUMAQ)?0xa:0x469)
  
-+#ifdef CONFIG_X86_CLUSTERED_APIC
-+static inline int target_cpus(void)
-+{
-+	static int cpu;
-+	switch(clustered_apic_mode){
-+		case CLUSTERED_APIC_NUMAQ:
-+			/* Broadcast intrs to local quad only. */
-+			return APIC_BROADCAST_ID_APIC;
-+		case CLUSTERED_APIC_XAPIC:
-+			/*round robin the interrupts*/
-+			cpu = (cpu+1)%smp_num_cpus;
-+			return cpu_to_physical_apicid(cpu);
-+		default:
-+	}
-+	return cpu_online_map;
+ #define boot_cpu_apicid ((clustered_apic_mode == CLUSTERED_APIC_NUMAQ)?boot_cpu_logical_apicid:boot_cpu_physical_apicid)
+ 
++extern unsigned char raw_phys_apicid[NR_CPUS];
++
+ /*
+  * How to map from the cpu_present_map
+  */
+@@ -57,6 +59,13 @@
+ 	if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
+ 		return (mps_cpu/4)*16 + (1<<(mps_cpu%4));
+ 	return mps_cpu;
 +}
-+#else
-+#define target_cpus() (0x01)
-+#endif
- #endif
++
++static inline unsigned long apicid_to_phys_cpu_present(int apicid)
++{
++	if(clustered_apic_mode)
++		return 1UL << (((apicid >> 4) << 2) + (apicid & 0x3));
++	return 1UL << apicid;
+ }
+ 
+ #define physical_to_logical_apicid(phys_apic) ( (1ul << (phys_apic & 0x3)) | (phys_apic & 0xF0u) )
 
 
 

@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267806AbTAHN74>; Wed, 8 Jan 2003 08:59:56 -0500
+	id <S267807AbTAHN4r>; Wed, 8 Jan 2003 08:56:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267810AbTAHN74>; Wed, 8 Jan 2003 08:59:56 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:3210
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267806AbTAHN7z>; Wed, 8 Jan 2003 08:59:55 -0500
-Subject: RE: [PATCH][2.4]  generic cluster APIC support for systems with m
-	ore than 8 CPUs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-Cc: "'William Lee Irwin III'" <wli@holomorphy.com>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'James Cleverdon'" <jamesclv@us.ibm.com>,
-       "'Pallipadi, Venkatesh'" <venkatesh.pallipadi@intel.com>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
-       "'Martin Bligh'" <mbligh@us.ibm.com>,
-       "'John Stultz'" <johnstul@us.ibm.com>,
-       "'Nakajima, Jun'" <jun.nakajima@intel.com>,
-       "'Mallick, Asit K'" <asit.k.mallick@intel.com>,
-       "'Saxena, Sunil'" <sunil.saxena@intel.com>,
-       "Van Maren, Kevin" <kevin.vanmaren@UNISYS.com>,
-       "'Andi Kleen'" <ak@suse.de>, "'Hubert Mantel'" <mantel@suse.de>
-In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C022BD8BA@usslc-exch-4.slc.unisys.com>
-References: <3FAD1088D4556046AEC48D80B47B478C022BD8BA@usslc-exch-4.slc.unisys.com>
-Content-Type: text/plain
+	id <S267806AbTAHN4r>; Wed, 8 Jan 2003 08:56:47 -0500
+Received: from gherkin.frus.com ([192.158.254.49]:27520 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id <S267807AbTAHN4q>;
+	Wed, 8 Jan 2003 08:56:46 -0500
+Subject: XFree86 vs. 2.5.54 - reboot
+To: linux-kernel@vger.kernel.org
+Date: Wed, 8 Jan 2003 08:05:25 -0600 (CST)
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042037621.24099.36.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 08 Jan 2003 14:53:41 +0000
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20030108140525.DF0434EE7@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob_Tracy(0000))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-01-06 at 18:58, Protasevich, Natalie wrote:
-> 1) place pin_2_irq and the one that fixes the ACPI case (and which I haven't
-> found yet) in our sub-arch making those routines platform defined
+This probably applies to immediately prior kernels in the 2.5 series
+as well.  2.5.54 seemed like a good time to jump in and test the waters,
+so to speak...
 
-Does  cpu_to_pci_irq() pci_to_cpu_irq() work for this. That is sort of
-the equivalent we have in mapping functions for other purposes. You
-could then do the 16 irq shift, while other platforms would define it
-in default/*.h to be a nop. 
+AMD K6-III 450 running a 2.4.19 kernel with vesafb, XFree86 4.1.0, and
+a USB mouse works fine.  Same setup with a 2.5.54 kernel does a cold
+reboot when I type "startx".  In both cases, the initial video state
+is "vga=791" as set in /etc/lilo.conf.  As far as the crash, there's
+no debug output of any kind in the logs to help narrow down the cause.
 
-> Another one that I am worried about is XTPR, hopefully someone is looking at
-> its implementation... 
+As best I can remember, the last time I had everything kinda working
+with a 2.5.X kernel was prior to the introduction of the new module-init
+tools.  This isn't a jab at Rusty et. al.  I'm merely trying to come up
+with an approximate timeframe during which something changed which is
+causing the problem.  The recent framebuffer driver changes probably
+have something to with this issue.
 
-XPTR I really don't know anything about alas.
+If this is a known problem, would someone be kind enough to summarize
+the discussion or let me know approximately when the discussion took
+place so I can dig for it in the linux-kernel archives?  Thanks!
 
+-- 
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

@@ -1,57 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135838AbRDYJzd>; Wed, 25 Apr 2001 05:55:33 -0400
+	id <S135839AbRDYJ7Z>; Wed, 25 Apr 2001 05:59:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135839AbRDYJzY>; Wed, 25 Apr 2001 05:55:24 -0400
-Received: from energy.pdb.sbs.de ([192.109.2.19]:18963 "EHLO energy.pdb.sbs.de")
-	by vger.kernel.org with ESMTP id <S135838AbRDYJzI>;
-	Wed, 25 Apr 2001 05:55:08 -0400
-Message-ID: <09BE2D952F35D411ABAF009027B6B1D37984ED@abg0971e.abg.fsc.net>
-From: "Mulder, Tjeerd" <Tjeerd.Mulder@fujitsu-siemens.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with DHCP when using tokenring on 2.4.x
-Date: Wed, 25 Apr 2001 11:57:37 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+	id <S135840AbRDYJ7P>; Wed, 25 Apr 2001 05:59:15 -0400
+Received: from mail2.hongkong.com ([202.84.12.155]:62625 "HELO hongkong.com")
+	by vger.kernel.org with SMTP id <S135839AbRDYJ7J>;
+	Wed, 25 Apr 2001 05:59:09 -0400
 Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Message-ID: <Qj989574824877.21112@mail2.hongkong.com>
+Date: Wed, 25 Apr 2001 17:51:22 +0800 (CST)
+From: antonpoon@hongkong.com
+To: linux-kernel@vger.kernel.org
+Subject: Adding a Daemon Process to init Process
+X-Priority: 3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The problem is probably caused by a change that was made around
-kernel 2.3.29. The hardware type of a tokenring adapter was changed
-from ARPHRD_IEEE802 to ARPHRD_IEEE802_TR. That breaks pump and the
-ISC dhcp package. So pump from RH6.2 certainly won't work.
+I want to create a daemon process that will keep scanning the parallel port status and report to other processes. Should it be created from the init process? where is the location of the source code for the init process?
 
-Fixing the ISC dhcp package is easy. Maybe it has been fixed
-on the ISC site by now. Don't know about pump. 
- 
+Thanks
 
-Patch for the ISC package:
+Anton
 
---- dhcp-3.0b2pl11/common/discover.c.org	Mon Jan  8 17:38:18 2001
-+++ dhcp-3.0b2pl11/common/discover.c	Mon Jan  8 17:23:56 2001
-@@ -407,7 +407,11 @@
- #ifndef HAVE_ARPHRD_IEEE802
- # define ARPHRD_IEEE802 HTYPE_IEEE802
- #endif
-+#ifdef ARPHRD_IEEE802_TR
-+		      case ARPHRD_IEEE802_TR:
-+#else
- 		      case ARPHRD_IEEE802:
-+#endif
- 			tmp -> hw_address.hlen = 7;
- 			tmp -> hw_address.hbuf [0] = ARPHRD_IEEE802;
- 			memcpy (&tmp -> hw_address.hbuf [1], sa.sa_data, 6);
-
-
-
---
-======================================================================
-Tjeerd Mulder                ! mailto:tjeerd.mulder@fujitsu-siemens.com
-Fujitsu Siemens Computers    !
-FSC PO PC RD MDE             !
-Buergermeister Ulrichstr 100 ! Phone: +49 821 804 3549
-86199 Augsburg               ! Fax  : +49 821 804 3934
-======================================================================
-
+I wish to be personally CC'ed the answers/comments posted to the list in response to my posting. Thank you.
+---------------------------------------------
+ 歡迎使用HongKong.com郵件系統
+ Thank you for using hongkong.com Email system
 

@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269012AbUJTHnA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269885AbUJTHg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269012AbUJTHnA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 03:43:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUJTHhv
+	id S269885AbUJTHg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 03:36:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269883AbUJTHdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 03:37:51 -0400
-Received: from fmr99.intel.com ([192.55.52.32]:5778 "EHLO
-	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
-	id S269012AbUJTHfp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 03:35:45 -0400
-Subject: Re: [PATCH] cpufreq_ondemand
-From: Len Brown <len.brown@intel.com>
-To: Andre Eisenbach <int2str@gmail.com>
-Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
-       Alexander Clouter <alex-kernel@digriz.org.uk>,
-       "cpufreq@www.linux.org.uk" <cpufreq@www.linux.org.uk>
-In-Reply-To: <7f800d9f04101922031be5cfe8@mail.gmail.com>
-References: <7f800d9f04101922031be5cfe8@mail.gmail.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1098257735.26595.4308.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 20 Oct 2004 03:35:35 -0400
+	Wed, 20 Oct 2004 03:33:19 -0400
+Received: from ozlabs.org ([203.10.76.45]:4529 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S269885AbUJTHFM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 03:05:12 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16758.2820.837861.36805@cargo.ozlabs.ibm.com>
+Date: Wed, 20 Oct 2004 16:51:48 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: anton@samba.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] PPC64 Fix XICS startup function to enable as well
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-20 at 01:03, Andre Eisenbach wrote:
+When the generic IRQ patch went in, it changed the behaviour of
+setup_irq (compared to the previous ppc64 version) in that we now
+don't call the handler's enable function if it has a startup
+function.  The XICS interrupt controller has a startup function, and
+so we weren't getting any interrupts through the XICS because they
+never got enabled.  This patch adds a call to xics_enable_irq to
+xics_startup and fixes the problem.
 
-> ... If the
-> speed steps down slowly but shoots up 100% quickly (as it is right
-> now), even a small task (like opening a folder, or scrolling down in a
-> document) will cause a tiny spike to 100% which takes a while to go
-> back down. The result is that the CPU spends most of it's time at 100%
-> or calming down. I wrote a small test program on my notebook which
-> confirms this.
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-The question is what POLICY we're trying to implement.  If the goal is
-to to be energy efficient while the user notices no performance hit,
-then fast-up/slow-down is an EXCELLENT strategy.  But if the goal is to
-optimize for power savings at the cost of impacting performance, then
-another strategy may work better.
-
-The point is that no strategy will be optimal for all policies.  Linux
-needs a global power policy manager that the rest of the system can ask
-about the current policy.  This way sub-systems can (automatically)
-implement whatever local strategies are consistent with that global
-policy.
-
--Len
-
-
+diff -urN linux-2.5/arch/ppc64/kernel/xics.c test/arch/ppc64/kernel/xics.c
+--- linux-2.5/arch/ppc64/kernel/xics.c	2004-08-24 07:22:47.000000000 +1000
++++ test/arch/ppc64/kernel/xics.c	2004-10-20 15:24:17.927552904 +1000
+@@ -216,12 +216,15 @@
+ 
+ static unsigned int xics_startup(unsigned int virq)
+ {
+-	virq = irq_offset_down(virq);
+-	if (radix_tree_insert(&irq_map, virt_irq_to_real(virq),
+-			      &virt_irq_to_real_map[virq]) == -ENOMEM)
++	unsigned int irq;
++
++	irq = irq_offset_down(virq);
++	if (radix_tree_insert(&irq_map, virt_irq_to_real(irq),
++			      &virt_irq_to_real_map[irq]) == -ENOMEM)
+ 		printk(KERN_CRIT "Out of memory creating real -> virtual"
+ 		       " IRQ mapping for irq %u (real 0x%x)\n",
+-		       virq, virt_irq_to_real(virq));
++		       virq, virt_irq_to_real(irq));
++	xics_enable_irq(virq);
+ 	return 0;	/* return value is ignored */
+ }
+ 

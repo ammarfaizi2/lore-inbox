@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265376AbUFBXd2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263366AbUFBXhy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265376AbUFBXd2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 19:33:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265383AbUFBXd2
+	id S263366AbUFBXhy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 19:37:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265377AbUFBXhx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 19:33:28 -0400
-Received: from mail018.syd.optusnet.com.au ([211.29.132.72]:59336 "EHLO
-	mail018.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265376AbUFBXdZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 19:33:25 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: swappiness ignored
-Date: Thu, 3 Jun 2004 09:33:15 +1000
-User-Agent: KMail/1.6.1
+	Wed, 2 Jun 2004 19:37:53 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:23937 "EHLO cloud.ucw.cz")
+	by vger.kernel.org with ESMTP id S263366AbUFBXhv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 19:37:51 -0400
+Date: Thu, 3 Jun 2004 01:39:18 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Erik Steffl <steffl@bigfoot.com>
 Cc: linux-kernel@vger.kernel.org
-References: <40B43B5F.8070208@nodivisions.com> <200406011136.17055@WOLK> <c9lb2n$l17$1@gatekeeper.tmr.com>
-In-Reply-To: <c9lb2n$l17$1@gatekeeper.tmr.com>
-MIME-Version: 1.0
+Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
+Message-ID: <20040602233918.GA1366@ucw.cz>
+References: <40853060.2060508@bigfoot.com> <200404280741.08665.dtor_core@ameritech.net> <408FFC2A.3080504@bigfoot.com> <200404281824.05044.dtor_core@ameritech.net> <4090A1FA.1070202@bigfoot.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406030933.16320.kernel@kolivas.org>
+In-Reply-To: <4090A1FA.1070202@bigfoot.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jun 2004 05:54, Bill Davidsen wrote:
-> Marc-Christian Petersen wrote:
-> > I bet you have /proc/sys/vm/autoswappiness or the previous version of it
-> > w/o /proc stuff.
->
-> What option do I need to enable so I can get this control (to disable
-> it)? I have sysctl enabled in 2.6.7-rc1 and no autoswappiness to be found.
+On Wed, Apr 28, 2004 at 11:34:34PM -0700, Erik Steffl wrote:
+> Dmitry Torokhov wrote:
+> >On Wednesday 28 April 2004 01:47 pm, Erik Steffl wrote:
+> >>Dmitry Torokhov wrote:
+> >>
+> >>>What protocol are you using in XFree?
+> >>
+> >>  that's irrelevant, I got the results above without X running (by 
+> >
+> >No, it is not. Please change protocol in XF86Config to ExplorerPS/2.
+> ...
+> >Kernel only provides emulation of 3 protocols via /dev/psaux: bare PS/2,
+> >IntelliMouse PS/2 and Explorer PS/2. Since your program does not issue
+> >Intellimouse or Explorer protocol initialization sequences it gets just
+> >bare PS/2 protocol data - 2 axis, 3 buttons. Extra buttons are mapped onto
+> >first 3. For exact mapping consult drivers/input/mousedev.c
+> 
+>   thanks, that makes sense, I tried ExplorerPS/2, it works better, the 
+> wheel works but side button is still same as button 2.
+> 
+>   would it be different if I used /dev/input/mouse0? or 
+> /dev/input/mice?  kernel Documentation/input/input.txt seems to be 
+> fairly old (mentions  2.5/2.6 in future tense) and it says to use 
+> "ExplorerPS/2 if you want to use extra (up to 5) buttons" when 
+> discussing what /dev/input/mouse0 provides. Does that mean that there's 
+> no way to use extra side button (which is the sixth button)?
 
-This only exists if you have it patched with my autoregulated swappiness 
-patch. 
+Yes, at this time you can't use the sixth button in X with a 2.6 kernel.
+An event driver for X would be needed instead of the ExplorerPS/2 one.
 
-http://ck.kolivas.org/patches/2.6/2.6.7-rc2/patch-2.6.7-rc2-am11
-
-
-The mainline kernel has a static value for swappiness you can set any time.
-
-echo 60 > /proc/sys/vm/swappiness
-
-Con
+-- 

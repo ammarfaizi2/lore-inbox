@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264054AbUGFPzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264058AbUGFQBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264054AbUGFPzY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 11:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264058AbUGFPzX
+	id S264058AbUGFQBX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 12:01:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264061AbUGFQBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 11:55:23 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:42953 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S264054AbUGFPzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 11:55:17 -0400
-Message-ID: <40EACB64.2010503@comcast.net>
-Date: Tue, 06 Jul 2004 11:55:16 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040630)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@gmx.de>
-CC: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: post 2.6.7 BK change breaks Java?
-References: <20040705231131.GA5958@merlin.emma.line.org>
-In-Reply-To: <20040705231131.GA5958@merlin.emma.line.org>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Jul 2004 12:01:22 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:35538 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S264058AbUGFQBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 12:01:20 -0400
+Date: Tue, 6 Jul 2004 18:01:09 +0200
+From: Harald Welte <laforge@netfilter.org>
+To: davem@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       netfilter-devel@lists.netfilter.org
+Subject: Re: [PATCH 2.6] ip6t_LOG and packets with hop-by-hop options
+Message-ID: <20040706160109.GO32707@sunbeam2>
+Mail-Followup-To: Harald Welte <laforge@netfilter.org>, davem@redhat.com,
+	linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+	netfilter-devel@lists.netfilter.org
+References: <20040706150918.GA5009@penguin.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yZxAaITavNk3ADw/"
+Content-Disposition: inline
+In-Reply-To: <20040706150918.GA5009@penguin.localdomain>
+User-Agent: Mutt/1.5.6+20040523i
+X-Spam-Score: -4.9 (----)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-The only thing I've seen kill java like that would be NX things, such as
-the NX patch mentioned in an earlier thread; execshield; or PaX.  I saw
-some talk about possibly enabling NX by default; but I don't see this in
-the -mm6 list, and I have no idea where the bk patch list is.  I
-wouldn't expect either Linus or Andrew to have decided to merge an NX
-patch in at this stage; but it's a possibility.
+--yZxAaITavNk3ADw/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Andrew?  Has anything like that been added in the bk tree?
+On Tue, Jul 06, 2004 at 05:09:18PM +0200, Marcel Sebek wrote:
+> Packet with IPPROTO_HOPOPTS extended header isn't logged properly by
+> ip6t_LOG.c. It only prints PROTO=3D0 and nothing more, because
+> IPPROTO_HOPOPTS=3D0 and in this file 0 is used to indicate last header.
+> This patch fix it by using IPPROTO_NONE to indicate last header.
 
-Matthias Andree wrote:
-| Hi,
-|
-| I've pulled from the linux-2.6 BK tree some post-2.6.7 version, compiled
-| and installed it, and it breaks Java, standalone or plugged into
-| firefox, the symptom is that the application catches SIGKILL. This
-| didn't happen with stock 2.6.7 and doesn't happen with 2.6.6 either.
-|
-| Is there any particular change I should try backing out?
-|
-| TIA,
-|
+looks fine to me.  Dave, can you please include this to your tree?
+Thanks.
+--=20
+- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
+
+--yZxAaITavNk3ADw/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFA6stihDd4aOud5P8RAnSWAJsGGWL61RC+GIiKk083w6tN5minSQCfSzb4
-tstDqu+7FnIyeCSrfSBPrS8=
-=pOq9
+iD8DBQFA6szFXaXGVTD0i/8RAqyBAKCwVgXhaL90YOmbJdWeOmwtGtRC5wCcDh6z
+cdyKWtNc2S4+4qaOg28Tiig=
+=aqI8
 -----END PGP SIGNATURE-----
+
+--yZxAaITavNk3ADw/--

@@ -1,31 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286339AbRL0QYM>; Thu, 27 Dec 2001 11:24:12 -0500
+	id <S286337AbRL0Q0c>; Thu, 27 Dec 2001 11:26:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286338AbRL0QYC>; Thu, 27 Dec 2001 11:24:02 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25874 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286337AbRL0QXs>; Thu, 27 Dec 2001 11:23:48 -0500
-Subject: Re: The direction linux is taking
-To: riel@conectiva.com.br (Rik van Riel)
-Date: Thu, 27 Dec 2001 16:33:50 +0000 (GMT)
-Cc: dana.lacoste@peregrine.com (Dana Lacoste),
-        linuz_kernel_q@hotmail.com ('Eyal Sohya'),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0112271353370.12225-100000@duckman.distro.conectiva> from "Rik van Riel" at Dec 27, 2001 02:01:23 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S286342AbRL0Q0W>; Thu, 27 Dec 2001 11:26:22 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30212 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S286337AbRL0Q0O>; Thu, 27 Dec 2001 11:26:14 -0500
+Date: Thu, 27 Dec 2001 08:23:51 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Time Slice Split Scheduler 2nd ...
+In-Reply-To: <Pine.LNX.4.40.0112261403500.1549-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.33.0112270823380.2319-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16JdTa-0005zm-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> All in all, if such a system is ever going to exist, it
-> needs to _reduce_ the amount of work the kernel maintainers
-> need to do, otherwise it'll never get used.
 
-Tridge wrote the system you describe, several years ago. Its called
-jitterbug but it doesnt help because Linus wont use it
+On Wed, 26 Dec 2001, Davide Libenzi wrote:
+>
+> This is the second version of the Time Slice Split Scheduler that
+> separates the concept of time slice from the concept of dynamic priority.
+
+Looks good to me. Applied.
+
+		Linus
 

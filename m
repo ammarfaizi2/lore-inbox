@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318769AbSIPDDc>; Sun, 15 Sep 2002 23:03:32 -0400
+	id <S318780AbSIPDES>; Sun, 15 Sep 2002 23:04:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318780AbSIPDDc>; Sun, 15 Sep 2002 23:03:32 -0400
-Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:9162 "EHLO
-	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S318769AbSIPDDb>; Sun, 15 Sep 2002 23:03:31 -0400
-Date: Mon, 16 Sep 2002 00:07:58 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
-       Robert Love <rml@tech9.net>
-Subject: Re: [PATCH](3/2) rmap14 for ac  (was: Re: 2.5.34-mm4)
-Message-ID: <Pine.LNX.4.44L.0209160005230.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S318781AbSIPDES>; Sun, 15 Sep 2002 23:04:18 -0400
+Received: from dsl-213-023-020-026.arcor-ip.net ([213.23.20.26]:59780 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318780AbSIPDEQ>;
+	Sun, 15 Sep 2002 23:04:16 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Larry McVoy <lm@bitmover.com>, Rob Landley <landley@trommello.org>
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
+Date: Mon, 16 Sep 2002 05:08:26 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0209101156510.7106-100000@home.transmeta.com> <200209160236.g8G2a6Qn022070@pimout3-ext.prodigy.net> <20020915200002.B23345@work.bitmover.com>
+In-Reply-To: <20020915200002.B23345@work.bitmover.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17qmFP-0000Fn-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday 16 September 2002 05:00, Larry McVoy wrote:
+> It's so much more fun to say "this code is shit, I can do better", but
+> whenever I've said that I've been wrong about 90% of the time.  And I'm
+> a pretty good programmer, I know that I shouldn't think like that.  All
+> I'm saying is that thinking is greater than debuggers.  Much greater.
 
-as an added bonus, here is patch 3 out of 2, with a small
-SMP bugfix. It turned out Arjan's patch for rmap14 wasn't
-safe as vmtruncate calls zap_page_range while holding a
-spinlock.  Guess I'll have to release rmap14b soon ;)
+Second post in my "Understanding the Principles of Argumentation" series.
 
-Rik
+You have just provided us with a fine example of a common logical falacy 
+called "bifurcation":
+
+   "Also referred to as the "black and white" fallacy.  Bifurcation is
+   the presentation of a situation or condition with only two
+   alternatives, whereas in fact other alternatives exist or can exist."
+   (http://www.theology.edu/logic/logic23.htm)
+
 -- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.688   -> 1.689
-#	         mm/memory.c	1.56    -> 1.57
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/09/16	riel@imladris.surriel.com	1.689
-# vmtruncate calls zap_page_range() with a spinlock held, so remove
-# the explicit low latency schedule -- rml
-# --------------------------------------------
-#
-diff -Nru a/mm/memory.c b/mm/memory.c
---- a/mm/memory.c	Mon Sep 16 00:05:15 2002
-+++ b/mm/memory.c	Mon Sep 16 00:05:15 2002
-@@ -436,9 +436,6 @@
-
- 		spin_unlock(&mm->page_table_lock);
-
--		if (current->need_resched)
--			schedule();
--
- 		address += block;
- 		size -= block;
- 	}
-
+Daniel

@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278229AbRJSATR>; Thu, 18 Oct 2001 20:19:17 -0400
+	id <S278236AbRJSATr>; Thu, 18 Oct 2001 20:19:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278237AbRJSATH>; Thu, 18 Oct 2001 20:19:07 -0400
-Received: from mail.wave.co.nz ([203.96.216.11]:34628 "EHLO mail.wave.co.nz")
-	by vger.kernel.org with ESMTP id <S278236AbRJSASv>;
-	Thu, 18 Oct 2001 20:18:51 -0400
-Date: Fri, 19 Oct 2001 13:19:13 +1300
-From: Mark van Walraven <markv@wave.co.nz>
-To: cj <cj@cjcj.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.10 etherboot initrd init= problem
-Message-ID: <20011019131913.A596@mail.wave.co.nz>
-Mail-Followup-To: cj <cj@cjcj.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3BB0958B.8030703@cjcj.com> <20011011132047.A401@bee.lk>
-Mime-Version: 1.0
+	id <S278237AbRJSATi>; Thu, 18 Oct 2001 20:19:38 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:40428 "EHLO
+	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S278236AbRJSATa>; Thu, 18 Oct 2001 20:19:30 -0400
+Date: 19 Oct 2001 00:10:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8BBKUgOHw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.21.0110180826240.16868-100000@marty.infinity.powertie.org>
+Subject: Re: [RFC] New Driver Model for 2.5
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <3BB0958B.8030703@cjcj.com>; from cj@cjcj.com on Tue, Sep 25, 2001 at 07:32:43AM -0700
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <20011018121318.17949@smtp.adsl.oleane.com> <Pine.LNX.4.21.0110180826240.16868-100000@marty.infinity.powertie.org>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 25, 2001 at 07:32:43AM -0700, cj wrote:
-> Kernel panic: No init found.  Try passing init= option to kernel.
-> 
-> These kernel command lines work with 2.4.9 but not 2.4.10:
-> auto rw root=/dev/ram ramdisk_size=8192
-> auto rw root=/dev/ram init=/sbin/init ramdisk_size=8192
-> auto rw root=/dev/ram init=/bin/ash ramdisk_size=8192
+mochelp@infinity.powertie.org (Patrick Mochel)  wrote on 18.10.01 in <Pine.LNX.4.21.0110180826240.16868-100000@marty.infinity.powertie.org>:
 
-Are the execute permission bits set for /lib/ld-* in your initrd?
+> > I would add to the generic structure device, a "uuid" string field.
+> > This field would contain a "munged" unique identifier composed of
+> > the bus type followed which whatever bus-specific unique ID is
+> > provided by the driver. If the driver don't provide one, it defaults
+> > to a copy of the busID.
+> >
+> > What I have in mind here is to have a common place to look for the
+> > best possible unique identification for a device. Typical example are
+> > ieee1394 hard disks which do have a unique ID, and so can be properly
+> > tracked between insertion removal.
+>
+> Hmm. So, this would be a device ID, much like the Vendor/Device ID pair in
+> PCI space?
 
-Mark.
+Except for the fact that the Vendor/Device ID pair is a device *class*  
+identifier, and the uuid is a device *instance* identifier.
+
+
+MfG Kai

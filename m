@@ -1,63 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVCFMyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVCFNbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbVCFMyV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 07:54:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVCFMyV
+	id S261396AbVCFNbq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 08:31:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbVCFNbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 07:54:21 -0500
-Received: from mta13.adelphia.net ([68.168.78.44]:44960 "EHLO
-	mta13.adelphia.net") by vger.kernel.org with ESMTP id S261393AbVCFMyQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 07:54:16 -0500
-Message-ID: <422AFD76.7050005@adelphia.net>
-Date: Sun, 06 Mar 2005 07:54:14 -0500
-From: Tom Horsley <tomhorsley@adelphia.net>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Sun, 6 Mar 2005 08:31:45 -0500
+Received: from pop.gmx.de ([213.165.64.20]:55276 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261396AbVCFNbo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 08:31:44 -0500
+X-Authenticated: #20450766
+Date: Sun, 6 Mar 2005 14:30:47 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: jim.hague@acm.org
+cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [2.6.11 Permedia-2 Framebuffer] driver broken (?).
+In-Reply-To: <Pine.LNX.4.60.0503061047590.3733@poirot.grange>
+Message-ID: <Pine.LNX.4.60.0503061427250.2997@poirot.grange>
+References: <Pine.LNX.4.60.0503052355320.12643@poirot.grange>
+ <Pine.LNX.4.60.0503061047590.3733@poirot.grange>
 MIME-Version: 1.0
-To: Andreas Schwab <schwab@suse.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ptrace and setuid problem
-References: <422A639A.5090603@adelphia.net> <jeu0npkm5m.fsf@sykes.suse.de>
-In-Reply-To: <jeu0npkm5m.fsf@sykes.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schwab wrote:
+On Sun, 6 Mar 2005, Guennadi Liakhovetski wrote:
 
->Tom Horsley <tomhorsley@adelphia.net> writes:
->
->  
->
->>If I exec a setuid program under ptrace, I can read the image via
->>PEEKDATA requests.
->>    
->>
->
->Only CAP_SYS_PTRACE capable processes get suid/sgid semantics under
->ptrace, or can attach to a privileged processes.
->
->Andreas.
->
->  
->
-I realize the program under ptrace is no longer running setuid, but it 
-is still running,
-and the debugger can examine the process memory. With most setuid programs
-being installed execute-only with no read access, isn't it a security 
-problem that
-I can get read access anyway (at least to the parts of the file that are 
-in LOAD
-segments)?
+> I wasn't quite correct in my report yesterday. Replacing pm2fb.c from 
+> 2.6.11 with 2.6.10 fixes only one problem - the font becomes white again 
+> and penguin images get fixed. But switching from X to vt still doesn't 
+> work. It works under 2.6.10-rc2.
 
-(Although I do notice that my suse 9.2 system has /usr/bin/sudo 
-installed readable -
-it is only my fedora core 3 system that has it execute only - just to 
-pick a sample
-setuid program).
+Ok. Reverting also fbcon.[hc] to 2.6.10 fixes the X-switching problem too.
 
-Maybe setuid shouldn't even be the question, maybe the issue should be that
-ptrace can read parts of program files that have no read access.
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
 

@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265518AbSJSF0R>; Sat, 19 Oct 2002 01:26:17 -0400
+	id <S265527AbSJSGbo>; Sat, 19 Oct 2002 02:31:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265524AbSJSF0R>; Sat, 19 Oct 2002 01:26:17 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:21888 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S265518AbSJSF0Q>; Sat, 19 Oct 2002 01:26:16 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 18 Oct 2002 22:40:37 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: John Myers <jgmyers@netscape.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>
-Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
-In-Reply-To: <3DB0AD79.30401@netscape.com>
-Message-ID: <Pine.LNX.4.44.0210182236180.11331-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265532AbSJSGbo>; Sat, 19 Oct 2002 02:31:44 -0400
+Received: from holomorphy.com ([66.224.33.161]:16300 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S265527AbSJSGbn>;
+	Sat, 19 Oct 2002 02:31:43 -0400
+Date: Fri, 18 Oct 2002 23:32:30 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Voyager subarchitecture for 2.5.44
+Message-ID: <20021019063230.GE23425@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	James Bottomley <James.Bottomley@HansenPartnership.com>,
+	linux-kernel@vger.kernel.org
+References: <200210190612.g9J6Cqu11812@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210190612.g9J6Cqu11812@localhost.localdomain>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Oct 2002, John Myers wrote:
+On Sat, Oct 19, 2002 at 01:12:52AM -0500, James Bottomley wrote:
+> This patch adds SMP (and UP) support for voyager which is an (up to 32 way) 
+> SMP microchannel non-PC architecture.
+> The current patch includes a swap around of the timer code defines (available 
+> separately at http://linux-voyager.bkbits.net/timer-2.5) and a new 
+> CONFIG_X86_TRAMPOLINE config option to avoid the trampoline vpath.
+> The patch (156k) is available here:
+> http://www.hansenpartnership.com/voyager/files/voyager-2.5.44.diff
+> And also via bitkeeper at
+> http://linux-voyager.bkbits.net/voyager-2.5
 
-> >It's a very simple concept. That means that after a
-> >connect()/accept() you have to start using the fd because I/O space might
-> >be available for read()/write(). Dropping an event is an attempt of using
-> >the API like poll() & Co., where after an fd born, it is put inside the
-> >set to be later wake up. You're basically saying "the kernel should drop an
-> >event at creation time" and I'm saying that, to keep the API usage
-> >consistent to "use the fd until EAGAIN", you have to use the fd as soon as
-> >it'll become available.
-> >
-> Here's where your argument is inconsistent with the Linux philosophy.
->
-> Linux has a strong philosophy of practicality.  The goal of Linux is to
-> do useful things, including provide applications with the semantics they
-> need to do useful things.  The criteria for deciding what goes into
-> Linux is heavily weighted towards what works best in practice.
->
-> Whether or not some API matches someone's Platonic ideal of of an OS
-> interface is not a criterion.  In Linux, APIs are judged by their
-> practical merits.  This is why Linux does not have such things as
-> message passing and separate address spaces for drivers.
->
-> So whether or not a proposed set of epoll semantics is consistent with
-> your Platonic ideal of "use the fd until EAGAIN" is simply not an issue.
->  What matters is what works best in practice.
+This is a very interesting architecture. Could you describe vaguely (for
+someone starved enough for time he might have trouble finding time to
+examine your tree) how cpu wakeup with the VIC proceeds?
 
-Luckily enough, being the only one that wasted my time in those couple of
-days arguing against the API semantic, you pretty much down in the list of
-people that are able to decide what "works best in practice".
+Also, I'd like to say this patch is impressively isolated from generic
+i386 code. Although I've not tested, it seems very clear from the form
+of the code that it will have no impact on UP i386 or other subarches.
 
 
-
-- Davide
-
-
+Thanks,
+Bill

@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280992AbRKGVO4>; Wed, 7 Nov 2001 16:14:56 -0500
+	id <S281000AbRKGVVg>; Wed, 7 Nov 2001 16:21:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280995AbRKGVNi>; Wed, 7 Nov 2001 16:13:38 -0500
-Received: from ns1ca.ubisoft.qc.ca ([205.205.27.131]:32006 "EHLO
-	ns1ca.ubisoft.qc.ca") by vger.kernel.org with ESMTP
-	id <S280989AbRKGVMo>; Wed, 7 Nov 2001 16:12:44 -0500
-Message-ID: <9A1957CB9FC45A4FA6F35961093ABB8405491190@srvmail-mtl.ubisoft.qc.ca>
-From: Patrick Allaire <pallaire@gameloft.com>
-To: "Bradley D. LaRonde" <brad@ltc.com>,
-        Patrick Allaire <pallaire@gameloft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Irq problems : [ Kernel booting on serial console ... crawling]
-Date: Wed, 7 Nov 2001 16:11:05 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S280990AbRKGVUi>; Wed, 7 Nov 2001 16:20:38 -0500
+Received: from h226-58.adirondack.albany.edu ([169.226.226.58]:33161 "EHLO
+	bouncybouncy.net") by vger.kernel.org with ESMTP id <S280994AbRKGVTe>;
+	Wed, 7 Nov 2001 16:19:34 -0500
+Date: Wed, 7 Nov 2001 16:19:29 -0500
+From: Justin A <justin@bouncybouncy.net>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Yet another design for /proc. Or actually /kernel.
+Message-ID: <20011107161929.A22295@bouncybouncy.net>
+In-Reply-To: <slrn9uj1nf.5lj.spamtrap@dexter.hensema.xs4all.nl> <9sc79g$413$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9sc79g$413$1@cesium.transmeta.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ahh yes I've seen that happen.  It's not too common in standard unix
+practices, but comes up a lot when mounting windows shares.  Mounting
+"//bobs computer/my folder with stuff in it" does not have good results.
+Only way I found to fix that was to umount -a -t smbfs.
 
+-Justin
 
-Thank you for you answer ... I think my interrupt are not working ... I have
-added a printk line in my interrupt routine, it is called every 1000 jiffies
-!!!! if I do a cat /proc/interrupts ... once completed (c: I see that I dont
-receive any interrupt on IRQ 4 ... it is alwais 0 ... but the serial is
-registered.
-
-thank again !
-
-
-
-Patrick Allaire
-mailto:pallaire@gameloft.com
-If you can see it, but it's not there, it's virtual. 
-If you can't see it, but it is there, it's hidden. 
-It you can't see it and it isn't there, it's gone.
-
-
-
-> -----Original Message-----
-> From: Bradley D. LaRonde [mailto:brad@ltc.com]
-> Sent: November 6, 2001 5:11 PM
-> To: Patrick Allaire; Linux Kernel Mailing List
-> Subject: Re: Kernel booting on serial console ... crawling
+On Wed, Nov 07, 2001 at 12:58:24PM -0800, H. Peter Anvin wrote:
+> Followup to:  <slrn9uj1nf.5lj.spamtrap@dexter.hensema.xs4all.nl>
+> By author:    spamtrap@use.reply-to (Erik Hensema)
+> In newsgroup: linux.dev.kernel
+> > 
+> > - Multiple values per file when needed
+> > 	A file is a two dimensional array: it has lines and every line
+> > 	can consist of multiple fields.
+> > 	A good example of this is the current /proc/mounts.
+> > 	This can be parsed very easily in all languages.
+> > 	No need for single-value files, that's oversimplification.
+> > 
 > 
+> Actually, /proc/mounts is currently broken, and is an excellent
+> example of why the above statement simply isn't true unless you apply
+> another level of indirection: try mounting something on a directory
+> the name of which contains whitespace in any form (remember, depending
+> on your setup this may be doable by an unprivileged user...)
 > 
-> I've seen something like that when my serial driver wasn't getting
-> interrupts.
-> 
-> Regards,
-> Brad
-> 
-> "Patrick Allaire" <pallaire@gameloft.com> said:
-> > I tried to boot my kernel using the serial console, using the
-> > console=ttyS0,115200 (it does the same thing with 9600) ... 
-> it work great
-> > until :
-> >
-> > Freeing unused kernel memory: 36k freed
-> > serial console detected.  Disabling virtual terminals.
-> > console=/dev/ttyS0
-> >
-> > At this point the output of the serial line slow down dramaticly ...
-> almost
-> > to a halt ... I get 1 line every 30 seconds !!!
-> 
+> 	-hpa
+> -- 
+> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+> "Unix gives you enough rope to shoot yourself in the foot."
+> http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,82 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbULFWPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbULFWUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbULFWPs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 17:15:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbULFWPs
+	id S261679AbULFWUn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 17:20:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbULFWUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 17:15:48 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:6556 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261678AbULFWPg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 17:15:36 -0500
-Message-ID: <41B4D9F8.6000309@colorfullife.com>
-Date: Mon, 06 Dec 2004 23:15:20 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Mon, 6 Dec 2004 17:20:43 -0500
+Received: from v6.netlin.pl ([62.121.136.6]:36622 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S261679AbULFWUe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 17:20:34 -0500
+Date: Mon,  6 Dec 2004 23:20:26 +0100
+X-Mailer: JAW::Mail jawmail-2.0.1
+X-Originating-IP: 195.150.77.250
+Organization: K4 Labs
+From: gj <gj@pointblue.com.pl>
+To: <Valdis.Kletnieks@vt.edu>, Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
+Subject: Re: ip contrack problem, not strictly followed RFC, DoS very much possible 
+Cc: kernel list <linux-kernel@vger.kernel.org>, <coreteam@netfilter.org>
+In-Reply-To: <200412061948.iB6JmOpY003565@turing-police.cc.vt.edu>
+References: <41B464B3.8020807@pointblue.com.pl> <200412061948.iB6JmOpY003565@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-To: Paul Mundt <lethal@Linux-SH.ORG>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ARCH_SLAB_MINALIGN for 2.6.10-rc3
-References: <41B37E06.3030702@colorfullife.com> <20041205222001.GB25689@linux-sh.org>
-In-Reply-To: <20041205222001.GB25689@linux-sh.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <20041206222026.C2DF41B@pointblue.com.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mundt wrote:
+On Mon, 6 Dec 2004 at 20:48:45, Valdis.Kletnieks@vt.edu wrote:
 
->Hi Manfred,
->
->On Sun, Dec 05, 2004 at 10:30:46PM +0100, Manfred Spraul wrote:
->  
->
->>>--- orig/include/asm-sh64/uaccess.h
->>>+++ mod/include/asm-sh64/uaccess.h
->>>@@ -313,6 +313,12 @@
->>>  sh64 at the moment). */
->>>#define ARCH_KMALLOC_MINALIGN 8
->>>
->>>+/*
->>>+ * We want 8-byte alignment for the slab caches as well, otherwise we have
->>>+ * the same BYTES_PER_WORD (sizeof(void *)) min align in 
->>>kmem_cache_create().
->>>+ */
->>>+#define ARCH_SLAB_MINALIGN 8
->>>+
->>>
->>>
->>>      
->>>
->>Could you make that dependant on !CONFIG_DEBUG_SLAB? Setting align to a 
->>non-zero value disables some debug code.
->>
->>    
->>
->align is only being set to ARCH_SLAB_MINALIGN in kmem_cache_create()
->where it is otherwise being set to BYTES_PER_WORD as a default. Unless I
->am missing something, that will always set it non-zero irregardless of
->whether ARCH_SLAB_MINALIGN is set.
->
->  
->
-No, you are right. I didn't read the source carefully enough.
-Now that I have reread it, I see one problem:
-ARCH_KMALLOC_MINALIGN is a hard limit: It's always honored, the only 
-exception is that values larger than the kmalloc block size are ignored. 
-I.e. _MINALIGN 32 guarantees that the objects are 32-byte aligned (since 
-the smallest block size is 32-bytes). The define was added, because some 
-archs really need a certain alignment, otherwise they won't boot. The 
-normal alignment for kmalloc caches is cache line alignment, except with 
-CONFIG_DEBUG_SLAB, then it's word alignment.
+> On Mon, 06 Dec 2004 14:54:59 +0100, Grzegorz Piotr Jaskiewicz said:
+> 
+> > There is little bug, eversince, no author would agree to correct it 
+> > (dunno why) in ip_conntrack_proto_tcp.c:91:
+> > unsigned long ip_ct_tcp_timeout_established =   5 DAYS;
+> 
+> If you so desire, you can probably workaround this by doing:
+> 
+> echo 100 >
+> /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_established
+> 
+> Of course, then if you don't type in an SSH window for 5 minutes, it
+> evaporates
+> on you - and even SSH keepalives don't help if a router takes a nose dive
+> and
+> it takes 2 minutes for our NOC to slap it upside the head.  This is a case
+> *against* keepalives there - if a router hiccups and drops a keepalive on
+> an
+> otherwise idle session, you nuke a perfectly good idle session for reasons
+> totally contrary to the original purpose of TCP, namely to *survive* such a
+> router burp.
 
-With your patch, ARCH_SLAB_MINALIGN is not a hard limit: A few lines 
-further down align is reset to word size if SLAB_RED_ZONE is set. I 
-don't like the asymmetry - it just asks for trouble.
+Shouldn't it be protocols thingie to take care about connections ?
+Ussualy some protocols are sending ping packet to peer. 
+This value as it is now, keeps too many connections in memory, which often leads
+to conntrack overflow, that blocks litteraly whole machine up. That is nothing
+more than DoS, and besides, there is no fallback routine, something that uppon
+error would react. Like, flush very likely to be dead connections, etc.
 
-I must think about it. Perhaps just rename ARCH_SLAB_MINALIGN to 
-ARCH_SLAB_DEFAULTALIGN.
 
---
-    Manfred
+
+-- 
+Grzegorz Jaskiewicz
+K4 Labs

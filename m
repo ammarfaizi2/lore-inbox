@@ -1,113 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbVCGX5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbVCGX52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261991AbVCGX5a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 18:57:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbVCGXys
+	id S262005AbVCGX52 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 18:57:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVCGXzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 18:54:48 -0500
-Received: from fire.osdl.org ([65.172.181.4]:10160 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262002AbVCGXuJ (ORCPT
+	Mon, 7 Mar 2005 18:55:21 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:52441 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261895AbVCGXj7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 18:50:09 -0500
-Date: Mon, 7 Mar 2005 15:50:01 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       sct@redhat.com
-Subject: Re: [RFC] ext3/jbd race: releasing in-use journal_heads
-Message-Id: <20050307155001.099352b5.akpm@osdl.org>
-In-Reply-To: <1110237205.15117.702.camel@sisko.sctweedie.blueyonder.co.uk>
-References: <1109966084.5309.3.camel@sisko.sctweedie.blueyonder.co.uk>
-	<20050304160451.4c33919c.akpm@osdl.org>
-	<1110213656.15117.193.camel@sisko.sctweedie.blueyonder.co.uk>
-	<20050307123118.3a946bc8.akpm@osdl.org>
-	<1110229687.15117.612.camel@sisko.sctweedie.blueyonder.co.uk>
-	<20050307131113.0fd7477e.akpm@osdl.org>
-	<1110230527.15117.625.camel@sisko.sctweedie.blueyonder.co.uk>
-	<1110237205.15117.702.camel@sisko.sctweedie.blueyonder.co.uk>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 7 Mar 2005 18:39:59 -0500
+Date: Tue, 8 Mar 2005 03:05:37 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>, cryptoapi@lists.logix.cz,
+       James Morris <jmorris@redhat.com>, David Miller <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [8/many] acrypto: crypto_dev.c
+Message-ID: <20050308030537.4608f026@zanzibar.2ka.mipt.ru>
+In-Reply-To: <422CE5BA.9040209@osdl.org>
+References: <1110227854480@2ka.mipt.ru>
+	<422CE5BA.9040209@osdl.org>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 08 Mar 2005 02:39:34 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" <sct@redhat.com> wrote:
->
-> In invalidate_inode_pages2_range(), what happens if we lookup a pagevec,
-> get a bunch of pages back, but all the pages in the vec are beyond the
-> end of the range we want?
+On Mon, 07 Mar 2005 15:37:30 -0800
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
 
-hmm, yes.  Another one :(
+> Evgeniy Polyakov wrote:
+> > --- /tmp/empty/crypto_dev.c	1970-01-01 03:00:00.000000000 +0300
+> > +++ ./acrypto/crypto_dev.c	2005-03-07 20:35:36.000000000 +0300
+> > @@ -0,0 +1,421 @@
+> > +/*
+> > + * 	crypto_dev.c
+> > + *
+> > + * Copyright (c) 2004 Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+> 
+> > +#include <linux/kernel.h>
+> > +#include <linux/module.h>
+> > +#include <linux/moduleparam.h>
+> > +#include <linux/types.h>
+> > +#include <linux/list.h>
+> > +#include <linux/slab.h>
+> > +#include <linux/interrupt.h>
+> > +#include <linux/spinlock.h>
+> > +#include <linux/device.h>
+> 
+> In alpha order as much as possible, please.
 
-> @@ -271,12 +271,13 @@ int invalidate_inode_pages2_range(struct
->  			int was_dirty;
->  
->  			lock_page(page);
-> +			if (page->mapping == mapping)
-> +				next = page->index + 1;
->  			if (page->mapping != mapping || page->index > end) {
->  				unlock_page(page);
->  				continue;
->  			}
->  			wait_on_page_writeback(page);
-> -			next = page->index + 1;
->  			if (next == 0)
->  				wrapped = 1;
->  			while (page_mapped(page)) {
+As far as I remember, some must be first, like kernel.h and module.h,
+but I will try to follow alphabet order.
 
-truncate_inode_pages_range() seems to dtrt here.  Can we do it in the same
-manner in invalidate_inode_pages2_range()?
+> > +#include "acrypto.h"
+> > +
+> > +static LIST_HEAD(cdev_list);
+> > +static spinlock_t cdev_lock = SPIN_LOCK_UNLOCKED;
+> 
+> DEFINE_SPINLOCK(cdev_lock);
 
+Yep, I suspect some other files also need that.
 
-Something like:
-
-
-diff -puN mm/truncate.c~invalidate_inode_pages2_range-livelock-fix mm/truncate.c
---- 25/mm/truncate.c~invalidate_inode_pages2_range-livelock-fix	Mon Mar  7 15:47:25 2005
-+++ 25-akpm/mm/truncate.c	Mon Mar  7 15:49:09 2005
-@@ -305,15 +305,22 @@ int invalidate_inode_pages2_range(struct
- 			min(end - next, (pgoff_t)PAGEVEC_SIZE - 1) + 1)) {
- 		for (i = 0; !ret && i < pagevec_count(&pvec); i++) {
- 			struct page *page = pvec.pages[i];
-+			pgoff_t page_index;
- 			int was_dirty;
+Will put it into TODO queue.
  
- 			lock_page(page);
--			if (page->mapping != mapping || page->index > end) {
-+			page_index = page->index;
-+			if (page_index > end) {
-+				next = page_index;
-+				unlock_page(page);
-+				break;
-+			}
-+			if (page->mapping != mapping) {
- 				unlock_page(page);
- 				continue;
- 			}
- 			wait_on_page_writeback(page);
--			next = page->index + 1;
-+			next = page_index + 1;
- 			if (next == 0)
- 				wrapped = 1;
- 			while (page_mapped(page)) {
-@@ -323,7 +330,7 @@ int invalidate_inode_pages2_range(struct
- 					 */
- 					unmap_mapping_range(mapping,
- 					    page->index << PAGE_CACHE_SHIFT,
--					    (end - page->index + 1)
-+					    (end - page_index + 1)
- 							<< PAGE_CACHE_SHIFT,
- 					    0);
- 					did_range_unmap = 1;
-@@ -332,7 +339,7 @@ int invalidate_inode_pages2_range(struct
- 					 * Just zap this page
- 					 */
- 					unmap_mapping_range(mapping,
--					  page->index << PAGE_CACHE_SHIFT,
-+					  page_index << PAGE_CACHE_SHIFT,
- 					  PAGE_CACHE_SIZE, 0);
- 				}
- 			}
-_
+> -- 
+> ~Randy
 
+
+	Evgeniy Polyakov
+
+Only failure makes us experts. -- Theo de Raadt

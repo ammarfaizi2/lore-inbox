@@ -1,117 +1,234 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131339AbRCNKZN>; Wed, 14 Mar 2001 05:25:13 -0500
+	id <S131344AbRCNKle>; Wed, 14 Mar 2001 05:41:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131340AbRCNKZD>; Wed, 14 Mar 2001 05:25:03 -0500
-Received: from pat.uio.no ([129.240.130.16]:8339 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S131339AbRCNKYq>;
-	Wed, 14 Mar 2001 05:24:46 -0500
-From: Terje Malmedal <terje.malmedal@usit.uio.no>
-To: alan@clueserver.org
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10103131842110.19423-100000@clueserver.org>
-	(message from Alan Olsen on Tue, 13 Mar 2001 18:43:40 -0800 (PST))
-Subject: Re: Alert on LAN for Linux?
+	id <S131343AbRCNKlZ>; Wed, 14 Mar 2001 05:41:25 -0500
+Received: from imladris.infradead.org ([194.205.184.45]:4364 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S131340AbRCNKlH>;
+	Wed, 14 Mar 2001 05:41:07 -0500
+Date: Wed, 14 Mar 2001 10:39:53 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.CX>
+To: Linus Torvalds <linus@transmeta.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Christian Seberino <seberino@spawar.navy.mil>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Improved version reporting
+In-Reply-To: <11a40b11caeb.11caeb11a40b@nosc.mil>
+Message-ID: <Pine.LNX.4.30.0103141037490.26570-200000@infradead.org>
 MIME-Version: 1.0
-Message-Id: <E14d8Rh-0007Xr-00@morgoth>
-Date: Wed, 14 Mar 2001 11:23:57 +0100
+Content-Type: MULTIPART/MIXED; BOUNDARY="-842912328-942955428-984566393=:26570"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-[Alan Olsen]
-> Alert on LAN makes the system up from power management type sleep when
-> there are packets to be processed.  Why you would ever have sleep mode on
-> a server is beyond me.
+---842912328-942955428-984566393=:26570
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-No, that's Wake on LAN. 
+Hi all.
 
->From the web page. http://www.pc.ibm.com/us/desktop/alertonlan/
+As a result of private email correspondance I have recently received, I
+became aware that the current system of identifying the versions of the
+various subsystems required to support any particular kernel version is
+inadequate, and decided to do something about it. The enclosed patch is
+my offering to rectify this.
 
-----
-   Alert on LAN provides notification of the following conditions:
+The problems identified are:
 
-       System unplugged from power source 
-       System unplugged from network 
-       Chassis intrusion 
-       Processor removal 
-       System environmental errors 
-           High temperature 
-           Fan speed 
-           Voltage fluctuations 
-       Operating system errors 
-       System power-on errors 
-       System is hung 
+ 1. Different subsystems are identified in Documentation/Changes and in
+    scripts/ver_linux, probably due to the difficulty of maintaining two
+    files in sync with each other. As a result, it is not clear what the
+    required versions of some subsystems are.
 
-   With the latest release, Alert on LAN 2 now extends IT
-   capabilities to remotely manage and control their
-   networked PCs:
+ 2. The existing script does not make it clear which subsystems need to
+    be updated. The user is expected to decide by cross-referencing the
+    details it provides with those provided elsewhere.
 
-       Remote system reboot upon report of a critical failure 
-       Repair Operating System 
-       Update BIOS image 
-       Perform other diagnostic procedures 
+ 3. The command to perform this analysis is not immediately obvious.
 
-   And Alert on LAN 2 adds the capabilities for the
-   administrator to take action to correct a failing
-   condition on the IBM PC, increasing IT's flexibility to
-   selectively respond to alerts and further reduce
-   response times.
-   
-   Notification of alert is important, but the capability
-   to act on the information is more valuable. For
-   example, if a machine at a remote location is
-   malfunctioning, the system administrator using Alert on
-   LAN 2 can simply reset or reboot the machine.
----
+My offering (developed against the 2.4.2 kernel source tree) does away
+with all three of these problems by:
 
-The feature I really need is to be able to reset the machine remotely
-when Linux is hung.
+ A. Making Documentation/Changes the sole source of information on the
+    subsystems required. The script I have developed then reads the
+    table in this file, and uses commands listed therein to determine
+    the installed versions of the relevant subsystems. The format of
+    this table had to be changed slightly to accommodate the script,
+    but this was done without impairing the readability thereof.
 
-> To get wake on lan to work you will probably need the drivers from Intel.
-> They are supposed to be freely available on their site.
+ B. Adding lines to Documentation/Changes to document those subsystems
+    listed by scripts/ver_linux that were not already in the table in
+    Documentation/Changes so that all relevant subsystems are considered.
+    This was done by adding a separate table formatted identically to the
+    existing one, but indicating that the subsystems therein may not be
+    required.
 
-Wake on LAN works fine, you just need to enable it in the BIOS. 
+    Note that the "required versions" listed in this new table are those
+    installed on my system, with the exception of the Linux C++ library
+    which is apparently not installed here. These versions need to be
+    tweaked to reflect the actual requirements for that kernel.
 
-> On Tue, 13 Mar 2001, Terje Malmedal wrote:
+ C. Comparing the installed and required versions of each subsystem, and
+    indicating the results of that comparison in the displayed results
+    by colouring the name of the subsystem. A facility to disable this
+    is also included, and is activated by providing a parameter to the
+    script. Any parameter will serve this function.
 
->> 
->> Alert on LAN seems to have some useful functionality, if I understand
->> things correctly they have enhanced Wake-on-LAN to allow you to do
->> things like reset the machine, update the BIOS and such by sending
->> magic packets which are interpreted by the network card. Or maybe I am
->> reading too much into this:
->> 
->> http://www.pc.ibm.com/us/desktop/alertonlan/
->> 
->> Anyway, my eepro100 cards say they are Alert on LAN capable, it would
->> be very useful to be able to use this reboot a Linux box remotely:
->> 
->> 02:09.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 08)
->> 
->> Subsystem: Intel Corporation EtherExpress PRO/100+ Management Adapter with Alert On LAN*
->> Flags: bus master, medium devsel, latency 66, IRQ 11
->> Memory at 40200000 (32-bit, non-prefetchable) [size=4K]
->> I/O ports at 1400 [size=64]
->> Memory at 40100000 (32-bit, non-prefetchable) [size=1M]
->> Expansion ROM at <unassigned> [disabled] [size=1M]
->> Capabilities: [dc] Power Management version 2
->> 
->> Does anybody know anything about Alert on LAN and whether it does what
->> I think it does?
->> 
->> -- 
->> - Terje
->> malmedal@usit.uio.no
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->> 
+ D. Inserting lines in the primary Makefile to allow `make vsn` to run
+    the relevant command to generate the results with colouring, and
+    `make vsnbw` to do so without colours. Both change the permissions
+    of the script to make it an executable.
 
-> alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
-> Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
->     "In the future, everything will have its 15 minutes of blame."
+There is ONE problem with this method, which I have not been able to
+solve. This is that the command used by scripts/ver_linux to determine
+the installed version of the Gnu C Library can't be replicated using
+the method this script is based on, and I have had to replace it with a
+simpler script which may produce different results in some cases. If this
+is a problem, it is open to others to solve as I have licensed this under
+version 2 (only) of the Gnu General Public Licence.
 
+Best wishes from Riley.
 
+---842912328-942955428-984566393=:26570
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="versions.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0103141039530.26570@infradead.org>
+Content-Description: Version reporting patch for 2.4.2
+Content-Disposition: attachment; filename="versions.diff"
+
+LS0tIGxpbnV4L0RvY3VtZW50YXRpb24vQ2hhbmdlc34JRnJpIEZlYiAxNiAy
+Mzo1MzowOCAyMDAxDQorKysgbGludXgvRG9jdW1lbnRhdGlvbi9DaGFuZ2Vz
+CVR1ZSBNYXIgMTMgMjM6Mzg6NDYgMjAwMQ0KQEAgLTQ4LDE2ICs0OCwzMSBA
+QA0KIENhcmQpIGhhcmR3YXJlLCBmb3IgZXhhbXBsZSwgeW91IHByb2JhYmx5
+IG5lZWRuJ3QgY29uY2VybiB5b3Vyc2VsZg0KIHdpdGggcGNtY2lhLWNzLg0K
+IA0KLW8gIEdudSBDICAgICAgICAgICAgICAgICAgMi45MS42NiAgICAgICAg
+ICAgICAgICAgIyBnY2MgLS12ZXJzaW9uDQorbyAgR251IEMgICAgICAgICAg
+ICAgICMgICAyLjkxLjY2ICAgICAgIyBnY2MgLS12ZXJzaW9uDQotbyAgR251
+IG1ha2UgICAgICAgICAgICAgICAzLjc3ICAgICAgICAgICAgICAgICAgICAj
+IG1ha2UgLS12ZXJzaW9uDQorbyAgR251IG1ha2UgICAgICAgICAgICMgICAz
+Ljc3ICAgICAgICAgIyBtYWtlIC0tdmVyc2lvbg0KLW8gIGJpbnV0aWxzICAg
+ICAgICAgICAgICAgMi45LjEuMC4yNSAgICAgICAgICAgICAgIyBsZCAtdg0K
+K28gIGJpbnV0aWxzICAgICAgICAgICAjICAgMi45LjEuMC4yNSAgICMgbGQg
+LXYNCi1vICB1dGlsLWxpbnV4ICAgICAgICAgICAgIDIuMTBvICAgICAgICAg
+ICAgICAgICAgICMgZmRmb3JtYXQgLS12ZXJzaW9uDQorbyAgdXRpbC1saW51
+eCAgICAgICAgICMgICAyLjEwbyAgICAgICAgIyBmZGZvcm1hdCAtLXZlcnNp
+b24NCi1vICBtb2R1dGlscyAgICAgICAgICAgICAgIDIuNC4yICAgICAgICAg
+ICAgICAgICAgICMgaW5zbW9kIC1WDQorbyAgbW9kdXRpbHMgICAgICAgICAg
+ICMgICAyLjQuMiAgICAgICAgIyBpbnNtb2QgLVYNCi1vICBlMmZzcHJvZ3Mg
+ICAgICAgICAgICAgIDEuMTkgICAgICAgICAgICAgICAgICAgICMgdHVuZTJm
+cw0KK28gIGUyZnNwcm9ncyAgICAgICAgICAjICAgMS4xOSAgICAgICAgICMg
+dHVuZTJmcw0KLW8gIHJlaXNlcmZzcHJvZ3MgICAgICAgICAgMy54LjBiICAg
+ICAgICAgICAgICAgICAgIyByZWlzZXJmc2NrIDI+JjF8Z3JlcCByZWlzZXJm
+c3Byb2dzDQorbyAgcmVpc2VyZnNwcm9ncyAgICAgICMgICAzLnguMGIgICAg
+ICAgIyByZWlzZXJmc2NrIDI+JjF8Z3JlcCByZWlzZXJmc3Byb2dzDQotbyAg
+cGNtY2lhLWNzICAgICAgICAgICAgICAzLjEuMjEgICAgICAgICAgICAgICAg
+ICAjIGNhcmRtZ3IgLVYNCitvICBwY21jaWEtY3MgICAgICAgICAgIyAgIDMu
+MS4yMSAgICAgICAjIGNhcmRtZ3IgLVYNCi1vICBQUFAgICAgICAgICAgICAg
+ICAgICAgIDIuNC4wICAgICAgICAgICAgICAgICAgICMgcHBwZCAtLXZlcnNp
+b24NCitvICBQUFAgICAgICAgICAgICAgICAgIyAgIDIuNC4wICAgICAgICAj
+IHBwcGQgLS12ZXJzaW9uIC9kZXYvdHR5DQotbyAgaXNkbjRrLXV0aWxzICAg
+ICAgICAgICAzLjFwcmUxICAgICAgICAgICAgICAgICAjIGlzZG5jdHJsIDI+
+JjF8Z3JlcCB2ZXJzaW9uDQorbyAgaXNkbjRrLXV0aWxzICAgICAgICMgICAz
+LjFwcmUxICAgICAgIyBpc2RuY3RybCAyPiYxfGdyZXAgdmVyc2lvbg0KKw0K
+K0luIGFkZGl0aW9uLCBpdCBpcyB3aXNlIHRvIGVuc3VyZSB0aGF0IHRoZSBm
+b2xsb3dpbmcgcGFja2FnZXMgYXJlIGF0IGxlYXN0DQorYXQgdGhlIHZlcnNp
+b25zIHN1Z2dlc3RlZCBiZWxvdywgYWx0aG91Z2ggdGhlc2UgbWF5IG5vdCBi
+ZSByZXF1aXJlZCwgZGVwZW5kaW5nDQorb24gdGhlIGV4YWN0IGNvbmZpZ3Vy
+YXRpb24gb2YgeW91ciBzeXN0ZW06DQorDQorbyAgQ29uc29sZSBUb29scyAg
+ICAgICMgICAwLjMuMyAgICAgICAgIyBsb2Fka2V5cyAtVg0KK28gIEN1cnJl
+bnQgS2VybmVsICAgICAjICAgMi4yLjEwICAgICAgICMgdW5hbWUgLWENCitv
+ICBEeW5hbWljIExpbmtlciAgICAgIyAgIDIuMS4wICAgICAgICAjIGxkZCAt
+diA+IC9kZXYvbnVsbCAmJiBsZGQgLXYgfHwgbGRkIC0tdmVyc2lvbg0KK28g
+IFByb2NQUyAgICAgICAgICAgICAjICAgMi4wLjAgICAgICAgICMgcHMgLS12
+ZXJzaW9uDQorbyAgTW91bnQgICAgICAgICAgICAgICMgICAyLjEwZSAgICAg
+ICAgIyBtb3VudCAtLXZlcnNpb24NCitvICBOZXQgVG9vbHMgICAgICAgICAg
+IyAgIDEuNTAgICAgICAgICAjIGhvc3RuYW1lIC1WDQorbyAgU2hlbGwgVXRp
+bHMgICAgICAgICMgICAyLjAgICAgICAgICAgIyBleHByIC0tdg0KKw0KK28g
+IExpbnV4IEMgTGlicmFyeSAgICAjICAgMi4xLjAgICAgICAgICMgbHMgL2xp
+Yi9saWJjLSogfCBjdXQgLWQgLSAtZiAyIHwgc2VkICdzL1wuc28vLycNCitv
+ICBMaW51eCBDKysgTGlicmFyeSAgIyAgIDEuMCAgICAgICAgICAjIGxzIC1s
+IC91c3IvbGliL2xpYntnLHN0ZGN9Kysuc28gMj4gL2Rldi9udWxsDQogCQkJ
+ICANCiBLZXJuZWwgY29tcGlsYXRpb24NCiA9PT09PT09PT09PT09PT09PT0N
+Ci0tLSBsaW51eC9zY3JpcHRzL3ZlcnNpb25+CVRodSBKYW4gIDEgMDE6MDA6
+MDAgMTk3MA0KKysrIGxpbnV4L3NjcmlwdHMvdmVyc2lvbglXZWQgTWFyIDE0
+IDAwOjE0OjQ0IDIwMDENCkBAIC0wLDAgKzEsMTM5IEBADQorIyEvYmluL2Jh
+c2gNCisNCit1bmFsaWFzIC1hDQorDQorZnVuY3Rpb24gZGlzcGxheSgpIHsN
+CisgICAgbG9jYWwgVw0KKyAgICBkZWNsYXJlIC1pIE49JDEgU1o9MA0KKw0K
+KyAgICB3aGlsZSByZWFkIFcgOyBkbw0KKwlTWj1gZWNobyAtbiAiJFciIHwg
+d2MgLWNgDQorCU49JE4rJFNaKzENCisJaWYgWyAkTiAtZ2UgJDEgXTsgdGhl
+bg0KKwkgICAgcHJpbnRmICdcblx0JXMnICIkVyINCisJICAgIE49JFNaKzgN
+CisJZWxzZQ0KKwkgICAgcHJpbnRmICcgJXMnICIkVyINCisJZmkNCisgICAg
+ZG9uZQ0KKyAgICBlY2hvDQorfQ0KKw0KK2Z1bmN0aW9uIGdldG1vZCgpIHsN
+CisgICAgdHIgLXMgJ1x0JyAnICcgPCAvcHJvYy9tb2R1bGVzIDI+IC9kZXYv
+bnVsbCAJXA0KKwl8IGN1dCAtZCAnICcgLWYgMQkJCQlcDQorCXwgc2VkICdz
+L14gKlwoW14gXS4qW14gXVwpICokL1wxLycJCVwNCisJfCBzb3J0IC1mCQkJ
+CQlcDQorCXwgdHIgLXMgJ1xuJyAnICcNCit9DQorDQorZnVuY3Rpb24gZW5j
+b2RlKCkgew0KKyAgICBpZiBbIC16ICIkMSIgXTsgdGhlbg0KKwljYXQNCisg
+ICAgZWxzZQ0KKwlzZWQgJ3MvJyJgcHJpbnRmICdcMDMzJ2AiJ1xbWzAtOTtd
+Km0vL2cnDQorICAgIGZpDQorfQ0KKw0KK2Z1bmN0aW9uIGdldHZzbigpIHsN
+CisgICAgbG9jYWwgQ01EIElURU0gUkVTIFNUQVQgVlNODQorDQorICAgIGNh
+dCA8PC0uRU9GDQorCVRoZSBzdGF0dXMgb2YgdGhlIHN1YnN5c3RlbXMgbmVl
+ZGVkIHRvIHVzZSB0aGUgYGtlcm5lbGAga2VybmVsIGFyZToNCisNCisJLkVP
+Rg0KKyAgICBwcmludGYgJyUtMjVzICUtMTZzICAgICAlc1xuJyAJCQkJXA0K
+KwknU3Vic3lzdGVtJwkgICAgICdSZXF1aXJlZCcgICAgICdJbnN0YWxsZWQn
+IAlcDQorCSd+fn5+fn5+fn5+fn5+fn5+fn4nICd+fn5+fn5+fn5+fn4nICd+
+fn5+fn5+fn5+fn5+Jw0KKyAgICBwcmVwYXJlIHwgd2hpbGUgcmVhZCBJVEVN
+IFZTTiBDTUQgOyBkbw0KKwlleHBvcnQgQ01EPWBlY2hvICIkQ01EIiB8IHRy
+ICdfJyAnICdgDQorCWV4cG9ydCBJVEVNPWBlY2hvICIkSVRFTSIgfCB0ciAn
+XycgJyAnYA0KKwlleHBvcnQgUkVTPWBwcm9jZXNzICIkQ01EImANCisJZXhw
+b3J0IFNUQVQ9YHN0YXR1cyAiJFZTTiIgIiRSRVMiYA0KKwlwcmludGYgJ1ww
+MzNbMTslc20lLTI1c1wwMzNbMG0gJS0xNnMgPD0gICVzXG4nICIkU1RBVCIg
+IiRJVEVNIiAiJFZTTiIgIiRSRVMiIFwNCisJCXwgZW5jb2RlICIkMSINCisg
+ICAgZG9uZQ0KKyAgICBwcmludGYgJyUtMjVzICUtMTZzICAgICAlc1xuXG4n
+IAkJCQlcDQorCSd+fn5+fn5+fn5+fn5+fn5+fn4nICd+fn5+fn5+fn5+fn4n
+ICd+fn5+fn5+fn5+fn5+Jw0KKyAgICBpZiBbIC16ICIkMSIgXTsgdGhlbg0K
+KwlwcmludGYgJ0NvbG91cnMgdXNlZCBpbiB0aGUgYWJvdmUgdGFibGUgYXJl
+IGFzIGZvbGxvd3M6XG5cbicNCisJcHJpbnRmICdcMDMzWzE7MzVtTUFHRU5U
+QVwwMzNbMG0gPSBQYWNrYWdlIGlzIG5vdCBpbnN0YWxsZWQuIElzIGl0IG5l
+ZWRlZD9cblxuJw0KKwlwcmludGYgJ1wwMzNbMTszMW0gIFJFRCAgXDAzM1sw
+bSA9IEluc3RhbGxlZCB2ZXJzaW9uIG9mIHBhY2thZ2UgaXMgdG9vIG9sZCwg
+dXBncmFkZS5cbicNCisJcHJpbnRmICdcMDMzWzE7MzJtIEdSRUVOIFwwMzNb
+MG0gPSBJbnN0YWxsZWQgdmVyc2lvbiBvZiBwYWNrYWdlIGlzIHJlcXVpcmVk
+IHZlcnNpb24uXG4nDQorCXByaW50ZiAnXDAzM1sxOzMzbSBBTUJFUiBcMDMz
+WzBtID0gSW5zdGFsbGVkIHZlcnNpb24gb2YgcGFja2FnZSBpcyBuZXdlci5c
+blxuJw0KKyAgICBmaQ0KK30NCisNCitmdW5jdGlvbiBoZWFkZXIoKSB7DQor
+ICAgIGNhdCA8PC0uRU9GDQorCWBiYXNlbmFtZSAiJDAiYCAxLjAuMCBMaW51
+eCBLZXJuZWwgVmVyc2lvbiBEZXBlbmRhbmN5IEFuYWx5c2VyDQorCUNvcHly
+aWdodCAoQykgMjAwMSwgTWVtb3J5IEFscGhhIFN5c3RlbXMsDQorCVJlbGVh
+c2VkIHVuZGVyIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5jZSwgdjIu
+DQorDQorCS5FT0YNCit9DQorDQorZnVuY3Rpb24ga2VybmVsKCkgew0KKyAg
+ICBsb2NhbCBBIEIgQyBEDQorDQorICAgIGhlYWQgLTUgTWFrZWZpbGUJCQlc
+DQorCXwgZmdyZXAgPQkJCVwNCisJfCBjdXQgLWQgPSAtZiAyIAkJXA0KKwl8
+IHRyICdcbicgJyAnCQkJXA0KKwl8ICggY2F0IDsgZWNobyApCQlcDQorCXwg
+d2hpbGUgcmVhZCBBIEIgQyBEIDsgZG8NCisJCWlmIFsgLXogIiREIiBdOyB0
+aGVuDQorCQkgICAgZWNobyAkQS4kQi4kQw0KKwkJZWxzZQ0KKwkJICAgIGVj
+aG8gJEEuJEIuJEMtJEQNCisJCWZpDQorICAgIGRvbmUNCit9DQorDQorZnVu
+Y3Rpb24gbW9kdWxlcygpIHsNCisgICAgbG9jYWwgTT1gZ2V0bW9kYA0KKw0K
+KyAgICBwcmludGYgJ1RoZSBmb2xsb3dpbmcgbW9kdWxlcyBhcmUgaW5zdGFs
+bGVkOlxuJw0KKyAgICBpZiBbIC1uICIkTSIgXTsgdGhlbg0KKwlwcmludGYg
+JyVzXG4nICRNIHwgZGlzcGxheSA3Mw0KKwllY2hvDQorICAgIGZpDQorfQ0K
+Kw0KK2Z1bmN0aW9uIHByZXBhcmUoKSB7DQorICAgIGdyZXAgJyNbXiNdKiMn
+IERvY3VtZW50YXRpb24vQ2hhbmdlcwkJCVwNCisJfCBzb3J0IC1mCQkJCQkJ
+XA0KKwl8IHRyIC1zICdcdCAnICdfJwkJCQkJXA0KKwl8IHNlZCAncy9eb18q
+XCguKlwpXyNfXCguKlwpXyNfXCguKlwpJC9cMSBcMiBcMy8nDQorfQ0KKw0K
+K2Z1bmN0aW9uIHByb2Nlc3MoKSB7DQorICAgIGxvY2FsIFgNCisNCisgICAg
+ZXZhbCAiJDEiIDI+JjEJCQlcDQorCXwgaGVhZCAtMQkJCVwNCisJfCB0ciAt
+Y3MgJzAtOS5BLVphLXonICdcbicJXA0KKwl8IGdyZXAgJ1swLTldXC5bMC05
+XScJCVwNCisJfCB0YWlsIC0xDQorfQ0KKw0KK2Z1bmN0aW9uIHN0YXR1cygp
+IHsNCisgICAgbG9jYWwgRklSU1QNCisNCisgICAgaWYgWyAteiAiJDIiIF07
+IHRoZW4NCisJZWNobyAzNQ0KKyAgICBlbGlmIFsgIiQxIiAhPSAiJDIiIF07
+IHRoZW4NCisJRklSU1Q9YHByaW50ZiAnJXNcbicgIiQxIiAiJDIiIHwgc29y
+dCAtbiB8IGhlYWQgLTFgDQorCWlmIFsgIiRGSVJTVCIgIT0gIiQyIiBdOyB0
+aGVuDQorCSAgICBlY2hvIDMzDQorCWVsc2UNCisJICAgIGVjaG8gMzENCisJ
+ZmkNCisgICAgZWxzZQ0KKwllY2hvIDMyDQorICAgIGZpDQorfQ0KKw0KK2hl
+YWRlcg0KK21vZHVsZXMNCitnZXR2c24gIiRAIg0KLS0tIGxpbnV4L01ha2Vm
+aWxlfglUaHUgRmViIDIyIDAwOjU0OjE1IDIwMDENCisrKyBsaW51eC9NYWtl
+ZmlsZQlXZWQgTWFyIDE0IDA5OjA3OjM2IDIwMDENCkBAIC0yMzksNiArMjM5
+LDE0IEBADQogVmVyc2lvbjogZHVtbXkNCiAJQHJtIC1mIGluY2x1ZGUvbGlu
+dXgvY29tcGlsZS5oDQogDQordnNuOg0KKwljaG1vZCA3NTUgc2NyaXB0cy9L
+bmxWc24NCisJc2NyaXB0cy9LbmxWc24NCisNCit2c25idzoNCisJY2htb2Qg
+NzU1IHNjcmlwdHMvS25sVnNuDQorCXNjcmlwdHMvS25sVnNuIGJ3DQorDQog
+Ym9vdDogdm1saW51eA0KIAlAJChNQUtFKSBDRkxBR1M9IiQoQ0ZMQUdTKSAk
+KENGTEFHU19LRVJORUwpIiAtQyBhcmNoLyQoQVJDSCkvYm9vdA0KIA0K
+---842912328-942955428-984566393=:26570--

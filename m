@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264940AbTARQt0>; Sat, 18 Jan 2003 11:49:26 -0500
+	id <S264936AbTARQsA>; Sat, 18 Jan 2003 11:48:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264943AbTARQtZ>; Sat, 18 Jan 2003 11:49:25 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5609 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S264940AbTARQtP>; Sat, 18 Jan 2003 11:49:15 -0500
-Date: Sat, 18 Jan 2003 17:58:09 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-scsi@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] small cleanup in drivers/scsi/i91uscsi.h
-Message-ID: <20030118165809.GH10647@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S264938AbTARQsA>; Sat, 18 Jan 2003 11:48:00 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18180 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264936AbTARQr6>; Sat, 18 Jan 2003 11:47:58 -0500
+To: LKML <linux-kernel@vger.kernel.org>
+From: Russell King <rmk@arm.linux.org.uk>
+Subject: [PATCH] 2.5.59: show_task() oops
+Message-Id: <E18ZwHB-0007kw-00@flint.arm.linux.org.uk>
+Date: Sat, 18 Jan 2003 16:56:57 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below does the follwojng small updates in 
-drivers/scsi/i91uscsi.h:
-- remove #if for kernel 2.0
-- remove unused #define TRUE/FALSE
+show_task() attempts to calculate the amount of free space which hasn't
+been written to on the kernel stack by reading from the base of the
+kernel stack upwards.
 
-cu
-Adrian
+However, it mistakenly uses the task_struct pointer as the base of the
+stack, which it isn't, and this can cause an oops.
 
---- linux-2.5.59-full/drivers/scsi/i91uscsi.h.old	2003-01-18 17:53:01.000000000 +0100
-+++ linux-2.5.59-full/drivers/scsi/i91uscsi.h	2003-01-18 17:53:55.000000000 +0100
-@@ -70,12 +70,6 @@
- #ifndef NULL
- #define NULL     0		/* zero          */
+Here is a patch which uses the task thread pointer instead, which should
+be located at the bottom of the kernel stack.  It appears this was missed
+when the thread structure was introduced.
+
+--- orig/kernel/sched.c	Fri Jan 17 10:39:25 2003
++++ linux/kernel/sched.c	Sat Jan 18 14:01:39 2003
+@@ -2057,7 +2057,7 @@
+ 		printk(" %016lx ", thread_saved_pc(p));
  #endif
--#ifndef TRUE
--#define TRUE     (1)		/* boolean true  */
--#endif
--#ifndef FALSE
--#define FALSE    (0)		/* boolean false */
--#endif
- #ifndef FAILURE
- #define FAILURE  (-1)
- #endif
-@@ -597,11 +591,9 @@
- 	TCS HCS_Tcs[MAX_TARGETS];	/* 78 */
- 	ULONG pSRB_head;	/* SRB save queue header     */
- 	ULONG pSRB_tail;	/* SRB save queue tail       */
--#if LINUX_VERSION_CODE >= CVT_LINUX_VERSION(2,1,95)
- 	spinlock_t HCS_AvailLock;
- 	spinlock_t HCS_SemaphLock;
- 	spinlock_t pSRB_lock;	/* SRB queue lock            */
--#endif
- } HCS;
- 
- /* Bit Definition for HCB_Config */
+ 	{
+-		unsigned long * n = (unsigned long *) (p+1);
++		unsigned long * n = (unsigned long *) (p->thread_info+1);
+ 		while (!*n)
+ 			n++;
+ 		free = (unsigned long) n - (unsigned long)(p+1);
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,41 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129231AbQKAQsx>; Wed, 1 Nov 2000 11:48:53 -0500
+	id <S129662AbQKAQ5N>; Wed, 1 Nov 2000 11:57:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129234AbQKAQsn>; Wed, 1 Nov 2000 11:48:43 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:6208 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129231AbQKAQs3>; Wed, 1 Nov 2000 11:48:29 -0500
-Date: Wed, 1 Nov 2000 17:48:16 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Yann Dirson <ydirson@altern.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
-        riel@nl.linux.org, andrea@e-mind.com
-Subject: Re: Looking for better 2.2-based VM (do_try_to_free_pages fails, machine hangs)
-Message-ID: <20001101174816.A18510@athlon.random>
-In-Reply-To: <20001101133307.A10265@bylbo.nowhere.earth> <Pine.LNX.4.21.0011010940450.2774-100000@freak.distro.conectiva> <20001101174339.A1167@bylbo.nowhere.earth>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001101174339.A1167@bylbo.nowhere.earth>; from ydirson@altern.org on Wed, Nov 01, 2000 at 05:43:39PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S129739AbQKAQ4y>; Wed, 1 Nov 2000 11:56:54 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:54770 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129662AbQKAQ4u>; Wed, 1 Nov 2000 11:56:50 -0500
+Date: Wed, 1 Nov 2000 14:56:18 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Jonathan George <Jonathan.George@trcinc.com>
+cc: "'matthew@mattshouse.com'" <matthew@mattshouse.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: 2.4.0-test10 Sluggish After Load
+In-Reply-To: <790BC7A85246D41195770000D11C56F21C847C@trc-tpaexc01.trcinc.com>
+Message-ID: <Pine.LNX.4.21.0011011440390.11112-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 01, 2000 at 05:43:39PM +0100, Yann Dirson wrote:
-> However, the OOM killer behaves in strange ways, it seems.  In the 2 "make
+On Wed, 1 Nov 2000, Jonathan George wrote:
 
-Fair enough as there isn't an oom killer in the kernel you're running :).
-So it can kill unlucky tasks as well.
+> It sounded to me as if his machine never actually recovered from
+> thrashing.
 
-Since nobody cares to implement it, for 2.4.x on my TODO list there's an
-alternative oom killer based on the task fault rate.
+That's the nature of thrashing ... nothing in the system
+is able to make any progress, hence it takes ages until
+the situation changes...
 
-(btw, make sure you're using the -7 revision of the VM-global patch, as it
-includes the same MM corruption bugfix that is been included into 18pre18)
+> Futhermore, even a thrashing case on a machine like that
+> shouldn't last for more than about 10 minutes.  It would be
+> interesting to contrast FreeBSD's behavior if "simple" cleanup
+> was the problem.
 
-Andrea
+FreeBSD has 2 methods of thrashing control. Current Linux 2.4
+VM has none. I have been experimenting with some thrashing
+control stuff here, but haven't gotten anything clean and
+obviously right yet...
+
+> BTW, I think that everyone is happy with the direction of the
+> new VM.  I'm looking forward to your upcoming enhancements which
+> I hope will make it in to a later 2.4 release.
+
+I'm working on it. I have no idea if it'll be ready in time
+for other 2.4 releases ... maybe stuff will be there, maybe
+it'll be 2.5 work.
+
+Of course, this also depends on the amount of people willing
+to test out new VM patches and/or help with development.
+
+Now that the 2.4 tree is frozen, I'll periodically upload new
+patches to my home page for people to test. I don't want to
+touch 2.4 except with the most trivial fixes, and accumulate
+a big set of more invasive improvements for 2.5.
+
+The URL where I (after I return from .nl in 2 weeks) will put
+my VM patches:
+
+	http://www.surriel.com/patches/
+
+regards,
+
+Rik
+--
+"What you're running that piece of shit Gnome?!?!"
+       -- Miguel de Icaza, UKUUG 2000
+
+http://www.conectiva.com/		http://www.surriel.com/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

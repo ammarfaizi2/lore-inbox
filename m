@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287386AbSAaAlH>; Wed, 30 Jan 2002 19:41:07 -0500
+	id <S289369AbSAaAnH>; Wed, 30 Jan 2002 19:43:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290775AbSAaAk5>; Wed, 30 Jan 2002 19:40:57 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8972 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S287386AbSAaAku>; Wed, 30 Jan 2002 19:40:50 -0500
-Date: Thu, 31 Jan 2002 00:40:41 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-mips@oss.sgi.com,
-        Linux ARM mailing list 
-	<linux-arm-kernel@lists.arm.linux.org.uk>
-Subject: Re: [PATCH] Migration to input api for keyboards
-Message-ID: <20020131004041.K19292@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.10.10201301553260.7609-100000@www.transvirtual.com>
+	id <S290775AbSAaAm5>; Wed, 30 Jan 2002 19:42:57 -0500
+Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:31639 "EHLO
+	harrier.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S289369AbSAaAmq>; Wed, 30 Jan 2002 19:42:46 -0500
+Date: Wed, 30 Jan 2002 19:46:34 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18pre7aa1
+Message-ID: <20020131004634.GA160@earthlink.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10201301553260.7609-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Wed, Jan 30, 2002 at 04:13:40PM -0800
+User-Agent: Mutt/1.3.27i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 04:13:40PM -0800, James Simmons wrote:
->    As some on you know the input api drivers for the PS/2 keyboard/mice
-> have gone into the dj tree for 2.5.X. I need people on other platforms
-> besides ix86 to test it out. I made the following patch that forces the
-> use of the new input drivers so people can test it. Shortly this patch
-> will be placed into the DJ tree but before I do this I want to make sure
-> it works for all platforms. Here is the patch to do this. Thank you.  
+Historical changelog for 2.4.18pre7aa1 at:
+http://home.earthlink.net/~rwhron/kernel/2.4.18pre7aa1.html
 
-Oops.
+Benchmarks on 2.4.18pre7aa1 and other kernels at:
+http://home.earthlink.net/~rwhron/kernel/k6-2-475.html
 
-> +CONFIG_SERIO_I8042=y
-> +CONFIG_I8042_REG_BASE=60
-> +CONFIG_I8042_KBD_IRQ=1
-> +CONFIG_I8042_AUX_IRQ=12
+On Fri, Jan 25, 2002 at 06:29:01PM +0100, Dave Jones wrote:
+>  > The -aa kernel seems to contain patches to a few dozen subsystems.
+>
+>  Agreed. Andrea's tree seemed to gain quite a bit of a lead
+>  when bits of the lowlat patches were applied for eg.
+>  Just taking 00_vm_?? from ../people/andrea/.. would give better
+>  comparison
 
-Out of those 3 ARM machines, only 1 or maybe 2 has an 8042-compatible
-port.
+Several of Andrea's patches touch the core VM files.  Deciding
+what to include, and the order to apply them would take some
+effort, know how, and good judgement.
 
-CONFIG_PC_KEYB != i8042 controller present.  Please look more closely
-at stuff in include/asm-arm/arch-*/keyboard.h
+If someone provides a list of the patches to apply in the
+proper order, I will run the tests.  
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Randy Hron
 

@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313201AbSE2C5F>; Tue, 28 May 2002 22:57:05 -0400
+	id <S313202AbSE2DNX>; Tue, 28 May 2002 23:13:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313202AbSE2C5E>; Tue, 28 May 2002 22:57:04 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:38894 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S313201AbSE2C5D>; Tue, 28 May 2002 22:57:03 -0400
-Subject: Re: [PATCH] updated O(1) scheduler for 2.4
-From: Robert Love <rml@mvista.com>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020524160223.GA1761@werewolf.able.es>
-Content-Type: text/plain
+	id <S313238AbSE2DNW>; Tue, 28 May 2002 23:13:22 -0400
+Received: from relay02.valueweb.net ([216.219.253.236]:23059 "EHLO
+	relay02.valueweb.net") by vger.kernel.org with ESMTP
+	id <S313202AbSE2DNW>; Tue, 28 May 2002 23:13:22 -0400
+Message-ID: <3CF446D1.684250F2@opersys.com>
+Date: Tue, 28 May 2002 23:11:13 -0400
+From: Karim Yaghmour <karim@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: Mark Mielke <mark@mark.mielke.cc>
+CC: Roman Zippel <zippel@linux-m68k.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        yodaiken@fsmlabs.com, linux-kernel@vger.kernel.org
+Subject: Re: A reply on the RTLinux discussion.
+In-Reply-To: <Pine.LNX.4.21.0205281702540.17583-100000@serv> <1022604318.4123.114.camel@irongate.swansea.linux.org.uk> <3CF42179.29A2CAED@linux-m68k.org> <20020528213457.A22540@mark.mielke.cc>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 28 May 2002 19:57:00 -0700
-Message-Id: <1022641021.23427.329.camel@sinai>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-05-24 at 09:02, J.A. Magallon wrote:
 
-> I had to make this to get it built:
-> <snip>
+Mark Mielke wrote:
+> The only real argument I have seen from RTAI folk is that Victor isn't
+> being a proper Open Source priest. This may annoy other Open Source
+> priests, but it does not affect my own opinion of the man. I find the
+> 'Open Source' religion to have no future.
 
-Thanks, I have put these changes into the 2.4.19-pre9 version of the
-patch which is available at:
+This is not the argument put forth, but this is definitely where the
+political line falls: You either believe in open source or you don't.
+No one has summarized this better than Victor:
 
-	http://www.kernel.org/pub/linux/kernel/people/rml/sched/ingo-O1/sched-O1-rml-2.4.19-pre9-1.patch
+"The GPL/RTLinux work that we do loses money -- actually, we budget it
+under "marketing"."
 
-Hopefully Alan will put out a 2.4.19-pre9-ac1 with the last of the bits
-I pushed him.
+Regardless of which side of the political spectrum you find yourself,
+ask yourself this question:
+Do I want to be part of Victor's marketing team?
 
-	Robert Love
+Karim
 
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

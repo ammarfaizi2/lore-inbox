@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269270AbTGOSQu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 14:16:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269291AbTGOSQt
+	id S269269AbTGOSRn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 14:17:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269242AbTGOSRF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 14:16:49 -0400
-Received: from gandalf.avalon.ru ([195.209.229.227]:40251 "EHLO smtp.avalon.ru")
-	by vger.kernel.org with ESMTP id S269270AbTGOSQa convert rfc822-to-8bit
+	Tue, 15 Jul 2003 14:17:05 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:40851 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S269269AbTGOSQp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 14:16:30 -0400
-content-class: urn:content-classes:message
+	Tue, 15 Jul 2003 14:16:45 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Partitioned loop device..
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Date: Tue, 15 Jul 2003 22:32:11 +0400
-Message-ID: <E1B7C89B8DCB084C809A22D7FEB90B3840AB@frodo.avalon.ru>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Partitioned loop device..
-Thread-Index: AcNK40qD45bUrwpqSkeeJoV6uaWu1QAGtyEQ
-From: "Dimitry V. Ketov" <Dimitry.Ketov@avalon.ru>
-To: "Kevin Corry" <kevcorry@us.ibm.com>, <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16148.18566.453629.455800@laputa.namesys.com>
+Date: Tue, 15 Jul 2003 22:31:34 +0400
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: utimes/futimes/lutimes syscalls
+In-Reply-To: <20030714121657.GB21817@louise.pinerecords.com>
+References: <3F0F9B0C.10604@redhat.com>
+	<20030711224210.6fee6a73.akpm@osdl.org>
+	<16146.24474.707720.580442@laputa.namesys.com>
+	<20030714121657.GB21817@louise.pinerecords.com>
+X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You can already use Device-Mapper to create "partitions" on 
-> your loop devices, 
-You're right but I want _partitions_ but not "partitions" ;)
-It should appears like a real hardware disk, not virtual one.
+Tomas Szepe writes:
+ > > [Nikita@Namesys.COM]
+ > > 
+ > > so does reiser4.
+ > 
+ > Speaking of which, when is reiser4 going to be ready?
 
-> so there's not much of a reason to add partitioning support 
-> to the loop 
-> driver itself.
-There is a reason for teaching my students indeed :) that is why I ask.
+Real soon now.
 
-> There are a variety of tools you can use to 
-> set them up: EVMS, 
-> LVM2, dmsetup, and I think there is/was a simple partitioning 
-> tool that uses 
-> DM (dmpartx?). 
-It's just completely different topic for the teaching ;)
+Latest benchmark results are available at the
+http://namesys.com/intbenchmarks/mongo/03.07.11.light/short.html
+
+we still have problems with delete performance, but in three to ten days
+reiser4 will be released to the public testing.
+
+ > 
+ > -- 
+ > Tomas Szepe <szepe@pinerecords.com>
+
+Nikita.

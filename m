@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266158AbRG1CDt>; Fri, 27 Jul 2001 22:03:49 -0400
+	id <S267960AbRG0Rjj>; Fri, 27 Jul 2001 13:39:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266176AbRG1CDj>; Fri, 27 Jul 2001 22:03:39 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:30738 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S266158AbRG1CDb>; Fri, 27 Jul 2001 22:03:31 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Roger Larsson <roger.larsson@norran.net>, linux-mm@kvack.org
-Subject: Re: [PATCH] MAX_READAHEAD gives doubled throuput
-Date: Sat, 28 Jul 2001 04:08:17 +0200
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200107280144.DAA25730@mailb.telia.com>
-In-Reply-To: <200107280144.DAA25730@mailb.telia.com>
+	id <S268905AbRG0Rj3>; Fri, 27 Jul 2001 13:39:29 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25610 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S267960AbRG0RjV>; Fri, 27 Jul 2001 13:39:21 -0400
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+To: vherva@mail.niksula.cs.hut.fi (Ville Herva)
+Date: Fri, 27 Jul 2001 18:40:32 +0100 (BST)
+Cc: kmacy@netapp.com (Kip Macy), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (kernel)
+In-Reply-To: <20010727202950.I1503@niksula.cs.hut.fi> from "Ville Herva" at Jul 27, 2001 08:29:50 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Message-Id: <0107280408170Z.00285@starship>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15QBbE-00068M-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Saturday 28 July 2001 03:40, Roger Larsson wrote:
-> Hi all,
->
-> Got wondering why simultaneous streaming is so much slower than
-> normal...
->
-> Are there any reasons nowadays why we should not attempt to read
-> ahead more than 31 pages at once?
->
-> 31 pages equals 0.1 MB, it is read from the HD in 4 ms => very close
-> to the average access times. Resulting in a maximum of half the
-> possible speed.
->
-> With this patch copy and diff throughput are increased from 14
-> respective 11 MB/s to 27 and 28 !!!
+> After fresh boot to the default RH71 kernel (2.4.2-2 or whatever it is) on
+> console (no X running):
+> 
+> > diff -Naur /usr/src/linux.rh-default /usr/src/linux-2.4.4 > diff
+> zsh: killed diff
+> 
+> > dmesg | tail
+> kernel: out of memory, killed process n (xfs)
+> kernel: out of memory, killed process n (diff)
+> 
+> Phew.
 
-Wheeeeee!  Out of interest, what are the numbers for 2.4.7 vs 
-2.4.8-pre1 ?
-
---
-Daniel
+No argument on that one. I'm still seeing it in vanilla 2.4.6 as well but
+2.4.7 is looking a lot better. 

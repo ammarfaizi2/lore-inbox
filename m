@@ -1,88 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262460AbVAPIcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262463AbVAPIxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262460AbVAPIcO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 03:32:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262463AbVAPIbN
+	id S262463AbVAPIxS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 03:53:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbVAPIxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 03:31:13 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:46096 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262460AbVAPI36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 03:29:58 -0500
-Date: Sun, 16 Jan 2005 09:29:54 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] SCSI megaraid_mm.c: make some code static (fwd) (fwd)
-Message-ID: <20050116082954.GO4274@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 16 Jan 2005 03:53:18 -0500
+Received: from ip18.tpack.net ([213.173.228.18]:32272 "HELO mail.tpack.net")
+	by vger.kernel.org with SMTP id S262463AbVAPIxQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 03:53:16 -0500
+Message-ID: <41EA2BE5.6080906@tpack.net>
+Date: Sun, 16 Jan 2005 09:55:01 +0100
+From: Tommy Christensen <tommy.christensen@tpack.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jmorris@redhat.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] audit: fixes in audit_log_drain()
+References: <41E9A25E.3010902@tpack.net>
+In-Reply-To: <41E9A25E.3010902@tpack.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch forwarded below still applies and compiles against
-2.6.11-rc1-mm1.
+Tommy Christensen wrote:
+> o Don't send shared skb's to netlink_unicast
 
-Please apply.
+Never mind. Herbert Xu made a better fix for this in netlink.
 
-
------ Forwarded message from Adrian Bunk <bunk@stusta.de> -----
-
-Date:	Tue, 21 Dec 2004 01:41:51 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [2.6 patch] SCSI megaraid_mm.c: make some code static (fwd)
-
-The patch forwarded below still applies and compiles against 
-2.6.10-rc3-mm1.
-
-Please apply.
-
-
-
------ Forwarded message from Adrian Bunk <bunk@stusta.de> -----
-
-Date:	Mon, 15 Nov 2004 03:14:57 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: James.Bottomley@SteelEye.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] SCSI megaraid_mm.c: make some code static
-
-The patch below makes some needlessly global code static.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm5-full/drivers/scsi/megaraid/megaraid_mm.c.old	2004-11-13 22:43:49.000000000 +0100
-+++ linux-2.6.10-rc1-mm5-full/drivers/scsi/megaraid/megaraid_mm.c	2004-11-13 22:43:58.000000000 +0100
-@@ -65,7 +65,7 @@
- static int adapters_count_g;
- static struct list_head adapters_list_g;
- 
--wait_queue_head_t wait_q;
-+static wait_queue_head_t wait_q;
- 
- static struct file_operations lsi_fops = {
- 	.open	= mraid_mm_open,
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
+-Tommy

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262788AbUDDU6s (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 16:58:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbUDDU6s
+	id S262796AbUDDVHo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 17:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262797AbUDDVHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 16:58:48 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:45745
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262788AbUDDU6r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 16:58:47 -0400
-Date: Sun, 4 Apr 2004 22:58:48 +0200
-From: Andrea Arcangeli <andrea@suse.de>
+	Sun, 4 Apr 2004 17:07:44 -0400
+Received: from mailgate4.cinetic.de ([217.72.192.167]:45186 "EHLO
+	mailgate4.cinetic.de") by vger.kernel.org with ESMTP
+	id S262796AbUDDVHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 17:07:43 -0400
+Message-ID: <40707888.80006@web.de>
+Date: Sun, 04 Apr 2004 23:05:12 +0200
+From: Marcus Hartig <m.f.h@web.de>
+Organization: Linux of Borgs
+User-Agent: Mozilla Thunderbird 0.5+ (X11/20040323)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.5-aa2
-Message-ID: <20040404205848.GL482@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Subject: Re: 2.6.5-aa1
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-URL:
+ > This fixes a tiny race in the recent mprotect merging code, here's the
+ > intradiff for review, plus it merges some nice lowlatency improvement
+ > from Takashi.
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-aa2.gz
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-aa2/
+Runs fine her with my GNOME 2.6 desktop. Fast like Speedy Gonzales.
+Good work.
 
-Changelog diff between 2.6.5-aa1 and 2.6.5-aa2:
+But now with the vanilla 2.6.5 and/or -aa1 my favourite game Enemy 
+Territory quits with "signal 11". With 2.6.5-rc3 it runs stable for hours.
 
-Files 2.6.5-aa1/anon-vma.gz and 2.6.5-aa2/anon-vma.gz differ
+No change in the kernel config, all with preempt, no CONFIG_REGPARM for 
+nVidia binary drivers is set, or other changes. But only when I want to 
+access the net server game browser in ET to play online! Only then bumm!
 
-	Merged Hugh Dickins's several fixes for non-x86/x86-64 archs.
+With 2.6.5-rc3 all runs fine. Amusingly, hmmm?
 
-Files 2.6.5-aa1/extraversion and 2.6.5-aa2/extraversion differ
-
-	Rediffed.
-
-Files 2.6.5-aa1/mprotect-vma-merging and 2.6.5-aa2/mprotect-vma-merging differ
-
-	Microsmpscalabilityoptimization, take anon_vma_lock after
-	__vma_modify(prev..).
-
-Only in 2.6.5-aa2: xfs-vmtruncate
-
-	Fix truncate to drop the mappings before removing the page from
-	pagecache (should fix the WARN_ON). From Nathan Scott.
+Marcus

@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262257AbTGALqO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 07:46:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbTGALqO
+	id S262254AbTGALny (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 07:43:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbTGALny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 07:46:14 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:37135 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S262257AbTGALqM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 07:46:12 -0400
-Subject: Re: [PATCH] patch-O1int-0306302317 for 2.5.73 interactivity
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200307011931.24586.kernel@kolivas.org>
-References: <200307010029.19423.kernel@kolivas.org>
-	 <200307010754.35804.kernel@kolivas.org>
-	 <1057049984.587.1.camel@teapot.felipe-alfaro.com>
-	 <200307011931.24586.kernel@kolivas.org>
-Content-Type: text/plain
-Message-Id: <1057060831.603.6.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 01 Jul 2003 14:00:32 +0200
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Jul 2003 07:43:54 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:32752 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S262254AbTGALnx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 07:43:53 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Fredrik Tolf <fredrik@dolda2000.cjb.net>, linux-kernel@vger.kernel.org
+Subject: Re: PTY DOS vulnerability?
+Date: Tue, 1 Jul 2003 06:57:49 -0500
+X-Mailer: KMail [version 1.2]
+References: <200306301613.11711.fredrik@dolda2000.cjb.net>
+In-Reply-To: <200306301613.11711.fredrik@dolda2000.cjb.net>
+MIME-Version: 1.0
+Message-Id: <03070106574900.01125@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-07-01 at 11:31, Con Kolivas wrote:
-> On Tue, 1 Jul 2003 18:59, Felipe Alfaro Solana wrote:
-> > I'm using 1000HZ. With respect to X, I haven't noticed any major
-> > difference. Should I? I haven't tested it under very heavy loads, but
-> > under normal workloads, it behaves a little better than its predecesors.
-> 
-> I'd say it would depend on the graphic card. On a sis630 even with a p3 1133 
-> it is embarassingly jerky under even the slightest of loads without my patch. 
-> However, it is as good now without the granularity patch as earlier with the 
-> granularity.
+On Monday 30 June 2003 09:18, Fredrik Tolf wrote:
+> Has someone considered PTYs as a possible attack vector for DOS
+> attacks? Correct me if I'm wrong, but cannot someone just open
+> all available PTYs on a console-less server and make everyone
+> unable to log in?
+>
+> I mean, what if eg. apache is hacked, and the first thing the
+> attacker does is to tie up all PTYs, so that noone can log in to
+> correct the situation while the attacker can go about his
+> business? Then the only possible solution would be to reboot the
+> server, which might very well not be desirable.
+>
+> If you want proof of concept code, look at
+> http://www.dolda2000.cjb.net/~fredrik/ptmx.c
+> I successfully ran this on one of my servers which effectively
+> disabled anyone from logging in via SSH.
+>
+> Shouldn't PTYs be a per-user resource limit?
+>
+> Someone must have thought of this before me, right? How am I
+> wrong?
 
-When I say "X feels jerky", I mean that I can notice the scheduler is
-not giving the X server enough CPU cycles (I mean, a continuous,
-smaller, but more frequent CPU timeslice) to perform window movement and
-redrawing fast enough to get ~25fps. Also, I don't think it's related to
-the video card. The combo patch I did with Mike's + Ingo's enhacements
-works beautifully for me.
+One problem is that ptys are not just "used by the user". Every terminal
+window opened uses a pty. As does a network connection.
 
+As does "expect" - which is less visible to the user since it is intended
+to be invisible.
+
+The real question is "how many PTYs should a single user have?"
+Which then prompts the question "How many concurrent users should there be?"
+
+second, just providing a user limit doesn't prevent a denial of service..
+Just have more connections than ptys and you are in the same situation.

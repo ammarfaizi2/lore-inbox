@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277954AbRJRSlL>; Thu, 18 Oct 2001 14:41:11 -0400
+	id <S277957AbRJRSnV>; Thu, 18 Oct 2001 14:43:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277957AbRJRSlC>; Thu, 18 Oct 2001 14:41:02 -0400
-Received: from web20901.mail.yahoo.com ([216.136.226.223]:36747 "HELO
-	web20901.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S277954AbRJRSkv>; Thu, 18 Oct 2001 14:40:51 -0400
-Message-ID: <20011018184124.57237.qmail@web20901.mail.yahoo.com>
-Date: Thu, 18 Oct 2001 11:41:24 -0700 (PDT)
-From: Ravi Chamarti <ravi_chamarti@yahoo.com>
-Subject: Re: Ref: zerocopy +netfilter performance problem.
-To: kuznet@ms2.inr.ac.ru, Ravi Chamarti <ravi_chamarti@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200110171818.WAA22378@ms2.inr.ac.ru>
+	id <S277966AbRJRSnO>; Thu, 18 Oct 2001 14:43:14 -0400
+Received: from cx552039-a.elcjn1.sdca.home.com ([24.177.44.17]:49026 "EHLO
+	tigger.unnerving.org") by vger.kernel.org with ESMTP
+	id <S277957AbRJRSlu>; Thu, 18 Oct 2001 14:41:50 -0400
+Date: Thu, 18 Oct 2001 11:42:05 -0700 (PDT)
+From: Gregory Ade <gkade@bigbrother.net>
+X-X-Sender: <gkade@tigger.unnerving.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.2.x process limits (NR_TASKS)?
+Message-ID: <Pine.LNX.4.33.0110181139380.30308-100000@tigger.unnerving.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Thanks for your response Alexey. I appreciate it. 
+We're running into what appears to be a 256-process-per-user limit on one
+of our webservers, due to the number of processes running as a specific
+user for our application.  I'd like to increase the process limit, and
+*THINK* that to do so i need to increase NR_TASKS in
+/usr/src/linux/include/linux/tasks.h.
 
---- kuznet@ms2.inr.ac.ru wrote:
-> Hello!
-> 
-> > My question is that is this copy is required for
-> > netfilter to work? Do we somehow get around
-> > with netfilter to work such that the zerocopy path
-> > passes the packet without any copy?
-> 
-> Yes & yes.
-> 
-> Existing netfilter modules do not understand
-> fragmented skbs,
-> and as soon as netfilter folks are lazy even to move
-> the check
-> to relevant modules, even smart hooks has to be
-> harmed by this.
+Is this correct?  What other things do I need to watch out for when making
+this modification?
 
-How many netfilter modules exist which do not
-understand fragmented skbs and need to look at the
-skb data? 
+Also, where can this limit be changed in 2.4.x?
 
-Will the following approach work? 
+Thanks ahead of time.
 
-if the somehow hook register shows interest only in
-header (by setting a flag, may be in nf_hooks_ops 
-struct), then we can avoid the copy of the fragmented
-skb's data and all other cases, we copy fragmented
-skb's data to a kernel buffer. The side effect is that
-a flag field is introduced into nf_hook_ops struct
-which makes netfilter modules to recompile. Are there
-any other side affects or better approaches?
+- -- 
+Gregory K. Ade <gkade@unnerving.org>
+http://unnerving.org/~gkade
+OpenPGP Key ID: EAF4844B  keyserver: pgpkeys.mit.edu
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7zyKJeQUEYOr0hEsRAp6PAJ4lkIEGskwko9xrbhJuiU1kyhdLTgCgryc9
+UnP+9CzAwfM9nIgluW36yLY=
+=xuPV
+-----END PGP SIGNATURE-----
 
 
-regards
-Ravi Chamarti
-
-
-__________________________________________________
-Do You Yahoo!?
-Make a great connection at Yahoo! Personals.
-http://personals.yahoo.com

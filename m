@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264795AbUDWM1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264788AbUDWM3U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264795AbUDWM1R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 08:27:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264797AbUDWM1R
+	id S264788AbUDWM3U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 08:29:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264797AbUDWM3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 08:27:17 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:42880 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264795AbUDWM1H
+	Fri, 23 Apr 2004 08:29:20 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:33296 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S264788AbUDWM2B
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 08:27:07 -0400
-Date: Fri, 23 Apr 2004 08:29:37 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Andrew McGregor <andrew@indranet.co.nz>
-cc: Guennadi Liakhovetski <gl@dsa-ac.de>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [somewhat OT] binary modules agaaaain
-In-Reply-To: <5137757.1082762917@[192.168.1.249]>
-Message-ID: <Pine.LNX.4.53.0404230812190.2732@chaos>
-References: <Pine.LNX.4.33.0404201705510.1869-100000@pcgl.dsa-ac.de>
- <5137757.1082762917@[192.168.1.249]>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 Apr 2004 08:28:01 -0400
+Date: Fri, 23 Apr 2004 22:27:38 +1000
+To: Pavel Machek <pavel@suse.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SOFTWARE_SUSPEND as a module
+Message-ID: <20040423122738.GA12504@gondor.apana.org.au>
+References: <20040422120417.GA2835@gondor.apana.org.au> <20040423005617.GA414@elf.ucw.cz> <20040423093836.GA10550@gondor.apana.org.au> <20040423122123.GG976@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040423122123.GG976@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Apr 2004, Andrew McGregor wrote:
-
-> And it must, if only because there are laws that require some device
-> drivers to be binary only.
-
-
-WRONG.  I work in the industry. There are no such rule(s). In fact,
-it's quite the opposite. Anything that is FCC Type Accepted or
-Type Approved has, as a matter of law, its complete design
-information, to the extent required for FCC Type Acceptance,
-available for public inspection in the Public Reference Room.
-Therefore, it can't be hidden as something "proprietary".
-
+On Fri, Apr 23, 2004 at 02:21:23PM +0200, Pavel Machek wrote:
 >
-> I kid you not, take a look at the FCC software radio rules.  Some wireless
-> cards fall into their definition.
->
+> > The point of this is to allow inclusion in distribution kernels where
+> > block devices are built as modules.
+> 
+> What's the problem with block devices as module? You need to insmod
+> before resume?
 
-The requirement that the devices "not be modified" has been interpreted
-by some to mean that software can't be supplied to the end-user. This
-is an interpretation and, in fact, an invalid one.
+Exactly.
 
-If a user were to modify the device, (presumably by changing the
-software) it is no longer Type Approved in the case of receivers,
-and, if a transmitter the modification must be done in accordance
-with "good standards of engineering practice" under the authority
-of a holder of a General Radiotelephone (or Radiotelegraph) License.
+> If you really ensure userspace is stopped, you should be fine.
+> 
+> *But* kernel is only correct if userspace is "correct", and need for
+> all processes stopped is not going to be obvious to users. I'd like
+> kernel to be kernel to be okay regardless what stupid stuff happens in
+> userspace. (Well, they really should not scribble on disks).
 
-The operation of a receiver that is not "Type Approved" is not
-unlawful unless it produces "harmful interference". Type Approval
-was necessary to SELL a device that generates radio frequency
-energy, not to use it.
+But in this context if user space is not doing the right thing,
+you'll lose whatever the kernel does.  For example, if user space
+writes to any file systems mounted in the suspended image, then
+you'll get corruption no matter what the kernel does.
 
-FYI Amateur Radio Operators make receivers and transmitters. They
-are not Type Approved. Holders of FCC Radiotelephone licenses are
-allowed to make or modify even 50,000 watt broadcast transmitters.
+This module is not meant to be loaded directly by users.  It's only
+meant to be used by system initrd scripts.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
-            Note 96.31% of all statistics are fiction.
+> And here's diff between my tree and mainline.. so that you work on
+> current sources.
 
-
+Thanks.
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

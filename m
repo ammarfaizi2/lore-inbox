@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319069AbSIJHqb>; Tue, 10 Sep 2002 03:46:31 -0400
+	id <S319076AbSIJHwn>; Tue, 10 Sep 2002 03:52:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319070AbSIJHqb>; Tue, 10 Sep 2002 03:46:31 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15813 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S319069AbSIJHqa>; Tue, 10 Sep 2002 03:46:30 -0400
-Date: Tue, 10 Sep 2002 09:51:13 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Ingo Molnar <mingo@elte.hu>, <jffs-dev@axis.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.34
-In-Reply-To: <Pine.LNX.4.33.0209091049180.11925-100000@penguin.transmeta.com>
-Message-ID: <Pine.NEB.4.44.0209100947310.11139-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319071AbSIJHwn>; Tue, 10 Sep 2002 03:52:43 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:62147 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S319070AbSIJHwm>;
+	Tue, 10 Sep 2002 03:52:42 -0400
+Date: Tue, 10 Sep 2002 00:55:58 -0700 (PDT)
+From: Jeremy Higdon <jeremy@classic.engr.sgi.com>
+Message-Id: <10209100055.ZM65139@classic.engr.sgi.com>
+In-Reply-To: Patrick Mansfield <patmans@us.ibm.com>
+        "Re: [RFC] Multi-path IO in 2.5/2.6 ?" (Sep  9,  5:08pm)
+References: <patmans@us.ibm.com> 
+	<200209091734.g89HY5p11796@localhost.localdomain> 
+	<20020909170847.A24352@eng2.beaverton.ibm.com>
+X-Mailer: Z-Mail (3.2.3 08feb96 MediaMail)
+To: Patrick Mansfield <patmans@us.ibm.com>,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
+Cc: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Sep 2002, Linus Torvalds wrote:
-
->...
-> Ingo Molnar <mingo@elte.hu>:
->...
->   o shared thread signals
->...
-
-FYI:
-
-This change broke the compilation of JFFS:
-
-<--  snip  -->
-
-...
-  gcc -Wp,-MD,./.intrep.o.d -D__KERNEL__
--I/home/bunk/linux/kernel-2.5/linux-2.5
-.34-full/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
--fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=k6 -nostdinc -iwithprefix include    -DKBUILD_BASENAME=intrep   -c -o
-intrep.o intrep.c
-intrep.c: In function `jffs_garbage_collect_thread':
-intrep.c:3382: warning: passing arg 1 of `dequeue_signal' from
-incompatible pointer type
-intrep.c:3382: warning: passing arg 2 of `dequeue_signal' from
-incompatible pointer type
-intrep.c:3382: too few arguments to function `dequeue_signal'
-make[2]: *** [intrep.o] Error 1
-make[2]: Leaving directory
-`/home/bunk/linux/kernel-2.5/linux-2.5.34-full/fs/jffs'
-
-<--  snip  -->
+On Sep 9,  5:08pm, Patrick Mansfield wrote:
+> 
+> You can have multiple initiators on FCP or SPI, without dual controllers
+> involved at all. Most of my multi-path testing has been with dual
+> ported FCP disk drives, with multiple FCP adapters connected to a
+> switch, not with disk arrays (I don't have any non-failover multi-ported
+> disk arrays available, I'm using a fastt 200 disk array); I don't know the
+> details of the drive controllers for my disks, but putting multiple
+> controllers in a disk drive certainly would increase the cost.
 
 
-cu
-Adrian
+Is there any plan to do something for hardware RAIDs in which two different
+RAID controllers can get to the same logical unit, but you pay a performance
+penalty when you access the lun via both controllers?  It seems to me that
+all RAIDs that don't require a command to switch a lun from one to the
+other controller (i.e. where both ctlrs can access a lun simultaneously)
+pay a performance penalty when you access a lun from both.
 
--- 
+Working around this in a generic way (i.e. without designation by the
+system admin) seems difficult, so I'm wondering what may have been done
+with this (my reading of this discussion is that it has not been tackled
+yet).
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+thanks
 
+jeremy

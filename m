@@ -1,660 +1,228 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268394AbTBSDDC>; Tue, 18 Feb 2003 22:03:02 -0500
+	id <S268365AbTBSDJA>; Tue, 18 Feb 2003 22:09:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268426AbTBSDCE>; Tue, 18 Feb 2003 22:02:04 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:63966 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S268394AbTBSC75>; Tue, 18 Feb 2003 21:59:57 -0500
-Message-Id: <200302190307.h1J37WE25499@w-gaughen.beaverton.ibm.com>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-Reply-to: gone@us.ibm.com
-From: Patricia Gaughen <gone@us.ibm.com>
-To: akpm@zip.com.au
-cc: linux-kernel@vger.kernel.org, andrew.grover@intel.com
-Subject: [PATCH] (2/2) x440 discontig support on 2.5.62: disco
+	id <S268400AbTBSDI5>; Tue, 18 Feb 2003 22:08:57 -0500
+Received: from virtisp1.zianet.com ([216.234.192.105]:61960 "HELO
+	mesatop.zianet.com") by vger.kernel.org with SMTP
+	id <S268365AbTBSC6L>; Tue, 18 Feb 2003 21:58:11 -0500
+Subject: [PATCH] 2.5.62 spelling fix for propogate -> propagate in 13 files.
+From: Steven Cole <elenstev@mesatop.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 18 Feb 2003 19:59:35 -0700
+Message-Id: <1045623578.5965.307.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 18 Feb 2003 19:07:32 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch provides the following spelling fix.
 
-This patch provides discontigmem support for the IBM x440 against 2.5.62.  I 
-sent this patch to the list last week as an [RFC], and have resolved the 
-feedback received. This code has passed through the hands of several 
-developers:  Chandra Seetharaman, James Cleverdon, John Stultz, and last to 
-touch it, me :-)  It also includes code for correctly figuring out zholes_size 
-written by Andy Whitcroft (posted to lkml today).
+propogate -> propagate
 
-This patch depends on the early, early ioremap patch.  It also requires full 
-acpi support, but to boot the user needs to specify acpi=off at the boot 
-prompt, until Andy Grover's acpi patch for the x440 is merged in.
+ arch/m68k/ifpsp060/src/fpsp.S  |    4 ++--
+ arch/m68k/ifpsp060/src/pfpsp.S |    4 ++--
+ arch/m68k/kernel/head.S        |    2 +-
+ arch/mips/ddb5xxx/common/pci.c |    2 +-
+ arch/mips/kernel/pci.c         |    2 +-
+ drivers/block/floppy.c         |    2 +-
+ drivers/char/epca.c            |    4 ++--
+ drivers/ide/setup-pci.c        |    2 +-
+ drivers/parisc/lba_pci.c       |    2 +-
+ drivers/scsi/53c7xx.c          |    2 +-
+ include/net/sctp/ulpqueue.h    |    2 +-
+ net/sctp/ulpqueue.c            |    2 +-
+ sound/oss/maestro.c            |    2 +-
+ 13 files changed, 16 insertions(+), 16 deletions(-)
 
-Please consider applying this patch to your tree.
-
-Thanks,
-Pat
-
--- 
-Patricia Gaughen (gone@us.ibm.com)
-IBM Linux Technology Center
-http://www.ibm.com/linux/ltc/
-
-diff -Nru a/arch/i386/Kconfig b/arch/i386/Kconfig
---- a/arch/i386/Kconfig	Tue Feb 18 18:53:37 2003
-+++ b/arch/i386/Kconfig	Tue Feb 18 18:53:37 2003
-@@ -485,7 +485,7 @@
- # Common NUMA Features
- config NUMA
- 	bool "Numa Memory Allocation Support"
--	depends on X86_NUMAQ
-+	depends on (HIGHMEM64G && (X86_NUMAQ || (X86_SUMMIT && ACPI && 
-!ACPI_HT_ONLY)))
+diff -ur linux-2.5.62-1104-orig/arch/m68k/ifpsp060/src/fpsp.S linux-2.5.62-1104/arch/m68k/ifpsp060/src/fpsp.S
+--- linux-2.5.62-1104-orig/arch/m68k/ifpsp060/src/fpsp.S	Thu Jan 16 19:22:53 2003
++++ linux-2.5.62-1104/arch/m68k/ifpsp060/src/fpsp.S	Tue Feb 18 18:44:43 2003
+@@ -22147,7 +22147,7 @@
+ add_ext:
+ 	addq.l		&1,FTEMP_LO(%a0)	# add 1 to l-bit
+ 	bcc.b		xcc_clr			# test for carry out
+-	addq.l		&1,FTEMP_HI(%a0)	# propogate carry
++	addq.l		&1,FTEMP_HI(%a0)	# propagate carry
+ 	bcc.b		xcc_clr
+ 	roxr.w		FTEMP_HI(%a0)		# mant is 0 so restore v-bit
+ 	roxr.w		FTEMP_HI+2(%a0)		# mant is 0 so restore v-bit
+@@ -22167,7 +22167,7 @@
+ add_dbl:
+ 	add.l		&ad_1_dbl, FTEMP_LO(%a0) # add 1 to lsb
+ 	bcc.b		dcc_clr			# no carry
+-	addq.l		&0x1, FTEMP_HI(%a0)	# propogate carry
++	addq.l		&0x1, FTEMP_HI(%a0)	# propagate carry
+ 	bcc.b		dcc_clr			# no carry
  
- config DISCONTIGMEM
- 	bool
-diff -Nru a/arch/i386/kernel/Makefile b/arch/i386/kernel/Makefile
---- a/arch/i386/kernel/Makefile	Tue Feb 18 18:53:37 2003
-+++ b/arch/i386/kernel/Makefile	Tue Feb 18 18:53:37 2003
-@@ -28,6 +28,9 @@
- obj-$(CONFIG_EDD)             	+= edd.o
- obj-$(CONFIG_MODULES)		+= module.o
- obj-y				+= sysenter.o
-+ifdef CONFIG_NUMA
-+obj-$(CONFIG_X86_SUMMIT) 	+= srat.o
-+endif
+ 	roxr.w		FTEMP_HI(%a0)		# mant is 0 so restore v-bit
+diff -ur linux-2.5.62-1104-orig/arch/m68k/ifpsp060/src/pfpsp.S linux-2.5.62-1104/arch/m68k/ifpsp060/src/pfpsp.S
+--- linux-2.5.62-1104-orig/arch/m68k/ifpsp060/src/pfpsp.S	Thu Jan 16 19:21:38 2003
++++ linux-2.5.62-1104/arch/m68k/ifpsp060/src/pfpsp.S	Tue Feb 18 18:44:43 2003
+@@ -6269,7 +6269,7 @@
+ add_ext:
+ 	addq.l		&1,FTEMP_LO(%a0)	# add 1 to l-bit
+ 	bcc.b		xcc_clr			# test for carry out
+-	addq.l		&1,FTEMP_HI(%a0)	# propogate carry
++	addq.l		&1,FTEMP_HI(%a0)	# propagate carry
+ 	bcc.b		xcc_clr
+ 	roxr.w		FTEMP_HI(%a0)		# mant is 0 so restore v-bit
+ 	roxr.w		FTEMP_HI+2(%a0)		# mant is 0 so restore v-bit
+@@ -6289,7 +6289,7 @@
+ add_dbl:
+ 	add.l		&ad_1_dbl, FTEMP_LO(%a0) # add 1 to lsb
+ 	bcc.b		dcc_clr			# no carry
+-	addq.l		&0x1, FTEMP_HI(%a0)	# propogate carry
++	addq.l		&0x1, FTEMP_HI(%a0)	# propagate carry
+ 	bcc.b		dcc_clr			# no carry
  
- EXTRA_AFLAGS   := -traditional
- 
-diff -Nru a/arch/i386/kernel/srat.c b/arch/i386/kernel/srat.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/i386/kernel/srat.c	Tue Feb 18 18:53:37 2003
-@@ -0,0 +1,448 @@
-+/*
-+ * Some of the code in this file has been gleaned from the 64 bit 
-+ * discontigmem support code base.
-+ *
-+ * Copyright (C) 2002, IBM Corp.
-+ *
-+ * All rights reserved.          
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ * Send feedback to Pat Gaughen <gone@us.ibm.com>
-+ */
-+#include <linux/config.h>
-+#include <linux/mm.h>
-+#include <linux/bootmem.h>
-+#include <linux/mmzone.h>
-+#include <linux/acpi.h>
-+#include <asm/srat.h>
-+
-+/*
-+ * proximity macros and definitions
-+ */
-+#define NODE_ARRAY_INDEX(x)	((x) / 8)	/* 8 bits/char */
-+#define NODE_ARRAY_OFFSET(x)	((x) % 8)	/* 8 bits/char */
-+#define BMAP_SET(bmap, bit)	((bmap)[NODE_ARRAY_INDEX(bit)] |= 1 << 
-NODE_ARRAY_OFFSET(bit))
-+#define BMAP_TEST(bmap, bit)	((bmap)[NODE_ARRAY_INDEX(bit)] & (1 << 
-NODE_ARRAY_OFFSET(bit)))
-+#define MAX_PXM_DOMAINS		256	/* 1 byte and no promises about values */
-+/* bitmap length; _PXM is at most 255 */
-+#define PXM_BITMAP_LEN (MAX_PXM_DOMAINS / 8) 
-+static u8 pxm_bitmap[PXM_BITMAP_LEN];	/* bitmap of proximity domains */
-+
-+#define MAX_CHUNKS_PER_NODE	4
-+#define MAXCHUNKS		(MAX_CHUNKS_PER_NODE * MAX_NUMNODES)
-+struct node_memory_chunk_s {
-+	unsigned long	start_pfn;
-+	unsigned long	end_pfn;
-+	u8	pxm;		// proximity domain of node
-+	u8	nid;		// which cnode contains this chunk?
-+	u8	bank;		// which mem bank on this node
-+};
-+static struct node_memory_chunk_s node_memory_chunk[MAXCHUNKS];
-+
-+static int num_memory_chunks;		/* total number of memory chunks */
-+static int zholes_size_init;
-+static unsigned long zholes_size[MAX_NUMNODES * MAX_NR_ZONES];
-+
-+unsigned long node_start_pfn[MAX_NUMNODES];
-+unsigned long node_end_pfn[MAX_NUMNODES];
-+
-+extern void * boot_ioremap(unsigned long, unsigned long);
-+
-+/* Identify CPU proximity domains */
-+static void __init parse_cpu_affinity_structure(char *p)
-+{
-+	struct acpi_table_processor_affinity *cpu_affinity = 
-+				(struct acpi_table_processor_affinity *) p;
-+
-+	if (!cpu_affinity->flags.enabled)
-+		return;		/* empty entry */
-+
-+	/* mark this node as "seen" in node bitmap */
-+	BMAP_SET(pxm_bitmap, cpu_affinity->proximity_domain);
-+
-+	printk("CPU 0x%02X in proximity domain 0x%02X\n",
-+		cpu_affinity->apic_id, cpu_affinity->proximity_domain);
-+}
-+
-+/*
-+ * Identify memory proximity domains and hot-remove capabilities.
-+ * Fill node memory chunk list structure.
-+ */
-+static void __init parse_memory_affinity_structure (char *sratp)
-+{
-+	unsigned long long paddr, size;
-+	unsigned long start_pfn, end_pfn; 
-+	u8 pxm;
-+	struct node_memory_chunk_s *p, *q, *pend;
-+	struct acpi_table_memory_affinity *memory_affinity =
-+			(struct acpi_table_memory_affinity *) sratp;
-+
-+	if (!memory_affinity->flags.enabled)
-+		return;		/* empty entry */
-+
-+	/* mark this node as "seen" in node bitmap */
-+	BMAP_SET(pxm_bitmap, memory_affinity->proximity_domain);
-+
-+	/* calculate info for memory chunk structure */
-+	paddr = memory_affinity->base_addr_hi;
-+	paddr = (paddr << 32) | memory_affinity->base_addr_lo;
-+	size = memory_affinity->length_hi;
-+	size = (size << 32) | memory_affinity->length_lo;
-+	
-+	start_pfn = paddr >> PAGE_SHIFT;
-+	end_pfn = (paddr + size) >> PAGE_SHIFT;
-+	
-+	pxm = memory_affinity->proximity_domain;
-+
-+	if (num_memory_chunks >= MAXCHUNKS) {
-+		printk("Too many mem chunks in SRAT. Ignoring %lld MBytes at %llx\n",
-+			size/(1024*1024), paddr);
-+		return;
-+	}
-+
-+	/* Insertion sort based on base address */
-+	pend = &node_memory_chunk[num_memory_chunks];
-+	for (p = &node_memory_chunk[0]; p < pend; p++) {
-+		if (start_pfn < p->start_pfn)
-+			break;
-+	}
-+	if (p < pend) {
-+		for (q = pend; q >= p; q--)
-+			*(q + 1) = *q;
-+	}
-+	p->start_pfn = start_pfn;
-+	p->end_pfn = end_pfn;
-+	p->pxm = pxm;
-+
-+	num_memory_chunks++;
-+
-+	printk("Memory range 0x%lX to 0x%lX (type 0x%X) in proximity domain 0x%02X 
-%s\n",
-+		start_pfn, end_pfn,
-+		memory_affinity->memory_type,
-+		memory_affinity->proximity_domain,
-+		(memory_affinity->flags.hot_pluggable ?
-+		 "enabled and removable" : "enabled" ) );
-+}
-+
-+#if MAX_NR_ZONES != 3
-+#error "MAX_NR_ZONES != 3, chunk_to_zone requires review"
-+#endif
-+/* Take a chunk of pages from page frame cstart to cend and count the number
-+ * of pages in each zone, returned via zones[].
-+ */
-+static __init void chunk_to_zones(unsigned long cstart, unsigned long cend, 
-+		unsigned long *zones)
-+{
-+	unsigned long max_dma;
-+	extern unsigned long max_low_pfn;
-+
-+	int z;
-+	unsigned long rend;
-+
-+	/* FIXME: MAX_DMA_ADDRESS and max_low_pfn are trying to provide
-+	 * similarly scoped information and should be handled in a consistant
-+	 * manner.
-+	 */
-+	max_dma = virt_to_phys((char *)MAX_DMA_ADDRESS) >> PAGE_SHIFT;
-+
-+	/* Split the hole into the zones in which it falls.  Repeatedly
-+	 * take the segment in which the remaining hole starts, round it
-+	 * to the end of that zone.
-+	 */
-+	memset(zones, 0, MAX_NR_ZONES * sizeof(long));
-+	while (cstart < cend) {
-+		if (cstart < max_dma) {
-+			z = ZONE_DMA;
-+			rend = (cend < max_dma)? cend : max_dma;
-+
-+		} else if (cstart < max_low_pfn) {
-+			z = ZONE_NORMAL;
-+			rend = (cend < max_low_pfn)? cend : max_low_pfn;
-+
-+		} else {
-+			z = ZONE_HIGHMEM;
-+			rend = cend;
-+		}
-+		zones[z] += rend - cstart;
-+		cstart = rend;
-+	}
-+}
-+
-+/*
-+ * physnode_map keeps track of the physical memory layout of the
-+ * numaq nodes on a 256Mb break (each element of the array will
-+ * represent 256Mb of memory and will be marked by the node id.  so,
-+ * if the first gig is on node 0, and the second gig is on node 1
-+ * physnode_map will contain:
-+ * physnode_map[0-3] = 0;
-+ * physnode_map[4-7] = 1;
-+ * physnode_map[8- ] = -1;
-+ */
-+int pfnnode_map[MAX_ELEMENTS] = { [0 ... (MAX_ELEMENTS - 1)] = -1};
-+EXPORT_SYMBOL(pfnnode_map);
-+
-+static void __init initialize_pfnnode_map(void)
-+{
-+	unsigned long topofchunk, cur = 0;
-+	int i;
-+	
-+	for (i = 0; i < num_memory_chunks; i++) {
-+		cur = node_memory_chunk[i].start_pfn;
-+		topofchunk = node_memory_chunk[i].end_pfn;
-+		while (cur < topofchunk) {
-+			pfnnode_map[PFN_TO_ELEMENT(cur)] = node_memory_chunk[i].nid;
-+			cur ++;
-+		}
-+	}
-+}
-+
-+/* Parse the ACPI Static Resource Affinity Table */
-+static int __init acpi20_parse_srat(struct acpi_table_srat *sratp)
-+{
-+	u8 *start, *end, *p;
-+	int i, j, nid;
-+	u8 pxm_to_nid_map[MAX_PXM_DOMAINS];/* _PXM to logical node ID map */
-+	u8 nid_to_pxm_map[MAX_NUMNODES];/* logical node ID to _PXM map */
-+
-+	start = (u8 *)(&(sratp->reserved) + 1);	/* skip header */
-+	p = start;
-+	end = (u8 *)sratp + sratp->header.length;
-+
-+	memset(pxm_bitmap, 0, sizeof(pxm_bitmap));	/* init proximity domain bitmap */
-+	memset(node_memory_chunk, 0, sizeof(node_memory_chunk));
-+	memset(zholes_size, 0, sizeof(zholes_size));
-+
-+	/* -1 in these maps means not available */
-+	memset(pxm_to_nid_map, -1, sizeof(pxm_to_nid_map));
-+	memset(nid_to_pxm_map, -1, sizeof(nid_to_pxm_map));
-+
-+	num_memory_chunks = 0;
-+	while (p < end) {
-+		switch (*p) {
-+		case ACPI_SRAT_PROCESSOR_AFFINITY:
-+			parse_cpu_affinity_structure(p);
-+			break;
-+		case ACPI_SRAT_MEMORY_AFFINITY:
-+			parse_memory_affinity_structure(p);
-+			break;
-+		default:
-+			printk("ACPI 2.0 SRAT: unknown entry skipped: type=0x%02X, len=%d\n", 
-p[0], p[1]);
-+			break;
-+		}
-+		p += p[1];
-+		if (p[1] == 0) {
-+			printk("acpi20_parse_srat: Entry length value is zero;"
-+				" can't parse any further!\n");
-+			break;
-+		}
-+	}
-+
-+	/* Calculate total number of nodes in system from PXM bitmap and create
-+	 * a set of sequential node IDs starting at zero.  (ACPI doesn't seem
-+	 * to specify the range of _PXM values.)
-+	 */
-+	numnodes = 0;		/* init total nodes in system */
-+	for (i = 0; i < MAX_PXM_DOMAINS; i++) {
-+		if (BMAP_TEST(pxm_bitmap, i)) {
-+			pxm_to_nid_map[i] = numnodes;
-+			nid_to_pxm_map[numnodes] = i;
-+			node_set_online(numnodes);
-+			++numnodes;
-+		}
-+	}
-+
-+	if (numnodes == 0)
-+		BUG();
-+
-+	/* set cnode id in memory chunk structure */
-+	for (i = 0; i < num_memory_chunks; i++)
-+		node_memory_chunk[i].nid = pxm_to_nid_map[node_memory_chunk[i].pxm];
-+
-+	initialize_pfnnode_map();
-+	
-+	printk("pxm bitmap: ");
-+	for (i = 0; i < sizeof(pxm_bitmap); i++) {
-+		printk("%02X ", pxm_bitmap[i]);
-+	}
-+	printk("\n");
-+	printk("Number of logical nodes in system = %d\n", numnodes);
-+	printk("Number of memory chunks in system = %d\n", num_memory_chunks);
-+
-+	for (j = 0; j < num_memory_chunks; j++){
-+		printk("chunk %d nid %d start_pfn %08lx end_pfn %08lx\n",
-+		       j, node_memory_chunk[j].nid,
-+		       node_memory_chunk[j].start_pfn,
-+		       node_memory_chunk[j].end_pfn);
-+	}
-+ 
-+	/*calculate node_start_pfn/node_end_pfn arrays*/
-+	for (nid = 0; nid < numnodes; nid++) {
-+		int been_here_before = 0;
-+
-+		for (j = 0; j < num_memory_chunks; j++){
-+			if (node_memory_chunk[j].nid == nid) {
-+				if (been_here_before == 0) {
-+					node_start_pfn[nid] = node_memory_chunk[j].start_pfn;
-+					node_end_pfn[nid] = node_memory_chunk[j].end_pfn;
-+					been_here_before = 1;
-+				} else { /* We've found another chunk of memory for the node */
-+					if (node_start_pfn[nid] < node_memory_chunk[j].start_pfn) {
-+						node_end_pfn[nid] = node_memory_chunk[j].end_pfn;
-+					}
-+				}
-+			}
-+		}
-+	}
-+	return 0;
-+}
-+
-+void __init get_memcfg_from_srat(void)
-+{
-+	struct acpi_table_header *header = NULL;
-+	struct acpi_table_rsdp *rsdp = NULL;
-+	struct acpi_table_rsdt *rsdt = NULL;
-+	struct acpi_pointer *rsdp_address = NULL;
-+	struct acpi_table_rsdt saved_rsdt;
-+	int tables = 0;
-+	int i = 0;
-+
-+	acpi_find_root_pointer(ACPI_PHYSICAL_ADDRESSING, rsdp_address);
-+
-+	if (rsdp_address->pointer_type == ACPI_PHYSICAL_POINTER) {
-+		printk("%s: assigning address to rsdp\n", __FUNCTION__);
-+		rsdp = (struct acpi_table_rsdp *)rsdp_address->pointer.physical;
-+	} else {
-+		printk("%s: rsdp_address is not a physical pointer\n", __FUNCTION__);
-+		return;
-+	}
-+	if (!rsdp) {
-+		printk("%s: Didn't find ACPI root!\n", __FUNCTION__);
-+		return;
-+	}
-+
-+	printk(KERN_INFO "%.8s v%d [%.6s]\n", rsdp->signature, rsdp->revision,
-+		rsdp->oem_id);
-+
-+	if (strncmp(rsdp->signature, RSDP_SIG,strlen(RSDP_SIG))) {
-+		printk(KERN_WARNING "%s: RSDP table signature incorrect\n", __FUNCTION__);
-+		return;
-+	}
-+
-+	rsdt = (struct acpi_table_rsdt *)
-+	    boot_ioremap(rsdp->rsdt_address, sizeof(struct acpi_table_rsdt));
-+
-+	if (!rsdt) {
-+		printk(KERN_WARNING
-+		       "%s: ACPI: Invalid root system description tables (RSDT)\n",
-+		       __FUNCTION__);
-+		return;
-+	}
-+
-+	header = & rsdt->header;
-+
-+	if (strncmp(header->signature, RSDT_SIG, strlen(RSDT_SIG))) {
-+		printk(KERN_WARNING "ACPI: RSDT signature incorrect\n");
-+		return;
-+	}
-+
-+	/* 
-+	 * The number of tables is computed by taking the 
-+	 * size of all entries (header size minus total 
-+	 * size of RSDT) divided by the size of each entry
-+	 * (4-byte table pointers).
-+	 */
-+	tables = (header->length - sizeof(struct acpi_table_header)) / 4;
-+
-+	memcpy(&saved_rsdt, rsdt, sizeof(saved_rsdt));
-+
-+	if (saved_rsdt.header.length > sizeof(saved_rsdt)) {
-+		printk(KERN_WARNING "ACPI: Too big length in RSDT: %d\n",
-+		       saved_rsdt.header.length);
-+		return;
-+	}
-+
-+printk("Begin table scan....\n");
-+
-+	for (i = 0; i < tables; i++) {
-+		/* Map in header, then map in full table length. */
-+		header = (struct acpi_table_header *)
-+			boot_ioremap(saved_rsdt.entry[i], sizeof(struct acpi_table_header));
-+		if (!header)
-+			break;
-+		header = (struct acpi_table_header *)
-+			boot_ioremap(saved_rsdt.entry[i], header->length);
-+		if (!header)
-+			break;
-+
-+		if (strncmp((char *) &header->signature, "SRAT", 4))
-+			continue;
-+		acpi20_parse_srat((struct acpi_table_srat *)header);
-+		/* we've found the srat table. don't need to look at any more tables */
-+		break;
-+	}
-+}
-+
-+/* For each node run the memory list to determine whether there are
-+ * any memory holes.  For each hole determine which ZONE they fall
-+ * into.
-+ *
-+ * NOTE#1: this requires knowledge of the zone boundries and so
-+ * _cannot_ be performed before those are calculated in setup_memory.
-+ * 
-+ * NOTE#2: we rely on the fact that the memory chunks are ordered by
-+ * start pfn number during setup.
-+ */
-+static void __init get_zholes_init(void)
-+{
-+	int nid;
-+	int c;
-+	int first;
-+	unsigned long end = 0;
-+
-+	for (nid = 0; nid < numnodes; nid++) {
-+		first = 1;
-+		for (c = 0; c < num_memory_chunks; c++){
-+			if (node_memory_chunk[c].nid == nid) {
-+				if (first) {
-+					end = node_memory_chunk[c].end_pfn;
-+					first = 0;
-+
-+				} else {
-+					/* Record any gap between this chunk
-+					 * and the previous chunk on this node
-+					 * against the zones it spans.
-+					 */
-+					chunk_to_zones(end,
-+						node_memory_chunk[c].start_pfn,
-+						&zholes_size[nid * MAX_NR_ZONES]);
-+				}
-+			}
-+		}
-+	}
-+}
-+
-+unsigned long * __init get_zholes_size(int nid)
-+{
-+	if (!zholes_size_init) {
-+		zholes_size_init++;
-+		get_zholes_init();
-+	}
-+	if((nid >= numnodes) | (nid >= MAX_NUMNODES))
-+		printk("%s: nid = %d is invalid. numnodes = %d",
-+		       __FUNCTION__, nid, numnodes);
-+	return &zholes_size[nid * MAX_NR_ZONES];
-+}
-diff -Nru a/arch/i386/mm/discontig.c b/arch/i386/mm/discontig.c
---- a/arch/i386/mm/discontig.c	Tue Feb 18 18:53:37 2003
-+++ b/arch/i386/mm/discontig.c	Tue Feb 18 18:53:37 2003
-@@ -284,6 +284,7 @@
- 
- 	for (nid = 0; nid < numnodes; nid++) {
- 		unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
-+		unsigned long *zholes_size;
- 		unsigned int max_dma;
- 
- 		unsigned long low = max_low_pfn;
-@@ -307,6 +308,7 @@
- #endif
- 			}
+ 	roxr.w		FTEMP_HI(%a0)		# mant is 0 so restore v-bit
+diff -ur linux-2.5.62-1104-orig/arch/m68k/kernel/head.S linux-2.5.62-1104/arch/m68k/kernel/head.S
+--- linux-2.5.62-1104-orig/arch/m68k/kernel/head.S	Thu Jan 16 19:22:59 2003
++++ linux-2.5.62-1104/arch/m68k/kernel/head.S	Tue Feb 18 18:44:43 2003
+@@ -92,7 +92,7 @@
+  *	mmu_map was written for two key reasons.  First, it was clear
+  * that it was very difficult to read the previous code for mapping
+  * regions of memory.  Second, the Macintosh required such extensive
+- * memory allocations that it didn't make sense to propogate the
++ * memory allocations that it didn't make sense to propagate the
+  * existing code any further.
+  *	mmu_map requires some parameters:
+  *
+diff -ur linux-2.5.62-1104-orig/arch/mips/ddb5xxx/common/pci.c linux-2.5.62-1104/arch/mips/ddb5xxx/common/pci.c
+--- linux-2.5.62-1104-orig/arch/mips/ddb5xxx/common/pci.c	Thu Jan 16 19:22:56 2003
++++ linux-2.5.62-1104/arch/mips/ddb5xxx/common/pci.c	Tue Feb 18 18:44:43 2003
+@@ -148,7 +148,7 @@
+                 }
+                 bus->resource[0]->flags |= pci_bridge_check_io(dev);
+                 bus->resource[1]->flags |= IORESOURCE_MEM;
+-                /* For now, propogate hose limits to the bus;
++                /* For now, propagate hose limits to the bus;
+                    we'll adjust them later. */
+                 bus->resource[0]->end = hose->io_resource->end;
+                 bus->resource[1]->end = hose->mem_resource->end;
+diff -ur linux-2.5.62-1104-orig/arch/mips/kernel/pci.c linux-2.5.62-1104/arch/mips/kernel/pci.c
+--- linux-2.5.62-1104-orig/arch/mips/kernel/pci.c	Thu Jan 16 19:22:24 2003
++++ linux-2.5.62-1104/arch/mips/kernel/pci.c	Tue Feb 18 18:44:43 2003
+@@ -145,7 +145,7 @@
  		}
-+		zholes_size = get_zholes_size(nid);
- 		/*
- 		 * We let the lmem_map for node 0 be allocated from the
- 		 * normal bootmem allocator, but other nodes come from the
-@@ -315,10 +317,10 @@
- 		if (nid)
- 			free_area_init_node(nid, NODE_DATA(nid), 
- 				node_remap_start_vaddr[nid], zones_size, 
--				start, 0);
-+				start, zholes_size);
- 		else
- 			free_area_init_node(nid, NODE_DATA(nid), 0, 
--				zones_size, start, 0);
-+				zones_size, start, zholes_size);
+ 		bus->resource[0]->flags |= pci_bridge_check_io(dev);
+ 		bus->resource[1]->flags |= IORESOURCE_MEM;
+-		/* For now, propogate hose limits to the bus;
++		/* For now, propagate hose limits to the bus;
+ 		   we'll adjust them later. */
+ 		bus->resource[0]->end = hose->io_resource->end;
+ 		bus->resource[1]->end = hose->mem_resource->end;
+diff -ur linux-2.5.62-1104-orig/drivers/block/floppy.c linux-2.5.62-1104/drivers/block/floppy.c
+--- linux-2.5.62-1104-orig/drivers/block/floppy.c	Mon Feb 10 12:22:58 2003
++++ linux-2.5.62-1104/drivers/block/floppy.c	Tue Feb 18 18:44:43 2003
+@@ -822,7 +822,7 @@
+ 		}
  	}
- 	return;
+ 	/*
+-	 *	We should propogate failures to grab the resources back
++	 *	We should propagate failures to grab the resources back
+ 	 *	nicely from here. Actually we ought to rewrite the fd
+ 	 *	driver some day too.
+ 	 */
+diff -ur linux-2.5.62-1104-orig/drivers/char/epca.c linux-2.5.62-1104/drivers/char/epca.c
+--- linux-2.5.62-1104-orig/drivers/char/epca.c	Thu Jan 16 19:22:18 2003
++++ linux-2.5.62-1104/drivers/char/epca.c	Tue Feb 18 18:44:43 2003
+@@ -2805,7 +2805,7 @@
+ 		ch->fepstopc = ch->stopc;
+ 
+ 		/* ------------------------------------------------------------
+-			The XON / XOFF characters have changed; propogate these
++			The XON / XOFF characters have changed; propagate these
+ 			changes to the card.	
+ 		--------------------------------------------------------------- */
+ 
+@@ -2819,7 +2819,7 @@
+ 
+ 		/* ---------------------------------------------------------------
+ 			Similar to the above, this time the auxilarly XON / XOFF 
+-			characters have changed; propogate these changes to the card.
++			characters have changed; propagate these changes to the card.
+ 		------------------------------------------------------------------ */
+ 
+ 		fepcmd(ch, SAUXONOFFC, ch->fepstartca, ch->fepstopca, 0, 1);
+diff -ur linux-2.5.62-1104-orig/drivers/ide/setup-pci.c linux-2.5.62-1104/drivers/ide/setup-pci.c
+--- linux-2.5.62-1104-orig/drivers/ide/setup-pci.c	Thu Jan 16 19:22:03 2003
++++ linux-2.5.62-1104/drivers/ide/setup-pci.c	Tue Feb 18 18:44:43 2003
+@@ -662,7 +662,7 @@
+ 		 *	This is in the wrong place. The driver may
+ 		 *	do set up based on the autotune value and this
+ 		 *	will then trash it. Torben please move it and
+-		 *	propogate the fixes into the drivers
++		 *	propagate the fixes into the drivers
+ 		 */		
+ 		if (drive0_tune == IDE_TUNE_BIOS) /* biostimings */
+ 			hwif->drives[0].autotune = IDE_TUNE_BIOS;
+diff -ur linux-2.5.62-1104-orig/drivers/parisc/lba_pci.c linux-2.5.62-1104/drivers/parisc/lba_pci.c
+--- linux-2.5.62-1104-orig/drivers/parisc/lba_pci.c	Thu Jan 16 19:22:24 2003
++++ linux-2.5.62-1104/drivers/parisc/lba_pci.c	Tue Feb 18 18:44:43 2003
+@@ -765,7 +765,7 @@
+ 			pci_read_bridge_bases(bus);
+ 		} else {
+ 			/* Not configured.
+-			** For now, propogate HBA limits to the bus;
++			** For now, propagate HBA limits to the bus;
+ 			**	PCI will adjust them later.
+ 			*/
+ 			bus->resource[0]->end = ldev->hba.io_space.end;
+diff -ur linux-2.5.62-1104-orig/drivers/scsi/53c7xx.c linux-2.5.62-1104/drivers/scsi/53c7xx.c
+--- linux-2.5.62-1104-orig/drivers/scsi/53c7xx.c	Thu Jan 16 19:23:01 2003
++++ linux-2.5.62-1104/drivers/scsi/53c7xx.c	Tue Feb 18 18:44:43 2003
+@@ -5794,7 +5794,7 @@
+  *	so we don't perturb hostdata.  We don't use a field of the 
+  *	NCR53c7x0_cmd structure since we may not have allocated one 
+  *	for the command causing the reset.) of Scsi_Cmnd structures that 
+- *  	had propogated below the Linux issue queue level.  If free is set, 
++ *  	had propagated below the Linux issue queue level.  If free is set, 
+  *	free the NCR53c7x0_cmd structures which are associated with 
+  *	the Scsi_Cmnd structures, and clean up any internal 
+  *	NCR lists that the commands were on.  If issue is set,
+diff -ur linux-2.5.62-1104-orig/include/net/sctp/ulpqueue.h linux-2.5.62-1104/include/net/sctp/ulpqueue.h
+--- linux-2.5.62-1104-orig/include/net/sctp/ulpqueue.h	Fri Feb 14 20:12:05 2003
++++ linux-2.5.62-1104/include/net/sctp/ulpqueue.h	Tue Feb 18 18:44:43 2003
+@@ -62,7 +62,7 @@
+ /* Add a new DATA chunk for processing. */
+ int sctp_ulpq_tail_data(struct sctp_ulpq *, sctp_chunk_t *chunk, int priority);
+ 
+-/* Add a new event for propogation to the ULP. */
++/* Add a new event for propagation to the ULP. */
+ int sctp_ulpq_tail_event(struct sctp_ulpq *, struct sctp_ulpevent *ev);
+ 
+ /* Is the ulpqueue empty. */
+diff -ur linux-2.5.62-1104-orig/net/sctp/ulpqueue.c linux-2.5.62-1104/net/sctp/ulpqueue.c
+--- linux-2.5.62-1104-orig/net/sctp/ulpqueue.c	Fri Feb 14 20:12:06 2003
++++ linux-2.5.62-1104/net/sctp/ulpqueue.c	Tue Feb 18 18:44:43 2003
+@@ -154,7 +154,7 @@
+ 	return 0;
  }
-diff -Nru a/include/asm-i386/mmzone.h b/include/asm-i386/mmzone.h
---- a/include/asm-i386/mmzone.h	Tue Feb 18 18:53:37 2003
-+++ b/include/asm-i386/mmzone.h	Tue Feb 18 18:53:37 2003
-@@ -12,6 +12,8 @@
  
- #ifdef CONFIG_X86_NUMAQ
- #include <asm/numaq.h>
-+#elif CONFIG_X86_SUMMIT
-+#include <asm/srat.h>
- #else
- #define pfn_to_nid(pfn)		(0)
- #endif /* CONFIG_X86_NUMAQ */
-diff -Nru a/include/asm-i386/numaq.h b/include/asm-i386/numaq.h
---- a/include/asm-i386/numaq.h	Tue Feb 18 18:53:37 2003
-+++ b/include/asm-i386/numaq.h	Tue Feb 18 18:53:37 2003
-@@ -168,6 +168,10 @@
-         struct	eachquadmem eq[MAX_NUMNODES];	/* indexed by quad id */
- };
- 
-+static inline unsigned long get_zholes_size(int nid)
-+{
-+	return 0;
-+}
- #endif /* CONFIG_X86_NUMAQ */
- #endif /* NUMAQ_H */
- 
-diff -Nru a/include/asm-i386/numnodes.h b/include/asm-i386/numnodes.h
---- a/include/asm-i386/numnodes.h	Tue Feb 18 18:53:37 2003
-+++ b/include/asm-i386/numnodes.h	Tue Feb 18 18:53:37 2003
-@@ -5,6 +5,8 @@
- 
- #ifdef CONFIG_X86_NUMAQ
- #include <asm/numaq.h>
-+#elif CONFIG_X86_SUMMIT
-+#include <asm/srat.h>
- #else
- #define MAX_NUMNODES	1
- #endif /* CONFIG_X86_NUMAQ */
-diff -Nru a/include/asm-i386/srat.h b/include/asm-i386/srat.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/srat.h	Tue Feb 18 18:53:37 2003
-@@ -0,0 +1,46 @@
-+/*
-+ * Some of the code in this file has been gleaned from the 64 bit 
-+ * discontigmem support code base.
-+ *
-+ * Copyright (C) 2002, IBM Corp.
-+ *
-+ * All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ * Send feedback to Pat Gaughen <gone@us.ibm.com>
-+ */
-+
-+#ifndef _ASM_SRAT_H_
-+#define _ASM_SRAT_H_
-+
-+/*
-+ * each element in pfnnode_map represents 256 MB (2^28) of pages.
-+ * so, to represent 64GB we need 256 elements.
-+ */
-+#define MAX_ELEMENTS 256
-+#define PFN_TO_ELEMENT(pfn) ((pfn)>>(28 - PAGE_SHIFT))
-+
-+extern int pfnnode_map[];
-+#define pfn_to_nid(pfn) ({ pfnnode_map[PFN_TO_ELEMENT(pfn)]; })
-+#define pfn_to_pgdat(pfn) NODE_DATA(pfn_to_nid(pfn))
-+#define PHYSADDR_TO_NID(pa) pfn_to_nid(pa >> PAGE_SHIFT)
-+#define MAX_NUMNODES		8
-+extern void get_memcfg_from_srat(void);
-+extern unsigned long *get_zholes_size(int);
-+#define get_memcfg_numa() get_memcfg_from_srat()
-+
-+#endif /* _ASM_SRAT_H_ */
-diff -Nru a/include/linux/acpi.h b/include/linux/acpi.h
---- a/include/linux/acpi.h	Tue Feb 18 18:53:37 2003
-+++ b/include/linux/acpi.h	Tue Feb 18 18:53:37 2003
-@@ -79,7 +79,7 @@
- 
- struct acpi_table_rsdt {
- 	struct acpi_table_header header;
--	u32			entry[1];
-+	u32			entry[8];
- } __attribute__ ((packed));
- 
- /* Extended System Description Table (XSDT) */
+-/* Add a new event for propogation to the ULP.  */
++/* Add a new event for propagation to the ULP.  */
+ int sctp_ulpq_tail_event(struct sctp_ulpq *ulpq, struct sctp_ulpevent *event)
+ {
+ 	struct sock *sk = ulpq->asoc->base.sk;
+diff -ur linux-2.5.62-1104-orig/sound/oss/maestro.c linux-2.5.62-1104/sound/oss/maestro.c
+--- linux-2.5.62-1104-orig/sound/oss/maestro.c	Mon Feb 10 12:23:10 2003
++++ linux-2.5.62-1104/sound/oss/maestro.c	Tue Feb 18 18:44:43 2003
+@@ -1830,7 +1830,7 @@
+ 	if (s->dma_adc.ready) {
+ 		/* oh boy should this all be re-written.  everything in the current code paths think
+ 		that the various counters/pointers are expressed in bytes to the user but we have
+-		two apus doing stereo stuff so we fix it up here.. it propogates to all the various
++		two apus doing stereo stuff so we fix it up here.. it propagates to all the various
+ 		counters from here.  */
+ 		if ( s->fmt & (ESS_FMT_STEREO << ESS_ADC_SHIFT)) {
+ 			hwptr = (get_dmac(s)*2) % s->dma_adc.dmasize;
+
+
 
 
 

@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263542AbTEWA7u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 20:59:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbTEWA7u
+	id S263567AbTEWBEt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 21:04:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263570AbTEWBEt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 20:59:50 -0400
-Received: from bunyip.cc.uq.edu.au ([130.102.2.1]:42001 "EHLO
-	bunyip.cc.uq.edu.au") by vger.kernel.org with ESMTP id S262946AbTEWA7r
+	Thu, 22 May 2003 21:04:49 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29845 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263567AbTEWBEs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 20:59:47 -0400
-Message-ID: <3ECD75D0.6070107@torque.net>
-Date: Fri, 23 May 2003 11:13:52 +1000
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org, naviathan@yahoo.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: scsi.h
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 22 May 2003 21:04:48 -0400
+Date: Fri, 23 May 2003 02:17:51 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andries.Brouwer@cwi.nl, akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch?] truncate and timestamps
+Message-ID: <20030523011751.GC14406@parcelfarce.linux.theplanet.co.uk>
+References: <UTC200305230017.h4N0Hqn05589.aeb@smtp.cwi.nl> <Pine.LNX.4.44.0305221726300.19226-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0305221726300.19226-100000@home.transmeta.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Buseman wrote on lkml:
- > Summary:  When compiling cdrtools with 2.5.69-bk13
- > scsi.h causes errors at line 229 and 230.
+On Thu, May 22, 2003 at 05:30:33PM -0700, Linus Torvalds wrote:
+> 
+> On Fri, 23 May 2003 Andries.Brouwer@cwi.nl wrote:
+> > 
+> > On the other hand, my question was really a different one:
+> > do we want to follow POSIX, also in the silly requirement
+> > that truncate only sets mtime when the size changes, while
+> > O_TRUNC and ftruncate always set mtime.
+> 
+> Does POSIX really say that? What a crock. If so, we should probably add 
+> the ATTR_xxx mask as an argument to do_truncate() itself, and then make 
+> sure that may_open() sets the ATTR_MTIME bit.
 
-That is the "u8" typedef that I tried to change to
-something a little saner a while back.
+"POSIX says" has value only if there is at least some consensus among
+implementations.  Otherwise it's worthless, simply because any program
+that cares about portability can't rely on specified behaviour and
+any program that doesn't couldn't care less anyway - it will rely on
+actual behaviour on system it's supposed to run on.
 
-Do we have any volunteers to discuss this matter with
-Joerg Schilling? Even if he changes his next release,
-he can't do much about the earlier releases.
-
-As mentioned in the "RFC: move hosts.h and scsi.c" thread
-started by Jeff Garzik on the lsml, some existing apps
-(cdrecord/cdrtools and perhaps SANE) assume that the headers
-in /usr/src/linux/include/scsi can be included safely in
-their low level transports.
-This was true but is no longer in the lk 2.5 series.
-
-An ugly transition header included at the top of that
-"scsi.h" could address this problem but my guess is some
-will dislike this idea:
-
-/* deprecated, this transition header will be removed in lk 2.8 */
-#ifndef __KERNEL__
-#define u8 int8_t
-#define __user
-....
-#endif
-
-
-Playing both sides of this debate, I recently added "__user"
-qualifiers in sg.h (not yet released).
-
-Doug Gilbert
+Andries had shown that there is _no_ consensus.  Ergo, POSIX can take
+a hike and we should go with the behaviour convenient for us.  It's that
+simple...
 

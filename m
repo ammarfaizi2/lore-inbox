@@ -1,50 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264067AbTGOG5R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 02:57:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbTGOG5R
+	id S265422AbTGOHCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 03:02:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265421AbTGOHCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 02:57:17 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:7950 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S264067AbTGOG5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 02:57:16 -0400
-Date: Tue, 15 Jul 2003 03:00:43 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
-       efault@gmx.de, felipe_alfaro@linuxmail.org
-Subject: Re: [PATCH] N1int for interactivity
-In-Reply-To: <20030714205915.5a4c8d16.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.53.0307150254390.32541@montezuma.mastecende.com>
-References: <200307151355.23586.kernel@kolivas.org> <20030714205915.5a4c8d16.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 15 Jul 2003 03:02:09 -0400
+Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:27666 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S265422AbTGOHCG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 03:02:06 -0400
+Date: Tue, 15 Jul 2003 00:16:55 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Kernel Developer List <linux-kernel@vger.kernel.org>
+Subject: e1000 with 82546EB parts on 2.4?
+Message-ID: <20030715001654.D25443@one-eyed-alien.net>
+Mail-Followup-To: Kernel Developer List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="UoPmpPX/dBe4BELn"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jul 2003, Andrew Morton wrote:
 
-> >  	base = monotonic_base;
-> > -	read_unlock_irq(&monotonic_lock);
-> > +	read_unlock_irqrestore(&monotonic_lock, flags);
-> >  
-> >  	/* Read the Time Stamp Counter */
-> 
-> Why do we need to take a global lock here?  Can't we use
-> get_cycles() or something?
+--UoPmpPX/dBe4BELn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I think that'll break even on some x86 boxes if we used get_cycles. I do 
-wonder however why we need that lock, i see x86/64 uses seqlock at least. 
-Although i can't vouch for whether that would have an adverse affect here. 
-I presume Stultz would know.
+I'm working with some hardware that may or may not be completely reliable,
+and trying to figure out if something I'm seeing is a 'known issue' or
+something strange about my setup (which is entirely possible).
 
-> Have all the other architectures been reviewed to see if they need this
-> change?
+I'm using 2.4.20 with some custom hardware.
 
-No one else appears to have monotonic_clock, this would break every other 
-arch out there.
+What I've got is your basic x86 machine with an Intel 82546EB dual-GigE
+controller on a PCI bus.  I load e1000.o, ifconfig, and I'm running.  The
+interface is solid as a rock, AFAICT.  I've left it running for days
+without any problems.
 
--- 
-function.linuxpower.ca
+However, if I ifdown and then ifup the interface, I'm borked.  Based on
+tcpdump from another machine, the interface is definately transmitting
+packets just fine.  But, it never seems to notice any packets on the
+receive side.
+
+Has anyone seen anything like this before?
+
+Matt
+
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
+
+A:  The most ironic oxymoron wins ...
+DP: "Microsoft Works"
+A:  Uh, okay, you win.
+					-- A.J. & Dust Puppy
+User Friendly, 1/18/1998
+
+--UoPmpPX/dBe4BELn
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE/E6pmIjReC7bSPZARAn6BAKCc6d1mZymkf4Ujxo59dmBdxQEMawCffeC5
+O34eQ7q8/shHeCucdRDQ04M=
+=uj3n
+-----END PGP SIGNATURE-----
+
+--UoPmpPX/dBe4BELn--

@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286282AbRL0Nry>; Thu, 27 Dec 2001 08:47:54 -0500
+	id <S286279AbRL0Nyi>; Thu, 27 Dec 2001 08:54:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286278AbRL0Nre>; Thu, 27 Dec 2001 08:47:34 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:22733 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S286274AbRL0Nrd>; Thu, 27 Dec 2001 08:47:33 -0500
-Date: 27 Dec 2001 14:26:00 +0200
+	id <S286281AbRL0Nr5>; Thu, 27 Dec 2001 08:47:57 -0500
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:41656 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S286280AbRL0Nrl>; Thu, 27 Dec 2001 08:47:41 -0500
+Date: 27 Dec 2001 12:45:00 +0200
 From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Message-ID: <8FeKjZHHw-B@khms.westfalen.de>
-In-Reply-To: <p05101000b84a980dd9e1@[10.0.0.42]>
+Message-ID: <8FeKhAhXw-B@khms.westfalen.de>
+In-Reply-To: <20011222171438.A10233@suse.cz>
 Subject: Re: Configure.help editorial policy
 X-Mailer: CrossPoint v3.12d.kh8 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <p05101000b84a980dd9e1@[10.0.0.42]>
+In-Reply-To: <E16Ha5u-00027A-00@the-village.bc.nu> <alan@lxorguk.ukuu.org.uk> <20011221141847.E15926@redhat.com> <E16Ha5u-00027A-00@the-village.bc.nu> <20011222171438.A10233@suse.cz>
 X-No-Junk-Mail: I do not want to get *any* junk mail.
 Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
 X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tas@mindspring.com (Timothy A. Seufert)  wrote on 22.12.01 in <p05101000b84a980dd9e1@[10.0.0.42]>:
+vojtech@suse.cz (Vojtech Pavlik)  wrote on 22.12.01 in <20011222171438.A10233@suse.cz>:
 
-> Vojtech Pavlich wrote:
+> The only problem is that M = 10^6 plus Mi = 2^20 don't cover the usages ...
 >
-> >4Mbit bandwidth is usually 4 * 10^3 * 2^10 bits per second.
-> >20GB harddrive is usually 20 * 10^6 * 2^10 bytes.
->
-> A 20 GB hard drive is always 20 * 10^9 bytes.  I'm not sure why so
-> many people on the linux-kernel list think otherwise, but the hard
-> drive industry is quite consistent in its use of power-of-10 units to
-> describe capacity.  See:
+> 4Mbit bandwidth is usually 4 * 10^3 * 2^10 bits per second.
+> 20GB harddrive is usually 20 * 10^6 * 2^10 bytes.
 
->From dmesg:
+There's a simple answer. "These people lie."
 
-"195371568 sectors (100030 MB)" (calls itself 100)
-"8250001 512-byte hdwr sectors (4224 MB)" (calls itself 4330)
+> The confusion is there. It can't be erradicated by adding Mi's and Gi's,
+> because they don't cover the whole spectrum.
 
-I take back whatever I said. It's not 1024^n. It's not 1024*1000^n. It's  
-not 1000^n. I don't know what it is, except it's all a lie.
+We don't *want* something that covers that part of the spectrum. We want  
+that part to be *avoided*.
 
 MfG Kai

@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267348AbRGKQbT>; Wed, 11 Jul 2001 12:31:19 -0400
+	id <S266743AbRGKQbT>; Wed, 11 Jul 2001 12:31:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266746AbRGKQbK>; Wed, 11 Jul 2001 12:31:10 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:12303 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266743AbRGKQay>; Wed, 11 Jul 2001 12:30:54 -0400
-Date: Wed, 11 Jul 2001 09:34:53 -0700 (PDT)
-From: Patrick Mochel <mochel@transmeta.com>
-To: Pavel Machek <pavel@suse.cz>
-cc: ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI S1 and keyboard
-In-Reply-To: <20010710235013.A1933@bug.ucw.cz>
-Message-ID: <Pine.LNX.4.10.10107110927561.736-100000@nobelium.transmeta.com>
+	id <S267348AbRGKQbK>; Wed, 11 Jul 2001 12:31:10 -0400
+Received: from pat.uio.no ([129.240.130.16]:7820 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S266742AbRGKQax>;
+	Wed, 11 Jul 2001 12:30:53 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <15180.32563.739560.194630@charged.uio.no>
+Date: Wed, 11 Jul 2001 18:30:43 +0200
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+        Andrew Morton <andrewm@uow.edu.au>,
+        Klaus Dittrich <kladit@t-online.de>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7p6 hang
+In-Reply-To: <20010711175809.F3496@athlon.random>
+In-Reply-To: <200107110849.f6B8nlm00414@df1tlpc.local.here>
+	<shslmlv62us.fsf@charged.uio.no>
+	<3B4C56F1.3085D698@uow.edu.au>
+	<15180.24844.687421.239488@charged.uio.no>
+	<20010711175809.F3496@athlon.random>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Andrea Arcangeli <andrea@suse.de> writes:
 
-On Tue, 10 Jul 2001, Pavel Machek wrote:
+     > ksoftirqd is quite scheduler intensive, and while its startup
+     > is correct (no need of any change there), it tends to trigger
+     > scheduler bugs (one of those bugs was just fixed in pre5). The
+     > reason I never seen the deadlock I also fixed this other
+     > scheduler bug in my tree:
 
-> Hi!
-> 
-> With latest ACPI and patrick's patches, S1 *somehow* works. I can
-> enter it, and can exit it, userland is still alive, but all hardware
-> devices are dead.
-> 
-> But patrick's code explicitely does not resume devices when returning
-> from S1:
-> 
->         if (state > ACPI_SLEEP_S1)
->                 pm_send_all(PM_RESUME,(void*)0);
+     > --- 2.4.4aa3/kernel/sched.c.~1~ Sun Apr 29 17:37:05 2001
+     > +++ 2.4.4aa3/kernel/sched.c Tue May 1 16:39:42 2001
+     > @@ -674,8 +674,10 @@
+     >  #endif
+     >  	spin_unlock_irq(&runqueue_lock);
+ 
+     > - if (prev == next)
+     > + if (prev == next) {
+     > + current->policy &= ~SCHED_YIELD;
+     >  		goto same_process;
+     > + }
+ 
+     >  #ifdef CONFIG_SMP
+     >   	/*
 
-That's because none of the devices should be asleep in S1: it's "power-on"
-suspend, which means about the only thing that happens is the processor
-executes 'hlt'.
+I no longer see the hang with this patch, but I'm not sure I
+understand why it works.
+Does the above mean that the hang is occuring because spawn_ksoftirqd
+is yielding back to itself? If so, the semaphore trick seems more
+robust, as it causes a proper sleep until it's safe to wake up.
 
-> Does that mean my hardware is buggy, or is something wrong with
-> interrupts?
-
-Interrupts are enabled on the next line, and I can verify that it works
-here. ;) What type of system is it?
-
-	-pat
-
+Cheers,
+  Trond

@@ -1,77 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbUBTRMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 12:12:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbUBTRMY
+	id S261346AbUBTRKU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 12:10:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUBTRKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 12:12:24 -0500
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:39812 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S261347AbUBTRMT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 12:12:19 -0500
-Date: Fri, 20 Feb 2004 18:12:12 +0100
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: Tyler Trafford <ttrafford@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Strange problem with alsa, intel8x0 and ut2003/ut2004 on
- 2.6.3(all above 2.6.2-rc3)
-Message-Id: <20040220181212.19d91042@phoebee>
-In-Reply-To: <E1Atqi4-0000BM-7q@torg>
-References: <1077197950.4034bc7ec9730@imp1-q.free.fr>
-	<E1Atqi4-0000BM-7q@torg>
-X-Mailer: Sylpheed version 0.9.9claws22 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.2 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Fri__20_Feb_2004_18_12_12_+0100_ja2Wf4pBhic3iFFh"
+	Fri, 20 Feb 2004 12:10:19 -0500
+Received: from inova102.correio.tnext.com.br ([200.222.67.102]:46059 "HELO
+	trinity-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
+	id S261346AbUBTRKN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 12:10:13 -0500
+X-qfilter-stat: ok
+X-Analyze: Velop Mail Shield v0.0.4
+Date: Fri, 20 Feb 2004 14:10:09 -0300 (BRT)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
+To: Nico Schottelius <nico-kernel@schottelius.org>
+cc: Bruce Allen <ballen@gravity.phys.uwm.edu>, linux-kernel@vger.kernel.org
+Subject: Re: harddisk or kernel problem?
+In-Reply-To: <20040219081642.GE25184@schottelius.org>
+Message-ID: <Pine.LNX.4.58.0402201407480.1167@pervalidus.dyndns.org>
+References: <Pine.GSO.4.21.0402181039520.8134-100000@dirac.phys.uwm.edu>
+ <Pine.LNX.4.58.0402182002180.11305@brain.fop.ns.ca> <20040219081642.GE25184@schottelius.org>
+X-Archive: encrypt
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Fri__20_Feb_2004_18_12_12_+0100_ja2Wf4pBhic3iFFh
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Thu, 19 Feb 2004, Nico Schottelius wrote:
 
-Hi there,
+> Steve Bromwich [Wed, Feb 18, 2004 at 08:06:47PM -0400]:
+> > On Wed, 18 Feb 2004, Bruce Allen wrote:
+> >
+> > > > 194 Temperature_Celsius     0x0022   100   050   000    Old_age   Always
+> > > > -       48 (Lifetime Min/Max 14/65)
+> > > >
+> > > > If I'm reading this correctly, you've been running the drive when it's
+> > > > extremely cold and extremely hot (Min/Max 14/65, I'm guessing that's
+> > > > either Fahrenheit or a raw unconverted reading from the thermistor).
+> > >
+> > > Neither.  Fujitsu uses Celsuis: 14, 48, and 65 are all in Celsuis.
+> >
+> > Good grief... I'm not surprised the drive's dying, then! I've seen drives
+> > lock up around 35C, I'm quite impressed the drive is still chugging along
+> > (to some extent, at least) at 48C - and a max of 65C? Looking at a few of
+> > Fujitsu's pages (eg,
+> > http://www.fujitsu.ca/products/mobile_hdd/mht_ah/physical_specs.html),
+> > ambient operating temperature is 5C to 55C - perhaps that's the cause of
+> > the drive dying?
+> >
+> > Just out of curiosity, Nico, what're you doing with these drives that
+> > they're running so hot?
+>
+> You won't believe it.
+> It ran in a standard ECS Elitebook A530 Notebook.
+> I always waited some time (30 Minutes up to some hours), when it was
+> cold outside.
+> I am working with this laptop about 10-20 hours a day, it runs several
+> compile runs, etc.
 
-I have ut2003/2004, and in both I can hear the crackling with kernel 2.6.3.
-With 2.6.2-rc3 everything was fine.
+It isn't that hot, and by ambient temperature I assume it's the
+local temperature, not of the hard drive.
 
-I tried another openal lib (selfcompiled, armyops) but it doesn't help.
-(I normally start my ut with "nice -n -1". If I start it with normal priority,
-the sound gets a bit less crackling)
-xmms works fine.
+194 Temperature_Celsius     0x0022   079   074   042    Old_age   Always       -       54
 
-I have an intel8x0 alsa driver with oss support for my SiS chip
-(P4 2.4Ghz/SiS645DX). And I'm using the nvidia driver for my GF card.
-Kernel compiled with PREEMPT.
-
-Regards,
-Martin
+and has been running almost fine for over 2 years.
 
 -- 
-MyExcuse:
-The vulcan-death-grip ping has been applied.
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---Signature=_Fri__20_Feb_2004_18_12_12_+0100_ja2Wf4pBhic3iFFh
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFANj/umjLYGS7fcG0RAvtnAKCe7PSKCn94/LqITRnQP848Ya5/1ACgmQJh
-t37RRuIfWMV7dAgDEykBV1I=
-=Rdh+
------END PGP SIGNATURE-----
-
---Signature=_Fri__20_Feb_2004_18_12_12_+0100_ja2Wf4pBhic3iFFh--
+http://www.pervalidus.net/contact.html

@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbTJOBZX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 21:25:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbTJOBZX
+	id S262307AbTJOBjq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 21:39:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262332AbTJOBjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 21:25:23 -0400
-Received: from h80ad24f4.async.vt.edu ([128.173.36.244]:10624 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262192AbTJOBZV (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 21:25:21 -0400
-Message-Id: <200310150125.h9F1PJjO005719@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Max Valdez <maxvaldez@yahoo.com>
-Cc: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nvidia.o on 2.4.22/2.6.0 ?? 
-In-Reply-To: Your message of "Wed, 15 Oct 2003 00:33:30 -0000."
-             <1066178010.14217.3.camel@garaged.fis.unam.mx> 
-From: Valdis.Kletnieks@vt.edu
-References: <1066178010.14217.3.camel@garaged.fis.unam.mx>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-2103173083P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 14 Oct 2003 21:39:46 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:7073 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262307AbTJOBjp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 21:39:45 -0400
+Message-ID: <3F8CA55C.1080203@nortelnetworks.com>
+Date: Tue, 14 Oct 2003 21:39:40 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: question on incoming packets and scheduler
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 14 Oct 2003 21:25:19 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-2103173083P
-Content-Type: text/plain; charset=us-ascii
 
-On Wed, 15 Oct 2003 00:33:30 -0000, Max Valdez <maxvaldez@yahoo.com>  said:
+I have a long-running cpu hog background task, and a high-priority 
+critical task that waits on a socket for network traffic.  When a packet 
+comes in, I'd like the cpu hog to be swapped out ASAP, rather than 
+waiting for the end of the timeslice.  Is there any way to make this happen?
 
-> Have anyone made a successful run of X with nvidia (closes source)
-> module ??, I have a TNT2 running on a 2.4.20-gentoo-r7 kernel, but when
-> I try to run X on 2.4.22* or 2.6.0* I alway get an error about my screen
-> and /dev/nvidia0.
+The code paths that I managed to trace didn't seem to be calling the 
+scheduler to force the context switch.  Hopefully I missed something.
 
-1) Get the 4496 drivers from NVidia, use "--extract-only" to get the pieces out.
-2) Surf over to http://www.minion.de/nvidia and pick up the patch.  Apply
-it in the NVIDIA-Linux-x86-1.0-4496-pkg2/usr/src/nv directory. While booted
-to -test7, 'cp Makefile.kbuild Makefile' and then 'make'.  
+Thanks,
 
-(I posted more detailed directions a while ago, they should be in the list archives)
+Chris
 
-It would certainly help if you were more specific about "get an error about
-my screen and /dev/nvidia0".
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 
---==_Exmh_-2103173083P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/jKH+cC3lWbTT17ARArIgAJsErTuLHaz6zw2ksjBFB1cjzm5pUACdGh5L
-d1CxeqbxDGDjt8LVqae23Oc=
-=ht1w
------END PGP SIGNATURE-----
-
---==_Exmh_-2103173083P--

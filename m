@@ -1,62 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264370AbTDXBRP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 21:17:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbTDXBRP
+	id S264371AbTDXBXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 21:23:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbTDXBXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 21:17:15 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:64410 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264370AbTDXBRN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 21:17:13 -0400
-Date: Wed, 23 Apr 2003 18:18:46 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Jamie Lokier <jamie@shareable.org>,
-       Werner Almesberger <wa@almesberger.net>
-cc: Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>, pat@suwalski.net
-Subject: Re: [Bug 623] New: Volume not remembered.
-Message-ID: <1613630000.1051147126@flay>
-In-Reply-To: <20030424011137.GA27195@mail.jlokier.co.uk>
-References: <21660000.1051114998@[10.10.2.4]> <20030423164558.GA12202@citd.de> <1508310000.1051116963@flay> <20030423183413.C1425@almesberger.net> <1560860000.1051133781@flay> <20030423191427.D3557@almesberger.net> <1570840000.1051136330@flay> <20030424001134.GD26806@mail.jlokier.co.uk> <20030423214332.H3557@almesberger.net> <20030424011137.GA27195@mail.jlokier.co.uk>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Wed, 23 Apr 2003 21:23:25 -0400
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:16508 "EHLO
+	dyn9-47-17-83.beaverton.ibm.com") by vger.kernel.org with ESMTP
+	id S264371AbTDXBXY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 21:23:24 -0400
+Message-ID: <3EA73852.24923A52@us.ibm.com>
+Date: Wed, 23 Apr 2003 18:05:22 -0700
+From: Janet Morgan <janetmor@us.ibm.com>
+Reply-To: janetmor@us.ibm.com
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: linux-kernel@vger.kernel.org, akpm@digeo.com, linux-aio@kvack.org
+Subject: [PATCH] aio methods for block devices
+Content-Type: multipart/mixed;
+ boundary="------------898C87BE3C05C42CD152210C"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I don't quite see how this would make user space any less
->> fancy:
->> 
->> # insmod audio_driver volume=`retrieve_volume`
->> 
->> versus
->> 
->> # insmod audio_driver
->> # aumix -L >/dev/null
-> 
-> Eh?  I was suggesting that the _default_ just work as quite a few
-> people expect:
-> 
-> 	$ insmod audio_driver
-> 
-> In fact, forget about "volume".  Just have a "silent" parameter that
-> defaults to 0, and determines whether the device starts silent or
-> loads preset defaults.  Make it a core audio thing rather than a
-> per-driver thing, too.  "silent=1" in /etc/modules.conf self-evidently
-> answers the FAQ, too :)
+This is a multi-part message in MIME format.
+--------------898C87BE3C05C42CD152210C
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Me like. Assuming this means what I think it does ;-)
+Here's a small patch that adds aio_read and aio_write methods to the
+block device driver.
 
-The kernel sets a default quiet volume level (at first setup) to make some 
-sort of  noise when used I first set up the machine so users don't get 
-confused ... save & restore volume levels on every boot from userspace. 
-If people want silent by default, they can change that in the 
-modules.conf / command line.
+Thanks,
+-Janet
 
-Is that what you meant?
+--------------898C87BE3C05C42CD152210C
+Content-Type: text/plain; charset=us-ascii;
+ name="blkaio.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="blkaio.patch"
 
-M.
+--- linux-2.5.68/fs/block_dev.c	Sat Apr 19 19:51:22 2003
++++ aio/fs/block_dev.c	Wed Apr 23 13:21:26 2003
+@@ -703,6 +703,15 @@ static ssize_t blkdev_file_write(struct 
+ 	return generic_file_write_nolock(file, &local_iov, 1, ppos);
+ }
+ 
++static ssize_t blkdev_file_aio_write(struct kiocb *iocb, const char *buf,
++				   size_t count, loff_t pos)
++{
++	struct iovec local_iov = { .iov_base = (void *)buf, .iov_len = count };
++
++	return generic_file_aio_write_nolock(iocb, &local_iov, 1, &iocb->ki_pos);
++}
++
++
+ struct address_space_operations def_blk_aops = {
+ 	.readpage	= blkdev_readpage,
+ 	.writepage	= blkdev_writepage,
+@@ -719,6 +728,8 @@ struct file_operations def_blk_fops = {
+ 	.llseek		= block_llseek,
+ 	.read		= generic_file_read,
+ 	.write		= blkdev_file_write,
++  	.aio_read	= generic_file_aio_read,
++  	.aio_write	= blkdev_file_aio_write, 
+ 	.mmap		= generic_file_mmap,
+ 	.fsync		= block_fsync,
+ 	.ioctl		= blkdev_ioctl,
+
+--------------898C87BE3C05C42CD152210C--
 

@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264478AbTFKVjX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 17:39:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264490AbTFKVjW
+	id S264490AbTFKVjp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 17:39:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264494AbTFKVjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 17:39:22 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:25790 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264478AbTFKVjV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 17:39:21 -0400
-Date: Wed, 11 Jun 2003 14:54:38 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Greg KH <greg@kroah.com>
-cc: Alan Stern <stern@rowland.harvard.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: BUG in driver model class.c
-In-Reply-To: <20030611215147.GA27029@kroah.com>
-Message-ID: <Pine.LNX.4.44.0306111454280.11379-100000@cherise>
+	Wed, 11 Jun 2003 17:39:45 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:33665 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264490AbTFKVjn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 17:39:43 -0400
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux Solutions
+To: Mika =?iso-8859-15?q?Penttil=E4?= <mika.penttila@kolumbus.fi>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+Subject: Re: [PATCH 2/2][2.5]Unisys ES7000 platform subarch
+Date: Wed, 11 Jun 2003 14:52:24 -0700
+User-Agent: KMail/1.4.3
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <3FAD1088D4556046AEC48D80B47B478C022BDA75@usslc-exch-4.slc.unisys.com> <3EE75144.4030300@kolumbus.fi>
+In-Reply-To: <3EE75144.4030300@kolumbus.fi>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200306111452.24518.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 11 June 2003 08:56 am, Mika Penttilä wrote:
+> Just out of curiosity, what are "Physical Cluster" and "Logical
+> Cluster"?  This terminology doesn't appear in Intel documentation.
+> AFAIK, IPIs are currently always sent using logical destination mode,
+> and in your patch ioapic entries have logical mode in cluster case. So
+> where does physical cluster  come into play?
+>
+> --Mika
 
-On Wed, 11 Jun 2003, Greg KH wrote:
+Starting with P4s, Intel has enabled physical interrupts that correctly use 
+the upper nibble of the destination field when clustered addressing mode is 
+turned on.  Hence the name "Physical Cluster", even if it may not be official 
+terminology.
 
-> On Wed, Jun 11, 2003 at 01:12:47PM -0400, Alan Stern wrote:
-> > Greg:
-> > 
-> > There is a bug in drivers/base/class.c in 2.5.70.  Near the start of the
-> > routine class_device_add() are the lines
-> > 
-> >         if (class_dev->dev)
-> >                 get_device(class_dev->dev);
-> > 
-> > But there's nothing to undo this get_device, either in the error return 
-> > part of class_device_add() or in class_device_del().
-> > 
-> > I assume that either this get_device() doesn't belong there or else there
-> > should be corresponding put_device() calls in the other two spots.  
-> > Whichever is the case, it should be easy for you to fix.
-> 
-> You are correct.  I took out the other put_device() in the -bk tree in
-> class_device_del() but forgot to remove this one.  Good catch.
-> 
-> Pat, here's a patch to fix this up, against the latest -bk tree.
-
-Applied, thanks,
-
-
-	-pat
+-- 
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
 

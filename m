@@ -1,99 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266271AbUF3S1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266790AbUF3S12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266271AbUF3S1T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 14:27:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266796AbUF3S1S
+	id S266790AbUF3S12 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 14:27:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266796AbUF3S12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 14:27:18 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:34490 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S266271AbUF3S0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 14:26:48 -0400
-To: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Add some PCI Express constants to pci.h
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <roland@topspin.com>
-Date: Wed, 30 Jun 2004 11:26:47 -0700
-Message-ID: <52r7rwj40o.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
+	Wed, 30 Jun 2004 14:27:28 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38407 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S266790AbUF3S07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 14:26:59 -0400
+Date: Wed, 30 Jun 2004 19:26:54 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Ian Molton <spyro@f2s.com>, linux-arm-kernel@lists.arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: A question about PROT_NONE on ARM and ARM26
+Message-ID: <20040630192654.B21104@flint.arm.linux.org.uk>
+Mail-Followup-To: Jamie Lokier <jamie@shareable.org>,
+	Ian Molton <spyro@f2s.com>, linux-arm-kernel@lists.arm.linux.org.uk,
+	linux-kernel@vger.kernel.org
+References: <20040630024434.GA25064@mail.shareable.org> <20040630091621.A8576@flint.arm.linux.org.uk> <20040630145942.GH29285@mail.shareable.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 30 Jun 2004 18:26:47.0623 (UTC) FILETIME=[CDBDDD70:01C45ECF]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040630145942.GH29285@mail.shareable.org>; from jamie@shareable.org on Wed, Jun 30, 2004 at 03:59:42PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds some PCI Express register constants to <linux/pci.h>
+On Wed, Jun 30, 2004 at 03:59:42PM +0100, Jamie Lokier wrote:
+> Russell King wrote:
+> > There are two different types of privileged accesses on ARM.  One is the
+> > standard load/store instruction, which checks the permissions for the
+> > current processor mode.  The other is one which simulates a user mode
+> > access to the address.
+> > 
+> > We use the latter for get_user/put_user/copy_to_user/copy_from_user.
+> > 
+> > > This means that calling write() with a PROT_NONE region would succeed,
+> > > wouldn't it?
+> > 
+> > No, because the uaccess.h function will fault, and we'll end up returning
+> > -EFAULT.
+> 
+> Ok, that answers my question, thanks.  ARM and ARM26 are fine with PROT_NONE.
+> 
+> Those are the "ldrlst" instructions in getuser.S, right?
+> 
+> Here's a question, for ARM only (not ARM26):
+> ...........................................
+> 
+> getuser.S uses "ldrlst", but unlike ARM26 has no TASK_SIZE check and
+> matching "ldrge".  If kernel C code uses set_fs(), then get_user()
+> _should_ permit reading from kernel addresses.  Will that work on ARM?
 
-For my device, setting the Max_Read_Request_Size value in the PCI
-Express device control register makes a huge performance difference.
-I wanted my driver code that does this to be a little more
-self-documenting than:
+Indeed it does - it's all magic.  Firstly, let me explain "ldrlst".  This
+is "ldr" + "ls" + "t".  "ldr" = load register.  "ls" = less than (all
+instructions are conditional on ARM.)  "t" = the magic which turns this
+access into a user mode access.
 
-	pci_read_config_word(mdev->pdev, cap + 8, &val);
-	val = (val & ~(5 << 12)) | (5 << 12);
+If the address is larger than the value in TI_ADDR_LIMIT, there's no
+point in even trying the access - it will fail, so we just do the "bad
+access" handling.  This also happens if the instruction faults and the
+fault can not be fixed up.
 
-I went a little overboard and added all the basic device register
-fields.  If desired I could go even further overboard and add the
-link, slot and root registers as well.
+However, when we have set_fs(KERNEL_DS) in effect, we modify two things.
+First is the TI_ADDR_LIMIT, which allows any access through the assembly
+check.  The other is the magic - we fiddle with the domain register.
 
-This patch is based on Matthew Wilcox's patch for pciutils, corrected
-for some PCI Express spec 1.0a changes.
+Every translation has a "domain" index associated with it, and each
+domain can be in one of three modes: no access, client or manager.
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+If it's in "no access" mode, nothing can access translations in this
+domain.  "client" mode means that the page level permissions are checked
+and faults are generated depending on the access mode vs the permission
+mode.  "manager" means the page level permissions are not checked at
+all, and any access will succeed irrespective of the page level
+permissions.
 
-Index: linus-2.5/include/linux/pci.h
-===================================================================
---- linus-2.5.orig/include/linux/pci.h	2004-06-28 10:37:11.000000000 -0700
-+++ linus-2.5/include/linux/pci.h	2004-06-30 11:21:27.000000000 -0700
-@@ -321,6 +321,50 @@
- #define  PCI_X_STATUS_266MHZ	0x40000000	/* 266 MHz capable */
- #define  PCI_X_STATUS_533MHZ	0x80000000	/* 533 MHz capable */
- 
-+/* PCI Express capability registers */
-+
-+#define PCI_EXP_FLAGS		2	/* Capabilities register */
-+#define PCI_EXP_FLAGS_VERS	0x000f	/* Capability version */
-+#define PCI_EXP_FLAGS_TYPE	0x00f0	/* Device/Port type */
-+#define  PCI_EXP_TYPE_ENDPOINT	0x0	/* Express Endpoint */
-+#define  PCI_EXP_TYPE_LEG_END	0x1	/* Legacy Endpoint */
-+#define  PCI_EXP_TYPE_ROOT_PORT 0x4	/* Root Port */
-+#define  PCI_EXP_TYPE_UPSTREAM	0x5	/* Upstream Port */
-+#define  PCI_EXP_TYPE_DOWNSTREAM 0x6	/* Downstream Port */
-+#define  PCI_EXP_TYPE_PCI_BRIDGE 0x7	/* PCI/PCI-X Bridge */
-+#define PCI_EXP_FLAGS_SLOT	0x0100	/* Slot implemented */
-+#define PCI_EXP_FLAGS_IRQ	0x3e00	/* Interrupt message number */
-+#define PCI_EXP_DEVCAP		4	/* Device capabilities */
-+#define  PCI_EXP_DEVCAP_PAYLOAD	0x07	/* Max_Payload_Size */
-+#define  PCI_EXP_DEVCAP_PHANTOM	0x18	/* Phantom functions */
-+#define  PCI_EXP_DEVCAP_EXT_TAG	0x20	/* Extended tags */
-+#define  PCI_EXP_DEVCAP_L0S	0x1c0	/* L0s Acceptable Latency */
-+#define  PCI_EXP_DEVCAP_L1	0xe00	/* L1 Acceptable Latency */
-+#define  PCI_EXP_DEVCAP_ATN_BUT	0x1000	/* Attention Button Present */
-+#define  PCI_EXP_DEVCAP_ATN_IND	0x2000	/* Attention Indicator Present */
-+#define  PCI_EXP_DEVCAP_PWR_IND	0x4000	/* Power Indicator Present */
-+#define  PCI_EXP_DEVCAP_PWR_VAL	0x3fc0000 /* Slot Power Limit Value */
-+#define  PCI_EXP_DEVCAP_PWR_SCL	0xc000000 /* Slot Power Limit Scale */
-+#define PCI_EXP_DEVCTL		8	/* Device Control */
-+#define  PCI_EXP_DEVCTL_CERE	0x0001	/* Correctable Error Reporting En. */
-+#define  PCI_EXP_DEVCTL_NFERE	0x0002	/* Non-Fatal Error Reporting Enable */
-+#define  PCI_EXP_DEVCTL_FERE	0x0004	/* Fatal Error Reporting Enable */
-+#define  PCI_EXP_DEVCTL_URRE	0x0008	/* Unsupported Request Reporting En. */
-+#define  PCI_EXP_DEVCTL_RELAX_EN 0x0010 /* Enable relaxed ordering */
-+#define  PCI_EXP_DEVCTL_PAYLOAD	0x00e0	/* Max_Payload_Size */
-+#define  PCI_EXP_DEVCTL_EXT_TAG	0x0100	/* Extended Tag Field Enable */
-+#define  PCI_EXP_DEVCTL_PHANTOM	0x0200	/* Phantom Functions Enable */
-+#define  PCI_EXP_DEVCTL_AUX_PME	0x0400	/* Auxiliary Power PM Enable */
-+#define  PCI_EXP_DEVCTL_NOSNOOP_EN 0x0800  /* Enable No Snoop */
-+#define  PCI_EXP_DEVCTL_READRQ	0x7000	/* Max_Read_Request_Size */
-+#define PCI_EXP_DEVSTA		10	/* Device Status */
-+#define  PCI_EXP_DEVSTA_CED	0x01	/* Correctable Error Detected */
-+#define  PCI_EXP_DEVSTA_NFED	0x02	/* Non-Fatal Error Detected */
-+#define  PCI_EXP_DEVSTA_FED	0x04	/* Fatal Error Detected */
-+#define  PCI_EXP_DEVSTA_URD	0x08	/* Unsupported Request Detected */
-+#define  PCI_EXP_DEVSTA_AUXPD	0x10	/* AUX Power Detected */
-+#define  PCI_EXP_DEVSTA_TRPND	0x20	/* Transactions Pending */
-+
- /* Extended Capabilities (PCI-X 2.0 and Express) */
- #define PCI_EXT_CAP_ID(header)		(header & 0x0000ffff)
- #define PCI_EXT_CAP_VER(header)		((header >> 16) & 0xf)
+We use three domains - one for user, one for kernel and one for IO.
+Normally all three are in client mode.  However, on set_fs(KERNEL_DS)
+we switch the kernel domain to manager mode.
+
+This means that the user-mode LDR instructions (ldrt / ldrlst etc)
+will not have their page permissions checked, and therefore the access
+will succeed - exactly as we require.
+
+> I ask because it's interesting to see that ARM and ARM26 have quite
+> different code in getuser.S and putuser.S.  The ARM code is shorter.
+
+ARM26 is completely different - it doesn't have the ability to bypass
+permission checks in the "kernel" area of memory.  Therefore, ARM26
+has to rely solely on the TI_ADDR_LIMIT check and select the appropriate
+instruction to use based upon the suceeding address.
+
+> Here's an optimisation idea, for ARM26 only:
+> ...........................................
+> 
+> Do you need the "strlst" instructions in putuser.S?  They're followed
+> by "strge" instructions.
+
+The outcome of the page permission checks are slightly different for the
+strt vs str instructions for both the ARM26 cases:
+
+Privileged  T-bit     00      01     10         11
+    Y         0       r/w     r/w    r/w        r/w
+    Y         1       r/w     read   no access  no access
+    N         X       r/w     read   no access  no access
+
+Note: if PAGE_NOT_USER and PAGE_OLD are both clear (iow, young + user
+page) we use bit pattern 0x.  If PAGE_NOT_USER, PAGE_OLD, PAGE_READONLY
+and PAGE_CLEAN are all clear, we use bit pattern 00.  Otherwise we use
+bit pattern 11.
+
+We have a similar difference in kernel-mode vs user-mode accesses for
+the ARM case as well - so its all complicated and unless you really
+understand this... 8)
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,35 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbUK1S3X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbUK1SdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261555AbUK1S3X (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 13:29:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbUK1S3P
+	id S261554AbUK1SdW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 13:33:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbUK1SdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 13:29:15 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:6290 "EHLO
+	Sun, 28 Nov 2004 13:33:22 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:7826 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261553AbUK1S2q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 13:28:46 -0500
-Subject: Re: mmap and multiple memory chucks allocated by kmalloc()
+	id S261554AbUK1SdI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 13:33:08 -0500
+Subject: Re: Out of memory, but no OOM Killer? (2.6.9-ac11)
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: lan mu <mu8lan2003@yahoo.com>
+To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041127000414.74351.qmail@web50506.mail.yahoo.com>
-References: <20041127000414.74351.qmail@web50506.mail.yahoo.com>
+In-Reply-To: <20041126224722.GK30987@charite.de>
+References: <20041126224722.GK30987@charite.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1101662725.16761.37.camel@localhost.localdomain>
+Message-Id: <1101662984.16787.40.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 28 Nov 2004 17:25:29 +0000
+Date: Sun, 28 Nov 2004 17:29:46 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-11-27 at 00:04, lan mu wrote:
-> Can I use the kmalloc to allocate 5 memory chucks
-> (4096*30) and then use remap_page_range() to map those
-> 5 chucks one by one? it not seems to work. Anyone can
-> tell me if it's feasible? or I have to use vmalloc?
+On Gwe, 2004-11-26 at 22:47, Ralf Hildebrandt wrote:
+> rsync seems to want lots of memory, yet the OOM killer doesn't strike.
+> Subsequently, that machine died an ugly death until delivered by a
+> power-cycle.
+> 
+> Why doesn't the OOM killer reap rsync?
 
-If they don't need to be linear you can allocate individual pages and
-use a do_no_page function. See the sound/oss/via82cxxx driver
+The OOM killer is a very dumb (near useless) heuristic. You can turn it
+off or switch to sane overcommit module by setting
+/proc/sys/vm/overcommit_memory to
+1 or 2 respectively.
+
+In this case your bug looks like the 2.6.9 network problem in which case
+if you are lucky -ac12 will have fixed it as I merged the stuff DaveM
+recommended into that.
+
+Alan
 

@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289446AbSAJN6O>; Thu, 10 Jan 2002 08:58:14 -0500
+	id <S289445AbSAJN6O>; Thu, 10 Jan 2002 08:58:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289449AbSAJN6E>; Thu, 10 Jan 2002 08:58:04 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:2432 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S289446AbSAJN5y>;
-	Thu, 10 Jan 2002 08:57:54 -0500
-Date: Thu, 10 Jan 2002 05:56:51 -0800 (PST)
-Message-Id: <20020110.055651.74749601.davem@redhat.com>
-To: david.balazic@uni-mb.si
-Cc: matthias.andree@stud.uni-dortmund.de, linux-kernel@vger.kernel.org
+	id <S289446AbSAJN6F>; Thu, 10 Jan 2002 08:58:05 -0500
+Received: from AMontpellier-201-1-2-92.abo.wanadoo.fr ([193.253.215.92]:5128
+	"EHLO awak") by vger.kernel.org with ESMTP id <S289445AbSAJN56>;
+	Thu, 10 Jan 2002 08:57:58 -0500
 Subject: Re: Simple local DOS
-From: "David S. Miller" <davem@redhat.com>
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: David Balazic <david.balazic@uni-mb.si>
+Cc: matthias.andree@stud.uni-dortmund.de,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 In-Reply-To: <3C3D9B2B.2DDB72CB@uni-mb.si>
 In-Reply-To: <3C3D9B2B.2DDB72CB@uni-mb.si>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 10 Jan 2002 14:57:35 +0100
+Message-Id: <1010671055.26821.4.camel@bip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Balazic <david.balazic@uni-mb.si>
-   Date: Thu, 10 Jan 2002 14:46:19 +0100
-   
-   > all this is off-topic on linux-kernel,
-   
-   non-root user locked up the console code. console code is part of kernel.
-   it is a kernel topic.
+On Thu, 2002-01-10 at 14:46, David Balazic wrote:
+> > chvt,
+> 
+> how do I start chvt if I have a locked up console system ?
 
-The real issue is that X has the console in an indeterminate state (it
-probably just saved the VGA state and is outputting probing
-information) but now it is blocked on terminal output due to the
-"less".
+Ctrl-Alt-F1 ?
 
-There is nothing the kernel can do about what X is up to.  The suid
-wrapper for X can check if stdout/stderr is a pipe and refuse to run
-if it is.
+	Xav
 
-So really, it is in fact off topic for linux-kernel.  Please take this
-to the xfree86 lists, I'm sure they'll be more than happy to fix it.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com

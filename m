@@ -1,123 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261676AbSJMTuT>; Sun, 13 Oct 2002 15:50:19 -0400
+	id <S261669AbSJMTvg>; Sun, 13 Oct 2002 15:51:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261678AbSJMTuT>; Sun, 13 Oct 2002 15:50:19 -0400
-Received: from nameservices.net ([208.234.25.16]:20655 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S261676AbSJMTuR>;
-	Sun, 13 Oct 2002 15:50:17 -0400
-Message-ID: <3DA9D0FC.B2BD34B8@opersys.com>
-Date: Sun, 13 Oct 2002 16:01:00 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>
-Subject: Re: [PATCH] LTT for 2.5.41: Core infrastructure 1/3
-References: <3DA5188A.D5436324@opersys.com> <20021013151520.A17134@infradead.org>
-Content-Type: text/plain; charset=us-ascii
+	id <S261681AbSJMTvf>; Sun, 13 Oct 2002 15:51:35 -0400
+Received: from bgp01116664bgs.westln01.mi.comcast.net ([68.42.104.18]:48456
+	"HELO blackmagik.dynup.net") by vger.kernel.org with SMTP
+	id <S261669AbSJMTv3>; Sun, 13 Oct 2002 15:51:29 -0400
+Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not
+	suspend devices
+From: Eric Blade <eblade@blackmagik.dynup.net>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200210131924.MAA00308@baldur.yggdrasil.com>
+References: <200210131924.MAA00308@baldur.yggdrasil.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8.99 
+Date: 13 Oct 2002 15:51:57 -0400
+Message-Id: <1034538718.1215.4.camel@cpq>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Thanks for the feedback Christoph,
-
-Here a couple of short replies:
-
-Christoph Hellwig wrote:
-> On Thu, Oct 10, 2002 at 02:04:58AM -0400, Karim Yaghmour wrote:
-> > 1) We needed to define TRUE and FALSE for the tracer. A grep for
-> > #define TRUE/FALSE in include/linux shows a few repeats. Shouldn't
-> > these be globally defined somewhere?
+On Sun, 2002-10-13 at 15:24, Adam J. Richter wrote:
+> 	linux-2.5.42 had an annoying new behavior.  When I would
+> try to do a warm reboot, it would spin down the hard drives, which
+> just made the reboot take longer and gave the impression that a
+> halt or poweroff was in progress.
 > 
-> No.  No core code uses it, and that's for a reason.  I suggest
-> you simply use 1/0 instead.
-
-OK,
-
-> > +/* Structure packing within the trace */
-> > +#if LTT_UNPACKED_STRUCTS
-> who defines this?
-
-OK, this is the second time the issues comes up, so I'll add the
-following just above the #if:
-/* Don't set this to "1" unless you really know what you're doing */
-#define LTT_UNPACKED_STRUCTS 0
-
-> But, yes, that looses some info.  When doing multi-line
-> prototypes please at least use tabs and add the actual
-> parameter names (like e.g. XFS does):
+> 	At first, I suspected IDE, but I think the new behavior in IDE
+> of spinning down the hard drives on suspend is correct.  The problem
+> is that the warm reboot system call is trying to suspend all of the
+> devices before a warm reboot for no reason.  We already have a reboot
+> notifier chain that drivers can use to register code that has to be
+> run in order to safely reboot or halt.  I am not talking about
+> eliminating that.  I am only talking about the soft reboot putting
+> devices into a power saving mode that is allowed to take a long
+> recovery time, especially given that the reboot is likely to want to
+> talk to every hardware device connected to the system.
 > 
-> extern int trace_set_config(
->         int             do_depth,       /* Use depth to fetch eip */
->         int             do_bounds,      /* Use bounds to fetch eip */
->         int             depth,          /* Detph to fetch eip */
->         void            *lower,         /* Lower bound eip address */
->         void            *upper);        /* Upper bound eip address */
-> 
+> 	Anyhow, here is the patch.  As far as I can tell, there is no
+> delegated mainainer for kernel/sys.c, so I am sending this to
+> linux-kernel and I will resend it to Linus later if nobody points me
+> to another maintainer to go through and there are no complaints.
 
-OK.
+Adam,
+  I'm not sure the proper thing to do is necessarily remove the
+device_shutdown() call.  I did the changes to the device_shutdown()
+function, but as far as I can tell, it should not have changed any
+behavior like that - all I did was re-work the logic a bit.  In any
+case, what I did submit to the mailing list was absent a small piece of
+code (a change to device.h), and the person who forwarded it onto Linus
+(thank you!) did make a change to make it compile without that.
 
-> > +/* Generic function */
-> > +static inline void TRACE_EVENT(u8 event_id, void* data)
-> > +{
-> > +     trace_event(event_id, data);
-> > +}
-> 
-> Umm, why don't you just use trace_even in the actual code?
+  Please try this patch to the base 2.5.42 code, and let me know if this
+returns it to the previous behavior?
 
-This macro is only there so that someone could insert a trace point like
-this in his code:
- TRACE_EVENT(MY_ID, MY_DATA)
+--- a/drivers/base/power.c      Sat Oct 12 00:22:11 2002
++++ linux/drivers/base/power.c  Sun Oct 13 15:42:46 2002
+@@ -31,7 +31,7 @@
+        struct device * prev = NULL;
+        int error = 0;
 
-If trace_event() is used as-is in the code then the kernel fails to build
-if tracing is disabled. If the macro is used, instead, then the kernel
-builds fine and no code is added because the TRACE_EVENT() macro is:
-#define TRACE_EVENT(ID, DATA)
-when tracing is disabled.
+-       if(level == SUSPEND_POWER_DOWN)
++       if(level == SUSPEND_SHUT_DOWN)
+                printk(KERN_EMERG "Shutting down devices\n");
+        else
+                printk(KERN_EMERG "Suspending devices\n");
+@@ -42,7 +42,7 @@
+                if (dev) {
+                        spin_unlock(&device_lock);
+                        if(dev->driver) {
+-                               if(level == SUSPEND_POWER_DOWN) {
++                               if(level == SUSPEND_SHUT_DOWN) {
+                                        if(dev->driver->remove)
+                                               
+dev->driver->remove(dev);
+                                } else if(dev->driver->suspend)
+@@ -96,7 +96,7 @@
+  */
+ void device_shutdown(void)
+ {
+-       device_suspend(4, SUSPEND_POWER_DOWN);
++       device_suspend(4, SUSPEND_SHUT_DOWN);
+ }
 
-Note that this macro is actually never used in the current patches. It's
-only there for completeness. The actual macros being used are much more
-specific (TRACE_FILE_SYSTEM(), TRACE_SCHECHANGE(), etc.)
+ EXPORT_SYMBOL(device_suspend);
+--- a/include/linux/device.h    Sat Oct 12 00:22:19 2002
++++ linux/include/linux/device.h        Sun Oct 13 15:43:03 2002
+@@ -40,6 +40,7 @@
+        SUSPEND_SAVE_STATE,
+        SUSPEND_DISABLE,
+        SUSPEND_POWER_DOWN,
++       SUSPEND_SHUT_DOWN,
+ };
 
-...
-> > +#define TRACE_EV_HEARTBEAT      22   /* Heartbeat event */
-> 
-> What about an enum?
+ enum {
 
-Sure.
 
-...
-> > +#if defined (__i386__) || defined (__x86_64__)
-> > +     if((using_tsc == TRUE) && cpu_has_tsc)
-> > +             rdtscl(time_delta);
-> > +     else {
-> > +             do_gettimeofday(now);
-> > +             time_delta = calc_time_delta(now, &buffer_start_time(cpu));
-> > +     }
-> > +#else
-> > +     do_gettimeofday(now);
-> > +     time_delta = calc_time_delta(now, &buffer_start_time(cpu));
-> > +#endif
-> > +
-> > +     return time_delta;
-> > +}
-> 
-> Instead of adding per-arch stuff here I'd suggest using asm/trace.h
-> with an asm-generic/trace.h for the default version.
 
-Yes. Actually we already do have asm/trace.h. We'll push those #if's in
-there instead of having them in linux/trace.h.
-
-Thanks again, the next update will include these changes.
-
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================

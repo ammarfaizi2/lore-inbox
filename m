@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264560AbUFNWmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263850AbUFNWu6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264560AbUFNWmL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 18:42:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbUFNWmL
+	id S263850AbUFNWu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 18:50:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263864AbUFNWu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 18:42:11 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:53684 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264560AbUFNWmD
+	Mon, 14 Jun 2004 18:50:58 -0400
+Received: from smtp.infonegocio.com ([213.4.129.150]:750 "EHLO
+	telesmtp4.mail.isp") by vger.kernel.org with ESMTP id S263850AbUFNWu5 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 18:42:03 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 14 Jun 2004 15:41:57 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [tool] qlnx-psets configuration tool
-Message-ID: <Pine.LNX.4.58.0406141531570.7640@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 14 Jun 2004 18:50:57 -0400
+Subject: pdc202xx_old serious bug with DMA on 2.6.x series
+From: Adolfo =?ISO-8859-1?Q?Gonz=E1lez_Bl=E1zquez?= 
+	<agblazquez_mailing@telefonica.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1087253451.4817.4.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 15 Jun 2004 00:50:52 +0200
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-I am one of the heavy users of the kernel CVS repository on kernel.org 
-(using rsync) and I also find cvsps a very valuable tool to bring order in 
-the CVS caos. Since the operations that I find myself doing on such data 
-are extremely repetitive, and CVS doesn't quite cut it, I put together a 
-simple hack to help me in the automation of the process:
+Lot of users are reporting seriour problems with pdc202xx_old ide pci
+driver. Enabling DMA on any device related with this driver makes the
+system unusable. 
 
-http://www.xmailserver.org/qlnx-psets.html
+This seems to happen in all the 2.6.x kernel series.
 
-Because of its use of caches, it can build custom configuration pretty 
-quickly. For example, in my machine when used together with the 
---hard-links option, it can build a configuration in less than 5 seconds.
+More info on Kerneltrap: http://kerneltrap.org/node/view/3040
+More info on Bugzilla: http://bugzilla.kernel.org/show_bug.cgi?id=2494
 
+I hope someone can fix this, 'cause there's a lot of people using these
+ide controllers.
 
-
-
-- Davide
+Adolfo González
 

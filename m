@@ -1,76 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269510AbUINRXR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269591AbUINR2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269510AbUINRXR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 13:23:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269519AbUINRLC
+	id S269591AbUINR2W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 13:28:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269604AbUINR1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 13:11:02 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:10206 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S269461AbUINRAU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 13:00:20 -0400
-Date: Tue, 14 Sep 2004 19:00:19 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andries Brouwer <Andries.Brouwer@cwi.nl>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [no patch] broken use of mm_release / deactivate_mm
-Message-ID: <20040914170019.GA3580@MAIL.13thfloor.at>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Andries Brouwer <Andries.Brouwer@cwi.nl>,
-	Andrew Morton <akpm@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Ingo Molnar <mingo@elte.hu>
-References: <20040913190633.GA22639@apps.cwi.nl> <Pine.LNX.4.58.0409131224440.2378@ppc970.osdl.org> <4146E6F0.5030405@yahoo.com.au> <Pine.LNX.4.58.0409140803090.2378@ppc970.osdl.org>
+	Tue, 14 Sep 2004 13:27:42 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:28068 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S269607AbUINRYp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 13:24:45 -0400
+Date: Tue, 14 Sep 2004 19:26:46 +0200
+From: DervishD <lkml@dervishd.net>
+To: Tom Fredrik Blenning Klaussen <bfg-kernel@blenning.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /proc/config reducing kernel image size
+Message-ID: <20040914172646.GA614@DervishD>
+Mail-Followup-To: Tom Fredrik Blenning Klaussen <bfg-kernel@blenning.no>,
+	linux-kernel@vger.kernel.org
+References: <1095179606.11939.22.camel@host-81-191-110-70.bluecom.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0409140803090.2378@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1095179606.11939.22.camel@host-81-191-110-70.bluecom.no>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-PopBeforeSMTPSenders: raul@dervishd.net
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 14, 2004 at 08:06:14AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Tue, 14 Sep 2004, Nick Piggin wrote:
-> > > 
-> > > I agree. Looks like the "exit_mm()" should really be a "mmput()".
-> > > 
-> > > Can we have a few more eyes on this thing? Ingo, Nick?
-> > 
-> > AFAIKS yes. exit_mm doesn't look legal unless its dropping the current
-> > mm context. And mmput looks like it should clean up everything - it is
-> > used almost exactly the same way to cleanup a failure case in copy_mm.
-> 
-> Does everybody also agree that the 
-> 
-> 	if (p->active_mm)
-> 		mmdrop(p->active_mm);
-> 
-> should also be dropped, and that mmput() does all of that correctly too?
-> 
-> (Again, looking at all the counts etc, I think the answer is a resounding 
-> yes, but dammit, this code has obviously never gotten any testing at all, 
-> since it effectively never happens).
+    Hi Tom :)
 
-IIRC, linux-vserver did hit it once or twice
-but I wasn't sure at that time that it isn't my
-fault ...
+ * Tom Fredrik Blenning Klaussen <bfg-kernel@blenning.no> dixit:
+> There is no point in storing all the comments and unused options in the
+> kernel image. This typically reduces the config size to about 1/5th
+> before compressing, and to about 1/4th after compressing.
 
-this 'error path' was used by the memory limiting
-code, so it's probably easy to test with minor
-adjustments ...
+    I'm with you in that there is no point in storing the comments,
+but I disagree about the unused options. Storing the unused options
+as comments is more useful than it seems ;)
 
-best,
-Herbert
+    Look at this example. You want to know if you have 'CONFIG_PNP'
+enabled, so you do something like 'grep CONFIG_PMP /proc/config' (the
+typo PNP->PMP is intended here). Of course that commands doesn't
+print anything due to the typo. If you store the disabled options as
+comments and a grep fails, you probably mispelled the config option,
+or you're referring to a config option not present in your old
+kernel, but if you remove them and you mispell the config option
+there is no (automatic) way of knowing if you made a typo or if the
+option is disabled. Any automatic search can, potentially, give you a
+false negative.
 
-> 		Linus
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+    I'm not really sure about it, but I think that the unset options
+are left as comments for the sake of automation. The space saving
+doesn't (IMHO) worth the pain.
+
+> I've also added the configuration option of how you want to compress it.
+
+    Compression is always welcome, I suppose ;) Thanks for the idea.
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291406AbSBSNgq>; Tue, 19 Feb 2002 08:36:46 -0500
+	id <S290718AbSBSN6U>; Tue, 19 Feb 2002 08:58:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291414AbSBSNgg>; Tue, 19 Feb 2002 08:36:36 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:9482 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S291406AbSBSNgS>; Tue, 19 Feb 2002 08:36:18 -0500
-Date: Tue, 19 Feb 2002 14:36:10 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Sebastian Manzano <sebastian.manzano@sun.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Sony P-I/O device?
-Message-ID: <20020219133610.GG612@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-In-Reply-To: <3C724055.1811D3D6@sun.com>
-Mime-Version: 1.0
+	id <S289004AbSBSN6K>; Tue, 19 Feb 2002 08:58:10 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18958 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289880AbSBSN56>; Tue, 19 Feb 2002 08:57:58 -0500
+Subject: Re: 2.4.18-pre9-ac4 filesystem corruption
+To: kristian.peters@korseby.net (Kristian)
+Date: Tue, 19 Feb 2002 14:12:14 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
+        andre@linux-ide.org
+In-Reply-To: <20020219135758.67f7f4c2.kristian.peters@korseby.net> from "Kristian" at Feb 19, 2002 01:57:58 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C724055.1811D3D6@sun.com>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16dB0A-0000aZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 19, 2002 at 09:08:53AM -0300, Sebastian Manzano wrote:
+> No hdparm settings. 40pin cable and this drive:
+> 
+> $ dmesg|grep hda
+>     ide0: BM-DMA at 0x10a0-0x10a7, BIOS settings: hda:DMA, hdb:DMA
+> hda: WDC AC24300L, ATA DISK drive
+> hda: 8421840 sectors (4312 MB) w/256KiB Cache, CHS=557/240/63, UDMA(33)
+> 
+> 00:14.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01)
 
-> Hi,
->   I have tried sonypi module in my Sony PCG-FXA36 and it seems to be looking for
-> a 0x7113 device that I don't have (lspci):
+PIIX and the WDC drive is supposed to be past the range that had the
+nasty UDMA DMA bugs.
 
-Not exactly. It does check for 'is_sony_vaio_laptop' variable.
-The check for the pci device is just an additionnal clue on the kind
-of sonypi device you have.
+> Before you ask: I'll test memory later just to be sure.	
+ 
+Ok
 
-Does your kernel print a line:
-	Sony Vaio laptop detected.
-on boot ? I suppose not, and that would explain the sonypi init failure.
-
-Could you send me the output of dmidecode ?
-	http://ftp.linux.org.uk/pub/linux/alan/DMI/dmidecode.c
-	
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com

@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263625AbRFLV7S>; Tue, 12 Jun 2001 17:59:18 -0400
+	id <S263711AbRFLW1x>; Tue, 12 Jun 2001 18:27:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263659AbRFLV7J>; Tue, 12 Jun 2001 17:59:09 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:48390 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S263625AbRFLV66>;
-	Tue, 12 Jun 2001 17:58:58 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200106122158.f5CLwTR253610@saturn.cs.uml.edu>
-Subject: Re: threading question
-To: davidel@xmailserver.org (Davide Libenzi)
-Date: Tue, 12 Jun 2001 17:58:29 -0400 (EDT)
-Cc: hch@ns.caldera.de (Christoph Hellwig), linux-kernel@vger.kernel.org,
-        ognen@gene.pbi.nrc.ca
-In-Reply-To: <XFMail.20010612144449.davidel@xmailserver.org> from "Davide Libenzi" at Jun 12, 2001 02:44:49 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S263713AbRFLW1n>; Tue, 12 Jun 2001 18:27:43 -0400
+Received: from [203.36.158.121] ([203.36.158.121]:42759 "EHLO
+	piro.kabuki.sfarc.net") by vger.kernel.org with ESMTP
+	id <S263711AbRFLW1f>; Tue, 12 Jun 2001 18:27:35 -0400
+Date: Wed, 13 Jun 2001 08:25:52 +1000
+From: Daniel Stone <daniel@kabuki.sfarc.net>
+To: Daniel Podlejski <underley@underley.eu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: XFS and Alan kernel tree
+Message-ID: <20010613082551.A3032@kabuki.openfridge.net>
+Mail-Followup-To: Daniel Podlejski <underley@underley.eu.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010505230816.A31544@witch.underley.eu.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010505230816.A31544@witch.underley.eu.org>
+User-Agent: Mutt/1.3.18i
+Organisation: Sadly lacking
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi writes:
-> On 12-Jun-2001 Christoph Hellwig wrote:
->> In article <Pine.LNX.4.30.0106121213570.24593-100000@gene.pbi.nrc.ca> you
->> wrote:
+On Sat, May 05, 2001 at 11:08:16PM +0200, Daniel Podlejski wrote:
+> I merge XFS witch Alan tree (2.4.4-ac5). It's seems to be stable.
+> Patch against Alan tree is avaliable at:
 
->>> On dual-CPU machines the speedups are as follows: my version
->>> is 1.88 faster than the sequential one on IRIX, 1.81 times on Solaris,
->>> 1.8 times on OSF/1, 1.43 times on Linux 2.2.x and 1.52 times on Linux
->>> 2.4 kernel. Why are the numbers on Linux machines so much lower?
-...
-> The context switch is very low and the user CPU utilization is 100%,
-> I don't think it's system responsibility here ( clearly a CPU bound
-> program ).  Even if the runqueue is long, the context switch is low.
-> I've just close to me a dual PIII 1GHz workstation that run an MTA
-> that uses linux pthreads with context switching ranging between 5000
-> and 11000 with a thread creation rate of about 300 thread/sec (
-> relaying 600000 msg/hour ).  No problem at all with the system even
-> if the load avg is a bit high ( about 8 ).
+Hi Daniel,
+I've got a KDB patch against a relatively recent 2.4.5-ac6, but are you
+still continuing your porting effort to the -ac series?
+Thanks,
+d
 
-In that case, this could be a hardware issue. Note that he seems
-to be comparing an x86 PC against SGI MIPS, Sun SPARC, and Compaq
-Alpha hardware.
-
-His data set is most likely huge. It's DNA data.
-
-The x86 box likely has small caches, a fast core, and a slow bus.
-So most of the time the CPU will be stalled waiting for a memory
-operation.
-
-Maybe there are performance monitor registers that could be used
-to determine if this is the case.
-
-(Not that the app design is sane though.)
-
+-- 
+Daniel Stone		<daniel@kabuki.openfridge.net> <daniel@kabuki.sfarc.net>

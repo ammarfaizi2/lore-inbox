@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264557AbUASLYN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 06:24:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264559AbUASLYN
+	id S264534AbUASLlT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 06:41:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264566AbUASLlT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 06:24:13 -0500
-Received: from denise.shiny.it ([194.20.232.1]:3268 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id S264557AbUASLYK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 06:24:10 -0500
-Message-ID: <XFMail.20040119122403.pochini@shiny.it>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	Mon, 19 Jan 2004 06:41:19 -0500
+Received: from [81.196.41.18] ([81.196.41.18]:56486 "EHLO
+	msa31a.ms.sapientia.ro") by vger.kernel.org with ESMTP
+	id S264534AbUASLlK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 06:41:10 -0500
+X-RAV-AntiVirus: This e-mail has been scanned for viruses on host: msa31a.ms.sapientia.ro
+Message-ID: <400BC220.6070909@ms.sapientia.ro>
+Date: Mon, 19 Jan 2004 13:40:16 +0200
+From: Budai Laszlo <lbudai@ms.sapientia.ro>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKEPBJJAA.davids@webmaster.com>
-Date: Mon, 19 Jan 2004 12:24:03 +0100 (CET)
-From: Giuliano Pochini <pochini@shiny.it>
-To: David Schwartz <davids@webmaster.com>
-Subject: RE: License question
-Cc: linux-kernel@vger.kernel.org, Misshielle Wong <mwl@bajoo.net>
+To: linux-kernel@vger.kernel.org
+Subject: No module sym53c8xx found for kernel 2.6.1
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi there,
 
-On 17-Jan-2004 David Schwartz wrote:
->> > - Redistributions of source code must retain the above copyright
->> > notice, this list of conditions and the following disclaimers.
->
->       Sorry, that's an "additional restriction" not permitted under the GPL.
+I try to compile the 2.6.1 kernel downloaded from www.kernel.org.
 
-These are in fact the points I wished your opinion about...
-Actually these are requirements (like others said), not
-use restrictions. btw, IANAL and IP rights are a minefield.
-Since their code is C++ I already rewote everything in C, but it
-also contains the binary firmwares which I can't rewrite. That's
-why I asked you about the license.
-It's likely Echoaudio will change the license in the next release
-to a dual GPL/custom license, so this will be no more an issue.
+Everything seems ok until I give the "make install" command when I got 
+the following message:
 
-Thanks for you answers.
+[root@fuji linux-2.6.1]# make install
+make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+   CHK     include/linux/compile.h
+Kernel: arch/i386/boot/bzImage is ready
+sh /root/linux-2.6.1/arch/i386/boot/install.sh 2.6.1 
+arch/i386/boot/bzImage System.map ""
+No module sym53c8xx found for kernel 2.6.1
+mkinitrd failed
+make[1]: *** [install] Error 1
+make: *** [install] Error 2
 
---
-Giuliano.
+
+The module sym53c8xx is in the linux-2.6.1/drivers/scsi/sym53c8xx_2 
+directory but it seems that there is some problem with it.
+
+Does anyone know what to do in order to get the new kernel working?
+
+Thank you,
+Laszlo
+
+

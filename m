@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289347AbSA1Tky>; Mon, 28 Jan 2002 14:40:54 -0500
+	id <S289359AbSA1Tnp>; Mon, 28 Jan 2002 14:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289341AbSA1Tkt>; Mon, 28 Jan 2002 14:40:49 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:26127 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S289344AbSA1Tkm>;
-	Mon, 28 Jan 2002 14:40:42 -0500
-Date: Mon, 28 Jan 2002 17:40:22 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Vincent Sweeney <v.sweeney@barrysworld.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: high system usage / poor SMP network performance
-In-Reply-To: <002801c1a832$d38933e0$0201010a@frodo>
-Message-ID: <Pine.LNX.4.33L.0201281739190.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S289341AbSA1Tng>; Mon, 28 Jan 2002 14:43:36 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34577 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289370AbSA1TnS>; Mon, 28 Jan 2002 14:43:18 -0500
+Message-ID: <3C55A9CA.5050105@zytor.com>
+Date: Mon, 28 Jan 2002 11:43:06 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: frank.van.maarseveen@altium.nl
+CC: linux-kernel@vger.kernel.org
+Subject: Re: restoring hard linked files from zisofs/iso9660 w. RR
+In-Reply-To: <20020125135545.A28897@espoo.tasking.nl> <a2s67d$8s0$1@cesium.transmeta.com> <20020128170704.A2632@espoo.tasking.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jan 2002, Vincent Sweeney wrote:
+Okay... I have successfully reproduced this bug.  It's definitely a Linux
+kernel bug -- mkisofs correctly puts file numbers (inode numbers) in the
+PX Rock Ridge entries.
 
-> > >     CPU0 states: 27.2% user, 62.4% system,  0.0% nice,  9.2% idle
-> > >     CPU1 states: 28.4% user, 62.3% system,  0.0% nice,  8.1% idle
-> >
-> > The important bit here is     ^^^^^^^^ that one. Something is causing
-> > horrendous lock contention it appears.
->
-> I've switched a server over to the default eepro100 driver as supplied
-> in 2.4.17 (compiled as a module). This is tonights snapshot with about
-> 10% higher user count than above (2200 connections per ircd)
+Unfortunately it is a pretty deep decision in the Linux isofs that the
+inode number is the offset of the directory entry; isofs pretty much needs
+to be rewritten to be dentry-centric rather than inode-centric on order to
+resolve this.  Note that dentry-centric operation is the sane thing for
+something like isofs, so this wouldn't be a bad idea.
 
-Hummm ... poll() / select() ?  ;)
+Unfortunately, that doesn't solve all problems: there is no structure to
+the inode numbers provided in the PX entries, and there is the potential
+for collision when used on a disc which is only partially RockRidge (which
+is legal.)  This has to be taken into account, and all of these things
+have to be done without reading the whole disc first...
 
-> I will try the profiling tomorrow
-
-readprofile | sort -n | tail -20
-
-kind regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
+	-hpa
 

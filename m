@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318369AbSIFHZ3>; Fri, 6 Sep 2002 03:25:29 -0400
+	id <S318392AbSIFHkF>; Fri, 6 Sep 2002 03:40:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318389AbSIFHZ3>; Fri, 6 Sep 2002 03:25:29 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:14212 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318369AbSIFHZ3>;
-	Fri, 6 Sep 2002 03:25:29 -0400
-Date: Fri, 06 Sep 2002 00:22:53 -0700 (PDT)
-Message-Id: <20020906.002253.32989079.davem@redhat.com>
-To: akpm@zip.com.au
-Cc: Martin.Bligh@us.ibm.com, hadi@cyberus.ca, tcw@tempest.prismnet.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, niv@us.ibm.com,
-       Robert.Olsson@data.slu.se
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D785AE4.A7E3DF2D@zip.com.au>
-References: <18563262.1031269721@[10.10.2.3]>
-	<20020905.235159.128049953.davem@redhat.com>
-	<3D785AE4.A7E3DF2D@zip.com.au>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S318407AbSIFHkF>; Fri, 6 Sep 2002 03:40:05 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:15774 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S318392AbSIFHkF>; Fri, 6 Sep 2002 03:40:05 -0400
+Message-ID: <20020906074438.26142.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: <phillips@arcor.de>, <ahu@ds9a.nl>
+Cc: linux-kernel@vger.kernel.org
+Date: Fri, 06 Sep 2002 15:44:38 +0800
+Subject: Re: side-by-side Re: BYTE Unix Benchmarks Version 3.6
+X-Originating-Ip: 194.185.48.246
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrew Morton <akpm@zip.com.au>
-   Date: Fri, 06 Sep 2002 00:36:04 -0700
+From: Daniel Phillips <phillips@arcor.de>
 
-   "David S. Miller" wrote:
-   > NAPI is also not the panacea to all problems in the world.
-   
-   Mala did some testing on this a couple of weeks back.  It appears that
-   NAPI damaged performance significantly.
+[...]
+> What kind of arithmetic is this?  Why on earth would arithmetic vary
+> from one kernel to another?
 
-   http://www-124.ibm.com/developerworks/opensource/linuxperf/netperf/results/july_02/netperf2.5.25results.htm
+Yep, you are right!
+There is something wrong in that test.
+Look at my new tests I've just post using Unix Benchmarks Version 4.1, they more intersting.
 
-Unfortunately it is not listed what e1000 and core NAPI
-patch was used.  Also, not listed, are the RX/TX mitigation
-and ring sizes given to the kernel module upon loading.
+Ciao,
+             Paolo
+-- 
+Get your free email from www.linuxmail.org 
 
-Robert can comment on optimal settings
 
-Robert and Jamal can make a more detailed analysis of Mala's
-graphs than I.
+Powered by Outblaze

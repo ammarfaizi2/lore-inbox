@@ -1,86 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263208AbSKEALG>; Mon, 4 Nov 2002 19:11:06 -0500
+	id <S264757AbSKEAT1>; Mon, 4 Nov 2002 19:19:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264690AbSKEALG>; Mon, 4 Nov 2002 19:11:06 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:19942 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S263208AbSKEALC>;
-	Mon, 4 Nov 2002 19:11:02 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200211050017.gA50HSp20417@eng2.beaverton.ibm.com>
-Subject: 2.5.46 compile error
-To: linux-kernel@vger.kernel.org (lkml)
-Date: Mon, 4 Nov 2002 16:17:27 -0800 (PST)
-X-Mailer: ELM [version 2.5 PL3]
+	id <S264759AbSKEAT1>; Mon, 4 Nov 2002 19:19:27 -0500
+Received: from 64-60-75-69.cust.telepacific.net ([64.60.75.69]:54283 "EHLO
+	racerx.ixiacom.com") by vger.kernel.org with ESMTP
+	id <S264757AbSKEAT0>; Mon, 4 Nov 2002 19:19:26 -0500
+Message-ID: <3DC70FC3.6030707@ixiacom.com>
+Date: Mon, 04 Nov 2002 16:24:35 -0800
+From: Dan Kegel <dkegel@ixiacom.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Geoff Gustafson <geoff@linux.co.intel.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       sglass@us.ibm.com, cyeoh@au.ibm.com
+Subject: Re: [ANNOUNCE] Open POSIX Test Suite
+References: <3DC702E1.1050306@ixiacom.com> <00fd01c2845e$eb407ee0$7fd40a0a@amr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get following compile error while trying to compile 2.5.46.
-Do I need to get new objcopy (binutils) ?
+Geoff Gustafson wrote:
+ >Dan wrote:
+>>You are about to duplicate http://ltp.sf.net
+ >Chris wrote:
+ >[You are about to duplicate http://www.linuxbase.org/test ]
 
-- Badari
-
-[root@elm3b81 linux-2.5.46]# make
-  Starting the build. KBUILD_BUILTIN=1 KBUILD_MODULES=1
-make -f scripts/Makefile.build obj=init
-  Generating include/linux/compile.h (unchanged)
-make -f scripts/Makefile.build obj=usr
-objcopy -I binary -O elf32-i386 -B i386 \
-        --rename-section .data=.init.initramfs \
-        usr/initramfs_data.cpio.gz usr/initramfs_data.o
-objcopy: unrecognized option `--rename-section'
-Usage: objcopy <switches> in-file [out-file]
- The switches are:
-  -I --input-target <bfdname>      Assume input file is in format <bfdname>
-  -O --output-target <bfdname>     Create an output file in format <bfdname>
-  -B --binary-architecture <arch>  Set arch of output file, when input is binary
-  -F --target <bfdname>            Set both input and output format to <bfdname>
-     --debugging                   Convert debugging information, if possible
-  -p --preserve-dates              Copy modified/access timestamps to the output
-  -j --only-section <name>         Only copy section <name> into the output
-  -R --remove-section <name>       Remove section <name> from the output
-  -S --strip-all                   Remove all symbol and relocation information
-  -g --strip-debug                 Remove all debugging symbols
-     --strip-unneeded              Remove all symbols not needed by relocations
-  -N --strip-symbol <name>         Do not copy symbol <name>
-  -K --keep-symbol <name>          Only copy symbol <name>
-  -L --localize-symbol <name>      Force symbol <name> to be marked as a local
-  -W --weaken-symbol <name>        Force symbol <name> to be marked as a weak
-     --weaken                      Force all global symbols to be marked as weak
-  -x --discard-all                 Remove all non-global symbols
-  -X --discard-locals              Remove any compiler-generated symbols
-  -i --interleave <number>         Only copy one out of every <number> bytes
-  -b --byte <num>                  Select byte <num> in every interleaved block
-     --gap-fill <val>              Fill gaps between sections with <val>
-     --pad-to <addr>               Pad the last section up to address <addr>
-     --set-start <addr>            Set the start address to <addr>
-    {--change-start|--adjust-start} <incr>
-                                   Add <incr> to the start address
-    {--change-addresses|--adjust-vma} <incr>
-                                   Add <incr> to LMA, VMA and start addresses
-    {--change-section-address|--adjust-section-vma} <name>{=|+|-}<val>
-                                   Change LMA and VMA of section <name> by <val>
-     --change-section-lma <name>{=|+|-}<val>
-                                   Change the LMA of section <name> by <val>
-     --change-section-vma <name>{=|+|-}<val>
-                                   Change the VMA of section <name> by <val>
-    {--[no-]change-warnings|--[no-]adjust-warnings}
-                                   Warn if a named section does not exist
-     --set-section-flags <name>=<flags>
-                                   Set section <name>'s properties to <flags>
-     --add-section <name>=<file>   Add section <name> found in <file> to output
-     --change-leading-char         Force output format's leading character style
-     --remove-leading-char         Remove leading character from global symbols
-     --redefine-sym <old>=<new>    Redefine symbol name <old> to <new>
-     --srec-len <number>           Restrict the length of generated Srecords
-     --srec-forceS3                Restrict the type of generated Srecords to S3
-  -v --verbose                     List all object files modified
-  -V --version                     Display this program's version number
-  -h --help                        Display this output
-objcopy: supported targets: elf32-i386 a.out-i386-linux efi-app-ia32 elf32-little elf32-big srec symbolsrec tekhex binary ihex trad-core
-make[1]: *** [usr/initramfs_data.o] Error 1
-make: *** [usr] Error 2
+Anyone know what the relationship between the LTP and LSB Posix compliance tests are?
+Were they both originally derived from the OpenGroup Posix compliance tests?
+- Dan
 

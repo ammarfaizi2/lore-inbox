@@ -1,85 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270931AbTGPQEr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 12:04:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270932AbTGPQEq
+	id S270937AbTGPQMI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 12:12:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270936AbTGPQMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 12:04:46 -0400
-Received: from mail.kroah.org ([65.200.24.183]:44722 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270931AbTGPQEn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 12:04:43 -0400
-Date: Wed, 16 Jul 2003 09:19:24 -0700
-From: Greg KH <greg@kroah.com>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Kernel List <linux-kernel@vger.kernel.org>,
-       video4linux list <video4linux-list@redhat.com>
-Subject: Re: [RFC/PATCH] sysfs'ify video4linux
-Message-ID: <20030716161924.GA7406@kroah.com>
-References: <20030715143119.GB14133@bytesex.org> <20030715212714.GB5458@kroah.com> <20030716084448.GC27600@bytesex.org>
+	Wed, 16 Jul 2003 12:12:08 -0400
+Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:8211 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S270946AbTGPQMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 12:12:03 -0400
+Date: Wed, 16 Jul 2003 09:26:43 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Kernel Developer List <linux-kernel@vger.kernel.org>
+Subject: Re: e1000 with 82546EB parts on 2.4?
+Message-ID: <20030716092643.B17580@one-eyed-alien.net>
+Mail-Followup-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Kernel Developer List <linux-kernel@vger.kernel.org>
+References: <20030715001654.D25443@one-eyed-alien.net> <Pine.LNX.4.53.0307150312250.32541@montezuma.mastecende.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="LyciRD1jyfeSSjG0"
 Content-Disposition: inline
-In-Reply-To: <20030716084448.GC27600@bytesex.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.53.0307150312250.32541@montezuma.mastecende.com>; from zwane@arm.linux.org.uk on Tue, Jul 15, 2003 at 03:13:31AM -0400
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 10:44:48AM +0200, Gerd Knorr wrote:
-> > > Comments?
-> > 
-> > You _have_ to set up a release function for your class device.  You
-> > can't just kfree it like I think you are doing, otherwise any users of
-> > the sysfs files will oops the kernel after the video class device is
-> > gone.
-> 
-> class_device_unregister() is called from video_unregister_device() which
-> looks fine to me.  Or do you talk about something else?
 
-Heh, yes, that is correct.  But then what do you do with the object that
-had the class_device in it after class_device_unregister() returns?  I
-don't see you freeing the device directly, which is good, but who does?
+--LyciRD1jyfeSSjG0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You _have_ to let the structure that the kobject is in free itself in a
-release() function, you can't guess at what the kobject reference count
-is at any time and just assume you can throw it away at that moment.
+On Tue, Jul 15, 2003 at 03:13:31AM -0400, Zwane Mwaikambo wrote:
+> On Tue, 15 Jul 2003, Matthew Dharm wrote:
+>=20
+> > What I've got is your basic x86 machine with an Intel 82546EB dual-GigE
+> > controller on a PCI bus.  I load e1000.o, ifconfig, and I'm running.  T=
+he
+> > interface is solid as a rock, AFAICT.  I've left it running for days
+> > without any problems.
+> >=20
+> > However, if I ifdown and then ifup the interface, I'm borked.  Based on
+> > tcpdump from another machine, the interface is definately transmitting
+> > packets just fine.  But, it never seems to notice any packets on the
+> > receive side.
+>=20
+> Does unloading and reloading the module 'fix' things?
 
-LWN did an article about how to do this properly at:
-	http://lwn.net/Articles/36850/
+Only sometimes.
 
-But for some code that does this in a simple manner, look at
-drivers/char/tty_io.c, the release_tty_dev() function.  It's set up in
-the tty_class to handle destroying the structure when the last reference
-to the tty_dev structure goes away.  Look at the
-tty_remove_class_device() to see that the structure isn't kfreed on it's
-own.
+Matt
 
-It looks like the video drivers include a "struct video_device"
-structure within their own structures, right?  That will have to be
-changed to a pointer to that structure in order for the lifetime rules
-to work properly.  I know Hanna is fighting this same battle with the
-input layer right now...
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
-Does this help out?
+I'm just trying to think of a way to say "up yours" without getting fired.
+					-- Stef
+User Friendly, 10/8/1998
 
-As an example of why you _have_ to do this, consider a user who opens a
-sysfs file of a video device, and then removes the video device from the
-system.  Then they do a read on the sysfs file.  Oops...
+--LyciRD1jyfeSSjG0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> > Other than that, how about exporting the dev_t value for the video
-> > device?  Then you automatically get udev support, and I don't have to go
-> > add it to this code later :)
-> 
-> Do you have a pointer to sample code for that?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Look at the dev file in /sys/class/tty/*, or in /sys/block/hd* or in
-/sys/class/usb/*, and so on...
+iD8DBQE/FXzCIjReC7bSPZARAs5tAKCTELymWIRz72+3DLpuyWVd35oFSACfUK9+
+1dodzAbfd202KH9LO36cYLA=
+=ehjg
+-----END PGP SIGNATURE-----
 
-I need to make a general function to support this to make it easier for
-everyone to export a dev_t to userspace, but until then, if you want to
-look at the show_dev() function in drivers/usb/core/file.c it shows what
-you need to do.
-
-thanks,
-
-greg k-h
+--LyciRD1jyfeSSjG0--

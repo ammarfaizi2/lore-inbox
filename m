@@ -1,68 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317547AbSGORDz>; Mon, 15 Jul 2002 13:03:55 -0400
+	id <S317544AbSGOR2g>; Mon, 15 Jul 2002 13:28:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317549AbSGORDy>; Mon, 15 Jul 2002 13:03:54 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15622 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317547AbSGORDx>; Mon, 15 Jul 2002 13:03:53 -0400
-Date: Mon, 15 Jul 2002 18:06:46 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: HZ, preferably as small as possible
-Message-ID: <20020715180646.B15136@flint.arm.linux.org.uk>
-References: <20020715092411.A12082@flint.arm.linux.org.uk> <200207151607.g6FG7In203512@saturn.cs.uml.edu>
+	id <S317550AbSGOR2f>; Mon, 15 Jul 2002 13:28:35 -0400
+Received: from 216-42-72-165.ppp.netsville.net ([216.42.72.165]:33623 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S317544AbSGOR2e>; Mon, 15 Jul 2002 13:28:34 -0400
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+From: Chris Mason <mason@suse.com>
+To: "Patrick J. LoPresti" <patl@curl.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <s5gsn2lt3ro.fsf@egghead.curl.com>
+References: <20020712162306$aa7d@traf.lcs.mit.edu> 
+	<s5gsn2lt3ro.fsf@egghead.curl.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 15 Jul 2002 13:31:49 -0400
+Message-Id: <1026754309.4751.438.camel@tiny>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200207151607.g6FG7In203512@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Mon, Jul 15, 2002 at 12:07:18PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 15, 2002 at 12:07:18PM -0400, Albert D. Cahalan wrote:
-> You have 64, 128, and 1000. See for yourself.
+On Mon, 2002-07-15 at 11:22, Patrick J. LoPresti wrote:
+> Consider this argument:
 > 
-> arch-cl7500/param.h     #define HZ 100
-> arch-epxa10db/param.h   #define HZ 100
-> arch-integrator/param.h #define HZ 100
-> arch-l7200/param.h      #define HZ 128
-> arch-shark/param.h      #define HZ 64
-> arch-tbox/param.h       #define HZ 1000
+>   Given: On ext3, fsync() of any file on a partition commits all
+>          outstanding transactions on that partition to the log.
 > 
-> I need to support all of that with one binary.
-> So I'm stuck with:
+>   Given: data=ordered forces pending data writes for a file to happen
+>          before related transactions are committed to the log.
+> 
+>   Therefore: With data=ordered, fsync() of any file on a partition
+>              syncs the outstanding writes of EVERY file on that
+>              partition.
+> 
+> Is this argument correct?  If so, it suggests that data=ordered is
+> actually the *worst* possible journalling mode for a mail spool.
+> 
 
-Lets look more closely:
+Yes.  In practice this doesn't hurt as much as it could, because ext3
+does a good job of letting more writers come in before forcing the
+commit.  What hurts you is when a forced commit comes in the middle of
+creating the file.  A data write that could have been contiguous gets
+broken into two or more writes instead.
 
-#ifndef HZ
-#define HZ 100
-#endif
-#if defined(__KERNEL__) && (HZ == 100)
-#define hz_to_std(a) (a)
-#endif
+> One other thing.  I think this statement is misleading:
+> 
+>     IF your server is stable and not prone to crashing, and/or you
+>     have the write cache on your hard drives battery backed, you
+>     should strongly consider using the writeback journaling mode of
+>     Ext3 versus ordered.
+> 
+> This makes it sound like data=writeback is somehow unsafe when
+> machines crash.  I do not think this is true.  If your application
+> (e.g., Postfix) is written correctly (which it is), so it calls
+> fsync() when it is supposed to, then data=writeback is *exactly* as
+> safe as any other journalling mode.  
 
-And:
+Almost.  data=writeback makes it possible for the old contents of a
+block to end up in a newly grown file.  There are a few ways this can
+screw you up:
 
-$ grep hz_to_std arch-*/param.h
-arch-l7200/param.h:#define hz_to_std(a) ((a * HZ)/100)
-arch-shark/param.h:#define hz_to_std(a) ((a * HZ)/100)
+1) that newly grown file is someone's inbox, and the old contents of the
+new block include someone else's private message.
 
-As I said, tbox is broken, so ignore that.
+2) That newly grown file is a control file for the application, and the
+application expects it to contain valid data within (think sendmail).  
 
-And hz_to_std gets used (fs/proc/array.c):
+> "Battery backed caches" and the
+> like have nothing to do with it.  
 
-                hz_to_std(task->times.tms_utime),
-                hz_to_std(task->times.tms_stime),
-                hz_to_std(task->times.tms_cutime),
-                hz_to_std(task->times.tms_cstime),
+Nope, battery backed caches don't make data=writeback more or less safe
+(with respect to the data anyway).  They do make data=ordered and
+data=journal more safe.
 
-So merely grepping for HZ doesn't actually tell you anything.
+> And if your application is written
+> incorrectly, then other journalling modes will reduce but not
+> eliminate the chances for things to break catastrophically on a crash.
+> 
+> So if the partition is dedicated to correct applications, like a mail
+> spool is, then data=writeback is perfectly safe.  If it is faster,
+> too, then it really is a no-brainer.
 
-All /proc values are in 100Hz units on ARM.
+For mail servers, data=journal is your friend.  ext3 sometimes needs a
+bigger log for it (reiserfs data=journal patches don't), but the
+performance increase can be significant.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+-chris
+
 

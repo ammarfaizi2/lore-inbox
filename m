@@ -1,110 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVARPap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVARPcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbVARPap (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 10:30:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVARPao
+	id S261322AbVARPcW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 10:32:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVARPcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 10:30:44 -0500
-Received: from [193.120.144.98] ([193.120.144.98]:53209 "EHLO europlex.ie")
-	by vger.kernel.org with ESMTP id S261316AbVARPa0 (ORCPT
+	Tue, 18 Jan 2005 10:32:22 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:3544 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261322AbVARPby (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 10:30:26 -0500
-Message-ID: <41ED2DAC.5030209@eircom.net>
-Date: Tue, 18 Jan 2005 15:39:24 +0000
-From: "Bryan O'Donoghue" <typedef@eircom.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
+	Tue, 18 Jan 2005 10:31:54 -0500
+Date: Tue, 18 Jan 2005 16:31:41 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Karim Yaghmour <karim@opersys.com>
+cc: Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
+       Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: 2.6.11-rc1-mm1
+In-Reply-To: <41EC8AA2.1030000@opersys.com>
+Message-ID: <Pine.LNX.4.61.0501181359250.30794@scrub.home>
+References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de>
+ <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de>
+ <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home>
+ <41E8358A.4030908@opersys.com> <Pine.LNX.4.61.0501150101010.30794@scrub.home>
+ <41E899AC.3070705@opersys.com> <Pine.LNX.4.61.0501160245180.30794@scrub.home>
+ <41EA0307.6020807@opersys.com> <Pine.LNX.4.61.0501161648310.30794@scrub.home>
+ <41EADA11.70403@opersys.com> <Pine.LNX.4.61.0501171403490.30794@scrub.home>
+ <41EC2DCA.50904@opersys.com> <Pine.LNX.4.61.0501172323310.30794@scrub.home>
+ <41EC8AA2.1030000@opersys.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ppc32 2.6.x builds for ppc m8xx arch.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Jan 2005 15:34:28.0890 (UTC) FILETIME=[32D1E7A0:01C4FD73]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings list.
+Hi,
 
-I'm curious about something which looks like an error in the mpc8xx 
-build of the latest 2.6.11-rc1 kernel.
+On Mon, 17 Jan 2005, Karim Yaghmour wrote:
 
-Firstly, I have a 2.4.28-rc1 which builds just fine for this arch, 
-however from an almost totally similar kernel config as was used in the 
-2.4, and with the same compiler, the 2.6 build gives a (bad insturction 
-?) error when attempting to execute the resulting zImage.elf from a 2.6 
-build.
+> With that said, I hope we've agreed that we'll have a callback for
+> letting relayfs clients know that they need to write the begining of
+> the buffer event. There won't be any associated reserve. Conversly,
+> I hope it is not too much to ask to have an end-of-buffer callback.
 
+There of course has to be some kind of end marker, but that's less 
+critical as it's not the active buffer anymore.
 
+> Roman, of all people I've been more than happy to change my stuff following
+> your recommendations. Do I have to list how far down relayfs has been
+> stripped down?
 
-Looking at the difference between the 2.4 and the 2.6 build arguments.
+Sorry, you missunderstood me. At the moment I'm only secondarily 
+interested in the API details, primarily I want to work out the details of 
+what exactly relayfs/ltt are supposed to do. One main question here I 
+can't answer yet, why you insist on multiple relayfs modes.
+This is what I basically have in mind for the relay_write function:
 
-powerpc-linux-gcc -D__KERNEL__ 
--I/home/kernels/2.4.28-pre/vanilla/linux-2.4.28-rc3/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer 
--I/home/kernels/2.4.28-pre/vanilla/linux-2.4.28-rc3/arch/ppc 
--fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized 
--mmultiple -mstring -mcpu=860 -nostdinc -iwithprefix include 
--DKBUILD_BASENAME=uart -c -o uart.o uart.c
+	cpu = get_cpu();
+	buffer = relay_get_buffer(chan, cpu);
+	while(1) {
+		offset = local_add_return(buffer->offset, length);
+		if (likely(offset + length <= buffer->size))
+			break;
+		buffer = relay_switch_buffer(chan, buffer, offset);
+	}
+	memcpy(buffer->data + offset, data, length);
+	put_cpu();
 
+ltt_log_event should only be a few lines more (for writing header and 
+event data).
+What I'd like to know now are the reasons why you need more than this.
+It's not the amount of data and any timing requirements have to be done by 
+the caller. During processing you either take the events in the order they 
+were recorded (often that's good enough) or you sort them which is not 
+that difficult.
 
-powerpc-linux-gcc -m32 -Wp,-MD,scripts/mod/.empty.o.d -nostdinc -isystem 
-/usr/local/powerpc/lib/gcc/powerpc-linux/3.4.2/include -D__KERNEL__ 
--Iinclude -Iarch/ppc -Wall -Wstrict-prototypes -Wno-trigraphs 
--fno-strict-aliasing -fno-common -ffreestanding -O2 -fomit-frame-pointer 
--Iarch/ppc -msoft-float -pipe -ffixed-r2 -mmultiple -mstring 
--Wdeclaration-after-statement -DKBUILD_BASENAME=empty 
--DKBUILD_MODNAME=empty -c -o scripts/mod/.tmp_empty.o scripts/mod/empty.c
-scripts/mod/mk_elfconfig ppc < scripts/mod/empty.o > scripts/mod/elfconfig.h
+> You ask what compromises can be found from both sides to obtain a
+> single implementation. I have looked at this, and given how
+> stripped down it has become, anything less from relayfs will make
+> it useless for LTT. IOW, I would have to reimplement a buffering
+> scheme within LTT outside of relayfs.
 
-I notice that for a start -m32 has appeared out of nowhere and 
-furthermore -mcpu=860 has gone away.
+I know you don't want to touch the topic of kernel debugging, but its 
+requirements greatly overlap with what you want to do with ltt, e.g. one 
+needs very often information about scheduling events as many kernel 
+processes rely more and more on kernel threads. The only real requirement 
+for kernel debugging is low runtime overhead, which you certainly like to 
+have as well. So what exactly are these requirements and why can't there 
+be no reasonable alternative?
 
-Is this actually correct ? I have specified that the arch should be 8xx 
-in menuconfig.
-
-My build command is make ARCH=ppc CROSS_COMPILE=powerpc-linux- V=1
-yet still shouldn't mcpu=860, be present in the 2.6 compile arguments?
-
-It _is_ the case that the 2.4.x in question had some modification 
-initially by the PCB vendor to make Linux talk to specific settings for 
-their hardware, but, I've found these differences between the vanilla 
-2.4.27 and the vendor modified 2.4.27.. and can reliably get 2.4.x 
-booting on this PCB, however 2.6.x won't work.
-
-After applying a 2.6 version of the patches that should be applied to a 
-2.4.x, I get a boot error... what I'd like to be able to do is verify 
-that the above 2.6 compile arguments are _not_ the source of the boot 
-error, so that I can focus on finding the difference between the 2.4 
-build and 2.6 build in terms of necessary patching to make things boot.
-
-So essentially, I'd like to ask the list if the specified compile 
-arguments above are correct for the targetted architecture "mpc860", so 
-that I can rule it out of my boot error, or perhaps fix said compile 
-arguments and send a patch ?
-
-root@bimbette:~# powerpc-linux-gcc -v 
-
-Reading specs from /usr/local/powerpc/lib/gcc/powerpc-linux/3.4.2/specs
-Configured with: ../configure --target=powerpc-linux 
---prefix=/usr/local/powerpc 
---with-as=/usr/local/powerpc/bin/powerpc-linux-as 
---with-ld=/usr/local/powerpc/bin/powerpc-linux-ld 
---enable-languages=c,c++,java --enable-long-long --with-newlib 
---with-headers=/root/crossbuild/gcc-3.4.x/toolchain_powerpc/powerpc-linux-uclibc/sys-include 
---with-libs=/root/crossbuild/gcc-3.4.x/toolchain_powerpc/powerpc-linux-uclibc/lib 
---with-ecos --disable-werror --enable-threads=posix : (reconfigured) 
-../configure --target=powerpc-linux --prefix=/usr/local/powerpc 
---with-as=/usr/local/powerpc/bin/powerpc-linux-as 
---with-ld=/usr/local/powerpc/bin/powerpc-linux-ld --enable-languages=c 
---enable-long-long --with-newlib 
---with-headers=/root/crossbuild/gcc-3.4.x/toolchain_powerpc/powerpc-linux-uclibc/sys-include 
---with-libs=/root/crossbuild/gcc-3.4.x/toolchain_powerpc/powerpc-linux-uclibc/lib 
---with-ecos --disable-werror --enable-threads=posix
-Thread model: posix
-gcc version 3.4.2
-
-Best
-Bryan
-
-
+bye, Roman

@@ -1,78 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266548AbSKGOKq>; Thu, 7 Nov 2002 09:10:46 -0500
+	id <S261177AbSKGOP6>; Thu, 7 Nov 2002 09:15:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266559AbSKGOKq>; Thu, 7 Nov 2002 09:10:46 -0500
-Received: from out002pub.verizon.net ([206.46.170.141]:46847 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP
-	id <S266548AbSKGOKp>; Thu, 7 Nov 2002 09:10:45 -0500
-Date: Thu, 07 Nov 2002 09:16:50 -0500
-From: Akira Tsukamoto <at541@columbia.edu>
-To: Akira Tsukamoto <at541@columbia.edu>
-Subject: Re: [PATCH] 2.5.46 add original copy_ro/from_user for i386 and support PenPro PenII
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021105090237.511A.AT541@columbia.edu>
-References: <20021105090237.511A.AT541@columbia.edu>
-Message-Id: <20021107091529.5742.AT541@columbia.edu>
+	id <S266560AbSKGOP6>; Thu, 7 Nov 2002 09:15:58 -0500
+Received: from [192.58.209.91] ([192.58.209.91]:45508 "HELO handhelds.org")
+	by vger.kernel.org with SMTP id <S261177AbSKGOP5>;
+	Thu, 7 Nov 2002 09:15:57 -0500
+From: George France <france@handhelds.org>
+To: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>,
+       axp-list mailing list <axp-list@redhat.com>
+Subject: Re: [PATCH] eliminate compile warnings
+Date: Thu, 7 Nov 2002 09:22:26 -0500
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20021106214705.A15525@Marvin.DL8BCU.ampr.org>
+In-Reply-To: <20021106214705.A15525@Marvin.DL8BCU.ampr.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.05.06
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at out002.verizon.net from [138.89.33.207] at Thu, 7 Nov 2002 08:17:19 -0600
+Message-Id: <02110709222600.14483@shadowfax.middleearth>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 05 Nov 2002 09:36:48 -0500
-Akira Tsukamoto <at541@columbia.edu> mentioned:
-> 
-> This is revised version from my previous patch, adding original copy_user.
-> 
-> In addition, I changed one line in Kconfig, remove M585MMX and add M686
-> because I run new copy-user on my PentiumMMX but had no improvement,
-> however PenII/PenPro likely to have improvement from new copy_user function.
+On Wednesday 06 November 2002 16:47, Thorsten Kranzkowski wrote:
+> Hello!
+>
+> My attempt to compile 2.5.46 with gcc 3.3 resulted in over 66% lines of the
+> form:
 
-I gathered benchmark results for PentiumMMX. 
-They confirm that my patch improves the speed.
+You are brave sole. The bleeding edge cuts both ways.
 
-I run the Taka's socket benchmark program on PentiumMMX with CONFIG-M586MMX.
-http://www.suna-asobi.com/~akira-t/linux/cleanup-copy-user-1/netio586mmx.c
+>
+> xyz.c: warning: comparison between signed and unsigned
+>
+> This is a first step to eliminate those, covering arch/alpha. Most fixes
+> are obvious, but please check.
+>
+> BTW who is the current maintainer for Alpha issues? MAINTAINERS has no
+> entry :-/
 
-Without my patch on 2.5.46:
+If there is no entry in the MAINTAINERS file, then it is Linus.  He did the Alpha port.
+The first foray of Linux outside of the Intel architecture was to the Alpha processor.
+The Alpha system came from the laboratories of the Digital Equipment Corp.  An engineer
+ from Digital (now HP) arranged for a loan of an Alpha server to Linus Torvalds
+for him to begin a port of Linux. This act of beneficence greatly accelerated the
+migration of Linux to other platforms.  Linus is still the MAINTAINER for Alpha to this day.
+He still has his loaner box from Digital.
 
-(off:0, size:0x100000) 
-send/recv: copied 5.0 Mbytes in 0.381 seconds at 13.1 Mbytes/sec
-(off:1, size:0x100000) 
-send/recv: copied 5.0 Mbytes in 0.488 seconds at 10.2 Mbytes/sec
-(off:2, size:0x100000) 
-send/recv: copied 5.0 Mbytes in 0.493 seconds at 10.1 Mbytes/sec
-(off:3, size:0x100000) 
-send/recv: copied 5.0 Mbytes in 0.489 seconds at 10.2 Mbytes/sec
-(off:4, size:0x100000) 
-send/recv: copied 5.0 Mbytes in 0.381 seconds at 13.1 Mbytes/sec
-(Entire log is here, 
-http://www.suna-asobi.com/~akira-t/linux/cleanup-copy-user-1/586MMX-PenMMX-no-patch.log)
+There are still a few of us that work for the Alpha Processor Group at HP that work on
+maintaining the kernel.  I have tossed your patch into the directory that holds all
+kinds of miscellaneous alpha bits for the next time one of us looks at the kernel.
+Since people that work on the Alpha Architecture are greatly outnumbered by the
+people that work on other architectures, usually by the time we have a stable working 
+kernel for Alpha, the kernel.org kernels are usually many versions ahead.  
 
-With my patch on 2.5.46:
+I hope this helps.
 
-(off:0, size:0x100000) 
-send/recv: copied 5.0 Mbytes in 0.380 seconds at 13.2 Mbytes/sec
-(off:1, size:0x100000) 
-send/recv: copied 5.0 Mbytes in 0.385 seconds at 13.0 Mbytes/sec
-(off:2, size:0x100000) 
-send/recv: copied 5.0 Mbytes in 0.385 seconds at 13.0 Mbytes/sec
-(off:3, size:0x100000) 
-send/recv: copied 5.0 Mbytes in 0.384 seconds at 13.0 Mbytes/sec
-(off:4, size:0x100000) 
-send/recv: copied 5.0 Mbytes in 0.381 seconds at 13.1 Mbytes/sec
-(Entire log is here, 
-http://www.suna-asobi.com/~akira-t/linux/cleanup-copy-user-1/586MMX-PenMMX-with-patch.log)
-
-I appreciate if somebody could try on 386 or 486.
-I don't have them right now.
-
-Cheers,
-
-Akira 
+Best Regards,
 
 
-
+--George

@@ -1,60 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130267AbRBMFnd>; Tue, 13 Feb 2001 00:43:33 -0500
+	id <S130324AbRBMFvY>; Tue, 13 Feb 2001 00:51:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130380AbRBMFnO>; Tue, 13 Feb 2001 00:43:14 -0500
-Received: from out-mx1.crosswinds.net ([209.208.163.38]:61268 "HELO
-	out-mx1.crosswinds.net") by vger.kernel.org with SMTP
-	id <S130267AbRBMFnK>; Tue, 13 Feb 2001 00:43:10 -0500
-Message-ID: <3A88C882.BD78A854@crosswinds.net>
-Date: Tue, 13 Feb 2001 00:39:14 -0500
-From: Michael Trausch <fd0man@crosswinds.net>
-X-Mailer: Mozilla 4.73 [en] (Win95; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: rose@wytech.de, linux-kernel@vger.kernel.org
-Subject: Re: Software Mestizo Manifesto
-In-Reply-To: <E14SKV1-0007DJ-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130350AbRBMFvP>; Tue, 13 Feb 2001 00:51:15 -0500
+Received: from kea.grace.cri.nz ([131.203.4.51]:20753 "EHLO kea.grace.cri.nz")
+	by vger.kernel.org with ESMTP id <S130324AbRBMFvD>;
+	Tue, 13 Feb 2001 00:51:03 -0500
+Date: Tue, 13 Feb 2001 00:50:53 -0500 (EST)
+Message-Id: <200102130550.AAA06620@whio.grace.cri.nz>
+From: roger@kea.grace.cri.nz
+To: ttsig@tuxyturvy.com
+CC: linux-kernel@vger.kernel.org, roger@kea.grace.cri.nz, R.Bain@comnet.co.nz
+In-Reply-To: <982037420.3a88b3ac6fbca@eargle.com> (message from Tom Sightler on Mon, 12 Feb 2001 23:10:20 -0500 (EST))
+Subject: Re: Problem with Netscape/Linux v.2.4.x [repeat] (MTU problem??)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Alan Cox wrote:
+Re: Tom's message (below)
+
+
+Thanks for your comments and description of symptoms. There may well
+be an underlying common cause. Have you looked at the MTU/MSS
+settings? 
+ 
+
+>Do you get errors on your ppp0 interface?  Just curious.  Now that I know I'm 
+>not just crazy maybe I'll look into it more.
+
+I get a large number of RX errors (25%) when running telnet in console
+mode (and very poor performance). Again this is confined to the 2.4.x
+kernel. Oddly enough (with 2.4.x) there is little packet loss with telnet
+under X. Similarly during a Netscape session (locked or not) there is
+little packet loss registered....
+
+
+Roger Young.
+
+...........................................................................
+Quoting roger@maths.grace.cri.nz:
+
+> Symptoms: The browser (Netscape or Lynx) will not download from remote
+> web sites (dynamic ppp connection via external modem).
 > 
-> > > It seems that people are using open source software to do idiotic
-> > > things. Many open source references were made in the article, I should
-> > > see if the article is online at all to maybe be able to use it as a
-> > > reference.
-> >
-> > You probably mean that one:
-> > http://www.usatoday.com/life/cyber/tech/2001-02-05-binladen.htm
-> 
-> It has to be said that if Im blowing up planes full of people then I'm probably
-> not concerned about software licensing issues or a visit from the BSA.
-> 
-> Alan
+> This looks to be a problem for my PC and the 2.4.x kernel,
 
-ROFL... This is true.  However, I've got to wonder how many people
-actually like Bin Laden are out there.  And seeing as though they can't
-seem to catch him, he must be doing a pretty damn good job at working on
-the software issue.  We'll see how long it takes for the Government to
-finally decide to violate the Freedom of Speech and require Master Keys.
+It is very interesting that your are having this problem.  I have been having a 
+similar problem with with 2.4.x on my laptop and had been unable to totally put 
+it all together.  Here's my basic symtoms:
 
-And I'd hope that the Linux community doesn't bend over and succumb to
-that, becuase thinking logically here, if the M-Key fell in the wrong
-hands it could be used without court orders.  That's the whole thing
-that the Government apparently doesn't realize.
+I can use the web quite normally for quite some time, but certain sites seem to 
+be a trigger.  For example, if I go to IBM site and attempt to download they're 
+JDK I immediately start getting errors on my ppp0 interface.  From that point 
+on I get errors on other sites that previously were working, and the ppp0 
+errors continue to increase throughout the entire duration of the call.  If I 
+hang up and dial back everything goes back to normal again until I attempt to 
+connect to the IBM download site again.
 
-Anywayz, we'll see what happens.  I'm off of the list currently so that
-I can work on my own software project for now, but I'll probably be back
-on within a matter of months, we'll see how bored I get if I get free
-time from my software project :-P.
+I originally thought this was a problem with my Xircom adapter, but if I fire 
+up VMware I can use Windows 2000 to dial the same link and everything works 
+fine to all the same sites.  This certainly implies that the serial layer is 
+working properly since VMware still simply passes control of /dev/ttyS1 to the 
+VM.
 
-	- Mike
+I was unable to reproduce this problem on the same system with kernel 2.2.18, 
+all other things being the same.  I don't think my ISP uses trasparent proxies, 
+but it is possible the remote IBM system uses some transparent web 
+accelerator/load balancer.  Most of the IBM web site works properly, only the 
+software download site seems to trigger the problem.  The problem does exhibit 
+itself on other sites, but the IBM site is where began to realize it was 
+repeatable.
+
+Do you get errors on your ppp0 interface?  Just curious.  Now that I know I'm 
+not just crazy maybe I'll look into it more.
+
+Later,
+Tom
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://vger.kernel.org/lkml/
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

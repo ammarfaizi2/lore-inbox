@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263567AbTDTMud (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 08:50:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbTDTMud
+	id S263568AbTDTNAP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 09:00:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263570AbTDTNAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 08:50:33 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:64225 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S263567AbTDTMuc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 08:50:32 -0400
-Subject: Re: 2.5.68-mm1
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-In-Reply-To: <20030419231320.52b2b2ef.akpm@digeo.com>
-References: <20030419231320.52b2b2ef.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1050843734.595.0.camel@teapot.felipe-alfaro.com>
+	Sun, 20 Apr 2003 09:00:15 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:4026 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S263568AbTDTNAO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 09:00:14 -0400
+Date: Sun, 20 Apr 2003 09:01:23 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Shachar Shemesh <lkml@shemesh.biz>
+Cc: Larry McVoy <lm@work.bitmover.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BK->CVS, kernel.bkbits.net
+Message-ID: <20030420130123.GK2528@phunnypharm.org>
+References: <20030417162723.GA29380@work.bitmover.com> <20030420013440.GG2528@phunnypharm.org> <3EA24CF8.5080609@shemesh.biz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 20 Apr 2003 15:02:14 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EA24CF8.5080609@shemesh.biz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-04-20 at 08:13, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.68/2.5.68-mm1
+On Sun, Apr 20, 2003 at 10:32:08AM +0300, Shachar Shemesh wrote:
+> Ben Collins wrote:
 > 
-> A few fixes for various things.  mainly a resync with 2.5.68.
-> 
-> +select-speedup-fix.patch
+> >I hate asking this on top of the work you already provide, but would it
+> >be possible to allow rsync access to the repo itself? I have atleast 6
+> >computers on my LAN where I keep source trees (2.4 and 2.5), and it
+> >would be much less b/w on my metered T1 and on your link aswell if I
+> >could rsync one main "mirror" of the cvs repo and then point all my
+> >machines at it.
+> >
+> There is a better tool (for this particular task), called "cvsup". It 
+> does a wonderful job of keeping cvs repositories in synch. I realize I 
+> just asked for a THIRD tool, so it should only go in if the admins are 
+> willing to take care of it.
 
-The select() problem seems to be fixed... Now, Evolution is working
-fine. Thanks!
+How does cvsup help when I have 6 copies of two different repositories
+on my side and I only want to hit the other side one time to update all
+6 copies?
+
 -- 
-Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
-See http://www.fsf.org/philosophy/no-word-attachments.html
-Linux Registered User #287198
-
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265306AbUAPGOt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 01:14:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265309AbUAPGOt
+	id S265287AbUAPGjR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 01:39:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265290AbUAPGjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 01:14:49 -0500
-Received: from fw.osdl.org ([65.172.181.6]:14044 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265306AbUAPGOq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 01:14:46 -0500
-Date: Thu, 15 Jan 2004 22:14:46 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: James Bottomley <James.Bottomley@steeleye.com>,
-       Andrew Vasquez <andrew.vasquez@qlogic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] fix qla2xxx build for older gcc's
-Message-Id: <20040115221446.63fdd808.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 16 Jan 2004 01:39:17 -0500
+Received: from mail46-s.fg.online.no ([148.122.161.46]:15750 "EHLO
+	mail46.fg.online.no") by vger.kernel.org with ESMTP id S265287AbUAPGjQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 01:39:16 -0500
+Message-ID: <40078710.6070107@online.no>
+Date: Fri, 16 Jan 2004 07:39:12 +0100
+From: Andreas Tolfsen <ato@online.no>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: True story: "gconfig" removed root folder...
+References: <1074177405.3131.10.camel@oebilgen> <Pine.LNX.4.58.0401151558590.27223@serv> <20040115212304.GA25296@rlievin.dyndns.org> <Pine.LNX.4.58.0401152245030.27223@serv> <40070D64.6090307@online.no> <Pine.LNX.4.58.0401152354160.27223@serv>
+In-Reply-To: <Pine.LNX.4.58.0401152354160.27223@serv>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roman Zippel wrote:
+
+> On Thu, 15 Jan 2004, Andreas Tolfsen wrote:
+> 
+> 
+>>>What do you mean with "destroyed"? All I can reproduce here is that it's
+>>>simply moved away, but it's still there!
+>>
+>>Is it supposed to be moved away?  I'm just being curious...
+> 
+> 
+> Yes, this usually produces ".config.old", but there is nowhere a "rm -Rf"
+> as the initial mail suggests.
+> 
+
+I see, thank you!  That makes more sense!
 
 
-drivers/scsi/qla2xxx/qla_def.h:1139: warning: unnamed struct/union that defines no instances
-drivers/scsi/qla2xxx/qla_iocb.c:440: union has no member named `standard'
-
-Older gcc's don't understand anonymous unions.
-
-
----
-
- drivers/scsi/qla2xxx/qla_def.h |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
-
-diff -puN drivers/scsi/qla2xxx/qla_def.h~qla2xxx-build-fix drivers/scsi/qla2xxx/qla_def.h
---- 25/drivers/scsi/qla2xxx/qla_def.h~qla2xxx-build-fix	2004-01-15 22:09:17.000000000 -0800
-+++ 25-akpm/drivers/scsi/qla2xxx/qla_def.h	2004-01-15 22:10:28.000000000 -0800
-@@ -1135,8 +1135,8 @@ typedef union {
- 	uint16_t extended;
- 	struct {
- 		uint8_t reserved;
--		uint8_t standard;;
--	};
-+		uint8_t standard;
-+	} id;
- } target_id_t;
- 
- #define SET_TARGET_ID(ha, to, from)			\
-@@ -1144,7 +1144,7 @@ do {							\
- 	if (HAS_EXTENDED_IDS(ha))			\
- 		to.extended = cpu_to_le16(from);	\
- 	else						\
--		to.standard = (uint8_t)from;		\
-+		to.id.standard = (uint8_t)from;		\
- } while (0)
- 
- /*
-
-_
 

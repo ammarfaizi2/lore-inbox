@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290574AbSARBTt>; Thu, 17 Jan 2002 20:19:49 -0500
+	id <S290575AbSARBsu>; Thu, 17 Jan 2002 20:48:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290575AbSARBTi>; Thu, 17 Jan 2002 20:19:38 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41233 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290574AbSARBT3>; Thu, 17 Jan 2002 20:19:29 -0500
-Subject: Re: [STATUS 2.5]  January 17, 2001
-To: reiser@namesys.com (Hans Reiser)
-Date: Fri, 18 Jan 2002 00:38:11 +0000 (GMT)
-Cc: jdomingo@internautas.org (Jose Luis Domingo Lopez),
-        boissiere@mediaone.net (Guillaume Boissiere),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3C474E84.5000209@namesys.com> from "Hans Reiser" at Jan 18, 2002 01:21:56 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S290578AbSARBsk>; Thu, 17 Jan 2002 20:48:40 -0500
+Received: from 12-234-33-29.client.attbi.com ([12.234.33.29]:6723 "HELO
+	top.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S290575AbSARBsb>; Thu, 17 Jan 2002 20:48:31 -0500
+From: brian@worldcontrol.com
+Date: Thu, 17 Jan 2002 17:46:48 -0800
+To: "Trever L. Adams" <tadams-lists@myrealbox.com>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Andrea Scrimieri <livore@karma.oltrelinux.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Rik spreading bullshit about VM
+Message-ID: <20020118014648.GA5250@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	"Trever L. Adams" <tadams-lists@myrealbox.com>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Andrea Scrimieri <livore@karma.oltrelinux.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0201171113270.32617-100000@imladris.surriel.com> <1011303665.1230.5.camel@aurora>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16RN2p-0005VC-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <1011303665.1230.5.camel@aurora>
+User-Agent: Mutt/1.3.25i
+X-No-Archive: yes
+X-Noarchive: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Have you heard anything about when Linus intends to code freeze?  In my 
-> planning I am assuming Sept. 30 is way earlier than 2.6 would ship.  I 
-> remember how long 2.4 took, and I simply assume 2.6 will be the same. 
->  At any rate, there is no way we'll be done earlier than September: it 
-> is a deep rewrite.  Code looks so much better than the old code...., but 
-> it is completely new code.
 
-If Linus says september freezes in september and ships for christmas I will
-be most suprised. If he says september freezes the may after and ships the
-december after that I'd count it normal 
+Let us not forget about 'deconstructionism':
 
-Personally I'd really like to see the block I/O stuff straightened out. The
-neccessary VM bits done, device driver updates and a September freeze. I
-think it can be done, and I think the resulting kernel will be way way
-better for people with 1Gb+ of RAM, so much better that its worth making a
-clear release at that point.
+    deconstructionism -- (a philosophical theory of criticism ...
+    that seeks to expose deep-seated contradictions in a work
+    by delving below its surface meaning)
 
-Alan
+It doesn't even matter what Rik thinks he wrote.  The real meaning is
+what *we*, the readers, can devolve from his writings.
+
+8-)
+
+- Brian Litzinger <brian@worldcontrol.com>
+
+> On Thu, 2002-01-17 at 08:15, Rik van Riel wrote:
+> > Which part of "to interprete" do you not understand ?
+> > 
+> > Interpreting my text is reading it and building a
+> > meaning for the words in your head. It doesn't mean
+> > the text needs to be changed ... the meaning can be
+> > different for each person reading the exact same
+> > words.
+
+
+On Thu, Jan 17, 2002 at 04:41:02PM -0500, Trever L. Adams wrote:
+> To an extant anyone is responsible for how another takes (interprets)
+> what they say.  Culture is that combined collection of knowledge of the
+> human race.  It is your responsibility as a human to be as clear as
+> possible (within reason).
+> 
+> Were you that clear?  It seems not, but I don't know.  Just don't say
+> you have no responsibility for how others take what you say, because
+> that is just dog crap.  No communication or collaboration would ever
+> take place if we all had that attitude. (It most likely couldn't take
+> place, let alone wouldn't.)

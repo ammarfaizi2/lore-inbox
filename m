@@ -1,63 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbTFPMiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 08:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262934AbTFPMiJ
+	id S262934AbTFPMm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 08:42:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTFPMm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 08:38:09 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:8718 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S262456AbTFPMiG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 08:38:06 -0400
-Date: Mon, 16 Jun 2003 14:51:35 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: BUG REPORT: Massive performance drop in routing throughput with
- 2.4.21
-Message-Id: <20030616145135.0ef5c436.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.51.0306161444090.18129@dns.toxicfilms.tv>
-References: <20030616141806.6a92f839.skraw@ithnet.com>
-	<Pine.LNX.4.51.0306161444090.18129@dns.toxicfilms.tv>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 16 Jun 2003 08:42:59 -0400
+Received: from madrid10.amenworld.com ([217.174.194.138]:37382 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S262934AbTFPMm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 08:42:58 -0400
+Date: Mon, 16 Jun 2003 14:58:07 +0200
+From: DervishD <raul@pleyades.net>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RESEND][PATCH] against mmap.c (do_mmap_pgoff) and a note
+Message-ID: <20030616125807.GC57@DervishD>
+References: <20030421110427.GA127@DervishD> <20030615102039.GA1063@wohnheim.fh-wedel.de> <20030616094911.GB43@DervishD> <20030616113351.GB18717@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030616113351.GB18717@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jun 2003 14:47:15 +0200 (CEST)
-Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
+    Hi Jörn :)
 
-> > there seems to be a real serious problem with 2.4.21, routing through two
-> > ethernet-devices. After 24 hours of a routing-only box the throughput from
-> > ethernet a to ethernet b decreased to something around 4-100 kByte/sec (100
-> > Mbit network 2 cards ns83820). I had to drop using 2.4.21 on this box
-> > because of this. 2.4.20 is flawless on the machine and ran for around 100
-> > days before without any troubles. Going back to 2.4.20 cured it.
-> Are you using any netfilter patch-o-matic patches?
+ * Jörn Engel <joern@wohnheim.fh-wedel.de> dixit:
+> >     There is a change in archs where TASK_SIZE is the entire
+> > addressable space (like sparc64). Ask Dave S., again. The problem did
+> > arise when TASK_SIZE is ~0. Then semantics change.
+> True.  PAGE_ALIGN(-1) = 0 and that case would not get caught with the
+> old code.  Looks good to me.
 
-No.
+    This was pointed to me by Dave. I prepared a patch time ago just
+for the case where 'len' was quite large, but I assumed that
+TASK_SIZE was at least one less page than the entire addressable
+space, which is not true. My fault O:))
 
-> Does it also affect eg. ssh latency even on LAN ?
+    Thanks for pointing, anyway.
 
-Not very seriously.
+> Public Domain  - Free as in Beer
+> General Public - Free as in Speech
+> BSD License    - Free as in Enterprise
+> Shared Source  - Free as in "Work will make you..."
 
-> Since I switched my processor from Intel do Amd, I have been experiencing
-> similar but after longer periods of time than yours.
-> 
-> I am also using VIA chipset, maybe it's a hardware driver problem.
+    Good one ;))))
 
-No, my two boxes have differing mb's. One is VIA, the other is Intel440BX.
+    Raúl Núñez de Arenas Coronado
 
-But I can also verify that the problem arises with 2.4.21-rc7, too. I guess it
-is effectively an older problem that has not been recognised so far.
-
-> Regards,
-> Maciej
-
-Regards,
-Stephan
-
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264397AbTLGKXo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 05:23:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264401AbTLGKXo
+	id S264401AbTLGKcx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 05:32:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264406AbTLGKcx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 05:23:44 -0500
-Received: from moutng.kundenserver.de ([212.227.126.171]:26580 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S264397AbTLGKXn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 05:23:43 -0500
-Date: Sun, 7 Dec 2003 11:21:18 +0100
-From: Henning Meier-Geinitz <henning@meier-geinitz.de>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-usb-users@lists.sourceforge.net
-Subject: Re: [Linux-usb-users] Re: Beaver in Detox!)
-Message-ID: <20031207102118.GC24676@meier-geinitz.de>
-Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-usb-users@lists.sourceforge.net
-References: <Pine.LNX.4.58.0311261239510.1524@home.osdl.org> <20031128182625.GP2541@stop.crashing.org> <20031206184901.GH2455@meier-geinitz.de> <20031207044857.GV912@stop.crashing.org>
+	Sun, 7 Dec 2003 05:32:53 -0500
+Received: from legolas.restena.lu ([158.64.1.34]:20426 "EHLO smtp.restena.lu")
+	by vger.kernel.org with ESMTP id S264401AbTLGKcw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 05:32:52 -0500
+Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
+From: Craig Bradney <cbradney@zip.com.au>
+To: Ian Kumlien <pomac@vapor.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1070756987.1987.7.camel@big.pomac.com>
+References: <1070739194.1985.4.camel@big.pomac.com>
+	 <1070756427.2093.2.camel@athlonxp.bradney.info>
+	 <1070756987.1987.7.camel@big.pomac.com>
+Content-Type: text/plain
+Message-Id: <1070793169.2079.10.camel@athlonxp.bradney.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031207044857.GV912@stop.crashing.org>
-User-Agent: Mutt/1.5.4i
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:ef7bc16c10d3556bf134993d9edc1e24
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 07 Dec 2003 11:32:49 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sat, Dec 06, 2003 at 09:48:57PM -0700, Tom Rini wrote:
-> > Does the freeze also happen if no other USB devices are attached? I guess
-> > working without a keyboard is not that easy but it may be worth a test.
+On Sun, 2003-12-07 at 01:29, Ian Kumlien wrote:
+> On Sun, 2003-12-07 at 01:20, Craig Bradney wrote:
+> > On Sat, 2003-12-06 at 20:33, Ian Kumlien wrote:
+> > > Hi, i'm now running this patch and it survived my grep in /usr/src.
+> > > 
+> > > It's mainly a correction of the apic patch and the ACPI halt disconnect
+> > > patch that was originally done for 2.6...
+> > 
+> > Correction? how so? code looks the same, although the line numbers are
+> > completely different for mpparse.c and at that location there is
+> > different code. (Havent checked the disconnect)
 > 
-> I can xhost things to another machine rather easily.  But Greg KH talked
-> me into switching to libusb for the scanner, and everything works
-> perfectly now.  Do you still want me to give it a go?  Thanks.
+> this is for 2.4.23 =)
 
-If it doesn't happen with libusb it's really most probably a bug in
-the scanner driver so you don't need to test. However it's pretty much
-uncommon that nobody else sees this problem. I'll mention it on my
-website so it's not forgotten.
+duh.. ok :)
 
-Thanks,
-  Henning
+
+> > Or do u just mean combination of the two patches?
+> 
+> Combination + for 2.4.23
+> 
+> > > I'll get back to you about uptime, but i think this is it... 
+> > 
+> > Why do you think the disconnect is also related? (given some are just
+> > running the APIC patch and having (less/)no issues?
+> 
+> Since i had issues with just the apic patch, as stated in my mail.
+
+oic.. sorry.. must have missed that.
+> 
+> > > Although i would prefer a not so workaroundish approach =)
+> > 
+> > 23 hrs now.. 
+> 
+> I'm at 5:06 and thats a record for it running with apic.
+
+1d 9h here now..
+
+I remembered I also dont have preempt still, but I am happy with it if
+it stays like this. The next time I need to reboot (or get a hang), I'll
+recompile with preempt it and try again.
+
+Craig
+

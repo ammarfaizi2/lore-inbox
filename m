@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262707AbRFHTAv>; Fri, 8 Jun 2001 15:00:51 -0400
+	id <S263414AbRFHTGB>; Fri, 8 Jun 2001 15:06:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263414AbRFHTAl>; Fri, 8 Jun 2001 15:00:41 -0400
-Received: from jalon.able.es ([212.97.163.2]:32174 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S262707AbRFHTAc>;
-	Fri, 8 Jun 2001 15:00:32 -0400
-Date: Fri, 8 Jun 2001 21:00:25 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: "Michael H . Warfield" <mhw@wittsend.com>
-Cc: "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
-Subject: Re: temperature standard - global config option?
-Message-ID: <20010608210025.E2768@werewolf.able.es>
-In-Reply-To: <20010607212138.B29121@alcove.wittsend.com> <B746D8FA.F994%bootc@worldnet.fr> <20010608140553.C20944@alcove.wittsend.com> <20010608204306.C2768@werewolf.able.es> <20010608145646.D20944@alcove.wittsend.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20010608145646.D20944@alcove.wittsend.com>; from mhw@wittsend.com on Fri, Jun 08, 2001 at 20:56:46 +0200
-X-Mailer: Balsa 1.1.5
+	id <S263660AbRFHTFv>; Fri, 8 Jun 2001 15:05:51 -0400
+Received: from [216.101.162.242] ([216.101.162.242]:29056 "EHLO
+	pizda.ninka.net") by vger.kernel.org with ESMTP id <S263414AbRFHTFk>;
+	Fri, 8 Jun 2001 15:05:40 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15137.8668.590390.10485@pizda.ninka.net>
+Date: Fri, 8 Jun 2001 12:05:00 -0700 (PDT)
+To: Felix von Leitner <leitner@fefe.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux kernel headers violate RFC2553
+In-Reply-To: <20010608195719.A4862@fefe.de>
+In-Reply-To: <20010608195719.A4862@fefe.de>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 06.08 Michael H. Warfield wrote:
-> 
-> 	No, we are not talking lab instrumentation here.  We are talking
-> about CPU monitoring.  Lab instrumentation is a whole different issue
-> with things like the IEEE bus and such.  Lab instrumentation would require
-> it's own drivers and interface.
-> 
+Felix von Leitner writes:
+ > glibc works around this, but the diet libc uses the kernel headers and
+ > thus exports the wrong API to user land.
 
-Sorry, I thought you were talking about general temperature handling
-in kernel, both for LM78, ACPI or any driver that managed that kind of
-data.
+Don't user kernel headers for userspace.
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Linux Mandrake release 8.1 (Cooker) for i586
-Linux werewolf 2.4.5-ac9 #1 SMP Wed Jun 6 09:57:46 CEST 2001 i686
+Kernel headers and user headers are distinctly different namespaces,
+and you have pointed out only one of many places where we use
+different names/structures/etc. for some kernel networking headers
+vs. what userspace wants.
+
+Later,
+David S. Miller
+davem@redhat.com

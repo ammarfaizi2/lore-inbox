@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288974AbSA3IMe>; Wed, 30 Jan 2002 03:12:34 -0500
+	id <S288981AbSA3IXX>; Wed, 30 Jan 2002 03:23:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288973AbSA3IKr>; Wed, 30 Jan 2002 03:10:47 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44296 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S288969AbSA3IJo>; Wed, 30 Jan 2002 03:09:44 -0500
-Date: Wed, 30 Jan 2002 00:09:03 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Daniel Phillips <phillips@bonn-fries.net>, <mingo@elte.hu>,
-        Rob Landley <landley@trommello.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <Pine.GSO.4.21.0201300258230.11157-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33.0201300002170.1542-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288956AbSA3IXO>; Wed, 30 Jan 2002 03:23:14 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:32462 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S288981AbSA3IXC>;
+	Wed, 30 Jan 2002 03:23:02 -0500
+Date: Wed, 30 Jan 2002 03:23:00 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
+Subject: Re: unresolved symbols __udivdi3 and __umoddi3
+Message-ID: <20020130032300.G32317@havoc.gtf.org>
+In-Reply-To: <phillips@bonn-fries.net> <200201291638.g0TGcohv001323@tigger.cs.uni-dortmund.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200201291638.g0TGcohv001323@tigger.cs.uni-dortmund.de>; from brand@jupiter.cs.uni-dortmund.de on Tue, Jan 29, 2002 at 05:38:50PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 29, 2002 at 05:38:50PM +0100, Horst von Brand wrote:
+> Has anyone gotten a instruction listing (just instructions and short
+> description, not the whole other stuff in there), preferably in AT&T
+> syntax?
 
-On Wed, 30 Jan 2002, Alexander Viro wrote:
-> On Wed, 30 Jan 2002, Daniel Phillips wrote:
-> > Linus just called you the ext2 maintainer.
->
-> Message-ID, please?
+What is the AT&T syntax for short descriptions accompanying insns?
 
-I called you the VFS maintainer ("whether you like it or not" I think I
-said. Although I can't find the message right now).
+:)
 
-Now, that obviously does imply a certain control over low-level
-filesystems, but it really mainly implies a control over the _interfaces_
-used to talk the the filesystem, not the filesystem itself.
+	Jeff
 
-I personally really wouldn't mind seeing most filesystem patches coming
-through Al (and, in fact, in the inode trimming patches that is partly
-what as been happening), but I have this nagging suspicion that some
-filesystem maintainers would rather eat barbed wire (*).
 
-		Linus
-
-(*) The discussions between Gooch and Al are always "interesting", to name
-some names.
 

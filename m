@@ -1,86 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265476AbRF1ByI>; Wed, 27 Jun 2001 21:54:08 -0400
+	id <S265484AbRF1Cnm>; Wed, 27 Jun 2001 22:43:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265477AbRF1Bx7>; Wed, 27 Jun 2001 21:53:59 -0400
-Received: from secure.hostnoc.net ([66.96.192.200]:50439 "EHLO
-	secure.hostnoc.net") by vger.kernel.org with ESMTP
-	id <S265476AbRF1Bxv>; Wed, 27 Jun 2001 21:53:51 -0400
-Date: Wed, 27 Jun 2001 21:53:04 -0400
-From: "J. Nick Koston" <nick@burst.net>
-To: linux-kernel@vger.kernel.org
-Subject: Asus CUV4X-DLS
-Message-ID: <20010627215304.D28795@burst.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="GpGaEY17fSl8rd50"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - secure.hostnoc.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [1003 1004] / [1003 1004]
-X-AntiAbuse: Sender Address Domain - secure.hostnoc.net
+	id <S265485AbRF1Cnb>; Wed, 27 Jun 2001 22:43:31 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:48326 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265484AbRF1CnT>; Wed, 27 Jun 2001 22:43:19 -0400
+Message-ID: <3B3A24D9.5013B835@vnet.ibm.com>
+Date: Wed, 27 Jun 2001 13:24:25 -0500
+From: Tom Gall <tom_gall@vnet.ibm.com>
+X-Mailer: Mozilla 4.7 [en] (Win98; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RFC: Changes for PCI
+In-Reply-To: <3B3A58FC.2728DAFF@vnet.ibm.com> <3B3A5B00.9FF387C9@mandrakesoft.com> <3B3A64CD.28B72A2A@vnet.ibm.com> <3B3A6D80.E82A2BA6@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---GpGaEY17fSl8rd50
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+
+Jeff Garzik wrote:
+
+> Tom Gall wrote:
+> > Well you have device drivers like the symbios scsi driver for instance that
+> > tries to determine if it's seen a card before. It does this by looking at the
+> > bus,dev etc numbers...  It's quite reasonable for two different scsi cards to be
+> > on the same bus number, same dev number etc yet they are in different PCI
+> > domains.
+> >
+> > Is this a device driver bug or feature?
+>
+> I hesitate to call it a device driver bug, because that was likely the
+> best decision Gerard could make at the time.
+
+I don't doubt it. I wouldn't doubt I've been guilty of simliar things in my past...
 
 
-There seems to be a major problem with this board and 2.4.x kernels.
-I consistantly get SCSI Input/Output errors on multiple drives that I
-know are good when running a SMP kernel.  These errors do no happen
-with a UP kernel.  This is happening on multiple systems and with
-multiple know good scsi drives of all speeds and sizes.
+> However, I think the driver (only going by your description) would be
+> more correct to use a pointer to struct pci_dev.  We have a token in the
+> kernel that is guaranteed 100% unique to any given PCI device:  the
+> pointer to its struct pci_dev.
 
-Test#1:
+Sound good.
 
-2.4.2 (redhat 7.1 version)
+> > > Changing the meaning of dev->bus->number globally seems pointless.  If
+> > > you are going to do that, just do it the right way and introduce another
+> > > struct member, pci_domain or somesuch.
+>
+> Sorry, not pci_domain, just system bus number, for any bus, like we
+> talked about in the previous discussion.
 
-dd if=3D/dev/sda of=3D/dev/null
-(fails with input/output error)
+Yes agreed. However do you think it's possible for the additional of such a value now
+in 2.4.x series? Alan? Linus?
 
-Test #2:
+Regards,
 
-2.4.2 (redhat 7.1 version)
-noapic on boot
-
-dd if=3D/dev/sda of=3D/dev/null
-(fails with input/output error)
-
-Test #3:
-
-2.4.2 (redhat 7.1 edition)
-
-dd if=3D/dev/sda of=3D/dev/null
-PASS!
-
-
-               Nick
+Tom
+--
+Tom Gall - PPC64 Maintainer      "Where's the ka-boom? There was
+Linux Technology Center           supposed to be an earth
+(w) tom_gall@vnet.ibm.com         shattering ka-boom!"
+(w) 507-253-4558                 -- Marvin Martian
+(h) tgall@rochcivictheatre.org
+http://www.ibm.com/linux/ltc/projects/ppc
 
 
-
-
-
-
-
---=20
-
---GpGaEY17fSl8rd50
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7Oo3/T5huNxcQLWARAs1hAKCJgvgDJDqY6UyrUvEUfq9CZK0QJQCeMK4f
-donpIpDbKLDj34KFr5i3v6g=
-=7T8N
------END PGP SIGNATURE-----
-
---GpGaEY17fSl8rd50--

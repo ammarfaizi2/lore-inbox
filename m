@@ -1,36 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270891AbTGPOwo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 10:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270892AbTGPOwo
+	id S270897AbTGPOzU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 10:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270898AbTGPOzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 10:52:44 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:8650
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S270891AbTGPOwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 10:52:34 -0400
-Subject: Re: 2.6.0test1 - HPT374 kernel panic during booting
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F12E53A.7050802@kmlinux.fjfi.cvut.cz>
-References: <3F12E53A.7050802@kmlinux.fjfi.cvut.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058367892.6633.16.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 16 Jul 2003 16:04:52 +0100
+	Wed, 16 Jul 2003 10:55:19 -0400
+Received: from mail.eris.qinetiq.com ([128.98.1.1]:23076 "HELO
+	ns0.eris.dera.gov.uk") by vger.kernel.org with SMTP id S270897AbTGPOym
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 10:54:42 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: Re: VESA Framebuffer dead in 2.6.0-test1
+Date: Wed, 16 Jul 2003 16:08:34 +0100
+User-Agent: KMail/1.4.3
+References: <200307161406.h6GE6iHt002041@sirius.nix.badanka.com>
+In-Reply-To: <200307161406.h6GE6iHt002041@sirius.nix.badanka.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200307161608.34637.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-07-14 at 18:15, Jindrich Makovicka wrote:
-> with a segfault. 2.4.21 behaves the similar way - with a monolitic 
-> kernel it does a kernel panic, the module loads but doesn't find any 
-> disk. The driver from Highpoint website works fine.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Is the same true with the 2.4.22-pre5/6 driver. I fixed a couple of
-problems along the way with the newest firmware tickling a bug in our
-driver and someone else fixed an overuse of __init
+
+> Hi.
+>
+> A number of people have experienced the same problem as I have; the VESA
+> framebuffer is just..black on boot. I haven't seen any reports on this,
+> though. dmesg says what it always have said before about the fb.
+>
+> I boot with vga=791 (as specified in lilo.conf).. Have something changed
+> or is it just broken? :o)
+>
+> Thanks.
+
+I boot with vga=0x343 (1400x1050) and its working fine (2.6.0-test1)
+
+This is a Dell Latitude C610 laptop, so it may be using the ati framebuffer 
+stuff, although I get this in dmesg:
+
+vesafb: framebuffer at 0xe0000000, mapped to 0xd8800000, size 16384k
+vesafb: mode is 1400x1050x24, linelength=4200, pages=2
+vesafb: protected mode interface info at c000:5378
+vesafb: scrolling: redraw
+vesafb: directcolor: size=0:8:8:8, shift=0:16:8:0
+fb0: VESA VGA frame buffer device
+Console: switching to colour frame buffer device 175x65
+
+Mark.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ TIM
+St Andrews Road, Malvern
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/FWpyBn4EFUVUIO0RAjqwAJ43U2vmUw7kMFkoeIsdDLyxhAbLBQCgmMST
+LO8Pk8CAhCD0Uq/kuPd9hBo=
+=W+2A
+-----END PGP SIGNATURE-----
 

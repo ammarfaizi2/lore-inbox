@@ -1,27 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132227AbRCVXAj>; Thu, 22 Mar 2001 18:00:39 -0500
+	id <S132226AbRCVW43>; Thu, 22 Mar 2001 17:56:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132228AbRCVXAT>; Thu, 22 Mar 2001 18:00:19 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24842 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132227AbRCVXAM>; Thu, 22 Mar 2001 18:00:12 -0500
-Subject: Re: [CHECKER] 8 more potential locking problems
-To: acc@CS.Stanford.EDU
-Date: Thu, 22 Mar 2001 23:01:41 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, mc@CS.Stanford.EDU
-In-Reply-To: <20010322141059.A21490@Xenon.Stanford.EDU> from "Andy Chou" at Mar 22, 2001 02:10:59 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132229AbRCVW4U>; Thu, 22 Mar 2001 17:56:20 -0500
+Received: from hypnos.cps.intel.com ([192.198.165.17]:37583 "EHLO
+	hypnos.cps.intel.com") by vger.kernel.org with ESMTP
+	id <S132226AbRCVW4P>; Thu, 22 Mar 2001 17:56:15 -0500
+Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE7A2@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Woller, Thomas'" <twoller@crystal.cirrus.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Incorrect mdelay() results on Power Managed Machines x86
+Date: Thu, 22 Mar 2001 14:53:35 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14gE5P-0003V6-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We modified our compiler extension for checking lock consistency and
-> found 8 more potential errors.
+> During resume the IBM thinkpad with the cs46xx driver needs 
+> to delay 700
+> milleseconds, so if the machine is booted up on battery power, then to
+> ensure that the delay is long enough, then a value of 3000 
+> milleseconds is
+> must be programmed into the driver (3 seconds!).  all the 
+> mdelay and udelay
+> wait times are incorrect by the same factor, resulting in some serious
+> problems when attempting to wait specific delay times in 
+> other parts of the
+> driver.  
 
-All 8 are real, all 8 fixed in my tree. 
+Well yes this is a problem, but only when starting out with a low effective
+CPU freq and going high - the reverse is usually OK because longer than
+anticipated waits are OK.
+
+However, you can alleviate this problem by not using udelay (or mdelay) but
+using a kernel timer. I would think you should be doing this anyway (700ms
+is a LONG TIME) but this should also work regardless of effective CPU freq.
+
+A grep of the kernel source shows cs46xx isn't even doing the biggest
+mdelay. I can understand the use of spinning on a calibrated loop for less
+than a clock tick, but I gotta think there are better ways for longer
+periods.
+
+I wonder if there is a way to modify mdelay to use a kernel timer if
+interval > 10msec? I am not familiar with this section of the kernel, but I
+do know that Microsoft's similar function KeStallExecutionProcessor is not
+recommended for more than 50 *micro*seconds.
+
+Regards -- Andy
 

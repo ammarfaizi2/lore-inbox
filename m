@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262151AbSJAQli>; Tue, 1 Oct 2002 12:41:38 -0400
+	id <S262143AbSJAQSO>; Tue, 1 Oct 2002 12:18:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262146AbSJAQli>; Tue, 1 Oct 2002 12:41:38 -0400
-Received: from 200-184-71-82.chies.com.br ([200.184.71.82]:63090 "EHLO
-	elipse.com.br") by vger.kernel.org with ESMTP id <S262151AbSJAQlJ>;
-	Tue, 1 Oct 2002 12:41:09 -0400
-Message-ID: <029401c2696a$9adc8bb0$1c00a8c0@elipse.com.br>
-Reply-To: "Felipe W Damasio" <felipewd@elipse.com.br>
-From: "Felipe W Damasio" <felipewd@elipse.com.br>
-To: "Kent Yoder" <key@austin.ibm.com>, "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>, <tsbogend@alpha.franken.de>
-References: <Pine.LNX.4.44.0210011129330.14607-100000@ennui.austin.ibm.com>
-Subject: Re: [PATCH] pcnet32 cable status check
-Date: Tue, 1 Oct 2002 13:50:10 -0300
-Organization: Elipse Software
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-X-OriginalArrivalTime: 01 Oct 2002 16:50:10.0546 (UTC) FILETIME=[9ADD9D20:01C2696A]
+	id <S262144AbSJAQSO>; Tue, 1 Oct 2002 12:18:14 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:49338 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S262143AbSJAQSN>; Tue, 1 Oct 2002 12:18:13 -0400
+Date: Tue, 1 Oct 2002 17:23:14 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Steve Underwood <steveu@coppice.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB IEEE1284 gadgets and ppdev
+Message-ID: <20021001162314.GI20631@redhat.com>
+References: <3D90831A.7060709@coppice.org> <20020924162130.GE9457@redhat.com> <3D91BF58.8080803@coppice.org> <20020925142757.GL9457@redhat.com> <20020925150129.GC30339@kroah.com> <20020925150915.GM9457@redhat.com> <3D99C0D9.7060704@coppice.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FUFe+yI/t+r3nyH4"
+Content-Disposition: inline
+In-Reply-To: <3D99C0D9.7060704@coppice.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
------ Original Message -----
-From: "Kent Yoder" <key@austin.ibm.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>; <tsbogend@alpha.franken.de>
-Sent: Tuesday, October 01, 2002 1:34 PM
-Subject: Re: [PATCH] pcnet32 cable status check
+--FUFe+yI/t+r3nyH4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Tue, Oct 01, 2002 at 11:35:53PM +0800, Steve Underwood wrote:
 
->
->   Hi,
->
->   Here's the updated version, now dependent on Jeff's new mii code.  This
-is
-> a bit more modular as well and new functionality can be added inside the
-> watchdog function without anything depending on mii.
+> Being able to bit twiddle to the extent that ppdev allows is pretty
+> important, though.
 
-    You should use netif_carrier_{on|off} to notify the upper layer of a
-link change/loss (until the otherwise is true). Check the 8139cp driver.
+Well, usblp wouldn't let you do any more than /dev/lp0 currently does,
+really.  It sounds like you want support for more uss720-like
+devices.
 
-    Also, you shouldn't need the timer stuff to keep track of link change.
-Just the mii_check_media and netif_carrier_{on|off} and you should be fine.
+Tim.
+*/
 
-Felipe
+--FUFe+yI/t+r3nyH4
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9mcvytO8Ac4jnUq4RAouJAKDEJa30nTImOEJOuJhzWvgUbKentQCfcEDy
+PkUkDYveYSzXlRN7PuaOMOE=
+=tlTm
+-----END PGP SIGNATURE-----
+
+--FUFe+yI/t+r3nyH4--

@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261374AbSJYMTk>; Fri, 25 Oct 2002 08:19:40 -0400
+	id <S261373AbSJYMX4>; Fri, 25 Oct 2002 08:23:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261373AbSJYMTk>; Fri, 25 Oct 2002 08:19:40 -0400
-Received: from kim.it.uu.se ([130.238.12.178]:9922 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S261374AbSJYMTj>;
-	Fri, 25 Oct 2002 08:19:39 -0400
-From: Mikael Pettersson <mikpe@csd.uu.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15801.14413.909403.323948@kim.it.uu.se>
-Date: Fri, 25 Oct 2002 14:25:49 +0200
-To: Andi Kleen <ak@muc.de>
+	id <S261375AbSJYMX4>; Fri, 25 Oct 2002 08:23:56 -0400
+Received: from B543a.pppool.de ([213.7.84.58]:16604 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S261373AbSJYMXz>; Fri, 25 Oct 2002 08:23:55 -0400
+Subject: Re: One for the Security Guru's
+From: Daniel Egger <degger@fhm.edu>
+To: hps@intermeta.de
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 performance counters driver 3.0-pre2 for 2.5.44: [2/4] x86 support
-In-Reply-To: <m3wuo7omzg.fsf@averell.firstfloor.org>
-References: <200210241500.RAA03585@kim.it.uu.se>
-	<m3wuo7omzg.fsf@averell.firstfloor.org>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+In-Reply-To: <ap8fjq$8ia$1@forge.intermeta.de>
+References: <20021023130251.GF25422@rdlg.net>
+	<1035411315.5377.8.camel@god.stev.org>  <ap8fjq$8ia$1@forge.intermeta.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LjyeafQ8TeztH9BvNsJT"
+Message-Id: <1035500731.439.4.camel@sonja.de.interearth.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 25 Oct 2002 14:28:56 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
- > Mikael Pettersson <mikpe@csd.uu.se> writes:
- > 
- > > +struct per_cpu_cache {	/* roughly a subset of perfctr_cpu_state */
- > > +	union {
- > > +		unsigned int p5_cesr;
- > > +		unsigned int id;	/* cache owner id */
- > > +	} k1;
- > > +	struct {
- > > +		/* NOTE: these caches have physical indices, not virtual */
- > > +		unsigned int evntsel[18];
- > > +		unsigned int escr[0x3E2-0x3A0];
- > > +		unsigned int pebs_enable;
- > > +		unsigned int pebs_matrix_vert;
- > > +	} control;
- > > +} __attribute__((__aligned__(SMP_CACHE_BYTES)));
- > > +static struct per_cpu_cache per_cpu_cache[NR_CPUS] __cacheline_aligned;
- > 
- > This should use per cpu data (asm/percpu.h) to save memory.
 
-Yes you're right. I didn't do this before because previous versions
-needed to support 2.2/2.4 kernels and building it as a module.
+--=-LjyeafQ8TeztH9BvNsJT
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-For what values of cpu is per_cpu(var,cpu) valid? For those where
-cpu_online(cpu) is true, or those where cpu_possible(cpu) is true?
-(I need to convert a memset() on the per_cpu_cache[] array to the
-per_cpu(,) framework.)
+Am Don, 2002-10-24 um 11.47 schrieb Henning P. Schmiedehausen:
 
-I'll fix this and announce a new version later today.
+> Sheesh, some even install a full desktop with "[gnome|kde]-games" on a
+> server. What is this? Microsoft Windows <insert your poison here>" ?
 
-/Mikael
+Don't laugh; I had such a box reinstalled from ground just the day
+before yesterday because I found a RedHat full Install on it. Not to
+mention that there're "admins" out there who use GNOME as root on a
+fairly busy mailserver <shudder>...
+
+--=20
+Servus,
+       Daniel
+
+--=-LjyeafQ8TeztH9BvNsJT
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQA9uHy7chlzsq9KoIYRAmtCAKCCyQXZHsHtawXi6ejSNWxvBimFCACeJY1O
+At4R5MWUI07IKcdDoqXGL0M=
+=gO9S
+-----END PGP SIGNATURE-----
+
+--=-LjyeafQ8TeztH9BvNsJT--
+
+

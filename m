@@ -1,84 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264551AbTCZBxW>; Tue, 25 Mar 2003 20:53:22 -0500
+	id <S264554AbTCZCI0>; Tue, 25 Mar 2003 21:08:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264552AbTCZBxW>; Tue, 25 Mar 2003 20:53:22 -0500
-Received: from mail209.mail.bellsouth.net ([205.152.58.149]:16553 "EHLO
-	imf45bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S264551AbTCZBxU>; Tue, 25 Mar 2003 20:53:20 -0500
-Subject: Re: 2.5 and modules ?
-From: Louis Garcia <louisg00@bellsouth.net>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1048638632.1176.4.camel@teapot>
-References: <1048564993.2994.13.camel@tiger>
-	 <Pine.LNX.4.51.0303251219250.9373@dns.toxicfilms.tv>
-	 <1048636973.1569.20.camel@tiger>  <1048638632.1176.4.camel@teapot>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048644294.2449.25.camel@tiger>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 25 Mar 2003 21:04:54 -0500
+	id <S264555AbTCZCI0>; Tue, 25 Mar 2003 21:08:26 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:62187 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S264554AbTCZCIW>; Tue, 25 Mar 2003 21:08:22 -0500
+Date: Tue, 25 Mar 2003 18:09:31 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Larry McVoy <lm@bitmover.com>
+cc: Andrew Morton <akpm@digeo.com>, venkatesh.pallipadi@intel.com,
+       linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: lmbench results for 2.4 and 2.5 -- updated results
+Message-ID: <1424610000.1048644571@flay>
+In-Reply-To: <20030326015026.GA25091@work.bitmover.com>
+References: <C8C38546F90ABF408A5961FC01FDBF19010485F1@fmsmsx405.fm.intel.com> <20030324200105.GA5522@work.bitmover.com> <543480000.1048540161@flay> <20030324153602.28b44e23.akpm@digeo.com> <20030324220435.GA11421@work.bitmover.com> <133220000.1048616630@[10.10.2.4]> <20030326015026.GA25091@work.bitmover.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do you mean this? If so what do I change it to?
+> In general, LMbench optimizes for fast results over exactness.  You can
+> definitely get more accurate results by doing longer runs.  My view
+> at the time of writing it was that I was looking for the broad stroke
+> results because I was trying to measure differences between various
+> operating systems.  There was more than enough to show so the results
+> didn't need to be precise, getting people to run the benchmark and
+> report results was more important.
+> 
+> If people are doing release runs to see if there are regressions, I
+> think that setting ENOUGH up to something longer is a good idea.
+> If there is enough interest, I could spend some time on this and
+> try and make a more accurate way to get results.  Let me know.
 
-if [ -f /proc/sys/kernel/modprobe ]; then
-   if [ -n "$USEMODULES" ]; then
-       sysctl -w kernel.modprobe="/sbin/modprobe" >/dev/null 2>&1
-       sysctl -w kernel.hotplug="/sbin/hotplug" >/dev/null 2>&1
-   else
-       # We used to set this to NULL, but that causes 'failed to exec'
-messages"
-       sysctl -w kernel.modprobe="/bin/true" >/dev/null 2>&1
-       sysctl -w kernel.hotplug="/bin/true" >/dev/null 2>&1
-   fi
-fi
+Well, I'd certainly be interested ... I think it's almost inevitable 
+that there's a bit of variations in timing ... the way I normally deal 
+with that is to do, say 30 runs, sort the results, throw away the top 
+and bottom 10, and take the average of the middle 10. 
 
+Now at the moment, I presume you're presenting back an average of all
+the runs you did ... if so, that looses some of the data to calculate
+that, so we have to do multiple runs, etc and it all gets a bit slower.
+If you can do that kind of stats op inside the lmbench tools, it
+might help. Of course, I can do that outside as a wrapper, but then
+there's the fork/exec setup time of the program to consider, etc etc.
 
-By the way, Thanks for all your help.
+The other interesting question is *why* there's so much variability
+in results in the first place. Indicative of some inner kernel problem?
+People have talked about page colouring, etc before, but I've tried
+before, and never mananged to generate any data showing a benefit for
+std dev of runs or whatever. Incidentally, this means that giving std
+dev (of the used subset, and all results) from lmbench would be fun ;-)
 
---Lou
+The other problem was the "make it long enough to profile" thing ...
+I think the ENOUGH trick you showed us is perfectly sufficent to solve
+that one ;-)
 
+Thanks,
 
-On Tue, 2003-03-25 at 19:30, Felipe Alfaro Solana wrote:
-> On Wed, 2003-03-26 at 01:02, Louis Garcia wrote:
-> > Setting hostname tiger:                              [  OK  ]
-> > Initializing USB controller (usb-uhci): FATAL: Module usb_uhci
-> 
-> The USB UHCI module has been renamed. Now it's called uhci-hcd.ko. Make
-> sure the following line is present in "/etc/modprobe.conf":
-> 
-> alias usb-controller uhci-hcd
-> 
-> >  not found.                                          [ FAILED ]
-> > Mounting USB filesystem:                             [  OK  ]
-> > grep: /proc/bus/usb/drivers:  No such file or directory.
-> 
-> No more drivers in /proc/bus/usb.
-> 
-> > Mounting local filesystems:  mount: fs type ntfs not supported by
-> > kernel.  mount: fs type vfat not supported by kernel.
-> >                                                      [ FAILED ]
-> > 
-> > 
-> > I have built all required modules:
-> 
-> "cat /proc/sys/kernel/modprobe" should spit:
-> 
->    /sbin/modprobe
-> 
-> Double check this... I found that rc.sysinit from RH8 and RH9 do
-> configure this to /sbin/true, thus invalidating dynamic kernel module
-> loading.
-> 
-> ________________________________________________________________________
->         Felipe Alfaro Solana
->    Linux Registered User #287198
-> http://counter.li.org
-> 
+M.
 

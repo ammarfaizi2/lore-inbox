@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261893AbSJDVU0>; Fri, 4 Oct 2002 17:20:26 -0400
+	id <S262396AbSJDUOE>; Fri, 4 Oct 2002 16:14:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262074AbSJDVU0>; Fri, 4 Oct 2002 17:20:26 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:21633 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261893AbSJDVUZ>;
-	Fri, 4 Oct 2002 17:20:25 -0400
-Message-ID: <3D9E0760.8040507@colorfullife.com>
-Date: Fri, 04 Oct 2002 23:25:52 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       mbligh@aracnet.com
-Subject: Re: [PATCH] patch-slab-split-03-tail
-References: <Pine.LNX.4.33L2.0210041321370.20655-100000@dragon.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262386AbSJDUMX>; Fri, 4 Oct 2002 16:12:23 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:7172 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S262383AbSJDUMQ>;
+	Fri, 4 Oct 2002 16:12:16 -0400
+Date: Fri, 4 Oct 2002 22:17:08 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       Sam Ravnborg <sam@ravnborg.org>, kbuild-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: RfC: Don't cd into subdirs during kbuild
+Message-ID: <20021004221708.A533@mars.ravnborg.org>
+Mail-Followup-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+	Sam Ravnborg <sam@ravnborg.org>, kbuild-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <20021003223054.A31484@mars.ravnborg.org> <Pine.LNX.4.44.0210031536370.24570-100000@chaos.physics.uiowa.edu> <20021004210701.A22726@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021004210701.A22726@mars.ravnborg.org>; from sam@ravnborg.org on Fri, Oct 04, 2002 at 09:07:01PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
+On Fri, Oct 04, 2002 at 09:07:01PM +0200, Sam Ravnborg wrote:
+> On Thu, Oct 03, 2002 at 03:38:22PM -0500, Kai Germaschewski wrote:
+> > You must be missing some of the changes (My first push to bkbits was 
+> > incomplete, since I did inadvertently edit Makefile without checking it 
+> > out, I do that mistake all the time...). It's fixed in the current repo.
 > 
-> Did you look at http://www.usenix.org/events/usenix01/bonwick.html
-> for it?
-> 
-Thanks for the link - that describes the newer, per-cpu extensions to 
-slab. Quite similar to the Linux implementation.
+> Did a pull from bkbits at 18:30 CET, something like 09:30 pacific I think.
 
-The text also contains a link to the original paper:
+make xconfig is broken.
+The following fixes this:
 
-http://www.usenix.org/publications/library/proceedings/bos94/bonwick.html
-
-Bonwick used one partially sorted list [as linux in 2.2, and 2.4.<10], 
-instead of seperate lists - move tail was not an option.
-
-The new paper contains one interesting comment:
-<<<<<<<
-An object cache's CPU layer contains per-CPU state that must be 
-protected either by per-CPU locking or by disabling interrupts. We 
-selected per-CPU locking for several reasons:
-[...]
-  x    Performance. On most modern processors, grabbing an uncontended 
-lock is cheaper than modifying the processor interrupt level.
-<<<<<<<<
-
-Which cpus have slow local_irq_disable() implementations? At least for 
-my Duron, this doesn't seem to be the case [~ 4 cpu cycles for cli]
-
-
---
-	Manfred
-
+===== scripts/Makefile 1.18 vs edited =====
+--- 1.18/scripts/Makefile	Thu Oct  3 20:20:25 2002
++++ edited/scripts/Makefile	Fri Oct  4 22:13:32 2002
+@@ -30,6 +30,8 @@
+ # but it is not worth the effort to generate the dependencies.
+ # The alternative solution to always generate it is fairly fast.
+ # FORCE it to remake
++kconfig.tk: $(obj)/kconfig.tk
++
+ $(obj)/kconfig.tk: $(srctree)/arch/$(ARCH)/config.in $(obj)/tkparse FORCE
+ 	@echo '  Generating $@'
+ 	@(                                                      \

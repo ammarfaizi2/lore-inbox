@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319341AbSHQE60>; Sat, 17 Aug 2002 00:58:26 -0400
+	id <S319359AbSHQFEG>; Sat, 17 Aug 2002 01:04:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319343AbSHQE60>; Sat, 17 Aug 2002 00:58:26 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59140 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319341AbSHQE6Z>; Sat, 17 Aug 2002 00:58:25 -0400
-Date: Fri, 16 Aug 2002 22:04:46 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-cc: Benjamin LaHaise <bcrl@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Pavel Machek <pavel@elf.ucw.cz>, <linux-kernel@vger.kernel.org>,
-       <linux-aio@kvack.org>
-Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re:
- async-io API registration for 2.5.29)]
-In-Reply-To: <Pine.LNX.4.44.0208162134440.2497-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0208162156090.2539-100000@home.transmeta.com>
+	id <S319360AbSHQFEG>; Sat, 17 Aug 2002 01:04:06 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:62737 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S319359AbSHQFEF>; Sat, 17 Aug 2002 01:04:05 -0400
+Date: Sat, 17 Aug 2002 01:18:17 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Skidley <skidley@roadrunner.nf.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre3
+In-Reply-To: <20020817045924.GC377@hendrix>
+Message-ID: <Pine.LNX.4.44.0208170117360.8089-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 16 Aug 2002, Linus Torvalds wrote:
-> 
-> I suspect that you are used to the traditional UNIX "process" notion,
-> where a "process" has exactly one file table, and has exactly one set of
-> signals, one set of semaphores etc. In that setup it can be quite
-> convenient to map these into the VM address space at magical addresses.
 
-Btw, at this point I should say that that doesn't mean that I'm _against_
-a per-VM kmap table, I'm just pointing out that it's not a trivial issue.
+On Sat, 17 Aug 2002, Skidley wrote:
 
-Andrea and I talked about exactly this at OLS, because Andrea would have
-liked to use it for handling the generic_file_write() kmap case without
-having to worry about running out of kmap's and the deadlocks we used to
-have in that space (before the atomic user copy approach).
+> check.c: In function `devfs_register_disc':
+> check.c:328: structure has no member named `number'
+> check.c:329: structure has no member named `number'
+> check.c: In function `devfs_register_partitions':
+> check.c:361: structure has no member named `number'
+> make[3]: *** [check.o] Error 1
+> make[3]: Leaving directory
+> `/home/skidley/kernel/linux-2.4.20-pre3/fs/partitions'
+> make[2]: *** [first_rule] Error 2
+> make[2]: Leaving directory
+> `/home/skidley/kernel/linux-2.4.20-pre3/fs/partitions'
+> make[1]: *** [_subdir_partitions] Error 2
+> make[1]: Leaving directory `/home/skidley/kernel/linux-2.4.20-pre3/fs'
+> make: *** [_dir_fs] Error 2
 
-And the thing is, you _can_ use a per-VM kmap setup, but it really only
-moves the problem from a global kmap space ("everybody shares the same
-VM") into a slightly smaller subset of it, a global thread kmap ("all
-threads share the same VM").
+Yeah, I forgot to apply the fix to this one, sorry.
 
-So at least in that particular case, by moving it from a global space to a
-per-VM space, the DoS wrt generic_file_write() didn't actually go away. It
-just had to be triggered slightly differently (ie using lots of threads).
+Here it is:
 
-There may be other cases where this is ok. Moving to a per-VM kmap space
-may not _fix_ some fundamental scalability problem, but it might move it
-further out and make it a non-issue under normal load. Which is why I
-don't think the idea is fundamentally flawed, I just wanted to point out
-some of the traps to people since we've already almost fallen into some of
-them..
+Subject: [PATCH] fix current BK tree compilation with devfs enabled
 
-		Linus
+
+Not that I care for devfs, but there was at least one report on lkml.
+
+I tried to also put the devfs_handle_t under CONFIG_DEVFS_FS, but the
+devfs wrappers require it.  And yes, I'm seriously pissed that devfs
+puts wordsize objects everywhere even if not enabled.
+
+
+--- linux-2.4.20-bk-20020810/include/linux/genhd.h	Sat Aug 10 14:37:16 2002
++++ linux/include/linux/genhd.h	Mon Aug 12 23:40:37 2002
+@@ -62,7 +62,9 @@ struct hd_struct {
+ 	unsigned long start_sect;
+ 	unsigned long nr_sects;
+ 	devfs_handle_t de;              /* primary (master) devfs entry  */
+-
++#ifdef CONFIG_DEVFS_FS
++	int number;
++#endif /* CONFIG_DEVFS_FS */
+ #ifdef CONFIG_BLK_STATS
+ 	/* Performance stats: */
+ 	unsigned int ios_in_flight;
 

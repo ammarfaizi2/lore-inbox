@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285935AbRLaAw6>; Sun, 30 Dec 2001 19:52:58 -0500
+	id <S285963AbRLaAtP>; Sun, 30 Dec 2001 19:49:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285927AbRLaAwp>; Sun, 30 Dec 2001 19:52:45 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60944 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285937AbRLaAwh>; Sun, 30 Dec 2001 19:52:37 -0500
-Message-ID: <3C2FB6BD.9060203@zytor.com>
-Date: Sun, 30 Dec 2001 16:52:13 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: Dave Jones <davej@suse.de>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
+	id <S285940AbRLaAtG>; Sun, 30 Dec 2001 19:49:06 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:49417 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S285883AbRLaAsx>;
+	Sun, 30 Dec 2001 19:48:53 -0500
+Date: Sun, 30 Dec 2001 22:47:59 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>, Dave Jones <davej@suse.de>,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Subject: Re: RFC: Linux Bug Tracking & Feature Tracking DB
-In-Reply-To: <734B32E2-FCE5-11D5-880A-00039350C45A@softhome.net>	<Pine.LNX.4.33.0112301306070.6995-100000@Appserv.suse.de>	<200112310042.fBV0ge432183@vindaloo.ras.ucalgary.ca>	<3C2FB4D0.7040509@zytor.com> <200112310047.fBV0lir32311@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20011230224759.B14993@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Richard Gooch <rgooch@ras.ucalgary.ca>, Dave Jones <davej@suse.de>,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <734B32E2-FCE5-11D5-880A-00039350C45A@softhome.net> <Pine.LNX.4.33.0112301306070.6995-100000@Appserv.suse.de> <200112310042.fBV0ge432183@vindaloo.ras.ucalgary.ca> <3C2FB4D0.7040509@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C2FB4D0.7040509@zytor.com>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
-
-> H. Peter Anvin writes:
+Em Sun, Dec 30, 2001 at 04:44:00PM -0800, H. Peter Anvin escreveu:
+> Richard Gooch wrote:
 > 
->>Richard Gooch wrote:
->>
->>>This was suggested some months ago, but nothing happened. Firstly, the
->>>www.kernel.org page talks about the mailing list and some archives,
->>>but makes no reference to the list FAQ. That's the first thing that
->>>should be fixed. Talk to HPA to change this.
->>>
->>What's the URL?
->>
+> >
+> >This was suggested some months ago, but nothing happened. Firstly, the
+> >www.kernel.org page talks about the mailing list and some archives,
+> >but makes no reference to the list FAQ. That's the first thing that
+> >should be fixed. Talk to HPA to change this.
+> >
 > 
-> http://www.tux.org/lkml/
-> 
-> Part of the trailer message for all lkml messages :-)
-> 
-> If you would like a local copy on the kernel.org mirror sites (maybe a
-> good idea, if you mirror the kernel.org WWW pages), I can
-> automatically upload new versions of the FAQ at the same time as I
-> upload to tux.org.
-> 
+> What's the URL?
 
-
-The best would really be for this stuff to be at vger.kernel.org IMO, 
-but the easiest is probably to put it in /pub/linux/doc or somesuch...
-
-	-hpa
-
-
+http://www.tux.org/lkml, IIRC

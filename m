@@ -1,86 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264734AbUE0PTA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264799AbUE0PXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264734AbUE0PTA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 11:19:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264761AbUE0PTA
+	id S264799AbUE0PXT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 11:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264800AbUE0PXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 11:19:00 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:41367 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264734AbUE0PS5 (ORCPT
+	Thu, 27 May 2004 11:23:18 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:7627 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S264799AbUE0PXO convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 11:18:57 -0400
-Date: Thu, 27 May 2004 17:18:45 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Larry McVoy <lm@work.bitmover.com>, Andrew Morton <akpm@osdl.org>,
-       Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFD] Explicitly documenting patch submission
-Message-ID: <20040527151845.GH23194@wohnheim.fh-wedel.de>
-References: <20040527062002.GA20872@work.bitmover.com> <20040527010409.66e76397.akpm@osdl.org> <20040527145127.GB3375@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040527145127.GB3375@work.bitmover.com>
-User-Agent: Mutt/1.3.28i
+	Thu, 27 May 2004 11:23:14 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: idebus setup problem (2.6.7-rc1)
+Date: Thu, 27 May 2004 23:21:52 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F842DB1E0@PDSMSX403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: idebus setup problem (2.6.7-rc1)
+Thread-Index: AcRD+JdnCNMTBV2QTACEOvVp7uR9qAABQbTg
+From: "Zhu, Yi" <yi.zhu@intel.com>
+To: "Bartlomiej Zolnierkiewicz" <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Auzanneau Gregory" <mls@reolight.net>
+Cc: <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
+X-OriginalArrivalTime: 27 May 2004 15:21:53.0391 (UTC) FILETIME=[5704E7F0:01C443FE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 May 2004 07:51:27 -0700, Larry McVoy wrote:
+Bartlomiej Zolnierkiewicz [B.Zolnierkiewicz@elka.pw.edu.pl] wrote:
 > 
-> I think we can have our cake and eat it too, at least in BK (and there
-> is no reason other systems couldn't do this as well):  BK does not have
-> the concept of a 1:1 binding between a change to a file and a changeset.
-> A changeset is a container which may have one or more deltas to one or
-> more files, i.e., it is many:1.
-> 
-> If you took to sending your patches as the original patch plus another
-> patch, bundling them together (I can work out a format and GPLed tools for
-> this) then what we could do is have the BK import tools record the first
-> one as a set of deltas, the next one as another set of deltas, and so on.
-> We can handle an arbitrary number of patches to patches to patches.
-> Then when the import finishes we bundle up all the deltas in one logical
-> changeset.  99% of the time people won't care about the details, when
-> they are looking through the code the interfaces will all work as they
-> do today, the BK/Web interface would export this as a patch just like
-> you are used to, but when people do care the full information is there.
+> I remember seeing patch related to handling '=' in kernel
+> params, maybe it's related (or maybe not).
 
-Sounds good, as long as it is simple (read: simplest) to read and
-export the result of everything as one patch.  I.e. I wouldn't want to
-see this:
+Yes, this is caused by my kernel-parameter-parsing-fix.patch.
 
-@@ -28,6 +28,7 @@
- 
- 
- 
-+	/* new comment in empty raea */
- 
- 
- 
-@@ -28,67+28,7 @@
- 
- 
- 
--	/* new comment in empty raea */
-+	/* new comment in empty area */
- 
- 
- 
+But I think below code in ide.c is a hack.
+__setup("", ide_setup);
 
-But that goes without saying, doesn't it? ;)
+How about below change?
 
-> I suspect that with a little practice this could be quite useful.  
-> I could build tools which record the secondary patches as diffs to
-> the patches (I think) and if you have ever read a diff of a diff 
-> it is suprisingly useful.  I tend to save diffs of my work in 
-> progress and then later I'll generate diffs again and diff them to 
-> get my context back.
+--- linux-2.6.7-rc1-mm1.orig/drivers/ide/ide.c      2004-05-27
+23:07:59.405138992 +0800
++++ linux-2.6.7-rc1-mm1/drivers/ide/ide.c   2004-05-27
+23:09:47.529701560 +0800
+@@ -2459,7 +2459,8 @@ void cleanup_module (void)
 
-Diffs to diffs I am even less eager to read.  As an internal format,
-they make sense, though.
+ #else /* !MODULE */
 
-Jörn
+-__setup("", ide_setup);
++__setup("hd", ide_setup);
++__setup("ide", ide_setup);
 
--- 
-There's nothing better for promoting creativity in a medium than
-making an audience feel "Hmm ­ I could do better than that!"
--- Douglas Adams in a slashdot interview
+ module_init(ide_init);
+
+
+-yi

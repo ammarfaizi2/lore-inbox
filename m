@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285390AbRLGDTo>; Thu, 6 Dec 2001 22:19:44 -0500
+	id <S285392AbRLGDSO>; Thu, 6 Dec 2001 22:18:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285394AbRLGDTf>; Thu, 6 Dec 2001 22:19:35 -0500
-Received: from bergeron.research.canon.com.au ([203.12.172.124]:13104 "HELO
-	a.mx.canon.com.au") by vger.kernel.org with SMTP id <S285390AbRLGDTW>;
-	Thu, 6 Dec 2001 22:19:22 -0500
-Date: Fri, 7 Dec 2001 14:19:13 +1100
-From: Cameron Simpson <cs@zip.com.au>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org,
-        reiserfs-dev@namesys.com
-Subject: Re: Ext2 directory index: ALS paper and benchmarks
-Message-ID: <20011207141913.A26225@zapff.research.canon.com.au>
-Reply-To: cs@zip.com.au
-In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <3C0EE8DD.3080108@namesys.com>
+	id <S285391AbRLGDSE>; Thu, 6 Dec 2001 22:18:04 -0500
+Received: from holomorphy.com ([216.36.33.161]:45187 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S285389AbRLGDRv>;
+	Thu, 6 Dec 2001 22:17:51 -0500
+Date: Thu, 6 Dec 2001 19:17:34 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux/m68k <linux-m68k@lists.linux-m68k.org>
+Subject: Re: vma->vm_end > 0x60000000
+Message-ID: <20011206191734.B818@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>,
+	Linux/m68k <linux-m68k@lists.linux-m68k.org>
+In-Reply-To: <Pine.LNX.4.10.10010311645420.400-100000@cassiopeia.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C0EE8DD.3080108@namesys.com>; from reiser@namesys.com on Thu, Dec 06, 2001 at 06:41:17AM +0300
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <Pine.LNX.4.10.10010311645420.400-100000@cassiopeia.home>; from geert@linux-m68k.org on Tue, Oct 31, 2000 at 04:48:11PM +0100
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 06, 2001 at 06:41:17AM +0300, Hans Reiser <reiser@namesys.com> wrote:
-| Have you ever seen an application that creates millions of files create 
-| them in random order?
+On Tue, Oct 31, 2000 at 04:48:11PM +0100, Geert Uytterhoeven wrote:
+> In fs/proc/array.c:proc_pid_statm() there is this test block:
+> 
+>     if (vma->vm_flags & VM_EXECUTABLE)
+> 	    trs += pages;   /* text */
+>     else if (vma->vm_flags & VM_GROWSDOWN)
+> 	    drs += pages;   /* stack */
+>     else if (vma->vm_end > 0x60000000)
+> 	    lrs += pages;   /* library */
+>     else
+> 	    drs += pages;
+> 
+> Is there any special reason for the hardcoded constant `0x60000000'?
+> In the Linux/m68k tree, we use TASK_UNMAPPED_BASE instead. But I don't know
+> why.
 
-I can readily imagine one. An app which stashes things sent by random
-other things (usenet/email attachment trollers? security cameras taking
-thouands of still photos a day?). Mail services like hotmail. with a
-zillion mail spools, being made and deleted and accessed at random...
+I think this is an old x86 load address for an ELF interpreter. Would
+you be happy with ELF_ET_DYN_BASE? I made a fairly small patch that
+deals with that.
 
-|  Applications that create millions of files are usually willing to play 
-| nice for an order of magnitude performance gain also.....
 
-But they shouldn't have to! Specificly, to "play nice" you need to know
-about the filesystem attributes. You can obviously do simple things like
-a directory hierachy as for squid proxy caches etc, but it's an ad hoc
-thing. Tuning it does require specific knowledge, and the act itself
-presumes exactly the sort of inefficiency in the fs implementation that
-this htree stuff is aimed at rooting out.
-
-A filesystem _should_ be just a namespace from the app's point of view.
-Needing to play silly subdir games is, well, ugly.
--- 
-Cameron Simpson, DoD#743        cs@zip.com.au    http://www.zip.com.au/~cs/
-
-Were I subject to execution, I would choose to be fired at tremendous
-speed from a cannon into the brick wall of an elemetary school building,
-and insist on full media coverage, however, as I said the choices are
-sadly limited.	- Jim Del Vecchio
+Cheers,
+Bill

@@ -1,100 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263271AbTFDMBD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 08:01:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263273AbTFDMBD
+	id S263273AbTFDMGg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 08:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTFDMGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 08:01:03 -0400
-Received: from dyn-ctb-203-221-72-3.webone.com.au ([203.221.72.3]:50697 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S263271AbTFDMBB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 08:01:01 -0400
-Message-ID: <3EDDE1F1.6000505@cyberone.com.au>
-Date: Wed, 04 Jun 2003 22:11:29 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
+	Wed, 4 Jun 2003 08:06:36 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:25828 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S263273AbTFDMGf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 08:06:35 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Jesse Pollard <jesse@cats-chateau.net>
+Date: Wed, 4 Jun 2003 14:19:34 +0200
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Andrea Arcangeli <andrea@suse.de>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Georg Nikodym <georgn@somanetworks.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
-Subject: Re: -rc7   Re: Linux 2.4.21-rc6
-References: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva> <200306041235.07832.m.c.p@wolk-project.de> <20030604104215.GN4853@suse.de> <200306041246.21636.m.c.p@wolk-project.de> <20030604104825.GR3412@x30.school.suse.de> <3EDDDEBB.4080209@cyberone.com.au> <20030604120053.GQ4853@suse.de>
-In-Reply-To: <20030604120053.GQ4853@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: select for UNIX sockets?
+Cc: linux-kernel@vger.kernel.org, khc@pm.waw.pl
+X-mailer: Pegasus Mail v3.50
+Message-ID: <37356546941@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On  4 Jun 03 at 6:55, Jesse Pollard wrote:
+> On Monday 02 June 2003 19:08, Krzysztof Halasa wrote:
+> > Hi,
+> >
+> > Should something like this work correctly?
+> >
+> > while(1) {
+> >         FD_ZERO(&set);
+> >         FD_SET(fd, &set);
+> >         select(FD_SETSIZE, NULL, &set, NULL, NULL); <<<<<<< for writing
+> >
+> >         if (FD_ISSET(fd, &set))
+> >                 sendto(fd, &datagram, 1, 0, ...);
+> > }
+> >
+> > fd is a normal local datagram socket. It looks select() returns with
+> > "fd ready for write" and sendto() then blocks as the queue is full.
+> >
+> > I don't know if it's expected behaviour or just a not yet known bug.
+> > Of course, I have a more complete test program if needed.
+> >
+> > 2.4.21rc6, haven't tried any other version.
+> >
+> > strace shows:
+> >
+> > select(1024, NULL, [3], NULL, NULL)     = 1 (out [3])
+> > sendto(3, "\0", 1, 0, {sa_family=AF_UNIX, path="/tmp/tempUn"}, 13 <<<
+> > blocks
+> 
+> Could. There may be room for the buffer, but unless it is set to nonblock, 
+> you may have a stream open to another host that may not accept the data (busy,
+> network congestion...) With the required acks, the return may (should?) be
+> delayed until the ack arrives.
 
-
-Jens Axboe wrote:
-
->On Wed, Jun 04 2003, Nick Piggin wrote:
->
->>Andrea Arcangeli wrote:
->>
->>
->>>On Wed, Jun 04, 2003 at 12:46:33PM +0200, Marc-Christian Petersen wrote:
->>>
->>>
->>>>On Wednesday 04 June 2003 12:42, Jens Axboe wrote:
->>>>
->>>>Hi Jens,
->>>>
->>>>
->>>>
->>>>>>>the issue with batching in 2.4, is that it is blocking at 0 and waking
->>>>>>>at batch_requests. But it's not blocking new get_request to eat
->>>>>>>requests in the way back from 0 to batch_requests. I mean, there are
->>>>>>>two directions, when we move from batch_requests to 0 get_requests
->>>>>>>should return requests. in the way back from 0 to batch_requests the
->>>>>>>get_request should block (and it doesn't in 2.4, that is the problem)
->>>>>>>
->>>>>>>
->>>>>>do you see a chance to fix this up in 2.4?
->>>>>>
->>>>>>
->>>>>Nick posted a patch to do so the other day and asked people to test.
->>>>>
->>>>>
->>>>Silly mcp. His mail was CC'ed to me :( ... F*ck huge inbox.
->>>>
->>>>
->>>I was probably not CC'ed, I'll search for the email (and I was
->>>travelling the last few days so I didn't read every single l-k email yet
->>>sorry ;)
->>>
->>>
->>>
->>The patch I sent is actually against 2.4.20, contrary to my
->>babling. Reports I have had say it helps, but maybe not so
->>much as Andrew'ss fixes. Then Matthias Mueller ported my patch
->>to 2.4.21-rc6 which include Andrew's fixes.
->>
->>It seems that they might be fixing two different problems.
->>It looks promising though.
->>
->
->It is a different problem I think, yours will fix the starvation of
->writers (of readers, writers is much much easier to trigger though)
->where someone will repeatedly get cheaten by the request allocator.
->
->The other problem is still not clear to anyone. I doubt this patch would
->make any difference (apart from a psychological one) in this case,
->since you have a single writer and maybe a reader or two. The single
->writer cannot starve anyone else.
->
-
-You are right about what the patch does. It wouldn't surprise me
-if there are still other problems, but it could be that the reader
-has to write some swap or other dirty buffers when trying to get
-memory itself.
-
-I have had 3 or so reports all saying similar things, but it could
-be psychological I guess.
+Besides that select() on unconnected socket is nonsense... If you'll
+change code to do connect(), select(), send(), then it should work,
+unless I missed something.
+                                    Petr Vandrovec
+                                    vandrove@vc.cvut.cz
 

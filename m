@@ -1,96 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269127AbUIREwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267521AbUIRFNR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269127AbUIREwg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 00:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269130AbUIREwf
+	id S267521AbUIRFNR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 01:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269132AbUIRFNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 00:52:35 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:43276 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S269127AbUIREwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 00:52:31 -0400
-Date: Sat, 18 Sep 2004 06:52:23 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: achim.leubner@intel.com, linux-kernel@vger.kernel.org, achim@vortex.de
-Subject: Re: memory allocation error messages in system log
-Message-ID: <20040918045223.GH2780@alpha.home.local>
-References: <NEBBILBHKLDLOMLDGKGNEEKDCIAA.Ingo.Freund@e-dict.net> <20040916211408.GE12022@logos.cnet> <20040918010459.GA5660@logos.cnet>
+	Sat, 18 Sep 2004 01:13:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:27033 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267521AbUIRFNL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 01:13:11 -0400
+Date: Fri, 17 Sep 2004 22:11:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "H. J. Lu" <hjl@lucon.org>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Unaligned kernel access in crypto/sha1.c
+Message-Id: <20040917221108.32545506.akpm@osdl.org>
+In-Reply-To: <20040916231638.GA32514@lucon.org>
+References: <20040916231638.GA32514@lucon.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040918010459.GA5660@logos.cnet>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+"H. J. Lu" <hjl@lucon.org> wrote:
+>
+> I got
+> 
+> Sep 16 15:45:32 gnu-2 kernel: kernel unaligned access to
+> 0xa0000002001c008e, ip=0xa0000001002135e0
+> Sep 16 15:45:37 gnu-2 kernel: kernel unaligned access to
+> 0xa0000002002d005e, ip=0xa0000001002135e0
+> Sep 16 15:45:37 gnu-2 kernel: kernel unaligned access to
+> 0xa0000002002d006e, ip=0xa0000001002135e0
+> Sep 16 15:45:37 gnu-2 kernel: kernel unaligned access to
+> 0xa0000002002d007e, ip=0xa0000001002135e0
+> Sep 16 15:45:37 gnu-2 kernel: kernel unaligned access to
+> 0xa0000002002d008e, ip=0xa0000001002135e0
+> 
+> on ia64 from sha1_transform in crypto/sha1.c:
+> 
+> /* Hash a single 512-bit block. This is the core of the algorithm. */
+> static void sha1_transform(u32 *state, const u8 *in)
+> {
+>         u32 a, b, c, d, e;
+>         u32 block32[16];
+>                                                                                 
+>         /* convert/copy data to workspace */
+>         for (a = 0; a < sizeof(block32)/sizeof(u32); a++)
+>           block32[a] = be32_to_cpu (((const u32 *)in)[a]);
+> 				     ^^^^^^^^^^^^^^^^
+> 				 This may not be aligned for u32 on ia64.
+> 
+> 
 
-there are a lot of sprintf() in gdth_get_info(). There are a few overflow
-checks, but they're being done *after* the problem happens, so it may
-be possible that people experiencing problems get some data overwritten
-which prevents something else from been released later.
+We really need to know the call trace here.
 
-Moreover, when some of those checks decide that the buffer is full, they
-jump to stop_output without calling gdth_ioctl_free(). So it may also be
-possible that this user who regularly reads /proc has his output truncated
-and some memory never freed.
+--- 25/arch/ia64/kernel/unaligned.c~ia64-alignment-error-stack-dump	2004-09-17 22:10:14.933111832 -0700
++++ 25-akpm/arch/ia64/kernel/unaligned.c	2004-09-17 22:10:35.903923784 -0700
+@@ -1342,9 +1342,11 @@ ia64_handle_unaligned (unsigned long ifa
+ 			printk(KERN_WARNING "%s", buf);	/* watch for command names containing %s */
+ 		}
+ 	} else {
+-		if (within_logging_rate_limit())
++		if (within_logging_rate_limit()) {
+ 			printk(KERN_WARNING "kernel unaligned access to 0x%016lx, ip=0x%016lx\n",
+ 			       ifa, regs->cr_iip + ipsr->ri);
++			dump_stack();
++		}
+ 		set_fs(KERNEL_DS);
+ 	}
+ 
+_
 
-Regards,
-Willy
-
-On Fri, Sep 17, 2004 at 10:04:59PM -0300, Marcelo Tosatti wrote:
-> 
-> Achim,
-> 
-> This is not the first person I see complaining about 
-> exact same bug (memory allocation failure while reading
-> /proc/scsi/gdt/xxx
-> 
-> Do you have a card around so we can test?
-> 
-> Thanks
-> 
-> On Thu, Sep 16, 2004 at 06:14:08PM -0300, Marcelo Tosatti wrote:
-> > On Thu, Sep 16, 2004 at 02:48:40PM +0200, Ingo Freund wrote:
-> > > Hello,
-> > > 
-> > > I hope you guys can help, I cannot use any kernel 2.4 >23 without
-> > > the here described problem.
-> > > 
-> > > [1.] One line summary of the problem:
-> > > strange error messages concerning memory allocation
-> > > 
-> > > searching teh web for solutions to my problem I have already found
-> > > a thread in a mailing list but no solution was mentioned, also the
-> > > guys who talked about the error didn't answer to my direct mail.
-> > > 
-> > > [2.] Full description of the problem/report:
-> > > The machine is a database server without any other service except sshd
-> > > running. I do some tests on the ICP-Vortex GDT controller every 2 minutes.
-> > > by using
-> > > # cat /proc/scsi/gdt/2
-> > > but the output of cat stops without beeing completed.
-> > > 
-> > > This is what I see in the syslog file every time when I use the cat
-> > > command (the messages beginn after 3 days uptime):
-> > > --> /var/log/messages
-> > > kernel: __alloc_pages: 0-order allocation failed (gfp=0x21/0)
-> > 
-> > Ingo,
-> > 
-> > I've seen another report like this one - I'm convinced there
-> > is something odd with the gdth proc handling code.
-> > 
-> > Can you "echo 1 > /proc/sys/vm/vm_gfp_debug" and 
-> > rerun the "cat /proc/scsi/gdt/2" please?
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

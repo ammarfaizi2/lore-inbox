@@ -1,67 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265971AbUAFDGs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 22:06:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265934AbUAFDGs
+	id S265328AbUAFDMX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 22:12:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265326AbUAFDMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 22:06:48 -0500
-Received: from ns.suse.de ([195.135.220.2]:59309 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265907AbUAFDGn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 22:06:43 -0500
-Date: Tue, 6 Jan 2004 04:06:40 +0100
-From: Andi Kleen <ak@suse.de>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       gibbs@scsiguy.com
-Subject: Re: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple 
- map/unmaps
-Message-Id: <20040106040640.1d2bcbd8.ak@suse.de>
-In-Reply-To: <1073347548.2439.33.camel@mulgrave>
-References: <200401051929.i05JTsM0000014248@mudpuddle.cs.wustl.edu.suse.lists.linux.kern
-	el>
-	<20040105112800.7a9f240b.davem@redhat.com.suse.lists.linux.kernel>
-	<p73brpi1544.fsf@verdi.suse.de>
-	<20040105130118.0cb404b8.davem@redhat.com>
-	<20040105223158.3364a676.ak@suse.de>
-	<1073347548.2439.33.camel@mulgrave>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 5 Jan 2004 22:12:22 -0500
+Received: from h80ad2537.async.vt.edu ([128.173.37.55]:8320 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S266065AbUAFDKT (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 22:10:19 -0500
+Message-Id: <200401060309.i0639uEg002449@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Dax Kelson <dax@gurulabs.com>
+Cc: "Yu, Luming" <luming.yu@intel.com>, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net, "Brown, Len" <len.brown@intel.com>
+Subject: Re: [ACPI] ACPI battery issue - Dell Inspiron 4150 - 2.6.1-rc1-mm2 
+In-Reply-To: Your message of "Mon, 05 Jan 2004 19:27:38 MST."
+             <1073356057.2687.2.camel@mentor.gurulabs.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <3ACA40606221794F80A5670F0AF15F8401720C78@PDSMSX403.ccr.corp.intel.com>
+            <1073356057.2687.2.camel@mentor.gurulabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_311795388P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 05 Jan 2004 22:09:56 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05 Jan 2004 18:05:47 -0600
-James Bottomley <James.Bottomley@steeleye.com> wrote:
+--==_Exmh_311795388P
+Content-Type: text/plain; charset=us-ascii
 
-> On Mon, 2004-01-05 at 15:31, Andi Kleen wrote:
-> > For the sake of bug-to-bug compatibility to the SCSI layer this patch may
-> > work. I haven't tested it so no guarantees if it won't eat your file systems.
-> > Feedback welcome anyways.
+On Mon, 05 Jan 2004 19:27:38 MST, Dax Kelson said:
+
+> Seems to work ... is it normal to have the "unknown" values below when
+> plugged in?
 > 
-> This isn't a bug in SCSI, it's a deliberate design feature.  SCSI has
-> certain events, like QUEUE full that cause us to re-queue the pending
-> I/O.  Other block layer drivers that can get these EAGAIN type queueing
-> problems from the device also follow this model.
+> $ cat /proc/acpi/battery/BAT0/state
+> present:                 yes
+> capacity state:          ok
+> charging state:          unknown
+> present rate:            unknown
+> remaining capacity:      66000 mWh
+> present voltage:         16501 mV
 
-It's ok. I fixed the code now[1] If you have other undocumented requirements
-you should document them though, otherwise there may be more problems.
-Since merging is disabled by default now it won't trigger anyways.
+I can't say for certain, but I think it's a tad confused - it can report 
+'charging', and 'discharging', but doesn't know what to say if the battery
+is at 100% and you're running off AC....It's been that way on mine at
+least since 2.5.7mumble or maybe 2.4.18, so it's NOT a regression from the
+recent ACPI patch.
 
-[1] will be in next merge after testing, the last patch i posted still
-had one bug.
+--==_Exmh_311795388P
+Content-Type: application/pgp-signature
 
-> As to the idempotence of map/unmap: I'm ambivalent.  If it's going to be
-> a performance hit to return the sg list to its prior state in unmap,
-> then it does seem a waste given that for most of our I/O transactions we
-> simply free the sg list after the unmap.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-With the evil dma_length trick it is actually near zero cost.
+iD8DBQE/+icEcC3lWbTT17ARAtMZAJ93stfHRUoxG50eeFB7+YRrqh3aVACgm1gE
+xKBbT9pJfs3vMpvRx6fZvOg=
+=Re/0
+-----END PGP SIGNATURE-----
 
-> 1. Fix the x86_64 mapping layer as your patch proposes (how much of a
-> performance hit on every transaction will this be)?
-
-I don't expect a significant performance hit.
-
--Andi
+--==_Exmh_311795388P--

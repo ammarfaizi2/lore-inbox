@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264855AbUEKQmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264876AbUEKQoa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264855AbUEKQmp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 12:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264871AbUEKQmp
+	id S264876AbUEKQoa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 12:44:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264871AbUEKQni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 12:42:45 -0400
-Received: from p060042.ppp.asahi-net.or.jp ([221.113.60.42]:10489 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S264855AbUEKQhi
+	Tue, 11 May 2004 12:43:38 -0400
+Received: from p060042.ppp.asahi-net.or.jp ([221.113.60.42]:9721 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S264835AbUEKQh3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 12:37:38 -0400
-Date: Wed, 12 May 2004 01:37:36 +0900
-Message-ID: <m2r7tqrkbz.wl%ysato@users.sourceforge.jp>
+	Tue, 11 May 2004 12:37:29 -0400
+Date: Wed, 12 May 2004 01:37:27 +0900
+Message-ID: <m2sme6rkc8.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH} H8/300 update (8/9) delete headers
+Subject: [PATCH} H8/300 update (7/9) Kconfig
 User-Agent: Wanderlust/2.11.24 (Wonderwall) SEMI/1.14.6 (Maruoka)
  LIMIT/1.14.7 (Fujiidera) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,307 +23,323 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- Delete obsolute header files
+- Separate taget depends config.
 
 -- 
 Yoshinori Sato
 <ysato@users.sourceforge.jp>
 
-diff -Nru linux-2.6.6/arch/h8300/Makefile linux-2.6.6-h8300/arch/h8300/Makefile
---- linux-2.6.6/arch/h8300/Makefile	2004-01-09 15:59:10.000000000 +0900
-+++ linux-2.6.6-h8300/arch/h8300/Makefile	2004-04-12 21:09:47.000000000 +0900
-@@ -62,12 +62,7 @@
- archclean:
- 	$(Q)$(MAKE) $(clean)=$(boot)
+diff -Nru linux-2.6.6/arch/h8300/Kconfig linux-2.6.6-h8300/arch/h8300/Kconfig
+--- linux-2.6.6/arch/h8300/Kconfig	2004-05-11 14:30:44.000000000 +0900
++++ linux-2.6.6-h8300/arch/h8300/Kconfig	2004-04-10 02:27:22.000000000 +0900
+@@ -43,122 +43,7 @@
  
--prepare: include/asm-$(ARCH)/machine-depend.h include/asm-$(ARCH)/asm-offsets.h
--
--include/asm-$(ARCH)/machine-depend.h: include/asm-$(ARCH)/$(BOARD)/machine-depend.h
--	$(Q)ln -sf $(BOARD)/machine-depend.h \
--                   include/asm-$(ARCH)/machine-depend.h
--	@echo '  Create include/asm-$(ARCH)/machine-depend.h'
-+prepare: include/asm-$(ARCH)/asm-offsets.h
+ source "init/Kconfig"
  
- include/asm-$(ARCH)/asm-offsets.h: arch/$(ARCH)/kernel/asm-offsets.s \
- 				   include/asm include/linux/version.h
-@@ -81,4 +76,4 @@
-   echo  'vmlinux.srec - Create srec binary'
- endef
+-menu "Processor type and features"
+-
+-choice
+-	prompt "H8/300 platform"
+-	default H8300H_GENERIC
+-
+-config H8300H_GENERIC
+-	bool "Generic"
+-	help
+-	  H8/300H CPU Generic Hardware Support
+-
+-config H8300H_AKI3068NET
+-	bool "AE-3068/69"
+-	help
+-	  AKI-H8/3068F / AKI-H8/3069F Flashmicom LAN Board Support
+-	  More Information. (Japanese Only)
+-	  <http://akizukidensi.com/catalog/h8.html>
+-	  AE-3068/69 Evaluation Board Support
+-	  More Information.
+-	  <http://www.microtronique.com/ae3069lan.htm>
+-
+-config H8300H_H8MAX
+-	bool "H8MAX"
+-	help
+-	  H8MAX Evaluation Board Support
+-	  More Information. (Japanese Only)
+-	  <http://strawberry-linux.com/h8/index.html>
+-
+-config H8300H_SIM
+-	bool "H8/300H Simulator"
+-	help
+-	  GDB Simulator Support
+-	  More Information.
+-	  arch/h8300/Doc/simulator.txt
+-
+-config H8S_EDOSK2674
+-	bool "EDOSK-2674"
+-	help
+-	  Renesas EDOSK-2674 Evaluation Board Support
+-	  More Information.
+-	  <http://www.azpower.com/H8-uClinux/index.html>
+- 	  <http://www.eu.renesas.com/tools/edk/support/edosk2674.html>
+-
+-config H8S_SIM
+-	bool "H8S Simulator"
+-	help
+-	  GDB Simulator Support
+-	  More Information.
+-	  arch/h8300/Doc/simulator.txt
+-
+-endchoice
+-
+-choice 
+-	prompt "CPU Selection"
+-
+-config H83002
+-	bool "H8/3001,3002,3003"
+-	depends on H8300H_GENERIC
+-
+-config H83007
+-	bool "H8/3006,3007"
+-	depends on (H8300H_GENERIC || H8300H_SIM)
+-
+-config H83048
+-	bool "H8/3044,3045,3046,3047,3048,3052"
+-	depends on H8300H_GENERIC
+-
+-config H83068
+-	bool "H8/3065,3066,3067,3068,3069"
+-	depends on (H8300H_GENERIC || H8300H_AKI3068NET || H8300H_H8MAX)
+-
+-config H8S2678
+-	bool "H8S/2670,2673,2674R,2675,2676"
+-	depends on (H8S_GENERIC || H8S_EDOSK2674 || H8S_SIM)
+-
+-endchoice
+-
+-config CPU_H8300H
+-	bool
+-	depends on (H8300H_GENERIC || H8300H_AKI3068NET || H8300H_H8MAX || H8300H_SIM)
+-	default y
+-
+-config CPU_H8S
+-	bool
+-	depends on (H8S_GENERIC || H8S_EDOSK2674 || H8S_SIM)
+-	default y
+-
+-config CPU_CLOCK
+-	int "CPU Clock Frequency (/1KHz)"	
+-	default "20000" if H8300H_AKI3068NET
+-	default "25000" if H8300H_H8MAX
+-	default "16000" if H8300H_SIM
+-	default "16000" if H8300H_GENERIC
+-	default "33000" if H8S_GENERIC
+-	default "33000" if H8S_SIM
+-	default "33000" if H8S_EDOSK2674
+-	help
+-	  CPU Clock Frequency divide to 1000
+-choice
+-	prompt "Kernel executes from"
+-	---help---
+-	  Choose the memory type that the kernel will be running in.
+-
+-config RAMKERNEL
+-	bool "RAM"
+-	help
+-	  The kernel will be resident in RAM when running.
+-
+-config ROMKERNEL
+-	bool "ROM"
+-	help
+-	  The kernel will be resident in FLASH/ROM when running.
+-
+-endchoice
+-
+-endmenu
++source "arch/h8300/Kconfig.cpu"
  
--CLEAN_FILES += include/asm-$(ARCH)/asm-offsets.h include/asm-$(ARCH)/machine-depend.h
-+CLEAN_FILES += include/asm-$(ARCH)/asm-offsets.h
-diff -Nru linux-2.6.6/include/asm-h8300/aki3068net/machine-depend.h linux-2.6.6-h8300/include/asm-h8300/aki3068net/machine-depend.h
---- linux-2.6.6/include/asm-h8300/aki3068net/machine-depend.h	2004-05-11 14:30:12.000000000 +0900
-+++ linux-2.6.6-h8300/include/asm-h8300/aki3068net/machine-depend.h	1970-01-01 09:00:00.000000000 +0900
-@@ -1,29 +0,0 @@
--/* AE-3068 board depend header */
--
--/* TIMER rate define */
--#ifdef H8300_TIMER_DEFINE
--#define H8300_TIMER_COUNT_DATA 20000*10/8192
--#define H8300_TIMER_FREQ 20000*1000/8192
--#endif
--
--/* AE-3068 RTL8019AS Config */
--#ifdef H8300_NE_DEFINE
--
--#define NE2000_ADDR		0x200000
--#define NE2000_IRQ              5
--#define	NE2000_BYTE		volatile unsigned short
--
--#define WCRL                    0xfee023
--#define MAR0A                   0xffff20
--#define ETCR0A                  0xffff24
--#define DTCR0A                  0xffff27
--#define MAR0B                   0xffff28
--#define DTCR0B                  0xffff2f
--
--#define H8300_INIT_NE()                  \
--do {                                     \
--	wordlength = 1;                  \
--        outb_p(0x48, ioaddr + EN0_DCFG); \
--} while(0)
--
--#endif
-diff -Nru linux-2.6.6/include/asm-h8300/edosk2674/machine-depend.h linux-2.6.6-h8300/include/asm-h8300/edosk2674/machine-depend.h
---- linux-2.6.6/include/asm-h8300/edosk2674/machine-depend.h	2004-01-09 16:00:12.000000000 +0900
-+++ linux-2.6.6-h8300/include/asm-h8300/edosk2674/machine-depend.h	1970-01-01 09:00:00.000000000 +0900
-@@ -1,70 +0,0 @@
--/* EDOSK2674 board depend header */
--
--/* TIMER rate define */
--#ifdef H8300_TIMER_DEFINE
--#define H8300_TIMER_COUNT_DATA 33000*10/8192
--#define H8300_TIMER_FREQ 33000*1000/8192
--#endif
--
--/* EDOSK-2674R SMSC Network Controler Target Depend impliments */
--#ifdef H8300_SMSC_DEFINE
--
--#define SMSC_BASE 0xf80000
--#define SMSC_IRQ 16
--
--/* sorry quick hack */
--#if defined(outw)
--# undef outw
--#endif
--#define outw(d,a) edosk2674_smsc_outw(d,(volatile unsigned short *)(a))
--#if defined(inw)
--# undef inw
--#endif
--#define inw(a) edosk2674_smsc_inw((volatile unsigned short *)(a))
--#if defined(outsw)
--# undef outsw
--#endif
--#define outsw(a,p,l) edosk2674_smsc_outsw((volatile unsigned short *)(a),p,l)
--#if defined(insw)
--# undef insw
--#endif
--#define insw(a,p,l) edosk2674_smsc_insw((volatile unsigned short *)(a),p,l)
--
--static inline void edosk2674_smsc_outw(
--	unsigned short d,
--	volatile unsigned short *a
--	)
--{
--	*a = (d >> 8) | (d << 8);
--}
--
--static inline unsigned short edosk2674_smsc_inw(
--	volatile unsigned short *a
--	)
--{
--	unsigned short d;
--	d = *a;
--	return (d >> 8) | (d << 8);
--}
--
--static inline void edosk2674_smsc_outsw(
--	volatile unsigned short *a,
--	unsigned short *p,
--	unsigned long l
--	)
--{
--	for (; l != 0; --l, p++)
--		*a = *p;
--}
--
--static inline void edosk2674_smsc_insw(
--	volatile unsigned short *a,
--	unsigned short *p,
--	unsigned long l
--	)
--{
--	for (; l != 0; --l, p++)
--		*p = *a;
--}
--
--#endif
-diff -Nru linux-2.6.6/include/asm-h8300/generic/machine-depend.h linux-2.6.6-h8300/include/asm-h8300/generic/machine-depend.h
---- linux-2.6.6/include/asm-h8300/generic/machine-depend.h	2004-01-09 15:59:19.000000000 +0900
-+++ linux-2.6.6-h8300/include/asm-h8300/generic/machine-depend.h	1970-01-01 09:00:00.000000000 +0900
-@@ -1,17 +0,0 @@
--/* machine depend header */
--
--/* TIMER rate define */
--#ifdef H8300_TIMER_DEFINE
--#include <linux/config.h>
--#if defined(CONFIG_H83007) || defined(CONFIG_H83068) || defined(CONFIG_H8S2678)
--#define H8300_TIMER_COUNT_DATA CONFIG_CPU_CLOCK*10/8192
--#define H8300_TIMER_FREQ CONFIG_CPU_CLOCK*1000/8192
--#endif
--
--#if defined(CONFIG_H8_3002) || defined(CONFIG_H83048)
--#define H8300_TIMER_COUNT_DATA  CONFIG_CPU_CLOCK*10/8
--#define H8300_TIMER_FREQ CONFIG_CPU_CLOCK*1000/8
--#endif
--
--#endif
--
-diff -Nru linux-2.6.6/include/asm-h8300/generic/timer_rate.h linux-2.6.6-h8300/include/asm-h8300/generic/timer_rate.h
---- linux-2.6.6/include/asm-h8300/generic/timer_rate.h	2004-01-09 16:00:03.000000000 +0900
-+++ linux-2.6.6-h8300/include/asm-h8300/generic/timer_rate.h	1970-01-01 09:00:00.000000000 +0900
-@@ -1,15 +0,0 @@
--#include <linux/config.h>
--
--#if defined(CONFIG_H83007) || defined(CONFIG_H83068) || defined(CONFIG_H8S2678)
--#define H8300_TIMER_COUNT_DATA CONFIG_CPU_CLOCK*10/8192
--#define H8300_TIMER_FREQ CONFIG_CPU_CLOCK*1000/8192
--#endif
--
--#if defined(H8_3002) || defined(CONFIG_H83048)
--#define H8300_TIMER_COUNT_DATA  CONFIG_CPU_CLOCK*10/8
--#define H8300_TIMER_FREQ CONFIG_CPU_CLOCK*1000/8
--#endif
--
--#if !defined(H8300_TIMER_COUNT_DATA)
--#error illigal configuration
--#endif
-diff -Nru linux-2.6.6/include/asm-h8300/h8300_smsc.h linux-2.6.6-h8300/include/asm-h8300/h8300_smsc.h
---- linux-2.6.6/include/asm-h8300/h8300_smsc.h	2004-01-09 16:00:13.000000000 +0900
-+++ linux-2.6.6-h8300/include/asm-h8300/h8300_smsc.h	1970-01-01 09:00:00.000000000 +0900
-@@ -1,20 +0,0 @@
--/****************************************************************************/
--
--/*
-- *	h8300_smsc.h -- SMSC in H8/300H and H8S Evalution Board.
-- *      
-- *	(C) Copyright 2003, Yoshinori Sato <ysato@users.sourceforge.jp>
-- */
--
--/****************************************************************************/
--#ifndef	h8300smsc_h
--#define	h8300smsc_h
--/****************************************************************************/
--
--/* Such a description is OK ? */
--#define H8300_SMSC_DEFINE
--#include <asm/machine-depend.h>
--#undef  H8300_SMSC_DEFINE
--
--/****************************************************************************/
--#endif	/* h8300smsc_h */
-diff -Nru linux-2.6.6/include/asm-h8300/h8max/machine-depend.h linux-2.6.6-h8300/include/asm-h8300/h8max/machine-depend.h
---- linux-2.6.6/include/asm-h8300/h8max/machine-depend.h	2004-05-11 14:30:12.000000000 +0900
-+++ linux-2.6.6-h8300/include/asm-h8300/h8max/machine-depend.h	1970-01-01 09:00:00.000000000 +0900
-@@ -1,100 +0,0 @@
--/* H8MAX board depend header */
--
--/* TIMER rate define */
--#ifdef H8300_TIMER_DEFINE
--#define H8300_TIMER_COUNT_DATA 25000*10/8192
--#define H8300_TIMER_FREQ 25000*1000/8192
--#endif
--
--/* H8MAX RTL8019AS Config */
--#ifdef H8300_NE_DEFINE
--
--#define NE2000_ADDR		0x800600
--#define NE2000_IRQ              4
--#define NE2000_IRQ_VECTOR	(12 + NE2000_IRQ)
--#define	NE2000_BYTE		volatile unsigned short
--
--/* sorry quick hack */
--#if defined(outb)
--# undef outb
--#endif
--#define outb(d,a)               h8max_outb((d),(a) - NE2000_ADDR)
--#if defined(inb)
--# undef inb
--#endif
--#define inb(a)                  h8max_inb((a) - NE2000_ADDR)
--#if defined(outb_p)
--# undef outb_p
--#endif
--#define outb_p(d,a)             h8max_outb((d),(a) - NE2000_ADDR)
--#if defined(inb_p)
--# undef inb_p
--#endif
--#define inb_p(a)                h8max_inb((a) - NE2000_ADDR)
--#if defined(outsw)
--# undef outsw
--#endif
--#define outsw(a,p,l)            h8max_outsw((a) - NE2000_ADDR,(unsigned short *)p,l)
--#if defined(insw)
--# undef insw
--#endif
--#define insw(a,p,l)             h8max_insw((a) - NE2000_ADDR,(unsigned short *)p,l)
--#if defined(outsb)
--# undef outsb
--#endif
--#define outsb(a,p,l)            h8max_outsb((a) - NE2000_ADDR,(unsigned char *)p,l)
--#if defined(insb)
--# undef insb
--#endif
--#define insb(a,p,l)             h8max_insb((a) - NE2000_ADDR,(unsigned char *)p,l)
--
--#define H8300_INIT_NE()                  \
--do {                                     \
--	wordlength = 2;                  \
--	h8max_outb(0x49, ioaddr + EN0_DCFG); \
--	SA_prom[14] = SA_prom[15] = 0x57;\
--} while(0)
--
--static inline void h8max_outb(unsigned char d,unsigned char a)
--{
--	*(unsigned short *)(NE2000_ADDR + (a << 1)) = d;
--}
--
--static inline unsigned char h8max_inb(unsigned char a)
--{
--	return *(unsigned char *)(NE2000_ADDR + (a << 1) +1);
--}
--
--static inline void h8max_outsw(unsigned char a,unsigned short *p,unsigned long l)
--{
--	unsigned short d;
--	for (; l != 0; --l, p++) {
--		d = (((*p) >> 8) & 0xff) | ((*p) << 8);
--		*(unsigned short *)(NE2000_ADDR + (a << 1)) = d;
--	}
--}
--
--static inline void h8max_insw(unsigned char a,unsigned short *p,unsigned long l)
--{
--	unsigned short d;
--	for (; l != 0; --l, p++) {
--		d = *(unsigned short *)(NE2000_ADDR + (a << 1));
--		*p = (d << 8)|((d >> 8) & 0xff);
--	}
--}
--
--static inline void h8max_outsb(unsigned char a,unsigned char *p,unsigned long l)
--{
--	for (; l != 0; --l, p++) {
--		*(unsigned short *)(NE2000_ADDR + (a << 1)) = *p;
--	}
--}
--
--static inline void h8max_insb(unsigned char a,unsigned char *p,unsigned long l)
--{
--	for (; l != 0; --l, p++) {
--		*p = *((unsigned char *)(NE2000_ADDR + (a << 1))+1);
--	}
--}
--
--#endif
+ menu "Executable file formats"
+ 
+diff -Nru linux-2.6.6/arch/h8300/Kconfig.cpu linux-2.6.6-h8300/arch/h8300/Kconfig.cpu
+--- linux-2.6.6/arch/h8300/Kconfig.cpu	1970-01-01 09:00:00.000000000 +0900
++++ linux-2.6.6-h8300/arch/h8300/Kconfig.cpu	2004-05-11 21:04:14.000000000 +0900
+@@ -0,0 +1,183 @@
++menu "Processor type and features"
++
++choice
++	prompt "H8/300 platform"
++	default H8300H_GENERIC
++
++config H8300H_GENERIC
++	bool "H8/300H Generic"
++	help
++	  H8/300H CPU Generic Hardware Support
++
++config H8300H_AKI3068NET
++	bool "AE-3068/69"
++	help
++	  AKI-H8/3068F / AKI-H8/3069F Flashmicom LAN Board Support
++	  More Information. (Japanese Only)
++	  <http://akizukidensi.com/catalog/h8.html>
++	  AE-3068/69 Evaluation Board Support
++	  More Information.
++	  <http://www.microtronique.com/ae3069lan.htm>
++
++config H8300H_H8MAX
++	bool "H8MAX"
++	help
++	  H8MAX Evaluation Board Support
++	  More Information. (Japanese Only)
++	  <http://strawberry-linux.com/h8/index.html>
++
++config H8300H_SIM
++	bool "H8/300H Simulator"
++	help
++	  GDB Simulator Support
++	  More Information.
++	  arch/h8300/Doc/simulator.txt
++
++config H8S_GENERIC
++	bool "H8S Generic"
++	help
++	  H8S CPU Generic Hardware Support
++
++config H8S_EDOSK2674
++	bool "EDOSK-2674"
++	help
++	  Renesas EDOSK-2674 Evaluation Board Support
++	  More Information.
++	  <http://www.azpower.com/H8-uClinux/index.html>
++ 	  <http://www.eu.renesas.com/tools/edk/support/edosk2674.html>
++
++config H8S_SIM
++	bool "H8S Simulator"
++	help
++	  GDB Simulator Support
++	  More Information.
++	  arch/h8300/Doc/simulator.txt
++
++endchoice
++
++if (H8300H_GENERIC || H8S_GENERIC)
++menu "Detail Selection"
++if (H8300H_GENERIC)
++choice 
++	prompt "CPU Selection"
++
++config H83002
++	bool "H8/3001,3002,3003"
++
++config H83007
++	bool "H8/3006,3007"
++
++config H83048
++	bool "H8/3044,3045,3046,3047,3048,3052"
++
++config H83068
++	bool "H8/3065,3066,3067,3068,3069"
++endchoice
++endif
++
++if (H8S_GENERIC)
++choice 
++	prompt "CPU Selection"
++
++config H8S2678
++	bool "H8S/2670,2673,2674R,2675,2676"
++endchoice
++endif
++
++config CPU_CLOCK
++	int "CPU Clock Frequency (/1KHz)"	
++	default "20000"
++	help
++	  CPU Clock Frequency divide to 1000
++endmenu
++endif
++
++if (H8300H_GENERIC || H8S_GENERIC || H8300H_SIM || H8S_SIM || H8S_EDOSK2674)
++choice
++	prompt "Kernel executes from"
++	---help---
++	  Choose the memory type that the kernel will be running in.
++
++config RAMKERNEL
++	bool "RAM"
++	help
++	  The kernel will be resident in RAM when running.
++
++config ROMKERNEL
++	bool "ROM"
++	help
++	  The kernel will be resident in FLASH/ROM when running.
++
++endchoice
++endif
++
++if (H8300H_AKI3068NET)
++config H83068
++	bool
++	default y
++
++config CPU_CLOCK
++	int 
++	default "20000"
++
++config RAMKERNEL
++	bool
++	default y
++endif
++
++if (H8300H_H8MAX)
++config H83068
++	bool
++	default y
++
++config CPU_CLOCK
++	int 
++	default 25000
++
++config RAMKERNEL
++	bool
++	default y
++endif
++
++if (H8300H_SIM)
++config H83007
++	bool
++	default y
++
++config CPU_CLOCK
++	int 
++	default "16000"
++endif
++
++if (H8S_EDOSK2674)
++config H8S2678
++	bool
++	default y
++config CPU_CLOCK
++	int 
++	default 33000
++endif
++
++if (H8S_SIM)
++config H8S2678
++	bool
++	default y
++config CPU_CLOCK
++	int 
++	default 33000
++endif
++
++config CPU_H8300H
++	bool
++	depends on (H8002 || H83007 || H83048 || H83068)
++	default y
++
++config CPU_H8S
++	bool
++	depends on H8S2678
++	default y
++
++config PREEMPT
++	bool "Preemptible Kernel"
++	default n
++endmenu

@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVDFPqv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbVDFPvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262235AbVDFPqv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 11:46:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbVDFPqu
+	id S262236AbVDFPvX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 11:51:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbVDFPvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 11:46:50 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:16105 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S262231AbVDFPqd convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 11:46:33 -0400
-Subject: Re: HELP:(VIPER BOARD)AC'97 controller driver for rtlinux(rtlinux core driver) 
-From: "nitin ahuja" <nitin2ahuja@myrealbox.com>
-To: nobin_matthew@yahoo.com
-CC: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
-Date: Wed, 06 Apr 2005 09:46:16 -0600
-X-Mailer: NetMail ModWeb Module
+	Wed, 6 Apr 2005 11:51:22 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:23471 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262236AbVDFPvM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 11:51:12 -0400
+Message-ID: <42540560.2000205@grupopie.com>
+Date: Wed, 06 Apr 2005 16:50:56 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Message-ID: <1112802376.8c7c3afcnitin2ahuja@myrealbox.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+To: Pekka Enberg <penberg@gmail.com>
+Cc: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Jesper Juhl <juhl-lkml@dif.dk>, Roland Dreier <roland@topspin.com>,
+       LKML <linux-kernel@vger.kernel.org>, penberg@cs.helsinki.fi
+Subject: Re: RFC: turn kmalloc+memset(,0,) into kcalloc
+References: <4252BC37.8030306@grupopie.com>	 <Pine.LNX.4.62.0504052052230.2444@dragon.hyggekrogen.localhost>	 <521x9pc9o6.fsf@topspin.com>	 <Pine.LNX.4.62.0504052148480.2444@dragon.hyggekrogen.localhost>	 <20050406112837.GC7031@wohnheim.fh-wedel.de>	 <4253D2CD.2040600@grupopie.com> <84144f02050406061077de4c2e@mail.gmail.com>
+In-Reply-To: <84144f02050406061077de4c2e@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Pekka Enberg wrote:
+> Hi,
+> 
+> On Apr 6, 2005 3:15 PM, Paulo Marques <pmarques@grupopie.com> wrote:
+> 
+>>However "calloc" is the standard C interface for doing this, so it makes
+>>some sense to use it here as well... :(
+> 
+> 
+> I initally submitted kcalloc() with just one parameter but Arjan
+> wanted it to be similar to standard calloc() so we could check for
+> overflows. I don't see any reason not to introduce kzalloc() for the
+> common case you mentioned (as suggested by Denis).
 
->
-> I am trying to develop a codec driver (rtlinux 
-> driver) from scratch. In Viper board (PXA255) 
-> physical memory range 0x40000000-0x43FFFFFF is used 
-> by the PXA255 peripherals.In that address range
-> 0x40500000-0x405005FC is needed for AC'97 controller
-> registers. Is this memory range is already mapped to
-> virtual address space, else How to map this to 
-> virtual address space.
->
+kzalloc it is, then.
 
-You have to map this address range using "ioremap()". Data at address returned by ioremap can be accessed by calling readl(), writel() et al
+By the way I did a quick measurement to see how much we could gain in 
+kernel size by doing this. This is with a 2.6.11-rc2, defconfig kernel:
 
->
-> When i tried ioremap() it is giving same virtual
-> address with different physical address(i tried
-> ioremap with another driver(same board)with different
-> physical memory address)
->
+with kmalloc+memset:
+    vmlinuz: 5521614
+    bzImage: 2005274
 
-Same virtual address can point to different physical addresses depending upon how it is mapped.
+with kzalloc:
+    vmlinuz: 5513422
+    bzImage: 2003927
 
-Nitin
+So we gain 8kB on the uncompressed image and 1347 bytes on the 
+compressed one. This was just a dumb test and actual results might be 
+better due to smarter human cleanups.
 
+Not a spectacular gain per se, but the increase in code readability is 
+still worth it, IMHO.
+
+-- 
+Paulo Marques - www.grupopie.com
+
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

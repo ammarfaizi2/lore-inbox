@@ -1,55 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262763AbTC1If2>; Fri, 28 Mar 2003 03:35:28 -0500
+	id <S262592AbTC1IdC>; Fri, 28 Mar 2003 03:33:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262428AbTC1Iep>; Fri, 28 Mar 2003 03:34:45 -0500
-Received: from [131.215.233.56] ([131.215.233.56]:16912 "EHLO bryanr.org")
-	by vger.kernel.org with ESMTP id <S262763AbTC1IdL>;
-	Fri, 28 Mar 2003 03:33:11 -0500
-Date: Fri, 28 Mar 2003 00:31:22 -0800
-From: Bryan Rittmeyer <bryanr@bryanr.org>
-To: Andrew Fleming <afleming@motorola.com>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: [patch] oprofile + ppc750cx perfmon
-Message-ID: <20030328083122.GB5317@bryanr.org>
-References: <20030327130535.GA1132@bryanr.org> <F0BBB858-6093-11D7-BD8D-000393C30512@motorola.com>
+	id <S262763AbTC1IdC>; Fri, 28 Mar 2003 03:33:02 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:4868 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262592AbTC1IcN>;
+	Fri, 28 Mar 2003 03:32:13 -0500
+Date: Thu, 27 Mar 2003 23:33:56 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: vojtech@ucw.cz, kernel list <linux-kernel@vger.kernel.org>,
+       torvalds@transmeta.com
+Subject: Blank now key
+Message-ID: <20030327223356.GA193@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <F0BBB858-6093-11D7-BD8D-000393C30512@motorola.com>
-User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 27, 2003 at 02:37:34PM -0600, Andrew Fleming wrote:
-> I'm 99.9% positive that the counters are different.  In my experience, 
-> every new microarchitecture has a completely different set of counters. 
+Hi!
 
-yup. a kernel API to wrap all the low-level register config would be
-nice but my interest for now is just the ppc750cx. If someone else wants to
-build additional ppc32 support into oprofile, my patches could serve as a
-basic starting point.
+This is must-have for machines where backlight eats significant
+ammount of power. Please apply,
+							Pavel
 
-> Earlier on the list, the possibility of using the performance interrupt 
-> with the timebase was proposed.
+Index: linux/drivers/char/keyboard.c
+===================================================================
+--- linux.orig/drivers/char/keyboard.c	2003-03-27 11:10:04.000000000 +0100
++++ linux/drivers/char/keyboard.c	2003-03-16 18:51:05.000000000 +0100
+@@ -20,6 +20,7 @@
+  * parts by Geert Uytterhoeven, May 1997
+  *
+  * 27-05-97: Added support for the Magic SysRq Key (Martin Mares)
++ * 29-07-97: Added blank console key (Pavel Machek)
+  * 30-07-98: Dead keys redone, aeb@cwi.nl.
+  * 21-08-02: Converted to input API, major cleanup. (Vojtech Pavlik)
+  */
+@@ -86,7 +87,8 @@
+ 	fn_show_state,	fn_send_intr, 	fn_lastcons, 	fn_caps_toggle,\
+ 	fn_num,		fn_hold, 	fn_scroll_forw,	fn_scroll_back,\
+ 	fn_boot_it, 	fn_caps_on, 	fn_compose,	fn_SAK,\
+-	fn_dec_console, fn_inc_console, fn_spawn_con, 	fn_bare_num
++	fn_dec_console, fn_inc_console, fn_spawn_con, 	fn_bare_num, \
++	fn_blank_now
+ 
+ typedef void (fn_handler_fn)(struct vc_data *vc, struct pt_regs *regs);
+ static fn_handler_fn FN_HANDLERS;
+@@ -320,6 +322,25 @@
+ 	con_schedule_flip(tty);
+ }
+ 
++static void blank_now_do(unsigned long unused)
++{
++	do_poke_blanked_console = 0;
++	do_blank_screen(0);
++}
++
++static struct timer_list blank_now_timer;
++
++static void fn_blank_now(struct vc_data *vc, struct pt_regs *regs)
++{
++	/* You ask why we have our own timer here? Well, it is because
++           we do not want user's release of keys to unblank
++           immediately. Even if we correctly guessed what is press and
++           what is release, thinkpad's broken bios will turn on
++           backlight for us... <pavel@ucw.cz> */
++	blank_now_timer.expires = jiffies + HZ;
++	add_timer(&blank_now_timer);
++}
++
+ static void applkey(struct vc_data *vc, int key, char mode)
+ {
+ 	static char buf[] = { 0x1b, 'O', 0x00, 0x00 };
+@@ -1215,6 +1258,9 @@
+ {
+ 	int i;
+ 
++	init_timer(&blank_now_timer);
++	blank_now_timer.function = blank_now_do;
++
+         kbd0.ledflagstate = kbd0.default_ledflagstate = KBD_DEFLEDS;
+         kbd0.ledmode = LED_SHOW_FLAGS;
+         kbd0.lockstate = KBD_DEFLOCK;
 
-the timebase is simpler but less configurable than the PMCs.
-my latest patch runs everything (oprofile+timer_interrupt)
-via the timebase--there is no real support yet for the more
-sophisticated PMCs.
 
-We can allow for more user configurability by using the timebase
-along side PMC interrupts. However, then we have to identify
-which counter(s) caused a given interrupt, and that probably means
-keeping some past state for the timebase and PMCs. For now, I'm satisfied
-with hardcoded 1500 Hz profiling via the timebase; finishing up the syscall
-interception is more important.
-
-> [dec/pm switch-over race in v0003]
-
-known issue, I was pondering a solution for a few days. It seems like
-the decrementer is not individually maskable or haltable so my v0004
-approach is to just do mtspr(SPRN_DEC, 0x7fffffff) upon enabling perfmon
-and again inside each pm_irq.
-
--Bryan
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

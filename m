@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279382AbRKGKBr>; Wed, 7 Nov 2001 05:01:47 -0500
+	id <S279553AbRKGKAS>; Wed, 7 Nov 2001 05:00:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279556AbRKGKBh>; Wed, 7 Nov 2001 05:01:37 -0500
-Received: from atlas.inria.fr ([138.96.66.22]:18181 "HELO atlas.inria.fr")
-	by vger.kernel.org with ESMTP id <S279382AbRKGKBS>;
-	Wed, 7 Nov 2001 05:01:18 -0500
-Message-Id: <20011107100127Z279382-17408+11789@vger.kernel.org>
-From: <Nicolas.Turro@sophia.inria.fr>
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
-Date: Wed, 7 Nov 2001 05:01:18 -0500
+	id <S279556AbRKGKAH>; Wed, 7 Nov 2001 05:00:07 -0500
+Received: from t2.redhat.com ([199.183.24.243]:53501 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S279553AbRKGJ7w>; Wed, 7 Nov 2001 04:59:52 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20011107104044.C11351@hazard.jcu.cz> 
+In-Reply-To: <20011107104044.C11351@hazard.jcu.cz>  <20011106123427.A11351@hazard.jcu.cz> <3BE2D37A.D32C6DB1@zip.com.au> <20011105112900.C5919@hazard.jcu.cz> <23001.1005086449@redhat.com> 
+To: Jan Marek <linux@hazard.jcu.cz>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Cannot unlock spinlock... Was: Problem in yenta.c, 2nd edition 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 07 Nov 2001 09:59:49 +0000
+Message-ID: <11670.1005127189@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-Hi.
-i upgrade from 2.2.18 to 2.2.20 today and could not apply a patch that
-increases the maximum number of symbolic link to follow during a lookup.
 
-We used to change the 5 in  :
-        if ((follow & LOOKUP_FOLLOW)
-            && inode && inode->i_op && inode->i_op->follow_link) {
-                if (current->link_count <= 5) {
-                        struct dentry * result;
-                       current->link_count++;
-                        /* This eats the base */
-                        result = inode->i_op->follow_link(dentry, base, follow);
-                        current->link_count--;
-                        dput(dentry);
-                        return result;
+linux@hazard.jcu.cz said:
+>  Your hack is working for me. I got message: "IRQ storm detected on
+> IRQ 11. Disabling"
 
-by 20.
+> and everythink works OK. Spinlock was unlocked, procedure setup_irq()
+> ended and PCMCIA package works fine...
 
-But now, in 2.2.20 the code is :
+> It is possible to add your patch to the kernel? 
 
-        if ((follow & LOOKUP_FOLLOW)
-            && inode && inode->i_op && inode->i_op->follow_link) {
-                if (current->link_count < 25) {
-                        struct dentry * result;
-                        if (current->need_resched) {
-                                current->state = TASK_RUNNING;
-                                schedule();
-                        }
-                        /* This eats the base */
-                        result = inode->i_op->follow_link(dentry, base, follow|LOOKUP_INSYMLINK);
-                        current->link_count -= 4;
-                        dput(dentry);
-                        return result;
+Absolutely not. In 2.5, we may have some code to deal with IRQ storms, but 
+certainly not like that. 
 
-And i must admit i am not sure that changing the 25 into 100 will do the
-same...
-I don't understand the comment :
-/*
- * Yes, this really increments the link_count by 5, and
- * decrements it by 4. Together with checking against 25,
- * this limits recursive symlink follows to 5, while
- * limiting consecutive symlinks to 25.
- *
- * Without that kind of total limit, nasty chains of consecutive
- * symlinks can cause almost arbitrarily long lookups.
- */
+> But I don't know, what device asserted IRQ 11 to start the IRQ storm..
 
-what is the difference between recursive symlink  and consecutive symlinks ?
+What other PCI devices claim to be on IRQ 11? Do you have ACPI enabled (in 
+the BIOS and/or in Linux)?
 
-Can someone explain me on an exemple ?
- 
-N. Turro
+--
+dwmw2
+
 

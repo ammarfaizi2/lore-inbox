@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317264AbSGOAlZ>; Sun, 14 Jul 2002 20:41:25 -0400
+	id <S317263AbSGOAlH>; Sun, 14 Jul 2002 20:41:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317267AbSGOAlY>; Sun, 14 Jul 2002 20:41:24 -0400
-Received: from lsanca2-ar27-4-3-064-252.lsanca2.dsl-verizon.net ([4.3.64.252]:1920
-	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
-	id <S317264AbSGOAlX>; Sun, 14 Jul 2002 20:41:23 -0400
-Date: Sun, 14 Jul 2002 17:43:51 -0700 (PDT)
-From: Ben Clifford <benc@hawaga.org.uk>
-To: Dave Jones <davej@suse.de>
-cc: Heinz Diehl <hd@cavy.de>, <linux-kernel@vger.kernel.org>, <axboe@suse.de>,
-       <andre@linux-ide.org>
-Subject: Re: Linux 2.5.25-dj2
-In-Reply-To: <Pine.LNX.4.44.0207141716590.3174-100000@barbarella.hawaga.org.uk>
-Message-ID: <Pine.LNX.4.44.0207141740460.2865-100000@barbarella.hawaga.org.uk>
+	id <S317267AbSGOAlG>; Sun, 14 Jul 2002 20:41:06 -0400
+Received: from tomts17-srv.bellnexxia.net ([209.226.175.71]:36847 "EHLO
+	tomts17-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S317263AbSGOAlF>; Sun, 14 Jul 2002 20:41:05 -0400
+From: Ed Tomlinson <tomlins@cam.org>
+Subject: Re: [PATCH] preemptive kernel for 2.4.19-rc1-ac3
+To: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+Reply-To: tomlins@cam.org
+Date: Sun, 14 Jul 2002 20:43:54 -0400
+References: <1026681042.939.9.camel@sinai>
+Organization: me
+User-Agent: KNode/0.7.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <20020715004355.65B462D12A@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+If you build with preempt=N (for the scheduler stuff) the link of the 
+kernel fails.  
 
-On Sun, 14 Jul 2002, Ben Clifford wrote:
+kernel/kernel.o: In function `sys_sched_yield':
+kernel/kernel.o(.text+0x1154): undefined reference to 
+`spin_unlock_no_resched'
 
-> >>EIP; d08ff420 <[ide-cd]ll_10byte_cmd_build+0/d0>   <=====
+Ed Tomlinson
 
-ide-cd.o is loaded at boot, and I have been manually unloading it before 
-attempting to modprobe ide-scsi24.
+make: *** [vmlinux] Error 1
 
-So I rm'd the ide-cd.o from my modules directory as an easy way to stop it 
-ever being loaded and I can modprobe ide-scsi24 without the oops 
-happening.
 
-I am attempting to rerecord a CD-RW at the moment to see if it works
-properly - it is in the blanking stage at the moment and appears to be 
-ok...
+Robert Love wrote:
 
-- -- 
-Ben Clifford     benc@hawaga.org.uk     GPG: 30F06950
-http://www.hawaga.org.uk/ben/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9MhrKsYXoezDwaVARAtQDAJ0RCg3YDcWVtWICxscA18KaWXr3ogCcDDpe
-cbnDZdbOtWSgIdVtrnBFj1U=
-=KK1q
------END PGP SIGNATURE-----
+> A preempt-kernel patch for 2.4.19-rc1-ac3 is available at:
+> 
+> 
+ftp://ftp.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.4/preempt-kernel-rml-2.4.19-rc1-ac3-1.patch
+> 
+> and mirrors.
+> 
+> The recent scheduler bits introduced plenty of changes to cause the
+> patch to fail to apply.
+> 
+> This new preempt-kernel patch also includes some of the
+> scheduler-related preemption optimizations found in 2.5.
+> 
+> Robert Love
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

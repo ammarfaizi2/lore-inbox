@@ -1,125 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266836AbTGLHQD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 03:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267808AbTGLHQD
+	id S267844AbTGLHUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 03:20:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267861AbTGLHUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 03:16:03 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:56593 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S266836AbTGLHP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 03:15:59 -0400
-Date: Sat, 12 Jul 2003 17:30:18 +1000
-To: zippel@linux-m68k.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [KCONFIG] Optional choice values always get reset
-Message-ID: <20030712073018.GA19038@gondor.apana.org.au>
+	Sat, 12 Jul 2003 03:20:25 -0400
+Received: from h00a0cca1a6cf.ne.client2.attbi.com ([65.96.181.13]:12416 "EHLO
+	h00a0cca1a6cf.ne.client2.attbi.com") by vger.kernel.org with ESMTP
+	id S267844AbTGLHUW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 03:20:22 -0400
+Date: Sat, 12 Jul 2003 03:27:44 -0400
+From: timothy parkinson <t@timothyparkinson.com>
+To: linux-kernel@vger.kernel.org
+Subject: netgear f312 (natsemi) under 2.5.75
+Message-ID: <20030712072744.GA225@timothyparkinson.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="tThc/1wpZn/ma/RB"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HlL+5n6rz5pIUxbD"
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---tThc/1wpZn/ma/RB
+--HlL+5n6rz5pIUxbD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Hi:
 
-As of 2.5.74, make oldconfig always disables existing optional choices
-even if they were selected previously.  For example, if all the EICON
-ISDN drivers were selected as modules, then make oldconfig will turn
-them off.
+hi,
 
-Part of the problem is that the choice value itself is computed before
-the SYMBOL_NEW flag is turned off.  This patch addresses that particular
-problem.
+thought i'd give 2.5.75 a try today, and the only thing that i couldn't get
+to work is my network card:
 
-Cheers,
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+00:08.0 Ethernet controller: National Semiconductor Corporation DP83815
+(MacPhyter) Ethernet Controller
+        Subsystem: Netgear: Unknown device f312
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
+i'm working on a reasonably close to default slackware 9.0 box, with a working
+2.4.21 kernel of my own build.
 
-Index: kernel-source-2.5/scripts/kconfig/confdata.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/scripts/kconfig/confdata.c,v
-retrieving revision 1.1.1.3
-diff -u -r1.1.1.3 confdata.c
---- kernel-source-2.5/scripts/kconfig/confdata.c	17 Jun 2003 04:20:26 -0000	1.1.1.3
-+++ kernel-source-2.5/scripts/kconfig/confdata.c	12 Jul 2003 07:24:35 -0000
-@@ -149,7 +149,7 @@
- 			sym = sym_find(line + 7);
- 			if (!sym) {
- 				fprintf(stderr, "%s:%d: trying to assign nonexistent symbol %s\n", name, lineno, line + 7);
--				break;
-+				continue;
- 			}
- 			switch (sym->type) {
- 			case S_TRISTATE:
-@@ -197,29 +197,28 @@
- 			default:
- 				;
- 			}
--			if (sym_is_choice_value(sym)) {
--				struct symbol *cs = prop_get_symbol(sym_get_choice_prop(sym));
--				switch (sym->user.tri) {
--				case mod:
--					if (cs->user.tri == yes)
--						/* warn? */;
--					break;
--				case yes:
--					if (cs->user.tri != no)
--						/* warn? */;
--					cs->user.val = sym;
--					break;
--				case no:
--					break;
--				}
--				cs->user.tri = sym->user.tri;
--			}
--			break;
--		case '\n':
- 			break;
- 		default:
- 			continue;
- 		}
-+		if (sym_is_choice_value(sym)) {
-+			struct symbol *cs = prop_get_symbol(sym_get_choice_prop(sym));
-+			switch (sym->user.tri) {
-+			case mod:
-+				if (cs->user.tri == yes)
-+					/* warn? */;
-+				break;
-+			case yes:
-+				if (cs->user.tri != no)
-+					/* warn? */;
-+				cs->user.val = sym;
-+				break;
-+			case no:
-+				break;
-+			}
-+			cs->user.tri = E_OR(cs->user.tri, sym->user.tri);
-+			cs->flags &= ~SYMBOL_NEW;
-+		}
- 	}
- 	fclose(in);
- 
-@@ -241,7 +240,6 @@
- 		if (!sym_is_choice(sym))
- 			continue;
- 		prop = sym_get_choice_prop(sym);
--		sym->flags &= ~SYMBOL_NEW;
- 		for (e = prop->expr; e; e = e->left.expr)
- 			if (e->right.sym->visible != no)
- 				sym->flags |= e->right.sym->flags & SYMBOL_NEW;
+i started out by installing module-init-tools-0.9.12, and then built 2.5.75.
+the module (natsemi.o) seems to load just fine with no complaints.  dhcpcd
+runs, the lights flash on my cable modem, things appear to be working just
+the same as 2.4.21, however dhcpcd just exits silently without bringing up
+eth0.
 
---tThc/1wpZn/ma/RB--
+i've tried building the driver into the kernel instead, recompiling dhcpcd,
+resetting the cable modem - it works under 2.4.21 just fine, the only
+variable is the kernel.  i'm completely at a loss here.
+
+anyone else seeing this problem?  any ideas?  if there's any other debugging
+information i can provide, just ask...  much thanks in advance!
+
+-timothy
+
+
+--HlL+5n6rz5pIUxbD
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/D7hwx+251UAEnQkRAl0UAKDGWA4A3Y084RDvhd7VNIeByp+qDACdGWgt
+TRUhRQX/ck4JceS0TeHf1JU=
+=2ef8
+-----END PGP SIGNATURE-----
+
+--HlL+5n6rz5pIUxbD--

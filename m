@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262739AbSI1IA7>; Sat, 28 Sep 2002 04:00:59 -0400
+	id <S262740AbSI1IKO>; Sat, 28 Sep 2002 04:10:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262740AbSI1IA7>; Sat, 28 Sep 2002 04:00:59 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52238 "EHLO
+	id <S262741AbSI1IKO>; Sat, 28 Sep 2002 04:10:14 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58894 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262739AbSI1IA6>; Sat, 28 Sep 2002 04:00:58 -0400
-Date: Sat, 28 Sep 2002 09:06:17 +0100
+	id <S262740AbSI1IKO>; Sat, 28 Sep 2002 04:10:14 -0400
+Date: Sat, 28 Sep 2002 09:15:30 +0100
 From: Russell King <rmk@arm.linux.org.uk>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sysrq on serial console
-Message-ID: <20020928090617.A32639@flint.arm.linux.org.uk>
-References: <3D94ED88.5040407@us.ibm.com>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: Daniel Jacobowitz <dan@debian.org>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Does kernel use system stdarg.h?
+Message-ID: <20020928091530.B32639@flint.arm.linux.org.uk>
+References: <20020927140543.GA5613@nevyn.them.org> <20020927214721.GK21969@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D94ED88.5040407@us.ibm.com>; from haveblue@us.ibm.com on Fri, Sep 27, 2002 at 04:45:12PM -0700
+In-Reply-To: <20020927214721.GK21969@waste.org>; from oxymoron@waste.org on Fri, Sep 27, 2002 at 04:47:22PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 27, 2002 at 04:45:12PM -0700, Dave Hansen wrote:
-> It looks like the UART_LSR_BI bit needs to be set in the status 
-> variable for the break character to be interpreted as a break in the 
-> driver.
+On Fri, Sep 27, 2002 at 04:47:22PM -0500, Oliver Xymoron wrote:
+> > > -I/usr/src/linux-2.5.36/include
+> > > -iprefix /usr/sbin/../../lib/gcc-lib/i686-pc-linux-gnu/3.0.3/
+> > 
+> > That's the problem.  Where's the -iprefix coming from?   Your configure
+> > doesn't specify /usr/sbin anywhere.
+> > 
+> > Verdict: bad GCC install or a 3.0.3 bug.  Might have to do with your
+> > libdir-outside-of-prefix.
+> 
+> I've got the same problem with -nostdinc with my Debian gcc-3.0 that
+> I've been patching around. I assumed it was a problem with the
+> kernel's Makefile, now you're saying it's the Debian package?
 
-That is correct; that is how the UART reports a break character.
+It certainly looks like it.  gcc 3.0.3 appears to ignore
+"-iwithprefix include", where as gcc 2.95.x, 2.96, 3.1 and 3.2 all
+work as expected.
 
-> I doubt that it is actually broken,  but it isn't immediately obvious 
-> how that bit gets set.  Is there something that I should have set when 
-> the device was initialized to make sure that UART_LSR_BI is asserted 
-> in "status" when the interrupt occurs?
+-iwithprefix is supposed to add /usr/lib/gcc-lib/<target>/<version>/include
+to the compilers include path.
 
-Now.  Its a status bit from the UART LSR register itself, read from
-serial8250_handle_port() and receive_chars().  It will cause an
-interrupt any time that the receive interrupt is enabled, ie when
-the port is open by user space.
+For curiositys sake, what does:
+
+  gcc -print-file-name=include
+
+give you?  That should (in theory) be the same path as -iwithprefix include
+but iirc this method apparantly breaks with internationalisation
+(discovered in 2.4.)  I'm going to place my bets on:
+
+  /usr/sbin/../../lib/gcc-lib/i686-pc-linux-gnu/3.0.3/include
+
+though, which would be wrong.
 
 -- 
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

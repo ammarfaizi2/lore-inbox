@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262058AbTEXO7T (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 May 2003 10:59:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbTEXO7T
+	id S262090AbTEXPnD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 May 2003 11:43:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbTEXPnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 May 2003 10:59:19 -0400
-Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:27264 "HELO
-	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id S262058AbTEXO7S convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 May 2003 10:59:18 -0400
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Philippe =?iso-8859-15?q?Gramoull=E9?= <pgramoul@nerim.net>,
-       Russell Coker <russell@coker.com.au>
-Subject: Re: 2.4.21-rc3
-Date: Sat, 24 May 2003 17:12:23 +0200
-User-Agent: KMail/1.5.2
-Cc: reiserfs <reiserfs-list@namesys.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <200305232256.17604.russell@coker.com.au> <20030523161356.7986c5d6.pgramoul@nerim.net>
-In-Reply-To: <20030523161356.7986c5d6.pgramoul@nerim.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200305241712.23316.Dieter.Nuetzel@hamburg.de>
+	Sat, 24 May 2003 11:43:03 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:63751 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262090AbTEXPnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 May 2003 11:43:02 -0400
+Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Willy Tarreau <willy@w.ods.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <156240000.1053787871@aslan.scsiguy.com>
+References: <1053732598.1951.13.camel@mulgrave>
+		<20030524064340.GA1451@alpha.home.local>
+	<1053786998.1793.31.camel@mulgrave> 
+	<156240000.1053787871@aslan.scsiguy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 24 May 2003 11:55:54 -0400
+Message-Id: <1053791756.1793.55.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 23. Mai 2003 16:13 schrieb Philippe Gramoullé:
-> Hello Russell,
->
-> On Fri, 23 May 2003 22:56:17 +1000
->
-> Russell Coker <russell@coker.com.au> wrote:
->   | I've noticed that the modules ide-taskfile.o and ide-io.o depend on
->   | each other if you compile the 2.4.21-rc3 with IDE as modules.
->   |
->   | Is this a bug in the kernel or are we supposed to use a new module
->   | loader that can resolve such things?
->
-> IIRC, according to Alan Cox, on LKML, IDE shouldn't even work as a module,
-> well, if you value your data.
->
-> So why don't you include IDE statically in your kernel ?
+On Sat, 2003-05-24 at 10:51, Justin T. Gibbs wrote:
+> Just for clarification.  Marcelo never asked me for a fix.  The only
+> mail I received from him was an informational message indicating that
+> the code was being backed out.  If I had been provided an opportunity
+> to fix the problem, I would have. Considering that the fix has been
+> available long before RC2 was cut (May 1st.), it's not hard to see that
+> getting a proper fix required nothing more than just upgrading the driver
+> or contacting its maintainer to get a paired down fix.
 
-Because it worked for ages and do NOT since 2.4.19 or so.
+The kernel, as you have been told several times before, follows a push
+model, not a pull one.  Just looking after SCSI, I don't have time to go
+around asking all the driver writers for updates; likewise Marcelo
+really doesn't have the time to do this for everything in the 2.4
+kernel.
 
-I have all SCSI and need ATA/IDE only from time to time to recover bad ATA/IDE 
-disks for some friends or customers.
+Every maintained piece of the kernel has a listed maintainer to whom the
+bug reports are supposed to go.  The expectation is that these
+maintainers will see the bug reports and pro-actively provide fixes
+before they become release issues.  The maintainers also do
+enhancements, *but* these enhancements should follow the proper release
+cycle (i.e. in at the early -pre stage).
 
-ATA/IDE shouldn't be demanded thing in the kernel.
+Could you please get with the program?  The bug fix vs enhancement issue
+hasn't previously mattered that much for 2.5, but I anticipate we'll be
+following a similar model when 2.6 is released.
 
-Regards,
-	Dieter
--- 
-Dieter Nützel
-Graduate Student, Computer Science
+James
 
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel at hamburg.de (replace at with @)
 

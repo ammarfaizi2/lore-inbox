@@ -1,80 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265962AbRGERXg>; Thu, 5 Jul 2001 13:23:36 -0400
+	id <S265964AbRGERmT>; Thu, 5 Jul 2001 13:42:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265964AbRGERX0>; Thu, 5 Jul 2001 13:23:26 -0400
-Received: from sammy.netpathway.com ([208.137.139.2]:21009 "EHLO
-	sammy.netpathway.com") by vger.kernel.org with ESMTP
-	id <S265962AbRGERXI>; Thu, 5 Jul 2001 13:23:08 -0400
-Message-ID: <3B44A240.3510F24F@netpathway.com>
-Date: Thu, 05 Jul 2001 12:22:08 -0500
-From: "Gary White (Network Administrator)" <admin@netpathway.com>
-Organization: Internet Pathway
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S266076AbRGERmJ>; Thu, 5 Jul 2001 13:42:09 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:27777 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265964AbRGERl7>; Thu, 5 Jul 2001 13:41:59 -0400
+Date: Thu, 5 Jul 2001 13:41:48 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: mdaljeet@in.ibm.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: floating point problem
+In-Reply-To: <CA256A80.005F1790.00@d73mta01.au.ibm.com>
+Message-ID: <Pine.LNX.3.95.1010705133657.25259A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: >128 MB RAM stability problems (again)
-In-Reply-To: <036e01c1056a$665b0d40$6cc8c58f@satoy>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-scanner: scanned by Inflex 0.1.5c - (http://www.inflex.co.za/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm,
+On Thu, 5 Jul 2001 mdaljeet@in.ibm.com wrote:
 
-I have no problems either.
+> In Linux PPC, the MSR[FP] bit (that is floating point available bit) is off
+> (atleast for non-SMP).
+>
 
-Asus KT7 KT133 Chipset
+Yes, so the first FP instruction per process lets "lazy FPU" save/restore
+work.
 
-root@station2-lnx:~# uname -a
-Linux station2-lnx 2.4.6 #10 Thu Jul 5 11:08:39 CDT 2001 i686 unknown
-root@station2-lnx:~# free
-             total       used       free     shared    buffers     cached
-Mem:        512944     509888       3056          0      32140     417532
--/+ buffers/cache:      60216     452728
-Swap:      1100444          0    1100444
+ 
+> Due to this, whenever some floating point instruction is executed in 'user
+> mode', it leads to a exception 'FPUnavailable'. The exception handler for
+> this exception apart from setting the MSR[FP] bit, also sets the MSR[FE0]
+> and MSR[FE1] bits. These bits basically enables the floating point
+> exceptions so that if there are some floating point exception conditions
+> encountered while exeuting a floating point instruction, an appropriate
+> exception is raised.
+> But whenever some floating point instruction is executed in 'kernel mode',
+> 'FPUnavailabe' exception handler code does not set the 'MSR[FE0] and
+> MSR[FE1]' bits.
+>
 
-> 
-> > Can someone please
-> > point out to me
-> > that he's actually running kernel-2.4.x on a machine with
-> > more than 128
-> > MB RAM and that he's NOT having severe stability problems?
-> > And can that same person PLEASE point out to me why 2.4.x is
-> > crashing on
-> > me (or help me to find out...)?
-> 
-> %uname -a
-> Linux cartman 2.4.0-64GB-SMP #1 SMP Wed Jan 24 15:52:30 GMT 2001 i686
-> unknown
-> %uptime
->  8:35am  up 57 days, 12:42,  2 users,  load average: 2.00, 2.00, 2.00
-> %free
->              total      used      free      shared      buffers      cached
-> Mem:        254904    251968      2936           0        92224       45028
-> -/+ buffers/cache:    114716    140188
-> Swap:       524656     14192    510464
-> 
-> Could this be a 2.4 swap issue. You NEED at least RAM x2 swap. If you're
-> just adding memory to
-> a box that's stable with 128 megs and possibly 256 megs swap (you don't
-> state, just guessing..)
-> you've now got too little swap, and boom, stability goes bye-bye.
-> 
-> Just haven't seen the swap issue mentioned this thread...
-> 
-> =Don=
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+The kernel is not supposed to use floating-point.
 
--- 
-Gary White               Network Administrator
-admin@netpathway.com          Internet Pathway
-Voice 601-776-3355            Fax 601-776-2314
+[SNIPPED...]
+
+I think all you need is this:
+
+/*
+ *  Note FPU control only exists per process. Therefore, you have
+ *  to set up the FPU before you use it in any program.
+ */
+#include <i386/fpu_control.h>
+
+#define FPU_MASK (_FPU_MASK_IM |\
+                  _FPU_MASK_DM |\
+                  _FPU_MASK_ZM |\
+                  _FPU_MASK_OM |\
+                  _FPU_MASK_UM |\
+                  _FPU_MASK_PM)
+
+void fpu()
+{
+    __setfpucw(_FPU_DEFAULT & ~FPU_MASK);
+}
+
+
+main() {
+   double zero=0.0;
+   double one=1.0;
+   fpu();
+
+   one /=zero;
+}
+
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

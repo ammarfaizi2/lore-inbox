@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268368AbTBSMIh>; Wed, 19 Feb 2003 07:08:37 -0500
+	id <S268374AbTBSMQk>; Wed, 19 Feb 2003 07:16:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268373AbTBSMIh>; Wed, 19 Feb 2003 07:08:37 -0500
-Received: from isdn222.s.netic.de ([212.9.162.222]:10112 "EHLO solfire")
-	by vger.kernel.org with ESMTP id <S268368AbTBSMIg>;
-	Wed, 19 Feb 2003 07:08:36 -0500
-Date: Wed, 19 Feb 2003 13:19:09 +0100 (MET)
-Message-Id: <20030219.131909.59461826.mccramer@s.netic.de>
+	id <S268376AbTBSMQk>; Wed, 19 Feb 2003 07:16:40 -0500
+Received: from h214n1fls32o988.telia.com ([62.20.176.214]:15624 "EHLO
+	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
+	id <S268374AbTBSMQj>; Wed, 19 Feb 2003 07:16:39 -0500
+Message-Id: <200302191226.h1JCQfpC044413@sirius.nix.badanka.com>
+Date: Wed, 19 Feb 2003 13:26:40 +0100
+From: Henrik Persson <nix@socialism.nu>
 To: linux-kernel@vger.kernel.org
-From: Meino Christian Cramer <mccramer@s.netic.de>
-In-Reply-To: <200302191052.47663.baldrick@wanadoo.fr>
-References: <20030219073221.GR29983@holomorphy.com>
-	<20030219.095905.92587466.mccramer@s.netic.de>
-	<200302191052.47663.baldrick@wanadoo.fr>
-X-Mailer: Mew version 3.1 on Emacs 21.2 / Mule 5.0 (SAKAKI)
+Subject: Re: What language has Alan's portaloo changed to?
+In-Reply-To: <1045625090.5611.318.camel@localhost.localdomain>
+References: <Pine.LNX.4.44.0302171812050.15078-100000@twin.uoregon.edu>
+	<001f01c2d761$1fdea640$0201a8c0@pluto>
+	<20030218171832.GC351@lug-owl.de>
+	<1045618881.25795.1.camel@irongate.swansea.linux.org.uk>
+	<1045625090.5611.318.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Subject: Re: 2.5.62 fails to boot, Uncompressing... and then nothing
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Duncan Sands <baldrick@wanadoo.fr>
-Subject: Re: 2.5.62 fails to boot, Uncompressing... and then nothing
-Date: Wed, 19 Feb 2003 10:52:47 +0100
-Message-ID: <200302191052.47663.baldrick@wanadoo.fr>
+On 18 Feb 2003 20:24:48 -0700
+Steven Cole <elenstev@mesatop.com> wrote:
 
-Hi,
+SC> On this side of the pond we sometimes have Homeowners Association
+SC> restrictive covenants.  See the X-files episode where Mulder and Scully
+SC> shack up undercover in a gated community and Mulder gets flak for
+SC> setting up a basketball goal.
 
- yes, indeed, this was the problem!!! (by the way: HURRAY, IT BOOTS!)
+...and then a garbage-monster comes and tries to kill people. Scary.
 
- It seems that loading an "old" config file from the 2.4.*-series
- of linux kernels will WIPE OUT that config items since they are not 
- written back to disk anymore when saving kernel configuartions....
+A bit off topic? :P
 
- Another thing is that make menuconfig fails to write back
- configurations as alternate files into directories owned by root
- and set drwxr-xr-x....but it is able to write into the . directory,
- even if it is set with drwxr-xr-x also...
- 
- But this is only a sideeffect.
-
- Keep Hacking!
- Meino
- 
-
-
-> This is becoming a FAQ!  Did you enable the console in your .config?
-> 
-> CONFIG_VT=y
-> CONFIG_VT_CONSOLE=y
-> 
-> Most likely you chose to compile the input system as a module, which
-> caused the console options to be autohorribly deselected.  Just say 'y'
-> for the input subsystem, at which point the console options will reappear,
-> letting you select them.
-> 
-> I hope this helps,
-> 
-> Duncan.
-> 
+-- 
+Henrik Persson
+e-mail: nix@socialism.nu
+WWW: http://nix.badanka.com            ICQ: 26019058
+PGP-key: http://nix.badanka.com/pgp    PGP-KeyID: 0x43B68116

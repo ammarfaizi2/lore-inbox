@@ -1,51 +1,70 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317401AbSFCPcV>; Mon, 3 Jun 2002 11:32:21 -0400
+	id <S317403AbSFCPsb>; Mon, 3 Jun 2002 11:48:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317402AbSFCPcU>; Mon, 3 Jun 2002 11:32:20 -0400
-Received: from smtpnotes.altec.com ([209.149.164.10]:9994 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S317401AbSFCPcT>; Mon, 3 Jun 2002 11:32:19 -0400
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
+	id <S317405AbSFCPsa>; Mon, 3 Jun 2002 11:48:30 -0400
+Received: from ipd50a1c87.speed.planet.nl ([213.10.28.135]:62518 "HELO
+	emztd2908.com") by vger.kernel.org with SMTP id <S317403AbSFCPs3> convert rfc822-to-8bit;
+	Mon, 3 Jun 2002 11:48:29 -0400
+From: "JOSEPH  EDWARD." <jos_edw@mail.com>
+Reply-To: jos_edw40@mail.com
 To: linux-kernel@vger.kernel.org
-Message-ID: <86256BCD.0055567F.00@smtpnotes.altec.com>
-Date: Mon, 3 Jun 2002 10:29:10 -0500
-Subject: Re: If you want kbuild 2.5, tell Linus
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Date: Mon, 3 Jun 2002 17:46:50 +0200
+Subject: please kindly get back to me
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20020603154829Z317403-22652+8216@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ATTN:   
+I STUMBLED IN TO YOUR CONTACT BY STROCK OF LUCK AFRTER 
+A LONG SEARCH FOR AN HONEST AND TRUST WORTHY PERSON WHO
+COULD HANDLE ISSUE WITH HIGH CONFIDENTIALITY.
+I WAS SO DELIGHTED WHEN I GOT YOUR CONTACT AND I DECIDED 
+TO CONTACT YOU AND SOLICITE FOR YOUR KIND ASSISTANCE.
+I HOPE YOU WILL LET THIS ISSUE TO REMAIN CONFIDENTIAL EVEN
+IF YOU ARE NOT INTERESTED BECAUSE OF MY STATUS.
+I PRESUME THIS MAIL WILL NOT BE A SURPRISE TO YOU.
+I AM AN ACCOUNTANT WITH THE MINISTRY OF MINERAL
+RESOURCES AND ENERGY IN SOUTH AFRICA AND ALSO A MEMBER
+OF CONTRACTS AWARDING COMMITTEE OF THIS MINISTRY UNDER
+SOUTH AFRICA GOVERNMENT.
 
+MANY YEARS AGO, SOUTH AFRICA GOVERNMENT ASKED THIS
+COMMITTEE TO AWARDS CONTRACTS TO FOREIGN FIRMS, WHICH
+I AND 2 OF MY PARTNERS ARE THE LEADER OF THIS
+COMMITTEE, WITH OUR GOOD POSITION , THIS CONTRACRS
+WAS OVER INVOICED TO THE TUNE OF US$25,600,000:00 AS A
 
-Keith Owens <kaos@ocs.com.au> wrote:
+DEAL TO BE BENEFIT BY THE THREE TOP MEMBER OF THIS
+COMMITTEE.
+NOW THE CONTRACTS VALUE HAS BEEN PAID OFF TO THE
+ACTUAL CONTRACTORS THAT EXECUTED THIS JOBS, ALL WE
+WANT NOW IS A TRUSTED FOREIGN PARTNER LIKE YOU THAT WE
 
-<snip>
+SHALL FRONT WITH HIS BANKING ACCOUNT NUMBER TO CLAIM
+THE OVER INFLATED SUM.
+UPON OUR AGREEMEENT TO CARRY ON THIS TRANSACTION WITH
+YOU, THE SAID FUND WILL BE SHARE AS FOLLOWS.
+75% WILL BE FOR US IN SOUTH AFRICA.
+20% FOR USING YOUR ACCOUNT AND OTHER CONTRIBUTION
+THAT MIGHT REQIURED FROM YOU.
+5% IS SET ASIDE FOR THE UP FRONT EXPENCES THAT
+WILL BE ENCOUNTER BY BOTH PARTY TO GET ALL NECESSARY
+DOCUMENTS AND FORMARLITIES THAT WILL JUSTIFY YOU AS
+THE RIGHTFUL OWNER OF THIS FUND.
+IF YOU ARE INTERESTED IN THIS TRANSACTION, KINDLY
+REPLY THIS MASSEGE WITH ALL YOUR PHONE AND FAX
+NUMBERS, TO ENABLE US FURNISH YOU WITH DETAILS AND
+PROCEDURES OF THIS TRANSACTION.
+GOD BLESS YOU
+YOURS FAITHFULLY.
 
->Then tell Linus that you want kbuild 2.5.
->
->Don't tell me, I already know.  Tell Linus, he is the bottleneck.
+JOSEPH EDWARD.
 
-<snip>
-
->It is a sad day when a fully tested and documented system that is
->faster and, above all, more accurate, cannot get into the kernel.
->Linus is judging kbuild 2.5 on its popularity and on personalities, not
->on its technical merits.
-
-<snip>
-
->I thought that Linus's agreement meant something, obviously it
->does not.
-
-<snip>
-
-
-Right, make Linus do what you want by impugning his technical judgment, calling
-him a liar, and asking people to flood his mailbox with complaints.  Sure, THAT
-will work.
 
 
 

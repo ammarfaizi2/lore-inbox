@@ -1,79 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265727AbTF2SW1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 14:22:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265724AbTF2SW1
+	id S265721AbTF2SZt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 14:25:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265725AbTF2SZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 14:22:27 -0400
-Received: from mail.gmx.de ([213.165.64.20]:27585 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265727AbTF2SW0 (ORCPT
+	Sun, 29 Jun 2003 14:25:49 -0400
+Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:40970 "HELO
+	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265721AbTF2SZs convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 14:22:26 -0400
-Date: Sun, 29 Jun 2003 21:36:43 +0300
-From: Dan Aloni <da-x@gmx.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: sysctl and more SIOCSIFNAME (net device rename) inconsistencies
-Message-ID: <20030629183643.GA2270@callisto.yi.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 29 Jun 2003 14:25:48 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: Michael Buesch <fsdeveloper@yahoo.de>
+Subject: Re: IDE-disk spindown fails
+Date: Sun, 29 Jun 2003 20:39:56 +0200
+User-Agent: KMail/1.5.2
+References: <200306291656.32704.fsdeveloper@yahoo.de>
+In-Reply-To: <200306291656.32704.fsdeveloper@yahoo.de>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Message-Id: <200306292039.56161.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The day before yesterday I found that renaming a network 
-device under 2.5 doesn't update sysfs. While trying to 
-figure this out I've found that there's another stuff that 
-don't get updated with the new name: sysctl.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-My system renames one of my cards to ethlan on boot. Later I 
-manually renamed it to another name. Here are the 3 different names 
-that the kernel see for the same network device.
+Sorry, I found out, that it's not a kernel problem.
+It's a problem with the userspace noflushd daemon.
 
-ifconfig, sees the right name (ethlanX):
+On Sunday 29 June 2003 16:56, Michael Buesch wrote:
+> Hi.
+>
+> I have a problem spinning down my Western Digital 80GB harddisk.
+> root@server:~> cat /proc/ide/hdc/model
+> WDC WD800BB-00CAA1
+>
+> Neither hdparm -S nor noflushd is able to spin down this disk.
+>
+> The machine is a very old Pentium 1 machine. It's BIOS doesn't
+> recognize this new (I've bought it a few days ago) harddisk.
+> So I've set this IDE-channel to "none" in the BIOS to avoid
+> very long searches on this channel from BIOS while booting.
+>
+> Reading and writing on the disk works quite fine.
+>
+> /dev/hda is the drive, the system is installed on.
+> It's a very old 2GB Quantum drive.
+> root@server:~> cat /proc/ide/hda/model
+> QUANTUM FIREBALL_TM2110A
+>
+> The BIOS recognizes it and I'm able to spindown it.
+>
+>
+> Does linux depend on the BIOS when spinning down?
+>
+> root@server:~> cat /proc/version
+> Linux version 2.4.21 (mb@lfs) (gcc-Version 3.3.1 20030519 (prerelease)) #2
+> Son Jun 15 13:08:42 CEST 2003
+>
+> If you want me to run any tests on the machine, or if you
+> want some information, I've not given, just ask, please.
 
-    [root@callisto ~]# ifconfig ethlanX
-    ethlanX   Link encap:Ethernet  HWaddr 00:80:AD:00:DB:BC  
-              inet addr:192.168.1.1  Bcast:192.168.1.255  Mask:255.255.255.0
-              BROADCAST MULTICAST  MTU:1500  Metric:1
-              RX packets:2225 errors:0 dropped:0 overruns:0 frame:0
-              TX packets:2984 errors:0 dropped:0 overruns:0 carrier:0
-              collisions:0 txqueuelen:100 
-              RX bytes:472674 (461.5 KiB)  TX bytes:2466241 (2.3 MiB)
-              Interrupt:5 Base address:0xb000 
+- -- 
+Regards Michael Büsch
+http://www.8ung.at/tuxsoft
+ 20:38:10 up  9:47,  2 users,  load average: 0.00, 0.00, 0.00
 
-sysfs, sees the name of the device at module load time (eth0 or eth1):
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-    [root@callisto ~]# ls -l /sys/class/net
-    total 0
-    drwxr-xr-x    3 root     root            0 Jun 29 20:41 eth0
-    drwxr-xr-x    3 root     root            0 Jun 29 20:41 eth1
-    drwxr-xr-x    3 root     root            0 Jun 29 20:41 lo
-    drwxr-xr-x    3 root     root            0 Jun 29 20:41 ppp0
+iD8DBQE+/zJ8oxoigfggmSgRAo5YAJ4pZSWP+P6TIaBPeMZD5/8WywUiMQCfSDhu
+156C96aWSa6ayS3E65WKtzA=
+=FA5h
+-----END PGP SIGNATURE-----
 
-sysctl, sees the name of the device at some point in time
-when the directory was instantiated by the user (ethlan):
-
-    [root@callisto ~]# ls -l /proc/sys/net/ipv4/conf  
-    total 0
-    dr-xr-xr-x    2 root     root            0 Jun 29 21:20 all
-    dr-xr-xr-x    2 root     root            0 Jun 29 21:20 default
-    dr-xr-xr-x    2 root     root            0 Jun 29 21:20 ethinet
-    dr-xr-xr-x    2 root     root            0 Jun 29 21:20 ethlan
-    dr-xr-xr-x    2 root     root            0 Jun 29 21:20 lo
-    dr-xr-xr-x    2 root     root            0 Jun 29 21:20 ppp0
-
-Note that this is also affects sysctl(2), as it uses /proc:
-
-    [root@callisto /home/karrde]# sysctl -a | grep ethlan.tag
-    net.ipv4.conf.ethlan.tag = 0
-
-I think this should be fixed before 2.6. I'm starting to figure out
-about sysfs, but I have no idea how to fix the sysctl part at the 
-moment.
-
--- 
-Dan Aloni
-da-x@gmx.net

@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265306AbTAJRBK>; Fri, 10 Jan 2003 12:01:10 -0500
+	id <S265578AbTAJRGo>; Fri, 10 Jan 2003 12:06:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265457AbTAJRBK>; Fri, 10 Jan 2003 12:01:10 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:9858 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S265306AbTAJRBG>;
-	Fri, 10 Jan 2003 12:01:06 -0500
-Date: Fri, 10 Jan 2003 17:06:25 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*?
-Message-ID: <20030110170625.GE23375@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030110161012.GD2041@holomorphy.com> <1042219147.31848.65.camel@irongate.swansea.linux.org.uk>
+	id <S265587AbTAJRGo>; Fri, 10 Jan 2003 12:06:44 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:6414
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S265578AbTAJRGh>; Fri, 10 Jan 2003 12:06:37 -0500
+Subject: Re: [PATCH 2.5] speedup kallsyms_lookup
+From: Robert Love <rml@tech9.net>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Andi Kleen <ak@suse.de>,
+       Daniel Ritz <daniel.ritz@gmx.ch>, linux-kernel@vger.kernel.org,
+       daniel.ritz@alcatel.ch
+In-Reply-To: <Pine.LNX.4.44.0301101628460.1434-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0301101628460.1434-100000@localhost.localdomain>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042218917.722.15.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1042219147.31848.65.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-3) 
+Date: 10 Jan 2003 12:15:17 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 10, 2003 at 05:19:08PM +0000, Alan Cox wrote:
+On Fri, 2003-01-10 at 11:34, Hugh Dickins wrote:
 
- > Most of the drivers still don't build either.
+> Indeed!  I think that was Andi volunteering :-}
+> But we should let rml defend his wchan.
 
-or still lack 2.4 fixes.
+Well, of course I want to keep it - but I am biased :)
 
- > - The stuff that is destined for the bitbucket is marked in Config and people
- >   agree it should go
+I think its a simple export that gives us a neat feature.  Additionally,
+from the procps perspective, it saves us from having to parse System.map
+for each process.  In fact, it means we do not need a System.map at all
+for any procps functionality.
 
-What's happening with the OSS drivers ?
-I'm still carrying a few hundred KB of changes from 2.4 for those.
-I'm not going to spent a day splitting them up, commenting them and pushing
-to Linus if we're going to be dropping various drivers.
+I guess Linus at least mildly liked it too, since he merged it.
 
- > - It passes Cerberus uniprocessor and smp with/without pre-empt
+But if its such a performance crippling item perhaps it does need to be
+removed (or somehow restricted).
 
-I think this should wait until at least some more of the 2.4 changes
-come forward. Most of those are security issues and the likes, but there
-are a few driver corner cases too.
+I do agree that, if possible, wchan should be kept simple... so, is
+everyone else for the removal of /proc/pid/wchan ? :-(
 
- > Otherwise everyone wil rapidly decide that ".0-pre" means ".0 as in Windows"
- > at which point you've just destroyed your testing base.
+	Robert Love
 
-agreed.
-
- > Given all the new stuff should be in, I'd like to see a Linus the meanie
- > round of updating for a while which is simply about getting all the 2.4 fixes
- > and the 2.5 driver compile bugs nailed, and if it doesn't fix a compile bug
- > or a logic bug it doesn't go in.
-
-Seconded.
-
- > No more "ISAPnP TNG" and module rewrites please
-
-Absolutly. Lets try and get 2.6 out the door _this_ year.
-
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

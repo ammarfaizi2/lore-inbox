@@ -1,114 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbTFXKlw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 06:41:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbTFXKlw
+	id S261936AbTFXKrj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 06:47:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTFXKri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 06:41:52 -0400
-Received: from p164.ats40.donpac.ru ([217.107.128.164]:54430 "EHLO donpac.ru")
-	by vger.kernel.org with ESMTP id S261845AbTFXKlu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 06:41:50 -0400
-Date: Tue, 24 Jun 2003 14:55:54 +0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] correct mail addresses for visws support
-Message-ID: <20030624105554.GF9679@pazke>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Tue, 24 Jun 2003 06:47:38 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32530 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261936AbTFXKr0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 06:47:26 -0400
+Date: Tue, 24 Jun 2003 12:01:31 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>
+Subject: Re: Provide example copy_in_user implementation
+Message-ID: <20030624120131.F6478@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>, torvalds@transmeta.com,
+	kernel list <linux-kernel@vger.kernel.org>,
+	Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>
+References: <20030624100610.GC159@elf.ucw.cz> <20030624111820.D6478@flint.arm.linux.org.uk> <20030624102551.GE159@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cpvLTH7QU4gwfq3S"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Andrey Panin <pazke@donpac.ru>
-X-Spam-Score: -10.2 (----------)
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030624102551.GE159@elf.ucw.cz>; from pavel@suse.cz on Tue, Jun 24, 2003 at 12:25:51PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 24, 2003 at 12:25:51PM +0200, Pavel Machek wrote:
+> On Út 24-06-03 11:18:20, Russell King wrote:
+> > On Tue, Jun 24, 2003 at 12:06:10PM +0200, Pavel Machek wrote:
+> > > This patch adds example copy_in_user implementation (copy_in_user is
+> > > needed for new ioctl32 implementation, all 64bit archs will need
+> > > it)... Please apply,
+> > 
+> > get_user / put_user on byte quantities may be faster than using
+> > copy_from_user/copy_to_user on byte quantities.  Yes, it may be
+> > a generic implementation, but there's no point in purposely making
+> > it inefficient.
+> 
+> Actually, it seems that most architectures do...
+> 
+> static inline unsigned long
+> __copy_from_user(void *to, const void __user *from, unsigned long n)
+> {
+>         if (__builtin_constant_p(n)) {
+>                 unsigned long ret;
+> 
+>                 switch (n) {
+>                 case 1:
+> 
+> 
+> ...so it should be exactly as fast. Ahha, not arm.
 
---cpvLTH7QU4gwfq3S
-Content-Type: multipart/mixed; boundary="ZRyEpB+iJ+qUx0kp"
-Content-Disposition: inline
+Note that ARM isn't 64 bit, I'm not worried about it.  Given that code
+does get cut'n'pasted about the place, I still think its a good idea.
+But its your code...
 
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
---ZRyEpB+iJ+qUx0kp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi all,
-
-this trivial patch changes mailing list address for visws
-subarch support along with some occurences of my old
-email addresses. Please apply.
-
-Best regards.
-
---=20
-Andrey Panin		| Linux and UNIX system administrator
-pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
-
---ZRyEpB+iJ+qUx0kp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="patch-pazke@donpac.ru"
-Content-Transfer-Encoding: quoted-printable
-
-diff -urN -X /usr/share/dontdiff linux-2.5.73.vanilla/MAINTAINERS linux-2.5=
-=2E73/MAINTAINERS
---- linux-2.5.73.vanilla/MAINTAINERS	2003-06-24 08:24:09.000000000 +0400
-+++ linux-2.5.73/MAINTAINERS	2003-06-24 08:26:55.000000000 +0400
-@@ -1628,8 +1628,8 @@
-=20
- SGI VISUAL WORKSTATION 320 AND 540
- P:	Andrey Panin
--M:	pazke@orbita1.ru
--L:	linux-visws@lists.sf.net
-+M:	pazke@donpac.ru
-+L:	linux-visws-devel@lists.sf.net
- W:	http://linux-visws.sf.net
- S:	Maintained for 2.5.
-=20
-diff -urN -X /usr/share/dontdiff linux-2.5.73.vanilla/drivers/ide/ide-pnp.c=
- linux-2.5.73/drivers/ide/ide-pnp.c
---- linux-2.5.73.vanilla/drivers/ide/ide-pnp.c	2003-03-05 11:53:26.00000000=
-0 +0300
-+++ linux-2.5.73/drivers/ide/ide-pnp.c	2003-06-24 08:27:46.000000000 +0400
-@@ -4,7 +4,7 @@
-  * This file provides autodetection for ISA PnP IDE interfaces.
-  * It was tested with "ESS ES1868 Plug and Play AudioDrive" IDE interface.
-  *
-- * Copyright (C) 2000 Andrey Panin <pazke@orbita.don.sitek.net>
-+ * Copyright (C) 2000 Andrey Panin <pazke@donpac.ru>
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-diff -urN -X /usr/share/dontdiff linux-2.5.73.vanilla/drivers/serial/8250_p=
-ci.c linux-2.5.73/drivers/serial/8250_pci.c
---- linux-2.5.73.vanilla/drivers/serial/8250_pci.c	2003-05-27 14:47:40.0000=
-00000 +0400
-+++ linux-2.5.73/drivers/serial/8250_pci.c	2003-06-24 08:28:16.000000000 +0=
-400
-@@ -322,7 +322,7 @@
-  * hope) because it doesn't touch EEPROM settings to prevent conflicts
-  * with other OSes (like M$ DOS).
-  *
-- *  SIIG support added by Andrey Panin <pazke@mail.tp.ru>, 10/1999
-+ *  SIIG support added by Andrey Panin <pazke@donpac.ru>, 10/1999
-  *=20
-  * There is two family of SIIG serial cards with different PCI
-  * interface chip and different configuration methods:
-
---ZRyEpB+iJ+qUx0kp--
-
---cpvLTH7QU4gwfq3S
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE++C46by9O0+A2ZecRAqN9AKC2US8UE0dM4xWx2iruno5knti04ACg4A/X
-BK3aXubd905tp9lovQc4R/Y=
-=Gtqw
------END PGP SIGNATURE-----
-
---cpvLTH7QU4gwfq3S--

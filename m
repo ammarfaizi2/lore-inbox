@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283850AbRK3V4S>; Fri, 30 Nov 2001 16:56:18 -0500
+	id <S283827AbRK3WGi>; Fri, 30 Nov 2001 17:06:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283826AbRK3V4H>; Fri, 30 Nov 2001 16:56:07 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18451 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S283821AbRK3V4B>; Fri, 30 Nov 2001 16:56:01 -0500
-Date: Fri, 30 Nov 2001 13:50:21 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] smarter atime updates
-In-Reply-To: <20011130145223.Q15936@lynx.no>
-Message-ID: <Pine.LNX.4.33.0111301349230.1185-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S283821AbRK3WG3>; Fri, 30 Nov 2001 17:06:29 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:46327
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S283827AbRK3WGO>; Fri, 30 Nov 2001 17:06:14 -0500
+Date: Fri, 30 Nov 2001 14:06:08 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Thomas Hofer <th@monochrom.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Too buggy even for Linux [Was Re: some questions about wedding]
+Message-ID: <20011130140608.C504@mikef-linux.matchmail.com>
+Mail-Followup-To: Thomas Hofer <th@monochrom.at>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <B03298DF-E58A-11D5-A386-00039355CFA6@suespammers.org> <200111301249.fAUCnnP145134@mailbox.univie.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200111301249.fAUCnnP145134@mailbox.univie.ac.at>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 30, 2001 at 01:49:33PM +0100, Thomas Hofer wrote:
+> Anthony DeRobertis wrote (Freitag, 30. November 2001 13:06):
+> > > We'll leave alone for the moment that husband and wife often seem
+> > > to be speaking completely different and unrelated protocols.
+> >
+> > Nah, same protocol, in theory. Just one was implemented by Micro$oft.
+> 
+> Cool. Is it the female-part? Has anyone an exploit?  
+> 
+> Thomas. (Hoping for a DDoS next weekend)
 
-On Fri, 30 Nov 2001, Andreas Dilger wrote:
->
-> Well, just doing a code check of the update_atime() and UPDATE_ATIME()
-> users, and they are all in readlink(), follow_link(), open_namei(),
-> and various fs _readdir() codes.  None of them (AFAICS) depend on the
-> mark_inode_dirty() as a side-effect.  This means it should be safe.
+./mind-altering-drugs
 
-More importantly, _if_ somebody depended on the side effects, they'd have
-been thwarted by the "noatime" mount option anyway, so any such bug would
-not be a new bug.
+But, if you're not careful it'll su to root and write random data to your
+drives, fry your memory, confiscate your computer, and report you to the
+authorities.
 
-		Linus
-
+;)

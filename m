@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276204AbRI1RtA>; Fri, 28 Sep 2001 13:49:00 -0400
+	id <S276209AbRI1R4e>; Fri, 28 Sep 2001 13:56:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276206AbRI1Rsu>; Fri, 28 Sep 2001 13:48:50 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:38159 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S276204AbRI1Rsm>;
-	Fri, 28 Sep 2001 13:48:42 -0400
-Date: Fri, 28 Sep 2001 19:46:43 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        <bcrl@redhat.com>, Andrea Arcangeli <andrea@suse.de>
+	id <S276211AbRI1R4Y>; Fri, 28 Sep 2001 13:56:24 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:19722 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S276208AbRI1R4I>;
+	Fri, 28 Sep 2001 13:56:08 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200109281756.VAA04730@ms2.inr.ac.ru>
 Subject: Re: [patch] softirq performance fixes, cleanups, 2.4.10.
-In-Reply-To: <200109281741.VAA04648@ms2.inr.ac.ru>
-Message-ID: <Pine.LNX.4.33.0109281939280.9790-100000@localhost.localdomain>
+To: mingo@elte.hu
+Date: Fri, 28 Sep 2001 21:56:24 +0400 (MSK DST)
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk, bcrl@redhat.com, andrea@suse.de
+In-Reply-To: <Pine.LNX.4.33.0109281904200.8840-100000@localhost.localdomain> from "Ingo Molnar" at Sep 28, 1 07:31:27 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-On Fri, 28 Sep 2001 kuznet@ms2.inr.ac.ru wrote:
+> what are you trying to argue, that it's incorrect to re-process softirqs
+> if they got activated during the previous pass? I told a number of
+> fundamental reasons
 
-> More seriously, the question is not why these 10% appears, but rather
-> why they _disappeared_ in 2.4.7.
+I did not find them in your mails.
 
-the effects i saw (Ben is not around unfortunately, so i cannot confirm
-neither deny whether there is any correlation between the effects Ben saw
-and the effects i saw) were due to ksoftirqd's generic tendency to
-increase the latency between the issuing of work and the completion of it.
-Increasing ksoftirqd's priority (in fact, setting current->counter = 2
-everytime schedule() is called :-) does not fix this fundamental property
-=> it still causes 'work generators' (processes) to use more CPU time than
-'work completion' (irqs, softirqs). Furthermore, it also increases the
-latency between hardirqs and softirqs.
 
-so my patch makes it sure that work is completed as soon as possible - but
-i've also kept an exit door open. [which you might find insufficient, but
-that i think is up to individual tuning anyway - i think i'm generally
-running faster machines than you, so our perspectives are slightly
-different.]
+> (Lets assume that a loop of 10 still ensures basic safety in situations
+> where external load overloads the system.
 
-[processes are not always work generators, and irqs/softirqs not always do
-work completion, but i think generally they fit nicely into these two
-categories. Eg. the TCP stack often generates new work from softirqs, but
-IMO this does not change the fundamental equation.]
+It does not, evidently. And 1 does not. But 10 is 10 times worse.
 
-	Ingo
 
+> Is your point to make the softirq loop to be sysctl-tunable?
+
+No. My point is to make it correctly eventually.
+
+If you will repeat such attempts to "improve" it each third 2.4.x,
+it will remain broken forever.
+
+
+> show you slow enough systems which can be overloaded via hardirqs alone.)
+
+This problem has been solved ages ago. The only remaining question
+is how to make this more nicely.
+
+
+> I think the technically most reasonable approach is to process softirqs
+> *as soon as possible*,
+...
+> please point out flaws in this thinking.
+
+They are processed as soon as possible.
+
+Ingo, I told net_rx_action() is small do_softirq() restarting not 10,
+but not less than 300 times in row.
+
+If this logic is wrong, you should explain why it is wrong.
+Looping dozen of times may look like cure, but for me it still
+looks rather like steroids.
+
+Alexey

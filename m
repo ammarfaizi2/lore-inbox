@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130779AbRCWNQ6>; Fri, 23 Mar 2001 08:16:58 -0500
+	id <S130873AbRCWOOt>; Fri, 23 Mar 2001 09:14:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130791AbRCWNQj>; Fri, 23 Mar 2001 08:16:39 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:35338 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S130779AbRCWNQb>;
-	Fri, 23 Mar 2001 08:16:31 -0500
-Date: Fri, 23 Mar 2001 14:15:47 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: Modem and sound support question..
-To: jorgp@bartnet.net, linux-kernel@vger.kernel.org
-Message-id: <3ABB4C83.E153C04C@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.7 [en] (WinNT; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S130834AbRCWOOj>; Fri, 23 Mar 2001 09:14:39 -0500
+Received: from athena.intergrafix.net ([206.245.154.69]:7642 "HELO
+	athena.intergrafix.net") by vger.kernel.org with SMTP
+	id <S130831AbRCWOOd>; Fri, 23 Mar 2001 09:14:33 -0500
+Date: Fri, 23 Mar 2001 09:13:52 -0500 (EST)
+From: Admin Mailing Lists <mlist@intergrafix.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2-ac21 
+In-Reply-To: <6054.985313778@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.10.10103230910390.27532-100000@athena.intergrafix.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-JorgP (jorgp@bartnet.net) wrote 
-
-> Lucent Microelectronics 56k WinModem s (rev 01) 
-> VIA Technologies, Inc. VT82C686 [Apollo Super AC97/Audio] (rev 50) 
+> >
+> >It was causing SMP boxes to crash mysteriously after
+> >several hours or days.  Quite a lot of them.  Nobody
+> >was able to explain why, so it was turned off.
 > 
-> are either or both support by 2.4 kernel? If so, what modules need to be 
-> loaded? 
+> I know why it was turned off by default.  The annoying this is that now
+> the *only* way to activate the watchdog is via a boot command.  It is
+> not possible to compile a standard debugging kernel with this option
+> turned on, you have to rely on every user setting the boot options for
+> every kernel.  If it is going to be off by default there should be a
+> way to patch the kernel to make it on by default.
+> 
 
-For VIA audio , load the via82cxxx_audio module.
+i'm troubled by that fact that something the would be used to debug the
+kernel, is something that actually causes crashes. doesn't that kind of
+defeat the purpose..and introduce just another unstable element to the
+problem/crash at hand?
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+-Tony
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+Anthony J. Biacco                       Network Administrator/Engineer
+thelittleprince@asteroid-b612.org       Intergrafix Internet Services
+
+    "Dream as if you'll live forever, live as if you'll die today"
+http://www.asteroid-b612.org                http://www.intergrafix.net
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+

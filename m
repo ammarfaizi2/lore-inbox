@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292483AbSBPSt2>; Sat, 16 Feb 2002 13:49:28 -0500
+	id <S292487AbSBPTBa>; Sat, 16 Feb 2002 14:01:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292485AbSBPStJ>; Sat, 16 Feb 2002 13:49:09 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17229 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S292483AbSBPStE>; Sat, 16 Feb 2002 13:49:04 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: tyson@rwii.com (Tyson D Sawyer), linux-kernel@vger.kernel.org
-Subject: Re: Missed jiffies
-In-Reply-To: <E16c7yN-0006a2-00@the-village.bc.nu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 16 Feb 2002 11:44:30 -0700
-In-Reply-To: <E16c7yN-0006a2-00@the-village.bc.nu>
-Message-ID: <m14rkh5ks1.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S292488AbSBPTBU>; Sat, 16 Feb 2002 14:01:20 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13320 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292487AbSBPTBM>;
+	Sat, 16 Feb 2002 14:01:12 -0500
+Message-ID: <3C6EAC75.5EA27D6A@mandrakesoft.com>
+Date: Sat, 16 Feb 2002 14:01:09 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: esr@thyrsus.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Possible breakthrough in the CML2 logjam?
+In-Reply-To: <20020215213833.J27880@suse.de> <1013810923.807.1055.camel@phantasy> <20020215232832.N27880@suse.de> <3C6DE87C.FA96D1D6@mandrakesoft.com> <20020216095202.M23546@thyrsus.com> <3C6E7C75.A6659D72@mandrakesoft.com> <20020216105219.A31001@thyrsus.com> <3C6E8A15.D5C209B1@mandrakesoft.com> <20020216115739.B32311@thyrsus.com> <3C6E9717.86D66D54@mandrakesoft.com> <20020216123252.B1582@thyrsus.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-
-> > My system looses about 8 seconds every 20 minutes.  This is reported
-> > by ntp and verified by comparing 'date' to 'hwclock --show' and a wall
-> > clock.
-> > 
-> > My system is a x86 Dell laptop with HZ=1024.
-> > 
-> > I am quite certain that the issue is the System Management Interrupt
-> > (SMI).
+"Eric S. Raymond" wrote:
 > 
-> Possibly and if it is you can't really do much about it.
+> Jeff Garzik <jgarzik@mandrakesoft.com>:
+> > Well, let's simmer things down a bit and see what other people have to
+> > say.  Maybe I'm completely off base.
+> 
+> Jeff, I'm not asking "other people".  I'm asking *you*.
+> 
+> You're one of the people Linus says he trusts.  Linus has said,
+> explicitly, to myself and Dave Jones, on this very issue, "get me out
+> of the loop".  My take is that if you switch from opposing CML2 to
+> supporting it, the political wars will probably be about over.
 
-Except usually the truly annoyed can reprogram the chipset so an SMI
-interrupt is not generated.  But I doubt that is practical on a
-laptop. 
+Shit... don't inflate my stock more than it's worth.
 
-> ACPI may help here but lots of vendors implement their ACPI subsystem using
-> I/O cycles to jump into SMM mode so its game over again.
+I'm not giving a pre-blessing to any, but I'm willing to give something
+an honest and fair review.
 
-Hmm.  I wonder if this is a simple transition technique or if it is
-their long term strategy.  
+	Jeff
 
-Now I'm going to research and see if SMM mode is supported on with
-x86-64 and ia64.  With ACPI the case can at least be made that SMM
-mode is not strictly necessary and should be dropped.  I'm dreaming
-but if the processors didn't have this super protected mode, BIOS
-vendors and operating system vendors would be force to cooperate on
-these issues.
 
-Eric
+
+-- 
+Jeff Garzik      | "Why is it that attractive girls like you
+Building 1024    |  always seem to have a boyfriend?"
+MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
+                 |             - BBC TV show "Coupling"

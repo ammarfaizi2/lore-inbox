@@ -1,75 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbTJIFhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 01:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbTJIFhY
+	id S261892AbTJIF3g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 01:29:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbTJIF3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 01:37:24 -0400
-Received: from cpe-024-163-089-053.nc.rr.com ([24.163.89.53]:45068 "HELO
-	cpe-024-163-089-053.nc.rr.com") by vger.kernel.org with SMTP
-	id S261889AbTJIFhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 01:37:23 -0400
-Message-ID: <o3t--5pg$l2ik--6$q$4082@qhl01tyic0>
-From: "" <b26@uymail.com>
-Reply-To: "" <b26@uymail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Microsoft Office For All Non Profit Organizations
-Date: Thu, 09 Oct 03 02:35:53 GMT
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="3_BF7F__89742B2.0"
-X-Priority: 3
-X-MSMail-Priority: Normal
+	Thu, 9 Oct 2003 01:29:36 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:58592 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261892AbTJIF3e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 01:29:34 -0400
+Date: Thu, 9 Oct 2003 11:04:56 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: akpm@osdl.org
+Cc: mingo@redhat.com, linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: [PATCH][2.6-mm] Fix AIO and 4G-4G hang
+Message-ID: <20031009053456.GA11323@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch appears to fix the hangs seen with AIO and 
+4G-4G for me. It ensures that the indirect versions of
+copy_xxx_user are used during aio retries running in
+worker thread context (i.e. access aio issuer's user-space 
+instead of kernel-space).
 
---3_BF7F__89742B2.0
-Content-Type: text/plain;
-Content-Transfer-Encoding: quoted-printable
+Regards
+Suparna
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Labs, India
 
-For All Non Profit Organizations
+-------------------------------------------------------
+diffstat aio-4g4g-fix.patch
 
-50% off on Microsoft Office
+ aio.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletion(-)
 
-Electronic Parts Co., is currently offering a limited supply of 
-Microsoft office small business to all Non Profit Organizations 
-Staff and Personnel at 50% off MSRP. Supplies are limited of this 
-software so you need to act fast!
-
-The software is complete in it's original packaging and ready for shipment=
-.
-
-This offer is being extended to those who call:
-
-         1.888.399.3744 by Friday October 10th, 2003
-
-All software is the latest version of Office and includes:
-
-
-* Microsoft Office Word
-* Microsoft Office Excel
-* Microsoft Office Powerpoint
-* Microsoft Office Outlook 2003 with business contact manager.
-* Microsoft Office Publisher 2003.      
-
-Retail is $399.....................Your Cost is $198.00
-
-
-How to qualify
-
-1.      All software will be available on a first-come first-served basis.=
-
-2.      You must call 1.888.399.3744 by 6 P.M. October 10th.
-3.      You are not obligated in any way.
-
-To take advantage of this offer please call 1.888.399.3744 
-
-
-
-If you have received this email in error please follow the link for
-immediate removal. http://www.wholesalecomputerz.net/remove.html
-
---3_BF7F__89742B2.0--
-
+--- 260t5mm2/fs/aio.c	Fri Sep 19 15:15:39 2003
++++ linux-2.6.0-test5-mm4/fs/aio.c	Tue Oct  7 23:40:22 2003
+@@ -805,18 +814,23 @@ static inline void aio_run_iocbs(struct 
+  * aio_kick_handler:
+  * 	Work queue handler triggered to process pending
+  * 	retries on an ioctx. Takes on the aio issuer's
+- * 	mm context before running the iocbs.
++ * 	mm context before running the iocbs, so that
++ * 	copy_xxx_user operates on the issuer's address
++ * 	space.
+  * Run on aiod's context.
+  */
+ static void aio_kick_handler(void *data)
+ {
+ 	struct kioctx *ctx = data;
++	mm_segment_t oldfs = get_fs();
+ 
++	set_fs(USER_DS);
+ 	use_mm(ctx->mm);
+ 	spin_lock_irq(&ctx->ctx_lock);
+ 	__aio_run_iocbs(ctx);
+ 	unuse_mm(ctx->mm);
+ 	spin_unlock_irq(&ctx->ctx_lock);
++	set_fs(oldfs);
+ }
+ 
+ 

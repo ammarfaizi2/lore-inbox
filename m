@@ -1,135 +1,249 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbTFOEld (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 00:41:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTFOEld
+	id S261868AbTFOEwk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 00:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTFOEwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 00:41:33 -0400
-Received: from iucha.net ([209.98.146.184]:53098 "EHLO mail.iucha.net")
-	by vger.kernel.org with ESMTP id S261852AbTFOEl3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 00:41:29 -0400
-Date: Sat, 14 Jun 2003 23:55:19 -0500
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.71
-Message-ID: <20030615045519.GE25303@iucha.net>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030615014221.GA25303@iucha.net> <Pine.LNX.4.44.0306141849290.20728-100000@home.transmeta.com> <20030615020055.GB25303@iucha.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eGwqSfc1DN4LzNjY"
+	Sun, 15 Jun 2003 00:52:40 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:726 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S261868AbTFOEwf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 00:52:35 -0400
+Date: Sat, 14 Jun 2003 22:06:17 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.5.71-mjb1
+Message-ID: <461570000.1055653577@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030615020055.GB25303@iucha.net>
-X-message-flag: Microsoft: Where do you want to go today? Nevermind, you are coming with us!
-X-gpg-key: http://iucha.net/florin_iucha.gpg
-X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
-User-Agent: Mutt/1.5.4i
-From: florin@iucha.net (Florin Iucha)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patchset contains mainly scalability and NUMA stuff, and anything 
+else that stops things from irritating me. It's meant to be pretty stable, 
+not so much a testing ground for new stuff.
 
---eGwqSfc1DN4LzNjY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
-On Sat, Jun 14, 2003 at 09:00:55PM -0500, Florin Iucha wrote:
-> On Sat, Jun 14, 2003 at 06:58:26PM -0700, Linus Torvalds wrote:
-> > Ok, that does look like the list poisoning. The poisoning uses 0x001001=
-00
-> > as the poison value, and that's the address that oopsed for you:
-> [snip]=20
-> > Florin, does it work for you if you remove the poisoning in=20
-> > <linux/list.h>? (Just search for "POISON" and remove those lines).
-> >=20
-> > Trond, any ideas?
->=20
-> I am compiling now 2.5.71 with Tron's patch
-> (http://bugme.osdl.org/attachment.cgi?id=3D414&action=3Dview). If that
-> does not fix it I will try without the poison.
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.71/patch-2.5.71-mjb1.bz2
 
-Trond's patch fixes the problem. The box has been up an running for
-three hours under normal usage (web, mail, nfs share browsing) it even
-rebooted without problem.
+additional patches that can be applied if desired:
 
-florin
+(these two form the qlogic feral driver)
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.67/2.5.67-mm1/broken-out/linux-isp.patch
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.67/2.5.67-mm1/broken-out/isp-update-1.patch
 
-diff -u --recursive --new-file linux-2.5.71/net/sunrpc/rpc_pipe.c linux-2.5=
-=2E71-fix_rpcpipe/net/sunrpc/rpc_pipe.c
---- linux-2.5.71/net/sunrpc/rpc_pipe.c	2003-06-11 19:24:29.000000000 -0700
-+++ linux-2.5.71-fix_rpcpipe/net/sunrpc/rpc_pipe.c	2003-06-14 16:58:21.0000=
-00000 -0700
-@@ -472,30 +472,37 @@
- rpc_depopulate(struct dentry *parent)
- {
- 	struct inode *dir =3D parent->d_inode;
--	HLIST_HEAD(head);
- 	struct list_head *pos, *next;
--	struct dentry *dentry;
-+	struct dentry *dentry, *dvec[10];
-+	int n =3D 0;
-=20
- 	down(&dir->i_sem);
-+repeat:
- 	spin_lock(&dcache_lock);
- 	list_for_each_safe(pos, next, &parent->d_subdirs) {
- 		dentry =3D list_entry(pos, struct dentry, d_child);
-+		spin_lock(&dentry->d_lock);
- 		if (!d_unhashed(dentry)) {
- 			dget_locked(dentry);
- 			__d_drop(dentry);
--			hlist_add_head(&dentry->d_hash, &head);
--		}
-+			spin_unlock(&dentry->d_lock);
-+			dvec[n++] =3D dentry;
-+			if (n =3D=3D ARRAY_SIZE(dvec))
-+				break;
-+		} else
-+			spin_unlock(&dentry->d_lock);
- 	}
- 	spin_unlock(&dcache_lock);
--	while (!hlist_empty(&head)) {
--		dentry =3D list_entry(head.first, struct dentry, d_hash);
--		/* Private list, so no dcache_lock needed and use __d_drop */
--		__d_drop(dentry);
--		if (dentry->d_inode) {
--			rpc_inode_setowner(dentry->d_inode, NULL);
--			simple_unlink(dir, dentry);
--		}
--		dput(dentry);
-+	if (n) {
-+		do {
-+			dentry =3D dvec[--n];
-+			if (dentry->d_inode) {
-+				rpc_inode_setowner(dentry->d_inode, NULL);
-+				simple_unlink(dir, dentry);
-+			}
-+			dput(dentry);
-+		} while (n);
-+		goto repeat;
- 	}
- 	up(&dir->i_sem);
- }
+Since 2.5.70-mjb2 (~ = changed, + = added, - = dropped)
 
---=20
+Notes: mostly just a merge forward + the *real* fix for proc_lock
 
-"NT is to UNIX what a doughnut is to a particle accelerator."
+Now in Linus' tree:
 
---eGwqSfc1DN4LzNjY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+- numaq_apic_handling				Martin J. Bligh
+- remove_x86_summit				Martin J. Bligh
+- target_cpus					Martin J. Bligh
+- summit_pcimap					Matt Dobson
+- sched_idle					Martin J. Bligh
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE+6/w3NLPgdTuQ3+QRAgTeAJ4royVjBiyhjSYS7qrirUOuTAO6pgCfVHud
-lXE1ATV0WWcFIZBnPvwxk24=
-=BSDn
------END PGP SIGNATURE-----
+New:
++ proc_lock					Martin J. Bligh
+	Fix proc_lock handling and SDET hangs.
++ flow_compile					Everyone and his dog.
+	Fix silly compile error in 71.
++ gdb_fixes					Andrew Morton & Martin J. Bligh
+	Fix up some compile time errors & warnings, and an ordering bug
+~ config_debug					Dave Hansen
+	Make the stupid thing actually work ;-)
++ ppc_kmalloc_bug				paulus
+	Fix wierd ppc kmalloc bug
 
---eGwqSfc1DN4LzNjY--
+Dropped:
+
+- backout_locking				The ghost of patches past
+	I found the real problem with this, and fixed it.
+
+	
+Pending:
+Hyperthreaded scheduler (Ingo Molnar)
+scheduler callers profiling (Anton or Bill Hartner)
+Child runs first (akpm)
+Kexec
+e1000 fixes
+Update the lost timer ticks code
+pidmaps_nodepages (Dave Hansen)
+update membind code (Matt Dobson)
+update config debug (Dave) 
+update percpu_loadavg (Dave)
+object based rmap list-o-lists (Martin / Dave Mc)
+Locking obliteration (Dave Mc)
+
+Present in this patch:
+
+proc_lock					Martin J. Bligh
+	Fix proc_lock handling and SDET hangs.
+
+flow_compile					Everyone and his dog.
+	Fix silly compile error in 71.
+
+early_printk					Dave Hansen / Keith Mannthey
+	Allow printk before console_init
+
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
+
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+schedstat					Rick Lindsley
+	Provide stats about the scheduler under /proc/schedstat
+
+schedstat2					Rick Lindsley
+	Provide more stats about the scheduler under /proc/schedstat
+
+schedstat-scripts				Rick Lindsley
+	Provide some scripts for schedstat analysis under scripts/
+
+sched_tunables					Robert Love
+	Provide tunable parameters for the scheduler (+ NUMA scheduler)
+
+irq_affinity					Martin J. Bligh
+	Workaround for irq_affinity on clustered apic mode systems (eg x440)
+
+partial_objrmap					Dave McCracken
+	Object based rmap for filebacked pages.
+
+kgdb						Andrew Morton
+	The older version of kgdb, synched with 2.5.54-mm1
+
+thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
+	Prep work to reduce kernel stacks to 4K
+	
+interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
+	Create a per-cpu interrupt stack.
+
+stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
+	Check for kernel stack overflows.
+
+4k_stack            (4K stacks pt 4)		Dave Hansen
+	Config option to reduce kernel stacks to 4K
+
+4k_stacks_vs_kgdb				Dave Hansen
+	Fix interaction between kgdb and 4K stacks
+
+stacks_from_slab				William Lee Irwin
+	Take kernel stacks from the slab cache, not page allocation.
+
+thread_under_page				William Lee Irwin
+	Fix THREAD_SIZE < PAGE_SIZE case
+
+percpu_loadavg					Martin J. Bligh
+	Provide per-cpu loadaverages, and real load averages
+
+spinlock_inlining				Andrew Morton & Martin J. Bligh
+	Inline spinlocks for profiling. Made into a ugly config option by me.
+
+lockmeter					John Hawkes / Hanna Linder
+	Locking stats.
+
+reiserfs_dio					Mingming Cao
+	DIO for Reiserfs
+
+sched_interactive				Ingo Molnar
+	Bugfix for interactive scheduler
+
+kgdb_cleanup					Martin J. Bligh
+	Stop kgdb renaming schedule to do_schedule when it's not even enabled
+
+acenic_fix					Martin J. Bligh
+	Fix warning in acenic driver
+
+local_balance_exec				Martin J. Bligh
+	Modify balance_exec to use node-local queues when idle
+
+tcp_speedup					Martin J. Bligh
+	Speedup TCP (avoid double copy) as suggested by Linus
+
+disable preempt					Martin J. Bligh
+	I broke preempt somehow, temporarily disable it to stop accidents
+
+ppc64 fixes					Anton Blanchard
+	Various PPC64 fixes / updates
+
+numameminfo fix					Martin J. Bligh
+	Correct /proc/meminfo.numa for zholes_size.
+
+config_debug					Dave Hansen
+	Make '-g' for the kernel a config option
+
+akpm_bear_pit					Andrew Morton
+	Add a printk for some buffer error I was hitting
+
+32bit_dev_t					Andries Brouwer
+	Make dev_t 32 bit
+
+dynamic_hd_struct				Badari Pulavarty
+	Allocate hd_structs dynamically
+
+lotsa_sds					Badari Pulavarty
+	Create some insane number of sds
+
+iosched_hashes					Badari Pulavarty
+	Twiddle with the iosched hash tables for fun & profit
+
+per_node_idt					Zwane Mwaikambo
+	Per node IDT so we can do silly numbers of IO-APICs on NUMA-Q
+
+config_numasched				Dave Hansen
+	Turn NUMA scheduler into a config option
+
+lockmeter_tytso					Ted Tso
+	Fix lockmeter
+
+aiofix2						Mingming Cao
+	fixed a bug in ioctx_alloc()
+
+config_irqbal					Keith Mannthey
+	Make irqbalance a config option
+
+fs_aio_1_retry					Suparna Bhattacharya
+	Filesystem aio. Chapter 1
+
+fs_aio_2_read					Suparna Bhattacharya
+	Filesystem aio. Chapter 2
+
+fs_aio_3_write					Suparna Bhattacharya
+	Filesystem aio. Chapter 3
+
+fs_aio_4_down_wq				Suparna Bhattacharya
+	Filesystem aio. Chapter 4
+
+fs_aio_5_wrdown_wq				Suparna Bhattacharya
+	Filesystem aio. Chapter 5
+
+fs_aio_6_bread_wq				Suparna Bhattacharya
+	Filesystem aio. Chapter 6
+
+fs_aio_7_ext2getblk_wq				Suparna Bhattacharya
+	Filesystem aio. Chapter 7
+
+fs_aio_8_down_wq-ppc64				Suparna Bhattacharya
+	Filesystem aio. Chapter 8
+
+fs_aio_9_down_wq-x86_64				Suparna Bhattacharya
+	Filesystem aio. Chapter 9
+
+ppc_kmalloc_bug					paulus
+	Fix wierd ppc kmalloc bug
+
+-mjb						Martin J. Bligh
+	Add a tag to the makefile
+

@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282920AbRLQWN0>; Mon, 17 Dec 2001 17:13:26 -0500
+	id <S282917AbRLQWNG>; Mon, 17 Dec 2001 17:13:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282919AbRLQWNR>; Mon, 17 Dec 2001 17:13:17 -0500
-Received: from d-dialin-1078.addcom.de ([62.96.163.118]:25582 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S282920AbRLQWNM>; Mon, 17 Dec 2001 17:13:12 -0500
-Date: Mon, 17 Dec 2001 23:13:21 +0100 (CET)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: <kai@vaio>
-To: Kevin Curtis <kevin.curtis@farsite.co.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: pci_enable_device reports IRQ routing conflict
-In-Reply-To: <7C078C66B7752B438B88E11E5E20E72E41A1@GENERAL.farsite.co.uk>
-Message-ID: <Pine.LNX.4.33.0112172228350.1088-100000@vaio>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282919AbRLQWM4>; Mon, 17 Dec 2001 17:12:56 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:30992 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S282917AbRLQWMl>; Mon, 17 Dec 2001 17:12:41 -0500
+Date: Mon, 17 Dec 2001 22:12:29 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Ahmed, Zameer" <Zameer.Ahmed@gs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Turning off nagle algorithm in 2.2.x and 2.4.x kernels?
+Message-ID: <20011217221229.B6418@flint.arm.linux.org.uk>
+In-Reply-To: <FBC7494738B7D411BD7F00902798761908BFF190@gsny49e.ny.fw.gs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <FBC7494738B7D411BD7F00902798761908BFF190@gsny49e.ny.fw.gs.com>; from Zameer.Ahmed@gs.com on Mon, Dec 17, 2001 at 04:03:15PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Dec 2001, Kevin Curtis wrote:
-
-> However when I call pci_enable_device for the second card I get the
-> following kernel log message:
+On Mon, Dec 17, 2001 at 04:03:15PM -0500, Ahmed, Zameer wrote:
+> Hi,
+> 	Is there a way to turn off nagle compression in the kernel for 2.2.x
+> and 2.4.x kernels? For the same custom app used under Solaris and Linux.
+> Turning off nagle algorithm boosted perf on Solaris, I tried commenting out
 > 
-> Dec 17 15:06:37 minion kernel: IRQ routing conflict for 00:0b.0, have irq 9,
-> want irq 5
+> #bool 'IP: Disable NAGLE algorithm (normally enabled)' CONFIG_TCP_NAGLE_OF
+> 
+> from the net/ipv4/Config.in 2.2.19 kernel and still the degradation in
+> network performance for packts in midsize persists
+> I tried the 2.4.16 kernel. This gave me very slight improvement, but not
+> quite what is expected.
 
-This means that config space (supposedly set up by the BIOS) reports IRQ 9 
-for the device, but the IRQ router really routes it to IRQ 5.
+Erm, commenting out a configure option to turn something off doesn't turn
+that item off.  It just leaves you without the question (and the feature
+remains on).
 
-> The call didn't return an error, so I assume this was a non-fatal.  
+You want to say 'y' to this option to disable nagle.
 
-Well, the kernel currently ignores its knowledge about the router and 
-trusts the BIOS. Which most likely means that the IRQ won't work.
-
-(Note that in general you should access dev->irq only after calling 
-pci_enable_device())
-
-> Has anyone got any ideas where to look to debug this?
-
-#define DEBUG
-
-in arch/i386/kernel/pci-i386.h will give some debugging output on the next 
-boot, which should help.
-
---Kai
-
-
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

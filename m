@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131224AbRA0Nll>; Sat, 27 Jan 2001 08:41:41 -0500
+	id <S129169AbRAZBUH>; Thu, 25 Jan 2001 20:20:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131613AbRA0Nlc>; Sat, 27 Jan 2001 08:41:32 -0500
-Received: from thick.mail.pipex.net ([158.43.192.95]:40924 "HELO
-	thick.mail.pipex.net") by vger.kernel.org with SMTP
-	id <S131224AbRA0NlW>; Sat, 27 Jan 2001 08:41:22 -0500
-To: linux-kernel@vger.kernel.org
-From: Trevor-Hemsley@dial.pipex.com (Trevor Hemsley)
-Date: Wed, 24 Jan 2001 23:14:25
-Subject: Re: display problem with matroxfb
-X-Mailer: ProNews/2 V1.51.ib103
+	id <S130943AbRAZBT6>; Thu, 25 Jan 2001 20:19:58 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:36825 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129169AbRAZBTr>; Thu, 25 Jan 2001 20:19:47 -0500
+Message-ID: <3A70D270.63A8631D@uow.edu.au>
+Date: Fri, 26 Jan 2001 12:27:12 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010127134127Z131224-460+582@vger.kernel.org>
+To: kuznet@ms2.inr.ac.ru
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [UPDATE] Zerocopy patches, against 2.4.1-pre10
+In-Reply-To: <3A6F8415.8EC5DB23@uow.edu.au> from "Andrew Morton" at Jan 25, 1 04:45:00 am <200101251929.WAA10001@ms2.inr.ac.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Jan 2001 21:57:56, "Petr Vandrovec" <VANDROVE@vc.cvut.cz> 
-wrote:
+kuznet@ms2.inr.ac.ru wrote:
+> 
+> Hello!
+> 
+> > no problems.  I simply mounted an NFS server with rsize=wsize=8192
+> > and read a few files - I assume this is sufficient?
+> 
+> This is orthogonal.
+> 
+> Only TCP uses this and you need not to do something special
+> to test it. Any TCP connection going through 3c tests it.
 
-> you do not have to specify vesa,pixclock,hslen and vslen, as you leave
-> them on defaults. 
+OK.
 
-Talking of defaults for matroxfb, would you consider limiting the fv: 
-value default to something reasonable that'll work on all monitors? It
-took me several recompiles/reboots to get a setting that would not put
-my monitor into auto-powerdown. If you defaulted to fv:60 then it 
-would work on 99.9% of monitors and then people could override that 
-upwards. I have a Philips 201B 21" monitor and was using 
+> > rather than using the IS_CYCLONE stuff.  Then we can add cards
+> > individually as confirmation comes in.
+> 
+> Seems, you meaned opposite way. To add this flag to all the chips,
+> except for several, and to remove it as soon as it is "confirmed"
+> that it does not work. 8)
 
-append="video=matrox:vesa:400"
+errr..  Well that certainly ensures we'll hear about it quickly :)
 
-and this was setting too high a vertical refresh rate for the monitors
-capabilities. Adding fv:85 lets it work. The card is a Matrox 
-Millennium G200 8MB SDRAM.
+Problem is, some of these NICs are very rare, and the driver could
+be broken for quite some time before we hear about it.  Months.
 
-trevor@trevor4:/usr/src/linux > grep ^C .config|grep FB
-CONFIG_FB=y            
-CONFIG_FB_MATROX=y     
-CONFIG_FB_MATROX_G100=y
-CONFIG_FBCON_ADVANCED=y
-CONFIG_FBCON_CFB8=y    
-CONFIG_FBCON_CFB16=y   
-CONFIG_FBCON_CFB24=y   
-CONFIG_FBCON_CFB32=y   
-CONFIG_FBCON_FONTS=y   
+I think what I'd prefer to do is this:
 
--- 
-Trevor Hemsley, Brighton, UK.
-Trevor-Hemsley@dial.pipex.com
+In vortex_close() we _know_ whether the NIC is doing hardware checksumming,
+so we can add:
+
+	if (rx_csumhits && (dev->drv_flags&HAS_HWCKSM) == 0)
+		printk("this NIC supports hardware checksums!  Please see <some URL>")
+
+This will work well - people are quite helpful.
+
+> Also, please, reset the state. Until this snapshot, hw checksumming
+> did not work due to bugs in netfilter, so that all the reports about
+> failures to checksum are dubious.
+
+That's good to hear.
+
+It's possible that some devices in the device table are marked
+as Cyclone when in fact they're Boomerangs.  It's pretty confusing.
+So these will support scatter/gather but not checksumming.
+
+Using rx_csumhits should be reliable.  It's a global counter at
+present - I'll make it per-device.
+
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

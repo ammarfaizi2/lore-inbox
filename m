@@ -1,54 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264898AbTF3PKC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 11:10:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264943AbTF3PKC
+	id S264943AbTF3PXU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 11:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264958AbTF3PXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 11:10:02 -0400
-Received: from dm5-224.slc.aros.net ([66.219.220.224]:32129 "EHLO cyprus")
-	by vger.kernel.org with ESMTP id S264898AbTF3PKA (ORCPT
+	Mon, 30 Jun 2003 11:23:20 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:26823 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264943AbTF3PXR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 11:10:00 -0400
-Message-ID: <3F005621.1060708@aros.net>
-Date: Mon, 30 Jun 2003 09:24:17 -0600
-From: Lou Langholtz <ldl@aros.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Michael Frank <mflt1@micrologica.com.hk>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
-Subject: Re: 2.5.73-mm1 nbd: boot hang in add_disk at first call from nbd_init
-References: <200306271943.13297.mflt1@micrologica.com.hk>
-In-Reply-To: <200306271943.13297.mflt1@micrologica.com.hk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 30 Jun 2003 11:23:17 -0400
+Date: Mon, 30 Jun 2003 08:37:25 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org, linux-ppp@vger.kernel.org
+Subject: Re: [BUG]:   problem when shutting down ppp connection since 2.5.70
+Message-Id: <20030630083725.25ffb48a.shemminger@osdl.org>
+In-Reply-To: <3F004302.4070907@nortelnetworks.com>
+References: <3EFFA1EA.7090502@nortelnetworks.com>
+	<16128.7306.58928.879567@cargo.ozlabs.ibm.com>
+	<3F004302.4070907@nortelnetworks.com>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Frank wrote:
+On Mon, 30 Jun 2003 10:02:42 -0400
+Chris Friesen <cfriesen@nortelnetworks.com> wrote:
 
->Changes were recently made to the nbd.c in 2.5.73-mm1
->
->When using nbd.c ex 2.5.73 boot OK. 
->acpi=off no effect
->
->----------------------------
->dmesg using nbd.c ex 2.5.73:
->
->loop: loaded (max 8 devices)
->anticipatory scheduling elevator
->
->(Using nbd.c ex 2.5.73-mm1
-> nbd: registered device at major 43
->  hang) . . .
->
-Thank you for reporting this. A few others have also found this same 
-problem and a patch that fixes this has been submitted to Andrew. I 
-haven't had the chance yet to figure out what release of mm this fix may 
-have made it into. The reason for this problem in the first place was 
-that the patch which caused the problem was tested against 2.5.73 then 
-applied into Andrew's 2.5.73-mm1 release. Some other changes that made 
-it into 2.5.73-mm1 (in a non-nbd system that also hadn't been in 2.5.73 
-yet) interacted with the nbd change in the un-expected way you've seen. 
-If there are still problems you can track back to nbd please let me know.
+> Paul Mackerras wrote:
+> 
+> > Is this the user-mode pppoe or the in-kernel pppoe?  IOW, are you
+> > using the pppoe channel type, or do you have the usermode program that
+> > runs pppd behind a pty?
+> 
+> I believe its the Roaring Penguin usermode one.  I'm fairly sure PPPOE 
+> isn't enabled in the kernel.  I'm at work now, so it'll have to wait 
+> till this evening to make sure.
+> 
+> > And, do you have any TCP connections open over the link when you take
+> > it down?
+> 
+> On at least some of the occasions there should have been no connections 
+> open as the machine had just booted and the first thing I did after X 
+> came up was to shutdown adsl.
+> 
+> > What version of pppd is it?
+> 
+> Not sure--will check later.  Pretty sure its Mandrake 9 default.
+> 
+> > Has anyone been able to replicate this without using pppoe?  The type
+> > of channel shouldn't make any difference, but I just tried ppp over a
+> > pty and it worked fine (except that Deflate is broken, but that's
+> > another problem).
+> 
+> Note that I can only reliably reproduce it if the dsl connection is 
+> brought up at init time.  If I don't bring it up automatically at init 
+> but manually bring it up later, the problem doesn't seem to occur.
+> 
+> Chris
 
+PPP did have problems keeping track of the tty until the latest round
+if fixes (2.5.73+).  The ppp_async module wasn't using owner fields as
+reqired.
+
+
+ Also, see if bringing down the ppp connection with ifconfig
+before attempting the rmmod helps. i.e.
+	ifconfig ppp0 down

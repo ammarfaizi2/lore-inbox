@@ -1,44 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265047AbUFAN1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265039AbUFAN3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265047AbUFAN1e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 09:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265045AbUFAN1e
+	id S265039AbUFAN3c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 09:29:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265037AbUFAN3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 09:27:34 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:36039 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S265037AbUFAN1a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 09:27:30 -0400
-Date: Tue, 1 Jun 2004 15:27:12 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] explicitly mark recursion count
-Message-ID: <20040601132712.GB14572@wohnheim.fh-wedel.de>
-References: <20040525211522.GF29378@dualathlon.random> <20040526103303.GA7008@elte.hu> <20040526125014.GE12142@wohnheim.fh-wedel.de> <20040526125300.GA18028@devserv.devel.redhat.com> <20040526130047.GF12142@wohnheim.fh-wedel.de> <20040526130500.GB18028@devserv.devel.redhat.com> <20040526164129.GA31758@wohnheim.fh-wedel.de> <20040601055616.GD15492@wohnheim.fh-wedel.de> <20040601060205.GE15492@wohnheim.fh-wedel.de> <20040601122013.GA10233@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040601122013.GA10233@elf.ucw.cz>
-User-Agent: Mutt/1.3.28i
+	Tue, 1 Jun 2004 09:29:32 -0400
+Received: from mail2.asahi-net.or.jp ([202.224.39.198]:43498 "EHLO
+	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
+	id S265036AbUFAN3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 09:29:15 -0400
+Message-ID: <40BC84A2.5030608@ThinRope.net>
+Date: Tue, 01 Jun 2004 22:29:06 +0900
+From: Kalin KOZHUHAROV <kalin@ThinRope.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
+X-Accept-Language: bg, en, ja, ru, de
+MIME-Version: 1.0
+To: Marco Marabelli <mm@smrt.it>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: probls upgrading ram on a 2.4 linuxbox
+References: <20040601094948.20990.qmail@apollo.survival>
+In-Reply-To: <20040601094948.20990.qmail@apollo.survival>
+X-Enigmail-Version: 0.83.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 June 2004 14:20:13 +0200, Pavel Machek wrote:
+Marco Marabelli wrote:
 > 
-> Perhaps some other format of comment should be introduced? Will not
-> this interfere with linuxdoc?
+> 
+> 
+> 
+> On Tuesday 01 June 2004 12:19, Marco Marabelli wrote:
+> 
+>> > Hi all!
+>> > As subject I upgraded my box from 1GB ram to 2GB ram; bios sees all
+>> >new memory but kernel doesn'load (error in memory stack).
+> 
+> 
+>> Details??
+> 
+> 
+>> > I have the kernel set with CONFIG_HIGHMEM4G.
+>> > I googled everywhere but didn't find any similar problem.
+>> > Anyone has a suggestion?
+>> > linux 2.4.18 (slackware) on 2x1.6 athlon processor, ram266Mhz no ECC.
+Probably CONFIG_HIGHMEM4G is notrelated...
 
-I'm open for suggestions. ;)
+> Unfortunately I didn't note exactly the error output, I will try tonight 
+> again (it's a server on production), but:
+> - with 2GB, after lilo black screen ...
+> - with 1.5GB, the kernel stops after detecting SCSI drive, with a long 
+> output that explaned a memory error in stack ...
+> - obviously, rebooting with 1GB everything works ...
+I bet it is faulty RAM (hardware bug). To be sure run memtest http://memtest.org/ for a few hours if possible
+Try running with 1GB, but with the new DIMM (t.e. just exchange the DIMMs).
+If this works, put now the old DIMM back, but on different DIMM slot and try memtest.
 
-Jörn
+Report back.
+
+> in a few hours I can report in ML the details ... (waiting for offices 
+> to close)
+> thanks in advice,
+> Marco Marabelli
+
+Kalin.
 
 -- 
-Data dominates. If you've chosen the right data structures and organized
-things well, the algorithms will almost always be self-evident. Data
-structures, not algorithms, are central to programming.
--- Rob Pike
+||///_ o  *****************************
+||//'_/>     WWW: http://ThinRope.net/
+|||\/<" 
+|||\\ ' 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265210AbUAYUMk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 15:12:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265218AbUAYUMk
+	id S265224AbUAYUXr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 15:23:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265243AbUAYUXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 15:12:40 -0500
-Received: from hoemail1.lucent.com ([192.11.226.161]:21476 "EHLO
-	hoemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S265210AbUAYUMj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 15:12:39 -0500
+	Sun, 25 Jan 2004 15:23:46 -0500
+Received: from smtp-out2.blueyonder.co.uk ([195.188.213.5]:59411 "EHLO
+	smtp-out2.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S265224AbUAYUVx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 15:21:53 -0500
+Message-ID: <4014255F.9070006@blueyonder.co.uk>
+Date: Sun, 25 Jan 2004 20:21:51 +0000
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040118
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16404.8968.349900.566999@gargle.gargle.HOWL>
-Date: Sun, 25 Jan 2004 15:11:52 -0500
-From: "John Stoffel" <stoffel@lucent.com>
-To: Sid Boyce <sboyce@blueyonder.co.uk>
-Cc: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.2-rc1-mm2 kernel oops
-In-Reply-To: <4013D0AA.8060906@blueyonder.co.uk>
-References: <4013D0AA.8060906@blueyonder.co.uk>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 Jan 2004 20:22:14.0372 (UTC) FILETIME=[EB8D2240:01C3E380]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Sid> Andrew Morton wrote:
-Sid> Sid Boyce <sboyce@xxxxxxxxxxxxxxxx> wrote:
->>> 
->>> I get this on bootup, Athlon XP2200+
->>> =====================================
->>> Linux version 2.6.2-rc1-mm2 (root@barrabas) (gcc version 3.3.1 (SuSE
->>> ...
->>> EIP is at test_wp_bit+0x36/0x90
+> Adrian Bunk wrote:
+> On Sun, Jan 25, 2004 at 03:14:51PM +0000, Sid Boyce wrote:
+>  >> Linus Torvalds wrote:
+>  > > > Problems with the exception table sorting?
+>  > > >
+>  > > > Does plain 2.6.2-rc1 work?
+>  >> 2.6.2-rc1 works fine.
+> 
+>  > Could you back out ("patch -p1 -R < ..." or manually remove the lines)
+>  > the patch below and retry 2.6.2-rc1-mm2?
+> 
+> 
+> 
+>  > TIA
+>  > Adrian
+> 
+> 
+>  > --- 25/Makefile~use-funit-at-a-time 2004-01-14 00:56:05.000000000 -0800
+>  > +++ 25-akpm/Makefile 2004-01-14 00:56:05.000000000 -0800
+>  > @@ -445,6 +445,10 @@ ifdef CONFIG_DEBUG_INFO
+>  > CFLAGS += -g
+>  > endif
+> 
+>  > +# Enable unit-at-a-time mode when possible. It shrinks the
+>  > +# kernel considerably.
+>  > +CFLAGS += $(call check_gcc,-funit-at-a-time,)
+>  > +
+>  > # warn about C99 declaration after statement
+>  > CFLAGS += $(call check_gcc,-Wdeclaration-after-statement,)
 
->> oh crap, why does this thing keep breaking? Please send your .config
->> over,
->> thanks.
+I commented out the line below. 2.6.2-rc1-mm3 is now up and running, 
+thanks.
 
-Sid> Linus aslso asked if 2.6.2-rc1 work -- I shall build it
-Sid> shortly. I also get the same error with 2.6.2-rc1-mm3.
+CFLAGS += $(call check_gcc,-funit-at-a-time,)
 
-It doesn't work for me here, I started with 2.6.2-rc1 and moved up
-through mm1 and mm3, all either hind on boot (after the uncompressing
-message) or crashed with the test_wp_bit Oops that seems to be going
-around.
+Regards
+Sid.
 
-2.6.1-mm4 is the last stable version that works for me.
 
-John
-   John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
-	 stoffel@lucent.com - http://www.lucent.com - 978-952-7548
+
+
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+Linux Only Shop.

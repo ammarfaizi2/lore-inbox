@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261620AbTDBVsQ>; Wed, 2 Apr 2003 16:48:16 -0500
+	id <S263164AbTDBVns>; Wed, 2 Apr 2003 16:43:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263168AbTDBVsQ>; Wed, 2 Apr 2003 16:48:16 -0500
-Received: from 66-133-183-62.br1.fod.ia.frontiernet.net ([66.133.183.62]:60358
-	"EHLO www.duskglow.com") by vger.kernel.org with ESMTP
-	id <S261620AbTDBVsP>; Wed, 2 Apr 2003 16:48:15 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Russell Miller <rmiller@duskglow.com>
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: subsystem crashes reboot system?
-Date: Wed, 2 Apr 2003 15:51:04 -0600
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <200304021149.36511.rmiller@duskglow.com> <20030402135104.4b1acadf.akpm@digeo.com>
-In-Reply-To: <20030402135104.4b1acadf.akpm@digeo.com>
+	id <S263165AbTDBVns>; Wed, 2 Apr 2003 16:43:48 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:44048 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S263164AbTDBVnr>; Wed, 2 Apr 2003 16:43:47 -0500
+Date: Wed, 2 Apr 2003 22:55:09 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Antonino Daplas <adaplas@pol.net>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr <vandrove@vc.cvut.cz>
+Subject: Re: [Linux-fbdev-devel] [PATCH]: EDID parser
+In-Reply-To: <1049298087.1993.54.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0304022245520.2488-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200304021551.04659.rmiller@duskglow.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any chance of making the dying thread sleep just long enough for syslogd to 
-write it out to the file, then panic?  Since it's an assertion, we have a 
-little more leeway then in a page fault OOPS, for example.
 
---Russell
+> James,
+> 
+> Here's a revised patch.  I was able to receive source code from SciTech
+> (c/o Kendall Bennett) which allowed me to fix bugs and complete the
+> parser.  It's probably around 90-95% complete in terms of basic parsing.
+> 
+> It also fixes memory leaks which was present in the old patch.
 
-On Wed April 2 2003 3:51 pm, Andrew Morton wrote:
-> Russell Miller <rmiller@duskglow.com> wrote:
-> > Since this was an assertion that failed, one would think that bringing
-> > the system down automatically in an orderly - then, if that fails,
-> > disorderly - fashion would be possible.
->
-> The way to handle this is to make arch/i386/kernel/traps.c:die() optionally
-> call panic() rather than do_exit().
->
-> It makes sense.  It does mean that we now have zero chance of the
-> diagnostic info making it to the system logs.
+Let really good. I applied it to my local tree but haven't passed it to BK 
+fbdev yet. The only thing I like to see changed is get_EDID. At present it 
+accepts a struct pci_dev. Now for generic support for the intel platform 
+we can get this from the BIOS. You already have a patch that does this. 
+It doesn't need a struct pci_dev in this case. It is possible to get this 
+info from the i2c bus but I never seen any drivers do this. What data would
+we have to pass in get the EDID inforamtion? So the question is how 
+generic will get_EDID end up being or will we have to have driver specfic 
+hooks since I don't pitcure i2c approaches being the same for each video 
+card. Petr didn't you attempt this with the matrox driver at one time?
+
 

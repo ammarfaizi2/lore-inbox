@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310163AbSCFVC2>; Wed, 6 Mar 2002 16:02:28 -0500
+	id <S310179AbSCFVGO>; Wed, 6 Mar 2002 16:06:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310179AbSCFVCJ>; Wed, 6 Mar 2002 16:02:09 -0500
-Received: from rwcrmhc54.attbi.com ([216.148.227.87]:6539 "EHLO
-	rwcrmhc54.attbi.com") by vger.kernel.org with ESMTP
-	id <S310178AbSCFVBu>; Wed, 6 Mar 2002 16:01:50 -0500
-From: "Guillaume Boissiere" <boissiere@attbi.com>
-To: Mike Fedyk <mfedyk@matchmail.com>, Robert Love <rml@tech9.net>
-Date: Wed, 6 Mar 2002 16:01:31 -0500
+	id <S310203AbSCFVGF>; Wed, 6 Mar 2002 16:06:05 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:46347 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S310194AbSCFVFu>;
+	Wed, 6 Mar 2002 16:05:50 -0500
+Date: Wed, 6 Mar 2002 17:24:12 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Colin Walters <walters@debian.org>, <linux-kernel@vger.kernel.org>,
+        <opensource@cis.ohio-state.edu>
+Subject: Re: [opensource] Re: Petition Against Official Endorsement of
+ BitKeeper by Linux Maintainers
+In-Reply-To: <Pine.LNX.4.44.0203061158440.940-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.44L.0203061723040.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Subject: Re: [STATUS 2.5]  March 6, 2002
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3C863D5B.10226.23FAF78C@localhost>
-In-Reply-To: <20020306190249.GB342@matchmail.com>
-In-Reply-To: <1015446625.1482.11.camel@icbm>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 6 Mar 2002, Davide Libenzi wrote:
+> On 6 Mar 2002, Colin Walters wrote:
+>
+> > That being said, I personally will probably start getting more involved
+> > with arch.  Hacking on a verison control system looks like fun.
+>
+> It is fun. I would not be surprised if after all this noise a XCVS project
+> would start. I understand what the goal of your petition was guys, but
 
-On 6 Mar 2002 at 15:30, Robert Love wrote:
+> [snip] ... you cannot blame someone that uses the better tool
 
-> On Wed, 2002-03-06 at 14:02, Mike Fedyk wrote:
-> 
-> > > o Beta        Fix long-held locks for low scheduling latency  (Andrew Morton, 
-> > > etc.)
-> > 
-> > IIRC, LL isn't compatible with preempt, so maybe this item should be removed?
-> 
-> Agreed.  It isn't "incompatible" per se but it is certainly not the
-> intention anymore.  With kernel preemption, we plan to cleanly tackle
-> the lock hold times.
-> 
-> But maybe that is what the above means ... not "low-latency" per se but
-> the general reduction in lock hold times and improvement of algorithms. 
-> This is something Andrew, myself, and others are working on.  It is the
-> follow up work to preempt-kernel.
+Bitkeeper has raised the bar, I hope the free version control
+folks will do their best trying to jump to the new level  ;)
 
-Yes, this is what the above means: reducing lock hold times in the 
-appropriate places.  Robert, I'll add you name for this item too, 
-since you are working on this with Andrew.  It will make it clearer 
-that it is not just referring to the old "low-latency" patch.
+regards,
 
--- Guillaume
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

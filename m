@@ -1,55 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUGHVXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264213AbUGHVcK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUGHVXE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 17:23:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUGHVXE
+	id S264213AbUGHVcK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 17:32:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbUGHVcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 17:23:04 -0400
-Received: from fw.osdl.org ([65.172.181.6]:6832 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261239AbUGHVXB (ORCPT
+	Thu, 8 Jul 2004 17:32:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2489 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263640AbUGHVcF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 17:23:01 -0400
-Date: Thu, 8 Jul 2004 14:21:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm6: system hang with KAMix on dual Opteron w/ NUMA
-Message-Id: <20040708142153.60c2cb69.akpm@osdl.org>
-In-Reply-To: <200407082324.55181.rjwysocki@sisk.pl>
-References: <200407082324.55181.rjwysocki@sisk.pl>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 8 Jul 2004 17:32:05 -0400
+Date: Thu, 8 Jul 2004 17:31:51 -0400
+From: Bill Nottingham <notting@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: breed@users.sourceforge.net, fabrice@bellet.info
+Subject: [PATCH] fix airo oops-on-removal
+Message-ID: <20040708213151.GE13918@nostromo.devel.redhat.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, breed@users.sourceforge.net,
+	fabrice@bellet.info
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="vkogqOf2sHV7VnPd"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"R. J. Wysocki" <rjwysocki@sisk.pl> wrote:
->
->  I've just discovered that I'm (consistently) able to hang the system solid by 
->  trying to adjust the sound volume using KAMix on 2.6.7-mm6 (SuSE 9.1/ AMD64).  
 
-Please ensure that your kernel has this patch:
+--vkogqOf2sHV7VnPd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---- 25/sound/core/control.c~snd_ctl_read-locking-fix-fix	2004-07-06 21:27:51.618683360 -0700
-+++ 25-akpm/sound/core/control.c	2004-07-06 21:27:51.622682752 -0700
-@@ -1116,7 +1116,7 @@ static ssize_t snd_ctl_read(struct file 
- 			wait_queue_t wait;
- 			if ((file->f_flags & O_NONBLOCK) != 0 || result > 0) {
- 				err = -EAGAIN;
--				goto out;
-+				goto __end;
- 			}
- 			init_waitqueue_entry(&wait, current);
- 			add_wait_queue(&ctl->change_sleep, &wait);
-@@ -1137,7 +1137,7 @@ static ssize_t snd_ctl_read(struct file 
- 		kfree(kev);
- 		if (copy_to_user(buffer, &ev, sizeof(snd_ctl_event_t))) {
- 			err = -EFAULT;
--			goto __end;
-+			goto out;
- 		}
- 		spin_lock_irq(&ctl->read_lock);
- 		buffer += sizeof(snd_ctl_event_t);
-_
+airo creates /proc/driver/aironet/<device name> on device activation.
+However, the device can be renamed - then on teardown
+it tries to remove the wrong directory. The removal of 
+/proc/driver/aironet then runs afoul of the BUG_ON() in remove_proc_entry.
 
+This fixes it by keeping a copy of the name of the directory
+it created.
+
+(It doesn't actually solve the problem of the stats directory
+still being /proc/driver/aironet/eth0 when you rename the device
+to, say, 'joe'. But that patch would be a little less trivial.)
+
+Bill
+
+--vkogqOf2sHV7VnPd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="airo.patch"
+
+--- linux/drivers/net/wireless/airo.c.old	2004-07-08 17:19:37.856055132 -0400
++++ linux/drivers/net/wireless/airo.c	2004-07-08 17:28:26.720339699 -0400
+@@ -1210,6 +1210,7 @@
+ 	APListRid		*APList;
+ #define	PCI_SHARED_LEN		2*MPI_MAX_FIDS*PKTSIZE+RIDSIZE
+ 	u32			pci_state[16];
++	char			proc_name[IFNAMSIZ];
+ };
+ 
+ static inline int bap_read(struct airo_info *ai, u16 *pu16Dst, int bytelen,
+@@ -4369,7 +4370,8 @@
+ 			     struct airo_info *apriv ) {
+ 	struct proc_dir_entry *entry;
+ 	/* First setup the device directory */
+-	apriv->proc_entry = create_proc_entry(dev->name,
++	strcpy(apriv->proc_name,dev->name);
++	apriv->proc_entry = create_proc_entry(apriv->proc_name,
+ 					      S_IFDIR|airo_perm,
+ 					      airo_entry);
+         apriv->proc_entry->uid = proc_uid;
+@@ -4472,7 +4474,7 @@
+ 	remove_proc_entry("APList",apriv->proc_entry);
+ 	remove_proc_entry("BSSList",apriv->proc_entry);
+ 	remove_proc_entry("WepKey",apriv->proc_entry);
+-	remove_proc_entry(dev->name,airo_entry);
++	remove_proc_entry(apriv->proc_name,airo_entry);
+ 	return 0;
+ }
+ 
+
+--vkogqOf2sHV7VnPd--

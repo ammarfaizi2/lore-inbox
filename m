@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317834AbSHHRnK>; Thu, 8 Aug 2002 13:43:10 -0400
+	id <S317816AbSHHRlw>; Thu, 8 Aug 2002 13:41:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317815AbSHHRl4>; Thu, 8 Aug 2002 13:41:56 -0400
-Received: from [63.204.6.12] ([63.204.6.12]:9144 "EHLO mail.somanetworks.com")
-	by vger.kernel.org with ESMTP id <S317814AbSHHRlE>;
-	Thu, 8 Aug 2002 13:41:04 -0400
-Date: Thu, 8 Aug 2002 13:44:43 -0400 (EDT)
-From: "Scott Murray" <scottm@somanetworks.com>
-X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: PCI hotplug resource reservation 
-In-Reply-To: <27462.1028790802@redhat.com>
-Message-ID: <Pine.LNX.4.33.0208081336420.26999-100000@rancor.yyz.somanetworks.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317815AbSHHRlF>; Thu, 8 Aug 2002 13:41:05 -0400
+Received: from ool-182fa350.dyn.optonline.net ([24.47.163.80]:48004 "EHLO
+	nikolas.hn.org") by vger.kernel.org with ESMTP id <S317799AbSHHRjz>;
+	Thu, 8 Aug 2002 13:39:55 -0400
+Date: Thu, 8 Aug 2002 13:42:58 -0400
+From: Nick Orlov <nick.orlov@mail.ru>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Bill Davidsen <davidsen@tmr.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pdc20265 problem.
+Message-ID: <20020808174258.GA5622@nikolas.hn.org>
+Mail-Followup-To: Andre Hedrick <andre@linux-ide.org>,
+	Bill Davidsen <davidsen@tmr.com>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.96.1020807183410.14463B-100000@gatekeeper.tmr.com> <Pine.LNX.4.10.10208080344290.24560-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10208080344290.24560-100000@master.linux-ide.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Aug 2002, David Woodhouse wrote:
+On Thu, Aug 08, 2002 at 03:50:19AM -0700, Andre Hedrick wrote:
+> On Wed, 7 Aug 2002, Bill Davidsen wrote:
+> 
+> > I would just as soon use a boot option as to try and make it a compile
+> > option, and I think that many people just use a compiled kernel and never
+> > change, which argues for a reasonable default (most pdc20265) ARE
+> > currently offboard, and an easy way to change it.
+> 
+> There are ZERO pdc20265's offboard, only pdc20267's were in both options.
+> This is the direct asic packaging.  Thus all pdc20265 have the right to be
+> listed as onboard.
 
-> scottm@somanetworks.com said:
-> > I think the implications are pretty strong that programming bridges
-> > with conflicting ranges will result in undefined behaviour.  Even if
-> > it did work, doing so also has the potential to open us up to new
-> > classes of bridge hardware bugs that no one has seen before.
->
-> OK. That buggers that idea then :(
+Could you comment next couple lines of code (2.4.19-vanilla):
 
-Do you have any objection to this boot time reservation stuff going in
-for now as a cPCI only thing?  I can imagine other solutions that use
-DMI scans or the like to detect cPCI master cards and grab chunks of the
-resource space(s) for the hotswap buses, but don't have any clever ideas
-on reliable heuristics for knowing how big those chunks should be for a
-given card.
+==========================================
+#else /* !CONFIG_PDC202XX_FORCE */
+[ ... skipped ... ]
+        {DEVID_PDC20265,"PDC20265" .... OFF_BOARD ..... },
+                                        ^^^^^^^^^
+[ ... skipped ... ]
+#endif
+==========================================
 
-Scott
+Another bug? Just typo?
+Why author put PDC20265 in off-board list ?
 
+> Cheers,
+> 
+> Andre Hedrick
+> LAD Storage Consulting Group
+> 
 
 -- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-e-mail: scottm@somanetworks.com
+With best wishes,
+        Nick Orlov.
 

@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270514AbRHIRsH>; Thu, 9 Aug 2001 13:48:07 -0400
+	id <S269229AbRHIRs5>; Thu, 9 Aug 2001 13:48:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270491AbRHIRr5>; Thu, 9 Aug 2001 13:47:57 -0400
-Received: from zok.sgi.com ([204.94.215.101]:35308 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S270484AbRHIRrt>;
-	Thu, 9 Aug 2001 13:47:49 -0400
-Subject: Re: [eepro100] Re: Problem with Linux 2.4.7 and builtin eepro on
-	Intel's EEA2 motherboard.
-From: Florin Andrei <florin@sgi.com>
-To: Luc Lalonde <llalonde@giref.ulaval.ca>
-Cc: Ben Greear <greearb@candelatech.com>, LKML <linux-kernel@vger.kernel.org>,
-        "eepro100@scyld.com" <eepro100@scyld.com>
-In-Reply-To: <Pine.LNX.4.33.0108082157470.18777-100000@merlin.giref.ulaval.ca>
-In-Reply-To: <Pine.LNX.4.33.0108082157470.18777-100000@merlin.giref.ulaval.ca>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12 (Preview Release)
-Date: 09 Aug 2001 10:46:17 -0700
-Message-Id: <997379177.31234.5.camel@stantz.corp.sgi.com>
-Mime-Version: 1.0
+	id <S269119AbRHIRsv>; Thu, 9 Aug 2001 13:48:51 -0400
+Received: from neon-gw.transmeta.com ([63.209.4.196]:10515 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S269229AbRHIRso>; Thu, 9 Aug 2001 13:48:44 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [ANNOUNCE] Gujin graphical bootloader 0.4
+Date: 9 Aug 2001 10:48:24 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9kuid8$q57$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0108060228220.10664-100000@hp.masroudeau.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08 Aug 2001 21:58:39 -0400, Luc Lalonde wrote:
-> Hello Fiorin,
+Followup to:  <Pine.LNX.4.33.0108060228220.10664-100000@hp.masroudeau.com>
+By author:    Etienne Lorrain <etienne@masroudeau.com>
+In newsgroup: linux.dev.kernel
 > 
-> What is your uptime on this machine.  I've come to the same conclusion and
-> I'm up to 13 days with the Intel e100 driver.
+>  - Loads Linux kernel images (zImage and bZimage) without the help
+>    of LILO, and short-circuit all real-mode code in the kernel to
+>    start at the first protected mode instruction of the kernel.
+> 
 
-With kernel's driver, the interface was frozen in 30 minutes. I had to
-ifdown / ifup the interface.
-With Intel's driver, it works for days with no problem. But i never had
-an uptime bigger than one week on that system.
+This is a very bad idea.  The kernel entry point is in real mode for a
+reason: it means that the kernel doesn't have to rely on the boot
+loader to provide the services it needs from real mode before
+entering protected mode once and for all.  The interface to the real
+mode entry point is narrow and stable, the protected mode entrypoint
+is a kernel internal and doesn't have an interface that is guaranteed
+to be stable -- again, for good reason.
 
+	-hpa
 -- 
-Florin Andrei
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,41 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314138AbSEMQ3e>; Mon, 13 May 2002 12:29:34 -0400
+	id <S314232AbSEMQbO>; Mon, 13 May 2002 12:31:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314223AbSEMQ3d>; Mon, 13 May 2002 12:29:33 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:3056 "EHLO
+	id <S314228AbSEMQbO>; Mon, 13 May 2002 12:31:14 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:28912 "EHLO
 	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S314138AbSEMQ3b>; Mon, 13 May 2002 12:29:31 -0400
-Subject: Re: [PATCHSET] Linux 2.4.19-pre8-jam2
+	id <S314232AbSEMQam>; Mon, 13 May 2002 12:30:42 -0400
+Subject: [PATCH] 2.4-ac: sched.c compile fix
 From: Robert Love <rml@tech9.net>
-To: rwhron@earthlink.net
-Cc: jamagallon@able.es, linux-kernel@vger.kernel.org
-In-Reply-To: <20020513074514.A25499@rushmore>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-GeUrR7cLEx1WvnRhy5xy"
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 13 May 2002 09:29:28 -0700
-Message-Id: <1021307368.18800.2586.camel@summit>
+Date: 13 May 2002 09:30:33 -0700
+Message-Id: <1021307433.30314.2590.camel@summit>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-05-13 at 04:45, rwhron@earthlink.net wrote:
-> > - Re-introduction of wake_up_sync to make pipes run fast again. No idea
-> >  about this is useful or not, that is the point, to test it (Randy ?)
-> 
-> Thanks, I was hoping someone would port that patch to a 2.4 kernel.
-> 2.5 kernels <= 2.5.15 aren't completing umount on the 4 way Xeon.
-> I will benchmark the latest jam on the big box next.
-> 
-> http://home.earthlink.net/~rwhron/kernel/bigbox.html
 
-Is umount not completing somehow due to the lack of wake_up_sync ???
+--=-GeUrR7cLEx1WvnRhy5xy
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Fwiw, I am not sold that reintroducing wake_up_sync is worth it.  The
-benchmark is synthetic and could very well not represent the general
-case in which the load balancer is capable of handling the scenario
-without the hackery of an explicit sync option.
+Alan,
+
+This fixes the compile error under SMP for 2.4.19-pre8-ac2 in sched.c
+due to the latest scheduling changes.
+
+I do not know how I missed this - much apologies.  Please apply.
 
 	Robert Love
+
+
+
+
+--=-GeUrR7cLEx1WvnRhy5xy
+Content-Disposition: attachment; filename=sched-compile-fix-rml-2.4.19-pre8-ac2-1.patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; name=sched-compile-fix-rml-2.4.19-pre8-ac2-1.patch;
+	charset=ISO-8859-1
+
+diff -urN linux-2.4.19-pre8-ac2/kernel/sched.c linux/kernel/sched.c
+--- linux-2.4.19-pre8-ac2/kernel/sched.c	Mon May 13 09:15:12 2002
++++ linux/kernel/sched.c	Mon May 13 09:19:32 2002
+@@ -1592,18 +1592,18 @@
+ 		cpu_dest =3D __ffs(p->cpus_allowed);
+ 		rq_dest =3D cpu_rq(cpu_dest);
+ repeat:
+-		cpu_src =3D p->thread_info->cpu;
++		cpu_src =3D p->cpu;
+ 		rq_src =3D cpu_rq(cpu_src);
+=20
+ 		local_irq_save(flags);
+ 		double_rq_lock(rq_src, rq_dest);
+-		if (p->thread_info->cpu !=3D cpu_src) {
++		if (p->cpu !=3D cpu_src) {
+ 			double_rq_unlock(rq_src, rq_dest);
+ 			local_irq_restore(flags);
+ 			goto repeat;
+ 		}
+ 		if (rq_src =3D=3D rq) {
+-			p->thread_info->cpu =3D cpu_dest;
++			p->cpu =3D cpu_dest;
+ 			if (p->array) {
+ 				deactivate_task(p, rq_src);
+ 				activate_task(p, rq_dest);
+
+--=-GeUrR7cLEx1WvnRhy5xy--
 

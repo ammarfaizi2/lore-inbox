@@ -1,81 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267455AbUHPG0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267460AbUHPGaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267455AbUHPG0E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 02:26:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267458AbUHPG0E
+	id S267460AbUHPGaV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 02:30:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267465AbUHPGaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 02:26:04 -0400
-Received: from gprs214-198.eurotel.cz ([160.218.214.198]:4741 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S267455AbUHPGZu (ORCPT
+	Mon, 16 Aug 2004 02:30:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47558 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267460AbUHPGaQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 02:25:50 -0400
-Date: Mon, 16 Aug 2004 08:25:23 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au, mochel@digitalimplant.org,
-       benh@kernel.crashing.org, david-b@pacbell.net
-Subject: Re: [patch] enums to clear suspend-state confusion
-Message-ID: <20040816062523.GB30338@elf.ucw.cz>
-References: <20040812120220.GA30816@elf.ucw.cz> <20040815175949.19d03e7f.akpm@osdl.org>
+	Mon, 16 Aug 2004 02:30:16 -0400
+Date: Sun, 15 Aug 2004 23:27:54 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: shemminger@osdl.org, alan@lxorguk.ukuu.org.uk, tytso@mit.edu,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+       greearb@candelatech.com
+Subject: Re: [RFC] enhanced version of net_random()
+Message-Id: <20040815232754.2464e731.davem@redhat.com>
+In-Reply-To: <20040813212857.7dd50320.ak@suse.de>
+References: <20040812104835.3b179f5a@dell_ss3.pdx.osdl.net>
+	<20040812124854.646f1936.davem@redhat.com>
+	<20040813115140.0f09d889@dell_ss3.pdx.osdl.net>
+	<20040813212857.7dd50320.ak@suse.de>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040815175949.19d03e7f.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 13 Aug 2004 21:28:57 +0200
+Andi Kleen <ak@suse.de> wrote:
 
-> > +enum pci_state {
-> >  +	D0 = 0,
-> >  +	D1 = 1,
-> >  +	D2 = 2,
+> On Fri, 13 Aug 2004 11:51:40 -0700
+> Stephen Hemminger <shemminger@osdl.org> wrote:
 > 
-> These symbols are too generic.  They don't appear to currently clash with
-> anything else, but they could.
+> > Here is another alternative, using tansworthe generator.  It uses percpu
+> > state. The one small semantic change is the net_srandom() only affects
+> > the current cpu's seed.  The problem was that having it change all cpu's
+> > seed would mean adding locking 
+> 
+> I would just update the other CPUs without locking. Taking
+> a random number from a partially updated state shouldn't be a big 
+> issue.
 
-Actually jffs is using macros called D1, D2 and D3. Ouch. This one
-should fix it.
-									Pavel
+I personally don't think we need to touch the other cpus
+at all, and that having a different current seed on each
+cpu might actually be a good thing.
 
---- linux-forakpm/include/linux/pci.h	2004-08-15 19:35:41.000000000 +0200
-+++ linux/include/linux/pci.h	2004-08-16 08:15:59.000000000 +0200
-@@ -1023,23 +1023,23 @@
- #define PCIPCI_ALIMAGIK		32
- 
- enum pci_state {
--	D0 = 0,
--	D1 = 1,
--	D2 = 2,
--	D3hot = 3,
--	D3cold = 4
-+	PCI_D0 = 0,
-+	PCI_D1 = 1,
-+	PCI_D2 = 2,
-+	PCI_D3hot = 3,
-+	PCI_D3cold = 4
- };
- 
- static inline enum pci_state to_pci_state(suspend_state_t state)
- {
- 	if (SUSPEND_EQ(state, PM_SUSPEND_ON))
--		return D0;
-+		return PCI_D0;
- 	if (SUSPEND_EQ(state, PM_SUSPEND_STANDBY))
--		return D1;
-+		return PCI_D1;
- 	if (SUSPEND_EQ(state, PM_SUSPEND_MEM))
--		return D3hot;
-+		return PCI_D3hot;
- 	if (SUSPEND_EQ(state, PM_SUSPEND_DISK))
--		return D3cold;
-+		return PCI_D3cold;
- 	BUG();
- }
- 
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Stephen, I like this one a lot, especially compared to
+what we had before.  I'm going to add this to my tree for
+the time being.

@@ -1,21 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271911AbRJEVjK>; Fri, 5 Oct 2001 17:39:10 -0400
+	id <S273888AbRJEWCw>; Fri, 5 Oct 2001 18:02:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273818AbRJEVjA>; Fri, 5 Oct 2001 17:39:00 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:13003 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S271911AbRJEVi5>; Fri, 5 Oct 2001 17:38:57 -0400
-Date: Fri, 05 Oct 2001 14:35:44 -0700
+	id <S274194AbRJEWCn>; Fri, 5 Oct 2001 18:02:43 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:42401 "EHLO
+	e32.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S273888AbRJEWC2>; Fri, 5 Oct 2001 18:02:28 -0400
+Date: Fri, 05 Oct 2001 14:58:31 -0700
 From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
 Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: =?ISO-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Olaf Zaplinski <o.zaplinski@mediascape.de>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.11-pre4
-Message-ID: <1565164462.1002292544@mbligh.des.sequent.com>
-In-Reply-To: <200110052031.QAA23072@e34.esmtp.ibm.com>
+To: Alessandro Suardi <alessandro.suardi@oracle.com>,
+        Dan Merillat <harik@chaos.ao.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Wierd /proc/cpuinfo with 2.4.11-pre4
+Message-ID: <1566531237.1002293911@mbligh.des.sequent.com>
+In-Reply-To: <3BBE29DF.A5DECF12@oracle.com>
 X-Mailer: Mulberry/2.0.8 (Win32)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,21 +23,10 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1. OK, it fixes the UP UP_IOAPIC compilation problem.
-> System (with preempt-patch) up and runnig.
+>> Wow!  That's pretty impressive, a new kernel build gives me an
+>> additional _7_ CPUs!
 
-Good. 
- 
-> 2. Woohu. I have 8 CPUs, now...;-)
-> --- /proc is somewhat broken
-
-Bugger. Didn't realise that cpu_online_map didn't get initialised
-to anything sensible under UP. Should be just cosmetic (it's only
-the output of /proc/cpuinfo, not the sceduler or anything), but 
-try this (I haven't tested it yet - if it doesn't work, just change the
-8 to 1 for a second whilst I fix it properly).
-
-===========================
+Sorry. Mea culpa
 
 --- setup.c.old	Fri Oct  5 14:20:29 2001
 +++ setup.c	Fri Oct  5 14:28:51 2001
@@ -52,16 +40,7 @@ try this (I haven't tested it yet - if it doesn't work, just change the
  		int fpu_exception;
  #ifdef CONFIG_SMP
 
-===========================
-
-The reason for this hackery is that get_cpuinfo writes to a page
-without proper bounds on itself. If you have more than about 8
-cpus, it tramples merrily all over the next page, corrupting page
-tables, etc, etc. 
-
-The real fix for this overflow was published here a few weeks ago
-by James Cleverdon (whom I work with). It's in Alan's tree, but not
-Linus' as yet.
-
 M.
+
+PS. I just tested this since my last post. It seems to work.
 

@@ -1,80 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266045AbUAFAGu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 19:06:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266036AbUAFAGq
+	id S266024AbUAFACm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 19:02:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266037AbUAFAB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 19:06:46 -0500
-Received: from stat1.steeleye.com ([65.114.3.130]:51942 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S266015AbUAFAF6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 19:05:58 -0500
-Subject: Re: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple 
-	map/unmaps
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andi Kleen <ak@suse.de>
-Cc: "David S. Miller" <davem@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>, gibbs@scsiguy.com
-In-Reply-To: <20040105223158.3364a676.ak@suse.de>
-References: <200401051929.i05JTsM0000014248@mudpuddle.cs.wustl.edu.suse.lists.linux.kern
-	el> <20040105112800.7a9f240b.davem@redhat.com.suse.lists.linux.kernel>
-	<p73brpi1544.fsf@verdi.suse.de> <20040105130118.0cb404b8.davem@redhat.com> 
-	<20040105223158.3364a676.ak@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 05 Jan 2004 18:05:47 -0600
-Message-Id: <1073347548.2439.33.camel@mulgrave>
+	Mon, 5 Jan 2004 19:01:28 -0500
+Received: from mail.kroah.org ([65.200.24.183]:57000 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266024AbUAFAAY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 19:00:24 -0500
+Date: Mon, 5 Jan 2004 14:39:51 -0800
+From: Greg KH <greg@kroah.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, milang@tal.org,
+       linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: Linux 2.4.23-rc1
+Message-ID: <20040105223950.GE30464@kroah.com>
+References: <Pine.LNX.4.44.0311101723110.2001-100000@logos.cnet> <009001c3a89a$af611130$54dc10c3@amos> <002701c3a8a1$b1ce6380$54dc10c3@amos> <20031111145734.46d19c87.davem@redhat.com> <20031111231027.GC24159@parcelfarce.linux.theplanet.co.uk> <20031111150815.6a8aff01.davem@redhat.com> <20031112015433.GA20145@kroah.com> <20031111223630.6f2bf759.davem@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031111223630.6f2bf759.davem@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-01-05 at 15:31, Andi Kleen wrote:
-> For the sake of bug-to-bug compatibility to the SCSI layer this patch may
-> work. I haven't tested it so no guarantees if it won't eat your file systems.
-> Feedback welcome anyways.
+On Tue, Nov 11, 2003 at 10:36:30PM -0800, David S. Miller wrote:
+> On Tue, 11 Nov 2003 17:54:33 -0800
+> Greg KH <greg@kroah.com> wrote:
+> 
+> > Then how is the ir-usb driver supposed to be able to set a baud rate of
+> > 4000000 in a portable manner?
+> 
+> You just won't get support for it on Sparc, nor any other
+> platform that does not have the B4000000 macro defined.
+> Ie.
+> 
+> #ifdef B4000000
+> 		case B4000000:
+> 			....
+> #endif
 
-This isn't a bug in SCSI, it's a deliberate design feature.  SCSI has
-certain events, like QUEUE full that cause us to re-queue the pending
-I/O.  Other block layer drivers that can get these EAGAIN type queueing
-problems from the device also follow this model.
+I've finally made this change, and will send it onward in a few days.
 
-The reason for doing this is the prep/request model for block drivers
-(although the behaviour pre-dates the bio model).  As part of the prep
-function, we prepare the mapping list that is later passed to
-dma_map_sg().  Requeueing is done from the request function; by design,
-we don't re-prepare the requests (and hence don't free and rebuild the
-sg list).
+thanks,
 
-Like Dave says, we rely on the sequence map/unmap/map to produce a
-correct SG list.  This does give you slightly more leeway, since we
-never look at the sg list after the unmap, for SCSI it doesn't have to
-be returned to the pre-map state as long as re-mapping it is correct.
-
-As to the idempotence of map/unmap: I'm ambivalent.  If it's going to be
-a performance hit to return the sg list to its prior state in unmap,
-then it does seem a waste given that for most of our I/O transactions we
-simply free the sg list after the unmap.
-
-It looks like we're down to a choice of three
-
-1. Fix the x86_64 mapping layer as your patch proposes (how much of a
-performance hit on every transaction will this be)?
-2. Change SCSI (and every other block driver) to re-prepare requeued
-I/O.  This will incur a free/setup overhead penalty, but only in the
-requeue path.
-3. Don't unmap the I/O in the requeue case.  I like this least because
-the LLD is responsible for map/unmap and the mid-layer is responsible
-for requeueing, so it's a layering violation (as well as a waste of
-potentially valuable mapping resources).
-
-On the whole, I prefer 1. Partly because it doesn't involve extra work
-for me ;-) but also because idempotence is an appealing property from a
-layering point of view.
-
-If we're agreed on this, I can add it to the DMA docs.
-
-James
-
-
+greg k-h

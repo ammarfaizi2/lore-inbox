@@ -1,79 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130820AbRBVC3O>; Wed, 21 Feb 2001 21:29:14 -0500
+	id <S131016AbRBVCaE>; Wed, 21 Feb 2001 21:30:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131016AbRBVC3E>; Wed, 21 Feb 2001 21:29:04 -0500
-Received: from munch-it.turbolinux.com ([38.170.88.129]:13816 "EHLO
-	mail.us.tlan") by vger.kernel.org with ESMTP id <S130820AbRBVC27>;
-	Wed, 21 Feb 2001 21:28:59 -0500
-Date: Wed, 21 Feb 2001 18:32:36 -0800
-From: Prasanna P Subash <psubash@turbolinux.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: ext2 superblock issue on 2.4.1-ac20
-Message-ID: <20010221183236.A396@turbolinux.com>
-In-Reply-To: <20010221163514.A671@turbolinux.com> <E14VjyB-000391-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <E14VjyB-000391-00@the-village.bc.nu>; from Alan Cox on Thu, Feb 22, 2001 at 12:50:52AM +0000
+	id <S131049AbRBVC3y>; Wed, 21 Feb 2001 21:29:54 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:60934 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S131016AbRBVC3i>;
+	Wed, 21 Feb 2001 21:29:38 -0500
+Message-ID: <3A947953.B88A23E2@innominate.de>
+Date: Thu, 22 Feb 2001 03:28:35 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+In-Reply-To: <01022022544707.18944@gimli> <Pine.LNX.4.10.10102201618520.31530-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> 
+> On Tue, 20 Feb 2001, Daniel Phillips wrote:
+> >
+> > You mean full_name_hash?  I will un-static it and try it.  I should have
+> > some statistics tomorrow.  I have a couple of simple metrics for
+> > measuring the effectiveness of the hash function: the uniformity of
+> > the hash space splitting (which in turn affects the average fullness
+> > of directory leaves) and speed.
+> 
+> I was more thinking about just using "dentry->d_name->hash" directly, and
+> not worrying about how that hash was computed. Yes, for ext2 it will have
+> the same value as "full_name_hash" - the difference really being that
+> d_hash has already been precomputed for you anyway.
+> 
+> > Let the hash races begin.
+> 
+> Note that dentry->d_name->hash is really quick (no extra computation), but
+> I'm not claiming that it has anything like a CRC quality. And it's
+> probably a bad idea to use it, because in theory at least the VFS layer
+> might decide to switch the hash function around. I'm more interested in
+> hearing whether it's a good hash, and maybe we could improve the VFS hash
+> enough that there's no reason to use anything else..
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In the first heat of hash races - creating 20,000 files in one directory
+- dentry::hash lost out to my original hack::dx_hash, causing a high
+percentage of leaf blocks to remain exactly half full and slowing down
+the whole thing by about 5%.  (This was under uml - I haven't tried it
+native yet but I expect the results to be similar.)
 
-oops. sorry for the panic. my fault.
-I was trying to boot a non-devfs'ed with devfs.
-thanks anyway.
+	  Contender			Result
+	  =========			======
+	dentry::hash		Average fullness = 2352 (57%)
+	hack::dx_hash		Average fullness = 2758 (67%)
 
---=20
-Prasanna Subash   ---   psubash@turbolinux.com   ---     TurboLinux, INC
-------------------------------------------------------------------------
-Linux, the choice          | Who is John Galt?=20
-of a GNU generation   -o)  |=20
-Kernel 2.4.1-ac20     /\\  |=20
-on a i686            _\\_v |=20
-                           |=20
-------------------------------------------------------------------------
-On Thu, Feb 22, 2001 at 12:50:52AM +0000, Alan Cox wrote:
-> > 	I just oldconfiged linux kernel with my 2.4.1 .config. When I boot the=
- new
-> > 2.4.1-ac20 kernel, I get a message saying that my ext2 superblock is co=
-rrup=3D
-> > ted.
-> > I get a message asking me to run e2fsck -b 8193 <...hdd dev..>
-> > My 2.4.0-ac4 that I've been running for more than 2-3 weeks now has no =
-prob=3D
-> > lems
-> > booting though.
-> >=20
-> > 	What am I doing wrong ? I would be glad to give more info.
->=20
-> Sounds like a driver change broke the handling for your disks or re-order=
-ed
-> them.=20
->=20
-> What hardware
+This suggests that dentry::hash is producing distinctly non-dispersed
+results and needs to be subjected to further scrutiny.  I'll run the
+next heat of hash races tomorrow, probably with R5, and CRC32 too if I
+have time.
 
-
-
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.2 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6lHpE5UrYeFg/7bURAh27AJ94KuCcW1clAj6XTTbew+9U8GbKtQCgu5Qb
-ATWfkCQhqZEM9WLViKdZfoo=
-=Top1
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--
+--
+Daniel

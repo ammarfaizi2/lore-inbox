@@ -1,67 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318426AbSIFHry>; Fri, 6 Sep 2002 03:47:54 -0400
+	id <S318124AbSIFIMU>; Fri, 6 Sep 2002 04:12:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318428AbSIFHry>; Fri, 6 Sep 2002 03:47:54 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:7865 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S318426AbSIFHrx>; Fri, 6 Sep 2002 03:47:53 -0400
-Message-ID: <20020906075227.31086.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
+	id <S317398AbSIFIMU>; Fri, 6 Sep 2002 04:12:20 -0400
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:23506 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S318124AbSIFIMS>; Fri, 6 Sep 2002 04:12:18 -0400
+Date: Fri, 6 Sep 2002 10:14:38 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: (fwd) Re: [RFC] mount flag "direct"
+Message-ID: <20020906101438.P781@nightmaster.csn.tu-chemnitz.de>
+References: <3D771613.783E3B15@aitel.hist.no> <200209051424.g85EOx105274@oboe.it.uc3m.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Cc: andrea@suse.de
-Date: Fri, 06 Sep 2002 15:52:27 +0800
-Subject: Re: BYTE UNIX Benchmarks (Version 4.1.0)
-X-Originating-Ip: 194.185.48.246
-X-Originating-Server: ws4-4.us4.outblaze.com
+User-Agent: Mutt/1.2i
+In-Reply-To: <200209051424.g85EOx105274@oboe.it.uc3m.es>; from ptb@it.uc3m.es on Thu, Sep 05, 2002 at 04:24:59PM +0200
+X-Spam-Score: -3.4 (---)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *17nEIR-0006bN-00*ocoONjxITkA*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know what is happening,
-my apologies for these mangled emails.
-This should be the more intersting part of
-the test I've ran on the last -aa kernel.
+Hi Peter,
 
-                     INDEX VALUES            
-TEST                                        BASELINE     RESULT      INDEX
+after following this discussion I have some ideas which might
+help you, but have to ask some more questions to find out clearly
+what you are trying to do and express it in terms known to this
+audience (which has failed so far, it seems).
 
-Arithmetic Test (type = double)             210515.1   210513.7       10.0
-Arithmetic Test (type = float)              210516.4   210471.8       10.0
-Arithmetic Test (type = int)                200121.7   200129.4       10.0
-Arithmetic Test (type = long)               200131.7   200123.6       10.0
-Arithmetic Test (type = short)              203544.0   203506.7       10.0
-Arithoh                                    3664143.2  3664144.7       10.0
-C Compiler Throughput                          469.7      468.7       10.0
-Dc: sqrt(2) to 99 decimal places             42687.3    42615.1       10.0
-Double-Precision Whetstone                     417.4      417.8       10.0
-Execl Throughput                               975.8      933.3        9.6
-File Copy 1024 bufsize 2000 maxblocks        80966.0    98855.0       12.2
-File Copy 256 bufsize 500 maxblocks          35210.0    51581.0       14.6
-File Copy 4096 bufsize 8000 maxblocks       105054.0   107897.0       10.3
-File Read 1024 bufsize 2000 maxblocks       196639.0   196276.0       10.0
-File Read 256 bufsize 500 maxblocks         140609.0   140402.0       10.0
-File Read 4096 bufsize 8000 maxblocks       197578.0   197291.0       10.0
-File Write 1024 bufsize 2000 maxblocks      106733.0   137821.0       12.9
-File Write 256 bufsize 500 maxblocks         48994.0    84355.0       17.2
-File Write 4096 bufsize 8000 maxblocks      130220.0   139374.0       10.7
-Pipe-based Context Switching                223573.7   227789.1       10.2
-Pipe Throughput                             477471.4   480723.5       10.1
-Process Creation                              9119.5     9281.9       10.2
-Shell Scripts (16 concurrent)                   69.0       69.0       10.0
-System Call Overhead                        409831.4   411749.2       10.0
-                                                                 =========
-     FINAL SCORE                                                      10.6
+1. You want to stream lots of data from a external source (which
+   might be the network) to a bunch of machines which are
+   connected to the same file system, where file system is a file
+   system designed to be a local one (like FAT, NTFS, EXT2FS and
+   so on). 
+   
+   
+2. This filesystem is on a single device, which is attached to
+   multiple machines, right?
 
-Ciao, 
-         Paolo
+3. You problem is, that your data arrives at some hundred MB/s
+   right?
 
+4. You want to solve it by force with using multiple machines to
+   accept the data but sharing one super fast persistent device
+   between them, ok?
+
+5. To archieve 4. you cannot trust the caches and want to disable
+   them?
+
+6. Do you have a "master" machine or do you want each machine
+   only peering each other?
+
+7. Is fast bidirectional communication between the machines over
+   some kind of wire/network possible?
+
+I would suggest not to disable caches, but to use timed leases on
+them to not penalize read only metadata operations (which are
+~100% in your case).
+
+If you read in some cache item, then you tell all your machines,
+that you did so and want to use it read only for a time of X.
+That is called a "lease", because other machines can tell you, that
+you cannot use your cache anymore, because they need to
+invalidate it. Leases can be broken by the grantor as opposed to
+locks, which can only be released by the holder.
+
+You can make the cache items very big and chunk them together to
+reduce communication overhead, so performance should not be that
+bad.
+
+The writing case happens not that often you say, so you can make
+it as easy as:
+
+   1) Disallow new leases on the related items (if you cannot
+      find out relations, than disallow ALL new leases).
+
+   2) Breaking all related leases while telling them
+      waiting for the lease clients to ACK the breakage.
+
+   3) Do you update, flush it to disk.
+
+   4) Reallow leases.
+
+One of your problems are file extension and mtime updates.
+
+This could be solved by restricting both to only one machine and
+propagating the changes to the other machines. It's like an
+allocator thread, if you are familiar with this concept.
+
+These mechanisms are basically some kind of cache coherency
+protocol. A special network between these machines just for that
+might be worthwhile. 
+
+You don't need to change ANY on-disk format.
+You need to change the locks of kernel meta data caching into
+leases.
+
+Now you have sth. to work with, which is well known, is
+performant in your use case and acceptable in OS terms.
+
+But please answer my questions and doubts first, because I might
+be way off, if my assumptions are wrong.
+
+Hope this helps.
+
+Regards
+
+Ingo Oeser
 -- 
-Get your free email from www.linuxmail.org 
-
-
-Powered by Outblaze
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

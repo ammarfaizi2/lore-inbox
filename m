@@ -1,44 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbVBQE6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262214AbVBQFHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262213AbVBQE6V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 23:58:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbVBQE6U
+	id S262214AbVBQFHE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 00:07:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbVBQFHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 23:58:20 -0500
-Received: from thunk.org ([69.25.196.29]:57500 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S262213AbVBQE6G (ORCPT
+	Thu, 17 Feb 2005 00:07:03 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:9899 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262214AbVBQFG6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 23:58:06 -0500
-Date: Wed, 16 Feb 2005 23:57:43 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Clemens Schwaighofer <cs@tequila.co.jp>
-Cc: Olivier Galibert <galibert@pobox.com>, kernel@crazytrain.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK] upgrade will be needed
-Message-ID: <20050217045743.GB6115@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Clemens Schwaighofer <cs@tequila.co.jp>,
-	Olivier Galibert <galibert@pobox.com>, kernel@crazytrain.com,
-	linux-kernel@vger.kernel.org
-References: <20050214020802.GA3047@bitmover.com> <58cb370e05021404081e53f458@mail.gmail.com> <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com> <7579f7fb0502141017f5738d1@mail.gmail.com> <20050214185624.GA16029@bitmover.com> <1108469967.3862.21.camel@crazytrain> <42131637.2070801@tequila.co.jp> <20050216154321.GB34621@dspnet.fr.eu.org> <4213E141.5040407@tequila.co.jp>
+	Thu, 17 Feb 2005 00:06:58 -0500
+Subject: Re: [Fastboot] [PATCH] /proc/cpumem
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Itsuro Oda <oda@valinux.co.jp>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050216170224.4C66.ODA@valinux.co.jp>
+References: <20050203154433.18E4.ODA@valinux.co.jp>
+	 <m14qgu81bw.fsf@ebiederm.dsl.xmission.com>
+	 <20050216170224.4C66.ODA@valinux.co.jp>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1108619891.5148.104.camel@terminator.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4213E141.5040407@tequila.co.jp>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 17 Feb 2005 11:28:11 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 17, 2005 at 09:11:45AM +0900, Clemens Schwaighofer wrote:
+Hi,
+
+On Wed, 2005-02-16 at 14:19, Itsuro Oda wrote:
+
 > 
-> first. what kind of advantages does bk have over other svn? Seriously.
-> If Apache can use it, and gcc might use it (again two very large
-> projects), what makes linux so differetnt that it can't.
+> BTW, does not kexec/kdump run on 2.6.11-rc3-mm2 ?
+> How do I get and examine the latest kexec/kdump ?
 
-Compare the number of developers, the number of overlapping
-simultaneous development trees, and the number of patches that touch
-overlapping files, and you'll begin to start to appreciate the
-difference between a system that can work for Linux, and a system that
-can working for simpler projects.
+Currently kdump is broken. I am working on Elf Header generation part in
+kexec-tools. Next week I should be able to post the initial patches.
 
-						- Ted
+---
+> --- linux-2.6.11-rc3-mm2/arch/i386/mm/init.c    2005-02-16
+> 15:36:29.000000000 +0900
+> +++ linux-2.6.11-rc3-mm2-test/arch/i386/mm/init.c       2005-02-16
+> 23:32:29.499709752 +0900
+> @@ -248,6 +248,47 @@
+>         return 0;
+>  }
+>  
+> +int valid_phys_addr_range(unsigned long long phys_addr, size_t *size)
+> +{
+> +       int i;
+> +       unsigned long long addr, end;
+> +       efi_memory_desc_t *md;
+> +
+> +       if (efi_enabled) {
+> +               for (i = 0; i < memmap.nr_map; i++) {
+> +                       md = &memmap.map[i];
+> +                       if (!is_available_memory(md)) {
+> +                               continue;
+> +                       }
+> +                       addr = md->phys_addr;
+> +                       end = md->phys_addr + (md->num_pages <<
+> EFI_PAGE_SHIFT);
+> +                       if ((phys_addr >= addr) && (phys_addr < end)) {
+> +                               if (*size > end - phys_addr) {
+> +                                       *size = end - phys_addr;
+> +                               }
+> +                               return 1;
+> +                       }
+> +               }
+> +               return 0;
+> +       }
+
+
+I thought efi related data structures are of type __initdata and will be gone after initilization. (efi.c)
+
+
+Thanks
+Vivek
+
+

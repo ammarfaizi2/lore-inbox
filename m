@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265292AbUBANCL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 08:02:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265295AbUBANCL
+	id S265310AbUBANPg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 08:15:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265314AbUBANPg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 08:02:11 -0500
-Received: from main.gmane.org ([80.91.224.249]:47746 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265292AbUBANCJ (ORCPT
+	Sun, 1 Feb 2004 08:15:36 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:51470 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S265310AbUBANPf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 08:02:09 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Linux device driver using c++!
-Date: Sun, 01 Feb 2004 14:02:06 +0100
-Message-ID: <yw1xhdybq7g1.fsf@kth.se>
-References: <1118873EE1755348B4812EA29C55A9720DE151@esnmail.esntechnologies.co.in>
+	Sun, 1 Feb 2004 08:15:35 -0500
+Date: Sun, 1 Feb 2004 14:15:16 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: 2.6 input drivers FAQ
+Message-ID: <20040201141516.A28045@pclin040.win.tue.nl>
+References: <20040201100644.GA2201@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-Gmane-NNTP-Posting-Host: ti200710a080-2939.bb.online.no
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:zj5OBJza9jV93xCPoYN3n+RewPM=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040201100644.GA2201@ucw.cz>; from vojtech@suse.cz on Sun, Feb 01, 2004 at 11:06:44AM +0100
+X-Spam-DCC: sonic.net: mailhost.tue.nl 1156; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jinu M." <jinum@esntechnologies.co.in> writes:
+On Sun, Feb 01, 2004 at 11:06:44AM +0100, Vojtech Pavlik wrote:
 
-> I am new to Linux based device driver development.  I wanted to know
-> if it is possible to write a Linux device driver (kernel loadable
-> module) using C++.
+> Common problems and solutions with 2.6 input drivers:
 
-It's impossible.
+Good!
 
--- 
-Måns Rullgård
-mru@kth.se
+> Get a recent version of kbd-utils, and recompile on a 2.6 kernel.
 
+Is there something called kbd-utils?
+I maintain the kbd package. Maybe recent versions will work
+on both 2.4 and 2.6, regardless where they were compiled.
+
+(Send bug reports to aeb@cwi.nl)
+
+Andries

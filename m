@@ -1,28 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311752AbSFFWth>; Thu, 6 Jun 2002 18:49:37 -0400
+	id <S311025AbSFFWzM>; Thu, 6 Jun 2002 18:55:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311871AbSFFWtg>; Thu, 6 Jun 2002 18:49:36 -0400
-Received: from web14604.mail.yahoo.com ([216.136.224.84]:58125 "HELO
-	web14604.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S311752AbSFFWtf>; Thu, 6 Jun 2002 18:49:35 -0400
-Message-ID: <20020606224935.87914.qmail@web14604.mail.yahoo.com>
-Date: Thu, 6 Jun 2002 23:49:35 +0100 (BST)
-From: =?iso-8859-1?q?F=20ker?= <f_ker@yahoo.co.uk>
-Subject: [2.4.18] vfat doesn't support files > 2GB under Linux, under Windoze it does
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S311871AbSFFWzL>; Thu, 6 Jun 2002 18:55:11 -0400
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:25741 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S311025AbSFFWzK>; Thu, 6 Jun 2002 18:55:10 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Martin Wirth <martin.wirth@dlr.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Futex Asynchronous Interface 
+In-Reply-To: Your message of "Thu, 06 Jun 2002 18:08:36 +0200."
+             <3CFF8904.9010703@dlr.de> 
+Date: Fri, 07 Jun 2002 08:59:19 +1000
+Message-Id: <E17G6Dv-0000Ei-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Could someone direct me towards a patch?  Many thanks.
+In message <3CFF8904.9010703@dlr.de> you write:
+> Hi Rusty,
+> 
+> >if (this->page == page && this->offset == offset) {
+> > 			list_del_init(i);
+> > 			tell_waiter(this);
+> >+			unpin_page(this->page);
+> > 			num_woken++;
+> > 			if (num_woken >= num) break;
+> > 		}
+> > 	}
+> > 	spin_unlock(&futex_lock);
+> >+	unpin_page(page);
+> > 	return num_woken;
+> 
+> If I understand right you shouldn't unpin the page if you are not sure that
+> all waiters for a specific (page,offset)-combination are woken up and deleted
+> from the waitqueue. Otherwise a second call to futex_wake may look on the wro
+ng
+> hash_queue or wake the wrong waiters.
 
+No, we delete them from the list (list_del_init) so we can't find it
+again: ie. futex_wake can't be invoked twice on the same thing without
+someone putting it back on the queue...
 
+> In general, I think fast userspace synchronization primitives and
+> asynchronous notification are different enough to keep them
+> logically more separated.  Your double use of the hashed wait queues
+> and sys_call make the code difficult to grasp and thus open for
+> subtle error.
 
-__________________________________________________
-Do You Yahoo!?
-Everything you'll ever need on one web page
-from News and Sport to Email and Music Charts
-http://uk.my.yahoo.com
+I don't think the complexity is much worse: async is inherently
+complex given that there are no real in-kernel primitives to do offer
+both sync and async cleanly.  Having two incompatible primitives would
+be painful, too.
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

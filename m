@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129532AbRAFJ72>; Sat, 6 Jan 2001 04:59:28 -0500
+	id <S129806AbRAFKCt>; Sat, 6 Jan 2001 05:02:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129806AbRAFJ7T>; Sat, 6 Jan 2001 04:59:19 -0500
-Received: from smtp1.mail.yahoo.com ([128.11.69.60]:25868 "HELO
-	smtp1.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129431AbRAFJ7L>; Sat, 6 Jan 2001 04:59:11 -0500
-X-Apparently-From: <p?gortmaker@yahoo.com>
-Message-ID: <3A56E983.343007BC@yahoo.com>
-Date: Sat, 06 Jan 2001 04:46:43 -0500
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.18 i486)
-MIME-Version: 1.0
-To: Aschwin van der Woude <aschwin@sofis.fi>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, becker@scyld.com,
-        linux-net@vger.kernel.org
-Subject: Re: Kernel halts rock solid on assigning ip (ne2k-pci)
-In-Reply-To: <3A55D540.1FA574D9@sofis.fi>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130407AbRAFKCj>; Sat, 6 Jan 2001 05:02:39 -0500
+Received: from jalon.able.es ([212.97.163.2]:36008 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129806AbRAFKCX>;
+	Sat, 6 Jan 2001 05:02:23 -0500
+Date: Sat, 6 Jan 2001 11:02:15 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: drew@drewb.com
+Cc: evaner@bigfoot.com, linux-kernel@vger.kernel.org
+Subject: Re: The advantage of modules?
+Message-ID: <20010106110215.C4393@werewolf.able.es>
+In-Reply-To: <20010105225020.A1188@evaner.penguinpowered.com> <14934.44472.612519.658729@champ.drew.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <14934.44472.612519.658729@champ.drew.net>; from drew@drewb.com on Sat, Jan 06, 2001 at 06:31:36 +0100
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aschwin van der Woude wrote:
+
+On 2001.01.06 Drew Bertola wrote:
+> My best reasons are...
 > 
-> I have a problem with a network-driver.
-> The ne2k-pci modules loads fine, no problem at all. Everything works
-> like a sunshine.
-> But as soon as I try to assign an IP-adress the whole system halts
-> rock-solid, the magic sysrq combinations don't even work anymore.
+> Development: You don't have to recompile the kernel a billion times
+> while working on a driver, you just recompile the module.  Also, you
+> can debug, unload, fix, recompile, reload a module to add or fix
+> pieces of it all (hopefully) without rebooting.
 > 
-> I am not sure if this is due to an IRQ-conflict. But I do know it all
-> happens to work perfectly fine with 2.4.0-test10. This happens on both
-> 2.4.0-prerelease and the 2.4.0-kernel.
+> Practical usage: When I take my laptop on the road I use ppp, so I
+> load it then.  Most of the time I don't need it, so I don't load it.
 > 
-> I attached some info about my configuration. I hope you/somebody can
-> help me solve this, I am eager to start using 2.4.0.
-> So far I have been very happy using 2.4.0-test10.
 
-The test11 patch has the ne2k-pci changes for FD support, and the
-test12 patch has the Tx timeout relocation in 8390 (which ne2k-pci
-uses).  Can you see which one of those (if either) causes the
-breakage?  You should be able to put the 8390.c and ne2k-pci.c
-from test10 directly into 2.4.0 proper (one at a time and then
-both if required) to see which (if either) is responsible.
+Usage: I have seen drivers which require params to work, and you can
+only give params if the driver is built as a module (ie,
+modprobe xxxxxx io=0x300 irq=5, etc...) because your hard is not
+properly autodetected by the module.
 
-Thanks,
-Paul.
+-- 
+J.A. Magallon                                         $> cd pub
+mailto:jamagallon@able.es                             $> more beer
 
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+Linux werewolf 2.4.0-ac2 #6 SMP Sat Jan 6 01:38:26 CET 2001 i686
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

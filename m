@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262694AbTENQ7P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 12:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263161AbTENQ7P
+	id S263183AbTENQ76 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 12:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbTENQ76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 12:59:15 -0400
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:22428 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S262671AbTENQ7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 12:59:12 -0400
-Date: Wed, 14 May 2003 13:11:58 -0400
-To: David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       openafs-devel@openafs.org
-Subject: Re: [PATCH] PAG support, try #2
-Message-ID: <20030514171157.GE20171@delft.aura.cs.cmu.edu>
-Mail-Followup-To: David Howells <dhowells@redhat.com>,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
-References: <24225.1052909011@warthog.warthog> <20030514165838.GD20171@delft.aura.cs.cmu.edu>
+	Wed, 14 May 2003 12:59:58 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:22877 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263183AbTENQ74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 12:59:56 -0400
+Date: Wed, 14 May 2003 10:14:02 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: andyp@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [KEXEC][2.5.69] Re: Updated kexec diffs...
+Message-Id: <20030514101402.79178a7c.akpm@digeo.com>
+In-Reply-To: <m1el314rqt.fsf@frodo.biederman.org>
+References: <3EBA626E.6040205@cyberone.com.au>
+	<20030508121211.532dcbcf.akpm@digeo.com>
+	<3EBC37C4.9090602@cyberone.com.au>
+	<20030509162911.2cd5321e.akpm@digeo.com>
+	<m1u1c37d2o.fsf@frodo.biederman.org>
+	<20030509201327.734caf9e.akpm@digeo.com>
+	<m1of2978ao.fsf@frodo.biederman.org>
+	<20030511121753.7a883afb.akpm@digeo.com>
+	<m1fznl57ss.fsf_-_@frodo.biederman.org>
+	<1052861167.1324.15.camel@andyp.pdx.osdl.net>
+	<m1k7cu3yey.fsf@frodo.biederman.org>
+	<20030513222343.74a3d817.akpm@digeo.com>
+	<m1el314rqt.fsf@frodo.biederman.org>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030514165838.GD20171@delft.aura.cs.cmu.edu>
-User-Agent: Mutt/1.5.4i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 May 2003 17:12:39.0886 (UTC) FILETIME=[06144EE0:01C31A3C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok I said that was my last mail, but I just noticed a really bad typo
+ebiederm@xmission.com (Eric W. Biederman) wrote:
+>
+> Is it more of a help or a hindrance to use gcc noreturn
+>  tag?
 
-On Wed, May 14, 2003 at 12:58:38PM -0400, Jan Harkes wrote:
-> AFS (and possibly DFS) style token management uses both the user id
-> (fsuid?) and PAG id. It has simple rules,
-> 
->    All processes with (pag == 0 and same uid) share the same tokens.
->    All processes with pag != 0 share the same tokens.
-		        ^^^^^^^^
-		     the same non-zero pag
+It seems to be a significant hassle - it propagates all over the place and
+makes one curse.  It's like retroconstification, as you say.
 
-Jan
+I'd be inclined to leave the function prototypes as-is and stick a
+commented while(1); in those places which actually need it, frankly.
+

@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261874AbTCQGxI>; Mon, 17 Mar 2003 01:53:08 -0500
+	id <S261975AbTCQHWD>; Mon, 17 Mar 2003 02:22:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261975AbTCQGxI>; Mon, 17 Mar 2003 01:53:08 -0500
-Received: from holomorphy.com ([66.224.33.161]:60120 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261874AbTCQGxH>;
-	Mon, 17 Mar 2003 01:53:07 -0500
-Date: Sun, 16 Mar 2003 23:03:34 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] O(1) proc_pid_readdir
-Message-ID: <20030317070334.GO20188@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>,
-	Manfred Spraul <manfred@colorfullife.com>,
-	linux-kernel@vger.kernel.org
-References: <20030316213516.GM20188@holomorphy.com> <Pine.LNX.4.44.0303170719410.15476-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303170719410.15476-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+	id <S262038AbTCQHWD>; Mon, 17 Mar 2003 02:22:03 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:31783
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S261975AbTCQHWC>; Mon, 17 Mar 2003 02:22:02 -0500
+Date: Mon, 17 Mar 2003 02:28:26 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>, Mark Haverkamp <markh@osdl.org>
+Subject: Re: [Lse-tech] [PATCH][ANNOUNCE] 32way/8quad NUMAQ booting with 16
+ IOAPICs, 223 IRQs
+In-Reply-To: <20030317062838.GN5891@holomorphy.com>
+Message-ID: <Pine.LNX.4.50.0303170226180.2229-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0303071148150.18716-100000@montezuma.mastecende.com>
+ <20030317055415.GM5891@holomorphy.com> <Pine.LNX.4.50.0303170107560.2229-100000@montezuma.mastecende.com>
+ <20030317062838.GN5891@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Sun, 16 Mar 2003, William Lee Irwin III wrote:
->> I'm heavily on the side of deterministic bounds here (these things trip
->> the NMI oopser, so if the bounds aren't deterministic, neither is
->> stability), so I favor manfred's proc_pid_readdir() algorithm.
 
-On Mon, Mar 17, 2003 at 07:22:15AM +0100, Ingo Molnar wrote:
-> no, the code in question here is worst-case O(nr_tasks). It is worst-case
-> quadratic only if the number of syscalls done during a full 'ps' readdir()
-> sequence is considered as well. This thing will never trigger the NMI
-> oopser. And in the common-case it has constant overhead.
+> On Sun, 16 Mar 2003, William Lee Irwin III wrote:
+> >> Running out of IRQ's? Simply jacking up NR_IRQS and HARDIRQ_BITS should
+> >> suffice if this is what I think it is.
+> 
+> On Mon, Mar 17, 2003 at 01:11:44AM -0500, Zwane Mwaikambo wrote:
+> > I'll have to see what repurcussions that will bring about, but i'll add 
+> > that to the TODO list.
+> 
+> Well, I tried it in my prior attempt and didn't have problems in that
+> area. AFAICT it "just works" if you jack up the numbers.
 
-Hmm. I was under the (false) impression it filled as many as directory
-entries as possible given count. Something else strange is going on then.
+Cool i'm trying to get hold of some more SCSI HBAs and disks to put on 
+other nodes (plenty of FC but no drivers), i'll let you know how it goes.
 
-The NMI oopses are mostly decoded by hand b/c in-kernel (and other)
-backtrace decoders can't do it automatically. I might have to generate
-some fresh data, with some kind of hack (e.g. hand-coded NMI-based kind
-of smp_call_function) to trace the culprit and not just the victim.
-The victims were usually stuck in fork() or exit().
+> Also, NUMA-Q's max at 640 routeable RTE's with 16 quads so you'll only
+> need to add 1 to HARDIRQ_BITS.
+>
+> The cpu count issue I've fixed in a separate patch.
 
+I'd have to rob a couple more poor souls to get 16 quads ;)
 
--- wli
+	Zwane
+-- 
+function.linuxpower.ca

@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261828AbSI2V7M>; Sun, 29 Sep 2002 17:59:12 -0400
+	id <S261813AbSI2VtS>; Sun, 29 Sep 2002 17:49:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261830AbSI2V7L>; Sun, 29 Sep 2002 17:59:11 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:49412 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S261828AbSI2V7L>; Sun, 29 Sep 2002 17:59:11 -0400
-Date: Mon, 30 Sep 2002 00:04:21 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: GrandMasterLee <masterlee@digitalroadkill.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: LVM in 2.5.39 broken.
-Message-ID: <20020929220421.GI12928@merlin.emma.line.org>
-Mail-Followup-To: GrandMasterLee <masterlee@digitalroadkill.net>,
-	linux-kernel@vger.kernel.org
-References: <1033318471.2451.17.camel@UberGeek.digitalroadkill.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261816AbSI2VtS>; Sun, 29 Sep 2002 17:49:18 -0400
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:5765 "EHLO
+	completely") by vger.kernel.org with ESMTP id <S261813AbSI2VtR>;
+	Sun, 29 Sep 2002 17:49:17 -0400
+From: Ryan Cumming <ryan@completely.kicks-ass.org>
+To: Marc-Christian Petersen <m.c.p@gmx.net>, "Theodore Ts'o" <tytso@mit.edu>,
+       "Christopher Li" <chrisl@gnuchina.org>
+Subject: Re: ARGS [PATCH] fix htree dir corrupt after fsck -fD
+Date: Sun, 29 Sep 2002 14:54:29 -0700
+User-Agent: KMail/1.4.7-cool
+Cc: linux-kernel@vger.kernel.org, ext3-users@redhat.com
+References: <200209291918.55303.m.c.p@gmx.net>
+In-Reply-To: <200209291918.55303.m.c.p@gmx.net>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="big5"
+Content-Transfer-Encoding: 8bit
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <1033318471.2451.17.camel@UberGeek.digitalroadkill.net>
-User-Agent: Mutt/1.5.1i
+Message-Id: <200209291454.33846.ryan@completely.kicks-ass.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Sep 2002, GrandMasterLee wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> LVM compilation in 2.5.39 seems to be broken. 
+On September 29, 2002 10:19, Marc-Christian Petersen wrote:
+> Hi Ryan,
+>
+> > I am running your program now over an hour without any corruption on the
+> > loopback mounted ext3 filesystem.
+>
+> shit, I thought testing over an hour (10mins your program, umount, fsck -fD
+> test.img in a loop) is enough but it isn't. Damn f*ck :(
 
-LVM1 has not been adjusted to track the API changes in 2.5. Technical as
-that may sound: LVM1 is broken in 2.5 and will probably never be fixed,
-but replaced by something else. Peek into the 2.6/3.0 tree that's in
-progress at this moment to see how things are going.
+Heh, I wonder why it happens faster here. I usually don't umount, and my 
+loopback filesystem is small enough that everything fits in RAM. Maybe my 
+Athlon XP 1800+ contributes to my computer's raw filesystem corruption power? 
+;)
 
--- 
-Matthias Andree
+- -Ryan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9l3aZLGMzRzbJfbQRAvGaAJsGG5prZSBAfY8iHjO5iLdb0GJZjACfYQ4k
+7t0b05e7JdCglHyL6rd3F2k=
+=8q3D
+-----END PGP SIGNATURE-----

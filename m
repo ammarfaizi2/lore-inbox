@@ -1,98 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130893AbQLFAfe>; Tue, 5 Dec 2000 19:35:34 -0500
+	id <S129458AbQLFAjz>; Tue, 5 Dec 2000 19:39:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131048AbQLFAfY>; Tue, 5 Dec 2000 19:35:24 -0500
-Received: from ztxmail02.ztx.compaq.com ([161.114.1.206]:62480 "HELO
-	ztxmail02.ztx.compaq.com") by vger.kernel.org with SMTP
-	id <S130893AbQLFAfH>; Tue, 5 Dec 2000 19:35:07 -0500
-Date: Tue, 5 Dec 2000 19:06:53 -0500
-From: Jay Estabrook <Jay.Estabrook@compaq.com>
-To: Phillip Ezolt <ezolt@perf.zko.dec.com>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Andrea Arcangeli <andrea@suse.de>, rth@twiddle.net,
-        linux-kernel@vger.kernel.org, wcarr@perf.zko.dec.com
-Subject: Re: Alpha SCSI error on 2.4.0-test11
-Message-ID: <20001205190653.A1031@linux04.mro.cpqcorp.net>
-In-Reply-To: <20001202011104.A2089@jurassic.park.msu.ru> <Pine.OSF.3.96.1001204134014.11945C-100000@perf.zko.dec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.OSF.3.96.1001204134014.11945C-100000@perf.zko.dec.com>; from ezolt@perf.zko.dec.com on Mon, Dec 04, 2000 at 01:53:42PM -0500
+	id <S129524AbQLFAjo>; Tue, 5 Dec 2000 19:39:44 -0500
+Received: from vp175103.reshsg.uci.edu ([128.195.175.103]:12039 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S129458AbQLFAje>; Tue, 5 Dec 2000 19:39:34 -0500
+Date: Tue, 5 Dec 2000 16:08:59 -0800
+Message-Id: <200012060008.eB608xd23358@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: "Boerner, Brian" <Brian_Boerner@adaptec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: aacraid for 2.4.0 revisitied
+In-Reply-To: <E9EF680C48EAD311BDF400C04FA07B612D4D77@ntcexc02.ntc.adaptec.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18pre23 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 04, 2000 at 01:53:42PM -0500, Phillip Ezolt wrote:
->
-> 	I've recompiled as you have suggested.  Any ideas? 
+On Tue, 5 Dec 2000 18:40:00 -0500 , Boerner, Brian <Brian_Boerner@adaptec.com> wrote:
 
-Compile again with the following patches (these are against 2.4.0-test12,
-but those in arch/alpha/kernel/core_cia.c should work against test10/11
-as well). 
+> I get another oops. I'm not very efficient at reading these messages. To bad
+> the oops-tracing.txt file isn't in a little more detail. It seems you have
+> to be quite knowledgeable of the inner workings of the Linux kernel to
+> understand them, but I digress.
 
-Something got lost between 2.2 and 2.4, but it's most likely that
-MIATA (because it has 6 DIMM slots) is one of the few CIA and PYXIS
-machines that could actually get over 1GB of memory; that's why we
-haven't seen this before...
+Something is calling proc_mkdir() with name == NULL. Check your code, 
+I suspect it's scsi_register_host() that gets a NULL in tpnt->proc_name.
 
---Jay++
+Ion
 
------------------------------------------------------------------------------
-Jay A Estabrook                            Alpha Engineering - LINUX Project
-Compaq Computer Corp. - MRO1-2/K20         (508) 467-2080
-200 Forest Street, Marlboro MA 01752       Jay.Estabrook@compaq.com
------------------------------------------------------------------------------
-
-diff -urN old/arch/alpha/kernel/core_cia.c new/arch/alpha/kernel/core_cia.c
---- old/arch/alpha/kernel/core_cia.c    Tue Dec  5 10:09:01 2000
-+++ new/arch/alpha/kernel/core_cia.c    Tue Dec  5 18:45:12 2000
-@@ -700,11 +700,11 @@
- 
-        *(vip)CIA_IOC_PCI_W1_BASE = 0x40000000 | 1;
-        *(vip)CIA_IOC_PCI_W1_MASK = (0x40000000 - 1) & 0xfff00000;
--       *(vip)CIA_IOC_PCI_T1_BASE = 0;
-+       *(vip)CIA_IOC_PCI_T1_BASE = 0 >> 2;
- 
-        *(vip)CIA_IOC_PCI_W2_BASE = 0x80000000 | 1;
-        *(vip)CIA_IOC_PCI_W2_MASK = (0x40000000 - 1) & 0xfff00000;
--       *(vip)CIA_IOC_PCI_T2_BASE = 0x40000000;
-+       *(vip)CIA_IOC_PCI_T2_BASE = 0x40000000 >> 2;
- 
-        *(vip)CIA_IOC_PCI_W3_BASE = 0;
- }
-diff -urN old/arch/alpha/kernel/pci.c new/arch/alpha/kernel/pci.c
---- old/arch/alpha/kernel/pci.c Tue Dec  5 10:09:01 2000
-+++ new/arch/alpha/kernel/pci.c Tue Dec  5 10:20:01 2000
-@@ -91,9 +91,15 @@
-        if (dev->class >> 8 != PCI_CLASS_STORAGE_IDE)
-                return;
-        dev->resource[1].start |= 2;
--       dev->resource[1].end = dev->resource[1].start;
-+       dev->resource[1].end = dev->resource[1].start + 1;
-+#ifndef CONFIG_BLK_DEV_IDEPCI
-+       /* already claimed by "standard" (ie junk) resources */
-+       dev->resource[0].flags &= ~IORESOURCE_IO;
-+       dev->resource[1].flags &= ~IORESOURCE_IO;
-+#else
-        pci_claim_resource(dev, 0);
-        pci_claim_resource(dev, 1);
-+#endif
- }
- 
- static void __init
-diff -urN old/drivers/pci/pci.c new/drivers/pci/pci.c
---- old/drivers/pci/pci.c       Tue Dec  5 10:09:02 2000
-+++ new/drivers/pci/pci.c       Tue Dec  5 10:17:32 2000
-@@ -540,7 +540,7 @@
- static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, int rom)
- {
-        unsigned int pos, reg, next;
--       u32 l, sz;
-+       u32 l, sz, tmp;
-        struct resource *res;
- 
-        for(pos=0; pos<howmany; pos = next) {
------------------------------------------------------------------------------
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

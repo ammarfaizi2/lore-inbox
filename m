@@ -1,65 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318206AbSHDTLM>; Sun, 4 Aug 2002 15:11:12 -0400
+	id <S318257AbSHDTU7>; Sun, 4 Aug 2002 15:20:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318208AbSHDTLM>; Sun, 4 Aug 2002 15:11:12 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40199 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318206AbSHDTLK>; Sun, 4 Aug 2002 15:11:10 -0400
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: <linux-kernel@vger.kernel.org>
-From: Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH] 2: 2.5.30-pcnet_cs
-Message-Id: <E17bQpv-0001qH-00@flint.arm.linux.org.uk>
-Date: Sun, 04 Aug 2002 20:14:43 +0100
+	id <S318256AbSHDTU7>; Sun, 4 Aug 2002 15:20:59 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:60684 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S318257AbSHDTU6>;
+	Sun, 4 Aug 2002 15:20:58 -0400
+Date: Sun, 4 Aug 2002 12:22:15 -0700
+From: Greg KH <greg@kroah.com>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: usb devicefs flaw
+Message-ID: <20020804192215.GA23659@kroah.com>
+References: <UTC200208041858.g74IwNr05640.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <UTC200208041858.g74IwNr05640.aeb@smtp.cwi.nl>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Sun, 07 Jul 2002 18:17:35 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch has been verified to apply cleanly to 2.5.30
+On Sun, Aug 04, 2002 at 08:58:23PM +0200, Andries.Brouwer@cwi.nl wrote:
+> In drivers/usb/core/usb.c the routine usb_alloc_dev() will
+> set the devpath for the root hub to "/".
+> Then usb_find_drivers() constructs a filename used by driverfs
+> using
+> 
+>                 sprintf (&interface->dev.bus_id[0], "%s-%s:%d",
+>                          dev->bus->bus_name, dev->devpath,
+>                          interface->altsetting->bInterfaceNumber);
+> 
+> This leads to filenames like "00:07.2-/:0" with embedded '/'.
 
-This patch fixes a bug in handling the timeout in pcnet_cs.c, where
-it uses the following test to determine whether the timeout has
-expired:
+Fix is already in Linus's tree, thanks to David Brownell:
+	http://linus.bkbits.net:8080/linux-2.5/cset@1.437.41.12
 
-        if (jiffies - dma_start > PCNET_RDC_TIMEOUT) {
+Original patch sent to linux-usb-devel for this is at:
+	http://marc.theaimsgroup.com/?l=linux-usb-devel&m=102831350007377&w=2
+	
+thanks,
 
-Unfortunately, PCNET_RDC_TIMEOUT is defined to be "0x02", so the
-length of the timeout is only two jiffy ticks, rather than being
-the expected 20ms.  This patch fixes this.
-
-Also, the above (and one other place) should be converted to
-time_after().
-
- drivers/net/pcmcia/pcnet_cs.c |    6 +++---
- 1 files changed, 3 insertions, 3 deletions
-
-diff -ur orig/drivers/net/pcmcia/pcnet_cs.c linux/drivers/net/pcmcia/pcnet_cs.c
---- orig/drivers/net/pcmcia/pcnet_cs.c	Mon Apr 15 00:05:03 2002
-+++ linux/drivers/net/pcmcia/pcnet_cs.c	Sun Aug  4 19:48:18 2002
-@@ -64,7 +64,7 @@
- #define SOCKET_START_PG	0x01
- #define SOCKET_STOP_PG	0xff
- 
--#define PCNET_RDC_TIMEOUT 0x02	/* Max wait in jiffies for Tx RDC */
-+#define PCNET_RDC_TIMEOUT (2*HZ/100)	/* Max wait in jiffies for Tx RDC */
- 
- static char *if_names[] = { "auto", "10baseT", "10base2"};
- 
-@@ -1183,7 +1183,7 @@
- 	}
- 	info->link_status = link;
-     }
--    if (info->pna_phy && (jiffies - info->mii_reset > 6*HZ)) {
-+    if (info->pna_phy && time_after(jiffies, info->mii_reset + 6*HZ)) {
- 	link = mdio_read(mii_addr, info->eth_phy, 1) & 0x0004;
- 	if (((info->phy_id == info->pna_phy) && link) ||
- 	    ((info->phy_id != info->pna_phy) && !link)) {
-@@ -1385,7 +1385,7 @@
- #endif
- 
-     while ((inb_p(nic_base + EN0_ISR) & ENISR_RDC) == 0)
--	if (jiffies - dma_start > PCNET_RDC_TIMEOUT) {
-+	if (time_after(jiffies, dma_start + PCNET_RDC_TIMEOUT)) {
- 	    printk(KERN_NOTICE "%s: timeout waiting for Tx RDC.\n",
- 		   dev->name);
- 	    pcnet_reset_8390(dev);
+greg k-h

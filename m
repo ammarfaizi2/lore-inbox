@@ -1,58 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267544AbSLFEDs>; Thu, 5 Dec 2002 23:03:48 -0500
+	id <S267550AbSLFEQ3>; Thu, 5 Dec 2002 23:16:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267550AbSLFEDs>; Thu, 5 Dec 2002 23:03:48 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:31657 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S267544AbSLFEDr> convert rfc822-to-8bit; Thu, 5 Dec 2002 23:03:47 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Matt Young <wz6b@arrl.net>
-Reply-To: wz6b@arrl.net
-To: linux-kernel@vger.kernel.org
-Subject: Help me to hack on the task_struct
-Date: Thu, 5 Dec 2002 20:10:53 -0800
-User-Agent: KMail/1.4.3
+	id <S267552AbSLFEQ3>; Thu, 5 Dec 2002 23:16:29 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:49029 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267550AbSLFEQ1>;
+	Thu, 5 Dec 2002 23:16:27 -0500
+Date: Thu, 5 Dec 2002 20:20:46 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] move console_loglevel et al to array
+Message-ID: <Pine.LNX.4.33L2.0212052013110.24550-200000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200212052010.53696.wz6b@arrl.net>
+Content-Type: MULTIPART/MIXED; BOUNDARY="346823425-123900948-1039148446=:24550"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When hacking with my module code: 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-I do not get reasonable results when using the "current"  macro to access 
-parts of the task structure.
+--346823425-123900948-1039148446=:24550
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Things seem to diverge past a thing called rlim in the task_struct..
-There are supposedly RLIM_NLIMITS of these rlims.
 
-So I looked through that wonderful cross reference at sourceforge
-to discover these defined in resource.h:
+Hi,
 
-#define RLIMIT_CPU      0               /* CPU time in ms */
-#define RLIMIT_FSIZE    1               /* Maximum filesize */
-#define RLIMIT_DATA     2               /* max data size */
-#define RLIMIT_STACK    3               /* max stack size */
-#define RLIMIT_CORE     4               /* max core file size */
-#define RLIMIT_RSS      5               /* max resident set size */
-#define RLIMIT_NPROC    6               /* max number of processes */
-#define RLIMIT_NOFILE   7               /* max number of open files */
-#define RLIMIT_MEMLOCK  8               /* max locked-in-memory address space 
-*/
-#define RLIMIT_AS       9               /* address space limit */
-#define RLIMIT_LOCKS    10              /* maximum file locks held */
-#define RLIM_NLIMITS    11
+This patch to 2.5.50 moves console_loglevel and 3 associated
+int's to an array.  kernel/sysctl.c expects that they live
+as a 4-element integer array, and some arch-es need this,
+and it's not a good idea to depend on a compiler to keep
+the 4 int's together...
 
-Questions:
-Why do resource limits happen to count sequencially?
+Original patch was done several months back, by Dave Hansen IIRC.
+It sat in Dave Jones's tree for awhile, but he apparently
+dropped it when he dropped the console layer patches.
 
-And can I expect the task structure in sched.h to conform to the compiled
-kernel?
+I took Dave's 2.5.39-dj2 patch, pulled a few pieces from it,
+and added a bit to it.
 
-With my SUSE 8.1 linux. I am using 2.4.19 in my headers and 2.4.19GB in the
-runnitg kernel. (Insmod bitches a little)
+Comments...before pushing it?
 
-Any clues are appreciated.
+Thanks,
+-- 
+~Randy
 
+
+--346823425-123900948-1039148446=:24550
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="cons-log-2550.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33L2.0212052020460.24550@dragon.pdx.osdl.net>
+Content-Description: 
+Content-Disposition: attachment; filename="cons-log-2550.patch"
+
+LS0tIC4vYXJjaC9pMzg2L21tL2ZhdWx0LmMlQ09OCVdlZCBOb3YgMjcgMTQ6
+MzU6NDYgMjAwMg0KKysrIC4vYXJjaC9pMzg2L21tL2ZhdWx0LmMJVGh1IERl
+YyAgNSAxNjoxMzo1OCAyMDAyDQpAQCAtMjgsOCArMjgsNiBAQA0KIA0KIGV4
+dGVybiB2b2lkIGRpZShjb25zdCBjaGFyICosc3RydWN0IHB0X3JlZ3MgKixs
+b25nKTsNCiANCi1leHRlcm4gaW50IGNvbnNvbGVfbG9nbGV2ZWw7DQotDQog
+I2lmbmRlZiBDT05GSUdfWDg2X1dQX1dPUktTX09LDQogLyoNCiAgKiBVZ2x5
+LCB1Z2x5LCBidXQgdGhlIGdvdG8ncyByZXN1bHQgaW4gYmV0dGVyIGFzc2Vt
+Ymx5Li4NCi0tLSAuL2RyaXZlcnMvY2hhci9zeXNycS5jJUNPTglXZWQgTm92
+IDI3IDE0OjM2OjE4IDIwMDINCisrKyAuL2RyaXZlcnMvY2hhci9zeXNycS5j
+CVRodSBEZWMgIDUgMTY6MTI6MzMgMjAwMg0KQEAgLTI2LDYgKzI2LDcgQEAN
+CiAjaW5jbHVkZSA8bGludXgva2JkX2tlcm4uaD4NCiAjaW5jbHVkZSA8bGlu
+dXgvcXVvdGFvcHMuaD4NCiAjaW5jbHVkZSA8bGludXgvc21wX2xvY2suaD4N
+CisjaW5jbHVkZSA8bGludXgva2VybmVsLmg+DQogI2luY2x1ZGUgPGxpbnV4
+L21vZHVsZS5oPg0KICNpbmNsdWRlIDxsaW51eC9zdXNwZW5kLmg+DQogI2lu
+Y2x1ZGUgPGxpbnV4L3dyaXRlYmFjay5oPg0KLS0tIC4vaW5jbHVkZS9saW51
+eC9rZXJuZWwuaCVDT04JV2VkIE5vdiAyNyAxNDozNTo0NiAyMDAyDQorKysg
+Li9pbmNsdWRlL2xpbnV4L2tlcm5lbC5oCVRodSBEZWMgIDUgMTY6MjA6MjAg
+MjAwMg0KQEAgLTM4LDYgKzM4LDEzIEBADQogI2RlZmluZQlLRVJOX0lORk8J
+Ijw2PiIJLyogaW5mb3JtYXRpb25hbAkJCSovDQogI2RlZmluZQlLRVJOX0RF
+QlVHCSI8Nz4iCS8qIGRlYnVnLWxldmVsIG1lc3NhZ2VzCQkJKi8NCiANCitl
+eHRlcm4gaW50IGNvbnNvbGVfcHJpbnRrW107DQorDQorI2RlZmluZSBjb25z
+b2xlX2xvZ2xldmVsIChjb25zb2xlX3ByaW50a1swXSkNCisjZGVmaW5lIGRl
+ZmF1bHRfbWVzc2FnZV9sb2dsZXZlbCAoY29uc29sZV9wcmludGtbMV0pDQor
+I2RlZmluZSBtaW5pbXVtX2NvbnNvbGVfbG9nbGV2ZWwgKGNvbnNvbGVfcHJp
+bnRrWzJdKQ0KKyNkZWZpbmUgZGVmYXVsdF9jb25zb2xlX2xvZ2xldmVsIChj
+b25zb2xlX3ByaW50a1szXSkNCisNCiBzdHJ1Y3QgY29tcGxldGlvbjsNCiAN
+CiAjaWZkZWYgQ09ORklHX0RFQlVHX1NQSU5MT0NLX1NMRUVQDQpAQCAtODAs
+OCArODcsNiBAQA0KIA0KIGFzbWxpbmthZ2UgaW50IHByaW50ayhjb25zdCBj
+aGFyICogZm10LCAuLi4pDQogCV9fYXR0cmlidXRlX18gKChmb3JtYXQgKHBy
+aW50ZiwgMSwgMikpKTsNCi0NCi1leHRlcm4gaW50IGNvbnNvbGVfbG9nbGV2
+ZWw7DQogDQogc3RhdGljIGlubGluZSB2b2lkIGNvbnNvbGVfc2lsZW50KHZv
+aWQpDQogew0KLS0tIC4va2VybmVsL3N5c2N0bC5jJUNPTglXZWQgTm92IDI3
+IDE0OjM1OjUwIDIwMDINCisrKyAuL2tlcm5lbC9zeXNjdGwuYwlUaHUgRGVj
+ICA1IDE2OjA2OjU0IDIwMDINCkBAIC0yOCw2ICsyOCw3IEBADQogI2luY2x1
+ZGUgPGxpbnV4L2NhcGFiaWxpdHkuaD4NCiAjaW5jbHVkZSA8bGludXgvc21w
+X2xvY2suaD4NCiAjaW5jbHVkZSA8bGludXgvaW5pdC5oPg0KKyNpbmNsdWRl
+IDxsaW51eC9rZXJuZWwuaD4NCiAjaW5jbHVkZSA8bGludXgvc3lzcnEuaD4N
+CiAjaW5jbHVkZSA8bGludXgvaGlnaHVpZC5oPg0KICNpbmNsdWRlIDxsaW51
+eC93cml0ZWJhY2suaD4NCi0tLSAuL2tlcm5lbC9zdXNwZW5kLmMlQ09OCVdl
+ZCBOb3YgMjcgMTQ6MzU6NTMgMjAwMg0KKysrIC4va2VybmVsL3N1c3BlbmQu
+YwlUaHUgRGVjICA1IDE2OjA4OjIwIDIwMDINCkBAIC04OCw3ICs4OCw2IEBA
+DQogZXh0ZXJuIGNoYXIgX3RleHQsIF9ldGV4dCwgX2VkYXRhLCBfX2Jzc19z
+dGFydCwgX2VuZDsNCiBleHRlcm4gY2hhciBfX25vc2F2ZV9iZWdpbiwgX19u
+b3NhdmVfZW5kOw0KIA0KLWV4dGVybiBpbnQgY29uc29sZV9sb2dsZXZlbDsN
+CiBleHRlcm4gaW50IGlzX2hlYWRfb2ZfZnJlZV9yZWdpb24oc3RydWN0IHBh
+Z2UgKik7DQogDQogLyogTG9ja3MgKi8NCi0tLSAuL2tlcm5lbC9wcmludGsu
+YyVDT04JV2VkIE5vdiAyNyAxNDozNjoyMyAyMDAyDQorKysgLi9rZXJuZWwv
+cHJpbnRrLmMJVGh1IERlYyAgNSAxNjoyMDoyMCAyMDAyDQpAQCAtMTYsNiAr
+MTYsNyBAQA0KICAqCTAxTWFyMDEgQW5kcmV3IE1vcnRvbiA8YW5kcmV3bUB1
+b3cuZWR1LmF1Pg0KICAqLw0KIA0KKyNpbmNsdWRlIDxsaW51eC9rZXJuZWwu
+aD4NCiAjaW5jbHVkZSA8bGludXgvbW0uaD4NCiAjaW5jbHVkZSA8bGludXgv
+dHR5Lmg+DQogI2luY2x1ZGUgPGxpbnV4L3R0eV9kcml2ZXIuaD4NCkBAIC01
+NSwxMSArNTYsMTIgQEANCiANCiBERUNMQVJFX1dBSVRfUVVFVUVfSEVBRChs
+b2dfd2FpdCk7DQogDQotLyogS2VlcCB0b2dldGhlciBmb3Igc3lzY3RsIHN1
+cHBvcnQgKi8NCi1pbnQgY29uc29sZV9sb2dsZXZlbCA9IERFRkFVTFRfQ09O
+U09MRV9MT0dMRVZFTDsNCi1pbnQgZGVmYXVsdF9tZXNzYWdlX2xvZ2xldmVs
+ID0gREVGQVVMVF9NRVNTQUdFX0xPR0xFVkVMOw0KLWludCBtaW5pbXVtX2Nv
+bnNvbGVfbG9nbGV2ZWwgPSBNSU5JTVVNX0NPTlNPTEVfTE9HTEVWRUw7DQot
+aW50IGRlZmF1bHRfY29uc29sZV9sb2dsZXZlbCA9IERFRkFVTFRfQ09OU09M
+RV9MT0dMRVZFTDsNCitpbnQgY29uc29sZV9wcmludGtbNF0gPSB7DQorCURF
+RkFVTFRfQ09OU09MRV9MT0dMRVZFTCwJLyogY29uc29sZV9sb2dsZXZlbCAq
+Lw0KKwlERUZBVUxUX01FU1NBR0VfTE9HTEVWRUwsCS8qIGRlZmF1bHRfbWVz
+c2FnZV9sb2dsZXZlbCAqLw0KKwlNSU5JTVVNX0NPTlNPTEVfTE9HTEVWRUws
+CS8qIG1pbmltdW1fY29uc29sZV9sb2dsZXZlbCAqLw0KKwlERUZBVUxUX0NP
+TlNPTEVfTE9HTEVWRUwsCS8qIGRlZmF1bHRfY29uc29sZV9sb2dsZXZlbCAq
+Lw0KK307DQogDQogaW50IG9vcHNfaW5fcHJvZ3Jlc3M7DQogDQotLS0gLi9p
+bml0L21haW4uYyVDT04JV2VkIE5vdiAyNyAxNDozNTo1MSAyMDAyDQorKysg
+Li9pbml0L21haW4uYwlUaHUgRGVjICA1IDE2OjA0OjMyIDIwMDINCkBAIC0x
+NCw2ICsxNCw3IEBADQogI2luY2x1ZGUgPGxpbnV4L2NvbmZpZy5oPg0KICNp
+bmNsdWRlIDxsaW51eC9wcm9jX2ZzLmg+DQogI2luY2x1ZGUgPGxpbnV4L2Rl
+dmZzX2ZzX2tlcm5lbC5oPg0KKyNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4N
+CiAjaW5jbHVkZSA8bGludXgvdW5pc3RkLmg+DQogI2luY2x1ZGUgPGxpbnV4
+L3N0cmluZy5oPg0KICNpbmNsdWRlIDxsaW51eC9jdHlwZS5oPg0K
+--346823425-123900948-1039148446=:24550--

@@ -1,36 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262290AbREXVQu>; Thu, 24 May 2001 17:16:50 -0400
+	id <S262316AbREXVRK>; Thu, 24 May 2001 17:17:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262297AbREXVQk>; Thu, 24 May 2001 17:16:40 -0400
-Received: from quattro.sventech.com ([205.252.248.110]:59148 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S262290AbREXVQ2>; Thu, 24 May 2001 17:16:28 -0400
-Date: Thu, 24 May 2001 17:16:27 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Prasanna P Subash <psubash@turbolinux.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Dual Athlon on 2.2.19 ?
-Message-ID: <20010524171627.D26439@sventech.com>
-In-Reply-To: <20010522182740.A3125@turbolinux.com> <E152toh-0004uo-00@the-village.bc.nu> <20010524123030.B3485@turbolinux.com> <20010524153653.A26439@sventech.com> <20010524141351.C3485@turbolinux.com>
-Mime-Version: 1.0
+	id <S262323AbREXVRB>; Thu, 24 May 2001 17:17:01 -0400
+Received: from pop.gmx.net ([194.221.183.20]:42847 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262297AbREXVQy>;
+	Thu, 24 May 2001 17:16:54 -0400
+Message-ID: <3B0D763C.26991788@gmx.de>
+Date: Thu, 24 May 2001 22:59:40 +0200
+From: Edgar Toernig <froese@gmx.de>
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Oliver Xymoron <oxymoron@waste.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
+ w/info-PATCH]device arguments from lookup)
+In-Reply-To: <Pine.LNX.4.30.0105220957400.19818-100000@waste.org> <0105231550390K.06233@starship> <3B0C547F.DE9E9214@gmx.de> <0105241925230N.06233@starship>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <20010524141351.C3485@turbolinux.com>; from Prasanna P Subash on Thu, May 24, 2001 at 02:13:51PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 24, 2001, Prasanna P Subash <psubash@turbolinux.com> wrote:
-> Without the patch below the boot up would hang right after it detected the
-> ide devices.
+Daniel Phillips wrote:
 > 
-> After applying the patch it booted all the way but the keyboard would hang.
+> > > Readdir fills in a directory type, so ls sees it as a directory and
+> > > does the right thing.  On the other hand, we know we're on a device
+> > > filesystem so we will next open the name as a regular file, and
+> > > find ISCHR or ISBLK: good.
+> >
+> > ??? The kernel may know it, but the app?  Or do you really want to
+> > give different stat data on stat(2) and fstat(2)?  These flags are
+> > currently used by archive/backup prgs.  It's a hint that these files
+> > are not regular files and shouldn't be opened for reading.
+> > Having a 'd' would mean that they would really try to enter the
+> > directory and save it's contents.  Don't know what happens in this
+> > case to your "special" files ;-)
 > 
-> BTW I'm trying to port this patch back to the 2.2.18 TL-Kernel. Are there
-> anymore changes I have to look at ?
+> I guess that's much like the question 'what happens in proc?'.
 
-There were 2 patches. The one that went into 2.2.20-pre1 (not the patch
-you just sent) and the patch you just sent. You need both.
+And that's already bad enough.  Most of the "files" in proc should
+be fifos!  And using proc as an excuse to introduce another set of
+magic dirs?  No, thanks.
 
-JE
+> Correct me if I'm wrong, but what we learn from the proc example
+> is that tarring your whole source tree starting at / is not something
+> you want to do.
+
+IMHO it would be better to fix proc instead of adding more magic.  At
+the moment you have to exclude /proc.  You want to add /dev.  And next?
+Exclude all $HOME/dev (in case process name spaces get added)?  Or make
+fifos magic too and add all of them to the exclude list?  But there's
+no central place for fifos.  So lets add more magic :-(
+
+> What *won't* happen is, you won't get side effects from opening
+> your serial ports (you'd have to open them without O_DIRECTORY
+> to get that) so that seems like a little step forward.
+
+As already said: depending on O_DIRECTORY breaks POSIX compliance
+and that alone should kill this idea...
+
+Over and out, ET.
 

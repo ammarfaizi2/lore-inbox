@@ -1,146 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265863AbUFXXLW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUFXXPG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265863AbUFXXLW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 19:11:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265877AbUFXXLW
+	id S265909AbUFXXPG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 19:15:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265903AbUFXXPF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 19:11:22 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:24264 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265863AbUFXXK6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 19:10:58 -0400
-Date: Thu, 24 Jun 2004 18:10:57 -0500
-From: Ken Preslan <kpreslan@redhat.com>
+	Thu, 24 Jun 2004 19:15:05 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:7586 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S265962AbUFXXOm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 19:14:42 -0400
+Message-ID: <40DB605D.6000409@comcast.net>
+Date: Thu, 24 Jun 2004 19:14:37 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040623)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: [RFC] Patch to allow distributed flock
-Message-ID: <20040624231057.GA13033@potassium.msp.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Subject: Collapse ext2 and 3 please
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I'd like to start a discussion about changing the VFS so it allows
-flocks to be enforced between machines in a cluster filesystem (such as
-GFS).  The purpose of GFS it so allow local filesystem semantics
-to a filesystem shared between the nodes of a cluster of tightly-coupled
-machines.  As such, flock is probably expected to work across the cluster.
+I know this has been mentioned before, or at least I *hope* it has.
 
-What are everyone's thoughts on a patch such as this?
+ext2 and ext3 are essentially the same, aren't they?  I'm looking at a
+diff, and other than ext2->ext3, I'm seeing things like:
 
-Thanks.
+- -              mark_inode_dirty(inode);
++              ext3_mark_inode_dirty(handle, inode);
 
+and thinking
 
-# Make the VFS call down into the FS on flock calls.
-diff -urN -p linux-2.6.7/fs/locks.c linux/fs/locks.c
---- linux-2.6.7/fs/locks.c	2004-06-16 12:00:44.567463632 -0500
-+++ linux/fs/locks.c	2004-06-16 12:01:58.844205936 -0500
-@@ -1294,6 +1294,27 @@ out_unlock:
- 	return error;
- }
- 
-+/*
-+ * Wrapper function around the file_operations lock routine when called for
-+ * flock().  The lock routine is called for both fcntl() and flock(), so
-+ * the flock parameters must be translated to an equivalent fcntl()-like
-+ * lock.
-+ *
-+ * Don't use locks_alloc_lock() (or flock_make_lock()) here, as
-+ * this is just a temporary lock structure.  We especially don't
-+ * want to fail because we couldn't allocate a lock structure if
-+ * this is an unlock operation.
-+ */
-+int flock_fs_file(struct file *filp, int type, int wait)
-+{
-+	struct file_lock fl = { .fl_flags = FL_FLOCK,
-+				.fl_type = type };
-+
-+	return filp->f_op->lock(filp,
-+				(wait) ? F_SETLKW : F_SETLK,
-+				&fl);
-+}
-+
- /**
-  *	sys_flock: - flock() system call.
-  *	@fd: the file descriptor to lock.
-@@ -1342,6 +1363,50 @@ asmlinkage long sys_flock(unsigned int f
- 	if (error)
- 		goto out_free;
- 
-+	/*
-+	 * Execute any filesystem-specific flock routines.  The filesystem may
-+	 * maintain supplemental locks.  This code allows the supplemental locks
-+	 * to be kept in sync with the vfs flock lock.  If flock() is called on
-+	 * a lock already held for the given filp, the current flock lock is
-+	 * dropped before obtaining the requested lock.  This unlock operation
-+	 * must be completed for the any filesystem specific locks and the vfs
-+	 * flock lock before proceeding with obtaining the requested lock.  When
-+	 * the filesystem routine drops a lock for such a request, it must
-+	 * return -EDEADLK, allowing the vfs lock to be dropped, and the
-+	 * filesystem code is then re-executed to obtain the lock.
-+	 *
-+	 * A non-blocking request that returns EWOULDBLOCK also causes any vfs
-+	 * flock lock to be released, but then returns the error to the caller.
-+	 */
-+	if (filp->f_op && filp->f_op->lock) {
-+ repeat:
-+		error = flock_fs_file(filp, lock->fl_type, can_sleep);
-+		if (error < 0) {
-+			/*
-+			 * We may have dropped a lock.  We need to
-+			 * finish unlocking before returning or
-+			 * continuing with lock acquisition.
-+			 */
-+			if (error != -ENOLCK)
-+				flock_lock_file(filp, &(struct file_lock){.fl_type = F_UNLCK});
-+
-+			/*
-+			 * We already held the lock in some mode, and
-+			 * had to drop filesystem-specific locks before
-+			 * proceeding.  We come back through this
-+			 * routine to unlock the vfs flock lock.  Now go
-+			 * back and try again.  Using EAGAIN as the
-+			 * error here would be better, but the one valid
-+			 * error value defined for flock(), EWOULDBLOCK,
-+			 * is defined as EAGAIN.
-+			 */
-+			if (error == -EDEADLK)
-+				goto repeat;
-+
-+			goto out_free;
-+		}
-+	}
-+
- 	for (;;) {
- 		error = flock_lock_file(filp, lock);
- 		if ((error != -EAGAIN) || !can_sleep)
-@@ -1354,6 +1419,13 @@ asmlinkage long sys_flock(unsigned int f
- 		break;
- 	}
- 
-+	/*
-+	 * If we failed to get the vfs flock, we need to clean up any
-+	 * filesystem-specific lock state that we previously obtained.
-+	 */
-+	if (error && filp->f_op && filp->f_op->lock)
-+		flock_fs_file(filp, F_UNLCK, 1);
-+
-  out_free:
- 	if (list_empty(&lock->fl_link)) {
- 		locks_free_lock(lock);
-@@ -1714,6 +1786,8 @@ void locks_remove_flock(struct file *fil
- 		if (fl->fl_file == filp) {
- 			if (IS_FLOCK(fl)) {
- 				locks_delete_lock(before);
-+				if (filp->f_op && filp->f_op->lock)
-+					flock_fs_file(filp, F_UNLCK, 1);
- 				continue;
- 			}
- 			if (IS_LEASE(fl)) {
+- -              mark_inode_dirty(inode);
++#ifdef CONFIG_EXT2_JOURNALED
++              if (fs->journaled)
++                 extjnl_mark_inode_dirty(handle, inode);
++              else
++#endif
++                 mark_inode_dirty(inode);
 
--- 
-Ken Preslan <kpreslan@redhat.com>
+would have been so much more appropriate.  I see entire functions that
+are dropped and added; the dropped can stay, the added can be added,
+they can be used conditionally.  I also see mostly code that just was
+copied verbatim, or was s/EXT2/EXT3/ or s/ext2/ext3/ .  That's just not
+appropriate.
 
+The ext2 driver can even load up ext3 partitions without using the
+journal, if it still behaves like it did in 2.4.20.  I say collapse them
+in on eachother.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFA22BbhDd4aOud5P8RAqsqAJ9hVAgMnKIHzXNx1NIs7cwYbLvfrwCfU8D2
+Q+NLucNYfQRft3Fd1Q0HpPE=
+=Vmkg
+-----END PGP SIGNATURE-----

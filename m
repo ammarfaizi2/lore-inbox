@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263263AbTDVRXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 13:23:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263264AbTDVRXZ
+	id S263285AbTDVRd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 13:33:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263300AbTDVRd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 13:23:25 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:41824 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263263AbTDVRXY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 13:23:24 -0400
-Date: Tue, 22 Apr 2003 13:34:46 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Andrea Arcangeli <andrea@suse.de>
-cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
-       <mbligh@aracnet.com>, <mingo@elte.hu>, <hugh@veritas.com>,
-       <dmccr@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: objrmap and vmtruncate
-In-Reply-To: <20030422165746.GK23320@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0304221324380.24424-100000@devserv.devel.redhat.com>
+	Tue, 22 Apr 2003 13:33:56 -0400
+Received: from [63.246.199.14] ([63.246.199.14]:41857 "EHLO ns.briggsmedia.com")
+	by vger.kernel.org with ESMTP id S263285AbTDVRdy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 13:33:54 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: joe briggs <jbriggs@briggsmedia.com>
+Organization: BMS
+To: motion@pdx.frogtown.com, linux-kernel@vger.kernel.org
+Subject: IDE corruption during heavy bt878-induced interrupt load
+Date: Tue, 22 Apr 2003 14:45:14 -0400
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200304221445.14656.jbriggs@briggsmedia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am seeking comments or suggestions to this problem:
 
-On Tue, 22 Apr 2003, Andrea Arcangeli wrote:
+I create multi-channel digital surveillance systems using cards with 4 or more 
+multiplexed bt878 framegrabbers; each one capturing 5 or more frames per 
+second on each of its two input channels (total 4 * 2 * 5 = 40 fps).  
+Typically I run using either a Promise or Adaptec HPT370 IDE-RAID controller 
+with 2 WD-120GB/8MB-cache drives striped in RAID-0, with another IDE as hda 
+for my system drive.  What happens is that every few seconds I get a "BTTV: 
+RISC ERROR - resetting" from the frame grabber driver.  After a few days of 
+this I have corruption on my Reiser file system; which usually I am able to 
+clean up with mkreiserfs --fix-fixable or --rebuild-tree.  The corruption is 
+both on my RAID and my system drive.  Missing doing this maintenance action 
+can really ruin my day.
 
-> could we focus and solve the remap_file_pages current breakage first?
+I am today replacing the IDE RAID with a 3WARE IDE-RAID that emulates SCSI on 
+the premise that the problem has to do with hardware bus arbitration.  But as 
+of yet I don't have any data to support that or show improvement.
 
-truncate always used to be such a PITA in the VM. And so few code depends
-on it doing the right thing to vmas. Which i claim to not be the right
-thing at all.
 
-is anything forcing us to fixing up mappings during a truncate? What we
-need is just for the FS to recognize pages behind end-of-inode to still
-potentially exist after truncation, if those areas were mapped before the
-truncation. Apps that do not keep uptodate with truncaters can get
-out-of-date data anyway, via read()/write() anyway. Are there good
-arguments to be this strict across truncate()? We sure could make it safe
-even thought it's not safe currently.
+All comments/suggestions/etc. appreciated.
 
-	Ingo
+Joe
 
+
+-- 
+Joe Briggs
+Briggs Media Systems
+105 Burnsen Ave.
+Manchester NH 01304 USA
+TEL/FAX 603-232-3115 MOBILE 603-493-2386
+www.briggsmedia.com

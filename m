@@ -1,115 +1,690 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318348AbSHPNNu>; Fri, 16 Aug 2002 09:13:50 -0400
+	id <S318366AbSHPNRr>; Fri, 16 Aug 2002 09:17:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318349AbSHPNNu>; Fri, 16 Aug 2002 09:13:50 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:47321 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S318348AbSHPNNs>;
-	Fri, 16 Aug 2002 09:13:48 -0400
-Date: Fri, 16 Aug 2002 15:18:23 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] user-vm-unlock-2.5.31-A2
-In-Reply-To: <20020816133456.A342@kushida.apsleyroad.org>
-Message-ID: <Pine.LNX.4.44.0208161448190.16655-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318365AbSHPNRq>; Fri, 16 Aug 2002 09:17:46 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:39069 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318366AbSHPNRf>; Fri, 16 Aug 2002 09:17:35 -0400
+Date: Fri, 16 Aug 2002 18:48:32 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@zip.com.au>,
+       linux-kernel@vger.kernel.org, dipankar@in.ibm.com
+Subject: Re: [patch] Scalable statistics counters using seq_file interfaces
+Message-ID: <20020816184832.B30703@in.ibm.com>
+References: <20020814165049.I27366@in.ibm.com> <20020814193702.A22887@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020814193702.A22887@infradead.org>; from hch@infradead.org on Wed, Aug 14, 2002 at 07:37:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Christoph,
 
-On Fri, 16 Aug 2002, Jamie Lokier wrote:
+On Wed, Aug 14, 2002 at 07:37:02PM +0100, Christoph Hellwig wrote:
+> ...
+> My educated guess is that I will rewrite the code to not depend on procfs
 
-> Sorry if I was unclear.  I'm specifically talking about non-POSIX
-> threading methods (normal C code though, not complicated JVMs).
+Right now you have procfs dependency only if you need /proc reporting.
+You can have satctrs without /proc too, you just have to pass NULL
+to statctr_group parameter in statctr_init ......
 
-if you define your own threading method then it's your responsibility to
-make it work wrt. the exit() method for example. Just one example:
-application code can technically call sys_exit() in a 'raw' form anytime:
-
-	asm volatile ("movl $1, %eax; int $0x80;")
-
-and if it's a clone()ed thread then all thread-local resources are
-lost/leaked. malloc() space, private file descriptors, held futexes.
-
-there's nothing about CLONE_DETACHED or libpthreads that changes this
-fundamental situation.
-
-the only guarantee the kernel can make is to clean up nicely when a
-resource-group is released. You can use CLONE_VM but not CLONE_FILES, and
-then the kernel will clean up per-thread file descriptors on exit. It's an
-expensive but nice property for certain uses. Furthermore it can help a
-bit to give a signal towards user-space that a thread has 'unused' a given
-TID. But it *cannot* possibly clean up after shared resources completely -
-that's the point in sharing resources between threads - the kernel cannot
-know which ones are private and which not. Eg. if you use CLONE_VM then
-your threads can leak memory upon sys_exit(). If you use CLONE_FILES only
-then you can leak file descriptors upon sys_exit().
-
-> Most uses of clone() that I've seen are not using any threading library
-> at all: [...]
-
-this is still possible, of course.
-
-> It's conceptually fine that individual threads can die.  
-> _Conceptually_, clone-by-hand threads are very similar to processes, and
-> I have seen this used in practice a few times.
+> > diff -ruN -X dontdiff linux-2.5.31/fs/proc/root.c statctr-2.5.31/fs/proc/root.c
+> > --- linux-2.5.31/fs/proc/root.c	Sun Aug 11 07:11:50 2002
+> > +++ statctr-2.5.31/fs/proc/root.c	Tue Aug 13 10:14:46 2002
+> > @@ -19,6 +19,7 @@
+> >  #include <linux/smp_lock.h>
+> >  
+> >  struct proc_dir_entry *proc_net, *proc_bus, *proc_root_fs, *proc_root_driver;
+> > +struct proc_dir_entry *proc_statistics;
+> >  
+> >  #ifdef CONFIG_SYSCTL
+> >  struct proc_dir_entry *proc_sys_root;
+> > @@ -77,6 +78,7 @@
+> >  	proc_rtas_init();
+> >  #endif
+> >  	proc_bus = proc_mkdir("bus", 0);
+> > +	proc_statistics = proc_mkdir("statistics", 0);
 > 
-> And it all works fine: just use SIGCHLD and waitpid().
+> Any reason you don't do this in kernel/statctr.c?
 
-huh? Nothing cleans up leaked memory if a CLONE_VM thread sys_exits, or
-leaked file descriptors if a CLONE_FILES thread exits.
+I don't have an  init routine at boot time to create the default parent 
+directory for statctr proc entries; Of course, I can make one and 
+put it in statctr.c and call it from init/main.c, but I  thought this 
+must be better than that. 
 
-only a tiny segment of resource cleanup can be 'solved' by SIGCHLD. How do
-you clean up a held futex via SIGCHLD notification? How do you clean up a
-malloc() via SIGCHLD, if sys_exit() is called by application code
-directly?
+> 
+> > +#ifndef _LINUX_STATCTR_H
+> > +#define _LINUX_STATCTR_H
+> > + 
+> > +#ifdef  __KERNEL__
+> 
+> Is this needed?
 
-'polite exit' when threads hold shared resources simply *does not exist*.
+I have seen this check used frequently. I assumed it was to 
+prevent userspace from using the headers....hence the ifdefs.
+Pls let me know if "#ifdef  __KERNEL__"  has any other reasoning behind it 
+in other places where it is used right now.... anywayz that's gone now.
 
-the truth is that this is not possible and not desirable either - in
-threaded C code there must be some harmony between application code and
-exit methods, and applications still have the 'cooperative' responsibility
-to not leak resources.
+> 
+> > +static inline struct statctr_pentry 
+> > +*create_statctr_pentry(struct proc_dir_entry *parent, const char *name) 
+> 
+> Shouldn't this be:
+> 
+> static inline struct statctr_pentry *
+> create_statctr_pentry(struct proc_dir_entry *parent, const char *name)
 
-> Now you have written this wonderful resource optimisation, which removes
-> zombies: CLONE_DETACHED.  Unfortunately, catching invidual thread death
-> relies on the thread "exiting politely", as they say. [...]
+Sure, I can change that, but there is no documented preference on that AFAIK.
 
-again, calling sys_exit directly is not 'polite' in any way - you can lose
-malloc() and futex (and other) state, you can leak basically any resource
-that can be used by a thread, and you can corrupt the threading library's
-internal variables as well (except the really simple uses which do no
-resource allocation at all). So a thread has to be careful how to exit no
-matter what - CLONE_DETACHED does not change this in any way.
+> 
+> > +{
+> > +	return(NULL);
+> > +}
+> 
+> return is not function-like and the additional braces are heavily disliked
+> in the kernel (at least for new code)
 
-but if you dont like CLONE_DETACHED and want to use SIGCHLD notification
-then you can do it. Lots of POSIX-conform code relies on SIGCHLD
-notification so it's not like we want to remove it anytime soon.
+I should have used a consistent format for return at least...
+I'll change this too, but again it is not documented in CodingStyle.
+ 
+> 
+> > +static inline int __statctr_init(statctr_t *stctr, int gfp_mask)
+> > +{
+> > +	stctr->ctr = kmalloc_percpu(sizeof(*(stctr->ctr)), gfp_mask); 
+> > +	if(!stctr->ctr)
+> 
+> Kernel coding style has a space after the if.
+> 
 
-> [...] So I still have to use SIGCHLD and waitpid(), or a pipe(), for
-> non-POSIX-model threads that want to robustly detect "impolite" thread
-> death.
+There is no explicit in CodingStyle on the space after if, but that is
+part of the K&R coding style I guess.....
+ 
+> > +		return -1;
+> 
+> -ENOMEM?
 
-well, i think this is ineffecitve and doesnt buy you anything - but it's
-clearly up to you.
+Yep, that'd be better. 
 
-> I think that's an unfair penalty on non-POSIX-model threads.
+> 
+> > +void free_statctr_pentry(struct statctr_pentry *pentry)
+> > +{
+> > +	if(!list_empty(&pentry->head))
+> 
+> Add an unlikely?
 
-there's nothing, i repeat, *NOTHING* POSIX about CLONE_DETACHED. POSIX
-threading has cleanup needs as well, which are handled by intercepting all
-exit() activity and doing the cleanups and notifications that are
-necessery. The only difference here is that notification is not done via a
-signal, but via faster futexes.
+Sure, but does it really make any difference? (It ain't fastpath ... you
+probably won't call this routine at all .. maybe at subsystem end or
+module unload...)
 
-Why is CLONE_DETACHED such a big problem for you, why do you want to force
-a more expensive notification method? If you want to spin your own
-threading library which has a completely new API (good luck at that) then
-dont use pthread_create() but raw clone() and you wont get any detached
-threads - end of story. You have complete control over what kind of
-notification method you use.
+> 
+> It might be worth to rework the code to follow Documentation/CodingStyle
 
-	Ingo
+I had read the CodingStyle sometime back, and I thought I conformed to it,
+Most of the stuff you've pointed out are not in CodingStyle right now,
+perhaps its time to update Documentation/CodingStyle?  
 
+
+Thanks for the feedback, Here's the new patch .. like it?
+
+-Kiran
+
+
+diff -ruN -X dontdiff linux-2.5.31/fs/proc/root.c statctr-2.5.31/fs/proc/root.c
+--- linux-2.5.31/fs/proc/root.c	Sun Aug 11 07:11:50 2002
++++ statctr-2.5.31/fs/proc/root.c	Fri Aug 16 13:26:29 2002
+@@ -19,6 +19,7 @@
+ #include <linux/smp_lock.h>
+ 
+ struct proc_dir_entry *proc_net, *proc_bus, *proc_root_fs, *proc_root_driver;
++struct proc_dir_entry *proc_statistics;
+ 
+ #ifdef CONFIG_SYSCTL
+ struct proc_dir_entry *proc_sys_root;
+@@ -77,6 +78,7 @@
+ 	proc_rtas_init();
+ #endif
+ 	proc_bus = proc_mkdir("bus", 0);
++	proc_statistics = proc_mkdir("statistics", 0);
+ }
+ 
+ static struct dentry *proc_root_lookup(struct inode * dir, struct dentry * dentry)
+diff -ruN -X dontdiff linux-2.5.31/include/linux/statctr.h statctr-2.5.31/include/linux/statctr.h
+--- linux-2.5.31/include/linux/statctr.h	Thu Jan  1 05:30:00 1970
++++ statctr-2.5.31/include/linux/statctr.h	Fri Aug 16 16:22:37 2002
+@@ -0,0 +1,245 @@
++/*
++ * Scalable Statistics Counters.
++ *
++ * Visit http://lse.sourceforge.net/counters for detailed explanation of
++ *  Scalable Statistic Counters 
++ *
++ * Copyright (c) IBM Corporation, 2001, 2002
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
++ *
++ * Author:              Ravikiran Thirumalai <kiran@in.ibm.com>
++ *
++ * include/linux/statctr.h
++ *
++ */
++
++#include <linux/config.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/proc_fs.h>
++
++struct statctr_group {
++	struct proc_dir_entry 	*parent;
++	char			*procname;
++	struct list_head	head;
++};
++
++typedef struct {
++#ifdef	CONFIG_SMP
++	unsigned long 		*ctr;
++#else
++	unsigned long 		ctr;
++#endif
++#ifdef	CONFIG_PROC_FS
++	char 			*name;
++	struct list_head	grouplist;
++#endif  /* CONFIG_PROC_FS */
++} statctr_t;
++
++/* prototypes */
++extern int statctr_init(statctr_t *, 
++			struct statctr_group *, const char *,int);
++extern void statctr_cleanup(statctr_t *);
++
++#ifdef CONFIG_PROC_FS
++extern struct proc_dir_entry *proc_statistics;
++extern struct statctr_group *
++create_statctr_group(struct proc_dir_entry *, const char *);
++extern void free_statctr_group(struct statctr_group *);
++#else
++static inline struct statctr_group *
++create_statctr_group(struct proc_dir_entry *parent, const char *name) 
++{
++	return NULL;
++}
++static inline void free_statctr_group(struct statctr_group *group)
++{ 
++} 
++#endif
++
++#ifdef	CONFIG_SMP 
++
++static inline int __statctr_init(statctr_t *stctr, int gfp_mask)
++{
++	stctr->ctr = kmalloc_percpu(sizeof(*(stctr->ctr)), gfp_mask); 
++	if (!stctr->ctr) 
++		return -ENOMEM;
++	return 0;
++}
++
++static inline void __statctr_cleanup(statctr_t *stctr)
++{
++	kfree_percpu(stctr->ctr);
++}
++
++/** 
++ * statctr_inc - Increment the statistics counter by one.
++ * @stctr: Statistics counter 
++ *
++ * Increments the counter by one.  Internally only the per-cpu counter is 
++ * incremented.
++ */
++
++static inline void statctr_inc(statctr_t *stctr)
++{
++	(*this_cpu_ptr(stctr->ctr))++;
++}
++
++/**
++ * statctr_dec - Deccrement the statistics counter by one.
++ * @stctr: Statistics counter
++ *
++ * Decrements the counter by one.  Internally only the per-cpu counter is
++ * incremented.
++ */
++ 
++static inline void statctr_dec(statctr_t *stctr)
++{
++	(*this_cpu_ptr(stctr->ctr))--;
++}
++
++/**
++ * statctr_set - Set the statistics counter to value passed.
++ * @stctr: Statistcs counter
++ * @val: Value to be set..
++ *
++ * Sets the statistics counter. If statctr_read() is invoked after a counter 
++ * is set, return value of statctr_read shud reflect the value set.
++ */
++ 
++static inline void statctr_set(statctr_t *stctr, unsigned long val)
++{
++	int i;
++
++	for (i=0; i < NR_CPUS; i++) {
++		if (cpu_possible(i))
++			*per_cpu_ptr(stctr->ctr, i) = 0;
++	}
++	*this_cpu_ptr(stctr->ctr) = val;
++}
++
++/**
++ * statctr_read - Returns the counter value.
++ * @stctr: Statistics counter
++ *
++ * Reads all of the other per-cpu versions of this counter, consolidates them
++ * and returns to the caller.
++ */
++ 
++static inline unsigned long statctr_read(statctr_t *stctr)
++{
++	int i;
++	unsigned long res = 0;
++	for (i=0; i < NR_CPUS; i++)
++		if (cpu_possible(i))
++			res += *per_cpu_ptr(stctr->ctr, i);
++	return res;
++}
++
++/**
++ * statctr_read_local - Returns the cpu local counter value.
++ * @stctr: Statistics counter
++ */
++ 
++static inline unsigned long statctr_read_local(statctr_t *stctr)
++{
++	return *this_cpu_ptr(stctr->ctr);
++}
++
++/**
++ * statctr_read_cpu - Returns the cpu counter value.
++ * @stctr: Statistics counter
++ */
++ 
++static inline unsigned long statctr_read_cpu(statctr_t *stctr, int cpu)
++{
++	return *per_cpu_ptr(stctr->ctr, cpu);
++}
++
++/**
++ * statctr_add - Adds the passed val to the counter value.
++ * @stctr: Statistics counter
++ * @val: Addend
++ *
++ */
++ 
++static inline void statctr_add(statctr_t *stctr, unsigned long val)
++{
++        *this_cpu_ptr(stctr->ctr) += val;
++}
++
++/**
++ * statctr_sub - Subtracts the passed val from the counter value.
++ * @stctr: Statistics counter
++ * @val: Subtrahend
++ *
++ */
++ 
++static inline void statctr_sub(statctr_t *stctr, unsigned long val)
++{
++        *this_cpu_ptr(stctr->ctr) -= val;
++}
++
++#else /* CONFIG_SMP */
++
++static inline int __statctr_init(statctr_t *stctr, int gfp_mask)
++{
++	return 0;
++}
++
++static inline void __statctr_cleanup(statctr_t *stctr) {}
++
++static inline void statctr_inc(statctr_t *stctr)
++{
++	(stctr->ctr)++;
++}
++
++static inline void statctr_dec(statctr_t *stctr)
++{
++	(stctr->ctr)--;
++}
++
++static inline unsigned long statctr_read(statctr_t *stctr)
++{
++	return stctr->ctr;
++}
++
++static inline unsigned long statctr_read_local(statctr_t *stctr)
++{
++	return stctr->ctr;
++}
++
++static inline unsigned long statctr_read_cpu(statctr_t *stctr, int cpu)
++{
++	return stctr->ctr;
++}
++
++static inline void statctr_set(statctr_t *stctr, unsigned long val) 
++{
++	stctr->ctr = val;
++}
++
++static inline void statctr_add(statctr_t *stctr, unsigned long val) 
++{
++	stctr->ctr += val;
++}
++
++static inline void statctr_sub(statctr_t *stctr, unsigned long val)
++{
++	stctr->ctr -= val;
++}
++
++#endif  /* CONFIG_SMP */
+diff -ruN -X dontdiff linux-2.5.31/kernel/Makefile statctr-2.5.31/kernel/Makefile
+--- linux-2.5.31/kernel/Makefile	Sun Aug 11 07:11:23 2002
++++ statctr-2.5.31/kernel/Makefile	Fri Aug 16 13:26:29 2002
+@@ -10,12 +10,13 @@
+ O_TARGET := kernel.o
+ 
+ export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o exec_domain.o \
+-		printk.o platform.o suspend.o dma.o
++		printk.o platform.o suspend.o dma.o statctr.o
+ 
+ obj-y     = sched.o fork.o exec_domain.o panic.o printk.o \
+ 	    module.o exit.o itimer.o time.o softirq.o resource.o \
+ 	    sysctl.o capability.o ptrace.o timer.o user.o \
+-	    signal.o sys.o kmod.o context.o futex.o platform.o
++	    signal.o sys.o kmod.o context.o futex.o platform.o \
++	    statctr.o
+ 
+ obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+ obj-$(CONFIG_SMP) += cpu.o
+diff -ruN -X dontdiff linux-2.5.31/kernel/statctr.c statctr-2.5.31/kernel/statctr.c
+--- linux-2.5.31/kernel/statctr.c	Thu Jan  1 05:30:00 1970
++++ statctr-2.5.31/kernel/statctr.c	Fri Aug 16 16:42:52 2002
+@@ -0,0 +1,265 @@
++/*
++ * Scalable Statistics Counters.
++ *
++ * Visit http://lse.sourceforge.net/counters for detailed explanation of
++ *  Scalable Statistic Counters
++ *  
++ * Copyright (c) IBM Corporation, 2001, 2002.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
++ *
++ * Author:              Ravikiran Thirumalai <kiran@in.ibm.com>
++ *
++ * kernel/statctr.c
++ *
++ */
++
++#include <linux/statctr.h>
++#include <linux/mm.h>
++#include <linux/module.h>
++#include <linux/seq_file.h>
++
++#ifdef	CONFIG_PROC_FS
++
++static void *statctr_start(struct seq_file *m, loff_t *pos)
++{
++	struct statctr_group *group = m->private;
++	struct list_head *tmp;
++	loff_t n = *pos; 
++
++	list_for_each(tmp, &group->head) 
++		if (!n--)
++			return list_entry(tmp, statctr_t, grouplist); 
++	return NULL;
++}
++		
++static void *statctr_next(struct seq_file *m, void *v, loff_t *pos) 
++{
++	struct statctr_group *group = m->private;
++	struct list_head *p = ((statctr_t *)v)->grouplist.next;
++	(*pos)++;
++	return p == &group->head ? NULL : list_entry(p, statctr_t, grouplist);
++}
++
++static void statctr_stop(struct seq_file *m, void *v)
++{
++}
++
++static int statctr_show(struct seq_file *m, void *v)
++{
++	char *spc = " ", *str; 
++	statctr_t *stctr = v;
++	if (!stctr->name)
++		str = spc;
++	else 
++		str = stctr->name;
++	seq_printf(m, "%15s %lu\n", str, statctr_read(stctr));
++	return 0;
++}
++
++static struct seq_operations statctr_seq_ops = {
++	.start	= statctr_start,
++	.next	= statctr_next,
++	.stop	= statctr_stop,
++	.show	= statctr_show,
++};
++
++static int statctr_open(struct inode *inode, struct file *file)
++{
++	struct proc_dir_entry *entry;
++	int res;
++	res = seq_open(file, &statctr_seq_ops);
++	if (!res) {
++		entry = PDE(inode);
++		((struct seq_file *)file->private_data)->private = entry->data;
++	}
++	return res;
++}
++
++static struct file_operations proc_statctr_ops = {
++	.open	 = statctr_open,
++	.read	 = seq_read,
++	.llseek	 = seq_lseek,
++	.release = seq_release,
++};		
++		 
++static int
++create_statctr_seq_entry(const char *name, mode_t mode, 
++			 struct proc_dir_entry *parent,
++			 struct statctr_group *group)
++{
++	int ret = 0;
++	struct proc_dir_entry *entry; 
++	entry = create_proc_entry(name, mode, parent);
++	if (entry) {
++		entry->proc_fops = &proc_statctr_ops;
++		entry->data = group;
++	}
++	else
++		ret = -1;
++	return ret;
++}
++
++/**
++ * create_statctr_group - Creates and sets up a "statctr group" 
++ * @parent  : proc_dir_entry under which @procname entry should appear.
++ *	      NULL is ok; but procname will be created under 
++ *	      '/proc/statistics/' -- that is as /proc/statistics/$procname
++ * @procname: Name of the /proc file which the statctr group represents
++ * 
++ * Memory to the statctr proc entry will be allocated by this method.
++ * This method registers the procname file under proc_dir_entry.
++ * Returns non zero on error.
++ */
++struct statctr_group *
++	create_statctr_group(struct proc_dir_entry *parent,
++				   const char *procname)
++{
++	struct statctr_group *group = NULL;
++	struct proc_dir_entry *tmpparent;
++
++	if (!procname)
++		return NULL;
++
++	if (!parent)
++		tmpparent = proc_statistics;
++	else
++		tmpparent = parent;
++
++	group = kmalloc(sizeof(*group), GFP_KERNEL);
++	if (!group) 
++		return NULL;
++
++	if (create_statctr_seq_entry (procname, 0444, tmpparent, group)) {
++		kfree(group);
++		return NULL;
++	}
++
++	group->procname = kmalloc(strlen(procname) + 1, GFP_KERNEL);
++	if (!group->procname) {
++		remove_proc_entry(procname, tmpparent);
++		kfree(group);
++		return NULL;
++	}
++	memcpy(group->procname, procname, strlen(procname)+1);
++	group->parent = tmpparent;
++	INIT_LIST_HEAD(&group->head);
++	
++	return group;
++}
++
++/**
++ * free_statctr_group - Perform cleanup functions on a statctr group
++ * @group: Pointer to struct statctr_group type; 
++ * This method unregisters the proc entry associated with this @group and
++ * frees the memory pointed by it. 
++ */
++void free_statctr_group(struct statctr_group *group)
++{
++	if (unlikely(!list_empty(&group->head)))
++		BUG();
++	remove_proc_entry(group->procname, group->parent);
++	kfree(group->procname);
++	kfree(group);
++}
++
++static int statctr_link_group(statctr_t *stctr, 
++			       struct statctr_group *group,
++			       const char *ctrname, 
++			       int gfp_mask)
++{
++	stctr->name = NULL;
++	if (!group) {
++		INIT_LIST_HEAD(&stctr->grouplist);
++		return 0;
++	}
++	
++	if (ctrname) {
++		stctr->name = kmalloc(strlen(ctrname) + 1, gfp_mask); 
++		if (!stctr->name)
++			return -ENOMEM;
++		memcpy(stctr->name, ctrname, strlen(ctrname)+1);
++	}
++	
++	list_add_tail(&stctr->grouplist, &group->head);
++	return 0;
++}
++	
++static void statctr_unlink_group(statctr_t *stctr)
++{
++	if (stctr->name)
++		kfree(stctr->name);
++	if (!list_empty(&stctr->grouplist))
++		list_del(&stctr->grouplist);
++}
++#else	/* CONFIG_PROC_FS */
++#define statctr_link_group(stctr, group, ctrname, gfp_mask) \
++		({do { } while (0); 0;}) 
++#define	statctr_unlink_group(stctr)  do { } while (0)
++#endif	/* CONFIG_PROC_FS */
++
++/**
++ * statctr_init - Sets up the statistics counter
++ * @stctr    :	Pointer to statctr_t type; counter to be initialised
++ * @group   : 	The struct statctr_group type which represents a 
++ *		/proc entry. This should have been created by using the 
++ *		create_statctr_group interface. Passing NULL turns 
++ *		off /proc association for the counter & @ctrname is ignored.
++ * @ctrname  :	This is the label of the counter in the /proc file
++ *		indicated by @group. NULL is also fine; you just don't see
++ *		a label against the counter value then.
++ * @gfp_mask     :	GFP_xx flags to be passed for kernel memory allocation.
++ *
++ * Allocates memory to a statistics counter. Returns 0 on successful
++ * allocation and non zero otherwise.  Makes a /proc entry based on the
++ * group parameter.  statctr_init s linking to a single statctr_group
++ * should be done either single threadedly or with your own serialization.
++ * There could have been a per group lock on the statctr_group, but
++ * then you would have no control over the order in which entries show up 
++ * on /proc
++ */
++int statctr_init(statctr_t *stctr, 
++		 struct statctr_group *group, 
++		 const char *ctrname, 
++		 int gfp_mask)
++{
++	int ret;
++	if ((ret = __statctr_init(stctr, gfp_mask)))
++		return ret;
++	if ((ret = statctr_link_group(stctr, group, ctrname, gfp_mask))) {
++		__statctr_cleanup(stctr);
++		return ret;
++	}
++	return 0;
++}
++
++/**
++ * statctr_cleanup - Perform cleanup functions on a statctr counter
++ * @ctr: Pointer to statctr_t type; 
++ */
++void statctr_cleanup(statctr_t *stctr)
++{
++	__statctr_cleanup(stctr);
++	statctr_unlink_group(stctr);
++}
++
++#ifdef  CONFIG_PROC_FS  
++EXPORT_SYMBOL(create_statctr_group);
++EXPORT_SYMBOL(free_statctr_group);
++#endif
++
++EXPORT_SYMBOL(statctr_init);
++EXPORT_SYMBOL(statctr_cleanup);
++

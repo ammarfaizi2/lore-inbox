@@ -1,92 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261936AbVBUJv2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbVBUJ6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261936AbVBUJv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 04:51:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVBUJvV
+	id S261938AbVBUJ6M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 04:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbVBUJ6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 04:51:21 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:48816 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261934AbVBUJvG (ORCPT
+	Mon, 21 Feb 2005 04:58:12 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:48344 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261938AbVBUJ6E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 04:51:06 -0500
-Date: Mon, 21 Feb 2005 01:47:28 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Cc: johnpol@2ka.mipt.ru, akpm@osdl.org, greg@kroah.com,
-       linux-kernel@vger.kernel.org, elsa-devel@lists.sourceforge.net,
-       gh@us.ibm.com, efocht@hpce.nec.com
-Subject: Re: [PATCH 2.6.11-rc3-mm2] connector: Add a fork connector
-Message-Id: <20050221014728.6106c7e1.pj@sgi.com>
-In-Reply-To: <1108969656.8418.59.camel@frecb000711.frec.bull.fr>
-References: <1108652114.21392.144.camel@frecb000711.frec.bull.fr>
-	<1108655454.14089.105.camel@uganda>
-	<1108969656.8418.59.camel@frecb000711.frec.bull.fr>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 21 Feb 2005 04:58:04 -0500
+Date: Mon, 21 Feb 2005 10:57:42 +0100
+From: Andi Kleen <ak@suse.de>
+To: Ray Bryant <raybry@sgi.com>
+Cc: Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>, ak@muc.de,
+       raybry@austin.rr.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview II
+Message-ID: <20050221095742.GA8788@wotan.suse.de>
+References: <20050215214831.GC7345@wotan.suse.de> <4212C1A9.1050903@sgi.com> <20050217235437.GA31591@wotan.suse.de> <4215A992.80400@sgi.com> <20050218130232.GB13953@wotan.suse.de> <42168FF0.30700@sgi.com> <20050220214922.GA14486@wotan.suse.de> <20050220143023.3d64252b.pj@sgi.com> <20050220223510.GB14486@wotan.suse.de> <42198DE5.2040703@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42198DE5.2040703@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guillaume wrote:
-> The problem is the following: I have a user space daemon that manages
-> group of processes. The main idea is, if a parent belongs to a group
-> then its child belongs to the same group.  To achieve this I need to know
-> when a fork occurs and which processes are involved. I don't see how to
-> do this without a hook in the do_fork() routine...
+On Mon, Feb 21, 2005 at 01:29:41AM -0600, Ray Bryant wrote:
+> This is different than your reply above, which seems to imply that:
+> 
+> (A)  Step 1 is to migrate mapped files using mbind().  I don't understand
+>      how to do this in general, because:
+>      (a)  I don't know how to make a non-racy list of the mapped files to
+>           migrate without assuming that the process to be migrated is 
+>           stopped
 
-How is what you need, for process grouping, any more complex than
-another sort of {bank, job, aggregate, session, group, ...} integer id
-field in the task struct, that is copied on fork, and can be queried and
-manipulated from user space, in accordance with whatever rules you
-implement?
+That was just a stop gap way to do the migration before you have
+xattrs for shared libraries. If you have them it's not needed.
 
-When I look at the elsacct_process_copy() routine, which is called from
-fork, in your patch-2.6.8.1-elsa, I'm not sure what it does, but it sure
-looks like it could cause scaling and performance problems.  Linux works
-really hard to keep fork costs low.  Copying another integer field, as
-part of the block copy of the task struct at fork, sure would be cheaper
-than this.  Not only does this hook look too expensive, I don't even see
-the need for any such explicit code hook in fork for accounting at all.
+> and  (b)  If the mapped file is associated with the DEFAULT memory policy,
+>           and page placement was done by first touch, then it is not clear
+>           how to use mbind() to cause the pages to be migrated, and still
+>           end up with the identical topological placement of pages after
+>           the migration.
 
-Does your user space daemon require to know about each task as it is
-forked, in near real time? Is it trying to do something with this
-accounting information while the tasks being accounted for are
-necessarily still alive?  The classic accounting that I am familiar
-with, from years ago, only did post-mortem analysis.  So long as enough
-entrails were left around so that it could piece together the story, it
-didn't require any immediate notice of anything.  You need to clear a
-couple of accounting accumulators directly in the task struct at fork,
-and write a record to a specified open file at exit.  That's about it.
+It can be done, but it's ugly. But it really was only intended for
+the shared libraries.
 
-The main problems I was aware of with that classic accounting (which
-is probably what is now known as BSD accounting) are:
-  1) The fixed length accounting record didn't allow for added or
-     longer fields.  A little bit more flexible and extensible format
-     is desired, but some effort should be made to keep the format
-     still reasonably tight and compressed.  No full spec XML.
-     The format should allow for some form of resyncronization after
-     a chunk of data is lost.
-  2) An additional bank/job/aggregate/session/group/... id seems desired.
-     I have yet to understand why this need be anything fancier than
-     another integer field in the task struct.
-  3) Probably some more data items are worth collecting -- which could
-     be placed in the outgoing compressed data stream, along with the
-     existing records written on task exit.  Over time, appropriate
-     hooks should be proposed to collect such data as seems needed.
-  4) The current mechanism of collecting per-task data only on exit
-     makes it difficult to account for long running jobs.  Perhaps we
-     could use a leisurely background task that slowly scans the tasks
-     looking for those that have been present since the last scan, and
-     causes an intermediate accounting record to be written for them.
+> (B)  Step 2 is to use page_migrate() to migrate just the anonymous pages.
+>      I don't like the restriction of this to just anonymous pages.
 
-What other essential deficiencies are there that you need to address?
+That would be only in this scenario; I agree it doesn't make sense
+to add it as a general restriction to the syscall.
 
-I don't see any need for explicit hooks in fork to resolve the above
-deficiencies.
+> 
+> Fundamentally, I don't see why (A) is much different from allowing one
+> process to manipulate the physical storage for another process.  It's
+> just stated in terms of mmap'd objects instead of pid's.  So I don't
+> see why that is fundamentally different from a page_migration() call
+> with va_start and va_end arguments.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401
+An mmaped object exists on its own. It's access is fully reference counted etc.
+
+> The only problem I see with that is the following:  Suppose that a user
+> wants to migrate a portion of their own address space that is composed
+> of (at last partly) anonymous pages or pages mapped to a file associated
+> with the DEFAULT memory policy, and we want the pages to be toplogically
+> allocated the same way after the migration as they were before the
+> migration?
+
+It doesn't seem very realistic to me. When a user wants to change
+its own address room then they can use mbind() from the beginning
+and they should know how their memory layout is.
+
+-Andi

@@ -1,47 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264612AbTI2Tpk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 15:45:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264630AbTI2Tpk
+	id S264674AbTI2Tyy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 15:54:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264676AbTI2Tyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 15:45:40 -0400
-Received: from law11-f95.law11.hotmail.com ([64.4.17.95]:35848 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S264612AbTI2Tpi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 15:45:38 -0400
-X-Originating-IP: [220.224.20.172]
-X-Originating-Email: [kartik_me@hotmail.com]
-From: "kartikey bhatt" <kartik_me@hotmail.com>
-To: hahn@physics.mcmaster.ca
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can't X be elemenated?
-Date: Tue, 30 Sep 2003 01:15:37 +0530
+	Mon, 29 Sep 2003 15:54:54 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:5760 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S264674AbTI2Tyx (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 15:54:53 -0400
+Message-Id: <200309291954.h8TJsm6p002210@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: -mregparm=3 (was  Re: [PATCH] i386 do_machine_check() is redundant. 
+In-Reply-To: Your message of "Mon, 29 Sep 2003 11:46:12 PDT."
+             <Pine.LNX.4.44.0309291142430.3626-100000@home.osdl.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.44.0309291142430.3626-100000@home.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <LAW11-F951J106zPpPk000301c5@hotmail.com>
-X-OriginalArrivalTime: 29 Sep 2003 19:45:38.0142 (UTC) FILETIME=[41C087E0:01C386C2]
+Content-Type: multipart/signed; boundary="==_Exmh_-479303268P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 29 Sep 2003 15:54:48 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-479303268P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 29 Sep 2003 11:46:12 PDT, Linus Torvalds said:
+
+> Has anybody checked out whether the kernel works with -mregparm=3? I
+> forget who did a lot of the work on it originally, and it certainly _used_
+> to work fine. The improvements to both code size and performance were, if 
+> I remember correctly, measurable but not huge.
+
+It works well enough that my laptop made it to initlevel 3.  The code size
+wasn't drastically smaller (perhaps another 2-3% but I already compile with
+-Os).  The system "felt" snappier, but I have no benchmark numbers to give.  I
+could probably get some numbers if anybody cares, but there's a showstopper for
+me - I can't make it to initlevel 5 easily:
+
+> One worry (apart from just broken compilers and missing "asmlinkage" 
+> annotations) is that having compiler-version-dependent calling conventions 
+> makes for another variable to take into account when chasing down bugs and 
+> worrying about things like the Nvidia module etc. So it's probably not 
+> worth doing unless the advantages are clear.
+
+Quite correct - even after recompiling the sourced portions of the NVidia
+driver, it dies a horrid death on 'insmod' when the closed-source portion
+passes a parameter on the stack and the open side expects the value in a
+register, and follows the register value to a quick death....
+
+Yes, yes, I know, I could re-try with the open-source nv driver instead of the
+closed-source NVidia driver - but the open-source one costs me more in
+performance (as it's unaccelerated) than the mregparm=3 is likely to get me
+back....
 
 
+--==_Exmh_-479303268P
+Content-Type: application/pgp-signature
 
->From: Mark Hahn <hahn@physics.mcmaster.ca>
->To: kartikey bhatt <kartik_me@hotmail.com>
->Subject: Re: Can't X be elemenated?
->Date: Mon, 29 Sep 2003 12:53:21 -0400 (EDT)
->
-> > Can't X be elemenated?
->
->of course.  but this has nothing to do with linux-kernel development.
->this has been done many times already.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-point me to work that has been done.
+iD8DBQE/eI4HcC3lWbTT17ARAj0tAKC8DAx5twVluR2t+QULVICGZhynOQCfekLg
+I+WH4SAtxV9DfSkoJ9rNVB4=
+=OXr9
+-----END PGP SIGNATURE-----
 
->prove it.
-i'll send you my test result data.
-
-_________________________________________________________________
-Answer simple questions. Win a free honeymoon. 
-http://server1.msn.co.in/sp03/shaadi/index.asp Sail into the sunset!
-
+--==_Exmh_-479303268P--

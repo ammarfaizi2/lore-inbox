@@ -1,55 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317779AbSGKHRL>; Thu, 11 Jul 2002 03:17:11 -0400
+	id <S317780AbSGKHRj>; Thu, 11 Jul 2002 03:17:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317780AbSGKHRK>; Thu, 11 Jul 2002 03:17:10 -0400
-Received: from sproxy.gmx.de ([213.165.64.20]:56998 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S317779AbSGKHRC>;
-	Thu, 11 Jul 2002 03:17:02 -0400
-Message-ID: <002601c228ab$86b235e0$1c6fa8c0@hyper>
-From: "Christian Ludwig" <cl81@gmx.net>
-To: "Ville Herva" <vherva@niksula.hut.fi>
-Cc: "Linux Kernel Mailinglist" <linux-kernel@vger.kernel.org>
-References: <003d01c22819$ba1818b0$1c6fa8c0@hyper> <20020711062832.GU1548@niksula.cs.hut.fi>
-Subject: Re: bzip2 support against 2.4.18
-Date: Thu, 11 Jul 2002 09:21:07 +0200
+	id <S317781AbSGKHRi>; Thu, 11 Jul 2002 03:17:38 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:53751 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S317780AbSGKHRf>;
+	Thu, 11 Jul 2002 03:17:35 -0400
+Message-ID: <3D2D319B.D081A7D3@mvista.com>
+Date: Thu, 11 Jul 2002 00:19:55 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+To: Daniel Phillips <phillips@arcor.de>
+CC: Jesse Barnes <jbarnes@sgi.com>, Andreas Dilger <adilger@clusterfs.com>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: spinlock assertion macros
+References: <200207102128.g6ALS2416185@eng4.beaverton.ibm.com> <E17SPsV-00028p-00@starship> <20020710233616.GA696482@sgi.com> <E17SWXm-0002BL-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I actually did not mesásured how much smaller bz2bzImages are definitely.
-Want to say that I haven't made a complete battery of tests yet.
+Daniel Phillips wrote:
+> 
+> On Thursday 11 July 2002 01:36, Jesse Barnes wrote:
+> > On Thu, Jul 11, 2002 at 12:24:06AM +0200, Daniel Phillips wrote:
+> > > Acme, which is to replace all those above-the-function lock coverage
+> > > comments with assert-like thingies:
+> > >
+> > >    spin_assert(&pagemap_lru_lock);
+> > >
+> > > And everbody knows what that does: when compiled with no spinlock
+> > > debugging it does nothing, but with spinlock debugging enabled, it oopses
+> > > unless pagemap_lru_lock is held at that point in the code.  The practical
+> > > effect of this is that lots of 3 line comments get replaced with a
+> > > one line assert that actually does something useful.  That is, besides
+> > > documenting the lock coverage, this thing will actually check to see if
+> > > you're telling the truth, if you ask it to.
+> > >
+> > > Oh, and they will stay up to date much better than the comments do,
+> > > because nobody needs to to be an ueber-hacker to turn on the option and
+> > > post any resulting oopses to lkml.
+> >
+> > Sounds like a great idea to me.  Were you thinking of something along
+> > the lines of what I have below or perhaps something more
+> > sophisticated?  I suppose it would be helpful to have the name of the
+> > lock in addition to the file and line number...
+> 
+> I was thinking of something as simple as:
+> 
+>    #define spin_assert_locked(LOCK) BUG_ON(!spin_is_locked(LOCK))
+> 
+> but in truth I'd be happy regardless of the internal implementation.  A note
+> on names: Linus likes to shout the names of his BUG macros.  I've never been
+> one for shouting, but it's not my kernel, and anyway, I'm happy he now likes
+> asserts.  I bet he'd like it more spelled like this though:
+> 
+>    MUST_HOLD(&lock);
+> 
+> And, dare I say it, what I'd *really* like to happen when the thing triggers
+> is to get dropped into kdb.  Ah well, perhaps in a parallel universe...
 
-The only thing I found out empirically is that my boot+root floppy (2MB
-ext2fs root, totally overcrowded of course ;( and with kernel/ramdisk dd'ed
-straight on it without lilo) is about 1.42MB with the standard 2.4.18 kernel
-alltogether. Using bz2bzImage and compressing the root image with bzip -9
-the overall size went down to 1.3MB with exactly the same configuration.
+I should hope that, when BUG executes the unimplemented
+instruction, it does go directly to kdb.  It certainly does
+with my kgdb, as do all Oops, NULL dereferences, etc., etc.
+> 
+> When one of these things triggers I do think you want everything to come to
+> a screeching halt, since, to misquote Matrix, "you're already dead", and you
+> don't want any one-per-year warnings to slip off into the gloomy depths of
+> some forgotten log file.
+> 
+> --
+> Daniel
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I also have tested it with a 4MB RAM 486DX-100 PC, but this crashed after
-loading the kernel, so the decompression failed.
-Putting in another 4MB into that machine (thus it has 8MB now), made the
-kernel boot, but ramdisk decompression failed. All in all you will need at
-least 12MB to boot correctly, if you are using a bz2bzImage of about 700kB
-and a 2MB compressed ramdisk image.
-But I think nowadays ram shouldn't be that problem anymore, as log as we are
-speaking of 12MB. For anybody who does not have that "much" ram the old
-method is still available...
-
-Have fun...
-
-    - Christian
-
----------------------------------
-Computers get faster every day.
-Linux gets better every day.
-I won't use Windows in no way.
-
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

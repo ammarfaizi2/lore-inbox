@@ -1,78 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267445AbUI1BFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267446AbUI1Ba6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267445AbUI1BFt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 21:05:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267446AbUI1BFt
+	id S267446AbUI1Ba6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 21:30:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266648AbUI1Ba6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 21:05:49 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:15273 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S267445AbUI1BFr
+	Mon, 27 Sep 2004 21:30:58 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38378 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265029AbUI1Bay
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 21:05:47 -0400
-Subject: [patch] inotify: silly fix
-From: Robert Love <rml@novell.com>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: linux-kernel@vger.kernel.org, gamin-list@gnome.org,
-       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org, iggy@gentoo.org
-In-Reply-To: <1096250524.18505.2.camel@vertex>
-References: <1096250524.18505.2.camel@vertex>
-Content-Type: multipart/mixed; boundary="=-TZw8L753wrVfDYIQsCAj"
-Date: Mon, 27 Sep 2004 21:05:51 -0400
-Message-Id: <1096333551.5103.133.camel@localhost>
+	Mon, 27 Sep 2004 21:30:54 -0400
+Date: Tue, 28 Sep 2004 02:30:52 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: rene@rocklinux-consulting.de
+Cc: James Bottomley <James.Bottomley@SteelEye.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: sym53c8xx_2 regressions in 2.6.9-rc2
+Message-ID: <20040928013052.GS16153@parcelfarce.linux.theplanet.co.uk>
+References: <1096316016.1714.77.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1096316016.1714.77.camel@mulgrave>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 27, 2004 at 04:13:26PM -0400, James Bottomley wrote:
+> Do you have any ideas about this...it doesn't seem to be connected with
+> domain vaildation.  The errors apparently show up during operation.
 
---=-TZw8L753wrVfDYIQsCAj
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Thanks for forwarding this, James.  Rene, it would be useful for you
+to submit bug reports to the maintainer directly, or even contact linux-scsi.
+I don't have time to wade through the mountains of crap on linux-kernel.
 
-On Sun, 2004-09-26 at 22:02 -0400, John McCutchan wrote:
+> From: René Rebe <rene@rocklinux-consulting.de>
+> 
+> James, your recent 2.6.9-pre changes seem to cause new regressions in 
+> the sym53c8xx_2 driver.
+> 
+> On my U30 sparc64 box I get many errors in the system log:
+> 
+> Sep 20 15:28:34 sundown kernel: sym0:0:0:phase change 6-7 11@c7ff7b90 
+> resid=6.
+> Sep 20 15:28:34 sundown last message repeated 2 times
+> 
+> those did not show up in any other 2.6 kernel up to .8.1 ...
 
-John,
-
-> Announcing the release of inotify 0.10.0. 
-> Attached is a patch to 2.6.8.1.
-
-John, as Andrew pointed out, we are missing some braces in an
-inopportune location.  I think we need to refactor this code entirely,
-to remove the access_ok() checks and use copy_{to,from}_user(), but we
-can take this in the meantime since the patch is dead without it.
-
-I'll take paper, please.  One brown paper bag right over my head.
-
-	Robert Love
+When do these show up?  Are they at initialisation time or are they during
+normal operation?  You report the dmesg from a 2.6.8 kernel, how does the
+2.6.9-rc2 one differ?  Is the sym2 driver version 2.1.18j in both kernels?
 
 
---=-TZw8L753wrVfDYIQsCAj
-Content-Disposition: attachment; filename=inotify-rml-typo-1.patch
-Content-Type: text/x-patch; name=inotify-rml-typo-1.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-ARE WE SERIOUS?
-
-Signed-Off-By: Robert Love <rml@novell.com>
-
- drivers/char/inotify.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
-diff -urN linux-inotify/drivers/char/inotify.c linux/drivers/char/inotify.c
---- linux-inotify/drivers/char/inotify.c	2004-09-25 15:23:10.000000000 -0400
-+++ linux/drivers/char/inotify.c	2004-09-27 21:00:48.455011760 -0400
-@@ -970,9 +970,10 @@
- 	if (_IOC_DIR(cmd) & _IOC_READ)
- 		err = !access_ok(VERIFY_READ, (void *) arg, _IOC_SIZE(cmd));
- 
--	if (err)
-+	if (err) {
- 		err = -EFAULT;
- 		goto out;
-+	}
- 
- 	if (_IOC_DIR(cmd) & _IOC_WRITE)
- 		err = !access_ok(VERIFY_WRITE, (void *)arg, _IOC_SIZE(cmd));
-
---=-TZw8L753wrVfDYIQsCAj--
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267474AbTAXAB7>; Thu, 23 Jan 2003 19:01:59 -0500
+	id <S267485AbTAXAC5>; Thu, 23 Jan 2003 19:02:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267477AbTAXAB7>; Thu, 23 Jan 2003 19:01:59 -0500
-Received: from [209.184.141.189] ([209.184.141.189]:8261 "HELO ubergeek")
-	by vger.kernel.org with SMTP id <S267474AbTAXAB6>;
-	Thu, 23 Jan 2003 19:01:58 -0500
-Subject: Using O(1) scheduler with 600 processes.
-From: Austin Gonyou <austin@coremetrics.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S267490AbTAXAC4>; Thu, 23 Jan 2003 19:02:56 -0500
+Received: from WARSL402PIP3.highway.telekom.at ([195.3.96.97]:33104 "HELO
+	email01.aon.at") by vger.kernel.org with SMTP id <S267485AbTAXACx>;
+	Thu, 23 Jan 2003 19:02:53 -0500
+Reply-To: <dk@webcluster.at>
+From: "Daniel Khan" <dk@webcluster.at>
+To: "GrandMasterLee" <masterlee@digitalroadkill.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: AW: 2.4.20 CPU lockup - Now with OOPS message
+Date: Fri, 24 Jan 2003 01:11:59 +0100
+Message-ID: <DIEGIJEABDDLMLKJFCKJCEFLCEAA.dk@webcluster.at>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Organization: Coremetrics, Inc.
-Message-Id: <1043367029.28748.130.camel@UberGeek>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 23 Jan 2003 18:10:29 -0600
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <1043366749.28748.124.camel@UberGeek>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've heard some say that O(1) sched can only really help on systems with
-lots and lots of processes.
+Hi,
 
-But my systems run about 600 processes max, but are P4 Xeons with HT,
-and we kick off several hundred processes sometimes. (sleeping to
-running then back) based on things happening in the system. 
+> > I reported frequently system lockups today.
+> > Now after some playing around (cause I don't know anything about kernel
+> > debugging - Thanks to Mark Hahn for the tipps)
+> > I found a way to reproduce the lock and to get the OOPS.
+[..]
 
-I am possibly going to forgo putting O(1)sched in production *right now*
-until I've got my patch solid. But I got to thinking, do I need it at
-all on a Oracle VLDB?
+> Can I ask how you reproduced this? I've got several systems with TG3's
+> and they only get lockups during network backups.
 
-I think yes, but I wanted to get some opinions/facts before making that
-choice to go without O(1) sched.
+httpd session on the host which has big logfiles to get them changed.
+Starting rsync to sync the logfiles and other stuff to the backup host.
 
+Sometimes I have to retry 2-3 times but it crashes very reliable.
+It's quite the same as the network backups you mentioning.
 
--- 
-Austin Gonyou <austin@coremetrics.com>
-Coremetrics, Inc.
+Daniel Khan

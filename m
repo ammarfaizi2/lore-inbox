@@ -1,42 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277243AbRJLGeN>; Fri, 12 Oct 2001 02:34:13 -0400
+	id <S277252AbRJLGjN>; Fri, 12 Oct 2001 02:39:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277252AbRJLGeC>; Fri, 12 Oct 2001 02:34:02 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:8115 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S277243AbRJLGdx>; Fri, 12 Oct 2001 02:33:53 -0400
-Date: Fri, 12 Oct 2001 08:34:23 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Modutils 2.5 change, start running this command now
-Message-ID: <20011012083423.M30515@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <25612.1002800758@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <25612.1002800758@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Thu, Oct 11, 2001 at 09:45:58PM +1000
+	id <S277258AbRJLGjE>; Fri, 12 Oct 2001 02:39:04 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:36748 "EHLO
+	e32.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S277252AbRJLGi5>; Fri, 12 Oct 2001 02:38:57 -0400
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: andrea@suse.de (Andrea Arcangeli), cardoza@zk3.dec.com,
+        frival@zk3.dec.com (Peter Rival),
+        ink@jurassic.park.msu.ru (Ivan Kokshaysky), Jay.Estabrook@compaq.com,
+        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+        rth@twiddle.net (Richard Henderson), woodward@zk3.dec.com
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFEF9283F3.DB79EDD4-ON88256AE3.0024377A@boulder.ibm.com>
+From: "Paul McKenney" <Paul.McKenney@us.ibm.com>
+Date: Thu, 11 Oct 2001 23:35:38 -0700
+X-MIMETrack: Serialize by Router on D03NM045/03/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 10/12/2001 12:36:41 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 11, 2001 at 09:45:58PM +1000, Keith Owens wrote:
-> In current modutils, a module that does not export symbols and does not
-> say EXPORT_NO_SYMBOLS will default to exporting all symbols.  This is a
-> hangover from kernel 2.0 and will be removed when modutils 2.5 appears,
-> shortly after the kernel 2.5 branch is created.
- 
-Will it still be done, if we put it on the "export-objs" list?
 
-Putting an explicit "EXPORT_SYMBOL(foo)" only encourages people
-not to look what they can prepend with "static". Everything not
-static is the C-definition of "exporting".
+> > Note that they require a memory barrier (rmb()) between the time the
+> > item is removed from the queue and the time that the data in the item
+> > is referenced, despite the fact that there is a data dependency between
+> > the dequeueing and the dereferencing.  So, again, data dependency does
+> > -not- substitute for an MB on Alpha.
+>
+> This looks an awful lot like the PowerPC architecture.
 
-EXPORT_SYMBOL is nice, if you have modules consisting of multiple
-objects, that need to share variables/functions but should not be
-needed, if the module-author knows sth. about proper design.
+IIRC, the PowerPC architecture requires that data dependencies
+imply ordering (as does SPARC).  Unfortunately, I am currently >1000 km
+from my PPC manual, and my eyes just aren't quite what they used to be.
+I will look it up when I get back on Monday, and post my findings.
 
-Regards
+Sorry for the lack of an immediate answer!
 
-Ingo Oeser
+> In an SMP system, one would most likely mark pages as
+> requiring coherency. This means that stores to a memory
+> location from multiple processors will give sane results.
+> Ordering is undefined when multiple memory locations are
+> involved.
+
+Yep, the eieio and SYNC instructions are used to force
+ordering.
+
+> There is a memory barrier instruction called "eieio".
+> This is commonly used for IO, but is also useful for RAM.
+> Two separate sets of memory operations are simultaneously
+> and independently affected by eieio:
+>
+> -- set one, generally memory-mapped IO space --
+> loads to uncached + guarded memory
+> stores to uncached + guarded memory
+> stores to write-through-required memory
+>
+> -- set two, generally RAM on an SMP box --
+> stores to cached + write-back + coherent
+
+Set two is all we care about for SMP locking algorithms.
+People writing drivers sometimes have to worry about
+set one, but they often do so by use of locks, thus
+avoiding the set-one issues.
+
+> "The eieio instruction is intended for use in managing shared data
+> structures ... the shared data structure and the lock that protects
+> it must be altered only by stores that are in the same set"
+>                              -- from the 32-bit ppc arch book
+
+Yep!  If you map the same physical memory as coherent on one
+CPU and uncached on another, you are certainly taking your
+chances.  There may be a situation where doing this sort of
+thing is useful, but I don't know of one.
+
+                         Thanx, Paul
+

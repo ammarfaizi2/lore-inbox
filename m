@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291093AbSAaOl2>; Thu, 31 Jan 2002 09:41:28 -0500
+	id <S291096AbSAaPBn>; Thu, 31 Jan 2002 10:01:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291092AbSAaOlT>; Thu, 31 Jan 2002 09:41:19 -0500
-Received: from ns.suse.de ([213.95.15.193]:2062 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S291093AbSAaOlM>;
-	Thu, 31 Jan 2002 09:41:12 -0500
-Date: Thu, 31 Jan 2002 15:41:12 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Greg KH <greg@kroah.com>
-Cc: Mark McClelland <mark@alpha.dyndns.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: ov511 verbose startup.
-In-Reply-To: <20020131053124.GI31006@kroah.com>
-Message-ID: <Pine.LNX.4.33.0201311539160.7473-100000@Appserv.suse.de>
+	id <S291099AbSAaPBe>; Thu, 31 Jan 2002 10:01:34 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:45064 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S291097AbSAaPBU>; Thu, 31 Jan 2002 10:01:20 -0500
+Date: Thu, 31 Jan 2002 16:01:16 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: <roman@serv>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Ingo Molnar <mingo@elte.hu>, Martin Dalecki <dalecki@evision-ventures.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Rob Landley <landley@trommello.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <Pine.GSO.4.21.0201310725540.15689-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0201311558400.16064-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jan 2002, Greg KH wrote:
+Hi,
 
-> Yes, but odds are, it is trying to read the configuration of the device,
-> and we don't have control pipe locking, yet :)
-> Dave, does this problem go away on 2.5.3-pre6?
+On Thu, 31 Jan 2002, Alexander Viro wrote:
 
-Yes. From what I recall. I'll build a pre6 later to double check.
+> > 'old' architectures do not hinder development - they are separate, and
+> > they have to update their stuff. (and i think the m68k port is used by
+>
+> ... unless they play silly buggers with the internals of VM.
 
-> And which host controller driver are you using?
+As long as there is still someone who can respond to problems in the arch
+part, I don't really think it's a problem, or was it?
 
-CONFIG_USB_UHCI_ALT=y
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+bye, Roman
 

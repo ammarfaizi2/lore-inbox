@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVCLTOH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262018AbVCLTQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbVCLTOH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 14:14:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVCLTOG
+	id S262018AbVCLTQL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 14:16:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVCLTOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 14:14:06 -0500
-Received: from zork.zork.net ([64.81.246.102]:15586 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S262013AbVCLTNu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 14:13:50 -0500
-From: Sean Neakums <sneakums@zork.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dave Airlie <airlied@gmail.com>, linux-kernel@vger.kernel.org
-Subject: DRI breakage, 2.6.11-mm[123]
-References: <20050312034222.12a264c4.akpm@osdl.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, Dave Airlie
-	<airlied@gmail.com>, linux-kernel@vger.kernel.org
-Date: Sat, 12 Mar 2005 19:13:43 +0000
-In-Reply-To: <20050312034222.12a264c4.akpm@osdl.org> (Andrew Morton's message
-	of "Sat, 12 Mar 2005 03:42:22 -0800")
-Message-ID: <6uzmx87k48.fsf@zork.zork.net>
-MIME-Version: 1.0
+	Sat, 12 Mar 2005 14:14:17 -0500
+Received: from host-212-158-219-180.bulldogdsl.com ([212.158.219.180]:58266
+	"EHLO aeryn.fluff.org.uk") by vger.kernel.org with ESMTP
+	id S262008AbVCLTOF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 14:14:05 -0500
+Date: Sat, 12 Mar 2005 19:13:54 +0000
+From: Ben Dooks <ben@fluff.org>
+To: "Juan M. de la Torre" <jmtorre@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.11 does not handle IRQ #0 on IXP4xx ARM platforms
+Message-ID: <20050312191354.GC16590@home.fluff.org>
+References: <20050312190358.GA14440@mobile>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: sneakums@zork.net
-X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
+Content-Disposition: inline
+In-Reply-To: <20050312190358.GA14440@mobile>
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following happens with 2.6.11-mm[123].  (I didn't have time to
-investigate earlier; sorry.)  It does not happen with 2.6.11-rc3-mm2
-and 2.6.11.  I have tested 2.6.11-mm3 with dri disabled (by not
-loading X's dri module) and it also does not happen then.
+On Sat, Mar 12, 2005 at 08:03:58PM +0100, Juan M. de la Torre wrote:
+> 
+>  The original get_irqnr_and_bse macro leave Z flag set when the IRQ
+>  being handled is #0, but the correct behaviour is to clear the flag
+>  when there is at least one IRQ to handle.
+>  
+> PS: Please CC me in the reply because i'm not subscribed to the list
 
-When I start X, I get a screen full of what looks like random pixels.
-Apart from the pointer, X seems generally non-functional.  The X
-server (Debian's 4.3.0.dfsg.1-1) is spinning doing the following,
-apparently indefinitely (fd 5 is /dev/dri/card0):
+Best talk to the linux-arm-kernel list, which can be found
+on http://www.arm.linux.org.uk/
 
-  ioctl(5, 0x6444, 0)                     = -1 EBUSY (Device or resource busy)
-  ioctl(5, 0x6444, 0)                     = -1 EBUSY (Device or resource busy)
-  --- SIGALRM (Alarm clock) @ 0 (0) ---
-  sigreturn()                             = ? (mask now [])
-  ioctl(5, 0x6444, 0)                     = -1 EBUSY (Device or resource busy)
-  --- SIGALRM (Alarm clock) @ 0 (0) ---
-  sigreturn()                             = ? (mask now [])
-  ioctl(5, 0x6444, 0)                     = -1 EBUSY (Device or resource busy)
-  ioctl(5, 0x6444, 0)                     = -1 EBUSY (Device or resource busy)
-  --- SIGALRM (Alarm clock) @ 0 (0) ---
-  sigreturn()                             = ? (mask now [])
-  ioctl(5, 0x6444, 0)                     = -1 EBUSY (Device or resource busy)
-
-
-Kernel configuration at http://flynn.zork.net/~sneakums/config-2.6.11-mm3
+There is also an linux-arm patch tracking system there where
+you can submit fixes like that for the Linux/ARM community
+to check.
 
 -- 
-Dag vijandelijk luchtschip de huismeester is dood
+Ben (ben@fluff.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'

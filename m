@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272017AbTGRVYC (ORCPT <rfc822;willy@w.ods.org>);
+	id S272031AbTGRVYC (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 18 Jul 2003 17:24:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272014AbTGRVU0
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272017AbTGRVUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 17:20:26 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:40919
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S270384AbTGRVQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 17:16:40 -0400
-Subject: Re: Bitkeeper
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: nick@snowman.net
-Cc: Rik van Riel <riel@redhat.com>, Richard Stallman <rms@gnu.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0307181621530.16266-100000@ns.snowman.net>
-References: <Pine.LNX.4.21.0307181621530.16266-100000@ns.snowman.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058563709.19558.79.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 18 Jul 2003 17:20:36 -0400
+Received: from fw.osdl.org ([65.172.181.6]:3226 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271844AbTGRVUW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 17:20:22 -0400
+Date: Fri, 18 Jul 2003 14:27:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ricardo Galli <gallir@uib.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.0-test1 Ext3 Ooops. Reboot needed.
+Message-Id: <20030718142720.40983f6a.akpm@osdl.org>
+In-Reply-To: <200307182313.23288.gallir@uib.es>
+References: <200307181228.40142.gallir@uib.es>
+	<20030718140019.4f6667bd.akpm@osdl.org>
+	<200307182313.23288.gallir@uib.es>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 18 Jul 2003 22:28:29 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-07-18 at 21:22, nick@snowman.net wrote:
-> How about all of you take a much nicer tilt on this, and ask McVoy (who's
-> already giveing you the software free) his price to GPL bitkeeper.
+Ricardo Galli <gallir@uib.es> wrote:
+>
+> "File alteration monitor", from Debian.
 
-Make Larry a clear business case and I'm sure he will. However even
-though I don't agree with Larry on a lot of things I do agree that there
-isn't a sane case for him to GPL that software.
+OK.
 
-Larry actually had exactly these and related discussions before he ever
-went to Linus and others with the arrangement he proposed about free if
-your logs are public.
+> $ apt-cache show fam
 
-If you want to make something replace bitkeeper make it better. When
-Larry has customers forcing him to write bk to [whatever] convertors
-you've won. 
+I was attacked by dselect as a small child and have since avoided debian. 
+Is there a tarball anywhere?
 
+> Nevertheless I saw the same message the morning after updatedb run.
+
+But was the "Process:" also famd in that case?
+
+A bug in the dnotify code is unsurprising - it doesn't get used or tested
+much, and many things around it have changed.
 

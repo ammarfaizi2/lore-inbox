@@ -1,35 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263210AbTCSU4i>; Wed, 19 Mar 2003 15:56:38 -0500
+	id <S263168AbTCSVAt>; Wed, 19 Mar 2003 16:00:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263211AbTCSU4i>; Wed, 19 Mar 2003 15:56:38 -0500
-Received: from avscan1.sentex.ca ([199.212.134.11]:4108 "EHLO
-	avscan1.sentex.ca") by vger.kernel.org with ESMTP
-	id <S263210AbTCSU4h>; Wed, 19 Mar 2003 15:56:37 -0500
-Message-ID: <01f001c2ee5b$f418dd20$294b82ce@connecttech.com>
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "Andrus Nomm" <a.nomm@wap3.net>, <linux-kernel@vger.kernel.org>
-References: <000701c2ee22$efe61fd0$0100a8c0@andrus>
-Subject: Re: Kernels 2.2 and 2.4 exploit (ALL VERSION WHAT I HAVE TESTED UNTILL NOW!) - removed link
-Date: Wed, 19 Mar 2003 16:10:22 -0500
-Organization: Connect Tech Inc.
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4920.2300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+	id <S263169AbTCSVAt>; Wed, 19 Mar 2003 16:00:49 -0500
+Received: from userel174.dsl.pipex.com ([62.188.199.174]:16003 "EHLO
+	einstein31.homenet") by vger.kernel.org with ESMTP
+	id <S263168AbTCSVAs>; Wed, 19 Mar 2003 16:00:48 -0500
+Date: Wed, 19 Mar 2003 21:12:03 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: tigran@einstein31.homenet
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: mirrors <mirrors@kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Deprecating .gz format on kernel.org
+In-Reply-To: <3E78D0DE.307@zytor.com>
+Message-ID: <Pine.LNX.4.44.0303192107270.3901-100000@einstein31.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Andrus Nomm" <a.nomm@wap3.net>
-> It is an linux kernel development team fault that they do not give any
-> direct instructions how to submit bug, now this eploit is very public
-> probably.
+On Wed, 19 Mar 2003, H. Peter Anvin wrote:
+> i) Does this sound reasonable to everyone?  In particular, is there any
+> loss in losing the "original" compressed files?
 
-linux/REPORTING_BUGS
+No, there is at least one reason for the "original" .gz files. Here are 
+the logical steps:
 
-The irony is that the bug reporting process makes the bug public, so
-you would've had the same result.
+a) any Linux distribution contains their own "linux" package with the 
+source base being "vanilla" Linux .tar.gz file
 
-..Stu
+b) switching such to .tar.bz2 will make building the package longer
+because of longer extract times
 
+c) re-running tar to generate a .tar.gz from .tar.bz2 and store the 
+.tar.gz instead will make customers suspicious --- i.e. they will have to 
+ask "is this _really_ a plain Linux tree or do I need to run diff(1) to 
+verify, just in case?"
+
+See the reasoning? However, I agree that this reason is very weak. But you
+were interested in any reasons, including weak ones,  I assume :)
+
+Regards
+Tigran
+
+> 
+> ii) Assuming a yes on the previous question, what time frame would it
+> make sense for this changeover to happen over?
+> 
+> 	-hpa
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

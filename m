@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129348AbQK3Jrc>; Thu, 30 Nov 2000 04:47:32 -0500
+        id <S129538AbQK3Jvm>; Thu, 30 Nov 2000 04:51:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129538AbQK3JrX>; Thu, 30 Nov 2000 04:47:23 -0500
-Received: from smtp2.free.fr ([212.27.32.6]:5637 "EHLO smtp2.free.fr")
-        by vger.kernel.org with ESMTP id <S129348AbQK3JrM>;
-        Thu, 30 Nov 2000 04:47:12 -0500
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-Subject: Re: Bonding...
-Message-ID: <975575796.3a261af501379@imp.free.fr>
-Date: Thu, 30 Nov 2000 10:16:37 +0100 (MET)
-From: Willy Tarreau <wtarreau@free.fr>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0011291619440.22577-100000@asdf.capslock.lan>
-In-Reply-To: <Pine.LNX.4.30.0011291619440.22577-100000@asdf.capslock.lan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
-X-Originating-IP: 195.6.58.78
+        id <S132057AbQK3Jvd>; Thu, 30 Nov 2000 04:51:33 -0500
+Received: from styx.suse.cz ([195.70.145.226]:22011 "EHLO kerberos.suse.cz")
+        by vger.kernel.org with ESMTP id <S129538AbQK3JvS>;
+        Thu, 30 Nov 2000 04:51:18 -0500
+Date: Thu, 30 Nov 2000 10:18:32 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "S.Salman Ahmed" <ssahmed@pathcom.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ATA100/UDMA100 Support on the ASUS-CUSL2 mobo
+Message-ID: <20001130101832.A344@suse.cz>
+In-Reply-To: <14885.64113.780609.704554@phoenix.somewhere.out.there>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <14885.64113.780609.704554@phoenix.somewhere.out.there>; from ssahmed@pathcom.com on Thu, Nov 30, 2000 at 01:57:54AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When using ethernet bonding, does it divide the load between the
-> two based on connection, or packet by packet?
+On Thu, Nov 30, 2000 at 01:57:54AM -0500, S.Salman Ahmed wrote:
+> 
+> [I am not subscribed to the list, so please CC: me]
+> 
+> Hi,
+> 
+> How well is the ATA100/UDMA100 supported in the development kernels ? I
+> have a system with an ASUS CUSL2 mobo, which has built-in ATA100 IDE
+> channels, alongwith a Maxtor 20Gb ATA100 HD.
+> 
+> I looked at the kernel config for 2.4.0-test11, but in the "IDE, ATA and
+> ATAPI Block devices" section couldn't find chipset-specific support for
+> either the:
+> 
+> (1) Intel i815 chipset, which is what the ASUS-CUSL2 has
+> 
+> or the
+> 
+> (2) Intel I/O Controller Hub 2 (ICH2)
+> 
+> I'd like to get my system working using the built-in ATA100 controller
+> on the ASUS CUSL2, but what options do I need in 2.4.0-test11's kernel
+> config ?
+> 
+> Is there support for the Intel i815 chipset ?
 
-packet by packet, so you can use both links to aggregate your bandwidth. I've
-used it at 200 Mbps with success.
+Yes, the PIIX driver should be able to handle ICH2 and ATA100.
 
-Regards
-Willy
+-- 
+Vojtech Pavlik
+SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

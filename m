@@ -1,28 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291531AbSB0UQz>; Wed, 27 Feb 2002 15:16:55 -0500
+	id <S292820AbSB0UY3>; Wed, 27 Feb 2002 15:24:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292928AbSB0UQd>; Wed, 27 Feb 2002 15:16:33 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9488 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292927AbSB0UQL>; Wed, 27 Feb 2002 15:16:11 -0500
-Subject: Re: Big file support
-To: barubary@cox.net (Barubary)
-Date: Wed, 27 Feb 2002 20:31:02 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, rstevens@vitalstream.com (Rick Stevens)
-In-Reply-To: <006301c1bfc9$a5c6de90$a7eb0544@CX535256D> from "Barubary" at Feb 27, 2002 12:02:12 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S292935AbSB0UXy>; Wed, 27 Feb 2002 15:23:54 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:5650 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S292928AbSB0UXe>;
+	Wed, 27 Feb 2002 15:23:34 -0500
+Date: Wed, 27 Feb 2002 17:23:53 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: davej@suse.de, benc@hawaga.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.5-dj1 - IPv6 not loading correctly.
+Message-ID: <20020227202353.GF4389@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>, davej@suse.de,
+	benc@hawaga.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0202241300100.11220-100000@barbarella.hawaga.org.uk> <Pine.LNX.4.33.0202242203080.21716-100000@barbarella.hawaga.org.uk> <20020225223203.C27081@suse.de> <20020225.141824.93396822.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16gAj8-0005kb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20020225.141824.93396822.davem@redhat.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A lot of the kernel supports big files already.  The real problem is the
-> fact that the primary Linux file system, ext3, does not.  If you use some
-> file system besides ext3, big files should work.
+Em Mon, Feb 25, 2002 at 02:18:24PM -0800, David S. Miller escreveu:
+>    From: Dave Jones <davej@suse.de>
+>    Date: Mon, 25 Feb 2002 22:32:03 +0100
+>    
+>     I'll let davem/acme comment on the correctness of the fix..
+>     Looks straightforward enough to me, but I'm not as kneedeep in
+>     networking internals as those two 8-)
+> 
+> I've poked acme about it.
 
-This is incorrect information. Ext3 supports large files. Whoever told
-you otherwise was wrong.
+Indeed, I'm changing oxygen cilinders while scuba diving into my mailbox 8)
+
+- Arnaldo

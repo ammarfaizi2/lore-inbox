@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263523AbTLOLvy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 06:51:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbTLOLvy
+	id S263539AbTLOMLb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 07:11:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbTLOMLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 06:51:54 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:36038
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S263523AbTLOLvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 06:51:53 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Vladimir Saveliev <vs@namesys.com>
-Subject: Re: Is there a "make hole" (truncate in middle) syscall?
-Date: Mon, 15 Dec 2003 05:52:22 -0600
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <20031211125806.B2422@hexapodia.org> <200312121535.22375.rob@landley.net> <1071482402.11042.36.camel@tribesman.namesys.com>
-In-Reply-To: <1071482402.11042.36.camel@tribesman.namesys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 15 Dec 2003 07:11:31 -0500
+Received: from main.gmane.org ([80.91.224.249]:11464 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263539AbTLOML3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 07:11:29 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Sergey Vlasov <vsu@altlinux.ru>
+Subject: Re: RFC - tarball/patch server in BitKeeper
+Date: Mon, 15 Dec 2003 15:11:26 +0300
+Message-ID: <20031215151126.3fe6e97a.vsu@altlinux.ru>
+References: <20031214172156.GA16554@work.bitmover.com>
+	<2259130000.1071469863@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312150552.22805.rob@landley.net>
+X-Complaints-To: usenet@sea.gmane.org
+X-Newsreader: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-alt-linux-gnu)
+Cc: bitkeeper-users@bitmover.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 December 2003 04:00, Vladimir Saveliev wrote:
+On Sun, 14 Dec 2003 22:31:04 -0800 Martin J. Bligh wrote:
 
-> > Truncate doesn't look at the contents of the file, it just frees the
-> > space regardless of what the data was.  (It doesn't have to load the
-> > contents of the blocks into memory and look at them in order to make the
-> > file's length shorter in the metadata and de-allocate those blocks.)
-> >
-> > What was suggested a bit earlier was automatically looking at the
-> > contents of the data being written to disk, and not allocating actual
-> > blocks if the data is all zeroes.  (A bit like looking at pages of memory
-> > and copy-on-write aliasing them to the zero page whenever the page is
-> > entirely zeroes.)
-> >
-> > Truncate doesn't do any of that.  Truncate only plays with metadata, and
-> > doesn't care about the contents of the file.
->
-> I thought we are talking about something which would allow to create
-> holes inside of non sparse file
+> One thing that I've wished for in the past which looks like it *might*
+> be trivial to do is to grab a raw version of the patch you already
+> put out in HTML format, eg if I surf down changesets and get to a page
+> like this:
+> 
+> http://linus.bkbits.net:8080/linux-2.5/patch@1.1522?nav=index.html|ChangeSet@-2w|cset@1.1522
+> 
+> except it got html formatted, so I can't play with it easily. Is there
+> any way to provide the raw format of that? If not, or you don't want to,
+> no problem - would just be convenient. This isn't a open source vs not
+> issue, it's just I often want one fix without the whole tree, and it'd
+> be a convenient place to grab it.
 
-Yes.  With a syscall that says "from here, to here, punch hole".
+You almost can do this now - in most cases, copying the text from
+Mozilla gives a good patch. The only problem is that the HTML
+generation code seems to have a bug - it correctly escapes '<' as
+"&lt;" and '>' as "&gt;", but does not escape '&' as "&amp;", and this
+occasionally leads to problems.
 
-The earlier suggestion I was disagreeing with would automatically create holes 
-in any file that wrote a sufficiently large range of zero bytes.  Hence the 
-cache poisoning and general defeating the purpose of DMA and such.  Neither 
-truncate, nor a punch syscall, would mess with the normal "write" path 
-(beyond locking so write and truncate/punch didn't stomp each other).
+I see another missing feature - there does not seem to be a way to
+order the changesets by the order of merging them into the tree. E.g.
+when you look at the linux-2.4 changesets, you will now find XFS all
+over the place - even before 2.4.23, while it really has been merged
+after 2.4.23.
 
-Rob

@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263676AbTIHUnr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 16:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263678AbTIHUnq
+	id S263562AbTIHUWA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 16:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbTIHUWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 16:43:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:2947 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263676AbTIHUnn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 16:43:43 -0400
-Date: Mon, 8 Sep 2003 13:43:38 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>, <willy@debian.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] use size_t for the broken ioctl numbers
-In-Reply-To: <20030908222742.A1085@pclin040.win.tue.nl>
-Message-ID: <Pine.LNX.4.44.0309081335040.1666-100000@home.osdl.org>
+	Mon, 8 Sep 2003 16:22:00 -0400
+Received: from mailgate.uni-paderborn.de ([131.234.22.32]:40632 "EHLO
+	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
+	id S263562AbTIHUV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 16:21:58 -0400
+Message-ID: <3F5CE3E6.8070201@upb.de>
+Date: Mon, 08 Sep 2003 22:17:42 +0200
+From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Paul Clements <Paul.Clements@SteelEye.com>
+CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [NBD] patch and documentation
+References: <3F5CB554.5040507@upb.de> <20030908193838.GA435@elf.ucw.cz> <3F5CE0E5.A5A08A91@SteelEye.com>
+In-Reply-To: <3F5CE0E5.A5A08A91@SteelEye.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: Please see http://imap.upb.de for details
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-25.4, required 4,
+	IN_REP_TO -3.30, QUOTED_EMAIL_TEXT -3.20, REFERENCES -6.60,
+	REPLY_WITH_QUOTES -6.50, USER_AGENT_MOZILLA_UA -5.80)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 8 Sep 2003, Andries Brouwer wrote:
+>>The patch also looks harmless enough for applying ;-).
 > 
-> Got it. Thanks!
+> Harmless enough, although I'm not sure it really makes that much
+> difference. The max_sectors being set to 255 doesn't, by itself, explain
+> the back and forth 127k, 1k request thing. Typically what you'll see is
+> 127k, 127k, 127k, etc. and then some odd sized request at the end. Or
+> the device gets unplugged anyway at some point and there are odd sized
+> requests scattered throughout...that's especially going to be true if
+> the reads or writes are from an actual disk, rather than /dev/null. I
+> may be just coincidence that setting max_sectors to 256 actually helps.
+> Also, are we sure that all those requests you're seeing are of the same
+> type (all reads, all writes)?
 
-Side notes:
+Well, i guess the cache uses a value of 256 sectors to do read-ahead and 
+such. I used dd if=/dev/nbd/0 of=/dev/null bs=X with both X=1 and X=1M.
+Both with the same result. That the 1byte requests join together to 
+bigger ones can only be explained with read-aheads strategies.
+Anyway, the result is always the same:
 
- - Jeff made a mailing list if you're really interested in sparse 
-   (majordomo@vger.kernel.org, the list name is "linux-sparse")
+without patch: 127KB, 1KB, 127KB, 1KB
+with path: 128KB, 128KB, 128KB
 
- - most of the warnings right now seem to be "bad constant expression" due 
-   to the adoption of C99 variable-sized arrays in <linux/bitmap.h>. I 
-   don't much like it.
+As long as dd doesn't write i'm sure that i didn't see any write 
+requests. In addition it is a very regular pattern.
+If it is really the case that the cache reads 256 sectors and the 
+default limit is 255, than this would also happen for all other 
+block-devices. In addition it would be a good thing to look up if the 
+cache takes the max_sectors stuff into accout while determining the 
+amout of sectors it reads ahead.
 
- - the rest are mostly due to the address space checks. Some of them are 
-   likely trivial to fix, but the most interesting ones (in the networking 
-   code) are because the networking code re-uses the same data structures 
-   for both kernel and user addresses. David said he'd fix it a long time 
-   ago, but he never got around to it..
-
-Finally:
-
- - it's not seriously usable yet. It's _almost_ there, but especially the 
-   networking thing has kept me from being very motivated lately. I've 
-   documented some of the preprocessor limitations in the "validation" 
-   tests.
-
-Have fun.
-
-		Linus
 

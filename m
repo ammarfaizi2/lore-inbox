@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319397AbSIFVFQ>; Fri, 6 Sep 2002 17:05:16 -0400
+	id <S319396AbSIFVXw>; Fri, 6 Sep 2002 17:23:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319402AbSIFVFQ>; Fri, 6 Sep 2002 17:05:16 -0400
-Received: from eos.telenet-ops.be ([195.130.132.40]:13255 "EHLO
-	eos.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S319397AbSIFVFP>; Fri, 6 Sep 2002 17:05:15 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: <Hell.Surfers@cwctv.net>, linux-kernel@vger.kernel.org
-Subject: Re: Re: ide drive dying?
-Date: Fri, 6 Sep 2002 23:07:01 +0200
-User-Agent: KMail/1.4.1
-References: <0d2bf5139200692DTVMAIL9@smtp.cwctv.net>
-In-Reply-To: <0d2bf5139200692DTVMAIL9@smtp.cwctv.net>
+	id <S319401AbSIFVXw>; Fri, 6 Sep 2002 17:23:52 -0400
+Received: from magic.adaptec.com ([208.236.45.80]:3294 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id <S319396AbSIFVXv>;
+	Fri, 6 Sep 2002 17:23:51 -0400
+Message-ID: <268DBFF7D2A3D411A37400D0B72E345F8990B3@aimexc03.corp.adaptec.com>
+From: "Gibson, Chuck" <Chuck_Gibson@adaptec.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Newbie kernel buffer question
+Date: Fri, 6 Sep 2002 14:28:22 -0700 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209062307.02048.devilkin-lkml@blindguardian.org>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 September 2002 22:40, Hell.Surfers@cwctv.net wrote:
-> Is a drive you cant rely on worth having?
+I am new to Linux (but not kernel development) and am developing a
+kernel-mode driver
+that needs to read/write a raw disk device.  I have been unable to find a
+way to map a
+kernel buffer for use with block_read() and/or block_write().
+Are there alternate calls to block_read/write that will allow use of a
+kernel-mode buffer,
+or can it be done with MMAP?  I am considering a temp hack of having a user
+process
+do an OPEN on my device and pass a user-space buffer to me for my use.  Note
+that
+the driver does NOT use the normal driver interface, but is an autonomous
+driver.
 
-Very good question... 
+Thanks for any help!
 
-the DFT has finished it's work, and tells me no more bad sectors are 
-present... for how long?
-
-To the swap guru's: what does linux do if it attempts to write to swap, and 
-gets an error code returned from the ide layer?
-
-DK
--- 
-The streets are safe in Philadelphia, it's only the people who make
-them unsafe.
-		-- Mayor Frank Rizzo
+________________
+Chuck Gibson
+Principal Engineer
+Corporate Technology Group
+Adaptec, Inc.
+(408) 957-2084
+cgibson@corp.adaptec.com
 

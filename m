@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262399AbVBBOXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbVBBO11@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262399AbVBBOXO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 09:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbVBBOXO
+	id S262575AbVBBO11 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 09:27:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262333AbVBBO10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 09:23:14 -0500
-Received: from main.gmane.org ([80.91.229.2]:12427 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262441AbVBBOXH (ORCPT
+	Wed, 2 Feb 2005 09:27:26 -0500
+Received: from pat.uio.no ([129.240.130.16]:30857 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262575AbVBBO1S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 09:23:07 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Richard Hughes <ee21rh@surrey.ac.uk>
-Subject: Re: Linux hangs during IDE initialization at boot for 30 sec
-Date: Wed, 2 Feb 2005 14:20:14 +0000 (UTC)
-Message-ID: <loom.20050202T151831-336@post.gmane.org>
-References: <200502011257.40059.brade@informatik.uni-muenchen.de>  <pan.2005.02.01.20.21.46.334334@surrey.ac.uk> <1107299901.5624.28.camel@gaston> <loom.20050202T134427-571@post.gmane.org> <4200CD15.6080001@kolivas.org>
+	Wed, 2 Feb 2005 09:27:18 -0500
+Date: Wed, 2 Feb 2005 15:21:55 +0100
+From: Haakon Riiser <haakon.riiser@fys.uio.no>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Accelerated frame buffer functions
+Message-ID: <20050202142155.GA2764@s>
+Mail-Followup-To: Linux kernel <linux-kernel@vger.kernel.org>
+References: <20050202133108.GA2410@s> <Pine.LNX.4.61.0502020900080.16140@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 20.133.0.11 (Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.7.5) Gecko/20041107 Firefox/1.0)
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner: Found to be clean
-X-MailScanner-From: glk-linux-kernel@m.gmane.org
-X-MailScanner-To: linux-kernel@vger.kernel.org
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0502020900080.16140@chaos.analogic.com>
+User-Agent: Mutt/1.5.6i
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0.05, required 12,
+	autolearn=disabled, FORGED_RCVD_HELO 0.05)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel <at> kolivas.org> writes:
+[Dick Johnson]
 
-> >>I'm not sure how the list of intefaces is probed on this machine, that's
-> >>probably where the problem is.
+> On Wed, 2 Feb 2005, Haakon Riiser wrote:
 > 
-> I've read that people have had this problem go away if they disable this 
-> option:
+>> How can I use a frame buffer driver's optimized copyarea, fillrect,
+>> blit, etc. from userspace?  The only way I've ever seen anyone use
+>> the frame buffer device is by mmap()ing it and doing everything
+>> manually in the mapped memory.  I assume there must be ioctls for
+>> accessing the accelerated functions, but after several hours of
+>> grepping and googling, I give up. :-(
 > 
-> < >     generic/default IDE chipset support
+> X-Windows already does this.
 
-Okay I'll try this tonight. I'm running a stock Fedora kernel at the moment
-(rawhide) so this issue might affect more people than we think.
- 
-> If you have chipset support for your IDE controller this isn't needed, 
-> and I'd recommend disabling it. The "why" it made the problem go away is 
-> something I can't answer.
+Yeah, I thought the X11 fbdev driver supported acceleration, but not
+according to its manpage:
 
-Richard.
+  fbdev is an Xorg driver for framebuffer devices.  This is a
+  non-accelerated driver [...]
 
-
-
-
+-- 
+ Haakon

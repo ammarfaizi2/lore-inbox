@@ -1,77 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264715AbTAQMTk>; Fri, 17 Jan 2003 07:19:40 -0500
+	id <S265094AbTAQMW2>; Fri, 17 Jan 2003 07:22:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265094AbTAQMTk>; Fri, 17 Jan 2003 07:19:40 -0500
-Received: from port-212-202-185-115.reverse.qdsl-home.de ([212.202.185.115]:4775
-	"EHLO el-zoido.localnet") by vger.kernel.org with ESMTP
-	id <S264715AbTAQMTi>; Fri, 17 Jan 2003 07:19:38 -0500
-Message-ID: <3E27F79F.2090705@trash.net>
-Date: Fri, 17 Jan 2003 13:31:27 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-X-Accept-Language: en
+	id <S266020AbTAQMW2>; Fri, 17 Jan 2003 07:22:28 -0500
+Received: from [132.69.253.254] ([132.69.253.254]:6601 "HELO
+	vipe.technion.ac.il") by vger.kernel.org with SMTP
+	id <S265094AbTAQMW1>; Fri, 17 Jan 2003 07:22:27 -0500
+Date: Fri, 17 Jan 2003 14:31:19 +0200 (IST)
+From: Shlomi Fish <shlomif@vipe.technion.ac.il>
+To: <linux-kernel@vger.kernel.org>
+Subject: ANN: LKMB (Linux Kernel Module Builder) version 0.1.16
+Message-ID: <Pine.LNX.4.33L2.0301171425070.19816-100000@vipe.technion.ac.il>
 MIME-Version: 1.0
-To: paulus@samba.org
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH]: PPP_FILTER outbound only drops with debugging enables
-Content-Type: multipart/mixed;
- boundary="------------060305090702030904040509"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060305090702030904040509
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hi.
+LKMB version 0.1.16 is the humble codeware beginning of the CLAN project.
+It is essentially a Perl package (proper with Makefile.PL and all, but not
+CPANed yet), which enables one to process LKMB packages.
 
-Packets in ppp_send_frame catched by pass_filter are only dropped if 
-debuging is enabled:
+The latter ones are packages that LKMB can create installation and
+compilation packages for kernel modules that can run in any enviornment
+the Linux kernel can be compiled and installed on. (a GNU environment).
 
-                if (ppp->pass_filter.filter
-                    && sk_run_filter(skb, ppp->pass_filter.filter,
-                                     ppp->pass_filter.len) == 0) {
-                        if (ppp->debug & 1) {
-                                printk(KERN_DEBUG "PPP: outbound frame 
-not passed\n");
-                                kfree_skb(skb);
-                                return;
-                        }
-                }
+It contains an example module for the Ethernet DMFE module. Currently, the
+makefile for the kernel module's package supports only the "all" and
+"install" targets.
 
+I will upload it to CPAN soon, but would like to get some initial feedback
+beforehand.
 
-
-The problem is still present in 2.5 bitkeeper tree. Attached patch fixes it.
 Regards,
-Patrick
+
+	Shlomi Fish
 
 
---------------060305090702030904040509
-Content-Type: text/plain;
- name="ppp_filter-outbound-fix.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ppp_filter-outbound-fix.diff"
+----------------------------------------------------------------------
+Shlomi Fish        shlomif@vipe.technion.ac.il
+Home Page:         http://t2.technion.ac.il/~shlomif/
 
---- linux-2.4.20/drivers/net/ppp_generic.c.orig	2003-01-17 13:15:32.000000000 +0100
-+++ linux-2.4.20/drivers/net/ppp_generic.c	2003-01-17 13:16:23.000000000 +0100
-@@ -965,11 +965,10 @@
- 		if (ppp->pass_filter.filter
- 		    && sk_run_filter(skb, ppp->pass_filter.filter,
- 				     ppp->pass_filter.len) == 0) {
--			if (ppp->debug & 1) {
-+			if (ppp->debug & 1)
- 				printk(KERN_DEBUG "PPP: outbound frame not passed\n");
--				kfree_skb(skb);
--				return;
--			}
-+			kfree_skb(skb);
-+			return;
- 		}
- 		/* if this packet passes the active filter, record the time */
- 		if (!(ppp->active_filter.filter
-
---------------060305090702030904040509--
+He who re-invents the wheel, understands much better how a wheel works.
 

@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270384AbTGWPVV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 11:21:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270386AbTGWPVV
+	id S261249AbTGWPcG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 11:32:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270345AbTGWPcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 11:21:21 -0400
-Received: from rth.ninka.net ([216.101.162.244]:49792 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S270384AbTGWPVT (ORCPT
+	Wed, 23 Jul 2003 11:32:06 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:36559 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S261249AbTGWPcF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 11:21:19 -0400
-Date: Wed, 23 Jul 2003 08:36:21 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dgk@research.att.com, linux-kernel@vger.kernel.org, gsf@research.att.com,
-       netdev@oss.sgi.com
-Subject: Re: kernel bug in socketpair()
-Message-Id: <20030723083621.26429e51.davem@redhat.com>
-In-Reply-To: <1058970007.5520.68.camel@dhcp22.swansea.linux.org.uk>
-References: <200307231332.JAA26197@raptor.research.att.com>
-	<1058970007.5520.68.camel@dhcp22.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 23 Jul 2003 11:32:05 -0400
+Date: Wed, 23 Jul 2003 17:46:58 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Chris Heath <chris@heathens.co.nz>
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6] Fix for Toshiba laptop keyboards
+Message-ID: <20030723154658.GB24350@ucw.cz>
+References: <20030722182817.9F8A.CHRIS@heathens.co.nz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030722182817.9F8A.CHRIS@heathens.co.nz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Jul 2003 15:20:08 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> On Mer, 2003-07-23 at 14:32, David Korn wrote:
-> > The first problem is that files created with socketpair() are not accessible
-> > via /dev/fd/n or /proc/$$/fd/n where n is the file descriptor returned
-> > by socketpair().  Note that this is not a problem with pipe().
+On Tue, Jul 22, 2003 at 06:37:47PM -0400, Chris Heath wrote:
+> Here is a patch that fixes the problem we've seen on Toshiba laptop
+> keyboards.
 > 
-> This is intentional - sockets do not have an "open" operation currently.
+> It has been tested on my regular keyboard, and Ralf Hildebrandt has
+> confirmed that it fixes the problem on his Toshiba.
 
-Sure, but we've known this for a long time.
+Good fix, thanks!
 
-And because we knew, we decided not to add an "open"
-method to sockets.  The reason, as I remember it, was
-security.
 
-Was it not?
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

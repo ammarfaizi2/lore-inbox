@@ -1,170 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129847AbRAYVHS>; Thu, 25 Jan 2001 16:07:18 -0500
+	id <S135200AbRAYVMI>; Thu, 25 Jan 2001 16:12:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131850AbRAYVGn>; Thu, 25 Jan 2001 16:06:43 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:58330 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S136140AbRAYVGW>; Thu, 25 Jan 2001 16:06:22 -0500
-From: jekacur@ca.ibm.com
-Importance: Normal
-Subject: Re:sigcontext on Linux-ppc in user space, another hack.
-To: khendricks@ivey.uwo.ca, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.linuxppc.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF3C25E159.46E6987C-ON852569DF.00700BFE@LocalDomain>
-Date: Thu, 25 Jan 2001 15:31:38 -0500
-X-MIMETrack: Serialize by Router on D25ML03/25/M/IBM(Release 5.0.4a |July 24, 2000) at
- 01/25/2001 04:06:09 PM
+	id <S135827AbRAYVL6>; Thu, 25 Jan 2001 16:11:58 -0500
+Received: from cs.columbia.edu ([128.59.16.20]:14277 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S135200AbRAYVLu>;
+	Thu, 25 Jan 2001 16:11:50 -0500
+Date: Thu, 25 Jan 2001 13:11:40 -0800 (PST)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: "David S. Miller" <davem@redhat.com>
+cc: <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>,
+        Andrew Morton <andrewm@uow.EDU.AU>
+Subject: Re: [UPDATE] Zerocopy patches, against 2.4.1-pre10
+In-Reply-To: <14960.36869.977528.642327@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.30.0101251253300.20615-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-It appears you can just use the siginfo_t * as the struct sigcontext *
-!!!!!!
-ie
-void *signal_handler(int signo, siginfo_t *siginfoptr, struct sigcontext
-*scp)
-{
-     scp = (struct sigcontext_struct *)siginfoptr;
-     /* the rest of your code, here */
-}
-
-
-John Kacur/Toronto/IBM@IBMCA
-jekacur@ca.ibm.com
-(416) 448-2584 (phone)
-778-2584 (tie line)
-
-
-"Kevin B. Hendricks" <khendricks@ivey.uwo.ca> on 01/25/2001 02:02:20 PM
-
-Please respond to khendricks@ivey.uwo.ca
-
-To:   John Kacur/Toronto/IBM@IBMCA
-cc:
-Subject:  Re: [Fwd: sigcontext on Linux-ppc in user space]
-
-
-Hi,
-
-Just in case this helps,  here is what I did to accomplish the same thing
-in the green_threads jdk.  It definitely is not portable.
-
-Kevin
-
-Inside the signal handler:
-
-#elif defined(__linux__) && defined(__powerpc__)
-    /* get the value of r1 (the stack pointer) */
-    long * p;
-    struct sigcontext_struct * scp;
-    __asm__ ( "addi %0,1,0" : "=r" (p) : /* no inputs */ );
-    /* follow it back up the chain */
-    p = *p;
-    /* from here the sigcontext struct is 64 bytes away */
-    p = p + 16;
-    scp = (struct sigcontext_struct *)p;
-
-On Thursday, January 25, 2001, at 01:50 PM, jekacur@ca.ibm.com wrote:
+On Thu, 25 Jan 2001, David S. Miller wrote:
 
 >
-> Ok, actually the segfault was for a more complicated function, but the
-> simplified example still gives the wrong answer. i.e scp should point to
-a
-> struct sigcontext and scp->signal should be 10 in the sample program.
+> Ion Badulescu writes:
+>  > Well, yes and no. It's not quite orthogonal, because normally TCP
+>  > will never transmit fragmented packets, and it's precisely fragmented
+>  > packets that make the interesting case with a card that supports
+>  > hardware TCP/UDP checksums.
 >
-> John Kacur/Toronto/IBM@IBMCA
-> jekacur@ca.ibm.com
-> (416) 448-2584 (phone)
-> 778-2584 (tie line)
->
->
-> "Kevin B. Hendricks" <khendricks@ivey.uwo.ca> on 01/25/2001 01:10:40 PM
->
-> Please respond to khendricks@ivey.uwo.ca
->
-> To:   John Kacur/Toronto/IBM@IBMCA
-> cc:   linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-> Subject:  Re: [Fwd: sigcontext on Linux-ppc in user space]
->
->
-> Hi,
->
-> Here is what I get from running it on my system (ppc linux with 2.2.15
-> kernel with some mods and glibc-2.1.3).
->
-> But no segfault.
->
-> Kevin
->
->
-> [kbhend@localhost ~]$ gcc -O2 -ojunk junk.c
-> [kbhend@localhost ~]$ ./junk
-> SIGUSR1 = 10
-> scp = 7fffe9a4
-> scp->signal = 0
-> [kbhend@localhost ~]$
->
->
->
->
-> On Thursday, January 25, 2001, at 10:09 AM, jekacur@ca.ibm.com wrote:
->
-> > #include <stdio.h>
-> > #include <signal.h>
-> >
-> > /* Function Prototypes */
-> > void install_sigusr1_handler(void);
-> > void sigusr_handler(int , siginfo_t *, struct sigcontext * scp);
-> >
-> > int main(void)
-> > {
-> >         install_sigusr1_handler();
-> >         printf("SIGUSR1 = %d\n", SIGUSR1);
-> >         raise(SIGUSR1);
-> >         exit(0);
-> > }
-> >
-> > void install_sigusr1_handler(void)
-> > {
-> >         struct sigaction newAct;
-> >
-> >         if (sigemptyset(&newAct.sa_mask) != 0) {
-> >                 fprintf(stderr, "Warning, sigemptyset failed.\n");
-> >         }
-> >
-> >         newAct.sa_flags = 0;
-> >         newAct.sa_flags |= SA_SIGINFO | SA_RESTART;
-> >
-> >         newAct.sa_sigaction = (void
-> > (*)(int,siginfo_t*,void*))sigusr_handler;
-> >
-> >         if (sigaction(SIGUSR1, &newAct, NULL) != 0) {
-> >                 fprintf(stderr, "Couldn't install SIGUSR1 handler.\n");
+> No it is not the interesting case for such cards.  I have a feeling
+> you have no idea what you are talking about or who you are speaking
+> to.  Alexey bascially implemented all of the zerocopy stuff in that
+> patch, so it's a good bet that he has a good idea what is orthogonal
+> or not.
 
-> >                 fprintf(stderr, "Exiting.\n");
-> >                 exit(1);
-> >         }
-> > }
-> >
-> > void sigusr_handler(int signo, siginfo_t *siginfp, struct sigcontext *
-> scp)
-> > {
-> >         printf("scp = %08x\n", scp);
-> >         printf("scp->signal = %d\n", scp->signal);
-> > }
-> >
-> >
->
->
->
->
+Wrong feeling. :-) No, I know who Alexey is and I think I know what I'm
+talking about, too. We're just talking about different things, RX vs TX.
 
+Obviously there isn't much we can do with fragmented packets on TX. If
+only the IP people had learned from Ethernet people about a good place for
+a CRC/csum...
 
+> On transmit, on transmit, that's all that matters on the hardware side
+> with these changes, where the card does the checksumming for us.
+> We've supported receive checksum verification from the hardware
+> forever, long before these changes.
 
+Hmm, I must have missed the CHECKSUM_HW stuff. Mea culpa. Not that many
+drivers use it at this time, I see a grand total of 2 (hamachi and hme) in
+2.4.0 -- and yes I know who wrote the hme driver, too. :)
+
+>  > And, on a related note: what's involved in making a driver
+>  > zerocopy-aware? I haven't looked too closely to the current patch,
+>
+> When you look closely at the current patch, you will see exactly what
+> is required.  3 hardware drivers are ported there, and are to be used
+> as examples.
+
+Ok.
+
+I'm just wondering, if a card supports sg but *not* TX csum, is it worth
+it to make use of sg? eepro100 falls into this category..
+
+Thanks,
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

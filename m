@@ -1,79 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbUC3X4a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 18:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbUC3X4a
+	id S262064AbUC3X5x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 18:57:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbUC3X5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 18:56:30 -0500
-Received: from ida.rowland.org ([192.131.102.52]:20996 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S262014AbUC3X42 (ORCPT
+	Tue, 30 Mar 2004 18:57:52 -0500
+Received: from mail.kroah.org ([65.200.24.183]:20679 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262064AbUC3X5g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 18:56:28 -0500
-Date: Tue, 30 Mar 2004 18:56:27 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
+	Tue, 30 Mar 2004 18:57:36 -0500
+Date: Tue, 30 Mar 2004 15:57:12 -0800
+From: Greg KH <greg@kroah.com>
 To: Andrew Morton <akpm@osdl.org>
-cc: Greg KH <greg@kroah.com>, <maneesh@in.ibm.com>, <david-b@pacbell.net>,
-       <viro@math.psu.edu>, <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
+Cc: maneesh@in.ibm.com, stern@rowland.harvard.edu, david-b@pacbell.net,
+       viro@math.psu.edu, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
 Subject: Re: Unregistering interfaces
-In-Reply-To: <20040330151637.6f5a688b.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44L0.0403301844410.6478-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20040330235712.GA9219@kroah.com>
+References: <Pine.LNX.4.44L0.0403281057100.17150-100000@netrider.rowland.org> <20040328123857.55f04527.akpm@osdl.org> <20040329210219.GA16735@kroah.com> <20040329132551.23e12144.akpm@osdl.org> <20040329231604.GA29494@kroah.com> <20040329153117.558c3263.akpm@osdl.org> <20040330055135.GA8448@in.ibm.com> <20040330230142.GA13571@kroah.com> <20040330151637.6f5a688b.akpm@osdl.org> <20040330233001.GA29859@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040330233001.GA29859@kroah.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Mar 2004, Andrew Morton wrote:
-
-> Greg KH <greg@kroah.com> wrote:
-> >
-> > I think we need to do this now, as it is not a correct fix, and causes
-> > more problems than good at this time.
+On Tue, Mar 30, 2004 at 03:30:01PM -0800, Greg KH wrote:
 > 
-> But the patch was correct.  sysfs retains a pointer to the kobject, it
-> should take a ref on it?
-> 
-> >  I suggest you try to fix the oops
-> > you were seeing in either another way, or in a way that does not break
-> > other things :)
-> 
-> Didn't we demonstrate that the code which broke was already broken?  And
-> that it has other problems regardless of the kobject pinning fix, such as the
-> userpace-holding-a-file-open-wedges-khubd problem?
-> 
-> Worried that this is all heading in the wrong direction...
+> Let me run some tests with Maneesh's patch pulled out to see if that
+> solves the oopses I can generate...
 
-There are two problems to consider:
+With the patch removed, I can't oops the kernel.  With it in, I can
+easily oops it.  So I sent the backout patch to Linus.
 
-    (1) sysfs retains pointers to kobjects long after they have been
-	unregistered because of the negative dentrys.
+I'll work with Maneesh to try to solve the original problem that he saw
+and tried to fix in such a way that does not cause other problems.
 
-    (2) khubd blocks when removing configurations.
+thanks,
 
-Maneesh's change caused (1) because it grabbed a reference to protect an
-existing pointer.  The way to repair the damage is to delete the pointer
-ASAP so the reference can be dropped.  That will require changing several
-other sysfs routines that assume the pointer is valid.
-
-Such a change is needed because otherwise module unloading can be delayed 
-indefinitely, until the system decides it needs to reuse the negative 
-dentry.
-
-
-(2) has been repaired temporarily.  We're still discussing the right way
-to fix it permanently, though.  The underlying cause for the reason that
-khubd blocked is an odd feature of sysfs: it's willing to delete
-directories that contain subdirectories, while leaving the subdirectories
-in existence.  (The connection to khubd is slightly obscure but it can be
-traced.)
-
-Greg has proposed using an awkward scheme for repeatedly parsing and
-creating dynamic data structures from USB configuration descriptors to fix
-(2).  I'm in favor of changing the behavior of sysfs, so that either it
-refuses to delete directories that contain subdirectories or else it
-recursively deletes the subdirectories first.  At this point nothing has
-been settled.
-
-Alan Stern
-
+greg k-h

@@ -1,52 +1,306 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135692AbRDSUdt>; Thu, 19 Apr 2001 16:33:49 -0400
+	id <S135694AbRDSUg7>; Thu, 19 Apr 2001 16:36:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135694AbRDSUdj>; Thu, 19 Apr 2001 16:33:39 -0400
-Received: from mail5.speakeasy.net ([216.254.0.205]:40969 "HELO
-	mail5.speakeasy.net") by vger.kernel.org with SMTP
-	id <S135692AbRDSUd0>; Thu, 19 Apr 2001 16:33:26 -0400
-Message-ID: <3ADF4BA3.1080606@megapathdsl.net>
-Date: Thu, 19 Apr 2001 13:33:39 -0700
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-ac9 i686; en-US; 0.8.1)
-X-Accept-Language: en
+	id <S135695AbRDSUgu>; Thu, 19 Apr 2001 16:36:50 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:57353 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S135694AbRDSUga>; Thu, 19 Apr 2001 16:36:30 -0400
+Content-Type: Multipart/Mixed;
+  charset="iso-8859-1";
+  boundary="------------Boundary-00=_YU32BC5MIORJ0E1PGOWE"
+From: Thomas.Herberg@t-online.de (Thomas Herberg)
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: Segfault reading SCSI MO - System hang while writing
+Date: Thu, 19 Apr 2001 22:35:22 +0200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-To: AJ Lewis <lewis@sistina.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jes Sorensen <jes@linuxcare.com>,
-        linux-kernel@vger.kernel.org, linux-openlvm@nl.linux.org,
-        Arjan van de Ven <arjanv@redhat.com>, Jens Axboe <axboe@suse.de>,
-        Martin Kasper Petersen <mkp@linuxcare.com>, riel@conectiva.com.br,
-        linux-lvm@sistina.com
-Subject: Re: [repost] Announce: Linux-OpenLVM mailing list
-In-Reply-To: <20010419132927.D10345@sistina.com> <E14qJhd-0007oR-00@the-village.bc.nu> <20010419142400.E10345@sistina.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-Id: <01041922352200.01178@camelot>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AJ Lewis wrote:
 
-> On Thu, Apr 19, 2001 at 08:02:50PM +0100, Alan Cox wrote:
-> 
->>Well their approach to patches that fix bugs is to reject emails. They've done
->>that to stuff I've reported any many others. So there is a problem. And its
->>kind of hard to discuss a problem when you are being moderated out of existance.
->>
-> 
-> Hmm...i guess there is a communication issue here.  It sounds like the
-> message that our ML server was sending was misleading.  We were not
-> rejecting mail because of content.  The ML server was rejecting it because
-> the address was not subscribed.  Our idea was that we don't want spam. 
-> If it's completely unmoderated, then we will get a *lot* of spam.
+--------------Boundary-00=_YU32BC5MIORJ0E1PGOWE
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+
+[1.] Segfault reading SCSI MO - System hang while writing
+
+[2.] Hello *
+with kernel 2.4.x (actually 2.4.3) i ran into a problem acessing my SCSI MO. 
+As everything works fine with 2.2.x (actually 19) the problem seems to be new 
+in the 2.4.x kernel series and therefore you might want to take a look. 
+
+I can mount the MO (/dev/sda) as /mnt/mod fs:vfat and do a ls with no problem 
+or warning and i can cd to the directories of the MO. But if i try to open a 
+file for example to copy it to somewhere i get a segfault. A try to write to 
+it is even more worse, my system hangs immediately. After the error the 
+device can't be unmounted any more. 
+
+I don't think that the problem is in the hardware related driver (sym53c8xx) 
+because i tried it with the ncr53c8xx and 53c7,8xx too with the same result. 
+What i tried also is to mount the MO as msdos and umsdos and it produced the 
+segfault too.
+
+[3.] SCSI vfat 53c810 MO
+
+[4.] Linux version 2.4.3 (root@camelot) (gcc version 2.95.2 19991024 
+(release)) #4 Wed Apr 18 15:09:02 CEST 2001
+
+[5.] ksymoops.out
+[6.] cp /mnt/mod/somefile /tmp -> Segfault     cp somefile /mnt/mod/somefile  
+-> crash
+[7.] Environment
+[7.1.] ver_linux.out
+[7.2.] cpuinfo.out
+[7.3.] modules.out
+[7.4.] ioports.out, iomem.out
+[7.5.] lspci.out 
+[7.6.] scsi.out
+
+greetings
+
+Thomas Herberg
+
+Email: Thomas.Herberg@t-online.de
 
 
-Gosh, this seems like a bit of a red herring, IMHO.  Do you think the
-LKML gets a "lot" of spam?  Or, how about the linux-usb-devel or
-linux-hotplug-devel lists?  None of these lists are moderated and the
-occasional spam gets sent to them, but I haven't noticed there being
-enough spam to hinder the usefulness of these lists.
+--------------Boundary-00=_YU32BC5MIORJ0E1PGOWE
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="ksymoops.out"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="ksymoops.out"
 
+a3N5bW9vcHMgMi40LjAgb24gaTY4NiAyLjQuMy4gIE9wdGlvbnMgdXNlZAogICAgIC1WIChkZWZh
+dWx0KQogICAgIC1rIC9wcm9jL2tzeW1zIChkZWZhdWx0KQogICAgIC1sIC9wcm9jL21vZHVsZXMg
+KGRlZmF1bHQpCiAgICAgLW8gL2xpYi9tb2R1bGVzLzIuNC4zLyAoZGVmYXVsdCkKICAgICAtbSAv
+Ym9vdC9TeXN0ZW0ubWFwLTIuNC4zIChkZWZhdWx0KQoKV2FybmluZzogWW91IGRpZCBub3QgdGVs
+bCBtZSB3aGVyZSB0byBmaW5kIHN5bWJvbCBpbmZvcm1hdGlvbi4gIEkgd2lsbAphc3N1bWUgdGhh
+dCB0aGUgbG9nIG1hdGNoZXMgdGhlIGtlcm5lbCBhbmQgbW9kdWxlcyB0aGF0IGFyZSBydW5uaW5n
+CnJpZ2h0IG5vdyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1bHQgb3B0aW9ucyBhYm92ZSBmb3Igc3lt
+Ym9sIHJlc29sdXRpb24uCklmIHRoZSBjdXJyZW50IGtlcm5lbCBhbmQvb3IgbW9kdWxlcyBkbyBu
+b3QgbWF0Y2ggdGhlIGxvZywgeW91IGNhbiBnZXQKbW9yZSBhY2N1cmF0ZSBvdXRwdXQgYnkgdGVs
+bGluZyBtZSB0aGUga2VybmVsIHZlcnNpb24gYW5kIHdoZXJlIHRvIGZpbmQKbWFwLCBtb2R1bGVz
+LCBrc3ltcyBldGMuICBrc3ltb29wcyAtaCBleHBsYWlucyB0aGUgb3B0aW9ucy4KCkFwciAxOSAx
+NzozNTowNyBjYW1lbG90IGtlcm5lbDogVW5hYmxlIHRvIGhhbmRsZSBrZXJuZWwgTlVMTCBwb2lu
+dGVyIGRlcmVmZXJlbmNlIGF0IHZpcnR1YWwgYWRkcmVzcyAwMDAwMDAwMApBcHIgMTkgMTc6MzU6
+MDcgY2FtZWxvdCBrZXJuZWw6IDAwMDAwMDAwCkFwciAxOSAxNzozNTowNyBjYW1lbG90IGtlcm5l
+bDogKnBkZSA9IDAwMDAwMDAwCkFwciAxOSAxNzozNTowNyBjYW1lbG90IGtlcm5lbDogT29wczog
+MDAwMApBcHIgMTkgMTc6MzU6MDcgY2FtZWxvdCBrZXJuZWw6IENQVTogICAgMApBcHIgMTkgMTc6
+MzU6MDcgY2FtZWxvdCBrZXJuZWw6IEVJUDogICAgMDAxMDpbPDAwMDAwMDAwPl0KVXNpbmcgZGVm
+YXVsdHMgZnJvbSBrc3ltb29wcyAtdCBlbGYzMi1pMzg2IC1hIGkzODYKQXByIDE5IDE3OjM1OjA3
+IGNhbWVsb3Qga2VybmVsOiBFRkxBR1M6IDAwMDEwMjg2CkFwciAxOSAxNzozNTowNyBjYW1lbG90
+IGtlcm5lbDogZWF4OiAwMDAwMDAwMCAgIGVieDogYzY4MzUyYTAgICBlY3g6IDAwMDAxMDAwICAg
+ZWR4OiBjNjgzNTJjMApBcHIgMTkgMTc6MzU6MDcgY2FtZWxvdCBrZXJuZWw6IGVzaTogYmZmZmUx
+OWMgICBlZGk6IDAwMDAwMDAwICAgZWJwOiAwMDAwMTAwMCAgIGVzcDogYzBhOWZmODAKQXByIDE5
+IDE3OjM1OjA3IGNhbWVsb3Qga2VybmVsOiBkczogMDAxOCAgIGVzOiAwMDE4ICAgc3M6IDAwMTgK
+QXByIDE5IDE3OjM1OjA3IGNhbWVsb3Qga2VybmVsOiBQcm9jZXNzIGNwIChwaWQ6IDEzODMsIHN0
+YWNrcGFnZT1jMGE5ZjAwMCkKQXByIDE5IDE3OjM1OjA3IGNhbWVsb3Qga2VybmVsOiBTdGFjazog
+YzAxNGU2OGQgYzY4MzUyYTAgYmZmZmUxOWMgMDAwMDEwMDAgYzY4MzUyYzAgYzY4MzUyYTAgZmZm
+ZmZmZWEgYzAxMmJjMDYgCkFwciAxOSAxNzozNTowNyBjYW1lbG90IGtlcm5lbDogICAgICAgIGM2
+ODM1MmEwIGJmZmZlMTljIDAwMDAxMDAwIGM2ODM1MmMwIGMwYTllMDAwIGJmZmZmNjk0IGJmZmZl
+MTljIGJmZmZmMjQ0IApBcHIgMTkgMTc6MzU6MDcgY2FtZWxvdCBrZXJuZWw6ICAgICAgICBjMDEw
+NmQ1ZiAwMDAwMDAwMyBiZmZmZTE5YyAwMDAwMTAwMCBiZmZmZjY5NCBiZmZmZTE5YyBiZmZmZjI0
+NCAwMDAwMDAwMyAKQXByIDE5IDE3OjM1OjA3IGNhbWVsb3Qga2VybmVsOiBDYWxsIFRyYWNlOiBb
+ZmF0X2ZpbGVfcmVhZCs0NS81Ml0gW3N5c19yZWFkKzE1MC8yMDRdIFtzeXN0ZW1fY2FsbCs1MS81
+Nl0gCkFwciAxOSAxNzozNTowNyBjYW1lbG90IGtlcm5lbDogQ29kZTogIEJhZCBFSVAgdmFsdWUu
+Cgo+PkVJUDsgMDAwMDAwMDAgQmVmb3JlIGZpcnN0IHN5bWJvbAoKCjEgd2FybmluZyBpc3N1ZWQu
+ICBSZXN1bHRzIG1heSBub3QgYmUgcmVsaWFibGUuCg==
 
-	Miles
+--------------Boundary-00=_YU32BC5MIORJ0E1PGOWE
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="ver_linux.out"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="ver_linux.out"
 
+SWYgc29tZSBmaWVsZHMgYXJlIGVtcHR5IG9yIGxvb2sgdW51c3VhbCB5b3UgbWF5IGhhdmUgYW4g
+b2xkIHZlcnNpb24uCkNvbXBhcmUgdG8gdGhlIGN1cnJlbnQgbWluaW1hbCByZXF1aXJlbWVudHMg
+aW4gRG9jdW1lbnRhdGlvbi9DaGFuZ2VzLgogCkxpbnV4IGNhbWVsb3QgMi40LjMgIzQgV2VkIEFw
+ciAxOCAxNTowOTowMiBDRVNUIDIwMDEgaTY4NiB1bmtub3duCiAKR251IEMgICAgICAgICAgICAg
+ICAgICAyLjk1LjIKR251IG1ha2UgICAgICAgICAgICAgICAzLjc5LjEKYmludXRpbHMgICAgICAg
+ICAgICAgICAyLjEwLjAuMzMKdXRpbC1saW51eCAgICAgICAgICAgICAyLjEwcQptb2R1dGlscyAg
+ICAgICAgICAgICAgIDIuNC4yCmUyZnNwcm9ncyAgICAgICAgICAgICAgMS4xOQpQUFAgICAgICAg
+ICAgICAgICAgICAgIDIuNC4wCmlzZG40ay11dGlscyAgICAgICAgICAgMy4xcHJlMWEKTGludXgg
+QyBMaWJyYXJ5ICAgICAgICB4ICAgIDEgcm9vdCAgICAgcm9vdCAgICAgIDEzODIxNzkgSmFuIDE5
+IDA3OjE0IC9saWIvbGliYy5zby42CkR5bmFtaWMgbGlua2VyIChsZGQpICAgMi4yClByb2NwcyAg
+ICAgICAgICAgICAgICAgMi4wLjcKTmV0LXRvb2xzICAgICAgICAgICAgICAxLjU3CktiZCAgICAg
+ICAgICAgICAgICAgICAgMS4wMgpTaC11dGlscyAgICAgICAgICAgICAgIDIuMApNb2R1bGVzIExv
+YWRlZCAgICAgICAgIHNiIHNiX2xpYiB1YXJ0NDAxIHNvdW5kIHNvdW5kY29yZSBpc2EtcG5wIGFm
+X3BhY2tldCBoaXNheCBpc2RuIGlwY2hhaW5zIG50ZnMK
+
+--------------Boundary-00=_YU32BC5MIORJ0E1PGOWE
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="cpuinfo.out"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="cpuinfo.out"
+
+cHJvY2Vzc29yCTogMAp2ZW5kb3JfaWQJOiBHZW51aW5lSW50ZWwKY3B1IGZhbWlseQk6IDYKbW9k
+ZWwJCTogNgptb2RlbCBuYW1lCTogQ2VsZXJvbiAoTWVuZG9jaW5vKQpzdGVwcGluZwk6IDAKY3B1
+IE1IegkJOiAzMzQuMDk4CmNhY2hlIHNpemUJOiAxMjggS0IKZmRpdl9idWcJOiBubwpobHRfYnVn
+CQk6IG5vCmYwMGZfYnVnCTogbm8KY29tYV9idWcJOiBubwpmcHUJCTogeWVzCmZwdV9leGNlcHRp
+b24JOiB5ZXMKY3B1aWQgbGV2ZWwJOiAyCndwCQk6IHllcwpmbGFncwkJOiBmcHUgdm1lIGRlIHBz
+ZSB0c2MgbXNyIHBhZSBtY2UgY3g4IHNlcCBtdHJyIHBnZSBtY2EgY21vdiBwYXQgcHNlMzYgbW14
+IGZ4c3IKYm9nb21pcHMJOiA2NjYuODIKCg==
+
+--------------Boundary-00=_YU32BC5MIORJ0E1PGOWE
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="modules.out"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="modules.out"
+
+c2IgICAgICAgICAgICAgICAgICAgICAgNzM3NiAgIDAgKGF1dG9jbGVhbikKc2JfbGliICAgICAg
+ICAgICAgICAgICAzMzcyOCAgIDAgKGF1dG9jbGVhbikgW3NiXQp1YXJ0NDAxICAgICAgICAgICAg
+ICAgICA2Mzg0ICAgMCAoYXV0b2NsZWFuKSBbc2JfbGliXQpzb3VuZCAgICAgICAgICAgICAgICAg
+IDU2OTc2ICAgMCAoYXV0b2NsZWFuKSBbc2JfbGliIHVhcnQ0MDFdCnNvdW5kY29yZSAgICAgICAg
+ICAgICAgIDM5NTIgICA1IChhdXRvY2xlYW4pIFtzYl9saWIgc291bmRdCmlzYS1wbnAgICAgICAg
+ICAgICAgICAgMjgwMTYgICAwIChhdXRvY2xlYW4pIFtzYl0KYWZfcGFja2V0ICAgICAgICAgICAg
+ICAgNzk2OCAgIDEgKGF1dG9jbGVhbikKaGlzYXggICAgICAgICAgICAgICAgIDEzNTc2MCAgIDQK
+aXNkbiAgICAgICAgICAgICAgICAgICA4NDcyMCAgIDYgW2hpc2F4XQppcGNoYWlucyAgICAgICAg
+ICAgICAgIDMxNTg0ICAgMCAodW51c2VkKQpudGZzICAgICAgICAgICAgICAgICAgIDM1NDcyICAg
+MSAoYXV0b2NsZWFuKQo=
+
+--------------Boundary-00=_YU32BC5MIORJ0E1PGOWE
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="ioports.out"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="ioports.out"
+
+MDAwMC0wMDFmIDogZG1hMQowMDIwLTAwM2YgOiBwaWMxCjAwNDAtMDA1ZiA6IHRpbWVyCjAwNjAt
+MDA2ZiA6IGtleWJvYXJkCjAwODAtMDA4ZiA6IGRtYSBwYWdlIHJlZwowMGEwLTAwYmYgOiBwaWMy
+CjAwYzAtMDBkZiA6IGRtYTIKMDBmMC0wMGZmIDogZnB1CjAxNzAtMDE3NyA6IGlkZTEKMDFmMC0w
+MWY3IDogaWRlMAowMjEzLTAyMTMgOiBpc2FwbnAgcmVhZAowMjIwLTAyMmYgOiBzb3VuZGJsYXN0
+ZXIKMDJmOC0wMmZmIDogc2VyaWFsKGF1dG8pCjAzMDAtMDMwZiA6IDNjNTA5CjAzMzAtMDMzMyA6
+IE1QVS00MDEgVUFSVAowMzc2LTAzNzYgOiBpZGUxCjAzYzAtMDNkZiA6IHZnYSsKMDNmNi0wM2Y2
+IDogaWRlMAowM2Y4LTAzZmYgOiBzZXJpYWwoYXV0bykKMGE3OS0wYTc5IDogaXNhcG5wIHdyaXRl
+CjBjZjgtMGNmZiA6IFBDSSBjb25mMQo0MDAwLTQwM2YgOiBJbnRlbCBDb3Jwb3JhdGlvbiA4MjM3
+MUFCIFBJSVg0IEFDUEkKNTAwMC01MDFmIDogSW50ZWwgQ29ycG9yYXRpb24gODIzNzFBQiBQSUlY
+NCBBQ1BJCmUwMDAtZTAxZiA6IEludGVsIENvcnBvcmF0aW9uIDgyMzcxQUIgUElJWDQgVVNCCmU0
+MDAtZTRmZiA6IFN5bWJpb3MgTG9naWMgSW5jLiAoZm9ybWVybHkgTkNSKSA1M2M4MTAKICBlNDAw
+LWU0N2YgOiBzeW01M2M4eHgKZTgwMC1lODFmIDogQVZNIEF1ZGlvdmlzdWVsbGVzIE1LVEcgJiBD
+b21wdXRlciBTeXN0ZW0gR21iSCBBMSBJU0ROIFtGcml0el0KICBlODAwLWU4MWYgOiBhdm0gUENJ
+CmYwMDAtZjAwZiA6IEludGVsIENvcnBvcmF0aW9uIDgyMzcxQUIgUElJWDQgSURFCiAgZjAwMC1m
+MDA3IDogaWRlMAogIGYwMDgtZjAwZiA6IGlkZTEK
+
+--------------Boundary-00=_YU32BC5MIORJ0E1PGOWE
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="iomem.out"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="iomem.out"
+
+MDAwMDAwMDAtMDAwOWVmZmYgOiBTeXN0ZW0gUkFNCjAwMGEwMDAwLTAwMGJmZmZmIDogVmlkZW8g
+UkFNIGFyZWEKMDAwYzAwMDAtMDAwYzdmZmYgOiBWaWRlbyBST00KMDAwZjAwMDAtMDAwZmZmZmYg
+OiBTeXN0ZW0gUk9NCjAwMTAwMDAwLTA3ZmZmZmZmIDogU3lzdGVtIFJBTQogIDAwMTAwMDAwLTAw
+MWU3YzFmIDogS2VybmVsIGNvZGUKICAwMDFlN2MyMC0wMDI0NGY2ZiA6IEtlcm5lbCBkYXRhCmQw
+MDAwMDAwLWQzZmZmZmZmIDogSW50ZWwgQ29ycG9yYXRpb24gNDQwQlgvWlggLSA4MjQ0M0JYL1pY
+IEhvc3QgYnJpZGdlCmQ0MDAwMDAwLWQ1ZmZmZmZmIDogUENJIEJ1cyAjMDEKICBkNDAwMDAwMC1k
+NGZmZmZmZiA6IG5WaWRpYSBDb3Jwb3JhdGlvbiBSaXZhIFRuVCAxMjggW05WMDRdCmQ2MDAwMDAw
+LWQ2ZmZmZmZmIDogUENJIEJ1cyAjMDEKICBkNjAwMDAwMC1kNmZmZmZmZiA6IG5WaWRpYSBDb3Jw
+b3JhdGlvbiBSaXZhIFRuVCAxMjggW05WMDRdCmQ3MDAwMDAwLWQ3MDAwMGZmIDogU3ltYmlvcyBM
+b2dpYyBJbmMuIChmb3JtZXJseSBOQ1IpIDUzYzgxMApkNzAwMTAwMC1kNzAwMTAxZiA6IEFWTSBB
+dWRpb3Zpc3VlbGxlcyBNS1RHICYgQ29tcHV0ZXIgU3lzdGVtIEdtYkggQTEgSVNETiBbRnJpdHpd
+Cg==
+
+--------------Boundary-00=_YU32BC5MIORJ0E1PGOWE
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="lspci.out"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="lspci.out"
+
+MDA6MDAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gNDQwQlgvWlggLSA4MjQ0M0JY
+L1pYIEhvc3QgYnJpZGdlIChyZXYgMDMpCglDb250cm9sOiBJL08tIE1lbSsgQnVzTWFzdGVyKyBT
+cGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0
+QjJCLQoJU3RhdHVzOiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkItIFBhckVyci0gREVWU0VMPW1l
+ZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0KyA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAz
+MgoJUmVnaW9uIDA6IE1lbW9yeSBhdCBkMDAwMDAwMCAoMzItYml0LCBwcmVmZXRjaGFibGUpIFtz
+aXplPTY0TV0KCUNhcGFiaWxpdGllczogW2EwXSBBR1AgdmVyc2lvbiAxLjAKCQlTdGF0dXM6IFJR
+PTMxIFNCQSsgNjRiaXQtIEZXLSBSYXRlPXgxLHgyCgkJQ29tbWFuZDogUlE9MCBTQkEtIEFHUC0g
+NjRiaXQtIEZXLSBSYXRlPTxub25lPgoKMDA6MDEuMCBQQ0kgYnJpZGdlOiBJbnRlbCBDb3Jwb3Jh
+dGlvbiA0NDBCWC9aWCAtIDgyNDQzQlgvWlggQUdQIGJyaWRnZSAocmV2IDAzKSAocHJvZy1pZiAw
+MCBbTm9ybWFsIGRlY29kZV0pCglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3lj
+bGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSKyBGYXN0QjJCLQoJ
+U3RhdHVzOiBDYXAtIDY2TWh6KyBVREYtIEZhc3RCMkItIFBhckVyci0gREVWU0VMPW1lZGl1bSA+
+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiA2NAoJQnVz
+OiBwcmltYXJ5PTAwLCBzZWNvbmRhcnk9MDEsIHN1Ym9yZGluYXRlPTAxLCBzZWMtbGF0ZW5jeT0z
+MgoJSS9PIGJlaGluZCBicmlkZ2U6IDAwMDBmMDAwLTAwMDAwZmZmCglNZW1vcnkgYmVoaW5kIGJy
+aWRnZTogZDQwMDAwMDAtZDVmZmZmZmYKCVByZWZldGNoYWJsZSBtZW1vcnkgYmVoaW5kIGJyaWRn
+ZTogZDYwMDAwMDAtZDZmZmZmZmYKCUJyaWRnZUN0bDogUGFyaXR5LSBTRVJSLSBOb0lTQS0gVkdB
+KyBNQWJvcnQtID5SZXNldC0gRmFzdEIyQisKCjAwOjAyLjAgSVNBIGJyaWRnZTogSW50ZWwgQ29y
+cG9yYXRpb24gODIzNzFBQiBQSUlYNCBJU0EgKHJldiAwMikKCUNvbnRyb2w6IEkvTysgTWVtKyBC
+dXNNYXN0ZXIrIFNwZWNDeWNsZSsgTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmct
+IFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJy
+LSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0K
+CUxhdGVuY3k6IDAKCjAwOjAyLjEgSURFIGludGVyZmFjZTogSW50ZWwgQ29ycG9yYXRpb24gODIz
+NzFBQiBQSUlYNCBJREUgKHJldiAwMSkgKHByb2ctaWYgODAgW01hc3Rlcl0pCglDb250cm9sOiBJ
+L08rIE1lbS0gQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnIt
+IFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBVREYtIEZhc3RC
+MkIrIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VS
+Ui0gPFBFUlItCglMYXRlbmN5OiAzMgoJUmVnaW9uIDQ6IEkvTyBwb3J0cyBhdCBmMDAwIFtzaXpl
+PTE2XQoKMDA6MDIuMiBVU0IgQ29udHJvbGxlcjogSW50ZWwgQ29ycG9yYXRpb24gODIzNzFBQiBQ
+SUlYNCBVU0IgKHJldiAwMSkgKHByb2ctaWYgMDAgW1VIQ0ldKQoJQ29udHJvbDogSS9PKyBNZW0t
+IEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGlu
+Zy0gU0VSUi0gRmFzdEIyQi0KCVN0YXR1czogQ2FwLSA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJF
+cnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJS
+LQoJTGF0ZW5jeTogMzIKCUludGVycnVwdDogcGluIEQgcm91dGVkIHRvIElSUSA5CglSZWdpb24g
+NDogSS9PIHBvcnRzIGF0IGUwMDAgW3NpemU9MzJdCgowMDowMi4zIEJyaWRnZTogSW50ZWwgQ29y
+cG9yYXRpb24gODIzNzFBQiBQSUlYNCBBQ1BJIChyZXYgMDIpCglDb250cm9sOiBJL08rIE1lbSsg
+QnVzTWFzdGVyLSBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5n
+LSBTRVJSLSBGYXN0QjJCLQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVy
+ci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlIt
+CglJbnRlcnJ1cHQ6IHBpbiA/IHJvdXRlZCB0byBJUlEgOQoKMDA6MGUuMCBTQ1NJIHN0b3JhZ2Ug
+Y29udHJvbGxlcjogU3ltYmlvcyBMb2dpYyBJbmMuIChmb3JtZXJseSBOQ1IpIDUzYzgxMCAocmV2
+IDEyKQoJQ29udHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBW
+R0FTbm9vcC0gUGFyRXJyKyBTdGVwcGluZy0gU0VSUi0gRmFzdEIyQi0KCVN0YXR1czogQ2FwLSA2
+Nk1oei0gVURGLSBGYXN0QjJCLSBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9y
+dC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogNjQgKDIwMDBucyBtaW4sIDE2MDAw
+bnMgbWF4KSwgY2FjaGUgbGluZSBzaXplIDA4CglJbnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJ
+UlEgOQoJUmVnaW9uIDA6IEkvTyBwb3J0cyBhdCBlNDAwIFtzaXplPTI1Nl0KCVJlZ2lvbiAxOiBN
+ZW1vcnkgYXQgZDcwMDAwMDAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9MjU2XQoK
+MDA6MTAuMCBOZXR3b3JrIGNvbnRyb2xsZXI6IEFWTSBBdWRpb3Zpc3VlbGxlcyBNS1RHICYgQ29t
+cHV0ZXIgU3lzdGVtIEdtYkggQTEgSVNETiBbRnJpdHpdIChyZXYgMDIpCglTdWJzeXN0ZW06IEFW
+TSBBdWRpb3Zpc3VlbGxlcyBNS1RHICYgQ29tcHV0ZXIgU3lzdGVtIEdtYkggRlJJVFohQ2FyZCBJ
+U0ROIENvbnRyb2xsZXIKCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXItIFNwZWNDeWNsZS0g
+TWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0
+dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJv
+cnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUludGVycnVwdDogcGluIEEgcm91
+dGVkIHRvIElSUSA5CglSZWdpb24gMDogTWVtb3J5IGF0IGQ3MDAxMDAwICgzMi1iaXQsIG5vbi1w
+cmVmZXRjaGFibGUpIFtzaXplPTMyXQoJUmVnaW9uIDE6IEkvTyBwb3J0cyBhdCBlODAwIFtzaXpl
+PTMyXQoKMDE6MDAuMCBWR0EgY29tcGF0aWJsZSBjb250cm9sbGVyOiBuVmlkaWEgQ29ycG9yYXRp
+b24gUml2YSBUblQgMTI4IFtOVjA0XSAocmV2IDA0KSAocHJvZy1pZiAwMCBbVkdBXSkKCVN1YnN5
+c3RlbTogQ3JlYXRpdmUgTGFicyBHcmFwaGljcyBCbGFzdGVyIENUNjcxMAoJQ29udHJvbDogSS9P
+KyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBT
+dGVwcGluZy0gU0VSUi0gRmFzdEIyQi0KCVN0YXR1czogQ2FwKyA2Nk1oeisgVURGLSBGYXN0QjJC
+KyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlIt
+IDxQRVJSLQoJTGF0ZW5jeTogMzIgKDEyNTBucyBtaW4sIDI1MG5zIG1heCkKCUludGVycnVwdDog
+cGluIEEgcm91dGVkIHRvIElSUSAxMQoJUmVnaW9uIDA6IE1lbW9yeSBhdCBkNDAwMDAwMCAoMzIt
+Yml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0xNk1dCglSZWdpb24gMTogTWVtb3J5IGF0IGQ2
+MDAwMDAwICgzMi1iaXQsIHByZWZldGNoYWJsZSkgW3NpemU9MTZNXQoJRXhwYW5zaW9uIFJPTSBh
+dCA8dW5hc3NpZ25lZD4gW2Rpc2FibGVkXSBbc2l6ZT02NEtdCglDYXBhYmlsaXRpZXM6IFs2MF0g
+UG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDEKCQlGbGFnczogUE1FQ2xrLSBEU0ktIEQxLSBEMi0g
+QXV4Q3VycmVudD0wbUEgUE1FKEQwLSxEMS0sRDItLEQzaG90LSxEM2NvbGQtKQoJCVN0YXR1czog
+RDAgUE1FLUVuYWJsZS0gRFNlbD0wIERTY2FsZT0wIFBNRS0KCUNhcGFiaWxpdGllczogWzQ0XSBB
+R1AgdmVyc2lvbiAxLjAKCQlTdGF0dXM6IFJRPTE1IFNCQSsgNjRiaXQtIEZXLSBSYXRlPXgxLHgy
+CgkJQ29tbWFuZDogUlE9MCBTQkEtIEFHUC0gNjRiaXQtIEZXLSBSYXRlPTxub25lPgoK
+
+--------------Boundary-00=_YU32BC5MIORJ0E1PGOWE
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="scsi.out"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="scsi.out"
+
+QXR0YWNoZWQgZGV2aWNlczogCkhvc3Q6IHNjc2kwIENoYW5uZWw6IDAwIElkOiAwMyBMdW46IDAw
+CiAgVmVuZG9yOiBZQU1BSEEgICBNb2RlbDogQ1JXODQyNFMgICAgICAgICBSZXY6IDEuMGoKICBU
+eXBlOiAgIENELVJPTSAgICAgICAgICAgICAgICAgICAgICAgICAgIEFOU0kgU0NTSSByZXZpc2lv
+bjogMDIKSG9zdDogc2NzaTAgQ2hhbm5lbDogMDAgSWQ6IDA0IEx1bjogMDAKICBWZW5kb3I6IEZV
+SklUU1UgIE1vZGVsOiBNQ0YzMDY0U1MgICAgICAgIFJldjogMDAyMAogIFR5cGU6ICAgT3B0aWNh
+bCBEZXZpY2UgICAgICAgICAgICAgICAgICAgQU5TSSBTQ1NJIHJldmlzaW9uOiAwMgo=
+
+--------------Boundary-00=_YU32BC5MIORJ0E1PGOWE--

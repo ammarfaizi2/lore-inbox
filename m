@@ -1,101 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262707AbTJaAXd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 19:23:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbTJaAXd
+	id S262425AbTJaARa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 19:17:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbTJaARa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 19:23:33 -0500
-Received: from neors.cat.cc.md.us ([204.153.79.3]:54778 "EHLO
-	student.ccbc.cc.md.us") by vger.kernel.org with ESMTP
-	id S262707AbTJaAXa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 19:23:30 -0500
-Date: Thu, 30 Oct 2003 19:18:39 -0500 (EST)
-From: John R Moser <jmoser5@student.ccbc.cc.md.us>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: initrd help -- umounts root after pivot_root
-Message-ID: <Pine.A32.3.91.1031030191344.46426A@student.ccbc.cc.md.us>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 30 Oct 2003 19:17:30 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:6541 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S262425AbTJaAR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 19:17:29 -0500
+Date: Fri, 31 Oct 2003 00:16:08 +0000
+From: Dave Jones <davej@redhat.com>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Post-halloween doc updates.
+Message-ID: <20031031001608.GJ11311@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20031030141519.GA10700@redhat.com> <1067555512.16868.2.camel@glass.felipe-alfaro.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1067555512.16868.2.camel@glass.felipe-alfaro.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Been trying with 2.4.20, 2.4.22, 2.6.0-test9, how the heck do I get this 
-to work?
+On Fri, Oct 31, 2003 at 12:11:52AM +0100, Felipe Alfaro Solana wrote:
+ > > Process scheduler improvements.
+ > > ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ > > - Another much talked about feature. Ingo Molnar reworked the process
+ > >   scheduler to use an O(1) algorithm.  In operation, you should notice
+ > >   no changes with low loads, and increased scalability with large numbers
+ > >   of processes, especially on large SMP systems.
+ > 
+ > I think we should mention excellent Con Kolivas contributions to the 2.6
+ > kernel scheduler. He did a great job in tunning the scheduler for
+ > maximum interactive feeling.
 
-I set everthing up on /dev/shm type tmpfs, then 
-cd /dev/shm
-mkdir initrd
-pivot_root . initrd
+With no disrespect to Con, I'm not going to do this, or I'll end up
+spending far too much time adding credits to everyone whoever improved
+something in 2.5.  There's a place for such stuff, and it's aptly named
+'CREDITS' in toplevel of src dir.
 
-
-So yay, it's set up so that the cd is pointed to by a lotta links in 
-tmpfs, and the stuff that needs to be rw (like /etc) is on the tmpfs.
-
-That's good.
-
-Of course, the kernel unmounts / and then swears that it can't find init 
-when the linuxrc exits.
-
-The documentation says that linuxrc should pivot_root to the real root in 
-Documentation/initrd.txt so I thought that's what the script sholud do.  
-Apparently the doc is bad/old.
-
-Any ideas?
-
-script follows.
-
-
-====/linuxrc
-#!/bin/sh
-                                                                                                                                
-# linuxrc for Genoppix initrd
-# Basicly mounts the cdrom, sets up rw stuff, spins the root image
-# around to the root, and exits.
-echo "Genoppix Initrd Loaded, linuxrc executing in 5 seconds..."
-sleep 5
-mount none -t proc /proc
-echo "Mounting cdrom..."
-CDROM="/dev/cdrom"
-if [ ! -e $CDROM ]; then
-  CDROM="/dev/cdroms/cdrom0"
-fi
-mount $CDROM /mnt/root || (echo "FATAL: Cannot mount cdrom!" && sh)
-echo "mounting tmpfs..."
-mount none -t tmpfs /dev/shm || (echo "FATAL: Cannot mount tmpfs!" && sh)
-echo "Building symlinks to cd root..."
-cd /dev/shm
-ln -s /mnt/root/* .
-sleep 2.5
-echo "Setting mnt and home to rw root..."
-rm -f root home mnt
-mkdir root home mnt
-#echo "linking cdroot's new location to what will be cdroot's old 
-location..."
-#ln -s /mnt/initrd/mnt/root /dev/shm/mnt/root
-echo "mounting cdrom at new root..."
-mount $CDROM /dev/shm/mnt/root
-echo "Pivoting root to shared memory filesystem..."
-cd /dev/shm
-mkdir initrd
-pivot_root . initrd || (echo "Cannot pivot root!" && sh)
-mount -t proc none /proc
-echo "copying /etc to a rw /etc..."
-rm -f etc
-mount -t devfs none /dev
-cp -R /mnt/root/etc .
-echo "Root pivoted, making users..."
-sleep 1
-echo "creating homes for default users..."
-cd /home
-mkdir jak
-mkdir tails
-mkdir fox
-mkdir krystal
-chgrp users *
-chown jak jak
-chown tails tails
-chown fox fox
-chown tails tails
-chown krystal krystal
-echo "exiting linuxrc and starting init ;)
+		Dave
 

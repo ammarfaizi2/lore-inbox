@@ -1,70 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288061AbSAHOUr>; Tue, 8 Jan 2002 09:20:47 -0500
+	id <S288075AbSAHOtk>; Tue, 8 Jan 2002 09:49:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288064AbSAHOU3>; Tue, 8 Jan 2002 09:20:29 -0500
-Received: from mail.gmx.net ([213.165.64.20]:39753 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S288061AbSAHOUN>;
-	Tue, 8 Jan 2002 09:20:13 -0500
-Message-ID: <3C3B0007.5B1020B2@gmx.net>
-Date: Tue, 08 Jan 2002 15:19:51 +0100
-From: Mike <maneman@gmx.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S288076AbSAHOta>; Tue, 8 Jan 2002 09:49:30 -0500
+Received: from OL10K-24.207.148.94.charter-stl.com ([24.207.148.94]:28288 "EHLO
+	linux.local") by vger.kernel.org with ESMTP id <S288075AbSAHOtT>;
+	Tue, 8 Jan 2002 09:49:19 -0500
+Message-Id: <200201081440.g08EeX301230@linux.local>
+Content-Type: text/plain; charset=US-ASCII
+From: Its Squash <squash2@dropnet.net>
+Reply-To: squash2@dropnet.net
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+Subject: [PATCH] Add support for a newer eepro100 chipset for 2.5
+Date: Tue, 8 Jan 2002 08:39:55 -0600
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200201041649.g04GnJU29948@linux.local> <20020104202821.A30057@castle.nmd.msu.ru>
+In-Reply-To: <20020104202821.A30057@castle.nmd.msu.ru>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: lcchang@sis.com.tw
-Subject: SiS900 driver after v.1.07.11 (==Linux 2.4.5) won't allow connect.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Greetings,
 
-I've got this weird problem, I know the problem is mine 'cuz the latest
-in 2.4.17 doesn't work either, and I don't think Linus would keep a bad
-copy of widely-used code in his kernel, right?  ;-)
-Anyway, the hardware in question is an ECS K7S5A motherboard with a
-SiS735 chipset and on-board LAN. The only Realtek chip I see on the
-mainboard is one marked "RTL8201L".
+This is a "nicer" patch that adds this chipset entry to pci_ids.h as well as 
+adding the check in eepro100.c. This chipset is used in (at least) newer 
+Compaq laptops, and woks very well. This chipset is already supported in the 
+2.4 series, the patch I sent earlier was a diff of the 2.4 driver and the 2.5 
+driver.   I am not able to nicely add support for the remaining chipsets, as 
+I don't know thier names other then thier pci id's, so this patch does not 
+add support for the 7 other chipsets supported in 2.4 but not in 2.5.
 
-WHAT HAPPENS WHEN IT WORKS (flawlessly):
-With a modular kernel 2.4.5 I simply 'modprobe sis900' and presto...I
-follow that with 'dhcpcd' and I'm on the 'net. Here's what syslog says:
-SiS900.c: v.1.07.11 4/10/2001
-PCI: Assigned IRQ3 for device 00:03.0
-eth0: Unknown PHY transceiver found at address 1 <<<-------!!!!
-eth0: Using transceiver found at address1 as default
-eth0: SiS900 PCI Fast Ethernet at 0xdc00, IRQ3, <MAC-address here>
-logger: (dhcpcd) IP changed to <IP-address here>
+I think the earlier patch is more helpful, but at this point I would like to 
+at least see my laptop supported by the stock kernel.
 
-WHAT HAPPENS WHEN IT FAILS:
-With a modular kernel 2.4.6 or 2.4.13 or 2.4.17 I 'modprobe sis900' and
-get:
-SiS900.c: v.1.08.01 9/25/2001 <<<--------Some kernels differ accordingly
-in version and date. All >=1.08 fail.
-PCI: Assigned IRQ3 for device 00:03.0
-eth0: Realtek RTL8201 PHY transceiver found at address 1
-eth0: Using transceiver found at address1 as default
-eth0: SiS900 PCI Fast Ethernet at 0xdc00, IRQ3, <MAC-address here>
-
-I follow this with 'dhcpcd' and syslog says:
-Media Link ON 10mbps half-duplex
-....And my prompt hangs there until dhcpcd time-outs after 3 or 5
-minutes...
-
-What am I missing here? Should I add some stuff to the 'modprobe sis900'
-string now??
-And yeah, I've read all the relevant (?!) docs in the kernel sources.
-Also, linux-2.4.17/Documentation/networking/sis900.txt only goes up to
-v.1.07, shouldn't it reflect the current revision (1.08.01)??
-
-I hope it's possible to just copy the old 2.4.5 source into the 2.4.17
-dir (as you can tell: I've never done this) and compile.
-TIA for any help and greets!
--Mike
+Josh
 
 
+
+--- drivers/net/eepro100.c.orig	Tue Jan  8 08:26:49 2002
++++ drivers/net/eepro100.c	Tue Jan  8 08:19:35 2002
+@@ -2267,6 +2267,8 @@
+ 		PCI_ANY_ID, PCI_ANY_ID, },
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82559ER,
+ 		PCI_ANY_ID, PCI_ANY_ID, },
++	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801CAM,
++		PCI_ANY_ID, PCI_ANY_ID, },
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ID1029,
+ 		PCI_ANY_ID, PCI_ANY_ID, },
+ 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ID1030,
+--- include/linux/pci_ids.h.orig	Tue Jan  8 08:26:49 2002
++++ include/linux/pci_ids.h	Tue Jan  8 08:10:32 2002
+@@ -1570,6 +1570,7 @@
+ #define PCI_DEVICE_ID_INTEL_82434	0x04a3
+ #define PCI_DEVICE_ID_INTEL_I960	0x0960
+ #define PCI_DEVICE_ID_INTEL_82562ET	0x1031
++#define PCI_DEVICE_ID_INTEL_82801CAM	0x1038
+ #define PCI_DEVICE_ID_INTEL_82559ER	0x1209
+ #define PCI_DEVICE_ID_INTEL_82092AA_0	0x1221
+ #define PCI_DEVICE_ID_INTEL_82092AA_1	0x1222
 
 

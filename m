@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289357AbSBEJUA>; Tue, 5 Feb 2002 04:20:00 -0500
+	id <S289362AbSBEJQa>; Tue, 5 Feb 2002 04:16:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289363AbSBEJTu>; Tue, 5 Feb 2002 04:19:50 -0500
-Received: from ns.muni.cz ([147.251.4.33]:233 "EHLO aragorn.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S289357AbSBEJTh>;
-	Tue, 5 Feb 2002 04:19:37 -0500
-Newsgroups: cz.muni.redir.linux-kernel
-Path: news
-From: Zdenek Kabelac <kabi@i.am>
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-Message-ID: <3C5FA3A7.BA524F5F@i.am>
-Date: Tue, 5 Feb 2002 09:19:35 GMT
-To: Jeff Garzik <garzik@havoc.gtf.org>
-X-Nntp-Posting-Host: dual.fi.muni.cz
-Content-Transfer-Encoding: 7bit
-X-Accept-Language: cs, en
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20020201132953.A27508@havoc.gtf.org>
+	id <S289357AbSBEJQW>; Tue, 5 Feb 2002 04:16:22 -0500
+Received: from codepoet.org ([166.70.14.212]:43740 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S289362AbSBEJQJ>;
+	Tue, 5 Feb 2002 04:16:09 -0500
+Date: Tue, 5 Feb 2002 02:16:08 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH *] rmap based VM, 12c
+Message-ID: <20020205091607.GA11426@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Rik van Riel <riel@conectiva.com.br>, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0202032348500.17850-100000@imladris.surriel.com>
 Mime-Version: 1.0
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre6 i686)
-Organization: unknown
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0202032348500.17850-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Sun Feb 03, 2002 at 11:50:09PM -0200, Rik van Riel wrote:
+> Due to field circus duty I forgot to announce 12b ... so here is 12c
 > 
-> On Fri, Feb 01, 2002 at 09:06:37AM -0800, Linus Torvalds wrote:
-> > Even databases often use multiple files, and quite frankly, a database
-> > that doesn't use mmap and doesn't try very hard to not cause extra system
-> > calls is going to be bad performance-wise _regardless_ of any page cache
-> > locking.
-> 
-> I've always thought that read(2) and write(2) would in the end wind up
-> faster than mmap(2)...  Tests in my rewritten cp/rm/mv type utilities
-> seem to bear this out.
-> 
-> Is mmap(2) only preferred for large files/databases?
- 
-I've tried to make faster md5summing program and programmed several
-ways of accessing file - for the very large files the fastest
-way seemed to be  O_DIRECT with threaded precaching.
 
-For fast mmap access I'd to implement two parallel mmpad areas with
-madvise MADV_WILLNEED  - then it was almost as fast as read
+FYI, rmap 12c claims to be rmap 12b in the EXTRAVERSION...
 
+ -Erik
 
--- 
-  .''`.  Which fundamental human right do you want to give up today?
- : :' :      Debian GNU/Linux maintainer - www.debian.{org,cz}
- `. `'  Zdenek Kabelac  kabi@{debian.org, users.sf.net, fi.muni.cz}
-   `-              When in doubt, just blame the Euro. :)
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

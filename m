@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265373AbUF2CpP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265370AbUF2Cu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265373AbUF2CpP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 22:45:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265370AbUF2CpP
+	id S265370AbUF2Cu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 22:50:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265383AbUF2Cu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 22:45:15 -0400
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:49600 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S265383AbUF2CpJ
+	Mon, 28 Jun 2004 22:50:26 -0400
+Received: from mail.inter-page.com ([12.5.23.93]:31748 "EHLO
+	mail.inter-page.com") by vger.kernel.org with ESMTP id S265370AbUF2CuY convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 22:45:09 -0400
-Subject: Re: __setup()'s not processed in bk-current
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ricky Beam <jfbeam@bluetronic.net>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@muc.de>, rth@twiddle.net
-In-Reply-To: <20040628165707.328cce15.akpm@osdl.org>
-References: <Pine.GSO.4.33.0406281523340.25702-100000@sweetums.bluetronic.net>
-	 <20040628165707.328cce15.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1088477020.10622.82.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 29 Jun 2004 12:43:41 +1000
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Jun 2004 22:50:24 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "'David S. Miller'" <davem@redhat.com>
+Cc: <oliver@neukum.org>, <scott@timesys.com>, <zaitcev@redhat.com>,
+       <greg@kroah.com>, <arjanv@redhat.com>, <jgarzik@redhat.com>,
+       <tburke@redhat.com>, <linux-kernel@vger.kernel.org>,
+       <stern@rowland.harvard.edu>, <mdharm-usb@one-eyed-alien.net>,
+       <david-b@pacbell.net>
+Subject: RE: drivers/block/ub.c
+Date: Mon, 28 Jun 2004 19:49:51 -0700
+Organization: Casabyte, Inc.
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAAxSTKwqq2EuUht/ftlgbZAEAAAAA@casabyte.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <20040628191545.7a298bc3.davem@redhat.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-06-29 at 09:57, Andrew Morton wrote:
-> We're now putting 24-byte structures into .init.setup via __setup.  But
-> x86_64's compiler is emitting a `.align 16' in there, so they end up on
-> 32-byte boundaries and do_early_param()'s pointer arithmetic goes wrong.
-> 
-> Fix that up by forcing the compiler to align these structures to sizeof(long).
+Ok, that is what it does.  That is not what *I* would have *expected* it to do.  I
+would have expected it to remain a struct when viewed from the outside rather than
+become an "N-byte blob".
 
-Um, that's really odd, and at least deserves a comment.
 
-There are a number of places where we assume that we can iterate through
-all entries in a section as an array, rth would know if we've just been
-lucky...
+-----Original Message-----
+From: David S. Miller [mailto:davem@redhat.com] 
+Sent: Monday, June 28, 2004 7:16 PM
+To: Robert White
+Cc: oliver@neukum.org; scott@timesys.com; zaitcev@redhat.com; greg@kroah.com;
+arjanv@redhat.com; jgarzik@redhat.com; tburke@redhat.com;
+linux-kernel@vger.kernel.org; stern@rowland.harvard.edu;
+mdharm-usb@one-eyed-alien.net; david-b@pacbell.net
+Subject: Re: drivers/block/ub.c
 
-Thanks,
-Rusty.
+On Mon, 28 Jun 2004 18:54:46 -0700
+"Robert White" <rwhite@casabyte.com> wrote:
 
-> diff -puN include/linux/init.h~x86_64-setup-section-alignment-fix include/linux/init.h
-> --- 25/include/linux/init.h~x86_64-setup-section-alignment-fix	2004-06-28 16:47:41.000000000 -0700
-> +++ 25-akpm/include/linux/init.h	2004-06-28 16:47:41.000000000 -0700
-> @@ -119,6 +119,7 @@ struct obs_kernel_param {
->  	static struct obs_kernel_param __setup_##unique_id	\
->  		 __attribute_used__				\
->  		 __attribute__((__section__(".init.setup")))	\
-> +		__attribute__((aligned((sizeof(long)))))	\
->  		= { __setup_str_##unique_id, fn, early }
->  
->  #define __setup_null_param(str, unique_id)			\
-> 
-> _
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+> The below makes no sense to me...  Nothing in the definition of struct bar{} (which
+> is not packed) infers (top me) in the slightest that foo should be unnaturally
+> aligned within it.
+
+First of all, it is what the compiler does and has done since the
+__packed__ attribute was added.
+
+Second of all, you are asking it to "PACK" the structure, this includes
+any place you place it within other data objects.  It becomes an N-byte
+blob that has no alignment constraints must be placed exactly where it
+is declared.
+
+I am growing very tired of this thread.
+
 

@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284334AbRLMQzy>; Thu, 13 Dec 2001 11:55:54 -0500
+	id <S284359AbRLMQ6o>; Thu, 13 Dec 2001 11:58:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284359AbRLMQzo>; Thu, 13 Dec 2001 11:55:44 -0500
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:63892 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S284334AbRLMQzg>; Thu, 13 Dec 2001 11:55:36 -0500
-Date: Thu, 13 Dec 2001 08:54:57 -0800 (PST)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: <whitney@math.berkeley.edu>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Repost: could ia32 mmap() allocations grow downward?
-In-Reply-To: <Pine.LNX.4.33.0112130803260.19406-100000@mf1.private>
-Message-ID: <Pine.LNX.4.33.0112130854170.19629-100000@mf1.private>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284361AbRLMQ6e>; Thu, 13 Dec 2001 11:58:34 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:44548 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S284359AbRLMQ6V>; Thu, 13 Dec 2001 11:58:21 -0500
+Date: Thu, 13 Dec 2001 16:58:05 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Jan Janak <J.Janak@sh.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: User/kernelspace stuff to set/get kernel variables
+Message-ID: <20011213165805.F8007@flint.arm.linux.org.uk>
+In-Reply-To: <20011213155532Z284289-18284+114@vger.kernel.org> <20011213172037.B22634@devitka.sh.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011213172037.B22634@devitka.sh.cvut.cz>; from J.Janak@sh.cvut.cz on Thu, Dec 13, 2001 at 05:20:37PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Dec 2001, Wayne Whitney wrote:
+On Thu, Dec 13, 2001 at 05:20:37PM +0100, Jan Janak wrote:
+> If you pass a parameter that is not recognized by the kernel, it will be
+> passed to init as environment variable, so all you need to do is check
+> for the variable in your init scripts ($network in your example).
 
-> The app per se does not call mmap(), but mmap() is called once when I
-> execute it.
+IIRC, Red Hat scripts grab them from /proc/cmdline
 
-Correction:  strace shows that it is called many times during startup, but
-only once without a corresponding munmap()>
-
-Wayne
-
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,80 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267372AbTBKRgE>; Tue, 11 Feb 2003 12:36:04 -0500
+	id <S267892AbTBKRhe>; Tue, 11 Feb 2003 12:37:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267879AbTBKRgD>; Tue, 11 Feb 2003 12:36:03 -0500
-Received: from h214n1fls32o988.telia.com ([62.20.176.214]:8977 "EHLO
-	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
-	id <S267372AbTBKRfx>; Tue, 11 Feb 2003 12:35:53 -0500
-Message-Id: <200302111745.h1BHjdPY067992@sirius.nix.badanka.com>
-Date: Tue, 11 Feb 2003 18:44:59 +0100
-From: Henrik Persson <nix@socialism.nu>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: via rhine bug? (timeouts and resets)
-In-Reply-To: <20030211171736.GA1359@k3.hellgate.ch>
-References: <200302111344.h1BDiMPY067070@sirius.nix.badanka.com>
-	<20030211154449.GA2252@k3.hellgate.ch>
-	<200302111652.h1BGq0PY067795@sirius.nix.badanka.com>
-	<20030211171736.GA1359@k3.hellgate.ch>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.OUXSHk54?x(Uu+"
+	id <S267887AbTBKRgM>; Tue, 11 Feb 2003 12:36:12 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:182 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S267366AbTBKRf5>;
+	Tue, 11 Feb 2003 12:35:57 -0500
+Message-ID: <3E4936BF.3050809@colorfullife.com>
+Date: Tue, 11 Feb 2003 18:45:35 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Zephaniah E. Hull" <warp@mercury.d2dc.net>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-eata@i-connect.net
+Subject: eata irq abuse (was: Re: Linux 2.5.60)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.OUXSHk54?x(Uu+
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Zephaniah wrote:
 
-On Tue, 11 Feb 2003 18:17:36 +0100
-Roger Luethi <rl@hellgate.ch> wrote:
+>kernel BUG at mm/slab.c:1102!
 
-RL> > Well.. It didn't solve my problems.. Still the same errors.. :/
-RL> 
-RL> That I find hard to believe. You were seeing a combination of "MII
-RL> status changed" and "Abort 0208, frame dropped.". That's because the
-RL> driver makes two mistakes: It treats 0200 as a link change (first
-RL> message), and it thinks 0008 indicates excessive collisions (second
-RL> message).
-
-RL> In fact, 0008 means "transmission error", and 0200 specifies a buffer
-RL> underrun. The patch fixes that (lines 204, 213). If you are seeing the
-RL> _same_ errors my guess is you're still running the old driver. Check
-RL> the log at debug=3.
+Slab notices that a function that expects enabled local interrupts is called with disabled local interrupts.
 
 
-Darn. The same PROBLEMS, not the same errors. Indeed, the errors are not
-there. But the behaviour is still the same, i.e. slow speeds after a
-while.. :/
+>Call Trace:
+> [<c014a3b3>] do_tune_cpucache+0x83/0x240
 
-But it's not as bad as it got a few minutes ago when I tested the driver
-from scyld.com.. It totally trashed my NIC.. A shame though, since it ran
-perfectly until it totally died.. I wan't a combination of those drivers..
-;)
+do_tune_cpucache:
+the function call smp_call_function(), and that is only permitted with enabled local interrupts. The complain is correct.
 
-RL> > Nah, that was "just in case".. ;)
-RL> 
-RL> It's masking another bug that's waiting to hit you <g>.
 
-Woohoo. Ehm. Nah. ;)
+> [<c014a300>] do_ccpupdate_local+0x0/0x30
+> [<c014a5c1>] enable_cpucache+0x51/0x80
+> [<c0148ea5>] kmem_cache_create+0x4a5/0x560
 
--- 
-Henrik Persson
-e-mail: nix@socialism.nu  WWW: http://nix.badanka.com
-ICQ: 26019058             PGP/GPG: http://nix.badanka.com/pgp
-PGP-Key-ID: 0x43B68116    PGP-Keyserver: pgp.mit.edu
+Within kmem_cache_create. kmem_cache_create checks for in_interrupt(), thus someone probably does
 
---=.OUXSHk54?x(Uu+
-Content-Type: application/pgp-signature
+	spin_lock_irqsave();
+	kmem_cache_create();
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE+STae+uW4/EO2gRYRApExAJ9Rqj3KwZoNJ+7r9mgVlVG+gar4vwCeO9O8
-RSBApuS5FqlcacKX+uUam3I=
-=z7Tn
------END PGP SIGNATURE-----
+> [<c0285dd2>] scsi_setup_command_freelist+0xa2/0x130
 
---=.OUXSHk54?x(Uu+--
+calls kmem_cache_create()
+
+> [<c02887e0>] scsi_register+0x3c0/0x660
+
+calls scsi_setup_command_freelist
+
+
+> [<c02919a1>] get_pci_dev+0x31/0x50
+
+?? probably stale
+
+> [<c0291df2>] port_detect+0x3c2/0xe50
+
+Do you have an eata scsi controller?
+
+Ugs.
+eata2x_detect():
+* spin_lock_irqsave();
+* calls port_detect();
+* * spin_unlock();
+* * scsi_register.
+
+Eata maintainers: Is that necessary?
+Why do the interrupts remain disabled across scsi_register?
+Is that a bug workaround, or an oversight?
+I'd use
+
+	spin_unlock_irq();
+	scsi_register();
+	spin_lock_irq();
+
+--
+	Manfred
+
+

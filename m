@@ -1,85 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268681AbUJPSiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUJPSqI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268681AbUJPSiW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 14:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268799AbUJPSiW
+	id S261232AbUJPSqI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 14:46:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUJPSqI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 14:38:22 -0400
-Received: from brown.brainfood.com ([146.82.138.61]:47493 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S268681AbUJPSiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 14:38:19 -0400
-Date: Sat, 16 Oct 2004 13:38:15 -0500 (CDT)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
-In-Reply-To: <20041016075635.GA462@elte.hu>
-Message-ID: <Pine.LNX.4.58.0410161322400.1219@gradall.private.brainfood.com>
-References: <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>
- <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
- <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
- <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
- <20041015102633.GA20132@elte.hu> <Pine.LNX.4.58.0410152157030.1219@gradall.private.brainfood.com>
- <20041016075635.GA462@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 16 Oct 2004 14:46:08 -0400
+Received: from [64.191.51.27] ([64.191.51.27]:49367 "EHLO saetta.eliosweb.net")
+	by vger.kernel.org with ESMTP id S261232AbUJPSqA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 14:46:00 -0400
+Subject: Re: Available Investment Capital.
+From: quazihossain <mr_qua_hossain@yahoo.com>
+X-Priority: 3 (Normal)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Mailer: RLSP Mailer
+Message-Id: <E1CIsiw-0006m0-1v@saetta.eliosweb.net>
+Date: Sat, 16 Oct 2004 19:52:10 +0200
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - saetta.eliosweb.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [99 99] / [47 12]
+X-AntiAbuse: Sender Address Domain - yahoo.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Oct 2004, Ingo Molnar wrote:
 
->
-> * Adam Heath <doogie@debian.org> wrote:
->
-> > On Fri, 15 Oct 2004, Ingo Molnar wrote:
-> >
-> > >
-> > > i have released the -U3 PREEMPT_REALTIME patch:
-> > >
-> > >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U3
-> >
-> > scheduling while atomic: postmaster/0x04000002/3175
-> > caller is cond_resched+0x53/0x70
-> >  [<c01069f7>] dump_stack+0x17/0x20
-> >  [<c027b457>] schedule+0x517/0x550
-> >  [<c027b9c3>] cond_resched+0x53/0x70
-> >  [<c012cdc7>] _mutex_lock+0x17/0x40
-> >  [<c012ce18>] _mutex_lock_irqsave+0x8/0x10
-> >  [<c01b21ae>] avc_has_perm_noaudit+0x2e/0x180
-> >  [<c01b2335>] avc_has_perm+0x35/0x68
-> >  [<c01b79ca>] ipc_has_perm+0x6a/0x80
-> >  [<c01ab716>] semctl_main+0xa6/0x410
-> >  [<c01abcad>] sys_semctl+0xad/0xb0
-> >  [<c010bafd>] sys_ipc+0xad/0x250
-> >  [<c0105bff>] syscall_call+0x7/0xb
->
-> thanks - that's the IPC code that is not converted over from RCU yet.
->
-> a suggestion for future testing: please enable PREEMPT_TIMING for the
-> next kernels you build, it will print such entries at the end of
-> stacktraces:
+Compliments. 
 
-adam@gradall:~/kernel/gradall/linux-2.6.9-rc4-mm1-U3$ grep PREEMPT /boot/config-2.6.9-rc4-mm1-vp-u3
-CONFIG_PREEMPT_TIMING=y
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_BKL=y
-CONFIG_PREEMPT_VOLUNTARY=y
-CONFIG_PREEMPT_SOFTIRQS=y
-CONFIG_PREEMPT_HARDIRQS=y
-CONFIG_PREEMPT_REALTIME=y
-CONFIG_DEBUG_PREEMPT=y
-adam@gradall:~/kernel/gradall/linux-2.6.9-rc4-mm1-U3$ grep LATENCY /boot/config-2.6.9-rc4-mm1-vp-u3
-# CONFIG_LATENCY_TRACE is not set
+I have gotten your contact information
+from Mr. Carl Barry, of Web Futures, INC., who states
+to me that he is acquainted with your business ethics,
+I wonder if this information is correct, but if it is,
+then I would like to introduce you to some financial
+issues he and I have been involved in over the past
+couple of months. The issues involve some funds that
+need to be invested, but between him, the brokers and
+the owners of the investment fund, we were unable to
+complete the investing of the fund due to the
+following reasons:
 
-So, it must not be working.
+1. The said fund amounts to Twenty Five Million
+Dollars (US&#41;.
 
-I'm recompiling now to enable LATENCY_TRACE, however.
+2. The said fund is in cash and needs to be
+transferred in the same state, due to restrictive
+banking laws in the territory where the fund is
+presently secured in cash. The banking laws do not
+permit deposit of an amount in excess of Ten Thousand
+Dollars so there is not way that the fund can be
+banked.
 
->  preempt count: 2
->  entry 1: cpu_idle+0x38/0x90 / (start_kernel+0x1ac/0x1f0)
->  entry 2: _spin_lock+0x22/0x80 / (timer_interrupt+0x1b/0x130)
+3. The fund could be invested through your agency in
+the purchase of facility and assets for investment
+purposes within your country, in collaboration with
+the agency of the current brokers.
 
-There were no preempt count lines anywhere.
+4. This transaction could result in your being paid a
+commission of 10% off the investment capital.
+
+5. The fund owners desire absolute confidentiality and
+professionalism in the handling of this matter, due to
+risks of seizure of the fund and litigation if
+personality is revealed.
+
+And:
+
+The fund owners have interest to invest in any of the
+following industries, depending on which is most not
+transparent, low risk, and average profit yielding-
+Power Generation, Telecommunication and Software
+Development, Hardware Manufacturing and Export,
+Construction or Real-Estate Development.
+
+Based upon the information provided above, I would
+like to know if you shall be able to assist in the
+nature of managing the investment fund. You must note
+that the fund can only be transferred in cash,
+therefore if you are in acceptance to participate with
+us in the investment of the fund, you shall also need
+to participate with us in the transfer of the fund in
+cash in the manner of receiving the fund in cash and
+depositing it in a Trust account opened in favour of
+the investment to be established. And this account
+would serve as the base or operating account for the
+investment.
+
+I am obliged to believe that you would be able to
+understand the information above, and should you need
+further information, please do not hesitate to ask.
+
+Kindly confirm receipt of this email.
+
+Sincerely.
+
+Quazi Hossain. 
+
+
+___________________________________________________________________________
 

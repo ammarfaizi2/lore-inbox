@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264546AbUBNCcq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 21:32:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264547AbUBNCcp
+	id S264547AbUBNCvK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 21:51:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264558AbUBNCvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 21:32:45 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:390 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S264546AbUBNCco (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 21:32:44 -0500
-Subject: ACPI SCI IOAPIC bug (Re: Fixes for nforce2 hard lockup, apic,
-	io-apic, udma133 covered)
-From: Len Brown <len.brown@intel.com>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Ross Dickson <ross@datscreative.com.au>, linux-kernel@vger.kernel.org,
-       AMartin@nvidia.com, kernel@kolivas.org, Ian Kumlien <pomac@vapor.com>
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0023ED17F@hdsmsx402.hd.intel.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE0023ED17F@hdsmsx402.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1076725909.25344.61.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 13 Feb 2004 21:31:49 -0500
+	Fri, 13 Feb 2004 21:51:10 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:10206 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S264547AbUBNCvI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 21:51:08 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16429.36121.398338.364947@napali.hpl.hp.com>
+Date: Fri, 13 Feb 2004 18:51:05 -0800
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, linux-gcc@vger.kernel.org
+Subject: Re: Kernel Cross Compiling
+In-Reply-To: <20040214023503.GC32006@MAIL.13thfloor.at>
+References: <20040213205743.GA30245@MAIL.13thfloor.at>
+	<16429.16944.521739.223708@napali.hpl.hp.com>
+	<20040213214420.GA32006@MAIL.13thfloor.at>
+	<16429.29392.529575.21798@napali.hpl.hp.com>
+	<20040214010841.GA1755@MAIL.13thfloor.at>
+	<20040214023503.GC32006@MAIL.13thfloor.at>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-12-11 at 10:15, Maciej W. Rozycki wrote:
-> On Thu, 11 Dec 2003, Ross Dickson wrote:
+>>>>> On Sat, 14 Feb 2004 03:35:03 +0100, Herbert Poetzl <herbert@13thfloor.at> said:
 
-> > ACPI: INT_SRC_OVR (bus[0] irq[0x9] global_irq[0x9] polarity[0x1]
-> trigger[0x3])
-> > Int: type 0, pol 1, trig 3, bus 0, irq 9, 2-9
-> 
->  ...
-> 
-> > IRQ to pin mappings:
-...
-> > IRQ9 -> 0:9-> 0:9
-> 
->  ... wrong -- the interrupts are set up as if they were
-> connected to multiple I/O APIC inputs.
+  Herbert> linux-2.4.25-rc2 config dep kernel modules
 
-Maciej,
-You're right.  This bug is in mp_config_ioapic_for_sci(), which calls
-io_apic_set_pci_routing(), which uncondnitionally calls
-add_pin_to_irq().  Problem is that this IRQ has already been initialized
-back in setup_IO_APIC_irqs().
+2.4?  That's pretty hopeless.  2.6 builds out of the box for ia64.
 
-Clearly in this case we shouldn't be calling io_apic_set_pci_routing()
-at all.  But I've got to look more closely at the case where the SCI is
-not identity mapped before simply ripping it out.
-
-thanks,
--Len
-
- 
-
+	--david

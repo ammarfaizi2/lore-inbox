@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261732AbTKQUku (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 15:40:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTKQUku
+	id S261384AbTKQUdl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 15:33:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbTKQUdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 15:40:50 -0500
-Received: from main.gmane.org ([80.91.224.249]:32143 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261732AbTKQUkt (ORCPT
+	Mon, 17 Nov 2003 15:33:41 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:20747 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S261384AbTKQUdj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 15:40:49 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Vedran Rodic <vedran@quark.fsb.hr>
-Subject: Re: Kernel 2.6.0-test9, deadlock using usb-storage, eventually memory allocation bug
-Date: Mon, 17 Nov 2003 21:28:33 +0100
-Message-ID: <pan.2003.11.17.20.28.32.434739@quark.fsb.hr>
-References: <1069097145.3fb920b9a10b1@fvs.dnsalias.net>
+	Mon, 17 Nov 2003 15:33:39 -0500
+Date: Mon, 17 Nov 2003 21:33:36 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: HOWTO build modules in 2.6.0 ...
+Message-ID: <20031117203336.GA1714@mars.ravnborg.org>
+Mail-Followup-To: Wojciech 'Sas' Cieciwa <cieciwa@alpha.zarz.agh.edu.pl>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58L.0311171939150.25906@alpha.zarz.agh.edu.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
-Cc: linux-usb-devel@lists.sourceforge.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58L.0311171939150.25906@alpha.zarz.agh.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Nov 2003 20:25:45 +0100, Maximilian Mehnert wrote:
+On Mon, Nov 17, 2003 at 08:00:50PM +0100, Wojciech 'Sas' Cieciwa wrote:
+> 
+> Hi,
+> 
+> How can I build kernel modele from other package without root, or copying 
+> all from /usr/scr/linux/ ??
+> When I try build kernel module from user i got error,
+> 
+> [...]
+> make[1]: Leaving directory `/users/cieciwa/rpm/BUILD/eagle-1.0.4/driver'
+> /usr/bin/make -C /usr/src/linux SUBDIRS=`pwd` modules;
+> make[1]: Entering directory `/usr/src/linux-2.6.0'
+>   HOSTCC  scripts/fixdep
+> cc1: Permission denied: opening dependency file scripts/.fixdep.d
 
-> If anybody is willing to help me I  would gratefully send her/him all my logs
-> and my previous correspondence on this topic :)
+Hi Sas.
+What you really need is the possibility to specify an alternate location
+for output files.
 
+Use the following:
+make -C /usr/src/linux SUBDIRS=`pwd` O=/users/cieciwa/rpm/BUILD/eagle-1.0.4/linux modules
 
-I think you may be hitting the same problem I did some time ago.
+O=/users/cieciwa/rpm/BUILD/eagle-1.0.4/linux
+tell kbuild to locate all files in the specified directory, which must exist.
+This is also the location of .config, so make sure to copy that one over.
 
-Please see
-http://www.mail-archive.com/linux-usb-devel%40lists.sourceforge.net/msg17080.html
-
-
-Try the attached patch Alan Stern made. You'll have to add a "," to the
-end of "+      .max_sectors =                  240" line. 
-
-Alan, this patch should be in queue for 2.6.0, right?
-
-
-
-Vedran Rodic
-
+	Sam

@@ -1,111 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267460AbUIWWbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267464AbUIWW4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267460AbUIWWbI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 18:31:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267478AbUIWW3x
+	id S267464AbUIWW4o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 18:56:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267543AbUIWW4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 18:29:53 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:3757 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267460AbUIWWZv (ORCPT
+	Thu, 23 Sep 2004 18:56:17 -0400
+Received: from gate.crashing.org ([63.228.1.57]:51423 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S267515AbUIWW1k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 18:25:51 -0400
-Date: Thu, 23 Sep 2004 15:26:40 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-cc: greg@kroah.com, hannal@us.ibm.com, kernel-janitors@lists.osdl.org,
-       davej@codemonkey.org.uk, hpa@zytor.com
-Subject: [PATCH 2.6.9-rc2-mm2] Create new function to see if pci dev is present
-Message-ID: <2480000.1095978400@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 23 Sep 2004 18:27:40 -0400
+Subject: Re: [PATCH] ppc64: Fix __raw_* IO accessors
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: Linus Torvalds <torvalds@osdl.org>, Roland Dreier <roland@topspin.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040923152530.GA9377@vana.vc.cvut.cz>
+References: <1095758630.3332.133.camel@gaston>
+	 <1095761113.30931.13.camel@localhost.localdomain>
+	 <1095766919.3577.138.camel@gaston> <523c1bpghm.fsf@topspin.com>
+	 <Pine.LNX.4.58.0409211237510.25656@ppc970.osdl.org>
+	 <52mzzjnuq7.fsf@topspin.com>
+	 <Pine.LNX.4.58.0409211510150.25656@ppc970.osdl.org>
+	 <1095816897.21231.32.camel@gaston> <20040922185851.GA11017@vana.vc.cvut.cz>
+	 <1095900539.6359.46.camel@gaston>  <20040923152530.GA9377@vana.vc.cvut.cz>
+Content-Type: text/plain
+Message-Id: <1095978205.10865.30.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 24 Sep 2004 08:23:25 +1000
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-09-24 at 01:25, Petr Vandrovec wrote:
 
-Greg asked in a previous janitors thread:
-"What we need is a simple "Is this pci device present right now" type
-function, to solve the mess that logic like this needs."
+> 
+> Ok.  Can somebody tell me what byte order should be used for framebuffer
+> and for MMIO on PPC/PPC64 then?  From cfb* it seems that framebuffer
+> have to be in big-endian mode, and from Xorg code it seems that MMIO should 
+> be always in little-endian.  Yes?
 
-OK. How about this one? It uses pci_get_device but instead of returning
-the dev it returns 1 if the device is present and 0 if it isnt. This take the
-burdon off the driver from having to know when to use pci_dev_put or
-not and should be cleaner for future maintenance work.
+I don't know exactly what X.org does ...
 
-Ive tested it with two patches that will follow.
+In general, on a PCI bus, we expect MMIO to be little endian. Some cards
+try to be "smart" and have an endian swap facility for MMIO (like nvidia,
+and I think matrox) but I tend to consider that useless since it force us
+to have different IO accessors or to add an "un-byteswap" macro. The PPC
+is very good at doing byteswapped accesses with one instruction so it
+isn't really a waste to do all MMIOs littel endian anyway.
 
-Hanna Linder
-IBM Linux Technology Center
+For the framebuffer, it's common practice to have it in big endian format
+(and using the proper byteswap register for the access bit depth)
 
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
-----
-
-diff -Nrup linux-2.6.9-rc2-mm2cln/drivers/pci/search.c linux-2.6.9-rc2-mm2patch/drivers/pci/search.c
---- linux-2.6.9-rc2-mm2cln/drivers/pci/search.c	2004-09-23 11:49:04.000000000 -0700
-+++ linux-2.6.9-rc2-mm2patch/drivers/pci/search.c	2004-09-23 15:03:58.000000000 -0700
-@@ -271,6 +271,30 @@ pci_get_device(unsigned int vendor, unsi
- 	return pci_get_subsys(vendor, device, PCI_ANY_ID, PCI_ANY_ID, from);
- }
+Ben.
  
-+/**
-+ * pci_dev_present - Returns 1 if device is present, 0 if device is not.
-+ * @vendor: PCI vendor id to match, or %PCI_ANY_ID to match all vendor ids
-+ * @device: PCI device id to match, or %PCI_ANY_ID to match all device ids
-+ * @from: Previous PCI device found in search, or %NULL for new search.
-+ *
-+ * If pci_get_device returns a pci_dev pointer then the device exists and the
-+ * reference count is decremented before returning 1. If pci_get_device
-+ * returns %NULL then 0 is returned to indicate the device was not
-+ * present. Obvious fact: You do not have a reference to the device so if
-+ * it is removed from the system before this function returns the value
-+ * will be stale. 
-+ */
-+int 
-+pci_dev_present(unsigned int vendor, unsigned int device, struct pci_dev *from)
-+{
-+	struct pci_dev *dev;
-+	dev = pci_get_device(vendor, device, from);
-+	if (dev){
-+		pci_dev_put(dev);
-+		return 1;
-+	}
-+	return 0;
-+}
- 
- /**
-  * pci_find_device_reverse - begin or continue searching for a PCI device by vendor/device id
-@@ -352,3 +376,5 @@ EXPORT_SYMBOL(pci_get_device);
- EXPORT_SYMBOL(pci_get_subsys);
- EXPORT_SYMBOL(pci_get_slot);
- EXPORT_SYMBOL(pci_get_class);
-+EXPORT_SYMBOL(pci_dev_present);
-+
-diff -Nrup linux-2.6.9-rc2-mm2cln/include/linux/pci.h linux-2.6.9-rc2-mm2patch/include/linux/pci.h
---- linux-2.6.9-rc2-mm2cln/include/linux/pci.h	2004-09-23 11:49:27.000000000 -0700
-+++ linux-2.6.9-rc2-mm2patch/include/linux/pci.h	2004-09-23 15:03:01.000000000 -0700
-@@ -733,6 +733,8 @@ struct pci_dev *pci_get_subsys (unsigned
- struct pci_dev *pci_get_slot (struct pci_bus *bus, unsigned int devfn);
- struct pci_dev *pci_get_class (unsigned int class, struct pci_dev *from);
- 
-+int pci_dev_present(unsigned int vendor, unsigned int device, struct pci_dev *from);
-+
- int pci_bus_read_config_byte (struct pci_bus *bus, unsigned int devfn, int where, u8 *val);
- int pci_bus_read_config_word (struct pci_bus *bus, unsigned int devfn, int where, u16 *val);
- int pci_bus_read_config_dword (struct pci_bus *bus, unsigned int devfn, int where, u32 *val);
-@@ -900,6 +902,9 @@ unsigned int ss_vendor, unsigned int ss_
- static inline struct pci_dev *pci_get_class(unsigned int class, struct pci_dev *from)
- { return NULL; }
- 
-+static inline int pci_dev_present(unsigned int vendor, unsigned int device, struct pci_dev *from)
-+{return -1; }
-+
- static inline void pci_set_master(struct pci_dev *dev) { }
- static inline int pci_enable_device(struct pci_dev *dev) { return -EIO; }
- static inline void pci_disable_device(struct pci_dev *dev) { }
-
-
-
-
 

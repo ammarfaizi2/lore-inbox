@@ -1,69 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285482AbSA1VTc>; Mon, 28 Jan 2002 16:19:32 -0500
+	id <S286207AbSA1VWM>; Mon, 28 Jan 2002 16:22:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285828AbSA1VTX>; Mon, 28 Jan 2002 16:19:23 -0500
-Received: from NEVYN.RES.CMU.EDU ([128.2.145.6]:11650 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id <S285482AbSA1VTM>;
-	Mon, 28 Jan 2002 16:19:12 -0500
-Date: Mon, 28 Jan 2002 16:19:00 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [PATCH?] Crash in 2.4.17/ptrace
-Message-ID: <20020128161900.A9071@nevyn.them.org>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>
-In-Reply-To: <20020128153210.A3032@nevyn.them.org> <3C55BC89.EDE3105C@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C55BC89.EDE3105C@zip.com.au>
-User-Agent: Mutt/1.3.23i
+	id <S286336AbSA1VWD>; Mon, 28 Jan 2002 16:22:03 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:23052 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S286188AbSA1VVw>; Mon, 28 Jan 2002 16:21:52 -0500
+Message-Id: <200201282120.g0SLKUE24961@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] KERN_INFO for devfs
+Date: Mon, 28 Jan 2002 23:20:32 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200201280750.g0S7oGE21742@Port.imtp.ilyichevsk.odessa.ua> <200201281644.g0SGij202269@vindaloo.ras.ucalgary.ca>
+In-Reply-To: <200201281644.g0SGij202269@vindaloo.ras.ucalgary.ca>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 28, 2002 at 01:03:05PM -0800, Andrew Morton wrote:
-> Oh nice.  And it seems that, say, an O_DIRECT write of, say,
-> a mmaped framebuffer will also oops the kernel.
-> 
-> Most callers of get_user_pages() aren't prepared for a
-> null page* in the returned array.
-> 
-> This patch *may* be sufficient, but perhaps get_user_pages()
-> should just bale out as soon as it finds an invalid page, rather
-> than sticking a null page * into the returned array and continuing.
-> 
-> --- linux-2.4.18-pre7/mm/memory.c	Fri Dec 21 11:19:23 2001
-> +++ linux-akpm/mm/memory.c	Mon Jan 28 12:54:40 2002
-> @@ -453,6 +453,7 @@ int get_user_pages(struct task_struct *t
->  		vma = find_extend_vma(mm, start);
->  
->  		if ( !vma ||
-> +		     (vma->vm_flags & VM_IO) ||
->  		    (!force &&
->  		     	((write && (!(vma->vm_flags & VM_WRITE))) ||
->  		    	 (!write && (!(vma->vm_flags & VM_READ))) ) )) {
+> > diff --recursive -u linux-2.4.13-orig/fs/devfs/base.c
+> > linux-2.4.13-new/fs/devfs/base.c
+>
+> This patch won't even remotely apply to 2.4.18-pre7. Please don't
+> submit patches which were generated against old kernels unless you've
+> verified that they apply to the latest kernel.
 
-Frame buffers aren't reliable marked VM_IO when mapped, currently.  Ben
-H. said he was going to push a fix for this at least to the PPC trees
-today or tomorrow.
+Didn't try but I'm sure you're right :-)
 
-It's cute - fbmem.c goes out of its way to set the flag on some
-architectures and not others.  I can't imagine why.
+Diff against 2.4.18-pre6 will be attached as soon as diff will finish
+(it's over NFS).
 
-But with that, yes, that should fix it.
+I changed "none" to "devfs" in do_mount("none", "/dev", "devfs", 0, ""):
+"none is busy" is misleading at umount time :-)
 
-> > Of course, I would much rather be able to see the contents of the
-> > framebuffer.  Any suggestions?
-> 
-> Not with this patch, I'm afraid.  For your testing purposes you
-> could just remove the VALID_PAGE() test in mm/memory.c:get_page_map(),
-> and then gdb should be able to get at the framebuffer.
+Aha, it's ready!
+--
+vda
 
-I'm sure there's a good reason to not do that in general.  Mind
-enlightening me?
 
--- 
-Daniel Jacobowitz                           Carnegie Mellon University
-MontaVista Software                         Debian GNU/Linux Developer
+diff -u --recursive linux-2.4.18-pre6mhv_ll/fs/devfs/base.c 
+linux-2.4.18-pre6mhv_ll.devfs/fs/devfs/base.c
+--- linux-2.4.18-pre6mhv_ll/fs/devfs/base.c     Fri Jan 25 15:49:53 2002
++++ linux-2.4.18-pre6mhv_ll.devfs/fs/devfs/base.c       Mon Jan 28 23:05:44 
+2002
+@@ -3464,17 +3464,16 @@
+ {
+     int err;
+
+-    printk ("%s: v%s Richard Gooch (rgooch@atnf.csiro.au)\n",
+-           DEVFS_NAME, DEVFS_VERSION);
++    printk (KERN_INFO DEVFS_NAME ": v" DEVFS_VERSION " Richard Gooch 
+(rgooch@atnf.csiro.au)\n");
+     devfsd_buf_cache = kmem_cache_create ("devfsd_event",
+                                          sizeof (struct devfsd_buf_entry),
+                                          0, 0, NULL, NULL);
+     if (!devfsd_buf_cache) OOPS ("(): unable to allocate event slab\n");
+ #ifdef CONFIG_DEVFS_DEBUG
+     devfs_debug = devfs_debug_init;
+-    printk ("%s: devfs_debug: 0x%0x\n", DEVFS_NAME, devfs_debug);
++    printk (KERN_INFO DEVFS_NAME ": devfs_debug: 0x%0x\n", devfs_debug);
+ #endif
+-    printk ("%s: boot_options: 0x%0x\n", DEVFS_NAME, boot_options);
++    printk (KERN_INFO DEVFS_NAME ": boot_options: 0x%0x\n", boot_options);
+     err = register_filesystem (&devfs_fs_type);
+     if (!err)
+     {
+@@ -3490,8 +3489,8 @@
+     int err;
+
+     if ( !(boot_options & OPTION_MOUNT) ) return;
+-    err = do_mount ("none", "/dev", "devfs", 0, "");
+-    if (err == 0) printk ("Mounted devfs on /dev\n");
++    err = do_mount ("devfs", "/dev", "devfs", 0, "");
++    if (err == 0) printk (KERN_INFO "Mounted devfs on /dev\n");
+     else printk ("Warning: unable to mount devfs, err: %d\n", err);
+ }   /*  End Function mount_devfs_fs  */

@@ -1,88 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262663AbUJ0UCy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262656AbUJ0T7H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262663AbUJ0UCy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 16:02:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUJ0UAa
+	id S262656AbUJ0T7H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 15:59:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262671AbUJ0Tz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 16:00:30 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:56720 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262676AbUJ0Tzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 15:55:39 -0400
-Message-ID: <417FFD39.70601@comcast.net>
-Date: Wed, 27 Oct 2004 15:55:37 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
-X-Accept-Language: en-us, en
+	Wed, 27 Oct 2004 15:55:26 -0400
+Received: from mail.scitechsoft.com ([63.195.13.67]:6072 "EHLO
+	mail.scitechsoft.com") by vger.kernel.org with ESMTP
+	id S262605AbUJ0Tw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 15:52:57 -0400
+From: "Kendall Bennett" <KendallB@scitechsoft.com>
+Organization: SciTech Software, Inc.
+To: Paulo Marques <pmarques@grupopie.com>
+Date: Wed, 27 Oct 2004 12:52:56 -0700
 MIME-Version: 1.0
-To: linux-os@analogic.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Reserving a syscall number
-References: <417FED6E.3010007@comcast.net> <Pine.LNX.4.61.0410271505110.4669@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0410271505110.4669@chaos.analogic.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
+CC: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linuxconsole-dev@lists.sourceforge.net
+Message-ID: <417F9A28.3690.3FE4ECFC@localhost>
+In-reply-to: <417F8269.2070307@grupopie.com>
+References: <417E9E3D.573.3C0CDE1A@localhost>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Paulo Marques <pmarques@grupopie.com> wrote:
+
+> One other thing, is there a simple way to test the emulator? I've
+> been careful with the changes I did not to change the resulting
+> behaviour of the emulator, but I can not _absolutely_ sure that I
+> didn't break anything. It would be very good to try the emulator
+> in a controlled environment. 
+
+Unfortunately the test code I wrote years ago is only for Open Watcom and 
+uses inline assembler. It hasn't been used for some time and I am not 
+sure if it works properly or not (I don't think it does right now). Plus 
+we recently found out that it doesn't test everything, just the 
+implementation of prim_ops.c.
+
+The only real way to test the emulator is to use it to emulate some code. 
+We don't have any code we use on a regular basis to test it, but perhaps 
+we should think about building a test suite for it. Usually we test it on 
+Video BIOS ROM's, but that is painful because you have to switch video 
+cards all the time.
+
+XFree86 and X.org do use the same code so it could be tested there, but 
+once again it is only used for Video BIOS ROM stuff. 
+
+Regards,
+
+---
+Kendall Bennett
+Chief Executive Officer
+SciTech Software, Inc.
+Phone: (530) 894 8400
+http://www.scitechsoft.com
+
+~ SciTech SNAP - The future of device driver technology! ~
 
 
-
-linux-os wrote:
-| On Wed, 27 Oct 2004, John Richard Moser wrote:
-|
-|> -----BEGIN PGP SIGNED MESSAGE-----
-|> Hash: SHA1
-|>
-|> How would one go about having a specific syscall number reserved in
-|> entry.S?  I'm exploring doing a kill inside the kernel from a detection
-|> done in userspace, which would allow the executable header of the binary
-|> to indicate whether the task should be killed or not; if it works, the
-|> changes will likely not go into mainline, but will still require a
-|> non-changing syscall index (assuming I understood the syscall manpage
-|> properly).
-|>
-|> On a side note, if a syscall doesn't exist, how would that be detected
-|> in userspace?
-|> - --
-|
-|
-| Look at ld.so.preload for potential capabilities to control any
-| executable.
-|
-| Also what's the problem with sending the task a signal when
-| the detection has been done?
-|
-| If the usual capabilites are not sufficient, then make
-| a driver (module).
-|
-
-I'm attempting to figure a way to control the IBM stack smash protector
-via a flag in the ELF header, without opening the executable image on
-disk and checking manually.  If there is a way to do this from
-userspace, that would be acceptable.
-
-|
-| Cheers,
-| Dick Johnson
-| Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-|  Notice : All mail here is now cached and reviewed by John Ashcroft.
-|                  98.36% of all statistics are fiction.
-|
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBf/04hDd4aOud5P8RAm0AAJ9FWZ2d0hJpS5qDhogRPM6mWZJDOwCfe5YC
-BynHiZzH94hn5XnSLZlNqyc=
-=jMqN
------END PGP SIGNATURE-----

@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315539AbSGNBoP>; Sat, 13 Jul 2002 21:44:15 -0400
+	id <S315593AbSGNCQN>; Sat, 13 Jul 2002 22:16:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315540AbSGNBoO>; Sat, 13 Jul 2002 21:44:14 -0400
-Received: from mkc-65-26-127-29.kc.rr.com ([65.26.127.29]:22536 "EHLO
-	portal.home.hanaden.com") by vger.kernel.org with ESMTP
-	id <S315539AbSGNBoN>; Sat, 13 Jul 2002 21:44:13 -0400
-Message-ID: <3D30D81B.8000809@hanaden.com>
-Date: Sat, 13 Jul 2002 20:47:07 -0500
-From: Hanasaki JiJi <hanasaki@hanaden.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a+) Gecko/20020712
-X-Accept-Language: en-us, en
+	id <S315595AbSGNCQM>; Sat, 13 Jul 2002 22:16:12 -0400
+Received: from p50886DAC.dip.t-dialin.net ([80.136.109.172]:38532 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315593AbSGNCQL>; Sat, 13 Jul 2002 22:16:11 -0400
+Date: Sat, 13 Jul 2002 20:19:02 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [SCRIPT] kbuild-2.4/2.5 symbol export parser
+Message-ID: <Pine.LNX.4.44.0207132002030.3331-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam; Germany
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.18 panic on orinoco null event
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Help please?!?  The wireless card in my laptop + its driver is causing a
-kernel panic.
+Hi,
 
-HW:
-	laptop with built-in 802.11b card
-	P4 1.7
-OS:
-	Debian Woody & kernel 2.4.18
+This one checks if your Makefile's and Makefile.in's report the correct 
+files exporting symbols. A file that exports symbols must be listed. This 
+script checks whether files that export symbols are set in expsyms and its 
+kbuild-2.4 equivalent, and whether the files listed there really export 
+symbols.
 
-running dhclient-2-2-x causes the following error:
+It's quite a kludge. I don't do the parsing on my own here, since I'm just 
+as lazy as you, but I use the (in)famous grep for each file.
 
-Unable to handle kernel NULL ponter dereference at virtual
-address 0000 0078
-Tainted: P
-Kernel panic: killing interrupt handler!
-eth1: Null event in orinoco_interrupt!
+Lots of stuff, produces result and tmp files only in a special directory 
+called ".deps" (because some of the code was inherited from another script 
+of mine that computer dependencies for kbuild-2.5 Makefile.in's and thus 
+created them automagically).
 
-Thank you.
+Usage: go to your kernel tree (main directory) and run the script there 
+without parameters. Takes me a minute to run on my Alpha, produces approx. 
+270 kB of output files. Requires find, grep, diff, sort and, of course, 
+perl.
 
+<URL:ftp://luckynet.dynu.com/pub/linux/kbuild-2.5/tools/expsyms-check.pl.bz2>
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315370AbSEUSId>; Tue, 21 May 2002 14:08:33 -0400
+	id <S315375AbSEUSLC>; Tue, 21 May 2002 14:11:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315375AbSEUSIc>; Tue, 21 May 2002 14:08:32 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20743 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S315370AbSEUSIa>; Tue, 21 May 2002 14:08:30 -0400
-Date: Tue, 21 May 2002 14:04:54 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Dax Kelson <dax@gurulabs.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: suid bit on directories
-In-Reply-To: <Pine.LNX.4.44.0205202157150.24416-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.3.96.1020521140333.1427C-100000@gatekeeper.tmr.com>
+	id <S315411AbSEUSLC>; Tue, 21 May 2002 14:11:02 -0400
+Received: from web14702.mail.yahoo.com ([216.136.224.119]:60511 "HELO
+	web14702.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S315375AbSEUSLA>; Tue, 21 May 2002 14:11:00 -0400
+Message-ID: <20020521181059.97314.qmail@web14702.mail.yahoo.com>
+Date: Tue, 21 May 2002 11:10:59 -0700 (PDT)
+From: Jing Xu <xujing_cn2001@yahoo.com>
+Subject: enable interrupt in pci configuration space?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 May 2002, Dax Kelson wrote:
+Hi,
 
-> On Mon, 20 May 2002, Dax Kelson wrote:
-> 
-> > Example 1:
-> > 
-> > /home/bob/public_html
-> > 
-> > public_html  is user/group  bob/httpd
-> > 
-> > the perms are 2770
-> 
-> I meant 4770 since we are discussing a hypothetical SUID directory.
+I tried to enable the vertical retrace interrupt of my
+AGP card by setting the value of a related register.
+The document about this register mentions that" The
+fields in this register control whether the respective
+status bits are enabled to drive the system interrupt
+pin. Even if enabled here, the interrupt line is not
+driven unless enabled in the PCI configuration space."
 
-I would expect public_html to be 4775 or 4771 if it's to be any use at
-all. Otherwise why have it?
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Can we enable interrupt in PCI configuration space? If
+we can, how to enable it? By the way, I am not in this
+maillist. Could you please send a copy to me when you
+give your suggestion.
 
+Thanks in advance,
+
+jing
+
+__________________________________________________
+Do You Yahoo!?
+LAUNCH - Your Yahoo! Music Experience
+http://launch.yahoo.com

@@ -1,52 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262972AbTCSILu>; Wed, 19 Mar 2003 03:11:50 -0500
+	id <S262946AbTCSITd>; Wed, 19 Mar 2003 03:19:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262973AbTCSILt>; Wed, 19 Mar 2003 03:11:49 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:5616 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S262972AbTCSILs>;
-	Wed, 19 Mar 2003 03:11:48 -0500
-Message-ID: <3E7828C3.2070304@mvista.com>
-Date: Wed, 19 Mar 2003 00:22:27 -0800
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: async@cc.gatech.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] limits on SCHED_FIFO tasks
-References: <20030318185135.D1361@tokyo.cc.gatech.edu>	<3E77C40D.4090700@mvista.com> <20030318190407.37a39db1.akpm@digeo.com>
-In-Reply-To: <20030318190407.37a39db1.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262948AbTCSITd>; Wed, 19 Mar 2003 03:19:33 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:22241 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262946AbTCSITb>; Wed, 19 Mar 2003 03:19:31 -0500
+Date: Wed, 19 Mar 2003 09:30:25 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [patch] 2.5.65-mjb1: lkcd: fix dump_fmt.c for !CONFIG_SMP
+Message-ID: <20030319083025.GA23258@fs.tum.de>
+References: <8230000.1047975763@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8230000.1047975763@[10.10.2.4]>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> george anzinger <george@mvista.com> wrote:
-> 
->>If the issue is regaining control after some RT task goes into a loop, 
->>the way this is usually done is to keep a session around with a higher 
->>priority.  Using this concept, one might provide tools that, from 
->>userland, insure that such a session exists prior to launching the 
->>"suspect" code.  I fail to see the need for this sort of code in the 
->>kernel.
-> 
-> 
-> That works, until your shell calls ext3_mark_inode_dirty(), which blocks on
-> kjournald activity.  kjournald is SCHED_OTHER, and never runs...
-> 
-That is classic priority inversion.  It would be "nice" to find a fix 
-for that :)  I think that the proposed action should not be triggered 
-until there is some "notice" that something is wrong.  I suppose it 
-could be a watchdog timer of some sort.  Still, if the priority 
-inversion issue were solved, all the rest could be done in user land.
+On Tue, Mar 18, 2003 at 12:22:43AM -0800, Martin J. Bligh wrote:
+>...
+> lkcd						LKCD team
+> 	Linux kernel crash dump support
+>...
 
-> 
-> 
+I got the following compile error for !CONFIG_SMP:
+
+<--  snip  -->
+
+...
+  gcc-2.95 -Wp,-MD,drivers/dump/.dump_fmt.o.d -D__KERNEL__ -Iinclude 
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 
+-Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc 
+-iwithprefix include    -DKBUILD_BASENAME=dump_fmt -DKBUILD_MODNAME=dump 
+-c -o drivers/dump/dump_fmt.o drivers/dump/dump_fmt.c
+drivers/dump/dump_fmt.c:171: macro `__dump_save_other_cpus' used without args
+make[2]: *** [drivers/dump/dump_fmt.o] Error 1
+
+<--  snip  -->
+
+
+Trivial fix:
+
+
+--- linux-2.5.65-mjb1/include/linux/dump.h~	2003-03-18 17:09:59.000000000 +0100
++++ linux-2.5.65-mjb1/include/linux/dump.h	2003-03-19 09:24:43.000000000 +0100
+@@ -343,7 +343,7 @@
+ #ifdef CONFIG_SMP
+ extern void 	__dump_save_other_cpus(void);
+ #else
+-#define 	__dump_save_other_cpus(void)
++#define 	__dump_save_other_cpus()
+ #endif
+ 
+ #endif /* __KERNEL__ */
+
+
+cu
+Adrian
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbVC2XmP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVC2Xn5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261649AbVC2XmP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 18:42:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVC2XmP
+	id S261673AbVC2Xn5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 18:43:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbVC2Xn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 18:42:15 -0500
-Received: from gate.crashing.org ([63.228.1.57]:484 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261649AbVC2XmI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 18:42:08 -0500
-Subject: Re: mac53c94 driver
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Kevin Diggs <kevdig@hypersurf.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <4249CB23.6030203@hypersurf.com>
-References: <4249CB23.6030203@hypersurf.com>
-Content-Type: text/plain
-Date: Wed, 30 Mar 2005 09:41:05 +1000
-Message-Id: <1112139665.31848.68.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Tue, 29 Mar 2005 18:43:57 -0500
+Received: from CPE0020e06a7211-CM0011ae8cd564.cpe.net.cable.rogers.com ([69.194.86.29]:54146
+	"EHLO kenichi") by vger.kernel.org with ESMTP id S261651AbVC2Xno
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 18:43:44 -0500
+From: Andrew James Wade 
+	<ajwade@CPE0020e06a7211-CM0011ae8cd564.cpe.net.cable.rogers.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
+Date: Tue, 29 Mar 2005 18:36:55 -0500
+User-Agent: KMail/1.7.1
+References: <20050324132342.GD7115@beast> <20050329103049.GB19541@gondor.apana.org.au> <1112093428.5243.88.camel@uganda>
+In-Reply-To: <1112093428.5243.88.camel@uganda>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503291836.56223.ajwade@CPE0020e06a7211-CM0011ae8cd564.cpe.net.cable.rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-29 at 13:39 -0800, Kevin Diggs wrote:
-> Hi,
-> 
-> 	I am not subscribed so please CC me personally.
-> 
-> 	Anyone know where I might find a programming manual for the NCR 53C94? 
-> Also any details about the Grand Central dma thing would be appreciated. 
-> Finally, if there is a more targeted list for this driver, please point 
-> me to it. Thanks!
+On March 29, 2005 05:50 am, Evgeniy Polyakov wrote:
+> I think the most people use hardware accelerated devices to
+> speed up theirs calculations - embedded world is the best example - 
+> applications that are written to use /dev/random
+> will work just too slow, so hardware vendors
+> place HW assistant chips to unload that very cpu-intencive work
+> from main CPU.
+> Without ability speed this up in kernel, we completely [ok, almost] 
+> loose all RNG advantages.
 
-Google for "MacTech.pdf" and you may find this old "Macintosh Technology
-for CHRP" document that documents the DBDMA engine (beware of the bugs).
-Also, earlier Darwin's used to have a driver for the 53c94 that you may
-want to look at too (check out opendarwin.org for old stuff).
+The reason for hardware random number generators is that computers
+are pretty deterministic machines and random number sources tend to be
+few, far between, very low bitrate, and of uncertain randomness. So much
+so that without a user (a decent entropy source), a computer might take
+minutes to collect a few hundred bits of entropy.[1] The advantage of a
+hardware RNG is that it is random in the first place, high bitrates are
+just icing on the cake.
 
-Ben.
+[1] Vague recollection from a hardware RNG article.
 
-
+The thing is few applications need truly random data, and even fewer
+need much. (Maybe casinos). Even cryptographic applications don't need
+much; they can be served by a carefully crafted pseudo-random number
+generator, so long as that generator is seeded with enough entropy. (512
+bits of entropy is plenty). And while a crypographically strong
+pseudo-random number generator is pretty cpu-intensive, I would be
+quite surprised to learn that a hardware RNG is faster.

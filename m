@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317571AbSH3VLa>; Fri, 30 Aug 2002 17:11:30 -0400
+	id <S319666AbSH3V1A>; Fri, 30 Aug 2002 17:27:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319664AbSH3VLa>; Fri, 30 Aug 2002 17:11:30 -0400
-Received: from mx.nlm.nih.gov ([130.14.22.48]:51427 "EHLO mx.nlm.nih.gov")
-	by vger.kernel.org with ESMTP id <S317571AbSH3VL3>;
-	Fri, 30 Aug 2002 17:11:29 -0400
-Message-ID: <3D6FE07C.B76DD4B6@ncbi.nlm.nih.gov>
-Date: Fri, 30 Aug 2002 17:15:40 -0400
-From: Anton Lavrentiev <lavr@ncbi.nlm.nih.gov>
-Organization: NCBI NIH
-X-Mailer: Mozilla 4.79 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en, ru
+	id <S319667AbSH3V1A>; Fri, 30 Aug 2002 17:27:00 -0400
+Received: from maile.telia.com ([194.22.190.16]:44787 "EHLO maile.telia.com")
+	by vger.kernel.org with ESMTP id <S319666AbSH3V07>;
+	Fri, 30 Aug 2002 17:26:59 -0400
+X-Original-Recipient: <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Sync arch/alpha/kernel/entry.S with asm/unistd.h
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 30 Aug 2002 23:22:35 +0200
+Message-ID: <yw1x8z2oca90.fsf@zaphod.guide>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linus@transmeta.com
-CC: vakatov@ncbi.nlm.nih.gov
-Subject: Re: BUG:: SYSV IPC shmem reported as "(deleted)" in process maps file
-References: <3D6FDFF8.C0D86A3C@ncbi.nlm.nih.gov>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Linux Developers:
+This adds some (non-implemented) syscalls to entry.S with the same
+numbers as in asm/unistd.h
 
-/proc/#/maps file of a process, which has a shared memory segment attached,
-prints the segment as "(deleted)" while in fact the segment is fine and sound.
-This seems to be quite confusing.
+--- arch/alpha/kernel/entry.S	30 Aug 2002 20:13:07 -0000	1.1.1.1
++++ arch/alpha/kernel/entry.S	30 Aug 2002 21:11:07 -0000
+@@ -10,7 +10,7 @@
+ 
+ #define SIGCHLD 20
+ 
+-#define NR_SYSCALLS 382
++#define NR_SYSCALLS 394
+ 
+ /*
+  * These offsets must match with alpha_mv in <asm/machvec.h>.
+@@ -1154,6 +1154,18 @@
+ 	.quad sys_readahead
+ 	.quad sys_ni_syscall			/* 380, sys_security */
+ 	.quad sys_tkill
++	.quad sys_ni_syscall			/* setxattr */
++	.quad sys_ni_syscall			/* lsetxattr */
++	.quad sys_ni_syscall			/* fsetxattr */
++	.quad sys_ni_syscall			/* 385 getxattr */
++	.quad sys_ni_syscall			/* lgetxattr */
++	.quad sys_ni_syscall			/* fgetxattr */
++	.quad sys_ni_syscall			/* listxattr */
++	.quad sys_ni_syscall			/* llistxattr */
++	.quad sys_ni_syscall			/* 390 flistxattr */
++	.quad sys_ni_syscall			/* removexattr */
++	.quad sys_ni_syscall			/* lremovexattr */
++	.quad sys_ni_syscall			/* fremovexattr */
+ 
+ /* Remember to update everything, kids.  */
+ .ifne (. - sys_call_table) - (NR_SYSCALLS * 8)
 
-cat /proc/#/maps:
-40018000-40022000 rw-s 00000000 00:05 5865476    /SYSV01315549 (deleted)
-4021b000-40225000 rw-s 00000000 00:05 5898248    /SYSV012cc3bc (deleted)
 
-ipcs -a:
-0x01315549 5865476    ncbiduse  666        40960      1
-0x012cc3bc 5898248    ncbiduse  666        40960      1
 
-Best regards,
-
-Anton Lavrentiev
-NCBI/NLM/NIH
-Bethesda MD 20894
+-- 
+Måns Rullgård
+mru@users.sf.net

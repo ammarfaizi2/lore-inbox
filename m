@@ -1,58 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265256AbUD3UN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265251AbUD3UPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265256AbUD3UN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 16:13:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265262AbUD3UN4
+	id S265251AbUD3UPp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 16:15:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265253AbUD3UPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 16:13:56 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:31885 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265256AbUD3UNg
+	Fri, 30 Apr 2004 16:15:45 -0400
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:28375 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S265251AbUD3UPj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 16:13:36 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Timothy Miller <miller@techsource.com>, hzhong@cisco.com
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Date: Fri, 30 Apr 2004 22:14:35 +0200
-User-Agent: KMail/1.5.3
-Cc: "'Peter Williams'" <peterw@aurema.com>,
-       "'Marc Boucher'" <marc@linuxant.com>,
-       "'Sean Estabrooks'" <seanlkml@rogers.com>,
-       "'Linus Torvalds'" <torvalds@osdl.org>,
-       "'Paul Wagland'" <paul@wagland.net>, "'Rik van Riel'" <riel@redhat.com>,
-       koke@sindominio.net, "'Rusty Russell'" <rusty@rustcorp.com.au>,
-       "'lkml - Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       "'David Gibson'" <david@gibson.dropbear.id.au>
-References: <009701c42edf$25e47390$ca41cb3f@amer.cisco.com> <40929F5B.9090603@techsource.com>
-In-Reply-To: <40929F5B.9090603@techsource.com>
+	Fri, 30 Apr 2004 16:15:39 -0400
+Message-ID: <4092B3D8.30501@watson.ibm.com>
+Date: Fri, 30 Apr 2004 16:15:20 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Rik van Riel <riel@redhat.com>
+CC: Christoph Hellwig <hch@infradead.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>
+Subject: Re: [ckrm-tech] Re: [RFC] Revised CKRM release
+References: <Pine.LNX.4.44.0404301527400.6976-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0404301527400.6976-100000@chimarrao.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404302214.35497.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 of April 2004 20:47, Timothy Miller wrote:
-> Hua Zhong wrote:
-> > Linuxant did a wrong thing by working around the warning message, but I
-> > don't think it's fair to accuse of their business because they allow
-> > binary drivers run on Linux.
+Rik van Riel wrote:
+> On Fri, 30 Apr 2004, Shailabh Nagar wrote:
+> 
+>>Rik van Riel wrote:
+> 
+> 
+>>>User Mode Linux could definitely be an option for implementing
+>>>resource management, provided that the overhead can be kept
+>>>low enough.
+>>
+>>....and provided the groups of processes that are sought to be 
+>>regulated as a unit are relatively static.
+> 
+> 
+> Good point, I hadn't thought of that one.
+> 
+> It works for most of the workloads I had in mind, but
+> you're right that it's not good enough for eg. the
+> university shell server.
+> 
+> 
+>>>For these purposes, "low enough" could be as much as 30%
+>>>overhead, since that would still allow people to grow the
+>>>utilisation of their server from a typical 10-20% to as
+>>>much as 40-50%.
+>>
+>>In overhead, I presume you're including the overhead of running as 
+>>many uml instances as expected number of classes. Not just the 
+>>slowdown of applications because they're running under a uml instance 
+>>(instead of running native) ?
+>>
+>>I think UML is justified more from a fault-containment point of view 
+>>(where overheads are a lower priority) than from a performance 
+>>isolation viewpoint.
+>>
+>>In any case, a 30% overhead would send a large batch of higher-end 
+>>server admins running to get a stick to beat you with :-)
+> 
+> 
+> True enough, but from my pov the flip side is that
+> merging the CKRM memory resource enforcement module
+> has the potential of undoing lots of the performance
+> tuning that was done to the VM in 2.6.
 
-IMHO open-source drivers are one of the biggest advantages of Linux.
 
-Linuxant seems to be using double standards: we are all for open-source OS but
-_our_ drivers have to remain proprietary (I don't care about reasons here).
+Agreed - CKRM's memory controller logic needs major rework for it to
+be acceptable....but I'm sure you can do something about it, Rik ! :-)
 
-Marc, I _appreciate_ all your hard-work on open-source projects and I can
-understand reasons why Linuxant makes it's drivers but please, be honest. :)
-I think that you agree that things like HSF drivers or DriverLoader
-(because they are workarounds not the real solution) _may_ slow down creation
-of real open-source drivers.
+The cpu and I/O controllers will also have to be reworked since we now 
+have the hierarchical class requirement as well as lower and upper 
+bounds for shares.
 
-I also hope that this '\0' issue won't scare you from working with
-community in the future.
+ >
+ > That could result in bad performance even for the
+ > people who aren't using workload management at all...
 
-Regards,
-Bartlomiej
+Even with the earlier logic, the hope was that if people are not using
+workload management at all, then the only overhead they would see 
+would be the extra indirection into "find next class to schedule" (in 
+any controller) since there would be only one default class in the 
+system. In the cpu case, this overhead had been shown to be as low as 
+1-2% but memory overhead had not been measured.
+
+Keeping overheads low (or zero) for those who don't care to use CKRM 
+functionality is a high-priority design goal. Keeping it proportional 
+to number of classes (with more significant degradations seen if the 
+number of hierarchy levels increase) comes next.
+
+
+Also, will the 2.6 VM improvements continue to work as designed if 
+multiple UML instances are running, each replicating a large memory 
+user (like say a JVM or a database server) ? Taking the application 
+server serving a number of different customers. If we have to 
+replicate the app server for each customer class (one on each UML 
+instance), the app server's memory needs would get added to the 
+equation n times and the benefits of 2.6 VM tuning might be lost.
+
+-- Shailabh
 

@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbUCDFah (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 00:30:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbUCDFah
+	id S261468AbUCDF37 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 00:29:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbUCDF37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 00:30:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:7146 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261456AbUCDFa2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 00:30:28 -0500
-Date: Wed, 3 Mar 2004 21:30:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Philippe Elie <phil.el@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] nmi_watchdog=2 and P4-HT
-Message-Id: <20040303213033.6348a08b.akpm@osdl.org>
-In-Reply-To: <20040304054215.GA683@zaniah>
-References: <20040304054215.GA683@zaniah>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 4 Mar 2004 00:29:59 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:8648 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261468AbUCDF35
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 00:29:57 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: kgdb support in vanilla 2.6.2
+Date: Thu, 4 Mar 2004 10:59:43 +0530
+User-Agent: KMail/1.5
+Cc: ak@suse.de, george@mvista.com, pavel@ucw.cz, linux-kernel@vger.kernel.org,
+       piggy@timesys.com, trini@kernel.crashing.org
+References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel> <200403041036.58827.amitkale@emsyssoft.com> <20040303211850.05d44b4a.akpm@osdl.org>
+In-Reply-To: <20040303211850.05d44b4a.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403041059.43439.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philippe Elie <phil.el@wanadoo.fr> wrote:
+On Thursday 04 Mar 2004 10:48 am, Andrew Morton wrote:
+> "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+> > Flashing keyboard lights is easy on x86 and x86_64 platforms.
 >
-> Hi,
-> 
-> Actually with nmi_watchdog=2 and a P4 ht box the nmi is reflected
-> only on logical processor 0, it's better to get it on both.
+> Please, no keyboards.  Some people want to be able to use kgdboe
+> to find out why machine number 324 down the corridor just died.
+>
+> How about just doing
+>
+>
+> char *why_i_crashed;
+>
+>
+> {
+> 	...
+> 	if (expr1)
+> 		why_i_crashed = "hit a BUG";
+> 	else if (expr2)
+> 		why_i_crashed = "divide by zero";
+> 	else ...
+> }
+>
+> then provide a gdb macro which prints out the string at *why_i_crashed?
 
-What do you mean by "reflected"?  That the NMi is delivered to both
-siblings but only appears in /proc/interrupts as being delivered to the
-zeroeth?
+If we can afford to do this (in terms of actions that can be done with the 
+machine being unstable) we can certainly print a console message through gdb.
 
-> Note, if you test this patch, than on all x86 SMP and nmi_watchdog=2
-> nmi occurs at 1000 hz (if the cpu is loaded) not at the intended 1 hz
-> rate but that's a distinct problem.
+A stub is free to send console messages to gdb at any time. We can send a 
+"'O'hex(Page fault at 0x1234)" packet to gdb regardless of whether 
+CONFIG_KGDB_CONSOLE is configured in. This way kgdb will send this packet to 
+gdb and then immediately report a segfault/trap. To a user it'll appear as a 
+message printed from gdb "Page fault at 0x1234" followed by gdb showing a 
+SIGSEGV etc. The gdb console message should print information other than a 
+signal number.
 
-nmi_watchdog=2 is local apic, and nmi_watchdog=1 is I/O apic, is that
-correct?
+-Amit
 
-I am showing the current behaviour:
-
-
-nmi_watchdog=1: 1000 NMI/second, accounted to both siblings
-nmi_watchdog=2: one NMI/second, accounted to sibling 0 only.
-
-with your patch:
-
-nmi_watchdog=1: 1000 NMI/second, accounted to both siblings
-nmi_watchdog=2: 1000 NMI/second, accounted to both siblings
-
-All of these are wrong, aren't they?  We'd like to see one NMI per second,
-on all siblings.  I gues that's not possible for the IO APIC?
-
->From the above it appears that you have a solution planned for the local
-APIC at least, yes?

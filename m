@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273750AbRIXC6B>; Sun, 23 Sep 2001 22:58:01 -0400
+	id <S273749AbRIXC7w>; Sun, 23 Sep 2001 22:59:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273749AbRIXC5v>; Sun, 23 Sep 2001 22:57:51 -0400
-Received: from stanis.onastick.net ([207.96.1.49]:34565 "EHLO
-	stanis.onastick.net") by vger.kernel.org with ESMTP
-	id <S273748AbRIXC5c>; Sun, 23 Sep 2001 22:57:32 -0400
-Date: Sun, 23 Sep 2001 22:57:57 -0400
-From: Disconnect <lkml@sigkill.net>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.10
-Message-ID: <20010923225756.A2823@sigkill.net>
-In-Reply-To: <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com> <20010924032518.A8680@emma1.emma.line.org>
+	id <S273751AbRIXC7c>; Sun, 23 Sep 2001 22:59:32 -0400
+Received: from johnson.mail.mindspring.net ([207.69.200.177]:21264 "EHLO
+	johnson.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S273749AbRIXC7a>; Sun, 23 Sep 2001 22:59:30 -0400
+Subject: Re: Preemptible 2.4.10-pre15 compile error
+From: Robert Love <rml@ufl.edu>
+To: Steve Kieu <haiquy@yahoo.com>
+Cc: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010924025801.55085.qmail@web10401.mail.yahoo.com>
+In-Reply-To: <20010924025801.55085.qmail@web10401.mail.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.14.99+cvs.2001.09.22.08.08 (Preview Release)
+Date: 23 Sep 2001 23:00:11 -0400
+Message-Id: <1001300416.8416.20.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010924032518.A8680@emma1.emma.line.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Sep 2001, Matthias Andree did have cause to say:
+On Sun, 2001-09-23 at 22:58, Steve Kieu wrote:
+> Hi,
+> 
+> Your fix for 2.4.10 compile error is not applied yet?
+> I patch 2.4.10 and still have to add the line #include
+> <linux/shed.h> in map.c by myself.   :-)
+> 
+> 
+> hope that you integrate this fix soon.
 
-> Well, if I run XFree86 4.1.0 (SuSE Linux 7.0 here, Diamond Viper V550
-> (nVidia Riva TNT)) and switch to virtual text-mode tty (Ctrl Alt F1),
-> hell freezes over. Screen turns black (but monitor syncs), machine is
-> totally frozen. No Magic SysRq can help. Just Reset can. I use ext3fs on
-> several partitions. 2.4.9 is fine, 2.4.9-ac7, -ac10 and 2.4.10 are
-> broken.
+No its not yet merged, it will be with the next patch. Sorry.
 
-Ditto here, at least as far back as 2.4.8-ac2 (nvidia driver blew up on
-ac7 so I haven't tried anything more recent).
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 
-Tried to log out to reboot to 2.4.10+k7fix and logging out (X restarted)
-triggered it.  (I have -got- to get to journalled root fs one of these
-days.)
-
-So you might look at 2.4.8 and 2.4.8-ac2, see whats changed.  No ext3
-here, just ext2 and reiser+lvm.
-
-(On a possibly unrelated note, 2.4.10 + k7fix works like a champ on the
-iwill kk266 I've got, which was showing the athlon oops-on-boot bug.)
-
----
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1 [www.ebb.org/ungeek]
-GIT/CC/CM/AT d--(-)@ s+:-- a-->? C++++$ ULBS*++++$ P- L+++>+++++ 
-E--- W+++ N+@ o+>$ K? w--->+++++ O- M V-- PS+() PE Y+@ PGP++() t
-5--- X-- R tv+@ b++++>$ DI++++ D++(+++) G++ e* h(-)* r++ y++
-------END GEEK CODE BLOCK------

@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267880AbUHPSzC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267877AbUHPTAd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267880AbUHPSzC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 14:55:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267889AbUHPSxg
+	id S267877AbUHPTAd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 15:00:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267863AbUHPTAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 14:53:36 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:1947 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S267863AbUHPSwa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 14:52:30 -0400
-Date: Mon, 16 Aug 2004 22:52:30 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Coywolf Qi Hunt <coywolf@greatcn.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, akpm@osdl.org, kai@tp1.ruhr-uni-bochum.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] remove obsolete HEAD in kbuild
-Message-ID: <20040816205230.GA21047@mars.ravnborg.org>
-Mail-Followup-To: Coywolf Qi Hunt <coywolf@greatcn.org>,
-	Sam Ravnborg <sam@ravnborg.org>, akpm@osdl.org,
-	kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org
-References: <411F3A48.2030201@greatcn.org> <20040815174915.GA7265@mars.ravnborg.org> <412016AA.6030006@greatcn.org>
+	Mon, 16 Aug 2004 15:00:33 -0400
+Received: from pop.gmx.net ([213.165.64.20]:51119 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267889AbUHPS5v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 14:57:51 -0400
+X-Authenticated: #1725425
+Date: Mon, 16 Aug 2004 21:09:49 +0200
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+To: linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk, jwendel10@comcast.net
+Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
+Message-Id: <20040816210949.3d024844.Ballarin.Marc@gmx.de>
+In-Reply-To: <20040816195750.6419699f.Ballarin.Marc@gmx.de>
+References: <411FD919.9030702@comcast.net>
+	<20040816143817.0de30197.Ballarin.Marc@gmx.de>
+	<1092661385.20528.25.camel@localhost.localdomain>
+	<20040816195750.6419699f.Ballarin.Marc@gmx.de>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <412016AA.6030006@greatcn.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 16, 2004 at 10:06:34AM +0800, Coywolf Qi Hunt wrote:
-> diff -Nrup linux-2.6.8/arch/cris/Makefile linux-2.6.8-cy/arch/cris/Makefile
-> --- linux-2.6.8/arch/cris/Makefile	2004-08-15 20:58:18.673278888 -0400
-> +++ linux-2.6.8-cy/arch/cris/Makefile	2004-08-15 20:59:30.109679014 -0400
-> @@ -39,8 +39,6 @@ CFLAGS := $(subst -fomit-frame-pointer,,
-> CFLAGS += -fno-omit-frame-pointer
-> endif
-> 
-> -HEAD := arch/$(ARCH)/$(SARCH)/kernel/head.o
-> -
-> LIBGCC = $(shell $(CC) $(CFLAGS) -print-file-name=libgcc.a)
-> 
-> core-y		+= arch/$(ARCH)/kernel/ arch/$(ARCH)/mm/
+Here are the additional commands I permit right now. It allows me to blank
+a CDRW and record in TAO mode. k3b needs MODE_SELECT_10  even
+for read-only access.
 
-When you remove assignment to HEAD you need to replace 
-it with assignment to head-y.
 
-	Sam
+
+		safe_for_read(GPCMD_GET_CONFIGURATION),
+		safe_for_read(GPCMD_GET_PERFORMANCE),
+		safe_for_read(MODE_SELECT_10),
+
+		safe_for_write(ALLOW_MEDIUM_REMOVAL),
+		safe_for_write(REZERO_UNIT),
+		safe_for_write(SYNCHRONIZE_CACHE),
+		safe_for_write(GPCMD_SET_SPEED),
+		safe_for_write(GPCMD_SEND_OPC),
+		safe_for_write(GPCMD_BLANK),
+		safe_for_write(GPCMD_CLOSE_TRACK),
+		safe_for_write(0x5c), //whatever this might be
+
+Shouldn't most GPCMD_* commands be safe for reading or writing, at least
+for CD devices?
+Are commands like MODE_SELECT_10 really safe for read?
+
+Regards

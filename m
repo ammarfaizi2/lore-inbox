@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270748AbRIFNsH>; Thu, 6 Sep 2001 09:48:07 -0400
+	id <S270814AbRIFNxT>; Thu, 6 Sep 2001 09:53:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270814AbRIFNr5>; Thu, 6 Sep 2001 09:47:57 -0400
-Received: from [209.10.41.242] ([209.10.41.242]:40064 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S270748AbRIFNrh>;
-	Thu, 6 Sep 2001 09:47:37 -0400
-Date: Thu, 6 Sep 2001 15:42:12 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: phillips@bonn-fries.net, riel@conectiva.com.br, jaharkes@cs.cmu.edu,
-        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: page_launder() on 2.4.9/10 issue
-Message-Id: <20010906154212.442bdf7b.skraw@ithnet.com>
-In-Reply-To: <592148204.999786238@[10.132.112.53]>
-In-Reply-To: <20010906151015.69d2afb2.skraw@ithnet.com>
-	<592148204.999786238@[10.132.112.53]>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S270818AbRIFNxJ>; Thu, 6 Sep 2001 09:53:09 -0400
+Received: from mail2.aracnet.com ([216.99.193.35]:9480 "EHLO mail2.aracnet.com")
+	by vger.kernel.org with ESMTP id <S270814AbRIFNxC>;
+	Thu, 6 Sep 2001 09:53:02 -0400
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: page_launder() on 2.4.9/10 issue
+Date: Thu, 6 Sep 2001 06:54:14 -0700
+Message-ID: <HBEHIIBBKKNOBLMPKCBBOEMFDKAA.znmeb@aracnet.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <592148204.999786238@[10.132.112.53]>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 06 Sep 2001 14:23:58 +0100 Alex Bligh - linux-kernel
-<linux-kernel@alex.org.uk> wrote:
+I'm relatively new to the Linux kernel world and even newer to the list, so
+forgive me if I'm asking a silly question or making a silly comment. It
+seems to me, from what I've seen of this discussion so far, that the only
+way one "tunes" Linux kernels at the moment is by changing code and
+rebuilding the kernel. That is, there are few "tunables" that one can set,
+based on one's circumstances, to optimize kernel performance for a specific
+application or environment.
 
-> 
-> 
-> --On Thursday, September 06, 2001 3:10 PM +0200 Stephan von Krawczynski 
-> <skraw@ithnet.com> wrote:
-> 
-> > Obviously aging did not work at all,
-> > there was not a single hit on these (CD image) pages during 24 hours,
-> > compared to lots on the nfs-data.
-> 
-> If there's no memory pressure, data stays in InactiveDirty, caches,
-> etc., forever. What makes you think more memory would have helped
-> the NFS performance? It's possible these all were served out of caches
-> too.
+Every other operating system that I've done performance tuning on, starting
+with Xerox CP-V in 1974, had such tunables and tools to set them. And quite
+often, some of the tuning parameters can be set "on the fly", simply by
+knowing the correct memory location to set and poking a new value into it.
+No one "memory management scheme", for example, can be all things to all
+tasks, and it seems to me that giving users tools to measure and control the
+behavior of memory management, *preferably without having to recompile and
+reboot*, should be a major priority if Linux is to succeed in a wide variety
+of applications.
 
-Negative. Switching off export-option "no_subtree_check" (which basically leads
-to more small allocs during nfs action) shows immediately mem failures and
-truncated files on the server and stale nfs handles on the client. So the
-system _is_ under pressure. This exactly made me start (my branch of) the
-discussion.
-Besides I would really like to know what useable _data_ is in these pages, as I
-cannot see which application should hold it (the CD stuff was quit "long ago").
-FS should have sync'ed several times, too. 
+OK, I'll get off my soapbox now, and ask a related question. Is there a
+mathematical model of the Linux kernel somewhere that I could get my hands
+on?
+--
+M. Edward (Ed) Borasky, Chief Scientist, Borasky Research
+http://www.borasky-research.net  http://www.aracnet.com/~znmeb
+mailto:znmeb@borasky-research.com  mailto:znmeb@aracnet.com
 
-Stephan
+Stand-Up Comedy: Because Man Does Not Live By Dread Alone
 

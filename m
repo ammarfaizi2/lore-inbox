@@ -1,26 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266030AbTGDNAg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 09:00:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266033AbTGDNAe
+	id S266008AbTGDM7J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 08:59:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266025AbTGDM7I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 09:00:34 -0400
-Received: from mail1.bluewin.ch ([195.186.1.74]:6557 "EHLO mail1.bluewin.ch")
-	by vger.kernel.org with ESMTP id S266030AbTGDNAL (ORCPT
+	Fri, 4 Jul 2003 08:59:08 -0400
+Received: from mail1.bluewin.ch ([195.186.1.74]:41628 "EHLO mail1.bluewin.ch")
+	by vger.kernel.org with ESMTP id S266008AbTGDM7C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 09:00:11 -0400
-Date: Fri, 4 Jul 2003 15:14:34 +0200
+	Fri, 4 Jul 2003 08:59:02 -0400
+Date: Fri, 4 Jul 2003 15:13:17 +0200
 From: Roger Luethi <rl@hellgate.ch>
 To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5] via-rhine 1.18-2.5: Fix Rhine-I regression
-Message-ID: <20030704131434.GA4477@k3.hellgate.ch>
+Cc: linux-kernel@vger.kernel.org, Hakan Lennestal <hakanl@cdt.luth.se>
+Subject: [PATCH 2.4] via-rhine 1.18-rc1: Fix Rhine-I regression
+Message-ID: <20030704131317.GA4285@k3.hellgate.ch>
 Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	linux-kernel@vger.kernel.org
+	linux-kernel@vger.kernel.org, Hakan Lennestal <hakanl@cdt.luth.se>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="jRHKVT23PllUwdXP"
+Content-Type: multipart/mixed; boundary="Dxnq1zWXvFF0Q93v"
 Content-Disposition: inline
-In-Reply-To: <20030704131317.GA4285@k3.hellgate.ch>
 X-Operating-System: Linux 2.5.74 on i686
 X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
 X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
@@ -29,21 +28,25 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---jRHKVT23PllUwdXP
+--Dxnq1zWXvFF0Q93v
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 This patch addresses a minor regression reported by Rhine-I users (leading
 to occasional Tx timeouts).
 
-I also merged some cosmetic changes.
+I also merged some cosmetic changes (including spelling fix from 2.5), but
+with the recent interrupt handling changes 2.4 and 2.5 versions of
+via-rhine seem to have diverged for good.
 
---jRHKVT23PllUwdXP
+Roger
+
+--Dxnq1zWXvFF0Q93v
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="via-rhine-1.18-2.5.diff"
+Content-Disposition: attachment; filename="via-rhine-1.18.diff"
 
---- linux-2.5/drivers/net/via-rhine.c.org	2003-05-21 07:16:17.000000000 +0200
-+++ linux-2.5/drivers/net/via-rhine.c	2003-07-04 15:02:36.000000000 +0200
+--- linux-2.4/drivers/net/via-rhine.c.org	2003-06-24 22:29:27.000000000 +0200
++++ linux-2.4/drivers/net/via-rhine.c	2003-07-04 15:00:51.000000000 +0200
 @@ -2,6 +2,8 @@
  /*
  	Written 1998-2001 by Donald Becker.
@@ -78,11 +81,20 @@ Content-Disposition: attachment; filename="via-rhine-1.18-2.5.diff"
  #define DRV_NAME	"via-rhine"
 -#define DRV_VERSION	"1.1.17"
 -#define DRV_RELDATE	"March-1-2003"
-+#define DRV_VERSION	"1.1.18-2.5"
++#define DRV_VERSION	"1.1.18"
 +#define DRV_RELDATE	"July-4-2003"
  
  
  /* A few user-configurable values.
+@@ -139,7 +146,7 @@
+    Both 'options[]' and 'full_duplex[]' should exist for driver
+    interoperability.
+    The media type is usually passed in 'options[]'.
+-   The default is autonegotation for speed and duplex.
++   The default is autonegotiation for speed and duplex.
+      This should rarely be overridden.
+    Use option values 0x10/0x20 for 10Mbps, 0x100,0x200 for 100Mbps.
+    Use option values 0x10 and 0x100 for forcing half duplex fixed speed.
 @@ -386,17 +393,17 @@
  	{ "VIA VT6102 Rhine-II", RHINE_IOTYPE, 256,
  	  CanHaveMII | HasWOL },
@@ -114,7 +126,16 @@ Content-Disposition: attachment; filename="via-rhine-1.18-2.5.diff"
  };
  
  /* The Rx and Tx buffer descriptors. */
-@@ -1655,11 +1662,18 @@
+@@ -1264,7 +1271,7 @@
+ 
+ 	if (skb->len < ETH_ZLEN) {
+ 		skb = skb_padto(skb, ETH_ZLEN);
+-		if(skb == NULL)
++		if (skb == NULL)
+ 			return 0;
+ 	}
+ 
+@@ -1650,11 +1657,18 @@
  			printk(KERN_INFO "%s: Tx descriptor write-back race.\n",
  				   dev->name);
  	}
@@ -136,4 +157,4 @@ Content-Disposition: attachment; filename="via-rhine-1.18-2.5.diff"
  		if (debug > 1)
  			printk(KERN_ERR "%s: Something Wicked happened! %8.8x.\n",
 
---jRHKVT23PllUwdXP--
+--Dxnq1zWXvFF0Q93v--

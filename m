@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265469AbSL1T5Y>; Sat, 28 Dec 2002 14:57:24 -0500
+	id <S265767AbSL1UDF>; Sat, 28 Dec 2002 15:03:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265470AbSL1T5X>; Sat, 28 Dec 2002 14:57:23 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:31144 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S265469AbSL1T5X>;
-	Sat, 28 Dec 2002 14:57:23 -0500
-Message-ID: <3E0E0412.20303@colorfullife.com>
-Date: Sat, 28 Dec 2002 21:05:38 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@steeleye.com>
-CC: linux-kernel@vger.kernel.org
+	id <S266578AbSL1UDF>; Sat, 28 Dec 2002 15:03:05 -0500
+Received: from h-64-105-35-45.SNVACAID.covad.net ([64.105.35.45]:49538 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S265767AbSL1UDD>; Sat, 28 Dec 2002 15:03:03 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sat, 28 Dec 2002 12:11:17 -0800
+Message-Id: <200212282011.MAA02207@adam.yggdrasil.com>
+To: James.Bottomley@steeleye.com, manfred@colorfulllife.com
 Subject: Re: [RFT][PATCH] generic device DMA implementation
-References: <200212281840.gBSIeBB02996@localhost.localdomain>
-In-Reply-To: <200212281840.gBSIeBB02996@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: david-b@pacbell.net, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
+	Regarding the problem of multiple users of inconsistent
+streaming memory potentially sharing the same cache line, I suspect
+that the number of places that need to be fixed (or even just ought to
+be commented) is probably small.
 
->manfred@colorfullife.com said:
->  
->
->>If multiple kmalloc buffers fit into one cacheline, then it can happen
->> all the time. But the smallest kmalloc buffer is 64 bytes [assuming
->>page  size > 4096].
->>    
->>
->
->Actually, I did forget to mention that on parisc non-coherent, the minimum 
->kmalloc allocation is the cache line width, so that problem cannot occur.
->
->Hmm, perhaps that is an easier (and faster) approach to fixing the problems on 
->non-coherent platforms?
->  
->
-How do you want to fix sendfile()?
-Note that I'm thinking along the same line as reading an unaligned 
-integer: the arch must provide a trap handler that emulates misaligned 
-reads, but it should never happen, except if someone manually creates an 
-IP packet with odd options to perform an DoS attack. Restricting kmalloc 
-is obviously faster, but I'm not convinced that this really catches all 
-corner cases.
+	First of all, I believe it is sufficient if we just ensure
+that the memory used for device --> cpu do not share a cache line (at
+least now with anything that the CPU may write to), as that is the
+only direction which involves invalidating data in the CPU cache.
 
-A memcpy() based dma_map implementation would have another advantage: 
-enable it on i386, and you'll catch everyone that violates the dma spec 
-immediately.
+	So, for network packets, we should only concerned about
+inbound ones, in which case the maximum packet size has usually been
+allocated anyhow.
 
-The only problem is that the API is bad - networking buffers are usually 
-2 kB allocations, 2 kB aligned.
-The actual data area that is passed to pci_map_single starts at offset 2 
-and has an odd length. It's not possible to pass the information to 
-dma_map_single() that the rest of the cacheline is unused and that 
-double buffering is not required, despite the misaligned case.
-Except for sendfile(), then double buffering is necessary.
+	I believe all of the current block device IO generators
+generate transfers that are aligned and sized in units of at least 512
+(although struct bio_vec does not require this), which I think is a
+multiple of cache line size of all current architectures.
 
---
-    Manfred
+	I haven't checked, but I would suspect that even for the remaining
+non-network non-block devices that do large amount of input via DMA,
+such as scanners (typically via SCSI or USB) that the input buffers
+allocated for these transfers happen to be a multiple of cache line
+size, just because they're large and because programmers like to use
+powers of two and the memory allocators usually end up aligning them
+on such a power of two.
 
+	Just to be clear: I'm only talking about corruption due to
+streaming mappings overlapping other data in the same CPU cache line.
+I am not talking about using inconsistent memory to map control
+structures on architectures that lack consistent memory.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265426AbUFSKH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265446AbUFSKHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265426AbUFSKH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 06:07:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265455AbUFSKH2
+	id S265446AbUFSKHs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 06:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUFSKHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 06:07:28 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:15564 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265426AbUFSKHR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 06:07:17 -0400
-Date: Sat, 19 Jun 2004 11:07:14 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Brian Lazara <blazara@nvidia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.7 and 2.4.27-pre6] new device support for forcedeth.c
-Message-ID: <20040619100714.GA3554@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Brian Lazara <blazara@nvidia.com>, linux-kernel@vger.kernel.org
-References: <1087629194.19311.24.camel@localhost.localdomain>
+	Sat, 19 Jun 2004 06:07:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:12217 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265446AbUFSKHf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 06:07:35 -0400
+Date: Sat, 19 Jun 2004 03:06:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, bcasavan@sgi.com
+Subject: Re: [PATCH] Add kallsyms_lookup() result cache
+Message-Id: <20040619030637.5580b25e.akpm@osdl.org>
+In-Reply-To: <1087605785.8188.834.camel@cube>
+References: <1087605785.8188.834.camel@cube>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1087629194.19311.24.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 19, 2004 at 12:13:14AM -0700, Brian Lazara wrote:
-> +#ifndef free_netdev
-> +#define free_netdev(dev) kfree(dev);
-> +#endif
+Albert Cahalan <albert@users.sourceforge.net> wrote:
+>
+> > Doing the cache in the kernel is the wrong place. This should be fixed
+>  > in user space.
+> 
+>  No way, because:
+> 
+>  1. kernel modules may be loaded or unloaded at any time
 
-free_netdev isn't a macro in 2.6, so you're going to blow up nicely.
+Poll /proc/modules?
 
-> +#define PCI_DEVICE_ID_NVIDIA_NVENET_1  0x01C3
-> +#define PCI_DEVICE_ID_NVIDIA_NVENET_2  0x0066
-> +#define PCI_DEVICE_ID_NVIDIA_NVENET_3  0x00D6
-> +#define PCI_DEVICE_ID_NVIDIA_NVENET_4  0x0086
-> +#define PCI_DEVICE_ID_NVIDIA_NVENET_5  0x008C
-> +#define PCI_DEVICE_ID_NVIDIA_NVENET_6  0x00E6
-> +#define PCI_DEVICE_ID_NVIDIA_NVENET_7  0x00DF
-> +#define PCI_DEVICE_ID_NVIDIA_NVENET_8  0x0056
-> +#define PCI_DEVICE_ID_NVIDIA_NVENET_9  0x0057
-> +#define PCI_DEVICE_ID_NVIDIA_NVENET_10 0x0037
-> +#define PCI_DEVICE_ID_NVIDIA_NVENET_11 0x0038
+>  2. the /proc/*/wchan files don't provide both name and address
 
-The go to include/linux/pci_ids.h
+/proc/stat has the address, /proc/kallsyms gives the symbol?
 
-> + *  Function pointers based on descriptor version
-> + */
-> +int (*nv_alloc_rx)(struct net_device *dev);
-> +int (*nv_start_xmit)(struct sk_buff *skb, struct net_device *dev);
-> +void (*nv_tx_done)(struct net_device *dev);
-> +void (*nv_rx_process)(struct net_device *dev);
+>  I'd be happy to make top (and the rest of procps) use a cache
+>  if those problems were addressed. I need a signal sent on
+>  module load/unload, or a real /proc/kallsyms st_mtime that I
+>  can poll. I also need to have the numeric wchan address in
+>  the /proc/*/wchan file, such that it is reliably the same
+>  thing as the function name already found there.
 
-Better to put them into the per-device data structures or you're screwed
-if you have two of those in a system (and even if that's totally impossible
-global variables like that are still bad style.
+Updating mtime on /proc/modules may be more logical, or even both.
+
+Or put a modprobe sequence number somewhere in /proc and look for changes
+in that.
+
+It definitely needs to be fixed, but it doesn't seem that adding code to
+the kernel is needed.
 

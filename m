@@ -1,41 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbVBXVPh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262490AbVBXVSc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262472AbVBXVPh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 16:15:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbVBXVPh
+	id S262490AbVBXVSc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 16:18:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262486AbVBXVRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 16:15:37 -0500
-Received: from mail.kroah.org ([69.55.234.183]:3769 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262472AbVBXVP0 (ORCPT
+	Thu, 24 Feb 2005 16:17:43 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:65501 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S262484AbVBXVR3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 16:15:26 -0500
-Date: Thu, 24 Feb 2005 13:15:12 -0800
-From: Greg KH <greg@kroah.com>
-To: Matthias-Christian Ott <matthias.christian@tiscali.de>
-Cc: Lukas Hejtmanek <xhejtman@mail.muni.cz>, linux-kernel@vger.kernel.org
-Subject: Re: USB 2.0 Mass storage device
-Message-ID: <20050224211512.GC24969@kroah.com>
-References: <20050224175918.GA7627@mail.muni.cz> <20050224181347.GA10847@kroah.com> <20050224182300.GA7778@mail.muni.cz> <20050224184928.GA11490@kroah.com> <20050224190548.GA7978@mail.muni.cz> <20050224191243.GD11806@kroah.com> <20050224191809.GB7978@mail.muni.cz> <20050224192207.GB12018@kroah.com> <421E34B1.9050803@tiscali.de>
+	Thu, 24 Feb 2005 16:17:29 -0500
+Date: Thu, 24 Feb 2005 22:17:27 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Cc: raven@themaw.net, autofs@linux.kernel.org
+Subject: Re: [Patch 2/6] Bind Mount Extensions 0.06
+Message-ID: <20050224211727.GD4981@mail.13thfloor.at>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>, raven@themaw.net,
+	autofs@linux.kernel.org
+References: <20050222121129.GC3682@mail.13thfloor.at> <20050223230105.GD21383@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <421E34B1.9050803@tiscali.de>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050223230105.GD21383@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 24, 2005 at 09:10:25PM +0100, Matthias-Christian Ott wrote:
-> But why does the usb mass storage give this information to the usb 
-> driver? Shouldn't it report that it works with 480Mbit too?
+On Wed, Feb 23, 2005 at 11:01:05PM +0000, Christoph Hellwig wrote:
+> On Tue, Feb 22, 2005 at 01:11:29PM +0100, Herbert Poetzl wrote:
+> > 
+> > 
+> > ;
+> > ; Bind Mount Extensions
+> > ;
+> > ; This part adds the required checks for touch_atime() to allow
+> > ; for vfsmount based NOATIME and NODIRATIME
+> > ; autofs4 update_atime is the only exception (ignored on purpose)
+> 
+> and that purpose is?  
 
-What do you mean?  The usb-storage driver doesn't care at all what the
-speed is.  Only the USB core and host controller drivers do.
+this is based on a statement from Al Viro:
 
-And if you look at the raw descriptors, which is what is displayed in
-/proc/bus/usb/devices in human readable form, the device itself tells
-the computer what speed it supports.  The host never tells the device
-what speed to run at.
+| autofs4 use - AFAICS there we want atime updated unconditionally, 
+| so calling update_atime() (update atime after checking 
+| noatime/nodiratime/readonly flags) is wrong.
 
-Hope this helps,
+agreed, maybe a proper fix would be better ...
 
-greg k-h
+> Did you discuss this with the autofs maintainers?
+
+not yet!
+(cc-ed to automounter maintainer and list)
+
+thanks,
+Herbert
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

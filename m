@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbRBKTw1>; Sun, 11 Feb 2001 14:52:27 -0500
+	id <S129094AbRBKT4r>; Sun, 11 Feb 2001 14:56:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129094AbRBKTwS>; Sun, 11 Feb 2001 14:52:18 -0500
-Received: from innerfire.net ([208.181.73.33]:5905 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id <S129066AbRBKTwL>;
-	Sun, 11 Feb 2001 14:52:11 -0500
-Date: Sun, 11 Feb 2001 11:53:23 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Ben Ford <ben@kalifornia.com>
-cc: Roger Larsson <roger.larsson@norran.net>, linux-kernel@vger.kernel.org
-Subject: mail loop
-In-Reply-To: <3A8690A7.2E9DF1A@kalifornia.com>
-Message-ID: <Pine.LNX.4.10.10102111152440.12387-100000@innerfire.net>
+	id <S129129AbRBKT4i>; Sun, 11 Feb 2001 14:56:38 -0500
+Received: from ns.suse.de ([213.95.15.193]:29195 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129094AbRBKT41>;
+	Sun, 11 Feb 2001 14:56:27 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+In-Reply-To: <E14S01O-0004Su-00@the-village.bc.nu>
+From: Andi Kleen <ak@suse.de>
+Date: 11 Feb 2001 20:56:16 +0100
+In-Reply-To: Alan Cox's message of "11 Feb 2001 18:13:47 +0100"
+Message-ID: <oupvgqhkn8f.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-
-On Sun, 11 Feb 2001, Ben Ford wrote:
-
-> Roger Larsson wrote:
+> > LADDIS is the industry standard benchmark for NFS.  It crashes for ReiserFS and
+> > NFS.  We can't afford to buy it, as it is proprietary software.  Once Nikita has
+> > finished testing his changes, we will ask someone to test it for us though.
+> > 
 > 
-> > OK, you had to...
-> >
-> > I have not seen any emails from linux-kernel for some days.
-> > Even tried to resubscribe - Majordomo succeeded in sending me the Confirmation
-> >
-> > But nothing...
-> >
-> 
-> I must be getting all yours then!!  Seriously, something's broke, I am getting
-> duplicates of *every* *freaking* lkml message!!
-> 
-> -b
-That would be because we have a mail loop at techconsult.de ...
+> Do you know if the connectathon test suites show the problem?
 
-Received: from sys04.firma.ks ([213.252.152.243])
-        by mail2.cunet.de (8.11.2/8.11.2) with ESMTP id f1BHII811768;
-        Sun, 11 Feb 2001 18:18:19 +0100
-Received: from router.techconsult.de (router [192.168.1.4]) by
-sys04.firma.ks
-    with SMTP (Microsoft Exchange Internet Mail Service Version
-5.5.2653.13)
-        id 1WFYLRCL; Sun, 11 Feb 2001 18:38:23 +0100
+The reiserfs nfs problem in standard 2.4 is very simple -- it'll barf as soon 
+as you run out of file handle/inode cache. Any workload that accesses
+enough files in parallel can trigger it.
 
---
-Gerhard Mack
+Fixes do exist, but require bigger changes in nfsd.  Basically you need to
+hand out an 64bit inode in the nfs filehandle, and pass the upper 32bits
+to the low level file system for efficient lookup (actually is all not 
+too difficult to implement, just requires very uncodefreezefriendly changes
+to nfsd) 
 
-gmack@innerfire.net
 
-<>< As a computer I find your faith in technology amusing.
+-Andi
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

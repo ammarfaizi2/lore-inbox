@@ -1,114 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266178AbUAVVMh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 16:12:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266298AbUAVVMg
+	id S266364AbUAVWmV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 17:42:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266441AbUAVWmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 16:12:36 -0500
-Received: from fed1mtao01.cox.net ([68.6.19.244]:31427 "EHLO
-	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S266178AbUAVVMd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 16:12:33 -0500
-Date: Thu, 22 Jan 2004 14:12:22 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.2-rc1-mm1
-Message-ID: <20040122211222.GP15271@stop.crashing.org>
-References: <20040122013501.2251e65e.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 22 Jan 2004 17:42:21 -0500
+Received: from mail003.syd.optusnet.com.au ([211.29.132.144]:57745 "EHLO
+	mail003.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266364AbUAVWmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 17:42:20 -0500
+From: Christian Unger <chakkerz@optusnet.com.au>
+Reply-To: chakkerz@optusnet.com.au
+Organization: naiv.sourceforge.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: Nvidia drivers and 2.6.x kernel
+Date: Fri, 23 Jan 2004 09:42:13 +1100
+User-Agent: KMail/1.5.4
+References: <200401221004.06645.chakkerz@optusnet.com.au> <200401222252.41853.chakkerz@optusnet.com.au> <400FBE18.8010302@ihateaol.co.uk>
+In-Reply-To: <400FBE18.8010302@ihateaol.co.uk>
+Cc: Kieran <kieran@ihateaol.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040122013501.2251e65e.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200401230942.13888.chakkerz@optusnet.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 22, 2004 at 01:35:01AM -0800, Andrew Morton wrote:
+On Thursday 22 January 2004 23:12, Kieran wrote:
+> How strange. I run slack 9.1 and 2.6.1, just grabbed the 4496
+> pre-patched file from http://www.sh.nu/download/nvidia/ and installed it
+> as I would on 2.4. Works a charm.
 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-rc1/2.6.2-rc1-mm1/
+Hmm ... that does worry me a little then ... as there then is absolutely NO 
+reason for it not to work. 
 
-Relative to this I have:
->From Tom Rini <trini@kernel.crashing.org>
+Maybe the virgin was not pure enough ... :)
 
-Switch PPC32 over to drivers/Kconfig
-
- arch/ppc/Kconfig |   41 +----------------------------------------
- 1 files changed, 1 insertion(+), 40 deletions(-)
---- 1.47/arch/ppc/Kconfig	Mon Jan 19 16:38:06 2004
-+++ edited/arch/ppc/Kconfig	Thu Jan 22 13:47:15 2004
-@@ -989,8 +989,6 @@
- 
- source "drivers/pcmcia/Kconfig"
- 
--source "drivers/parport/Kconfig"
--
- endmenu
- 
- menu "Advanced setup"
-@@ -1088,36 +1086,7 @@
- 	depends on ADVANCED_OPTIONS && 8xx
- endmenu
- 
--source "drivers/base/Kconfig"
--
--source "drivers/mtd/Kconfig"
--
--source "drivers/pnp/Kconfig"
--
--source "drivers/block/Kconfig"
--
--source "drivers/md/Kconfig"
--
--source "drivers/ide/Kconfig"
--
--source "drivers/scsi/Kconfig"
--
--source "drivers/message/fusion/Kconfig"
--
--source "drivers/ieee1394/Kconfig"
--
--source "drivers/message/i2o/Kconfig"
--
--source "net/Kconfig"
--
--source "drivers/isdn/Kconfig"
--
--source "drivers/video/Kconfig"
--
--source "drivers/cdrom/Kconfig"
--
--source "drivers/input/Kconfig"
--
-+source "drivers/Kconfig"
- 
- menu "Macintosh device drivers"
- 
-@@ -1253,14 +1222,8 @@
- 
- endmenu
- 
--source "drivers/char/Kconfig"
--
--source "drivers/media/Kconfig"
--
- source "fs/Kconfig"
- 
--source "sound/Kconfig"
--
- source "arch/ppc/8xx_io/Kconfig"
- 
- source "arch/ppc/8260_io/Kconfig"
-@@ -1284,8 +1247,6 @@
- 	default y
- 
- endmenu
--
--source "drivers/usb/Kconfig"
- 
- source "lib/Kconfig"
- 
+Would you be able to possibly mail me a copy of your kernel configuration 
+file. In case i mucked something in it up .... i can't imagine what ... but 
+still if you could forward me a copy of the file, i'll try that.
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+with kind regards,
+  Christian Unger
+
+"You don't need eyes to see, you need vision" (Faithless - Reverence)
+
+  Mobile:            0402 268904
+  Internet:          http://naiv.sourceforge.net
+  NAIV Status:
+     Stable       Testing       Development
+      0.2.3r2      0.3.0         0.3.1 - File Handling
+
+"May there be mercy on man and machine for their sins" (Animatrix)
+

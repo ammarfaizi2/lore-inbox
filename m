@@ -1,77 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266433AbUAODjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 22:39:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266434AbUAODjQ
+	id S266453AbUAODlV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 22:41:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266450AbUAODlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 22:39:16 -0500
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:3975 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S266433AbUAODjJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 22:39:09 -0500
-Date: Thu, 15 Jan 2004 10:35:00 +1100
-From: Rusty Russell <rusty@au1.ibm.com>
-To: dipankar@in.ibm.com
-Cc: rusty@au1.ibm.com, paul.mckenney@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] RCU for low latency [2/2]
-Message-Id: <20040115103500.28f9e1bf.rusty@rustcorp.com.au>
-In-Reply-To: <20040114082420.GA3755@in.ibm.com>
-References: <20040108115051.GC5128@in.ibm.com>
-	<20040109000244.8C58D17DDE@ozlabs.au.ibm.com>
-	<20040114082420.GA3755@in.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jan 2004 22:41:21 -0500
+Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:59617 "EHLO
+	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S266453AbUAODlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 22:41:14 -0500
+Date: Wed, 14 Jan 2004 21:40:34 -0600 (CST)
+From: Matt Domsch <Matt_Domsch@dell.com>
+X-X-Sender: mdomsch@iguana.domsch.com
+To: davidm@hpl.hp.com
+cc: Andrew Morton <akpm@osdl.org>,
+       Matt Tolentino <metolent@snoqualmie.dp.intel.com>,
+       <davidm@napali.hpl.hp.com>, <linux-ia64@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <matthew.e.tolentino@intel.com>
+Subject: Re: [patch] efivars update for 2.6.1
+In-Reply-To: <16389.51280.731508.513970@napali.hpl.hp.com>
+Message-ID: <Pine.LNX.4.44.0401142137540.24355-100000@iguana.domsch.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Jan 2004 13:54:20 +0530
-Dipankar Sarma <dipankar@in.ibm.com> wrote:
-> > static inline unsigned int max_rcu_at_once(int cpu)
-> > {
-> > 	if (in_softirq() && RCU_krcud(cpu) && rq_has_rt_task(cpu))
-> > 		return rcu_max_bh_callbacks;
-> > 	return (unsigned int)-1;
-> > }
-> 
-> Done, except that once we reach the callback limit, we need to check
-> for RT tasks after every callback, instead of at the start of the RCU batch.
+> Matt is the owner of efivars so if he is OK with it, that's fine with
+> me.  My only request is that if/when the patch is accepted that there
+> is some documentation that makes it clear where one can can get an
+> updated/matching efibootmgr from.
 
-AFAICT, if you're in a softirq it can't change.  If you're not, there's
-no limit anyway.
+Andrew found a spinlock use bug in efivars_exit that needs to get fixed 
+first.  Then I'm fine with it.
 
-> > Ideally you'd create a new workqueue for this, or at the very least
-> > use kthread primitives (once they're in -mm, hopefully soon).
-> 
-> I will use kthread primitives once they are available in mainline.
+efibootmgr 0.5.0-test1 is available at 
+http://domsch.com/linux/ia64/efibootmgr/testing/efibootmgr-0.5.0-test1.tar.gz
 
-But ulterior motive is to push the kthread primitives by making as much
-code depend on it as possible 8)
+which supports both /proc-style and sysfs-style accesses.  With additional 
+feedback that it works as expected for several people, I'll remove the 
+'test' moniker.
 
-> I will clean this up later should we come to a conclusion that
-> we need the low-latency changes in mainline. I don't see
-> any non-driver kernel code using module_param() though.
+Thanks,
+Matt
 
-I'm trying to catch them as new ones get introduced.  If the name is
-old-style, then there's little point changing (at least for 2.6).
-
->From now on, I'm being more vigilant 8)
-
-> New patch below. Needs rq-has-rt-task.patch I mailed earlier.
-> There are more issues that need investigations - can we starve
-> RCU callbacks leading to OOMs
-
-You can screw your machine up with RT tasks, yes.  This is no new problem,
-I think.
-
-> should we compile out krcuds
-> based on a config option (CONFIG_PREEMPT?). Any suggestions ?
-
-Depends on the neatness of the code, I think...
-
-Cheers,
-Rusty.
 -- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+

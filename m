@@ -1,61 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268053AbRG2P5L>; Sun, 29 Jul 2001 11:57:11 -0400
+	id <S268067AbRG2QKc>; Sun, 29 Jul 2001 12:10:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268056AbRG2P5C>; Sun, 29 Jul 2001 11:57:02 -0400
-Received: from mail3.iadfw.net ([209.196.123.3]:31241 "HELO mail3.iadfw.net")
-	by vger.kernel.org with SMTP id <S268053AbRG2P4v>;
-	Sun, 29 Jul 2001 11:56:51 -0400
-From: "Art Haas" <ahaas@neosoft.com>
-Date: Sun, 29 Jul 2001 11:00:45 -0500
+	id <S268068AbRG2QKV>; Sun, 29 Jul 2001 12:10:21 -0400
+Received: from cr545978-a.nmkt1.on.wave.home.com ([24.112.25.43]:270 "HELO
+	saturn.tlug.org") by vger.kernel.org with SMTP id <S268067AbRG2QKM>;
+	Sun, 29 Jul 2001 12:10:12 -0400
+Date: Sun, 29 Jul 2001 12:10:19 -0400
+From: Mike Frisch <mfrisch@saturn.tlug.org>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] two small patches for fs/exec.c and fs/ramfs/inode.c
-Message-ID: <20010729110045.C347@localhost.neosoft.com>
+Subject: Re: VIA KT133A / athlon / MMX
+Message-ID: <20010729121019.A14155@saturn.tlug.org>
+Mail-Followup-To: Mike Frisch <mfrisch@saturn.tlug.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E15QEP3-0006TF-00@the-village.bc.nu> <01072904032900.04737@box.penguin.power>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <01072904032900.04737@box.penguin.power>; from gavbaker@ntlworld.com on Sun, Jul 29, 2001 at 04:03:29AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi.
+On Sun, Jul 29, 2001 at 04:03:29AM +0000, Gav wrote:
+> The machine is now rock solid. I've given it the usual tests, k7burn for 5 
+> hours, cp'ing 30G+ across drives a few times etc, and all is good.
 
-Here are two trivial patches that remove warnings. The fs/exec.c patch
-removes an unused variable, and the fs/ramfs/inode.c patch replaces
-a call of `linux/malloc.h' with `linux/slab.h'. Both patches I've
-applied to my 2.4.7-ac2 kernel. Sorry if this is the 50th time you've
-seen these posted to the mailing list ...
+Sorry to jump in here, but where can I get "k7burn"?  I've searched on
+google.com for it and cannot find any reference.  I am running 2.4.7-ac2
+(with Athlon optimizations) with an AMD T-Bird 1.2GHz on an ASUS A7A266
+and it appears quite stable.  I would like to see how it fares with this
+burn-in program you speak of.
 
-My thanks to everyone working on the kernel. The 2.4 kernels keep
-getting better every day!
+Thanks,
 
-Art Haas 
-
-====================================================
-
---- fs/exec.c.orig	Sat Jul 28 11:52:47 2001
-+++ fs/exec.c	Sat Jul 28 12:25:28 2001
-@@ -929,7 +929,6 @@
- 
- int do_coredump(long signr, struct pt_regs * regs)
- {
--	struct mm_struct *mm;
- 	struct linux_binfmt * binfmt;
- 	char corename[6+sizeof(current->comm)+10];
- 	struct file * file;
-
-====================================================
-
---- fs/ramfs/inode.c.orig	Sat Jul 28 11:52:50 2001
-+++ fs/ramfs/inode.c	Sat Jul 28 13:00:26 2001
-@@ -30,7 +30,7 @@
- #include <linux/string.h>
- #include <linux/locks.h>
- #include <linux/highmem.h>
--#include <linux/malloc.h>
-+#include <linux/slab.h>
- 
- #include <asm/uaccess.h>
- #include <linux/spinlock.h>
-
+Mike.

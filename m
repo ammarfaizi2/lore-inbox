@@ -1,183 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267403AbUIPDby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267440AbUIPDxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267403AbUIPDby (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 23:31:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267405AbUIPDby
+	id S267440AbUIPDxO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 23:53:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267445AbUIPDxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 23:31:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:42628 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267403AbUIPDbq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 23:31:46 -0400
-Date: Wed, 15 Sep 2004 20:30:39 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Henry Margies <henry.margies@gmx.de>
-Cc: linux-kernel@vger.kernel.org, george@mvista.com
-Subject: Re: Is there a problem in timeval_to_jiffies?
-Message-Id: <20040915203039.369bb866.rddunlap@osdl.org>
-In-Reply-To: <20040912163319.6e55fbe6.henry.margies@gmx.de>
-References: <20040909154828.5972376a.henry.margies@gmx.de>
-	<20040912163319.6e55fbe6.henry.margies@gmx.de>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 15 Sep 2004 23:53:14 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:63640 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S267440AbUIPDxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 23:53:11 -0400
+Subject: Re: get_current is __pure__, maybe __const__ even
+From: Albert Cahalan <albert@users.sf.net>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Jakub Jelinek <jakub@redhat.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>, ak@muc.de
+In-Reply-To: <20040916023604.GH9106@holomorphy.com>
+References: <1095288600.1174.5968.camel@cube>
+	 <20040915231518.GB31909@devserv.devel.redhat.com>
+	 <20040915232956.GE9106@holomorphy.com> <1095300619.2191.6392.camel@cube>
+	 <20040916023604.GH9106@holomorphy.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1095306363.3874.101.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 15 Sep 2004 23:49:38 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Sep 2004 16:33:19 +0200 Henry Margies wrote:
+On Wed, 2004-09-15 at 22:36, William Lee Irwin III wrote:
+> On Wed, Sep 15, 2004 at 07:15:18PM -0400, Jakub Jelinek wrote:
+> >>> current will certainly change in schedule (),
+> 
+> On Wed, Sep 15, 2004 at 10:10:20PM -0400, Albert Cahalan wrote:
+> > Not really!
+> 
+> Yes it does. The interior of schedule() is C and must be compiled also.
 
-| Hello
-| 
-| Why is nobody answering my question? I tested my application also on
-| x86. The result is the same. For me, it looks like there is a problem.
-| The only difference is, that my x86 has a TICK value of 1ms and my arm
-| device a value of 10ms
-| 
-| Imagine, there are 3 timers. 
-| 
-| timer1 is for 1s,
-| timer2 is for 0.1s,
-| timer3 is for 0.01s.
-| 
-| Now, timer1 should finish after 10 times of timer2 and 100 times of
-| timer3. But this is not, because every interval is 1ms (10ms on arm)
-| longer than it should be.
-| 
-| (on x86)
-| timer1 finishes after 1001ms,
-| timer2 after 10*101ms = 1010ms,
-| timer3 after 100*11ms = 1100ms 
-| 
-| (on arm)
-| timer1 finishes after 1010ms,
-| timer2 after 10*110ms = 1100ms,
-| timer3 after 100*20ms = 2000ms!!! 
-| 
-| The output of my test application is the following on x86:
-| 
-| (timer1)
-| TIMER_INTERVAL          =1000ms
-| COUNTER                 =1
-| expected elapsed time   =1000ms
-| elapsed time            =1000ms and 845ns
-| 
-| (timer2)
-| TIMER_INTERVAL          =100ms
-| COUNTER                 =10
-| expected elapsed time   =1000ms
-| elapsed time            =1010ms and 29ns
-| 
-| (timer3)
-| TIMER_INTERVAL          =10ms
-| COUNTER                 =100
-| expected elapsed time   =1000ms
-| elapsed time            =1099ms and 744ns
-| 
-| 
-| Please have a look into my test application:
-| 
-| void sig_alarm(int i)
-| {
-|         struct timeval tv;
-| 
-|         gettimeofday(&tv, NULL);
-| 
-|         if (c>=COUNTER) {
-|                 int elapsed;
-|                 c = 0;
-|                 elapsed = (tv.tv_sec-start.tv_sec)*1000000
-|                         + tv.tv_usec-start.tv_usec;
-| 
-|                 printf( "TIMER_INTERVAL         =%dms\n"
-|                         "COUNTER                =%d\n"
-|                         "expected elapsed time  =%dms\n",
-|                         TIMER_INTERVAL,
-|                         COUNTER,
-|                         TIMER_INTERVAL*COUNTER);
-| 
-|                 printf("elapsed time            =%dms and %dns\n\n\n",
-|                                 elapsed/1000, elapsed%1000);
-| 
-|         }
-| 
-|         if (!c) 
-|                 start = tv;
-| 
-|         c++;
-| 
-| }
-| 
-| int main()
-| {
-|         struct itimerval itimer;
-| 
-|         itimer.it_interval.tv_sec = 0;
-|         itimer.it_interval.tv_usec= TIMER_INTERVAL*1000;
-| 
-|         itimer.it_value.tv_sec = 0;
-|         itimer.it_value.tv_usec= TIMER_INTERVAL*1000;
-| 
-|         signal(SIGALRM, sig_alarm);
-| 
-|         setitimer(ITIMER_REAL, &itimer, NULL);
-| 
-|         getc(stdin);
-| 
-|         return 0;
-| }
-| 
-| 
-| As I wrote, I think the problem is in timeval_to_jiffies. On my arm
-| device 10ms are converted to 20ticks. On x86, 10ms are converted to
-| 11ticks.
-| 
-| Can somebody agree on that or at least point me to my mistakes?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Sure. It doesn't matter. The part that matters is
+all arch-specific assembly.
 
-I agree that timeval_to_jiffies() has some serious rounding errors.
-I don't see why it even cares about any of the scaled math in the
-(inline) function.  I rewrote it (for userspace, not kernelspace)
-like so, with expected results:
+Hey, the arm port already uses __const__.
+Unless the arm port is broken, there's proof.
+
+> At some point in the past, I wrote:
+> >> Why would barrier() not suffice?
+> 
+> On Wed, Sep 15, 2004 at 10:10:20PM -0400, Albert Cahalan wrote:
+> > I don't think even barrier() is needed.
+> > Suppose gcc were to cache the value of
+> > current over a schedule. Who cares? It'll
+> > be the same after schedule() as it was
+> > before.
+> 
+> Not over a call to schedule(). In the midst of schedule().
+
+OK, let's look.
+
+First, there's fork/vfork/clone. At no point does
+"current" change. A process comes into existance
+with a ready-made current.
+
+Second, there's sched.c with context_switch().
+That does everything via switch_to, like so:
+
+/* Here we just switch the register state and the stack. */
+switch_to(prev, next, prev);
+
+No problem. Now I only need to show that switch_to()
+is safe. Unfortunately, it's arch-specific code.
+I'll look at a few examples...
+
+x86_64:   assembly, and thus OK
+i386:     assembly, and thus OK
+ppc:      assembly, and thus OK
+arm:      already uses __const__ :-)
+
+To find a problem, you need to find an arch which
+runs C code with current being inconsistent with
+the stack or registers. That would be wild and evil.
+In any case, adding __attribute__((__const__)) is
+an arch-specific change. A truly evil arch running
+C code with an inconsistent current can just leave
+off the attribute or, better yet, stop being evil.
 
 
-static __inline__ unsigned long
-tv_to_jifs(const struct timeval *value)
-{
-        unsigned long sec = value->tv_sec;
-        long usec = value->tv_usec;
-
-        if (sec >= MAX_SEC_IN_JIFFIES){
-                sec = MAX_SEC_IN_JIFFIES;
-                usec = 0;
-        }
-        return (((u64)sec * (u64)HZ) +
-                (((u64)usec + (u64)HZ - 1LL) / (unsigned long)HZ));
-}
-
-
-Results of timeval_to_jiffies() compared to tv_to_jifs() [small sample]:
-(tv_sec is fixed at 5, with tv_usec varying)
-
-                         +--- timeval_to_jiffies()
-                         V              v--- tv_to_jifs()
-tv_usec: 499000,     jifs: 5500,     jf2: 5499
-tv_usec: 499100,     jifs: 5500,     jf2: 5500
-tv_usec: 499900,     jifs: 5501,     jf2: 5500
-tv_usec: 500000,     jifs: 5501,     jf2: 5500
-tv_usec: 500100,     jifs: 5501,     jf2: 5501
-tv_usec: 500900,     jifs: 5502,     jf2: 5501
-tv_usec: 501000,     jifs: 5502,     jf2: 5501
-tv_usec: 501100,     jifs: 5502,     jf2: 5502
-tv_usec: 501900,     jifs: 5503,     jf2: 5502
-tv_usec: 502000,     jifs: 5503,     jf2: 5502
-tv_usec: 502100,     jifs: 5503,     jf2: 5503
-
-
-
-I think that tv_to_jifs() can be written for kernel use by using
-do_div(), but I haven't tried that yet.
-
---
-~Randy

@@ -1,75 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262257AbUCVTDy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 14:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbUCVTDy
+	id S262259AbUCVTBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 14:01:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbUCVTBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 14:03:54 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:64387 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262257AbUCVTCD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 14:02:03 -0500
-Date: Mon, 22 Mar 2004 19:02:01 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: VMA_MERGING_FIXUP and patch
-In-Reply-To: <20040322175216.GJ3649@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0403221842060.12658-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Mon, 22 Mar 2004 14:01:05 -0500
+Received: from mail.kroah.org ([65.200.24.183]:56960 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262257AbUCVTAs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 14:00:48 -0500
+Date: Mon, 22 Mar 2004 09:59:50 -0800
+From: Greg KH <greg@kroah.com>
+To: Christoph Hellwig <hch@infradead.org>, Hanna Linder <hannal@us.ibm.com>,
+       linux-kernel@vger.kernel.org, gerg@snapgear.com
+Subject: Re: [PATCH 2.6 stallion.c] RFT added class support to stallion.c
+Message-ID: <20040322175950.GB15994@kroah.com>
+References: <68680000.1079748527@w-hlinder.beaverton.ibm.com> <20040321131410.A7758@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040321131410.A7758@infradead.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Mar 2004, Andrea Arcangeli wrote:
+On Sun, Mar 21, 2004 at 01:14:10PM +0000, Christoph Hellwig wrote:
+> On Fri, Mar 19, 2004 at 06:08:47PM -0800, Hanna Linder wrote:
+> > 
+> > Here is a patch to add class support to the Stallion multiport 
+> > serial driver.
+> > 
+> > I have verified it compiles but do not have the hardware. 
+> > If you can please verify, thanks.
+> > 
+> > Please consider for Inclusion or Testing.
 > 
-> what about this?
-> 
-> @@ -344,6 +360,10 @@ void fastcall page_remove_rmap(struct pa
->    
->   out_unlock:
->  	page_map_unlock(page);
-> +
-> +	if (page_test_and_clear_dirty(page) && !page_mapped(page))
-> +		set_page_dirty(page);
-> +
->  	return;
->  }
+> Shouldn't this be covered by the tty subsystem?
 
-No, it has to be
-	if (!page_mapped(page) && page_test_and_clear_dirty(page))
-		set_page_dirty(page);
-but the positioning is fine.
+Seems that this driver also has a character device that it uses for some
+non-tty like things :(
 
-> @@ -523,6 +543,11 @@ int fastcall try_to_unmap(struct page * 
->  		dec_page_state(nr_mapped);
->  		ret = SWAP_SUCCESS;
->  	}
-> +	page_map_unlock(page);
-> +
-> +	if (page_test_and_clear_dirty(page) && ret == SWAP_SUCCESS)
-> +		set_page_dirty(page);
-> +
->  	return ret;
->  }
+So yes, the main tty interface is already covered by the tty subsystem,
+but this patch is still needed for full coverage of this driver.
 
-No, it has to be
-	if (ret == SWAP_SUCCESS && page_test_and_clear_dirty(page))
-		set_page_dirty(page);
+thanks,
 
-Personally, I'd prefer we leave try_to_unmap with the lock we
-had on entry, and do this at the shrink_list end - though I
-can see that the way you've done it actually reduces the code.
-
-(The s390 header file comments that the page_test_and_clear_dirty
-needs to be done while not mapped, because of race with referenced
-bit, and we are opening up to a race now; but unless s390 is very
-different, I see nothing wrong with a rare race on referenced -
-whereas everything wrong with any race that might lose dirty.)
-
-Excited by that glimpse of find_pte_nonlinear you just gave us;
-disappointed to find it empty ;-)
-
-Hugh
-
+greg k-h

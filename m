@@ -1,89 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266274AbUHMRYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266240AbUHMR0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266274AbUHMRYT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 13:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUHMRYT
+	id S266240AbUHMR0k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 13:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUHMR0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 13:24:19 -0400
-Received: from mail.kroah.org ([69.55.234.183]:47066 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266274AbUHMRYM (ORCPT
+	Fri, 13 Aug 2004 13:26:39 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42369 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266240AbUHMRZn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 13:24:12 -0400
-Date: Fri, 13 Aug 2004 10:23:58 -0700
-From: Greg KH <greg@kroah.com>
-To: Stephen Glow <sglow@embeddedintelligence.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to generate hotplug events in drivers?
-Message-ID: <20040813172358.GB1254@kroah.com>
-References: <411C1EC0.3010302@embeddedintelligence.com> <20040813070643.GA6785@kroah.com> <411CF5CD.9020207@embeddedintelligence.com>
+	Fri, 13 Aug 2004 13:25:43 -0400
+Date: Fri, 13 Aug 2004 10:00:40 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: bunk@fs.tum.de, johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] let W1 select NET
+Message-Id: <20040813100040.3fce00db.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0408131312390.20634@scrub.home>
+References: <20040813101717.GS13377@fs.tum.de>
+	<Pine.LNX.4.58.0408131231480.20635@scrub.home>
+	<1092394019.12729.441.camel@uganda>
+	<Pine.LNX.4.58.0408131253000.20634@scrub.home>
+	<20040813110137.GY13377@fs.tum.de>
+	<Pine.LNX.4.58.0408131312390.20634@scrub.home>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <411CF5CD.9020207@embeddedintelligence.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 13, 2004 at 01:09:33PM -0400, Stephen Glow wrote:
-> Thanks for the response, things seem to be working now.
+On Fri, 13 Aug 2004 14:11:28 +0200 (CEST) Roman Zippel wrote:
 
-Good.
+| Hi,
+| 
+| On Fri, 13 Aug 2004, Adrian Bunk wrote:
+| 
+| > But the similar case of USB_STORAGE selecting SCSI is an example where 
+| > select is a big user-visible improvement over depends.
+| 
+| comment "USB storage requires SCSI"
+| 	depends on SCSI=n
+| 
+| That's also user visible and doesn't confuse the user later, why he can't 
+| deselect SCSI.
 
-> I'm still a little fuzzy about how all this works together, but the
-> picture is starting to become a bit clearer.  Here are the basic steps I
-> took in my PCI driver to get the device node to show up, please let me
-> know if anyone sees an error here:
-> 
-> In the init module function, I create a new class_simple pointer:
-> 
-> static struct class_simple *myclass;
-> 
-> int init_module( void )
-> {
-> ~    ...
-> ~    myclass = class_simple_create( THIS_MODULE, "myclassname" );
-> ~    ...
-> }
-> 
-> This causes the new class directory to show up under /sys/class
-> 
-> In the PCI probe function I do the following:
-> 
-> probe(...)
-> {
-> ~   ...
-> 
-> ~   // Allocate a device numer
-> ~   dev_t mydev;
-> ~   alloc_chrdev_region( &mydev, 0, 1, "mydevicename" );
-> 
-> ~   // Add this device number to my class.  Note I'm passing NULL for
-> ~   // the device pointer.  I'm not exactly sure what this is for, but
-> ~   // most devices in the kernel tree seem to pass NULL here.
-> ~   class_simple_add_device( myclass, mydev, NULL, "mydevicename" );
+User-visible in xconfig (and gconfig?).  Not in menuconfig, right?
+Maybe menuconfig's Help could also display dependency info...
 
-Pass in a pointer to the struct pci_dev ->dev structure.  Something
-like &pci_dev->dev should work well.  Then you will see the "device"
-symlink show up in your class device directory in sysfs, which makes
-tools like udev much easier to use.
+| Abusing select is really the wrong answer. What is needed is an improved 
+| user interface, which allows to search through the kconfig information or 
+| even can match hardware information to a driver and aids the user in 
+| selecting the required dependencies.
 
-> ~   // Finally, I init and add my cdev structure.
-> ~   cdev_init( &mycdev, &myfops );
-> ~   mycdev.owner = THIS_MODULE;
+Nice idea.  So are there places where SELECT is the right thing to do,
+i.e., it's required?  (examples, please)
 
-Not needed, as it should be pulled from the fops structure.
+| Keeping the kconfig database clean and making kernel configuration easier 
+| are really two separate problems and we shouldn't sacrifice the former for 
+| the latter.
 
-> ~   kobject_set_name( &mycdev.kobj, "mydevicename" );
 
-Not needed anymore.
-
-> ~   cdev_add( &mycdev, mydev, 1 );
-
-You might want to move the class_simple_add_device() line after the
-cdev_add line, just to handle the error conditions easier.
-
-Other than those minor things, this looks good.
-
-thanks,
-
-greg k-h
+--
+~Randy

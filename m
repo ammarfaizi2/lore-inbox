@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbUFWWFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbUFWWJR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbUFWWFR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 18:05:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUFWWED
+	id S261984AbUFWWJR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 18:09:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUFWWJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 18:04:03 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30084 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261763AbUFWWDP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 18:03:15 -0400
-Date: Wed, 23 Jun 2004 23:03:15 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: mikem@beardog.cca.cpqcorp.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problems with alloc_disk in genhd.c
-Message-ID: <20040623220314.GL12308@parcelfarce.linux.theplanet.co.uk>
-References: <20040623211829.GC16336@beardog.cca.cpqcorp.net> <20040623212459.GK12308@parcelfarce.linux.theplanet.co.uk> <20040623215512.GD16336@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Jun 2004 18:09:15 -0400
+Received: from siaag1ai.mx.compuserve.com ([149.174.40.24]:4479 "EHLO
+	siaag1ai.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S261984AbUFWWG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 18:06:58 -0400
+Date: Wed, 23 Jun 2004 18:00:46 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [PATCH] Trivial loopback optimization for 2.6.7
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200406231803_MC3-1-854F-EC5E@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040623215512.GD16336@beardog.cca.cpqcorp.net>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 23, 2004 at 04:55:12PM -0500, mikem@beardog.cca.cpqcorp.net wrote:
-> On Wed, Jun 23, 2004 at 10:24:59PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > On Wed, Jun 23, 2004 at 04:18:29PM -0500, mikem@beardog.cca.cpqcorp.net wrote:
-> > > In the  ioctl we are doing
-> > > 
-> > >         /* count partitions 1 to 15 with sizes > 0 */
-> > >         for(i=0; i <MAX_PART; i++) {
-> > 
-> > ... followed by what?
-> Here's the actual code, I typoed this first time.
-> 	/* count partitions 1 to 15 with sizes > 0 */
-> 	for(i=1; i <MAX_PART; i++) {
-> 		if (!disk->part[i])
-> 			continue;
-> 		if (disk->part[i]->nr_sects != 0)
-> 			luninfo.num_parts++;
-> We're trying to figure how many partitions are physically on the disk. We do
-> this for one of our utilities. Is there a kernel API that will return this
-> data for us?
+This patch is for the network loopback driver:
 
-A bunch of those, starting with readdir on /sys/block/<whatever>.  Why do
-you want that as a driver-specific ioctl?
+1: Removes unnecessary include with misleading comment.
 
-That stuff has no business being in the driver.  At all.
+2: Optimizes device stats update in the transmit routine
+(saves 2 loads, one add, one increment per packet sent.)
+
+Why is there no stats counting in the TSO code in
+emulate_large_send_offload()?
+
+
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+
+--- 267.0/drivers/net/loopback.c        2004-06-21 16:09:45.000000000 -0400
++++ 267.1/drivers/net/loopback.c        2004-06-21 16:16:20.000000000 -0400
+@@ -51,7 +51,6 @@
+ #include <linux/skbuff.h>
+ #include <net/sock.h>
+ #include <net/checksum.h>
+-#include <linux/if_ether.h>    /* For the statistics structure. */
+ #include <linux/if_arp.h>      /* For ARPHRD_ETHER */
+ #include <linux/ip.h>
+ #include <linux/tcp.h>
+@@ -143,10 +142,14 @@ static int loopback_xmit(struct sk_buff 
+ 
+        dev->last_rx = jiffies;
+        if (likely(stats)) {
+-               stats->rx_bytes+=skb->len;
+-               stats->tx_bytes+=skb->len;
+-               stats->rx_packets++;
+-               stats->tx_packets++;
++               /*
++                * Transmit/receive stats are identical;
++                * rx_packets is first in struct.
++                */
++               stats->tx_packets = ++stats->rx_packets;
++
++               stats->rx_bytes += skb->len;
++               stats->tx_bytes = stats->rx_bytes;
+        }
+ 
+        netif_rx(skb);
+

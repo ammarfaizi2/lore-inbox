@@ -1,74 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316750AbSGZDo7>; Thu, 25 Jul 2002 23:44:59 -0400
+	id <S316747AbSGZDl3>; Thu, 25 Jul 2002 23:41:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316751AbSGZDo7>; Thu, 25 Jul 2002 23:44:59 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:37285 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S316750AbSGZDo6>;
-	Thu, 25 Jul 2002 23:44:58 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] new module interface 
-In-reply-to: Your message of "Thu, 25 Jul 2002 11:56:06 +0200."
-             <Pine.LNX.4.44.0207251121310.28515-100000@serv> 
-Date: Fri, 26 Jul 2002 13:43:39 +1000
-Message-Id: <20020726034921.368CE4575@lists.samba.org>
+	id <S316750AbSGZDl3>; Thu, 25 Jul 2002 23:41:29 -0400
+Received: from dsl-213-023-043-040.arcor-ip.net ([213.23.43.40]:27355 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S316747AbSGZDl3>;
+	Thu, 25 Jul 2002 23:41:29 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [PATCH -ac] Panicking in morse code
+Date: Fri, 26 Jul 2002 05:43:09 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrew Rodland <arodland@noln.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.3.96.1020725084540.11202C-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1020725084540.11202C-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17Xw0V-0004f8-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0207251121310.28515-100000@serv> you write:
-> Hi,
+On Thursday 25 July 2002 14:51, Bill Davidsen wrote:
+> On Fri, 19 Jul 2002, Alan Cox wrote:
 > 
-> On Thu, 25 Jul 2002, Rusty Russell wrote:
+> > > +static const char * morse[] = {
+> > > +	".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", /* A-H */
+> > > +	"..", ".---.", "-.-", ".-..", "--", "-.", "---", ".--.", /* I-P */
+> > > +	"--.-", ".-.", "...", "-", "..-", "...-", ".--", "-..-", /* Q-X */
+> > > +	"-.--", "--..",	 	 	 	 	 	 /* Y-Z */
+> > > +	"-----", ".----", "..---", "...--", "....-",	 	 /* 0-4 */
+> > > +	".....", "-....", "--...", "---..", "----."	 	 /* 5-9 */
+> > 
+> > How about using bitmasks here. Say top five bits being the length, lower
+> > 5 bits being 1 for dash 0 for dit ?
 > 
-> > 	Firstly, I give up: what kernel is this patch against?  It's
-> > hard to read a patch this big which doesn't apply to any kernel I can find 
-8(
-> 
-> 2.4.18. Maybe pine garbled the patch... Here is a copy of the patch:
-> http://www.xs4all.nl/~zippel/mod.diff
+> ??? If the length is 1..5 I suspect you could use the top two bits and fit
+> the whole thing in a byte. But since bytes work well, use the top three
+> bits for length without the one bit offset. Still a big win over strings,
+> although a LOT harder to get right by eye.
 
-Much better: thanks!
+Please read back through the thread and see how 255 different 7 bit codes
+complete with lengths can be packed into 8 bits.
 
-> > Interesting approach.  Splitting init and start and stop and exit is
-> > normal, but encapsulating the usecount is different.  I made start
-> > and exit return void, though.
-> 
-> I introduced usecount() to gain more flexibility, currently one is forced
-> to pass the module pointer everywhere.
-
-Well, you substituted the module pointer for an atomic counter.  Bit
-of a wash, really.
-
-> Allowing exit to fail simplifies the interface. Normal code doesn't has
-> to bother about the current state of the module, instead exit() is now the
-> synchronization point. This also means the unload_lock via
-> try_inc_mod_count is not needed anymore.
-
-Except that rmmod fails rather frequently on busy modules.  Which
-might be ok.
-
-> > I chose the more standard "INIT(init, start)" & "EXIT(stop, exit)" which
-> > makes it easier to drop the exit part if it's built-in.
-> 
-> I was thinking about it, but couldn't we just put these function in a
-> seperate section and discard them during init (maybe depending on some
-> hotplug switch)?
-
-No, if you drop them newer binutils notices the link problem, hence
-the __devexit_p(x) macro.
-
-> > My favorite part is including the builtin-modules.  I assume this means
-> > that "request_module("foo")" returns success if CONFIG_DRIVER_FOO=y now?
-> 
-> Not yet. The problem is the module name, e.g. ext2 is called
-> fs_ext2_super, it will need some kbuild changes to get the right module
-> name.
-
-I need that too: the mythical "KBUILD_MODNAME".  Both Keith and Kai
-promised it to me...
-
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+Daniel

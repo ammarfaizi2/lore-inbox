@@ -1,101 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268380AbTAMWnh>; Mon, 13 Jan 2003 17:43:37 -0500
+	id <S268382AbTAMWog>; Mon, 13 Jan 2003 17:44:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268382AbTAMWnh>; Mon, 13 Jan 2003 17:43:37 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:59405 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S268380AbTAMWne>; Mon, 13 Jan 2003 17:43:34 -0500
-Date: Mon, 13 Jan 2003 14:52:17 -0800
-From: jw schultz <jw@pegasys.ws>
-To: "Richard B. Tilley  (Brad)" <rtilley@vt.edu>
-Cc: Adrian Bunk <bunk@fs.tum.de>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Bugs and Releases Numbers
-Message-ID: <20030113225217.GC17075@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	"Richard B. Tilley  (Brad)" <rtilley@vt.edu>,
-	Adrian Bunk <bunk@fs.tum.de>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <1042469616.28005.36.camel@oubop4.bursar.vt.edu> <20030113150708.GI21826@fs.tum.de> <1042471046.28000.42.camel@oubop4.bursar.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1042471046.28000.42.camel@oubop4.bursar.vt.edu>
-User-Agent: Mutt/1.3.27i
+	id <S268385AbTAMWog>; Mon, 13 Jan 2003 17:44:36 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:54616
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S268382AbTAMWob>; Mon, 13 Jan 2003 17:44:31 -0500
+Date: Mon, 13 Jan 2003 17:53:20 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+cc: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       James Cleverdon <jamesclv@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: RE: APIC version
+In-Reply-To: <3014AAAC8E0930438FD38EBF6DCEB5647D1026@fmsmsx407.fm.intel.com>
+Message-ID: <Pine.LNX.4.44.0301131752030.2102-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 13, 2003 at 10:17:22AM -0500, Richard B. Tilley  (Brad) wrote:
-> So, if a major security bug was discovered in stable that impacted many
-> systems in a very fundamental way, then a patch would be written and
-> applied right away and a new kernel would be released, no?
+On Mon, 13 Jan 2003, Nakajima, Jun wrote:
 
-No.  A new kernel need not be released right away.  Patches
-would be made available for affected recent releases.
-Anyone running self-built downloaded kernels is expected to
-be able to patch them when needed.  Distributions would
-apply the patch to their trees and make the new kernel
-(source and binaries) available through their usual security
-update channels.
+> The entries in acpi_version[] are indexed by the APIC id, not 
+> smp_processor_id(). So you can overwrite acpi_version[] for a different 
+> processor.
 
-It simply isn't necessary to rush a release (contrary to the
-principles of stable) just because there is a security hole.
-Patches are sufficient.  Besides, most sites run the
-distribution kernels anyway so they will get the fix through
-those channels.
+Is it possible to use smp_processor_id instead to avoid wasting memory 
+for the sparse APIC id case?
 
-
-> If that ever happened, what would become of the patches that had been in
-> pre? Would they be included in the new kernel too, or not?
-> 
-> On Mon, 2003-01-13 at 10:07, Adrian Bunk wrote:
-> > On Mon, Jan 13, 2003 at 09:53:36AM -0500, Richard B. Tilley  (Brad) wrote:
-> > 
-> > > Hello,
-> > 
-> > Hi Richard,
-> > 
-> > > How are bug patches worked into the current stable release? For example,
-> > > the ext3 file corruption bug in 2.4.20, was that patch worked into the
-> > > kernel or will it be included in 2.4.21? I'm confused about the exact
-> > > details of this type of thing. If the patch was worked in to 2.4.20, how
-> > > can one tell as the release number doesn't/hasn't changed?
-> > >...
-> > 
-> > the kernel that was released as 2.4.20 will never be changed.
-> > 
-> > The ext3 problems are fixed in the 2.4.21-pre kernels and the fixed ext3 
-> > code will be in 2.4.21.
-> > 
-> > > Thank you,
-> > > 
-> > > Brad
-> > 
-> > cu
-> > Adrian
-> > 
-> > -- 
-> > 
-> >        "Is there not promise of rain?" Ling Tan asked suddenly out
-> >         of the darkness. There had been need of rain for many days.
-> >        "Only a promise," Lao Er said.
-> >                                        Pearl S. Buck - Dragon Seed
-> > 
-> -- 
-> Richard B. Tilley (Brad), System Administrator & Web Developer
-> Virginia Tech, Office of the University Bursar
-> Phone: 540.231.6277
-> Fax: 540.231.3238
-> Page: 557.0891
-> Web: http://www.bursar.vt.edu
-> GPG Key: http://www.bursar.vt.edu/rtilley/pgpkey
-
-
-
+	Zwane
 -- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+function.linuxpower.ca
 
-		Remember Cernan and Schmitt

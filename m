@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270449AbTHJSDb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 14:03:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270496AbTHJSDb
+	id S270620AbTHJSVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 14:21:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270621AbTHJSVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 14:03:31 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:26808 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S270449AbTHJSDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 14:03:30 -0400
-Date: Sun, 10 Aug 2003 20:01:18 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: James Morris <jmorris@intercode.com.au>
-Cc: Pascal Brisset <pascal.brisset-ml@wanadoo.fr>,
-       Fruhwirth Clemens <clemens-dated-1061346967.29a4@endorphin.org>,
-       linux-kernel@vger.kernel.org, mbligh@aracnet.com, kernel@gozer.org,
-       axboe@suse.de
-Subject: Re: [PATCH] loop: fixing cryptoloop troubles.
-Message-ID: <20030810200118.U639@nightmaster.csn.tu-chemnitz.de>
-References: <20030810160706.5D083400211@mwinf0501.wanadoo.fr> <Mutt.LNX.4.44.0308110226530.8288-100000@excalibur.intercode.com.au>
+	Sun, 10 Aug 2003 14:21:09 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4868 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270620AbTHJSVG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 14:21:06 -0400
+Date: Sun, 10 Aug 2003 16:33:50 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, kernelbugzilla@kuntnet.org
+Subject: Re: [Bug 1068] New: Errors when loading airo module
+Message-ID: <20030810163350.D32508@flint.arm.linux.org.uk>
+Mail-Followup-To: "Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	kernelbugzilla@kuntnet.org
+References: <51060000.1060524422@[10.10.2.4]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Mutt.LNX.4.44.0308110226530.8288-100000@excalibur.intercode.com.au>; from jmorris@intercode.com.au on Mon, Aug 11, 2003 at 02:28:08AM +1000
-X-Spam-Score: -5.0 (-----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19luWt-0005Gh-00*33n09jd9ji6*
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <51060000.1060524422@[10.10.2.4]>; from mbligh@aracnet.com on Sun, Aug 10, 2003 at 07:07:02AM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, Aug 11, 2003 at 02:28:08AM +1000, James Morris wrote:
-> On Sun, 10 Aug 2003, Pascal Brisset wrote:
+On Sun, Aug 10, 2003 at 07:07:02AM -0700, Martin J. Bligh wrote:
+> http://bugme.osdl.org/show_bug.cgi?id=1068
 > 
-> > But I'd rather see a semantically correct reference implementation.
-> Ok, please take into account the case where src == dst.
+>            Summary: Errors when loading airo module
+>     Kernel Version: 2.6.0-test3
+>             Status: NEW
+>           Severity: normal
+>              Owner: rmk@arm.linux.org.uk
+>          Submitter: kernelbugzilla@kuntnet.org
 
-Cryptoloop takes this into account?
+This needs to go to the airo maintainers, not me - the oops is caused
+by buggy airo.c.
 
-This would mean, that you finally have in-place encryption
-available. Good move!
+The IRQ problem is the result of bad configuration - you must enable
+CONFIG_ISA if you're going to use non-Cardbus PCMCIA cards.
 
-Regards
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Ingo Oeser

@@ -1,80 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311497AbSCSRtN>; Tue, 19 Mar 2002 12:49:13 -0500
+	id <S284933AbSCSR5D>; Tue, 19 Mar 2002 12:57:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311499AbSCSRtC>; Tue, 19 Mar 2002 12:49:02 -0500
-Received: from morrison.empeg.co.uk ([193.119.19.130]:60157 "EHLO
-	fatboy.internal.empeg.com") by vger.kernel.org with ESMTP
-	id <S311497AbSCSRss>; Tue, 19 Mar 2002 12:48:48 -0500
-Message-ID: <006701c1cf6d$d9701230$2701230a@electronic>
-From: "Peter Hartley" <pdh@utter.chaos.org.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: setrlimit and RLIM_INFINITY causing fsck failure, 2.4.18
-Date: Tue, 19 Mar 2002 17:45:24 -0000
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S285692AbSCSR4x>; Tue, 19 Mar 2002 12:56:53 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:51442
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S284933AbSCSR4p>; Tue, 19 Mar 2002 12:56:45 -0500
+Date: Tue, 19 Mar 2002 09:57:57 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: H?kon Alstadheim <hakon@cyberglobe.net>
+Cc: Andrew Morton <akpm@zip.com.au>, Colin Leroy <colin@colino.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: question about 2.4.18 and ext3
+Message-ID: <20020319175757.GO2254@matchmail.com>
+Mail-Followup-To: H?kon Alstadheim <hakon@cyberglobe.net>,
+	Andrew Morton <akpm@zip.com.au>, Colin Leroy <colin@colino.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020318180158.2886dd4a.colin@colino.net> <3C96510A.24CDE6BC@zip.com.au> <m0r8mhq9a8.fsf@alstadhome.online.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When setrlimit/getrlimit were changed to take unsigned rather than signed
-limits, a new syscall was invented for getrlimit that returned the signed
-values that old programs expected. But no new syscall was invented for
-setrlimit; both old and new programs come to the same function (in
-kernel/sys.c). This was, according to the glibc source, at about 2.3.25
-time.
+On Tue, Mar 19, 2002 at 08:57:51AM +0100, H?kon Alstadheim wrote:
+> Andrew Morton <akpm@zip.com.au> writes:
+> 
+> > Colin Leroy wrote:
+> > > 
+> > > Hello all,
+> > > 
+> > > I really hope I'm not asking a FAQ, i looked in the archives since 15 Feb
+> > > and didn't see anything about this.
+> > > 
+> > > I upgraded from 2.2.20 to 2.4.18 on my powerbook two weeks ago, and
+> > > compiled ext3 in the kernel in order to quietly crash :)
+> > > 
+> > > However, I had about a dozen strange crashes, sometimes when the computer
+> > > woke up from sleep, sometimes when launching a program : every visible
+> > > soft died, then X, then blackscreen, and the computer didn't even answer
+> > > pings. So I reset the computer and here, each time, yaboot (ppc equivalent
+> > > of lilo) told me that "cannot load image". Booting and fscking from a
+> > > rescue CD showed that superblock was corrupt.
+> > 
+> > It may be a yaboot/ext3 incompatibility.  Your version of yaboot
+> > may not know how to mount a needs-recovery ext3 filesystem.
+> > There are some words on this at
+> > http://www.zip.com.au/~akpm/linux/ext3/ext3-usage.html
+> > 
+> > I am told that yaboot 1.3.5 and later will do the right thing.
+> > What version are you using?
+> 
+> One way to work around this is to keep your kernels in /boot and have
+> /boot be a separate ext2 filesystem that you normally mount ro. That
+> way it will not need to be recovered after a crash. During install of
+> a new kernel you will of course need to do "/bin/mount -o remount,rw
+> /boot" and then afterwards "/bin/mount -o remount,ro /boot" .
+> 
+> Your /etc/fstab will then look something like:
+> 
+> [...]
+> /dev/hde3 /      ext3 # your usual parameters here
+> /dev/hda6 /boot  ext2 ro,exec   1   2
+> [...]
+> 
+> Remember to make sure you know which devices are / and /boot/
+> respectively, and also which device holds the bootsector. Make sure
+> you know which one to give to your bootloader where.
+> 
+> I run grub-install like this:
+> /usr/local/sbin/grub-install /dev/hda --root-directory=/boot
 
-This breaks any old program which tries to set a limit of RLIM_INFINITY.
-Such a program will end up passing a 0x7FFFFFFF to sys_setrlimit, which will
-be dutifully placed in the current->rlim array. Once there it will
-completely fail to compare equal to the kernel's RLIM_INFINITY value,
-0xFFFFFFFF.
-
-"Old" in this context means any program linked against a glibc that was
-built against 2.2 headers.
-
-In particular, this means that an e2fsck 1.27 built against such a glibc
-will fail with SIGXFS every time on any block device bigger than 2Gbytes.
-This is because:
-
- * e2fsck calls setrlimit(RLIMIT_FSIZE, RLIM_INFINITY) in
-   an attempt to unset the limit. RLIM_INFINITY here is
-   0xFFFFFFFF. This is IMO the Right Thing.
- * glibc knows nothing about the new unsigned limits, because
-   it's compiled against 2.2 headers. So it clips the limit
-   value to 0x7FFFFFFF to "correct" it before calling the
-   setrlimit syscall. This is IMO still the Right Thing,
-   because it's trying to call the old syscall as if to run
-   a new program on a 2.2 kernel.
- * The kernel writes the 0x7FFFFFFF value uninterpreted into
-   the current->rlim array. This is IMO the bug.
-
-Surely the only Right Things to do in the kernel are (a) invent a new
-setrlimit call that corrects the RLIM_INFINITY value, or (b) have the
-current setrlimit call correct the RLIM_INFINITY value unconditionally.
-
-Answer (b) breaks programs that deliberately set a limit of 0x7FFFFFFF, but
-it's less intrusive than answer (a). The patch for (b) is fairly trivial and
-I'll rustle one up if people agree it's the Right Thing.
-
-Complete test situation that reproduced the bug: 2.2.20 system (with
-glibc-2.2.5, and 2.2.20 headers in /usr/include) compiling a glibc-2.2.5 and
-e2fsprogs-1.27 which are then run on a 2.4.18 system. (As e2fsck is
-statically linked, it gets the compile host's glibc, of course.) Root fs is
-a 4.5Gbyte ext2 on a 5Gbyte Quantum IDE.
-
-So for my purposes I can fix this by upgrading my compile host to a glibc
-that's built against 2.4.18 headers, but I still reckon there's a kernel bug
-here.
-
-        Peter
-
-
-PS. Please CC me on replies, as I only read the list on an archive site. Ta.
-
-
+Grub won't work on ppc IIRC, but it does work similarly by reading the
+filesystem.

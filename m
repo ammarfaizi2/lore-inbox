@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262962AbUCXArJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 19:47:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbUCXArJ
+	id S262935AbUCXBdP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 20:33:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262957AbUCXBdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 19:47:09 -0500
-Received: from mail014.syd.optusnet.com.au ([211.29.132.160]:62670 "EHLO
-	mail014.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262962AbUCXArE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 19:47:04 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	Tue, 23 Mar 2004 20:33:15 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:38584
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S262935AbUCXBdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 20:33:14 -0500
+Message-ID: <4060E24C.9000507@redhat.com>
+Date: Tue, 23 Mar 2004 17:20:12 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040322
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16480.55934.301442.401960@wombat.chubb.wattle.id.au>
-Date: Wed, 24 Mar 2004 11:46:54 +1100
-To: Christof <mail@pop2wap.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: synchronous serial port communication (16550A)
-In-Reply-To: <703905114@toto.iv>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+To: davidm@hpl.hp.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Non-Exec stack patches
+References: <20040323231256.GP4677@tpkurt.garloff.de>	<20040323154937.1f0dc500.akpm@osdl.org>	<20040324002149.GT4677@tpkurt.garloff.de> <16480.55450.730214.175997@napali.hpl.hp.com>
+In-Reply-To: <16480.55450.730214.175997@napali.hpl.hp.com>
+X-Enigmail-Version: 0.83.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Christof" == Christof  <mail@pop2wap.net> writes:
+David Mosberger wrote:
 
-Christof> Miquel van Smoorenburg wrote:
->> Why don't you simply turn on hardware flow control (i.e. enable
->> CRTSCTS with tcsetattr() or even stty) ?
->> 
->> Mike.
+> I guess I never quiet understood why an entire program header is
+> needed for this, but that's just me.
 
-Christof> RTS has a special meaning with this lcd-controller, so I
-Christof> don't want that it is set without my implicit will.  - To
+This just means you haven't looked at the problem.
 
-Then  wire it to something other than CTS at the host
-end. 
+First, the ELF bits are limited and very crowded on some archs.  There
+is no central assignment so conflicts will happen.
 
+And one single bit does not cut it.  If you'd take a look, the
+PT_GNU_STACK entry's permissions field specifies what permissions the
+stack must have, not the presence of the field.  So at least two bits
+are needed which only adds to the problems of finding appropriate bits.
 
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
-
+-- 
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

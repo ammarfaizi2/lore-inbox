@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVBLXuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVBLXxG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbVBLXuu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 18:50:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVBLXuu
+	id S261219AbVBLXxG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 18:53:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVBLXxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 18:50:50 -0500
-Received: from smtpout1.uol.com.br ([200.221.4.192]:49554 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261216AbVBLXup
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 18:50:45 -0500
-Date: Sat, 12 Feb 2005 21:50:43 -0200
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: linux-kernel@vger.kernel.org
-Subject: Re: irq 10: nobody cared! (was: Re: 2.6.11-rc3-mm1)
-Message-ID: <20050212235043.GA4291@ime.usp.br>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050204103350.241a907a.akpm@osdl.org> <20050205224558.GB3815@ime.usp.br> <20050212222104.GA1965@node1.opengeometry.net> <20050212224715.GA8249@ime.usp.br> <20050212232134.GA2242@node1.opengeometry.net>
+	Sat, 12 Feb 2005 18:53:06 -0500
+Received: from gate.crashing.org ([63.228.1.57]:62679 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261219AbVBLXxC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 18:53:02 -0500
+Subject: Re: 2.6.11-rc3-bk9 (radeon) hangs hard my laptop
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <5a4c581d050212135716fa6a17@mail.gmail.com>
+References: <5a4c581d0502120649423a2504@mail.gmail.com>
+	 <5a4c581d05021207593fae0c93@mail.gmail.com>
+	 <5a4c581d050212135716fa6a17@mail.gmail.com>
+Content-Type: text/plain
+Date: Sun, 13 Feb 2005 21:52:55 +1100
+Message-Id: <1108291975.6698.7.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050212232134.GA2242@node1.opengeometry.net>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 12 2005, William Park wrote:
-> This looks awefully like 'acpi' is on.  If 'acpi=noirq' does not work,
-> then try 'pci=noacpi'.
 
-Hi, Willian.
+> It's definitely the new radeon changes - replacing
+>  drivers/video/aty/* and include/video/radeon.h in the
+>  -bk9 tree with the ones from -bk8 causes the hang to
+>  not reproduce anymore. CC'd Ben and edited subject
+>  to more accurately reflect the issue.
 
-First of all, thank you very much for both your attention and help.
+Grrr... 
 
-Unfortunately, I have already tried booting the 2.6.11-rc3-mm2 that I just
-compiled and I tried using many boot parameters like "acpi=noirq",
-"irqpoll", "pci=noacpi", "acpi=off" and setting the BIOS of my motherboard
-to "Plug'n'Play OS = Yes" (instead of "Off", which is my default).
+Can you try booting with radeonfb.default_dynclk=-1 and if it doesn't
+help, radeonfb.default_dynclk=0 on the kernel command line ?
 
-To prevent the matters of loosing track of what is being done, I only
-changed one option at a time. I put the dmesg logs of all my attempts at
-<http://www.ime.usp.br/~rbrito/ide-problem/>.
+Also, what is the exact revision of the chip ? (send me an lspci -vv
+dump).
 
-Please let me know if I can provide any other useful information.
+Finally, what X version are you using ?
+
+Ben.
 
 
-Thank you very much again for any help, Rogério.
-
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

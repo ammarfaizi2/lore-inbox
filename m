@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270731AbTGNTB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 15:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270733AbTGNTB7
+	id S270740AbTGNTMO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 15:12:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270741AbTGNTMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 15:01:59 -0400
-Received: from mail.kroah.org ([65.200.24.183]:2985 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270731AbTGNTBz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 15:01:55 -0400
-Date: Mon, 14 Jul 2003 12:16:25 -0700
-From: Greg KH <greg@kroah.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Chris Wright <chris@wirex.com>,
-       James Morris <jmorris@intercode.com.au>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add SELinux module to 2.6.0-test1
-Message-ID: <20030714191625.GA24578@kroah.com>
-References: <1058209504.13738.687.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1058209504.13738.687.camel@moss-huskers.epoch.ncsc.mil>
-User-Agent: Mutt/1.4.1i
+	Mon, 14 Jul 2003 15:12:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61828 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S270740AbTGNTMN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 15:12:13 -0400
+Message-ID: <3F1303FA.8080706@pobox.com>
+Date: Mon, 14 Jul 2003 15:26:50 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David griego <dagriego@hotmail.com>
+CC: alan@storlinksemi.com, linux-kernel@vger.kernel.org
+Subject: Re: Alan Shih: "TCP IP Offloading Interface"
+References: <Sea2-F50x3G5aYY61LE00011019@hotmail.com>
+In-Reply-To: <Sea2-F50x3G5aYY61LE00011019@hotmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 14, 2003 at 03:05:04PM -0400, Stephen Smalley wrote:
-> The patch available from
-> http://www.nsa.gov/selinux/lk/2.6.0-test1-addselinux.patch.gz adds the
-> SELinux module under security/selinux and modifies the security/Makefile
-> and security/Kconfig files for SELinux.
+David griego wrote:
+> How does one measure the reliability and security of current software 
+> TCP/IP stacks?  Some standard set of test would have to be identified 
+> and the TOEs would need to be tested against this to ensure that they 
+> meet some minimum standard.  I would suggest offloading the minimum 
+> amount from the OS so that most of the control could be maintaind by the 
+> OS stack.  This also would make failover/routing changes between TOE 
+> -TOE, and TOE-NIC easier.
 
-Some minor coding style nits:
-	- you are creating your own typedefs, please don't.  Use the
-	  "struct foo" style instead.
-	- you have a number of printk() calls without a logging level.
-	  Hm, looks like some of the functions doing this aren't ever
-	  called at all (avc_dump_cache() is one example)...
-	- your function style should be changed to take advantage of the
-	  kerneldoc functionality.  avc_lookup() is a good example of
-	  something that could benifit from this (don't put comments
-	  within a function declaration...)
+Anything beyond basic host-only TOE adds massive complexity for very 
+little gain:  interfacing netfilter and routing code with a black box we 
+_hope_ will act properly sounds like suicide.
 
-Other than that, the coding style looks real good.
 
-thanks,
+ >  Current offloads such as checksum and
+> segmentation will not be enough for 10GbE processing, so it would have 
+> to be something more than we have today.
 
-greg k-h
+All this is vague handwaving without supporting evidence.  So far we get 
+stuff like Internet2 speed records _without_ TOE.  And Linux currently 
+supports 10gige...  and hosts are just going to keep getting faster and 
+faster.
+
+	Jeff
+
+
+

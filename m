@@ -1,47 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264663AbTFAQa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 12:30:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264664AbTFAQa0
+	id S264664AbTFAQdL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 12:33:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264666AbTFAQdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 12:30:26 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:2700 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264663AbTFAQa0
+	Sun, 1 Jun 2003 12:33:11 -0400
+Received: from miranda.zianet.com ([216.234.192.169]:24841 "HELO
+	miranda.zianet.com") by vger.kernel.org with SMTP id S264664AbTFAQdJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 12:30:26 -0400
-Date: Sun, 1 Jun 2003 12:46:23 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Hyper-threading
-Message-ID: <Pine.LNX.4.53.0306011245090.11595@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 1 Jun 2003 12:33:09 -0400
+Subject: Re: Question about style when converting from K&R to ANSI C.
+From: Steven Cole <elenstev@mesatop.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Jonathan Lundell <linux@lundell-bros.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030601161133.GC3012@work.bitmover.com>
+References: <1054446976.19557.23.camel@spc>
+	 <20030601132626.GA3012@work.bitmover.com>
+	 <20030601134942.GA10750@alpha.home.local>
+	 <20030601140602.GA3641@work.bitmover.com>
+	 <p05210609baffd3a79cfb@[207.213.214.37]>
+	 <20030601161133.GC3012@work.bitmover.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054485978.19557.93.camel@spc>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 01 Jun 2003 10:46:19 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2003-06-01 at 10:11, Larry McVoy wrote:
+> On Sun, Jun 01, 2003 at 09:04:22AM -0700, Jonathan Lundell wrote:
+> > The reason I've liked this format is that it gives me a quick and 
+> > universal way to find *specific* functions with vi or grep, by 
+> > searching for "^function_name(".
+> 
+> Exactly.  I thought of making that point in my original posting and 
+> figured everyone would tell me to use tags and I didn't want to have
+> to remember all the other reasons I wanted this.
+> 
+> It really is nice knowing that "^function_name(" is the definition.
 
-Hello,
+Thanks for the input.  You've convinced me.  When going through
+arch/ppc/xmon/xmon.c, I will leave things like the following unchanged:
 
-Anybody know how to enable hyperthreading? I
-have an ABIT IC7-G motherboard (absolute garbage)
-with a Phoenix AwardBIOS. They don't provide
-any BIOS upgrades and say you have to contact
-the board vendor. ABIT doesn't answer email
-and www.abit.com ends up being answered by
-www.motherboards.com that doesn't provide
-any support.
+/* Command interpreting routine */
+static int
+cmds(struct pt_regs *excp)
+{
 
-The crap board came with the peripherals
-I paid for, stripped out (no network, etc).
-Don't make the mistake of buying this garbage
-as I did. I thought that since it was more
-expensive than others, it __must__ be the
-best!!!
+My changes will be similar to the following:
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+@@ -1837,9 +1818,7 @@
+        return *lineptr++;
+ }
+
+-void
+-take_input(str)
+-char *str;
++void take_input(char *str)
+ {
+        lineptr = str;
+ }
+
+I'll be changing the return type/function name line orientation only
+when making other changes. And these will still go through the
+applicable maintainers.
+
+Steven
 

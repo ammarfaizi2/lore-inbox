@@ -1,33 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266957AbSLKCKL>; Tue, 10 Dec 2002 21:10:11 -0500
+	id <S266968AbSLKCKg>; Tue, 10 Dec 2002 21:10:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266968AbSLKCKL>; Tue, 10 Dec 2002 21:10:11 -0500
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:25862 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S266957AbSLKCKK>; Tue, 10 Dec 2002 21:10:10 -0500
-Subject: "bio too big" error
-From: Wil Reichert <wilreichert@yahoo.com>
+	id <S266969AbSLKCKg>; Tue, 10 Dec 2002 21:10:36 -0500
+Received: from msgbas2x.cos.agilent.com ([192.25.240.37]:14076 "EHLO
+	msgbas2x.cos.agilent.com") by vger.kernel.org with ESMTP
+	id <S266968AbSLKCKf>; Tue, 10 Dec 2002 21:10:35 -0500
+Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D54F21@axcs03.cos.agilent.com>
+From: yiding_wang@agilent.com
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1039572597.459.82.camel@darwin>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 10 Dec 2002 21:17:45 -0500
-Content-Transfer-Encoding: 7bit
+Subject: Linux TOE
+Date: Tue, 10 Dec 2002 19:18:17 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello Team,
 
-I'm getting a "bio too big" error with 2.5.50.  I've got a 330G lvm2
-partition formatted with ext3 using the -T largefile4 parameter. 
-Everything seems ok at first, but any sort of access will die very
-unhappily with said error messsage after about 10 seconds of operation
-or so.  The only google search results are the patch submission.  Eeek.
+Does anyone know who or what group is carrying on Linux TOE project?  Particularly, I am interested on OS part of driver or layer to support hardware TOE.
 
-Wil
-
-
-
+Thanks!
+ 
+Eddie

@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266254AbUHII3G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266257AbUHII3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266254AbUHII3G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 04:29:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUHII3G
+	id S266257AbUHII3q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 04:29:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266256AbUHII3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 04:29:06 -0400
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:32130 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S266254AbUHII2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 04:28:50 -0400
-Message-ID: <411735BD.3000303@eidetix.com>
-Date: Mon, 09 Aug 2004 10:28:45 +0200
-From: "David N. Welton" <davidw@eidetix.com>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jamesl@appliedminds.com
-CC: Sascha Wilde <wilde@sha-bang.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
-References: <auto-000000462036@appliedminds.com>
-In-Reply-To: <auto-000000462036@appliedminds.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Aug 2004 04:29:46 -0400
+Received: from holomorphy.com ([207.189.100.168]:56285 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266257AbUHII3i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 04:29:38 -0400
+Date: Mon, 9 Aug 2004 01:29:26 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rick Lindsley <ricklind@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc3-mm2
+Message-ID: <20040809082926.GJ11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rick Lindsley <ricklind@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040808152936.1ce2eab8.akpm@osdl.org> <200408090820.i798Kbj07417@owlet.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408090820.i798Kbj07417@owlet.beaverton.ibm.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Lamanna wrote:
+On Mon, Aug 09, 2004 at 01:20:37AM -0700, Rick Lindsley wrote:
+> Got complaints from arch/i386/mm/discontig.c:
+[...]
+> arch/i386/mm/discontig.c:430: warning: passing arg 3 of `free_area_init_node' from incompatible pointer type
+> arch/i386/mm/discontig.c:430: warning: passing arg 4 of `free_area_init_node' makes integer from pointer without a cast
+> arch/i386/mm/discontig.c:430: warning: passing arg 5 of `free_area_init_node' makes pointer from integer without a cast
+> arch/i386/mm/discontig.c:430: too many arguments to function `free_area_init_node'
+> Looks like I can't get by with just deleting the third argument in the
+> second case.
 
-> Without having a USB keyboard plugged in, and having DEBUG #defined, can you post
-> the command printks?
-> I suspect that David posted the printks as his machine was starting up. What we
-> really need to look at is what happens on shutdown and if one of those commands
-> hangs for some reason.
+Initializing NODE_DATA(nid)->node_mem_map prior to calling it should do.
 
-
-Without keyboard:
-
-drivers/input/serio/i8042.c: 60 -> i8042 (command) [357624] 
-
-drivers/input/serio/i8042.c: 9a -> i8042 (parameter) [357624]
-
-With keyboard:
-
-drivers/input/serio/i8042.c: ff -> i8042 (kbd-data) [33392] 
-
-drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [33464] 
-
-drivers/input/serio/i8042.c: aa <- i8042 (interrupt, kbd, 1) [33841] 
-
-drivers/input/serio/i8042.c: 60 -> i8042 (command) [33976] 
-
-drivers/input/serio/i8042.c: 65 -> i8042 (parameter) [33976]
-
-The shutdown sequence is not hanging, though, as far as I can tell.  You 
-can triple fault the machine immediately after the first WCTR command 
-during initialization (triple fault reboots it just fine just before the 
-same command) and it doesn't cause a reboot, and yet it's no longer 
-executing instructions from the kernel (or at least not printk's or 
-anything meaningful).  I don't think it's the parameters that it's 
-passing to the WCTR command either, because if you look in the previous 
-batch of printk's, it's putting back in exactly what it got out.
-
--- 
-David N. Welton
-davidw@eidetix.com
-
+Index: mm2-2.6.8-rc3/arch/i386/mm/discontig.c
+===================================================================
+--- mm2-2.6.8-rc3.orig/arch/i386/mm/discontig.c	2004-08-08 15:39:24.000000000 -0700
++++ mm2-2.6.8-rc3/arch/i386/mm/discontig.c	2004-08-09 01:17:17.815702160 -0700
+@@ -425,8 +425,8 @@
+ 			lmem_map = (unsigned long)node_remap_start_vaddr[nid];
+ 			lmem_map += sizeof(pg_data_t) + PAGE_SIZE - 1;
+ 			lmem_map &= PAGE_MASK;
+-			free_area_init_node(nid, NODE_DATA(nid), 
+-				(struct page *)lmem_map, zones_size, 
++			NODE_DATA(nid)->node_mem_map = (struct page *)lmem_map;
++			free_area_init_node(nid, NODE_DATA(nid), zones_size, 
+ 				start, zholes_size);
+ 		}
+ 	}

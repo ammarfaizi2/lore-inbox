@@ -1,134 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277823AbRJORRJ>; Mon, 15 Oct 2001 13:17:09 -0400
+	id <S277885AbRJORWJ>; Mon, 15 Oct 2001 13:22:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277885AbRJORRA>; Mon, 15 Oct 2001 13:17:00 -0400
-Received: from [209.195.52.30] ([209.195.52.30]:60950 "HELO [209.195.52.30]")
-	by vger.kernel.org with SMTP id <S277823AbRJORQu>;
-	Mon, 15 Oct 2001 13:16:50 -0400
-Date: Mon, 15 Oct 2001 08:55:51 -0700 (PDT)
-From: David Lang <dlang@diginsite.com>
-To: Jacques Gelinas <jack@solucorp.qc.ca>
-cc: Linux kernel list <linux-kernel@vger.kernel.org>,
-        Pavel Machek <pavel@suse.cz>
-Subject: re: Re: Announce: many virtual servers on a single box
-In-Reply-To: <20011015092905.bc1c569516e5@remtk.solucorp.qc.ca>
-Message-ID: <Pine.LNX.4.40.0110150854500.4883-100000@dlang.diginsite.com>
+	id <S278037AbRJORWA>; Mon, 15 Oct 2001 13:22:00 -0400
+Received: from darkwing.uoregon.edu ([128.223.142.13]:40674 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S277885AbRJORVs>; Mon, 15 Oct 2001 13:21:48 -0400
+Date: Mon, 15 Oct 2001 10:24:26 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: <joelja@twin.uoregon.edu>
+To: <CARL.P.HIRSCH@sargentlundy.com>
+cc: <larsi@gnus.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Bootp Timeout Problem
+In-Reply-To: <OF6348277C.08D3A202-ON86256AE6.005B78B3@sargentlundy.com>
+Message-ID: <Pine.LNX.4.33.0110151019160.32726-100000@twin.uoregon.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-you mention problems with interaction if the main sandbox has a service
-listening on 0.0.0.0, what happens if a vserver does this (does it only
-see it's own IP addresses or does it interfere with other servers?)
+On Mon, 15 Oct 2001 CARL.P.HIRSCH@sargentlundy.com wrote:
 
-David Lang
+> Lars - I came across the message below while searching to a solution for a
+> DHCP timeout issue. I'm fairly certain that this fix is relevant to the
+> problem I'm investigating. We're working with a floppy linux distro that
+> Novell created for imaging Novell workstations and I hope to apply this
+> patch to the floppy distro to see if it is the fix we're looking for (we
+> suspect Spantree Portfast on Cisco Catalyst3524XLs is tripping up DHCP
+> acquisition)..
+>
+> I'm a bit of a linux newbie - does this involve editing the ifconfig.c file
 
- On
-Mon, 15 Oct 2001, Jacques Gelinas wrote:
+yeah it will require a kernel rebuild...
 
-> Date: Mon, 15 Oct 2001 09:29:05 -0500
-> From: Jacques Gelinas <jack@solucorp.qc.ca>
-> To: Linux kernel list <linux-kernel@vger.kernel.org>
-> Cc: Pavel Machek <pavel@suse.cz>
-> Subject: re: Re: Announce: many virtual servers on a single box
+assuming you have a kernel tree someplace for this mini distro (for
+example in /usr/src/linux) you'd need to apply the patch to the file
+/usr/src/linux/net/ipv4/ipconfig.c then rebuild the kernel...
+
+regards
+joelja
+
+> only, or is a recompile or any components (or even the kernel?)  required
+> to cause the change to take effect? If so, I expect the various FAQs can
+> walk me through the actual procedure.
 >
-> On Fri, 12 Oct 2001 23:01:04 -0500, Pavel Machek wrote
-> > Hi!
-> >
-> > > -I have also modified the capability system a little, so those virtual server
-> > >  administrators can't take over the machine. I have introduced a per-process
-> > >  capability ceiling, inherited by sub-process. Even setuid program can't grab
-> > >  more capabilities..
-> >
-> > Really? What hardware do they see in /dev/? Do their servers have for
-> > example mouse? What about ethernet cards?
+> LKML - apologies if this is off-topic, please reply off-list or CC me.
 >
-> In /dev they see very little: full  log  null  ptmx  pts  random  tty  urandom  zero
+> thanks much,
+> -carl hirsch
+> network analyst
 >
-> The do not have CAP_SYS_MKNOD, so they can't create more than you give.
+> From: Lars Magne Ingebrigtsen (larsi@gnus.org)
+> Date: Sat Jul 29 2000 - 06:16:33 EST
+>      Next message: Adam Sampson: "Re: sysconf (was Re: RLIM_INFINITY
+>      inconsistency between archs)"
+>      Previous message: Amit D Chaudhary: "Re: NFSv4 ACLs (was: ...ACL's and
+>      reiser...)"
+>      Next in thread: Fred Reimer: "Re: 2.2.16 bootp timeout problem
+>      (patch)"
+>      Reply: Fred Reimer: "Re: 2.2.16 bootp timeout problem (patch)"
+>      Messages sorted by: [ date ] [ thread ] [ subject ] [ author ]
 >
-> In fact, the vserver sees whatever you want to give it. So if you intend to run
-> X in the vserver, give it the mouse device.
 >
-> > Does /proc/kmem work in virtual servers?
 >
-> You probably mean /dev/kcore. No they can't read it.
+> The Cisco Catalyst 3500 switch has what seems like a training period
+> of about ten seconds. Therefore, the default 3*2 second waiting
+> period between card resets is too small to allow a Linux bootp client
+> to boot through one of these switches.
 >
-> > [Why I'm asking? I'm trying to find ways to take over the machine. Do
-> > you want to give me root on your machine stating that I can't
-> > interfere?]
 >
-> Indeed, I could give you a root password on a vserver and you would not be
-> able to interfere. Sure enough you would be able to grab resource and slow
-> down the machine (and potentially work out a DOS attack). We are working
-> on the schedular right now to solve those issues.
+> The following micro-patch just increases the CONF_SEND_RETRIES (which
+> says how many bootp packets to send out between reopening the device(s))
+> from 3 to 10, which fixes the problem.
 >
-> But there is no need to open a crackme vserver. Install it on your machine,
-> build a vserver. Install the vserver package, reboot a kernel with the patch
-> with the new new_s_context and set_ipv4root syscall and do
 >
-> 	/usr/sbin/vserver test build
+> --- ipconfig.c~ Wed Jun 7 23:26:44 2000
+> +++ ipconfig.c Sat Jul 29 12:53:18 2000
+> @@ -75,7 +75,7 @@
 >
-> enter it and configure a few service
 >
-> 	/usr/sbin/vserver test enter
+>  /* Define the timeout for waiting for a DHCP/BOOTP/RARP reply */
+>  #define CONF_OPEN_RETRIES 3 /* (Re)open devices three times */
+> -#define CONF_SEND_RETRIES 3 /* Send requests three times */
+> +#define CONF_SEND_RETRIES 10 /* Send requests ten times */
+>  #define CONF_BASE_TIMEOUT (HZ*2) /* Initial timeout: 2 seconds */
+>  #define CONF_TIMEOUT_RANDOM (HZ) /* Maximum amount of randomization */
+>  #define CONF_TIMEOUT_MULT *7/4 /* Rate of timeout growth */
 >
-> 	chkconfig crond on
-> 	chkconfig sshd on
->
-> Then start the server
->
-> 	/usr/sbin/vserver test start
->
-> and ssh to it. For now, the build process inherit the user accounts of the
-> main server, so the root password is the same.
->
-> Note that if sshd is already running on the box, you won't be able start
-> sshd in the test server because sshd on the main server is bound to
-> 0.0.0.0. Just do
->
-> 	/etc/rc.d/init.d/v_sshd restart
->
-> or
->
-> 	chkconfig sshd off
-> 	chkconfig v_sshd on
->
-> > You might want to announce this on bugtraq. [And give solar designer
-> > root account, he might be more creative ;)].
->
-> You don't understand the issue. Anyone can create his own vserver. The
-> system call controlling this are very simple. It is not a "try to crack my machine"
-> contest. Anyone can create a vserver and test it.
->
-> The security of the vserver is explain on
-> http://www.solucorp.qc.ca/miscprj/s_context.hc. It relies on the capability
-> system. So far, I have found one place in the kernel where the capability
-> was not in place: /proc/sys was changeable if you were root. I added
-> a capable(CAP_SYS_ADMIN) line to solve this.
 >
 > --
+> (domestic pets only, the antidote for overdose, milk.)
+>    larsi@gnus.org * Lars Magne Ingebrigtsen
 >
-> One nice thing about vserver is the clean separation with the real server.
-> For example, after having played with a vserver, if you decide you do not like
-> this concept, then you ca do
 >
-> 	reboot the old kernel
-> 	erase the new kernel
-> 	rpm -e vserver
-> 	rm -fr /vservers /etc/vservers
 >
-> and you are back where you were.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.rutgers.edu
+> Please read the FAQ at http://www.tux.org/lkml/
 >
-> ---------------------------------------------------------
-> Jacques Gelinas <jack@solucorp.qc.ca>
-> vserver: run general purpose virtual servers on one box, full speed!
-> http://www.solucorp.qc.ca/miscprj/s_context.hc
+>
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
 >
+
+-- 
+--------------------------------------------------------------------------
+Joel Jaeggli				       joelja@darkwing.uoregon.edu
+Academic User Services			     consult@gladstone.uoregon.edu
+     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
+--------------------------------------------------------------------------
+It is clear that the arm of criticism cannot replace the criticism of
+arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
+the right, 1843.
+
+

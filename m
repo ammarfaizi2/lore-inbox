@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270986AbTHQUi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 16:38:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270987AbTHQUi0
+	id S270929AbTHQUiS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 16:38:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270986AbTHQUiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 16:38:26 -0400
-Received: from imap.gmx.net ([213.165.64.20]:1189 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S270986AbTHQUiY (ORCPT
+	Sun, 17 Aug 2003 16:38:18 -0400
+Received: from maile.telia.com ([194.22.190.16]:16624 "EHLO maile.telia.com")
+	by vger.kernel.org with ESMTP id S270929AbTHQUiR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 16:38:24 -0400
-Subject: Re: [PATCH] O16.2int
-From: Benjamin Weber <shawk@gmx.net>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1061152667.5526.26.camel@athxp.bwlinux.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 17 Aug 2003 22:37:47 +0200
-Content-Transfer-Encoding: 7bit
+	Sun, 17 Aug 2003 16:38:17 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+       hgfelger@hgfelger.de
+Subject: Re: 2.6.0-test3-mm2
+References: <20030813013156.49200358.akpm@osdl.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 17 Aug 2003 22:37:50 +0200
+In-Reply-To: <20030813013156.49200358.akpm@osdl.org>
+Message-ID: <m2n0e858bl.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Con
+(I'm resending this because I previously had sendmail configuration
+problems. Sorry if you receive this message twice.)
 
-First of all, thanks a lot for all the hard work on the scheduler. A lot
-of people are looking forward to 2.6 and your work is a major part of
-the desktop user elements of this next kernel generation. 
+Andrew Morton <akpm@osdl.org> writes:
 
-I am not one of those who can judge much difference from 15 to 16 e.g.
-but I do know that not using any of your patches is a major step back in
-interactivity and general feeling of responsiveness of my system. Been
-using your patches since the 6th iteration. Back then juk (the kde
-jukebox thingy) was a major skipping candidate under heavy load, which
-nowadays is almost smooth as silk. 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test3/2.6.0-test3-mm2/
 
-I am pretty sure when 2.6.0 is released on the world your scheduler is
-that fine tuned and matured to make the new kernel a must have for
-everyone. And you will get there even when you do not work late at night
-each day to get the latest improvments to us as fast as possible hehe.
-Just to keep you from too many sleepless nights ;)
-
-Until then I will continue applying your patches  as soon as they get
-out and look out for anything suspicious that might catch my attention
-=)
-
-Keep up the great work!
-
---
-Ben
+Here is a fix for synaptics touchpads with "multi buttons". The patch
+comes from Hartwig Felger, who wrote the original multi button support
+patch (p00003_synaptics-multi-button.patch). The same bug fix has been
+included in the XFree86 driver for a few weeks, and seems to work
+fine. (That part of the X driver is only used for 2.4 kernels.)
 
 
+ linux-petero/drivers/input/mouse/synaptics.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
+diff -puN drivers/input/mouse/synaptics.c~syn-multi-btn-fix drivers/input/mouse/synaptics.c
+--- linux/drivers/input/mouse/synaptics.c~syn-multi-btn-fix	2003-08-13 22:48:49.000000000 +0200
++++ linux-petero/drivers/input/mouse/synaptics.c	2003-08-13 22:48:49.000000000 +0200
+@@ -433,7 +433,8 @@ static void synaptics_parse_hw_state(uns
+ 			if (hw->right)
+ 				hw->down = !hw->down;
+ 		}
+-		if (buf[3] == 0xC2 && SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap)) {
++		if (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) &&
++		    ((buf[3] & 2) ? !hw->right : hw->right)) {
+ 			switch (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) & ~0x01) {
+ 			default:
+ 				; /* we did comment while initialising... */
 
+_
 
-
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267988AbUGaSAg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267979AbUGaSGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267988AbUGaSAg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 14:00:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267986AbUGaSAd
+	id S267979AbUGaSGl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 14:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267987AbUGaSGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 14:00:33 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:20901 "HELO
+	Sat, 31 Jul 2004 14:06:41 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:47013 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267981AbUGaSAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 14:00:31 -0400
+	id S267986AbUGaSFx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 14:05:53 -0400
 Subject: Re: [PATCH] Configure IDE probe delays
 From: Lee Revell <rlrevell@joe-job.com>
 To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
@@ -22,10 +22,10 @@ References: <20040730191100.GA22201@slurryseal.ddns.mvista.com>
 	 <1091232770.1677.24.camel@mindpipe>
 	 <200407311434.59604.vda@port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain
-Message-Id: <1091296857.1677.286.camel@mindpipe>
+Message-Id: <1091297179.1677.290.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 31 Jul 2004 14:00:58 -0400
+Date: Sat, 31 Jul 2004 14:06:20 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -45,14 +45,11 @@ On Sat, 2004-07-31 at 07:34, Denis Vlasenko wrote:
 > 
 > Crowd of "my old crapbox no longer boots with newer kernel, wtf?" people
 > won't be happy at all.
-> 
-> +               ide_delay = simple_strtoul(s+10,NULL,0);
-> +               printk(" : Delay set to %dms\n", ide_delay);
-> +               return 1;
-> 
 
-I wonder if 83 probes are really necessary.  Maybe this could be
-optimized a bit.
+Maybe we need a CONFIG_ANCIENT_HARDWARE that people can set if they want
+to use old stuff, and anywhere in the code we take a big hit to make
+some ancient device work wouldn't get compiled.  Devices could be added
+to this class as they are identified.
 
-Lee
+Lee 
 

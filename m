@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263137AbRFNVF7>; Thu, 14 Jun 2001 17:05:59 -0400
+	id <S263343AbRFNVLJ>; Thu, 14 Jun 2001 17:11:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264127AbRFNVFm>; Thu, 14 Jun 2001 17:05:42 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:16512 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S263137AbRFNVFW>; Thu, 14 Jun 2001 17:05:22 -0400
-Date: Thu, 14 Jun 2001 17:05:07 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Roger Larsson <roger.larsson@norran.net>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: SMP spin-locks
-In-Reply-To: <200106142045.f5EKjLI14289@mailf.telia.com>
-Message-ID: <Pine.LNX.3.95.1010614165153.16430A-100000@chaos.analogic.com>
+	id <S264103AbRFNVK7>; Thu, 14 Jun 2001 17:10:59 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:6804 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S264108AbRFNVKv>;
+	Thu, 14 Jun 2001 17:10:51 -0400
+Message-ID: <3B292857.EE72EBE7@mandrakesoft.com>
+Date: Thu, 14 Jun 2001 17:10:47 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Riley Williams <rhw@MemAlpha.CX>
+Cc: Ion Badulescu <ionut@moisil.cs.columbia.edu>,
+        Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Gigabit Intel NIC? - Intel Gigabit Ethernet Pro/1000T
+In-Reply-To: <Pine.LNX.4.33.0106142155360.16844-100000@infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Jun 2001, Roger Larsson wrote:
-
-> Hi,
+Riley Williams wrote:
 > 
-> Wait a minute...
+> Hi Ion.
 > 
-> Spinlocks on a embedded system? Is it _really_ SMP?
->
+>  >> Shawn, I'd suggest you tell the said sales guy that IF he can
+>  >> get you the FULL specs TOGETHER WITH permission to freely
+>  >> distribute them...
+> 
+>  > Permission to freely distribute the specs isn't necessary,
+>  > although it is nice indeed. All that's needed is permission to
+>  > GPL the driver sources written using knowledge from said specs.
+> 
+> That presupposes that the person they give the specs to is the person
+> writing the driver. I don't remember shawn offering to write a driver
+> or anything approaching that.
+> 
+> As I see it, if Shawn has permission to freely distribute the specs,
+> he can send a copy to Alan Cox for forwarding to the relevant driver
+> developers. However, if he has to sign an NDA to get them, they're
+> useless...
+> 
+> Alan: Am I right in assuming this?
 
-The embedded system is not SMP. However, there is definite
-advantage to using an unmodified kernel that may/may-not
-have been compiled for SMP. Of course spin-locks are used
-to prevent interrupts from screwing up buffer pointers, etc.
- 
-> What kind of performance problem do you have?
+If you can find specs, I have tested cards and help write a driver...
 
-The problem is that a data acquisition board across the PCI bus
-gives a data transfer rate of 10 to 11 megabytes per second
-with a UP kernel, and the transfer drops to 5-6 megabytes per
-second with a SMP kernel. The ISR is really simple and copies
-data, that's all.
-
-The 'read()' routine uses a spinlock when it modifies pointers.
-
-I started to look into where all the CPU clocks were going. The
-SMP spinlock code is where it's going. There is often contention
-for the lock because interrupts normally occur at 50 to 60 kHz.
-
-When there is contention, a very long........jump occurs into
-the test.lock segment. I think this is flushing queues. 
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+	Jeff
 
 
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285352AbSBUWsw>; Thu, 21 Feb 2002 17:48:52 -0500
+	id <S286521AbSBUWxc>; Thu, 21 Feb 2002 17:53:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285417AbSBUWsm>; Thu, 21 Feb 2002 17:48:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49158 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S285352AbSBUWsd>;
-	Thu, 21 Feb 2002 17:48:33 -0500
-Message-ID: <3C75793B.1BFF7A1A@mandrakesoft.com>
-Date: Thu, 21 Feb 2002 17:48:27 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
+	id <S285424AbSBUWxW>; Thu, 21 Feb 2002 17:53:22 -0500
+Received: from ns.crrstv.net ([209.128.25.4]:61320 "EHLO mail.crrstv.net")
+	by vger.kernel.org with ESMTP id <S285417AbSBUWxL>;
+	Thu, 21 Feb 2002 17:53:11 -0500
+Date: Thu, 21 Feb 2002 18:53:18 -0400 (AST)
+From: skidley <skidley@crrstv.net>
+X-X-Sender: skidley@localhost.localdomain
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18-rc2-ac2
+Message-ID: <Pine.LNX.4.43.0202211845230.10492-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Linux-Kernel list <linux-kernel@vger.kernel.org>
-CC: netdev@oss.sgi.com
-Subject: eepro100 (was Re: Linux 2.4.18-rc3)
-In-Reply-To: <Pine.LNX.4.21.0202211925080.28459-100000@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> rc3:
-> - Fix some eepro100 ID's which had problems
->   in -ac merge                                  (Jeff Garzik)
-> - Add missing netif_carrier_{on,off} to
->   eepro100                                      (Andrew Morton)
-
-> rc1:
-> - eepro100 fixes                                (Jeff Garzik)
-
-
-eepro100 users,
-
-If you can spare some time, please test and compare 2.4.17 and
-2.4.18-rc3 kernel versions, for (a) regressions in performance/behavior,
-and (b) -fixed- or improved behavior.
-
-Feedback and further testing sought.
-
-Regards,
-
-	Jeff
-
-
+This is a question moreso for alan cox i guess. I was just wondering
+about the change in the last -ac to combine the 2.4.18-rc2 patch with
+the -ac2 as one patch. I was just wondering will this be a permanent
+change? Also I was wondering why there is no changelog for the -ac
+patches like for the other trees.
 
 -- 
-Jeff Garzik      | XXX FREE! secure AFSPC AK-47 unclassified CDC
-Building 1024    | NATO SAS CDMA fun with filters Bellcore kibo SSL
-MandrakeSoft     | high security goat clones infowar 2600 Magazine
+"After I bit the head off the bat, the animal rights people came after me every night. Probably right after they finished eating their Colonel Sandersor whatever, telling me I shouldn't be biting the heads off bats. I'll tellyou what bats taste like. Like a good McDonald's."-Ozzy Osbourne (1985)
+
+Chad Young           
+Registered Linux User #195191
+@ http://counter.li.org
+-----------------------------------------------------------------------
+Linux localhost 2.4.18-rc2-ac1 #2 Wed Feb 20 19:04:21 AST 2002 i686 unknown
+  6:45pm  up  3:10,  1 user,  load average: 1.92, 1.94, 1.71
+

@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291306AbSBMB6a>; Tue, 12 Feb 2002 20:58:30 -0500
+	id <S291305AbSBMCHc>; Tue, 12 Feb 2002 21:07:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291305AbSBMB6T>; Tue, 12 Feb 2002 20:58:19 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47624 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291306AbSBMB6H>;
-	Tue, 12 Feb 2002 20:58:07 -0500
-Message-ID: <3C69C7E9.E01C3532@zip.com.au>
-Date: Tue, 12 Feb 2002 17:56:57 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9-ac2 i686)
+	id <S291307AbSBMCHZ>; Tue, 12 Feb 2002 21:07:25 -0500
+Received: from suntan.tandem.com ([192.216.221.8]:962 "EHLO suntan.tandem.com")
+	by vger.kernel.org with ESMTP id <S291305AbSBMCHO>;
+	Tue, 12 Feb 2002 21:07:14 -0500
+Message-ID: <3C69C59F.F86BF8F9@compaq.com>
+Date: Tue, 12 Feb 2002 17:47:11 -0800
+From: "Brian J. Watson" <Brian.J.Watson@compaq.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.16 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: What is a livelock? (was: [patch] sys_sync livelock fix)
-In-Reply-To: <3C69A18A.501BAD42@zip.com.au>,
-		<3C69A18A.501BAD42@zip.com.au> (Andrew Morton's message of
-	 "Tue, 12 Feb 2002 15:13:14 -0800") <87y9hyw4b6.fsf@tigram.bogus.local>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+        dhowells@redhat.com, hch@caldera.de
+Subject: Re: [PATCH] 2.4.18-pre9, trylock for read/write semaphores
+In-Reply-To: <E16amMb-0003RQ-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Dietsche wrote:
+Alan Cox wrote:
 > 
-> Andrew Morton <akpm@zip.com.au> writes:
+> > +     new = old + RWSEM_ACTIVE_READ_BIAS;
+> > +     if (cmpxchg(&sem->count, old, new) == old)
+> > +             return 1;
 > 
-> > The get_request fairness patch exposed a livelock
-> > in the buffer layer.  write_unlocked_buffers() will
-> > not terminate while other tasks are generating write traffic.
-> 
-> The subject says it: what is a livelock? How is it different
-> from a deadlock?
-> 
-
-http://www.huis.hiroshima-u.ac.jp/jargon/LexiconEntries/Livelock.html
-
-livelock
-
-/li:v'lok/ n. A situation in which some critical stage of a task is
-unable to finish because its clients perpetually create more work
-for it to do after they have been serviced but before it can clear its
-queue. Differs from {deadlock} in that the process is not blocked or
-waiting for anything, but has a virtually infinite amount of work to
-do and can never catch up. 
+> cmpxchg isnt present on i386
 
 
-This exactly describes the sync problem.  But we also use the
-term `livelock' to describe one of the Linux VM's favourite
-failure modes: madly spinning on page lists and not finding
-any useful work to do.  Which is slightly different.
+According to arch/i386/config.in, the generic spinlock version would be
+used for vintage 386 chips. I think that's due to similar concerns about
+the xadd instruction.
 
--
+-- 
+Brian Watson                | "Now I don't know, but I been told it's
+Linux Kernel Developer      |  hard to run with the weight of gold,
+Open SSI Clustering Project |  Other hand I heard it said, it's
+Compaq Computer Corp        |  just as hard with the weight of lead."
+Los Angeles, CA             |     -Robert Hunter, 1970
+
+mailto:Brian.J.Watson@compaq.com
+http://opensource.compaq.com/

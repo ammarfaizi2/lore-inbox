@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265081AbUBDXtV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 18:49:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUBDXrK
+	id S264364AbUBDX7J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 18:59:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbUBDX5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 18:47:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:64966 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265059AbUBDXoY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 18:44:24 -0500
-Date: Wed, 4 Feb 2004 15:45:48 -0800
-From: Andrew Morton <akpm@osdl.org>
+	Wed, 4 Feb 2004 18:57:51 -0500
+Received: from fed1mtao04.cox.net ([68.6.19.241]:43664 "EHLO
+	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S265102AbUBDXzL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 18:55:11 -0500
+Date: Wed, 4 Feb 2004 16:55:09 -0700
+From: Tom Rini <trini@kernel.crashing.org>
 To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Subject: Re: kgdb support in vanilla 2.6.2
-Message-Id: <20040204154548.0521aef6.akpm@osdl.org>
-In-Reply-To: <20040204232447.GC256@elf.ucw.cz>
-References: <20040204230133.GA8702@elf.ucw.cz>
-	<20040204152137.500e8319.akpm@osdl.org>
-	<20040204232447.GC256@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Message-ID: <20040204235508.GB1086@smtp.west.cox.net>
+References: <20040204230133.GA8702@elf.ucw.cz> <20040204152137.500e8319.akpm@osdl.org> <20040204232447.GC256@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040204232447.GC256@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
->
+On Thu, Feb 05, 2004 at 12:24:47AM +0100, Pavel Machek wrote:
+> Hi!
+> 
 > > > It seems that some kgdb support is in 2.6.2-linus:
 > > 
 > > Lots of architectures have had in-kernel kgdb support for a long time. 
@@ -45,7 +44,13 @@ Pavel Machek <pavel@ucw.cz> wrote:
 > Oh and it is already split into arch-dependend and arch-independend
 > parts, plus it has cleanly separated i/o methods...
 
-That all sounds positive.  I was waiting until that effort settles down a
-bit before taking it for a ride.  I have a bad habit of finding bugs in the
-gdb stub for some reason.
+.. and it's supported on i386, x86_64 and PPC32 right now.
 
+Andrew, what features of George's version don't you like?  Right now
+I'm working on moving the kgdb-eth driver that uses netpoll over
+into Amit's version, and thinking of a cleaner away to allow for both
+early debugging and multiple drivers (eth or serial A or serial B).
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

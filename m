@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263950AbUD0Loj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264006AbUD0Lrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263950AbUD0Loj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 07:44:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264010AbUD0Loj
+	id S264006AbUD0Lrg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 07:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264014AbUD0Lrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 07:44:39 -0400
-Received: from web12824.mail.yahoo.com ([216.136.174.205]:5508 "HELO
-	web12824.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263950AbUD0Loi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 07:44:38 -0400
-Message-ID: <20040427114437.66819.qmail@web12824.mail.yahoo.com>
-Date: Tue, 27 Apr 2004 04:44:37 -0700 (PDT)
-From: Shantanu Goel <sgoel01@yahoo.com>
-Subject: Re: 2.6.6-rc{1,2} bad VM/NFS interaction in case of dirty page writeback
-To: Andrew Morton <akpm@osdl.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: sgoel01@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20040426225834.7035d2c1.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Apr 2004 07:47:36 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:60070 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S264006AbUD0Lre (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 07:47:34 -0400
+Date: Tue, 27 Apr 2004 13:47:28 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH COW] sys_copyfile
+Message-ID: <20040427114728.GB32554@wohnheim.fh-wedel.de>
+References: <20040426092045.GC895@wohnheim.fh-wedel.de> <20040427113052.GD6620@harddisk-recovery.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040427113052.GD6620@harddisk-recovery.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Andrew Morton <akpm@osdl.org> wrote:
-> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> >
-> > 
-> > Err... Anything that currently ends up calling
-> writepage() and returning
-> > WRITEPAGE_ACTIVATE. This is a problem that you
-> believe you are seeing
-> > the effects of, right? 
+On Tue, 27 April 2004 13:30:52 +0200, Erik Mouw wrote:
+> On Mon, Apr 26, 2004 at 11:20:45AM +0200, J?rn Engel wrote:
+> > Adds a new syscall, copyfile() which does as the name sais.
 > 
-> I didn't report the problem - Shantanu is reporting
-> problems where all the
-> NFS pages are stuck on the active list and the VM
-> has nothing to reclaim on
-> the inactive list.
+> I think it's actually better to use sendfile() rather then creating a
+> new syscall:
 > 
+>   ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count)
+> 
+> In that way you can create the file in the usual way and copy the
+> contents with an already existing syscall.
+> 
+> IMHO sendfile() has been a wrong name in the first place, copyfd()
+> would have been better. Why limit it to network traffic only?
 
-Yup, what happens is the NFS writepage() returns
-WRITEPAGE_ACTIVATE causing the scanner to place the
-page at the head of the active list.  Now the page
-won't be reclaimed until the scanner has run through
-the entire active list.  I do not see such behaviour
-with ext3 for instance.
+See an earlier patch of mine. :)
 
+Also, my grand goal is copy on write (cow) for files.  copyfile() is
+just another step in that direction.
 
+Jörn
 
-	
-		
-__________________________________
-Do you Yahoo!?
-Win a $20,000 Career Makeover at Yahoo! HotJobs  
-http://hotjobs.sweepstakes.yahoo.com/careermakeover 
+-- 
+Rules of Optimization:
+Rule 1: Don't do it.
+Rule 2 (for experts only): Don't do it yet.
+-- M.A. Jackson 

@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263970AbTFDT1g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 15:27:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263976AbTFDT1g
+	id S263918AbTFDTeU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 15:34:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263943AbTFDTeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 15:27:36 -0400
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:3826 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S263970AbTFDT1e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 15:27:34 -0400
-Message-ID: <3EDE4A38.3050405@rackable.com>
-Date: Wed, 04 Jun 2003 12:36:24 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel.A.Christian@NASA.gov
-CC: John Appleby <john@dnsworld.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-rc7 SMP module unresolved symbols
-References: <434747C01D5AC443809D5FC5405011314BEC@bobcat.unickz.com> <200306041106.01316.Daniel.A.Christian@NASA.gov>
-In-Reply-To: <200306041106.01316.Daniel.A.Christian@NASA.gov>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Jun 2003 19:41:04.0216 (UTC) FILETIME=[3C25FD80:01C32AD1]
+	Wed, 4 Jun 2003 15:34:19 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:52682 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S263918AbTFDTeR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 15:34:17 -0400
+Date: Wed, 4 Jun 2003 21:46:59 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Michael Frank <mflt1@micrologica.com.hk>, hugang <hugang@soulinfo.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IDE Power Management (Was: software suspend in 2.5.70-mm3)
+Message-ID: <20030604194659.GB524@elf.ucw.cz>
+References: <20030603211156.726366e7.hugang@soulinfo.com> <1054732481.20839.30.camel@gaston> <200306042151.10611.mflt1@micrologica.com.hk> <200306042210.12468.mflt1@micrologica.com.hk> <1054736960.20838.44.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1054736960.20838.44.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Christian wrote:
+Hi!
 
->
->"make mrproper" fixes it.
->
->For the record, I think this stinks!
->
->"make mrproper" should  be an expert only utility because it does blow 
->away valuable configuration information (a painfull lesson that can 
->only be learned "the hard way", since the README neglicts to mention 
->this).  For that matter, the README makes it look like creating a 
->config from scratch (all 1500+ options) is no big deal!
->  
->
+> > ............ 
+> > [nosave c03f7000]critical section/: done (2273 pages copied)
+> > hda: Wakeup request inited, waiting for !BSY...
+> > hda: start_power_step(susp: 0, step: 0)
+> > hda: start_power_step(susp: 0, step: 101)
+> > hda: completing PM request, suspend: 0
+> > Devices Resumed
+> > Devices Resumed
+> 
+> Hrm... the joy if swsusp putting your disk to sleep just to wake it up
+> right away... I need to check if I can differenciate suspend-to-disk
+> from suspend-to-ram here to just not put the drive in STANDBY mode
+> on suspend-to-disk (just freeze the queues)
 
-  Most developers have a std config file that they simply copy over, and 
-run "make oldconfig".  This is why menuconfig, and xconfig get broken 
-every few patches.
+Why? Suspending then resuming it may take long but seems correct to
+me.
 
+> > Writing data to swap (2273 pages): .<3>bad: scheduling while atomic!
+> 
+> Here's the real one. However, it doesn't look related to my sleep code,
+> though I cannot guarantee this for sure right now, it _seems_ it's
+> a swsusp bug you are hitting.
+
+Yes, it looks so.
+								Pavel
 -- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
-
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

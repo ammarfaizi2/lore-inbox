@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265415AbTLSCOP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 21:14:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265420AbTLSCOP
+	id S265425AbTLSCcg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 21:32:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265427AbTLSCcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 21:14:15 -0500
-Received: from smtp04.web.de ([217.72.192.208]:39684 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S265415AbTLSCOP (ORCPT
+	Thu, 18 Dec 2003 21:32:36 -0500
+Received: from holomorphy.com ([199.26.172.102]:51349 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265425AbTLSCcf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 21:14:15 -0500
-From: Steffen Schwientek <schwientek@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6-test11 framebuffer Matrox
-Date: Fri, 19 Dec 2003 03:14:13 +0100
-User-Agent: KMail/1.5.94
-MIME-Version: 1.0
+	Thu, 18 Dec 2003 21:32:35 -0500
+Date: Thu, 18 Dec 2003 18:32:31 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Diskstats inconsistancy between 2.4.23 & 2.6 was: Linux 2.6.0
+Message-ID: <20031219023231.GF31393@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0312171951030.5789@home.osdl.org> <20031219021845.GG6438@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200312190314.13138.schwientek@web.de>
+In-Reply-To: <20031219021845.GG6438@matchmail.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My Matrox-framebuffer is not working properly. Build direct into the
-kernel, the monitor will be black with some stripes at startup, just the
-reset button works.
-Build as a modules, the same happens if I load the module.
+On Thu, Dec 18, 2003 at 06:18:45PM -0800, Mike Fedyk wrote:
+> A while back there was a flamewar about adding diskstats to
+> /proc/partitions, and so /proc/diskstats was created, also it is a config
+> option in 2.4.  In 2.6, the stats are in /proc/partitions, but there is no
+> /proc/diskstats or config option.
+> Is /proc/diskstats going to be forward ported?
 
-The make xconfig script also advice me to compile some 8,16,24 and 32 bpp
-packed pixel too, but I cant find them in the 2.6 kernel configuration
+No idea what you're on about; /proc/diskstats is alive and well here.
 
-Steffen
+
+-- wli

@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbUKQRbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbUKQR1P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262419AbUKQRbs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 12:31:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUKQR3a
+	id S262482AbUKQR1P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 12:27:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262467AbUKQR0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 12:29:30 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:43493 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262456AbUKQR2i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 12:28:38 -0500
-Subject: Re: PATCH (for comment): ide-cd possible race in PIO mode
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-ide@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041117153706.GH26240@suse.de>
-References: <1100697589.32677.3.camel@localhost.localdomain>
-	 <20041117153706.GH26240@suse.de>
-Content-Type: text/plain
+	Wed, 17 Nov 2004 12:26:52 -0500
+Received: from fire.osdl.org ([65.172.181.4]:32651 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S262432AbUKQRZx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 12:25:53 -0500
+Message-ID: <419B869B.5030603@osdl.org>
+Date: Wed, 17 Nov 2004 09:12:59 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Oleg Nesterov <oleg@tv-sign.ru>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] trivial, uninline do_trap(), remove get_cr2()
+References: <419B64C2.CED2FABC@tv-sign.ru>
+In-Reply-To: <419B64C2.CED2FABC@tv-sign.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1100708728.420.68.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 17 Nov 2004 16:25:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-11-17 at 15:37, Jens Axboe wrote:
-> > -		HWIF(drive)->OUTB(WIN_PACKETCMD, IDE_COMMAND_REG);
-> > +		spin_lock_irqsave(&ide_lock, flags);
-> > +		HWIF(drive)->OUTBSYNC(WIN_PACKETCMD, IDE_COMMAND_REG);
-> > +		ndelay(400);
-> > +		spin_unlock_irqsave(&ide_lock, flags);
-> >  		return (*handler) (drive);
-> >  	}
-> >  }
+Oleg Nesterov wrote:
+> Uninlining do_trap() saves 544 bytes in traps.o.
+> get_cr2() seems to be unused, remove it.
 > 
-> What good does the lock do?
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+> 
+> --- 2.6.10-rc2/arch/i386/kernel/traps.c~	Tue Nov 16 14:13:08 2004
+> +++ 2.6.10-rc2/arch/i386/kernel/traps.c	Wed Nov 17 16:47:41 2004
+> @@ -358,16 +358,7 @@ static inline void die_if_kernel(const c
+>  		die(str, regs, err);
+>  }
+>  
+> -static inline unsigned long get_cr2(void)
+> -{
+> -	unsigned long address;
+> -
+> -	/* get the address */
+> -	__asm__("movl %%cr2,%0":"=r" (address));
+> -	return address;
+> -}
 
-The same as in ide_execute_command - make sure we don't take an IDE
-interrupt that tries to read the state during the delay. That is the old
-2.4 "may drives shared IRQ random fails" fix and why the lock is taken
-in ide_execute_command.
+Looks like it can be removed from arch/x86_64/kernel/traps.c also.
 
-
+-- 
+~Randy

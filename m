@@ -1,108 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291054AbSBLN7e>; Tue, 12 Feb 2002 08:59:34 -0500
+	id <S291063AbSBLOFe>; Tue, 12 Feb 2002 09:05:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291061AbSBLN71>; Tue, 12 Feb 2002 08:59:27 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:25357 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S291054AbSBLN7O>; Tue, 12 Feb 2002 08:59:14 -0500
-Message-ID: <3C691F9C.10303@evision-ventures.com>
-Date: Tue, 12 Feb 2002 14:58:52 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S291062AbSBLOFO>; Tue, 12 Feb 2002 09:05:14 -0500
+Received: from 24.159.201.38.roc.nc.chartermi.net ([24.159.201.38]:3001 "EHLO
+	24.159.201.38.roc.nc.chartermi.net") by vger.kernel.org with ESMTP
+	id <S291061AbSBLOFD>; Tue, 12 Feb 2002 09:05:03 -0500
+Date: Tue, 12 Feb 2002 08:05:00 -0600 (CST)
+From: Dave Larson <davlarso@acm.org>
+X-X-Sender: <davlarso@linus.davelarson.net>
+To: <linux-kernel@vger.kernel.org>
+cc: <tsbogend@alpha.franken.de>, <davlarso@acm.org>
+Subject: Is this a bug in TCP or the PCNet32 driver?
+Message-ID: <Pine.GSO.4.31.0202120728000.24018-100000@linus.davelarson.net>
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: another IDE cleanup: kill duplicated code
-In-Reply-To: <20020211221102.GA131@elf.ucw.cz> <3C68F3F3.8030709@evision-ventures.com> <20020212132846.A7966@suse.cz> <3C690E56.3070606@evision-ventures.com> <20020212135701.A16420@suse.cz> <3C6915FC.2020707@evision-ventures.com> <20020212144300.A18431@suse.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
+I've been working on tracking down a problem I'm having with WinCE
+maintainging a TCP connection with a linux system and I've now determined
+that it is definitely an issue with linux, although specific to the
+PCNet32 driver. Please bear with me, as this isn't the easiest thing to
+explain.
 
->On Tue, Feb 12, 2002 at 02:17:48PM +0100, Martin Dalecki wrote:
->
->>So the conclusions is that not just the read_ahead array is bogous now.
->>The max_readahead array can be killed entierly from the kernel as well ;-).
->>
->>The answer is: I'm now confident that you can just remove all the
->>max_readahead initialization from the ide code.
->>
->
->Since I've come to the same conclusion, here is the patch. It removes
->read_ahead, max_readahead, BLKRAGET, BLKRASET, BLKFRAGET and BLKFRASET
->completely.
->
-Welcome the the "Write Only Variable" haters club ;-).
+The TCP code uses 2 variables to keep track of how much data it has
+queued and how much data is pending transmission. sk->wmem_queued is
+increased when it adds a skb to the tcp write queue, and decreased when an
+ACK is received for the data in the skb. When actually sending data down
+to the IP layer, it creates a clone of the skb on it's write queue and
+calls skb_set_owner_w which will increase sk->wmem_alloc. That cloned skb
+(at least in the cases I'm seeing) will make it down to the hardware driver
+and wmem_alloc will be decreased when the skb is freed after transmission
+is complete.
 
-Please note that the lvm code is playing mental  with himself on the 
-lv_read_ahead struct member as well.
-This member get's set saved preserved,  but it's never used nowhere there:
+Then in the retransmission path there is this check, which I'm now
+thinking is simply designed to prevent TCP from sending more data down to
+the driver if it hasn't tranismissed what we've allready sent down to it.
 
-./include/linux/lvm.h:  uint lv_read_ahead;
-./include/linux/lvm.h:  uint32_t lv_read_ahead; /* HM */
+/* Do not sent more than we queued. 1/4 is reserved for possible
+ * copying overhead: frgagmentation, tunneling, mangling etc.
+ */
+if (atomic_read(&sk->wmem_alloc) > min(sk->wmem_queued+(sk->wmem_queued>>2),sk->sndbuf))
+     return -EAGAIN;
 
->diff -urN linux-2.5.4/drivers/block/ll_rw_blk.c linux-2.5.4-readahead/drivers/block/ll_rw_blk.c
->--- linux-2.5.4/drivers/block/ll_rw_blk.c	Thu Jan 31 16:45:20 2002
->+++ linux-2.5.4-readahead/drivers/block/ll_rw_blk.c	Tue Feb 12 14:27:32 2002
->@@ -56,8 +56,6 @@
-> 
-> /* This specifies how many sectors to read ahead on the disk. */
-> 
->-int read_ahead[MAX_BLKDEV];
->-
->
+Unfortunately this has a bad side effect when combined with a feature of
+the PCNet32 driver designed to reduce the number of interrupts. Some of
+the chipsets supported by this driver have a feature that allows tha driver
+to selectively choose if it wants to received a interrupt when transmission
+of a frame on the tx ring is complete. The current driver uses this to
+only receive tx done interrupts when over half of the tx ring entries are
+in use. This allows it to only take 1 tx done interrupt for about every 8
+frames that are sent. But this also means that an skb whose data is on the
+tx ring may not be freed until several other frames are transmitted, which
+if there is only 1 active connection may take a very long time.
 
-You did miss the comment by shooting  above!
+So here is what happens:
 
->diff -urN linux-2.5.4/include/linux/fs.h linux-2.5.4-readahead/include/linux/fs.h
->--- linux-2.5.4/include/linux/fs.h	Tue Feb 12 12:22:54 2002
->+++ linux-2.5.4-readahead/include/linux/fs.h	Tue Feb 12 14:32:32 2002
->@@ -173,10 +173,6 @@
-> #define BLKRRPART  _IO(0x12,95)	/* re-read partition table */
-> #define BLKGETSIZE _IO(0x12,96)	/* return device size /512 (long *arg) */
-> #define BLKFLSBUF  _IO(0x12,97)	/* flush buffer cache */
->-#define BLKRASET   _IO(0x12,98)	/* Set read ahead for block device */
->-#define BLKRAGET   _IO(0x12,99)	/* get current read ahead setting */
->-#define BLKFRASET  _IO(0x12,100)/* set filesystem (mm/filemap.c) read-ahead */
->-#define BLKFRAGET  _IO(0x12,101)/* get filesystem (mm/filemap.c) read-ahead */
-> #define BLKSECTSET _IO(0x12,102)/* set max sectors per request (ll_rw_blk.c) */
-> #define BLKSECTGET _IO(0x12,103)/* get max sectors per request (ll_rw_blk.c) */
-> #define BLKSSZGET  _IO(0x12,104)/* get block device sector size */
->@@ -1490,8 +1486,6 @@
->
+I have a device that opens a TCP connection with linux, but is very bad
+about missing frames and is reliant on the retransmit timer in linux
+retransmitting the frames that it missed. The window size advertised by
+this device is very small, about 8k, wmem_queued usually ranges between
+1000-7500 bytes for this connection. Depending on when the other side of
+the connection misses a segment, the check in the TCP code can prevent
+that segment from ever being retransmitted. It's waiting for wmem_alloc
+to go below wmem_queued, but that will never happen unless there is other
+network activity on the box that will cause the PCNet32 driver to start to
+fill up it's tx ring and enable tx done interrupts.
 
-I would rather suggest to to #if  0 ... #endif instead with a note about 
-those values beeing no longer used.
+So is this a bug with the TCP code, or is it a bug in the PCNet32 driver?
 
->diff -urN linux-2.5.4/mm/filemap.c linux-2.5.4-readahead/mm/filemap.c
->--- linux-2.5.4/mm/filemap.c	Tue Feb 12 12:22:54 2002
->+++ linux-2.5.4-readahead/mm/filemap.c	Tue Feb 12 14:29:58 2002
->@@ -1131,13 +1131,6 @@
->  *   64k if defined (4K page size assumed).
->  */
-> 
->-static inline int get_max_readahead(struct inode * inode)
->-{
->-	if (kdev_none(inode->i_dev) || !max_readahead[major(inode->i_dev)])
->-		return MAX_READAHEAD;
->-	return max_readahead[major(inode->i_dev)][minor(inode->i_dev)];
->-}
->-
-> static void generic_file_readahead(int reada_ok,
-> 	struct file * filp, struct inode * inode,
-> 	struct page * page)
->@@ -1146,7 +1139,7 @@
-> 	unsigned long index = page->index;
-> 	unsigned long max_ahead, ahead;
-> 	unsigned long raend;
->-	int max_readahead = get_max_readahead(inode);
->+	int max_readahead = MAX_READAHEAD;
->
+The way things are today, the TCP code rely on the hardware drivers to
+free an skb as soon as it is transmitted. But in that case of PCNet32,
+that doesn't happen. On the other hand, PCNet32 does seem reasonable in
+it's attempts to reduce the number of interrupts, although that breaks the
+tcp code in this case were these isn't much network activity.
 
-This wonders me a bit, why you didn't just propagate the constant deeper.
+
+
 

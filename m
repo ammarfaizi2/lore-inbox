@@ -1,71 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267724AbTHESy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 14:54:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269619AbTHESy4
+	id S269619AbTHETHc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 15:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269237AbTHETHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 14:54:56 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:61321 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267724AbTHESyy
+	Tue, 5 Aug 2003 15:07:32 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:10223 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S270516AbTHETH1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 14:54:54 -0400
-Date: Tue, 5 Aug 2003 20:54:44 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: <Andries.Brouwer@cwi.nl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix error return get/set_native_max functions
-In-Reply-To: <UTC200308051818.h75IIB517382.aeb@smtp.cwi.nl>
-Message-ID: <Pine.SOL.4.30.0308052045390.21574-100000@mion.elka.pw.edu.pl>
+	Tue, 5 Aug 2003 15:07:27 -0400
+Message-ID: <3F300044.9000306@mvista.com>
+Date: Tue, 05 Aug 2003 12:06:44 -0700
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Paul Larson <plars@linuxtestproject.org>
+CC: Andrew Morton <akpm@osdl.org>, johnstul@us.ibm.com,
+       Ulrich Drepper <drepper@redhat.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: ltp nanosleep02 test
+References: <20030803225004.7bcddd33.akpm@osdl.org>	<3F2EE7DE.3040206@mvista.com>  <20030804162223.18ce7698.akpm@osdl.org> <1060095904.28044.105.camel@plars>
+In-Reply-To: <1060095904.28044.105.camel@plars>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul Larson wrote:
+> On Mon, 2003-08-04 at 18:22, Andrew Morton wrote:
+> 
+>>OK, thanks.
+>>
+>>Paul, if nanosleep2 is really dead then you should bury it and stop
+>>scaring people ;)
+> 
+> Actually this test will pass just fine if you increase USEC_PRECISION to
+> something more reasonable than 100.  However it looks like whoever wrote
+> this test made it intentionally low.  This is the comment right before
+> the #define USEC_PRECISION 100:
+> /*
+>  * Define here the "rem" precision in microseconds,
+>  * Various implementations will provide different
+>  * precisions. The -aa tree provides up to usec precision.
+>  * NOTE: all the trees that don't provide a precision of
+>  * the order of the microseconds are subject to an userspace
+>  * live lock condition with glibc under a flood of signals,
+>  * the "rem" field would never change without the increased
+>  * usec precision in the -aa tree.
+>  */
+> So does anyone know if this patch from the -aa tree is reasonable or has
+> a chance of making it into the mainline kernel?  Does this livelock
+> situation still exist or was it solved by other means?  If this is no
+> longer a potential problem then I will gladly remove the test.
 
-On Tue, 5 Aug 2003 Andries.Brouwer@cwi.nl wrote:
+I haven't seen the patch :(  There is a little misdirection in that 
+comment, however.  The kernel rounds up the time to the nearest 
+resolution and then adds that resolution (resolution is 1/HZ, by the 
+way).  The round up is required by the standard as is the add.  The 
+add is to make sure the expiry time is AFTER and never before the 
+requested time.
 
-> In ide-disk.c we have functions
->   idedisk_read_native_max_address
->   idedisk_read_native_max_address_ext
->   idedisk_set_max_address
->   idedisk_set_max_address_ext
-> that are documented as
->
->  /*
->   * Sets maximum virtual LBA address of the drive.
->   * Returns new maximum virtual LBA address (> 0) or 0 on failure.
->   */
->
-> The IDE command they execute returns the largest address,
-> and 1 is added to get the capacity.
-> Unfortunately, the code does
->
-> 	addr = 0;
-> 	if (ide_command_succeeds) {
-> 		addr = ...
-> 	}
-> 	addr++;
->
-> so that the return value on error is 1 instead of 0.
-> The patch below moves the addr++.
->
-> Andries
+What is passed back as the remaining time is the true remaining time 
+after this calculation.
 
-This change is okay, thanks.
+The live lock would occur if the caller then used that time to sleep 
+again (i.e. to complete the sleep) as the kernel would again add the 
+1/HZ to the given value.  So each signal, the time would be extended 
+by a jiffie.
 
-However changing coding style is not...
+The best way to solve this is to use the absolute time version of 
+clock_nanosleep, but, sigh, that means a change in glibc.
 
-> @@ -1002,7 +1003,8 @@
->   * Sets maximum virtual LBA address of the drive.
->   * Returns new maximum virtual LBA address (> 0) or 0 on failure.
->   */
-> -static unsigned long idedisk_set_max_address(ide_drive_t *drive, unsigned long addr_req)
-> +static unsigned long
-> +idedisk_set_max_address(ide_drive_t *drive, unsigned long addr_req)
->  {
->  	ide_task_t args;
->  	unsigned long addr_set = 0;
-
---
-Bartlomiej
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

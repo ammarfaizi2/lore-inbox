@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264509AbTLCIPk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 03:15:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264510AbTLCIPj
+	id S264510AbTLCIZv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 03:25:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264511AbTLCIZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 03:15:39 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:56975 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S264509AbTLCIPi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 03:15:38 -0500
-Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11)
-From: Craig Bradney <cbradney@zip.com.au>
-To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-Cc: b@netzentry.com, ross.alexander@uk.neceur.com, s0348365@sms.ed.ac.uk,
-       linux-kernel@vger.kernel.org, pomac@vapor.com, forming@charter.net
-In-Reply-To: <3FCD32F5.2050002@gmx.de>
-References: <3FCD21E1.5080300@netzentry.com>
-	 <1070411338.2452.66.camel@athlonxp.bradney.info>  <3FCD32F5.2050002@gmx.de>
+	Wed, 3 Dec 2003 03:25:51 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:15049 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S264510AbTLCIZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 03:25:50 -0500
+Subject: Re: 2.6 for ppc
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Dmytro Bablinyuk <dmytro.bablinyuk@tait.co.nz>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FCCF6B2.2000709@tait.co.nz>
+References: <3FCCF6B2.2000709@tait.co.nz>
 Content-Type: text/plain
-Message-Id: <1070439330.2450.73.camel@athlonxp.bradney.info>
+Message-Id: <1070439896.4303.105.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 03 Dec 2003 09:15:30 +0100
+Date: Wed, 03 Dec 2003 19:24:57 +1100
 Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-12-03 at 01:48, Prakash K. Cheemplavam wrote:
-> > smp off, preempt off. lapic on, apic on, acpi on
-> 
-> Why haven't you enabled preempt? Does it lock with preempt on?
-> 
+On Wed, 2003-12-03 at 07:31, Dmytro Bablinyuk wrote:
+> Could anybody please tell me at what stage the 2.6(-test11) kernel 
+> regarding ppc arch.
+> Right now if I am trying to compile it fails in several places in 
+> arch/ppc folder with obvious errors (for: 8xx cpu, FADS platform  used 
+> uclibc).
 
-Having been more a lurker on the list before this issue, I had read that
-there were some preempt issues with 2.6.. so I turned it off. No idea if
-it locks with preempt on. Next time I do a recompile Ill try it out.
+I'm not sure what is the exact state of the 8xx support in the main
+tree, but for embedded ppc related question, you should ask on the
+linuxppc-embedded list (lists.linuxppc.org). You may also have more
+luck using the "linuxppc-2.5" tree on source.mvista.com for such
+things (or my linuxppc-2.5-benh for powermac related stuffs).
 
-Craig
+Ben.
 
-> Prakash
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 

@@ -1,77 +1,199 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135608AbREFBEC>; Sat, 5 May 2001 21:04:02 -0400
+	id <S129346AbREFBPx>; Sat, 5 May 2001 21:15:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135613AbREFBDw>; Sat, 5 May 2001 21:03:52 -0400
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:3200 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S135608AbREFBDm>; Sat, 5 May 2001 21:03:42 -0400
-Date: Sat, 5 May 2001 18:03:30 -0700 (PDT)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: <whitney@math.berkeley.edu>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: How to debug a 2.4.4 tulip problem?
-In-Reply-To: <3AF35246.420B2E1A@colorfullife.com>
-Message-ID: <Pine.LNX.4.33.0105051750020.1522-100000@mf1.private>
+	id <S130485AbREFBPo>; Sat, 5 May 2001 21:15:44 -0400
+Received: from femail18.sdc1.sfba.home.com ([24.0.95.145]:56748 "EHLO
+	femail18.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S129346AbREFBPa>; Sat, 5 May 2001 21:15:30 -0400
+Message-ID: <3AF4A857.DDA3599A@didntduck.org>
+Date: Sat, 05 May 2001 21:26:47 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] x86 page fault handler not interrupt safe
+Content-Type: multipart/mixed;
+ boundary="------------C6899EB6318781022F6013F9"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------C6899EB6318781022F6013F9
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-OK, I captured some tulip-diag info about my tulip problem.  Again,
-intermittently my tulip card gets "slow", so that, for example, pinging it
-from another machine on the same segment takes on the order of seconds,
-rather than milliseconds (this time it was 0.4 seconds instead of the
-usual 0.19 milliseconds).
+Currently the page fault handler on the x86 can get a clobbered value
+for %cr2 if an interrupt occurs and causes another page fault (interrupt
+handler touches a vmalloced area for example) before %cr2 is read.  This
+patch changes the page fault and alignment check (currently unused)
+handlers to interrupt gates so that %cr2 can be read before an interrupt
+can occur.  I'm not certain how much of a problem this really is, but I
+suspect it could cause random seg faults to user space under heavy
+interrupt load.  Comments are welcome.
+--------------C6899EB6318781022F6013F9
+Content-Type: text/plain; charset=us-ascii;
+ name="diff-pagefault"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-pagefault"
 
-Below is a unified diff of the output of "tulip-diag -aaf -mm"
-(actually, -aaf and -mm separately, then merged by hand when I saw most of
-the output was the same), both before and during the problem.  I'm happy
-to provide any more information that would be helpful; I didn't yet have a
-chance to figure out whether the delay occurs during send or receive or
-both, but the next time it happens I will endeavor to do so.
+diff -urN linux-2.4.5-pre1/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
+--- linux-2.4.5-pre1/arch/i386/kernel/entry.S	Wed Nov  8 20:09:50 2000
++++ linux/arch/i386/kernel/entry.S	Sat May  5 16:32:42 2001
+@@ -296,20 +296,21 @@
+ 	pushl %ds
+ 	pushl %eax
+ 	xorl %eax,%eax
++error_code_cr2:
+ 	pushl %ebp
+ 	pushl %edi
+ 	pushl %esi
+ 	pushl %edx
+-	decl %eax			# eax = -1
+ 	pushl %ecx
+ 	pushl %ebx
+ 	cld
+ 	movl %es,%ecx
+ 	movl ORIG_EAX(%esp), %esi	# get the error code
+ 	movl ES(%esp), %edi		# get the function address
+-	movl %eax, ORIG_EAX(%esp)
++	movl $-1, ORIG_EAX(%esp)
+ 	movl %ecx, ES(%esp)
+ 	movl %esp,%edx
++	pushl %eax			# push address (cr2)
+ 	pushl %esi			# push the error code
+ 	pushl %edx			# push the pt_regs pointer
+ 	movl $(__KERNEL_DS),%edx
+@@ -317,7 +318,7 @@
+ 	movl %edx,%es
+ 	GET_CURRENT(%ebx)
+ 	call *%edi
+-	addl $8,%esp
++	addl $12,%esp
+ 	jmp ret_from_exception
+ 
+ ENTRY(coprocessor_error)
+@@ -405,11 +406,18 @@
+ 
+ ENTRY(alignment_check)
+ 	pushl $ SYMBOL_NAME(do_alignment_check)
+-	jmp error_code
++	jmp get_cr2
+ 
+ ENTRY(page_fault)
+ 	pushl $ SYMBOL_NAME(do_page_fault)
+-	jmp error_code
++get_cr2:
++	pushl %ds
++	pushl %eax
++	movl %cr2,%eax
++	testl $IF_MASK,EFLAGS-EAX(%esp)
++	jz error_code_cr2
++	sti
++	jmp error_code_cr2
+ 
+ ENTRY(machine_check)
+ 	pushl $0
+diff -urN linux-2.4.5-pre1/arch/i386/kernel/traps.c linux/arch/i386/kernel/traps.c
+--- linux-2.4.5-pre1/arch/i386/kernel/traps.c	Mon Mar 19 21:23:40 2001
++++ linux/arch/i386/kernel/traps.c	Sat May  5 16:03:22 2001
+@@ -225,15 +225,6 @@
+ 		die(str, regs, err);
+ }
+ 
+-static inline unsigned long get_cr2(void)
+-{
+-	unsigned long address;
+-
+-	/* get the address */
+-	__asm__("movl %%cr2,%0":"=r" (address));
+-	return address;
+-}
+-
+ static void inline do_trap(int trapnr, int signr, char *str, int vm86,
+ 			   struct pt_regs * regs, long error_code, siginfo_t *info)
+ {
+@@ -270,13 +261,13 @@
+ }
+ 
+ #define DO_ERROR(trapnr, signr, str, name) \
+-asmlinkage void do_##name(struct pt_regs * regs, long error_code) \
++asmlinkage void do_##name(struct pt_regs * regs, long error_code, unsigned long address) \
+ { \
+ 	do_trap(trapnr, signr, str, 0, regs, error_code, NULL); \
+ }
+ 
+ #define DO_ERROR_INFO(trapnr, signr, str, name, sicode, siaddr) \
+-asmlinkage void do_##name(struct pt_regs * regs, long error_code) \
++asmlinkage void do_##name(struct pt_regs * regs, long error_code, unsigned long address) \
+ { \
+ 	siginfo_t info; \
+ 	info.si_signo = signr; \
+@@ -287,13 +278,13 @@
+ }
+ 
+ #define DO_VM86_ERROR(trapnr, signr, str, name) \
+-asmlinkage void do_##name(struct pt_regs * regs, long error_code) \
++asmlinkage void do_##name(struct pt_regs * regs, long error_code, unsigned long address) \
+ { \
+ 	do_trap(trapnr, signr, str, 1, regs, error_code, NULL); \
+ }
+ 
+ #define DO_VM86_ERROR_INFO(trapnr, signr, str, name, sicode, siaddr) \
+-asmlinkage void do_##name(struct pt_regs * regs, long error_code) \
++asmlinkage void do_##name(struct pt_regs * regs, long error_code, unsigned long address) \
+ { \
+ 	siginfo_t info; \
+ 	info.si_signo = signr; \
+@@ -314,7 +305,7 @@
+ DO_ERROR(10, SIGSEGV, "invalid TSS", invalid_TSS)
+ DO_ERROR(11, SIGBUS,  "segment not present", segment_not_present)
+ DO_ERROR(12, SIGBUS,  "stack segment", stack_segment)
+-DO_ERROR_INFO(17, SIGBUS, "alignment check", alignment_check, BUS_ADRALN, get_cr2())
++DO_ERROR_INFO(17, SIGBUS, "alignment check", alignment_check, BUS_ADRALN, address)
+ 
+ asmlinkage void do_general_protection(struct pt_regs * regs, long error_code)
+ {
+@@ -973,10 +964,10 @@
+ 	set_trap_gate(11,&segment_not_present);
+ 	set_trap_gate(12,&stack_segment);
+ 	set_trap_gate(13,&general_protection);
+-	set_trap_gate(14,&page_fault);
++	set_intr_gate(14,&page_fault);
+ 	set_trap_gate(15,&spurious_interrupt_bug);
+ 	set_trap_gate(16,&coprocessor_error);
+-	set_trap_gate(17,&alignment_check);
++	set_intr_gate(17,&alignment_check);
+ 	set_trap_gate(18,&machine_check);
+ 	set_trap_gate(19,&simd_coprocessor_error);
+ 
+diff -urN linux-2.4.5-pre1/arch/i386/mm/fault.c linux/arch/i386/mm/fault.c
+--- linux-2.4.5-pre1/arch/i386/mm/fault.c	Wed May  2 09:24:09 2001
++++ linux/arch/i386/mm/fault.c	Sat May  5 17:34:41 2001
+@@ -103,19 +103,15 @@
+  *	bit 1 == 0 means read, 1 means write
+  *	bit 2 == 0 means kernel, 1 means user-mode
+  */
+-asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long error_code)
++asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long error_code, unsigned long address)
+ {
+ 	struct task_struct *tsk;
+ 	struct mm_struct *mm;
+ 	struct vm_area_struct * vma;
+-	unsigned long address;
+ 	unsigned long page;
+ 	unsigned long fixup;
+ 	int write;
+ 	siginfo_t info;
+-
+-	/* get the address */
+-	__asm__("movl %%cr2,%0":"=r" (address));
+ 
+ 	tsk = current;
+ 
 
-Note that this is the PCI rev 32 version of the card; I also have a rev 33
-version of the card on the same network, which I think does not have the
-have the problem.
-
-I should mention that this data was collected under kernel 2.4.4 with
-MOSIX 1.0.0, but I have observed the same problem under kernels 2.2.x and
-2.4.x.
-
-Cheers,
-Wayne
-
---- tulip card is working OK
-+++ tulip card is "slow"
-[whitney]$ tulip-diag -aaf -mm
- tulip-diag.c:v2.07 3/31/2001 Donald Becker (becker@scyld.com)
-  http://www.scyld.com/diag/index.html
- Index #1: Found a Lite-On 82c168 PNIC adapter at 0xb800.
- Lite-On 82c168 PNIC chip registers at 0xb800:
-- 0x00: 00008000 01ff0000 10450008 378a2000 378a2200 02660010 810c2202 0001fbef
-- 0x40: 00000000 00000000 378a22d0 26eb685c 00000020 00000000 00000000 10000001
-+ 0x00: 00008000 01ff0007 10450008 33acb000 33acb200 026e0010 810c2202 0001fbef
-+ 0x40: 00000000 00000000 33acb250 338a48a0 00000020 00000000 00000000 10000001
-  Extended registers:
-  80: 00000000 00000000 00000000 00000000 f0022646 f0022646 000000bf 000000bf
-- a0: 60fe0000 60fe0000 378a2090 378a2090 26f2d010 26f2d010 0201f978 0201f978
-+ a0: 609645e1 609645e1 33acb000 33acb000 3387f840 3387f840 0201f978 0201f978
-  c0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-  e0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-  Port selection is MII, full-duplex.
-  Transmit started, Receive started, full-duplex.
--  The Rx process state is 'Waiting for packets'.
-+  The Rx process state is 'Transferring Rx frame into memory'.
-   The Tx process state is 'Idle'.
-   The transmit threshold is 128.
-  MII PHY found at address 1, status 0x782d.
-  MII PHY #1 transceiver registers:
-    3100 782d 0302 d008 01e1 45e1 0005 2001
-    0000 0000 0000 0000 0000 0000 0000 0000
--   0000 0001 0000 0000 0000 003f 0000 8062
-+   0000 0001 0000 0001 0000 0150 0000 8062
-    0000 04a1 0000 0000 0039 0000 0000 0000.
+--------------C6899EB6318781022F6013F9--
 

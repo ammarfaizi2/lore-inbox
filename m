@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVAXGzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVAXG4h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVAXGzg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 01:55:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVAXGwz
+	id S261476AbVAXG4h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 01:56:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVAXG4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 01:52:55 -0500
-Received: from mail.fgi.fi ([193.167.184.252]:5278 "EHLO mail.fgi.fi")
-	by vger.kernel.org with ESMTP id S261453AbVAXGvn (ORCPT
+	Mon, 24 Jan 2005 01:56:36 -0500
+Received: from mail.joq.us ([67.65.12.105]:58772 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261460AbVAXG4K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 01:51:43 -0500
-From: Andris Pavenis <pavenis@latnet.lv>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Subject: [PATCH] [Bug 3736] Bug in tty_io.c after changes between 2.6.9-rc1-bk1 and 2.6.9-rc1-bk2
-Date: Mon, 24 Jan 2005 08:50:21 +0200
-User-Agent: KMail/1.7.91
-Cc: linux-kernel@vger.kernel.org
+	Mon, 24 Jan 2005 01:56:10 -0500
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Paul Davis <paul@linuxaudiosystems.com>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt
+ scheduling
+References: <200501201542.j0KFgOwo019109@localhost.localdomain>
+	<87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>
+	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>
+	<87pszvlvma.fsf@sulphur.joq.us> <41F42BD2.4000709@kolivas.org>
+	<877jm3ljo9.fsf@sulphur.joq.us> <41F44AC2.1080609@kolivas.org>
+	<87hdl7v3ik.fsf@sulphur.joq.us> <87651nv356.fsf@sulphur.joq.us>
+	<87ekgbqr2a.fsf@sulphur.joq.us> <41F49735.5000400@kolivas.org>
+From: "Jack O'Quin" <joq@io.com>
+Date: Mon, 24 Jan 2005 00:57:43 -0600
+In-Reply-To: <41F49735.5000400@kolivas.org> (Con Kolivas's message of "Mon,
+ 24 Jan 2005 17:35:33 +1100")
+Message-ID: <873bwrpb4o.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501240850.21416.pavenis@latnet.lv>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tried to fix a bug 
- http://bugzilla.kernel.org/show_bug.cgi?id=3736
-which appeared between kernels 2.6.9-rc1-bk1 and 2.6.9-rc1-bk2.
+Con Kolivas <kernel@kolivas.org> writes:
 
-Suceeded to localize it to part of changes in drivers/char/tty_io.c.
-I guess changes were according changelog:
- 
------------------------------------
-ChangeSet@1.1843.2.184, 2004-08-24 12:29:18-07:00, 
-viro@parcelfarce.linux.theplanet.co.uk
-  [PATCH] /dev/ptmx open() fixes
-  
-  If tty_open() fails for a normal serial device, we end up doing cleanups
-  that should only happen for failed open of /dev/ptmx.  The results are
-  not pretty - devpts et.al.  end up very confused.  That's what gave
-  problems with ptmx.
-  
-  This splits ptmx file_operations from the normal case and cleans up both
-  tty_open() and (new) ptmx_open().  Survived serious beating.
------------------------------------
+> Jack O'Quin wrote:
+>> I'll try building a SCHED_RR version of JACK.  I still don't think it
+>> will make any difference.  But my intuition isn't working very well
+>> right now, so I need more data.
+>
+> Could be that despite what it appears, FIFO behaviour may be desirable
+> to RR. Also the RR in SCHED_ISO is pretty fast at 10ms. However with
+> nothing else really running it just shouldn't matter...
 
-Finally located that a problem seems to be a simple typo (
+That's the way I see it, too.
 
---- linux-2.6.10/drivers/char/tty_io.c~1 2004-12-24 23:34:58.000000000 +0200
-+++ linux-2.6.10/drivers/char/tty_io.c 2005-01-22 10:54:32.000000000 +0200
-@@ -1148,7 +1148,7 @@ static inline void pty_line_name(struct 
-  int i = index + driver->name_base;
-  /* ->name is initialized to "ttyp", but "tty" is expected */
-  sprintf(p, "%s%c%x",
--   driver->subtype == PTY_TYPE_SLAVE ? "tty" : driver->name,
-+   driver->subtype == PTY_TYPE_SLAVE ? "pty" : driver->name,
-    ptychar[i >> 4 & 0xf], i & 0xf);
- }
- 
-At least as I tested, it fixes the problem on one of systems on which I 
-tested.
+> There is some sort of privileged memory handling when jackd is running
+> as root as well, so I don't know how that features here. I can't
+> imagine it's a real issue though.
 
-Andris
+We use mlockall() to avoid page faults in the audio path.  That should
+be happening in all these tests.  The JACK server would complain if
+the request were failing, and it doesn't.
+
+How can I verify that the pages are actually locked?  (Even without
+mlock(), I don't think I would run out of memory.)
+-- 
+  joq

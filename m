@@ -1,73 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261953AbTKCKTL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 05:19:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTKCKTL
+	id S261967AbTKCKeR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 05:34:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbTKCKeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 05:19:11 -0500
-Received: from [193.195.148.66] ([193.195.148.66]:44026 "EHLO
-	mailgate.invsat.com") by vger.kernel.org with ESMTP id S261953AbTKCKTI
+	Mon, 3 Nov 2003 05:34:17 -0500
+Received: from mail-05.iinet.net.au ([203.59.3.37]:32453 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261967AbTKCKeF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 05:19:08 -0500
-Date: Mon, 3 Nov 2003 10:18:57 +0000
-From: Gavin Henry <gavin.henry@magicfx.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: ACPI Toshiba TECRA 8000 kernel 2.4.20, 2.4.22 and 2.6.0-test9 with
- Suse 8.2
-Message-Id: <20031103101857.4609306e.gavin.henry@magicfx.co.uk>
-Organization: http://www.Magicfx.co.uk
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
-X-Operating-System: Open Source
-Mime-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on Domino1/Invsat Limited(Release 5.0.11  |July 24, 2002) at
- 03/11/2003 10:19:24,
-	Serialize by Router on Domino1/Invsat Limited(Release 5.0.11  |July 24, 2002) at
- 03/11/2003 10:19:30,
-	Serialize complete at 03/11/2003 10:19:30
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Mon__3_Nov_2003_10_18_57_+0000_x1kzQ3A+uOXQDiPK"
+	Mon, 3 Nov 2003 05:34:05 -0500
+Message-ID: <3FA62F18.2050500@cyberone.com.au>
+Date: Mon, 03 Nov 2003 21:34:00 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jan Dittmer <j.dittmer@portrix.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Clock skips (?) with 2.6 and games
+References: <3FA62DD4.1020202@portrix.net>
+In-Reply-To: <3FA62DD4.1020202@portrix.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__3_Nov_2003_10_18_57_+0000_x1kzQ3A+uOXQDiPK
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
 
-Hi all.
 
-I have a clients laptop (above) and acpi seems to be broken. It is running Suse 8.2. There is a guide for all this at http://www.shroom.com/linux/laptop/8000.html
+Jan Dittmer wrote:
 
-But it is for a 2.2 kernel.
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Hi,
+>
+> I'm experiencing skips in games like q3demo and enemy territory on a
+> dual xeon p4. That means, if I'm walking around, about every 2-3 seconds
+> I'm skipping a bit of the way. It seems that the clock is running too
+> slow and the games are trying to catch up every x seconds with the
+> system time. 
 
-The main error is from acpi saying "Cannot allocate resource region"
 
-My question is: Has acpi been changed alot since then, as the kernel is not picking up the sound card and modem. I have traced this to acpi, as the only way I can get into the machine without pcmcia hanging to by putting pci=noacpi in grub.
+Please ensure that X is running at priority 0. Report back if you still
+have the problem.
 
-Both are supported, but lspci -vv doesn't show them as acpi is off.
+>
+> System is running 2.6.0-test9-mm1. This effect does not show with
+> 2.4.23pre6aa3, though there are only two processors displayed. Is this
+> normal? Judging from the temperature sensors that is not just one
+> processor with its sibling but really the two physical processors. Is
+> there any way with 2.4 to show all 4 processors?
+> I've tried booting 2.6 with nosmp, but that results in most interrupts
+> not working anymore.
+> What can I try to get test9 working properly?
 
-Am I correct is thinking that without acpi they will not be detected?
 
-I have tried 2.6.0-test and 2.4.22 with this same error. Have not tired a 2.2 kernel on it.
+nosmp has been broken for quite a while. If you want to try uniprocessor,
+you'd have to compile a UP kernel.
 
--- 
-Regards,
+You should get as good if not better interactivity with SMP enabled, 
+however.
 
-Gavin Henry.
 
-Open Source. Open Solutions.
-http://www.suretecsystems.com
-
---Signature=_Mon__3_Nov_2003_10_18_57_+0000_x1kzQ3A+uOXQDiPK
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/piuVgNqd7Kng8UoRAuipAKC/yq/X9zxX87fcZ835xqlimnqXWACgsAHP
-XopG+oHtyPsa1kE0VFTT5ME=
-=uJ5I
------END PGP SIGNATURE-----
-
---Signature=_Mon__3_Nov_2003_10_18_57_+0000_x1kzQ3A+uOXQDiPK--

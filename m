@@ -1,70 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264488AbUE0NdE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264397AbUE0Nau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264488AbUE0NdE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 09:33:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264409AbUE0NdD
+	id S264397AbUE0Nau (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 09:30:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264409AbUE0Nau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 09:33:03 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:51853 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S264488AbUE0Nc5
+	Thu, 27 May 2004 09:30:50 -0400
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:6021 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264397AbUE0Naf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 09:32:57 -0400
-Message-ID: <40B5EDDB.9010102@tmr.com>
-Date: Thu, 27 May 2004 09:32:11 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
+	Thu, 27 May 2004 09:30:35 -0400
+Date: Thu, 27 May 2004 15:30:34 +0200 (CEST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Ingo Molnar <mingo@redhat.com>
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: Cleanups for APIC
+In-Reply-To: <Pine.LNX.4.58.0405270856120.28319@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.55.0405271525140.10917@jurand.ds.pg.gda.pl>
+References: <20040525124937.GA13347@elf.ucw.cz>
+ <Pine.LNX.4.58.0405270856120.28319@devserv.devel.redhat.com>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-To: Joris van Rantwijk <joris@eljakim.nl>
-CC: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: System clock speed too high - 2.6.3 kernel
-References: <1085518688.8653.19.camel@cog.beaverton.ibm.com> <Pine.LNX.4.58.0405270020080.1496@eljakim.netsystem.nl>
-In-Reply-To: <Pine.LNX.4.58.0405270020080.1496@eljakim.netsystem.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joris van Rantwijk wrote:
-> On Tue, 25 May 2004, john stultz wrote:
-> 
->>On Tue, 2004-05-25 at 02:22, Joris van Rantwijk wrote:
->>
->>>If there are many systems with this problem, then calibrating the PM timer
->>>against the PIT timer at boot time (possibly rejecting invalid rates)
->>>might be an option.
-> 
-> 
->>I'll put it on my todo list, but if you'd like to take a swing at ti and
->>beat me to the implementation, I wouldn't complain.
-> 
-> 
-> Sounds fair. I tried something and it even seems to work here.
-> My dmesg now says:
->   PM-Timer running at invalid rate: 199% of normal - aborting.
->   Detected 400.816 MHz processor.
->   Using tsc for high-res timesource
-> 
-> Hmm, I think I'm enjoying this :-)
-> My patch is included below and also submitted at the Kernel Bugzilla
-> thing. I would appreciate it if someone else could also test it a bit.
-> 
-> Yesterday, I ran into a (hopefully) completely seperate issue with the
-> timer. This happened before I even started messing with the kernel and
-> while running with "clock=tsc". The kernel suddenly logged:
->   Losing too many ticks!
->   TSC cannot be used as a timesource
->    ...
->   Falling back to a sane timesource now.
-> 
+On Thu, 27 May 2004, Ingo Molnar wrote:
 
-Have to say that since adding clock=tsc my test systems are all keeping 
-perfect time (ntpd running) which has not been the case since I started 
-using test kernels about 2.5.38.
+> (wrt. io_apic_sync(): i added it in 2.1.104 together with some other
+> changes - i dont this it's necessary anymore - the local APICs had
+> writearound erratas, but i dont remember this ever being necessary for
+> IO-APICs. I'll address this in another patch.)
 
-You do seem to have an issue with the pit.
+ Hmm, isn't that needed to make sure the iomem writeback is completed
+before exiting the caller?
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

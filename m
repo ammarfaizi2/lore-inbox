@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261647AbTIOVkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 17:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbTIOVkQ
+	id S261628AbTIOVtx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 17:49:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbTIOVtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 17:40:16 -0400
-Received: from boss.staszic.waw.pl ([195.205.163.66]:51091 "EHLO
-	boss.staszic.waw.pl") by vger.kernel.org with ESMTP id S261647AbTIOVkJ
+	Mon, 15 Sep 2003 17:49:53 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:7831 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261628AbTIOVtw convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 17:40:09 -0400
-From: Marek Szyprowski <march@staszic.waw.pl>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 15 Sep 2003 23:34:23 +0100
-Message-ID: <yam9388.1183.1193506560@boss.staszic.waw.pl>
-In-Reply-To: <Pine.GSO.4.21.0309111730550.1879-100000@vervain.sonytel.be>
-X-Mailer: YAM 2.4p1 [040] AmigaOS E-mail Client (c) 2000-2003 by YAM Open Source Team - http://www.yam.ch/
-Subject: Re: ASFS filesystem patch, kernel 2.4.21
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+	Mon, 15 Sep 2003 17:49:52 -0400
+Date: Mon, 15 Sep 2003 14:38:13 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: =?ISO-8859-1?Q?Dani=EBl?= Mantione <daniel@deadlock.et.tudelft.nl>
+Cc: mroos@linux.ee, linux-kernel@vger.kernel.org
+Subject: Re: atyfb still broken on 2.4.23-pre4 (on sparc64)
+Message-Id: <20030915143813.2011187f.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0309151225300.24675-100000@deadlock.et.tudelft.nl>
+References: <20030915011159.250f3346.davem@redhat.com>
+	<Pine.LNX.4.44.0309151225300.24675-100000@deadlock.et.tudelft.nl>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Geert
+On Mon, 15 Sep 2003 12:58:26 +0200 (CEST)
+Daniël Mantione <daniel@deadlock.et.tudelft.nl> wrote:
 
-On 11.09.03, you wrote:
+> > Please, can we revert your changes if we can't fix Sparc quickly?
+> 
+> Well, the problem is, there are really a *lot* of chips sold which I
+> fixed.
 
->> This patch adds read-only support for Amiga SmartFileSystem. This
->> filesystem is being used very commonly on AmigaOS and MorphOS systems.
->> This patch has been tested on Linux/PPC, Linux/m68k and Linux/x86
->> machines. This patch is prepared for kernel 2.4.21.
+And you broke one of the primary users of the atyfb driver,
+the sparc64 platform.
 
-> ASFS is happily living in the Linux/m68k CVS tree as well.
+We don't even get a console if this driver is non-functional,
+that's the part you don't understand.  On x86 one can at least
+use the VGA or Vesa drivers, we simply don't have that option.
 
-> However, I guess Marcelo will insist you port it to 2.6.0 first, before it
-> will be accepted in the mainline.
+So effectively, you've made 2.4.23-preX completely nonusable for
+the vast majority of sparc64 users.
 
-OK. I made a quick port to 2.6.x. It compiles without any problems and even
-works (I tested it on a 2.6.0test5/x86).
+> Well, the only way to fix this is to work with you of course.
 
-Both patches (for 2.4.x and 2.6.x) are available at:
-
-http://www.staszic.waw.pl/~march/asfs/
-
-Regards
--- 
-Marek Szyprowski .. GG:2309080 .. mailto:marek@amiga.pl ..
-...... happy AmigaOS, MacOS and Debian/Linux user ........
-........... http://march.home.staszic.waw.pl/ ............
-
+Your change is a major regression and we should revert it until
+the kinks are worked out.

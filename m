@@ -1,58 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261463AbTADUxD>; Sat, 4 Jan 2003 15:53:03 -0500
+	id <S262289AbTADU7A>; Sat, 4 Jan 2003 15:59:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261486AbTADUxD>; Sat, 4 Jan 2003 15:53:03 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:34065 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S261463AbTADUxC>;
-	Sat, 4 Jan 2003 15:53:02 -0500
-Date: Sat, 4 Jan 2003 22:01:35 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Mad Hatter <slokus@yahoo.com>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.54 Makefile question: set -e
-Message-ID: <20030104210135.GA5993@mars.ravnborg.org>
-Mail-Followup-To: Mad Hatter <slokus@yahoo.com>,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	linux-kernel@vger.kernel.org
-References: <20030104200415.7387.qmail@web13708.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030104200415.7387.qmail@web13708.mail.yahoo.com>
-User-Agent: Mutt/1.4i
+	id <S262296AbTADU7A>; Sat, 4 Jan 2003 15:59:00 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:27664 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262289AbTADU67>; Sat, 4 Jan 2003 15:58:59 -0500
+Date: Sat, 4 Jan 2003 21:07:29 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Antonino Daplas <adaplas@pol.net>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] [PATCH][FBDEV]: fb_putcs() and fb_setfont()
+ methods
+In-Reply-To: <1041672313.958.17.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0301042058240.24903-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 04, 2003 at 12:04:15PM -0800, Mad Hatter wrote:
-> Hi,
-> 
-> The toplevel Makefile in 2.5.54 has near line 313:
-> 
-> ----------------------------
-> #	set -e makes the rule exit immediately on error
-> #...
-> attribute if uninitialized.
-> 
-> define rule_vmlinux__
-> 	set -e
-> ...
-> endef
-> -------------------------
-> 
-> However, the "set -e" does nothing since each line is
-> processed by a different shell according to the make
-> manual.
 
-The "set -e" seems superflous in this context.
-set -e is IIRC only relevant when commands are chined like:
+Rejected. I have put thought into it and the whole point was to not allow 
+the fbdev layer to touch console data. I stand firm on this!!! The reason 
+being is the core console layer is going to change the next development 
+cycle. We have to change to deal with things like the PC9800 type hardware 
+that support more than 512 fonts. Do we realy want to break every fbdev 
+driver again. This way the breakage is once and for all. Its is also a 
+pandoras box. If we place these hooks in we end up with the same crappy 
+driver problem we had before. I never heard anyone every say the old api 
+we clean. 
 
-set -e; \
-cd $(srctree); \
-mkdir somedir; \
-do somthing;
-
-Kai?
-
-	Sam

@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268292AbUHKXBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268297AbUHKXBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268292AbUHKXBm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 19:01:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268297AbUHKWrg
+	id S268297AbUHKXBn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 19:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268318AbUHKW6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 18:47:36 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:57725 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S268296AbUHKWo3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 18:44:29 -0400
-Message-ID: <411AAF69.9080803@myrealbox.com>
-Date: Wed, 11 Aug 2004 16:44:41 -0700
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040811
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: neilb@cse.unsw.edu.au
-Subject: [2.6.8-rc4] New nfsd-related kernel panic
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Aug 2004 18:58:44 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:16853 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268310AbUHKW4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 18:56:42 -0400
+Date: Thu, 12 Aug 2004 00:56:34 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+       davem@redhat.com, netdev@oss.sgi.com
+Subject: Re: 2.6: rxrpc compile errors with SYSCTL=n
+Message-ID: <20040811225634.GR26174@fs.tum.de>
+References: <20040811223225.GN26174@fs.tum.de> <20040811224102.GU11200@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040811224102.GU11200@holomorphy.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch of 09Aug is causing kernel panics:
+On Wed, Aug 11, 2004 at 03:41:02PM -0700, William Lee Irwin III wrote:
+> On Thu, Aug 12, 2004 at 12:32:25AM +0200, Adrian Bunk wrote:
+> > I'm getting tons of the following compile errors in 2.6.8-rc4-mm1 (but 
+> > it doesn't seem to be specific to -mm) with CONFIG_SYSCTL=n:
+> > <--  snip  -->
+> > ...
+> >   LD      .tmp_vmlinux1
+> > net/built-in.o(.text+0x154127): In function `__rxrpc_call_acks_timeout':
+> > : undefined reference to `rxrpc_kdebug'
+> > net/built-in.o(.text+0x154167): In function `__rxrpc_call_rcv_timeout':
+> > : undefined reference to `rxrpc_kdebug'
+> 
+> Does this help?
+>...
 
-$bk get -D fs/nfsd/nfsxdr.c
-237d236
-<       int len;
-237a237
- >       unsigned int len;
-269d268
-<       int len;
-269a269
- >       unsigned int len;
+Yes.
 
-I can cause a kernel panic by mounting the remote filesystem
-read-only and merely copying a moderately large tarball from it.
-(The linux-kernel source tarball, for example.)
+Thanks for the quick patch!
 
-The panic occurs every time, after only a second or two at most.
-It's so easy to reproduce that I haven't copied down the backtrace,
-but I will if no one else can reproduce the problem.
+cu
+Adrian
 
-Anyone else seeing this?
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,57 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275568AbRJJMLv>; Wed, 10 Oct 2001 08:11:51 -0400
+	id <S275573AbRJJMQb>; Wed, 10 Oct 2001 08:16:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275573AbRJJMLm>; Wed, 10 Oct 2001 08:11:42 -0400
-Received: from mailgate.rz.uni-karlsruhe.de ([129.13.64.97]:45842 "EHLO
-	mailgate.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
-	id <S275568AbRJJMLa>; Wed, 10 Oct 2001 08:11:30 -0400
-Date: Wed, 10 Oct 2001 14:11:55 +0200
+	id <S275576AbRJJMQV>; Wed, 10 Oct 2001 08:16:21 -0400
+Received: from web20503.mail.yahoo.com ([216.136.226.138]:20229 "HELO
+	web20503.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S275573AbRJJMQL>; Wed, 10 Oct 2001 08:16:11 -0400
+Message-ID: <20011010121642.50220.qmail@web20503.mail.yahoo.com>
+Date: Wed, 10 Oct 2001 14:16:42 +0200 (CEST)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: [PATCH] two printk fixes for 2.4.10-ac10
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.11|IRDA|SMC-IRCC
-Message-ID: <20011010141155.A17093@cip.wiwi.uni-karlsruhe.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Cc: alan@lxorguk.ukuu.org.uk
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-1440549930-1002716202=:48572"
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-From: aj@cip.wiwi.uni-karlsruhe.de (Andreas Jellinghaus)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-found SMC SuperIO Chip (devid=0x0b rev=00 base=0x03f0): FDC37N972
-SMC IrDA Controller found
- IrCC version 2.0, firport 0x280, sirport 0x2f8 dma=3, irq=3
-IrDA: Registered device irda0
-NETDEV WATCHDOG: irda0: transmit timed out
-irda0: transmit timed out
-spurious 8259A interrupt: IRQ7.
-NETDEV WATCHDOG: irda0: transmit timed out
-irda0: transmit timed out
-...
+--0-1440549930-1002716202=:48572
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 
-dell latitude c600 laptop.
-never tried irda before, so i don´t know if it can work at all,
-but there are reports on the web, that it should work.
+Hi there !
 
-irdadump lists output, but doesn´t see other irda devices
-(e.g. siemens s35i mobile phone).
+here are two small fixes for erroneous printk() in
+ide-tape and i2o_proc in 2.4.10-ac10. Very likely to
+find the same probs in 2.4.11 (didn't verify though).
 
-CONFIG_EXPERIMENTAL=y
-CONFIG_MODULES=y
-CONFIG_IRDA=m
-CONFIG_IRCOMM=m
-CONFIG_IRTTY_SIR=m
-CONFIG_IRPORT_SIR=m
-CONFIG_SMC_IRCC_FIR=m
-CONFIG_SERIAL=m
+Alan, please apply.
 
-serial                 43360   0  (unused)
-smc-ircc                6416   1 
-irport                  4560   1  [smc-ircc]
-irda                   77664   1  [smc-ircc irport]
+Cheers,
+Willy
 
-irattach is running. /proc/sys/net/irda/discovery is 1,
-/proc/net/irda/discovery doesn´t find anything.
 
-regards, andreas
+___________________________________________________________
+Un nouveau Nokia Game commence. 
+Allez sur http://fr.yahoo.com/nokiagame avant le 3 novembre
+pour participer à cette aventure tous médias.
+--0-1440549930-1002716202=:48572
+Content-Type: application/x-unknown; name="patch-2.4-i2o_proc-fix"
+Content-Transfer-Encoding: base64
+Content-Description: patch-2.4-i2o_proc-fix
+Content-Disposition: attachment; filename="patch-2.4-i2o_proc-fix"
+
+LS0tIGxpbnV4L2RyaXZlcnMvbWVzc2FnZS9pMm8vaTJvX3Byb2MuYwlXZWQg
+T2N0IDEwIDEzOjM5OjM5IDIwMDEKKysrIGxpbnV4L2RyaXZlcnMvbWVzc2Fn
+ZS9pMm8vaTJvX3Byb2MuYwlXZWQgT2N0IDEwIDEzOjQxOjA1IDIwMDEKQEAg
+LTMyOTcsNyArMzI5Nyw3IEBACiB2b2lkIGkyb19wcm9jX2Rldl9kZWwoc3Ry
+dWN0IGkyb19jb250cm9sbGVyICpjLCBzdHJ1Y3QgaTJvX2RldmljZSAqZCkK
+IHsKICNpZmRlZiBEUklWRVJERUJVRwotCXByaW50ayhLRVJOX0lORk8sICJE
+ZWxldGluZyBkZXZpY2UgJWQgZnJvbSBpb3AlZFxuIiwgCisJcHJpbnRrKEtF
+Uk5fSU5GTyAiRGVsZXRpbmcgZGV2aWNlICVkIGZyb20gaW9wJWRcbiIsIAog
+CQlkLT5sY3RfZGF0YS50aWQsIGMtPnVuaXQpOwogI2VuZGlmCiAK
+
+--0-1440549930-1002716202=:48572
+Content-Type: application/x-unknown; name="patch-2.4-ide-tape-fix"
+Content-Transfer-Encoding: base64
+Content-Description: patch-2.4-ide-tape-fix
+Content-Disposition: attachment; filename="patch-2.4-ide-tape-fix"
+
+LS0tIGxpbnV4L2RyaXZlcnMvaWRlL2lkZS10YXBlLmMJV2VkIE9jdCAxMCAx
+MzozODoxNyAyMDAxCisrKyBsaW51eC9kcml2ZXJzL2lkZS9pZGUtdGFwZS5j
+CVdlZCBPY3QgMTAgMTM6NDA6MDYgMjAwMQpAQCAtNDc4NCw3ICs0Nzg0LDcg
+QEAKIAkJICovCiAJCWlmICh0YXBlLT5maXJzdF9mcmFtZV9wb3NpdGlvbiAr
+IHRhcGUtPm5yX3N0YWdlcyA+PSB0YXBlLT5jYXBhY2l0eSAtIE9TX0VXKSAg
+ewogI2lmIE9OU1RSRUFNX0RFQlVHCi0JCQlwcmludGsoS0VSTl9JTkZPLCAi
+Y2hyZGV2X3dyaXRlOiBXcml0ZSB0cnVuY2F0ZWQgYXQgRU9NIGVhcmx5IHdh
+cm5pbmciKTsKKwkJCXByaW50ayhLRVJOX0lORk8gImNocmRldl93cml0ZTog
+V3JpdGUgdHJ1bmNhdGVkIGF0IEVPTSBlYXJseSB3YXJuaW5nIik7CiAjZW5k
+aWYKIAkJCWlmICh0YXBlLT5jaHJkZXZfZGlyZWN0aW9uID09IGlkZXRhcGVf
+ZGlyZWN0aW9uX3dyaXRlKQogCQkJCWlkZXRhcGVfd3JpdGVfcmVsZWFzZShp
+bm9kZSk7Cg==
+
+--0-1440549930-1002716202=:48572--

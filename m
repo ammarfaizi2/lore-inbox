@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317444AbSHHLE0>; Thu, 8 Aug 2002 07:04:26 -0400
+	id <S317430AbSHHLH0>; Thu, 8 Aug 2002 07:07:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317446AbSHHLE0>; Thu, 8 Aug 2002 07:04:26 -0400
-Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:41220 "HELO
-	osinvestor.com") by vger.kernel.org with SMTP id <S317444AbSHHLEZ>;
-	Thu, 8 Aug 2002 07:04:25 -0400
-Date: Thu, 8 Aug 2002 07:08:04 -0400
-From: Rob Radez <rob@osinvestor.com>
-To: linux-kernel@vger.kernel.org
-Cc: watchdogng@lists.tummy.com
-Subject: Watchdog Updates
-Message-ID: <20020808070804.F1625@osinvestor.com>
+	id <S317446AbSHHLH0>; Thu, 8 Aug 2002 07:07:26 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:38638 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317430AbSHHLHZ>; Thu, 8 Aug 2002 07:07:25 -0400
+Subject: Re: [bug, 2.5.29, IDE] partition table corruption?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: martin@dalecki.de
+Cc: Ingo Molnar <mingo@elte.hu>, "Adam J. Richter" <adam@yggdrasil.com>,
+       Andries.Brouwer@cwi.nl, johninsd@san.rr.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <3D523B25.5080105@evision.ag>
+References: <Pine.LNX.4.44.0208081129420.3210-100000@localhost.localdomain>
+	 <3D523B25.5080105@evision.ag>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 08 Aug 2002 13:30:30 +0100
+Message-Id: <1028809830.28883.13.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howdy,
+On Thu, 2002-08-08 at 10:34, Marcin Dalecki wrote:
+> >   [mingo@a mingo]$ ls -l /sbin/lilo
+> >   -rwxr-xr-x    1 root     root        59324 Aug 23  2000 /sbin/lilo
+> 
+> Yes sure. It is simply a very old bug in lilo, which the kernel worked
+> around and did fight against in a diallectic way.
 
-I've updated my big watchdog patch to 2.4.20-pre1.  New changes include:
-adding error handling to initialization,
-fixing pci_enable_device calls,
-adding in the C99 struct initializers,
-remove the entry in MAINTAINERS for the pcwd driver.
+Its not a bug in lilo. Its a bug in the new kernel. Breaking backward
+compatibility arbitarily is bad. The kernel needs to know geometry
+anyway for the folks who have force ide translation
 
-I've stopped tracking the 2.4-ac tree because I'm planning to start adding in
-Configure.help, Config.in, and Makefile changes, as well as hopefully starting
-to track 2.5 (or 2.5-dj, one or the other).
-
-Patch is up at http://osinvestor.com/wd/wd-2.4.20-pre1-1.diff
-
-Regards,
-Rob Radez

@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317400AbSGOJWa>; Mon, 15 Jul 2002 05:22:30 -0400
+	id <S317401AbSGOJWo>; Mon, 15 Jul 2002 05:22:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317399AbSGOJW2>; Mon, 15 Jul 2002 05:22:28 -0400
-Received: from cibs9.sns.it ([192.167.206.29]:11528 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S317400AbSGOJW1>;
-	Mon, 15 Jul 2002 05:22:27 -0400
-Date: Mon, 15 Jul 2002 11:11:03 +0200 (CEST)
-From: venom@sns.it
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Joerg Schilling <schilling@fokus.gmd.de>,
-       <Richard.Zidlicky@stud.informatik.uni-erlangen.de>,
-       <andersen@codepoet.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: IDE/ATAPI in 2.5
-In-Reply-To: <Pine.LNX.4.44L.0207141718130.12241-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.43.0207151108440.12462-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317402AbSGOJWn>; Mon, 15 Jul 2002 05:22:43 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:14750 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S317401AbSGOJWl>; Mon, 15 Jul 2002 05:22:41 -0400
+Date: Mon, 15 Jul 2002 11:25:02 +0200
+From: Kristian Peters <kristian.peters@korseby.net>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][Patch] DMA for CD-ROM audio
+Message-Id: <20020715112502.2ce65300.kristian.peters@korseby.net>
+In-Reply-To: <1026678886.1244.417.camel@sinai>
+References: <20020714113341.786b3600.kristian.peters@korseby.net>
+	<1026678886.1244.417.camel@sinai>
+X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; i386-redhat-linux)
+X-Operating-System: i686-redhat-linux 2.4.19-rc1
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Jul 2002, Rik van Riel wrote:
+Robert Love <rml@tech9.net> wrote:
+> If the code is truly safe on older systems, what I think makes more
+> sense is merging it without a configure option and having DMA-capable
+> systems use DMA CD-audio and older systems fall back to PIO.
 
-> Date: Sun, 14 Jul 2002 17:18:35 -0300 (BRT)
-> From: Rik van Riel <riel@conectiva.com.br>
-> To: Joerg Schilling <schilling@fokus.gmd.de>
-> Cc: Richard.Zidlicky@stud.informatik.uni-erlangen.de, andersen@codepoet.org,
->      linux-kernel@vger.kernel.org
-> Subject: Re: IDE/ATAPI in 2.5
->
-> On Sun, 14 Jul 2002, Joerg Schilling wrote:
->
-> > BTW: did you ever look at Solaris / HP-UX, ... and the way they
-> > name disks?
-> >
-> > someting like: /dev/{r}dsk/c0t0d0s0
-> > This is SCSI bus, target, lun and slice.
->
-> I wonder what they'll change it to in order to support
-> network attached storage.
->
-Actually notthing:
+Yes. But it seems that no maintainer is interested. So I thought it could be nice if the user can trigger dma for cd audio.
 
-dbtecnocasa:{root}:/>format
-Searching for disks...done
+> This would clean up all those nasty ifdefs and perhaps we could
+> generalize the two codepaths together, further reducing size.
+> 
+> I like the patch... up for my idea for 2.5?
 
-c2t1d0: configured with capacity of 6.56MB
-c2t1d30: configured with capacity of 34.04GB
-c2t1d31: configured with capacity of 34.04GB
-c2t1d81: configured with capacity of 34.04GB
+Ok. I port it to 2.5 but that could take some time. The ide layer has changed a bit.
 
+> I wonder what akpm thinks..
 
-AVAILABLE DISK SELECTIONS:
-       0. c0t0d0 <SUN18G cyl 7506 alt 2 hd 19 sec 248>
-          /pci@1f,4000/scsi@3/sd@0,0
-       1. c2t1d0 <EMC-SYMMETRIX-5567 cyl 14 alt 2 hd 15 sec 64>
-          /pci@4,2000/scsi@1/sd@1,0
-       2. c2t1d30 <EMC-SYMMETRIX-5567 cyl 37178 alt 2 hd 30 sec 64>
-          /pci@4,2000/scsi@1/sd@1,1e
-       3. c2t1d31 <EMC-SYMMETRIX-5567 cyl 37178 alt 2 hd 30 sec 64>
-          /pci@4,2000/scsi@1/sd@1,1f
-       4. c2t1d81 <EMC-SYMMETRIX-5567 cyl 37178 alt 2 hd 30 sec 64>
-          /pci@4,2000/scsi@1/sd@1,51
+He's ok with it. It was he who suggested sending it to the list.
 
-except of c0t0d0 everything else is network attached...
-
-
-
+*Kristian

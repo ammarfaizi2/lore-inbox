@@ -1,75 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264868AbSJVShH>; Tue, 22 Oct 2002 14:37:07 -0400
+	id <S264910AbSJVSnc>; Tue, 22 Oct 2002 14:43:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264870AbSJVShH>; Tue, 22 Oct 2002 14:37:07 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:54667 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S264868AbSJVShF>;
-	Tue, 22 Oct 2002 14:37:05 -0400
-Date: Tue, 22 Oct 2002 20:43:13 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org
-Subject: vm scenario tool / mincore(2) functionality for regular pages?
-Message-ID: <20021022184313.GA12081@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Mime-Version: 1.0
+	id <S264917AbSJVSnc>; Tue, 22 Oct 2002 14:43:32 -0400
+Received: from packet.digeo.com ([12.110.80.53]:60351 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264910AbSJVSnJ>;
+	Tue, 22 Oct 2002 14:43:09 -0400
+Message-ID: <3DB59DA7.453F89E2@digeo.com>
+Date: Tue, 22 Oct 2002 11:49:11 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave McCracken <dmccr@us.ibm.com>
+CC: Rik van Riel <riel@conectiva.com.br>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
+References: <Pine.LNX.4.44L.0210221514430.1648-100000@duckman.distro.conectiva> <145460000.1035311809@baldur.austin.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Oct 2002 18:49:11.0228 (UTC) FILETIME=[B5B7F7C0:01C279FB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm building a tool to subject the VM to different scenarios and I'd like to
-be able to determine if a page is swapped out or not. For a file I can
-easily determine if a page is in memory (in the page cache) or not using the
-mincore(2) system call.
+Dave McCracken wrote:
+> 
+> --On Tuesday, October 22, 2002 15:15:29 -0200 Rik van Riel
+> <riel@conectiva.com.br> wrote:
+> 
+> >> Or large pages.  I confess to being a little perplexed as to
+> >> why we're pursuing both.
+> >
+> > I guess that's due to two things.
+> >
+> > 1) shared pagetables can speed up fork()+exec() somewhat
+> >
+> > 2) if we have two options that fix the Oracle problem,
+> >    there's a better chance of getting at least one of
+> >    the two merged ;)
+> 
+> And
+>   3) The current large page implementation is only for applications
+>      that want anonymous *non-pageable* shared memory.  Shared page
+>      tables reduce resource usage for any shared area that's mapped
+>      at a common address and is large enough to span entire pte pages.
+>      Since all pte pages are shared on a COW basis at fork time, children
+>      will continue to share all large read-only areas with their
+>      parent, eg large executables.
+> 
 
-I want to expand my tool so it can investigate which of its pages are
-swapped out under cache pressure or real memory pressure.
+How important is that in practice?
 
-However, to do this, I need a way to determine if a page is there or if it
-is swapped out. My two questions are:
+Seems that large pages are the preferred solution to the "Oracle
+and DB2 use gobs of pagetable" problem because large pages also
+reduce tlb reload traffic.
 
-	1) is there an existing way to do this
-	   (the kernel obviously knows)
-
-	2) would it be correct to expand mincore to also work on
-           non-filebacked memory so it works for 'swap-backed' memory too?
-
-Thanks.
-
-Some current output of the scenario tool:
-
-vmloader> alloc 25
-Arena now 25 megabytes, 6250 pages
-
-vmloader> sweep
-Sweeping from mbyte 0 to 25, 6250 pages. Done
-
-vmloader> rusage
-minor: 6250, major: 2, swaps: 0
-
-vmloader> sweep 0 12
-Sweeping from mbyte 0 to 12, 1440 pages. Done
-
-vmloader> rusage
-minor: 0, major: 0, swaps: 0
-
-vmloader> touch
-Touching from mbyte 0 to 25, 6250 pages. Done
-
-vmloader> rusage
-minor: 6249, major: 0, swaps: 0
-
-vmloader> rsweep
-Random sweeping from mbyte 0 to 25, 6250 pages. Done
-
-vmloader> rusage
-minor: 0, major: 0, swaps: 0
-
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+So once that's out of the picture, what real-world, observed,
+customers-are-hurting problem is solved by pagetable sharing?

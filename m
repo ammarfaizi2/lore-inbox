@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbUCRJQl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 04:16:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbUCRJQl
+	id S262462AbUCRJVm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 04:21:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262463AbUCRJVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 04:16:41 -0500
-Received: from denise.shiny.it ([194.20.232.1]:57580 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id S262109AbUCRJQk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 04:16:40 -0500
-Date: Thu, 18 Mar 2004 10:16:28 +0100 (CET)
-From: Giuliano Pochini <pochini@denise.shiny.it>
-To: =?iso-8859-2?q?Micha=B3_Roszka?= <michal@roszka.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [.config] CONFIG_THERM_WINDTUNNEL
-In-Reply-To: <200403180821.44199.michal@roszka.pl>
-Message-ID: <Pine.LNX.4.58.0403181012300.29633@denise.shiny.it>
-References: <200403180821.44199.michal@roszka.pl>
+	Thu, 18 Mar 2004 04:21:41 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:14215 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262462AbUCRJVj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 04:21:39 -0500
+Date: Thu, 18 Mar 2004 10:21:31 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jakub Bogusz <qboosh@pld-linux.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] [PATCH 2.6][RESEND] fbcon margins colour
+ fix
+In-Reply-To: <20040317233135.GB3510@satan.blackhosts>
+Message-ID: <Pine.GSO.4.58.0403181020320.10688@waterleaf.sonytel.be>
+References: <20040317233135.GB3510@satan.blackhosts>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 18 Mar 2004, Jakub Bogusz wrote:
+> I sent it a few times to linux-kernel and at least one to
+> linux-fbdev-devel, but haven't seen any comments - and this annoying
+> changing margins colour seems to be still there in 2.6.4 (at least on
+> tdfxfb).
 
+What happens on `reverse video' (i.e. black on white, like Sun) graphics cards?
+In that case the overscan color is white.
 
-On Thu, 18 Mar 2004, [iso-8859-2] Micha³ Roszka wrote:
+Gr{oetje,eeting}s,
 
-> There is an option in kernel configuration (2.6.3):
-> CONFIG_THERM_WINDTUNNEL=m
-> How does G4 Windtunnel thermal support work? Does it make an ability to change
-> fans speed by the OS or maybe something other/else?
-
-Yes, it works. It controls the speed of the CPU fan according to the
-temperature. Do not forget to load the i2c_keywest module.
-
+						Geert
 
 --
-Giuliano.
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,65 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263879AbUEMHtX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUEMHtn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263879AbUEMHtX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 03:49:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbUEMHtX
+	id S263893AbUEMHtn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 03:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbUEMHtn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 03:49:23 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:16 "EHLO
+	Thu, 13 May 2004 03:49:43 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:1552 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263879AbUEMHtV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 03:49:21 -0400
-Date: Thu, 13 May 2004 08:49:03 +0100
+	id S263893AbUEMHtl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 03:49:41 -0400
+Date: Thu, 13 May 2004 08:49:31 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: David Gibson <david@gibson.dropbear.id.au>, Andrew Morton <akpm@osdl.org>,
-       Anton Blanchard <anton@samba.org>, Adam Litke <agl@us.ibm.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
-Subject: Re: More convenient way to grab hugepage memory
-Message-ID: <20040513084903.B6631@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ebiederm@xmission.com, rddunlap@osdl.org, davidm@hpl.hp.com,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
+       drepper@redhat.com
+Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
+Message-ID: <20040513084931.A6858@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
-	Adam Litke <agl@us.ibm.com>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
-References: <20040513055520.GF27403@zax>
+	Andrew Morton <akpm@osdl.org>, ebiederm@xmission.com,
+	rddunlap@osdl.org, davidm@hpl.hp.com, fastboot@lists.osdl.org,
+	linux-kernel@vger.kernel.org, drepper@redhat.com
+References: <m17jvhoa6g.fsf@ebiederm.dsl.xmission.com> <20040512143233.0ee0405a.rddunlap@osdl.org> <16546.41076.572371.307153@napali.hpl.hp.com> <20040512152815.76280eac.akpm@osdl.org> <16546.42537.765495.231960@napali.hpl.hp.com> <20040512161603.44c50cec.akpm@osdl.org> <20040513053051.A5286@infradead.org> <m1lljwsvxr.fsf@ebiederm.dsl.xmission.com> <20040513083306.A6631@infradead.org> <20040513003727.4026699a.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040513055520.GF27403@zax>; from david@gibson.dropbear.id.au on Thu, May 13, 2004 at 03:55:20PM +1000
+In-Reply-To: <20040513003727.4026699a.akpm@osdl.org>; from akpm@osdl.org on Thu, May 13, 2004 at 12:37:27AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 13, 2004 at 03:55:20PM +1000, David Gibson wrote:
-> Andrew, please apply:
-> 
-> At present, getting a block of (quasi-) anonymous memory mapping with
-> hugepages is a slightly convoluted process, involving creating a dummy
-> file in a hugetlbfs filesystem.  In particular that means finding
-> where such a filesystem is mounted, for which there is no standard
-> mechanism.  Getting hugepage SysV shm segments is easier, just requing
-> the SHM_HUGETLB flag.  This patch adds an analagous MAP_HUGETLB mmap()
-> flag to easily request that a block of anonymous memory come from
-> hugepages.
-> 
-> [The MAP_HUGETLB flag has the side effect that MAP_SHARED semantics
-> will apply, even if MAP_PRIVATE is specific - but that's no different
-> to explicitly mapping hugetlbfs].
+On Thu, May 13, 2004 at 12:37:27AM -0700, Andrew Morton wrote:
+> The (old) kexec patch I have here implements the API which is described at
+> http://lwn.net/Articles/15468/.  I doubt if it changed?
 
-Please don't do this.  It's messing all over sensitive codepathes in the
-kernel, creating special cases and bloat of what you could with simple a
-simpe hugetlb_mmap() wrapper ala (pseudocode)
-
-hugetlb_mmap()
-{
-	fd = open(file in hugetlbfs)
-
-	mmap(.., fd, ...)
-	close(fd)
-}
-
-in some library.  The hugetlbfs implementation was chosen exactly because
-if kept the impact of hugetlb pages down to normal kernel codepathes.
+That API looks sane to me.
 

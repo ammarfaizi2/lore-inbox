@@ -1,29 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265737AbSKFP51>; Wed, 6 Nov 2002 10:57:27 -0500
+	id <S265746AbSKFPwi>; Wed, 6 Nov 2002 10:52:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265747AbSKFP51>; Wed, 6 Nov 2002 10:57:27 -0500
-Received: from isp247n.hispeed.ch ([62.2.95.247]:429 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id <S265737AbSKFP50>;
-	Wed, 6 Nov 2002 10:57:26 -0500
-Date: Wed, 06 Nov 2002 17:04:01 +0100
-From: xmb <xmb@kick.sytes.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: initramfs in 2.5.46 wont compile
-Message-ID: <2147483647.1036602241@[192.168.1.2]>
-In-Reply-To: <3DC93C34.40201@pobox.com>
-References: <2147483647.1036601487@[192.168.1.2]> <3DC93C34.40201@pobox.com>
-X-Mailer: Mulberry/3.0.0b8 (Mac OS X)
+	id <S265747AbSKFPwi>; Wed, 6 Nov 2002 10:52:38 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39436 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265746AbSKFPwh>;
+	Wed, 6 Nov 2002 10:52:37 -0500
+Message-ID: <3DC93C34.40201@pobox.com>
+Date: Wed, 06 Nov 2002 10:58:44 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: xmb <xmb@kick.sytes.net>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: initramfs in 2.5.46 wont compile
+References: <2147483647.1036601487@[192.168.1.2]>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--- Jeff Garzik <jgarzik@pobox.com> wrote:
+xmb wrote:
+> Yo,
+> 
+> was trying to compile 2.5.46 fresh from source on my ppc machine, and 
+> initramfs gives me an err (in make bzImage):
+> 
+> make -f scripts/Makefile.build obj=arch/ppc/kernel 
+> arch/ppc/kernel/asm-offsets.s
 
-> ppc arch support for initramfs needs to be added...
 
-oh... is there a way to disable the initramfs build in a safe way so i can 
-continue compiling the kernel without it
+
+ppc arch support for initramfs needs to be added...
+

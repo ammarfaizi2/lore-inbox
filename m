@@ -1,46 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315513AbSFTUtD>; Thu, 20 Jun 2002 16:49:03 -0400
+	id <S315517AbSFTUyT>; Thu, 20 Jun 2002 16:54:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315528AbSFTUtC>; Thu, 20 Jun 2002 16:49:02 -0400
-Received: from zok.sgi.com ([204.94.215.101]:47780 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S315513AbSFTUtB>;
-	Thu, 20 Jun 2002 16:49:01 -0400
-Message-ID: <005b01c2189b$b390bd40$cc059aa3@engr.sgi.com>
-From: "John Hawkes" <hawkes@sgi.com>
-To: "Dave Hansen" <haveblue@us.ibm.com>, "Gross, Mark" <mark.gross@intel.com>
-Cc: "'Russell Leighton'" <russ@elegant-software.com>,
-       "Andrew Morton" <akpm@zip.com.au>, <mgross@unix-os.sc.intel.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <lse-tech@lists.sourceforge.net>,
-       "Griffiths, Richard A" <richard.a.griffiths@intel.com>
-References: <59885C5E3098D511AD690002A5072D3C057B499E@orsmsx111.jf.intel.com> <3D11FE5F.8000207@us.ibm.com>
-Subject: Re: [Lse-tech] Re: ext3 performance bottleneck as the number of spindles gets large
-Date: Thu, 20 Jun 2002 13:47:32 -0700
+	id <S315525AbSFTUyT>; Thu, 20 Jun 2002 16:54:19 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26890 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315517AbSFTUyS>; Thu, 20 Jun 2002 16:54:18 -0400
+Date: Thu, 20 Jun 2002 13:53:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Cort Dougan <cort@fsmlabs.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Benjamin LaHaise <bcrl@redhat.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: latest linus-2.5 BK broken
+In-Reply-To: <3D123DB9.8090909@evision-ventures.com>
+Message-ID: <Pine.LNX.4.44.0206201344080.8225-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Dave Hansen" <haveblue@us.ibm.com>
-> > We'll report out our findings on the lock contention, and throughput
-> > data for some other FS then.  I'd like recommendations on what file
-> > systems to try, besides ext2.
+
+
+On Thu, 20 Jun 2002, Martin Dalecki wrote:
 >
-> Do you really need a journaling FS?  If not, I think ext2 is a sure
-> bet to be the fastest.  If you do need journaling, try reiserfs and
-jfs.
+> 2. See 1. even dual CPU machines are a rarity even *now*.
 
-XFS in 2.4.x scales much better on larger CPU counts than do ext3 or
-ReiserFS.  That's because XFS is a much lighter user of the BKL in 2.4.x
-than ext3, ReiserFS, or ext2.
+With stuff like HT, you may well not be able to _buy_ an intel desktop
+machine with just "one" CPU.
 
-John Hawkes
-hawkes@sgi.com
+Get with the flow. The old Windows codebase is dead as far as new machines
+are concerned, which means that there is no reason to hold back any more:
+all OS's support SMP.
+
+> 3. Nobody needs them for the usual tasks they are a *waste*
+> of resources and economics still applies.
+
+That's a load of bull.
+
+For usual tasks, two CPU's give clearly better responsiveness than one. If
+only because one of them may be doing the computation, and the other may
+be doing GUI.
+
+The number of people doing things like mp3 ripping is apparently quite
+high. And it's definitely CPU-intensive.
+
+Now, I suspect that past two CPU's you won't find much added oomph, but
+the load-balancing of just two is definitely noticeable on a personal
+scale. I just don't want to use UP machines any more unless they have
+other things going for them (ie really really small).
+
+> 4. SMP doesn't scale behind 4. Point. (64 hardly makes sense...)
+
+That's not true either.
+
+You can easily make _cheap_ hardware scale to 4, no problem. You may not
+want a shared bus, but hey, they's a small implementation detail. Most new
+CPU's have the interconnect hardware on-die (either now or planned).
+
+Intel made SMP cheap by putting all the glue logic on-chip and in the
+standard chipsets.
+
+And besides, you don't actually need to _scale_ well, if the actual
+incremental costs are low. That's the whole point with the P4-HT, of
+course. Intel claims 5% die area addition for a 30% scaling. They may be
+full of sh*t, of course, and it may be that the added complexity in the
+control logic hurts them in other areas (longer pipeline, whatever), but
+the point is that if it's cheap, the second CPU doesn't have to "scale".
+
+			Linus
 

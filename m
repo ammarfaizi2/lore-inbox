@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbTHTBQq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 21:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbTHTBQq
+	id S261698AbTHTB0B (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 21:26:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbTHTB0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 21:16:46 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:51092
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S261684AbTHTBQp convert rfc822-to-8bit (ORCPT
+	Tue, 19 Aug 2003 21:26:01 -0400
+Received: from fw.osdl.org ([65.172.181.6]:24016 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261698AbTHTBZ7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 21:16:45 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns?=
-	=?iso-8859-1?q?=20Rullg=E5rd?=),
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O17int
-Date: Wed, 20 Aug 2003 11:23:29 +1000
-User-Agent: KMail/1.5.3
-References: <200308200102.04155.kernel@kolivas.org> <yw1xn0e5lhz9.fsf@users.sourceforge.net>
-In-Reply-To: <yw1xn0e5lhz9.fsf@users.sourceforge.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200308201123.29206.kernel@kolivas.org>
+	Tue, 19 Aug 2003 21:25:59 -0400
+Date: Tue, 19 Aug 2003 18:27:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Enrico Demarin <enricod@videotron.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SMP oops on Xseries235
+Message-Id: <20030819182738.65296132.akpm@osdl.org>
+In-Reply-To: <004c01c36684$791bb100$0440a8c0@SC2003002>
+References: <004c01c36684$791bb100$0440a8c0@SC2003002>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Aug 2003 02:39, Måns Rullgård wrote:
-> Con Kolivas <kernel@kolivas.org> writes:
-> > Food for the starving masses.
-> >
-> > This patch prevents any single task from being able to starve the
-> > runqueue that it's on. This minimises the impact a poorly behaved
-> > application or a malicious one has on the rest of the system. If an
+Enrico Demarin <enricod@videotron.ca> wrote:
 >
-> I have to disagree.  Open a file of a few hundred lines in XEmacs and
-> do a regexp search for "^[> ]*-*\n\\([> ]*.*\n\\)*[> ]*foo".  The
-> system will more or less freeze.  It's a very nasty regexp, and it's
-> an error to try to use it, but it still shouldn't freeze the system.
+>  Assertion failure in journal_stop() at transaction.c:1416:
+>  "journal_current_handle() == handle"
+>  kernel BUG at transaction.c:1416!
 
-Reasonably sure this is a variation on the starvation which O17 won't address. 
-Please top/vmstat/profile this and I'll look into it. There is potential for 
-starvation without using up full timeslices and this may be it.
-
-Con
+Please decode this trace with ksymoops.
 

@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbULNJtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbULNJx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261467AbULNJtn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 04:49:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbULNJtn
+	id S261469AbULNJx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 04:53:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbULNJx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 04:49:43 -0500
-Received: from 151.adsl.as8758.net ([212.25.16.151]:2058 "EHLO
-	johnny.adanco.com") by vger.kernel.org with ESMTP id S261467AbULNJtl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 04:49:41 -0500
-From: Adrian von Bidder <avbidder@fortytwo.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: cdrecording status
-Date: Tue, 14 Dec 2004 10:49:34 +0100
-User-Agent: KMail/1.7.1
-References: <Pine.LNX.4.61.0412132255060.7005@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0412132255060.7005@yvahk01.tjqt.qr>
+	Tue, 14 Dec 2004 04:53:57 -0500
+Received: from denise.shiny.it ([194.20.232.1]:41679 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id S261469AbULNJxz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 04:53:55 -0500
+Date: Tue, 14 Dec 2004 10:53:24 +0100 (CET)
+From: Giuliano Pochini <pochini@denise.shiny.it>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9 NAT problem
+In-Reply-To: <Pine.LNX.4.58.0412141025040.23132@tux.rsn.bth.se>
+Message-ID: <Pine.LNX.4.58.0412141050240.10707@denise.shiny.it>
+References: <20041213212603.4e698de6.pochini@shiny.it>
+ <Pine.LNX.4.58.0412141025040.23132@tux.rsn.bth.se>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5383327.nsM9pnU7Bu";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200412141049.39499@fortytwo.ch>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart5383327.nsM9pnU7Bu
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-On Monday 13 December 2004 23.00, Jan Engelhardt wrote:
-> I have played a little with my new cd/dvd/whatnot writer and just had
-> this idea (see pic). Well then, DVD+RW makes it possible.
->     http://linux01.org:2222/gfx0/madness.jpg
 
-Just wondering: how many write cycles do DVD+RW media support?
+On Tue, 14 Dec 2004, Martin Josefsson wrote:
 
-=2D- vbi
+> > I can't make NAT work on 2.6.9. Outgoing packets are translated and sent,
+> > but incoming packets get rejected. pc4 is the other box (inside the NAT) and
+> > host164-26... is the dynamic address of my machine:
+>
+> 2.6.9 contains a large update to the connectiontracking code. One thing
+> that was changed is that it now verifies the checksum of tcp and udp
+> packets. I know of at least one user who has been bitten by this and what
+> looks like a broken sungem NIC.
 
-=2D-=20
-Last week's pet, this week's special.
+The PMac uses the sungem driver indeed.
 
---nextPart5383327.nsM9pnU7Bu
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: get my key from http://fortytwo.ch/gpg/92082481
+> Could you please try this:
 
-iKcEABECAGcFAkG+tzNgGmh0dHA6Ly9mb3J0eXR3by5jaC9sZWdhbC9ncGcvZW1h
-aWwuMjAwMjA4MjI/dmVyc2lvbj0xLjUmbWQ1c3VtPTVkZmY4NjhkMTE4NDMyNzYw
-NzFiMjVlYjcwMDZkYTNlAAoJECqqZti935l6uJIAnAopDUlQAMikO6P+xK4Q4OY9
-xSVLAJ9pVqmm4zmMoNSWWfXz0FFWC+Eu0w==
-=HsCN
------END PGP SIGNATURE-----
+I'll try that asap.
 
---nextPart5383327.nsM9pnU7Bu--
+
+--
+Giuliano.

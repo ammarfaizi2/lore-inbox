@@ -1,177 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269558AbUICBjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269557AbUICBjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269558AbUICBjq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 21:39:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269557AbUICBjO
+	id S269557AbUICBjr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 21:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269554AbUICBiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 21:39:14 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:57049 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269532AbUICBe7 (ORCPT
+	Thu, 2 Sep 2004 21:38:16 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:28855 "EHLO slaphack.com")
+	by vger.kernel.org with ESMTP id S269527AbUICBeZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 21:34:59 -0400
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-From: john stultz <johnstul@us.ibm.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.58.0409021737310.6412@schroedinger.engr.sgi.com>
-References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
-	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.58.0409021512360.28532@schroedinger.engr.sgi.com>
-	 <1094164096.14662.345.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.58.0409021536450.28532@schroedinger.engr.sgi.com>
-	 <1094166858.14662.367.camel@cog.beaverton.ibm.com>
-	 <B6E8046E1E28D34EB815A11AC8CA312902CF6059@mtv-atc-605e--n.corp.sgi.com>
-	 <1094170054.14662.391.camel@cog.beaverton.ibm.com>
-	 <Pine.LNX.4.58.0409021737310.6412@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Message-Id: <1094175004.14662.440.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 02 Sep 2004 18:30:04 -0700
+	Thu, 2 Sep 2004 21:34:25 -0400
+Message-ID: <4137CA17.6060605@slaphack.com>
+Date: Thu, 02 Sep 2004 20:34:15 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Spam <spam@tnonline.net>
+CC: "Martin J. Bligh" <mbligh@aracnet.com>, Hans Reiser <reiser@namesys.com>,
+       Linus Torvalds <torvalds@osdl.org>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com> <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org> <4136A14E.9010303@slaphack.com> <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org> <4136C876.5010806@namesys.com> <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org> <4136E0B6.4000705@namesys.com> <14260000.1094149320@flay> <4137BDA7.4040304@slaphack.com> <793789713.20040903024629@tnonline.net>
+In-Reply-To: <793789713.20040903024629@tnonline.net>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-02 at 17:47, Christoph Lameter wrote:
-> On Thu, 2 Sep 2004, john stultz wrote:
-> 
-> > > Of course but its not a generic way of timer acccess and
-> > > requires a fastcall for each timer. You still have the problem of
-> > > exporting the frequency and the time offsets to user space (those also
-> > > need to be kept current in order for one to be able to calculate a timer
-> > > value!). The syscall/fastcall API then needs to be extended to allow for a
-> > > system call to access each of the individual timers supported.
-> >
-> > Indeed, it would require a fastcall accessor for each timesource, but
-> > maybe fastcall is the wrong way to describe it. Could it just be a
-> > function that uses the epc to escalate its privileges? As for freq and
-> > offsets, those would already be user-visible (see below for more
-> > details)
-> 
-> The only way curent way to enter the kernel from glibc with a fastcall is
-> the EPC.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hmm. I must be explaining myself poorly, or not understanding you. I
-apologize for not understanding this EPC/fastcall business well enough.
-I'd like to use EPC from a user-executable kernel page to escalate
-privileges to access the hardware counter. I don't care if I have to use
-the the current fastcall (fsys.S) interface or not. However you're
-making sounds like this isn't possible, so I'll need to do some
-research. 
+Spam wrote:
+[...]
+|>   I thought reiser4 had its journaling and atomic commits. Am I
+|>   mistaken? I run reiser4 as primary fs on my test systems and it seem
+|>   to work as expected.
 
-> > The plan at the moment is that the timeofday core gettimeofday code path
-> > as well as any timesource that supports it adds a _vsyscall linker
-> > attribute. Then the linker will place all the code on a special page or
-> > set of pages. Those pages would then be mapped in as user-readable. Then
-> > just like the x86-64's vsyscall gettimeofday, glibc would re-direct
-> > gettimeofday calls to the user-mapped kernel pages, where it would
-> > execute in user mode (with maybe the epc privilege escalation for ia64
-> > time sources that required it).
-> 
-> The EPC call already does do a *secure* transfer like this on IA64 and
-> will execute kernel code without user space mapping. This idea raises all sorts
-> of concerns....
+consider this:
 
-Yes, but its not portable. Reducing duplicate code so timeofday
-maintenance isn't a nightmare is the first goal here. It may not be
-completely achievable, and when I hit that point I'll have to rework the
-design, but at this point I'm not convinced that it cannot be done.
+save_file () {
+	write()	/* what if the write flushes halfway through
+		 * then crashes?
+		 */
 
-As for security concerns, all your mapping out to userspace are the time
-variables and the functions needed to convert those to a accurate time
-of day. This is almost what you suggest below, but with the additional
-math from the kernel. The method I'm suggesting is very similar to
-x86-64's arch/x86-64/kernel/vsyscall.c.
+	blah()	/* what if "blah" crashes? */
+	write()
+}
 
+Some apps need consistency across multiple files, but we don't even have
+it on a single file.  You need a new interface to do that.  As you can
+see, reiser4 has absolutely no way of knowing, anywhere in the above
+code, when you're done writing -- and when the file is consistent.
 
-> > I had to do most of this for the i386 vsyscall-gettimeofday port, but I
-> > was unhappy with the duplication of code (and bugs), as well as the fact
-> > that I was then being pushed to re-do it for each architecture. While
-> > its not currently implemented (I was hoping to keep the discussion
-> > focused on the correctness of what's been implemented), I feel the plan
-> > for user-mode access won't be too complex. I'm still open for further
-> > discussion if you'd like, obviously performance is quite important, and
-> > I want to calm any fears you have, but I'm sure the new ntp code plenty
-> > of performance issues to look at before we start digging into usermode
-> > access, so maybe we can come back to this discussion later?
-> 
-> The functions in the timer source structure is a central problem for IA64. We
-> cannot take that out right now.
+AFAIK, all that has to be done now for this to work is for them to
+finish the userland interface to the journalling and atomic commits that
+already exist for kernel space.  But so far, all that is truly atomic is
+metadata operations -- chmod, mv, mkdir, touch, and rm/rmdir are all
+atomic, so long as you only use them on a single file/dir.  But this has
+been true in reiserfs3, xfs, ext3, and others.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Don't worry I'm not submitting this code just yet. :) I'll need all (or
-at least most of the important) architecture maintainers to sign on
-before I try to push this code in.
-
-Right now I'm trying to shake out possible problems with the design and
-the first pass implementation of the code. You're helping me do that,
-and I thank you for it. Concessions will be made, but for now I'm going
-to try to preserve the current design and work around the problems as
-they arise. 
-
-
-> The full parameterization of timer access as I have suggested also allows
-> user page access to timers with simply mapping a page to access the timer.
-> No other gimmicks are needed since the timer source structure contains all
-> information to calculate a timer offset.
-> 
-> > Yes, but x86-64 has one way, and ia64 does it another, and i know ppc
-> > folks have talked about their own user mode time access. Chasing down a
-> > time bug across arches gets to be fairly hairy, so I'm trying to
-> > simplify that.
-> 
-> The simplest thins is to provide a data structure without any functions
-> attached that can simply be copied into userspace if wanted. If an arch
-> needs special time access then that is depending on the arch specific
-> methods available and such a data structure as I have proposed will
-> include all the info necessary to implement such user mode time access.
-
-Ehhh.. I really don't like the idea of giving all the raw values to
-userspace and letting user-code do the timeofday calculation. Fixing
-bugs in each arches timeofday code is hard enough. Imagine if we have to
-go through and fix userspace too! It would also make a user/kernel data
-interface that we'd have to preserve. I'd like to avoid that and instead
-use the vsyscall method to give us greater flexibility. Plus I doubt
-anyone would want to implement the NTP adjustments in userspace? eek!
-
-> A requirement to call functions in the kernel to determine time makes
-> these solution impossible. And its getting extremely complex if one has to
-> invoke different functions for each timer supported.
-
-The struct timesource interface of read()/delta()/cyc2ns() was the best
-generalization I could come up with. I feel they're necessary for the
-following reasons:
-	
-cyc2ns(): In this conversion we can optimize the math depending on the
-timesource. If the timesource freq is a power of 2, we can just use
-shift! However if its a weird value and we have to be very precise, we
-do a full 64bit divide. We're not stuck with one equation given a freq
-value.
-
-delta(): Some counters don't fill 32 or 64 bits. ACPI PM time source is
-24 bits, and the cyclone is 40. Thus to do proper twos complement
-subtraction without overflow worries you need to mask the subtraction.
-This can be done by exporting a mask value w/ the freq value, but was
-cleaner when moved into the timesource. 
-
-read(): Rather then just giving the address of the register, the read
-call allows for timesource specific logic. This lets us use jiffies as a
-timesource, or in cases like the ACPI PM timesource, where the register
-must be read 3 times in order to ensure a correct value is latched, we
-can avoid having to include that logic into the generic code, so it does
-not affect systems that do not use or have that timesource.
-
-But I doubt I'll convince you with words, so let me work on it a bit and
-see if I can code around your concerns and put you at ease. You've
-brought up some good issues, and I'll definitely work to resolve them! 
-
-Thanks again!
--john
-
-
+iQIVAwUBQTfKF3gHNmZLgCUhAQKp3Q//WcijAx8VVdKjJFHENZvrA2P3/wjdCLIn
+OeIGi9VxbcQhS1cBM+BU6nBN6wz8S59o9hEM/F8L5oDxto8YW6sfyceoanbtVkLo
+r7k4i39A4Ao1UQFzYEzxWzgCA607WvGBboNN1J/5pYe+bWATWBw+oQgc6XikQofQ
+QwFX+0KxEDUva5Xkei/wBNhvpSveFBjAm/t79nVkANOVLji2KYALtewps+7QDiGc
+PNwfjSUcAbNgXrvuhwpocFgAGEhgS/Y7ANR4DqFAiUseDwY6WgkZqhTaxC8t9ZzF
+/Hd82sEb/J+hGpMfrTIe+D5VYhnjX+bPPs/U0OcfoH4CfkgOFgGOeuzlWg3xeTyX
+vgtgYGwuGQuWux7WNte0GOCNxfaFDE8lLGexdQYLkdVCSsLmzACA17H1bQdeswgH
+UnWL3oBoBx5BcdpkW1y1ZeoJv4xInazkzeU3GtEOd50tlJmOXmdjRNfj5LTrTh+1
+CUpEKVvSjQ8MY70uQW6XKEUAkCYyBmSVeMay5SSQS/1Q0ISLEG3gMqPdsL2BOBO/
+LkkQKjLe3LQS913wUtibL1CCfJCS/BrDswNCMsboivcg1SnwY+xJb9ffFMW0blBL
+kQ0B1AGZCjWHDfxXKIlC31PJYKzgE5vaKZ6+INj8mG8t5PzqgikBDQStvsXqczJq
+VgvvOVCjvho=
+=I+Xw
+-----END PGP SIGNATURE-----

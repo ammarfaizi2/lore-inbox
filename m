@@ -1,62 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266133AbRGLPkX>; Thu, 12 Jul 2001 11:40:23 -0400
+	id <S266086AbRGLPmN>; Thu, 12 Jul 2001 11:42:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266132AbRGLPkN>; Thu, 12 Jul 2001 11:40:13 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:54543 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S266086AbRGLPj4>;
-	Thu, 12 Jul 2001 11:39:56 -0400
-Date: Thu, 12 Jul 2001 12:39:55 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: "C. Slater" <cslater@wcnet.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Switching Kernels without Rebooting?
-In-Reply-To: <000901c10a70$6acb2e40$0200000a@laptop>
-Message-ID: <Pine.LNX.4.33L.0107121236310.20836-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S266130AbRGLPmD>; Thu, 12 Jul 2001 11:42:03 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:31176 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S266086AbRGLPlq>; Thu, 12 Jul 2001 11:41:46 -0400
+Date: Thu, 12 Jul 2001 16:42:58 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: [PATCH] show_trace() module_end = 0?
+Message-ID: <Pine.LNX.4.21.0107121631490.1934-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Jul 2001, C. Slater wrote:
+show_trace() contains an erroneous line, introduced in 2.4.6-pre4,
+which disables trace on module text: appears to be from temporary
+testing, since code and comments for tracing module text remain.
 
-> > a) we want this "sounds real good" feature
->  But at least it sounds good.
+Hugh
 
-And nothing wrong with that. It seems an excelent
-opportunity to learn lots about every part of the
-kernel.
-
-> > b) we don't know how we will do it, beyond some hand waving ideas
-> We don't. We would like to change that.
->
-> > c) we want kernel experts who know what they are doing to help us
->   Quite correct
-
-I guess there are two things to do here:
-
-(1) analyse the general idea of what you want to achieve,
-    breaking it down in sub-goals which may be achievable
-
-(2) learn about how the kernel works, you may want to go to
-
-	http://kernelnewbies.org/
-
-I won't have time to put in a project as huge and difficult
-as upgrading the kernel "live", but I'll be around to try
-and teach people about how the kernel works.
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+--- linux-2.4.7-pre6/arch/i386/kernel/traps.c	Wed Jun 20 21:59:44 2001
++++ linux/arch/i386/kernel/traps.c	Thu Jul 12 16:25:42 2001
+@@ -105,7 +105,6 @@
+ 	i = 1;
+ 	module_start = VMALLOC_START;
+ 	module_end = VMALLOC_END;
+-	module_end = 0;
+ 	while (((long) stack & (THREAD_SIZE-1)) != 0) {
+ 		addr = *stack++;
+ 		/*
 

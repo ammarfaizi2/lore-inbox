@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbVALNVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVALNVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbVALNVT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 08:21:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbVALNVT
+	id S261184AbVALNVH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 08:21:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbVALNVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 08:21:19 -0500
-Received: from gprs214-158.eurotel.cz ([160.218.214.158]:1517 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261181AbVALNUT (ORCPT
+	Wed, 12 Jan 2005 08:21:07 -0500
+Received: from gprs214-158.eurotel.cz ([160.218.214.158]:1005 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261184AbVALNTK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 08:20:19 -0500
-Date: Wed, 12 Jan 2005 14:20:05 +0100
+	Wed, 12 Jan 2005 08:19:10 -0500
+Date: Wed, 12 Jan 2005 14:18:54 +0100
 From: Pavel Machek <pavel@ucw.cz>
 To: Andrew Morton <akpm@zip.com.au>,
        kernel list <linux-kernel@vger.kernel.org>
-Subject: comment/whitespace updates
-Message-ID: <20050112132005.GA1553@elf.ucw.cz>
+Subject: swsusp: update docs
+Message-ID: <20050112131854.GA1543@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,54 +25,75 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-This cleans few comments/formatting. Please apply,
+This updates swsusp documentation. Please apply,
 
 Signed-off-by: Pavel Machek <pavel@ucw.cz>
-
 								Pavel
 
---- clean/arch/i386/kernel/acpi/wakeup.S	2004-12-25 13:34:57.000000000 +0100
-+++ linux/arch/i386/kernel/acpi/wakeup.S	2004-12-25 15:51:04.000000000 +0100
-@@ -278,7 +294,7 @@
- 	movl %edi, saved_context_edi
- 	pushfl ; popl saved_context_eflags
+
+--- clean/Documentation/power/swsusp.txt	2004-12-25 13:34:57.000000000 +0100
++++ linux/Documentation/power/swsusp.txt	2005-01-12 10:57:23.000000000 +0100
+@@ -15,6 +15,9 @@
+  * If you change kernel command line between suspend and resume...
+  *			        ...prepare for nasty fsck or worse.
+  *
++ * If you change your hardware while system is suspended...
++ *			        ...well, it was not good idea.
++ *
+  * (*) suspend/resume support is needed to make it safe.
  
--	movl $ret_point,saved_eip
-+	movl $ret_point, saved_eip
- 	ret
+ You need to append resume=/dev/your_swap_partition to kernel command
+@@ -183,3 +186,50 @@
  
- 
-@@ -295,7 +311,7 @@
- 	call	save_registers
- 	pushl	$3
- 	call	acpi_enter_sleep_state
--	addl	$4,%esp
-+	addl	$4, %esp
- 	ret
- 	.p2align 4,,7
- ret_point:
---- clean/drivers/acpi/events/evgpeblk.c	2004-12-25 13:34:58.000000000 +0100
-+++ linux/drivers/acpi/events/evgpeblk.c	2004-12-25 15:51:15.000000000 +0100
-@@ -925,7 +925,7 @@
- 
- 	/*
- 	 * Runtime option: Should Wake GPEs be enabled at runtime?  The default
--	 * is No,they should only be enabled just as the machine goes to sleep.
-+	 * is No, they should only be enabled just as the machine goes to sleep.
- 	 */
- 	if (acpi_gbl_leave_wake_gpes_disabled) {
- 		/*
---- clean/include/linux/page-flags.h	2005-01-12 11:07:40.000000000 +0100
-+++ linux/include/linux/page-flags.h	2005-01-12 11:25:19.000000000 +0100
-@@ -74,7 +74,7 @@
- #define PG_swapcache		16	/* Swap page: swp_entry_t in private */
- #define PG_mappedtodisk		17	/* Has blocks allocated on-disk */
- #define PG_reclaim		18	/* To be reclaimed asap */
--#define PG_nosave_free		19	/* Free, should not be written */
-+#define PG_nosave_free		19	/* Page is free, and should not be written by swsusp */
- 
- 
- /*
+ "platform" is actually right thing to do, but "shutdown" is most
+ reliable.
++
++Q: I do not understand why you have such strong objections to idea of
++selective suspend.
++
++A: Do selective suspend during runtime power managment, that's okay. But
++its useless for suspend-to-disk. (And I do not see how you could use
++it for suspend-to-ram, I hope you do not want that).
++
++Lets see, so you suggest to
++
++* SUSPEND all but swap device and parents
++* Snapshot
++* Write image to disk
++* SUSPEND swap device and parents
++* Powerdown
++
++Oh no, that does not work, if swap device or its parents uses DMA,
++you've corrupted data. You'd have to do
++
++* SUSPEND all but swap device and parents
++* FREEZE swap device and parents
++* Snapshot
++* UNFREEZE swap device and parents
++* Write
++* SUSPEND swap device and parents
++
++Which means that you still need that FREEZE state, and you get more
++complicated code. (And I have not yet introduce details like system
++devices).
++
++Q: There don't seem to be any generally useful behavioral
++distinctions between SUSPEND and FREEZE.
++
++A: Doing SUSPEND when you are asked to do FREEZE is always correct,
++but it may be unneccessarily slow. If you want USB to stay simple,
++slowness may not matter to you. It can always be fixed later.
++
++For devices like disk it does matter, you do not want to spindown for
++FREEZE.
++
++Q: After resuming, system is paging heavilly, leading to very bad interactivity.
++
++A: Try running
++
++cat `cat /proc/[0-9]*/maps | grep / | sed 's:.* /:/:' | sort -u` > /dev/null
++
++after resume. swapoff -a; swapon -a may also be usefull.
 
 -- 
 People were complaining that M$ turns users into beta-testers...

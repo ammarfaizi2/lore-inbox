@@ -1,81 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268145AbRINTaO>; Fri, 14 Sep 2001 15:30:14 -0400
+	id <S272257AbRIOL33>; Sat, 15 Sep 2001 07:29:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268702AbRINTaE>; Fri, 14 Sep 2001 15:30:04 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:53265 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S268145AbRINT3x>; Fri, 14 Sep 2001 15:29:53 -0400
-Date: Fri, 14 Sep 2001 15:05:36 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10pre VM changes: Potential race condition on swap code
-In-Reply-To: <Pine.LNX.4.21.0109141229190.1372-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0109141456410.4708-100000@freak.distro.conectiva>
+	id <S272242AbRIOL3T>; Sat, 15 Sep 2001 07:29:19 -0400
+Received: from [209.10.41.242] ([209.10.41.242]:60824 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S272080AbRIOL3D>;
+	Sat, 15 Sep 2001 07:29:03 -0400
+Date: Fri, 14 Sep 2001 13:02:14 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, <linux-raid@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] raid-xor-2.4.10-A0
+In-Reply-To: <Pine.LNX.4.33.0109141251410.3820-200000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0109141301320.3933-200000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1277751266-1000465334=:3933"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
+
+--8323328-1277751266-1000465334=:3933
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
-On Fri, 14 Sep 2001, Hugh Dickins wrote:
+patch mixup - raid-xor-2.4.10-A1 attached, which does the prefetch
+enhancements.
 
-> On Thu, 13 Sep 2001, Marcelo Tosatti wrote:
-> > > > 
-> > > > CPU0			CPU1			CPU2
-> > > > do_swap_page()		try_to_swap_out()	swapin_readahead()
-> .....
-> > > > BOOM.
-> > > > 
-> > > > Now, if we get additional references at valid_swaphandles() the above race
-> > > > is NOT possible: we're guaranteed that any get_swap_page() will not find
-> > > 
-> > > Err I mean _will_ find the swap map entry used and not use it, then.
-> > > 
-> > > > the swap map entry used. See?
-> 
-> Yes, I see it now: had trouble with the line wrap!
-> 
-> Sure, that's one of the scenarios we were talking about, and getting
-> additional references in valid_swaphandles will stop that particular
-> race.
-> 
-> It won't stop the race with "bare" read_swap_cache_async (which can
-> happen with swapoff, or with vm_swap_full deletion if multithreaded),
+	Ingo
 
-Could you please make a diagram of such a race ? 
+--8323328-1277751266-1000465334=:3933
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="raid-xor-2.4.10-A1"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0109141302140.3933@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename="raid-xor-2.4.10-A1"
 
-> and won't stop the race when valid_swaphandles->swap_duplicate comes
-> all between try_to_swap_out's get_swap_page and add_to_swap_cache.
-
-Oh I see:
-
-CPU0			CPU1
-
-try_to_swap_out()	swapin readahead
-
-get_swap_page()
-			valid_swaphandles()
-			swapduplicate()
-add_to_swap_cache()
-			add_to_swap_cache()
-
-BOOM.
-
-Is that what you mean ?
-
-> The first of those is significantly less likely than swapin_readahead
-> instance.  The second requires interrupt at the wrong moment: can
-> certainly happen, but again less likely.
-> 
-> Adding back reference bumping in valid_swaphandles would reduce the
-> likelihood of malign read_swap_cache_async/try_to_swap_out races,
-> but please don't imagine it's the final fix.
-
-Right. Now I see that the diagram I just wrote (thanks for making me
-understand it :)) has been there forever. Ugh. 
-
+LS0tIGxpbnV4L2luY2x1ZGUvYXNtLWkzODYveG9yLmgub3JpZwlNb24gTm92
+IDEzIDA0OjM5OjUxIDIwMDANCisrKyBsaW51eC9pbmNsdWRlL2FzbS1pMzg2
+L3hvci5oCUZyaSBTZXAgMTQgMTI6NDU6MzkgMjAwMQ0KQEAgLTU1NSwxOSAr
+NTU1LDIwIEBADQogCQk6ICJtZW1vcnkiKQ0KIA0KICNkZWZpbmUgT0ZGUyh4
+KQkJIjE2KigiI3giKSINCi0jZGVmaW5lCVBGMCh4KQkJIglwcmVmZXRjaHQw
+ICAiT0ZGUyh4KSIoJTEpICAgO1xuIg0KLSNkZWZpbmUgTEQoeCx5KQkJIiAg
+ICAgICBtb3ZhcHMgICAiT0ZGUyh4KSIoJTEpLCAlJXhtbSIjeSIgICA7XG4i
+DQotI2RlZmluZSBTVCh4LHkpCQkiICAgICAgIG1vdmFwcyAlJXhtbSIjeSIs
+ICAgIk9GRlMoeCkiKCUxKSAgIDtcbiINCi0jZGVmaW5lIFBGMSh4KQkJIglw
+cmVmZXRjaG50YSAiT0ZGUyh4KSIoJTIpICAgO1xuIg0KLSNkZWZpbmUgUEYy
+KHgpCQkiCXByZWZldGNobnRhICJPRkZTKHgpIiglMykgICA7XG4iDQotI2Rl
+ZmluZSBQRjMoeCkJCSIJcHJlZmV0Y2hudGEgIk9GRlMoeCkiKCU0KSAgIDtc
+biINCi0jZGVmaW5lIFBGNCh4KQkJIglwcmVmZXRjaG50YSAiT0ZGUyh4KSIo
+JTUpICAgO1xuIg0KLSNkZWZpbmUgUEY1KHgpCQkiCXByZWZldGNobnRhICJP
+RkZTKHgpIiglNikgICA7XG4iDQotI2RlZmluZSBYTzEoeCx5KQkiICAgICAg
+IHhvcnBzICAgIk9GRlMoeCkiKCUyKSwgJSV4bW0iI3kiICAgO1xuIg0KLSNk
+ZWZpbmUgWE8yKHgseSkJIiAgICAgICB4b3JwcyAgICJPRkZTKHgpIiglMyks
+ICUleG1tIiN5IiAgIDtcbiINCi0jZGVmaW5lIFhPMyh4LHkpCSIgICAgICAg
+eG9ycHMgICAiT0ZGUyh4KSIoJTQpLCAlJXhtbSIjeSIgICA7XG4iDQotI2Rl
+ZmluZSBYTzQoeCx5KQkiICAgICAgIHhvcnBzICAgIk9GRlMoeCkiKCU1KSwg
+JSV4bW0iI3kiICAgO1xuIg0KLSNkZWZpbmUgWE81KHgseSkJIiAgICAgICB4
+b3JwcyAgICJPRkZTKHgpIiglNiksICUleG1tIiN5IiAgIDtcbiINCisjZGVm
+aW5lIFBGX09GRlMoeCkJIjI1NisxNiooIiN4IikiDQorI2RlZmluZQlQRjAo
+eCkJCSIJcHJlZmV0Y2hudGEgIlBGX09GRlMoeCkiKCUxKQkJO1xuIg0KKyNk
+ZWZpbmUgTEQoeCx5KQkJIiAgICAgICBtb3ZhcHMgICAiT0ZGUyh4KSIoJTEp
+LCAlJXhtbSIjeSIJO1xuIg0KKyNkZWZpbmUgU1QoeCx5KQkJIiAgICAgICBt
+b3ZhcHMgJSV4bW0iI3kiLCAgICJPRkZTKHgpIiglMSkJO1xuIg0KKyNkZWZp
+bmUgUEYxKHgpCQkiCXByZWZldGNobnRhICJQRl9PRkZTKHgpIiglMikJCTtc
+biINCisjZGVmaW5lIFBGMih4KQkJIglwcmVmZXRjaG50YSAiUEZfT0ZGUyh4
+KSIoJTMpCQk7XG4iDQorI2RlZmluZSBQRjMoeCkJCSIJcHJlZmV0Y2hudGEg
+IlBGX09GRlMoeCkiKCU0KQkJO1xuIg0KKyNkZWZpbmUgUEY0KHgpCQkiCXBy
+ZWZldGNobnRhICJQRl9PRkZTKHgpIiglNSkJCTtcbiINCisjZGVmaW5lIFBG
+NSh4KQkJIglwcmVmZXRjaG50YSAiUEZfT0ZGUyh4KSIoJTYpCQk7XG4iDQor
+I2RlZmluZSBYTzEoeCx5KQkiICAgICAgIHhvcnBzICAgIk9GRlMoeCkiKCUy
+KSwgJSV4bW0iI3kiCTtcbiINCisjZGVmaW5lIFhPMih4LHkpCSIgICAgICAg
+eG9ycHMgICAiT0ZGUyh4KSIoJTMpLCAlJXhtbSIjeSIJO1xuIg0KKyNkZWZp
+bmUgWE8zKHgseSkJIiAgICAgICB4b3JwcyAgICJPRkZTKHgpIiglNCksICUl
+eG1tIiN5Igk7XG4iDQorI2RlZmluZSBYTzQoeCx5KQkiICAgICAgIHhvcnBz
+ICAgIk9GRlMoeCkiKCU1KSwgJSV4bW0iI3kiCTtcbiINCisjZGVmaW5lIFhP
+NSh4LHkpCSIgICAgICAgeG9ycHMgICAiT0ZGUyh4KSIoJTYpLCAlJXhtbSIj
+eSIJO1xuIg0KIA0KIA0KIHN0YXRpYyB2b2lkDQo=
+--8323328-1277751266-1000465334=:3933--

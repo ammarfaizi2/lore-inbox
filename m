@@ -1,96 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbUGHMnK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262837AbUGHM4v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbUGHMnK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 08:43:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbUGHMnK
+	id S262837AbUGHM4v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 08:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbUGHM4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 08:43:10 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:59264 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S261605AbUGHMnE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 08:43:04 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: Kari Hurtta <hurtta+zz1@leija.mh.fmi.fi>
-Subject: Re: [OT] NULL versus 0 (Re: [PATCH] Use NULL instead of integer 0 in security/selinux/)
-Date: Thu, 8 Jul 2004 14:42:23 +0200
-User-Agent: KMail/1.6.2
-References: <200407081238.i68CcCM1020517@leija.fmi.fi>
-In-Reply-To: <200407081238.i68CcCM1020517@leija.fmi.fi>
-Cc: Martin Zwickel <martin.zwickel@technotrend.de>, root@chaos.analogic.com,
-       Herbert Xu <herbert@gondor.apana.org.au>,
-       Chris Wright <chrisw@osdl.org>, akpm@osdl.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, jmorris@redhat.com,
-       mika@osdl.org
+	Thu, 8 Jul 2004 08:56:50 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:30276 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S262837AbUGHM4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 08:56:49 -0400
+X-Ironport-AV: i="3.81R,157,1083560400"; 
+   d="scan'208"; a="43013543:sNHT222633520"
+Date: Thu, 8 Jul 2004 07:56:49 -0500 (CDT)
+From: Matt Domsch <Matt_Domsch@dell.com>
+X-X-Sender: mdomsch@humbolt.us.dell.com
+To: Frediano Ziglio <freddyz77@tin.it>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>
+Subject: Re: EDD enhanchement patch
+In-Reply-To: <1089194759.4522.3.camel@freddy>
+Message-ID: <Pine.LNX.4.44.0407080755270.14717-100000@humbolt.us.dell.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200407081442.25752.mbuesch@freenet.de>
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 7 Jul 2004, Frediano Ziglio wrote:
 
-That's all OK, fine and correct, but
-#define NULL 0
-would work for both, C and C++ as far as I can see.
-Am I missing some special case?
+> Here you are, inlined (with your change it's quite smaller)
+> Fixed a stupid bug too (I'm used to code in Intel asm, not GNU asm...)
+> It seems that some BIOS (like mine) fill with an invalid pointer using
+> USB disks, add code to test DPTE data (using checksum).
 
+At a glance this looks good, but I won't be able to test it myself for a 
+few weeks.  If others can do so, I encourage it.
 
-Quoting Kari Hurtta <hurtta+zz1@leija.mh.fmi.fi>:
-> -- Start of PGP signed section.
-> > Quoting Martin Zwickel <martin.zwickel@technotrend.de>:
-> > > include/linux/stddef.h:
-> > >
-> > > #undef NULL
-> > > #if defined(__cplusplus)
-> > > #define NULL 0
-> > > #else
-> > > #define NULL ((void *)0)
-> > > #endif
-> >
-> > Yes, I never understood the reason for this ugly
-> > #if defined(__cplusplus) here.
-> > It works, but is IMHO unneccessary.
-> >
->
-> (This is is off topic, because kernel is not C++, but C).
->
-> Some quotations from  Bjarne Stroustrup: The C++ Programming Language
-> (Third Edition),
->
->    p. 843:    Note that a pointer to function or a pointer to member
->               cannot be implicity converted to a void *.
->
->    p. 844:    A constant expression (§C.5) that evaluates to 0 can
->               be implicitly converted to any pointer or pointer
->               to member type (§5.1.1.).
->
->
->    p. 88:     In C, it has been popular to define a macro NULL to
->               represent the zero pointer. Because of C++'s tighter
->               type checking, the use of plain 0, rather than any
->               suggested NULL macro, leads to fewer problems. If you
->               feel you must define NULL, use
->
->                   const int NULL = 0;
->
-> (typos mine.)
->
-> / Kari Hurtta
->
->
+Thanks,
+Matt
 
-- --
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA7UEvFGK1OIvVOP4RAua2AKCCwyC3TzasTBCbPQLaKaU47UJEbACZAY4P
-wd6n6AvSuJ+ThZE/Msbs9x0=
-=jvQR
------END PGP SIGNATURE-----

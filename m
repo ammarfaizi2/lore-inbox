@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272244AbRI3BRH>; Sat, 29 Sep 2001 21:17:07 -0400
+	id <S272247AbRI3BbH>; Sat, 29 Sep 2001 21:31:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272253AbRI3BQ5>; Sat, 29 Sep 2001 21:16:57 -0400
-Received: from femail24.sdc1.sfba.home.com ([24.0.95.149]:28396 "EHLO
-	femail24.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S272244AbRI3BQq>; Sat, 29 Sep 2001 21:16:46 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-Organization: Boundaries Unlimited
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Subject: Re: [PATCH] Linux 0.01 disk lockup - read the old (1991) archives.
-Date: Sat, 29 Sep 2001 17:16:36 -0400
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1010927175126.12043B-100000@artax.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.3.96.1010927175126.12043B-100000@artax.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Message-Id: <01092917163603.01422@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S272253AbRI3Ba5>; Sat, 29 Sep 2001 21:30:57 -0400
+Received: from codepoet.org ([166.70.14.212]:16750 "HELO winder.codepoet.org")
+	by vger.kernel.org with SMTP id <S272247AbRI3Baw>;
+	Sat, 29 Sep 2001 21:30:52 -0400
+Date: Sat, 29 Sep 2001 19:31:22 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.9-ac18
+Message-ID: <20010929193122.A7715@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010929224837.A12070@lightning.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010929224837.A12070@lightning.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.22i
+X-Operating-System: Linux 2.4.9-ac10-rmk1, Rebel-NetWinder(Intel sa110 rev 3), 262.14 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 September 2001 12:08, Mikulas Patocka wrote:
-> > > Linux 0.01 has a bug in disk request sorting - when interrupt happens
-> > > while sorting is active, the interrupt routine won't clear do_hd - thus
-> > > the disk will stay locked up forever.
-> >
-> > Ehh..
-> >
-> > Mikulas, do you want to be the official maintainer for the 0.01.xxx
-> > series?
-> >
-> > Note that much of the maintenance work is probably just to reproduce and
-> > make all the user-level etc infrastructure available..
->
-> It would be cool to have linux-0.01 distribution. I started to use linux
-> in 2.0 times, so I'm probably not the right person to maintain it. I don't
-> even know where to get programs for it and I doubt it would work on my 4G
-> disk.
->
-> Mikulas
+On Sat Sep 29, 2001 at 10:48:37PM +0100, Alan Cox wrote:
+> 
+> 2.4.9-ac18
+> o	Revert softirq changes
 
-You might want to read the mailing list entries from 1991 and early 1992:
+I see tons and tons of
 
-http://www.kclug.org/old_archives/linux-activists/
+make[3]: Entering directory `/home/andersen/linux/drivers/ide'
+make all_targets
+make[4]: Entering directory `/home/andersen/linux/drivers/ide'
+gcc -D__KERNEL__ -I/home/andersen/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i386    -DEXPORT_SYMTAB -c ide.c
+In file included from ide.c:138:
+/home/andersen/linux/include/linux/interrupt.h:77: warning: `__cpu_raise_softirq' redefined
+/home/andersen/linux/include/asm/softirq.h:53: warning: this is the location of the previous definition
+gcc -D__KERNEL__ -I/home/andersen/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i386    -DEXPORT_SYMTAB -c ide-features.c
+In file included from ide-features.c:25:
+/home/andersen/linux/include/linux/interrupt.h:77: warning: `__cpu_raise_softirq' redefined
+/home/andersen/linux/include/asm/softirq.h:53: warning: this is the location of the previous definition
 
-I've put together a summary of some of the more interesting early posts from 
-1991 and early 1992 for the computer history book I'm writing...
 
-http://penguicon.sourceforge.net/comphist/1991.html
+type messages.  Fairly benign, but still, it suggestes that the softirq 
+revert was a bit incomplete....
 
-http://penguicon.sourceforge.net/comphist/1992.html
+ -Erik
 
-Rob
+--
+Erik B. Andersen   email:  andersee@debian.org, formerly of Lineo
+--This message was written using 73% post-consumer electrons--

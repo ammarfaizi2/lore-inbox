@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292969AbSB1AVj>; Wed, 27 Feb 2002 19:21:39 -0500
+	id <S292881AbSB1AZB>; Wed, 27 Feb 2002 19:25:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293095AbSB1AUU>; Wed, 27 Feb 2002 19:20:20 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5124 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292969AbSB1AUG>; Wed, 27 Feb 2002 19:20:06 -0500
-Subject: Re: Linux 2.4.19pre1-ac1
-To: afranck@gmx.de (Andreas Franck)
-Date: Thu, 28 Feb 2002 00:34:29 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), florin@iucha.net (Florin Iucha),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <02022800441601.01097@dg1kfa> from "Andreas Franck" at Feb 28, 2002 01:13:23 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S293098AbSB1AY6>; Wed, 27 Feb 2002 19:24:58 -0500
+Received: from renown.xo.com ([207.155.248.63]:58804 "EHLO renown.xo.com")
+	by vger.kernel.org with ESMTP id <S293097AbSB1AYU>;
+	Wed, 27 Feb 2002 19:24:20 -0500
+Message-ID: <036801c1bfee$b5b0f780$1801010a@Mauser>
+From: "Doug O'Neil" <DougO@seven-systems.com>
+To: "lk" <linux-kernel@vger.kernel.org>
+Subject: LFS Support for Sendfile
+Date: Wed, 27 Feb 2002 16:27:30 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16gEWj-0006aD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Will try this now, sounds possible - but does patch really use shared memory?
-> I will try to narrow it down a bit. There also were some changes to 
-> mm/memory.c between 2.4.18-rc2-ac2 and 2.4.18-ac1. Also a possibility?
+Hello group.
 
-Could be - as far as I can tell they are also in vanilla 2.4.18 (the
-ptrace ones)
+First time poster. If this isn't the right place for this then please point
+me in the right direction and accept my apology.
 
-Alan
+I'm using Linux 2.4.12 on a PIII
+
+I've been playing with sendfile and noticed that it doesn't like 64 bit
+filesystems ( _FILE_OFFSET_BITS=64). Is there a patch or kernel revision out
+there that supports LFS for sendfile?  Or is there some method I can't see
+to work around this.
+
+I'm opening a descriptor on a disk partition. I don't need to support
+individual block transfers larger than 2 Gig., but would like to serve up
+partitions that are larger than 2Gig.
+
+Thanks in advance
+
+Doug
+

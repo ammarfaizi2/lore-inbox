@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbTDON0C (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 09:26:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbTDON0B 
+	id S261390AbTDON2K (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 09:28:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbTDON2K 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 09:26:01 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:52230 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id S261380AbTDONZh (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 09:25:37 -0400
-Date: Tue, 15 Apr 2003 15:37:19 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andries.Brouwer@cwi.nl, Andrew Morton <akpm@digeo.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kdevt-diff
-In-Reply-To: <Pine.LNX.4.44.0304141116020.19302-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0304151445150.5042-100000@serv>
-References: <Pine.LNX.4.44.0304141116020.19302-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 15 Apr 2003 09:28:10 -0400
+Received: from csl2.consultronics.on.ca ([204.138.93.2]:32700 "EHLO
+	csl2.consultronics.on.ca") by vger.kernel.org with ESMTP
+	id S261390AbTDON2J (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 09:28:09 -0400
+Date: Tue, 15 Apr 2003 09:39:58 -0400
+From: Greg Louis <glouis@dynamicro.on.ca>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: compiling 2.4.21-pre7-ac1 with quota support disabled
+Message-ID: <20030415133958.GA14403@athame.dynamicro.on.ca>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Organization: Dynamicro Consulting Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+When quota support is disabled, file fs/dquot.c is not compiled;
+however, it contains function sync_dquots_dev() which is called twice
+from fs/quota.c.  This causes fs.o to fail to link.  #ifdeffing out the
+two calls in quota.c seems to do no harm, but I haven't tested it,
+other than to boot the resulting kernel and run some file operations.
 
-On Mon, 14 Apr 2003, Linus Torvalds wrote:
-
-> > Linus, if you still want to go for a single block device major, this patch 
-> > is bad idea (at least in this form).
-> 
-> I disagree.
-
-Ok, here is a compromise proposal. I don't care very much about the MKDEV 
-macro and almost nobody else should care about it either.
-My main concern with a larger dev_t is that people start to go wild and 
-waste the number range with crap. So what I'd like to see is some usage 
-policy, e.g. nobody should assume a certain dev_t size, so that it's still 
-possible to scale it down. If the user has only a small number of devices, 
-they should be addressable even with a 16 bit dev_t.
-
-BTW there are a few more functions missing, we need a dev_to_u32() and a 
-dev_to_u16(), so e.g. file systems can do something useful in mknod if 
-they can't store the complete number.
-
-bye, Roman
-
+-- 
+| G r e g  L o u i s          | gpg public key: finger     |
+|   http://www.bgl.nu/~glouis |   glouis@consultronics.com |
+| http://wecanstopspam.org in signatures fights junk email |

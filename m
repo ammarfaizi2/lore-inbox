@@ -1,206 +1,203 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267405AbTBNTml>; Fri, 14 Feb 2003 14:42:41 -0500
+	id <S266991AbTBNThv>; Fri, 14 Feb 2003 14:37:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267406AbTBNTmk>; Fri, 14 Feb 2003 14:42:40 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:14811 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267405AbTBNTm3>; Fri, 14 Feb 2003 14:42:29 -0500
-Date: Fri, 14 Feb 2003 11:51:45 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: Andrew Theurer <habanero@us.ibm.com>,
-       Mark Peloquin <peloquin@austin.ibm.com>
-Subject: [PATCH] percpu load avererages / *real* load averages
-Message-ID: <72980000.1045252305@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="==========1262621422=========="
+	id <S267300AbTBNThv>; Fri, 14 Feb 2003 14:37:51 -0500
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:54532 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S266991AbTBNThl>; Fri, 14 Feb 2003 14:37:41 -0500
+Date: Fri, 14 Feb 2003 20:47:32 +0100
+From: Matthias Andree <ma@dt.e-technik.uni-dortmund.de>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2/4] Update BK-kernel-tools/shortlog
+Message-ID: <20030214194732.GA31031@merlin.emma.line.org>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==========1262621422==========
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+You can import this changeset into BK by piping this whole message to:
+'| bk receive [path to repository]' or apply the patch as usual.
 
-Probably needs some tidying up before it's mergeable, but I like it. 
-Is useful as is, so I thought other people might want to look at it and
-give me feedback. Based very loosely on a earlier patch by Andrew Theurer
-that gave nr_running per cpu, but I wanted to see load averages. This is
-extremely useful for looking at scheduler rebalancing problems.
+===================================================================
 
-I think we should be basing the scheduler rebalance calculations off load
-averages, rather than a couple of sample points - I'll create a patch to do
-this sometime soon.
 
-The normal load average calculates nr_running() + nr_uninterruptible()
-which can be confusing. real_load_average just uses nr_running.
+ChangeSet@1.32, 2003-01-13 15:14:33+01:00, matthias.andree@gmx.de
+  Another 14 addresses have been dug out by Vitezslav Samel.
 
-Output here is from a NUMA 16-way machine running make -j256 bzImage on the
-kernel. 
 
-larry:~# cat /proc/real_loadavg 
-Domain    load1    load2    load3  nr_run/nr_thrd
-SYSTEM    80.67    25.75     9.02     253/901
-    0      5.09     1.61     0.56      18/901
-    1      5.17     1.66     0.58      17/901
-    2      5.28     1.70     0.59      14/901
-    3      4.80     1.54     0.54      17/901
-    4      5.39     1.72     0.60      16/901
-    5      5.17     1.66     0.58      15/901
-    6      4.72     1.50     0.53      15/901
-    7      4.62     1.46     0.51      16/901
-    8      5.27     1.69     0.59      18/901
-    9      5.06     1.61     0.56      15/901
-   10      5.15     1.63     0.57      16/901
-   11      5.06     1.59     0.55      15/901
-   12      5.45     1.70     0.59      17/901
-   13      4.77     1.56     0.54      15/901
-   14      4.89     1.55     0.54      15/901
-   15      4.74     1.50     0.52      14/901
---==========1262621422==========
-Content-Type: text/plain; charset=iso-8859-1; name=percpu_loadavg
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment; filename=percpu_loadavg; size=4908
+ shortlog |   21 +++++++++++++++++++--
+ 1 files changed, 19 insertions(+), 2 deletions(-)
 
-diff -urpN -X /home/fletch/.diff.exclude virgin/fs/proc/proc_misc.c =
-percpu_loadavg/fs/proc/proc_misc.c
---- virgin/fs/proc/proc_misc.c	Fri Jan 17 09:18:30 2003
-+++ percpu_loadavg/fs/proc/proc_misc.c	Fri Feb 14 11:48:09 2003
-@@ -95,6 +95,37 @@ static int loadavg_read_proc(char *page,
- 	return proc_calc_metrics(page, start, off, count, eof, len);
- }
-=20
-+static int real_loadavg_read_proc(char *page, char **start, off_t off,
-+				 int count, int *eof, void *data)
-+{
-+	int a, b, c, cpu;
-+	int len;
-+
-+	a =3D tasks_running[0] + (FIXED_1/200);
-+	b =3D tasks_running[1] + (FIXED_1/200);
-+	c =3D tasks_running[2] + (FIXED_1/200);
-+	len =3D sprintf(page,"Domain    load1    load2    load3  =
-nr_run/nr_thrd\n");
-+	len +=3D sprintf(page+len,"SYSTEM %5d.%02d %5d.%02d %5d.%02d %7ld/%7d\n",
-+		LOAD_INT(a), LOAD_FRAC(a),
-+		LOAD_INT(b), LOAD_FRAC(b),
-+		LOAD_INT(c), LOAD_FRAC(c),
-+		nr_running(), nr_threads);
-+	for (cpu =3D 0; cpu < NR_CPUS; ++cpu) {
-+		if (!cpu_online(cpu))
-+			continue;
-+		a =3D cpu_tasks_running[0][cpu] + (FIXED_1/200);
-+		b =3D cpu_tasks_running[1][cpu] + (FIXED_1/200);
-+		c =3D cpu_tasks_running[2][cpu] + (FIXED_1/200);
-+		len +=3D sprintf(page+len, "%5d  %5d.%02d %5d.%02d %5d.%02d %7ld/7%d\n",
-+			cpu,
-+			LOAD_INT(a), LOAD_FRAC(a),=20
-+			LOAD_INT(b), LOAD_FRAC(b),
-+			LOAD_INT(c), LOAD_FRAC(c),
-+			nr_running_cpu(cpu), nr_threads);
-+	}
-+	return proc_calc_metrics(page, start, off, count, eof, len);
-+}
-+
- static int uptime_read_proc(char *page, char **start, off_t off,
- 				 int count, int *eof, void *data)
- {
-@@ -553,6 +584,7 @@ void __init proc_misc_init(void)
- 		int (*read_proc)(char*,char**,off_t,int,int*,void*);
- 	} *p, simple_ones[] =3D {
- 		{"loadavg",     loadavg_read_proc},
-+		{"real_loadavg",real_loadavg_read_proc},
- 		{"uptime",	uptime_read_proc},
- 		{"meminfo",	meminfo_read_proc},
- 		{"version",	version_read_proc},
-diff -urpN -X /home/fletch/.diff.exclude virgin/include/linux/sched.h =
-percpu_loadavg/include/linux/sched.h
---- virgin/include/linux/sched.h	Fri Jan 17 09:18:32 2003
-+++ percpu_loadavg/include/linux/sched.h	Fri Feb 14 10:35:14 2003
-@@ -69,7 +69,11 @@ struct exec_domain;
-  *    the EXP_n values would be 1981, 2034 and 2043 if still using only
-  *    11 bit fractions.
-  */
--extern unsigned long avenrun[];		/* Load averages */
-+extern unsigned long avenrun[];				/* Load averages */
-+extern unsigned long tasks_running[3]; 			/* Real load averages */
-+extern unsigned long cpu_tasks_running[3][NR_CPUS];	/* Real load averages =
-per cpu */
-+
-+extern unsigned long tasks_running[];	/* Real load averages */
-=20
- #define FSHIFT		11		/* nr of bits of precision */
- #define FIXED_1		(1<<FSHIFT)	/* 1.0 as fixed-point */
-@@ -91,6 +95,7 @@ extern int last_pid;
- DECLARE_PER_CPU(unsigned long, process_counts);
- extern int nr_processes(void);
- extern unsigned long nr_running(void);
-+extern unsigned long nr_running_cpu(int i);
- extern unsigned long nr_uninterruptible(void);
- extern unsigned long nr_iowait(void);
-=20
-diff -urpN -X /home/fletch/.diff.exclude virgin/kernel/sched.c =
-percpu_loadavg/kernel/sched.c
---- virgin/kernel/sched.c	Fri Jan 17 09:18:32 2003
-+++ percpu_loadavg/kernel/sched.c	Fri Feb 14 11:06:23 2003
-@@ -601,6 +601,11 @@ unsigned long nr_running(void)
- 	return sum;
- }
-=20
-+unsigned long nr_running_cpu(int cpu)
-+{
-+	return cpu_rq(cpu)->nr_running;
-+}
-+
- unsigned long nr_uninterruptible(void)
- {
- 	unsigned long i, sum =3D 0;
-diff -urpN -X /home/fletch/.diff.exclude virgin/kernel/timer.c =
-percpu_loadavg/kernel/timer.c
---- virgin/kernel/timer.c	Mon Dec 16 21:50:51 2002
-+++ percpu_loadavg/kernel/timer.c	Fri Feb 14 10:58:55 2003
-@@ -731,6 +731,8 @@ static unsigned long count_active_tasks(
-  * Requires xtime_lock to access.
-  */
- unsigned long avenrun[3];
-+unsigned long tasks_running[3];
-+unsigned long cpu_tasks_running[3][NR_CPUS];
-=20
- /*
-  * calc_load - given tick count, update the avenrun load estimates.
-@@ -738,8 +740,9 @@ unsigned long avenrun[3];
-  */
- static inline void calc_load(unsigned long ticks)
- {
--	unsigned long active_tasks; /* fixed-point */
-+	unsigned long active_tasks, running_tasks; /* fixed-point */
- 	static int count =3D LOAD_FREQ;
-+	int cpu;
-=20
- 	count -=3D ticks;
- 	if (count < 0) {
-@@ -748,6 +751,19 @@ static inline void calc_load(unsigned lo
- 		CALC_LOAD(avenrun[0], EXP_1, active_tasks);
- 		CALC_LOAD(avenrun[1], EXP_5, active_tasks);
- 		CALC_LOAD(avenrun[2], EXP_15, active_tasks);
-+		running_tasks =3D nr_running() * FIXED_1;
-+		CALC_LOAD(tasks_running[0], EXP_1,  running_tasks);
-+		CALC_LOAD(tasks_running[1], EXP_5,  running_tasks);
-+		CALC_LOAD(tasks_running[2], EXP_15, running_tasks);
-+		for (cpu =3D 0; cpu < NR_CPUS; ++cpu) {
-+			if (!cpu_online(cpu))=20
-+				continue;
-+			running_tasks =3D nr_running_cpu(cpu) * FIXED_1;
-+			CALC_LOAD(cpu_tasks_running[0][cpu], EXP_1,  running_tasks);
-+			CALC_LOAD(cpu_tasks_running[1][cpu], EXP_5,  running_tasks);
-+			CALC_LOAD(cpu_tasks_running[2][cpu], EXP_15, running_tasks);
-+		}
-+			
- 	}
- }
-=20
 
---==========1262621422==========--
+diff -Nru a/shortlog b/shortlog
+--- a/shortlog	Fri Feb 14 20:44:05 2003
++++ b/shortlog	Fri Feb 14 20:44:05 2003
+@@ -8,7 +8,7 @@
+ #			Tomas Szepe <szepe@pinerecords.com>
+ #			Vitezslav Samel <samel@mail.cz>
+ #
+-# $Id: lk-changelog.pl,v 0.64 2003/01/08 14:48:50 emma Exp $
++# $Id: lk-changelog.pl,v 0.65 2003/01/13 14:12:09 emma Exp $
+ # ----------------------------------------------------------------------
+ # Distribution of this script is permitted under the terms of the
+ # GNU General Public License (GNU GPL) v2.
+@@ -149,6 +149,7 @@
+ 'bjorn.andersson@erc.ericsson.se' => 'Björn Andersson', # google, guessed ö
+ 'bjorn.wesen@axis.com' => 'Bjorn Wesen',
+ 'bjorn_helgaas@hp.com' => 'Bjorn Helgaas',
++'blueflux@koffein.net' => 'Oskar Andreasson',
+ 'bmatheny@purdue.edu' => 'Blake Matheny', # google
+ 'borisitk@fortunet.com' => 'Boris Itkis', # by Kristian Peters
+ 'braam@clusterfs.com' => 'Peter Braam',
+@@ -192,6 +193,8 @@
+ 'danc@mvista.com' => 'Dan Cox', # some CREDITS patch found by google
+ 'daniel.ritz@gmx.ch' => 'Daniel Ritz',
+ 'dave@qix.net' => 'Dave Maietta',
++'davej@codemonkey.or' => 'Dave Jones',
++'davej@codemonkey.org.u' => 'Dave Jones',
+ 'davej@codemonkey.org.uk' => 'Dave Jones',
+ 'davej@suse.de' => 'Dave Jones',
+ 'davej@tetrachloride.(none)' => 'Dave Jones',
+@@ -235,6 +238,7 @@
+ 'drow@false.org' => 'Daniel Jacobowitz',
+ 'drow@nevyn.them.org' => 'Daniel Jacobowitz',
+ 'dsaxena@mvista.com' => 'Deepak Saxena',
++'duncan.sands@math.u-psud.fr' => 'Duncan Sands',
+ 'dwmw2@infradead.org' => 'David Woodhouse',
+ 'dwmw2@redhat.com' => 'David Woodhouse',
+ 'dz@cs.unitn.it' => 'Massimo Dal Zotto',
+@@ -258,6 +262,7 @@
+ 'felipewd@terra.com.br' => 'Felipe Damasio', # by self (did not ask to include the W.)
+ 'fenghua.yu@intel.com' => 'Fenghua Yu', # google
+ 'fero@sztalker.hu' => 'Bakonyi Ferenc',
++'filip.sneppe@cronos.be' => 'Filip Sneppe',
+ 'fischer@linux-buechse.de' => 'Jürgen E. Fischer',
+ 'fletch@aracnet.com' => 'Martin J. Bligh',
+ 'flo@rfc822.org' => 'Florian Lohoff',
+@@ -272,6 +277,7 @@
+ 'fw@deneb.enyo.de' => 'Florian Weimer', # lbdb
+ 'fzago@austin.rr.com' => 'Frank Zago', # google
+ 'ganadist@nakyup.mizi.com' => 'Cha Young-Ho',
++'gandalf@wlug.westbo.se' => 'Martin Josefsson',
+ 'ganesh@tuxtop.vxindia.veritas.com' => 'Ganesh Varadarajan',
+ 'ganesh@veritas.com' => 'Ganesh Varadarajan',
+ 'ganesh@vxindia.veritas.com' => 'Ganesh Varadarajan',
+@@ -398,6 +404,7 @@
+ 'k-suganuma@mvj.biglobe.ne.jp' => 'Kimio Suganuma',
+ 'k.kasprzak@box43.pl' => 'Karol Kasprzak', # by Kristian Peters
+ 'kaber@trash.net' => 'Patrick McHardy',
++'kadlec@blackhole.kfki.hu' => 'Jozsef Kadlecsik',
+ 'kai-germaschewski@uiowa.edu' => 'Kai Germaschewski',
+ 'kai.makisara@kolumbus.fi' => 'Kai Makisara',
+ 'kai.reichert@udo.edu' => 'Kai Reichert',
+@@ -463,6 +470,7 @@
+ 'marcelo@conectiva.com.br' => 'Marcelo Tosatti',
+ 'marcelo@freak.distro.conectiva' => 'Marcelo Tosatti', # guessed
+ 'marcelo@plucky.distro.conectiva' => 'Marcelo Tosatti',
++'marcus@ingate.com' => 'Marcus Sundberg',
+ 'marekm@amelek.gda.pl' => 'Marek Michalkiewicz',
+ 'mark@alpha.dyndns.org' => 'Mark W. McClelland',
+ 'mark@hal9000.dyndns.org' => 'Mark W. McClelland',
+@@ -510,6 +518,7 @@
+ 'msw@redhat.com' => 'Matt Wilson',
+ 'mufasa@sis.com.tw' => 'Mufasa Yang', # sent by himself
+ 'mulix@actcom.co.il' => 'Muli Ben-Yehuda', # sent by himself
++'mulix@mulix.org' => 'Muli Ben-Yehuda',
+ 'mw@microdata-pos.de' => 'Michael Westermann',
+ 'mzyngier@freesurf.fr' => 'Marc Zyngier',
+ 'n0ano@n0ano.com' => 'Don Dugger',
+@@ -517,6 +526,7 @@
+ 'nathans@sgi.com' => 'Nathan Scott',
+ 'neilb@cse.unsw.edu.au' => 'Neil Brown',
+ 'nemosoft@smcc.demon.nl' => 'Nemosoft Unv.',
++'netfilter@interlinx.bc.ca' => 'Brian J. Murrell',
+ 'nico@cam.org' => 'Nicolas Pitre',
+ 'nicolas.aspert@epfl.ch' => 'Nicolas Aspert',
+ 'nicolas.mailhot@laposte.net' => 'Nicolas Mailhot',
+@@ -541,6 +551,7 @@
+ 'p_gortmaker@yahoo.com' => 'Paul Gortmaker',
+ 'pasky@ucw.cz' => 'Petr Baudis',
+ 'patmans@us.ibm.com' => 'Patrick Mansfield',
++'paubert@iram.es' => 'Gabriel Paubert',
+ 'paul.mundt@timesys.com' => 'Paul Mundt', # google
+ 'paulkf@microgate.com' => 'Paul Fulghum',
+ 'paulus@au1.ibm.com' => 'Paul Mackerras',
+@@ -609,6 +620,7 @@
+ 'rob@osinvestor.com' => 'Rob Radez',
+ 'robert.olsson@data.slu.se' => 'Robert Olsson',
+ 'rohit.seth@intel.com' => 'Rohit Seth',
++'roland@redhat.com' => 'Roland McGrath',
+ 'roland@topspin.com' => 'Roland Dreier',
+ 'romieu@cogenit.fr' => 'François Romieu',
+ 'romieu@fr.zoreil.com' => 'François Romieu',
+@@ -642,7 +654,8 @@
+ 'scott_anderson@mvista.com' => 'Scott Anderson',
+ 'scottm@somanetworks.com' => 'Scott Murray',
+ 'sct@redhat.com' => 'Stephen C. Tweedie',
+-'sds@tislabs.com' => 'Stephen Smalley',
++'sds@epoch.ncsc.mil' => 'Stephen D. Smalley',
++'sds@tislabs.com' => 'Stephen D. Smalley',
+ 'sebastian.droege@gmx.de' => 'Sebastian Dröge',
+ 'sfbest@us.ibm.com' => 'Steve Best',
+ 'sfr@canb.auug.org.au' => 'Stephen Rothwell',
+@@ -719,6 +732,7 @@
+ 'uzi@uzix.org' => 'Joshua Uziel',
+ 'valko@linux.karinthy.hu' => 'Laszlo Valko',
+ 'vandrove@vc.cvut.cz' => 'Petr Vandrovec',
++'vanl@megsinet.net' => 'Martin H. VanLeeuwen',
+ 'varenet@parisc-linux.org' => 'Thibaut Varene',
+ 'vberon@mecano.gme.usherb.ca' => 'Vincent Béron',
+ 'venkatesh.pallipadi@intel.com' => 'Venkatesh Pallipadi',
+@@ -1280,6 +1294,9 @@
+ __END__
+ # --------------------------------------------------------------------
+ # $Log: lk-changelog.pl,v $
++# Revision 0.65  2003/01/13 14:12:09  emma
++# New addresses dug out by Vita.
++#
+ # Revision 0.64  2003/01/08 14:48:50  emma
+ # New addresses by Vita.
+ #
 
+===================================================================
+
+
+This BitKeeper patch contains the following changesets:
+1.32
+## Wrapped with gzip_uu ##
+
+
+begin 600 bkpatch29704
+M'XL(``5'33X``\U5VV[;.!1\CKZ"0`KXH35#ZF);!ERH:;IIDF9;Q&B!?:2H
+M8TMKBC1(RG$*?WP/Y23>9%,L]O*PMB"#XLPA9\[0.B9?'=CI42N\KQOAJ-"5
+M!8B.R4?C_/1HV6YI%88WQN#PQ'4.3E9@-:B3TRN\AOO!T!NC7(3`+\++FFS`
+MNND1I\GC$W^WANG1S8?SKY_>W431;$;>UT(O80Z>S&:1-W8C5.6*->AEUVCJ
+MK="N!2^H-.WN$;N+&8OQR^.$C;)\%^>C+-M!#%DF4R[*\60,,HZ>Z2GV.IZ6
+M21AG.4M2QK)=FL5Q')T1W'%,6'+"^`E/",^F/)TFR6O&IXR1EXN2UYP,671*
+M_F,)[R-)WFGC:["$IT14N*9SX$@M-D!*`$VJ;DE,YTEY1[XU'KX[)39D+EI0
+M-+HB01./OAQ\CH9_\Q-%3+#H[4%9;5IX)LO5QGIEEGM5&9^P<3KFDUW"QWFV
+M6T`N%G+,<L&@$F7U$P^?5,&^\(2G/$WB'8LGD[1/RP/B25C^]7Y^%I1G^[G/
+M2;IC^23E?4[XGW,2_U5.<C*,_X=!Z3W^3(;V=ANNX19#\V#`/\C,&>>$1Q?]
+M_9B\NJBF1*V&LE>%%>E:O=D01D<9">8^6)A.>3QE.8&V%>3#=DU>88DLU!B4
+MJH.%ZK;%RBP6@'YI\`,R>TL&G]U*6!2/BH5S1@_>("E/21P-*A3_>R%-!:W1
+M*[BCQNXY9\&52Z/!(?HEV))V+R`OXF0<-E-U6@I-'?;6%=CIFG;#M>LJNGBH
+MWP/0703TO!$+O$6CFC5U&M9K**0UVCA:PI[R2Y@C\WZNIXS30%EB":$6Q:WJ
+MEO06G"\-=?>4:V%]HW%W#A8/RC&A@;82E0)9E$K(56T4T-5BU=#Z7M2E^8X4
+M<M6#7+/JB=@+)+;"RLX5C5X*#R&*CTOA8S+O=%6"709"AND/A$XUVZ*_!]_N
+MX3@DIZ"'OT'=56(/SP,<VX8N>+"X!-Y5H[>TE%2*/?'4-NC;)277G;6@5,],
+MD\!<BPZ7]D5C14NQ'3W^7)2V`87OEWXRP$=]Z`;6*+2NL%#5PA^$W/2/R;4\
+MM]@WQ)^-TB#\(OQ@9!QV%-9&UE1+)VG;J#UO[F%=XRDZHV3>"J7@+B0GH'V#
+M)ZETAR5>A%Z,XWY;&Z%5T<+2->C$(<3WK?Q(R3>A/P%TM[`/<CR)27B!WL"F
+M<8W1^T/SXJGICPU"?X7;/_P!/#WV@D;'AS>TK$&N7-?.9"Y':9G+Z`?^-.?%
+$#`@`````
+`
+end

@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272671AbRHaMCO>; Fri, 31 Aug 2001 08:02:14 -0400
+	id <S272670AbRHaL6D>; Fri, 31 Aug 2001 07:58:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272672AbRHaMCE>; Fri, 31 Aug 2001 08:02:04 -0400
-Received: from relay1.zonnet.nl ([62.58.50.37]:16380 "EHLO relay1.zonnet.nl")
-	by vger.kernel.org with ESMTP id <S272671AbRHaMBv>;
-	Fri, 31 Aug 2001 08:01:51 -0400
-Date: Fri, 31 Aug 2001 14:01:22 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: <roman@serv>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-cc: "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>,
-        <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <200108302327.f7UNRvl04257@oboe.it.uc3m.es>
-Message-ID: <Pine.LNX.4.33.0108311342570.24131-100000@serv>
+	id <S272671AbRHaL5x>; Fri, 31 Aug 2001 07:57:53 -0400
+Received: from mailout6-1.nyroc.rr.com ([24.92.226.177]:2260 "EHLO
+	mailout6.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S272670AbRHaL5n>; Fri, 31 Aug 2001 07:57:43 -0400
+Message-ID: <029401c13214$6b2cd700$1a01a8c0@allyourbase>
+From: "Dan Maas" <dmaas@dcine.com>
+To: "Hans-Christian Armingeon" <johnny@allesklar.de>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.ctkbovv.a626og@ifi.uio.no>
+Subject: Re: ieee1394 broken?
+Date: Fri, 31 Aug 2001 07:59:38 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> my box (via kt133 thunderbird 1g 256mb 2.4.9-ac3) hangs
+> completely up, when I insert ohci1394.
 
-On Fri, 31 Aug 2001, Peter T. Breuer wrote:
+This bug is fixed in the linux1394 CVS
+(http://linux1394.sourceforge.net/cvs.html). Ben Collins will be forwarding
+the fix to Linus soon.
 
->    if (sizeof(_x) != sizeof(_y)) \
->      MIN_BUG(); \
-
-What bug are you trying to fix here?
-
-> int main() {
->   unsigned i = 1;
->   signed j = -2;
->   return MIN(i,j);
-> }
-
-Try -Wsign-compare.
-
-bye, Roman
-
-
-
+Dan
 

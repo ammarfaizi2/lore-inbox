@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272205AbRHWDjL>; Wed, 22 Aug 2001 23:39:11 -0400
+	id <S272206AbRHWDnB>; Wed, 22 Aug 2001 23:43:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272206AbRHWDjB>; Wed, 22 Aug 2001 23:39:01 -0400
-Received: from mail.deja.com ([65.195.161.135]:34576 "EHLO mail.deja.com")
-	by vger.kernel.org with ESMTP id <S272205AbRHWDi5>;
-	Wed, 22 Aug 2001 23:38:57 -0400
-From: "Jeff Busch" <jbusch@half.com>
-To: "David Lang" <dlang@diginsite.com>
-Cc: <linux-kernel@vger.kernel.org>, <roswell-list@redhat.com>
-Subject: RE: [problem] RH 2.4.7-2 kernel slows to a crawl under heavy i/o
-Date: Wed, 22 Aug 2001 22:39:06 -0500
-Message-ID: <NEBBJGKHGENBAPAMDILGGEHJGOAA.jbusch@half.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.33.0108221633280.3868-100000@dlang.diginsite.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-Importance: Normal
+	id <S272207AbRHWDmv>; Wed, 22 Aug 2001 23:42:51 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:11280 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S272206AbRHWDmm>; Wed, 22 Aug 2001 23:42:42 -0400
+Date: Thu, 23 Aug 2001 00:42:45 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Andi Kleen <ak@suse.de>
+Cc: "Jens Hoffrichter" <HOFFRICH@de.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Allocation of sk_buffs in the kernel
+Message-ID: <20010823004245.O5062@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Andi Kleen <ak@suse.de>, "Jens Hoffrichter" <HOFFRICH@de.ibm.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <OF55D2E221.5E62CB41-ONC1256AB0.0052D2D3@de.ibm.com.suse.lists.linux.kernel> <oupd75no4b3.fsf@pigdrop.muc.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <oupd75no4b3.fsf@pigdrop.muc.suse.de>; from ak@suse.de on Thu, Aug 23, 2001 at 05:14:56AM +0200
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Em Thu, Aug 23, 2001 at 05:14:56AM +0200, Andi Kleen escreveu:
+> [1] There may be a few unnormal ones that do; e.g. vendor driver
+> writers seem to frequently try to reuse skbuffs privately because they're
+> used to that from other OS. It is discouraged and somewhat tricky, but
+> possible.
 
-> I have been trying to duplicate a similar problem in my lab that happened
-> to me on a production box with 2.4.5. do you have a test that will allow
-> you to replicate the problem at will?
+The original 802.2 stack from procom, used frame_t all over the core stack,
+with only the entry/exit points manipulating skb's. On entry from the core
+networking stack and from upper protocols (NetBEUI in procom case) they
+allocated a frame_t from a pool and initialited pointers to the mac and llc
+headers and stored the skb type in another frame_t member, pointing to the
+skb memory and used those pointers instead of skb->h and skb->nh.  That
+way, I think, they could use the core for several OSes.
 
-ok here's a reply from our developer:
+Maybe Jens should use something like WAITQUEUE_DEBUG if he want to know
+where alloc_skb and friends were called, see include/linux/wait.h 8)
 
---------------------
+- Arnaldo
 
-probably the best way to reproduce the environment would be to write a
-C++ class that has a method on it that goes and maps a file, touches
-all the memory in that file, and then returns.  add another method
-that takes a number and returns that same number.  then run that code
-through swig and write a mod_perl interface to call the first method
-then call the second method in a loop (10 times should be good), then
-storable::freeze an array of results and print it to stdout.
-
-this ought to emulate the kinds of things we do there.  you might
-actually have that method take a number and return a string (literal)
-instead of a number, just to exercise swig a little more.
-
---------------------
-
-Note that the file must be large; maybe 50% greater than physical RAM.
-
-Jeff

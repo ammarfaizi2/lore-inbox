@@ -1,65 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262617AbTJTPSZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 11:18:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbTJTPSZ
+	id S262633AbTJTPVV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 11:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbTJTPVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 11:18:25 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:41160 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S262598AbTJTPSV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 11:18:21 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: davidm@hpl.hp.com, David Mosberger <davidm@napali.hpl.hp.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] prevent "dd if=/dev/mem" crash
-Date: Mon, 20 Oct 2003 09:17:10 -0600
-User-Agent: KMail/1.5.3
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <200310171610.36569.bjorn.helgaas@hp.com> <20031017165543.2f7e9d49.akpm@osdl.org> <16272.34681.443232.246020@napali.hpl.hp.com>
-In-Reply-To: <16272.34681.443232.246020@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310200917.11074.bjorn.helgaas@hp.com>
+	Mon, 20 Oct 2003 11:21:20 -0400
+Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:55683
+	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
+	id S262633AbTJTPVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 11:21:19 -0400
+From: Tovar <tvr@penngrove.fdns.net>
+To: linux-kernel@vger.kernel.org
+cc: David H?rdeman <david@2gen.com>
+Subject: Re: Suspend with 2.6.0-test7-mm1
+Message-Id: <E1ABbqb-0002B5-00@penngrove.fdns.net>
+Date: Mon, 20 Oct 2003 08:21:29 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 October 2003 6:21 pm, David Mosberger wrote:
-> What about memory-mapped device registers?  Isn't all memory
-> physically contiguous on x86 and that's why the "p >=
-> __pa(high_memory)" test saves you from that?
 
-As others have mentioned, using read/write on /dev/mem to get at
-memory-mapped registers is unlikely to work on ia64 anyway, because
-read/write use cacheable mappings.  Using mmap does work (using
-uncacheable mappings), and my patch doesn't change that path.
+    > I've been playing with the suspend features of 2.6.0-test7-mm1 and I
+    > can't get it to work. When I do "echo -n standby > /sys/power/state",
+    > the screen flickers briefly and then the system is back to normal. In
+    > the logs I see the following message:
+    >
+	...
 
->   >> On ia64, a read to non-existent physical memory causes the processor
->   >> to time out and take a machine check.  I'm not sure it's even possible
->   >> to recover from that.
-> 
->   Andrew> ick.  That would be very poor form.
-> 
-> Reasonable people can disagree on that.  One philosophy states that if
-> your kernel touches random addresses, it's better to signal a visible
-> error (machine-check) than to risk silent data corruption.
+    I've seen this, too. Try "sleep 1; echo -n standby > /sys/power/state".
+    I theory I thought of, is that the system suspends before you have
+    time to release the enter key, and the key release triggers a wakeup.
+    Does this seem reasonable to those more knowledgeable?
 
-It occurred to me over the weekend that part of this confusion is
-related to the fact that ia64 doesn't have page tables for the
-kernel identity-mapped segments.  (We're talking about reading
-physical memory, but read/write_mem() actually convert the address
-using __va() before doing the copy.)
+That doesn't change anything for me, either.  Same 'dmesg' output as noted
+before.
 
-I bet that ia32 does have page tables for this case, and that
-an attempt to read non-existent physical memory will cause a TLB
-miss from which copy_*_user() can easily recover.
+     .config:	http://bugzilla.kernel.org/attachment.cgi?id=1092
 
-On ia64, the same TLB miss would occur, but since there are no page
-tables, the miss handler assumes the kernel knows what it is doing
-and happily synthesizes a mapping that points nowhere.
+This is on a Sony VAIO R505EL, attached is 'lspci'.
 
-Bjorn
+			   -- JM
 
+-------------------------------------------------------------------------------
+00:00.0 Host bridge: Intel Corp. 82830 830 Chipset Host Bridge (rev 04)
+00:02.0 VGA compatible controller: Intel Corp. 82830 CGC [Chipset Graphics Controller] (rev 04)
+00:02.1 Display controller: Intel Corp. 82830 CGC [Chipset Graphics Controller]
+00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #1) (rev 02)
+00:1d.1 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #2) (rev 02)
+00:1d.2 USB Controller: Intel Corp. 82801CA/CAM USB (Hub #3) (rev 02)
+00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 42)
+00:1f.0 ISA bridge: Intel Corp. 82801CAM ISA Bridge (LPC) (rev 02)
+00:1f.1 IDE interface: Intel Corp. 82801CAM IDE U100 (rev 02)
+00:1f.3 SMBus: Intel Corp. 82801CA/CAM SMBus (rev 02)
+00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 Audio (rev 02)
+00:1f.6 Modem: Intel Corp. 82801CA/CAM AC'97 Modem (rev 02)
+02:02.0 FireWire (IEEE 1394): Texas Instruments TSB43AB22/A IEEE-1394a-2000 Controller (PHY/Link)
+02:05.0 CardBus bridge: Ricoh Co Ltd RL5c475 (rev 80)
+02:08.0 Ethernet controller: Intel Corp. 82801CAM (ICH3) PRO/100 VE (LOM) Ethernet Controller (rev 42)
+===============================================================================

@@ -1,40 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266435AbSKGKFM>; Thu, 7 Nov 2002 05:05:12 -0500
+	id <S266444AbSKGKH1>; Thu, 7 Nov 2002 05:07:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266438AbSKGKFM>; Thu, 7 Nov 2002 05:05:12 -0500
-Received: from signup.localnet.com ([207.251.201.46]:49563 "HELO
-	smtp.localnet.com") by vger.kernel.org with SMTP id <S266435AbSKGKFL>;
-	Thu, 7 Nov 2002 05:05:11 -0500
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org, linuxconsole-dev@lists.sourceforge.net
-Subject: Re: 2.5 bk, input driver and dell i8100 nib+pad
-References: <m3k7jqj9mi.fsf@lugabout.jhcloos.org>
-	<m3n0omk97i.fsf@lugabout.jhcloos.org>
-	<11033.1036602261@passion.cambridge.redhat.com>
-	<5339.1036653369@passion.cambridge.redhat.com>
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <5339.1036653369@passion.cambridge.redhat.com>
-Date: 07 Nov 2002 05:11:04 -0500
-Message-ID: <m3el9xk7uv.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S266446AbSKGKH1>; Thu, 7 Nov 2002 05:07:27 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:14735 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S266444AbSKGKH0> convert rfc822-to-8bit;
+	Thu, 7 Nov 2002 05:07:26 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Fernando Fraga e Silva <fernando.fraga@poli.usp.br>
+Organization: Universidade de =?iso-8859-1?q?S=E3o?= Paulo
+To: linux-kernel@vger.kernel.org
+Subject: Parallel port misbehavior using kernel 2.4.19 and pcchips M810
+Date: Fri, 8 Nov 2002 07:12:56 -0200
+User-Agent: KMail/1.4.3
+Cc: thiago@sim.lme.usp.br
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200211080712.56551.fernando.fraga@poli.usp.br>
+X-OriginalArrivalTime: 07 Nov 2002 10:13:33.0654 (UTC) FILETIME=[5418CF60:01C28646]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David Woodhouse <dwmw2@infradead.org> writes:
+Hi Guys
 
->> The patch in the referenced post did not fix this for me in 2.5 bk
->> current.  The nib continued to do nothing.
+I'm working for 4 days on a parallel port misbehavior problem without having 
+any sucess. I have to control a device with SPP mode using a pcchips M810, a 
+Duron processor and a kernel 2.4.19.
 
-David> You need to reboot or suspend and resume, Just unloading and
-David> reloading the psmouse module isn't sufficient.
+So I made the following simple code :
+--
+#include <asm/io.h> //i've tried <sys/io.h>  too
+int main ()
+{
+ioperm( 0x378, 3, 1);
+outb (0x01, 0x378 );
+ioperm (0x378, 3, 0);
+return 0;
+}
+--
+And copiled with "gcc -O2 test.c -o test; ./test".  running it as superuser 
+the result should be a "1" logic on pin "2" of parallel port.
+Ok it is correct except for this motherboard, it works on Soyo+K6, 
+Gigabyte+Athlon, i810+Celeron, etc. But it doesn't for M810+Duron.
+I verified the BIOS setup, changed the kernel source for 2.2.20, changed the 
+motherboard for M812, recompiled and recompiled the kernel, changed the 
+distro from Debian/Woody to Debian/Testing. None of this worked.
 
-Of course; I even incremented my EXTRAVERSION for the new kernel, and
-the import and compile was done in a fresh clone....
+So I tried to install Win95 and make it using a assembler code ... It worked.
 
--JimC
+The next thing i've done was start making a kernel module.... it worked for 
+Gigabyte+Athlon, i810+Celeron, Soyo+K6 and a old PC-Chips board with K6 
+processor....but nothing happened for the M810+Duron board though.
 
+So I thought it should be a problem with outb call, so I made a module using 
+assembler instead outb call, it was compiled with success and was installed. 
+The requested i/o region was reserved with success but didn't work with 
+M810+Duron. Though It worked with Gigabyte+Athlon and Soyo+K6 again.
+So i get the old code (as i listed above)  and after testing it with success 
+again in the Soyo+K6 board i compiled it and linked the program statically. i 
+brought the executable to the M810+Duron and it didn't work again... though 
+it always runs without any errors the signals are not present on the parallel 
+port.
 
+I tried to access the parallel port through /dev/ports using lseek to get the 
+0x378 address position... and the result was the same... nothing for 
+M810+Duron
+
+I don't know any more to do, and I'm wondered if anyone here can help me. I 
+can't believe it will not work on this motherboard if the parallel works 
+perfectly. If anyone have any information about this parallel port on this 
+motherboard, any code or any related knowlegment and like to share It would 
+be a lot appreciated.
+
+Thanks.
+
+Fernando.
 

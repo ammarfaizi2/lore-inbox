@@ -1,55 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261454AbTCJTtb>; Mon, 10 Mar 2003 14:49:31 -0500
+	id <S261453AbTCJTt3>; Mon, 10 Mar 2003 14:49:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261455AbTCJTtb>; Mon, 10 Mar 2003 14:49:31 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:18343 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S261454AbTCJTt2>; Mon, 10 Mar 2003 14:49:28 -0500
-Message-ID: <3E6CEEB9.1050304@nortelnetworks.com>
-Date: Mon, 10 Mar 2003 14:59:53 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [BK-2.5] Move "used FPU status" into new non-atomic thread_info->status field.
-References: <Pine.LNX.4.44.0303101119220.2240-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261455AbTCJTt3>; Mon, 10 Mar 2003 14:49:29 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:23440 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S261453AbTCJTt1>; Mon, 10 Mar 2003 14:49:27 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 10 Mar 2003 20:59:12 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Linus Torvalds <torvalds@transmeta.com>, Michael Hunold <m.hunold@gmx.de>,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: [patch] v4l: drivers/media Kconfig changes.
+Message-ID: <20030310195848.GA6202@bytesex.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Mon, 10 Mar 2003, David S. Miller wrote:
-> 
->>   
->>At least on sparc{32,64}, we consider FPU state to be clobbered coming
->>into system calls, this eliminates a lot of hair wrt. FPU state
->>restoring in cases such as fork().
->>
-> 
-> We could _probably_ do it on x86 too. The standard C calling convention on 
-> x86 says FPU register state is clobbered, if I remember correctly. 
-> However, some of the state is "long-term", like rounding modes, exception 
-> masking etc, and even if we didn't save the register state we would have 
-> to save that part.
-> 
-> And once you save that part, you're better off saving the registers too, 
-> since it's all loaded and saved with the same fxsave/fxrestor instruction 
-> (ie we'd actually have to do _more_ work to save only part of the FP 
-> state).
+  Hi,
 
-Does this open the door for using FP in the kernel?
+This patch adds a few new config options for modules which are shared
+by multiple video4linux drivers (bttv * saa7134).  This simplifies the
+Makefiles and also prepares the merge of Michael's saa7146 driver which
+will also use these modules.
 
-Chris
+Please apply,
 
+  Gerd
+
+--- linux-2.5.64/drivers/media/Kconfig	2003-03-06 15:10:35.000000000 +0100
++++ linux/drivers/media/Kconfig	2003-03-06 15:08:18.000000000 +0100
+@@ -32,5 +32,24 @@
+ 
+ source "drivers/media/dvb/Kconfig"
+ 
++# source "drivers/media/common/Kconfig"
++
++config VIDEO_TUNER
++	tristate
++	default y if VIDEO_BT848=y || VIDEO_SAA7134=y
++	default m if VIDEO_BT848=m || VIDEO_SAA7134=m
++	depends on VIDEO_DEV
++
++config VIDEO_BUF
++	tristate
++	default y if VIDEO_BT848=y || VIDEO_SAA7134=y
++	default m if VIDEO_BT848=m || VIDEO_SAA7134=m
++	depends on VIDEO_DEV
++
++config VIDEO_BTCX
++	tristate
++	default VIDEO_BT848
++	depends on VIDEO_DEV
++
+ endmenu
+ 
+--- linux-2.5.64/drivers/media/video/Makefile	2003-03-06 14:56:44.000000000 +0100
++++ linux/drivers/media/video/Makefile	2003-03-06 15:01:04.000000000 +0100
+@@ -9,7 +9,7 @@
+ obj-$(CONFIG_VIDEO_DEV) += videodev.o v4l2-common.o v4l1-compat.o
+ 
+ obj-$(CONFIG_VIDEO_BT848) += bttv.o msp3400.o tvaudio.o \
+-	tda7432.o tda9875.o tuner.o video-buf.o tda9887.o
++	tda7432.o tda9875.o
+ obj-$(CONFIG_SOUND_TVMIXER) += tvmixer.o
+ 
+ obj-$(CONFIG_VIDEO_ZR36120) += zoran.o
+@@ -29,5 +29,10 @@
+ obj-$(CONFIG_VIDEO_CPIA_PP) += cpia_pp.o
+ obj-$(CONFIG_VIDEO_CPIA_USB) += cpia_usb.o
+ obj-$(CONFIG_VIDEO_MEYE) += meye.o
+-obj-$(CONFIG_VIDEO_SAA7134) += saa7134/ tuner.o tda9887.o video-buf.o
++obj-$(CONFIG_VIDEO_SAA7134) += saa7134/
+ obj-$(CONFIG_TUNER_3036) += tuner-3036.o
++
++obj-$(CONFIG_VIDEO_TUNER) += tuner.o tda9887.o
++obj-$(CONFIG_VIDEO_BUF)   += video-buf.o
++obj-$(CONFIG_VIDEO_BTCX)  += btcx-risc.o
++
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+/join #zonenkinder

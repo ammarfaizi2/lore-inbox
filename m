@@ -1,79 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312218AbSCRGvy>; Mon, 18 Mar 2002 01:51:54 -0500
+	id <S312221AbSCRHHe>; Mon, 18 Mar 2002 02:07:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312220AbSCRGvo>; Mon, 18 Mar 2002 01:51:44 -0500
-Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:521
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S312218AbSCRGva>; Mon, 18 Mar 2002 01:51:30 -0500
-Date: Mon, 18 Mar 2002 01:53:06 -0500 (EST)
-From: Shawn Starr <spstarr@sh0n.net>
-To: Nathan Scott <nathans@sgi.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-pre3-ac1 - Quotactl patch
-In-Reply-To: <20020318144721.G1601@wobbly.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.40.0203180152260.21632-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312224AbSCRHHY>; Mon, 18 Mar 2002 02:07:24 -0500
+Received: from tsukuba.m17n.org ([192.47.44.130]:14773 "EHLO tsukuba.m17n.org")
+	by vger.kernel.org with ESMTP id <S312222AbSCRHHO>;
+	Mon, 18 Mar 2002 02:07:14 -0500
+Date: Mon, 18 Mar 2002 16:07:01 +0900 (JST)
+Message-Id: <200203180707.g2I771Z00657@mule.m17n.org>
+From: NIIBE Yutaka <gniibe@m17n.org>
+To: trond.myklebust@fys.uio.no
+Cc: Stephan von Krawczynski <skraw@ithnet.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
+In-Reply-To: <15499.64058.442959.241470@charged.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Trond, 
 
-Right, but which old patch 2.4.18-pre3-quotactl reversed against
-2.4.19-pre3-ac1 doesnt go out cleanly without patch complaining about
-unreversed patch problems.
+Trond Myklebust wrote:
+ > The only thing I can think might be missing is the fix to cope with
+ > broken servers that reuse filehandles (this violates the
+ > RFCs). Reiserfs 3.5 + knfsd is one such broken combination. Another
+ > broken server is unfsd...
 
-Shawn.
+Yes, unfsd...
 
-On Mon, 18 Mar 2002, Nathan Scott wrote:
+A problem is easily reproducible with user-space nfsd (on ext3, in my case).
+We see the message (say, when installing a package with dpkg -i):
+	nfs_refresh_inode: inode XXXXXXX mode changed, OOOO to OOOO
+Which means, same file handle but different type.
 
-> On Sun, 17 Mar 2002, Alan Cox wrote:
-> > >
-> > > You might want to upgrade to the newer one, the patch has undergone a lot
-> > > of changes and -ac against the XFS merge of the quotactl patch seriously
-> > > breaks ;-(
-> >
-> > The -ac patch is the current stable 2.4 one for 32bit uid quota. [...]
-> >
->
-> Shawn,
->
-> We are using Jan's latest "alpha" patches in XFS CVS (not the latest
-> "stable" patches), so you will need to follow the recipe I sent out
-> earlier (see below) for getting these patches to work together with
-> the quota patch in Alan's patches.  Following this recipe, nothing
-> should "seriously break" -- please let me know if it does -- and no
-> additional quota patches are necessary for XFS.
->
-> cheers.
->
-> --
-> Nathan
->
->
-> On Tue, Mar 05, 2002 at 12:59:04AM -0500, Shawn Starr wrote:
-> >
-> > I will be doing this today for -shawn10. Thank you.
-> >
-> > Shawn.
-> >
-> > On Tue, 5 Mar 2002, Nathan Scott wrote:
-> > > Subject: TAKE - Even newer VFS quota
-> > >
-> > > This is Jan's latest set of VFS quota patches.  These patches (which
-> > > were posted to LKML on the weekend) allow the two VFS quota formats
-> > > and quotactl interfaces to coexist.  All seems stable on my machine.
-> > >
-> > > If you're one of the people merging XFS with Alan Cox's patches, you
-> > > should first reverse-apply Jan's old patches (which removes the old
-> > > 32 bit UID/GID quota from Alan's patches, and then apply the new code
-> > > from the XFS CVS tree (which "re-applies" the 32 bit UID/GID quota
-> > > patches, but now using Jan's new mechanisms).
-> > >
-> > > Please let us know of any quota oddities you see in the CVS tree.
-> > >
-> > > cheers.
-> > >
->
->
+FWIW, I'm using the patch attached.  It works for me.
 
+--- linux-2.4.18/fs/nfs/inode.c~	Wed Mar 13 17:56:48 2002
++++ linux-2.4.18.superh/fs/nfs/inode.c	Mon Mar 18 13:27:39 2002
+@@ -680,8 +680,10 @@ nfs_find_actor(struct inode *inode, unsi
+ 	if (is_bad_inode(inode))
+ 		return 0;
+ 	/* Force an attribute cache update if inode->i_count == 0 */
+-	if (!atomic_read(&inode->i_count))
++	if (!atomic_read(&inode->i_count)) {
+ 		NFS_CACHEINV(inode);
++		inode->i_mode = 0;
++	}
+ 	return 1;
+ }
+ 
+-- 

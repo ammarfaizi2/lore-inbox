@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265255AbUANI5a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 03:57:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265263AbUANI5a
+	id S265164AbUANIzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 03:55:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265150AbUANIzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 03:57:30 -0500
-Received: from colin2.muc.de ([193.149.48.15]:1549 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S265255AbUANI53 (ORCPT
+	Wed, 14 Jan 2004 03:55:16 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:24705 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S265164AbUANIzM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 03:57:29 -0500
-Date: 14 Jan 2004 09:58:25 +0100
-Date: Wed, 14 Jan 2004 09:58:25 +0100
-From: Andi Kleen <ak@colin2.muc.de>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Andi Kleen <ak@muc.de>, akpm@osdl.org, jh@suse.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix compilation on gcc 3.4
-Message-ID: <20040114085825.GA10916@colin2.muc.de>
-References: <20040114083700.GA1820@averell> <20040114084721.GP31589@devserv.devel.redhat.com>
+	Wed, 14 Jan 2004 03:55:12 -0500
+Date: Wed, 14 Jan 2004 09:55:57 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Joe Korty <joe.korty@ccur.com>
+Cc: rml@ximian.com, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] rq->curr==p not equivalent to task_running(rq,p)
+Message-ID: <20040114085557.GA16818@elte.hu>
+References: <20040113230220.GA13341@tsunami.ccur.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040114084721.GP31589@devserv.devel.redhat.com>
+In-Reply-To: <20040113230220.GA13341@tsunami.ccur.com>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: SpamAssassin 2.60
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 14, 2004 at 03:47:22AM -0500, Jakub Jelinek wrote:
-> On Wed, Jan 14, 2004 at 09:37:00AM +0100, Andi Kleen wrote:
-> > 
-> > The upcomming gcc 3.4 has a new inlining algorithm which sometimes
-> > fails to inline some "dumb" inlines in the kernel. This sometimes leads
-> > to undefined symbols while linking.
-> 
-> It fails to inline routines with always_inline attribute?
-> That sounds like a gcc bug.  always_inline should mean inline always,
-> and issue error if for some reason it is impossible.
+* Joe Korty <joe.korty@ccur.com> wrote:
 
-The problem is that there are some functions that are declared
-inline in header files, but there is no body available. When they are
-called this ends with an hard error in gcc. I started with fixing
-them but eventually gave up because there were so many of them.
+> task_running(rq,p) is equivalent to (rq->curr == p) only for some
+> architectures.  Boot tested on i386.
 
-In addition you get tons of ugly warnings.
+> -		if (rq->curr == p) {
+> +		if (task_running(rq, p)) {
 
--Andi
+indeed - good catch. Andrew, please apply.
+
+	Ingo

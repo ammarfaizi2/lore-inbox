@@ -1,49 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268368AbTAMWZN>; Mon, 13 Jan 2003 17:25:13 -0500
+	id <S268374AbTAMW1m>; Mon, 13 Jan 2003 17:27:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268370AbTAMWZN>; Mon, 13 Jan 2003 17:25:13 -0500
-Received: from sex.inr.ac.ru ([193.233.7.165]:59871 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S268368AbTAMWZM>;
-	Mon, 13 Jan 2003 17:25:12 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200301132232.BAA09527@sex.inr.ac.ru>
-Subject: Re: [RFC] Migrating net/sched to new module interface
-To: rusty@rustcorp.com.au (Rusty Russell)
-Date: Tue, 14 Jan 2003 01:32:56 +0300 (MSK)
-Cc: kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20030103051033.1A2AA2C003@lists.samba.org> from "Rusty Russell" at Jan 3, 3 04:10:19 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S268375AbTAMW1m>; Mon, 13 Jan 2003 17:27:42 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:53509 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S268374AbTAMW1j>; Mon, 13 Jan 2003 17:27:39 -0500
+Message-ID: <3E23390F.29FF27D3@linux-m68k.org>
+Date: Mon, 13 Jan 2003 23:09:19 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: why the new config process is a *big* step backwards
+References: <Pine.LNX.4.44.0301130743100.25468-100000@dell>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi,
 
-> Hmm, I thought the sched stuff all runs under the network brlock?  If
-> so, it doesn't need to be held in, since it's not preemptible.
-> 
-> I haven't checked, though...
+"Robert P. J. Day" wrote:
 
-It runs under semaphore.
+>   first, the hierarchical structure of the options in the left
+> window (i'm going to make up names and call these the "menu window",
+> "option window" and "help window") is non-intuitive, in that the
+> top-level selection will bring up a set of selectable options,
+> while submenus will *also* bring up options.
 
+The option window will likely get a back button.
+How the option window works might not be obvious, but I don't think it's
+that difficult to find out how it works, but I'm always open to
+suggestion to improve this.
 
-Which does not matter at all, because the hole
+>   example:  Power management options.  if i select that menu
+> option explicitly, i get options including APM in the option
+> window.  but if i expand that option, i can select the submenu
+> "ACPI Support", for further options.  this is confusing --
+> it's analogous to a directory having files both directly inside
+> it *and* within a sub-structure.
 
-void cleanup_module(void)
-{
-<an instance is cloned here>
-        unregister_qdisc(&cbq_qdisc_ops);
-}
+The problem here is that the Kconfig files weren't directly written for
+the new config tool, so it has to make the best out of it. There is of
+course enough room for improvement.
 
-remained in any case, be it under some preemptive, nonprepemtive lock or
-not under a lock at all.
+>   there's no reason to not have checkboxes *right* *in*
+> the menu window, so i can see *immediately* whether i have
+> entire submenu options selected.
 
-BTW, Rusty, a question... I do not understand, what is purpose of this "new"
-module stuff at all? If we still need to query something in module.c to create
-each instanse of something it smells exactly "old" broken approach. I just
-do not see differences. It is not essential in this particular case,
-but it would be funny to ask it each time when creating a tcp socket.
+A patch to make this possible is available, but it needs a bit more
+work.
 
-Alexey
+>   at least in the old "make xconfig", i could bring up two
+> children dialogs at a time.  perhaps i want to examine/configure
+> both "Block devices" and "Filesystems" at the same time, since
+> there are some related features (loopback device support under
+> Block devices lets me mount filesystem images).  under the
+> new scheme, this is impossible (unless there's a trick or
+> feature i haven't found).
+
+Have you found the full tree mode?
+I'm thinking about the option to open a submbenu in its own window, but
+it will not be the default. I really hate it when a program thinks it
+has to open a new window for everything.
+
+>   and that option window is just confusing.  given that we
+> already have +/- expand/collapse icons, and checkboxes for
+> selection, it just makes things messier to have these submenu
+> boxes with the internal triangle.  and once it takes you to
+> that submenu, is it really painfully obvious how you back up
+> one level?  (the arrow icon in the tool bar?)
+
+Offering too many options at once is not good either, as then you have
+the choice that you must expand lots of submenus until you find, what
+you need or you have a huge list of options. The current window is a
+compromise, which doesn't show too much and already has everything
+expanded. If possible I would omit the +/- icons, but it's not possible
+without reimplementing the whole widget.
+
+bye, Roman
+
 

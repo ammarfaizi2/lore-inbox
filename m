@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263467AbTIHSla (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 14:41:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263468AbTIHSla
+	id S263482AbTIHSuV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 14:50:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263486AbTIHSuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 14:41:30 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:46341 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S263467AbTIHSl3 (ORCPT
+	Mon, 8 Sep 2003 14:50:21 -0400
+Received: from [217.0.159.34] ([217.0.159.34]:48140 "EHLO ntserver3.antongraf")
+	by vger.kernel.org with ESMTP id S263482AbTIHSuR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 14:41:29 -0400
-Date: Mon, 8 Sep 2003 20:40:23 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Matthew Wilcox <willy@debian.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use size_t for the broken ioctl numbers
-Message-ID: <20030908204023.A1060@pclin040.win.tue.nl>
-References: <20030908123846.GA15553@win.tue.nl> <Pine.LNX.4.44.0309080812200.11840-100000@home.osdl.org>
+	Mon, 8 Sep 2003 14:50:17 -0400
+From: "Digitech s.r.l." <digitech2066@katamail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Cambiavoce e carica gratuita per cellulari!
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+Reply-To: digitech2066@katamail.com
+Date: Mon, 8 Sep 2003 20.43.36 +0100
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0309080812200.11840-100000@home.osdl.org>; from torvalds@osdl.org on Mon, Sep 08, 2003 at 08:13:53AM -0700
+Message-Id: <S263482AbTIHSuR/20030908185017Z+2800@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 08, 2003 at 08:13:53AM -0700, Linus Torvalds wrote:
 
-> I'd _much_ rather have a comment than make up some new "bad define" thing.
+CAMBIAVOCE per telefoni cellulari.6 diversi tipi di voce;da uomo a donna e
+viceversa,da adulto a bambino,ecc,ecc...
+ROTARY CHARGER - caricabatterie manuale.Carica GRATUITA ed eterna!
+ETILOMETRO - Non rischiare la tua vita e la tua patente!
+Il nuovo ETILOMETRO elettronico PORTATILE consente di verificare se il tuo
+tasso alcolico rientra o supera i limiti imposti dal nuovo codice della strada.
+Puoi vedere e/o  acquistare questi e altri prodotti unici cliccando su :
+http://digitalth.xs3.com    oppure su   http://digitechitalia.da.ru
 
-Pity.
+Cordiali saluti!
 
-(It is not important, but having the type formally visible
-makes it easier to do automatic verification of contexts like
-	FOOIOCTL:
-	    {
-		struct foo_arg *uarg = (struct foo_arg *) arg;
-		err = handle_fooioctl(fd, uarg);
-		break;
-	    }
-One might even wish to generate them automatically.
-I think relegating the type to a comment is a microstep in the wrong direction.)
-
-Andries
+Monica Mancinelli - Digitech srl
+infodigitech@mail.com
 
 
 
-[That reminds me - you announced sparse, a source checker.
-Is it available for non bk users? I haven't seen a URL.]
+
+
 

@@ -1,36 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbRAHXuA>; Mon, 8 Jan 2001 18:50:00 -0500
+	id <S136019AbRAHXuu>; Mon, 8 Jan 2001 18:50:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129805AbRAHXtk>; Mon, 8 Jan 2001 18:49:40 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48392 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129387AbRAHXtf>; Mon, 8 Jan 2001 18:49:35 -0500
-Subject: Re: The advantage of modules?
-To: root@chaos.analogic.com
-Date: Mon, 8 Jan 2001 23:49:16 +0000 (GMT)
-Cc: goemon@anime.net (Dan Hollis), rmk@arm.linux.org.uk (Russell King),
-        meissner@spectacle-pond.org (Michael Meissner), ookhoi@dds.nl (Ookhoi),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1010108174358.6769A-100000@chaos.analogic.com> from "Richard B. Johnson" at Jan 08, 2001 06:06:25 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129805AbRAHXul>; Mon, 8 Jan 2001 18:50:41 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:43003 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S136019AbRAHXu2>; Mon, 8 Jan 2001 18:50:28 -0500
+Date: Mon, 8 Jan 2001 20:02:31 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] bmac.c: restore_flags on failure
+Message-ID: <20010108200231.C17087@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Fm2Q-0005dO-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Although I haven't been involved for over 8 years, it us unlikely that
-> the word "SCSI" has been given up as some generic aspirin. SCSI still
-> means the stuff specified in the 519 Page document copyrighted by
-> ANSI, called "SMALL COMPUTER SYSTEM INTERFACE - 2", Dated May 20, 1991,
-> and the first draft released in June of 1986.
+Alan,
 
-SCSI nowdays is a message protocol. Its what powers fibrechannel at the high
-end and ATAPI (IDE) and USB at the low end.
+	I haven't found Randy Gobbel's e-mail, please apply.
 
+- Arnaldo
+
+--- linux-2.4.0-ac3/drivers/net/bmac.c	Tue Dec 19 11:24:51 2000
++++ linux-2.4.0-ac3.acme/drivers/net/bmac.c	Mon Jan  8 19:55:30 2001
+@@ -6,6 +6,8 @@
+  *
+  * May 1999, Al Viro: proper release of /proc/net/bmac entry, switched to
+  * dynamic procfs inode.
++ * Jan 2001, Arnaldo Carvalho de Melo <acme@conectiva.com.br>
++ * 		restore_flags on failure in bmac_reset_and_enable
+  */
+ #include <linux/config.h>
+ #include <linux/module.h>
+@@ -1227,9 +1229,9 @@
+ 	bmac_reset_chip(dev);
+ 	if (enable) {
+ 		if (!bmac_init_tx_ring(bp) || !bmac_init_rx_ring(bp))
+-			return 0;
++			goto out;
+ 		if (!bmac_init_chip(dev))
+-			return 0;
++			goto out;
+ 		bmac_start_chip(dev);
+ 		bmwrite(dev, INTDISABLE, EnableNormal);
+ 		bp->reset_and_enabled = 1;
+@@ -1247,6 +1249,8 @@
+ 	}
+ 	restore_flags(flags);
+ 	return 1;
++out:	restore_flags(flags);
++	return 0;
+ }
+ 
+ static int __init bmac_probe(void)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

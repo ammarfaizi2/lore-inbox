@@ -1,357 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263500AbSJGXJW>; Mon, 7 Oct 2002 19:09:22 -0400
+	id <S262657AbSJGWsO>; Mon, 7 Oct 2002 18:48:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263734AbSJGXJW>; Mon, 7 Oct 2002 19:09:22 -0400
-Received: from group1.mxgrp.airmail.net ([209.196.77.107]:51466 "EHLO
-	mx10.airmail.net") by vger.kernel.org with ESMTP id <S263500AbSJGXHU>;
-	Mon, 7 Oct 2002 19:07:20 -0400
-Date: Mon, 7 Oct 2002 17:09:44 -0500
-From: Art Haas <ahaas@neosoft.com>
+	id <S263208AbSJGWsI>; Mon, 7 Oct 2002 18:48:08 -0400
+Received: from [209.48.37.1] ([209.48.37.1]:42221 "EHLO xdr.com")
+	by vger.kernel.org with ESMTP id <S262745AbSJGWsG>;
+	Mon, 7 Oct 2002 18:48:06 -0400
+Date: Mon, 7 Oct 2002 15:53:40 -0700
+From: David Ashley <dash@xdr.com>
+Message-Id: <200210072253.g97MreU29529@xdr.com>
 To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] C99 designated initializer for fs/hfs
-Message-ID: <20021007220944.GB9856@debian>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Subject: 2.5.40 bug related to virtual consoles
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Please cc me on replies.
 
-Here's a set of patches converting fs/hfs to use C99 designated
-initializers.  Mail to maintainer Adrian Sun (asun@cobaltnet.com)
-isn't acknowleged, so I don't know if the patches reach him or not,
-or if HFS is even maintained. :-/
+I'm running 2.5.40 on a cutting edge via embedded C3 motherboard. When I
+turn off CONFIG_FB and CONFIG_VGA_CONSOLE I get this during bootup:
+Unable to handle kernel NULL pointer dereference at virtual address 00000004    
+ printing eip:                                                                  
+c01e5a1d                                                                        
+*pde = 00000000                                                                 
+Oops: 0000                                                                      
+                                                                                
+CPU:    0                                                                       
+EIP:    0060:[<c01e5a1d>]    Not tainted                                        
+EFLAGS: 00010246                                                                
+eax: c6ee4a00   ebx: 00000000   ecx: 00000001   edx: 00000000                   
+esi: 00000000   edi: 00000000   ebp: c0399dc0   esp: c116fe70                   
+ds: 0068   es: 0068   ss: 0068                                                  
+Process init (pid: 1, threadinfo=c116e000 task=c116c040)                        
+Stack: c6ee4a00 00000001 c6ee4a00 00000000 c01e5af8 00000000 00000001 00000000  
+       c6427000 00000000 00000401 c116fec0 c01e924f 00000000 c6427000 00000001  
+       c01d8b58 c6427000 c6ed9120 01024180 c6427000 c6bba2d0 00000006 c116ff70  
+Call Trace: [<c01e5af8>] [<c01e924f>] [<c01d8b58>] [<c014813d>] [<c013de06>] [<]
+Code: ff 52 04 8b 83 c0 9d 39 c0 5a 59 66 83 78 22 00 75 17 ba 00               
+ <0>Kernel panic: Attempted to kill init!                                       
 
-Art Haas
+This is inside drivers/char/vt.c in vc_allocate just after the visual_init
+call.
 
+Related configs are:
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250_CONSOLE=y
 
---- linux-2.5.41/fs/hfs/dir_cap.c.old	2002-07-05 18:42:19.000000000 -0500
-+++ linux-2.5.41/fs/hfs/dir_cap.c	2002-10-07 15:51:35.000000000 -0500
-@@ -59,30 +59,30 @@
- #define DOT_ROOTINFO	(&hfs_cap_reserved2[0])
- 
- struct file_operations hfs_cap_dir_operations = {
--	read:		generic_read_dir,
--	readdir:	cap_readdir,
--	fsync:		file_fsync,
-+	.read		= generic_read_dir,
-+	.readdir	= cap_readdir,
-+	.fsync		= file_fsync,
- };
- 
- struct inode_operations hfs_cap_ndir_inode_operations = {
--	create:		hfs_create,
--	lookup:		cap_lookup,
--	unlink:		hfs_unlink,
--	mkdir:		hfs_mkdir,
--	rmdir:		hfs_rmdir,
--	rename:		hfs_rename,
--	setattr:	hfs_notify_change,
-+	.create		= hfs_create,
-+	.lookup		= cap_lookup,
-+	.unlink		= hfs_unlink,
-+	.mkdir		= hfs_mkdir,
-+	.rmdir		= hfs_rmdir,
-+	.rename		= hfs_rename,
-+	.setattr	= hfs_notify_change,
- };
- 
- struct inode_operations hfs_cap_fdir_inode_operations = {
--	lookup:		cap_lookup,
--	setattr:	hfs_notify_change,
-+	.lookup		= cap_lookup,
-+	.setattr	= hfs_notify_change,
- };
- 
- struct inode_operations hfs_cap_rdir_inode_operations = {
--	create:		hfs_create,
--	lookup:		cap_lookup,
--	setattr:	hfs_notify_change,
-+	.create		= hfs_create,
-+	.lookup		= cap_lookup,
-+	.setattr	= hfs_notify_change,
- };
- 
- /*================ File-local functions ================*/
---- linux-2.5.41/fs/hfs/dir_dbl.c.old	2002-07-05 18:42:20.000000000 -0500
-+++ linux-2.5.41/fs/hfs/dir_dbl.c	2002-10-07 15:51:35.000000000 -0500
-@@ -58,19 +58,19 @@
- #define PCNT_ROOTINFO	(&hfs_dbl_reserved2[1])
- 
- struct file_operations hfs_dbl_dir_operations = {
--	read:		generic_read_dir,
--	readdir:	dbl_readdir,
--	fsync:		file_fsync,
-+	.read		= generic_read_dir,
-+	.readdir	= dbl_readdir,
-+	.fsync		= file_fsync,
- };
- 
- struct inode_operations hfs_dbl_dir_inode_operations = {
--	create:		dbl_create,
--	lookup:		dbl_lookup,
--	unlink:		dbl_unlink,
--	mkdir:		dbl_mkdir,
--	rmdir:		dbl_rmdir,
--	rename:		dbl_rename,
--	setattr:	hfs_notify_change,
-+	.create		= dbl_create,
-+	.lookup		= dbl_lookup,
-+	.unlink		= dbl_unlink,
-+	.mkdir		= dbl_mkdir,
-+	.rmdir		= dbl_rmdir,
-+	.rename		= dbl_rename,
-+	.setattr	= hfs_notify_change,
- };
- 
- 
---- linux-2.5.41/fs/hfs/dir_nat.c.old	2002-07-05 18:42:37.000000000 -0500
-+++ linux-2.5.41/fs/hfs/dir_nat.c	2002-10-07 15:51:36.000000000 -0500
-@@ -64,27 +64,27 @@
- #define ROOTINFO        (&hfs_nat_reserved2[0])
- 
- struct file_operations hfs_nat_dir_operations = {
--	read:		generic_read_dir,
--	readdir:	nat_readdir,
--	fsync:		file_fsync,
-+	.read		= generic_read_dir,
-+	.readdir	= nat_readdir,
-+	.fsync		= file_fsync,
- };
- 
- struct inode_operations hfs_nat_ndir_inode_operations = {
--	create:		hfs_create,
--	lookup:		nat_lookup,
--	unlink:		hfs_unlink,
--	mkdir:		hfs_mkdir,
--	rmdir:		nat_rmdir,
--	rename:		hfs_rename,
--	setattr:	hfs_notify_change,
-+	.create		= hfs_create,
-+	.lookup		= nat_lookup,
-+	.unlink		= hfs_unlink,
-+	.mkdir		= hfs_mkdir,
-+	.rmdir		= nat_rmdir,
-+	.rename		= hfs_rename,
-+	.setattr	= hfs_notify_change,
- };
- 
- struct inode_operations hfs_nat_hdir_inode_operations = {
--	create:		hfs_create,
--	lookup:		nat_lookup,
--	unlink:		nat_hdr_unlink,
--	rename:		nat_hdr_rename,
--	setattr:	hfs_notify_change,
-+	.create		= hfs_create,
-+	.lookup		= nat_lookup,
-+	.unlink		= nat_hdr_unlink,
-+	.rename		= nat_hdr_rename,
-+	.setattr	= hfs_notify_change,
- };
- 
- /*================ File-local functions ================*/
---- linux-2.5.41/fs/hfs/file.c.old	2002-07-05 18:42:20.000000000 -0500
-+++ linux-2.5.41/fs/hfs/file.c	2002-10-07 15:51:35.000000000 -0500
-@@ -34,16 +34,16 @@
- /*================ Global variables ================*/
- 
- struct file_operations hfs_file_operations = {
--	llseek:		generic_file_llseek,
--	read:		hfs_file_read,
--	write:		hfs_file_write,
--	mmap:		generic_file_mmap,
--	fsync:		file_fsync,
-+	.llseek		= generic_file_llseek,
-+	.read		= hfs_file_read,
-+	.write		= hfs_file_write,
-+	.mmap		= generic_file_mmap,
-+	.fsync		= file_fsync,
- };
- 
- struct inode_operations hfs_file_inode_operations = {
--	truncate:	hfs_file_truncate,
--	setattr:	hfs_notify_change,
-+	.truncate	= hfs_file_truncate,
-+	.setattr	= hfs_notify_change,
- };
- 
- /*================ Variable-like macros ================*/
---- linux-2.5.41/fs/hfs/file_cap.c.old	2002-07-05 18:42:00.000000000 -0500
-+++ linux-2.5.41/fs/hfs/file_cap.c	2002-10-07 15:51:35.000000000 -0500
-@@ -47,14 +47,14 @@
- /*================ Global variables ================*/
- 
- struct file_operations hfs_cap_info_operations = {
--	llseek:		cap_info_llseek,
--	read:		cap_info_read,
--	write:		cap_info_write,
--	fsync:		file_fsync,
-+	.llseek		= cap_info_llseek,
-+	.read		= cap_info_read,
-+	.write		= cap_info_write,
-+	.fsync		= file_fsync,
- };
- 
- struct inode_operations hfs_cap_info_inode_operations = {
--	setattr:	hfs_notify_change_cap,
-+	.setattr	= hfs_notify_change_cap,
- };
- 
- /*================ File-local functions ================*/
---- linux-2.5.41/fs/hfs/file_hdr.c.old	2002-07-05 18:42:32.000000000 -0500
-+++ linux-2.5.41/fs/hfs/file_hdr.c	2002-10-07 15:51:36.000000000 -0500
-@@ -47,20 +47,20 @@
- /*================ Global variables ================*/
- 
- struct file_operations hfs_hdr_operations = {
--	llseek:		hdr_llseek,
--	read:		hdr_read,
--	write:		hdr_write,
--	fsync:		file_fsync,
-+	.llseek		= hdr_llseek,
-+	.read		= hdr_read,
-+	.write		= hdr_write,
-+	.fsync		= file_fsync,
- };
- 
- struct inode_operations hfs_hdr_inode_operations = {
--	setattr:	hfs_notify_change_hdr,
-+	.setattr	= hfs_notify_change_hdr,
- };
- 
- const struct hfs_hdr_layout hfs_dbl_fil_hdr_layout = {
--	magic:		__constant_htonl(HFS_DBL_MAGIC),	/* magic   */
--	version:	__constant_htonl(HFS_HDR_VERSION_2),	/* version */
--	entries:	6,					/* entries */
-+	.magic		= __constant_htonl(HFS_DBL_MAGIC),	/* magic   */
-+	.version	= __constant_htonl(HFS_HDR_VERSION_2),	/* version */
-+	.entries	= 6,					/* entries */
- 	{					/* descr[] */
- 		{HFS_HDR_FNAME, offsetof(struct hfs_dbl_hdr, real_name),   ~0},
- 		{HFS_HDR_DATES, offsetof(struct hfs_dbl_hdr, create_time), 16},
-@@ -80,9 +80,9 @@
- };
- 
- const struct hfs_hdr_layout hfs_dbl_dir_hdr_layout = {
--	magic:		__constant_htonl(HFS_DBL_MAGIC),	/* magic   */
--	version:	__constant_htonl(HFS_HDR_VERSION_2),	/* version */
--	entries:	5,					/* entries */
-+	.magic		= __constant_htonl(HFS_DBL_MAGIC),	/* magic   */
-+	.version	= __constant_htonl(HFS_HDR_VERSION_2),	/* version */
-+	.entries	= 5,					/* entries */
- 	{					/* descr[] */
- 		{HFS_HDR_FNAME, offsetof(struct hfs_dbl_hdr, real_name),   ~0},
- 		{HFS_HDR_DATES, offsetof(struct hfs_dbl_hdr, create_time), 16},
-@@ -100,9 +100,9 @@
- };
- 
- const struct hfs_hdr_layout hfs_nat2_hdr_layout = {
--	magic:		__constant_htonl(HFS_DBL_MAGIC),	/* magic   */
--	version:	__constant_htonl(HFS_HDR_VERSION_2),	/* version */
--	entries:	9,					/* entries */
-+	.magic		= __constant_htonl(HFS_DBL_MAGIC),	/* magic   */
-+	.version	= __constant_htonl(HFS_HDR_VERSION_2),	/* version */
-+	.entries	= 9,					/* entries */
- 	{					/* descr[] */
- 		{HFS_HDR_FNAME, offsetof(struct hfs_dbl_hdr, real_name),   ~0},
- 		{HFS_HDR_COMNT, offsetof(struct hfs_dbl_hdr, comment),      0},
-@@ -128,9 +128,9 @@
- };
- 
- const struct hfs_hdr_layout hfs_nat_hdr_layout = {
--	magic:		__constant_htonl(HFS_DBL_MAGIC),	/* magic   */
--	version:	__constant_htonl(HFS_HDR_VERSION_1),	/* version */
--	entries:	5,					/* entries */
-+	.magic		= __constant_htonl(HFS_DBL_MAGIC),	/* magic   */
-+	.version	= __constant_htonl(HFS_HDR_VERSION_1),	/* version */
-+	.entries	= 5,					/* entries */
- 	{					/* descr[] */
- 		{HFS_HDR_FNAME, offsetof(struct hfs_dbl_hdr, real_name),   ~0},
- 		{HFS_HDR_COMNT, offsetof(struct hfs_dbl_hdr, comment),      0},
---- linux-2.5.41/fs/hfs/inode.c.old	2002-07-05 18:42:23.000000000 -0500
-+++ linux-2.5.41/fs/hfs/inode.c	2002-10-07 15:51:36.000000000 -0500
-@@ -247,12 +247,12 @@
- 	return generic_block_bmap(mapping,block,hfs_get_block);
- }
- struct address_space_operations hfs_aops = {
--	readpage: hfs_readpage,
--	writepage: hfs_writepage,
--	sync_page: block_sync_page,
--	prepare_write: hfs_prepare_write,
--	commit_write: generic_commit_write,
--	bmap: hfs_bmap
-+	.readpage = hfs_readpage,
-+	.writepage = hfs_writepage,
-+	.sync_page = block_sync_page,
-+	.prepare_write = hfs_prepare_write,
-+	.commit_write = generic_commit_write,
-+	.bmap = hfs_bmap
- };
- 
- /*
---- linux-2.5.41/fs/hfs/super.c.old	2002-07-05 18:42:20.000000000 -0500
-+++ linux-2.5.41/fs/hfs/super.c	2002-10-07 15:51:35.000000000 -0500
-@@ -87,13 +87,13 @@
- /*================ Global variables ================*/
- 
- static struct super_operations hfs_super_operations = { 
--	alloc_inode:	hfs_alloc_inode,
--	destroy_inode:	hfs_destroy_inode,
--	read_inode:	hfs_read_inode,
--	put_inode:	hfs_put_inode,
--	put_super:	hfs_put_super,
--	write_super:	hfs_write_super,
--	statfs:		hfs_statfs,
-+	.alloc_inode	= hfs_alloc_inode,
-+	.destroy_inode	= hfs_destroy_inode,
-+	.read_inode	= hfs_read_inode,
-+	.put_inode	= hfs_put_inode,
-+	.put_super	= hfs_put_super,
-+	.write_super	= hfs_write_super,
-+	.statfs		= hfs_statfs,
- };
- 
- /*================ File-local variables ================*/
-@@ -105,11 +105,11 @@
- }
- 
- static struct file_system_type hfs_fs = {
--	owner:		THIS_MODULE,
--	name:		"hfs",
--	get_sb:		hfs_get_sb,
--	kill_sb:	kill_block_super,
--	fs_flags:	FS_REQUIRES_DEV,
-+	.owner		= THIS_MODULE,
-+	.name		= "hfs",
-+	.get_sb		= hfs_get_sb,
-+	.kill_sb	= kill_block_super,
-+	.fs_flags	= FS_REQUIRES_DEV,
- };
- 
- /*================ File-local functions ================*/
---- linux-2.5.41/fs/hfs/sysdep.c.old	2002-07-05 18:42:31.000000000 -0500
-+++ linux-2.5.41/fs/hfs/sysdep.c	2002-10-07 15:51:36.000000000 -0500
-@@ -25,10 +25,10 @@
- static void hfs_dentry_iput(struct dentry *, struct inode *);
- struct dentry_operations hfs_dentry_operations =
- {
--	d_revalidate:	hfs_revalidate_dentry,	
--	d_hash:		hfs_hash_dentry,
--	d_compare:	hfs_compare_dentry,
--	d_iput:		hfs_dentry_iput,
-+	.d_revalidate	= hfs_revalidate_dentry,	
-+	.d_hash		= hfs_hash_dentry,
-+	.d_compare	= hfs_compare_dentry,
-+	.d_iput		= hfs_dentry_iput,
- };
- 
- /*
+If I turn either CONFIG_FB or CONFIG_VGA_CONSOLE back on it boots fine.
+With CONFIG_FB I don't actually have any other FB related settings on and
+I never actually use the frame buffer device.
 
--- 
-They that can give up essential liberty to obtain a little temporary safety
-deserve neither liberty nor safety.
- -- Benjamin Franklin, Historical Review of Pennsylvania, 1759
+Let me know if more information is needed. Thanks!
+-Dave

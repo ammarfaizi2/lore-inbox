@@ -1,40 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284297AbRLMQTk>; Thu, 13 Dec 2001 11:19:40 -0500
+	id <S284335AbRLMQWK>; Thu, 13 Dec 2001 11:22:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284330AbRLMQTa>; Thu, 13 Dec 2001 11:19:30 -0500
-Received: from mail.vzavenue.net ([66.171.36.252]:54614 "EHLO
-	mail.vzavenue.net") by vger.kernel.org with ESMTP
-	id <S284297AbRLMQTR>; Thu, 13 Dec 2001 11:19:17 -0500
-Date: Thu, 13 Dec 2001 22:16:56 +0000
-From: Richard Todd <richardt@vzavenue.net>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: "Eric S. Raymond" <esr@thyrsus.com>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 1.9.8
-Message-ID: <20011213221656.A1667@localhost.localdomain>
-In-Reply-To: <20011213040637.A9104@thyrsus.com> <Pine.LNX.4.40.0112130130120.7706-100000@dlang.diginsite.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.40.0112130130120.7706-100000@dlang.diginsite.com>; from david.lang@digitalinsight.com on Thu, Dec 13, 2001 at 01:30:53AM -0800
+	id <S284334AbRLMQWC>; Thu, 13 Dec 2001 11:22:02 -0500
+Received: from mustard.heime.net ([194.234.65.222]:9695 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S284330AbRLMQVu>; Thu, 13 Dec 2001 11:21:50 -0500
+Date: Thu, 13 Dec 2001 17:21:31 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Tux mailing list <tux-list@redhat.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG?] RAID sub system / tux
+In-Reply-To: <Pine.LNX.4.30.0112131530310.25884-100000@mustard.heime.net>
+Message-ID: <Pine.LNX.4.30.0112131720500.26554-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 13, 2001 at 01:30:53AM -0800, David Lang wrote:
-> does this problem (and fix) also apply to the adventure mode (just
-> checking to see how unified the output section really is :-)
+hi
 
-Yes. 
+Just wanted to say I've reproduced the error in tux-D1.
 
-I've tried it and it made the outputs the same for me..  
+thanks for any help
 
-Note that it wasn't as simple as a different output from the 
-*configs.  Only after three consecutive runs of oldconfig 
-(starting from nothing) did my config.out stabilize before.
+roy
 
-As was noted, the only 'problem' was that it was hard to be warm and
-fuzzy about the outputs producing the same kernel in the end.  
+On Thu, 13 Dec 2001, Roy Sigurd Karlsbakk wrote:
 
-Richard
+> hi all
+>
+> After testing this for a while, I'm quite sure there's some kind of bug
+> that locks up I/O under heavy traffic.
+>
+> Hardware configuration:
+>
+> 1xAthlon 1133
+> 1GB RAM
+> 1 20G boot disk
+> 2 120G ide drives on a promise ata133 (20269) controller
+>
+> Kernel: Vanilla 2.4.16 + tux-D0
+>
+> /etc/raidtab:
+>
+> raiddev /dev/md0
+> 	raid-level              0
+> 	nr-raid-disks           2
+> 	persistent-superblock   0
+> 	chunk-size              4096
+>
+> 	device                  /dev/hde
+> 	raid-disk               0
+> 	device                  /dev/hdg
+> 	raid-disk               1
+>
+> IDE readahead setting:
+>
+> echo file_readahead:1024 > /proc/ide/hd[eg]/settings
+> (I've tried down to 256 with no change.)
+>
+> file system: independant. I've tried with xfs and ext2 and get the same
+> result.
+>
+> Testing:
+> I make some 100 files, each ~1GB, and start ~100 wget processes to
+> retrieve data from http://localhost/file-nnnn. Each process is retrieving
+> a separate file, as to simulate the app. Usually, this works fine in the
+> beginning, but after a while it all locks up, and the [TUX worker]
+> (mother) process stops giving me any data, and starts using 100% system
+> time. If I restart tux, I can do some data retrieval for some time, but
+> then it locks up again. It's easily reproducable to just start, say, 50
+> wget processes, killall wget, and then restart the 50 wget processes.
+>
+> Thanks for all help
+>
+> regards
+>
+> roy
+>
+> --
+> Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+>
+> Computers are like air conditioners.
+> They stop working when you open Windows.
+>
+>
+>
+>
+> _______________________________________________
+> tux-list mailing list
+> tux-list@redhat.com
+> https://listman.redhat.com/mailman/listinfo/tux-list
+>
+
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

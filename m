@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265798AbTA2L4e>; Wed, 29 Jan 2003 06:56:34 -0500
+	id <S265736AbTA2MQp>; Wed, 29 Jan 2003 07:16:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265806AbTA2L4e>; Wed, 29 Jan 2003 06:56:34 -0500
-Received: from mail2.webart.de ([195.30.14.11]:10246 "EHLO mail2.webart.de")
-	by vger.kernel.org with ESMTP id <S265798AbTA2L4e>;
-	Wed, 29 Jan 2003 06:56:34 -0500
-Message-ID: <398E93A81CC5D311901600A0C9F29289469398@cubuss2>
-From: Raphael Schmid <Raphael_Schmid@CUBUS.COM>
-To: "'Horst von Brand'" <brand@jupiter.cs.uni-dortmund.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: AW: Bootscreen 
-Date: Wed, 29 Jan 2003 12:56:37 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S265815AbTA2MQp>; Wed, 29 Jan 2003 07:16:45 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:56456 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S265736AbTA2MQp>; Wed, 29 Jan 2003 07:16:45 -0500
+Date: Wed, 29 Jan 2003 13:25:50 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Martin Mares <mj@ucw.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG] in drivers/char/joystick/magellan.c
+Message-ID: <20030129122550.GA25502@wohnheim.fh-wedel.de>
+References: <20030128175757.GA22145@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33L2.0301281045250.30636-100000@dragon.pdx.osdl.net> <20030128220353.A2892@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030128220353.A2892@ucw.cz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Right.
+On Tue, 28 January 2003 22:03:53 +0100, Vojtech Pavlik wrote:
+> On Tue, Jan 28, 2003 at 10:47:35AM -0800, Randy.Dunlap wrote:
+> > 
+> > An array of character type may be initialized by a character string
+> > literal, optionally enclosed in braces. Successive characters of the
+> > character string literal (including the terminating null character if
+> > there is room or if the array is of unknown size) initialize the
+> > elements of the array.
 > 
-> Q: It hangs when booting! Just get to see the cute penguin
->    (whatshisnameagain?)
-> 
-> A: What version of Linux? What exactly did the bird do before hanging?
-BTW,
->    his (her?) name is Tux
-> 
-> Q: Oh, yo mean like $BIG_DISTRO 10.7.3? Yep, Tux winked.
-> 
-> A. No, the kernel version... [longish explanation deleted]. And exactly
-how
->    many times did he wink? Which wings? Did he waddle about? How many
->    steps? Did he blink? Did you install wink-blink-boot version 27.3, or
->    are you still with the older one?
+> Which means it was OK.
 
-C'moon! It'd make IT so much more interesting and fun!
-Think of all the increased communication skills mankind
-would develop through this!
+Agreed. objdump -s gives the following:
 
-Seriously, *laughs*, I don't think debugging user problems
-would escalate into such a scenario. Let me again point out
-my proposal:
+ 0040 30414233 44353647 48393a4b 3c4d4e3f  0AB3D56GH9:K<MN?
+ 0050 ffffffff 00000000 60010000 e0010000  ........`.......
 
-There is *one* line of boot messages shown. Whenever the
-System hangs, you will see the last message. Carefully
-designed messages will greatly help, of course.
+So gcc does follow the spec here. (redhat gcc 2.96)
 
-- Raphael
+Thank you for the clarification, Martin and Randy.
+
+Jörn
+
+-- 
+"Security vulnerabilities are here to stay."
+-- Scott Culp, Manager of the Microsoft Security Response Center, 2001

@@ -1,28 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270701AbTGUT3M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 15:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270702AbTGUT3M
+	id S270703AbTGUT36 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 15:29:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270702AbTGUT36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 15:29:12 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:47076 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S270701AbTGUT3E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 15:29:04 -0400
-Date: Mon, 21 Jul 2003 16:40:27 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Chris Mason <mason@suse.com>,
-       riel@redhat.com, lkml <linux-kernel@vger.kernel.org>,
-       maillist@jg555.com
-Subject: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
-In-Reply-To: <20030721212453.4139a217.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.55L.0307211624410.26518@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0307150859130.5146@freak.distro.conectiva>
- <1058297936.4016.86.camel@tiny.suse.com> <Pine.LNX.4.55L.0307160836270.30825@freak.distro.conectiva>
- <20030718112758.1da7ab03.skraw@ithnet.com> <20030721162033.GA4677@x30.linuxsymposium.org>
- <20030721212453.4139a217.skraw@ithnet.com>
+	Mon, 21 Jul 2003 15:29:58 -0400
+Received: from tudela.mad.ttd.net ([194.179.1.233]:56245 "EHLO
+	tudela.mad.ttd.net") by vger.kernel.org with ESMTP id S270700AbTGUT3v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 15:29:51 -0400
+Date: Mon, 21 Jul 2003 21:44:42 +0200 (MEST)
+From: Javier Achirica <achirica@telefonica.net>
+To: Daniel Ritz <daniel.ritz@gmx.ch>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-net <linux-net@vger.kernel.org>,
+       Jean Tourrilhes <jt@bougret.hpl.hp.com>,
+       Mike Kershaw <dragorn@melchior.nerv-un.net>
+Subject: Re: [PATCH 2.5] fixes for airo.c
+In-Reply-To: <200307211949.30513.daniel.ritz@gmx.ch>
+Message-ID: <Pine.SOL.4.30.0307212056370.29431-100000@tudela.mad.ttd.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -30,51 +27,56 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 21 Jul 2003, Stephan von Krawczynski wrote:
+On Mon, 21 Jul 2003, Daniel Ritz wrote:
 
-> On Mon, 21 Jul 2003 12:20:33 -0400
-> Andrea Arcangeli <andrea@suse.de> wrote:
->
-> > > I managed to freeze the pre7 box within these few hours. There was no nfs
-> > > involved, only tar-to-tape.
-> > > I switched back to 2.4.21 to see if it is still stable.
-> > > Is there a possibility that the i/o-scheduler has another flaw somewhere
-> > > (just like during mount previously) ...
+> On Mon July 21 2003 13:00, Javier Achirica wrote:
 > >
-> > is it a scsi tape?
+> > Daniel,
+> >
+> > Thank you for your patch. Some comments about it:
+> >
+> > - I'd rather fix whatever is broken in the current code than going back to
+> > spinlocks, as they increase latency and reduce concurrency. In any case,
+> > please check your code. I've seen a spinlock in the interrupt handler that
+> > may lock the system.
 >
-> yes.
->
-> > Is the tape always involved?
->
-> No, I experience both freeze during nfs-only action and freeze during
-> tar-to-scsi-tape.
-> My feelings are that the freeze does (at least in the nfs case) not happen
-> during high load but rather when load seems relatively light. Handwaving one
-> could say it looks rather like an I/O sched starvation issue than breakdown
-> during high load. Similar to the last issue.
->
-> > there are st.c updates
-> > between 2.4.21 to 22pre7. you can try to back them out.
->
-> Hm, which?
->
-> > [...]
-> > You should also provide a SYSRQ+P/T of the hang or we can't debug it at
-> > all.
->
-> Well, I really tried hard to produce something, but failed so far, if I had
-> more time I would try a serial console hoping that it survives long enough to
-> show at least _something_.
-> The only thing I ever could see was the BUG in page-alloc thing from the
-> beginning of this thread.
+> but we need to protect from interrupts while accessing the card and waiting for
+> completion. semaphores don't protect you from that. spin_lock_irqsave does. the
+> spin_lock in the interrupt handler is there to protect from interrupts from
+> other processors in a SMP system (see Documentation/spinlocks.txt) and is btw.
+> a no-op on UP. and semaphores are quite heavy....
 
-Stephan,
+Not really. You can still read the received packets from the card (as
+you're not issuing any command and are using the other BAP) while a
+command is in progress. There are some specific cases in which you need
+to have protection, and that cases are avoided with the down_trylock.
 
-I'm sending you the scsi tape driver changes in 2.4.22-pre so you can
-revert them (in private in a few minutes).
+AFAIK, interrupt serialization is assured by the interrupt handler, so you
+don't need to do that.
 
-If that doesnt make us spot the problem, can you PLEASE find out in which
--pre the problem starts ?
+> > - The fix for the transmit code you mention, is about fixing the returned
+> > value in case of error? If not, please explain it to me as I don't see any
+> > other changes.
+>
+> fixes:
+> - return values
+> - when to free the skb, when not
+> - disabling the queues
+> - netif_wake_queue called from the interrupt handler only (and on the right
+>   net_device)
+> - i think the priv->xmit stuff and then the schedule_work is evil:
+>   if you return 0 from the dev->hard_start_xmit then the network layer assumes
+>   that the packet was kfree_skb()'ed (which does only frees the packet when the
+>   refcount drops to zero.) this is the cause for the keventd killing, for sure!
+>
+>   if you return 0 you already kfree_skb()'ed the packet. and that's it.
 
-Thank you
+This is where I have the biggest problems. As I've read in
+Documentation/networking/driver.txt, looks like the packet needs to be
+freed "soon", but doesn't require to be before returning 0 in
+hard_start_xmit. Did I get it wrong?
+
+Thanks for your help,
+Javier Achirica
+
+

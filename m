@@ -1,34 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262095AbTEROgF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 10:36:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbTEROgF
+	id S262097AbTEROin (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 10:38:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbTEROin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 10:36:05 -0400
-Received: from uldns1.unil.ch ([130.223.8.20]:53759 "EHLO uldns1.unil.ch")
-	by vger.kernel.org with ESMTP id S262095AbTEROgE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 10:36:04 -0400
-Date: Sun, 18 May 2003 16:48:58 +0200
-From: Gregoire Favre <greg@magma.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: modprobe ide-floppy crash system in 2.5.69-ac1
-Message-ID: <20030518144858.GD29806@magma.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-Content-Transfer-Encoding: 8BIT
+	Sun, 18 May 2003 10:38:43 -0400
+Received: from pat.uio.no ([129.240.130.16]:57216 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262097AbTEROil (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 10:38:41 -0400
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: David Howells <dhowells@warthog.cambridge.redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
+Subject: Re: [PATCH] PAG support, try #2
+References: <Pine.LNX.4.44.0305140924040.3107-100000@home.transmeta.com>
+	<19800.1052933820@warthog.warthog>
+	<20030515131825.G672@nightmaster.csn.tu-chemnitz.de>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 18 May 2003 16:51:27 +0200
+In-Reply-To: <20030515131825.G672@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <shs8yt4l34g.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: Please contact postmaster@uio.no for more information
+X-UiO-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
+>>>>> " " == Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de> writes:
 
-just wanted to try 2.5.69-ac1, but as soon as I try
-modprobe ide-floppy my system completely crash :-(
+     > On Wed, May 14, 2003 at 06:37:00PM +0100, David Howells wrote:
+    >> And then you have to have some method of prioritisation. You
+    >> may find that user dhowells has a token for
+    >> (fs=AFS,cell=redhat.com) and group engineering has a token for
+    >> (fs=AFS,cell=redhat.com). Which do you use?
 
-Should I provide other info?
+     > Union of both. And remember to subtract negative ACLs from
+     > positive ACLs. Prioritize users over groups in case of explicit
+     > mention.
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+     > This is standard permission checking.
+
+     > Hmm, sounds too simple, so it must be wrong ;-)
+
+Quite. Now that you've done the math, please explain how this should
+be implemented efficiently. These are *networked* filesystems...
+
+Cheers,
+  Trond

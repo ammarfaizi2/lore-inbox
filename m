@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129040AbQKMHYW>; Mon, 13 Nov 2000 02:24:22 -0500
+	id <S129163AbQKMISr>; Mon, 13 Nov 2000 03:18:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129178AbQKMHYN>; Mon, 13 Nov 2000 02:24:13 -0500
-Received: from ns1.crl.go.jp ([133.243.3.1]:48882 "EHLO ns1.crl.go.jp")
-	by vger.kernel.org with ESMTP id <S129040AbQKMHYC>;
-	Mon, 13 Nov 2000 02:24:02 -0500
-Date: Mon, 13 Nov 2000 16:23:53 +0900 (JST)
-From: Tom Holroyd <tomh@po.crl.go.jp>
-To: kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: memory.c:83: bad pmd 0000000000000001
-Message-ID: <Pine.LNX.4.30.0011131606420.16958-100000@holly.crl.go.jp>
+	id <S129152AbQKMISi>; Mon, 13 Nov 2000 03:18:38 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:39951 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S129112AbQKMISY>; Mon, 13 Nov 2000 03:18:24 -0500
+Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B27092@hasmsx52.iil.intel.com>
+From: "Hen, Shmulik" <shmulik.hen@intel.com>
+To: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>
+Cc: "'LNML'" <linux-net@vger.kernel.org>,
+        "'LKML'" <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
+Subject: RE: catch 22 - porting net driver from 2.2 to 2.4
+Date: Mon, 13 Nov 2000 00:18:06 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-memory.c:83: bad pmd 0000000000000001
+Where can I find info about that ?
+My first idea was to fire a timer and let the callback routine do the work,
+but I worry about synchronization and about passing the list of items for it
+to handle.
+What is the accepted way of starting a kernel thread and how do I handle
+parameters and sync. ?
 
-Alpha DP264 UP
 
-2.4.0-test10 (not pre)
+	Thanks,
+	Shmulik.
 
-I never got a bad pmd before.  I booted test10 on Nov 6, and I've gotten
-bad pmd's about once a day (5 so far) since then.  I don't think it's
-hardware.  I was running test10preX (circa Oct 24) for a while, and never
-got it (and various test1-9 before that), so it has to be something in one
-of the later test10pre versions.
+-----Original Message-----
+From: Jeff Garzik [mailto:jgarzik@mandrakesoft.com]
+Sent: Thursday, November 09, 2000 7:37 PM
+To: Hen, Shmulik
+Cc: 'LNML'; 'LKML'; netdev@oss.sgi.com
+Subject: Re: catch 22 - porting net driver from 2.2 to 2.4
 
-It's coming from mm/memory.c:free_one_pmd().
 
-Compiled with gcc 2.95.2 19991024 (release).
+do_ioctl is inside rtnl_lock...
 
-Dr. Tom Holroyd
-"I am, as I said, inspired by the biological phenomena in which
-chemical forces are used in repetitious fashion to produce all
-kinds of weird effects (one of which is the author)."
-	-- Richard Feynman, _There's Plenty of Room at the Bottom_
+Remember if you need to alter the rules, you can always queue work in
+the current context, and have a kernel thread handle the work.  The nice
+thing about a kernel thread is that you start with a [almost] clean
+state, when it comes to locks.
+
+	Jeff
+
+
+-- 
+Jeff Garzik             |
+Building 1024           | Would you like a Twinkie?
+MandrakeSoft            |
+-
+To unsubscribe from this list: send the line "unsubscribe linux-net" in
+the body of a message to majordomo@vger.kernel.org
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,65 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262792AbUCOWUX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 17:20:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbUCOWUX
+	id S262834AbUCOWWV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 17:22:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262825AbUCOWUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 17:20:23 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:2236 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262792AbUCOWTs (ORCPT
+	Mon, 15 Mar 2004 17:20:35 -0500
+Received: from mail.tpgi.com.au ([203.12.160.61]:9920 "EHLO mail4.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S262819AbUCOWUJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 17:19:48 -0500
-Subject: [TRIVIAL] Use valid node number when unmapping CPUs
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Content-Type: multipart/mixed; boundary="=-X2PphBQmDcj2hFJ4o1gO"
-Organization: IBM LTC
-Message-Id: <1079389177.3836.12.camel@arrakis>
+	Mon, 15 Mar 2004 17:20:09 -0500
+Subject: Re: Remove pmdisk from kernel
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Reply-To: ncunningham@users.sourceforge.net
+To: Andrew Morton <akpm@osdl.org>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Michael Frank <mhf@linuxmail.org>
+In-Reply-To: <20040315135328.0f704933.akpm@osdl.org>
+References: <20040315195440.GA1312@elf.ucw.cz>
+	 <20040315125357.3330c8c4.akpm@osdl.org> <20040315205752.GG258@elf.ucw.cz>
+	 <20040315132146.24f935c2.akpm@osdl.org>
+	 <1079379519.5350.20.camel@calvin.wpcb.org.au>
+	 <20040315135328.0f704933.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1079381659.5356.73.camel@calvin.wpcb.org.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 15 Mar 2004 14:19:37 -0800
+X-Mailer: Ximian Evolution 1.4.5-2.norlug 
+Date: Tue, 16 Mar 2004 09:14:19 +1300
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
---=-X2PphBQmDcj2hFJ4o1gO
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+On Tue, 2004-03-16 at 10:53, Andrew Morton wrote:
+> Nigel Cunningham <ncunningham@users.sourceforge.net> wrote:
+> >
+> > On Tue, 2004-03-16 at 10:21, Andrew Morton wrote:
+> > > Pavel Machek <pavel@ucw.cz> wrote:
+> > > >
+> > > > I believe that you don't want swsusp2 in 2.6. It has hooks all over
+> > > > the place:
+> > > > ...
+> > > > 109 files changed, 3254 insertions(+), 624 deletions(-)
+> > > 
+> > > Ahem.  Agreed.
+> >
+> > Most of those changes are hooks to make the freezer for more reliable.
+> > That part of the functionality could be isolated from the bulk of
+> > suspend2. Would that make you happy?
+> 
+> It would make us happier.  Even happier would be a series of small, well
+> explained patches which bring swsusp into a final shape upon which more
+> than one developer actually agrees.
 
-The cpu_2_node[] array for i386 is initialized to all 0's, meaning that
-until modified at CPU bring-up, all CPUs are mapped to node 0.  When
-CPUs are brought online, they are mapped to the appropriate node by
-various mechanisms, depending on the underlying hardware.  When we unmap
-CPUs (hotplug time), we should return the mapping for the CPU that is
-going away to its original state, ie: 0.  When this code was initially
-submitted, the misguided poster (me) made the mistake of putting a -1 in
-the cpu_2_node[] array for the CPU going away.  This patch fixes this
-mistake, and allows code to get a valid node number for all valid CPU
-numbers.  This is important, because most (if not all) callers do not
-error check the value returned by the cpu_to_node() macro, and they
-should not have to.  The API specifies that a valid node number be
-returned for any valid CPU number.
+I'd love to do that too. Unfortunately I'm really busy with my new job,
+so things have progressed far more slowly than I'd have liked. I'm also
+not sure how to deal with some of the changes that just about completely
+rewrite sections.
 
--Matt
+> These wholesale replacements and deletions are an indication that something
+> has gone wrong with the development process here.
 
---=-X2PphBQmDcj2hFJ4o1gO
-Content-Disposition: attachment; filename=use_valid_nodenum.patch
-Content-Type: text/x-patch; name=use_valid_nodenum.patch; charset=
-Content-Transfer-Encoding: 7bit
+I spent a long time trying to get the freezer working reliably with the
+kind of implementation Pavel uses. The problem I kept running into time
+and again was that you can't know dependancies between processes when it
+comes to signalling them; process A might happily be frozen, but then
+process B can't be frozen becaue it is waiting on something process A
+has (eg ls/nfsd). By tracking which processes are in those
+'can't-be-frozen-here' sections, I have managed to make the freezer far
+more reliable, even under high load. Michael Frank has done some extreme
+stress testing and can verify this.
 
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.4-vanilla/arch/i386/kernel/smpboot.c linux-2.6.4-valid_node_unmap/arch/i386/kernel/smpboot.c
---- linux-2.6.4-vanilla/arch/i386/kernel/smpboot.c	Wed Mar 10 18:55:27 2004
-+++ linux-2.6.4-valid_node_unmap/arch/i386/kernel/smpboot.c	Mon Mar 15 13:59:49 2004
-@@ -522,7 +522,7 @@ static inline void unmap_cpu_to_node(int
- 	printk("Unmapping cpu %d from all nodes\n", cpu);
- 	for (node = 0; node < MAX_NUMNODES; node ++)
- 		cpu_clear(cpu, node_2_cpu_mask[node]);
--	cpu_2_node[cpu] = -1;
-+	cpu_2_node[cpu] = 0;
- }
- #else /* !CONFIG_NUMA */
- 
+Nigel
+-- 
+Nigel Cunningham
+C/- Westminster Presbyterian Church Belconnen
+61 Templeton Street, Cook, ACT 2614.
++61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
 
---=-X2PphBQmDcj2hFJ4o1gO--
+Evolution (n): A hypothetical process whereby infinitely improbable events occur 
+with alarming frequency, order arises from chaos, and no one is given credit.
 

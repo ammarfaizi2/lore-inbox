@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbUJaUse@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbUJaUxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261363AbUJaUse (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 15:48:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbUJaUse
+	id S261365AbUJaUxr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 15:53:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbUJaUxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 15:48:34 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:23780 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261363AbUJaUs3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 15:48:29 -0500
-Message-ID: <418550C1.1060203@comcast.net>
-Date: Sun, 31 Oct 2004 12:53:21 -0800
-From: Z Smith <plinius@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Diego Calleja <diegocg@teleline.es>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>	<200410310000.38019.vda@port.imtp.ilyichevsk.odessa.ua>	<1099170891.1424.1.camel@krustophenia.net>	<200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>	<1099175138.1424.18.camel@krustophenia.net> <20041031150637.6311a2ec.diegocg@teleline.es>
-In-Reply-To: <20041031150637.6311a2ec.diegocg@teleline.es>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 31 Oct 2004 15:53:46 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:6884 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S261365AbUJaUxp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 15:53:45 -0500
+Date: Sun, 31 Oct 2004 12:53:31 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Larry McVoy <lm@bitmover.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Andrea Arcangeli <andrea@novell.com>, Joe Perches <joe@perches.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: BK kernel workflow
+Message-ID: <20041031205331.GD27728@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Pavel Machek <pavel@suse.cz>, Roman Zippel <zippel@linux-m68k.org>,
+	Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@osdl.org>,
+	Andrea Arcangeli <andrea@novell.com>, Joe Perches <joe@perches.com>,
+	Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+References: <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random> <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org> <Pine.LNX.4.61.0410252350240.17266@scrub.home> <20041026010141.GA15919@work.bitmover.com> <Pine.LNX.4.61.0410270338310.877@scrub.home> <20041027035412.GA8493@work.bitmover.com> <Pine.LNX.4.61.0410272214580.877@scrub.home> <20041028005412.GA8065@work.bitmover.com> <20041031204717.GF5578@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041031204717.GF5578@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja wrote:
+On Sun, Oct 31, 2004 at 09:47:17PM +0100, Pavel Machek wrote:
+> How many terabytes would need to be transfered in order to do complete
+> import of linux-kernel into another system?
+> 								Pavel
 
-> I don't think it's so bad (ie: it could be _worse_)
-
-But not everyone can tolerate today's level of bloat.
-
-Imagine a small charity in a rural town in Bolivia or
-Colorado. They have no budget for computers and no one
-is offering donations. A local person put Linux on their 200 MHz
-system after Windows crashed and the Windows CD couldn't
-be found, but he can't put KDE or Gnome on it as well because
-that would bring it to a crawl. The only way to make the
-computer usable is to install an old distribution of Linux
-from 1998 which has Netscape 4 but no office app. Eventually
-they will give up on the computer and just throw it out,
-because they can't wait forever for programmers to write
-non-bloated software to make good use of their system.
-The machine ends up at a landfill where it leeches chemicals
-into the local water supply.
-
-Zack
+Not as much as it would take to do the same thing from a remote CVS server.
+CVS is dramatically worse than diff and patch.
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVA0AfO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262458AbVA0AXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261632AbVA0AfO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 19:35:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbVA0AXP
+	id S262458AbVA0AXG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 19:23:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbVA0AV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 19:23:15 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:38378 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261632AbVAZXX2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 18:23:28 -0500
-Subject: Re: [ANNOUNCE] inotify 0.18
-From: Robert Love <rml@novell.com>
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       John McCutchan <ttb@tentacle.dhs.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, bkonrath@redhat.com, greg@kroah.com
-In-Reply-To: <41F6BA4B.2000303@sun.com>
-References: <1106682112.23615.3.camel@vertex>
-	 <20050125200100.GC8859@parcelfarce.linux.theplanet.co.uk>
-	 <41F6BA4B.2000303@sun.com>
-Content-Type: text/plain
-Date: Wed, 26 Jan 2005 18:18:32 -0500
-Message-Id: <1106781512.7087.144.camel@betsy.boston.ximian.com>
+	Wed, 26 Jan 2005 19:21:57 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23725 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262496AbVAZXHR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 18:07:17 -0500
+Date: Wed, 26 Jan 2005 12:49:04 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Ake <Ake.Sandgren@hpc2n.umu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bug in 2.4.26 in mm/filemap.c when using RLIMIT_RSS
+Message-ID: <20050126144904.GE26308@logos.cnet>
+References: <20050126110750.GE7349@hpc2n.umu.se>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050126110750.GE7349@hpc2n.umu.se>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-25 at 16:29 -0500, Mike Waychison wrote:
+On Wed, Jan 26, 2005 at 12:07:50PM +0100, Ake wrote:
+> Use of rlim[RLIMIT_RSS] in mm/filemap.c is wrong.
+> It is passed down to kernel as a number of bytes but is being used as a
+> number of pages.
+> 
+> There is also a misinformative comment in fs/proc/array.c
+> in proc_pid_stat where it says
+> mm ? mm->rss : 0, /* you might want to shift this left 3 */
+> the number 3 should probably be PAGE_SHIFT-10.
 
-> How about inotify hold on to the nameidata until it is sure to have
-> updated the watches?  That way, the inode will be seen by
-> inotify_super_block_umount when called by generic_shutdown_super.
+Amazing that this has never been noticed before - I bet not many people use RSS 
+limits with madvise().
 
-I was chatting with John as soon as Al pointed out the problem and
-suggested we look at something like this.  I am glad you were able to
-crank it out so readily.  Thank you!
+This transform the rlimit in pages before the comparison, can you please test
+it.
 
-Barring a more elegant solution, I think just holding nameidata down
-until the watches are added is the way to go.  We will test this and
-then merge it into the next patch.
-
-Thanks,
-
-	Robert Love
-
-
+--- a/mm/filemap.c.orig	2004-11-17 09:54:22.000000000 -0200
++++ b/mm/filemap.c	2005-01-26 15:21:10.614842296 -0200
+@@ -2609,6 +2609,9 @@
+ 	error = -EIO;
+ 	rlim_rss = current->rlim ?  current->rlim[RLIMIT_RSS].rlim_cur :
+ 				LONG_MAX; /* default: see resource.h */
++
++	rlim_rss = (rlim_rss & PAGE_MASK) >> PAGE_SHIFT;
++
+ 	if ((vma->vm_mm->rss + (end - start)) > rlim_rss)
+ 		return error;
+ 

@@ -1,34 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317074AbSEXCmL>; Thu, 23 May 2002 22:42:11 -0400
+	id <S317077AbSEXDU0>; Thu, 23 May 2002 23:20:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317075AbSEXCmL>; Thu, 23 May 2002 22:42:11 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:62393 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S317074AbSEXCmK>;
-	Thu, 23 May 2002 22:42:10 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, alan@redhat.com
-Subject: [patch] 2.4.19-pre8 Prevent cl2llc.c corrupting linked files
+	id <S317079AbSEXDUZ>; Thu, 23 May 2002 23:20:25 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:37625 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S317077AbSEXDUY>; Thu, 23 May 2002 23:20:24 -0400
+Date: Thu, 23 May 2002 23:20:25 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: linux-fsdevel@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] loop.c forgot a kmap
+Message-ID: <20020523232024.A2917@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 24 May 2002 12:41:46 +1000
-Message-ID: <2676.1022208106@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When cl2llc.c is a multi-linked file, any build will affect all the
-other copies.  cl2llc.c should not even be in the kernel tarball but AC
-says that 802 is being cleaned up, so do just the minimal fix.
+The patch below fixes a bug in loop.c that causes highmem systems 
+to fail spectacularly when a page happens to be allocated in highmem 
+by replacing the use of page_address with a kmap/kunmap sequence.  
 
-Index: 19-pre8.1/net/802/Makefile
---- 19-pre8.1/net/802/Makefile Thu, 01 Nov 2001 00:41:41 +1100 kaos (linux-2.4/i/41_Makefile 1.2 644)
-+++ 19-pre8.1(w)/net/802/Makefile Fri, 24 May 2002 12:37:13 +1000 kaos (linux-2.4/i/41_Makefile 1.2 644)
-@@ -57,4 +57,5 @@ endif
- include $(TOPDIR)/Rules.make
+		-ben
+-- 
+"You will be reincarnated as a toad; and you will be much happier."
+
+:r ~/patches/v2.4.19-pre8-loop-kmap.diff
+--- /md0/kernels/2.4/v2.4.19-pre8/drivers/block/loop.c	Wed May  8 13:19:02 2002
++++ v2.4.19-pre8/drivers/block/loop.c	Thu May 23 22:44:09 2002
+@@ -199,9 +199,9 @@
+ 		page = grab_cache_page(mapping, index);
+ 		if (!page)
+ 			goto fail;
++		kaddr = kmap(page);
+ 		if (aops->prepare_write(file, page, offset, offset+size))
+ 			goto unlock;
+-		kaddr = page_address(page);
+ 		flush_dcache_page(page);
+ 		transfer_result = lo_do_transfer(lo, WRITE, kaddr + offset, data, size, IV);
+ 		if (transfer_result) {
+@@ -216,6 +216,7 @@
+ 			goto unlock;
+ 		if (transfer_result)
+ 			goto unlock;
++		kunmap(page);
+ 		data += size;
+ 		len -= size;
+ 		offset = 0;
+@@ -228,6 +229,7 @@
+ 	return 0;
  
- cl2llc.c: cl2llc.pre
-+	@rm -f $@
- 	sed -f ./pseudo/opcd2num.sed cl2llc.pre >cl2llc.c
-
+ unlock:
++	kunmap(page);
+ 	UnlockPage(page);
+ 	page_cache_release(page);
+ fail:

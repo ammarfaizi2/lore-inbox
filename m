@@ -1,57 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266320AbTAPKyj>; Thu, 16 Jan 2003 05:54:39 -0500
+	id <S265077AbTAPKv0>; Thu, 16 Jan 2003 05:51:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266322AbTAPKyj>; Thu, 16 Jan 2003 05:54:39 -0500
-Received: from mail.ithnet.com ([217.64.64.8]:30987 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S266320AbTAPKyi>;
-	Thu, 16 Jan 2003 05:54:38 -0500
-Date: Thu, 16 Jan 2003 12:03:24 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: MB without keyboard controller / USB-only keyboard ?
-Message-Id: <20030116120324.2b97e010.skraw@ithnet.com>
-In-Reply-To: <20030109232459.A24656@ucw.cz>
-References: <20030109114247.211f7072.skraw@ithnet.com>
-	<20030109232459.A24656@ucw.cz>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S266200AbTAPKv0>; Thu, 16 Jan 2003 05:51:26 -0500
+Received: from angband.namesys.com ([212.16.7.85]:35719 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S265077AbTAPKvZ>; Thu, 16 Jan 2003 05:51:25 -0500
+Date: Thu, 16 Jan 2003 14:00:15 +0300
+From: Oleg Drokin <green@namesys.com>
+To: linux-kernel@vger.kernel.org
+Cc: eazgwmir@umail.furryterror.org, viro@math.psu.edu, nikita@namesys.com
+Subject: [2.4] VFS locking problem during concurrent link/unlink 
+Message-ID: <20030116140015.A17612@namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Jan 2003 23:24:59 +0100
-Vojtech Pavlik <vojtech@suse.cz> wrote:
+Hello!
 
-> On Thu, Jan 09, 2003 at 11:42:47AM +0100, Stephan von Krawczynski wrote:
-> > Hello all,
-> > 
-> > how do I work with a mb that contains no keyboard controller, but has only
-> > USB for keyboard and mouse?
-> > While booting the kernel I get:
-> > 
-> > pc_keyb: controller jammed (0xFF)
-> > 
-> > (a lot of these :-)
-> > 
-> > and afterwards I cannot use the USB keyboard.
-> > Everything works with a mb that contains a keyboard-controller, but where I
-> > use a USB keyboard.
-> 
-> Get 2.5. ;) It should work without a kbd controller ... you can even
-> disable it in the kernel config ...
+   Debugging reiserfs problem that can be demonstrated with script created by
+   Zygo Blaxell, I started to wonder if the problem presented is indeed reiserfs
+   fault and not VFS.
+   Though the Zygo claims script only produces problems on reiserfs, I am trying
+   it now myself on ext2 (which will take some time).
 
-Nice idea, but not acceptable as this setup is for production use, you simply
-won't do that.
-It would be helpful if there was a kernel parameter for disabling the
-keyboard(-check) in 2.4. We found out that disabling it as kernel patch is not
-the right way, as standard setups with keyboard controller do not work any
-longer afterwards. This is a setup where user should be able to choose...
-The box contains a BIOS where I can type around with USB-keyboard, btw.
+   Debugging shows that reiserfs_link is sometimes called for inodes whose
+   i_nlink is zero (and all corresponding data is deleted already).
+   So my current guess of what's going on is this:
 
--- 
-Regards,
-Stephan
+   process 1                      process 2
+   sys_unlink("a/b")		  sys_link("a/b", "c/d");
+   down(inode of ("a"));	  down(inode of "c");
+				  
+   lock_kernel()
+   reiserfs_unlink("a/b")
+     decreases i_nlink of a/b to zero
+     and removes name "b" from "a"
+   unlock_kernel()
+   d_delete("a/b")
+(*)
+				   lock_kernel()
+				   reiserfs_link()
+					at this point we do usual stuff,
+					but inode's n_nlink is zero and
+					file data already removed which
+				        indicates reiserfs_delete_inode()
+					was already called at (*)
+				   unlock_kernel()
+
+   So my question is "Is it really ok that sys_link/vfs_link does not
+   take semaphore on parent dir of original path?", or should we
+   actually put a workaround in reiserfs code to avoid such a situation?
+
+Bye,
+    Oleg
+PS: Here's the script:
+#!/bin/bash
+
+# Create an empty filesystem:
+
+mkreiserfs -f -f /dev/hdb2
+mount /dev/hdb2 /data1 -t reiserfs
+
+cd /data1
+
+# Script used to control the load average.  Note that as written the loops
+# below will keep spawning new processes, so we need some way to throttle
+# them.  Change the '-lt 10' to another number to change the number
+# of processes.
+
+cat <<'LC' > loadcheck && chmod 755 loadcheck
+#!/bin/sh
+read av1 av5 av15 rest < /proc/loadavg
+echo -n "Load Average: $av1 ... "
+av1=${av1%.*}
+if [ $av1 -lt 10 ]; then
+        echo OK
+        exit 0
+else
+        echo "Whoa, Nellie!"
+        exit 1
+fi
+LC
+# Create directories used by test
+mkdir foo bar
+mkdir foo/etc foo/usr foo/var
+
+# Start up some rsyncs.  I use /etc, /usr, and /var because there's a
+# good mixture of files with some hardlinks between them, and on a normal
+# Linux system some of them change from time to time.
+
+while sleep 1m; do
+        ./loadcheck || continue;
+        for x in usr etc var; do
+                rsync -avxHS --delete /$x/. foo/$x/. &
+        done;
+done &
+# Start up some cp -al's and rm -rf's.  Note there are two concurrent
+# sets of 'cp's and two concurrent sets of 'rm's, and each of those
+# has different instances of 'cp' and 'rm' running at different times.
+for x in  1 2; do
+        while sleep 1m; do
+                ./loadcheck || continue;
+                cp -al foo bar/`date +%s` &
+        done &
+        while sleep 1m; do
+                ./loadcheck || continue;
+                for x in bar/*; do
+                        rm -rf $x;
+                        sleep 1m;
+                done &
+        done &
+done &
+
+
+

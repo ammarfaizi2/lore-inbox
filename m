@@ -1,38 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266048AbUFDXFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266062AbUFDXMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266048AbUFDXFr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 19:05:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266043AbUFDXFq
+	id S266062AbUFDXMN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 19:12:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264428AbUFDXMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 19:05:46 -0400
-Received: from loki.snap.net.nz ([202.37.101.41]:48138 "EHLO loki.snap.net.nz")
-	by vger.kernel.org with ESMTP id S266048AbUFDXFi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 19:05:38 -0400
-Date: Sat, 5 Jun 2004 11:14:50 +1200 (NZST)
-From: Keith Duthie <psycho@albatross.co.nz>
-To: Sebastian Kloska <kloska@scienion.de>
+	Fri, 4 Jun 2004 19:12:12 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:22913 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S266062AbUFDXIW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 19:08:22 -0400
+Subject: Re: [BUG] NFS no longer updates file modification times
+	appropriately
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: joe.korty@ccur.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: APM realy sucks on 2.6.x
-In-Reply-To: <40C0E91D.9070900@scienion.de>
-Message-ID: <Pine.LNX.4.53.0406051105170.27816@loki.albatross.co.nz>
-References: <40C0E91D.9070900@scienion.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <20040604132355.GA31710@tsunami.ccur.com>
+References: <1086297112.3659.3.camel@lade.trondhjem.org>
+	 <20040604132355.GA31710@tsunami.ccur.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1086390495.4161.43.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 04 Jun 2004 19:08:15 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jun 2004, Sebastian Kloska wrote:
+På fr , 04/06/2004 klokka 09:23, skreiv Joe Korty:
 
-> After all this bashing...
->
-> Is there anyone out there who has the same experiences ?
+> Hi Trond,
+>  Thanks for the explanation.  What did 2.6.5 do differently that made it
+> appear to work?
 
-I had the same problem at one time. Does disabling i2c help at all??
+Nothing in the NFS client...
 
-If so, the problem is probably in the w83781d or w83627hf driver; I could
-send you a copy of the patch, or you could just get the latest i2c release
-from http://www2.lm-sensors.nu/~lm78/index.html
--- 
-Just because it isn't nice doesn't make it any less a miracle.
-     http://users.albatross.co.nz/~psycho/     O-   -><-
+The only difference might be if the VM decided to flush writes out
+earlier in order to reclaim memory.
+
+Cheers,
+  Trond

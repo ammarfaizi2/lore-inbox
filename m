@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261908AbSLMLEg>; Fri, 13 Dec 2002 06:04:36 -0500
+	id <S261934AbSLMLKX>; Fri, 13 Dec 2002 06:10:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbSLMLEg>; Fri, 13 Dec 2002 06:04:36 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:41460
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S261908AbSLMLEf>; Fri, 13 Dec 2002 06:04:35 -0500
-Date: Fri, 13 Dec 2002 06:15:11 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Adam Belay <ambx1@neo.rr.com>
-Subject: Re: [PATCH][2.5][CFT] ad1848 PnP updates + fixes
-In-Reply-To: <Pine.LNX.4.50.0212122048590.6931-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.50.0212130612330.12366-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0212122048590.6931-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261963AbSLMLKX>; Fri, 13 Dec 2002 06:10:23 -0500
+Received: from B57b6.pppool.de ([213.7.87.182]:33464 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S261934AbSLMLKX>; Fri, 13 Dec 2002 06:10:23 -0500
+Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
+From: Daniel Egger <degger@fhm.edu>
+To: Joseph <jospehchan@yahoo.com.tw>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <004d01c2a274$915cf690$3716a8c0@taipei.via.com.tw>
+References: <Pine.LNX.4.44.0212111151410.1397-100000@twin.uoregon.edu>
+	 <002e01c2a1bf$4bfde0b0$3716a8c0@taipei.via.com.tw>
+	 <20021212133339.GE1145@suse.de>
+	 <004d01c2a274$915cf690$3716a8c0@taipei.via.com.tw>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-JRpwXoLWRI55WQqdZpqL"
+Organization: 
+Message-Id: <1039777487.13307.7.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 13 Dec 2002 12:04:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adam,
-	I had the following hunk from the previous patch to this file, do
-we really want to disable that device here?
 
-On Thu, 12 Dec 2002, Zwane Mwaikambo wrote:
+--=-JRpwXoLWRI55WQqdZpqL
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->  #ifdef CONFIG_PNP
-> -	if(ad1848_dev){
-> -		if(audio_activated)
-> -			pnp_disable_dev(ad1848_dev);
-> -		put_device(&ad1848_dev->dev);
-> +{
-> +	ad1848_info *p;
-> +
-> +	if (audio_activated == 0)
-> +		return;
-> +
-> +	while (--nr_ad1848_devs >= 0) {
-> +		p = &adev_info[nr_ad1848_devs];
-> +		pnp_disable_dev(p->pnp_dev);	/* XXX Should this be done here? */
-> +		put_device(&p->pnp_dev->dev);
->  	}
-> +	pnp_unregister_driver(&ad1848_driver);
-> +}
->  #endif
+Am Fre, 2002-12-13 um 07.55 schrieb Joseph:
 
--- 
-function.linuxpower.ca
+> Is there any plan to optimize for C3 CPU in future gcc released version?
+
+Certainly, as soon as some reliable (optimisation-) manual shows up.
+Whether that will happen before you fixed your mailer is a different
+question though.... :)
+
+> --=20
+> Servus,
+>        Daniel
+
+--=-JRpwXoLWRI55WQqdZpqL
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA9+b7Pchlzsq9KoIYRAln0AJ9a6i0D3oT6uFoElEpxQHGeRwMt9ACgr0+j
+l5hn1ObuVSpCOWxDss0xOi4=
+=s6b5
+-----END PGP SIGNATURE-----
+
+--=-JRpwXoLWRI55WQqdZpqL--
+

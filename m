@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277949AbRJIURX>; Tue, 9 Oct 2001 16:17:23 -0400
+	id <S277951AbRJIUOc>; Tue, 9 Oct 2001 16:14:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277952AbRJIURN>; Tue, 9 Oct 2001 16:17:13 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:10368 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S277949AbRJIURA>; Tue, 9 Oct 2001 16:17:00 -0400
-Date: Tue, 9 Oct 2001 16:16:54 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Kitwor <kitwor@kki.net.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: old exploit works!!!
-In-Reply-To: <000a01c150fb$6549e700$6400a8c0@czesio>
-Message-ID: <Pine.LNX.3.95.1011009161252.4052A-100000@chaos.analogic.com>
+	id <S277949AbRJIUOW>; Tue, 9 Oct 2001 16:14:22 -0400
+Received: from dfw-smtpout3.email.verio.net ([129.250.36.43]:31384 "EHLO
+	dfw-smtpout3.email.verio.net") by vger.kernel.org with ESMTP
+	id <S277950AbRJIUOD>; Tue, 9 Oct 2001 16:14:03 -0400
+Message-ID: <3BC35A71.9F783868@bigfoot.com>
+Date: Tue, 09 Oct 2001 13:13:37 -0700
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20p10i i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: Breaking system configuration in stable kernels
+In-Reply-To: <Pine.LNX.3.96.1011008113808.27023A-100000@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Erm. Doesn't work. Just creates a non-root shell with a bad
-environment. It says "Bug exploited successfully", but it's
-simply confused.
-
-Script started on Tue Oct  9 16:07:45 2001
-$ whoami
-rjohnson
-$ gcc -o xxx c.c
-$ ./xxx
-Bug exploited successfully.
-bash$ vi /etc/passwd
-This termcap entry lacks the :cm=: capability
-This termcap entry lacks the :ce=: capability
-"/etc/passwd" [READONLY] 32 lines, 1594 chars
-:1
-root:Deleted:0:0:System Administration:/root:/bin/bash
-:w!
-Can't write to "/etc/passwd" -- NOT WRITTEN
-:q
-bash$ exit
-exit
-$ exit
-exit
-
-Script done on Tue Oct  9 16:08:54 2001
-On Tue, 9 Oct 2001, Kitwor wrote:
-
-> Old exploit which works on kernels up to 2.2.18 (itr doesn't work on 2.2.19)
-> works on 2.4.9!!
-> I attach that exploit.
+Bill Davidsen wrote:
 > 
+>   I've beaten this dead horse before, but Linux will not look to
+> management like a viable candidate for default o/s until whoever releases
+> new versions of *stable* kernel series with cosmetic changes which break
+> existing systems running earlier releases of the same stable kernel
+> series.
+>
+> [cmpci module stuff]
+> 
+>   I love getting problems like this on my vacation, I'm pissed, and I
+> really think it indicates a lack of attention to detail. I think I saw
 
+I wouldn't use a new release of Windows or OSF/1 or Digital Unix or
+Solaris in a commercial situation and linux is no different.  In this
+case [cmpci] it sounds like some user's desktop which is also asking for
+problems.  Having it visible to management is just too much risk
+regardless of the os. 
 
-Cheers,
-Dick Johnson
+Stick with distribution OR 2.2.x (2.2.19pre2 or higher) kernels.
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+rgds,
+tim.
+--

@@ -1,61 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316249AbSEJNUw>; Fri, 10 May 2002 09:20:52 -0400
+	id <S316425AbSEJNYy>; Fri, 10 May 2002 09:24:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316250AbSEJNUv>; Fri, 10 May 2002 09:20:51 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27910 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316249AbSEJNUt>; Fri, 10 May 2002 09:20:49 -0400
-Date: Fri, 10 May 2002 14:20:38 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org, davej@suse.de
-Subject: Re: 2.5.15 warnings
-Message-ID: <20020510142038.A7165@flint.arm.linux.org.uk>
-In-Reply-To: <26013.1021001169@kao2.melbourne.sgi.com> <26949.1021006885@kao2.melbourne.sgi.com> <15579.46584.447522.360378@kim.it.uu.se>
+	id <S316426AbSEJNYy>; Fri, 10 May 2002 09:24:54 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:19472 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S316425AbSEJNYw>;
+	Fri, 10 May 2002 09:24:52 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: spin-locks 
+In-Reply-To: Your message of "Fri, 10 May 2002 08:58:47 -0400."
+             <Pine.LNX.3.95.1020510084519.1902A-100000@chaos.analogic.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Date: Fri, 10 May 2002 23:24:42 +1000
+Message-ID: <30386.1021037082@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 10, 2002 at 01:58:48PM +0200, Mikael Pettersson wrote:
-> This patch silences the sound/oss/emu10k1 warnings.
+On Fri, 10 May 2002 08:58:47 -0400 (EDT), 
+"Richard B. Johnson" <root@chaos.analogic.com> wrote:
+>First, if I create a spin-lock in the ".data" segment it
+>doesn't work on a SMP machine with two CPUs. I know I am
+>supposed to use the macros, but I have some high-speed stuff
+>written in assembly that needs a spin-lock. The 'doesn't work'
+>is that the spin-lock seems to dead-lock, i.e., they loop
+>forever with the interrupts disabled. I think what's really
+>happening is that .data was paged and can't be paged back in
+>with the interrupts off. I don't know. This stuff used to
+>work....
 
-You probably want to think about these in context of 32bit vs 64bit
-machines.
+Kernel .data sections are not paged.  They are identity[*] mapped along
+with the rest of the kernel text and data and are locked down.
 
-> --- linux-2.5.15/sound/oss/emu10k1/efxmgr.h.~1~	Wed Feb 20 03:11:02 2002
-> +++ linux-2.5.15/sound/oss/emu10k1/efxmgr.h	Fri May 10 01:54:43 2002
-> @@ -50,10 +50,10 @@
->          u16 code_start;
->          u16 code_size;
->  
-> -        u32 gpr_used[NUM_GPRS / 32];
-> -        u32 gpr_input[NUM_GPRS / 32];
-> -        u32 route[NUM_OUTPUTS];
-> -        u32 route_v[NUM_OUTPUTS];
-> +        unsigned long gpr_used[NUM_GPRS / 32];
-> +        unsigned long gpr_input[NUM_GPRS / 32];
-> +        unsigned long route[NUM_OUTPUTS];
-> +        unsigned long route_v[NUM_OUTPUTS];
->  };
->  
->  struct dsp_patch {
-> @@ -64,8 +64,8 @@
->          u16 code_start;
->          u16 code_size;
->  
-> -        u32 gpr_used[NUM_GPRS / 32];    /* bitmap of used gprs */
-> -        u32 gpr_input[NUM_GPRS / 32];
-> +        unsigned long gpr_used[NUM_GPRS / 32];    /* bitmap of used gprs */
-> +        unsigned long gpr_input[NUM_GPRS / 32];
->          u8 traml_istart;  /* starting address of the internal tram lines used */
->          u8 traml_isize;   /* number of internal tram lines used */
->  
+[*] Ignoring NUMA machines which may use non-identity mappings on each
+node.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+>In earlier versions of Linux, the locks were in .text_lock.
+>Now they are in : _text_lock_KBUILD_BASENAME
+
+Not quite.  They were all in section .text.lock but that broke when
+binutils started detecting dangling references to discarded sections.
+
+The fix was to store the lock code in the same section that called the
+lock, so .text locks are in the .text section, .text.exit locks are in
+the .text.exit section, no dangling references when .text.exit is
+discarded.
+
+The locks are now at the end of the section that references the lock,
+preceded by a label (not a section) of _text_lock_KBUILD_BASENAME.
+
+>So, what is special about this area that allows locks to work?
+
+There is nothing special about the text lock code.  It is just moving
+the failure path out of line to speed up the normal case.
+
+>And, what is special about .data that prevents them from working?
+
+Again nothing.  The spin lock area goes in .data, the code goes in the
+relevant text section.
+
+>Also, there is a potential bug (ducks and hides under the desk) in
+>the existing spin-lock unlocking. To unlock, the lock is simply
+>set to 1. This works if you have two CPUs, but what about more?
+>
+>Shouldn't the lock/unlock just be incremented/decremented so 'N' CPUs
+>can pound on it?
+
+Spinlocks are single cpu.  Only one cpu at a time can modify the data
+that is being protected by obtaining the lock.
+
+>From your description, you are confused about spinlocking.  Perhaps if
+you mailed your code instead of assuming where the error was ...
 

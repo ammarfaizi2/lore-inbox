@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292310AbSBPBlD>; Fri, 15 Feb 2002 20:41:03 -0500
+	id <S292312AbSBPCAF>; Fri, 15 Feb 2002 21:00:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292312AbSBPBkx>; Fri, 15 Feb 2002 20:40:53 -0500
-Received: from mail2.efi.com ([192.68.228.85]:1035 "HELO fcexgw02.efi.internal")
-	by vger.kernel.org with SMTP id <S292310AbSBPBko>;
-	Fri, 15 Feb 2002 20:40:44 -0500
-Message-ID: <3C6DBA20.28E40161@efi.com>
-Date: Fri, 15 Feb 2002 17:47:12 -0800
-From: Kallol Biswas <kallol@efi.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: eepro100 driver can't read serial eeprom that is beyond a bridge
+	id <S292313AbSBPB74>; Fri, 15 Feb 2002 20:59:56 -0500
+Received: from bitmover.com ([192.132.92.2]:56978 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S292312AbSBPB7t>;
+	Fri, 15 Feb 2002 20:59:49 -0500
+Date: Fri, 15 Feb 2002 17:59:48 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: William Scott Lockwood III <thatlinuxguy@hotmail.com>
+Cc: Alexander Viro <viro@math.psu.edu>, "Eric S. Raymond" <esr@thyrsus.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Disgusted with kbuild developers
+Message-ID: <20020215175948.F26554@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	William Scott Lockwood III <thatlinuxguy@hotmail.com>,
+	Alexander Viro <viro@math.psu.edu>,
+	"Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0202151803220.27197-100000@weyl.math.psu.edu> <OE58H4DpHUJLwVImmyy0000a1a8@hotmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <OE58H4DpHUJLwVImmyy0000a1a8@hotmail.com>; from thatlinuxguy@hotmail.com on Fri, Feb 15, 2002 at 07:14:17PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 15, 2002 at 07:14:17PM -0600, William Scott Lockwood III wrote:
+> Here's an idea Al:  Put up, or shut up.  Where's your code to replace CML1
+> with?  I like Eric's system, and find it's MUCH more useful in a production
+> environment than CML1 was.  Where's your replacement idea?
 
-Hi,
-     We have a system  running 2.4.17 with the following configuration.
+I think Al's work on the kernel speaks for itself.  He's been putting up
+just fine, thank you.  And I think you're looking in the wrong place,
+Al has expressed no interest (that I'm aware of) in rewriting this code.
+As a user of the new system, a pretty typical user, his opinion counts.
 
-
-    ------North Bridge---------PCI-PCI-BRIDGE----82559ER
-                                                       |
-                                                   82559ER
-# lspci
-......
-00:12.0 Ethernet controller: Intel Corp. 82559ER (rev 09)
-.......
-00:0f.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 03)
-
-.........
-02:01.0 Ethernet controller: Intel Corp. 82559ER (rev 09)
-
-#insmod eepro100
-
-.........
-eth0: Intel Corp. 82559ER, l00:eC0:s85:/30:292:.9F, 4IRQ 12.
-............
-
-eth1: OEM i82557/i82558 10/100 Ethernet, FF:FF:FF:FF:FF:FF, IRQ 10.
-........
-
-It seems  eepro100 driver can't read the eeprom from the 2nd card. I
-have
-printed the data bits in the
-do_eeprom_cmd  routine, all were 1. Adjusting the delay  did not help.
-
-The eepro100 driver on 2.2 kernel works fine and even intel's e100
-driver on
-2.4.17 also works fine.
-
-I guess there may be some timing issues involved.
-
-Are the  devices beyond a bridge  imapped to I/O space properly in 2.4
-kernel? Intel's driver reads the EEPROM
-control register using memory cycles.
-
-
-Kallol
-
-
-
+I don't think that you're really getting the point.  Nobody is saying that
+CML1 is the greatest thing since sliced bread.  What they are saying is that
+it seems to work pretty well, yes it could be better, but CML2 isn't shaping
+up to be an improvement so much as a Eric Raymond Language exercise.  Noone
+begrudges Eric his right to come up with as many little languages as he wants.
+But when he asks the kernel developers to use them, he'd better be prepared
+to hear each and every thing they find wanting, and address the majority of
+those issues.  That hasn't happened.  Instead, there have been a lot of 
+flame wars, politics, protests about Linus, etc.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

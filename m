@@ -1,21 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262620AbSLTQuE>; Fri, 20 Dec 2002 11:50:04 -0500
+	id <S262662AbSLTQ4c>; Fri, 20 Dec 2002 11:56:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262662AbSLTQuE>; Fri, 20 Dec 2002 11:50:04 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:529 "EHLO
+	id <S262796AbSLTQ4c>; Fri, 20 Dec 2002 11:56:32 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32017 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262620AbSLTQuC>; Fri, 20 Dec 2002 11:50:02 -0500
-Date: Fri, 20 Dec 2002 08:47:05 -0800 (PST)
+	id <S262662AbSLTQ4b>; Fri, 20 Dec 2002 11:56:31 -0500
+Date: Fri, 20 Dec 2002 09:05:53 -0800 (PST)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Ulrich Drepper <drepper@redhat.com>, <bart@etpmod.phys.tue.nl>,
-       <davej@codemonkey.org.uk>, <hpa@transmeta.com>,
-       <terje.eggestad@scali.com>, <matti.aarnio@zmailer.org>,
-       <hugh@veritas.com>, <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <20021220120656.GA20674@bjl1.asuk.net>
-Message-ID: <Pine.LNX.4.44.0212200834590.2035-100000@home.transmeta.com>
+To: davidm@hpl.hp.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH 2.5.x disable BAR when sizing
+In-Reply-To: <15874.58889.846488.868570@napali.hpl.hp.com>
+Message-ID: <Pine.LNX.4.44.0212200849090.2035-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,116 +20,79 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 20 Dec 2002, Jamie Lokier wrote:
+
+On Fri, 20 Dec 2002, David Mosberger wrote:
 >
-> Ulrich Drepper wrote:
-> >   int $0x80  ->  call *%gs:0x18
->
-> The calling convention has been (slightly) changed - i.e. 6 argument
-> calls don't work, so why not go a bit further: allow the vsyscall entry
-> point to clobber more GPRs?
+> Could you please stop this ia64 paranoia and instead explain to me why
+> it's OK to relocate a PCI device to (0x100000000-PCI_dev_size)
+> temporarily?  That just seems horribly unsafe to me.
 
-Actually, six-argument syscalls _do_ work. I admit that the way to make
-them work is "interesting", but it's also extremely simple.
+No. It's not horribly unsafe at all. It's very safe, for one simple
+reason: it's how PCI probing has _always_ been done. Exactly because the
+alternatives simply do not work.
 
-> The benefit is that this allows Glibc to do a wholesale replacement of
-> "int $0x80" -> "single call instruction".  Otherwise, those pushes are
-> completely unnecessary.  It could be this short instead:
->
-> 	vsyscall:
-> 		movl	%esp,%ebp
-> 		sysenter
-> 		jmp	vsyscall
-> 		ret
+I can also tell you why it does work, and why it's supposed to work: by
+writing 0xffffffff to the BAR register, you basically move the BAR to high
+PCI memory - even if it was enabled before. Which is fine, as long as
+nobody else is in that high memory. So the secondary rule to "don't turn
+off MEM or IO accesses" is "never allocate real PCI BAR resources at the
+top of memory".
 
-Yes, we could have changed the implementation to clobber more registers,
-but if we want to support all system calls it would still have to save
-%ebp, so the minimal approach would have been
+Think about it: if you move the BAR to high memory, you basically disable
+only _that_ bar, and nothing else. You don't clobber any other associated
+functions, or anything like that. It's clearly a _less_ disruptive thing
+than disabling access to the whole device.
 
-	vsyscall:
-		pushl %ebp
-	0:
-		movl %esp,%ebp
-		sysenter
-		jmp 0b	/* only done for restarting */
-		popl %ebp
-		ret
+Anyway, why do you really want to add the MEM/IO disable? Do you actually
+have a device that wants it, or are you just blinded by documentation
+written by somebody who had no idea about what real life is all about?
 
-which is all of 4 (simple) instructions cheaper than the one we have now.
+>							  The PCI spec
+> seems to say the same as it says pretty clearly that memory decoding
+> should be disabled during BAR-sizing.  If certain bridges cause
+> problems, perhaps those need to be special-cased?
 
-And if the caller cannot depend on registers being saved, the caller may
-actually end up being more complicated. For example, with the current
-setup, you can have
+No. Do it the other way around: if there is some specific chipset that
+actually _needs_ the disable, you do THAT special cased.
 
-	getpid():
-		movl $__NR_getpid,%eax
-		jmp *%gs:0x18
+Because the current code works on everything that we know about, and we
+_know_ that the disable doesn't work. As Ivan already pointed out, it's
+not just bridges. When you disable IO/MEM accesses, you often disable
+_everything_, which can break pretty much anything.
 
-but if system calls clobber registers, the caller needs to be
+(I say "often", because it does actually depend on the chipset. Some chips
+only seem to disable the BAR entries. Others disable all the "extended"
+ports too, and leave only config space accessible after you've disable
+IO/MEM)
 
-	getpid():
-		pushl %ebx
-		pushl %esi
-		pushl %edi
-		pushl %ebp
-		movl $__NR_getpid,%eax
-		call *%gs:0x18
-		popl %ebp
-		popl %edi
-		popl %esi
-		popl %ebx
-		ret
+The cases I've seen are northbridges that stop forwarding DMA, and USB
+controllers that are still in legacy mode (because the BAR probing happens
+before the USB driver has had a chance to _change_ it), where disabling IO
+and/or MEM will cause the SMM code that does the legacy handling to just
+lock up, since suddenly the hardware they expect to be there doesn't
+respond any more.
 
-and notice how the _real_ code sequence actually got much _worse_ from the
-fact that you tried to save time by not saving registers.
+Ivan pointed out that it also disables things like VGA legacy registers.
 
+It will disable IDE legacy registers too, btw. I'd also expect it to
+disable IDE DMA access, so if you happen to be trying to probe the BAR's
+after somebody started IO on the IDE, you just made that IO fail
+spectacularly, and I'd not be surprised if the IDE controller just locked
+up as a result.
 
-> It is nice to be able to use the _exact_ same convention in glibc, for
-> getting a patch out of the door quickly.  But it is just as easy to do
-> that putting the pushes and pops into the library itself:
->
-> Instead of
->
-> 	int $0x80 ->	call	*%gs:0x18
->
-> Write
->
-> 	int $0x80 ->	pushl	%ebp
-> 			pushl	%ecx
-> 			pushl	%edx
-> 			call	*%gs:0x18
-> 			popl	%edx
-> 			popl	%ecx
-> 			popl	%ebp
+Let me re-iterate the "turn power off at the master switch in a house when
+switching a light bulb" analogy. Yes, it's a good idea if you are nervous,
+but you do that only when you _know_ who is in the house and you know what
+they are doing and it's ok by them.
 
-But where's the advantage then? You use the same number of instructions
-dynamically, and you use _more_ icache space than if you have the pushes
-and pops in just one place?
+For example, it would be fine for a low-level driver (who has already
+taken control of the device) to turn the device off. But it is NOT fine to
+do it in general.
 
-> It has exactly the same cost as the current patches, but provides
-> userspace with more optimisation flexibility, using an asm clobber
-> list instead of explicit instructions for inline syscalls, etc.
+One solution in the long term may be to not even probe the BAR's at all in
+generic code, and only do it in the pci_enable_dev() stuff. That way it
+would literally only be done by the driver, who can hopefully make sure
+that the device is ok with it.
 
-In practice, there is nothing around the call. And you have to realize
-that the pushes and pops you added in your version are _wasted_ for other
-cases. If the system call ends up being int 0x80, you just wasted time. If
-the system call ended up being AMD's x86-64 version of syscall, you just
-wsted time.
-
-The advantage of putting all the register save in the trampoline is that
-user mode literally doesn't have to _know_ what it is calling. It only
-needs to know two simple rules:
-
- - registers are preserved (except for %eax which is the return value, of
-   course)
- - it should fill in arguments in %ebx, %ecx ... (but the things that
-   aren't arguments can just be left untouched)
-
-And then depending on what the real low-level calling convention is, the
-trampoline will save the _minimum_ number of registers (ie some calling
-conventions might clobber different registers than %ecx/%edx - you have to
-remember that "sysenter" is just _one_ out of at least three calling
-conventions available).
-
-			Linus
+		Linus
 

@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317806AbSGXX2J>; Wed, 24 Jul 2002 19:28:09 -0400
+	id <S318020AbSGXXbz>; Wed, 24 Jul 2002 19:31:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317922AbSGXX2J>; Wed, 24 Jul 2002 19:28:09 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:38823 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S317806AbSGXX2J>; Wed, 24 Jul 2002 19:28:09 -0400
-Date: Thu, 25 Jul 2002 00:30:57 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 'select' failure or signal should not update timeout
-Message-ID: <20020725003057.A8430@kushida.apsleyroad.org>
-References: <20020724144433.B7192@kushida.apsleyroad.org> <Pine.LNX.4.33.0207241142320.2117-100000@penguin.transmeta.com>
+	id <S318049AbSGXXbz>; Wed, 24 Jul 2002 19:31:55 -0400
+Received: from bitmover.com ([192.132.92.2]:5844 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S318020AbSGXXby>;
+	Wed, 24 Jul 2002 19:31:54 -0400
+Date: Wed, 24 Jul 2002 16:35:02 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Kenneth Johansson <ken@kenjo.org>
+Cc: Stelian Pop <stelian.pop@fr.alcove.com>, linux-kernel@vger.kernel.org
+Subject: Re: bk://linux.bkbits.net/linux-2.[45] pull error
+Message-ID: <20020724163502.B21335@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Kenneth Johansson <ken@kenjo.org>,
+	Stelian Pop <stelian.pop@fr.alcove.com>,
+	linux-kernel@vger.kernel.org
+References: <m37kjlmt2k.fsf@lugabout.jhcloos.org> <20020724061339.E2703@work.bitmover.com> <20020724140939.GE718@tahoe.alcove-fr> <1027538810.11340.23.camel@tiger>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0207241142320.2117-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Jul 24, 2002 at 11:48:10AM -0700
+In-Reply-To: <1027538810.11340.23.camel@tiger>; from ken@kenjo.org on Wed, Jul 24, 2002 at 09:26:50PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Like your example, the only uses I've had personally (DVD playback) have
-> really had an empty select, so it wasn't really select itself that was 
-> horribly important.
+On Wed, Jul 24, 2002 at 09:26:50PM +0200, Kenneth Johansson wrote:
+> On Wed, 2002-07-24 at 16:09, Stelian Pop wrote:
+> > On Wed, Jul 24, 2002 at 06:13:39AM -0700, Larry McVoy wrote:
+> > 
+> > > We ran out of disk space, it's fixed.  Thanks for the message.
+> > 
+> > While we are at it, could you please push the Linus tree 
+> > (http://linus.bkbits.net/linux-2.5) to the Linux tree 
+> > (http://linux.bkbits.net/linux-2.5) manualy again.
+> > 
+> > /me really wonders if this couldn't be automated somehow...
+> 
+> Why two trees ?
 
-All the real examples I've encountered are waiting on file descriptors
-too -- and occasionally also signals.
-
--- Jamie
+Because nobody pulls from Linus' tree so it is never locked.  He can push
+to that and then it's up to yours truly to push it up and wait for locks.
+It's actually a non-problem these days, it was a problem right after the
+linux.bkbits.net trees went up because people were cloning them over modems
+and they were locked forever.  Linus was already less than thrilled with
+our locking approach and this was just too lame for him to deal with so
+I set up the extra tree.  It could probably go away but since it works
+and the point of BK wrt Linux was to offload Linus, I'm not going to go
+yank his chain.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

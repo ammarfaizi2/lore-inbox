@@ -1,36 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266464AbRGONMo>; Sun, 15 Jul 2001 09:12:44 -0400
+	id <S266544AbRGONPO>; Sun, 15 Jul 2001 09:15:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266448AbRGONMe>; Sun, 15 Jul 2001 09:12:34 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:7442 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266438AbRGONMT>; Sun, 15 Jul 2001 09:12:19 -0400
-Subject: Re: Linux 2.4.6-ac3
-To: gareth.hughes@acm.org (Gareth Hughes)
-Date: Sun, 15 Jul 2001 14:12:52 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B50F5B0.7058B30A@acm.org> from "Gareth Hughes" at Jul 15, 2001 11:45:20 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S266512AbRGONPF>; Sun, 15 Jul 2001 09:15:05 -0400
+Received: from mail010.mail.bellsouth.net ([205.152.58.30]:23951 "EHLO
+	imf10bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S266438AbRGONO6>; Sun, 15 Jul 2001 09:14:58 -0400
+Message-ID: <005501c10d30$54e0e260$7c853dd0@hppav>
+From: "Ken Hirsch" <kenhirsch@myself.com>
+To: "Chris Wedgwood" <cw@f00f.org>, "John Alvord" <jalvo@mbay.net>
+Cc: "Daniel Phillips" <phillips@bonn-fries.net>,
+        "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+        "Andrew Morton" <andrewm@uow.edu.au>,
+        "Andreas Dilger" <adilger@turbolinux.com>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        "Ben LaHaise" <bcrl@redhat.com>,
+        "Ragnar Kjxrstad" <kernel@ragnark.vestdata.no>,
+        <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <mike@bigstorage.com>, <kevin@bigstorage.com>, <linux-lvm@sistina.com>
+In-Reply-To: <Pine.LNX.4.20.0107142304010.17541-100000@otter.mbay.net> <20010715180752.B7993@weta.f00f.org>
+Subject: Re: [PATCH] 64 bit scsi read/write
+Date: Sun, 15 Jul 2001 09:16:09 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15Llhc-0003zS-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Fair enough.  However, we now no longer have the same core DRM functions
-> copied-and-pasted into each individual driver, renamed to foo_* and
-> tweaked to add AGP support.  If something needs fixing in the core DRM
-> stuff, it can be done in one place now, and all drivers will see the
-> fix.
-> 
-> Oh, and at least the new MGA driver is stable.
+Chris Wedgwood <cw@f00f.org> wrote:
+> On Sat, Jul 14, 2001 at 11:05:36PM -0700, John Alvord wrote:
+>
+>     In the IBM solution to this (1977-78, VM/CMS) the critical data was
+>     written at the begining and the end of the block. If the two data
+items
+>     didn't match then the block was rejected.
+>
+> Neat.
+>
+>
+> Simple and effective.  Presumably you can also checksum the block, and
+> check that.
 
-Excellent.
+The first technique is not sufficient with modern disk controllers, which
+may reorder sector writes within a block.  A checksum, especially a robust
+CRC32, is sufficient, but rather expensive.
 
-DRM 4.1 is something that needs discussion rather than being ignored. I sort
-of expect it to look like XFree code anyway and I can see bits of the macro
-stuff will really help with the *BSD code
+Mohan has a clever technique that is computationally trivial and only uses
+one bit per sector: http://www.almaden.ibm.com/u/mohan/ICDE95.pdf
+
+Unfortunately, it's also patented:
+http://www.delphion.com/details?pn=US05418940__
+
+Perhaps IBM will clarify their position with respect to free software and
+patents in the upcoming conference.
+
+
 

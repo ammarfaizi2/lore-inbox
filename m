@@ -1,55 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266931AbSLJCDz>; Mon, 9 Dec 2002 21:03:55 -0500
+	id <S266535AbSLJCLQ>; Mon, 9 Dec 2002 21:11:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266933AbSLJCDz>; Mon, 9 Dec 2002 21:03:55 -0500
-Received: from holomorphy.com ([66.224.33.161]:50074 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S266931AbSLJCDx>;
-	Mon, 9 Dec 2002 21:03:53 -0500
-Date: Mon, 9 Dec 2002 18:11:07 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jim Houston <jim.houston@attbi.com>
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, george@mvista.com
-Subject: Re: [PATCH 3/3] High-res-timers part 3 (posix to hrposix) take 20
-Message-ID: <20021210021107.GD9882@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jim Houston <jim.houston@attbi.com>, akpm@digeo.com,
-	linux-kernel@vger.kernel.org, george@mvista.com
-References: <3DF4B5C1.D36D4CCF@attbi.com> <20021209223515.GC20686@holomorphy.com> <3DF549A3.5D63B4B0@attbi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DF549A3.5D63B4B0@attbi.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S266546AbSLJCLQ>; Mon, 9 Dec 2002 21:11:16 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:60591 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S266535AbSLJCLO>; Mon, 9 Dec 2002 21:11:14 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.4] IP: disable ECN support by default - Config option
+Date: Tue, 10 Dec 2002 03:18:21 +0100
+User-Agent: KMail/1.4.3
+Organization: WOLK - Working Overloaded Linux Kernel
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+MIME-Version: 1.0
+Message-Id: <200212100316.59910.m.c.p@wolk-project.de>
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_L2TVFNVZQT0JANMV2HEV"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> My original allocator(s) used a radix tree structured bitmap like this
->> in order to provide hard constant time bounds, but statically-allocated
->> them. Static allocation didn't fit in with larger pid space, though.
 
-On Mon, Dec 09, 2002 at 08:55:47PM -0500, Jim Houston wrote:
-> Gee Bill, what can I say?  I'm sorry I misattributed your work to Ingo.
+--------------Boundary-00=_L2TVFNVZQT0JANMV2HEV
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Ingo did a large bit of work wrt. mergeability, the for_each_task_pid()
-macro, folded the separately allocated idtag structures into the task_t,
-redid the pid allocator to handle thelarger spaces, and fixed several
-severe bugs, so he should be given due credit. I'd say it was a
-collaborative effort, though separated somewhat by the times we
-actually worked on it.
+Hi Marcelo,
 
+attached super trivial patch gives us a config option to choose whether w=
+e=20
+want ECN disabled per default if selected or not.
 
-On Mon, Dec 09, 2002 at 08:55:47PM -0500, Jim Houston wrote:
-> I'm curious about the reaction to recursion.  I use the obvious loop
-> for the lookup path, but the allocate and remove cases start getting
-> ugly as an iterative solution.
+consider for inclusion into 2.4.
 
-Deep call stacks are not cheap on all arches, ISTR SPARC(64?) and S/390
-having some relatively obscene overheads. Going iterative didn't
-actually look that bad here, but sleeping etc. for memory weren't in
-the picture for me.
+Has been in WOLK and in Debian kernels for ages.
 
+ciao, Marc
+--------------Boundary-00=_L2TVFNVZQT0JANMV2HEV
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="ecn-disable-per-default-config-option.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="ecn-disable-per-default-config-option.patch"
 
-Bill
+--- linux-old/net/ipv4/Config.in
++++ linux-wolk/net/ipv4/Config.in
+@@ -40,6 +40,9 @@
+    bool '  IP: ARP daemon support (EXPERIMENTAL)' CONFIG_ARPD
+ fi
+ bool '  IP: TCP Explicit Congestion Notification support' CONFIG_INET_ECN
++if [ "$CONFIG_INET_ECN" = "y" ]; then
++   bool '    IP: disable ECN support by default' CONFIG_INET_ECN_DISABLED
++fi
+ bool '  IP: TCP syncookie support (disabled per default)' CONFIG_SYN_COOKIES
+ if [ "$CONFIG_NETFILTER" != "n" ]; then
+    source net/ipv4/netfilter/Config.in
+--- linux-old/net/ipv4/tcp_input.c
++++ linux-wolk/net/ipv4/tcp_input.c
+@@ -74,7 +74,7 @@
+ int sysctl_tcp_sack = 1;
+ int sysctl_tcp_fack = 1;
+ int sysctl_tcp_reordering = TCP_FASTRETRANS_THRESH;
+-#ifdef CONFIG_INET_ECN
++#if defined(CONFIG_INET_ECN) && !defined(CONFIG_INET_ECN_DISABLED)
+ int sysctl_tcp_ecn = 1;
+ #else
+ int sysctl_tcp_ecn = 0;
+
+--------------Boundary-00=_L2TVFNVZQT0JANMV2HEV--
+

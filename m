@@ -1,72 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262158AbVCCTsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262464AbVCCUie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262158AbVCCTsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 14:48:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVCCTqJ
+	id S262464AbVCCUie (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 15:38:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVCCUfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 14:46:09 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:25306 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261599AbVCCTmm (ORCPT
+	Thu, 3 Mar 2005 15:35:41 -0500
+Received: from mail.kroah.org ([69.55.234.183]:43911 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262212AbVCCUc2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 14:42:42 -0500
-Date: Thu, 3 Mar 2005 13:36:30 -0600
-From: Jake Moilanen <moilanen@austin.ibm.com>
-To: akpm@osdl.org
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] offb remapped address
-Message-Id: <20050303133630.618614df.moilanen@austin.ibm.com>
-Organization: IBM
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 3 Mar 2005 15:32:28 -0500
+Date: Thu, 3 Mar 2005 12:32:06 -0800
+From: Greg KH <greg@kroah.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Rene Rebe <rene@exactcode.de>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/ Altivec
+Message-ID: <20050303203206.GB13522@kroah.com>
+References: <422751D9.2060603@exactcode.de> <422756DC.6000405@pobox.com> <20050303191840.GA12916@kroah.com> <42276A0C.9080505@pobox.com> <20050303200718.GR28536@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050303200718.GR28536@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The offb code did not take into account a remapped pci address.  Adding
-in the pci_mem_offset fixed a DSI in offb.
+On Thu, Mar 03, 2005 at 12:07:18PM -0800, Chris Wright wrote:
+> * Jeff Garzik (jgarzik@pobox.com) wrote:
+> > Greg KH wrote:
+> > 
+> > Two procedural suggestions...
+> > 
+> > >Ok, I've fixed up the patch and applied it to a local tree that I've set
+> > >up to catch these things (it will live at
+> > >bk://kernel.bkbits.net:gregkh/linux-2.6.11.y until Chris Wright and I
+> > >set up how we are going to handle all of this.)
+> > 
+> > My suggestion would be one of two alternatives:
+> > 
+> > 1) At each release, Linus clones
+> > 	linux.bkbits.net/linux-2.6
+> > 		to
+> > 	linux.bkbits.net/linux-2.6.11
+> > 
+> > and gives the "release team" access to push to linux-2.6.11 repo.
+> 
+> My recollection of the bkbits interface is that it's keys are good for a
+> "project" dir.  So I don't know if it would work like you suggested.
+> 
+> > 2) Create linux-release.bkbits.net, and some non-Linus person clones 
+> > linux-2.6 at release time to linux-2.6.11.
+> 
+> This is closer to what I suggested to Greg (although I like your name
+> better).
 
-Signed-off-by: Jake Moilanen <moilanen@austin.ibm.com>
+I like this too, less work for Linus to do this.
 
----
+Ok, linux-release.bkbits.net is now created.
 
+> > >Feel free to start pointing stuff like this at me and chris (we'll also
+> > >be setting up an alias for it.)
+> > 
+> > I was wondering if it would be possible to setup a list on vger that is 
+> > public, but read-only to everyone but the $sucker team.
 
-diff -puN drivers/video/offb.c~offb_dsi drivers/video/offb.c
---- linux-2.6.11/drivers/video/offb.c~offb_dsi	Wed Mar  2 15:03:49 2005
-+++ linux-2.6.11-moilanen/drivers/video/offb.c	Wed Mar  2 15:40:41 2005
-@@ -29,6 +29,10 @@
- #include <asm/io.h>
- #include <asm/prom.h>
- 
-+#ifdef CONFIG_PPC64
-+#include <asm/pci-bridge.h>
-+#endif
-+
- #ifdef CONFIG_PPC32
- #include <asm/bootx.h>
- #endif
-@@ -322,7 +326,8 @@ static void __init offb_init_nodriver(st
- 	int *pp, i;
- 	unsigned int len;
- 	int width = 640, height = 480, depth = 8, pitch;
--	unsigned *up, address;
-+	unsigned *up;
-+	unsigned long address;
- 
- 	if ((pp = (int *) get_property(dp, "depth", &len)) != NULL
- 	    && len == sizeof(int))
-@@ -357,6 +362,10 @@ static void __init offb_init_nodriver(st
- 
- 		address = (u_long) dp->addrs[i].address;
- 
-+#ifdef CONFIG_PPC64
-+		address += dp->phb->pci_mem_offset;
-+#endif
-+		
- 		/* kludge for valkyrie */
- 		if (strcmp(dp->name, "valkyrie") == 0)
- 			address += 0x1000;
+So, the $sucker team can't read it, but the rest of the world could?  :)
 
-_
+> Don't see why not, we were thinking of making it just an alias at
+> kernel.org.
+
+An alias would probably be easier, unless you think everything sent
+there should be archived?
+
+thanks,
+
+greg k-h

@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288914AbSCCUOV>; Sun, 3 Mar 2002 15:14:21 -0500
+	id <S288896AbSCCUMW>; Sun, 3 Mar 2002 15:12:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288919AbSCCUOL>; Sun, 3 Mar 2002 15:14:11 -0500
-Received: from smtp3.vol.cz ([195.250.128.83]:27923 "EHLO smtp3.vol.cz")
-	by vger.kernel.org with ESMTP id <S288914AbSCCUNz>;
-	Sun, 3 Mar 2002 15:13:55 -0500
-Date: Sat, 2 Mar 2002 14:54:53 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, mingo@elte.hu,
-        Matthew Kirkwood <matthew@hairy.beasts.org>,
-        Benjamin LaHaise <bcrl@redhat.com>, David Axmark <david@mysql.com>,
-        William Lee Irwin III <wli@holomorphy.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Lightweight userspace semaphores...
-Message-ID: <20020302145452.A37@toy.ucw.cz>
-In-Reply-To: <E16f85L-0005QM-00@wagner.rustcorp.com.au> <Pine.LNX.4.33.0202241543550.28708-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.33.0202241543550.28708-100000@home.transmeta.com>; from torvalds@transmeta.com on Sun, Feb 24, 2002 at 03:48:58PM -0800
+	id <S288914AbSCCUML>; Sun, 3 Mar 2002 15:12:11 -0500
+Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:32744 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S288896AbSCCUME>;
+	Sun, 3 Mar 2002 15:12:04 -0500
+Message-ID: <3C828393.7030501@candelatech.com>
+Date: Sun, 03 Mar 2002 13:12:03 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: latency & real-time-ness.
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I have been doing some tests with 2.4.19-pre2-ac2 with
+regard to network latency.  When running a steady stream of
+138byte UDP packets at 115 packets per second, I see about
+.1% of the packets take more than 5 miliseconds to go from
+user-space to user-space on a 1Ghz PIII machine.
 
-> > >   sys_sem_create()
-> > >   sys_sem_destroy()
-> >
-> > There is no create and destroy (init is purely userspace).  There is
-> > "this is a semapore: up it".  This is a feature.
-> 
-> No, that's a bug.
-> 
-> You have to realize that there are architectures that need special
-> initialization and page allocation for semaphores: they need special flags
-> in the TLB for "careful access", for example (sometimes the careful access
-> ends up being non-cached).
+At 50Mbps (bi directional), I see a much wider latency spread,
+with some packets taking up to 300ms or higher to get from A
+to B.  The CPU load ranges from about 30% to 80% utilization
+at this speed...
 
-Your user part is arch-dependend, anyway. So it can just mmap(..., O_CAREFULL).
+I'm running the program at nice -18.
 
-									Pavel
+So, what kind of things can I do to decrease the latency?
+
+Would the low-latency patch help me?
+
+Are there any scheduling tricks I can use to tell the kernel
+that my program should get to run as soon as it wants to?
+
+Thanks,
+Ben
 
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
 

@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293680AbSEIMt0>; Thu, 9 May 2002 08:49:26 -0400
+	id <S293632AbSEIM5I>; Thu, 9 May 2002 08:57:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293632AbSEIMtZ>; Thu, 9 May 2002 08:49:25 -0400
-Received: from www.nfas.org.sz ([196.28.7.66]:7866 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S293680AbSEIMtZ>; Thu, 9 May 2002 08:49:25 -0400
-Date: Thu, 9 May 2002 14:25:15 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: trivial@rustcorp.com.au
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] serial unload message
-Message-ID: <Pine.LNX.4.44.0205091424450.6271-100000@netfinity.realnet.co.sz>
+	id <S310190AbSEIM5H>; Thu, 9 May 2002 08:57:07 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:20498 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S293632AbSEIM5G>; Thu, 9 May 2002 08:57:06 -0400
+Message-ID: <3CDA6363.2050108@evision-ventures.com>
+Date: Thu, 09 May 2002 13:54:11 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andries.Brouwer@cwi.nl
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] hdreg.h
+In-Reply-To: <UTC200205082345.g48NjZX24244.aeb@smtp.cwi.nl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- linux-2.4.19-pre7-ac3/drivers/char/serial.c.orig	Thu May  9 10:47:13 2002
-+++ linux-2.4.19-pre7-ac3/drivers/char/serial.c	Thu May  9 10:47:19 2002
-@@ -5699,7 +5699,7 @@
- 	if (state->info && state->info->tty)
- 		tty_hangup(state->info->tty);
- 	state->type = PORT_UNKNOWN;
--	printk(KERN_INFO "tty%02d unloaded\n", state->line);
-+	printk(KERN_INFO "ttyS%02d unloaded\n", state->line);
- 	/* These will be hidden, because they are devices that will no longer
- 	 * be available to the system. (ie, PCMCIA modems, once ejected)
- 	 */
+U¿ytkownik Andries.Brouwer@cwi.nl napisa³:
+> Linus, Martin:
+> 
+> People complain that fdisk doesn't compile under 2.5.14
+> because hdreg.h has acquired stuff that cannot be included
+> from userspace. Will release util-linux 2.11r later tonight
+> with a local copy.
+> But now that I look at this file: it still contains
+> struct hd_big_geometry and HDIO_GETGEO_BIG.
+> Please remove them.
 
--- 
-http://function.linuxpower.ca
-		
+
+If fdisk doesn't use it. I will take your patch immediately.
+One arbitrary ioctl which was introduced ad hock less. :-).
 

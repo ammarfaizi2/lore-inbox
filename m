@@ -1,19 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312420AbSDJDs0>; Tue, 9 Apr 2002 23:48:26 -0400
+	id <S312426AbSDJDza>; Tue, 9 Apr 2002 23:55:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312425AbSDJDsZ>; Tue, 9 Apr 2002 23:48:25 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:17911 "EHLO
+	id <S312431AbSDJDz3>; Tue, 9 Apr 2002 23:55:29 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:20471 "EHLO
 	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S312420AbSDJDsY>; Tue, 9 Apr 2002 23:48:24 -0400
+	id <S312426AbSDJDz2>; Tue, 9 Apr 2002 23:55:28 -0400
 From: Andreas Dilger <adilger@clusterfs.com>
-Date: Tue, 9 Apr 2002 21:46:56 -0600
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
-Subject: Re: implementing soft-updates
-Message-ID: <20020410034656.GE424@turbolinux.com>
-Mail-Followup-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020409184605.A13621@cecm.usp.br> <200204100041.g3A0fSj00928@saturn.cs.uml.edu> <20020409225854.A15883@cecm.usp.br>
+Date: Tue, 9 Apr 2002 21:53:12 -0600
+To: Jeff Dike <jdike@karaya.com>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
+        user-mode-linux-user@lists.sourceforge.net
+Subject: Re: [uml-user] Re: user-mode port 0.56-2.4.18-15
+Message-ID: <20020410035312.GG424@turbolinux.com>
+Mail-Followup-To: Jeff Dike <jdike@karaya.com>,
+	Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
+	user-mode-linux-user@lists.sourceforge.net
+In-Reply-To: <20020409221716.GI5148@atrey.karlin.mff.cuni.cz> <200204100144.UAA05950@ccure.karaya.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,23 +26,18 @@ X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 09, 2002  22:58 -0300, Alexis S. L. Carvalho wrote:
-> OK, but if something scribbles on random unrelated parts of the disk
-> there's not much you can do besides praying that fsck will fix it.
+On Apr 09, 2002  20:44 -0500, Jeff Dike wrote:
+> Doesn't /dev/urandom have exactly the same DOS properties as /dev/random?
+> I.e. it reads real random numbers until the entropy pool is empty, then 
+> starts returning pseudo-random numbers?  If so, things on the host will 
+> still hang when they then try to read /dev/random.
 
-Well, the fact that ext2 uses fixed areas of the disk for specific
-purposes (e.g. inode table) and it has backups of a lot of metadata
-makes it very possible to recover from random data corruption.
+You are correct.  Reading from /dev/urandom consumes just as much
+entropy as reading from /dev/random.  It just doesn't block when the
+entropy pool is random.
 
-> Note that if you were running a journalling fs, fsck wouldn't be run at
-> all.
-
-Note that this is incorrect.  Even with ext3, e2fsck is run on each
-boot.  While in the normal case all it does is journal recovery (takes
-a few seconds at most) and do a superficial check of the superblock.
-This is incredibly useful, however, if there was a filesystem error,
-since e2fsck has a chance to check and cleanup the filesystem before
-it is put into use.
+Hmm, maybe this should be fixed by refilling the urandom entropy pool
+much less often...
 
 Cheers, Andreas
 --

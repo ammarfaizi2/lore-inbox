@@ -1,37 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262539AbTDAOO3>; Tue, 1 Apr 2003 09:14:29 -0500
+	id <S262558AbTDAOTs>; Tue, 1 Apr 2003 09:19:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262546AbTDAOO2>; Tue, 1 Apr 2003 09:14:28 -0500
-Received: from SMTP6.andrew.cmu.edu ([128.2.10.86]:44516 "EHLO
-	smtp6.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id <S262539AbTDAOO1>; Tue, 1 Apr 2003 09:14:27 -0500
-Date: Tue, 1 Apr 2003 09:25:51 -0500 (EST)
-From: Steinar Hauan <steinhau@andrew.cmu.edu>
-To: linux-kernel@vger.kernel.org
-Subject: [trivial] make xconfig for 2.4.21-pre6
-Message-ID: <Pine.LNX.4.53L-031.0304010923300.3945@unix44.andrew.cmu.edu>
+	id <S262546AbTDAOTs>; Tue, 1 Apr 2003 09:19:48 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:27050 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262558AbTDAOTq>; Tue, 1 Apr 2003 09:19:46 -0500
+Date: Tue, 01 Apr 2003 06:31:06 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: New: SSE2 enabled by default on Celeron (P4 based) 
+Message-ID: <17080000.1049207466@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+http://bugme.osdl.org/show_bug.cgi?id=527
 
-  "make xconfig" fails for recent 2.4.21-preX versions; typo.
+           Summary: SSE2 enabled by default on Celeron (P4 based)
+    Kernel Version: 2.5.64
+            Status: NEW
+          Severity: normal
+             Owner: mbligh@aracnet.com
+         Submitter: simon@mtds.com
 
---- linux-2.4.21-pre6/drivers/net/Config.in.FCS	2003-04-01 09:06:30.000000000 -0500
-+++ linux-2.4.21-pre6/drivers/net/Config.in	2003-04-01 09:06:39.000000000 -0500
-@@ -185,7 +185,7 @@
-       dep_tristate '    Davicom DM910x/DM980x support' CONFIG_DM9102 $CONFIG_PCI
-       dep_tristate '    EtherExpressPro/100 support (eepro100, original Becker driver)' CONFIG_EEPRO100 $CONFIG_PCI
-       if [ "$CONFIG_VISWS" = "y" ]; then
--         define_mbool CONFIG_EEPRO100_PIO y
-+         define_bool CONFIG_EEPRO100_PIO y
-       else
-          dep_mbool '      Use PIO instead of MMIO' CONFIG_EEPRO100_PIO $CONFIG_EEPRO100
-       fi
 
---
-  Steinar Hauan, dept of ChemE  --  hauan@cmu.edu
-  Carnegie Mellon University, Pittsburgh PA, USA
+Distribution: Customised RH 7.1 with many mods
+Hardware Environment: Celeron i686 (P4 based)
+Software Environment: gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-81)
+
+Problem Description: Kernel compiles OK, but at boot kernel panics as CPU
+doesn't support SSE2
+
+Steps to reproduce: Compile kernel choosing *any* Celeron option
+
+/proc/cpuinfo:-
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 11
+model name      : Intel(R) Celeron(TM) CPU                1300MHz
+stepping        : 1
+cpu MHz         : 1302.763
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+pat pse36 mmx fxsr sse
+bogomips        : 2580.48
+
+I tried manually editing the SSE2 flags before compiling, didn't work either. If
+I am correct, SSE2 is not a feature of Celerons.
+

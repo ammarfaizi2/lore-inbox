@@ -1,83 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUIDRN7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264560AbUIDRRS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264571AbUIDRN7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 13:13:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264560AbUIDRN6
+	id S264560AbUIDRRS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 13:17:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264665AbUIDRRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 13:13:58 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:25541 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S264571AbUIDRNi (ORCPT
+	Sat, 4 Sep 2004 13:17:17 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:5317 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S264639AbUIDRRE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 13:13:38 -0400
-Message-ID: <9ae345c0040904101365a1ca63@mail.gmail.com>
-Date: Sat, 4 Sep 2004 20:13:36 +0300
-From: Yuval Turgeman <yuvalt@gmail.com>
-Reply-To: Yuval Turgeman <yuvalt@gmail.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [PATCH] Menuconfig search changes - pt. 3
-Cc: sam@ravnborg.org, rddunlap@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0409040152160.877@scrub.home>
+	Sat, 4 Sep 2004 13:17:04 -0400
+Date: Sat, 4 Sep 2004 19:16:47 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] copyfile: sendfile
+Message-ID: <20040904171647.GB9765@wohnheim.fh-wedel.de>
+References: <20040904165733.GC8579@wohnheim.fh-wedel.de> <20040904165938.GD8579@wohnheim.fh-wedel.de> <20040904181143.A16644@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20040903190023.GA8898@aduva.com>
-	 <Pine.LNX.4.61.0409040152160.877@scrub.home>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040904181143.A16644@infradead.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Sep 2004 02:47:29 +0200 (CEST), Roman Zippel
-<zippel@linux-m68k.org> wrote:
-
-> Please send a complete patch, it makes commenting on it easier.
-
-Ok, will do.
-
-> You shouldn't compute the pattern at every search.
-You are correct, I fixed it.
-
-> menu->dep contains only temporary information. The real information is in
-> prop->visible.expr.
-Fixed that also... 
-
-> sym->dep doesn't contain user relevant information.
-Fixed.
-
-> With this you print all selection with every menu entry.
-> You probably also want to print sym->rev_dep, which is used to calculate
-> the selections for this symbol.
-I wasn't really aware of rev_dep - very cool! Added a "Selected by" tag also.
-
+On Sat, 4 September 2004 18:11:43 +0100, Christoph Hellwig wrote:
+> On Sat, Sep 04, 2004 at 06:59:38PM +0200, Jörn Engel wrote:
+> > Creates vfs_sendfile(), which can be called from other places within
+> > the kernel.  Such other places include copyfile() and cowlinks.
+> > 
+> > In principle, this just removes code from do_sendfile() to
+> > vfs_sendfile().  On top of that, it adds a check to out_inode,
+> > identical to the one on in_inode.  True, the check for out_inode was
+> > never needed, maybe that tells you something about the check to
+> > in_inode as well. ;)
 > 
-> >                       while (submenu) {
-> >                               menu[j++] = submenu;
-> >                               submenu = submenu->parent;
-> >                       }
-> 
-> This loop should stop when you find root_menu.
-It does stop when it gets to rootmenu (rootmenu's parent is NULL).
+> Both checks aren't nessecary. 
 
-> 
-> >                       if (j > 0) {
-> > +                             if (!hit)
-> > +                                     hit = true;
-> > +                             if (prop->text)
-> > +                                     fprintf(fp, "%s (%s)\n", prop->text,
-> > +                                                             sym->name);
-> >                               else
-> >                                       fprintf(fp, "%s\n", sym->name);
-> 
-> This test isn't necessary, every prompt has a text.
-Left overs from the old menu search.  Removed.
+Ok, will remove them before resending.
 
+> > +++ linux-2.6.9-rc1-mm3/include/linux/syscalls.h	2004-09-04 18:17:15.000000000 +0200
+> > @@ -285,6 +285,8 @@
+> >  asmlinkage long sys_unlink(const char __user *pathname);
+> >  asmlinkage long sys_rename(const char __user *oldname,
+> >  				const char __user *newname);
+> > +asmlinkage long sys_copyfile(const char __user *from, const char __user *to,
+> > +				umode_t mode);
 > 
-> > +                     space = (char*)malloc(sizeof(char)*j);
-> 
-> This isn't necessary, just use "%*c" like the other indentations.
-Ok - I keep learning new stuff.... :) - Done also.
+> oesn't seem to belong into this patch.
 
-I'll submit a final patch against mm3 soon.
-Thanks for the help!
+True, should have been in 3/3.  Thanks.
 
+Jörn
 
 -- 
-Yuval Turgeman
+Anything that can go wrong, will.
+-- Finagle's Law

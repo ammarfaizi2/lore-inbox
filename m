@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280615AbRKJLPO>; Sat, 10 Nov 2001 06:15:14 -0500
+	id <S280618AbRKJLxl>; Sat, 10 Nov 2001 06:53:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280617AbRKJLPE>; Sat, 10 Nov 2001 06:15:04 -0500
-Received: from web10403.mail.yahoo.com ([216.136.130.95]:26639 "HELO
-	web10403.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S280615AbRKJLOu>; Sat, 10 Nov 2001 06:14:50 -0500
-Message-ID: <20011110111449.65726.qmail@web10403.mail.yahoo.com>
-Date: Sat, 10 Nov 2001 22:14:49 +1100 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Problem. 2.4.13-ac7 ; FIFO write timed out
-To: kernel <linux-kernel@vger.kernel.org>
+	id <S280619AbRKJLxU>; Sat, 10 Nov 2001 06:53:20 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:60942 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S280618AbRKJLxP>; Sat, 10 Nov 2001 06:53:15 -0500
+Date: Sat, 10 Nov 2001 11:53:11 +0000 (GMT)
+From: Matthew Kirkwood <matthew@hairy.beasts.org>
+X-X-Sender: <matthew@sphinx.mythic-beasts.com>
+To: J Sloan <jjs@pobox.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Networking: repeatable oops in 2.4.15-pre2
+In-Reply-To: <3BECC7F4.A9EF9E6B@pobox.com>
+Message-ID: <Pine.LNX.4.33.0111101148250.20176-100000@sphinx.mythic-beasts.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 9 Nov 2001, J Sloan wrote:
 
-Hi,
+> I have been running the 2.4.15-pre kernels and
+> have found an interesting oops. I can reproduce
+> it immediately, and reliably, just by issuing an ssh
+> command (as a normal user).
 
-I have read a long thread about the similar problem
-report for 2.4.0-pre kernel, but I am not sure if the
-problem has been fixed. I still got that.
+I'm seeing the same thing on my gateway, though I haven't
+yet found my serial cable to get the oops translated.  I
+am back to 2.4.10 for now.
 
-Description: If I set my LPT1 in Bios mode EPP+ECP dma
-3; printing to HP laser Jet 6L I got the following
-error message in syslog
+> Hardware: Pentium III 933 w/512 MB RAM
+> Red Hat 7.1+ updates
 
-FIFO write timed out
-Nov 10 22:36:32 kieu kernel: parport0: FIFO is stuck
-Nov 10 22:36:32 kieu kernel: parport0: BUSY timeout
-(1) in compat_write_block_pio
-Nov 10 22:36:32 kieu kernel: lp0 off-line
+My setup:
 
-If I press the online button on the printer, it prints
-but data loss (only half of the image printed) then it
-stops printing again until I push online button one
-more time so on...;
+K6-200 w/64 MB RAM
+Debian Woody
+a 3c905B and an RTL-8139
 
-All problem is gone if I reset LPT1 in bios in PCSPP
-mode. 
+using iptables and transparent proxying (no masq).
 
-I am using debian testing with apsfilter (using cat to
-send data to lpt1)
+>  <0>Kernel panic: Aiee, killing interrupt handler!
 
-Pls help
+I haven't decoded the oops, but I'm certainly seeing this
+line.
 
-PS: pls cc me as I am not subscribed to the list!
+Matthew.
 
-
-
-=====
-S.KIEU
-
-http://briefcase.yahoo.com.au - Yahoo! Briefcase
-- Manage your files online.

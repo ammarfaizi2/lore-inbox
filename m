@@ -1,71 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266535AbTBTRsJ>; Thu, 20 Feb 2003 12:48:09 -0500
+	id <S266615AbTBTSKC>; Thu, 20 Feb 2003 13:10:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266609AbTBTRsJ>; Thu, 20 Feb 2003 12:48:09 -0500
-Received: from numenor.qualcomm.com ([129.46.51.58]:5078 "EHLO
-	numenor.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S266535AbTBTRqC>; Thu, 20 Feb 2003 12:46:02 -0500
-Message-Id: <5.1.0.14.2.20030220093911.0d40b228@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 20 Feb 2003 09:52:10 -0800
-To: "David S. Miller" <davem@redhat.com>, rusty@rustcorp.com.au
-From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family 
-Cc: kuznet@ms2.inr.ac.ru, jt@bougret.hpl.hp.com, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S266622AbTBTSKC>; Thu, 20 Feb 2003 13:10:02 -0500
+Received: from 5-077.ctame701-1.telepar.net.br ([200.193.163.77]:55738 "EHLO
+	5-077.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S266615AbTBTSKB>; Thu, 20 Feb 2003 13:10:01 -0500
+Date: Thu, 20 Feb 2003 15:19:54 -0300 (BRT)
+From: Rik van Riel <riel@imladris.surriel.com>
+To: James Buchanan <jamesbuch@iprimus.com.au>
+cc: Tomas Szepe <szepe@pinerecords.com>, "" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux kernel rant
+In-Reply-To: <200302211717.23993.jamesbuch@iprimus.com.au>
+Message-ID: <Pine.LNX.4.50L.0302201519210.2329-100000@imladris.surriel.com>
+References: <200302211551.28222.jamesbuch@iprimus.com.au>
+ <200302211701.23632.jamesbuch@iprimus.com.au>
+ <Pine.LNX.4.50L.0302201509020.2329-100000@imladris.surriel.com>
+ <200302211717.23993.jamesbuch@iprimus.com.au>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:04 PM 2/18/2003, David S. Miller wrote:
->>   From: Rusty Russell <rusty@rustcorp.com.au>
->>   Date: Wed, 19 Feb 2003 14:54:21 +1100
->>   
->>   Firstly, the owner field should probably be in struct proto_ops not
->>   struct socket, where the function pointers are.
->>
->>I think this is one of Alexey's main problems with the patch.
->This is a bit more informative than "oh it's an ugly hack" ;-)
+On Fri, 21 Feb 2003, James Buchanan wrote:
+
+> > Not everybody wants to run old hardware though.  Some people
+> > actually have a need for performance and new hardware.
 >
->Ok. I got at least three reasons why I think owner field should be in struct 
->socket:
->        - struct proto_ops doesn't exists without struct socket.
->        It cannot be registered or otherwise used on it's own. 
->        - struct sock might inherit (when needed see my explanation about different families)
->        its owner from struct socket. In which case sk_set_owner(sk, socket->ops->owner) doesn't
->        look right.
->        - we might want to protect something else besides socket->ops.
->
->None of those reasons are critical. If you guys still feel that ->owner must be in struct 
->proto_ops be that way, I'm ok with it.
-Ok. I'll take that back :).
-The thing is that socket->ops is set from the protocol itself not in the generic socket code.
-Here is what sock_create() does
+> I'm running new hardware as well, and it's possible to buy devices
+> that don't need drivers that are written under an NDA or supplied
+> binary only.  I do the extra checking, but hey, that's me.
 
-        if (!(sock = sock_alloc())) 
-        {
-                printk(KERN_WARNING "socket: no more sockets\n");
-                i = -ENFILE;            /* Not exactly a match, but its the
-                                           closest posix thing */
-                goto out;
-        }
+No IDE disks or modern SCSI controllers in your machine ?
 
-        sock->type  = type;
-
-        if ((i = net_families[family]->create(sock, protocol)) < 0) 
-        {
-                sock_release(sock);
-                goto out;
-        }
-
-It simply calls net_family->create() which then sets its private struct proto_ops.
-
-So I think owner field should be in the struct socket because it needs to be 
-accessible from net/socket.c:sock_create()/sock_release().
-
-Dave, Alexey, do you guys still strongly believe that it's a hack ? 
-If yes what do I need to do to convince otherwise ? ;-)
-
-Max
-
+Rik
+-- 
+Engineers don't grow up, they grow sideways.
+http://www.surriel.com/		http://kernelnewbies.org/

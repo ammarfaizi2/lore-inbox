@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267196AbRIRL1w>; Tue, 18 Sep 2001 07:27:52 -0400
+	id <S268071AbRIRLqh>; Tue, 18 Sep 2001 07:46:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267852AbRIRL1m>; Tue, 18 Sep 2001 07:27:42 -0400
-Received: from hal.grips.com ([62.144.214.40]:24469 "EHLO hal.grips.com")
-	by vger.kernel.org with ESMTP id <S267196AbRIRL1d>;
-	Tue, 18 Sep 2001 07:27:33 -0400
-Message-ID: <3BA72FBC.1030601@grips.com>
-Date: Tue, 18 Sep 2001 13:27:56 +0200
-From: jury gerold <geroldj@grips.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010803
-X-Accept-Language: de-at, en
+	id <S268145AbRIRLq1>; Tue, 18 Sep 2001 07:46:27 -0400
+Received: from ns.suse.de ([213.95.15.193]:56079 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S268071AbRIRLqS> convert rfc822-to-8bit;
+	Tue, 18 Sep 2001 07:46:18 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: Linux 2.4.10-pre11 -- __builtin_expect
+In-Reply-To: <20010918031813.57E1062ABC@oscar.casa.dyndns.org.suse.lists.linux.kernel>
+	<E15jBLy-0008UF-00@the-village.bc.nu.suse.lists.linux.kernel>
+	<9o6j9l$461$1@cesium.transmeta.com.suse.lists.linux.kernel>
+	<oup4rq0bwww.fsf_-_@pigdrop.muc.suse.de>
+X-Yow: It don't mean a THING if you ain't got that SWING!!
+From: Andreas Schwab <schwab@suse.de>
+Date: 18 Sep 2001 13:13:48 +0200
+In-Reply-To: <oup4rq0bwww.fsf_-_@pigdrop.muc.suse.de> (Andi Kleen's message of "18 Sep 2001 12:44:47 +0200")
+Message-ID: <jeelp4rbtf.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.106
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: alan@lxorguk.ukuu.org.uk
-Subject: Re: Athlon: Try this (was: Re: Athlon bug stomping #2)
-In-Reply-To: <1292125035.20010914214303@port.imtp.ilyichevsk.odessa.ua> <E15i2Bp-00017m-00@the-village.bc.nu> <20010916035207.C7542@ppc.vc.cvut.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen <ak@suse.de> writes:
 
+|> +#define likely(x)  __builtin_expect((x), !0) 
 
-Petr Vandrovec wrote:
+IMHO, this should better be written as
 
->>+static void __init pci_fixup_athlon_bug(struct pci_dev *d)
->>+{ 
->>+       u8 v; 
->>+       pci_read_config_byte(d, 0x55, &v);
->>+       if(v & 0x80) {
->>+               printk(KERN_NOTICE "Stomping on Athlon bug.\n");
->>+               v &= 0x7f; /* clear bit 55.7 */
->>+               pci_write_config_byte(d, 0x55, v);
->>+       }
->>+}
->>
->>Well, these are cosmetic changes anyway...
->>What is more important now:
->>1) Do we have people who still see Athlon bug with the patch?
->>
->
->Just by any chance - does anybody have KT133 (not KT133A)
->datasheet? I just noticed at home that my KT133 has reg 55 set
->to 0x89 and it happilly lives... So maybe some BIOS vendors
->used KT133 instead of KT133A BIOS image?
->
-Same here ... with a board from gigabyte
-I had to replace a 128MB PC100 RAM module (maybe related, maybe not)
-but now it works.
+#define likely(x) __builtin_expect(!!(x), 1)
 
-Gerold Jury
+because x is not required to be pure boolean, so any nonzero value of x is
+as likely as 1.
 
+Andreas.
+
+-- 
+Andreas Schwab                                  "And now for something
+Andreas.Schwab@suse.de				completely different."
+SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130061AbQL2Vo5>; Fri, 29 Dec 2000 16:44:57 -0500
+	id <S132322AbQL2VuS>; Fri, 29 Dec 2000 16:50:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132322AbQL2Voq>; Fri, 29 Dec 2000 16:44:46 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:43787 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130061AbQL2Vof>; Fri, 29 Dec 2000 16:44:35 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [PATCH] filemap_fdatasync & related changes
-Date: 29 Dec 2000 13:13:55 -0800
-Organization: Transmeta Corporation
-Message-ID: <92iuqj$vi$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.10.10012281243010.788-100000@penguin.transmeta.com> <Pine.LNX.4.21.0012291446560.13194-100000@freak.distro.conectiva>
+	id <S132422AbQL2VuJ>; Fri, 29 Dec 2000 16:50:09 -0500
+Received: from [63.95.87.168] ([63.95.87.168]:48136 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S132322AbQL2Vty>;
+	Fri, 29 Dec 2000 16:49:54 -0500
+Date: Fri, 29 Dec 2000 16:19:28 -0500
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: Rafal Boni <rafal.boni@eDial.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.19pre3 and poor reponse to RT-scheduled processes?
+Message-ID: <20001229161927.A560@xi.linuxpower.cx>
+In-Reply-To: <200012292045.PAA17190@ninigret.metatel.office>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <200012292045.PAA17190@ninigret.metatel.office>; from rafal.boni@eDial.com on Fri, Dec 29, 2000 at 03:45:23PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.21.0012291446560.13194-100000@freak.distro.conectiva>,
-Marcelo Tosatti  <marcelo@conectiva.com.br> wrote:
->
->Ok, here it is.
->
->I hope I got all locking and all special cases right.
->
->Comments ?
+On Fri, Dec 29, 2000 at 03:45:23PM -0500, Rafal Boni wrote:
+[snip]
+> 	The box in question is running the linux-ha.org heartbeat package,
+> 	which is a RT-scheduled, mlock()'ed process, and as such should
+> 	get as good service as the box is able to mange.  Often, under
+> 	high disk (and/or MM) loads, the box becomes unreponsive for a
+> 	period of time from ~ 1 sec to a high of ~ 2.8sec.
+[snip]
 
-Looks good.
+You are running IDE aren't you?
 
-There's a few things this misses, the worst of which were all my bugs in
-the original description.  Things like "don't unlock the page after
-calling writepage, becasue writepage will do it on its own".  Details
-like that. 
+Enable DMA and/or unmask interupts.
 
-The worst problem actually ends up being the fact that the global sync()
-doesn't work, after all, because if it's associated with syncing the
-inodes it will only sync the dirty page list for inodes that are dirty. 
-Now, this probably doesn't show up in testing, because mostly if you
-have dirty pages the inode too _will_ be dirty, but that only makes the
-bug more insidious. 
+man hdparm
 
-So I'll work on this a bit to polish up these problems, but on the whole
-this is all fine.
-
-		Linus
+Good luck.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129881AbRASJrq>; Fri, 19 Jan 2001 04:47:46 -0500
+	id <S129818AbRASKCt>; Fri, 19 Jan 2001 05:02:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130348AbRASJrh>; Fri, 19 Jan 2001 04:47:37 -0500
-Received: from shaker.worfie.net ([203.8.161.33]:17935 "HELO mail.worfie.net")
-	by vger.kernel.org with SMTP id <S129881AbRASJrU>;
-	Fri, 19 Jan 2001 04:47:20 -0500
-Date: Fri, 19 Jan 2001 17:47:14 +0800 (WST)
-From: "J.Brown (Ender/Amigo)" <ender@enderboi.com>
-X-X-Sender: <ender@shaker.worfie.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Continuing OOP's...
-Message-ID: <Pine.LNX.4.31.0101191743150.4110-100000@shaker.worfie.net>
+	id <S129953AbRASKCj>; Fri, 19 Jan 2001 05:02:39 -0500
+Received: from ptldpop3.ptld.uswest.net ([198.36.160.3]:48903 "HELO
+	ptldpop3.ptld.uswest.net") by vger.kernel.org with SMTP
+	id <S129818AbRASKC3>; Fri, 19 Jan 2001 05:02:29 -0500
+Date: Fri, 19 Jan 2001 02:02:43 -0800
+From: Mike Glover <mpg4@duluoz.net>
+To: linux-kernel@vger.kernel.org
+Subject: block size for quotas?
+Reply-To: mpg4@duluoz.net
+X-Mailer: Spruce 0.7.6 for X11 w/smtpio 0.9.0
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010119100231Z129818-469+195@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Testing with newer kernels, I'm still getting these kernel OOP's and
-memory allocation issues with saving large file names that I reported a
-while ago.
 
-In particualar, saving files over 32 chars in length to a HFS partiton. In
-2.2, no problems. The name would truncate and everything is happy.
+   I maintain quotatool, a command-line quota utility.
+Right now, I'm using BLOCK_SIZE -- defined in
+<linux/fs.h> -- to convert between blocks and bytes.
+I'd like to not use the linux header files at all for
+this, but how else can I find the info?
 
-Under 2.4.x(pre x), I get "Illegal Instruction", OOP's, and general system
-instability.
+   Please CC: me at mpg4@duluoz.net, as I'm not 
+subscribed to the list.
 
-Is this more likely to be a kernel issue or HFS driver issue? Anyone know
-who's maintaining that this millenium? :p
+-mike
 
-Regards,
-	 Ender
- _________________________ ______________________________
-|   James 'Ender' Brown   | "Where are we going, and why |
-| http://www.enderboi.com |  am I in this handbasket?!?" |
-+-------------------------+------------------------------+
+-- 
+
+GnuPG key available at http://devel.duluoz.net/pubkey.asc
+Key ID = 1024D/9A256AE5 1999-11-13 Mike Glover <mpg4@duluoz.net>
+Key fingerprint = EF6E 8BCB 4810 E98C F0FD  4596 367A 32B7 9A25 6AE5
 
 
 -

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129045AbQJ3K5O>; Mon, 30 Oct 2000 05:57:14 -0500
+	id <S129171AbQJ3LGe>; Mon, 30 Oct 2000 06:06:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129087AbQJ3K5E>; Mon, 30 Oct 2000 05:57:04 -0500
-Received: from CPE-61-9-148-107.vic.bigpond.net.au ([61.9.148.107]:43000 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S129045AbQJ3K4u>; Mon, 30 Oct 2000 05:56:50 -0500
-Date: Mon, 30 Oct 2000 21:56:55 +1100
-From: john slee <indigoid@higherplane.net>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-Message-ID: <20001030215655.B655@higherplane.net>
-In-Reply-To: <20001030025424.A20271@vger.timpanogas.org> <Pine.LNX.4.21.0010301208230.3186-100000@elte.hu> <20001030030625.C20271@vger.timpanogas.org>
+	id <S129263AbQJ3LGY>; Mon, 30 Oct 2000 06:06:24 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:5646 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129171AbQJ3LGR>; Mon, 30 Oct 2000 06:06:17 -0500
+Date: Mon, 30 Oct 2000 05:05:43 -0600
+To: Richard Henderson <rth@twiddle.net>, Keith Owens <kaos@ocs.com.au>,
+        Pavel Machek <pavel@suse.cz>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] kernel/module.c (plus gratuitous rant)
+Message-ID: <20001030050543.A9175@wire.cadcamlab.org>
+In-Reply-To: <20001027194513.A1060@bug.ucw.cz> <4309.972694843@ocs3.ocs-net> <20001028131558.A17429@uni-mainz.de> <20001028172700.A13608@twiddle.net> <20001029160916.B12250@uni-mainz.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001030030625.C20271@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Mon, Oct 30, 2000 at 03:06:25AM -0700
+In-Reply-To: <20001029160916.B12250@uni-mainz.de>; from dominik.kubla@uni-mainz.de on Sun, Oct 29, 2000 at 04:09:16PM +0100
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2000 at 03:06:25AM -0700, Jeff V. Merkey wrote:
-> Ingo,  This original thread was regarding Linux vs. NetWare 5.x performance
-> metrics and responses from Linux folks about how to affect and 
-> improve them, not a diatribe on the features of TUX.
 
-while beating netware in certain areas is certainly a noble goal,
-it is far from the only one.
+  [rth]
+> > Which was a nice idea, but it doesn't actually work.  Changes
+> > in spec file format between versions makes this fall over.
 
-[snip]
+[Dominik Kubla]
+> Wow. So much for reading the manual... well, that's considered
+> cheating anyway, isn't it?
 
-> If you have some ideas on how to improve file and print or help me
-> get a linux incarnation that can stomp NetWare, I'd love to hear
-> your ideas.  I think TUX is great, BTW.  Otherwise, end-of-line...
+I know this was true at one time -- egcs couldn't read 2.7 spec files,
+or something like that.  (I remember at the time thinking "so much for
+the great and glorious '-V' theory".)
 
-if netware users are happy with netware, i can't see why they'd want to
-switch to linux or a linux-netware-ish equivalent while netware are
-still around to provide support.  "ain't broke, don't fix," etc.  
+But I think it's since been fixed:
 
-j.
+  $ gcc -v
+  Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.2/specs
+  gcc version 2.95.2 20000220 (Debian GNU/Linux)
+  $ gcc -V2.7.2.3 -v
+  Reading specs from /usr/lib/gcc-lib/i386-linux/2.7.2.3/specs
+  gcc driver version 2.95.2 20000220 (Debian GNU/Linux) executing gcc version 2.7.2.3
+
+Is there more subtle breakage?
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

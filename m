@@ -1,186 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136238AbRECIfM>; Thu, 3 May 2001 04:35:12 -0400
+	id <S136240AbRECIkc>; Thu, 3 May 2001 04:40:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136240AbRECIfE>; Thu, 3 May 2001 04:35:04 -0400
-Received: from ch-12-44-141-183.lcisp.com ([12.44.141.183]:4868 "EHLO
-	debian-home") by vger.kernel.org with ESMTP id <S136238AbRECIez>;
-	Thu, 3 May 2001 04:34:55 -0400
-Date: Thu, 3 May 2001 03:38:00 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.4.4 oops, will not boot
-Message-ID: <20010503033800.A587@debian-home.lcisp.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="mYCpIKhGyMATD0i+"
-Content-Disposition: inline
-In-Reply-To: <3AF0FBF8.F8C6E6E6@uow.edu.au>
-User-Agent: Mutt/1.3.18i
-From: Gordon Sadler <gbsadler1@lcisp.com>
+	id <S136244AbRECIkW>; Thu, 3 May 2001 04:40:22 -0400
+Received: from smtp2.libero.it ([193.70.192.52]:62121 "EHLO smtp2.libero.it")
+	by vger.kernel.org with ESMTP id <S136240AbRECIkG>;
+	Thu, 3 May 2001 04:40:06 -0400
+Message-ID: <3AF11953.54BBE72B@alsa-project.org>
+Date: Thu, 03 May 2001 10:39:47 +0200
+From: Abramo Bagnara <abramo@alsa-project.org>
+Organization: Opera Unica
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i586)
+X-Accept-Language: it, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: "David S. Miller" <davem@redhat.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: unsigned long ioremap()?
+In-Reply-To: <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg> <15089.979.650927.634060@pizda.ninka.net> <3AF10E80.63727970@alsa-project.org> <3AF11211.B226543D@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---mYCpIKhGyMATD0i+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Thu, May 03, 2001 at 04:34:32PM +1000, Andrew Morton wrote:
-> Gordon Sadler wrote:
-> > 
-> > On Wed, May 02, 2001 at 09:51:39PM +1000, Andrew Morton wrote:
-> > > Gordon Sadler wrote:
-> > > >
-> > > > Please CC on replies.
-> > > > Attached is REPORTING-BUGS template from source, and a hand copied oops
-> > > > that I ran through ksymoops. I really hope this is resolved, anything
-> > > > further needed, just ask.
-> > >
-> > > Unfortunately the ksymoops output doesn't show the call trace.
-> > > Can you please try again?  A reproducable oops is, err, rather
-> > > important.  The syntax to feed into ksymoops is
-> > >
-> > > Call Trace: [<c0111234>] [<c0123456>] ...
-> > >
-> > > Thanks.
-> > >
-> > Right, I see the problem now.. s/Calltrace/Call Trace/
-> > 
-> > Reran oops through ksymoops with change to Call Trace, output attached.
+Jeff Garzik wrote:
 > 
-> Ugh.  Something seems to have corrupted your slab cache
-> data structures, so this will be real hard to pin down.
+> Abramo Bagnara wrote:
+> > "David S. Miller" wrote:
+> > > There is a school of thought which believes that:
+> > >
+> > > struct xdev_regs {
+> > >         u32 reg1;
+> > >         u32 reg2;
+> > > };
+> > >
+> > >         val = readl(&regs->reg2);
+> > >
+> > > is cleaner than:
+> > >
+> > > #define REG1 0x00
+> > > #define REG2 0x04
+> > >
+> > >         val = readl(regs + REG2);
 > 
-> You could try setting DEBUG to 1 in mm/slab.c, see if
-> that catches the culprit.
+> > The problem I see is that with the former solution nothing prevents from
+> > to do:
+> >
+> >         regs->reg2 = 13;
 > 
-As requested.. changed config in one way, removed nvidia
-framebuffer/replaced with vesa fb. After changeing DEBUG -> 1 in
-mm/slab.c it produced 3 EIPs. I rebooted to 2.2.19, copied by hand, and
-ran through ksymoops. The attached tar is the .config, hand copy of 3
-EIPs, and the ouput from ksymoops.
+> Why should there be something to prevent that?
+> 
+> If a programmer does that to an ioremapped area, that is a bug.  Pure
+> and simple.
+> 
+> We do not need extra mechanisms simply to guard against programmers
+> doing the wrong thing all the time.
+>
+> > That's indeed the reason to change ioremap prototype for 2.5.
+> 
+> Say what??
+> 
 
-HTH
+Please give a look
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0008.1/0338.html
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0008.1/0407.html
 
-Gordon Sadler
+This was something that already got a wide consent.
 
+-- 
+Abramo Bagnara                       mailto:abramo@alsa-project.org
 
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy
 
---mYCpIKhGyMATD0i+
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="oops2.4.4.tar.gz"
-Content-Transfer-Encoding: base64
-
-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
-
---mYCpIKhGyMATD0i+--
+ALSA project               http://www.alsa-project.org
+It sounds good!

@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262202AbSJKXun>; Fri, 11 Oct 2002 19:50:43 -0400
+	id <S262467AbSJLAJn>; Fri, 11 Oct 2002 20:09:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262255AbSJKXun>; Fri, 11 Oct 2002 19:50:43 -0400
-Received: from ithilien.qualcomm.com ([129.46.51.59]:30672 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S262202AbSJKXum>; Fri, 11 Oct 2002 19:50:42 -0400
-Message-Id: <5.1.0.14.2.20021011165518.01bc8f80@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 11 Oct 2002 16:55:41 -0700
-To: Linus Torvalds <torvalds@transmeta.com>
-From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Subject: [BK] More Bluetooth 2.5.x updates and fixes
+	id <S262468AbSJLAJn>; Fri, 11 Oct 2002 20:09:43 -0400
+Received: from relaydude.reardensteel.com ([64.160.169.119]:14084 "HELO
+	relaydude.reardensteel.com") by vger.kernel.org with SMTP
+	id <S262467AbSJLAJm>; Fri, 11 Oct 2002 20:09:42 -0400
+Subject: Re: 2.5.41 Autofs4: bad: scheduling while atomic!
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Sylvain Pasche <sylvain_pasche@yahoo.fr>
 Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <15783.5936.803024.183802@yahoo.fr>
+References: <15781.46151.531066.683163@yahoo.fr>
+	<1034322155.1568.14.camel@ezr>  <15783.5936.803024.183802@yahoo.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 11 Oct 2002 17:13:51 -0700
+Message-Id: <1034381631.1319.2.camel@sherkaner.pao.digeo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Fri, 2002-10-11 at 11:23, Sylvain Pasche wrote:
+    Unfortunately, I did not keep the .config.
+    
+    From what I remember, I had CONFIG_PREEMPT set and CONFIG_SMP not set.
+    
+    I'm not under 2.5 now, but I can recompile and test again if you want
+    to be able to reproduce it and have more details..
 
-Here are some more Bluetooth updates.
-         - Bluetooth core is initialized via subsys_initcall()
-         - RFCOMM fixes.
+I really can't see how it could get into a non-preemptable state along
+that path. Did anything else bad happen in that session?  Any oopses or
+other funnies?  Can you give more detail about what you were doing at
+the time?  Was it the first use of autofs, or had you been using it
+heavily?  How many autofs filesystems mounted?
 
-Please do a
-
-         bk pull bk://linux-bt.bkbits.net/bt-2.5
-
-This will update the following files:
-
-  include/net/bluetooth/rfcomm.h |    3 +
-  net/bluetooth/af_bluetooth.c   |    2 -
-  net/bluetooth/rfcomm/core.c    |   71 
-+++++++++++++++++++++++++++++++++++++++++
-  net/bluetooth/rfcomm/sock.c    |   62 ++++++++++-------------------------
-  net/socket.c                   |    8 ----
-  5 files changed, 93 insertions(+), 53 deletions(-)
-
-through these ChangeSets:
-
-<maxk@qualcomm.com> (02/10/10 1.740)
-    RFCOMM core API extensions. Improved /proc/bluetooth/rfcomm format.
-    RFCOMM socket locking fixes.
-    Fix typo in rfcomm_pi() macro, no more oopses on socket destruction.
-
-<maxk@qualcomm.com> (02/10/10 1.739)
-    Initialize Bluetooth core using subsys_initcall().
-
-Thanks
-
-Max
-
-http://bluez.sf.net
-http://vtun.sf.net
+Thanks,
+	J
 

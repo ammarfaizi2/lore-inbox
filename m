@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbTL1SnV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 13:43:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbTL1SnV
+	id S261892AbTL1TCL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 14:02:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbTL1TCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 13:43:21 -0500
-Received: from waste.org ([209.173.204.2]:64425 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261890AbTL1SnU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 13:43:20 -0500
-Date: Sun, 28 Dec 2003 12:42:25 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, acme@conectiva.com.br,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH-2.6.0-tiny] "uninline" {lock,release}_sock
-Message-ID: <20031228184225.GT18208@waste.org>
-References: <20031228075426.GB24351@conectiva.com.br> <Pine.LNX.4.58.0312280017060.2274@home.osdl.org> <20031228012329.43003de5.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031228012329.43003de5.davem@redhat.com>
-User-Agent: Mutt/1.3.28i
+	Sun, 28 Dec 2003 14:02:11 -0500
+Received: from darkwing.uoregon.edu ([128.223.142.13]:60566 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id S261892AbTL1TCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 14:02:09 -0500
+Date: Sun, 28 Dec 2003 10:50:00 -0800 (PST)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Johannes Ruscheinski <ruschein@mail-infomine.ucr.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Best Low-cost IDE RAID Solution For 2.6.x? (OT?)
+In-Reply-To: <20031228180424.GA16622@mail-infomine.ucr.edu>
+Message-ID: <Pine.LNX.4.44.0312281032350.21070-100000@twin.uoregon.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 28, 2003 at 01:23:29AM -0800, David S. Miller wrote:
-> On Sun, 28 Dec 2003 00:23:07 -0800 (PST)
-> Linus Torvalds <torvalds@osdl.org> wrote:
-> 
-> > Function calls aren't all that expensive, especially with FASTCALL() etc 
-> > to show that you don't have to follow the common calling conventions. 
-> > Right now I think FASTCALL() only matters on x86, but some other 
-> > architectures could make it mean "smaller call clobbered list" or similar.
-> > 
-> > Have you benchmarked with the smaller kernel? 
+well if you currently have 1tb in 8 non-redundant drives then you using 
+160GB disks... no?
 
-The primary benchmark for -tiny is how much space it frees up, which
-is very straightforward. More generally, I think we've got something
-of a crisis on our hands in terms of benchmarking as caching
-architectures are making microbenchmark results worse than worthless
-for real life and changes like these are often lost in the noise for
-larger benchmarks.
- 
-> To be honest I think {lock,release}_sock() should both be uninlined
-> always.
-> 
-> It almost made sense to inline these things before the might_sleep()
-> was added, now it definitely makes no sense.
+the biggest p-ata disks right now are ~320GB so you can do a ~1TB software 
+raid 5 stripe on a single 4 port ata controller such as a promise tx4000 
+using regular software raid rather than the promise raid. that would end 
+up being fairly inexpensive and buy you more protection.
 
-For the purposes of my -tiny tree, I'd like to make every new feature
-conditional as an aid to footprint measurement, benchmarking, regression
-testing, etc. When I start feeding these patches to mainline, they can
-be made unconditional as is warranted.
+linux software raid hsa been as releiable as anything else we've used over 
+the years, the lack of reliabilitiy in your situation will come entirely 
+from failing disks, lose one and your filesystem is toast.
+
+joelja
+
+On Sun, 28 Dec 2003, Johannes Ruscheinski wrote:
+
+> Hi,
+> 
+> We're looking for a low-cost high-reliability IDE RAID solution that works well
+> with the 2.6.x series of kernels.  We have about 1 TB (8 disks) that we'd
+> like to access in a non-redundant raid mode.  Yes, I know, that lack of
+> redundancy and high reliability are contradictory.  Let's just say that
+> currently we lack the funding to do anything else but we may be able to obtain
+> more funding for our disk storage needs in the near future.
+> 
 
 -- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+-------------------------------------------------------------------------- 
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu    
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
+
+

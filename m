@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269242AbTGVBSk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 21:18:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269400AbTGVBSk
+	id S269400AbTGVBTn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 21:19:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270576AbTGVBTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 21:18:40 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:4038 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S269242AbTGVBSi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 21:18:38 -0400
-Subject: Re: [PATCH-2.4] [RESEND] Fix deadlock in journal_create
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20030718215421.GF1014@ca-server1.us.oracle.com>
-References: <20030718215421.GF1014@ca-server1.us.oracle.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1058793747.1247.9.camel@troy>
+	Mon, 21 Jul 2003 21:19:43 -0400
+Received: from newpeace.netnation.com ([204.174.223.7]:3481 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP id S269400AbTGVBTk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 21:19:40 -0400
+Date: Mon, 21 Jul 2003 18:34:43 -0700
+From: Simon Kirby <sim@netnation.com>
+To: linux-kernel@vger.kernel.org
+Subject: Scheduler starvation (2.5.x, 2.6.0-test1)
+Message-ID: <20030722013443.GA18184@netnation.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 22 Jul 2003 02:34:55 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I keep seeing cases where browsing in mozilla / galeon will suck away all
+CPU from X updating the mouse, xmms playing, etc., for about a second as
+Mozilla renders a page (which should take 50 ms to render, but anyway..).
 
-On Fri, 2003-07-18 at 22:54, Mark Fasheh wrote:
-> Marcelo,
-> 	I sent this initially against 2.4.21-rc6 and it didn't make it in
->  -- even though it got Stephen's OK. Here's a resend -- I've identified that
-> the bug still exists and 2.4.22-pre7. The patch didn't need to be changed as
-> it still applies cleanly.
+This is only a Celeron 466 MHz, but there never used to be such a problem
+in 2.2 and 2.4 kernels.  All processes (X, galeon, xmms) are running with
+the default nice of 0.  It seems there is something with the scheduler
+heuristics which is giving galeon a way-too-large preemptive timeslice
+and not even allowing enough CPU to other processes to, for example, let
+X update the mouse cursor.  This seems wrong -- Shouldn't the device
+event always wake up and switch to the X task if the process has usable
+timeslices left?
 
-Marcelo, please apply --- the jbd internal journal create code is in
-practice unused by ext3 these days now that e2fsprogs groks journals,
-but other filesystems wanting to use that code will need this patch.
+This only seems to happen after letting the system settle for some time. 
+If I refresh a page once, the problem happens.  Again, less.  Again, the
+scheduler seems to allow mouse updates normally.  I have to wait about 30
+seconds for the problem to occur again.  This is much easier to see with
+X reniced to +1.  It occurs with X reniced to +0, but not as often.  With
+the old scheduler, +20 wouldn't even make a noticeable difference because
+mouse events would still wake up and run the process as expected.
 
-Cheers,
- Stephen
+It is really easy to notice the problem on this box not because of the
+audible and visible skips, but the fact that there's a bug in the ALSA
+Gravis Ultrasound Classic driver which causes it to sometimes play
+incorrect portions of RAM when the sound restarts. :)
 
+Is anybody else seeing this or is it something to do with my setup here?
 
+Simon-

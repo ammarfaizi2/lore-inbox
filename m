@@ -1,204 +1,159 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316976AbSFQUWu>; Mon, 17 Jun 2002 16:22:50 -0400
+	id <S316977AbSFQUYh>; Mon, 17 Jun 2002 16:24:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316974AbSFQUWt>; Mon, 17 Jun 2002 16:22:49 -0400
-Received: from [193.168.128.42] ([193.168.128.42]:58802 "HELO psmtp2.dnsg.net")
-	by vger.kernel.org with SMTP id <S316976AbSFQUWp>;
-	Mon, 17 Jun 2002 16:22:45 -0400
-Subject: [PATCH] 2.5.22: s390 fixes.
+	id <S316978AbSFQUYg>; Mon, 17 Jun 2002 16:24:36 -0400
+Received: from psmtp1.dnsg.net ([193.168.128.41]:43677 "HELO psmtp1.dnsg.net")
+	by vger.kernel.org with SMTP id <S316977AbSFQUYb>;
+	Mon, 17 Jun 2002 16:24:31 -0400
+Subject: [PATCH] 2.5.22: dasd patches.
 To: linux-kernel@vger.kernel.org
-Date: Tue, 18 Jun 2002 00:21:14 +0200 (CEST)
+Date: Tue, 18 Jun 2002 00:23:15 +0200 (CEST)
 CC: torvalds@transmeta.com
 X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17K4s7-0000J4-00@skybase>
+Message-Id: <E17K4u3-0000Jq-00@skybase>
 From: Martin Schwidefsky <martin.schwidefsky@debitel.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi Linus,
-some recent changes in the s390 architectures files:
-1) Makefile fixes.
-2) Add missing include statements.
-3) Convert all parametes in the 31 bit emulation wrapper of sys_futex.
-4) Remove semicolons after 'fi' in Config.in
-5) Fix scheduler defines in system.h
-6) Simplifications in qdio.c
+three small dasd changes:
+1) Replace is_read_only with bdev_read_only. The last user of is_read_only
+   is gone...
+2) Remove alloc & free of the label array in dasd_genhd. This is needed for
+   the label array extension but this is a patch of its own.
+3) Maintain the old behaviour of /proc/dasd/devices. Its is possible again
+   to use "add <devno>" instead of "add device <devno>" or "add range=<devno>".
 
 blue skies,
   Martin.
 
-diff -urN linux-2.5.22/arch/s390/math-emu/Makefile linux-2.5.22-s390/arch/s390/math-emu/Makefile
---- linux-2.5.22/arch/s390/math-emu/Makefile	Mon Jun 17 17:10:11 2002
-+++ linux-2.5.22-s390/arch/s390/math-emu/Makefile	Mon Jun 17 17:25:12 2002
-@@ -6,6 +6,7 @@
- obj-$(CONFIG_MATHEMU) := math.o qrnnd.o
- 
- EXTRA_CFLAGS = -I. -I$(TOPDIR)/include/math-emu -w
-+EXTRA_AFLAGS	:= -traditional
- 
- include $(TOPDIR)/Rules.make
- 
-diff -urN linux-2.5.22/arch/s390/mm/ioremap.c linux-2.5.22-s390/arch/s390/mm/ioremap.c
---- linux-2.5.22/arch/s390/mm/ioremap.c	Mon Jun 17 17:10:11 2002
-+++ linux-2.5.22-s390/arch/s390/mm/ioremap.c	Mon Jun 17 17:25:12 2002
-@@ -14,6 +14,7 @@
-  */
- 
- #include <linux/vmalloc.h>
-+#include <linux/mm.h>
- #include <asm/io.h>
- #include <asm/pgalloc.h>
- #include <asm/cacheflush.h>
-diff -urN linux-2.5.22/arch/s390x/kernel/wrapper32.S linux-2.5.22-s390/arch/s390x/kernel/wrapper32.S
---- linux-2.5.22/arch/s390x/kernel/wrapper32.S	Mon Jun 17 17:10:11 2002
-+++ linux-2.5.22-s390/arch/s390x/kernel/wrapper32.S	Mon Jun 17 17:25:12 2002
-@@ -1112,6 +1112,8 @@
- sys32_futex_wrapper:
- 	llgtr	%r2,%r2			# void *
- 	lgfr	%r3,%r3			# int
-+	lgfr	%r4,%r4			# int
-+	llgtr	%r5,%r5			# struct timespec *
- 	jg	sys_futex		# branch to system call
- 
- 	.globl	sys32_setxattr_wrapper
-diff -urN linux-2.5.22/arch/s390x/mm/ioremap.c linux-2.5.22-s390/arch/s390x/mm/ioremap.c
---- linux-2.5.22/arch/s390x/mm/ioremap.c	Mon Jun 17 17:10:11 2002
-+++ linux-2.5.22-s390/arch/s390x/mm/ioremap.c	Mon Jun 17 17:25:12 2002
-@@ -14,6 +14,7 @@
-  */
- 
- #include <linux/vmalloc.h>
-+#include <linux/mm.h>
- #include <asm/io.h>
- #include <asm/pgalloc.h>
- #include <asm/cacheflush.h>
-diff -urN linux-2.5.22/drivers/s390/Config.in linux-2.5.22-s390/drivers/s390/Config.in
---- linux-2.5.22/drivers/s390/Config.in	Mon Jun 17 17:10:11 2002
-+++ linux-2.5.22-s390/drivers/s390/Config.in	Mon Jun 17 17:25:12 2002
-@@ -17,18 +17,18 @@
-   dep_tristate '   Support for ECKD Disks' CONFIG_DASD_ECKD $CONFIG_DASD
-   if [ "$CONFIG_DASD_ECKD" = "m" ]; then
-     bool     '   Automatic activation of ECKD module' CONFIG_DASD_AUTO_ECKD
--  fi;
-+  fi
-   dep_tristate '   Support for FBA  Disks' CONFIG_DASD_FBA $CONFIG_DASD
-   if [ "$CONFIG_DASD_FBA" = "m" ]; then
-     bool     '   Automatic activation of FBA  module' CONFIG_DASD_AUTO_FBA
--  fi;
-+  fi
- #  dep_tristate '   Support for CKD  Disks' CONFIG_DASD_CKD $CONFIG_DASD
-   if [ "$CONFIG_ARCH_S390X" != "y" ]; then
-     dep_tristate '   Support for DIAG access to CMS reserved Disks' CONFIG_DASD_DIAG $CONFIG_DASD
-     if [ "$CONFIG_DASD_DIAG" = "m" ]; then
-       bool     '   Automatic activation of DIAG module' CONFIG_DASD_AUTO_DIAG
--    fi;
--  fi; 
-+    fi
-+  fi
- fi
- 
- endmenu
-diff -urN linux-2.5.22/drivers/s390/Makefile linux-2.5.22-s390/drivers/s390/Makefile
---- linux-2.5.22/drivers/s390/Makefile	Mon Jun 17 04:31:32 2002
-+++ linux-2.5.22-s390/drivers/s390/Makefile	Mon Jun 17 17:25:20 2002
-@@ -7,6 +7,6 @@
- obj-$(CONFIG_QDIO) += qdio.o
- 
- obj-y += s390mach.o s390dyn.o sysinfo.o
--obj-y += block/ char/ misc/ net/ scsi/ cio/
-+obj-y += block/ char/ misc/ net/ cio/
- 
- include $(TOPDIR)/Rules.make
-diff -urN linux-2.5.22/drivers/s390/qdio.c linux-2.5.22-s390/drivers/s390/qdio.c
---- linux-2.5.22/drivers/s390/qdio.c	Mon Jun 17 17:10:11 2002
-+++ linux-2.5.22-s390/drivers/s390/qdio.c	Mon Jun 17 17:25:12 2002
-@@ -61,9 +61,7 @@
- MODULE_AUTHOR("Utz Bacher <utz.bacher@de.ibm.com>");
- MODULE_DESCRIPTION("QDIO base support version 2, " \
- 		   "Copyright 2000 IBM Corporation");
--#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,12))
- MODULE_LICENSE("GPL");
--#endif
- 
- /******************** HERE WE GO ***********************************/
- 
-@@ -1584,7 +1582,7 @@
- 			kfree(irq_ptr->input_qs[i]);
- 
- next:
--		if (!irq_ptr->output_qs[i]) goto next2;
-+		if (!irq_ptr->output_qs[i]) continue;
- 		available=0;
- 		if (!irq_ptr->output_qs[i]->is_0copy_sbals_q)
- 			for (j=0;j<QDIO_MAX_BUFFERS_PER_Q;j++) {
-@@ -1599,7 +1597,7 @@
- 		if (irq_ptr->output_qs[i]->slib)
- 			kfree(irq_ptr->output_qs[i]->slib);
- 		kfree(irq_ptr->output_qs[i]);
--next2:
-+
- 	}
- 	if (irq_ptr->qdr) kfree(irq_ptr->qdr);
- 	kfree(irq_ptr);
-@@ -2191,21 +2189,12 @@
+diff -urN linux-2.5.22/drivers/s390/block/dasd.c linux-2.5.22-s390/drivers/s390/block/dasd.c
+--- linux-2.5.22/drivers/s390/block/dasd.c	Mon Jun 17 17:10:02 2002
++++ linux-2.5.22-s390/drivers/s390/block/dasd.c	Mon Jun 17 17:23:41 2002
+@@ -1573,6 +1573,7 @@
+ static inline void
+ __dasd_process_blk_queue(dasd_device_t * device)
  {
- 	int cc;
- 
--#ifdef QDIO_32_BIT
--	asm volatile (
--		".insn	rre,0xb25f0000,%1,0	\n\t"
--		"ipm	%0	\n\t"
--		"srl	%0,28	\n\t"
--		: "=d" (cc) : "d" (chsc_area) : "cc"
--		);
--#else /* QDIO_32_BIT */
- 	asm volatile (
- 		".insn	rre,0xb25f0000,%1,0	\n\t"
- 		"ipm	%0	\n\t"
- 		"srl	%0,28	\n\t"
- 		: "=d" (cc) : "d" (chsc_area) : "cc"
- 		);
--#endif /* QDIO_32_BIT */
- 
- 	return cc;
++	struct block_device *bdev;
+ 	request_queue_t *queue;
+ 	struct list_head *l;
+ 	struct request *req;
+@@ -1601,11 +1602,14 @@
+ 		if (cqr->status == DASD_CQR_QUEUED)
+ 			nr_queued++;
+ 	}
++	bdev = bdget(kdev_t_to_nr(device->kdev));
++	if (!bdev)
++		return;
+ 	while (!blk_queue_plugged(queue) &&
+ 	       !blk_queue_empty(queue) &&
+ 		nr_queued < DASD_CHANQ_MAX_SIZE) {
+ 		req = elv_next_request(queue);
+-		if (is_read_only(device->kdev) && rq_data_dir(req) == WRITE) {
++		if (bdev_read_only(bdev) && rq_data_dir(req) == WRITE) {
+ 			DBF_EVENT(DBF_ERR,
+ 				  "(%04x) Rejecting write request %p",
+ 				  device->devinfo.devno, req);
+@@ -1632,6 +1636,7 @@
+ 		dasd_profile_start(device, cqr, req);
+ 		nr_queued++;
+ 	}
++	bdput(bdev);
  }
-diff -urN linux-2.5.22/include/asm-s390/system.h linux-2.5.22-s390/include/asm-s390/system.h
---- linux-2.5.22/include/asm-s390/system.h	Mon Jun 17 17:10:11 2002
-+++ linux-2.5.22-s390/include/asm-s390/system.h	Mon Jun 17 17:25:12 2002
-@@ -18,8 +18,12 @@
- #endif
- #include <linux/kernel.h>
  
--#define prepare_to_switch()	do { } while(0)
--#define switch_to(prev,next) do {					     \
-+#define prepare_arch_schedule(prev)		do { } while (0)
-+#define finish_arch_schedule(prev)		do { } while (0)
-+#define prepare_arch_switch(rq)			do { } while (0)
-+#define finish_arch_switch(rq)			spin_unlock_irq(&(rq)->lock)
-+
-+#define switch_to(prev,next,last) do {					     \
- 	if (prev == next)						     \
- 		break;							     \
- 	save_fp_regs1(&prev->thread.fp_regs);				     \
-diff -urN linux-2.5.22/include/asm-s390x/system.h linux-2.5.22-s390/include/asm-s390x/system.h
---- linux-2.5.22/include/asm-s390x/system.h	Mon Jun 17 17:10:11 2002
-+++ linux-2.5.22-s390/include/asm-s390x/system.h	Mon Jun 17 17:25:12 2002
-@@ -18,8 +18,12 @@
- #endif
- #include <linux/kernel.h>
+ /*
+diff -urN linux-2.5.22/drivers/s390/block/dasd_genhd.c linux-2.5.22-s390/drivers/s390/block/dasd_genhd.c
+--- linux-2.5.22/drivers/s390/block/dasd_genhd.c	Mon Jun 17 04:31:35 2002
++++ linux-2.5.22-s390/drivers/s390/block/dasd_genhd.c	Mon Jun 17 17:24:08 2002
+@@ -65,7 +65,7 @@
+ {
+ 	struct major_info *mi;
+ 	struct hd_struct *gd_part;
+-	devfs_handle_t *gd_de_arr, *gd_label_arr;
++	devfs_handle_t *gd_de_arr;
+ 	int *gd_sizes;
+ 	char *gd_flags;
+ 	int new_major, rc;
+@@ -78,14 +78,12 @@
+ 	gd_de_arr = kmalloc(DASD_PER_MAJOR * sizeof(devfs_handle_t),
+ 			    GFP_KERNEL);
+ 	gd_flags = kmalloc(DASD_PER_MAJOR * sizeof(char), GFP_KERNEL);
+-	gd_label_arr = kmalloc(DASD_PER_MAJOR * sizeof(devfs_handle_t),
+-			       GFP_KERNEL);
+ 	gd_part = kmalloc(sizeof (struct hd_struct) << MINORBITS, GFP_ATOMIC);
+ 	gd_sizes = kmalloc(sizeof(int) << MINORBITS, GFP_ATOMIC);
  
--#define prepare_to_switch()	do { } while(0)
--#define switch_to(prev,next) do {					     \
-+#define prepare_arch_schedule(prev)		do { } while (0)
-+#define finish_arch_schedule(prev)		do { } while (0)
-+#define prepare_arch_switch(rq)			do { } while (0)
-+#define finish_arch_switch(rq)			spin_unlock_irq(&(rq)->lock)
-+
-+#define switch_to(prev,next),last do {					     \
- 	if (prev == next)						     \
- 		break;							     \
- 	save_fp_regs(&prev->thread.fp_regs);				     \
+ 	/* Check if one of the allocations failed. */
+ 	if (mi == NULL || gd_de_arr == NULL || gd_flags == NULL ||
+-	    gd_label_arr == NULL || gd_part == NULL || gd_sizes == NULL) {
++	    gd_part == NULL || gd_sizes == NULL) {
+ 		MESSAGE(KERN_WARNING, "%s",
+ 			"Cannot get memory to allocate another "
+ 			"major number");
+@@ -114,14 +112,12 @@
+ 	mi->gendisk.fops = &dasd_device_operations;
+ 	mi->gendisk.de_arr = gd_de_arr;
+ 	mi->gendisk.flags = gd_flags;
+-	mi->gendisk.label_arr = gd_label_arr;
+ 	mi->gendisk.part = gd_part;
+ 	mi->gendisk.sizes = gd_sizes;
+ 
+ 	/* Initialize the gendisk arrays. */
+ 	memset(gd_de_arr, 0, DASD_PER_MAJOR * sizeof(devfs_handle_t));
+ 	memset(gd_flags, 0, DASD_PER_MAJOR * sizeof (char));
+-	memset(gd_label_arr, 0, DASD_PER_MAJOR * sizeof(devfs_handle_t));
+ 	memset(gd_part, 0, sizeof (struct hd_struct) << MINORBITS);
+ 	memset(gd_sizes, 0, sizeof(int) << MINORBITS);
+ 
+@@ -143,7 +139,6 @@
+ 	/* We rely on kfree to do the != NULL check. */
+ 	kfree(gd_sizes);
+ 	kfree(gd_part);
+-	kfree(gd_label_arr);
+ 	kfree(gd_flags);
+ 	kfree(gd_de_arr);
+ 	kfree(mi);
+@@ -182,7 +177,6 @@
+ 	/* Free memory. */
+ 	kfree(bs);
+ 	kfree(mi->gendisk.part);
+-	kfree(mi->gendisk.label_arr);
+ 	kfree(mi->gendisk.flags);
+ 	kfree(mi->gendisk.de_arr);
+ 	kfree(mi);
+diff -urN linux-2.5.22/drivers/s390/block/dasd_proc.c linux-2.5.22-s390/drivers/s390/block/dasd_proc.c
+--- linux-2.5.22/drivers/s390/block/dasd_proc.c	Mon Jun 17 17:10:02 2002
++++ linux-2.5.22-s390/drivers/s390/block/dasd_proc.c	Mon Jun 17 17:23:41 2002
+@@ -93,7 +93,7 @@
+ 		   size_t user_len, loff_t * offset)
+ {
+ 	char *buffer, *str;
+-	int add_or_set, device_or_range;
++	int add_or_set;
+ 	int from, to, features;
+ 
+ 	buffer = dasd_get_user_string(user_buf, user_len);
+@@ -109,15 +109,11 @@
+ 		goto out_error;
+ 	for (str = str + 4; isspace(*str); str++);
+ 
+-	/* Scan for "device " or "range=". */
+-	if (strncmp(str, "device", 6) == 0 && isspace(str[6])) {
+-		device_or_range = 0;
++	/* Scan for "device " and "range=" and ignore it. This is sick. */
++	if (strncmp(str, "device", 6) == 0 && isspace(str[6]))
++		for (str = str + 6; isspace(*str); str++);
++	if (strncmp(str, "range=", 6) == 0) 
+ 		for (str = str + 6; isspace(*str); str++);
+-	} else if (strncmp(str, "range=", 6) == 0) {
+-		device_or_range = 1;
+-		str = str + 6;
+-	} else
+-		goto out_error;
+ 
+ 	/* Scan device number range and feature string. */
+ 	to = from = dasd_devno(str, &str);

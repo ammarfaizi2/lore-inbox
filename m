@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263095AbUEBOQJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbUEBOOT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263095AbUEBOQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 10:16:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbUEBOQJ
+	id S263085AbUEBOOT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 10:14:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263095AbUEBOOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 10:16:09 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:16075 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263095AbUEBOQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 10:16:03 -0400
-Date: Sun, 2 May 2004 16:16:58 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: TCP hangs
-Message-ID: <Pine.LNX.4.58.0405021602120.20423@artax.karlin.mff.cuni.cz>
+	Sun, 2 May 2004 10:14:19 -0400
+Received: from ahriman.Bucharest.roedu.net ([141.85.128.71]:17807 "EHLO
+	ahriman.bucharest.roedu.net") by vger.kernel.org with ESMTP
+	id S263085AbUEBOOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 10:14:18 -0400
+Date: Sun, 2 May 2004 17:14:46 +0300 (EEST)
+From: GNU/Dizzy <dizzy@roedu.net>
+X-X-Sender: dizzy@ahriman.bucharest.roedu.net
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Filesystem with multiple mount-points
+In-Reply-To: <Pine.LNX.4.44.0405021508210.834-100000@poirot.grange>
+Message-ID: <Pine.LNX.4.58L0.0405021712280.31153@ahriman.bucharest.roedu.net>
+References: <Pine.LNX.4.44.0405021508210.834-100000@poirot.grange>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2 May 2004, Guennadi Liakhovetski wrote:
+
+> Hi
 Hi
 
-This is tcpdump of hung TCP connection (from paranoia.kolej.mff.cuni.cz's
-point of view). What do you think, which machine did misbehave?
+> 
+> Disclaimer: I am not a filesystem expert, so, what's below might be
+> absolute nonsense.
+> 
+> There are systems, where it is desirable to make some partitions,
+> possibly, including root, read-only, and some other, like, e.g., /var,
+> /home, /lib/modules read-writable. Those writable filesystems may be quite
+> small, so, putting them on separate partitions creates too much overhead
+> for filesystem metadata, journals... Making those directories soft-links
+> into one writable partition would work, but is not too nice.
+> 
+> So, how about adding a multiple mount-point option to some filesystem?
+> They would share metadata, journals, would be represented by several
+> directory-trees, and be mountable with, e.g.
 
-213.29.7.213 is a Linux box and I think it misbehaved because it didn't
-send data in zero-window probe.
+How about mounting the big volume somewhere and using -o bind to mount 
+some paths within it in different places of your needs ? I know that -o 
+bind doesnt honor -o ro yet but if you really needed maybe you can make a 
+patch for that, I for one would be very interested about that.
+check "man mount" about more information about "bind"
 
-Or am I wrong and did I misunderstood RFC793? (page 41: "The sending TCP
-must regularly retransmit to the receiving TCP even when the window is zero.")
+Also notice that linux (starting with some 2.3.x version if I remember 
+well) already supports multiple mount points for a given "source" like
+mount /dev/hda1 /mnt1
+mount /dev/hda1 /mnt2 and so on
 
-Mikulas
-
-16:34:49.832097 IP paranoia.kolej.mff.cuni.cz.65461 > 213.29.7.213.http: SWE 1711254266:1711254266(0) win 8192 <mss 1460,sackOK,wscale 10,eol>
-16:34:49.838957 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: S 1163781419:1163781419(0) ack 1711254267 win 5840 <mss 1460,nop,nop,sackOK,nop,wscale 0>
-16:34:49.838968 IP paranoia.kolej.mff.cuni.cz.65461 > 213.29.7.213.http: P ack 1 win 8
-16:34:49.840002 IP paranoia.kolej.mff.cuni.cz.65461 > 213.29.7.213.http: P 1:500(499) ack 1 win 8
-16:34:49.847349 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . ack 500 win 6432
-16:34:49.863592 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . 1:1461(1460) ack 500 win 6432
-16:34:49.863651 IP paranoia.kolej.mff.cuni.cz.65461 > 213.29.7.213.http: P ack 1461 win 6
-16:34:49.867490 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . 1461:2921(1460) ack 500 win 6432
-16:34:49.867558 IP paranoia.kolej.mff.cuni.cz.65461 > 213.29.7.213.http: P ack 2921 win 6
-16:34:49.871498 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . 2921:4381(1460) ack 500 win 6432
-16:34:49.871567 IP paranoia.kolej.mff.cuni.cz.65461 > 213.29.7.213.http: P ack 4381 win 5
-16:34:49.872729 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . 4381:5841(1460) ack 500 win 6432
-16:34:49.872777 IP paranoia.kolej.mff.cuni.cz.65461 > 213.29.7.213.http: P ack 5841 win 3
-16:34:49.875631 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . 7301:8761(1460) ack 500 win 6432
-16:34:49.875714 IP paranoia.kolej.mff.cuni.cz.65461 > 213.29.7.213.http: P ack 5841 win 3 <nop,nop,sack sack 1 {7301:8761} >
-16:34:49.876881 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . 5841:7301(1460) ack 500 win 6432
-16:34:49.876953 IP paranoia.kolej.mff.cuni.cz.65461 > 213.29.7.213.http: P ack 8761 win 0
-16:34:49.907290 IP paranoia.kolej.mff.cuni.cz.65461 > 213.29.7.213.http: P ack 8761 win 2
-^^^^ this packet was probably lost or the last two were reordered
-16:34:50.088544 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . ack 500 win 6432
-16:34:50.512936 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . ack 500 win 6432
-^^^ this looks to me like a bug --- window probe doesn't contain data
-16:34:51.348911 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . ack 500 win 6432
-16:34:53.028754 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . ack 500 win 6432
-16:34:56.389624 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . ack 500 win 6432
-16:35:03.110512 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . ack 500 win 6432
-^^^ exponential backoff on window probes is fine, except that the packets are pure acks
-16:35:16.552095 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . ack 500 win 6432
-16:35:43.435482 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . ack 500 win 6432
-16:35:58.706896 IP paranoia.kolej.mff.cuni.cz.65461 > 213.29.7.213.http: FP 500:500(0) ack 8761 win 17
-^^^ paranoia closed the connection without receiving any data
-16:35:58.717487 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . 10221:11681(1460) ack 501 win 6432
-16:35:58.717569 IP paranoia.kolej.mff.cuni.cz.65461 > 213.29.7.213.http: R 501:501(0) ack 11681 win 0
-16:35:58.718673 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . 8761:10221(1460) ack 501 win 6432
-16:35:58.718692 IP paranoia.kolej.mff.cuni.cz.65461 > 213.29.7.213.http: R 501:501(0) ack 10221 win 0
-16:35:58.720054 IP 213.29.7.213.http > paranoia.kolej.mff.cuni.cz.65461: . 11681:13141(1460) ack 501 win 6432
-16:35:58.720074 IP paranoia.kolej.mff.cuni.cz.65461 > 213.29.7.213.http: R 501:501(0) ack 13141 win 0
-
+-- 
+Mihai RUSU                                    Email: dizzy@roedu.net
+GPG : http://dizzy.roedu.net/dizzy-gpg.txt    WWW: http://dizzy.roedu.net
+                       "Linux is obsolete" -- AST

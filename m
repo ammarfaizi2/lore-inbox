@@ -1,72 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270436AbTGSSG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 14:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270449AbTGSSG1
+	id S270446AbTGSS0U (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 14:26:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270449AbTGSS0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 14:06:27 -0400
-Received: from main.gmane.org ([80.91.224.249]:48826 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S270436AbTGSSG0 (ORCPT
+	Sat, 19 Jul 2003 14:26:20 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:51876 "HELO
+	develer.com") by vger.kernel.org with SMTP id S270446AbTGSSZ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 14:06:26 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: Suspend on one machine, resume elsewhere
-Date: Sat, 19 Jul 2003 11:22:18 -0700
-Message-ID: <m2r84m8jhh.fsf@tnuctip.rychter.com>
-References: <20030716083758.GA246@elf.ucw.cz> <200307161037.LAA01628@mauve.demon.co.uk>
- <20030716104026.GC138@elf.ucw.cz>
- <20030716195129.A9277@informatik.tu-chemnitz.de>
- <20030716181551.GD138@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
-X-Complaints-To: usenet@main.gmane.org
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:hkpjbhTy31CAjzkgoABtA32xolg=
+	Sat, 19 Jul 2003 14:25:58 -0400
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer S.r.l.
+To: Valdis.Kletnieks@vt.edu, Christoph Hellwig <hch@infradead.org>
+Subject: Re: [TRIVIAL] fix include/linux/sysctl.h for userland
+Date: Sat, 19 Jul 2003 20:40:49 +0200
+User-Agent: KMail/1.5.9
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+References: <200307191952.35499.bernie@develer.com> <200307191801.h6JI1VbF012692@turing-police.cc.vt.edu>
+In-Reply-To: <200307191801.h6JI1VbF012692@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200307192040.49258.bernie@develer.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Transfer-Encoding: quoted-printable
+On Sat, 19 Jul 2003 19:52:35 +0200, Bernardo Innocenti said:
+> > Include linux/compiler.h in include/linux/sysctl.h. Needed to get __user
+> > defined when C library uses this header (ie: no __KERNEL__).
 
->>>>> "Pavel" =3D=3D Pavel Machek <pavel@suse.cz> writes:
- Pavel> Hi!
- > If you want to migrate programs between machines, run UMLinux, same
- > config, on both machines. Ouch and you'll need swsusp for UMLinux,
- > too
- >>
- >> That might be more important than you think.
+On Saturday 19 July 2003 20:01, Valdis.Kletnieks@vt.edu wrote:
+> Umm... shouldn't this be in the glibc-kernheaders version of sysctl.h
+> that ends up in /usr/include rather than the kernel version?
 
- Pavel> :-). Well, it is also harder than you probably think, because
- Pavel> UML is *very* strange architecture and it is not at all easy to
- Pavel> save/restore its state. There were some patches in that area,
- Pavel> but it never worked (AFAIK).
+On Saturday 19 July 2003 19:59, Christoph Hellwig wrote:
+> It shouldn't be included from userspace, and glibc needs to be fixed not
+> to do so.
 
-... but there are many people who dream about swsusp for UMLinux.
+Two reasons:
 
-Particularly some laptop users who want to suspend (at least the most
-critical long-running applications) and/or find Linux way too unstable
-and requiring frequent reboots.
+ - I'm using uClibc, not glibc. uClibc doesn't have a fixed copy
+   of the kernel headers. Everything builds fine with real kernel
+   headers from both 2.4.x and 2.6.x, except for this small glitch.
 
-The day UMLinux gets swsusp, I'm moving my XEmacs, mozilla and some
-other toys into a UML machine and staying there. Hopefully then a single
-problem with a USB driver, keventd running wild, or other frequently
-encountered breakage won't be taking my entire world down.
+ - If we fix it now, the glibc guys will have one less patch to
+   apply when they update their copy.
 
-=2D-J.
+The glibc-kernelheaders package exists only because the glibc
+people cannot afford to work-around every single quirk in any
+version of the kernel.
 
---=-=-=
-Content-Type: application/pgp-signature
+And if you often build system utilities you'll find out there is
+quite a lot of userland code out there with legitimate reasons
+for including kernel headers. Some examples: strace, nfsutils,
+psutils, quota.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
 
-iD8DBQA/GYxaLth4/7/QhDoRAoYMAJ92FO2kpJfbOQKo7UgbHHrpvDYVagCgw+np
-wCM8vhQHGNND6dUaToE/oxs=
-=whJn
------END PGP SIGNATURE-----
---=-=-=--
+Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
+
 

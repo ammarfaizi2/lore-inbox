@@ -1,83 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262400AbULCV77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbULCWBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262400AbULCV77 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 16:59:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbULCV77
+	id S262407AbULCWBr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 17:01:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbULCWBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 16:59:59 -0500
-Received: from hqemgate00.nvidia.com ([216.228.112.144]:55300 "EHLO
-	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
-	id S262400AbULCV7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 16:59:53 -0500
-Date: Fri, 3 Dec 2004 15:59:27 -0600
-From: Terence Ripperda <tripperda@nvidia.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: tripperda@nvidia.com
-Subject: Re: 2.6.10-rc2-mm4
-Message-ID: <20041203215927.GE1709@hygelac>
-Reply-To: Terence Ripperda <tripperda@nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Accept-Language: en
-X-Operating-System: Linux hrothgar 2.6.7 
-X-OriginalArrivalTime: 03 Dec 2004 21:59:30.0656 (UTC) FILETIME=[5D8B2600:01C4D983]
+	Fri, 3 Dec 2004 17:01:47 -0500
+Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:3221 "EHLO
+	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S262403AbULCWBW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 17:01:22 -0500
+Message-ID: <41B0E277.2090801@us.ibm.com>
+Date: Fri, 03 Dec 2004 16:02:31 -0600
+From: Santiago Leon <santil@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix buffer starvation race in ibmveth
+Content-Type: multipart/mixed;
+ boundary="------------020604070903080602030505"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020604070903080602030505
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-(sorry for breaking the email thread, I tried to grab the mbox archive
-for responding, but ftp.uwsg.iu.edu seems to be having problems with
-the mail archive).
+Andrew,
 
-in response to Alan Cox' voiced concerns from Tue Nov 30:
+There's a chance that the receive buffers are being consumed at the same 
+rate as they are being replenished in ibmveth_replenish_task()... 
+Meanwhile, the calls to schedule_replenishing() from ibmveth_poll() 
+won't schedule another replenishing cycle (because the not_replenishing 
+flag is zero), starving the buffers and making the adapter unable to 
+receive packets unless the module is reloaded... Here's a small patch 
+that will fix it by scheduling another replenishing task after toggling 
+the not_replenishing flag.
 
-> That would also be a proprietary hook wouldn't it 8)
+Please apply.
 
-nvidia really isn't interested in proprietary hooks; such a hook
-really wouldn't be good for nvidia or the linux kernel. but we don't
-feel that a 32-bit zone is such a hook.
+Signed-Off-By: Santiago Leon <santil@us.ibm.com>
+-- 
+Santiago A. Leon
+Power Linux Development
+IBM Linux Technology Center
 
-> beyond the supported open source hardware PCI-Express is the
-> non-AGPGART user and that is 64bit.
+--------------020604070903080602030505
+Content-Type: text/plain;
+ name="ibmveth_buff_starve.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ibmveth_buff_starve.patch"
 
-I assume you mean traditional pci in this case, but I remain confused.
-the pci spec calls for 32-bits of addressing, although there is an
-optional extension for 64-bit bus extension pins. I can't speak for other
-pci devices, but all of our pci devices are 32-bit.
+===== drivers/net/ibmveth.c 1.19 vs edited =====
+--- 1.19/drivers/net/ibmveth.c	2004-11-22 00:42:54 -06:00
++++ edited/drivers/net/ibmveth.c	2004-12-03 15:27:40 -06:00
+@@ -96,6 +96,7 @@
+ static void ibmveth_proc_register_adapter(struct ibmveth_adapter *adapter);
+ static void ibmveth_proc_unregister_adapter(struct ibmveth_adapter *adapter);
+ static irqreturn_t ibmveth_interrupt(int irq, void *dev_instance, struct pt_regs *regs);
++static inline void ibmveth_schedule_replenishing(struct ibmveth_adapter*);
+ 
+ #ifdef CONFIG_PROC_FS
+ #define IBMVETH_PROC_DIR "ibmveth"
+@@ -104,7 +105,7 @@
+ 
+ static const char ibmveth_driver_name[] = "ibmveth";
+ static const char ibmveth_driver_string[] = "IBM i/pSeries Virtual Ethernet Driver";
+-#define ibmveth_driver_version "1.02"
++#define ibmveth_driver_version "1.03"
+ 
+ MODULE_AUTHOR("Santiago Leon <santil@us.ibm.com>");
+ MODULE_DESCRIPTION("IBM i/pSeries Virtual Ethernet Driver");
+@@ -271,6 +272,8 @@
+ 	adapter->rx_no_buffer = *(u64*)(((char*)adapter->buffer_list_addr) + 4096 - 8);
+ 
+ 	atomic_inc(&adapter->not_replenishing);
++
++	ibmveth_schedule_replenishing(adapter);
+ }
+ 
+ /* kick the replenish tasklet if we need replenishing and it isn't already running */
 
-additionally, the pci-express spec defines legacy and non-legacy
-devices.  legacy devices are only required to address 32-bits, whereas
-non-legacy devices are required to handle 64-bit addresses.
-
-> In the video space it's even stranger because DRI doesn't need it
-
-I'm unclear how traditional pci video cards function without being
-able to allocate < 32-bit addresses for dma purposes. are the video cards
-you've tested 64-bit capable or is dma disabled? what about 32-bit cards? I'm
-afraid I don't understand how this isn't an issue.
-
-> it seems a risky path because of the past problems trying to get
-> zone balancing working.
-
-I certainly understand the concerns with this, although I was led to
-believe that recent 2.6 work made the zone balancing much less
-expensive.  is that not the case?
-
-> I can find users for a 512Mb or 1Gb DMA region
-
-there was some brief discussion of this when we originally discussed
-32-bit addressing issues, but I don't know if a satisfactory solution was
-reached.  If a 1Gb region was prefered for this reason, that should satisfy
-nvidia's needs for 32-bit addressing, but I couldn't speak for any other device
-drivers.
-
-for reference, the previous discussion was here:
-
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0406.2/2093.html
-
-Thanks,
-Terence
-
-
+--------------020604070903080602030505--

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267043AbRHAOMp>; Wed, 1 Aug 2001 10:12:45 -0400
+	id <S267053AbRHAOWZ>; Wed, 1 Aug 2001 10:22:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267048AbRHAOMf>; Wed, 1 Aug 2001 10:12:35 -0400
-Received: from mauve.demon.co.uk ([158.152.209.66]:2194 "EHLO
-	mauve.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S267043AbRHAOM3>; Wed, 1 Aug 2001 10:12:29 -0400
-From: Ian Stirling <root@mauve.demon.co.uk>
-Message-Id: <200108011412.PAA06491@mauve.demon.co.uk>
-Subject: Re: university studies?
-To: linux-kernel@vger.kernel.org
-Date: Wed, 1 Aug 2001 15:12:19 +0100 (BST)
-In-Reply-To: <20010801134647.D662@arthur.ubicom.tudelft.nl> from "Erik Mouw" at Aug 01, 2001 01:46:47 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S267088AbRHAOWF>; Wed, 1 Aug 2001 10:22:05 -0400
+Received: from mx01.tricord.com ([64.240.27.4]:3603 "HELO ns1.tricord.com")
+	by vger.kernel.org with SMTP id <S267053AbRHAOV4>;
+	Wed, 1 Aug 2001 10:21:56 -0400
+Message-ID: <3B68107C.954E31C7@niptron.com>
+Date: Wed, 01 Aug 2001 09:21:48 -0500
+From: "D. R. Holsbeck" <drh@niptron.com>
+Organization: Tricord Systems
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: "Paul G. Allen" <pgallen@randomlogic.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: OT: M$Exchange stuff for Linux/UNIX? [was: Re: Test mail]
+In-Reply-To: <3B4B4FC10065D2C3@mta1n.bluewin.ch> <OE54msfGdMNFmWAFsTm00002ea9@hotmail.com> <20010731103413.E28761@pc8.lineo.fr> <OE34vSVMum03yMJiQTy000031e1@hotmail.com> <20010731140927.A31267@pc8.lineo.fr> <3B671CCD.FB1E2FEF@randomlogic.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> On Wed, Aug 01, 2001 at 08:06:16AM +0100, Riley Williams wrote:
-> > Personally, I did "B.Sc. Computer Studies", but I suspect the actual
-> > course title is irrelevant, and it's the modules you do in the course
-> > that matter. Here's what I would regard as important:
-> > 
-> >  1. A thorough knowledge of programming in C. Knowledge of C++
-> >     will help.
-> > 
-> >  2. Experience of programming hardware will definitely help.
-> > 
-> >  3. The ability to think logically is a definite advantage, and
-> >     tends to result in 90%+ of your programs working first time.
-> > 
-> > Additions, anybody?
-> 
-> A couple of good books also helps:
+you could allways try and get them tu turn on the
+pop3 port in exchange. this allows you to use any 
+standard pop3 client to get your mail. but no 
+scheduling, calendar, etc.
 
-Maths.
-Can help lots in the generation of algorithms, for example
-proving that one faster way of doing something is identical 
-to a slower way.
-Knowing the maths behind the algorithms can lead to ways to 
-speed things up by orders of magnitude in some cases.
+"Paul G. Allen" wrote:
+> 
+> Sorry for the OT post folks, but...
+> 
+> christophe barbé wrote:
+> 
+> >
+> > Christophe
+> >
+> > PS: I don't remember the name but there is a unix tool that provide
+> > everything for MsExchange sharing facilities.
+> >
+> 
+> You struck a chord here. I am forced to use Exchange here at work for my company e-mail (which would be pallen@akamai.com). I much prefer to use any Linux/UNIX
+> (I have a solaris box here as well) mail client and say off of Outhouse/Windows.
 
+-- 
+drh@niptron.com
+
+"Necessity is the mother of taking chances."
+--Mark Twain.

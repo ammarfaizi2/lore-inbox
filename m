@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVCJC1I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVCJCaB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261694AbVCJC1I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 21:27:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVCJCZu
+	id S262453AbVCJCaB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 21:30:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVCJC1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 21:25:50 -0500
-Received: from fire.osdl.org ([65.172.181.4]:36055 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261157AbVCJCYQ (ORCPT
+	Wed, 9 Mar 2005 21:27:33 -0500
+Received: from fire.osdl.org ([65.172.181.4]:51927 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261158AbVCJC0V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 21:24:16 -0500
-Date: Wed, 9 Mar 2005 18:25:56 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Omkhar Arasaratnam <iamroot@ca.ibm.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>, tgall@us.ibm.com,
-       antonb@au1.ibm.com, Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [BUG] 2.6.11- sym53c8xx Broken on pp64
-In-Reply-To: <1110420620.32525.145.camel@gaston>
-Message-ID: <Pine.LNX.4.58.0503091821570.2530@ppc970.osdl.org>
-References: <422FA817.4060400@ca.ibm.com> <1110420620.32525.145.camel@gaston>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 9 Mar 2005 21:26:21 -0500
+Date: Wed, 9 Mar 2005 18:25:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: Direct io on block device has performance regression on 2.6.x
+ kernel
+Message-Id: <20050309182550.0291c6fd.akpm@osdl.org>
+In-Reply-To: <200503091721.j29HLNg24054@unix-os.sc.intel.com>
+References: <20050308222737.3712611b.akpm@osdl.org>
+	<200503091721.j29HLNg24054@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 10 Mar 2005, Benjamin Herrenschmidt wrote:
+"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+>
+> This is all real: real benchmark running on real hardware, with real
+>  result showing large performance regression.  Nothing synthetic here.
 > 
-> BTW, Linus: Any chance you ever change something to version or
-> extraversion in bk just after a release ? I know I already ask and it
-> degenerated into a flamefest, and I don't know if that is specifically
-> the case now, but I keep getting report of people saying "I have a bug
-> in 2.6.xx" while in fact, they have some kind of bk clone of sometime
-> after 2.6.xx...
 
-The answer is the same: I'd still like to have somebody (preferably Sam)  
-who is comfortable with all the build scripts get a revision-control-
-specific version at build-time, so that BK users would get the top-of-tree 
-key value, and other people could get some CVS revision or something.
+Ken, could you *please* be more complete, more organized and more specific?
 
-I don't want to tag things just randomly, especially as it would be very
-error-prone (read: I'd forget). A script that looks at the top revision,
-and if it's not a tag, takes the key value and appends it to the build
-version seems to be The Right Thing (tm). 
+What does "1/3 of the total benchmark performance regression" mean?  One
+third of 0.1% isn't very impressive.  You haven't told us anything at all
+about the magnitude of this regression.
 
-I have this dim memory that Sam might even have had some early trials, but 
-maybe thats just wishful thinking.. Sam?
+Where does the rest of the regression come from?
 
-		Linus
+How much system time?  User time?  All that stuff.
+
+>  And yes, it is all worth pursuing, the two patches on raw device recuperate
+>  1/3 of the total benchmark performance regression.
+
+The patch needs a fair bit of work, and if it still provides useful gains
+when it's complete I guess could make sense as some database special-case.
+
+But the first thing to do is to work out where the cycles are going to.
+
+
+Also, I'm rather peeved that we're hearing about this regression now rather
+than two years ago.  And mystified as to why yours is the only group which
+has reported it.

@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265009AbUFAMjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265014AbUFAMnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265009AbUFAMjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 08:39:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264579AbUFAMjZ
+	id S265014AbUFAMnP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 08:43:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264579AbUFAMnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 08:39:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2969 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265009AbUFAMjY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 08:39:24 -0400
-Date: Tue, 1 Jun 2004 13:39:22 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] explicitly mark recursion count
-Message-ID: <20040601123921.GN12308@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.44.0405251607520.26157-100000@chimarrao.boston.redhat.com> <20040525211522.GF29378@dualathlon.random> <20040526103303.GA7008@elte.hu> <20040526125014.GE12142@wohnheim.fh-wedel.de> <20040526125300.GA18028@devserv.devel.redhat.com> <20040526130047.GF12142@wohnheim.fh-wedel.de> <20040526130500.GB18028@devserv.devel.redhat.com> <20040526164129.GA31758@wohnheim.fh-wedel.de> <20040601055616.GD15492@wohnheim.fh-wedel.de> <20040601060205.GE15492@wohnheim.fh-wedel.de>
+	Tue, 1 Jun 2004 08:43:14 -0400
+Received: from main.gmane.org ([80.91.224.249]:26760 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265014AbUFAMnL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 08:43:11 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: BUG FIX: atkbd.c keyboard driver bug [Was: keyboard problem with 2.6.6]
+Date: Tue, 1 Jun 2004 14:42:25 +0200
+Message-ID: <MPG.1b2695fa65d7f2ec9896b3@news.gmane.org>
+References: <200406010904.i5194pSo010367@fire-2.osdl.org> <xb7iseb7gtv.fsf@savona.informatik.uni-freiburg.de> <20040601095518.GA1527@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040601060205.GE15492@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-114-140.29-151.libero.it
+X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 01, 2004 at 08:02:05AM +0200, Jörn Engel wrote:
-> Add recursion markers to teach automated test tools how bad documented
-> recursions really are.  Currently, there is only a single such too that
-> can use the information and there is always the danger of documentation
-> and reality getting out of sync.  But until there's a better tool...
- 
-> +/**
-> + * RECURSION:	100
-> + * STEP:	register_proc_table
-> + */
+Vojtech Pavlik wrote:
+> The kernel works with real keys. There is no real sysrq key. My
+> definition of sanity is to base your thinking on reality where possible.
 
-This is too ugly for words ;-/  Who will maintain that data, anyway?
+My keyboard has a separate key for SysRq (as much as 
+'separate' makes sense for laptop keyboards; it's a Fn-
+activated key).
+
+If you want to go the route you're going, all laptop keyboards 
+should have the numeric keypad produce the same emulated 
+scancodes as some alphanumeric keys. This does sound a little, 
+uhm, ridiculous to me.
+
+-- 
+Giuseppe "Oblomov" Bilotta
+
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
+

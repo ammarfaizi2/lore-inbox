@@ -1,70 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279894AbRJ3JF5>; Tue, 30 Oct 2001 04:05:57 -0500
+	id <S279896AbRJ3JLr>; Tue, 30 Oct 2001 04:11:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279899AbRJ3JFs>; Tue, 30 Oct 2001 04:05:48 -0500
-Received: from mgw-x1.nokia.com ([131.228.20.21]:3059 "EHLO mgw-x1.nokia.com")
-	by vger.kernel.org with ESMTP id <S279894AbRJ3JFh>;
-	Tue, 30 Oct 2001 04:05:37 -0500
-Message-ID: <3BDE6BAB.F7100545@nokia.com>
-Date: Tue, 30 Oct 2001 10:58:19 +0200
-From: Manel Guerrero Zapata <manel.guerrero-zapata@nokia.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.0 i686)
+	id <S279897AbRJ3JLh>; Tue, 30 Oct 2001 04:11:37 -0500
+Received: from mail201.mail.bellsouth.net ([205.152.58.141]:38108 "EHLO
+	imf01bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S279822AbRJ3JLa>; Tue, 30 Oct 2001 04:11:30 -0500
+Message-ID: <3BDE6EE7.EC006474@mandrakesoft.com>
+Date: Tue, 30 Oct 2001 04:12:07 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: ext David Ford <david@blue-labs.org>
+To: Martin Eriksson <nitrax@giron.wox.org>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 TCP caches ip route
-In-Reply-To: <3BDDB88C.1040009@blue-labs.org>
-Content-Type: text/plain; charset="us-ascii"
+Subject: Re: via-rhine and MMIO
+In-Reply-To: <04b801c1607a$947dbef0$0201a8c0@HOMER>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ext David Ford wrote:
+Martin Eriksson wrote:
+> (drivers/net/via-rhine.c)
+> ...
+> /* Reload the station address from the EEPROM. */
+> writeb(0x20, ioaddr + MACRegEEcsr);
+> /* Typically 2 cycles to reload. */
+> for (i = 0; i < 150; i++)
+>     if (! (readb(ioaddr + MACRegEEcsr) & 0x20))
+>         break;
+> ...
 > 
-> Try "ip route flush cache" or summarized, "ip r f c"
-> 
-> David
-> 
-> Manel Guerrero Zapata wrote:
-> 
-> >The problem seems to be that the kernel
-> >caches that the device for the connexion should be dummy0.
-> >If then, I cancel the telnet and start it again
-> >now (of course) it stablishes a telnet conexion though the ppp0.
-> >
-> [snipped]
+> If I run this code when I'm using MMIO, I get a hardware adress of
+> "ff:ff:ff:ff:ff:ff" instead of the right one (and everything craps up). But
+> when I comment out this part all is fine. So what's it needed for anyway?
+
+On init all NIC drivers should get the MAC address from the NIC's
+EEPROM, and store it in dev->dev_addr[].
+
+If the MAC address is changed by the user in Windows, or in a previous
+driver invocation, you want to change it back to the default.  Obtaining
+the address from EEPROM is the only way to do this on most cards.  Since
+the via-rhine apparently doesn't support this directly, it does the next
+best thing:  kick the h/w to reload the EEPROM into chip registers, and
+then read the MAC address from the chip registers.
+
+WRT the above code, you should add a check to see if '150' is enough of
+a wait.  MMIO is faster and would affect that loop.  Maybe you want to
+schedule_timeout before reading MACRegEEcsr to delay a little bit.
 
 
-Hi,
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 
-
-Answering to David:
-
-Well, I have not tried that yet. But that is not a real solution.
-You are not supposed to be flushing the cache manualy
-(Although it might work as kind of workaround)
-the kernel should detect that this is a stale cached entry
-and delete it.
-
-
-Answering to Martin:
-
-Sure for most of the people that's not a big deal.
-And yes, you are right: if the tcp connection has
-been stablished before playing with routing tables
-then everything works just fine.
-
-But, IMHO I thing TCP should not make any assumptions about
-routing tables (not even during the stablishment of connection).
-So, I personaly see this as a kernel bug.
-
-I understand that this is an "optimization" of the kernel
-code, but I thing you should have the possibility of
-disabling it.
-
-
-Regards,
-
-        Manel Guerrero

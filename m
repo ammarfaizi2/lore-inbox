@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262177AbTCHUMz>; Sat, 8 Mar 2003 15:12:55 -0500
+	id <S262196AbTCHUVU>; Sat, 8 Mar 2003 15:21:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262183AbTCHUMz>; Sat, 8 Mar 2003 15:12:55 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:34828 "EHLO
+	id <S262194AbTCHUVR>; Sat, 8 Mar 2003 15:21:17 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:43020 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262177AbTCHUMy>; Sat, 8 Mar 2003 15:12:54 -0500
-Date: Sat, 8 Mar 2003 20:23:28 +0000
+	id <S262187AbTCHUVM>; Sat, 8 Mar 2003 15:21:12 -0500
+Date: Sat, 8 Mar 2003 20:31:46 +0000
 From: Christoph Hellwig <hch@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
-       Andries.Brouwer@cwi.nl,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
+To: Andries.Brouwer@cwi.nl
+Cc: akpm@digeo.com, alan@lxorguk.ukuu.org.uk, greg@kroah.com,
+       linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Subject: Re: [PATCH] register_blkdev
-Message-ID: <20030308202328.A31942@infradead.org>
+Message-ID: <20030308203146.A32002@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Andrew Morton <akpm@digeo.com>, Andries.Brouwer@cwi.nl,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <20030307123029.2bc91426.akpm@digeo.com> <20030307221217.GB21315@kroah.com> <20030307143319.2413d1df.akpm@digeo.com> <20030307234541.GG21315@kroah.com> <1047086062.24215.14.camel@irongate.swansea.linux.org.uk> <20030308005018.GE23071@kroah.com> <1047136302.25932.28.camel@irongate.swansea.linux.org.uk> <20030308193722.GD26374@kroah.com> <20030308195028.A31394@infradead.org> <20030308200016.GF26374@kroah.com>
+	Andries.Brouwer@cwi.nl, akpm@digeo.com, alan@lxorguk.ukuu.org.uk,
+	greg@kroah.com, linux-kernel@vger.kernel.org,
+	torvalds@transmeta.com
+References: <UTC200303082026.h28KQFN04439.aeb@smtp.cwi.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030308200016.GF26374@kroah.com>; from greg@kroah.com on Sat, Mar 08, 2003 at 12:00:16PM -0800
+In-Reply-To: <UTC200303082026.h28KQFN04439.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Sat, Mar 08, 2003 at 09:26:15PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 12:00:16PM -0800, Greg KH wrote:
-> I've looked at it, and right now it keeps drivers from registering the
-> same major number,
+On Sat, Mar 08, 2003 at 09:26:15PM +0100, Andries.Brouwer@cwi.nl wrote:
+> There is no need to do all of that. Going to 32-bit dev_t
+> is trivial, not a major restructuring.
 
-No.  Because it doesn't actually register the number anymore.  It's perfectly
-valid to have a 2.5 block driver that never calls register_blkdev().
+Doing it _right_ does require major restructuring. 
 
-> Yes, most of the old code and logic is now gone, but can you just remove
-> the call altogether now?  If so, great :)
+> However, it can be crashed from userspace, so before we do
+> the three minutes editing the audit is needed.
+> Look at the patch for raw.c I posted a few hours ago.
+> One trivial test.
 
-We can get rid of it if people have no problem with __bdevname printing
-less pretty strings and /proc/devices going away for block devices (which
-is buggy now anyway).  I'm all in favour of it.
+And probably one of them in at least half of the character drivers.  We need
+to get rid of the artifical major/minor split completly instead of just
+increasing it, leaving silly assumptions in and increasing the space consumed
+by all those arrays by magnitudes.
+
+> > If people really think they need a 32bit dev_t
+> > we should just introduce it and use it only for block devices
+> > and stay with the old 8+8 split for character devices.
+> 
+> Of course discussing the future and how the cake should
+> be divided once we have it may be of interest
+
+No, the point is that the character devices aren't ready yet for moving
+away from the old 8+8 split.
 

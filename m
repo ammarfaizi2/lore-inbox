@@ -1,54 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287794AbSBCWFs>; Sun, 3 Feb 2002 17:05:48 -0500
+	id <S287809AbSBCWPK>; Sun, 3 Feb 2002 17:15:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287798AbSBCWF2>; Sun, 3 Feb 2002 17:05:28 -0500
-Received: from suhkur.cc.ioc.ee ([193.40.251.100]:59823 "HELO suhkur.cc.ioc.ee")
-	by vger.kernel.org with SMTP id <S287794AbSBCWFR>;
-	Sun, 3 Feb 2002 17:05:17 -0500
-Date: Mon, 4 Feb 2002 00:05:14 +0200 (GMT)
-From: Juhan Ernits <juhan@cc.ioc.ee>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Machines misreporting Bogomips
-In-Reply-To: <Pine.LNX.4.42.0202011831170.6556-100000@egg>
-Message-ID: <Pine.GSO.4.21.0202032356340.21280-100000@suhkur.cc.ioc.ee>
+	id <S287865AbSBCWOu>; Sun, 3 Feb 2002 17:14:50 -0500
+Received: from femail13.sdc1.sfba.home.com ([24.0.95.140]:52651 "EHLO
+	femail13.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S287809AbSBCWOj>; Sun, 3 Feb 2002 17:14:39 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Xinwen - Fu <xinwenfu@cs.tamu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: raw socket packet and iptables
+Date: Sun, 3 Feb 2002 17:15:43 -0500
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.SOL.4.10.10202031241180.17613-100000@dogbert>
+In-Reply-To: <Pine.SOL.4.10.10202031241180.17613-100000@dogbert>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020203221438.NAPP25931.femail13.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 03 February 2002 01:45 pm, Xinwen - Fu wrote:
+> Hi, All,
+>
+> 	I want  to know how a raw packet passes the chain of iptables.
+>
+> 	Here are the iptables chains
+>
+> --->PRE------>[ROUTE]--->FWD---------->POST------>
+>         Conntrack    |       Filter   ^    NAT (Src)
+>         Mangle       |                |    Conntrack
+>         NAT (Dst)    |             [ROUTE]
+>         (QDisc)      v                |
+>                      IN Filter       OUT Conntrack
+>
+>                      |  Conntrack     ^  Mangle
+>                      |
+>                      |                |  NAT (Dst)
+>
+>                      v                |  Filter
+>
+>
+> 	So how a raw packet go through these chains?
 
 
-On Fri, 1 Feb 2002, Greg Boyce wrote:
+Well, from trial and error and a lot of documentation reading, I eventually 
+worked out that a TCP/IP packet basically seems to do this:
 
-> On Fri, 1 Feb 2002, Alan Cox wrote:
-> 
-> > > The machine is reporting that the cache is enabled.  Even if this was
-> > > true, I have trouble believing that turning on the cache would result in a
-> > > 50,000% increase in speed (4 bogomips compared to 500).
-> >
-> > L1 and L2 cache both disabled comes up as about 2.5 bogomips typically on
-> > a Pentium II/III.
-> >
+--->pre--->forward--->post--->
+     |                           ^
+     |                           |
+     v                          |
+     input->local ports->output
 
-> Would a machine with L1 cache disabled, but with 512K of L2 cache report
-> around 4 Bogomips, or would the performance hit not be that strong?
+I'd like to point out that the last arrow should point from "output" to 
+"post", since kmail apparently is not using a fixed with font, and I can't 
+figure out how to get it to do so.  (I did figure out how to get it to use a 
+korean, chinese, or cyrillic encoding, but not monospaced.  Sigh...)
 
+So in prerouting, the packet is either forwarded on to the forwarding chain 
+(if it's not for this box) or to the input chain (if it's for a daemon on 
+this box).  Forwarding never sees packets locally generated on this box, they 
+go into the output chain and then get sent on to postrouting (which is where 
+forwarding also feeds into).
 
-May be the following experiences are relevant:
+It took a little trial and error to work this out, by the way.  It's entirely 
+ossibly I'm wrong (since I don't think the above agrees with the 
+documentation), but at the same time it works and survives specific behavior 
+testing, so... :)  The tables are fairly arbitrarily broken into "NAT" tables 
+and non-NAT tables.  Oh, and one of the chains (output, I think) exists in 
+both nat and non-nat versions.  To this day, I have no idea why...
 
-- a Pentium MMX 200 MHz with burned L1 cache. It was worse than a 386 with
-turbo switch turned off (didn-t have time to measure bogomips, just had it
-replaced). 
+> 	Thanks!!
+>
+> Xinwen Fu
 
-- a PIII 850 with L2 cache turned off appeared comparable to a 433
-MHz Celeron (860 BogoMips) while with L2 cache turned on it showed 1684
-BogoMips.
+If the above doesn't help, this might:
 
-So that would confirm that the snaillike behaviour of your systems has
-something to do with either _burned_ of disabled L1 cache, not L2 cache.
+http://netfilter.samba.org/unreliable-guides/
 
-Best regards,
-
-Juhan Ernits
-
+Rob

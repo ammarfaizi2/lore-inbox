@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262280AbVAZMT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262281AbVAZMUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262280AbVAZMT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 07:19:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbVAZMT0
+	id S262281AbVAZMUg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 07:20:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbVAZMUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 07:19:26 -0500
-Received: from ns9.hostinglmi.net ([213.194.149.146]:2018 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S262280AbVAZMTX
+	Wed, 26 Jan 2005 07:20:36 -0500
+Received: from alog0179.analogic.com ([208.224.220.194]:34432 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262281AbVAZMUO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 07:19:23 -0500
-Date: Wed, 26 Jan 2005 13:20:14 +0100
-From: DervishD <lkml@dervishd.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Cc: linux-usb-users@lists.sourceforge.net
-Subject: USB API, ioctl's and libusb
-Message-ID: <20050126122014.GF58@DervishD>
-Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>,
-	linux-usb-users@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 26 Jan 2005 07:20:14 -0500
+Date: Wed, 26 Jan 2005 07:19:51 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: dsuljic@mmm.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Fw: How to submit device ID into hid blacklist.
+In-Reply-To: <OF0CB4FB74.DC0C23B0-ON86256F95.0009A35A-85256F95.000944BB@mmm.com>
+Message-ID: <Pine.LNX.4.61.0501260717580.16260@chaos.analogic.com>
+References: <OF0CB4FB74.DC0C23B0-ON86256F95.0009A35A-85256F95.000944BB@mmm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi everybody :)
+On Tue, 25 Jan 2005 dsuljic@mmm.com wrote:
 
-    I've been solving a USB problem related to a digital photo
-camera, and I've noticed that 'libusb' uses a ioctl interface to the
-USB kernel system. In fact it implements 'usb_control_msg()' using
-ioctl's. On the other hand, the kernel itself (I'm talking about
-2.4.29) provides an API in <linux/usb.h> that implements too
-'usb_control_msg()' using URB's.
+>
+>
+>
+>
+> Hi,
+> I work for 3M Touch Systems (former MicroTouch) as software engineer and
+> our main product is touchscreen as input device.
+> Recently, we have released hid compliant devices (they work perfectly under
+> Windows OS), but Linux hid driver does not support us correctly. In kernel
+> 2.4 hid driver recognizes our devices and tries to interpret events in best
+> manner, but since we are absolute pointing device it was a bit tricky with
+> hid mouse on same system. I kernel 2.6 hid core driver grubs our devices
+> but does not recognize us as hid device. So we decided, for now, to disable
+> hid driver of recognizing our hid devices.
+> My question is how can we submit changes to kernel tree.
 
-    My question is: which interface should be used by user space
-applications, <linux/usb.h> or ioctl's? Is the ioctl interface
-deprecated in any way? In the "Programming guide for Linux USB Device
-Drivers", located in http://usb.in.tum.de/usbdoc/, I can't find ioctl
-interface references :?
+So why don't you make the appropriate changes to the existing
+source code so it supports your device?
 
-    Thanks a lot in advance :)
+> Best regards,
+>
+> Damir Suljic
+> 3M Touch Systems
+> 3M Optical Systems Division
+> 300 Griffin Brook Park Drive
+> Methuen, MA 01844
+> 978-659-9386
+> dsuljic@mmm.com
+> www.3Mtouch.com
+> www.touchshowcase.com
+>
 
-    Raúl Núñez de Arenas Coronado
 
--- 
-Linux Registered User 88736
-http://www.dervishd.net & http://www.pleyades.net/
-It's my PC and I'll cry if I want to...
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

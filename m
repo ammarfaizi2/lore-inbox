@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbUFELk5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUFEL6H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbUFELk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 07:40:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbUFELk5
+	id S261159AbUFEL6H (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 07:58:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbUFEL6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 07:40:57 -0400
-Received: from mail2.bluewin.ch ([195.186.4.73]:48374 "EHLO mail2.bluewin.ch")
-	by vger.kernel.org with ESMTP id S261162AbUFELk4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 07:40:56 -0400
-Date: Sat, 5 Jun 2004 13:40:52 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Matrox Kconfig
-Message-ID: <20040605114052.GA20401@k3.hellgate.ch>
-Mail-Followup-To: Petr Vandrovec <vandrove@vc.cvut.cz>,
-	linux-kernel@vger.kernel.org
+	Sat, 5 Jun 2004 07:58:07 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:14549 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261159AbUFEL6D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 07:58:03 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: gelato-technical <gelato-technical@gelato.unsw.edu.au>,
+       lkcd-devl <lkcd-devel@lists.sourceforge.net>
+Cc: suparna bhattacharya <suparna@in.ibm.com>,
+       Prashanth Tamraparni <prasht@in.ibm.com>, jbarnes@sgi.com,
+       davidm@hpl.hp.com, vgoyal@in.ibm.com
+Content-Type: text/plain
+Message-Id: <1086104163.5172.58.camel@2fwv946.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux 2.6.7-rc1 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+Subject: Lcrash on IA64 breaks due to duplicate symbol "modules" in
+	System.map
+Organization: 
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 05 Jun 2004 17:26:11 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The descriptions for CONFIG_FB_MATROX_G450 and CONFIG_FB_MATROX_G100A
-in drivers/video/Kconfig (current 2.6) are confusing: Both want to be
-selected for Matrox G100, G200, G400 based video cards.
+Hi,
 
-In the menu, it's
+Lcrash on IA64 breaks due to the presence of multiple appearance of
+symbol "modules" in System.map file. Lcrash tries to load ksyms from
+dump by reading linked list of modules which starts at "modules". 
 
-# G100/G200/G400/G450/G550 support (sets FB_MATROX_G100, FB_MATROX_G450)
-#	G100/G200/G400 support     (sets FB_MATROX_G100)
-#	G400 second head support
+Sometimes Lcrash gets confused due to multiple presence of this symbol
+and is unable to load the module symbols.
 
-where the second depends on the first _not_ being selected.
+On a test system, following is the output when "modules" is grepped in
+System.map. I am using 2.6.5 kernel.
 
-How about this instead?
+**********************************************************************
+a0000001007d01e8 d modules
+a00000010093cab0 B modules
+**********************************************************************
 
-# Gxxx (generic) (sets FB_MATROX_G100)
-#	G400 second head (depends FB_MATROX_GXXX, FB_MATROX_I2C)
-			 (sets FB_MATROX_G450)
-#	G450/550 support (depends on FB_MATROX_GXXX)
+First one is a static declaration/definition in linux/kernel/module.c.
+This is the symbol lcrash is searching for to get the starting address
+of list of modules.
 
-Roger
+Second one is a global declaration appearing in
+linux/arch/ia64/sn/io/sn2/module.c. I am not very sure about its usage
+but it seems this is being kept to maintain a list of modules keeping
+some hardware specific details.
+
+Is it a good idea to keep the two names same? If one of these can be
+renamed to resolve the lcrash problem.
+
+Thanks
+Vivek
+
+ 
+
+
+  
+

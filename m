@@ -1,28 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261173AbREORY6>; Tue, 15 May 2001 13:24:58 -0400
+	id <S261172AbREORhM>; Tue, 15 May 2001 13:37:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261163AbREORYs>; Tue, 15 May 2001 13:24:48 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:531 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id <S261158AbREORHv>;
-	Tue, 15 May 2001 13:07:51 -0400
-Date: Tue, 15 May 2001 19:06:56 +0200
-From: Frank van Maarseveen <fvm@tasking.nl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.5-pre1: Bogus ARP packets containing NFS file data? (3)
-Message-ID: <20010515190656.B1754@espoo.tasking.nl>
-Reply-To: frank_van_maarseveen@tasking.com
-In-Reply-To: <20010515175212.A31058@espoo.tasking.nl> <20010515184724.A1754@espoo.tasking.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i (Linux)
-In-Reply-To: <20010515184724.A1754@espoo.tasking.nl>; from fvm on Tue, May 15, 2001 at 06:47:24PM +0200
-Organization: TASKING, Inc.
+	id <S261184AbREORhC>; Tue, 15 May 2001 13:37:02 -0400
+Received: from www.wen-online.de ([212.223.88.39]:18949 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S261172AbREORgz>;
+	Tue, 15 May 2001 13:36:55 -0400
+Date: Tue, 15 May 2001 19:36:39 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Jeff Golds <jgolds@resilience.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove silly beep macro from pgtable.h
+In-Reply-To: <3B015D19.E5581AAD@resilience.com>
+Message-ID: <Pine.LNX.4.33.0105151911410.730-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The last 1304 bytes of 1.bin and 2.bin are identical to the first 1304 bytes
-of the .swp file made by VIM.
+On Tue, 15 May 2001, Jeff Golds wrote:
 
--- 
-Frank
+> Hi folks,
+>
+> Found this bit of unused code in the i386 and sh architectures.  As it's not being used, let's get rid of it.  Also, pgtable.h seems to be an odd place for this.
+
+I'd leave it.. folks with early boot troubles might find it useful.
+
+	-Mike
+

@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261652AbUCKSrW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 13:47:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbUCKSrW
+	id S261396AbUCKSrE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 13:47:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbUCKSrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 13:47:22 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:39887 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261652AbUCKSrP convert rfc822-to-8bit (ORCPT
+	Thu, 11 Mar 2004 13:47:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:1173 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261396AbUCKSrB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 13:47:15 -0500
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: 2.6.4-mm1
-Date: Thu, 11 Mar 2004 10:46:59 -0800
-Message-ID: <7F740D512C7C1046AB53446D37200173FEB76A@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.4-mm1
-Thread-Index: AcQHPCECv5YUhMeNQjCyf4RmLlSEWwAW00iw
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 11 Mar 2004 18:47:00.0737 (UTC) FILETIME=[3CF61F10:01C40799]
+	Thu, 11 Mar 2004 13:47:01 -0500
+Date: Thu, 11 Mar 2004 10:46:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Redeeman <lkml@metanurb.dk>
+Cc: norberto+linux-kernel@bensa.ath.cx, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm1
+Message-Id: <20040311104650.009a8d3e.akpm@osdl.org>
+In-Reply-To: <1079028899.5327.4.camel@redeeman.linux.dk>
+References: <20040310233140.3ce99610.akpm@osdl.org>
+	<1079024816.5325.2.camel@redeeman.linux.dk>
+	<200403111453.20866.norberto+linux-kernel@bensa.ath.cx>
+	<20040311100957.00dd6e7f.akpm@osdl.org>
+	<1079028899.5327.4.camel@redeeman.linux.dk>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, we have been testing the sched-domain scheduler. So far, the
-results are all positive. We'll add more stress to it, running various
-workloads.
+Redeeman <lkml@metanurb.dk> wrote:
+>
+>  i didnt do anything more than patch with mm1, is there a patch for doing
+>  that spin_unlock_irq()? :)
 
-Jun
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
->owner@vger.kernel.org] On Behalf Of Andrew Morton
->Sent: Wednesday, March 10, 2004 11:32 PM
->To: linux-kernel@vger.kernel.org
->Subject: 2.6.4-mm1
->
->
->ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.4/2.6
-.4-
->mm1/
->
->
->
->- The CPU scheduler changes in -mm (sched-domains) have been hanging
-about
->  for too long.  I had been hoping that the people who care about SMT
-and
->  NUMA performance would have some results by now but all seems to be
->silent.
->
->  I do not wish to merge these up until the big-iron guys can say that
-they
->  suit their requirements, with a reasonable expectation that we will
-not
->  need to churn this code later in the 2.6 series.
->
->  So.  If you have been testing, please speak up.  If you have not been
->  testing, please do so.
->
+--- 25/fs/mpage.c~a	2004-03-11 10:46:29.000000000 -0800
++++ 25-akpm/fs/mpage.c	2004-03-11 10:46:31.000000000 -0800
+@@ -672,7 +672,6 @@ mpage_writepages(struct address_space *m
+ 		}
+ 		pagevec_release(&pvec);
+ 	}
+-	spin_unlock_irq(&mapping->tree_lock);
+ 	if (bio)
+ 		mpage_bio_submit(WRITE, bio);
+ 	return ret;
+
+_
 

@@ -1,39 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129393AbRCEQhT>; Mon, 5 Mar 2001 11:37:19 -0500
+	id <S129417AbRCEQjT>; Mon, 5 Mar 2001 11:39:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129417AbRCEQg7>; Mon, 5 Mar 2001 11:36:59 -0500
-Received: from danielle.hinet.hr ([195.29.254.157]:40976 "EHLO
-	danielle.hinet.hr") by vger.kernel.org with ESMTP
-	id <S129393AbRCEQgu>; Mon, 5 Mar 2001 11:36:50 -0500
-Date: Mon, 5 Mar 2001 17:37:21 +0100
-From: Mario Mikocevic <mozgy@hinet.hr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.3-pre2: Can't build md.o as module: unresolved symbol
-Message-ID: <20010305173721.A14760@danielle.hinet.hr>
-In-Reply-To: <ysdn1b0lbtl.fsf@tuborg.ibr.cs.tu-bs.de>
+	id <S129421AbRCEQjJ>; Mon, 5 Mar 2001 11:39:09 -0500
+Received: from cc78409-a.hnglo1.ov.nl.home.com ([213.51.107.234]:30730 "EHLO
+	dexter.hensema.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S129417AbRCEQit>; Mon, 5 Mar 2001 11:38:49 -0500
+Date: Mon, 5 Mar 2001 17:37:49 +0100
+From: Erik Hensema <erik@hensema.xs4all.nl>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
+        bug-bash@gnu.org
+Subject: Re: binfmt_script and ^M
+Message-ID: <20010305173749.C16345@hensema.xs4all.nl>
+In-Reply-To: <m3k8648i94.fsf@appel.lilypond.org> <Pine.LNX.3.95.1010305083112.8719A-100000@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <ysdn1b0lbtl.fsf@tuborg.ibr.cs.tu-bs.de>; from thuerman@ibr.cs.tu-bs.de on Mon, Mar 05, 2001 at 12:00:54PM +0100
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3i
+In-Reply-To: <Pine.LNX.3.95.1010305083112.8719A-100000@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Mar 05, 2001 at 08:40:22AM -0500, Richard B. Johnson wrote:
+> On 5 Mar 2001, Jan Nieuwenhuizen wrote:
 
-I've got a bit more ->
+> > Pavel Machek <pavel@suse.cz> writes:
 
-depmod: *** Unresolved symbols in /lib/modules/2.4.3-pre2/kernel/drivers/i2o/i2o_scsi.o
-depmod:         i2o_install_handler
-depmod:         i2o_remove_handler
-depmod:         i2o_find_controller
-depmod:         i2o_query_scalar
-depmod:         i2o_num_controllers
-depmod: *** Unresolved symbols in /lib/modules/2.4.3-pre2/kernel/drivers/md/md.o
-depmod:         md_autodetect_dev
+> > > > $ head -1 testscript
+> > > > #!/bin/sh
+> > > > $ ./testscript bash: ./testscript: No such file or directory
 
+> > > What kernel wants to say is "/usr/bin/perl\r: no such
+> > > file". Saying ENOEXEC would be even more confusing.
+
+> > So, why don't we make bash say that, then?  As I guess that we've
+> > all been bitten by this before.
+
+> > What are the chances for something like this to be included?
+
+> > Greetings, Jan.
+
+> [SNIPPED...]
+
+> So why would you even consider breaking bash as a work-around for a
+> broken script?
+
+Userfriendlyness.
+
+> Somebody must have missed the boat entirely. Unix does not, never
+> has, and never will end a text line with '\r'. It's Microsoft junk
+> that does that, a throwback to CP/M, a throwback to MDS/200.
+
+Yes, _we_ all know that. However, it's not really intuitive to the user
+getting a 'No such file or directory' on a script he just created. Bash
+doesn't say:
+bash: testscript: Script interpreter not found
+but bash says:
+bash: testscript: No such file or directory
+
+Maybe we should create a new errno: EINTERPRETER or something like that and
+let the kernel return that instead of ENOENT.
+
+Note that this has little to do with the \r\n problem but only with the
+_real_ underlying reason: the script interpreter is not found and ENOENT is
+returned confusing the user: the user thinks the _script_ is not found,
+while its there, for sure.
 -- 
-Mario Mikoèeviæ (Mozgy)
-My favourite FUBAR ...
+Erik Hensema (erik@hensema.xs4all.nl)

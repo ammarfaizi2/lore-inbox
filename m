@@ -1,77 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262233AbUK3S36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbUK3S2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262233AbUK3S36 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 13:29:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbUK3S35
+	id S262236AbUK3S2j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 13:28:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbUK3S2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 13:29:57 -0500
-Received: from smtp07.auna.com ([62.81.186.17]:44492 "EHLO smtp07.retemail.es")
-	by vger.kernel.org with ESMTP id S262233AbUK3S3c convert rfc822-to-8bit
+	Tue, 30 Nov 2004 13:28:39 -0500
+Received: from ottawa-hs-64-26-171-227.s-ip.magma.ca ([64.26.171.227]:4246
+	"HELO edgewater.ca") by vger.kernel.org with SMTP id S262236AbUK3S02
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 13:29:32 -0500
-Date: Tue, 30 Nov 2004 18:29:28 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: cdrecord dev=ATA cannont scanbus as non-root
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org
-References: <1101763996l.13519l.0l@werewolf.able.es>
-	<Pine.LNX.4.53.0411292246310.15146@yvahk01.tjqt.qr>
-	<1101765555l.13519l.1l@werewolf.able.es> <20041130071638.GC10450@suse.de>
-	<1101834765l.8903l.4l@werewolf.able.es>
-	<Pine.LNX.4.53.0411301835511.11795@yvahk01.tjqt.qr>
-	<1101836984l.13015l.0l@werewolf.able.es>
-	<Pine.LNX.4.53.0411301854001.29170@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.53.0411301854001.29170@yvahk01.tjqt.qr> (from
-	jengelh@linux01.gwdg.de on Tue Nov 30 18:56:46 2004)
-X-Mailer: Balsa 2.2.6
-Message-Id: <1101839368l.13015l.1l@werewolf.able.es>
+	Tue, 30 Nov 2004 13:26:28 -0500
+Message-ID: <000501c4d70a$0b6ca1d0$8500a8c0@WS055>
+From: "Yihan Li" <Yihan.Li@Edgewater.CA>
+To: <linux-kernel@vger.kernel.org>
+Subject: patch RTAI (fusion-0.6.4) with kernel 2.6.9 on Fedora Core 3
+Date: Tue, 30 Nov 2004 13:26:01 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Help needed!
+I am trying to patch RTAI (fusion-0.6.4) with kernel 2.6.9 on Fedora Core 3. 
+The following steps are what I was following:
 
-On 2004.11.30, Jan Engelhardt wrote:
-> >Err, as it tries to open a device and it does not exist.
-> >I tries sequentially
-> >hda, hdb, hdc.. up to 256 until it finds something to open.
-> >If it exists, but has not permissions, it keeps trying on the next.
-> >But if it is not present, cdrecord gives up.
-> 
-> Reasonable procedure. Albeit, leaky:
-> Imagine you use devfs... open()ing something like hd* would probably always
-> create a node. Although there is a max on possible, meaningful, nodes,
-> someone could use this to fill up /dev with
-> ridiculuous amounts of nodes, all of which are to my knowledge in kernel space.
-> "Well then, goodbye".
-> 
-> Luckily, even the very default config does not create arbitrarily nodes, and
-> cdrecord doesnot probe arbitr. devices.
-> 
-> So I guess, yes, cdrecord should probe harder. Preferably by looking into /sys
-> when using a 2.6 system.
-> 
+I download a varnilla version of linux-2.6.9 from www.kernel.org,
+Unpack the kernel source:
+# cd /usr/src
+# tar xvjf linux-2.6.9.tar.bz2
+# ln -s linux-2.6.9 linux
+Unpack or copy RTAI to  /usr/src/fusion-0.6.4.tar.bz2
+# ln -s fusion-0.6.4  rtai
+Patch the kernel:
+# cd /usr/src/linux
+# patch -p1 < ../rtai/arch/i386/patches/adeos-linux-2.6.9-i386-r8.patch
+Copy the existing (Fedora) kernel config file to /usr/src/linux
+# cp /boot/config-2.6.xxxx /usr/src/linux/.configConfigure the kernel:
+# make menuconfig# makeAfter 8 mins, I get error messages as 
+following:drivers/scsi/qla2xxx/qla_os.c: In function 
+`qla2x00_queuecommand':drivers/scsi/qla2xxx/qla_os.c:315: sorry, 
+unimplemented: inlining failed in call to 'qla2x00_callback': function not 
+considered for inliningdrivers/scsi/qla2xxx/qla_os.c:269: sorry, 
+unimplemented: called from heredrivers/scsi/qla2xxx/qla_os.c:315: sorry, 
+unimplemented: inlining failed in call to 'qla2x00_callback': function not 
+considered for inliningdrivers/scsi/qla2xxx/qla_os.c:269: sorry, 
+unimplemented: called from heremake[3]: *** [drivers/scsi/qla2xxx/qla_os.o] 
+Error 1make[2]: *** [drivers/scsi/qla2xxx] Error 2make[1]: *** 
+[drivers/scsi] Error 2make: *** [drivers] Error 2My guess is my 
+configuration is not right, and don't know what to do, really need a hand 
+...I wish to be personally CC'ed the answers/comments in response to my 
+posting.
 
-Patch for cdrecord:
-
---- cdrtools-2.01/libscg/scsi-linux-ata.c.orig	2004-11-30 19:02:37.929176615 +0100
-+++ cdrtools-2.01/libscg/scsi-linux-ata.c	2004-11-30 19:06:11.316213702 +0100
-@@ -385,8 +385,6 @@
- 						device, f, errno);
- 					}
- 					return (-2);
--				} else if (errno == ENOENT || errno == ENODEV) {
--					break;
- 				}
- 			} else {
- 				/* ugly hack, make better, when you can. Alex */
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.2 (Cooker) for i586
-Linux 2.6.10-rc2-jam3 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #1
 
 

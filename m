@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAEG5M>; Fri, 5 Jan 2001 01:57:12 -0500
+	id <S129507AbRAEG5N>; Fri, 5 Jan 2001 01:57:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129507AbRAEG5D>; Fri, 5 Jan 2001 01:57:03 -0500
-Received: from ns1.megapath.net ([216.200.176.4]:63492 "EHLO megapathdsl.net")
-	by vger.kernel.org with ESMTP id <S129324AbRAEG4p>;
-	Fri, 5 Jan 2001 01:56:45 -0500
-Message-ID: <3A556FE4.7030608@megapathdsl.net>
-Date: Thu, 04 Jan 2001 22:55:32 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12-pre8 i686; en-US; m18) Gecko/20001231
-X-Accept-Language: en
+	id <S129610AbRAEG5D>; Fri, 5 Jan 2001 01:57:03 -0500
+Received: from sd.skjellin.com ([194.19.28.170]:16402 "HELO sd.skjellin.com")
+	by vger.kernel.org with SMTP id <S129507AbRAEG4x>;
+	Fri, 5 Jan 2001 01:56:53 -0500
+From: "Andre Tomt" <andre@tomt.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Change of policy for future 2.2 driver submissions
+Date: Fri, 5 Jan 2001 07:57:06 +0100
+Message-ID: <OPECLOJPBIHLFIBNOMGBIEGLCHAA.andre@tomt.net>
 MIME-Version: 1.0
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-CC: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org,
-        linux-usb-devel@lists.sourceforge.net
-Subject: Re: Announce: modutils 2.4.0 is available
-In-Reply-To: <14993.978663552@kao2.melbourne.sgi.com> <16062.978666989@kao2.melbourne.sgi.com> <20010104200333.A20175@one-eyed-alien.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <002201c076c7$76cab720$8d19b018@c779218a>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dharm wrote:
+> I was in your position, I feel it may be a mistake.
+> I personaly do not trust the 2.4.x kernel entirely yet, and would
+> prefer to
+> wait for 2.4.1 or 2.4.2 before upgrading from 2.2.18 to ensure last-minute
+> wrinkles have been completely ironed out, and I know there are people who
+> share my viewpoint, and would rather use 2.2.XX for a while yet, and I'm
+> afraid that this may partialy criple 2.2 driver development.
 
-> Well, I'll be the one to fall on my sword...
-> 
-> This is probably my fault.  The matching code was pretty much broken for a
-> non-trivial subset of usb devices.  I'd submitted the patch to Linus before
-> the holdiays, but it was rejected for various reasons.  After some back and
-> forth, Linus finally accepted it on about the 2st of the year.
-> 
-> It's pretty much the same patch (functionally) as I posted to the
-> linux-usb-devel mailing list, which I presumed would inform the hotplugging
-> people.
+I would wait for at least 2.4.10 on production systems (servers in
+particular). Not to start a flame or anything (yeah, right), but 2.2.x was
+not usable on such systems before it reached 2.2.16 IMHO.
 
-<snip>
+So, I guess, the "crippling" of driver submissions could hurt me bit, in
+theory, which I don't like. ;-)
 
-We really do need a linux-hotplug mailing list.  Who would be able to
-set up such a list on vger.kernel.org (or anywhere else that supports
-maillist archives and has decent server loads)?  I've already floated
-this idea once, but noone who can make this happen has volunteered.
-
-Why we need this:
-
-There are too many people working on hotplug issues in disjoint corners
-of the kernel and utility community.  This work requires coordination
-from the various bus developers (USB, SCSI, PCI, IrDA, Firewire,
-Wireless, etc.) as well as folks working on the usermode scripts,
-utilities and so forth.  There is also the need to sort out all the
-PCMCIA/Cardbus issues having to do with migrating the installed base
-over time to the new kernel drivers (yenta and friends).
-
-	Miles
+--
+André. Alfred?
+http://www.tomt.net
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144516AbRA1XYt>; Sun, 28 Jan 2001 18:24:49 -0500
+	id <S144552AbRA1XZ3>; Sun, 28 Jan 2001 18:25:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144497AbRA1XYj>; Sun, 28 Jan 2001 18:24:39 -0500
-Received: from femail3.rdc1.on.home.com ([24.2.9.90]:18872 "EHLO
-	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S144498AbRA1XY3>; Sun, 28 Jan 2001 18:24:29 -0500
-Message-ID: <3A74AA17.67EACE73@Home.net>
-Date: Sun, 28 Jan 2001 18:24:07 -0500
-From: Shawn Starr <Shawn.Starr@Home.net>
-Organization: Visualnet
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10a i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [IGNORE] Re: Kernel 2.4.1pre11 - Compile bug - Function prototype 
- change?
-In-Reply-To: <3A74A981.51B1E382@Home.net>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+	id <S144500AbRA1XZU>; Sun, 28 Jan 2001 18:25:20 -0500
+Received: from alcove.wittsend.com ([130.205.0.20]:9232 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S144509AbRA1XYn>; Sun, 28 Jan 2001 18:24:43 -0500
+Date: Sun, 28 Jan 2001 18:23:58 -0500
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: John Jasen <jjasen@datafoundation.com>
+Cc: Mike Pontillo <mike_p@polaris.wox.org>, linux-kernel@vger.kernel.org
+Subject: Re: Support for 802.11 cards?
+Message-ID: <20010128182358.F23716@alcove.wittsend.com>
+Mail-Followup-To: John Jasen <jjasen@datafoundation.com>,
+	Mike Pontillo <mike_p@polaris.wox.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0101281344040.12805-100000@polaris.wox.org> <Pine.LNX.4.30.0101281704050.2343-100000@flash.datafoundation.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.2i
+In-Reply-To: <Pine.LNX.4.30.0101281704050.2343-100000@flash.datafoundation.com>; from jjasen@datafoundation.com on Sun, Jan 28, 2001 at 05:07:33PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nevermind, the low-latency patch changed this function.. ignore
-Shawn Starr wrote:
+On Sun, Jan 28, 2001 at 05:07:33PM -0500, John Jasen wrote:
+> On Sun, 28 Jan 2001, Mike Pontillo wrote:
 
-> in include/linux/mm.h:
->
-> -extern void zap_page_range(struct mm_struct *mm, unsigned long address,
-> unsigned long size, int actions);
-> +extern void zap_page_range(struct mm_struct *mm, unsigned long address,
-> unsigned long size)
->
-> The function has changed and breaks memory.c ?
->
-> memory.c:352: conflicting types for `zap_page_range'
-> /usr/src/linux/include/linux/mm.h:396: previous declaration of
-> `zap_page_range'
-> make[2]: *** [memory.o] Error 1
-> make[2]: Leaving directory `/usr/src/linux/mm'
-> make[1]: *** [first_rule] Error 2
-> make[1]: Leaving directory `/usr/src/linux/mm'
-> make: *** [_dir_mm] Error 2
->
-> Shawn.
+> > 	I was wondering what 802.11 PCI cards anyone knows of that run
+> > under Linux-2.4. (or 2.2 for that matter)
+
+> I _think_ a good many of the 802.11 wireless ISA and PCI cards are just
+> bus to PCMCIA adapters, so it would be a question of whether or not the
+> PCMCIA card is supported and if the bridge is supported.
+
+	Last I knew (straight from the Lucent people), the ISA bridge
+card worked fine and the PCI card did NOT work at all.  I've since
+confirmed that, first hand, myself (I currently have the ISA bridge in
+operation) on the 2.2 kernels.  The ISA bridge also works on the 2.4
+kernels but I have not retested the PCI bridge on 2.4.  The Lucent
+people claim that the Linux pcmcia people are aware of the problem.
+
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

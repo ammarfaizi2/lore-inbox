@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267370AbTBFRmp>; Thu, 6 Feb 2003 12:42:45 -0500
+	id <S267375AbTBFRpg>; Thu, 6 Feb 2003 12:45:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267375AbTBFRmp>; Thu, 6 Feb 2003 12:42:45 -0500
-Received: from ns.suse.de ([213.95.15.193]:58384 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267370AbTBFRmo>;
-	Thu, 6 Feb 2003 12:42:44 -0500
-Date: Thu, 6 Feb 2003 18:52:21 +0100
-From: Olaf Hering <olh@suse.de>
-To: bjorn@haxx.se, marcelo@conectiva.com.br
+	id <S267376AbTBFRpg>; Thu, 6 Feb 2003 12:45:36 -0500
+Received: from x101-201-88-dhcp.reshalls.umn.edu ([128.101.201.88]:48871 "EHLO
+	minerva") by vger.kernel.org with ESMTP id <S267375AbTBFRpf>;
+	Thu, 6 Feb 2003 12:45:35 -0500
+Date: Thu, 6 Feb 2003 11:55:08 -0600
+From: Matt Reppert <arashi@yomerashi.yi.org>
+To: Larry McVoy <lm@bitmover.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.21pre: ide_fix_driveid unresolved in usb-storage
-Message-ID: <20030206175221.GA3072@suse.de>
+Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
+Message-Id: <20030206115508.4425d994.arashi@yomerashi.yi.org>
+In-Reply-To: <20030206173050.GA15854@work.bitmover.com>
+References: <20030205174021.GE19678@dualathlon.random>
+	<20030205102308.68899bc3.akpm@digeo.com>
+	<20030205184535.GG19678@dualathlon.random>
+	<20030205114353.6591f4c8.akpm@digeo.com>
+	<20030205141104.6ae9e439.arashi@yomerashi.yi.org>
+	<20030205233115.GB14131@work.bitmover.com>
+	<20030205233705.A31812@infradead.org>
+	<20030205235706.GB21064@work.bitmover.com>
+	<20030206095850.D18636@schatzie.adilger.int>
+	<20030206173050.GA15854@work.bitmover.com>
+Organization: Yomerashi
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-message-flag: : This mail sent from host minerva, please respond.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 6 Feb 2003 09:30:50 -0800
+Larry McVoy <lm@bitmover.com> wrote:
+> What I'd really like to know is if we really need a glibc2.3 image. 
+> Would the guy who had the segfaults step foward and confirm/deny the
+> use of the static image?  We haven't had any other problem reports
+> related to glibc2.3 so it may be there is no need to do anything but
+> kill the static version. 
 
-drivers/usb/storage/isd200.c calls ide_fix_driveid()
-This function is only available when CONFIG_IDE is active.
+Indeed; I've had time to try the glibc2.2 version, and this seems to
+work fine running a quick bk changes. The static version is what was
+segfaulting. Sorry for the noise.
 
-
---- linux-2.4/drivers/usb/Config.in.olh	2003-02-06 18:43:48.000000000 +0100
-+++ linux-2.4/drivers/usb/Config.in	2003-02-06 18:44:08.000000000 +0100
-@@ -46,7 +46,7 @@ if [ "$CONFIG_USB" = "y" -o  "$CONFIG_US
-       dep_mbool '    USB Mass Storage verbose debug' CONFIG_USB_STORAGE_DEBUG $CONFIG_USB_STORAGE
-       dep_mbool '    Datafab MDCFE-B Compact Flash Reader support' CONFIG_USB_STORAGE_DATAFAB $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
-       dep_mbool '    Freecom USB/ATAPI Bridge support' CONFIG_USB_STORAGE_FREECOM  $CONFIG_USB_STORAGE
--      dep_mbool '    ISD-200 USB/ATA Bridge support' CONFIG_USB_STORAGE_ISD200 $CONFIG_USB_STORAGE
-+      dep_mbool '    ISD-200 USB/ATA Bridge support' CONFIG_USB_STORAGE_ISD200 $CONFIG_USB_STORAGE $CONFIG_IDE
-       dep_mbool '    Microtech CompactFlash/SmartMedia support' CONFIG_USB_STORAGE_DPCM $CONFIG_USB_STORAGE
-       dep_mbool '    HP CD-Writer 82xx support' CONFIG_USB_STORAGE_HP8200e $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
-       dep_mbool '    SanDisk SDDR-09 (and other SmartMedia) support' CONFIG_USB_STORAGE_SDDR09 $CONFIG_USB_STORAGE $CONFIG_EXPERIMENTAL
-
--- 
-A: No.
-Q: Should I include quotations after my reply?
+Thanks,
+Matt

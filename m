@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317068AbSFWR3G>; Sun, 23 Jun 2002 13:29:06 -0400
+	id <S317072AbSFWR5B>; Sun, 23 Jun 2002 13:57:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317072AbSFWR3F>; Sun, 23 Jun 2002 13:29:05 -0400
-Received: from unthought.net ([212.97.129.24]:46212 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S317068AbSFWR3E>;
-	Sun, 23 Jun 2002 13:29:04 -0400
-Date: Sun, 23 Jun 2002 19:29:05 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Sandy Harris <pashley@storm.ca>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S317073AbSFWR5A>; Sun, 23 Jun 2002 13:57:00 -0400
+Received: from otter.mbay.net ([206.55.237.2]:21005 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S317072AbSFWR47> convert rfc822-to-8bit;
+	Sun, 23 Jun 2002 13:56:59 -0400
+From: John Alvord <jalvo@mbay.net>
+To: "jdow" <jdow@earthlink.net>
+Cc: "Rob Landley" <landley@trommello.org>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Jeff Garzik" <jgarzik@mandrakesoft.com>,
+       "Larry McVoy" <lm@bitmover.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       "Linus Torvalds" <torvalds@transmeta.com>,
+       "Cort Dougan" <cort@fsmlabs.com>, "Benjamin LaHaise" <bcrl@redhat.com>,
+       "Rusty Russell" <rusty@rustcorp.com.au>, "Robert Love" <rml@tech9.net>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
 Subject: Re: Linux, the microkernel (was Re: latest linus-2.5 BK broken)
-Message-ID: <20020623172905.GA26885@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Sandy Harris <pashley@storm.ca>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <E17LUyA-0001wU-00@starship> <200206220107.g5M17AXp028825@sleipnir.valparaiso.cl> <20020621182337.T23670@work.bitmover.com> <3D15E629.1706DE98@storm.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3D15E629.1706DE98@storm.ca>
-User-Agent: Mutt/1.3.28i
+Date: Sun, 23 Jun 2002 10:56:13 -0700
+Message-ID: <sr2chugf2bu4pd8a6m3sc36ggemomk4o3o@4ax.com>
+References: <E17LmrQ-0002vp-00@the-village.bc.nu> <05ce01c21a31$1a2c3660$1125a8c0@wednesday>
+In-Reply-To: <05ce01c21a31$1a2c3660$1125a8c0@wednesday>
+X-Mailer: Forte Agent 1.8/32.553
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 23, 2002 at 11:15:53AM -0400, Sandy Harris wrote:
-> Larry McVoy wrote:
-> 
-...
-> Also, it isn't as clear that clustering experience applies. Are clusters
-> that size built hierachically? Is a 1024-CPU Beowulf practical, and if so
-> do you build it as a Beowulf of 32 32-CPU Beowulfs? Is something analogous
-> required in the OSlet approach? would it work?
+On Sat, 22 Jun 2002 14:09:30 -0700, "jdow" <jdow@earthlink.net> wrote:
 
-Well yes and no.  Often the hierarchy is really shallow. A typical
-(larger) Beowulf (if such a thing exists) could be ~50 nodes per 100Mbit
-switch, heaps of those switches go into (interconnected) gigabit
-switches, and that's it.  There are *many* 'wulfs out there with just
-one or a few switches - but they are not 1024 CPUs either.
+>From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+>
+>> > A microkernel design was actually made to work once, with good performance.
+>> > It was about fifteen years ago, in the amiga.  Know how they pulled it off?
+>> > Commodore used a mutant ultra-cheap 68030 that had -NO- memory management
+>> > unit.
+>>
+>> Vanilla 68000 actually. And it never worked well - the UI folks had
+>> to use a library not threads. The fs performance sucked
+>
+>Some things just cannot be passed by..... The Amiga HAS worked well and
+>DOES work well - - - FINALLY. (It took several years and a VERY serious
+>debugging effort with Bill Hawes and Bryce Nesbitt finding and quashing
+>all manner of bad or missing pointer checks and the like. They made the
+>OS itself a remarkable work of art.)
 
-Much more specialized interconnects are often used. The SP/2 (IBM) used
-something resembling "one big switch", which was in reality a number of
-cleverly connected smaller switches (sorry, forgot the topology) - so no
-real hierarchy, similar bandwidth and latency between any two nodes an a
-several-hundred node cluster.
+Was that the same Bill Hawes who hung around L-K quashing bugs for a
+year or so (maybe 3-4 years ago?)
 
-The "Earth Simulator" (the #1 on www.top500.org) is using a one-stage
-crossbar for it's 5000+ nodes.
-
-My personal pet theory is, in short, that the hardware stays fairly flat
-- not because it is beneficial to (on the contrary!), but because
-software assumes that it is flat.  The software paradigms in practical
-use today have not changed since the early '80s and as long as the
-hardware manages to stay "almost flat" that's not going to change.
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+john alvord

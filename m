@@ -1,43 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268365AbUIGRJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268367AbUIGRJ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268365AbUIGRJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 13:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268231AbUIGQxN
+	id S268367AbUIGRJ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 13:09:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268235AbUIGQx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 12:53:13 -0400
-Received: from verein.lst.de ([213.95.11.210]:45724 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S268148AbUIGQw3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 12:52:29 -0400
-Date: Tue, 7 Sep 2004 18:52:21 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make kmem_find_general_cachep static in slab.c
-Message-ID: <20040907165221.GA11383@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Manfred Spraul <manfred@colorfullife.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20040907143632.GA8480@lst.de> <413DE6C9.5050402@colorfullife.com>
-Mime-Version: 1.0
+	Tue, 7 Sep 2004 12:53:27 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:16007 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S268054AbUIGQvx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 12:51:53 -0400
+Date: Tue, 07 Sep 2004 09:51:48 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Stop reiser4 from turning itself on by default
+Message-ID: <544430000.1094575908@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <413DE6C9.5050402@colorfullife.com>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 07, 2004 at 06:50:17PM +0200, Manfred Spraul wrote:
-> Why?
-> It's intended for users that want to kmalloc always the same amount of 
-> memory.
-> For example the network layer could call kmem_find_general_cachep once 
-> for dev->mtu and then just call kmem_cache_alloc instead of kmalloc. The 
-> loop in kmalloc often needs more cpu cycles than the actual alloc.
+I don't think we really want experimental filesystems on by default.
 
-Because there's no single user, and for constant size arguments kmalloc
-already optimizes very well, so I rather doubt people are ever going to
-use this one.
+--- 2.6.9-rc1-mm4/fs/Kconfig.reiser4.old	2004-09-07 08:45:01.000000000 -0700
++++ 2.6.9-rc1-mm4/fs/Kconfig.reiser4	2004-09-07 08:45:20.000000000 -0700
+@@ -1,7 +1,6 @@
+ config REISER4_FS
+ 	tristate "Reiser4 (EXPERIMENTAL very fast general purpose filesystem)"
+ 	depends on EXPERIMENTAL && !4KSTACKS
+-	default y
+ 	---help---
+ 	  Reiser4 is more than twice as fast for both reads and writes as
+ 	  ReiserFS V3, and is the fastest Linux filesystem, by a lot,
 
-Is the basic don't design APIs for a maybe future scheme.

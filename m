@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265226AbTIDQMS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 12:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265227AbTIDQMR
+	id S265162AbTIDQ0S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 12:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbTIDQZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 12:12:17 -0400
-Received: from fw.osdl.org ([65.172.181.6]:22410 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265226AbTIDQMN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 12:12:13 -0400
-Date: Thu, 4 Sep 2003 09:12:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Hans Reiser <reiser@namesys.com>
-Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: precise characterization of ext3 atomicity
-Message-Id: <20030904091256.1dca14a5.akpm@osdl.org>
-In-Reply-To: <3F576176.3010202@namesys.com>
-References: <3F574A49.7040900@namesys.com>
-	<20030904085537.78c251b3.akpm@osdl.org>
-	<3F576176.3010202@namesys.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Sep 2003 12:25:40 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:31432 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S265162AbTIDQX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 12:23:56 -0400
+Date: Thu, 4 Sep 2003 12:21:00 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: "David S. Miller" <davem@redhat.com>
+cc: "YOSHIFUJI Hideaki / _$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
+       <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
+Subject: Re: /proc/net/* read drops data
+In-Reply-To: <20030904004638.1d4b001d.davem@redhat.com>
+Message-ID: <Pine.GSO.4.33.0309041220070.13584-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> wrote:
+On Thu, 4 Sep 2003, David S. Miller wrote:
+>> D: Fixing a bug that reading /proc/net/{udp,udp6} may drop some data
 >
->  Perhaps the following is correct?
-> 
->      By contrast, ext3 in data=journal and data=ordered modes only guarantees the atomicity of a single write 
->  that does not span a page boundary, and it guarantees that its internal 
->  metadata will not be corrupted even if your application's data is 
->  corrupted after the crash (due to the application spreading what should be committed atomically across more than one block).
+>This fix looks good to me.  Applied.
 
-Correct != comprehensible ;)
+That might fix udp, but that's not the only one to be fixed.  I'll compile
+a list. (tcp for sure.)
 
-"In all journalling modes ext3 guarantees metadata consistency after a
- crash.  In its data=journal and data=ordered modes ext3 also guarantees that
- user data is consistent with metadata after a crash.
+--Ricky
 
- However ext3 does not provide user data atomicity guarantees beyond the
- scope of a single filesystem disk block (usually 4 kilobytes).  If a
- single write() spans two disk blocks it is possible that a crash partway
- through the write will result in only one of those blocks appearing in the
- file after recovery"
 

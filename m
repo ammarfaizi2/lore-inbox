@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285338AbSAGTRa>; Mon, 7 Jan 2002 14:17:30 -0500
+	id <S285482AbSAGTZB>; Mon, 7 Jan 2002 14:25:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285327AbSAGTRU>; Mon, 7 Jan 2002 14:17:20 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:61452 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S285338AbSAGTRC>;
-	Mon, 7 Jan 2002 14:17:02 -0500
-Date: Sat, 5 Jan 2002 13:38:01 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFT] simple deadline I/O scheduler
-Message-ID: <20020105133800.A37@toy.ucw.cz>
-In-Reply-To: <20020104094334.N8673@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020104094334.N8673@suse.de>; from axboe@suse.de on Fri, Jan 04, 2002 at 09:43:34AM +0100
+	id <S285516AbSAGTYw>; Mon, 7 Jan 2002 14:24:52 -0500
+Received: from iwd_mail.intware.com ([216.94.87.36]:61968 "EHLO
+	iwd_mail.intware.com") by vger.kernel.org with ESMTP
+	id <S285482AbSAGTXo> convert rfc822-to-8bit; Mon, 7 Jan 2002 14:23:44 -0500
+Message-ID: <F7EB06D3ED62D311A15600104B6D909F442058@IWD_MAIL>
+From: Dimitrie Paun <dimi@intelliware.ca>
+To: "'Linus Torvalds'" <torvalds@transmeta.com>,
+        Abramo Bagnara <abramo@alsa-project.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@ns.caldera.de>,
+        Jaroslav Kysela <perex@suse.cz>, sound-hackers@zabbo.net,
+        linux-sound@vger.rutgers.edu, linux-kernel@vger.kernel.org
+Subject: RE: [s-h] Re: ALSA patch for 2.5.2pre9 kernel
+Date: Mon, 7 Jan 2002 14:03:26 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> From: Linus Torvalds [mailto:torvalds@transmeta.com]
+> 
+> This is my current feeling.
+> 
+> However, la donna é mobile, and I'm a primus donna, fer 
+> shure. So don't take it _too_ seriously, continue to argue 
+> the merits of other approaches.
 
-> I've played around with implementing an I/O scheduler that _tries_ to
-> start request within a given time limit. Note that it makes no
-> guarentees of any sort, it's simply a "how does this work in real life"
-> sort of thing. It's main use is actually to properly extend the i/o
-> scheduler / elevator api to be able to implement more advanced
-> schedulers (eg cello).
+That's good to know. So let's do so:
 
-Would it be possible to introduce concept of I/O priority? I.e. I want 
-updatedb not to load disk if I need it for something else?
+There is no one grouping: things can be grouped in any number 
+of ways, and for this very reason, a strictly hierarchical
+grouping does not cut it. What I'm trying to say is that at
+certain point, a given grouping characteristics becomes less 
+important (say sound) and other (which crosscut other parts of
+the source) increase in importance (say drivers).
 
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+For this reason, I think the current organization (net/core +
+drivers/net) is more practical then the one which initially 
+screams at any CompSci guy (net/core + net/drivers). 
 
+Now, whichever one we choose, I'd _hate_ to see net organized
+one way and sound the other way. It would be just ugly. That,
+together with the fact that I don't think that putting everything
+under sound/ is in any way superior to the current method,
+I would suggest we stick to: sound/core + drivers/sound.
+
+--
+Dimi.

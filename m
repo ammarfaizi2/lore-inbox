@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129562AbRAIOl7>; Tue, 9 Jan 2001 09:41:59 -0500
+	id <S129324AbRAIOtt>; Tue, 9 Jan 2001 09:49:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131365AbRAIOlj>; Tue, 9 Jan 2001 09:41:39 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:11788 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S131314AbRAIOl1>;
-	Tue, 9 Jan 2001 09:41:27 -0500
-Date: Tue, 9 Jan 2001 15:40:56 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, "David S. Miller" <davem@redhat.com>,
-        <hch@caldera.de>, <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <20010109141806.F4284@redhat.com>
-Message-ID: <Pine.LNX.4.30.0101091532150.4368-100000@e2>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131313AbRAIOtj>; Tue, 9 Jan 2001 09:49:39 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:2064 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129324AbRAIOt0>;
+	Tue, 9 Jan 2001 09:49:26 -0500
+Date: Tue, 9 Jan 2001 15:49:08 +0100
+From: Hubert Mantel <mantel@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Change of policy for future 2.2 driver submissions
+Message-ID: <20010109154908.F20539@suse.de>
+Mail-Followup-To: Hubert Mantel <mantel@suse.de>,
+	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3A55447D.995FB159@goingware.com> <9350df$2md$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <9350df$2md$1@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jan 05, 2001 at 09:31:27AM -0800
+Organization: SuSE Labs, Nuernberg, Germany
+X-Operating-System: SuSE Linux - Kernel 2.2.16
+X-PGP-Key: 1024D/B0DFF780, 1024R/CB848DFD
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Tue, 9 Jan 2001, Stephen C. Tweedie wrote:
+On Fri, Jan 05, Linus Torvalds wrote:
 
-> > i used to think that this is useful, but these days it isnt. It's a waste
-> > of PCI bandwidth resources, and it's much cheaper to keep a cache in RAM
-> > instead of doing direct disk=>network DMA *all the time* some resource is
-> > requested.
->
-> No.  I'm certain you're right when talking about things like web
-> serving, [...]
+[...]
 
-yep, i was concentrating on fileserving load.
+> But that's very different from having somebody like RedHat, SuSE or
+> Debian make such a kernel part of their standard package. No, I don't
+> expect that they'll switch over completely immediately: that would show
+> a lack of good judgement. The prudent approach has always been to have
+> both a 2.2.19 and a 2.4.0 kernel on there, and ask the user if he wants
+> to test the new kernel first.
 
-> but it just doesn't apply when you look at some other applications,
-> such as streaming out video data or performing fileserving in a
-> high-performance compute cluster where you are serving bulk data.
-> The multimedia and HPC worlds typically operate on datasets which are
-> far too large to cache, so you want to keep them in memory as little
-> as possible when you ship them over the wire.
+Right, but now there is a problem: Software RAID. The RAID code of 2.4.0
+is not backwards compatible to the one in 2.2.18; if somebody has used
+2.4.0 on softraid and discovers some problem, he can not switch back to
+some official 2.2 kernel. In order to make it possible to switch between
+kernel releases, every vendor now really is forced to integrate the new
+RAID0.90 code to their 2.2 kernel. IMHO this code should be integrated to
+the next official 2.2 kernel so people can use whatever they want.
 
-i'd love to first see these kinds of applications (under Linux) before
-designing for them. Eg. if an IO operation (eg. streaming video webcast)
-does a DMA from a camera card to an outgoing networking card, would it be
-possible to access the packet data in case of a TCP retransmit? Basically
-these applications are limited enough in scope to justify even temporary
-'hacks' that enable them - and once we *see* things in action, we could
-design for them. Not the other way around.
-
-	Ingo
-
+> 		Linus
+                                                                  -o)
+    Hubert Mantel              Goodbye, dots...                   /\\
+                                                                 _\_v
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

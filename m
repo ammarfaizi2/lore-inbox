@@ -1,89 +1,201 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281360AbRLFCB0>; Wed, 5 Dec 2001 21:01:26 -0500
+	id <S284925AbRLFCEG>; Wed, 5 Dec 2001 21:04:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284930AbRLFCBH>; Wed, 5 Dec 2001 21:01:07 -0500
-Received: from nat.overture.com ([208.50.18.5]:29632 "EHLO
-	tiresias.corp.go2.com") by vger.kernel.org with ESMTP
-	id <S281360AbRLFCBA>; Wed, 5 Dec 2001 21:01:00 -0500
-Message-ID: <3C0ED156.2F327B0F@overture.com>
-Date: Wed, 05 Dec 2001 18:00:54 -0800
-From: Xeno <xeno@overture.com>
-X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.2.5-15 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4: NFS client race causes data loss when appending
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S284930AbRLFCD5>; Wed, 5 Dec 2001 21:03:57 -0500
+Received: from adsl-64-168-153-221.dsl.snfc21.pacbell.net ([64.168.153.221]:57735
+	"EHLO unifiedcomputing.com") by vger.kernel.org with ESMTP
+	id <S284925AbRLFCDo>; Wed, 5 Dec 2001 21:03:44 -0500
+Message-Id: <4.2.2.20011205174951.00ab0e20@slither>
+X-Mailer: QUALCOMM Windows Eudora Pro Version 4.2.2 
+Date: Wed, 05 Dec 2001 17:54:44 -0800
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+From: "S. Parker" <linux@sparker.net>
+Subject: [PATCH] VM system in 2.4.16 doesn't try hard enough for user
+  memory...
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="=====================_37142000==_"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We've been observing intermittent data loss when appending to files over
-NFS due to a race in the NFS client (losing < 4K a couple times a day). 
-Just one process appending to each file.  We're using 2.4.9, but it
-looks like the race is present in other 2.4 versions.  Happens most
-frequently when nfs_file_write calls nfs_revalidate_inode while there
-are lots of writebacks pending.  Here's the sequence of events we're
-seeing.
+--=====================_37142000==_
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 
-1. getattr request goes out to get file size.  Value will be
-   stale compared to inode->i_size, since writes are happening.
-2. All writebacks for the inode complete.
-3. getattr response returns with stale file size value.
-4. __nfs_refresh_inode checks writebacks, finds none,
-   overwrites inode->i_size.
-5. generic_file_write resets file position (O_APPEND) with
-   stale file size, overwriting previously written data.
+Hi,
 
-Race is theoretically present in 2.2 as well, but the delay-based
-flushing in 2.2 rarely flushes all writes away, so there are usually
-requests on the writeback list.  Only became a problem in 2.4 with
-more aggressive flushing clearing out all writebacks.
+I'm interested in comments and feedback on this patch.
 
-Here's a patch (2.4.16) that works for us, it eliminates the race in the
-most common case.  BKL and NFS_REVALIDATING prevent new writes from
-coming in while the getattr is happening, so we just need to check for
-writebacks before starting the getattr.  Not a perfect solution, there's
-still a potential for races with direct calls to nfs_refresh_inode that
-bypass nfs_revalidate_inode.  In practice, we're not triggering those
-operations with any frequency.
 
---- linux/fs/nfs/inode.c	Fri Nov  9 14:28:15 2001
-+++ linux-nfsappendrace/fs/nfs/inode.c	Wed Dec  5 17:12:28 2001
-@@ -868,8 +868,9 @@
- __nfs_revalidate_inode(struct nfs_server *server, struct inode *inode)
- {
- 	int		 status = -ESTALE;
- 	struct nfs_fattr fattr;
-+	int		 writebacks;
- 
- 	dfprintk(PAGECACHE, "NFS: revalidating (%x/%Ld)\n",
- 		inode->i_dev, (long long)NFS_FILEID(inode));
- 
-@@ -889,8 +890,9 @@
- 		}
- 	}
- 	NFS_FLAGS(inode) |= NFS_INO_REVALIDATING;
- 
-+	writebacks = nfs_have_writebacks(inode);
- 	status = NFS_PROTO(inode)->getattr(inode, &fattr);
- 	if (status) {
- 		dfprintk(PAGECACHE, "nfs_revalidate_inode: (%x/%Ld) getattr failed, error=%d\n",
- 			 inode->i_dev, (long long)NFS_FILEID(inode), status);
-@@ -900,8 +902,11 @@
- 				remove_inode_hash(inode);
- 		}
- 		goto out;
- 	}
-+
-+	if ( writebacks && nfs_size_to_loff_t(fattr.size) < inode->i_size )
-+		fattr.size = (__u64) inode->i_size;
- 
- 	status = nfs_refresh_inode(inode, &fattr);
- 	if (status) {
- 		dfprintk(PAGECACHE, "nfs_revalidate_inode: (%x/%Ld) refresh failed, error=%d\n",
+Attached below is "memstride.c", a simple program to exercise a process which
+wishes to grow to the largest size of available VM the system can handle,
+scribble in it all.  Actually, scribble in it all several times.
 
-Please cc on responses, thanks!
+Under at least 2.4.14 -> 2.4.16, the VM system *always* over-commits to
+memstride, even on an otherwise idle system, and ends up killing it.
+This is wrong.  It should be possible for memstride to be told when
+it has over-stepped the size of the system's total VM resources, by
+having sbrk() return -1 (out of memory).
 
-Xeno
+
+Also attached is my proposed fix for this problem.  It has the following
+changes:
+
+1.  Do a better job estimating how much VM is available
+         vm_enough_memory() was changed to take the sum of all free RAM
+         and all free swap, subtract up to 1/8th of physical RAM (but not
+         more than 16MB) as a reserve for system buffers to prevent deadlock,
+         and compare this to the request.  If the VM request is <= the
+         available free stuff, then we're set.
+
+2.  Be willing to sleep for memory chunks larger than 8 pages.
+         __alloc_pages had an uncommented piece of code, that I couldn't
+         see any reason to have.  It doesn't matter how big the piece of
+         memory is--if we're low, and it's a sleepable request, we should
+         sleep.  Now it does.  (Can anyone explain to me why this coded was
+         added originally??)
+
+The combination of these two changes makes it so that memstride passes.
+Although memstride is a contrived example, it was contrived to parallel
+behavior that was seen in many situations, with many different real
+processes in normal use.  This fix allows those uncontrived programs
+to run reliably.
+
+
+
+
+
+--=====================_37142000==_
+Content-Type: text/plain; name="memstride.c";
+ x-mac-type="42494E41"; x-mac-creator="74747874"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="memstride.c"
+
+I2luY2x1ZGUgPHN0ZGxpYi5oPgojaW5jbHVkZSA8c3lzL3RpbWUuaD4KI2luY2x1ZGUgPHN5cy91
+c2VyLmg+CiNpbmNsdWRlIDxzeXMvcmVzb3VyY2UuaD4KI2luY2x1ZGUgPHVuaXN0ZC5oPgoKc2Nh
+bl9tZW0oaW50ICpiYXNlLCBpbnQgc2l6ZSkKewoJaW50IHN1bSA9IDA7CgoJd2hpbGUgKHNpemUg
+PiAwKSB7CgkJc3VtICs9ICpiYXNlKys7CgkJc2l6ZSAtPSBzaXplb2YgKGludCk7Cgl9Cn0KCnVz
+YWdlX3JlcG9ydChzdHJ1Y3QgcnVzYWdlICpwcmV2X3J1LCBpbnQgbnBhZ2VzKQp7CglzdHJ1Y3Qg
+cnVzYWdlIHJ1OwoJZmxvYXQgZmx0aW07CglmbG9hdCBvZmx0aW07CglpbnQgbmV3bGluZSA9IDA7
+CgoJZ2V0cnVzYWdlKFJVU0FHRV9TRUxGLCAmcnUpOwoJZmx0aW0gPSBydS5ydV91dGltZS50dl9z
+ZWM7CglmbHRpbSArPSAoKGZsb2F0KXJ1LnJ1X3V0aW1lLnR2X3VzZWMpLzEuMGUwNjsKCW9mbHRp
+bSA9IHByZXZfcnUtPnJ1X3V0aW1lLnR2X3NlYzsKCW9mbHRpbSArPSAoKGZsb2F0KXByZXZfcnUt
+PnJ1X3V0aW1lLnR2X3VzZWMpLzEuMGUwNjsKCXByaW50ZigidXNlciAlLjJmIiwgZmx0aW0gLSBv
+Zmx0aW0pOwoJZmx0aW0gPSBydS5ydV9zdGltZS50dl9zZWM7CglmbHRpbSArPSAoKGZsb2F0KXJ1
+LnJ1X3N0aW1lLnR2X3VzZWMpLzEuMGUwNjsKCW9mbHRpbSA9IHByZXZfcnUtPnJ1X3N0aW1lLnR2
+X3NlYzsKCW9mbHRpbSArPSAoKGZsb2F0KXByZXZfcnUtPnJ1X3N0aW1lLnR2X3VzZWMpLzEuMGUw
+NjsKCXByaW50ZigiIHN5cyAlLjJmIiwgZmx0aW0gLSBvZmx0aW0pOwoJcHJpbnRmKCIgcmVjbGFp
+bXM6ICVkIGZhdWx0cyAlZCBzd2FwczogJWQgaW4vb3V0ICVkLyVkIGNzdyAlZC8lZFxuIiwKCSAg
+ICBydS5ydV9taW5mbHQgLSBwcmV2X3J1LT5ydV9taW5mbHQsCgkgICAgcnUucnVfbWFqZmx0IC0g
+cHJldl9ydS0+cnVfbWFqZmx0LAoJICAgIHJ1LnJ1X25zd2FwIC0gcHJldl9ydS0+cnVfbnN3YXAs
+CgkgICAgcnUucnVfaW5ibG9jayAtIHByZXZfcnUtPnJ1X2luYmxvY2ssCgkgICAgcnUucnVfb3Vi
+bG9jayAtIHByZXZfcnUtPnJ1X291YmxvY2ssCgkgICAgcnUucnVfbnZjc3cgLSBwcmV2X3J1LT5y
+dV9udmNzdywKCSAgICBydS5ydV9uaXZjc3cgLSBwcmV2X3J1LT5ydV9uaXZjc3cpOwoJaWYgKG5w
+YWdlcyA9PSAwKQoJCXJldHVybjsgLyogc2hvdWxkIG5vdCBoYXBwZW4gKi8KCWlmIChydS5ydV9t
+aW5mbHQgLSBwcmV2X3J1LT5ydV9taW5mbHQgPiAwKSB7CgkJcHJpbnRmKCJtaW5vciBmbHRzL3Bn
+OiAlZCAiLAoJCSAgICAocnUucnVfbWluZmx0IC0gcHJldl9ydS0+cnVfbWluZmx0KS9ucGFnZXMp
+OwoJCW5ld2xpbmUrKzsKCX0KCWlmIChydS5ydV9tYWpmbHQgLSBwcmV2X3J1LT5ydV9tYWpmbHQg
+PiAwKSB7CgkJcHJpbnRmKCJtYWpvciBmbHRzL3BnOiAlZCAiLAoJCSAgICAocnUucnVfbWFqZmx0
+IC0gcHJldl9ydS0+cnVfbWFqZmx0KS9ucGFnZXMpOwoJCW5ld2xpbmUrKzsKCX0KCWlmIChuZXds
+aW5lKSB7CgkJcHJpbnRmKCJcbiIpOwoJfQp9CgojZGVmaW5lIFNaMlBHKHgpCSgoeCArIFBBR0Vf
+U0laRSAtIDEpL1BBR0VfU0laRSkKbWFpbihpbnQgYXJnYywgY2hhciAqYXJndltdKQp7CglpbnQg
+c2l6ZSA9IDUxMjsKCWludCB0b3Rfc2l6ZSA9IDA7CglpbnQgbG9vcHMgPSAwOwoJaW50ICpwOwoJ
+aW50ICpiYXNlID0gc2JyaygxKTsKCWludCBtYXhfc2l6ZTsKCXN0cnVjdCBydXNhZ2UgcnU7CgoJ
+aWYgKGFyZ2MgPiAxKSB7CgkJbWF4X3NpemUgPSBhdG9pKGFyZ3ZbMV0pOwoJCXByaW50ZigiU3Rv
+cCBncm93aW5nIGFmdGVyIGNyb3NzaW5nICVkIGJ5dGVzXG4iLCBtYXhfc2l6ZSk7Cgl9IGVsc2Ug
+ewoJCW1heF9zaXplID0gMjAwMDAwMDAwMDsKCX0KCXdoaWxlICgocCA9IHNicmsoc2l6ZSkpICE9
+IChpbnQgKiktMSkgewoJCXByaW50ZigiVG91Y2hpbmcgJWQgbmV3bHkgYWxsb2NhdGVkIGJ5dGVz
+LiAgU2l6ZTogJWQgcGFnZXMvJWQgIgoJCSAgICAiYnl0ZXNcbiIsIHNpemUsIFNaMlBHKHRvdF9z
+aXplKSwgdG90X3NpemUpOwoJCW1lbXNldChwLCBsb29wcywgc2l6ZSk7CgkJdG90X3NpemUgKz0g
+c2l6ZTsKCQlzY2FuX21lbShiYXNlLCB0b3Rfc2l6ZSk7CgkJc2l6ZSA8PD0gMTsKCQlsb29wcysr
+OwoJCWlmICh0b3Rfc2l6ZSArIHNpemUgPiBtYXhfc2l6ZSkKCQkJYnJlYWs7Cgl9CglwcmludGYo
+IkJlZ2luIGRvaW5nIHNtYWxsZXIgY2h1bmtzIHRvIGZpbmlzaCB0aGUgam9iLi4uXG4iKTsKCXdo
+aWxlIChzaXplID4gNDA5NikgewoJCXNpemUgPj49IDE7CgkJcCA9IHNicmsoc2l6ZSk7CgkJaWYg
+KHAgPT0gKGludCAqKS0xKQoJCQljb250aW51ZTsKCQlwcmludGYoIlRvdWNoaW5nICVkIG5ld2x5
+IGFsbG9jYXRlZCBieXRlcy4gIFNpemU6ICVkIHBhZ2VzLyVkICIKCQkgICAgImJ5dGVzXG4iLCBz
+aXplLCBTWjJQRyh0b3Rfc2l6ZSksIHRvdF9zaXplKTsKCQl0b3Rfc2l6ZSArPSBzaXplOwoJfQoJ
+cHJpbnRmKCJGaW5pc2hlZCBncm93aW5nIG1lbW9yeS4gICVkIHBhZ2VzXG4iLCBTWjJQRyh0b3Rf
+c2l6ZSkpOwoJbWVtc2V0KCZydSwgMCwgc2l6ZW9mIChydSkpOwoJdXNhZ2VfcmVwb3J0KCZydSwg
+U1oyUEcodG90X3NpemUpKTsKCWdldHJ1c2FnZShSVVNBR0VfU0VMRiwgJnJ1KTsKCXByaW50Zigi
+Tm93IHNjYW4gbWVtb3J5Li4uIHRvdGFsIHNpemU6ICVkIHBhZ2VzLyVkLiBieXRlc1xuIiwgU1oy
+UEcodG90X3NpemUpLCB0b3Rfc2l6ZSk7Cglmb3IgKGxvb3BzID0gNTsgbG9vcHMgPiAwOyBsb29w
+cy0tKSB7CgkJc2Nhbl9tZW0oYmFzZSwgdG90X3NpemUpOwoJCS8qdXNhZ2VfcmVwb3J0KCZydSwg
+U1oyUEcodG90X3NpemUpKTsqLwoJCS8qZ2V0cnVzYWdlKFJVU0FHRV9TRUxGLCAmcnUpOyovCgkJ
+cHJpbnRmKCIlZCBzY2FucyByZW1haW5pbmcuLi5cbiIsIGxvb3BzKTsKCX0KCXByaW50ZigiT3Zl
+cmFsbCB1c2FnZTogICglZCBwYWdlcyBpbiB0aGlzIHJ1bilcbiIsIFNaMlBHKHRvdF9zaXplKSk7
+CgltZW1zZXQoJnJ1LCAwLCBzaXplb2YgKHJ1KSk7Cgl1c2FnZV9yZXBvcnQoJnJ1LCBTWjJQRyh0
+b3Rfc2l6ZSkpOwp9Cg==
+--=====================_37142000==_
+Content-Type: text/plain; name="DiffsVm2.txt";
+ x-mac-type="42494E41"; x-mac-creator="74747874"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="DiffsVm2.txt"
+
+ZGlmZiAtciAtYyBnZW5lcmljLTIuNC4xNi9tbS9tbWFwLmMgdm0tbGFwZG9nL21tL21tYXAuYwoq
+KiogZ2VuZXJpYy0yLjQuMTYvbW0vbW1hcC5jCVN1biBOb3YgIDQgMTA6MTc6MjAgMjAwMQotLS0g
+dm0tbGFwZG9nL21tL21tYXAuYwlTdW4gRGVjICAyIDIyOjEwOjQ2IDIwMDEKKioqKioqKioqKioq
+KioqCioqKiA2Miw5MyAqKioqCiAgCSAqLwogIAogIAl1bnNpZ25lZCBsb25nIGZyZWU7CiAgCQog
+ICAgICAgICAgLyogU29tZXRpbWVzIHdlIHdhbnQgdG8gdXNlIG1vcmUgbWVtb3J5IHRoYW4gd2Ug
+aGF2ZS4gKi8KICAJaWYgKHN5c2N0bF9vdmVyY29tbWl0X21lbW9yeSkKICAJICAgIHJldHVybiAx
+OwogIAotIAkvKiBUaGUgcGFnZSBjYWNoZSBjb250YWlucyBidWZmZXIgcGFnZXMgdGhlc2UgZGF5
+cy4uICovCi0gCWZyZWUgPSBhdG9taWNfcmVhZCgmcGFnZV9jYWNoZV9zaXplKTsKLSAJZnJlZSAr
+PSBucl9mcmVlX3BhZ2VzKCk7Ci0gCWZyZWUgKz0gbnJfc3dhcF9wYWdlczsKLSAKLSAJLyoKLSAJ
+ICogVGhpcyBkb3VibGUtY291bnRzOiB0aGUgbnJwYWdlcyBhcmUgYm90aCBpbiB0aGUgcGFnZS1j
+YWNoZQotIAkgKiBhbmQgaW4gdGhlIHN3YXBwZXIgc3BhY2UuIEF0IHRoZSBzYW1lIHRpbWUsIHRo
+aXMgY29tcGVuc2F0ZXMKLSAJICogZm9yIHRoZSBzd2FwLXNwYWNlIG92ZXItYWxsb2NhdGlvbiAo
+aWUgIm5yX3N3YXBfcGFnZXMiIGJlaW5nCi0gCSAqIHRvbyBzbWFsbC4KLSAJICovCi0gCWZyZWUg
+Kz0gc3dhcHBlcl9zcGFjZS5ucnBhZ2VzOwotIAogIAkvKgohIAkgKiBUaGUgY29kZSBiZWxvdyBk
+b2Vzbid0IGFjY291bnQgZm9yIGZyZWUgc3BhY2UgaW4gdGhlIGlub2RlCiEgCSAqIGFuZCBkZW50
+cnkgc2xhYiBjYWNoZSwgc2xhYiBjYWNoZSBmcmFnbWVudGF0aW9uLCBpbm9kZXMgYW5kCiEgCSAq
+IGRlbnRyaWVzIHdoaWNoIHdpbGwgYmVjb21lIGZyZWVhYmxlIHVuZGVyIFZNIGxvYWQsIGV0Yy4K
+ISAJICogTGV0cyBqdXN0IGhvcGUgYWxsIHRoZXNlIChjb21wbGV4KSBmYWN0b3JzIGJhbGFuY2Ug
+b3V0Li4uCiAgCSAqLwohIAlmcmVlICs9IChkZW50cnlfc3RhdC5ucl91bnVzZWQgKiBzaXplb2Yo
+c3RydWN0IGRlbnRyeSkpID4+IFBBR0VfU0hJRlQ7CiEgCWZyZWUgKz0gKGlub2Rlc19zdGF0Lm5y
+X3VudXNlZCAqIHNpemVvZihzdHJ1Y3QgaW5vZGUpKSA+PiBQQUdFX1NISUZUOwogIAogIAlyZXR1
+cm4gZnJlZSA+IHBhZ2VzOwogIH0KLS0tIDYyLDk4IC0tLS0KICAJICovCiAgCiAgCXVuc2lnbmVk
+IGxvbmcgZnJlZTsKKyAJdW5zaWduZWQgbG9uZyBmcmVlX3BhZ2VzOwogIAkKICAgICAgICAgIC8q
+IFNvbWV0aW1lcyB3ZSB3YW50IHRvIHVzZSBtb3JlIG1lbW9yeSB0aGFuIHdlIGhhdmUuICovCiAg
+CWlmIChzeXNjdGxfb3ZlcmNvbW1pdF9tZW1vcnkpCiAgCSAgICByZXR1cm4gMTsKICAKICAJLyoK
+ISAJICogVW0uLi4gaG93IGFib3V0IGEgYmV0dGVyIGFsZ29yaXRobSB5ZXQuCiEgCSAqIFN0YXJ0
+IHdpdGggdGhlIHRoZW9yZXRpY2FsIG1heGltdW0tLXNpemUgb2YgUkFNICsgc2l6ZSBvZiBzd2Fw
+LgohIAkgKiBSZWR1Y2UgdGhlIFJBTSBieSAxLzgsIHVwIHRvIGEgbWF4aW11bSBvZiBNQVhfT1Nf
+UkVTRVJWRURfTUVNCiEgCSAqICgxNk1CKSB0byBhbGxvdyBmb3IgdGhlIE9TIHRvIGhhdmUgKnNv
+bWUqIHdvcmsgdG8gZ2V0IHN0dWZmCiEgCSAqIGRvbmUgd2l0aC4KICAJICovCiEgI2RlZmluZQlN
+QVhfT1NfUkVTRVJWRURfTUVNCTQwOTYgLyogaW4gcGFnZXMgKi8KISAJZnJlZV9wYWdlcyA9IG5y
+X2ZyZWVfcGFnZXMoKTsKISAJaWYgKGZyZWVfcGFnZXMgPCAobWF4X21hcG5yID4+IDMpKSB7IC8q
+IGZyZWVfcGFnZXMgPCAxLzggcGh5c2ljYWwgKi8KISAJCWZyZWUgPSBucl9zd2FwX3BhZ2VzICsg
+c3dhcHBlcl9zcGFjZS5ucnBhZ2VzOyAvKiB0YWtlIHN3YXAgZnJlZSAqLwohIAkJLyoKISAJCSAq
+IE5vdyBjb21wZW5zYXRlIGZvciB0aGUgUkFNIHNob3J0LWZhbGwuLi4KISAJCSAqLwohIAkJaWYg
+KGZyZWUgPiAoKG1heF9tYXBuciA+PiAzKSAtIGZyZWVfcGFnZXMpKSB7IC8qIHN3YXAgPiBSQU0g
+c2hvcnRmYWxsICovCiEgCQkJZnJlZSAtPSAobWF4X21hcG5yID4+IDMpIC0gZnJlZV9wYWdlczsK
+ISAJCX0gZWxzZSB7CiEgCQkJZnJlZSA9IDA7CiEgCQl9CiEgCX0gZWxzZSB7CiEgCQlmcmVlID0g
+ZnJlZV9wYWdlcyAtIChtYXhfbWFwbnIgPj4gMyk7CiEgCQlpZiAoZnJlZSA+IE1BWF9PU19SRVNF
+UlZFRF9NRU0pCiEgCQkJZnJlZSA9IE1BWF9PU19SRVNFUlZFRF9NRU07CiEgCQlmcmVlICs9IG5y
+X3N3YXBfcGFnZXMgKyBzd2FwcGVyX3NwYWNlLm5ycGFnZXM7CiEgCX0KICAKICAJcmV0dXJuIGZy
+ZWUgPiBwYWdlczsKICB9CmRpZmYgLXIgLWMgZ2VuZXJpYy0yLjQuMTYvbW0vcGFnZV9hbGxvYy5j
+IHZtLWxhcGRvZy9tbS9wYWdlX2FsbG9jLmMKKioqIGdlbmVyaWMtMi40LjE2L21tL3BhZ2VfYWxs
+b2MuYwlNb24gTm92IDE5IDE2OjM1OjQwIDIwMDEKLS0tIHZtLWxhcGRvZy9tbS9wYWdlX2FsbG9j
+LmMJU3VuIERlYyAgMiAxODo1MDoyOSAyMDAxCioqKioqKioqKioqKioqKgoqKiogMzg5LDM5NyAq
+KioqCiAgCQl9CiAgCX0KICAKISAJLyogRG9uJ3QgbGV0IGJpZy1vcmRlciBhbGxvY2F0aW9ucyBs
+b29wICovCiEgCWlmIChvcmRlciA+IDMpCiEgCQlyZXR1cm4gTlVMTDsKICAKICAJLyogWWllbGQg
+Zm9yIGtzd2FwZCwgYW5kIHRyeSBhZ2FpbiAqLwogIAljdXJyZW50LT5wb2xpY3kgfD0gU0NIRURf
+WUlFTEQ7Ci0tLSAzODksNDA1IC0tLS0KICAJCX0KICAJfQogIAohIAkvKgohIAkgKiBTbyB0aGlz
+IGlzIGEgc2xlZXAtYWJsZSByZXF1ZXN0IGZvciBtZW1vcnktLXdlJ3JlIHByZXN1bWluZwohIAkg
+KiB0aGF0IHZtX2Vub3VnaF9tZW1vcnkoKSBoYXNuJ3QgaW5kaWNhdGVkIG1vcmUgYXZhaWxhYmxl
+IFZNCiEgCSAqIHRoYW4gd2UgYWN0dWFsbHkgaGF2ZSwgb3IgdGhpcyBwcm9jZXNzIGNvdWxkIGVu
+ZCB1cCBsb29waW5nCiEgCSAqIGhlcmUuICBPbiB0aGUgb3RoZXIgaGFuZCwgdGhhdCdzIGZhciBs
+ZXNzIGRldHJpbWVudGFsIHRoYW4KISAJICoga2lsbGluZyBwcm9jZXNzZXMhCiEgCSAqCiEgCSAq
+IE1vcmUgaWRlYWwgd291bGQgYmUgaWYgdm1fZW5vdWdoX21lbW9yeSgpIGRlY3JlYXNlZCB0aGUK
+ISAJICogYXZhaWxhYmxlIG1lbW9yeSBjb3VudHMsIGJ1dCBhbGxvd2VkICp0aGF0KiByZXF1ZXN0
+IHRvCiEgCSAqIGNsYWltIHRob3NlIHBhZ2VzIGFzIGlmIHRoZXkgd2VyZSBmcmVlLgohIAkgKi8K
+ICAKICAJLyogWWllbGQgZm9yIGtzd2FwZCwgYW5kIHRyeSBhZ2FpbiAqLwogIAljdXJyZW50LT5w
+b2xpY3kgfD0gU0NIRURfWUlFTEQ7Cg==
+--=====================_37142000==_
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+
+Cheers,
+
+	~sparker
+
+--=====================_37142000==_--
+

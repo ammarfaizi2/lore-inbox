@@ -1,56 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263314AbTDYPFj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 11:05:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTDYPFj
+	id S263332AbTDYPIg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 11:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263350AbTDYPIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 11:05:39 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:13953 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263314AbTDYPFi (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 11:05:38 -0400
-Message-Id: <200304251517.h3PFHjQd005419@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flame Linus to a crisp! 
-In-Reply-To: Your message of "Fri, 25 Apr 2003 16:37:31 +0200."
-             <20030425143613.8646E130965@mx12.arcor-online.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <20030424182945.7065812EFF1@mx12.arcor-online.net> <20030424201522.G1425@almesberger.net>
-            <20030425143613.8646E130965@mx12.arcor-online.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-688323927P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 25 Apr 2003 11:08:36 -0400
+Received: from host78-195.rancor.birch.net ([65.17.78.195]:6212 "EHLO
+	brigadier.ontimesupport.com") by vger.kernel.org with ESMTP
+	id S263332AbTDYPIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 11:08:34 -0400
+Message-ID: <3EA95242.9060303@ontimesupport.com>
+Date: Fri, 25 Apr 2003 10:20:34 -0500
+From: Matthew Sell <msell@ontimesupport.com>
+Organization: On Time Support
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stewart Smith <stewartsmith@mac.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: versioned filesystems in linux (was Re: kernel support for non-english
+ user messages)
+References: <03FA0FB7-76AC-11D7-BE62-00039346F142@mac.com>
+In-Reply-To: <03FA0FB7-76AC-11D7-BE62-00039346F142@mac.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 25 Apr 2003 11:17:45 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-688323927P
-Content-Type: text/plain; charset=us-ascii
+Stewart Smith wrote:
 
-On Fri, 25 Apr 2003 16:37:31 +0200, Daniel Phillips said:
+> On Friday, April 11, 2003, at 06:36  AM, John Bradford wrote:
+>
+>> When are we going to see versioned filesystems in Linux?  That was a
+>> standard feature in VMS.
+>
+>
+> This is (part of) what I'm doing for my honors project this year - so 
+> possibly something (might) be around and (almost) working by the end 
+> of the year. The real big trick is remote efficiency - but what's the 
+> fun of research if there isn't something tricky?
+>
+> If people are actually really interested in it, I might make it a bit 
+> more of a focus :)
+>
+> More info avail on request :)
 
-> To get cheatless online gaming, you would have to necessarily give up a lot 
-> of flexibility.  I imagine the likelihood of people running completely 
-> separate DRM Linux boxes, just to participate in DRM-controlled online games,
- 
-> is not high.  Only when if you are faced with absolute necessity of running 
-> DRM, are you actually going to do it by choice.  There's going to be a whole 
 
-How many people own both a PC and an XBox?
+It would be nice to see what assistance the FreeVMS group may be able to 
+offer. It appears that they are attempting to make an operating system 
+compatible with VMS based on the Linux kernel.
 
---==_Exmh_-688323927P
-Content-Type: application/pgp-signature
+ From what I have observed, a few of them seem to have extensive 
+experience with VMS and may be able to offer at least some baseline 
+knowledge as to how VMS accomplishes this.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+My curiosity lies with the ability to run FreeVMS on VAX....
 
-iD8DBQE+qVGZcC3lWbTT17ARAihkAKCTLsDl0XgQYhPNlURrdsRZGPf6swCdF+zY
-s2k6sKVjXaOr6BKTCiQXk9U=
-=hcch
------END PGP SIGNATURE-----
+(Why not? It's just a hobby....)
 
---==_Exmh_-688323927P--
+
+    - Matt
+
+
+
+-- 
+
+-------------------------
+Matthew Sell
+Programmer
+UNIX System Administrator
+On Time Support, Inc.
+www.ontimesupport.com
+
+Join the Metrology Software Discussion List METLIST!
+www.ontimesupport.com/subscribe_t&c.html
+
+
+AIX - Linux - NetBSD - OpenVMS - Solaris
+
+Expand Your Horizons - Stop Looking Through Windows
+
+

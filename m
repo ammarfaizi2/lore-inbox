@@ -1,39 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262826AbSLZJqa>; Thu, 26 Dec 2002 04:46:30 -0500
+	id <S262838AbSLZJqc>; Thu, 26 Dec 2002 04:46:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262859AbSLZJq3>; Thu, 26 Dec 2002 04:46:29 -0500
-Received: from dp.samba.org ([66.70.73.150]:65242 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262826AbSLZJq3>;
+	id <S262859AbSLZJqc>; Thu, 26 Dec 2002 04:46:32 -0500
+Received: from dp.samba.org ([66.70.73.150]:987 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262838AbSLZJq3>;
 	Thu, 26 Dec 2002 04:46:29 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: "Marco d'Itri" <md@Linux.IT>, Roger Luethi <rl@hellgate.ch>
-Subject: [RELEASE] module-init-tools 0.9.6
-Date: Thu, 26 Dec 2002 20:50:00 +1100
-Message-Id: <20021226095444.F2A3B2C06D@lists.samba.org>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, jt@hpl.hp.com
+Subject: [PATCH] MODULE_PARM "c" support
+Date: Thu, 26 Dec 2002 18:11:59 +1100
+Message-Id: <20021226095445.30F132C08B@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not announcing every release, but we're coming up to 1.0 sometime
-soon, as the TODO list is shrinking rapidly: top is man pages, which
-I'll be working on now.
+Hi Linus,
 
-http://www.[COUNTRY].kernel.org/pub/linux/kernel/people/rusty/modules/module-init-tools-0.9.6.tar.gz
-http://www.[COUNTRY].kernel.org/pub/linux/kernel/people/rusty/modules/modutils-2.4.21-10.src.rpm
+	Turns out there was an undocumented "c" flag for MODULE_PARM.
+This implementation is a little ugly, but it works, and will do for
+compatibility (I haven't implemented such a two-dimensional array
+primitive, but the whole point of the module_parm et al is that they
+are extensible).
 
-Significant improvements this release:
-o Implemented "remove", "--ignore-install" and "--ignore-remove", and
-  use them in modprobe.conf2modules.conf.
-o Loop reporting improved.
-o Warn about lines in config file which aren't understood.
-o Workaround for devfsd (which calls modprobe -C /etc/modules.conf).
-o Testsuite implemented (also available above)
-o Lotsa little bugfixes.
-
-Special thanks to Roger Luethi for all his hard bugreporting!
-
-Cheers,
+Please apply,
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+Name: Implement c in MODULE_PARM compatibility wedge
+Author: Rusty Russell and Jean Tourrilhes
+Status: Experimental
+
+D: The "c" MODULE_PARM type was missing, as pointed out by Jean Tourrilhes.
+
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.52/kernel/module.c working-2.5.52-cparam/kernel/module.c
+--- linux-2.5.52/kernel/module.c	Tue Dec 17 08:11:03 2002
++++ working-2.5.52-cparam/kernel/module.c	Tue Dec 17 14:42:05 2002
+@@ -569,10 +569,19 @@ static int param_string(const char *name
+ 	return 0;
+ }
+ 
++/* Bounds checking done below */
++static int obsparm_copy_string(const char *val, struct kernel_param *kp)
++{
++	strcpy(kp->arg, val);
++	return 0;
++}
++
+ extern int set_obsolete(const char *val, struct kernel_param *kp)
+ {
+ 	unsigned int min, max;
+-	char *p, *endp;
++	unsigned int size, maxsize;
++	char *endp;
++	const char *p;
+ 	struct obsolete_modparm *obsparm = kp->arg;
+ 
+ 	if (!val) {
+@@ -605,8 +614,29 @@ extern int set_obsolete(const char *val,
+ 				   sizeof(long), param_set_long);
+ 	case 's':
+ 		return param_string(kp->name, val, min, max, obsparm->addr);
++
++	case 'c':
++		/* Undocumented: 1-5c50 means 1-5 strings of up to 49 chars,
++		   and the decl is "char xxx[5][50];" */
++		p = endp+1;
++		maxsize = simple_strtol(p, &endp, 10);
++		/* We check lengths here (yes, this is a hack). */
++		p = val;
++		while (p[size = strcspn(p, ",")]) {
++			if (size >= maxsize) 
++				goto oversize;
++			p += size+1;
++		}
++		if (size >= maxsize) 
++			goto oversize;
++		return param_array(kp->name, val, min, max, obsparm->addr,
++				   maxsize, obsparm_copy_string);
+ 	}
+ 	printk(KERN_ERR "Unknown obsolete parameter type %s\n", obsparm->type);
++	return -EINVAL;
++ oversize:
++	printk(KERN_ERR
++	       "Parameter %s doesn't fit in %u chars.\n", kp->name, maxsize);
+ 	return -EINVAL;
+ }
+ 

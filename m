@@ -1,73 +1,71 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313299AbSEESev>; Sun, 5 May 2002 14:34:51 -0400
+	id <S313300AbSEESfC>; Sun, 5 May 2002 14:35:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313300AbSEESeu>; Sun, 5 May 2002 14:34:50 -0400
-Received: from mackman.submm.caltech.edu ([131.215.85.46]:59021 "EHLO
-	mackman.net") by vger.kernel.org with ESMTP id <S313299AbSEESet>;
-	Sun, 5 May 2002 14:34:49 -0400
-Date: Sun, 5 May 2002 11:34:48 -0700 (PDT)
-From: Ryan Mack <rmack@mackman.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] slab cache name changes (trivial, please apply)
-Message-ID: <Pine.LNX.4.44.0205051134310.21031-200000@mackman.net>
+	id <S313304AbSEESfB>; Sun, 5 May 2002 14:35:01 -0400
+Received: from web14102.mail.yahoo.com ([216.136.172.132]:53044 "HELO
+	web14102.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S313300AbSEESe7>; Sun, 5 May 2002 14:34:59 -0400
+Message-ID: <20020505183451.98763.qmail@web14102.mail.yahoo.com>
+Date: Sun, 5 May 2002 20:34:51 +0200 (CEST)
+From: =?iso-8859-1?q?william=20stinson?= <wstinsonfr@yahoo.fr>
+Subject: vanilla 2.5.13 severe file system corruption experienced follozing e2fsck ...
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: MULTIPART/Mixed; BOUNDARY="-679268779-166124828-1019070750=:14881"
-Content-ID: <Pine.LNX.4.44.0205051134311.21031@mackman.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hi
 
----679268779-166124828-1019070750=:14881
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.44.0205051134312.21031@mackman.net>
+as vanilla linux 2.5.13 compiled beautifully for me
+last night one I couldn't resist the temptation to
+boot it up and give it a whirl on my workstation (a
+monoprocessor AMD  ATHLON on VIA motherboard with
+recent 20GB IDE disk and EXT2 file system, NVIDIA
+video card). 
 
-A few of the slab caches had names containing spaces which breaks a few
-slabinfo parsing scripts I use.  It seems the consensus is to use
-underscores instead of spaces in slab cache names, and this patch corrects
-those names still using spaces.  Applies cleanly against 2.4.18 and with
-offsets on 2.4.19-pre7.
+Boot went OK until a message something like "checking
+filesystems - check forced -mounted  31 times without
+verification - verifying now". Shortly afterwards I
+got an OOPS message. 
 
-Thanks, Ryan
 
----679268779-166124828-1019070750=:14881
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="slab_names.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0204171212300.14881@mackman.net>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="slab_names.patch"
+EIP : 0010: [<c01d59cb> Not Tainted
+....
+<0> Kernel Panic: Aiee, killing interrupt handler! In
+interrupt handler - not syncing
 
-ZGlmZiAtYXVyIGxpbnV4LW9yaWcvZnMvZG5vdGlmeS5jIGxpbnV4L2ZzL2Ru
-b3RpZnkuYw0KLS0tIGxpbnV4LW9yaWcvZnMvZG5vdGlmeS5jCVR1ZSBOb3Yg
-IDcgMjM6Mjc6NTcgMjAwMA0KKysrIGxpbnV4L2ZzL2Rub3RpZnkuYwlXZWQg
-QXByIDE3IDEyOjAyOjQ2IDIwMDINCkBAIC0xMzEsNyArMTMxLDcgQEANCiAN
-CiBzdGF0aWMgaW50IF9faW5pdCBkbm90aWZ5X2luaXQodm9pZCkNCiB7DQot
-CWRuX2NhY2hlID0ga21lbV9jYWNoZV9jcmVhdGUoImRub3RpZnkgY2FjaGUi
-LA0KKwlkbl9jYWNoZSA9IGttZW1fY2FjaGVfY3JlYXRlKCJkbm90aWZ5X2Nh
-Y2hlIiwNCiAJCXNpemVvZihzdHJ1Y3QgZG5vdGlmeV9zdHJ1Y3QpLCAwLCAw
-LCBOVUxMLCBOVUxMKTsNCiAJaWYgKCFkbl9jYWNoZSkNCiAJCXBhbmljKCJj
-YW5ub3QgY3JlYXRlIGRub3RpZnkgc2xhYiBjYWNoZSIpOw0KZGlmZiAtYXVy
-IGxpbnV4LW9yaWcvZnMvZmNudGwuYyBsaW51eC9mcy9mY250bC5jDQotLS0g
-bGludXgtb3JpZy9mcy9mY250bC5jCU1vbiBTZXAgMTcgMTM6MTY6MzAgMjAw
-MQ0KKysrIGxpbnV4L2ZzL2ZjbnRsLmMJV2VkIEFwciAxNyAxMjowMzoyOSAy
-MDAyDQpAQCAtNTI1LDcgKzUyNSw3IEBADQogDQogc3RhdGljIGludCBfX2lu
-aXQgZmFzeW5jX2luaXQodm9pZCkNCiB7DQotCWZhc3luY19jYWNoZSA9IGtt
-ZW1fY2FjaGVfY3JlYXRlKCJmYXN5bmMgY2FjaGUiLA0KKwlmYXN5bmNfY2Fj
-aGUgPSBrbWVtX2NhY2hlX2NyZWF0ZSgiZmFzeW5jX2NhY2hlIiwNCiAJCXNp
-emVvZihzdHJ1Y3QgZmFzeW5jX3N0cnVjdCksIDAsIDAsIE5VTEwsIE5VTEwp
-Ow0KIAlpZiAoIWZhc3luY19jYWNoZSkNCiAJCXBhbmljKCJjYW5ub3QgY3Jl
-YXRlIGZhc3luYyBzbGFiIGNhY2hlIik7DQpkaWZmIC1hdXIgbGludXgtb3Jp
-Zy9mcy9sb2Nrcy5jIGxpbnV4L2ZzL2xvY2tzLmMNCi0tLSBsaW51eC1vcmln
-L2ZzL2xvY2tzLmMJVGh1IE9jdCAxMSAwNzo1MjoxOCAyMDAxDQorKysgbGlu
-dXgvZnMvbG9ja3MuYwlXZWQgQXByIDE3IDEyOjAzOjIyIDIwMDINCkBAIC0x
-OTQwLDcgKzE5NDAsNyBAQA0KIA0KIHN0YXRpYyBpbnQgX19pbml0IGZpbGVs
-b2NrX2luaXQodm9pZCkNCiB7DQotCWZpbGVsb2NrX2NhY2hlID0ga21lbV9j
-YWNoZV9jcmVhdGUoImZpbGUgbG9jayBjYWNoZSIsDQorCWZpbGVsb2NrX2Nh
-Y2hlID0ga21lbV9jYWNoZV9jcmVhdGUoImZpbGVfbG9ja19jYWNoZSIsDQog
-CQkJc2l6ZW9mKHN0cnVjdCBmaWxlX2xvY2spLCAwLCAwLCBpbml0X29uY2Us
-IE5VTEwpOw0KIAlpZiAoIWZpbGVsb2NrX2NhY2hlKQ0KIAkJcGFuaWMoImNh
-bm5vdCBjcmVhdGUgZmlsZSBsb2NrIHNsYWIgY2FjaGUiKTsNCg==
----679268779-166124828-1019070750=:14881--
+Not to worry I try to reboot my stable kernel - this
+fails at the mount command (library's needed by mount
+command are missing). Impossible to login (password
+file must be corrupted too). 
+
+With the rescue disk I run e2fsck and home partition
+is  dead (bad superblocks) and nothing recoverable.
+The root file system is also corrupted (bad
+superblocks but not as badly as home). I have some
+other partitions which I haven't checked yet - maybe
+some of them survived. 
+
+As I am not subscribed to the list please CC me in any
+response. If I can recover the kernel compile I will
+try to give some configuration options and try to
+decode the full oops message. More details available
+on request.
+
+Best regards
+William Stinson (wstinsonfr@yahoo.fr.nospam)
+ 
+P.S. 
+
+ The hard disk is using VIA bus master PCI IDE and the
+distribution is a "vanilla" mandrake 8.1. I have a
+REALTEK  RTL8029 Ethernet Adaptor. USB is with VIA
+VT83C572/VT82C586 PCI to VIA Universal Host
+controller. 
+
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

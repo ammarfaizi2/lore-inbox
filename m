@@ -1,92 +1,169 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbUCVXHK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 18:07:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbUCVXHK
+	id S261451AbUCVXIh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 18:08:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbUCVXIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 18:07:10 -0500
-Received: from alt.aurema.com ([203.217.18.57]:61333 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S261389AbUCVXHE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 18:07:04 -0500
-Message-ID: <405F70F6.5050605@aurema.com>
-Date: Tue, 23 Mar 2004 10:04:22 +1100
-From: Peter Williams <peterw@aurema.com>
-Organization: Aurema Pty Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+	Mon, 22 Mar 2004 18:08:37 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32152 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261451AbUCVXIT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 18:08:19 -0500
+Message-ID: <405F71CB.7000902@pobox.com>
+Date: Mon, 22 Mar 2004 18:07:55 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Micha Feigin <michf@post.tau.ac.il>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: finding out the value of HZ from userspace
-References: <20040311141703.GE3053@luna.mooo.com>	<1079198671.4446.3.camel@laptop.fenrus.com>	<4053624D.6080806@BitWagon.com>	<20040313193852.GC12292@devserv.devel.redhat.com>	<40564A22.5000504@aurema.com>	<20040316063331.GB23988@devserv.devel.redhat.com>	<40578FDB.9060000@aurema.com>	<20040320102241.GK2803@devserv.devel.redhat.com>	<405C2AC0.70605@stesmi.com> <20040322223456.GB2549@luna.mooo.com>
-In-Reply-To: <20040322223456.GB2549@luna.mooo.com>
+To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH][RELEASE] megaraid 2.10.2 Driver
+References: <0E3FA95632D6D047BA649F95DAB60E570230C77A@exa-atlanta.se.lsil.com>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230C77A@exa-atlanta.se.lsil.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Micha Feigin wrote:
-> On Sat, Mar 20, 2004 at 12:28:00PM +0100, Stefan Smietanowski wrote:
-> 
->>>>>there is one. Nothing uses it
->>>>>(sysconf() provides this info)
->>>>
->>>>Seems to me that it would be fairly trivial to modify those programs 
->>>>(that should use this mechanism but don't) to use it?  So why should 
->>>>they be allowed to dictate kernel behaviour?
->>>
->>>
->>>quality of implementation; for example shell scripts that want to do
->>>echo 500 > /proc/sys/foo/bar/something_in_HZ
->>>...
->>>or /etc/sysctl.conf or ...
->>>
->>
->>Then write a simple program already. How hard is it to write a program
->>that does a sysconf() and returns (as ascii of course) just the
->>value of HZ? Then do some trivial calculation off of that.
->>
->>HZ=$(gethz)
->>
->>If your 500 was 5 seconds, do
->>
->>TIME=$[HZ*5]
->>echo $TIME > /proc/sys/foo/bar/something_in_HZ
->>
-> 
-> 
-> Will this be USER_HZ or kernel HZ?
-> Someone earlier suggested it would be USER_HZ which would make it
-> pointless.
+Bagalkote, Sreenivas wrote:
+> Hello,
+> @@ -45,6 +46,10 @@
+>  
+>  #include "megaraid2.h"
+>  
+> +#ifdef LSI_CONFIG_COMPAT
+> +#include <asm/ioctl32.h>
+> +#endif
+> +
 
-It has to be whatever enables user space to correctly interpret values 
-sent to user space as "ticks".  That means USER_HZ and it's not useless 
-as it enables USER_HZ to be different and/or change without breaking 
-programs that use values expressed in "ticks".
-
-> 
-> 
->>I mean, come on.
->>
->>Then you include it in the default distro of choice so that
->>everybody can use it and there you are.
->>
->>If someone doesn't have "gethz" then they can download it.
->>
->>// Stefan
->>
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+For upstream, this should just be CONFIG_COMPAT I presume.
 
 
--- 
-Dr Peter Williams, Chief Scientist                peterw@aurema.com
-Aurema Pty Limited                                Tel:+61 2 9698 2322
-PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
+>  MODULE_AUTHOR ("LSI Logic Corporation");
+>  MODULE_DESCRIPTION ("LSI Logic MegaRAID driver");
+>  MODULE_LICENSE ("GPL");
+> @@ -206,6 +211,10 @@
+>  		 */
+>  		major = register_chrdev(0, "megadev", &megadev_fops);
+>  
+> +		if (!major) {
+> +			printk(KERN_WARNING
+> +				"megaraid: failed to register char
+> device.\n");
+> +		}
+>  		/*
+>  		 * Register the Shutdown Notification hook in kernel
+>  		 */
+> @@ -214,6 +223,13 @@
+>  				"MegaRAID Shutdown routine not
+> registered!!\n");
+>  		}
+>  
+> +#ifdef LSI_CONFIG_COMPAT
+> +		/*
+> +		 * Register the 32-bit ioctl conversion
+> +		 */
+> +		register_ioctl32_conversion(MEGAIOCCMD,
+> megadev_compat_ioctl);
+> +#endif
+> +
+
+ditto
+
+
+> @@ -620,12 +638,15 @@
+>  
+>  		/* Set the Mode of addressing to 64 bit if we can */
+>  		if((adapter->flag & BOARD_64BIT)&&(sizeof(dma_addr_t) == 8))
+> {
+> -			pci_set_dma_mask(pdev, 0xffffffffffffffffULL);
+> -			adapter->has_64bit_addr = 1;
+> +			if (pci_set_dma_mask(pdev, 0xffffffffffffffffULL) ==
+> 0)
+> +				adapter->has_64bit_addr = 1;
+>  		}
+> -		else  {
+> -			pci_set_dma_mask(pdev, 0xffffffff);
+> -			adapter->has_64bit_addr = 0;
+> +		if (!adapter->has_64bit_addr)  {
+> +			if (pci_set_dma_mask(pdev, 0xffffffff) != 0) {
+> +				printk("megaraid%d: DMA not available.\n",
+> +					host->host_no);
+> +				goto fail_attach;
+> +			}
+
+Bug -- always set dma mask.  Do not conditionally _not_ call 
+pci_set_dma_mask(), for the 64-bit case.
+
+Minor:  add ULL to the constant.
+
+
+
+> @@ -2549,7 +2575,9 @@
+>  		/*
+>  		 * Unregister the character device interface to the driver.
+>  		 */
+> -		unregister_chrdev(major, "megadev");
+> +		if (major) {
+> +			unregister_chrdev(major, "megadev");
+> +		}
+
+register_chrdev() returns a negative errno value on error, such as -EBUSY.
+
+
+> @@ -4434,8 +4332,9 @@
+>  				/*
+>  				 * Get the user data
+>  				 */
+> -				if( copy_from_user(data, (char *)uxferaddr,
+> -							pthru->dataxferlen)
+> ) {
+> +				if( copy_from_user(data,
+> +						(char *)((ulong)uxferaddr),
+> +						pthru->dataxferlen) ) {
+
+ummmm what???    uxferaddr is u32.  why are you casting it to a pointer?
+
+
+> @@ -4460,8 +4359,8 @@
+>  			 * Is data going up-stream
+>  			 */
+>  			if( pthru->dataxferlen && (uioc.flags & UIOC_RD) ) {
+> -				if( copy_to_user((char *)uxferaddr, data,
+> -							pthru->dataxferlen)
+> ) {
+> +				if( copy_to_user((char *)((ulong)uxferaddr),
+> +						data, pthru->dataxferlen) )
+> {
+
+ditto
+
+
+
+> diff -Naur old/drivers/scsi/megaraid2.h new/drivers/scsi/megaraid2.h
+> --- old/drivers/scsi/megaraid2.h	2004-03-22 17:28:38.000000000 -0500
+> +++ new/drivers/scsi/megaraid2.h	2004-03-22 13:10:48.000000000 -0500
+>  #ifndef PCI_VENDOR_ID_LSI_LOGIC
+>  #define PCI_VENDOR_ID_LSI_LOGIC		0x1000
+>  #endif
+
+this can be removed.
+
+
+
+> +#if defined (CONFIG_COMPAT) || defined ( __x86_64__)
+> +#define LSI_CONFIG_COMPAT
+> +#endif
+> +#ifdef LSI_CONFIG_COMPAT
+> +static int megadev_compat_ioctl(unsigned int, unsigned int, unsigned long,
+> +	struct file *);
+> +#endif
+
+I don't see how this construct will work in all cases.  Hence my 
+CONFIG_COMPAT command above.
+
+	Jeff
+
+
 

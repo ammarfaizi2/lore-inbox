@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263717AbTDTVp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 17:45:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbTDTVp4
+	id S263718AbTDTVqV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 17:46:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263720AbTDTVqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 17:45:56 -0400
-Received: from matrix01.home.net.pl ([212.85.112.31]:32523 "HELO
-	matrix01.home.net.pl") by vger.kernel.org with SMTP id S263717AbTDTVpz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 17:45:55 -0400
-Message-ID: <3EA317F6.2000504@post.pl>
-Date: Sun, 20 Apr 2003 23:58:14 +0200
-From: "Leonard Milcin, Jr" <thervoy@post.pl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Stephen Satchell <list@fluent2.pyramid.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: (OT) md5sum proving to be an EXCELLENT memory test
-References: <6uwuhpl2u5.fsf@zork.zork.net> <Pine.LNX.4.44.0304192002580.9909-100000@penguin.transmeta.com> <6uwuhpl2u5.fsf@zork.zork.net> <5.2.0.9.0.20030420132915.01d28c40@fluent2.pyramid.net>
-In-Reply-To: <5.2.0.9.0.20030420132915.01d28c40@fluent2.pyramid.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 20 Apr 2003 17:46:21 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:37853 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S263718AbTDTVqS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 17:46:18 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sun, 20 Apr 2003 23:58:18 +0200 (MEST)
+Message-Id: <UTC200304202158.h3KLwIu10935.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [CFT] more kdev_t-ectomy
+Cc: aebr@win.tue.nl, linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Satchell wrote:
- > (...)
-> as perfect.)  Perform md5sum on the files on the server and save the 
-> results, and the signatures would be different from run to run on the 
-> same files.
-> 
-> Incompatible RAM.
- > (...)
+> MKDEV(<constant>,<constant>) is a valid thing, as far as I'm concerned.
 
-I had the same situation with some cheap mobo (ECS K7S5A+) of friend of 
-mine. You don't need to check md5sums. Why is MD5 better than any other 
-method? I just simply found, that when I copy file A to B, and then A to 
-C, it is possible that B and C differs. Most of the time with one byte.
+Yes. I was tempted to change the first argument of blk_register_region
+into a pair, killing some MKDEV occurrences, but then I noticed that
+almost all are of the form MKDEV(<constant>,<constant>), and that
+is not so bad.
 
-The advice is to use some good memory test suite from time to time - it 
-will do better its job than you just checking signatures on large files.
+Still, the fact that every single call of blk_register_region
+has a first argument MKDEV(ma,mi) suggests that one might
+consider leaving these parameters separate.
+
+Andries
 
 
-Regards,
+[Now that we are talking anyway, let me ask about something.
+You wrote blk_register_region so that subregions override
+superregions. At the bottom there is the full region.
+Was this just a general good idea, or do you have definite
+applications in mind? I ask this mostly because the hash
+lookup becomes more complicated in the general case.
+You may have noticed that I wrote
 
-Leonard
+static inline int major_to_index(int major)
+{
+        return major % MAX_PROBE_HASH;
+}
+static inline int dev_to_index(dev_t dev)
+{
+        return major_to_index(MAJOR(dev));
+}
 
-
+and that is OK for regions with constant major.
+For multimajor regions a hash does not work very well, and
+a tree looks better.]

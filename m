@@ -1,495 +1,283 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261360AbSKBSpM>; Sat, 2 Nov 2002 13:45:12 -0500
+	id <S261329AbSKBSIf>; Sat, 2 Nov 2002 13:08:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261362AbSKBSpM>; Sat, 2 Nov 2002 13:45:12 -0500
-Received: from h-64-105-136-52.SNVACAID.covad.net ([64.105.136.52]:56545 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S261360AbSKBSoz>; Sat, 2 Nov 2002 13:44:55 -0500
-Date: Sat, 2 Nov 2002 10:51:19 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: axboe@suse.de, thornber@sistina.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Patch(2.5.45): move io_restrictions to blkdev.h
-Message-ID: <20021102105119.A6865@adam.yggdrasil.com>
+	id <S261344AbSKBSIf>; Sat, 2 Nov 2002 13:08:35 -0500
+Received: from gateway.cinet.co.jp ([210.166.75.129]:63827 "EHLO
+	precia.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S261329AbSKBSI0>; Sat, 2 Nov 2002 13:08:26 -0500
+Date: Sun, 3 Nov 2002 03:14:38 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: [RFC][Patchset 14/20] Support for PC-9800 (PCI)
+Message-ID: <20021103031438.C1536@precia.cinet.co.jp>
+References: <20021103023345.A1536@precia.cinet.co.jp>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="d6Gm4EdcadzBjdND"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: =?iso-8859-1?Q?=3C20021103023345=2EA1536?=
+	=?iso-8859-1?B?QHByZWNpYS5jaW5ldC5jby5qcD47IGZyb20gdG9taXRhQGNpbmV0LmNv?=
+	=?iso-8859-1?B?LmpwIG9uIMb8LCAxMbfu?= 03, 2002 at 02:33:45 +0900
+X-Mailer: Balsa 1.2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a part 14/20 of patchset for add support NEC PC-9800 architecture,
+against 2.5.45.
 
---d6Gm4EdcadzBjdND
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Summary:
+  PCI related modules
+  - adapted to IRQ number differences.
+  - adapted to PCI BIOS function number differences.
+  - add some entry to PCI name database.
+  - add quirks for legacy bus.
+  - IO address limitation change.
 
-	This patch makes good on a threat that I posted yesterday
-to move struct io_restrictions from <linux/device-mapper.h> to
-<linux/blkdev.h>, eliminating duplication of a list of fields in
-struct request_queue.
+diffstat:
+  arch/i386/pci/irq.c     |   27 +++++++++++++++++++++++++++
+  arch/i386/pci/pcbios.c  |   17 +++++++++++++++++
+  drivers/pci/pci.ids     |   16 ++++++++++------
+  drivers/pci/quirks.c    |    7 +++++++
+  drivers/pcmcia/yenta.c  |    6 ++++++
+  include/asm-i386/pci.h  |    4 ++++
+  include/linux/pci_ids.h |   20 +++++++++++++++++++-
+  7 files changed, 90 insertions(+), 7 deletions(-)
 
-	This change makes it easier to manipulate these parameters as
-a group, which should allow simplification of a number of drivers that
-currently manipulate a subset of these parameters.  I believe it will
-enable a number of clean-ups, but I have deliberately not make most of
-those clean-ups in this version, because I would like to first get
-this infrastructure adjustment done as reliably as possible, hopefully
-for 2.5.46.
-
-	By the way, eventually, this change should also make it easier
-to lift the mergability tests out of the block layer and make them
-work on gather-scatter DMA in general.
-
-	I am running this patch now.  Well, actually, the ll_rw_blk.c
-that I'm including here is different from the one that I use, because
-I have a bunch of other changes in the version of that file that I
-actually use, but the version in this patch compiles without warnings
-and the changes are trivial.
-
-	Jens, can I persuade you to integrate this change?
-
--- 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
-
---d6Gm4EdcadzBjdND
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="bio.diff"
-
---- linux-2.5.45/include/linux/device-mapper.h	2002-10-30 16:43:07.000000000 -0800
-+++ linux/include/linux/device-mapper.h	2002-11-02 04:11:20.000000000 -0800
-@@ -7,6 +7,8 @@
- #ifndef _LINUX_DEVICE_MAPPER_H
- #define _LINUX_DEVICE_MAPPER_H
- 
-+#include <linux/blkdev.h>
+patch:
+diff -urN linux/arch/i386/pci/irq.c linux98/arch/i386/pci/irq.c
+--- linux/arch/i386/pci/irq.c	Sat Oct 12 13:22:46 2002
++++ linux98/arch/i386/pci/irq.c	Sat Oct 12 14:18:52 2002
+@@ -5,6 +5,7 @@
+   */
+   #include <linux/config.h>
++#include <linux/pci_ids.h>
+  #include <linux/types.h>
+  #include <linux/kernel.h>
+  #include <linux/pci.h>
+@@ -25,6 +26,7 @@
+   static struct irq_routing_table *pirq_table;
+  +#ifndef CONFIG_PC9800
+  /*
+   * Never use: 0, 1, 2 (timer, keyboard, and cascade)
+   * Avoid using: 13, 14 and 15 (FP error and IDE).
+@@ -36,6 +38,20 @@
+  	1000000, 1000000, 1000000, 1000, 1000, 0, 1000, 1000,
+  	0, 0, 0, 0, 1000, 100000, 100000, 100000
+  };
++#else
++/*
++ * Never use: 0, 1, 2, 7 (timer, keyboard, CRT VSYNC and cascade)
++ * Avoid using: 8, 9 and 15 (FP error and IDE).
++ * Penalize: 4, 5, 11, 12, 13, 14 (known ISA uses: serial, floppy, sound, mouse
++ *                                 and parallel)
++ */
++unsigned int pcibios_irq_mask = 0xff78;
 +
- #define DM_DIR "mapper"	/* Slashes not supported */
- #define DM_MAX_TYPE_NAME 16
- #define DM_NAME_LEN 128
-@@ -65,15 +67,6 @@
- 	dm_status_fn status;
- };
- 
--struct io_restrictions {
--	unsigned short		max_sectors;
--	unsigned short		max_phys_segments;
--	unsigned short		max_hw_segments;
--	unsigned short		hardsect_size;
--	unsigned int		max_segment_size;
--	unsigned long		seg_boundary_mask;
--};
--
- struct dm_target {
- 	struct dm_table *table;
- 	struct target_type *type;
---- linux-2.5.45/include/linux/blkdev.h	2002-10-30 16:42:20.000000000 -0800
-+++ linux/include/linux/blkdev.h	2002-11-02 04:57:54.000000000 -0800
-@@ -16,6 +16,15 @@
- struct elevator_s;
- typedef struct elevator_s elevator_t;
- 
-+struct io_restrictions {
-+	unsigned short		max_sectors;
-+	unsigned short		max_phys_segments;
-+	unsigned short		max_hw_segments;
-+	unsigned short		hardsect_size;
-+	unsigned int		max_segment_size;
-+	unsigned long		seg_boundary_mask;
++static int pirq_penalty[16] = {
++	1000000, 1000000, 1000000, 0, 1000, 1000, 0, 1000000,
++	100000, 100000, 0, 1000, 1000, 1000, 1000, 100000
 +};
++#endif
+   struct irq_router {
+  	char *name;
+@@ -612,6 +628,17 @@
+  		r->set(pirq_router_dev, dev, pirq, 11);
+  	}
+  +#ifdef CONFIG_PC9800
++	if ((dev->class >> 8) == PCI_CLASS_BRIDGE_CARDBUS) {
++		if (pci_find_device(PCI_VENDOR_ID_INTEL,
++				PCI_DEVICE_ID_INTEL_82439TX, NULL) != NULL) {
++			if (mask & 0x0040) {
++				mask &= 0x0040;	/* assign IRQ 6 only */
++				printk("pci-irq: Use IRQ6 for CardBus controller\n");
++			}
++		}
++	}
++#endif
+  	/*
+  	 * Find the best IRQ to assign: use the one
+  	 * reported by the device if possible.
+diff -urN linux/arch/i386/pci/pcbios.c linux98/arch/i386/pci/pcbios.c
+--- linux/arch/i386/pci/pcbios.c	Sun Jun  9 14:27:00 2002
++++ linux98/arch/i386/pci/pcbios.c	Mon Jun 10 20:49:14 2002
+@@ -7,6 +7,7 @@
+  #include "pci.h"
+   +#ifndef CONFIG_PC9800
+  #define PCIBIOS_PCI_FUNCTION_ID 	0xb1XX
+  #define PCIBIOS_PCI_BIOS_PRESENT 	0xb101
+  #define PCIBIOS_FIND_PCI_DEVICE		0xb102
+@@ -20,6 +21,22 @@
+  #define PCIBIOS_WRITE_CONFIG_DWORD	0xb10d
+  #define PCIBIOS_GET_ROUTING_OPTIONS	0xb10e
+  #define PCIBIOS_SET_PCI_HW_INT		0xb10f
++#else /* CONFIG_PC9800 */
++#define PCIBIOS_PCI_FUNCTION_ID 	0xccXX
++#define PCIBIOS_PCI_BIOS_PRESENT 	0xcc81
++#define PCIBIOS_FIND_PCI_DEVICE		0xcc82
++#define PCIBIOS_FIND_PCI_CLASS_CODE	0xcc83
++/*      PCIBIOS_GENERATE_SPECIAL_CYCLE	0xcc86	(not supported by bios) */
++#define PCIBIOS_READ_CONFIG_BYTE	0xcc88
++#define PCIBIOS_READ_CONFIG_WORD	0xcc89
++#define PCIBIOS_READ_CONFIG_DWORD	0xcc8a
++#define PCIBIOS_WRITE_CONFIG_BYTE	0xcc8b
++#define PCIBIOS_WRITE_CONFIG_WORD	0xcc8c
++#define PCIBIOS_WRITE_CONFIG_DWORD	0xcc8d
++#define PCIBIOS_GET_ROUTING_OPTIONS	0xcc8e	/* PCI 2.1 only */
++#define PCIBIOS_SET_PCI_HW_INT		0xcc8f	/* PCI 2.1 only */
++/* Note: PC-9800 confirms PCI 2.1 on only few models */
++#endif /* CONFIG_PC9800 */
+   /* BIOS32 signature: "_32_" */
+  #define BIOS32_SIGNATURE	(('_' << 0) + ('3' << 8) + ('2' << 16) + ('_' << 24))
+diff -urN linux/drivers/pcmcia/yenta.c linux98/drivers/pcmcia/yenta.c
+--- linux/drivers/pcmcia/yenta.c	Sat Oct 12 13:22:10 2002
++++ linux98/drivers/pcmcia/yenta.c	Sun Oct 13 17:29:24 2002
+@@ -3,6 +3,7 @@
+   *
+   * (C) Copyright 1999, 2000 Linus Torvalds
+   */
++#include <linux/config.h>
+  #include <linux/init.h>
+  #include <linux/pci.h>
+  #include <linux/sched.h>
+@@ -505,6 +506,7 @@
+  	add_timer(&socket->poll_timer);
+  }
+  +#ifndef CONFIG_PC9800
+  /*
+   * Only probe "regular" interrupts, don't
+   * touch dangerous spots like the mouse irq,
+@@ -515,6 +517,10 @@
+   * Default to 11, 10, 9, 7, 6, 5, 4, 3.
+   */
+  static u32 isa_interrupts = 0x0ef8;
++#else
++/* Default to 12, 10, 6, 5, 3. */
++static u32 isa_interrupts = 0x1468;
++#endif
+   static unsigned int yenta_probe_irq(pci_socket_t *socket, u32 isa_irq_mask)
+  {
+diff -urN linux/drivers/pci/pci.ids linux98/drivers/pci/pci.ids
+--- linux/drivers/pci/pci.ids	Tue Oct  8 10:56:11 2002
++++ linux98/drivers/pci/pci.ids	Tue Oct  8 11:01:40 2002
+@@ -497,8 +497,8 @@
+  		1011 500b  DE500B Fast Ethernet
+  		1014 0001  10/100 EtherJet Cardbus
+  		1025 0315  ALN315 Fast Ethernet
+-		1033 800c  PC-9821-CS01
+-		1033 800d  PC-9821NR-B06
++		1033 800c  PC-9821-CS01 100BASE-TX Interface Card
++		1033 800d  PC-9821NR-B06 100BASE-TX Interface Card
+  		108d 0016  Rapidfire 2327 10/100 Ethernet
+  		108d 0017  GoCard 2250 Ethernet 10/100 Cardbus
+  		10b8 2005  SMC8032DT Extreme Ethernet 10/100
+@@ -1049,17 +1049,21 @@
+  	0003  ATM Controller
+  	0004  R4000 PCI Bridge
+  	0005  PCI to 486-like bus Bridge
+-	0006  GUI Accelerator
++	0006  PC-9800 Graphic Accelerator
+  	0007  PCI to UX-Bus Bridge
+-	0008  GUI Accelerator
+-	0009  GUI Accelerator for W98
++	0008  PC-9800 Graphic Accelerator
++	0009  PCI to PC9800 Core-Graph Bridge
++	0016  PCI to VL Bridge
+  	001a  [Nile II]
+  	0021  Vrc4373 [Nile I]
+  	0029  PowerVR PCX1
+  	002a  PowerVR 3D
++	002c  Star Alpha 2
++	002d  PCI to C-bus Bridge
+  	0035  USB
+  		1179 0001  USB
+  		12ee 7000  Root Hub
++	003b  PCI to C-bus Bridge
+  	003e  NAPCCARD Cardbus Controller
+  	0046  PowerVR PCX2 [midas]
+  	005a  Vrc5074 [Nile 4]
+@@ -3485,7 +3489,7 @@
+  	5811  FW323
+  		dead 0800  FireWire Host Bus Adapter
+  11c2  Sand Microelectronics
+-11c3  NEC Corp
++11c3  NEC Corporation
+  11c4  Document Technologies, Inc
+  11c5  Shiva Corporation
+  11c6  Dainippon Screen Mfg. Co. Ltd
+diff -urN linux/drivers/pci/quirks.c linux98/drivers/pci/quirks.c
+--- linux/drivers/pci/quirks.c	Tue Sep 10 02:35:00 2002
++++ linux98/drivers/pci/quirks.c	Tue Sep 10 09:07:50 2002
+@@ -54,7 +54,11 @@
+  {
+  	if (!isa_dma_bridge_buggy) {
+  		isa_dma_bridge_buggy=1;
++#ifndef CONFIG_PC9800
+  		printk(KERN_INFO "Activating ISA DMA hang workarounds.\n");
++#else
++		printk(KERN_INFO "Activating C-bus DMA hang workarounds.\n");
++#endif
+  	}
+  }
+  @@ -491,6 +495,9 @@
+  	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C586_0,	quirk_isa_dma_hangs },
+  	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C596,	quirk_isa_dma_hangs },
+  	{ PCI_FIXUP_FINAL,      PCI_VENDOR_ID_INTEL,    PCI_DEVICE_ID_INTEL_82371SB_0,  quirk_isa_dma_hangs },
++#ifdef CONFIG_PC9800
++	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_NEC,	PCI_DEVICE_ID_NEC_CBUS_1,	quirk_isa_dma_hangs },
++#endif
+  	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_S3,	PCI_DEVICE_ID_S3_868,		quirk_s3_64M },
+  	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_S3,	PCI_DEVICE_ID_S3_968,		quirk_s3_64M },
+  	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_INTEL, 	PCI_DEVICE_ID_INTEL_82437, 	quirk_triton }, diff -urN linux/include/asm-i386/pci.h 
+linux98/include/asm-i386/pci.h
+--- linux/include/asm-i386/pci.h	Sun Jun  9 14:29:24 2002
++++ linux98/include/asm-i386/pci.h	Mon Jun 10 20:49:15 2002
+@@ -17,7 +17,11 @@
+  #endif
+   extern unsigned long pci_mem_start;
++#ifndef CONFIG_PC9800
+  #define PCIBIOS_MIN_IO		0x1000
++#else
++#define PCIBIOS_MIN_IO		0x4000
++#endif
+  #define PCIBIOS_MIN_MEM		(pci_mem_start)
+   void pcibios_config_init(void);
+   *	Status Register Bits
+diff -urN linux/include/linux/pci_ids.h linux98/include/linux/pci_ids.h
+--- linux/include/linux/pci_ids.h	Sat Oct 12 13:21:42 2002
++++ linux98/include/linux/pci_ids.h	Sat Oct 12 19:56:04 2002
+@@ -456,10 +456,26 @@
+  #define PCI_DEVICE_ID_MIRO_36050	0x5601
+   #define PCI_VENDOR_ID_NEC		0x1033
+-#define PCI_DEVICE_ID_NEC_PCX2		0x0046
++#define PCI_DEVICE_ID_NEC_CBUS_1	0x0001 /* PCI-Cbus Bridge */
++#define PCI_DEVICE_ID_NEC_LOCAL		0x0002 /* Local Bridge */
++#define PCI_DEVICE_ID_NEC_ATM		0x0003 /* ATM LAN Controller */
++#define PCI_DEVICE_ID_NEC_R4000		0x0004 /* R4000 Bridge */
++#define PCI_DEVICE_ID_NEC_486		0x0005 /* 486 Like Peripheral Bus Bridge */
++#define PCI_DEVICE_ID_NEC_ACCEL_1	0x0006 /* Graphic Accelerator */
++#define PCI_DEVICE_ID_NEC_UXBUS		0x0007 /* UX-Bus Bridge */
++#define PCI_DEVICE_ID_NEC_ACCEL_2	0x0006 /* Graphic Accelerator */
++#define PCI_DEVICE_ID_NEC_GRAPH		0x0009 /* PCI-CoreGraph Bridge */
++#define PCI_DEVICE_ID_NEC_VL		0x0016 /* PCI-VL Bridge */
++#define PCI_DEVICE_ID_NEC_STARALPHA2	0x002c /* STAR ALPHA2 */
++#define PCI_DEVICE_ID_NEC_CBUS_2	0x002d /* PCI-Cbus Bridge */
++#define PCI_DEVICE_ID_NEC_USB		0x0035 /* PCI-USB Host */
++#define PCI_DEVICE_ID_NEC_CBUS_3	0x003b
++#define PCI_DEVICE_ID_NEC_PCX2		0x0046 /* PowerVR */
+  #define PCI_DEVICE_ID_NEC_NILE4		0x005a
+  #define PCI_DEVICE_ID_NEC_VRC5476       0x009b
+  #define PCI_DEVICE_ID_NEC_VRC5477_AC97  0x00a6
++#define PCI_DEVICE_ID_NEC_PC9821CS01    0x800c /* PC-9821-CS01 */
++#define PCI_DEVICE_ID_NEC_PC9821NRB06   0x800d /* PC-9821NR-B06 */
+   #define PCI_VENDOR_ID_FD		0x1036
+  #define PCI_DEVICE_ID_FD_36C70		0x0000
+@@ -1232,6 +1248,8 @@
+  #define PCI_DEVICE_ID_ATT_L56XMF	0x0440
+  #define PCI_DEVICE_ID_ATT_VENUS_MODEM	0x480
+  +#define PCI_VENDOR_ID_NEC2		0x11c3 /* NEC (2nd) */
 +
- struct request_list {
- 	unsigned int count;
- 	struct list_head free;
-@@ -216,14 +225,9 @@
- 	/*
- 	 * queue settings
- 	 */
--	unsigned short		max_sectors;
--	unsigned short		max_phys_segments;
--	unsigned short		max_hw_segments;
--	unsigned short		hardsect_size;
--	unsigned int		max_segment_size;
-+	struct io_restrictions	limits;
- 
--	unsigned long		seg_boundary_mask;
- 	unsigned int		dma_alignment;
- 
- 	wait_queue_head_t	queue_wait;
-@@ -382,10 +390,10 @@
- {
- 	int retval = 512;
- 
--	if (q && q->hardsect_size)
--		retval = q->hardsect_size;
-+	if (q && q->limits.hardsect_size)
-+		retval = q->limits.hardsect_size;
- 
- 	return retval;
- }
---- linux-2.5.45/include/linux/bio.h	2002-10-30 16:43:36.000000000 -0800
-+++ linux/include/linux/bio.h	2002-11-02 05:33:02.000000000 -0800
-@@ -165,11 +166,11 @@
- 	((((bvec_to_phys((vec1)) + (vec1)->bv_len) | bvec_to_phys((vec2))) & (BIO_VMERGE_BOUNDARY - 1)) == 0)
- #define __BIO_SEG_BOUNDARY(addr1, addr2, mask) \
- 	(((addr1) | (mask)) == (((addr2) - 1) | (mask)))
--#define BIOVEC_SEG_BOUNDARY(q, b1, b2) \
--	__BIO_SEG_BOUNDARY(bvec_to_phys((b1)), bvec_to_phys((b2)) + (b2)->bv_len, (q)->seg_boundary_mask)
--#define BIO_SEG_BOUNDARY(q, b1, b2) \
--	BIOVEC_SEG_BOUNDARY((q), __BVEC_END((b1)), __BVEC_START((b2)))
-+#define BIOVEC_SEG_BOUNDARY(limits, b1, b2) \
-+	__BIO_SEG_BOUNDARY(bvec_to_phys((b1)), bvec_to_phys((b2)) + (b2)->bv_len, (limits)->seg_boundary_mask)
-+#define BIO_SEG_BOUNDARY(limits, b1, b2) \
-+	BIOVEC_SEG_BOUNDARY((limits), __BVEC_END((b1)), __BVEC_START((b2)))
- 
- #define bio_io_error(bio, bytes) bio_endio((bio), (bytes), -EIO)
- 
---- linux-2.5.45/drivers/block/ioctl.c	2002-10-30 16:41:39.000000000 -0800
-+++ linux/drivers/block/ioctl.c	2002-11-02 05:02:30.000000000 -0800
-@@ -147,7 +147,7 @@
- 	case BLKSSZGET: /* get block device hardware sector size */
- 		return put_int(arg, bdev_hardsect_size(bdev));
- 	case BLKSECTGET:
--		return put_ushort(arg, bdev_get_queue(bdev)->max_sectors);
-+		return put_ushort(arg, bdev_get_queue(bdev)->limits.max_sectors);
- 	case BLKRASET:
- 	case BLKFRASET:
- 		if(!capable(CAP_SYS_ADMIN))
---- linux-2.5.45/drivers/block/ll_rw_blk.c	2002-10-30 16:41:55.000000000 -0800
-+++ linux/drivers/block/ll_rw_blk.c	2002-11-02 07:34:52.000000000 -0800
-@@ -213,8 +213,8 @@
- 	/*
- 	 * set defaults
- 	 */
--	q->max_phys_segments = MAX_PHYS_SEGMENTS;
--	q->max_hw_segments = MAX_HW_SEGMENTS;
-+	q->limits.max_phys_segments = MAX_PHYS_SEGMENTS;
-+	q->limits.max_hw_segments = MAX_HW_SEGMENTS;
- 	q->make_request_fn = mfn;
- 	q->backing_dev_info.ra_pages = (VM_MAX_READAHEAD * 1024) / PAGE_CACHE_SIZE;
- 	q->backing_dev_info.state = 0;
-@@ -293,7 +293,7 @@
- 		printk("%s: set to minimum %d\n", __FUNCTION__, max_sectors);
- 	}
- 
--	q->max_sectors = max_sectors;
-+	q->limits.max_sectors = max_sectors;
- }
- 
- /**
-@@ -313,7 +313,7 @@
- 		printk("%s: set to minimum %d\n", __FUNCTION__, max_segments);
- 	}
- 
--	q->max_phys_segments = max_segments;
-+	q->limits.max_phys_segments = max_segments;
- }
- 
- /**
-@@ -334,7 +334,7 @@
- 		printk("%s: set to minimum %d\n", __FUNCTION__, max_segments);
- 	}
- 
--	q->max_hw_segments = max_segments;
-+	q->limits.max_hw_segments = max_segments;
- }
- 
- /**
-@@ -353,7 +353,7 @@
- 		printk("%s: set to minimum %d\n", __FUNCTION__, max_size);
- 	}
- 
--	q->max_segment_size = max_size;
-+	q->limits.max_segment_size = max_size;
- }
- 
- /**
-@@ -369,7 +369,7 @@
-  **/
- void blk_queue_hardsect_size(request_queue_t *q, unsigned short size)
- {
--	q->hardsect_size = size;
-+	q->limits.hardsect_size = size;
- }
- 
- /**
-@@ -384,7 +384,7 @@
- 		printk("%s: set to minimum %lx\n", __FUNCTION__, mask);
- 	}
- 
--	q->seg_boundary_mask = mask;
-+	q->limits.seg_boundary_mask = mask;
- }
- 
- /**
-@@ -696,13 +696,13 @@
- 		if (bvprv && cluster) {
- 			int phys, seg;
- 
--			if (seg_size + bv->bv_len > q->max_segment_size) {
-+			if (seg_size + bv->bv_len > q->limits.max_segment_size) {
- 				nr_phys_segs++;
- 				goto new_segment;
- 			}
- 
- 			phys = BIOVEC_PHYS_MERGEABLE(bvprv, bv);
--			seg = BIOVEC_SEG_BOUNDARY(q, bvprv, bv);
-+			seg = BIOVEC_SEG_BOUNDARY(&q->limits, bvprv, bv);
- 			if (!phys || !seg)
- 				nr_phys_segs++;
- 			if (!seg)
-@@ -737,14 +737,14 @@
- 
- 	if (!BIOVEC_PHYS_MERGEABLE(__BVEC_END(bio), __BVEC_START(nxt)))
- 		return 0;
--	if (bio->bi_size + nxt->bi_size > q->max_segment_size)
-+	if (bio->bi_size + nxt->bi_size > q->limits.max_segment_size)
- 		return 0;
- 
- 	/*
- 	 * bio and nxt are contigous in memory, check if the queue allows
- 	 * these two to be merged into one
- 	 */
--	if (BIO_SEG_BOUNDARY(q, bio, nxt))
-+	if (BIO_SEG_BOUNDARY(&q->limits, bio, nxt))
- 		return 1;
- 
- 	return 0;
-@@ -758,14 +758,14 @@
- 
- 	if (!BIOVEC_VIRT_MERGEABLE(__BVEC_END(bio), __BVEC_START(nxt)))
- 		return 0;
--	if (bio->bi_size + nxt->bi_size > q->max_segment_size)
-+	if (bio->bi_size + nxt->bi_size > q->limits.max_segment_size)
- 		return 0;
- 
- 	/*
- 	 * bio and nxt are contigous in memory, check if the queue allows
- 	 * these two to be merged into one
- 	 */
--	if (BIO_SEG_BOUNDARY(q, bio, nxt))
-+	if (BIO_SEG_BOUNDARY(&q->limits, bio, nxt))
- 		return 1;
- 
- 	return 0;
-@@ -796,12 +796,12 @@
- 			int nbytes = bvec->bv_len;
- 
- 			if (bvprv && cluster) {
--				if (sg[nsegs - 1].length + nbytes > q->max_segment_size)
-+				if (sg[nsegs - 1].length + nbytes > q->limits.max_segment_size)
- 					goto new_segment;
- 
- 				if (!BIOVEC_PHYS_MERGEABLE(bvprv, bvec))
- 					goto new_segment;
--				if (!BIOVEC_SEG_BOUNDARY(q, bvprv, bvec))
-+				if (!BIOVEC_SEG_BOUNDARY(&q->limits, bvprv, bvec))
- 					goto new_segment;
- 
- 				sg[nsegs - 1].length += nbytes;
-@@ -832,7 +832,7 @@
- {
- 	int nr_phys_segs = bio_phys_segments(q, bio);
- 
--	if (req->nr_phys_segments + nr_phys_segs > q->max_phys_segments) {
-+	if (req->nr_phys_segments + nr_phys_segs > q->limits.max_phys_segments) {
- 		req->flags |= REQ_NOMERGE;
- 		q->last_merge = NULL;
- 		return 0;
-@@ -853,8 +853,8 @@
- 	int nr_hw_segs = bio_hw_segments(q, bio);
- 	int nr_phys_segs = bio_phys_segments(q, bio);
- 
--	if (req->nr_hw_segments + nr_hw_segs > q->max_hw_segments
--	    || req->nr_phys_segments + nr_phys_segs > q->max_phys_segments) {
-+	if (req->nr_hw_segments + nr_hw_segs > q->limits.max_hw_segments
-+	    || req->nr_phys_segments + nr_phys_segs > q->limits.max_phys_segments) {
- 		req->flags |= REQ_NOMERGE;
- 		q->last_merge = NULL;
- 		return 0;
-@@ -872,7 +872,7 @@
- static int ll_back_merge_fn(request_queue_t *q, struct request *req, 
- 			    struct bio *bio)
- {
--	if (req->nr_sectors + bio_sectors(bio) > q->max_sectors) {
-+	if (req->nr_sectors + bio_sectors(bio) > q->limits.max_sectors) {
- 		req->flags |= REQ_NOMERGE;
- 		q->last_merge = NULL;
- 		return 0;
-@@ -887,7 +887,7 @@
- static int ll_front_merge_fn(request_queue_t *q, struct request *req, 
- 			     struct bio *bio)
- {
--	if (req->nr_sectors + bio_sectors(bio) > q->max_sectors) {
-+	if (req->nr_sectors + bio_sectors(bio) > q->limits.max_sectors) {
- 		req->flags |= REQ_NOMERGE;
- 		q->last_merge = NULL;
- 		return 0;
-@@ -915,21 +915,21 @@
- 	/*
- 	 * Will it become to large?
- 	 */
--	if ((req->nr_sectors + next->nr_sectors) > q->max_sectors)
-+	if ((req->nr_sectors + next->nr_sectors) > q->limits.max_sectors)
- 		return 0;
- 
- 	total_phys_segments = req->nr_phys_segments + next->nr_phys_segments;
- 	if (blk_phys_contig_segment(q, req->biotail, next->bio))
- 		total_phys_segments--;
- 
--	if (total_phys_segments > q->max_phys_segments)
-+	if (total_phys_segments > q->limits.max_phys_segments)
- 		return 0;
- 
- 	total_hw_segments = req->nr_hw_segments + next->nr_hw_segments;
- 	if (blk_hw_contig_segment(q, req->biotail, next->bio))
- 		total_hw_segments--;
- 
--	if (total_hw_segments > q->max_hw_segments)
-+	if (total_hw_segments > q->limits.max_hw_segments)
- 		return 0;
- 
- 	/* Merge is OK... */
-@@ -1910,11 +1910,11 @@
- 			break;
- 		}
- 
--		if (unlikely(bio_sectors(bio) > q->max_sectors)) {
-+		if (unlikely(bio_sectors(bio) > q->limits.max_sectors)) {
- 			printk("bio too big device %s (%u > %u)\n", 
- 			       bdevname(bio->bi_bdev),
- 			       bio_sectors(bio),
--			       q->max_sectors);
-+			       q->limits.max_sectors);
- 			goto end_io;
- 		}
- 
---- linux-2.5.45/drivers/md/dm-table.c	2002-10-30 16:42:54.000000000 -0800
-+++ linux/drivers/md/dm-table.c	2002-11-02 04:44:06.000000000 -0800
-@@ -465,16 +465,17 @@
- 	int r = __table_get_device(ti->table, ti, path,
- 				   start, len, mode, result);
- 	if (!r) {
--		request_queue_t *q = bdev_get_queue((*result)->bdev);
-+		request_queue_t *qlim =
-+			&bdev_get_queue((*result)->bdev)->limits;
- 		struct io_restrictions *rs = &ti->limits;
- 
- 		/* combine the device limits low */
--		__LOW(&rs->max_sectors, q->max_sectors);
--		__LOW(&rs->max_phys_segments, q->max_phys_segments);
--		__LOW(&rs->max_hw_segments, q->max_hw_segments);
--		__HIGH(&rs->hardsect_size, q->hardsect_size);
--		__LOW(&rs->max_segment_size, q->max_segment_size);
--		__LOW(&rs->seg_boundary_mask, q->seg_boundary_mask);
-+		__LOW(&rs->max_sectors, qlim->max_sectors);
-+		__LOW(&rs->max_phys_segments, qlim->max_phys_segments);
-+		__LOW(&rs->max_hw_segments, qlim->max_hw_segments);
-+		__HIGH(&rs->hardsect_size, qlim->hardsect_size);
-+		__LOW(&rs->max_segment_size, qlim->max_segment_size);
-+		__LOW(&rs->seg_boundary_mask, qlim->seg_boundary_mask);
- 	}
- 
- 	return r;
-@@ -703,13 +704,8 @@
- 	 * Make sure we obey the optimistic sub devices
- 	 * restrictions.
- 	 */
--	q->max_sectors = t->limits.max_sectors;
--	q->max_phys_segments = t->limits.max_phys_segments;
--	q->max_hw_segments = t->limits.max_hw_segments;
--	q->hardsect_size = t->limits.hardsect_size;
--	q->max_segment_size = t->limits.max_segment_size;
--	q->seg_boundary_mask = t->limits.seg_boundary_mask;
-+	q->limits = t->limits;
- }
- 
- unsigned int dm_table_get_num_targets(struct dm_table *t)
---- linux-2.5.45/fs/bio.c	2002-10-30 16:43:00.000000000 -0800
-+++ linux/fs/bio.c	2002-11-02 07:50:30.000000000 -0800
-@@ -352,14 +352,14 @@
-  */
- int bio_get_nr_vecs(struct block_device *bdev)
- {
--	request_queue_t *q = bdev_get_queue(bdev);
-+	struct io_restrictions *limit	= &bdev_get_queue(bdev)->limits;
- 	int nr_pages;
- 
--	nr_pages = ((q->max_sectors << 9) + PAGE_SIZE - 1) >> PAGE_SHIFT;
--	if (nr_pages > q->max_phys_segments)
--		nr_pages = q->max_phys_segments;
--	if (nr_pages > q->max_hw_segments)
--		nr_pages = q->max_hw_segments;
-+	nr_pages = ((limit->max_sectors << 9) + PAGE_SIZE - 1) >> PAGE_SHIFT;
-+	if (nr_pages > limit->max_phys_segments)
-+		nr_pages = limit->max_phys_segments;
-+	if (nr_pages > limit->max_hw_segments)
-+		nr_pages = limit->max_hw_segments;
- 
- 	return nr_pages;
- }
-@@ -391,7 +391,7 @@
- 	if (bio->bi_vcnt >= bio->bi_max_vecs)
- 		return 0;
- 
--	if (((bio->bi_size + len) >> 9) > q->max_sectors)
-+	if (((bio->bi_size + len) >> 9) > q->limits.max_sectors)
- 		return 0;
- 
- 	/*
-@@ -399,9 +399,9 @@
- 	 * make this too complex.
- 	 */
- retry_segments:
--	if (bio_phys_segments(q, bio) >= q->max_phys_segments
--	    || bio_hw_segments(q, bio) >= q->max_hw_segments)
-+	if (bio_phys_segments(q, bio) >= q->limits.max_phys_segments
-+	    || bio_hw_segments(q, bio) >= q->limits.max_hw_segments)
- 		fail_segments = 1;
- 
- 	if (fail_segments) {
---- linux-2.5.45/drivers/block/cciss.c	2002-10-30 16:43:44.000000000 -0800
-+++ linux/drivers/block/cciss.c	2002-11-02 10:45:50.000000000 -0800
-@@ -763,7 +763,7 @@
- 		drive_info_struct *drv = &(hba[ctlr]->drv[i]);
- 		if (!drv->nr_blocks)
- 			continue;
--		hba[ctlr]->queue.hardsect_size = drv->block_size;
-+		blk_queue_hardsect_size(&hba[ctlr]->queue, drv->block_size);
- 		set_capacity(disk, drv->nr_blocks);
- 		add_disk(disk);
- 	}
-@@ -2441,7 +2441,7 @@
- 		disk->private_data = drv;
- 		if( !(drv->nr_blocks))
- 			continue;
--		hba[i]->queue.hardsect_size = drv->block_size;
-+		blk_queue_hardsect_size(&hba[i]->queue, drv->block_size);
- 		set_capacity(disk, drv->nr_blocks);
- 		add_disk(disk);
- 	}
---- linux-2.5.45/drivers/block/cpqarray.c	2002-10-30 16:41:56.000000000 -0800
-+++ linux/drivers/block/cpqarray.c	2002-11-02 10:48:56.000000000 -0800
-@@ -409,7 +409,7 @@
- 			disk->fops = &ida_fops; 
- 			if (!drv->nr_blks)
- 				continue;
--			hba[i]->queue.hardsect_size = drv->blk_size;
-+			blk_queue_hardsect_size(&hba[i]->queue, drv->blk_size);
- 			set_capacity(disk, drv->nr_blks);
- 			disk->queue = &hba[i]->queue;
- 			disk->private_data = drv;
-@@ -1438,7 +1438,7 @@
- 		drv_info_t *drv = &hba[ctlr]->drv[i];
- 		if (!drv->nr_blks)
- 			continue;
--		hba[ctlr]->queue.hardsect_size = drv->blk_size;
-+		blk_queue_hardsect_size(&hba[ctlr]->queue, drv->blk_size);
- 		set_capacity(disk, drv->nr_blks);
- 		disk->queue = &hba[ctlr]->queue;
- 		disk->private_data = drv;
-
---d6Gm4EdcadzBjdND--
+  #define PCI_VENDOR_ID_SPECIALIX		0x11cb
+  #define PCI_DEVICE_ID_SPECIALIX_IO8	0x2000
+  #define PCI_DEVICE_ID_SPECIALIX_XIO	0x4000

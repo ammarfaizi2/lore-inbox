@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263828AbTDNVGV (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:06:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263867AbTDNVGV (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 17:06:21 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:46019 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S263828AbTDNVGU (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 17:06:20 -0400
-Date: Mon, 14 Apr 2003 22:17:40 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BUGed to death
-Message-ID: <20030414211740.GB11160@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Duncan Sands <baldrick@wanadoo.fr>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Andrew Morton <akpm@digeo.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <80690000.1050351598@flay> <200304142240.41999.baldrick@wanadoo.fr> <20030414210211.GB7831@suse.de> <200304142310.05110.baldrick@wanadoo.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304142310.05110.baldrick@wanadoo.fr>
-User-Agent: Mutt/1.5.4i
+	id S263935AbTDNVNH (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 17:13:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263936AbTDNVNH (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 17:13:07 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:3205 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263935AbTDNVNF (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 17:13:05 -0400
+Message-ID: <3E9B2716.6030503@nortelnetworks.com>
+Date: Mon, 14 Apr 2003 17:24:38 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bryan Shumsky <bzs@via.com>,
+       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Memory mapped files question
+References: <A46BBDB345A7D5118EC90002A5072C780BEBAD8D@orsmsx116.jf.intel.com>	 <004301c302bd$ed548680$fe64a8c0@webserver> <1050349977.26521.2.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 14, 2003 at 11:10:05PM +0200, Duncan Sands wrote:
+Alan Cox wrote:
+> On Llu, 2003-04-14 at 20:42, Bryan Shumsky wrote:
+> 
+>>Rewriting all of our code to manually handle the flushing is a MAJOR
+>>undertaking, so I was hoping there might be some sneaky solution you could
+>>come up with.  Any ideas?
+>>
+> 
+> Create a thread that does msync's every so often. Its that simple
 
- > Some places don't seem to know about BUG_ON, for example
- > (from include/linux/skbuff.h):
+How do you deal with ensuring (or even trying to ensure) that the stuff *on 
+disk* is sane?
 
-Right, BUG_ON was added later (possibly for the purpose of
-marking unlikely branches).  I see your point now about gcc
-not recognising branches which are going to be unlikely, but
-whether or not it should is questionable IMO.
+If I understand correctly, msync() doesn't guarantee order of writes, so 
+randomly firing off msync() calls doesn't help.
 
-		Dave
+If I want to update an entry and then set a flag saying that the entry is 
+correct, I need to have two msyncs, one for the entry data, and one for the 
+flag.  I had hoped that I could avoid this by opening the file with O_SYNC, but 
+hpa just disabused me of that notion...
+
+Are the mmap semantics different for devices?
+
+Chris
+
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

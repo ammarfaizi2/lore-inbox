@@ -1,88 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbUDCRDA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 12:03:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbUDCRDA
+	id S261619AbUDCQup (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 11:50:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUDCQup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 12:03:00 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:57275
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261425AbUDCRC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 12:02:57 -0500
-Date: Sat, 3 Apr 2004 19:02:58 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       hugh@veritas.com, vrajesh@umich.edu, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
-Message-ID: <20040403170258.GH2307@dualathlon.random>
-References: <20040402020022.GN18585@dualathlon.random> <20040402104334.A871@infradead.org> <20040402164634.GF21341@dualathlon.random> <20040402195927.A6659@infradead.org> <20040402192941.GP21341@dualathlon.random> <20040402205410.A7194@infradead.org> <20040402203514.GR21341@dualathlon.random> <20040403094058.A13091@infradead.org> <20040403152026.GE2307@dualathlon.random> <20040403155958.GF2307@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 3 Apr 2004 11:50:45 -0500
+Received: from 65-248-111-151.cn.tx.cebridge.net ([65.248.111.151]:5016 "EHLO
+	ns1.brianandsara.net") by vger.kernel.org with ESMTP
+	id S261425AbUDCQun convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 11:50:43 -0500
+From: Brian Jackson <brian@brianandsara.net>
+Organization: brianandsara.net
+To: Hans-Georg Esser <h.g.esser@gmx.de>
+Subject: Re: 2.4.20 and 2.4.21, Firewire, 160 GB Harddisk, 134 GB barrier
+Date: Sat, 3 Apr 2004 10:53:40 -0600
+User-Agent: KMail/1.6.51
+Cc: linux-kernel@vger.kernel.org
+References: <406EC833.4080909@gmx.de>
+In-Reply-To: <406EC833.4080909@gmx.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040403155958.GF2307@dualathlon.random>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200404031053.41975.brian@brianandsara.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-can you try this potential fix too? (maybe you want to try this first
-thing)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-this is from Hugh's anobjramp patches.
+On Saturday 03 April 2004 08:20, Hans-Georg Esser wrote:
+> Hello list,
+>
+> I found an earlier thread ("KERNEL 2.6.3 and MAXTOR 160 GB", March 2004)
+> dealing with a 137 GB barrier (that I guess meant: 137xxx MB) for a Maxtor
+> 160 GB drive in Kernel 2.6.x. I'd like to add my personal observation to
+> that (for Kernel 2.4.20/21):
+>
+> My drive (Western Digital WD1600BB-32DWA0) works well when directly
+> connected to the IDE controller, but doesn't like using an external
+> firewire connection ("Pyro 1394 Drive Kit" of Adstech.com). The firewire
+> stuff worked well with an 80 GB disk, but with the 160 GB disk I'm only
+> getting 134 GB (or 137439 MB).
 
-I merged it once, then I got a crash report, so I backed it out since it
-was working anyways, but it was due a merging error that it didn't work
-correctly, the below version should be fine and it seems really needed.
+The more likely scenario is that the bridge chip in said box doesn't support 
+the larger drive and is the limiting factor.
 
-I'll upload a new kernel with this applied.
+- --Brian Jackson
 
---- x/arch/ppc/mm/pgtable.c.~1~	2004-02-20 17:26:33.000000000 +0100
-+++ x/arch/ppc/mm/pgtable.c	2004-04-03 18:51:35.072468040 +0200
-@@ -86,9 +86,14 @@ pte_t *pte_alloc_one_kernel(struct mm_st
- 	extern int mem_init_done;
- 	extern void *early_get_page(void);
- 
--	if (mem_init_done)
-+	if (mem_init_done) {
- 		pte = (pte_t *)__get_free_page(GFP_KERNEL|__GFP_REPEAT);
--	else
-+		if (pte) {
-+			struct page *ptepage = virt_to_page(pte);
-+			ptepage->mapping = (void *) mm;
-+			ptepage->index = address & PMD_MASK;
-+		}
-+	} else
- 		pte = (pte_t *)early_get_page();
- 	if (pte)
- 		clear_page(pte);
-@@ -106,8 +111,11 @@ struct page *pte_alloc_one(struct mm_str
- #endif
- 
- 	pte = alloc_pages(flags, 0);
--	if (pte)
-+	if (pte) {
-+		pte->mapping = (void *) mm;
-+		pte->index = address & PMD_MASK;
- 		clear_highpage(pte);
-+	}
- 	return pte;
- }
- 
-@@ -116,6 +124,7 @@ void pte_free_kernel(pte_t *pte)
- #ifdef CONFIG_SMP
- 	hash_page_sync();
- #endif
-+	virt_to_page(pte)->mapping = NULL;
- 	free_page((unsigned long)pte);
- }
- 
-@@ -124,6 +133,7 @@ void pte_free(struct page *pte)
- #ifdef CONFIG_SMP
- 	hash_page_sync();
- #endif
-+	pte->mapping = NULL;
- 	__free_page(pte);
- }
- 
+>
+> This may be related to the other post I mentioned, cause of the same
+> "barrier" number. I haven't tried a newer kernel yet, this was with the
+> standard kernel that came with the distro:
+>
+<snip>
+
+- -- 
+http://www.brianandsara.net
+For Sale : http://www.brianandsara.net/temp/forsale.php
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAbuwU+cPN+Z7qK9cRAhLGAKCBgz1xf3MdypI4lPZBl3N/PRPg6QCgqCfR
+su8H1F2RwQVXKYPGXIhsiXk=
+=0g7r
+-----END PGP SIGNATURE-----

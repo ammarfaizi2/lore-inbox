@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266929AbSKOXLo>; Fri, 15 Nov 2002 18:11:44 -0500
+	id <S266927AbSKOXJQ>; Fri, 15 Nov 2002 18:09:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266930AbSKOXLo>; Fri, 15 Nov 2002 18:11:44 -0500
-Received: from dp.samba.org ([66.70.73.150]:29607 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266929AbSKOXLn>;
-	Fri, 15 Nov 2002 18:11:43 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PARAM 2/4 
-In-reply-to: Your message of "Fri, 15 Nov 2002 17:51:48 CDT."
-             <3DD57A84.2070805@pobox.com> 
-Date: Sat, 16 Nov 2002 10:17:37 +1100
-Message-Id: <20021115231840.2FE3D2C09A@lists.samba.org>
+	id <S266928AbSKOXJQ>; Fri, 15 Nov 2002 18:09:16 -0500
+Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:28801 "EHLO
+	laptop.localdomain") by vger.kernel.org with ESMTP
+	id <S266927AbSKOXJP> convert rfc822-to-8bit; Fri, 15 Nov 2002 18:09:15 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Con Kolivas <conman@kolivas.net>
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: 2.5.47-mm3
+Date: Sat, 16 Nov 2002 10:15:53 +1100
+User-Agent: KMail/1.4.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200211161015.56003.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3DD57A84.2070805@pobox.com> you write:
-> 1) I note you ignored Matthew Wilcox's example of module_init being used 
-> in two different ways.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I didn't see it, sorry.  Valid point.
 
-> 2) "proper", converted-to-Rusty-style driver code is going to have
-> 
-> 	MODULE_blah
-> 	MODULE_foo
-> 	MODULE_bar
-> 	PARAM
-> 
-> You think that looks good??
+I dont have anything crypto enabled in the config
 
-Hmm... OK, you've swayed me.  I'll redo the patch.
+In file included from include/net/xfrm.h:6,
+                 from net/core/skbuff.c:61:
+include/linux/crypto.h: In function `crypto_tfm_alg_modname':
+include/linux/crypto.h:202: dereferencing pointer to incomplete type
+include/linux/crypto.h:205: warning: control reaches end of non-void function
+make[2]: *** [net/core/skbuff.o] Error 1
+make[1]: *** [net/core] Error 2
+make: *** [net] Error 2
 
-> PARAM is ugly in drivers, and way too generic.
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
 
-Well, we completely disagree on this point.  If I was starting from
-scratch, MODULE_AUTHOR would simply be AUTHOR(), etc.
+iD8DBQE91YApF6dfvkL3i1gRAoCsAKCVHM1sZofeuVSK7HLZO9RyjQe+kACeKPoz
+vdAtgtG2/8DAqe6Vz03Mn8k=
+=IFnQ
+-----END PGP SIGNATURE-----
 
-But I've always opposed this kind of "neatening" as the ultimite in
-stupidity, so consistency wins.
-
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

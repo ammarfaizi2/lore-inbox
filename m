@@ -1,82 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264170AbUDGVbD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 17:31:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264201AbUDGVbC
+	id S264157AbUDGVfo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 17:35:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264181AbUDGVfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 17:31:02 -0400
-Received: from gprs214-224.eurotel.cz ([160.218.214.224]:21632 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S264170AbUDGVa7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 17:30:59 -0400
-Date: Wed, 7 Apr 2004 23:30:46 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: seife@suse.de, kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Swsusp should not wake up stopped processes
-Message-ID: <20040407213045.GA689@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Wed, 7 Apr 2004 17:35:44 -0400
+Received: from dirac.phys.uwm.edu ([129.89.57.19]:47267 "EHLO
+	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S264157AbUDGVfj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 17:35:39 -0400
+Date: Wed, 7 Apr 2004 16:35:27 -0500 (CDT)
+From: Bruce Allen <ballen@gravity.phys.uwm.edu>
+To: Andy Isaacson <adi@hexapodia.org>
+cc: Andrew Morton <akpm@osdl.org>, bug-coreutils@gnu.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: dd PATCH: add conv=direct
+In-Reply-To: <20040407204341.GF2814@hexapodia.org>
+Message-ID: <Pine.GSO.4.21.0404071627530.9017-100000@dirac.phys.uwm.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> > If you want to add O_DIRECT support to dd then it should be implemented
+> > properly, and that means implementing it for both read and write.
+> > 
+> > In fact the user should be able to specify the read-O_DIRECT and the
+> > write-O_DIRECT independently - if for no other reason than that the source
+> > and dest filesytems may not both support O_DIRECT.
+> 
+> Of course if both directions are supported they must be independently
+> specifiable.  I just don't see a compelling use case for the input side.
 
-If you stop process with ^Z, then suspend, process is awakened. Thats
-a bug. Solution is to simply leave already stopped processes
-alone. Plus we no longer use TASK_STOPPED for processes in
-refrigerator. Userland might see us and get confused... Please apply,
+Andy, since I was the one who suggested adding a conv=odirect flag to the
+output side, so that we could use a standard tool (dd) to force
+reallocation of bad sectors by writing to them, let me argue that it ALSO
+makes sense to allow O_DIRECT (as an independent option) on the input
+side.
 
-								Pavel
+At least one obvious use is to help FIND unreadable disk sectors (or to
+verify that some sector is indeed unreadable).  One would like to be able
+to do:
 
---- clean/kernel/power/process.c	2003-08-27 12:00:53.000000000 +0200
-+++ linux/kernel/power/process.c	2004-04-07 23:14:19.000000000 +0200
-@@ -30,7 +30,8 @@
- 	if ((p == current) || 
- 	    (p->flags & PF_IOTHREAD) || 
- 	    (p->state == TASK_ZOMBIE) ||
--	    (p->state == TASK_DEAD))
-+	    (p->state == TASK_DEAD) ||
-+	    (p->state == TASK_STOPPED))
- 		return 0;
- 	return 1;
- }
-@@ -38,21 +39,19 @@
- /* Refrigerator is place where frozen processes are stored :-). */
- void refrigerator(unsigned long flag)
- {
--	/* You need correct to work with real-time processes.
--	   OTOH, this way one process may see (via /proc/) some other
--	   process in stopped state (and thereby discovered we were
--	   suspended. We probably do not care. 
--	 */
-+	/* Hmm, should we be allowed to suspend when there are realtime
-+	   processes around? */
- 	long save;
- 	save = current->state;
--	current->state = TASK_STOPPED;
-+	current->state = TASK_UNINTERRUPTIBLE;
- 	pr_debug("%s entered refrigerator\n", current->comm);
- 	printk("=");
- 	current->flags &= ~PF_FREEZE;
--	if (flag)
--		flush_signals(current); /* We have signaled a kernel thread, which isn't normal behaviour
--					   and that may lead to 100%CPU sucking because those threads
--					   just don't manage signals. */
-+
-+	spin_lock_irq(&current->sighand->siglock);
-+	recalc_sigpending(); /* We sent fake signal, clean it up */
-+	spin_unlock_irq(&current->sighand->siglock);
-+
- 	current->flags |= PF_FROZEN;
- 	while (current->flags & PF_FROZEN)
- 		schedule();
+  dd if=/dev/hda of=/dev/null bs=512 count=1 skip=LBA conv=idirect
 
+and see if the dd suceeds or fails.
 
+If dd fails, then without having an O_DIRECT option (idirect) at the input
+side, there is no way of telling if the failure was because of an
+unreadable sector at LBA, or an unreadable sector somewhere else in the
+block containing LBA. With the O_DIRECT input option, you can be sure that
+if this command fails it's because the sector at LBA was unreadable, not
+some nearby sector.
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Cheers,
+	Bruce
+

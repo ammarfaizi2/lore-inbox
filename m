@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbUKIRip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbUKIRjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261594AbUKIRip (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 12:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbUKIRip
+	id S261599AbUKIRjo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 12:39:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbUKIRjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 12:38:45 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:34177 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261594AbUKIRil (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 12:38:41 -0500
-Date: Tue, 09 Nov 2004 09:47:55 +0000
-From: "Alpen-Antique recruitment (Australian job opportunities)" 
-	<info@alpenantique.com>
-Subject: Alpen-Antique recruitment (Australian job opportunities)
-To: linux-kernel <linux-kernel@vger.kernel.org>
-References: <D64121F0G2L2LDD1@vger.kernel.org>
-In-Reply-To: <D64121F0G2L2LDD1@vger.kernel.org>
-Message-ID: <FE10KH481GEHEG15@alpenantique.com>
-Reply-To: "Alpen-Antique recruitment (Australian job opportunities)" 
-	  <info@alpenantique.com>
+	Tue, 9 Nov 2004 12:39:36 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:37388 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261595AbUKIRjK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 12:39:10 -0500
+To: "Clayton Weaver" <cgweav@email.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: support of older compilers
+References: <20041106090709.396FA1CE305@ws1-6.us4.outblaze.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: ed  ::  20-megaton hydrogen bomb : firecracker
+Date: Tue, 09 Nov 2004 17:39:00 +0000
+In-Reply-To: <20041106090709.396FA1CE305@ws1-6.us4.outblaze.com> (Clayton
+ Weaver's message of "6 Nov 2004 09:09:32 -0000")
+Message-ID: <87zn1qvs5n.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Mr/Mrs,
+On 6 Nov 2004, Clayton Weaver stated:
+>>You found a compiler bug, so you reported
+>>it as a bug against
+>>glibc?
+> 
+> You don't think it's possible that a glibc bug
+> could cause unexpected behavior in a gcc that is
+> using the glibc libraries?
 
-Alpen-Antique GmbH was founded in 1896 year and since that time our company
-successfully participated in antique items distribution all over the Central
-Europe. After opening our website our goods became subject of new customers?
-interest from all over the world, especially from Australia and New Zealand.
+Naturally it is; it's even fairly common if you're using a very old
+compiler or a very old glibc (although support for libc5 is gone as of
+GCC-3.4.)
 
-We started new campaign selling our goods on-line, but we faced new difficulties
-connected with payment delivery delays to our account, because of international
-wire transfers usual 5 business days delay. A decision was made to hire sales
-representatives capable to receiving payments from the same area where are
-the customers located.
-At this moment we run sales representatives hiring campaign and are glad
-to propose you this position. You?re welcome to be our representative. Please
-visit our webpage www.alpenantique.com/partner.htm describing all aspects
-of this opportunity and if you?re interested - please send us an email to
-job@alpenantique.com and you will be sent an application form. If you have
-any additional questions - don?t hesitate to contact us at info@alpenantique.com
-and we?ll try to help you for sure.
+> I don't know whether glibc-2.3.2 *really*
+> had the bug or whether gcc-2.95.3 had some
+> dodgy workaround for a bug in earlier glibc2
+> versions that fixing a bug in glibc-2.3.2
+> then exposed.
 
-Best regards,
-Karl Schallmeiner,
-Alpen-Antique GmbH
-job@alpenantique.com
+That's unlikely.
 
+I just doubt that a bug in string concatenation could be chalked up to
+glibc, is all.
 
+> So users arrive at a relatively stable compiler, they stop upgrading
+> and use that.
+
+They're of course free to do that, if they don't mind not getting access
+to new stuff in the new releases; at least if they're working in C
+(anyone compiling C++ code with GCC<3.x is a little strange, in my
+opinion).
+
+-- 
+`Random line noise picked up from an RS432 cable hung in front of a faulty
+ radar transmitter. ' --- Greg Hennessy on sendmail.cf

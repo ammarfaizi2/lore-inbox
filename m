@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268938AbTGORja (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 13:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269185AbTGORie
+	id S269191AbTGOSBv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 14:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269020AbTGOSAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 13:38:34 -0400
-Received: from genius.impure.org.uk ([195.82.120.210]:40861 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S268938AbTGORdq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 13:33:46 -0400
-Date: Tue, 15 Jul 2003 18:48:24 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: ian.soboroff@nist.gov
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1 - cpu_freg sysfs nodes?
-Message-ID: <20030715174824.GA15505@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	ian.soboroff@nist.gov, linux-kernel@vger.kernel.org
-References: <m34r1n3e93.fsf@euphrates.ncsl.nist.gov> <20030715164251.GA2623@inferi.kami.home> <m3d6gb1wp8.fsf@euphrates.ncsl.nist.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 15 Jul 2003 14:00:31 -0400
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:26884 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S269128AbTGOR75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 13:59:57 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6 - sysfs sensor nameing inconsistency
+Date: Tue, 15 Jul 2003 22:14:38 +0400
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <m3d6gb1wp8.fsf@euphrates.ncsl.nist.gov>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307152214.38825.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2003 at 02:17:23PM -0400, ian.soboroff@nist.gov wrote:
- > > find /sys -iname 'cpu*'
- > >
- > > /sys/firmware/acpi/namespace/ACPI/CPU0
- > > /sys/devices/system/cpu
- > > /sys/devices/system/cpu/cpu0
- > > /sys/devices/system/cpu/cpu0/cpufreq
- > > /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq
- > > /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq
- > 
- > If this is the right place to look, the Documentation/cpu-freq needs
- > some updating.
+In 2.4 all sensor chip got a subdirectory with name derived from type_name - a 
+single word describing sensor, like
 
-Already updated in the cpufreq tree. Going to be pushed in the
-next day or so.
+adm1021.c:              type_name = "max1617";
+adm1021.c:              type_name = "max1617a";
+adm1021.c:              type_name = "adm1021";
+adm1021.c:              type_name = "adm1023";
+adm1021.c:              type_name = "thmc10";
+adm1021.c:              type_name = "lm84";
+adm1021.c:              type_name = "gl523sm";
+adm1021.c:              type_name = "mc1066";
+...
 
- > But this still isn't it...
- > 
- > # find /sys -iname 'cpu*'
- > /sys/devices/system/cpu
- > /sys/devices/system/cpu/cpu0
+etc. All user-level configuration (sensors, gkrellm) have been using these 
+names to match available sensors and configuration data.
 
-Hmm, for some reason the registration failed.
-Are there any cpufreq messages at all in the boot logs ?
+In 2.6 sensors appear under /sysfs, type_name no more used and the only 
+identification available is .../name, but it seems to be arbitrary chosen 
+like
 
-		Dave
+- single word ("it87") - lm87.c
+- "name chip" or "name subclient" - most others (lm78.c, wd83781d.c etc)
+- completely arbitrary shiny description - "Generic LM85", "National LM85-B" 
+etc in lm85.c
+
+This means, any user program accessing sensors need incompatible changes and 
+comfiuration cannot be shared between 2.4 and 2.6 without serious redesign 
+and/or some translation layer.
+
+If there are serious reasons to keep current names in "name" - what about 
+adding extra type_name property that will hold type_name compatible with 2.4, 
+at least for those drivers that are also available there. This would allow 
+easily reuse existing sensors configuration.
+
+TIA
+
+-andrey

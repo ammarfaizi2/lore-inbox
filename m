@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVAaTrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVAaTrH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbVAaTrI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 14:47:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVAaTpG
+	id S261349AbVAaTrH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 14:47:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVAaTpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 14:45:06 -0500
-Received: from opersys.com ([64.40.108.71]:49931 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261339AbVAaTol (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 14:44:41 -0500
-Message-ID: <41FE89E0.9030802@opersys.com>
-Date: Mon, 31 Jan 2005 14:41:20 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Tom Zanussi <zanussi@us.ibm.com>
-CC: Andi Kleen <ak@muc.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@AM.SONY.COM>
-Subject: Re: [PATCH] relayfs redux, part 2
-References: <16890.38062.477373.644205@tut.ibm.com>	<m1d5volksx.fsf@muc.de>	<16892.26990.319480.917561@tut.ibm.com>	<20050131125758.GA23172@muc.de> <16894.23610.315929.805524@tut.ibm.com>
-In-Reply-To: <16894.23610.315929.805524@tut.ibm.com>
-Content-Type: text/plain; charset=us-ascii
+	Mon, 31 Jan 2005 14:45:33 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:17670 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261335AbVAaToE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 14:44:04 -0500
+Message-Id: <200501311942.j0VJgIYs016952@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Lorenzo =?iso-8859-1?Q?Hern=E1ndez_Garc=EDa-Hierro?= 
+	<lorenzo@gnu.org>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, netdev@oss.sgi.com,
+       Hank Leininger <hlein@progressive-comp.com>
+Subject: Re: [PATCH] OpenBSD Networking-related randomization port 
+In-Reply-To: Your message of "Mon, 31 Jan 2005 17:50:25 +0100."
+             <20050131165025.GN18316@stusta.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <1106932637.3778.92.camel@localhost.localdomain> <20050128100229.5c0e4ea1@dxpl.pdx.osdl.net> <1106937110.3864.5.camel@localhost.localdomain> <20050128105217.1dc5ef42@dxpl.pdx.osdl.net> <1106944492.3864.30.camel@localhost.localdomain> <1106945266.7776.41.camel@laptopd505.fenrus.org> <200501290915.j0T9FkVY012948@turing-police.cc.vt.edu>
+            <20050131165025.GN18316@stusta.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1107200537_32560P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 31 Jan 2005 14:42:18 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1107200537_32560P
+Content-Type: text/plain; charset=us-ascii
 
-Tom Zanussi wrote:
-> OK, makes sense to me - I'll get rid of relay_reserve and replace it
-> with the simple putc write and variant.
+On Mon, 31 Jan 2005 17:50:25 +0100, Adrian Bunk said:
+> On Sat, Jan 29, 2005 at 04:15:43AM -0500, Valdis.Kletnieks@vt.edu wrote:
 
-Please don't do that. Instead, bring back the ad-hoc mode code, that's
-what is was for anyway.
+> > Note that obsd_rand.c started off life as a BSD-licensed file - I was told
+> > that was a show-stopper when I submitted basically the same patch a while back.
+> >...
+> 
+> At least the three clause BSD license is GPL compatible.
 
-> You could just create and log into a separate relayfs channel, if you
-> wanted to.  Not sure we need to add anything special to support that.
+The copy of obsd_rand.c I have hass the problematic 4-clause version.  It looks
+to me like we'd need to get Michael Shalayeff, Theodore T'so, and Niels Provos
+to all agree to re-license under the 3-clause variant.  Using Arjan's code is
+most likely the better approach...
 
-Postprocessing doesn't solve world famine ;) As far as LTT goes,
-splitting events like this makes it impossible to read large traces.
-Other clients are free to do as they wish.
+--==_Exmh_1107200537_32560P
+Content-Type: application/pgp-signature
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFB/ooZcC3lWbTT17ARAgbcAJ0Qn3ivh/rz9hIRaA4/ZaB4oZrx9wCdGXJL
+VqYqh5yoLkS51NMtBgzmfys=
+=rgm9
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1107200537_32560P--

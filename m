@@ -1,71 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272238AbRHWMYp>; Thu, 23 Aug 2001 08:24:45 -0400
+	id <S272244AbRHWMc5>; Thu, 23 Aug 2001 08:32:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272241AbRHWMYg>; Thu, 23 Aug 2001 08:24:36 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:25609 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S272238AbRHWMYW>;
-	Thu, 23 Aug 2001 08:24:22 -0400
-Date: Thu, 23 Aug 2001 14:24:07 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Marc Heckmann <heckmann@hbesoftware.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: small patch for 2.4.9 VM
-Message-Id: <20010823142407.54c332e9.skraw@ithnet.com>
-In-Reply-To: <20010823072104.A13430@hbe.ca>
-In-Reply-To: <20010823072104.A13430@hbe.ca>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S272247AbRHWMci>; Thu, 23 Aug 2001 08:32:38 -0400
+Received: from housing11.berlin3.powerweb.de ([62.67.209.22]:19216 "EHLO
+	housing11.berlin3.powerweb.de") by vger.kernel.org with ESMTP
+	id <S272244AbRHWMcQ>; Thu, 23 Aug 2001 08:32:16 -0400
+Message-ID: <003001c12bd0$b5b64da0$ce01a8c0@CPL01>
+From: "compulan" <astilley@compulan.de>
+To: "Axel Siebenwirth" <axel@hh59.org>, "Axel" <axel@rayfun.org>
+Cc: "Kernel Ml" <linux-kernel@vger.kernel.org>,
+        "Realtek Ml" <realtek@scyld.com>
+In-Reply-To: <Pine.LNX.4.33.0108231414350.16256-100000@neon.hh59.org>
+Subject: Re: [realtek] Realtek 8139C: NETDEV WATCHDOG transmit timeout
+Date: Thu, 23 Aug 2001 14:37:24 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Aug 2001 07:21:04 -0400
-Marc Heckmann <heckmann@hbesoftware.com> wrote:
+Could you stop sending this to this address, it would be greatly
+appreciated. thank you. it has been going on for two days now, and we have
+no use for this information. thank you.
+----- Original Message -----
+From: Axel Siebenwirth <axel@hh59.org>
+To: Axel <axel@rayfun.org>
+Cc: Kernel Ml <linux-kernel@vger.kernel.org>; Realtek Ml <realtek@scyld.com>
+Sent: Thursday, August 23, 2001 2:16 PM
+Subject: Re: [realtek] Realtek 8139C: NETDEV WATCHDOG transmit timeout
 
-> [not on list, please CC me]
-> 
-> Hi,
-> 
-> I've been tracking the vm changes in the 2.4.9-pre series. I was seeing
-> really good improvements with 2.4.9-pre3 but then in pre4 it went to shit
-> on my box (192mb, 200mb swap). The page cache was huge at all times and
-> went pretty deep into swap on light loads. staring at the diff between
-> pre3 and pre4, I noticed that background page aging in kswapd has changed
-> [see do_try_free_pages], instead of just doing refill_inactive_scan(), it
-> now does swap_out() first, then refill_inactive. Somehow, this seems to
-> prevent proper page aging or something [please correct me if i'm wrong,
-> haven't had the time to stare at swap_out() yet]. Anyway the short patch
-> below, makes it behave like pre3 which is quite good for me.  This might
-> also be the cause of other peoples mm problems with 2.4.9 final.
 
-Sorry it isn't. I tested it and it has exactly the same problem under 2.4.9 with this patch than the straight kernel. Interestingly the error message from alloc_pages does not come up, but NFS-copy fails anyway when all the physical mem is eaten up by caches.
-meminfo in failing state:
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  921726976 918994944  2732032        0  6815744 823762944
-Swap: 271392768        0 271392768
-MemTotal:       900124 kB
-MemFree:          2668 kB
-MemShared:           0 kB
-Buffers:          6656 kB
-Cached:         804456 kB
-SwapCached:          0 kB
-Active:         276020 kB
-Inact_dirty:    528988 kB
-Inact_clean:      6104 kB
-Inact_target:     6628 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       900124 kB
-LowFree:          2668 kB
-SwapTotal:      265032 kB
-SwapFree:       265032 kB
-
-Good about it: it does not swap. Bad: it does not work either.
-Forget this patch.
-
-Regards,
-Stephan
+> I got myself the latest version of rtl8139-diag and it gave me different
+> output in the chip registers! there are different values at 0x040.
+>
+> axel
+>
+> rtl8139-diag.c:v2.04 8/08/2001 Donald Becker (becker@scyld.com)
+>  http://www.scyld.com/diag/index.html
+> Index #1: Found a RealTek RTL8139 adapter at 0xf800.
+> The RealTek chip appears to be active, so some registers will not be read.
+> To see all register values use the '-f' flag.
+> RealTek chip registers at 0xf800
+>  0x000: 26843000 0000470b 80040000 40000000 9008a03c 9008a054 9008a054
+> 9008a03c
+>  0x020: 03096000 03096600 03096c00 03097200 02f80000 0d0a0000 42dc42cc
+> 0000c07f
+>  0x040: 74000600 0e00f78e 951264c7 00000000 000d1000 00000000 008cd108
+> 00100000
+>  0x060: 1000f00f 01e1782d 00000000 00000000 00000005 000f77c0 b0f243b9
+> 7a36d743.  No interrupt sources are pending.
+>  The chip configuration is 0x10 0x0d, MII half-duplex mode.
+>  The RTL8139 does not use a MII transceiver.
+>  It does have internal MII-compatible registers:
+>    Basic mode control register   0x782d.
+>    Basic mode status register    0x1000.
+>    Autonegotiation Advertisement 0x01e1.
+>    Link Partner Ability register 0x0000.
+>    Autonegotiation expansion     0x0000.
+>    Disconnects                   0x0000.
+>    False carrier sense counter   0x0000.
+>    NWay test register            0x0005.
+>    Receive frame error count     0x0000.
+>
+>
+>
+>
+> _______________________________________________
+> realtek mailing list
+> realtek@scyld.com
+> http://www.scyld.com/mailman/listinfo/realtek
+>
 

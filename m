@@ -1,57 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266127AbUFJGGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266203AbUFJGIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266127AbUFJGGu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 02:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUFJGGu
+	id S266203AbUFJGIy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 02:08:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUFJGIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 02:06:50 -0400
-Received: from prosun.first.gmd.de ([194.95.168.2]:46815 "EHLO
-	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S266127AbUFJGGq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 02:06:46 -0400
-Subject: oops on checking for changes of usb input devices
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: linuxppc-dev@lists.linuxppc.org
+	Thu, 10 Jun 2004 02:08:54 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:3083 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S266211AbUFJGHU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 02:07:20 -0400
+Subject: Re: 2.6.7-rc3: waiting for eth0 to become free
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Christian Kujau <evil@g-house.de>
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       NetDev Mailinglist <netdev@oss.sgi.com>,
+       Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <40C793CE.6000609@g-house.de>
+References: <1086722310.1682.1.camel@teapot.felipe-alfaro.com>
+	 <20040608124215.291a7072@dell_ss3.pdx.osdl.net>
+	 <1086725369.1806.1.camel@teapot.felipe-alfaro.com>
+	 <20040608140200.2ddaa6f4@dell_ss3.pdx.osdl.net>
+	 <1086794282.1706.2.camel@teapot.felipe-alfaro.com>
+	 <40C793CE.6000609@g-house.de>
 Content-Type: text/plain
-Message-Id: <1086847579.24322.34.camel@localhost>
+Date: Thu, 10 Jun 2004 08:07:16 +0200
+Message-Id: <1086847636.1719.6.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Date: Thu, 10 Jun 2004 08:06:21 +0200
+X-Mailer: Evolution 1.5.9.1 (1.5.9.1-2) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-06-10 at 00:48 +0200, Christian Kujau wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
+> |>What is happening is that some subsystem is holding a reference to the
+> device (calling dev_hold())
+> |>but not cleaning up (calling dev_put).  It can be a hard to track
+> which of the many
+> |>things routing, etc are not being cleared properly.  Look for routes
+> that still
+> |>get stuck (ip route) and neighbor cache entries.  Most of these end up
+> being
+> |>protocol bugs.
+> |
+> |
+> | The two attached patches, one for net/ipv4/route.c, the other for net/
+> | ipv6/route.c fix all my problems when running "cardctl eject" while a
+> | program mantains an open network socket (ESTABLISHED).
+> |
+> | Both patches apply cleanly against 2.6.7-rc3 and 2.6.7-rc3-mm1.
+> | I'm not completely sure what has changed in 2.6.7-rc3 that is breaking
+> | cardctl for me, as it Just Worked(TM) fine in 2.6.7-rc2.
+> 
+> do you know, by any chance, if this error is dependent to eth0 only or
+> could help for my error message too:
+> 
+> unregister_netdevice: waiting for ppp0 to become free. Usage count = 1
 
-Hi!
+I think the mentioned error is not dependent on any specific interface
+(let it be eth0, or ppp0), but any interface in general which has a
+routing entry and is the target/source of IP traffic. This is based on
+the fact that my fixes play with the refcounting on any interface. not
+just eth0 specifically, and pertain to both IPv4 and IPv6 core.
 
-When I attach a ps2 mouse and keyboard through a ps2->usb adapter and
-then do a rescan for changes in input devices I keep getting this oops.
-This is kernel 2.6.7-rc2 on powerbook G4. A way to trigger this is to
-reload/restart pbbuttonsd.
+However, I detected this behavior on my eth0, since this is the only
+interface I have on my laptop. You just can try both patches against
+2.6.7-rc3 or 2.6.7-rc3-mm1 to see if them cure your problems.
 
-Any ideas ?
+> happened just a few hours ago (2.6.7-rc3), i had to reboot the box
+> anyway, but pppd was not able to die (even with kill -9)
 
-Soeren
-
-
-kernel: Oops: kernel access of bad area, sig: 11 [#1] 
-kernel: NIP: 66696C6C LR: C029B0FC SP: EF367E10 REGS: ef367d60 TRAP: 0400    Not tainted
-kernel: MSR: 40009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-kernel: TASK = efbd8050[2952] 'pbbuttonsd' THREAD: ef366000Last syscall: 5 
-kernel: GPR00: 66696C6C EF367E10 EFBD8050 EFC8C8A0 ED62713C 00000000 CD7D56B0 EF367DA0  
-kernel: GPR08: 00000000 00000000 C0417F04 00000004 80000488 1002578C 00000000 100C0000  
-kernel: GPR16: 00000000 00000000 100CA208 100CC7E8 100CC2A8 100CC608 1001E24C 10000000  
-kernel: GPR24: 10010000 00000000 1001E25C ED62713C ED62713C C0520468 C04179C8 00000010  
-kernel: NIP [66696c6c] 0x66696c6c
-kernel: LR [c029b0fc] input_accept_process+0x3c/0x44
-kernel: Call trace:
-kernel: [c029dcd8] evdev_open+0x64/0x104
-kernel: [c029c070] input_open_file+0x98/0x1cc
-kernel: [c006b970] chrdev_open+0xe0/0x16c
-kernel: [c00605ec] dentry_open+0x150/0x23c
-kernel: [c0060498] filp_open+0x64/0x68
-kernel: [c0060958] sys_open+0x68/0xa0 
-kernel: [c0005ea0] ret_from_syscall+0x0/0x44
-udev[20103]: removing device node '/dev/input/event4'
-
+In my case, I was able to trigger the problem by running "cardctl eject"
+which was then stuck at D state. Killing any program using a network
+socket, and waiting for opened connections to transition from
+ESTABLISHED to TIME_WAIT and then being closed, allowed "cardctl" to
+exit the D state.
 

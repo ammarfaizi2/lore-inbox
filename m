@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263546AbTICQjH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 12:39:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263532AbTICQjG
+	id S263973AbTICQpS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 12:45:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264005AbTICQpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 12:39:06 -0400
-Received: from dsl093-172-075.pit1.dsl.speakeasy.net ([66.93.172.75]:31617
-	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S263973AbTICQhu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 12:37:50 -0400
-Date: Wed, 3 Sep 2003 12:37:28 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-Message-ID: <20030903163728.GB23996@kurtwerks.com>
-References: <20030903040327.GA10257@work.bitmover.com> <20030903041850.GA2978@krispykreme> <20030903042953.GC10257@work.bitmover.com> <20030903043355.GC2019@zip.com.au> <20030903050859.GD10257@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030903050859.GD10257@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.21-krw
-X-Woot: Woot!
+	Wed, 3 Sep 2003 12:45:18 -0400
+Received: from urtica.linuxnews.pl ([217.67.200.130]:49929 "EHLO
+	urtica.linuxnews.pl") by vger.kernel.org with ESMTP id S263973AbTICQpM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 12:45:12 -0400
+Date: Wed, 3 Sep 2003 18:45:09 +0200 (CEST)
+From: Pawel Kot <pkot@linuxnews.pl>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [ANN] NTFS 2.1.4b for linux 2.4.22 available
+In-Reply-To: <Pine.LNX.4.33.0309012303380.2072-100000@urtica.linuxnews.pl>
+Message-ID: <Pine.LNX.4.33.0309031843530.5910-100000@urtica.linuxnews.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoth Larry McVoy:
+On Mon, 1 Sep 2003, Pawel Kot wrote:
 
-[SMP hits memory latency wall]
+> There's new NTFS driver available. NTFS 2.1.4b is prepared as the patch
+> against the 2.4.22 kernel. No new features, no fixes just rediffed. The
+> patch should also work with 2.4.23-pre2 kernel.
 
-> It's called asymptotic behavior.  After a while you can look at the graph
-> and see that more CPUs on the same memory doesn't make sense.  It hasn't
-> made sense for a decade, what makes anyone think that is changing?
+Updated version, 2.1.4c, is available. It should build also on highmem
+boxes.
+http://sourceforge.net/project/showfiles.php?group_id=13956
 
-Isn't this what NUMA is for, then?
-
-Kurt
+pkot
 -- 
-"There was a boy called Eustace Clarence Scrubb, and he almost deserved
-it."
-		-- C. S. Lewis, The Chronicles of Narnia
+mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
+http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
+

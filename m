@@ -1,50 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUFCGiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbUFCGje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUFCGiO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 02:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbUFCGiO
+	id S261236AbUFCGje (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 02:39:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbUFCGje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 02:38:14 -0400
-Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:16753 "HELO
-	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261234AbUFCGiL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 02:38:11 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Subject: Re: [RFC/RFT] Raw access to serio ports (1/2)
-Date: Thu, 3 Jun 2004 01:38:10 -0500
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       bilotta78@hotpop.com, vojtech@suse.cz, tuukkat@ee.oulu.fi
-References: <200406020218.42979.dtor_core@ameritech.net> <200406030045.51102.dtor_core@ameritech.net> <xb7llj540o3.fsf@savona.informatik.uni-freiburg.de>
-In-Reply-To: <xb7llj540o3.fsf@savona.informatik.uni-freiburg.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="big5"
+	Thu, 3 Jun 2004 02:39:34 -0400
+Received: from fmr99.intel.com ([192.55.52.32]:32657 "EHLO
+	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261252AbUFCGjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 02:39:17 -0400
+Subject: Re: [RFD] Explicitly documenting patch submission
+From: Len Brown <len.brown@intel.com>
+To: Ian Stirling <ian.stirling@mauve.plus.com>
+Cc: Greg KH <greg@kroah.com>, Arjan van de Ven <arjanv@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Larry McVoy <lm@bitmover.com>
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615FD265@hdsmsx403.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615FD265@hdsmsx403.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1086244735.2241.269.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 03 Jun 2004 02:38:56 -0400
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406030138.10102.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 03 June 2004 01:26 am, Sau Dan Lee wrote:
-> >>>>> "Dmitry" == Dmitry Torokhov <dtor_core@ameritech.net> writes:
-> 
->     Dmitry> +config INPUT_RAWDEV
->     Dmitry> +	tristate "Raw access to serio ports"
->     Dmitry> +	depends on INPUT && INPUT_MISC
->     Dmitry> +	help
-> 
-> Since this provides raw access  to serio ports ONLY, shouldn't it also
-> depend on INPUT_SERIO?
+On Sun, 2004-05-23 at 11:38, Ian Stirling wrote:
 
-Yes, you are right, will change.
+> Has anyone ever tried to forge the name on a patch, and get it
+> included?
 
-> Shall we better call it SERIO_RAW? 
-> 
+Yes.
 
-I could probably rename it to serio_rawdev... It's close to 2AM here so the
-next version is due tomorrow night ;) 
+Today akpm send me a little patch via e-mail, I did this:
 
--- 
-Dmitry
+$ bk import -temail < akpm.email
+
+This records the author as akpm -- not me.
+I did a "bk comments" to clean up the comments,
+but the author remains akpm, who included a
+single "Signed-off-by: Andrew Morton <akpm@osdl.org>"
+
+If you paw through the s-file, you'll find a little [lenb]
+that shows I checked in the file -- but the tools don't
+seem to show that.  You'll also see a little [torvalds]
+on lots of akpm csets, so I guess Linus does the
+same thing.
+
+There is a clear audit trail that the csets came from
+my repo: http://lkml.org/lkml/2004/5/3/77
+Though I guess pawing through LKML archives to follow
+patch origin should be an exception rather than a rule.
+
+More often I apply a patch with "bk import -tpatch".
+Here I get recorded as the one who checked-in,
+so if the author was not me, I credit the author
+in the check-in comments.  But I suppose that
+here too I'm a forger b/c I use BK_USER=len.brown
+so that the history records my valid company
+e-mail address, rather than the userid [lenb]
+I've got on my local development box.
+
+I guess this second method is consistent with Linus'
+proposal -- though I would have expected the first
+method to be preferable -- at least for well-known
+authors.
+
+Also, I guess the news here is that sometimes the
+last two levels of the check-in chain are automatically
+recorded, but this is not well known.
+
+cheers,
+-Len
+
+

@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbTJDNGe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 09:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTJDNGe
+	id S262033AbTJDN3a (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 09:29:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbTJDN3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 09:06:34 -0400
-Received: from dirac.phys.uwm.edu ([129.89.57.19]:31906 "EHLO
-	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S262030AbTJDNGd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 09:06:33 -0400
-Date: Sat, 4 Oct 2003 08:06:32 -0500 (CDT)
-From: Bruce Allen <ballen@gravity.phys.uwm.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Re: CMD680, kernel 2.4.21, and heartache (fwd)
-Message-ID: <Pine.GSO.4.21.0310040757010.6486-100000@dirac.phys.uwm.edu>
+	Sat, 4 Oct 2003 09:29:30 -0400
+Received: from math.ut.ee ([193.40.5.125]:4024 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S262033AbTJDN33 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 09:29:29 -0400
+Date: Sat, 4 Oct 2003 16:29:23 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Jes Sorensen <jes@trained-monkey.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: qla1280 & __flush_cache_all
+In-Reply-To: <m33ceyi1bf.fsf@trained-monkey.org>
+Message-ID: <Pine.GSO.4.44.0310041627090.22040-100000@math.ut.ee>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yeah, it says 196, and that's bizarre.  196 whats?  From looking at other
-> example output, the '1441854' number is usually the true deg. C of the
-> machine.  But I'm reasonably sure that it's not at a million and a half
-> centigrade.
+> Meelis> So why is qla1280 in 2.6-current using __flush_cache_all?
+>
+> The driver is calling flush_cache_all() not __flush_cache_all(), the
+> __ thing is an architecture specific issue.
+>
+> Yes it's a lazy approach left over from the old codebase.
 
-You need to use a more recent version of smartctl -- one with better
-documentation and clearer output.  Get smartmontools 5.1-18 from
-http://smartmontools.sourceforge.net/ and read the documentation. Don't
-use the 5.19 release -- it's flawed.
+Yes, it's flush_cache_all() that's causing problems. Current sparc64
+doesn't even have flush_cache_all anymore.
 
-This should answer your questions. If not, post the output from (the
-smartmontools 5.1-18 version of) smartctl -a and I'll comment.
-
-[Regarding the temperature, the Drive ID string in your output was:
-Device: IC35L120AVV207-0 which is an IBM/Hitachi drive, not a Samsung
-drive as you stated in your original post.  If so, the drive stores three
-temperatures internally in six bytes.  smartmontools will display all
-three temperatures (current, lifetime min and lifetime max).  The outdated
-version of smartctl that you are using simply prints the bottom four of
-the six bytes -- hence the very large number] .
-
-Cheers,
-	Bruce
-
+-- 
+Meelis Roos (mroos@linux.ee)
 

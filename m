@@ -1,35 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276527AbRJGSFv>; Sun, 7 Oct 2001 14:05:51 -0400
+	id <S276538AbRJGSJL>; Sun, 7 Oct 2001 14:09:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276519AbRJGSFm>; Sun, 7 Oct 2001 14:05:42 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:37362 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S276527AbRJGSFX>;
-	Sun, 7 Oct 2001 14:05:23 -0400
-Date: Sun, 7 Oct 2001 20:05:22 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.11-pre4 remove spurious kernel recompiles
-Message-ID: <20011007200522.E726@athlon.random>
-In-Reply-To: <23246.1002450342@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <23246.1002450342@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Sun, Oct 07, 2001 at 08:25:42PM +1000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S276535AbRJGSJB>; Sun, 7 Oct 2001 14:09:01 -0400
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:11570 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S276519AbRJGSIr>; Sun, 7 Oct 2001 14:08:47 -0400
+Date: Sun, 7 Oct 2001 13:08:42 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Martin Frey <frey@scs.ch>
+cc: becker@scyld.com, tjeerd.mulder@fujitsu-siemens.com,
+        torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: Fix for drivers/net/natsemi.c on 64 bit platforms
+In-Reply-To: <011d01c14f5a$27c8da50$6a876ace@SCHLEPPDOWN>
+Message-ID: <Pine.LNX.3.96.1011007130757.26881G-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 07, 2001 at 08:25:42PM +1000, Keith Owens wrote:
-> in the top level Makefile forces a recompile of the entire kernel, for
-> no good reason.
+Thanks, modified slightly and applied to at1700.c, natsemi.c, and
+winbond-840.c.  Patches to Alan and Linus will be sent shortly...
 
-this is a matter of taste but personally I believe that at least
-theorically recompiling the whole kernel if I add -g to CFLAGS, or if I
-change the EXTRAVERSION have lots of sense. OTOH at the moment I
-wouldn't trust the buildsystem anyways, so I'd run a `make distclean`
-anyways in those cases :).
+	Jeff
 
-Andrea
+
+

@@ -1,94 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266875AbUFYWEO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266876AbUFYWEt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266875AbUFYWEO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 18:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266877AbUFYWEO
+	id S266876AbUFYWEt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 18:04:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266877AbUFYWEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 25 Jun 2004 18:04:24 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:51928 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266876AbUFYWEO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 25 Jun 2004 18:04:14 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:13726
-	"EHLO voidhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S266875AbUFYWEF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 18:04:05 -0400
-Date: Fri, 25 Jun 2004 23:03:48 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-Message-Id: <200406252203.i5PM3m6s031728@voidhawk.shadowen.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] convert uses of ZONE_HIGHMEM to is_highmem
-Cc: akpm@osdl.org, apw@shadowen.org
+Date: Sat, 26 Jun 2004 00:04:06 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: willy@debian.org, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [2.6 patch] fix arch/i386/pci/Makefile
+Message-ID: <20040625220406.GL18303@fs.tum.de>
+References: <20040625001513.GB18303@fs.tum.de> <20040624210150.46e68ded.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040624210150.46e68ded.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As the comments in mmzone.h indicate is_highmem() is designed to
-reduce the proliferation of the constant ZONE_HIGHMEM.  This patch
-updates three references to ZONE_HIGHMEM to use is_highmem().
-None appear to be on critical paths.
+On Thu, Jun 24, 2004 at 09:01:50PM -0700, Andrew Morton wrote:
+> Adrian Bunk <bunk@fs.tum.de> wrote:
+> >
+> > I got the following compile error in 2.6.7-mm2 (but it doesn't seem to 
+> >  be specific to -mm2):
+> > ..
+> >  drivers/built-in.o(.text+0x6c24a): In function `acpi_pci_root_add':
+> >  : undefined reference to `pci_acpi_scan_root'
+> >  make: *** [.tmp_vmlinux1] Error 1
+> 
+> > 
+> >  This problem occurs with
+> >    CONFIG_ACPI_PCI=y && (CONFIG_X86_VISWS=y || CONFIG_X86_NUMAQ=y)
+> > 
+> > ....
+> >  --- linux-2.6.7-mm2-full/arch/i386/pci/Makefile.old	2004-06-25 02:08:29.000000000 +0200
+> >  +++ linux-2.6.7-mm2-full/arch/i386/pci/Makefile	2004-06-25 02:10:36.000000000 +0200
+> >  @@ -5,10 +5,11 @@
+> >   obj-$(CONFIG_PCI_DIRECT)	+= direct.o
+> >   
+> >   pci-y				:= fixup.o
+> >  -pci-$(CONFIG_ACPI_PCI)		+= acpi.o
+> >   pci-y				+= legacy.o irq.o
+> >   
+> >   pci-$(CONFIG_X86_VISWS)		:= visws.o fixup.o
+> >   pci-$(CONFIG_X86_NUMAQ)		:= numa.o irq.o
+> >   
+> >  +pci-$(CONFIG_ACPI_PCI)		+= acpi.o
+> >  +
+> 
+> This causes my e100 NIC to not work.  Some initcall ordering dependency,
+> presumably.  A whole bunch of devices popped up on different IRQs.
+> 
+> Come to think about it, how can the above patch fix that linkage error
+> anyway?
 
-Revision: $Rev: 305 $ 
+A := overrides all previous := and += .
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
 
----
- arch/i386/mm/discontig.c |   17 +++++++++++------
- mm/page_alloc.c          |    9 +++++----
- 2 files changed, 16 insertions(+), 10 deletions(-)
+But Matthew's patch seems to be a better solution.
 
-diff -upN reference/arch/i386/mm/discontig.c current/arch/i386/mm/discontig.c
---- reference/arch/i386/mm/discontig.c	2004-06-25 22:26:08.000000000 +0100
-+++ current/arch/i386/mm/discontig.c	2004-06-25 22:26:50.000000000 +0100
-@@ -411,17 +411,22 @@ void __init zone_sizes_init(void)
- void __init set_highmem_pages_init(int bad_ppro) 
- {
- #ifdef CONFIG_HIGHMEM
--	int nid;
-+	struct zone *zone;
- 
--	for (nid = 0; nid < numnodes; nid++) {
-+	for_each_zone(zone) {
- 		unsigned long node_pfn, node_high_size, zone_start_pfn;
- 		struct page * zone_mem_map;
- 		
--		node_high_size = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].spanned_pages;
--		zone_mem_map = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].zone_mem_map;
--		zone_start_pfn = NODE_DATA(nid)->node_zones[ZONE_HIGHMEM].zone_start_pfn;
-+		if (!is_highmem(zone))
-+			continue;
-+
-+		printk("Initializing %s for node %d\n", zone->name,
-+			zone->zone_pgdat->node_id);
-+
-+		node_high_size = zone->spanned_pages;
-+		zone_mem_map = zone->zone_mem_map;
-+		zone_start_pfn = zone->zone_start_pfn;
- 
--		printk("Initializing highpages for node %d\n", nid);
- 		for (node_pfn = 0; node_pfn < node_high_size; node_pfn++) {
- 			one_highpage_init((struct page *)(zone_mem_map + node_pfn),
- 					  zone_start_pfn + node_pfn, bad_ppro);
-diff -upN reference/mm/page_alloc.c current/mm/page_alloc.c
---- reference/mm/page_alloc.c	2004-06-25 22:26:08.000000000 +0100
-+++ current/mm/page_alloc.c	2004-06-25 22:26:50.000000000 +0100
-@@ -930,11 +930,12 @@ unsigned int nr_free_pagecache_pages(voi
- #ifdef CONFIG_HIGHMEM
- unsigned int nr_free_highpages (void)
- {
--	pg_data_t *pgdat;
-+	struct zone *zone;
- 	unsigned int pages = 0;
- 
--	for_each_pgdat(pgdat)
--		pages += pgdat->node_zones[ZONE_HIGHMEM].free_pages;
-+	for_each_zone(zone)
-+		if (is_highmem(zone))
-+			pages += zone->free_pages;
- 
- 	return pages;
- }
-@@ -1422,7 +1423,7 @@ void __init memmap_init_zone(struct page
- 		INIT_LIST_HEAD(&page->lru);
- #ifdef WANT_PAGE_VIRTUAL
- 		/* The shift won't overflow because ZONE_NORMAL is below 4G. */
--		if (zone != ZONE_HIGHMEM)
-+		if (!is_highmem(zone))
- 			set_page_address(page, __va(start_pfn << PAGE_SHIFT));
- #endif
- 		start_pfn++;
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

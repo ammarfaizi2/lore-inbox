@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310429AbSCLGIM>; Tue, 12 Mar 2002 01:08:12 -0500
+	id <S310434AbSCLGLW>; Tue, 12 Mar 2002 01:11:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310430AbSCLGIC>; Tue, 12 Mar 2002 01:08:02 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:1735 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S310429AbSCLGHz>;
-	Tue, 12 Mar 2002 01:07:55 -0500
-Date: Mon, 11 Mar 2002 22:04:25 -0800 (PST)
-Message-Id: <20020311.220425.51167805.davem@redhat.com>
-To: rgooch@ras.ucalgary.ca
-Cc: bcrl@redhat.com, whitney@math.berkeley.edu, linux-kernel@vger.kernel.org
-Subject: Re: Broadcom 5700/5701 Gigabit Ethernet Adapters
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200203111948.g2BJmhs13326@vindaloo.ras.ucalgary.ca>
-In-Reply-To: <20020310212210.A27870@redhat.com>
-	<20020310.183033.67792009.davem@redhat.com>
-	<200203111948.g2BJmhs13326@vindaloo.ras.ucalgary.ca>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S310431AbSCLGLN>; Tue, 12 Mar 2002 01:11:13 -0500
+Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:65208 "EHLO
+	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S310430AbSCLGK6>; Tue, 12 Mar 2002 01:10:58 -0500
+Message-ID: <01d801c1c98c$aad1dfd0$1125a8c0@wednesday>
+From: "J. Dow" <jdow@earthlink.net>
+To: "Jeff Garzik" <jgarzik@mandrakesoft.com>,
+        "Linus Torvalds" <torvalds@transmeta.com>
+Cc: "LKML" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0203111916000.18604-100000@penguin.transmeta.com> <3C8D7A2A.7040209@mandrakesoft.com>
+Subject: Re: [patch] My AMD IDE driver, v2.7
+Date: Mon, 11 Mar 2002 22:10:53 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Richard Gooch <rgooch@ras.ucalgary.ca>
-   Date: Mon, 11 Mar 2002 12:48:43 -0700
+From: "Jeff Garzik" <jgarzik@mandrakesoft.com>
 
-   David S. Miller writes:
-   > NAPI is really only going to help with high packet rates not with
-   > thinks like raw bandwidth tests.
-   
-   You're saying that people should just go and use jumbo frames? Isn't
-   that a problem for mixed 10/100/1000 LANs?
+> Linus Torvalds wrote:
+...
+> >One solution may be to have the whole raw cmd thing as a loadable module, 
+> >and then I can make sure that it's not even available on the system so 
+> >that I have to do some work to find it, and somebody elses program won't 
+> >just know what to do.
+> >
+> >But in that case is should be far removed from the IDE driver - it would 
+> >just be a module that inserts a raw request on the request queue, and NOT 
+> >inside some subsystem driver that I obviously want to have available all 
+> >the time.
+> >
+> I like this solution, it was the one I was thinking of :)
 
-No, I'm saying that the current situation is fine with most cards
-and most uses.
+It leaves me bemused. You speak of a module to install a raw userspace
+IO capability. If that module exists the module interface exists. Would
+it have to be the module compiled into the kernel that gets run on that
+interface? It looks as wide open as ever, to me.
 
-Ben pointed out that interrupt-mitigation challenged cards like the
-NatSemi do gain, but that is the only case I can imagine at this
-time.
+> The entire userspace raw cmd ioctl should be a separate module for 
+> precisely the issues you outlined.  If they choose, people can compile 
+> that module into the static kernel image, including filter.  Or they can 
+> use the module without the filter.  Or they can not use the module at 
+> all.  Etc.
 
-Unless you have a card like the NatSemi (no interrupt mitigation) or
-your interfaces are being hit with 120,000 packets per second EACH,
-then NAPI is not going to be an explosive gain for you.
+Of course, this seems to be one of those compromises between high
+availability and high security. It should be made clear that this is
+the compromise involved when the raw io filter is compiled in or not.
 
-Look, we were able to get world records in web serving without NAPI,
-right? :-)
+I'm not sure you can build an unfiltered raw IO capability into the
+kernel SCSI, IDE, or anything else and maintain system security.
+
+{^_^}    Joanne
+

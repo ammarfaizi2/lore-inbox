@@ -1,27 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267035AbSKMAAt>; Tue, 12 Nov 2002 19:00:49 -0500
+	id <S267034AbSKMAAG>; Tue, 12 Nov 2002 19:00:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267037AbSKMAAt>; Tue, 12 Nov 2002 19:00:49 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:46796 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S267035AbSKMAAr>; Tue, 12 Nov 2002 19:00:47 -0500
-Message-ID: <000b01c28aa8$ac0235c0$77d40a0a@amr.corp.intel.com>
-From: "Rusty Lynch" <rusty@linux.co.intel.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: How can I verify a memory address exist?
-Date: Tue, 12 Nov 2002 16:07:36 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S267035AbSKMAAG>; Tue, 12 Nov 2002 19:00:06 -0500
+Received: from polomer.sinet.sk ([62.169.169.8]:38660 "EHLO polomer.sinet.sk")
+	by vger.kernel.org with ESMTP id <S267034AbSKMAAF>;
+	Tue, 12 Nov 2002 19:00:05 -0500
+From: Peter Kundrat <kundrat@kundrat.sk>
+Date: Wed, 13 Nov 2002 01:04:50 +0100
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i810 audio
+Message-ID: <20021113000449.GB7015@napri.sk>
+Mail-Followup-To: kundrat,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0211121802540.27793-100000@graze.net> <1037144284.10029.0.camel@irongate.swansea.linux.org.uk> <20021112184349.A11757@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021112184349.A11757@redhat.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a kernel function to find out if a given memory address exist?
+On Tue, Nov 12, 2002 at 06:43:49PM -0500, Doug Ledford wrote:
+> And in some implementations the codec control labelled PCM2 is actually 
+> main volume, and I've seen one where a headphone was the actual main 
+> volume.  So, the answer is tinker with all the available volume sliders to 
+> see if you can find one that actually changes the volume of everything at 
+> once, and if you do find it, use it.
 
-    -rustyl
+Isnt there a way for userspace to somehow find this? It is a bit
+annoying that main volume control in kmix doesnt work (and thus the one
+in panel; also there is no headphone control there).
+The other option would be to configure userspace which control is the
+main one (but windows doesnt need that, so this solution would be
+inferior). Eventually i will take a look what does the win driver (maybe
+it sets main and headphone control always together). Until then i'd like
+to hear what are our options .. since the current situation is not
+really desirable.
+
+Thanks for any ideas,
+
+pkx
+-- 
+Peter Kundrat
+peter@kundrat.sk

@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVBQVZP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVBQV0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261171AbVBQVZP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 16:25:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVBQVZP
+	id S261175AbVBQV0e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 16:26:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVBQV0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 16:25:15 -0500
-Received: from fire.osdl.org ([65.172.181.4]:38529 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261171AbVBQVZJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 16:25:09 -0500
-Date: Thu, 17 Feb 2005 13:25:06 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: linux-os <linux-os@analogic.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: "Needlessly global functions static...."
-Message-ID: <20050217212506.GA21662@shell0.pdx.osdl.net>
-References: <Pine.LNX.4.61.0502171607500.18275@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0502171607500.18275@chaos.analogic.com>
-User-Agent: Mutt/1.5.6i
+	Thu, 17 Feb 2005 16:26:34 -0500
+Received: from simmts5.bellnexxia.net ([206.47.199.163]:12978 "EHLO
+	simmts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261175AbVBQV0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 16:26:24 -0500
+Message-ID: <4912.10.10.10.24.1108675441.squirrel@linux1>
+In-Reply-To: <200502172052.j1HKqme9006693@laptop11.inf.utfsm.cl>
+References: Message from "Sean" <seanlkml@sympatico.ca> of "Thu, 17 Feb 2005
+    11:58:58 CDT." <3757.10.10.10.24.1108659538.squirrel@linux1>
+    <200502172052.j1HKqme9006693@laptop11.inf.utfsm.cl>
+Date: Thu, 17 Feb 2005 16:24:01 -0500 (EST)
+Subject: Re: [BK] upgrade will be needed
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Horst von Brand" <vonbrand@inf.utfsm.cl>
+Cc: "Chris Friesen" <cfriesen@nortel.com>, "Lee Revell" <rlrevell@joe-job.com>,
+       "d.c" <aradorlinux@yahoo.es>, tytso@mit.edu, cs@tequila.co.jp,
+       galibert@pobox.com, kernel@crazytrain.com, linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a-7
+X-Mailer: SquirrelMail/1.4.3a-7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* linux-os (linux-os@analogic.com) wrote:
-> 
-> Hello,
-> Tell me. When all those kernel functions are made static
-> how does one use a kernel debugger? How does the OOPS
-> get decoded if nothing is in /proc/kallsyms or System.map???
+On Thu, February 17, 2005 3:52 pm, Horst von Brand said:
 
-static != inline.  Locally scoped symbols, 't',  and global, 'T', 
-are in kallsyms or System.map.
+> "Best tool for the job" certainly includes minutiae like "benefits" and
+> "price".
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Thank you, that's my point.  It's not just about the geeky microscopic
+technical details.
+
+Sean
+
+

@@ -1,73 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262544AbUKEA7x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbUKEBLb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262544AbUKEA7x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 19:59:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbUKEA5f
+	id S262533AbUKEBLb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 20:11:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbUKEBJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 19:57:35 -0500
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:32961 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S262529AbUKEAyD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 19:54:03 -0500
-Date: Fri, 5 Nov 2004 01:53:44 +0100
-From: Andrea Arcangeli <andrea@novell.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: fix iounmap and a pageattr memleak (x86 and x86-64)
-Message-ID: <20041105005344.GG8229@dualathlon.random>
-References: <20041102220720.GV3571@dualathlon.random> <41880E0A.3000805@us.ibm.com> <4188118A.5050300@us.ibm.com> <20041103013511.GC3571@dualathlon.random> <418837D1.402@us.ibm.com> <20041103022606.GI3571@dualathlon.random> <418846E9.1060906@us.ibm.com> <20041103030558.GK3571@dualathlon.random> <1099612923.1022.10.camel@localhost> <1099615248.5819.0.camel@localhost>
+	Thu, 4 Nov 2004 20:09:16 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:6021 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262533AbUKEBDw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 20:03:52 -0500
+Date: Fri, 5 Nov 2004 02:03:42 +0100
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] don't divide by zero on bad ext2 fs
+Message-ID: <20041105010340.GA8148@apps.cwi.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1099615248.5819.0.camel@localhost>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 04:40:48PM -0800, Dave Hansen wrote:
-> I attached the wrong patch.
-> 
-> Here's what I meant to send.
-> 
-> -- Dave
+Experimented a bit more with mounting a bad ext2 filesystem.
+An immediate crash was caused by zero EXT2_BLOCKS_PER_GROUP(sb).
+The patch below (relative to 2.6.9) adds a few checks to make sure
+that things we divide by are not zero.
 
-> 
-> 
-> ---
-> 
->  memhotplug1-dave/arch/i386/mm/pageattr.c |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff -puN arch/i386/mm/pageattr.c~Z0-leaks_only_on_negative arch/i386/mm/pageattr.c
-> --- memhotplug1/arch/i386/mm/pageattr.c~Z0-leaks_only_on_negative	2004-11-04 15:57:28.000000000 -0800
-> +++ memhotplug1-dave/arch/i386/mm/pageattr.c	2004-11-04 15:58:50.000000000 -0800
-> @@ -135,7 +135,7 @@ __change_page_attr(struct page *page, pg
->  		BUG();
->  
->  	/* memleak and potential failed 2M page regeneration */
-> -	BUG_ON(!page_count(kpte_page));
-> +	BUG_ON(page_count(kpte_page) < 0);
->  
->  	if (cpu_has_pse && (page_count(kpte_page) == 1)) {
->  		list_add(&kpte_page->lru, &df_list);
-> _
+Andries
 
-that will hide the memleak again. Furthermore page_count cannot be < 0
-unless we get a _double_ memleak.
-
-The only chance for kpte_page to be freed, is to be == 1 in that place.
-If kpte_page is == 1, it will be freed via list_add and the master page
-will be regenerated giving it a chance to get performance back. If it's
-0, it means we leaked memory as far as I can tell.
-
-It's impossible a pte had a 0 page_count() and not to be in the freelist
-already. There is no put_page at all in that whole path, there's only a
-__put_page, so it's a memleak to get == 0 in there on any pte or pmd or
-whatever else we cannot have put in the freelist already.
-
-something else is still wrong, but knowing the above fixes it at least
-tells us it's not a double leak.
+diff -uprN -X /linux/dontdiff a/fs/ext2/super.c b/fs/ext2/super.c
+--- a/fs/ext2/super.c	2004-10-30 21:44:02.000000000 +0200
++++ b/fs/ext2/super.c	2004-11-05 01:48:32.000000000 +0100
+@@ -595,12 +595,9 @@ static int ext2_fill_super(struct super_
+ 	sbi->s_es = es;
+ 	sb->s_magic = le16_to_cpu(es->s_magic);
+ 	sb->s_flags |= MS_ONE_SECOND;
+-	if (sb->s_magic != EXT2_SUPER_MAGIC) {
+-		if (!silent)
+-			printk ("VFS: Can't find ext2 filesystem on dev %s.\n",
+-				sb->s_id);
+-		goto failed_mount;
+-	}
++
++	if (sb->s_magic != EXT2_SUPER_MAGIC)
++		goto cantfind_ext2;
+ 
+ 	/* Set defaults before we parse the mount options */
+ 	def_mount_opts = le32_to_cpu(es->s_default_mount_opts);
+@@ -655,7 +652,9 @@ static int ext2_fill_super(struct super_
+ 		       sb->s_id, le32_to_cpu(features));
+ 		goto failed_mount;
+ 	}
++
+ 	blocksize = BLOCK_SIZE << le32_to_cpu(sbi->s_es->s_log_block_size);
++
+ 	/* If the blocksize doesn't match, re-read the thing.. */
+ 	if (sb->s_blocksize != blocksize) {
+ 		brelse(bh);
+@@ -697,35 +696,36 @@ static int ext2_fill_super(struct super_
+ 			goto failed_mount;
+ 		}
+ 	}
++
+ 	sbi->s_frag_size = EXT2_MIN_FRAG_SIZE <<
+ 				   le32_to_cpu(es->s_log_frag_size);
+-	if (sbi->s_frag_size)
+-		sbi->s_frags_per_block = sb->s_blocksize /
+-						  sbi->s_frag_size;
+-	else
+-		sb->s_magic = 0;
++	if (sbi->s_frag_size == 0)
++		goto cantfind_ext2;
++	sbi->s_frags_per_block = sb->s_blocksize / sbi->s_frag_size;
++
+ 	sbi->s_blocks_per_group = le32_to_cpu(es->s_blocks_per_group);
+ 	sbi->s_frags_per_group = le32_to_cpu(es->s_frags_per_group);
+ 	sbi->s_inodes_per_group = le32_to_cpu(es->s_inodes_per_group);
+-	sbi->s_inodes_per_block = sb->s_blocksize /
+-					   EXT2_INODE_SIZE(sb);
++
++	if (EXT2_INODE_SIZE(sb) == 0)
++		goto cantfind_ext2;
++	sbi->s_inodes_per_block = sb->s_blocksize / EXT2_INODE_SIZE(sb);
++	if (sbi->s_inodes_per_block == 0)
++		goto cantfind_ext2;
+ 	sbi->s_itb_per_group = sbi->s_inodes_per_group /
+-				        sbi->s_inodes_per_block;
++					sbi->s_inodes_per_block;
+ 	sbi->s_desc_per_block = sb->s_blocksize /
+-					 sizeof (struct ext2_group_desc);
++					sizeof (struct ext2_group_desc);
+ 	sbi->s_sbh = bh;
+ 	sbi->s_mount_state = le16_to_cpu(es->s_state);
+ 	sbi->s_addr_per_block_bits =
+ 		log2 (EXT2_ADDR_PER_BLOCK(sb));
+ 	sbi->s_desc_per_block_bits =
+ 		log2 (EXT2_DESC_PER_BLOCK(sb));
+-	if (sb->s_magic != EXT2_SUPER_MAGIC) {
+-		if (!silent)
+-			printk ("VFS: Can't find an ext2 filesystem on dev "
+-				"%s.\n",
+-				sb->s_id);
+-		goto failed_mount;
+-	}
++
++	if (sb->s_magic != EXT2_SUPER_MAGIC)
++		goto cantfind_ext2;
++
+ 	if (sb->s_blocksize != bh->b_size) {
+ 		if (!silent)
+ 			printk ("VFS: Unsupported blocksize on dev "
+@@ -755,6 +755,8 @@ static int ext2_fill_super(struct super_
+ 		goto failed_mount;
+ 	}
+ 
++	if (EXT2_BLOCKS_PER_GROUP(sb) == 0)
++		goto cantfind_ext2;
+ 	sbi->s_groups_count = (le32_to_cpu(es->s_blocks_count) -
+ 				        le32_to_cpu(es->s_first_data_block) +
+ 				       EXT2_BLOCKS_PER_GROUP(sb) - 1) /
+@@ -824,13 +826,19 @@ static int ext2_fill_super(struct super_
+ 	percpu_counter_mod(&sbi->s_dirs_counter,
+ 				ext2_count_dirs(sb));
+ 	return 0;
++
++cantfind_ext2:
++	if (!silent)
++		printk("VFS: Can't find an ext2 filesystem on dev %s.\n",
++		       sb->s_id);
++	goto failed_mount;
++
+ failed_mount2:
+ 	for (i = 0; i < db_count; i++)
+ 		brelse(sbi->s_group_desc[i]);
+ failed_mount_group_desc:
+ 	kfree(sbi->s_group_desc);
+-	if (sbi->s_debts)
+-		kfree(sbi->s_debts);
++	kfree(sbi->s_debts);
+ failed_mount:
+ 	brelse(bh);
+ failed_sbi:

@@ -1,102 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262183AbVAADSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVAAEAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262183AbVAADSu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 22:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbVAADSu
+	id S262185AbVAAEAW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 23:00:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVAAEAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 22:18:50 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:57746 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262183AbVAADSq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 22:18:46 -0500
-Subject: Re: Latency results with 2.6.10 - looks good
-From: Lee Revell <rlrevell@joe-job.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Con Kolivas <kernel@kolivas.org>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Paul Davis <paul@linuxaudiosystems.com>
-In-Reply-To: <1104348820.5218.42.camel@krustophenia.net>
-References: <1104348820.5218.42.camel@krustophenia.net>
-Content-Type: text/plain
-Date: Fri, 31 Dec 2004 22:18:44 -0500
-Message-Id: <1104549524.3803.28.camel@krustophenia.net>
+	Fri, 31 Dec 2004 23:00:21 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:61207 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262185AbVAAEAF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 23:00:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=IwSp6+DMUSDpu2YOvtBwsNWDxQ8awu7+Adxf0CdE5nK8b5BIArAAUq7Nhn0/PzUObeTj2AaZFfGwB1M00xeHVEAObHpvAbY8jn5xGfw3MolZjUAFxNNiU88mU6FaH4LHQM2E4P3QChETr3SL7hfy+5xhWiJhrUFGmJ+QhspbVqs=
+Message-ID: <105c793f041231200047dd1e25@mail.gmail.com>
+Date: Fri, 31 Dec 2004 23:00:03 -0500
+From: Andrew Haninger <ahaning@gmail.com>
+Reply-To: Andrew Haninger <ahaning@gmail.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: Fwd: Toshiba PS/2 touchpad on 2.6.X not working along bottom and right sides
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <105c793f0412301626468198be@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <105c793f04122907116b571ebf@mail.gmail.com>
+	 <cr16ho$eh1$1@tangens.hometree.net>
+	 <105c793f041230080734d71c4a@mail.gmail.com>
+	 <200412301203.44484.dtor_core@ameritech.net>
+	 <105c793f0412301626468198be@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-12-29 at 14:33 -0500, Lee Revell wrote:
-> After testing JACK with vanilla 2.6.10, it appears that the scheduling
-> latency of 2.6.10 is a vast improvement over previous kernel releases.
-> JACK seems to be usable with a period of 32 and 64 frames, I cannot
-> produce xruns by moving the mouse or any amount of display or disk
-> activity.  Previous kernel releases were somewhat worse than Windows XP
-> in this area, 2.6.10 is definitely better, maybe as good as OSX.
+> Using the other options (imps and exps) didn't change the behavior
+> much. I had some strange issues with the cursor being occasionally
+> moved to the upper-right corner of the screen very quickly when I
+> dragged in the lower and the right sides of the touchpad. This
+> behavior, however, was not (yet) reproducible. If I can figure out how
+> to reproduce it reliably, I'll note it later.
 
-Followup: other audio users have confirmed that 2.6.10 is the best
-release yet latency-wise.  It works most of the time at 64 frames
-(~1.33ms latency).
+For what it's worth, I still haven't found exactly what is causing
+this problem, but it has shown up more than once. It seems that it
+might have something to do with repeatedly loading and unloading the
+psmouse driver using different protocol options (proto=bare|imps|exps)
+and loading and unloading gpm (I said gdm previously, which was a
+mistake) using different -t (type) options (ps2|imps2|auto) and/or
+different mouse devices (/dev/mouse or /dev/input/mice). I've done
+lots of things to try to reproduce this behavior, but nothing yet
+seems to make it happen every time.
 
-Now, the bad news: there are still enough xruns to make it not quite
-good enough for, say, a recording studio; as we all know with realtime
-constraints the worst case scenario is important.  As expected the RT
-kernel beats it by a wide margin.  I have attached some numbers,
-excerpted from a post by Rui on the JACK list.  The JACK test used was
-described previously on this list.
+I haven't used the laptop 'normally' very much yet, so I don't know if
+this problem shows up in normal use or just under strange
+circumstances like setup and testing.
 
-Ingo, what are your plans for pushing more of the RT patch set upstream?
-It seems that the soft/hardirq threading and voluntary preemption
-(turning the might_sleep checks into preemption points) are required to
-further improve the latency of the standard kernel.  These are well
-tested at this point and also zero cost for users who don't enable them.
-I think if these features go upstream before 2.6.11 then we can say all
-of the issues Paul raised, in that post months ago that led to the VP
-patches, will be put to rest.
+When it does show up, the mouse cursor moves quickly up to the
+upper-right corner of the display - be it the X display or on the
+console with gpm - when the lower or right sides of the touchpad are
+used. Using the other areas of the touchpad produces normal curser
+movement.
 
-We are finally within sight of Linux being the best multimedia OS
-available, out of the box - a position we had briefly in the 2.4 days,
-albeit with the low latency patches, and subsequently lost to OSX
-(IMHO).  This is a milestone, everyone should be proud of this release.
+I'll continue to test things to see what might be causing problems.
+One thing I can contribute which showed up after this problem is an
+Oops during a boot. It could be totally unrelated and it's only
+happened once (a reboot produced no such Oops), but here it is:
 
-Anyway, happy new year to everyone.
+Software Suspend 2.1.5.10: Suspending enabled.
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+ printing eip:
+c01266e6
+*pde = 00000000
+Oops: 0001 [#1]
+PREEMPT
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c01226e6>]    Not tainted VLI
+EFLAGS: 00010083    (2.6.10)
+EIP is at worker_thread+0x1e6/0x310
+eax: 00000000   ebx: cbd0f04c   ecx: cbfe77b0   edx: 00000000
+esi: cbd0f048   edi: cbfc9000   ebp: 00000283   esp: cbfc9f44
+ds: 007b   es: 007b   ss: 0068
+Process events/0 (pid: 3, threadinfo=cbf9000 task=cbfc3020)
+Stack: 00000000 cbfc9f74 00000000 cbfe77b8 cbfc9000 cbfc9000 00000000 00000000
+       cbfc9000 cbfe77a8 ffffffff ffffffff 00000001 00000000 c0112d10 00010000
+       00000000 00000000 00000000 cbfc9000 00000000 cbfc3020 c0112d10 00100100
+Call Trace:
+ [<c0112d10>] default_wake_function+0x0/0x20
+ [<c0112d10>] default_wake_function+0x0/0x20
+ [<c0126500>] worker_thread+0x0/0x310
+ [<c012ab0a>] kthread+0xba/0xc0
+ [<c01012e5>] kernel_thread_helper+0x5/0x10
+Code: 50 18 89 54 24 0c eb 0d 90 90 90 90 90 90 90 90 90 90 90 90 90
+8d 73 fc 8b 46 0c 89 44 24 1c 8b 56 10 89 54 24 18 8b 53 04
+ 8b 03 <89> 50 04 89 02 89 5b 04 89 1b 55 9d ff 4f 14 8b 47 08 83 e0 08
+ <6>note: events/0[3] exited with preempt_count 1
+Software Suspend 2.1.5.10: This is normal swap space.
+VFS: Mounted root (ext2 filesystem) readonly.
+Freeing unused kernel memory 160k freed
+_
 
-Lee
 
---
+If anything looks odd or unlike normal Oops output, I was unable to
+capture it digitally and so had to type it out longhand, which could
+contribute to typos :-/ . Also, since it seems to have occured between
+the swsusp code loading, I may need to submit it to those guys
+instead.
 
-Rui:
+HTH. Thanks.
 
-Now, let's get to the point. With the default workload (20 clients * 4 *
-4 ports) I've ran it against a Con Kolivas' 2.6.10-cko1 patched kernel
-and the real jewel as is latest 2.6.10-rc3-mm1-RT-V0.7.33-04, which is
-Ingo Molnar's full PREEMPT_RT patched kernel. The tests were conducted
-on my P4@2.5G laptop, against the on-board alsa driver (snd-ali5451).
-
-The jackd command line is therefore:
-
-  jackd -v -R -P60 -dalsa -dhw:0 -r44100 -p64 -n2 -S -P
-
-The results speak for themselves :)
-
-
-                                  2.6.10-cko1  RT-V0.7.33-04
-                                  ------------- -------------
-  Timeout Rate  . . . . . . . . :    (    0.0)    (    0.0)   /hour
-  XRUN Rate . . . . . . . . . . :       216.8          2.2    /hour
-  Delay Rate (>spare time)  . . :       395.2          0.0    /hour
-  Delay Rate (>1000 usecs)  . . :       375.8          0.0    /hour
-  Delay Maximum . . . . . . . . :      4320          308      usecs
-  Cycle Maximum . . . . . . . . :       845         1051      usecs
-  Average DSP Load. . . . . . . :        44.0         50.2    %
-  Average CPU System Load . . . :        14.4         31.7    %
-  Average CPU User Load . . . . :        19.8         21.4    %
-  Average CPU Nice Load . . . . :         0.0          0.0    %
-  Average CPU I/O Wait Load . . :         0.1          0.1    %
-  Average CPU IRQ Load  . . . . :         0.0          0.0    %
-  Average CPU Soft-IRQ Load . . :         0.0          0.0    %
-  Average Interrupt Rate  . . . :      1691.7       1692.6    /sec
-  Average Context-Switch Rate . :     13368.8      18213.9    /sec
-
---
-
+-Andy

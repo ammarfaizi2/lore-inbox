@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288093AbSACAWO>; Wed, 2 Jan 2002 19:22:14 -0500
+	id <S288047AbSACAOe>; Wed, 2 Jan 2002 19:14:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288061AbSACAUd>; Wed, 2 Jan 2002 19:20:33 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:16654 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S288052AbSACATU>;
-	Wed, 2 Jan 2002 19:19:20 -0500
-Date: Wed, 2 Jan 2002 16:18:16 -0800
-From: Greg KH <greg@kroah.com>
-To: Roger Leblanc <r_leblanc@videotron.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Deadlock in kernel on USB shutdown
-Message-ID: <20020103001816.GB4162@kroah.com>
-In-Reply-To: <3C33A22F.40906@videotron.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C33A22F.40906@videotron.ca>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 05 Dec 2001 21:46:14 -0800
+	id <S288060AbSACANA>; Wed, 2 Jan 2002 19:13:00 -0500
+Received: from tourian.nerim.net ([62.4.16.79]:44049 "HELO tourian.nerim.net")
+	by vger.kernel.org with SMTP id <S288052AbSACAMf>;
+	Wed, 2 Jan 2002 19:12:35 -0500
+Message-ID: <3C33A1A2.60701@free.fr>
+Date: Thu, 03 Jan 2002 01:11:14 +0100
+From: Lionel Bouton <Lionel.Bouton@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020101
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <3C338DCC.3020707@free.fr> <Pine.LNX.4.33.0201022349200.427-100000@Appserv.suse.de> <20020102174824.A21408@thyrsus.com> <3C339681.3080100@free.fr> <20020102234447.GD29462@thune.mrc-home.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 07:13:35PM -0500, Roger Leblanc wrote:
-> It doesn't get that far. The first thing my init script (or Mandrake 8.1 
-> script) does at shutdown is to run modprobe -r on modules usb-ohci, 
-> usb-uhci and uhci. The system freeses when it gets to usb-uhci. It does 
-> it also if I run these commands on the command line.
+Mike Castle wrote:
 
-Have you unloaded your scanner module before unloading the usb-uhci
-module?
+> On Thu, Jan 03, 2002 at 12:23:45AM +0100, Lionel Bouton wrote:
+> 
+>>Your whole point here is not to avoid several su instead of 1?
+>>
+> 
+> Seems like the point is being able to do ``make autoconfig'' as a normal
+> user, then su and make install modules_install.
+> 
 
-thanks,
+Didn't thought this point enough. One identified stupid post on my side.
 
-greg k-h

@@ -1,58 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbTHTOuu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 10:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbTHTOuu
+	id S262010AbTHTPOk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 11:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbTHTPOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 10:50:50 -0400
-Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:32688 "EHLO
-	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S262002AbTHTOur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 10:50:47 -0400
-Message-ID: <3F43891E.9060204@zurich.ibm.com>
-Date: Wed, 20 Aug 2003 16:43:42 +0200
-From: Roman Pletka <rap@zurich.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020903
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stephan von Krawczynski <skraw@ithnet.com>
-CC: bloemsaa@xs4all.nl, davem@redhat.com, alan@lxorguk.ukuu.org.uk,
-       willy@w.ods.org, richard@aspectgroup.co.uk, carlosev@newipnet.com,
-       lamont@scriptkiddie.org, davidsen@tmr.com, marcelo@conectiva.com.br,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-References: <353568DCBAE06148B70767C1B1A93E625EAB58@post.pc.aspectgroup.co.uk>	<20030819145403.GA3407@alpha.home.local>	<20030819170751.2b92ba2e.skraw@ithnet.com>	<20030819085717.56046afd.davem@redhat.com>	<20030819185219.116fd259.skraw@ithnet.com>	<3F43362A.7090802@zurich.ibm.com> <20030820161512.6ccdd963.skraw@ithnet.com>
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Aug 2003 11:14:40 -0400
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:36510 "EHLO phoebee")
+	by vger.kernel.org with ESMTP id S262010AbTHTPOh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 11:14:37 -0400
+Date: Wed, 20 Aug 2003 17:14:31 +0200
+From: Martin Zwickel <martin.zwickel@technotrend.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-t3: vfs/ext3 do_lookup bug?!
+Message-Id: <20030820171431.0211930e.martin.zwickel@technotrend.de>
+Organization: TechnoTrend AG
+X-Mailer: Sylpheed version 0.9.4claws17 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.4.21-rc4 i686 Intel(R) Pentium(R) 4 CPU
+ 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.h1Qq5GvK6'yC8."
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski wrote:
-> <qoute RFC 1122>
->       2.3.2  Address Resolution Protocol -- ARP
-> 
->          2.3.2.1  ARP Cache Validation
-> 
->             An implementation of the Address Resolution Protocol (ARP)
->             [LINK:2] MUST provide a mechanism to flush out-of-date cache
->             entries.  If this mechanism involves a timeout, it SHOULD be
->             possible to configure the timeout value.
-> 
-> ...
-> 
-> [LINK:2] "An Ethernet Address Resolution Protocol," D. Plummer, RFC-826,
->      November 1982.
-> 
-> </quote>
-> 
+--=.h1Qq5GvK6'yC8.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Please read carefully what you have quoted:
-It says: *An* implementation... and then goes on with a citation of RFC 826.
-A simple citation does not make a valid standard yet. It just refers to it
-as an example for this specific issue. That's all.
+Hi there!
 
--- Roman
+Today I wanted to check out some src-files from cvs.
+But my fault was, that I ran cvs twice at the same time.
 
+so two "cvs upd -d -A" are now in 'D' state.
+
+I think they got stuck because both tried to access the same file.
+
+
+#ps lax
+4     0 11833 11832  15   0  4136 2664 down   D    pts/18     0:07 cvs upd -d -A
+4     0 11933 11932  22   0  2672 1180 down   D    pts/19     0:00 cvs upd -d -A
+
+#sysrq-t + dmesg:
+cvs           D 00000196 294197680 11833  11832                     (NOTLB)
+dc84de5c 00000082 d2314a0c 00000196 d23148fc dc84de58 cafba080 cccee770 
+       00000282 cafba080 cccee778 c0107f8e 00000001 cafba080 c0119687 d49d3e94 
+       cccee778 dc84de7c 00000000 d919a9f0 00000000 cccee770 cccee708 d919a980 
+Call Trace:
+ [<c0107f8e>] __down+0x7c/0xc7
+ [<c0119687>] default_wake_function+0x0/0x2e
+ [<c0108118>] __down_failed+0x8/0xc
+ [<c0159df3>] .text.lock.namei+0x5/0x16a
+ [<c0156c98>] do_lookup+0x96/0xa1
+ [<c0157077>] link_path_walk+0x3d4/0x762
+ [<c0157c57>] open_namei+0x8e/0x3f3
+ [<c014a265>] filp_open+0x43/0x69
+ [<c014a64c>] sys_open+0x5b/0x8b
+ [<c0109063>] syscall_call+0x7/0xb
+
+cvs           D C8E86424 297794096 11933  11932                     (NOTLB)
+d49d3e80 00000086 c03a561b c8e86424 00000001 d092d408 c2dd2080 cccee770 
+       00000286 c2dd2080 cccee778 c0107f8e 00000001 c2dd2080 c0119687 cccee778 
+       dc84de70 d49d3f38 dffe46c0 d49d3ee4 00000000 cccee770 cccee708 d919a980 
+Call Trace:
+ [<c0107f8e>] __down+0x7c/0xc7
+ [<c0119687>] default_wake_function+0x0/0x2e
+ [<c0108118>] __down_failed+0x8/0xc
+ [<c0159df3>] .text.lock.namei+0x5/0x16a
+ [<c0156c98>] do_lookup+0x96/0xa1
+ [<c0157077>] link_path_walk+0x3d4/0x762
+ [<c015783c>] __user_walk+0x49/0x5e
+ [<c0149be1>] sys_access+0x93/0x150
+ [<c015393d>] sys_stat64+0x37/0x39
+ [<c0109063>] syscall_call+0x7/0xb
+
+
+So is it a kernel bug? the down in do_lookup shouldn't lock the process
+forever...
+
+Regards,
+Martin
+
+-- 
+MyExcuse:
+The salesman drove over the CPU board.
+
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
+
+TechnoTrend AG <http://www.technotrend.de>
+
+--=.h1Qq5GvK6'yC8.
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/Q5BZmjLYGS7fcG0RAvWWAJwJx0FxEf5OHGi3H5MLcG9yZoCVQgCbBjJv
+OAAfwsMLZ0s9FZxO9aFBPhk=
+=b+lh
+-----END PGP SIGNATURE-----
+
+--=.h1Qq5GvK6'yC8.--

@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262010AbTH2UiU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 16:38:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbTH2Uci
+	id S262242AbTH2UoL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 16:44:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262203AbTH2Uly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 16:32:38 -0400
-Received: from paiol.terra.com.br ([200.176.3.18]:3464 "EHLO
-	paiol.terra.com.br") by vger.kernel.org with ESMTP id S261767AbTH2UcO
+	Fri, 29 Aug 2003 16:41:54 -0400
+Received: from paiol.terra.com.br ([200.176.3.18]:63177 "EHLO
+	paiol.terra.com.br") by vger.kernel.org with ESMTP id S262196AbTH2Ulg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 16:32:14 -0400
-Message-ID: <3F4FB89F.9090902@terra.com.br>
-Date: Fri, 29 Aug 2003 17:33:35 -0300
+	Fri, 29 Aug 2003 16:41:36 -0400
+Message-ID: <3F4FBAD0.2050607@terra.com.br>
+Date: Fri, 29 Aug 2003 17:42:56 -0300
 From: Felipe W Damasio <felipewd@terra.com.br>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+To: dhowells@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        kernel-janitor-discuss@lists.sourceforge.net
-Subject: [PATCH 3/5] remove unneeded linux/version.h from net/sunrpc
+Subject: [PATCH 2/3] Remove unneeded linux/version.h include from net/rxrpc
 Content-Type: multipart/mixed;
- boundary="------------020106030502080701080200"
+ boundary="------------000806080205070507090200"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------020106030502080701080200
+--------------000806080205070507090200
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-	Hi,
+	Hi David,
 
-	This patch was based on Randy's modified checkversion.pl script.
-
-	Compile fine against 2.6.0-test4.
+	This patch is based on Randy's modified checkversion.pl, which 
+detected an unneeded inclusion of linux/versio.h
 
 	Please consider applying.
 
@@ -39,23 +39,23 @@ Content-Transfer-Encoding: 7bit
 
 Felipe
 
---------------020106030502080701080200
+--------------000806080205070507090200
 Content-Type: text/plain;
- name="sysctl.patch"
+ name="krxiod.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="sysctl.patch"
+ filename="krxiod.patch"
 
---- linux-2.6.0-test4/net/sunrpc/sysctl.c.orig	Fri Aug 29 17:17:07 2003
-+++ linux-2.6.0-test4/net/sunrpc/sysctl.c	Fri Aug 29 17:17:49 2003
-@@ -8,7 +8,6 @@
+--- linux-2.6.0-test4/net/rxrpc/krxiod.c.orig	Fri Aug 29 17:36:05 2003
++++ linux-2.6.0-test4/net/rxrpc/krxiod.c	Fri Aug 29 17:36:40 2003
+@@ -9,7 +9,6 @@
+  * 2 of the License, or (at your option) any later version.
   */
  
- #include <linux/config.h>
 -#include <linux/version.h>
- #include <linux/types.h>
- #include <linux/linkage.h>
- #include <linux/ctype.h>
+ #include <linux/sched.h>
+ #include <linux/completion.h>
+ #include <linux/spinlock.h>
 
---------------020106030502080701080200--
+--------------000806080205070507090200--
 

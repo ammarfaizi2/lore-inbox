@@ -1,99 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271486AbTGRJml (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 05:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271736AbTGRJlj
+	id S271741AbTGRJsb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 05:48:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271583AbTGRJsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 05:41:39 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:51967 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S271486AbTGRJa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 05:30:56 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH][v850]  v850 miscellanea
-Cc: linux-kernel@vger.kernel.org
-Reply-To: Miles Bader <miles@gnu.org>
-Message-Id: <20030718094540.9F0B537C2@mcspd15.ucom.lsi.nec.co.jp>
-Date: Fri, 18 Jul 2003 18:45:40 +0900 (JST)
-From: miles@lsi.nec.co.jp (Miles Bader)
+	Fri, 18 Jul 2003 05:48:24 -0400
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:49589 "EHLO
+	gagarin.0x63.nu") by vger.kernel.org with ESMTP id S271602AbTGRJgU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 05:36:20 -0400
+Date: Fri, 18 Jul 2003 11:51:08 +0200
+To: linux-kernel@vger.kernel.org
+Cc: gibbs@scsiguy.com
+Subject: Re: 2.6.0-test1 gets corrupted data when loading init
+Message-ID: <20030718095108.GE5964@h55p111.delphi.afb.lu.se>
+References: <20030718083458.GC5964@h55p111.delphi.afb.lu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030718083458.GC5964@h55p111.delphi.afb.lu.se>
+User-Agent: Mutt/1.5.4i
+From: Anders Gustafsson <andersg@0x63.nu>
+X-Scanner: exiscan *19dRtM-00035A-00*rQTi44LqsSg*0x63.nu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.
+On Fri, Jul 18, 2003 at 10:34:58AM +0200, Anders Gustafsson wrote:
+> It breaks between 2.5.70 and 2.5.70-bk1, which contains a update in the
+> aic79xx-drivers, so my guess is related to that.
 
-Some updated copyright noticed and an unnecessary variable deleted.
+http://linux.bkbits.net:8080/linux-2.5/cset@1.1127.6.4 is the changeset that
+makes it stop working.
 
-diff -ruN -X../cludes linux-2.6.0-test1-moo/arch/v850/kernel/gbus_int.c linux-2.6.0-test1-moo-v850-20030718/arch/v850/kernel/gbus_int.c
---- linux-2.6.0-test1-moo/arch/v850/kernel/gbus_int.c	2003-07-14 13:14:39.000000000 +0900
-+++ linux-2.6.0-test1-moo-v850-20030718/arch/v850/kernel/gbus_int.c	2003-07-15 19:06:36.000000000 +0900
-@@ -113,9 +113,7 @@
- 		/* Only pay attention to enabled interrupts.  */
- 		status &= enable;
- 		if (status) {
--			unsigned base_irq
--				= IRQ_GBUS_INT (w * GBUS_INT_BITS_PER_WORD);
--			irq = base_irq;
-+			irq = IRQ_GBUS_INT (w * GBUS_INT_BITS_PER_WORD);
- 			do {
- 				/* There's an active interrupt in word
- 				   W, find out which one, and call its
-diff -ruN -X../cludes linux-2.6.0-test1-moo/include/asm-v850/asm.h linux-2.6.0-test1-moo-v850-20030718/include/asm-v850/asm.h
---- linux-2.6.0-test1-moo/include/asm-v850/asm.h	2003-02-25 10:45:23.000000000 +0900
-+++ linux-2.6.0-test1-moo-v850-20030718/include/asm-v850/asm.h	2003-07-15 19:06:36.000000000 +0900
-@@ -1,7 +1,7 @@
- /*
-  * include/asm-v850/asm.h -- Macros for writing assembly code
-  *
-- *  Copyright (C) 2001,02,03  NEC Corporation
-+ *  Copyright (C) 2001,02,03  NEC Electronics Corporation
-  *  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
-  *
-  * This file is subject to the terms and conditions of the GNU General
-diff -ruN -X../cludes linux-2.6.0-test1-moo/include/asm-v850/processor.h linux-2.6.0-test1-moo-v850-20030718/include/asm-v850/processor.h
---- linux-2.6.0-test1-moo/include/asm-v850/processor.h	2003-04-21 10:53:17.000000000 +0900
-+++ linux-2.6.0-test1-moo-v850-20030718/include/asm-v850/processor.h	2003-07-15 19:06:37.000000000 +0900
-@@ -1,7 +1,7 @@
- /*
-  * include/asm-v850/processor.h
-  *
-- *  Copyright (C) 2001,02,03  NEC Corporation
-+ *  Copyright (C) 2001,02,03  NEC Electronics Corporation
-  *  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
-  *
-  * This file is subject to the terms and conditions of the GNU General
-diff -ruN -X../cludes linux-2.6.0-test1-moo/include/asm-v850/ptrace.h linux-2.6.0-test1-moo-v850-20030718/include/asm-v850/ptrace.h
---- linux-2.6.0-test1-moo/include/asm-v850/ptrace.h	2003-04-21 10:53:17.000000000 +0900
-+++ linux-2.6.0-test1-moo-v850-20030718/include/asm-v850/ptrace.h	2003-07-15 19:06:37.000000000 +0900
-@@ -1,7 +1,7 @@
- /*
-  * include/asm-v850/ptrace.h -- Access to CPU registers
-  *
-- *  Copyright (C) 2001,02,03  NEC Corporation
-+ *  Copyright (C) 2001,02,03  NEC Electronics Corporation
-  *  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
-  *
-  * This file is subject to the terms and conditions of the GNU General
-diff -ruN -X../cludes linux-2.6.0-test1-moo/include/asm-v850/stat.h linux-2.6.0-test1-moo-v850-20030718/include/asm-v850/stat.h
---- linux-2.6.0-test1-moo/include/asm-v850/stat.h	2003-04-08 10:15:57.000000000 +0900
-+++ linux-2.6.0-test1-moo-v850-20030718/include/asm-v850/stat.h	2003-07-15 19:06:37.000000000 +0900
-@@ -1,7 +1,7 @@
- /*
-  * include/asm-v850/stat.h -- v850 stat structure
-  *
-- *  Copyright (C) 2001,02,03  NEC Corporation
-+ *  Copyright (C) 2001,02,03  NEC Electronics Corporation
-  *  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
-  *
-  * This file is subject to the terms and conditions of the GNU General
-diff -ruN -X../cludes linux-2.6.0-test1-moo/include/asm-v850/system.h linux-2.6.0-test1-moo-v850-20030718/include/asm-v850/system.h
---- linux-2.6.0-test1-moo/include/asm-v850/system.h	2003-04-21 10:53:17.000000000 +0900
-+++ linux-2.6.0-test1-moo-v850-20030718/include/asm-v850/system.h	2003-07-15 19:06:37.000000000 +0900
-@@ -1,7 +1,7 @@
- /*
-  * include/asm-v850/system.h -- Low-level interrupt/thread ops
-  *
-- *  Copyright (C) 2001,02,03  NEC Corporation
-+ *  Copyright (C) 2001,02,03  NEC Electronics Corporation
-  *  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
-  *
-  * This file is subject to the terms and conditions of the GNU General
+(and if that cset-number isn't stable the comments for it are:
+
+Aic79xx Driver Update
+ o Change handling of the Rev. A packetized lun output bug
+   to be more efficient by having the sequencer copy the
+   single byte of valid lun data into the long lun field.
+
+)
+
+-- 
+Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261619AbSJQOLO>; Thu, 17 Oct 2002 10:11:14 -0400
+	id <S261710AbSJQOPK>; Thu, 17 Oct 2002 10:15:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261690AbSJQOLO>; Thu, 17 Oct 2002 10:11:14 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:33948 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261619AbSJQOLN>;
-	Thu, 17 Oct 2002 10:11:13 -0400
-Date: Thu, 17 Oct 2002 15:19:02 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Bryan Whitehead <driver@jpl.nasa.gov>, Mark Cuss <mcuss@cdlsystems.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernel reports 4 CPUS instead of 2...
-Message-ID: <20021017141902.GB21222@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	Bryan Whitehead <driver@jpl.nasa.gov>,
-	Mark Cuss <mcuss@cdlsystems.com>, linux-kernel@vger.kernel.org
-References: <3DADF488.1080204@jpl.nasa.gov> <Pine.LNX.3.95.1021017085043.5202A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1021017085043.5202A-100000@chaos.analogic.com>
-User-Agent: Mutt/1.4i
+	id <S261720AbSJQOPK>; Thu, 17 Oct 2002 10:15:10 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23823 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261710AbSJQOPJ>;
+	Thu, 17 Oct 2002 10:15:09 -0400
+Message-ID: <3DAEC758.5040209@pobox.com>
+Date: Thu, 17 Oct 2002 10:21:12 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrey Panin <pazke@orbita1.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][TRIVIAL] de2104x.c missing __devexit_p in 2.5.43
+References: <20021017070332.GB304@pazke.ipt>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 08:56:15AM -0400, Richard B. Johnson wrote:
- > > pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
- >                                                    ^____ hyperstuff
- > 
- > 
- > Your CPU purports to "support" HT, but It doesn't "do" HT!
- > Maybe somebody from Intel can explain, but I heard that they
- > added the HT bit before they implimented hyper-threading.
- > Anyways, maybe you can "turn something on" in the BIOS?
+Andrey Panin wrote:
+> diff -urN -X /usr/share/dontdiff linux-vanilla/drivers/net/tulip/de2104x.c linux/drivers/net/tulip/de2104x.c
+> --- linux-vanilla/drivers/net/tulip/de2104x.c	Sun Sep  1 02:04:53 2002
+> +++ linux/drivers/net/tulip/de2104x.c	Thu Oct 17 04:10:19 2002
+> @@ -2216,7 +2216,7 @@
+>  	.name		= DRV_NAME,
+>  	.id_table	= de_pci_tbl,
+>  	.probe		= de_init_one,
+> -	.remove		= de_remove_one,
+> +	.remove		= __devexit_p(de_remove_one),
+>  #ifdef CONFIG_PM
+>  	.suspend	= de_suspend,
+>  	.resume		= de_resume,
 
-It's HT capable, but lacks the extra sibling found in the
-more expensive models.
 
-		Dave
+alas, it is incorrect, as no one hotplugs this hardware.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+	Jeff
+
+
+

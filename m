@@ -1,74 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316705AbSGHBTj>; Sun, 7 Jul 2002 21:19:39 -0400
+	id <S316715AbSGHBat>; Sun, 7 Jul 2002 21:30:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316709AbSGHBTi>; Sun, 7 Jul 2002 21:19:38 -0400
-Received: from rj.SGI.COM ([192.82.208.96]:58586 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S316705AbSGHBTh>;
-	Sun, 7 Jul 2002 21:19:37 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Alessandro Suardi <alessandro.suardi@oracle.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bug] 2.5.25 build as one user and install as root 
-In-reply-to: Your message of "Sun, 07 Jul 2002 23:25:32 +0200."
-             <3D28B1CC.9070002@oracle.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 08 Jul 2002 11:22:06 +1000
-Message-ID: <12962.1026091326@kao2.melbourne.sgi.com>
+	id <S316723AbSGHBas>; Sun, 7 Jul 2002 21:30:48 -0400
+Received: from ip68-3-14-32.ph.ph.cox.net ([68.3.14.32]:7596 "EHLO grok.yi.org")
+	by vger.kernel.org with ESMTP id <S316715AbSGHBar>;
+	Sun, 7 Jul 2002 21:30:47 -0400
+Message-ID: <3D28EBA6.8040400@candelatech.com>
+Date: Sun, 07 Jul 2002 18:32:22 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+CC: Jason Lunz <lunz@gtf.org>, linux-kernel@vger.kernel.org
+Subject: Re: NAPI patch against 2.4.18
+References: <3D287DA4.5090904@candelatech.com> 	<20020707191517.GA14331@orr.falooley.org> <1026088234.1283.246.camel@tux>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 07 Jul 2002 23:25:32 +0200, 
-Alessandro Suardi <alessandro.suardi@oracle.com> wrote:
->Keith Owens wrote:
->>>>2.5.25 existing build system has a nasty bug.  Build as one user then
->>>>make install as root.  It does supurious recompiles of some files and
->>>>leaves them owned as root.  All of these files are now owned by root
->>>>and cause problems when the build user wants to rebuild.
->
->I'm saying "doesn't happen for me" because it doesn't happen.
->
->I've been compiling kernel as non-root (and well, of course
->  installing as root) since 1996.
+Martin Josefsson wrote:
+> On Sun, 2002-07-07 at 21:15, Jason Lunz wrote:
+> 
+>>greearb@candelatech.com said:
+>>
+>>>Does anyone have a working NAPI kernel and tulip driver patch against
+>>>2.4.18 or so?  I will be happy to test this if so.
+>>
+>>Yes, I backported the core last week to 2.4.19-rc1 from 2.5.24, but the
+>>patch ought to apply to 2.4.18 with only offset mismatches. I kept a lot
+>>of style cleanups in the patch, but they should be easy to remove if
+>>they cause problems. I'll be backporting the various napified drivers to
+>>2.4 this week.
+>>
+>>http://orr.falooley.org/pub/linux/net/
+> 
+> 
+> Why not use the original patch?
+> 
+> ftp://robur.slu.se/pub/Linux/net-development/NAPI/
 
-Apply this patch to fix a bug with CONFIG_NET=n, CONFIG_LLC= which
-shows up with allnoconfig.
+The only patches I found there were about 6 months old, and the tulip
+patch seems to be based on the tulip driver in 2.4.2.  The tulip driver
+did not reach stability in the 2.4 series untill about 2.4.9, when it
+finally started auto-negotiating correctly.
 
-Index: 25.1/net/core/Makefile
---- 25.1/net/core/Makefile Wed, 19 Jun 2002 14:11:35 +1000 kaos (linux-2.5/p/c/50_Makefile 1.4 444)
-+++ 25.1(w)/net/core/Makefile Sat, 06 Jul 2002 18:27:16 +1000 kaos (linux-2.5/p/c/50_Makefile 1.4 444)
-@@ -16,7 +16,7 @@ obj-$(CONFIG_FILTER) += filter.o
- 
- obj-$(CONFIG_NET) += dev.o dev_mcast.o dst.o neighbour.o rtnetlink.o utils.o
- 
--ifneq ($(CONFIG_LLC),n)
-+ifneq ($(subst n,,$(CONFIG_LLC)),)
- obj-y += ext8022.o
- endif
+Thanks,
+Ben
 
-Then
-  make allnoconfig
-  make dep
-  make bzImage
-  su
-  make install
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
-These files are rebuilt for make install, and are now owned by root.
-'su' or 'su -' makes no difference.
-
-include/linux/compile.h
-arch/i386/boot/compressed/vmlinux.bin
-arch/i386/boot/compressed/piggy.o
-arch/i386/boot/compressed/vmlinux
-arch/i386/boot/.setup.o.cmd
-arch/i386/boot/setup.o
-arch/i386/boot/setup
-arch/i386/boot/vmlinux.bin
-init/init.o
-init/version.o
-init/.version.o.cmd
-.version
-vmlinux
 

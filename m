@@ -1,83 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVBHQzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVBHQzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261573AbVBHQzW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 11:55:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVBHQzV
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 11:55:21 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:45230 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261573AbVBHQzF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S261566AbVBHQzF (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 8 Feb 2005 11:55:05 -0500
-Date: Tue, 8 Feb 2005 16:54:57 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>, axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] device-mapper: Record & restore bio state.
-Message-ID: <20050208165457.GT10195@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, axboe@suse.de,
-	linux-kernel@vger.kernel.org
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVBHQzF
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 8 Feb 2005 11:55:05 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:22365 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261566AbVBHQzA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 11:55:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=G8H2D1HMhabOeneCRYpMi9cDRrwuLjuPExu6pDTrlzgP92/hQL+YrxJBum1N03Hwf0g2sWJpSpPlPVEHTAA104qpjlskNsi278KSXqtVf/vHxUrOsFBPs6k3QboMxb2XGah3J75OWH8qfUTTdGL+bXLZiHJlU1DketpmMGkSlwM=
+Message-ID: <d120d50005020808542f67deb3@mail.gmail.com>
+Date: Tue, 8 Feb 2005 11:54:58 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [RFC/RFT] [patch] Elo serial touchscreen driver
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Linux-Input <linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20050208164227.GA9790@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050208164227.GA9790@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simple functions to record and restore bio state so we can
-resubmit a bio that returned an error.
+On Tue, 8 Feb 2005 17:42:27 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> Hi!
+> 
+> I've written a driver for probably the most common touchscreen type -
+> the serial Elo touchscreen.
+> 
 
-DM multipath (following shortly) uses this.
+Hi,
 
-This patch has it private to device-mapper: is it any use elsewhere?
+Looks very nice, unfortunately I don;t have a touchscreen to test it.
+One thing - now that kcalloc in the mainline I find myself using it
+more and more instead of kmalloc + memtest.
 
-Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
---- diff/drivers/md/dm-bio-record.h	1970-01-01 01:00:00.000000000 +0100
-+++ source/drivers/md/dm-bio-record.h	2005-02-08 16:40:42.000000000 +0000
-@@ -0,0 +1,45 @@
-+/*
-+ * Copyright (C) 2004-2005 Red Hat, Inc. All rights reserved.
-+ *
-+ * This file is released under the GPL.
-+ */
-+
-+#ifndef DM_BIO_RECORD_H
-+#define DM_BIO_RECORD_H
-+
-+#include <linux/bio.h>
-+
-+/*
-+ * There are lots of mutable fields in the bio struct that get
-+ * changed by the lower levels of the block layer.  Some targets,
-+ * such as multipath, may wish to resubmit a bio on error.  The
-+ * functions in this file help the target record and restore the
-+ * original bio state.
-+ */
-+struct dm_bio_details {
-+	sector_t bi_sector;
-+	struct block_device *bi_bdev;
-+	unsigned int bi_size;
-+	unsigned short bi_idx;
-+	unsigned long bi_flags;
-+};
-+
-+static inline void dm_bio_record(struct dm_bio_details *bd, struct bio *bio)
-+{
-+	bd->bi_sector = bio->bi_sector;
-+	bd->bi_bdev = bio->bi_bdev;
-+	bd->bi_size = bio->bi_size;
-+	bd->bi_idx = bio->bi_idx;
-+	bd->bi_flags = bio->bi_flags;
-+}
-+
-+static inline void dm_bio_restore(struct dm_bio_details *bd, struct bio *bio)
-+{
-+	bio->bi_sector = bd->bi_sector;
-+	bio->bi_bdev = bd->bi_bdev;
-+	bio->bi_size = bd->bi_size;
-+	bio->bi_idx = bd->bi_idx;
-+	bio->bi_flags = bd->bi_flags;
-+}
-+
-+#endif
+-- 
+Dmitry

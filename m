@@ -1,86 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbVAYTZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVAYTag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbVAYTZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 14:25:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVAYTZZ
+	id S262081AbVAYTag (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 14:30:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbVAYTag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 14:25:25 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:49538 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S262079AbVAYTZI (ORCPT
+	Tue, 25 Jan 2005 14:30:36 -0500
+Received: from smtp.dei.uc.pt ([193.137.203.228]:54185 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S262081AbVAYTa3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 14:25:08 -0500
-Date: Tue, 25 Jan 2005 20:25:20 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: dtor_core@ameritech.net
-Cc: Andries Brouwer <aebr@win.tue.nl>, linux-input@atrey.karlin.mff.cuni.cz,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: i8042 access timings
-Message-ID: <20050125192519.GA2370@ucw.cz>
-References: <200501250241.14695.dtor_core@ameritech.net> <20050125105139.GA3494@pclin040.win.tue.nl> <d120d5000501251117120a738a@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000501251117120a738a@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+	Tue, 25 Jan 2005 14:30:29 -0500
+Date: Tue, 25 Jan 2005 19:12:55 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1
+In-Reply-To: <20050124021516.5d1ee686.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0501251911470.27781@student.dei.uc.pt>
+References: <20050124021516.5d1ee686.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UC-FCT-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-FCT-DEI-MailScanner: Found to be clean
+X-MailScanner-From: marado@student.dei.uc.pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 02:17:33PM -0500, Dmitry Torokhov wrote:
-> On Tue, 25 Jan 2005 11:51:39 +0100, Andries Brouwer <aebr@win.tue.nl> wrote:
-> > On Tue, Jan 25, 2005 at 02:41:14AM -0500, Dmitry Torokhov wrote:
-> > 
-> > > Recently there was a patch from Alan regarding access timing violations
-> > > in i8042. It made me curious as we only wait between accesses to status
-> > > register but not data register. I peeked into FreeBSD code and they use
-> > > delays to access both registers and I wonder if that's the piece that
-> > > makes i8042 mysteriously fail on some boards.
-> > 
-> > You are following this much more closely than I do, but isn't the
-> > usual complaint "2.4 works, 2.6 fails"?
-> > 
-> 
-> Quite often it is but too much has changed in input layer to pinpoing
-> exact cause of the failure and I am open to any suggestions. Common
-> problems I see:
-> 
-> 1. ACPI sometimes interferes with i8042, especially battery status
-> polling. I am concerned about embedded controller access as well, it
-> looks like it takes sweet time to read/write data to it and ec.c does
-> it with interrupts disabled.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Furthermore, the EC and the i8042 are often the same chip, resulting in
-the i8042 not answering when EC is busy. Enabling interrupts won't help.
+On Mon, 24 Jan 2005, Andrew Morton wrote:
 
-> 2. USB legacy emulation - we used to have PS/2 initialization in
-> GPM/Xfree which means that USB modules (if any) are already loaded and
-> requested handoff so results were very consistent. Now it all depends
-> on who's first. There were couple of PCI quirk patches doing early USB
-> handoff but they have not been applied out of fear breaking some
-> boxes. I wonder if there are concrete examples of such patches
-> breaking boxes, how many and whether DMI decode/workaround will be
-> beneficial for these.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc1/2.6.11-rc1-mm1/
 
-I still hope we could get those in after the handoff code is ironed out.
-It kept (keeps?) crashing some machines and not using USB is an easy way
-out of this if you don't have the handoff in the early init code.
+This acpi_power_off issue ( http://lkml.org/lkml/2005/1/11/88 ) still happens.
 
-> Also, In 2.4 if BIOS detected PS/2 mouse we trusted it and did not do
-> any additional checks, now that i8042 is not x86 specific we do
-> everything by hand and it looks like some hardware is not expecting
-> it...
+Marcos Marado
 
-We may be able to loosen the checks again now that 98% of machines do
-have the PS/2 mouse port if they have the AT keyboard port.
+- -- 
+/* *************************************************************** */
+    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
+    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
+    () Join the ASCII ribbon campaign against html email, Microsoft
+    /\ attachments and Software patents.   They endanger the World.
+    Sign a petition against patents:  http://petition.eurolinux.org
+/* *************************************************************** */
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
 
-> Still, I wonder if implementing these delays will give IO controller
-> better chances to react to our queries and will get rid of some
-> failures.
+iD8DBQFB9po4mNlq8m+oD34RAuoFAKDWkLvIwIdpf/6NBQWdtML41LLXcQCcDSWq
+yiRWlDpUaJrfrZR4iMKHcGY=
+=nv2D
+-----END PGP SIGNATURE-----
 
-Agreed. I'll check them tomorrow in detail and if I find them OK (I
-expect to), I'll merge the patch to my tree. Unfortunately I don't
-expect the delays themselves will fix much.
-
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

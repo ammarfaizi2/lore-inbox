@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264592AbTKNFfv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 00:35:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264595AbTKNFfv
+	id S264543AbTKNFdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 00:33:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264541AbTKNFdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 00:35:51 -0500
-Received: from adsl-67-114-19-185.dsl.pltn13.pacbell.net ([67.114.19.185]:51329
-	"EHLO bastard") by vger.kernel.org with ESMTP id S264592AbTKNFfi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 00:35:38 -0500
-Message-ID: <3FB469A0.6010502@tupshin.com>
-Date: Thu, 13 Nov 2003 21:35:28 -0800
-From: Tupshin Harper <tupshin@tupshin.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031024 Thunderbird/0.3
-X-Accept-Language: en-us, en
+	Fri, 14 Nov 2003 00:33:16 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:28591 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S264536AbTKNFdI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 00:33:08 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Date: Fri, 14 Nov 2003 16:32:48 +1100
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: gigabit ethernet, nfsroot, jumbo packets, questions, and bugs (2.6.0-test9)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16308.26880.297498.100662@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [RFCI] How best to partition MD/raid devices in 2.6
+In-Reply-To: message from viro@parcelfarce.linux.theplanet.co.uk on Friday November 14
+References: <16308.18387.142415.469027@notabene.cse.unsw.edu.au>
+	<20031114050934.GI24159@parcelfarce.linux.theplanet.co.uk>
+X-Mailer: VM 7.17 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to set up a diskless testbed using gigabit ethernet, and I'm 
-running into a few issues. First, the scenario:
+On Friday November 14, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> 
 
-One client, and one server each with an smc EZCard 1000.
-Kernel 2.6.0-test9 with the sk98lin driver on both sides
-Client has kernel compiled with sk98lin built in, and nfsroot and dhcp 
-autoconfig built in.
-Client is getting bootstrapped off a hard drive (for now, since 
-etherboot doesn't support the driver yet) with grub loading the nfsroot 
-kernel from disk, and then mounting nfsroot by adding root=/dev/nfs
+Thanks for the comments.
 
+> (3) is absolutely trivial - will take 10--30 lines in md.c.
 
-What works:
-Everything basic.
+Yes.  I've actually started working on that (clear some stuff up first
+so it become even more trivial).  I was feeling uncomfortable about
+the non-uniform interpretation of minor numbers.  I know the block
+layer can handle it.  I'm wondering what I should expect of users
+though :-)
 
-What doesn't:
-Above scenario with Jumbo packets (MTU = 9000 or anything above 1500)
-
-For performance reasons, I'm wanting to use large packets(the switch 
-between the devices supports it, and jumbo packet communication works 
-fine in the non-diskless scenario).
-
-Questions:
-1) Is there a good way to set the MTU of the client via dhcp or by 
-passing a parameter to the kernel?
-
-2) If server is set to 9000 MTU and client is set to 1500 MTU, should 
-complete failure ensue(e.g. nfs times out indefinitely), or should some 
-autonegotiation take place? If there should be autonegotiation, then it 
-isn't working.
-
-Definite Bug:
-If the server is set to 9000 MTU, ifconfig down, and ifconfig up with 
-default MTU doesn't work. Ifconfig then claims that the card is set to 
-1500 MTU, but it is unable to communicate with the client until module 
-is unloaded and reloaded, even though MTU is an ifconfig parameter and 
-not a module parameter. I'm presuming that MTU has not actually been set 
-back to 1500, but I don't know of an easy way to tell if that's the case 
-when ifconfig appears to be lying to me.
-
--Thanks
--Tupshin
-
+NeilBrown

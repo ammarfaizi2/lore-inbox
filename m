@@ -1,129 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAFDSF>; Fri, 5 Jan 2001 22:18:05 -0500
+	id <S130348AbRAFEC6>; Fri, 5 Jan 2001 23:02:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129401AbRAFDR4>; Fri, 5 Jan 2001 22:17:56 -0500
-Received: from www0i.netaddress.usa.net ([204.68.24.38]:28326 "HELO
-	www0i.netaddress.usa.net") by vger.kernel.org with SMTP
-	id <S129324AbRAFDRr> convert rfc822-to-8bit; Fri, 5 Jan 2001 22:17:47 -0500
-Message-ID: <20010106031746.15171.qmail@www0i.netaddress.usa.net>
-Date: 5 Jan 01 19:17:45 PST
-From: Sunny So <sunnyso@netscape.net>
-To: linux-kernel@vger.kernel.org
-Subject: Create and Send Packet from Scratch
-X-Mailer: USANET web-mailer (34WB1.4A.01)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+	id <S129825AbRAFECt>; Fri, 5 Jan 2001 23:02:49 -0500
+Received: from gear.torque.net ([204.138.244.1]:1798 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S130348AbRAFECf>;
+	Fri, 5 Jan 2001 23:02:35 -0500
+Message-ID: <3A56948F.D4744CCF@torque.net>
+Date: Fri, 05 Jan 2001 22:44:15 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Raphael Schmid <raphael.schmid@gmx.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problems with devfs (?)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Raphael wrote:
 
-In my schoool project (kernel 2.2.X), I would like to pass some data attached
-immediately above IP. (i.e. w/o UDP and TCP) I have assigned an arbitrary
-protocol # in the IP header field so that the received data is passed on to my
-protocol stack.
+> I'm using ROCK Linux, which is built with devfs, originally Kernel
+> 2.4.0-test9. This problem occurs, when I want to boot some Kernel after
+> 2.4.0-test9, whereas building and installing the Kernel never is a problem.
+>
+> I enabled devfs support as well as the mounting of devfs at bootup in the
+> configuration, just as it is with my "default"Kernel, next, I played around
+> with lilo.conf (under normal circumstances a make bzlilo without any
+> playing-around should do it, shouldn't it?)
+> Then, as this also did show no success I tried passing root=/.....
+> devfs=mount (<= don't nail me on this one, but I'm sure I did it the right
+> way) at the LILO boot prompt.
+> Whole story. Point. That's all. When trying to mount the root he hangs with
+> "Kernel Panic: I have no root and I want to scream." Poor Kernel.
+> Hope this helps anyone except me in any way (or perhaps I'm just too
+> stupid).
 
-There is no problem on reception but I got stuck at all the transmission and
-forwarding operations:
-1, How can I transmit data by using a sk_buff that is created from scratch?
-2, How can I forward data from the sk_buff of a received packet.
+I've been using kernels with devfs right through the test
+series and now with lk 2.4.0 . The only hiccup was
+when I upgraded to glibc 2.2 [RH 7.0 upgrade]. devfsd
+seg faulted during bootup and I got a similar message
+(because the kernel couldn't find /dev/sda3).
 
-I have run some trial codes (attached below) but the kernel crashes.
+Don't know why but this line in /etc/devfsd.conf caused
+devfsd to barf:
+LOOKUP      ^cdrom$      CFUNCTION      GLOBAL    
+       symlink ${mntpnt}/cdroms/cdrom0 $devpath
 
-Is my description clear? I surely have missed out something but I have no 
-clue. Could anyone point out what is missing from my code?
+This line is almost straight out of Richard's doco.
 
-Thanks in advance. :)
+You could try and identify your disk to lilo explicitly.
+For example if it is normally at /dev/hda3 then try
+something like this at the lilo prompt:
+  linux root=/dev/ide/host0/bus0/target0/lun0/part3
 
-======================================
-Transmit Data from Scratch (version 1)
-======================================
-/* this is how I try the thing out */
+If you can find the root partition that way, it will
+probably fail later in the boot. To poke around with 
+a statically linked shell trying adding to the above 
+lilo prompt:
+            init=/sbin/sash
 
-struct sk_buff *skb=alloc_skb(sizeof(struct iphdr)+15,GFP_ATOMIC)
+Taking another tack, you could hope your root fs has a
+normally populated /dev directory and try "devfs=nomount"
+at the lilo prompt.
 
-skb_put(skb,data_len);
-memcpy(skb->data,data_ptr,data_len);
+Doug Gilbert
 
-ip_route_output(&rt, [some dst addr in __u32] , 0, RT_TOS(0), 0);
-
-iph = (struct iphdr*) skb->nh.iph;
-iph->version = 4;
-iph->ihl = sizeof(struct iphdr) >> 2;
-iph->tos = 0;
-iph->tot_len = htons(skb->len);
-iph->id = htons(ip_id_count++);   
-iph->frag_off = 0;
-iph->ttl = 64;
-iph->protocol = [some self-defined #];
-iph->saddr = rt->rt_src;
-iph->daddr = rt->rt_dst;
-ip_send_check(iph);
-
-skb->dst = &rt->u.dst;
-skb->dst->output(skb);
-
-======================================
-Transmit Data from Scratch (version 2)
-======================================
-/* code that I find somewhere else */
-
-/* my comment */
-[original comment]
-
-skb->dev = [put device here]; /* = ip_dev_find(daddr); ? */
-               
-skb->nh.iph->saddr = [alter the saddress to this m/c]
-
-/* Is there a "raddr" in "include/linux/ip.h"? */
-skb->nh.iph->raddr = [alter the router address]
-                
-if(!skb->dst)
-   [allocate dst_entry stucture]  /* how can I do this? :p */
-                 
-rt = (struct rtable *) skb->dst;
-ip_route_output(&rt, skb->nh.iph->raddr, skb->nh.iph->saddr, 1, 0 )
-hdr = (struct ethhdr *)skb_push( skb, ETH_HLEN);
-memcpy(hdr->h_source, skb->dev->dev_addr, skb->dev->addr_len);
-hdr->h_proto = __constant_htons(ETH_P_IP);
-arp_find(skb->dev->h_dest, skb);
-dev_queue_xmit(skb);
-
-
-===============================
-Forward Data of Received Packet
-===============================
-/* just alter the destination IP address */
-/* or may add some data as well */
-/* and then send it out */
-
-/* outgoing device may be different from incoming device */
-/* skb is the received skb */
-
-struct rtable *rt;
-struct iphdr *iph;
-struct sk_buff *skb2;
-
-skb2 = skb_copy(skb, GFP_KERNEL);
-iph = (struct iphdr*) skb2->nh.iph;
-ip_route_output(&rt, [some dst addr in __u32] , 0, RT_TOS(0), 0);
-iph->daddr = [some dst addr in __u32];
-
-/* // if I add 4 bytes of data as well 
-iph->tot_len = htons(ntohs(iph->tot_len) + 4);
-skb->tail += 4;
-skb->len += 4;
-*/
-
-ip_send_check(iph);
-skb2->dst = &rt->u.dst;
-skb2->dst->output(skb2);
-
-
-____________________________________________________________________
-Get your own FREE, personal Netscape WebMail account today at http://home.netscape.com/webmail
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

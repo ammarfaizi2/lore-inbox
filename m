@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289770AbSAOXur>; Tue, 15 Jan 2002 18:50:47 -0500
+	id <S289768AbSAOXxV>; Tue, 15 Jan 2002 18:53:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289769AbSAOXum>; Tue, 15 Jan 2002 18:50:42 -0500
-Received: from jalon.able.es ([212.97.163.2]:41978 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S289768AbSAOXtq>;
-	Tue, 15 Jan 2002 18:49:46 -0500
-Date: Wed, 16 Jan 2002 00:55:41 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Wakko Warner <wakko@animx.eu.org>
+	id <S290241AbSAOXvw>; Tue, 15 Jan 2002 18:51:52 -0500
+Received: from turing.fb12.de ([194.112.16.26]:17823 "HELO turing.fb12.de")
+	by vger.kernel.org with SMTP id <S289769AbSAOXvH>;
+	Tue, 15 Jan 2002 18:51:07 -0500
+Date: Wed, 16 Jan 2002 00:51:03 +0100
+From: Sebastian Benoit <benoit-lists@fb12.de>
+To: Patrick Mochel <mochel@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unable to compile 2.4.14 on alpha
-Message-ID: <20020116005541.C1838@werewolf.able.es>
-In-Reply-To: <20020114212550.A17323@animx.eu.org> <20020115113213.A1539@werewolf.able.es> <20020115115530.A19073@animx.eu.org> <20020116002642.A1838@werewolf.able.es> <20020115185245.A20198@animx.eu.org>
+Subject: Re: Why not "attach" patches?
+Message-ID: <20020116005103.A29832@turing.fb12.de>
+Mail-Followup-To: Sebastian Benoit <benoit-lists@fb12.de>,
+	Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0201151448050.5892-100000@xanadu.home> <Pine.LNX.4.33.0201151405250.9053-100000@segfault.osdlab.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: =?iso-8859-1?Q?=3C20020115185245=2EA20198?=
-	=?iso-8859-1?B?QGFuaW14LmV1Lm9yZz47IGZyb20gd2Fra29AYW5pbXguZXUub3JnIG9u?=
-	=?iso-8859-1?B?IG1p6Sw=?= ene 16, 2002 at 00:52:45 +0100
-X-Mailer: Balsa 1.3.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0201151405250.9053-100000@segfault.osdlab.org>; from mochel@osdl.org on Tue, Jan 15, 2002 at 02:09:27PM -0800
+X-fb12: i like cryptic messages in my email header
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 20020116 Wakko Warner wrote:
->Ok, 2.4.17:
->gcc -D__KERNEL__ -I/usr/src/2.4.17/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev4 -Wa,-mev6 -DMODULE   -DEXPORT_SYMTAB -c DAC960.c
->DAC960.c: In function `DAC960_V2_EnableMemoryMailboxInterface':
->DAC960.c:1054: internal error--unrecognizable insn:
->(insn 949 477 474 (set (reg:DI 2 $2)
->        (plus:DI (reg:DI 30 $30)
->            (const_int 4398046511104 [0x40000000000]))) -1 (nil)
->    (nil))
+--oyUTqETQ0mS9luUI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-ev5 ? No idea about alphas. gcc version ?
+Patrick Mochel(mochel@osdl.org)@2002.01.15 14:09:27 +0000:
+> Does anyone recall exactly which version this changed in? Or, have any of
+> the vendors reversed this wart?
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-pre3-beo #5 SMP Sun Jan 13 02:14:04 CET 2002 i686
+https://www.redhat.com/support/errata/RHBA-2001-118.html
+"The current releases of PINE 4.33 contain a whitespace mangling bug that is
+fixed in this release."
+
+/B.
+
+--=20
+Sebastian Benoit <benoit-lists@fb12.de>
+GnuPG 0x5BA22F00 2001-07-31 2999 9839 6C9E E4BF B540  C44B 4EC4 E1BE 5BA2 2=
+F00
+
+Buy land. They've stopped making it. -- Mark Twain.
+
+--oyUTqETQ0mS9luUI
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjxEwGcACgkQTsThvluiLwBXqgCgryKxlsr+nxERsGSiBrq7c6Se
+4UAAn2YEMyzr7DheaSNhizvV3MsFt4BE
+=zex2
+-----END PGP SIGNATURE-----
+
+--oyUTqETQ0mS9luUI--

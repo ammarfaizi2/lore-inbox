@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262672AbRE3Jaw>; Wed, 30 May 2001 05:30:52 -0400
+	id <S262682AbRE3JdC>; Wed, 30 May 2001 05:33:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262674AbRE3Jam>; Wed, 30 May 2001 05:30:42 -0400
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:9103 "EHLO sunrise.pg.gda.pl")
-	by vger.kernel.org with ESMTP id <S262672AbRE3Jae>;
-	Wed, 30 May 2001 05:30:34 -0400
-From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
-Message-Id: <200105300929.LAA02627@sunrise.pg.gda.pl>
-Subject: Re: Generating valid random .configs
-To: arjanv@redhat.com
-Date: Wed, 30 May 2001 11:29:42 +0200 (MET DST)
-Cc: anuradha@gnu.org, linux-kernel@vger.kernel.org
-In-Reply-To: <3B14AEFC.B522A7B4@redhat.com> from "Arjan van de Ven" at May 30, 2001 09:27:40 AM
-Reply-To: ankry@green.mif.pg.gda.pl
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262674AbRE3Jcw>; Wed, 30 May 2001 05:32:52 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:25482 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S262682AbRE3Jcl>; Wed, 30 May 2001 05:32:41 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [PATCH] net #9
+Date: Wed, 30 May 2001 09:32:39 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9f2enn$jbr$1@forge.intermeta.de>
+In-Reply-To: <200105300048.CAA04583@green.mif.pg.gda.pl>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 991215159 21868 212.34.181.4 (30 May 2001 09:32:39 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Wed, 30 May 2001 09:32:39 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Arjan van de Ven wrote:"
-> Anuradha Ratnaweera wrote:
-> > 
-> > Recently, I posted a request here to send your .config files and I
-> > received a good number of them. (thanks!).
-> > 
-> > Now I want to generate even more different configurations, and a random
-> > .config generator would be ideal. If I write a program which randomly
-> > outputs "y", "m" and "n" and pipe its output through make config, will the
-> > generated .configs always compile? Yes. the best thing is to go ahead and
-> > try it (which I am doing at the moment) but I like to know the theoretical
-> > answer;)
-> 
-> Every once in a while I run this and fix everything that doesn't
-> compile. It has been 
-> 2 months since I last did that, so I should do it again soon..
+Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl> writes:
 
-Some things cannot be properly fixed in CML1.
-  "$CONFIG_BINFMT_MISC" = "y" -a "$CONFIG_PROC_FS" = "n"
-is a good example.
+>-static char	name[4][IFNAMSIZ] = { "", "", "", "" };
 
-Andrzej
+>+static char	name[4][IFNAMSIZ];
 
+Ugh. Sure about that one? the variables have been pointers to zero,
+now they're zero...
+
+	Regards
+		Henning
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

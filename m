@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262776AbSJLCn5>; Fri, 11 Oct 2002 22:43:57 -0400
+	id <S262743AbSJLCl4>; Fri, 11 Oct 2002 22:41:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262779AbSJLCn5>; Fri, 11 Oct 2002 22:43:57 -0400
-Received: from smtp02.fields.gol.com ([203.216.5.132]:29574 "EHLO
-	smtp02.fields.gol.com") by vger.kernel.org with ESMTP
-	id <S262776AbSJLCn4>; Fri, 11 Oct 2002 22:43:56 -0400
-X-From-Line: miles@lsi.nec.co.jp Fri Oct 11 09:51:48 2002
-To: linux-kernel@vger.kernel.org
-Subject: compiling without CONFIG_NET broken in 2.5.41
-Reply-To: Miles Bader <miles@gnu.org>
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 11 Oct 2002 13:22:37 +0900
-Message-ID: <buo1y6xy582.fsf@mcspd15.ucom.lsi.nec.co.jp>
-X-Abuse-Complaints: abuse@gol.com
+	id <S262776AbSJLClz>; Fri, 11 Oct 2002 22:41:55 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:63872 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262743AbSJLClz>;
+	Fri, 11 Oct 2002 22:41:55 -0400
+Date: Fri, 11 Oct 2002 19:41:08 -0700 (PDT)
+Message-Id: <20021011.194108.102576152.davem@redhat.com>
+To: yoshfuji@linux-ipv6.org
+Cc: mk@linux-ipv6.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       usagi@linux-ipv6.org
+Subject: Re: [PATCH] USAGI IPsec
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021012.114330.78212112.yoshfuji@linux-ipv6.org>
+References: <m3u1js1l1a.wl@karaba.org>
+	<20021011.185332.115906289.davem@redhat.com>
+	<20021012.114330.78212112.yoshfuji@linux-ipv6.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   From: YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org>
+   Date: Sat, 12 Oct 2002 11:43:30 +0900 (JST)
+   
+   Would you tell us the points of the "several details," please?
 
-I used to be able to compile linux without CONFIG_NET, but in 2.5.41,
-doing so makes compilation fail.  The reason is that net/socket.c
-references `dev_ioctl', which is only defined when CONFIG_NET is
-enabled.
+We believe that the whole SPD/SAD mechanism should move
+eventually to a top-level flow cache shared by ipv4 and
+ipv6.
 
-I can avoid the problem like this:
-
-
---- ../orig/linux-2.5.41/net/socket.c	2002-10-10 11:40:28.000000000 +0900
-+++ net/socket.c	2002-10-11 13:06:39.000000000 +0900
-@@ -691,9 +691,11 @@
- 
- 	unlock_kernel();
- 	sock = SOCKET_I(inode);
-+#ifdef CONFIG_NET
- 	if (cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15)) {
- 		err = dev_ioctl(cmd, (void *)arg);
- 	} else
-+#endif /* CONFIG_NET */
- #ifdef WIRELESS_EXT
- 	if (cmd >= SIOCIWFIRST && cmd <= SIOCIWLAST) {
- 		err = dev_ioctl(cmd, (void *)arg);
-
-
-It seems to work fine, but I have no idea if this is really the correct
-solution or not.
-
-I'd appreciate it if someone could look at this and install a fix.
-
-Thanks,
-
--Miles
-
--- 
-The secret to creativity is knowing how to hide your sources.
-  --Albert Einstein
-
+Therefore all the interfaces will be architected such that
+a move to a flow cache based lookup system will be a very
+simple change.

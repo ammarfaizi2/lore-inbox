@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315207AbSGMRLO>; Sat, 13 Jul 2002 13:11:14 -0400
+	id <S315213AbSGMRJ0>; Sat, 13 Jul 2002 13:09:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315218AbSGMRLN>; Sat, 13 Jul 2002 13:11:13 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:40204 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S315207AbSGMRLM>;
-	Sat, 13 Jul 2002 13:11:12 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200207131713.g6DHDtD95314@saturn.cs.uml.edu>
-Subject: Re: [patch[ Simple Topology API
-To: viro@math.psu.edu (Alexander Viro)
-Date: Sat, 13 Jul 2002 13:13:55 -0400 (EDT)
-Cc: colpatch@us.ibm.com (Matthew Dobson), linux-kernel@vger.kernel.org,
-       hohnbaum@us.ibm.com (Michael Hohnbaum),
-       mjbligh@us.ibm.com (Martin Bligh),
-       torvalds@transmeta.com (Linus Torvalds),
-       akpm@zip.com.au (Andrew Morton)
-In-Reply-To: <Pine.GSO.4.21.0207130355180.13648-100000@weyl.math.psu.edu> from "Alexander Viro" at Jul 13, 2002 04:04:51 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S315210AbSGMRJZ>; Sat, 13 Jul 2002 13:09:25 -0400
+Received: from pD9E23254.dip.t-dialin.net ([217.226.50.84]:29057 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315207AbSGMRJY>; Sat, 13 Jul 2002 13:09:24 -0400
+Date: Sat, 13 Jul 2002 11:11:52 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Gerhard Mack <gmack@innerfire.net>
+cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, c0330 <c0330@yingwa.edu.hk>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Future of Kernel tree 2.0 ............
+In-Reply-To: <Pine.LNX.4.44.0207131204450.12380-100000@innerfire.net>
+Message-ID: <Pine.LNX.4.44.0207131106150.3331-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam; Germany
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
+Hi,
 
-> It's hard to enjoy the use of prctl().  Especially for things like
-> "give me the number of the first CPU in node <n>" - it ain't no
-> process controll, no matter how you stretch it.
+On Sat, 13 Jul 2002, Gerhard Mack wrote:
+> > Is there any reason at all to use 2.0 instead of 2.2?
+> 
+> On a new system probably not .. on an old system however the effort needed
+> to upgrade all of the related utilities just isn't worth it.
 
-Yeah... eeew.
+I think one always gets one's environment tuned to fit himself. (At least 
+I do.) I still have some 2.0 machines running, and they're running fine. 
+They ran fine since Adam, and will still run fine as long as 2.0 is 
+maintained. I can run them without too much administration effort (this is 
+cool, since they're about 100 miles away...)
 
-> <soapbox> That's yet another demonstration of the evil of multiplexing
-> syscalls.  They hide the broken APIs and make them easy to introduce.
-> And broken APIs get introduced - through each of these.  prctl(), fcntl(),
-> ioctl() - you name it.  Please, don't do that. </soapbox>
+When I have them administrated, I always get this comfortable feeling, 
+because the most of it is done by large scripts which check input and 
+compute the output by themselves. If I dropped e.g. the old firewalling 
+style, I'd have to change ~60% of my scripts to the new firewalling style.
 
-This wouldn't happen if it wasn't so damn hard to add a syscall.
-If you make people go though all the arch maintainers just to
-add a simple arch-independent syscall, they'll just bolt their
-code into some dark hidden corner of the kernel. That's life.
-Make syscalls easy to write, and this won't happen.
+I think this is a good reason not to upgrade to a so-called "recent" 
+kernel on those boxes.
 
-Can you guess what would happen if you got rid of prctl(),
-fcntl(), and ioctl()? We'd get apps with code like this:
-
-// write address of one of these to /proc/orifice
-typedef struct evil {
-  int version;        // struct version
-  struct evil *next;  // next in list
-  struct evil *prev;  // prev in list
-  char opcode;        // indicates what we will do
-  int (*fn)(void *);  // callback function (if not NULL)
-  void *addr;         // an address in kernel memory
-  short flags;        // 0x0001 call fn w/ ints off, 0x0002 w/ BKL
-  double timeout;     // in microfortnights (uses APIC's NMI)
-} evil;
-
-
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

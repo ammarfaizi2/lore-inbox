@@ -1,73 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267900AbTBRROp>; Tue, 18 Feb 2003 12:14:45 -0500
+	id <S267909AbTBRRb2>; Tue, 18 Feb 2003 12:31:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267927AbTBRROp>; Tue, 18 Feb 2003 12:14:45 -0500
-Received: from almesberger.net ([63.105.73.239]:42249 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S267900AbTBRRNT>; Tue, 18 Feb 2003 12:13:19 -0500
-Date: Tue, 18 Feb 2003 14:22:57 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, kuznet@ms2.inr.ac.ru,
+	id <S267910AbTBRRb2>; Tue, 18 Feb 2003 12:31:28 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:25614 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267909AbTBRRb1>; Tue, 18 Feb 2003 12:31:27 -0500
+Date: Tue, 18 Feb 2003 17:41:25 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Henning Schmiedehausen <hps@intermeta.de>
+Cc: Christoph Hellwig <hch@infradead.org>, lm@bitmover.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Is an alternative module interface needed/possible?
-Message-ID: <20030218142257.A10210@almesberger.net>
-References: <20030217221837.Q2092@almesberger.net> <20030218050349.44B092C04E@lists.samba.org> <20030218042042.R2092@almesberger.net> <Pine.LNX.4.44.0302181252570.1336-100000@serv> <20030218111215.T2092@almesberger.net>
+Subject: Re: openbkweb-0.0
+Message-ID: <20030218174125.C19228@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Henning Schmiedehausen <hps@intermeta.de>, lm@bitmover.com,
+	linux-kernel@vger.kernel.org
+References: <20030213220522.GA11214@work.bitmover.com> <20030213225621.GA17508@bjl1.jlokier.co.uk> <20030214203151.GL20159@fs.tum.de> <20030214234517.GA4333@bjl1.jlokier.co.uk> <20030214235724.GA24139@work.bitmover.com> <b2l9d1$v55$3@tangens.hometree.net> <20030215115022.B18281@infradead.org> <b2lang$vf$1@tangens.hometree.net> <20030215165834.A21412@infradead.org> <1045427175.1477.47.camel@henning-pc.hutweide.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030218111215.T2092@almesberger.net>; from wa@almesberger.net on Tue, Feb 18, 2003 at 11:12:15AM -0300
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1045427175.1477.47.camel@henning-pc.hutweide.de>; from hps@intermeta.de on Sun, Feb 16, 2003 at 09:26:15PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Next round: possible remedies and their side-effects. As
-usual, if you disagree with something, please holler.
+On Sun, Feb 16, 2003 at 09:26:15PM +0100, Henning Schmiedehausen wrote:
+> The problem I have is, that at some point the BK company might be forced
+> to change the rules. Maybe Larry isn't in charge anymore. Maybe he needs
+> money. Maybe at some point kernel development _relies_ on BK. What if BK
+> decides that there are no more free licenses from this day on? 
 
-If yes, let's look at possible (and not overly insane) solutions,
-using remove_proc_entry as a case study:
+Then we'll have to go back to old-style no-SCM releases. 
 
-1) still don't kfree, and leave it to the user to somehow
-   minimize the damage. (Good luck :-)
+> I have a problem with a core product of the free software movement
 
-2) add a callback that is invoked when the proc entry gets
-   deleted. (This callback may be called before remove_proc_entry
-   completes.) Problem: unload/return race for modules.
+Who said Linux is part of the Free Software Movement?  Remember that Linus
+is no fanatical GNU monk, unless I got something completly wrong he even
+writes propritary software in his daytime job..
 
-3) change remove_proc_entry or add remove_proc_entry_wait that
-   works like remove_proc_entry, but blocks until the entry is
-   deleted. Problem: may sleep "forever".
-
-4) make remove_proc_entry return an indication of whether the
-   entry was successfully removed or not. Problem: if it
-   wasn't, what can we do then ?
-
-5) like above, but don't remove the entry if we can't do it
-   immediately. Problem: there's no notification for when we
-   should try again, so we'd have to poll.
-
-6) export the lookup mechanism, and let the caller poll for
-   removal. Problem: races with creation of a new entry with
-   the same name.
-
-7) transfer ownership of de->data to procfs, and set some
-   (possibly configurable) destruction policy (e.g. always
-   kfree, or such). Similar to 2), but less flexible.
-
-Any more ?
-
-I think that most programmers would intuitively expect an
-interface of type 3). In cases where we can't sleep, either
-type 2) or type 5) would be common choices.
-
-Does that sound reasonable so far ?
-
-I'll wait a little until I continue with ways for dealing
-with the side-effects.
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

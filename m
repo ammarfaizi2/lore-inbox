@@ -1,58 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263601AbUCUJna (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 04:43:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263622AbUCUJna
+	id S263600AbUCUJuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 04:50:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263623AbUCUJuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 04:43:30 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:21165 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263601AbUCUJn2 (ORCPT
+	Sun, 21 Mar 2004 04:50:24 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:22685 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263600AbUCUJuX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 04:43:28 -0500
-Date: Sun, 21 Mar 2004 10:43:25 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Chris Mason <mason@suse.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] barrier patch set
-Message-ID: <20040321094324.GC1627@suse.de>
-References: <20040319153554.GC2933@suse.de> <200403201805.26211.bzolnier@elka.pw.edu.pl> <1079802604.11058.292.camel@watt.suse.com> <200403202116.57949.bzolnier@elka.pw.edu.pl>
+	Sun, 21 Mar 2004 04:50:23 -0500
+Date: Sun, 21 Mar 2004 10:51:16 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sched_setaffinity usability
+Message-ID: <20040321095116.GA7721@elte.hu>
+References: <40595842.5070708@redhat.com> <20040318112913.GA13981@elte.hu> <20040318120709.A27841@infradead.org> <Pine.LNX.4.58.0403180748070.24088@ppc970.osdl.org> <20040318182407.GA1287@elte.hu> <405AB72B.4030204@aitel.hist.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200403202116.57949.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <405AB72B.4030204@aitel.hist.no>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 20 2004, Bartlomiej Zolnierkiewicz wrote:
-> On Saturday 20 of March 2004 18:10, Chris Mason wrote:
-> > On Sat, 2004-03-20 at 12:05, Bartlomiej Zolnierkiewicz wrote:
-> > > On Saturday 20 of March 2004 17:32, Chris Mason wrote:
-> > > > On Sat, 2004-03-20 at 11:23, Bartlomiej Zolnierkiewicz wrote:
-> > > > > > > - why are we doing pre-flush?
-> > > >
-> > > > The journaled filesystems need this.  We need to make sure that before
-> > > > we write the commit block for a transaction, all the previous log
-> > > > blocks we're written are safely on media.  Then we also need to make
-> > > > sure the commit block is on media.
-> > >
-> > > For low-level driver it shouldn't really matter whether sectors to be
-> > > written are the commit block for a transaction or the previous log blocks
-> > > and in the current implementation it does matter.
-> >
-> > As Jens said, it depends on how you define barrier ;-)  I define it as
-> > this io will be written after all the previous io and before any later
-> > io.   It was originally written with scsi tags in mind as well, the FS
-> > side was the same for both.
+
+* Helge Hafting <helgehaf@aitel.hist.no> wrote:
+
+> Let the compile create that info file.  Then handle it much like a
+> module, except that it is a "module" without any code.  I.e. copy it
+> to /lib/modules/<kernelversion> if installing modules, or stuff the
+> file into the initrd if making an initrd. 
 > 
-> Yes, thanks for explaining this.
-> 
-> I took a quick look at fs/jbd/ and now I think I understand the way barriers
-> currently work.  I assume that SCSI handles barriers by ordered tags, right?
+> Now it is in a place specific to the kernel, where a library can find
+> it.
 
-That's the idea, yes. Needs some SCSI error handling work though, to
-always ensure correct ordering.
+this has a couple of disadvantages:
 
--- 
-Jens Axboe
+ - the kernel can pre-map the 'file' cheaper - in fact on x86 it's
+   zero-cost currently. Mapping a file takes 3 syscalls and at least one
+   pagefault. Since glibc needs a good portion of this info for
+   absolutely every ELF binary, why not provide it in a preconstructed
+   way? x86 is doing it via the VDSO. ia64 and x86-64 is doing it via a
+   dso-alike mechanism.
 
+ - obtaining the kernel version currently needs one more syscall
+   [uname()].
+
+ - the 'metadata' becomes detached from the kernel image, so it
+   cannot contain 'crutial' data. Testing kernels becomes harder, etc.
+   (until now i could just send a bzImage to someone to get it tested -
+    now it would have to include the metadata too.)
+
+ - it excludes non-build-time data.
+
+	Ingo

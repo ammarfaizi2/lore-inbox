@@ -1,76 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbUKUQwD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbUKURMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbUKUQwD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 11:52:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbUKUQwD
+	id S261217AbUKURMR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 12:12:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbUKURMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 11:52:03 -0500
-Received: from dsl-prvgw1nf5.dial.inet.fi ([80.223.61.245]:29661 "EHLO
-	dsl-prvgw1nf5.dial.inet.fi") by vger.kernel.org with ESMTP
-	id S261181AbUKUQvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 11:51:47 -0500
-Date: Sun, 21 Nov 2004 18:51:43 +0200 (EET)
-From: "Petri T. Koistinen" <petri.koistinen@iki.fi>
-To: roms@lpg.ticalc.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Clean up little bit gkc introduction text
-Message-ID: <Pine.LNX.4.61.0411211825120.5894@dsl-prvgw1nf5.dial.inet.fi>
+	Sun, 21 Nov 2004 12:12:17 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:33186 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261217AbUKURMH (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 12:12:07 -0500
+Message-ID: <41A0CC68.8000405@namesys.com>
+Date: Sun, 21 Nov 2004 09:12:08 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Nikita Danilov <nikita@clusterfs.com>
+CC: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
+       Andrew Morton <AKPM@Osdl.ORG>,
+       Linux MM Mailing List <linux-mm@kvack.org>
+Subject: Re: [PATCH]: 4/4 cluster page-out in VM scanner
+References: <16800.47066.827146.370838@gargle.gargle.HOWL>
+In-Reply-To: <16800.47066.827146.370838@gargle.gargle.HOWL>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+How well does this integrate with reiser4.;-)
 
-This patch cleans up little bit gkc introduction text.
+Hans
 
-What do you think about this patch? Somebody that speaks natively english should 
-probably read this thru.
+Nikita Danilov wrote:
 
-Best regards,
-Petri Koistinen
+>Implement pageout clustering at the VM level.
+>
+>With this patch VM scanner calls pageout_cluster() instead of
+>->writepage(). pageout_cluster() tries to find a group of dirty pages around
+>target page, called "pivot" page of the cluster. If group of suitable size is
+>found, ->writepages() is called for it, otherwise, page_cluster() falls back
+>to ->writepage().
+>
+>This is supposed to help in work-loads with significant page-out of
+>file-system pages from tail of the inactive list (for example, heavy dirtying
+>through mmap), because file system usually writes multiple pages more
+>efficiently. Should also be advantageous for file-systems doing delayed
+>allocation, as in this case they will allocate whole extents at once.
+>
+>Few points:
+>
+> - swap-cache pages are not clustered (although they can be, but by
+>   page->private rather than page->index)
+>
+> - currently, kswapd clusters all the time, and direct reclaim only when
+>   device queue is not congested. Probably direct reclaim shouldn't cluster at
+>   all.
+>
+> - this patch adds new fields to struct writeback_control and expects
+>   ->writepages() to interpret them. This is needed, because pageout_cluster()
+>   calls ->writepages() with pivot page already locked, so that ->writepages()
+>   is allowed to only trylock other pages in the cluster.
+>
+>   Besides, rather rough plumbing (wbc->pivot_ret field) is added to check
+>   whether ->writepages() failed to write pivot page for any reason (in latter
+>   case page_cluster() falls back to ->writepage()).
+>
+>   Only mpage_writepages() was updated to honor these new fields, but
+>   all in-tree ->writepages() implementations seem to call
+>   mpage_writepages(). (Except reiser4, of course, for which I'll send a
+>   (trivial) patch, if necessary).
+>
+>Numbers that talk:
+>
+>Averaged number of microseconds it takes to dirty 1GB of
+>16-times-larger-than-RAM ext3 file mmaped in 1GB chunks:
+>
+>without-patch:   average:    74188417.156250
+>               deviation:    10538258.613280
+>
+>   with-patch:   average:    69449001.583333
+>               deviation:    12621756.615280
+>
+>(Patch is for 2.6.10-rc2)
+>
+>  
+>
 
-Signed-off-by: Petri T. Koistinen <petri.koistinen@iki.fi>
-
---- linux-2.6/scripts/kconfig/gconf.c.orig	2004-11-21 16:15:16.000000000 +0200
-+++ linux-2.6/scripts/kconfig/gconf.c	2004-11-21 18:07:52.000000000 +0200
-@@ -741,22 +741,25 @@ void on_introduction1_activate(GtkMenuIt
- {
- 	GtkWidget *dialog;
- 	const gchar *intro_text =
--	    "Welcome to gkc, the GTK+ graphical kernel configuration tool\n"
--	    "for Linux.\n"
--	    "For each option, a blank box indicates the feature is disabled, a\n"
--	    "check indicates it is enabled, and a dot indicates that it is to\n"
--	    "be compiled as a module.  Clicking on the box will cycle through the three states.\n"
-+	    "Welcome to gkc, the graphical configuration tool for Linux "
-+	    "kernel.\n"
- 	    "\n"
--	    "If you do not see an option (e.g., a device driver) that you\n"
--	    "believe should be present, try turning on Show All Options\n"
--	    "under the Options menu.\n"
--	    "Although there is no cross reference yet to help you figure out\n"
--	    "what other options must be enabled to support the option you\n"
--	    "are interested in, you can still view the help of a grayed-out\n"
--	    "option.\n"
-+	    "For each option, an empty box indicates the feature is disabled,\n"
-+	    "a check indicates it is enabled, and a dot indicates that it "
-+	    "will be compiled as a module.  Click the box to cycle through "
-+	    "the possible states.\n"
- 	    "\n"
--	    "Toggling Show Debug Info under the Options menu will show \n"
--	    "the dependencies, which you can then match by examining other options.";
-+	    "If you do not see an option (e.g. a device driver) that you "
-+	    "believe should be present, try turning on `Show all options' "
-+	    "from the `Options' menu.\n"
-+	    "\n"
-+	    "Although there is no cross reference to help figure out what "
-+	    "other options must be enabled to support the option you want, "
-+	    "you can still view the help of a disabled option.\n"
-+	    "\n"
-+	    "Toggling `Show debug info' under the `Options' menu will show you "
-+	    "the dependencies, which you can then match by examining other "
-+	    "options.";
- 
- 	dialog = gtk_message_dialog_new(GTK_WINDOW(main_wnd),
- 					GTK_DIALOG_DESTROY_WITH_PARENT,

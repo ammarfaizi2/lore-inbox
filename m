@@ -1,196 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262535AbVAUWC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbVAUWC3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262535AbVAUWC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 17:02:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVAUWAr
+	id S262543AbVAUWC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 17:02:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVAUV7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 17:00:47 -0500
-Received: from waste.org ([216.27.176.166]:30681 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262535AbVAUVlX (ORCPT
+	Fri, 21 Jan 2005 16:59:11 -0500
+Received: from waste.org ([216.27.176.166]:30425 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262534AbVAUVlW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 16:41:23 -0500
-Date: Fri, 21 Jan 2005 15:41:07 -0600
+	Fri, 21 Jan 2005 16:41:22 -0500
+Date: Fri, 21 Jan 2005 15:41:08 -0600
 From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>
 X-PatchBomber: http://selenic.com/scripts/mailpatches
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <8.314297600@selenic.com>
-Message-Id: <9.314297600@selenic.com>
-Subject: [PATCH 8/12] random pt4: Move halfmd4 to lib
+In-Reply-To: <10.314297600@selenic.com>
+Message-Id: <11.314297600@selenic.com>
+Subject: [PATCH 10/12] random pt4: Simplify and shrink syncookie code
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move half-MD4 hash to /lib where we can share it with htree.
+Simplify syncookie initialization
+Refactor syncookie code with separate hash function
 
 Signed-off-by: Matt Mackall <mpm@selenic.com>
 
 Index: rnd2/drivers/char/random.c
 ===================================================================
---- rnd2.orig/drivers/char/random.c	2005-01-20 09:42:08.922390869 -0800
-+++ rnd2/drivers/char/random.c	2005-01-20 09:50:02.465019321 -0800
-@@ -1325,47 +1325,6 @@
- #define K2 013240474631UL
- #define K3 015666365641UL
+--- rnd2.orig/drivers/char/random.c	2005-01-20 10:12:26.633652402 -0800
++++ rnd2/drivers/char/random.c	2005-01-20 10:16:13.830687244 -0800
+@@ -366,6 +366,10 @@
+  * hash; hash collisions will occur no more often than chance.
+  */
  
--/*
-- * Basic cut-down MD4 transform.  Returns only 32 bits of result.
-- */
--static __u32 halfMD4Transform (__u32 const buf[4], __u32 const in[8])
--{
--	__u32 a = buf[0], b = buf[1], c = buf[2], d = buf[3];
--
--	/* Round 1 */
--	ROUND(F, a, b, c, d, in[0] + K1,  3);
--	ROUND(F, d, a, b, c, in[1] + K1,  7);
--	ROUND(F, c, d, a, b, in[2] + K1, 11);
--	ROUND(F, b, c, d, a, in[3] + K1, 19);
--	ROUND(F, a, b, c, d, in[4] + K1,  3);
--	ROUND(F, d, a, b, c, in[5] + K1,  7);
--	ROUND(F, c, d, a, b, in[6] + K1, 11);
--	ROUND(F, b, c, d, a, in[7] + K1, 19);
--
--	/* Round 2 */
--	ROUND(G, a, b, c, d, in[1] + K2,  3);
--	ROUND(G, d, a, b, c, in[3] + K2,  5);
--	ROUND(G, c, d, a, b, in[5] + K2,  9);
--	ROUND(G, b, c, d, a, in[7] + K2, 13);
--	ROUND(G, a, b, c, d, in[0] + K2,  3);
--	ROUND(G, d, a, b, c, in[2] + K2,  5);
--	ROUND(G, c, d, a, b, in[4] + K2,  9);
--	ROUND(G, b, c, d, a, in[6] + K2, 13);
--
--	/* Round 3 */
--	ROUND(H, a, b, c, d, in[3] + K3,  3);
--	ROUND(H, d, a, b, c, in[7] + K3,  9);
--	ROUND(H, c, d, a, b, in[2] + K3, 11);
--	ROUND(H, b, c, d, a, in[6] + K3, 15);
--	ROUND(H, a, b, c, d, in[1] + K3,  3);
--	ROUND(H, d, a, b, c, in[5] + K3,  9);
--	ROUND(H, c, d, a, b, in[0] + K3, 11);
--	ROUND(H, b, c, d, a, in[4] + K3, 15);
--
--	return buf[1] + b;	/* "most hashed" word */
--	/* Alternative: return sum of all words? */
--}
--
- #if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
- 
- static __u32 twothirdsMD4Transform (__u32 const buf[4], __u32 const in[12])
-@@ -1550,7 +1509,7 @@
- 	hash[2]=(sport << 16) + dport;
- 	hash[3]=keyptr->secret[11];
- 
--	seq = halfMD4Transform(hash, keyptr->secret) & HASH_MASK;
-+	seq = half_md4_transform(hash, keyptr->secret) & HASH_MASK;
- 	seq += keyptr->count;
- 	/*
- 	 *	As close as possible to RFC 793, which
-@@ -1591,7 +1550,7 @@
- 	hash[2] = keyptr->secret[10];
- 	hash[3] = keyptr->secret[11];
- 
--	return halfMD4Transform(hash, keyptr->secret);
-+	return half_md4_transform(hash, keyptr->secret);
++#ifdef CONFIG_SYN_COOKIES
++static __u32 syncookie_secret[2][16-3+SHA_WORKSPACE_WORDS];
++#endif
++
+ /*
+  * Static global variables
+  */
+@@ -897,6 +901,9 @@
+ 	init_std_data(&input_pool);
+ 	init_std_data(&blocking_pool);
+ 	init_std_data(&nonblocking_pool);
++#ifdef CONFIG_SYN_COOKIES
++	get_random_bytes(syncookie_secret, sizeof(syncookie_secret));
++#endif
+ 	return 0;
  }
+ module_init(rand_initialize);
+@@ -1583,23 +1590,24 @@
+ #define COOKIEBITS 24	/* Upper bits store count */
+ #define COOKIEMASK (((__u32)1 << COOKIEBITS) - 1)
  
- /* Generate secure starting point for ephemeral TCP port search */
-@@ -1609,7 +1568,7 @@
- 	hash[2] = dport ^ keyptr->secret[10];
- 	hash[3] = keyptr->secret[11];
+-static int syncookie_init;
+-static __u32 syncookie_secret[2][16-3+SHA_DIGEST_WORDS];
+-
+-__u32 secure_tcp_syn_cookie(__u32 saddr, __u32 daddr, __u16 sport,
+-		__u16 dport, __u32 sseq, __u32 count, __u32 data)
++static u32 cookie_hash(u32 saddr, u32 daddr, u32 sport, u32 dport,
++		       u32 count, int c)
+ {
+ 	__u32 tmp[16 + 5 + SHA_WORKSPACE_WORDS];
+-	__u32 seq;
  
--	return halfMD4Transform(hash, keyptr->secret);
-+	return half_md4_transform(hash, keyptr->secret);
- }
+-	/*
+-	 * Pick two random secrets the first time we need a cookie.
+-	 */
+-	if (syncookie_init == 0) {
+-		get_random_bytes(syncookie_secret, sizeof(syncookie_secret));
+-		syncookie_init = 1;
+-	}
++	memcpy(tmp + 3, syncookie_secret[c], sizeof(syncookie_secret[c]));
++	tmp[0] = saddr;
++	tmp[1] = daddr;
++	tmp[2] = (sport << 16) + dport;
++	tmp[3] = count;
++	sha_transform(tmp + 16, tmp);
  
- #ifdef CONFIG_SYN_COOKIES
-Index: rnd2/lib/halfmd4.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ rnd2/lib/halfmd4.c	2005-01-20 09:47:02.741932065 -0800
-@@ -0,0 +1,61 @@
-+#include <linux/kernel.h>
-+#include <linux/cryptohash.h>
-+
-+/* F, G and H are basic MD4 functions: selection, majority, parity */
-+#define F(x, y, z) ((z) ^ ((x) & ((y) ^ (z))))
-+#define G(x, y, z) (((x) & (y)) + (((x) ^ (y)) & (z)))
-+#define H(x, y, z) ((x) ^ (y) ^ (z))
-+
-+/*
-+ * The generic round function.  The application is so specific that
-+ * we don't bother protecting all the arguments with parens, as is generally
-+ * good macro practice, in favor of extra legibility.
-+ * Rotation is separate from addition to prevent recomputation
-+ */
-+#define ROUND(f, a, b, c, d, x, s)	\
-+	(a += f(b, c, d) + x, a = (a << s) | (a >> (32 - s)))
-+#define K1 0
-+#define K2 013240474631UL
-+#define K3 015666365641UL
-+
-+/*
-+ * Basic cut-down MD4 transform.  Returns only 32 bits of result.
-+ */
-+__u32 half_md4_transform(__u32 const buf[4], __u32 const in[8])
-+{
-+	__u32 a = buf[0], b = buf[1], c = buf[2], d = buf[3];
-+
-+	/* Round 1 */
-+	ROUND(F, a, b, c, d, in[0] + K1,  3);
-+	ROUND(F, d, a, b, c, in[1] + K1,  7);
-+	ROUND(F, c, d, a, b, in[2] + K1, 11);
-+	ROUND(F, b, c, d, a, in[3] + K1, 19);
-+	ROUND(F, a, b, c, d, in[4] + K1,  3);
-+	ROUND(F, d, a, b, c, in[5] + K1,  7);
-+	ROUND(F, c, d, a, b, in[6] + K1, 11);
-+	ROUND(F, b, c, d, a, in[7] + K1, 19);
-+
-+	/* Round 2 */
-+	ROUND(G, a, b, c, d, in[1] + K2,  3);
-+	ROUND(G, d, a, b, c, in[3] + K2,  5);
-+	ROUND(G, c, d, a, b, in[5] + K2,  9);
-+	ROUND(G, b, c, d, a, in[7] + K2, 13);
-+	ROUND(G, a, b, c, d, in[0] + K2,  3);
-+	ROUND(G, d, a, b, c, in[2] + K2,  5);
-+	ROUND(G, c, d, a, b, in[4] + K2,  9);
-+	ROUND(G, b, c, d, a, in[6] + K2, 13);
-+
-+	/* Round 3 */
-+	ROUND(H, a, b, c, d, in[3] + K3,  3);
-+	ROUND(H, d, a, b, c, in[7] + K3,  9);
-+	ROUND(H, c, d, a, b, in[2] + K3, 11);
-+	ROUND(H, b, c, d, a, in[6] + K3, 15);
-+	ROUND(H, a, b, c, d, in[1] + K3,  3);
-+	ROUND(H, d, a, b, c, in[5] + K3,  9);
-+	ROUND(H, c, d, a, b, in[0] + K3, 11);
-+	ROUND(H, b, c, d, a, in[4] + K3, 15);
-+
-+	return buf[1] + b;	/* "most hashed" word */
-+	/* Alternative: return sum of all words? */
++	return tmp[17];
 +}
 +
-Index: rnd2/lib/Makefile
-===================================================================
---- rnd2.orig/lib/Makefile	2005-01-20 09:42:08.920391124 -0800
-+++ rnd2/lib/Makefile	2005-01-20 09:47:44.147653284 -0800
-@@ -5,7 +5,8 @@
- lib-y := errno.o ctype.o string.o vsprintf.o cmdline.o \
- 	 bust_spinlocks.o rbtree.o radix-tree.o dump_stack.o \
- 	 kobject.o kref.o idr.o div64.o parser.o int_sqrt.o \
--	 bitmap.o extable.o kobject_uevent.o prio_tree.o sha1.o
-+	 bitmap.o extable.o kobject_uevent.o prio_tree.o \
-+	 sha1.o halfmd4.o
++__u32 secure_tcp_syn_cookie(__u32 saddr, __u32 daddr, __u16 sport,
++		__u16 dport, __u32 sseq, __u32 count, __u32 data)
++{
+ 	/*
+ 	 * Compute the secure sequence number.
+ 	 * The output should be:
+@@ -1611,22 +1619,10 @@
+ 	 * MSS into the second hash value.
+ 	 */
  
- ifeq ($(CONFIG_DEBUG_KOBJECT),y)
- CFLAGS_kobject.o += -DDEBUG
-Index: rnd2/include/linux/cryptohash.h
-===================================================================
---- rnd2.orig/include/linux/cryptohash.h	2005-01-20 09:42:09.077371110 -0800
-+++ rnd2/include/linux/cryptohash.h	2005-01-20 09:47:02.986900834 -0800
-@@ -7,4 +7,6 @@
- void sha_init(__u32 *buf);
- void sha_transform(__u32 *digest, const char *data, __u32 *W);
+-	memcpy(tmp + 3, syncookie_secret[0], sizeof(syncookie_secret[0]));
+-	tmp[0]=saddr;
+-	tmp[1]=daddr;
+-	tmp[2]=(sport << 16) + dport;
+-	sha_transform(tmp+16, (__u8 *)tmp, tmp + 16 + 5);
+-	seq = tmp[17] + sseq + (count << COOKIEBITS);
+-
+-	memcpy(tmp + 3, syncookie_secret[1], sizeof(syncookie_secret[1]));
+-	tmp[0]=saddr;
+-	tmp[1]=daddr;
+-	tmp[2]=(sport << 16) + dport;
+-	tmp[3] = count;	/* minute counter */
+-	sha_transform(tmp + 16, (__u8 *)tmp, tmp + 16 + 5);
+-
+-	/* Add in the second hash and the data */
+-	return seq + ((tmp[17] + data) & COOKIEMASK);
++	return (cookie_hash(saddr, daddr, sport, dport, 0, 0) +
++		sseq + (count << COOKIEBITS) +
++		((cookie_hash(saddr, daddr, sport, dport, count, 1) + data)
++		 & COOKIEMASK));
+ }
  
-+__u32 half_md4_transform(__u32 const buf[4], __u32 const in[8]);
-+
+ /*
+@@ -1641,33 +1637,19 @@
+ __u32 check_tcp_syn_cookie(__u32 cookie, __u32 saddr, __u32 daddr, __u16 sport,
+ 		__u16 dport, __u32 sseq, __u32 count, __u32 maxdiff)
+ {
+-	__u32 tmp[16 + 5 + SHA_WORKSPACE_WORDS];
+ 	__u32 diff;
+ 
+-	if (syncookie_init == 0)
+-		return (__u32)-1; /* Well, duh! */
+-
+ 	/* Strip away the layers from the cookie */
+-	memcpy(tmp + 3, syncookie_secret[0], sizeof(syncookie_secret[0]));
+-	tmp[0]=saddr;
+-	tmp[1]=daddr;
+-	tmp[2]=(sport << 16) + dport;
+-	sha_transform(tmp + 16, (__u8 *)tmp, tmp + 16 + 5);
+-	cookie -= tmp[17] + sseq;
+-	/* Cookie is now reduced to (count * 2^24) ^ (hash % 2^24) */
++	cookie -= cookie_hash(saddr, daddr, sport, dport, 0, 0) + sseq;
+ 
++	/* Cookie is now reduced to (count * 2^24) ^ (hash % 2^24) */
+ 	diff = (count - (cookie >> COOKIEBITS)) & ((__u32)-1 >> COOKIEBITS);
+ 	if (diff >= maxdiff)
+ 		return (__u32)-1;
+ 
+-	memcpy(tmp+3, syncookie_secret[1], sizeof(syncookie_secret[1]));
+-	tmp[0] = saddr;
+-	tmp[1] = daddr;
+-	tmp[2] = (sport << 16) + dport;
+-	tmp[3] = count - diff;	/* minute counter */
+-	sha_transform(tmp + 16, tmp);
+-
+-	return (cookie - tmp[17]) & COOKIEMASK;	/* Leaving the data behind */
++	return (cookie -
++		cookie_hash(saddr, daddr, sport, dport, count - diff, 1))
++		& COOKIEMASK;	/* Leaving the data behind */
+ }
  #endif
+ #endif /* CONFIG_INET */

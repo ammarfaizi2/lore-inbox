@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbUAEJDT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 04:03:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbUAEJDT
+	id S262805AbUAEJG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 04:06:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUAEJG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 04:03:19 -0500
-Received: from [66.62.77.7] ([66.62.77.7]:26313 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S262228AbUAEJDP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 04:03:15 -0500
-Subject: Re: 2.6.1-rc1-mm2
-From: Dax Kelson <dax@gurulabs.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <20040105002056.43f423b1.akpm@osdl.org>
-References: <20040105002056.43f423b1.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1073294151.10221.792.camel@mentor.gurulabs.com>
+	Mon, 5 Jan 2004 04:06:28 -0500
+Received: from h80ad2514.async.vt.edu ([128.173.37.20]:41408 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262805AbUAEJG1 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 04:06:27 -0500
+Message-Id: <200401050906.i05966qi013404@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: "James H. Cloos Jr." <cloos@jhcloos.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: udev and devfs - The final word 
+In-Reply-To: Your message of "Mon, 05 Jan 2004 02:44:10 EST."
+             <m31xqedelx.fsf@lugabout.jhcloos.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040103040013.A3100@pclin040.win.tue.nl> <Pine.LNX.4.58.0401022033010.10561@home.osdl.org> <20040103141029.B3393@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031423180.2162@home.osdl.org> <20040104000840.A3625@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031802420.2162@home.osdl.org> <20040104034934.A3669@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031856130.2162@home.osdl.org> <20040104142111.A11279@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041847370.2162@home.osdl.org>
+            <m31xqedelx.fsf@lugabout.jhcloos.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 05 Jan 2004 02:15:51 -0700
+Content-Type: multipart/signed; boundary="==_Exmh_685120100P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 05 Jan 2004 04:06:04 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-01-05 at 01:20, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1-rc1/2.6.1-rc1-mm2
+--==_Exmh_685120100P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 05 Jan 2004 02:44:10 EST, "James H. Cloos Jr." said:
+> >>>>> "Linus" == Linus Torvalds <torvalds@osdl.org> writes:
 > 
+> Linus> Why? Becuase that _program_ sure as hell isn't
+> Linus> running across a reboot.
 > 
-> Many new fixes, all over the place.
+> Is that strictly true?  With (software) suspend to disk,
+> will the old device enumeration data be recovered from
+> the suspend partition?
 
-I'm excited about the included laptop-mode patch. I've had great results
-with the 2.4 patch in the Fedora kernel.
+That would be a suspend, not a reboot, if we're speaking strictly....
 
-build error:
+--==_Exmh_685120100P
+Content-Type: application/pgp-signature
 
-  CC [M]  drivers/char/watchdog/amd7xx_tco.o
-drivers/char/watchdog/amd7xx_tco.c: In function `amdtco_fop_write':
-drivers/char/watchdog/amd7xx_tco.c:257: error: syntax error before "i"
-drivers/char/watchdog/amd7xx_tco.c:257: error: `i' undeclared (first use in this function)
-drivers/char/watchdog/amd7xx_tco.c:257: error: (Each undeclared identifier is reported only once
-drivers/char/watchdog/amd7xx_tco.c:257: error: for each function it appears in.)
-drivers/char/watchdog/amd7xx_tco.c:258: warning: ISO C90 forbids mixed declarations and code
-drivers/char/watchdog/amd7xx_tco.c:262: warning: type defaults to `int' in declaration of `type name'
-drivers/char/watchdog/amd7xx_tco.c: At top level:
-drivers/char/watchdog/amd7xx_tco.c:272: error: syntax error before "return"
-make[3]: *** [drivers/char/watchdog/amd7xx_tco.o] Error 1
-make[2]: *** [drivers/char/watchdog] Error 2
-make[1]: *** [drivers/char] Error 2
-make: *** [drivers] Error 2
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQE/+Sj5cC3lWbTT17ARAnowAJ40ts8Gs4a79JVGHfM8ys3HHi1jGwCgsz6X
+9o9lk4+nCQxHIIiwWo3fn38=
+=ZLdG
+-----END PGP SIGNATURE-----
 
+--==_Exmh_685120100P--

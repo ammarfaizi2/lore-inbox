@@ -1,56 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266412AbUFQIZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266413AbUFQI10@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266412AbUFQIZr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 04:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266413AbUFQIZr
+	id S266413AbUFQI10 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 04:27:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266414AbUFQI10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 04:25:47 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:29352 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S266412AbUFQIZp (ORCPT
+	Thu, 17 Jun 2004 04:27:26 -0400
+Received: from tor.morecom.no ([64.28.24.90]:49033 "EHLO tor.morecom.no")
+	by vger.kernel.org with ESMTP id S266413AbUFQI1T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 04:25:45 -0400
-Date: Thu, 17 Jun 2004 10:25:24 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Matt Mackall <mpm@selenic.com>
-Subject: Re: make checkstack on m68k
-In-Reply-To: <20040616180402.GB15365@wohnheim.fh-wedel.de>
-Message-ID: <Pine.GSO.4.58.0406171024271.21503@waterleaf.sonytel.be>
-References: <Pine.GSO.4.58.0406161845490.1249@waterleaf.sonytel.be>
- <20040616180402.GB15365@wohnheim.fh-wedel.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Thu, 17 Jun 2004 04:27:19 -0400
+Subject: Re: mode data=journal in ext3. Is it safe to use?
+From: Petter Larsen <pla@morecom.no>
+To: Oleg Drokin <green@linuxhacker.ru>
+Cc: linux-kernel@vger.kernel.org, ext3 <ext3-users@redhat.com>
+In-Reply-To: <200406160734.i5G7YZwV002051@car.linuxhacker.ru>
+References: <40FB8221D224C44393B0549DDB7A5CE83E31B1@tor.lokal.lan>
+	 <1087322976.1874.36.camel@pla.lokal.lan>
+	 <200406160734.i5G7YZwV002051@car.linuxhacker.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1087460837.2765.31.camel@pla.lokal.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 17 Jun 2004 10:27:17 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jun 2004, [iso-8859-1] Jörn Engel wrote:
-> On Wed, 16 June 2004 18:51:03 +0200, Geert Uytterhoeven wrote:
-> >   - Make sure `make checkstack' uses the script in the source tree directory
-> >     (BTW, I saw a few more targets in my eye corner that may need this)
-> >
-> > --- linux-2.6.7/Makefile	2004-06-16 13:06:15.000000000 +0200
-> > +++ linux-m68k-2.6.7/Makefile	2004-06-16 18:27:13.000000000 +0200
-> > @@ -1070,7 +1070,7 @@ endif #ifeq ($(mixed-targets),1)
-> >  .PHONY: checkstack
-> >  checkstack:
-> >  	$(OBJDUMP) -d vmlinux $$(find . -name '*.ko') | \
-> > -	$(PERL) scripts/checkstack.pl $(ARCH)
-> > +	$(PERL) $(src)/scripts/checkstack.pl $(ARCH)
->
-> Does this actually matter?  Didn't hurt me yet.
+Hello
 
-Do you ever use `make -C path_to_src_tree O=$(pwd) checkstack'?
+I comment inline..
 
-Gr{oetje,eeting}s,
+> PL> Can anybody of you acknowledge or not if mode data=journal in ext3 is
+> PL> safe to use in Linux kernel 2.6.x?
+> PL> Wee need to have a very consistent and integrity for our filesystem, and
+> PL> it would then be desired to journal both data and metadata.
+> 
+> OLEG> Actually data=journal mode would gain you mostly zero extra consistency compared
+> to data=ordered mode. (the only more consistency bit that you get is
+> correct mtime on files that have their pages overwritten, I think).
+> You have zero control over transaction boundaries in ext3, so you still need
+> to design your applications in such a way that they have their own
+> sort of transactions (if this is needed).
 
-						Geert
+So your conclusion is that data=journal mode is useless if you do not
+want a correct mtime?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+It would be a littles sense in developing the data=journal mode if this
+is the only benefit, don't you think?
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+>From the Linux/Documentation/filesystems/ext3.txt
+
+data=journal            All data are committed into the journal prior
+                        to being written into the main file system.
+
+data=ordered    (*)     All data are forced directly out to the main
+file                    system prior to its metadata being committed to
+                        the journal.
+
+My problem is that ext3 in the latest kernel, 2.6.x and the latest
+2.4.x, are not well documented around the web. Whitepapers and so are
+pretty old. Much have changed I belive in ext3 since it was first
+introduced by Dr. Tweedie. The first release was journaling both data
+and metadata, se also the transcript from Dr. Tweedie from the Ottawa
+Linux Symposium 20th July 2000.
+http://olstrans.sourceforge.net/release/OLS2000-ext3/OLS2000-ext3.html
+
+There he says that they are journaling both metadata and data, but that
+the design goal is not to do that. So can this be interpreted that mode
+data=journal is only there for historic reasons?
+ 
+
+> PL> Data integrity is much more important for us than speed.
+> 
+> OLEG> It is not clear what sort of extra data integrity do you expect from data
+> journaling mode and why do you think it is there.
+
+I would belive that the goal for such a mode data=journal would gain
+extra data integrity because it also journals data. Why should it not? I
+would belive that it makes sense to have these different modes so people
+can choose the best mode for there applications.
+
+> OLEG> Garbage in files should not happen in data ordered mode as data pages are
+> written first before metadata updates are committed.
+
+Are you sure?
+
+
+Petter
+
+

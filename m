@@ -1,92 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268323AbUH2VDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268312AbUH2VH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268323AbUH2VDn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 17:03:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268305AbUH2VDn
+	id S268312AbUH2VH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 17:07:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268327AbUH2VH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 17:03:43 -0400
-Received: from fw.osdl.org ([65.172.181.6]:44506 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268323AbUH2VDP (ORCPT
+	Sun, 29 Aug 2004 17:07:27 -0400
+Received: from dci.doncaster.on.ca ([66.11.168.194]:11218 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S268312AbUH2VEh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 17:03:15 -0400
-Date: Sun, 29 Aug 2004 14:01:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hans Reiser <reiser@namesys.com>
-cc: Helge Hafting <helgehaf@aitel.hist.no>, Rik van Riel <riel@redhat.com>,
-       Spam <spam@tnonline.net>, Jamie Lokier <jamie@shareable.org>,
-       David Masover <ninja@slaphack.com>, Diego Calleja <diegocg@teleline.es>,
-       christophe@saout.de, vda@port.imtp.ilyichevsk.odessa.ua,
-       christer@weinigel.se, Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
-       jra@samba.org, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, flx@namesys.com,
-       reiserfs-list@namesys.com,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <41323436.80007@namesys.com>
-Message-ID: <Pine.LNX.4.58.0408291346330.2295@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0408272158560.10272-100000@chimarrao.boston.redhat.com>
- <Pine.LNX.4.58.0408271902410.14196@ppc970.osdl.org> <20040828170515.GB24868@hh.idb.hist.no>
- <Pine.LNX.4.58.0408281038510.2295@ppc970.osdl.org> <4131074D.7050209@namesys.com>
- <Pine.LNX.4.58.0408282159510.2295@ppc970.osdl.org> <4131A3B2.30203@namesys.com>
- <Pine.LNX.4.58.0408291055140.2295@ppc970.osdl.org> <41323436.80007@namesys.com>
+	Sun, 29 Aug 2004 17:04:37 -0400
+From: Andrew Miklas <public@mikl.as>
+Reply-To: public@mikl.as
+To: Gianni Tedesco <gianni@scaramanga.co.uk>
+Subject: Re: Linux Incompatibility List
+Date: Sun, 29 Aug 2004 17:04:21 -0400
+User-Agent: KMail/1.7
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <87r7q0th2n.fsf@dedasys.com> <200408282143.05304.public@mikl.as> <1093749701.7064.37.camel@sherbert>
+In-Reply-To: <1093749701.7064.37.camel@sherbert>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart1575478.sYUiadIyjC";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408291704.24820.public@mikl.as>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart1575478.sYUiadIyjC
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+Hi,
 
 
-On Sun, 29 Aug 2004, Hans Reiser wrote:
+On August 28, 2004 11:21 pm, Gianni Tedesco wrote:
+<snip>
+> OK, exactly which drivers were you using to do this? When I had the
+> interface brought up in win2k-server with the bcmwl5.sys driver I was
+> seeing every few hundred milliseconds a batch of say 12 2-byte reads on
+> the register space to check status...
+
+I was never able to get it going myself (If I remember correctly, there was=
+=20
+some issue with how the interrupts were being routed on my notebook.  We we=
+re=20
+doing some strange stuff to forward interrupts from the host kernel into=20
+Bochs that didn't work on all configurations.)
+
+However, Frank Cornelis was using the Windows 98 drivers running under Win9=
+8=20
+on pcidev+Bochs.  Kendall Blake was using the Windows XP drivers and a=20
+modified ndiswrapper running under Linux also on pcidev+Bochs.  Kendall tol=
+d=20
+me that he generated about 400 megs of logs just looking at the card=20
+initialization.  I think it was at this point I decided that decompiling th=
+e=20
+thing would be easier.  :)
+
+Anyway, you could try asking Frank and Kendall for some of the data they=20
+gathered.
+
+kendallb () eden rutgers edu
+fcorneli () pandora be
+
+
+<snip>
 >
-> The difference is that cat uses open() not openat().
+> Hrm, you're sure those variations aren't trivial? Although theres lots
+> of checks, I would have thought they would just be stuff like "card A
+> supports X, Y and Z features"?
 
-Hans. Step back a bit. Stop this idiocy about thinking that this is all 
-about you, and all about your reiser4 "metas" etc.
+The differences between radio chips (ex. a vs. g) aren't going to be trivia=
+l. =20
+That is to say, entirely different code paths are executed in the wlc_phy.o=
+=20
+component.  The variations caused by different board configurations don't=20
+appear to be too big (at least from the code I've looked at).  Some of the=
+=20
+variations (probably bug fixes) caused by different revisions of the chips=
+=20
+are also a little large.  But, I think it will be pretty difficult to=20
+determine how the differences in the dumps relate to differences in the=20
+hardware configuration.
 
-This is about VFS interfaces, and about being generic and _useful_.
 
-Quite frankly, there is absolutely _zero_ point to make attributes just 
-because reiser4 can implement them. Zero. Nada. Zilch. It just won't 
-matter, because people are NOT GOING TO SWITCH TO REISER4 IN MASS.
+>
+> The approach that makes the most sense to me is get 1 card working to
+> the point where it sends/receives packets, then look at the binaries to
+> see what the variations are, and how they apply to what cards and just
+> go fill in the blanks...
 
-So in order to make this useful, it has to be:
- - stable. This means that if Al Viro asks about locking and aliasing
-   issues, you don't ignore it, you ask "how high?"
- - portable. Preferably across operating systems, but at the very _least_ 
-   across filesystems. See the NFSv4 thing, for example.
- - useful to the people who would actually use it. Right now that's samba, 
-   and not a whole lot else.  For everybody else, the pain of not having 
-   _all_ major filesystems support it is probably so insurmountable that
-   it's just not going to happen.
+The problem is that all Broadcom's wireless hardware is supported by one bi=
+g=20
+driver.  If you wanted to be able to see the differences between what code =
+is=20
+executed against each device, you'd pretty much have to decompile the whole=
+=20
+thing, or at least do some serious debugger work.  Assuming you don't want =
+to=20
+do that, it seems you're left with doing the capture analysis on every=20
+variation, which doesn't seem practical.
 
-Do you get it? If you can't get your mind out of your little current 
-reiser4 issues, don't even bother talking about it.
 
-Look through the thread on "possible design issues for hybrids" for me
-actually talking with Al on how to handle problem #1. That's one important
-thing, and in fact, that one is important whether we expose it to a normal
-"open()" call or not, since all the same aliasing issues exist
-_regardless_ of interfaces.
+<snip>
+> Also, you mention DMA and sending/receiving packets, exactly how much
+> progress have you made so far?
 
-"openat()" happens to be _one_ solution to #2 and #3. You haven't given 
-any constructive input to _any_ of the problems, and you keep on raising 
-totally irrelevant issues. Face the music, Hans. If you can't solve those 
-three problems, whatever you do simply DOES NOT MATTER.
+I'm pretty sure that they were able to get packets to go back and forth.  B=
+ut,=20
+the last I heard from anyone using the capture method with pcidev and Bochs=
+=20
+was about six months ago.
 
-In particular, in the two last emails to you, I tried to show that
-"openat()" is _independent_ of streams/attributes. That it has semantics
-that have absolutely _nothing_ to do with metas. And in BOTH CASES you
-could not wrap your brain around that fact, and kept on harping about
-meta's.
 
-There are bigger issues here. I'm perfectly happy to _also_ expose the
-streams as regular filenames, but I've tried to explain that that doesn't
-work for directories, for example, so YOU CANNOT -JUST- talk about the
-filename-only thing. You do need to have a different namespace.  Full
-stop. What's so hard to understand about that?
+=2D- Andrew
 
-So stop ignoring the issues. Stop ignoring the fact that not everything 
-revolves around how you happened to implement something. Get with the 
-program. 
+--nextPart1575478.sYUiadIyjC
+Content-Type: application/pgp-signature
 
-		Linus
+-----BEGIN PGP SIGNATURE-----
+Comment: Key ID: EC3F6CCD (www.keyserver.net)
+
+iD8DBQBBMkTYTHKGaOw/bM0RAsDwAJ4g7uGjslv/xAvCBamfC4NdNbLmegCguHY8
+9U1ada4sVTFed9xDBF/w6q8=
+=dDow
+-----END PGP SIGNATURE-----
+
+--nextPart1575478.sYUiadIyjC--

@@ -1,31 +1,45 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266473AbUJAVxL (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 1 Oct 2004 17:53:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266837AbUJAVw2
+	id S267538AbUJBUHp (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 2 Oct 2004 16:07:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267535AbUJBUHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 17:52:28 -0400
-Received: from mail2.cnp.fr ([194.250.176.200]:16301 "EHLO mail2.cnp.fr")
-	by vger.kernel.org with ESMTP id S266643AbUJAVtj convert rfc822-to-8bit
+	Sat, 2 Oct 2004 16:07:45 -0400
+Received: from adsl-69-224-254-92.dsl.irvnca.pacbell.net ([69.224.254.92]:62469
+	"HELO deep-purple.nl") by vger.kernel.org with SMTP id S267538AbUJBUGy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 17:49:39 -0400
-From: postmaster@cnp.fr
+	Sat, 2 Oct 2004 16:06:54 -0400
+Message-ID: <b14601c4a8bc$67847816$3d8112af@deep-purple.nl>
+From: "Lance B. Porter" <lbporterww@mamun.co.uk>
 To: linux-kernel@vger.kernel.org
-Date: Fri, 1 Oct 2004 23:49:37 +02120 (MEST)
-Subject: =?iso-8859-1?Q?Message_non_remis_:_virus_detect=E9?=
+Subject: New!  =?ISO-8859-1?Q?=20V=ECagra?= soft tabs.
+Date: Sat, 02 Oct 2004 15:16:32 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Message-Id: <20041001214937.F3FA0380ED@mail2.cnp.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S266473AbUJAVxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S267538AbUJBUHp@vger.kernel.org>
 
-Votre message "Re: Thanks!" envoy=E9 =E0: questions-internet@fongepar.f=
-r
- contenait un virus et n'a pu etre remis aux destinataires.
+Hello!
 
-Your message "Re: Thanks!" sent to: questions-internet@fongepar.fr
- contains a virus and cannot be sent to recipients.
+We would like to offer V_I_A_G_R_A soft tabs,
+
+These pills are just like regular V=ECagra but they are specially formu=
+lated=20
+to be soft and dissolvable under the tongue. The pill is absorbed at th=
+e=20
+mouth and enters the bloodstream directly instead of going through the =
+stomach.=20
+This results in a faster more powerful effect which lasts as long as th=
+e normal.
+
+Soft Tabs also have less sidebacks (you can drive or mix alcohol drinks=
+ with them).
+
+You can get it at: http://888-luvu.com/st/?coupon
+
+No thanks: http://888-luvu.com/rm.html
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
  in

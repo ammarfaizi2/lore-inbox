@@ -1,86 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270462AbTHLRHa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 13:07:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270864AbTHLRH3
+	id S270988AbTHLREt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 13:04:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270993AbTHLREt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 13:07:29 -0400
-Received: from pwmail.portoweb.com.br ([200.248.222.108]:60632 "EHLO
-	portoweb.com.br") by vger.kernel.org with ESMTP id S270462AbTHLRHT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 13:07:19 -0400
-Date: Tue, 12 Aug 2003 14:09:53 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@logos.cnet
-To: maney@pobox.com
-cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.22-rc2 ext2 filesystem corruption
-In-Reply-To: <20030812165624.GA1070@furrr.two14.net>
-Message-ID: <Pine.LNX.4.44.0308121408450.10045-100000@logos.cnet>
+	Tue, 12 Aug 2003 13:04:49 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:33785 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S270988AbTHLREr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 13:04:47 -0400
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: Updated MSI Patches
+Date: Tue, 12 Aug 2003 10:04:34 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024015416F5@orsmsx404.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Updated MSI Patches
+Thread-Index: AcNdV46j8n1k/hsTRviUMWrHuVVi+ADmsMaA
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "long" <tlnguyen@snoqualmie.dp.intel.com>
+X-OriginalArrivalTime: 12 Aug 2003 17:04:35.0245 (UTC) FILETIME=[CE6375D0:01C360F3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> diff -X excludes -urN linux-2.6.0-test2/arch/i386/kernel/io_apic.c linux-2.6.0-test2-create-vectorbase/arch/i386/kernel/io_apic.c
+> --- linux-2.6.0-test2/arch/i386/kernel/io_apic.c	2003-07-27 13:00:21.000000000 -0400
+> +++ linux-2.6.0-test2-create-vectorbase/arch/i386/kernel/io_apic.c	2003-08-05 09:25:54.000000000 -0400
+> @@ -76,6 +76,20 @@
+>  	int apic, pin, next;
+>  } irq_2_pin[PIN_MAP_SIZE];
+>  
+> +#ifdef CONFIG_PCI_USE_VECTOR
+> +int vector_irq[NR_IRQS] = { [0 ... NR_IRQS -1] = -1};
+> + 
+> +static int platform_irq(int irq) 	
+> +{ 	
+> +	if (platform_legacy_irq(irq))
+> +		return irq;
+> +	else
+> +		return vector_irq[irq];
+> +}
+> +#else
+> +#define platform_irq(irq)	(irq)
+> +#endif 
+
+> I wish you wouldn't mix up vector and irq like this :( This is really 
+> beginning to look like IPF. When is an irq an irq and when is a vector a 
+> vector? This can get very confusing very quickly. I spent a fair 
+> amount of time debugging this last time due to the confusion in the 
+> common_interrupt -> do_IRQ path, i'd hate for this to be a permanent 
+> fixture. If you're going to change things just change everything 
+> (including variable names) instead of making it conditional.
+I understand that mixing up vector and irq is very confusing. However, to support non-PCI legacy devices with IRQ less than 16, such as keyboard and mouse for example, may be impossilbe to achieve without mixing up. Some existing driver of legacy keyboard/mouse devices, for example, may use fixed IO ranges and fixed IRQs (as assigned to 1 for keyboard and 12 for mouse). If these device drivers use these fixed legacy IRQs and the interrupt routings for these non-PCI legacy devices use vectors, then the system may break. As you know, MSI support requires vector allocation instead of IRQ allocation since MSI does not require a support of BIOS IRQ table. Mixing vector with IRQ to be compatible with non-PCI legacy devices must be achieved. Last time, your suggestion of changing variable name from irq to vector is the good approach. I am looking at restructuring the code of the vector-base patch. I will send you an update when I am done for your feedback.
+
+> diff -X excludes -urN linux-2.6.0-test2-create-vectorbase/arch/i386/kernel/io_apic.c linux-2.6.0-test2-create-msi/arch/i386/kernel/io_apic.c
+> --- linux-2.6.0-test2-create-vectorbase/arch/i386/kernel/io_apic.c	2003-08-05 09:25:54.000000000 -0400
+> +++ linux-2.6.0-test2-create-msi/arch/i386/kernel/io_apic.c	2003-08-05 09:45:25.000000000 -0400
+> @@ -427,6 +427,11 @@
+>  			/* Is this an active IRQ? */
+>  			if (!irq_desc[j].action)
+>  				continue;
+> +#ifdef CONFIG_PCI_MSI
+> +			/* Is this an active MSI? */
+> +			if (msi_desc[j])
+> +				continue;
+> +#endif
+
+> Is there any locking for msi_desc? Or are you relying on something else?
+Since the code determinces whether this entry is NULL or not, I think any locking for msi_desc may not be required.
 
 
-On Tue, 12 Aug 2003, Martin Maney wrote:
+> +	if (current_vector == FIRST_SYSTEM_VECTOR) 
+> +		panic("ran out of interrupt sources!");
 
-> On Tue, Aug 12, 2003 at 11:10:51AM -0300, Marcelo Tosatti wrote:
-> > I'll try to reproduce around here. In the meantime can you try to isolate 
-> > the corruption. You said it didnt happen with 2.4.21 -- which pre shows up 
-> > the problem? 
-> 
-> The problem appears only in rc2 (okay, assuming it's not a
-> regression).  With 2.4.21-rc1 the file corruption I've been seeing does
-> not happen.  From what Stephan has said I think I should try some more
-> varied tests.  At this point I plan to do that a little later; I will
-> also try an rc2 with unnecessary features omitted from the build.  So
-> far I've stayed with the base config, but it's a config shared by most
-> of the machines on the LAN and thus has plenty of extras.
+> Please just fail and return -ENOSPC or something like that.
+Good. Thanks!
 
-Well, rc2 had a Promise change. I'm not sure if it could be the cause, but 
-lets check.
-
-Alan? 
-
-Please try -rc2 with the following patch unpplied (patch -R): 
-
-
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1070  -> 1.1071 
-#	drivers/ide/pci/pdc202xx_old.c	1.5     -> 1.6    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/08/08	alan@lxorguk.ukuu.org.uk	1.1071
-# [PATCH] PATCH: Promise cable
-# 
-# The old driver used to check .id was NULL to detect drive absent
-# (which is wrong but generally worked) with the IDE changes it always
-# got it wrong. This fixes it to test .present instead.
-# 
-# Without this fix it mistakenly assumes that the empty drive slot
-# cannot do UDMA66/100/133
-# --------------------------------------------
-#
-diff -Nru a/drivers/ide/pci/pdc202xx_old.c b/drivers/ide/pci/pdc202xx_old.c
---- a/drivers/ide/pci/pdc202xx_old.c	Tue Aug 12 14:08:21 2003
-+++ b/drivers/ide/pci/pdc202xx_old.c	Tue Aug 12 14:08:21 2003
-@@ -423,9 +423,9 @@
- 		if (ultra_66) {
- 			/*
- 			 * check to make sure drive on same channel
--			 * is u66 capable
-+			 * is u66 capable. Ignore empty slots.
- 			 */
--			if (hwif->drives[!(drive->dn%2)].id) {
-+			if (hwif->drives[!(drive->dn%2)].present) {
- 				if (hwif->drives[!(drive->dn%2)].id->dma_ultra & 0x0078) {
- 					hwif->OUTB(CLKSPD | mask, (hwif->dma_master + 0x11));
- 				} else {
+Thanks,
+Long
 

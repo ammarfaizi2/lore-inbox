@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVANDuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261919AbVANDy0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbVANDuG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 22:50:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbVANDqs
+	id S261919AbVANDy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 22:54:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbVANDyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 22:46:48 -0500
-Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:36699 "HELO
-	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261906AbVANDmX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 22:42:23 -0500
-From: Kevin Corry <kevcorry@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [Evms-devel] dm snapshot problem
-Date: Thu, 13 Jan 2005 21:42:26 -0600
-User-Agent: KMail/1.5.4
-Cc: evms-devel@lists.sourceforge.net, rajesh_ghanekar@persistent.co.in,
-       dm-devel@redhat.com, linux-kernel@vger.kernel.org
-References: <41E35950.9040201@persistent.co.in> <200501131526.59220.kevcorry@us.ibm.com> <20050113143443.56bd4977.akpm@osdl.org>
-In-Reply-To: <20050113143443.56bd4977.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501132142.26663.kevcorry@us.ibm.com>
+	Thu, 13 Jan 2005 22:54:25 -0500
+Received: from out007pub.verizon.net ([206.46.170.107]:18636 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S261899AbVANDwB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 22:52:01 -0500
+Message-Id: <200501140351.j0E3pdpe027121@localhost.localdomain>
+To: Con Kolivas <kernel@kolivas.org>
+cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au, lkml@s2y4n2c.de,
+       rlrevell@joe-job.com, arjanv@redhat.com, joq@io.com, chrisw@osdl.org,
+       mpm@selenic.com, hch@infradead.org, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM 
+In-reply-to: Your message of "Fri, 14 Jan 2005 14:38:00 +1100."
+             <41E73E98.8070603@kolivas.org> 
+Date: Thu, 13 Jan 2005 22:51:39 -0500
+From: Paul Davis <paul@linuxaudiosystems.com>
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [141.152.253.251] at Thu, 13 Jan 2005 21:52:00 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 January 2005 16:34, Andrew Morton wrote:
-> Kevin Corry <kevcorry@us.ibm.com> wrote:
-> > > It would be better if dm could use highmem pages for this operation.
-> >
-> > What's the appropriate mechanism for telling the kernel to use highmem
-> > for these structures? Each of these slabs (dm_io and dm_tio) are created
-> > with kmem_cache_create(), and I don't see any corresponding flags in
-> > slab.h that mention anything about highmem. Items are allocated from this
-> > slab through mempool_alloc() with GFP_NOIO, since we're in the middle of
-> > processing I/O requests and don't want to start new I/O in order to get
-> > memory. Would it be proper to call mempool_alloc(pool,
-> > GFP_NOIO|__GFP_HIGHMEM)?
+>> its a fine answer, but its the answer to a slightly different
+>> question. if anyone (maybe us audio freaks, maybe someone else) comes
+>> up with a reason to want "The Real SCHED_FIFO", the original question
+>> will have gone unanswered.
 >
-> Oh.  slab structures can only be in lowmem.  I thought that you were saying
-> that the actual I/O data was being copied, and only into lowmem pages.
+>Ah then  you missed something. You can set the max cpu of SCHED_ISO to 
+>100% and then you have it.
 
-Now that you mention it, the memory pages to hold the copied data is allocated 
-at the time the snapshot device is activated, and uses 
-alloc_page(GFP_KERNEL). Should we switch this to alloc_page(GFP_HIGHUSER)? I 
-don't see many other places in the kernel tree that use this flag.
+true, i missed that :) but i also recall you saying you were thinking
+of having no prioritization within SCHED_ISO ... or am i remembering
+wrong? also, is it just me, or having to ways to achieve the exact
+same result seems very un-linux-like ... and if they are not exact
+same results, how does a regular user get the SCHED_FIFO ones? is the
+answer just "they don't" ?
 
-Of course, the number of these pages is currently a fixed limit per snapshot 
-device (as I mentioned in an earlier reply), so it's kind of unlikely that 
-these pages are a significant source of the memory usage that we're seeing in 
-this test.
-
-I'll see if I can start working on some improved congestion handling in DM. 
-Hopefully that will make a noticeable difference.
-
-Thanks for the help!
--- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://evms.sourceforge.net
-
+--p

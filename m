@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbQJaUEV>; Tue, 31 Oct 2000 15:04:21 -0500
+	id <S129032AbQJaUFb>; Tue, 31 Oct 2000 15:05:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129074AbQJaUEL>; Tue, 31 Oct 2000 15:04:11 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:4100 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129026AbQJaUD4>;
-	Tue, 31 Oct 2000 15:03:56 -0500
-Message-ID: <20001031195012.A138@bug.ucw.cz>
-Date: Tue, 31 Oct 2000 19:50:12 +0100
+	id <S129074AbQJaUFV>; Tue, 31 Oct 2000 15:05:21 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:6916 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129033AbQJaUFI>;
+	Tue, 31 Oct 2000 15:05:08 -0500
+Message-ID: <20001031195940.B138@bug.ucw.cz>
+Date: Tue, 31 Oct 2000 19:59:40 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
+To: Dan Hollis <goemon@anime.net>, Andrea Arcangeli <andrea@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>,
+        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        linux-kernel@vger.kernel.org
 Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <20001030022024.B20023@vger.timpanogas.org> <Pine.LNX.4.21.0010301142040.3186-100000@elte.hu> <20001030023814.B20102@vger.timpanogas.org>
+In-Reply-To: <20001030184109.C21935@athlon.random> <Pine.LNX.4.21.0010301110450.12201-100000@anime.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
-In-Reply-To: <20001030023814.B20102@vger.timpanogas.org>; from Jeff V. Merkey on Mon, Oct 30, 2000 at 02:38:14AM -0700
+In-Reply-To: <Pine.LNX.4.21.0010301110450.12201-100000@anime.net>; from Dan Hollis on Mon, Oct 30, 2000 at 11:11:52AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > This is putrid. NetWare does 353,00,000/second on a Xenon, pumping out
-> > > gobs of packets in between them. MANOS does 857,000,000/second. This
-> > > is terrible. No wonder it's so f_cking slow!!!
+> > TUX modules are kernel modules (I mean you have to write kernel space code for
+> > doing TUX ftp). Don't you agree that zero-copy sendfile like ftp serving would
+> > be able to perform equally well too?
 > 
-> And please check your numbers, 857 million
-> > context switches per second means that on a 1 GHZ CPU you do one context
-> > switch per 1.16 clock cycles. Wow!
-> 
-> Excuse me, 857,000,000 instructions executed and 460,000,000 context
-> switches
-> a second -- on a PII system at 350 Mhz.  It's due to AGI
-> optimization.  
+> For this to bw useful for ftp we need a sendfile() that can write from a
+> socket to a diskfile also.
 
-That's more than one context switch per clock. I do not think
-so. Really go and check those numbers.
+I had patch to fix sendfile this way... Sendfile is really ugly, as of
+now. (It basically falled back to read/write, giving only small
+performance advantage, but it made things cleaner).
+
 								Pavel
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."

@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266771AbSLUHoC>; Sat, 21 Dec 2002 02:44:02 -0500
+	id <S266772AbSLUHvm>; Sat, 21 Dec 2002 02:51:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266772AbSLUHoC>; Sat, 21 Dec 2002 02:44:02 -0500
-Received: from hauptpostamt.charite.de ([193.175.66.220]:34256 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id <S266771AbSLUHoC>; Sat, 21 Dec 2002 02:44:02 -0500
-Date: Sat, 21 Dec 2002 08:52:05 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-aa and LARGE Squid process -> SIGSEGV
-Message-ID: <20021221075205.GZ31070@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20021220114837.GC13591@charite.de> <20021220223754.GA10139@werewolf.able.es> <20021220225733.GE31070@charite.de> <20021221001334.GA7996@werewolf.able.es>
+	id <S266774AbSLUHvm>; Sat, 21 Dec 2002 02:51:42 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:30180 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S266772AbSLUHvm>; Sat, 21 Dec 2002 02:51:42 -0500
+Date: Sat, 21 Dec 2002 02:59:47 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [v850]  Reduce redundancy in v850 linker scripts
+Message-ID: <20021221075947.GA27866@gnu.org>
+References: <20021220052803.B28B23702@mcspd15.ucom.lsi.nec.co.jp> <Pine.LNX.4.44.0212202212110.3439-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021221001334.GA7996@werewolf.able.es>
-User-Agent: Mutt/1.5.1i
+In-Reply-To: <Pine.LNX.4.44.0212202212110.3439-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.28i
+Blat: Foop
+From: Miles Bader <miles@gnu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* J.A. Magallon <jamagallon@able.es>:
+On Fri, Dec 20, 2002 at 10:18:57PM -0800, Linus Torvalds wrote:
+> Can you please make your patches be rooted the "standard" way, ie do
+> 
+> 	diff -ruN linux-old-dir linux-new-dir
 
-> For user space memory, there is no real OOM state. The system (glibc) just
-> does not give you the memory, returns NULL in the malloc, and it is your
-> responsibility to check malloc's return value. If you do not check it,
-> you try to access a null pointer and _bang_. So in your case, after enough
-> iterations on malloc() without free(), it returns NULL and you fall into
-> a null pointer dereference.
+Sure; sorry about that.
 
-Ergo: Squid is br0ken.
-
+-Miles
 -- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
-Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
-Windows is the answer, but only if the question was 'what is the
-intellectual equivalent of being a galley slave?' 
-
+P.S.  All information contained in the above letter is false,
+      for reasons of military security.

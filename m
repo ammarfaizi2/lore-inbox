@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316262AbSEQP05>; Fri, 17 May 2002 11:26:57 -0400
+	id <S316264AbSEQPkJ>; Fri, 17 May 2002 11:40:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316263AbSEQP04>; Fri, 17 May 2002 11:26:56 -0400
-Received: from epithumia.math.uh.edu ([129.7.128.2]:13249 "EHLO
-	epithumia.math.uh.edu") by vger.kernel.org with ESMTP
-	id <S316262AbSEQP04>; Fri, 17 May 2002 11:26:56 -0400
-To: Daniel Phillips <phillips@bonn-fries.net>
+	id <S316267AbSEQPkI>; Fri, 17 May 2002 11:40:08 -0400
+Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:32765 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S316264AbSEQPkH>;
+	Fri, 17 May 2002 11:40:07 -0400
+Date: Fri, 17 May 2002 11:40:04 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Keith Owens <kaos@ocs.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove 2TB block device limit
-In-Reply-To: <15588.18673.317088.198281@wombat.chubb.wattle.id.au>
-	<E178VRs-0008Va-00@starship>
-From: Jason L Tibbitts III <tibbs@math.uh.edu>
-Date: 17 May 2002 10:26:48 -0500
-Message-ID: <ufait5mlrrb.fsf@epithumia.math.uh.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
+Subject: Re: [RFC][PATCH] cpqarray-1: Convert to modern module_init mechanism
+Message-ID: <20020517154004.GB27771@www.kroptech.com>
+In-Reply-To: <20020517005146.GA32719@www.kroptech.com> <8562.1021610127@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "DP" == Daniel Phillips <phillips@bonn-fries.net> writes:
+On Fri, May 17, 2002 at 02:35:27PM +1000, Keith Owens wrote:
+> On Thu, 16 May 2002 20:51:46 -0400, 
+> Adam Kropelin <akropel1@rochester.rr.com> wrote:
+> >Below is a patch (against 2.5.15-dj1) to convert cpqarray over to the modern
+> >module_init mechanism. This eliminates the need to call cpqarray_init() from
+> >genhd.c and starts the process of simplifying the cpqarray init sequence.
+> 
+> The module related changes look OK, cannot speak for the rest of the
+> code changes.
 
-DP> Incidently, the 200 TB high-end servers are a lot closer than you
-DP> think.
+Thanks for your input, Keith.
 
-Perhaps the "low-end server" is a more interesting case, though.
-After all, you can put over 4TB in one machine now for somewhere near
-$12K.  (32 160GB IDE disks on four 3ware 7850 cards running RAID5, all
-striped into one huge "RAID50" array.)  This is only going to get
-cheaper, and when someone out-does Maxtor for the "big IDE disk" crown,
-the capacity will jump again.  Of course it doesn't have the same
-performance or extreme reliability of the more expensive solutions,
-but hey, it only costs $12K.
-
-Still, 16TB done this way looks to be a few years away yet.
-
- - J<
+--Adam

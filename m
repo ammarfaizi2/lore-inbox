@@ -1,72 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbVAUOMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262371AbVAUOXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbVAUOMp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 09:12:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVAUOMc
+	id S262371AbVAUOXF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 09:23:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVAUOXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 09:12:32 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:40119 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262371AbVAUOMP (ORCPT
+	Fri, 21 Jan 2005 09:23:05 -0500
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:34997 "EHLO phoebee.mail")
+	by vger.kernel.org with ESMTP id S262371AbVAUOXA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 09:12:15 -0500
-Date: Fri, 21 Jan 2005 15:11:36 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Valdis.Kletnieks@vt.edu
-Cc: "Marc E. Fiuczynski" <mef@CS.Princeton.EDU>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Con Kolivas <kernel@kolivas.org>, Chris Han <xiphux@gmail.com>
-Subject: Re: [ANNOUNCE][RFC] plugsched-2.0 patches ...
-Message-ID: <20050121141136.GG2790@suse.de>
-References: <NIBBJLJFDHPDIBEEKKLPGELGDHAA.mef@cs.princeton.edu> <200501201751.j0KHpvdQ030760@turing-police.cc.vt.edu>
+	Fri, 21 Jan 2005 09:23:00 -0500
+Date: Fri, 21 Jan 2005 15:22:59 +0100
+From: Martin Zwickel <martin.zwickel@technotrend.de>
+To: zhilla <zhilla@spymac.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ps/2 mouse going crazy
+Message-ID: <20050121152259.6b186036@phoebee>
+In-Reply-To: <41F10CBC.5000307@spymac.com>
+References: <41F10CBC.5000307@spymac.com>
+X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
+ CPU 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Organization: Technotrend AG
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501201751.j0KHpvdQ030760@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 20 2005, Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 20 Jan 2005 11:14:48 EST, "Marc E. Fiuczynski" said:
-> > Peter, thank you for maintaining Con's plugsched code in light of Linus' and
-> > Ingo's prior objections to this idea.  On the one hand, I partially agree
-> > with Linus&Ingo's prior views that when there is only one scheduler that the
-> > rest of the world + dog will focus on making it better. On the other hand,
-> > having a clean framework that lets developers in a clean way plug in new
-> > schedulers is quite useful.
-> > 
-> > Linus & Ingo, it would be good to have an indepth discussion on this topic.
-> > I'd argue that the Linux kernel NEEDS a clean pluggable scheduling
-> > framework.
+On Fri, 21 Jan 2005 15:07:56 +0100
+zhilla <zhilla@spymac.com> bubbled:
+
+> well, i have this funny problem, googled around a bit, and found a
+> same  problem here, on the list, several days ago:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=110579505706542&w=2
+> so, just to inform you, guy is not imagining things, problem exists
+> and  is quite annoying. happends every 2-3 hours?!
 > 
-> Is this something that would benefit from several trips around the -mm
-> series?
+> # dmesg | grep -i mouse
+> mice: PS/2 mouse device common for all mice
+> input: ImExPS/2 Generic Explorer Mouse on isa0060/serio1
+> psmouse.c: bad data from KBC - bad parity
+> psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost
+> synchronization,  throwing 3 bytes away.
 > 
-> ISTR that we started with one disk elevator, and now we have 3 or 4
-> that are selectable on the fly after some banging around in -mm.  (And
-> yes, I realize that the only reason we can change the elevator on the
-> fly is because it can switch from the current to the 'stupid FIFO
-> none' elevator and thence to the new one, which wouldn't really work
-> for the CPU scheduler....)
 
-I don't think you can compare the two. Yes they are both schedulers, but
-that's about where the 'similarity' stops. The CPU scheduler must be
-really fast, overhead must be kept to a minimum. For a disk scheduler,
-we can affort to burn cpu cycles to increase the io performance. The
-extra abstraction required to fully modularize the cpu scheduler would
-come at a non-zero cost as well, but I bet it would have a larger impact
-there. I doubt you could measure the difference in the disk scheduler.
+Hmm, I have similar problems with my mouse since I'm using kernel 2.6.
 
-There are vast differences between io storage devices, that is why we
-have different io schedulers. I made those modular so that the desktop
-user didn't have to incur the cost of having 4 schedulers when he only
-really needs one.
+Sometimes (once a day or only every second day) my mouse goes to the
+left upper corner. But then works a normal. Extremly annoying while
+playing UT2004.
 
-> All the arguments that support having more than one elevator apply
-> equally well to the CPU scheduler....
+But I don't get any kernel messages. With 2.4 everything worked fine.
+(Currently using 2.6.8-rc2-mm1)
 
-Not at all, imho. It's two completely different problems.
+
+Regards,
+Martin
 
 -- 
-Jens Axboe
+MyExcuse:
+Bad user karma.
 
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
+
+TechnoTrend AG <http://www.technotrend.de>

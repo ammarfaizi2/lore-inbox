@@ -1,71 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288276AbSANIxM>; Mon, 14 Jan 2002 03:53:12 -0500
+	id <S288919AbSANJIu>; Mon, 14 Jan 2002 04:08:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288411AbSANIxD>; Mon, 14 Jan 2002 03:53:03 -0500
-Received: from [62.245.135.174] ([62.245.135.174]:58043 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S288276AbSANIwz>;
-	Mon, 14 Jan 2002 03:52:55 -0500
-Message-ID: <3C429C5F.7B549A02@TeraPort.de>
-Date: Mon, 14 Jan 2002 09:52:47 +0100
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Reply-To: m.knoblauch@TeraPort.de
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en, de
+	id <S288731AbSANJIb>; Mon, 14 Jan 2002 04:08:31 -0500
+Received: from gw-nl3.philips.com ([212.153.190.5]:1543 "EHLO
+	gw-nl3.philips.com") by vger.kernel.org with ESMTP
+	id <S288595AbSANJIO>; Mon, 14 Jan 2002 04:08:14 -0500
+From: fabrizio.gennari@philips.com
+To: jt@hpl.hp.com, linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: PPP over socket?
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OFDAD62848.4EE45082-ONC1256B41.00314A4F@diamond.philips.com>
+Date: Mon, 14 Jan 2002 10:07:22 +0100
+X-MIMETrack: Serialize by Router on hbg001soh/H/SERVER/PHILIPS(Release 5.0.5 |September
+ 22, 2000) at 14/01/2002 10:25:52,
+	Serialize complete at 14/01/2002 10:25:52
 MIME-Version: 1.0
-To: akpm@zip.com.au
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 01/14/2002 09:52:47 AM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 01/14/2002 09:52:54 AM,
-	Serialize complete at 01/14/2002 09:52:54 AM
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Re: [2.4.17/18pre] VM and swap - it's really unusable
+(let's hope this time the mail client understands I want to send this in 
+plain text!)
+
+I thought that, by changing the socket architecture, the result would be 
+independent to the actual implementation of the socket. For example, a 
+"PPP over generic socket" could be adapted to "PPP over AF_IRDA socket" 
+without having to tear one's hair out implementing the pretty complex 
+/dev/irnet virtual TTY. That is a good solution anyway, but it is very 
+difficult to port it to different kinds of socket.
+
+What do you exactly mean with "kernel space wrapper"? I guess "user space 
+wrapper" is something like VTun (which I tried, and it works like a dream. 
+Only, isn't it a bit inefficient to go through user space?)
+
+Fabrizio Gennari
+Philips Research Monza
+via G.Casati 23, 20052 Monza (MI), Italy
+tel. +39 039 2037816, fax +39 039 2037800
+
+
+
+
+Jean Tourrilhes <jt@bougret.hpl.hp.com>
+12/01/2002 03.17
+Please respond to jt
+
+ 
+        To:     Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Fabrizio Gennari/MOZ/RESEARCH/PHILIPS@EMEA1
+Chris Dukes <pakrat@www.uk.linux.org>
+        cc: 
+        Subject:        Re: PPP over socket?
+        Classification: 
+
+
+
+Chris Dukes wrote :
+> On Fri, Jan 11, 2002 at 10:13:57AM +0100, fabrizio.gennari@philips.com 
+wrote:
+> > I was wondering whether the socket architecture could be modified in 
+order 
+> > to support PPP connections over a generic socket (of type SOCK_DGRAM 
+or 
+> > SOCK_SEQPACKET), by mapping each PPP packet to a socket packet. This 
+idea 
+> > is not completely new: somebody raised is in the past, see for example 
+
+> > http://oss.sgi.com/projects/netdev/mail/netdev/msg00180.html or 
+> > http://oss.sgi.com/projects/netdev/mail/netdev/msg01127.html .
 > 
+> vtun already provides this capability in user space.
+> (See http://vtun.sourceforge.net/)
+> ppp(8) on *BSD also provides this capability in user space as well.
 > 
-> Right. And that is precisely why I created the "mini-ll" patch. To
-> give the improved "feel" in a way which is acceptable for merging into
-> the 2.4 kernel.
-> 
-> And guess what? Nobody has tested the damn thing, so it's going
-> nowhere.
-> 
-> Here it is again:
-> 
+> As memory serves PPPoE on Linux is partially implemented in userspace
+> as is, so a partial user space solution for PPPoUDP shouldn't be that
+> wretched.
 
- I did. Not standalone, but in the combination of:
+                 And at the total opposite of the spectrum you have IrNET, 
+as
+it is implemented in kernekl 2.4.X, that pass PPP packets on an IrDA
+socket in the kernel without going through the socket API. But that's
+the solution only if you don't mind debugging kernel code...
+                 BTW, I don't understand why the socket architecture would 
+need
+to be modified. You just need a user space or a kernel space wrapper.
+                 Regards,
 
-2.4.17+preempt+lock-break+vmscan.c+read_latency
+                 Jean
 
- Had to merge/frop some of the changes, as they are already they already
-were in lock-break. So far, the stuff works -> no hangs/freezes/oopses.
 
- My goal in applying this stuff is to get better interactivity and
-responsiveness on my laptop (320 MB, eithe 2x or no swap).
 
- The biggest improvements I had recently was the patch to vmscan.c by
-Martin v. Leuwen and the inclusion of the read_latency stuff from Andrea
-(?). That basically removed all the memory problems (cache forcing
-excessive swapping out) and IO hangs (vmware doing IO freezing system
-for 10s of seconds).
 
- preempt, lock-break and I think mini-ll have further improved the
-interactive "feeling". And no, I have no hard data. I am not into
-Audio/DVD palyback, so ultra-low worst case latency is not my ultimate
-desire. Great VM+IO performance while having great interactivity is :-)
-Which probably brings us back to the topic of this thread :-))
-
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759

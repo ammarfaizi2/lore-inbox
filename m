@@ -1,169 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266576AbTAFLXQ>; Mon, 6 Jan 2003 06:23:16 -0500
+	id <S266615AbTAFL2Q>; Mon, 6 Jan 2003 06:28:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266584AbTAFLXP>; Mon, 6 Jan 2003 06:23:15 -0500
-Received: from smtp04.iprimus.com.au ([210.50.76.52]:44552 "EHLO
-	smtp04.iprimus.com.au") by vger.kernel.org with ESMTP
-	id <S266576AbTAFLXN>; Mon, 6 Jan 2003 06:23:13 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Paul <krushka@iprimus.com.au>
-Reply-To: krushka@iprimus.com.au
-To: linux-kernel@vger.kernel.org
-Subject: Fwd: File system corruption
-Date: Mon, 6 Jan 2003 21:38:13 +1000
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <0301062138130A.01466@paul.home.com.au>
-Content-Transfer-Encoding: 7BIT
-X-OriginalArrivalTime: 06 Jan 2003 11:31:44.0133 (UTC) FILETIME=[30A01B50:01C2B577]
+	id <S266627AbTAFL2Q>; Mon, 6 Jan 2003 06:28:16 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31238 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266615AbTAFL2P>; Mon, 6 Jan 2003 06:28:15 -0500
+Date: Mon, 6 Jan 2003 11:36:49 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, miles@gnu.org, dwmw2@redhat.com
+Subject: Re: [SERIAL] change_speed -> settermios change
+Message-ID: <20030106113649.A21952@flint.arm.linux.org.uk>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
+	linux-kernel@vger.kernel.org, miles@gnu.org, dwmw2@redhat.com
+References: <20030103161916.A19992@flint.arm.linux.org.uk> <20030105.230218.84729944.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030105.230218.84729944.davem@redhat.com>; from davem@redhat.com on Sun, Jan 05, 2003 at 11:02:18PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Jan 05, 2003 at 11:02:18PM -0800, David S. Miller wrote:
+> Hmmm, maybe it's a better idea to store the min/max in the UART port
+> structure and have the upper layer do the limiting before we call
+> down into the driver?
 
-I sent the following email regarding a suspected bug to the IDE maintainer 
-mentioned in the DOCs but haven't got a response.
+I like that idea.  However, I'd rather not put these in the uart port
+structure because:
 
-Can anyone point me in the right direction here?
+1. the max/min would be dependent on the uart clock rate for ports which
+   use a clock divisor.
 
-Thanks, Paul.
+2. the max/min rate may require driver specific knowledge (eg, when the
+   port supports *2 and *4 high speed modes)
 
-----------  Forwarded Message  ----------
-Subject: File system corruption
-Date: Tue, 17 Dec 2002 22:27:26 +1000
-From: Paul <krushka@iprimus.com.au>
-To: andre@linux-ide.org
+3. the max/min might be constant for certain ports (eg, sunsab, nb85e)
 
+I'm currently considering whether to pass the max / min into
+uart_get_baud_rate(), along with the old termios:
 
-Hi Andre,
+a) move the loop out of uart_get_divisor() into uart_get_baud_rate()
+b) uart_get_divisor() would be responsible for providing
+   uart_get_baud_rate() with the appropriate min/max for case (1).
+c) for case (2), the driver itself would pass these parameters itself.
+   Whether or not the min/max depend on the uart clock rate is something
+   which only the driver itself can know.
 
-I hope I am emailing the right person :)
+There is a fourth case which I didn't list above:
 
-I am currently having a problem with a compact flash card corrupting its
-FAT16 filesystem.  The compact flash card is used in an IDE to compact flash
-adaptor board.  We manufacture the board and have used this without problem
-in over 100 units so far and the card functions perfectly in Windows 98/2000
-and when used with other flash cards.
+4. ports that use the raw baud rate may not support all baud rates that
+   we are able to pass between a maximum and minimum.
 
-I have been able to determine that the corruption only appears in a certain
-flash card size and manufactured after a certain period from Sandisk.  I have
-others on order from other manufacturers to test this further.  I have tested
-this in linux 2.4.10, 2.4.18 and 2.4.20...all with the same result.  I have
-used Sandisk 32MB and 64MB cards in the past with no problems.  The lastest
-batch of 32MB card we received worked correctly, the 64MB batch did not.  I
-have listed the hdparm output for both 64MB cards:
+This is outside our current scope at the moment (the usb serial drivers),
+and from reading the usb code, it is unclear whether this is an issue for
+any of these drivers.
 
-Good Sandisk:
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-/dev/hdd:
- multcount    =  0 (off)
- I/O support  =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  0 (off)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 490/8/32, sectors = 125152, start = 0
-
-# /sbin/hdparm -i /dev/hdd
-
-/dev/hdd:
-
- Model=SanDisk SDCFB-64, FwRev=Vdg 1.23, SerialNo=06210224227
- Config={ HardSect NotMFM Removeable DTR>10Mbs nonMagnetic }
- RawCHS=490/8/32, TrkSize=0, SectSize=576, ECCbytes=4
- BuffType=DualPort, BuffSize=1kB, MaxMultSect=1, MultSect=off
- CurCHS=490/8/32, CurSects=-369098751, LBA=yes, LBAsects=125440
- IORDY=no
- PIO modes: pio0 pio1
- DMA modes:
-
- ============================================
- Bad Sandisk
-
-# /sbin/hdparm /dev/hdd
-
-/dev/hdd:
- multcount    =  0 (off)
- I/O support  =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  0 (off)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 978/4/32, sectors = 125184, start = 0
-
-# /sbin/hdparm -i /dev/hdd
-
-/dev/hdd:
-
- Model=SanDisk SDCFB-64, FwRev=Rev 3.03, SerialNo=X0409 20020924041900
- Config={ HardSect NotMFM Removeable DTR>10Mbs nonMagnetic }
- RawCHS=978/4/32, TrkSize=0, SectSize=512, ECCbytes=4
- BuffType=DualPort, BuffSize=1kB, MaxMultSect=1, MultSect=off
- CurCHS=978/4/32, CurSects=-385875967, LBA=yes, LBAsects=125184
- IORDY=no
- PIO modes: pio0 pio1
- DMA modes:
-===================================
-
-You can see that the batch of cards that cause corruption have a newer
-firmware version (rev 3.03) and the reported CHS translation has changed.  I
-have checked the BIOS reports the same as the hdparm programme and also that
-the kernel also has the same values, they are 978/4/32 as hdparm reports.
-
-I have tried 12 different IDE adaptors with the same error.  I have tried 2
-different VIA Eden mainboards.  I tried my home system with a different
-Northbridge/Southbridge (VT82C693A/VT82C686A and VT8601/VT8231) all with the
-same results.
-
-To reproduce this problem I only need to mount any compact flash card from
-the new batch (we have tried over 10 different cards), write a file of any
-size (even less than 200 bytes) then unmount the drive.  calling "sync"
-before unmounting makes no difference.  When the drive is mounted again the
-filesystem will be corrupted 100% of the time.  I use md5sum to check the
-file when the drive is mounted again (fails every time).
-
-I have an output from ./ver_linux below if that helps:
-
-[root@paul scripts]# ./ver_linux
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
-
-Linux paul.home.com.au 2.4.20 #1 Fri Dec 13 23:10:14 EST 2002 i686 unknown
-
-Gnu C                  2.96
-Gnu make               3.79.1
-binutils               2.10.91.0.2
-util-linux             2.10s
-mount                  2.10r
-modutils               2.4.2
-e2fsprogs              1.19
-PPP                    2.4.0
-isdn4k-utils           3.1pre1
-Linux C Library        2.2.2
-Dynamic linker (ldd)   2.2.2
-Procps                 2.0.7
-Net-tools              1.57
-Console-tools          0.3.3
-Sh-utils               2.0
-Modules Loaded         ppp_async ppp_generic slhc mga agpgart autofs 8139too
-mii ipchains usb-storage scsi_mod usb-uhci usbcore
-
-The funny thing is that I can take this same flash card (or any card from
-that batch) and the same IDE adaptor and it works perfectly under Windows
-98/2000 on the same machine so I assume it is a kernel problem or filesystem
-problem of some sort.  Perhaps it's a bug in the compact flash that Windows
-doesn't trigger?
-
-Would you have any suggestion of what I can try next? or perhaps the
-appropriate person to email (perhaps vfat filesystem maintainer)?
-
-Kind Regards,
-
-Paul Krushka
-
--------------------------------------------------------

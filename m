@@ -1,51 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289874AbSBKRp0>; Mon, 11 Feb 2002 12:45:26 -0500
+	id <S289887AbSBKRrg>; Mon, 11 Feb 2002 12:47:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289865AbSBKRpH>; Mon, 11 Feb 2002 12:45:07 -0500
-Received: from ztxmail01.ztx.compaq.com ([161.114.1.205]:50697 "EHLO
-	ztxmail01.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S289874AbSBKRo7>; Mon, 11 Feb 2002 12:44:59 -0500
-Date: Mon, 11 Feb 2002 11:41:23 -0600
-From: Stephen Cameron <steve.cameron@compaq.com>
-To: linux-kernel@vger.kernel.org
-Cc: Timo.Proescholdt@brk-muenchen.de
-Subject: RE: randomness - compaq smart array driver
-Message-ID: <20020211114123.A24651@quandary.cca.cpqcorp.net>
-Reply-To: steve.cameron@compaq.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S289972AbSBKRrV>; Mon, 11 Feb 2002 12:47:21 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:41298 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S289954AbSBKRqh>; Mon, 11 Feb 2002 12:46:37 -0500
+Date: Mon, 11 Feb 2002 12:46:36 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200202111746.g1BHkar11371@devserv.devel.redhat.com>
+To: weber@nyc.rr.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.4 Sound Driver Problem
+In-Reply-To: <mailman.1013448601.14957.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.1013448601.14957.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-timo (Timo.Proescholdt@brk-muenchen.de) wrote:
+> I am using the YMFPCI driver on a Toshiba Tecra 8100.
+> 
+> The sound_alloc_dmap() function in dmabuf.c must be changed from using 
+> __get_free_pages() and virt_to_bus() -> pci_alloc_consistent().
 
-> I have a question concerning /dev/random on proliant servers with 
-> smart array controllers.
-> A month ago i tried to install freeswan on a proliant dl360 box,
-> running redhat 6.2 on a smart array controller.
-> There are no disks hanging at the scsi controller only the 
-> two disks at the smart array controller channel. Kernel is 2.4.14 .
+What the hell are you talking about, I changed it long ago.
+Linus uses ymfpci on his Crusoe Picturebook with no problems.
+What is your kernel version?
 
-As it happens, we just sent this patch to Jens on Friday,
-I tried it and meant it for 2.5.4-pre2 and -pre3.  I 
-think it ought to be good for 2.4.x as well though.
-
--- steve
-
-diff -urN lx254p2-c3/drivers/block/cciss.c lx254p2-c4/drivers/block/cciss.c
---- lx254p2-c3/drivers/block/cciss.c	Thu Feb  7 14:35:31 2002
-+++ lx254p2-c4/drivers/block/cciss.c	Thu Feb  7 14:50:43 2002
-@@ -2467,7 +2467,8 @@
- 	/* make sure the board interrupts are off */
- 	hba[i]->access.set_intr_mask(hba[i], CCISS_INTR_OFF);
- 	if( request_irq(hba[i]->intr, do_cciss_intr, 
--		SA_INTERRUPT|SA_SHIRQ, hba[i]->devname, hba[i]))
-+		SA_INTERRUPT | SA_SHIRQ | SA_SAMPLE_RANDOM, 
-+			hba[i]->devname, hba[i]))
- 	{
- 		printk(KERN_ERR "ciss: Unable to get irq %d for %s\n",
- 			hba[i]->intr, hba[i]->devname);
-
+-- Pete

@@ -1,105 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265380AbTLHL7G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 06:59:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265383AbTLHL7G
+	id S265371AbTLHMUx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 07:20:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265382AbTLHMUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 06:59:06 -0500
-Received: from 216-229-91-229-empty.fidnet.com ([216.229.91.229]:45316 "EHLO
-	mail.icequake.net") by vger.kernel.org with ESMTP id S265380AbTLHL7B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 06:59:01 -0500
-Date: Mon, 8 Dec 2003 05:58:59 -0600
-From: Ryan Underwood <nemesis-lists@icequake.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: APIC support on Slot-A Athlon, K6
-Message-ID: <20031208115859.GA17909@dbz.icequake.net>
-References: <20031208102800.5409.87787.Mailman@lists.us.dell.com>
+	Mon, 8 Dec 2003 07:20:53 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:20238 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id S265371AbTLHMUw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 07:20:52 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: oss.sgi.com: getting kgdb? 
+In-reply-to: Your message of "Sun, 07 Dec 2003 22:03:58 BST."
+             <20031207210358.GA305@elf.ucw.cz> 
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
-Content-Disposition: inline
-In-Reply-To: <20031208102800.5409.87787.Mailman@lists.us.dell.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 08 Dec 2003 21:20:05 +1100
+Message-ID: <1874.1070878805@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 7 Dec 2003 22:03:58 +0100, 
+Pavel Machek <pavel@ucw.cz> wrote:
+>Hi!
+>
+>I'm trying to download latest kgdb from oss.sgi.com, but do not have
+>much success:
 
---VbJkn9YxBvnuCH5J
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+kgdb is not on oss.sgi.com, it is on sourceforge.  kdb is on
+oss.sgi.com.
 
+>pavel@amd:~$ ftp oss.sgi.com
+>Connected to oss.sgi.com.
+>220---------- Welcome to Pure-FTPd ----------
+>220-You are user number 9 of 50 allowed.
+>220-Local time is now 12:57. Server port: 21.
+>220 You will be disconnected after 15 minutes of inactivity.
+>Name (oss.sgi.com:pavel): ftp
+>[hang]
 
-> >Unfortunately, this disables the APIC support (if it existed) on a
-> >Slot-A Athlon 600 MS-6167 (family 6, model 1, AMD-751/756), and a K6/3 4=
-00
-> >Tyan S1598 (family 5, model 9, MVP3/686A).
-> >
-> >What is the purpose of this check? Why is the APIC availability dependent
-> >on the CPU, rather than just the southbridge?
->=20
-> This code checks for the ability to enable the local APIC,
-> which is integrated into the processor. The local APIC is
-> not implemented in K6 or K7 model 1, so the check is correct.
+Path MTU problem somewhere between you and oss.sgi.com.  Issue
+  ifconfig xxxx mtu 256
+where xxxx is your outgoing interface name (eth0, ppp0 etc.) then start
+the ftp session.
 
-Thanks, that just cleared up a huge misconception (I had the APIC and I/O-A=
-PIC
-confused, apparently).
-
-This page cleared a lot up (must remember to STFW occasionally):
-http://www.microsoft.com/whdc/hwdev/platform/proc/IO-APIC.mspx
-
-> Furthermore, I/O-APIC usage requires (in hardware) that the
-> processor has a local APIC.
-
-What can the APIC support alone accomplish, without an I/O-APIC?
-Just NMI watchdog and related things? (looking at CONFIG_APIC help)
-Looks like I/O-APIC is the real desired feature, but a functioning local
-APIC, though not very useful by itself, is a prerequisite for it.
-
-> > Also, there are only
-> >checks for Intel and AMD CPUs. Is it not possible to use an APIC in
-> >conjunction with a Cyrix, et.al. ?
->=20
-> The other manufacturers haven't yet implemented local APIC
-> functionality in their processors.
-
-Ok, much more clear.
-
-> >The APIC is also not enabled on this machine, but it is a 586B southbrid=
-ge,=3D
-> > which
-> >I am not sure contains an APIC.
->=20
-> What processor? As I wrote above, I/O-APIC can't be used unless
-> the processor has a local APIC.
-
-Cyrix. :D  Obviously, it won't work simply because of that.  I
-am curious if the VIA 586B has a IO-APIC though (the 686A/B do) so
-that it would work if I put a different processor in it.
-VIA no longer put their datasheets on the web anymore...
-
-> Some BIOSen have an option for enabling/disabling I/O-APIC mode.
-> Some BIOSen skip the "legacy" MP tables and only announce the
-> I/O-APIC config data via ACPI, so working ACPI may be required.
-
-Also useful info.  Thanks!
-
---=20
-Ryan Underwood, <nemesis@icequake.net>
-
---VbJkn9YxBvnuCH5J
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/1GeDIonHnh+67jkRAmztAJ41D6E1Gd5OY6OhZmjjjHLMg1JE0gCfST/I
-cM21FnGgZ0cMfBqsiMnPuTU=
-=kEc6
------END PGP SIGNATURE-----
-
---VbJkn9YxBvnuCH5J--

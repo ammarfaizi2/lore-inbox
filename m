@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266295AbUFYHwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266297AbUFYIEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266295AbUFYHwO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 03:52:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266297AbUFYHwO
+	id S266297AbUFYIEm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 04:04:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266335AbUFYIEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 03:52:14 -0400
-Received: from www02.ies.inet6.fr ([62.210.153.202]:27852 "EHLO
-	smtp.ies.inet6.fr") by vger.kernel.org with ESMTP id S266295AbUFYHwL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 03:52:11 -0400
-Message-ID: <40DBD9AD.8070503@inet6.fr>
-Date: Fri, 25 Jun 2004 09:52:13 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040519)
-X-Accept-Language: en
+	Fri, 25 Jun 2004 04:04:42 -0400
+Received: from nacho.alt.net ([207.14.113.18]:10981 "HELO nacho.alt.net")
+	by vger.kernel.org with SMTP id S266297AbUFYIEh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 04:04:37 -0400
+Date: Fri, 25 Jun 2004 01:04:34 -0700 (PDT)
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: inode_unused list corruption in 2.4.26 - spin_lock problem?
+In-Reply-To: <Pine.LNX.4.44.0406231802100.13351-100000@nacho.alt.net>
+Message-ID: <Pine.LNX.4.44.0406250048190.6668-100000@nacho.alt.net>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: alan <alan@clueserver.org>, "Fao, Sean" <Sean.Fao@dynextechnologies.com>,
-       linux-kernel@vger.kernel.org, Amit Gud <gud@eth.net>
-Subject: Re: Elastic Quota File System (EQFS)
-References: <20040624213041.GA20649@elf.ucw.cz> <Pine.LNX.4.44.0406241347560.18047-100000@www.fnordora.org> <20040624220318.GE20649@elf.ucw.cz>
-In-Reply-To: <20040624220318.GE20649@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Trusted: [ ip=62.210.105.37 rdns=ppp3290-cwdsl.fr.cw.net 
-	helo=proxy.inet6-interne.fr by=smtp.ies.inet6.fr ident= ] [ 
-	ip=192.168.55.3 rdns=192.168.55.3 helo=!192.168.55.3! 
-	by=proxy.inet6-interne.fr ident= ]
-X-Spam-DCC: dcc.uncw.edu: web02.inet6.ies 1201; Body=1 Fuz1=1 Fuz2=1
-X-Spam-Assassin: No hits=0.0 required=4.5
-X-Spam-Untrusted: 
-X-Spam-Pyzor: Reported 0 times.
-X-Spam-Report: 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Delivery-Agent: TMDA/1.0.2 (Bold Forbes)
+From: Chris Caputo <ccaputo@alt.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote the following on 06/25/2004 12:03 AM :
+On Wed, 23 Jun 2004, Chris Caputo wrote:
+> On Sat, 19 Jun 2004, Marcelo Tosatti wrote:
+> > Can you show us this data in more detail?
+> 
+> In __refile_inode() before and after the list_add()/del() calls I call a
+> function which checks up to the first 10 items on the inode_unused list to
+> see if next and prev pointers are valid.
+> (inode->next->prev == inode && inode->prev->next == inode)
+> 
+> So what I observed was a case here where iput() inline __refile_inode():
+> 
+>  1) checked inode_unused and saw that it was good
+>  2) put an item on the inode_unused list
+>  3) checked inode_unused and saw that it was now bad and that the item 
+>     added was the culprit.
+> 
+> This all happened within __refile_inode() with the inode_lock spinlock
+> grabbed by iput() and so I tend to think some other code is accessing the
+> inode_unused list _without_ grabbing the spinlock.  I've checked the
+> inode.c code over and over, plus my filesystem code, and haven't yet found
+> a culprit.  I also checked the tux diffs to see if it was messing with
+> inode objects in an inappropriate way.
+> 
+> Is it safe to assume that the x86 version of atomic_dec_and_lock(), which
+> iput() uses, is well trusted?  I figure it's got to be, but doesn't hurt
+> to ask.
 
->Of course, if mozilla marked them "elastic" it should better be
->prepared for they disappearance. I'd disappear them with simple
->unlink(), so they'd physically survive as long as someone held them
->open.
->
->  
->
+An update on this.
 
-Doesn't work reliably : the deletion is done in order to reclaim space 
-that is needed now. You may want to retry unlinking files until you 
-reach the free space needed, but this is clearly a receipe for famine : 
-process can wait on writes an unspecified amount of time.
+Line #3 above is not entirely correct in that I have not seen the item
+being added becoming immediately corrupt, but rather items beyond it.
 
+Specifically I have now seen:
 
--- 
-Lionel Bouton - inet6
----------------------------------------------------------------------
-   o              Siege social: 51, rue de Verdun - 92158 Suresnes
-  /      _ __ _   Acces Bureaux: 33 rue Benoit Malon - 92150 Suresnes
- / /\  /_  / /_   France
- \/  \/_  / /_/   Tel. +33 (0) 1 41 44 85 36
-  Inetsys S.A.    Fax  +33 (0) 1 46 97 20 10
- 
+  inode_unused->next->next->prev != inode_unused->next
+
+and:
+
+  inode_unused->next->next->next->prev != inode_unused->next->next
+
+My verification function doesn't check the whole inode_unused list (would
+be too slow to do so), but it may be that items are only corrupted shortly
+after being added to the list.  Ie., someone is still using the inode
+shortly after when they shouldn't be.
+
+> __refile_inode() was introduced in 2.4.25.  I'll try 2.4.24 to see if I
+> can reproduce there.
+
+No word yet on my 2.4.24 testing.  (test still running without failure)
+
+I'll keep digging,
+Chris
 

@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131418AbRALTqm>; Fri, 12 Jan 2001 14:46:42 -0500
+	id <S131645AbRALTtw>; Fri, 12 Jan 2001 14:49:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131645AbRALTqc>; Fri, 12 Jan 2001 14:46:32 -0500
-Received: from styx.suse.cz ([195.70.145.226]:23538 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S131418AbRALTq2>;
-	Fri, 12 Jan 2001 14:46:28 -0500
-Date: Fri, 12 Jan 2001 20:46:26 +0100
+	id <S132138AbRALTtm>; Fri, 12 Jan 2001 14:49:42 -0500
+Received: from styx.suse.cz ([195.70.145.226]:32242 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S131645AbRALTtd>;
+	Fri, 12 Jan 2001 14:49:33 -0500
+Date: Fri, 12 Jan 2001 20:49:32 +0100
 From: Vojtech Pavlik <vojtech@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide.2.4.1-p3.01112001.patch
-Message-ID: <20010112204626.A2740@suse.cz>
-In-Reply-To: <Pine.LNX.4.10.10101120949040.1858-100000@penguin.transmeta.com> <Pine.LNX.4.10.10101121009230.1147-100000@master.linux-ide.org> <93njuq$21n$1@penguin.transmeta.com>
+To: Tobias Ringstrom <tori@tellus.mine.nu>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 ate my filesystem on rw-mount
+Message-ID: <20010112204932.B2740@suse.cz>
+In-Reply-To: <Pine.LNX.4.30.0101120951270.7175-100000@svea.tellus>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <93njuq$21n$1@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jan 12, 2001 at 10:55:22AM -0800
+In-Reply-To: <Pine.LNX.4.30.0101120951270.7175-100000@svea.tellus>; from tori@tellus.mine.nu on Fri, Jan 12, 2001 at 10:15:45AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2001 at 10:55:22AM -0800, Linus Torvalds wrote:
-> In article <Pine.LNX.4.10.10101121009230.1147-100000@master.linux-ide.org>,
-> Andre Hedrick  <andre@linux-ide.org> wrote:
-> >
-> >Well that "experimental patch" is designed to get out of the dreaded
-> >"DMA Timeout Hang" or deadlock that is most noted by the PIIX4 on the
-> >Intel 440*X Chipset groups.  Since it appears that their bug was copied
-> >but other chipset makers......you see the picture clearly, right?
+On Fri, Jan 12, 2001 at 10:15:45AM +0100, Tobias Ringstrom wrote:
+> I've never seen anything like it before, which I'm happy for.  The system
+> had been running a standard RedHat 7 kernel for days without any problems,
+> but who wants to run a 2.2 kernel?  I compiled 2.4.0 for it, rebooted, and
+> blam!  The RedHat init stripts got to the "remounting root read-write"
+> point, and just froze solid.
 > 
-> No.
+> Rebooting into RH7 failed, becauce inittab could not be found.  In fact
+> the filesystem was completely messed up, with /dev empty, lots of device
+> nodes in /etc, and files missing all over the place.  I had to reinstall
+> RH7 from scratch.
 > 
-> That experimental patch is _experimental_, and has not been reported by
-> anybody to fix anything at all.  Also, the DMA timeout on PIIX4 seems to
-> have nothing at all to do with the very silent corruption on VIA. At
-> least nobody has reported any error messages being produced on the VIA
-> corruption cases.
+> I do not understand how this could happen during a remounting root rw.
+> Is the filesystem really that unstable?
 > 
-> In short, let's leave it out of a stable kernel for now, and add
-> blacklisting of auto-DMA. Alan has a list. We can play around with
-> trying to _fix_ DMA on the VIA chipsets in 2.5.x (and possibly backport
-> the thing once it has been sufficiently battletested that people believe
-> it truly will work).
+> Am I right in suspecting DMA, which was enabled at the time?  Any other
+> ideas?  Is it a known problem?
+> 
+> This is on a 450 MHz AMD-K6 with the following IDE controller:
+> 
+> 00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 06)
+> 
+> [I know this is not a very good trouble report, but it will have to do for
+> the time beeing.  I hope to do more testing at a later time.]
+> 
+> /Tobias
+> 
+> PS. This is _not_ the same system that I reported IDE busy errors for.
 
-I've got a vt82c586 here (bought it just for testing of this problem),
-and I wasn't able to create any corruption using that board and the 2.4
-drivers.
+Wow. Ok, I'm maintaining the 2.4.0 VIA driver, so I'd like to know more
+about this:
 
-Does anyone still have any vt82c586 or vt82c586a the 2.4 VIA driver is
-corrupting data on?
+1) What's the ISA bridge revision?
+2) What's in /proc/ide/via?
+3) What says hdparm -i on your devices?
+4) If you mount your filesystem read-only, does it read garbage?
 
-I'd like to hear about such reports so that I can start debugging (and
-perhaps get me one of those failing boards, they must be quite cheap
-these days).
+Thanks.
 
 -- 
 Vojtech Pavlik

@@ -1,59 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266611AbUHZAxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266538AbUHZA6C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266611AbUHZAxi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 20:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266561AbUHZAvy
+	id S266538AbUHZA6C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 20:58:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266613AbUHZA6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 20:51:54 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:22457 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S266603AbUHZAvX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 20:51:23 -0400
-Date: Thu, 26 Aug 2004 02:51:22 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <Pine.LNX.4.58.0408251723540.17766@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0408260233400.29842@artax.karlin.mff.cuni.cz>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
- <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>
- <Pine.LNX.4.58.0408260204050.22259@artax.karlin.mff.cuni.cz>
- <Pine.LNX.4.58.0408251723540.17766@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 25 Aug 2004 20:58:02 -0400
+Received: from berrymount.xs4all.nl ([82.92.47.16]:30304 "EHLO
+	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S266538AbUHZAzv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 20:55:51 -0400
+Date: Thu, 26 Aug 2004 02:55:45 +0200
+From: Rob van Nieuwkerk <robn@berrymount.nl>
+To: "Nemosoft Unv." <nemosoft@smcc.demon.nl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.6.8 pwc patches and counterpatches
+Message-Id: <20040826025545.716b6c59.robn@berrymount.nl>
+In-Reply-To: <200408250058.24845@smcc.demon.nl>
+References: <1092793392.17286.75.camel@localhost>
+	<1092845135.8044.22.camel@localhost>
+	<20040823221028.GB4694@kroah.com>
+	<200408250058.24845@smcc.demon.nl>
+Organization: Berrymount Automation B.V.
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+X-URL: http://www.berrymount.nl/
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The only way xattrs are useful is that backup/restore software doesn't
-> > have to know about every filesystem with it's specific attributes and
-> > every magic ioctl for setting them. Instead it can save/restore
-> > filesystem-specific attributes without understanding what do they mean.
-> > However there's no need why application should use them. And no
-> > application does.
->
-> If no application does, then why back them up? Why implement them in the
-> first place?
->
-> In other words - some apps obviously do want to use the. Sadly.
+On Wed, 25 Aug 2004 00:58:24 +0200
+"Nemosoft Unv." <nemosoft@smcc.demon.nl> wrote:
 
-You can add more functionality to filesystem and use xattrs to control it.
-For example:
-- acls
-- compress file
-- encrypt file (copy user's password into task_struct and use it to
-encrypt his files)
-- preallocate file in 4MB contignuous chunks, becuase it needs real time
-multimedia access
-- sync/append-only/immutable
-etc.
-However there's no need why an application should care whether the file is
-compressed, whether it has acls, or so. And applications don't.
+Hi Nemosoft,
 
-And I think this is the only legitimate use for xattrs. Who else uses them
-except samba? I don't see how reiser4's hybrids would help.
+> Actually, I've got a little surprise for you. The NDA I signed with Philips 
+> has already expired a year ago. Yet, I didn't just throw the decompressor 
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> code on the Internet. First, there could still be legal remedies since the 
+> cams are still in production to this very day. Second, that NDA was signed 
+> on a basis of trust and I do not want to lose that trust. I'm looking at 
+> the bigger picture here: if we (Linux developers) can show we are 
+> trustworthy, we may be able to get better support from hardware 
+> manufacturers now and in the future (and really, that's what the kernel is 
+> for 75% about ....) I'm still in contact with Philips and who knows, maybe 
+> we can get all the source opened up...
 
-Mikulas
+Apparently Philips clearly indicated that disclosure would be fine with
+them on this date (one year ago !!!!).  If they felt otherwise they
+would have chosen a different date !
+
+You don't mention any request or presure from Philips to not disclose.
+So I assume that the only reason for you not to release the source is
+some personal agenda.
+
+The Philips cams are very good.  But for many real-life applications
+they are useless without the binary-only decompressor module under Linux.
+
+There are some severe bugs in either your Philips webcam driver, the
+USB stack or the combination of both, resulting in a "dead" camera
+within a second of use in some situations.  This can only be fixed by
+a power cycle  (reported to you several times btw).
+
+Not having the complete source available makes it unlikely that these
+problems will be solved (nothing improved wrt this the last years).
+
+I use 1000 Philips webcams in a product.  We are evaluating camera's for
+a 2nd generation product of which several thousands more may be built.
+Having the source for the driver available would certainly improve
+chances that I'll use the Philips cams again.
+
+Maybe Philips isn't impressed by thousands directly because they think
+in hundreds of thousands.  But OTOH it may be an indication to them that
+there is serious interest for a complete opensource Linux driver for
+their nice webcam.
+
+If you *do* notice some unhappy feelings within Philips about opensourcing
+the decompressor, let me know: maybe it helps if I talk to them.
+
+Please consider opening the source !
+
+	greetings,
+	Rob van Nieuwkerk

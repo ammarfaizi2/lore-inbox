@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319318AbSIFSje>; Fri, 6 Sep 2002 14:39:34 -0400
+	id <S319324AbSIFSpC>; Fri, 6 Sep 2002 14:45:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319320AbSIFSje>; Fri, 6 Sep 2002 14:39:34 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:1159 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S319318AbSIFSjd>;
-	Fri, 6 Sep 2002 14:39:33 -0400
-Date: Fri, 06 Sep 2002 11:36:52 -0700 (PDT)
-Message-Id: <20020906.113652.40767574.davem@redhat.com>
-To: haveblue@us.ibm.com
-Cc: ak@suse.de, Martin.Bligh@us.ibm.com, hadi@cyberus.ca,
-       tcw@tempest.prismnet.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, niv@us.ibm.com
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D78F4E6.3020101@us.ibm.com>
-References: <3D78E7A5.7050306@us.ibm.com>
-	<20020906202646.A2185@wotan.suse.de>
-	<3D78F4E6.3020101@us.ibm.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S319325AbSIFSpC>; Fri, 6 Sep 2002 14:45:02 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:9408 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S319324AbSIFSpB>; Fri, 6 Sep 2002 14:45:01 -0400
+Subject: Re: Radeon DRM lockup
+From: Nicholas <theunforgiven@attbi.com>
+To: Louis Garcia <louisg00@bellsouth.net>
+Cc: linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+In-Reply-To: <1031286886.14374.9.camel@tiger>
+References: <1031286886.14374.9.camel@tiger>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 06 Sep 2002 14:49:35 -0400
+Message-Id: <1031338175.510.0.camel@debian>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Dave Hansen <haveblue@us.ibm.com>
-   Date: Fri, 06 Sep 2002 11:33:10 -0700
-   
-   Actually, oprofile separated out the acenic module from the rest of the 
-   kernel.  I should have included that breakout as well. but it was only 1.3 
-   of CPU:
-   1.3801 0.0000 /lib/modules/2.4.18+O1/kernel/drivers/net/acenic.o
+On Fri, 2002-09-06 at 00:34, Louis Garcia wrote:
+> I'm experiencing many hard lockups when playing 3D games on my RH beta
+> system. I have a Radeon 7500 card and i850 chipset. Does the latest AC
+> kernels have more recent DRM code? How can I get the latest cvs code for
+> radeon cards?
+> 
+> --Lou
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-We thought you were using e1000 in these tests?
+Dude different setup i use ALI but my radeon 7500 locks up too when
+trying to do 3d (ANY 3d iincludoing glxgears) any solution ANYONE has
+would be greatly appreciated.
+

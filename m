@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268101AbTBWJq4>; Sun, 23 Feb 2003 04:46:56 -0500
+	id <S268099AbTBWJq4>; Sun, 23 Feb 2003 04:46:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268099AbTBWJqF>; Sun, 23 Feb 2003 04:46:05 -0500
-Received: from chii.cinet.co.jp ([61.197.228.217]:51840 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S268114AbTBWJol>; Sun, 23 Feb 2003 04:44:41 -0500
-Date: Sun, 23 Feb 2003 18:52:08 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] PC-9800 subarch. support for 2.5.62-AC1 (13/21) PCMCIA
-Message-ID: <20030223095208.GN1324@yuzuki.cinet.co.jp>
-References: <20030223092116.GA1324@yuzuki.cinet.co.jp>
+	id <S268109AbTBWJqC>; Sun, 23 Feb 2003 04:46:02 -0500
+Received: from Mix-Lyon-107-1-150.abo.wanadoo.fr ([193.249.22.150]:7303 "EHLO
+	zion.wanadoo.fr") by vger.kernel.org with ESMTP id <S268116AbTBWJpX>;
+	Sun, 23 Feb 2003 04:45:23 -0500
+Subject: Re: ethernet-ATM-Router freezing
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Marc Haber <mh+linux-kernel@zugschlus.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030222130704.GB25040@torres.ka0.zugschlus.de>
+References: <20030222084958.GC23827@torres.ka0.zugschlus.de>
+	 <1045914526.12534.153.camel@zion.wanadoo.fr>
+	 <20030222130704.GB25040@torres.ka0.zugschlus.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045994345.12533.168.camel@zion.wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030223092116.GA1324@yuzuki.cinet.co.jp>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 23 Feb 2003 10:59:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is additional patch to support NEC PC-9800 subarchitecture
-against 2.5.62-ac1. (13/21)
+On Sat, 2003-02-22 at 14:07, Marc Haber wrote:
+> On Sat, Feb 22, 2003 at 12:48:46PM +0100, Benjamin Herrenschmidt wrote:
+> > Your reasoning is wrong. It can well be a HW failure, those can be
+> > load related in various way (memory failure happening when memory
+> > is actually used, thermal failure happening on CPU load, etc...)
+> > 
+> > If the exact same setup worked for a while with same/similar loads
+> > and suddenly started to fail, there are great chances it's actually
+> > HW failure (possibly RAM).
+> 
+> So you think that we have had two machines going bad on us with the
+> same kind of failure within just a few days?
 
-Small change for PCMCIA (16bits) support.
-For fix usable IRQ number.
+Sorry, my fault, I mis-read your post and though only one of the
+boxes was freezing.
 
-Regards,
-Osamu Tomita
-
-diff -Nru linux-2.5.62-ac1/drivers/pcmcia/i82365.c linux98-2.5.62-ac1/drivers/pcmcia/i82365.c
---- linux-2.5.62-ac1/drivers/pcmcia/i82365.c	2003-02-18 07:56:55.000000000 +0900
-+++ linux98-2.5.62-ac1/drivers/pcmcia/i82365.c	2003-02-21 11:14:30.000000000 +0900
-@@ -188,7 +188,11 @@
- };
+Ben.
  
- /* Default ISA interrupt mask */
-+#ifndef CONFIG_X86_PC9800
- #define I365_MASK	0xdeb8	/* irq 15,14,12,11,10,9,7,5,4,3 */
-+#else
-+#define I365_MASK	0xd668	/* irq 15,14,12,10,9,6,5,3 */
-+#endif
- 
- #ifdef CONFIG_ISA
- static int grab_irq;

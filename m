@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135651AbRDSM5M>; Thu, 19 Apr 2001 08:57:12 -0400
+	id <S135655AbRDSNEE>; Thu, 19 Apr 2001 09:04:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135652AbRDSM5D>; Thu, 19 Apr 2001 08:57:03 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55820 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135651AbRDSM44>; Thu, 19 Apr 2001 08:56:56 -0400
-Subject: Re: PCI power management
-To: benh@kernel.crashing.org (Benjamin Herrenschmidt)
-Date: Thu, 19 Apr 2001 13:57:57 +0100 (BST)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-        torvalds@transmeta.com (Linus Torvalds),
-        linux-pm-devel@lists.sourceforge.net
-In-Reply-To: <19031231222908.21882@mailhost.mipsys.com> from "Benjamin Herrenschmidt" at Jan 01, 1904 11:29:08 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S135656AbRDSNDx>; Thu, 19 Apr 2001 09:03:53 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:45318 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S135655AbRDSNDj>;
+	Thu, 19 Apr 2001 09:03:39 -0400
+Date: Thu, 19 Apr 2001 15:03:32 +0200
+From: Jens Axboe <axboe@suse.de>
+To: stefan@jaschke-net.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems with Toshiba SD-W2002 DVD-RAM drive (IDE)
+Message-ID: <20010419150332.B22159@suse.de>
+In-Reply-To: <01041714250400.01376@antares> <01041914131100.01232@antares> <20010419141538.S16822@suse.de> <01041914440701.01232@antares>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14qE0V-00078Y-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <01041914440701.01232@antares>; from s-jaschke@t-online.de on Thu, Apr 19, 2001 at 02:44:07PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  - Some devices just can't be brought back to life from D3 state without
-> a PCI reset (ATI Rage M3 for example) and that require some arch specific
-> support (when it's possible at all).
+On Thu, Apr 19 2001, Stefan Jaschke wrote:
+> On Thursday 19 April 2001 14:15, Jens Axboe wrote:
+> > This is really strange, are you sure your drive is ok? Does mounting
+> > dvd-rom and cd-rom's work fine?
+> 
+> OK. I'll check again with 2.4.4-pre4+patches:
+> (1) Mounting the SuSE DVD-ROM (-t iso9660) from /dev/hdc on /dvd and 
+>     reading from /dvd works. Same for CD-ROMs. I don't have a formatted
+>     DVD-RAM.
+> (2) Reading with "dd if=/dev/hdc ..." 
+>    (2.1) works with CD-ROM inserted
+>    (2.2) fails with DVD-ROM inserted
 
-Putting on a driver author hat what I want is
+dd fails with DVD-ROM inserted??? In the same way? Is this the SuSE DVD,
+and not a movie DVD? Also, check dmesg for errors.
 
-	pci_power_on_generic
-	pci_power_off_generic
-	pci_power_on_null
-	pci_power_off_null
+>    (2.3) fails with DVD-RAM inserted
+> (3) Writing with "dd of=/dev/hdc ..." works (with DVD-RAM inserted).
+> (4) "mke2fs -b 2048 /dev/hdc" fails (with DVD-RAM inserted).
 
-At which point most driver writers are having to do no thinking at all about
-their device. The PCI layer just requires they pick a function and stick it
-in the struct pci_device. 
+Side note -- use as big a block size as you can for a DVD-RAM hosted fs,
+4kB is better than 2kB.
 
->  - On SMP, we need some way to stop other CPUs in the scheduler
-> while running the last round of sleep (putting devices to sleep) at least
-> until all IO layers in Linux can properly handle blocking of IO queues
-> while the device sleeps.
+> As if the drive gives the driver wrong information (like size=0)?
 
-This doesnt help you. You need device specific support in each case where
-bus mastering is occuring and a bus master error could be fatal if missed.
-For example on i2o I can easily have 4Mbytes of outstanding I/O between the
-message layer and disk, all of which is bus mastering. Only the driver actually
-knows when its idle.
+Could be, try
 
-> that bang hardware directly (X, but not only X) need to be properly
-> suspended (and the kernel has to wait for ack from them before continuing
-> with devices sleep).
+cat /proc/ide/hdc/capacity
 
-X has hooks for this in XFree 4
+and see what that says.
 
+But at least it looks like your drive is just fine.
+
+> If nothing helps, I have to plug the drive into a Windows machine
+> to make sure it really works with Toshiba's own drivers. This would
+> be a major hassle, though. No place for Windows on my own machine.
+
+Lets not go that far yet :)
+
+> Hence some amount of screwing... :-(
+
+And lets stick to hardware for now, ok? :-)
+
+-- 
+Jens Axboe
 

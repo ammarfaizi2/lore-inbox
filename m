@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288811AbSA0WLq>; Sun, 27 Jan 2002 17:11:46 -0500
+	id <S288855AbSA0W1j>; Sun, 27 Jan 2002 17:27:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288799AbSA0WL0>; Sun, 27 Jan 2002 17:11:26 -0500
-Received: from nrg.org ([216.101.165.106]:55824 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S288833AbSA0WLX>;
-	Sun, 27 Jan 2002 17:11:23 -0500
-Date: Sun, 27 Jan 2002 14:10:57 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Rob Landley <landley@trommello.org>, Pavel Machek <pavel@suse.cz>,
-        Helge Hafting <helgehaf@aitel.hist.no>, <linux-kernel@vger.kernel.org>
-Subject: Re: Preempt & how long it takes to interrupt (was Re: [2.4.17/18pre]
- VM and swap - it's really unusable)
-In-Reply-To: <E16Uw3D-0002bm-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.40.0201271357050.8324-100000@cosmic.nrg.org>
+	id <S288882AbSA0W11>; Sun, 27 Jan 2002 17:27:27 -0500
+Received: from mx04.nexgo.de ([151.189.8.80]:5901 "EHLO mx04.nexgo.de")
+	by vger.kernel.org with ESMTP id <S288855AbSA0W1R>;
+	Sun, 27 Jan 2002 17:27:17 -0500
+Message-ID: <3C547EB8.5010604@arcor.de>
+Date: Sun, 27 Jan 2002 23:27:04 +0100
+From: Hartmut Holz <hartmut.holz@arcor.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020116
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Uptime again?
+In-Reply-To: <Pine.LNX.4.33L.0201261935330.32617-100000@imladris.surriel.com> <3C54546C.0@arcor.de> <002801c1a76b$623033f0$010411ac@local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Jan 2002, Alan Cox wrote:
-> I dont believe anyone has tested the driver hard with pre-empt. Its not that
-> this driver can't be fixed. Its that this is one tiny example of maybe
-> thousands of other similar flaws lurking. There is no obvious automated way
-> to find them either.
+Manfred Spraul wrote:
 
-You could make the same argument against SMP, but Linux has SMP support
-despite all the thousands of SMP flaws that once lurked with no obvious
-automated way to find them.  Most of them have been found.
+> What do you means with one cpu? Did you boot a SMP kernel with "nosmp" on the command line, or did you make a kernel without
+> CONFIG_SMP?
+> 
 
-Actually, there is a way to help to automate the finding of preemption
-problems:  you keep a log of kernel preemption events in a circular
-buffer, and dump the log after something unexpected happens (like a
-kernel oops).  Then you search the log for preemptions that happened in
-suspicious places.  Kernel preemptions don't happen very often, so the
-log usually goes back several seconds, which is usually plenty of time
-to catch the preemption that happened in the wrong place.  (Since SMP
-locking problems are also preemption problems, this technique can also
-catch SMP problems.)
+from .config:
+-------------
 
-I have a patch to do this for earlier versions of the kernel preemption
-patch - I need to bring it up to date and send it to Robert for use with
-the latest versions of his patch.
+CONFIG_MTRR=y
+# CONFIG_SMP is not set
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+Of cause it was a new clean kernel tree. Tomorrow I will use your patch for this tree.
+May be there are some results in the log.
+
+Regards
+
+Hartmut
 

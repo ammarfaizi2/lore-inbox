@@ -1,71 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264015AbTFEBlR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 21:41:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264364AbTFEBlR
+	id S264377AbTFEBnX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 21:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbTFEBnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 21:41:17 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:5866 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S264015AbTFEBlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 21:41:16 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Date: Thu, 5 Jun 2003 11:53:51 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Jun 2003 21:43:23 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:4234 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264377AbTFEBnW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 21:43:22 -0400
+Date: Wed, 4 Jun 2003 18:56:52 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: shemminger@osdl.org, jgarzik@pobox.com, davem@redhat.com,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70-bk+ broken networking
+Message-Id: <20030604185652.31958d1f.akpm@digeo.com>
+In-Reply-To: <3EDE7FEB.2C7FAEC7@digeo.com>
+References: <20030604161437.2b4d3a79.shemminger@osdl.org>
+	<3EDE7FEB.2C7FAEC7@digeo.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16094.41647.614418.452777@notabene.cse.unsw.edu.au>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.70-mm4
-In-Reply-To: message from Helge Hafting on Wednesday June 4
-References: <20030603231827.0e635332.akpm@digeo.com>
-	<20030604211216.GA2436@hh.idb.hist.no>
-X-Mailer: VM 7.15 under Emacs 21.3.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-OriginalArrivalTime: 05 Jun 2003 01:56:52.0736 (UTC) FILETIME=[BC1D1800:01C32B05]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday June 4, helgehaf@aitel.hist.no wrote:
-> Raid-1 seems to work in 2.5.70-mm4, but raid-0 still fail.
+Andrew Morton <akpm@digeo.com> wrote:
+>
+> Stephen Hemminger wrote:
+> > 
+> > Test machine running 2.5.70-bk latest can't boot because eth2 won't
+> > come up.  The same machine and configuration successfully brings up
+> > all the devices and runs on 2.5.70.
 > 
-> Trying to boot with raid-0 autodetect yields a long string of:
-> Slab error in cache_free_debugcheck
-> cache 'size-32' double free or
-> memory after object overwritten.
-> (Is this something "Page alloc debugging"may be used for?)
-> kfree+0xfc/0x330
-> raid0_run
-> raid0_run
-> printk
-> blk_queue_make_request
-> do_md_run
-> md_ioctl
-> dput
-> blkdev_ioctl
-> sys_ioctl
-> syscall_call
+> kjournald is stuck waiting for IO to complete against some buffer
+> during transaction commit.
 > 
-> I get a ton of these, in between normal
-> initialization messages.  Then the thing
-> dies with a panic due to exception in interrupt.
-> 
-> This is a monolithic smp preempt kernel on a dual celeron.
-> The disks are scsi, the filesystems ext2.  There is one
-> raid-0 array and two raid-1 arrays, as well as some
-> ordinary partitions.  Root is on raid-1.
-> 
-> Helge Hafting
+> I'd be suspecting block layer or device drivers.  What device driver
+> is handling your /var/log?
 
-grrr... I thought I had that right...
+I take that back.
 
-You need to remove the two calls to 'kfree' at the end of 
-create_strip_zones.
+Your sysrq-T woke up syslogd which did a synchronous write which poked
+kjournald.  You happened to catch it in mid-commit.  So that's all normal
+and sane.
 
-I have jsut sent some patches to Linus (and linux-raid@vger) which
-will update his tree to include this fix.
+Something is up with netdevice initialisation.  My eth0 (e100) is in a
+strange half-there state and won't come up.  Reverting the post-2.5.70 e100
+changes does not help.  It's something which went into the tree today I
+think.
 
-NeilBrown
+

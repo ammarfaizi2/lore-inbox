@@ -1,74 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbUK0SOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbUK0Sbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbUK0SOz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 13:14:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbUK0SOR
+	id S261296AbUK0Sbk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 13:31:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbUK0Sbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 13:14:17 -0500
-Received: from smtp1.freeserve.com ([193.252.22.158]:50838 "EHLO
-	mwinf3006.me.freeserve.com") by vger.kernel.org with ESMTP
-	id S261290AbUK0SMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 13:12:49 -0500
-Message-ID: <4040305.1101579168561.JavaMail.www@wwinf3001>
-From: Felix Bellaby <member@bellaby.freeserve.co.uk>
-Reply-To: member@bellaby.freeserve.co.uk
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: RAID10 overwrites partition tables
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [195.92.168.167]
-Date: Sat, 27 Nov 2004 19:12:48 +0100 (CET)
+	Sat, 27 Nov 2004 13:31:40 -0500
+Received: from 70-56-133-193.albq.qwest.net ([70.56.133.193]:38020 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261296AbUK0Sbh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 13:31:37 -0500
+Date: Sat, 27 Nov 2004 11:31:02 -0700 (MST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Zoltan Boszormenyi <zboszor@freemail.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: CD-ROM problem on x86-64
+In-Reply-To: <41A8C3BF.20904@freemail.hu>
+Message-ID: <Pine.LNX.4.61.0411271123350.3173@montezuma.fsmlabs.com>
+References: <41A84875.2030505@freemail.hu> <41A848C4.1030504@freemail.hu>
+ <Pine.LNX.4.61.0411271035340.3173@montezuma.fsmlabs.com> <41A8C3BF.20904@freemail.hu>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463810560-157855849-1101580174=:3173"
+Content-ID: <Pine.LNX.4.61.0411271130280.3173@montezuma.fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday November 27, Neil Brown wrote
->>    	 mdadm --level 10 does not seem to respect disk partition boundaries.
-> 
-> Hmmm, yes, thanks.
->
-> I think the following should fix the bug.  It only affects 'resync'
-> not normal IO or recovery (after a drive has failed).
-> ...
-> diff ./drivers/md/raid10.c~current~ ./drivers/md/raid10.c
->  --- ./drivers/md/raid10.c~current~	2004-11-16 16:33:50.000000000 +1100
-> +++ ./drivers/md/raid10.c	2004-11-27 11:00:06.000000000 +1100
-> @@ -1150,6 +1150,7 @@ static void sync_request_write(mddev_t *
->  		md_sync_acct(conf->mirrors[d].rdev->bdev, tbio->bi_size >> 9);
->  
->  		tbio->bi_sector += conf->mirrors[d].rdev->data_offset;
-> +		tbio->bi_bdev = conf->mirrors[d].rdev->bdev;
->  		generic_make_request(tbio);
->  	}
- 
-Thanks, the adjustments to the bio before the generic_make_request do the trick
-nicely.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Note that the version of raid10.c in the current Fedora 3 series does not include
-either of the adjustments so the patch required against that version becomes:
+---1463810560-157855849-1101580174=:3173
+Content-Type: TEXT/PLAIN; CHARSET=X-UNKNOWN
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-ID: <Pine.LNX.4.61.0411271130281.3173@montezuma.fsmlabs.com>
 
-diff ./drivers/md/raid10.c~ ./drivers/md/raid10.c
- --- ./drivers/md/raid10.c~	2004-11-16 16:33:50.000000000 +1100
-+++ ./drivers/md/raid10.c     2004-11-27 11:00:06.000000000 +1100
-@@ -1145,6 +1145,8 @@
-                atomic_inc(&r10_bio->remaining);
- 		md_sync_acct(conf->mirrors[d].rdev->bdev, tbio->bi_size >> 9);
- 
-+	       tbio->bi_sector += conf->mirrors[d].rdev->data_offset;
-+	       tbio->bi_bdev = conf->mirrors[d].rdev->bdev;
- 	 	generic_make_request(tbio);
- 	}
+On Sat, 27 Nov 2004, Zoltan Boszormenyi wrote:
 
-Thanks again,
+> Zwane Mwaikambo =EDrta:
+> > On Sat, 27 Nov 2004, Zoltan Boszormenyi wrote:
+> >=20
+> >=20
+> > > Sorry, this last statement is not true, just compare the two error
+> > > reports above. Both hda and hdc show this error.
+> >=20
+> >=20
+> > Please provide full dmesg, lspci and if possible state around which ker=
+nel
+> > version the problems began occuring
+> >=20
+>=20
+> They are attached. I am running the linuxconsole.sf.net multiconsole
+> extension, I patched the Fedora Core 3 original and the second errata
+> kernel with it and made a custom RPM.
 
-Felix
+Heavens =3D) Would it be possible for you to test latest -bk snapshot?
 
- 
+Thanks,
+=09Zwane
 
--- 
-
-Whatever you Wanadoo:
-http://www.wanadoo.co.uk/time/
-
-This email has been checked for most known viruses - find out more at: http://www.wanadoo.co.uk/help/id/7098.htm
+---1463810560-157855849-1101580174=:3173--

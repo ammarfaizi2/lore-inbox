@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131094AbQLQTOb>; Sun, 17 Dec 2000 14:14:31 -0500
+	id <S130668AbQLQTfR>; Sun, 17 Dec 2000 14:35:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130668AbQLQTOW>; Sun, 17 Dec 2000 14:14:22 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:61199 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S129562AbQLQTOI>;
-	Sun, 17 Dec 2000 14:14:08 -0500
-Date: Sun, 17 Dec 2000 19:43:35 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re:  Monitoring filesystems / blockdevice for errors
-Message-ID: <20001217194334.V5323@marowsky-bree.de>
-In-Reply-To: <20001217153453.O5323@marowsky-bree.de> <Pine.LNX.4.10.10012171314050.16143-100000@coffee.psychology.mcmaster.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.3i
-In-Reply-To: <Pine.LNX.4.10.10012171314050.16143-100000@coffee.psychology.mcmaster.ca>; from "Mark Hahn" on 2000-12-17T13:23:52
-X-Ctuhulu: HASTUR
+	id <S130676AbQLQTfH>; Sun, 17 Dec 2000 14:35:07 -0500
+Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:59567 "EHLO
+	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S130668AbQLQTew>; Sun, 17 Dec 2000 14:34:52 -0500
+Message-ID: <3A3D0E0F.9B617E76@haque.net>
+Date: Sun, 17 Dec 2000 14:03:43 -0500
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: tommy@teatime.com.tw
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel panic for nfsd access for test12
+In-Reply-To: <3A3D00A7.87F6051F@teatime.com.tw>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2000-12-17T13:23:52,
-   Mark Hahn <hahn@coffee.psychology.mcmaster.ca> said:
+Do you use netfilter? It's a known bug if you do.
 
-> > Short of parsing syslog messages, which isn't particularly great.
-> what's wrong with it?
-
-Because it means having to know about all potential messages the filesystems
-might dump out.
-
-> reinventing /proc/kmsg and klogd would be tre gross.
-
-Well, only one process can read kmsg and get notified about new messages at
-any time, so that makes the monitoring depend on klogd/syslogd working, which
-given a write error by syslog might not be the case...
-
-> > I don't have a real idea how this could be added, short of adding a field to
-> > /proc/partitions (error count) or something similiar.
-> for reporting errors, that might be OK, but it's not a particularly nice
-> _notification_ mechanism...
-
-Well, yes.
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+Tommy Wu wrote:
+> 
+>   Does anyone use nfsd on kernel 2.4.0-test12 ?
+> 
+>   Usually, I backup my linux box via another machine use nfs to mount it, then run
+>   afio to backup file to mo. It is work very fine through kernel 2.4.0-test7 to test11.
+> 
+>   But this week, I change my linux box's kernel to 2.4.0-test12, I found when I use
+>   another linux box (kernel 2.2.18pre21) to mount the directory in the linux server
+>   running kernel 2.4.0-test12, it can be mounted, but if I do any file access, the
+>   server will show kernel panic screen.... and there is no any log write down to file.
+>   All system will be halt, just can be power down. (SysRq don't work)
+> 
+>   I change the kernel back to 2.4.0-test11, everything is ok. So, I think it should be
+>   a bug in 2.4.0-test12. (I use the same .config to build both kernel, nfsd is make as
+>   a module)
+> 
+>   Because I can't see all of the kernel trace dump screen, so I can't give any ksymoops
+>   for that...
 
 -- 
-Perfection is our goal, excellence will be tolerated. -- J. Yahl
 
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262744AbUGLU1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262768AbUGLU11@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262744AbUGLU1u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 16:27:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUGLU1l
+	id S262768AbUGLU11 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 16:27:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbUGLUYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 16:27:41 -0400
-Received: from holomorphy.com ([207.189.100.168]:38032 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262547AbUGLUZ3 (ORCPT
+	Mon, 12 Jul 2004 16:24:24 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:51919 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S262547AbUGLUVf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 16:25:29 -0400
-Date: Mon, 12 Jul 2004 13:25:25 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rob Mueller <robm@fastmail.fm>
-Cc: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
-Subject: Re: Processes stuck in unkillable D state (now seen in 2.6.7-mm6)
-Message-ID: <20040712202525.GJ21066@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rob Mueller <robm@fastmail.fm>, Chris Mason <mason@suse.com>,
-	linux-kernel@vger.kernel.org
-References: <00f601c46539$0bdf47a0$e6afc742@ROBMHP> <1089377936.3956.148.camel@watt.suse.com> <009e01c46849$f2e85430$9aafc742@ROBMHP> <20040712201154.GI21066@holomorphy.com> <00b001c4684c$d060bb20$9aafc742@ROBMHP>
-Mime-Version: 1.0
+	Mon, 12 Jul 2004 16:21:35 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <00b001c4684c$d060bb20$9aafc742@ROBMHP>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16626.62155.711114.734967@napali.hpl.hp.com>
+Date: Mon, 12 Jul 2004 13:21:31 -0700
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@redhat.com>, Jakub Jelinek <jakub@redhat.com>,
+       davidm@hpl.hp.com, suresh.b.siddha@intel.com, jun.nakajima@intel.com,
+       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: serious performance regression due to NX patch
+In-Reply-To: <Pine.LNX.4.58.0407121315170.1764@ppc970.osdl.org>
+References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com>
+	<Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com>
+	<Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
+	<Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com>
+	<20040711123803.GD21264@devserv.devel.redhat.com>
+	<Pine.LNX.4.58.0407121402160.2451@devserv.devel.redhat.com>
+	<Pine.LNX.4.58.0407121315170.1764@ppc970.osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, my attribution was shamelessly removed from:
->> Nice, deep stack there; however, this appears to only be one process. It
->> may be helpful to see the others.
+>>>>> On Mon, 12 Jul 2004 13:17:20 -0700 (PDT), Linus Torvalds <torvalds@osdl.org> said:
 
-On Mon, Jul 12, 2004 at 01:14:12PM -0700, Rob Mueller wrote:
-> I've put the dumps here. I did sysreq-t twice, thus the 2 dumps. If you 
-> diff them, you'll see they're very very similar.
-> http://robm.fastmail.fm/kernel/t2/
+  Linus> On Mon, 12 Jul 2004, Ingo Molnar wrote:
+  >>  so ... this should be #ifndef ia64?
 
-Hmm, I wonder which of the two lock_page()'s in filemap_nopage() this is.
+  Linus> No. Make it a CONFIG_DEFAULT_NOEXEC and make the relevant
+  Linus> architectures do a
 
+  Linus> 	define_bool DEFAULT_NOEXEC y
 
--- wli
+  Linus> in their Kconfig files.
+
+Would it be better to reverse the sense (i.e., make it DEFAULT_EXEC),
+since the latter new platforms by default almost certainly do NOT want
+DEFAULT_EXEC?
+
+	--david

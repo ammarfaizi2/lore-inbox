@@ -1,86 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290794AbSARTmP>; Fri, 18 Jan 2002 14:42:15 -0500
+	id <S290793AbSARTnH>; Fri, 18 Jan 2002 14:43:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290792AbSARTl6>; Fri, 18 Jan 2002 14:41:58 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:49675 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S290791AbSARTlp>; Fri, 18 Jan 2002 14:41:45 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 18 Jan 2002 11:48:08 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Andre Hedrick <andre@linuxdiskcert.org>
-cc: Jens Axboe <axboe@suse.de>, Anton Altaparmakov <aia21@cam.ac.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.3-pre1-aia1
-In-Reply-To: <Pine.LNX.4.10.10201181127270.4260-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.40.0201181146100.934-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290792AbSARTm4>; Fri, 18 Jan 2002 14:42:56 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:35335 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S290791AbSARTmr>;
+	Fri, 18 Jan 2002 14:42:47 -0500
+Date: Fri, 18 Jan 2002 11:38:46 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE][PATCH] New fs to control access to system resources
+Message-ID: <20020118193846.GE13310@kroah.com>
+In-Reply-To: <87k7uj61tk.fsf@tigram.bogus.local> <20020116195105.C18039@devcon.net> <20020116230620.GE3410@kroah.com> <20020117102650.A1742@devcon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020117102650.A1742@devcon.net>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Fri, 21 Dec 2001 17:17:12 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jan 2002, Andre Hedrick wrote:
+On Thu, Jan 17, 2002 at 10:26:51AM +0100, Andreas Ferber wrote:
+> 
+> My concern was conceptual: accessfs is just another mechanism for
+> access control to various ressources. As I understand it, LSM is
+> intended to move /all/ access control logic into separate modules with
+> a uniform interface to the kernel, so that you can choose whatever
+> access control mechanism you want (or even rip out all access control,
+> as for example some embedded applications don't need it). Clearly it's
+> a long way until LSM actually gets to this point, but nevertheless
+> it's the overall goal of the whole effort IMHO.
 
-> On Fri, 18 Jan 2002, Davide Libenzi wrote:
->
-> > On Fri, 18 Jan 2002, Jens Axboe wrote:
-> >
-> > > On Fri, Jan 18 2002, Davide Libenzi wrote:
-> > > > On Fri, 18 Jan 2002, Anton Altaparmakov wrote:
-> > > >
-> > > > > Since the new IDE core from Andre is now solid as reported by various
-> > > > > people on IRC, here is my local patch (stable for me) which you can apply
-> > > > > to play with the shiny new IDE core (IDE core fix is same as
-> > > > > ata-253p1-2.bz2 from Jens). (-:
-> > > >
-> > > > I would like to say the same. I worked with the fixed kernel
-> > > > 2.5.3-pre1+ata-253p1-2 yesterday w/out problems. I rebootedt the machine
-> > > > before leaving the office yesterday night and this morning it had a full
-> > > > screen :
-> > > >
-> > > > hda: lost interrupt
-> > > > hda: lost interrupt
-> > > > hda: lost interrupt
-> > > > hda: lost interrupt
-> > > > hda: lost interrupt
-> > >
-> > > What mode? PIO and no multi mode, or?
-> >
-> >
-> > This is what reports me 2.5.2 :
-> >
-> >
-> > [root@blue1 davide]# cat /proc/ide/hda/settings
-> > name                    value           min             max             mode
-> > ----                    -----           ---             ---             ----
-> > bios_cyl                2495            0               65535           rw
-> > bios_head               255             0               255             rw
-> > bios_sect               63              0               63              rw
-> > breada_readahead        4               0               127             rw
-> > bswap                   0               0               1               r
-> > current_speed           0               0               69              rw
-> > failures                0               0               65535           rw
-> > file_readahead          124             0               16384           rw
-> > ide_scsi                0               0               1               rw
-> > init_speed              0               0               69              rw
-> > io_32bit                0               0               3               rw
-> > keepsettings            0               0               1               rw
-> > lun                     0               0               7               rw
-> > max_failures            1               0               65535           rw
-> > multcount               8               0               8               rw
->
-> There is a / 2 factor here, thus reality is 16,0,16
+The LSM patch's goal is to only _allow_ you do add access control
+mechanisms to the kernel easily.
 
-Guys, instead of requiring an -m8 to every user that is observing this
-problem, isn't it better that you limit it inside the driver until things
-gets fixed ?
+This accessfs patch doesn't collide with that goal at all.  If it gets
+accepted into the kernel, people who write LSM based access control
+modules need to remember to medaite access to the accessfs if they want
+to.  Since the LSM hooks are much lower in the vfs than accessfs, it is
+a simple thing to add this kind of access mediation.
 
+Hope this helps clear it up a bit.
 
+thanks,
 
-
-- Davide
-
-
+greg k-h

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289670AbSBERcB>; Tue, 5 Feb 2002 12:32:01 -0500
+	id <S289694AbSBERcB>; Tue, 5 Feb 2002 12:32:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289667AbSBERbw>; Tue, 5 Feb 2002 12:31:52 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:58117 "HELO
+	id <S289670AbSBERbx>; Tue, 5 Feb 2002 12:31:53 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:64261 "HELO
 	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S289670AbSBERbk>; Tue, 5 Feb 2002 12:31:40 -0500
+	id <S289671AbSBERbl>; Tue, 5 Feb 2002 12:31:41 -0500
 Date: Tue, 5 Feb 2002 20:31:38 +0300
 From: Oleg Drokin on behalf of Hans Reiser <reiser@namesys.com>
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
         reiserfs-dev@namesys.com
-Subject: [PATCH] reiserfs patchset, patch 5 of 9 05-kernel-reiserfs_fs_h-offset_v2.diff
-Message-ID: <20020205203138.A9905@namesys.com>
+Subject: [PATCH] reiserfs patchset, patch 7 of 9 07-remove_nospace_warnings.diff
+Message-ID: <20020205203138.A9924@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,8 +26,8 @@ This set of patches of which this is one will update ReiserFS in 2.5.3
 with latest bugfixes. Also it cleanups the code a bit and adds more helpful
 messages in some places.
 
-05-kernel-reiserfs_fs_h-offset_v2.diff
-    Convert erroneous le64_to_cpu to cpu_to_le64
+07-remove_nospace_warnings.diff
+    Do not print scary warnings in out of free space situations.
 
 
 The other patches in this set are:
@@ -66,23 +66,42 @@ The other patches in this set are:
     Bitopts arguments must be long, not int.
 
 
---- linux-2.5.3/include/linux/reiserfs_fs.h.orig	Thu Jan 31 09:25:24 2002
-+++ linux-2.5.3/include/linux/reiserfs_fs.h	Tue Feb  5 16:44:54 2002
-@@ -381,7 +381,7 @@
-     offset_v2_esafe_overlay *tmp = (offset_v2_esafe_overlay *)v2;
-     tmp->linear = le64_to_cpu(tmp->linear);
-     tmp->offset_v2.k_type = type;
--    tmp->linear = le64_to_cpu(tmp->linear);
-+    tmp->linear = cpu_to_le64(tmp->linear);
- }
-  
- static inline loff_t offset_v2_k_offset( const struct offset_v2 *v2 )
-@@ -395,7 +395,7 @@
-     offset_v2_esafe_overlay *tmp = (offset_v2_esafe_overlay *)v2;
-     tmp->linear = le64_to_cpu(tmp->linear);
-     tmp->offset_v2.k_offset = offset;
--    tmp->linear = le64_to_cpu(tmp->linear);
-+    tmp->linear = cpu_to_le64(tmp->linear);
- }
- #else
- # define offset_v2_k_type(v2)           ((v2)->k_type)
+--- linux-2.5.3/fs/reiserfs/super.c.orig	Thu Jan 31 09:25:24 2002
++++ linux-2.5.3/fs/reiserfs/super.c	Tue Feb  5 16:50:26 2002
+@@ -284,7 +284,8 @@
+     /* look for its place in the tree */
+     retval = search_item (inode->i_sb, &key, &path);
+     if (retval != ITEM_NOT_FOUND) {
+-	reiserfs_warning ("vs-2100: add_save_link:"
++	if ( retval != -ENOSPC )
++	    reiserfs_warning ("vs-2100: add_save_link:"
+ 			  "search_by_key (%K) returned %d\n", &key, retval);
+ 	pathrelse (&path);
+ 	return;
+--- linux-2.5.3/fs/reiserfs/stree.c.orig	Tue Feb  5 16:16:39 2002
++++ linux-2.5.3/fs/reiserfs/stree.c	Tue Feb  5 16:50:42 2002
+@@ -1338,8 +1338,10 @@
+ 	}
+ 	if (retval != ITEM_FOUND) {
+ 	    pathrelse (&path);
+-	    reiserfs_warning ("vs-5355: reiserfs_delete_solid_item: %k not found",
+-			      key);
++	    // No need for a warning, if there is just no free space to insert '..' item into the newly-created subdir
++	    if ( !( (unsigned long long) GET_HASH_VALUE (le_key_k_offset (le_key_version (key), key)) == 0 && \
++		 (unsigned long long) GET_GENERATION_NUMBER (le_key_k_offset (le_key_version (key), key)) == 1 ) )
++		reiserfs_warning ("vs-5355: reiserfs_delete_solid_item: %k not found", key);
+ 	    break;
+ 	}
+ 	if (!tb_init) {
+--- linux-2.5.3/fs/reiserfs/inode.c.orig	Tue Feb  5 16:42:00 2002
++++ linux-2.5.3/fs/reiserfs/inode.c	Tue Feb  5 16:50:57 2002
+@@ -743,7 +743,8 @@
+ 
+ 		retval = convert_tail_for_hole(inode, bh_result, tail_offset) ;
+ 		if (retval) {
+-		    printk("clm-6004: convert tail failed inode %lu, error %d\n", inode->i_ino, retval) ;
++		    if ( retval != -ENOSPC )
++			printk("clm-6004: convert tail failed inode %lu, error %d\n", inode->i_ino, retval) ;
+ 		    if (allocated_block_nr)
+ 			reiserfs_free_block (&th, allocated_block_nr);
+ 		    goto failure ;

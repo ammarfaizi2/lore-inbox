@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272664AbVBFIfj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269548AbVBFIhc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272664AbVBFIfj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 03:35:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267364AbVBFIfj
+	id S269548AbVBFIhc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 03:37:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269265AbVBFIhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 03:35:39 -0500
-Received: from web51007.mail.yahoo.com ([206.190.38.138]:56952 "HELO
-	web51007.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S272664AbVBFIfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 03:35:33 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=uHH8PkAhtdw76Q9Qtv/VIMBDKl4DTkV+7mSq7zuxqbQDdPw2ZTffspo2qKlGge4XSr7tkb5jyUWt8Ce0Hc8ekRibIpV7YF4dF8+W1Qr0ZmsvGnOZ0auV3cctXDcMQaNMn0hpYJyE4Sm7PbE08nF+tLk8ueihZVdfqfGyN0MjLvI=  ;
-Message-ID: <20050206083532.93695.qmail@web51007.mail.yahoo.com>
-Date: Sun, 6 Feb 2005 00:35:32 -0800 (PST)
-From: Garrett Cooper <yaneurabeya@yahoo.com>
-Subject: Dev documentation?
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Sun, 6 Feb 2005 03:37:31 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:58856 "EHLO suse.de")
+	by vger.kernel.org with ESMTP id S265405AbVBFIhS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 03:37:18 -0500
+Date: Sun, 6 Feb 2005 09:37:39 +0100
+From: Vojtech Pavlik <vojtech@suse.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       zhilla <zhilla@spymac.com>, Victor Hahn <victorhahn@web.de>
+Subject: Re: [RFC/RFT] Better handling of bad xfers/interrupt delays in psmouse
+Message-ID: <20050206083739.GC8642@ucw.cz>
+References: <200502051448.57492.dtor_core@ameritech.net> <20050205211136.GB8451@ucw.cz> <200502060029.21068.dtor_core@ameritech.net> <200502060223.55090.dtor_core@ameritech.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502060223.55090.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-    I was wondering where I might find some good dev
-documentation (if possible free since I am on a tight
-budget currently), because I wish to port a 2.4 kernel
-modem driver to 2.6 so I can use the driver properly.
-    Thank you very much for your time.
--Garrett
+On Sun, Feb 06, 2005 at 02:23:48AM -0500, Dmitry Torokhov wrote:
 
+> Ok, here is the patch using PSMOUSE_CMD_POLL. Seems to work fine with 2
+> external mice that I have and my touchpad in PS/2 compatibility mode.
+> 
+> Unfortunately POLL command kicks Synaptics out of absolute mode so I
+> disabled all time-based sync checks for Synaptics altogether. This should
+> be OK since Synaptics have pretty strict protocol rules and usually
+> can resync on their own. I wonder what POLL does to ALPS?
+> 
+> Again, 2.6.10 version can be found here:
+> 
+> 	http://www.geocities.com/dt_or/input/2_6_10/
+> 
+> Comments/testing is appreciated.
+ 
+Did you check that issuing the POLL command in the middle of a mouse
+packet does indeed reset the counter of the streaming mode? I'd expect
+them to be separate, at least on some mice, if POLL is handled as a
+normal mouse command, and after the three bytes from POLL are sent, the
+mouse could just continue sending the packet like with any other
+command.
 
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - Helps protect you from nasty viruses. 
-http://promotions.yahoo.com/new_mail
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

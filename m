@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266128AbUAQTRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 14:17:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266129AbUAQTRQ
+	id S266130AbUAQTSJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 14:18:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266134AbUAQTSJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 14:17:16 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:12559 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266124AbUAQTRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 14:17:14 -0500
-Date: Sat, 17 Jan 2004 19:17:04 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Doug Ledford <dledford@redhat.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Arjan Van de Ven <arjanv@redhat.com>,
-       Martin Peschke3 <MPESCHKE@de.ibm.com>, Jens Axboe <axboe@suse.de>,
-       Peter Yao <peter@exavio.com.cn>, linux-kernel@vger.kernel.org,
-       linux-scsi mailing list <linux-scsi@vger.kernel.org>, ihno@suse.de
-Subject: Re: smp dead lock of io_request_lock/queue_lock patch
-Message-ID: <20040117191704.A6344@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Doug Ledford <dledford@redhat.com>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Arjan Van de Ven <arjanv@redhat.com>,
-	Martin Peschke3 <MPESCHKE@de.ibm.com>, Jens Axboe <axboe@suse.de>,
-	Peter Yao <peter@exavio.com.cn>, linux-kernel@vger.kernel.org,
-	linux-scsi mailing list <linux-scsi@vger.kernel.org>, ihno@suse.de
-References: <OF317B32D5.C8C681CB-ONC1256E19.005066CF-C1256E19.00538DEF@de.ibm.com> <20040112151230.GB5844@devserv.devel.redhat.com> <20040112194829.A7078@infradead.org> <1073937102.3114.300.camel@compaq.xsintricity.com> <Pine.LNX.4.58L.0401131843390.6737@logos.cnet> <1074345000.13198.25.camel@compaq.xsintricity.com> <20040117165828.A4977@infradead.org> <1074366452.13198.48.camel@compaq.xsintricity.com>
+	Sat, 17 Jan 2004 14:18:09 -0500
+Received: from main.gmane.org ([80.91.224.249]:51625 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266130AbUAQTR7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 14:17:59 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: 2.6.1 rocks :)
+Date: Sat, 17 Jan 2004 20:17:56 +0100
+Message-ID: <yw1xvfnao04b.fsf@ford.guide>
+References: <40097FB4.5090804@milent.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1074366452.13198.48.camel@compaq.xsintricity.com>; from dledford@redhat.com on Sat, Jan 17, 2004 at 02:07:33PM -0500
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:giusNm58cWTDMhtWzjL8AaaHI0k=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 17, 2004 at 02:07:33PM -0500, Doug Ledford wrote:
-> #ifdef SCSI_HAS_HOST_LOCK
-> #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
-> 	adapter->lock_ptr = &adapter->lock;
-> 	host->lock = &adapter->lock;
-> #else
-> 	adapter->lock_ptr = &adapter->lock;
-> 	host->host_lock = &adapter->lock;
-> #endif
-> #else
-> 	adapter->lock_ptr = &io_request_lock;
-> #endif
+Alexander Markley <alex@milent.com> writes:
 
-Still looks wrong for the 2.6 case which should just be;
+>  >>(The ehci-hcd module still locks the kernel immediately tho.) :(
+>
+>  >Do submit a proper bug report for that.  FWIW, it works well for me.
+>
+> Yeah, I've submitted bugreports regarding this bug a few times. (It's
+> been broken as long as I can remember.) The general consensus is
+> basically that my intel-based USB2 hardware is just too buggy or
+> something. :(
 
-	adapter->lock_ptr = shost->host_lock;
+Get a NEC chip based USB2 controller instead.
 
-as I just stated in the review for the megaraid update.
+-- 
+Måns Rullgård
+mru@kth.se
 

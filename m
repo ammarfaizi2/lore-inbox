@@ -1,77 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263034AbSITRG5>; Fri, 20 Sep 2002 13:06:57 -0400
+	id <S263062AbSITRHQ>; Fri, 20 Sep 2002 13:07:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263062AbSITRG5>; Fri, 20 Sep 2002 13:06:57 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:29901 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S263034AbSITRG4>; Fri, 20 Sep 2002 13:06:56 -0400
-Date: Fri, 20 Sep 2002 19:11:56 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Linus Torvalds <torvalds@transmeta.com>, Patrick Mochel <mochel@osdl.org>,
-       <andrew.grover@intel.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.37
-In-Reply-To: <Pine.LNX.4.33.0209200840320.2721-100000@penguin.transmeta.com>
-Message-ID: <Pine.NEB.4.44.0209201907480.10334-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S263067AbSITRHQ>; Fri, 20 Sep 2002 13:07:16 -0400
+Received: from packet.digeo.com ([12.110.80.53]:51388 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S263062AbSITRHP>;
+	Fri, 20 Sep 2002 13:07:15 -0400
+Message-ID: <3D8B56DB.576B702D@digeo.com>
+Date: Fri, 20 Sep 2002 10:11:55 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Molnar <mingo@elte.hu>
+CC: Oleg Drokin <green@namesys.com>, Linus Torvalds <torvalds@transmeta.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] generic-pidhash-2.5.36-D4, BK-curr
+References: <20020920122716.A2297@namesys.com> <Pine.LNX.4.44.0209201139290.1261-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Sep 2002 17:11:55.0538 (UTC) FILETIME=[D2285720:01C260C8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Sep 2002, Linus Torvalds wrote:
+Ingo Molnar wrote:
+> 
+> On Fri, 20 Sep 2002, Oleg Drokin wrote:
+> 
+> > > +                   if (cmpxchg(&map->page, NULL, page))
+> > > +                           free_page(page);
+> >
+> > Note that this piece breaks compilation for every arch that does not
+> > have cmpxchg implementation.
+> > This is the case with x86 (with CONFIG_X86_CMPXCHG undefined, e.g. i386),
+> > ARM, CRIS, m68k, MIPS, MIPS64, PARISC, s390, SH, sparc32, UML (for x86).
+> 
+> we need a cmpxchg() function in the generic library, using a spinlock.
+> Then every architecture can enhance the implementation if it wishes to.
+> 
 
->...
-> Patrick Mochel <mochel@osdl.org>:
->...
->   o ACPI: move PREFIX to a common header
->...
+That would be good, but wouldn't we then need a special per-arch
+"cmpxchngable" type, like atomic_t?
 
-
-This patch that moved PREFIX to acpi_bus.h broke the compilation of
-drivers/acpi/numa.c because this file didn't include acpi_bus.h:
-
-<--  snip  -->
-
-...
-  gcc -Wp,-MD,./.numa.o.d -D__KERNEL__
--I/home/bunk/linux/kernel-2.5/linux-2.5.37-full/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
--fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=k6 -I/home/bunk/linux/kernel-2.5/linux-2.5.37-full/arch/i386/mach-generic
--nostdinc -iwithprefix include  -D_LINUX -I/home/bunk/linux/kernel-2.5/linux-2.5.37-full/d
-rivers/acpi/include -DACPI_DEBUG_OUTPUT  -DKBUILD_BASENAME=numa   -c -o
-numa.o numa.c
-numa.c: In function `acpi_table_print_srat_entry':
-numa.c:48: parse error before `PREFIX'
-...
-make[2]: *** [numa.o] Error 1
-make[2]: Leaving directory
-`/home/bunk/linux/kernel-2.5/linux-2.5.37-full/drivers/acpi'
-
-<--  snip  -->
-
-
-The fix is simple:
-
-
---- drivers/acpi/numa.c.old	2002-09-20 19:05:06.000000000 +0200
-+++ drivers/acpi/numa.c	2002-09-20 19:06:48.000000000 +0200
-@@ -29,6 +29,7 @@
- #include <linux/types.h>
- #include <linux/errno.h>
- #include <linux/acpi.h>
-+#include "acpi_bus.h"
-
- extern int __init acpi_table_parse_madt_family (enum acpi_table_id id, unsigned long madt_size, int entry_id, acpi_madt_entry_handler handler);
-
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+Seems that just doing compare-and-exchange on a bare page* might force
+some architectures to use a global lock.

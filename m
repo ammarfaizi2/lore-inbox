@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129428AbQLMW1C>; Wed, 13 Dec 2000 17:27:02 -0500
+	id <S129757AbQLMWeX>; Wed, 13 Dec 2000 17:34:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129757AbQLMW0x>; Wed, 13 Dec 2000 17:26:53 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:44502 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129428AbQLMW0s> convert rfc822-to-8bit;
-	Wed, 13 Dec 2000 17:26:48 -0500
-Date: Wed, 13 Dec 2000 16:56:17 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Henrik Størner <henrik@storner.dk>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+	id <S131190AbQLMWeN>; Wed, 13 Dec 2000 17:34:13 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:15621 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129757AbQLMWeA>; Wed, 13 Dec 2000 17:34:00 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
 Subject: Re: test12: innd bug came back?
-In-Reply-To: <918pmt$q9s$1@osiris.storner.dk>
-Message-ID: <Pine.GSO.4.21.0012131646070.5045-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=KOI8-R
-Content-Transfer-Encoding: 8BIT
+Date: 13 Dec 2000 14:03:01 -0800
+Organization: Transmeta Corporation
+Message-ID: <918rml$53u$1@penguin.transmeta.com>
+In-Reply-To: <918pmt$q9s$1@osiris.storner.dk> <Pine.GSO.4.21.0012131646070.5045-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.GSO.4.21.0012131646070.5045-100000@weyl.math.psu.edu>,
+Alexander Viro  <viro@math.psu.edu> wrote:
+>
+>
+>On 13 Dec 2000, Henrik [ISO-8859-1] Størner wrote:
+>
+>> Just to add a "me too" on this. I didn't report when I saw it last week,
+>> because I was uncertain of exactly what might have caused it - I was
+>> booting several different kernels at the time, including one from a
+>> rescue disk (I was trying to salvage bits of a Win9x disk at the time -
+>> don't ask for details!)
+>> 
+>> Alas, I lost the test program someone wrote to test for the truncate
+>> problem, and due to moving I will not be able to test anything until 
+>> next Monday. But if needed, I can do some testing then. Something 
+>> definitely went wrong with innd during the test12 pre-patches.
+>
+>It may be a side effect of removing partial_clear() in test12-final.
 
+No. If you read the code, partial_clear() has been a no-op for the
+longest time (the "start & ~PAGE_MASK" thing could never trigger, as
+"start" has been page-aligned for a long long while now.
 
-On 13 Dec 2000, Henrik [ISO-8859-1] Størner wrote:
+So it must be something else.
 
-> Just to add a "me too" on this. I didn't report when I saw it last week,
-> because I was uncertain of exactly what might have caused it - I was
-> booting several different kernels at the time, including one from a
-> rescue disk (I was trying to salvage bits of a Win9x disk at the time -
-> don't ask for details!)
-> 
-> Alas, I lost the test program someone wrote to test for the truncate
-> problem, and due to moving I will not be able to test anything until 
-> next Monday. But if needed, I can do some testing then. Something 
-> definitely went wrong with innd during the test12 pre-patches.
-
-It may be a side effect of removing partial_clear() in test12-final.
-Relevant chunk (in mm/memory.c):
-@@ -953,10 +914,6 @@
-                /* Ok, partially affected.. */
-                start += diff << PAGE_SHIFT;
-                len = (len - diff) << PAGE_SHIFT;
--               if (start & ~PAGE_MASK) {
--                       partial_clear(mpnt, start);
--                       start = (start + ~PAGE_MASK) & PAGE_MASK;
--               }
-                flush_cache_range(mm, start, end);
-                zap_page_range(mm, start, len);
-                flush_tlb_range(mm, start, end);
-should actually be
-@@ -954,7 +915,6 @@
-                start += diff << PAGE_SHIFT;
-                len = (len - diff) << PAGE_SHIFT;
-                if (start & ~PAGE_MASK) {
--                       partial_clear(mpnt, start);
-                        start = (start + ~PAGE_MASK) & PAGE_MASK;
-                }
-                flush_cache_range(mm, start, end);
-
-IOW, we have off-by-one when calling zap_page_range() and friends.
-							Cheers,
-								Al
-
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

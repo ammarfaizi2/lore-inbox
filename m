@@ -1,68 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272402AbTHIPuN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 11:50:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272403AbTHIPuN
+	id S272401AbTHIPuD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 11:50:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272402AbTHIPuD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 11:50:13 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:3335 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S272402AbTHIPuH
+	Sat, 9 Aug 2003 11:50:03 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:37138 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S272401AbTHIPuA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 11:50:07 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] ioctl vs xattr for the filesystem specific attributes
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 10 Aug 2003 00:49:59 +0900
-Message-ID: <8765l67rvc.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Sat, 9 Aug 2003 11:50:00 -0400
+Date: Sat, 9 Aug 2003 17:57:08 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Wes Janzen <superchkn@sbcglobal.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       reiserfs-list@namesys.com
+Subject: Re: FS Corruption with VIA MVP3 + UDMA/DMA
+Message-ID: <20030809155708.GA3606@hh.idb.hist.no>
+References: <16128.19218.139117.293393@charged.uio.no> <3F007EBF.9020506@sbcglobal.net> <3F10729F.7070701@sbcglobal.net> <3F34E6D1.7030900@sbcglobal.net> <1060439826.4938.88.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1060439826.4938.88.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi,
-
-Bastien Roucaries <roucariesbastien@yahoo.fr> writes:
-
-> This patch implement an "extended attributes" (XATTR) hook in aim to read or
-> modify specific  fatfs flags' like ARCHIVE or SYSTEM.
+On Sat, Aug 09, 2003 at 03:37:07PM +0100, Alan Cox wrote:
+> On Sad, 2003-08-09 at 13:19, Wes Janzen wrote:
+> > I don't know why I didn't google for this in the first place, but it 
+> > looks like it is a known issue.  Just apparently not well-known.
+> > 
+> > Probably not especially important though, I wonder just how many people 
+> > are still running this setup...  With Linux, I'd say even fewer.
 > 
-> I believe it's a good idea  because :
-> 	- PAX ( GNU replacement of tar) save and restore XATTRs, so you can make more
-> exact save of FATfs without use of specific programs.
-> 	- It's an elegant means to avoid use of mattrib.
-> 	- Samba can use this .
-> but CONS :
-> 	- use 2 Kb of kernel memory.
+> I'm running MVP4 without problems. I've got an old MVP3 board I need to
+> dig out and play with. Certainly MVP3 has problems with some AGP and
+> some other high load PCI situations. 
 
-Bastien Roucaries <roucariesbastien@yahoo.fr> writes:
+I have a pc with a VIA MVP3, that I use as an x-terminal.
+Using dma is not an option, I got the impression that ide
+developers consider the chip so broken they don't want to
+try make that work. That is ok with me, I wouldn't consider
+running anything needing good io performance on that old thing.
 
-> Indeed some flags are shared by many namespace for instance immutable is 
-> shared by xfs,ext2/3,jfs and by the fat ( with a special mount option). 
-> Compress also is a very common flag
-> This flags are in the "common" sub-namespace.
-> 
-> But some are fs specifics for instance notail attr of reiserfs,shortname of 
-> fat.They are in the the "spec"sub-namespace
+What is worse is that 2.6 ide don't work with it at all.
+Booting attempts die early of io errors, sometimes it don't
+even find the root fs superblock, other times dies a little later.
+So it is sort of left behind, running 2.5.69-mm3 which at least works
+in pio mode. The harddisk is a old 240MB thing with debian
+shoehorned onto it.
 
-I received the above email.
+There is no AGP card in the machine, so AGP is clearly not necessary
+to get io trouble.
 
-This read/modify the file attributes of filesystem specific via xattr
-interface (in this case, ARCHIVE, SYSTEM, HIDDEN flags of fatfs).
+Here's the lspci output, if anyone is interested:
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3] (rev 04)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x 
+AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C586/A/B PCI-to-ISA [Apollo VP] 
+(rev 41)
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586/B/686A/B PIPC Bus 
+Master IDE (rev 06)
+00:07.3 Bridge: VIA Technologies, Inc. VT82C586B ACPI (rev 10)
+00:0a.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 
+64)
+00:0b.0 VGA compatible controller: S3 Inc. ViRGE/DX or /GX (rev 01)
 
-Yes, also we can provide it via ioctl like ext2/ext3 does now.
+Helge Hafting
 
-But if those flags provides by xattr interfaces and via one namespace
-prefix, I guess the app can save/restore easy without dependency of
-one fs.
-
-Which interface would we use for attributes of filesystem specific?
-Also if we use xattr, what namepace prefix should be used?
-
-Any idea?
-
-Thanks.
-
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

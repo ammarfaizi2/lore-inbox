@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262719AbREVSsu>; Tue, 22 May 2001 14:48:50 -0400
+	id <S262733AbREVTH2>; Tue, 22 May 2001 15:07:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262718AbREVSsk>; Tue, 22 May 2001 14:48:40 -0400
-Received: from www.teaparty.net ([216.235.253.180]:61194 "EHLO
-	www.teaparty.net") by vger.kernel.org with ESMTP id <S262719AbREVSse>;
-	Tue, 22 May 2001 14:48:34 -0400
-Date: Tue, 22 May 2001 19:47:44 +0100 (BST)
-From: Vivek Dasmohapatra <vivek@etla.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Prasad <prasad_s@gdit.iiit.net>, linux-kernel@vger.kernel.org
-Subject: Re: Changes in Kernel
-In-Reply-To: <E152GlV-0002Hh-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10105221932170.8937-100000@www.teaparty.net>
+	id <S262732AbREVTHS>; Tue, 22 May 2001 15:07:18 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:13575 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262728AbREVTHH>; Tue, 22 May 2001 15:07:07 -0400
+Date: Tue, 22 May 2001 12:06:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andreas Dilger <adilger@turbolinux.com>
+cc: Alexander Viro <viro@math.psu.edu>, Edgar Toernig <froese@gmx.de>,
+        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
+ w/info-PATCH]device arguments from lookup)
+In-Reply-To: <200105221841.f4MIf1NC011363@webber.adilger.int>
+Message-ID: <Pine.LNX.4.21.0105221204590.3906-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 May 2001, Alan Cox wrote:
 
-> Are there specific reasons you cannot just use the existing ioctls to load
-> fonts ? The console driver already supports Klingon for example.
+On Tue, 22 May 2001, Andreas Dilger wrote:
 > 
-> What are the issues - writing right - left ?
+> Actually, the LVM snapshot interface has (optional) hooks into the filesystem
+> to ensure that it is consistent at the time the snapshot is created.
 
-No, but in some scripts [devanagari anyway] you only ever write a vowel as
-a letter if it's at the front of the word: otherwise vowels are added as 
-sort of 'accents' to the consonants, plus there are letters that sometimes
-smoosh together if they are next to one another, iirc, and long and short
-forms for each vowel, and each accent-form, plus there are other
-idiosyncrasies...
+Note that this is still fundamentally a broken interface: the filesystem
+may not _have_ a block device underneath it, yet you might very well like
+to do defragmentation and backup none-the-less.
 
-There seems to be kanji console thing called kon, looking at the package,
-it looks like it's implemented in userspace - perhaps a similar approach
-would be fruitful?
+Also, lvm snapshots are fundamentally limited to read-only data, which
+means that the LVM interfaces cannot be used for defragmentation and lazy
+fsck etc anyway. You _have_ to do those at a filesystem level.
 
--- 
-Just one nuclear family can ruin your whole life.
+disk snapshots are useful, but they are not the answer.
+
+		Linus
 

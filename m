@@ -1,28 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129391AbQLMAdM>; Tue, 12 Dec 2000 19:33:12 -0500
+	id <S129881AbQLMAgM>; Tue, 12 Dec 2000 19:36:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130481AbQLMAdC>; Tue, 12 Dec 2000 19:33:02 -0500
-Received: from 154.145.126.209.cari.net ([209.126.145.154]:19722 "EHLO
-	newportharbornet.com") by vger.kernel.org with ESMTP
-	id <S129391AbQLMAdA>; Tue, 12 Dec 2000 19:33:00 -0500
-Date: Tue, 12 Dec 2000 16:03:48 -0800 (PST)
-From: Bob Lorenzini <hwm@ns.newportharbornet.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.18 vs Inspiron
-Message-ID: <Pine.LNX.4.21.0012121557330.2752-100000@newportharbornet.com>
+	id <S129931AbQLMAgC>; Tue, 12 Dec 2000 19:36:02 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:37463 "EHLO
+	amsmta04-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S129881AbQLMAfw>; Tue, 12 Dec 2000 19:35:52 -0500
+Date: Wed, 13 Dec 2000 02:12:49 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Mark Orr <markorr@intersurf.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Dropping chars on 16550
+In-Reply-To: <XFMail.20001210233147.markorr@intersurf.com>
+Message-ID: <Pine.LNX.4.21.0012130211450.31563-100000@server.serve.me.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There was some discusion lately re: Dell Inspiron FB probs. The bad news
-is the ATI Mach64 display support is still broken but just selecting
-VESA VGA graphics console is working fine. 
 
-The patient is a Dell Inspiron I7500 1050x1450 display, vga = 794.
+> > Use handshaking
+> 
+> Heh...do what I did.  Go on eBay and pick up a Hayes ESP card.
 
-Bob
+Hmm.. High speed comm is fine here, as long is I use handshaking. If I
+don't, I'll loose chars.
+
+> I have a fairly weak system by todays standards, and I found that
+> even with a 16550 serial port, I'd get tcp/ip errors in my logs
+> (and lots of 'em).
+
+Mine used to be a 200MMX until last week :)
+
+> --
+> Mark Orr
+> markorr@intersurf.com
+
+
+	Igmar
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265577AbUAPSku (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 13:40:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265586AbUAPSku
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 13:40:50 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:42485 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S265577AbUAPSkr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S265533AbUAPSkr (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 16 Jan 2004 13:40:47 -0500
-Date: Fri, 16 Jan 2004 10:40:31 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Patrick Mau <mau@oscar.ping.de>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [2.6] nfs_rename: target $file busy, d_count=2
-Message-ID: <20040116184031.GM1748@srv-lnx2600.matchmail.com>
-Mail-Followup-To: Patrick Mau <mau@oscar.ping.de>,
-	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-References: <20040116050642.GF1748@srv-lnx2600.matchmail.com> <20040116130336.GA5220@oscar.prima.de>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265581AbUAPSkr
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 16 Jan 2004 13:40:47 -0500
+Received: from waste.org ([209.173.204.2]:45026 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S265533AbUAPSkq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 13:40:46 -0500
+Date: Fri, 16 Jan 2004 12:39:51 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       kgdb-bugreport@lists.sourceforge.net, pavel@suse.cz, discuss@x86-64.org,
+       george@mvista.com
+Subject: Re: [discuss] KGDB 2.0.3 with fixes and development in ethernet interface
+Message-ID: <20040116183950.GP28521@waste.org>
+References: <200401161759.59098.amitkale@emsyssoft.com> <20040116140551.2da2815b.ak@suse.de> <200401161951.51597.amitkale@emsyssoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040116130336.GA5220@oscar.prima.de>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200401161951.51597.amitkale@emsyssoft.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 16, 2004 at 02:03:36PM +0100, Patrick Mau wrote:
-> On Thu, Jan 15, 2004 at 09:06:42PM -0800, Mike Fedyk wrote:
-> > Can anyone reproduce?
+On Fri, Jan 16, 2004 at 07:51:51PM +0530, Amit S. Kale wrote:
+> On Friday 16 Jan 2004 6:35 pm, Andi Kleen wrote:
+> > On Fri, 16 Jan 2004 17:59:59 +0530
+> >
+> > "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+> > > Hi,
+> > >
+> > > KGDB 2.0.3 is available at
+> > > http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.0.3.tar.bz2
+> > >
+> > > Ethernet interface still doesn't work. It responds to gdb for a couple of
+> > > packets and then panics. gdb log for ethernet interface is pasted below.
+> >
+> > Did you add the fix for netpoll Jim posted?
 > 
-> Hi,
-> 
-> I was able to reproduce stale handles a long time ago.
-> A workable solution for me was to export using 'no_subtree_check'
-> on the server. Like this:
-> 
-> /data \
->   tony.local.net(rw,sync,no_root_squash,no_subtree_check) \
-> 
-> Could you please try and reply to my address if t works ?
+> I am not using netpoll (yet). My patch doesn't require any driver 
+> modifications, that the mm ethernet patch required.
 
-I'll have to give it a try next time I get a chance to reboot this server.
+I went the no-modified-drivers route originally and a long discussion
+with Jeff Garzik eventually convinced me of the error of my ways.
+There are a bunch of paths that are racy if you try to make a generic
+poll function. 
 
-I only had a few nfs clients doing light load, (kde home directories, and
-such) and was able to reproduce stale nfs file handles just by running "find
-> /dev/null" on the nfs share.
-
-Have you tried the -mm tree recently?  2.6.1-mm4 even has some new nfsd
-patches in there (maybe you should wait until -mm5 though, there are a few
-build problems and such), as well as over 20 nfs client patches.  Haven't
-checked what they all do, but some of them are RPC_GSS support mixed in with
-the bug fixes.
-
-Mike
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

@@ -1,73 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbUCKAan (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 19:30:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262915AbUCKAan
+	id S262918AbUCKAeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 19:34:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbUCKAeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 19:30:43 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:54201 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262914AbUCKAaj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 19:30:39 -0500
-Date: Thu, 11 Mar 2004 09:34:06 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: RE: [PATCH] fix PCI interrupt setting for ia64
-In-reply-to: <16463.30226.948230.439549@napali.hpl.hp.com>
-To: davidm@hpl.hp.com, Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-id: <MDEEKOKJPMPMKGHIFAMAEELHDGAA.kaneshige.kenji@jp.fujitsu.com>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Content-type: text/plain;	charset="us-ascii"
-Content-transfer-encoding: 7bit
-Importance: Normal
-X-Priority: 3 (Normal)
-X-MSMail-priority: Normal
+	Wed, 10 Mar 2004 19:34:24 -0500
+Received: from post.tau.ac.il ([132.66.16.11]:55723 "EHLO post.tau.ac.il")
+	by vger.kernel.org with ESMTP id S262918AbUCKAeU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 19:34:20 -0500
+Date: Thu, 11 Mar 2004 02:33:47 +0200
+From: Micha Feigin <michf@post.tau.ac.il>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Re: (0 == foo), rather than (foo == 0)
+Message-ID: <20040311003347.GC3053@luna.mooo.com>
+Mail-Followup-To: Linux kernel <linux-kernel@vger.kernel.org>
+References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com> <20040310100215.1b707504.rddunlap@osdl.org> <Pine.LNX.4.53.0403101324120.18709@chaos> <404F6375.3080500@blue-labs.org> <20040310212942.GB31500@parcelfarce.linux.theplanet.co.uk> <404F949E.1020905@blue-labs.org> <Pine.LNX.4.53.0403101724250.24470@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0403101724250.24470@chaos>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.24.0.6; VDF: 6.24.0.49; host: localhost)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Mar 10, 2004 at 05:42:20PM -0500, Richard B. Johnson wrote:
+[ ... snip ... ]
+> 
+> When you want text to be read by others, you make sure they
+> can read it. It's just that simple. There are some assumptions
+> that you can make. You can assume that they have a way of
+> reading 80-column text, for instance.
+> 
 
-I'm sorry that the report falls behind. I wanted to check out by using
-real device driver which uses a probe_irq_on(), but I don't have appropriate
-environment now.
+actually 72 is usually better since it leaves some room for the > of
+the replies to pile up a bit without passing the 80 column boundary.
 
-Though I didn't check out on a real machine yet, I believe my patch doesn't
-have any influence on probe_irq_on() because current probe_irq_on() calls
-startup callback to unmask the RTEs as you said before.
-
-Regards,
-Kenji Kaneshige
-
-> -----Original Message-----
-> From: linux-ia64-owner@vger.kernel.org
-> [mailto:linux-ia64-owner@vger.kernel.org]On Behalf Of David Mosberger
-> Sent: Thursday, March 11, 2004 5:10 AM
-> To: Kenji Kaneshige
-> Cc: linux-ia64@vger.kernel.org; linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH] fix PCI interrupt setting for ia64
->
->
-> Kenji,
->
-> Sorry, I lost track of the status of this patch.  Has it been checked
-> out OK with respect to interrupt probing?
->
-> 	--david
->
-> >>>>> On Mon, 08 Mar 2004 11:49:10 +0900, Kenji Kaneshige
-> <kaneshige.kenji@jp.fujitsu.com> said:
->
->   Kenji> Hi, In ia64 kernel, IOSAPIC's RTEs for PCI interrupts are
->   Kenji> unmasked at the boot time before installing device drivers. I
->   Kenji> think it is very dangerous.  If some PCI devices without
->   Kenji> device driver generate interrupts, interrupts are generated
->   Kenji> repeatedly because these interrupt requests are never
->   Kenji> cleared. I think RTEs for PCI interrupts should be unmasked
->   Kenji> by device driver.
+> 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+>             Note 96.31% of all statistics are fiction.
+> 
+> 
 > -
-> To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

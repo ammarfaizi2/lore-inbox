@@ -1,106 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264981AbUALTsO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 14:48:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265115AbUALTsO
+	id S265548AbUALTsj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 14:48:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265283AbUALTsj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 14:48:14 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61621 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264981AbUALTsK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 14:48:10 -0500
-Subject: Re: [PATCH linux-2.6.0-test10-mm1] filemap_fdatawait.patch
-From: Daniel McNeil <daniel@osdl.org>
-To: Janet Morgan <janetmor@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Suparna Bhattacharya <suparna@in.ibm.com>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4002F80F.8060701@us.ibm.com>
-References: <1070907814.707.2.camel@ibm-c.pdx.osdl.net>
-	 <1071190292.1937.13.camel@ibm-c.pdx.osdl.net>
-	 <1071624314.1826.12.camel@ibm-c.pdx.osdl.net>
-	 <20031216180319.6d9670e4.akpm@osdl.org>	<20031231091828.GA4012@in.ibm.com>
-	 <20031231013521.79920efd.akpm@osdl.org>	<20031231095503.GA4069@in.ibm.com>
-	 <20031231015913.34fc0176.akpm@osdl.org>	<20031231100949.GA4099@in.ibm.com>
-	 <20031231021042.5975de04.akpm@osdl.org>	<20031231104801.GB4099@in.ibm.com>
-	 <20031231025309.6bc8ca20.akpm@osdl.org>
-	 <20031231025410.699a3317.akpm@osdl.org>
-	 <20031231031736.0416808f.akpm@osdl.org>	<4001D8BF.902@us.ibm.com>
-	 <20040111154400.31f5fa53.akpm@osdl.org>  <4002F80F.8060701@us.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1073936809.1829.5.camel@ibm-c.pdx.osdl.net>
+	Mon, 12 Jan 2004 14:48:39 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:56591 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265115AbUALTsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 14:48:36 -0500
+Date: Mon, 12 Jan 2004 19:48:29 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Martin Peschke3 <MPESCHKE@de.ibm.com>, Jens Axboe <axboe@suse.de>,
+       Doug Ledford <dledford@redhat.com>, Peter Yao <peter@exavio.com.cn>,
+       linux-kernel@vger.kernel.org,
+       linux-scsi mailing list <linux-scsi@vger.kernel.org>, ihno@suse.de
+Subject: Re: smp dead lock of io_request_lock/queue_lock patch
+Message-ID: <20040112194829.A7078@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Arjan van de Ven <arjanv@redhat.com>,
+	Martin Peschke3 <MPESCHKE@de.ibm.com>, Jens Axboe <axboe@suse.de>,
+	Doug Ledford <dledford@redhat.com>, Peter Yao <peter@exavio.com.cn>,
+	linux-kernel@vger.kernel.org,
+	linux-scsi mailing list <linux-scsi@vger.kernel.org>, ihno@suse.de
+References: <OF317B32D5.C8C681CB-ONC1256E19.005066CF-C1256E19.00538DEF@de.ibm.com> <20040112151230.GB5844@devserv.devel.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 12 Jan 2004 11:46:49 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040112151230.GB5844@devserv.devel.redhat.com>; from arjanv@redhat.com on Mon, Jan 12, 2004 at 04:12:30PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just got a test failure also on 2.6.1-mm2 + patch also.
-I took nearly 2 hours with 6 copies running to hit.
+On Mon, Jan 12, 2004 at 04:12:30PM +0100, Arjan van de Ven wrote:
+> > as the patch discussed in this thread, i.e. pure (partially
+> > vintage) bugfixes.
+> 
+> Both SuSE and Red Hat submit bugfixes they put in the respective trees to
+> marcelo already. There will not be many "pure bugfixes" that you can find in
+> vendor trees but not in marcelo's tree.
 
-Daniel
-
-On Mon, 2004-01-12 at 11:39, Janet Morgan wrote:
-> Andrew Morton wrote:
-> 
-> >Janet Morgan <janetmor@us.ibm.com> wrote:
-> >
-> >> >diff -puN mm/filemap.c~a mm/filemap.c
-> >> >--- 25/mm/filemap.c~a	2003-12-31 03:10:29.000000000 -0800
-> >> >+++ 25-akpm/mm/filemap.c	2003-12-31 03:17:05.000000000 -0800
-> >> >@@ -206,7 +206,13 @@ restart:
-> >> > 		page_cache_get(page);
-> >> > 		spin_unlock(&mapping->page_lock);
-> >> > 
-> >> >-		wait_on_page_writeback(page);
-> >> >+		lock_page(page);
-> >> >+		if (PageDirty(page) && mapping->a_ops->writepage) {
-> >> >+			write_one_page(page, 1);
-> >> >+		} else {
-> >> >+			wait_on_page_writeback(page);
-> >> >+			unlock_page(page);
-> >> >+		}
-> >> > 		if (PageError(page))
-> >> > 			ret = -EIO;
-> >> > 
-> >> >
-> >> >  
-> >> >
-> >> That fixed the problem!  Stephen's testcase is running successfully on 
-> >> 2.6.1-mm1 plus your patch -- no more uninitialized data!
-> >>
-> >
-> >Could you please test 2.6.1-mm2 with that patch?  If that works, send the
-> >patch back to me?  (I lost it ;))
-> >
-> >
-> I see uninitialized data when I test the patch (attached) on 2.6.1-mm2.  
-> Any thoughts on a next step?
-> 
-> Thanks,
-> -Janet
-> 
-> ______________________________________________________________________
-> 
-> diff -puN mm/filemap.c~a mm/filemap.c
-> --- 25/mm/filemap.c~a   2003-12-31 03:10:29.000000000 -0800
-> +++ 25-akpm/mm/filemap.c        2003-12-31 03:17:05.000000000 -0800
-> @@ -209,7 +209,13 @@ restart:
-> 		page_cache_get(page);
-> 		spin_unlock(&mapping->page_lock);
-> 
-> -		wait_on_page_writeback(page);
-> +		lock_page(page);
-> +		if (PageDirty(page) && mapping->a_ops->writepage) {
-> +			write_one_page(page, 1);
-> +		} else {
-> +			wait_on_page_writeback(page);
-> +			unlock_page(page);
-> +		}
-> 		if (PageError(page))
-> 			ret = -EIO;
-> 
+I haven't seen SCSI patches sumission for 2.4 from the vendors on linux-scsi
+for ages.  In fact I asked Jens & Doug two times whether they could sort out
+the distro patches for the 2.4 stack and post them, but it seems they're busy
+enough with real work so this never happened.
 

@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265855AbTLIOA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 09:00:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265853AbTLIOA2
+	id S265856AbTLIOJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 09:09:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265858AbTLIOJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 09:00:28 -0500
-Received: from main.gmane.org ([80.91.224.249]:61915 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265855AbTLIOAX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 09:00:23 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Device-mapper submission for 2.4
-Date: Tue, 09 Dec 2003 15:00:15 +0100
-Message-ID: <yw1xekvegkgg.fsf@kth.se>
-References: <20031209115806.GA472@reti> <Pine.LNX.4.44.0312091113510.1289-100000@logos.cnet>
- <20031209134551.GG472@reti>
+	Tue, 9 Dec 2003 09:09:57 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:13269
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S265856AbTLIOJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 09:09:52 -0500
+Date: Tue, 9 Dec 2003 15:11:13 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa1 - scsi/pcmcia qlogic still does not build (m)
+Message-ID: <20031209141113.GA12532@dualathlon.random>
+References: <20031205022225.GA1565@dualathlon.random> <3FD07392.A47A0A6D@eyal.emu.id.au> <20031205230922.GF2121@dualathlon.random> <3FD13E30.54A1CAFF@eyal.emu.id.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:lO1BQQXW4bhoZbM24SaFLaDsFiY=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FD13E30.54A1CAFF@eyal.emu.id.au>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Thornber <thornber@sistina.com> writes:
+On Sat, Dec 06, 2003 at 01:25:52PM +1100, Eyal Lebedinsky wrote:
+> Andrea Arcangeli wrote:
+> > Also for the i2c troubles (you mentioned those last time), you can try
+> > if this helps.
+> 
+> I applied fixes similar to your suggestion to i2c-2.7.0
+> and lm_sensors-2.7.0 to get these to build, looks OK.
+> 
+> My final depmod has this problem though:
+> 
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.23aa1/kernel/drivers/video/sis/sisfb.o
+> depmod:         __floatsidf
+> depmod:         __divdf3
+> depmod:         __fixunsdfsi
+> depmod:         __muldf3
+> depmod:         __adddf3
+> 
+> I do not have this problem with 2.4.23, and I see the -aa1 patch
+> actually removing some FP ops. But therer are some left in other
+> sources (e.g. sis_main.c) so maybe some link problem was exposed?
 
->> I believe 2.6 is the right place for the device mapper. 
->
-> So what's the difference between a new filesystem like XFS and a new
-> device driver like dm ?
+yes I've a 150k compressed updated driver from Thomas Winischhofer in my
+inbox for Marcelo that should fix those bugs (that would obsolete the
+non complete 00_sis-fpu-bugs-1), I thought it was merged in mainline but
+obviously not as 00_sis-fpu-bugs-1 wouldn't apply anymore. I guess
+Marcelo rejected it because it was very big and it wasn't fix the strict
+fpu bugs revealed by the -msoft-float, just guessing.
 
-None.  Neither will go into 2.4, if I've understood things correctly.
+> Reverting the sis/init.c hunk does not fix this. Can it be related
+> to this in arch/i386/Makefile:
+> 
+> -CFLAGS += -pipe
+> +CFLAGS += -pipe -msoft-float
 
--- 
-Måns Rullgård
-mru@kth.se
-
+yes it's related, reverting it would hide the bug, the module would
+load again but userspace could be corrupted at runtime.

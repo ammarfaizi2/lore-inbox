@@ -1,78 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130615AbRAOPM7>; Mon, 15 Jan 2001 10:12:59 -0500
+	id <S129562AbRAOPZP>; Mon, 15 Jan 2001 10:25:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130230AbRAOPMt>; Mon, 15 Jan 2001 10:12:49 -0500
-Received: from mx5.sac.fedex.com ([199.81.194.37]:48908 "EHLO
-	mx5.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S129562AbRAOPMe>; Mon, 15 Jan 2001 10:12:34 -0500
-Date: Tue, 16 Jan 2001 00:07:57 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: Alan Shutko <ats@acm.org>
-cc: <Wayne.Brown@altec.com>, <linux-kernel@silk.corp.fedex.com>,
-        <jchua@fedex.com>
-Subject: Re: linmodem????
-In-Reply-To: <87ae8s2a5e.fsf@wesley.springies.com>
-Message-ID: <Pine.LNX.4.31.0101160000500.732-100000@boston.corp.fedex.com>
+	id <S131048AbRAOPZE>; Mon, 15 Jan 2001 10:25:04 -0500
+Received: from [62.254.209.2] ([62.254.209.2]:51185 "EHLO cam-gw.zeus.co.uk")
+	by vger.kernel.org with ESMTP id <S129562AbRAOPY7>;
+	Mon, 15 Jan 2001 10:24:59 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14947.5703.60574.309140@leda.cam.zeus.com>
+Date: Mon, 15 Jan 2001 15:24:55 +0000
+From: Jonathan Thackray <jthackray@zeus.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <93t1q7$49c$1@penguin.transmeta.com>
+X-Mailer: VM 6.89 under 21.1 (patch 3) "Acadia" XEmacs Lucid
+Organization: Zeus Technology Ltd
+X-Tel: +44 1223 525000
+X-Fax: +44 1223 525100
+X-Url: http://www.zeus.com/
+X-Scanner: exiscan *14IBV9-00045G-00*iAwBbc5pTAM* http://duncanthrax.net/exiscan/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, yes, yes.
 
-ftp'ed ltmodem-5.78d from http://walbran.org/sean/linux/stodolsk
+> Does anybody but apache actually use it?
 
-compiled without error on 2.4.1-pre2, but "ltinst" failed to
-install on 2.4
+Zeus uses it! (it was HP who added it to HP-UX first at our request :-)
 
-You'll have to fix ltinst for 2.4 by modifying this line ...
+> PS.  I still _like_ sendfile(), even if the above sounds negative.  It's
+> basically a "cool feature" that has zero negative impact on the design
+> of the system.  It uses the same "do_generic_file_read()" that is used
+> for normal "read()", and is also used by the loop device and by
+> in-kernel fileserving.  But it's not really "important". 
 
-        cp ltmodem.o /lib/modules/`uname -r`/kernel/drivers/char
+It's a very useful system call and makes file serving much more
+scalable, and I'm glad that most Un*xes now have support for it
+(Linux, FreeBSD, HP-UX, AIX, Tru64). The next cool feature to add to
+Linux is sendpath(), which does the open() before the sendfile()
+all combined into one system call.
 
+Ugh, I hear you all scream :-)
 
-Tested on IBM 240Z and it's running ok.
+Jon.
 
-# cu -l ttyLT0
-Connected.
-
-ati
-LT V.90 Data+Fax Modem Version 5.78
-
-OK
-
-
-Thanks,
-
-Jeff.
-
-
-Thanks,
-Jeff Chua
-[ jchua@fedex.com ]
-
-On 15 Jan 2001, Alan Shutko wrote:
-
-> Wayne.Brown@altec.com writes:
->
-> > I haven't, and in fact keep a 2.2.14 kernel available (and in my
-> > lilo config) just so I can use the linmodem binary.  It's a pain
-> > having to reboot when I want to use the modem, but it's the only
-> > solution I've found.
->
-> http://walbran.org/sean/linux/stodolsk/
->
-> Haven't tried it, but it claims to work.
->
-> --
-> Alan Shutko <ats@acm.org> - In a variety of flavors!
-> Advice from an old carpenter: measure twice, saw once.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
->
+-- 
+Jonathan Thackray         Zeus House, Cowley Road, Cambridge CB4 OZT, UK
+Software Engineer                   +44 1223 525000, fax +44 1223 525100
+Zeus Technology                                     http://www.zeus.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

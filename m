@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129771AbRCASnr>; Thu, 1 Mar 2001 13:43:47 -0500
+	id <S129774AbRCASs6>; Thu, 1 Mar 2001 13:48:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129772AbRCASnh>; Thu, 1 Mar 2001 13:43:37 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:54030 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129771AbRCASnY>; Thu, 1 Mar 2001 13:43:24 -0500
-Subject: Re: ld-error on 2.4.2 and on 2.4.1
-To: flo.n@gmx.de (Florian Nykrin)
-Date: Thu, 1 Mar 2001 18:46:38 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010301193558.A15361@castor.olydorf.swh.mhn.de> from "Florian Nykrin" at Mar 01, 2001 07:35:58 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14YY65-0008Jm-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129780AbRCASsr>; Thu, 1 Mar 2001 13:48:47 -0500
+Received: from unthought.net ([212.97.129.24]:12263 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S129774AbRCASsj>;
+	Thu, 1 Mar 2001 13:48:39 -0500
+Date: Thu, 1 Mar 2001 19:48:37 +0100
+From: Jakob Østergaard <jakob@unthought.net>
+To: linux-kernel@vger.kernel.org, Tim Walberg <tewalberg@mediaone.net>
+Subject: Re: smartmedia adapter support??
+Message-ID: <20010301194837.B11442@unthought.net>
+Mail-Followup-To: Jakob Østergaard <jakob@unthought.net>,
+	linux-kernel@vger.kernel.org, Tim Walberg <tewalberg@mediaone.net>
+In-Reply-To: <20010301100041.A22824@mediaone.net> <20010301175002.H7883@dss19>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010301175002.H7883@dss19>; from steffen@gfz-potsdam.de on Thu, Mar 01, 2001 at 05:50:04PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> gcc -E -D__KERNEL__ -I/usr/src/linux/include -D__BIG_KERNEL__
-> -traditional -DSVGA_MODE=NORMAL_VGA  bootsect.S -o bbootsect.s
-> as -o bbootsect.o bbootsect.s
-> bbootsect.s: Assembler messages:
-> bbootsect.s:253: Warning: indirect lcall without `*'
-> ld -m elf_i386 -Ttext 0x0 -s -oformat binary bbootsect.o -o bbootsect
-> ld: cannot open binary: No such file or directory
+On Thu, Mar 01, 2001 at 05:50:04PM +0100, Steffen Grunewald wrote:
+> On Thu 2001-03-01 (10:00), Tim Walberg wrote:
+> > Just wondering whether anyone has successfully gotten
+> > either a PCMCIA SmartMedia Adapter (specifically the
+> > Viking Components one) or a FlashPath floppy SmartMedia
+> > adapter working under 2.4.x. I've got both, and haven't
+> > gotten either working under either 2.2.x or 2.4.x, but
+> > I haven't had the time to work real hard at it either,
+> > so I'm hoping someone can give me some pointers...
+> 
+> http://www.smartdisk.com has a driver (which includes a binary-
+> only library) for FlashPath that you can compile for your kernel
+> 
+> Works fine here (2.2.16)
+> 
+> Don't know about PCMCIA though
 
-Debian Sid currently includes a binutils that drops the option the kernel
-uses. If you look through the archive you'll find a patch to do deal with
-this, or you can just go back to a slightly older binutils
+I'm using a PCMCIA SmartMedia adapter from Hagiwara here, it worked
+out of the box with 2.2.19pre5 (the first kernel I tried, no particular
+reason behind the version).   No patches, no libraries, no bull.
 
-Also gcc 2.95.3 cvs snapshots aren't yet a recommended build tool for the 
-kernel. They are probably ok though. I've had no evidence to suggest they
-miscompile anything.
+This laptop is a pile of crap and most PCMCIA related stuff tends to
+break randomly  -  but this card has worked flawlessly all the time.
 
-Alan
+The trasfer-rate from a 32MByte flash card is roughly 800 KB/sec, it 
+can't do DMA.
 
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

@@ -1,69 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312582AbSCVAmz>; Thu, 21 Mar 2002 19:42:55 -0500
+	id <S312585AbSCVAmp>; Thu, 21 Mar 2002 19:42:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312583AbSCVAmq>; Thu, 21 Mar 2002 19:42:46 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:8668 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S312582AbSCVAmd>;
-	Thu, 21 Mar 2002 19:42:33 -0500
-Date: Thu, 21 Mar 2002 19:41:18 -0500
-From: Bart Trojanowski <bart@jukie.net>
+	id <S312583AbSCVAmg>; Thu, 21 Mar 2002 19:42:36 -0500
+Received: from pcow057o.blueyonder.co.uk ([195.188.53.94]:9746 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S311216AbSCVAm0>;
+	Thu, 21 Mar 2002 19:42:26 -0500
+Date: Fri, 22 Mar 2002 00:48:39 +0000
+From: Ian Molton <spyro@armlinux.org>
 To: linux-kernel@vger.kernel.org
-Subject: Q: nesting do_IRQ's
-Message-ID: <20020321194118.D24775@jukie.net>
+Subject: [Driver] INMOS-G332 Colour video controller [mips ppl might want to read]
+Message-Id: <20020322004839.01d084a7.spyro@armlinux.org>
+Reply-To: spyro@armlinux.org
+Organization: The dragon roost
+X-Mailer: Sylpheed version 0.7.4cvs5 (GTK+ 1.2.10; )
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="llIrKcgUOe3dCx0c"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
---llIrKcgUOe3dCx0c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Im writing (well porting) a driver for the INMOS G332 video chip
 
-I am running a system that is very heavily loaded with hardware
-interrupts.  At the same time a single user-space app is constantly
-calling an ioctl to get more data out of the kernel.
+Just a quick ping to ask
 
-After some time (influenced by load) the system dies.  Usually the death
-is in fget and the reason is an overwritten task_struct of the said
-process.
+1) Is anyone else doing this?
 
-I have put in tests in my interrupt handler to detect changes in a few
-words of the task_struct.  While the changes are not as interesting I
-see a lot of nesting of do_IRQ's, call_do_IRQ's, and handle_IRQ_event's.
-All three are repeated about 10 times (on average) in by kdb back
-trace.
+2) Is this of use to anyone in the MIPS community, where I believe these
+chips are used occasionally?
 
-I have looked at the ebp/esp when I detect the change in the
-task_struct.  They seem to be within safe stack locations.  About 2k
-above the task_struct of my process.  While I am fairly certain that it
-was not my driver that ate the 2k of stack it may be something else.
-
-So here is my question: is what I am seeing correct?  Are do_IRQ's
-nested when the system is getting interrupts very rapidly?
-
-Cheers,
-Bart.
-
---=20
-				WebSig: http://www.jukie.net/~bart/sig/
-
---llIrKcgUOe3dCx0c
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD4DBQE8mn2ukmD5p7UxHJcRAisJAJ9dGg5d/cPmCp5vCH2KGdUnhOW02gCWIDpk
-yMRwqBUG07Ywa9OowYQQMQ==
-=nKas
------END PGP SIGNATURE-----
-
---llIrKcgUOe3dCx0c--
+The driver is for the Computer Concepts Colourcard on the Acorn Archimedes
+(ARM machine)

@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268699AbTCCSYl>; Mon, 3 Mar 2003 13:24:41 -0500
+	id <S268696AbTCCSgQ>; Mon, 3 Mar 2003 13:36:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268698AbTCCSYk>; Mon, 3 Mar 2003 13:24:40 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:10001 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S268699AbTCCSYj>;
-	Mon, 3 Mar 2003 13:24:39 -0500
-Date: Mon, 3 Mar 2003 10:25:53 -0800
-From: Greg KH <greg@kroah.com>
-To: Matt Domsch <Matt_Domsch@Dell.com>
-Cc: linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: Displaying/modifying PCI device id tables via sysfs
-Message-ID: <20030303182553.GG16741@kroah.com>
-References: <20BF5713E14D5B48AA289F72BD372D680392F82C-100000@AUSXMPC122.aus.amer.dell.com>
+	id <S268704AbTCCSgQ>; Mon, 3 Mar 2003 13:36:16 -0500
+Received: from bitmover.com ([192.132.92.2]:52448 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S268696AbTCCSgO>;
+	Mon, 3 Mar 2003 13:36:14 -0500
+Date: Mon, 3 Mar 2003 10:46:23 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Andrea Arcangeli <andrea@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Arador <diegocg@teleline.es>,
+       "Adam J. Richter" <adam@yggdrasil.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       pavel@janik.cz, pavel@ucw.cz, hch@infradead.org
+Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
+Message-ID: <20030303184623.GA14824@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Andrea Arcangeli <andrea@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Arador <diegocg@teleline.es>,
+	"Adam J. Richter" <adam@yggdrasil.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	pavel@janik.cz, pavel@ucw.cz, hch@infradead.org
+References: <200303020011.QAA13450@adam.yggdrasil.com> <20030302014915.34a6de37.diegocg@teleline.es> <1046571336.24903.0.camel@irongate.swansea.linux.org.uk> <3E615C38.7030609@pobox.com> <20030302014039.GC1364@dualathlon.random> <3E616224.6040003@pobox.com> <20030302020907.GE1364@dualathlon.random> <3E623F37.6060005@pobox.com> <20030302181615.GA25902@dualathlon.random> <20030303183734.GB21701@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20BF5713E14D5B48AA289F72BD372D680392F82C-100000@AUSXMPC122.aus.amer.dell.com>
+In-Reply-To: <20030303183734.GB21701@work.bitmover.com>
 User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 03, 2003 at 11:57:05AM -0600, Matt Domsch wrote:
-> A lot of PCI drivers today use the pci_device_id table model to specify 
-> what IDs the driver supports.  I'd like to be able to do 2 things with 
-> this information:
-> 1) display it in sysfs
+On Mon, Mar 03, 2003 at 10:37:34AM -0800, Larry McVoy wrote:
+> How close is http://www.bitmover.com/EXPORT to what you want (3MB file).
+> 
+> Note that this is very coarse granularity, it's very 2.5.62 up to 2.5.63,
 
-That info is already exported to userspace through the modules.pcimap
-file.  It's also available in raw form in the .o file if you want to
-export it to any other format that you may want to use.  Why export it
-again through sysfs?
-
-> 2) Add new IDs at runtime and have the drivers probe for the new IDs.
-
-Ick, no.  If a driver really wants to have a user provide new ids on the
-fly, they usually provide a module paramater to do this.  A number of
-the USB drivers do this already (and to be honest, they have caused
-nothing but trouble, as users use that option for new devices, that the
-driver can't control at all due to protocol or register location
-changes.)
-
-In short, it's not a good idea to allow users to change these values on
-the fly, the driver author usually knows best here :)
-
-thanks,
-
-greg k-h
+This was too big, I replaced it with the diffs + comments for the last push
+Linus did.  Even this is pretty big, he pulled 57 csets from DaveM if I 
+understand things properly.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

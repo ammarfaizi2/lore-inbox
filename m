@@ -1,56 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129606AbRBKPrV>; Sun, 11 Feb 2001 10:47:21 -0500
+	id <S129586AbRBKQV6>; Sun, 11 Feb 2001 11:21:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129607AbRBKPrC>; Sun, 11 Feb 2001 10:47:02 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:14585 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129606AbRBKPqu>; Sun, 11 Feb 2001 10:46:50 -0500
-Date: Sun, 11 Feb 2001 12:44:00 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.1-ac7
-In-Reply-To: <Pine.Linu.4.10.10102110954140.944-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.21.0102111243090.2378-100000@duckman.distro.conectiva>
+	id <S129614AbRBKQVs>; Sun, 11 Feb 2001 11:21:48 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39436 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129586AbRBKQVj>; Sun, 11 Feb 2001 11:21:39 -0500
+Subject: Re: [QUESTION]: IDE Driver support for S.M.A.R.T?
+To: Shawn.Starr@Home.net (Shawn Starr)
+Date: Sun, 11 Feb 2001 11:05:05 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (lkm)
+In-Reply-To: <3A85F698.5DCB3F1E@Home.net> from "Shawn Starr" at Feb 10, 2001 09:19:05 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14RuJY-0003ru-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Feb 2001, Mike Galbraith wrote:
-> On Sun, 11 Feb 2001, Mike Galbraith wrote:
-> 
-> > Something else I see while watching it run:  MUCH more swapout than
-> > swapin.  Does that mean we're sending pages to swap only to find out
-> > that we never need them again?
-> 
-> (numbers might be more descriptive)
-> 
-> user  :       0:07:21.70  54.3%  page in :   142613
-> nice  :       0:00:00.00   0.0%  page out:   155454
-> system:       0:03:40.63  27.1%  swap in :    56334
-> idle  :       0:02:30.50  18.5%  swap out:   149872
-> uptime:       0:13:32.83         context :   519726
+> Does the current (E)IDE driver support SMART?
+Yes
 
-Indeed, in this case we send a lot more pages to swap
-than we read back in from swap, this means that the
-data is still sitting in swap space and was never needed
-again.
+> Will Linux report any S.M.A.R.T errors or warnings to the system log?
 
-regards,
-
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+If you run SMART logging apps yes
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

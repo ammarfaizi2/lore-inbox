@@ -1,78 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbVCNXn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbVCNXti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262092AbVCNXn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 18:43:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVCNXn0
+	id S262133AbVCNXti (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 18:49:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbVCNXti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 18:43:26 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:56316 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262092AbVCNXnT
+	Mon, 14 Mar 2005 18:49:38 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:27899 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262133AbVCNXt3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 18:43:19 -0500
-Message-ID: <423620EA.3040205@mvista.com>
-Date: Mon, 14 Mar 2005 15:40:26 -0800
+	Mon, 14 Mar 2005 18:49:29 -0500
+Message-ID: <42362301.2080804@mvista.com>
+Date: Mon, 14 Mar 2005 15:49:21 -0800
 From: George Anzinger <george@mvista.com>
 Reply-To: george@mvista.com
 Organization: MontaVista Software
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: Matt Mackall <mpm@selenic.com>, lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
-       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A3)
-References: <1110590655.30498.327.camel@cog.beaverton.ibm.com>	 <20050313004902.GD3163@waste.org> <1110825765.30498.370.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1110825765.30498.370.camel@cog.beaverton.ibm.com>
+To: Pavel Machek <pavel@ucw.cz>
+CC: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       "J. Bruce Fields" <bfields@fieldses.org>,
+       Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: spin_lock error in arch/i386/kernel/time.c on APM resume
+References: <20050312131143.GA31038@fieldses.org> <4233111A.5070807@mvista.com> <Pine.LNX.4.61.0503120918130.2166@montezuma.fsmlabs.com> <42332F18.5050004@mvista.com> <20050313183549.GC1427@elf.ucw.cz>
+In-Reply-To: <20050313183549.GC1427@elf.ucw.cz>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> On Sat, 2005-03-12 at 16:49 -0800, Matt Mackall wrote:
->
-~
-
->> 
+Pavel Machek wrote:
+> Hi!
 > 
->>>+	/* finally, update legacy time values */
->>>+	write_seqlock_irqsave(&xtime_lock, x_flags);
->>>+	xtime = ns2timespec(system_time + wall_time_offset);
->>>+	wall_to_monotonic = ns2timespec(wall_time_offset);
->>>+	wall_to_monotonic.tv_sec = -wall_to_monotonic.tv_sec;
->>>+	wall_to_monotonic.tv_nsec = -wall_to_monotonic.tv_nsec;
->>>+	/* XXX - should jiffies be updated here? */
+> 
+>>>>And more... That this occures implies we are attempting to update the cmos
+>>>>clock on resume seems wrong.  One would presume that the time is wrong at 
+>>>>this
+>>>>time and we are about to save that wrong time.  Possibly the APM code 
+>>>>should
+>>>>change time_status to STA_UNSYNC on the way into the sleep (or what ever 
+>>>>it is
+>>>>called).  Who should we ping with this?
+>>>
+>>>
+>>>timer_resume, which appears to be the problem, wants to calculate amount 
+>>>of time was spent suspended, also your unconditional irq enable in 
+>>>get_cmos_time breaks the atomicity of device_power_up and would deadlock 
+>>>in sections of code which call get_time_diff() with xtime_lock held. I 
+>>>sent a patch subject "APM: fix interrupts enabled in device_power_up" 
+>>>which should address this.
 >>
->>Excellent question. 
+>>I agree.  Still in all that follows, no one has addressed the apparent race 
+>>described above.  The reason the system reported the errors that started 
+>>this thread is that the APM restore code was trying to read the cmos clock 
+>>(I assume to set the xtime clock) WHILE the timer interrupt code what 
+>>trying to set the cmos clock from xtime.  In other words, it is destroying 
+>>the time it is trying to read.  I repeat "Possibly the APM code should 
+>>change time_status to STA_UNSYNC on the way into the sleep."  I am not sure 
+>>how ntp is supposed to react to the resume but I suspect that the system 
+>>time is rather out of sync...
 > 
 > 
-> Indeed.  Currently jiffies is used as both a interrupt counter and a
-> time unit, and I'm trying make it just the former. If I emulate it then
-> it stops functioning as a interrupt counter, and if I don't then I'll
-> probably break assumptions about jiffies being a time unit. So I'm not
-> sure which is the easiest path to go until all the users of jiffies are
-> audited for intent. 
+> It needs to work without NTP, too. You don't get NTP on plane (etc)
+> where suspend is most usefull.
+> 
+> We have CMOS clock, it should be possible to get time from there
+> without resorting to NTP..
 
-Really?  Who counts interrupts???  The timer code treats jiffies as a unit of 
-time.  You will need to rewrite that to make it otherwise.  But then you have 
-another problem.  To correctly function, times need to expire on time (hay how 
-bout that) not some time later.  To do this we need an interrupt source.  To 
-this point in time, the jiffies interrupt has been the indication that one or 
-more timer may have expired.  While we don't need to "count" the interrupts, we 
-DO need them to expire the timers AND they need to be on time.
-> 
-~
+Eh... sure, but... the bug was reported because the system was attempting to 
+update the cmos clock (which it does every ~11 min.) during APM exit.   It does 
+this IF AND ONLY IF the system is synced to an external source as indicated by 
+the STA_UNSYNC bit being cleared in the time_state.  Now, I don't know what or 
+how APM and NTP are supposed to play together, but I suspect that on entry to 
+APM time is no longer synced, thus my comment.
+
+As to your comment, the bug would never have shown its ugly face if the system 
+wasn't using NTP.
+
 -- 
 George Anzinger   george@mvista.com
 High-res-timers:  http://sourceforge.net/projects/high-res-timers/

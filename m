@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262104AbTLDP6h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 10:58:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTLDP6h
+	id S262566AbTLDQAo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 11:00:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262575AbTLDQAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 10:58:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:7594 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262104AbTLDP6g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 10:58:36 -0500
-Date: Thu, 4 Dec 2003 07:58:30 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jason Kingsland <Jason_Kingsland@hotmail.com>
-cc: Kendall Bennett <KendallB@scitechsoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-In-Reply-To: <BAY7-DAV34DV1amvu4600002bbe@hotmail.com>
-Message-ID: <Pine.LNX.4.58.0312040753550.2055@home.osdl.org>
-References: <Pine.LNX.4.58.0312031533530.2055@home.osdl.org>
- <BAY7-DAV34DV1amvu4600002bbe@hotmail.com>
+	Thu, 4 Dec 2003 11:00:44 -0500
+Received: from ihemail2.lucent.com ([192.11.222.163]:14827 "EHLO
+	ihemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S262566AbTLDQAn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 11:00:43 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16335.23048.950612.696818@gargle.gargle.HOWL>
+Date: Thu, 4 Dec 2003 11:00:08 -0500
+From: "John Stoffel" <stoffel@lucent.com>
+To: Mathieu Chouquet-Stringer <mathieu@newview.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SMP Kernel 2.6.0-test11 doesn't boot on a Dell 410
+In-Reply-To: <20031204135415.GA9913@shookay.newview.com>
+References: <20031204135415.GA9913@shookay.newview.com>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Mathieu> I just tried the latest 2.6.0 (test11) on a Dell 410 (a
+Mathieu> bi-PIII) and the SMP flavor of this kernel doesn't work at
+Mathieu> all. The non-smp one works well (so I know it's not a case of
+Mathieu> VT/VGA console missing).
 
-On Thu, 4 Dec 2003, Jason Kingsland wrote:
-> >  - anything that has knowledge of and plays with fundamental internal
-> >    Linux behaviour is clearly a derived work. If you need to muck around
-> >    with core code, you're derived, no question about it.
->
->
-> If that is the case, why the introduction of EXPORT_SYMBOL_GPL and
-> MODULE_LICENSE()?
+It's also been hanging on my Dell Precision 610 MT box, dual 550Mhz
+Xeon CPUs.  
 
-It is really just documentation.
+Mathieu> It dies (without any error message) after this:
+Mathieu> Uncompressing Linux... Ok, booting the kernel
 
-This is exactly so that it is more clear which cases are black-and-white,
-and where people shouldn't even have to think about it for a single
-second. It still doesn't make the gray area go away, but it limits it a
-bit ("if you need this export, you're clearly doing something that
-requires the GPL").
+Same here.  
 
-Note: since the kernel itself is under the GPL, clearly anybody can modify
-the EXPORT_SYMBOL_GPL() line, and remove the _GPL part. That wouldn't be
-against the license per se. But it doesn't make a module that needs that
-symbol any less needful of the GPL - exactly because the thing is just a
-big cluehint rather than anything else.
+Mathieu> I tried disabling APIC in the BIOS but it doesn't make any
+Mathieu> difference...
 
-			Linus
+I tried booting with noapic, but it didn't make any difference here.
+I'm trying to boot using a bzImage kernel, if that makes any
+difference.
+
+John
+
+

@@ -1,88 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264310AbTKUGLu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 01:11:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264312AbTKUGLu
+	id S264309AbTKUGGH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 01:06:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264310AbTKUGGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 01:11:50 -0500
-Received: from kiuru.kpnet.fi ([193.184.122.21]:40156 "EHLO kiuru.kpnet.fi")
-	by vger.kernel.org with ESMTP id S264310AbTKUGLr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 01:11:47 -0500
-Subject: Re: Nick's scheduler v19a
-From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FBD4F6E.3030906@cyberone.com.au>
-References: <3FB62608.4010708@cyberone.com.au>
-	 <1069361130.13479.12.camel@midux>  <3FBD4F6E.3030906@cyberone.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-w4HEmeRkA4HTZ0g33XAj"
-Message-Id: <1069395102.16807.11.camel@midux>
+	Fri, 21 Nov 2003 01:06:07 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:51204 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id S264309AbTKUGGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 01:06:04 -0500
+Date: Fri, 21 Nov 2003 07:05:45 +0100
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test9-mm4: page allocation failure. order 3, mode 0x20
+Message-ID: <20031121060545.GA6847@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 21 Nov 2003 08:11:42 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+After several runs of cdda2wav I get this message:
 
---=-w4HEmeRkA4HTZ0g33XAj
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+Nov 21 07:03:34 middle kernel: cdda2wav: page allocation failure. order:3, mode:0x20
+Nov 21 07:03:34 middle last message repeated 36 times
 
-Hi nick.
-it seems that this patch changed everything, I patched against
-2.6.0-test9-bk19. I didn't upgrade any software before I booted to your
-patch. and I tested the 2.6.0-test9-bk22 without the patch it worked
-just as all other kernels without the patch. I've had the same .config
-from test3 (maybe some small changes if new drivers appeared).
+MemTotal:      1032740 kB
+MemFree:          4212 kB
+Buffers:         21952 kB
+Cached:         909920 kB
+SwapCached:          0 kB
+Active:         243228 kB
+Inactive:       744460 kB
+HighTotal:      131008 kB
+HighFree:          252 kB
+LowTotal:       901732 kB
+LowFree:          3960 kB
+SwapTotal:     4016232 kB
+SwapFree:      4016232 kB
+Dirty:           66352 kB
+Writeback:           0 kB
+Mapped:          64664 kB
+Slab:            25816 kB
+Committed_AS:    64280 kB
+PageTables:        616 kB
+VmallocTotal:   106488 kB
+VmallocUsed:     40972 kB
+VmallocChunk:    65516 kB
 
-I can't say that 2.6 performance is bad, it's better than 2.4, but now
-this is even better.=20
+I ran cdda2wav a lot more under 2.9.0-test9-mm3 and didn't see this
+message.
 
-So now I'm booted back to your patch and I like this difference in X
-performance, I can't ask for more. :)
-
-Regards,
-
-Markus
-On Fri, 2003-11-21 at 01:34, Nick Piggin wrote:
-> Markus H=E4stbacka wrote:
->=20
-> >Hi nick! here's some feedback.
-> >This one day last week, I thougt I could test your scheduler patch.
-> >I noticed something really good with it. My X had really fast startup.
-> >everything worked really fast. Even games worked much better than any in
-> >kernel before (I've tested all from 2.5.74).
-> >
-> >So I hope you'll port this patch for test10> if this one wont patch
-> >clearly.
-> >
->=20
-> Hi Markus,
-> Thanks for testing. That sounds quite remarkable, is it possible that
-> some other change has made the difference? What kernel version did
-> you patch against, and did you try that same kernel and .config without
-> my patch? Anyway, I'm glad you're having good results.
->=20
-> Yes, this one will probably apply to test10 should it ever apper. If not
-> I will port it.
->=20
-> Nick
---=20
-"Software is like sex, it's better when it's free."
-Markus H=E4stbacka <midian at ihme.org>
-
---=-w4HEmeRkA4HTZ0g33XAj
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/vaye3+NhIWS1JHARAtXHAJ0U9EDojqFQiWWgf1If68W/g8xZVQCggaTI
-/Eg/reFEZ9YzcTAtAYcm33I=
-=04zM
------END PGP SIGNATURE-----
-
---=-w4HEmeRkA4HTZ0g33XAj--
-
+Kind regards,
+Jurriaan
+-- 
+And though kids scrawl frustration on the back street wall
+Most of them can't even spell bastard
+	New Model Army - Master Race
+Debian (Unstable) GNU/Linux 2.6.0-test9-mm3 4276 bogomips 0.81 0.57

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267647AbTGTSUV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 14:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267678AbTGTSUV
+	id S267686AbTGTS0O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 14:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267685AbTGTS0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 14:20:21 -0400
-Received: from mail.uptime.at ([62.116.87.11]:11656 "EHLO mail.uptime.at")
-	by vger.kernel.org with ESMTP id S267647AbTGTSUT (ORCPT
+	Sun, 20 Jul 2003 14:26:14 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:30638 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S267687AbTGTSZt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 14:20:19 -0400
-From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
-To: <WHarms@bfs.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: problem linux-2.6.0-test1 on alpha
-Date: Sun, 20 Jul 2003 20:33:56 +0200
-Organization: UPtime system solutions
-Message-ID: <000401c34eed$7b240640$1311a8c0@pitzeier.priv.at>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: 
-Importance: Normal
-X-MailScanner-Information: Please contact UPtime Systemloesungen for more information
-X-MailScanner: clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-5.8, required 4.1,
-	BAYES_01 -5.40, QUOTED_EMAIL_TEXT -0.38)
+	Sun, 20 Jul 2003 14:25:49 -0400
+Date: Sun, 20 Jul 2003 20:40:23 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: John Bradford <john@grabjohn.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: Separate ACPI_SLEEP and SOFTWARE_SUSPEND options
+Message-ID: <20030720184023.GC269@elf.ucw.cz>
+References: <200307201334.h6KDYSqC002010@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307201334.h6KDYSqC002010@81-2-122-30.bradfords.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Walter!
+Hi!
 
->  i have a problem with GNU linker for alpha. it crashes when 
-> linking. ( I compiled with gcc 2.96.)
->  
->   LD      .tmp_vmlinux1
-> make: *** [.tmp_vmlinux1] Fehler 139
+> >  	  Right now you may boot without resuming and then later resume but
+> >  	  in meantime you cannot use those swap partitions/files which were
+> >  	  involved in suspending. Also in this case there is a risk that buffers
+> >  	  on disk won't match with saved ones.
 > 
-> I have tried 2.12,2.13,2.14 sofar, no success at all. did 
-> anyone else tried 2.6 on alpha ?
+> What happens on a machine which is sharing swap space between two
+> operating systems?  Do we have a way to mark a swap partition which is
+> used for suspend data as unusable?  Maybe we could change the
+> partition type from 82 to something else.
 
-I have 2.6.0-test1 running on my AS 1000A/333:
-
-[oliver@track oliver]$ rpm -q modutils kernel gcc binutils
-modutils-2.4.21-18
-kernel-2.6.0test1-6
-gcc-3.1-6
-binutils-2.12.90.0.7-3
-
-Please note, that I have build the kernel rpm myself by using 'make rpm' and
-YES, I did configure it before using 'make menuconfig'. :)
-
-Best regards,
- Oliver
-
+swsusp changes swap's signature, so swapon will fail.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

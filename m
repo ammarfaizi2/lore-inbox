@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266034AbTIKEVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 00:21:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266054AbTIKEVQ
+	id S266060AbTIKEWh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 00:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266063AbTIKEWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 00:21:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:20960 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266034AbTIKEVP (ORCPT
+	Thu, 11 Sep 2003 00:22:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26336 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266060AbTIKEWW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 00:21:15 -0400
-Message-ID: <3F5FF829.6060706@osdl.org>
-Date: Wed, 10 Sep 2003 21:20:57 -0700
+	Thu, 11 Sep 2003 00:22:22 -0400
+Message-ID: <3F5FF86D.70903@osdl.org>
+Date: Wed, 10 Sep 2003 21:22:05 -0700
 From: Stephen Hemminger <shemminger@osdl.org>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
 X-Accept-Language: en-us, en

@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265263AbUFRTtf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266614AbUFRUDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265263AbUFRTtf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 15:49:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266741AbUFRTsn
+	id S266614AbUFRUDK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 16:03:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266727AbUFRUDD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 15:48:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47788 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266758AbUFRTrS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 15:47:18 -0400
-Date: Fri, 18 Jun 2004 12:47:16 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Stop the Linux kernel madness
-Message-Id: <20040618124716.183669f8@lembas.zaitcev.lan>
-In-Reply-To: <mailman.1087541100.18231.linux-kernel2news@redhat.com>
-References: <40D232AD.4020708@opensound.com>
-	<mailman.1087541100.18231.linux-kernel2news@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Jun 2004 16:03:03 -0400
+Received: from web81307.mail.yahoo.com ([206.190.37.82]:11191 "HELO
+	web81307.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266614AbUFRT7e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 15:59:34 -0400
+Message-ID: <20040618195930.42655.qmail@web81307.mail.yahoo.com>
+Date: Fri, 18 Jun 2004 12:59:30 -0700 (PDT)
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [PATCH 0/3] Couple of sysfs patches
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Greg KH <greg@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jun 2004 08:40:15 +0200
-Arjan van de Ven <arjanv@redhat.com> wrote:
+Russell King wrote:
+>  void platform_device_unregister(struct platform_device * pdev)
+>  {
+> -	if (pdev)
+> +	int i;
+> +
+> +	if (pdev) {
+>  		device_unregister(&pdev->dev);
+> +
+> +		for (i = 0; i < pdev->num_resources; i++) {
+> +			struct resource *r = &pdev->resource[i];
+> +			if (r->flags & (IORESOURCE_MEM|IORESOURCE_IO))
+> +				release_resource(r);
+> +		}
+> +	}
+>  }
 
-> On Fri, 2004-06-18 at 02:09, 4Front Technologies wrote:
+Ok, now it's possibly just a nitpicking but would not it be "more correct"
+if allocated resources were freed in reverse order?
 
-> > I am writing this message to bring a huge problem to light. SuSE has been systematically
-> > forking the linux kernel and shipping all kinds of modifications and still call their
-> > kernels 2.6.5 (for example).
-> 
-> internal kernel apis change and are fair game. As a RH kernel maintainer
-> I can guarantee you that you will suffer too from internal kernel
-> changes in RH/Fedora kernels. Or from changes within the 2.6.x series.
-> Linux needs such changes to allow faster and cleaner development.
-
-Arjan, I agree with what you're saying, but it looks to me that the 4front
-guy was complaining about the lack of meaningful EXTRAVERSION. Hard to say
-for sure when he's raving though...
-
--- Pete
+--
+Dmitry

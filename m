@@ -1,64 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268293AbUJGV5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264396AbUJHB5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268293AbUJGV5j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 17:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268360AbUJGV4y
+	id S264396AbUJHB5p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 21:57:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUJHB51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 17:56:54 -0400
-Received: from c7ns3.center7.com ([216.250.142.14]:15053 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S268293AbUJGVxB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 17:53:01 -0400
-Message-ID: <4165B212.1070602@drdos.com>
-Date: Thu, 07 Oct 2004 15:16:02 -0600
-From: "Jeff V. Merkey" <jmerkey@drdos.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, jonathan@jonmasters.org,
-       "jmerkey@comcast.net" <jmerkey@comcast.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-References: <Pine.LNX.4.44.0410071706220.18453-100000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0410071706220.18453-100000@chimarrao.boston.redhat.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+	Thu, 7 Oct 2004 21:57:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:22656 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264396AbUJHBzl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 21:55:41 -0400
+Date: Thu, 7 Oct 2004 18:53:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Chris Wright <chrisw@osdl.org>
+Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       piggin@cyberone.com.au
+Subject: Re: kswapd in tight loop 2.6.9-rc3-bk-recent
+Message-Id: <20041007185352.60e07b2f.akpm@osdl.org>
+In-Reply-To: <20041007185131.T2357@build.pdx.osdl.net>
+References: <20041007142019.D2441@build.pdx.osdl.net>
+	<20041007164044.23bac609.akpm@osdl.org>
+	<4165E0A7.7080305@yahoo.com.au>
+	<20041007174242.3dd6facd.akpm@osdl.org>
+	<20041007184134.S2357@build.pdx.osdl.net>
+	<20041007185131.T2357@build.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-
->On Thu, 7 Oct 2004, Jeff V. Merkey wrote:
+Chris Wright <chrisw@osdl.org> wrote:
 >
->  
->
->>We offer to kernel.org the sum of $50,000.00 US for a one time
->>license to the Linux Kernel Source for a single snapshot of
->>a single Linux version by release number.
->>    
->>
->
->That would still be useless, since it doesn't give you any
->rights to the (GPL) bug fixes posted to this list on an
->almost daily basis.
->
->  
->
-Obviously, what would happen here is a release of 2.4 or 2.6 that is 
-stable would be snapshoted
-and used. And yes, you are correct, bug fixes would not be allowed 
-unless they were applied
-independently and without access to GPL code. However, this would allow 
-OSDL and kernel.org
-to become self-sustaining and would not impact the GPL process -- just 
-let you guys peel
-off releases and pocket some $$$ on the side. A lot of big companies 
-would line up to pay you.
+> (whereas I could get the mainline code, and the
+>  one-liner to spin right off).  
 
-So, who do I write the check to?
-
-Jeff
-
-
-
+How?  (up to and including .config please).

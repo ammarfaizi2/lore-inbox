@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262736AbTHUOWh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 10:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbTHUOWh
+	id S262723AbTHUObM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 10:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbTHUObM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 10:22:37 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27077 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262736AbTHUOWf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 10:22:35 -0400
-Message-ID: <3F44D59B.8040502@pobox.com>
-Date: Thu, 21 Aug 2003 10:22:19 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: akpm@digeo.com
-Subject: Re: [PATCH] missing io_apic.h inclusions
-References: <200308210912.h7L9CUtW029374@hera.kernel.org>
-In-Reply-To: <200308210912.h7L9CUtW029374@hera.kernel.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Aug 2003 10:31:12 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:44300 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S262723AbTHUObL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 10:31:11 -0400
+Date: Thu, 21 Aug 2003 16:28:54 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Vojtech Pavlik <vojtech@suse.cz>,
+       Jamie Lokier <jamie@shareable.org>, Neil Brown <neilb@cse.unsw.edu.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Input issues - key down with no key up
+Message-ID: <20030821162854.A3518@pclin040.win.tue.nl>
+References: <20030821144441.A3480@pclin040.win.tue.nl> <Pine.GSO.3.96.1030821152921.2489G-100000@delta.ds2.pg.gda.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.3.96.1030821152921.2489G-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Thu, Aug 21, 2003 at 03:45:15PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List wrote:
-> diff -Nru a/arch/i386/kernel/acpi/boot.c b/arch/i386/kernel/acpi/boot.c
-> --- a/arch/i386/kernel/acpi/boot.c	Thu Aug 21 02:12:34 2003
-> +++ b/arch/i386/kernel/acpi/boot.c	Thu Aug 21 02:12:34 2003
-> @@ -34,6 +34,7 @@
->  #if defined (CONFIG_X86_LOCAL_APIC)
->  #include <mach_apic.h>
->  #include <mach_mpparse.h>
-> +#include <asm/io_apic.h>
->  #endif
->  
->  #define PREFIX			"ACPI: "
-> diff -Nru a/arch/i386/kernel/setup.c b/arch/i386/kernel/setup.c
-> --- a/arch/i386/kernel/setup.c	Thu Aug 21 02:12:34 2003
-> +++ b/arch/i386/kernel/setup.c	Thu Aug 21 02:12:34 2003
-> @@ -43,6 +43,7 @@
->  #include <asm/setup.h>
->  #include <asm/arch_hooks.h>
->  #include <asm/sections.h>
-> +#include <asm/io_apic.h>
->  #include "setup_arch_pre.h"
->  #include "mach_resources.h"
+On Thu, Aug 21, 2003 at 03:45:15PM +0200, Maciej W. Rozycki wrote:
 
+>  So if you need these keys, then just use what works for you.
 
-Well, the first change looks pretty wrong just given the config option. 
-  And, too, this was the false "build fix".  The correct build fix was 
-committed, and this patch was not needed at all.  I'll grant that the 
-patch to setup.c does make sense, though, even if it's not strictly needed.
+I am not sure what you are discussing.
+But I am talking about the Linux keyboard driver.
 
-	Jeff
+It must not touch Set 3, or lots of people will have problems.
 
+Only when the user explicitly asks for Set 3 is it reasonable
+to switch to it.
 

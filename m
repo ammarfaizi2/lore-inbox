@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261511AbSJCPM7>; Thu, 3 Oct 2002 11:12:59 -0400
+	id <S261667AbSJCPXS>; Thu, 3 Oct 2002 11:23:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261641AbSJCPM7>; Thu, 3 Oct 2002 11:12:59 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38410 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261511AbSJCPMz>; Thu, 3 Oct 2002 11:12:55 -0400
-Date: Thu, 3 Oct 2002 16:18:16 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Andrew Morton <akpm@digeo.com>, David Miller <davem@redhat.com>,
-       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
-       linuxppc-embedded@lists.linuxppc.org
-Subject: Re: [PATCH,RFC] Add gfp_mask to get_vm_area()
-Message-ID: <20021003161816.I2304@flint.arm.linux.org.uk>
-References: <20021001044226.GS10265@zax> <3D992DB0.9A8942D@digeo.com> <20021001053417.GW10265@zax> <20021003043948.GN1102@zax> <20021003045644.GO1102@zax>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021003045644.GO1102@zax>; from david@gibson.dropbear.id.au on Thu, Oct 03, 2002 at 02:56:44PM +1000
+	id <S261672AbSJCPXS>; Thu, 3 Oct 2002 11:23:18 -0400
+Received: from mta06bw.bigpond.com ([139.134.6.96]:18155 "EHLO
+	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261667AbSJCPXP>; Thu, 3 Oct 2002 11:23:15 -0400
+Message-ID: <3D9C62BE.2090408@snapgear.com>
+Date: Fri, 04 Oct 2002 01:31:10 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.40-ac1
+References: <20021003151707.A17513@infradead.org>	<200210031420.g93EK3L07983@devserv.devel.redhat.com> 	<20021003155122.A20437@infradead.org> <1033658738.28814.7.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 02:56:44PM +1000, David Gibson wrote:
-> Blah.  It gets worse.  Making map_page() or remap_page_range()
-> interrupt-safe would require making mm->page_table_lock irq-safe too
-> :-(
+Alan Cox wrote:
+> On Thu, 2002-10-03 at 15:51, Christoph Hellwig wrote:
 > 
-> Maybe non-coherent architectures should should pre-allocate a chunk of
-> virtual memory for consistent allocations, and pre-allocate all its
-> page tables.
+>>Did you actually take a look?  Many files are basically the same and other
+>>are just totally stubbed out in nommu.
+> 
+> 
+> Basically but never entirely - if you can see a way to clean that up
+> nicely that Linus would accept other than mmnommu then thats even
+> better. I couldnt see a way of getting enough ifdefs out of the tree
 
-There are a growing number of applications out there for ARM stuff where
-this would be impractical.  Those wanting about 3GB of kernel space vs
-1GB user space.
+And this really is the problem. There is a lot of ifdefs, lots
+of little differences. I am not sure how exactly we could
+clean this up.
 
-Doubling the virtual requirement for the SDRAM will make Linux unusable
-in these situations, and then you'll have nice people from Intel and
-Montavista banging on your door asking you why you killed their product
-line.
+Regards
+Greg
 
-The current situation on ARM works for 95% of cases.  If the choice is
-between "95% working" and "cutting off the hand that feeds you" I'd
-prefer the former.
 
-On a more constructive note, I believe there is a way around the
-mm->page_table_lock problem.  I believe we should completely split the
-handling of the user space page tables from the kernel space page tables.
 
-User space can carry on using mm->page_table_lock and be happy; it should
-never ever touch the kernel page tables.
-
-We then only have to worry about making things that touch the kernel page
-tables irq-safe.  How many of those are there?  Two.  ioremap and vmalloc.
-Neither of these two functions has any business touching anything other
-than pid0's tables, and certainly has no business touching user space
-page tables.  The problem is now far easier to deal with.
-
-remap_page_range() shouldn't be a problem - its supposed to map pages
-into user space, and if you're calling that from IRQ context, you're
-doing something really wrong.
-
-If I can get out of my current circle of never-ending problems and paid-
-for work on other areas of ARM stuff, I might be able to look at this.
-I've currently got an estimated backlog of one whole week on anything I
-do atm.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
 

@@ -1,78 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318367AbSGYHRw>; Thu, 25 Jul 2002 03:17:52 -0400
+	id <S318368AbSGYHSC>; Thu, 25 Jul 2002 03:18:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318368AbSGYHRw>; Thu, 25 Jul 2002 03:17:52 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:39942 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S318367AbSGYHRv>; Thu, 25 Jul 2002 03:17:51 -0400
-Date: Thu, 25 Jul 2002 00:20:51 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: [PATCH] console changes part 2
-Message-ID: <Pine.LNX.4.44.0207250019330.29650-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318369AbSGYHSC>; Thu, 25 Jul 2002 03:18:02 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:19357 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S318368AbSGYHSB>;
+	Thu, 25 Jul 2002 03:18:01 -0400
+Date: Thu, 25 Jul 2002 16:32:39 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lk@tantalophile.demon.co.uk, ebiederm@xmission.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 'select' failure or signal should not update timeout
+Message-Id: <20020725163239.6c6e5ed6.rusty@rustcorp.com.au>
+In-Reply-To: <Pine.LNX.4.33.0207241142320.2117-100000@penguin.transmeta.com>
+References: <20020724144433.B7192@kushida.apsleyroad.org>
+	<Pine.LNX.4.33.0207241142320.2117-100000@penguin.transmeta.com>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 24 Jul 2002 11:48:10 -0700 (PDT)
+Linus Torvalds <torvalds@transmeta.com> wrote:
 
+> The thing is, we cannot change existing select semantics, and the
+> question is whether what most soft-realtime wants is actually select, or
+> whether people really want a "waittimeofday()".
 
-Okay here is a updated patch aginst Linus latest tree.
+NOT waittimeofday.  You need a *new* measure which can't be set forwards
+or back if you want this to be sane.  pthreads has absolute timeouts (eg.
+pthread_cond_timedwait), but they suck IRL for this reason.
 
+Of course, doesn't need any correlation with absolute time, it could be a
+"microseconds since boot" kind of thing.
 
-http://www.transvirtual.com/~jsimmons/console.diff.gz
-
-http://linuxconsole.bkbits.net:8080/dev
-
-diffstat
-
- arch/i386/boot/compressed/vmlinux.bin.gz |binary
- arch/mips/au1000/common/serial.c         |    2
- arch/ppc/4xx_io/serial_sicc.c            |    2
- arch/ppc/8xx_io/uart.c                   |    2
- drivers/char/Makefile                    |   12
- drivers/char/console.c                   | 3032 -----
- drivers/char/console_macros.h            |  155
- drivers/char/consolemap.c                |  121
- drivers/char/hvc_console.c               |    2
- drivers/char/keyboard.c                  |  583 -
- drivers/char/misc.c                      |    1
- drivers/char/selection.c                 |   21
- drivers/char/serial_amba.c               |    2
- drivers/char/sysrq.c                     |   16
- drivers/char/tty_io.c                    |    2
- drivers/char/vc_screen.c                 |  105
- drivers/char/vt.c                        | 4855 +++++++--
- drivers/char/vt_ioctl.c                  | 1357 ++
- drivers/s390/char/ctrlchar.c             |    2
- drivers/sbus/char/sunkbd.c               |    2
- drivers/tc/zs.c                          |    2
- drivers/video/dummycon.c                 |    1
- drivers/video/fbcon-accel.c              |    5
- drivers/video/fbcon.c                    |   10
- drivers/video/mdacon.c                   |    3
- drivers/video/newport_con.c              |    1
- drivers/video/promcon.c                  |   23
- drivers/video/sticon.c                   |    1
- drivers/video/vgacon.c                   |    1
- include/linux/console.h                  |   17
- include/linux/console_struct.h           |  110
- include/linux/consolemap.h               |    6
- include/linux/kbd_kern.h                 |   26
- include/linux/selection.h                |   24
- include/linux/tty.h                      |    2
- include/linux/vt_kern.h                  |  172
- include/video/fbcon.h                    |    2
- scripts/fixdep                           |binary
- 40 files changed, 25467 insertions(+), 4756 deletions(-)
-
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'\_   _/`\
- \___)=(___/
-
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

@@ -1,35 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261486AbVCKTZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVCKUMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261486AbVCKTZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 14:25:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVCKTVz
+	id S261403AbVCKUMh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 15:12:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVCKULC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 14:21:55 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:15001 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261317AbVCKTLr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 14:11:47 -0500
-Subject: Re: select() doesn't respect SO_RCVLOWAT ?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Felix Matathias <felix@nevis.columbia.edu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0503101645190.29442@shang.nevis.columbia.edu>
-References: <Pine.LNX.4.61.0503101645190.29442@shang.nevis.columbia.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110568180.17740.69.camel@localhost.localdomain>
+	Fri, 11 Mar 2005 15:11:02 -0500
+Received: from fire.osdl.org ([65.172.181.4]:40084 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261759AbVCKTjV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 14:39:21 -0500
+Date: Fri, 11 Mar 2005 11:36:06 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Daniele Venzano <webvenza@libero.it>
+Cc: Chris Wright <chrisw@osdl.org>, stable@kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Netdev <netdev@oss.sgi.com>
+Subject: Re: [stable] [BK PATCHES] 2.6.x net driver oops fixes
+Message-ID: <20050311193606.GL5389@shell0.pdx.osdl.net>
+References: <422F59E8.2090707@pobox.com> <20050310202548.GV5389@shell0.pdx.osdl.net> <4230AE24.602@pobox.com> <20050310213917.GW5389@shell0.pdx.osdl.net> <c37a8fd17af92b648c6474904e0003c0@libero.it>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 11 Mar 2005 19:09:41 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c37a8fd17af92b648c6474904e0003c0@libero.it>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-03-10 at 21:58, Felix Matathias wrote:
-> Dear all,
+* Daniele Venzano (webvenza@libero.it) wrote:
 > 
-> I am running a 2.4.21-9.0.3.ELsmp #1 kernel and I can setsockopt and 
-> getsockopt correctly the SO_RCVLOWAT option
+> I have been acting maintainer for more than a year now, and I'm 
+> completely fine with the patch.
 
-The only value the code at least used to support was setting it to 1.
-Are you sure you are actually setting/checking ok ?
-
+Thanks.
+-chris

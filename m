@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261821AbSJIPTj>; Wed, 9 Oct 2002 11:19:39 -0400
+	id <S261804AbSJIPOu>; Wed, 9 Oct 2002 11:14:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261818AbSJIPTj>; Wed, 9 Oct 2002 11:19:39 -0400
-Received: from pc-62-31-74-104-ed.blueyonder.co.uk ([62.31.74.104]:19843 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S261813AbSJIPTi>; Wed, 9 Oct 2002 11:19:38 -0400
-Date: Wed, 9 Oct 2002 16:25:13 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, "Stephen C. Tweedie" <sct@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] [RFC] [PATCH 3/4] Add extended attributes to ext2/3
-Message-ID: <20021009162513.F2779@redhat.com>
-References: <E17yymK-00021n-00@think.thunk.org> <20021008214143.O2717@redhat.com> <20021008221710.GA9842@think.thunk.org> <200210091329.28153.agruen@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200210091329.28153.agruen@suse.de>; from agruen@suse.de on Wed, Oct 09, 2002 at 01:29:28PM +0200
+	id <S261805AbSJIPOu>; Wed, 9 Oct 2002 11:14:50 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:62919 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261804AbSJIPOt>;
+	Wed, 9 Oct 2002 11:14:49 -0400
+Date: Wed, 9 Oct 2002 08:19:04 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Brendan J Simon <brendan.simon@bigpond.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [kbuild-devel] Re: linux kernel conf 0.8
+In-Reply-To: <Pine.LNX.4.44.0210090805250.5862-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.33L2.0210090816560.1001-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 9 Oct 2002, Linus Torvalds wrote:
 
-On Wed, Oct 09, 2002 at 01:29:28PM +0200, Andreas Gruenbacher wrote:
-> On Wednesday 09 October 2002 00:17, Theodore Ts'o wrote:
-> > Well, how about this as a compromise?  We define a new superblock
-> > field which reserves a certain amount of space in the EA block for
-> > "system" attributes. 
+| On Wed, 9 Oct 2002, Randy.Dunlap wrote:
+| >
+| > stick with TCL/TK, like xconfig currently uses ?
+|
+| Too ugly. I actually think QT is a fine choice, I just suspect that it's
+| going to cause political issues.
+|
+| My favourite approach by far is to actually not ship anything graphical
+| with the kernel at all, and just hope that the config language syntax is
+| stable enough that different groups can do their own as external packages.
 
-> > Andreas, does that sound good to you?
-> 
-> I'd rather not store such policy things on the file system permanently, and 
-> make it a mount option. I'm wondering how many installations this would 
-> affect; to me it seems that it's not worth a super block flag.
+Good.  I was this -><- close to suggesting "no GUI" -- just didn't
+send that part of the message.
 
-We already have a lot of similar places where we do this in ext2/3.
-The standard procedure is to store the default in the superblock but
-to allow the user to override at mount time.
+| The kernel would ship with just the text-based "reference implementation"
+| (if even that - we could just have a few "supporting packages").
+|
+| The only thing I personally really care about is the Config language,
+| since that _has_ to ship with the kernel.
 
---Stephen
+So I think that you and Roman are close to agreement, when Roman
+has the library backend ready.  Of course someone needs to do a
+"reference implementation" with it also, but it doesn't need to
+ship with the kernel.
+
+| 		Linus
+|
+| PS. And while we're talking about the language - I'd actually prefer the
+| syntax "depends on" or "requires" instead of "depends", to make it
+| grammatically more correct. And those help-texts should be separated some
+| way so that they don't blend in quite as badly with the "command section".
+| Maybe something really syntactic like just replacing the "help" keyword
+| with a "---help---"  keyword.
+
+-- 
+~Randy
+  "In general, avoiding problems is better than solving them."
+  -- from "#ifdef Considered Harmful", Spencer & Collyer, USENIX 1992.
+

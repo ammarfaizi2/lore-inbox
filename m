@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbUC3GGK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 01:06:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUC3GGK
+	id S263252AbUC3GMM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 01:12:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263253AbUC3GMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 01:06:10 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:38335 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261660AbUC3GGE (ORCPT
+	Tue, 30 Mar 2004 01:12:12 -0500
+Received: from imap.gmx.net ([213.165.64.20]:58570 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263252AbUC3GMJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 01:06:04 -0500
-Date: Mon, 29 Mar 2004 21:09:17 -0800
-From: Paul Jackson <pj@sgi.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
-       akpm@osdl.org
-Subject: Re: [PATCH] mask ADT: bitmap and bitop tweaks [1/22]
-Message-Id: <20040329210917.26feb28d.pj@sgi.com>
-In-Reply-To: <20040330025535.GD791@holomorphy.com>
-References: <20040329041249.65d365a1.pj@sgi.com>
-	<1080601576.6742.43.camel@arrakis>
-	<20040329235233.GV791@holomorphy.com>
-	<20040329154330.445e10e2.pj@sgi.com>
-	<20040330020637.GA791@holomorphy.com>
-	<20040329174637.3aa16260.pj@sgi.com>
-	<20040330025535.GD791@holomorphy.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 30 Mar 2004 01:12:09 -0500
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.5-rc3
+Date: Tue, 30 Mar 2004 08:14:21 +0200
+User-Agent: KMail/1.6.1
+References: <Pine.LNX.4.58.0403292129200.1096@ppc970.osdl.org> <40690B84.7060203@cornell.edu>
+In-Reply-To: <40690B84.7060203@cornell.edu>
+Cc: Ivan Gyurdiev <ivg2@cornell.edu>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200403300814.21205.dominik.karall@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Whether callers experience ill effects is irrelevant.
+Take a look in your config file, if 4KSTACK is enabled, it shouldn't.
 
-Not irrelevant to the callers ;)
-
-And Andrew might reasonably choose to prioritize fixes,
-depending in part on the impact of what they fix.
-
-Ah - there is one more use of *_complement, in i386/mach-es7000.
-But it masks the result in the next line with cpu_online_map, so
-also avoids propogating the damage.
+btw, the 2.6.5-rc3 isn't displayed on the www.kernel.org frontpage!?
 
 
-> IIRC the needed changes to cpus_shift_left() are also missing from
-> your other patches in the bitmap code.
-
-Hmmm ... could you elaborate on this?  I don't see this bug.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+On Tuesday 30 March 2004 07:54, you wrote:
+> Linus Torvalds wrote:
+> > x86-64, arm, ppc64, ia64, s390 updates.
+> >
+> > And agp, acpi, ISDN and watchdog.
+> >
+> > Nothing earth-shattering, in other words.
+>
+> My binary-only proprietary unfree Nvidia driver is broken (and works on
+> 2.6.4). What are some interesting changeset numbers to try to locate the
+> exact cause?
+>
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

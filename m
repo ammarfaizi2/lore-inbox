@@ -1,77 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbTJXBW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 21:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTJXBW3
+	id S261929AbTJXBgB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 21:36:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTJXBgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 21:22:29 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:25830 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261930AbTJXBW1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 21:22:27 -0400
-Subject: Re: [RFC] must fix lists
-From: Albert Cahalan <albert@users.sf.net>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "viro@parcelfarce.linux.theplanet.co.uk" 
-	<viro@parcelfarce.linux.theplanet.co.uk>,
-       Albert Cahalan <albert@users.sourceforge.net>, Andi Kleen <ak@suse.de>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Dominik Brodowski <linux@brodo.de>,
-       "David S. Miller" <davem@redhat.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Jens Axboe <axboe@suse.de>, Lars Marowsky-Bree <lmb@suse.de>,
-       Mike Anderson <andmike@us.ibm.com>,
-       Patrick Mansfield <patmans@us.ibm.com>,
-       Russell King <rmk@arm.linux.org.uk>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Andrew Morton OSDL <akpm@osdl.org>
-In-Reply-To: <3F986859.2000101@cyberone.com.au>
-References: <3F94C833.8040204@cyberone.com.au>
-	 <1066943359.6102.14.camel@dhcp23.swansea.linux.org.uk>
-	 <3F986859.2000101@cyberone.com.au>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1066957616.1623.34.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 23 Oct 2003 21:06:57 -0400
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Oct 2003 21:36:01 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:35196 "EHLO
+	pasta.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S261929AbTJXBf7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 21:35:59 -0400
+Message-Id: <200310240136.h9O1aaOU002931@pasta.boston.redhat.com>
+To: "Michael Glasgow" <glasgowNOSPAM@beer.net>
+cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: posix capabilities inheritance
+In-Reply-To: Your message of "Thu, 23 Oct 2003 17:05:40 CDT."
+             <200310232205.h9NM5eOc004400@dark.beer.net>
+Date: Thu, 23 Oct 2003 21:36:36 -0400
+From: Ernie Petrides <petrides@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-10-23 at 19:46, Nick Piggin wrote:
- 
-> +o alan, Albert Cahalan: 1000 HZ timer increases the need for a stable time
-> +  source. Many laptops, SMI can lose ticks. ACPI timers? TSC?
+On Thursday, 23-Oct-2003 at 17:5 CDT, "Michael Glasgow" wrote:
 
-Oh, I have an example for you.
+> The code to drop privs is not hard, but it's also not trivial.
 
-Consider the Intel Plumas chipset. There are
-some predictable time windows during which the
-RTC will return garbage. The BIOS "fix" leads to
-SMI/SMM stuff stealing large chunks of CPU time.
-On a logic analyser, somebody at work observed
-chunks of time as large as 4 ms. That's 3 to 5
-clock ticks. Maybe that isn't worst-case even.
+Here's an example code sequence that demonstrates how a setuid-to-root
+application could drop all capabilities except for CAP_IPC_LOCK and
+then run with the non-privileged uid:
 
-To avoid this disaster, Linux must _never_ touch
-the RTC registers. The HPET can be used instead.
-The TSC is of course also reliable, but Linux
-stops using it as soon as a problem hits!
+    #include <sys/prctl.h>
+    #include <sys/capability.h>
 
-The ignore-the-TSC code really should be doing
-just the opposite. Ticks are likely to be lost.
-I've never seen an unstable TSC. :-)
+	...
 
->  o 64-bit dev_t.  Seems almost ready, but it's not really known how much
->    work is still to do.  Patches exist in -mm but with the recent rise of the
->    neo-viro I'm not sure where things are at.
+	cap_t c;
 
-Hey, 32-bit dev_t is in already. That's it. Done.
+	if (prctl(PR_SET_KEEPCAPS, 1UL, 0UL, 0UL, 0UL) < 0 ||
+	    seteuid(getuid()) < 0 ||
+	    !(c = cap_from_text("cap_ipc_lock=eip")) ||
+	    cap_set_proc(c) < 0)
+		/* handle error */;
 
+However, I agree that it's often not viable to require application
+changes to achieve the desired result.
 
+Cheers.  -ernie

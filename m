@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135918AbREFXRk>; Sun, 6 May 2001 19:17:40 -0400
+	id <S135915AbREFX1A>; Sun, 6 May 2001 19:27:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135917AbREFXRb>; Sun, 6 May 2001 19:17:31 -0400
-Received: from smtp.mountain.net ([198.77.1.35]:12812 "EHLO riker.mountain.net")
-	by vger.kernel.org with ESMTP id <S135915AbREFXRY>;
-	Sun, 6 May 2001 19:17:24 -0400
-Message-ID: <3AF5DB4E.B5FC78E5@mountain.net>
-Date: Sun, 06 May 2001 19:16:30 -0400
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.3 i486)
-X-Accept-Language: English/United, States, en-US, English/United, Kingdom, en-GB, English, en, French, fr, Spanish, es, Italian, it, German, de, , ru
+	id <S135917AbREFX0v>; Sun, 6 May 2001 19:26:51 -0400
+Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:21755
+	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
+	id <S135915AbREFX0f>; Sun, 6 May 2001 19:26:35 -0400
+From: Jesse Pollard <jesse@cats-chateau.net>
+Reply-To: jesse@cats-chateau.net
+To: Rick Hohensee <humbubba@smarty.smart.net>, linux-kernel@vger.kernel.org
+Subject: Re: inserting a Forth-like language into the Linux kernel
+Date: Sun, 6 May 2001 18:24:45 -0500
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <200105060357.XAA29873@smarty.smart.net>
+In-Reply-To: <200105060357.XAA29873@smarty.smart.net>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] Inconsistent constraint in asm-i386/rwsem.h
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01050618263300.10132@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 05 May 2001, Rick Hohensee wrote:
+>kspamd/H3sm is now making continuous writes to tty1 from an 
+>in-kernel thread. It was locking on a write to /dev/console by
+>init, so I made /dev/console a plain file. This is after 
+>hollowing out sys_syslog to be a null routine, and various 
+>other minor destruction.
+>
+>I am now typing at you on tty4 or so while the kernel itself 
+>sends an endless stream of d's to tty1. It will scroll-lock 
+>and un-scroll-lock, which is how I can tell it's not just a 
+>static screen of d's.
+>
+>I don't know about H1 S&M, but the ability to open a tty
+>normally directly into kernelspace may prove popular, particularly 
+>with a Forth on that tty in that kernelspace. Persons with actual 
+>kernel clue may want to look at allowing /dev/console users and 
+>an in-kernel tty user to play nice. For my purposes I'll do without 
+>a real /dev/console and syslogging for now. 
+>
+>Now I get to find out how many worlds of trouble I didn't foresee
+>in _reading_ a tty from the kernel :o)
+>
+>If someone knows of another example of interpreter-like behavior 
+>directly in a unix in-kernel thread I'd like to know about it.  
 
-In include/asm-i386/rwsem.h:__up_read(), the auto variable 'tmp' is
-asserted to be in edx. This patch adjusts the constraint to match
-the variable.
+Only in reference to allowing for virus infection of the kernel.
 
-It could be argued that tmp should be declared register instead. I
-didn't because the function is inlined. The compiler will know how
-much register pressure there is in each instance.
-
-Cheers,
-Tom
-
-$ diff -u linux-2.4.5-pre1/include/asm-i386/rwsem.h~
-linux-2.4.5-pre1/include/asm-i386/rwsem.h
---- linux-2.4.5-pre1/include/asm-i386/rwsem.h~	Sun May  6 05:48:08 2001
-+++ linux-2.4.5-pre1/include/asm-i386/rwsem.h	Sun May  6 07:17:36 2001
-@@ -164,7 +164,7 @@
- 		"  jmp       1b\n"
- 		".previous\n"
- 		"# ending __up_read\n"
--		: "+m"(sem->count), "+d"(tmp)
-+		: "+m"(sem->count), "+m"(tmp)
- 		: "a"(sem)
- 		: "memory", "cc");
- }
-
+It isn't a good idea.
 
 -- 
-The Daemons lurk and are dumb. -- Emerson
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: jesse@cats-chateau.net
+
+Any opinions expressed are solely my own.

@@ -1,58 +1,202 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273349AbRIRKfk>; Tue, 18 Sep 2001 06:35:40 -0400
+	id <S273354AbRIRKok>; Tue, 18 Sep 2001 06:44:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273332AbRIRKfb>; Tue, 18 Sep 2001 06:35:31 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:8976 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S273337AbRIRKfS>; Tue, 18 Sep 2001 06:35:18 -0400
-Date: Tue, 18 Sep 2001 12:35:37 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.10-pre11
-Message-ID: <20010918123537.E2723@athlon.random>
-In-Reply-To: <20010918121716.D2723@athlon.random> <Pine.GSO.4.21.0109180622350.25323-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
+	id <S273360AbRIRKob>; Tue, 18 Sep 2001 06:44:31 -0400
+Received: from ns.suse.de ([213.95.15.193]:33034 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S273354AbRIRKoZ>;
+	Tue, 18 Sep 2001 06:44:25 -0400
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: Linux 2.4.10-pre11 -- __builtin_expect
+In-Reply-To: <20010918031813.57E1062ABC@oscar.casa.dyndns.org.suse.lists.linux.kernel> <E15jBLy-0008UF-00@the-village.bc.nu.suse.lists.linux.kernel> <9o6j9l$461$1@cesium.transmeta.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 18 Sep 2001 12:44:47 +0200
+In-Reply-To: "H. Peter Anvin"'s message of "18 Sep 2001 06:47:46 +0200"
+Message-ID: <oup4rq0bwww.fsf_-_@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0109180622350.25323-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Tue, Sep 18, 2001 at 06:28:11AM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2001 at 06:28:11AM -0400, Alexander Viro wrote:
-> 
-> 
-> On Tue, 18 Sep 2001, Andrea Arcangeli wrote:
-> 
-> > > > If we need to avoid the bumping of i_count and to allocate something
-> > > > dynamically that will be the bd_mapping address space, we don't need a
-> > > > new fake_inode there too, we just need to share the new physical
-> > > > pagecahce address space. Such physical i_mapping address space is the
-> > > 
-> > > What are you going to use as mapping->host for it?
+"H. Peter Anvin" <hpa@zytor.com> writes:
+
+> Followup to:  <E15jBLy-0008UF-00@the-village.bc.nu>
+> By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+> In newsgroup: linux.dev.kernel
 > > 
-> > the only info we'd need from the host is the host->i_rdev, so why can't
-> > we get it from the file->f_dentry->d_inode->i_rdev? In general I don't
+> > You need gcc 2.96 or higher to build the pre11 tree. I doubt that was
+> > intentional. Basically rip out all use of __builtin_expect
+> > 
 > 
-> In ->writepage()?  Good luck.  BTW, at some point use of ->i_rdev will have
+> Perhaps we should have a header which does #define __builtin_expect(X)
+> if your gcc version is 2.91-95?
 
-I would have noticed if I actually wrote the code ;)
+__builtin_expect() is ugly to use directly. In x86-64 I'm using slightly
+higher level primitives (likely() and unlikely()), which make the intend
+more clear.
 
-static int blkdev_writepage(struct page * page)
-{
+I sent Linus a patch to move them into generic code some time ago, but it 
+was ignored. Here is it again for 2.4.10pre11 with the generic code changed 
+to use them. Please consider applying.
 
-no file...
+More comments:
 
-> It doesn't have to be fake. See how it's done for sockets or pipes.
+For kernel debugging I can only recommend to compile with 
+-fno-reorder-blocks. Gcc output gone through the basic block reordering pass
+is *really* unreadable.
 
-here it's really completly private to the bdev. I mean we could be
-tricky and force a cast on mapping->host to point to bdev and we
-wouldn't need the fake inode. But casts are probably uglier and more
-risky than using the fake_inode (unless we really consdier the host a
-cookie rather than an inode pointer). Comments?
+A lot of the unlikely()s seem to be in front of BUGs. If BUG was moved out 
+of line and marked __attribute__((noreturn)) this could be avoided, because
+the reordering pass would already do the right thing. I didn't do that 
+change yet.
 
-Andrea
+
+
+
+
+-Andi
+
+
+--- mm/slab.c-LIKELY	Tue Sep 18 03:37:30 2001
++++ mm/slab.c	Tue Sep 18 11:26:43 2001
+@@ -1230,7 +1230,7 @@
+ 	objp = slabp->s_mem + slabp->free*cachep->objsize;
+ 	slabp->free=slab_bufctl(slabp)[slabp->free];
+ 
+-	if (__builtin_expect(slabp->free == BUFCTL_END, 0)) {
++	if (unlikely(slabp->free == BUFCTL_END)) {
+ 		list_del(&slabp->list);
+ 		list_add(&slabp->list, &cachep->slabs_full);
+ 	}
+@@ -1264,11 +1264,11 @@
+ 								\
+ 	slabs_partial = &(cachep)->slabs_partial;		\
+ 	entry = slabs_partial->next;				\
+-	if (__builtin_expect(entry == slabs_partial, 0)) {	\
++	if (unlikely(entry == slabs_partial)) {	\
+ 		struct list_head * slabs_free;			\
+ 		slabs_free = &(cachep)->slabs_free;		\
+ 		entry = slabs_free->next;			\
+-		if (__builtin_expect(entry == slabs_free, 0))	\
++		if (unlikely(entry == slabs_free))	\
+ 			goto alloc_new_slab;			\
+ 		list_del(entry);				\
+ 		list_add(entry, slabs_partial);			\
+@@ -1291,11 +1291,11 @@
+ 		/* Get slab alloc is to come from. */
+ 		slabs_partial = &(cachep)->slabs_partial;
+ 		entry = slabs_partial->next;
+-		if (__builtin_expect(entry == slabs_partial, 0)) {
++		if (unlikely(entry == slabs_partial)) {
+ 			struct list_head * slabs_free;
+ 			slabs_free = &(cachep)->slabs_free;
+ 			entry = slabs_free->next;
+-			if (__builtin_expect(entry == slabs_free, 0))
++			if (unlikely(entry == slabs_free))
+ 				break;
+ 			list_del(entry);
+ 			list_add(entry, slabs_partial);
+@@ -1436,11 +1436,11 @@
+ 	/* fixup slab chains */
+ 	{
+ 		int inuse = slabp->inuse;
+-		if (__builtin_expect(!--slabp->inuse, 0)) {
++		if (unlikely(!--slabp->inuse)) {
+ 			/* Was partial or full, now empty. */
+ 			list_del(&slabp->list);
+ 			list_add(&slabp->list, &cachep->slabs_free);
+-		} else if (__builtin_expect(inuse == cachep->num, 0)) {
++		} else if (unlikely(inuse == cachep->num)) {
+ 			/* Was full. */
+ 			list_del(&slabp->list);
+ 			list_add(&slabp->list, &cachep->slabs_partial);
+--- mm/vmscan.c-LIKELY	Tue Sep 18 03:37:30 2001
++++ mm/vmscan.c	Tue Sep 18 11:22:09 2001
+@@ -335,7 +335,7 @@
+ 	while (__max_scan && (entry = lru->prev) != lru) {
+ 		struct page * page;
+ 
+-		if (__builtin_expect(current->need_resched, 0)) {
++		if (unlikely(current->need_resched)) {
+ 			spin_unlock(&pagemap_lru_lock);
+ 			schedule();
+ 			spin_lock(&pagemap_lru_lock);
+@@ -344,7 +344,7 @@
+ 
+ 		page = list_entry(entry, struct page, lru);
+ 
+-		if (__builtin_expect(!PageInactive(page) && !PageActive(page), 0))
++		if (unlikely(!PageInactive(page) && !PageActive(page)))
+ 			BUG();
+ 
+ 		if (PageTestandClearReferenced(page)) {
+@@ -363,7 +363,7 @@
+ 		list_del(entry);
+ 		list_add_tail(entry, &inactive_local_lru);
+ 
+-		if (__builtin_expect(!memclass(page->zone, classzone), 0))
++		if (unlikely(!memclass(page->zone, classzone)))
+ 			continue;
+ 
+ 		__max_scan--;
+@@ -380,7 +380,7 @@
+ 		 * The page is locked. IO in progress?
+ 		 * Move it to the back of the list.
+ 		 */
+-		if (__builtin_expect(TryLockPage(page), 0))
++		if (unlikely(TryLockPage(page)))
+ 			continue;
+ 
+ 		if (PageDirty(page) && is_page_cache_freeable(page)) {
+@@ -456,10 +456,10 @@
+ 			}
+ 		}
+ 
+-		if (__builtin_expect(!page->mapping, 0))
++		if (unlikely(!page->mapping))
+ 			BUG();
+ 
+-		if (__builtin_expect(!spin_trylock(&pagecache_lock), 0)) {
++		if (unlikely(!spin_trylock(&pagecache_lock))) {
+ 			/* we hold the page lock so the page cannot go away from under us */
+ 			spin_unlock(&pagemap_lru_lock);
+ 
+@@ -479,7 +479,7 @@
+ 		}
+ 
+ 		/* point of no return */
+-		if (__builtin_expect(!PageSwapCache(page), 1))
++		if (likely(!PageSwapCache(page)))
+ 			__remove_inode_page(page);
+ 		else
+ 			__delete_from_swap_cache(page);
+--- mm/page_alloc.c-LIKELY	Tue Sep 18 03:37:30 2001
++++ mm/page_alloc.c	Tue Sep 18 11:26:44 2001
+@@ -372,7 +372,7 @@
+ 		return page;
+ 
+ 	zone = zonelist->zones;
+-	if (__builtin_expect(freed, 1)) {
++	if (likely(freed)) {
+ 		for (;;) {
+ 			zone_t *z = *(zone++);
+ 			if (!z)
+--- include/linux/kernel.h-LIKELY	Tue Sep 18 11:12:20 2001
++++ include/linux/kernel.h	Tue Sep 18 11:30:58 2001
+@@ -171,4 +171,14 @@
+ 	char _f[20-2*sizeof(long)-sizeof(int)];	/* Padding: libc5 uses this.. */
+ };
+ 
++
++/* This loses on a few early 2.96 snapshots, but hopefully nobody uses them anymore. */ 
++#if __GNUC__ > 2 || (__GNUC__ == 2 && _GNUC_MINOR__ == 96)
++#define likely(x)  __builtin_expect((x), !0) 
++#define unlikely(x)  __builtin_expect((x), 0) 
++#else
++#define likely(x) (x)
++#define unlikely(x) (x)
++#endif
++
+ #endif

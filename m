@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266555AbUI0Py2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266538AbUI0Pzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266555AbUI0Py2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 11:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266566AbUI0Py1
+	id S266538AbUI0Pzq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 11:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266574AbUI0Pzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 11:54:27 -0400
-Received: from LPBPRODUCTIONS.COM ([68.98.211.131]:42131 "HELO
-	lpbproductions.com") by vger.kernel.org with SMTP id S266513AbUI0Pwo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 11:52:44 -0400
-From: Matt Heler <lkml@lpbproductions.com>
-Reply-To: lkml@lpbproductions.com
-To: gene.heskett@verizon.net
-Subject: Re: 2.6.9-rc2-mm4
-Date: Mon, 27 Sep 2004 08:52:43 -0700
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <20040926181021.2e1b3fe4.akpm@osdl.org> <200409270706.21661.lkml@lpbproductions.com> <200409271131.27329.gene.heskett@verizon.net>
-In-Reply-To: <200409271131.27329.gene.heskett@verizon.net>
+	Mon, 27 Sep 2004 11:55:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:39575 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266538AbUI0Pxe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 11:53:34 -0400
+Date: Mon, 27 Sep 2004 11:53:27 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andreas Happe <andreashappe@flatline.ath.cx>
+cc: Michal Ludvig <michal@logix.cz>, Andreas Happe <crow@old-fsckful.ath.cx>,
+       <cryptoapi@lists.logix.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: [cryptoapi/sysfs] display cipher details in sysfs
+In-Reply-To: <20040927084149.GA3625@final-judgement.ath.cx>
+Message-ID: <Xine.LNX.4.44.0409271151500.21876-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409270852.44366.lkml@lpbproductions.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 27 September 2004 8:31 am, Gene Heskett wrote:
-> ones to be effected, so lets compare notes:
->
-> AMD Athlon 2800xp, biostar N7-NCD-Pro motherboard with an nforce2
-> chipset, and using the forcedeth driver for eth0.  A gigabyte of
-> DDR400 rated ram running in DDR333 dual channel mode, the 2800xp
-> Athlon can't handle the DDR400 fsb correctly. No acpi is enabled, and
-> apm only for shutdown control & rtc handling.
->
+On Mon, 27 Sep 2004, Andreas Happe wrote:
 
-Simular system here. Athlon 3000xp , with nforce2 chipset. 
+> just wanted to know if there's any feedback regarding this patch. It
+> still applies to -rc2 without problems.
+
+I'd like to replace /proc/crypto with this, but don't know how to do so
+with the current development model.  Do we start issuing warnings (i.e.  
+"this is going to disappear in one year") via printk now when someone
+accesses /proc/crypto ?
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264458AbTCXSX4>; Mon, 24 Mar 2003 13:23:56 -0500
+	id <S264293AbTCXSfV>; Mon, 24 Mar 2003 13:35:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264465AbTCXSX4>; Mon, 24 Mar 2003 13:23:56 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:4778 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S264458AbTCXSXz>; Mon, 24 Mar 2003 13:23:55 -0500
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: PixelView video4linux driver
-Date: 24 Mar 2003 19:36:25 +0100
-Organization: SuSE Labs, Berlin
-Message-ID: <87ptog628m.fsf@bytesex.org>
-References: <Pine.LNX.4.53.0303211420170.13876@chaos> <1048324118.3306.3.camel@LNX.iNES.RO> <3E7F1B6A.2000103@easynet.ro> <1048525157.25655.1.camel@irongate.swansea.linux.org.uk> <3E7F321A.1000809@easynet.ro>
-NNTP-Posting-Host: localhost
+	id <S264315AbTCXSfV>; Mon, 24 Mar 2003 13:35:21 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:18060 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP
+	id <S264293AbTCXSfU>; Mon, 24 Mar 2003 13:35:20 -0500
+Subject: Re: cyclades region handling updates from 2.4
+From: Henrique Gobbi <henrique.gobbi@cyclades.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030324182802.GC8300@suse.de>
+References: <200303241641.h2OGft35008188@deviant.impure.org.uk>
+	<3E7ED5F6.9090301@cyclades.com> <20030324180211.GA8300@suse.de>
+	<3E7ED9DF.5020909@cyclades.com>  <20030324182802.GC8300@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 24 Mar 2003 10:49:37 -0800
+Message-Id: <1048531778.1220.34.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Trace: bytesex.org 1048530985 32071 127.0.0.1 (24 Mar 2003 18:36:25 GMT)
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Damian <ddalex_krn@easynet.ro> writes:
+Hello,
 
-> Alan Cox a scris:
+> I think you've completley misunderstood whats going on.
+
+Looks like I have :)
+
+> This patch _already_ went into 2.4
+
+So what 2.4 kernel version has this patch ?
+
+regards
+henrique
+
+On Mon, 2003-03-24 at 10:28, Dave Jones wrote:
+> <linus taken out of cc>
 > 
-> >Gerd I guess. How are you handling the interlocking between the X server
-> >
-> I wrote the Gerd several times , but I got no replay... still trying
+> On Mon, Mar 24, 2003 at 10:11:43AM +0000, Henrique Gobbi wrote:
+> 
+>  > >if you have customers depending on 2.5 right now, you have bigger problems.
+>  > >Note this is only stuff that has already been merged into 2.4
+>  > 
+>  > No, there's no customers using 2.5. But there's a lot of them using 2.4. 
+>  >  Let's do like this. I'll test your patch and, if it works, Marcelo can 
+>  > merge it into the oficial 2.4.x tree.
+> 
+> I think you've completley misunderstood whats going on.
+> This patch _already_ went into 2.4
+> I've forward ported the fixes to 2.5, and sent these on.
+> There is nothing to do here for 2.4
 
-Into my personal mailbox?  Nothing arrived here ...
-I've only seen the call-for-testers announcement on the v4l list.
 
-> For now, you have to load the module after the X starts. Otherwise
-> it stucks up (deadlock I think ).
-
-Sounds like it needs some more work ...
-
-  Gerd
-
--- 
-/join #zonenkinder

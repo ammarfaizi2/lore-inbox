@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261423AbSIWVYZ>; Mon, 23 Sep 2002 17:24:25 -0400
+	id <S261449AbSIWVbh>; Mon, 23 Sep 2002 17:31:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261426AbSIWVYZ>; Mon, 23 Sep 2002 17:24:25 -0400
-Received: from jstevenson.plus.com ([212.159.71.212]:30258 "EHLO
-	alpha.stev.org") by vger.kernel.org with ESMTP id <S261423AbSIWVYI>;
-	Mon, 23 Sep 2002 17:24:08 -0400
-Subject: Re: kernel BUG at vmalloc.c:236!  version 2.4.19
-From: James Stevenson <james@stev.org>
-To: Martin Knott <martin@knotthome.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E17tHIy-0005Rd-00.2002-09-23-01-42-28@cmailg2.svr.pol.co.uk>
-References: <E17tHIy-0005Rd-00.2002-09-23-01-42-28@cmailg2.svr.pol.co.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 23 Sep 2002 22:25:37 +0100
-Message-Id: <1032816337.1699.0.camel@god.stev.org>
+	id <S261451AbSIWVbG>; Mon, 23 Sep 2002 17:31:06 -0400
+Received: from pc-80-195-34-180-ed.blueyonder.co.uk ([80.195.34.180]:32647
+	"EHLO sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S261450AbSIWV3b>; Mon, 23 Sep 2002 17:29:31 -0400
+Date: Mon, 23 Sep 2002 22:34:29 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: sct@redhat.com, akpm@digeo.com, Con Kolivas <conman@kolivas.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] EXT2 vs EXT3 System calls via oprofile using contest 0.34
+Message-ID: <20020923223429.V11682@redhat.com>
+References: <200209190142.58122.spstarr@sh0n.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200209190142.58122.spstarr@sh0n.net>; from spstarr@sh0n.net on Thu, Sep 19, 2002 at 01:42:58AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The following appears in dmesg:
-> 
-> kernel BUG at vmalloc.c:236!
-> invalid operand: 0000
-> CPU:    0
-> EIP:    1010:[<c012a997>]    Not tainted
-> EFLAGS: 00210246
-> eax: 00000000   ebx: 00000000   ecx: 00000000   edx: d20ddbfc
-> esi: 00000200   edi: d20ddc1c   ebp: c6a0fe5c   esp: c6a0fe2c
-> ds: 1018   es: 1018   ss: 1018
-> Process madvout (pid: 2750, stackpage=c6a0f000)
-> Stack: 00000000 00000200 d20ddc1c c02c8d5f 00000000 00000000 00000010 fffffffe
->        00000000 00000041 000031b5 d1df7f7c c6a0fe7c e21f8085 00000000 000001f2
->        00000163 d20ddb80 00000200 d20ddc1c c6a0fea0 e21f82f8 00000000 bffdb808
-> Call Trace:    [<e21f8085>] [<e21f82f8>] [<c0117318>] [<e21f949b>] 
-> [<c013a8d1>]
->   [<c013b21c>] [<c013a829>] [<c013bacb>] [<c01316af>] [<c01315bf>] 
-> [<c013e679>]
->   [<c01099fb>]
-> 
-> Code: 0f 0b ec 00 20 1b 24 c0 e9 65 01 00 00 6a 02 53 e8 94 fe ff
->  mask: 8000000000000000 usage: 8000000000000000
+Hi,
 
-would you be able to run that though ksymopps please.
+On Thu, Sep 19, 2002 at 01:42:58AM -0400, Shawn Starr wrote:
+ 
+> EXT3 kernel calls
+> ==========
+ 
+> Top 3:
+> c013cf70 16380    4.51113     get_hash_table          /lib/modules/2.4.20-pre7-rmap14a-xfs-uml-shawn12d/build/vmlinux
 
-thanks
-	James
+Same as ext2...
 
+> c016b090 22883    6.30209     do_get_write_access     /lib/modules/2.4.20-pre7-rmap14a-xfs-uml-shawn12d/build/vmlinux
 
+That's an inevitable penalty from the way ext3 does journaling --- you
+get two copies of data if a filesystem operation updates a block that
+is still being journaled (because we need to snapshot the old copy to
+write to the journal).  That's done when ext3 notifies an intent to
+modify the old block, so all those copies show up in
+do_get_write_access.
 
+> c0164910 26375    7.2638      ext3_do_update_inode    /lib/modules/2.4.20-pre7-rmap14a-xfs-uml-shawn12d/build/vmlinux
+
+I've got a fix for excessive CPU time spent here.
+
+--Stephen

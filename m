@@ -1,31 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262555AbVCIX5C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262320AbVCJACJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262555AbVCIX5C (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 18:57:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262334AbVCIX4p
+	id S262320AbVCJACJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 19:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVCJAA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 18:56:45 -0500
-Received: from fire.osdl.org ([65.172.181.4]:3495 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262065AbVCIXu4 (ORCPT
+	Wed, 9 Mar 2005 19:00:59 -0500
+Received: from waste.org ([216.27.176.166]:24486 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262320AbVCIX5d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 18:50:56 -0500
-Date: Wed, 9 Mar 2005 15:50:49 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Russell King <rmk+serial@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-Subject: Someting's busted with serial in 2.6.11 latest
-Message-ID: <20050309155049.4e7cb1f4@dxpl.pdx.osdl.net>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed-Claws 1.0.1 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Wed, 9 Mar 2005 18:57:33 -0500
+Date: Wed, 9 Mar 2005 15:57:16 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, chrisw@osdl.org,
+       torvalds@osdl.org, akpm@osdl.org
+Subject: Re: Linux 2.6.11.2
+Message-ID: <20050309235716.GZ3163@waste.org>
+References: <20050309083923.GA20461@kroah.com> <Pine.LNX.4.61.0503090950200.7496@student.dei.uc.pt> <20050309111102.GA30119@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050309111102.GA30119@elf.ucw.cz>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some checkin since 2.6.11 has caused the serial driver to
-drop characters.  Console output is chopped and messages are garbled.
-Even the shell prompt gets truncated.
+On Wed, Mar 09, 2005 at 12:11:02PM +0100, Pavel Machek wrote:
+> On St 09-03-05 09:52:46, Marcos D. Marado Torres wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > On Wed, 9 Mar 2005, Greg KH wrote:
+> > 
+> > >which is a patch against the 2.6.11.1 release.  If consensus arrives
+> > >that this patch should be against the 2.6.11 tree, it will be done that
+> > >way in the future.
+> > 
+> > IMHO it sould be against 2.6.11 and not 2.6.11.1, like -rc's that are'nt 
+> > againt
+> > the last -rc but against 2.6.x.
+> 
+> You expect people to go through all 2.6.11.1, 2.6.11.2, ... . That
+> means .11.2 should be relative to .11.1, because otherwise people will
+> have to revert (ugly). And you want people to track -stable kernels as
+> fast as possible.
 
+There are three ways we can do this:
+
+a) all 2.6.x.y are diffs against 2.6.x
+b) interdiffs for .1, .2, etc. with 2.6.x+1 diffed against 2.6.x
+c) interdiffs and 2.6.12 is a diff against 2.6.11.last
+
+Imagine we want to go from 2.6.11.3 to 2.6.12
+
+case a)
+revert patch 2.6.11.3
+get and apply 2.6.12
+
+case b)
+revert patch 2.6.11.3
+revert patch 2.6.11.2
+revert patch 2.6.11.1
+get and apply 2.6.12
+
+case c)
+poke around on kernel.org and figure out that the last kernel in .11 is .11.5
+get and apply 2.6.11.4
+get and apply 2.6.11.5
+get and apply 2.6.12
+
+Note this gets increasingly more painful in cases b and c when there
+are a large number of post-releases. And case c) is really stupid when
+you want to go from 2.6.12 to 2.6.11.
+
+Also note that -pre, -rc, -bk, -mm, -ac, and every other branch off a
+release has worked the a) way.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

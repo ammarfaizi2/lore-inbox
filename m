@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319554AbSIMI3e>; Fri, 13 Sep 2002 04:29:34 -0400
+	id <S319561AbSIMIlK>; Fri, 13 Sep 2002 04:41:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319561AbSIMI3e>; Fri, 13 Sep 2002 04:29:34 -0400
-Received: from sv1.valinux.co.jp ([202.221.173.100]:33801 "HELO
-	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S319554AbSIMI3d>;
-	Fri, 13 Sep 2002 04:29:33 -0400
-Date: Fri, 13 Sep 2002 17:26:39 +0900 (JST)
-Message-Id: <20020913.172639.63505761.taka@valinux.co.jp>
-To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org, janetmor@us.ibm.com
-Subject: Re: [patch] readv/writev rework
-From: Hirokazu Takahashi <taka@valinux.co.jp>
-In-Reply-To: <3D81A200.C1B6A293@digeo.com>
-References: <3D80E139.ACC1719D@digeo.com>
-	<20020913.162252.56050784.taka@valinux.co.jp>
-	<3D81A200.C1B6A293@digeo.com>
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S319562AbSIMIlK>; Fri, 13 Sep 2002 04:41:10 -0400
+Received: from mail.actcom.co.il ([192.114.47.13]:37251 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S319561AbSIMIlJ>; Fri, 13 Sep 2002 04:41:09 -0400
+Subject: Re: building a very basic minimal LINUX.
+From: Gilad Ben-Yossef <gilad@benyossef.com>
+To: Vishal <vishal@naturesoft.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1031904489.2888.138.camel@vishal.naturesoft.com>
+References: <1031904489.2888.138.camel@vishal.naturesoft.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 13 Sep 2002 11:46:20 +0300
+Message-Id: <1031906780.7507.31.camel@gby.benyossef.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, 2002-09-13 at 11:08, Vishal wrote:
+> Hi all,
+>   i want to start work on building a base linux system(i386 machine,32MB
+> flash,with networking support) to be installed on flash for an embedded
+> system. Can anyone direct me to any information\docs\ideas for starting
+> off with such work?.
+>   Thanks in advance.
+> regards,
+> Vishal
 
-I appreciate for your kind answer.
-I understand clearly.
-Ok, this means new filemap_copy_from_user_iovec() also have to
-use regular kmap when page fault has happened.
-I'll fix it soon.
+The Linux Router Project
+Embedded Debian project,
+Freesco
+Linux on a floppy (LOAF)
 
-> > I updated the writev patch which may be easy to understand.
-> > How about it?
+<Shameless plug>
+You might want to check out
+http://benyossef.com/presentations/linux_inside/ as well
+</Shameless plug>
+
+Gilad
+
 > 
-> Looks nice.   And yes, you hung onto the atomic kmap across multiple
-> iov segments ;)  That will save a tlb invalidate per segment.
-
-Yes.
-
-> > But I have one question, Could let me know if you have any idea,
-> > why does filemap_copy_from_user() try to call kamp()+__copy_from_user()
-> > again after the first trial get fault.
-> > 
-> > Is there any meanings?
 > 
-> We're not allowed to schedule away inside atomic_kmap - must remain
-> in the same task, on the same CPU etc.  So the pagefault handler
-> will return immediately if we take a pagefault while copying to/from
-> userspace while holding an atomic kmap.
-
+>   
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Gilad Ben-Yossef <gilad@benyossef.com>
+http://benyossef.com
+ 
+ "We don't need kernel hackers or geniuses, we need good developers who
+  will do what they're told". Famous last words, the collection.
 

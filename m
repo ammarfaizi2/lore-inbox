@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264505AbUFSXB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUFSXFl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264505AbUFSXB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 19:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbUFSXB0
+	id S264503AbUFSXFl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 19:05:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbUFSXFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 19:01:26 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:59840 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S264505AbUFSXBY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 19:01:24 -0400
-Date: Sun, 20 Jun 2004 00:00:11 +0100
-From: Dave Jones <davej@redhat.com>
-To: matthew-lkml@newtoncomputing.co.uk
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Stop printk printing non-printable chars
-Message-ID: <20040619230010.GA16841@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	matthew-lkml@newtoncomputing.co.uk, Jesper Juhl <juhl-lkml@dif.dk>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040618205355.GA5286@newtoncomputing.co.uk> <Pine.LNX.4.58.0406181407330.6178@ppc970.osdl.org> <Pine.LNX.4.56.0406190032290.17899@jjulnx.backbone.dif.dk> <20040618235223.GB5286@newtoncomputing.co.uk>
+	Sat, 19 Jun 2004 19:05:41 -0400
+Received: from port760.ds1-suoe.adsl.cybercity.dk ([212.242.163.7]:11610 "EHLO
+	mha.dyndns.dk") by vger.kernel.org with ESMTP id S264503AbUFSXFe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 19:05:34 -0400
+Subject: Re: Corruption and crashes with SIL3112A SATA chipset
+From: Martin Alexander Hammer <mha@mha.dyndns.dk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <40D4A5AB.9060105@pobox.com>
+References: <1087668387.1972.72.camel@idoru>  <40D4A5AB.9060105@pobox.com>
+Content-Type: text/plain
+Message-Id: <1087686333.4673.14.camel@idoru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040618235223.GB5286@newtoncomputing.co.uk>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 20 Jun 2004 01:05:33 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 19, 2004 at 12:52:23AM +0100, matthew-lkml@newtoncomputing.co.uk wrote:
+On Sat, 2004-06-19 at 22:44, Jeff Garzik wrote:
+> Does it help to add the Seagate disk model number to the blacklist in 
+> sata_sil.c?
 
- > I must admit, I don't think I've even seen a tab before (not that you'd
- > actually _see_ a tab). Oh, grep tells me that powernow uses it. By the
- > time that gets through syslog it's changed into "^I", so it would
- > probably be better to not actually use tabs, either (or fix syslog).
+Well, I added the model number (ST3200822AS) to the blacklist, and now
+the controller doesn't see the disks anymore:
 
-I've been meaning to fix that for a while, and kept forgetting
-about it.  I just fixed it in my local cpufreq tree, and will
-push it along with the next lot of updates.
+libata version 1.02 loaded.
+sata_sil version 0.54
+ata1: SATA max UDMA/100 cmd 0xD280F080 ctl 0xD280F08A bmdma 0xD280F000 irq 18
+ata2: SATA max UDMA/100 cmd 0xD280F0C0 ctl 0xD280F0CA bmdma 0xD280F008 irq 18
+ata1: no device found (phy stat 00000000)
+scsi1 : sata_sil
+ata2: no device found (phy stat 00000000)
+scsi2 : sata_sil
 
-Thanks,
+-- 
+Med venlig hilsen
 
-		Dave
+Martin Alexander Hammer
+http://mha.dyndns.dk
 

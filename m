@@ -1,67 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129322AbQKHNf1>; Wed, 8 Nov 2000 08:35:27 -0500
+	id <S129069AbQKHNoB>; Wed, 8 Nov 2000 08:44:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129226AbQKHNfS>; Wed, 8 Nov 2000 08:35:18 -0500
-Received: from [204.177.156.37] ([204.177.156.37]:40417 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S129118AbQKHNfE>; Wed, 8 Nov 2000 08:35:04 -0500
-Message-ID: <3A095750.FA16D022@veritas.com>
-Date: Wed, 08 Nov 2000 19:08:24 +0530
-From: "Amit S. Kale" <akale@veritas.com>
-Organization: Veritas Software (India)
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Translation Filesystem
-In-Reply-To: <3A0109D6.4DFA2F62@veritas.com> <20001106094553.C128@bug.ucw.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129112AbQKHNnm>; Wed, 8 Nov 2000 08:43:42 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:38997 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S129069AbQKHNnh>; Wed, 8 Nov 2000 08:43:37 -0500
+Date: Wed, 8 Nov 2000 07:43:29 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200011081343.HAA341140@tomcat.admin.navo.hpc.mil>
+To: jmerkey@vger.timpanogas.org, davej@suse.de
+Subject: Re: Installing kernel 2.4
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+---------  Received message begins Here  ---------
+
 > 
-> Hi!
+> On Wed, Nov 08, 2000 at 03:25:56AM +0000, davej@suse.de wrote:
+> > On Tue, 7 Nov 2000, Jeff V. Merkey wrote:
+> > 
+> > > If the compiler always aligned all functions and data on 16 byte
+> > > boundries (NetWare)  for all i386 code, it would run a lot faster.
+> > 
+> > Except on architectures where 16 byte alignment isn't optimal.
+> > 
+> > > Cache line alignment could be an option in the loader .... after all,
+> > > it's hte loader that locates data in memory.  If Linux were PE based,
+> > > relocation logic would be a snap with this model (like NT).
+> > 
+> > Are you suggesting multiple files of differing alignments packed into
+> > a single kernel image, and have the loader select the correct one at
+> > runtime ? I really hope I've misinterpreted your intention.
 > 
-> > I have started a new virtual filesystem project, Translation Filesystem
-> > at
-> > http://trfs.sourceforge.net/  Description of the project is given below.
-> >
-> > It's still at a concept stage. If someone has any ideas about any useful
-> > translators that fit in this framework please write to me.
-> > Any feedback is most welcome.
+> Or more practically, a smart loader than could select a kernel image
+> based on arch and auto-detect to load the correct image. I don't really
+> think it matters much what mechanism is used.   
 > 
-> Well - I can certainly not do zero-copy block device access.
-> 
-> What are expected usages of your translation filesystem?
-> Hi-performance things like zero-copy block device access, or
-> low-performance things like transparently ungzipping? If it is the
-> second case, uservfs.sourceforge.net is perfectly applicable, if not,
-> you really need to modify kernel..
+> What makes more sense is to pack multiple segments for different 
+> processor architecures into a single executable package, and have the 
+> loader pick the right one (the NT model).  It could be used for 
+> SMP and non-SMP images, though, as well as i386, i586, i686, etc.  
 
-Thanks for your comments.
+Sure.. and it will also be able to boot on Alpha/Sparc/PPC....:)
 
-trfs is just a framework for creating views. Translators are independent
-entities, so the use of trfs will be more dependent on what translators
-are present. Since translators are independent of each other, 
-they can be used for hi-performance as well as low-performance things.
+The best is to have the installer (person) to select the primary
+archecture from a CD. There will NOT be a single boot loader that will
+work for all systems. At best, there will have to be one per CPU family,
+but more likely, one per BIOS structure. This is the only thing that can
+determine the primary boot.
 
-Translators need not be inside the trfs module (right now raw translator
-is because the interface for translators isn't fixed yet). The raw
-translator is dependent on block devices. A translator for some other
-thing say a tar-directory translation could be dependent on a userfs.
+The primary boot can then determine which CPU type (starting with the
+smallest common CPU), and set flags for a kernel (minimal kernel) load.
+During the startup of THAT kernel then the selection of target RPM can
+be made that would install a kernel for the specific architetcure. After
+a (minimal?) system install, a reboot would be necessary.
 
-e.g.
-/trfs/tar/foo->/home/username/foo.tar
+It actually seems like it would be simpler to use the minimal kernel
+to rebuild the kernel for the local architecture. MUCH less work.
+This still requires a CPU family selection by the person doing the install.
+Nothing will get around that.
 
-tar translator uses uservfs to create a view
-It will use /uservfs/<something>/foo.tar#<bar>
--- 
-Amit Kale
-Veritas Software ( http://www.veritas.com )
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

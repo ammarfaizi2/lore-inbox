@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbTEKRCI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 13:02:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbTEKRCI
+	id S261789AbTEKRMS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 13:12:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbTEKRMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 13:02:08 -0400
-Received: from siaab2ab.compuserve.com ([149.174.40.130]:62969 "EHLO
-	siaab2ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S261769AbTEKRCH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 13:02:07 -0400
-Date: Sun, 11 May 2003 13:12:11 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: PROBLEM: ide_floppy and 2.5.69
-To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200305111314_MC3-1-3860-9546@compuserve.com>
+	Sun, 11 May 2003 13:12:17 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4825 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261789AbTEKRMQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 13:12:16 -0400
+Message-ID: <3EBE8768.4000007@pobox.com>
+Date: Sun, 11 May 2003 13:24:56 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+CC: Daniel Ritz <daniel.ritz@gmx.ch>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@diego.com>
+Subject: Re: [bug 2.5.69] xirc2ps_cs, irq 3: nobody cared, shutdown hangs
+References: <200305111647.32113.daniel.ritz@gmx.ch> <Pine.LNX.4.50.0305111202510.15337-100000@montezuma.mastecende.com>
+In-Reply-To: <Pine.LNX.4.50.0305111202510.15337-100000@montezuma.mastecende.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Udo A. Steinberg" wrote:
-
-> hde: 98304kB, 96/64/32 CHS, 4096 kBps, 512 sector size, 2941 rpm
->  hde: hde1
->  hde: hde1
-> Badness in kobject_register at lib/kobject.c:293
-> Call Trace:
->  [<c020c968>] kobject_register+0x58/0x70
->  [<c017c747>] register_disk+0x137/0x140
->  [<c026609e>] add_disk+0x4e/0x60
->  [<c0266020>] exact_match+0x0/0x10
->  [<c0266030>] exact_lock+0x0/0x20
->  [<c02a6def>] idefloppy_attach+0x16f/0x1a0
->  [<c029b49f>] ata_attach+0x4f/0x120
->  [<c029c3b5>] ide_register_driver+0xf5/0x110
->  [<c02a6e3b>] idefloppy_init+0x1b/0x60
->  [<c046272c>] do_initcalls+0x2c/0xa0
->  [<c01288df>] init_workqueues+0xf/0x30
->  [<c01050a3>] init+0x33/0x190
->  [<c0105070>] init+0x0/0x190
->  [<c010707d>] kernel_thread_helper+0x5/0x18
+Zwane Mwaikambo wrote:
+> @@ -1312,7 +1312,7 @@ xirc2ps_interrupt(int irq, void *dev_id,
+>  				  */
+>  
+>      if (!netif_device_present(dev))
+> -	return IRQ_NONE;
+> +	goto out;
+>  
+>      ioaddr = dev->base_addr;
+>      if (lp->mohawk) { /* must disable the interrupt */
+> @@ -1515,6 +1515,7 @@ xirc2ps_interrupt(int irq, void *dev_id,
+>       * force an interrupt with this command:
+>       *	  PutByte(XIRCREG_CR, EnableIntr|ForceIntr);
+>       */
+> +  out:
+>      return IRQ_RETVAL(handled);
+>  } /* xirc2ps_interrupt */
 
 
-  It is trying to register the object "hde1" twice and getting
--EEXIST on the second try.
+If this patch works, it's mainly a signal to dig deeper.
 
-  I reported this to the list over a month ago...
+If netif_device_present() returns false, we think the hardware has 
+disappeared.  So that implies a bug in calling netif_device_detach() no 
+a bug in the irq handler return value.
+
+This is _especially_ true for pcmcia, even more than pci.  PCI ejects 
+(including cardbus) are electrically safe, whereas pcmcia is different. 
+  If pcmcia hardware disappears on you, you _really_ don't want to be 
+bitbanging its ports.
+
+	Jeff
+
 
 

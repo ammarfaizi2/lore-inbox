@@ -1,80 +1,304 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262558AbTKYNeV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 08:34:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbTKYNeV
+	id S262546AbTKYNac (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 08:30:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbTKYNac
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 08:34:21 -0500
-Received: from smtp.dei.uc.pt ([193.137.203.228]:32651 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S262558AbTKYNeT (ORCPT
+	Tue, 25 Nov 2003 08:30:32 -0500
+Received: from mx01.netapp.com ([198.95.226.53]:32447 "EHLO mx01.netapp.com")
+	by vger.kernel.org with ESMTP id S262546AbTKYNaX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 08:34:19 -0500
-Date: Tue, 25 Nov 2003 13:34:01 +0000 (WET)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.23-rc5
-In-Reply-To: <Pine.LNX.4.44.0311250940190.1451-100000@logos.cnet>
-Message-ID: <Pine.LNX.4.58.0311251333200.22457@student.dei.uc.pt>
-References: <Pine.LNX.4.44.0311250940190.1451-100000@logos.cnet>
+	Tue, 25 Nov 2003 08:30:23 -0500
+From: Brian Pawlowski <beepy@netapp.com>
+Message-Id: <200311251329.hAPDTlL12292@orbit-fe.eng.netapp.com>
+Subject: Re: [PATCH] 1/2 POSIX message queues
+In-Reply-To: <Pine.GSO.4.58.0311251233040.12527@Juliusz> from Michal Wronski at "Nov 25, 3 12:40:24 pm"
+To: wrona@mat.uni.torun.pl (Michal Wronski)
+Date: Tue, 25 Nov 2003 05:29:47 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org, golbi@mat.uni.torun.pl
+X-Mailer: ELM [version 2.4ME++ PL40 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-DEI-MailScanner: Found to be clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+And in teh end, satisfying Torvalds is all up to Tove.
 
-It's not on kernel.org yet...
-Did you forgot to upload it again? O:-)
-
-Marcos Marado
-
-- --
-==================================================
-Marcos Daniel Marado Torres AKA Mind Booster Noori
-/"\               http://student.dei.uc.pt/~marado
-\ /                       marado@student.dei.uc.pt
- X   ASCII Ribbon Campaign
-/ \  against HTML e-mail and Micro$oft attachments
-==================================================
-
-On Tue, 25 Nov 2003, Marcelo Tosatti wrote:
-
->
->
-> Hi,
->
-> Yet another thing showed up (possible data corruption on x86-64), so here
-> goes -rc5.
->
->
-> Summary of changes from v2.4.23-rc4 to v2.4.23-rc5
-> ============================================
->
-> Andi Kleen:
->   o Fix 32bit truncate64 on x86-64
->
-> Marcelo Tosatti:
->   o Felix Radensky: Remove debugging printk from agpgart
->   o Changed EXTRAVERSION to -rc5
->
->
->
+> Here is improved version of mqueues (against 2.6.0-test10).
+> As suggested it is split into two patches.
+> The first one moves free/load/store_msg from msg.c to util.c
+> The second one contains mqueues specific code.
+> 
+> We have applied some fixes and added support for sysctls. Each parameter
+> is now tunable. Global limit for messages size was removed.
+> Also there are some changes taken from J. Korty patch to make this code
+> more arch portable.
+> 
+> New library is available at:
+> http://www.mat.uni.torun.pl/~wrona/posix_ipc
+> 
+> Regards,
+> Michal
+> 
+> 
+> 
+> diff -urN 2.6.0-test10-orig_1/ipc/msg.c 2.6.0-test10-patched_1/ipc/msg.c
+> --- 2.6.0-test10-orig_1/ipc/msg.c	2003-11-07 17:07:13.000000000 +0100
+> +++ 2.6.0-test10-patched_1/ipc/msg.c	2003-11-21 17:11:17.000000000 +0100
+> @@ -51,11 +51,6 @@
+>  	struct task_struct* tsk;
+>  };
+> 
+> -struct msg_msgseg {
+> -	struct msg_msgseg* next;
+> -	/* the next part of the message follows immediately */
+> -};
+> -
+>  #define SEARCH_ANY		1
+>  #define SEARCH_EQUAL		2
+>  #define SEARCH_NOTEQUAL		3
+> @@ -129,106 +124,6 @@
+>  	return msg_buildid(id,msq->q_perm.seq);
+>  }
+> 
+> -static void free_msg(struct msg_msg* msg)
+> -{
+> -	struct msg_msgseg* seg;
+> -
+> -	security_msg_msg_free(msg);
+> -
+> -	seg = msg->next;
+> -	kfree(msg);
+> -	while(seg != NULL) {
+> -		struct msg_msgseg* tmp = seg->next;
+> -		kfree(seg);
+> -		seg = tmp;
+> -	}
+> -}
+> -
+> -static struct msg_msg* load_msg(void* src, int len)
+> -{
+> -	struct msg_msg* msg;
+> -	struct msg_msgseg** pseg;
+> -	int err;
+> -	int alen;
+> -
+> -	alen = len;
+> -	if(alen > DATALEN_MSG)
+> -		alen = DATALEN_MSG;
+> -
+> -	msg = (struct msg_msg *) kmalloc (sizeof(*msg) + alen, GFP_KERNEL);
+> -	if(msg==NULL)
+> -		return ERR_PTR(-ENOMEM);
+> -
+> -	msg->next = NULL;
+> -	msg->security = NULL;
+> -
+> -	if (copy_from_user(msg+1, src, alen)) {
+> -		err = -EFAULT;
+> -		goto out_err;
+> -	}
+> -
+> -	len -= alen;
+> -	src = ((char*)src)+alen;
+> -	pseg = &msg->next;
+> -	while(len > 0) {
+> -		struct msg_msgseg* seg;
+> -		alen = len;
+> -		if(alen > DATALEN_SEG)
+> -			alen = DATALEN_SEG;
+> -		seg = (struct msg_msgseg *) kmalloc (sizeof(*seg) + alen, GFP_KERNEL);
+> -		if(seg==NULL) {
+> -			err=-ENOMEM;
+> -			goto out_err;
+> -		}
+> -		*pseg = seg;
+> -		seg->next = NULL;
+> -		if(copy_from_user (seg+1, src, alen)) {
+> -			err = -EFAULT;
+> -			goto out_err;
+> -		}
+> -		pseg = &seg->next;
+> -		len -= alen;
+> -		src = ((char*)src)+alen;
+> -	}
+> -
+> -	err = security_msg_msg_alloc(msg);
+> -	if (err)
+> -		goto out_err;
+> -
+> -	return msg;
+> -
+> -out_err:
+> -	free_msg(msg);
+> -	return ERR_PTR(err);
+> -}
+> -
+> -static int store_msg(void* dest, struct msg_msg* msg, int len)
+> -{
+> -	int alen;
+> -	struct msg_msgseg *seg;
+> -
+> -	alen = len;
+> -	if(alen > DATALEN_MSG)
+> -		alen = DATALEN_MSG;
+> -	if(copy_to_user (dest, msg+1, alen))
+> -		return -1;
+> -
+> -	len -= alen;
+> -	dest = ((char*)dest)+alen;
+> -	seg = msg->next;
+> -	while(len > 0) {
+> -		alen = len;
+> -		if(alen > DATALEN_SEG)
+> -			alen = DATALEN_SEG;
+> -		if(copy_to_user (dest, seg+1, alen))
+> -			return -1;
+> -		len -= alen;
+> -		dest = ((char*)dest)+alen;
+> -		seg=seg->next;
+> -	}
+> -	return 0;
+> -}
+> -
+>  static inline void ss_add(struct msg_queue* msq, struct msg_sender* mss)
+>  {
+>  	mss->tsk=current;
+> diff -urN 2.6.0-test10-orig_1/ipc/util.c 2.6.0-test10-patched_1/ipc/util.c
+> --- 2.6.0-test10-orig_1/ipc/util.c	2003-11-07 17:07:13.000000000 +0100
+> +++ 2.6.0-test10-patched_1/ipc/util.c	2003-11-21 17:11:17.000000000 +0100
+> @@ -611,3 +611,107 @@
+>  }
+> 
+>  #endif /* CONFIG_SYSVIPC */
+> +
+> +#ifdef CONFIG_SYSVIPC
+> +
+> +void free_msg(struct msg_msg* msg)
+> +{
+> +	struct msg_msgseg* seg;
+> +
+> +	security_msg_msg_free(msg);
+> +
+> +	seg = msg->next;
+> +	kfree(msg);
+> +	while(seg != NULL) {
+> +		struct msg_msgseg* tmp = seg->next;
+> +		kfree(seg);
+> +		seg = tmp;
+> +	}
+> +}
+> +
+> +struct msg_msg* load_msg(void* src, int len)
+> +{
+> +	struct msg_msg* msg;
+> +	struct msg_msgseg** pseg;
+> +	int err;
+> +	int alen;
+> +
+> +	alen = len;
+> +	if(alen > DATALEN_MSG)
+> +		alen = DATALEN_MSG;
+> +
+> +	msg = (struct msg_msg *) kmalloc (sizeof(*msg) + alen, GFP_KERNEL);
+> +	if(msg==NULL)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	msg->next = NULL;
+> +	msg->security = NULL;
+> +
+> +	if (copy_from_user(msg+1, src, alen)) {
+> +		err = -EFAULT;
+> +		goto out_err;
+> +	}
+> +
+> +	len -= alen;
+> +	src = ((char*)src)+alen;
+> +	pseg = &msg->next;
+> +	while(len > 0) {
+> +		struct msg_msgseg* seg;
+> +		alen = len;
+> +		if(alen > DATALEN_SEG)
+> +			alen = DATALEN_SEG;
+> +		seg = (struct msg_msgseg *) kmalloc (sizeof(*seg) + alen, GFP_KERNEL);
+> +		if(seg==NULL) {
+> +			err=-ENOMEM;
+> +			goto out_err;
+> +		}
+> +		*pseg = seg;
+> +		seg->next = NULL;
+> +		if(copy_from_user (seg+1, src, alen)) {
+> +			err = -EFAULT;
+> +			goto out_err;
+> +		}
+> +		pseg = &seg->next;
+> +		len -= alen;
+> +		src = ((char*)src)+alen;
+> +	}
+> +
+> +	err = security_msg_msg_alloc(msg);
+> +	if (err)
+> +		goto out_err;
+> +
+> +	return msg;
+> +
+> +out_err:
+> +	free_msg(msg);
+> +	return ERR_PTR(err);
+> +}
+> +
+> +int store_msg(void* dest, struct msg_msg* msg, int len)
+> +{
+> +	int alen;
+> +	struct msg_msgseg *seg;
+> +
+> +	alen = len;
+> +	if(alen > DATALEN_MSG)
+> +		alen = DATALEN_MSG;
+> +	if(copy_to_user (dest, msg+1, alen))
+> +		return -1;
+> +
+> +	len -= alen;
+> +	dest = ((char*)dest)+alen;
+> +	seg = msg->next;
+> +	while(len > 0) {
+> +		alen = len;
+> +		if(alen > DATALEN_SEG)
+> +			alen = DATALEN_SEG;
+> +		if(copy_to_user (dest, seg+1, alen))
+> +			return -1;
+> +		len -= alen;
+> +		dest = ((char*)dest)+alen;
+> +		seg=seg->next;
+> +	}
+> +	return 0;
+> +}
+> +
+> +#endif /* CONFIG_SYSVIPC */
+> diff -urN 2.6.0-test10-orig_1/ipc/util.h 2.6.0-test10-patched_1/ipc/util.h
+> --- 2.6.0-test10-orig_1/ipc/util.h	2003-11-07 17:07:13.000000000 +0100
+> +++ 2.6.0-test10-patched_1/ipc/util.h	2003-11-21 17:11:17.000000000 +0100
+> @@ -25,6 +25,16 @@
+>  	struct kern_ipc_perm* p;
+>  };
+> 
+> +struct msg_msgseg {
+> +	struct msg_msgseg* next;
+> +	/* the next part of the message follows immediately */
+> +};
+> +
+> +void free_msg(struct msg_msg* msg);
+> +struct msg_msg* load_msg(void* src, int len);
+> +int store_msg(void* dest, struct msg_msg* msg, int len);
+> +
+> +
+>  void __init ipc_init_ids(struct ipc_ids* ids, int size);
+> 
+>  /* must be called with ids->sem acquired.*/
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
->
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
-
-iD8DBQE/w1pOmNlq8m+oD34RAhE5AKCXsmUR1AM6Is76HSO6VxUma9O9TwCdFEvo
-p11Y6XEbIxeVDUYTAB+xdXo=
-=ggWy
------END PGP SIGNATURE-----
 

@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbTIINiF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 09:38:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264114AbTIINiE
+	id S264097AbTIINnH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 09:43:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264114AbTIINnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 09:38:04 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:24453 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264113AbTIINiC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 09:38:02 -0400
-Subject: Re: Use of AI for process scheduling -- deja-vu all over again
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Vagn Scott <vagn@ranok.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F5D642D.33C98444@ranok.com>
-References: <3F5D642D.33C98444@ranok.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063114613.30109.16.camel@dhcp23.swansea.linux.org.uk>
+	Tue, 9 Sep 2003 09:43:07 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:32396 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264097AbTIINnF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 09:43:05 -0400
+Date: Tue, 9 Sep 2003 15:09:02 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andreas Dilger <adilger@clusterfs.com>, Mike Fedyk <mfedyk@matchmail.com>,
+       Andrew Morton <akpm@osdl.org>, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: precise characterization of ext3 atomicity
+Message-ID: <20030909130902.GE3944@openzaurus.ucw.cz>
+References: <3F574A49.7040900@namesys.com> <20030904085537.78c251b3.akpm@osdl.org> <3F576176.3010202@namesys.com> <20030904091256.1dca14a5.akpm@osdl.org> <3F57676E.7010804@namesys.com> <20030904181540.GC13676@matchmail.com> <3F578656.60005@namesys.com> <20030904132804.D15623@schatzie.adilger.int> <3F57AF79.1040702@namesys.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Tue, 09 Sep 2003 14:36:53 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F57AF79.1040702@namesys.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-09-09 at 06:25, Vagn Scott wrote:
-> Remember this guy?
-> 
-> http://www.iit.edu/~elrad/esep.html
-> 
-> The old GA plug-in scheduler from 2.0.
-> At the bottom of the page he indicates he's got a patent on it, too.
+Hi!
 
-He released the Linux one GPL so he's already granted GPL usage rights
-(see the GPL license). If he wants to make a lot of money of proprietary
-vendors by playing the US patent game so be it. I imagine anyone who
-wants it will just countersue him for something bogus and take it as
-part of the settlement when he goes bankrupt.
+> Yup.  That's why we confine it to a (finite #defined number) set of 
+> operations within one sys_reiser4 call.  At some point we will allow 
+> trusted user space processes to span multiple system calls (mail 
+> server applicances, database appliances, etc., might find this 
+> useful).  You might consider supporting sys_reiser4 at some point.
 
+
+Well, if you want that API to be widely usable, you should invent
+better name than sys_reiser4 :-).
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 

@@ -1,33 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263521AbRFNSNr>; Thu, 14 Jun 2001 14:13:47 -0400
+	id <S263630AbRFNSR5>; Thu, 14 Jun 2001 14:17:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263606AbRFNSNh>; Thu, 14 Jun 2001 14:13:37 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47373 "EHLO
+	id <S263608AbRFNSRk>; Thu, 14 Jun 2001 14:17:40 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:52749 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263521AbRFNSNa>; Thu, 14 Jun 2001 14:13:30 -0400
-Subject: Re: unregistered changes to the user<->kernel API
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Thu, 14 Jun 2001 19:11:27 +0100 (BST)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        torvalds@transmeta.com (Linus Torvalds), mingo@elte.hu (Ingo Molnar),
-        linux-kernel@vger.kernel.org, rth@redhat.com (Richard Henderson)
-In-Reply-To: <20010614200328.A2115@athlon.random> from "Andrea Arcangeli" at Jun 14, 2001 08:03:28 PM
+	id <S263607AbRFNSRb>; Thu, 14 Jun 2001 14:17:31 -0400
+Subject: Re: threading question
+To: ognen@gene.pbi.nrc.ca
+Date: Thu, 14 Jun 2001 19:15:48 +0100 (BST)
+Cc: davidel@xmailserver.org (Davide Libenzi), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0106121546510.11222-100000@gene.pbi.nrc.ca> from "ognen@gene.pbi.nrc.ca" at Jun 12, 2001 03:48:34 PM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15AbaZ-00054p-00@the-village.bc.nu>
+Message-Id: <E15Abem-00055Y-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Tangent:  Why is this webserver-specific crap in kernel_stat anyway?  It
-> > Even when merging Tux, I would hope Linus would not apply this
-> > particular change.
-> 
-> Indeed, I also said this in my first email :)
+> they are done. This should help it (and avoid the pthread_create,
+> pthread_exit). I will implement this and report my results if there is
+> interest.
 
-I dont see why Tux should be merged. If we have people achieving the same
-performance in user space with the core facilities tux added to the kernel
-like the better irq/sendfile stuff why bother merging tux ?
+You should also check up the cache colouring. X86 boxes have relatively poor
+memory performance and most x86 chips have lousy behaviour when data bounces
+between processors or is driven out of cache

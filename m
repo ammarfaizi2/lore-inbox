@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265133AbRGQK2e>; Tue, 17 Jul 2001 06:28:34 -0400
+	id <S265446AbRGQKbE>; Tue, 17 Jul 2001 06:31:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264990AbRGQK2Y>; Tue, 17 Jul 2001 06:28:24 -0400
-Received: from tahallah.demon.co.uk ([158.152.175.193]:36360 "EHLO
-	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S265133AbRGQK2Q>; Tue, 17 Jul 2001 06:28:16 -0400
-Date: Tue, 17 Jul 2001 11:26:58 +0100 (BST)
-From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-X-X-Sender: <alex@tahallah.demon.co.uk>
-Reply-To: <alex.buell@tahallah.demon.co.uk>
-To: "Michael H. Warfield" <mhw@wittsend.com>
-cc: Alexander Viro <viro@math.psu.edu>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>, Adam <adam@eax.com>,
-        Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Duplicate '..' in /lib
-In-Reply-To: <20010716222215.A4695@alcove.wittsend.com>
-Message-ID: <Pine.LNX.4.33.0107171123320.3591-100000@tahallah.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265439AbRGQKaz>; Tue, 17 Jul 2001 06:30:55 -0400
+Received: from rcum.uni-mb.si ([164.8.2.10]:56077 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S265148AbRGQKag>;
+	Tue, 17 Jul 2001 06:30:36 -0400
+Date: Tue, 17 Jul 2001 12:30:33 +0200
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: 2.4.6-ac5 gives wrong cache info for Duron in /proc/cpuinfo
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-id: <3B5413C9.2CE16AC9@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jul 2001, Michael H. Warfield wrote:
+kernel 2.4.6-ac5
+CPU AMD Duron 700
 
-> 	You HAVE to boot from other media.  Some of these suckers have
-> Linux kernel modules (we'll keep it a little on topic here) like Adore
-> and KIS that hide processes, connections, services, and files.  You can
-> not trust your kernel if you may have been compromised.
+/proc/cpuinfo gives :
+cache size: 64 KB
 
-All I can say this fscking sucks! OK, I'll have to go over the system with
-a fine toothed comb and see what's been done to it. Fortunately I'm on a
-very slow dialup, so it may not be too troublesome.
-
-> 	No joke...  And I do believe they done got you.
-
-Fscking script kiddies. Oh well, will let you know what I find.
-
-I'm just wondering how they managed to get in given that I never download
-binaries and always compile from sources myself. Probably through a
-compromised TCP/IP service, I bet.
+This is wrong :
+ - the Duron has 192 kilobytes of cache ( 64 L1 I, 64 L1 D , 64 L2 unified )
+ - what is KB ?
+   - "kilo" is abbreviated to 'k' , not 'K'
+   - "B" means "Bell" :-)
 
 -- 
-Hey, they *are* out to get you, but it's nothing personal.
-
-http://www.tahallah.demon.co.uk
-
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

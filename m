@@ -1,42 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbUCUUCQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 15:02:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbUCUUCQ
+	id S261210AbUCUUC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 15:02:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUCUUC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 15:02:16 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:45060 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261205AbUCUUCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 15:02:15 -0500
-Date: Sun, 21 Mar 2004 20:02:11 +0000
-From: Christoph Hellwig <hch@infradead.org>
+	Sun, 21 Mar 2004 15:02:59 -0500
+Received: from imap.gmx.net ([213.165.64.20]:21225 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261214AbUCUUCw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 15:02:52 -0500
+X-Authenticated: #21910825
+Message-ID: <405DF48D.90606@gmx.net>
+Date: Sun, 21 Mar 2004 21:01:17 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
+X-Accept-Language: de, en
+MIME-Version: 1.0
 To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
+CC: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       viro@parcelfarce.linux.theplanet.co.uk, Andi Kleen <ak@suse.de>,
-       Miquel van Smoorenburg <miquels@cistron.nl>
-Subject: Re: [PATCH] fix tiocgdev 32/64bit emul
-Message-ID: <20040321200211.A11109@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	viro@parcelfarce.linux.theplanet.co.uk, Andi Kleen <ak@suse.de>,
-	Miquel van Smoorenburg <miquels@cistron.nl>
-References: <405DC698.4040802@pobox.com> <20040321165752.A9028@infradead.org> <405DE3EF.8090508@gmx.net> <20040321185538.A10504@infradead.org> <405DF3C6.8050508@gmx.net>
-Mime-Version: 1.0
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Wilfried Weissmann <Wilfried.Weissmann@gmx.at>,
+       Device mapper devel list <dm-devel@redhat.com>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Neil Brown <neilb@cse.unsw.edu.au>, Thomas Horsten <thomas@horsten.com>,
+       Christophe Saout <christophe@saout.de>,
+       Christophe Varoqui <christophe.varoqui@free.fr>
+Subject: Re: ATARAID/FakeRAID/HPTRAID/PDCRAID as dm targets?
+References: <405C8B39.8080609@gmx.net> <405CAEC7.9080104@pobox.com> <405CFC85.70004@backtobasicsmgmt.com> <405DD9E2.4030308@pobox.com> <405DE18B.7090505@gmx.net> <405DE2B6.7060003@backtobasicsmgmt.com> <405DF09C.9060804@gmx.net>
+In-Reply-To: <405DF09C.9060804@gmx.net>
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <405DF3C6.8050508@gmx.net>; from c-d.hailfinger.kernel.2004@gmx.net on Sun, Mar 21, 2004 at 08:57:58PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 21, 2004 at 08:57:58PM +0100, Carl-Daniel Hailfinger wrote:
-> Christoph: Have you looked at my question regarding
-> /sys/class/tty/console/dev ?
+[forgot to include Christophe Varoqui in CC]
 
-No, I'll leave that to Greg.  If you want my 2 (Euro-) Cent I'd rather avoid
-exposing a dev_t to userspace wherever possible.
+Carl-Daniel Hailfinger wrote:
+> Kevin P. Fleming wrote:
+> 
+>>Carl-Daniel Hailfinger wrote:
+>>
+>>
+>>>- Would an EVMS plugin or a simple script calling dmsetup be the way to
+>>>go? If I go the dmsetup route, is there any chance to get partition
+>>>detection on top of the ATARAID for free (by calling another dm tool)?
+>>
+>>
+>>This was posted a while back; I don't know what the status of it being
+>>merged into util-linux is.
+>>
+>>http://lwn.net/Articles/13958/
+
+Christophe V.: What is the currrent status of your work?
+
+
+> The two links below mention the same problems of partitions over dm:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=107383495031133
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=107384987212233
+> 
+> And here two links for partitions over md:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=107401984323154
+> http://lkml.org/lkml/2003/11/13/182
+> And the patch to do partitions over md:
+> http://cgi.cse.unsw.edu.au/~neilb/patches/linux-devel/2.5/2004-02-03:03/006MdPartition
+> 
+> (Related to the problem mentioned earlier in this thread)
+> Christophe Saout seems to already have some prototype to handle ATARAID
+> devices in general:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=107652932411321
+> 
+> Now the question is: How do we fit all of this together?
+
+
+Regards,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/
 

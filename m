@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264524AbTH2Ks0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 06:48:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbTH2Ks0
+	id S264536AbTH2K4u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 06:56:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264539AbTH2K4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 06:48:26 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:28934 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S264524AbTH2KsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 06:48:25 -0400
-Subject: Re: State of the CFQ scheduler
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030829065932.GL16684@suse.de>
-References: <1062078948.17363.4.camel@pilot.stavtrup-st.dk>
-	 <20030828194743.GH16684@suse.de>
-	 <1062107920.665.0.camel@teapot.felipe-alfaro.com>
-	 <20030829065932.GL16684@suse.de>
-Content-Type: text/plain
-Message-Id: <1062154102.700.6.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 29 Aug 2003 12:48:22 +0200
+	Fri, 29 Aug 2003 06:56:50 -0400
+Received: from dyn-ctb-203-221-73-68.webone.com.au ([203.221.73.68]:62730 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S264536AbTH2K4o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 06:56:44 -0400
+Message-ID: <3F4F3162.9040307@cyberone.com.au>
+Date: Fri, 29 Aug 2003 20:56:34 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test4: Hang in i8042_init
+References: <3F4EDC47.2020302@cyberone.com.au> <1062153908.700.4.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1062153908.700.4.camel@teapot.felipe-alfaro.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-08-29 at 08:59, Jens Axboe wrote:
-> > > It shouldn't be too hard to adapt the latest version from before -mm
-> > > dropped it and adapting to the current kernels. If you want to give that
-> > > a go, I'd be happy to help you out.
-> > 
-> > Why don't you post a patch against 2.6.0-test4 or 2.6.0-test4-mm1 on
-> > LKML? I would like to start using CFQ again :-)
-> 
-> Heh, did you not read the email? :)
 
-I just wanted you to know I really like CFQ :-)
 
-> I'll see if I get squeeze it in today, stay tuned.
+Felipe Alfaro Solana wrote:
 
-Yes, I will ;-)
+>On Fri, 2003-08-29 at 06:53, Nick Piggin wrote:
+>
+>>Is what I am getting. Last line is something like input: PC Speaker
+>>(followed by the initcall).
+>>
+>>dmseg and lspci from a working kernel attached. Let me know if I can
+>>do more.
+>>
+>
+>Could it be something related with
+>http://bugzilla.kernel.org/show_bug.cgi?id=1123?
+>
+>
+>
+
+Yes it seems quite likely. Further poking reveals that the
+box still locks with a PS2 mouse _and_ the USB mouse. A PS2
+mouse on its own allows the system to boot, although
+interrupt 10 (eth0, usb) is not working. Booting with
+acpi=off allows the system to boot normally with the USB
+mouse, and interrupt 10 works.
+
 

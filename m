@@ -1,36 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263256AbSLZRmr>; Thu, 26 Dec 2002 12:42:47 -0500
+	id <S263228AbSLZRk4>; Thu, 26 Dec 2002 12:40:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263280AbSLZRmr>; Thu, 26 Dec 2002 12:42:47 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:35077 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263256AbSLZRmq>;
-	Thu, 26 Dec 2002 12:42:46 -0500
-Date: Thu, 26 Dec 2002 09:46:53 -0800
-From: Greg KH <greg@kroah.com>
-To: Joseph <jospehchan@yahoo.com.tw>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [USB 2.0 problem] ASUS CD-RW cannot be mounted.
-Message-ID: <20021226174653.GA8229@kroah.com>
-Reply-To: linux-kernel@vger.kernel.org
-References: <002801c2acd2$edf6a870$3716a8c0@taipei.via.com.tw>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <002801c2acd2$edf6a870$3716a8c0@taipei.via.com.tw>
-User-Agent: Mutt/1.4i
+	id <S263256AbSLZRk4>; Thu, 26 Dec 2002 12:40:56 -0500
+Received: from numenor.qualcomm.com ([129.46.51.58]:54518 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S263228AbSLZRkz>; Thu, 26 Dec 2002 12:40:55 -0500
+Date: Wed, 25 Dec 2002 20:03:02 -0800 (PST)
+From: Max Krasnyansky <maxk@qualcomm.com>
+To: <linux-kernel@vger.kernel.org>
+cc: <rmk@arm.linux.org.uk>
+Subject: [PATCH/RFC] New module refcounting for TTY ldisc
+Message-ID: <Pine.LNX.4.33.0212251951540.7979-100000@champ.qualcomm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 26, 2002 at 07:35:43PM +0800, Joseph wrote:
-> Hi,
->   I've tested ASUS USB2.0 CD-RW 40x/12x/48x under 2.5.53.
+Folks,
 
-Are you sure you have all of the scsi modules you need loaded?  The
-dmesg output looks fine, what happens when you try to mount the drive?
+Here is the patch that converts TTY ldisc code to the new 
+module refcounting API.
+Tested with Bluetooth UART driver and seemed to work fine.
+Other ldiscs are not affected because their ldisc->owner is
+set to NULL.
 
-And does this drive work with older 2.5 kernels, or 2.4?
+If people are ok with it I'll push it to my BK tree along with
+fixed Bluetooth ldisc.
 
-thanks,
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.889   -> 1.890  
+#	drivers/char/tty_io.c	1.50    -> 1.51   
+#	include/linux/tty_ldisc.h	1.2     -> 1.3    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/12/23	maxk@qualcomm.com	1.890
+# New module refcounting for TTY ldisc
+# --------------------------------------------
+#
+diff -Nru a/drivers/char/tty_io.c b/drivers/char/tty_io.c
+--- a/drivers/char/tty_io.c	Wed Dec 25 19:49:53 2002
++++ b/drivers/char/tty_io.c	Wed Dec 25 19:49:53 2002
+@@ -292,6 +292,10 @@
+ 
+ 	if (tty->ldisc.num == ldisc)
+ 		return 0;	/* We are already in the desired discipline */
++
++	if (!try_module_get(ldiscs[ldisc].owner))
++	       	return -EINVAL;
++	
+ 	o_ldisc = tty->ldisc;
+ 
+ 	tty_wait_until_sent(tty, 0);
+@@ -306,9 +310,13 @@
+ 	if (tty->ldisc.open)
+ 		retval = (tty->ldisc.open)(tty);
+ 	if (retval < 0) {
++		module_put(tty->ldisc.owner);
++		
+ 		tty->ldisc = o_ldisc;
+ 		tty->termios->c_line = tty->ldisc.num;
+ 		if (tty->ldisc.open && (tty->ldisc.open(tty) < 0)) {
++			module_put(tty->ldisc.owner);
++
+ 			tty->ldisc = ldiscs[N_TTY];
+ 			tty->termios->c_line = N_TTY;
+ 			if (tty->ldisc.open) {
+@@ -320,7 +328,10 @@
+ 					      tty_name(tty, buf), r);
+ 			}
+ 		}
++	} else {
++		module_put(o_ldisc.owner);
+ 	}
++	
+ 	if (tty->ldisc.num != o_ldisc.num && tty->driver.set_ldisc)
+ 		tty->driver.set_ldisc(tty);
+ 	return retval;
+@@ -489,6 +500,8 @@
+ 	if (tty->ldisc.num != ldiscs[N_TTY].num) {
+ 		if (tty->ldisc.close)
+ 			(tty->ldisc.close)(tty);
++		module_put(tty->ldisc.owner);
++		
+ 		tty->ldisc = ldiscs[N_TTY];
+ 		tty->termios->c_line = N_TTY;
+ 		if (tty->ldisc.open) {
+@@ -1259,6 +1272,8 @@
+ 	 */
+ 	if (tty->ldisc.close)
+ 		(tty->ldisc.close)(tty);
++	module_put(tty->ldisc.owner);
++	
+ 	tty->ldisc = ldiscs[N_TTY];
+ 	tty->termios->c_line = N_TTY;
+ 	if (o_tty) {
+diff -Nru a/include/linux/tty_ldisc.h b/include/linux/tty_ldisc.h
+--- a/include/linux/tty_ldisc.h	Wed Dec 25 19:49:53 2002
++++ b/include/linux/tty_ldisc.h	Wed Dec 25 19:49:53 2002
+@@ -105,6 +105,7 @@
+ 	char	*name;
+ 	int	num;
+ 	int	flags;
++	
+ 	/*
+ 	 * The following routines are called from above.
+ 	 */
+@@ -129,6 +130,8 @@
+ 			       char *fp, int count);
+ 	int	(*receive_room)(struct tty_struct *);
+ 	void	(*write_wakeup)(struct tty_struct *);
++
++	struct  module *owner;
+ };
+ 
+ #define TTY_LDISC_MAGIC	0x5403
 
-greg k-h
+--
+
+Max
+

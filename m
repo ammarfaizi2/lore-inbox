@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289182AbSAGNCu>; Mon, 7 Jan 2002 08:02:50 -0500
+	id <S289183AbSAGNFk>; Mon, 7 Jan 2002 08:05:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289181AbSAGNCl>; Mon, 7 Jan 2002 08:02:41 -0500
-Received: from ns.suse.de ([213.95.15.193]:1804 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S289171AbSAGNCZ>;
-	Mon, 7 Jan 2002 08:02:25 -0500
-Date: Mon, 7 Jan 2002 14:02:24 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Patch?: linux-2.5.2-pre9/drivers/block/ll_rw_blk.c blk_rq_map_sg
- simplification
-In-Reply-To: <20020107100335.A6940@suse.de>
-Message-ID: <Pine.LNX.4.33.0201071401290.14473-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289181AbSAGNFa>; Mon, 7 Jan 2002 08:05:30 -0500
+Received: from weta.f00f.org ([203.167.249.89]:50885 "EHLO weta.f00f.org")
+	by vger.kernel.org with ESMTP id <S289183AbSAGNFK>;
+	Mon, 7 Jan 2002 08:05:10 -0500
+Date: Tue, 8 Jan 2002 02:08:11 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Cc: swsnyder@home.com,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: "APIC error on CPUx" - what does this mean?
+Message-ID: <20020107130811.GA27604@weta.f00f.org>
+In-Reply-To: <E3713B21FAB@vcnet.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E3713B21FAB@vcnet.vc.cvut.cz>
+User-Agent: Mutt/1.3.25i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jan 2002, Jens Axboe wrote:
+On Mon, Jan 07, 2002 at 01:29:42PM +0100, Petr Vandrovec wrote:
 
-> > 	The following patch removes gotos from blk_rq_map_sg, making
-> > it more readable and five lines shorter.  I think the compiler should
-> > generate the same code.  I have not tested this other than to
-> > verify that it compiles.
-> Well, I really think the original is much more readable than the changed
-> version :-)
+    They are spurious IRQ 7, just message is printed only once during
+    kernel lifetime... I have about three spurious IRQ 7 per each 1000
+    interrupts delivered to CPU. It is on A7V (Via KT133).
 
-I agree. Upon seeing the patch, I was reminded of the monster
-enormous conditional at http://gcc.gnu.org/projects/beginner.html
-not quite _that_ bad, but getting there 8)
+Any idea _why_ these occur though?  It seems some mainboards produce a
+plethora of these whilst others never produce these...
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
 
+
+
+   --cw

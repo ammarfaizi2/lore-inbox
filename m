@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272963AbTHPOlz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 10:41:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272972AbTHPOlz
+	id S273034AbTHPOjz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 10:39:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273049AbTHPOjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 10:41:55 -0400
-Received: from h234n2fls24o900.bredband.comhem.se ([217.208.132.234]:15327
-	"EHLO oden.fish.net") by vger.kernel.org with ESMTP id S272963AbTHPOlw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 10:41:52 -0400
-Date: Sat, 16 Aug 2003 16:44:27 +0200
-From: Voluspa <lista1@telia.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O16.2int
-Message-Id: <20030816164427.5c73ff7d.lista1@telia.com>
-In-Reply-To: <200308170009.06461.kernel@kolivas.org>
-References: <20030816130735.3ec67ac9.lista1@telia.com>
-	<200308170009.06461.kernel@kolivas.org>
-Organization: The Foggy One
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 16 Aug 2003 10:39:55 -0400
+Received: from fep02-0.kolumbus.fi ([193.229.0.44]:18289 "EHLO
+	fep02-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S273034AbTHPOjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 10:39:54 -0400
+Date: Sat, 16 Aug 2003 17:39:52 +0300 (EEST)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Manfred Spraul <manfred@colorfullife.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] slab debug vs. L1 alignement
+In-Reply-To: <1061033789.582.126.camel@gaston>
+Message-ID: <Pine.LNX.4.56.0308161717480.3426@kai.makisara.local>
+References: <3F3D558D.5050803@colorfullife.com>  <1060990883.581.87.camel@gaston>
+ <3F3D8D3B.3020708@colorfullife.com>  <1061026667.881.100.camel@gaston> 
+ <3F3E02EE.8080909@colorfullife.com>  <1061030600.582.121.camel@gaston> 
+ <Pine.LNX.4.56.0308161359460.1703@kai.makisara.local> <1061033789.582.126.camel@gaston>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Aug 2003 00:09:06 +1000 Con Kolivas wrote:
+On Sat, 16 Aug 2003, Benjamin Herrenschmidt wrote:
 
-> On Sat, 16 Aug 2003 21:07, Voluspa wrote:
-> > On 2003-08-16 8:59:48 Con Kolivas wrote:
-[...]
-> Funny you should mention xmms in the same sentence since that's an app
-> that works fine.
-[...]
-> Now you have to clarify what you mean by game test as being
-> impossible. I assume you mean wine based games?
-[...]
-> If you can profile blender sucking it would be helpful.
+...
+> THe low level driver can't do the bounce buffer thing, it has to be
+> done at higher layers.
+>
+Agreed. A high-level driver must be able to handle this anyway because of
+other constraints. The point is that this costs cpu cycles and bouncing
+should be avoided if possible.
 
-I can still starve xmms while running Blender ;-) Game-test
-(yes, wine) impossible means it acts almost exactly as I wrote about in:
+> > If an architecture has restrictions, they must, of course, be taken into
+> > account. However, this should not punish architectures that don't have the
+...
+> > sizes. This would mean adding two more masks for each device (like the
+> > current DMA address mask for a device).
+>
+> That won't help for buffers coming from higher layers that don't know
+> the device they'll end up to
+>
+Agreed. This just enables the high-level driver to avoid bouncing. For
+instance, in a P4 system it is usually not necessary to require 128 byte
+alignment for DMA.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106098091012383&w=2
-
-We're talking many minutes of total starvation at each stage, start
-- menu selection single player - load saved game menu - load game
-(haven't had the patience to wait for an actual game to begin...)
-
-Profile Blender? Ok, know nothing about the technique but will compile a
-kernel with profiling and read up on what has been mentioned on this
-list (Mr Erwin calling for proper "instrumentation")
-
-Will take alot of time. I'll return any restults directly to your
-address, won't copy lkml.
-
-Mvh
-Mats Johannesson
+-- 
+Kai

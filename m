@@ -1,121 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276647AbRKHROx>; Thu, 8 Nov 2001 12:14:53 -0500
+	id <S275990AbRKHRRo>; Thu, 8 Nov 2001 12:17:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275990AbRKHROp>; Thu, 8 Nov 2001 12:14:45 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16909 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S276708AbRKHROc>; Thu, 8 Nov 2001 12:14:32 -0500
-Date: Thu, 8 Nov 2001 09:10:41 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Krishna Kumar <kumarkr@us.ibm.com>
-cc: Andreas Dilger <adilger@turbolabs.com>, <ak@muc.de>, <andrewm@uow.edu.au>,
-        "David S. Miller" <davem@redhat.com>, <jgarzik@mandrakesoft.com>,
-        <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>,
-        <netdev@oss.sgi.com>, <owner-netdev@oss.sgi.com>,
-        <tim@physik3.uni-rostock.de>
-Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
-In-Reply-To: <OFE014018A.D6D3430D-ON88256AFE.005C057D@boulder.ibm.com>
-Message-ID: <Pine.LNX.4.33.0111080901400.1511-100000@penguin.transmeta.com>
+	id <S276707AbRKHRRf>; Thu, 8 Nov 2001 12:17:35 -0500
+Received: from cayuga.grammatech.com ([209.4.89.66]:27405 "EHLO grammatech.com")
+	by vger.kernel.org with ESMTP id <S275990AbRKHRRS>;
+	Thu, 8 Nov 2001 12:17:18 -0500
+Message-ID: <3BEABE11.AFF00CF0@grammatech.com>
+Date: Thu, 08 Nov 2001 12:17:05 -0500
+From: David Chandler <chandler@grammatech.com>
+Organization: GrammaTech, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: root@chaos.analogic.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Bug Report: Dereferencing a bad pointer
+In-Reply-To: <Pine.LNX.3.95.1011108103553.22138A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dick,
 
-On Thu, 8 Nov 2001, Krishna Kumar wrote:
-> > >
-> > > In short: It is wrong to do
-> > >
-> > >          if (jiffies <= start+HZ)
-> > >
-> > > and it is _right_ to do
-> > >
-> > >          if (jiffies - start <= HZ)
->
-> I am sorry, but I still don't see the difference. I wrote a small
-> program with different cases, but the values still come same
-> irrespective of the input arguments to the checks. Could you tell
-> under what conditions the checks wuold fail ? The 2's complement works
-> the same for addition and subtraction. I have included the test
-> program below.
+You're right that the one-liner below may not necessarily produce a seg
+fault, but shouldn't it terminate normally if it doesn't?  After all,
+the program just *reads*.  Hanging does not seem to be an option!
 
-Ok.
+BTW, your example program produces very similar output for the 2.4 and
+2.2 kernels to which I have access.  I apologize for any confusion my
+original report created -- 0xc0000000 was chosen because of its relation
+to the start of the stack frame, and indeed it has nothing
+to do with the size of virtual address space.
 
-Let's give an example. HZ is 100, and we started just before jiffies
-wrapped, and we want to check that we're within one second.
 
-So "start" equals 0xfffffff0, and "jiffies" equals 0xfffffff5.
+David Chandler
 
-The first if-statement will say
 
-	if (0xfffffff5 <= 0xfffffff0+100)
+"Richard B. Johnson" wrote:
+> 
+> > > On Wed, Nov 07, 2001 at 06:23:13PM -0500, David Chandler wrote:
+> > > > The following one-line C program, when compiled by gcc 2.96 without
+> > > > optimization, should produce a SIGSEGV segmentation fault (on a machine
+> > > > with 3 or less gigabytes of virtual memory, at least):
+> > > >
+> > > >         int main() { int k  = *(int *)0xc0000000; }
+> > > >
+> 
+> This may not necessarily produce a seg-fault! If this virtual
+> address is mapped within the current process (.bss .stack, etc.),
+> It's perfectly all right to write to it although you probably
+> broke malloc() by doing it. The actual value of the number in
+> the pointer depends upon PAGE_OFFSET and other kernel variables.
+> If you change the kernel, this number may change. It has nothing
+> to do with the size of virtual address space, really.
 
-which is the same as
 
-	if (0xfffffff5 <= 0x54)
+> 
+> All this stuff you "own". You can write to most all of it because
+> the kernel has allocated it for you. Whether or not 'const' is
+> really read-only is "implementation dependent".
+> 
+> In your case, it looks as though you scribbled over the top of
+> your user stack, in some harmless place.
 
-which is
 
-	if (0)
+> Cheers,
+> Dick Johnson
 
-in short, the first statement will say that jiffies is _not_ within 100
-ticks of "start", which is obviously wrong. Jiffies _is_ within 100 ticks,
-it is in fact just 5 ticks after "start".
 
-The second statement will say
+-- 
 
-	if (0xfffffff5 - 0xfffffff0 <= 100)
-
-which is
-
-	if (5 <= 100)
-
-which is
-
-	if (1)
-
-which is _correct_. We _are_ within 100 ticks.
-
-See?
-
-Ok, that was wrap-around one way: the "+HZ" wrapped. Let's see the other
-case, which is that "jiffies" has wrapped: start is still 0xfffffff0, but
-jiffies has wrapped around and is 0x00000001.
-
-The first if-statement will say
-
-	if (0x00000001 <= 0xfffffff0+100)
-
-which is
-
-	if (0x00000001 <= 0x54)
-
-which is
-
-	if (1)
-
-which is correct. The second one will say
-
-	if (0x00000001 - 0xfffffff0 <= 100)
-
-which is
-
-	if (11 <= 100)
-
-which is
-
-	if (1)
-
-which is correct.
-
-In short, the _correct_ one ALWAYS gets the right answer. Even when the
-subtraction overflows.
-
-While the first (and incorrect one) gets the wrong answer when the
-addition overflows.
-
-Do you see the difference now?
-
-		Linus
-
+_____
+David L. Chandler.                              GrammaTech, Inc.
+mailto:chandler@grammatech.com         http://www.grammatech.com

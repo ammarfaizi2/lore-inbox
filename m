@@ -1,124 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265817AbUHRLid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265900AbUHRLrO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265817AbUHRLid (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 07:38:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265900AbUHRLid
+	id S265900AbUHRLrO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 07:47:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUHRLrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 07:38:33 -0400
-Received: from smtp.terra.es ([213.4.129.129]:54156 "EHLO tsmtp18.mail.isp")
-	by vger.kernel.org with ESMTP id S265817AbUHRLi2 convert rfc822-to-8bit
+	Wed, 18 Aug 2004 07:47:14 -0400
+Received: from out006pub.verizon.net ([206.46.170.106]:58276 "EHLO
+	out006.verizon.net") by vger.kernel.org with ESMTP id S265900AbUHRLrL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 07:38:28 -0400
-Date: Wed, 18 Aug 2004 13:38:18 +0200
-From: Diego Calleja <diegocg@teleline.es>
-To: Ryan Cumming <ryan@spitfire.gotdns.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] ext3 documentation (lack of)
-Message-Id: <20040818133818.7b0582f3.diegocg@teleline.es>
-In-Reply-To: <200408172301.09350.ryan@spitfire.gotdns.org>
-References: <20040818025951.63c4134e.diegocg@teleline.es>
-	<200408172301.09350.ryan@spitfire.gotdns.org>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Wed, 18 Aug 2004 07:47:11 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: lkml problem
+Date: Wed, 18 Aug 2004 07:47:09 -0400
+User-Agent: KMail/1.6.82
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+References: <200408172256.54881.vda@port.imtp.ilyichevsk.odessa.ua> <200408171709.59841.gene.heskett@verizon.net> <200408180848.47247.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200408180848.47247.vda@port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408180747.10085.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.55.227] at Wed, 18 Aug 2004 06:47:11 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Tue, 17 Aug 2004 23:01:06 -0700 Ryan Cumming <ryan@spitfire.gotdns.org> escribió:
+On Wednesday 18 August 2004 01:48, Denis Vlasenko wrote:
+>> >Can you check why do my mails stopped appearing on
+>> >lkml lately? My SMTP server reports them as accepted:
+>> >
+>> >info msg 192270: bytes 23472 from
+>> > <vda@port.imtp.ilyichevsk.odessa.ua> qp 21977 uid 80 starting
+>> > delivery 440: msg 192270 to remote arjanv@redhat.com starting
+>> > delivery 441: msg 192270 to remote Jens.Maurer@gmx.net starting
+>> > delivery 442: msg 192270 to remote linux-kernel@vger.kernel.org
+>> > delivery 442: success:
+>> > 12.107.209.244_accepted_message./Remote_host_said:_250_2.7.0_not
+>> >hin g_apparently_wrong_i delivery 440: success:
+>> > 66.187.233.31_accepted_message./Remote_host_said:_250_2.0.0_i7HH
+>> >Vve 1030758_Message_acce delivery 441: success:
+>> > 213.165.64.100_accepted_message./Remote_host_said:_250_2.6.0_{mx
+>> >028 }_Message_accepted/
+>> >
+>> >My SMTP server's IP is 195.66.192.168
+>> >--
+>> >vda
+>>
+>> My filters caught the CC: line and stuffed it to lkml as usual
+>> Denis.
+>
+>Yes. However, I sent a patch thrice (twice before and once after
+>the message to Matti) and I don't see that patch posted.
+>I checked www.lkml.org.
 
-> Setting commit to zero doesn't seem to disable it, judging from my local 
-> 2.6.8.1-mm1 source.
+I noted that in a couple of reject messages the server has posted (and 
+I don't recall if it came from you, normally they are from some 
+obviously spammish src) that there is a list of attachement ".ext" 
+specifiers that they will /dev/null.  There have been 2 of those just 
+this morning, but they get the big red X treatment here (kmail) 
+before they get lost in the other 10,000 plus messages of this list.
 
+Does the reverse dns lookup work as expected?  I think thats another 
+reason, but since the text msgs are coming ok, I drift off in the 
+direction of the attachements extension as the reason.  This list 
+seems to be in favor of inlining any patches which removes that 
+aspect of the filtering done.
 
-Ugh, sure, I just assumed it'd disable it. Anyway, here's a updated version.
+>--
+>vda
 
-(It'd be nice if people could provide a description for the rest so we can
-recollect and submit them)
-
-Diego Calleja
-
---- stable/Documentation/filesystems/ext3.txt-documentsync	2004-08-18 01:55:48.000000000 +0200
-+++ stable/Documentation/filesystems/ext3.txt	2004-08-18 13:37:37.000000000 +0200
-@@ -22,6 +22,54 @@
- 			the inode which will represent the ext3 file
- 			system's journal file.
- 
-+noload			Don't load the journal on mounting.
-+
-+data=journal		All data are committed into the journal prior 
-+			to being written into the main file system.
-+
-+data=ordered	(*)	All data are forced directly out to the main file
-+			system prior to its metadata being committed to
-+			the journal.
-+
-+data=writeback		Data ordering is not preserved, data may be 
-+			written into the main file system after its
-+			metadata has been committed to the journal.
-+
-+commit=nrsec	(*)	Ext3 can be told to sync all its data and metadata
-+			every 'nrsec' seconds. The default value is 5 seconds.
-+			This means that if you lose your power, you will lose,
-+			as much, the latest 5 seconds of work (your filesystem
-+			will not be damaged though, thanks to journaling). This
-+			default value (or any low value) will hurt performance,
-+			but it's good for data-safety. Setting it to 0 will
-+			have the same effect than leaving the default 5 sec.
-+			Setting it to very large values will improve
-+			performance.
-+
-+barrier=??	(*)??	This enables/disables the "journal barrier"
-+
-+orlov		(*)	This enables the new Orlov block allocator. It's enabled
-+			by default. 
-+
-+oldalloc		This disables the Orlov block allocator and enables the
-+			old block allocator. Orlov should have better performance,
-+			we'd like to get some feedback if it's the contrary for
-+			you.
-+
-+user_xattr=
-+
-+nouser_xattr=
-+
-+acl=
-+
-+noacl=
-+
-+reservation=
-+
-+noreservation=
-+
-+resize=
-+
- bsddf 		(*)	Make 'df' act like BSD.
- minixdf			Make 'df' act like Minix.
- 
-@@ -30,8 +78,6 @@
- 
- debug			Extra debugging information is sent to syslog.
- 
--noload			Don't load the journal on mounting.
--
- errors=remount-ro(*)	Remount the filesystem read-only on an error.
- errors=continue		Keep going on a filesystem error.
- errors=panic		Panic and halt the machine if an error occurs.
-@@ -48,17 +94,6 @@
- 
- sb=n			Use alternate superblock at this location.
- 
--data=journal		All data are committed into the journal prior 
--			to being written into the main file system.
--		
--data=ordered	(*)	All data are forced directly out to the main file 
--			system prior to its metadata being committed to 
--			the journal.
--		
--data=writeback  	Data ordering is not preserved, data may be 
--			written into the main file system after its
--			metadata has been committed to the journal.
--
- quota			Quota options are currently silently ignored.
- noquota			(see fs/ext3/super.c, line 594)
- grpquota
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

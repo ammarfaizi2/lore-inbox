@@ -1,51 +1,100 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S156803AbPLQPVR>; Fri, 17 Dec 1999 10:21:17 -0500
-Received: by vger.rutgers.edu id <S156703AbPLQPOp>; Fri, 17 Dec 1999 10:14:45 -0500
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:49816 "EHLO lsmls02.we.mediaone.net") by vger.rutgers.edu with ESMTP id <S156786AbPLQPCw>; Fri, 17 Dec 1999 10:02:52 -0500
-Message-ID: <385A5068.B4490833@alumni.caltech.edu>
-Date: Fri, 17 Dec 1999 07:02:00 -0800
-From: Dan Kegel <dank@alumni.caltech.edu>
-Organization: Precious Little
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.5-15 i586)
+Received: by vger.rutgers.edu via listexpand id <S156702AbPLQRiE>; Fri, 17 Dec 1999 12:38:04 -0500
+Received: by vger.rutgers.edu id <S156534AbPLQRek>; Fri, 17 Dec 1999 12:34:40 -0500
+Received: from [212.102.170.10] ([212.102.170.10]:4152 "EHLO ads.htl.de") by vger.rutgers.edu with ESMTP id <S156607AbPLQReL>; Fri, 17 Dec 1999 12:34:11 -0500
+Message-ID: <385A741E.A58470F6@htl.de>
+Date: Fri, 17 Dec 1999 18:34:22 +0100
+From: Andreas Scherbaum <adsmail@htl.de>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "linux-kernel@vger.rutgers.edu" <linux-kernel@vger.rutgers.edu>
-Cc: raster@rasterman.com
-Subject: re: RasterMan on linux and threads
+To: linux-kernel@vger.rutgers.edu
+Subject: Re: Do Routing-policies have effect on local-originated packets?
+References: <199912171611.TAA01369@ms2.inr.ac.ru>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-re http://kernelnotes.org/lnxlists/linux-kernel/lk_9912_03/msg00480.html
+> It was removed closer to the end of 2.1.xx.
+> 
+> > So what's the current status, are locally originated packets
+> > policy-routed or aren't they,
 
-Rasterman is wrong in saying that all threads run on the same
-processor, but everything else he says about threads is spot on:
-unless you have a real good reason to create a thread, don't.
-Ousterhout certainly agrees.  See his slides on "Why threads are bad (usually)"
-at http://www.scriptics.com/people/john.ousterhout/
+Hei all,
 
-Earlier in his news page, Raster says:
-> The [imlib2] API changed a lot recently - it's now context based (you set
-> the current context) and it uses that current context for almost all
-> calls. It means many fewer parameters to many calls - but it also means
-> Imlib2 is NOT thread-safe as the context is global. If anyone wants to
-> work on making it thread safe - there's source code and send patches -
-> but I don't see much value in it. Do all your graphics work in 1 thread.    
+so we have a little problem:
+I have a machine with 4 network cards and a ip from the same subnet on
+every card.
+(Dont ask me, why we have 4 cards for it ;-)
+Ok, here's my setup:
 
-Wow, deja vu.  Right on the heels of Jim Gettys' post on the same subject,
-http://kernelnotes.org/lnxlists/linux-kernel/lk_9912_03/msg00096.html
+----- cut -----
+IP=/usr/sbin/ip
+ROUTE=/sbin/route
 
-Raster, you might want to read Jim's post.  X calls use lots of context 
-parameters (like old imlib), OpenGL calls use none (like new imlib2), and 
-now they both wish they'd used a single one (i.e. an object oriented approach).
+ROUTER="192.168.0.102"
+IP0=192.168.0.200
+IP1=192.168.0.201
+IP2=192.168.0.202
+IP3=192.168.0.203
+NM="192.168.0.0/24"
 
-And you might want to modify your statement that threads always run on the same
-CPU...
-- Dan
+# set up interfaces
+$IP addr add $IP0 dev eth0
+$IP addr add $IP1 dev eth1
+$IP addr add $IP2 dev eth2
+$IP addr add $IP3 dev eth3
+$IP link set eth0 up
+$IP link set eth1 up
+$IP link set eth2 up
+$IP link set eth3 up
+
+# add rules
+$IP rule add from $IP0/32 pref 100 table 10
+$IP rule add from $IP1/32 pref 200 table 20
+$IP rule add from $IP2/32 pref 300 table 30
+$IP rule add from $IP3/32 pref 400 table 40
+$ROUTE add -host $ROUTER dev eth0
+
+# set routing tables
+$IP route add $NM dev eth0 table 10
+$IP route add default via $ROUTER table 10
+$IP route add $NM dev eth1 table 20
+$IP route add default via $ROUTER table 20
+$IP route add $NM dev eth2 table 30
+$IP route add default via $ROUTER table 30
+$IP route add $NM dev eth3 table 40
+$IP route add default via $ROUTER table 40 
+$ROUTE add default gw $ROUTER
+----- cut -----
+
+Now i have the following problem:
+All UDP packages are created with the right ip, but routed trough the
+first network card.
+
+Here's a tcpdump (sending a nameserver request to the second ip ...)
+$ host 192.168.0.1 192.168.0.201
+
+# tcpdump -p -i eth1:
+18:13:59.988575 192.168.0.15.1128 > 192.168.0.201.domain: 34740+ (28)
+18:14:00.036535 192.168.0.15.1128 > 192.168.0.201.domain: 34741+ (28)
+
+# tcpdump -p -i eth0:
+18:14:09.514938 192.168.0.201.domain > 192.168.0.15.1128: 16413 1/3/3
+(161)
+18:14:09.570556 192.168.0.201.domain > 192.168.0.15.1128: 16414 0/1/0
+(81)
+
+Why is the kernel sending this packages trough the first interface and
+how can i change it to using the right interface?
+
+
+Regards
 
 -- 
-(The above is just my personal opinion; I don't speak for my employer,
- except on the occasional talk show.)
+
+                                  ads
+                                  Andreas Scherbaum
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

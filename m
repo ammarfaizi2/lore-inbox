@@ -1,66 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270329AbUJUMAl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268701AbUJUMAl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270329AbUJUMAl (ORCPT <rfc822;willy@w.ods.org>);
+	id S268701AbUJUMAl (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 21 Oct 2004 08:00:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268723AbUJTRWV
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268766AbUJTRVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 13:22:21 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:47767 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268719AbUJTRPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 13:15:21 -0400
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-       Timothy Miller <miller@techsource.com>, Hugh Dickins <hugh@veritas.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <20041020170802.GB24619@dualathlon.random>
-References: <593560000.1094826651@[10.10.2.4]>
-	 <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>
-	 <20040910151538.GA24434@devserv.devel.redhat.com>
-	 <20040910152852.GC15643@x30.random>
-	 <20040910153421.GD24434@devserv.devel.redhat.com>
-	 <41768858.8070709@techsource.com>
-	 <20041020153521.GB21556@devserv.devel.redhat.com>
-	 <1098290345.1429.65.camel@krustophenia.net>
-	 <20041020165050.GA24619@dualathlon.random>
-	 <1098291315.1429.79.camel@krustophenia.net>
-	 <20041020170802.GB24619@dualathlon.random>
-Content-Type: text/plain
-Message-Id: <1098292516.1429.116.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 20 Oct 2004 13:15:16 -0400
+	Wed, 20 Oct 2004 13:21:03 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:52918 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S268752AbUJTRNj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 13:13:39 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH] Add key management syscalls to non-i386 archs
+Date: Wed, 20 Oct 2004 19:08:17 +0200
+User-Agent: KMail/1.6.2
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, sparclinux@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, linux-m68k@vger.kernel.org,
+       linux-sh@m17n.org, linux-arm-kernel@lists.arm.linux.org.uk,
+       parisc-linux@parisc-linux.org, linux-ia64@vger.kernel.org,
+       linux-390@vm.marist.edu, linux-mips@linux-mips.org
+References: <3506.1098283455@redhat.com>
+In-Reply-To: <3506.1098283455@redhat.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_CupdB4JbrQs2xt2";
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410201908.18273.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-20 at 13:08, Andrea Arcangeli wrote:
-> On Wed, Oct 20, 2004 at 12:55:17PM -0400, Lee Revell wrote:
-> > This was not my point, I agree that the two have nothing to do with each
-> > other.  But if a hardirq handler runs for 3ms then no user code can run
-> > for 3ms.  Therefore this is a problem if our goal for desktop response
-> > is 1ms.
-> 
-> I sure agree it's a problem, but not always userspace code needs to run
-> for the user not to notice. With ring buffers in the kernel for playback
-> all you need is a nested irq for the user not to notice skips.
-> 
 
-I was thinking of X, not audio.  This might be a problem for AV
-playback.  Maybe that would depend on if DRI was in use.  Anyway I use a
-low latency kernel because i need sub-ms response, I was just pointing
-out that the current behavior might not be compatible with the 1ms
-target.
+--Boundary-02=_CupdB4JbrQs2xt2
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-However with the patch in -mm that enables setting max_sectors_kb, the
-1ms goal can be achived by lowering this to 256 or so.  If I were
-shipping a desktop distro I would lower this by default.  My tests show
-the slowdown is barely measurable if at all.
+On Middeweken 20 Oktober 2004 16:44, David Howells wrote:
 
-Lee
+> diff -uNrp linux-2.6.9-bk4/arch/s390/kernel/compat_wrapper.S linux-2.6.9-bk4-keys/arch/s390/kernel/compat_wrapper.S
+> --- linux-2.6.9-bk4/arch/s390/kernel/compat_wrapper.S	2004-06-18 13:43:49.000000000 +0100
+> +++ linux-2.6.9-bk4-keys/arch/s390/kernel/compat_wrapper.S	2004-10-20 15:08:00.071403677 +0100
+> @@ -1406,3 +1406,29 @@ compat_sys_mq_getsetattr_wrapper:
+>  	llgtr	%r3,%r3			# struct compat_mq_attr *
+>  	llgtr	%r4,%r4			# struct compat_mq_attr *
+>  	jg	compat_sys_mq_getsetattr
+> +
+> +	.globl  sys32_add_key_wrapper
+> +sys32_add_key_wrapper:
+> +	lgfr	%r2,%r2			# const char *
+> +	llgfr	%r3,%r3			# const char *
+> +	llgfr	%r4,%r4			# const void *
+> +	llgfr	%r5,%r5			# size_t
+> +	llgfr	%r6,%r6			# key_serial_t
+> +	jg	sys_add_key		# branch to system call
+> +
+> +	.globl  sys32_request_key_wrapper
+> +sys32_request_key_wrapper:
+> +	lgfr	%r2,%r2			# const char *
+> +	llgfr	%r3,%r3			# const char *
+> +	llgfr	%r4,%r4			# const char *
+> +	llgfr	%r5,%r5			# key_serial_t
+> +	jg	sys_request_key		# branch to system call
+> +
+> +	.globl  sys32_keyctl_wrapper
+> +sys32_keyctl_wrapper:
+> +	lgfr	%r2,%r2			# int
+> +	llgfr	%r3,%r3			# unsigned long
+> +	llgfr	%r4,%r4			# unsigned long
+> +	llgfr	%r5,%r5			# unsigned long
+> +	llgfr	%r6,%r6			# unsigned long
+> +	jg	sys_keyctl		# branch to system call
 
+The comments don't match with the code. Please use the correct
+lgfr/llgfr/llgtr opcodes for signed/unsigned/pointer extension.
+Note that for keyctl_wrapper, the actual conversion is not static
+but depends on the value of %r2. You probably want to code that
+conversion in C.
+
+	Arnd <><
+
+--Boundary-02=_CupdB4JbrQs2xt2
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBdpuC5t5GS2LDRf4RAoT5AKCYRkFi9fbfnxz10RYNM754yKii4QCeNrKb
+FUrUowG0HK9A0oCEiOZIaMA=
+=9I0C
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_CupdB4JbrQs2xt2--

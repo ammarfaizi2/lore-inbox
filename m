@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288854AbSA2OMM>; Tue, 29 Jan 2002 09:12:12 -0500
+	id <S288896AbSA2OMW>; Tue, 29 Jan 2002 09:12:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289191AbSA2OMD>; Tue, 29 Jan 2002 09:12:03 -0500
-Received: from pc-80-195-34-66-ed.blueyonder.co.uk ([80.195.34.66]:49536 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S288854AbSA2OLv>; Tue, 29 Jan 2002 09:11:51 -0500
-Date: Tue, 29 Jan 2002 14:11:46 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: frode <frode@freenix.no>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>, ext3-users@redhat.com
-Subject: Re: OOPS: kernel BUG at transaction.c:1857 on 2.4.17 while rm'ing 700mb file on ext3 partition.
-Message-ID: <20020129141146.B1873@redhat.com>
-In-Reply-To: <3C502E3A.9070909@freenix.no> <20020124191927.A9564@redhat.com> <3C509067.20108@freenix.no>
+	id <S289191AbSA2OMM>; Tue, 29 Jan 2002 09:12:12 -0500
+Received: from dhcp065-025-113-164.neo.rr.com ([65.25.113.164]:5886 "EHLO
+	qfire.net") by vger.kernel.org with ESMTP id <S288896AbSA2OMC>;
+	Tue, 29 Jan 2002 09:12:02 -0500
+From: James Cassidy <jcassidy@qfire.net>
+Date: Tue, 29 Jan 2002 09:11:58 -0500
+To: Steven Hassani <hassani@its.caltech.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Sound Problems on Laptop
+Message-ID: <20020129141158.GA23268@qfire.net>
+In-Reply-To: <Pine.GSO.4.42.0201290052140.19357-100000@sue>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C509067.20108@freenix.no>; from frode@freenix.no on Thu, Jan 24, 2002 at 11:53:27PM +0100
+In-Reply-To: <Pine.GSO.4.42.0201290052140.19357-100000@sue>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, Jan 24, 2002 at 11:53:27PM +0100, frode wrote:
+	Let me guess.... the Compaq Presario 700 series? Yes people
+are aware that there is problem with sound on these machines.  There
+are a few people trying to figure out what the problem is, but no
+breakthrough yet has been made that I'm aware of.
+	I think it's unlikely that the "volume buttons" actually
+control anything in hardware. They are most probably just read
+by some software in windows that then adjusts the volume. I think
+the driver from compaq calls them Easy Access buttons or something
+like that, I don't mess around in windows much anymore.  
+	Also if you're using 2.4.17, if you are compiling with CPU
+set to Athlon in the kernel config you'll want to be running one
+of the 2.4.18pre kernels to correct a problem in the chipsets. You
+can also get around this problem by selecting a lesser CPU in the
+configuration. If you don't do either of these things you'll
+quickly see Opps and programs randomly crashing when you start
+to push your system.
 
-> >>I got the following error while rm'ing a 700mb file from an ext3 partition:
-> >>Assertion failure in journal_unmap_buffer() at transaction.c:1857:
-> >>"transaction == journal->j_running_transaction"
-> > Hmm --- this is not one I think I've ever seen before.
- 
-> OK, I rebooted and gzip'ed the NVdriver in /lib/modules... to make sure the 
-> module doesn't load (lsmod now says my kernel isn't tainted). I'll try using the 
-> plain 'nv' driver shipped with XFree instead for a while. I tried making another 
-> 700mb iso image and fool around with it (loopback mount it, umount it, then rm 
-> it) but couldn't trigger anything - but I just spent five minutes trying.
+						-- James (QFire)
 
-Have you been able to reproduce any problems yet?
 
-> As I mentioned I have had quite a few oopses lately, most of them regarding 
-> paging etc. (but I'm no kernel expert). See for example
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=101096234600708&w=2
-> and
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=101128528029736&w=2
-
-iput() crash; page list crash; jbd transaction crash.  These look
-perfectly consistent with random memory corruption.
+On Tue, Jan 29, 2002 at 01:12:34AM -0800, Steven Hassani wrote:
+> 	On a presario laptop (duron, 686b etc), I originally was unable to
+> hear sound after loading the via sound module from 2.4.17 kernel.  After
+> adjusting the mixer settings (using aumix) to the maximal possible
+> settings, the sound became only barely noticeable.
+> 	Just for further clarification, there also exists "volume
+> adjustment keys" on the keyboard whose unusability may be something to
+> blame....I don't know.
+> 	Anyone have any thoughts?
+> Steve
 > 
-> I'm running linux on an old p100 as well but don't see any problems, so as you 
-> say I suspected a hardware problem. I ran MemTest86 for about half an hour 
-
-Try leaving it running overnight --- half an hour is very little time
-for a proper memory test.
-
-Cheers,
- Stephen
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

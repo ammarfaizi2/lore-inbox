@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbTJJC5W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 22:57:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbTJJC5W
+	id S262337AbTJJDNK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 23:13:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbTJJDNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 22:57:22 -0400
-Received: from gaia.cela.pl ([213.134.162.11]:35853 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S262076AbTJJC5V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 22:57:21 -0400
-Date: Fri, 10 Oct 2003 04:57:10 +0200 (CEST)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: Adam Belay <ambx1@neo.rr.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Query: PNP BIOS for 2.4.22
-In-Reply-To: <20031009214028.GA12073@neo.rr.com>
-Message-ID: <Pine.LNX.4.44.0310100452130.1794-100000@gaia.cela.pl>
+	Thu, 9 Oct 2003 23:13:10 -0400
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:49283 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S262337AbTJJDNH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 23:13:07 -0400
+Message-ID: <3F862556.5080701@pacbell.net>
+Date: Thu, 09 Oct 2003 20:19:50 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Stern <stern@rowland.harvard.edu>
+CC: Greg KH <greg@kroah.com>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: USB APM suspend
+References: <Pine.LNX.4.44L0.0309221606230.677-100000@ida.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0309221606230.677-100000@ida.rowland.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> To my knowledge, the ac series has the only up to date pnpbios patch for 2.4.
-> You may, however, want to try the latest 2.6-test kernel which ships with an
-> improved pnpbios driver.  Is there a particular PnPBIOS feature you are looking
-> for in 2.4?  In other words which PnPBIOS services interest you?
+Alan Stern wrote:
 
-I'm working on porting a hibernation patch from 2.4.9-34 (RH) to 2.4.22 
-for toshiba laptops - which is based on pnpbios code.  Thus i'm pretty 
-much interested in any pnpbios patch which a) works b) can be aplied with 
-little fuss to 2.4.22 and c) doesn't contain extra frills (ie just 
-pnpbios).  Unfortunately the latest RH kernels seem to have dropped 
-pnpbios support and it's not present in the mainstream kernels, the best 
-I've found so far is 2.4.22-ac - i'll probably strip it and see if it 
-works (the stripping is done, will it work? we'll see tomorrow...)
+> 
+> I tried the experiment of getting rid of the calls to pm_send_all().  
+> Surprisingly enough, it worked.  That is, when I typed:
+> 
+> 	apm --suspend
+> 
+> everything was suspended, in the correct order; and when I pressed a key 
+> everything awoke and seemed to be functioning properly.  
 
-Cheers,
-MaZe.
+Just for the record:  I tried this on 2.6.0-test7, on a system where
+APM has worked reliably forever, and it failed.  (That was without even
+involving USB -- there are still non-USB PM problems.)
+
+The device_suspend() logic did seem to call things in the right order,
+on one machine I hacked with some printks, but when the moment came to
+actually enter the APM suspend mode nothing happened ... except for a
+delay of maybe a minute, before the system resumed itself.  (FWIW the
+PCI suspend methods involved were for yenta_cardbus and agpgart-intel.
+Both of those were called after "hda" spun itself down.)
+
+What should happen of course is the APM BIOS takes over and blanks the
+display, and the power indicator changes (in my case to a low-frequency
+amber blink, no longer solid green).
+
+- Dave
+
 
 

@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315805AbSGUNvH>; Sun, 21 Jul 2002 09:51:07 -0400
+	id <S315806AbSGUN5E>; Sun, 21 Jul 2002 09:57:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315806AbSGUNvH>; Sun, 21 Jul 2002 09:51:07 -0400
-Received: from dclient217-162-176-181.hispeed.ch ([217.162.176.181]:5892 "EHLO
-	alder.intra.bruli.net") by vger.kernel.org with ESMTP
-	id <S315805AbSGUNvG>; Sun, 21 Jul 2002 09:51:06 -0400
-Date: Sun, 21 Jul 2002 15:54:10 +0200
-From: Martin Brulisauer <bruli@uceb.org>
-Message-Id: <200207211354.g6LDsADU005586@alder.intra.bruli.net>
-To: thunder@ngforever.de
-Subject: Re: kbuild 2.5.26 - arch/alpha
-Cc: linux-kernel@vger.kernel.org
+	id <S315870AbSGUN5E>; Sun, 21 Jul 2002 09:57:04 -0400
+Received: from e.kth.se ([130.237.48.5]:34311 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S315806AbSGUN5D>;
+	Sun, 21 Jul 2002 09:57:03 -0400
+To: linux-kernel@vger.kernel.org
+Subject: memory leak?
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 21 Jul 2002 16:00:09 +0200
+Message-ID: <yw1xn0sluqom.fsf@gladiusit.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->>On Sat, 20 Jul 2002, Martin Brulisauer wrote:
->> Is the kernel arch tree for alphas not maintained anymore? If I download
->> the vanilla 2.5.26 I can't build it at all. Even a make clean fails
->> due to missing directives in arch/alpha/kernel/Makefile.
->
->On Sat, 20 Jul 2002, Thunder from the hill wrote:
->What exactly are you experiencing?
->
+I noticed that doing lots or file accesses causes the used memory to
+increase, *after* subtracting buffers/cache. Here is an example:
 
-make mrproper:	ok.
-make defconfig:	ok.
-make dep:
+$ free
+             total       used       free     shared    buffers     cached
+Mem:        773776      30024     743752          0       1992      10424
+-/+ buffers/cache:      17608     756168
+Swap:        81904          0      81904
+$ du > /dev/null
+$ free
+             total       used       free     shared    buffers     cached
+Mem:        773776      78008     695768          0      26328      10472
+-/+ buffers/cache:      41208     732568
+Swap:        81904          0      81904
 
-make[1]: Entering directory `/usr/src/linux-2.5.27'
-make[1]: Nothing to be done for `include/linux/modversions.h'.
-make[1]: Leaving directory `/usr/src/linux-2.5.27'
+Here 24 MB of memory have been used up. Repeating the du seems to have
+little effect. This directory has ~3200 subdirs and 13400 files.
 
-make boot:
+After a few hours use about 200 MB are used, apperently for
+nothing. Killing all processed and unmounting file systems doesn't
+help.
 
-make[1]: Entering directory `/usr/src/linux-2.5.27/scripts'
-  gcc -Wp,-MD,./.split-include.d -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer   -o split-include split-include.c
-In file included from /usr/include/linux/errno.h:4,
-                 from /usr/include/bits/errno.h:25,
-                 from /usr/include/errno.h:36,
-                 from split-include.c:26:
-/usr/include/asm/errno.h:4: asm-generic/errno-base.h: No such file or directory
-make[1]: *** [split-include] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.5.27/scripts'
-make: *** [scripts] Error 2
+Is this a memory leak? I get the same results with ext2, ext3,
+reiserfs and nfs.
 
-
-make clean:
-
-make[1]: Entering directory `/usr/src/linux-2.5.27/arch/alpha/kernel'
-make[1]: *** No rule to make target `clean'.  Stop.
-make[1]: Leaving directory `/usr/src/linux-2.5.27/arch/alpha/kernel'
-make: *** [archclean] Error 2
-
-
-Looks to me like noone ever tried to compile this
-kernel on this platform. That is why I asked my
-silly question.
-
-Regards,
-Martin
-
+-- 
+Måns Rullgård
+mru@users.sf.net

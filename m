@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267699AbUHJULz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267705AbUHJUO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267699AbUHJULz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 16:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267701AbUHJULy
+	id S267705AbUHJUO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 16:14:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267700AbUHJUNC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 16:11:54 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:51033 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S267700AbUHJUKp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 16:10:45 -0400
-Date: Tue, 10 Aug 2004 22:12:52 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Benno <benjl@cse.unsw.edu.au>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Use posix headers in sumversion.c
-Message-ID: <20040810201252.GA17828@mars.ravnborg.org>
-Mail-Followup-To: Benno <benjl@cse.unsw.edu.au>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040810134102.GA15576@cse.unsw.edu.au>
+	Tue, 10 Aug 2004 16:13:02 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37032 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267701AbUHJUMY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 16:12:24 -0400
+Date: Tue, 10 Aug 2004 13:12:17 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: James Morris <jmorris@redhat.com>
+Cc: Chris Wright <chrisw@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kurt Garloff <garloff@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] [LSM] Rework LSM hooks
+Message-ID: <20040810131217.Q1924@build.pdx.osdl.net>
+References: <20040810130009.P1924@build.pdx.osdl.net> <Xine.LNX.4.44.0408101607170.9332-100000@dhcp83-76.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040810134102.GA15576@cse.unsw.edu.au>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Xine.LNX.4.44.0408101607170.9332-100000@dhcp83-76.boston.redhat.com>; from jmorris@redhat.com on Tue, Aug 10, 2004 at 04:07:42PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10, 2004 at 11:41:02PM +1000, Benno wrote:
-> When compiling Linux on Mac OSX I had trouble with scripts/sumversion.c.
-> It includes <netinet/in.h> to obtain to definitions of htonl and ntohl.
+* James Morris (jmorris@redhat.com) wrote:
+> On Tue, 10 Aug 2004, Chris Wright wrote:
+> > Is this new (i.e. you just did this)?  It's basically the same result we
+> > had from a few years ago.
 > 
-> On Mac OSX these are found in <arpa/inet.h>. After checking the POSIX
-> specification it appears that this is the correct place to get
-> the definitons for these functions.
-> 
-> (http://www.opengroup.org/onlinepubs/009695399/functions/htonl.html)
-> 
-> Using this header also appears to work on Linux (at least with
-> Glibc-2.3.2).
-> 
-> It seems clearer to me to go with the POSIX standard than implementing
-> #if __APPLE__ style macros, but if such an approach is preferred I can
-> supply patches for that instead.
-> 
-> A patch against 2.6.7 which change <netinet/in.h> -> <arpa/inet.h> is
-> attached.
-Your patch was reverse...
-I fixed up fixdep.c as well.
+> Yes, did it today.
 
-Thanks,
-	Sam
+Thanks, James.  Since these are the only concrete numbers and they are
+in the noise, I see no compelling reason to change to unlikely().
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,62 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289010AbSA3Jbg>; Wed, 30 Jan 2002 04:31:36 -0500
+	id <S289011AbSA3JdG>; Wed, 30 Jan 2002 04:33:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289014AbSA3Jb1>; Wed, 30 Jan 2002 04:31:27 -0500
-Received: from mx3.sac.fedex.com ([199.81.208.11]:28940 "EHLO
-	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S289011AbSA3JbJ>; Wed, 30 Jan 2002 04:31:09 -0500
-Date: Wed, 30 Jan 2002 17:27:00 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-cc: Greg Louis <glouis@dynamicro.on.ca>, <VANDROVE@vc.cvut.cz>,
-        <jdthood@mail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, <skraw@ithnet.com>,
-        Jeff Chua <jchua@fedex.com>
-Subject: Re: 2.4.18-pre7 slow ... apm problem
-In-Reply-To: <20020130165058.0dc3147f.sfr@canb.auug.org.au>
-Message-ID: <Pine.LNX.4.44.0201301723580.3268-100000@boston.corp.fedex.com>
+	id <S289013AbSA3Jcr>; Wed, 30 Jan 2002 04:32:47 -0500
+Received: from mail.pyramid.de ([213.164.67.210]:27893 "EHLO
+	EXCH01.intern.pyramid.de") by vger.kernel.org with ESMTP
+	id <S289011AbSA3Jcn>; Wed, 30 Jan 2002 04:32:43 -0500
+Message-ID: <3C57BD20.9000800@pyramid.de>
+Date: Wed, 30 Jan 2002 10:30:08 +0100
+From: Daniel Bunzendahl <daniel.bunzendahl@pyramid.de>
+Reply-To: daniel.bunzendahl@pyramid.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/30/2002
- 05:31:05 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/30/2002
- 05:31:07 PM,
-	Serialize complete at 01/30/2002 05:31:07 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Malcolm Mallardi <magamo@ranka.2y.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Netfilter(MASQ) and PPPoE problem? (2.4.17)
+In-Reply-To: <20020130015040.A19998@trianna.upcommand.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Malcolm,
+try to change the MTU on your clientmashines:
+ifconfig eth0 mtu 1400
 
-On Wed, 30 Jan 2002, Stephen Rothwell wrote:
+then connect again ...
 
-> Would you like to try another patch? :-)
+this Problem comes with many Webservers use Loadbalancing and BigIP
+because they answer with an different Packetsice and Providers like 
+T-Online
+block this ...
 
-sure, will try tonight.
+bye
 
-> I am not seeing your problems, but then again I am running on an IBM
-> Thinkpad, so I do BIOS calls with interrupts enabled and the BIOS halts
-> on idle (as opposed to slowing the CPU).  I also have SpeedStep
-> disabled.
+ 
 
-I've a ThinkPad X22.
+Malcolm Mallardi wrote:
 
-My .config ...
+>	Heyla, folks.  I've got an interesting little report for y'all,
+>was hoping to get a bit more insight, 'cause I'm rather stumped on it,
+>and can't really make heads or tails of it.  I've got a DSL with PPPoE
+>set up on the router (running 2.4.17, with NAT) and seem to be having
+>problems getting to web sites from client machines behind the firewall.
+>
+>	What makes it so curious is that this happens with only a
+>selection of web servers out there, though the number for me seems to be
+>growing, unfortunately.
+>	When I use Lynx from the router, I can get to any site out
+>there on the Internet that I choose.  My fire walling rules are simple:
+>Accepts everything incoming, and outgoing, and masquerades anything
+>going out from the LAN to the world beyond through the interfaces of
+>ppp0 and ppp1 (ppp0 being the PPPoE interface through eth1, ppp1 being
+>the 'backup' dial-up service.)
+>	The other curious thing is when I route traffic to a troubled
+>site through the modem interface (ppp1), I can access things just fine.
+>
+>	After wading through some packet captures targeting this
+>problem, I've noticed that when sending a request from one of the
+>machines behind the NAT box, the standard handshake is processed, then
+>the HTTP get is sent, and the connection is dropped immediately, but
+>from the NAT box itself, there's an ACK sent, then the Web server sends
+>the information with a HTTP/200 response.
+>	
+>	I've been trying to puzzle this out for weeks, and due to all
+>the mitigating factors, the only theory that I can come up with is a
+>possible bug in the interaction between MASQ and PPPoE, as switching to
+>the straight PPP account works just fine.
+>
+>--
+>Malcolm D. Mallardi - Dark Freak At Large
+>"Captain, we are receiving two-hundred eighty-five THOUSAND hails."
+>AOL: Nuark  UIN: 11084092 Y!: Magamo Jabber: Nuark@jabber.com
+>http://ranka.2y.net:3000/~magamo/index.htm
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-	CONFIG_APM=m
-	# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-	# CONFIG_APM_DO_ENABLE is not set
-	CONFIG_APM_CPU_IDLE=y
-	# CONFIG_APM_DISPLAY_BLANK is not set
-	# CONFIG_APM_RTC_IS_GMT is not set
-	# CONFIG_APM_ALLOW_INTS is not set
-	# CONFIG_APM_REAL_MODE_POWER_OFF is not set
-
-/etc/modules.conf
-	options apm idle_threshold=95 power_off=1
-
-
-
-Jeff
 
 

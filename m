@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129043AbQKFO5b>; Mon, 6 Nov 2000 09:57:31 -0500
+	id <S129061AbQKFPDB>; Mon, 6 Nov 2000 10:03:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129061AbQKFO5V>; Mon, 6 Nov 2000 09:57:21 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:37135 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S129043AbQKFO5N>; Mon, 6 Nov 2000 09:57:13 -0500
-Date: Mon, 6 Nov 2000 15:57:02 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Catalin BOIE <util@deuroconsult.ro>
-Cc: linux-kernel@vger.kernel.org, linux-admin@vger.kernel.org
-Subject: Re: Kernel hook for open
-Message-ID: <20001106155702.F12348@arthur.ubicom.tudelft.nl>
-In-Reply-To: <Pine.LNX.4.20.0011061547590.1080-100000@marte.Deuroconsult.ro>
-Mime-Version: 1.0
+	id <S129096AbQKFPCv>; Mon, 6 Nov 2000 10:02:51 -0500
+Received: from windsormachine.com ([206.48.122.28]:35846 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S129061AbQKFPCn>; Mon, 6 Nov 2000 10:02:43 -0500
+Message-ID: <3A06C7F8.80D4484C@windsormachine.com>
+Date: Mon, 06 Nov 2000 10:02:16 -0500
+From: Mike Dresser <mdresser@windsormachine.com>
+Organization: Windsor Machine & Stamping
+X-Mailer: Mozilla 4.75 [en] (Win98; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: issues with ide-tape under 2.4.x and with 2.2.x+ide patches
+In-Reply-To: <3A017F1E.C699593A@windsormachine.com> <20001102195403.A18806@suse.de>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.20.0011061547590.1080-100000@marte.Deuroconsult.ro>; from util@deuroconsult.ro on Mon, Nov 06, 2000 at 03:55:41PM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
-X-Loop: erik@arthur.ubicom.tudelft.nl
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 06, 2000 at 03:55:41PM +0200, Catalin BOIE wrote:
-> I wish to know if there is something like a kernel hook for open function.
-> I want to monitor a file (someting like watchdog on Solaris) and to read
-> from my own process (module?) and from the file.
+> > ide-tape: ht0: I/O error, pc = 1e, key =  5, asc = 20, ascq =  0
+> > ide-tape: ht0: I/O error, pc =  8, key =  5, asc = 2c, ascq =  0
+> > ide-tape: ht0: I/O error, pc = 1e, key =  5, asc = 20, ascq =  0
+> >
+> > (normal, i get those cause of the lock drive/unlock drive, which the
+> > drive doesn't support)
+>
+> Interesting, and this is test10? I submitted a patch for test10 to
+> not attempt prevent-removal commands in the ide-tape drives that
+> do not support it. If this is indeed test10, that would mean that
+> the HP drive misreports that capability. It'd be nice to know.
 
-I don't know what watchdog is, but maybe strace is what you want (man
-strace for more info).
+Confirmed.
 
-> I tried with LD_SO_PRELOAD but it haven't any effect on the so libraries.
-> For example:
-> If I use function getpwent (that is in a so library) and my home
-> made .so library that overwrite "open" function and is in
-> /etc/ld.so.preload file it doesn't work.
-> Of course, if I use open ("/etc/hosts") the so library execute my
-> function. 
+promise:~/crap# uname -a
+Linux promise 2.4.0-test10 #4 Mon Oct 30 17:16:16 EST 2000 i686 unknown
 
-Use LD_PRELOAD instead.
+And i think my clock chip is drifting, it's actually the 6th of November. =)
+
+Anyways...... Spent 15 minutes trying to figure out why it couldn't read the
+tape, and kept giving me the errors.  Then i remembered the whole point of
+this bug-report WAS about it not reading tapes.  It's Monday morning, but my
+brain is still out there in the wild blue yonder. :)
+
+I'm interested in why the HP drive won't read tapes, but if i swap in my
+Seagate, it reads them just fine.  Well, aside from media errors.  Seems HP
+can't build a tape drive OR tape media that is reliable =)
 
 
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

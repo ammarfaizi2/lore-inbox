@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265812AbUAPXXw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 18:23:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265837AbUAPXXw
+	id S265768AbUAPXcd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 18:32:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265779AbUAPXcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 18:23:52 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:36780 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S265812AbUAPXXv
+	Fri, 16 Jan 2004 18:32:32 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:21128 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S265768AbUAPXca
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 18:23:51 -0500
-Date: Fri, 16 Jan 2004 21:17:04 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Stephen Smoogen <smoogen@lanl.gov>, linux-kernel@vger.kernel.org
-Subject: Re: AIC7xxx kernel problem with 2.4.2[234] kernels
-In-Reply-To: <2582475408.1074292759@aslan.btc.adaptec.com>
-Message-ID: <Pine.LNX.4.58L.0401162116230.30607@logos.cnet>
-References: <1074289406.5752.5.camel@smoogen2.lanl.gov>
- <2582475408.1074292759@aslan.btc.adaptec.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 16 Jan 2004 18:32:30 -0500
+Mime-Version: 1.0 (Apple Message framework v609)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <3FC7B008-487C-11D8-AED9-000A95A0560C@us.ibm.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Hollis Blanchard <hollisb@us.ibm.com>
+Subject: kobj_to_dev ?
+Date: Fri, 16 Jan 2004 17:32:29 -0600
+To: Greg KH <gregkh@us.ibm.com>
+X-Mailer: Apple Mail (2.609)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Greg, could this be added to device.h:
 
+--- 1.112/include/linux/device.h        Wed Jan  7 23:58:16 2004
++++ edited/include/linux/device.h       Fri Jan 16 17:35:04 2004
+@@ -279,6 +279,8 @@
+         void    (*release)(struct device * dev);
+  };
 
-On Fri, 16 Jan 2004, Justin T. Gibbs wrote:
++#define kobj_to_dev(k) container_of((k), struct device, kobj)
++
+  static inline struct device *
+  list_to_dev(struct list_head *node)
+  {
 
-> > Booting problems with aic7xxx with stock kernel 2.4.24.
->
-> ...
->
-> > Unexpected busfree while idle
-> > SEQ 0x01
->
-> A problem with similar symptoms was corrected in driver version 6.2.37
-> back in August of last year.  Can you try using the latest driver source
-> from here:
->
-> 	http://people.FreeBSD.org/~gibbs/linux/SRC/
->
-> and see if your problem persists?  The aic79xx driver archive at the
-> above location includes both the aic7xxx and aic79xx drivers.  If this
-> does not resolve your problem there are other debugging options we can
-> enable that may aid in tracking down the problem.
+I'm using it as the following (inspired by find_bus), and it seems like 
+it would make sense to put in device.h.
 
-Hi Justin,
+struct vio_dev *vio_find_device(const char *name)
+{
+	struct kobject *kobj;
 
-It might be interesting to merge these fixes in mainline?
+	kobj = kset_find_obj(&vio_bus_type.devices, name);
+	if (!kobj)
+		return NULL;
+
+	return to_vio_dev(kobj_to_dev(kobj));
+}
+
+As a side node, since those #defines don't to type-checking, would it 
+make sense to name them with both types? E.g. "kobj_to_dev" instead of 
+just "to_dev"?
+
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
+

@@ -1,88 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265446AbTABCpm>; Wed, 1 Jan 2003 21:45:42 -0500
+	id <S265570AbTABCt0>; Wed, 1 Jan 2003 21:49:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265457AbTABCpm>; Wed, 1 Jan 2003 21:45:42 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:54208 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S265446AbTABCpk>; Wed, 1 Jan 2003 21:45:40 -0500
-Date: Thu, 2 Jan 2003 03:54:01 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: observations on 2.5 config screens
-Message-ID: <20030102025401.GI17053@louise.pinerecords.com>
-References: <20030101200717.GA17053@louise.pinerecords.com> <Pine.LNX.4.33L2.0301011750010.21149-100000@dragon.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L2.0301011750010.21149-100000@dragon.pdx.osdl.net>
+	id <S265587AbTABCt0>; Wed, 1 Jan 2003 21:49:26 -0500
+Received: from hibernia.jakma.org ([212.17.32.129]:18054 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP
+	id <S265570AbTABCtY>; Wed, 1 Jan 2003 21:49:24 -0500
+Date: Thu, 2 Jan 2003 02:57:48 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Bill Huey <billh@gnuppy.monkey.org>
+cc: Rik van Riel <riel@conectiva.com.br>, <Hell.Surfers@cwctv.net>,
+       <linux-kernel@vger.kernel.org>, <rms@gnu.org>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+In-Reply-To: <20030102013736.GA2708@gnuppy.monkey.org>
+Message-ID: <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org>
+X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [rddunlap@osdl.org]
-> 
-> On Wed, 1 Jan 2003, Tomas Szepe wrote:
-> 
-> [snippage]
-> | >     It seems that the final option, "Preemptible kernel", does
-> | >   not belong there.  In fact, there seem to be a number of
-> | >   kernel-related, kind of hacking/debugging options, that
-> | >   could be collected in one place, like preemption, sysctl,
-> | >   hacking, executable file formats, etc.  "Low-level kernel
-> | >   options", perhaps?
-> 
-> So long as they come after the processor selection or whatever
-> dependencies they have.
+On Wed, 1 Jan 2003, Bill Huey wrote:
 
-No longer an issue, see below.
+> On Thu, Jan 02, 2003 at 12:31:13AM +0000, Paul Jakma wrote:
 
-> ...
->
-> | > Multimedia devices
-> | >
-> | >     How come "Sound" is not here?  And (as we've already
-> | >   established), Radio Adapters is not a sub-entry of Video for
-> | >   Linux. :-)  (And is there a reason why Amateur Radio Support
-> | >   and Radio Adapters are so far apart in the config menus?
+> > subsystem, the VFS, etc.. These systems are rather large bodies of
+> > code - without which the NVidia kernel driver could not work.
 > 
-> I agree.
+> Well, no, look at the "nm" dump of the object file. It's got a lot of
+> proprietary code 
+
+indeed. that doesnt change the fact that this large body of NVidia
+specific code still must make use of large parts of linux code
+(through function calls).
+
+> It's a very practical solution to do it this way.
+
+yes, but the legalities of it are rather grey.
+
+> > How are the standard interfaces not covered by the GPL? 
 > 
-> Greg Banks has (had) a real nice program for checking
-> dependency ordering using Config.in files.  It would be
-> very nice if it now worked with Kconfig files.  :)
+> All I saw where kernel header files include in the sources, nothing
+> more. 
 
-Forward references work nicely with the new configurator,
-see for yourself (patch against 2.5.53):
+indeed, and if that were the only issue it would be clear there is no 
+issue. however, it must make use of linux code at runtime through 
+function calls - as linux makes use of the NVidia proprietary code by 
+calling the functions it provides.
 
-diff -urN a/init/Kconfig b/init/Kconfig
---- a/init/Kconfig	2002-12-16 07:02:05.000000000 +0100
-+++ b/init/Kconfig	2003-01-02 03:49:02.000000000 +0100
-@@ -1,6 +1,10 @@
- 
- menu "Code maturity level options"
- 
-+config HRM0PS
-+	depends on HRMOPS_PREREQUISITE
-+	bool "This proves that forward-referenced symbols work just fine"
-+
- config EXPERIMENTAL
- 	bool "Prompt for development and/or incomplete code/drivers"
- 	---help---
-diff -urN a/net/Kconfig b/net/Kconfig
---- a/net/Kconfig	2002-12-08 20:06:41.000000000 +0100
-+++ b/net/Kconfig	2003-01-02 03:49:44.000000000 +0100
-@@ -5,6 +5,9 @@
- menu "Networking options"
- 	depends on NET
- 
-+config HRMOPS_PREREQUISITE
-+	bool "Switch this on for some serious HRM0PS!!"
-+
- config PACKET
- 	tristate "Packet socket"
- 	---help---
+> I'd rather have the experts do it at NVidia, than a half completed
+> open source implementation that isn't terribly optimized.
 
+I run systems that use many GPL and fully open drivers that are quite
+well optimised. Some of these drivers were written by the vendor's
+"experts" and are distributed seperately - still GPL though.  
+Sometimes one has a choice between drivers written by the vendor and
+drivers written by (non-expert???) "community" authors, and often one
+finds the vendor driver is the one that isn't terribly optimised.
+
+> Matrix multiplies, T&L, etc...
+
+none of this stuff is done in kernel (least it shouldnt be). Its done 
+in user-space libraries.
+
+The XFree licence allows binary only modules, indeed XFree 4 was 
+designed to make distribution of (possibly binary) modules as easy as 
+possible.
+
+There isnt that much magic the NVidia kernel modules ought to be 
+doing really.
+
+> communication between user and kernel space that provides this to
+> the OpenGL libraries are all exotic. I'm glad that nobody has to
+> deal with this stuff directly and that a vendor is willing to
+> provide support for it.
+
+aha.. yes, all that complicated hardware stuff - you dont really want 
+those linux kernel amatuers writing that.
+
+> bill
+
+regards,
 -- 
-Tomas Szepe <szepe@pinerecords.com>
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+	warning: do not ever send email to spam@dishone.st
+Fortune:
+The system will be down for 10 days for preventive maintenance.
+

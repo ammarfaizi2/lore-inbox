@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131020AbQL1RyQ>; Thu, 28 Dec 2000 12:54:16 -0500
+	id <S129523AbQL1SPv>; Thu, 28 Dec 2000 13:15:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131230AbQL1Rx4>; Thu, 28 Dec 2000 12:53:56 -0500
-Received: from dsl081-135-024-nyc1.dsl-isp.net ([64.81.135.24]:44811 "EHLO
-	monolith") by vger.kernel.org with ESMTP id <S131020AbQL1Rxt>;
-	Thu, 28 Dec 2000 12:53:49 -0500
-To: fpieraut@casi.polymtl.ca
-Cc: linux-kernel@vger.kernel.org
+	id <S131230AbQL1SPm>; Thu, 28 Dec 2000 13:15:42 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:2311 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S129523AbQL1SPW>; Thu, 28 Dec 2000 13:15:22 -0500
+Date: Thu, 28 Dec 2000 17:44:54 +0000 (GMT)
+From: John Levon <moz@compsoc.man.ac.uk>
+To: David Huggins-Daines <dhd@eradicator.org>
+cc: fpieraut@casi.polymtl.ca, linux-kernel@vger.kernel.org
 Subject: Re: Activating APIC on single processor
-In-Reply-To: <Pine.LNX.4.10.10012281242140.9711-100000@thales.casi.polymtl.ca>
-From: David Huggins-Daines <dhd@eradicator.org>
-Organization: None worth mentioning
-Date: 28 Dec 2000 12:15:45 -0500
-In-Reply-To: <fpieraut@casi.polymtl.ca>'s message of "Thu, 28 Dec 2000 17:00:15 GMT"
-Message-ID: <87ae9g8o1q.fsf@monolith.cepstral.com>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+In-Reply-To: <87ae9g8o1q.fsf@monolith.cepstral.com>
+Message-ID: <Pine.LNX.4.21.0012281741180.22864-100000@mrworry.compsoc.man.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<fpieraut@casi.polymtl.ca> writes:
+On 28 Dec 2000, David Huggins-Daines wrote:
 
-> I activate APIC interruption with the configuration of linux kernel
-> 2.4.0test-11. In the linux kernel configuration under processor type and
-> features I activate "APIC and IO-APIC support on uniprocessor",  and I
-> desactivate "Symmetric multi-processing support". The only way I found to
-> check APIC activation is looking into /proc/interrupts, no "IO-APIC" can
-> be found there. So I read IO-APIC.txt and I suppose there sould be
-> conflicts with IRQ of my PCI cards. So I remove all my PCI cards and still
-> have no APIC interrupt. 
-> Is there another way to check APIC activation? 
-> Am-I doing to right things to activate IO-APIC?
+> <fpieraut@casi.polymtl.ca> writes:
+> 
+> > I activate APIC interruption with the configuration of linux kernel
+> > 2.4.0test-11. In the linux kernel configuration under processor type and
+> > features I activate "APIC and IO-APIC support on uniprocessor",  and I
+> > desactivate "Symmetric multi-processing support". The only way I found to
+> > check APIC activation is looking into /proc/interrupts, no "IO-APIC" can
+> > be found there. So I read IO-APIC.txt and I suppose there sould be
+> > conflicts with IRQ of my PCI cards. So I remove all my PCI cards and still
+> > have no APIC interrupt. 
+> > Is there another way to check APIC activation? 
+> > Am-I doing to right things to activate IO-APIC?
+> 
+> You might not actually have an IO-APIC or even a local APIC.  This is
+> the case with the Mobile PIII for instance (I puzzled over this myself
+> for a long time).
+> 
+> To find out for sure, run:
+> 
+> grep 'flags.*apic' /proc/cpuinfo
 
-You might not actually have an IO-APIC or even a local APIC.  This is
-the case with the Mobile PIII for instance (I puzzled over this myself
-for a long time).
+This isn't for sure. I bet you *do* have a local APIC.
 
-To find out for sure, run:
+This flag is missing on a Pentium II here - I think the BIOS disables
+it. However, it can be enabled in the normal way just fine.
 
-grep 'flags.*apic' /proc/cpuinfo
+The presence of an IO-APIC is a different matter.
 
--- 
-David Huggins-Daines		-		dhd@eradicator.org
+thanks
+john
+
+--
+"The majority of the stupid is invincible and guaranteed for all time. The
+ terror of their tyranny, however, is alleviated by their lack of consistency."
+	- Albert Einstein
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

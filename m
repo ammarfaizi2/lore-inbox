@@ -1,130 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276832AbRJPW6O>; Tue, 16 Oct 2001 18:58:14 -0400
+	id <S271741AbRJPXRo>; Tue, 16 Oct 2001 19:17:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276840AbRJPW6E>; Tue, 16 Oct 2001 18:58:04 -0400
-Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:2311 "EHLO
-	moria.gondor.com") by vger.kernel.org with ESMTP id <S276832AbRJPW5z>;
-	Tue, 16 Oct 2001 18:57:55 -0400
-Date: Wed, 17 Oct 2001 00:58:22 +0200
-From: Jan Niehusmann <jan@gondor.com>
+	id <S271800AbRJPXRe>; Tue, 16 Oct 2001 19:17:34 -0400
+Received: from femail5.sdc1.sfba.home.com ([24.0.95.85]:42996 "EHLO
+	femail5.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S271741AbRJPXRX>; Tue, 16 Oct 2001 19:17:23 -0400
+Date: Tue, 16 Oct 2001 19:14:48 -0400
+From: Willem Riede <wriede@home.com>
 To: linux-kernel@vger.kernel.org
-Cc: mdharm-usb@one-eyed-alien.net
-Subject: [PATCH] Oops in usb-storage.c
-Message-ID: <20011017005822.A2161@gondor.com>
+Subject: Radeon driver in 2.4.10ac12
+Message-ID: <20011016191448.A1427@linnie.riede.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.2.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Since I upgraded to 2.4.10ac12 I find these messages in my log:
 
-usb-storage.c oopses in fill_inquiry_response if I send an INQUIRY
-to device which is currently disconnected from the USB bus.
-
-This happens because fill_inquiry_response is called outside a
-check for us->pusb_dev. Moving the special case into the if() 
-block, the oops is fixed.
-
-(For reference, the oops is below the patch)
-
-Jan
-
---- linux-2.4.12-ac3/drivers/usb/storage/usb.c.orig	Mon Oct  1 12:15:29 2001
-+++ linux-2.4.12-ac3/drivers/usb/storage/usb.c	Wed Oct 17 00:33:22 2001
-@@ -389,24 +389,6 @@
- 				break;
- 			}
- 
--			/* Handle those devices which need us to fake their
--			 * inquiry data */
--			if ((us->srb->cmnd[0] == INQUIRY) &&
--			    (us->flags & US_FL_FIX_INQUIRY)) {
--			    	unsigned char data_ptr[36] = {
--				    0x00, 0x80, 0x02, 0x02,
--				    0x1F, 0x00, 0x00, 0x00};
--
--			    	US_DEBUGP("Faking INQUIRY command\n");
--				fill_inquiry_response(us, data_ptr, 36);
--				us->srb->result = GOOD << 1;
--
--				set_current_state(TASK_INTERRUPTIBLE);
--				us->srb->scsi_done(us->srb);
--				us->srb = NULL;
--				break;
--			}
--
- 			/* lock the device pointers */
- 			down(&(us->dev_semaphore));
- 
-@@ -423,15 +405,30 @@
- 					       sizeof(usb_stor_sense_notready));
- 					us->srb->result = GOOD << 1;
- 				} else {
-+					memset(us->srb->request_buffer, 0, us->srb->request_bufflen);
- 					memcpy(us->srb->sense_buffer, 
- 					       usb_stor_sense_notready, 
- 					       sizeof(usb_stor_sense_notready));
- 					us->srb->result = CHECK_CONDITION << 1;
- 				}
- 			} else { /* !us->pusb_dev */
--				/* we've got a command, let's do it! */
--				US_DEBUG(usb_stor_show_command(us->srb));
--				us->proto_handler(us->srb, us);
-+
-+				/* Handle those devices which need us to fake 
-+				 * their inquiry data */
-+				if ((us->srb->cmnd[0] == INQUIRY) &&
-+				    (us->flags & US_FL_FIX_INQUIRY)) {
-+					unsigned char data_ptr[36] = {
-+					    0x00, 0x80, 0x02, 0x02,
-+					    0x1F, 0x00, 0x00, 0x00};
-+
-+					US_DEBUGP("Faking INQUIRY command\n");
-+					fill_inquiry_response(us, data_ptr, 36);
-+					us->srb->result = GOOD << 1;
-+				} else {
-+					/* we've got a command, let's do it! */
-+					US_DEBUG(usb_stor_show_command(us->srb));
-+					us->proto_handler(us->srb, us);
-+				}
- 			}
- 
- 			/* unlock the device pointers */
+Oct 14 00:46:59 linnie kernel: [drm:radeon_freelist_get] *ERROR* returning
+NULL!
+Oct 14 00:48:37 linnie last message repeated 3 times
+Oct 14 00:50:40 linnie last message repeated 2 times
+Oct 14 00:51:54 linnie last message repeated 4 times
+Oct 14 00:53:14 linnie kernel: [drm:radeon_freelist_get] *ERROR* returning
+NULL!
+Oct 14 00:56:33 linnie last message repeated 3 times
+Oct 15 00:04:03 linnie kernel: [drm:radeon_freelist_get] *ERROR* returning
+NULL!
+Oct 15 00:04:47 linnie kernel: [drm:radeon_freelist_get] *ERROR* returning
+NULL!
+Oct 15 00:06:34 linnie last message repeated 3 times
+Oct 15 00:08:22 linnie last message repeated 3 times
+Oct 15 00:09:24 linnie last message repeated 3 times
+Oct 15 00:11:26 linnie last message repeated 3 times
+Oct 15 00:12:59 linnie kernel: [drm:radeon_freelist_get] *ERROR* returning
+NULL!
+Oct 15 07:12:19 linnie kernel: [drm:radeon_freelist_get] *ERROR* returning
+NULL!
+Oct 15 18:42:20 linnie syslogd 1.4.1: restart.
+Oct 15 18:42:20 linnie syslog: syslogd startup succeeded
+Oct 16 04:02:01 linnie syslogd 1.4.1: restart.
+Oct 16 04:09:07 linnie kernel: [drm:radeon_freelist_get] *ERROR* returning
+NULL!
+Oct 16 17:44:52 linnie syslogd 1.4.1: restart.
+Oct 16 17:44:52 linnie syslog: syslogd startup succeeded
 
 
+I did not have them with ac10 and earlier, and the bad part is that after
+the last two I found my PC locked -- once fully, no ping response on the
+network -- once just with frozen keyboard/mouse but X displaying a frozen 
+screen saver image.
 
+Does anyone know what might have changed to cause this? 
+It is a Tyan Tiger MP dual Athlon with Radeon LE 32MB DDR.
+I'll be happy to provide more info if you tell me what is relevant.
 
-Oct 16 21:07:28 sirith kernel: Oops: 0000
-Oct 16 21:07:28 sirith kernel: CPU:    0
-Oct 16 21:07:28 sirith kernel: EIP:    0010:[<e4951766>]    Tainted: P 
-Oct 16 21:07:28 sirith kernel: EFLAGS: 00010246
-Oct 16 21:07:28 sirith kernel: eax: 00000000   ebx: dc636600   ecx: 00000000   edx: 00000010
-Oct 16 21:07:28 sirith kernel: esi: e495d460   edi: d9f09fcc   ebp: e495d450   esp: d9f09f7c
-Oct 16 21:07:28 sirith kernel: ds: 0018   es: 0018   ss: 0018
-Oct 16 21:07:28 sirith kernel: Process usb-storage-0 (pid: 766, stackpage=d9f09000)
-Oct 16 21:07:28 sirith kernel: Stack: d9f08000 e495da91 d9f09ff0 dc636600 c0116373 c02955a7 00000005 c01162c4 
-Oct 16 21:07:28 sirith kernel:        d9f08000 e4951b44 dc636600 d9f09fcc 00000024 e495daa0 00000100 da003dcc 
-Oct 16 21:07:28 sirith kernel:        dc636600 dc636600 dc636604 00000001 02028000 0000001f 69736143 0000006f 
-Oct 16 21:07:28 sirith kernel: Call Trace: [<e495da91>] [release_console_sem+115/128] [printk+260/272] [<e4951b44>] [<e495daa0>] 
-Oct 16 21:07:28 sirith kernel: Code: 0f b7 80 cc 00 00 00 66 c1 e8 0c 0c 30 88 47 20 8b 43 18 8a 
-
->>EIP; e4951766 <[usb-storage]fill_inquiry_response+116/2f0>   <=====
-Trace; e495da90 <[usb-storage]__module_usb_device_size+670/81be>
-Code;  e4951766 <[usb-storage]fill_inquiry_response+116/2f0>
-00000000 <_EIP>:
-Code;  e4951766 <[usb-storage]fill_inquiry_response+116/2f0>   <=====
-   0:   0f b7 80 cc 00 00 00      movzwl 0xcc(%eax),%eax   <=====
-Code;  e495176c <[usb-storage]fill_inquiry_response+11c/2f0>
-   7:   66 c1 e8 0c               shr    $0xc,%ax
-Code;  e4951770 <[usb-storage]fill_inquiry_response+120/2f0>
-   b:   0c 30                     or     $0x30,%al
-Code;  e4951772 <[usb-storage]fill_inquiry_response+122/2f0>
-   d:   88 47 20                  mov    %al,0x20(%edi)
-Code;  e4951776 <[usb-storage]fill_inquiry_response+126/2f0>
-  10:   8b 43 18                  mov    0x18(%ebx),%eax
-Code;  e4951778 <[usb-storage]fill_inquiry_response+128/2f0>
-  13:   8a 00                     mov    (%eax),%al
-
+Thanks. Willem Riede.

@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286723AbSAEBsn>; Fri, 4 Jan 2002 20:48:43 -0500
+	id <S287159AbSAECIp>; Fri, 4 Jan 2002 21:08:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286734AbSAEBsd>; Fri, 4 Jan 2002 20:48:33 -0500
-Received: from mail.nep.net ([12.23.44.24]:40717 "HELO nep.net")
-	by vger.kernel.org with SMTP id <S286723AbSAEBsX>;
-	Fri, 4 Jan 2002 20:48:23 -0500
-Message-ID: <19AB8F9FA07FB0409732402B4817D75A1251D4@FILESERVER.SRF.srfarms.com>
-From: "Ryan C. Bonham" <Ryan@srfarms.com>
-To: Ben Greear <greearb@candelatech.com>, "Ryan C. Bonham" <Ryan@srfarms.com>
-Cc: "Linux Kernel List (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: RE: Tyan Tomcat i815T(S2080) LAN problems
-Date: Fri, 4 Jan 2002 20:48:22 -0500 
+	id <S287427AbSAECIf>; Fri, 4 Jan 2002 21:08:35 -0500
+Received: from pcow034o.blueyonder.co.uk ([195.188.53.122]:27915 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S287159AbSAECIR>;
+	Fri, 4 Jan 2002 21:08:17 -0500
+Message-ID: <3C366013.6090207@blueyonder.co.uk>
+Date: Sat, 05 Jan 2002 02:08:19 +0000
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Organization: blueyonder
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: 2.5.1-dj11/12 compile errors
+Content-Type: multipart/mixed;
+ boundary="------------010204050004080200090706"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben,
+This is a multi-part message in MIME format.
+--------------010204050004080200090706
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Just wanted to let you, and anyone else on the list who cares know that the onblard NICs on the Tyan i815T motherboard does work correctly, with the eepro100 driver. The original board i had was bad. I got the replacment in today and it works with Rehdat 7.2 Stock and Errata kernels both. I didn't have to set the MAC address for either NIC. Thanks for your help. Sorry for cluttering the list.
+bumble:~ # gcc -v
+Reading specs from /usr/lib/gcc-lib/i486-suse-linux/2.95.3/specs
+gcc version 2.95.3 20010315 (SuSE)
+	See attached.
+Regards
+-- 
+Sid Boyce ... hamradio G3VBV ... Cessna/Warrior Pilot
+Linux only shop
 
-Ryan
+--------------010204050004080200090706
+Content-Type: text/plain;
+ name="dj11_12_err"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="dj11_12_err"
 
-> Make sure you enable the second port in the BIOS, btw.
-> 
-> I forget the exact syntax (I do it in c++ code, not with 
-> ifconfig or ip), but
-> both ifconfig and ip programs can set the mac address.  Try
-> /sbin/ip link help
-> 
-> That should point you in the right direction...  Note that 
-> MAC == Hardware-Address
-> 
-> Ben
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    -c -o init/do_mounts.o init/do_mounts.c
+init/do_mounts.c: In function `rd_load_disk':
+init/do_mounts.c:634: incompatible type for argument 2 of `create_dev'
+init/do_mounts.c: In function `handle_initrd':
+init/do_mounts.c:752: incompatible type for argument 1 of `kdev_t_to_nr'
+init/do_mounts.c:756: incompatible type for argument 2 of `create_dev'
+init/do_mounts.c:777: incompatible types in assignment
+init/do_mounts.c: In function `initrd_load':
+init/do_mounts.c:804: incompatible type for argument 2 of `create_dev'
+init/do_mounts.c:805: incompatible type for argument 2 of `create_dev'
+init/do_mounts.c: In function `prepare_namespace':
+init/do_mounts.c:819: incompatible types in assignment
+make: *** [init/do_mounts.o] Error 1
+
+--------------010204050004080200090706--
+

@@ -1,99 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285552AbRLSWQA>; Wed, 19 Dec 2001 17:16:00 -0500
+	id <S285556AbRLSWaE>; Wed, 19 Dec 2001 17:30:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285540AbRLSWPu>; Wed, 19 Dec 2001 17:15:50 -0500
-Received: from mailhost.teleline.es ([195.235.113.141]:2131 "EHLO
-	tsmtp9.mail.isp") by vger.kernel.org with ESMTP id <S285534AbRLSWPi>;
-	Wed, 19 Dec 2001 17:15:38 -0500
-Date: Wed, 19 Dec 2001 23:17:44 +0100
-From: Diego Calleja <grundig@teleline.es>
+	id <S285557AbRLSW3y>; Wed, 19 Dec 2001 17:29:54 -0500
+Received: from femail5.sdc1.sfba.home.com ([24.0.95.85]:6142 "EHLO
+	femail5.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S285556AbRLSW3k>; Wed, 19 Dec 2001 17:29:40 -0500
+Date: Wed, 19 Dec 2001 17:29:29 -0500
+From: Willem Riede <wriede@home.com>
 To: linux-kernel@vger.kernel.org
-Cc: Edward Muller <emuller@learningpatterns.com>
-Subject: Re: Reiserfs corruption on 2.4.17-rc1!
-Message-ID: <20011219231744.A378@diego>
-In-Reply-To: <20011217002350.D418@diego> <20011217024529.E418@diego> <1008780992.8835.2.camel@akira.learningpatterns.com>
+Subject: [RFC] Tape driver rationalization for Linux 2.5?
+Message-ID: <20011219172929.A23227@linnie.riede.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: <1008780992.8835.2.camel@akira.learningpatterns.com>; from emuller@learningpatterns.com on Wed, Dec 19, 2001 at 17:56:31 +0100
-X-Mailer: Balsa 1.0.pre5
+X-Mailer: Balsa 1.3.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Folks,
 
-On Wed, 19 Dec 2001 17:56:31 Edward Muller wrote:
-> On Sun, 2001-12-16 at 20:45, Diego Calleja wrote:
-> [snip]
-> 
-> > As you said, i've tested the drive:
-> > 
-> > root@diego:~# badblocks -n -vv /dev/hdc5
-> > attempt to access beyond end of device
-> > 16:05: rw=0, want=9671068, limit=9671067
-> > 967106456/  9671067
-> > attempt to access beyond end of device
-> > 16:05: rw=0, want=9671068, limit=9671067
-> > 9671065
-> > attempt to access beyond end of device
-> > 16:05: rw=0, want=9671068, limit=9671067
-> > 9671066
-> > done
-> > Pass completed, 3 bad blocks found.
-> [snip]
-> 
-> From an earlier email...
-> Well, I've run badblocks in 2.4.16
-> results:
-> 
-> 
-> root@diego:~# badblocks -n -vv /dev/hdc5
-> Initializing random test data
-> Checking for bad blocks in non-destructive read-write mode
-> From block 0 to 9671067
-> Checking for bad blocks (non-destructive read-write test): done
-> Pass completed, 0 bad blocks found.
-> root@diego:~#
-> 
-> 
-> So under 2.4.17-rc1 Diego gets the '...access beyond end of device' and
-> with 2.4.16 he doesn't.
-I've made a partition, about 1500 MB.
--Boot 2.4.16-->fdisk-->reboot-->boot 2.4.16-->mkreiserfs-->badblocks -n -vv
-(no "..accesbeyond of device)-->reboot-->boot 2.4.17-rc1-->badblocks -n
--vv--> no "..access beyond of device"
+Being the maintainer of the driver for Onstream tape drives (osst) and
+wanting to stay abreast with the kernel evolution, I've been reading up on 
+some of the changes that are being made to the scsi sub-system in the 2.5.x 
+kernel series, and that has got me thinking...
 
-> 
-> For some reason the badblocks program under 2.4.16 ends at block
-> 9671067, while the 2.4.17-rc1 test tries to go beyond that for some
-> reason.
-> 
-> Diego, what happens when you run the fsk/try to access /etc/mtab (and
-> the like) under 2.4.16?
-ls /etc/mtab && reiserfsck --> same results, in 2.4.16 and in 2.4.17-rc1
---my reiserfs partition is now corrupted, there's no difference between
-using 2.4.16 or 2.4.17-rc1--
+I've never really understood why there are separate high level drivers for
+tape drives -- or cdroms for that matter (other than "it just happened that
+way").
 
-Now I'll compile 2.4.17-rc2 and I'll run reiserfsck --rebuild-tree. I think
-this will sove the problem. But nobody knows know why it happened. I'll
-try to test if I can reproduce the bug, but I don't think I can.
+Also, I find the fact that the user needs to tell the kernel at boot time
+whether (s)he is going to use ide-scsi or not awkward. You should be able
+to point any appropriate driver to a device by loading the corresponding
+module (and maybe tell the module specifically not to touch some compatible
+device, but preferably just gracefully shared and locked (think sg)).
 
+I'm not alone here, quoting Linus from the Scheduler thread:
+   'And even more important than performance is being able to read and write
+   to CD-RW disks without having to know about things like "ide-scsi" etc,
+   and do it sanely over different bus architectures etc.'
 
-Diego Calleja
+Case in point for osst -- it handles IDE (DI-x0), SCSI (SC-x0), USB (USBx0)
+and (not quite, but soon) Firewire (FW-x0) drives (it could in theory support
+parallel port drives too given the right mid-level driver). So here you have 
+a universal high level driver for a certain device type, usable regardless 
+of the actual physical interface you use on your PC.
 
-> 
-> 
-> -- 
-> -------------------------------
-> Edward Muller
-> Director of IS
-> 
-> 973-715-0230 (cell)
-> 212-487-9064 x115 (NYC)
-> 
-> http://www.learningpatterns.com
-> -------------------------------
-> 
-> 
+Yet there is ide-tape, which drives (only) DI-x0's too (but it is out of date).
+Too often I read complaints on l-k about ide-tape. It is very complex, with
+the pipeline, which I believe at today's PC performance has no added value.
 
+The same tension exists between st and ide-tape. Why shouldn't st be the 
+driver of choice for each and every QIC-157 compliant drive? (QIC-157 is a 
+standard for a common SCSI/ATAPI command set for streaming tape, which in
+turn is a subset of the SCSI standard for sequential access devices; 
+I believe that's what st supports).
 
+Ide-scsi -- which I feel should be renamed the "atapi" driver needs to be
+enhanced to use Atapi Overlap and/or DSC on drives that support it, and then
+st and ide-tape minus Onstream support and cdrom-c and sr.c (anything else?)
+can be merged... No more ide-tape -- less bloat. (I admit to not knowing 
+enough about cdrom drivers to know if the strategy would work there).
+
+What do people think? 
+
+Thanks, Willem Riede.

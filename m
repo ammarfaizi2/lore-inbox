@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317892AbSGWAjD>; Mon, 22 Jul 2002 20:39:03 -0400
+	id <S317931AbSGWAmy>; Mon, 22 Jul 2002 20:42:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317901AbSGWAh4>; Mon, 22 Jul 2002 20:37:56 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:10500 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317892AbSGWAhS>;
-	Mon, 22 Jul 2002 20:37:18 -0400
-Date: Mon, 22 Jul 2002 17:40:34 -0700
+	id <S317928AbSGWAlv>; Mon, 22 Jul 2002 20:41:51 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:12292 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317920AbSGWAkj>;
+	Mon, 22 Jul 2002 20:40:39 -0400
+Date: Mon, 22 Jul 2002 17:43:54 -0700
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
 Subject: Re: [BK PATCH] LSM changes for 2.5.27
-Message-ID: <20020723004034.GG660@kroah.com>
-References: <20020723003702.GA660@kroah.com> <20020723003806.GB660@kroah.com> <20020723003905.GC660@kroah.com> <20020723003935.GD660@kroah.com> <20020723003952.GE660@kroah.com> <20020723004007.GF660@kroah.com>
+Message-ID: <20020723004354.GI660@kroah.com>
+References: <20020723003702.GA660@kroah.com> <20020723003806.GB660@kroah.com> <20020723003905.GC660@kroah.com> <20020723003935.GD660@kroah.com> <20020723003952.GE660@kroah.com> <20020723004007.GF660@kroah.com> <20020723004034.GG660@kroah.com> <20020723004051.GH660@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020723004007.GF660@kroah.com>
+In-Reply-To: <20020723004051.GH660@kroah.com>
 User-Agent: Mutt/1.4i
 X-Operating-System: Linux 2.2.21 (i586)
 Reply-By: Mon, 24 Jun 2002 23:35:26 -0700
@@ -26,33 +26,260 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.683.1.4 -> 1.683.1.5
-#	arch/ia64/kernel/ptrace.c	1.10    -> 1.11   
+#	           ChangeSet	1.683.1.7 -> 1.683.1.8
+#	    security/dummy.c	1.3     -> 1.4    
+#	security/capability.c	1.3     -> 1.4    
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/07/22	greg@kroah.com	1.683.1.5
-# added ptrace hook for ia64
+# 02/07/22	greg@kroah.com	1.683.1.8
+# LSM: convert initializers to C99 style.
 # --------------------------------------------
 #
-diff -Nru a/arch/ia64/kernel/ptrace.c b/arch/ia64/kernel/ptrace.c
---- a/arch/ia64/kernel/ptrace.c	Mon Jul 22 17:25:56 2002
-+++ b/arch/ia64/kernel/ptrace.c	Mon Jul 22 17:25:56 2002
-@@ -15,6 +15,7 @@
- #include <linux/ptrace.h>
- #include <linux/smp_lock.h>
- #include <linux/user.h>
-+#include <linux/security.h>
+diff -Nru a/security/capability.c b/security/capability.c
+--- a/security/capability.c	Mon Jul 22 17:25:45 2002
++++ b/security/capability.c	Mon Jul 22 17:25:45 2002
+@@ -706,61 +706,61 @@
+ 	.bprm_set_security =		cap_bprm_set_security,
+ 	.bprm_check_security =		cap_bprm_check_security,
  
- #include <asm/pgtable.h>
- #include <asm/processor.h>
-@@ -1099,6 +1100,9 @@
- 	if (request == PTRACE_TRACEME) {
- 		/* are we already being traced? */
- 		if (current->ptrace & PT_PTRACED)
-+			goto out;
-+		ret = security_ops->ptrace(current->parent, current);
-+		if (ret)
- 			goto out;
- 		current->ptrace |= PT_PTRACED;
- 		ret = 0;
+-	sb_alloc_security:		cap_sb_alloc_security,
+-	sb_free_security:		cap_sb_free_security,
+-	sb_statfs:			cap_sb_statfs,
+-	sb_mount:			cap_mount,
+-	sb_check_sb:			cap_check_sb,
+-	sb_umount:			cap_umount,
+-	sb_umount_close:		cap_umount_close,
+-	sb_umount_busy:			cap_umount_busy,
+-	sb_post_remount:		cap_post_remount,
+-	sb_post_mountroot:		cap_post_mountroot,
+-	sb_post_addmount:		cap_post_addmount,
+-	sb_pivotroot:			cap_pivotroot,
+-	sb_post_pivotroot:		cap_post_pivotroot,
++	.sb_alloc_security =		cap_sb_alloc_security,
++	.sb_free_security =		cap_sb_free_security,
++	.sb_statfs =			cap_sb_statfs,
++	.sb_mount =			cap_mount,
++	.sb_check_sb =			cap_check_sb,
++	.sb_umount =			cap_umount,
++	.sb_umount_close =		cap_umount_close,
++	.sb_umount_busy =		cap_umount_busy,
++	.sb_post_remount =		cap_post_remount,
++	.sb_post_mountroot =		cap_post_mountroot,
++	.sb_post_addmount =		cap_post_addmount,
++	.sb_pivotroot =			cap_pivotroot,
++	.sb_post_pivotroot =		cap_post_pivotroot,
+ 	
+-	inode_alloc_security:		cap_inode_alloc_security,
+-	inode_free_security:		cap_inode_free_security,
+-	inode_create:			cap_inode_create,
+-	inode_post_create:		cap_inode_post_create,
+-	inode_link:			cap_inode_link,
+-	inode_post_link:		cap_inode_post_link,
+-	inode_unlink:			cap_inode_unlink,
+-	inode_symlink:			cap_inode_symlink,
+-	inode_post_symlink:		cap_inode_post_symlink,
+-	inode_mkdir:			cap_inode_mkdir,
+-	inode_post_mkdir:		cap_inode_post_mkdir,
+-	inode_rmdir:			cap_inode_rmdir,
+-	inode_mknod:			cap_inode_mknod,
+-	inode_post_mknod:		cap_inode_post_mknod,
+-	inode_rename:			cap_inode_rename,
+-	inode_post_rename:		cap_inode_post_rename,
+-	inode_readlink:			cap_inode_readlink,
+-	inode_follow_link:		cap_inode_follow_link,
+-	inode_permission:		cap_inode_permission,
+-	inode_permission_lite:		cap_inode_permission_lite,
+-	inode_setattr:			cap_inode_setattr,
+-	inode_getattr:			cap_inode_getattr,
+-	inode_post_lookup:		cap_post_lookup,
+-	inode_delete:			cap_delete,
+-	inode_setxattr:			cap_inode_setxattr,
+-	inode_getxattr:			cap_inode_getxattr,
+-	inode_listxattr:		cap_inode_listxattr,
+-	inode_removexattr:		cap_inode_removexattr,
++	.inode_alloc_security =		cap_inode_alloc_security,
++	.inode_free_security =		cap_inode_free_security,
++	.inode_create =			cap_inode_create,
++	.inode_post_create =		cap_inode_post_create,
++	.inode_link =			cap_inode_link,
++	.inode_post_link =		cap_inode_post_link,
++	.inode_unlink =			cap_inode_unlink,
++	.inode_symlink =		cap_inode_symlink,
++	.inode_post_symlink =		cap_inode_post_symlink,
++	.inode_mkdir =			cap_inode_mkdir,
++	.inode_post_mkdir =		cap_inode_post_mkdir,
++	.inode_rmdir =			cap_inode_rmdir,
++	.inode_mknod =			cap_inode_mknod,
++	.inode_post_mknod =		cap_inode_post_mknod,
++	.inode_rename =			cap_inode_rename,
++	.inode_post_rename =		cap_inode_post_rename,
++	.inode_readlink =		cap_inode_readlink,
++	.inode_follow_link =		cap_inode_follow_link,
++	.inode_permission =		cap_inode_permission,
++	.inode_permission_lite =	cap_inode_permission_lite,
++	.inode_setattr =		cap_inode_setattr,
++	.inode_getattr =		cap_inode_getattr,
++	.inode_post_lookup =		cap_post_lookup,
++	.inode_delete =			cap_delete,
++	.inode_setxattr =		cap_inode_setxattr,
++	.inode_getxattr =		cap_inode_getxattr,
++	.inode_listxattr =		cap_inode_listxattr,
++	.inode_removexattr =		cap_inode_removexattr,
+ 	
+-	file_permission:		cap_file_permission,
+-	file_alloc_security:		cap_file_alloc_security,
+-	file_free_security:		cap_file_free_security,
+-	file_llseek:			cap_file_llseek,
+-	file_ioctl:			cap_file_ioctl,
+-	file_mmap:			cap_file_mmap,
+-	file_mprotect:			cap_file_mprotect,
+-	file_lock:			cap_file_lock,
+-	file_fcntl:			cap_file_fcntl,
+-	file_set_fowner:		cap_file_set_fowner,
+-	file_send_sigiotask:		cap_file_send_sigiotask,
+-	file_receive:			cap_file_receive,
++	.file_permission =		cap_file_permission,
++	.file_alloc_security =		cap_file_alloc_security,
++	.file_free_security =		cap_file_free_security,
++	.file_llseek =			cap_file_llseek,
++	.file_ioctl =			cap_file_ioctl,
++	.file_mmap =			cap_file_mmap,
++	.file_mprotect =		cap_file_mprotect,
++	.file_lock =			cap_file_lock,
++	.file_fcntl =			cap_file_fcntl,
++	.file_set_fowner =		cap_file_set_fowner,
++	.file_send_sigiotask =		cap_file_send_sigiotask,
++	.file_receive =			cap_file_receive,
+ 
+ 	.task_create =			cap_task_create,
+ 	.task_alloc_security =		cap_task_alloc_security,
+diff -Nru a/security/dummy.c b/security/dummy.c
+--- a/security/dummy.c	Mon Jul 22 17:25:45 2002
++++ b/security/dummy.c	Mon Jul 22 17:25:45 2002
+@@ -511,8 +511,8 @@
+ 	.acct =				dummy_act,
+ 	.capable =			dummy_capable,
+ 	.sys_security =			dummy_sys_security,
+-	quotactl:			dummy_quotactl,
+-	quota_on:			dummy_quota_on,
++	.quotactl =			dummy_quotactl,
++	.quota_on =			dummy_quota_on,
+ 
+ 	.bprm_alloc_security =		dummy_bprm_alloc_security,
+ 	.bprm_free_security =		dummy_bprm_free_security,
+@@ -520,61 +520,61 @@
+ 	.bprm_set_security =		dummy_bprm_set_security,
+ 	.bprm_check_security =		dummy_bprm_check_security,
+ 
+-	sb_alloc_security:		dummy_sb_alloc_security,
+-	sb_free_security:		dummy_sb_free_security,
+-	sb_statfs:			dummy_sb_statfs,
+-	sb_mount:			dummy_mount,
+-	sb_check_sb:			dummy_check_sb,
+-	sb_umount:			dummy_umount,
+-	sb_umount_close:		dummy_umount_close,
+-	sb_umount_busy:			dummy_umount_busy,
+-	sb_post_remount:		dummy_post_remount,
+-	sb_post_mountroot:		dummy_post_mountroot,
+-	sb_post_addmount:		dummy_post_addmount,
+-	sb_pivotroot:			dummy_pivotroot,
+-	sb_post_pivotroot:		dummy_post_pivotroot,
++	.sb_alloc_security =		dummy_sb_alloc_security,
++	.sb_free_security =		dummy_sb_free_security,
++	.sb_statfs =			dummy_sb_statfs,
++	.sb_mount =			dummy_mount,
++	.sb_check_sb =			dummy_check_sb,
++	.sb_umount =			dummy_umount,
++	.sb_umount_close =		dummy_umount_close,
++	.sb_umount_busy =		dummy_umount_busy,
++	.sb_post_remount =		dummy_post_remount,
++	.sb_post_mountroot =		dummy_post_mountroot,
++	.sb_post_addmount =		dummy_post_addmount,
++	.sb_pivotroot =			dummy_pivotroot,
++	.sb_post_pivotroot =		dummy_post_pivotroot,
+ 	
+-	inode_alloc_security:		dummy_inode_alloc_security,
+-	inode_free_security:		dummy_inode_free_security,
+-	inode_create:			dummy_inode_create,
+-	inode_post_create:		dummy_inode_post_create,
+-	inode_link:			dummy_inode_link,
+-	inode_post_link:		dummy_inode_post_link,
+-	inode_unlink:			dummy_inode_unlink,
+-	inode_symlink:			dummy_inode_symlink,
+-	inode_post_symlink:		dummy_inode_post_symlink,
+-	inode_mkdir:			dummy_inode_mkdir,
+-	inode_post_mkdir:		dummy_inode_post_mkdir,
+-	inode_rmdir:			dummy_inode_rmdir,
+-	inode_mknod:			dummy_inode_mknod,
+-	inode_post_mknod:		dummy_inode_post_mknod,
+-	inode_rename:			dummy_inode_rename,
+-	inode_post_rename:		dummy_inode_post_rename,
+-	inode_readlink:			dummy_inode_readlink,
+-	inode_follow_link:		dummy_inode_follow_link,
+-	inode_permission:		dummy_inode_permission,
+-	inode_permission_lite:		dummy_inode_permission_lite,
+-	inode_setattr:			dummy_inode_setattr,
+-	inode_getattr:			dummy_inode_getattr,
+-	inode_post_lookup:		dummy_post_lookup,
+-	inode_delete:			dummy_delete,
+-	inode_setxattr:			dummy_inode_setxattr,
+-	inode_getxattr:			dummy_inode_getxattr,
+-	inode_listxattr:		dummy_inode_listxattr,
+-	inode_removexattr:		dummy_inode_removexattr,
++	.inode_alloc_security =		dummy_inode_alloc_security,
++	.inode_free_security =		dummy_inode_free_security,
++	.inode_create =			dummy_inode_create,
++	.inode_post_create =		dummy_inode_post_create,
++	.inode_link =			dummy_inode_link,
++	.inode_post_link =		dummy_inode_post_link,
++	.inode_unlink =			dummy_inode_unlink,
++	.inode_symlink =		dummy_inode_symlink,
++	.inode_post_symlink =		dummy_inode_post_symlink,
++	.inode_mkdir =			dummy_inode_mkdir,
++	.inode_post_mkdir =		dummy_inode_post_mkdir,
++	.inode_rmdir =			dummy_inode_rmdir,
++	.inode_mknod =			dummy_inode_mknod,
++	.inode_post_mknod =		dummy_inode_post_mknod,
++	.inode_rename =			dummy_inode_rename,
++	.inode_post_rename =		dummy_inode_post_rename,
++	.inode_readlink =		dummy_inode_readlink,
++	.inode_follow_link =		dummy_inode_follow_link,
++	.inode_permission =		dummy_inode_permission,
++	.inode_permission_lite =	dummy_inode_permission_lite,
++	.inode_setattr =		dummy_inode_setattr,
++	.inode_getattr =		dummy_inode_getattr,
++	.inode_post_lookup =		dummy_post_lookup,
++	.inode_delete =			dummy_delete,
++	.inode_setxattr =		dummy_inode_setxattr,
++	.inode_getxattr =		dummy_inode_getxattr,
++	.inode_listxattr =		dummy_inode_listxattr,
++	.inode_removexattr =		dummy_inode_removexattr,
+ 
+-	file_permission:		dummy_file_permission,
+-	file_alloc_security:		dummy_file_alloc_security,
+-	file_free_security:		dummy_file_free_security,
+-	file_llseek:			dummy_file_llseek,
+-	file_ioctl:			dummy_file_ioctl,
+-	file_mmap:			dummy_file_mmap,
+-	file_mprotect:			dummy_file_mprotect,
+-	file_lock:			dummy_file_lock,
+-	file_fcntl:			dummy_file_fcntl,
+-	file_set_fowner:		dummy_file_set_fowner,
+-	file_send_sigiotask:		dummy_file_send_sigiotask,
+-	file_receive:			dummy_file_receive,
++	.file_permission =		dummy_file_permission,
++	.file_alloc_security =		dummy_file_alloc_security,
++	.file_free_security =		dummy_file_free_security,
++	.file_llseek =			dummy_file_llseek,
++	.file_ioctl =			dummy_file_ioctl,
++	.file_mmap =			dummy_file_mmap,
++	.file_mprotect =		dummy_file_mprotect,
++	.file_lock =			dummy_file_lock,
++	.file_fcntl =			dummy_file_fcntl,
++	.file_set_fowner =		dummy_file_set_fowner,
++	.file_send_sigiotask =		dummy_file_send_sigiotask,
++	.file_receive =			dummy_file_receive,
+ 
+ 	.task_create =			dummy_task_create,
+ 	.task_alloc_security =		dummy_task_alloc_security,

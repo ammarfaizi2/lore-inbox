@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262835AbTDFG2W (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 01:28:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbTDFG2V (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 01:28:21 -0500
-Received: from 078-037.onebb.com ([202.69.78.37]:23710 "EHLO
-	nicksbox.tyict.vtc.edu.hk") by vger.kernel.org with ESMTP
-	id S262835AbTDFG2V (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 01:28:21 -0500
-Message-ID: <3E8FCBB8.199E8AE4@vtc.edu.hk>
-Date: Sun, 06 Apr 2003 14:39:52 +0800
-From: Nick Urbanik <nicku@vtc.edu.hk>
-Organization: Institute of Vocational Education (Tsing Yi)
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-8custom i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Debugging hard lockups (hardware?)
-References: <3E8FC9FB.A030ACFB@vtc.edu.hk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id S262839AbTDFGar (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 01:30:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262840AbTDFGar (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 01:30:47 -0500
+Received: from srv1.mail.cv.net ([167.206.112.40]:30703 "EHLO srv1.mail.cv.net")
+	by vger.kernel.org with ESMTP id S262839AbTDFGaq (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 01:30:46 -0500
+Date: Sun, 06 Apr 2003 01:42:18 -0500 (EST)
+From: Pavel Roskin <proski@gnu.org>
+Subject: Driver for PLX9052 based PCMCIA-to-PCI bridges
+X-X-Sender: proski@localhost.localdomain
+To: linux-kernel@vger.kernel.org
+Cc: David Hinds <dhinds@sonic.net>
+Message-id: <Pine.LNX.4.51.0304060011390.11914@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Urbanik wrote:
+Hello!
 
-> Dear team,
->
-> This machine locks up solid every few days.  Caps Lock, Num Lock, Scroll Lock do
-> not respond.  The NMI watchdog does not kick in.  Alt-SysRq-keys do not
-> respond.  Logs show no hint of any problem (that I recognise) before lockup.
-> Occurs often during scrolling e.g., Mozilla.
+I have written a driver for PLX9052 based PCMCIA-to-PCI bridges commonly
+used in "PCI wireless cards" that consist of a PCMCIA wireless card and a
+PCMCIA-to-PCI bridge.
 
-I omitted one critical fact: it is only while I am using the machine sitting at the
-console; it has never happened while connecting via ssh, even when doing plenty of
-I/O.
+Such "PCI" cards cost almost as much as PCMCIA cards, so the cost of the
+bridge is essentially zero.  It's important to have support for hardware
+that people can get almost for free.
 
---
-Nick Urbanik   RHCE                                  nicku@vtc.edu.hk
-Dept. of Information & Communications Technology
-Hong Kong Institute of Vocational Education (Tsing Yi)
-Tel:   (852) 2436 8576, (852) 2436 8713          Fax: (852) 2436 8526
-PGP: 53 B6 6D 73 52 EE 1F EE EC F8 21 98 45 1C 23 7B     ID: 7529555D
-GPG: 7FFA CDC7 5A77 0558 DC7A 790A 16DF EC5B BB9D 2C24   ID: BB9D2C24
+Due to limitations of the chip, this driver doesn't support relocation of
+memory or I/O windows.  It turns out some PCMCIA drivers really don't like
+it (in particular pcnet-cs), so essentially this driver is just another
+way to support PLX-based wireless cards that are already supported by
+orinoco_plx.  The only upshot is that it's possible to swap cards without
+doing anything with the driver.
 
+However, if there is enough interest, the driver can be improved to
+support more cards.  In particular, I think it's possible to put a memory
+window after the CIS within the same PCI memory resource.
 
+It's also important to have a driver that cannot relocate memory and I/O
+(i.e. the one that uses io_offset and SS_CAP_STATIC_MAP).  There are
+already two such drivers in the 2.4 tree: au1000_generic and
+sa1100_generic.  They both are for embedded hardware.  Having a driver for
+PC would make it easy to fix incompatible card drivers.
 
+Since io_offset is used, this driver cannot be used with pcmcia-cs
+drivers.
+
+The driver and the documentation are here:
+http://www.red-bean.com/~proski/plx9052/
+
+-- 
+Regards,
+Pavel Roskin

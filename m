@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266648AbUJUOLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270683AbUJUOYW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266648AbUJUOLR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 10:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUJUOFK
+	id S270683AbUJUOYW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 10:24:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270484AbUJUOYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 10:05:10 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:46097 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S270723AbUJUOAI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 10:00:08 -0400
-Date: Thu, 21 Oct 2004 08:55:09 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Arjan van de Ven <arjan@fenrus.demon.nl>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       davem@davemloft.net, john.ronciak@intel.com,
-       ganesh.venkatesan@intel.com, akpm@osdl.org, romieu@fr.zoreil.com,
-       ctindel@users.sourceforge.net, fubar@us.ibm.com,
-       greearb@candelatech.com
-Subject: Re: [patch 2.6.9 0/11] Add MODULE_VERSION to several network drivers
-Message-ID: <20041021085509.B29340@tuxdriver.com>
-Mail-Followup-To: Arjan van de Ven <arjan@fenrus.demon.nl>,
-	netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-	davem@davemloft.net, john.ronciak@intel.com,
-	ganesh.venkatesan@intel.com, akpm@osdl.org, romieu@fr.zoreil.com,
-	ctindel@users.sourceforge.net, fubar@us.ibm.com,
-	greearb@candelatech.com
-References: <20041020141146.C8775@tuxdriver.com> <1098350269.2810.17.camel@laptop.fenrus.com> <20041021082205.A29340@tuxdriver.com> <1098366370.2810.31.camel@laptop.fenrus.com>
+	Thu, 21 Oct 2004 10:24:21 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:32987 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S270683AbUJUOUd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 10:20:33 -0400
+Date: Thu, 21 Oct 2004 16:16:35 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: john cooper <john.cooper@timesys.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Jens Axboe <axboe@suse.de>, Rui Nuno Capela <rncbc@rncbc.org>,
+       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+In-Reply-To: <4177A49E.3060901@timesys.com>
+Message-Id: <Pine.OSF.4.05.10410211601500.11909-100000@da410.ifa.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1098366370.2810.31.camel@laptop.fenrus.com>; from arjan@fenrus.demon.nl on Thu, Oct 21, 2004 at 03:46:11PM +0200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-DAIMI-Spam-Score: -2.82 () ALL_TRUSTED
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 03:46:11PM +0200, Arjan van de Ven wrote:
-> On Thu, 2004-10-21 at 14:22, John W. Linville wrote:
+On Thu, 21 Oct 2004, john cooper wrote:
 
-> > I would have to suspect that if a version string exists, that it has at
-> > least some meaning to the primary developers/maintainters.  It certainly
- 
-> Since the skeleton driver includes a define for that, I suspect your
-> assumption is a bit overly optimistic. 
- 
-Perhaps...still, at least the drivers I touched w/ these patches seem to
-have version numbers that are at least somewhat meaningful.
-
-> > Is this a political statement against the MODULE_VERSION macro and/or
-> > its purpose?  I'm not overly interested in debating that one...
+> Ingo Molnar wrote:
 > 
-> Not really. I have absolutely no problem with a MODULE_VERSION macro
-> *IF* the version it advertises means something. However if the version
-> it advertises has no meaning whatsoever (eg the version number never
-> gets updated) then imo it's better to NOT advertise anything so that
-> other tools (like dkms) don't make assumptions and decisions based on
-> nothing-meaning data.
+> >* Thomas Gleixner <tglx@linutronix.de> wrote:
+> >
+> >
+> >>Yeah, for a semaphore it is, but not for a mutex.
+> >>
+> >
+> >but mutexes dont exist in upstream Linux as a separate entity. (they
+> >exist in my tree but that's another ballgame.)
+> >
+> Mutexes layered on existing semaphores seems convenient
+> at the moment. However a more native mutex mechanism
+> which tracks ownership would provide a basis for PI as
+> well as further instrumentation. This may not be an
+> issue at the present but I don't think it is too far
+> off.
+> 
+> -john
+> 
 
-Again, I think it would have to be the maintainer's responsibility
-to make the version numbers meaningful.
+Actually you need to have another kind of semaphore based on a new kind of
+wait-queue: Priority based. I.e. the task with the highest priority get
+woken up first. Then on top of that you build your mutex.
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+I was planning to start to look at it and try to see if I could get
+anything to work, but I must admit I haven't got much further than
+just getting Igno's -U8.1 up running.
+
+An idea I had was to make a macro in list.h called
+ list_insert_sorted(list, element, condition_statement)
+and use that in this kind of wait_queue...
+
+To get a mutex with priority inheritance add an element pointing to the
+current owner and a field where you store the owners original priority
+which it has to be set back to when it relases the mutex (I am not sure
+how this will work out if someone holds several mutexes!)
+
+Regards,
+Esben
+
+

@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265860AbUAEDF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 22:05:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265862AbUAEDF6
+	id S265224AbUAEDOh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 22:14:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265868AbUAEDOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 22:05:58 -0500
-Received: from play.smurf.noris.de ([192.109.102.42]:32170 "EHLO
-	play.smurf.noris.de") by vger.kernel.org with ESMTP id S265860AbUAEDF5
+	Sun, 4 Jan 2004 22:14:36 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15771 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265224AbUAEDOg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 22:05:57 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Re: 2.6.0-rc1-mm1
-Date: Mon, 05 Jan 2004 03:54:22 +0100
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2004.01.05.02.54.20.971440@smurf.noris.de>
-References: <20031231004725.535a89e4.akpm@osdl.org> <pan.2004.01.04.21.17.28.696467@smurf.noris.de> <pan.2004.01.05.00.50.38.454578@smurf.noris.de>
-NNTP-Posting-Host: linux.smurf.noris.de
+	Sun, 4 Jan 2004 22:14:36 -0500
+Date: Mon, 5 Jan 2004 03:14:35 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Jeremy Maitin-Shepard <jbms@attbi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: st_dev:st_ino
+Message-ID: <20040105031434.GB4176@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0401031802420.2162@home.osdl.org> <20040104034934.A3669@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031856130.2162@home.osdl.org> <20040104142111.A11279@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl> <200401042335.i04NZqQZ029910@turing-police.cc.vt.edu> <87k747w4ow.fsf@jbms.ath.cx> <20040105014755.GB24410@mark.mielke.cc> <87llontap1.fsf@jbms.ath.cx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Trace: play.smurf.noris.de 1073271262 626 192.109.102.39 (5 Jan 2004 02:54:22 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Mon, 5 Jan 2004 02:54:22 +0000 (UTC)
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87llontap1.fsf@jbms.ath.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
->> [ BK tree with 2.6.1-rc1-mm1, at bk://smurf.bkbits.net/linux-2.6-mm,
->>   broken ]
-> I'm working on it.
-Fixed.
+On Sun, Jan 04, 2004 at 09:02:02PM -0500, Jeremy Maitin-Shepard wrote:
+ 
+> In order to efficiently implement tar, it is necessary to store the
+> inode numbers for files with a link count greater than 1 in a hash
+> table.  It would not be practical to keep open all of these files in
+> order to ensure that the inode numbers remain valid.  Thus, a different
+> unique identifier is needed, which is unique even for files that are not
+> open.
 
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-It is time the clergy are told that thinking men, after a close
-examination of that doctrine [Christianity], pronounce it to be
-subversive of true moral development and, therefore, positively noxious.
-		-- George Eliot
-
+Files that are not open could've been removed and replaced with something
+completely different since your stat(2).

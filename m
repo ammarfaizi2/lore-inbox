@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268688AbUI3JGW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268317AbUI3JZN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268688AbUI3JGW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 05:06:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268658AbUI3JGV
+	id S268317AbUI3JZN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 05:25:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268609AbUI3JZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 05:06:21 -0400
-Received: from styx.suse.cz ([82.119.242.94]:38791 "EHLO shadow.suse.cz")
-	by vger.kernel.org with ESMTP id S268609AbUI3JGI (ORCPT
+	Thu, 30 Sep 2004 05:25:13 -0400
+Received: from mail.gmx.de ([213.165.64.20]:11659 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268317AbUI3JZG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 05:06:08 -0400
-Date: Thu, 30 Sep 2004 11:06:37 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andi Kleen <ak@muc.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Readd panic blinking in 2.6
-Message-ID: <20040930090637.GA7157@ucw.cz>
-References: <m3llet4456.fsf@averell.firstfloor.org> <20040929132134.GA3770@ucw.cz> <20040930084224.GA28779@muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040930084224.GA28779@muc.de>
-User-Agent: Mutt/1.4.1i
+	Thu, 30 Sep 2004 05:25:06 -0400
+X-Authenticated: #4512188
+Message-ID: <415BD123.8020608@gmx.de>
+Date: Thu, 30 Sep 2004 11:25:55 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040929)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: white phoenix <white.phoenix@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: nforce2 bugs?
+References: <e2ae0e3b04092915427fcff604@mail.gmail.com> <1096496263.16768.12.camel@localhost.localdomain>
+In-Reply-To: <1096496263.16768.12.camel@localhost.localdomain>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 30, 2004 at 10:42:24AM +0200, Andi Kleen wrote:
-> > 
-> > Something like
-> > 
-> > 	spin_lock_irqsave(&i8042_lock, flags);
-> > 	i8042_flush();
-> > 	i8042_ctr &= ~I8042_CTR_KBDINT & ~I8042_CTR_AUXINT;
-> > 	i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR);
-> > 	i8042_wait_write();
-> > 	i8042_write_data(0xed);
-> > 	i8042_wait_read();
-> > 	i8042_flush();
-> > 	i8042_wait_write();
-> > 	i8042_write_data(led);
-> > 	i8042_wait_read();
-> > 	i8042_flush();
-> > 	spin_unlock_irqrestore(&i8042_lock, flags);
-> > 
-> > would be safer and more correct.
-> 
-> That all takes far too many locks.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Ouch, yes. Just ignore the locks then. As it is, it would deadlock
-immediately.
+Alan Cox schrieb:
+| On Mer, 2004-09-29 at 23:42, white phoenix wrote:
+|
+|>[x86] fix lockups with APIC support on nForce2
+|
+|
+| Looks reasonable (anyone from Nvidia care to ack any of these)
 
-> The risk of deadlocking during
-> panic is too great. I think the delay is fine (worked great under 2.4),
-> just need to fix the IBF issue you mentioned.
+As far as I could see, none of the posted patches are needed, or rather
+the correct one(s) is already included in the kernel. The older ones
+were workarounds, not needed anymore, thus obsolete.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+The only problem is the apic timer thing. It just gets activated if the
+correct BIOS Version is found (see the dmi scan thingie). So I just pass
+acpi_skip_timer_override to the kernel to be sure.
+
+|>Add PCI quirk to disable Halt Disconnect and Stop Grant Disconnect
+|>(based on athcool program by Osamu Kayasono).
+|
+|
+| Is this always safe - if not why does the BIOS not do it.
+
+It is safe but makes your CPU hotter. Thus the real fix just changes the
+disconnect intervall (or alike). Look into arch/i386/pci/fixup.h and
+search for nforce2.
+
+Prakash
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBW9EjxU2n/+9+t5gRAhKPAKDHnBuJs9bN4ZeQwCa9r4hu3woTcgCfbWmB
+4yz7q8RBHXeodlkrpwYUH8w=
+=Ipiu
+-----END PGP SIGNATURE-----

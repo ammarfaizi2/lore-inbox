@@ -1,200 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264317AbRFHTt1>; Fri, 8 Jun 2001 15:49:27 -0400
+	id <S264324AbRFHUJA>; Fri, 8 Jun 2001 16:09:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264319AbRFHTtR>; Fri, 8 Jun 2001 15:49:17 -0400
-Received: from h525400e06742.ne.mediaone.net ([24.91.243.250]:2569 "HELO
-	evilcow.cowofdoom.com") by vger.kernel.org with SMTP
-	id <S264317AbRFHTtK>; Fri, 8 Jun 2001 15:49:10 -0400
-Date: Fri, 8 Jun 2001 15:48:50 -0400 (EDT)
-From: Will Woods <wwoods@cowofdoom.com>
-To: <linux-kernel@vger.kernel.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>
-Subject: alpha traps.c patch for improved oops output
-Message-ID: <Pine.LNX.4.32L2.0106081150480.5872-200000@cowofdoom.com>
+	id <S264322AbRFHUIl>; Fri, 8 Jun 2001 16:08:41 -0400
+Received: from rumor.cps.intel.com ([192.102.198.242]:56035 "EHLO
+	rumor.cps.intel.com") by vger.kernel.org with ESMTP
+	id <S264321AbRFHUId>; Fri, 8 Jun 2001 16:08:33 -0400
+Message-ID: <9319DDF797C4D211AC4700A0C96B7C9404AC200D@orsmsx42.jf.intel.com>
+From: "Raj, Ashok" <ashok.raj@intel.com>
+To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: mkinitrd errors...
+Date: Fri, 8 Jun 2001 13:08:22 -0700 
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1528363763-543328843-992022813=:6565"
-Content-ID: <Pine.LNX.4.32L2.0106081353530.6580@cowofdoom.com>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hello.
 
---1528363763-543328843-992022813=:6565
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.32L2.0106081353531.6580@cowofdoom.com>
+I have a need to have some drivers pre-loaded before the scsi adapter driver
+is loaded.
 
-This is a patch to arch/alpha/kernel/traps.c which changes its oops output
-to be like other architectures: Output a trace, given in a series of hex
-numbers, and then output the instructions surrounding the oops, in hex
-numbers.
+I followed the usage and i got some errors which iam attaching below in this
+mail.
 
-The disassemble() function and its associated data structures and helper
-functions have been removed, since ksymoops and objdump do it better
-anyway.
+If someone can give me a way to get this to work that would be awesome!!!
 
-It applies to 2.4.5-ac[67] and 2.2.19 with a bit of fuzz.
+please reply back to me..
 
-Regards,
+1. Is the size of the ramdisk limited? if so to what, and how can we
+increase the size of the ramdisk created?
 
-(posting from home since Compaq doesn't do ECN,)
+tar: ./lib/82808XA.o: Wrote only 3584 of 10240 bytes
+tar: Skipping to next header
+tar: ./lib/sd_mod.o: Wrote only 0 of 10240 bytes
+tar: Skipping to next header
+tar: ./bin/nash: Wrote only 0 of 10240 bytes
+tar: Skipping to next header
+tar: ./sbin/: Cannot mkdir: No space left on device
+tar: ./sbin/bin: Cannot open: No such file or directory
+tar: ./sbin/modprobe: Cannot create symlink to `/bin/nash': No such file or
+dire
+ctory
+tar: ./etc/: Cannot mkdir: No space left on device
+tar: ./dev/: Cannot mkdir: No space left on device
+tar: ./dev/console: Cannot mknod: No such file or directory
+tar: ./dev/null: Cannot mknod: No such file or directory
+tar: ./dev/ram: Cannot mknod: No such file or directory
+tar: ./dev/systty: Cannot mknod: No such file or directory
+tar: ./dev/tty1: Cannot mknod: No such file or directory
+tar: ./dev/tty2: Cannot mknod: No such file or directory
+tar: ./dev/tty3: Cannot mknod: No such file or directory
+tar: ./dev/tty4: Cannot mknod: No such file or directory
+tar: ./loopfs/: Cannot mkdir: No space left on device
+tar: ./linuxrc: Wrote only 0 of 10240 bytes
+tar: Error exit delayed from previous errors
 
-Will Woods
-Alpha Technology Solutions Group
-Compaq Computer Corp.
 
-
---1528363763-543328843-992022813=:6565
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="traps.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.32L2.0106081548500.7281@cowofdoom.com>
-Content-Description: 
-Content-Disposition: attachment; filename="traps.diff"
-
-LS0tIGxpbnV4L2FyY2gvYWxwaGEva2VybmVsL3RyYXBzLmMJRnJpIEp1biAg
-OCAxMzowMDoxOCAyMDAxDQorKysgbGludXgtMi40LjUtYWM3LXd3L2FyY2gv
-YWxwaGEva2VybmVsL3RyYXBzLmMJRnJpIEp1biAgOCAxMjo1NzoxMiAyMDAx
-DQpAQCAtNjEsMjAyICs2MSw2IEBADQogCQkJICAgImEwIiwgImExIiwgImEy
-IiwgImEzIiwgImE0IiwgImE1IiwgInQ4IiwgInQ5IiwNCiAJCQkgICAidDEw
-IiwgInQxMSIsICJyYSIsICJwdiIsICJhdCIsICJncCIsICJzcCIsICJ6ZXJv
-In07DQogDQotc3RhdGljIGNoYXIgKiBpbnN0X25hbWVbXSA9IHsiY2FsbF9w
-YWwiLCAiIiwgIiIsICIiLCAiIiwgIiIsICIiLCAiIiwNCi0JImxkYSIsICJs
-ZGFoIiwgImxkYnUiLCAibGRxX3UiLCAibGR3dSIsICJzdHciLCAic3RiIiwg
-InN0cV91IiwNCi0JIkFMVSIsICJBTFUiLCAiQUxVIiwgIkFMVSIsICJTUVJU
-IiwgIkZWQVgiLCAiRklFRUUiLCAiRkxPQVQiLA0KLQkiTUlTQyIsICJQQUwx
-OSIsICJKTVAiLCAiUEFMMUIiLCAiR1JBUEgiLCAiUEFMMUQiLCAiUEFMMUUi
-LCAiUEFMMUYiLA0KLQkibGRmIiwgImxkZyIsICJsZHMiLCAibGR0IiwgInN0
-ZiIsICJzdGciLCAic3RzIiwgInN0dCIsDQotCSJsZGwiLCAibGRxIiwgImxk
-bF9sIiwgImxkcV9sIiwgInN0bCIsICJzdHEiLCAic3RsX2MiLCAic3RxX2Mi
-LA0KLQkiYnIiLCAiZmJlcSIsICJmYmx0IiwgImZibGUiLCAiYnNyIiwgImZi
-bmUiLCAiZmJnZSIsICJmYmd0Ig0KLQkiYmxiYyIsICJiZXEiLCAiYmx0Iiwg
-ImJsZSIsICJibGJzIiwgImJuZSIsICJiZ2UiLCAiYmd0Ig0KLX07DQotDQot
-c3RhdGljIGNoYXIgKiBqdW1wX25hbWVbXSA9IHsiam1wIiwgImpzciIsICJy
-ZXQiLCAianNyX2Nvcm91dGluZSJ9Ow0KLQ0KLXR5cGVkZWYgc3RydWN0IHtp
-bnQgZnVuYzsgY2hhciAqIHRleHQ7fSBhbGlzdDsNCi0NCi1zdGF0aWMgYWxp
-c3QgaW50YV9uYW1lW10gPSB7ezAsICJhZGRsIn0sIHsyLCAiczRhZGRsIn0s
-IHs5LCAic3VibCJ9LA0KLQl7MHhiLCAiczRzdWJsIn0sIHsweGYsICJjbXBi
-Z2UifSwgezB4MTIsICJzOGFkZGwifSwgezB4MWIsICJzOHN1YmwifSwNCi0J
-ezB4MWQsICJjbXB1bHQifSwgezB4MjAsICJhZGRxIn0sIHsweDIyLCAiczRh
-ZGRxIn0sIHsweDI5LCAic3VicSJ9LA0KLQl7MHgyYiwgInM0c3VicSJ9LCB7
-MHgyZCwgImNtcGVxIn0sIHsweDMyLCAiczhhZGRxIn0sIHsweDNiLCAiczhz
-dWJxIn0sDQotCXsweDNkLCAiY21wdWxlIn0sIHsweDQwLCAiYWRkbC92In0s
-IHsweDQ5LCAic3VibC92In0sIHsweDRkLCAiY21wbHQifSwNCi0JezB4NjAs
-ICJhZGRxL3YifSwgezB4NjksICJzdWJxL3YifSwgezB4NmQsICJjbXBsZSJ9
-LCB7LTEsIDB9fTsNCi0NCi1zdGF0aWMgYWxpc3QgaW50bF9uYW1lW10gPSB7
-ezAsICJhbmQifSwgezgsICJhbmRub3QifSwgezB4MTQsICJjbW92bGJzIn0s
-DQotCXsweDE2LCAiY21vdmxiYyJ9LCB7MHgyMCwgIm9yIn0sIHsweDI0LCAi
-Y21vdmVxIn0sIHsweDI2LCAiY21vdm5lIn0sDQotCXsweDI4LCAib3Jub3Qi
-fSwgezB4NDAsICJ4b3IifSwgezB4NDQsICJjbW92bHQifSwgezB4NDYsICJj
-bW92Z2UifSwNCi0JezB4NDgsICJlcXYifSwgezB4NjEsICJhbWFzayJ9LCB7
-MHg2NCwgImNtb3ZsZSJ9LCB7MHg2NiwgImNtb3ZndCJ9LA0KLQl7MHg2Yywg
-ImltcGx2ZXIifSwgey0xLCAwfX07DQotDQotc3RhdGljIGFsaXN0IGludHNf
-bmFtZVtdID0ge3syLCAibXNrYmwifSwgezYsICJleHRibCJ9LCB7MHhiLCAi
-aW5zYmwifSwNCi0JezB4MTIsICJtc2t3bCJ9LCB7MHgxNiwgImV4dHdsIn0s
-IHsweDFiLCAiaW5zd2wifSwgezB4MjIsICJtc2tsbCJ9LA0KLQl7MHgyNiwg
-ImV4dGxsIn0sIHsweDJiLCAiaW5zbGwifSwgezB4MzAsICJ6YXAifSwgezB4
-MzEsICJ6YXBub3QifSwNCi0JezB4MzIsICJtc2txbCJ9LCB7MHgzNCwgInNy
-bCJ9LCB7MHgzNiwgImV4dHFsIn0sIHsweDM5LCAic2xsIn0sDQotCXsweDNi
-LCAiaW5zcWwifSwgezB4M2MsICJzcmEifSwgezB4NTIsICJtc2t3aCJ9LCB7
-MHg1NywgImluc3doIn0sDQotCXsweDVhLCAiZXh0d2gifSwgezB4NjIsICJt
-c2tsaCJ9LCB7MHg2NywgImluc2xoIn0sIHsweDZhLCAiZXh0bGgifSwNCi0J
-ezB4NzIsICJtc2txaCJ9LCB7MHg3NywgImluc3FoIn0sIHsweDdhLCAiZXh0
-cWgifSwgey0xLCAwfX07DQotDQotc3RhdGljIGFsaXN0IGludG1fbmFtZVtd
-ID0ge3swLCAibXVsbCJ9LCB7MHgyMCwgIm11bHEifSwgezB4MzAsICJ1bXVs
-aCJ9LA0KLQl7MHg0MCwgIm11bGwvdiJ9LCB7MHg2MCwgIm11bHEvdiJ9LCB7
-LTEsIDB9fTsNCi0NCi1zdGF0aWMgYWxpc3QgKiBpbnRfbmFtZVtdID0ge2lu
-dGFfbmFtZSwgaW50bF9uYW1lLCBpbnRzX25hbWUsIGludG1fbmFtZX07DQot
-DQotc3RhdGljIGNoYXIgKg0KLWFzc29jKGludCBmY29kZSwgYWxpc3QgKiBh
-KQ0KLXsNCi0Jd2hpbGUgKChmY29kZSAhPSBhLT5mdW5jKSAmJiAoYS0+ZnVu
-YyAhPSAtMSkpDQotCQkrK2E7DQotCXJldHVybiBhLT50ZXh0Ow0KLX0NCi0N
-Ci1zdGF0aWMgY2hhciAqDQotaW5hbWUodW5zaWduZWQgaW50IGluc3RyKQ0K
-LXsNCi0JaW50IG9wY29kZSA9IGluc3RyID4+IDI2Ow0KLQljaGFyICogbmFt
-ZSA9IGluc3RfbmFtZVtvcGNvZGVdOw0KLQ0KLQlzd2l0Y2ggKG9wY29kZSkg
-ew0KLQkJZGVmYXVsdDoNCi0JCQlicmVhazsNCi0NCi0JCWNhc2UgMHgxMDoN
-Ci0JCWNhc2UgMHgxMToNCi0JCWNhc2UgMHgxMjoNCi0JCWNhc2UgMHgxMzog
-ew0KLQkJCWNoYXIgKiBzcGVjaWZpY19uYW1lDQotCQkJICA9IGFzc29jKChp
-bnN0ciA+PiA1KSAmIDB4M2YsIGludF9uYW1lW29wY29kZSAtIDB4MTBdKTsN
-Ci0JCQlpZiAoc3BlY2lmaWNfbmFtZSkNCi0JCQkJbmFtZSA9IHNwZWNpZmlj
-X25hbWU7DQotCQkJYnJlYWs7DQotCQl9DQotDQotCQljYXNlIDB4MWE6DQot
-CQkJbmFtZSA9IGp1bXBfbmFtZVsoaW5zdHIgPj4gMTQpICYgM107DQotCQkJ
-YnJlYWs7DQotCX0NCi0JDQotCXJldHVybiBuYW1lOw0KLX0NCi0NCi1zdGF0
-aWMgZW51bSB7Tk9UX0lOU1QsIFBBTCwgQlJBTkNILCBNRU1PUlksIEpVTVAs
-IE9QRVJBVEUsIEZPUEVSQVRFLCBNSVNDfQ0KLWlmb3JtYXQoaW50IG9wY29k
-ZSkNCi17DQotCWlmIChvcGNvZGUgPj0gMHgzMCkNCi0JCXJldHVybiBCUkFO
-Q0g7DQotCWlmIChvcGNvZGUgPj0gMHgyMCkNCi0JCXJldHVybiBNRU1PUlk7
-DQotCWlmIChvcGNvZGUgPT0gMCkNCi0JCXJldHVybiBQQUw7DQotCWlmIChv
-cGNvZGUgPCA4KQ0KLQkJcmV0dXJuIE5PVF9JTlNUOw0KLQlpZiAob3Bjb2Rl
-IDwgMHgxMCkNCi0JCXJldHVybiBNRU1PUlk7DQotCWlmIChvcGNvZGUgPCAw
-eDE0KQ0KLQkJcmV0dXJuIE9QRVJBVEU7DQotCWlmIChvcGNvZGUgPCAweDE4
-KQ0KLQkJcmV0dXJuIEZPUEVSQVRFOw0KLQlzd2l0Y2ggKG9wY29kZSkgew0K
-LQkJY2FzZSAweDE4Og0KLQkJCXJldHVybiBNSVNDOw0KLQkJY2FzZSAweDFB
-Og0KLQkJCXJldHVybiBKVU1QOw0KLQkJY2FzZSAweDFDOg0KLQkJCXJldHVy
-biBPUEVSQVRFOw0KLQkJZGVmYXVsdDoNCi0JCQlyZXR1cm4gTk9UX0lOU1Q7
-DQotCX0NCi19DQotDQotLyoNCi0gKiBUaGUgcHVycG9zZSBoZXJlIGlzIHRv
-IHByb3ZpZGUgdXNlZnVsIGNsdWVzIGFib3V0IGEga2VybmVsIGNyYXNoLCBz
-bw0KLSAqIGxlc3MgbGlrZWx5IGluc3RydWN0aW9ucywgZS5nLiBmbG9hdGlu
-ZyBwb2ludCwgYXJlbid0IGZ1bGx5IGRlY29kZWQuDQotICovDQotc3RhdGlj
-IHZvaWQNCi1kaXNhc3NlbWJsZSh1bnNpZ25lZCBpbnQgaW5zdHIpDQotew0K
-LQlpbnQgb3B0eXBlID0gaW5zdHIgPj4gMjY7DQotCWNoYXIgYnVmWzQwXSwg
-KnMgPSBidWY7DQotDQotCXMgKz0gc3ByaW50ZihidWYsICIlMDh4ICAlcyAi
-LCBpbnN0ciwgaW5hbWUoaW5zdHIpKTsNCi0Jc3dpdGNoIChpZm9ybWF0KG9w
-dHlwZSkpIHsNCi0JCWRlZmF1bHQ6DQotCQljYXNlIE5PVF9JTlNUOg0KLQkJ
-Y2FzZSBNSVNDOg0KLQkJCWJyZWFrOw0KLQ0KLQkJY2FzZSBQQUw6DQotCQkJ
-cyArPSBzcHJpbnRmKHMsICIlZCIsIGluc3RyKTsNCi0JCQlicmVhazsNCi0N
-Ci0JCWNhc2UgQlJBTkNIOiB7DQotCQkJaW50IHJlZyA9IChpbnN0ciA+PiAy
-MSkgJiAweDFmOw0KLQkJCWludCBvZmZzZXQgPSBpbnN0ciAmIDB4MWZmZmZm
-Ow0KLQ0KLQkJCWlmIChvZmZzZXQgPj0gMHgxMDAwMDApDQotCQkJCW9mZnNl
-dCAtPSAweDIwMDAwMDsNCi0JCQlpZiAoKChvcHR5cGUgJiAzKSA9PSAwKSB8
-fCAob3B0eXBlID49IDB4MzgpKSB7DQotCQkJCWlmICgob3B0eXBlICE9IDB4
-MzApIHx8IChyZWcgIT0gMHgxZikpDQotCQkJCQlzICs9IHNwcmludGYocywg
-IiVzLCIsIGlyZWdfbmFtZVtyZWddKTsNCi0JCQl9IGVsc2UNCi0JCQkJcyAr
-PSBzcHJpbnRmKHMsICJmJWQsIiwgcmVnKTsNCi0JCQlzICs9IHNwcmludGYo
-cywgIi4lK2QiLCAob2Zmc2V0ICsgMSkgPDwgMik7DQotCQkJYnJlYWs7DQot
-CQl9DQotDQotCQljYXNlIE1FTU9SWTogew0KLQkJCWludCBhZGRyX3JlZyA9
-IChpbnN0ciA+PiAxNikgJiAweDFmOw0KLQkJCWludCB2YWx1ZV9yZWcgPSAo
-aW5zdHIgPj4gMjEpICYgMHgxZjsNCi0JCQlpbnQgb2Zmc2V0ID0gaW5zdHIg
-JiAweGZmZmY7DQotDQotCQkJaWYgKG9mZnNldCA+PSAweDgwMDApDQotCQkJ
-CW9mZnNldCAtPSAweDEwMDAwOw0KLQkJCWlmICgob3B0eXBlID49IDB4MjAp
-ICYmIChvcHR5cGUgPCAweDI4KSkNCi0JCQkJcyArPSBzcHJpbnRmKHMsICJm
-JWQiLCB2YWx1ZV9yZWcpOw0KLQkJCWVsc2UNCi0JCQkJcyArPSBzcHJpbnRm
-KHMsICIlcyIsIGlyZWdfbmFtZVt2YWx1ZV9yZWddKTsNCi0NCi0JCQlzICs9
-IHNwcmludGYocywgIiwlZCglcykiLCBvZmZzZXQsIGlyZWdfbmFtZVthZGRy
-X3JlZ10pOw0KLQkJCWJyZWFrOw0KLQkJfQ0KLQ0KLQkJY2FzZSBKVU1QOiB7
-DQotCQkJaW50IHRhcmdldF9yZWcgPSAoaW5zdHIgPj4gMTYpICYgMHgxZjsN
-Ci0JCQlpbnQgcmV0dXJuX3JlZyA9IChpbnN0ciA+PiAyMSkgJiAweDFmOw0K
-LQ0KLQkJCXMgKz0gc3ByaW50ZihzLCAiJXMsIiwgaXJlZ19uYW1lW3JldHVy
-bl9yZWddKTsNCi0JCQlzICs9IHNwcmludGYocywgIiglcykiLCBpcmVnX25h
-bWVbdGFyZ2V0X3JlZ10pOw0KLQkJCWJyZWFrOw0KLQkJfQ0KLQ0KLQkJY2Fz
-ZSBPUEVSQVRFOiB7DQotCQkJaW50IGFyZWcgPSAoaW5zdHIgPj4gMjEpICYg
-MHgxZjsNCi0JCQlpbnQgYnJlZyA9IChpbnN0ciA+PiAxNikgJiAweDFmOw0K
-LQkJCWludCBjcmVnID0gaW5zdHIgJiAweDFmOw0KLQkJCWludCBsaXRmbGFn
-ID0gaW5zdHIgJiAoMTw8MTIpOw0KLQkJCWludCBsaXQgPSAoaW5zdHIgPj4g
-MTMpICYgMHhmZjsNCi0NCi0JCQlzICs9IHNwcmludGYocywgIiVzLCIsIGly
-ZWdfbmFtZVthcmVnXSk7DQotCQkJaWYgKGxpdGZsYWcpDQotCQkJCXMgKz0g
-c3ByaW50ZihzLCAiJWQiLCBsaXQpOw0KLQkJCWVsc2UNCi0JCQkJcyArPSBz
-cHJpbnRmKHMsICIlcyIsIGlyZWdfbmFtZVticmVnXSk7DQotCQkJcyArPSBz
-cHJpbnRmKHMsICIsJXMiLCBpcmVnX25hbWVbY3JlZ10pOw0KLQkJCWJyZWFr
-Ow0KLQkJfQ0KLQ0KLQkJY2FzZSBGT1BFUkFURTogew0KLQkJCWludCBhcmVn
-ID0gKGluc3RyID4+IDIxKSAmIDB4MWY7DQotCQkJaW50IGJyZWcgPSAoaW5z
-dHIgPj4gMTYpICYgMHgxZjsNCi0JCQlpbnQgY3JlZyA9IGluc3RyICYgMHgx
-ZjsNCi0NCi0JCQlzICs9IHNwcmludGYocywgImYlZCxmJWQsZiVkIiwgYXJl
-ZywgYnJlZywgY3JlZyk7DQotCQkJYnJlYWs7DQotCQl9DQotCX0NCi0JYnVm
-W3MtYnVmXSA9IDA7DQotCXByaW50aygiJXNcbiIsIGJ1Zik7DQotfQ0KLQ0K
-IHN0YXRpYyB2b2lkDQogZGlrX3Nob3dfY29kZSh1bnNpZ25lZCBpbnQgKnBj
-KQ0KIHsNCkBAIC0yNjcsOCArNzEsNyBAQA0KIAkJdW5zaWduZWQgaW50IGlu
-c247DQogCQlpZiAoX19nZXRfdXNlcihpbnNuLCBwYytpKSkNCiAJCQlicmVh
-azsNCi0JCXByaW50aygiJWMiLCBpID8gJyAnIDogJyonKTsNCi0JCWRpc2Fz
-c2VtYmxlKGluc24pOw0KKwkJcHJpbnRrKCIlYyUwOHglYyIsIGkgPyAnICcg
-OiAnPCcsIGluc24sIGkgPyAnICcgOiAnPicpOw0KIAl9DQogCXByaW50aygi
-XG4iKTsNCiB9DQpAQCAtMzMxLDggKzEzNCw4IEBADQogI2VuZGlmDQogCXBy
-aW50aygiJXMoJWQpOiAlcyAlbGRcbiIsIGN1cnJlbnQtPmNvbW0sIGN1cnJl
-bnQtPnBpZCwgc3RyLCBlcnIpOw0KIAlkaWtfc2hvd19yZWdzKHJlZ3MsIHI5
-XzE1KTsNCi0JZGlrX3Nob3dfY29kZSgodW5zaWduZWQgaW50ICopcmVncy0+
-cGMpOw0KIAlkaWtfc2hvd190cmFjZSgodW5zaWduZWQgbG9uZyAqKShyZWdz
-KzEpKTsNCisJZGlrX3Nob3dfY29kZSgodW5zaWduZWQgaW50ICopcmVncy0+
-cGMpOw0KIA0KIAlpZiAoY3VycmVudC0+dGhyZWFkLmZsYWdzICYgKDFVTCA8
-PCA2MykpIHsNCiAJCXByaW50aygiZGllX2lmX2tlcm5lbCByZWN1cnNpb24g
-ZGV0ZWN0ZWQuXG4iKTsNCg==
---1528363763-543328843-992022813=:6565--

@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267421AbUG2CXe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267417AbUG2C0D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267421AbUG2CXe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 22:23:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267422AbUG2CXd
+	id S267417AbUG2C0D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 22:26:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267419AbUG2C0C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 22:23:33 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:11732 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267421AbUG2CWx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 22:22:53 -0400
-Date: Wed, 28 Jul 2004 19:22:52 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: davem@redhat.com, peter@chubb.wattle.id.au,
-       viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: stat very inefficient
-Message-Id: <20040728192252.42a078a3.pj@sgi.com>
-In-Reply-To: <41084DBE.1070802@redhat.com>
-References: <233602095@toto.iv>
-	<16648.10711.200049.616183@wombat.chubb.wattle.id.au>
-	<20040728154523.20713ef1.davem@redhat.com>
-	<41084DBE.1070802@redhat.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 28 Jul 2004 22:26:02 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:63917 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S267422AbUG2CZ4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 22:25:56 -0400
+Subject: Re: 2.6.8-rc2-mm1 link errors
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040729021225.GG16310@waste.org>
+References: <1091057256.2871.637.camel@nighthawk>
+	 <20040728164920.5ad4c114.akpm@osdl.org>
+	 <1091066773.2871.866.camel@nighthawk>  <20040729021225.GG16310@waste.org>
+Content-Type: text/plain
+Message-Id: <1091067939.2871.898.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 28 Jul 2004 19:25:39 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Check your strace output to see whether your system is recent enough.
+On Wed, 2004-07-28 at 19:12, Matt Mackall wrote:
+> On Wed, Jul 28, 2004 at 07:06:13PM -0700, Dave Hansen wrote:
+> > I say, put them back in plain old BSS.  Patch attached.
+> 
+> Frankly, I'd rather have the warning if it isn't breaking anything.
 
-The latest findutils package I can find is version 4.1.20, and its most
-recent ChangeLog entry is dated 2001-06-09.
+I just worry that the warning is indicative of something more insidious
+than triggering an error from a symbol checker script.
 
-It doesn't have this feature of find not stat'ing the regular files, but
-using dirent d_type instead.
+> Or how about I throw some version conditional magic at it?
 
-I also found a March 2004 thread presenting a patch to use d_type, at:
+I thought about including something in compiler-gcc*, but those files
+are still pretty simple at this point, and I hate to add more gunk to
+them.  It doesn't seem quite worth it to me.  But, if that's the way to
+go, I can code it up.
 
-  http://lists.gnu.org/archive/html/bug-findutils/2004-03/msg00004.html
+-- Dave
 
-But the thread seemed to end inconclusively, after just a few messages
-discussing various alternative implementations of some stuff.
-
-Ulrich - could you provide a clue where to find a find that does what
-you describe?
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,63 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266333AbUJEXQ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266357AbUJEXZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266333AbUJEXQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 19:16:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbUJEXQe
+	id S266357AbUJEXZa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 19:25:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266473AbUJEXZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 19:16:34 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:5354 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S266333AbUJEXJf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 19:09:35 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] I/O space write barrier
-Date: Tue, 5 Oct 2004 16:09:23 -0700
-User-Agent: KMail/1.7
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1096922369.2666.177.camel@cube> <200410050833.49654.jbarnes@engr.sgi.com> <1097016099.27222.14.camel@gaston>
-In-Reply-To: <1097016099.27222.14.camel@gaston>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 5 Oct 2004 19:25:19 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:15585 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S266357AbUJEXYc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 19:24:32 -0400
+Subject: RE: /dev/misc/inotify 0.11 [adr]
+From: Robert Love <rml@novell.com>
+To: David Busby <busby@edoceo.com>
+Cc: linux-kernel@vger.kernel.org, ttb@tentacle.dhs.org
+In-Reply-To: <82C88232E64C7340BF749593380762021166FB@seattleexchange.SMC.LOCAL>
+References: <82C88232E64C7340BF749593380762021166FB@seattleexchange.SMC.LOCAL>
+Content-Type: text/plain
+Date: Tue, 05 Oct 2004 19:23:01 -0400
+Message-Id: <1097018581.4143.16.camel@betsy.boston.ximian.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410051609.23479.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, October 5, 2004 3:41 pm, Benjamin Herrenschmidt wrote:
-> On Wed, 2004-10-06 at 01:33, Jesse Barnes wrote:
-> > This macro is only supposed to deal with writes from different CPUs that
-> > may arrive out of order, nothing else.  It sounds like PPC won't allow
-> > that normally, so I can be an empty definition.
->
-> I don't understand that neither. You can never guarantee any ordering
-> between writes from different CPUs unless you have a sinlock. If you
-> have an ordering problem with spinlocks, then it's a totally different
-> issue, a bit more like MMIO vs. cacheable mem that we have on PPC.
+On Tue, 2004-10-05 at 16:21 -0700, David Busby wrote:
+> It's my PERL, I've just run a test.  inotify_test.c works correctly and
+> shows the proper filenames.  My PERL script is sometims dropping the
+> first character, I've not been able to re-product the full junk ouput
+> (it was all Java source code!?).  I'll keep hunting.
 
-Right.
+OK.
 
-> If 
-> this is the problem you are trying to chase, then we could use such a
-> barrier on ppc too and make it a hard sync, but it has nothing to do
-> with the write barrier we already have in our IO accessors...
+> Is there a place I can subscribe to the inotify-announce list?
 
-Ok.
+Sorry, just lkml.
 
->
-> > > That  doesn't solve my need of MMIO vs. memory unless you are trying to
-> > > cover that as well, in which case it should be a sync.
-> >
-> > No, I think that has to be covered separately.
->
-> How so ? Again, this whole "ordering of writes between different CPU" makes
-> absolutely no sense to me.
+	Robert Love
 
-It's like you said above.  I meant that ordering of writes to I/O space and 
-memory space should be dealt with differently on PPC, as you've said before.  
-I guess you need new barrier types for that?
 
-Jesse

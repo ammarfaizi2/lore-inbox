@@ -1,69 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288767AbSAQOKb>; Thu, 17 Jan 2002 09:10:31 -0500
+	id <S288748AbSAQOKV>; Thu, 17 Jan 2002 09:10:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288768AbSAQOKX>; Thu, 17 Jan 2002 09:10:23 -0500
-Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:5387 "EHLO
-	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S288767AbSAQOKK> convert rfc822-to-8bit; Thu, 17 Jan 2002 09:10:10 -0500
-X-Envelope-From: martin.macok@underground.cz
-Date: Thu, 17 Jan 2002 15:10:07 +0100
-From: =?iso-8859-2?Q?Martin_Ma=E8ok?= <martin.macok@underground.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: low latency versus sched O(1) - and versus preempt
-Message-ID: <20020117151006.A1417@sarah.kolej.mff.cuni.cz>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020111131252.A1366@sarah.kolej.mff.cuni.cz> <20020114010134.D1399@sarah.kolej.mff.cuni.cz> <20020114090644.A1332@sarah.kolej.mff.cuni.cz>
+	id <S288768AbSAQOKM>; Thu, 17 Jan 2002 09:10:12 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:9468 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S288748AbSAQOKA>; Thu, 17 Jan 2002 09:10:00 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020117083757.A7299@thyrsus.com> 
+In-Reply-To: <20020117083757.A7299@thyrsus.com>  <20020116204345.A22055@thyrsus.com> <20020116164758.F12306@thyrsus.com> <esr@thyrsus.com> <200201162156.g0GLukCj017833@tigger.cs.uni-dortmund.de> <20020116164758.F12306@thyrsus.com> <26592.1011230762@redhat.com> <20020116204345.A22055@thyrsus.com> <3515.1011257639@redhat.com> 
+To: esr@thyrsus.com
+Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2-2.1.3 is available 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020114090644.A1332@sarah.kolej.mff.cuni.cz>; from martin.macok@underground.cz on Mon, Jan 14, 2002 at 09:06:44AM +0100
-X-Echelon: GRU NSA GCHQ CIA Pentagon nuclear conspiration war teror anthrax
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 17 Jan 2002 14:09:52 +0000
+Message-ID: <13681.1011276592@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shortly: the winner is 2.4.18pre2aa2 for me (but it's close).
 
-> > If I get enough free time, I will test O1+preempt versus O1+mini-ll.
-> 
-> O1+mini-ll feels better and smoother when playing tuxracer during
-> kernel compilation (both nice +19 and +0 cases). (but I haven't tested
-> O1+preempt+lockbreak)
-> 
-> However, comparing full_ll versus O(1)+mini_ll when there's no
-> load, I get 10% higher framerate of XMMS/Jess audio/visual plugin.
-> When there is some real load, O(1)+mini_ll performs ~30% higher
-> framerate then just full_ll.
-> 
-> (So the winner for my desktop is still vanilla+full_ll+largenice while
-> explicitely running non-interactive highload tasks with nice +19 (ie,
-> compilations, cronjobs, mailserver...) the only "audio skipping" task
-> is mkisofs)
+esr@thyrsus.com said:
+>  Please help me correct them.
 
-(and if anybody is interested at all)
+No. I haven't the time or the inclination to audit the whole of the CML2
+rule base to check for such things. Merge a version of CML2 that matches the
+CML1 rules as closely as can be expressed in CML2, then submit the
+'improvements' later as separate changes - change one thing at a time just
+like everyone else does. Then I promise I'll look at the actual behavioural
+changes for you as you submit them and Cc them to linux-kernel.
 
-I have tested many different variants during last week:
-/boot/bzImage-2.4.17          /boot/bzImage-2.4.18-pre3-ac1_sh7_ml
-/boot/bzImage-2.4.17-rc2      /boot/bzImage-2.4.18-pre3-ac2-sh7-ml
-/boot/bzImage-2.4.17sH5       /boot/bzImage-2.4.18-pre3-ac2-sj0-ml
-/boot/bzImage-2.4.18pre1      /boot/bzImage-2.4.18-pre3h4p
-/boot/bzImage-2.4.18pre2      /boot/bzImage-2.4.18-pre3ll
-/boot/bzImage-2.4.18pre2aa2   /boot/bzImage-2.4.18pre3sH4
-/boot/bzImage-2.4.18pre2aa2r  /boot/bzImage-2.4.18-pre3sH5
-/boot/bzImage-2.4.18pre2l     /boot/bzImage-2.4.18-pre4-si3-ml-p-l
-/boot/bzImage-2.4.18pre2s     /boot/bzImage-2.4.9
+> The definition of "behavioral change" you're implying here is so
+> narrow that if I interpreted the "agreement" that way", CML2 could do
+> nothing worthwhile. 
 
-And as far as I can tell, 2.4.18pre2aa2 is the winner for my desktop.
+Utter crap. CML2 makes them possible, and is a step in the right direction.
+I'm not suggesting that you never make these changes - just that you do them
+separately from the change in mechanism.
 
-My usual (and testing workload) consists of KDE2.2.2, Mozilla,
-xmms/mp3, mplayer/divx, tuxracer etc.. while 1-2 compilations on
-background with nice +19. I experienced most interactive desktop with
--aa kernel.
+Go read what our Lord and Master said about why he likes Al Viro's patches.
+Repeatedly, if needs be.
 
-(My HW is Atlon 850, 256MB RAM, KT133A VIA, Matrox G450).
+--
+dwmw2
 
--- 
-         Martin Maèok                 http://underground.cz/
-   martin.macok@underground.cz        http://Xtrmntr.org/ORBman/
+

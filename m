@@ -1,69 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130441AbRCGIaG>; Wed, 7 Mar 2001 03:30:06 -0500
+	id <S130442AbRCGIa0>; Wed, 7 Mar 2001 03:30:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130442AbRCGI34>; Wed, 7 Mar 2001 03:29:56 -0500
-Received: from [213.82.20.2] ([213.82.20.2]:58374 "EHLO romeo.apsystems.it")
-	by vger.kernel.org with ESMTP id <S130441AbRCGI3o>;
-	Wed, 7 Mar 2001 03:29:44 -0500
-Message-ID: <000501c0a6df$7e5e4900$396dc6d4@alex.cybercable.fr>
-From: "Alex Baretta" <alex@baretta.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Major system crash 2.2.14 HELP!!!
-Date: Wed, 7 Mar 2001 09:20:34 +0100
+	id <S130443AbRCGIaQ>; Wed, 7 Mar 2001 03:30:16 -0500
+Received: from office.globe.cz ([212.27.204.26]:50448 "HELO gw.office.globe.cz")
+	by vger.kernel.org with SMTP id <S130442AbRCGIaJ>;
+	Wed, 7 Mar 2001 03:30:09 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: binfmt_script and ^M
+In-Reply-To: <3AA4D92D.CDDB764D@ftel.co.uk>
+	<JKEGJJAJPOLNIFPAEDHLEEDGCJAA.laramie.leavitt@btinternet.com>
+	<20010306151242.D31649@dev.sportingbet.com>
+From: Ondrej Sury <sury.ondrej@globe.cz>
+Date: 07 Mar 2001 09:29:22 +0100
+In-Reply-To: <20010306151242.D31649@dev.sportingbet.com>
+Message-ID: <87g0gq7zj1.fsf@druid.office.globe.cz>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.0.98
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 4.72.3110.5
-X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I desperately need your help. I booted my machine 15 minutes ago,
-pressed return at the LILO prompt to load the default kernel, waited
-for the visual login screen to appear, I logged on to my account (not
-root), started a terminal and ... and that's as much as I can tell
-you. I left the computer for a few minutes to prepare my breakfast,
-and when I sat down to my machine with my bowl of cereals in front of
-me, I saw a most horrific vision: the LILO prompt once again. The
-machine crashed so severely it rebooted directly without showing any
-previous signs of agony. And what is worse, the machine now refuses to
-start up. It tells me the superblock of some device does not pass file
-system check (superblock is damaged). If offers me the possibility of
-pressing Ctrl-D to resume the boot process or the possibility to type
-my root password and start a shell. Ctrl-D results in the machine
-observing that it can do nothing but force a reboot. The root password
-takes me into a shell where I see the usual directories, but most of
-them are empty. And what's even worse is that my data (home directory)
-has been blown to interstellar dust.
+Sean Hunter <sean@dev.sportingbet.com> writes:
 
-I have frequently experienced system crashes on my machine. What would
-happen exactly is that the machine would become totally unresponsive.
-The mouse pointer would usually disappear, and no key combination
-(Ctrl-Alt-Del, Ctrl-Alt-BS, Shit-Alt-Fn) would obtain any result, and
-would very simply have to reboot the hard way. The frequence actually
-appeared to be very random. Some days I would spend in the excess of
-12 hours working at my computer and never rebooting. Other days I
-remeber having had to reboot every few minutes. Originally I
-attributed this phenomenon to an overheating of the drives [ I have 3
-IDE drives which _used_to_ run merrily in my case... 8-(     ] Then  I
-moved them to a one bay distance from one another, thereby greatly
-reducing the temperature they reached, but this did not solve the
-random system crashes.
+> I propose
+> /proc/sys/kernel/im_too_lame_to_learn_how_to_use_the_most_basic_of_unix_tools_so_i_want_the_kernel_to_be_filled_with_crap_to_disguise_my_ineptitude
 
-Now my machine was completely cold after one night's rest. I boot up
-correctly once, committed suicide, and all I have got is it's corpse.
-What can I do? I could reinstall Linux, but first I have to try to get
-my /home directory copied somewhere (to my other HD, for example, the
-where I keep the Dark Side of the Force handy, for emergencies ... ).
-How can I do this? What information can I _attempt_ to recover by
-inspecting the cadaver (logs and the like that help a guru or two
-figure out what happened?
+Well, too me it seems that you are intolerant.
 
-Please, help me urgently. I am in such distress!
 
-Alex
+I think that it should not be added to kernel because:
 
+#!/bin/sh
+/usr/bin/perl^M
+
+will write
+--
+: No such file or directory
+--
+(in real it writes '/usr/bin/perl<CR>: No such file or directory')
+
+But what I do think is that more meaningful message should be printed to
+output, because it is not only ^M issue.  You could mistype name of
+interpreter and don't notice (/usr/bin/eprl or similar typos), and printing
+message saying 'script.pl: file not found' is confusing.
+
+I see problem somewhere else.  There are editors and viewers (for example
+midnight commander) which will hide ^M from you, and left you totally
+confused (that's why I am using emacs ;-), because you have no idea why it
+doesn't work, because everything seems ok with this _broken_ behaviour.
+This is really BAD thing.
+
+And even more BAD thing is the intolerance shown in this thread.  People
+are not morons just because they don't understand confusing message which
+shell gives them.  Behaviour of kernel is good, error message is wrong.
+What should be fixed is error message.
+
+-- 
+Ondøej Surý <ondrej@globe.cz>         Globe Internet s.r.o. http://globe.cz/
+Tel: +420235365000   Fax: +420235365009         Plánièkova 1, 162 00 Praha 6
+Mob: +420605204544   ICQ: 24944126             Mapa: http://globe.namape.cz/
+GPG fingerprint:          CC91 8F02 8CDE 911A 933F  AE52 F4E6 6A7C C20D F273

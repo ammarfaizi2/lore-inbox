@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262500AbSLBLWH>; Mon, 2 Dec 2002 06:22:07 -0500
+	id <S262631AbSLBL6P>; Mon, 2 Dec 2002 06:58:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262604AbSLBLWH>; Mon, 2 Dec 2002 06:22:07 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:15 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S262500AbSLBLWG>; Mon, 2 Dec 2002 06:22:06 -0500
-Date: Mon, 2 Dec 2002 09:29:25 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "David S. Miller" <davem@redhat.com>
-Cc: sk@deeptown.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] arp: fix seq_file handling bug
-Message-ID: <20021202112925.GB5924@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"David S. Miller" <davem@redhat.com>, sk@deeptown.org,
-	linux-kernel@vger.kernel.org
-References: <20021130153600.GF30931@conectiva.com.br> <20021201.234128.13598110.davem@redhat.com>
-Mime-Version: 1.0
+	id <S262692AbSLBL6P>; Mon, 2 Dec 2002 06:58:15 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:19699 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S262631AbSLBL6O>; Mon, 2 Dec 2002 06:58:14 -0500
+Message-Id: <200212021205.NAA22003@post.webmailer.de>
+From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+Subject: Re: [PATCH] Unsafe MODULE_ usage in crc32.c
+To: Matt Reppert <arashi@arashi.yi.org>, linux-kernel@vger.kernel.org
+Date: Mon, 02 Dec 2002 14:31:10 +0100
+References: <20021130181224.4b4cddad.arashi@arashi.yi.org>
+Organization: IBM Deutschland Entwicklung GmbH
+User-Agent: KNode/0.7.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021201.234128.13598110.davem@redhat.com>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sun, Dec 01, 2002 at 11:41:28PM -0800, David S. Miller escreveu:
->    From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
- 
->    	Now there is just this outstanding changeset. Now I have
->    some time to devote to fixing /proc/net/tcp seq_file handling.
-    
-> Please let me know once you have this fixed, as it is
-> holding up my net merges :-)
+Matt Reppert wrote:
 
-I'll do, I was quite busy with Real Life(tm), but I'm back trying
-to reproduce this one here at home, but failed to do so, I telnetted
-to another machine and the ESTABLISHED connection was correctly shown,
-so I'll be testing on a busier machine at the office, not on vmware.
+> Okay, I know, it's just a library module, doesn't need to ever be unloaded
+> anyway. But error noise in dmesg annoys me, hence this patch.
 
-- Arnaldo
+I don't think you even need to set the use count at all for crc32:
+As long as another module is using it, you can't unload it because
+the exported symbols are used. When those symbols are not known
+to other modules, it is also safe to unload crc32.
+
+I noticed another small problem with init_crc: if crc32init_be()
+fails, the memory allocated by crc32init_le() is never freed,
+see below.
+
+	Arnd <><
+
+--- 1.5/lib/crc32.c	Mon Apr  8 22:22:00 2002
++++ edited/lib/crc32.c	Mon Dec  2 14:25:37 2002
+@@ -547,11 +547,13 @@
+  */
+ static int __init init_crc32(void)
+ {
+-	int rc1, rc2, rc;
+-	rc1 = crc32init_le();
+-	rc2 = crc32init_be();
+-	rc = rc1 || rc2;
+-	if (!rc) MOD_INC_USE_COUNT;
++	int rc;
++	rc = crc32init_le();
++	if (rc)
++		return rc;
++	rc = crc32init_be();
++	if (rc)
++		crc32cleanup_le();
+ 	return rc;
+ }

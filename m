@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133022AbREBMpQ>; Wed, 2 May 2001 08:45:16 -0400
+	id <S132934AbREBMsq>; Wed, 2 May 2001 08:48:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133012AbREBMpG>; Wed, 2 May 2001 08:45:06 -0400
-Received: from www.teaparty.net ([216.235.253.180]:33811 "EHLO
-	www.teaparty.net") by vger.kernel.org with ESMTP id <S132934AbREBMpC>;
-	Wed, 2 May 2001 08:45:02 -0400
-Date: Wed, 2 May 2001 13:44:54 +0100 (BST)
-From: Vivek Dasmohapatra <vivek@etla.org>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux NAT questions- (kernel upgrade??)
-In-Reply-To: <20010502133823.A5778@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10105021343030.19069-100000@www.teaparty.net>
+	id <S133012AbREBMsg>; Wed, 2 May 2001 08:48:36 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:16779 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S132934AbREBMsa>; Wed, 2 May 2001 08:48:30 -0400
+Date: Wed, 2 May 2001 13:49:16 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "J . A . Magallon" <jamagallon@able.es>,
+        Wakko Warner <wakko@animx.eu.org>,
+        Xavier Bestel <xavier.bestel@free.fr>,
+        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
+        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and 2GB swap partition limit
+In-Reply-To: <20010502120403.G26638@redhat.com>
+Message-ID: <Pine.LNX.4.21.0105021343490.1776-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 May 2001, Russell King wrote:
-
-> On Wed, May 02, 2001 at 08:22:54AM -0400, Feng Xian wrote:
-> > i think iptables is a new feature in kernel 2.4.x(and you have to build
-> > it in the kernel or as module). you can use ipchains if
-> > you are running kernel with lower version, 2.2.something.
+On Wed, 2 May 2001, Stephen C. Tweedie wrote:
 > 
-> I think you'll find that 2.4 is compatible with ipchains, as long as
-> you load the relevent module/configure the kernel right.
+> So the aim is more complex.  Basically, once we are short on VM, we
+> want to eliminate redundant copies of swap data.  That implies two
+> possible actions, not one --- we can either remove the swap page for
+> data which is already in memory, or we can remove the in-memory copy
+> of data which is already on swap.  Which one is appropriate will
+> depend on whether the ptes in the system point to the swap entry or
+> the memory entry.  If we have ptes pointing to both, then we cannot
+> free either.
 
-Which doesn't appear to be the problem, as the guy seems to be running 2.2
-or at least 2.4 w/o iptables.
+Sorry for stating the obvious, but that last sentence gives up too easily.
+If we have ptes pointing to both, then we cannot free either until we have
+replaced all the references to one by references to the other.
 
--- 
-"Aren't you ashamed of yourself?"
-"No, I have people to do that for me."
+Hugh
 

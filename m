@@ -1,66 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281139AbRKTPxz>; Tue, 20 Nov 2001 10:53:55 -0500
+	id <S281152AbRKTQEp>; Tue, 20 Nov 2001 11:04:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281140AbRKTPxp>; Tue, 20 Nov 2001 10:53:45 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:11277 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S281139AbRKTPxf>;
-	Tue, 20 Nov 2001 10:53:35 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: kbuild-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Announce: Kernel Build for 2.5, Release 1.8 is available
-Date: Wed, 21 Nov 2001 02:53:22 +1100
-Message-ID: <29459.1006271602@ocs3.intra.ocs.com.au>
+	id <S281150AbRKTQEf>; Tue, 20 Nov 2001 11:04:35 -0500
+Received: from hermes.toad.net ([162.33.130.251]:20185 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S281147AbRKTQEU>;
+	Tue, 20 Nov 2001 11:04:20 -0500
+Subject: Re: x bit for dirs: misfeature?
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.0 (Preview Release)
+Date: 20 Nov 2001 11:05:04 -0500
+Message-Id: <1006272306.9039.18.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Please forgive me if I overlooked the message that
+already said this, but ...
 
-Content-Type: text/plain; charset=us-ascii
+James Sutherland wrote that "There are valid uses for
+X only directories (i.e. users are not allowed to list 
+the contents, only to access them directly by name).
+R-only directories make little sense".  Then there
+followed a long discussion about the utility of "--x"
+directories.  (I agree that they aren't a very good
+idea, since an explorable directory can be "listed" by
+trial and error on the filenames within it.)
 
-Release 1.8 of kernel build for kernel 2.5 (kbuild 2.5) has been
-released.  http://sourceforge.net/projects/kbuild/, Package kbuild-2.5,
-download release 1.8.
+However, a decent reason for having separate r and x
+is that "r--" directories _do_ make sense.  When a
+directory is "r--", its contents can be _listed_ but the
+directory cannot be browsed.  Observe:     // Thomas Hood
 
-kbuild 2.5 currently supports i386, ia64, sparc32.  Sparc builds but
-has not been booted, YMMV.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=99725412902968&w=2
-contains information about the base release.
+jdthood@thanatos:~/tmp$ ls -l
+total 8
+drwxr-xr-x    2 jdthood  jdthood      4096 Nov 20 10:59 ./
+drwx------   89 jdthood  jdthood      4096 Nov 20 10:55 ../
+jdthood@thanatos:~/tmp$ mkdir --mode=777 test
+jdthood@thanatos:~/tmp$ ls -l
+total 12
+drwxr-xr-x    3 jdthood  jdthood      4096 Nov 20 10:59 ./
+drwx------   89 jdthood  jdthood      4096 Nov 20 10:55 ../
+drwxrwxrwx    2 jdthood  jdthood      4096 Nov 20 10:59 test/
+jdthood@thanatos:~/tmp$ touch test/1
+jdthood@thanatos:~/tmp$ touch test/2
+jdthood@thanatos:~/tmp$ ls -l . test
+.:
+total 12
+drwxr-xr-x    3 jdthood  jdthood      4096 Nov 20 10:59 ./
+drwx------   89 jdthood  jdthood      4096 Nov 20 10:55 ../
+drwxrwxrwx    2 jdthood  jdthood      4096 Nov 20 10:59 test/
 
-Changelog:
+test:
+total 8
+drwxrwxrwx    2 jdthood  jdthood      4096 Nov 20 10:59 ./
+drwxr-xr-x    3 jdthood  jdthood      4096 Nov 20 10:59 ../
+-rw-r--r--    1 jdthood  jdthood         0 Nov 20 10:59 1
+-rw-r--r--    1 jdthood  jdthood         0 Nov 20 10:59 2
+jdthood@thanatos:~/tmp$ chmod ugo-x test
+jdthood@thanatos:~/tmp$ ls -l . test
+.:
+total 12
+drwxr-xr-x    3 jdthood  jdthood      4096 Nov 20 10:59 ./
+drwx------   89 jdthood  jdthood      4096 Nov 20 10:55 ../
+drw-rw-rw-    2 jdthood  jdthood      4096 Nov 20 10:59 test/
 
-  New macro uses_asm_offsets().
+ls: test/.: Permission denied
+ls: test/..: Permission denied
+ls: test/1: Permission denied
+ls: test/2: Permission denied
+test:
+total 0
+jdthood@thanatos:~/tmp$ chmod ugo-r test
+jdthood@thanatos:~/tmp$ ls -l . test
+.:
+total 12
+drwxr-xr-x    3 jdthood  jdthood      4096 Nov 20 10:59 ./
+drwx------   89 jdthood  jdthood      4096 Nov 20 10:55 ../
+d-w--w--w-    2 jdthood  jdthood      4096 Nov 20 10:59 test/
 
-  Handle versions of md5sum that do not treat '-' as 'read from stdin'.
+ls: test: Permission denied
 
-  Change the assembler default from -traditional to -no-traditional.
-
-  Remove -no-traditional kludge from pp_makefile2.
-
-  Fix cross compile bugs.
-
-  Remove kernel include list from host[ca]flags.
-
-  Move some ia64 entries into the common patch.
-
-  Replace ifnsel(config)/objlink() with objlink(!config).
-
-  Correct errors in sbus Makefile.in.
-
-  Add sparc32 support.
-
-  This release does not support CML2, only use it with CML1.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE7+nxwi4UHNye0ZOoRArsiAKCS82U7xyVzyYtwg6j3JB1oUkhrrgCgy4ns
-XGq+pyY9wUdDPylHNkJiZTw=
-=m34u
------END PGP SIGNATURE-----
 

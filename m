@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263472AbUAOUzz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 15:55:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUAOUx5
+	id S263942AbUAOVJo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 16:09:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263909AbUAOVJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 15:53:57 -0500
-Received: from schrell.de ([217.160.107.182]:15232 "HELO schrell.de")
-	by vger.kernel.org with SMTP id S261595AbUAOUv1 (ORCPT
+	Thu, 15 Jan 2004 16:09:43 -0500
+Received: from dci.doncaster.on.ca ([66.11.168.194]:63918 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S263903AbUAOVIv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 15:51:27 -0500
-Message-ID: <3450.80.146.4.230.1074199906.squirrel@www.schrell.de>
-In-Reply-To: <20040115083050.333bb13d.rddunlap@osdl.org>
-References: <20040113215355.GA3882@piper.madduck.net><20040115102231.37a84ed0.rusty@rustcorp.com.au><20040115080815.GA2806@piper.madduck.net>
-    <20040115083050.333bb13d.rddunlap@osdl.org>
-Date: Thu, 15 Jan 2004 21:51:46 +0100 (CET)
-Subject: Re: modprobe failed: digest_null
-From: "Andreas Schrell" <as@schrell.de>
-To: "lkml" <linux-kernel@vger.kernel.org>
-User-Agent: SquirrelMail/1.4.2
+	Thu, 15 Jan 2004 16:08:51 -0500
+To: Matthias Hentges <mailinglisten@hentges.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Serial ATA (SATA) for Linux status report
+References: <20031203204445.GA26987@gtf.org>
+	<87hdyyxjgl.fsf@stark.xeocode.com>
+	<20040114225653.GA32704@codepoet.org>
+	<4005D195.3010008@inp-net.eu.org> <4005D9E7.2070203@bigfoot.com>
+	<1074134345.6094.11.camel@mhcln02>
+In-Reply-To: <1074134345.6094.11.camel@mhcln02>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 15 Jan 2004 16:08:49 -0500
+Message-ID: <87wu7s2a3i.fsf@stark.xeocode.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i am quite sure this message comes from freeswan 2.04.
 
-programs/pluto/kernel_netlink.c:        { SADB_X_AALG_NULL, "digest_null" },
+Matthias Hentges <mailinglisten@hentges.net> writes:
 
-Think it could be fixed by replacing digest_null with crypto_null (or modprobing
-crypto_null manually before starting freeswan) but then the next problem with
+> Notice the unusual BIOS setting (Enhanced Mode - SATA only) which did
+> the trick and enabled PATA *and* SATA.
+> You may want to try that if you haven't already.
 
-kernel: request_module: failed /sbin/modprobe -- ripemd160. error = 256
+Thank you!
 
-from same freeswan source file...
+That was the key thing I was missing. With this setting the PATA drives show
+up on /dev/hd{a,b,c,d} and the SATA drives show up on /dev/sd{a,b} (using
+ata_piix). And everything seems to work pretty well in 2.6.1.
 
-Andreas
+I've only tried the PATA hard drive and reading from cdrom. I haven't tried
+burning cds or playing a dvd yet. 
 
-PS: sorry, Randy for dublette...
-
-> On Thu, 15 Jan 2004 09:08:15 +0100 martin f krafft <madduck@madduck.net> wrote:
->
-> | also sprach Rusty Russell <rusty@rustcorp.com.au> [2004.01.15.0022 +0100]:
-> | > Upgrade module-init-tools to 0.9.14 or one of the 3.0 -pres.
-> |
-> | diamond:~# modprobe -V
-> | module-init-tools version 3.0-pre5
->
-> Yes, and I'm using 0.9.14 and seeing similar messages.
->
-> --
-> ~Randy
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-- 
+greg
 

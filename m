@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbUA0B5G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 20:57:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbUA0B5G
+	id S261779AbUA0CQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 21:16:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbUA0CQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 20:57:06 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:49844 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S261731AbUA0B5E (ORCPT
+	Mon, 26 Jan 2004 21:16:58 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:2266 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261779AbUA0CQ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 20:57:04 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 27 Jan 2004 02:56:44 +0100 (MET)
-Message-Id: <UTC200401270156.i0R1uiR06609.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, gotom@debian.or.jp
-Subject: Re: [uPATCH] refuse plain ufs mount
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+	Mon, 26 Jan 2004 21:16:57 -0500
+From: Andrew Theurer <habanero@us.ibm.com>
+Reply-To: habanero@us.ibm.com
+To: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: New NUMA scheduler and hotplug CPU
+Date: Mon, 26 Jan 2004 20:19:13 -0600
+User-Agent: KMail/1.5
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+References: <20040125235431.7BC192C0FF@lists.samba.org> <200401261740.12657.habanero@us.ibm.com> <35060000.1075162177@flay>
+In-Reply-To: <35060000.1075162177@flay>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401262019.13824.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	From gotom@debian.or.jp  Tue Jan 27 02:44:00 2004
+On Monday 26 January 2004 18:09, Martin J. Bligh wrote:
+> > For example, you boot on just the boot cpu, which by default is in the
+> > first node on the first runqueue.  All other cpus, whether being "booted"
+> > for the for the first time or hotplugged (maybe now there's really no
+> > difference), the hotplugging tells where the cpu should be, in what node
+> > and what runqueue.  HT cpus work even better, because you can hotplug
+> > siblings, once at a time if you wanted, to the same runqueue.  Or you
+> > have cpus sharing a die, same thing, lots of choices here.  This removes
+> > any per-arch updates to the kernel for things like scheduler topology,
+> > and lets them go somewhere else more easily changes, like userspace.
+>
+> Ummm ... but *none* of that is dictated as policy stuff - it's all just
+> the hardware layout of the machine. You cannot "decide" as the sysadmin
+> which node a CPU is in, or which HT sibling it has. It's just there ;-)
+> The only thing you could possibly dictate is the CPU number you want
+> assigned to the new CPU, which frankly, I think is pointless - they're
+> arbitrary tags, and always have been.
 
-	I wonder this modification is really ok because user can't find why he
-	can't mount his ufs if he does not specify ufstype=.  Putting only
-	one line is not acceptable for you?
+How many cpus share a runqueue IMO could be a policy thing.  Some HT cpus may 
+be better sharing a runqueue where others (lots and lots of siblings in one 
+core) may not.
 
-But you see, it wasn't the user at all, and it wasn't a ufs filesystem.
-It is kernel probing that causes error messages. That is unwanted.
-So, your version is wrong.
-
-If it is really very desirable to warn the user the condition if(!silent)
-should be added.
-
-But in my opinion such a warning is not desirable at all.
-mount(8) and Documentation/filesystems/ufs.txt explain the details.
-
-Andries

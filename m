@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129867AbRA0Bqm>; Fri, 26 Jan 2001 20:46:42 -0500
+	id <S129311AbRA0CB6>; Fri, 26 Jan 2001 21:01:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130765AbRA0Bqd>; Fri, 26 Jan 2001 20:46:33 -0500
-Received: from hs-gk.cyberbills.com ([216.35.157.254]:51976 "EHLO
-	hs-mail.cyberbills.com") by vger.kernel.org with ESMTP
-	id <S129867AbRA0BqT>; Fri, 26 Jan 2001 20:46:19 -0500
-Date: Fri, 26 Jan 2001 17:46:12 -0800 (PST)
-From: "Sergey Kubushin" <ksi@cyberbills.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.0ac12
-In-Reply-To: <E14MIgn-0003G5-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.31ksi3.0101261742080.598-100000@nomad.cyberbills.com>
+	id <S129396AbRA0CBj>; Fri, 26 Jan 2001 21:01:39 -0500
+Received: from srv12-sao.sao.terra.com.br ([200.246.248.67]:63244 "EHLO
+	srv12-sao.sao.terra.com.br") by vger.kernel.org with ESMTP
+	id <S129311AbRA0CBg>; Fri, 26 Jan 2001 21:01:36 -0500
+From: Rafael Diniz <rafael2k@terra.com.br>
+Reply-To: rafael2k@terra.com.br
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4 hangs on PowerBook 150(m68k)
+Date: Fri, 26 Jan 2001 23:52:19 -0200
+X-Mailer: KMail [version 1.0.29]
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <3A7BB6B1.ABF71834@austin.rr.com>
+In-Reply-To: <3A7BB6B1.ABF71834@austin.rr.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01012623575600.01138@rafael>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Jan 2001, Alan Cox wrote:
+Linux 2.4.0 hangs in my PowerBook 150(m68030 without fpu, 8Mb ram, 122Mb HD
+quantum IDE, adb keyboard and mouse) when it is loading the adb driver(after
+the scsi driver load).
+The 2.2 boot normally, but I can't acess keyboard nor mouse because it does not
+have adb support...
 
-[skipped]
-
-Modules still don't load:
-
-=== Cut ===
-ide-mod.o: Can't handle sections of type 32131
-ide-probe-mod.o: Can't handle sections of type 256950710
-ide-disk.o: Can't handle sections of type 688840897
-ext2.o: Can't handle sections of type 69429248
-=== Cut ===
-
-Section types are exactly the same in ac9,10,11,12.
-
-Is it supposed to be this way? Does anybody care? Or may be I'm the only one
-who uses modules?
-
-Any ideas? Can I help to debug it? Please let me know if I can be of any
-help...
-
----
-Sergey Kubushin				Sr. Unix Administrator
-CyberBills, Inc.			Phone:	702-567-8857
-874 American Pacific Dr,		Fax:	702-567-8890
-Henderson, NV, 89014
-
+Thanks
+Rafael Diniz
+Brazil
+=================================================
+Conectiva Linux 6.0 (2.2.17)  XFree86-4.0.1
+PII 233mhz 96Mb ram
+SB16, USR56k, S3 VirgeDX/GX 4Mb, CD creative48X 
+HDa 10Gb Quantum  HDb 4.1Gb Fujitsu
+MSX2.0 256k MegaRam 256k Mapper 128k Vram
+MSX is the future
+=================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

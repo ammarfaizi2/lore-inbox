@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUFWOP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265203AbUFWORJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265144AbUFWOP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 10:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265203AbUFWOP7
+	id S265203AbUFWORJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 10:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265210AbUFWORJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 10:15:59 -0400
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:34441 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S265144AbUFWOP5 convert rfc822-to-8bit
+	Wed, 23 Jun 2004 10:17:09 -0400
+Received: from ool-44c1e325.dyn.optonline.net ([68.193.227.37]:9863 "HELO
+	dyn.galis.org") by vger.kernel.org with SMTP id S265203AbUFWORB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 10:15:57 -0400
-Date: Wed, 23 Jun 2004 16:15:57 +0200
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: Kristian =?ISO-8859-1?Q?S=F8rensen?= <ks@cs.auc.dk>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why dentry->d_qstr change in 2.6.7 ?
-Message-Id: <20040623161557.6814a3ae@phoebee>
-In-Reply-To: <1087999469.10863.0.camel@localhost>
-References: <1087660293.30405.47.camel@localhost>
-	<1087999469.10863.0.camel@localhost>
-X-Mailer: Sylpheed-Claws 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.2 i686 Intel(R) Pentium(R) 4 CPU
- 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
+	Wed, 23 Jun 2004 10:17:01 -0400
+Mail-Followup-To: jgarzik@pobox.com,
+  linux-kernel@vger.kernel.org
+MBOX-Line: From george@galis.org  Wed Jun 23 10:16:59 2004
+Date: Wed, 23 Jun 2004 10:16:59 -0400
+From: George Georgalis <george@galis.org>
+To: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: SIIMAGE sata fails with 2.6.7
+Message-ID: <20040623141659.GD30929@trot.local>
+References: <20040622170557.GA16617@trot.local> <40D895C6.3070306@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40D895C6.3070306@pobox.com>
+X-Time: trot.local; @636; Wed, 23 Jun 2004 10:16:59 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jun 2004 16:04:29 +0200
-Kristian Sørensen <ks@cs.auc.dk> bubbled:
+On Tue, Jun 22, 2004 at 04:25:42PM -0400, Jeff Garzik wrote:
+>does sata_sil driver work for you?
 
-> Can it really be, that noone knows why this change has been made !??
+I have this file,
 
-maybe this is for your interest:
-http://lkml.org/lkml/2004/5/8/20
+-rw-r--r--    1 500      500         12779 Jun 16 01:18 ./drivers/scsi/sata_sil.c
+
+but I don't see a switch for it in the config, also I'm not sure where
+the most recent patch for it is.
+
+// George
+
 
 -- 
-MyExcuse:
-boss forgot system password
+George Georgalis, Architect and administrator, Linux services. IXOYE
+http://galis.org/george/  cell:646-331-2027  mailto:george@galis.org
+Key fingerprint = 5415 2738 61CF 6AE1 E9A7  9EF0 0186 503B 9831 1631
 
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>

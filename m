@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293338AbSBYHs4>; Mon, 25 Feb 2002 02:48:56 -0500
+	id <S293343AbSBYIIG>; Mon, 25 Feb 2002 03:08:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293339AbSBYHsp>; Mon, 25 Feb 2002 02:48:45 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:52470 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S293338AbSBYHsh>; Mon, 25 Feb 2002 02:48:37 -0500
-Date: Mon, 25 Feb 2002 02:48:17 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Luigi Genoni <kernel@Expansa.sns.it>
-Cc: "Paul G. Allen" <pgallen@randomlogic.com>,
-        "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
+	id <S293344AbSBYIHp>; Mon, 25 Feb 2002 03:07:45 -0500
+Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:4993 "EHLO
+	oof.localnet") by vger.kernel.org with ESMTP id <S293343AbSBYIHe>;
+	Mon, 25 Feb 2002 03:07:34 -0500
+Date: Mon, 25 Feb 2002 00:07:42 -0800
+From: Simon Kirby <sim@netnation.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: gcc-2.95.3 vs gcc-3.0.4
-Message-ID: <20020225024817.Q2434@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-In-Reply-To: <3C775FEF.BDA0253C@randomlogic.com> <Pine.LNX.4.44.0202250100540.15348-100000@Expansa.sns.it>
+Message-ID: <20020225080742.GA3122@netnation.com>
+In-Reply-To: <3C771D29.942A07C2@starband.net> <20020222204456.O11156@work.bitmover.com> <3C77270A.1CBA02E8@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0202250100540.15348-100000@Expansa.sns.it>; from kernel@Expansa.sns.it on Mon, Feb 25, 2002 at 01:07:42AM +0100
+In-Reply-To: <3C77270A.1CBA02E8@zip.com.au>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 25, 2002 at 01:07:42AM +0100, Luigi Genoni wrote:
-> At this link:
-> 
->  http://www.cs.utk.edu/~rwhaley/ATLAS/gcc30.html
-> 
-> you can find an interesting explanation why code compiled with gcc 3.0 is
-> mostly slower than code compiled with gcc 2.95 on x86 CPUs (but it is
-> really faster on other platforms like alpha and sparc64).
-> 
-> basically the main reasons semm to be the scheduler algorithm and the fpu
-> stack handling, but I suggest to read the full study.
-> 
-> 
-> I would be interested to know if this apply to gcc 3.1 too.
+On Fri, Feb 22, 2002 at 09:22:18PM -0800, Andrew Morton wrote:
 
-Well, concerning reg-stack, you can completely get away without it in 3.1 
-by using -mfpmath=sse if you are targeting Pentium 3,4 or Athlon 4,xp,mp
-(for float math, for higher precision only for Pentium 4).
+> Larry McVoy wrote:
+> > 
+> > Try 2.72, it's almost twice as fast as 2.95 for builds.  For BK, at least,
+> > we don't see any benefit from the slower compiler, the code runs the same
+> > either way.
+> > 
+> 
+> Amen.
+> 
+> I want 2.7.2.3 back, but it was the name:value struct initialiser
+> bug which killed that off.  2.91.66 isn't much slower than 2.7.x,
+> and it's what I use.
+> 
+> "almost twice as fast"?  That means that 2.7.2 vs 3.x is getting
+> up to a 3x difference.  Does anyone know why?
 
-	Jakub
+Me too.  Everybody says "it's the final code that matters", but a lot of
+us would be more productive if the thing would just compile faster.  I've
+done the same (used 2723 during development/debugging) and it helped
+quite a lot.
+
+I remember Borland Turbo Pascal's compiler... Yes, yes, but that thing
+compiled insane amounts of code in split seconds on 386 hardware.
+
+Simon-
+
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

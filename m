@@ -1,74 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbUDNRzf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 13:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUDNRzf
+	id S261497AbUDNR7r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 13:59:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUDNR7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 13:55:35 -0400
-Received: from ida.rowland.org ([192.131.102.52]:1284 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S261474AbUDNRzd (ORCPT
+	Wed, 14 Apr 2004 13:59:47 -0400
+Received: from [63.107.13.101] ([63.107.13.101]:23216 "EHLO mail.metavize.com")
+	by vger.kernel.org with ESMTP id S261497AbUDNR7p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 13:55:33 -0400
-Date: Wed, 14 Apr 2004 13:55:32 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Duncan Sands <baldrick@free.fr>
-cc: Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sf.net>,
-       <linux-kernel@vger.kernel.org>, Frederic Detienne <fd@cisco.com>,
-       David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] [PATCH 7/9] USB usbfs: destroy submitted urbs
- only on the disconnected interface
-In-Reply-To: <200404141909.29810.baldrick@free.fr>
-Message-ID: <Pine.LNX.4.44L0.0404141341030.609-100000@ida.rowland.org>
+	Wed, 14 Apr 2004 13:59:45 -0400
+Message-ID: <407D7BFF.4010700@metavize.com>
+Date: Wed, 14 Apr 2004 10:59:27 -0700
+From: Dirk Morris <dmorris@metavize.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Ben Mansell <ben@zeus.com>, Steven Dake <sdake@mvista.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: epoll reporting events when it hasn't been asked to
+References: <Pine.LNX.4.44.0404020717350.1828-100000@bigblue.dev.mdolabs.com>
+In-Reply-To: <Pine.LNX.4.44.0404020717350.1828-100000@bigblue.dev.mdolabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Apr 2004, Duncan Sands wrote:
+Davide Libenzi wrote:
 
-> > Quite apart from the stylistic questions about sanity tests and so on,
-> > this code contains a bug.  It wasn't introduced by your patch; it was
-> > there from before and I should have caught it earlier, along with a few
-> > others.
-> 
-> Hi Alan, it was introduced after your last devio.c fixes by the patch
-> "fix xsane breakage, hangs on device scan at launch" by someone
-> who will remain nameless :)
+>On Fri, 2 Apr 2004, Ben Mansell wrote:
+>  
+>
+>>>If an exception occurs (example a socket is disconnected) the socket
+>>>should be removed from the fd list.  There is really no point in passing
+>>>in an excepted fd.
+>>>      
+>>>
+>>Is there any difference, speed-wise, between turning off all events to
+>>listen to with EPOLL_MOD, and removing the file descriptor with
+>>EPOLL_DEL? I had vaguely assumed that the former would be faster
+>>(especially if you might later want to resume listening for events),
+>>although that was just a guess.
+>>    
+>>
 
-Okay, that's a relief.  Of course there's still the other two places.  I 
-did check for such things a while back, but apparently I forgot to look at 
-all occurrences of "ifclaimed".
+I'd like to weigh in on this issue as I'm having the same issue as Ben.
+My application doesnt consider these to be exceptional events, but 
+normal expected events, and thus
+I need them to be handled like normal events. (I can explain more off 
+list if you'd like)
+So I just want to ignore all events for some time and then deal with any 
+HUP's or ERR's at the appropriate time.
+When I used poll(), I always accomplished this by leaving this fd out of 
+the poll fd set.
+This wasnt a huge hit because I basically had to rebuild the poll fd set 
+at every iteration anyway as it changes rapidly.
+
+Now I'm switching to epoll, and the great thing about the epoll 
+interface is I don't have to rebuild the entire fd set at every iteration.
+Like Ben, I'd prefer to be able to disable ALL events on a fd descriptor 
+for some time, instead of removing it entirely.
+Since with poll I had to rebuild the set anyway, this 'disable' feature 
+wasnt really useful, but would be a nice-to-have for epoll.
+:))
 
 
-> > Similarly, there's a typo in proc_releaseinterface(); the second argument
-> > it passes to releaseintf() should be ret, not intf.
-> >
-> > And in proc_submiturb(), the value stored in as->intf is an index when it
-> > should be an interface number.  Or possibly it could remain an index, but
-> > then the value passed to destroy_async_on_interface() by
-> > proc_releaseinterface() should be the index and not the number.
-> 
-> Good catch!  I guess the index and the interface differ because interfaces are
-> not always consecutively numbered.  Is that right?  When can it happen?
 
-Yes.  Actually I spoke too strongly before; these aren't bugs, just things 
-that need to be changed.
 
-Right now the configuration parsing code doesn't allow devices to have
-interfaces that aren't numbered consecutively starting from 0, so there's
-no problem.  But I'm trying to update all the USB drivers to eliminate
-such assumptions about device sanity.  When that's done we will accept
-funny interface numbers.  There's a surprisingly large number of devices
-that number their interfaces starting from 1, and we should be able to
-handle them correctly.
 
-Anyway, if you would like to fix these issues, my suggestion is to adopt a 
-variable-name scheme that makes it clear which things are interface 
-numbers and which are interface indices.  (I don't want to go so far as to 
-advocate Hungarian notation, but the concept of using part of a variable's 
-name to indicate its type goes back at least to early Fortran with its 
-"names starting with letters from I-N are integers" convention.)
-
-Alan Stern
 

@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129133AbQJ3OGi>; Mon, 30 Oct 2000 09:06:38 -0500
+	id <S129208AbQJ3OH2>; Mon, 30 Oct 2000 09:07:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129208AbQJ3OGT>; Mon, 30 Oct 2000 09:06:19 -0500
-Received: from fe3.rdc-kc.rr.com ([24.94.163.50]:59401 "EHLO mail3.kc.rr.com")
-	by vger.kernel.org with ESMTP id <S129133AbQJ3OGJ>;
-	Mon, 30 Oct 2000 09:06:09 -0500
-Message-Id: <m13qFZf-001qifC@microdog>
-Date: Mon, 30 Oct 2000 08:06:07 -0600 (CST)
-From: Mike Coleman <mcoleman2@kc.rr.com>
-To: torvalds@transmeta.com
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] TracerPid in /proc/<n>/status is wrong
+	id <S129430AbQJ3OHS>; Mon, 30 Oct 2000 09:07:18 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:35381 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S129208AbQJ3OHN>; Mon, 30 Oct 2000 09:07:13 -0500
+Date: Mon, 30 Oct 2000 08:06:19 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200010301406.IAA224051@tomcat.admin.navo.hpc.mil>
+To: pollard@cats-chateau.net, Stephen Harris <sweh@spuddy.mew.co.uk>,
+        vonbrand@sleipnir.valparaiso.cl (Horst von Brand)
+Subject: Re: syslog() blocks on glibc 2.1.3 with kernel 2.2.x
+In-Reply-To: <00102910423100.15754@tabby>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+---------  Received message begins Here  ---------
 
-This patch fixes the bogus value of the TracerPid field in /proc/<n>/status.
+Jesse Pollard <pollard@cats-chateau.net>:
+> On Sun, 29 Oct 2000, Stephen Harris wrote:
+> >Horst von Brand wrote:
+> >
+> >> > > If you send SIGSTOP to syslogd on a Red Hat 6.2 system (glibc 2.1.3,
+> >> > > kernel 2.2.x), within a few minutes you will find your entire machine
+> >> > > grinds to a halt.  For example, nobody can log in.
+> >> 
+> >> Great! Yet another way in which root can get the rope to shoot herself in
+> >> the foot. Anything _really_ new?
+> >
+> >OK, let's go a step further - what if syslog dies or breaks in some way
+> >shape or form so that the syslog() function blocks...?
+> >
+> >My worry is the one that was originally raised but ignored:  syslog() should
+> >not BLOCK regardless of whether it's local or remote.  syslog is not a
+> >reliable mechanism and many programs have been written assuming they can
+> >fire off syslog() calls without worry.
+> 
+> It was NOT ignored. If syslogd dies, then the system SHOULD stop, after a
+> few seconds (depending on the log rate...).
+> 
+> I do believe that restarting syslog should be possible... Perhaps syslog
+> should be started by inetd at the very beginning. Then it could be restarted
+> after an exit/abort.
+> 
+> This can STILL fail if the syslog.conf is completely invalid - but then the
+> system SHOULD be stopped pending the investigation of why the file has been
+> corrupted, or syslogd falls back on a default configuration (record everything
+> in the syslog file).
 
-(I thought was patched several months back, but I guess it wasn't, or it got
-mistakenly backed out.)
+As was pointed out in a separate E-mail: I ment to say "init" instead of
+"inetd", since inetd can generate syslog messages...
 
---Mike
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-
---- fs/proc/array.c-dist	Fri Sep  1 16:32:17 2000
-+++ fs/proc/array.c	Mon Oct 30 08:02:35 2000
-@@ -157,7 +157,7 @@
- 		"Uid:\t%d\t%d\t%d\t%d\n"
- 		"Gid:\t%d\t%d\t%d\t%d\n",
- 		get_task_state(p),
--		p->pid, p->p_opptr->pid, p->p_pptr->pid != p->p_opptr->pid ? p->p_opptr->pid : 0,
-+		p->pid, p->p_opptr->pid, p->p_pptr->pid != p->p_opptr->pid ? p->p_pptr->pid : 0,
- 		p->uid, p->euid, p->suid, p->fsuid,
- 		p->gid, p->egid, p->sgid, p->fsgid);
- 	read_unlock(&tasklist_lock);	
+Any opinions expressed are solely my own.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

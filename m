@@ -1,50 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263273AbUDGBkK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 21:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbUDGBkJ
+	id S263424AbUDGBqu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 21:46:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUDGBqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 21:40:09 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:22103 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263273AbUDGBkF (ORCPT
+	Tue, 6 Apr 2004 21:46:50 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:2293 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263424AbUDGBqs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 21:40:05 -0400
-Date: Wed, 7 Apr 2004 11:39:17 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, hch@infradead.org, hugh@veritas.com,
-       vrajesh@umich.edu, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
-Message-ID: <20040407113917.E3391@wobbly.melbourne.sgi.com>
-References: <20040402203514.GR21341@dualathlon.random> <20040403094058.A13091@infradead.org> <20040403152026.GE2307@dualathlon.random> <20040403155958.GF2307@dualathlon.random> <20040403170258.GH2307@dualathlon.random> <20040405105912.A3896@infradead.org> <20040405131113.A5094@infradead.org> <20040406042222.GP2234@dualathlon.random> <20040405214330.05e4ecd7.akpm@osdl.org> <20040406215441.GK2234@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040406215441.GK2234@dualathlon.random>; from andrea@suse.de on Tue, Apr 06, 2004 at 11:54:41PM +0200
+	Tue, 6 Apr 2004 21:46:48 -0400
+Message-ID: <40735D7E.2090304@us.ibm.com>
+Date: Tue, 06 Apr 2004 20:46:38 -0500
+From: Brian King <brking@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Wright <chrisw@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: call_usermodehelper hang
+References: <4072F2B7.2070605@us.ibm.com> <20040406174150.D22989@build.pdx.osdl.net>
+In-Reply-To: <20040406174150.D22989@build.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 11:54:41PM +0200, Andrea Arcangeli wrote:
+Chris Wright wrote:
+> * Brian King (brking@us.ibm.com) wrote:
 > 
-> Christoph, I got no positive feedback yet for the alternate fix you
-> proposed and it's not obvious to my eyes (isn't good_pages going to be
-> screwed with your fix?), but I wanted to checkin a fix into CVS in the
-> meanwhile, so for now I've checked in my __GFP_NO_COMP fix that I'm sure
-> doesn't require any testing since it's obviously safe and it should
-> definitely fix the problem. This way you can also take your time for the
-> testing of your better fix.
+>>I have been running into some kernel hangs due to call_usermodehelper. Looking
+>>at the backtrace, it looks to me like there are deadlock issues with adding
+>>devices from work queues. Attached is a sample backtrace from one of the
+>>hangs I experienced. My question is why does call_usermodehelper do 2 different
+>>things depending on whether or not it is called from the kevent task? It appears
+>>that the simple way to fix the hang would be to never have call_usermodehelper
+>>use a work_queue since it must be called from process context anyway, or
+>>am I missing something?
 > 
-> What's not clear to me about your fix is if it's really working safe
-> with good_pages being overdecremented (good_pages doesn't look just an
-> hint, there seems to be a valid reason you're doing the set_bit/test_bit
-> on page->private, no?).
+> 
+> It does two different things because it's trying to run from keventd.
+> In the case that current is not keventd, it schedules the work, so
+> keventd will pick that work up later to run in it's process context.
+> 
+> How early is this hang?  
 
-Ignore the first part of that patch, it was misdirected (Christoph
-woulda gone through and put guards around all pagebuf page->private
-users; turns out the first change was unnecessary, and confusing ;).
+Pretty early. Boot time, loading scsi drivers. While initializing the
+third scsi adapter on the system a device shows up dynamically on the
+first adapter, the LLD schedules work to call scsi_add_device and we
+end up with the hang.
 
-cheers.
 
--- 
-Nathan
+It looks like init thread adds work and waits
+> for it's completion while holding a semaphore.  It is never woken up by
+> keventd which is sleeping waiting for wakeup from semaphore that init
+> thread took.
+> 
+> Seems troubling to hold the sem while calling call_usermodehelper, as that
+> could go off for a long time.
+
+I agree. There is another similar hang I ran into recently with the scsi 
+core in that I was calling scsi_add_device from keventd, which ended up 
+sleeping on the scan_mutex since the module load process was calling 
+scsi_scan_host. scsi_scan_host was in the same kobject hotplug code, 
+calling call_usermodehelper. I figured my LLD shouldn't be doing that, 
+so I synchronized the events. Perhaps that was the wrong fix... I 
+suppose I could have changed the LLD to always call 
+scsi_scan_host/scsi_add_device/etc. from keventd...
+
+-Brian
+
+

@@ -1,46 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbTEMQ37 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 12:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbTEMQ37
+	id S261921AbTEMQcw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 12:32:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTEMQcv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 12:29:59 -0400
-Received: from dodge.jordet.nu ([217.13.8.142]:59661 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id S261786AbTEMQ3W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 12:29:22 -0400
-Subject: Re: [Bug 712] New: USB device not accepting new address.
-From: Stian Jordet <liste@jordet.nu>
-To: Andrei Ivanov <andrei.ivanov@ines.ro>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.50L0.0305131936010.4725-100000@webdev.ines.ro>
-References: <24740000.1052833661@[10.10.2.4]>
-	 <1052842466.20418.0.camel@chevrolet.hybel>
-	 <Pine.LNX.4.50L0.0305131936010.4725-100000@webdev.ines.ro>
-Content-Type: text/plain
-Message-Id: <1052844145.20418.3.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
-Date: 13 May 2003 18:42:25 +0200
+	Tue, 13 May 2003 12:32:51 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:56534 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S261921AbTEMQct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 12:32:49 -0400
+Date: Tue, 13 May 2003 11:45:07 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: trond.myklebust@fys.uio.no, Dave Jones <davej@codemonkey.org.uk>
+cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 must-fix list, v2
+Message-ID: <79170000.1052844307@baldur.austin.ibm.com>
+In-Reply-To: <16065.7415.189762.803068@charged.uio.no>
+References: <20030512155417.67a9fdec.akpm@digeo.com>
+ <20030512155511.21fb1652.akpm@digeo.com><shswugvjcy9.fsf@charged.uio.no>
+ <20030513135756.GA676@suse.de><16065.3159.768256.81302@charged.uio.no>
+ <20030513152228.GA4388@suse.de><16065.4109.129542.777460@charged.uio.no>
+ <20030513154741.GA4511@suse.de><16065.5911.55131.430734@charged.uio.no>
+ <20030513160948.GA6594@suse.de> <16065.7415.189762.803068@charged.uio.no>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tir, 13.05.2003 kl. 18.37 skrev Andrei Ivanov:
-> The messages are almost, if not identical to what I get, and my USB mouse
-> works only if I replug it. I tried it with or without ACPI, with or
-> without local apic, and it didn't work. Last time it worked was in
-> 2.5.68-mm3... 
+
+--On Tuesday, May 13, 2003 18:27:35 +0200 Trond Myklebust
+<trond.myklebust@fys.uio.no> wrote:
+
+> Ah... mmap()ed writes + truncate()...
 > 
-> See: http://marc.theaimsgroup.com/?l=linux-kernel&m=105221493201587&w=2
+> OK. There's currently a known problem here which appears both in 2.4.x
+> and 2.5.x: we appear to be incapable of flushing out all the dirty
+> pages prior to truncating the file. The usual
+> filemap_fdatasync()/filemap_fdatawait() appears to be subject to races
+> with VM swapping.
+> 
+> Could we have some help from the VM experts on this one?
 
-They are also identical to my messages :) USB was working perfectly with
-acpi untill 2.5.69, then it suddenly stopped working, and I have to boot
-with acpi=off :(
+I'm in the process of quantifying a big race condition in vmtruncate().
+The scenario for the race is this:
 
-There seems to be many USB/ACPI problems, but few of them started with
-2.5.69. Just yours, Dave's and my problem so far...
+* Task 1 truncates the file, which resets the size and calls vmtruncate().
 
-Best regards,
-Stian
+* Task 1 in vmtruncate() walks all vmas for the file and unmaps pages from
+the truncated file region.
+
+* Task 2 then extends the file and faults pages back in.
+
+* Task 1 (still in vmtruncate()) removes pages including the newly remapped
+pages from the page cache using the original truncated size.
+
+We now have mapped and dirty pages that do not belong to any page cache and
+will not be written back to the file.  All subsequent data written via the
+mapped pages will be lost.
+
+I don't have a solution for it yet.  I've just gotten as far as identifying
+out the race.
+
+Dave McCracken
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

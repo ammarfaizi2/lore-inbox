@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318207AbSHIJIl>; Fri, 9 Aug 2002 05:08:41 -0400
+	id <S318204AbSHIJLa>; Fri, 9 Aug 2002 05:11:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318193AbSHIJIl>; Fri, 9 Aug 2002 05:08:41 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:16635 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318207AbSHIJIk>; Fri, 9 Aug 2002 05:08:40 -0400
-Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <3D5381F7.1BCE0118@aitel.hist.no>
-References: <200208090704.g7974Td55043@saturn.cs.uml.edu> 
-	<3D5381F7.1BCE0118@aitel.hist.no>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 09 Aug 2002 11:32:33 +0100
-Message-Id: <1028889153.28883.186.camel@irongate.swansea.linux.org.uk>
+	id <S318203AbSHIJLa>; Fri, 9 Aug 2002 05:11:30 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:61956 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S318204AbSHIJL3>;
+	Fri, 9 Aug 2002 05:11:29 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       Rik van Riel <riel@conectiva.com.br>
+Subject: Re: [OT] 2.4.19 BUG in page_alloc.c:91 
+In-reply-to: Your message of "Thu, 08 Aug 2002 14:19:48 +0200."
+             <m17cmFU-003oZpC@zeus.domdv.de> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 09 Aug 2002 19:14:59 +1000
+Message-ID: <2596.1028884499@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-09 at 09:48, Helge Hafting wrote:
-> Use 32-bit PID's, but with an additional rule for wraparound.
-> Simply wrap the PID when 
-> (nextPID > 2*number_of_processes && nextPID > 30000)
-> The latter one just to avoid wrapping at 10 when there are 
-> 5 processes.  
+On Thu, 8 Aug 2002 14:19:48 +0200 (CEST), 
+Andreas Steinmetz <ast@domdv.de> wrote:
+>On 08 Aug 2002 13:38:56 +0100 Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>Rik and Alan,
+>not exactly related but please don't be too persistent about "Tainted: P".
+>Just try to insmod xircom_tulip_cb of a stock 2.4.19 kernel and, surprise:
+># insmod xircom_tulip_cb
+>Using /lib/modules/2.4.19/kernel/drivers/net/pcmcia/xircom_tulip_cb.o
+>Warning: loading
+>/lib/modules/2.4.19/kernel/drivers/net/pcmcia/xircom_tulip_cb.o will taint the 
+>kernel: non-GPL license - GPL v2
 
-Its much simpler to put max_pid into /proc/sys/kernel. That way we can
-boot with 32000 process ids, which will ensure ancient stuff which has
-16bit pid_t (old old libc) and also any old kernel interfaces which
-expose it - does ipc ? 
+Upgrade to modutils >= 2.4.17.  Somebody added 'GPL v2' to a module
+license without checking if it was acceptable or not.  The definitive
+list of acceptable licenses is in include/linux/module.h.
 

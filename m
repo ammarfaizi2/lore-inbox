@@ -1,171 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262436AbVAPFyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262439AbVAPF6H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262436AbVAPFyg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 00:54:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVAPFyd
+	id S262439AbVAPF6H (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 00:58:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbVAPF5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 00:54:33 -0500
-Received: from opersys.com ([64.40.108.71]:51470 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S262434AbVAPFyT (ORCPT
+	Sun, 16 Jan 2005 00:57:52 -0500
+Received: from [220.248.27.114] ([220.248.27.114]:24990 "HELO soulinfo.com")
+	by vger.kernel.org with SMTP id S262435AbVAPF5E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 00:54:19 -0500
-Message-ID: <41EA0307.6020807@opersys.com>
-Date: Sun, 16 Jan 2005 01:00:39 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Andi Kleen <ak@muc.de>, Nikita Danilov <nikita@clusterfs.com>,
-       linux-kernel@vger.kernel.org, Tom Zanussi <zanussi@us.ibm.com>
-Subject: Re: 2.6.11-rc1-mm1
-References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de> <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de> <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home> <41E8358A.4030908@opersys.com> <Pine.LNX.4.61.0501150101010.30794@scrub.home> <41E899AC.3070705@opersys.com> <Pine.LNX.4.61.0501160245180.30794@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0501160245180.30794@scrub.home>
+	Sun, 16 Jan 2005 00:57:04 -0500
+Date: Sun, 16 Jan 2005 13:54:20 +0800
+From: hugang@soulinfo.com
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org, qemu-devel@nongnu.org
+Subject: Re: 2.6.10-mm3: swsusp: out of memory on resume (was: Re: Ho ho ho - Linux v2.6.10)
+Message-ID: <20050116055420.GA11880@hugang.soulinfo.com>
+References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org> <20050115012120.GA4743@hugang.soulinfo.com> <200501151147.32919.rjw@sisk.pl> <200501152220.42129.rjw@sisk.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200501152220.42129.rjw@sisk.pl>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 15, 2005 at 10:20:42PM +0100, Rafael J. Wysocki wrote:
+> > > > > 
+> > > > > 2.6.11-rc1-mm1 
+> > > > >  -> 2005-1-14.core.diff 	core patch		TEST PASSED
+> > > > >   -> 2005-1-14.x86_64.diff	x86_64 patch	NOT TESTED
+> > > > 
+> > > > Unfortunately, on x86_64 it goes south on suspend, probably somwhere in write_pagedir(),
+> > > > but I'm not quite sure as I can't make it print any useful stuff to the serial console
+> > > > (everything is dumped to a virtual tty only).  Seemingly, it prints some
+> > > > "write_pagedir: ..." debug messages and then starts to print garbage in
+> > > > an infinite loop.
+> 
+> I have some good news for you. :-)
+> 
+> The patch actually works fine on my box.  What I thought was a result of an infinite loop,
+> turned out to be "only" a debug output from it, which is _really_ excessive.  After I had
+> commented out the most of pr_debug()s in your code, it works nicely and I like it very
+> much.  Thanks a lot for porting it to x86_64!
+> 
+Cool, Current I making software suspend also works in Qemu X86_64
+emulation, Here is a update patch to making copyback more safed and 
+possible to improve copyback speed.
 
-Hello Roman,
+I change the swsusp_arch_resume to nosave section, the in memory copy
+back it not touch this code. before not change that to nosave section,
+I'm also geting a infinite loop in copy_one_page, From the qemu in_asm,
+I sure that loop in copy_one_page, when I change it to nosave section,
+that problem go away, I dont' sure tha't good idea to fixed it, but
+current it works in my qemu, Can someone owner x86_64 test it.
 
-Roman Zippel wrote:
-> It's interesting to read more about ltt's requirements, but I still think 
-> it's possible to leave this work to the relayfs layer.
+I disable Flush TLB after copy page, It speedup the in qemu, But I can't
+sure the right thing in real machine, can someone give me point.
 
-Ok, I'm willing to play ball, but can you be a little bit more specific.
-
-> Why not just move the ltt buffer management into relayfs and provide a 
-> small library, which extracts the event stream again? Otherwise you have 
-> to duplicate this work for every serious relayfs user anyway.
-
-Ok, I've been meditating over what you say above for some time in order
-to understand how best to follow what you are suggesting. So here's
-what I've been able to come up with. Let me know if you have other
-suggestions:
-
-Drop the buffer-start/end callbacks altogether. Instead, allow user
-to specify in the channel properties whether they want to have
-sub-buffer delimiters. If so, relayfs would automatically prepend
-and append the structures currently written by ltt:
-/* Start of trace buffer information */
-typedef struct _ltt_buffer_start {
-	struct timeval time;	/* Time stamp of this buffer */
-	u32 tsc;   		/* TSC of this buffer, if applicable */
-	u32 id;			/* Unique buffer ID */
-} LTT_PACKED_STRUCT ltt_buffer_start;
-
-/* End of trace buffer information */
-typedef struct _ltt_buffer_end {
-	struct timeval time;	/* Time stamp of this buffer */
-	u32 tsc;   		/* TSC of this buffer, if applicable */
-} LTT_PACKED_STRUCT ltt_buffer_end;
-
-This would also allow dropping the start_reserve, end_reserve, and
-channel_start_reserve. The latter can be added by ltt as its first
-event.
-
-Is this what you are looking for and is there something else we should
-be doing.
-
-> Completely abstracting the buffer management would the make whole 
-> interface simpler and it would be a lot easier to change without breaking 
-> everything. E.g. it would be possible to use per cpu buffers and remove 
-> the need for different locking mechanisms, for a good tracing mechanism 
-> it's not just important that it's lockless, but also that the cpus don't 
-> share cache lines in the fast path. In this regard relayfs/ltt has really 
-> still too much overhead and the complex relayfs API isn't really making it 
-> easy to fix this.
-
-The per-cpu buffering issue is really specific to the client. It just
-so happens that LTT creates one channel for each CPU. Not everyone
-who needs to ship lots of data to user-space needs/wants one channel
-per cpu. You could, for example, use a relayfs channel as a big
-chunk of memory visible to both a user-space app and its kernel buddy
-in order to exchange data without ever using either needing more
-than one such channel for your entire subsystem.
-
-As for lockless vs. locking there is a need for both. Not having
-to get locks has obvious advantages, but if you require strict
-timing you will want to use the locking scheme because its logging
-time is linear (see Thomas' complaints about lockless elsewhere
-in this thread, and Ingo's complaints about relayfs somewhere back
-in October.)
-
-But in trying to make things simpler, here's a reworked API:
-
-rchan* relay_open(channel_path, mode, bufsize, nbufs);
-int    relay_close(*rchan);
-int    relay_reset(*rchan)
-int    relay_write(*rchan, *data_ptr, count, **wrote-pos);
-
-int    relay_info(*rchan, *channel_info)
-void   relay_set_property(*rchan, property, value);
-void   relay_get_property(*rchan, property, *value);
-
-For direct writing (currently already used by ltt, for example):
-
-char*  relay_reserve(*rchan, len, *ts, *td, *err, *interrupting)
-void   relay_commit(*rchan, *from, len, reserve_code, interrupting);
-
-These are the related macros:
-
-#define relay_write_direct(DEST, SRC, SIZE) \
-#define relay_lock_channel(RCHAN, FLAGS) \
-#define relay_unlock_channel(RCHAN, FLAGS) \
-
-As I hinted elsewhere, we would now have three modes for relayfs
-channels:
-- locking => relies on local_irq_save.
-- lockless => relies on try_reserve/fail->retry (based on cmpxchg).
-- kdebug => this is for kernel debugging.
-
-The last one could be based on Ingo's tracing code, or any
-implementation suggestions by Thomas. It wouldn't do all
-the checks and provide all the capabilities of the other two
-mechanisms, but would really be a hot-path logger with only
-minimalistic provisions for content loss and other such things.
-
-(note to Tom: time_delta_offset that used to be in relay_write
-should be a property set using relay_set_property).
-
-What I'm dropping for now is all the functions that allow a
-subsystem to read from a channel from within the kernel. So,
-for example, if you want to obtain large amounts of data from
-user-space via a relayfs channel you won't be able to. Here
-are the functions that would go:
-
-rchan_reader *add_rchan_reader(channel_id, auto_consume)
-int    remove_rchan_reader(rchan_reader *reader)
-rchan_reader *add_map_reader(channel_id)
-int    remove_map_reader(rchan_reader *reader)
-int    relay_read(reader, buf, count, wait, *actual_read_offset)
-void   relay_buffers_consumed(reader, buffers_consumed)
-void   relay_bytes_consumed(reader, bytes_consumed, read_offset)
-int    relay_bytes_avail(reader)
-int    rchan_full(reader)
-int    rchan_empty(reader)
-
-We could add these at a later time when/if needed. Removing
-these changes nothing for ltt.
-
-Also, we should try to get rid of the following. They are there
-for allowing dynamically-resizable buffers, but if we are to
-make buffer-management opaque, then this should be done
-internally (Tom: I can't remember the rationale for these. Let
-me know if there's a reason why the must be kept.)
-
-int    relay_realloc_buffer(*rchan, nbufs, async)
-int    relay_replace_buffer(*rchan)
-
-I think this is a pretty major change and simplification of the
-API along the lines of what others have asked for. Let me know
-what you think.
-
-Karim
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Hu Gang       .-.
+              /v\
+             // \\ 
+Linux User  /(   )\  [204016]
+GPG Key ID   ^^-^^   http://soulinfo.com/~hugang/hugang.asc
+
+2005-1-16.x86_64.diff
+
+--- 2.6.11-rc1-mm1/arch/x86_64/kernel/suspend_asm.S	2004-12-30 14:56:35.000000000 +0800
++++ 2.6.11-rc1-mm1-swsusp-x86_64/arch/x86_64/kernel/suspend_asm.S	2005-01-16 13:38:25.000000000 +0800
+@@ -35,6 +35,7 @@ ENTRY(swsusp_arch_suspend)
+ 	call swsusp_save
+ 	ret
+ 
++	.section    .data.nosave
+ ENTRY(swsusp_arch_resume)
+ 	/* set up cr3 */	
+ 	leaq	init_level4_pgt(%rip),%rax
+@@ -49,43 +50,47 @@ ENTRY(swsusp_arch_resume)
+ 	movq	%rcx, %cr3;
+ 	movq	%rax, %cr4;  # turn PGE back on
+ 
+-	movl	nr_copy_pages(%rip), %eax
+-	xorl	%ecx, %ecx
+-	movq	$0, %r10
+-	testl	%eax, %eax
+-	jz	done
+-.L105:
+-	xorl	%esi, %esi
+-	movq	$0, %r11
+-	jmp	.L104
+-	.p2align 4,,7
++	movq	pagedir_nosave(%rip), %rdi
++	testq	%rdi, %rdi
++	je		done
++
++copyback_page:
++	movq	24(%rdi), %r9
++	xorl	%r8d, %r8d
++
++copy_one_pgdir:
++	movq    8(%rdi), %rsi
++	testq   %rsi, %rsi
++	je  	done
++	movq    (%rdi), %rcx
++	xorl    %edx, %edx
++
+ copy_one_page:
+-	movq	%r10, %rcx
+-.L104:
+-	movq	pagedir_nosave(%rip), %rdx
+-	movq	%rcx, %rax
+-	salq	$5, %rax
+-	movq	8(%rdx,%rax), %rcx
+-	movq	(%rdx,%rax), %rax
+-	movzbl	(%rsi,%rax), %eax
+-	movb	%al, (%rsi,%rcx)
+-
+-	movq	%cr3, %rax;  # flush TLB
+-	movq	%rax, %cr3;
+-
+-	movq	%r11, %rax
+-	incq	%rax
+-	cmpq	$4095, %rax
+-	movq	%rax, %rsi
+-	movq	%rax, %r11
+-	jbe	copy_one_page
+-	movq	%r10, %rax
+-	incq	%rax
+-	movq	%rax, %rcx
+-	movq	%rax, %r10
+-	mov	nr_copy_pages(%rip), %eax
+-	cmpq	%rax, %rcx
+-	jb	.L105
++	movq    (%rcx,%rdx,8), %rax
++	movq    %rax, (%rsi,%rdx,8)
++	movq    8(%rcx,%rdx,8), %rax
++	movq    %rax, 8(%rsi,%rdx,8)
++	movq    16(%rcx,%rdx,8), %rax
++	movq    %rax, 16(%rsi,%rdx,8)
++	movq    24(%rcx,%rdx,8), %rax
++	movq    %rax, 24(%rsi,%rdx,8)
++#if 0 /* XXX speep up in qemu */
++	movq    %cr3, %rax;  # flush TLB
++	movq    %rax, %cr3;
++#endif
++	addq    $4, %rdx
++	cmpq    $511, %rdx
++	jbe 	copy_one_page; # copy one page
++
++	incq    %r8
++	addq    $32, %rdi
++	cmpq    $127, %r8
++	jbe 	copy_one_pgdir; # copy one pgdir
++
++	testq   %r9, %r9
++	movq    %r9, %rdi
++	jne 	copyback_page
++
+ done:
+ 	movl	$24, %eax
+ 	movl	%eax, %ds
+
+Here is the patch for current qemu, with this it has no problem in
+software suspend/resume, everything. :)
+
+--- target-i386/helper.c~cvs	2005-01-16 14:06:22.000000000 -0500
++++ target-i386/helper.c	2005-01-16 14:07:21.000000000 -0500
+@@ -1454,7 +1454,7 @@ void load_seg(int seg_reg, int selector)
+     selector &= 0xffff;
+     if ((selector & 0xfffc) == 0) {
+         /* null selector case */
+-        if (seg_reg == R_SS)
++        if (seg_reg == R_CS)
+             raise_exception_err(EXCP0D_GPF, 0);
+         cpu_x86_load_seg_cache(env, seg_reg, selector, 0, 0, 0);
+     } else {

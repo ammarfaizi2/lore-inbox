@@ -1,96 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267314AbUIJHfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267254AbUIJHfB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267314AbUIJHfA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 03:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267254AbUIJHeG
+	id S267254AbUIJHfB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 03:35:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267313AbUIJHe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 03:34:06 -0400
-Received: from ahriman.Bucharest.roedu.net ([141.85.128.71]:50568 "EHLO
-	ahriman.bucharest.roedu.net") by vger.kernel.org with ESMTP
-	id S263664AbUIJHcT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 03:32:19 -0400
-Date: Fri, 10 Sep 2004 10:33:44 +0300 (EEST)
-From: Mihai Rusu <dizzy@roedu.net>
-X-X-Sender: dizzy@ahriman.bucharest.roedu.net
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: DRM & X.Org 6.8.0 oops
-Message-ID: <Pine.LNX.4.58L0.0409101026090.4089@ahriman.bucharest.roedu.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 10 Sep 2004 03:34:59 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56511 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266845AbUIJHdY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 03:33:24 -0400
+Date: Fri, 10 Sep 2004 08:33:17 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Hans Reiser <reiser@namesys.com>
+Cc: Paul Jakma <paul@clubi.ie>, "Theodore Ts'o" <tytso@mit.edu>,
+       Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
+       William Stearns <wstearns@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea ofwhat reiser4 wants to do with metafiles and why
+Message-ID: <20040910073317.GL23987@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0409071658120.2985@sparrow> <200409080009.52683.robin.rosenberg.lists@dewire.com> <20040909090342.GA30303@thunk.org> <4140ABB6.6050702@namesys.com> <Pine.LNX.4.61.0409092136160.23011@fogarty.jakma.org> <4140FBE7.6020704@namesys.com> <Pine.LNX.4.61.0409100212080.23011@fogarty.jakma.org> <414135E6.8050103@namesys.com> <20040910055308.GJ23987@parcelfarce.linux.theplanet.co.uk> <4141560E.1090000@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4141560E.1090000@namesys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Fri, Sep 10, 2004 at 12:21:50AM -0700, Hans Reiser wrote:
+> I don't think that "Liar." is an appropriate response.
 
-There seems to be some DRM problem with X.Org 6.8.0 on 2.6.8.1. I recently 
-switched from XFree86 and there I did not noticed the same thing.
+To a bold-faced lie?  Yes, it is.
 
-System information: P4 2.8 Ghz HT, Intel 865G on-board graphics, ASUS 
-P4-P800VM mobo, having compiled preempt, SMP (for HT, which works) and SMT 
-scheduler.
+> If you sent a 
+> response, just quote it.
 
-It seems to happen when starting xdm/gdm.
+I've already posted Message-Id, but if you prefer a quote, fine, here it is:
 
-ksymoops parsed kernel message:
-mtrr: base(0xf0020000) is not aligned on a size(0x400000) boundary
-[drm:i830_dma_initialize] *ERROR* can not find dma buffer map!
-[drm:i830_irq_emit] *ERROR* i830_irq_emit called without lock held
-Unable to handle kernel paging request at virtual address f000e2d3
-c022b89e
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    1
-EIP:    0060:[<c022b89e>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00013296   (2.6.8.1) 
-eax: f000e2c3   ebx: 00000000   ecx: 00000010   edx: dd6fb280
-esi: c0428280   edi: cd21e000   ebp: c042840c   esp: cd21fed0
-ds: 007b   es: 007b   ss: 0068
-Stack: 00000000 c022d827 c0428280 00003282 cd21e000 cd21e000 c0428280 c0227df3 
-       c0428280 c0428910 c0428918 cc85c080 cc85c0a0 dd62e660 00000000 00000001 
-       0000000a 00000000 ddbce0b0 c0116d1e 00000000 00000000 cd34b280 cc85c1dc 
-Call Trace:
- [<c022d827>] i830_dma_quiescent+0x17/0xa6
- [<c0227df3>] i830_lock+0x1ff/0x2a5
- [<c0116d1e>] default_wake_function+0x0/0x12
- [<c0116d1e>] default_wake_function+0x0/0x12
- [<c0227b7e>] i830_ioctl+0xcf/0x145
- [<c0166a16>] sys_ioctl+0x113/0x281
- [<c010411f>] syscall_call+0x7/0xb
-Code: 8b 40 10 8b 90 34 20 00 00 81 e2 fc ff 1f 00 89 51 14 8b 43 
+============================================================================
+On Wed, Sep 08, 2004 at 01:21:45PM +0530, Sriram Karra wrote:
+> Perhaps this is one? Message-ID: <413578C9.8020305@namesys.com>
 
+OK...
 
->>EIP; c022b89e <i830_kernel_lost_context+11/61>   <=====
+One note before replying: current code deadlocks even if you make ->link()
+*ALWAYS* return an error.  It doesn't get to calling the method.  No amount
+of "disallow hard links to <something>" is going to help here, obviously.
 
->>eax; f000e2c3 <pg0+2fbba2c3/3fbaa000>
->>edx; dd6fb280 <pg0+1d2a7280/3fbaa000>
->>esi; c0428280 <i830_device+0/1a80>
->>edi; cd21e000 <pg0+cdca000/3fbaa000>
->>ebp; c042840c <i830_device+18c/1a80>
->>esp; cd21fed0 <pg0+cdcbed0/3fbaa000>
+<quote>
+Cycle detection:
 
-Trace; c022d827 <i830_dma_quiescent+17/a6>
-Trace; c0227df3 <i830_lock+1ff/2a5>
-Trace; c0116d1e <default_wake_function+0/12>
-Trace; c0116d1e <default_wake_function+0/12>
-Trace; c0227b7e <i830_ioctl+cf/145>
-Trace; c0166a16 <sys_ioctl+113/281>
-Trace; c010411f <syscall_call+7/b>
+We should either 1) make hard links only link to the file aspect of the
+file-directory duality, and persons who want to link to the directory
+aspect must use symlinks (best short term answer), or 2) ask Alexander
+Smith to help us with applying his cycle detection algorithm and gain
+the benefit of being able to hard link to directories (if it works well,
+best long term answer).
+</quote>
 
-Code;  c022b89e <i830_kernel_lost_context+11/61>
-00000000 <_EIP>:
-Code;  c022b89e <i830_kernel_lost_context+11/61>   <=====
-   0:   8b 40 10                  mov    0x10(%eax),%eax   <=====
-Code;  c022b8a1 <i830_kernel_lost_context+14/61>
-   3:   8b 90 34 20 00 00         mov    0x2034(%eax),%edx
-Code;  c022b8a7 <i830_kernel_lost_context+1a/61>
-   9:   81 e2 fc ff 1f 00         and    $0x1ffffc,%edx
-Code;  c022b8ad <i830_kernel_lost_context+20/61>
-   f:   89 51 14                  mov    %edx,0x14(%ecx)
-Code;  c022b8b0 <i830_kernel_lost_context+23/61>
-  12:   8b 43 00                  mov    0x0(%ebx),%eax
+... which doesn't address the problem at all.  The question is what to do
+with seeing directory "aspect..." in more than one place when we have many
+links to file in question.  So much for (1).  And (2) is not feasible with
+on-disk fs both due to memory, CPU and IO costs _and_ due to exclusion from
+hell you'll need to make it safe.
 
--- 
-Mihai RUSU                                    Email: dizzy@roedu.net
-GPG : http://dizzy.roedu.net/dizzy-gpg.txt    WWW: http://dizzy.roedu.net
-                       "Linux is obsolete" -- AST
+Re: ambiguity - lots and lots of handwaving on both sides.  FWIW, I agree
+with Hans in one (and only one) respect here - openat() as a primary API
+(and not a convenient libc function) is an atrocity.  Simply because it
+doesn't address operations beyond open (unlinkat(2), anyone?).
+
+However, I still haven't seen any strong arguments for need of this "metas"
+stuff _or_ the need to export mode/ownership as files, both for regular
+files and for directories.  Aside of "we can do that" [if we solve the
+locking issues] and "xattrs are atrocious" [yes, they are; it doesn't make
+alternative mechanism any better] there was nothing that even pretended to
+be a technical reason.
+
+Note that we also have fun issues with device nodes (Linus' "show partitions"
+vs. "show metadata from hosting filesystem"), which makes it even more dubious.
+We also have symlinks to deal with (do they have attributes?  where should
+that be exported?).
+
+Reserved names have one more problem: to be useful, they'd have to be
+hardcoded into applications.  And that will create hell with use of
+such applications on existing filesystems.  Again, no feasible scheme
+to deal with that in userland code had been proposed so far, AFAICS.
+
+Locking: see above - links to regular files would create directories seen
+in many places.  With all related issues...

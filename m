@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264632AbUD1DbE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264627AbUD1Djk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264632AbUD1DbE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 23:31:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264634AbUD1DbD
+	id S264627AbUD1Djk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 23:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264633AbUD1Djk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 23:31:03 -0400
-Received: from mail.kroah.org ([65.200.24.183]:53448 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264632AbUD1Dar (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 23:30:47 -0400
-Date: Tue, 27 Apr 2004 20:30:20 -0700
-From: Greg KH <greg@kroah.com>
-To: Michael Brown <Michael_E_Brown@Dell.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, mebrown@michaels-house.net
+	Tue, 27 Apr 2004 23:39:40 -0400
+Received: from adsl-67-65-14-122.dsl.austtx.swbell.net ([67.65.14.122]:32721
+	"EHLO laptop.michaels-house.net") by vger.kernel.org with ESMTP
+	id S264627AbUD1Dji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 23:39:38 -0400
 Subject: Re: [BK PATCH] add SMBIOS tables to sysfs
-Message-ID: <20040428033020.GA14078@kroah.com>
+From: Michael Brown <Michael_E_Brown@Dell.com>
+Reply-To: Michael_E_Brown@Dell.com
+To: Greg KH <greg@kroah.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20040428033020.GA14078@kroah.com>
 References: <1083119269.1203.2821.camel@debian>
+	 <20040428033020.GA14078@kroah.com>
+Content-Type: text/plain
+Organization: Dell Inc
+Message-Id: <1083123515.1203.2826.camel@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1083119269.1203.2821.camel@debian>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 27 Apr 2004 22:38:35 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 27, 2004 at 09:27:49PM -0500, Michael Brown wrote:
-> Andrew,
-> 	Below is a short patch to add SMBIOS data to sysfs. It it against latest
-> bitkeeper 2.6.6-rc (specifically, it applies after the efivars patch that
-> recently went in) but should apply to any recent kernel with only minor 
-> reject on drivers/firmware/Makefile. A version for 2.4 (using /proc) will
-> follow tomorrow.
+On Tue, 2004-04-27 at 22:30, Greg KH wrote:
+> Nice idea and patch.  A few minor comments:
 
-Nice idea and patch.  A few minor comments:
+Thank you.
 
-> /sys/firmware/smbios/smbios/table_entry_point
-> /sys/firmware/smbios/smbios/table
+> 
+> > /sys/firmware/smbios/smbios/table_entry_point
+> > /sys/firmware/smbios/smbios/table
+> 
+> Why repeat the "smbios" directory?  Is this a limitation in the sysfs
+> interface right now?  Or are you going to put more files in the main
+> smbios directory some day?
 
-Why repeat the "smbios" directory?  Is this a limitation in the sysfs
-interface right now?  Or are you going to put more files in the main
-smbios directory some day?
+>From what I could tell (please correct me if I am wrong), you can add
+only subsystems to the firmware directory. The first "smbios" is for the
+subsystem. Then, you can only add devices to the subsystem. The second
+"smbios" is for the device.
 
-> +	snprintf(sdev->kobj.name, 7, "smbios" );
+I really would like to get rid of one myself, but it was not obvious to
+me how to do this. No, I do not plan on adding new objects in there.
 
-Try using kobject_set_name() instead, it will do the proper thing if the
-string is bigger than the base kobj.name field.
+> 
+> > +	snprintf(sdev->kobj.name, 7, "smbios" );
+> 
+> Try using kobject_set_name() instead, it will do the proper thing if the
+> string is bigger than the base kobj.name field.
 
-thanks,
+Ok, thanks.
+Thanks,
+Michael
 
-greg k-h

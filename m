@@ -1,82 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129078AbRCEIvm>; Mon, 5 Mar 2001 03:51:42 -0500
+	id <S129116AbRCEJkk>; Mon, 5 Mar 2001 04:40:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129111AbRCEIvc>; Mon, 5 Mar 2001 03:51:32 -0500
-Received: from smtpde03.sap-ag.de ([194.39.131.54]:18344 "EHLO
-	smtpde03.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129078AbRCEIvP>; Mon, 5 Mar 2001 03:51:15 -0500
-From: Christoph Rohland <cr@sap.com>
-To: Matt_Domsch@Dell.com
-Cc: linux-kernel@vger.kernel.org, R.E.Wolff@BitWizard.nl, fluffy@snurgle.org
-Subject: Re: 2.4 and 2GB swap partition limit
-In-Reply-To: <CDF99E351003D311A8B0009027457F1403BF9E09@ausxmrr501.us.dell.com>
-Organisation: SAP LinuxLab
-Date: 05 Mar 2001 09:58:00 +0100
-In-Reply-To: <CDF99E351003D311A8B0009027457F1403BF9E09@ausxmrr501.us.dell.com>
-Message-ID: <m3n1b0h9t3.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+	id <S129131AbRCEJka>; Mon, 5 Mar 2001 04:40:30 -0500
+Received: from 4dyn174.delft.casema.net ([195.96.105.174]:27153 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S129116AbRCEJkS>; Mon, 5 Mar 2001 04:40:18 -0500
+Message-Id: <200103050940.KAA21120@cave.bitwizard.nl>
+Subject: Re: kmalloc() alignment
+In-Reply-To: <E14Zh5G-0005tP-00@the-village.bc.nu> from Alan Cox at "Mar 4, 2001
+ 10:34:31 pm"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 5 Mar 2001 10:40:05 +0100 (MET)
+CC: Kenn Humborg <kenn@linux.ie>, Linux-Kernel <linux-kernel@vger.kernel.org>
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matt,
+Alan Cox wrote:
+> > Does kmalloc() make any guarantees of the alignment of allocated
+> > blocks?  Will the returned block always be 4-, 8- or 16-byte
+> > aligned, for example?
+ 
+> There are people who assume 16byte alignment guarantees. I dont
+> think anyone has formally specified the guarantee beyond 4 bytes tho
 
-On Sun, 4 Mar 2001, Matt Domsch wrote:
-> My concern is that if there continues to be a 2GB swap
-> partition/file size limitation, and you can have (as currently
-> #defined) 8 swap partitions, you're limited to 16GB swap, which then
-> follows a max of 8GB RAM.  We'd like to sell servers with 32GB or
-> 64GB RAM to customers who request such for their applications.  Such
-> customers generally have no problem purchasing additional disks to
-> be used for swap, likely on a hardware RAID controller.
+What does "formally specified" mean? 
 
-I did think about that too and I also think the 2GB limit is not
-appropriate for the big servers. But I do not beleive that you need so
-much swap on these machines. If you drive a 32 GB machine so heavily
-into swap it is more busy finding the pages to swap than doing
-anything really interesting. (At least that's my experience)
+As far as I know, you can count on 16-bytes alignment from
+kmalloc. The trouble is that you would have to keep the original
+pointer and free that if you have to do the "round" yourself. 
 
-BTW often these big servers run databases and application servers
-which have most of their memory in shared memory. Shared memory does
-free the swap entries on swapin. (I thought about changing that but as
-long as we have no garbage collection for idle swap entries I will not
-do it)
+I once wrote a kmalloc(*) that would allow you to free any pointer
+inside the kmalloc-ed area. This is dangerous as freeing a random
+pointer is more likely to "work". But in this case it would be very
+convenient.
 
-On any loaded server you have to check the swap space requirements
-regularly and adjust to your needs. But to setup more than let's
-say 8GB swap is a waste of resource IMHO.
+			Roger.
 
-> We've also seen (anecdotal evidence here) cases where a kernel
-> panics, which we believe may have to do with having 0 < swap < 2x
-> RAM.  We're investigating further.
+(*) Too buggy for anyone but me. 
 
-That would be a kernel bug which should be fixed. The kernel should
-handle oom/oos.
-
->> Actually the deal is: either use enough swap (about 2x RAM) or use
->> none at all. 
-> 
-> If swap space isn't required in all cases, great!  We'll encourage
-> the use of swap files as needed, rather than swap partitions.  But,
-> if instead you *require* swap = 2x RAM, then the 2GB swap size
-> limitation must go.
-
-No it is not strictly required.
-
-But still the 2GB limit is annoying and together with the
-arch-independent maximum number of swap partitions/files it is pretty
-dumb. 
-
-So I would propose to first make a small patch to make MAX_SWAPFILES
-arch-dependent and bigger. (x86 would allow a muc higher
-MAX_SWAPFILES)
-
-For 2.5 we could perhaps think about a new swapfile layout which
-allows bigger partitions.
-
-Greetings
-		Christoph
-
-
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

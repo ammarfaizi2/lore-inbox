@@ -1,41 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286322AbSCFANg>; Tue, 5 Mar 2002 19:13:36 -0500
+	id <S290806AbSCFAOG>; Tue, 5 Mar 2002 19:14:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290806AbSCFANd>; Tue, 5 Mar 2002 19:13:33 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48650 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286322AbSCFANT>; Tue, 5 Mar 2002 19:13:19 -0500
-Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
-To: aia21@cam.ac.uk (Anton Altaparmakov)
-Date: Wed, 6 Mar 2002 00:27:39 +0000 (GMT)
-Cc: dalecki@evision-ventures.com (Martin Dalecki),
-        zwane@linux.realnet.co.sz (Zwane Mwaikambo),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <5.1.0.14.2.20020305122312.026b9180@pop.cus.cam.ac.uk> from "Anton Altaparmakov" at Mar 05, 2002 12:36:54 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S290946AbSCFAN7>; Tue, 5 Mar 2002 19:13:59 -0500
+Received: from dsl-213-023-039-135.arcor-ip.net ([213.23.39.135]:7587 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S290806AbSCFANu>;
+	Tue, 5 Mar 2002 19:13:50 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>, arjan@fenrus.demon.nl
+Subject: Re: 2.4.19pre1aa1
+Date: Wed, 6 Mar 2002 01:09:20 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L.0203050934340.1413-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.44L.0203050934340.1413-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16iPHQ-0004sL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16iOzg-0002qI-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> At 11:48 05/03/02, Martin Dalecki wrote:
-> >5. No body is using it as of now and therefore nobody should miss it.
+On March 5, 2002 01:41 pm, Rik van Riel wrote:
+> On Tue, 5 Mar 2002 arjan@fenrus.demon.nl wrote:
+> > In article <20020305005215.U20606@dualathlon.random> you wrote:
+> >
+> > > I don't see how per-zone lru lists are related to the kswapd deadlock.
+> > > as soon as the ZONE_DMA will be filled with filedescriptors or with
+> > > pagetables (or whatever non pageable/shrinkable kernel datastructure you
+> > > prefer) kswapd will go mad without classzone, period.
+> >
+> > So does it with class zone on a scsi system....
 > 
-> That is a very bold statement which is incorrect. I remember reading at 
-> least one post to lkml from a company who is using the Taskfile ioctls and 
+> Furthermore, there is another problem which is present in
+> both 2.4 vanilla, -aa and -rmap.
+> 
+> Suppose that (1) we are low on memory in ZONE_NORMAL and
+> (2) we have enough free memory in ZONE_HIGHMEM and (3) the
+> memory in ZONE_NORMAL is for a large part taken by buffer
+> heads belonging to pages in ZONE_HIGHMEM.
+> 
+> In that case, none of the VMs will bother freeing the buffer
+> heads associated with the highmem pages and kswapd will have
+> to work hard trying to free something else in ZONE_NORMAL.
+> 
+> Now before you say this is a strange theoretical situation,
+> I've seen it here when using highmem emulation. Low memory
+> was limited to 30 MB (16 MB ZONE_DMA, 14 MB ZONE_NORMAL)
+> and the rest of the machine was HIGHMEM.  Buffer heads were
+> taking up 8 MB of low memory, dcache and inode cache were a
+> good second with 2 MB and 5 MB respectively.
+> 
+> 
+> How to efficiently fix this case ?   I wouldn't know right now...
+> However, I guess we might want to come up with a fix because it's
+> a quite embarassing scenario ;)
 
-I know several people using them, and for some ioctl operations they are
-required. In fact without taskfile ioctl stuff I can't make my laptop resume
-correctly for example. (it needs proper drive please wake up sequences to
-go the ibm microdrive)
+There's the short term fix - hack the vm - and the long term fix:
+get rid of buffers.  A buffers are does three jobs at the moment:
 
-At this point I think you've overstepped the mark. The taskfile stuff is
-rather important. If you don't understand why please read the ATA6 standard
-and look at the sequence of phases. Think of it as a scsi sequencer in 
-kernel space because the hardware isnt bright enough to do it.
+  1) cache the physical block number
+  2) io handle for a file block
+  3) data handle for a file block, including locking
 
-Alan
+The physical block number could be moved either into the struct
+page - which desireable since it wastes space for pages that don't
+have physical blocks - or my preferred solution, move it into the
+page cache radix tree.
+
+For (2) we have a whole flock of solutions on the way.  I guess
+bio does the job quite nicely as Andrew Morton demonstrated last
+week.
+
+For (3), my idea is to generalize the size of the object referred
+to by struct page so that it can match the filesystem block size.
+This is still in the research stage, and there are a few issues I'm
+looking at, but the more I look the more practical it seems.  How
+nice it would be to get rid of the page->buffers->page tangle, for
+one thing.
+
+--
+Daniel

@@ -1,59 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283057AbRLOSAH>; Sat, 15 Dec 2001 13:00:07 -0500
+	id <S282907AbRLOR51>; Sat, 15 Dec 2001 12:57:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283114AbRLOR77>; Sat, 15 Dec 2001 12:59:59 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:23434 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S283057AbRLOR7w>; Sat, 15 Dec 2001 12:59:52 -0500
-Date: Sat, 15 Dec 2001 18:59:38 +0100
-From: Marc Schiffbauer <marc.schiffbauer@links2linux.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Compiling 2.4.16 kernel with sound support
-Message-ID: <20011215175938.GB11441@links2linux.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011215184755.1633ef56.tsauter@gmx.net>
+	id <S283055AbRLOR5L>; Sat, 15 Dec 2001 12:57:11 -0500
+Received: from pop.gmx.net ([213.165.64.20]:48676 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S282907AbRLOR4w>;
+	Sat, 15 Dec 2001 12:56:52 -0500
+Date: Sat, 15 Dec 2001 18:56:43 +0100
+From: Rene Rebe <rene.rebe@gmx.net>
+To: Jurij Smakov <jurij.smakov@telia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PDC20265 IDE controller trouble
+Message-Id: <20011215185643.252d5547.rene.rebe@gmx.net>
+In-Reply-To: <Pine.GHP.4.43.0112151828220.9103-100000@bobcat>
+In-Reply-To: <Pine.GHP.4.43.0112151828220.9103-100000@bobcat>
+Organization: FreeSourceCommunity ;-)
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011215184755.1633ef56.tsauter@gmx.net>
-User-Agent: Mutt/1.3.24i
-X-Operating-System: Linux 2.4.16 i586
-X-Editor: VIM 6.0
-X-Homepage: http://www.links2linux.de
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Thorsten Sauter schrieb am 15.12.01 um 18:47 Uhr:
+Hi.
+
+This is on a AMD K6-2 350Mhz, 128MB RAM, on a Ali Aladin5 based Gigabyte board
+3x IBM DTLA 40GB discs on a Promisse TX2 Ultra 100 in a PCI slot.
+
+Single transfer to one disk:
+server1:~ # hdparm -tT /dev/ide/host2/bus0/target0/lun0/disc
+
+/dev/ide/host2/bus0/target0/lun0/disc:
+ Timing buffer-cache reads:   128 MB in  2.12 seconds = 60.38 MB/sec
+ Timing buffered disk reads:  64 MB in  2.86 seconds = 22.38 MB/sec
+
+Dual transfer to disks on sperated channels (values per disk):
+server1:~ # hdparm -tT /dev/ide/host2/bus0/target0/lun0/disc
+
+/dev/ide/host2/bus0/target0/lun0/disc:
+ Timing buffer-cache reads:   128 MB in  4.13 seconds = 30.99 MB/sec
+ Timing buffered disk reads:  64 MB in  4.66 seconds = 13.73 MB/sec
+
+Dual transfer to disks on the same channel (values per dics):
+server1:~ # hdparm -tT /dev/ide/host2/bus0/target1/lun0/disc
+
+/dev/ide/host2/bus0/target1/lun0/disc:
+ Timing buffer-cache reads:   128 MB in  4.44 seconds = 28.83 MB/sec
+ Timing buffered disk reads:  64 MB in  8.36 seconds =  7.66 MB/sec
+
+Hey! This might be the cause for the slowdown I reported in another
+Raid5 / ReiserFS thread!!
+
+Is this an general IDE issue or is some queueing code in the kernel
+rather bad/slow for this task???
+
+On Sat, 15 Dec 2001 18:35:29 +0100 (MET)
+Jurij Smakov <jurij.smakov@telia.com> wrote:
+
+> Hi!
 > 
-> Hallo Kernel-List,
+> Recently I've got an Asus TUSL2 motherboard, which has an extra Promise
+> IDE RAID controller with a PDC20265 chip. I've connected two IBM 60 GB
+> disks to it (one disk per channel). I am using kernel 2.4.17-pre8
+> (with CONFIG_BLK_DEV_PDC202XX=y and with/without CONFIG_PDC202XX_BURST=y),
+> which nicely detects the extra controller and both disks, hde and hdg. If
+> I test the writing and reading speed (hdparm -t, dd if=/dev/zero of=test
+> ...) separately for each disk, I get the expected figures, like 36-37
+> MB/sec for reading, about 30 MB/sec for writing. If, however, I try to
+> write simultaneously to both disks, the performance drops drastically. The
+> rate for writing is then something like 3.5 MB/sec (!). I wonder if anyone
+> have seen anything like that or might have any ideas on how to solve the
+> problem.
 > 
-> I have big problems with sound support in 2.4.16. I just download the tarball and untar it.
-> If I make now a simple "make dep && make clean && make bzImage" everthink works fine.
+> Suspecting the hardware, I've posted this message to
+> comp.os.linux.hardware first, but no one have seen such a behaviour. I
+> have also tried different sets of IDE cables.
 > 
-> But after including any sound stuff, the linker always print an error and exit. :(
-> After I remove the previous select sound staff, the kernel compile cleanly.
-> 
-> The base distri is the current debian sid (apt update today). Here are some environment infos:
-> Distri: Debian Sid (i386)
-> GCC Version: 2.95.4
-> LD Version: 2.11.92.0.12.3
-> 
-> if you need more infos please let me know.
+> Best regards and TIA,
 > 
 > 
-[error output]
+> Jurij.
+> 
+> P.S. Please cc responses to me, because I'm not on the list.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
-Did you try a "make mrproper" before doing the make
-dep/clean/bzImage ?
 
-(backup your .config before makeing mrproper...)
-
--Marc
+k33p h4ck1n6
+  René
 
 -- 
-|             ...and don't forget: Linux rulez!                    |
-|                                                                  |
-| http://www.links2linux.de <-- Von Linux-Usern fuer Linux-User    |
+René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
 
+eMail:    rene.rebe@gmx.net
+          rene@rocklinux.org
+
+Homepage: http://www.tfh-berlin.de/~s712059/index.html
+
+Anyone sending unwanted advertising e-mail to this address will be
+charged $25 for network traffic and computing time. By extracting my
+address from this message or its header, you agree to these terms.

@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbUDEK0b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 06:26:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbUDEK0Z
+	id S261168AbUDEK2U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 06:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbUDEK2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 06:26:25 -0400
-Received: from mailbox.leidenuniv.nl ([132.229.102.4]:59595 "EHLO
-	mailbox.leidenuniv.nl") by vger.kernel.org with ESMTP
-	id S261455AbUDEK0T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 06:26:19 -0400
-From: Willem de Bruijn <wdebruij@dds.nl>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][MINOR] define default SEEK_SET, SEEK_CUR and SEEK_END
-Date: Mon, 5 Apr 2004 10:27:12 +0000
-User-Agent: KMail/1.6.1
+	Mon, 5 Apr 2004 06:28:20 -0400
+Received: from painless.aaisp.net.uk ([217.169.20.17]:29861 "EHLO
+	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S261168AbUDEK0s
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 06:26:48 -0400
+Message-ID: <40713681.6060308@rgadsdon2.giointernet.co.uk>
+Date: Mon, 05 Apr 2004 11:35:45 +0100
+From: Robert Gadsdon <robert@rgadsdon2.giointernet.co.uk>
+Reply-To: rgadsdon2@netscape.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.7b) Gecko/20040320
+X-Accept-Language: en-gb, en, en-us
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5 - panic when intensive disk access on 120GB firewire disk
+References: <40706EA2.7040900@rgadsdon2.giointernet.co.uk> <200404042356.21109.dtor_core@ameritech.net>
+In-Reply-To: <200404042356.21109.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404051027.13149.wdebruij@dds.nl>
-X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this is a very minor patch to include the various llseek SEEK macro's into 
-linux/fs.h
+This fixes the problem on my system.  All I get is a couple of
+'ieee1394: unsolicited response packet received - no tlabel match'
+messages on the console.
 
-perhaps there's a reason this hasn't been included yet, but a simple grep 
-showed me that I'm not the only one defining these in my drivers (which IMHO 
-is bad). I simply copied these lines from libc's fnctl.h, including the 
-original commentary. 
+Many thanks.
 
-By the way, can someone tell me if I should cc: these minor patches to a 
-specific maintainer? 
+Robert Gadsdon.
 
--- 
-Willem de Bruijn
-+31 6 2695 2446
-+31 71 517 7174
-wdebruij_at_dds.nl
-http://www.wdebruij.dds.nl/
-
-current project : 
-Fairly Fast Packet Filter (FFPF)
-http:/ffpf.sourceforge.net/
-
---- start of patch ---
-
-diff -Nur linux-2.6.5-orig/include/linux/fs.h linux-2.6.5/include/linux/fs.h
---- linux-2.6.5-orig/include/linux/fs.h	2004-04-05 10:05:20.000000000 +0000
-+++ linux-2.6.5/include/linux/fs.h	2004-04-05 10:08:54.934203912 +0000
-@@ -87,6 +87,10 @@
- #define SEL_OUT		2
- #define SEL_EX		4
- 
-+#define SEEK_SET	0	/* Seek from beginning of file.  */
-+#define SEEK_CUR	1	/* Seek from current position.  */
-+#define SEEK_END	2	/* Seek from end of file.  */
-+
- /* public flags for file_system_type */
- #define FS_REQUIRES_DEV 1 
- #define FS_BINARY_MOUNTDATA 2
-
--- 
-Dit bericht is gescand op virussen en andere gevaarlijke inhoud door ULCN MailScanner en het bericht lijkt schoon te zijn.
-This message has been scanned for viruses and dangerous content by ULCN MailScanner, and is believed to be clean.
+Dmitry Torokhov wrote:
+> On Sunday 04 April 2004 03:22 pm, Robert Gadsdon wrote:
+> 
+>>Kernel panic from 2.6.5 'final' when running slocate (updatedb) 
+>>accessing 120GB firewire disk:
+>>
+>>Oops: 00002 [#1]
+>>PREEMPT SMP
+>>CPU: 0
+>>EIP: 0060:[<f8a10a27>]  Not tainted
+>>EFLAGS: 00010047 (2.6.5)
+>>EIP is at hpsb_packet_sent+0x27/0x90 [ieee1394]
+> 
+> 
+> Could you please try the patch below.
+> 
+> Thank you.
 

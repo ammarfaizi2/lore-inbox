@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269879AbUJGWqX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268166AbUJGWP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269879AbUJGWqX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 18:46:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269856AbUJGWVP
+	id S268166AbUJGWP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 18:15:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269851AbUJGWNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 18:21:15 -0400
-Received: from ts2-075.twistspace.com ([217.71.122.75]:44473 "EHLO entmoot.nl")
-	by vger.kernel.org with ESMTP id S269854AbUJGWUm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:20:42 -0400
-Message-ID: <000901c4acc4$26404450$161b14ac@boromir>
-From: "Martijn Sipkema" <msipkema@sipkema-digital.com>
-To: "David S. Miller" <davem@davemloft.net>,
-       "Chris Friesen" <cfriesen@nortelnetworks.com>
-Cc: <hzhong@cisco.com>, <jst1@email.com>, <linux-kernel@vger.kernel.org>,
-       <alan@lxorguk.ukuu.org.uk>, <davem@redhat.com>
-References: <00e501c4ac9a$556797d0$b83147ab@amer.cisco.com><41658C03.6000503@nortelnetworks.com><015f01c4acbe$cf70dae0$161b14ac@boromir><4165B9DD.7010603@nortelnetworks.com> <20041007150035.6e9f0e09.davem@davemloft.net>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Date: Fri, 8 Oct 2004 00:19:52 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+	Thu, 7 Oct 2004 18:13:36 -0400
+Received: from mailfe07.swip.net ([212.247.154.193]:26584 "EHLO
+	mailfe07.swip.net") by vger.kernel.org with ESMTP id S269845AbUJGWI4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 18:08:56 -0400
+X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
+Date: Fri, 8 Oct 2004 00:08:51 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       sebastien.hinderer@libertysurf.fr
+Subject: Re: [Patch] new serial flow control
+Message-ID: <20041007220851.GD2296@bouh.is-a-geek.org>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Chuck Ebbert <76306.1226@compuserve.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	sebastien.hinderer@libertysurf.fr
+References: <200410051249_MC3-1-8B8B-5504@compuserve.com> <20041005172522.GA2264@bouh.is-a-geek.org> <1097176130.31557.117.camel@localhost.localdomain> <20041007212722.G8579@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041007212722.G8579@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.6i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "David S. Miller" <davem@davemloft.net>
-> On Thu, 07 Oct 2004 15:49:17 -0600
-> Chris Friesen <cfriesen@nortelnetworks.com> wrote:
-> 
-> > In this case, select() returns with the socket readable, we call recvmsg() and 
-> > discover the message is corrupt.  At this point we throw away the corrupt 
-> > message, so we now have no data waiting to be received.  We return EAGAIN, and 
-> > userspace goes merrily on its way, handling anything else in its loop, then 
-> > going back to select().
-> 
-> Incorrect.  When the user specifies blocking on the file descriptor
-> we must give it what it asked for.  -EAGAIN on a blocking file descriptor
-> is always a bug, in all situations, that's what this code used to do and we
-> fixed it because it's a bug.
+Le jeu 07 oct 2004 à 21:27:22 +0100, Russell King a écrit:
+> I can't help but wonder whether moving some of the usual modem line
+> status change processing should also be moved into the higher levels.
 
-So why not return EIO instead? It would be even better to have select()
-validate the data, but I think returning EIO is better than blocking and most
-likely POSIX compliant.
+The more I'm thinking about it, the more I think it's not a good idea:
+that would require *every* line discipline to implement hardware flow
+control (just like xon/xoff), while I think they shouldn't really care
+about it.
 
+The asynchronous ppp ldisc for instance can be used on a serial line,
+but can very well be used on a ssh tunnel (in which case rts/cts flow
+control has no meaning).
 
---ms
+I can understand that xon/xoff processing be implemented in ldiscs
+since it is characters stuff, but one can't ask the ldisc to know
+details about hardware flow control which depends on the tty it is
+used on.
 
+Regards,
+Samuel Thibault

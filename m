@@ -1,68 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267493AbUBSTUD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 14:20:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267495AbUBSTSr
+	id S267495AbUBSTZl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 14:25:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267492AbUBSTZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 14:18:47 -0500
-Received: from mail.kroah.org ([65.200.24.183]:52367 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267493AbUBSTSD (ORCPT
+	Thu, 19 Feb 2004 14:25:40 -0500
+Received: from ns.suse.de ([195.135.220.2]:49354 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267495AbUBSTYt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 14:18:03 -0500
-Date: Thu, 19 Feb 2004 11:13:15 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 018 release
-Message-ID: <20040219191315.GB10527@kroah.com>
-References: <20040219185932.GA10527@kroah.com>
+	Thu, 19 Feb 2004 14:24:49 -0500
+Date: Fri, 20 Feb 2004 17:13:37 +0100
+From: Andi Kleen <ak@suse.de>
+To: Tony Lindgren <tony@atomide.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Intel x86-64 support patch breaks amd64
+Message-Id: <20040220171337.10cd1ae8.ak@suse.de>
+In-Reply-To: <20040219183448.GB8960@atomide.com>
+References: <20040219183448.GB8960@atomide.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040219185932.GA10527@kroah.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 10:59:32AM -0800, Greg KH wrote:
-> I've released the 018 version of udev.  It can be found at:
->  	kernel.org/pub/linux/utils/kernel/hotplug/udev-018.tar.gz
+On Thu, 19 Feb 2004 10:34:49 -0800
+Tony Lindgren <tony@atomide.com> wrote:
 
-As of this release, I've been running with udev managing my /dev for me
-exclusively on my main email and development machine.  This is a major
-milestone for udev and it proves that it is a viable solution.
+> I guess you probably already know about this, but the recent changeset
+> 1.1561.1.1 breaks compiling and booting for amd64.
 
-I'd like to say thanks to everyone who has made this possible to do:
-	- Pat Mochel for creating sysfs and listening to my crazy ideas
-	  about how we could create a userspace devfs all those years
-	  ago.
-	- Dan Stekloff for prodding me to actually implement this crazy
-	  idea and who came up with a solid initial design document,
-	  without which this project would have never left the dream
-	  stage.
-	- Kay Sievers for almost single-handedly taking over the whole
-	  udev TODO list and converting udev from a small "proof of
-	  concept" toy into a powerful and useful tool.
-	- Pat Mansfield for creating the scsi_id tool and enabling udev
-	  to call external programs, which instantly made udev a real
-	  tool in the fine Unix tradition.
-	- All of the Gentoo developers who integrated udev into their
-	  distro and showed me that it can actually run a machine.
-	- everyone who has sent in udev patches, bug reports, and
-	  feature requests.  Without these udev would only work for me,
-	  and not the rest of the world.  A community is very important.
-	- the distros for picking up udev without me having to beg :)
-	- everyone else who I know I've forgotten...
+You need the appended patch to build on Uni Processor again. I already
+submitted it to Linus, but he doesn't seem to have merged it yet
+(or alternatively compile for SMP) 
 
-udev development isn't done, but for anyone who has not checked it out
-yet, I suggest you do so.  I'll post a small HOWTO that shows how to
-configure udev to manage your /dev without any problems or legacy issues
-(the 2.4 kernel will still work just fine on the same box.)
+> After #if 0 out some parts to make it compile, it fails to boot with no
+> output at all. Sorry, don't have low level debugging or serial console on 
+> this machine configured, let me know if you need further information.
 
-If anyone has any suggestions for things that are lacking in udev,
-please let me and the linux-hotplug-devel mailing list.  This especially
-goes for any distro developers who are trying to integrate it into their
-systems.
+It works for me with this patch both UP and SMP. Maybe you commented out 
+too much? 
 
-thanks again,
+-Andi
 
-greg k-h
+diff -u linux-2.6.3/arch/x86_64/kernel/setup.c-o linux-2.6.3/arch/x86_64/kernel/setup.c
+--- linux-2.6.3/arch/x86_64/kernel/setup.c-o	2004-02-19 09:01:09.000000000 +0100
++++ linux-2.6.3/arch/x86_64/kernel/setup.c	2004-02-19 09:09:27.000000000 +0100
+@@ -588,6 +588,7 @@
+ 
+ static void __init detect_ht(void)
+ {
++#ifdef CONFIG_SMP
+ 	extern	int phys_proc_id[NR_CPUS];
+ 	
+ 	u32 	eax, ebx, ecx, edx;
+@@ -631,6 +632,7 @@
+ 		printk(KERN_INFO  "CPU: Physical Processor ID: %d\n",
+ 		       phys_proc_id[cpu]);
+ 	}
++#endif
+ }
+ 	
+ #define LVL_1_INST	1
+diff -u linux-2.6.3/arch/x86_64/kernel/Makefile-o linux-2.6.3/arch/x86_64/kernel/Makefile
+--- linux-2.6.3/arch/x86_64/kernel/Makefile-o	2004-02-19 09:01:09.000000000 +0100
++++ linux-2.6.3/arch/x86_64/kernel/Makefile	2004-02-19 09:15:41.000000000 +0100
+@@ -33,4 +33,4 @@
+ cpuid-$(subst m,y,$(CONFIG_X86_CPUID))  += ../../i386/kernel/cpuid.o
+ topology-y                     += ../../i386/mach-default/topology.o
+ swiotlb-$(CONFIG_SWIOTLB)      += ../../ia64/lib/swiotlb.o
+-microcode-$(CONFIG_MICROCODE)  += ../../i386/kernel/microcode.o
++microcode-$(subst m,y,$(CONFIG_X86_CPUID))  += ../../i386/kernel/microcode.o
+diff -u linux-2.6.3/arch/x86_64/kernel/x8664_ksyms.c-o linux-2.6.3/arch/x86_64/kernel/x8664_ksyms.c
+--- linux-2.6.3/arch/x86_64/kernel/x8664_ksyms.c-o	2004-02-19 09:01:09.000000000 +0100
++++ linux-2.6.3/arch/x86_64/kernel/x8664_ksyms.c	2004-02-19 09:08:04.000000000 +0100
+@@ -194,7 +194,9 @@
+ 
+ EXPORT_SYMBOL(die_chain);
+ 
++#ifdef CONFIG_SMP_
+ EXPORT_SYMBOL(cpu_sibling_map);
++#endif
+ 
+ extern void do_softirq_thunk(void);
+ EXPORT_SYMBOL_NOVERS(do_softirq_thunk);

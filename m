@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264372AbTFYBQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 21:16:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264380AbTFYBQz
+	id S263535AbTFYBZn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 21:25:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbTFYBZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 21:16:55 -0400
-Received: from holomorphy.com ([66.224.33.161]:21723 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264372AbTFYBQs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 21:16:48 -0400
-Date: Tue, 24 Jun 2003 18:30:50 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC] My research agenda for 2.7
-Message-ID: <20030625013050.GQ26348@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <200306250111.01498.phillips@arcor.de> <200306250307.18291.phillips@arcor.de> <20030625011031.GP26348@holomorphy.com> <200306250325.47529.phillips@arcor.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200306250325.47529.phillips@arcor.de>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Tue, 24 Jun 2003 21:25:43 -0400
+Received: from user-vc8fdp3.biz.mindspring.com ([216.135.183.35]:57093 "EHLO
+	mail.nateng.com") by vger.kernel.org with ESMTP id S263535AbTFYBZg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 21:25:36 -0400
+X-RAV-AntiVirus: This e-mail has been scanned for viruses on host: mail.nateng.com
+Date: Tue, 24 Jun 2003 18:39:32 -0700 (PDT)
+From: Sir Ace <chandler@nateng.com>
+X-X-Sender: chandler@jordan.eng.nateng.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: i2c BUG  easy fix?
+In-Reply-To: <Pine.LNX.4.53.0306241821230.596@jordan.eng.nateng.com>
+Message-ID: <Pine.LNX.4.53.0306241836510.596@jordan.eng.nateng.com>
+References: <Pine.LNX.4.53.0306241821230.596@jordan.eng.nateng.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 25 June 2003 03:10, William Lee Irwin III wrote:
->> It severely limits its usefulness. Dropping in a more flexible data
->> structure should be fine.
 
-On Wed, Jun 25, 2003 at 03:25:47AM +0200, Daniel Phillips wrote:
-> Eventually it could well make sense to do that, e.g., the radix tree 
-> eventually ought to evolve into a btree of extents (probably).  But making 
-> things so complex in the first version, thus losing much of the incremental 
-> development advantage, would not be smart.  With a single size of page per 
-> address_space,  changes to the radix tree code are limited to a couple of 
-> lines, for example.
-> But perhaps you'd like to supply some examples where more than one size of 
-> page in the same address space really matters?
+It looks like the offending code might be in:
+i2c-algo-bit.c
 
-Software-refill TLB architectures would very much like to be handed the
-largest physically contiguous chunk of memory out of pagecache possible
-and map it out using the fewest number of TLB entries possible. Dropping
-in a B+ tree to replace radix trees should be a weekend project at worst.
-Speculatively allocating elements that are "as large as sane/possible"
-will invariably result in variable-sized elements in the same tree.
+in function:
+static int test_bus(struct i2c_algo_bit_data *adap, char* name) {
 
 
--- wli
+I'm no coder but it looks like it is limited to 4 devices as a hardcode?
+anyone know of a way to do it so that it does:
+
+for x := {n devices} do
+  crap
+
+On Tue, 24 Jun 2003, Sir Ace wrote:
+
+>
+> I have 5 vidcapture cards, all of which show up in /proc/pci
+> Only the first 4 show up in /proc/bus/i2c*
+>
+> I tried this on 2 completely unidentical systems, and both 2.4.21, and
+> 2.4.20
+>
+> I verified that all 5 cards are actually good... {before people start
+> pointing fingers}
+>
+> Where do I need to start looking to fix it?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

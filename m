@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbTEKKoL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 06:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbTEKKVx
+	id S261388AbTEKKvt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 06:51:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbTEKKvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 06:21:53 -0400
-Received: from amsfep11-int.chello.nl ([213.46.243.20]:50221 "EHLO
-	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261218AbTEKKV2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 06:21:28 -0400
-Date: Sun, 11 May 2003 12:30:57 +0200
-Message-Id: <200305111030.h4BAUv9N019652@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] Atafb bug in #if 0 code
+	Sun, 11 May 2003 06:51:48 -0400
+Received: from pat.uio.no ([129.240.130.16]:17113 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261388AbTEKKvk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 06:51:40 -0400
+From: Terje Malmedal <terje.malmedal@usit.uio.no>
+To: arjanv@redhat.com
+Cc: Ahmed Masud <masud@googgun.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jesse Pollard <jesse@cats-chateau.net>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       "viro@parcelfarce.linux.theplanet.co.uk" 
+	<viro@parcelfarce.linux.theplanet.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Terje Eggestad <terje.eggestad@scali.com>
+Subject: Re: The disappearing sys_call_table export.
+References: <Pine.LNX.4.33.0305100957100.23680-100000@marauder.googgun.com>
+	<1052585430.1367.6.camel@laptop.fenrus.com>
+MIME-Version: 1.0
+Message-Id: <E19EoaN-0000OJ-00@aqualene.uio.no>
+Date: Sun, 11 May 2003 13:01:43 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Atafb bug in #if 0 code (from 2.4.x)
 
---- linux-2.5.x/drivers/video/atafb.c	Wed Mar 19 11:00:46 2003
-+++ linux-m68k-2.5.x/drivers/video/atafb.c	Wed Mar 19 11:00:46 2003
-@@ -1193,7 +1193,7 @@
- 	par->HBB = gend2 - par->HHT - 2;
- #if 0
- 	/* One more Videl constraint: data fetch of two lines must not overlap */
--	if (par->HDB & 0x200  &&  par->HDB & ~0x200 - par->HDE <= 5) {
-+	if ((par->HDB & 0x200)  &&  (par->HDB & ~0x200) - par->HDE <= 5) {
- 		/* if this happens increase margins, decrease hfreq. */
- 	}
- #endif
+[Arjan van de Ven]
+> On Sat, 2003-05-10 at 16:38, Ahmed Masud wrote:
+>> Case in point, I wrote a security module for Linux that overrides _all_
+>> 237 systemcalls to audit and control the use of the system calls on a per
+>> uid basis.  (i.e. if the user was actually allowed to make the system call
+>> or not) and return -EPERM or jump to system call proper.
 
-Gr{oetje,eeting}s,
+> I'm pretty sure that auditing by your module can easily be avoided.
 
-						Geert
+> examle: pseudocode for the unlink syscall
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> long your_wrapped_syscall(char *userfilename)
+> {
+>     char kernelpointer[something];
+>     copy_from_user(kernelpointer, usefilename, ...);
+>     audit_log(kernelpointer);
+>     return original_syscall(userfilename);
+> }
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+> now.... the original syscall does ANOTHER copy_from_user().
+> Eg I can easily fool your logging by having a second thread change the
+> filename between the time your code copies it and the time the original
+> syscall copies it again. The chances of getting the timing right are 50%
+> at least (been there done that ;)
+
+> The only solution for this is to check/audit/log things after the ONE
+> copy. Eg not by overriding the syscall but inside the syscall.
+
+just replace 
+     return original_syscall(userfilename);
+with
+     return original_syscall(kernelpointer);
+
+-- 
+ - Terje
+tm@basefarm.no

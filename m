@@ -1,72 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264780AbRF2JZw>; Fri, 29 Jun 2001 05:25:52 -0400
+	id <S265801AbRF2J0w>; Fri, 29 Jun 2001 05:26:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265802AbRF2JZm>; Fri, 29 Jun 2001 05:25:42 -0400
-Received: from [194.128.63.73] ([194.128.63.73]:1873 "EHLO
-	fuspcnjc.culham.ukaea.org.uk") by vger.kernel.org with ESMTP
-	id <S265801AbRF2JZh>; Fri, 29 Jun 2001 05:25:37 -0400
-Message-ID: <3B3C4976.9DFE000D@ukaea.org.uk>
-Date: Fri, 29 Jun 2001 10:25:10 +0100
-From: Neil Conway <nconway.list@ukaea.org.uk>
-Organization: UKAEA Fusion
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.18 i686)
+	id <S265803AbRF2J0m>; Fri, 29 Jun 2001 05:26:42 -0400
+Received: from lsmls01.we.mediaone.net ([24.130.1.20]:63437 "EHLO
+	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S265801AbRF2J0Z>; Fri, 29 Jun 2001 05:26:25 -0400
+Message-ID: <3B3C4A67.1D03A916@kegel.com>
+Date: Fri, 29 Jun 2001 02:29:11 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: mythos <papadako@csd.uoc.gr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problem with Via VT82C686A
-In-Reply-To: <Pine.GSO.4.33.0106290600290.28793-100000@iridanos.csd.uch.gr>
+To: Christopher Smith <x@xman.org>
+CC: "Daniel R. Kegel" <dank@alumni.caltech.edu>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: A signal fairy tale
+In-Reply-To: <5.1.0.14.0.20010629011855.00a98098@imap.xman.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi...
-
-mythos wrote:
+Christopher Smith wrote:
 > 
-> I have installed a second hard drive in my system in the second
-> channel of my controller.But when I try to enable DMA I get:
-> hdc: DMA disabled
-> hdc: timeout waiting for DMA
-> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-> hdc: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-> [snip]
-> I thought that there were problems only with Via VT82C686B.
-> Can anyone please help me?
-> My motherbord is an ASUS K7V with KX133 chipset.
+> At 07:57 PM 6/27/2001 -0700, Daniel R. Kegel wrote:
+> >From: Christopher Smith <x@xman.org>
+> > >I guess the main thing I'm thinking is this could require some significant
+> > >changes to the way the kernel behaves. Still, it's worth taking a "try it
+> > >and see approach". If anyone else thinks this is a good idea I may hack
+> > >together a sample patch and give it a whirl.
+> >
+> >What's the biggest change you see?  From my (two-martini-lunch-tainted)
+> >viewpoint, it's just another kind of signal masking, sorta...
+> 
+> Yeah, the more I think about it, the more I think this is just another
+> branch in the signal delivery code. Not necessarily too huge a change. I'll
+> hack on this over the weekend I think.
 
-Well, I posted a message about three weeks ago "IDE corruption, 2.2, VIA
-chipset in PIO mode" in which I described problems with a VIA 686A + IBM
-75GXP, which occurred in both UDMA and PIO modes.
+Cool, have fun!
 
-I thought Alan Cox's suggestion of cable problems seemed believable at
-the time (and duly performed the brown paper bag).
+Feature checklist for future reference:
 
-But, I've since removed disk+cable and transferred them to a Dell system
-(810 chipset) and really hammered the disk.  I deliberately didn't
-install the (newly arrived) 80-core cables because I wanted to try and
-exonerate the VIA mobo by reproducing the errors on the Dell.
+If sigopen() has been called, and the file descriptor is still open,
+sigaction(x, 0, &foo) should show foo != SIG_DFL for compatibility
+with the traditional signal allocation scheme.
 
->From the buildup, you've probably guessed that I have failed to
-reproduce the error...  Despite a serious workover, no errors
-whatsoever.  (Of course, it might still not be the VIA chipset's fault.)
+If sigopen() has been called, and the file descriptor is still open,
+sending a signal to the thread (or if posix, the process) that called
+sigopen() should cause the signal to stick until picked up by
+read(), or until close() is called on the fd(), in which case it will
+be delivered or picked up as normal.
 
-Due to limited time and the fact that the VIA machines are more or less
-24-hour production boxes, I may not be able to retry the disk+cable on
-the 686A chipset, but the whole experience has soured me on VIA.  Web
-searches with "linux via ide corruption" show scary hit rates.
+sigaction(x, &foo, 0) should return EBUSY if fd=sigopen(x) has been
+called but close(fd) has not yet been called.
 
-Also, the VIA web site has what it laughably bills as fixes for the
-"alleged" 686b problems, but (to paraphrase) it basically says "try
-this, and it should work, but if not then try this, this, this, this,
-and then some unsupported stuff contributed by users...".  Call me a
-pedant if you like, but that isn't language to convince me that they (A)
-understand the problem, (B) have fixed the problem.
+Pseudocode:
 
-Add to that (see Alan's remarks over an extended period) the fact that
-they really don't appear Linux-friendly with regard to providing
-information...  I won't be allowing any more VIA boards on-site.
+  sigemptyset(&s);
+  sigaddset(SIGUSR1, &s);
+  fd=sigopen(&s);
+  m=read(fd, buf, n*sizeof(siginfo_t)) 
+  close(fd);
 
-Neil
+should probably be equivalent to
+
+  sigemptyset(&s);
+  sigaddset(SIGUSR1, &s);
+  struct sigaction newaction, oldaction;
+  newaction.sa_handler = dummy_handler;
+  newaction.sa_flags = SA_SIGINFO;
+  newaction.sa_mask = 0;
+  sigaction(SIGUSR1, &newaction, &oldaction);
+  for (i=0; i<n; i++)
+     if (sigwaitinfo(&s, buf+i))
+        break;
+  m = n * sizeof(siginfo_t);
+  sigaction(SIGUSR1, &oldaction, 0);
+
+(apologies if any of the above is wrong)
+
+But, um, Chris, could you check your library code to make sure you did
+the sigaction stuff?  Could it be that you forgot that, and if you did
+that properly, the main application would notice that you'd allocated
+a signal, and not suck up your signals?
+
+- Dan

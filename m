@@ -1,78 +1,87 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315748AbSEJBGu>; Thu, 9 May 2002 21:06:50 -0400
+	id <S315750AbSEJBSg>; Thu, 9 May 2002 21:18:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315750AbSEJBGt>; Thu, 9 May 2002 21:06:49 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:45500 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S315748AbSEJBGs>; Thu, 9 May 2002 21:06:48 -0400
-Date: Fri, 10 May 2002 03:06:45 +0200
-From: Andi Kleen <ak@muc.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.14 IDE 56
-Message-ID: <20020510030645.A2922@averell>
-In-Reply-To: <3CD9E8A7.D524671D@zip.com.au> <5.1.0.14.2.20020509193347.02ff6dc8@mira-sjcm-3.cisco.com> <3CDAC4EB.FC4FE5CF@zip.com.au> <m31yck9700.fsf@averell.firstfloor.org> <3CDB18CF.82DD6D6B@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S315751AbSEJBSf>; Thu, 9 May 2002 21:18:35 -0400
+Received: from firewall.teleholding.com ([64.46.90.130]:33012 "EHLO
+	mail.teleholding.com") by vger.kernel.org with ESMTP
+	id <S315750AbSEJBSe> convert rfc822-to-8bit; Thu, 9 May 2002 21:18:34 -0400
+Message-ID: <3CDB1FFD.90703@teleholding.com>
+Date: Thu, 09 May 2002 20:18:53 -0500
+From: Henrik Mitsch <hmitsch@teleholding.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Henrik Mitsch <hmitsch@teleholding.com>
+Subject: kernel panic, 2.4.7 (Redhat 7.2) and i don't know why
+X-MIMETrack: Itemize by SMTP Server on thserver/Teleholding(Release 5.0.9a |January 7, 2002) at
+ 05/09/2002 08:27:35 PM,
+	Serialize by Router on thserver/Teleholding(Release 5.0.9a |January 7, 2002) at
+ 05/09/2002 08:27:41 PM
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 10, 2002 at 02:48:15AM +0200, Andrew Morton wrote:
-> Andi Kleen wrote:
-> > 
-> > Andrew Morton <akpm@zip.com.au> writes:
-> > 
-> > > For bulk read() and write() I/O the best sized buffer is 8 kbytes.  4k is
-> > > pretty good, too.  Anything larger blows the user-side buffer out of L1.
-> > > This is for x86.
-> > 
-> > Modern x86 support prefetch hints for the CPU to tell it to not
-> > pollute the caches with "streaming data". I bet using them would
-> > be a big win.
-> 
-> Maybe.  For your basic:
-> 
-> 	for (many) {
-> 		read(fd1, buf, 8192);
-> 		write(fd2, buf, 8192);
-> 	}
-> 
-> you want `buf' cached, but not the pagecache for fd1 and fd2.
-> If the prefetch hints can express that then yes, nice.
+[initially i posted this message to linux.kernel until i found out that 
+this was a mailinglist-to-newsgroup thing. so i think the message never 
+reached the list and it is okay to repost this message.]
 
-SSE has prefetchnta
+Dear linux kernel mailing list,
 
-3dnow has something similar.
+our company has an IBM netfinity 866 MHz server with two IBM 30 GB SCSI
+disks doing a RAID-1 (mirroring). the machine is running Redhat 7.2
+(kernel  2.4.7-10).
 
-In addition you can use movnti* for stores. These should be faster
-because they use write combining and avoid the latency of fetching
-the cache line of the destination just to overwrite it.
+when i set up the machine in january i suspected a hardware damage on
+one of the two HDDs. IBM checked and returned me the _same_ disks saying
+they were okay (i don't know if they fixed anything).
 
-The tricky bit is to avoid prefetches over the boundary of your copy.
-Prefetching from an uncached area or write combined area (like the 
-AGP gart which could start in next page) triggers hardware bugs in
-various boxes. This unfortunately complicates the prefetching loops
-a bit.
+after this the server crashed about once in every 30 days (in total
+three times). yesterday it crashed again (the UPS ran out of power due
+to a failure in the public electricity network). i booted as usual but
+within the next two hours the server kept on crashing (in total four
+times).
 
-> 
-> > The rep ; movsl loop used in copy*user isn't
-> > very good on modern x86 anyways (it is ok on PPro, but loses on Athlon
-> > and P4)
-> 
-> On PII and PIII, rep;movsl is slower than an open-coded
-> duff-device copy for all src/dest alignments except for
-> the case where both are eight-byte-aligned.  By up to
-> 20%, iirc.  four-byte-aligned to four-byte-aligned isn't
-> too bad.
+the register dump was very similar each time. i checked at Google but
+could not find anything. maybe somebody can clear things up?
 
-That's surprising. AFAIK on PPro rep ; movs does magic prefetch
-tricks in microcode, so it should be eventually faster if you do
-not use explicit prefetching and you're not cache hot for 
-bigger copies (in smaller ones the setup overhead may dominate)
+esi: d083a000 edi: 00000000 ebp: 00000000 esp: c0257bec
+ds: 0018 es: 0018 ss:0018
+Process swapper (pid:0, stackpage=c0257000)
+[stack contents, etc]
+Code: 8b 07 0f b6 40 19 eb 05 b8 ff 00 00 00 50 31 ff 6a ff 55 0f
+<0> Kernel panic: Aiee, killing interrupt handler!
+Interrupt handler - not synching
 
-On Athlon rep ; movs loses clearly compared to an unrolled loop.
+the esi, edi, ebp, esp contents was the same in two crashes (yesterday).
+ds, es, ss, process swapper and code were the same in all four crashes
+(yesterday).
 
--Andi
+i have no idea what all these numbers mean. :-(
+
+as a quick fix i took out the SCSI disk i (still) suspect to be damaged.
+since then we did not have any problems. but the server is only up for
+19 hours so i don't know what is yet to come ...
+
+could you recommend me how to test the other HDD for errors? i am not
+really familiar with filesystem check issues in Linux.
+
+i really hope somebody has some kind of answers or advice how to handle
+this problem.
+
+btw, could you please send a CC to my email address as i am not 
+subscribed to the kernel mailing list. thank you.
+
+greetings from Quito,
+	
+	Henrik Mitsch
+
+-- 
+Teleholding S.A. - http://www.teleholding.com
+Departamento de Proyectos
+Email: hmitsch@teleholding.com
+Teléfono: (593 2) 2560 600 - 125
+Beeper: (02) 2555 000 (a nombre de: Teleholding - Henrik Mitsch)
+

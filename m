@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbUJaAKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbUJaAMa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbUJaAKl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 20:10:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbUJaAKS
+	id S261436AbUJaAMa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 20:12:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbUJaAMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 20:10:18 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:31407 "EHLO
+	Sat, 30 Oct 2004 20:12:30 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:32175 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261436AbUJaAKJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 20:10:09 -0400
-Subject: Re: BK kernel workflow
+	id S261436AbUJaAMT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 20:12:19 -0400
+Subject: Re: free_irq problem in 2.6 kernel
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Xavier Bestel <xavier.bestel@free.fr>,
-       James Bruce <bruce@andrew.cmu.edu>, Linus Torvalds <torvalds@osdl.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Andrea Arcangeli <andrea@novell.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041030234619.GB24640@work.bitmover.com>
-References: <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org>
-	 <Pine.LNX.4.61.0410270223080.877@scrub.home>
-	 <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
-	 <4180B9E9.3070801@andrew.cmu.edu>
-	 <20041028135348.GA18099@work.bitmover.com>
-	 <1098972379.3109.24.camel@gonzales>
-	 <20041028151004.GA3934@work.bitmover.com> <20041028195947.GD3207@stusta.de>
-	 <20041028213534.GA29335@work.bitmover.com>
-	 <20041030065111.GF4374@stusta.de>
-	 <20041030234619.GB24640@work.bitmover.com>
+To: brian franklin <may26baf@yahoo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041029220052.97805.qmail@web52601.mail.yahoo.com>
+References: <20041029220052.97805.qmail@web52601.mail.yahoo.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1099177552.25194.16.camel@localhost.localdomain>
+Message-Id: <1099177770.25178.21.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 31 Oct 2004 00:05:53 +0100
+Date: Sun, 31 Oct 2004 00:09:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-10-31 at 00:46, Larry McVoy wrote:
-> a lot of people think that then lets fix that.  By the way, with all
-> due respect, Andrea & Roman are not "reasonable" people in this context.
-> Let's find some reasonable people who are not BK users and make sure they
-> are comfortable with what is going on.  Alan Cox, Al Viro, who else?
-> I don't really care if it is non-BK users, BK users, or a combination,
-> I just care that there is some sanity in the discussion.
+On Gwe, 2004-10-29 at 23:00, brian franklin wrote:
+> 2.6.8-1.528.2.10smp, I now have a problem when I call
+> free_irq().  It
+> now masks off the interrupt even though it is shared
+> with another
+
+free_irq only masks the interrupt line when the last user is
+freeing that IRQ line.
+
+> The syntax of my calls to these two functions are:
+> status = request_irq(priv->irq , jnet_isr, SA_SHIRQ,
+> name1, dev);
+> and
+> free_irq(priv->irq, dev);
 > 
-> Is there any need for this or is this a non-issue?
+> Can anyone shed some light on what I might be doing
+> wrong?
 
-Seems a total non issue to me. If you did utterly evil things then your
-statements archived in email so far would be more than sufficient.
+The calls look fine (providing you arent using "dev" as the cookie for
+multiple "request_irq" functions on the same IRQ at the same time)
 
-Alan
+> kernel version that does configured the IOAPIC
+> configuration registers
+> correctly, and one that doesn't?  (In previous
+> versions, the
+> configuration register would have an interrupt vector
+> of IRQ169 while
+> the interrupt was really IRQ19.
+
+It depends at runtime on the system, how the IRQ assignment is done and
+sometimes on hardware "features". The official kernel internal policy is
+that
+
+a) "irq" is a cookie obtained for PCI devices by pdev->irq 
+b) you pass the cookie to request_irq
+c) it has no other guaranteed meaning at all
+
+once you get off x86 this gets even more important.
 

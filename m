@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265224AbTLRPOU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 10:14:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265225AbTLRPOU
+	id S265210AbTLRPaF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 10:30:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbTLRPaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 10:14:20 -0500
-Received: from mail.kroah.org ([65.200.24.183]:63929 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265224AbTLRPOS (ORCPT
+	Thu, 18 Dec 2003 10:30:05 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:9606 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S265210AbTLRPaB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 10:14:18 -0500
-Date: Thu, 18 Dec 2003 01:34:27 -0800
-From: Greg KH <greg@kroah.com>
-To: "ismail 'cartman' =?iso-8859-1?Q?d=F6nmez?=" 
-	<ismail.donmez@boun.edu.tr>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.0
-Message-ID: <20031218093427.GA16528@kroah.com>
-References: <Pine.LNX.4.58.0312171951030.5789@home.osdl.org> <20031217211516.2c578bab.akpm@osdl.org> <200312181112.43745.ismail.donmez@boun.edu.tr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200312181112.43745.ismail.donmez@boun.edu.tr>
-User-Agent: Mutt/1.4.1i
+	Thu, 18 Dec 2003 10:30:01 -0500
+Message-ID: <3FE1C973.2070600@pacbell.net>
+Date: Thu, 18 Dec 2003 07:36:19 -0800
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: Richard Curnow <Richard.Curnow@superh.com>
+CC: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Handling of bounce buffers by rh_call_control
+References: <20031217114125.GA20057@malvern.uk.w2k.superh.com> <3FE08470.5040801@pacbell.net> <20031218143236.GB20057@malvern.uk.w2k.superh.com>
+In-Reply-To: <20031218143236.GB20057@malvern.uk.w2k.superh.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 18, 2003 at 11:12:43AM +0200, ismail 'cartman' dönmez wrote:
-> On Thursday 18 December 2003 07:15, Andrew Morton wrote:
-> > There are also the "must-fix" and "should-fix" lists of items which we have
-> > identified as still on the 2.6 todo list.  These are at
-> >
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/must-fix/must-fix-7.txt
-> > and
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/must-fix/should-fix-7.txt
-> >
+Richard Curnow wrote:
 > 
-> Wondering if ALSA and Latest Usb updates from Greg KH will make it into 
-> 2.6.1 ?
+> IIRC, if I plug a USB2 device into a USB2 card but don't have the EHCI
+> driver active, the device is just ignored, rather than falling back to
+> using USB1.1 through OHCI?  We certainly have some USB2 devices we'd
+> like to use, even if the USB2 bandwidth might be throttled back by the
+> bounce buffering overhead.
 
-I have USB, I2C, driver class, and PCI patches that I will be carefully
-feeding in...
+Yes, high speed USB transfers need the EHCI driver.
+If that driver isn't running, then OHCI (or UHCI)
+should kick in.  (Assuming that driver is running!)
+
+Most high speed storage seems to work with the current
+EHCI code, although some hardware acts unhappy when
+Linux talks to it faster than Windows does.  That's
+more of an issue on 2.6 than on 2.4 though.
+
+- Dave
 
 
-thanks,
 
-greg k-h

@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267893AbUJCMgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267880AbUJCMkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267893AbUJCMgr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 08:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267882AbUJCMgq
+	id S267880AbUJCMkO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 08:40:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267882AbUJCMkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 08:36:46 -0400
-Received: from ip189.73.1311O-CUD12K-02.ish.de ([62.143.73.189]:14209 "EHLO
-	sheridan") by vger.kernel.org with ESMTP id S267880AbUJCMgi (ORCPT
+	Sun, 3 Oct 2004 08:40:14 -0400
+Received: from scanner1.mail.elte.hu ([157.181.1.137]:51359 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267880AbUJCMkK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 08:36:38 -0400
-From: Marcus Metzler <mocm@mocm.de>
-MIME-Version: 1.0
+	Sun, 3 Oct 2004 08:40:10 -0400
+Date: Sun, 3 Oct 2004 14:41:46 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Andrew Morton <akpm@osdl.org>, Bill Davidsen <davidsen@tmr.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: mmap() on cdrom files fails since 2.6.9-rc2-bk2
+Message-ID: <20041003124146.GA20260@elte.hu>
+References: <2Jw9b-52b-13@gated-at.bofh.it> <20040929222619.5da3f207.khali@linux-fr.org> <20041001184431.4e0c6ba5.akpm@osdl.org> <20041002090125.302fff71.khali@linux-fr.org> <20041003111458.GA15390@elte.hu> <20041003141140.319039de.khali@linux-fr.org> <20041003121645.GA19580@elte.hu> <20041003143549.12c7fdcc.khali@linux-fr.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16735.62032.169017.247720@mocm.de>
-Date: Sun, 3 Oct 2004 14:36:32 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Efficeon
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Reply-To: mocm@mocm.de
-X-Face: X!$Vwl\?,AW_[zm^ej\MLxN>q;R?C_sRZ*XE4V;BGT28Ewyd\:TS')W'G#Dgay8ci$*{lEd
- 02(Nk0OndG\752U>lozmb_R1poDm6mgHm_4.}bdS0hh.`xGUI.X2x_50T9.?_v~.,QI*$2:Q=HV@>F
- IP6%l~E:T|w,X[eC;|YD(A9X'sS"r$l]g<4CjAm4|f7o0>6zGwUPLinP0.d=E+_%?4>0A9'esEZ=9h
- $#b[g*/q/g'GVj-hDc,+V_]1.H^N,1Bju,>5FZn"B
+Content-Disposition: inline
+In-Reply-To: <20041003143549.12c7fdcc.khali@linux-fr.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I was just wondering which CPU options I should choose for compiling a
-kernel for an Efficeon?
-Crusoe seems to work fine.
+* Jean Delvare <khali@linux-fr.org> wrote:
 
+> OK, I understand now. Both affected systems are running Slackware 9.1,
+> which may be a bit old (October 2003), but 2.6-ready, so I am using
+> bleeding edge 2.6 kernels, with no problems (well until a few days ago
+> ;))
 
-Marcus
+i didnt mean to imply anything negative about Slackware - it's a
+borderline date of release when it could have been 2.6-ready (although
+2.6 was not relased yet at that date ;) but not have new gcc yet. It is
+a full and primary requirement of the kernel to run !pt_gnu_stack
+binaries too - it just wasnt that well tested for a complete distro, for
+the reasons i mentioned.
 
--- 
-/--------------------------------------------------------------------\
-| Dr. Marcus O.C. Metzler        |                                   |
-| mocm@metzlerbros.de            | http://www.metzlerbros.de/        |
-\--------------------------------------------------------------------/
- |>>>             Quis custodiet ipsos custodies                 <<<|
+	Ingo

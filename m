@@ -1,68 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264688AbUDVVmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264709AbUDVVrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264688AbUDVVmS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 17:42:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264706AbUDVVmS
+	id S264709AbUDVVrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 17:47:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264694AbUDVVrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 17:42:18 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:31723 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264688AbUDVVmN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 17:42:13 -0400
-Date: Thu, 22 Apr 2004 14:26:43 -0700 (PDT)
-From: Sridhar Samudrala <sri@us.ibm.com>
-X-X-Sender: sridhar@localhost.localdomain
-To: "David S. Miller" <davem@redhat.com>
-cc: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       cfriesen@nortelnetworks.com, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: tcp vulnerability?  haven't seen anything on it here...
-In-Reply-To: <20040421132047.026ab7f2.davem@redhat.com>
-Message-ID: <Pine.LNX.4.58.0404221409570.12585@localhost.localdomain>
-References: <40869267.30408@nortelnetworks.com> <Pine.LNX.4.53.0404211153550.1169@chaos>
- <4086A077.2000705@nortelnetworks.com> <20040421170340.GB24201@wohnheim.fh-wedel.de>
- <20040421132047.026ab7f2.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+	Thu, 22 Apr 2004 17:47:09 -0400
+Received: from mailwasher.lanl.gov ([192.16.0.25]:30810 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S264709AbUDVVrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 17:47:04 -0400
+Subject: 2.6.6-rc2 addition warnings with gcc-3.4.0 and some timing results.
+From: Steven Cole <elenstev@mesatop.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1082670435.1324.106.camel@spc0.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5-4mdk 
+Date: Thu, 22 Apr 2004 15:47:15 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Apr 2004, David S. Miller wrote:
+I built the current 2.6.6-rc2 tree recently pulled from
+bk://linus.bkbits.net/linux-2.5 using both gcc-3.3.2 as shipped with
+Mandrake 10, and with the recent release of gcc-3.4.0, which was built
+with all the defaults for an i686 system.
 
-> On Wed, 21 Apr 2004 19:03:40 +0200
-> Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
->
-> > Heise.de made it appear, as if the only news was that with tcp
-> > windows, the propability of guessing the right sequence number is not
-> > 1:2^32 but something smaller.  They said that 64k packets would be
-> > enough, so guess what the window will be.
->
-> Yes, that is their major discovery.  You need to guess the ports
-> and source/destination addresses as well, which is why I don't
-> consider this such a serious issue personally.
->
-> It is mitigated if timestamps are enabled, because that becomes
-> another number you have to guess.
+The builds were performed in two separate directories, each made with
+bk export -tplain ../dirname.
 
-I am not sure if enabling timestamps will help.
->From RFC1323,
-  It is recommended that RST segments NOT carry timestamps, and that RST
-  segments be acceptable regardless of their timestamp. Old duplicate RST
-  segments should be exceedingly unlikely, and their cleanup function should
-  take precedence over timestamps.
+The times are for a make -j3 bzImage on a dual PIII 733 Mhz system.
+Make oldconfig was run first, using the same .config in each case.
+The running kernel was 2.6.6-rc2 built with gcc-3.4.0.
 
-It looks like linux follows this recommendataion.
-tcp_input.c: tcp_rcv_established()
-        if (tcp_fast_parse_options(skb, th, tp) && tp->saw_tstamp &&
-            tcp_paws_discard(tp, skb)) {
-                if (!th->rst) {
-                        NET_INC_STATS_BH(PAWSEstabRejected);
-                        tcp_send_dupack(sk, skb);
-                        goto discard;
-                }
-                /* Reset is accepted even if it did not pass PAWS. */
-        }
+Gcc-3.4.0 appears to be a little faster. The kernel builds were run
+several times.  The time results were consistent.
 
-Thanks
-Sridhar
+A few additional warnings were received with gcc-3.4.0.
+
+gcc-3.3.2	688.38user 52.69system 6:13.64elapsed 198%CPU 
+$ size vmlinux
+   text    data     bss     dec     hex filename
+3064764  360496  176584 3601844  36f5b4 vmlinux
+
+gcc-3.4.0	599.56user 40.25system 5:23.11elapsed 198%CPU
+$ size vmlinux
+   text    data     bss     dec     hex filename
+3005436  359728  176552 3541716  360ad4 vmlinux
+
+Warnings only with gcc-3.4.0:
+
+  CC      arch/i386/pci/pcbios.o
+arch/i386/pci/pcbios.c: In function `pcibios_get_irq_routing_table':
+arch/i386/pci/pcbios.c:424: warning: read-write constraint does not allow a register
+arch/i386/pci/pcbios.c:424: warning: read-write constraint does not allow a register
+
+  CC      fs/xfs/xfs_iget.o
+include/asm/rwsem.h: In function `xfs_ilock_nowait':
+include/asm/rwsem.h:126: warning: read-write constraint does not allow a register
+include/asm/rwsem.h:126: warning: read-write constraint does not allow a register
+include/asm/rwsem.h:126: warning: read-write constraint does not allow a register
+include/asm/rwsem.h:126: warning: read-write constraint does not allow a register
+
+Steven
+

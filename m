@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129138AbRBFT0F>; Tue, 6 Feb 2001 14:26:05 -0500
+	id <S129304AbRBFTbz>; Tue, 6 Feb 2001 14:31:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129304AbRBFTZ4>; Tue, 6 Feb 2001 14:25:56 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:1289
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129138AbRBFTZm>; Tue, 6 Feb 2001 14:25:42 -0500
-Date: Tue, 6 Feb 2001 11:25:00 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: David Woodhouse <dwmw2@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Anders Eriksson <aer-list@mailandnews.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: sync & asyck i/o
-In-Reply-To: <20010206181808.I1167@redhat.com>
-Message-ID: <Pine.LNX.4.10.10102061122530.2273-100000@master.linux-ide.org>
+	id <S129840AbRBFTbq>; Tue, 6 Feb 2001 14:31:46 -0500
+Received: from colorfullife.com ([216.156.138.34]:43528 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129304AbRBFTbl>;
+	Tue, 6 Feb 2001 14:31:41 -0500
+Message-ID: <3A805121.E4D47C32@colorfullife.com>
+Date: Tue, 06 Feb 2001 20:31:45 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Jocelyn Mayer <jocelyn.mayer@netgem.com>, linux-kernel@vger.kernel.org
+Subject: Re: FA-311 / Natsemi problems with 2.4.1
+In-Reply-To: <3A80425C.8080506@netgem.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Feb 2001, Stephen C. Tweedie wrote:
-
-> Hi,
+Jocelyn Mayer wrote:
 > 
-> On Tue, Feb 06, 2001 at 05:54:41PM +0000, David Woodhouse wrote:
-> > 
-> > sct@redhat.com said:
-> > >  Linux will obey that if it possibly can: only in cases where the
-> > > hardware is actively lying about when the data has hit disk will the
-> > > guarantee break down. 
-> > 
-> > Do we attempt to ask SCSI disks nicely to flush their write caches in this 
-> > situation? cf. http://www.danbbs.dk/~dino/SCSI/SCSI2-09.html#9.2.18
-> 
-> No, we simply omit to instruct them to enable write-back caching.
-> Linux assumes that the WCE (write cache enable) bit in a disk's
-> caching mode page is zero.
+> I'll send my patch for 2.4 kernel
+> as soon as I have finished to clean it up !!!
+>
 
-Stephen,
+A few points:
 
-You can not be so blind to omit the command.
-You have to issue an active command to disable WCE.
-All modern drives come with it defaulted enabled, especially ATA disks.
+* set your tabs to 8, and indent by 8 characters.
+* Nastemi_auto_negociate: remove the 'static' variable - what if someone
+has multiple cards installed?
+* You cannot wait for for more than a few dozend microseconds in an
+hardware interrupt handle, and a few hundred microseconds in a bottom
+half handler (e.g a timer)
+Probably the autonegotiation takes longer - add a timer that calls you
+back after 50 milliseconds, and return.
 
-Andre Hedrick
-Linux ATA Development
-ASL Kernel Development
------------------------------------------------------------------------------
-ASL, Inc.                                     Toll free: 1-877-ASL-3535
-1757 Houret Court                             Fax: 1-408-941-2071
-Milpitas, CA 95035                            Web: www.aslab.com
+And are you sure that a full reset is required for a simple link change?
 
+Most other drivers are written the other way around:
+tx_timeout() performs the full reset if the transmitter is hung for > 2
+seconds, and link_change only changes the chip configuration.
+
+
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

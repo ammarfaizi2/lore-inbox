@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129485AbQKGM0R>; Tue, 7 Nov 2000 07:26:17 -0500
+	id <S129642AbQKGM3H>; Tue, 7 Nov 2000 07:29:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129642AbQKGM0I>; Tue, 7 Nov 2000 07:26:08 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:53381 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130397AbQKGMZs>;
-	Tue, 7 Nov 2000 07:25:48 -0500
-Date: Tue, 7 Nov 2000 04:10:38 -0800
-Message-Id: <200011071210.EAA03622@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-CC: jordy@napster.com, linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-In-Reply-To: <E13t7lX-0007LD-00@the-village.bc.nu> (message from Alan Cox on
-	Tue, 7 Nov 2000 12:22:14 +0000 (GMT))
-Subject: Re: Poor TCP Performance 2.4.0-10 <-> Win98 SE PPP
-In-Reply-To: <E13t7lX-0007LD-00@the-village.bc.nu>
+	id <S129704AbQKGM25>; Tue, 7 Nov 2000 07:28:57 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27512 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129642AbQKGM2q>; Tue, 7 Nov 2000 07:28:46 -0500
+Subject: Re: removable EIDE disks
+To: woodey@twasystems.fsnet.co.uk (Joe Woodward)
+Date: Tue, 7 Nov 2000 12:29:49 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <000001c048ae$6132c340$6904883e@default> from "Joe Woodward" at Nov 07, 2000 11:12:00 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13t7st-0007Ly-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Tue, 7 Nov 2000 12:22:14 +0000 (GMT)
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> works, but only if the new disk is no larger than the disk present at =
+> boot time (smaller and equal capacity disks work OK).
+> 
+> How do I get Linux to recognise that the media in /dev/hdc has changed?
 
-   If their system is confused by tcp options in data segments then
-   the SACK stuff in 2.4 may well be the trigger.
+I imagine your disks are not reporting themselves as 'removable' ? If they
+correctly report removable then umount/mount would do the necessary I think.
+It certainly does for magneto-optical
 
-SACK is on by default in both the 2.2.x and 2.4.x traces...
-
-Later,
-David S. Miller
-davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266074AbUFIKHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266090AbUFIKWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266074AbUFIKHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 06:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266088AbUFIKHH
+	id S266090AbUFIKWH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 06:22:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266088AbUFIKWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 06:07:07 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:32130 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266084AbUFIKGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 06:06:39 -0400
-Date: Wed, 9 Jun 2004 11:06:38 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jan Kara <jack@suse.cz>
-Cc: Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Increasing number of inodes after format?
-Message-ID: <20040609100638.GA18476@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jan Kara <jack@suse.cz>, Timothy Miller <miller@techsource.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <40C62F2F.4090801@techsource.com> <20040609094217.GA14564@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 9 Jun 2004 06:22:07 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:10654 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266090AbUFIKWF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 06:22:05 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Brian Lazara <blazara@nvidia.com>
+Subject: Re: [PATCH 2.4.27-pre5] add new nForce SATA/IDE ids
+Date: Wed, 9 Jun 2004 12:25:47 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <1086750417.32222.172.camel@dhcp-175-55.nvidia.com>
+In-Reply-To: <1086750417.32222.172.camel@dhcp-175-55.nvidia.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040609094217.GA14564@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200406091225.47276.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 09, 2004 at 11:42:18AM +0200, Jan Kara wrote:
->   ReiserFS also does not have any particular limit on the number of inodes
-> (because it actually does not have any ;).
+On Wednesday 09 of June 2004 05:06, Brian Lazara wrote:
+> Patch against 2.4.27-pre5 to add new NVIDIA IDE and SATA controller
+> device IDs. Note this is a resend of a previous patch submittal against
+> 2.4.27-pre2 that must have been too late to make it in.
 
-they're just called stat_data in reiserfs.
+I already sent it to Marcelo and he merged it yesterday.
+
+Thanks.
+

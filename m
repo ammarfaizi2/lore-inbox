@@ -1,61 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277756AbRJIPB4>; Tue, 9 Oct 2001 11:01:56 -0400
+	id <S277766AbRJIPGG>; Tue, 9 Oct 2001 11:06:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277757AbRJIPBr>; Tue, 9 Oct 2001 11:01:47 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:56708 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S277756AbRJIPBo>; Tue, 9 Oct 2001 11:01:44 -0400
-Message-ID: <3BC3118B.8050001@wipro.com>
-Date: Tue, 09 Oct 2001 20:32:35 +0530
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: is reparent_to_init a good thing to do?
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
+	id <S277768AbRJIPF4>; Tue, 9 Oct 2001 11:05:56 -0400
+Received: from bellini.kjist.ac.kr ([203.237.41.6]:1668 "EHLO
+	bellini.kjist.ac.kr") by vger.kernel.org with ESMTP
+	id <S277766AbRJIPFl>; Tue, 9 Oct 2001 11:05:41 -0400
+Date: Wed, 10 Oct 2001 00:06:08 +0900
+Message-Id: <200110091506.f99F68P12059@bellini.kjist.ac.kr>
+From: "G. Hugh Song" <hugh@bellini.kjist.ac.kr>
+To: linux-kernel@vger.kernel.org
+Subject: VM-related freeze of UP2000SMP using 2.4.11-pre3aa1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a multi-part message in MIME format.
+My UP2000 SMP running SuSE-7.1 with two 21264s with 2GB memory and 
+5GB swap space has got a VM-related trouble since I updated the 
+kernel to 2.4.11-pre3aa1.
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+When the main memory is fully utilized and the swap space starts to be
+used, the machine freezes.  The machine can be pinged.  But all 
+other activities are dead silent with no message in /var/log/messages.
 
-I was looking at the driver under drivers/net/8139too.c, a kernel
-thread rtl8139_thread is created, it calls daemonize() and soon
-afterwards calls reparent_to_init(). Looking at reparent_to_init(),
-it looks like all kernel threads should do this. But, I feel I am missing
-something, since not everybody does this.
+This happens every night around 0:15AM /etc/cron.daily/* is being scanned.
 
-Is this a good thing to do? or are there special cases when we need this.
+The version I had used before the last kernel update was
+2.4.10-pre8aa*, and had had no apparent problem.
 
-Balbir
+I wish I could confirm that the current problem is due to the new 
+kernel.  Was there any known vm-related bug in 2.4.11-pre3aa1?
 
+I reviewed "patch-2.4.11.log" which contained :
 
+=========c=========c============c==========c=========
+pre6:
+ - various: fix some module exports uncovered by stricter error checking
+ - Urban Widmark: make smbfs use same error define names as samba and win32
+ - Greg KH: USB update
+ - Tom Rini: MPC8xx ppc update
+ - Matthew Wilcox: rd.c page cache flushing fix
+ - Richard Gooch: devfs race fix: rwsem for symlinks
+ - Björn Wesen: Cris arch update
+ - Nikita Danilov: reiserfs cleanup
+ - Tim Waugh: parport update
+ - Peter Rival: update alpha SMP bootup to match wait_init_idle fixes
+ - Trond Myklebust: lockd/grace period fix
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
+pre5:
+ - Keith Owens: module exporting error checking
+ - Greg KH: USB update
+ - Paul Mackerras: clean up wait_init_idle(), ppc prefetch macros
+ - Jan Kara: quota fixes
+ - Abraham vd Merwe: agpgart support for Intel 830M
+ - Jakub Jelinek: ELF loader cleanups
+ - Al Viro: more cleanups
+ - David Miller: sparc64 fix, netfilter fixes
+ - me: tweak resurrected oom handling
 
-----------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-----------------------------------------------------------------------------------------------------------------------
+pre4:
+ - Al Viro: separate out superblocks and FS namespaces: fs/super.c fathers
+   fs/namespace.c
+ - David Woodhouse: large MTD and JFFS[2] update
+ - Marcelo Tosatti: resurrect oom handling
+ - Hugh Dickins: add_to_swap_cache racefix cleanup
+ - Jean Tourrilhes: IrDA update
+ - Martin Bligh: support clustered logical APIC for >8 CPU x86 boxes
+ - Richard Henderson: alpha update
 
+=======c==========c===========c==========c===========c============
 
---------------InterScan_NT_MIME_Boundary--
+I am not that knowledgeable about the vm-things.
+So far, Andrea has not produced his patch set for pre4 -- pre6 yet.
+His most up-to-date is 2.4.11-pre3aa1.
+
+For Alpha/Linux, I have been using -aa versions all along.  How much 
+do I lose by using original Linus versions?
+
+Thank you.
+
+Best regards,
+
+G. Hugh Song

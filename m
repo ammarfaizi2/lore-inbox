@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317415AbSGIVO3>; Tue, 9 Jul 2002 17:14:29 -0400
+	id <S313767AbSGIVSQ>; Tue, 9 Jul 2002 17:18:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317416AbSGIVO2>; Tue, 9 Jul 2002 17:14:28 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:20144 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S317415AbSGIVO1>;
-	Tue, 9 Jul 2002 17:14:27 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200207092114.BAA24052@sex.inr.ac.ru>
-Subject: Re: readprofile from 2.5.25 web server benchmark
-To: akpm@zip.com.au (Andrew Morton)
-Date: Wed, 10 Jul 2002 01:14:36 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D2B469E.766C856E@zip.com.au> from "Andrew Morton" at Jul 9, 2 01:25:02 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S317418AbSGIVSP>; Tue, 9 Jul 2002 17:18:15 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:37021 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S313767AbSGIVSO>;
+	Tue, 9 Jul 2002 17:18:14 -0400
+Message-ID: <3D2AF10A.1020603@us.ibm.com>
+Date: Tue, 09 Jul 2002 07:19:54 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Robert Love <rml@mvista.com>
+CC: William Lee Irwin III <wli@holomorphy.com>,
+       Rick Lindsley <ricklind@us.ibm.com>, Greg KH <greg@kroah.com>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BKL removal
+References: <20020709201703.GC27999@kroah.com>	<200207092055.g69Ktt418608@eng4.beaverton.ibm.com> 	<20020709210053.GF25360@holomorphy.com> <1026249175.1033.1178.camel@sinai>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Robert Love wrote:
+> On Tue, 2002-07-09 at 14:00, William Lee Irwin III wrote:
+> 
+> 
+>>This is an ugly aspect. But AFAICT the most that's needed to clean it
+>>up is an explicit release before potentially sleeping.
+> 
+> 
+> Yep that is all we need... remove the release_kernel_lock() and
+> reacquire_kernel_lock() from schedule and do it explicitly everywhere it
+> is needed.
+> 
+> The problem is, it is needed in a _lot_ of places.  Mostly instances
+> where the lock is held across something that may implicitly sleep.
 
-> Well I've thought about it long and hard, but I can't see a
-> hole.
+And _that_ is why I wrote the BKL debugging patch, to help find these 
+places at runtime.  It may not be pretty, but it works.  I'll post it 
+again if you're interested.
 
-Just paranoia, do not worry.
-
-> But there probably is one.  Somewhere.
-
-... in another place. :-)
-
-Alexey
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

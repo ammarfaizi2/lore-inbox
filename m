@@ -1,61 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277541AbRKHSyI>; Thu, 8 Nov 2001 13:54:08 -0500
+	id <S276708AbRKHTFi>; Thu, 8 Nov 2001 14:05:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277552AbRKHSx7>; Thu, 8 Nov 2001 13:53:59 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:28080 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S277541AbRKHSxw>;
-	Thu, 8 Nov 2001 13:53:52 -0500
-Date: Thu, 08 Nov 2001 18:53:43 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@alex.org.uk
-Cc: Alexander Viro <viro@math.psu.edu>, Ricky Beam <jfbeam@bluetopia.net>,
-        Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        Linux Kernel Mail List <linux-kernel@vger.kernel.org>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-Message-ID: <964381385.1005245622@[195.224.237.69]>
-In-Reply-To: <200111080047.fA80lxk105204@saturn.cs.uml.edu>
-In-Reply-To: <200111080047.fA80lxk105204@saturn.cs.uml.edu>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S277533AbRKHTF2>; Thu, 8 Nov 2001 14:05:28 -0500
+Received: from [208.129.208.52] ([208.129.208.52]:25606 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S276708AbRKHTFK>;
+	Thu, 8 Nov 2001 14:05:10 -0500
+Date: Thu, 8 Nov 2001 11:13:30 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [patch] scheduler cache affinity improvement for 2.4 kernels
+In-Reply-To: <Pine.LNX.4.33.0111082028430.20248-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.40.0111081056490.1501-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Design the kernel to make doing this difficult.
-> Define some offsets as follows:
+On Thu, 8 Nov 2001, Ingo Molnar wrote:
+
 >
-># define FOO_PID 0
-># define FOO_PPID 1
+> On Thu, 8 Nov 2001, Davide Libenzi wrote:
 >
-> Now, how is anyone going to create "an extra inserted DWORD"
-> between those? They'd need to renumber FOO_PPID and any other
-> values that come after it.
+> > It sets the time ( in jiffies ) at which the process won't have any
+> > more scheduling advantage.
+>
+> (sorry, it indeed makes sense, since sched_jtime is on the order of
+> jiffies.)
+>
+> > > and your patch adds a scheduling advantage to processes with more cache
+> > > footprint, which is the completely opposite of what we want.
+> >
+> > It is exactly what we want indeed :
+>
+> if this is what is done by your patch, then we do not want to do this.
+> My patch does not give an advantage of CPU-intensive processes over that
+> of eg. 'vi'.
 
-For instance, take the /proc/mounts type example, where
-each row is a sequence of binary values. Someone decides
-to add another column, which assuming it is a DWORD^W__u64,
-does exactly this, inserts a DWORD^W__u64 between the
-end of one record and the start of the next as far a
-poorly written parser is concerned.
+If A & B are CPU hog processes and E is the editor ( low level keventd )
+you do want to avoid priority inversion between A and B when E kicks in.
+Really IO bound tasks accumulates dynamic priority inside the recalc loop
+and this is sufficent to win over this kind of "advantage" given to CPU
+hog tasks.
+My approach make also more "expensive" the preemption goodness to move
+tasks between CPUs.
+I'll take a closer look at your patch anyway.
 
-The brokenness is not due to the distinction between ASCII
-and binary. The brokenness is due the ill-defined nature
-of the format, and poor change control. (so for instance
-the ASCII version could consistently use (say) quoted strings,
-with spaces between fields, and \n between records, just
-as the binary version could have a record length entry at the
-head of each record, and perhaps field length and identifier
-versions by each field - two very similar solutions to the
-problem above).
 
-> The "DWORD" idea is messed up too BTW. Use __u64 everywhere.
+> Perhaps i'm misreading your patch, it's full of branches that
 
-OK OK :-)
+"full of braches" == 2 if + 1 conditional-assign
 
---
-Alex Bligh
+> does not make the meaning very clear, cpu_jtime and sched_jtime are not
+> explained. Is sched_jtime the timestamp of the last schedule of this
+> process? And is cpu_jtime the number of jiffies spent on this CPU?
+
+sched_jtime = last schedule time in jiffies
+cpu_jtime   = wall time after which the task will have 0 dynamic priority increase
+
+> Is cpu_jtime cleared if we switch to another CPU?
+
+It's missing of the published patch.
+The one that i'm testing has that + a lower dynamic priority increase :
+
+weight += (p->cpu_jtime - jiffies) >> 1;
+
+I'm just testing results about this.
+
+
+
+
+- Davide
+
+

@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280430AbRKNKoy>; Wed, 14 Nov 2001 05:44:54 -0500
+	id <S280434AbRKNKty>; Wed, 14 Nov 2001 05:49:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280434AbRKNKoo>; Wed, 14 Nov 2001 05:44:44 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35857 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280430AbRKNKof>; Wed, 14 Nov 2001 05:44:35 -0500
-Subject: Re: What Athlon chipset is most stable in Linux?
-To: davem@redhat.com (David S. Miller)
-Date: Wed, 14 Nov 2001 10:51:49 +0000 (GMT)
+	id <S280435AbRKNKto>; Wed, 14 Nov 2001 05:49:44 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:53378 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S280434AbRKNKta>;
+	Wed, 14 Nov 2001 05:49:30 -0500
+Date: Wed, 14 Nov 2001 02:48:57 -0800 (PST)
+Message-Id: <20011114.024857.111208528.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
 Cc: goemon@anime.net, nitrax@giron.wox.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20011113.182956.75780493.davem@redhat.com> from "David S. Miller" at Nov 13, 2001 06:29:56 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: What Athlon chipset is most stable in Linux?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E163xe2-0004IM-00@the-village.bc.nu>
+In-Reply-To: <20011113.182956.75780493.davem@redhat.com>
+	<E163xe2-0004IM-00@the-village.bc.nu>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E163xe2-0004IM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    From: Dan Hollis <goemon@anime.net>
->    Date: Tue, 13 Nov 2001 13:19:07 -0800 (PST)
->    
->    AMD761 ... is what you want.
-> 
-> Unless you actually plan on actually using the AGP slot without
-> crashes/hangs.
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: Wed, 14 Nov 2001 10:51:49 +0000 (GMT)
+   
+   Only if your card hits the AMD errata, and that specifically claims
+   the card is the problem. It mostly appears to afflict nvidia users
+   so its not a problem ;)
 
-Only if your card hits the AMD errata, and that specifically claims the
-card is the problem. It mostly appears to afflict nvidia users so its not
-a problem ;)
+And radeon users...
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

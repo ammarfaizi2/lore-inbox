@@ -1,58 +1,394 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262614AbVCJBeb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbVCJBkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262614AbVCJBeb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 20:34:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbVCJBUX
+	id S262574AbVCJBkh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 20:40:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbVCJBiI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 20:20:23 -0500
-Received: from mail.kroah.org ([69.55.234.183]:45215 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262609AbVCJAmY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 19:42:24 -0500
-Cc: rddunlap@osdl.org
-Subject: [PATCH] Add 2.4.x cpufreq /proc and sysctl interface removal feature-removal-schedule
-In-Reply-To: <11104148771738@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 9 Mar 2005 16:34:38 -0800
-Message-Id: <1110414878721@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Wed, 9 Mar 2005 20:38:08 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:62420 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262694AbVCJBZD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 20:25:03 -0500
+Message-Id: <200503100124.j2A1Opg28004@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <axboe@suse.de>
+Subject: RE: Direct io on block device has performance regression on 2.6.x kernel
+Date: Wed, 9 Mar 2005 17:24:51 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcUk+bD55dicvFqwR+qO9QCsBRySRAAE+pygAABm4kA=
+In-Reply-To: 
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2036, 2005/03/09 09:31:40-08:00, rddunlap@osdl.org
+For people who is dying to see some q-tool profile, here is one.
+It's not a vanilla 2.6.9 kernel, but with patches in raw device
+to get around the DIO performance problem.
 
-[PATCH] Add 2.4.x cpufreq /proc and sysctl interface removal feature-removal-schedule
-
-Add 2.4.x cpufreq /proc and sysctl interface removal
-to the feature-removal-schedule.
-
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+- Ken
 
 
- Documentation/feature-removal-schedule.txt |    9 +++++++++
- 1 files changed, 9 insertions(+)
+Flat profile of CPU_CYCLES in hist#0:
+ Each histogram sample counts as 255.337u seconds
+% time      self     cumul     calls self/call  tot/call name
+  5.08      1.92      1.92         -         -         - schedule
+  4.64      0.62      2.54         -         -         - __ia64_readw_relaxed
+  4.03      0.54      3.08         -         -         - _stext
+  3.03      0.41      3.49         -         -         - qla2x00_queuecommand
+  2.73      0.37      3.86         -         -         - qla2x00_start_scsi
+  1.92      0.26      4.12         -         -         - __mod_timer
+  1.78      0.24      4.36         -         -         - scsi_request_fn
+  1.68      0.23      4.58         -         -         - __copy_user
+  1.45      0.20      4.78         -         -         - raw_file_rw
+  1.30      0.17      4.95         -         -         - kmem_cache_alloc
+  1.29      0.17      5.12         -         -         - mempool_alloc
+  1.29      0.17      5.30         -         -         - follow_hugetlb_page
+  1.19      0.16      5.46         -         -         - generic_make_request
+  1.14      0.15      5.61         -         -         - qla2x00_next
+  1.06      0.14      5.75         -         -         - memset
+  1.03      0.14      5.89         -         -         - raw_file_aio_rw
+  1.01      0.14      6.03         -         -         - e1000_clean
+  0.93      0.13      6.15         -         -         - scsi_get_command
+  0.93      0.12      6.28         -         -         - sd_init_command
+  0.87      0.12      6.39         -         -         - __make_request
+  0.87      0.12      6.51         -         -         - __aio_get_req
+  0.81      0.11      6.62         -         -         - qla2300_intr_handler
+  0.77      0.10      6.72         -         -         - put_io_context
+  0.75      0.10      6.82         -         -         - qla2x00_process_completed_request
+  0.74      0.10      6.92         -         -         - e1000_intr
+  0.73      0.10      7.02         -         -         - get_request
+  0.72      0.10      7.12         -         -         - rse_clear_invalid
+  0.70      0.09      7.21         -         -         - aio_read_evt
+  0.70      0.09      7.31         -         -         - e1000_xmit_frame
+  0.70      0.09      7.40         -         -         - __bio_add_page
+  0.69      0.09      7.49         -         -         - qla2x00_process_response_queue
+  0.69      0.09      7.58         -         -         - vfs_read
+  0.69      0.09      7.68         -         -         - break_fault
+  0.67      0.09      7.77         -         -         - scsi_dispatch_cmd
+  0.66      0.09      7.86         -         -         - try_to_wake_up
+  0.64      0.09      7.94         -         -         - blk_queue_start_tag
+  0.63      0.08      8.03         -         -         - sys_pread64
+  0.62      0.08      8.11         -         -         - alt_dtlb_miss
+  0.60      0.08      8.19         -         -         - ia64_spinlock_contention
+  0.57      0.08      8.27         -         -         - skb_release_data
+  0.55      0.07      8.34         -         -         - scsi_prep_fn
+  0.53      0.07      8.41         -         -         - tcp_sendmsg
+  0.52      0.07      8.48         -         -         - internal_add_timer
+  0.51      0.07      8.55         -         -         - drive_stat_acct
+  0.51      0.07      8.62         -         -         - tcp_transmit_skb
+  0.50      0.07      8.69         -         -         - task_rq_lock
+  0.49      0.07      8.75         -         -         - get_user_pages
+  0.48      0.06      8.82         -         -         - tcp_rcv_established
+  0.47      0.06      8.88         -         -         - kmem_cache_free
+  0.47      0.06      8.94         -         -         - save_switch_stack
+  0.46      0.06      9.00         -         -         - del_timer
+  0.46      0.06      9.07         -         -         - aio_pread
+  0.45      0.06      9.13         -         -         - bio_alloc
+  0.44      0.06      9.19         -         -         - finish_task_switch
+  0.44      0.06      9.25         -         -         - ip_queue_xmit
+  0.43      0.06      9.30         -         -         - move_tasks
+  0.42      0.06      9.36         -         -         - lock_sock
+  0.40      0.05      9.41         -         -         - elv_queue_empty
+  0.40      0.05      9.47         -         -         - bio_add_page
+  0.39      0.05      9.52         -         -         - try_atomic_semop
+  0.38      0.05      9.57         -         -         - qla2x00_done
+  0.38      0.05      9.62         -         -         - tcp_recvmsg
+  0.37      0.05      9.67         -         -         - put_page
+  0.37      0.05      9.72         -         -         - elv_next_request
+  0.36      0.05      9.77         -         -         - mod_timer
+  0.36      0.05      9.82         -         -         - load_switch_stack
+  0.36      0.05      9.86         -         -         - interrupt
+  0.36      0.05      9.91         -         -         - kref_get
+  0.36      0.05      9.96         -         -         - fget
+  0.35      0.05     10.01         -         -         - sk_wait_data
+  0.35      0.05     10.05         -         -         - do_IRQ
+  0.34      0.05     10.10         -         -         - e1000_clean_rx_irq
+  0.34      0.05     10.15         -         -         - find_vma
+  0.34      0.05     10.19         -         -         - ia64_leave_syscall
+  0.33      0.04     10.24         -         -         - tcp_ack
+  0.33      0.04     10.28         -         -         - fget_light
+  0.33      0.04     10.32         -         -         - swiotlb_map_sg
+  0.33      0.04     10.37         -         -         - blk_plug_device
+  0.32      0.04     10.41         -         -         - tcp_current_mss
+  0.31      0.04     10.45         -         -         - dev_queue_xmit
+  0.31      0.04     10.50         -         -         - __aio_run_iocbs
+  0.31      0.04     10.54         -         -         - ia64_handle_irq
+  0.31      0.04     10.58         -         -         - tcp_prequeue_process
+  0.30      0.04     10.62         -         -         - kfree
+  0.29      0.04     10.66         -         -         - submit_bio
+  0.29      0.04     10.70         -         -         - kref_put
+  0.29      0.04     10.74         -         -         - blk_queue_end_tag
+  0.29      0.04     10.77         -         -         - dequeue_task
+  0.28      0.04     10.81         -         -         - sys_semtimedop
+  0.28      0.04     10.85         -         -         - mempool_free
+  0.28      0.04     10.89         -         -         - __end_that_request_first
+  0.28      0.04     10.93         -         -         - qdisc_restart
+  0.28      0.04     10.96         -         -         - __aio_put_req
+  0.27      0.04     11.00         -         -         - sys_write
+  0.27      0.04     11.03         -         -         - schedule_timeout
+  0.26      0.04     11.07         -         -         - __umoddi3
+  0.25      0.03     11.10         -         -         - sched_clock
+  0.25      0.03     11.14         -         -         - add_wait_queue_exclusive
+  0.25      0.03     11.17         -         -         - blk_recount_segments
+  0.25      0.03     11.20         -         -         - aio_complete
+  0.24      0.03     11.24         -         -         - vfs_write
+  0.24      0.03     11.27         -         -         - remove_wait_queue
+  0.24      0.03     11.30         -         -         - __kfree_skb
+  0.24      0.03     11.33         -         -         - __elv_add_request
+  0.23      0.03     11.36         -         -         - enqueue_task
+  0.23      0.03     11.39         -         -         - ip_finish_output2
+  0.22      0.03     11.42         -         -         - io_submit_one
+  0.22      0.03     11.45         -         -         - tcp_v4_rcv
+  0.22      0.03     11.48         -         -         - bio_put
+  0.21      0.03     11.51         -         -         - elv_set_request
+  0.21      0.03     11.54         -         -         - inet_sendmsg
+  0.20      0.03     11.57         -         -         - rebalance_tick
+  0.20      0.03     11.59         -         -         - scsi_device_unbusy
+  0.20      0.03     11.62         -         -         - sys_io_getevents
+  0.20      0.03     11.65         -         -         - local_bh_enable
+  0.19      0.03     11.67         -         -         - __do_softirq
+  0.19      0.03     11.70         -         -         - ia64_switch_to
+  0.19      0.03     11.72         -         -         - update_process_times
+  0.19      0.03     11.75         -         -         - end_that_request_last
+  0.19      0.02     11.77         -         -         - memmove
+  0.19      0.02     11.80         -         -         - eth_type_trans
+  0.18      0.02     11.82         -         -         - generic_unplug_device
+  0.18      0.02     11.85         -         -         - huge_pte_offset
+  0.18      0.02     11.87         -         -         - scheduler_tick
+  0.17      0.02     11.90         -         -         - blk_queue_bounce
+  0.17      0.02     11.92         -         -         - mempool_alloc_slab
+  0.17      0.02     11.94         -         -         - scsi_finish_command
+  0.17      0.02     11.96         -         -         - blk_backing_dev_unplug
+  0.17      0.02     11.99         -         -         - qla2x00_build_scsi_iocbs_64
+  0.17      0.02     12.01         -         -         - blk_rq_map_sg
+  0.16      0.02     12.03         -         -         - swiotlb_unmap_sg
+  0.16      0.02     12.05         -         -         - sock_aio_write
+  0.16      0.02     12.07         -         -         - aio_setup_iocb
+  0.16      0.02     12.10         -         -         - blk_remove_plug
+  0.16      0.02     12.12         -         -         - ipc_lock
+  0.16      0.02     12.14         -         -         - __wake_up
+  0.15      0.02     12.16         -         -         - scsi_put_command
+  0.15      0.02     12.18         -         -         - scsi_end_request
+  0.15      0.02     12.20         -         -         - alloc_skb
+  0.15      0.02     12.22         -         -         - raw_end_aio
+  0.14      0.02     12.24         -         -         - cache_alloc_refill
+  0.14      0.02     12.26         -         -         - clear_queue_congested
+  0.14      0.02     12.27         -         -         - ia64_save_extra
+  0.14      0.02     12.29         -         -         - tcp_rtt_estimator
+  0.13      0.02     12.31         -         -         - ia64_leave_kernel
+  0.13      0.02     12.33         -         -         - ia64_syscall_setup
+  0.13      0.02     12.35         -         -         - tcp_write_xmit
+  0.13      0.02     12.36         -         -         - recalc_task_prio
+  0.13      0.02     12.38         -         -         - __tcp_v4_lookup_established
+  0.13      0.02     12.40         -         -         - scsi_io_completion
+  0.13      0.02     12.42         -         -         - sys_io_submit
+  0.12      0.02     12.43         -         -         - elv_merge
+  0.12      0.02     12.45         -         -         - skb_clone
+  0.12      0.02     12.47         -         -         - __kmalloc
+  0.12      0.02     12.48         -         -         - swiotlb_map_single
+  0.12      0.02     12.50         -         -         - __udivdi3
+  0.12      0.02     12.51         -         -         - get_io_context
+  0.12      0.02     12.53         -         -         - elevator_noop_merge
+  0.12      0.02     12.54         -         -         - __wake_up_common
+  0.12      0.02     12.56         -         -         - lookup_ioctx
+  0.11      0.02     12.58         -         -         - io_schedule
+  0.11      0.02     12.59         -         -         - net_rx_action
+  0.11      0.01     12.61         -         -         - disk_round_stats
+  0.11      0.01     12.62         -         -         - __generic_unplug_device
+  0.11      0.01     12.63         -         -         - tcp_event_data_recv
+  0.11      0.01     12.65         -         -         - __scsi_done
+  0.10      0.01     12.66         -         -         - dnotify_parent
+  0.10      0.01     12.68         -         -         - timer_interrupt
+  0.10      0.01     12.69         -         -         - ip_route_input
+  0.10      0.01     12.70         -         -         - sock_wfree
+  0.10      0.01     12.72         -         -         - add_timer_randomness
+  0.09      0.01     12.73         -         -         - run_timer_softirq
+  0.09      0.01     12.74         -         -         - sock_aio_read
+  0.09      0.01     12.75         -         -         - e1000_alloc_rx_buffers
+  0.09      0.01     12.77         -         -         - release_sock
+  0.09      0.01     12.78         -         -         - handle_IRQ_event
+  0.09      0.01     12.79         -         -         - pfifo_fast_enqueue
+  0.09      0.01     12.80         -         -         - ia64_load_extra
+  0.09      0.01     12.82         -         -         - finish_wait
+  0.08      0.01     12.83         -         -         - qla2x00_calc_iocbs_64
+  0.08      0.01     12.84         -         -         - find_busiest_group
+  0.08      0.01     12.85         -         -         - elevator_noop_next_request
+  0.08      0.01     12.86         -         -         - netif_receive_skb
+  0.08      0.01     12.87         -         -         - bio_destructor
+  0.08      0.01     12.88         -         -         - scsi_run_queue
+  0.08      0.01     12.89         -         -         - ip_output
+  0.07      0.01     12.90         -         -         - aio_pwrite
+  0.07      0.01     12.91         -         -         - ia64_ret_from_syscall
+  0.07      0.01     12.92         -         -         - add_disk_randomness
+  0.07      0.01     12.93         -         -         - scsi_decide_disposition
+  0.07      0.01     12.94         -         -         - do_sync_read
+  0.07      0.01     12.95         -         -         - bio_check_pages_dirty
+  0.07      0.01     12.96         -         -         - add_interrupt_randomness
+  0.06      0.01     12.97         -         -         - kobject_get
+  0.06      0.01     12.97         -         -         - sock_common_recvmsg
+  0.06      0.01     12.98         -         -         - get_device
+  0.06      0.01     12.99         -         -         - scsi_softirq
+  0.06      0.01     13.00         -         -         - aio_put_req
+  0.06      0.01     13.01         -         -         - freed_request
+  0.06      0.01     13.01         -         -         - scsi_add_timer
+  0.06      0.01     13.02         -         -         - elv_completed_request
+  0.06      0.01     13.03         -         -         - ip_rcv
+  0.06      0.01     13.04         -         -         - skb_copy_datagram_iovec
+  0.06      0.01     13.05         -         -         - iosapic_end_level_irq
+  0.06      0.01     13.05         -         -         - __tcp_select_window
+  0.06      0.01     13.06         -         -         - kobject_put
+  0.06      0.01     13.07         -         -         - activate_task
+  0.05      0.01     13.08         -         -         - sys_read
+  0.05      0.01     13.08         -         -         - elevator_noop_add_request
+  0.05      0.01     13.09         -         -         - elv_try_last_merge
+  0.05      0.01     13.10         -         -         - pfm_syst_wide_update_task
+  0.05      0.01     13.10         -         -         - elv_remove_request
+  0.05      0.01     13.11         -         -         - do_sync_write
+  0.05      0.01     13.12         -         -         - raw_file_aio_write
+  0.05      0.01     13.12         -         -         - tcp_v4_do_rcv
+  0.05      0.01     13.13         -         -         - __ia64_irq_desc
+  0.05      0.01     13.13         -         -         - prepare_to_wait
+  0.04      0.01     13.14         -         -         - ip_local_deliver_finish
+  0.04      0.01     13.15         -         -         - resched_task
+  0.04      0.01     13.15         -         -         - qla2x00_timer
+  0.04      0.01     13.16         -         -         - cleanup_rbuf
+  0.04      0.01     13.16         -         -         - memcpy_toiovec
+  0.04      0.01     13.17         -         -         - tcp_rcv_space_adjust
+  0.04      0.01     13.17         -         -         - cache_flusharray
+  0.04      0.01     13.18         -         -         - bio_phys_segments
+  0.04      0.01     13.18         -         -         - rbs_switch
+  0.04      0.01     13.19         -         -         - mempool_free_slab
+  0.04      0.01     13.20         -         -         - sys_semctl
+  0.04      0.01     13.20         -         -         - pfifo_fast_dequeue
+  0.04      0.01     13.21         -         -         - bio_endio
+  0.04      0.01     13.21         -         -         - ipcperms
+  0.04      0.01     13.22         -         -         - memcpy
+  0.04      0.01     13.22         -         -         - deactivate_task
+  0.04      0.00     13.23         -         -         - blk_run_queue
+  0.04      0.00     13.23         -         -         - find_extend_vma
+  0.04      0.00     13.24         -         -         - bio_set_pages_dirty
+  0.04      0.00     13.24         -         -         - raw_file_read
+  0.04      0.00     13.25         -         -         - tcp_send_delayed_ack
+  0.04      0.00     13.25         -         -         - swiotlb_unmap_single
+  0.03      0.00     13.26         -         -         - sk_reset_timer
+  0.03      0.00     13.26         -         -         - update_queue
+  0.03      0.00     13.26         -         -         - do_softirq
+  0.03      0.00     13.27         -         -         - __blk_put_request
+  0.03      0.00     13.27         -         -         - qla2x00_async_event
+  0.03      0.00     13.28         -         -         - __ia64_readl
+  0.03      0.00     13.28         -         -         - qla2x00_get_new_sp
+  0.03      0.00     13.29         -         -         - tcp_v4_send_check
+  0.03      0.00     13.29         -         -         - sd_rw_intr
+  0.03      0.00     13.29         -         -         - move_irq
+  0.03      0.00     13.30         -         -         - put_device
+  0.03      0.00     13.30         -         -         - raw_file_aio_read
+  0.03      0.00     13.30         -         -         - mark_clean
+  0.03      0.00     13.31         -         -         - time_interpolator_update
+  0.02      0.00     13.31         -         -         - ip_rcv_finish
+  0.02      0.00     13.31         -         -         - bio_hw_segments
+  0.02      0.00     13.32         -         -         - e1000_irq_enable
+  0.02      0.00     13.32         -         -         - fw2300ipx_version
+  0.02      0.00     13.32         -         -         - end_that_request_chunk
+  0.02      0.00     13.33         -         -         - find_vma_prev
+  0.02      0.00     13.33         -         -         - scsi_free_sgtable
+  0.02      0.00     13.33         -         -         - tcp_delack_timer
+  0.02      0.00     13.34         -         -         - ip_fast_csum
+  0.02      0.00     13.34         -         -         - __find_next_bit
+  0.02      0.00     13.34         -         -         - profile_tick
+  0.02      0.00     13.34         -         -         - ip_finish_output
+  0.02      0.00     13.35         -         -         - del_singleshot_timer_sync
+  0.02      0.00     13.35         -         -         - do_timer
+  0.02      0.00     13.35         -         -         - csum_tcpudp_magic
+  0.02      0.00     13.35         -         -         - autoremove_wake_function
+  0.02      0.00     13.36         -         -         - default_wake_function
+  0.02      0.00     13.36         -         -         - __sk_stream_mem_reclaim
+  0.02      0.00     13.36         -         -         - tcp_ack_saw_tstamp
+  0.02      0.00     13.36         -         -         - page_waitqueue
+  0.02      0.00     13.37         -         -         - ia64_pfn_valid
+  0.02      0.00     13.37         -         -         - elv_put_request
+  0.02      0.00     13.37         -         -         - tcp_set_skb_tso_segs
+  0.02      0.00     13.37         -         -         - mark_page_accessed
+  0.02      0.00     13.37         -         -         - __ia64_local_vector_to_irq
+  0.02      0.00     13.38         -         -         - wake_up_process
+  0.01      0.00     13.38         -         -         - kfree_skbmem
+  0.01      0.00     13.38         -         -         - scsi_next_command
+  0.01      0.00     13.38         -         -         - memcmp
+  0.01      0.00     13.39         -         -         - drain_array_locked
+  0.01      0.00     13.39         -         -         - lsapic_noop
+  0.01      0.00     13.39         -         -         - do_csum
+  0.01      0.00     13.39         -         -         - wake_up_page
+  0.01      0.00     13.39         -         -         - scsi_delete_timer
+  0.01      0.00     13.39         -         -         - cache_reap
+  0.01      0.00     13.40         -         -         - follow_page
+  0.01      0.00     13.40         -         -         - ip_local_deliver
+  0.01      0.00     13.40         -         -         - effective_prio
+  0.01      0.00     13.40         -         -         - skip_rbs_switch
+  0.01      0.00     13.40         -         -         - rt_hash_code
+  0.01      0.00     13.40         -         -         - nop
+  0.01      0.00     13.40         -         -         - scsi_done
+  0.01      0.00     13.41         -         -         - raw_end_io
+  0.01      0.00     13.41         -         -         - dont_preserve_current_frame
+  0.01      0.00     13.41         -         -         - raise_softirq_irqoff
+  0.01      0.00     13.41         -         -         - smp_send_reschedule
+  0.01      0.00     13.41         -         -         - raise_softirq
+  0.01      0.00     13.41         -         -         - unlock_page
+  0.01      0.00     13.41         -         -         - machvec_timer_interrupt
+  0.01      0.00     13.41         -         -         - tcp_cwnd_application_limited
+  0.01      0.00     13.41         -         -         - check_pgt_cache
+  0.01      0.00     13.42         -         -         - set_page_dirty
+  0.01      0.00     13.42         -         -         - e1000_read_phy_reg
+  0.01      0.00     13.42         -         -         - e1000_update_stats
+  0.01      0.00     13.42         -         -         - ia64_do_page_fault
+  0.01      0.00     13.42         -         -         - follow_huge_addr
+  0.01      0.00     13.42         -         -         - I_BDEV
+  0.01      0.00     13.42         -         -         - sk_stream_mem_schedule
+  0.00      0.00     13.42         -         -         - page_fault
+  0.00      0.00     13.42         -         -         - net_tx_action
+  0.00      0.00     13.42         -         -         - sys_gettimeofday
+  0.00      0.00     13.42         -         -         - __rcu_process_callbacks
+  0.00      0.00     13.42         -         -         - ipc_checkid
+  0.00      0.00     13.42         -         -         - __ia64_save_fpu
+  0.00      0.00     13.42         -         -         - find_busiest_queue
+  0.00      0.00     13.43         -         -         - pfm_stop
+  0.00      0.00     13.43         -         -         - sys_semop
+  0.00      0.00     13.43         -         -         - tcp_send_ack
+  0.00      0.00     13.43         -         -         - sys_poll
+  0.00      0.00     13.43         -         -         - free_block
+  0.00      0.00     13.43         -         -         - cascade
+  0.00      0.00     13.43         -         -         - do_select
+  0.00      0.00     13.43         -         -         - double_lock_balance
+  0.00      0.00     13.43         -         -         - i8042_interrupt
+  0.00      0.00     13.43         -         -         - __alloc_pages
+  0.00      0.00     13.43         -         -         - __ia64_inw
+  0.00      0.00     13.43         -         -         - handle_mm_fault
+  0.00      0.00     13.43         -         -         - del_timer_sync
+  0.00      0.00     13.43         -         -         - ia64_send_ipi
+  0.00      0.00     13.43         -         -         - ipc_unlock
+  0.00      0.00     13.43         -         -         - vsnprintf
+  0.00      0.00     13.43         -         -         - nr_blockdev_pages
+  0.00      0.00     13.43         -         -         - rcu_process_callbacks
+  0.00      0.00     13.43         -         -         - __free_pages
+  0.00      0.00     13.43         -         -         - ia64_fault
+  0.00      0.00     13.43         -         -         - ext2_permission
+  0.00      0.00     13.43         -         -         - profile_hit
+  0.00      0.00     13.43         -         -         - sys_lseek
+  0.00      0.00     13.43         -         -         - tasklet_action
+  0.00      0.00     13.43         -         -         - wb_kupdate
+  0.00      0.00     13.43         -         -         - alloc_pages_current
+  0.00      0.00     13.43         -         -         - buffered_rmqueue
+  0.00      0.00     13.43         -         -         - __get_free_pages
+  0.00      0.00     13.43         -         -         - show_stat
+  0.00      0.00     13.43         -         -         - batch_entropy_store
+  0.00      0.00     13.43         -         -         - __pollwait
+  0.00      0.00     13.43         -         -         - e1000_watchdog
+  0.00      0.00     13.43         -         -         - __tasklet_schedule
+  0.00      0.00     13.43         -         -         - run_local_timers
+  0.00      0.00     13.43         -         -         - task_timeslice
+  0.00      0.00     13.43         -         -         - __ia64_irq_to_vector
+  0.00      0.00     13.43         -         -         - do_generic_mapping_read
+  0.00      0.00     13.43         -         -         - bad_range
+  0.00      0.00     13.43         -         -         - time_interpolator_get_offset
+  0.00      0.00     13.43         -         -         - idle_cpu
 
-
-diff -Nru a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
---- a/Documentation/feature-removal-schedule.txt	2005-03-09 16:30:16 -08:00
-+++ b/Documentation/feature-removal-schedule.txt	2005-03-09 16:30:16 -08:00
-@@ -15,3 +15,12 @@
- 	against the LSB, and can be replaced by using udev.
- Who:	Greg Kroah-Hartman <greg@kroah.com>
- 
-+---------------------------
-+
-+What:	/proc/sys/cpu and the sysctl interface to cpufreq (2.4.x interfaces)
-+When:	January 2005
-+Files:	drivers/cpufreq/: cpufreq_userspace.c, proc_intf.c
-+	function calls throughout the kernel tree
-+Why:	Deprecated, has been replaced/superseded by (what?)....
-+Who:	Dominik Brodowski <linux@brodo.de>
-+
 

@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262866AbREVWPA>; Tue, 22 May 2001 18:15:00 -0400
+	id <S262867AbREVWSJ>; Tue, 22 May 2001 18:18:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262867AbREVWOt>; Tue, 22 May 2001 18:14:49 -0400
-Received: from age.cs.columbia.edu ([128.59.22.100]:11786 "EHLO
-	age.cs.columbia.edu") by vger.kernel.org with ESMTP
-	id <S262866AbREVWOg>; Tue, 22 May 2001 18:14:36 -0400
-Date: Tue, 22 May 2001 15:13:41 -0700 (PDT)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: <arjan@fenrus.demon.nl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Xircom RealPort versus 3COM 3C3FEM656C
-In-Reply-To: <m152Jn6-000Oh3C@amadeus.home.nl>
-Message-ID: <Pine.LNX.4.33.0105221504520.15140-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262868AbREVWRt>; Tue, 22 May 2001 18:17:49 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:39348 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262867AbREVWRm>;
+	Tue, 22 May 2001 18:17:42 -0400
+Date: Wed, 23 May 2001 00:17:04 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200105222217.AAA79157.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, dalecki@evision-ventures.com
+Subject: Re: [PATCH] struct char_device
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, viro@math.psu.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 May 2001 arjan@fenrus.demon.nl wrote:
+Martin Dalecki writes:
 
-> This sounds like a bug I have heard before: some switches don't work with
-> the xircom card (well, our drivers for it) when doing full duplex.
-> Could you try the latest driver from 
-> 
-> http://people.redhat.com/arjanv
-> 
-> which forces the card to half-duplex? 
+> Erm... I wasn't talking about the DESIRED state of affairs!
+> I was talking about the CURRENT state of affairs. OK?
 
-I doesn't help, the switch still thinks it's running in full-duplex mode.
-Performance is obviously the same.
+Oh, but in 1995 it was quite possible to compile the kernel
+with kdev_t a pointer type, and I have done it several times since.
 
-The switch I have is not managed, so there is nothing I can do on that 
-front. Any other suggestions?
+The kernel keeps growing, so each time it is more work than
+the previous time.
 
-[BTW, you've removed too many includes, the driver doesn't compile anymore 
-in the 2.4.4-ac tree.]
+> At least you have admitted that you where the one responsible
+> for the design of this MESS.
 
-Thanks,
-Ion
+Thank you! However, you give me too much honour.
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+Andries

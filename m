@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266428AbRGCCvl>; Mon, 2 Jul 2001 22:51:41 -0400
+	id <S266430AbRGCDDc>; Mon, 2 Jul 2001 23:03:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266427AbRGCCvc>; Mon, 2 Jul 2001 22:51:32 -0400
-Received: from ns.kias.re.kr ([210.98.29.2]:37007 "EHLO ns.kias.re.kr")
-	by vger.kernel.org with ESMTP id <S266428AbRGCCvU>;
-	Mon, 2 Jul 2001 22:51:20 -0400
-Date: Tue, 3 Jul 2001 11:52:10 +0900 (KST)
-From: <newton@ns.kias.re.kr>
-To: linux-kernel@vger.kernel.org
-Subject: [Q] IP Autoconfiguration problem..???
-Message-ID: <Pine.GSO.3.96K.1010703114612.10699A-100000@ns.kias.re.kr>
+	id <S266432AbRGCDDW>; Mon, 2 Jul 2001 23:03:22 -0400
+Received: from dsl081-080-099.lax1.dsl.speakeasy.net ([64.81.80.99]:12028 "EHLO
+	pelerin.serpentine.com") by vger.kernel.org with ESMTP
+	id <S266430AbRGCDDF>; Mon, 2 Jul 2001 23:03:05 -0400
+To: <newton@ns.kias.re.kr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Q] IP Autoconfiguration problem..???
+In-Reply-To: <Pine.GSO.3.96K.1010703114612.10699A-100000@ns.kias.re.kr>
+X-Shopping-List: (1) Biochemical eggplant coolants
+   (2) Pelvic egg flakes
+   (3) Perfidious suicides
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+Date: 02 Jul 2001 20:02:51 -0700
+In-Reply-To: <Pine.GSO.3.96K.1010703114612.10699A-100000@ns.kias.re.kr>
+Message-ID: <873d8e4sv8.fsf@pelerin.serpentine.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Academic Rigor)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+n> I use kernel 2.4.5 with IP Autoconfiguration included dhcp, bootp,
+n> rarp .
 
-Hi,
+n> but, This kernel has not request IP to my dhcp server.  so, kernel
+n> panic...
 
-I use kernel 2.4.5 with IP Autoconfiguration included
-dhcp, bootp, rarp .
+The default behaviour changed in 2.4.4-pre8.  You have to add ip=dhcp
+or ip=bootp to the kernel command line in order for the kernel to
+actually use autoconfiguration.
 
-but, This kernel has not request IP to my dhcp server.
-so, kernel panic...
-
-But, kernel 2.4.3 has no any problem.
-
-Help me!
-
-Peace be with you...:)
-
-                           Kihyung Ju
-
-------------------------------------------------------------------
-I love Jesus Christ who is my savior. He gives me meanning of life.
-In Christ, I have become shepherd and bible teacher.
- 
-e-mail : newton@kias.re.kr
-home   : http://newton.skku.ac.kr/~newton (My old home page)
- 
-------------------------------------------------------------------
-
+        <b

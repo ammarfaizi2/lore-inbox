@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263228AbSLTR4E>; Fri, 20 Dec 2002 12:56:04 -0500
+	id <S263280AbSLTR5N>; Fri, 20 Dec 2002 12:57:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263256AbSLTR4E>; Fri, 20 Dec 2002 12:56:04 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:52352 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S263228AbSLTR4D>;
-	Fri, 20 Dec 2002 12:56:03 -0500
-Date: Fri, 20 Dec 2002 19:04:01 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200212201804.TAA12661@harpo.it.uu.se>
-To: marcelo@conectiva.com.br
-Subject: Re: 2.4.21-pre1 broke the ide-tape driver
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+	id <S263313AbSLTR5N>; Fri, 20 Dec 2002 12:57:13 -0500
+Received: from nan-smtp-08.noos.net ([212.198.2.77]:14104 "EHLO smtp.noos.fr")
+	by vger.kernel.org with ESMTP id <S263280AbSLTR5L>;
+	Fri, 20 Dec 2002 12:57:11 -0500
+Message-ID: <3E035BD4.9000304@free.fr>
+Date: Fri, 20 Dec 2002 19:05:08 +0100
+From: Christian Gennerat <xgen@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.1) Gecko/20020913 Debian/1.1-1
+X-Accept-Language: fr-fr, fr, en
+MIME-Version: 1.0
+To: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
+CC: jt@hpl.hp.com, James McKenzie <james@fishsoup.dhs.org>,
+       Christian Gennerat <christian.gennerat@polytechnique.org>,
+       Martin Lucina <mato@kotelna.sk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4] : donauboe IrDA driver (resend)
+References: <20021219024632.GB1746@bougret.hpl.hp.com>	 <1040310314.1225.9.camel@localhost.localdomain>	 <20021219185630.GC6703@bougret.hpl.hp.com> <1040381739.1084.43.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Dec 2002 18:08:15 -0200 (BRST), Marcelo Tosatti wrote:
->> - ide-disk/ide-floppy do the test&call inside the loop rather than after,
->>   so possibly the call should be moved into the loop, and augmented
->>   to be "if (drive && drive->proc) ide_remove_proc_entries(...)".
->
->Yes... here is a patch which moves the ide_remove_proc_entries inside the
->detection loop. Without ide_remove_proc_entries inside the loop we would
->also not unregister more than one device /proc entries, too.
->
->Please test it, works for me.
+As I am not on LKML, I have not seen your
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0212.2/0900.html
+only Jean's reply.
 
-Tested. Works for me too.
+Your problem is the same as Martin Lucina had, and I can reply the same as
+Martin Lucina a écrit:
 
-/Mikael
+> kern.log:Oct 25 20:06:12 localhost kernel: 
+> TSTST<3>toshoboeprobe(1152000) failed filter test
+>
+> That's an almost 50/50 failure rate, by a completely unscientific
+> estimate.
+> Is the self test actually neccessary for the chip to function? If not,
+> is there much point in having it enabled, at least as far as 2.4.x is
+> concerned?
+>
+>  
+>
+The test shows that there is a deep misunderstanding of how works
+MIR mode, and chaining blocks for optimization at MIR mode.
+some people say "MIR works" . That is good for them.
+I would prefer to have "#undef USE_MIR"
 
->
->--- linux-bk/drivers/ide/ide-tape.c	2002-12-19 18:05:07.000000000 -0200
->+++ linux-2.4.21/drivers/ide/ide-tape.c	2002-12-19 17:59:39.000000000 -0200
->@@ -6597,14 +6597,16 @@
->
-> 	for (minor = 0; minor < MAX_HWIFS * MAX_DRIVES; minor++) {
-> 		drive = idetape_chrdevs[minor].drive;
->-		if (drive != NULL && idetape_cleanup(drive))
->-			printk(KERN_ERR "ide-tape: %s: cleanup_module() "
->-				"called while still busy\n", drive->name);
->-	}
->+		if (drive) {
->+			if (idetape_cleanup(drive))
->+				printk(KERN_ERR "ide-tape: %s: cleanup_module() "
->+					"called while still busy\n", drive->name);
-> #ifdef CONFIG_PROC_FS
->-	if (drive->proc)
->-		ide_remove_proc_entries(drive->proc, idetape_proc);
->+			if (drive->proc)
->+				ide_remove_proc_entries(drive->proc, idetape_proc);
-> #endif
->+		}
->+	}
->
-> 	ide_unregister_module(&idetape_module);
-> }
->
+So, test is not necessary for every day use. Just put
+options donauboe do_probe=0
+in your /etc/modules.conf
+
+
+
+
+

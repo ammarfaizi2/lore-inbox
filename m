@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262100AbTCTUcU>; Thu, 20 Mar 2003 15:32:20 -0500
+	id <S261994AbTCTUbW>; Thu, 20 Mar 2003 15:31:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262132AbTCTUcT>; Thu, 20 Mar 2003 15:32:19 -0500
-Received: from cygnus-ext.enyo.de ([212.9.189.162]:10501 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id <S262100AbTCTUcC>;
-	Thu, 20 Mar 2003 15:32:02 -0500
-To: linux-kernel@vger.kernel.org
+	id <S262064AbTCTUbW>; Thu, 20 Mar 2003 15:31:22 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:33796 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261994AbTCTUbU>; Thu, 20 Mar 2003 15:31:20 -0500
+Date: Thu, 20 Mar 2003 20:42:18 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
 Subject: Re: Release of 2.4.21
-From: Florian Weimer <fw@deneb.enyo.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Thu, 20 Mar 2003 21:43:01 +0100
-In-Reply-To: <20030320203015$4839@gated-at.bofh.it> (krause@sdbk.de's
- message of "Thu, 20 Mar 2003 21:30:15 +0100")
-Message-ID: <8765qdg46i.fsf@deneb.enyo.de>
-User-Agent: Gnus/5.090016 (Oort Gnus v0.16) Emacs/21.2 (gnu/linux)
-References: <20030320200019$6ddc@gated-at.bofh.it>
-	<20030320203015$4839@gated-at.bofh.it>
-MIME-Version: 1.0
+Message-ID: <20030320204218.A18517@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+	marcelo@conectiva.com.br
+References: <20030320195657.GA3270@drcomp.erfurt.thur.de> <874r5xyeky.fsf@sdbk.de> <20030320203407.GF8256@gtf.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030320203407.GF8256@gtf.org>; from jgarzik@pobox.com on Thu, Mar 20, 2003 at 03:34:07PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-krause@sdbk.de (Sebastian D.B. Krause) writes:
+On Thu, Mar 20, 2003 at 03:34:07PM -0500, Jeff Garzik wrote:
+> For critical fixes, release a 2.4.20.1, 2.4.20.2, etc.  Don't disrupt
+> the 2.4.21-pre cycle, that would be less productive than just patching
+> 2.4.20 and rolling a separate release off of that.
 
-> I think the best way is to release a 2.4.21 kernel with only the
-> most important fixes (e.g. ptrace, ext3) and no new features.
+I think the naming is illogical.  If there's a bugfix-only release
+it whould have normal incremental numbers.  So if marcelo want's
+it he should clone a tree of at 2.4.20, apply the essential patches
+and bump the version number in the normal 2.4 tree to 2.4.22-pre1
 
-You can do this on your own.  So what?
-
-Releasing an official 2.4.21 with some fixes (and no new features) is
-just a PR issue.  I've already seen people comparing the alleged IIS
-bug (or this new IE hole) and the ptrace() bug...

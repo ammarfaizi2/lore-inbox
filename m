@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266005AbTGDLxd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 07:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266007AbTGDLxd
+	id S266004AbTGDLxK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 07:53:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266005AbTGDLxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 07:53:33 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:14283 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S266005AbTGDLxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 07:53:31 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Frank Cusack <fcusack@fcusack.com>
-Date: Fri, 4 Jul 2003 22:07:49 +1000
-MIME-Version: 1.0
+	Fri, 4 Jul 2003 07:53:10 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:55434 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S266004AbTGDLxH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 07:53:07 -0400
+Date: Fri, 4 Jul 2003 13:07:32 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Zack Weinberg <zack@codesourcery.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Garbage collectors and VM (was Re: What to expect with the 2.6 VM)
+Message-ID: <20030704120732.GD22105@mail.jlokier.co.uk>
+References: <20030703184825.GA17090@mail.jlokier.co.uk> <87u1a2srwl.fsf@egil.codesourcery.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16133.28181.941806.630834@gargle.gargle.HOWL>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: help backporting workqueue to 2.4; for net/sunrpc/cache.c
-In-Reply-To: message from Frank Cusack on Friday July 4
-References: <20030704043537.A21552@google.com>
-X-Mailer: VM 7.16 under Emacs 21.3.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <87u1a2srwl.fsf@egil.codesourcery.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday July 4, fcusack@fcusack.com wrote:
-> Hi all,
-> 
-> Should I expect any problems backporting the 2.5 workqueue.c to 2.4?
-> It looks pretty straightforward, but I am {naive,novice}.  The only
-> interesting looking bit is setting current->flags |= PF_IOTHREAD,
-> which doesn't exist in 2.4.  At a glance, it looks like I can ignore
-> this; it's used in suspend.c which doesn't exist in 2.4 either.
-> 
-> The reason I'd like to backport this is because of changes in sunrpc
-> which now use the workqueue to clean auth caches.  Related question:
-> how is this (periodic cache clean) done in 2.5.73 and earlier?
-> net/sunrpc/cache.c didn't use the workqueue until 2.5.74.
+Zack Weinberg wrote:
+> Thus, a new pseudo-device, with the semantics:
 
-The nfsd threads called cache_clean() from nfsd() in nfsd/nfssvc.c,
-whenever they didn't have anything else to do, but this wasn't really
-often enough.  You could probably get them to do it after every
-request as cache_clean() does virtually nothing unless there is
-evidence that something needs doing.
+I like it!  I'd use it, too.
 
-NeilBrown
+>  * mmapping it creates anonymous pages, just like /dev/zero.
+>  * Data written to the file descriptor is interpreted as a list of
+>    user-space pointers to pages.  All the pages pointed to, that
+>    are anonymous pages created by mmapping that same descriptor,
+>    become read-only.
+>  * But when the program takes a write fault to such a page, the
+>    kernel simply records the user-space address of that page,
+>    resets it to read-write, and restarts the faulting instruction.
+>    The user space process doesn't get a signal.
+>  * Reading from the descriptor produces a list of user-space pointers
+>    to all the pages that have been reset to read-write since the last
+>    read.
 
+Would it be appropriate to have a limit on the number of pages which
+become writable before a signal is delivered instead of continuing to
+make more pages writable?  Just like the kernel, sometimes its good to
+limit the number of dirty pages in flight in userspace, too.
 
-> 
-> Any advice is appreciated.
-> 
-> thanks
-> /fc
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>  * I never decided what to do if the program forks.  The application I
+>    personally care about doesn't do that, but for a general GC like
+>    Boehm it matters.
+
+It should clone the state, obviously, and COW should be invisible to
+the application :)
+
+Btw, are these pages swappable?
+
+On a different but related topic, it would be most cool if there were
+a way for the kernel to request memory to be released from a userspace
+GC, prior to swapping the GC's memory.  Currently the best strategy is
+for each GC to guess how much of the machine's RAM it can use, however
+this is not a good strategy if you wish to launch multiple programs
+each of which has its own GC, nor is it a particularly good balance
+between GC application pages and other page-cache pages.
+
+-- Jamie

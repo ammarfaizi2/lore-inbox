@@ -1,81 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266810AbUBMHyC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 02:54:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266811AbUBMHyC
+	id S266718AbUBMH5g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 02:57:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUBMH5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 02:54:02 -0500
-Received: from ns.schottelius.org ([213.146.113.242]:31465 "HELO
-	ns.schottelius.org") by vger.kernel.org with SMTP id S266810AbUBMHx7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 02:53:59 -0500
-Date: Fri, 13 Feb 2004 08:54:03 +0100
-From: Nico Schottelius <nico-kernel@schottelius.org>
-To: linux-kernel@vger.kernel.org
-Subject: harddisk or kernel problem?
-Message-ID: <20040213075403.GC1881@schottelius.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Linux-Info: http://linux.schottelius.org/
-X-Operating-System: Linux bruehe 2.6.1
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 13 Feb 2004 02:57:34 -0500
+Received: from dp.samba.org ([66.70.73.150]:11915 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266718AbUBMH5b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 02:57:31 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Booting when CPUs fail to come up.
+Date: Fri, 13 Feb 2004 18:57:03 +1100
+Message-Id: <20040213075743.7D1332C12A@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+I recently played with setting a bit in cpu_possible_map that wasn't
+in cpu_online_map: this can happen without hotplug CPU when a CPU
+fails to boot, for example.
 
-Since yesterday I have the problem that at bootup my cryptoloop (/home) does not
-get mounted anymore. These messages are produced by the kernel:
+1) i386 should use cpu_callin_map for num_booting_cpus() (an x86-ism
+   anyway): if a CPU doesn't come up, it will be set in
+   cpu_possible_map (aka cpu_callout_map) but not cpu_callin_map.
 
----------------- snip ------------------
+2) When the cpu fails to come up, some callbacks do kthread_stop(),
+   which doesn't work without keventd (which hasn't started yet).
+   Call it directly, and take care that it restores signal state
+   (note: do_sigaction does a flush on blocked signals, so we don't
+   need to repeat it).
 
-Freeing unused kernel memory: 140k freed
-XFS mounting filesystem hda1
-Ending clean XFS mount for filesystem: hda1
-hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=8305458,
-sector=8305454
-end_request: I/O error, dev hda, sector 8305454
-I/O error in filesystem ("hda3") meta-data dev hda3 block 0x776090
-("xfs_trans_read_buf") error 5 buf count 8192
-8139too Fast Ethernet driver 0.9.26
-eth0: RealTek RTL8139 at 0xd8850e00, 00:0a:e6:ba:f6:c2, IRQ 5
-eth0:  Identified 8139 chip type 'RTL-8100B/8139D'
-hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=8305458,
-sector=8305454
-end_request: I/O error, dev hda, sector 8305454
-I/O error in filesystem ("hda3") meta-data dev hda3 block 0x776090
-("xfs_trans_read_buf") error 5 buf count 8192
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13580-linux-2.6.3-rc2-mm1/arch/i386/kernel/smpboot.c .13580-linux-2.6.3-rc2-mm1.updated/arch/i386/kernel/smpboot.c
+--- .13580-linux-2.6.3-rc2-mm1/arch/i386/kernel/smpboot.c	2004-02-13 17:28:16.000000000 +1100
++++ .13580-linux-2.6.3-rc2-mm1.updated/arch/i386/kernel/smpboot.c	2004-02-13 17:28:17.000000000 +1100
+@@ -67,7 +67,7 @@ int smp_num_siblings = 1;
+ int phys_proc_id[NR_CPUS]; /* Package ID of each logical CPU */
+ 
+ 
+-static cpumask_t cpu_callin_map;
++cpumask_t cpu_callin_map;
+ cpumask_t cpu_callout_map;
+ static cpumask_t smp_commenced_mask;
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13580-linux-2.6.3-rc2-mm1/include/asm-i386/smp.h .13580-linux-2.6.3-rc2-mm1.updated/include/asm-i386/smp.h
+--- .13580-linux-2.6.3-rc2-mm1/include/asm-i386/smp.h	2004-02-13 17:28:15.000000000 +1100
++++ .13580-linux-2.6.3-rc2-mm1.updated/include/asm-i386/smp.h	2004-02-13 17:28:17.000000000 +1100
+@@ -58,7 +58,8 @@ extern cpumask_t cpu_callout_map;
+ /* We don't mark CPUs online until __cpu_up(), so we need another measure */
+ static inline int num_booting_cpus(void)
+ {
+-	return cpus_weight(cpu_callout_map);
++	extern cpumask_t cpu_callin_map;
++	return cpus_weight(cpu_callin_map);
+ }
+ 
+ extern void map_cpu_to_logical_apicid(void);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .13580-linux-2.6.3-rc2-mm1/kernel/kthread.c .13580-linux-2.6.3-rc2-mm1.updated/kernel/kthread.c
+--- .13580-linux-2.6.3-rc2-mm1/kernel/kthread.c	2004-02-13 17:28:12.000000000 +1100
++++ .13580-linux-2.6.3-rc2-mm1.updated/kernel/kthread.c	2004-02-13 17:32:05.000000000 +1100
+@@ -100,15 +100,16 @@ static void keventd_stop_kthread(void *_
+ {
+ 	struct kthread_stop_info *stop = _stop;
+ 	int status, pid;
+-	sigset_t blocked;
+-	struct k_sigaction sa;
++	sigset_t chldonly, oldset;
++	struct k_sigaction sa, oldsa;
+ 
+ 	/* Install a handler so SIGCHLD is actually delivered */
+ 	sa.sa.sa_handler = SIG_DFL;
+ 	sa.sa.sa_flags = 0;
+ 	siginitset(&sa.sa.sa_mask, sigmask(SIGCHLD));
+-	do_sigaction(SIGCHLD, &sa, (struct k_sigaction *)0);
+-	allow_signal(SIGCHLD);
++	siginitset(&chldonly, sigmask(SIGCHLD));
++	do_sigaction(SIGCHLD, &sa, &oldsa);
++	sigprocmask(SIG_UNBLOCK, &chldonly, &oldset);
+ 
+ 	adopt_kthread(stop->k);
+ 	/* Grab pid now: after waitpid(), stop->k is invalid. */
+@@ -123,12 +124,9 @@ static void keventd_stop_kthread(void *_
+ 	stop->result = -((status >> 8) & 0xFF);
+ 	complete(&stop->done);
+ 
+-	/* Back to normal: block and flush all signals */
+-	sigfillset(&blocked);
+-	sigprocmask(SIG_BLOCK, &blocked, NULL);
+-	flush_signals(current);
+-	sa.sa.sa_handler = SIG_IGN;
+-	do_sigaction(SIGCHLD, &sa, (struct k_sigaction *)0);
++	/* Return to normal, then reap any children who died in the race. */
++	sigprocmask(SIG_SETMASK, &oldset, NULL);
++	do_sigaction(SIGCHLD, &oldsa, NULL);
+ 	while (waitpid(-1, &status, __WALL|WNOHANG) > 0);
+ }
+ 
+@@ -179,7 +177,12 @@ int kthread_stop(struct task_struct *k)
+ 	stop.k = k;
+ 	init_completion(&stop.done);
+ 
+-	schedule_work(&work);
+-	wait_for_completion(&stop.done);
++	/* At boot, if CPUs fail to come up, this happens. */
++	if (!keventd_up())
++		work.func(work.data);
++	else {
++		schedule_work(&work);
++		wait_for_completion(&stop.done);
++	}
+ 	return stop.result;
+ }
 
-
----------------- snap ------------------
-
-
-if I log in as root and issue `mount /home`, it works:
-
----------------- snip ------------------
-
-XFS mounting filesystem loop0
-Ending clean XFS mount for filesystem: loop0
-
----------------- snap ------------------
-
-Yesterday the errors
- `hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }`
-repeated (don't have the dmesg, forgot to dump kernel messages).
-
-Now I am trying the following:
-enabling Anticipatory I/O scheduler (additionaly to the Deadline I/O
-scheduler) and disabling Vector-based interrupt indexing.
-
-This is just a guess, can someone tell me if that is senseless or if my
-harddisk is most likely broken?
-
-Attached dmesg from 'running' system and the new .config (changes see
-above) I made.
-
-Help is very much appreciated,
-
-Nico, who just had a hard disk crash some weeks ago
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286540AbRLUUZD>; Fri, 21 Dec 2001 15:25:03 -0500
+	id <S286349AbRLUUY4>; Fri, 21 Dec 2001 15:24:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285129AbRLUUY4>; Fri, 21 Dec 2001 15:24:56 -0500
-Received: from kaboom.dsl.xmission.com ([166.70.87.226]:47528 "EHLO
-	mail.oobleck.net") by vger.kernel.org with ESMTP id <S285128AbRLUUYp>;
-	Fri, 21 Dec 2001 15:24:45 -0500
-Date: Fri, 21 Dec 2001 13:24:44 -0700 (MST)
-From: Chris Ricker <kaboom@gatech.edu>
-Reply-To: World Domination Now! <linux-kernel@vger.kernel.org>
-To: World Domination Now! <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy
-In-Reply-To: <200112211937.fBLJbkSr021293@svr3.applink.net>
-Message-ID: <Pine.LNX.4.33.0112211313160.30646-100000@verdande.oobleck.net>
+	id <S285129AbRLUUYn>; Fri, 21 Dec 2001 15:24:43 -0500
+Received: from aldebaran.sra.com ([163.252.31.31]:54717 "EHLO
+	aldebaran.sra.com") by vger.kernel.org with ESMTP
+	id <S285128AbRLUUYf>; Fri, 21 Dec 2001 15:24:35 -0500
+From: David Garfield <garfield@irving.iisd.sra.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15395.39479.366221.613466@irving.iisd.sra.com>
+Date: Fri, 21 Dec 2001 15:23:19 -0500
+To: esr@thyrsus.com
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help editorial policy
+In-Reply-To: <20011221134034.B11147@thyrsus.com>
+In-Reply-To: <20011220143247.A19377@thyrsus.com>
+	<15394.29882.361540.200600@irving.iisd.sra.com>
+	<20011220185226.A25080@thyrsus.com>
+	<15395.33489.779730.767039@irving.iisd.sra.com>
+	<20011221134034.B11147@thyrsus.com>
+X-Mailer: VM 6.96 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Dec 2001, Timothy Covell wrote:
+Eric S. Raymond writes:
+ > What, and *encourage* non-uniform terminology?  No, I won't do that.
+ > Better to have a single standard set of abbreviations, no matter how
+ > ugly, than this.
 
+Valid argument.  I will point out that the current version is
+non-uniform.  Quoting from Configure.help :
+
+
+> # Choice: himem
+> High Memory support
+> CONFIG_NOHIGHMEM
+>   Linux can use up to 64 Gigabytes of physical memory on x86 systems.
+>   However, the address space of 32-bit x86 processors is only 4
+>   Gigabytes large. That means that, if you have a large amount of
+>   physical memory, not all of it can be "permanently mapped" by the
+>   kernel. The physical memory that's not permanently mapped is called
+>   "high memory".
 > 
-> On Friday 21 December 2001 13:12, David Weinehall wrote:
-> [snip]
+>   If you are compiling a kernel which will never run on a machine with
+>   more than 960 megabytes of total physical RAM, answer "off" here
+>   (default choice and suitable for most users). This will result in a
+>   "3GiB/1GiB" split: 3GiB are mapped so that each process sees a 3GiB
+>   virtual memory space and the remaining part of the 4GiB virtual memory
+>   space is used by the kernel to permanently map as much physical memory
+>   as possible.
 > 
-> > Whatever the choice ends up being, KB is always incorrect, unless you
-> > intend to specify some strange formula where the number of bytes (B)
-> > combined with the temperature in Kelvin (K) has anything to do with
-> > things.
-> >
-> >
-> >
-> > /David Weinehall
-> 
-> The way the metric prefixes work is that multiplicative prefixes are
-> capitalized and divisional prefixes are in lower case.
+>   If the machine has between 1 and 4 Gigabytes physical RAM, then
+>   answer "4GB" here.
 
-Nonsense.  Some of what you're calling multiplicative prefixes (as if they
-weren't *all* multiplicative ;-) are capitalized, and others are not.  kilo
-(10^3) is k, hecto (10^2) is h, and deca (10^1) is da, for example.  See
-<http://www.bipm.fr/enus/6_Publications/si/si-brochure.html> for the
-official guidelines (page 23 if you read English, and page 28 if you read
-French).
 
-More relevant to the whole Configure.help discussion, if you want to
-pedantic, official SI guidelines also state on the same page that:
+Note "3GiB/1GiB" and "4GB".
 
-"These SI prefixes refer strictly to powers of 10.  They should not be used 
-to indicate powers of 2 (for example, one kilobit represents 1000 bits and 
-not 1024 bits)."
-
-later,
-chris
-
+--David

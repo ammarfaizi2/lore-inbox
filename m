@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266920AbUFZCFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266166AbUFZCKW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266920AbUFZCFl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 22:05:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266923AbUFZCFl
+	id S266166AbUFZCKW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 22:10:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266923AbUFZCKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 22:05:41 -0400
-Received: from mail012.syd.optusnet.com.au ([211.29.132.66]:52387 "EHLO
-	mail012.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266920AbUFZCFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 22:05:38 -0400
-Message-ID: <40DCD9EA.1030906@kolivas.org>
-Date: Sat, 26 Jun 2004 12:05:30 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
-X-Accept-Language: en-us, en
+	Fri, 25 Jun 2004 22:10:22 -0400
+Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:29552 "HELO
+	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266166AbUFZCKV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 22:10:21 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: KBD failure in X?
+Date: Fri, 25 Jun 2004 21:10:18 -0500
+User-Agent: KMail/1.6.2
+Cc: tom st denis <tomstdenis@yahoo.com>
+References: <20040625225010.59377.qmail@web41108.mail.yahoo.com>
+In-Reply-To: <20040625225010.59377.qmail@web41108.mail.yahoo.com>
 MIME-Version: 1.0
-To: Michael Buesch <mbuesch@freenet.de>
-Cc: Willy Tarreau <willy@w.ods.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Staircase scheduler v7.4
-References: <200406251840.46577.mbuesch@freenet.de> <200406252044.25843.mbuesch@freenet.de> <20040625190533.GI29808@alpha.home.local> <200406252148.37606.mbuesch@freenet.de>
-In-Reply-To: <200406252148.37606.mbuesch@freenet.de>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406252110.18578.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Friday 25 June 2004 05:50 pm, tom st denis wrote:
+> Hi, I'm running Gentoo Linux on an x86 Laptop [Compaq Presario].  I've
+> been running 2.4.26, 2.6.6-rc3 and 2.6.7 for a while [well 2.6.7 ever
+> since it came out].
+> 
+> Now just recently I've been getting error [see attached dmesg log]. 
+> XFree doesn't report any errors it just shuts down [yeah helpful!].
+> 
 
-Michael Buesch wrote:
-| On Friday 25 June 2004 21:05, you wrote:
-|
-|>>Hi Michael,
-|>>
-|>>On Fri, Jun 25, 2004 at 08:44:22PM +0200, Michael Buesch wrote:
-|>>
-|>>
-|>>>I don't know what the file wchan is good for, but here is
-|>>>it's output:
-|>>>mb@lfs:/proc/11000> cat wchan
-|>>>sys_wait4
-|>>
-|>>I bet the process is waiting for a SIGCHLD from a previously forked
-|>>process. Con, would it be possible that under some circumstances,
-|>>a process does not receive a SIGCHLD anymore, eg if the child runs
-|>>shorter than a full timeslice or something like that ? In autoconf
-|>>scripts, there are lots of very short operations that might trigger
-|>>such unique cases.
-| But as the load grows, the system is usable as with load 0.0.
-| And it really should be usable with 76.0% nice. ;) No problem here.
-| This really high load is not correct.
+If you referring to these messages:
 
-I think you're right about having no timeslice.
+atkbd.c: Spurious ACK on isa0060/serio0. Some program, like XFree86, might be trying access hardware directly.
+atkbd.c: Spurious ACK on isa0060/serio0. Some program, like XFree86, might be trying access hardware directly.
 
-It does appear that I fixed two things and introduced 2 more bugs. I'll
-fix it in the next couple of days.
-
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFA3NnqZUg7+tp6mRURAk7tAJ9bKHWsnnNOf9j0PGXKh23rvBAbPQCfWC+8
-w+VCt4GhvaR/bL6s9+GjrOQ=
-=KIkQ
------END PGP SIGNATURE-----
+they are usually harmless and pretty much everyone gets them. Why would
+your X server shut down - I have no idea as it does not report any errors
+(at least none in the log you provided).
+ 
+-- 
+Dmitry

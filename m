@@ -1,29 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280771AbRKYJLX>; Sun, 25 Nov 2001 04:11:23 -0500
+	id <S280776AbRKYJNE>; Sun, 25 Nov 2001 04:13:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280774AbRKYJLO>; Sun, 25 Nov 2001 04:11:14 -0500
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:12299
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S280771AbRKYJK7>; Sun, 25 Nov 2001 04:10:59 -0500
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200111250847.fAP8lVA27419@www.hockin.org>
-Subject: Re: eepro100 Driver Problems ( wait
-To: sidcarter@symonds.net
-Date: Sun, 25 Nov 2001 00:47:31 -0800 (PST)
+	id <S280774AbRKYJMz>; Sun, 25 Nov 2001 04:12:55 -0500
+Received: from weta.f00f.org ([203.167.249.89]:2969 "EHLO weta.f00f.org")
+	by vger.kernel.org with ESMTP id <S280776AbRKYJMm>;
+	Sun, 25 Nov 2001 04:12:42 -0500
+Date: Sun, 25 Nov 2001 22:14:18 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87zo5bgsk6.fsf@toboggan.in.ibm.com> from "Sid Carter" at Nov 25, 2001 02:01:37 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+Subject: Re: Journaling pointless with today's hard disks?
+Message-ID: <20011125221418.A9672@weta.f00f.org>
+In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de>
+User-Agent: Mutt/1.3.23i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Nov 25 13:43:58 toboggan kernel: eepro100: wait_for_cmd_done timeout!
-> Nov 25 13:44:13 toboggan last message repeated 5 times
+On Sat, Nov 24, 2001 at 02:03:11PM +0100, Florian Weimer wrote:
+
+    When the drive is powered down during a write operation, the
+    sector which was being written has got an incorrect checksum
+    stored on disk.  So far, so good---but if the sector is read
+    later, the drive returns a *permanent*, *hard* error, which can
+    only be removed by a low-level format (IBM provides a tool for
+    it).  The drive does not automatically map out such sectors.
+
+AVOID SUCH DRIVES... I have both Seagate and IBM SCSI drives which a
+are hot-swappable in a test machine that I used for testing various
+journalling filesystems a while back for reliability.
+
+Some (many) of those tests involved removed the disk during writes
+(literally) and checking the results afterwards.
+
+The drives were set not to write-cache (they don't by default, but all
+my IDE drives do, so maybe this is a SCSI thing?)
+
+At no point did I ever see a partial write or corrupted sector; nor
+have I seen any appear in the grown table, so as best as I can tell
+even under removal with sustain writes there are SOME DRIVES WHERE
+THIS ISN'T A PROBLEM.
 
 
-We have a patch for eepro100.c that should fix up a lot of issues - I need
-to clean it up and solicit testers this week.
+Now, since EMC, NetApp, Sun, HP, Compaq, etc. all have products which
+presumable depend on this behavior, I don't think it's going to go
+away, it perhaps will just become important to know which drives are
+brain-damaged and list them so people can avoid them.
 
+As this will affect the Windows world too consumer pressure will
+hopefully rectify this problem.
+
+
+
+
+  --cw
+
+P.S. Write-caching in hard-drives is insanely dangerous for
+     journalling filesystems and can result in all sorts of nasties.
+     I recommend people turn this off in their init scripts (perhaps I
+     will send a patch for the kernel to do this on boot, I just
+     wonder if it will eat some drives).

@@ -1,70 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264340AbUD0UjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264345AbUD0Umg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264340AbUD0UjR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 16:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264344AbUD0UjQ
+	id S264345AbUD0Umg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 16:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264352AbUD0Umg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 16:39:16 -0400
-Received: from [80.72.36.106] ([80.72.36.106]:50312 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S264340AbUD0UjO (ORCPT
+	Tue, 27 Apr 2004 16:42:36 -0400
+Received: from mail.gmx.de ([213.165.64.20]:18318 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264345AbUD0Ume (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 16:39:14 -0400
-Date: Tue, 27 Apr 2004 22:39:09 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc2-bk3 (and earlier?) mount problem (?
-In-Reply-To: <20040427202813.GA17014@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.58.0404272232030.9618@alpha.polcom.net>
-References: <Pine.LNX.4.58.0404270157160.6900@alpha.polcom.net>
- <20040427002323.GW17014@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0404261758230.19703@ppc970.osdl.org>
- <20040427010748.GY17014@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0404271106500.22815@alpha.polcom.net> <1083070293.30344.116.camel@watt.suse.com>
- <Pine.LNX.4.58.0404271500210.27538@alpha.polcom.net> <20040427140533.GI14129@stingr.net>
- <20040427183410.GZ17014@parcelfarce.linux.theplanet.co.uk>
- <20040427200459.GJ14129@stingr.net> <20040427202813.GA17014@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Apr 2004 16:42:34 -0400
+X-Authenticated: #1226656
+Date: Tue, 27 Apr 2004 22:42:31 +0200
+From: Marc Giger <gigerstyle@gmx.ch>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Dru <andru@treshna.com>, linux-xfs@oss.sgi.com,
+       =?ISO-8859-1?Q?M=E5ns_?= =?ISO-8859-1?Q?Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: status of Linux on Alpha?
+Message-Id: <20040427224231.0e439344@vaio.gigerstyle.ch>
+In-Reply-To: <20040428002018.A827@den.park.msu.ru>
+References: <yw1xr7vcn1z2.fsf@ford.guide>
+	<20040329205233.5b7905aa@vaio.gigerstyle.ch>
+	<20040404121032.7bb42b35@vaio.gigerstyle.ch>
+	<20040409134534.67805dfd@vaio.gigerstyle.ch>
+	<20040409134828.0e2984e5@vaio.gigerstyle.ch>
+	<20040409230651.A727@den.park.msu.ru>
+	<20040413194907.7ce8ceb7@vaio.gigerstyle.ch>
+	<20040427185124.134073cd@vaio.gigerstyle.ch>
+	<20040427215514.A651@den.park.msu.ru>
+	<20040427200830.3f485a54@vaio.gigerstyle.ch>
+	<20040428002018.A827@den.park.msu.ru>
+X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Apr 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
+On Wed, 28 Apr 2004 00:20:18 +0400
+Ivan Kokshaysky <ink@jurassic.park.msu.ru> wrote:
 
-> On Wed, Apr 28, 2004 at 12:04:59AM +0400, Paul P Komkoff Jr wrote:
-> > > Excuse me?  The damn thing had found nothing.  However, it didn't care
-> > > to release the devices it had claimed - hadn't even closed them, as the
-> > > matter of fact.  That's a clear and obvious bug, regardless of any
-> > > disagreements.
-> > 
-> > As far as I can see from here, evms parsed partition table, called
-> > dmsetup several times and created corresponding nodes in /dev/evms.
+> On Tue, Apr 27, 2004 at 08:08:30PM +0200, Marc Giger wrote:
+> > I wonder why it happens only with the XFS code. What I saw
+> > rw_sem is used all over the place in the kernel.
 > 
-> ... without saying anything?
-> 
-> > Logic is easy - evms trying to concentrate block device management
-> > into its own hands, but we have in-kernel partitioning code to
-> > consider ...
-> 
-> How nice of them.
-> 
-> Well, AFAICS that means
-> 	a) either kernel side of the things or the userland tools should
-> printk/syslog - at least that evms device had been set up
-> 	b) any distribution that runs this from initrd/init scripts would
-> better take care of having sane fstab.
-> 	c) nobody sane should put that as default.  Oh, wait, it's gentoo
-> we are talking about?  Nevermind, then.
+> Dru says it happens with ext3 as well. XFS folks used their own
+> locking code (which hasn't suffered from that bug) until 2.6.4,
+> that's why you noticed the difference...
 
-But what default? Gentoo just calls evms_activate before mounting 
-filesystems to check if there are evms volumes (because filesystems can 
-reside on it). And, according to man page, this is the right usage of 
-evms_activate. And Gentoo could not know easily that I have no evms 
-volumes in the system. And I possibly could insert some and boot Gentoo 
-(and for example have label not device in fstab to specify fs to mount). I 
-really think that evms_activate should not take the device that is not for 
-it. And I think Gentoo is right. (And it is the best distro I ever tried.)
+Yes, as I saw that the patch uses the semaphore code in "arch" I was
+not sure any longer if it is really a XFS related bug.
 
+> In either case, you need _really_ heavy write IO activity to
+> trigger the bug.
 
-Grzegorz Kulewski
+I noticed that. The best way to trigger it was "make -j20 vmlinux"
+so that the pdflushd comes strongly into action.
 
+Perhaps Dru can show me his "easy way" to reproduce the problem so that
+I can test it more easily.
+
+Thanks again
+
+Marc

@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264555AbTFEJcE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 05:32:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264582AbTFEJcE
+	id S264551AbTFEJmh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 05:42:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264554AbTFEJmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 05:32:04 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:27330 "EHLO gaston")
-	by vger.kernel.org with ESMTP id S264555AbTFEJcD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 05:32:03 -0400
-Subject: Re: Another must-fix: sbp2 and firewire hard disk crashes hard.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Torrey Hoffman <thoffman@arnor.net>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1054770509.1198.79.camel@torrey.et.myrio.com>
-References: <1054770509.1198.79.camel@torrey.et.myrio.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054800210.700.25.camel@gaston>
+	Thu, 5 Jun 2003 05:42:37 -0400
+Received: from h24-87-160-169.vn.shawcable.net ([24.87.160.169]:1412 "EHLO
+	oof.localnet") by vger.kernel.org with ESMTP id S264551AbTFEJmg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 05:42:36 -0400
+Date: Thu, 5 Jun 2003 02:56:06 -0700
+From: Simon Kirby <sim@netnation.com>
+To: linux-kernel@vger.kernel.org
+Subject: [2.5.70] ext2 floppy corruption
+Message-ID: <20030605095606.GA4415@netnation.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 05 Jun 2003 10:03:31 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-06-05 at 01:48, Torrey Hoffman wrote:
-> This must be something about my particular hardware/software
-> configuration or more people would be reporting it.   
-> 
-> I will try to nail down the problem, but as soon as the SBP2 driver in
-> 2.5.(recent) sees my firewire drive, either during kernel boot or later
-> if I turn on / plug in the drive, the system crashes and dumps a
-> seemingly endless stack trace.  It doesn't make it to the system log, so
-> I don't have much more than that yet.
-> 
-> Many more details available on request.  And more information coming
-> regardless.   
-> 
-> Unfortunately for me, 2.4 is extremely flaky for sbp2 as well. (sigh). 
-> Red Hat kernels oops a few seconds after the drive is plugged in, but
-> the system keeps running so I have some decoded oops for those at
-> least.  I'll try to get one from a stock 2.4.recent...
+With 2.5.70 and 2.5.66 (just tried those two), I see floppy corruption
+when I attempt to copy a kernel file to a floppy formatted with ext2. 
+Rebooting into 2.4.21rc7 and rerunning the copy seems to cure the
+problem.
 
->From experience, sbp2 with a recent ieee1394 linux_2_4 SVN branch
-snapshot works quite well. I updated the one in my tree about
-3 weeks ago and have been successfull playing with an iPod, burning
-CDs, etc...
+To reproduce:
 
-Ben.
+mke2fs /dev/fd0
+mount /dev/fd0 /a
+cp -a /vmlinuz /a
+umount /a
+mount /a
+md5sum /a/vmlinuz /vmlinuz
 
+I get the wrong md5sum consistently from the floppy.  When attempting to
+boot this kernel with grub, I get a "attempting to access data outside of
+partition" error after it is loading for a little while.
+
+If I mkdosfs on the same floppy and copy over the kernel, it seems to
+work properly.
+
+I will try to track this down further if nobody has any immediate ideas.
+
+Simon-
+
+[        Simon Kirby        ][        Network Operations        ]
+[     sim@netnation.com     ][     NetNation Communications     ]
+[  Opinions expressed are not necessarily those of my employer. ]

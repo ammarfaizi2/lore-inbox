@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262355AbRFTQBv>; Wed, 20 Jun 2001 12:01:51 -0400
+	id <S263298AbRFTQNC>; Wed, 20 Jun 2001 12:13:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262550AbRFTQBl>; Wed, 20 Jun 2001 12:01:41 -0400
-Received: from 22dyn160.com21.casema.net ([213.17.92.160]:65295 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S262355AbRFTQB2>;
-	Wed, 20 Jun 2001 12:01:28 -0400
-Date: Wed, 20 Jun 2001 17:59:37 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Threads are processes that share more
-Message-ID: <20010620175937.A8159@home.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Alexander Viro <viro@math.psu.edu>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <d37ky7ch0w.fsf@lxplus015.cern.ch> <Pine.GSO.4.21.0106201127350.24658-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0106201127350.24658-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Jun 20, 2001 at 11:33:55AM -0400
+	id <S263357AbRFTQMw>; Wed, 20 Jun 2001 12:12:52 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:6785 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S263298AbRFTQMp>; Wed, 20 Jun 2001 12:12:45 -0400
+Date: Wed, 20 Jun 2001 10:12:38 -0600
+Message-Id: <200106201612.f5KGCca06372@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Mike Galbraith <mikeg@wen-online.de>, Rik van Riel <riel@conectiva.com.br>,
+        Pavel Machek <pavel@suse.cz>, John Stoffel <stoffel@casc.com>,
+        Roger Larsson <roger.larsson@norran.net>, <thunder7@xs4all.nl>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Early flush (was: spindown)
+In-Reply-To: <01062016294903.00439@starship>
+In-Reply-To: <Pine.LNX.4.33.0106171156410.318-100000@mikeg.weiden.de>
+	<01062003503300.00439@starship>
+	<200106200439.f5K4d4501462@vindaloo.ras.ucalgary.ca>
+	<01062016294903.00439@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rounding up, it may be worth repeating what I think Alan said some months
-ago:
+Daniel Phillips writes:
+> On Wednesday 20 June 2001 06:39, Richard Gooch wrote:
+> > Starting I/O immediately if there is no load sounds nice. However,
+> > what about the other case, when the disc is already spun down (and
+> > hence there's no I/O load either)? I want the system to avoid doing
+> > writes while the disc is spun down. I'm quite happy for the system to
+> > accumulate dirtied pages/buffers, reclaiming clean pages as needed,
+> > until it absolutely has to start writing out (or I call sync(2)).
+> 
+> I'd like that too, but what about sync writes?  As things stand now,
+> there is no option but to spin the disk back up.  To get around this
+> we'd have to change the basic behavior of the block device and
+> that's doable, but it's an entirely different proposition than the
+> little patch above.
 
-                    Threads are processes that share more
+I don't care as much about sync writes. They don't seem to happen very
+often on my boxes.
 
-And if we just keep bearing that out to everybody a lot of the myths will go
-away. I would suggest that the pthreads manpages get this attitude.
+> You know about this project no doubt:
+> 
+>    http://noflushd.sourceforge.net/
 
-Regards,
+Only vaguely. It's huge. Over 2300 lines of C code and >560 lines in
+.h files! As you say, not really lightweight. There must be a better
+way. Also, I suspect (without having looked at the code) that it
+doesn't handle memory pressure well. Things may get nasty when we run
+low on free pages.
 
-bert hubert
+				Regards,
 
--- 
-http://www.PowerDNS.com      Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

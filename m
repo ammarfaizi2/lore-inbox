@@ -1,40 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbVAZAYw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbVAZA1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbVAZAYw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 19:24:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbVAZAXu
+	id S262272AbVAZA1y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 19:27:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbVAZAZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 19:23:50 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:5104 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262261AbVAZAXW (ORCPT
+	Tue, 25 Jan 2005 19:25:17 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:21710 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262268AbVAZAXy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 19:23:22 -0500
-Subject: [RFC][PATCH 0/5] consolidate i386 NUMA init code
+	Tue, 25 Jan 2005 19:23:54 -0500
+Subject: [RFC][PATCH 5/5] do not unnecessarily memset the pgdats
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, Dave Hansen <haveblue@us.ibm.com>, apw@shadowen.org
 From: Dave Hansen <haveblue@us.ibm.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: linux-mm <linux-mm@kvack.org>
-Content-Type: text/plain
-Date: Tue, 25 Jan 2005 16:23:05 -0800
-Message-Id: <1106698985.6093.39.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Date: Tue, 25 Jan 2005 16:23:48 -0800
+Message-Id: <E1CtayL-00077d-00@kernel.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following five patches reorganize and consolidate some of the i386
-NUMA/discontigmem code.  They grew out of some observations as we
-produced the memory hotplug patches.
 
-Only the first one is really necessary, as it makes the implementation
-of one of the hotplug components much simpler and smaller.  2 and 3 came
-from just looking at the effects on the code after 1.
+Both the pgdats and the struct zonelist are zeroed unnecessarily.
+The zonelist is a member of the pgdat, so any time the pgdat is
+cleared, so is the zonelist.  All of the architectures present a
+zeroed pgdat to the generic code, so it's not necessary to set it
+again.
 
-4 and 5 aren't absolutely required for hotplug either, but do allow
-sharing a bunch of code between the normal boot-time init and hotplug
-cases.  
+Not clearing it like this allows the functions to be reused by
+the memory hotplug code.  The only architecture which has a
+dependence on these clears is i386.  The previous patch in this
+series fixed that up.
 
-These are all on top of 2.6.11-rc2-mm1.
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+---
 
--- Dave
+ arch/i386/mm/init.c             |    0 
+ memhotplug-dave/mm/page_alloc.c |    2 --
+ 2 files changed, 2 deletions(-)
 
+diff -puN arch/i386/kernel/setup.c~A2.2-dont-memset-pgdats arch/i386/kernel/setup.c
+diff -puN arch/i386/mm/discontig.c~A2.2-dont-memset-pgdats arch/i386/mm/discontig.c
+diff -puN include/asm-i386/mmzone.h~A2.2-dont-memset-pgdats include/asm-i386/mmzone.h
+diff -puN mm/page_alloc.c~A2.2-dont-memset-pgdats mm/page_alloc.c
+--- memhotplug/mm/page_alloc.c~A2.2-dont-memset-pgdats	2005-01-25 14:23:52.000000000 -0800
++++ memhotplug-dave/mm/page_alloc.c	2005-01-25 14:23:52.000000000 -0800
+@@ -1488,7 +1488,6 @@ static void __init build_zonelists(pg_da
+ 	/* initialize zonelists */
+ 	for (i = 0; i < GFP_ZONETYPES; i++) {
+ 		zonelist = pgdat->node_zonelists + i;
+-		memset(zonelist, 0, sizeof(*zonelist));
+ 		zonelist->zones[0] = NULL;
+ 	}
+ 
+@@ -1535,7 +1534,6 @@ static void __init build_zonelists(pg_da
+ 		struct zonelist *zonelist;
+ 
+ 		zonelist = pgdat->node_zonelists + i;
+-		memset(zonelist, 0, sizeof(*zonelist));
+ 
+ 		j = 0;
+ 		k = ZONE_NORMAL;
+diff -puN arch/i386/mm/init.c~A2.2-dont-memset-pgdats arch/i386/mm/init.c
+_

@@ -1,122 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267849AbTBJNq4>; Mon, 10 Feb 2003 08:46:56 -0500
+	id <S267850AbTBJN6M>; Mon, 10 Feb 2003 08:58:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267850AbTBJNq4>; Mon, 10 Feb 2003 08:46:56 -0500
-Received: from 12-237-214-24.client.attbi.com ([12.237.214.24]:62482 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S267849AbTBJNqy>;
-	Mon, 10 Feb 2003 08:46:54 -0500
-Message-ID: <3E47AF93.8030807@mvista.com>
-Date: Mon, 10 Feb 2003 07:56:35 -0600
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
-X-Accept-Language: en-us, en
+	id <S267853AbTBJN6M>; Mon, 10 Feb 2003 08:58:12 -0500
+Received: from web41404.mail.yahoo.com ([66.218.93.70]:20067 "HELO
+	web41404.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S267850AbTBJN6K>; Mon, 10 Feb 2003 08:58:10 -0500
+Message-ID: <20030210140751.54202.qmail@web41404.mail.yahoo.com>
+Date: Tue, 11 Feb 2003 01:07:51 +1100 (EST)
+From: =?iso-8859-1?q?Con=20Kolivas?= <ckolivas@yahoo.com.au>
+Subject: [BENCHMARK] 2.5.59-mm10 {+antic I/O sched} with contest
+To: lkml <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: suparna@in.ibm.com
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Kenneth Sumrall <ken@mvista.com>, linux-kernel@vger.kernel.org,
-       lkcd-devel@lists.sourceforge.net
-Subject: Re: Kexec, DMA, and SMP
-References: <3E448745.9040707@mvista.com> <m1isvuzjj2.fsf@frodo.biederman.org> <3E45661A.90401@mvista.com> <m1d6m1z4bk.fsf@frodo.biederman.org> <20030210174243.B11250@in.ibm.com>
-In-Reply-To: <20030210174243.B11250@in.ibm.com>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="0-1569519251-1044886071=:51872"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--0-1569519251-1044886071=:51872
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Id: 
+Content-Disposition: inline
 
-Suparna Bhattacharya wrote:
+Here are contest benchmarks for 2.5.59-mm10 and
+2.5.59-mm10 with the anticipatory I/O scheduler in the
+current experimental patch form. Needs tuning.
 
-|>I am still digesting the crash dump code I have seen, but as far as I
-|>can tell what it does is to compress the contents of memory, for
-|>writing out later.
-|
-|
-|Yes. It actually saves a formatted compressed dump in memory,
-|and later writes it out to disk as is.
+Sorry about the message being an attachment. It's hard
+to keep it formatted from this crappy webmail.
 
-MCL coredump does funny memory shuffling, too.  It compresses
-pages into a contiguous area of memory, and as it runs into output
-pages that it has not yet compressed, it moves them into pages that
-it has already compressed and keeps track of where everything is
-located.  That a lot of the complexity of MCL coredump.
+Con
 
-|
-|>To handle the hard cases for kexec on panic I would recommend the
-|>following.
-|>
-|>- Place the recovery code in a reserved area of memory that the normal
-|>  kernel will not touch, and actually run the code there.  This
-|>  trivially solves the DMA problem because the hardware is not DMA'ing
-|>
-|>- Setup the kernel that does the recovery so that the pool of memory
-|>  it uses for dynamic allocations is also in the reserved area of
-|>  memory so that it is equally free of DMA dangers.
-|>
-|>- Modify the kernel that does the recovery so it can be run at
-|>  different physical address from the standard kernel, so it will not
-|>  need to be moved out of the reserved area of memory.
-|
-|
-|Are you trying to address the possibility that DMA is overwriting
-|memory we are using in the recovery code, due to a runaway driver
-|or other code passing a wrong memory address to a device (e.g. in
-|a corrupted command area) ? I'm wondering if just reserving
-|an area of memory would help. As long as the address is visible/
-|accessible by the device (i.e. unless we have the h/w support to
-|apply protection at that level), can we really be safe in those
-|weird or rare cases ?  Disabling the bus-master sounds like a
-|more dependable option for that (via device shutdown or reboot
-|notifiers as suitable) if it can be done.
-|
-|Placing the recovery code in a safe reserved area (that the
-|running kernel may not know about or may be protected),
-|may reduce the possibility of the panic/buggy kernel overwriting
-|it, but will it help the DMA case ?
+http://greetings.yahoo.com.au - Yahoo! Greetings
+- Send your seasons greetings online this year!
+--0-1569519251-1044886071=:51872
+Content-Type: application/octet-stream; name="encapsulated message"
+Content-Transfer-Encoding: base64
+Content-Description: encapsulated message
+Content-Disposition: attachment; filename="encapsulated message"
 
-Eric, I'd suggest you go with your previous advice and start simple
-and go one step at a time.  You will never be able to build a system
-that can perfectly protect from anything that can go wrong.  So start
-with the simple case that covers 95% of the problems.  Build a
-system first that lets the driver quiesce the chip, then think about
-moving those functions and their data into special protected memory.
+SGVyZSBhcmUgY29udGVzdCBiZW5jaG1hcmtzIGZvciAyLjUuNTktbW0xMCBh
+bmQgMi41LjU5LW1tMTAgd2l0aCB0aGUgCmFudGljaXBhdG9yeSBJL08gc2No
+ZWR1bGVyIGluIHRoZSBjdXJyZW50IGV4cGVyaW1lbnRhbCBwYXRjaCBmb3Jt
+LiBOZWVkcyAKdHVuaW5nLgoKbm9fbG9hZDoKS2VybmVsICAgICAgICAgW3J1
+bnNdICAgVGltZSAgICBDUFUlICAgIExvYWRzICAgTENQVSUgICBSYXRpbwoy
+LjUuNTkgICAgICAgICAgICAgIDMgICA3OSAgICAgIDkzLjcgICAgMC4wICAg
+ICAwLjAgICAgIDEuMDAKMi41LjU5LW1tMTAgICAgICAgICAzICAgNzkgICAg
+ICA5My43ICAgIDAuMCAgICAgMC4wICAgICAxLjAwCjIuNS41OS1tbTEwYWlz
+ICAgICAgMSAgIDgyICAgICAgOTAuMiAgICAwLjAgICAgIDAuMCAgICAgMS4w
+MAoyLjUuNTktbW04ICAgICAgICAgIDMgICA3OSAgICAgIDkzLjcgICAgMC4w
+ICAgICAwLjAgICAgIDEuMDAKY2FjaGVydW46Cktlcm5lbCAgICAgICAgIFty
+dW5zXSAgIFRpbWUgICAgQ1BVJSAgICBMb2FkcyAgIExDUFUlICAgUmF0aW8K
+Mi41LjU5ICAgICAgICAgICAgICAzICAgNzYgICAgICA5Ny40ICAgIDAuMCAg
+ICAgMC4wICAgICAwLjk2CjIuNS41OS1tbTEwICAgICAgICAgMyAgIDc2ICAg
+ICAgOTcuNCAgICAwLjAgICAgIDAuMCAgICAgMC45NgoyLjUuNTktbW0xMGFp
+cyAgICAgIDEgICA3NyAgICAgIDk3LjQgICAgMC4wICAgICAwLjAgICAgIDAu
+OTQKMi41LjU5LW1tOCAgICAgICAgICAzICAgNzYgICAgICA5Ny40ICAgIDAu
+MCAgICAgMC4wICAgICAwLjk2CnByb2Nlc3NfbG9hZDoKS2VybmVsICAgICAg
+ICAgW3J1bnNdICAgVGltZSAgICBDUFUlICAgIExvYWRzICAgTENQVSUgICBS
+YXRpbwoyLjUuNTkgICAgICAgICAgICAgIDMgICA5MiAgICAgIDgxLjUgICAg
+MjkuNyAgICAxNy40ICAgIDEuMTYKMi41LjU5LW1tMTAgICAgICAgICAzICAg
+MTg3ICAgICAzOS42ICAgIDE5NC4wICAgNTguOCAgICAyLjM3CjIuNS41OS1t
+bTEwYWlzICAgICAgMSAgIDE4MSAgICAgNDAuOSAgICAxODcuMCAgIDU3Ljcg
+ICAgMi4yMQoyLjUuNTktbW04ICAgICAgICAgIDMgICAxOTMgICAgIDM4Ljkg
+ICAgMjAwLjMgICA2MC4xICAgIDIuNDQKY3Rhcl9sb2FkOgpLZXJuZWwgICAg
+ICAgICBbcnVuc10gICBUaW1lICAgIENQVSUgICAgTG9hZHMgICBMQ1BVJSAg
+IFJhdGlvCjIuNS41OSAgICAgICAgICAgICAgMyAgIDk4ICAgICAgODAuNiAg
+ICAyLjAgICAgIDUuMSAgICAgMS4yNAoyLjUuNTktbW0xMCAgICAgICAgIDMg
+ICA5OSAgICAgIDc4LjggICAgMS43ICAgICA0LjAgICAgIDEuMjUKMi41LjU5
+LW1tMTBhaXMgICAgICAxICAgMTQ4ICAgICA1My40ICAgIDIuMCAgICAgNS40
+ICAgICAxLjgwCjIuNS41OS1tbTggICAgICAgICAgMyAgIDk4ICAgICAgNzku
+NiAgICAyLjAgICAgIDUuMSAgICAgMS4yNAp4dGFyX2xvYWQ6Cktlcm5lbCAg
+ICAgICAgIFtydW5zXSAgIFRpbWUgICAgQ1BVJSAgICBMb2FkcyAgIExDUFUl
+ICAgUmF0aW8KMi41LjU5ICAgICAgICAgICAgICAzICAgMTAyICAgICA3NC41
+ICAgIDEuMCAgICAgMy45ICAgICAxLjI5CjIuNS41OS1tbTEwICAgICAgICAg
+MyAgIDEwMCAgICAgNzYuMCAgICAxLjAgICAgIDQuMCAgICAgMS4yNwoyLjUu
+NTktbW0xMGFpcyAgICAgIDEgICAxNTIgICAgIDUwLjAgICAgMi4wICAgICA0
+LjYgICAgIDEuODUKMi41LjU5LW1tOCAgICAgICAgICAzICAgMTAxICAgICA3
+NS4yICAgIDEuMCAgICAgNC4wICAgICAxLjI4CmlvX2xvYWQ6Cktlcm5lbCAg
+ICAgICAgIFtydW5zXSAgIFRpbWUgICAgQ1BVJSAgICBMb2FkcyAgIExDUFUl
+ICAgUmF0aW8KMi41LjU5ICAgICAgICAgICAgICAzICAgMTUyICAgICA1MC4w
+ICAgIDM0LjEgICAgMTMuMSAgICAxLjkyCjIuNS41OS1tbTEwICAgICAgICAg
+MyAgIDE0OCAgICAgNTEuNCAgICAzNS4yICAgIDE0LjIgICAgMS44NwoyLjUu
+NTktbW0xMGFpcyAgICAgIDMgICAzMjMgICAgIDI0LjEgICAgMTMxLjAgICAy
+NC44ICAgIDMuOTQKMi41LjU5LW1tOCAgICAgICAgICAzICAgMTU1ICAgICA0
+OS4wICAgIDM1LjYgICAgMTIuOSAgICAxLjk2CmlvX290aGVyOgpLZXJuZWwg
+ICAgICAgICBbcnVuc10gICBUaW1lICAgIENQVSUgICAgTG9hZHMgICBMQ1BV
+JSAgIFJhdGlvCjIuNS41OSAgICAgICAgICAgICAgMyAgIDg5ICAgICAgODQu
+MyAgICAxMS4yICAgIDUuNiAgICAgMS4xMwoyLjUuNTktbW0xMCAgICAgICAg
+IDMgICAxMTUgICAgIDY2LjEgICAgMzUuMCAgICAxOC4zICAgIDEuNDYKMi41
+LjU5LW1tMTBhaXMgICAgICAxICAgMTM0ICAgICA1OC4yICAgIDU5LjcgICAg
+MjYuOSAgICAxLjYzCjIuNS41OS1tbTggICAgICAgICAgMyAgIDExNSAgICAg
+NjcuMCAgICAzMy40ICAgIDE3LjQgICAgMS40NgpyZWFkX2xvYWQ6Cktlcm5l
+bCAgICAgICAgIFtydW5zXSAgIFRpbWUgICAgQ1BVJSAgICBMb2FkcyAgIExD
+UFUlICAgUmF0aW8KMi41LjU5ICAgICAgICAgICAgICAzICAgMTAxICAgICA3
+Ny4yICAgIDYuNSAgICAgNS4wICAgICAxLjI4CjIuNS41OS1tbTEwICAgICAg
+ICAgMyAgIDkzICAgICAgODEuNyAgICAyLjggICAgIDIuMiAgICAgMS4xOAoy
+LjUuNTktbW0xMGFpcyAgICAgIDEgICAxMTYgICAgIDY3LjIgICAgOC4yICAg
+ICA2LjAgICAgIDEuNDEKMi41LjU5LW1tOCAgICAgICAgICAzICAgOTMgICAg
+ICA4MS43ICAgIDIuOCAgICAgMi4yICAgICAxLjE4Cmxpc3RfbG9hZDoKS2Vy
+bmVsICAgICAgICAgW3J1bnNdICAgVGltZSAgICBDUFUlICAgIExvYWRzICAg
+TENQVSUgICBSYXRpbwoyLjUuNTkgICAgICAgICAgICAgIDMgICA5NSAgICAg
+IDgwLjAgICAgMC4wICAgICA2LjMgICAgIDEuMjAKMi41LjU5LW1tMTAgICAg
+ICAgICAzICAgOTcgICAgICA3OS40ICAgIDAuMCAgICAgNi4yICAgICAxLjIz
+CjIuNS41OS1tbTEwYWlzICAgICAgMSAgIDk5ICAgICAgNzguOCAgICAxLjAg
+ICAgIDcuMSAgICAgMS4yMQoyLjUuNTktbW04ICAgICAgICAgIDMgICA5NyAg
+ICAgIDc5LjQgICAgMC4wICAgICA2LjIgICAgIDEuMjMKbWVtX2xvYWQ6Cktl
+cm5lbCAgICAgICAgIFtydW5zXSAgIFRpbWUgICAgQ1BVJSAgICBMb2FkcyAg
+IExDUFUlICAgUmF0aW8KMi41LjU5ICAgICAgICAgICAgICAzICAgOTUgICAg
+ICA4Mi4xICAgIDUyLjcgICAgMi4xICAgICAxLjIwCjIuNS41OS1tbTEwICAg
+ICAgICAgMyAgIDk3ICAgICAgNzkuNCAgICA1My43ICAgIDIuMCAgICAgMS4y
+MwoyLjUuNTktbW0xMGFpcyAgICAgIDEgICAxMDMgICAgIDc2LjcgICAgNTMu
+MCAgICAxLjkgICAgIDEuMjYKMi41LjU5LW1tOCAgICAgICAgICAzICAgMTAw
+ICAgICA3OC4wICAgIDU3LjcgICAgMi4wICAgICAxLjI3CmRiZW5jaF9sb2Fk
+OgpLZXJuZWwgICAgICAgICBbcnVuc10gICBUaW1lICAgIENQVSUgICAgTG9h
+ZHMgICBMQ1BVJSAgIFJhdGlvCjIuNS41OSAgICAgICAgICAgICAgMyAgIDIx
+NCAgICAgMzYuNCAgICAyLjMgICAgIDQwLjcgICAgMi43MQoyLjUuNTktbW0x
+MCAgICAgICAgIDMgICAzMDAgICAgIDI1LjMgICAgMy4zICAgICA0MS4yICAg
+IDMuODAKMi41LjU5LW1tMTBhaXMgICAgICAxICAgNTc5ICAgICAxMy4zICAg
+IDguMCAgICAgNTEuNyAgICA3LjA2CjIuNS41OS1tbTggICAgICAgICAgMyAg
+IDM0NSAgICAgMjIuMCAgICA0LjMgICAgIDQ3LjUgICAgNC4zNwoKSSB3ZW50
+IGJhY2sgYW5kIGNoZWNrZWQgdGhlbSBiZWNhdXNlIEkgZGlkbid0IGJlbGll
+dmUgdGhlIHJlc3VsdHMgdGhlIGZpcnN0IAp0aW1lLiBUaGVzZSBhcmUgYSBj
+bGVhbiBzZXQgb2YgcmVzdWx0cywgYW5kIHRoZXkgY29ycmVsYXRlIHdpdGgg
+dGhlIGZpcnN0IApsb3QuIFRoZSBhbnRpY2lwYXRvcnkgc2NoZWR1bGVyIG5l
+ZWRzIHR1bmluZy4gTm90ZSB0aGF0IGV2ZW4gbm9sb2FkIHRha2VzIApsb25n
+ZXIsIGJ1dCB0aGUgY2FjaGVydW4gaXNuJ3QuIEFsbCB0aGUgZGlzayBJL08g
+YmFzZWQgbG9hZHMgdGFrZSBsb25nZXIuCgpDb24=
 
-I've actually never seen a core dump with the MCL core dump that
-had a memory corruption so bad it couldn't take the dump.
-
-|
-|
-|While the patch I'd posted has been designed so that ideally
-|it should be possible to preserve everything, I'm still not
-|certain if the compression we get is good enough for all cases
-|(e.g a heavily loaded system with lots of non-redundant data)
-|-- we really need to play around with the implementation and
-|tune it. Secondly, for a large memory system, it could take a
-|bit of time to compress all pages, and we might just want to
-|dump potentially more relevant data (e.g kernel pages) for
-|some kind of problems. It was easy enough to do this with some
-|simple heuristics like dumping inuse pages which are nonlru.
-
-~From my experience, data is memory is very compressible
-(moreso than the average text file).  Perhaps some pieces are
-not very compressible, but in the whole they are.  Plus you don't
-have to have that much compressions for this to work, just enough
-to give you memory to boot the next kernel and save off a dump.
-And speed is probably not a big issue here, since this should be a
-very rare occurrance.
-
-- -Corey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE+R6+OmUvlb4BhfF4RAhW7AJ9ZUCbWk6TBLvbwYunyKMN0dAxf+QCff21/
-WoOfzq4NrjYv3E0bOYhwSD8=
-=T9Y9
------END PGP SIGNATURE-----
-
-
+--0-1569519251-1044886071=:51872--

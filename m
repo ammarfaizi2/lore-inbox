@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263589AbUC3JqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 04:46:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbUC3JqZ
+	id S263587AbUC3Jpt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 04:45:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263588AbUC3Jpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 04:46:25 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:17296 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S263589AbUC3JqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 04:46:23 -0500
-Subject: Re: pdflush and dm-crypt
-From: Christophe Saout <christophe@saout.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jens Axboe <axboe@suse.de>, nagyz@nefty.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <20040329161248.41e87929.akpm@osdl.org>
-References: <1067885681.20040329165002@nefty.hu>
-	 <20040329150137.GH24370@suse.de>  <20040329161248.41e87929.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1080639971.7152.7.camel@leto.cs.pocnet.net>
+	Tue, 30 Mar 2004 04:45:49 -0500
+Received: from fw.osdl.org ([65.172.181.6]:15048 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263587AbUC3Jpq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 04:45:46 -0500
+Date: Tue, 30 Mar 2004 01:45:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: tytso@mit.edu, pbadari@us.ibm.com, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, cmm@us.ibm.com
+Subject: Re: [RFC, PATCH] Reservation based ext3 preallocation
+Message-Id: <20040330014523.6a368a69.akpm@osdl.org>
+In-Reply-To: <1080636930.3548.4549.camel@localhost.localdomain>
+References: <200403190846.56955.pbadari@us.ibm.com>
+	<20040321015746.14b3c0dc.akpm@osdl.org>
+	<1080636930.3548.4549.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.5 
-Date: Tue, 30 Mar 2004 11:46:11 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mo, den 29.03.2004, um 16:12 Uhr -0800, schrieb Andrew Morton:
+Mingming Cao <cmm@us.ibm.com> wrote:
+>
+> Ext3 preallocation is currently missing.
 
-> How come?  Isn't this problem just "gee, we have a lot of stuff to encrypt
-> during writeback"?  If so, then it should be sufficient to poke a hole in
-> the encryption loop?
-> 
-> --- 25/drivers/md/dm-crypt.c~a	Mon Mar 29 16:11:49 2004
-> +++ 25-akpm/drivers/md/dm-crypt.c	Mon Mar 29 16:11:56 2004
-> @@ -669,6 +669,7 @@ static int crypt_map(struct dm_target *t
->  		/* out of memory -> run queues */
->  		if (remaining)
->  			blk_congestion_wait(bio_data_dir(clone), HZ/100);
-> +		cond_resched();
->  	}
->  
->  	/* drop reference, clones could have returned before we reach this */
+I thing this is heading the right way.
 
-cryptoapi always does this after every block. It also happens with
-preemption enabled. I got feedback from a person who said that renicing
-pdflush to 0 helped. So it looks like the CPU scheduler doesn't want to
-schedule pdflush away. Hmm.
+- Please use u32 for block numbers everywhere.  In a number of places you
+  are using int, and that may go wrong if the block numbers wrap negative
+  (I'm not sure that ext3 supports 8TB, but it's the right thing to do).
 
+- Using ext3_find_next_zero_bit(bitmap_bh->b_data in
+  alloc_new_reservation() is risky.  There are some circumstances when you
+  have a huge number of "free" blocks in ->b_data, but they are all unfree
+  in ->b_committed_data.  You could end up with astronomical search
+  complexity in there.  You should search both bitmaps to find a block
+  which really is allocatable.  Otherwise you'll have
+  ext3_try_to_allocate() failing 20,000 times in succession and much CPU
+  will be burnt.
 
+- I suspect ext3_try_to_allocate_with_rsv() could be reorganised a bit to
+  reduce the goto spaghetti?
+
+- Please provide a mount option which enables the feature, defaulting to
+  "off".
+
+- Make sure that you have a many-small-file test.  Say, untar a kernel
+  tree onto a clean filesystem and make sure that reading all the files in
+  the tree is nice and fast.
+
+  This is to check that the reservation is being discarded appropriately
+  on file close, and that those small files are contiguous on-disk.  If we
+  accidentally leave gaps in between them the many-small-file bandwidth
+  takes a dive.
+
+- There's a little program called `bmap' in
+  http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz which
+  can be used to dump out a file's block allocation map, to check
+  fragmentation.
+
+Apart from that, looking good.  Where are the benchmarks? ;)

@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131368AbRCWTel>; Fri, 23 Mar 2001 14:34:41 -0500
+	id <S131375AbRCWTjB>; Fri, 23 Mar 2001 14:39:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131369AbRCWTeb>; Fri, 23 Mar 2001 14:34:31 -0500
-Received: from fluent1.pyramid.net ([206.100.220.212]:43062 "EHLO
-	fluent1.pyramid.net") by vger.kernel.org with ESMTP
-	id <S131368AbRCWTeW>; Fri, 23 Mar 2001 14:34:22 -0500
-Message-Id: <4.3.2.7.2.20010323113258.00b57b30@mail.fluent-access.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Fri, 23 Mar 2001 11:33:29 -0800
-To: linux-kernel@vger.kernel.org
-From: Stephen Satchell <satch@fluent-access.com>
-Subject: RE: [PATCH] Prevent OOM from killing init
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S131378AbRCWTiv>; Fri, 23 Mar 2001 14:38:51 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:21513 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S131375AbRCWTic>; Fri, 23 Mar 2001 14:38:32 -0500
+Date: Fri, 23 Mar 2001 19:37:46 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Amit D Chaudhary <amit@muppetlabs.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: RAMFS, CRAMFS and JFFS2(was Re: /linuxrc query)
+In-Reply-To: <3ABB8F57.3000800@muppetlabs.com>
+Message-ID: <Pine.LNX.4.30.0103231853280.2898-100000@imladris.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:28 AM 3/23/01 +0100, you wrote:
->Ehrm, I would like to re-state that it still would be nice if
->some mechanism got introduced which enables one to set certain
->processes to "cannot be killed".
->For example: I would hate it it the UPS monitoring daemon got
->killed for obvious reasons :o)
+On Fri, 23 Mar 2001, Amit D Chaudhary wrote:
 
-Hey, my new flame-proof suit arrived today, so let me give it a try-out...
+> Hi David,
+> 
+> I did consider CRAMFS and JFFS2 when it was announced on the mtd list. 
+> Conserving flash over system ram is more relevant. Our reasons are below:
+> 
+> RAMFS v/s CRAMFS
+> 1. RAMFS is just more stable in terms of less complexity, less bugs reported 
+> over the time, etc.
+> 2. RAMFS is a fairly robust filesystem and all features required as far as I can 
+> tell.
 
-1)  If you have a daemon that absolutely positively has to be there, why 
-not put the damn thing in "inittab" with the RESPAWN attribute?  OOM kills 
-it, init notices it, init respawns it, you have your UPS monitoring daemon 
-back.
+I'm not aware of any bugs being found in cramfs recently - unless you 
+wanted to use it on Alpha (or anything else where PAGE_SIZE != the 
+hard-coded 4096 in mkcramfs.c).
 
-2)  Why is task #1 (init) considered at all by the OOM task-killer 
-code?  Sounds like a possible off-by-one bug to me.
+I wouldn't avoid it for those reasons - although if you're _really_ short 
+of flash space, the same argument applies as for JFFS2 - a single 
+compression stream (tar.gz) will be smaller than compressing individual 
+pages like JFFS2 and cramfs do.
 
-3)  If random task-killing is such a problem, one solution is to add yet 
-another word to the process table entry, something on the order of 
-"oom_importance".  Off the top of my head, this 16-bit value would be 
-0x4000 for "normal" processes, and would be the value at start-up.  A value 
-of 0xFFFF would be the "never-kill" value, while the value of 0x0000 would 
-be the equivalent of the guy who ALWAYS gives up his airplane seat.  The 
-process could set this value between 0x0000 and 0xBFFF for processes 
-running without root privs, the full range for root processes.  The big 
-advantage here is that a daemon or major system can set the value to zero 
-during start-up (to ensure being killed if there aren't enough system 
-resources) and then boost the immunity once it is going strong.  I can see 
-this being of particular value in windows desktops where an attempt to 
-start a widget causes an out-of memory condition and THAT WIDGET is the one 
-that then dies.  That would be the expected behavior.
 
- From a debug perspective, it means that the programmer can avoid killing 
-something on his development system "by accident" by attracting all the 
-task-killing lightning during initial debug.  This would be a sure-fire 
-improvement over accidentally killing your debugger, for example.
+> I might be wrong and hence would welcome any suggestions.
 
-I call it "nice for memory".
+Given your stated constraints - you're very short of flash and don't care
+too much about the RAM you use, you've may have made the same choice I
+would have done.
 
-Satch
+Bearing in mind that you have to take into account the overhead of the 
+initrd which does the untarring - what's the total size of the initrd + 
+tarball on the flash, and what size would the corresponding cramfs be?
+
+If you could fit your root filesystem into a cramfs on the flash, I'd do
+that instead and use ramfs for the parts which need to be writeable.
+
+
+-- 
+dwmw2
+
+
 

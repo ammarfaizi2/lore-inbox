@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264710AbRFUCfz>; Wed, 20 Jun 2001 22:35:55 -0400
+	id <S264712AbRFUCmz>; Wed, 20 Jun 2001 22:42:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264712AbRFUCfp>; Wed, 20 Jun 2001 22:35:45 -0400
-Received: from mnh-1-24.mv.com ([207.22.10.56]:56836 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S264710AbRFUCfd>;
-	Wed, 20 Jun 2001 22:35:33 -0400
-Message-Id: <200106210350.WAA01230@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: FORT David <popo.enlighted@free.fr>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: is there a linux running on jvm arch ? 
-In-Reply-To: Your message of "Wed, 20 Jun 2001 23:26:49 +0200."
-             <3B311519.3090401@free.fr> 
+	id <S264083AbRFUCmp>; Wed, 20 Jun 2001 22:42:45 -0400
+Received: from deliverator.sgi.com ([204.94.214.10]:26951 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S264712AbRFUCmh>; Wed, 20 Jun 2001 22:42:37 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Helge Hafting <helgehaf@idb.hist.no>
+cc: "McHarry, John" <john.mcharry@gemplex.com>, linux-kernel@vger.kernel.org
+Subject: Re: How to compile on one machine and install on another? 
+In-Reply-To: Your message of "Wed, 20 Jun 2001 09:58:54 +0200."
+             <3B3057BE.4374D4B2@idb.hist.no> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 20 Jun 2001 22:50:02 -0500
-From: Jeff Dike <jdike@karaya.com>
+Date: Thu, 21 Jun 2001 12:42:17 +1000
+Message-ID: <6519.993091337@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-popo.enlighted@free.fr said:
-> I'm dreaming of a linux booting in a browser applet(imagine sending
-> such  thing in a mail to MS peoples !!!!) 
+On Wed, 20 Jun 2001 09:58:54 +0200, 
+Helge Hafting <helgehaf@idb.hist.no> wrote:
+>This is enough if you don't use modules.  If you use modules you
+>need to copy them too, which is trickier.  Several good methods
+>have been demonstrated, here is another if you can't use the nfs
+>approach:
+>
+>1. If you are running the same kernel revision on the compile machine,
+>   temporarily rename /lib/modules/<version> to something else.
+>   Yes - this could be dangerous but tend to work well on a "home
+>machine"
+>2. Do the "make modules_install" on the compile machine.
 
-If you really want to help the MS peoples get Linux, consider a straight port 
-of UML to Windows.
+The correct way of installing for a target machine is to use
+  make INSTALL_MOD_PATH=foo modules_install
+You need to mkdir -p foo/lib/modules first.  Everything is installed in
+foo/lib/modules/`uname -r` instead of /lib/modules so you do not
+disturb your compile system.
 
-I've been trying to encourage someone to do this for a while, with limited 
-success :-(  Enough has been done that I think I know what the main obstacles 
-are, and I think I know that it's possible.
-
-So, if you're interested (and have the appropriate Win-fu) let me know, and 
-grab the code and start porting...
-
-				Jeff
-
+There is also make INSTALL_PATH to specify where vmlinuz and System.map
+are stored for make zlilo and make install.
 

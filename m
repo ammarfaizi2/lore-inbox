@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129498AbRCBVPj>; Fri, 2 Mar 2001 16:15:39 -0500
+	id <S129511AbRCBV2e>; Fri, 2 Mar 2001 16:28:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129502AbRCBVP3>; Fri, 2 Mar 2001 16:15:29 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:64451 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S129498AbRCBVPV>;
-	Fri, 2 Mar 2001 16:15:21 -0500
-Message-ID: <3AA00D5A.44FA21D0@mandrakesoft.com>
-Date: Fri, 02 Mar 2001 16:15:06 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-4mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: pat@isis.co.za, linux-kernel@vger.kernel.org, Alan@redhat.com,
-        Donald Becker <becker@scyld.com>
-Subject: Re: PROBLEM: Network hanging - Tulip driver with Netgear (Lite-On)
-In-Reply-To: <3A9A30C7.3C62E34@colorfullife.com> <3A9AB84C.A17D20AE@mandrakesoft.com> <3A9AC372.A86DC6C7@colorfullife.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129535AbRCBV2Y>; Fri, 2 Mar 2001 16:28:24 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:57288 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129511AbRCBV2O>;
+	Fri, 2 Mar 2001 16:28:14 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200103022105.f22L5FY16844@webber.adilger.net>
+Subject: Re: apparent file corruption on 2.4.2
+In-Reply-To: <3AA001DC.C11B688D@staffnet.com> from Wade Hampton at "Mar 2, 2001
+ 03:26:04 pm"
+To: Wade Hampton <whampton@staffnet.com>
+Date: Fri, 2 Mar 2001 14:05:15 -0700 (MST)
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> Could you double check the code in tulip_core.c, around line 1450?
-> IMHO it's bogus.
+Wade Hampton writes:
+> I can't move, delete, or do anything with these files.  I tried 
+> chattr, touch, etc. and the only thing I can do is change the 
+> access date with touch.
 > 
-> 1) if the network card contains multiple mii's, then the the advertised
-> value of all mii's is changed to the advertised value of the first mii.
+> b--sr-s--t    1 1769209956 1852796526 116, 101 May 29  2023
+>               /binold/hostname
+> 
+> prwxr-x--T    1 2232483836 2312881283        0 Mar  1 22:41 
+>               /dev/dsp
+> 
+> Does anyone have any ideas.  I can live with one messed up file 
+> in /binold, but I can't live with a messed up /dev/dsp.  I 
+> really don't want the Microsoft solution (reload)....
 
-I'm really curious about this one myself.
+You could always rename /dev to /devold, copy the rest of your
+device files back, and run "mknod /dev/dsp c 14 3" to recreate
+/dev/dsp.
 
-Since I haven't digested all of the tulip media stuff in my brain yet,
-and since I'm not familiar with all the corner cases, I'm loathe to
-change the tulip media stuff without fully understanding what's going
-on.
+You probably need to boot using a rescue floppy (tomsrtbt if
+needed), and run debugfs to delete them.  It is strange
+that you can't even delete these files.  Sometimes there is a
+problem with files > 2GB in size, but there should be no
+problems with block special or pipes.  What sort of errors do
+you get, and is there anything in syslog?
 
-If you have a single controller with multiple MII phys...  how does one
-select the phy of choice (for tulip, in the absence of SROM media
-table...)?  And once phy A has been selected out of N available as the
-active phy, should you care about the others at all?
-
-	Jeff
-
-
+Cheers, Andreas
 -- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267457AbSLLJfN>; Thu, 12 Dec 2002 04:35:13 -0500
+	id <S267456AbSLLJdC>; Thu, 12 Dec 2002 04:33:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267460AbSLLJfN>; Thu, 12 Dec 2002 04:35:13 -0500
-Received: from elin.scali.no ([62.70.89.10]:32521 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S267457AbSLLJfM>;
-	Thu, 12 Dec 2002 04:35:12 -0500
-Subject: Re: Intel P6 vs P7 system call performance
-From: Terje Eggestad <terje.eggestad@scali.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@codemonkey.org.uk>
-In-Reply-To: <3DF78911.5090107@zytor.com>
-References: <1039610907.25187.190.camel@pc-16.office.scali.no>
-	 <3DF78911.5090107@zytor.com>
-Content-Type: text/plain
-Organization: Scali AS
-Message-Id: <1039686176.25186.195.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 12 Dec 2002 10:42:56 +0100
-Content-Transfer-Encoding: 7bit
+	id <S267457AbSLLJdB>; Thu, 12 Dec 2002 04:33:01 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:5135 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S267456AbSLLJdB>; Thu, 12 Dec 2002 04:33:01 -0500
+Message-ID: <3DF8586A.13BAE79D@aitel.hist.no>
+Date: Thu, 12 Dec 2002 10:35:38 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.5.51 i686)
+X-Accept-Language: no, en, en
+MIME-Version: 1.0
+To: =?iso-8859-1?Q?M=E5ns=20Rullg=E5rd?= <mru@users.sourceforge.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Is this going to be true ?
+References: <001801c2a0a9$02613f40$2e863841@joe>
+		<3DF6901A.7040309@WirelessNetworksInc.com> <yw1xbs3smtx0.fsf@gladiusit.e.kth.se>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On ons, 2002-12-11 at 19:50, H. Peter Anvin wrote:
-> Terje Eggestad wrote:
+Måns Rullgård wrote:
 > 
-> > 
-> > PS:  rdtsc on P4 is also painfully slow!!!
-> > 
+> Herman Oosthuysen <Herman@WirelessNetworksInc.com> writes:
 > 
-> Now that's just braindead...
+> > MS history shows that they did and does support various flavours of
+> > *nix.  So, it is not beneath them to release apps for Linux too one
+> > day and it would be a good thing if they do.
 > 
+> Why would that be good?  People would start using their programs and
+> blame Linux when they crash.
 
-It takes about 11 cycles on athlon, 34 on PII, and a whooping 84 on P4.
+If office is the _only_ programs they use perhaps.  Otherwise, you get
+"Damn, office fell over again but at least I didn't have to reboot like
+before.
+Why can't it just stay up like those other apps of mine?"
 
-For a simple op like that, even 11 is a lot... Really makes you wonder.
- 
-
-> 	-hpa
-
-TJ
-
--- 
-_________________________________________________________________________
-
-Terje Eggestad                  mailto:terje.eggestad@scali.no
-Scali Scalable Linux Systems    http://www.scali.com
-
-Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
-P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
-N-0619 Oslo                     fax:    +47 22 62 89 51
-NORWAY            
-_________________________________________________________________________
-
+Helge Hafting

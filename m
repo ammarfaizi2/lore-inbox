@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265113AbSJRO6x>; Fri, 18 Oct 2002 10:58:53 -0400
+	id <S265110AbSJRO55>; Fri, 18 Oct 2002 10:57:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265120AbSJRO6w>; Fri, 18 Oct 2002 10:58:52 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:65040 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265113AbSJRO6u>;
-	Fri, 18 Oct 2002 10:58:50 -0400
-Date: Fri, 18 Oct 2002 08:04:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>, Crispin Cowan <crispin@wirex.com>,
-       "David S. Miller" <davem@redhat.com>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: Re: [PATCH] remove sys_security
-Message-ID: <20021018150422.GA6693@kroah.com>
-References: <20021017201030.GA384@kroah.com> <20021017211223.A8095@infradead.org> <3DAFB260.5000206@wirex.com> <20021018.000738.05626464.davem@redhat.com> <3DAFC6E7.9000302@wirex.com> <20021018135243.B1670@infradead.org>
+	id <S265113AbSJRO55>; Fri, 18 Oct 2002 10:57:57 -0400
+Received: from cmailm3.svr.pol.co.uk ([195.92.193.19]:25872 "EHLO
+	cmailm3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S265110AbSJRO54>; Fri, 18 Oct 2002 10:57:56 -0400
+Date: Fri, 18 Oct 2002 16:03:37 +0100
+To: christophe.varoqui@free.fr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: block allocators and LVMs
+Message-ID: <20021018150337.GA3195@fib011235813.fsnet.co.uk>
+References: <3DA24B4A0064C333@mel-rta8.wanadoo.fr> <20021018112617.GA1942@fib011235813.fsnet.co.uk> <1034946264.3db006d87c82c@imp.free.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021018135243.B1670@infradead.org>
+In-Reply-To: <1034946264.3db006d87c82c@imp.free.fr>
 User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 18, 2002 at 01:52:43PM +0100, Christoph Hellwig wrote:
-> and btw, as LSM is part of the kernel anyone can and will change it.
-> Your LSM team attitude is a bit like that hated CVS mentality..
+On Fri, Oct 18, 2002 at 03:04:24PM +0200, christophe.varoqui@free.fr wrote:
+> I realize I didn't pick the right words (from my poor English 
+> dictionnary) : I meant an extend remapper rather than a block remapper. 
 
-Please don't assume Crispin's attitude represents anyone but himself.
-Not being a kernel developer, he makes statements that occasionally
-offend pretty much everyone here (yesterday's gpl issue was a nice
-example of that :)
+extent remapper.
 
-I understand anyone can change the code, and am glad to see that, it
-helps everyone out in the end.
+> As far as I can see, this task can be done entirely from userland : 
+>  
+> o per-extend IO counters exported from kernel-space can be turned into 
+>   a list of extends sorted by activity 
+>  
+> o lvdisplay-like tool gives the mapping extend<->physical blocks 
+>  
+> o a scheduled job in user-space should be able to massage this info to 
+>   decide where to move low-access-rate-extends to the border of the 
+>   platter and pack high-access-rate-extends together ... all in one run 
+>   that can be scheduled at low activity period (cron defrag way) 
+>  
+> The algorithm could be something along the line of : 
+>  
+> while top_user_queue_not_empty 
+> do 
+>   extend = dequeue_lowest_user_extend 
+>   if extend_in_good_spot 
+>   then 
+>     move_extend_to_corner_destination 
+>     find_highest_user_extend_in_bad_spot 
+>     move_this_extend_to_freed_good_spot 
+>   fi 
+> done 
 
-thanks,
+What you describe could be very beneficial, especially if you start
+striping the high bandwidth areas.  However in no way could this be
+described as 'online FS defragmentation'.
 
-greg k-h
+- Joe

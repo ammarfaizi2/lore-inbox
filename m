@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263072AbTEGKeU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 06:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263103AbTEGKeU
+	id S263062AbTEGKiG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 06:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263103AbTEGKiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 06:34:20 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:24593 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263072AbTEGKeU
+	Wed, 7 May 2003 06:38:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43449 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263062AbTEGKiF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 06:34:20 -0400
-Message-ID: <3EB8E4CC.8010409@aitel.hist.no>
-Date: Wed, 07 May 2003 12:49:48 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.69-mm2 Kernel panic, possibly network related
-References: <20030506232326.7e7237ac.akpm@digeo.com>	 <3EB8DBA0.7020305@aitel.hist.no> <1052304024.9817.3.camel@rth.ninka.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 May 2003 06:38:05 -0400
+Date: Wed, 7 May 2003 11:50:38 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
+       lkml <linux-kernel@vger.kernel.org>, Jan Harkes <jaharkes@cs.cmu.edu>,
+       lsm <linux-security-module@wirex.com>
+Subject: Re: [PATCH] Process Attribute API for Security Modules 2.5.69
+Message-ID: <20030507105038.GN10374@parcelfarce.linux.theplanet.co.uk>
+References: <1052237601.1377.991.camel@moss-huskers.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1052237601.1377.991.camel@moss-huskers.epoch.ncsc.mil>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> On Wed, 2003-05-07 at 03:10, Helge Hafting wrote:
-> 
->>2.5.69-mm1 is fine, 2.5.69-mm2 panics after a while even under very
->>light load.
-> 
-> 
-> Do you have AF_UNIX built modular?
+On Tue, May 06, 2003 at 12:13:25PM -0400, Stephen Smalley wrote:
+> +static int proc_attr_readdir(struct file * filp,
+> +	void * dirent, filldir_t filldir)
 
-No, I compile everything into a monolithic kernel.
-I don't even enable module support.
+Umm...  How about having it merged with proc_base_readdir()?  I.e.
+have both call the common helper.  Ditto for lookups.
 
-Helge Hafting
-
-
-
-
+Other than that (and missing check for copy_to_user() return value in
+->read()) I don't see any problems here.

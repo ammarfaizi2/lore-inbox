@@ -1,84 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272375AbRH3R4K>; Thu, 30 Aug 2001 13:56:10 -0400
+	id <S272374AbRH3R4a>; Thu, 30 Aug 2001 13:56:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272372AbRH3R4A>; Thu, 30 Aug 2001 13:56:00 -0400
-Received: from glucose.pas.idealab.com ([64.208.8.249]:38343 "HELO idealab.com")
-	by vger.kernel.org with SMTP id <S272374AbRH3Rzm>;
-	Thu, 30 Aug 2001 13:55:42 -0400
-Date: Thu, 30 Aug 2001 10:55:54 -0700 (PDT)
-From: David Moore <david@startbox.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Hang in yenta socket driver in 2.4.x w/ PCI->PCMCIA adapter
-Message-ID: <Pine.LNX.4.30L2.0108301029270.26919-100000@luca.pas.lab>
+	id <S272372AbRH3R4V>; Thu, 30 Aug 2001 13:56:21 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:56583 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S272374AbRH3R4D>; Thu, 30 Aug 2001 13:56:03 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Subject: Re: Memory Problem in 2.4.10-pre2 / __alloc_pages failed
+Date: Thu, 30 Aug 2001 20:02:55 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010829140706.3fcb735c.skraw@ithnet.com> <20010829232929Z16206-32383+2351@humbolt.nl.linux.org> <20010830164634.3706d8f8.skraw@ithnet.com>
+In-Reply-To: <20010830164634.3706d8f8.skraw@ithnet.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010830175615Z16280-32384+1119@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On August 30, 2001 04:46 pm, Stephan von Krawczynski wrote:
+> On Thu, 30 Aug 2001 01:36:10 +0200
+> Daniel Phillips <phillips@bonn-fries.net> wrote:
+> 
+> > > Aug 29 13:43:34 admin kernel: __alloc_pages: 1-order allocation failed (gfp=0x20/0).
+> > > Aug 29 13:43:34 admin kernel: pid=1207; __alloc_pages(gfp=0x20, order=1, ...)
+> >
+> > OK, I see what the problem is.  Regular memory users are consuming memory
+> > right down to the emergency reserve limit, beyond which only PF_MEMALLOC
+> > users can go.  Unfortunately, since atomic memory allocators can't wait,
+> > they tend to fail with high frequency in this state.  Duh.
+> 
+> Aehm, excuse my ignorance, but why is a "regular memory user" effectively
+> _consuming_ the memory? I mean how does CD reading and NFS writing 
+> _consume_ memory (to such an extent)? Where _is_ this memory gone?
 
-Hi, I'm using kernel 2.4.9, but have observed this problem with all 2.4.x
-kernels I've tried.  I have a PCI card with a single PCMCIA slot in it.
-It's has a TI Cardbus controller which is detected successfully and
-assigned IRQs without trouble.  I have also used it successfully with the
-pcmcia-cs modules and PCMCIA support not enabled in the main kernel
-sources.
+In essence, the memory isn't consumed, it's bound to data.  Once we have
+data sitting on a page it's to our advantage to try to keep the page
+around as long as possible so it doesn't have to be re-read if we need it
+again.  So the normal situation is, we run with as little memory actually
+free and empty of data as possible, around 1-2%.
 
-I get the following messages upon loading the pcmcia_core, yenta_socket,
-and ds modules:
+But there's a distinction between "free" and "freeable".  Of the remaining
+98% of memory, most of it is freeable.  This is fine if your memory
+request is able to wait for the vm to go out and free some.  This happens
+often, and while the preliminary scanning work is being done the system
+tends to sit there in its absolute rock-bottom memory state (zone->pages
+== zone->min).  Along comes an interrupt with a memory allocation request
+and it must fail, because it can't wait.
 
-PCI: Enabling device 01:09.1 (0000 -> 0002)
-PCI: Enabling device 01:09.0 (0000 -> 0002)
-Yenta IRQ list 0000, PCI irq5
-Socket status: 30000010
-Yenta IRQ list 0000, PCI irq5
-Socket status: 30000006
-cs: socket c79bb800 timed out during reset.  Try increasing setup_delay.
+> If I 
+> stop I/O the memory is still gone. I can make at least quite a bit appear 
+> again as free, if I delete all the files I have copied via NFS before. 
+> After that I receive lots of free mem right away. Why?
 
-Then, immediately after I start the cardmgr daemon, the system hangs
-solidly (cannot switch consoles or scroll up).  Upon closer inspection,
-socket 0 is not attached to a physical PCMCIA slot, and is the one timing
-out above.  Socket 1 is the only real slot.  As a workaround, I modified
-cardmgr so that it only initializes socket 1, and avoids socket 0
-completely.  When I do this, everything works perfectly and I can use
-cards in the socket.  (It should be noted that the hang occurs even
-without any cards in the socket).  Also, I doubt this is an IRQ problem
-because irq 5 (assigned above) is not used by another device as reported
-by lspci.
+Because the cached data pages are forcibly removed from the page cache and
+freed, since the data can never be referenced again.
 
-Since the pcmcia-cs modules work (even with kernel 2.4.x) I know that it's
-theoretically possible to have socket 0 fail gracefully rather than hang
-the system when it's initialized, even though it doesn't really exist.
+> I would not expect 
+> the memory as validly consumed by knfsd during writing files. I mean what 
+> for? I guess from "Inact_dirty" list being _huge_, that the mem is in fact 
+> already freed again by the original allocator, but the vm holds it, until 
+> ... well I don't know. Or am I wrong?
 
-Any ideas how to fix this?
+I hope it's clearer now.
 
-I have attached the output when debugging is enabled in yenta_socket (this
-is with cardmgr loading the modules itself):
+> > First, there's an effective way to make these particular atomic failures
+> > go away almost entirely.  The atomic memory user (in this case a network
+> > interrupt handler) keeps a list of pages for its private use, starting with
+> > an empty list.  Each time it needs a page it gets it from its private list,
+> > but if that list is empty it gets it from alloc_pages, and when done with
+> > it, returns it to its private list.  The alloc_pages call can still fail of
+> > course, but now it will only fail a few times as it expands its list up to
+> > the size required for normal traffic.  The effect on throughput should be
+> > roughly nothing.
+> 
+> Uh, I would not do that. To a shared memory pool system this is really 
+> contra-productive (is this english?). You simply let the mem vanish in some 
+> private pools, so only _one_ process (or whatever) can use it.
 
-cb_readl: c88c6740 0008 30001818
-exca_readb: c88c6740 0001 4c
-exca_readb: c88c6740 0003 50
-^-- these three lines repeat for a while....
-cb_readl: c88c6740 0008 30001818
-exca_readb: c88c6740 0001 4c
-exca_readb: c88c6740 0003 50
-cs: socket c79a3800 timed out during reset.  Try increasing setup_delay.
-cb_readl: c88c67c8 0008 30000086
-exca_readb: c88c67c8 0001 00
-exca_readb: c88c67c8 0003 50
-exca_writeb: c88c6740 0040 a0
-exca_writew: c88c6740 0010 0000
-exca_writew: c88c6740 0012 8000
-exca_writew: c88c6740 0014 4000
-exca_writeb: c88c6740 0006 01 <------------------- hangs here
+It's not very much memory, that's the point.  But it sure hurts if it's not
+available at the time it's needed.
 
-The last few lines look like they are from the mem_map function, but I'm
-not sure if the hang occurs immediately at this point, or is caused by
-code somewhere else.
+> To tell the 
+> full truth, you do not even know, if he really uses it. If he allocated it 
+> in a heavy load situation and does not give it back (or has his own weird 
+> strategy of returning it) you run out of mem only because of one flaky 
+> driver. It will not be easy as external spectator of a driver to find out 
+> if it performs well or has some memory leakage inside. You simply can't 
+> tell.  In fact I do trust kernel mem management more :-), even if it isn't 
+> performing very well currently.
 
-Thanks for the help.
+Keep in mind we're solving an impossible problem here.  We have a task that
+can't wait, but needs an unknown (to the system) amount of memory.  We dance
+around this by decreeing that the allocation can fail, and the interrupt
+handler has to be able to deal with that.  Well, that works, but often not
+very fast.  In the network subsystem it translates into dropped packets.
+That's very, very bad if it happens often.  So it's ok to use a little memory
+in a less-than-frugal way if we reduce the frequency of packet dropping.
 
-Best Regards,
+> > Let's try another way of dealing with it.  What I'm trying to do with the
+> > patch below is leave a small reserve of 1/12 of pages->min, above the
+> > emergency reserve, to be consumed by non-PF_MEMALLOC atomic allocators.
+> > Please bear in mind this is completely untested, but would you try it
+> > please and see if the failure frequency goes down?
+> 
+> Well, I will try. But must honestly mention, that the whole idea looks like 
+> a patch to patch a patch. Especially because nobody can tell what the right 
+> reserve may be. I guess this may very much depend on host layout. How do 
+> you want to make an acceptable kernel-patch for all the world out of this 
+> idea? The idea sounds obvious, but looks not very helpful for solving the 
+> basic problem.
 
-David Moore
+Lets see what it does.  I'd be the last to claim it's a pretty or efficient
+way to express the idea.  The immediate goal is to determine if I analyzed 
+the problem correctly, and if the logic of the patch is correct.
 
+--
+Daniel

@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277894AbRJNWKI>; Sun, 14 Oct 2001 18:10:08 -0400
+	id <S277904AbRJNXZv>; Sun, 14 Oct 2001 19:25:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277895AbRJNWJ6>; Sun, 14 Oct 2001 18:09:58 -0400
-Received: from front2.mail.megapathdsl.net ([66.80.60.30]:29199 "EHLO
-	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S277894AbRJNWJu>; Sun, 14 Oct 2001 18:09:50 -0400
-Subject: 2.4.12-ac2 -- appletalk.o: In function `ipddp_xmit': undefined
-	reference to `atalk_find_dev_addr' and `aarp_send_ddp'
-From: Miles Lane <miles@megapathdsl.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99 (Preview Release)
-Date: 14 Oct 2001 15:01:24 -0700
-Message-Id: <1003096885.11949.21.camel@stomata.megapathdsl.net>
-Mime-Version: 1.0
+	id <S277905AbRJNXZb>; Sun, 14 Oct 2001 19:25:31 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:69 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S277904AbRJNXZX>; Sun, 14 Oct 2001 19:25:23 -0400
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Recursive deadlock on die_lock
+In-Reply-To: <28465.1003043596@ocs3.intra.ocs.com.au>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 14 Oct 2001 17:14:24 -0600
+In-Reply-To: <28465.1003043596@ocs3.intra.ocs.com.au>
+Message-ID: <m1zo6tolv3.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Keith Owens <kaos@ocs.com.au> writes:
 
-drivers/net/appletalk/appletalk.o: In function `ipddp_xmit':
-drivers/net/appletalk/appletalk.o(.text+0x47): undefined reference to `atalk_find_dev_addr'
-drivers/net/appletalk/appletalk.o(.text+0x120): undefined reference to `aarp_send_ddp'
-drivers/net/appletalk/appletalk.o: In function `ipddp_create':
-drivers/net/appletalk/appletalk.o(.text+0x187): undefined reference to `atrtr_get_dev'
-make: *** [vmlinux] Error 1
+> On Sat, 13 Oct 2001 23:42:51 -0700, 
+> Andrew Morton <akpm@zip.com.au> wrote:
+> >Keith Owens wrote:
+> >> 
+> >> ...
+> >> If show_registers() fails (which it does far too often on IA64) then
+> >> the system deadlocks trying to recursively obtain die_lock.  Also
+> >> die_lock is never used outside die(), it should be proc local.
+> >> Suggested fix:
+> >> 
+> >
+> >Looks to me like it'll work.  But why does ia64 show_registers()
+> >die so easily?  Can it be taught to validate addresses before
+> >dereferencing them somehow?
+> 
+> Unwind code.  It is impossible to obtain IA64 saved registers or back
+> trace the calling sequence without using the unwind API.  That API
+> relies on decent unwind data being associated with each function
+> prologue, stack adjustment, save of return registers etc.  Not an issue
+> for C code, it is for Assembler where the unwind info has to be hand
+> coded to match what the asm is doing.  IA64 also has PAL code which is
+> called directly by the kernel, that PAL code has no unwind data so
+> failures in PAL code result in bad or incomplete back traces.
+> 
+> Unwind is not supposed to fail, it should detect bad input data and
+> avoid errors.  Alas, sometimes it does fail.
 
-#
-# Networking options
-#
-CONFIG_PACKET=m
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_SYN_COOKIES=y
-CONFIG_ATALK=m
+PAL Ahh!!!!!
 
-CONFIG_NETDEVICES=y
+Please tell me that we are not rely on the firmware to be correct
+after we have finished initializing the operating system.
 
-#
-# Appletalk devices
-#
-CONFIG_APPLETALK=y
-# CONFIG_LTPC is not set
-# CONFIG_COPS is not set
-CONFIG_IPDDP=y
-CONFIG_IPDDP_ENCAP=y
-CONFIG_IPDDP_DECAP=y
-# CONFIG_DUMMY is not set
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-# CONFIG_TUN is not set
+Please tell me it ain't so.  I have nightmares about that kind of setup.
+
+Eric
 
 

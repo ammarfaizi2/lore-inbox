@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264564AbRFMHMk>; Wed, 13 Jun 2001 03:12:40 -0400
+	id <S264566AbRFMHXf>; Wed, 13 Jun 2001 03:23:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264565AbRFMHMa>; Wed, 13 Jun 2001 03:12:30 -0400
-Received: from [203.197.249.146] ([203.197.249.146]:37356 "EHLO
-	indica.wipsys.stph.net") by vger.kernel.org with ESMTP
-	id <S264564AbRFMHMW>; Wed, 13 Jun 2001 03:12:22 -0400
-From: "Srinivas Surabhi" <srinivas.surabhi@wipro.com>
+	id <S264567AbRFMHXP>; Wed, 13 Jun 2001 03:23:15 -0400
+Received: from warden.digitalinsight.com ([208.29.163.2]:55448 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S264566AbRFMHXJ>; Wed, 13 Jun 2001 03:23:09 -0400
+From: David Lang <david.lang@digitalinsight.com>
 To: linux-kernel@vger.kernel.org
-Message-ID: <3495d3383d.3383d3495d@wipro.com>
-Date: Wed, 13 Jun 2001 12:10:06 +0500
-X-Mailer: Netscape Webmail
+Date: Tue, 12 Jun 2001 23:11:33 -0700 (PDT)
+Subject: Is this still the linux-kernel list?
+Message-ID: <Pine.LNX.4.33.0106122304440.26275-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Language: en
-Subject: proc inode
-X-Accept-Language: en
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi everybody,
+I ask this (tounge in cheek) becouse some of the comments I have seen this
+month seem so out of place.
 
-   when i tried to read the inode of proc file/directory
-using a  pointer to dirent which is returned by the readdir().,
-i am getting a different inode number(32449)instead of which
- is shown as inode 2 when ls -ia is done.
+first we had the 'this portion of the kernel is not subject to change by
+anyone but me' post
 
- hope it is clear.. 
+now we have the 'code from this company or anyone working there is not
+acceptable (now matter how well written) and may not even be looked at'
 
-  thanks for all who tried to clarify my doubt..
+this sure doesn't seem like the same list that I have been reading for the
+last four years.
 
-srinivas
+remember guys, it's supposed to be about the code. As long as the code is
+under an acceptable license who it's from or what it's going to touch
+isn't supposed to be the issue, the issue is supposed to be 'is this code
+an improvement (in performance, style, algorithm, etc combined)' if it is
+it makes it in.
 
- 
+also I think it's fair to point out that maintainers who were perceived as
+getting to possesive about their 'piece' of the kernel have been replaced
+before, don't work your way into a corner and encourage someone to replace
+you (for one thing the new guy makes mistakes as they are learning things
+and it's painful for the rest of us :-)
+
+David Lang
 

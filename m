@@ -1,58 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319495AbSIGOXB>; Sat, 7 Sep 2002 10:23:01 -0400
+	id <S319497AbSIGOYv>; Sat, 7 Sep 2002 10:24:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319496AbSIGOXA>; Sat, 7 Sep 2002 10:23:00 -0400
-Received: from maroon.csi.cam.ac.uk ([131.111.8.2]:49046 "EHLO
-	maroon.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S319495AbSIGOW6>; Sat, 7 Sep 2002 10:22:58 -0400
-Subject: [BK-PATCH 1/3] Introduce fs/inode.c::ilookup().
+	id <S319498AbSIGOYv>; Sat, 7 Sep 2002 10:24:51 -0400
+Received: from plum.csi.cam.ac.uk ([131.111.8.3]:63148 "EHLO
+	plum.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S319497AbSIGOYr>; Sat, 7 Sep 2002 10:24:47 -0400
+Subject: [BK-PATCH 2/3] Introduce fs/inode.c::ilookup().
 To: torvalds@transmeta.com (Linus Torvalds)
-Date: Sat, 7 Sep 2002 15:27:38 +0100 (BST)
+Date: Sat, 7 Sep 2002 15:29:27 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org (Linux Kernel),
        viro@math.psu.edu (Alexander Viro)
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17ngYk-00025C-00@storm.christs.cam.ac.uk>
+Message-Id: <E17ngaV-00025O-00@storm.christs.cam.ac.uk>
 From: Anton Altaparmakov <aia21@cantab.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Linus,
 
-This is the first of three patches implementing ilookup(), a function
-to search the inode cache for an inode and if not found just return NULL.
-
-All response about ilookup() / ilookup5() was positive and several
-file systems would like to have such a function available.
-
-The first patch just adds ilookup() and ilookup5(). This would be
-sufficient for NTFS and other FS.
-
-The second patch changes iget_locked() and iget5_locked() to use ilookup()
-and ilookup5(). This makes sense as iget{,5}_locked() are just the same
-as ilookup{,5}() except they call get_new_inode{,_fast}() instead of
-returning NULL.
-
-The third patch moves the inode hash calculation from iget{,5}_locked()
-into get_new_inode{,_fast}().
-
-The second and third patch have the small disadvantage to the previous
-code in that in the case that ilookup() fails in iget_locked() and
-get_new_inode_fast() is called the inode hash is calculated twice.
-But that is the slow path so I don't think it is a problem.
-
-If you think that is bad then you can just ignore patches 2 and 3.
-
-But please apply at least the first patch as that is really needed.
-
-All three patches are tested and work fine.
-
-If you want all three patches you can also do a: 
-
-	bk pull http://linux-ntfs.bkbits.net/linux-2.5-ilookup
+Here is the second patch changing iget{,5}_locked() to use ilookup{,5}().
 
 Best regards,
 
@@ -66,152 +36,174 @@ WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
 
 This will update the following files:
 
- fs/inode.c         |   70 ++++++++++++++++++++++++++++++++++++++++++++++++++++-
- include/linux/fs.h |    4 +++
- 2 files changed, 73 insertions(+), 1 deletion(-)
+ fs/inode.c |   82 +++++++++++++++++++++++++++++++++----------------------------
+ 1 files changed, 45 insertions(+), 37 deletions(-)
 
 through these ChangeSets:
 
-<aia21@cantab.net> (02/09/07 1.622)
-   Introduce ilookup() and ilookup5() in fs/inode.c.
+<aia21@cantab.net> (02/09/07 1.623)
+   Cleanup: Convert fs/inode.c::iget_locked() and iget5_locked() to use
+   ilookup() and ilookup5() respectively.
 
 
 diff -Nru a/fs/inode.c b/fs/inode.c
---- a/fs/inode.c	Sat Sep  7 14:52:28 2002
-+++ b/fs/inode.c	Sat Sep  7 14:52:28 2002
-@@ -696,6 +696,74 @@
- 	return inode;
+--- a/fs/inode.c	Sat Sep  7 14:52:36 2002
++++ b/fs/inode.c	Sat Sep  7 14:52:36 2002
+@@ -536,7 +536,7 @@
+ 	inode->i_state &= ~(I_LOCK|I_NEW);
+ 	wake_up_inode(inode);
  }
+-
++EXPORT_SYMBOL(unlock_new_inode);
  
+ /*
+  * This is called without the inode lock held.. Be careful.
+@@ -764,65 +764,73 @@
+ }
+ EXPORT_SYMBOL(ilookup);
+ 
+-/*
+- * This is iget without the read_inode portion of get_new_inode
+- * the filesystem gets back a new locked and hashed inode and gets
+- * to fill it in before unlocking it via unlock_new_inode().
 +/**
-+ * ilookup5 - search for an inode in the inode cache
-+ * @sb:		super block of file system to search
-+ * @hashval:	hash value (usually inode number) to search for
++ * iget5_locked - obtain an inode from a mounted file system
++ * @sb:		super block of file system
++ * @hashval:	hash value (usually inode number)
 + * @test:	callback used for comparisons between inodes
-+ * @data:	opaque data pointer to pass to @test
++ * @set:	callback used to initialize a new struct inode
++ * @data:	opaque data pointer to pass to @test and @set
 + *
-+ * ilookup5() searches for the inode specified by @hasval and @data in the
-+ * inode cache.
++ * This is iget() without the read_inode() portion of get_new_inode().
 + *
-+ * If the inode is in the cache, the inode is returned with an incremented
-+ * reference count.
++ * The inode specified by @hasval and @data is looked up in the inode cache
++ * and if present it is returned with an increased reference count.
 + *
-+ * Otherwise NULL is returned.
++ * If it is not present, get_new_inode() is used to allocate a new inode and
++ * this is returned locked, hashed, and with the I_NEW flag set. The file
++ * system gets to fill it in before unlocking it via unlock_new_inode().
 + *
-+ * Note, @test is called with the inode_lock held, so can't sleep.
-+ */
-+inline struct inode *ilookup5(struct super_block *sb, unsigned long hashval,
-+		int (*test)(struct inode *, void *), void *data)
-+{
++ * Note both @test and @set are called with the inode_lock held, so can't sleep.
+  */
+-struct inode *iget5_locked(struct super_block *sb, unsigned long hashval, int (*test)(struct inode *, void *), int (*set)(struct inode *, void *), void *data)
++struct inode *iget5_locked(struct super_block *sb, unsigned long hashval,
++		int (*test)(struct inode *, void *),
++		int (*set)(struct inode *, void *), void *data)
+ {
+-	struct list_head * head = inode_hashtable + hash(sb, hashval);
+-	struct inode * inode;
 +	struct list_head *head = inode_hashtable + hash(sb, hashval);
 +	struct inode *inode;
-+
-+	spin_lock(&inode_lock);
-+	inode = find_inode(sb, head, test, data);
-+	if (inode) {
-+		__iget(inode);
-+		spin_unlock(&inode_lock);
-+		wait_on_inode(inode);
-+		return inode;
-+	}
-+	spin_unlock(&inode_lock);
-+	return NULL;
-+}
-+EXPORT_SYMBOL(ilookup5);
-+
+ 
+-	spin_lock(&inode_lock);
+-	inode = find_inode(sb, head, test, data);
+-	if (inode) {
+-		__iget(inode);
+-		spin_unlock(&inode_lock);
+-		wait_on_inode(inode);
++	inode = ilookup5(sb, hashval, test, data);
++	if (inode)
+ 		return inode;
+-	}
+-	spin_unlock(&inode_lock);
+-
+ 	/*
+ 	 * get_new_inode() will do the right thing, re-trying the search
+ 	 * in case it had to block at any point.
+ 	 */
+ 	return get_new_inode(sb, head, test, set, data);
+ }
++EXPORT_SYMBOL(iget5_locked);
+ 
+-/*
+- * Because most filesystems are based on 32-bit unique inode numbers some
+- * functions are duplicated to keep iget_locked as a fast path. We can avoid
+- * unnecessary pointer dereferences and function calls for this specific
+- * case. The duplicated functions (find_inode_fast and get_new_inode_fast)
+- * have the same pre- and post-conditions as their original counterparts.
 +/**
-+ * ilookup - search for an inode in the inode cache
-+ * @sb:		super block of file system to search
++ * iget_locked - obtain an inode from a mounted file system
++ * @sb:		super block of file system
 + * @ino:	inode number to search for
 + *
-+ * ilookup() searches for the inode @ino in the inode cache. This is a fast
-+ * version of ilookup5() for file systems where the inode number is sufficient
-+ * for unique identification of an inode.
++ * This is a fast version of iget5_locked() for file systems where the inode
++ * number is sufficient for unique identification of an inode.
 + *
-+ * If the inode is in the cache, the inode is returned with an incremented
-+ * reference count.
++ * The inode specified by @ino is looked up in the inode cache and if present
++ * it is returned with an increased reference count.
 + *
-+ * Otherwise NULL is returned.
-+ */
-+inline struct inode *ilookup(struct super_block *sb, unsigned long ino)
-+{
++ * If it is not present, get_new_inode_fast() is used to allocate a new inode
++ * and this is returned locked, hashed, and with the I_NEW flag set. The file
++ * system gets to fill it in before unlocking it via unlock_new_inode().
+  */
+ struct inode *iget_locked(struct super_block *sb, unsigned long ino)
+ {
+-	struct list_head * head = inode_hashtable + hash(sb, ino);
+-	struct inode * inode;
 +	struct list_head *head = inode_hashtable + hash(sb, ino);
 +	struct inode *inode;
-+
-+	spin_lock(&inode_lock);
-+	inode = find_inode_fast(sb, head, ino);
-+	if (inode) {
-+		__iget(inode);
-+		spin_unlock(&inode_lock);
-+		wait_on_inode(inode);
-+		return inode;
-+	}
-+	spin_unlock(&inode_lock);
-+	return NULL;
-+}
-+EXPORT_SYMBOL(ilookup);
-+
- /*
-  * This is iget without the read_inode portion of get_new_inode
-  * the filesystem gets back a new locked and hashed inode and gets
-@@ -765,7 +833,7 @@
-  *	Add an inode to the inode hash for this superblock. If the inode
-  *	has no superblock it is added to a separate anonymous chain.
-  */
-- 
-+
- void __insert_inode_hash(struct inode *inode, unsigned long hashval)
- {
- 	struct list_head *head = &anon_hash_chain;
-diff -Nru a/include/linux/fs.h b/include/linux/fs.h
---- a/include/linux/fs.h	Sat Sep  7 14:52:28 2002
-+++ b/include/linux/fs.h	Sat Sep  7 14:52:28 2002
-@@ -1204,6 +1204,10 @@
- extern int inode_needs_sync(struct inode *inode);
- extern void generic_delete_inode(struct inode *inode);
  
-+extern struct inode *ilookup5(struct super_block *sb, unsigned long hashval,
-+		int (*test)(struct inode *, void *), void *data);
-+extern struct inode *ilookup(struct super_block *sb, unsigned long ino);
-+
- extern struct inode * iget5_locked(struct super_block *, unsigned long, int (*test)(struct inode *, void *), int (*set)(struct inode *, void *), void *);
- extern struct inode * iget_locked(struct super_block *, unsigned long);
- extern void unlock_new_inode(struct inode *);
+-	spin_lock(&inode_lock);
+-	inode = find_inode_fast(sb, head, ino);
+-	if (inode) {
+-		__iget(inode);
+-		spin_unlock(&inode_lock);
+-		wait_on_inode(inode);
++	inode = ilookup(sb, ino);
++	if (inode)
+ 		return inode;
+-	}
+-	spin_unlock(&inode_lock);
+-
+ 	/*
+ 	 * get_new_inode_fast() will do the right thing, re-trying the search
+ 	 * in case it had to block at any point.
+ 	 */
+ 	return get_new_inode_fast(sb, head, ino);
+ }
+-
+-EXPORT_SYMBOL(iget5_locked);
+ EXPORT_SYMBOL(iget_locked);
+-EXPORT_SYMBOL(unlock_new_inode);
+ 
+ /**
+  *	__insert_inode_hash - hash an inode
 
 ===================================================================
 
 This BitKeeper patch contains the following changesets:
-1.622
+1.623
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch2601
-M'XL(`)P$>CT``]57^V_;-A#^6?PK"!38;,>62<G6PX&'K`]LP;(F2!M@`PH8
-MM$3%1&3*%2F[V=S_?4=:?B3.HPDZ+(N#2*+NOOONXQUS?H4O%"\'#A/,H^@5
-M_K50>N`D3&HV=B77L'1>%+#4K5395672S86LOG0\M]\1>5%<53,$-F=,)Q,\
-MYZ4:.-3U-ROZ>L8'SOF[7RY.?CY':#C$;R9,7O(/7./A$.FBG+,\54=,3_)"
-MNKID4DVY9FY23)<;TZ5'B`>?/@U]T@^6-""]<)G0E%+6HSPE7B\*>FC.9%H6
-M<WXT3]QD7FDW^>LV1DP"0FE(XR7I16&`WF+J!IZ'B=<E<9>$F/H#$@UH=$#H
-M@!!L93G:RH$//-PAZ#7^OLS?H`0?2UT6:95P7.O::&)(:/W4AT<A<::Z0A8I
-M=Q,7_89]&D;H;*LIZCSQ!R'""/KID72V07?SB?UH"?Q!RS&AD1_Q+"9I.@Y\
-MNB?;'D),0NJ1B/27G@\2/,I`R"2O4KXJOFZFW,E-)C$HV_?#94!X'$5IF&5I
-M,.;!/I'[@+:$?+]'8ENJ6]*/U^I3)4(*D+10.1NK.P%"S_.@1DFP[,<^K2LU
-MNEVHI']OH08Q[M`74ZFK;3[%G7)A?Z'TSG9,GE&XQT$<X2!"W58+X=8F..Y@
-MQ5D)9T]6E$`+VPB&D)[P^B%AR80;IR,U'CB.JF:\Q..\2*YPD>%,Y!RK:Z7Y
-M%,2KT:SUA*D):#EPS`V&NXKC1J4JEN?7-;2LIF->-K>.AH9UUGQULN;YF$&@
-M2O'44H1=F+%2J$(J/.9ZP7G-65FWE&DV<(H9^PS!S`.>%4)J(`PA9DPI<[7@
-M8+XK!.S"B@%7-LXV?37CB<@$Q!]?VZ0@$[N!-E@ME87:JN76Z,?9#I!0:UVM
-M3?OFJY+KJI0092'T9+432<FG',BG!JKD&2^YA#)*BDKJ=813`"D70G'\_N+D
-M9!=H;?&^T!#+YFQ>&TG7438$1G8W)SQ/VU@58"-_U%CEG,\,2A<)"2<`2*'+
-M*M$UY]9&NGK9%L9H51@M-6[C2BIQ:5*"1KK$=3FTD>/`CN!&RS!J-FYBMO&\
-M$"EN-=<W1N,F^ALYM5TNE!Y-.(-7]N^P3L"@0S-#+1[82`U#H`[9/-RXKZF;
-MRR'Z!.LS(6WVC1^V2AB'E24<:T*F(_NP@H2@L'-`O6WKRYIFN&$MFAB(.J.1
-MN.2Z7H'7JQB5O"N*LV!"CPI91]CZK'81UT2=K^@AE-K85,`A^HK>_7%V>OYQ
-M].'/WU^?GC36V]0T^=YL_W^S^\%[X.QV^5Z3[Q"YO_L,SAV$7/QQ8OI)888S
-M9KO9SE.BD(;63E<;N!V6"B^@8?@.7LT.H%2592(1T'(&SCA64IB#1*2P!F=`
-MPG0=8*W52VGTAUOT&SL4G)[=:L;W^[39R.SG3J_5R/^+)K,]]C:$R8.BX]7E
-MDQV.]@>IQX>D9TYQ6]09EY>5^%;8&&`CO]^G2]KW>L2.4#2@3YBA>B]JV+>#
-MZ:T1:C_WYXQ2,/H&N(?X%Y@KY'_V3_'P00)/:'E3LYNOH'!>)5>JF@Y3$GDQ
-,"S/T#](SI][T#@``
+begin 664 bkpatch2633
+M'XL(`*0$>CT``]U7;6_;-A#^;/V*`_IAMNL74I*ME\%#UZ38@G5MD+;8]LF@
+M92HF*HN:2"7+X!^_.TJ.':=%T&(%AB6&*9.\N^>>>^[B/(,/1M9I3RCA<^\9
+M_*R-37N9**U834II<>M*:]R:-J:>FCJ;%JIL_AK[D]E8%5I_;"H/[UP*FVW@
+M1M8F[?%)<+]C[RJ9]JY>_?3A]8]7GK=8P-E&E-?RG;2P6'A6US>B6)L7PFX*
+M74YL+4JSE59,,KW=W5_=^8SY^#OC4<!F\QV?LS#:97S-N0BY7#,_C.>AYW)X
+M<<!^ZB!A$?=9S.,="W@4>^?`)W,_`.9/63)E$?`@]><I#YXSGC(&I_[@.8<Q
+M\U["OPO[S,O@K)"B;*H4SG2)+%K(S525>BTG69JJ:VF7A<X^RG5_`*)<`^W,
+M#EM60V,DNNDJLK_5?IKAQUJ:2F96W<CB;N+]`@&/Y][EH1C>^`M_/(\)YOWP
+M!!6'+(ZY2`*L@!_R9+=B/`YBF2=LO5[-`_Z(\D<>7`W].4MVW$_"R$GJ<.=I
+M37TIHL>B^B0B%K/9S@^PH*VJDE-1L>2SH@IG,`ZB_X6LVIJ\A7%]ZUZHD\NC
+MF%^ALO-9D`#W+MKEU>^7;Z_>+]_]\>O+MZ_[34E0EZ6\7;H`@^^]\V@>0>A=
+M1!$#'GO3X="#X8.\8`QZ984J,1=P9I#7>@L"MKHI+5[(52'!W!DKMV3\PJS2
+M7L\TE:QA13Y`YX_N;(398.W2'CT`/C42^HUI1%'<=5'*9KN2]<!=M[*=LD6Q
+M$N@06<:PN@:L<R5J971I8"7MK90=1M,BD8^LL$:J5%:)0OTM,0DD`XRMF\RV
+MALYN+:Q(>[H2?R(L^@"55IAK3>:5,(96!\H5F.*@'9F^WR@#]$(&L=ZWRFYT
+M8\%N)-9>K%O>\:#2M56Z)&I(5?<EZ0\F]YYD1P1)1N4*P:_N''-(5QO70<-H
+M)#`\;BJT<+%:PTQD&Y>04V$.%<I/EIBH):-:VJ8NT8Q`ML7-$".15,M<UK+,
+MT`75>`_I(N],2VWWSD:G^.E\SS0RKS-A]SRWJ!`,.;,=4_<P6KF-@!1!*X%V
+MT"BAB^6;5[]!7HAK0+(GCAW2%'EJ944X7%UPNW`X2Y0$BD1"JWM57M/VC1)P
+MV@@'UM]H1+O2&/5A>4'4Q&=1R"-0SM:U"6QD@9"-QCOE=Q9,(64UP>Z*?&I&
+M6@+O6&8P?#`[NB/7-,NV:89F-4*@1EVWY"#ZKFE&7J^':H3^D"`.^@_]CN!&
+MJS4,!X=KB/_SM[H'DM*``(?@$^`9+KW.IE#&+C<H7QBZ]T67.>'!J8R=_=QA
+MZQ/D#B3.EMY)PK30Q(DBF&.(V*<0[>'B,"2/?(R`$ARY#B1_*.%^.[C02QPB
+MI1=1XC\:<\?,NA&7A"Y@@A,Q/!YQWW3"H:.T=SS)2)M&BAJ_Y:$J3^:%@%R@
+MW.@+83<63OZVT+0["F'@=H,M>I`A.>OBH#O3Y+G*%#4[&3:EHDFFUKB!DP1;
+ML@NR3_BIH8-[3\V9DR'C./YV<V9)=#T];/;#[[\V;,YC%E"?Q2S\VC[#H\_W
+M6,SF)/F8\T_TV+'Y<4O%/,"6.H]]:DQ<9MA9]_^88(6SCZ;9+OPXB7*9S;U_
+)`-+'!5X*#0``
 `
 end

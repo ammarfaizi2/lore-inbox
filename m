@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311549AbSCNGnQ>; Thu, 14 Mar 2002 01:43:16 -0500
+	id <S311553AbSCNGx0>; Thu, 14 Mar 2002 01:53:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311553AbSCNGnN>; Thu, 14 Mar 2002 01:43:13 -0500
-Received: from bitmover.com ([192.132.92.2]:26526 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S311549AbSCNGmz>;
-	Thu, 14 Mar 2002 01:42:55 -0500
-Date: Wed, 13 Mar 2002 22:42:55 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Ben Greear <greearb@candelatech.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4 and BitKeeper
-Message-ID: <20020313224255.F9010@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Ben Greear <greearb@candelatech.com>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0203140141450.4725-100000@freak.distro.conectiva> <3C904437.7080603@candelatech.com>
+	id <S311554AbSCNGxR>; Thu, 14 Mar 2002 01:53:17 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:52492 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S311553AbSCNGxC>; Thu, 14 Mar 2002 01:53:02 -0500
+Date: Thu, 14 Mar 2002 07:52:58 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Martin Dalecki <martin@dalecki.de>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] PIIX rewrite patch, pre-final
+Message-ID: <20020314075258.A31815@ucw.cz>
+In-Reply-To: <20020314001449.A31068@ucw.cz> <Pine.LNX.4.40.0203132004310.7822-100000@coredump.sh0n.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C904437.7080603@candelatech.com>; from greearb@candelatech.com on Wed, Mar 13, 2002 at 11:33:27PM -0700
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.40.0203132004310.7822-100000@coredump.sh0n.net>; from spstarr@sh0n.net on Wed, Mar 13, 2002 at 08:04:38PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 13, 2002 at 11:33:27PM -0700, Ben Greear wrote:
-> Can you plz tell me (us) what the bk clone command is?
+On Wed, Mar 13, 2002 at 08:04:38PM -0500, Shawn Starr wrote:
+
+> This will benifit PIIX3 chipsets? :)
+
+It should.
+
 > 
-> I tried:
+> On Thu, 14 Mar 2002, Vojtech Pavlik wrote:
 > 
->   bk clone bk://linux24.bkbits.net//linux-2.4
-> 
-> and
-> 
->   bk clone bk://linux24.bkbits.net///linux-2.4
+> > Hi!
+> >
+> > This is a rewrite of the PIIX IDE timing driver. It should give slightly
+> > better performance (+4% was measured), and also replaces the slc90c66
+> > Efar Victory66 driver, because the Victory66 is mostly a PIIX clone.
+> >
+> > It has been tested on PIIX4 only. Please anyone with a PIIX or ICH chip,
+> > and if anyone has the Victory66 one even moreso, test this if you can.
+> >
+> > The patch is against 2.5.6 + the patches I sent earlier, for a complete
+> > patch against clean 2.5.6 see
+> >
+> > http://twilight.ucw.cz/ide-via-amd-piix-timing-8-pre-final.diff
+> >
+> > Killed code good code. :)
+> >
+> > --
+> > Vojtech Pavlik
+> > SuSE Labs
+> >
 
-Hi, Linus & Marcelo agreed that the right place for this is
-
-	bk://linux.bkbits.net/linux-2.4
-
-and I just put it there, let me know if that doesn't work.
-
-Also, if you have a linux-2.5 BK tree, you can save yourself a lot of 
-bandwidth by doing the following:
-
-	bk clone -rv2.4.18-pre8 linux-2.5 linux-2.4
-	cd linux-2.4
-	bk parent bk://linux.bkbits.net/linux-2.4
-	bk pull
-
-That will get you back to the baseline you should already have and 
-then just update your tree with what Marcelo added recently.
-
-You don't have to do that, and for those of you with fast DSL lines you
-can skip, I don't care, but if you are trying to get a 2.4 tree over a
-modem, this is much much faster.
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Vojtech Pavlik
+SuSE Labs

@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265806AbTAXVxe>; Fri, 24 Jan 2003 16:53:34 -0500
+	id <S265815AbTAXVzk>; Fri, 24 Jan 2003 16:55:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265815AbTAXVxe>; Fri, 24 Jan 2003 16:53:34 -0500
-Received: from web80304.mail.yahoo.com ([66.218.79.20]:52291 "HELO
-	web80304.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S265806AbTAXVxd>; Fri, 24 Jan 2003 16:53:33 -0500
-Message-ID: <20030124220241.30218.qmail@web80304.mail.yahoo.com>
-Date: Fri, 24 Jan 2003 14:02:41 -0800 (PST)
-From: Kevin Lawton <kevinlawton2001@yahoo.com>
-Subject: Re: Simple patches for Linux as a guest OS in a plex86 VM (please consider)
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Derek Fawcus <dfawcus@cisco.com>, Valdis.Kletnieks@vt.edu,
-       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0301241256200.10187-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265828AbTAXVzk>; Fri, 24 Jan 2003 16:55:40 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:63624 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S265815AbTAXVzh>;
+	Fri, 24 Jan 2003 16:55:37 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 24 Jan 2003 23:04:45 +0100 (MET)
+Message-Id: <UTC200301242204.h0OM4jU09451.aeb@smtp.cwi.nl>
+To: alan@lxorguk.ukuu.org.uk, sdake@mvista.com
+Subject: Re: 32bit dev_t
+Cc: Joel.Becker@oracle.com, dougg@torque.net, kurt@garloff.de,
+       linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Who is tracking the 32bit dev_t effort for 2.5?
 
---- David Lang <david.lang@digitalinsight.com> wrote:
-> it sounds like you are saying that with the plex86 you have two ways to
-> load a client OS.
-> 
-> 1. 'normal', full isolation of VMs no modification of the client OS
-> needed.
-> 
-> 2. 'nice VM'. modification of the client OS required, but with the
-> exception of the kernel level commands being eliminated in the
-> modification full VM isolation is still provided. Much better performance
-> then case #1
+Once or twice a year I build a kernel with 32bit or 64bit dev_t.
+Every now and then submit a few patches so that doing so
+remains easy. The last real change was the change in prototype
+of the VFS *_mknod functions.
 
-No, there's always full isolation.  If a guest is run without
-mods similar to the ones I submitted for Linux, the interrupt
-behaviour will not work correctly for the guest.  Neither
-the host nor other guests will be affected.  Nor do I care,
-because this is not for running arbitrary guest OSes.
+: 32bit dev_t IMHO is essential to 2.6. Essential enough that if its not
+: in the base 2.6 all the vendors have to get together and issue a Linus 
+: incompatible but common 32bit dev_t interface.
 
-x86 does not have pure VMability.  So, rather than trying real
-hard to get under the hood to make it VM'able with heavy software
-techniques, just forget about running all guest OSes and
-run ones that can work, like Linux.
+The main point to decide would be the external dev_t format.
+Of course the format must be compatible with existing filesystems
+and binaries. For example,
 
-If you look, you'll notice my patches do nothing except macroize
-the pushf/popf instructions to un-break the handling of eflags.IF
-inside PVI mode (since x86 breaks it).  This has nothing to do
-with isolation of the guest OS.  Nothing to do with running Windows.
-Nothing to do with anything except running Linux as a guest.
+#define MAJOR(dev)      ((unsigned int)(((dev) & 0xffff0000) \
+	? ((dev) >> 16) & 0xffff : ((dev) >> 8) & 0xff))
+#define MINOR(dev)      ((unsigned int)(((dev) & 0xffff0000) \
+	? ((dev) & 0xffff) : ((dev) & 0xff)))
+#define MKDEV(ma,mi)    ((dev_t)((((ma) & ~0xff) == 0 && ((mi) & ~0xff) == 0) \
+	? (((ma) << 8) | (mi)) : (((ma) << 16) | (mi))))
 
--Kevin
+This is 1-1 on nonzero majors (and zero major, 8-bit minor).
 
-__________________________________________________
-Do you Yahoo!?
-New DSL Internet Access from SBC & Yahoo!
-http://sbc.yahoo.com
+Once the decision has been made on the size of dev_t and the
+computation of major,minor given a dev_t, it is straightforward
+to implement that decision. Unfortunately not only the kernel
+but also glibc must be changed.
+
+In glibc one needs to fix in sysdeps/unix/sysv/linux
+the files sys/sysmacros.h, bits/stat.h, ustat.c, xmknod.c.
+
+In the kernel there are lots of tiny fixes needed because
+people did not distinguish between int and dev_t and kdev_t.
+Nothing major.
+
+(Anyone can boot a 2.5 kernel with 32-bit dev_t by changing
+    include/asm-i386/posix_types.h
+(change the line "typedef unsigned short __kernel_dev_t;"
+to what is desired, e.g. s/short/int/) and changing
+    include/linux/kdev_t.h
+(change the typedef for kdev_t to have e.g. unsigned int,
+set KDEV_MINOR_BITS and KDEV_MAJOR_BITS to 16,
+change the 0xff in the definition of major and minor to 0xffff,
+change the definitions of MAJOR, MINOR, MKDEV as above).)
+
+[Warning: I do such things and it works. But if you do so,
+it may well destroy your filesystems. A complete patch has
+minor fixes all over the place.]
+
+
+Andries

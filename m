@@ -1,66 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVA0U6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVA0U60@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbVA0U6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 15:58:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVA0Uyw
+	id S261197AbVA0U60 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 15:58:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVA0U4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 15:54:52 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:25078 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261197AbVA0Uxk
+	Thu, 27 Jan 2005 15:56:19 -0500
+Received: from ctb-mesg3.saix.net ([196.25.240.75]:61173 "EHLO
+	ctb-mesg3.saix.net") by vger.kernel.org with ESMTP id S261182AbVA0UwD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 15:53:40 -0500
-Message-ID: <41F954CE.6040504@mvista.com>
-Date: Thu, 27 Jan 2005 12:53:34 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
+	Thu, 27 Jan 2005 15:52:03 -0500
+Message-ID: <41F9545A.4080803@kroon.co.za>
+Date: Thu, 27 Jan 2005 22:51:38 +0200
+From: Jaco Kroon <jaco@kroon.co.za>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050110
+X-Accept-Language: en, af, en-gb, en-us
 MIME-Version: 1.0
-To: george@mvista.com
-CC: Ingo Molnar <mingo@elte.hu>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: [PATCH] to fix xtime lock for in the RT kernel patch
-References: <41F04573.7070508@mvista.com> <20050121063519.GA19954@elte.hu> <41F0BA56.9000605@mvista.com> <20050121082125.GA28267@elte.hu> <41F0BFA4.5030107@mvista.com> <20050121084557.GA29550@elte.hu> <41F0C33D.60908@mvista.com> <20050121090014.GA30379@elte.hu> <41F0C686.5070903@mvista.com>
-In-Reply-To: <41F0C686.5070903@mvista.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: sebekpi@poczta.onet.pl, Vojtech Pavlik <vojtech@suse.cz>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: i8042 access timings
+References: <200501260040.46288.sebekpi@poczta.onet.pl> <41F888CB.8090601@kroon.co.za> <Pine.LNX.4.58.0501270948280.2362@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0501270948280.2362@ppc970.osdl.org>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Anzinger wrote:
-> Ingo Molnar wrote:
+Linus Torvalds wrote:
 > 
->> * George Anzinger <george@mvista.com> wrote:
->>
->>
->>> What I am suggesting is spliting the mark code so that it would only
->>> grap the offset (current TSC in most systems) during interrupt
->>> processing.  Applying this would be done later in the thread.  Since
->>> it is not applying the offset, the xtime_lock would not need to be
->>> taken.
->>
->>
->>
->> ok, you are right, and this would be fine with me. Wanna take a shot at
->> it? I've uploaded the -03 patch which is my most current tree. (with the
->> do_timer() moving done already.) I've reviewed the TSC offset codepath
->> again and i'm not sure where i got the 10 usecs from ... it's a pretty
->> cheap codepath that can be done in the direct interrupt just fine.
->>
-> Tomorrow, uh, later today.  Need some sleep now...
+> On Thu, 27 Jan 2005, Jaco Kroon wrote:
+> 
+>>Which indicates (as far as my understanding goes) that the command times 
+>>out, as such the param value stays the same (ready for re-use in the 
+>>second command).  The second commands succeeds but does not return one 
+>>of the expected (0x00, 0xff, 0xfa) values, instead it returns the value 
+>>as expected by the first command (0xa5).  The last value on both lines 
+>>is the return value.  From the second snippet:
+> 
+> 
+> No, I think the 0x5a you see is the 0x5a that is _still_ there, because we 
+> never got any reply at all from the i8042_command(I8042_CMD_AUX_LOOP) 
+> case, nor did the I8042_CMD_AUX_TEST thing do anything at all.
 
-Ingo, I have been looking at the code being proposed by John Stultz.  It looks 
-like it handles all the issues I am talking about here.  I think it would be 
-best to leave the RT patch as it is WRT this issue and work on getting John's 
-patch ready for prime time as any work I would do here will just get tossed when 
-his patch hits the steet.
+I suspect I didn't explain clearly.  Note that the outer test expects a 
+0xa5 (we pass 0x5a in).  That is what made me suspect that the second 
+request gets the first ones return value.
 
-Meanwhile, I will (already have) get HRT working on RT and make that available 
-in the next few days.
+> 
+> I have a suspicion: these commands are also one of the few ones that write 
+> a data byte to the data port immediately after writing the command byte to 
+> the status port.
+Yes.  The commands that write something is:
 
+CTL_WCTR
+KBD_LOOP (I quess this is what breaks if no USB1.1 present in kernel)
+AUX_SEND (obviously)
+AUX_LOOP (the one that we think is breaking)
+MIX_SEND (obviously).
+
+All of them send exactly one byte.
+
+> 
+> It so happens that if the hardware is slow to reach to the command byte,
+> we might read the status word _before_ the hardware has had time to even
+> say "ok, my input port is now full". We have a "udelay()" there in
+> i8042_wait_write(), but we have it _after_ we've done the 
+> i8042_read_status(), so effectively the i8042_read_status() happens 
+> immediately after the i8042_write_command().
+Hmm, just an idea, shouldn't the i8042_write_command be waiting until 
+the device has asserted the pin to indicate that the buffer is busy? 
+Ie, some nice and tight loop.  This has the downside that if we check 
+_just before_ the pin gets asserted, then delay and check again _after_ 
+it has been cleared we will deadlock.  So the udelay() before the loop 
+(or rewriting the loop to do{}while(...)) is probably a better solution, 
+although this will cause us to _always_ wait at least 50 microseconds 
+(not that that is a long time).
+
+> So what _might_ happen is that we write the command, and then 
+> i8042_wait_write() thinks that there is space to write the data 
+> immediately, and writes the data, but now the data got lost because the 
+> buffer was busy.
+This makes a lot of sense.
+
+> 
+> The IO delay should be _before_ the read of the status, not after it.
+> 
+> So how about adding an extra "udelay(50)" to either the top of 
+> i8042_wait_write(), or to the bottom of "i8042_write_command()"? Does that 
+> make any difference?
+No.  No difference, still the same result.
+
+> 
+> (50 usec is probably overkill, and an alternative is to just make the
+> write_data/write_command inline functions in i8042-io.h use the
+> "inb_p/outb_p" versions that put a serializing IO instruction in between,
+> which should give you a nice 1us delay even on modern hardware.)
+ok, how would I try this?  Where can I find an example to code it from? 
+  Sorry, I should probably be grepping ...
+
+Jaco
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-
+There are only 10 kinds of people in this world,
+   those that understand binary and those that don't.
+http://www.kroon.co.za/

@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbVAELJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbVAELQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262322AbVAELJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 06:09:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVAELJ7
+	id S262324AbVAELQh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 06:16:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVAELQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 06:09:59 -0500
-Received: from smtp.uninet.ee ([194.204.0.4]:28174 "EHLO smtp.uninet.ee")
-	by vger.kernel.org with ESMTP id S262322AbVAELJ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 06:09:57 -0500
-Message-ID: <41DBCAE5.9010408@tuleriit.ee>
-Date: Wed, 05 Jan 2005 13:09:25 +0200
-From: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
-Reply-To: indrek.kruusa@tuleriit.ee
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 5 Jan 2005 06:16:37 -0500
+Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:25559 "EHLO
+	fw-loc.vanvergehaald.nl") by vger.kernel.org with ESMTP
+	id S262324AbVAELQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 06:16:35 -0500
+Date: Wed, 5 Jan 2005 12:16:32 +0100
+From: Toon van der Pas <toon@hout.vanvergehaald.nl>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Very high load on P4 machines with 2.4.28
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: 50% CPU user usage but top doesn't list any CPU unfriendly task
+Message-ID: <20050105111632.GA7664@hout.vanvergehaald.nl>
+References: <5a2cf1f6050103134611114dbd@mail.gmail.com> <200501040851.23287.norbert-kernel@edusupport.nl> <5a2cf1f6050104024368eb1424@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5a2cf1f6050104024368eb1424@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > On Maw, 2005-01-04 at 22:41, Nicholas Berry wrote:
- > >/ Indeed. AIX (sorry) 5.3 on POWER5 explicitly disables SMT (IBM/
- >>/ hyperthreading) if the load doesn't warrant it./
- >>/ /
- > >/ (Now how about that for Linux?) :)/
+On Tue, Jan 04, 2005 at 11:43:39AM +0100, jerome lacoste wrote:
+> On Tue, 4 Jan 2005 08:51:23 +0100, Norbert van Nobelen
+> <norbert-kernel@edusupport.nl> wrote:
+> > The load and the CPU useage are two separate things:
+> > Load: Defined by a programmer on an estimate on which his program is running
+> > 100% fulltime, thus consuming little or more CPU/IO.
+> > The interesting program you mention is the VoIP application. Is this program
+> > multithreaded and is every thread using a little bit of CPU? Than it quickly
+> > adds up to the mentioned 40%. 
+> 
+> There are some threads in that app, not that many, and none show in
+> the top listing (which displays at least 30 entries). So I don't think
+> this sum scenario is valid.
 
- > It would be very nice to do but AFAIK no current processor with
- > hypedthreading lets you do dynamic disabling.
+The correct display of threaded processes in top should be fixed by
+the combination of procps-3.2.4 and the linux-2.6.10 kernel.
+This according to the text in the announcement of procps-3.2.4.
+I didn't test it yet, though.
 
-Maybe I am victim of marketing (or poor memory) but wasn't it so that 
-x86 instruction HLT was possible to use for single logical processor?
-
-
-Indrek
-
+Regards,
+Toon.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,165 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbULHTVn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbULHTWD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbULHTVn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 14:21:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbULHTVn
+	id S261326AbULHTWD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 14:22:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbULHTWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 14:21:43 -0500
-Received: from THUNK.ORG ([69.25.196.29]:5356 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261324AbULHTVd (ORCPT
+	Wed, 8 Dec 2004 14:22:03 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:36283 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261326AbULHTV4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 14:21:33 -0500
-Date: Wed, 8 Dec 2004 14:21:27 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Bernard Normier <bernard@zeroc.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Concurrent access to /dev/urandom
-Message-ID: <20041208192126.GA5769@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Bernard Normier <bernard@zeroc.com>, linux-kernel@vger.kernel.org
-References: <006001c4d4c2$14470880$6400a8c0@centrino> <Pine.LNX.4.53.0411272154560.6045@yvahk01.tjqt.qr> <009501c4d4c6$40b4f270$6400a8c0@centrino> <Pine.LNX.4.53.0411272220530.26852@yvahk01.tjqt.qr> <02c001c4d58c$f6476bb0$6400a8c0@centrino> <06a501c4dcb6$3cb80cf0$6401a8c0@centrino> <20041208012802.GA6293@thunk.org> <079001c4dcc9$1bec3a60$6401a8c0@centrino>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <079001c4dcc9$1bec3a60$6401a8c0@centrino>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 8 Dec 2004 14:21:56 -0500
+Date: Wed, 8 Dec 2004 11:20:30 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: john stultz <johnstul@us.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
+       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max <amax@us.ibm.com>, mahuja@us.ibm.com
+Subject: Re: [RFC] New timeofday proposal (v.A1)
+In-Reply-To: <1102533066.1281.81.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.58.0412081114590.27324@schroedinger.engr.sgi.com>
+References: <1102470914.1281.27.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.58.0412081009540.27324@schroedinger.engr.sgi.com>
+ <1102533066.1281.81.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 07, 2004 at 08:56:17PM -0500, Bernard Normier wrote:
-> In which version of 2.6 did this bug get fixed? I am seeing these 
-> duplicates with 2.6.9-1.667smp (FC3)?
+On Wed, 8 Dec 2004, john stultz wrote:
 
-SMP locking was added before 2.6.0 shipped (between 2.6.0-test7 and
--test8).  But I see what happened; the problem is that the locking was
-added around add_entropy_words(), and not in the extract_entropy loop.
-Yes, extract_entropy() does call add_entropy_words() (which makes the
-fix more than just a two-line patch), but if two processors enter
-extract_entropy() at the same time, the locking turns out not to be
-sufficient.  
+> > > Points I'm glossing over for now:
+> > > ====================================================
+> > >
+> > > o ntp_scale(ns):  scales ns by NTP scaling factor
+> > > 	- see ntp.c for details
+> > > 	- costly, but correct.
+> >
+> > Please do not call this function from monotonic_clock but provide some
+> > sort of scaling factor that is adjusted from time to time.
+>
+> You're going to have to expand on this. I had considered only NTP
+> scaling the wall time, but for consistency it made more sense to me that
+> we also apply NTP scaling to the monotonic clock. This avoids different
+> notions of nanoseconds, one being the inaccurate unajusted system
+> nanoseconds and the other being the accurately ntp scaled wall time
+> nanoseconds. Trying to keep things sane.
 
-I'm currently travelling so I can't easily test this patch, not having
-easy access to an SMP machine.  Could you give it a spin and let me
-know if this fixes things?
+It certainly is more consistent but its a big performance hit if that
+scaling is done on every invocation of clock_gettime or gettimeofday().
 
-> I am just trying to generate UUIDs (without duplicates, obviously).
+With the improved scaling factor one should be able to come very close to
+ntp scaled time without invoking ntp_scale itself. Tick processing will
+then update time to be ntp scaled by fine tuning the scaling factor (with
+the bit shifting we can get very fine tuning) and eventually skip a few
+nanoseconds. Its basically some piece of interpolator logic in there so
+that the heavyweight calculations can just be done once in a while.
 
-That's funny.  I had put in a workaround into libuuid as of e2fsprogs
-1.35 that mixed in the pid and first time uuid_generate() was called
-into the randomness, as a temporary workaround.  So this should have
-prevented duplicate uuid's from being generated.  The only way this
-could have happened would be if /dev/urandom and /dev/random failed to
-open, and so the time-based uuid was used, or if the generate_uuid is
-being called from a threaded program, where the uuid's internal random
-number generator was only getting initialized once (and where we don't
-have any thread-specific locking in the uuid library).  
+> > In that case maybe the "ticks" are the timesource and not really tick
+> > processing per se.
+>
+> If I understand you, yes. In this case the timer interrupt counter
+> (jiffies) is used as a free running counter.
+>
+> > There could be a separation between "increment counter" and tick processing.
+>
+> Could you expand on this?
 
-What version of the uuid library are you using, and what's the
-application that requires so many UUID's in the first place.  I wrote
-the uuid library with the assumption that it wasn't the sort of thing
-where applications would be calling them in tight loops on threaded
-applications on SMP machines.  If my assumptions are wrong, then clearly
-I need to do some work to make the uuid library robust against this
-(mis-?)use.
-
-						- Ted
-
-Patch explanation: 
-
-This patch solves a problem where simultaneous reads to /dev/urandom
-can cause two processes on different processors to get the same value.
-We're not using a spinlock around the random generation loop because
-this will be a huge hit to preempt latency.  So instead we just use a
-mutex around random_read and urandom_read.  Yeah, it's not as
-efficient in the case of contention, if an application is calling
-/dev/urandom a huge amount, it's there's something really misdesigned
-with it, and we don't want to optimize for stupid applications.
-
-There is also a kludge where the CPU # permutes the starting value of
-the hash in order to make sure that even if extract_entropy is called
-in parallel, the two CPU's will not get the same value.  This is a
-belt-and-suspenders thing, mainly to handle the case where the kernel
-calls get_random_bytes --- which happens only but rarely, so this is
-mainly for paranoia's sake.
-
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-
-===== drivers/char/random.c 1.60 vs edited =====
---- 1.60/drivers/char/random.c	2004-11-18 17:23:14 -05:00
-+++ edited/drivers/char/random.c	2004-12-08 13:31:05 -05:00
-@@ -404,6 +404,7 @@ static struct entropy_store *sec_random_
- static struct entropy_store *urandom_state; /* For urandom */
- static DECLARE_WAIT_QUEUE_HEAD(random_read_wait);
- static DECLARE_WAIT_QUEUE_HEAD(random_write_wait);
-+static DECLARE_MUTEX(random_read_sem);
- 
- /*
-  * Forward procedure declarations
-@@ -1345,7 +1346,7 @@ static ssize_t extract_entropy(struct en
- 	__u32 tmp[TMP_BUF_SIZE];
- 	__u32 x;
- 	unsigned long cpuflags;
--
-+	unsigned int cpu;
- 
- 	/* Redundant, but just in case... */
- 	if (r->entropy_count > r->poolinfo.POOLBITS)
-@@ -1380,6 +1381,7 @@ static ssize_t extract_entropy(struct en
- 	spin_unlock_irqrestore(&r->lock, cpuflags);
- 
- 	ret = 0;
-+	cpu = get_cpu();
- 	while (nbytes) {
- 		/*
- 		 * Check if we need to break out or reschedule....
-@@ -1403,7 +1405,7 @@ static ssize_t extract_entropy(struct en
- 		}
- 
- 		/* Hash the pool to get the output */
--		tmp[0] = 0x67452301;
-+		tmp[0] = 0x67452301 ^ cpu;
- 		tmp[1] = 0xefcdab89;
- 		tmp[2] = 0x98badcfe;
- 		tmp[3] = 0x10325476;
-@@ -1449,6 +1451,7 @@ static ssize_t extract_entropy(struct en
- 		buf += i;
- 		ret += i;
- 	}
-+	put_cpu();
- 
- 	/* Wipe data just returned from memory */
- 	memset(tmp, 0, sizeof(tmp));
-@@ -1605,10 +1608,12 @@ random_read(struct file * file, char __u
- 			  n*8, random_state->entropy_count,
- 			  sec_random_state->entropy_count);
- 
-+		down(&random_read_sem);
- 		n = extract_entropy(sec_random_state, buf, n,
- 				    EXTRACT_ENTROPY_USER |
- 				    EXTRACT_ENTROPY_LIMIT |
- 				    EXTRACT_ENTROPY_SECONDARY);
-+		up(&random_read_sem);
- 
- 		DEBUG_ENT("%04d %04d : read got %d bits (%d still needed)\n",
- 			  random_state->entropy_count,
-@@ -1669,6 +1674,7 @@ static ssize_t
- urandom_read(struct file * file, char __user * buf,
- 		      size_t nbytes, loff_t *ppos)
- {
-+	ssize_t n;
- 	int flags = EXTRACT_ENTROPY_USER;
- 	unsigned long cpuflags;
- 
-@@ -1677,7 +1683,11 @@ urandom_read(struct file * file, char __
- 		flags |= EXTRACT_ENTROPY_SECONDARY;
- 	spin_unlock_irqrestore(&random_state->lock, cpuflags);
- 
--	return extract_entropy(urandom_state, buf, nbytes, flags);
-+	down(&random_read_sem);
-+	n = extract_entropy(urandom_state, buf, nbytes, flags);
-+	up(&random_read_sem);
-+	return (n);
-+	
- }
- 
- static unsigned int
+The timesource is really a memory location incremented by "increment
+counter" and not part of tick processing.  Logically these are seperate.
+"increment counter" could happen apart from tick processing.
+They are just conflated in the current tick implementation.

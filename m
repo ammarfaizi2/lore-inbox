@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291893AbSBASCR>; Fri, 1 Feb 2002 13:02:17 -0500
+	id <S291894AbSBASB5>; Fri, 1 Feb 2002 13:01:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291895AbSBASCI>; Fri, 1 Feb 2002 13:02:08 -0500
-Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:30216 "HELO
-	jose.vato.org") by vger.kernel.org with SMTP id <S291893AbSBASBw>;
-	Fri, 1 Feb 2002 13:01:52 -0500
-From: "Tim Pepper" <tpepper@vato.org>
-Date: Fri, 1 Feb 2002 10:01:45 -0800
-To: Guillaume Boissiere <boissiere@mediaone.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New device naming convention
-Message-ID: <20020201100145.A21307@vato.org>
-In-Reply-To: <3C59F1C3.21004.28F8E65B@localhost>
+	id <S291895AbSBASBj>; Fri, 1 Feb 2002 13:01:39 -0500
+Received: from splat.lanl.gov ([128.165.17.254]:20652 "EHLO
+	balance.radtt.lanl.gov") by vger.kernel.org with ESMTP
+	id <S291891AbSBASBU>; Fri, 1 Feb 2002 13:01:20 -0500
+Date: Fri, 1 Feb 2002 11:01:20 -0700
+From: Eric Weigle <ehw@lanl.gov>
+To: "Linux kernel mailing list (lkml)" <linux-kernel@vger.kernel.org>
+Cc: Mark Gardner <mkg@lanl.gov>
+Subject: [question] peculiar scheduler execution pattern
+Message-ID: <20020201180120.GF24524@lanl.gov>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C59F1C3.21004.28F8E65B@localhost>; from boissiere@mediaone.net on Fri, Feb 01, 2002 at 01:39:15AM -0500
+User-Agent: Mutt/1.3.25i
+X-Eric-Unconspiracy: There ought to be a conspiracy
+X-Editor: Vim, http://www.vim.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri 01 Feb at 01:39:15 -0500 boissiere@mediaone.net done said:
-> I added this item on my kernel 2.5 status list a few weeks ago, and 
-> it seems to be _the_ hot topic for 2.5.
-> 
-> o Pending   Finalize new device naming convention    (Linus Torvalds)
-> 
-> What exactly are people expecting Linus to decide on?  And once it 
-> has been decided, what is the next step after that?
+Good morning-
 
-I tried to explain when I asked that it be added to the list...here's another
-go:
+Summary: I am measuring how long the kernel spends in schedule(). On a
+dual CPU machine, the time for one CPU is lower than the other. Regularly
+(about every second) the results switch. Why is the time spent in schedule()
+longer on one CPU than the other and why do the results switch periodically?
+I vaguely remember seeing something about this on the list recently (with
+all the O(1) discussion), but searched the archives to no avail.
 
-I think there are various (especially hotpluggable?) subsystems where
-people have issues, but here's one example...
+Details: The machine is a dual 400 MHz Pentium II running Debian testing with a
+2.4.17 SMP kernel. I am using an instrumentation package we are developing [1]
+to save a timestamp at the beginning and end of kernel/sched.c:schedule(). The
+time source is get_cycles(). Other than an empty infinite loop program,
+the usual daemons and my ssh shell, nothing is running on the machine. (When
+not running the CPU bound process, uptime reports a load of 0.00.)
 
-Say I'm a big file or db server in a fibre channel environment and have
-1000 disk luns on various disk subsystems and there happen to be 8 paths
-to those luns because of how the fabric is set up.  What do those 8000
-'sd' devices get named.  And will there be persistence of whatever the
-name is?  If I'm booting off 'sdfoo' will the device (host:bus:target:lun)
-behind that name be the same between scsi driver loads.  Right now the
-user just has to know and control what's going on magically and make sure
-the right thing happens.  This might work on a couple devices in your
-pc for which you can easily look and see what all the luns are and deduce
-how the sd's get populated, figure out which one is the disk you want.
-But it doesn't scale.  Persistence may be best solved in userspace, but right
-now the kernel assures that there isn't any.
+A graph [2] of the time spent in schedule as a function of time shows one
+CPU spends less time in schedule than the other one (approximately 2 usec
+and 6 usec respectively). After about a minute they switch places.
 
-There've been huge discussions in the past about how to handle /dev;
-they're in the archive.  Is it a problem that needs an answer?
-Is devfs the answer?  Will an answer be in 2.5?
+Why is the time spent in schedule() longer on one CPU than the other and
+why do the results switch periodically?
 
-t.
+Any information, links, etc. would be appreciated (and I'm on the list,
+so a CC is not required).
+-Eric
+
+[1] http://www.lanl.gov/radiant/website/research/measurement/magnet.html
+[2] http://public.lanl.gov/mkg/cpubound_normal_ctx_time.png
 
 -- 
-*********************************************************
-*  tpepper@vato dot org             * Venimus, Vidimus, *
-*  http://www.vato.org/~tpepper     * Dolavimus         *
-*********************************************************
+--------------------------------------------
+ Eric H. Weigle   CCS-1, RADIANT team
+ ehw@lanl.gov     Los Alamos National Lab
+ (505) 665-4937   http://home.lanl.gov/ehw/
+--------------------------------------------

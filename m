@@ -1,43 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264332AbTKZULA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 15:11:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264333AbTKZULA
+	id S264301AbTKZUOT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 15:14:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbTKZUOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 15:11:00 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:7075 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S264332AbTKZUKx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 15:10:53 -0500
-Date: Wed, 26 Nov 2003 21:10:52 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6 not cat proof
-Message-ID: <20031126201052.GA16106@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Wed, 26 Nov 2003 15:14:19 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:8322 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264301AbTKZUON
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 15:14:13 -0500
+Date: Wed, 26 Nov 2003 15:17:14 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Jamie Lokier <jamie@shareable.org>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BUG (non-kernel), can hurt developers.
+In-Reply-To: <20031126193310.GE14383@mail.shareable.org>
+Message-ID: <Pine.LNX.4.53.0311261459340.11574@chaos>
+References: <Pine.LNX.4.53.0311261153050.10929@chaos>
+ <Pine.LNX.4.58.0311261021400.1524@home.osdl.org> <Pine.LNX.4.53.0311261344280.11326@chaos>
+ <20031126193310.GE14383@mail.shareable.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This bug has been seen here over eight years ago and it is back.. linux
-2.6.0-test4 is still not cat proof :-)
+On Wed, 26 Nov 2003, Jamie Lokier wrote:
 
-I found my cat asleep on the warm laptop, it is winter here, and the
-keyboard was dead. Mouse still works, but I had to reboot before I could use
-the keyboard again. Restarting X, which I could do with the mouse, did not
-help.
+> Richard B. Johnson wrote:
+> > The actual problem in the production machine involves two absolutely
+> > independent tasks that end up using the same shared 'C' runtime
+> > library. There should be no interaction between them, none
+> > whatsover. However, when they both execute rand(), they interact in
+> > bad ways. This interraction occurs on random days at monthly
+> > intervals.
+>
+> On Linux (unlike Windows), there is _no_ interaction between the
+> libraries of different tasks.  Neither of them sees changes to the
+> other's memory space.
+>
+> If you are seeing a fault, then there might well be a bug, even a
+> kernel bug, but your test program does not illustrate the same problem.
+>
+> What is the "bad interaction" that you observed at monthly intervals?
+> Also a SIGSEGV?
+>
 
-But I'm willing to live with this problem :-) Not sure if I want to debug
-this, my previous laptop turned out to be filled with hair too. She never
-lies on the keyboard when I'm at home!
+Yes. When the call to rand() was replaced with a static-linked
+clone it went away.
 
-Thought you'd want to know,
+> > This is likely caused by the failure to use "-s" in the compilation
+> > of a shared library function, fixed in subsequent releases.
+>
+> No, this has nothing to do with it.  Unlike Windows and some embedded
+> environments, Linux shared libraries do not have "shared writable data"
+> sections.
 
-	bert.
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Well the libc rand() does something that looks like that.
+
+>
+> > So, I allowed rand() to be "interrupted" just as it would be in a
+> > context-switch. I simply used a signal handler, knowing quite well
+> > that the "interrupt" could occur at any time. [...] What I brought
+> > to light was a SIGSEGV that can occur when the shared-library rand()
+> > function is "interrupted".
+>
+> You have made a mistake.  You program shows a different problem to the
+> one which you noticed every month or so.
+>
+
+The calling rand() from a handler in a newer libc doesn't seg-fault.
+
+> Calling a function from a signal handler while it is being interrupted
+> by that handler is _very_ different from tasks context switching.
+> They are not similar at all!  (Yes, signals can be used to simulate
+> context switches, but not like this!)
+>
+
+Not with the emulation. The problem is that rand() uses a thread-
+specific pointer to find the seed (history variable), just like
+'errno' which isn't really a static variable, but a function
+that returns a pointer to a thread-specific integer. If this
+is interrupted in a critical section, and that same pointer
+is used, that pointer is left pointing to a variable in somebody
+else's address space. That same problem is observed to happen when
+the same shared runtime library was used by entirely different tasks.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268019AbTBWVOZ>; Sun, 23 Feb 2003 16:14:25 -0500
+	id <S268993AbTBWVXr>; Sun, 23 Feb 2003 16:23:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268548AbTBWVOZ>; Sun, 23 Feb 2003 16:14:25 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39175 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268019AbTBWVOY>; Sun, 23 Feb 2003 16:14:24 -0500
-Date: Sun, 23 Feb 2003 21:24:32 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Scott Murray <scottm@somanetworks.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] Make hot unplugging of PCI buses work
-Message-ID: <20030223212432.J20405@flint.arm.linux.org.uk>
-Mail-Followup-To: Scott Murray <scottm@somanetworks.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-	Greg KH <greg@kroah.com>
-References: <Pine.LNX.4.44.0302231054420.11584-100000@home.transmeta.com> <Pine.LNX.4.44.0302231531450.2559-100000@rancor.yyz.somanetworks.com>
+	id <S268998AbTBWVXr>; Sun, 23 Feb 2003 16:23:47 -0500
+Received: from pine.compass.com.ph ([202.70.96.37]:63017 "HELO
+	pine.compass.com.ph") by vger.kernel.org with SMTP
+	id <S268993AbTBWVXp>; Sun, 23 Feb 2003 16:23:45 -0500
+Subject: Re: [Linux-fbdev-devel] cat /dev/fb1 produces kernel bug
+From: Antonino Daplas <adaplas@pol.net>
+To: Siim Vahtre <siim@pld.ttu.ee>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.SOL.4.31.0302231958260.28624-100000@pitsa.pld.ttu.ee>
+References: <Pine.SOL.4.31.0302231958260.28624-100000@pitsa.pld.ttu.ee>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1046035982.1308.74.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0302231531450.2559-100000@rancor.yyz.somanetworks.com>; from scottm@somanetworks.com on Sun, Feb 23, 2003 at 04:01:10PM -0500
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 24 Feb 2003 05:34:24 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 23, 2003 at 04:01:10PM -0500, Scott Murray wrote:
-> Having beaten out something roughly similiar for the cPCI hotplug code, 
-> I have a couple of comments:
-> 1) The description of pci_remove_bus_device says "informing the drivers 
->    that the device has been removed", yet unless I'm missing some sysfs
->    wrinkle, no call will be made to an attached driver's remove callback.
+On Mon, 2003-02-24 at 02:07, Siim Vahtre wrote:
 
-pci_remove_all_bus_devices => pci_remove_bus_device =>
- pci_remove_device => device_unregister => device_del =>
-  bus_remove_device => device_release_driver => driver->remove
+> Call Trace:
+>  [<c020e678>] kobject_register+0x58/0x70
+>  [<c021a58b>] bus_add_driver+0x5b/0xe0
+>  [<c021a9df>] driver_register+0x2f/0x40
+>  [<c017a8e3>] create_proc_entry+0x83/0xd0
+>  [<c021170b>] pci_register_driver+0x4b/0x60
+>  [<c010507f>] init+0x3f/0x160
+>  [<c0105040>] init+0x0/0x160
+>  [<c010726d>] kernel_thread_helper+0x5/0x18
+> 
 
-> 2) The recursive bus handling in pci_remove_bus_device should probably 
->    call pci_proc_detach_bus
+For a quick fix, try this:
 
-Good catch - I'll create a new patch for Monday.
+diff -Naur linux-2.5.61/drivers/video/riva/fbdev.c linux/drivers/video/riva/fbdev.c
+--- linux-2.5.61/drivers/video/riva/fbdev.c	2003-02-16 00:49:23.000000000 +0000
++++ linux/drivers/video/riva/fbdev.c	2003-02-23 21:30:50.000000000 +0000
+@@ -1961,12 +1961,10 @@
+ 
+ int __init rivafb_init(void)
+ {
+-	int err;
+-	err = pci_module_init(&rivafb_driver);
+-	if (err)
+-		return err;
+-	pci_register_driver(&rivafb_driver);
+-	return 0;
++	if (pci_register_driver(&rivafb_driver) > 0) 
++		return 0;
++	pci_unregister_driver(&rivafb_driver);
++	return -ENODEV;
+ }
+ 
 
->    and potentially should also update the parent bridge's subordinate
->    field.
+Or Try James' patch...
+http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
 
-Yes - I think this is something we may consider when sorting out the
-insertion.
+...and Geert's "Logo Updates" which he just sent recently.
 
-However, whether x86 PCs will survive bus renumbering or not remains to
-be seen.  We currently try to leave as much of the configuration intact
-from the BIOS.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Tony
 

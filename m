@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262846AbREVVf1>; Tue, 22 May 2001 17:35:27 -0400
+	id <S262843AbREVVgh>; Tue, 22 May 2001 17:36:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262843AbREVVfR>; Tue, 22 May 2001 17:35:17 -0400
-Received: from geos.coastside.net ([207.213.212.4]:48575 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S262846AbREVVfM>; Tue, 22 May 2001 17:35:12 -0400
-Mime-Version: 1.0
-Message-Id: <p05100316b7308be26265@[207.213.214.37]>
-In-Reply-To: <E152JdQ-0002VC-00@the-village.bc.nu>
-In-Reply-To: <E152JdQ-0002VC-00@the-village.bc.nu>
-Date: Tue, 22 May 2001 14:34:35 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: alpha iommu fixes
-Cc: rth@twiddle.net (Richard Henderson), andrea@suse.de (Andrea Arcangeli),
-        ink@jurassic.park.msu.ru (Ivan Kokshaysky),
-        linux-kernel@vger.kernel.org, davem@redhat.com (David S. Miller)
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S262847AbREVVg1>; Tue, 22 May 2001 17:36:27 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:7343 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262843AbREVVgT>;
+	Tue, 22 May 2001 17:36:19 -0400
+Date: Tue, 22 May 2001 23:35:42 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200105222135.XAA78936.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, dalecki@evision-ventures.com
+Subject: Re: [PATCH] struct char_device
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, viro@math.psu.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:24 PM +0100 2001-05-22, Alan Cox wrote:
->  > On the main board, and not just the old ones. These days it's
->>  typically in the chipset's south bridge. "Third-party DMA" is
->>  sometimes called "fly-by DMA". The ISA card is a slave, as is memory,
->>  and the DMA chip reads from one ands writes to the other.
->
->There is also another mode which will give the Alpha kittens I suspect. A
->few PCI cards do SB emulation by snooping the PCI bus. So the kernel writes
->to the ISA DMA controller which does a pointless ISA transfer and the PCI
->card sniffs the DMA controller setup (as it goes to pci, then when nobody
->claims it on to the isa bridge) then does bus mastering DMA of its own to fake
->the ISA dma
+Martin Dalecki writes:
 
-That's sick.
--- 
-/Jonathan Lundell.
+> I fully agree with you.
+
+Good.
+
+Unfortunately I do not fully agree with you.
+
+> Most of the places where there kernel is passing kdev_t
+> would be entierly satisfied with only the knowlendge of
+> the minor number.
+
+My kdev_t is a pointer to a structure with device data
+and device operations. Among the operations a routine
+that produces a name. Among the data, in the case of a
+block device, the size, and the sectorsize, ..
+
+A minor gives no name, and no data.
+
+Linus' minor is 20-bit if I recall correctly.
+My minor is 32-bit. Neither of the two can be
+used to index arrays.
+
+Andries

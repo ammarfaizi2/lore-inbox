@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290389AbSAPJXS>; Wed, 16 Jan 2002 04:23:18 -0500
+	id <S290390AbSAPJ2s>; Wed, 16 Jan 2002 04:28:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290393AbSAPJXJ>; Wed, 16 Jan 2002 04:23:09 -0500
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:7911 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S290389AbSAPJW6>; Wed, 16 Jan 2002 04:22:58 -0500
-Date: Wed, 16 Jan 2002 10:22:56 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18-pre4
-Message-ID: <20020116102256.C824@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <Pine.LNX.4.21.0201151955460.27118-100000@freak.distro.conectiva>
+	id <S290395AbSAPJ2i>; Wed, 16 Jan 2002 04:28:38 -0500
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:58632 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id <S290390AbSAPJ2S>; Wed, 16 Jan 2002 04:28:18 -0500
+From: Norbert Preining <preining@logic.at>
+Date: Wed, 16 Jan 2002 10:27:38 +0100
+To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org, andre@linuxdiskcert.org
+Subject: Re: [BUG] 2.4.18.3, ide-patch, read_dev_sector hangs in read_cache_page
+Message-ID: <20020116102738.A21977@alpha.logic.tuwien.ac.at>
+In-Reply-To: <E16QU3F-0005g6-00@libra.cus.cam.ac.uk> <20020115160315.A2515@alpha.logic.tuwien.ac.at> <20020116094935.A20738@alpha.logic.tuwien.ac.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.21.0201151955460.27118-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Tue, Jan 15, 2002 at 07:56:38PM -0200
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020116094935.A20738@alpha.logic.tuwien.ac.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 07:56:38PM -0200, Marcelo Tosatti wrote:
-[pre4 Announcement]
+Hi Anton!
 
-What is this hunk supposed to do?
-diff -urN linux-2.4.18-pre3/fs/buffer.c linux/fs/buffer.c
---- linux-2.4.18-pre3/fs/buffer.c   Fri Dec 21 09:41:55 2001
-+++ linux/fs/buffer.c   Tue Jan 15 15:10:18 2002
-@@ -1633,12 +1671,34 @@
-    */
-   while(wait_bh > wait) {
-      wait_on_buffer(*--wait_bh);
--     err = -EIO;
-      if (!buffer_uptodate(*wait_bh))
--        goto out;
-+        return -EIO;
-   }
-   return 0;
- out:
-+  /*
-+   * Zero out any newly allocated blocks to avoid exposing stale
-+   * data.  If BH_New is set, we know that the block was newly
-+   * allocated in the above loop.
-+   */
-+  bh = head;
-+  block_start = 0;
-[1]
-+  do {
-+     block_end = block_start+blocksize;
-+     if (block_end <= from)
-+        continue;
-[2]
+On Mit, 16 Jan 2002, preining wrote:
+> I have tried to follow the trace of the kernel but it looks to me as
+> read_cache_page is never called or printk in it are not executed. I filled
 
-The situation between [1] and [2] won't change, so I don't
-understand the "continue" here and think it will either never be
-triggered or an endless loop.
+Stupid me, somehow KERN_DEBUG was not shown.
 
-Could you or the one introducing this clarify?
+I traced it down from
+read_cache_page -> lock_page -> __lock_page -> schedule
 
-Thanks & Regards
+There it hangs and I was not able with my stupid methods or printk-ing
+to find the place where it hangs in sched.c (Maybe because of recursive
+calls to sched by printk).
 
-Ingo Oeser
--- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
-     >>>   4. Chemnitzer Linux-Tag - 09.+10. Maerz 2002 <<<
-              http://www.tu-chemnitz.de/linux/tag/
+One more thing: Taking off hdf from the ide controller and everything
+works.
+Another: same with 2.4.18-pre4
+
+Best wishes
+
+Norbert
+
+-----------------------------------------------------------------------
+Norbert Preining <preining@logic.at> 
+University of Technology Vienna, Austria            gpg DSA: 0x09C5B094
+-----------------------------------------------------------------------
+WORMELOW TUMP (n.)
+
+Any seventeen-year-old who doesn't know about anything at all in the
+world other than bicycle gears.
+
+			--- Douglas Adams, The Meaning of Liff 

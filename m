@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262872AbVCDLP4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262869AbVCDLPz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262872AbVCDLP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 06:15:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVCDLNV
+	id S262869AbVCDLPz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 06:15:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbVCDLNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 06:13:21 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:58262 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S262780AbVCDLHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 06:07:01 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: swsusp: use non-contiguous memory on resume
-Date: Fri, 4 Mar 2005 12:09:03 +0100
-User-Agent: KMail/1.7.1
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
-       hugang@soulinfo.com
-References: <20050304095934.GA1731@elf.ucw.cz> <20050304102121.GG1345@elf.ucw.cz> <20050304025119.4b3f8aa6.akpm@osdl.org>
-In-Reply-To: <20050304025119.4b3f8aa6.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Mar 2005 06:13:04 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8206 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262773AbVCDLGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 06:06:44 -0500
+Date: Fri, 4 Mar 2005 11:06:33 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: Dave Jones <davej@redhat.com>, akpm@osdl.org, torvalds@osdl.org,
+       jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+Message-ID: <20050304110633.C3932@flint.arm.linux.org.uk>
+Mail-Followup-To: Diego Calleja <diegocg@gmail.com>,
+	Dave Jones <davej@redhat.com>, akpm@osdl.org, torvalds@osdl.org,
+	jgarzik@pobox.com, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002733.GH10124@redhat.com> <20050302203812.092f80a0.akpm@osdl.org> <20050303052100.GA22952@redhat.com> <20050303214358.3c842a01.diegocg@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503041209.04002.rjw@sisk.pl>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050303214358.3c842a01.diegocg@gmail.com>; from diegocg@gmail.com on Thu, Mar 03, 2005 at 09:43:58PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 4 of March 2005 11:51, Andrew Morton wrote:
-> Pavel Machek <pavel@suse.cz> wrote:
-> >
-> > Problem is that pagedir is allocated as order-8 allocation on resume
-> >  in -mmX (and linus). Unfortunately, order-8 allocation sometimes
-> >  fails, and for some people (Rafael, seife :-) it fails way too often.
-> > 
-> >  Solution is to change format of pagedir from table to linklist,
-> >  avoiding high-order alocation. Unfortunately that means changes to
-> >  assembly, too, as assembly walks the pagedir.
-> 
-> Ah.
-> 
-> >  (Or maybe Rafael is willing to create -mm version and submit it
-> >  himself?)
-> 
-> No, against -linus, please.  But the chunk in kernel/power/swsusp.c looks
-> like it came from a diff between -mm and -linus.  Or something.
+On Thu, Mar 03, 2005 at 09:43:58PM +0100, Diego Calleja wrote:
+> bugzilla.kernel.org is there but not many people look at it (which I
+> understand, using bugzilla is painfull, altough basing all your
+> development strategy around it _is_ rewarding, as happens in gnome/etc,
+> where the release announcement includes a list bugzilla numbers which
+> point to fixed bugs or "new feature" bugs in the case of new
+> features).
 
-Well, the patch is against -mm, because there already is a different version
-of swsusp in -mm, which is needed for this patch to apply.
+As one of those who initially thought "great" about bugzilla for kernel
+stuff, and then got rather annoyed with it, I think I can talk about
+why bugzilla doesn't work for kernel developers.
 
-Originally, the patch consisted of two parts, the first one being fairly independent
-on the second one, and the first part went into -mm before 2.6.11-rc4.
+* The most obvious problem is that it requires you to go to the website
+  before you can do anything with a bug.
+* Bug reporters appear to report a bug and run away - attempting to get
+  more information from them sometimes resorts in silence until you
+  threaten to close the bug, or do close the bug.
+* Bug categories aren't explained well enough to allow users to determine
+  the correct category.  Eg, PCMCIA network card - should that be
+  networking or PCMCIA (where the bugzilla PCMCIA category is actually
+  *only* the PCMCIA core and not any of the drivers.)
 
-Now, I think it's better if I make a consolidated patch against 2.6.11.  Would
-that be OK?
-
-Rafael
-
+Overall, my experience with the kernel bugzilla has been rather
+unproductive.  Most bugs which came in my direction weren't for things
+I could resolve.
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

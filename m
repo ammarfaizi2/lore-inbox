@@ -1,90 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268980AbUIHC0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268975AbUIHCcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268980AbUIHC0k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 22:26:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268977AbUIHC0h
+	id S268975AbUIHCcj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 22:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268977AbUIHCcj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 22:26:37 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:55999 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S268975AbUIHC0S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 22:26:18 -0400
-Message-Id: <200409080007.i880745c002997@localhost.localdomain>
-To: David Lang <david.lang@digitalinsight.com>
-cc: Christer Weinigel <christer@weinigel.se>, Hans Reiser <reiser@namesys.com>,
-       David Masover <ninja@slaphack.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Spam <spam@tnonline.net>,
-       Tonnerre <tonnerre@thundrix.ch>, Linus Torvalds <torvalds@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>, Jamie Lokier <jamie@shareable.org>,
-       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4 
-In-Reply-To: Message from David Lang <david.lang@digitalinsight.com> 
-   of "Tue, 07 Sep 2004 15:36:27 MST." <Pine.LNX.4.60.0409071528200.10789@dlang.diginsite.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Tue, 07 Sep 2004 20:07:04 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 7 Sep 2004 22:32:39 -0400
+Received: from mail-09.iinet.net.au ([203.59.3.41]:35298 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S268975AbUIHCce
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 22:32:34 -0400
+Message-ID: <413E6C49.5080106@cyberone.com.au>
+Date: Wed, 08 Sep 2004 12:19:53 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Nathan Lynch <nathanl@austin.ibm.com>
+CC: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch 2/2] cpu hotplug notifier for updating sched domains
+References: <200409071849.i87Inw3f143238@austin.ibm.com>	 <413E55D8.8030608@cyberone.com.au> <1094608996.8015.5.camel@booger>
+In-Reply-To: <1094608996.8015.5.camel@booger>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang <david.lang@digitalinsight.com> said:
-> so far the best answer that I've seen is a slight varient of what Hans is 
-> proposing for the 'file-as-a-directory'
 
-> make the base file itself be a serialized version of all the streams and 
-> if you want the 'main' stream open file/. (or some similar varient)
 
-Serialized how? cpio(1), tar(1), cat(1)ed together, ...? Ship it via FTP or
-something, how do you unpack on a traditional filesystem? On a wacky
-filesystem?
+Nathan Lynch wrote:
 
-Note that this has the same performance implications as the targzfilesystem
-concept, just the other way around: Instead of unpacking on the fly it is
-packing on the fly. And paying a (possibly huge) cost for "simple, everyday
-operations" in some cases that can't be distinguished from ones where there
-is no such cost is very wrong to me.
+>On Tue, 2004-09-07 at 19:44, Nick Piggin wrote:
+>
+>>I think the next step is to now make the setup code only use cpu_online_map
+>>
 
-> this doesn't address the hard-link issue,
+^^^ OK I see you've already done that. Sorry I should have looked at the
+patches a bit closer. Your implementation looks very nice.
 
-It has to be solved!
+>>and get rid of everywhere I had been doing cpus_and(tmp, ..., 
+>>cpu_online_map).
+>>
 
->                                           but it should handle the backup 
-> problems (your backup software just goes through the files and what it 
-> gets is suitable for backups).
+^^^ This should still be done, of course. That can come later.
 
-But how do you recreate the original "files" later? You only get the
-serialized version back. Even worse, if you unpack on top of the original
-wacky file, you'd get a wacky file, where the main stream is the serialized
-version of the original... Rinse and repeat. [Shudder]
+>>This may also make your patch 1/2 unnecessary? What do you think?
+>>
+>
+>Well, we have to "lie" to arch_init_sched_domains a little bit when
+>bringing a cpu online, by setting the soon-to-be-online cpu's bit in the
+>argument mask.  So I think the first patch is still necessary.
+>
+>
 
-> you will ask what serializer to user, and my answer is to let one of the 
-> streams tell you, and have the kernel make a call out to userspace to 
-> execute the appropriate program (note that this means that tar is not put 
-> into the kernel)
+Can't we do everything in the CPU_UP_ONLINE case though?
 
-If I want to see it serialized via tar(1), and you via cpio(1), and
-somebody else via "take the icon stream, discard everything else", how do
-you handle that?
 
-> in fact it may make sense to just open file/file to get at the 'main' 
-> stream of the file (there may be cases where the concept of a single main 
-> stream may not make sense)
+One other thing:
 
-What do you do then?
+void __init sched_init_smp(void)
+ {
++	lock_cpu_hotplug();
+ 	arch_init_sched_domains(cpu_online_map);
+ 	sched_domain_debug();
++	unlock_cpu_hotplug();
++
++	hotcpu_notifier(update_sched_domains, 0);
+ }
 
-> so if this solves the tool/backup problem
+Do you have a theoretical race here? Can we hotplug a CPU before the notifier
+is registered? (I know we *can't* because it is still earlyish boot).
 
-It makes it much worse, AFAICS.
+Can you move hotcpu_notifier under the cpu_hotplug lock? Seems not because
+register_cpu_notifier takes the lock itself. Seems like a flaw in the API to
+me. Probably the notifier chain should be protected by a lock that nests
+inside the cpucontrol lock. Rusty?
 
->                                            then we can look and figure out 
-> if there's a reasonable way to solve the hard-link problem
 
-Right. And if none is found, can we drop this madness?
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

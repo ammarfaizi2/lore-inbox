@@ -1,87 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267689AbUG3V7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267850AbUG3WCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267689AbUG3V7P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 17:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267726AbUG3V7P
+	id S267850AbUG3WCt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 18:02:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267726AbUG3WCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 17:59:15 -0400
-Received: from alhambra.mulix.org ([192.117.103.203]:3749 "EHLO
-	granada.merseine.nu") by vger.kernel.org with ESMTP id S267689AbUG3V7I
+	Fri, 30 Jul 2004 18:02:49 -0400
+Received: from mail.inter-page.com ([12.5.23.93]:59401 "EHLO
+	mail.inter-page.com") by vger.kernel.org with ESMTP id S267850AbUG3WCo convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 17:59:08 -0400
-Date: Sat, 31 Jul 2004 01:00:06 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-mm1-M5
-Message-ID: <20040730220006.GA6340@granada.merseine.nu>
-References: <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <20040730081326.GA6384@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040730081326.GA6384@elte.hu>
-User-Agent: Mutt/1.5.6+20040523i
+	Fri, 30 Jul 2004 18:02:44 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "'David S. Miller'" <davem@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: tcp_push_pending_frames() without TCP_CORK or TCP_NODELAY
+Date: Fri, 30 Jul 2004 15:02:33 -0700
+Organization: Casabyte, Inc.
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAto7TSbyGCEOKEjP4Tiu9VgEAAAAA@casabyte.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <20040729193637.36d018a5.davem@redhat.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 30, 2004 at 10:13:26AM +0200, Ingo Molnar wrote:
-> 
-> Upon popular request i've merged the latest voluntary-preempt patch to
-> the latest -mm kernel:
-> 
->
-http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-mm1-M5
+I thought about turning cork on an off.  While it does essentially burp the transfer
+into larger frames it is still flawed for my usage for several reasons.
 
-Works fairly nicely for me (nice job!), except the mouse does not work
-in both console (gpm) and X. This is on a thinkpad T21, 2.6.8-rc2-mm2
-with the M5 patch. Doing 'echo 0 > /proc/irq/{1|12}/i8042/threaded'
-does not work. This trivial workaround fixes it for me:
+Omitting the uninteresting parts and giving a real-but-partial example...
 
---- 2.6.8-rc2-mm1/drivers/input/serio/i8042.c	2004-07-30 14:49:14.018816320 +0000
-+++ 2.6.8-rc2-mm1-mx/drivers/input/serio/i8042.c	2004-07-30 14:48:35.274706320 +0000
-@@ -302,8 +302,9 @@
- 		if (i8042_mux_open++)
- 			return 0;
- 
-+	printk(KERN_INFO "i8042 requesting IRQ %d\n", values->irq);
- 	if (request_irq(values->irq, i8042_interrupt,
--			SA_SHIRQ, "i8042", i8042_request_irq_cookie)) {
-+			SA_SHIRQ | SA_NOTHREAD, "i8042", i8042_request_irq_cookie)) {
- 		printk(KERN_ERR "i8042.c: Can't get irq %d for %s, unregistering the port.\n", values->irq, values->name);
- 		goto irq_fail;
- 	}
+In one of the applications I am stuck with I have a USB device on one machine that I
+am tunneling onto another.  The reasons I can't just plug the USB device into the
+other machine are tedious.  The USB device "bursts" 32 characters at a time maximum.
+I also send monitoring information "on the side band" (on the same socket in sequence
+with the data but marked as control information) on occasion, which is where my
+application-level framing comes into play.  Normally it is fine to just use TCP as-is
+and let things Nagle normally and live with the induced delay.
 
-Other things that might be relevant
+Now consider running PPP on that device over that tunnel.  Again it is uninteresting
+why I can't run pppd on the computer local to the USB device.  If the TCP stream is
+flushed when any 32-or-less byte burst ends with the PPP framing character, the data
+throughput on ppp interface abstracted across the tunnel rises considerably.
 
-- both with and without the workaround, I get this:
-"Jul 30 08:42:40 hydra kernel: atkbd.c: Spurious ACK on
-isa0060/serio0. Some program, like XFree86, might be trying access
-hardware directly."
+In the current implementation, the only flush available in TCP is to turn nagle off
+and then back on, which over the course of a tunnel lifespan adds a significant
+number of syscalls.
 
-- both with and without the workaround, I get this:
-Jul 30 08:42:27 hydra kernel: Badness in free_irq at arch/i386/kernel/irq.c:721
-Jul 30 08:42:27 hydra kernel:  [<c010895d>] free_irq+0x190/0x1aa
-Jul 30 08:42:27 hydra kernel:  [<c02632d6>] floppy_release_irq_and_dma+0x259/0x272
-Jul 30 08:42:27 hydra kernel:  [<c025cb48>] set_dor+0xe0/0x16f
-Jul 30 08:42:27 hydra kernel:  [<c025ceac>] motor_off_callback+0x0/0x36
-Jul 30 08:42:27 hydra kernel:  [<c025cede>] motor_off_callback+0x32/0x36
-Jul 30 08:42:27 hydra kernel:  [<c0128a42>] run_timer_softirq+0xee/0x1e4
-Jul 30 08:42:27 hydra kernel:  [<c0124884>] ksoftirqd+0x0/0xd7
-Jul 30 08:42:27 hydra kernel:  [<c0124481>] ___do_softirq+0x83/0x8a
-Jul 30 08:42:27 hydra kernel:  [<c01244b9>] _do_softirq+0x6/0x8
-Jul 30 08:42:27 hydra kernel:  [<c012490c>] ksoftirqd+0x88/0xd7
-Jul 30 08:42:27 hydra kernel:  [<c01341cd>] kthread+0xb7/0xbd
-Jul 30 08:42:27 hydra kernel:  [<c0134116>] kthread+0x0/0xbd
-Jul 30 08:42:27 hydra kernel:  [<c0103e41>] kernel_thread_helper+0x5/0xb
+1) I am not really interested in delaying the front of the frames as much as I am
+interested in expediting the end of the frames.  So I don't actually want to cork the
+stream, I just want to flush it under easily detectable conditions.
 
-- with the workaround, I see this
-"Jul 30 08:42:33 hydra kernel: psmouse.c: Mouse at
-isa0060/serio1/input0 lost synchronization, throwing 1 bytes away."
+2) There are times when the frames can be larger than the Ethernet MTU so corking
+starts getting counter-productive.
 
-Cheers, 
-Muli
--- 
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
+3) There are times when the right moment to release a cork isn't determinable (as I
+don't want the tunnel in the business of guessing whether the overlying user is or
+isn't in ppp mode).
+
+4) Cork-then-uncork would still end up with two syscalls instead of one.
+
+5) Just turning Nagle off completely begins to scale rather poorly as device count
+increases because of the large number of 32 byte payloads.
+
+I can imagine other protocols and applications (near-real-time signaling or games?)
+that could benefit from a flush operation on the TCP stack; and indeed I have another
+one in force that is less easy to explain (without getting really boring 8-) than the
+above.
+
+
+Rob White,
+Casabyte, Inc.
+
+-----Original Message-----
+From: David S. Miller [mailto:davem@redhat.com] 
+Sent: Thursday, July 29, 2004 7:37 PM
+To: Robert White
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tcp_push_pending_frames() without TCP_CORK or TCP_NODELAY
+
+
+Turn off NAGLE, and flip TCP_CORK on and off around the sequences.
+
 

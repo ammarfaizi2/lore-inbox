@@ -1,65 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262317AbSKCSkD>; Sun, 3 Nov 2002 13:40:03 -0500
+	id <S262324AbSKCSlP>; Sun, 3 Nov 2002 13:41:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262322AbSKCSkD>; Sun, 3 Nov 2002 13:40:03 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:36797 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262317AbSKCSkC>;
-	Sun, 3 Nov 2002 13:40:02 -0500
-Message-ID: <3DC56EC1.4040403@us.ibm.com>
-Date: Sun, 03 Nov 2002 10:45:21 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Margit Schubert-While <margit@margit.com>, linux-kernel@vger.kernel.org
-Subject: Re: U160 on Adaptec 39160
-References: <4.3.2.7.2.20021103124403.00b4c860@mail.dns-host.com> <20021103133014.GJ23425@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262325AbSKCSlP>; Sun, 3 Nov 2002 13:41:15 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:59909 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S262324AbSKCSlM>;
+	Sun, 3 Nov 2002 13:41:12 -0500
+Date: Sun, 3 Nov 2002 19:46:54 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: kbuild: Compatible with old bash, fix help, make clean fix
+Message-ID: <20021103184654.GA1466@mars.ravnborg.org>
+Mail-Followup-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+References: <20021103085147.GA3433@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021103085147.GA3433@mars.ravnborg.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
- > 39160 does 80MB/s/channel, the 160MB/s happens pretty much only as
- > the sum of both channels.
+AWK exported now, as pointed out by Keith.
 
-Nope, quoting from Adaptec's site:
- > <snip>
- > enterprise servers. Combining a 64-bit PCI interface with two
- > Ultra160 SCSI channels, this card moves data at the fastest speeds
- > possible. <snip>
+kbuild fixes:
+o Do not use "-" in exported symbols, bash does not support that (Matthew/Keith)
+o Sort ALL_SUBDIRS, to avoid warning about duplicate target
+	- Happens when the same directory are specified with drivers-y
+	  and drivers-n
+o Added AWK, a few architectures actually use awk for normal compilation
+o Removed distclean from make help, now that distclean and mrporper are merged
 
-The 3950 had dual 80MB/s channels.
+	Sam
 
- > I've had one for a couple of years, and it performs very well,
- > though it won't ever quite live up to the marketing gimmick for
- > bandwidth on a single channel. ISTR something about RAID across
- > channels involved, but I just use disks directly instead.
+Touches these files:
 
-Even out of good disks, you're unlikely to get more than 20MB/S out of 
-each of them.  So, it would take at least 8 of those in a striped 
-array to fill up a U160 channel.  Unlike IDE's claims of _burst_ 
-speeds, SCSI can take all the bandwidth up, if you give it enough 
-devices.
+ Makefile               |   19 ++++++++++---------
+ scripts/Makefile.build |    2 +-
+ 2 files changed, 11 insertions(+), 10 deletions(-)
 
- > On Sun, Nov 03, 2002 at 12:59:44PM +0100, Margit Schubert-While
- > wrote:
-> 
-> <4>Attached scsi disk sdb at scsi1, channel 0, id 1, lun 0
-> <4>(scsi1:A:0): 80.000MB/s transfers (40.000MHz, offset 127, 16bit)
-> <4>SCSI device sda: 35885448 512-byte hdwr sectors (18373 MB) 
-
-During negotiation, the drives will train down in speed if they don't 
-think they can run at full speed which can be caused by cabling or 
-termination issues.  You can also take their speed down manually in 
-the card's BIOS, so check that too.
-
-It looks to me from your dmesg that all of your devices are on the 
-same channel.  Am I misreading things?
-
--- 
-Dave Hansen
-haveblue@us.ibm.com
-
+===== Makefile 1.338 vs edited =====
+--- 1.338/Makefile	Fri Nov  1 18:00:18 2002
++++ edited/Makefile	Sun Nov  3 19:41:32 2002
+@@ -155,6 +155,7 @@
+ STRIP		= $(CROSS_COMPILE)strip
+ OBJCOPY		= $(CROSS_COMPILE)objcopy
+ OBJDUMP		= $(CROSS_COMPILE)objdump
++AWK		= awk
+ GENKSYMS	= /sbin/genksyms
+ DEPMOD		= /sbin/depmod
+ KALLSYMS	= /sbin/kallsyms
+@@ -173,7 +174,7 @@
+ 
+ export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION KERNELRELEASE ARCH \
+ 	CONFIG_SHELL TOPDIR HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC \
+-	CPP AR NM STRIP OBJCOPY OBJDUMP MAKE GENKSYMS PERL UTS_MACHINE \
++	CPP AR NM STRIP OBJCOPY OBJDUMP MAKE AWK GENKSYMS PERL UTS_MACHINE \
+ 	HOSTCXX HOSTCXXFLAGS
+ 
+ export CPPFLAGS NOSTDINC_FLAGS OBJCOPYFLAGS LDFLAGS
+@@ -214,7 +215,7 @@
+ 
+ ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
+ 
+-export include-config := 1
++export include_config := 1
+ 
+ -include .config
+ 
+@@ -228,9 +229,10 @@
+ 		     $(core-y) $(core-m) $(drivers-y) $(drivers-m) \
+ 		     $(net-y) $(net-m) $(libs-y) $(libs-m)))
+ 
+-ALL_SUBDIRS     := $(SUBDIRS) $(patsubst %/,%,$(filter %/, $(init-n) $(init-) \
++ALL_SUBDIRS     := $(sort $(SUBDIRS) $(patsubst %/,%,$(filter %/, \
++		     $(init-n) $(init-) \
+ 		     $(core-n) $(core-) $(drivers-n) $(drivers-) \
+-		     $(net-n) $(net-) $(libs-n) $(libs-)))
++		     $(net-n)  $(net-)  $(libs-n)    $(libs-))))
+ 
+ init-y		:= $(patsubst %/, %/built-in.o, $(init-y))
+ core-y		:= $(patsubst %/, %/built-in.o, $(core-y))
+@@ -238,7 +240,7 @@
+ net-y		:= $(patsubst %/, %/built-in.o, $(net-y))
+ libs-y		:= $(patsubst %/, %/lib.a, $(libs-y))
+ 
+-ifdef include-config
++ifdef include_config
+ 
+ # Here goes the main Makefile
+ # ===========================================================================
+@@ -602,7 +604,7 @@
+ 	rpm -ta $(TOPDIR)/../$(KERNELPATH).tar.gz ; \
+ 	rm $(TOPDIR)/../$(KERNELPATH).tar.gz
+ 
+-else # ifdef include-config
++else # ifdef include_config
+ 
+ ifeq ($(filter-out $(noconfig_targets),$(MAKECMDGOALS)),)
+ 
+@@ -764,8 +766,7 @@
+ help:
+ 	@echo  'Cleaning targets:'
+ 	@echo  '  clean		- remove most generated files but keep the config'
+-	@echo  '  mrproper	- remove all generated files including the config'
+-	@echo  '  distclean	- mrproper + remove files generated by editors and patch'
++	@echo  '  mrproper	- remove all generated files + config + various backup files'
+ 	@echo  ''
+ 	@echo  'Configuration targets:'
+ 	@echo  '  oldconfig	- Update current config utilising a line-oriented program'
+@@ -828,7 +829,7 @@
+ 	$(MAKE) $@
+ 
+ endif # ifeq ($(filter-out $(noconfig_targets),$(MAKECMDGOALS)),)
+-endif # ifdef include-config
++endif # ifdef include_config
+ 
+ # FIXME Should go into a make.lib or something 
+ # ===========================================================================
+===== scripts/Makefile.build 1.7 vs edited =====
+--- 1.7/scripts/Makefile.build	Wed Oct 30 18:14:54 2002
++++ edited/scripts/Makefile.build	Sun Nov  3 19:40:50 2002
+@@ -7,7 +7,7 @@
+ .PHONY: __build
+ __build:
+ 
+-ifdef include-config
++ifdef include_config
+ include .config
+ endif
+ 

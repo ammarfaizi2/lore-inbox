@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265626AbSKAFfR>; Fri, 1 Nov 2002 00:35:17 -0500
+	id <S265628AbSKAFy3>; Fri, 1 Nov 2002 00:54:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265628AbSKAFfR>; Fri, 1 Nov 2002 00:35:17 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:27140 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265626AbSKAFfR>;
-	Fri, 1 Nov 2002 00:35:17 -0500
-Date: Thu, 31 Oct 2002 21:38:42 -0800
-From: Greg KH <greg@kroah.com>
-To: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
-Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: bare pci configuration access functions ?
-Message-ID: <20021101053841.GE13031@kroah.com>
-References: <72B3FD82E303D611BD0100508BB29735046DFF6E@orsmsx102.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <72B3FD82E303D611BD0100508BB29735046DFF6E@orsmsx102.jf.intel.com>
-User-Agent: Mutt/1.4i
+	id <S265629AbSKAFy3>; Fri, 1 Nov 2002 00:54:29 -0500
+Received: from blackbird.intercode.com.au ([203.32.101.10]:30472 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S265628AbSKAFy2>; Fri, 1 Nov 2002 00:54:28 -0500
+Date: Fri, 1 Nov 2002 17:00:43 +1100 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: What's left over.
+In-Reply-To: <1036092043.8575.116.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Mutt.LNX.4.44.0211011649190.25808-100000@blackbird.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 08:52:24PM -0800, Lee, Jung-Ik wrote:
-> Minor fix to the code.
-> A patch to a flying patch ;-)
+On 31 Oct 2002, Alan Cox wrote:
 
-Ok, maybe just because I've eaten too much candy tonight, but I do not
-understand where you are trying to go with this odd pseudo code.
+> Chris is write that crypto api is misdesigned if we want to use hardware
+> cryptocards
 
-What's wrong with the _existing_ pci_config_read() and
-pci_config_write() function pointers that ia64 and i386 have?  Can't you
-just look into if the other archs can set them to the proper function in
-their pci init functions too?
+Hardware support was not an initial goal, as the requirements are not yet 
+fully known.
 
-thanks,
+>From Documentation/crypto/api-intro.txt:
 
-greg k-h
+  An asynchronous scheduling interface is in planning but not yet
+  implemented, as we need to further analyze the requirements of all of
+  the possible hardware scenarios (e.g. IPsec NIC offload).
+
+Hardware accelerators are generally a known issue, with already proven 
+solutions (e.g. the OpenBSD crypto queue).  We don't know much about IPSec 
+NIC offload yet, however.
+
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+
+

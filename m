@@ -1,68 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbTEMTnv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 15:43:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTEMTnv
+	id S262383AbTEMTqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 15:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbTEMTqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 15:43:51 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:50148 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262356AbTEMTnu convert rfc822-to-8bit (ORCPT
+	Tue, 13 May 2003 15:46:09 -0400
+Received: from mail.gmx.de ([213.165.65.60]:13088 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262383AbTEMTqI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 15:43:50 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780CCB064D@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Timothy Miller'" <miller@techsource.com>
-Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: A way to shrink process impact on kernel memory usage?
-Date: Tue, 13 May 2003 12:56:17 -0700
+	Tue, 13 May 2003 15:46:08 -0400
+Message-ID: <3EC14E6D.7020602@gmx.net>
+Date: Tue, 13 May 2003 21:58:37 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+To: Pablo Donzis <pablodonzis@anvet.com.ar>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ext3 file deletion
+References: <1052844347.3ec1213b111b1@webmail.netizen.com.ar>
+In-Reply-To: <1052844347.3ec1213b111b1@webmail.netizen.com.ar>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-From: Timothy Miller [mailto:miller@techsource.com]
-> Perez-Gonzalez, Inaky wrote:
+Pablo Donzis wrote:
+> Hi,
 > 
-> If you have some data which is common to a group of threads/processes,
-> it could be stored in one (or more--redundantly) of the process stacks.
->   If the refcount is not zero and the process stack holding the data is
-> to die, the data can be moved to another stack or otherwise stored
-> somewhere else.
+> I have just made a mess. I deleted some important files on my ext3fs.
+> Have you ever found a solution to undeletion issue in ext3?
+> I'm in a real hurry.
 
-I don't think you need that redundancy - at the end of the day, it
-is much simpler to just have the common task struct (could we say,
-process?) with the shared stuff - replication is nice, but not in
-this area.
+This is not a real solution - more of a starting point. If you have
+enough free space on *ANOTHER* partition, try to make a backup of the
+partition that contains the filesystem *before* unmounting it.
 
-> > Not really - the more bloated, the more cache misses you will have.
-> > There are a lot of fields that don't use all the bits and a lot
-> > of Booleans; it'd make sense to collapse all those into a single
-> > word if possible.
-> 
-> Most assuredly.  Why are they not already? :)
+If /foo is the mount point of the ext3fs with the deleted files
+If /foo sits on /dev/hda5
+If /bar has enough free space to hold a partition image of /dev/hda5
 
-Beats me ... maybe there are performance concerns I am not aware
-of, or simply, it has not been tackled. This is something I have
-on my list of "would be interesting to work on".
+issue the following command:
 
-> > To solve that, you put the structures on the top of the area instead
-> > of at the beginning. That way you are sure the stack cannot overflow
-> > over your (very delicate) data structures, and makes it easier to add
-> > an overflow guard page (as the stack end is at the beginning of a
-> > page).
-> 
-> I believe I mentioned that idea.  Either the stack and data grow in
-> opposite directions, with obvious advantages and risks, or the data is
-> at the top of the area but therefore not growable.
+dd if=/dev/hda5 of=/bar/image
 
-Kill me ... my apologies; sometimes it seems that I don't master 
-reading as much as I thought :]
+and try to recover the data from the image. If the files are really
+important, you can try to e2fsck the *image file* and attack it with
+undeletion utilities (probably won't work) or mark all free blocks used
+by hand, e2fsck the image file again and pick up the mess from /lost+found.
 
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+HTH,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/
+

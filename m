@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbTEEEGT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 00:06:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbTEEEGT
+	id S261889AbTEEESZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 00:18:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbTEEESZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 00:06:19 -0400
-Received: from h234n2fls24o900.telia.com ([217.208.132.234]:9959 "EHLO
-	oden.fish.net") by vger.kernel.org with ESMTP id S261888AbTEEEGS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 00:06:18 -0400
-Date: Mon, 5 May 2003 06:19:51 +0200
-From: Voluspa <lista1@telia.com>
+	Mon, 5 May 2003 00:18:25 -0400
+Received: from customer-148-223-196-18.uninet.net.mx ([148.223.196.18]:10117
+	"EHLO soltisns.soltis.cc") by vger.kernel.org with ESMTP
+	id S261889AbTEEESZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 00:18:25 -0400
+From: "jds" <jds@soltis.cc>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.69
-Message-Id: <20030505061951.5eee334d.lista1@telia.com>
-Organization: The Foggy One
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: 2.5.69 - ACPI + PCMCIA = problems in boot
+Date: Sun, 4 May 2003 21:51:57 -0600
+Message-Id: <20030505034241.M9880@soltis.cc>
+X-Mailer: Open WebMail 1.90 20030212
+X-OriginatingIP: 200.67.170.154 (jds)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Quick compile crash on a PII400, gcc version 2.95.3 20010315 (release). Have compiled previous 2.5.xx since about 65 cleanly.
 
-[...]
+  Hi:
 
-AME=sysenter -c -o arch/i386/kernel/sysenter.o arch/i386/kernel/sysenter.c
-  gcc -Wp,-MD,arch/i386/kernel/.vsyscall-int80.o.d -D__ASSEMBLY__ -D__KERNEL__ -Iinclude -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include  -traditional  -c -o arch/i386/kernel/vsyscall-int80.o arch/i386/kernel/vsyscall-int80.S
-gcc -nostdlib -shared -s -Wl,-soname=linux-vsyscall.so.1 \
-      -o arch/i386/kernel/vsyscall-int80.so -Wl,-T,arch/i386/kernel/vsyscall.lds arch/i386/kernel/vsyscall-int80.o
-  gcc -Wp,-MD,arch/i386/kernel/.vsyscall-sysenter.o.d -D__ASSEMBLY__ -D__KERNEL__ -Iinclude -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include  -traditional  -c -o arch/i386/kernel/vsyscall-sysenter.o arch/i386/kernel/vsyscall-sysenter.S
-gcc -nostdlib -shared -s -Wl,-soname=linux-vsyscall.so.1 \
-      -o arch/i386/kernel/vsyscall-sysenter.so -Wl,-T,arch/i386/kernel/vsyscall.lds arch/i386/kernel/vsyscall-sysenter.o
-  gcc -Wp,-MD,arch/i386/kernel/.vsyscall.o.d -D__ASSEMBLY__ -D__KERNEL__ -Iinclude -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include  -traditional  -c -o arch/i386/kernel/vsyscall.o arch/i386/kernel/vsyscall.S
-/tmp/ccKug4Ma.s: Assembler messages:
-/tmp/ccKug4Ma.s:1102: Error: Unknown pseudo-op:  `.incbin'
-/tmp/ccKug4Ma.s:1107: Error: Unknown pseudo-op:  `.incbin'
-make[1]: *** [arch/i386/kernel/vsyscall.o] Error 1
-make: *** [arch/i386/kernel] Error 2
+  I have problems when boot with ACPI, after put the ACPI=off, and not boot
+with PCMCIA in kernel, out my PCMCIA card and boot OK, both when in PCMCIA
+card in my notebook not driver found.
 
-Regards,
-Mats Johannesson
+  try with driver xirc2ps_cs.ko is the same problem not working my PCMCIA card
+ 
+  PCMCIA card is XIRCOM_CB 32bits, try the compile module the kernel 2.4.20 in
+kernel 2.5.69  I am have is the same problems, maybe problems with IRQs.
+
+  Helpme please
+
+  Regards. 

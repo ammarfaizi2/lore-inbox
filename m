@@ -1,67 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267726AbTBNU6s>; Fri, 14 Feb 2003 15:58:48 -0500
+	id <S267901AbTBNU6u>; Fri, 14 Feb 2003 15:58:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267448AbTBNU5O>; Fri, 14 Feb 2003 15:57:14 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27402 "EHLO
+	id <S267528AbTBNU4y>; Fri, 14 Feb 2003 15:56:54 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23562 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S267726AbTBNU4M>; Fri, 14 Feb 2003 15:56:12 -0500
-Subject: PATCH: fix wd7000 for new scsi
+	id <S267505AbTBNUy7>; Fri, 14 Feb 2003 15:54:59 -0500
+Subject: PATCH: fix NCR53c406a for new scsi
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Fri, 14 Feb 2003 21:06:09 +0000 (GMT)
+Date: Fri, 14 Feb 2003 21:04:58 +0000 (GMT)
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E18jn29-0005h3-00@the-village.bc.nu>
+Message-Id: <E18jn10-0005gE-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.60-ref/drivers/scsi/wd7000.c linux-2.5.60-ac1/drivers/scsi/wd7000.c
---- linux-2.5.60-ref/drivers/scsi/wd7000.c	2003-02-14 21:21:36.000000000 +0000
-+++ linux-2.5.60-ac1/drivers/scsi/wd7000.c	2003-02-14 20:30:31.000000000 +0000
-@@ -1122,13 +1122,13 @@
- 	register unchar *cdb = (unchar *) SCpnt->cmnd;
- 	register unchar idlun;
- 	register short cdblen;
--	Adapter *host = (Adapter *) SCpnt->host->hostdata;
-+	Adapter *host = (Adapter *) SCpnt->device->host->hostdata;
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.60-ref/drivers/scsi/NCR53c406a.c linux-2.5.60-ac1/drivers/scsi/NCR53c406a.c
+--- linux-2.5.60-ref/drivers/scsi/NCR53c406a.c	2003-02-14 21:21:36.000000000 +0000
++++ linux-2.5.60-ac1/drivers/scsi/NCR53c406a.c	2003-02-14 20:18:25.000000000 +0000
+@@ -697,7 +697,7 @@
  
- 	cdblen = SCpnt->cmd_len;
--	idlun = ((SCpnt->target << 5) & 0xe0) | (SCpnt->lun & 7);
-+	idlun = ((SCpnt->device->id << 5) & 0xe0) | (SCpnt->device->lun & 7);
- 	SCpnt->scsi_done = done;
- 	SCpnt->SCp.phase = 1;
--	scb = alloc_scbs(SCpnt->host, 1);
-+	scb = alloc_scbs(SCpnt->device->host, 1);
- 	scb->idlun = idlun;
- 	memcpy(scb->cdb, cdb, cdblen);
- 	scb->direc = 0x40;	/* Disable direction check */
-@@ -1141,7 +1141,7 @@
- 		struct scatterlist *sg = (struct scatterlist *) SCpnt->request_buffer;
- 		unsigned i;
+ 	/* We are locked here already by the mid layer */
+ 	REG0;
+-	outb(SCpnt->target, DEST_ID);	/* set destination */
++	outb(SCpnt->device->id, DEST_ID);	/* set destination */
+ 	outb(FLUSH_FIFO, CMD_REG);	/* reset the fifos */
  
--		if (SCpnt->host->sg_tablesize == SG_NONE) {
-+		if (SCpnt->device->host->sg_tablesize == SG_NONE) {
- 			panic("wd7000_queuecommand: scatter/gather not supported.\n");
- 		}
- 		dprintk("Using scatter/gather with %d elements.\n", SCpnt->use_sg);
-@@ -1646,7 +1646,7 @@
-  */
- static int wd7000_abort(Scsi_Cmnd * SCpnt)
- {
--	Adapter *host = (Adapter *) SCpnt->host->hostdata;
-+	Adapter *host = (Adapter *) SCpnt->device->host->hostdata;
- 
- 	if (inb(host->iobase + ASC_STAT) & INT_IM) {
- 		printk("wd7000_abort: lost interrupt\n");
-@@ -1677,7 +1677,7 @@
- 
- static int wd7000_host_reset(Scsi_Cmnd * SCpnt)
- {
--	Adapter *host = (Adapter *) SCpnt->host->hostdata;
-+	Adapter *host = (Adapter *) SCpnt->device->host->hostdata;
- 
- 	if (wd7000_adapter_reset(host) < 0)
- 		return FAILED;
+ 	for (i = 0; i < SCpnt->cmd_len; i++) {

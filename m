@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287234AbSAHLtX>; Tue, 8 Jan 2002 06:49:23 -0500
+	id <S287627AbSAHLwx>; Tue, 8 Jan 2002 06:52:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287407AbSAHLtN>; Tue, 8 Jan 2002 06:49:13 -0500
-Received: from weta.f00f.org ([203.167.249.89]:62149 "EHLO weta.f00f.org")
-	by vger.kernel.org with ESMTP id <S287234AbSAHLtI>;
-	Tue, 8 Jan 2002 06:49:08 -0500
-Date: Wed, 9 Jan 2002 00:52:11 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Martin Rode <Martin.Rode@programmfabrik.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about bi-directional pipes.
-Message-ID: <20020108115211.GC29782@weta.f00f.org>
-In-Reply-To: <3C3AB20A.8B16C23A@programmfabrik.de>
+	id <S287631AbSAHLwn>; Tue, 8 Jan 2002 06:52:43 -0500
+Received: from mailgate.bodgit-n-scarper.com ([62.49.233.146]:13063 "HELO
+	mould.bodgit-n-scarper.com") by vger.kernel.org with SMTP
+	id <S287627AbSAHLwi>; Tue, 8 Jan 2002 06:52:38 -0500
+Date: Tue, 8 Jan 2002 12:02:07 +0000
+From: Matt Dainty <matt@bodgit-n-scarper.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: rgooch@ras.ucalgary.ca, hpa@zytor.com, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: [PATCH] DevFS support for /dev/cpu/X/(cpuid|msr)
+Message-ID: <20020108120207.A15498@mould.bodgit-n-scarper.com>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	rgooch@ras.ucalgary.ca, hpa@zytor.com, linux-kernel@vger.kernel.org,
+	torvalds@transmeta.com
+In-Reply-To: <20020106181749.A714@butterlicious.bodgit-n-scarper.com> <200201061934.g06JYnZ15633@vindaloo.ras.ucalgary.ca> <3C38BC6B.7090301@zytor.com> <200201062108.g06L8lM17189@vindaloo.ras.ucalgary.ca> <3C38BD32.6000900@zytor.com> <200201070131.g071VrM20956@vindaloo.ras.ucalgary.ca> <3C38FAB0.4000503@zytor.com> <200201070140.g071ewk21192@vindaloo.ras.ucalgary.ca> <20020108111302.A14860@mould.bodgit-n-scarper.com> <20020108201451.088f7f99.rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C3AB20A.8B16C23A@programmfabrik.de>
-User-Agent: Mutt/1.3.25i
-X-No-Archive: Yes
+In-Reply-To: <20020108201451.088f7f99.rusty@rustcorp.com.au>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 on i686 SMP (mould)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 08, 2002 at 09:47:06AM +0100, Martin Rode wrote:
+On Tue, Jan 08, 2002 at 08:14:51PM +1100, Rusty Russell wrote:
+> On Tue, 8 Jan 2002 11:13:02 +0000
+> Matt Dainty <matt@bodgit-n-scarper.com> wrote:
+> 
+> > On Sun, Jan 06, 2002 at 06:40:58PM -0700, Richard Gooch wrote:
+> > > 
+> > > So I'd like to propose a new file (say kernel/smp.c) which has generic
+> > > startup code for each CPU. To start with, it can have a
+> > > generic_cpu_init() function, which is called by each arch. Note that
+> > > this function would be called for the boot CPU too.
+> > 
+> > Would this also be hacked into whatever Hotswap CPU support exists? Such
+> 
+> We use /proc/sys/cpu/#/.  I don't understand what /dev/cpu/xxx is supposed to
+> do.
 
-    I was just wondering if it is possible under Linux to use popen in
-    a bi-directional way?
+/dev/cpu/[0...]/... contains (on i386 at least), the cpuid and msr character
+devices, except on devfs-enabled boxen, these don't appear automatically.
 
-using pipe(2) --- no
-
-    I want to use popen under php and must write _and_ read from and
-    to the pipe. Some guy at the php mailing list stated that this is
-    possible to do with BSD, he wasn't sure about linux.
-
-Some (all) of the *BSD's implement pipe(2) using UNIX domain sockets
-under the hood and were thus able to do this, however, I don't believe
-any other OS ever did this and I certainly wouldn't assume it will
-work for compatibility reasons.
-
-    If this is a kernel issue and not a glibc one, is there a way to
-    get popen work bi-directionally under linux? Say I want a
-
-    pipe = popen ('somefile', 'w+');
-
-Don't use glibc for this, it can't do what you want.  I have a small
-library I wrote that does a popen type thing and gives separate access
-to stdin, stdout and stderr of the process --- if that is of use you
-are welcome to it (it's C, not php, I have no idea about how to import
-C functions into php).
-
-With a (small) amount of effort, I can even make a version that nukes
-stderr and wraps the stdin/stdout functions with a a UNIX domain socket
-which will do pretty much exactly what you want[1].
-
-
-  --cw
-
-[1] Oh, it doesn't do command-line parsing as I explicitly didn't want
-    this when I wrote it.
+Matt
+-- 
+"Phased plasma rifle in a forty-watt range?"
+"Hey, just what you see, pal"

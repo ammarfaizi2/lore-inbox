@@ -1,72 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbTELRTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 13:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbTELRTZ
+	id S262351AbTELRVA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 13:21:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbTELRU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 13:19:25 -0400
-Received: from siaag2ab.compuserve.com ([149.174.40.132]:6082 "EHLO
-	siaag2ab.compuserve.com") by vger.kernel.org with ESMTP
-	id S262361AbTELRTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 13:19:04 -0400
-Date: Mon, 12 May 2003 13:26:54 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Message Signalled Interrupt support?
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: davem@redhat.com, willy@debian.org,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200305121330_MC3-1-3881-E571@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Mon, 12 May 2003 13:20:58 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:34977 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S262328AbTELRUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 13:20:55 -0400
+Date: Mon, 12 May 2003 18:34:04 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       jgarzik@pobox.net
+Subject: Re: [PATCH] better ali1563 integrated ethernet support
+Message-ID: <20030512173404.GA11936@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	dean gaudet <dean-list-linux-kernel@arctic.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	jgarzik@pobox.net
+References: <200305111914.h4BJES3g007061@hera.kernel.org> <20030512113038.GA31870@suse.de> <Pine.LNX.4.53.0305121029330.21172@twinlark.arctic.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0305121029330.21172@twinlark.arctic.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Mon, May 12, 2003 at 10:31:44AM -0700, dean gaudet wrote:
+ > >  >  #if defined(__sparc__)
+ > >  >          /* DM9102A needs 32-dword alignment/burst length on sparc - chip bug? */
+ > >  > -        if (pdev->vendor == 0x1282 && pdev->device == 0x9102)
+ > >  > +	if ((pdev->vendor == 0x1282 && pdev->device == 0x9102)
+ > >  > +		|| (pdev->vendor == 0x10b9 && pdev->device == 0x5261))
+ > >  >                  csr0 = (csr0 & ~0xff00) | 0xe000;
+ > >  >  #endif
+ > >
+ > > Integrated ALi 1563 on a sparc ?
+ > 
+ > oh duh i didn't even look hard at that... i just went and made sure any
+ > 9102 bug tests were copied, in case the ali1563 was a bug-for-bug clone :)
+ > 1563 is a hypertransport device... so i doubt it'll show up on a sparc.
+ > oops.
 
-> Has anybody done any work, or put any thought, into MSI support?
-> 
-> Would things massively break if I set up MSI manually in the driver?
-> 
-> I heard rumblings on lkml that Intel has done some work internally w/
-> MSI support in Linux, but that doesn't help me much without further
-> details ;-)
+For completeness, we should probably remove the entry from the dmfe
+pci_device_id table too.
 
-
-I found this in my archives:
-
-================================
-
-Subject: RE: [PATCH] 2.5.68 Fix IO_APIC IRQ assignment bug
-Date: Mon, 21 Apr 2003 09:34:34 -0700
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-
-<SNIP>
-
-After (vector-based)
-           CPU0       CPU1       
-  0:     709682          0    IO-APIC-edge  timer
-  2:          0          0          XT-PIC  cascade
-  9:          0          0   IO-APIC-level  acpi
- 14:       4988          1    IO-APIC-edge  ide0
- 15:         10          1    IO-APIC-edge  ide1
-177:         78          0   IO-APIC-level  uhci-hcd
-185:          0          0   IO-APIC-level  uhci-hcd, uhci-hcd
-193:         58          0   IO-APIC-level  uhci-hcd
-201:          0          0   IO-APIC-level  ehci-hcd
-209:        356          0   IO-APIC-level  eth0
-NMI:          0          0 
-LOC:     707613     707524 
-ERR:          0
-MIS:          0
-
-=========================================
-
-  They changed things so the MSI scheme uses the vector number
-directly instead of remapping it...
-
-
+		Dave
 

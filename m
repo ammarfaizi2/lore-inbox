@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265862AbUA1GHA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 01:07:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265860AbUA1GHA
+	id S265851AbUA1GOD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 01:14:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265860AbUA1GOC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 01:07:00 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:41653 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S265631AbUA1GG6 (ORCPT
+	Wed, 28 Jan 2004 01:14:02 -0500
+Received: from kiuru.kpnet.fi ([193.184.122.21]:36502 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S265851AbUA1GOA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 01:06:58 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Wed, 28 Jan 2004 01:14:00 -0500
+Date: Wed, 28 Jan 2004 08:13:36 +0200 (EET)
+From: =?iso-8859-1?Q?Markus_H=E4stbacka?= <midian@ihme.org>
+X-X-Sender: midian@midi
+To: David Weinehall <david@southpole.se>
+cc: Coywolf Qi Hunt <coywolf@lovecn.org>,
+       Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [2.0.40-rc8] Works well
+In-Reply-To: <20040128033755.GC16675@khan.acc.umu.se>
+Message-ID: <Pine.LNX.4.44.0401280809470.20944-100000@midi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16407.20861.415243.849317@napali.hpl.hp.com>
-Date: Tue, 27 Jan 2004 22:06:53 -0800
-To: Paul Mackerras <paulus@samba.org>
-Cc: davidm@hpl.hp.com, Andrew Morton <akpm@osdl.org>,
-       Jes Sorensen <jes@trained-monkey.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [patch] 2.6.1-mm5 compile do not use shared extable code for
- ia64
-In-Reply-To: <16406.63734.400759.452955@cargo.ozlabs.ibm.com>
-References: <E1Aiuv7-0001cS-00@jaguar.mkp.net>
-	<20040120090004.48995f2a.akpm@osdl.org>
-	<16401.57298.175645.749468@napali.hpl.hp.com>
-	<16402.19894.686335.695215@cargo.ozlabs.ibm.com>
-	<16405.41953.344071.456754@napali.hpl.hp.com>
-	<16406.10170.911012.262682@cargo.ozlabs.ibm.com>
-	<16406.36741.510353.456578@napali.hpl.hp.com>
-	<16406.63734.400759.452955@cargo.ozlabs.ibm.com>
-X-Mailer: VM 7.17 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 28 Jan 2004 10:49:10 +1100, Paul Mackerras <paulus@samba.org> said:
+On Wed, 28 Jan 2004, David Weinehall wrote:
 
-  Paul> I really don't like the uglification of lib/extable.c.
+> On Wed, Jan 28, 2004 at 03:28:30AM +0000, Coywolf Qi Hunt wrote:
+> ...
+> > Recently I just have such an idea that is to port the 2.0.39 to let it
+> > be compiled with my gcc 2.95.4 or any
+> > other latest gcc. At the same time,  also make it remain compliant to
+> > gcc 2.7.2.1. ( I can't find 2.7.2.1, only 2.7.2.3
+> > on the ftp)  Is this work worth while?
+>
+> Well, for sure it's quite a demanding task, since, if I remember
+> correctly, the module-code uses some nasty internal gcc-knowledge to
+> generate code, that simply doesn't work with later versions of gcc.
+> It might be that I remember this incorrectly though.
+>
+only the module-code? :)
+> It would be interesting, yes, but only if it can be proved to some
+> degree that no new bugs are introduced.
+>
+That would probably be impossible to do without introducing any bugs..
+> My aim for 2.0.41 is to make it a cleanup-release; remove warnings, tidy
+> up a little source-code mess, kill dead code, fix typos etc.
+>
+Sounds great, a bit amazing that 2.0 is alive again :)
 
-I disagree about this being an uglification.  But beauty is obviously
-in the eye of the beholder...
+	Markus
 
-Anyhow, you clearly feel _much_ stronger about this particular issue
-than I do and I haven't heard much from Andrew, so I'll make a local
-version of sort_extable() for now.  If someone cares about
-resurrecting a generic version, they can do that later on.
-
-	--david

@@ -1,45 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264126AbTEORVb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 13:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbTEORVb
+	id S264130AbTEORWm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 13:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbTEORWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 13:21:31 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:50092 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264126AbTEORV2 (ORCPT
+	Thu, 15 May 2003 13:22:42 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:52654 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264130AbTEORWj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 13:21:28 -0400
-Date: Thu, 15 May 2003 10:34:42 -0700 (PDT)
+	Thu, 15 May 2003 13:22:39 -0400
+Date: Thu, 15 May 2003 10:35:55 -0700 (PDT)
 From: Patrick Mochel <mochel@osdl.org>
 X-X-Sender: mochel@cherise
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+cc: Zwane Mwaikambo <zwane@linuxpower.ca>, Andrew Morton <akpm@digeo.com>,
+       LKML <linux-kernel@vger.kernel.org>
 Subject: Re: 2.5.69-mm5: reverting i8259-shutdown.patch
-In-Reply-To: <Pine.LNX.4.50.0305150355210.19782-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.44.0305151031210.9816-100000@cherise>
+In-Reply-To: <1053000155.605.1.camel@teapot.felipe-alfaro.com>
+Message-ID: <Pine.LNX.4.44.0305151034560.9816-100000@cherise>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Pat what do you say to some late shutdown callbacks? I'll drop you a 
-> patch sometime tommorrow.
+> OK, I've changed "#undef DEBUG" to "#define DEBUG" in
+> drivers/base/power.c, but during shutdown, I can see no extra debug
+> messages. What am I doing wrong?
 
-Bah. It would work, but it's a hack. We'll get caught in a game similar to 
-the leap-frogging initcalls. In fact, we could just get really twisted and 
-define various levels of exitcalls. [ Or, do them implicitly with some 
-linkser-section-fu by calling the modules' exit functions in the reverse 
-order in which they were initialized, but that's another story. ]
-
-I just think that system level devices need to be treated specially in 
-every case. They just don't work as normal devices because of the ordering 
-issue. We can keep a separate list of them and deal with them explicitly 
-after regular devices. It's not that bad of a change, but will take a few 
-days, unless someone wants to take a stab at it..
+Nothing. No one has shutdown methods in their drivers. This patch should 
+give you a little more info. For me, it says the i8259 is getting shutdown 
+very early in the process, which surely can't be good..
 
 
 	-pat
 
+===== drivers/base/power.c 1.18 vs edited =====
+--- 1.18/drivers/base/power.c	Mon Jan  6 09:56:05 2003
++++ edited/drivers/base/power.c	Thu May 15 10:30:25 2003
+@@ -8,7 +8,7 @@
+  *
+  */
+ 
+-#undef DEBUG
++#define DEBUG
+ 
+ #include <linux/device.h>
+ #include <linux/module.h>
+@@ -88,10 +88,12 @@
+ 	down_write(&devices_subsys.rwsem);
+ 	list_for_each(entry,&devices_subsys.kset.list) {
+ 		struct device * dev = to_dev(entry);
++		pr_debug("shutting down %s: ",dev->name);
+ 		if (dev->driver && dev->driver->shutdown) {
+-			pr_debug("shutting down %s\n",dev->name);
++			pr_debug("Ok\n");
+ 			dev->driver->shutdown(dev);
+-		}
++		} else
++			pr_debug("Ignored.\n");
+ 	}
+ 	up_write(&devices_subsys.rwsem);
+ }
 

@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310625AbSCPUpv>; Sat, 16 Mar 2002 15:45:51 -0500
+	id <S310647AbSCPUuw>; Sat, 16 Mar 2002 15:50:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310622AbSCPUpo>; Sat, 16 Mar 2002 15:45:44 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36874 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310635AbSCPUpd>; Sat, 16 Mar 2002 15:45:33 -0500
-Subject: Re: [PATCH] devexit fixes in i82092.c
-To: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sat, 16 Mar 2002 21:00:09 +0000 (GMT)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        torvalds@transmeta.com (Linus Torvalds),
-        andersg@0x63.nu (Anders Gustafsson), arjanv@redhat.com,
-        linux-kernel@vger.kernel.org, mochel@osdl.org
-In-Reply-To: <m1lmcsxqhy.fsf@frodo.biederman.org> from "Eric W. Biederman" at Mar 16, 2002 12:27:21 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S310681AbSCPUul>; Sat, 16 Mar 2002 15:50:41 -0500
+Received: from ns.suse.de ([213.95.15.193]:55818 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S310647AbSCPUuY>;
+	Sat, 16 Mar 2002 15:50:24 -0500
+Date: Sat, 16 Mar 2002 21:50:23 +0100
+From: Dave Jones <davej@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: S W <egberts@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre2 Cyrix III SEGFAULT (Cyrix II redux?)
+Message-ID: <20020316215023.D15296@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, S W <egberts@yahoo.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020316204228.B15296@suse.de> <E16mLIY-00079l-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16mLHd-00079Z-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E16mLIY-00079l-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Please for the Linux booting Linux scenario it is mandatory we get this right
-> for reboot.  I know for a fact that currently we leave active receive buffers on
-> network cards when we reboot. (If you haven't downed the interface).  So it
-> is possible for a network packet to come in and hose a machine that is rebooting.
+On Sat, Mar 16, 2002 at 09:01:06PM +0000, Alan Cox wrote:
+ > >  > But I recalled Linux 2.2 having a bug fix for broken
+ > >  > L2 cache in Cyrix II.
+ > >  The cache itself isn't broken. Reporting of the size of it is.
+ > He's talking about a different bug. Some early 6x86 processors had weird
+ > problems with cache behaviour that would sometimes break stuff.
 
-Thats a bios bug. Its pretty much the whole reason for having bus master
-enable bits in the PCI configuration. The BIOS should have killed the bus
-masters.
+ Ah, my bad.  So much errata, so little memory..
 
-Alan
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

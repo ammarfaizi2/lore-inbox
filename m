@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281044AbRKCVSt>; Sat, 3 Nov 2001 16:18:49 -0500
+	id <S281040AbRKCVOJ>; Sat, 3 Nov 2001 16:14:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281043AbRKCVSi>; Sat, 3 Nov 2001 16:18:38 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:14962 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S281042AbRKCVS1>; Sat, 3 Nov 2001 16:18:27 -0500
-Date: Sat, 3 Nov 2001 22:18:26 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.14pre7aa2 [Re: 2.4.14pre7aa1]
-Message-ID: <20011103221826.A1898@athlon.random>
-In-Reply-To: <20011103204217.A2650@athlon.random>
+	id <S281041AbRKCVN6>; Sat, 3 Nov 2001 16:13:58 -0500
+Received: from peace.netnation.com ([204.174.223.2]:5382 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP
+	id <S281040AbRKCVNr>; Sat, 3 Nov 2001 16:13:47 -0500
+Date: Sat, 3 Nov 2001 13:13:42 -0800
+From: Simon Kirby <sim@netnation.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Something broken in sys_swapon
+Message-ID: <20011103131342.A15365@netnation.com>
+In-Reply-To: <20011103122344.A12059@netnation.com> <Pine.GSO.4.21.0111031529490.18001-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011103204217.A2650@athlon.random>; from andrea@suse.de on Sat, Nov 03, 2001 at 08:42:17PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.GSO.4.21.0111031529490.18001-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Nov 03, 2001 at 03:31:25PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 03, 2001 at 08:42:17PM +0100, Andrea Arcangeli wrote:
-> Only in 2.4.14pre6aa1: 10_vm-10
-> Only in 2.4.14pre7aa1: 10_vm-11
+On Sat, Nov 03, 2001 at 03:31:25PM -0500, Alexander Viro wrote:
+
+> On Sat, 3 Nov 2001, Simon Kirby wrote:
 > 
-> 	Latest vm updates. Merged Linus changes in mainline, also the VM_LOCKED
-> 	one on l-k that certainly make sense to avoid inactive cache pollution.
-> 	Now keeping dirty swap cache around like pre7 does, dubious
-> 	optimization though but I want to see if it makes big differences.
-> 	Fixed three vm corruption bugs (one longstanding pre-2.4.9). Good
+> >                 kdev_t dev = swap_inode->i_rdev;
+> >                 struct block_device_operations *bdops;
+> > 
+> >                 p->swap_device = dev;
+> >                 set_blocksize(dev, PAGE_SIZE);
+> > 
+> > I don't know much at all about the inode structure, but doesn't this set
+> > the block size of the originating filesystem containing the inode rather
+> > than the block device that inode happens to be pointing to?  That would
+> 
+> man 2 stat
+> 
+> i_rdev is equivalent of st_rdev, i_dev - of st_dev.
 
-Due a merging error the fix for one of the three races was missing, so
-it's now included in pre7aa2.
+Okay, would you see any other reason why my root filesystem would
+completely blow up after swapon /dev/hdb2 when /dev/hdb no longer exists?
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.14pre7aa2.bz2
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.14pre7aa2/
+All I did was remove /dev/hdb and forget to take the swap entry out of
+/etc/fstab.  On boot I got "attempt to access beyond end of device"
+messages looping endlessly.  I tried once with / mounted rw (it looks
+like Debian still has / mounted ro when it turns on swap), and lots of
+filesystem corruption resulted.
 
-Only in 2.4.14pre7aa1: 10_vm-11
-Only in 2.4.14pre7aa2: 10_vm-12
+Simon-
 
-	Really merged the fix for one of the races now.
-
-Andrea
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

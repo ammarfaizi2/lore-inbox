@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282931AbRK0Ubs>; Tue, 27 Nov 2001 15:31:48 -0500
+	id <S282935AbRK0Ubi>; Tue, 27 Nov 2001 15:31:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282933AbRK0Ubj>; Tue, 27 Nov 2001 15:31:39 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:12789
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S282931AbRK0Ubf>; Tue, 27 Nov 2001 15:31:35 -0500
-Date: Tue, 27 Nov 2001 12:31:28 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Ahmed Masud <masud@googgun.com>, "'lkml'" <linux-kernel@vger.kernel.org>
-Subject: Re: Unresponiveness of 2.4.16
-Message-ID: <20011127123128.E9391@mikef-linux.matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	Ahmed Masud <masud@googgun.com>,
-	'lkml' <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0111261825340.15932-100000@xanadu.home> <000901c17723$b641c990$8604a8c0@googgun.com> <3C03C96D.B3ACA982@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C03C96D.B3ACA982@zip.com.au>
-User-Agent: Mutt/1.3.23i
+	id <S282933AbRK0Ub3>; Tue, 27 Nov 2001 15:31:29 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11272 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S282931AbRK0UbY>; Tue, 27 Nov 2001 15:31:24 -0500
+Date: Tue, 27 Nov 2001 15:24:53 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Oliver Xymoron <oxymoron@waste.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Default outgoing IP address?
+In-Reply-To: <Pine.LNX.4.40.0111261612390.15983-100000@waste.org>
+Message-ID: <Pine.LNX.3.96.1011127151949.31174F-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 27, 2001 at 09:12:13AM -0800, Andrew Morton wrote:
-> Ahmed Masud wrote:
-> > 
-> > Just to add to the above something I've experienced:
-> > 
-> > 2.4.12 - 2.4.14 on a number of AMD Athelon 900 with 256 MB
-> > RAM doing serial I/O would miss data while any DISK writes would
-> > occure.
+On Mon, 26 Nov 2001, Oliver Xymoron wrote:
+
+> On a machine with multiple interfaces, is it possible to set the default
+> outgoing IP address to something other than the address for the interface
+> on the outgoing route?
 > 
-> Two possibilities suggest themselves:
-> 
-> - Interrupt latency.   Last time I checked (a year ago), the worst-case
->   interrupt latency of the IDE drivers was 80 microseconds on a 500MHz PII.
->   That was with `hdparm -u 1'.   That's pretty good.
-> 
->   Could you please confirm that you're using `hdparm -u 1' against the
->   relevant disk?
-> 
-> - The serial port is working OK, but the application which is handling
->   serial IO is blocked on a disk read (something got paged out), and
->   that disk read fails to complete by the time the serial port buffer
->   fills up.
-> 
->   I'll send you a patch which makes the VM less inclined to page things
->   out in the presence of heavy writes, and which decreases read
->   latencies.
-> 
-Is this patch posted anywhere?
+> For instance, a machine acts as a gateway, with addresses A and B, where A
+> faces the world (but isn't in DNS) and B is the canonical address.
+> Outgoing connections from the machine should appear to come from B.
+
+If you mean having multiple IP addresses on the same NIC, sure you can do
+that, see the section on DNAT in iptables. However, if you have multiple
+NICs, you do not want to send a packet from one which has the IP of the
+other, as your router is very likely to become confused and get its ARP
+table in a twist.
+
+You can force packets out one NIC or the other, usually using iproute, but
+I don't think that's what you have in mind, is it? In any case, doable.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

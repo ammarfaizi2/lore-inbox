@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277233AbRJDVHw>; Thu, 4 Oct 2001 17:07:52 -0400
+	id <S277224AbRJDVOy>; Thu, 4 Oct 2001 17:14:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277226AbRJDVHm>; Thu, 4 Oct 2001 17:07:42 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:65039 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277224AbRJDVHa>; Thu, 4 Oct 2001 17:07:30 -0400
-Subject: Re: CPU Temperature?
-To: harri@synopsys.COM
-Date: Thu, 4 Oct 2001 22:13:12 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BBB4011.C4DC2527@Synopsys.COM> from "Harald Dunkel" at Oct 03, 2001 06:42:57 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15pFns-0004DA-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S277226AbRJDVOn>; Thu, 4 Oct 2001 17:14:43 -0400
+Received: from fenrus.demon.co.uk ([158.152.228.152]:55711 "EHLO
+	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S277224AbRJDVOe>;
+	Thu, 4 Oct 2001 17:14:34 -0400
+From: arjan@fenrus.demon.nl
+To: kravetz@us.ibm.com (Mike Kravetz)
+Subject: Re: Context switch times
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011004140417.C1245@w-mikek2.des.beaverton.ibm.com>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+Message-Id: <E15pFor-0004sC-00@fenrus.demon.nl>
+Date: Thu, 04 Oct 2001 22:14:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there a standard interface to watch the temperature of the CPU (e.g.
-> Athlon Thunderbird)? Or is this a feature of my main board?
+In article <20011004140417.C1245@w-mikek2.des.beaverton.ibm.com> you wrote:
+> 2.4.10 on 8 CPUs:  lat_ctx -s 0 -r 2 results
+> "size=0k ovr=2.27
+> 2 3.86
 
-Generally it comes from the mainboard
- 
-> How can I access the CPU temperature, fan speed etc. from Linux?
-> Or is this too hardware dependent to implement a common interface?
+> 2.2.16-22 on 8 CPUS:  lat_ctx -s 0 -r 2 results
+> "size=0k ovr=1.99
+> 2 1.44
 
-lm-sensors - it works well. Its shipped in some vendor trees
+> As you can see, the context switch times for 2.4.10 are more
+> than double what they were for 2.2.16-22 in this example.  
+
+> Comments?
+
+2.4.x supports SSE on pentium III/athlons, so the SSE registers need to be
+saved/restored on a taskswitch as well.... that's not exactly free.
+

@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318590AbSHGQY4>; Wed, 7 Aug 2002 12:24:56 -0400
+	id <S315374AbSHGQbP>; Wed, 7 Aug 2002 12:31:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318572AbSHGQY4>; Wed, 7 Aug 2002 12:24:56 -0400
-Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:43013 "EHLO
-	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S318590AbSHGQYz>; Wed, 7 Aug 2002 12:24:55 -0400
-Date: Wed, 7 Aug 2002 18:28:04 +0200 (CEST)
-From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: alan@lxorguk.ukuu.org.uk, <linux-kernel@vger.kernel.org>
-Subject: Re: kernel BUG at tg3.c:1557
-In-Reply-To: <20020807.082445.03541415.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0208071825500.3705-100000@pc40.e18.physik.tu-muenchen.de>
+	id <S318216AbSHGQbP>; Wed, 7 Aug 2002 12:31:15 -0400
+Received: from virtmail.zianet.com ([216.234.192.37]:13263 "HELO zianet.com")
+	by vger.kernel.org with SMTP id <S315374AbSHGQbI>;
+	Wed, 7 Aug 2002 12:31:08 -0400
+Message-ID: <3D514E75.4080909@zianet.com>
+Date: Wed, 07 Aug 2002 10:44:37 -0600
+From: kwijibo@zianet.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020802
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
+Subject: Re: Tigon3 and jumbo frames
+References: <3D5045C1.6050302@zianet.com> <20020807.033820.126760020.davem@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Aug 2002, David S. Miller wrote:
+Ok ok, I believe you.  There was some arp weirdness
+going on between the gigi card and another eth device.
+I belive I have it figured out now, sorry to bug ya.
 
->    From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
->    Date: Wed, 7 Aug 2002 17:36:25 +0200 (CEST)
->    
->    How can I help to track this down?
-> 
-> I'm stumped, sorry.
+Steve
 
-Just out of curiosity I tried it with
+David S. Miller wrote:
 
-static void tg3_write_mailbox_reg32(struct tg3 *tp, u32 off, u32 val)
-{
-        unsigned long flags;
+>   From: kwijibo@zianet.com
+>   Date: Tue, 06 Aug 2002 15:55:13 -0600
+>
+>   Does the new version of the tigon 3 (tg3) drivers support jumbo
+>   frames?
+>
+>It works, use a direct connection between two tg3 cards if you
+>don't believe us :-)
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
 
-        spin_lock_irqsave(&tp->indirect_lock, flags);
-        writel(val, tp->regs + off);
-        spin_unlock_irqrestore(&tp->indirect_lock, flags);
-}
 
-and that plain works. That means that only the mailbox writes have 
-additional locking around the otherwise unchanged writel() call. Does the 
-spin_lock_irqsave/spin_unlock_irqrestore take care of the PCI ordering?
-
-Ciao,
-					Roland
-
-+---------------------------+-------------------------+
-|    TU Muenchen            |                         |
-|    Physik-Department E18  |  Raum    3558           |
-|    James-Franck-Str.      |  Telefon 089/289-12592  |
-|    85747 Garching         |                         |
-+---------------------------+-------------------------+
 

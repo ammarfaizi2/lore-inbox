@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318929AbSG1ILY>; Sun, 28 Jul 2002 04:11:24 -0400
+	id <S313060AbSG1IQY>; Sun, 28 Jul 2002 04:16:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318931AbSG1ILY>; Sun, 28 Jul 2002 04:11:24 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39690 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318929AbSG1ILX>; Sun, 28 Jul 2002 04:11:23 -0400
-Date: Sun, 28 Jul 2002 09:14:40 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Thomas Molina <tmolina@cox.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5 Problem Report Status for 2.5.29
-Message-ID: <20020728091440.A12389@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.44.0207272154080.5213-100000@dad.molina>
+	id <S313628AbSG1IQY>; Sun, 28 Jul 2002 04:16:24 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:53069 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S313060AbSG1IQX>; Sun, 28 Jul 2002 04:16:23 -0400
+Date: Sun, 28 Jul 2002 11:19:33 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Buddy Lumpkin <b.lumpkin@attbi.com>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: About the need of a swap area
+Message-ID: <20020728081932.GV1548@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Buddy Lumpkin <b.lumpkin@attbi.com>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20020728065830.GT1465@niksula.cs.hut.fi> <FJEIKLCALBJLPMEOOMECIEADDAAA.b.lumpkin@attbi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0207272154080.5213-100000@dad.molina>; from tmolina@cox.net on Sat, Jul 27, 2002 at 10:03:23PM -0500
+In-Reply-To: <FJEIKLCALBJLPMEOOMECIEADDAAA.b.lumpkin@attbi.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 27, 2002 at 10:03:23PM -0500, Thomas Molina wrote:
->    Oops w/PCMCIA modem & 8250_cs       open         2.5.28
+On Sun, Jul 28, 2002 at 12:59:13AM -0700, you [Buddy Lumpkin] wrote:
+> 
+> In Solaris you don't even need to define a swap device at all.
+> If your sure that you will never reach lotsfree (for that matter, nothing
+> stops you from setting lotsfree, desfree and minfree to whatever value you
+> want) Solaris will happily run without a swap device even defined.
 
-Actually closed; the "update" patch I sent to lkml fixes it, and that's
-also in 2.5.29.
+You don't have to have swap device in linux either (afaik it has never been
+mandatory). Linux will run without swap just like you would expect.
 
-As far as 2.5.29 goes, there is one outstanding serial problem - a
-missing include of <asm/io.h> into 8250_pci.c (oddly my builds don't
-find it.)  Oh, and 2.5.29 just has other problems elsewhere which
-them cause the serial driver (and I'd imagine other subsystems) to
-oops.
+> Once you reach the lotsfree watermark it's a whole different story, then it
+> makes perfect sense to queue up writes to the swap device and write
+> them out to swap in a sensible way as you point out above, but when I made
+> the comment above, I was referring to a system that is not low on memory.
 
-If someone knows of other serial problems, bring 'em on down. 8)
+Obviously, if you have heaps of free memory, linux will not usually touch
+swap either. The exact point where swap starts to get used is of course a
+matter of debate (and depends on vm implementation and tunables in linux).
+But the point is: even if there is no immediate memory pressure, backing
+pages to swap is no crime.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 
+-- v --
+
+v@iki.fi

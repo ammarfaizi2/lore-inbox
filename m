@@ -1,67 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270847AbRHXCN2>; Thu, 23 Aug 2001 22:13:28 -0400
+	id <S270557AbRHXC1l>; Thu, 23 Aug 2001 22:27:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270848AbRHXCNT>; Thu, 23 Aug 2001 22:13:19 -0400
-Received: from vp226158.uac62.hknet.com ([202.71.226.158]:4369 "EHLO
-	main.coppice.org") by vger.kernel.org with ESMTP id <S270847AbRHXCNM>;
-	Thu, 23 Aug 2001 22:13:12 -0400
-Message-ID: <3B85B88C.4610C2D@coppice.org>
-Date: Fri, 24 Aug 2001 10:14:36 +0800
-From: Steve Underwood <steveu@coppice.org>
-Organization: Me? Organised?
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19-6.2.7 i686)
-X-Accept-Language: en, zh-TW
-MIME-Version: 1.0
-To: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: releasing driver to kernel in source+binary format
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B7477971880B3E@xsj02.sjs.agilent.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S270630AbRHXC1b>; Thu, 23 Aug 2001 22:27:31 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:16110 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S270557AbRHXC1P>; Thu, 23 Aug 2001 22:27:15 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 23 Aug 2001 19:27:29 -0700
+Message-Id: <200108240227.TAA12503@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: Remove net_dev_init from linux-2.4.9/drivers/block/genhd.c?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"MEHTA,HIREN (A-SanJose,ex1)" wrote:
-> 
-> Hi list,
-> 
-> We want to release a linux scsi hba-driver for our fibre-channel
-> HBAs and make it part of the kernel source tree. Because of IP
-> related issues, we can only release one part of the sources with
-> GPL. We want to release the other part in the binary format (.o)
-> as a library which needs to be linked with the first part.
-> If somebody can advise me on how to go about this, I would
-> appreciate it.
-> 
-> I went through the "SubmittingDrivers" file
-> which does not talk about this kind of special cases.
+	linux-2.4.9/drivers/block/genhd.c contains a call to
+net_dev_init, which appears to be unnecessary, because net_dev_init
+will be called automatically by the first call to register_netdevice
+if net_dev_init has not already been called (register_netdevice is
+in net/core/dev.c).  So, I just removed the call to net_dev_init
+from drivers/block/genhd.c, and the resulting system seem to be
+work fine, but I thought I ought to ask if anyone sees a specific
+problem with doing this, and if that problem would be avoided by
+just putting a "module_init(net_dev_init);" line at the bottom of
+net/core/dev.c.
 
-I for one would not buy such a thing, for the most practical of reasons.
-Open source advocates are often seem as idealists. In general they are
-the most pragmatic of people.
-
-In the past year 90% of my serious problems have come from three pieces
-of software - 2 text to speech packages, and Dialogic's driver from
-Linux. These are the only three "binary only" things I have used, and I
-am powerless to fix any of the issues causing me grief. My experience is
-not unique - its commonplace.
-
-If there is an open source alternative I think most serious Linux users
-will choose that over any closed option. The closed option seldom has
-enough advantage to overcome the severe risk inherent in an option that
-means trusting someone who does not have your best interests at heart.
-If you make your driver completely open source, we would still have to
-trust your hardware. Experience says that isn't such a big problem. Few
-pieces of computer hardware, which actually reach the market, have
-proven so bad that the problems cannot be worked around (perhaps with a
-little performance loss) in software. Closed hardware doesn't scare
-seasoned users like closed software.
-
-That said.... If your closed code actually consists of something
-dwownloaded to the card, you may still be able to supply a GPL kernel
-bit, and a binary only downloaded bit. If you want an integral part of
-your host driver code to be binary only, you can't do that.
-
-Regards,
-Steve
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

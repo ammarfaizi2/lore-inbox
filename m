@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVBNXcx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVBNXcs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbVBNXcx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 18:32:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVBNXaA
+	id S261359AbVBNXcs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 18:32:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbVBNX3r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 18:30:00 -0500
-Received: from smartmx-02.inode.at ([213.229.60.34]:63620 "EHLO
-	smartmx-02.inode.at") by vger.kernel.org with ESMTP id S261346AbVBNX3U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 18:29:20 -0500
-From: Gerold Jury <gjury@inode.at>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK] upgrade will be needed
-Date: Tue, 15 Feb 2005 00:29:15 +0100
-User-Agent: KMail/1.7.2
-Cc: Larry McVoy <lm@bitmover.com>
-References: <20050214020802.GA3047@bitmover.com> <200502142324.43269.gjury@inode.at> <20050214225704.GD16029@bitmover.com>
-In-Reply-To: <20050214225704.GD16029@bitmover.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 14 Feb 2005 18:29:47 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:57495 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261290AbVBNX2k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 18:28:40 -0500
+Subject: Re: [ANNOUNCE] hotplug-ng 001 release
+From: Lee Revell <rlrevell@joe-job.com>
+To: Greg KH <gregkh@suse.de>
+Cc: Prakash Punnoor <prakashp@arcor.de>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Patrick McFarland <pmcfarland@downeast.net>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20050214231605.GA13969@suse.de>
+References: <20050211004033.GA26624@suse.de> <420C054B.1070502@downeast.net>
+	 <20050211011609.GA27176@suse.de>
+	 <1108354011.25912.43.camel@krustophenia.net>
+	 <4d8e3fd305021400323fa01fff@mail.gmail.com> <42106685.40307@arcor.de>
+	 <1108422240.28902.11.camel@krustophenia.net>
+	 <20050214231605.GA13969@suse.de>
+Content-Type: text/plain
+Date: Mon, 14 Feb 2005 18:28:35 -0500
+Message-Id: <1108423715.32293.2.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502150029.15993.gjury@inode.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->if they really need the more powerful features.  Or we could donate
->some on a case by case basis.
->
->If the hackers who are using BK can reach agreement that it would be
->better if the BK they had didn't move forward unless they got commercial
->seats then we could start moving towards a license on the free product
->that was less restrictive.  What that would mean is that the BK you have
+On Mon, 2005-02-14 at 15:16 -0800, Greg KH wrote:
+> > I don't see why so much effort goes into improving boot time on the
+> > kernel side when the most obvious user space problem is ignored.
+> 
+> What user space problem is that?
 
-I want to pay the fee for Linus and Alan.
+That init scripts with no interdependencies are run sequentially rather
+than in parallel.
 
-Regards
-Gerold
+There was an article from IBM a while back with a neat hack that used a
+parallel make to fire off groups of init scripts in parallel.  I would
+expect more interest in this from the distros.
+
+Lee
+

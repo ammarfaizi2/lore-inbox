@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289004AbSAUCLq>; Sun, 20 Jan 2002 21:11:46 -0500
+	id <S289010AbSAUCMg>; Sun, 20 Jan 2002 21:12:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289010AbSAUCLh>; Sun, 20 Jan 2002 21:11:37 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:18180 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S289004AbSAUCLX>; Sun, 20 Jan 2002 21:11:23 -0500
-Date: Mon, 21 Jan 2002 02:13:55 +0000
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: Hardwired drivers are going away?
-Message-ID: <20020121021355.GA60801@compsoc.man.ac.uk>
-In-Reply-To: <3C4B6F24.C2750F51@zip.com.au> <32505.1011578008@kao2.melbourne.sgi.com>
+	id <S289011AbSAUCM1>; Sun, 20 Jan 2002 21:12:27 -0500
+Received: from ns.suse.de ([213.95.15.193]:46607 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289010AbSAUCMR>;
+	Sun, 20 Jan 2002 21:12:17 -0500
+Date: Mon, 21 Jan 2002 03:12:11 +0100
+From: Dave Jones <davej@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: martin.macok@underground.cz, linux-kernel@vger.kernel.org
+Subject: Re: [andrewg@tasmail.com: remote memory reading through tcp/icmp]
+Message-ID: <20020121031211.B29830@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	"David S. Miller" <davem@redhat.com>, martin.macok@underground.cz,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020121015209.A26413@sarah.kolej.mff.cuni.cz> <20020120.175204.18636524.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <32505.1011578008@kao2.melbourne.sgi.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Bendik Singers - Afrotid
-X-Toppers: N/A
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020120.175204.18636524.davem@redhat.com>; from davem@redhat.com on Sun, Jan 20, 2002 at 05:52:04PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 21, 2002 at 12:53:28PM +1100, Keith Owens wrote:
+On Sun, Jan 20, 2002 at 05:52:04PM -0800, David S. Miller wrote:
+ > Pretty simple to fix, from Andi Kleen:
+ > 
+ > --- linux-work/net/ipv4/icmp.c-o	Tue Jan 15 11:05:17 2002
+ > +++ linux-work/net/ipv4/icmp.c	Sun Jan 20 23:31:29 2002
+ > @@ -495,7 +495,7 @@
+ >  	icmp_param.data.icmph.checksum=0;
+ >  	icmp_param.csum=0;
+ >  	icmp_param.skb=skb_in;
+ > -	icmp_param.offset=skb_in->nh.raw - skb_in->data;
+ > +	icmp_param.offset=skb_in->data - skb_in->nh.raw;
 
-> >How often have we seen nonsensical backtraces here because
-> >modules were involved?   Possibly we can include a table
-> >of module base addresses in the Oops output and teach ksymoops
-> >about it.
-> 
-> You see nonsensical backtraces because people persist in using the oops
-> decode option of klogd which is broken when faced with modules.  Turn
-> off klogd oops (klogd -x) and you get a raw backtrace which ksymoops
-> can handle.  Guess why these entries are in /proc/ksyms?
-> 
-> c48a2300 __insmod_3c589_cs_S.bss_L4	[3c589_cs]
-
-and quite often the user has unloaded / loaded modules in the meantime
-and the oops is useless.
-
-It would be nice if klogd's oops detection just passed everything to ksymoops
-untouched, and stored everything somewhere using -m
-
-I don't see any reason why the internal profiler can't have an extended EIP
-range to catch module samples either. Perhaps I'm missing something. Perhaps
-no one cares enough ...
-
-regards
-john
+ With this fix, I'm seeing lots of really strange things happen.
+ When eth0 comes up, the box slows down to a crawl.
+ 5 minutes later when it gets to starting NIS, the
+ broadcast address is bombed with portmap connections.
 
 -- 
-"I hope you will find the courage to keep on living 
- despite the existence of this feature."
-	- Richard Stallman
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

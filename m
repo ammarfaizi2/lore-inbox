@@ -1,73 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262536AbUCRLam (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 06:30:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbUCRLam
+	id S262538AbUCRLfH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 06:35:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbUCRLfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 06:30:42 -0500
-Received: from www01.ies.inet6.fr ([62.210.153.201]:60856 "EHLO
-	smtp.ies.inet6.fr") by vger.kernel.org with ESMTP id S262528AbUCRLaW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 06:30:22 -0500
-Message-ID: <40598849.1070409@inet6.fr>
-Date: Thu, 18 Mar 2004 12:30:17 +0100
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Michael Frank <mhf@linuxmail.org>
-Cc: kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: SiS APIC, hacker looking for docs/help, was : Re: 2.6.4 under heavy
- ioload disables sis5513 DMA
-References: <opr410iiid4evsfm@smtp.pacific.net.th>
-In-Reply-To: <opr410iiid4evsfm@smtp.pacific.net.th>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Mar 2004 06:35:07 -0500
+Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:27102 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262538AbUCRLe5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 06:34:57 -0500
+Date: Thu, 18 Mar 2004 12:34:53 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: True  fsync() in Linux (on IDE)
+Message-ID: <20040318113453.GB6864@merlin.emma.line.org>
+Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1079572101.2748.711.camel@abyss.local> <20040318064757.GA1072@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040318064757.GA1072@suse.de>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Frank wrote the following on 03/18/2004 11:52 AM :
-> Happens every few hours with heavy io and cpu load:
-> 
-> hda: dma_timer_expiry: dma status == 0x21
-> hda: DMA timeout error
-> hda: dma timeout error: status=0xd0 { Busy }
-> 
-> hda: DMA disabled
-> ide0: reset: success
-> 
-> DMA auto-reenabled by boot time hdparm -k
-> 
+On Thu, 18 Mar 2004, Jens Axboe wrote:
 
-Hum, I'm wondering if -k is fully functionnal (hdparm man page hints 
-that this isn't supported by all drives and I don't remember any 
-success/failure stories here).
+> Chris and I have working real fsync() with the barrier patches. I'll
+> clean it up and post a patch for vanilla 2.6.5-rc today.
 
-> lspci -vv
-> 
-> 00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] 
+This is good news.
 
-SiS chipset : is APIC functionnal ? (cat /proc/interrupts)
+The barrier stuff is long overdue^UI'm looking forward to this.
 
-If not, I believe this might be the problem and the solutions still 
-eludes me (I don't think the problem lies in the IDE driver but in APIC 
-support).
+I'm using the term "TCQ" liberally although it may be inexact for older
+(parallel) ATA generations:
 
-I've 2 SiS based mainboards forced to use XT-PIC (SiS735 and SiS645 
-based) here but without this kind of problems (everything works until I 
-start to add to many PCI cards in one system...). I'm willing to start 
-hacking around (mostly on the 645 as the 735 is an always-on system).
+All these ATA fsync() vs. write cache issues have been open for much too
+long - no reproaches, but it's a pity we haven't been able to have data
+consistency for data bases and fast bulk writes (that need the write
+cache without TCQ) in the same drive for so long. I have seen Linux
+introduce TCQ for PATA early in 2.5, then drop it again. Similarly,
+FreeBSD ventured into TCQ for ATA but appears to have dropped it again
+as well.
 
-Is reading the arch/i386/kernel/*pic* files (and probably others) enough 
-to start or is there somewhere else to look for information ?
+May I ask that the information whether a particular driver (file system,
+hardware) supports write barriers be exposed in a standard way, for
+instance in the Kconfig help lines?
 
-Regards,
+If I recall correctly from earlier patches, the barrier stuff is 1.
+command model (ATA vs.  SCSI) specific and 2. driver and hardware
+specific and 3. requires that the file system knows how to use this
+properly.
+
+Given that file systems have certain write ordering requirements if they
+are to be recoverable after a crash, I suspect Linux has _not_ been able
+to guarantee on-disk consistency for any time for years, which means
+that a crash in the wrong moment can kill the file system itself if the
+drive has reordered writes - only ext3 without write cache seems to
+behave better in this respect (data=ordered).
+
+I would like to have a document that shows which file system, which
+chipset driver for PATA, which chipset driver for ATA, which low-level
+SCSI host adaptor driver, which file system support write barrier. We
+will probably also need to check if intermediate layers such as md and
+dm-mod propagate such information.
+
+Given the necessary information, I can hack together a HTML document to
+provide this information; this offer has however not seen any response
+in the past. I am however not acquainted with the drivers and need
+information from the kernel hackers. Without such support, such a
+documentation effort is doomed.
+
+BTW, I should very much like to be able to trace the low-level write
+information that goes out to the device, possibly including the payload
+- something like tcpdump for the ATA or SCSI commands that are sent to
+the driver. Is such a facility available?
+
 -- 
-Lionel Bouton - inet6
----------------------------------------------------------------------
-    o              Siege social: 51, rue de Verdun - 92158 Suresnes
-   /      _ __ _   Acces Bureaux: 33 rue Benoit Malon - 92150 Suresnes
-  / /\  /_  / /_   France
-  \/  \/_  / /_/   Tel. +33 (0) 1 41 44 85 36
-   Inetsys S.A.    Fax  +33 (0) 1 46 97 20 10
+Matthias Andree
 
+Encrypt your mail: my GnuPG key ID is 0x052E7D95

@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275636AbTHOA3b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 20:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275635AbTHOA3a
+	id S275610AbTHOA0l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 20:26:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275619AbTHOAY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 20:29:30 -0400
-Received: from imap.gmx.net ([213.165.64.20]:31427 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S275628AbTHOA1d convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 20:27:33 -0400
-Content-Type: text/plain;
-  charset="utf-8"
-From: Akon <akon@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Double-Harvard Architectures
-Date: Fri, 15 Aug 2003 02:26:36 +0200
-User-Agent: KMail/1.4.3
-References: <000601c362bf$7eadc9a0$62a14943@joe> <200308142009.53875.admin@kentonet.net>
-In-Reply-To: <200308142009.53875.admin@kentonet.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200308150226.36787.akon@gmx.net>
+	Thu, 14 Aug 2003 20:24:27 -0400
+Received: from mail.kroah.org ([65.200.24.183]:32733 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S275615AbTHOAWk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 20:22:40 -0400
+Date: Thu, 14 Aug 2003 17:17:27 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test3: extra ttyS in /sys/class/tty
+Message-ID: <20030815001727.GB4776@kroah.com>
+References: <200308141855.31137.arvidjaar@mail.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200308141855.31137.arvidjaar@mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiall,
+On Thu, Aug 14, 2003 at 06:55:31PM +0400, Andrey Borzenkov wrote:
+> {pts/1}% dmesg | grep ttyS
+> ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+> ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+> ttyS2 at I/O 0xd000 (irq = 9) is a 16550A
+> 
+> {pts/1}% l -d /sys/class/tty/ttyS*
+> /sys/class/tty/ttyS0/  /sys/class/tty/ttyS1/  /sys/class/tty/ttyS2/
+> /sys/class/tty/ttyS3/
+> {pts/1}% cat /sys/class/tty/ttyS*/dev
+> 4:64
+> 4:65
+> 4:66
+> 4:67
+> 
+> not that I find sysfs that useful for cdevs in general but I am just curiouos 
+> - where does it come from?
 
-does someone have experience in porting some Kernel to Double-Harvard-Arch?
-I don't think Lx was ever ported to such a kind of µP (please correct me!), 
-all I found on the web were several ports to embedded, but still vNeumann-, 
-or Single-Harvard µPs.
+Someone registered a ttyS3, and they don't have to say they are doing so
+in the system log :)
 
-DH means, that the µprocessor (typically a DSP) has a seperated program 
-memory, a seperate (X)Data memory and a seperate (Y)Data mem, so it can 
-fetch two data adresses simultanely in one cycle via two physically 
-independent mem ports. For DSPs, that's a common behaviour!
+> I have irtty_sir loaded if it matters.
 
-So, obviously one (me) will have to integrate two flavours of malloc() 
-into the Kernel (vmallocX() and vmallocY()). Of course, i could leave this 
-issue to a specialized (uC)glibc, but i think, it should be the job of the 
-kernel to keep the oversight on memory issues...;)
+Don't know, does it register a tty driver with the tty core?
 
-Any ideas how to manage that trouble as "frictionless" as can?,
-And¡
+thanks,
 
+greg k-h

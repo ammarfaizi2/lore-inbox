@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272006AbTGYKjj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 06:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272007AbTGYKjj
+	id S272007AbTGYKpj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 06:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272008AbTGYKpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 06:39:39 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:15885 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S272006AbTGYKji (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 06:39:38 -0400
-Date: Fri, 25 Jul 2003 12:54:24 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Tomi Lapinlampi <lapinlam@vega.lnet.lut.fi>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Nokia A036 and the GPL
-In-Reply-To: <Pine.LNX.4.10.10307250319000.23423-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.44.0307251244070.717-100000@serv>
-References: <Pine.LNX.4.10.10307250319000.23423-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Jul 2003 06:45:35 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:14465 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S272007AbTGYKpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 06:45:34 -0400
+Date: Fri, 25 Jul 2003 12:10:25 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200307251110.h6PBAPVO000497@81-2-122-30.bradfords.org.uk>
+To: john@grabjohn.com, ml@basmevissen.nl
+Subject: Re: time for some drivers to be removed?
+Cc: diegocg@teleline.es, linux-kernel@vger.kernel.org, rpjday@mindspring.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Fri, 25 Jul 2003, Andre Hedrick wrote:
-
-> Who cares, the world according to Roman .. it all should be free and to
-> pursue litigation of any kind will offend people and they will not use
-> Linux.
-
-Sorry to anyone, who doesn't understand the context, but on irc I tried to 
-explain to Andre that there might be more civil and effective ways to 
-solve a conflict than immediately pursuing litigation, but Andre has a 
-hard time to understand this.
-
-> On Fri, 25 Jul 2003, Tomi Lapinlampi wrote:
+> > A CONFIG_KNOWN_BROKEN option is a good thing, in the case where,
+> > E.G. a SCSI driver is broken, and will randomly corrupt data, but
+> > otherwise compiles and appears to work.  
 >
-> > How should I (and the Linux community) proceed to solve this problem?
-> > Perhaps someone at Nokia is reading this?
+> I agree on that.
+>
+> Maybe I should make my point more clear. What bothers me is that a lot 
+> of (early 2.4) kernel versions could easely be configured non-compiling. 
+> Not just for exotic configurations, but also when building for an 
+> average PC.
+>
+> That is very confusing (and anoying) for all kernel builders, as you can 
+> not always easely tell if the kernel doesn't compile because of 
+> misconfiguration or because of code errors.
+>
+> I hope that this can be avoided for 2.6.0. "Fixing" device drivers by 
+> calling them obsolete, is not the right way. Because drivers that are 
+> broken and fixed by nobody might not be obsolete.
+>
+> So for 2.6.0, I propose to only mark obsolete what is really obsolete. 
+> Maybe everything that is broken since 2.2 and nobody complained about 
+> it. Then, mark broken what is broken for some time and nobody is 
+> (currenly) willing/able to fix.
 
-Contacting Nokia and making them aware of this problem, would be a good 
-first step.
+Hmmm, maybe it's just me, but I think of obsolete as meaning something
+that's due to be removed whether it works or not, because it's
+functionality is no longer required.  I thought we had
+CONFIG_EXPERIMENTAL for not sufficiently tested code.
 
-bye, Roman
+It always used to be that with no CONFIG_EXPERIMENTAL tagged code
+compiled in, it was very rare to get a compile failiure.  You could
+rely on any kernel building, as long as you didn't touch
+CONFIG_EXPERIMENTAL.
 
+Unfortunately, what seems to have happened is that things that really
+should be tagged with CONFIG_EXPERIMENTAL, are so desired by a lot of
+users that they are being moved out of the experimental phase too
+soon.
+
+John.

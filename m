@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264459AbUA3Xna (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 18:43:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264463AbUA3Xna
+	id S262446AbUAaARL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 19:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264441AbUAaARK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 18:43:30 -0500
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:51391 "EHLO
-	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
-	id S264459AbUA3Xn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 18:43:29 -0500
-Date: Fri, 30 Jan 2004 15:43:16 -0800
-From: Tim Hockin <thockin@sun.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: arjanv@redhat.com, thomas.schlichter@web.de, thoffman@arnor.net,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.2-rc2-mm2
-Message-ID: <20040130234316.GI9155@sun.com>
-Reply-To: thockin@sun.com
-References: <1075490624.4272.7.camel@laptop.fenrus.com> <20040130114701.18aec4e8.akpm@osdl.org> <20040130201731.GY9155@sun.com> <20040130123301.70009427.akpm@osdl.org> <20040130211256.GZ9155@sun.com> <20040130140024.4b409335.akpm@osdl.org> <20040130223105.GC9155@sun.com> <20040130150819.2425386b.akpm@osdl.org> <20040130232103.GF9155@sun.com> <20040130153149.00bcb210.akpm@osdl.org>
-Mime-Version: 1.0
+	Fri, 30 Jan 2004 19:17:10 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20296 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262446AbUAaARI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 19:17:08 -0500
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Ulrich Drepper <drepper@redhat.com>, john stultz <johnstul@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
+References: <1075344395.1592.87.camel@cog.beaverton.ibm.com>
+	<401894DA.7000609@redhat.com>
+	<20040129132623.GB13225@mail.shareable.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 30 Jan 2004 17:10:13 -0700
+In-Reply-To: <20040129132623.GB13225@mail.shareable.org>
+Message-ID: <m1ekthx9ju.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040130153149.00bcb210.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 30, 2004 at 03:31:49PM -0800, Andrew Morton wrote:
-> > The caller in fs/nfsd/nfsfh.c still needs to check the return value and do
-> > something with it, or all this is just dumb.
+Jamie Lokier <jamie@shareable.org> writes:
+
+> Ulrich Drepper wrote:
+> > ~ alternatively use the symbol table the vdso has.  Export the new code
+> > only via the symbol table.  No fixed address for the function, the
+> > runtime gets it from the symbol table.  glibc will use weak symbol
+> > references; if the symbol isn't there, the old code is used.  This will
+> > require that every single optimized syscall needs to be handled special.
+> > 
+> > 
+> > I personally like the first approach better.  The indirection table can
+> > maintained in sync with the syscall table inside the kernel.  It all
+> > comes at all times from the same source.  The overhead of the memory
+> > load should be neglectable.
 > 
-> We can add that to Neil's todo list ;)
+> I like the second approach more.  You can change glibc to look up the
+> weak symbol for _all_ syscalls, then none of them are special and it
+> will work with future kernel optimisations.
 
-The final patch of this plus my original (which included the
-EXPORT_SYMBOL()s) looks good to me.
+There is one more piece to consider with either approach.  The
+calling conventions.
 
+With the x86-64 optimized vsyscall the syscall number does
+not need to be placed into a register, because you have used
+the proper entry point.  For any syscall worth tuning in
+user space I suspect that level of optimization would be
+beneficial.  A fast call path that does not waste a register.
 
--- 
-Tim Hockin
-Sun Microsystems, Linux Software Engineering
-thockin@sun.com
-All opinions are my own, not Sun's
+Eric

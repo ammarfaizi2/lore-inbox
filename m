@@ -1,34 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268511AbRIDVnt>; Tue, 4 Sep 2001 17:43:49 -0400
+	id <S269481AbRIDWCm>; Tue, 4 Sep 2001 18:02:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269318AbRIDVnj>; Tue, 4 Sep 2001 17:43:39 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:3998 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S268511AbRIDVn1>;
-	Tue, 4 Sep 2001 17:43:27 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 4 Sep 2001 21:43:43 GMT
-Message-Id: <200109042143.VAA57901@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, bcrl@redhat.com
-Subject: Re: [resend PATCH] reserve BLKGETSIZE64 ioctl
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S269428AbRIDWCd>; Tue, 4 Sep 2001 18:02:33 -0400
+Received: from mx9.port.ru ([194.67.57.19]:62399 "EHLO mx9.port.ru")
+	by vger.kernel.org with ESMTP id <S269421AbRIDWCS>;
+	Tue, 4 Sep 2001 18:02:18 -0400
+From: Samium Gromoff <_deepfire@mail.ru>
+Message-Id: <200109050225.f852P6g07976@vegae.deep.net>
+Subject: procFS performance
+To: linux-kernel@vger.kernel.org
+Date: Wed, 5 Sep 2001 02:25:05 +0000 (UTC)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From bcrl@redhat.com Tue Sep  4 22:54:05 2001
+         Why procfs-related apps eats so much performance?
+   for example - top eats 4.1% of p166 cpu. Also they seem to be a cause
+   for big latencies...
+      is this sane?
 
-    On Tue, 4 Sep 2001 Andries.Brouwer@cwi.nl wrote:
-
-    > Then I am happy (as long as you don't take a reserved number).
-
-    So the patch below is okay?
-
-Roughly speaking, yes.
-
-(But why do you insist on using 110?
-I wrote "A jump here: 108-111 have been used" because that is
-what I recall: three groups using 108-109 and one shifting to
-110-111. I have no details, so may misremember, but still..)
-
-
-Andries

@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270524AbUJUD26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270162AbUJUD27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270524AbUJUD26 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 23:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269097AbUJUD2Z
+	id S270162AbUJUD27 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 23:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270454AbUJUD2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 23:28:25 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:36193 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S270162AbUJUDKz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 23:10:55 -0400
-Message-ID: <417728B0.3070006@yahoo.com.au>
-Date: Thu, 21 Oct 2004 13:10:40 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@novell.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: ZONE_PADDING wastes 4 bytes of the new cacheline
-References: <20041021011714.GQ24619@dualathlon.random>
-In-Reply-To: <20041021011714.GQ24619@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Oct 2004 23:28:06 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:59365 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S270527AbUJUDIZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 23:08:25 -0400
+Subject: [PATCH 5/5]8250_pnp fix
+From: Li Shaohua <shaohua.li@intel.com>
+To: ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Cc: Len Brown <len.brown@intel.com>, Adam Belay <ambx1@neo.rr.com>,
+       Matthieu <castet.matthieu@free.fr>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>
+Content-Type: multipart/mixed; boundary="=-VicswwPBdwvbN1Rvosxi"
+Message-Id: <1098327571.6132.228.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 21 Oct 2004 11:00:08 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> I don't see why this 'int x' exists, alignment should really work fine
-> even with empty structure (works with my compiler with an userspace
-> test, please double check).
-> 
-> Index: linux-2.5/include/linux/mmzone.h
-> ===================================================================
-> RCS file: /home/andrea/crypto/cvs/linux-2.5/include/linux/mmzone.h,v
-> retrieving revision 1.67
-> diff -u -p -r1.67 mmzone.h
-> --- linux-2.5/include/linux/mmzone.h	19 Oct 2004 14:58:00 -0000	1.67
-> +++ linux-2.5/include/linux/mmzone.h	21 Oct 2004 01:14:20 -0000
-> @@ -35,7 +35,6 @@ struct pglist_data;
->   */
->  #if defined(CONFIG_SMP)
->  struct zone_padding {
-> -	int x;
->  } ____cacheline_maxaligned_in_smp;
->  #define ZONE_PADDING(name)	struct zone_padding name;
->  #else
 
-Perhaps to keep old compilers working? Not sure.
+--=-VicswwPBdwvbN1Rvosxi
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I think it is common to use a zero length array...?
+Hi,
+This is a small fix found when debugging the 8250 driver in IA64.
 
-	int x[0];
+Thanks,
+Shaohua
 
-Although that maybe that is only used when one requires a
-handle on the address.
+Signed-off-by: Li Shaohua <shaohua.li@intel.com>
 
-Nick
+--- 2.6/drivers/serial/8250_pnp.c.stg4	2004-09-28 11:27:42.371840736
++0800
++++ 2.6/drivers/serial/8250_pnp.c	2004-09-28 11:28:14.036027048 +0800
+@@ -407,7 +407,7 @@ serial_pnp_probe(struct pnp_dev * dev, c
+ 	serial_req.irq = pnp_irq(dev,0);
+ 	serial_req.port = pnp_port_start(dev, 0);
+ 	if (HIGH_BITS_OFFSET)
+-		serial_req.port = pnp_port_start(dev, 0) >> HIGH_BITS_OFFSET;
++		serial_req.port_high = pnp_port_start(dev, 0) >> HIGH_BITS_OFFSET;
+ #ifdef SERIAL_DEBUG_PNP
+ 	printk("Setup PNP port: port %x, irq %d, type %d\n",
+ 	       serial_req.port, serial_req.irq, serial_req.io_type);
+
+
+--=-VicswwPBdwvbN1Rvosxi
+Content-Disposition: attachment; filename=8250.patch
+Content-Type: text/x-patch; name=8250.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- 2.6/drivers/serial/8250_pnp.c.stg4	2004-09-28 11:27:42.371840736 +0800
++++ 2.6/drivers/serial/8250_pnp.c	2004-09-28 11:28:14.036027048 +0800
+@@ -407,7 +407,7 @@ serial_pnp_probe(struct pnp_dev * dev, c
+ 	serial_req.irq = pnp_irq(dev,0);
+ 	serial_req.port = pnp_port_start(dev, 0);
+ 	if (HIGH_BITS_OFFSET)
+-		serial_req.port = pnp_port_start(dev, 0) >> HIGH_BITS_OFFSET;
++		serial_req.port_high = pnp_port_start(dev, 0) >> HIGH_BITS_OFFSET;
+ #ifdef SERIAL_DEBUG_PNP
+ 	printk("Setup PNP port: port %x, irq %d, type %d\n",
+ 	       serial_req.port, serial_req.irq, serial_req.io_type);
+
+--=-VicswwPBdwvbN1Rvosxi--
+

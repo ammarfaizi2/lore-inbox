@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264290AbTLBDVz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 22:21:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbTLBDVz
+	id S264299AbTLBDYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 22:24:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264300AbTLBDYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 22:21:55 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48902 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264290AbTLBDVw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 22:21:52 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (Bill Davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: Random SIGSEGVs and 2.6.0-test10
-Date: 2 Dec 2003 03:10:42 GMT
-Organization: I need to put my ORGANIZATION here.
-Message-ID: <bqgvri$8mh$1@gatekeeper.tmr.com>
-References: <3FC559AB.7000806@sh0n.net>
-X-Trace: gatekeeper.tmr.com 1070334642 8913 192.168.12.62 (2 Dec 2003 03:10:42 GMT)
-X-Complaints-To: abuse@tmr.com
+	Mon, 1 Dec 2003 22:24:16 -0500
+Received: from bay7-f71.bay7.hotmail.com ([64.4.11.71]:39690 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S264299AbTLBDYN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 22:24:13 -0500
+X-Originating-IP: [209.98.246.157]
+X-Originating-Email: [joeblow341@hotmail.com]
+From: "Joe Blow" <joeblow341@hotmail.com>
+To: jgarzik@pobox.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Promise 20378 + 2.6.0-test10 + libata patch 1
+Date: Tue, 02 Dec 2003 03:24:11 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY7-F71W9F0qnqEBQd00001253@hotmail.com>
+X-OriginalArrivalTime: 02 Dec 2003 03:24:11.0719 (UTC) FILETIME=[C1257570:01C3B883]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3FC559AB.7000806@sh0n.net>, Shawn Starr  <spstarr@sh0n.net> wrote:
->It's funny you mention random userland SIGSEGV's.
->
->I don't know if this some of the fallout wrt CONFIG_PREEMPT being 
->enabled or not but using vmware and running my ncurses mp3 player seems 
->to trigger an oddity:
->
->Apon using vmware, it may sometimes crap out with a internal bug # and 
->in doing so, sometimes my mp3 player will segfault for no reason. This 
->randomly happens. I do have preempt enabled. Even more odd is the fact 
->that even if I have only say 4500K left out of 576MB, there is 0 swap 
->usage. The kernel malloc fails if there is no physical memory? If I have 
->a huge swap file/disk wouldn't it malloc some of that virtual memory? 
->There is no OOM kill either happening since there's no log of that from 
->the kernel saying it did an OOM kill.
->
->I would certainly like to debug any weird oddities. My systems seem to 
->be good test grounds for such things :-)
+>No plans.
 
-1 - You can play with swappiness which should get swap used
-2 - I doubt that's the problem
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Curiious:  How come when I disable RAID support in the BIOS and just have it 
+<supposedly> act just like a dumb IDE controller, why aren't the drives 
+aren't recognized that way?  The BIOS claims it is plugging them in as plain 
+IDE drives, or is something still different about this controller, even in 
+that mode?
+
+>Using standard kernel drivers, Promise RAID _is_ md.
+
+<confused> I understand what md is, but I don't understand how Promise RAID 
+is md.  If I set the controller to RAID in the BIOS, and I configure a RAID 
+1 mirror, for example, how is that md?  In this mode, isn't one copy of the 
+data being sent to the controller and the controller "intelligence" figures 
+out that one copy of the data goes to each drive?  Where is if it were 
+providing two drives to the OS, the md driver would have to send two copies 
+of the data across the bus, one to each drive?
+
+Perhaps this is a dumb question, but why are these RAID controller companies 
+seemingly making this so difficult?  To me it seems like the most logical 
+way to design these controllers would be to make them look like standard IDE 
+controllers to the system and hide the RAID complexities inside the 
+controller intelligence.  The most expensive part of these controllers for 
+the manufacturers has to be in providing drivers and support for all the 
+different, primarily MS, OSes.  I must be missing something.
+
+_________________________________________________________________
+Gift-shop online from the comfort of home at MSN Shopping!  No crowds, free 
+parking.  http://shopping.msn.com
+

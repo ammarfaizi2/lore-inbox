@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263805AbUA3Ivm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 03:51:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266322AbUA3Ivm
+	id S266322AbUA3JTs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 04:19:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266361AbUA3JTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 03:51:42 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35591 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263805AbUA3Ivk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 03:51:40 -0500
-Date: Fri, 30 Jan 2004 08:51:36 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: root <root@ohlone.ucsc.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: net-pf-10, 2.6.1
-Message-ID: <20040130085136.C9894@flint.arm.linux.org.uk>
-Mail-Followup-To: root <root@ohlone.ucsc.edu>, linux-kernel@vger.kernel.org
-References: <E1AmU8a-00005E-00@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E1AmU8a-00005E-00@localhost>; from root@ohlone.ucsc.edu on Fri, Jan 30, 2004 at 12:36:28AM -0800
+	Fri, 30 Jan 2004 04:19:48 -0500
+Received: from zone3.gcu-squad.org ([217.19.50.74]:64527 "EHLO
+	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S266322AbUA3JTr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 04:19:47 -0500
+Message-ID: <1075454335.401a217f3e0d8@imp.gcu.info>
+Date: Fri, 30 Jan 2004 10:18:55 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: Re: [BK PATCH] i2c driver fixes for 2.6.2-rc2
+References: <20040127233242.GA28891@kroah.com> <20040129004402.GC5830@werewolf.able.es> <1075365845.4018c7d5353d7@imp.gcu.info> <20040129222135.GC5768@werewolf.able.es>
+In-Reply-To: <20040129222135.GC5768@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: Internet Messaging Program (IMP) 3.2.2 / FreeBSD-4.6.2
+X-Originating-IP: 62.23.237.137
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 30, 2004 at 12:36:28AM -0800, root wrote:
-> Is there any guidance about this little annoyance yet? Most of the
-> advice I've seen (on other lists) suggests putting the following in
-> modprobe.conf:
-> 
->    install net-pf-10 /bin/true
+Quoting "J.A. Magallon" <jamagallon@able.es>:
 
-You want:
+> w83781d-isa-0290
+> (...)
+> CPU0 Tmp:    +41°C  (high =    +0°C, hyst =   +64°C)   ALARM  
+> CPU1 Tmp:  +44.5°C  (high =   +80°C, hyst =   +75°C)          
+> (...)
+> One question: is there any reference of what do temperature sensors
+> measure exactly ? IE, I have a dual PII box, that temperatures are
+> for both processors, one processor and the mobo, two sensors on
+> different points in the mobo, ??
 
-	alias net-pf-10 off
-
-> Almost all of the error messages from modprobe come exactly on the
-> heels of a call from cron to run exim. But why should exim spawn an 
-> attempt to load this module? And why just with kernel 2.6.1?
-
-Because its trying to see if the kernel supports IPv6 by creating an
-IPv6 socket.  Since the IPv6 module is not available, it correctly
-fails and uses IPv4 instead.
+On the w83781d (and this is true for most similar chips), temp1 is the
+chipset's own temperature, and temp2 and temp3 are remote temperatures.
+What these remote sensors are configured to measure depends on your
+motherboard. On a dual CPU system, I'd expect them to handle one CPU
+each. If I am right, they you will want to edit /etc/sensors.conf for
+proper labels and remove the "ignore temp3" statement that must be
+there.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/
+

@@ -1,74 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293396AbSBYM4D>; Mon, 25 Feb 2002 07:56:03 -0500
+	id <S293393AbSBYNCO>; Mon, 25 Feb 2002 08:02:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293397AbSBYMzy>; Mon, 25 Feb 2002 07:55:54 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:32266 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S293396AbSBYMzm>; Mon, 25 Feb 2002 07:55:42 -0500
-Date: Mon, 25 Feb 2002 13:55:28 +0100
-From: Jan Hubicka <jh@suse.cz>
-To: gcc@gcc.gnu.org
-Cc: Luigi Genoni <kernel@Expansa.sns.it>,
-        "Paul G. Allen" <pgallen@randomlogic.com>,
-        "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: gcc-2.95.3 vs gcc-3.0.4
-Message-ID: <20020225125528.GE1135@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020225024817.Q2434@devserv.devel.redhat.com> <Pine.LNX.4.44.0202251044040.18205-100000@Expansa.sns.it> <20020225045859.S2434@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020225045859.S2434@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.24i
+	id <S293402AbSBYNCE>; Mon, 25 Feb 2002 08:02:04 -0500
+Received: from tolkor.sgi.com ([192.48.180.13]:61906 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S293395AbSBYNBp>;
+	Mon, 25 Feb 2002 08:01:45 -0500
+Message-ID: <3C7A35FF.5040508@sgi.com>
+Date: Mon, 25 Feb 2002 07:02:55 -0600
+From: Stephen Lord <lord@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Andrew Morton <akpm@zip.com.au>
+CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] only irq-safe atomic ops
+In-Reply-To: <3C773C02.93C7753E@zip.com.au.suse.lists.linux.kernel> <1014444810.1003.53.camel@phantasy.suse.lists.linux.kernel> <3C773C02.93C7753E@zip.com.au.suse.lists.linux.kernel> <1014449389.1003.149.camel@phantasy.suse.lists.linux.kernel> <3C774AC8.5E0848A2@zip.com.au.suse.lists.linux.kernel> <3C77F503.1060005@sgi.com.suse.lists.linux.kernel> <3C77FB35.16844FE7@zip.com.au.suse.lists.linux.kernel>,		Andrew Morton's message of "23 Feb 2002 21:36:17 +0100" <p73y9hjq5mw.fsf@oldwotan.suse.de> <3C78045C.668AB945@zip.com.au> <3C780702.9060109@sgi.com> <3C780CDA.FEAF9CB4@zip.com.au> <3C781362.7070103@sgi.com> <3C781909.F69D8791@zip.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, Feb 25, 2002 at 10:46:52AM +0100, Luigi Genoni wrote:
-> > > > At this link:
-> > > >
-> > > >  http://www.cs.utk.edu/~rwhaley/ATLAS/gcc30.html
-> > > >
-> > > > you can find an interesting explanation why code compiled with gcc 3.0 is
-> > > > mostly slower than code compiled with gcc 2.95 on x86 CPUs (but it is
-> > > > really faster on other platforms like alpha and sparc64).
-> > > >
-> > > > basically the main reasons semm to be the scheduler algorithm and the fpu
-> > > > stack handling, but I suggest to read the full study.
+Andrew Morton wrote:
 
-You should understand that this is mostly the special case.
-Atlas loop is hand tuned to compile well with gcc 2.x.x and 3.x.x
-prduces worse code on it.   
+>
+>
+>Unfortunately I seem to have found a bug in existing ext2, a bug
+>in existing block_write_full_page, a probable bug in the aic7xxx
+>driver, and an oops in the aic7xxx driver.  So progress has slowed
+>down a bit :(
+>
 
-I've tracked down and fixed problem that made Atlas loop to run out
-of registers in 3.1.x so it works well again. (It is not that dificult
-to prepare corresponding patch for 3.0.x in case there is interest)
+Try this for the aic driver:
 
-There was nothing wrong with the scheduler and the analysis on page
-are somewhat missleading. Real problem was that gcc "forgotten" about
-posibility of using memory operand in certain cases of commutative
-i387 fp instructions requiring one additional register. (this happent as
-result of two independent major change sin the compiler)
-This register is not available in the loop curefully written for 8 registers
-and causes the performance drop.
+--- 
+/export/xfs1/snapshots-2.5/linus-tree/linux/drivers/scsi/aic7xxx/aic7xxx_lin
+ux.c    Sun Feb 10 19:50:15 2002
++++ linux/drivers/scsi/aic7xxx/aic7xxx_linux.c  Sun Jan 27 21:08:28 2002
+@@ -1646,6 +1646,7 @@
+                scb->platform_data->xfer_len = 0;
+                ahc_set_residual(scb, 0);
+                ahc_set_sense_residual(scb, 0);
++               scb->sg_count = 0;
+                if (cmd->use_sg != 0) {
+                        struct  ahc_dma_seg *sg;
+                        struct  scatterlist *cur_seg;
 
-In specFP perofmrance, gcc 3.0.1 is about 4% better on specfp according to
-the results at http://www.suse.de/~aj/SPEC
-Honza
-> > > >
-> > > >
-> > > > I would be interested to know if this apply to gcc 3.1 too.
-> > >
-> > > Well, concerning reg-stack, you can completely get away without it in 3.1
-> > > by using -mfpmath=sse if you are targeting Pentium 3,4 or Athlon 4,xp,mp
-> > > (for float math, for higher precision only for Pentium 4).
-> > 
-> > Yes, but the lot of users (like me) who are still using Athlon TB, 1330 or
-> > 1400 Mhz, and who do not have any reason to upgrade to MP since the
-> > performance gain is not really considerable, they cannot use sse instructions.
-> > So, what could they do? should they stay with gcc 2.95?
-> 
-> Linux kernel doesn't use floating point math at all, so this is irrelevant
-> on lkml, moving to an more appropriate list...
-> 
-> 	Jakub
+You will need to use ignore white space on this, I had to use cut and 
+paste to
+get it into email.
+
+We hit this once bio got introduced and we maxed out the request size 
+for the
+driver. Justin has the  code in his next aic version.
+
+Steve
+
+

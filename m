@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280796AbRKGOK4>; Wed, 7 Nov 2001 09:10:56 -0500
+	id <S280803AbRKGOM4>; Wed, 7 Nov 2001 09:12:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280799AbRKGOKq>; Wed, 7 Nov 2001 09:10:46 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15891 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280796AbRKGOK2>; Wed, 7 Nov 2001 09:10:28 -0500
-Subject: Re: Using %cr2 to reference "current"
-To: dalecki@evision.ag
-Date: Wed, 7 Nov 2001 14:17:33 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <3BE94C55.AE42D67E@evision-ventures.com> from "Martin Dalecki" at Nov 07, 2001 03:59:33 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S280799AbRKGOMq>; Wed, 7 Nov 2001 09:12:46 -0500
+Received: from femail7.sdc1.sfba.home.com ([24.0.95.87]:57244 "EHLO
+	femail7.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S280800AbRKGOMd>; Wed, 7 Nov 2001 09:12:33 -0500
+From: David Megginson <david@megginson.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E161TWH-0004G9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <15337.16719.669560.795605@megginson.com>
+Date: Wed, 7 Nov 2001 09:12:31 -0500
+To: Massimo Dal Zotto <dz@cs.unitn.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: i8kutils
+In-Reply-To: <200111071242.fA7CgmcY001822@dizzy.dz.net>
+In-Reply-To: <15336.42604.800408.258987@megginson.com>
+	<200111071242.fA7CgmcY001822@dizzy.dz.net>
+X-Mailer: VM 6.92 under 21.5  (beta2) "artichoke" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> somehow encouraged by the compiler comparisions between gcc and intel's
-> free compiler, which use the register passing for anything local
-> to the actual code, where the speed gains are up to 20% im currently
+Massimo Dal Zotto writes:
 
-I was under the impression intels compiler was profoundly non-free ?
+ > I use a small shell script which reads the current volume and changes
+ > it incrementally. As explained in the manpage you should specify your
+ > own commands with the command-line options, for example:
+ > 
+ >   i8kbuttons -u "aumix -v +10" -d "aumix -v -10" -m "aumix -v 0"
 
-> quite inclined to do the redo and finish the experiment.
-> BTW.> It's not just asm fixpus that have to be done for this
-> to work. For example all the c files with -fno-omit-frame-pointer
+Thanks.  I'm using something like this now, but I was hoping to find a
+program that could toggle the mute rather than just dropping the
+volume to 0.  I'll figure out a work-around.
 
-20% is a nice large number
 
-Alan
+All the best,
+
+
+David
+
+-- 
+David Megginson
+david@megginson.com
+

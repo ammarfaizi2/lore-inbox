@@ -1,86 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbUKHGcn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbUKHGvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbUKHGcn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 01:32:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbUKHGcn
+	id S261756AbUKHGvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 01:51:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbUKHGvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 01:32:43 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:12036 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261749AbUKHGck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 01:32:40 -0500
-Date: Mon, 8 Nov 2004 07:30:37 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, ink@jurassic.park.msu.ru
-Subject: Re: Linux 2.4.28-rc2
-Message-ID: <20041108063037.GC783@alpha.home.local>
-References: <20041107173753.GB30130@logos.cnet> <20041108053216.GA19522@alpha.home.local>
+	Mon, 8 Nov 2004 01:51:16 -0500
+Received: from gate.crashing.org ([63.228.1.57]:6529 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261756AbUKHGvN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 01:51:13 -0500
+Subject: Re: fbdev: fix compile of rivafb on __BIG_ENDIAN
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       "Antonino A. Daplas" <adaplas@hotpop.com>
+In-Reply-To: <200411080605.iA865Sr3009548@hera.kernel.org>
+References: <200411080605.iA865Sr3009548@hera.kernel.org>
+Content-Type: text/plain
+Date: Mon, 08 Nov 2004 17:49:56 +1100
+Message-Id: <1099896596.5295.159.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041108053216.GA19522@alpha.home.local>
-User-Agent: Mutt/1.4i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, just replying to myself.
+On Mon, 2004-11-08 at 04:36 +0000, Linux Kernel Mailing List wrote:
+> ChangeSet 1.2606, 2004/11/07 20:36:41-08:00, torvalds@ppc970.osdl.org
+> 
+> 	fbdev: fix compile of rivafb on __BIG_ENDIAN
+> 	
+> 	Typo introduced by latest cleanups by Antonino
+> 
+> 
+> 
+>  riva_hw.c |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> 
+> diff -Nru a/drivers/video/riva/riva_hw.c b/drivers/video/riva/riva_hw.c
+> --- a/drivers/video/riva/riva_hw.c	2004-11-07 22:05:40 -08:00
+> +++ b/drivers/video/riva/riva_hw.c	2004-11-07 22:05:40 -08:00
+> @@ -2112,7 +2112,7 @@
+>  #ifdef __BIG_ENDIAN
+>      /* turn on big endian register access */
+>      if(!(NV_RD32(chip->PMC, 0x00000004) & 0x01000001))
+> -    	NV_WR32(chip->PMC, 0x00000004], 0x01000001);
+> +    	NV_WR32(chip->PMC, 0x00000004, 0x01000001);
+>  #endif
 
-I found an old gcc-2.91.66 which compiled it correctly on this machine. So
-it might be a compiler/binutils issue.
+Since the NV_* macros now use byteswapping readX/writeX, we probably
+want to remove the above bits completely... I suspect as-is, the driver
+no longer works on ppc, but then, I don't have nVidia HW to test any
+more.
 
-Regards,
-willy
+Ben.
 
-On Mon, Nov 08, 200 at 06:32:17AM +0100, Willy Tarreau wrote:
-> Hi Marcelo,
-> 
-> just started a compile on alpha last night and looked at the results this
-> morning. 'make vmlinux' ends with the following errors. It is fairly possible
-> that it comes from my gcc/binutils combination (because I found that I compiled
-> previous kernels with gcc 3.2.3), in which case I will fix it later, but I'd
-> like someone with an alpha to check it on his side before the final release.
-> 
-> Cheers,
-> Willy
-> 
-> bash-2.03$ gcc -v
-> Reading specs from /usr/lib/gcc-lib/alphaev6-unknown-linux-gnu/3.3.4/specs
-> Configured with: ../gcc-3.3.4/configure --prefix=/usr --enable-version-specific-runtime-libs --enable-languages=c,c++ --disable-nls --disable-locale --enable-shared --enable-threads --program-suffix=-3.3 --enable-target-optspace --with-gnu-ld --with-gnu-as
-> Thread model: posix
-> gcc version 3.3.4
-> 
-> bash-2.03$ ld -v
-> GNU ld version 2.11.90.0.15 (with BFD 2.11.90.0.15)
-> 
-> bash-2.03$ make vmlinux
-> ...
-> arch/alpha/mm/mm.o: In function `get_pgd_slow':
-> arch/alpha/mm/mm.o(.text+0x5c): relocation truncated to fit: GPRELHIGH rodata.cst8
-> ipc/ipc.o: In function `sys_semtimedop':
-> ipc/ipc.o(.text+0x3854): relocation truncated to fit: GPRELHIGH rodata.cst8
-> drivers/char/char.o: In function `kmem_vm_nopage':
-> drivers/char/char.o(.text+0xc48): relocation truncated to fit: GPRELHIGH rodata.cst8
-> drivers/char/char.o: In function `vt_ioctl':
-> drivers/char/char.o(.text+0xdf5c): relocation truncated to fit: GPRELHIGH rodata.cst8
-> drivers/char/char.o: In function `rs_wait_until_sent':
-> drivers/char/char.o(.text+0x1e4dc): relocation truncated to fit: GPRELHIGH rodata.cst8
-> drivers/block/block.o: In function `blk_seg_merge_ok':
-> drivers/block/block.o(.text+0x328): relocation truncated to fit: GPRELHIGH rodata.cst8
-> drivers/block/block.o: In function `ll_back_merge_fn':
-> drivers/block/block.o(.text+0x3d8): relocation truncated to fit: GPRELHIGH rodata.cst8
-> drivers/block/block.o: In function `ll_front_merge_fn':
-> drivers/block/block.o(.text+0x4a8): relocation truncated to fit: GPRELHIGH rodata.cst8
-> drivers/block/block.o: In function `ll_merge_requests_fn':
-> drivers/block/block.o(.text+0x578): relocation truncated to fit: GPRELHIGH rodata.cst8
-> drivers/block/block.o: In function `fdc_specify':
-> drivers/block/block.o(.text+0x56c0): relocation truncated to fit: GPRELHIGH rodata.cst8
-> /data/projets/dev/linux/trees/linux-2.4.28-rc2/lib/lib.a(bust_spinlocks.o): In function `bust_spinlocks':
-> bust_spinlocks.o(.text+0x60): relocation truncated to fit: GPRELHIGH rodata.str1.1
-> make: *** [vmlinux] Error 1
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261827AbRFAWm0>; Fri, 1 Jun 2001 18:42:26 -0400
+	id <S261897AbRFAWoh>; Fri, 1 Jun 2001 18:44:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261854AbRFAWmR>; Fri, 1 Jun 2001 18:42:17 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:62992 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S261827AbRFAWmC>; Fri, 1 Jun 2001 18:42:02 -0400
-From: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
-Message-Id: <200106012054.WAA01139@kufel.dom>
-Subject: Re: PATCH: cs4232 isapnp support
-To: kufel!caldera.de!Marcus.Meissner@green.mif.pg.gda.pl (Marcus Meissner)
-Date: Fri, 1 Jun 2001 22:54:57 +0200 (CEST)
-Cc: kufel!lxorguk.ukuu.org.uk!alan@green.mif.pg.gda.pl (Alan Cox),
-        kufel!vger.kernel.org!linux-kernel@green.mif.pg.gda.pl
-In-Reply-To: <20010601193533.A14769@caldera.de> from "Marcus Meissner" at cze 01, 2001 07:35:33 
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261854AbRFAWo0>; Fri, 1 Jun 2001 18:44:26 -0400
+Received: from paloma15.e0k.nbg-hannover.de ([62.159.219.15]:44422 "HELO
+	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S261719AbRFAWoU>; Fri, 1 Jun 2001 18:44:20 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: george anzinger <george@mvista.com>
+Subject: Re: missing sysrq
+Date: Sat, 2 Jun 2001 00:58:52 +0200
+X-Mailer: KMail [version 1.2.2]
+Cc: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10106011050380.2614-100000@coffee.psychology.mcmaster.ca> <20010601203841Z261493-933+3160@vger.kernel.org> <3B1817DD.48A91CB8@mvista.com>
+In-Reply-To: <3B1817DD.48A91CB8@mvista.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <20010601224421Z261719-933+3177@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Am Samstag, 2. Juni 2001 00:31 schrieb george anzinger:
+> Dieter Nützel wrote:
+> > Am Freitag, 1. Juni 2001 16:51 schrieben Sie:
+> > > > Have you tried "echo 1 > /proc/sys/kernel/sysrq"?
+> > > > You need both, compiled in and activation.
+> > >
+> > > no, look at the code.  the enable variable defaults to 1.
+> >
+> > Then there must be a bug?
+> > I get "0" with 2.4.5-ac2 and -ac5 without "echo 1".
+> >
+> > Fresh booted 2.4.5-ac2:
+>
+> Bet not!  Most distro scripts turn it off on the way up.  Sometimes it
+> is a bit hard to find where they do it too.
+>
 
-> This adds ISAPnP support to cs4232.c.
-[...]
-> diff -u -r1.10 cs4232.c
-> --- drivers/sound/cs4232.c	2001/05/27 18:06:09	1.10
-> +++ drivers/sound/cs4232.c	2001/06/01 17:26:52
-[...]
-> @@ -318,22 +325,92 @@
->  static int __initdata mpuirq	= -1;
->  static int __initdata synthio	= -1;
->  static int __initdata synthirq	= -1;
-> -
-> +static int __initdata isapnp	= 1;
+Good point!
 
-According to the comment in include/linux/init.h these are incorrect:
+Easy for SuSE 7.1/7.2 (?).
 
- * For initialized data:
- * You should insert __initdata between the variable name and equal
- * sign followed by value, e.g.:
- *
- * static int init_variable __initdata = 0;
- * static char linux_logo[] __initdata = { 0x32, 0x36, ... };
- *
+SunWave1#grep SYSRQ /etc/rc.config
+ENABLE_SYSRQ="no"
 
-AFAIR, moving the __initdata cause problems with some gcc versions.
-
-Andrzej
-
-
+Thanks,
+	Dieter

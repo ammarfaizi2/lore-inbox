@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVAXRtP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVAXRuI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbVAXRtP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 12:49:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVAXRtP
+	id S261544AbVAXRuI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 12:50:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVAXRuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 12:49:15 -0500
-Received: from [83.102.214.158] ([83.102.214.158]:63970 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S261547AbVAXRs4 (ORCPT
+	Mon, 24 Jan 2005 12:50:08 -0500
+Received: from holomorphy.com ([66.93.40.71]:63144 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261544AbVAXRuC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 12:48:56 -0500
-X-Comment-To: "Stephen C. Tweedie"
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Alex Tomas <alex@clusterfs.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+	Mon, 24 Jan 2005 12:50:02 -0500
+Date: Mon, 24 Jan 2005 09:49:54 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Mark_H_Johnson@raytheon.com
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
        Andrew Morton <akpm@osdl.org>
-Subject: Re: [Ext2-devel] [PATCH] JBD: fix against journal overflow
-References: <m3r7khv3id.fsf@bzzz.home.net>
-	<1106588589.2103.116.camel@sisko.sctweedie.blueyonder.co.uk>
-From: Alex Tomas <alex@clusterfs.com>
-Organization: HOME
-Date: Mon, 24 Jan 2005 20:47:35 +0300
-In-Reply-To: <1106588589.2103.116.camel@sisko.sctweedie.blueyonder.co.uk> (Stephen
- C. Tweedie's message of "Mon, 24 Jan 2005 17:43:09 +0000")
-Message-ID: <m3llaien2g.fsf@bzzz.home.net>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+Subject: Re: Query on remap_pfn_range compatibility
+Message-ID: <20050124174954.GF10843@holomorphy.com>
+References: <OF3F115AC8.F271AB73-ON86256F93.005BCD86@raytheon.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF3F115AC8.F271AB73-ON86256F93.005BCD86@raytheon.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Stephen C Tweedie (SCT) writes:
- SCT> I don't see how that "limit" is relevant here.  wbuf is nothing but the
- SCT> size of the IO batches we pass to ll_rw_block() during that commit
- SCT> phase.  j_free affects the total size of space the *entire* commit has
- SCT> to run into, and (as akpm has commented with a big marker beside it)
- SCT> start_this_handle() reserves a *lot* of headroom for the extra space
- SCT> that may be needed for transaction metadata.
+On Mon, Jan 24, 2005 at 10:54:22AM -0600, Mark_H_Johnson@raytheon.com wrote:
+> I read the messages on lkml from September 2004 about the introduction of
+> remap_pfn_range and have a question related to coding for it. What do you
+> recommend for driver coding to be compatible with these functions
+> (remap_page_range, remap_pfn_range)?
+> For example, I see at least two (or three) combination I need to address:
+>  - 2.4 (with remap_page_range) OR 2.6.x (with remap_page_range)
+>  - 2.6.x-mm (with remap_pfn_range)
+> Is there some symbol or #ifdef value I can depend on to determine which
+> function I should be calling (and the value to pass in)?
+
+Not sure. One on kernel version being <= 2.6.10 would probably serve
+your purposes, though it's not particularly well thought of. I suspect
+people would suggest splitting up the codebase instead of sharing it
+between 2.4.x and 2.6.x, where I've no idea how well that sits with you.
+
+I vaguely suspected something like this would happen, but there were
+serious and legitimate concerns about new usage of the 32-bit unsafe
+methods being reintroduced, so at some point the old hook had to go.
 
 
-
-		/* If there's no more to do, or if the descriptor is full,
-		   let the IO rip! */
-
-		if (bufs == ARRAY_SIZE(wbuf) ||
-		    commit_transaction->t_buffers == NULL ||
-		    space_left < sizeof(journal_block_tag_t) + 16) {
-
-                        ....
-
-			/* Force a new descriptor to be generated next
-                           time round the loop. */
-			descriptor = NULL;
-			bufs = 0;
-
-------------------------^^^^^^^^^^^^^^^^^^^
-
-
- SCT> Have you really seen this patch make a difference in testing?
-
-of course
-
-
+-- wli

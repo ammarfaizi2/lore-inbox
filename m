@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269039AbUJFNjn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269153AbUJFNmQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269039AbUJFNjn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 09:39:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269153AbUJFNjn
+	id S269153AbUJFNmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 09:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269173AbUJFNmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 09:39:43 -0400
-Received: from mta10.srv.hcvlny.cv.net ([167.206.5.85]:64820 "EHLO
-	mta10.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S269039AbUJFNjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 09:39:37 -0400
-Date: Wed, 06 Oct 2004 09:38:20 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: Preempt? (was Re: Cannot enable DMA on SATA drive (SCSI-libsata,
- VIA SATA))
-In-reply-to: <20041005231642.55308f99.akpm@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, andrea@novell.com,
-       nickpiggin@yahoo.com.au, rml@novell.com, roland@topspin.com,
-       linux-kernel@vger.kernel.org
-Message-id: <200410060938.30152.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.6.2
-References: <52is9or78f.fsf_-_@topspin.com> <41638AEB.5080703@pobox.com>
- <20041005231642.55308f99.akpm@osdl.org>
+	Wed, 6 Oct 2004 09:42:15 -0400
+Received: from mail6.hitachi.co.jp ([133.145.228.41]:3065 "EHLO
+	mail6.hitachi.co.jp") by vger.kernel.org with ESMTP id S269153AbUJFNmD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 09:42:03 -0400
+Message-ID: <4163F635.8000602@sdl.hitachi.co.jp>
+Date: Wed, 06 Oct 2004 22:42:13 +0900
+From: Hideo AOKI <aoki@sdl.hitachi.co.jp>
+Organization: Systems Development Lab., Hitachi, Ltd.
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: ja
+MIME-Version: 1.0
+To: Rik van Riel <riel@redhat.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6]  vm-thrashing-control-tuning
+References: <Pine.LNX.4.44.0410050949300.30172-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0410050949300.30172-100000@chimarrao.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Rik van Riel wrote:
 
-On Wednesday 06 October 2004 02:16, Andrew Morton wrote:
-> Jeff Garzik <jgarzik@pobox.com> wrote:
-> > If your implied answer is true, then we wouldn't need
-> > preempt_{en,dis}able() sprinkled throughout the code so much.
->
-> Where?
->
-> It's less than I expected, actually.
+> While I believe that a self tuning timeout might be better in
+> the long run, this tunable will certainly help tune policy.
 
-Same here. Did you take into account things like rcu_read_lock()?
+Thank you for your comments.
 
-Jeff Sipek.
+I agree with you. The best solution is a self tuning timeout.
+Using this swap_token_timeout parameter, I would like to get 
+a clue to self tuning.
 
-- -- 
-Don't drink and derive. Alcohol and algebra don't mix.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQFBY/VQwFP0+seVj/4RAnCzAKCovAcfr8TFLzQ0xkjPnNtXm7UlygCggWtO
-76FhTdx4AvYlBy1qNmR9G3I=
-=JKNi
------END PGP SIGNATURE-----
+Best regards, 
+
+Hideo AOKI
+
+Systems Development Laboratory, Hitachi, Ltd.
+

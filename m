@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314394AbSDWB7H>; Mon, 22 Apr 2002 21:59:07 -0400
+	id <S315009AbSDWCAc>; Mon, 22 Apr 2002 22:00:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315009AbSDWB7G>; Mon, 22 Apr 2002 21:59:06 -0400
-Received: from sydney1.au.ibm.com ([202.135.142.193]:55566 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S314394AbSDWB7F>; Mon, 22 Apr 2002 21:59:05 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.9 per-cpu-areas ONCE AND FOR ALL
-Date: Tue, 23 Apr 2002 12:02:13 +1000
-Message-Id: <E16zpdF-00026Y-00@wagner.rustcorp.com.au>
+	id <S315020AbSDWCAb>; Mon, 22 Apr 2002 22:00:31 -0400
+Received: from mail.mojomofo.com ([208.248.233.19]:9988 "EHLO mojomofo.com")
+	by vger.kernel.org with ESMTP id <S315009AbSDWCAa>;
+	Mon, 22 Apr 2002 22:00:30 -0400
+Message-ID: <051a01c1ea6a$915711c0$0800a8c0@atlink30g>
+From: "Richard Toilet" <mojomofo@mojomofo.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [2.5.5 to 2.5.7+] Something broke my squid cache
+Date: Mon, 22 Apr 2002 21:59:56 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the correct patch.  Do NOT apply any lesser imitations!
 
-Thanks,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Going from 2.5.5 to 2.5.7 makes my squid cache serve out runt packets to any
+client that is on my intra-net but not external sources (eth0 in/out is
+fine, eth0 in/eth1 out is broken)..
 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.9/init/main.c working-2.5.9-percpu/init/main.c
---- linux-2.5.9/init/main.c	Tue Apr 23 11:39:40 2002
-+++ working-2.5.9-percpu/init/main.c	Tue Apr 23 12:00:14 2002
-@@ -274,12 +274,7 @@
- static inline void setup_per_cpu_areas(void)
- {
- }
--
--static inline void setup_per_cpu_areas(void)
--{
--}
--
--#else
-+#else /* CONFIG_SMP... */
- 
- #ifdef __GENERIC_PER_CPU
- unsigned long __per_cpu_offset[NR_CPUS];
-@@ -315,7 +310,7 @@
- 	smp_commence();
- }
- 
--#endif
-+#endif /* CONFIG_SMP */
- 
- /*
-  * We need to finalize in a non-__init function or else race conditions
+This is definitely kernel related because I can downgrade from 2.5.7 to
+2.5.5 and everything works as expected. I upgraded/downgraded squid versions
+and it didn't make any difference so I'm wondering if something netfilter
+related has changed. Both nics are Intel eepro100's, and it occurs using the
+intel and the modified becker driver.
+
+Shoo.. little by little I'm working my way back to the kernel that breaks it
+but if anyone else has run into this, maybe they have some insight and can
+save me some work. :)
+
+2.5.9 has the same problem, but at least TCQ works and is enabled on my
+'can't trust it' 30GB IBM DeskStar. :)
+I am going to put in my 120GB WD drive tonite also, to give Jens more
+datapoints. These 8MB cache versions are ungodly fast.
+
+

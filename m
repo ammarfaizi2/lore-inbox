@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbULKCqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261916AbULKCtz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261915AbULKCqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 21:46:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbULKCqI
+	id S261916AbULKCtz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 21:49:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbULKCtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 21:46:08 -0500
-Received: from fsmlabs.com ([168.103.115.128]:36255 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261915AbULKCqF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 21:46:05 -0500
-Date: Fri, 10 Dec 2004 19:45:32 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: George Anzinger <george@mvista.com>
-cc: Lee Revell <rlrevell@joe-job.com>, dipankar@in.ibm.com,
-       ganzinger@mvista.com, Manfred Spraul <manfred@colorfullife.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: RCU question
-In-Reply-To: <41BA59F6.5010309@mvista.com>
-Message-ID: <Pine.LNX.4.61.0412101943260.1101@montezuma.fsmlabs.com>
-References: <41B8E6F1.4070007@mvista.com> <20041210043102.GC4161@in.ibm.com>
-  <41B9FC3F.50601@mvista.com>  <20041210204003.GC4073@in.ibm.com>
- <1102711532.29919.35.camel@krustophenia.net> <41BA0ECF.1060203@mvista.com>
- <Pine.LNX.4.61.0412101558240.24986@montezuma.fsmlabs.com> <41BA59F6.5010309@mvista.com>
+	Fri, 10 Dec 2004 21:49:55 -0500
+Received: from web41405.mail.yahoo.com ([66.218.93.71]:63921 "HELO
+	web41405.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261916AbULKCty (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 21:49:54 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=sfwcJTpSoQNhw/tguagisUQlrl+tAJ9BMkA11NlQpLoddrt7HgfohLl1Lgyl+I68QBm3f07zANcWlZmf7ipAk9+yx56PkiaYykNy8KsyrHYCbksIUhcIbx4be6NcfyjviH+VhUUPHCiKfP9nEYy2RoxWcF0zdD7OLlvFN4/JOUg=  ;
+Message-ID: <20041211024953.18535.qmail@web41405.mail.yahoo.com>
+Date: Fri, 10 Dec 2004 18:49:53 -0800 (PST)
+From: cranium2003 <cranium2003@yahoo.com>
+Subject: udp short packet message 
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Dec 2004, George Anzinger wrote:
+Hello,
+what is the meaning of following statment that i am
+getting from debug statements
+UDP: short packet: 127.0.0.1:32512 32512/25 to
+127.0.0.1:1
+regards,
+cranium
 
-> > But that's a deadlock and if you enable interrupts you race.
-> 
-> Again, I remind you we are in the idle task.  Nothing more important to do.
-> Or do you mean that softirq_pending() will NEVER return false?
-> 
-> The other question is: "Is useful work being done?"
 
-We're in the idle task but obviously interrupts (such as network) are 
-still coming in. So you may take an interrupt after your while 
-(softirq_pending()) loop has exited.
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Send a seasonal email greeting and help others. Do good. 
+http://celebrity.mail.yahoo.com

@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbUBUAHY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 19:07:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbUBUAHY
+	id S261433AbUBUAGK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 19:06:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbUBUAFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 19:07:24 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:19935 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261442AbUBUAHQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 19:07:16 -0500
-Date: Fri, 20 Feb 2004 19:07:27 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Christophe Saout <christophe@saout.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
-In-Reply-To: <1077316812.24726.5.camel@leto.cs.pocnet.net>
-Message-ID: <Xine.LNX.4.44.0402201905370.7902-100000@thoron.boston.redhat.com>
+	Fri, 20 Feb 2004 19:05:52 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:33786 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261433AbUBUAEG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 19:04:06 -0500
+Message-ID: <40353C69.2030509@mvista.com>
+Date: Thu, 19 Feb 2004 14:44:57 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: =?ISO-8859-1?Q?Kristian_Lyngst=F8l?= <nesquik@bohemians.org>
+CC: =?ISO-8859-1?Q?Christian_K=F6gler?= 
+	<christian.koegler@unibw-muenchen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: tasklets vs. workqueues
+References: <403117FF.1080200@unibw-muenchen.de> <20040217014123.GA16165@bohemians.org>
+In-Reply-To: <20040217014123.GA16165@bohemians.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Feb 2004, Christophe Saout wrote:
-
-> What do you think of this?
+Kristian Lyngstøl wrote:
+> On Mon, Feb 16, 2004 at 08:20:31PM +0100, Christian Kögler wrote:
 > 
-> I would like to copy the tfm onto the stack so that I can
-> a) compute the hmac on several CPUs at the same time without locking
-> b) reuse a precomputed tfm from just after crypt_hmac_init
+>>When should I use tasklets and when should I user workqueues?
+>>What are the differences?
+> 
+> 
+> To quote "Linux Kernel Development" (Which I am currently reading):
+> 
+> Work queues defer work into a kernel thread-the work always runs in process
+> context. Most importantly, work queues are schedulable and can therefore sleep.
+> 
+> Normally, there is little decision between work queues or sotftirqs/tasklets.
+> If the deferred work need to sleep, work queues are used. If the deferred 
+> work need not sleepa, softirqs or tasklets are used.
 
-I think you'll run into problems on highmem boxes when the code kmaps 
-pages.  IIRC, Matt Mackall has looked into this in detail.
+Being in process context, you can also change the priority and schedule policy 
+as needed to fit your application, while you are rather stuck with tasklets in 
+this regard.
 
 
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

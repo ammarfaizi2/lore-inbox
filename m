@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262293AbUBXQKy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 11:10:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbUBXQIk
+	id S262270AbUBXQOq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 11:14:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbUBXQOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 11:08:40 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:18920 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262198AbUBXQFX (ORCPT
+	Tue, 24 Feb 2004 11:14:46 -0500
+Received: from smtp1.xs4all.be ([195.144.64.135]:59312 "EHLO smtp1.xs4all.be")
+	by vger.kernel.org with ESMTP id S262270AbUBXQOY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 11:05:23 -0500
-Date: Tue, 24 Feb 2004 11:05:41 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Ian Soboroff <ian.soboroff@nist.gov>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Why are 2.6 modules so huge?
-In-Reply-To: <9cfptc4lckg.fsf@rogue.ncsl.nist.gov>
-Message-ID: <Xine.LNX.4.44.0402241105070.24791-100000@thoron.boston.redhat.com>
+	Tue, 24 Feb 2004 11:14:24 -0500
+From: Bart Janssens <bart.janssens@polytechnic.be>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: OOPS: ext3 on 2.6.3 with high IO
+Date: Tue, 24 Feb 2004 17:13:58 +0100
+User-Agent: KMail/1.6
+Cc: linux-kernel@vger.kernel.org
+References: <200402231202.17307.bart.janssens@polytechnic.be> <20040223150257.18e8d4d5.akpm@osdl.org>
+In-Reply-To: <20040223150257.18e8d4d5.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402241714.01441.bart.janssens@polytechnic.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Feb 2004, Ian Soboroff wrote:
+On Tuesday 24 February 2004 00:02, Andrew Morton wrote:
+> The fact that this happens when you're doing something which thousands
+> of other people do makes me wonder.  Is the oops always the same?  Are
+> you sure the hardware is good?
 
-> 
-> Can anyone help me understand why 2.6-series kernel modules are so
-> huge?
-> 
-> $ cd /lib/modules
-> $ ls -l */kernel/fs/vfat
-> 2.4.20-18.8bigmem/kernel/fs/vfat:
-> total 20
-> -rw-r--r--    1 root     root        17678 May 29  2003 vfat.o
+I have not saved the other 2 oopses. All I remember is that they were also in 
+kjournald. I have tried to make my machine crash again, but I have had no 
+luck so far. I will post a new oops if it happens again. The same machine 
+(minus the HD) was very stable on 2.4 and using ext2, but I have switched to 
+2.6 and ext3 when I bought the 80GB HD.
 
-You should use size(1) for this purpose, instead of ls.
+regards,
 
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
-
+Bart Janssens

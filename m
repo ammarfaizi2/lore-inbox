@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUFNLF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbUFNLPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbUFNLF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 07:05:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUFNLF0
+	id S262391AbUFNLPp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 07:15:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbUFNLPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 07:05:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21440 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262380AbUFNLFT (ORCPT
+	Mon, 14 Jun 2004 07:15:44 -0400
+Received: from holomorphy.com ([207.189.100.168]:55455 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262391AbUFNLPn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 07:05:19 -0400
-Date: Mon, 14 Jun 2004 04:04:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Permit inode & dentry hash tables to be allocated >
- MAX_ORDER size [try #3]
-Message-Id: <20040614040417.29e7497b.akpm@osdl.org>
-In-Reply-To: <18241.1087210067@redhat.com>
-References: <20040611150110.73fadefb.akpm@osdl.org>
-	<567.1086950642@redhat.com>
-	<6567.1086963705@redhat.com>
-	<18241.1087210067@redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 14 Jun 2004 07:15:43 -0400
+Date: Mon, 14 Jun 2004 04:15:40 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc3-mm2
+Message-ID: <20040614111540.GB1444@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040614021018.789265c4.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040614021018.789265c4.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
->
-> 
-> > What's the attribute((pure)) for?
-> 
-> It tells gcc that the function's result only depends on its arguments... it
-> makes no references at all to external data. It's like __attribute__((const))
-> but stronger. This means that gcc can generate code that caches the result.
+On Mon, Jun 14, 2004 at 02:10:18AM -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7-rc3/2.6.7-rc3-mm2/
+> - Mainly lots of little fixes.
+> - Added the ext3 online-resize patch.  See
+>   http://sourceforge.net/projects/ext2resize/ for some details.  Needs a bit
+>   of work, and documentation.
 
-Of course, but we could use it in zillions of places and we don't.  Does it
-actually help?
-
-> > It generates a warning on older gcc - please use __attribute_pure__.
-> 
-> We still support gcc's that old?
-
-yup.  And gcc-3.4 complains that log2() conflicts with an inbuilt function,
-but you renamed it.
-
-> > The other four or five implementations of log2() use ffx(~n).
-> 
-> Yes... but ffs() and ffz() take int args, not long args. I suspect that
-> shouldn't matter (that would require the hash table to be calculated at 4Gig
-> buckets in size or greater to be a problem), but why take the chance when we
-> can avoid it easily?
-
-No, ffz() takes an unsigned long argument.
+The arrangement of the #include <linux/kernel.h> in list.h breaks the
+build of documentation. The following patch moves the include to where
+it no longer interferes with kerneldoc's operation.
 
 
-It's still not clear to me why we cannot simply increase MAX_ORDER.  If
-that exposes shortcomings in the buddy allocator, that should be where we
-expend effort?
+-- wli
+
+Index: debian-2.6.7-rc3/include/linux/list.h
+===================================================================
+--- debian-2.6.7-rc3.orig/include/linux/list.h	2004-06-14 03:18:03.000000000 -0700
++++ debian-2.6.7-rc3/include/linux/list.h	2004-06-14 04:06:36.000000000 -0700
+@@ -5,6 +5,7 @@
+ 
+ #include <linux/stddef.h>
+ #include <linux/prefetch.h>
++#include <linux/kernel.h>	/* BUG_ON */
+ #include <asm/system.h>
+ 
+ /*
+@@ -158,7 +159,6 @@
+  * Note: list_empty on entry does not return true after this, the entry is
+  * in an undefined state.
+  */
+-#include <linux/kernel.h>	/* BUG_ON */
+ static inline void list_del(struct list_head *entry)
+ {
+ 	BUG_ON(entry->prev->next != entry);

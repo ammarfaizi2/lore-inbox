@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262862AbTCKIg4>; Tue, 11 Mar 2003 03:36:56 -0500
+	id <S262865AbTCKIuF>; Tue, 11 Mar 2003 03:50:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262865AbTCKIg4>; Tue, 11 Mar 2003 03:36:56 -0500
-Received: from unthought.net ([212.97.129.24]:4258 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S262862AbTCKIgz>;
-	Tue, 11 Mar 2003 03:36:55 -0500
-Date: Tue, 11 Mar 2003 09:47:36 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Matthew Wilcox <willy@debian.org>
-Cc: "Bryan O'Sullivan" <bos@serpentine.com>,
-       Daniel Phillips <phillips@arcor.de>, John Bradford <john@grabjohn.com>,
-       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       tytso@mit.edu, adilger@clusterfs.com, chrisl@vmware.com,
-       bzzz@tmi.comex.ru
-Subject: Re: [Ext2-devel] Re: [RFC] Improved inode number allocation for HTree
-Message-ID: <20030311084736.GE14814@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Matthew Wilcox <willy@debian.org>,
-	Bryan O'Sullivan <bos@serpentine.com>,
-	Daniel Phillips <phillips@arcor.de>,
-	John Bradford <john@grabjohn.com>, ext2-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org, tytso@mit.edu, adilger@clusterfs.com,
-	chrisl@vmware.com, bzzz@tmi.comex.ru
-References: <200303102104.h2AL43iZ000875@81-2-122-30.bradfords.org.uk> <20030310212953.57F2310435B@mx12.arcor-online.net> <1047332834.11339.3.camel@serpentine.internal.keyresearch.com> <20030310220254.GA21234@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S262866AbTCKIuF>; Tue, 11 Mar 2003 03:50:05 -0500
+Received: from mailrelay2.lrz-muenchen.de ([129.187.254.102]:62943 "EHLO
+	mailrelay2.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S262865AbTCKIuE> convert rfc822-to-8bit; Tue, 11 Mar 2003 03:50:04 -0500
+From: Oliver Neukum <oliver@neukum.name>
+To: Greg KH <greg@kroah.com>, Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: PCI driver module unload race?
+Date: Tue, 11 Mar 2003 10:00:40 +0100
+User-Agent: KMail/1.5
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Jeff Garzik <jgarzik@pobox.com>, Rusty Russell <rusty@rustcorp.com.au>
+References: <20030308104749.A29145@flint.arm.linux.org.uk> <Pine.LNX.4.44.0303110147390.32518-100000@serv> <20030311011532.GH13145@kroah.com>
+In-Reply-To: <20030311011532.GH13145@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030310220254.GA21234@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200303111000.40387.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 10, 2003 at 10:02:54PM +0000, Matthew Wilcox wrote:
-> On Mon, Mar 10, 2003 at 01:47:14PM -0800, Bryan O'Sullivan wrote:
-> > Why start?  Who actually uses atime for anything at all, other than the
-> > tiny number of shops that care about moving untouched files to tertiary
-> > storage?
-> > 
-> > Surely if you want to heap someone else's plate with work, you should
-> > offer a reason why :-)
-> 
-> "You have new mail" vs "You have mail".
+Am Dienstag, 11. März 2003 02:15 schrieb Greg KH:
+> On Tue, Mar 11, 2003 at 02:04:20AM +0100, Roman Zippel wrote:
+> > On Mon, 10 Mar 2003, Greg KH wrote:
+> > > > It seems that the semaphore in bus_add_device() makes this
+> > > > unnecessary.
+> > >
+> > > Hm, yes.  I think you are correct.
+> > >
+> > > So this patch is not needed, and the struct module * can be ripped out
+> > > of struct usb_driver too :)
+> >
+> > I think it's not easy. I haven't studied the code completely yet, but
+> > e.g. when you attach a device to a driver you also have to get a
+> > reference to the driver.
+>
+> You get a link to the driver, but you can't increment the module count
+> of the driver at that time, as we have to be able to remove a module
+> somehow :)
 
-And having a clean /tmp using tmpwatch.  Everything in my /tmp not
-accessed for a few weeks gets deleted.  I move cruft to /tmp every
-single day, and I have not cleaned it up for years. It just stays tidy
-all by itself.  Of course one has to remember this when leavning a few
-database files there before taking a vacation   ;)
+That is simple. Export a generic way to disconnect a driver from a device.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+> > I think there are more interesting races, e.g. when you create a sysfs
+> > symlink, that symlink might also have references to a module.
+>
+> Yeah, I still think there are some nasty issues with regards to being in
+> a sysfs directory, with a open file handle, and the module is removed.
+> But I haven't checked stuff like that in a while.
+>
+> CONFIG_MODULE_UNLOAD, just say no.
+
+That is taking the easy way out.
+
+	Regards
+		Oliver
+

@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266330AbUFURMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUFUR24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266330AbUFURMk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 13:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266333AbUFURMk
+	id S266344AbUFUR24 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 13:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266345AbUFUR24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 13:12:40 -0400
-Received: from adsl-065-082-245-074.sip.clt.bellsouth.net ([65.82.245.74]:42372
-	"EHLO nibbler.futurama.net") by vger.kernel.org with ESMTP
-	id S266330AbUFURMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 13:12:00 -0400
-Subject: Status of pci express in kernel
-From: areversat <areversat@tuxfamily.org>
-Reply-To: areversat@tuxfamily.org
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NUZirTQsuC7uqHQcFGr9"
-Message-Id: <1087837920.9636.1.camel@nibbler>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 21 Jun 2004 19:12:00 +0200
+	Mon, 21 Jun 2004 13:28:56 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:16510 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S266344AbUFUR2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 13:28:55 -0400
+To: areversat@tuxfamily.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Status of pci express in kernel
+X-Message-Flag: Warning: May contain useful information
+References: <1087837920.9636.1.camel@nibbler>
+From: Roland Dreier <roland@topspin.com>
+Date: Mon, 21 Jun 2004 10:28:48 -0700
+In-Reply-To: <1087837920.9636.1.camel@nibbler> (areversat@tuxfamily.org's
+ message of "Mon, 21 Jun 2004 19:12:00 +0200")
+Message-ID: <52u0x4u8fj.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 21 Jun 2004 17:28:49.0252 (UTC) FILETIME=[36C0D240:01C457B5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    areversat> Hi, I've read today that intel is going to launch it's
+    areversat> first pci express chipsets soon. So i was wondering if
+    areversat> the support of this bus was already a work in progress
+    areversat> or if it wasn't yet started ?
 
---=-NUZirTQsuC7uqHQcFGr9
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+PCI Express is backwards compatible with standard PCI, so even fairly
+old Linux kernels boot and work fine with PCI Express devices.  2.6
+kernels also have support for accessing the new features of PCI
+Express (ie extended PCI header fields).
 
-Hi,
-
-I've read today that intel is going to launch it's first pci express
-chipsets soon. So i was wondering if the support of this bus was already
-a work in progress or if it wasn't yet started ?
-
-Thanks
-
-Antoine Reversat
-
---=-NUZirTQsuC7uqHQcFGr9
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA1xbfuGdEvqsgTTURAozOAJ4zTpmMn1AL87aWBeQyANfBeKYEIwCfTUQf
-1oe7uC+jnW+knPX0tCT6spc=
-=1M3y
------END PGP SIGNATURE-----
-
---=-NUZirTQsuC7uqHQcFGr9--
+ - Roland

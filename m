@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265022AbSKFNAB>; Wed, 6 Nov 2002 08:00:01 -0500
+	id <S265021AbSKFM6x>; Wed, 6 Nov 2002 07:58:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265024AbSKFNAB>; Wed, 6 Nov 2002 08:00:01 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:15512 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265022AbSKFM70>; Wed, 6 Nov 2002 07:59:26 -0500
-Subject: Re: 2.5.46: DVB don't work...
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Gregoire Favre <greg@ulima.unil.ch>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-dvb@linuxtv.org
-In-Reply-To: <20021106112353.GA22269@ulima.unil.ch>
-References: <20021105163106.GA5169@ulima.unil.ch> 
-	<20021106112353.GA22269@ulima.unil.ch>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Nov 2002 13:28:33 +0000
-Message-Id: <1036589313.9781.10.camel@irongate.swansea.linux.org.uk>
+	id <S265022AbSKFM6x>; Wed, 6 Nov 2002 07:58:53 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:5256 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S265021AbSKFM6v>;
+	Wed, 6 Nov 2002 07:58:51 -0500
+Date: Wed, 6 Nov 2002 14:05:21 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Christopher Li <chrisl@vmware.com>,
+       "'Linux Kernel '" <linux-kernel@vger.kernel.org>,
+       "'ext2-devel@lists.sourceforge.net '" 
+	<ext2-devel@lists.sourceforge.net>
+Subject: Re: [Ext2-devel] Re: 2.5.46 ext3 errors
+Message-ID: <20021106130521.GB839@suse.de>
+References: <3C77B405ABE6D611A93A00065B3FFBBA36A493@PA-EXCH2> <20021106101806.B2663@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021106101806.B2663@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-06 at 11:23, Gregoire Favre wrote:
-> On Tue, Nov 05, 2002 at 05:31:06PM +0100, Gregoire Favre wrote:
+On Wed, Nov 06 2002, Stephen C. Tweedie wrote:
+> Hi,
 > 
-> I have tried to compil dvb-ttpci in the kernel:
+> On Wed, Nov 06, 2002 at 01:43:45AM -0800, Christopher Li wrote:
+> > Can you put the e2image of that device to some URL I can
+> > download?
 > 
->   	ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
-> drivers/built-in.o(.data+0xf6f4): undefined reference to `local symbols in discarded section .exit.text'
-> make: *** [.tmp_vmlinux1] Error 1
-> 
-> Anyone got a fix?
+> It's unlikely to be useful.  A journal abort will cause existing
+> transactions to be suspended midstream, so any errors afterwards may
+> be due to updates which were in progress at the time and which didn't
+> complete.  And since a fsck has been done, we've lost those errors
+> anyway.
 
-Missing devexit_p for the pci remove call somewhere. I'll take a look if
-I get time, but you are looking for a pci module declaration which has a
-remove function that isnt marked __devexit_p() when the function it
-calls is
+It's a 151gb partition anyways, so not very easy to give access to. And
+as Stephen mentions, it has been file system checked and is clean now.
+
+> Is the problem reproducible?  The basic
+> 
+> > EXT3-fs error (device ide1(22,1)): ext3_new_inode: Free inodes count
+> > corrupted in group 688 Aborting journal on device ide1(22,1).
+> 
+> error is just ext3's normal reaction to a fatal error detected in the
+> filesystem, so that in itself isn't a worry.  The cause of the problem
+> it spotted is the worry; is this reproducible?
+
+I can try. The kernel run had my rbtree deadline patches, however
+they've been well tested and are likely not the cause of the problem. It
+cannot be 100% ruled out though, I'm testing for this very thing right
+now. I will let you know what happens.
+
+-- 
+Jens Axboe
 

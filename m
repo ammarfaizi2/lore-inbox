@@ -1,51 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290289AbSE1W25>; Tue, 28 May 2002 18:28:57 -0400
+	id <S293203AbSE1Wfl>; Tue, 28 May 2002 18:35:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293203AbSE1W24>; Tue, 28 May 2002 18:28:56 -0400
-Received: from holomorphy.com ([66.224.33.161]:62606 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S290289AbSE1W2z>;
-	Tue, 28 May 2002 18:28:55 -0400
-Date: Tue, 28 May 2002 15:28:38 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-        ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: Re: suspend-to-{RAM,disk} for 2.5.17
-Message-ID: <20020528222838.GX14918@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Pavel Machek <pavel@suse.cz>,
-	kernel list <linux-kernel@vger.kernel.org>,
-	ACPI mailing list <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <20020521222858.GA14737@elf.ucw.cz> <20020527194018.GQ14918@holomorphy.com> <20020528193220.GB189@elf.ucw.cz> <20020528210917.GU14918@holomorphy.com> <20020528211120.GA28189@atrey.karlin.mff.cuni.cz> <20020528212427.GV14918@holomorphy.com> <20020528213408.GE28189@atrey.karlin.mff.cuni.cz> <20020528215318.GW14918@holomorphy.com> <20020528220032.GA3476@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S293680AbSE1Wfk>; Tue, 28 May 2002 18:35:40 -0400
+Received: from vsmtp1.tin.it ([212.216.176.221]:9442 "EHLO smtp1.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S293203AbSE1Wfj> convert rfc822-to-8bit;
+	Tue, 28 May 2002 18:35:39 -0400
+Message-ID: <3CDB32970001ECA0@ims1c.cp.tin.it>
+Date: Tue, 28 May 2002 22:35:35 +0000
+From: elvo@virgilio.it
+Subject: =?iso-8859-1?Q?=5BPATCH=5D=20fs/ufs/super=2Ec=2C=20kernel=202=2E4=2E18=2Dpre8?=
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->> This looks good, though OTOH if we have a page from a zone we should know
->> the zone exists, and then maybe the if (!curr) check isn't
->> needed. If that's
+hi all,
 
-On Wed, May 29, 2002 at 12:00:32AM +0200, Pavel Machek wrote:
-> Good point. Killed.
+there's a little compilation error concerning commas
+in the fs/ufs/super.c code, a little patch follows.
 
-At some point in the past, I wrote:
->> the case the scary check that almost looks like defensive programming won't
->> be needed at all. Also, is it always expected that this will be a
->> free page?
+elv
 
-On Wed, May 29, 2002 at 12:00:32AM +0200, Pavel Machek wrote:
-> No. It may be used page, too. That's why it is asking. 
-> 								Pavel
 
-Aha, so it can't be a BUG() at the bottom then. Cool, this looks very
-nice!
+ufs_read_super.diff:
 
-Cheers,
-Bill
+--- /root/super.c       Mon May 27 17:42:22 2002
++++ super.c     Mon May 27 17:43:09 2002
+@@ -663,12 +663,12 @@
+                goto failed;
+        }
+        if (uspi->s_bsize < 512) {
+-               printk("ufs_read_super: fragment size %u is too small\n"
++               printk("ufs_read_super: fragment size %u is too small\n",
+                        uspi->s_fsize);
+                goto failed;
+        }
+        if (uspi->s_bsize > 4096) {
+-               printk("ufs_read_super: fragment size %u is too large\n"
++               printk("ufs_read_super: fragment size %u is too large\n",
+                        uspi->s_fsize);
+                goto failed;
+        }
+@@ -678,12 +678,12 @@
+                goto failed;
+        }
+        if (uspi->s_bsize < 4096) {
+-               printk("ufs_read_super: block size %u is too small\n"
++               printk("ufs_read_super: block size %u is too small\n",
+                        uspi->s_fsize);
+                goto failed;
+        }
+        if (uspi->s_bsize / uspi->s_fsize > 8) {
+-               printk("ufs_read_super: too many fragments per block (%u)\n"
++               printk("ufs_read_super: too many fragments per block (%u)\n",
+                        uspi->s_bsize / uspi->s_fsize);
+                goto failed;
+        }
+
+// EOF
+
+
+

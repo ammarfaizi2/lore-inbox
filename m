@@ -1,36 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266952AbSKPALn>; Fri, 15 Nov 2002 19:11:43 -0500
+	id <S266941AbSKPAJz>; Fri, 15 Nov 2002 19:09:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266976AbSKPALn>; Fri, 15 Nov 2002 19:11:43 -0500
-Received: from f101.pav1.hotmail.com ([64.4.31.101]:22288 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S266952AbSKPALk>;
-	Fri, 15 Nov 2002 19:11:40 -0500
-X-Originating-IP: [199.1.46.3]
-From: "Mehdi Hashemian" <mhashemian@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: High Memory question
-Date: Fri, 15 Nov 2002 16:18:31 -0800
+	id <S266948AbSKPAJz>; Fri, 15 Nov 2002 19:09:55 -0500
+Received: from eriador.apana.org.au ([203.14.152.116]:33296 "EHLO
+	eriador.apana.org.au") by vger.kernel.org with ESMTP
+	id <S266941AbSKPAJx>; Fri, 15 Nov 2002 19:09:53 -0500
+Date: Sat, 16 Nov 2002 11:15:07 +1100
+To: kai.germaschewski@gmx.de
+Cc: marcelo@conectiva.com.br, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] ISDN multichannel crash
+Message-ID: <20021116001507.GA17915@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F101LYLFlELHRAAfbO50000e6bf@hotmail.com>
-X-OriginalArrivalTime: 16 Nov 2002 00:18:32.0202 (UTC) FILETIME=[B2174EA0:01C28D05]
+Content-Type: multipart/mixed; boundary="tThc/1wpZn/ma/RB"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Going through different parts of Kernel, I am trying to figure out if I need 
-to change /page.h/__PAGE_OFFSET to some smaller value when compiling with 
-CONFIG_HIGHMEM4G option to support more than 1G physical memory. Other than 
-that, I can not figure out how virtual address for vmalloc and ioremap are 
-going to fit above logical addresses.
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Any comment appreciated!
-Mehdi
+If you get the message
 
+isdn_ppp_xmit: lp->ppp_slot -1
 
-_________________________________________________________________
-Add photos to your e-mail with MSN 8. Get 2 months FREE*. 
-http://join.msn.com/?page=features/featuredemail
+and your system crashes immediately afterwards, then this patch is for you.
+The xmit_lock isn't released when this happens which leaves BH disabled.
 
+The same fix is needed in 2.2 as well.
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
+
+Index: drivers/isdn/isdn_ppp.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/drivers/isdn/isdn_ppp.c,v
+retrieving revision 1.1.1.14
+diff -u -r1.1.1.14 isdn_ppp.c
+--- drivers/isdn/isdn_ppp.c	3 Aug 2002 00:39:44 -0000	1.1.1.14
++++ drivers/isdn/isdn_ppp.c	16 Nov 2002 00:10:18 -0000
+@@ -1147,7 +1147,7 @@
+ 	if (slot < 0 || slot > ISDN_MAX_CHANNELS) {
+ 		printk(KERN_ERR "isdn_ppp_xmit: lp->ppp_slot %d\n", lp->ppp_slot);
+ 		kfree_skb(skb);
+-		return 0;
++		goto unlock;
+ 	}
+ 	ipt = ippp_table[slot];
+ 	lp->huptimer = 0;
+
+--tThc/1wpZn/ma/RB--

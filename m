@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310637AbSEWJh1>; Thu, 23 May 2002 05:37:27 -0400
+	id <S315529AbSEWKHU>; Thu, 23 May 2002 06:07:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316431AbSEWJh0>; Thu, 23 May 2002 05:37:26 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:63752 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S310637AbSEWJhZ>; Thu, 23 May 2002 05:37:25 -0400
-Date: Thu, 23 May 2002 06:36:54 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: linux-mm@kvack.org, <linux-kernel@vger.kernel.org>
-Subject: Re: noninterfering drop_page()
-In-Reply-To: <20020522051102.GN2046@holomorphy.com>
-Message-ID: <Pine.LNX.4.44L.0205230633470.23276-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316170AbSEWKHT>; Thu, 23 May 2002 06:07:19 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:34576 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S315529AbSEWKHS>; Thu, 23 May 2002 06:07:18 -0400
+Date: Thu, 23 May 2002 12:07:19 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: mgross@unix-os.sc.intel.com, "Vamsi Krishna S." <vamsi_krishna@in.ibm.com>,
+        Gross Mark <mark.gross@intel.com>, linux-kernel@vger.kernel.org,
+        r1vamsi@in.ibm.com
+Subject: Re: PATCH Multithreaded core dumps for the 2.5.17 kernel  was ....RE:    PATCH Multithreaded core dump support for the 2.5.14 (aO
+Message-ID: <20020523100718.GC11756@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200205222043.g4MKhsw06808@unix-os.sc.intel.com> <E17AeGS-0002wv-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 May 2002, William Lee Irwin III wrote:
+Hi!
 
-> Brewed this up a while ago as part of the rmap_locking project, though
-> the forward port itself hasn't gone through much more than a test boot.
+> > I think that although my tcore_suspend_threads and Pavel's freeze_processes 
+> > have similar results, I don't think using Pavel's approach for the core dump 
+> > is a good idea.
+> 
+> Migrating a task to a specific processor is also remarkably related. How does
+> it wash out if the suspend thread/freeze process stuff works by migrating
+> all the processes to a CPU that doesnt exist ?
 
-> # 02/05/21	wli@tisifone.holomorphy.com	1.424
-> # Noninterfering drop_page(). Doesn't grab at the global lock, but rather sets a per-page flag
-> # signalling to VM scanning that the page should be aggressively reclaimed.
-
-This means we would reclaim normal inactive pages before
-looking at the "dropped" pages that still linger on the
-active list.
-
-I'm not sure what this patch achieves except for disabling
-drop-behind (you'll end up reclaiming non-mapped pagecache
-pages in something resembling FIFO order).
-
-regards,
-
-Rik
+That does not solve locks problem.
+									Pavel
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

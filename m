@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268230AbTBYRl5>; Tue, 25 Feb 2003 12:41:57 -0500
+	id <S268224AbTBYRs7>; Tue, 25 Feb 2003 12:48:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268231AbTBYRl5>; Tue, 25 Feb 2003 12:41:57 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53509 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268230AbTBYRly>; Tue, 25 Feb 2003 12:41:54 -0500
-Date: Tue, 25 Feb 2003 17:52:04 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: vherva@twilight.cs.hut.fi, mikael.starvik@axis.com,
-       linux-kernel@vger.kernel.org, tinglett@vnet.ibm.com
-Subject: Re: zImage now holds vmlinux, System.map and config in sections. (fwd)
-Message-ID: <20030225175204.B21014@flint.arm.linux.org.uk>
-Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
-	vherva@twilight.cs.hut.fi, mikael.starvik@axis.com,
-	linux-kernel@vger.kernel.org, tinglett@vnet.ibm.com
-References: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE84C@mailse01.axis.se> <20030225092520.A9257@flint.arm.linux.org.uk> <20030225110704.GD159052@niksula.cs.hut.fi> <20030225113557.C9257@flint.arm.linux.org.uk> <20030225083811.797fbce6.rddunlap@osdl.org>
+	id <S268226AbTBYRs7>; Tue, 25 Feb 2003 12:48:59 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:53638 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S268224AbTBYRs4>;
+	Tue, 25 Feb 2003 12:48:56 -0500
+Date: Tue, 25 Feb 2003 18:59:28 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
+       Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sf.et,
+       linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030225175928.GP29467@dualathlon.random>
+References: <96700000.1045871294@w-hlinder> <20030222192424.6ba7e859.akpm@digeo.com> <20030225171727.GN29467@dualathlon.random> <20030225174359.GA10411@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030225083811.797fbce6.rddunlap@osdl.org>; from rddunlap@osdl.org on Tue, Feb 25, 2003 at 08:38:11AM -0800
+In-Reply-To: <20030225174359.GA10411@holomorphy.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2003 at 08:38:11AM -0800, Randy.Dunlap wrote:
-> I'm just guessing that it will be difficult to convince you otherwise,
-> but I think you are missing the point of this.  It's not for someone
-> who already has scripts to handle this or already uses 3+ commands
-> to handle it every time that they build a new kernel.  It's for
-> people who are less organized than you are -- gosh, maybe even
-> for Linux users.
+On Tue, Feb 25, 2003 at 09:43:59AM -0800, William Lee Irwin III wrote:
+> On Sat, Feb 22, 2003 at 07:24:24PM -0800, Andrew Morton wrote:
+> >> So whole stole the remaining 1.85 seconds?   Looks like pte_highmem.
+> 
+> On Tue, Feb 25, 2003 at 06:17:27PM +0100, Andrea Arcangeli wrote:
+> > would you mind to add the line for 2.4.21-pre4aa3? it has pte-highmem so
+> > you can easily find it out for sure if it is pte_highmem that stole >10%
+> > of your fast cpu. A line for the 2.4-rmap patch would be also
+> > interesting.
+> 
+> On Sat, Feb 22, 2003 at 07:24:24PM -0800, Andrew Morton wrote:
+> >> Note one second spent in pte_alloc_one().
+> 
+> On Tue, Feb 25, 2003 at 06:17:27PM +0100, Andrea Arcangeli wrote:
+> > note the seconds spent in the rmap affected paths too.
+> 
+> The pagetable cache is gone in 2.5, so pte_alloc_one() takes the
+> bitblitting hit for pagetables.
 
-Well, rather than creating yet another archive system, maybe we should
-just tar the lot up and make all boot loaders aware of the tar format?
-After all, everyone understands tar and .debs better than RPMs, don't
-they?
+I'm talking about do_anonymous_page, do_wp_page, do_no_page fork and all
+the other places that introduces spinlocks (per-page) and allocations of
+2 pieces of ram rather than just 1 (and in turn potentially global
+spinlocks too if the cpu-caches are empty). Just grep for
+pte_chain_alloc or page_add_rmap in mm/memory.c, that's what I mean, I'm
+not talking about pagetables.
 
-8-)
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Andrea

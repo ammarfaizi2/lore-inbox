@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318314AbSH0BCF>; Mon, 26 Aug 2002 21:02:05 -0400
+	id <S318123AbSH0BGI>; Mon, 26 Aug 2002 21:06:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318317AbSH0BCF>; Mon, 26 Aug 2002 21:02:05 -0400
-Received: from [62.40.73.125] ([62.40.73.125]:31722 "HELO Router")
-	by vger.kernel.org with SMTP id <S318314AbSH0BCE>;
-	Mon, 26 Aug 2002 21:02:04 -0400
-Date: Tue, 27 Aug 2002 03:06:16 +0200
-From: Jan Hudec <bulb@cimice.maxinet.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Question about leases
-Message-ID: <20020827010616.GB16207@vagabond>
-Reply-To: Jan Hudec <bulb@vagabond.cybernet.cz>
-Mail-Followup-To: Jan Hudec <bulb@cimice.maxinet.cz>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S318317AbSH0BGI>; Mon, 26 Aug 2002 21:06:08 -0400
+Received: from dp.samba.org ([66.70.73.150]:44250 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S318123AbSH0BGH>;
+	Mon, 26 Aug 2002 21:06:07 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15722.53442.363962.263115@argo.ozlabs.ibm.com>
+Date: Tue, 27 Aug 2002 11:07:14 +1000 (EST)
+To: Vojtech Pavlik <vojtech@suse.cz>, torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix drivers/char/Config.in bogon
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Vojtech,
 
-Please can anyone throw a bit light on file leases (fcntl F_SETLEASE
-command) or at least point me to some documentation? I can't find any.
+You deleted a `fi' rather than an `else' in drivers/char/Config.in.
+Here's a patch to fix it.
 
-As far as I figured out process holding a lease is notified when other
-process opens the leased file. But I am still not sure how the leases
-should then be released and how the process knows which lease was broken
-(struct siginfo does not seem to have union member for that case).
+Paul.
 
--------------------------------------------------------------------------------
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+diff -urN linux-2.5/drivers/char/Config.in pmac-2.5/drivers/char/Config.in
+--- linux-2.5/drivers/char/Config.in	Tue Aug 27 07:03:08 2002
++++ pmac-2.5/drivers/char/Config.in	Tue Aug 27 09:40:53 2002
+@@ -57,7 +57,7 @@
+    bool 'Enable Qtronix 990P Keyboard Support' CONFIG_QTRONIX_KEYBOARD
+    if [ "$CONFIG_QTRONIX_KEYBOARD" = "y" ]; then
+      define_bool CONFIG_IT8172_CIR y
+-   else
++   fi
+    bool 'Enable Smart Card Reader 0 Support ' CONFIG_IT8172_SCR0
+    bool 'Enable Smart Card Reader 1 Support ' CONFIG_IT8172_SCR1
+ fi

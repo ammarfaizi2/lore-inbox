@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262609AbREZXDK>; Sat, 26 May 2001 19:03:10 -0400
+	id <S262626AbREZXDJ>; Sat, 26 May 2001 19:03:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262621AbREZXBf>; Sat, 26 May 2001 19:01:35 -0400
+	id <S262609AbREZXBl>; Sat, 26 May 2001 19:01:41 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:20647 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262626AbREZXAd>;
-	Sat, 26 May 2001 19:00:33 -0400
-From: Steve Dodd <steved@loth.demon.co.uk>
-Date: Sat, 26 May 2001 10:54:39 +0100
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: ext3-users@redhat.com, Florian Lohoff <flo@rfc822.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: ext3 message if FS is not ext3
-Message-ID: <20010526105439.A7302@lilith.loth.demon.co.uk>
-In-Reply-To: <20010523140013.A883@paradigm.rfc822.org> <20010523130616.B8080@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010523130616.B8080@redhat.com>; from sct@redhat.com on Wed, May 23, 2001 at 01:06:16PM +0100
+	by vger.kernel.org with ESMTP id <S262590AbREZXAa>;
+	Sat, 26 May 2001 19:00:30 -0400
+Message-Id: <200105261349.f4QDnVx00377@hal.astr.lu.lv>
+Content-Type: text/plain; charset=US-ASCII
+From: Andris Pavenis <pavenis@latnet.lv>
+To: Danny ter Haar <dth@trinity.hoho.nl>
+Subject: Re: 2.4.4-ac[356]: network (8139too) related crashes
+Date: Sat, 26 May 2001 16:49:31 +0300
+X-Mailer: KMail [version 1.2.1]
+In-Reply-To: <cistron.200105091321.f49DLbp06900@hal.astr.lu.lv> <E14xZaU-0000x5-00@trinity.hoho.nl>
+In-Reply-To: <E14xZaU-0000x5-00@trinity.hoho.nl>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 23, 2001 at 01:06:16PM +0100, Stephen C. Tweedie wrote:
-> On Wed, May 23, 2001 at 02:00:13PM +0200, Florian Lohoff wrote:
+On Wednesday 09 May 2001 22:25, Danny ter Haar wrote:
+> Andris Pavenis  <pavenis@latnet.lv> wrote:
+> >With kernels 2.4.4-ac[356] I'm getting system freezing on FTP transfer
+> > after some time. I'm trying to upload about 6.5Mb file using MC (transfer
+> > speed about 300-1000Kb/s). With these kernel versions I'm getting random
+> > total freezing system (no any kernel error messages, no reaction to
+> > keyboard, no response to ping from other machine). The same seems to
+> > happen also when transfer speed is slower (I left wget downloading many
+> > files 2 nights and both times system was hanged in morning)
+>
+> I have similar problems on my sony vaio laptop (pcmcia ethernet
+> card that works with the 8139too driver)
+> I send detailed info to Jeff & Alan weeks ago.
+>
+> >Kernel 2.4.3-ac3 seems to be Ok.
+>
+> Problems started with the change in 2.4.3-ac7.
+> So up to 2.4.3-ac6 it's fine.
+>
 
-> > i think this message should be removed ;)
-[..]
-> > VFS: Can't find an ext3 filesystem on dev fd(2,0).
+Tried 2.4.5 and got the same problem again. Parhaps I'll sty with 2.4.3-ac3 
+for now. At least it doesn't freeze ...
 
-> mount(8) tried to get the kernel to mount /dev/fd0 as an ext3
-> filesystem.  The kernel is entitled to emit an error in that case.
-> ext2 will complain too.
-
-Shouldn't it be doing the mount 'silently' when mount(8) is guessing the
-filesystem type? I'm seeing this too (2.2.19 + ext3 0.0.6b):
-
-lilith:tmp$ cat /etc/filesystems
-ext3
-vfat
-lilith:tmp$ grep floppy /etc/fstab
-/dev/fd0 /floppy auto noauto,nodev,nosuid,user 0 0
-lilith:tmp$ # with a VFAT filesystem on /dev/fd0:
-lilith:tmp$ mount /floppy
-VFS: Can't find an ext3 filesystem on dev fd(2,0).
-
-Looking at the kernel source, read_super (and hence ext3_read_super) are only
-called with silent=1 when mounting the root filesystem. I believe mount(8)
-checks for magic numbers at the start of the filesystem, and so avoids
-attempting a mount for ext2 or various others.
-
-As the kernel (2.2 or 2.4) doesn't seem to provide a way for userspace to
-request a silent mount, I don't know whose (if anyone's) bug this is.
-
--- 
-PGP signed or encrypted mail preferred, key ID 0x68383A73.
-Please *do* Cc: me on mailing list replies.
+Andris

@@ -1,85 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263089AbUFJVe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263095AbUFJVgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263089AbUFJVe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 17:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUFJVe3
+	id S263095AbUFJVgl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 17:36:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbUFJVga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 17:34:29 -0400
-Received: from mail.inter-page.com ([12.5.23.93]:50703 "EHLO
-	mail.inter-page.com") by vger.kernel.org with ESMTP id S263089AbUFJVeI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 17:34:08 -0400
-From: "Robert White" <rwhite@casabyte.com>
-To: "'Bill Davidsen'" <davidsen@tmr.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-Date: Thu, 10 Jun 2004 14:33:32 -0700
-Organization: Casabyte, Inc.
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAzI6U6wXL/0SmJUi+8GC7hAEAAAAA@casabyte.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <40C8AF31.1010704@tmr.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Thu, 10 Jun 2004 17:36:30 -0400
+Received: from main.gmane.org ([80.91.224.249]:21144 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263088AbUFJVgK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 17:36:10 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Lars <terraformers@gmx.net>
+Subject: Re: 2.6.7-rc3: nforce2, no C1 disconnect fixup applied
+Date: Thu, 10 Jun 2004 23:36:17 +0200
+Message-ID: <caak85$9vg$1@sea.gmane.org>
+References: <ca9jj9$dr$1@sea.gmane.org> <200406101459.45750.bzolnier@elka.pw.edu.pl> <ca9nid$bnc$1@sea.gmane.org> <200406101558.54240.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: pd9e7f092.dip.t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Note my refining email elsewhere in this thread...
+thanks
 
-I am talking about the default handling of programs that are not marked PT_GNU_STACK.
-The proposed /proc/self/NX file tweak does nothing to programs with the protected
-stack flag (they are "locked" against executable data, instead of just resistant to
-it).
+after some reading, im using now in rc.local:
 
-It is better to protect "most of" these uncontrollable, old, legacy, or closed source
-apps by default, and provide a means for those that must have it otherwise (e.g.
-WINE) to exercise some control as to when or if the exposure is granted.
+### C1 Halt Disconnect Fix for Chip rev. C17
+setpci -H1 -s 0:0.0 6F=1F
+setpci -H1 -s 0:0.0 6E=01
+echo "Applying C1 Halt Disconnect Fix"
 
-Consider a "sort of savvy normal user." I go and get this kernel, and build it, and
-put it on my existing box.  My security level has changed not-at-all because none of
-my apps are marked PT_GNU_STACK.  I don't actually see any improvement until I
-recompile my distro.
+this is for an older nforce2 board (a7n8x 1.04) with rev. C17 chip
+and worked fine so far.
 
-With the proposed change the default can be everything-is-NX but unmarked apps can
-"demote themselves" to the old behavior.  I discover that I have some app that breaks
-hideously.  I can use a shim "LD_PRELOAD=libEX.so app" that opens the NX restriction
-for that app.
+for the newer chip revision it should read
 
-Yes, this "raises the exposure" for all the "protected by default" apps if the
-program is broken enough and the attacker is savvy enough, but these old apps have no
-protection under the new system anyway, so better to protect most of them, and let
-some of them slip-by if they need to, than protect none of them at all.
+### C1 Halt Disconnect Fix for Chip rev. C18D
+setpci -H1 -s 0:0.0 6F=9F
+setpci -H1 -s 0:0.0 6E=01
+echo "Applying C1 Halt Disconnect Fix"
 
-Rob.
+first setpci is for the c1 halt bit and the second one enables the
+80ns stability value.
 
------Original Message-----
-From: Bill Davidsen [mailto:davidsen@tmr.com] 
-Sent: Thursday, June 10, 2004 11:58 AM
-To: Robert White
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
 
-Robert White wrote:
-> I would think that having an easy call to disable the NX modification would be both
-> safe and effective.  That is, adding a syscall (or whatever) that would let you
-mark
-> your heap and/or stack executable while leaving the new default as NX, is "just as
-> safe" as flagging the executable in the first place.
+i understand that its not good to enable c1 for all boards, but it would
+be nice to have the option to force the fixup on boards which
+work ok but have no bios option to enable c1. (like the a7n8x)
+an bootoption like "forceC1halt" or something would be nice here.
 
-It clearly wouldn't be safe, and that keeps it from being effective. 
-Like having a great lock and burglar alarm, then putting the key and 
-entry code under the mat. NX is to prevent abuse by BAD PEOPLE and 
-therefore should not have any way to defeat it from within a program.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+cheers,
+lars
 
+
+>> ...maybe a switch to force the fixup on boards without c1 disconnect
+>> bios-settings would do it ?
+
+
+
+> 
+> We can't do that, some older boards hang if C1 disconnect is used.
+> 
+> However you can enable fixup and then C1 Halt Disconnect yourself. :-)
+> 
+> setpci -v -H1 -s 0:0.0 6C.L=$(printf %x $((0x$(setpci -H1 -s 0:0.0 6C.L) &
+> 0x9F01FF01)))
+> 
+> - to enable fixup first
+> 
+> setpci -v -H1 -s 0:0.0 6F=$(printf %x $((0x$(setpci -H1 -s 0:0.0 6F) |
+> 0x10)))
+> 
+> - to enable C1 Halt Disconnect
+> 
+> [ this is untested as I don't have nForce2 board ]
 
 

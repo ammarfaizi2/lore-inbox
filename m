@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131666AbRA3BI7>; Mon, 29 Jan 2001 20:08:59 -0500
+	id <S131547AbRA3BLJ>; Mon, 29 Jan 2001 20:11:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131547AbRA3BIm>; Mon, 29 Jan 2001 20:08:42 -0500
-Received: from D8FA50AA.ptr.dia.nextlink.net ([216.250.80.170]:24890 "EHLO
-	tetsuo.applianceware.com") by vger.kernel.org with ESMTP
-	id <S131945AbRA3BIh>; Mon, 29 Jan 2001 20:08:37 -0500
-Date: Mon, 29 Jan 2001 17:09:11 -0800
-From: Mike Panetta <mpanetta@applianceware.com>
+	id <S131795AbRA3BK7>; Mon, 29 Jan 2001 20:10:59 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:56072 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131547AbRA3BKl>; Mon, 29 Jan 2001 20:10:41 -0500
 To: linux-kernel@vger.kernel.org
-Subject: EXPORT_SYMTAB and kernel 2.2.x
-Message-ID: <20010129170911.G11684@tetsuo.applianceware.com>
-Mail-Followup-To: Mike Panetta <mpanetta@applianceware.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: ApplianceWare
-X-Mailer: mutt (ruff!  ruff!)
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: DVD Disk Detection
+Date: 29 Jan 2001 17:10:31 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9554a7$ncu$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0101291759200.6259-100000@penguin.linuxhardware.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to add some drivers to kernel 2.2.16
-and I think I have everything done right except
-that when it tries to compile the driver I get an
-error message saying that EXPORT_SYMTAB is not
-defined.  How do I fix this?  I have added a target
-to the Config.in and I have added what I think to
-be appropriate lines to the Makefile (to check
-the config vars defined in Config.in) but I still
-get the error.  Any help is greatly appreciated!
+Followup to:  <Pine.LNX.4.21.0101291759200.6259-100000@penguin.linuxhardware.org>
+By author:    Kernel Related Emails <kernel@penguin.linuxhardware.org>
+In newsgroup: linux.dev.kernel
+>
+> I was just wondering if anyone had any suggestions to check to see if a
+> DVD is in a users DVD drive.  Currently if you run a CDROM_DISC_STATUS on
+> a DVD you get a CDS_DATA_1 returned.  What kernel level call would
+> destinguish between an actual Data CD and a DVD?
+> 
 
-Thanks,
-Mike
+Why does it matter?  Seriously, do you have any reason to act
+differently between a CD and a small DVD, either of which contains a
+UDF filesystem?  If not, don't.
 
+Size, type of filesystem, etc, are obviously important -- but
+shouldn't be determined by the type of the physical media.  It's
+perfectly legitimate to have a large ISO 9660 filesystem on a DVD, or
+an UDF filesystem on a CD.
 
+	-hpa
 -- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

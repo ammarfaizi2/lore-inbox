@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281175AbRKOXcB>; Thu, 15 Nov 2001 18:32:01 -0500
+	id <S281177AbRKOXiB>; Thu, 15 Nov 2001 18:38:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281180AbRKOXbv>; Thu, 15 Nov 2001 18:31:51 -0500
-Received: from jalon.able.es ([212.97.163.2]:65523 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S281175AbRKOXbf>;
-	Thu, 15 Nov 2001 18:31:35 -0500
-Date: Fri, 16 Nov 2001 00:31:26 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Michael Peddemors <michael@wizard.ca>
-Cc: joeja@mindspring.com, linux-kernel@vger.kernel.org
-Subject: Re: Re: Re: loop back broken in 2.2.14
-Message-ID: <20011116003126.C1735@werewolf.able.es>
-In-Reply-To: <Springmail.105.1005761843.0.30236800@www.springmail.com> <1005860255.9913.794.camel@mistress>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <1005860255.9913.794.camel@mistress>; from michael@wizard.ca on Thu, Nov 15, 2001 at 22:37:35 +0100
-X-Mailer: Balsa 1.2.3
+	id <S281179AbRKOXhv>; Thu, 15 Nov 2001 18:37:51 -0500
+Received: from pcow025o.blueyonder.co.uk ([195.188.53.125]:44304 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S281177AbRKOXhp>;
+	Thu, 15 Nov 2001 18:37:45 -0500
+Message-ID: <3BF45208.1010702@blueyonder.co.uk>
+Date: Thu, 15 Nov 2001 23:38:48 +0000
+From: Mr R A Mercer <r.a.mercer@blueyonder.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010914
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: loop back broken in 2.2.14
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Michael Peddemors wrote:
 
-On 20011115 Michael Peddemors wrote:
->Yes, I seriously considered the feasibility of having 2.4.14-fixed
->kernels around, but I could just imagine trying to deal with millions of
->people trying to download known good kernels on our bandwidth...
->
->It would be good to be able to point people to a stable kernel.. instead
->of having to recommend kernels in the pre-series..
->
-...
->On Wed, 2001-11-14 at 10:17, joeja@mindspring.com wrote:
->> I think that was suggested a while ago, in the 2.2 days.  It didn't fly! There was however a general consensus that for small bugs that are found in a 'stable' release there should be fixes for just the bug as the next release.  I.E. 2.2.15 should be released with just the one fix.  Linus didn't seem to go for that as well as some other developers .
->> 
+ > Yes, I seriously considered the feasibility of having 2.4.14-fixed
+ > kernels around, but I could just imagine trying to deal with millions of
+ > people trying to download known good kernels on our bandwidth...
 
-Well, Linus could post a 'errata' patch...
-Layout now in ftp space is (reverse date order):
+As has been mentioned before I think that the best way to avoid little
+problems like this is to have a 2.4.x-rc1 kernel around for a day, if no
+problems are found then that tree becomes 2.4.x if a problem is found
+then is becomes 2.4.x-rc2 etc...
 
-	test-kernels
-	ChangeLog-2.4.14
-	LATEST-IS-2.4.14
-	linux-2.4.14.tar.bz2
+Cheers
 
-A couple files could be posted, named Errata-2.4.14 and linux-2.4.14-errata.bz2,
-first being a description of what the second (the patchs) cures...with names like
-that so the listing gets them visible near the main tarball...
+Adam
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.15-pre4-beo-2 #1 SMP Thu Nov 15 13:02:43 CET 2001 i686
+

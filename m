@@ -1,236 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUHBOIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265249AbUHBOMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265144AbUHBOIA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 10:08:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265232AbUHBOIA
+	id S265249AbUHBOMd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 10:12:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265305AbUHBOMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 10:08:00 -0400
-Received: from moutng.kundenserver.de ([212.227.126.185]:21990 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S265144AbUHBOHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 10:07:51 -0400
-From: Emmeran Seehuber <rototor@rototor.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6.7-ck6: Yenta TI: irq 5: nobody cared!
-Date: Mon, 2 Aug 2004 15:27:13 +0200
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
+	Mon, 2 Aug 2004 10:12:32 -0400
+Received: from mail.zmailer.org ([62.78.96.67]:59776 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id S266186AbUHBOLg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 10:11:36 -0400
+Date: Mon, 2 Aug 2004 17:11:31 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, akpm@osdl.org,
+       torvalds@osdl.org
+Subject: Re: PATCH: Fix HPT366 crash and support HPT372N
+Message-ID: <20040802141131.GA2716@mea-ext.zmailer.org>
+References: <20040801001522.GA13954@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_xEkDBlHyoPrxBlH"
-Message-Id: <200408021527.13902.rototor@rototor.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:d84d732d8ddd2281dac05c143a411240
+In-Reply-To: <20040801001522.GA13954@devserv.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jul 31, 2004 at 08:15:22PM -0400, Alan Cox wrote:
+> On a board containing the HPT372N IDE controller the 2.6.x series kernels
+> will misbehave. If the HPT372N is set up with the newer PCI identifier it
+> is ignored. If it is set up with the HPT372 identifier then the kernel
+> crashes on boot.
 
---Boundary-00=_xEkDBlHyoPrxBlH
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I have been wondering about HPT37x in Fedora Core (development) kernel
+called  kernel-smp-2.6.7-1.501.i686.  It doesn't find one of the cards
+attached to a HPT372A card that I have.
 
-Hi !
+I tried also to boot with a bit older kernels: 2.6.3, 2.6.5 do work just 
+fine (except of 2.6.5 barfs the keyboard..). 
 
-I got the following message in /var/log/message the last time I booted my 
-laptop. Since the cardbus driver had a problem with it's irq my WLAN network 
-card didn't work :(
+I tried also with 2.6.7-1.494smp (FC devel kernels), and that too
+does fail.  I think I had also some a bit older 2.6.7, also that
+one failed.   I didn't get around to try any 2.6.6 kernels.
 
-Linux Kernel Card Services
-options:  [pci] [cardbus] [pm]
-Yenta: CardBus bridge found at 0000:00:0c.0 [1558:0402]
-Yenta: Using CSCINT to route CSC interrupts to PCI
-Yenta: Routing CardBus interrupts to PCI
-Yenta TI: socket 0000:00:0c.0, mfunc 0x01001002, devctl 0x44
-irq 5: nobody cared!
-[<c01074e9>] __report_bad_irq+0x2a/0x8b
-[<c01075d3>] note_interrupt+0x6f/0x9f
-[<c01077c3>] do_IRQ+0xdd/0xdf
-[<c0105ebc>] common_interrupt+0x18/0x20
-[<c011a61b>] __do_softirq+0x2f/0x80
-[<c011a692>] do_softirq+0x26/0x28
-[<c01077aa>] do_IRQ+0xc4/0xdf
-[<c0105ebc>] common_interrupt+0x18/0x20
-[<c020b7df>] pci_bus_write_config_word+0x4a/0x5a
-[<f8ae40e0>] yenta_probe_cb_irq+0x6b/0x12e [yenta_socket]
-[<f8ae32db>] ti12xx_irqroute_func0+0x8f/0x347 [yenta_socket]
-[<c0117848>] printk+0xfe/0x12f
-[<f8ae39f0>] ti12xx_override+0xbf/0x15e [yenta_socket]
-[<f8ae3b1c>] ti1250_override+0x8d/0x99 [yenta_socket]
-[<f8ae4583>] yenta_probe+0x210/0x22f [yenta_socket]
-[<c020ea6b>] pci_device_probe_static+0x52/0x61
-[<c020eab5>] __pci_device_probe+0x3b/0x4e
-[<c020eaf4>] pci_device_probe+0x2c/0x4a
-[<c026aff5>] bus_match+0x3f/0x6a
-[<c026b107>] driver_attach+0x56/0x80
-[<c026b38b>] bus_add_driver+0x91/0xa3
-[<c026b7ad>] driver_register+0x2f/0x33
-[<c020ed33>] pci_register_driver+0x5c/0x84
-[<f89e800f>] yenta_socket_init+0xf/0x13 [yenta_socket]
-[<c012a040>] sys_init_module+0x106/0x1cf
-[<c0105d4f>] syscall_call+0x7/0xb
+Any ideas ?  Will this patch help ?
 
-handlers:
-[<f8a3876e>] (snd_intel8x0_interrupt+0x0/0x1e0 [snd_intel8x0])
-Disabling IRQ #5
-Yenta TI: socket 0000:00:0c.0 probing PCI interrupt failed, trying to fix
-Yenta TI: socket 0000:00:0c.0 no PCI interrupts. Fish. Please report.
-Yenta: ISA IRQ mask 0x0000, PCI irq 0
-Socket status: 30000019
+  /Matti Aarnio
 
-I've attached /var/log/message. You can see other details of my computer 
-config at http://www.rototor.de/sonstiges .
+> This patch is a forward port of my 2.4 driver fixes that have been in 2.4
+> for a year but somehow escaped 2.6. Ronny Buchmann caught a couple
+> of merge details I missed and those are fixed in this diff too.
+> 
+> As well as adding 372N support this also fixes the unknown revision case
+> to avoid crashes should any future 37x variants with weird class_rev's appear
+> 
+> Alan
+> 
+> Signed-off-by: Alan Cox <alan@redhat.com>
 
-Whats wrong here? 
-
-cu,
-  Emmy
-
-P.S.: CC please, since I'm not subscribed.
-P.P.S.: Yes, the kernel is tainted by the vmware modules. But that should not 
-be related, should it?
-
---Boundary-00=_xEkDBlHyoPrxBlH
-Content-Type: application/x-bzip2;
-  name="var_log_message.txt.bz2"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="var_log_message.txt.bz2"
-
-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
-
---Boundary-00=_xEkDBlHyoPrxBlH--
+> --- linux.vanilla-2.6.8-rc2/drivers/ide/pci/hpt366.c	2004-07-27 19:22:42.000000000 +0100
+> +++ linux-2.6.8-rc2/drivers/ide/pci/hpt366.c	2004-08-01 00:58:30.948290640 +0100
+....

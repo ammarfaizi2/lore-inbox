@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUKKWA1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262375AbUKKWDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbUKKWA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 17:00:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbUKKV6j
+	id S262375AbUKKWDW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 17:03:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbUKKWAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 16:58:39 -0500
-Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:39955 "EHLO
-	doc.tebibyte.org") by vger.kernel.org with ESMTP id S262380AbUKKV5o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 16:57:44 -0500
-Message-ID: <4193E056.6070100@tebibyte.org>
-Date: Thu, 11 Nov 2004 22:57:42 +0100
-From: Chris Ross <chris@tebibyte.org>
-Organization: At home (Eindhoven, The Netherlands)
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: pt-br, pt
+	Thu, 11 Nov 2004 17:00:46 -0500
+Received: from fw.osdl.org ([65.172.181.6]:20434 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262376AbUKKV77 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 16:59:59 -0500
+Date: Thu, 11 Nov 2004 13:59:37 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: Reiser{3,4}: problem with the copyright statement
+In-Reply-To: <20041111214554.GB2310@stusta.de>
+Message-ID: <Pine.LNX.4.58.0411111355020.2301@ppc970.osdl.org>
+References: <20041111012333.1b529478.akpm@osdl.org> <20041111214554.GB2310@stusta.de>
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Nick Piggin <piggin@cyberone.com.au>, Rik van Riel <riel@redhat.com>,
-       Andrea Arcangeli <andrea@novell.com>,
-       Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>, tglx@linutronix.de
-Subject: Re: [PATCH] fix spurious OOM kills
-References: <20041111112922.GA15948@logos.cnet>
-In-Reply-To: <20041111112922.GA15948@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Marcelo Tosatti escreveu:
-> This is an improved version of OOM-kill-from-kswapd patch.
+On Thu, 11 Nov 2004, Adrian Bunk wrote:
+> 
+> I have no problem with dual-licensed code, but I do strongly dislike 
+> having this "unlike you explicitley state otherwise, you transfer all 
+> rights to Hans Reiser" in the kernel.
 
-It seems good. My normal repeatable test of building umlsim on my 64MB 
-P2 builds fine with this patch. On recent unpatched kernels it's 
-guaranteed to fail when the oom killer strikes at the linking stage.
+I don't see any reasonable alternatives. The alternative is for Hans 
+Reiser to not be able to merge with the kernel, which is kind of against 
+the _point_ of having a dual license.
 
-Regards,
-Chris R.
+If the wording grates or assignment is an issue (and yes, in the US you 
+technically really need to have an express _signed_ assignment, implied 
+assignments just don't work), asking people to make their changes PD 
+instead might work (they'd obviously immediately be subsumed under the GPL 
+as far as the kernel is concerned, but would allow the dual-licensing to 
+continue to work).
+
+That said, I don't think at least _this_ particular area has been 
+problematic, because quite frankly, very few people end up working on 
+other peoples filesystems, so as far as I can tell, almost all reiserfs 
+fixes have really been mainlt due to interface changes, nothing else. So 
+assignment of copyright etc doesn't really ever become an issue, if only 
+because copyrights require a bit of actual artistic value ;)
+
+		Linus

@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266101AbUAVAZs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 19:25:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266106AbUAVAZr
+	id S266148AbUAVAc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 19:32:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266152AbUAVAc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 19:25:47 -0500
-Received: from smtp.sys.beep.pl ([195.245.198.13]:13832 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S266101AbUAVAZp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 19:25:45 -0500
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: [2.6.1 + cset-20040120_0206] AHA152X building error
-Date: Thu, 22 Jan 2004 01:25:00 +0100
-User-Agent: KMail/1.5.94
-Cc: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58L.0401201043380.3210@alpha.zarz.agh.edu.pl> <20040121155501.4defb5b2.rddunlap@osdl.org>
-In-Reply-To: <20040121155501.4defb5b2.rddunlap@osdl.org>
-MIME-Version: 1.0
+	Wed, 21 Jan 2004 19:32:29 -0500
+Received: from gprs148-45.eurotel.cz ([160.218.148.45]:16768 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S266148AbUAVAc1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 19:32:27 -0500
+Date: Thu, 22 Jan 2004 01:32:12 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "tuija t." <tuxakka@yahoo.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swusp acpi
+Message-ID: <20040122003212.GC300@elf.ucw.cz>
+References: <200401211143.51585.tuxakka@yahoo.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200401220125.00864.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+In-Reply-To: <200401211143.51585.tuxakka@yahoo.co.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia czw 22. stycznia 2004 00:55, Randy.Dunlap napisa³:
+Hi!
 
-> |   LD [M]  drivers/scsi/pcmcia/aha152x_cs.o
-> |
-> | drivers/scsi/pcmcia/aha152x_core.o(.init.text+0x0): In function 
-`init_module':
-> | : multiple definition of `init_module'
-> |
-> | drivers/scsi/pcmcia/aha152x_stub.o(.init.text+0x0): first defined here
-> | ld: Warning: size of symbol `init_module' changed from 22 in
-> | drivers/scsi/pcmcia/aha152x_stub.o to 1212 in
-> | drivers/scsi/pcmcia/aha152x_core.o
-[...]
->
-> Are you sure that this is on 2.6.1 + changes?
-> I couldn't reproduce it there.
-It was broken here
-http://linus.bkbits.net:8080/linux-2.5/cset@1.1474.93.7?nav=index.html|
-ChangeSet@-3w
+> And with pressing power button everything else comes back exept
+> usb.
+> This behaviour is kind of "little light nap" and system comes back fast.
+> And I have also noticed that I cannot use bios passwd with
+> # echo 3 > /proc/acpi/sleep   cause even it doesn't reboot it goes
+> somehow to bios and bios passwd prompted but it doesn't accept it?
+> But after disabled bios passwd it works exept usb.
+> 
+> Can somebody give me any wise what I'm doing wrong or point
+> me to some documentation about this matter?
 
-and fixed here
-http://linus.bkbits.net:8080/linux-2.5/cset@1.1474.115.2?nav=index.html|
-ChangeSet@-3w
-
-> We do have this same problem in 2.4.25-preN.
-Any fix on that since source of problem is already known?
-
-> ~Randy
-> kernel-janitors project:  http://janitor.kernelnewbies.org/
-
+Seems like USB suspend/resume support is not yet working... Talk to
+usb maintainers and offer them some testing...
+								Pavel
 -- 
-Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

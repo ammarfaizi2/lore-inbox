@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbULEUyZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbULEUzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbULEUyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 15:54:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbULEUyY
+	id S261384AbULEUzg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 15:55:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbULEUzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 15:54:24 -0500
-Received: from gate.ebshome.net ([64.81.67.12]:65243 "EHLO gate.ebshome.net")
-	by vger.kernel.org with ESMTP id S261393AbULEUww (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 15:52:52 -0500
-Date: Sun, 5 Dec 2004 12:52:51 -0800
-From: Eugene Surovegin <ebs@ebshome.net>
-To: Linh Dang <dang.linh@gmail.com>
-Cc: Paul Mackerras <paulus@samba.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][PPC32[NEWBIE] enhancement to virt_to_bus/bus_to_virt (try 2)
-Message-ID: <20041205205251.GD3448@gate.ebshome.net>
-Mail-Followup-To: Linh Dang <dang.linh@gmail.com>,
-	Paul Mackerras <paulus@samba.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <3b2b32004120206497a471367@mail.gmail.com> <3b2b320041202082812ee4709@mail.gmail.com> <16815.31634.698591.747661@cargo.ozlabs.ibm.com> <3b2b32004120306463b016029@mail.gmail.com> <20041205101110.GC3448@gate.ebshome.net> <3b2b320041205111821527278@mail.gmail.com>
+	Sun, 5 Dec 2004 15:55:36 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:5318 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261384AbULEUy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 15:54:27 -0500
+Subject: 2.4.27 Potential race in n_tty.c:write_chan()
+From: Ryan Reading <rreading@msm.umr.edu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1102280061.10493.19.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3b2b320041205111821527278@mail.gmail.com>
-X-ICQ-UIN: 1193073
-X-Operating-System: Linux i686
-X-PGP-Key: http://www.ebshome.net/pubkey.asc
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 05 Dec 2004 15:54:21 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 05, 2004 at 02:18:45PM -0500, Linh Dang wrote:
-> From a single virtual buffer, the DMA library will build a chained list of
-> physically contiguous buffers (it  can be one or more physical buffers).
-> All the DMA engines I'm familiar with (mpc8260, mpc8580, marvell, etc.)
-> accept a list of physical buffers.
-> 
-> The decoding algorithm (from a single virtual buffer to a chained list of
-> physical buffers) is dead simple.
+I have been staring at this for a while and it seems there is a
+potential race condition in the write_chan() function in n_tty.c.  The
+problem I have noticed is in tty USB drivers.  Here is a rough sketch
+of the current write_chan().
 
-So you gonna call virt_to_bus several times (for each page) and see 
-whether you get new phys page or not? This could work, but for the 
-common case of phys-continuous buffer it'll be suboptimal, i.e. you 
-waste time calling virt_to_bus when it's not needed. TO make it better 
-you have to move that range check from virt_to_bus and friends to your 
-DMA library, in this case we end up in the same situation we are 
-already :) - no need to modify virt_to_bus....
+static ssize_t write_chan()
+{
+...
+add_wait_queue(&tty->write_wait, &wait);
+while(1) {     
+  set_current_state(TASK_INTERRUPTIBLE);
 
---
-Eugene
+  ...  // <- Window for race
+
+  c = tty->driver.write(tty, 1, b, nr);
+  nr -= c
+  if (!nr)
+    break;	<-- schedule() isn't called if all data was written!
+
+  schedule();
+}
+set_current_state(TASK_RUNNING);
+remove_wait_queue(&tty->write_wait, &wait);
+return;
+}
+
+So when write_chan() calls usb_driver::write(), typically the driver
+calls usb_submit_urb().  The write() call then returns immediately
+indicating that all of the data has been written (assuming it is less
+than the USB packets size).  The driver however is still waiting for an
+interrupt to complete the write and wakeup the current kernel path.  If
+write_chan() is called again and the interrupt is received within the
+window I outlined above, the current_state will be reset to TASK_RUNNING
+before the next usb_driver::write() is ever called!  If this happens, it
+seems that we would lose synchronisity and potentially lock the kernel
+path.
+
+It is also my understanding that the usb interrupt is generated from the
+ACK/NAK of the original usb_submit_urb().  If the driver is returning
+immediately without waiting on the interrupt and schedule() is never
+being called, there is no guarantee that the write() happened
+successfully (although we return that it has).  It seems if a driver
+wanted to guarantee this, it would have to artificially wait of the
+interrupt before returning.
+
+Anyone have any thoughts on this?  Thanks.
+
+-- Ryan
+

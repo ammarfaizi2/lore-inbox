@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265219AbTFEWFC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 18:05:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265217AbTFEWFC
+	id S265218AbTFEWCT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 18:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265219AbTFEWCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 18:05:02 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:18110 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265214AbTFEWEz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 18:04:55 -0400
-Subject: [PATCH 2.5.70] fix warning: unused variable longrun.c
-From: Joe DiMartino <joe@osdl.org>
-To: Trivial <trivial@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054851505.3642.59.camel@joe2.pdx.osdl.net>
+	Thu, 5 Jun 2003 18:02:19 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:26873 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265218AbTFEWCR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 18:02:17 -0400
+Date: Fri, 6 Jun 2003 00:15:42 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Oliver Pitzeier <o.pitzeier@uptime.at>
+Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: FW: Linux 2.4.20
+Message-ID: <20030605221541.GG7431@fs.tum.de>
+References: <000301c32ba6$6135ff00$1311a8c0@pitzeier.priv.at>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 Jun 2003 15:18:25 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000301c32ba6$6135ff00$1311a8c0@pitzeier.priv.at>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-simple fix to remove compiler warning
+On Thu, Jun 05, 2003 at 11:06:48PM +0200, Oliver Pitzeier wrote:
+> Hi folks!
+> 
+> Andreas de Pretis wrote:
+> > das Documentation/DocBook/journal-api.tmpl hat nen Bug (mach 
+> > mal ein 'make htmldocs') ... Patch ist anbei.
+> 
+> As German understading people can read above, Mr. Andreas de Pretis, sent me
+> this patch to forward it to the lkml. The problem seems to be, that he was not
+> able to do a 'make htmldocs', because of some (wrong) SGML tags in
+> journal-api.tmpl.
+> 
+> Please have a look at it, patch is attached (simple, but working. :-) ).
 
-===== arch/i386/kernel/cpu/cpufreq/longrun.c 1.13 vs edited =====
---- 1.13/arch/i386/kernel/cpu/cpufreq/longrun.c	Mon Mar 17 05:54:38 2003
-+++ edited/arch/i386/kernel/cpu/cpufreq/longrun.c	Thu Jun  5 14:57:41 2003
-@@ -224,7 +224,6 @@
- static int longrun_cpu_init(struct cpufreq_policy *policy)
- {
- 	int                     result = 0;
--	struct cpuinfo_x86 *c = cpu_data;
- 
- 	/* capability check */
- 	if (policy->cpu != 0)
+This issue is already fixed in 2.4.21-rc7 .
 
+> Best regards,
+>  Oliver
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

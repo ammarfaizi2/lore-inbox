@@ -1,76 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262126AbUCGPuY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 10:50:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbUCGPuY
+	id S262104AbUCGPth (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 10:49:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbUCGPth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 10:50:24 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:59640 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262169AbUCGPuP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 10:50:15 -0500
-Date: Sun, 7 Mar 2004 16:50:08 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Daniel Egger <degger@fhm.edu>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>, jgarzik@pobox.com,
-       linux-net@vger.kernel.org
-Subject: [2.4 patch] MAINTAINERS: remove LAN media entry
-Message-ID: <20040307155008.GM22479@fs.tum.de>
-References: <20040226225131.GX5499@fs.tum.de> <A93036A2-68C5-11D8-A46E-000A9597297C@fhm.edu> <20040227205446.GZ5499@fs.tum.de> <DC71BC17-69DC-11D8-BD1F-000A9597297C@fhm.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <DC71BC17-69DC-11D8-BD1F-000A9597297C@fhm.edu>
-User-Agent: Mutt/1.4.2i
+	Sun, 7 Mar 2004 10:49:37 -0500
+Received: from mail.xor.at ([62.99.218.147]:20881 "EHLO merkur.xor.at")
+	by vger.kernel.org with ESMTP id S262104AbUCGPtf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 10:49:35 -0500
+Message-ID: <404B4485.1050507@xor.at>
+Date: Sun, 07 Mar 2004 16:49:25 +0100
+From: Johannes Resch <jr@xor.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Multiple oopses with 2.4.25
+References: <Pine.LNX.4.44.0403050914450.2678-100000@dmt.cyclades>
+In-Reply-To: <Pine.LNX.4.44.0403050914450.2678-100000@dmt.cyclades>
+X-Enigmail-Version: 0.83.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.16; AVE: 6.24.0.6; VDF: 6.24.0.42; host: mail.xor.at)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 28, 2004 at 11:57:11AM +0100, Daniel Egger wrote:
-> On Feb 27, 2004, at 9:54 pm, Adrian Bunk wrote:
+Hi Marcelo,
+
+On 2004-03-05 13:18, Marcelo Tosatti wrote:
+> On Wed, 3 Mar 2004, Johnny Strom wrote:
+>>
+>>I also get multiple oopse's with 2.4.25 plus the latest
+>>ipsec kernel patch form http://www.freeswan.org/.
+>>
+>>I have to reset the computer to get it working again,
+>>below is the oopse's:
 > 
-> >IOW:
-> >The entry from MAINTAINER can be removed?
 > 
-> This one for sure. The same is probably sensible for the
-> drivers, too. It's just too confusing to not several
-> versions of the driver floating around which need different
-> tools. And since the manufacturer propagates their own
-> version, the linux one should go...
->...
+> Dear fellows,
+> 
+> I have seen similar reports. 
+> 
+> Can you find out which kernel does not exhibit the behaviour with the same
+> freeswan/grsec patches ?
 
 
-It's a question whether removing drivers from a stable kernel series is 
-a good idea, but the following is definitely correct:
+I'm not able to reproduce the oopses.
+I've been running 2.4.24 / 2.4.23 with grsec 1.9.13 without any problems 
+before.
 
 
---- linux-2.4.26-pre2-full/MAINTAINERS.old	2004-03-07 16:48:59.000000000 +0100
-+++ linux-2.4.26-pre2-full/MAINTAINERS	2004-03-07 16:49:09.000000000 +0100
-@@ -1077,12 +1077,6 @@
- W:	http://www.cse.unsw.edu.au/~neilb/oss/knfsd/
- S:	Maintained
- 
--LANMEDIA WAN CARD DRIVER
--P:      Andrew Stanley-Jones
--M:      asj@lanmedia.com
--W:      http://www.lanmedia.com/
--S:      Supported
-- 
- LAPB module
- P:	Henner Eisen
- M:	eis@baty.hanse.de
-
-
-> Servus,
->       Daniel
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--jr
 

@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285007AbRLUTUm>; Fri, 21 Dec 2001 14:20:42 -0500
+	id <S285013AbRLUT0W>; Fri, 21 Dec 2001 14:26:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285036AbRLUTUd>; Fri, 21 Dec 2001 14:20:33 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:46861 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S285020AbRLUTP3>;
-	Fri, 21 Dec 2001 14:15:29 -0500
-Date: Tue, 18 Dec 2001 00:17:03 +0000
+	id <S285041AbRLUT0P>; Fri, 21 Dec 2001 14:26:15 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:41478 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S285014AbRLUTX7>;
+	Fri, 21 Dec 2001 14:23:59 -0500
+Date: Tue, 18 Dec 2001 00:21:10 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-Cc: Romano Giannetti <romano@dea.icai.upco.es>, linux-kernel@vger.kernel.org
-Subject: Re: User-manageable sub-ids proposals
-Message-ID: <20011218001702.A37@toy.ucw.cz>
-In-Reply-To: <20011207202036.J2274@redhat.com> <20011208155841.A56289@wobbly.melbourne.sgi.com> <3C127551.90305@namesys.com> <20011211134213.G70201@wobbly.melbourne.sgi.com> <5.1.0.14.2.20011211184721.04adc9d0@pop.cus.cam.ac.uk> <3C1678ED.8090805@namesys.com> <20011212204333.A4017@pimlott.ne.mediaone.net> <3C1873A2.1060702@namesys.com> <20011213113616.B6547@pern.dea.icai.upco.es> <20011213143752.A17124@vestdata.no>
+To: Kimio Suganuma <k-suganuma@mvj.biglobe.ne.jp>
+Cc: linux-kernel@vger.kernel.org, large-discuss@lists.sourceforge.net,
+        Heiko Carstens <Heiko.Carstens@de.ibm.com>,
+        Jason McMullan <jmcmullan@linuxcare.com>,
+        Anton Blanchard <antonb@au1.ibm.com>,
+        Greg Kroah-Hartman <ghartman@us.ibm.com>, rusty@rustcorp.com.au
+Subject: Re: [ANNOUNCE] HotPlug CPU patch against 2.5.0
+Message-ID: <20011218002110.B37@toy.ucw.cz>
+In-Reply-To: <20011213132557.5B3E.K-SUGANUMA@mvj.biglobe.ne.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20011213143752.A17124@vestdata.no>; from kernel@ragnark.vestdata.no on Thu, Dec 13, 2001 at 02:37:52PM +0100
+In-Reply-To: <20011213132557.5B3E.K-SUGANUMA@mvj.biglobe.ne.jp>; from k-suganuma@mvj.biglobe.ne.jp on Thu, Dec 13, 2001 at 01:29:42PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> And we end up with a different solution:
-> olduid=getuid();
-> /* Allocate a uid with no privilegies */
+> The Hotplug CPU patch for 2.5.0 is uploaded.
+> 
+>   http://sourceforge.net/projects/lhcs/
+> 
+> This patch works on s390, s390x, x86 and ia64 architectures.
+> It can also be applied against 2.4.16 with a little modification.
+> 
+> Down CPU
+> echo 0 > /proc/sys/kernel/cpu/<id>/online
+> 
+> Up CPU
+> echo 1 > /proc/sys/kernel/cpu/<id>/online
 
-Dangerous. Imagine:
+Such patches are neccessary for ACPI S3/S4 sleep support. It would be nice to
+apply them soon.
+								Pavel
 
-	while (1) {
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

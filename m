@@ -1,54 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129219AbRBFUgw>; Tue, 6 Feb 2001 15:36:52 -0500
+	id <S130150AbRBFUiN>; Tue, 6 Feb 2001 15:38:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129571AbRBFUgm>; Tue, 6 Feb 2001 15:36:42 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:46858 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S129219AbRBFUgh>;
-	Tue, 6 Feb 2001 15:36:37 -0500
-Date: Tue, 6 Feb 2001 21:35:58 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Christoph Hellwig <hch@ns.caldera.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Ben LaHaise <bcrl@redhat.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        <kiobuf-io-devel@lists.sourceforge.net>,
-        Ingo Molnar <mingo@redhat.com>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <20010206212503.A5426@caldera.de>
-Message-ID: <Pine.LNX.4.30.0102062132250.10016-100000@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129293AbRBFUiD>; Tue, 6 Feb 2001 15:38:03 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:48388
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S130150AbRBFUhs>; Tue, 6 Feb 2001 15:37:48 -0500
+Date: Tue, 6 Feb 2001 15:46:16 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: OK to mount multiple FS in one dir?
+Message-ID: <20010206154616.A9875@animx.eu.org>
+In-Reply-To: <3A7E1942.5090903@goingware.com> <20010205180646.B32155@cadcamlab.org> <033601c09075$a60e43e0$de00a8c0@homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <033601c09075$a60e43e0$de00a8c0@homeip.net>; from Thorsten Glaser Geuer on Tue, Feb 06, 2001 at 07:47:11PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > > I found I could mount three partitions on /mnt
+> > 
+> > Yes.  New feature, appeared in the 2.4.0test series, or shortly before.
 
-On Tue, 6 Feb 2001, Christoph Hellwig wrote:
+I have a question, why was this idea even considered?
 
-> The second is that bh's are two things:
->
->  - a cacheing object
->  - an io buffer
->
-> This is not really an clean appropeach, and I would really like to get
-> away from it.
-
-caching bmap() blocks was a recent addition around 2.3.20, and i suggested
-some time ago to cache pagecache blocks via explicit entries in struct
-page. That would be one solution - but it creates overhead.
-
-but there isnt anything wrong with having the bhs around to cache blocks -
-think of it as a 'cached and recycled IO buffer entry, with the block
-information cached'.
-
-frankly, my quick (and limited) hack to abuse bhs to cache blocks just
-cannot be a reason to replace bhs ...
-
-	Ingo
-
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

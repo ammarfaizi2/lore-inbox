@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261411AbSJHVjp>; Tue, 8 Oct 2002 17:39:45 -0400
+	id <S263254AbSJHVpU>; Tue, 8 Oct 2002 17:45:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261426AbSJHVjp>; Tue, 8 Oct 2002 17:39:45 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:3014 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S261411AbSJHVjo>;
-	Tue, 8 Oct 2002 17:39:44 -0400
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD0236DF0F@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Iain McClatchie'" <iain@truecircuits.com>, linux-kernel@vger.kernel.org
-Subject: RE: SMP ACPI S3 support in 2.4 series?
-Date: Tue, 8 Oct 2002 14:45:22 -0700 
+	id <S263255AbSJHVpU>; Tue, 8 Oct 2002 17:45:20 -0400
+Received: from modemcable061.219-201-24.mtl.mc.videotron.ca ([24.201.219.61]:37760
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S263254AbSJHVpT>; Tue, 8 Oct 2002 17:45:19 -0400
+Date: Tue, 8 Oct 2002 17:36:16 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5][RFT] 3c509-ethtool and then some, take 2
+In-Reply-To: <15779.10216.623962.179406@kim.it.uu.se>
+Message-ID: <Pine.LNX.4.44.0210081732580.14579-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Iain McClatchie [mailto:iain@truecircuits.com] 
-> I'm buying a number of SMP servers.  These machines will go
-> idle for days at a time, and we'd like to send them into a
-> suspend-to-RAM (ACPI state S3) while they are unused.
+On Tue, 8 Oct 2002, Mikael Pettersson wrote:
+
+> Zwane Mwaikambo writes:
+>  > 	This should take care of it i think. From what you describe it 
+>  > looks like you're taking an interrupt right after we did a switch to 
+>  > window 4 when we do a spin_unlock_irq.
+>  > 
+>  > Mikael any testing is much appreciated, can you also try switching 
+>  > to full duplex?
 > 
-> I want to know if this is even possible with the Linux 2.4
-> series kernels, and if so, which hardware and kernel combinations
-> support it.  I'd also like to know if anyone really has this
-> working right now.
-> 
-> As dual Athlon systems appear to be the best performance/$ for
-> my application, I'm especially interested in getting those to
-> sleep, but I'll take any pointers I can get.
+> Tested on a 3c509B combo TP/AUI PnP card. Status check didn't kill the link.
+> Switching to AUI and back to TP worked. Attempt to switch to 100Mbps gave an
+> error but had no ill effects. Switching to full duplex (talking to a 3c575_cb
+> over a crossover cable) worked, as did going back to half duplex.
 
-S3 is really more "off" than servers generally want to be. Servers typically
-don't even support it.
+Thanks for the pretty extensive test!
 
-I would think for a server, you would want to leave it on, and maybe turn
-off the disks, or something.
+> But what's up with the driver date? October 16th is about a week in the future :-)
 
-Or maybe just turn the systems off.
+I'll fix that in the final ;)
 
-2.4 doesn't (and won't) support S3, anyways.
+	Zwane
+--
+function.linuxpower.ca
 
-Regards -- Andy

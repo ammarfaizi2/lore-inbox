@@ -1,52 +1,180 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262029AbVANRNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVANRZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262029AbVANRNx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 12:13:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbVANRNk
+	id S261932AbVANRZe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 12:25:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVANRZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 12:13:40 -0500
-Received: from colin2.muc.de ([193.149.48.15]:34568 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262029AbVANRL1 (ORCPT
+	Fri, 14 Jan 2005 12:25:33 -0500
+Received: from gate.perex.cz ([82.113.61.162]:14771 "EHLO mail.perex.cz")
+	by vger.kernel.org with ESMTP id S261932AbVANRZK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 12:11:27 -0500
-Date: 14 Jan 2005 18:11:24 +0100
-Date: Fri, 14 Jan 2005 18:11:24 +0100
-From: Andi Kleen <ak@muc.de>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, hugh@veritas.com, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       benh@kernel.crashing.org
-Subject: Re: page table lock patch V15 [0/7]: overview
-Message-ID: <20050114171124.GA23218@muc.de>
-References: <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com> <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com> <20050113180205.GA17600@muc.de> <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com> <20050114043944.GB41559@muc.de> <Pine.LNX.4.58.0501140838240.27382@schroedinger.engr.sgi.com> <20050114170140.GB4634@muc.de> <Pine.LNX.4.58.0501140906550.27552@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501140906550.27552@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 14 Jan 2005 12:25:10 -0500
+Date: Fri, 14 Jan 2005 18:23:57 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] ALSA 1.0.8
+Message-ID: <Pine.LNX.4.58.0501141822270.1757@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 09:08:54AM -0800, Christoph Lameter wrote:
-> On Fri, 14 Jan 2005, Andi Kleen wrote:
-> 
-> > > Looked at  arch/i386/lib/mmx.c. It avoids the mmx ops in an interrupt
-> > > context but the rest of the prep for mmx only saves the fpu state if its
-> > > in use. So that code would only be used rarely. The mmx 64 bit
-> > > instructions seem to be quite fast according to the manual. Double the
-> > > cycles than the 32 bit instructions on Pentium M (somewhat higher on Pentium 4).
-> >
-> > With all the other overhead (disabling exceptions, saving register etc.)
-> > will be likely slower. Also you would need fallback paths for CPUs
-> > without MMX but with PAE (like Ppro). You can benchmark
-> > it if you want, but I wouldn't be very optimistic.
-> 
-> So the PentiumPro is a cpu with atomic 64 bit operations in a cmpxchg but
-> no instruction to do an atomic 64 bit store or load although the
-> architecture conceptually supports 64bit atomic stores and loads? Wild.
+Linus, please do a
 
-It can do 64bit x87 FP loads/stores. But I doubt that is what you're 
-looking for.
+  bk pull http://linux-sound.bkbits.net/linux-sound
 
--Andi
+The GNU patch is available at:
+
+  ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-bk-2005-01-14.patch.gz
+
+The pull command will update the following files:
+
+ Documentation/sound/alsa/ALSA-Configuration.txt |   52 ++++++++------
+ include/sound/ac97_codec.h                      |    1 
+ include/sound/version.h                         |    4 -
+ sound/core/ioctl32/ioctl32.c                    |   89 ++++--------------------
+ sound/core/rawmidi.c                            |    4 -
+ sound/pci/ac97/ac97_codec.c                     |   16 +++-
+ sound/pci/ac97/ac97_patch.c                     |    9 +-
+ sound/pci/atiixp.c                              |   36 +++++----
+ sound/pci/ca0106/ca0106_mixer.c                 |    1 
+ sound/pci/ca0106/ca0106_proc.c                  |    1 
+ sound/pci/intel8x0.c                            |   20 +++++
+ sound/pci/mixart/mixart.c                       |    4 -
+ 12 files changed, 111 insertions(+), 126 deletions(-)
+
+through these ChangeSets:
+
+<perex@suse.cz> (05/01/13 1.1938.477.75)
+   ALSA 1.0.8
+
+<perex@suse.cz> (05/01/12 1.1938.477.74)
+   [ALSA] Add ac97_quirk option
+   
+   Documentation,ATIIXP driver
+   Added ac97_quirk option like intel and via drivers.
+   
+   Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+<perex@suse.cz> (05/01/12 1.1938.477.73)
+   [ALSA] Fix ctl_read/write ioctl wrappers
+   
+   IOCTL32 emulation
+   Fixed bugs with ctl_read/write ioctls.
+   The struct size mismatch due to alignment is fixed.
+   The code is also a bit optimized.
+   
+   Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+<perex@suse.cz> (05/01/12 1.1938.477.72)
+   [ALSA] Fix DMA pointer read
+   
+   ATIIXP driver
+   Try to reread DMA pointer register if the value is invalid.
+   The register shows bogus values on some broken hardwares.
+   
+   Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+<perex@suse.cz> (05/01/12 1.1938.477.71)
+   [ALSA] Add suspend callback
+   
+   AC97 Codec Core
+   Add suspend callback for each codec patch.
+   
+   Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+<perex@suse.cz> (05/01/12 1.1938.477.70)
+   [ALSA] Remove & from function pointers
+   
+   AC97 Codec Core
+   Remove & from function pointers (it works but not common to add it...)
+   
+   Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+<perex@suse.cz> (05/01/12 1.1938.477.69)
+   [ALSA] Fixed description about ac97_quirk
+   
+   Documentation
+   Fixed the description about ac97_quirk option.
+   Now it accepts string, too.
+   
+   Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+<perex@suse.cz> (05/01/12 1.1938.477.68)
+   [ALSA] Adapt SPDIF Input selection for Realtek ALC658
+   
+   AC97 Codec Core
+   This fixes the SPDIF Input selection for ALC658 as Realtek has
+   changed the meaning betweenALC655 and ALC658.
+   
+   Signed-off-by: Stefan Macher <Stefan.Macher@web.de>
+   Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+<perex@suse.cz> (05/01/12 1.1938.477.67)
+   [ALSA] Fix Oops at resume
+   
+   AC97 Codec Core
+   Fixed Oops at resume on certain codecs.
+   Set null ops when no patch exists or the patch doesn't set build_ops.
+   
+   Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+<perex@suse.cz> (05/01/12 1.1938.477.66)
+   [ALSA] remove compatibility code for 2.2.x kernels
+   
+   CA0106 driver
+   
+   
+   Signed-off-by: Clemens Ladisch <clemens@ladisch.de>
+
+<perex@suse.cz> (05/01/12 1.1938.477.65)
+   [ALSA] Add quirk for HP zv5000
+   
+   Intel8x0 driver
+   Added the quirk for HP zv5000 (mute LED with EAPD).
+   
+   Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+<perex@suse.cz> (05/01/12 1.1938.477.64)
+   [ALSA] Fix float format support
+   
+   MIXART driver
+   Fixed typos in float format support.
+   
+   Signed-off-by: Markus Bollinger<bollinger@digigram.com>
+   Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+<perex@suse.cz> (05/01/12 1.1938.477.63)
+   [ALSA] Fix description of ALSA/OSS device mapping
+   
+   Documentation
+   Fixed the description of ALSA/OSS device mapping.  The direction
+   suffix was missing in ALSA devices.
+   
+   Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+<perex@suse.cz> (05/01/12 1.1938.477.62)
+   [ALSA] ac97 quirk entries for HP xw6200 & xw8000
+   
+   Intel8x0 driver
+   Add AC97 quick list entries to snd-intel8x0 for HP xw6200 and xw8000.
+   
+   Signed-off-by: John W. Linville <linville@tuxdriver.com>
+   Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+<perex@suse.cz> (05/01/12 1.1938.477.61)
+   [ALSA] Fix ioctl arguments
+   
+   RawMidi Midlevel
+   Fixed the wrong pointer types passed to get_user() for
+   DROP and DRAIN ioctls.
+   
+   Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

@@ -1,81 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266216AbUJQRPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269193AbUJQRVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266216AbUJQRPq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 13:15:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269210AbUJQRPp
+	id S269193AbUJQRVr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 13:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269206AbUJQRVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 13:15:45 -0400
-Received: from mail.kroah.org ([69.55.234.183]:55006 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266216AbUJQRPS (ORCPT
+	Sun, 17 Oct 2004 13:21:47 -0400
+Received: from smtp3.netcabo.pt ([212.113.174.30]:47812 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S269193AbUJQRVp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 13:15:18 -0400
-Date: Sun, 17 Oct 2004 10:14:36 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew <cmkrnl@speakeasy.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kernel-2.6.9.rc4 lib/kobject.c
-Message-ID: <20041017171436.GA23454@kroah.com>
-References: <4171EB60.50800@speakeasy.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4171EB60.50800@speakeasy.net>
-User-Agent: Mutt/1.5.6i
+	Sun, 17 Oct 2004 13:21:45 -0400
+Message-ID: <32798.192.168.1.5.1098033608.squirrel@192.168.1.5>
+In-Reply-To: <20041017161228.GB22620@elte.hu>
+References: <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
+    <1097888438.6737.63.camel@krustophenia.net>
+    <1097894120.31747.1.camel@krustophenia.net>
+    <20041016064205.GA30371@elte.hu>
+    <1097917325.1424.13.camel@krustophenia.net>
+    <20041016103608.GA3548@elte.hu>
+    <32801.192.168.1.5.1098018846.squirrel@192.168.1.5>
+    <20041017132107.GA18462@elte.hu>
+    <32793.192.168.1.5.1098023139.squirrel@192.168.1.5>
+    <20041017161228.GB22620@elte.hu>
+Date: Sun, 17 Oct 2004 18:20:08 +0100 (WEST)
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: "Lee Revell" <rlrevell@joe-job.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       "Daniel Walker" <dwalker@mvista.com>, "Bill Huey" <bhuey@lnxw.com>,
+       "Andrew Morton" <akpm@osdl.org>, "Adam Heath" <doogie@debian.org>,
+       "Lorenzo Allegrucci" <l_allegrucci@yahoo.it>,
+       "Andrew Rodland" <arodland@entermail.net>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 17 Oct 2004 17:21:43.0760 (UTC) FILETIME=[C5E26500:01C4B46D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 16, 2004 at 11:47:44PM -0400, Andrew wrote:
-> 
-> --- lib/kobject.c.orig    2004-10-16 20:51:01.450973973 -0400
-> +++ lib/kobject.c    2004-10-16 21:08:19.961602269 -0400
-> @@ -177,6 +177,10 @@ static void kset_hotplug(const char *act
->    envp [i++] = scratch;
->    scratch += sprintf(scratch, "ACTION=%s", action) + 1;
-> 
-> +    kobj_path = kobject_get_path(kset, kobj, GFP_KERNEL);
-> +    if (!kobj_path)
-> +        goto exit;
-> +
+Ingo Molnar wrote:
+>
+> Rui Nuno Capela wrote:
+>
+>> > eth0: 3Com Gigabit LOM (3C940)
+>> > eth0: network connection down
+>> >       PrefPort:A  RlmtMode:Check Link State
+>> >
+>> > is this normal? Could the stall simply be a bootup stall due to no
+>> > network available?
+>> >
+>>
+>> Yes, I think it's normal. The fact is that on the non-RT kernel, the
+>> eth0 device comes up immediately after, as you can see on
+>> minicom.cap.{6,7,8} capture files.
+>
+> ok, then please try to do a sysrq-T. The bootup is soft-hung for some
+> reason, lets see what tasks are around.
+>
 
-Your email client ate the tabs :(
+Hey, all the captured files I've sent, minicom.cap{0,1,2,3,4,5}, includes
+the SysRq-T output, taken right after the hang. Am I missing something?
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
 
->    spin_lock(&sequence_lock);
->    seq = sequence_num++;
->    spin_unlock(&sequence_lock);
-> @@ -184,10 +188,6 @@ static void kset_hotplug(const char *act
->    envp [i++] = scratch;
->    scratch += sprintf(scratch, "SEQNUM=%ld", seq) + 1;
-> 
-> -    kobj_path = kobject_get_path(kset, kobj, GFP_KERNEL);
-> -    if (!kobj_path)
-> -        goto exit;
-> -
->    envp [i++] = scratch;
->    scratch += sprintf (scratch, "DEVPATH=%s", kobj_path) + 1;
-> 
-> @@ -199,6 +199,13 @@ static void kset_hotplug(const char *act
->        if (retval) {
->            pr_debug ("%s - hotplug() returned %d\n",
->                  __FUNCTION__, retval);
-> +            /* decr sequence_num since no event will happen
-> +               but only if it is consistent */
-> +            spin_lock(&sequence_lock);
-> +            if (sequence_num == seq+1)
-> +               sequence_num--;
-> +            spin_unlock(&sequence_lock);
-> +
-
-This could cause the same sequence number to be given to more than one
-event.  That would really mess userspace up.  It can handle gaps in
-sequence numbers, as long as they are constantly incrementing.
-
-Care to redo this to give out the sequence number as the last thing
-before calling call_usermodehelper()?  That should fix the issue, right?
-
-Oh, and this portion of the kernel has been pretty much reworked a lot
-recently.  Check out the -mm kernel release for what it now looks like
-(and what will be sent to Linus after 2.6.9 is released.)
-
-thanks,
-
-greg k-h

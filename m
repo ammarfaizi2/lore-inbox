@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265249AbRGJKQK>; Tue, 10 Jul 2001 06:16:10 -0400
+	id <S265317AbRGJKfF>; Tue, 10 Jul 2001 06:35:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265277AbRGJKQA>; Tue, 10 Jul 2001 06:16:00 -0400
-Received: from mail17.bigmailbox.com ([209.132.220.48]:21773 "EHLO
-	mail17.bigmailbox.com") by vger.kernel.org with ESMTP
-	id <S265249AbRGJKPt>; Tue, 10 Jul 2001 06:15:49 -0400
-Date: Tue, 10 Jul 2001 03:15:38 -0700
-Message-Id: <200107101015.DAA29269@mail17.bigmailbox.com>
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
-X-Mailer: MIME-tools 4.104 (Entity 4.116)
-Mime-Version: 1.0
-X-Originating-Ip: [64.40.52.111]
-From: "Colin Bayer" <colin_bayer@compnerd.net>
-To: linux-kernel@vger.kernel.org
-Cc: rddunlap@osdlab.org
-Subject: i810 I/O APIC (was Sticky IO-APIC problem)
+	id <S265465AbRGJKez>; Tue, 10 Jul 2001 06:34:55 -0400
+Received: from [164.164.82.29] ([164.164.82.29]:29683 "EHLO subexgroup.com")
+	by vger.kernel.org with ESMTP id <S265317AbRGJKeo>;
+	Tue, 10 Jul 2001 06:34:44 -0400
+From: "Anil Kumar" <anilk@subexgroup.com>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: Dynamic loadable Modules
+Date: Tue, 10 Jul 2001 16:04:54 +0530
+Message-ID: <NEBBIIKAMMOCGCPMPBJOGENICHAA.anilk@subexgroup.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+X-Return-Path: anilk@subexgroup.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-D'oh!  Well, I still haven't gotten the APIC to work... after *several* unclean reboots (and repeatedly checking my hex math), I'm back where I started.  After tinkering inside the configuration space of the I/O Controller Hub, no change is evident in /proc/interrupts.  The next time I start up XFree86, it freezes at a blank screen.  No vterm switches, Magic SysRq keys, or three-fingered salutes rescue me from it; the kernel doesn't even sing a verse of "Aiee, Killing My Interrupt Handler Softly".  Nothin' + bupkus.  Nothing.  Well, it's obviously not going to work from user space. 8-(  Any thoughts from the gurus out there?
+hi all,
+Can i know how are the dynamic loadable modules implemented. Any helpful
+pointers to resources would be highly appreciable.
+anil
 
-     -- Colin
+
+DISCLAIMER: This correspondence is confidential and intended for the named
+recipient(s) only. If you are not the named recipient and receive this
+correspondence in error, you must not copy, distribute or take any action in
+reliance on it and you should delete it from your system and notify the
+sender immediately. Unless otherwise stated, any views or opinions expressed
+are solely those of the author and do not represent those of Subex Systems
+Limited.
+
+www.subexgroup.com
 
 
-On the first day, man created the computer.  On the second day, God proclaimed from the heavens, "F0 0F C7 C8".
-
-------------------------------------------------------------
-The CompNerd Network: http://www.compnerd.com/
-Where a nerd can be a nerd.  Get your free webmail@compnerd.net!

@@ -1,98 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265875AbTLaAUt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 19:20:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265877AbTLaAUt
+	id S265869AbTLaAS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 19:18:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265875AbTLaAS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 19:20:49 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14012 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265875AbTLaAUp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 19:20:45 -0500
-Message-ID: <3FF21648.8030604@pobox.com>
-Date: Tue, 30 Dec 2003 19:20:24 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+	Tue, 30 Dec 2003 19:18:58 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:9215 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S265869AbTLaAS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 19:18:56 -0500
+Message-ID: <3FF215EE.9000509@why.dont.jablowme.net>
+Date: Tue, 30 Dec 2003 19:18:54 -0500
+From: Jim Crilly <jim@why.dont.jablowme.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Mickael Marchand <marchand@kde.org>
-CC: linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Justin T. Gibbs" <gibbs@scsiguy.com>,
-       Hugo Mills <hugo-lkml@carfax.org.uk>
-Subject: Re: [PATCH] adaptec 1210sa
-References: <200312220305.29955.marchand@kde.org>
-In-Reply-To: <200312220305.29955.marchand@kde.org>
-Content-Type: multipart/mixed;
- boundary="------------030700020005090506000107"
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Joshua Schmidlkofer <kernel@pacrimopen.com>,
+       "David B. Stevens" <dsteven3@maine.rr.com>, Jos Hulzink <josh@stack.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.7 (future kernel) wish
+References: <200312232342.17532.josh@stack.nl> <20031226233855.GA476@hh.idb.hist.no> <3FECCAF9.7070209@maine.rr.com> <1072507896.27022.226.camel@menion.home> <3FEE47F5.6090406@why.dont.jablowme.net> <20031230142004.GA14655@hh.idb.hist.no>
+In-Reply-To: <20031230142004.GA14655@hh.idb.hist.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030700020005090506000107
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Mickael Marchand wrote:
-> reading linux-scsi I found a suggestion by Justin to make adaptec's 1210 sa 
-> working. I made the corresponding patch for libata, and it actually works :)
+Helge Hafting wrote:
+> On Sat, Dec 27, 2003 at 10:03:17PM -0500, Jim Crilly wrote:
 > 
-> it needs  some redesign to only apply to aar1210 (as standard sil3112 does not 
-> need it) and I guess some testing before inclusion.
+>>>Sometimes Windows 2k or XP dump (BSOD), or maybe you just get an error. 
+>>>
+>>>
+>>>
+>>
+>>Generally it just complains that you pulled out the device prematurely, 
+> 
+> 
+> Depends on what the device is used for, I guess.
 
+Of course different things may happen depending on what's using the 
+device, but IME I've never seen the OS give a STOP error from that.
 
-Here is the patch I'm applying.  Please test and let me know how it goes.
+> 
+> 
+>>I've never seen one give a STOP error from that but I guess a bad driver 
+>>or USB controller could cause anything.
+>>
+> 
+> Well, try having a partially loaded system dll on removable
+> media when you pull the plug - it won't be pretty.
 
-Also, someone please send me a patch for the PCI ids :)
+If you go through all the work to get Windows to use a system file from 
+  removable device then pull it out while using it, you deserve what you 
+get. The only thing you could do is page in the entire system file if 
+you notice it's on a removable device then put a copy in swap for the 
+case that someone pulls it out, but I don't think the special case would 
+be worth it on Windows or Linux. Not that I have any proof Windows 
+doesn't attempt to do that already =)
 
-	Jeff
+> 
+> 
+>>When you insert a device like a USB stick Windows puts a little icon 
+>>next to the clock in the system tray that you're supposed to use to stop 
+>>the device before pulling it, effectively it unmounts and stops (or 
+>>atleast releases the device from) the driver so the device can be 
+>>'safely' removed. I also believe Windows mounts any removable device 
+>>synchronously so that if you do pull it out prematurely the damage done 
+>>is limited.
+> 
+> 
+> Linux has sync mounts too. :-)  the rest is a gui thing, i.e. not kernel.
 
+I know, but I felt like mentioning the rest because it's relevant to a 
+number of people on the list.
 
+> 
+> Helge Hafting
 
---------------030700020005090506000107
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-===== drivers/scsi/sata_sil.c 1.3 vs edited =====
---- 1.3/drivers/scsi/sata_sil.c	Tue Dec 16 19:16:55 2003
-+++ edited/drivers/scsi/sata_sil.c	Tue Dec 30 19:11:02 2003
-@@ -40,6 +40,10 @@
- enum {
- 	sil_3112		= 0,
- 
-+	SIL_SYSCFG		= 0x48,
-+	SIL_MASK_IDE0_INT	= (1 << 22),
-+	SIL_MASK_IDE1_INT	= (1 << 23),
-+
- 	SIL_IDE0_TF		= 0x80,
- 	SIL_IDE0_CTL		= 0x8A,
- 	SIL_IDE0_BMDMA		= 0x00,
-@@ -236,6 +240,7 @@
- 	unsigned long base;
- 	void *mmio_base;
- 	int rc;
-+	u32 tmp;
- 
- 	if (!printed_version++)
- 		printk(KERN_DEBUG DRV_NAME " version " DRV_VERSION "\n");
-@@ -295,6 +300,14 @@
- 	probe_ent->port[1].bmdma_addr = base + SIL_IDE1_BMDMA;
- 	probe_ent->port[1].scr_addr = base + SIL_IDE1_SCR;
- 	ata_std_ports(&probe_ent->port[1]);
-+
-+	/* make sure IDE0/1 interrupts are not masked */
-+	tmp = readl(mmio_base + SIL_SYSCFG);
-+	if (tmp & (SIL_MASK_IDE0_INT | SIL_MASK_IDE1_INT)) {
-+		tmp &= ~(SIL_MASK_IDE0_INT | SIL_MASK_IDE1_INT);
-+		writel(tmp, mmio_base + SIL_SYSCFG);
-+		readl(mmio_base + SIL_SYSCFG);	/* flush */
-+	}
- 
- 	pci_set_master(pdev);
- 
-
---------------030700020005090506000107--
-
+Jim.

@@ -1,330 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262177AbTFTHg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 03:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTFTHg1
+	id S262429AbTFTHkW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 03:40:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbTFTHkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 03:36:27 -0400
-Received: from shark.pro-futura.com ([161.58.178.219]:11179 "EHLO
-	shark.pro-futura.com") by vger.kernel.org with ESMTP
-	id S262177AbTFTHgU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 03:36:20 -0400
-From: "Tvrtko A. =?iso-8859-2?q?Ur=B9ulin?=" <tvrtko@croadria.com>
-To: linux-kernel@vger.kernel.org
-Subject: PATCH: Improved OOM
-Date: Fri, 20 Jun 2003 09:51:15 +0200
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_zzr8+d/PoN8NhRw"
-Message-Id: <200306200951.15600.tvrtko@croadria.com>
+	Fri, 20 Jun 2003 03:40:22 -0400
+Received: from remt28.cluster1.charter.net ([209.225.8.38]:44433 "EHLO
+	remt28.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S262429AbTFTHkU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 03:40:20 -0400
+Date: Fri, 20 Jun 2003 03:52:51 -0400
+To: Bernd Schubert <bernd-schubert@web.de>, andre@linux-ide.org,
+       linux-kernel@vger.kernel.org, despair@adelphia.net
+Subject: Re: Problems with IDE on GA-7VAXP motherboard
+Message-ID: <20030620075249.GA7833@charter.net>
+References: <200306191429.40523.bernd-schubert@web.de> <20030619193118.GA32406@charter.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030619193118.GA32406@charter.net>
+User-Agent: Mutt/1.3.28i
+From: misty-@charter.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I believe I have nailed the problem to the wall. Your talk about the
+bios misdetecting the cable got me to thinking - I hadn't actually been
+able to see what the bios said it was configuring the disks attached to
+since lilo's menu came up microseconds later.
 
---Boundary-00=_zzr8+d/PoN8NhRw
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I still haven't bothered checking, however I believe the bios is on a
+very unhealthy volume of crack. :)
 
+using hdparm -i /dev/hda shows the disk wasn't configured to do any pio
+mode or udma/dma mode at boot time. Strange, right?
 
-Hello everyone,
+Stranger when you do hdparm -I on the disk again and it shows the disk
+is set to use udma4 - and the disk only understands up to udma2! - now
+add in the fact I currently have a 40 wire cable connected to the disk
+and my brain starts frying :)
 
-I think this is my first post to this list. I have something which I think is 
-a improved OOM killer, it is tested pretty well and I didn't find any 
-problems.
+At a suggestion of a friend, I set the disk to use mdma2 - via the line:
 
-Why did I wrote it?
-I had a problem on one server where mysql was repeatedly forking another child 
-which was consuming all the memory and, finally, being killed by OOM. But the 
-problem was that the situation was never ending because the parent was left 
-alone.
+hdparm -Xmdma2 -d1 /dev/hda
 
-What does it do?
-It keeps a statistics of how many times was a child of one specific parent 
-killed. Then, when a threshold is reached, the parent itself is killed. If 
-parent process was blacklisted, and didn't have its chidlren killed in X 
-seconds, it is removed from the list. Both values are configurable with 
-sysctl. 
+It worked, for all of two seconds. Remember, this is a WD drive. WD
+drives, or at least mine, like to screw up in pretty amazing ways when
+you turn dma on initially. Mine throws a screenful of CRC errors,
+causing the kernel to reset the ide channel. Oddly, I noticed that dma
+was still on despite the fact the channel had been reset - so I checked
+with -I again, only to find out now the disk was told to use udma*3*! -
+this wasn't getting me anywhere. >D Anyway, the simple fix was to force
+it to keep settings across a reset by doing:
 
-Situation described earlier was actually a kind of DoS attack. The only 
-solution was for a admin to log in and kill mysql manualy. But logging in 
-takes around 15 minutes while server is in such situation. With this patch, 
-admin must log in to restart killed application and it can do that without 
-waiting. In that way server down-time is minimalized, and only the attacked 
-service is affected with DoS attack.
+hdparm -Xmdma2 -k1 -d1 /dev/hda
 
-I am courious what comment will this patch receive. So please - feel free to 
-comment.
+- I am no longer getting any hda: lost interrupt messages, nor am I
+  getting any errors at all about the disk losing data or getting
+  confused. It's running slower than I'm used to, as I used to run it in
+  ata66 mode, but MUCH faster than it was a day ago. :) All I need to do now is migrate the information from this disk to one of my maxtors and I'm all set. Finally, I can start setting this machine up. Note, I could get this disk to use ata66 again if I switched cables to the 80 wire variant - but I plan on replacing this disk asap anyway.
 
-Also, I am not on the list so please use something like 'Reply All' eg. CC: me 
-when replying also.
+So, to summarize: The BIOS in the Gigabyte GA-7VAXP motherboard (and
+likely all variants using the same bios) is getting confused and
+misdetecting both the cable's abilities and the hard disks abilities,
+causing linux to have a very nasty fit when you try using it without
+manually changing the settings using hdparm.
 
-Thanks!
+I have not tried, nor will I likely try, setting the PIO modes up with
+this motherboard as I don't need to. However, it is very likely that the
+same problem occurs with dma disabled as with dma enabled - you need to
+manually reconfigure the hard disk and disk controller using hdparm to
+the correct values, or it just basically gets all confused and whines.
 
+Also note, I tested this setup after configuring with hdparm in three
+ways: First, I did a test using hdparm -t -T /dev/hda - Passed. A little
+slow, but understandable considering. Second, I did a simple test doing
+find / - this almost always caused the thing to throw a hda: lost
+interrupt before at some point or another. Passed. Finally, I'm
+currently doing a kernel compile. As I said, a P1 133 was outpacing this
+machine before. This is a AMD XP 2600+ - it's absolutely ludicrous for a
+P1 to outpace this thing, unless some unsane overclocker ... no, I don't
+want to encourage anyone. :P Anyway, even with the slow settings, the
+kernel compile is going quite nicely, and is going much faster than the
+P1 could ever hope to do.
 
+Note that the bios in this motherboard does not support turning OFF dma
+support - the only options are 'auto' 'ata33' and 'ata66/100/133' - all
+of which don't appear to actually work. For instance, I have the bios
+set to ata33 right now as I write this, and despite this, it was still
+trying to set the disk up to use udma4!
 
+A buggy bios a happy linux user does not make. :)
 
+  Thank you for all your help, time and effort. It was greatly
+  appreciated.
 
-
-
-
---Boundary-00=_zzr8+d/PoN8NhRw
-Content-Type: text/x-diff;
-  charset="iso-8859-2";
-  name="xoom-2.4.20.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="xoom-2.4.20.patch"
-
-diff -Naur linux-2.4.20/include/linux/sysctl.h linux-2.4.20-xoom/include/linux/sysctl.h
---- linux-2.4.20/include/linux/sysctl.h	2003-06-05 14:07:03.000000000 +0200
-+++ linux-2.4.20-xoom/include/linux/sysctl.h	2003-06-09 09:53:25.000000000 +0200
-@@ -143,6 +143,8 @@
- 	VM_MAX_MAP_COUNT=11,	/* int: Maximum number of active map areas */
- 	VM_MIN_READAHEAD=12,    /* Min file readahead */
- 	VM_MAX_READAHEAD=13,    /* Max file readahead */
-+	VM_OOM_PARENT_MAX=14, /* Max childs per parent oom-killed before we kill the parent */
-+	VM_OOM_PARENT_EXPIRE=15 /* Min numbers of seconds before we forget about parents sins */
- };
- 
- 
-diff -Naur linux-2.4.20/kernel/sysctl.c linux-2.4.20-xoom/kernel/sysctl.c
---- linux-2.4.20/kernel/sysctl.c	2002-08-06 09:10:56.000000000 +0200
-+++ linux-2.4.20-xoom/kernel/sysctl.c	2003-06-09 09:50:02.000000000 +0200
-@@ -50,6 +50,8 @@
- extern int sysrq_enabled;
- extern int core_uses_pid;
- extern int cad_pid;
-+extern unsigned int oom_parent_max;
-+extern unsigned int oom_parent_expire;
- 
- /* this is needed for the proc_dointvec_minmax for [fs_]overflow UID and GID */
- static int maxolduid = 65535;
-@@ -267,9 +269,9 @@
- 	 sizeof(sysctl_overcommit_memory), 0644, NULL, &proc_dointvec},
- 	{VM_PAGERDAEMON, "kswapd",
- 	 &pager_daemon, sizeof(pager_daemon_t), 0644, NULL, &proc_dointvec},
--	{VM_PGT_CACHE, "pagetable_cache", 
-+	{VM_PGT_CACHE, "pagetable_cache",
- 	 &pgt_cache_water, 2*sizeof(int), 0644, NULL, &proc_dointvec},
--	{VM_PAGE_CLUSTER, "page-cluster", 
-+	{VM_PAGE_CLUSTER, "page-cluster",
- 	 &page_cluster, sizeof(int), 0644, NULL, &proc_dointvec},
- 	{VM_MIN_READAHEAD, "min-readahead",
- 	&vm_min_readahead,sizeof(int), 0644, NULL, &proc_dointvec},
-@@ -277,6 +279,10 @@
- 	&vm_max_readahead,sizeof(int), 0644, NULL, &proc_dointvec},
- 	{VM_MAX_MAP_COUNT, "max_map_count",
- 	 &max_map_count, sizeof(int), 0644, NULL, &proc_dointvec},
-+	{VM_OOM_PARENT_MAX, "oom_parent_max",
-+	 &oom_parent_max, sizeof(int), 0644, NULL, &proc_dointvec},
-+	{VM_OOM_PARENT_EXPIRE, "oom_parent_expire",
-+	 &oom_parent_expire, sizeof(int), 0644, NULL, &proc_dointvec},
- 	{0}
- };
- 
-diff -Naur linux-2.4.20/mm/oom_kill.c linux-2.4.20-xoom/mm/oom_kill.c
---- linux-2.4.20/mm/oom_kill.c	2003-06-05 14:07:04.000000000 +0200
-+++ linux-2.4.20-xoom/mm/oom_kill.c	2003-06-09 09:40:04.000000000 +0200
-@@ -1,10 +1,13 @@
- /*
-  *  linux/mm/oom_kill.c
-- * 
-+ *
-  *  Copyright (C)  1998,2000  Rik van Riel
-  *	Thanks go out to Claus Fischer for some serious inspiration and
-  *	for goading me into coding this file...
-  *
-+ *  June 2003 Tvrtko A. Ursulin (tvrtko.ursulin@zg.htnet.hr)
-+ *	Extended with parent process statistics and appropriate actions
-+ *
-  *  The routines in this file are used to kill a process when
-  *  we're seriously out of memory. This gets called from kswapd()
-  *  in linux/mm/vmscan.c when we really run out of memory.
-@@ -21,12 +24,132 @@
- #include <linux/swapctl.h>
- #include <linux/timex.h>
- 
-+#define OOM_HISTORY_SIZE	32
-+
-+#define OOM_DEFAULT_VALUE	(10)
-+#define OOM_DEFAULT_EXPIRE	(5*60)
-+
-+struct parent_record
-+{
-+	pid_t				pid;
-+	struct task_struct	*task;
-+	unsigned long		first_kill;
-+	unsigned long		last_kill;
-+	unsigned long		value;
-+};
-+
-+unsigned int	oom_parent_max = OOM_DEFAULT_VALUE;
-+unsigned int	oom_parent_expire = OOM_DEFAULT_EXPIRE;
-+
-+static struct parent_record	kill_history[OOM_HISTORY_SIZE];
-+
- /* #define DEBUG */
- 
-+void oom_kill_task(struct task_struct *p);
-+
-+static void	process_kill_history(void)
-+{
-+	struct parent_record	*p;
-+	struct task_struct	*task;
-+
-+	unsigned int	i;
-+
-+	for ( i = 0; i < OOM_HISTORY_SIZE; i++ )
-+	{
-+		p = &kill_history[i];
-+		if ( p->pid )
-+		{
-+			task = find_task_by_pid(p->pid);
-+			if ( task != p->task )
-+			{
-+#ifdef DEBUG
-+	printk(KERN_DEBUG "OOMkill: parent %d (%p) removed from list - does not exist\n",p->pid, p->task);
-+#endif
-+				p->pid = 0;
-+			}
-+			else if ( abs(jiffies - p->last_kill) >= (oom_parent_expire*HZ) )
-+			{
-+#ifdef DEBUG
-+	printk(KERN_DEBUG "OOMkill: parent %d (%p) removed from list - expired\n",p->pid, p->task);
-+#endif
-+				p->pid = 0;
-+			}
-+			else if ( p->value >= oom_parent_max )
-+			{
-+				printk(KERN_ERR "Out of Memory: Will kill parent process %d (%s).\n",p->pid,p->task->comm);
-+				p->pid = 0;
-+				oom_kill_task(p->task);
-+			}
-+		}
-+	}
-+}
-+
-+static int	find_free_record(void)
-+{
-+	struct parent_record	*p;
-+
-+	unsigned int	i;
-+
-+	for ( i = 0; i < OOM_HISTORY_SIZE; i++ )
-+	{
-+		p = &kill_history[i];
-+		if ( !p->pid )
-+			return i;
-+	}
-+
-+	return -1;
-+}
-+
-+static struct parent_record	*find_in_kill_history(struct task_struct *task)
-+{
-+	struct parent_record	*p = NULL;
-+	unsigned int i;
-+
-+	if ( !task )
-+		return NULL;
-+
-+	for ( i = 0; i < OOM_HISTORY_SIZE; i++ )
-+	{
-+		p = &kill_history[i];
-+		if ( p->pid )
-+		{
-+			if ( (task->pid == p->pid) && (task == p->task) )
-+				return p;
-+		}
-+	}
-+
-+	return NULL;
-+}
-+
-+static struct parent_record	*new_parent(struct task_struct *task)
-+{
-+	struct parent_record	*p;
-+	int	i;
-+
-+	if ( !task )
-+		return NULL;
-+
-+	i = find_free_record();
-+
-+	if ( i < 0 )
-+		return NULL;
-+
-+	p = &kill_history[i];
-+
-+	p->pid= task->pid;
-+	p->task = task;
-+	p->first_kill = jiffies;
-+	p->last_kill = jiffies;
-+	p->value = 0;
-+
-+	return p;
-+}
-+
-+
- /**
-  * int_sqrt - oom_kill.c internal function, rough approximation to sqrt
-  * @x: integer of which to calculate the sqrt
-- * 
-+ *
-  * A very rough approximation to the sqrt() function.
-  */
- static unsigned int int_sqrt(unsigned int x)
-@@ -35,7 +158,7 @@
- 	while (x & ~(unsigned int)1) x >>=2, out >>=1;
- 	if (x) out -= out >> 2;
- 	return (out ? out : 1);
--}	
-+}
- 
- /**
-  * oom_badness - calculate a numeric value for how bad this task has been
-@@ -168,6 +291,7 @@
- static void oom_kill(void)
- {
- 	struct task_struct *p, *q;
-+	struct parent_record *parent;
- 
- 	read_lock(&tasklist_lock);
- 	p = select_bad_process();
-@@ -176,6 +300,19 @@
- 	if (p == NULL)
- 		panic("Out of memory and no killable processes...\n");
- 
-+	/* Add or update statistics for a parent processs */
-+	if ( p->p_opptr->pid > 1 )
-+	{
-+		parent = find_in_kill_history(p->p_opptr);
-+		if ( !parent )
-+			parent = new_parent(p->p_opptr);
-+		else
-+		{
-+			parent->value++;
-+			parent->last_kill = jiffies;
-+		}
-+	}
-+
- 	/* kill all processes that share the ->mm (i.e. all threads) */
- 	for_each_task(q) {
- 		if (q->mm == p->mm)
-@@ -201,6 +338,11 @@
- 	unsigned long now, since;
- 
- 	/*
-+	 * Process kill history...
-+	 */
-+	process_kill_history();
-+
-+	/*
- 	 * Enough swap space left?  Not OOM.
- 	 */
- 	if (nr_swap_pages > 0)
-
---Boundary-00=_zzr8+d/PoN8NhRw--
-
+  Tim McGrath

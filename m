@@ -1,86 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVASHbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVASHdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbVASHbp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 02:31:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbVASHbp
+	id S261616AbVASHdy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 02:33:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbVASHdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 02:31:45 -0500
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:34705 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261613AbVASHbm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 02:31:42 -0500
-Date: Tue, 18 Jan 2005 23:31:19 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Pavel Machek <pavel@ucw.cz>, George Anzinger <george@mvista.com>,
-       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Con Kolivas <kernel@kolivas.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] dynamic tick patch
-Message-ID: <20050119073119.GA29020@atomide.com>
-References: <20050119000556.GB14749@atomide.com> <1106108467.4500.169.camel@gaston> <20050119050701.GA19542@atomide.com> <1106112525.4534.175.camel@gaston> <20050119063713.GB26932@atomide.com> <1106118532.5295.3.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1106118532.5295.3.camel@gaston>
-User-Agent: Mutt/1.5.6i
+	Wed, 19 Jan 2005 02:33:54 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49087 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261616AbVASHdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 02:33:10 -0500
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: <fastboot@lists.osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH 6/29] x86-apic-virtwire-on-shutdown
+Date: Wed, 19 Jan 2005 0:31:37 -0700
+Message-ID: <x86-apic-virtwire-on-shutdown-11061198973730@ebiederm.dsl.xmission.com>
+X-Mailer: patch-bomb.pl@ebiederm.dsl.xmission.com
+In-Reply-To: <x86-64-i8259-shutdown-11061198973969@ebiederm.dsl.xmission.com>
+References: <overview-11061198973484@ebiederm.dsl.xmission.com>
+	<x86-rename-apic-mode-exint-11061198973109@ebiederm.dsl.xmission.com>
+	<x86-local-apic-fix-11061198972413@ebiederm.dsl.xmission.com>
+	<x86-64-e820-64bit-11061198971581@ebiederm.dsl.xmission.com>
+	<x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com>
+	<x86-64-i8259-shutdown-11061198973969@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Benjamin Herrenschmidt <benh@kernel.crashing.org> [050118 23:09]:
-> On Tue, 2005-01-18 at 22:37 -0800, Tony Lindgren wrote:
-> > * Benjamin Herrenschmidt <benh@kernel.crashing.org> [050118 21:29]:
-> > > Hrm... reading more of the patch & Martin's previous work, I'm not sure
-> > > I like the idea too much in the end... The main problem is that you are
-> > > just "replaying" the ticks afterward, which I see as a problem for
-> > > things like sched_clock() which returns the real current time, no ?
-> > 
-> > Well so far I haven't found problems with time. Since sched_clock()
-> > returns the hw time, how does it cause a problem? Do you have some
-> > example in mind? Maybe there's something I haven't even considered
-> > yet.
-> > 
-> > > I'll toy a bit with my own implementation directly using Martin's work
-> > > and see what kind of improvement I really get on ppc laptops.
-> > 
-> > I'd be interested in what you come up with :)
-> 
-> Well, I did a very simple implementation entirely local to
-> arch/ppc/kernel, that basically calls timer_interrupt on every do_IRQ, I
-> don't change timer_interrupt (our implementation already knows how to
-> "catch up" already if missed ticks and knows how to deal beeing called
-> to early as well). Then, when going to idle loop, I "override" the
-> decrementer interrupt setting to be further in the future if
-> next_timer_interrupt() returns more than 1.
 
-That sounds interesting, I'll check it out. Do you already have it
-available somewhere?
+When coming out of apic mode attempt to set the appropriate
+apic back into virtual wire mode.  This improves on previous versions
+of this patch by by never setting bot the local apic and the ioapic
+into veritual wire mode.
 
-BTW, It would be nice to be able to just skip ticks, maybe Martin's 
-cputime patch allows that.
+This code looks at data from the mptable to see if an ioapic has
+an ExtInt input to make this decision.  A future improvement
+is to figure out which apic or ioapic was in virtual wire mode
+at boot time and to remember it.  That is potentially a more accurate
+method, of selecting which apic to place in virutal wire mode.
 
-> Strangely, I got not measurable improvement on power consumption despite
-> putting the CPU longer into NAP mode. Note that this may be very
-> different with earlier (G3 notably) CPUs, since G3 users repeately
-> reported me havign a significant loss in battery life with HZ=1000
+Signed-off-by: Eric Biederman <ebiederm@xmission.com>
+---
 
-Yeah, it could be that NAP mode wakes up too early. I haven't looked
-much what happens on my machine with ACPI, but I have feeling C2 idle
-mode wakes up before the next timer interrupt.
+ arch/i386/kernel/apic.c    |   38 +++++++++++++++++++++++++++++++++++++-
+ arch/i386/kernel/io_apic.c |   33 ++++++++++++++++++++++++++++++++-
+ include/asm-i386/apic.h    |    2 +-
+ include/asm-i386/apicdef.h |    1 +
+ 4 files changed, 71 insertions(+), 3 deletions(-)
 
-It could also be that the difference between idling the cpu more 
-is minimal. But if there's a difference with HZ=1000, it sounds like
-idling the cpu longer should make a difference. Unless of course
-calling next_timer_interrupt() continuously eats away the gain :)
-
-> Later, I'll do some stats to check how long I really slept, and see if
-> it's worth, when I predict a long sleep, flushing the cache and going
-> into a deeper PM mode where cache coherency is disabled too.
-
-I think that's where there should be some real power savings showing up.
-
-Regards,
-
-Tony
+diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86_64-i8259-shutdown/arch/i386/kernel/apic.c linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/arch/i386/kernel/apic.c
+--- linux-2.6.11-rc1-mm1-nokexec-x86_64-i8259-shutdown/arch/i386/kernel/apic.c	Tue Jan 18 22:43:54 2005
++++ linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/arch/i386/kernel/apic.c	Tue Jan 18 22:45:00 2005
+@@ -211,7 +211,7 @@
+ 	enable_apic_mode();
+ }
+ 
+-void disconnect_bsp_APIC(void)
++void disconnect_bsp_APIC(int virt_wire_setup)
+ {
+ 	if (pic_mode) {
+ 		/*
+@@ -224,6 +224,42 @@
+ 				"entering PIC mode.\n");
+ 		outb(0x70, 0x22);
+ 		outb(0x00, 0x23);
++	}
++	else {
++		/* Go back to Virtual Wire compatibility mode */
++		unsigned long value;
++
++		/* For the spurious interrupt use vector F, and enable it */
++		value = apic_read(APIC_SPIV);
++		value &= ~APIC_VECTOR_MASK;
++		value |= APIC_SPIV_APIC_ENABLED;
++		value |= 0xf;
++		apic_write_around(APIC_SPIV, value);
++
++		if (!virt_wire_setup) {
++			/* For LVT0 make it edge triggered, active high, external and enabled */
++			value = apic_read(APIC_LVT0);
++			value &= ~(APIC_MODE_MASK | APIC_SEND_PENDING |
++				APIC_INPUT_POLARITY | APIC_LVT_REMOTE_IRR |
++				APIC_LVT_LEVEL_TRIGGER | APIC_LVT_MASKED );
++			value |= APIC_LVT_REMOTE_IRR | APIC_SEND_PENDING;
++			value = SET_APIC_DELIVERY_MODE(value, APIC_MODE_EXTINT);
++			apic_write_around(APIC_LVT0, value);
++		}
++		else {
++			/* Disable LVT0 */
++			apic_write_around(APIC_LVT0, APIC_LVT_MASKED);
++		}
++
++		/* For LVT1 make it edge triggered, active high, nmi and enabled */
++		value = apic_read(APIC_LVT1);
++		value &= ~(
++			APIC_MODE_MASK | APIC_SEND_PENDING |
++			APIC_INPUT_POLARITY | APIC_LVT_REMOTE_IRR |
++			APIC_LVT_LEVEL_TRIGGER | APIC_LVT_MASKED);
++		value |= APIC_LVT_REMOTE_IRR | APIC_SEND_PENDING;
++		value = SET_APIC_DELIVERY_MODE(value, APIC_MODE_NMI);
++		apic_write_around(APIC_LVT1, value);
+ 	}
+ }
+ 
+diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86_64-i8259-shutdown/arch/i386/kernel/io_apic.c linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/arch/i386/kernel/io_apic.c
+--- linux-2.6.11-rc1-mm1-nokexec-x86_64-i8259-shutdown/arch/i386/kernel/io_apic.c	Fri Jan 14 04:32:22 2005
++++ linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/arch/i386/kernel/io_apic.c	Tue Jan 18 22:45:00 2005
+@@ -1631,12 +1631,43 @@
+  */
+ void disable_IO_APIC(void)
+ {
++	int pin;
+ 	/*
+ 	 * Clear the IO-APIC before rebooting:
+ 	 */
+ 	clear_IO_APIC();
+ 
+-	disconnect_bsp_APIC();
++	/*
++	 * If the i82559 is routed through an IOAPIC
++	 * Put that IOAPIC in virtual wire mode
++	 * so legacy interrups can be delivered.
++	 */
++	pin = find_isa_irq_pin(0, mp_ExtINT);
++	if (pin != -1) {
++		struct IO_APIC_route_entry entry;
++		unsigned long flags;
++
++		memset(&entry, 0, sizeof(entry));
++		entry.mask            = 0; /* Enabled */
++		entry.trigger         = 0; /* Edge */
++		entry.irr             = 0;
++		entry.polarity        = 0; /* High */
++		entry.delivery_status = 0;
++		entry.dest_mode       = 0; /* Physical */
++		entry.delivery_mode   = 7; /* ExtInt */
++		entry.vector          = 0;
++		entry.dest.physical.physical_dest = 0;
++
++
++		/*
++		 * Add it to the IO-APIC irq-routing table:
++		 */
++		spin_lock_irqsave(&ioapic_lock, flags);
++		io_apic_write(0, 0x11+2*pin, *(((int *)&entry)+1));
++		io_apic_write(0, 0x10+2*pin, *(((int *)&entry)+0));
++		spin_unlock_irqrestore(&ioapic_lock, flags);
++	}
++	disconnect_bsp_APIC(pin != -1);
+ }
+ 
+ /*
+diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86_64-i8259-shutdown/include/asm-i386/apic.h linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/include/asm-i386/apic.h
+--- linux-2.6.11-rc1-mm1-nokexec-x86_64-i8259-shutdown/include/asm-i386/apic.h	Tue Jan 18 22:43:55 2005
++++ linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/include/asm-i386/apic.h	Tue Jan 18 22:45:00 2005
+@@ -100,7 +100,7 @@
+ extern int get_maxlvt(void);
+ extern void clear_local_APIC(void);
+ extern void connect_bsp_APIC (void);
+-extern void disconnect_bsp_APIC (void);
++extern void disconnect_bsp_APIC (int virt_wire_setup);
+ extern void disable_local_APIC (void);
+ extern void lapic_shutdown (void);
+ extern int verify_local_APIC (void);
+diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86_64-i8259-shutdown/include/asm-i386/apicdef.h linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/include/asm-i386/apicdef.h
+--- linux-2.6.11-rc1-mm1-nokexec-x86_64-i8259-shutdown/include/asm-i386/apicdef.h	Tue Jan 18 22:43:44 2005
++++ linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/include/asm-i386/apicdef.h	Tue Jan 18 22:45:00 2005
+@@ -86,6 +86,7 @@
+ #define			APIC_LVT_REMOTE_IRR		(1<<14)
+ #define			APIC_INPUT_POLARITY		(1<<13)
+ #define			APIC_SEND_PENDING		(1<<12)
++#define			APIC_MODE_MASK			0x700
+ #define			GET_APIC_DELIVERY_MODE(x)	(((x)>>8)&0x7)
+ #define			SET_APIC_DELIVERY_MODE(x,y)	(((x)&~0x700)|((y)<<8))
+ #define				APIC_MODE_FIXED		0x0

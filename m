@@ -1,66 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbUAMBBY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 20:01:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbUAMBBX
+	id S262674AbUAMAzn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 19:55:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbUAMAzn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 20:01:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19891 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262960AbUAMBBQ (ORCPT
+	Mon, 12 Jan 2004 19:55:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49327 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263125AbUAMAzj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 20:01:16 -0500
-Date: Mon, 12 Jan 2004 16:34:42 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Bart Oldeman <bartoldeman@users.sourceforge.net>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] 2.6.1 (not 2.4.24!) mremap fixes broke shm alias mappings
-In-Reply-To: <Pine.LNX.4.44.0401110020260.25252-100000@enm-bo-lt.enm.bris.ac.uk>
-Message-ID: <Pine.LNX.4.58.0401121632230.14305@evo.osdl.org>
-References: <Pine.LNX.4.44.0401110020260.25252-100000@enm-bo-lt.enm.bris.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 12 Jan 2004 19:55:39 -0500
+Date: Mon, 12 Jan 2004 16:52:31 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Andreas Beckmann <sparclinux@abeckmann.de>
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH 2.4] spelling: "Unix 98" -> "Unix98"
+Message-Id: <20040112165231.2384aa6e.rddunlap@osdl.org>
+In-Reply-To: <3FD277E5.5000306@abeckmann.de>
+References: <3FD277E5.5000306@abeckmann.de>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 07 Dec 2003 01:44:21 +0100 Andreas Beckmann <sparclinux@abeckmann.de> wrote:
+
+| "Unix98" is spelled as "Unix 98" at three locations: the config.in files 
+| for the architectures sparc64, sh and sh64.
+| My patch changes these to be "Unix98" like everywhere else.
+| The defconfig files for these architectures could be regenerated to 
+| match these changes.
+
+Hi,
+
+I guess that this patch might as well be merged, for the sake of
+consistency with the other uses of "Unix98" in config.in files.
+[The patch applies with 1-2 lines of offsets due to the addtion
+of the OOM_KILLER option.]
+
+However, looking at www.opensource.org, the
+"UNIX 98" branding seems to be spelled "UNIX 98".
+
+--
+~Randy
 
 
-On Sun, 11 Jan 2004, Bart Oldeman wrote:
-> 
-> DOSEMU needs to alias memory, for instance to emulate the HMA. A long time
-> ago this was done using mmaps of /proc/self/mem. This was replaced by
-> mremap combined with IPC SHM during 2.1 development.
-> 
-> According to DOSEMUs changelog you agreed to allow old_len==0:
->             - using _one_ big IPC shm segment and mremap(addr, 0 ...)
->               (Linus agreed on keeping shmat()+mremap(,0,..) functionality)
-> so you agreed on something you have removed after all now!
 
-Hey, I wouldn't remember all the special cases that aren't commented. But 
-I agree that a zero "old_len" is not bad in itself, and if DOSEMU uses it, 
-let's just continue to support it, and document it while we're at it.
-
-So if this makes DOSEMU happy again, let's do it..
-
-Pls confirm.
-
-		Linus
-
-----
-===== mm/mremap.c 1.35 vs edited =====
---- 1.35/mm/mremap.c	Wed Jan  7 18:26:37 2004
-+++ edited/mm/mremap.c	Mon Jan 12 16:32:15 2004
-@@ -315,8 +315,12 @@
- 	old_len = PAGE_ALIGN(old_len);
- 	new_len = PAGE_ALIGN(new_len);
+--- linux-2.4.23/arch/sparc64/config.in.orig	2003-11-28 19:26:19.000000000 +0100
++++ linux-2.4.23/arch/sparc64/config.in	2003-12-05 21:49:04.000000000 +0100
+@@ -247,7 +247,7 @@
  
--	/* Don't allow the degenerate cases */
--	if (!old_len || !new_len)
-+	/*
-+	 * We allow a zero old-len as a special case
-+	 * for DOS-emu "duplicate shm area" thing. But
-+	 * a zero new-len is nonsensical.
-+	 */
-+	if (!new_len)
- 		goto out;
+ # This one must be before the filesystem configs. -DaveM
+ mainmenu_option next_comment
+-comment 'Unix 98 PTY support'
++comment 'Unix98 PTY support'
+ bool 'Unix98 PTY support' CONFIG_UNIX98_PTYS
+ if [ "$CONFIG_UNIX98_PTYS" = "y" ]; then
+    int 'Maximum number of Unix98 PTYs in use (0-2048)' CONFIG_UNIX98_PTY_COUNT 256
+--- linux-2.4.23/arch/sh64/config.in.orig	2003-11-28 19:26:19.000000000 +0100
++++ linux-2.4.23/arch/sh64/config.in	2003-12-05 21:48:52.000000000 +0100
+@@ -231,7 +231,7 @@
+ fi
  
- 	/* new_addr is only valid if MREMAP_FIXED is specified */
+ 
+-comment 'Unix 98 PTY support'
++comment 'Unix98 PTY support'
+ bool 'Unix98 PTY support' CONFIG_UNIX98_PTYS
+ if [ "$CONFIG_UNIX98_PTYS" = "y" ]; then
+    int 'Maximum number of Unix98 PTYs in use (0-2048)' CONFIG_UNIX98_PTY_COUNT 256
+--- linux-2.4.23/arch/sh/config.in.orig	2003-11-28 19:26:19.000000000 +0100
++++ linux-2.4.23/arch/sh/config.in	2003-12-05 21:48:42.000000000 +0100
+@@ -369,7 +369,7 @@
+ if [ "$CONFIG_SERIAL" = "y" -o "$CONFIG_SH_SCI" = "y" ]; then
+    bool '  Support for console on serial port' CONFIG_SERIAL_CONSOLE
+ fi
+-comment 'Unix 98 PTY support'
++comment 'Unix98 PTY support'
+ bool 'Unix98 PTY support' CONFIG_UNIX98_PTYS
+ if [ "$CONFIG_UNIX98_PTYS" = "y" ]; then
+    int 'Maximum number of Unix98 PTYs in use (0-2048)' CONFIG_UNIX98_PTY_COUNT 256
+

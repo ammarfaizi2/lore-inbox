@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281717AbRLAVon>; Sat, 1 Dec 2001 16:44:43 -0500
+	id <S281772AbRLAWFf>; Sat, 1 Dec 2001 17:05:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281760AbRLAVoe>; Sat, 1 Dec 2001 16:44:34 -0500
-Received: from viper.haque.net ([66.88.179.82]:14990 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S281717AbRLAVoV>;
-	Sat, 1 Dec 2001 16:44:21 -0500
-Date: Sat, 1 Dec 2001 16:44:11 -0500
-Subject: Re: Coding style - a non-issue
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v477)
-Cc: linux-kernel@vger.kernel.org
-To: Stanislav Meduna <stano@meduna.org>
-From: "Mohammad A. Haque" <mhaque@haque.net>
-In-Reply-To: <200112012039.fB1KdGq03665@meduna.org>
-Message-Id: <8E3DC31D-E6A4-11D5-8B47-00306569F1C6@haque.net>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.477)
+	id <S281773AbRLAWFZ>; Sat, 1 Dec 2001 17:05:25 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56848 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281772AbRLAWFQ>; Sat, 1 Dec 2001 17:05:16 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] task_struct colouring ...
+Date: 1 Dec 2001 14:04:43 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9ubk5r$ev3$1@cesium.transmeta.com>
+In-Reply-To: <000901c17a51$62526070$010411ac@local>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, December 1, 2001, at 03:39 , Stanislav Meduna wrote:
-> Throwing releases onto the public is not testing. Saying
-> "it works/does not work for me" is not testing. Testing
-> is _actively_ trying to break things, _very_ preferably
-> by another person that wrote the code and to do it
-> in documentable and reproducible way. I don't see many
-> people doing it.
+Followup to:  <000901c17a51$62526070$010411ac@local>
+By author:    "Manfred Spraul" <manfred@colorfullife.com>
+In newsgroup: linux.dev.kernel
+> 
+> There are obviously lots of alternatives how to look up the task structure address:
+> * bottom of stack allocation (your patch)
+> * %cr2 (broken, only works for OS' that never cause page faults such as Netware)
+> * gs: (segment register, x86-64 uses that. But i386 doesn't have the swapgs instruction)
+> * str (Ben's patch)
+> * read from local apic memory (real slow!, uncached memory reference)
+> 
 
-If someone sent me a whole slew of hardware and provided a me with a 
-steady income so I didn't have to work, I could do this. But fact of the 
-matter is, most of the people working on the kernel are doing it not for 
-a living, but for fun or they enjoy it. They probably don't have the 
-endless fields of hardware that vendors do. If the above is what you 
-want, stick with vendor releases and not Linus (or maintainer) releases.
+%gs on x86-64 actually points to a per-CPU area; as does the proposed
+%tr hack.  IMNSHO I think this is a much better idea than having
+something that points to "current"; if we do this consistently across
+architectures I'm sure there is plenty we can use this per-CPU area
+for.
 
---
+Saving and restoring %gs (or %fs, which is less likely to be used in
+userspace, and therefore potentially faster) is probably not
+justifiable unless we do at least four accesses to "current" in the
+average system call.
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                                mhaque@haque.net
-
-   "Alcohol and calculus don't mix.             Developer/Project Lead
-    Don't drink and derive." --Unknown          http://www.themes.org/
-                                                batmanppc@themes.org
-=====================================================================
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

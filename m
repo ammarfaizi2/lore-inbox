@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262622AbTCPIk3>; Sun, 16 Mar 2003 03:40:29 -0500
+	id <S262623AbTCPItC>; Sun, 16 Mar 2003 03:49:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262623AbTCPIk3>; Sun, 16 Mar 2003 03:40:29 -0500
-Received: from holomorphy.com ([66.224.33.161]:19413 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262622AbTCPIk2>;
-	Sun, 16 Mar 2003 03:40:28 -0500
-Date: Sun, 16 Mar 2003 00:50:45 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>, Alex Tomas <bzzz@tmi.comex.ru>,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] concurrent inode allocation for ext2 against 2.5.64
-Message-ID: <20030316085045.GN1399@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, Alex Tomas <bzzz@tmi.comex.ru>,
-	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-References: <m365qk1gzx.fsf@lexa.home.net> <20030315135158.6d5fef1a.akpm@digeo.com> <20030315220618.GY20188@holomorphy.com>
+	id <S262631AbTCPItC>; Sun, 16 Mar 2003 03:49:02 -0500
+Received: from hauptpostamt.charite.de ([193.175.66.220]:24786 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id <S262623AbTCPItB>; Sun, 16 Mar 2003 03:49:01 -0500
+Date: Sun, 16 Mar 2003 09:59:51 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: ext3 users list <ext3-users@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Updated ext3 patch set for 2.4
+Message-ID: <20030316085951.GC24857@charite.de>
+Mail-Followup-To: ext3 users list <ext3-users@redhat.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <1047681775.2566.664.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030315220618.GY20188@holomorphy.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <1047681775.2566.664.camel@sisko.scot.redhat.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 15, 2003 at 01:51:58PM -0800, Andrew Morton wrote:
->> hm, I wonder if this should be in a separate cacheline.  We may as well use a
->> single lock if they're this close together.  Bill, can you test that
->> sometime?
+* Stephen C. Tweedie <sct@redhat.com>:
 
-On Sat, Mar 15, 2003 at 02:06:18PM -0800, William Lee Irwin III wrote:
-> Benching now.
+> http://people.redhat.com/sct/patches/ext3-2.4/dev-20030314/
+> 
+> This includes:
+> 
+> 00-merged/			diffs recently merged into 2.4
+> 10-core-fixes-other/		misc fixes/tweaks from akpm, adilger
+> 11-core-fixes-sct/		misc fixes/tweaks from sct
+> 20-tytso-updates/		Ted's recent updates
+> 21-updates-sct/			recent sct diffs pending upstream merge
+> 40-iflush-sct/			experimental inode-flush code
+> 50-debug/			archive of debug patches
+> 99-deferred/			stuff being kept around for future consideration
+> 
+> plus
+> 
+> all-patches.tar.gz		tarball of the above
+> combo-patch-10to21.patch.gz	combo patch of the 10--21 dirs above
 
-Sorry, this should have hit the list earlier.
+Some of those apparently went into pre5-ac3 -- which ones?
 
-Throughput 294.388 MB/sec 128 procs
-dbench 128  87.22s user 4286.79s system 2984% cpu 2:26.58 total
+-- 
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
+Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
 
-(the "before" picture was ca. 257MB/s)
-
-vmstat and oprofile info vanished, not sure why. A rerun is possible.
-
-
--- wli

@@ -1,61 +1,83 @@
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263729AbTEYT6j (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 25 May 2003 15:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263731AbTEYT6j
+	id S263732AbTEYUOn (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 25 May 2003 16:14:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263731AbTEYUOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 15:58:39 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:12846 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263729AbTEYT6i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 15:58:38 -0400
-Date: Sun, 25 May 2003 13:15:12 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Alistair J Strachan <alistair@devzero.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69-mm9
-Message-Id: <20030525131512.45ce0cc2.akpm@digeo.com>
-In-Reply-To: <200305251619.40137.alistair@devzero.co.uk>
-References: <200305251619.40137.alistair@devzero.co.uk>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 25 May 2003 16:14:43 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:29364
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S263732AbTEYUOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 16:14:39 -0400
+Message-ID: <3ED12727.1080907@redhat.com>
+Date: Sun, 25 May 2003 13:27:19 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030523
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+   Alexander Viro <aviro@redhat.com>
+Subject: oops with bk kernel as of 2003-05-25T13:00:00-07
+X-Enigmail-Version: 0.75.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 May 2003 20:11:48.0415 (UTC) FILETIME=[DF3EECF0:01C322F9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair J Strachan <alistair@devzero.co.uk> wrote:
->
-> 
-> These changes don't even get to login for me. I changed the mm9 command line 
-> to include init=/bin/sh and got to a prompt. I was able to reproduce an 
-> enormous number of oopses by issuing:
-> 
-> mount -o remount,rw /
-> 
-> I tried to log it with klogd pointed to a different partition (vfat) but the 
-> problem segfaults klogd before it commits anything to disc. I'll probably try 
-> to do it via serial console this evening if nobody else can reproduce this.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It sounds like that would be a useful course of action.
+I get an oops at startup time:
 
-> Another oddity is that changing my / partition to ext2 in /etc/fstab and 
-> booting normally (i.e., without init=) doesn't make any difference. If these 
-> changes are ext3/jbd only, why is my ext3 volume mounted as ext2 still not 
-> mounting rw?
+Unable to handle kernel NULL pointer dereference at virtual address 000003fc
+ printing eip:
+c0226e77
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c0226e77>]    Not tainted
+EFLAGS: 00010246
+EIP is at kobj_map+0x9b/0x137
+eax: cffbdf40   ebx: 00002400   ecx: cffbe6dc   edx: 00000000
+esi: 00000001   edi: 00000100   ebp: 00000024   esp: c1297f3c
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 1, threadinfo=c1296000 task=c1295900)
+Stack: 0000001c 000000d0 00000001 cffbdf40 00002400 cffbdf48 cffbe6a0
+c0157a4e
+       00000000 00002400 00000100 00000000 c01579c8 c01579cd cffbdf40
+cffbdf40
+       00000001 c01575d1 cffbdf40 00002400 00000100 c0316117 c03cdea4
+00000000
+Call Trace:
+ [<c0157a4e>] cdev_add+0x63/0x65
+ [<c01579c8>] exact_match+0x0/0x5
+ [<c01579cd>] exact_lock+0x0/0x1e
+ [<c01575d1>] register_chrdev+0xc6/0x10f
+ [<c039ec53>] init_netlink+0x1f/0x58
+ [<c039ec2e>] netlink_proto_init+0x47/0x4d
+ [<c0382880>] do_initcalls+0x27/0x93
+ [<c012ddc3>] init_workqueues+0xf/0x26
+ [<c01050a8>] init+0x4c/0x1a8
+ [<c010505c>] init+0x0/0x1a8
+ [<c0108a15>] kernel_thread_helper+0x5/0xb
 
-Changing fstab will not cause / to be mounted by ext2: the kernel makes the
-decision for /.  You may be able to use "rootfstype=" (I don't think I've
-ever tried it).
 
-The proper way to convert to ext2 is:
 
-- boot with init=/bin/sh
+I looked at the code and the problem is that cdev_map == NULL when
+cdev_add is called.  cdev_map is initialized in a constructor.  Maybe
+the wrong order or a race...
 
-- /sbin/tune2fs -O ^has_journal /dev/hda1
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-- /sbin/e2fsck -fy /dev/hda1
-
-- reboot, edit /etc/fstab for the non-root filesystems.
-
+iD8DBQE+0Scn2ijCOnn/RHQRAnuKAJ0dSiCceWR44y9tBDTV1M6DprpJ7ACeJ2tu
+GuQRjOGRP8x7iHi4+TvjxVI=
+=ydEX
+-----END PGP SIGNATURE-----
 

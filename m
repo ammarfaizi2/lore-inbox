@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267162AbSLaDzZ>; Mon, 30 Dec 2002 22:55:25 -0500
+	id <S267135AbSLaEFq>; Mon, 30 Dec 2002 23:05:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267164AbSLaDzZ>; Mon, 30 Dec 2002 22:55:25 -0500
-Received: from services.cam.org ([198.73.180.252]:1212 "EHLO mail.cam.org")
-	by vger.kernel.org with ESMTP id <S267162AbSLaDzY> convert rfc822-to-8bit;
-	Mon, 30 Dec 2002 22:55:24 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: David Schwartz <davids@webmaster.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH,RFC] fix o(1) handling of threads
-Date: Mon, 30 Dec 2002 23:03:50 -0500
-User-Agent: KMail/1.4.3
-References: <20021230230030.AAA103@shell.webmaster.com@whenever>
-In-Reply-To: <20021230230030.AAA103@shell.webmaster.com@whenever>
+	id <S267137AbSLaEFq>; Mon, 30 Dec 2002 23:05:46 -0500
+Received: from packet.digeo.com ([12.110.80.53]:53139 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267135AbSLaEFp>;
+	Mon, 30 Dec 2002 23:05:45 -0500
+Message-ID: <3E11198B.EEDE0DC0@digeo.com>
+Date: Mon, 30 Dec 2002 20:14:03 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <200212302303.50119.tomlins@cam.org>
-Content-Transfer-Encoding: 7BIT
+To: Matthew Zahorik <matt@albany.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How does the disk buffer cache work?
+References: <3E10F1C7.258629F6@digeo.com> <Pine.BSF.4.43.0212302153400.370-100000@ender.tmmz.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 Dec 2002 04:14:04.0365 (UTC) FILETIME=[0E1AFFD0:01C2B083]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 30, 2002 06:00 pm, David Schwartz wrote:
-> On Mon, 30 Dec 2002 16:45:50 -0500, Ed Tomlinson wrote:
-> >What this patches does is recognise threads as process that clone both
-> >mm and files.  For these 'threads' it tracks how many are active in a
-> >given group.  When many are active it reduces their timeslices as below
->
-> 	In general, changes that cause the system to become less efficient as load
-> increases are not such a good idea. By reducing timeslices, you increase
-> context-switching overhead. So the busier you are, the less efficient you
-> get. I think it would be wiser to keep the timeslice the same but assign
-> fewer timeslices.
+Matthew Zahorik wrote:
+> 
+> On Mon, 30 Dec 2002, Andrew Morton wrote:
+> 
+> > > [.. the next function call in read_cache_page() is lock_page(), which we
+> > > hang forever on ..]
+> >
+> > lock_page() will sleep until the page is unlocked.  The page is unlocked
+> > from end_buffer_io_sync(), which is called from within the context of
+> > the disk device driver's interrupt handler.
+> 
+> Okay, I'll track it down there.  Probably the driver not calling
+> end_buffer_io_sync() when timed out.  When the bad drive is detached,
+> things work fine - leading me to believe that hardware and interrupt
+> routing wise things are okay.
+> 
 
-That would be better - I cannot see a way to do it using O(1).  What might
-be possible (not sure how) is only to decrease the timeslices IF there are
-other tasks being slowed down by the thread group...
-
-Ed
-
+It won't call end_buffer_io_sync() explicitly - it calls the function which
+is pointed at by the relevant buffer's b_end_io vector.  Typically that
+will point at end_buffer_io_aysnc() or end_buffer_io_sync()

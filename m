@@ -1,117 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265084AbUGGME0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264002AbUGGMY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265084AbUGGME0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 08:04:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbUGGME0
+	id S264002AbUGGMY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 08:24:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbUGGMY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 08:04:26 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:19914 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S265084AbUGGMEL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 08:04:11 -0400
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: root@chaos.analogic.com, tom st denis <tomstdenis@yahoo.com>
-Subject: Re: Prohibited attachment type (was 0xdeadbeef)
-Date: Wed, 7 Jul 2004 14:13:18 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <20040707111028.82649.qmail@web41111.mail.yahoo.com> <Pine.LNX.4.53.0407070715380.17430@chaos>
-In-Reply-To: <Pine.LNX.4.53.0407070715380.17430@chaos>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407071413.18608.rjwysocki@sisk.pl>
+	Wed, 7 Jul 2004 08:24:29 -0400
+Received: from news.cistron.nl ([62.216.30.38]:26082 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S264002AbUGGMY1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 08:24:27 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: partitionable md devices and partition detection
+Date: Wed, 7 Jul 2004 12:24:26 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <ccgq1q$sht$1@news.cistron.nl>
+References: <20040707045939.GA20516@ols-dell.iic.hokudai.ac.jp> <16619.35060.821865.570842@cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1089203066 29245 62.216.29.200 (7 Jul 2004 12:24:26 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 of July 2004 13:18, Richard B. Johnson wrote:
-> On Wed, 7 Jul 2004, tom st denis wrote:
-> > --- viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > > On Tue, Jul 06, 2004 at 05:06:12PM -0700, tom st denis wrote:
-> > > > --- David Eger <eger@havoc.gtf.org> wrote:
-> > > > > Is there a reason to add the 'L' to such a 32-bit constant like
-> > >
-> > > this?
-> > >
-> > > > > There doesn't seem a great rhyme to it in the headers...
-> > > >
-> > > > IIRC it should have the L [probably UL instead] since numerical
-> > > > constants are of type ``int'' by default.
-> > > >
-> > > > Normally this isn't a problem since int == long on most platforms
-> > >
-> > > that
-> > >
-> > > > run Linux.  However, by the standard 0xdeadbeef is not a valid
-> > >
-> > > unsigned
-> > >
-> > > > long constant.
-> > >
-> > > ... and that would be your F for C101.  Suggested remedial reading
-> > > before
-> > > you take the test again: any textbook on C, section describing
-> > > integer
-> > > constants; alternatively, you can look it up in any revision of C
-> > > standard.
-> > > Pay attention to difference in the set of acceptable types for
-> > > decimal
-> > > and heaxdecimal constants.
-> >
-> > You're f'ing kidding me right?  Dude, I write portable ISO C source
-> > code for a living.  My code has been built on dozens and dozens of
-> > platforms **WITHOUT** changes.  I know what I'm talking about.
-> >
-> > 0x01, 1 are 01 all **int** constants.
-> >
-> > On some platforms 0xdeadbeef may be a valid int, in most cases the
-> > compiler won't diagnostic it.  splint thought it was worth mentioning
-> > which is why I replied.
-> >
-> > In fact GCC has odd behaviour.  It will diagnostic
-> >
-> > char x = 0xFF;
-> >
-> > and
-> >
-> > int x = 0xFFFFFFFFULL;
-> >
-> > But not
-> >
-> > int x = 0xFFFFFFFF;
-> >
-> > [with --std=c99 -pedantic -O2 -Wall -W]
-> >
-> > So I'd say it thinks that all of the constants are "int".  In this case
-> > 0xFF is greater than 127 [max for char] and 0xFFFFFFFFFFULL is larger
-> > than max for int.  in the 3rd case the expression is converted
-> > implicitly to int before the assignment is performed which is why there
-> > is no warning.
-> >
-> > Before you step down to belittle others I'd suggest you actually make
-> > sure you're right.
-> >
-> > Tom
+In article <16619.35060.821865.570842@cse.unsw.edu.au>,
+Neil Brown  <neilb@cse.unsw.edu.au> wrote:
+>On Wednesday July 7, chutz@gg3.net wrote:
+>> What is the proper way to detect the partitions on a md device during kernel
+>> initialization?
+>> The real problem I am facing is that I cannot boot my root partition, which is
+>> on /dev/md_d0p1, without using an initrd. The kernel complains that the device
+>> md_d0p1 does not exist.
 >
-> Tom is correct. A literal constant defaults to 'int'.
+>Hmm... I guess there isn't.
+>I remember having a lot of trouble getting partitions to be recognised
+>when an array is first assembled, and deciding it was just easier to
+>leave it to user-space.  However that isn't an option when booting
+>without an initrd.
 
-Anyway, I think it's a good idea to put L wherever a constant is meant to be 
-'long' and U wherever it's meant to be 'unsigned' etc., because it may be 
-useful in debigging, eg.:
+That's weird. It has been working for me out of the box.
 
-1) identifying wrong types being used (eg. int vs long, int vs unsigned, long 
-vs unsigned long),
-2) identifying typos (eg. 0x100000000 vs 0x10000000)
+>The following patch should make it work for the
+>  md=d0,....
+>case.
 
-Yours,
-rjw
+So the fact that it works for me is a freak accident?
 
--- 
-Rafael J. Wysocki
-----------------------------
-For a successful technology, reality must take precedence over public 
-relations, for nature cannot be fooled.
-					-- Richard P. Feynman
+I have this in lilo.conf:
+
+append="md=d0,/dev/sda,/dev/sdb root=/dev/md_d0p1 "
+
+and this is dmesg:
+
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: ... autorun DONE.
+md: Loading md_d0: /dev/sda
+md: bind<sda>
+md: bind<sdb>
+raid1: raid set md_d0 active with 2 out of 2 mirrors
+ md_d0: p1 p2 p3 < p5 p6 p7 p8 p9 p10 >
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+
+Mike.
+

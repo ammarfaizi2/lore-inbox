@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130362AbRARRxd>; Thu, 18 Jan 2001 12:53:33 -0500
+	id <S130164AbRARSAF>; Thu, 18 Jan 2001 13:00:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130164AbRARRxX>; Thu, 18 Jan 2001 12:53:23 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:5137
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130362AbRARRxH>; Thu, 18 Jan 2001 12:53:07 -0500
-Date: Thu, 18 Jan 2001 09:40:33 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-cc: Dan Hollis <goemon@sasami.anime.net>, Martin Mares <mj@suse.cz>,
-        Adam Lackorzynski <al10@inf.tu-dresden.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PCI-Devices and ServerWorks chipset
-In-Reply-To: <Pine.GSO.3.96.1010118111629.8140F-100000@delta.ds2.pg.gda.pl>
-Message-ID: <Pine.LNX.4.10.10101180936460.22169-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S130029AbRARR7z>; Thu, 18 Jan 2001 12:59:55 -0500
+Received: from ferret.phonewave.net ([208.138.51.183]:8458 "EHLO
+	tarot.mentasm.org") by vger.kernel.org with ESMTP
+	id <S129931AbRARR7t>; Thu, 18 Jan 2001 12:59:49 -0500
+Date: Thu, 18 Jan 2001 09:59:06 -0800
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: James Bottomley <J.E.J.Bottomley@HansenPartnership.com>,
+        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+Message-ID: <20010118095906.A8983@ferret.phonewave.net>
+In-Reply-To: <mike@UDel.Edu> <200101171616.LAA01194@localhost.localdomain> <20010118065012.B26045@cadcamlab.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010118065012.B26045@cadcamlab.org>; from peter@cadcamlab.org on Thu, Jan 18, 2001 at 06:50:12AM -0600
+From: idalton@ferret.phonewave.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jan 2001, Maciej W. Rozycki wrote:
+On Thu, Jan 18, 2001 at 06:50:12AM -0600, Peter Samuelson wrote:
+> [James Bottomley]
+> > The fundamental problem that we all agree on is that SCSI devices are
+> > detected in the order that the mid-layer hosts.c file calls their
+> > detect routines.
+> 
+> That was yesterday.  Today they are detected in the order they are
+> linked into the kernel, cf. the Makefile.  But yes, the problem is
+> basically the same.
+> 
+> > Further, for multiple cards of the same type, the detection order is
+> > up to the individual driver.
+> 
+> Yes.  PCI-based drivers will most likely use bus order since the kernel
+> provides facilities to do this easily.  For a single driver driving
+> multiple cards on multiple bus types, who knows.
 
->  Weird.  Others somehow are able to provide specs.  Documentation for the
-> entire line of Intel chipsets is available, for example.
+Multiple bus types... Compaq server with PCI and EISA, for example? IIRC
+the EISA bus is bridged onto one of the PCI busses. Perhaps a
+breadth-first scan; PCI busses first, then bridged devices on PCI, then
+internal non-PCI busses, then external busses.
 
-This because the make chipsets to basically give away to sell processors.
-That should be very obvious, they they sell CPU's fpr $100's and sell
-chipsets at  pennies.
+Are there any systems where a non-PCI bus is not connected through a
+PCI-foo bridge?
 
-Cheers,
-
-Andre Hedrick
-Linux ATA Development
-
+-- Ferret
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

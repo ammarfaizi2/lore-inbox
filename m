@@ -1,256 +1,160 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264886AbTLEXI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 18:08:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264890AbTLEXI6
+	id S264855AbTLEXQq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 18:16:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264867AbTLEXQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 18:08:58 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:60811
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264886AbTLEXIu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 18:08:50 -0500
-Date: Sat, 6 Dec 2003 00:09:22 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa1 - scsi/pcmcia qlogic still does not build (m)
-Message-ID: <20031205230922.GF2121@dualathlon.random>
-References: <20031205022225.GA1565@dualathlon.random> <3FD07392.A47A0A6D@eyal.emu.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FD07392.A47A0A6D@eyal.emu.id.au>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Fri, 5 Dec 2003 18:16:46 -0500
+Received: from bm-1a.paradise.net.nz ([202.0.58.20]:49054 "EHLO
+	linda-1.paradise.net.nz") by vger.kernel.org with ESMTP
+	id S264855AbTLEXQj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 18:16:39 -0500
+Date: Sat, 06 Dec 2003 12:16:51 +1300
+From: Oliver Hunt <ojh16@student.canterbury.ac.nz>
+Subject: Re:
+In-reply-to: <S264322AbTLERgM/20031205173643Z+1105@vger.kernel.org>
+To: gmack@innerfire.net, linux-kernel@vger.kernel.org
+Message-id: <3FD111E3.8010606@student.canterbury.ac.nz>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5)
+ Gecko/20031013 Thunderbird/0.3
+References: <S264322AbTLERgM/20031205173643Z+1105@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 05, 2003 at 11:01:22PM +1100, Eyal Lebedinsky wrote:
-> Andrea Arcangeli wrote:
-> > 
-> > This should be the last 2.4-aa kernel ;)
-> 
-> I guess nobody volunteered to fix it since -pre6aa2...
-> 
-> It builds just fine in vanilla 2.4.23.
+No its not, doing something similar to (or identical) to a GPL'd program 
+is fine, if you were to use a GPL'd IRC server/client as the base for 
+your own code, then you'd need to pblish using the GPL...
 
-is the error still the same as in your email with ID
-20031002152648.GB1240@velociraptor.random right?
+IRC would be in the realm of software patents really - it's a protocol - 
+the client/serverside code comes under copyright laws :)
 
-If nobody sends a fix I'll have another quick look after I'm back from
-vacations on Thu.
+--Oliver
 
-Also for the i2c troubles (you mentioned those last time), you can try
-if this helps.
+gmack@innerfire.net wrote:
 
+>From gmack@innerfire.net  Fri Dec  5 12:36:11 2003
+>Received: from localhost (sendmail-bs@127.0.0.1)
+>  by localhost with SMTP; 5 Dec 2003 17:36:11 -0000
+>Date: Fri, 5 Dec 2003 12:36:11 -0500 (EST)
+>From: Gerhard Mack <gmack@innerfire.net>
+>To: Linus Torvalds <torvalds@osdl.org>
+>cc: David Schwartz <davids@webmaster.com>, Valdis.Kletnieks@vt.edu, 
+>    Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org
+>Subject: RE: Linux GPL and binary module exception clause? 
+>In-Reply-To: <Pine.LNX.4.58.0312042245350.9125@home.osdl.org>
+>Message-ID: <Pine.LNX.4.58.0312051232530.16547@innerfire.net>
+>References: <MDEHLPKNGKAHNMBLJOLKMEIDIHAA.davids@webmaster.com>
+> <Pine.LNX.4.58.0312042245350.9125@home.osdl.org>
+>MIME-Version: 1.0
+>Content-Type: TEXT/PLAIN; charset=US-ASCII
+>X-Spam-Status: No, hits=-104.5 required=4.0 tests=IN_REP_TO,SUBJ_ENDS_IN_Q_MARK,USER_IN_WHITELIST version=2.20
+>X-Spam-Level: 
+>
+>Those views are scary when you consider that webmaster Inc sells closed
+>source software that works exactly like IRC (wich is GPL)
+>
+>On Thu, 4 Dec 2003, Linus Torvalds wrote:
+>
+>  
+>
+>>Date: Thu, 4 Dec 2003 22:58:09 -0800 (PST)
+>>From: Linus Torvalds <torvalds@osdl.org>
+>>To: David Schwartz <davids@webmaster.com>
+>>Cc: Valdis.Kletnieks@vt.edu, Peter Chubb <peter@chubb.wattle.id.au>,
+>>     linux-kernel@vger.kernel.org
+>>Subject: RE: Linux GPL and binary module exception clause?
+>>
+>>
+>>
+>>On Thu, 4 Dec 2003, David Schwartz wrote:
+>>    
+>>
+>>>The GPL gives you the unrestricted right to *use* the original work.
+>>>This implicitly includes the right to peform any step necessary to use
+>>>the work.
+>>>      
+>>>
+>>No it doesn't.
+>>
+>>Your logic is fundamentally flawed, and/or your reading skills are
+>>deficient.
+>>
+>>The GPL expressly states that the license does not restrict the act of
+>>"running the Program" in any way, and yes, in that sense you may "use" the
+>>program in whatever way you want.
+>>
+>>But that "use" is clearly limited to running the resultant program. It
+>>very much does NOT say that you can "use the header files in any way you
+>>want, including building non-GPL'd programs with them".
+>>
+>>In fact, it very much says the reverse. If you use the source code to
+>>build a new program, the GPL _explicitly_ says that that new program has
+>>to be GPL'd too.
+>>
+>>    
+>>
+>>>Please tell me how you use a kernel header file, other than by including
+>>>it in a code file, compiling that code file, and executing the result.
+>>>      
+>>>
+>>You are a weasel, and you are trying to make the world look the way you
+>>want it to, rather than the way it _is_.
+>>
+>>You use the word "use" in a sense that is not compatible with the GPL. You
+>>claim that the GPL says that you can "use the program any way you want",
+>>but that is simply not accurate or even _close_ to accurate. Go back and
+>>read the GPL again. It says:
+>>
+>>	"The act of running the Program is not restricted"
+>>
+>>and it very much does NOT say
+>>
+>>	"The act of using parts of the source code of the Program is not
+>>	 restricted"
+>>
+>>In short: you do _NOT_ have the right to use a kernel header file (or any
+>>other part of the kernel sources), unless that use results in a GPL'd
+>>program.
+>>
+>>What you _do_ have the right is to _run_ the kernel any way you please
+>>(this is the part you would like to redefine as "use the source code",
+>>but that definition simply isn't allowed by the license, however much you
+>>protest to the contrary).
+>>
+>>So you can run the kernel and create non-GPL'd programs while running it
+>>to your hearts content. You can use it to control a nuclear submarine, and
+>>that's totally outside the scope of the license (but if you do, please
+>>note that the license does not imply any kind of warranty or similar).
+>>
+>>BUT YOU CAN NOT USE THE KERNEL HEADER FILES TO CREATE NON-GPL'D BINARIES.
+>>
+>>Comprende?
+>>
+>>		Linus
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>    
+>>
+>
+>--
+>Gerhard Mack
+>
+>gmack@innerfire.net
+>
+><>< As a computer I find your faith in technology amusing.
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
 
-diff -urNp linux-2.4.21/drivers/i2c/i2c-elektor.c linux-2.4.21.SUSE/drivers/i2c/i2c-elektor.c
---- linux-2.4.21/drivers/i2c/i2c-elektor.c	2003-10-24 12:05:45.000000000 +0200
-+++ linux-2.4.21.SUSE/drivers/i2c/i2c-elektor.c	2003-10-24 12:06:19.000000000 +0200
-@@ -167,7 +167,6 @@ static struct i2c_algo_pcf_data pcf_isa_
- 	.waitforpin = pcf_isa_waitforpin,
- 	.udelay	    = 10,
- 	.mdelay	    = 10,
--	.timeout    = HZ,
- };
- 
- static struct i2c_adapter pcf_isa_ops = {
-@@ -179,6 +178,7 @@ static struct i2c_adapter pcf_isa_ops = 
- 
- static int __init i2c_pcfisa_init(void) 
- {
-+	pcf_isa_data.timeout = HZ;
- #ifdef __alpha__
- 	/* check to see we have memory mapped PCF8584 connected to the 
- 	Cypress cy82c693 PCI-ISA bridge as on UP2000 board */
-diff -urNp linux-2.4.21/drivers/i2c/i2c-elv.c linux-2.4.21.SUSE/drivers/i2c/i2c-elv.c
---- linux-2.4.21/drivers/i2c/i2c-elv.c	2003-10-24 12:05:45.000000000 +0200
-+++ linux-2.4.21.SUSE/drivers/i2c/i2c-elv.c	2003-10-24 12:06:19.000000000 +0200
-@@ -124,7 +124,6 @@ static struct i2c_algo_bit_data bit_elv_
- 	.getscl		= bit_elv_getscl,
- 	.udelay		= 80,
- 	.mdelay		= 80,
--	.timeout	= HZ
- };
- 
- static struct i2c_adapter bit_elv_ops = {
-@@ -137,6 +136,7 @@ static struct i2c_adapter bit_elv_ops = 
- static int __init i2c_bitelv_init(void)
- {
- 	printk(KERN_INFO "i2c-elv.o: i2c ELV parallel port adapter module version %s (%s)\n", I2C_VERSION, I2C_DATE);
-+	bit_elv_data.timeout = HZ;
- 	if (base==0) {
- 		/* probe some values */
- 		base=DEFAULT_BASE;
-diff -urNp linux-2.4.21/drivers/i2c/i2c-hydra.c linux-2.4.21.SUSE/drivers/i2c/i2c-hydra.c
---- linux-2.4.21/drivers/i2c/i2c-hydra.c	2003-10-24 12:05:45.000000000 +0200
-+++ linux-2.4.21.SUSE/drivers/i2c/i2c-hydra.c	2003-10-24 12:06:19.000000000 +0200
-@@ -107,7 +107,6 @@ static struct i2c_algo_bit_data bit_hydr
- 	.getscl		= bit_hydra_getscl,
- 	.udelay		= 5,
- 	.mdelay		= 5,
--	.timeout	= HZ
- };
- 
- static struct i2c_adapter bit_hydra_ops = {
-@@ -154,6 +153,7 @@ static struct pci_driver hydra_driver = 
- 
- static int __init i2c_hydra_init(void)
- {
-+	bit_hydra_data.timeout = HZ;
- 	return pci_module_init(&hydra_driver);
- }
- 
-diff -urNp linux-2.4.21/drivers/i2c/i2c-i810.c linux-2.4.21.SUSE/drivers/i2c/i2c-i810.c
---- linux-2.4.21/drivers/i2c/i2c-i810.c	2003-10-24 12:05:45.000000000 +0200
-+++ linux-2.4.21.SUSE/drivers/i2c/i2c-i810.c	2003-10-24 12:06:19.000000000 +0200
-@@ -189,7 +189,6 @@ static struct i2c_algo_bit_data i810_i2c
- 	.getscl		= bit_i810i2c_getscl,
- 	.udelay		= CYCLE_DELAY,
- 	.mdelay		= CYCLE_DELAY,
--	.timeout	= TIMEOUT,
- };
- 
- static struct i2c_adapter i810_i2c_adapter = {
-@@ -206,7 +205,6 @@ static struct i2c_algo_bit_data i810_ddc
- 	.getscl		= bit_i810ddc_getscl,
- 	.udelay		= CYCLE_DELAY,
- 	.mdelay		= CYCLE_DELAY,
--	.timeout	= TIMEOUT,
- };
- 
- static struct i2c_adapter i810_ddc_adapter = {
-@@ -293,6 +291,10 @@ static int __init i2c_i810_init(void)
- /*
- 	return pci_module_init(&i810_driver);
- */
-+
-+	i810_i2c_bit_data.timeout = TIMEOUT;
-+	i810_ddc_bit_data.timeout = TIMEOUT;
-+
- 	pci_for_each_dev(dev) {
- 		id = pci_match_device(i810_ids, dev);
- 		if(id)
-diff -urNp linux-2.4.21/drivers/i2c/i2c-philips-par.c linux-2.4.21.SUSE/drivers/i2c/i2c-philips-par.c
---- linux-2.4.21/drivers/i2c/i2c-philips-par.c	2003-10-24 12:05:45.000000000 +0200
-+++ linux-2.4.21.SUSE/drivers/i2c/i2c-philips-par.c	2003-10-24 12:06:19.000000000 +0200
-@@ -137,7 +137,6 @@ static struct i2c_algo_bit_data bit_lp_d
- 	.getscl		= bit_lp_getscl,
- 	.udelay		= 80,
- 	.mdelay		= 80,
--	.timeout	= HZ
- }; 
- 
- static struct i2c_algo_bit_data bit_lp_data2 = {
-@@ -146,7 +145,6 @@ static struct i2c_algo_bit_data bit_lp_d
- 	.getsda		= bit_lp_getsda2,
- 	.udelay		= 80,
- 	.mdelay		= 80,
--	.timeout	= HZ
- }; 
- 
- static struct i2c_adapter bit_lp_ops = {
-@@ -236,6 +234,9 @@ int __init i2c_bitlp_init(void)
- {
- 	printk(KERN_INFO "i2c-philips-par.o: i2c Philips parallel port adapter module version %s (%s)\n", I2C_VERSION, I2C_DATE);
- 
-+	bit_lp_data.timeout = HZ;
-+	bit_lp_data2.timeout = HZ;
-+
- 	parport_register_driver(&i2c_driver);
- 	
- 	return 0;
-diff -urNp linux-2.4.21/drivers/i2c/i2c-savage4.c linux-2.4.21.SUSE/drivers/i2c/i2c-savage4.c
---- linux-2.4.21/drivers/i2c/i2c-savage4.c	2003-10-24 12:05:45.000000000 +0200
-+++ linux-2.4.21.SUSE/drivers/i2c/i2c-savage4.c	2003-10-24 12:06:19.000000000 +0200
-@@ -158,7 +158,6 @@ static struct i2c_algo_bit_data sav_i2c_
- 	.getscl		= bit_savi2c_getscl,
- 	.udelay		= CYCLE_DELAY,
- 	.mdelay		= CYCLE_DELAY,
--	.timeout	= TIMEOUT
- };
- 
- static struct i2c_adapter savage4_i2c_adapter = {
-@@ -215,6 +214,9 @@ static int __init i2c_savage4_init(void)
- /*
- 	return pci_module_init(&savage4_driver);
- */
-+
-+	sav_i2c_bit_data.timeout = TIMEOUT;
-+
- 	pci_for_each_dev(dev) {
- 		id = pci_match_device(savage4_ids, dev);
- 		if(id)
-diff -urNp linux-2.4.21/drivers/i2c/i2c-velleman.c linux-2.4.21.SUSE/drivers/i2c/i2c-velleman.c
---- linux-2.4.21/drivers/i2c/i2c-velleman.c	2003-10-24 12:05:45.000000000 +0200
-+++ linux-2.4.21.SUSE/drivers/i2c/i2c-velleman.c	2003-10-24 12:06:19.000000000 +0200
-@@ -110,7 +110,6 @@ static struct i2c_algo_bit_data bit_vell
- 	.getscl		= bit_velle_getscl,
- 	.udelay		= 10,
- 	.mdelay		= 10,
--	.timeout	= HZ
- };
- 
- static struct i2c_adapter bit_velle_ops = {
-@@ -123,6 +122,7 @@ static struct i2c_adapter bit_velle_ops 
- static int __init i2c_bitvelle_init(void)
- {
- 	printk(KERN_INFO "i2c-velleman.o: i2c Velleman K8000 adapter module version %s (%s)\n", I2C_VERSION, I2C_DATE);
-+	bit_velle_data.timeout = HZ;
- 	if (base==0) {
- 		/* probe some values */
- 		base=DEFAULT_BASE;
-diff -urNp linux-2.4.21/drivers/i2c/i2c-via.c linux-2.4.21.SUSE/drivers/i2c/i2c-via.c
---- linux-2.4.21/drivers/i2c/i2c-via.c	2003-10-24 12:05:45.000000000 +0200
-+++ linux-2.4.21.SUSE/drivers/i2c/i2c-via.c	2003-10-24 12:06:19.000000000 +0200
-@@ -89,7 +89,6 @@ static struct i2c_algo_bit_data bit_data
- 	.getscl		= bit_via_getscl,
- 	.udelay		= 5,
- 	.mdelay		= 5,
--	.timeout	= HZ
- };
- 
- static struct i2c_adapter vt586b_adapter = {
-@@ -179,6 +178,9 @@ static int __init i2c_vt586b_init(void)
- /*
- 	return pci_module_init(&vt586b_driver);
- */
-+
-+	bit_data.timeout = HZ;
-+
- 	pci_for_each_dev(dev) {
- 		id = pci_match_device(vt586b_ids, dev);
- 		if(id)
-diff -urNp linux-2.4.21/drivers/i2c/i2c-voodoo3.c linux-2.4.21.SUSE/drivers/i2c/i2c-voodoo3.c
---- linux-2.4.21/drivers/i2c/i2c-voodoo3.c	2003-10-24 12:05:45.000000000 +0200
-+++ linux-2.4.21.SUSE/drivers/i2c/i2c-voodoo3.c	2003-10-24 12:06:19.000000000 +0200
-@@ -178,7 +178,6 @@ static struct i2c_algo_bit_data voo_i2c_
- 	.getscl		= bit_vooi2c_getscl,
- 	.udelay		= CYCLE_DELAY,
- 	.mdelay		= CYCLE_DELAY,
--	.timeout	= TIMEOUT
- };
- 
- static struct i2c_adapter voodoo3_i2c_adapter = {
-@@ -195,7 +194,6 @@ static struct i2c_algo_bit_data voo_ddc_
- 	.getscl		= bit_vooddc_getscl,
- 	.udelay		= CYCLE_DELAY,
- 	.mdelay		= CYCLE_DELAY,
--	.timeout	= TIMEOUT
- };
- 
- static struct i2c_adapter voodoo3_ddc_adapter = {
-@@ -263,6 +261,10 @@ static int __init i2c_voodoo3_init(void)
- /*
- 	return pci_module_init(&voodoo3_driver);
- */
-+
-+	voo_i2c_bit_data.timeout = TIMEOUT;
-+	voo_ddc_bit_data.timeout = TIMEOUT;
-+
- 	pci_for_each_dev(dev) {
- 		id = pci_match_device(voodoo3_ids, dev);
- 		if(id)
-
-Thanks.

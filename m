@@ -1,58 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262758AbTLPV10 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 16:27:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbTLPV10
+	id S262747AbTLPVZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 16:25:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbTLPVZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 16:27:26 -0500
-Received: from rogue.ncsl.nist.gov ([129.6.101.41]:29621 "EHLO
-	rogue.ncsl.nist.gov") by vger.kernel.org with ESMTP id S262758AbTLPV1Z
+	Tue, 16 Dec 2003 16:25:26 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:6151 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S262747AbTLPVZX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 16:27:25 -0500
-To: linux-kernel@vger.kernel.org
-Subject: DV failed to configure device 
-From: Ian Soboroff <ian.soboroff@nist.gov>
-Date: Tue, 16 Dec 2003 16:27:24 -0500
-Message-ID: <9cfhe00mp1f.fsf@rogue.ncsl.nist.gov>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 16 Dec 2003 16:25:23 -0500
+Date: Tue, 16 Dec 2003 13:25:18 -0800
+From: jw schultz <jw@pegasys.ws>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: raid0 slower than devices it is assembled of?
+Message-ID: <20031216212518.GE1698@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200312151434.54886.adasi@kernel.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312151434.54886.adasi@kernel.pl>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: The contents of this message may cause drowsiness.  Do not operate heavy machinery.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 15, 2003 at 02:34:54PM +0100, Witold Krecicki wrote:
+> I've got / on linux-raid0 on 2.6.0-t11-cset-20031209_2107:
+> <cite>
+> /dev/md/1:
+>         Version : 00.90.01
+>   Creation Time : Thu Sep 11 22:04:54 2003
+>      Raid Level : raid0
+>      Array Size : 232315776 (221.55 GiB 237.89 GB)
+>    Raid Devices : 2
+>   Total Devices : 2
+> Preferred Minor : 1
+>     Persistence : Superblock is persistent
+> 
+>     Update Time : Mon Dec 15 12:55:48 2003
+>           State : clean, no-errors
+>  Active Devices : 2
+> Working Devices : 2
+>  Failed Devices : 0
+>   Spare Devices : 0
+> 
+>      Chunk Size : 64K
+> 
+[snip]
 
-Running 2.4.23 I get the following message from the aic7xxx driver
-during boot:
+> Disks are two ST3120026AS connected to sii3112a controller, driven by sata_sil 
+> 'patched' so no limit for block size is applied (it's not needed for it). 
+> 
+> Those are results of hdparm -tT on drives:
+> <cite>
+> /dev/md/1:
+>  Timing buffer-cache reads:   128 MB in  0.40 seconds =323.28 MB/sec
+>  Timing buffered disk reads:  64 MB in  1.75 seconds = 36.47 MB/sec
+> /dev/sda:
+>  Timing buffer-cache reads:   128 MB in  0.41 seconds =309.23 MB/sec
+>  Timing buffered disk reads:  64 MB in  1.46 seconds = 43.87 MB/sec
+> /dev/sdb:
+>  Timing buffer-cache reads:   128 MB in  0.41 seconds =315.32 MB/sec
+>  Timing buffered disk reads:  64 MB in  1.23 seconds = 52.04 MB/sec
+> </cite>
+> What seems strange to me is that second drive is faster than first one 
+> (devices are symmetrical, sd[a,b]2 is swapspace (not mounted at time of 
+> test), sd[a,b]1 is /boot (raid1)).
 
-scsi1:A:3:0: DV failed to configure device.  Please file a bug report against th
-is driver.
-(scsi1:A:3): 160.000MB/s transfers (80.000MHz DT, offset 31, 16bit)
-  Vendor: JetStor   Model: III IDE           Rev: 0001
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-blk: queue c7d74418, I/O limit 524287Mb (mask 0x7fffffffff)
-  Vendor: JetStor   Model: III IDE           Rev: 0001
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-blk: queue c7d74e18, I/O limit 524287Mb (mask 0x7fffffffff)
-scsi1:A:3:0: Tagged Queuing enabled.  Depth 253
-scsi1:A:3:1: Tagged Queuing enabled.  Depth 253
-Attached scsi disk sdb at scsi1, channel 0, id 3, lun 0
-Attached scsi disk sdc at scsi1, channel 0, id 3, lun 1
-SCSI device sdb: 2941353984 512-byte hdwr sectors (1505973 MB)
- sdb: sdb1
-SCSI device sdc: 2451128320 512-byte hdwr sectors (1254978 MB)
- sdc: sdc1
+Possible reasons:
 
-(The key bit is the first line... the rest are hopefully enough
-context to make it useful ;-)  This happens to be a RAID I have
-attached to the HBA, a 39160, but I get this message with other,
-smaller RAIDs as well.)
+	internal differences on controller
 
-I am dutifully filing a bug report, but frankly I have no idea either
-from the message or the driver README or the driver source if I should
-actually care.  Should I?  What's DV, and how is the device not
-configured?  It seems to work ok.
+	block remapping (even new disks have bad blocks)
 
-I sent mail to Justin Gibbs but never got a response.
+	different firmware
 
-Ian
+	different physical geometry -- two production runs of
+	the same make+model drive may have different
+	geometry
 
+	cable quality or routing differences, or interface
+	variations that cause subtle timing differences
+
+
+> What is even stranger is that raid0 which should be faster than single drive, 
+> is pretty much slower- what's the reason of that?
+
+You could try increasing the read ahead but that may slow
+things down in real world use.
+
+AID-0 isn't RAID (no R), but then again for many arrays the
+I is also out of place.
+
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

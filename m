@@ -1,72 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270701AbRHKACn>; Fri, 10 Aug 2001 20:02:43 -0400
+	id <S270694AbRHKAEX>; Fri, 10 Aug 2001 20:04:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270695AbRHKACd>; Fri, 10 Aug 2001 20:02:33 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:6142 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S270694AbRHKACa>;
-	Fri, 10 Aug 2001 20:02:30 -0400
-Importance: Normal
-Subject: Re: [RFC][PATCH] Scalable Scheduling
-To: Chris Wedgwood <cw@f00f.org>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OFA4B31174.1617AB16-ON85256AA5.00003B59@pok.ibm.com>
-From: "Hubertus Franke" <frankeh@us.ibm.com>
-Date: Fri, 10 Aug 2001 20:04:13 -0400
-X-MIMETrack: Serialize by Router on D01ML244/01/M/IBM(Release 5.0.8 |June 18, 2001) at
- 08/10/2001 08:02:35 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S270696AbRHKAEN>; Fri, 10 Aug 2001 20:04:13 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:33264
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S270695AbRHKAEC>; Fri, 10 Aug 2001 20:04:02 -0400
+Date: Fri, 10 Aug 2001 17:04:07 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Remotely rebooting a machine with state 'D' processes, how?
+Message-ID: <20010810170407.G28914@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108101557180.1048-100000@penguin.transmeta.com> <20010811095051.A28624@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010811095051.A28624@gondor.apana.org.au>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Aug 11, 2001 at 09:50:51AM +1000, Herbert Xu wrote:
+> On Fri, Aug 10, 2001 at 03:58:02PM -0700, Linus Torvalds wrote:
+> > 
+> > Besides, does the reboot system call actually get the BKL? I don't think
+> > it should need it..
+> 
+> Actually, the machine in question turned out to be UP :)
+> 
+> However, it does have RAID 1 and the notifier call chain stuff looks like
+> a killer to me since it leads to do_md_stop.
+> 
+> Perhaps we need a RESTART3 that restarts without notifying?
 
-Chris, I looked into the availability of this stuff. The people
-here at Watson will put some of their low level stuff together and
-hopefully we get some insights in a few weeks.
-I keep you posted
+Interesting...
 
-Hubertus Franke
-Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
-, OS-PIC (Chair)
-email: frankeh@us.ibm.com
-(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
+I have an oldworld ppc mac with RAID1 compiled on 2.2.19, and a bad floppy
+made badblocks unkillable.
 
-
-
-Chris Wedgwood <cw@f00f.org> on 08/10/2001 07:58:27 PM
-
-To:   "David S. Miller" <davem@redhat.com>
-cc:   lm@bitmover.com, torvalds@transmeta.com, Hubertus
-      Franke/Watson/IBM@IBMUS, mkravetz@beaverton.ibm.com,
-      linux-kernel@vger.kernel.org, wscott@bitmover.com
-Subject:  Re: [RFC][PATCH] Scalable Scheduling
-
-
-
-On Wed, Aug 08, 2001 at 11:53:28AM -0700, David S. Miller wrote:
-
-    1) tell me D-cache misses in user and/or kernel mode
-    2) tell me D-cache misses that hit the E-cache
-       in user and/or kernel mode
-    3) tell me I-cache misses, but only those which actually
-       ended up stalling the pipeline
-    4) tell me E-cache misses, where the chip was not able
-       to get granted to memory bus immediately
-    5) Same as #4, but how many total bus cycles were spent
-       waiting for bus grant for the E-cache miss
-
-ia32 for PPro and above can do all of that too pretty much (perhaps
-not exactly the same metric, but hopefully equally useful).  The only
-thing is, you can read them all at once, only a small number of them,
-and they are for all kernel/userland states, so you would need to
-save/read them on context switches.
-
-
-
-  --cw
-
-
-
-
+Is there another way to kill that will work when kill -9 won't?

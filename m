@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVACP3V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVACPaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbVACP3V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 10:29:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVACP3V
+	id S261475AbVACPaA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 10:30:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVACP37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 10:29:21 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38051 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261476AbVACP3R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 10:29:17 -0500
-Date: Mon, 3 Jan 2005 10:25:18 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: VM fixes [2/4]
-Message-ID: <20050103122518.GF29158@logos.cnet>
-References: <20041224173558.GC13747@dualathlon.random> <41D46F4A.5080505@yahoo.com.au> <20050102163236.GI5164@dualathlon.random>
+	Mon, 3 Jan 2005 10:29:59 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18186 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261475AbVACP3y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 10:29:54 -0500
+Date: Mon, 3 Jan 2005 16:29:53 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Rik van Riel <riel@redhat.com>
+Cc: William Lee Irwin III <wli@debian.org>, Andries Brouwer <aebr@win.tue.nl>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+Message-ID: <20050103152953.GE2980@stusta.de>
+References: <1697129508.20050102210332@dns.toxicfilms.tv> <20050102203615.GL29332@holomorphy.com> <20050102212427.GG2818@pclin040.win.tue.nl> <20050102214211.GM29332@holomorphy.com> <20050102221534.GG4183@stusta.de> <Pine.LNX.4.61.0501031019110.25392@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050102163236.GI5164@dualathlon.random>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <Pine.LNX.4.61.0501031019110.25392@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 02, 2005 at 05:32:36PM +0100, Andrea Arcangeli wrote:
-> On Fri, Dec 31, 2004 at 08:12:42AM +1100, Nick Piggin wrote:
-> > Andrea Arcangeli wrote:
-> > >This is the forward port to 2.6 of the lowmem_reserved algorithm I
-> > >invented in 2.4.1*, merged in 2.4.2x already and needed to fix workloads
-> > >like google (especially without swap) on x86 with >1G of ram, but it's
-> > >needed in all sort of workloads with lots of ram on x86, it's also
-> > >needed on x86-64 for dma allocations. This brings 2.6 in sync with
-> > >latest 2.4.2x.
-> > >
-> > 
-> > This looks OK to me. It really simplifies the code there a lot too.
-> > 
-> > The only questions I have are: should it be on by default? I don't think
-> > we ever reached an agreement. I'd say yes, after a run in -mm because it
-> > does potentially fix corner cases where lower zones get filled with un-
-> > freeable memory which could have been satisfied with higher zones.
+On Mon, Jan 03, 2005 at 10:20:40AM -0500, Rik van Riel wrote:
+> On Sun, 2 Jan 2005, Adrian Bunk wrote:
 > 
-> Great, thanks for the review! I definitely agree it should be on by
-> default, I already had an hang report that was solved by more recent
-> kernels and that probably can only be explained by lowmem_reserve since
-> there aren't other mm changes in 2.6.5 based trees. 
+> >The main advantage with stable kernels in the good old days (tm) when 4
 > 
-> > And second, any chance you could you port it to the mm patches already in
-> > -mm? Won't be a big job, just some clashes in __alloc_pages...
+> >Nowadays in 2.6, every new 2.6 kernel has several regressions compared
+> >to the previous one, and additionally obsolete but used code like
 > 
-> I already had to port to 2.6.5 too, and that's enough for now unless I
-> first get a positive ack that it will be merged (if I hadn't more
-> interesting things to develop, I would be happily porting it).
+> 2.2 before 2.2.20 also had this kind of problem, as did
+> the 2.4 kernel before 2.4.20 or thereabouts.
+> 
+> I'm pretty sure 2.6 is actually doing better than the
+> early 2.0, 2.2 and 2.4 kernels...
 
-I believe it can be accepted easily if you change the variable names
-from protection to lowmem_reserve.
+My personal impression was that even the 2.6.0-test kernels were much 
+better than the 2.4.0-test kernels.
 
-Is there a need for that or its just your taste? :)
+But 2.6.20 will most likely still have the stability of the early 
+2.6 kernels instead of a greatly increased stability as observed in 
+2.2.20 and 2.4.20 .
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

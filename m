@@ -1,78 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271089AbRHQKk3>; Fri, 17 Aug 2001 06:40:29 -0400
+	id <S271149AbRHQKnU>; Fri, 17 Aug 2001 06:43:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271149AbRHQKkU>; Fri, 17 Aug 2001 06:40:20 -0400
-Received: from pat.uio.no ([129.240.130.16]:12724 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S271089AbRHQKkO>;
-	Fri, 17 Aug 2001 06:40:14 -0400
-MIME-Version: 1.0
-Message-ID: <15228.62614.121436.889705@charged.uio.no>
-Date: Fri, 17 Aug 2001 12:40:22 +0200
-To: Christoph Hellwig <hch@ns.caldera.de>
-Cc: trond.myklebust@fys.uio.no (Trond Myklebust), alan@redhat.com,
-        linux-kernel@vger.kernel.org, adam@yggdrasil.com
-Subject: Re: linux-2.4.9: atomic_dec_and_lock sometimes used while not defined
-In-Reply-To: <200108171031.f7HAVAc16023@ns.caldera.de>
-In-Reply-To: <shsu1z7c7qa.fsf@charged.uio.no>
-	<200108171031.f7HAVAc16023@ns.caldera.de>
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
-Content-Type: text/plain; charset=US-ASCII
+	id <S271346AbRHQKnJ>; Fri, 17 Aug 2001 06:43:09 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:31222 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S271149AbRHQKm4>; Fri, 17 Aug 2001 06:42:56 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Fri, 17 Aug 2001 04:42:56 -0600
+To: Mike Black <mblack@csihq.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Recommended change
+Message-ID: <20010817044256.E32617@turbolinux.com>
+Mail-Followup-To: Mike Black <mblack@csihq.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <001f01c12702$f5fd98a0$e1de11cc@csihq.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <001f01c12702$f5fd98a0$e1de11cc@csihq.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Christoph Hellwig <hch@ns.caldera.de> writes:
+On Aug 17, 2001  05:57 -0400, Mike Black wrote:
+> I upgraded to e2fsprog-1.23 and LInux 2.4.8 yesterday and saw this:
+> 
+> Aug 16 08:58:20 yeti kernel: md: fsck.ext3(pid 207) used obsolete MD ioctl,
+> upgrade your software to use new ictls.
+> 
+> Do you suppose we could change the printk line to actually output the ioctl
+> that was requested?
+> 
+> i.e.:
+> 
+> /usr/src/linux/drivers/md/md.c
+> 
+>                 default:
+>                         printk(KERN_WARNING "md: %s(pid %d) used obsolete MD
+> ioctl(%d), upgrade your software to use new ictls.\n", current->comm,
+> current->pid, cmd);
 
-     > Hi Trond, In article <shsu1z7c7qa.fsf@charged.uio.no> you
-     > wrote:
-    >> diff -u --recursive --new-file linux-2.4.9.orig/lib/Makefile
-    >> linux-2.4.9/lib/Makefile
-    >> --- linux-2.4.9.orig/lib/Makefile Wed Apr 25 22:31:03 2001
-    >> +++ linux-2.4.9/lib/Makefile Fri Aug 17 11:52:35 2001
-    >> @@ -16,6 +16,7 @@ obj-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) +=
-    >> rwsem.o
-    >>
-    >> ifneq ($(CONFIG_HAVE_DEC_LOCK),y)
-    >> + export-objs += dec_and_lock.o
-    >> obj-y += dec_and_lock.o endif
+Some notes:
+1) It should probably print the ioctl as 0x%X, because this makes it a lot
+   easier to decode which ioctl it is.
 
-     > Nonono!  Please add it to export-objs _always_ not dependand on
-     > some CONFIG_ symbol, that's how the 2.4 makefiles work.
+2) The ioctl in question is actually BLKGETSIZE64, which is part of Jens'
+   64-bit block device patch, but is not part of the stock kernel.  It
+   was added to e2fsprogs in order to support devices > 2TB.
 
-Revised patch follows...
+3) Drivers probably shouldn't complain about ioctls they don't understand,
+   as it just causes a lot of grief (see this thread here).  If anything,
+   they _could_ complain about specific obsolete ioctl numbers, or maybe
+   ioctl numbers in their "allocated" namespace (0x09 for MD it appears).
+   Even so, this "breaks" forward compatibility, if tools try to use a
+   new ioctl on an older kernel before falling back to the old ioctl, you
+   get a lot of spurious warnings.
 
-Cheers,
-  Trond
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
-diff -u --recursive --new-file linux-2.4.9/lib/Makefile linux-2.4.9-atomic_lock/lib/Makefile
---- linux-2.4.9/lib/Makefile	Wed Apr 25 22:31:03 2001
-+++ linux-2.4.9-atomic_lock/lib/Makefile	Fri Aug 17 12:38:24 2001
-@@ -8,7 +8,7 @@
- 
- L_TARGET := lib.a
- 
--export-objs := cmdline.o rwsem-spinlock.o rwsem.o
-+export-objs := cmdline.o dec_and_lock.o rwsem-spinlock.o rwsem.o
- 
- obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o
- 
-diff -u --recursive --new-file linux-2.4.9/lib/dec_and_lock.c linux-2.4.9-atomic_lock/lib/dec_and_lock.c
---- linux-2.4.9/lib/dec_and_lock.c	Sat Jul  8 01:22:48 2000
-+++ linux-2.4.9-atomic_lock/lib/dec_and_lock.c	Fri Aug 17 12:22:49 2001
-@@ -1,3 +1,4 @@
-+#include <linux/module.h>
- #include <linux/spinlock.h>
- #include <asm/atomic.h>
- 
-@@ -34,4 +35,6 @@
- 	spin_unlock(lock);
- 	return 0;
- }
-+
-+EXPORT_SYMBOL(atomic_dec_and_lock);
- #endif

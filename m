@@ -1,138 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317506AbSIIQZo>; Mon, 9 Sep 2002 12:25:44 -0400
+	id <S317488AbSIIQXm>; Mon, 9 Sep 2002 12:23:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317508AbSIIQZo>; Mon, 9 Sep 2002 12:25:44 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:36619 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S317506AbSIIQZm>;
-	Mon, 9 Sep 2002 12:25:42 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200209091630.g89GULK19758@oboe.it.uc3m.es>
-Subject: Re: (fwd) Re: [RFC] mount flag "direct"
-In-Reply-To: <Pine.SOL.3.96.1020906164920.7282A-100000@virgo.cus.cam.ac.uk> from
- Anton Altaparmakov at "Sep 6, 2002 06:20:15 pm"
-To: Anton Altaparmakov <aia21@cantab.net>
-Date: Mon, 9 Sep 2002 18:30:21 +0200 (MET DST)
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S317489AbSIIQXm>; Mon, 9 Sep 2002 12:23:42 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:29581 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S317488AbSIIQXl>; Mon, 9 Sep 2002 12:23:41 -0400
+Date: Mon, 09 Sep 2002 09:26:30 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Daniel Phillips <phillips@arcor.de>, Rik van Riel <riel@conectiva.com.br>
+cc: Andrew Morton <akpm@digeo.com>,
+       Paolo Ciarrocchi <ciarrocchi@linuxmail.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: LMbench2.0 results
+Message-ID: <312431072.1031563589@[10.10.2.3]>
+In-Reply-To: <E17oRCu-0006pL-00@starship>
+References: <E17oRCu-0006pL-00@starship>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A concrete question wrt the current file i/o data flow ...
-
-"Anton Altaparmakov wrote:"
-> VFS: on file read we eventually reach:
+>> Probably true, we're pulling off an indecent number of tricks
+>> for 4-way and 8-way SMP performance. This overhead shouldn't
+>> be too bad on UP and 2-way machines, but might easily be a
+>> percent or so.
 > 
-> mm/filemap.c::generic_file_read() which calls
-> mm/filemap.c::do_generic_file_read() which breaks the request into units
-> of PAGE_CACHE_SIZE, i.e. into individual pages and calls the file system's
-> address space ->readpage() method for each of those pages.
-> 
-> Assuming the file system uses the generic readpage implementation, i.e.
-> fs/buffer.c::block_read_full_page(), this in turn breaks the page into
-> blocksize blocks (for NTFS 512 bytes, remember?) and calls the FS
-> supplied get_block() callback, once for each blocksize block (in the form
+> Though to be fair, it's smart to concentrate on the high end with a
+> view to achieving world domination sooner.  And it's a stretch to call
+> the low end performance 'slow'.
 
-There is an inode arg passed to the fs get_block. Is this really the
-inode of a file, or is it a single inode associated with the mount
-(I see we only use it to get to the sb and thence the blocksize)
+I don't think there's that much overhead, it's just not where people
+have been focusing tuning efforts recently. If you run the numbers,
+and point out specific problems, I'm sure people will fix them ;-)
+In other words, I don't think the recent focus has caused a problem
+for low end machines, it just hasn't really looked at solving one.
 
-I am confused because ext_get_block says it's the file inode:
+> An idea that's looking more and more attractive as time goes by is to
+> have a global config option that specifies that we want to choose the
+> simple way of doing things wherever possible, over the enterprise way.
+> We want this especially for embedded.  On low end processors, it's even
+> possible that the small way will be faster in some cases than the
+> enterprise way, due to cache effects.
 
- static int ext2_get_block(struct inode *inode, sector_t iblock, struct
- buffer_head *bh_result, int create)
- ...
- int depth = ext2_block_to_path(inode, iblock, offsets, &boundary);
- ...
+Can't we just use the existing config options instead? CONFIG_SMP is
+a good start ;-) How many embedded systems with SMP do you have?
 
-  *      ext2_block_to_path - parse the block number into array of offsets
-  *      @inode: inode in question (we are only interested in its superblock)
-          ^^^^^^^^^^^^^^^^^^^^^^^^
-  *      @i_block: block number to be parsed
-  ...
+M.
 
-and the vfs layer seems to pass mapping->host, which I believe should
-be associated with the mount.
-
-
-  int block_read_full_page(struct page *page, get_block_t *get_block)
-  {
-          struct inode *inode = page->mapping->host;
-
-(all kernel 2.5.31).  
-
-> of a struct buffer_head).
-> 
-> This finds where this 512 byte block is, and maps the buffer head (i.e.
-
-Now, you say (and I believe you!) that the get_block call finds where
-the block is. But I understand you to say that the data pased in by VFS
-is in local offsets ..  that corresponds to what I see:
-block_read_full_page() gets passed a page struct and then calculates the
-first and last (local?) blocks from page->index ...
-
-  iblock = page->index << (PAGE_CACHE_SHIFT - inode->i_blkbits);
-  lblock = (inode->i_size+blocksize-1) >> inode->i_blkbits;
-
-and that makes it seem as though the page already contained an offset
-relative to the device, or logical in some other way that will now
-be resolved by the fs specific get_block() call. However, the ext2
-get_block only consults the superblock, nothing else when resolving
-the logical blk number. So no inode gets looked at, as far as I can
-see, at least in the simple cases ("direct inode"?). In the general
-case there is some sort of chain lookup, that starts with the
-superblock and goes somewhere ...
-
-    partial = ext2_get_branch(inode, depth, offsets, chain, &err);
-
-   **
-    *      ext2_get_branch - read the chain of indirect blocks leading to data
-    *      @inode: inode in question
-    *      @depth: depth of the chain (1 - direct pointer, etc.)
-    *      @offsets: offsets of pointers in inode/indirect blocks
-    *      @chain: place to store the result
-    *      @err: here we store the error value
-
-Which seems to be trying to say that the inode arg is something that's
-meant to be really the inode, not just some dummy that leads to the
-superblock for purposes of getting the blksiz.
-
-So I'm confused.
-
-
-I'm also confused about how come the page already contains what seems
-to be a device-relative offset (or other logical) block number. 
-
-> sets up the buffer_head to point to the correct on disk location) and
-
-But the setup seems to be trivial in the "direct" case for ext2.
-And I don't see how that can be because the VFS ought /not/ to have
-enough info to make it trivial?
-
-> returns it to the VFS, i.e. to block_read_full_page() which then goes and
-> calls get_block() for the next blocksize block, etc...
-
-Now, if I go back to mm/do_generic_file_read(), I see that it's working
-on a struct file, and passes that file struct to the fs specific
-readpage.
-
-        error = mapping->a_ops->readpage(filp, page);
-
-I can believe that maybe the magic is there. But no, that's the 
-it's the generic ext2_readpage that gets used, and that _drops_
-the file pointer!
-
-       static int ext2_readpage(struct file *file, struct page *page)
-       {
-               return mpage_readpage(page, ext2_get_block);
-       }
-
-so, um, somehow the page contained all the info necessary to do lookups
-on disk in ext2, no FS info required.
-
-Do I read this right? How the heck di that page info get filled in in
-the first place? How can it be enough? It can't be!
-
-Peter

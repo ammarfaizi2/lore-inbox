@@ -1,77 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261708AbSI0Oii>; Fri, 27 Sep 2002 10:38:38 -0400
+	id <S261704AbSI0Ofx>; Fri, 27 Sep 2002 10:35:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261709AbSI0Oii>; Fri, 27 Sep 2002 10:38:38 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:48401 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261708AbSI0Oig>; Fri, 27 Sep 2002 10:38:36 -0400
-Date: Fri, 27 Sep 2002 16:43:43 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Andi Kleen <ak@muc.de>
-cc: linux-kernel@vger.kernel.org, <torvalds@transmeta.com>
-Subject: Re: [PATCH] Put modules into linear mapping
-In-Reply-To: <20020927140930.GA12610@averell>
-Message-ID: <Pine.LNX.4.44.0209271618360.8911-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261706AbSI0Ofx>; Fri, 27 Sep 2002 10:35:53 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:64200 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261704AbSI0Ofw>;
+	Fri, 27 Sep 2002 10:35:52 -0400
+Date: Fri, 27 Sep 2002 16:41:04 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Con Kolivas <conman@kolivas.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+Subject: Re: [BENCHMARK] 2.5.38-mm3 with contest 0.37
+Message-ID: <20020927144104.GB15101@suse.de>
+References: <1033043594.3d92fe8a8dd82@kolivas.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1033043594.3d92fe8a8dd82@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Sep 26 2002, Con Kolivas wrote:
+> io_load:
+> Kernel                  Time            CPU             Ratio
+> 2.4.19                  170.06          45%             2.36
+> 2.5.38                  283.27          28%             3.92
+> 2.5.38-mm2              106             75%             1.47*
+> 2.5.38-mm3              95.9            84%             1.33*
 
-On Fri, 27 Sep 2002, Andi Kleen wrote:
+this is encouraging to see, 2.5.38-mm3 has the new deadline io scheduler
+and it appears to be performing well here too. I'm especially looking
+forward to 2.5.38 vs 2.5.39 too, as 2.5.39 will have some deadline
+updates that are not in -mm3.
 
-> --- linux-2.5.38-work/include/asm-i386/module.h-MODULE	2002-09-25 00:59:28.000000000 +0200
-> +++ linux-2.5.38-work/include/asm-i386/module.h	2002-09-27 15:30:35.000000000 +0200
-> +/*
-> + * Try to allocate in the linear large page mapping first to conserve
-> + * TLB entries.
-> + */
-> +static inline void *module_map(unsigned long size)
-> +{
-> +	void *p = alloc_exact(size);
-> +	if (!p)
-> +		p = vmalloc(size);
-> +	return p;
-> +}
-
-Why is i386 only? This is generic code and other archs will benefit from
-it as well (or at least it won't hurt).
-
-$ grep module_map include/asm-*/*.h
-include/asm-alpha/module.h:#define module_map(x)                vmalloc(x)
-include/asm-arm/module.h:#define module_map(x)          vmalloc(x)
-include/asm-cris/module.h:#define module_map(x)         vmalloc(x)
-include/asm-i386/module.h:#define module_map(x)         vmalloc(x)
-include/asm-ia64/module.h:#define module_map(x)         vmalloc(x)
-include/asm-m68k/module.h:#define module_map(x)         vmalloc(x)
-include/asm-mips/module.h:#define module_map(x)         vmalloc(x)
-include/asm-mips64/module.h:#define module_map(x)               vmalloc(x)
-include/asm-parisc/pgtable.h:#define module_map vmalloc
-include/asm-ppc/module.h:#define module_map(x)          vmalloc(x)
-include/asm-ppc64/module.h:#define module_map(x)                vmalloc(x)
-include/asm-s390/module.h:#define module_map(x)         vmalloc(x)
-include/asm-s390x/module.h:#define module_map(x)                vmalloc(x)
-include/asm-sh/module.h:#define module_map(x)           vmalloc(x)
-include/asm-sparc/module.h:#define module_map(x)                vmalloc(x)
-include/asm-sparc64/module.h:extern void * module_map (unsigned long size);
-include/asm-x86_64/module.h:extern void *module_map(unsigned long);
-
-The x86_64 version is currently broken, as it uses vmalloc_area_pages
-which doesn't exist anymore, but it did the same as vmalloc. The sparc64
-version also looks like vmalloc reimplementation.
-
-> +
-> +void *alloc_exact(unsigned int size)
-> +{
-> +	struct page *p, *w;
-> +	int order = get_order(size);
-> +
-> +	p = alloc_pages(GFP_KERNEL, order);
-
-Wouldn't it be better to add a gfp argument?
-
-bye, Roman
+-- 
+Jens Axboe
 

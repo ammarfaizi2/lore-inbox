@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281547AbRKUAuy>; Tue, 20 Nov 2001 19:50:54 -0500
+	id <S281552AbRKUAxO>; Tue, 20 Nov 2001 19:53:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281552AbRKUAuo>; Tue, 20 Nov 2001 19:50:44 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34826 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281547AbRKUAuc>; Tue, 20 Nov 2001 19:50:32 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: swsusp for 2.4.14
-Date: 20 Nov 2001 16:50:11 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9teto3$65c$1@cesium.transmeta.com>
-In-Reply-To: <20011121001858.B183@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S281080AbRKUAw5>; Tue, 20 Nov 2001 19:52:57 -0500
+Received: from rj.sgi.com ([204.94.215.100]:1259 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S281552AbRKUAwm>;
+	Tue, 20 Nov 2001 19:52:42 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: marcel@mesa.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: make modules_install fails with latest fileutils 
+In-Reply-To: Your message of "Tue, 20 Nov 2001 19:38:20 BST."
+             <20011120193820.A14068@joshua.mesa.nl> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 21 Nov 2001 11:52:26 +1100
+Message-ID: <1128.1006303946@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20011121001858.B183@elf.ucw.cz>
-By author:    Pavel Machek <pavel@suse.cz>
-In newsgroup: linux.dev.kernel
-> 
-> Warning. This probably corrupts memory. (All previous versinos did,
-> just noone noticed becuase it needed 20+ suspend/resume cycles). This
-> is probably best version ever, but it still corrupts data.
-> 
+On Tue, 20 Nov 2001 19:38:20 +0100, 
+"Marcel J.E. Mol" <marcel@mesa.nl> wrote:
+>Just had some problems doing a modules_install with
+>fileutils-1.1.1-1 (redhat rawhide). The cp command
+>in there gives a non-zero return value when it is asked
+>to copy the same file in the argument list:
+>
+>--- Rules.make.org	Tue Nov 20 19:36:16 2001
+>+++ Rules.make	Mon Nov 19 23:48:03 2001
+>@@ -173,7 +173,7 @@
+> _modinst__: dummy
+> ifneq "$(strip $(ALL_MOBJS))" ""
+> 	mkdir -p $(MODLIB)/kernel/$(MOD_DESTDIR)
+>-	cp -f $(ALL_MOBJS) $(MODLIB)/kernel/$(MOD_DESTDIR)$(MOD_TARGET)
+>+	-cp -f $(ALL_MOBJS) $(MODLIB)/kernel/$(MOD_DESTDIR)$(MOD_TARGET)
+> endif
 
-This is all very cool.  May I suggest to use the term "hibernate"
-though, since "suspend" by itself usually refers to suspend to RAM
-(S3) as opposed to suspend to disk (S4).
+(1) Complain to the fileutils maintainer for introducing incompatible
+    behaviour.
+(2) The correct workaround is
+     cp -f $(sort $(ALL_MOBJS)) $(MODLIB)/kernel/$(MOD_DESTDIR)$(MOD_TARGET)
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

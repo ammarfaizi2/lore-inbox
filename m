@@ -1,79 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277261AbRJDXGD>; Thu, 4 Oct 2001 19:06:03 -0400
+	id <S276957AbRJDXU2>; Thu, 4 Oct 2001 19:20:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277263AbRJDXFy>; Thu, 4 Oct 2001 19:05:54 -0400
-Received: from mailb.telia.com ([194.22.194.6]:21770 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id <S277261AbRJDXFn>;
-	Thu, 4 Oct 2001 19:05:43 -0400
-Message-Id: <200110042306.f94N69W22095@mailb.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com (Linus Torvalds)
-Subject: [DATAPOINT] how max_readahead settings affect streaming throughput
-Date: Fri, 5 Oct 2001 01:01:07 +0200
-X-Mailer: KMail [version 1.3.1]
+	id <S277020AbRJDXUT>; Thu, 4 Oct 2001 19:20:19 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:16815 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S276957AbRJDXUJ>;
+	Thu, 4 Oct 2001 19:20:09 -0400
+Date: Fri, 05 Oct 2001 00:20:34 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Benjamin LaHaise <bcrl@redhat.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: mingo@elte.hu, jamal <hadi@cyberus.ca>, linux-kernel@vger.kernel.org,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>, netdev@oss.sgi.com,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Simon Kirby <sim@netnation.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+Message-ID: <309455016.1002241234@[195.224.237.69]>
+In-Reply-To: <20011004174945.B18528@redhat.com>
+In-Reply-To: <20011004174945.B18528@redhat.com>
+X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again,
 
-Summary: simultaneous streaming throughput up from 11 MB/s to 26 MB/s
 
-With my "[PATCH] scaling of 'max_readahead' in /proc/ide/hda/settings"
-I have been able to test different max_readaheads effect on throughput
-when reading files bigger than RAM.
+--On Thursday, 04 October, 2001 5:49 PM -0400 Benjamin LaHaise 
+<bcrl@redhat.com> wrote:
 
-I question the decision to use 124 kB as default read ahead maximum.
-The example cited was a FTP server serving 100 clients. With standard
-readahead it would give 12.8 MB readahead (note: not for all files, only for
-those file / processing combinations that makes use of it... Maybe the MIN
-should be pushed up too)
-With my earlier guess of 511 pages, 2MB, readahead for 100 files would
-require 200MB RAM, not that unlikely available for a FTP server serving 100 
-clients...
+>> In at least one environment known to me (router), I'd rather it
+>> kept accepting packets, and f/w'ing them, and didn't switch VTs etc.
+>> By dropping down performance, you've made the DoS attack even
+>> more successful than it would otherwise have been (the kiddie
+>> looks at effect on the host at the end).
+>
+> Then bug the driver author of your ethernet cards or turn the hammer off.
+>  You're the sysadmin, you know that your system is unusual.  Deal with it.
 
-Viewing the result of this run I would recommend pushing it up somewere
-in between - what about 1024 kB (100MB for 100 clients)
-Concerned FTP operators could limit this or rather add memory, but there
-are alot of people out there that might read two huge files simultaneous...
-[I do not have a SCSI disk, readahead can not be changed on the fly
-in Linus kernels - possible in Alan Cox but I guess they also have
-the bug I found in 2.4.11-pre2. The results can't be that different. Since
-the disk can not read data while the head is seeking...]
+The hammer has an average age of 13yrs and is difficult to turn off,
+unfortunately.
 
-This huge gain is due to the seek time between files is approximately
-the same as the actual read takes, resulting in halved throughput...
+Rather than bugging the author of the driver card, we've actually
+been trying to fix it, down to rewriting the firmware. So for
+this purpose I/we am/are the driver maintainer thanks. However,
+there are limitations like bus speed which mean that in practice
+if we receive a large enough number of small packets each second,
+the box will saturate.
 
-data as octave commands, can also be interpreted directly by humans :-)
+My point was merely that some applications (and using a linux
+box as a router is not that 'unusual') want to deprioritize
+different things under resource starvation. Changing the default,
+in an unconfigurable way, isn't a great idea. Sure dealing
+with external resource exhaustions for hosts is indeed a good
+idea. I was just suggesting that it wasn't always what you
+wanted to do.
 
-/RogerL
+Not sure this required jumping down my throat.
 
-------------------------------------------------------
-kernel: 2.4.11-pre2 with max_readahead scaling patch
-CPU: 933MHz Pentium III
-HD is: IBM-DTLA-307045 (2MB cache)
-
-diff = diff --brief huge1 huge2 # files are identical
-read = cat huge1 huge2 >/dev/null
-read2 = cat huge1 > /dev/null &
-	cat huge2 >/dev/null
-	# use the one that took the longest time
-
-octave> x=4096/1024*[2047 1023 511 255 127 63 31] #get size in kB
-x =
-
-  8188  4092  2044  1020   508   252   124
-
-octave> semilogx(
-	x, [27.5, 27.4, 26.0, 25.5, 24.2, 21.5, 11.6],';diff;',
-	x, [27.2, 27.3, 26.9, 28.4, 28.5, 28.5, 28.4],';read;',
-	x, [26.3, 26.3, 26.3, 26.9, 27.2, 25.8, 10.9],';read2;')
-
--- 
-Roger Larsson
-Skellefteå
-Sweden
+--
+Alex Bligh

@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264830AbTCCM4H>; Mon, 3 Mar 2003 07:56:07 -0500
+	id <S263321AbTCCMwa>; Mon, 3 Mar 2003 07:52:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264915AbTCCM4H>; Mon, 3 Mar 2003 07:56:07 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:55962
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264830AbTCCM4G>; Mon, 3 Mar 2003 07:56:06 -0500
-Subject: Re: S4bios support for 2.5.63
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: bert hubert <ahu@ds9a.nl>, Nigel Cunningham <ncunningham@clear.net.nz>,
-       Pavel Machek <pavel@ucw.cz>, Andrew Grover <andrew.grover@intel.com>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030303003940.GA13036@k3.hellgate.ch>
-References: <20030226211347.GA14903@elf.ucw.cz>
-	 <20030302133138.GA27031@outpost.ds9a.nl>
-	 <1046630641.3610.13.camel@laptop-linux.cunninghams>
-	 <20030302202118.GA2201@outpost.ds9a.nl>
-	 <20030303003940.GA13036@k3.hellgate.ch>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1046700547.5890.24.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 03 Mar 2003 14:09:07 +0000
+	id <S263760AbTCCMw3>; Mon, 3 Mar 2003 07:52:29 -0500
+Received: from mavericks.onda.com.br ([200.195.192.20]:5808 "EHLO
+	mavericks.onda.com.br") by vger.kernel.org with ESMTP
+	id <S263321AbTCCMw2>; Mon, 3 Mar 2003 07:52:28 -0500
+Date: Mon, 3 Mar 2003 10:02:10 -0300
+From: Alexandre Hautequest <darkstar_hquest@hotmail.com>
+X-X-Sender: operator@router.intranet
+To: linux-kernel@vger.kernel.org
+Subject: Raising FD number
+Message-ID: <Pine.LNX.4.50.0303030944280.6005-100000@router.intranet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-03 at 00:39, Roger Luethi wrote:
-> The only thing that came up at the time was a suggestion to replace BUG_ON
-> with while (which I didn't try because I'd like to keep my data).
+Hello all.
 
-That isnt far off what you want. IDE has proper command queuing functionality and
-providing you are suspending in a sleeping context you can do what you are trying
-to do through the IDE layer politely. Take a look at how the various ide taskfile
-ioctls issue commands.
+How, in 2.4(.20), do i raise the number of file descriptors a process can
+open? I have an app that could grown as high as 2k fds in about
+hundreds of seconds (sorta of internet app) but i'm restricted to about
+600 (after this, the great SYN i've received almost stops my machine for a while).
 
+I've looked in the past messages, only found a thread from '99.
+
+And i've changed value of __FD_SETSIZE to a really high value (16384) in
+include/linux/posix_types.h and recompiled but didn't work.
+
+In *BSDs i can change this w/ a select() system call, in linux isn't
+working even if i hardcode value in.
+
+Is this possible?
+
+Please c/c me as i'm not subscribed to list.
+
+Thanks in advance.
+
+--
+Alexandre Hautequest

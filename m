@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261627AbUC3WzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 17:55:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbUC3Wwy
+	id S261664AbUC3Wv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 17:51:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUC3Wur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 17:52:54 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:33655 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261685AbUC3Wtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 17:49:33 -0500
-Date: Tue, 30 Mar 2004 23:49:30 +0100 (BST)
+	Tue, 30 Mar 2004 17:50:47 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:48203 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261597AbUC3WsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 17:48:23 -0500
+Date: Tue, 30 Mar 2004 23:48:19 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@localhost.localdomain
 To: Andrew Morton <akpm@osdl.org>
 cc: Andrea Arcangeli <andrea@suse.de>,
        Rajesh Venkatasubramanian <vrajesh@umich.edu>,
        <linux-kernel@vger.kernel.org>
-Subject: [PATCH 6/6] mremap rmap comment
+Subject: [PATCH 5/6] mremap check map_count
 In-Reply-To: <Pine.LNX.4.44.0403302340220.24019-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0403302348380.24019-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0403302347131.24019-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rmap's try_to_unmap_one comments on find_vma failure, that a page may
-temporarily be absent from a vma during mremap: no longer, though it
-is still possible for this find_vma to fail, while unmap_vmas drops
-page_table_lock (but that is no problem for file truncation).
+mremap's move_vma should think ahead to lessen the chance of failure
+during its rewind on failure: running out of memory always possible,
+but it's silly for it to embark when it's near the map_count limit.
 
---- mremap5/mm/rmap.c	2004-03-30 13:04:19.449545248 +0100
-+++ mremap6/mm/rmap.c	2004-03-30 21:25:22.961196784 +0100
-@@ -315,8 +315,7 @@ static int fastcall try_to_unmap_one(str
- 		return SWAP_AGAIN;
- 	}
+Note: -mm tree needs sysctl_max_map_count in place of MAX_MAP_COUNT.
+
+--- mremap4/mm/mremap.c	2004-03-30 21:25:00.136666640 +0100
++++ mremap5/mm/mremap.c	2004-03-30 21:25:11.549931560 +0100
+@@ -176,6 +176,13 @@ static unsigned long move_vma(struct vm_
+ 	unsigned long excess = 0;
+ 	int split = 0;
  
--
--	/* During mremap, it's possible pages are not in a VMA. */
-+	/* unmap_vmas drops page_table_lock with vma unlinked */
- 	vma = find_vma(mm, address);
- 	if (!vma) {
- 		ret = SWAP_FAIL;
++	/*
++	 * We'd prefer to avoid failure later on in do_munmap:
++	 * which may split one vma into three before unmapping.
++	 */
++	if (mm->map_count >= MAX_MAP_COUNT - 3)
++		return -ENOMEM;
++
+ 	new_pgoff = vma->vm_pgoff + ((old_addr - vma->vm_start) >> PAGE_SHIFT);
+ 	new_vma = copy_vma(vma, new_addr, new_len, new_pgoff);
+ 	if (!new_vma)
 

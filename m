@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131463AbRAXVFs>; Wed, 24 Jan 2001 16:05:48 -0500
+	id <S132228AbRAXVJs>; Wed, 24 Jan 2001 16:09:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131999AbRAXVFi>; Wed, 24 Jan 2001 16:05:38 -0500
-Received: from d-dialin-134.addcom.de ([62.96.159.142]:64245 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S131463AbRAXVF3>; Wed, 24 Jan 2001 16:05:29 -0500
-Date: Wed, 24 Jan 2001 22:06:47 +0100 (CET)
-From: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
-To: Kai Henningsen <kaih@khms.westfalen.de>
-cc: <linux-kernel@vger.kernel.org>, <isdn4linux@listserv.isdn4linux.de>
-Subject: Re: ipppd == pppd?
-In-Reply-To: <7u7jt7x1w-B@khms.westfalen.de>
-Message-ID: <Pine.LNX.4.30.0101242205450.10925-100000@vaio>
+	id <S132193AbRAXVJi>; Wed, 24 Jan 2001 16:09:38 -0500
+Received: from ferret.lmh.ox.ac.uk ([163.1.138.204]:21011 "HELO
+	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
+	id <S131368AbRAXVJS>; Wed, 24 Jan 2001 16:09:18 -0500
+Date: Wed, 24 Jan 2001 21:09:09 +0000 (GMT)
+From: Chris Evans <chris@scary.beasts.org>
+To: <linux-kernel@vger.kernel.org>
+cc: <davem@redhat.com>
+Subject: 2.2, 2.4 bug in sock_no_fcntl()/F_SETOWN?
+Message-ID: <Pine.LNX.4.30.0101242107070.24525-100000@ferret.lmh.ox.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Jan 2001, Kai Henningsen wrote:
 
-> > This info is just plain wrong. Unfortunately, ISDN syncPPP isn't using the
-> > generic PPP layer yet.
-> 
-> So, is this still planned? Any sort of timeline?
+Hi,
 
-Yes, however, it's always planned to dump the old ISDN link layer at some 
-point and switch over to a CAPI based system. There's not really a 
-timeline yet.
+Looking at the code for sock_no_fcntl() in net/core.c, I cannot specify
+"0" as a value for F_SETOWN, unless I'm the superuser. I believe this to
+be a bug, it stops de-registering an interest in SIGURG signals. Let me
+know if you want a patch.
 
---Kai
-
+Cheers
+Chris
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

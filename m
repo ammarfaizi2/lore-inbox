@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261514AbSIXBGG>; Mon, 23 Sep 2002 21:06:06 -0400
+	id <S261517AbSIXBHx>; Mon, 23 Sep 2002 21:07:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261515AbSIXBGG>; Mon, 23 Sep 2002 21:06:06 -0400
-Received: from h106-129-61.datawire.net ([207.61.129.106]:22401 "EHLO
-	newmail.datawire.net") by vger.kernel.org with ESMTP
-	id <S261514AbSIXBGF> convert rfc822-to-8bit; Mon, 23 Sep 2002 21:06:05 -0400
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net
-To: me@ohdarn.net, <sct@redhat.com>
-Subject: Re: [BENCHMARK] EXT2 vs EXT3 System calls via oprofile using contest 0.34
-Date: Mon, 23 Sep 2002 20:11:35 -0400
-User-Agent: KMail/1.4.6
-Cc: <akpm@digeo.com>, <conman@kolivas.net>, <linux-kernel@vger.kernel.org>
-References: <200209190142.58122.spstarr@sh0n.net> <20020923223429.V11682@redhat.com> <45680.65.185.109.125.1032825987.squirrel@ohdarn.net>
-In-Reply-To: <45680.65.185.109.125.1032825987.squirrel@ohdarn.net>
+	id <S261518AbSIXBHx>; Mon, 23 Sep 2002 21:07:53 -0400
+Received: from packet.digeo.com ([12.110.80.53]:23446 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261517AbSIXBHv>;
+	Mon, 23 Sep 2002 21:07:51 -0400
+Message-ID: <3D8FBC16.6A4BCDE4@digeo.com>
+Date: Mon, 23 Sep 2002 18:12:54 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200209232011.35383.spstarr@sh0n.net>
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.38 semaphore.c calls sleeping function in illegal context
+References: <20020924002052.GS25605@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Sep 2002 01:12:54.0396 (UTC) FILETIME=[829DDBC0:01C26367]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If the patch is 'stable' I'd like to bench/test it.
+William Lee Irwin III wrote:
+> 
+> ksymoops 2.4.6 on i686 2.5.38-2.  Options used
+>      -v /mnt/b/2.5.38/vmlinux-2.5.38-2 (specified)
+>      -K (specified)
+>      -L (specified)
+>      -O (specified)
+>      -m /boot/System.map-2.5.38-2 (specified)
+> 
+> Reading Oops report from the terminal
+> c02c9f6c c02c9f84 c01175f7 c0260f80 c0261500 0000007e c02c9f98 c011a4a1
+>        c0261500 0000007e 00000000 c02c9fac c011a78a c0312480 c0278213 c0383244
+>        c02c9fb8 c02d8316 c02ba640 c02c9fc0 c02d8164 c02c9fd0 c02d8a4b 00000000
+> Call Trace: [<c01175f7>] [<c011a4a1>] [<c011a78a>] [<c0105000>]
+> Warning (Oops_read): Code line not seen, dumping what data is available
+> 
+> Trace; c01175f7 <__might_sleep+27/2b>
+> Trace; c011a4a1 <acquire_console_sem+2d/50>
+> Trace; c011a78a <register_console+122/1cc>
+> Trace; c0105000 <_stext+0/0>
+> 
 
-On September 23, 2002 08:06 pm, Michael Cohen wrote:
-> >> c0164910 26375    7.2638      ext3_do_update_inode
-> >> /lib/modules/2.4.20-pre7-rmap14a-xfs-uml-shawn12d/build/vmlinux
-> >
-> > I've got a fix for excessive CPU time spent here.
->
-> Could you pass that around? or is it not ready for general consumption... ?
-> Thanks.
->
->
-> ------
-> Michael Cohen
+Don't know.  Who called register_console()?
 
+But I suspect in_atomic() is returning incorrect or misleading
+answers early in boot.

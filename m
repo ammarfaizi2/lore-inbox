@@ -1,93 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275472AbTHJFOR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 01:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275473AbTHJFOR
+	id S275469AbTHJFnf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 01:43:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275471AbTHJFnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 01:14:17 -0400
-Received: from smtp01.web.de ([217.72.192.180]:55305 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S275472AbTHJFOO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 01:14:14 -0400
-Message-ID: <3F35D538.1040205@web.de>
-Date: Sun, 10 Aug 2003 07:16:40 +0200
-From: Stefan B <ChromosML@web.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Sun, 10 Aug 2003 01:43:35 -0400
+Received: from dyn-ctb-210-9-243-231.webone.com.au ([210.9.243.231]:18182 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S275469AbTHJFnY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 01:43:24 -0400
+Message-ID: <3F35DB73.8090201@cyberone.com.au>
+Date: Sun, 10 Aug 2003 15:43:15 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: ov511 2.6.0-test3
-References: <200308092115.18501.linux@1g6.biz> <3F356BC6.9020904@web.de>
-In-Reply-To: <3F356BC6.9020904@web.de>
-Content-Type: multipart/mixed;
- boundary="------------010900090402060606030200"
+To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy  ...
+References: <Pine.LNX.4.55.0307131442470.15022@bigblue.dev.mcafeelabs.com> <5.2.1.1.2.20030809183021.0197ae00@pop.gmx.net> <200308100405.52858.roger.larsson@skelleftea.mail.telia.com>
+In-Reply-To: <200308100405.52858.roger.larsson@skelleftea.mail.telia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010900090402060606030200
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Stefan B. wrote:
 
-> Try adding this to driver/media/video/videodev.c:
-> (e.g. after the other EXPORT_SYMBOL lines)
-> 
-> void *video_proc_entry;
-> EXPORT_SYMBOL(video_proc_entry);
-> 
+Roger Larsson wrote:
 
-sorry, not good; this patch should do
+>*	SCHED_FIFO requests from non root should also be treated as SCHED_SOFTRR
+>
+>
 
---------------010900090402060606030200
-Content-Type: text/plain;
- name="patch-2.6.0-test3-videoproc"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-2.6.0-test3-videoproc"
-
-diff -Nru drivers/media/video/videodev.c
---- drivers/media/video/videodev.c	Sun Aug 10 07:01:27 2003
-+++ drivers/media/video/videodev.c	Sun Aug 10 07:05:37 2003
-@@ -367,6 +367,8 @@
-  *	Initialise video for linux
-  */
-  
-+struct proc_dir_entry *video_proc_entry = NULL;
-+
- static int __init videodev_init(void)
- {
- 	printk(KERN_INFO "Linux video capture interface: v1.00\n");
-@@ -375,11 +377,19 @@
- 		return -EIO;
- 	}
- 	class_register(&video_class);
-+	
-+	video_proc_entry = create_proc_entry("video", S_IFDIR, &proc_root);
-+	if (video_proc_entry)
-+		video_proc_entry->owner = THIS_MODULE;
- 	return 0;
- }
- 
- static void __exit videodev_exit(void)
- {
-+	if (video_proc_entry)
-+		remove_proc_entry("video", &proc_root);
-+	video_proc_entry = NULL;
-+
- 	class_unregister(&video_class);
- 	unregister_chrdev(VIDEO_MAJOR, VIDEO_NAME);
- }
-@@ -395,6 +405,7 @@
- EXPORT_SYMBOL(video_exclusive_release);
- EXPORT_SYMBOL(video_device_alloc);
- EXPORT_SYMBOL(video_device_release);
-+EXPORT_SYMBOL(video_proc_entry);
- 
- MODULE_AUTHOR("Alan Cox");
- MODULE_DESCRIPTION("Device registrar for Video4Linux drivers");
-
---------------010900090402060606030200--
+I hope computers don't one day become so fast that SCHED_SOFTRR is
+required for skipless mp3 decoding, but if they do, then I think
+SCHED_SOFTRR should drop its weird polymorphing semantics ;)
 
 

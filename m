@@ -1,56 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131077AbRCJR5D>; Sat, 10 Mar 2001 12:57:03 -0500
+	id <S131076AbRCJRzN>; Sat, 10 Mar 2001 12:55:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131078AbRCJR4x>; Sat, 10 Mar 2001 12:56:53 -0500
-Received: from mailout1-100bt.midsouth.rr.com ([24.92.68.6]:21137 "EHLO
-	mailout1-100bt.midsouth.rr.com") by vger.kernel.org with ESMTP
-	id <S131077AbRCJR4j>; Sat, 10 Mar 2001 12:56:39 -0500
-Message-Id: <200103101754.f2AHsUL04580@mailout1-100bt.midsouth.rr.com>
-Subject: Re: Kernel 2.4.1 on RHL 6.2
-From: Stephen "M." Williams <rootusr@midsouth.rr.com>
-To: Srinath Ravinathan <sriguhan@eth.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <001401c0a970$ec3c9b00$1d9509ca@pentiumiii>
-Content-Type: text/plain
-X-Mailer: Evolution (0.9/+cvs.2001.03.06.23.22 - Preview Release)
-Date: 10 Mar 2001 11:53:17 -0600
-Mime-Version: 1.0
+	id <S131077AbRCJRzD>; Sat, 10 Mar 2001 12:55:03 -0500
+Received: from d189.as5200.mesatop.com ([208.164.122.189]:22665 "HELO
+	localhost.localdomain") by vger.kernel.org with SMTP
+	id <S131076AbRCJRyv>; Sat, 10 Mar 2001 12:54:51 -0500
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+Date: Sat, 10 Mar 2001 10:57:46 -0700
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+Subject: [PATCH] remove second identical Configure.help entry for six CONFIGs
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <01031010574602.08110@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make sure you have the following symlinks in your /usr/include
-directory, assuming you're on an x86 machine:
+As of 2.4.2-ac17, there are 8 CONFIG parameters which have two entries
+in Configure.help.  Of these eight,  six have identical Configure.help text.
 
-asm -> /usr/src/linux/include/asm-i386/
-linux -> /usr/src/linux/include/linux/
+The following patch removes the second identical instance of those six.
 
-If you're using a different archetecture, check the
-/usr/src/linux/include/ directory and make the link with that directory.
+If this patch is accepted, a patch to remove the obsolete version of the
+other two (namely CONFIG_DEBUG_IOVIRT and  CONFIG_IP_NF_TARGET_TCPMSS)
+will be posted here.
 
-Steve
+Here is the patch, against 2.4.2-ac17.
 
+Steven
 
-On 10 Mar 2001 20:16:34 +0530, Srinath Ravinathan wrote:
-> Hi,
->     I'm trying to compile kernel 2.4.1 on RedHat 6.2 (zoot). After the make xconfig and make dep when I give make bzlilo I get the following error message
-> 
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o 
-> scripts/split-include
-> scripts/split-include.c
-> In file included from /usr/include/errno.h:36,
->                  from scripts/split-include.c:26:
-> /usr/include/bits/errno.h:25: linux/errno.h: No such file or directory
-> make: *** [scripts/split-include] Error 1
-> 
-> What should I do?
-> Yours ,
-> Srinath.R
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--- linux/Documentation/Configure.help.orig     Sat Mar 10 09:35:19 2001
++++ linux/Documentation/Configure.help  Sat Mar 10 09:45:50 2001
+@@ -2070,15 +2070,6 @@
+   If you want to compile it as a module, say M here and read
+   Documentation/modules.txt.  If unsure, say `N'.
+
+-tcpmss match support
+-CONFIG_IP_NF_MATCH_TCPMSS
+-  This option adds a `tcpmss' match, which allows you to examine the
+-  MSS value of TCP SYN packets, which control the maximum packet size
+-  for that connection.
+-
+-  If you want to compile it as a module, say M here and read
+-  Documentation/modules.txt.  If unsure, say `N'.
+-
+ LOG target support
+ CONFIG_IP_NF_TARGET_LOG
+   This option adds a `LOG' target, which allows you to create rules in
+@@ -17190,27 +17181,6 @@
+   SA-1100 based Victor Digital Talking Book Reader.  See
+   http://www.visuaide.com/pagevictor.en.html for information on
+   this system.
+-
+-Support ARM610 processor
+-CONFIG_CPU_ARM6
+-  Say Y here if you wish to include support for the ARM610 processor.
+-
+-Support ARM710 processor
+-CONFIG_CPU_ARM7
+-  Say Y here if you wish to include support for the ARM710 processor.
+-
+-Support StrongARM(R) SA-110 processor
+-CONFIG_CPU_SA110
+-  Say Y here if you wish to include support for the Intel(R)
+-  StrongARM(R) SA-110 processor.
+-
+-Support ARM720 processor
+-CONFIG_CPU_ARM720
+-  Say Y here if you wish to include support for the ARM720 processor.
+-
+-Support ARM920
+-CONFIG_CPU_ARM920
+-  Say Y here if you wish to include support for the ARM920 processor.
+
+ Support ARM610 processor
+ CONFIG_CPU_ARM6
 

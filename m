@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289010AbSBIQOf>; Sat, 9 Feb 2002 11:14:35 -0500
+	id <S289012AbSBIQvg>; Sat, 9 Feb 2002 11:51:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289011AbSBIQOZ>; Sat, 9 Feb 2002 11:14:25 -0500
-Received: from pc3-redb4-0-cust131.bre.cable.ntl.com ([213.106.223.131]:61947
-	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
-	id <S289010AbSBIQOW>; Sat, 9 Feb 2002 11:14:22 -0500
-Date: Sat, 9 Feb 2002 16:14:18 +0000
-From: Mark Zealey <mark@zealos.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        kernelnewbies@nl.linux.org
-Subject: Re: ANNOUNCE: Janitor weekend!
-Message-ID: <20020209161418.GA19088@itsolve.co.uk>
-In-Reply-To: <20020207020105.GP8973@conectiva.com.br> <NDBBJHDEALBBOIDJGBNNOEKBCDAA.ktatgenhorst@earthlink.net>
+	id <S289016AbSBIQv0>; Sat, 9 Feb 2002 11:51:26 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:16777
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S289012AbSBIQvQ>; Sat, 9 Feb 2002 11:51:16 -0500
+Date: Sat, 9 Feb 2002 09:50:54 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Larry McVoy <lm@work.bitmover.com>, David Lang <dlang@diginsite.com>,
+        Larry McVoy <lm@bitmover.com>, Patrick Mochel <mochel@osdl.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [bk patch] Make cardbus compile in -pre4
+Message-ID: <20020209165054.GK20094@opus.bloom.county>
+In-Reply-To: <20020208211257.F25595@work.bitmover.com> <Pine.LNX.4.44.0202090212420.25220-100000@dlang.diginsite.com> <20020209075425.A13258@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <NDBBJHDEALBBOIDJGBNNOEKBCDAA.ktatgenhorst@earthlink.net>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux sunbeam 2.4.17-wli2 
-X-Homepage: http://zealos.org/
+In-Reply-To: <20020209075425.A13258@work.bitmover.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 09, 2002 at 10:20:10AM -0500, Karl wrote:
-
+On Sat, Feb 09, 2002 at 07:54:25AM -0800, Larry McVoy wrote:
+> On Sat, Feb 09, 2002 at 02:14:52AM -0800, David Lang wrote:
+> > and if you keep doing this you will also need to cleanup and implement the
+> > 'hardlink for identical files' idea that was batted around a year or so
+> > ago, otherwise with all the copies of the linus tree with a few K of
+> > patches from different developers you'll start to notice the storage space
+> > used, even at today's drive prices :-)
 > 
-> 
->      Is this perhaps the WRONG weekend? I have checked many times. There is
-> a fella 'Johnflux' asleep there but he is alone.
+> bk clone -l
 
-Maybe you went onto a split server. Try hogan, the server I am on, shows 68
-people atm.
+Erm:
+$ bk version
+BitKeeper/Free version is bk-2.1.4 20020205155016 for x86-glibc22-linux
+Built by: lm@redhat71.bitmover.com in /build/bk-2.1.x-lm/src
+Built on: Tue Feb  5 08:01:19 PST 2002
+$ bk clone -l
+usage:  bk clone [-ql] [-E<env>=<val>] [-r<rev>] [-z[<d>]] <from> [<to>]
 
 -- 
-
-Mark Zealey (aka JALH on irc.openprojects.net: #zealos and many more)
-mark@zealos.org
-mark@itsolve.co.uk
-
-UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a16! C++++>$ P++++>+++++$ L+++>+++++$
-!E---? W+++>$ N- !o? !w--- O? !M? !V? !PS !PE--@ PGP+? r++ !t---?@ !X---?
-!R- b+ !tv b+ DI+ D+? G+++ e>+++++ !h++* r!-- y--
-
-(www.geekcode.com)
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

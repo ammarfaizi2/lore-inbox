@@ -1,33 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263998AbRFJPGw>; Sun, 10 Jun 2001 11:06:52 -0400
+	id <S264532AbRFJPhB>; Sun, 10 Jun 2001 11:37:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264002AbRFJPGm>; Sun, 10 Jun 2001 11:06:42 -0400
-Received: from i1738.vwr.wanadoo.nl ([194.134.214.209]:16000 "HELO
-	localhost.localdomain") by vger.kernel.org with SMTP
-	id <S263998AbRFJPGd>; Sun, 10 Jun 2001 11:06:33 -0400
-Date: Sun, 10 Jun 2001 16:21:14 +0200
-From: Remi Turk <remi@a2zis.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5-ac8 hardlocks when going to standby
-Message-ID: <20010610162114.A940@localhost.localdomain>
-Mail-Followup-To: Mikael Pettersson <mikpe@csd.uu.se>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S264533AbRFJPgu>; Sun, 10 Jun 2001 11:36:50 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:50374 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S264532AbRFJPgm>;
+	Sun, 10 Jun 2001 11:36:42 -0400
+Date: Sun, 10 Jun 2001 11:36:35 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org, Alois Treindl <alois@astro.ch>,
+        "'Bryce'" <bryce@redhat.com>
+Subject: [PATCH] Re: Oops with kernel 2.4.5 on heavy disk traffic
+In-Reply-To: <Pine.HPX.4.21.0106101259250.9434-100000@as73.astro.ch>
+Message-ID: <Pine.GSO.4.21.0106101122570.22838-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-the problem changed a little bit with ac11. (I didn't try ac10)
-apm --standby now actually goes to standby, but doesn't come back
-anymore. (Well, it does not completely go down - the light
-of my my brandnew USB-mouse does not go off.)
-Mikael's patch makes it work, but my power/standby-button
-still hardlocks. (same as with ac9)
+	Please, apply. What's happing here is simple - we set i_ino by
+PID and get something out of range of per-process inode. Confusion
+follows... Fix: move initializing ->u.proc_i.task past the check.
+Then proc_delete_inode() will be happy with it.
+	Alois, Bryce - that ought to fix the oopsen you see.
 
--- 
-Linux 2.4.6-pre2 #1 Sun Jun 10 14:47:38 CEST 2001
+--- linux/fs/proc/base.c.old	Sun Jun 10 11:15:55 2001
++++ linux/fs/proc/base.c	Sun Jun 10 11:21:51 2001
+@@ -635,15 +635,14 @@
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
+ 	inode->i_ino = fake_ino(task->pid, ino);
+ 
+-	inode->u.proc_i.file = NULL;
++	if (!task->pid)
++		goto out_unlock;
++
+ 	/*
+ 	 * grab the reference to task.
+ 	 */
+-	inode->u.proc_i.task = task;
+ 	get_task_struct(task);
+-	if (!task->pid)
+-		goto out_unlock;
+-
++	inode->u.proc_i.task = task;
+ 	inode->i_uid = 0;
+ 	inode->i_gid = 0;
+ 	if (ino == PROC_PID_INO || task->dumpable) {
+
+

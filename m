@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267949AbTBVW5I>; Sat, 22 Feb 2003 17:57:08 -0500
+	id <S267951AbTBVXBF>; Sat, 22 Feb 2003 18:01:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267951AbTBVW5I>; Sat, 22 Feb 2003 17:57:08 -0500
-Received: from [212.156.4.132] ([212.156.4.132]:54777 "EHLO fep02.ttnet.net.tr")
-	by vger.kernel.org with ESMTP id <S267949AbTBVW5H>;
-	Sat, 22 Feb 2003 17:57:07 -0500
-Date: Sun, 23 Feb 2003 01:07:22 +0200
+	id <S267953AbTBVXBF>; Sat, 22 Feb 2003 18:01:05 -0500
+Received: from [212.156.4.132] ([212.156.4.132]:5627 "EHLO fep02.ttnet.net.tr")
+	by vger.kernel.org with ESMTP id <S267951AbTBVXBD>;
+	Sat, 22 Feb 2003 18:01:03 -0500
+Date: Sun, 23 Feb 2003 01:11:19 +0200
 From: Faik Uygur <faikuygur@ttnet.net.tr>
 To: andre@linux-ide.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.62: /proc/ide/pdcnew returns incomplete data [8/17]
-Message-ID: <20030222230722.GG2996@ttnet.net.tr>
+Subject: [PATCH] 2.5.62: /proc/ide/pdc202xx returns incomplete data [9/17]
+Message-ID: <20030222231119.GH2996@ttnet.net.tr>
 Mail-Followup-To: andre@linux-ide.org, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-9
@@ -25,14 +25,14 @@ X-Operating-System: Debian GNU/Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the incomplete data return problem of /proc/ide/pdcnew.
+This patch fixes the incomplete data return problem of /proc/ide/pdc202xx.
 When the number of consecutive read bytes are smaller than the total
-data in pdcnew_get_info(), the second read() returns 0.
+data in pdc202xx_get_info(), the second read() returns 0.
 
---- linux-2.5.62-vanilla/drivers/ide/pci/pdc202xx_new.c	Sat Feb 22 23:00:52 2003
-+++ linux-2.5.62/drivers/ide/pci/pdc202xx_new.c	Sat Feb 22 23:33:19 2003
-@@ -77,13 +77,17 @@
- static int pdcnew_get_info (char *buffer, char **addr, off_t offset, int count)
+--- linux-2.5.62-vanilla/drivers/ide/pci/pdc202xx_old.c	Sat Feb 22 23:00:52 2003
++++ linux-2.5.62/drivers/ide/pci/pdc202xx_old.c	Sat Feb 22 23:35:29 2003
+@@ -177,13 +177,17 @@
+ static int pdc202xx_get_info (char *buffer, char **addr, off_t offset, int count)
  {
  	char *p = buffer;
 -	int i;
@@ -40,7 +40,7 @@ data in pdcnew_get_info(), the second read() returns 0.
  
  	for (i = 0; i < n_pdc202_devs; i++) {
  		struct pci_dev *dev	= pdc202_devs[i];
- 		p = pdcnew_info(buffer, dev);
+ 		p = pdc202xx_info(buffer, dev);
  	}
 -	return p-buffer;	/* => must be less than 4k! */
 +	/* p - buffer must be less than 4k! */
@@ -50,3 +50,4 @@ data in pdcnew_get_info(), the second read() returns 0.
 +	return len > count ? count : len;
  }
  #endif  /* defined(DISPLAY_PDC202XX_TIMINGS) && defined(CONFIG_PROC_FS) */
+

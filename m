@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318042AbSG2GSV>; Mon, 29 Jul 2002 02:18:21 -0400
+	id <S318046AbSG2GTt>; Mon, 29 Jul 2002 02:19:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318058AbSG2GSU>; Mon, 29 Jul 2002 02:18:20 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:17636 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318042AbSG2GST>;
-	Mon, 29 Jul 2002 02:18:19 -0400
-Date: Sun, 28 Jul 2002 23:10:17 -0700 (PDT)
-Message-Id: <20020728.231017.40779367.davem@redhat.com>
-To: torvalds@transmeta.com
-Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/13] remove pages from the LRU in __free_pages_ok()
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0207282256460.872-100000@home.transmeta.com>
-References: <20020728.224302.36837419.davem@redhat.com>
-	<Pine.LNX.4.44.0207282256460.872-100000@home.transmeta.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S318045AbSG2GTt>; Mon, 29 Jul 2002 02:19:49 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11785 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318043AbSG2GTn>; Mon, 29 Jul 2002 02:19:43 -0400
+Date: Sun, 28 Jul 2002 23:23:35 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jens Axboe <axboe@suse.de>
+cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Marcin Dalecki <dalecki@evision.ag>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.28 small REQ_SPECIAL abstraction
+In-Reply-To: <20020729075520.C4445@suse.de>
+Message-ID: <Pine.LNX.4.44.0207282319590.872-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Linus Torvalds <torvalds@transmeta.com>
-   Date: Sun, 28 Jul 2002 23:16:24 -0700 (PDT)
 
- [ This is Linus speaking in all the quoted material below... ]
 
-   >    But the thing is, nobody should normally have a reference to such a
-   >    page anyway. The only way they happen is by something mapping a
-   >    page from user space, and saving it away, while the user space goes
-   >    away and drops its references to the page.
- ...
-   But hopefully nobody should have the problematic last reference to a LRU
-   page _except_ the user space itself. That should be safe for page cache
-   pages thanks to the truncate change.
+On Mon, 29 Jul 2002, Jens Axboe wrote:
+> >
+> > I think you are missing the point. The stuff should not be in the
+> > _generic_ blk_insert_request(). As I posted in my first reply to Martin,
+> > SCSI needs to clear the tag before calling blk_insert_request() if it
+> > needs to.
+>
+> Here's the patch to fix it, btw. Linus, please apply.
 
-[ Now DaveM is talking :-) ]
+I can't apply this while I think it looks horribly broken.
 
-So let's say that we have a page going out a socket.  The socket's FD
-has multiple references so when the user exit()'s the anonymous page
-is still "in-flight" but the socket isn't closed and thus we won't
-wait for the write to complete.
+Your patch makes scsi_lib call blk_queue_end_tag() without holding the
+queue spinlock.
 
-So when the user's reference is dropped, does that operation kill it
-from the LRU or will the socket's remaining reference to that page
-defer the LRU removal?
+Which looks horribly broken, since it _will_ corrupt the queues.
+
+In fact, it looks about a million times more broken than the code that
+Martin submitted.
+
+Please explain to me why I am wrong.
+
+		Linus
+
+PS. I actually do tend to look as the patches I apply. Right now it looks
+like you're wrong, and Martin is right.
+

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265731AbRGCSJS>; Tue, 3 Jul 2001 14:09:18 -0400
+	id <S265756AbRGCSYc>; Tue, 3 Jul 2001 14:24:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265732AbRGCSJI>; Tue, 3 Jul 2001 14:09:08 -0400
-Received: from athena.intergrafix.net ([206.245.154.69]:7350 "HELO
-	athena.intergrafix.net") by vger.kernel.org with SMTP
-	id <S265731AbRGCSIz>; Tue, 3 Jul 2001 14:08:55 -0400
-Date: Tue, 3 Jul 2001 14:08:55 -0400 (EDT)
-From: Admin Mailing Lists <mlist@intergrafix.net>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ufs on linux question/problem
-In-Reply-To: <Pine.GSO.4.21.0107031321200.11619-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.10.10107031407260.28505-100000@athena.intergrafix.net>
+	id <S265752AbRGCSYW>; Tue, 3 Jul 2001 14:24:22 -0400
+Received: from mysql.sashanet.com ([209.181.82.108]:11939 "EHLO
+	mysql.sashanet.com") by vger.kernel.org with ESMTP
+	id <S265747AbRGCSYP>; Tue, 3 Jul 2001 14:24:15 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Sasha Pachev <sasha@mysql.com>
+Organization: MySQL
+To: linux-kernel@vger.kernel.org
+Subject: Strange thread behaviour on 8-way x86 machine
+Date: Tue, 3 Jul 2001 12:25:12 -0600
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <0107031225120K.18621@mysql>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+I have observed a rather strange behaviour doing a multi-threaded CPU 
+benchmark on an 8-way machine running 2.4.2 SMP kernel. Even when the 
+priority is reniced to the highest possible value, I am still unable to reach 
+more than 50% CPU utilization. My benchmark just creates a bunch of threads 
+with pthread_create(), and then runs a simple integer computation in each 
+thread. On a dual with 2.4.3 kernel, and a 4-way with 2.4.2 kernel, I am able 
+to reach full CPU utilization. 
 
-> 
-> You need support of Solaris disklabels.
+At first glance, it appears to be like some overzealous fairness problem in 
+the scheduler that is exhibited only when you have more than 4 CPUs. Before I 
+start scrutinizing the source trying to understand the inner workings of the 
+scheduler, I would like to get some feedback from people that know something 
+about the subject. Any ideas/suggestions would be appreciated.
 
-isn't that what CONFIG_SOLARIS_X86_PARTITION is?
-
-> And UFS patches that are in
-> -ac. Then you can get more or less safe r/o mounts. r/w is hopeless
-> at that stage.
-
-that's ok, i only need to read.
-
--Tony
-.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-Anthony J. Biacco                       Network Administrator/Engineer
-thelittleprince@asteroid-b612.org       Intergrafix Internet Services
-
-    "Dream as if you'll live forever, live as if you'll die today"
-http://www.asteroid-b612.org                http://www.intergrafix.net
-.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-
+-- 
+MySQL Development Team
+For technical support contracts, visit https://order.mysql.com/
+   __  ___     ___ ____  __ 
+  /  |/  /_ __/ __/ __ \/ /   Sasha Pachev <sasha@mysql.com>
+ / /|_/ / // /\ \/ /_/ / /__  MySQL AB, http://www.mysql.com/
+/_/  /_/\_, /___/\___\_\___/  Provo, Utah, USA
+       <___/                  

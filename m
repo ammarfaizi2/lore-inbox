@@ -1,117 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313492AbSERRyR>; Sat, 18 May 2002 13:54:17 -0400
+	id <S313254AbSERSLU>; Sat, 18 May 2002 14:11:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313529AbSERRyQ>; Sat, 18 May 2002 13:54:16 -0400
-Received: from mta02-svc.ntlworld.com ([62.253.162.42]:51346 "EHLO
-	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S313492AbSERRyQ>; Sat, 18 May 2002 13:54:16 -0400
-Message-ID: <3CE69274.7010801@notnowlewis.co.uk>
-Date: Sat, 18 May 2002 18:42:12 +0100
-From: mikeH <mikeH@notnowlewis.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020502
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org
-Subject: Re: linux 2.5.16 and VIA Chipset
-In-Reply-To: <Pine.NEB.4.44.0205181706400.21287-100000@mimas.fachschaften.tu-muenchen.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313307AbSERSLT>; Sat, 18 May 2002 14:11:19 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:33798 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S313254AbSERSLT>; Sat, 18 May 2002 14:11:19 -0400
+Date: Sat, 18 May 2002 20:11:14 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Wayne.Brown@altec.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
+Message-ID: <20020518181114.GA12062@louise.pinerecords.com>
+In-Reply-To: <86256BBD.00606F38.00@smtpnotes.altec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.99i
+X-OS: Linux/sparc 2.2.21-rc4-ext3-0.0.7a SMP (up 2 days, 11:40)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Satisfied now?  Or did you mean I should have installed kbuild2.5 and found out
+> for myself?  If I had any interest in using it that would be reasonable.  But
+> all I wanted was to find out how bad things are going to be after I eventually
+> get stuck with it.
 
-Yeah, I have both these options enabled, but the config option is not 
-appearing (and I have had it running fine in the 2.4 series ;).
-The only mention of ACPI in .config is
+'get stuck' is really some good wording here I have to say.
 
-# ACPI Support
-#
-#CONFIG_ACPI is not set
+> This is my last post on this subject.  There doesn't seem to be anyone here who
+> understands the concept of being satisfied with a tool and seeing no need to
+> improve it.
 
-otherwise there is no mention. When I put that to
+The point of most of the ones who angrily replied to your original post was,
+I believe, that you're obviously not in a position to make remarks about the
+quality of the new build system.
 
+Sorry, but the opinion of someone who complains about having to switch to
+"make install" instead of "make oldconfig dep clean bzImage modules" (the
+new command even being much simpler for chrissakes) and admits that that's
+the only problem they can see, isn't of much value here.
 
-# ACPI Support
-#
-CONFIG_ACPI=y
+> If I'm not satisfied with something, I'll expend large amounts of time,
+> effort and money to achieve even trivial improvements.  But if I *am*
+> satisfied with something, then I don't want to spend even a trivial amount
+> of effort trying to achieve "improvements" that I don't need.
 
-make dep && make bzImage
-results in
-make CFLAGS="-D__KERNEL__ -I/usr/src/linux-2.5.16/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=i686 -malign-functions=4  " -C  arch/i386/kernel
-make[1]: Entering directory `/usr/src/linux-2.5.16/arch/i386/kernel'
-gcc -D__KERNEL__ -I/usr/src/linux-2.5.16/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=i686 -malign-functions=4    -DKBUILD_BASENAME=acpi  -c -o acpi.o 
-acpi.c
-acpi.c:53: parse error before `0'
-acpi.c: In function `acpi_get_interrupt_model':
-acpi.c:498: `ACPI_INT_MODEL_IOAPIC' undeclared (first use in this function)
-acpi.c:498: (Each undeclared identifier is reported only once
-acpi.c:498: for each function it appears in.)
-make[1]: *** [acpi.o] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.5.16/arch/i386/kernel'
-make: *** [_dir_arch/i386/kernel] Error 2
+Just a side note:
+Why exactly are you upgrading your kernel every time a new release is out,
+when you don't have a need to do so? I honestly doubt you're waiting for
+a particular fix.
 
+> I don't need the new kbuild.  I don't want the new kbuild.  But I'm going to be
+> stuck with it, and there's nothing I can do to stop it.  So for those of you who
+> DO want it, why is it such a burden to hear that not everyone thinks the way you
+> do?
 
-I havent done anything like copying the old .config from my 2.4 series 
-kernel, this was a clean
-tar jxvf linux-2.5.16.tar.bz2 && cd linux-2.5.16 && make menuconfig
-
-Have I missed a step thats been introduced in the 2.5 series? I've only 
-run 2.2 and 2.4 before, but I was hoping 2.5 might have fixed some of 
-the VIA issues.
-
-mike
-
-Adrian Bunk wrote:
-
->On Sat, 18 May 2002, Anton Altaparmakov wrote:
->
->  
->
->>At 13:47 18/05/02, mikeH wrote:
->>    
->>
->>>Apologies, on closer examination of the 2.4 and 2.5 dmesg, it hangs just
->>>before the
->>>ACPI is going to come up. However, there is no option for it in make
->>>menuconfig, and enabling it in .config breaks the compile.
->>>      
->>>
->>What do you mean there is no config option in menuconfig?!? I just checked
->>and there is "General options" ---> "ACPI Support" ---> "[ ] ACPI Support".
->>    
->>
->
->There are two options that are required and it might be that one of them
->is missing:
->
->1. "Code maturity level options" -> "Prompt for development and/or
->                                     incomplete code/drivers"
->2. "General setup" -> "Power Management support"
->
->Most likely the first one is the missing option (don't expect that the
->average user has activated CONFIG_EXPERIMENTAL).
->
->  
->
->>Best regards,
->>
->>         Anton
->>    
->>
->
->cu
->Adrian
->
->  
->
+Man, no offense meant here, but has it ever occurred to you that the clock won't ever
+stop and one has to keep learning new things every day? From what you have written
+it seems you can be in serious trouble each time your favorite grocery store closes
+down and you have to go round one more corner to get your bread and butter.
 
 
-
+Tomas

@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266758AbUJIRd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266905AbUJIRqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266758AbUJIRd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 13:33:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266905AbUJIRd1
+	id S266905AbUJIRqS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 13:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267165AbUJIRqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 13:33:27 -0400
-Received: from opersys.com ([64.40.108.71]:25101 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S266758AbUJIRdZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 13:33:25 -0400
-Message-ID: <416822B7.5050206@opersys.com>
-Date: Sat, 09 Oct 2004 13:41:11 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Sat, 9 Oct 2004 13:46:18 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:19943 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S266905AbUJIRqR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 13:46:17 -0400
+Message-ID: <416823E6.6020008@free.fr>
+Date: Sat, 09 Oct 2004 19:46:14 +0200
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-CC: linux-kernel@vger.kernel.org,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>,
-       "Amakarov@Ru. Mvista. Com" <amakarov@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       "Ext-Rt-Dev@Mvista. Com" <ext-rt-dev@mvista.com>,
-       New Zhang Haitao <hzhang@ch.mvista.com>,
-       "Yyang@Ch. Mvista. Com" <yyang@ch.mvista.com>,
-       Philippe Gerum <rpm@xenomai.org>
-Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-References: <41677E4D.1030403@mvista.com>
-In-Reply-To: <41677E4D.1030403@mvista.com>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Inconsistancies in /proc (status vs statm) leading	to	wrong	documentation
+ (proc.txt)
+References: <1097329771.2674.4036.camel@cube>  <4167F0D7.3020502@free.fr>	 <1097339477.2669.4212.camel@cube>  <416815FD.2060502@free.fr> <1097341175.2669.4257.camel@cube>
+In-Reply-To: <1097341175.2669.4257.camel@cube>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Albert Cahalan wrote:
 
-Sven-Thorsten Dietrich wrote:
->     - Voluntary Preemption by Ingo Molnar
->     - IRQ thread patches by Scott Wood and Ingo Molnar
->     - BKL mutex patch by Ingo Molnar (with MV extensions)
->     - PMutex from Germany's Universitaet der Bundeswehr, Munich
->     - MontaVista mutex abstraction layer replacing spinlocks with mutexes
+> Not quite, but close. Those that know are willing
+> to read the kernel code, including that of past
+> releases, can certainly use the statm file.
 
-To the best of my understanding, this still doesn't provide deterministic
-hard-real-time performance in Linux.
+Sure but it while doing that after readding the official documentation 
+that the trouble began...
 
-> There are several micro-kernel solutions available, which achieve
-> the required performance, but there are two general concerns with
-> such solutions:
-> 
->     1. Two separate kernel environments, creating more overall
->         system complexity and application design complexity.
->     2. Legal controversy.
 
-It's been quite a while since any of this has been true.
+> For that, go directly to /proc/*/maps and be happy.
 
-> In line with the above mentioned previous Kernel enhancements,
-> our work is designed to be transparent to existing applications
-> and drivers.
+That's a good point. Very usefull for knowing which dynamic library 
+account for what size. I start wondering if dynamic libraries and 
+mlockall works well toghether..
 
-I guess you haven't taken a look at the work on RTAI/fusion lately.
-Applications use the same Linux API, and get deterministic
-hard-real-time response times. It's really much less complicated
-to use than the above-suggested aggregate.
+> You may also want the RSS from /proc/*/status.
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Well RSS = VmSize after mlockall I guess
+
+Thanks for the maps hint,
+
+-- eric
+
+
 

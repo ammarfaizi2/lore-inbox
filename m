@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266184AbUA2SIf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 13:08:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266167AbUA2SIf
+	id S266066AbUA2SHo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 13:07:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266167AbUA2SHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 13:08:35 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:56525
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S266184AbUA2SII (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 13:08:08 -0500
-Message-ID: <40194B6D.6060906@redhat.com>
-Date: Thu, 29 Jan 2004 10:05:33 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040118
-X-Accept-Language: en-us, en
+	Thu, 29 Jan 2004 13:07:41 -0500
+Received: from dci.doncaster.on.ca ([66.11.168.194]:37074 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S266066AbUA2SHi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 13:07:38 -0500
+To: Eric <eric@cisu.net>
+Cc: Greg Stark <gsstark@mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Can't enable DMA on my DVD in 2.6.1?
+References: <873cae17pi.fsf@stark.xeocode.com>
+	<200401282024.19658.eric@cisu.net>
+In-Reply-To: <200401282024.19658.eric@cisu.net>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 29 Jan 2004 13:07:36 -0500
+Message-ID: <8765eu1vdj.fsf@stark.xeocode.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
-References: <1075344395.1592.87.camel@cog.beaverton.ibm.com> <401894DA.7000609@redhat.com> <20040129132623.GB13225@mail.shareable.org>
-In-Reply-To: <20040129132623.GB13225@mail.shareable.org>
-X-Enigmail-Version: 0.83.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Jamie Lokier wrote:
+Eric <eric@cisu.net> writes:
 
-> I like the second approach more.  You can change glibc to look up the
-> weak symbol for _all_ syscalls, then none of them are special and it
-> will work with future kernel optimisations.
+> 	If the first is the case, try compiling in one or more chipsets you suspect 
+> are yours in Device Drivers->Char->(ALI Chipset support, ATI Chipset support 
+> etc.) and Device Drivers->ATA/ATAPI->(ALI Chipset support, AMD Chipset 
+> support) etc. etc. Find your chipsets and compile them into the kernel.
 
-Symbol lookups are slow.  And they require the syscall stubs to suddenly
-set up the usual PIC infrastructure since a jump through the PLT is
-used.  This is much slower than the extra indirection the vdso could do.
+Ooh. The thing that had me confused was that the chipsets are under "PCI IDE
+chipset support". But it seems it was always under that heading, even in 2.4.
+So I'm not sure how I missed that. 
 
-The vdso is just one of the DSOs in the search path and usually the very
-last.  So there would be possible many objects which are looked at
-first, unsuccessfully.
+> 	However your problem is most certainly the first. It escapes me which device 
+> section will solve your problem (CHAR or ATA/ATAPI) but try both, it won't 
+> hurt to have some un-used code in the kernel. You can always remove un-needed 
+> drivers when you pinpoint the driver you need.
 
-And another problem I should have mentioned last night: in statically
-linked applications the vDSO isn't used this way.  Do dynamic linker
-functionality is available.  We find the vDSO through the auxiliary
-vector and use the absolute address, not the symbol table of the vDSO.
-If the syscall entry in the vDSO would do the dispatch automatically,
-statically linked apps would benefit from the optimizations, too.
-Otherwise they are left out.
+I had all the IDE stuff disabled when I was trying to eliminate variables that
+could cause the scsi ata_piix driver to fail. Then missed this subpanel when I
+was turning stuff back on.
 
 
-- -- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Thanks for the help.
 
-iD8DBQFAGUtt2ijCOnn/RHQRAgLwAKCcvvzg/FB8/8C+Jo1I6wfWBju25gCeKr4z
-kErg4cvJuxBvmRltLF4AxEE=
-=f2aR
------END PGP SIGNATURE-----
+
+-- 
+greg
+

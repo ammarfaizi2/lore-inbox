@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266185AbUHIGok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266189AbUHIHBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266185AbUHIGok (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 02:44:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUHIGok
+	id S266189AbUHIHBW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 03:01:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266194AbUHIHBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 02:44:40 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:29328 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266185AbUHIGnt (ORCPT
+	Mon, 9 Aug 2004 03:01:22 -0400
+Received: from mail.kroah.org ([69.55.234.183]:60079 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266189AbUHIHBV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 02:43:49 -0400
-Date: Mon, 9 Aug 2004 08:43:22 +0200
-From: Jens Axboe <axboe@suse.de>
-To: bil@beeb.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problems with Mandrake 10.0 + kernel 2.6.8-rc2
-Message-ID: <20040809064321.GF10418@suse.de>
-References: <200408061409.56670.bil@beeb.net>
+	Mon, 9 Aug 2004 03:01:21 -0400
+Date: Sun, 8 Aug 2004 23:45:24 -0700
+From: Greg KH <greg@kroah.com>
+To: John Rose <johnrose@austin.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Hotplug List <pcihpd-discuss@lists.sourceforge.net>
+Subject: Re: [Pcihpd-discuss] struct pci_bus, no release() function?
+Message-ID: <20040809064524.GD13690@kroah.com>
+References: <1091477728.23381.24.camel@sinatra.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408061409.56670.bil@beeb.net>
+In-Reply-To: <1091477728.23381.24.camel@sinatra.austin.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06 2004, bil@beeb.net wrote:
-> Hi,
-> I've recently moved to Mandrake 10.0 (prompted by a defunct hard disk
-> which neccesitated a complete re-install) and have had several problems.
-> As a result I have upgraded my kernel from 2.6.3 to 2.6.7 and then 2.6.8-rc2.
-> Unfortunately the fire may be hotter than the frying-pan (Old English
-> Proverb) and I'm now in a state where I can't mount CDroms. I can
-> read the raw device OK, so the basic driver (ide-cd) is OK, or at least
-> it seems to be. I've added traces to isofs.ko and established that this
-> initialises OK, but when I attempt to mount the driver it gets a return
-> code of -EINVAL when it tries to read the superblock (get_sb_bdev?()).
+On Mon, Aug 02, 2004 at 03:15:28PM -0500, John Rose wrote:
+> At probe time, pci_scan_bus_parented() allocates and registers a struct
+> device for each PCI bus it scans.  This generic device structure never
+> gets assigned a "release" function.  
 > 
-> I'm pretty sure that this must be something set up wrong somewhere as
-> it's unlikely that 2.6.7 (or 2.6.8) would be released without someone
-> somewhere needing to mount a cdrom, but I have no idea where to go from
-> here. I am not a kernel-hacker, though I did some many moons ago, but
-> I know enough to patch and rebuild modules and test them. I took a look at
-> the source code of ide-cd.c but can't make much sense of the way things are
-> done these days, and have too many other things to do....
-> Can anyone give me advice (or even better a fix)?
+> Attempts to unregister such a PCI Bus at runtime result in a kernel
+> message like:
+> Device 'pci0001:00' does not have a release() function, it is broken and
+> must be fixed.
 
-First step in bug reporting is including a step-by-step way to reproduce
-(ie what you do when it fails). Also please include a dmesg -s100000
-from a booted system, and your .config from 2.6.7.
+You're right, that should be fixed.  Care to send a patch?  Should just
+be a 1 line change.  You can tell no one else has tried to remove a root
+bus device before...
 
--- 
-Jens Axboe
+> Are architectures free to assign their own release function for
+> "devices" associated with struct pci_bus?
 
+Why would they want to?  It should just be set to pci_release_dev, like
+all other struct pci_dev devices are, right?
+
+> If so, does this have to happen at boot, or can it happen right before
+> the remove?
+
+Heh, you can't assign a release function after it is needed :)
+
+thanks,
+
+greg k-h

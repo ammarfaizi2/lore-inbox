@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264885AbUELBWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264873AbUELB10@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264885AbUELBWG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 21:22:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264155AbUELBJN
+	id S264873AbUELB10 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 21:27:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264691AbUELB1Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 21:09:13 -0400
-Received: from fed1rmmtao12.cox.net ([68.230.241.27]:2273 "EHLO
-	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
-	id S264916AbUELBH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 21:07:57 -0400
-Date: Tue, 11 May 2004 18:06:56 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Matt Porter <mporter@kernel.crashing.org>, benh@kernel.crashing.org,
-       linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+	Tue, 11 May 2004 21:27:25 -0400
+Received: from host213-123-250-229.in-addr.btopenworld.com ([213.123.250.229]:13101
+	"EHLO 2003SERVER.sbs2003.local") by vger.kernel.org with ESMTP
+	id S264873AbUELB1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 21:27:16 -0400
+thread-index: AcQ3wLTj6fDeQmCwQGW9RoR0FlYUtw==
+X-Sieve: Server Sieve 2.2
+Date: Wed, 12 May 2004 02:30:28 +0100
+From: "Andrew Morton" <akpm@osdl.org>
+To: <Administrator@vger.kernel.org>
+Cc: <benh@kernel.crashing.org>, <linux-kernel@vger.kernel.org>,
+       <linuxppc-dev@lists.linuxppc.org>
+Message-ID: <000001c437c0$b4e324d0$d100000a@sbs2003.local>
 Subject: Re: [PATCH 1/2] PPC32: New OCP core support
-Message-ID: <20040511180656.B4901@home.com>
-References: <20040511170150.A4743@home.com> <20040511175750.12bad316.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040511175750.12bad316.akpm@osdl.org>; from akpm@osdl.org on Tue, May 11, 2004 at 05:57:50PM -0700
+In-Reply-To: <20040511170150.A4743@home.com>
+References: <20040511170150.A4743@home.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailing-List: <linuxppc-dev@lists.linuxppc.org>
+X-Loop: linuxppc-dev@lists.linuxppc.org
+Envelope-to: paul@sumlocktest.fsnet.co.uk
+Content-Class: urn:content-classes:message
+X-me-spamlevel: not-spam
+Importance: normal
+X-me-spamrating: 3.653973
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.132
+X-OriginalArrivalTime: 12 May 2004 01:30:28.0328 (UTC) FILETIME=[B5021E80:01C437C0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 11, 2004 at 05:57:50PM -0700, Andrew Morton wrote:
-> Matt Porter <mporter@kernel.crashing.org> wrote:
-> >
-> > New OCP infrastructure ported from 2.4 along with several
-> > enhancements. Please apply.
-> 
-> I only received patch 1/2.
-> 
-> Could you please avoid using the same Subject: for different patches?  It
-> confuses my auto-subject-to-patch-filename-munger and it's nice to more
-> specifically identify each patch anwyay.
 
-Oddly I sent unique subjects:
+Matt Porter <mporter@kernel.crashing.org> wrote:
+>
+> New OCP infrastructure ported from 2.4 along with several
+> enhancements. Please apply.
 
-	Subject: [PATCH 1/2] PPC32: New OCP core support
-	Subject: [PATCH 2/2] PPC32: PPC4xx updates for new OCP
+I only received patch 1/2.
 
-It appears 2/2 at least made it off my system to the remote mailer,
-will doublecheck.
+Could you please avoid using the same Subject: for different patches?  It
+confuses my auto-subject-to-patch-filename-munger and it's nice to more
+specifically identify each patch anwyay.
 
--Matt
+
+** Sent via the linuxppc-dev mail list. See http://lists.linuxppc.org/
+
+

@@ -1,62 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317263AbSGCWH6>; Wed, 3 Jul 2002 18:07:58 -0400
+	id <S317264AbSGCWQ6>; Wed, 3 Jul 2002 18:16:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317264AbSGCWH5>; Wed, 3 Jul 2002 18:07:57 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:40456
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317263AbSGCWH5>; Wed, 3 Jul 2002 18:07:57 -0400
-Date: Wed, 3 Jul 2002 15:09:15 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: Eduard Bloch <edi@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.22] simple ide-tape.c and ide-floppy.c cleanup
-In-Reply-To: <200207032018.g63KIis03950@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.10.10207031500390.19028-100000@master.linux-ide.org>
+	id <S317265AbSGCWQ5>; Wed, 3 Jul 2002 18:16:57 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:56552 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S317264AbSGCWQ4>;
+	Wed, 3 Jul 2002 18:16:56 -0400
+Message-ID: <3D237870.7010600@colorfullife.com>
+Date: Thu, 04 Jul 2002 00:19:28 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+CC: linux-usb-devel@lists.sourceforge.net, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: usb storage cleanup
+References: <3D236950.5020307@colorfullife.com> <20020703144329.D8033@one-eyed-alien.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-OIC, then it is clear that SCSI can deal with DSC overlap and granting
-bandwidth to the other device on the chain which is not ATAPI.
-Sorry Pete, but this is the typical mind set of people who do not
-understand all the specification from the past that current hardware is
-bound to.  Gadi was very clever in making DSC work.  I understand the
-principles but seriously doubt I could have derived what Gadi did.
-
-
-
-Cheers,
-
-
-On Wed, 3 Jul 2002, Pete Zaitcev wrote:
-
-> >[...]
-> > To be honest - why keep ide-[cd,floppy,tape] when they can be almost
-> > completely replaced with ide-scsi?
+Matthew Dharm wrote:
+> I don't understand what this patch is trying to do...
 > 
-> James Bottomley was going to take care of this, so I did not
-> even bother with ide-tape cleanups in 2.5. Good riddance for
-> that crap.
-> 
-> Note though, ide-tape is not anywhere near semantically
-> to the ide-scsi+st, because of its "sophisticated" (e.g. utterly
-> broken) internal pipeline. It does a lot of work underneath
-> the /dev boundary. Apparently, the author had a bad case of streaming
-> stoppages on his 386, so instead of fixing the root cause he
-> wrote the monster we have today. Getting rid of ide-tape may
-> cause problems on 386's. But then again, perhaps not.
-> 
-> -- Pete
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> You're reverting our new state machine changes... why?
 > 
 
-Andre Hedrick
-LAD Storage Consulting Group
+Because the state machine doesn't work. I've degraded it into a 
+debugging state.
+I've described it in a mail I send to you and linux-usb-devel a few 
+weeks ago, without any reply.
+
+E.g. queue_command stored new commands in ->queue_srb. The worker thread 
+then moved it from queue_srb to srb and set sm_state to RUNNING.
+
+But what if command_abort() is called before the worker thread is scheduled?
+
+State machines and asynchroneous command aborts are incompatible, that 
+why I've moved command abortion out of sm_state.
+
+>
+> You're reverting the new mechanism to determine device state... why?
+>
+
+Unnesessary duplication. Device disconnected is equivalent to 
+->pusb_dev==NULL. Why do you need a special variable?
+
+>
+> You're removing the entire bus_reset() logic... why?
+>
+You are right, that change is not correct.
+Do you remember the reasons that lead to the current implementation?
+
+Hmm. Are you sure that the code can't cause data losses with unrelated 
+devices?
+Suppose I have an usb hub installed, and behind that hub 2 usb disks. If 
+bus_reset is called for the scsi controller that represents one disk, 
+won't that affect the data transfer that go to the other disk?
+
+
+> This patch undoes most of the work done in the last few months.  I
+> _strongly_ oppose the patch without some better explanations.
+> 
+
+I've sent you a mail on 06/02 with details about all changes.
+
+http://www.geocrawler.com/archives/3/2571/2002/6/600/8821396/
+
+You did not reply, thus I assumed that you were too busy and I fixed 
+everything myself.
+
+The only new change is removing the call to usb_stor_CBI_irq() and 
+replacing it with "up(&us->ip_waitq);" from usb_stor_abort_transport. 
+Setting sm_state and then calling usb_stor_CBI_irq() is a 
+synchronization nightmare.
+Situation: command is completed by the hardware and aborted by the scsi 
+midlayer at the same time. usb_stor_abort_transport() could run on cpu1, 
+_CBI_irq() on cpu2. Now imagine you run on Alpha, where both reads and 
+writes are reordered. Initially I tried to fix it with memory barriers, 
+but the new version is much simpler.
+
+--
+	Manfred
 

@@ -1,80 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVDEQ0F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVDEQ23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbVDEQ0F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 12:26:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVDEQ0F
+	id S261801AbVDEQ23 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 12:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVDEQ23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 12:26:05 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:30604 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S261796AbVDEQWl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 12:22:41 -0400
-Message-Id: <200504051632.WAA05569@harvest.india.hp.com>
-From: "Amanulla G" <amanulla@india.hp.com>
-To: "'Arjan van de Ven'" <arjan@infradead.org>, <linux-kernel@vger.kernel.org>
-Cc: <jdp@india.hp.com>
-Subject: RE: /proc on 2.4.21 & 2.6 kernels....
-Date: Tue, 5 Apr 2005 21:52:32 +0530
+	Tue, 5 Apr 2005 12:28:29 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:24809 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261471AbVDEQ0e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 12:26:34 -0400
+Message-ID: <4252BC37.8030306@grupopie.com>
+Date: Tue, 05 Apr 2005 17:26:31 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <1112714309.6275.68.camel@laptopd505.fenrus.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Thread-Index: AcU59efhOO0eRVh7SNuu4IjjFQQDYwABIMDA
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: RFC: turn kmalloc+memset(,0,) into kcalloc
+Content-Type: multipart/mixed;
+ boundary="------------040302060109030507000302"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hi, 
-Thanks for the mail.
-May be I didn't put my question correctly.
-On 2.4.21 based kernels /proc has got hidden directories which has got the
-thread related statistics.
-1) /proc/pid reflects resource usage of the process
-2) /proc/.pid  (I Was referring to this as a thread ID). Kernel stores
-thread resource utilization under this directory.
-
-My question was resource utilization (say cpu utilization) statistics under
-/proc/pid doesn't include resource utilization of threads which that process
-has created.
-
-May be this is specific to Red Hat AS 3.0 only. I will check it.
-
-My second part of question was:
-On 2.6 kernels, we have  /proc/<tgid>/task/xxx 
-My question is /proc/<tgid> stats reflect resource utilization of the
-threads it has created? 
-Or do they only report resource utilization of a process with <tgid> as the
-pid? 
-
-Once again thanks for your reply and time.
-
-Thanks & Best Regards,
-Amanulla
+This is a multi-part message in MIME format.
+--------------040302060109030507000302
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
+Hi,
 
+I noticed there are a number of places in the kernel that do:
 
------Original Message-----
-From: Arjan van de Ven [mailto:arjan@infradead.org] 
-Sent: Tuesday, April 05, 2005 8:48 PM
-To: Amanulla G
-Cc: linux-kernel@vger.kernel.org; jdp@india.hp.com
-Subject: Re: /proc on 2.4.21 & 2.6 kernels....
+	ptr = kmalloc(n * size, ...)
+	if (!ptr)
+		goto out;
+	memset(ptr, 0, n * size);
 
-On Tue, 2005-04-05 at 20:41 +0530, Amanulla G wrote:
->  Hi, 
-> I would like to know the information on /proc under 2.4.21 based kernels.
->  
-> On 2.4.21 based kernels, /proc has got two types of entries.
-> /proc/pid & /proc/.tid
+It seems that these could be replaced by:
 
-2.4 kernels do not have /proc/.tid.
+	ptr = kcalloc(n, size, ...)
+	if (!ptr)
+		goto out;
 
-Some vendor kernels might, if you ahve problems with such kernels you
-are much better of contacting the vendor of such a kernel instead.
+saving a few bytes.
 
+Most of the times the size isn't something "n * size", but simply "n". 
+These could be replaced by kcalloc(n, 1, ...) or we could create a 
+special "kmalloc_zero" function to do this without the need for the 
+extra "1" parameter.
 
+A quick (and lame) grep through the tree shows about 1200 of these 
+cases. This means that about one quarter of all the kmallocs in the 
+kernel are actually zeroed right after allocation.
 
+I could send patches to slowly clean this up, like Adrian Bunk did for 
+the static functions and Jesper Juhl for the kfree NULL checks.
 
+There are pros and cons to doing this:
+
+pros:
+   - smaller kernel image size
+   - smaller (and more readable) source code
+   - explicit interface to request zeroed data. If in the future we have 
+a good way of providing some zeroed-cachehot-super-duper-slabs, we can 
+allocate space from there and avoid the memset altogether
+
+cons:
+   - the NULL test is done twice
+   - memset will not be optimized for constant sizes
+
+The disadvantages don't seem to matter much for non-critical paths. For 
+really fast paths we should probably keep the kmalloc + memset.
+
+Attached is a sample of what one of those patches would look like.
+
+Would this be a good thing to clean up, or isn't it worth the effort at all?
+
+-- 
+Paulo Marques - www.grupopie.com
+
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)
+
+--------------040302060109030507000302
+Content-Type: text/plain;
+ name="patchsample"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patchsample"
+
+--- ./lib/kobject_uevent.c.orig	2005-04-05 16:39:09.000000000 +0100
++++ ./lib/kobject_uevent.c	2005-04-05 17:01:26.000000000 +0100
+@@ -234,10 +234,9 @@ void kobject_hotplug(struct kobject *kob
+ 	if (!action_string)
+ 		return;
+ 
+-	envp = kmalloc(NUM_ENVP * sizeof (char *), GFP_KERNEL);
++	envp = kmalloc_zero(NUM_ENVP * sizeof (char *), GFP_KERNEL);
+ 	if (!envp)
+ 		return;
+-	memset (envp, 0x00, NUM_ENVP * sizeof (char *));
+ 
+ 	buffer = kmalloc(BUFFER_SIZE, GFP_KERNEL);
+ 	if (!buffer)
+
+--------------040302060109030507000302--

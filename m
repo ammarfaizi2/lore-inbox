@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275773AbRI0GIJ>; Thu, 27 Sep 2001 02:08:09 -0400
+	id <S268926AbRI0GdV>; Thu, 27 Sep 2001 02:33:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275774AbRI0GH7>; Thu, 27 Sep 2001 02:07:59 -0400
-Received: from [159.226.4.246] ([159.226.4.246]:59920 "EHLO intec.iscas.ac.cn")
-	by vger.kernel.org with ESMTP id <S275773AbRI0GHt>;
-	Thu, 27 Sep 2001 02:07:49 -0400
-Message-Id: <200109270557.NAA22817@intec.iscas.ac.cn>
-Date: Thu, 27 Sep 2001 14:4:42 +0800
-From: =?GB2312?Q?=CA=E6=B9=FA=C7=BF?= <guoqiang@intec.iscas.ac.cn>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Question about ioremap and io_remap_page_range
-X-mailer: FoxMail 4.0 beta 1 [cn]
-Mime-Version: 1.0
-Content-Type: text/plain;
-      charset="GB2312"
+	id <S268133AbRI0GdM>; Thu, 27 Sep 2001 02:33:12 -0400
+Received: from qn-212-127-144-62.quicknet.nl ([212.127.144.62]:19973 "HELO
+	smcc.demon.nl") by vger.kernel.org with SMTP id <S266488AbRI0GdF>;
+	Thu, 27 Sep 2001 02:33:05 -0400
+Message-ID: <XFMail.010927083327.nemosoft@smcc.demon.nl>
+X-Mailer: XFMail 1.3 [p0] on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <20010926191123.A30545@cs.cmu.edu>
+Date: Thu, 27 Sep 2001 08:33:27 +0200 (MEST)
+Organization: I'm not organized
+From: "Nemosoft Unv." <nemosoft@smcc.demon.nl>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+Subject: RE: [PATCH -R] Re: 2.4.10 is toxic to my system when I use my US
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, webcam@smcc.demon.nl,
+        "Eloy A.Paris" <eloy.paris@usa.net>,
+        linux-usb-devel@lists.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id QAA32299
 
+Greetings,
 
- Here is some rather basic questions I want ask ,any reply or comment please
- CC to my emailbox,thank you very much.
- 
- When I work with kernel 2.4.2 in Intel X86 , I use 
-		
-     VIRT_ADDR = ioremap(BUS_ADDR); to map a section of PCI memory, and
-     X_ADDR = virt_to_phys(VIRT_ADDR);
+On 26-Sep-01 Jan Harkes wrote:
+> On Wed, Sep 26, 2001 at 10:43:54AM -0400, Eloy A. Paris wrote:
+>> I have been doing some tests to determine where the problems is. The
+[snip]
 
-  I think in x86 platform X_ADDR should equel with BUS_ADDR, but it turns to be
- NOT, can you explain ?
+> It hit me as well and I found the culprit, the crash happens in
+> usb-uhci.c:process_iso, where the following code used to be 'safe'
+> 
+>       for (i = 0; p != &urb_priv->desc_list; i++) {
+> ...
+>           list_del (p);
+>           p = p->next;
+>           delete_desc (s, desc);
+>       }
+> 
+> However, some infidel sneaked the following change into 2.4.10, late in
+> the testcycle, which is deadly. This patch needs to be reverted. If the
+> behaviour is wanted all uses of list_del in the kernel need to be looked
+> at very closely.
 
-  In X86 platform ,Can I use return value of ioremap() as a memory pointer?
+Personally, I say the above piece of code is faulty. Refering to a
+pointer after you appearently deleted it, is just very bad programming
+practice. 
 
+I´d say, fix the usb-uhci file, and do a quick run on all other instances
+of list_del. I think most programmers got it right, or 2.4.10 kernels would
+be coming down all over the planet.
 
-  I use io_remap_page_range(BUS_ADDR,,) in mmap() function,but the result is 
- that the memory I map is READ ONLY from user space,when I try to write to it,
- a "do_sw_pg. bogus page(XXXXXXXX)" appears. Can you explain to me?
+ - Nemosoft
 
-
-  I know these questions are childish,but I need the answer urgently,thanks!
-
-
- George Shu
- 
-
-ý:.žË›±Êâmçë¢kaŠÉb²ßìzwm…ébïîžË›±Êâmébžìÿ‘êçz_âžØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Þ—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨þ)ß£ømšSåy«­æ¶…­†ÛiÿÿðÃí»è®å’i
+-----------------------------------------------------------------------------
+Try SorceryNet!   One of the best IRC-networks around!   irc.sorcery.net:9000
+URL: never        IRC: nemosoft      IscaBBS (bbs.isca.uiowa.edu): Nemosoft
+                        >> Never mind the daylight << 

@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319449AbSIGHnM>; Sat, 7 Sep 2002 03:43:12 -0400
+	id <S319452AbSIGHn7>; Sat, 7 Sep 2002 03:43:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319451AbSIGHnM>; Sat, 7 Sep 2002 03:43:12 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:11273
+	id <S319451AbSIGHn6>; Sat, 7 Sep 2002 03:43:58 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:11785
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S319449AbSIGHnL>; Sat, 7 Sep 2002 03:43:11 -0400
-Date: Sat, 7 Sep 2002 00:46:53 -0700 (PDT)
+	id <S319452AbSIGHny> convert rfc822-to-8bit; Sat, 7 Sep 2002 03:43:54 -0400
+Date: Sat, 7 Sep 2002 00:47:33 -0700 (PDT)
 From: Andre Hedrick <andre@linux-ide.org>
-To: Eli <eli@pflash.com>
+To: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: IO errors: SanDisk ImageMate USB CF, SD, MMC reader
-In-Reply-To: <E17nXKB-0004DB-00@albatross.prod.itd.earthlink.net>
-Message-ID: <Pine.LNX.4.10.10209070045030.11256-100000@master.linux-ide.org>
+Subject: Re: 2.4.20-pre5-ac4 does not compile
+In-Reply-To: <3D799EE0.1020708@wanadoo.fr>
+Message-ID: <Pine.LNX.4.10.10209070047190.11256-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Because SD is DRM and since the method to double pump a split read/write10
-across the bus is not very simple nor public, there is legal problem.
-I suspect I just got myself one for even mentioning the stuff above.
+Looking into it now
 
-On Fri, 6 Sep 2002, Eli wrote:
+On Sat, 7 Sep 2002, Jean-Luc Coulon wrote:
 
-> All,
+> drivers/ide/idedriver.o: dans la fonction « proc_ide_read_drivers »:
+> drivers/ide/idedriver.o(.text+0x3fe): référence indéfinie vers « 
+> ide_modules »
+> drivers/ide/idedriver.o: dans la fonction « proc_ide_read_identify »:
+> drivers/ide/idedriver.o(.text+0x635): référence indéfinie vers « 
+> taskfile_lib_ge
+> t_identify »
+> drivers/ide/idedriver.o: dans la fonction « proc_ide_read_settings »:
+> drivers/ide/idedriver.o(.text+0x73c): référence indéfinie vers « 
+> ide_read_settin
+> g »
+> drivers/ide/idedriver.o: dans la fonction « proc_ide_write_settings »:
+> drivers/ide/idedriver.o(.text+0x98b): référence indéfinie vers « 
+> ide_find_settin
+> g_by_name »
+> drivers/ide/idedriver.o(.text+0x9b6): référence indéfinie vers « 
+> ide_write_setti
+> ng »
+> drivers/ide/idedriver.o: dans la fonction « proc_ide_write_driver »:
+> drivers/ide/idedriver.o(.text+0xbfa): référence indéfinie vers « 
+> ide_replace_sub
+> driver »
+> drivers/ide/idedriver.o: dans la fonction « create_proc_ide_drives »:
+> drivers/ide/idedriver.o(.text+0xdb7): référence indéfinie vers « 
+> generic_subdriv
+> er_entries »
+> drivers/ide/idedriver.o: dans la fonction « create_proc_ide_interfaces »:
+> drivers/ide/idedriver.o(.text+0xf3c): référence indéfinie vers « ide_hwifs »
+> drivers/ide/idedriver.o(.text+0xf41): référence indéfinie vers « ide_hwifs »
+> drivers/ide/idedriver.o(.text+0xf46): référence indéfinie vers « ide_hwifs »
+> drivers/ide/idedriver.o: dans la fonction « destroy_proc_ide_interfaces »:
+> drivers/ide/idedriver.o(.text+0xfa8): référence indéfinie vers « ide_hwifs »
+> drivers/ide/idedriver.o(.text+0xfad): référence indéfinie vers « ide_hwifs »
+> drivers/ide/idedriver.o(.text+0xfb2): encore plus de références 
+> indéfinies suive
+> nt vers « ide_hwifs »
+> make[1]: *** [vmlinux] Erreur 1
+> make[1]: Leaving directory `/usr/src/kernel-source-2.4.20-pre5-ac4'
+> make: *** [stamp-build] Erreur 2
 > 
-> Problem Summary:
-> I have a SanDisk ImageMate USB compactFlash + SecureDigital + MultiMediaCard 
-> reader, and I am getting IO errors trying to read a 128MB SimpleTech CF card 
-> with 2.4 kernels.
-> 
-> Details:
-> 
-> I have an 8MB Canon CF card and a 128MB SimpleTech CF card.
-> 
-> With the USB reader, I see:
-> OS or Device      | 8MB | 128MB |
-> ------------------+-----+-------+
-> MacOS 9           |  OK |   OK  |
-> RH 2.4.17-0.16smp |  OK |  ERR  |
-> RH 2.4.18-3       |  OK |  ERR  |
-> 
-> ERR means that I get IO errors when I try to 'cp -a' the contents of the CF 
-> card to local disk.
-> "pc: reading '/mnt/flash1.....': Input/output error" is repeated for many of 
-> the files on the card, but not all of them.  Most of them seem to be later 
-> files.
-> 
-> Also, with a PCMCIA adapter in the RH 2.4.18-3, both CF cards work.
-> Both cards also work in a HandEra 300 PDA and a Canon PowerShot A40 digital 
-> camera.
-> 
-> Any suggestions of how I could track down the problem?  (I've submitted a bug 
-> report to SanDisk as well, but this looks like a Linux problem to me.)
-> 
-> (Please CC me as I am not subscribed here at home.)
-> 
-> Eli Carter
-> retracile(a)earthlink.net
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

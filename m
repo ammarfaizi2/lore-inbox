@@ -1,174 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262635AbSITNkd>; Fri, 20 Sep 2002 09:40:33 -0400
+	id <S262613AbSITNk2>; Fri, 20 Sep 2002 09:40:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262644AbSITNkd>; Fri, 20 Sep 2002 09:40:33 -0400
-Received: from cpe-66-1-217-65.fl.sprintbbd.net ([66.1.217.65]:31251 "EHLO
-	chef.linux-wlan.com") by vger.kernel.org with ESMTP
-	id <S262635AbSITNk3>; Fri, 20 Sep 2002 09:40:29 -0400
-Date: Fri, 20 Sep 2002 09:45:34 -0400
-From: Solomon Peachy <solomon@linux-wlan.com>
+	id <S262644AbSITNk2>; Fri, 20 Sep 2002 09:40:28 -0400
+Received: from mailg.telia.com ([194.22.194.26]:23796 "EHLO mailg.telia.com")
+	by vger.kernel.org with ESMTP id <S262613AbSITNk1> convert rfc822-to-8bit;
+	Fri, 20 Sep 2002 09:40:27 -0400
+X-Original-Recipient: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Daniel Ahlberg <aliz@telia.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] [2.4] add wait_event_interruptible_timeout
-Message-ID: <20020920134534.GA19306@linux-wlan.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="l76fUT7nc3MelDdI"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Subject: CONFIG_PACKET_MMAP
+Date: Fri, 20 Sep 2002 15:45:30 +0200
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209201545.30950.aliz@telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---l76fUT7nc3MelDdI
-Content-Type: multipart/mixed; boundary="Q68bSM7Ycu6FN28Q"
-Content-Disposition: inline
+I don't know if this is already known or if I'm wrong, but here it is:
+
+I ran nessus on my local servers and for some hosts it reported:
+
+"Vulnerability found on port general/tcp
 
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+      The remote host seems to generate Initial Sequence Numbers
+      (ISN) in a weak manner which seems to solely depend
+      on the source and dest port of the TCP packets.
 
-The sleep_on* series of calls is unsafe, and prone to race conditions.
-They've been unofficially deprecated for a while.  Instead, we're
-supposed to use the wait_event* series of calls.
+      The Raptor Firewall is known to be vulnerable to this flaw,
+      as may others be.
 
-There's only one problem with this.  There's no equivalent of
-sleep_on_timeout/interruptible_sleep_on_timeout.
+      An attacker may use this flaw to establish spoofed connections
+      to the remote host.
 
-So, the attached patch adds 'wait_event_timeout' and
-'wait_event_interruptible_timeout'  The diff is generated against
-2.4.20-pre7, but should apply cleanly to just about any 2.4/2.2 release,
-and maybe even 2.5 as well.
 
-Back to the bit mines..
+      Solution : If you are using a Raptor Firewall, see
+      
+http://www.symantec.com/techsupp/bulletin/archive/firewall/082002firewall.html
+      or else contact your vendor for a patch
 
- - Pizza
---=20
-Solomon Peachy                        solomon@linux-wlan.com
-AbsoluteValue Systems                 http://www.linux-wlan.com
-715-D North Drive                     +1 (321) 259-0737  (office)
-Melbourne, FL 32934                   +1 (321) 259-0286  (fax)
+Risk factor : High"
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="sched.diff"
-Content-Transfer-Encoding: quoted-printable
+and 
 
---- sched.h.old	Fri Sep 20 09:31:02 2002
-+++ sched.h	Fri Sep 20 09:47:10 2002
-@@ -855,6 +855,87 @@
- 	__ret;								\
- })
-=20
-+#define __wait_event_timeout(wq, condition, timeout, ret)   \
-+do {                                                                      \
-+        int __ret =3D 0;                                                  =
-  \
-+        if (!(condition)) {                                               \
-+          wait_queue_t __wait;                                            \
-+          unsigned long expire;                                           \
-+          init_waitqueue_entry(&__wait, current);                         \
-+	                                                                  \
-+          expire =3D timeout + jiffies;                                   =
-  \
-+          add_wait_queue(&wq, &__wait);                                   \
-+          for (;;) {                                                      \
-+                  set_current_state(TASK_UNINTERRUPTIBLE);                \
-+                  if (condition)                                          \
-+                          break;                                          \
-+                  if (jiffies > expire) {                                 \
-+                          ret =3D jiffies - expire;                       =
-  \
-+                          break;                                          \
-+                  }                                                       \
-+                  schedule_timeout(timeout);                              \
-+          }                                                               \
-+          current->state =3D TASK_RUNNING;                                =
-  \
-+          remove_wait_queue(&wq, &__wait);                                \
-+	}                                                                 \
-+} while (0)
-+/*
-+   retval =3D=3D 0; condition met; we're good.
-+   retval > 0; timed out.
-+*/
-+#define wait_event_timeout(wq, condition, timeout)    	                \
-+({									\
-+	int __ret =3D 0;							\
-+	if (!(condition))						\
-+		__wait_event_timeout(wq, condition,                     \
-+						timeout, __ret);	\
-+	__ret;								\
-+})
-+
-+#define __wait_event_interruptible_timeout(wq, condition, timeout, ret)   \
-+do {                                                                      \
-+        int __ret =3D 0;                                                  =
-  \
-+        if (!(condition)) {                                               \
-+          wait_queue_t __wait;                                            \
-+          unsigned long expire;                                           \
-+          init_waitqueue_entry(&__wait, current);                         \
-+	                                                                  \
-+          expire =3D timeout + jiffies;                                   =
-  \
-+          add_wait_queue(&wq, &__wait);                                   \
-+          for (;;) {                                                      \
-+                  set_current_state(TASK_INTERRUPTIBLE);                  \
-+                  if (condition)                                          \
-+                          break;                                          \
-+                  if (jiffies > expire) {                                 \
-+                          ret =3D jiffies - expire;                       =
-  \
-+                          break;                                          \
-+                  }                                                       \
-+                  if (!signal_pending(current)) {                         \
-+                          schedule_timeout(timeout);                      \
-+                          continue;                                       \
-+                  }                                                       \
-+                  ret =3D -ERESTARTSYS;                                   =
-  \
-+                  break;                                                  \
-+          }                                                               \
-+          current->state =3D TASK_RUNNING;                                =
-  \
-+          remove_wait_queue(&wq, &__wait);                                \
-+	}                                                                 \
-+} while (0)
-+
-+/*
-+   retval =3D=3D 0; condition met; we're good.
-+   retval < 0; interrupted by signal.
-+   retval > 0; timed out.
-+*/
-+#define wait_event_interruptible_timeout(wq, condition, timeout)	\
-+({									\
-+	int __ret =3D 0;							\
-+	if (!(condition))						\
-+		__wait_event_interruptible_timeout(wq, condition,	\
-+						timeout, __ret);	\
-+	__ret;								\
-+})
-+
- #define REMOVE_LINKS(p) do { \
- 	(p)->next_task->prev_task =3D (p)->prev_task; \
- 	(p)->prev_task->next_task =3D (p)->next_task; \
+"Warning found on port general/tcp
 
---Q68bSM7Ycu6FN28Q--
 
---l76fUT7nc3MelDdI
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+      The remote host uses non-random IP IDs, that is, it is
+      possible to predict the next value of the ip_id field of
+      the ip packets sent by this host.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+      An attacker may use this feature to determine if the remote
+      host sent a packet in reply to another request. This may be
+      used for portscanning and other things.
 
-iD8DBQE9iyZ+gW9b/nAvdc4RAh4YAJ9y8LZ4p4fVJrlKdif4XN0A/oKBuQCfd6/5
-RMkiaMQfvHlia+98XdGCFBU=
-=+ptv
------END PGP SIGNATURE-----
+      Solution : Contact your vendor for a patch
+Risk factor : Low"
 
---l76fUT7nc3MelDdI--
+Since I didn't get this on all my hosts I began wondering what caused this. A 
+quick look at the config files showed that when the host had been compiled 
+with CONFIG_PACKET_MMAP=y nessus found these problems. All servers tested are 
+running 2.4.18 or 2.4.19.

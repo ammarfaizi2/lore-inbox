@@ -1,131 +1,248 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268075AbTAJAiV>; Thu, 9 Jan 2003 19:38:21 -0500
+	id <S268079AbTAJAq3>; Thu, 9 Jan 2003 19:46:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268076AbTAJAiU>; Thu, 9 Jan 2003 19:38:20 -0500
-Received: from holomorphy.com ([66.224.33.161]:47509 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S268075AbTAJAiS>;
-	Thu, 9 Jan 2003 19:38:18 -0500
-Date: Thu, 9 Jan 2003 16:46:34 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>
-Cc: Brian Tinsley <btinsley@emageon.com>, Russell Coker <russell@coker.com.au>,
-       ReiserFS <reiserfs-list@namesys.com>, Rik van Riel <riel@nl.linux.org>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: kswapd CPU usage and heavy disk IO
-Message-ID: <20030110004634.GB1147@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-	Brian Tinsley <btinsley@emageon.com>,
-	Russell Coker <russell@coker.com.au>,
-	ReiserFS <reiserfs-list@namesys.com>,
-	Rik van Riel <riel@nl.linux.org>, Andrea Arcangeli <andrea@suse.de>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <200301091431.54451.russell@coker.com.au> <3E1D9D10.40700@emageon.com> <200301091742.51101.Dieter.Nuetzel@hamburg.de>
+	id <S268082AbTAJAq3>; Thu, 9 Jan 2003 19:46:29 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:37537 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268079AbTAJAqR>; Thu, 9 Jan 2003 19:46:17 -0500
+Subject: [PATCH] linux-2.5.55_delay-cleanup_A1
+From: john stultz <johnstul@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1042159743.1046.280.camel@w-jstultz2.beaverton.ibm.com>
+References: <1042159743.1046.280.camel@w-jstultz2.beaverton.ibm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042159824.1052.283.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="vkogqOf2sHV7VnPd"
-Content-Disposition: inline
-In-Reply-To: <200301091742.51101.Dieter.Nuetzel@hamburg.de>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 09 Jan 2003 16:50:24 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus, All,
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
+	This patch applies ontop of linux-2.5.55_timer-none_A0 and tries to
+cleanup the delay code by moving the timer-specific implementations into
+the timer_ops struct. Thus, rather then doing:
 
-Am Donnerstag, 9. Januar 2003 17:02 schrieb Brian Tinsley:
->> I've been seeing the exact same thing on the same type of system in the
->> same situations. This has been causing all kinds of problems on our
->> clusters: the system live-locks for a minute or two, causes cluster
->> heartbeats to not be received, and falsely fails over when the system
->> recovers from the live-lock. The only thing I can find after the
->> live-lock is that the runtime for kswapd is abnormally high.
->> We started running sar (60 second collection interval) and were able to
->> capture some stats during this live-lock period. I've snipped some I
->> believe may be of interest. Note the missing stats between 03:59:43 and
->> 04:02:03
->> Oh BTW, this is on a stock 2.4.20 kernel (dual P3, 4GB), but I have seen
->> the same behavior on 2.4.19 and 2.4.17.
+	if(x86_delay_tsc)
+		__rdtsc_delay(loops);
+	else if(x86_delay_cyclone)
+		__cyclone_delay(loops);
+	else if(whatever....
 
-On Thu, Jan 09, 2003 at 05:42:51PM +0100, Dieter N?tzel wrote:
-> I think you should have cc'ed Andrea Arcangeli <andrea@suse.de>,
-> LKM and try 2.4.20-aa1. Are you sure it is a ReiserFS and not a
-> kernel thing?
+we just simply do:
 
-There simply aren't enough scenarios for this to be a mystery. Both
--aa and 2.5.x should have something in there for it: memclass-related
-buffer_head stuff in -aa, and bh-stripping + "bh-less" operation (for
-ext2) in 2.5.x + fewer (if any) bh's outside of actual dirty data.
+	timer->delay(loops);
 
-Bloat monitoring scripts attached, which might provide somewhat more
-useful output to capture, though they certainly don't eliminate the
-need for /proc/meminfo logging. I'll also see if some of the accounting
-patches can be backported and send those to Marcelo and Andrea.
+Making it much easier to accommodate alternate time sources. 
+
+Please apply.
+
+thanks
+-john
+
+diff -Nru a/arch/i386/kernel/timers/timer_cyclone.c b/arch/i386/kernel/timers/timer_cyclone.c
+--- a/arch/i386/kernel/timers/timer_cyclone.c	Thu Jan  9 15:22:13 2003
++++ b/arch/i386/kernel/timers/timer_cyclone.c	Thu Jan  9 15:22:13 2003
+@@ -150,7 +150,6 @@
+ }
+ 
+ 
+-#if 0 /* XXX future work */
+ static void delay_cyclone(unsigned long loops)
+ {
+ 	unsigned long bclock, now;
+@@ -162,12 +161,12 @@
+ 		now = cyclone_timer[0];
+ 	} while ((now-bclock) < loops);
+ }
+-#endif
+ /************************************************************/
+ 
+ /* cyclone timer_opts struct */
+ struct timer_opts timer_cyclone = {
+ 	.init = init_cyclone, 
+ 	.mark_offset = mark_offset_cyclone, 
+-	.get_offset = get_offset_cyclone
++	.get_offset = get_offset_cyclone,
++	.delay = delay_cyclone,
+ };
+diff -Nru a/arch/i386/kernel/timers/timer_none.c b/arch/i386/kernel/timers/timer_none.c
+--- a/arch/i386/kernel/timers/timer_none.c	Thu Jan  9 15:22:13 2003
++++ b/arch/i386/kernel/timers/timer_none.c	Thu Jan  9 15:22:13 2003
+@@ -15,10 +15,23 @@
+ 	return 0;
+ }
+ 
++static void delay_none(unsigned long loops)
++{
++	int d0;
++	__asm__ __volatile__(
++		"\tjmp 1f\n"
++		".align 16\n"
++		"1:\tjmp 2f\n"
++		".align 16\n"
++		"2:\tdecl %0\n\tjns 2b"
++		:"=&a" (d0)
++		:"0" (loops));
++}
+ 
+ /* tsc timer_opts struct */
+ struct timer_opts timer_none = {
+ 	.init =		init_none, 
+ 	.mark_offset =	mark_offset_none, 
+ 	.get_offset =	get_offset_none,
++	.delay = delay_none,
+ };
+diff -Nru a/arch/i386/kernel/timers/timer_pit.c b/arch/i386/kernel/timers/timer_pit.c
+--- a/arch/i386/kernel/timers/timer_pit.c	Thu Jan  9 15:22:13 2003
++++ b/arch/i386/kernel/timers/timer_pit.c	Thu Jan  9 15:22:13 2003
+@@ -27,6 +27,19 @@
+ 	/* nothing needed */
+ }
+ 
++static void delay_pit(unsigned long loops)
++{
++	int d0;
++	__asm__ __volatile__(
++		"\tjmp 1f\n"
++		".align 16\n"
++		"1:\tjmp 2f\n"
++		".align 16\n"
++		"2:\tdecl %0\n\tjns 2b"
++		:"=&a" (d0)
++		:"0" (loops));
++}
++
+ 
+ /* This function must be called with interrupts disabled 
+  * It was inspired by Steve McCanne's microtime-i386 for BSD.  -- jrs
+@@ -129,4 +142,5 @@
+ 	.init =		init_pit, 
+ 	.mark_offset =	mark_offset_pit, 
+ 	.get_offset =	get_offset_pit,
++	.delay = delay_pit,
+ };
+diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
+--- a/arch/i386/kernel/timers/timer_tsc.c	Thu Jan  9 15:22:13 2003
++++ b/arch/i386/kernel/timers/timer_tsc.c	Thu Jan  9 15:22:13 2003
+@@ -16,7 +16,6 @@
+ 
+ int tsc_disable __initdata = 0;
+ 
+-extern int x86_udelay_tsc;
+ extern spinlock_t i8253_lock;
+ 
+ static int use_tsc;
+@@ -107,6 +106,17 @@
+ 	delay_at_last_interrupt = (count + LATCH/2) / LATCH;
+ }
+ 
++static void delay_tsc(unsigned long loops)
++{
++	unsigned long bclock, now;
++	
++	rdtscl(bclock);
++	do
++	{
++		rep_nop();
++		rdtscl(now);
++	} while ((now-bclock) < loops);
++}
+ 
+ /* ------ Calibrate the TSC ------- 
+  * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
+@@ -272,8 +282,6 @@
+ 			 *	We could be more selective here I suspect
+ 			 *	and just enable this for the next intel chips ?
+ 			 */
+-			x86_udelay_tsc = 1;
+-
+ 			/* report CPU clock rate in Hz.
+ 			 * The formula is (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =
+ 			 * clock/second. Our precision is about 100 ppm.
+@@ -310,4 +318,5 @@
+ 	.init =		init_tsc,
+ 	.mark_offset =	mark_offset_tsc, 
+ 	.get_offset =	get_offset_tsc,
++	.delay = delay_tsc,
+ };
+diff -Nru a/arch/i386/lib/delay.c b/arch/i386/lib/delay.c
+--- a/arch/i386/lib/delay.c	Thu Jan  9 15:22:13 2003
++++ b/arch/i386/lib/delay.c	Thu Jan  9 15:22:13 2003
+@@ -15,54 +15,17 @@
+ #include <linux/delay.h>
+ #include <asm/processor.h>
+ #include <asm/delay.h>
++#include <asm/timer.h>
+ 
+ #ifdef CONFIG_SMP
+ #include <asm/smp.h>
+ #endif
+ 
+-int x86_udelay_tsc = 0;		/* Delay via TSC */
+-
+-	
+-/*
+- *	Do a udelay using the TSC for any CPU that happens
+- *	to have one that we trust.
+- */
+-
+-static void __rdtsc_delay(unsigned long loops)
+-{
+-	unsigned long bclock, now;
+-	
+-	rdtscl(bclock);
+-	do
+-	{
+-		rep_nop();
+-		rdtscl(now);
+-	} while ((now-bclock) < loops);
+-}
+-
+-/*
+- *	Non TSC based delay loop for 386, 486, MediaGX
+- */
+- 
+-static void __loop_delay(unsigned long loops)
+-{
+-	int d0;
+-	__asm__ __volatile__(
+-		"\tjmp 1f\n"
+-		".align 16\n"
+-		"1:\tjmp 2f\n"
+-		".align 16\n"
+-		"2:\tdecl %0\n\tjns 2b"
+-		:"=&a" (d0)
+-		:"0" (loops));
+-}
++extern struct timer_opts* timer;
+ 
+ void __delay(unsigned long loops)
+ {
+-	if (x86_udelay_tsc)
+-		__rdtsc_delay(loops);
+-	else
+-		__loop_delay(loops);
++	timer->delay(loops);
+ }
+ 
+ inline void __const_udelay(unsigned long xloops)
+diff -Nru a/include/asm-i386/timer.h b/include/asm-i386/timer.h
+--- a/include/asm-i386/timer.h	Thu Jan  9 15:22:13 2003
++++ b/include/asm-i386/timer.h	Thu Jan  9 15:22:13 2003
+@@ -14,6 +14,7 @@
+ 	int (*init)(void);
+ 	void (*mark_offset)(void);
+ 	unsigned long (*get_offset)(void);
++	void (*delay)(unsigned long);
+ };
+ 
+ #define TICK_SIZE (tick_nsec / 1000)
 
 
-Bill
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Description: bloatmon
-Content-Disposition: attachment; filename=bloatmon
-
-#!/usr/bin/awk -f
-BEGIN {
-	printf "%18s    %8s %8s %8s\n", "cache", "active", "alloc", "%util";
-}
-
-{
-	if ($3 != 0.0) {
-		pct  = 100.0 * $2 / $3;
-		frac = (10000.0 * $2 / $3) % 100;
-	} else {
-		pct  = 100.0;
-		frac = 0.0;
-	}
-	active = ($2 * $4)/1024;
-	alloc  = ($3 * $4)/1024;
-	if ((alloc - active) < 1.0) {
-		pct  = 100.0;
-		frac = 0.0;
-	}
-	printf "%18s: %8dKB %8dKB  %3d.%-2d\n", $1, active, alloc, pct, frac;
-}
-
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Description: bloatmeter
-Content-Disposition: attachment; filename=bloatmeter
-
-#!/bin/sh
-while : ; do
-	grep -v '^slabinfo' /proc/slabinfo	\
-		| bloatmon			\
-		| sort -n -k 4,4		\
-		| head -22
-	sleep 5
-	echo
-done
-
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Description: bloatmost
-Content-Disposition: attachment; filename=bloatmost
-
-#!/bin/sh
-
-while true
-do
-	bloatmon < /proc/slabinfo \
-		| sort -rn -k 3,3 \
-		| head -22
-	sleep 60
-	echo
-done
-
---vkogqOf2sHV7VnPd--

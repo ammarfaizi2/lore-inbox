@@ -1,70 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262998AbSJBIBF>; Wed, 2 Oct 2002 04:01:05 -0400
+	id <S263000AbSJBIRS>; Wed, 2 Oct 2002 04:17:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262999AbSJBIBF>; Wed, 2 Oct 2002 04:01:05 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:28855 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262998AbSJBIBC>; Wed, 2 Oct 2002 04:01:02 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ALSA 'make menuconfig exits' fix
-Date: Wed, 2 Oct 2002 10:06:09 +0200
-User-Agent: KMail/1.4.3
-Cc: Michael Knigge <Michael.Knigge@set-software.de>,
-       Nicolas Bouliane <linuxaide.net@rocler.com>,
-       Andreas Boman <aboman@nerdfest.org>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_96HC8F87TRZH81F3WU4X"
-Message-Id: <200210021006.09568.m.c.p@wolk-project.de>
+	id <S263001AbSJBIRS>; Wed, 2 Oct 2002 04:17:18 -0400
+Received: from angband.namesys.com ([212.16.7.85]:6330 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S263000AbSJBIRO>; Wed, 2 Oct 2002 04:17:14 -0400
+Date: Wed, 2 Oct 2002 12:22:39 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, jdike@karaya.com
+Subject: Re: [patch] Workqueue Abstraction, 2.5.40-H7
+Message-ID: <20021002122239.A25514@namesys.com>
+References: <Pine.LNX.4.44.0210011653370.28821-102000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210011653370.28821-102000@localhost.localdomain>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
---------------Boundary-00=_96HC8F87TRZH81F3WU4X
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+On Tue, Oct 01, 2002 at 06:24:50PM +0200, Ingo Molnar wrote:
 
-Hi,
+> The pach converts roughly 80% of all tqueue-using code to workqueues - and
+> all the places that are not converted to workqueues yet are places that do
+> not compile in vanilla 2.5.40 anyway, due to unrelated changes. I've
+> converted a fair number of drivers that do not compile in 2.5.40, and i
+> think i've managed to convert every driver that compiles under 2.5.40.
 
-attached patch fixes "make menuconfig" crashes when entering Sound/ALSA.
+Here are corresponding changes to UML code (that were not done by Ingo just
+because this code cannot be compiled due to Makefile bug).
 
-Dunno if it is the correct way but it works. Consider this as a workaroun=
-d.
+This patch is required to make UML compilable again in bk-current (after you
+fix the Makefile, of course).
+I tested the patch and UML works fine for me.
 
---=20
-Kind regards
-        Marc-Christian Petersen
+Bye,
+    Oleg
 
-http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.
---------------Boundary-00=_96HC8F87TRZH81F3WU4X
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="72_fix-alsasoundsparc32-64.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="72_fix-alsasoundsparc32-64.patch"
-
---- linux/sound/Config.in	2002-10-01 12:09:44.000000000 +0200
-+++ linux/sound/Config.in	2002-10-01 12:21:05.000000000 +0200
-@@ -31,10 +31,7 @@
- if [ "$CONFIG_SND" != "n" -a "$CONFIG_ARM" = "y" ]; then
-   source sound/arm/Config.in
- fi
--if [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC32" = "y" ]; then
--  source sound/sparc/Config.in
--fi
--if [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC64" = "y" ]; then
-+if [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC32" = "y" ] || [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC64" = "y" ] ; then
-   source sound/sparc/Config.in
- fi
+===== arch/um/drivers/chan_kern.c 1.2 vs edited =====
+--- 1.2/arch/um/drivers/chan_kern.c	Mon Sep 30 11:59:19 2002
++++ edited/arch/um/drivers/chan_kern.c	Wed Oct  2 12:08:57 2002
+@@ -395,7 +395,7 @@
+ 	return(-1);
+ }
  
-
---------------Boundary-00=_96HC8F87TRZH81F3WU4X--
-
+-void chan_interrupt(struct list_head *chans, struct tq_struct *task,
++void chan_interrupt(struct list_head *chans, struct work_struct *task,
+ 		    struct tty_struct *tty, int irq, void *dev)
+ {
+ 	struct list_head *ele, *next;
+@@ -409,7 +409,7 @@
+ 		do {
+ 			if((tty != NULL) && 
+ 			   (tty->flip.count >= TTY_FLIPBUF_SIZE)){
+-				schedule_task(task);
++				schedule_work(task);
+ 				goto out;
+ 			}
+ 			err = chan->ops->read(chan->fd, &c, chan->data);
+===== arch/um/drivers/line.c 1.1 vs edited =====
+--- 1.1/arch/um/drivers/line.c	Fri Sep  6 21:29:28 2002
++++ edited/arch/um/drivers/line.c	Wed Oct  2 12:02:14 2002
+@@ -215,7 +215,7 @@
+ 			if(err) goto out;
+ 		}
+ 		enable_chan(&line->chan_list, line);
+-		INIT_TQUEUE(&line->task, line_timer_cb, line);
++		INIT_WORK(&line->task, line_timer_cb, line);
+ 	}
+ 
+ 	if(!line->sigio){
+===== arch/um/drivers/mconsole_kern.c 1.1 vs edited =====
+--- 1.1/arch/um/drivers/mconsole_kern.c	Fri Sep  6 21:29:28 2002
++++ edited/arch/um/drivers/mconsole_kern.c	Wed Oct  2 12:06:54 2002
+@@ -13,7 +13,7 @@
+ #include "linux/ctype.h"
+ #include "linux/interrupt.h"
+ #include "linux/sysrq.h"
+-#include "linux/tqueue.h"
++#include "linux/workqueue.h"
+ #include "linux/module.h"
+ #include "linux/proc_fs.h"
+ #include "asm/irq.h"
+@@ -42,7 +42,7 @@
+ 
+ LIST_HEAD(mc_requests);
+ 
+-void mc_task_proc(void *unused)
++void mc_work_proc(void *unused)
+ {
+ 	struct mconsole_entry *req;
+ 	unsigned long flags;
+@@ -60,10 +60,7 @@
+ 	} while(!done);
+ }
+ 
+-struct tq_struct mconsole_task = {
+-	routine:	mc_task_proc,
+-	data: 		NULL
+-};
++DECLARE_WORK(mconsole_work, mc_work_proc, NULL);
+ 
+ void mconsole_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+ {
+@@ -84,7 +81,7 @@
+ 			}
+ 		}
+ 	}
+-	if(!list_empty(&mc_requests)) schedule_task(&mconsole_task);
++	if(!list_empty(&mc_requests)) schedule_work(&mconsole_work);
+ 	reactivate_fd(fd, MCONSOLE_IRQ);
+ }
+ 
+===== arch/um/include/chan_kern.h 1.1 vs edited =====
+--- 1.1/arch/um/include/chan_kern.h	Fri Sep  6 21:29:28 2002
++++ edited/arch/um/include/chan_kern.h	Wed Oct  2 12:07:57 2002
+@@ -22,7 +22,7 @@
+ 	void *data;
+ };
+ 
+-extern void chan_interrupt(struct list_head *chans, struct tq_struct *task,
++extern void chan_interrupt(struct list_head *chans, struct work_struct *task,
+ 			   struct tty_struct *tty, int irq, void *dev);
+ extern int parse_chan_pair(char *str, struct list_head *chans, int pri, 
+ 			   int device, struct chan_opts *opts);
+===== arch/um/include/line.h 1.1 vs edited =====
+--- 1.1/arch/um/include/line.h	Fri Sep  6 21:29:28 2002
++++ edited/arch/um/include/line.h	Wed Oct  2 12:01:27 2002
+@@ -7,7 +7,7 @@
+ #define __LINE_H__
+ 
+ #include "linux/list.h"
+-#include "linux/tqueue.h"
++#include "linux/workqueue.h"
+ #include "linux/tty.h"
+ #include "asm/semaphore.h"
+ #include "chan_user.h"
+@@ -39,7 +39,7 @@
+ 	char *head;
+ 	char *tail;
+ 	int sigio;
+-	struct tq_struct task;
++	struct work_struct task;
+ 	struct line_driver *driver;
+ 	int have_irq;
+ };

@@ -1,156 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263218AbSIUQPE>; Sat, 21 Sep 2002 12:15:04 -0400
+	id <S262564AbSIUQUy>; Sat, 21 Sep 2002 12:20:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263997AbSIUQPE>; Sat, 21 Sep 2002 12:15:04 -0400
-Received: from CENTRAL.CIS.UPENN.EDU ([158.130.12.2]:10471 "EHLO
-	central.cis.upenn.edu") by vger.kernel.org with ESMTP
-	id <S263218AbSIUQPC>; Sat, 21 Sep 2002 12:15:02 -0400
-Date: Sat, 21 Sep 2002 12:20:03 -0400 (EDT)
-From: Nicholas Henke <henken@seas.upenn.edu>
-X-X-Sender: henken@central.cis.upenn.edu
-To: BProc-users@lists.sourceforge.net
-cc: linux-kernel@vger.kernel.org
-Subject: related oops in 2.4.17 and 2.4.19
-Message-ID: <Pine.GSO.4.44.0209211211001.18289-200000@central.cis.upenn.edu>
+	id <S263334AbSIUQUy>; Sat, 21 Sep 2002 12:20:54 -0400
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:34005
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S262564AbSIUQUx>; Sat, 21 Sep 2002 12:20:53 -0400
+Date: Sat, 21 Sep 2002 12:25:59 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix to strchr() in lib/string.c
+Message-ID: <Pine.LNX.4.44.0209211209390.15918-100000@xanadu.home>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-1032625203=:18289"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
----559023410-851401618-1032625203=:18289
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+The return value of strchr("foo",0) should be the start address of
+"foo" + 3, not NULL.
 
-I am running both a 2.4.17 and 2.4.19 vanilla patched with bproc. I have 2
-oops traces from klogd, that appear to be related. I am not sure if this
-is a bproc or kernel issue. The kernels have been running on Dell 1550
-PIII Dual machines with 2GB ram and 2GB swap and IBM x330s with the same
-setups. I have seen about 20 machines toss this same oops in the last few
-days, all when under heavy load and memory pressure. After oopsing, the
-machine will remain resonsive and can run processes, baring ps, top,
-shutdown and reboot -- I am sure there are more that won't run :) I would
-greatly appreciate any help -- I have almost 200 machines running these
-kernels. The oopsing has not just started recently -- I have seen it all
-along, but have never been able to get the decoded info from klogd, and it
-is just now becoming a problem with so many machines oopsing.
 
-Attached is one file with 2 oops reports from klogd.
-Nic
+--- linux/lib/string.c	Thu Aug  1 17:16:34 2002
++++ linux/lib/string.c	Sat Sep 21 12:21:54 2002
+@@ -190,10 +190,11 @@
+  */
+ char * strchr(const char * s, int c)
+ {
+-	for(; *s != (char) c; ++s)
+-		if (*s == '\0')
+-			return NULL;
+-	return (char *) s;
++	do {
++		if (*s == (char) c)
++			return (char *) s;
++	} while (*s++);
++	return NULL;
+ }
+ #endif
+ 
 
--- 
-Nicholas Henke
-Linux cluster system programmer
-University of Pennsylvania
-henken@seas.upenn.edu - 215.573.8149
-
----559023410-851401618-1032625203=:18289
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="nodes_oops.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.44.0209211220030.18289@central.cis.upenn.edu>
-Content-Description: oops traces
-Content-Disposition: attachment; filename="nodes_oops.txt"
-
-LS0tLS0tLS0gMi40LjE3IC0tLS0tLS0tLS0tLS0tDQoNClNlcCAxOSAxODo0
-OToxMCBub2RlMjUga2VybmVsOiBrZXJuZWwgQlVHIGF0IHBhZ2VfYWxsb2Mu
-Yzo4NCENClNlcCAxOSAxODo0OToxMCBub2RlMjUga2VybmVsOiBpbnZhbGlk
-IG9wZXJhbmQ6IDAwMDANClNlcCAxOSAxODo0OToxMCBub2RlMjUga2VybmVs
-OiBDUFU6ICAgIDENClNlcCAxOSAxODo0OToxMCBub2RlMjUga2VybmVsOiBF
-SVA6ICAgIDAwMTA6W19fZnJlZV9wYWdlc19vaysxNjkvODMyXSAgICBOb3Qg
-dGFpbnRlZA0KU2VwIDE5IDE4OjQ5OjEwIG5vZGUyNSBrZXJuZWw6IEVJUDog
-ICAgMDAxMDpbPGMwMTNjMGQ5Pl0gICAgTm90IHRhaW50ZWQNClNlcCAxOSAx
-ODo0OToxMCBub2RlMjUga2VybmVsOiBFRkxBR1M6IDAwMDEwMjg2DQpTZXAg
-MTkgMTg6NDk6MTAgbm9kZTI1IGtlcm5lbDogZWF4OiAwMDAwMDAxZiAgIGVi
-eDogYzFiM2ZmYTAgICBlY3g6IGMwMjg4NDI0ICAgZWR4OiAwMDAwMzZhYQ0K
-U2VwIDE5IDE4OjQ5OjEwIG5vZGUyNSBrZXJuZWw6IGVzaTogYzFiM2ZmYTAg
-ICBlZGk6IDAwMDAwMDAwICAgZWJwOiAwMDAwMDAwMCAgIGVzcDogYzVkOGRl
-ZTANClNlcCAxOSAxODo0OToxMCBub2RlMjUga2VybmVsOiBkczogMDAxOCAg
-IGVzOiAwMDE4ICAgc3M6IDAwMTgNClNlcCAxOSAxODo0OToxMCBub2RlMjUg
-a2VybmVsOiBQcm9jZXNzIHBzIChwaWQ6IDEzMjYsIHN0YWNrcGFnZT1jNWQ4
-ZDAwMCkNClNlcCAxOSAxODo0OToxMCBub2RlMjUga2VybmVsOiBTdGFjazog
-YzAyNWM3NGQgMDAwMDAwNTQgZWE1YTRhNDEgZTk0N2YzNWMgZTk0N2YwMDAg
-ZWE1YTQwMDAgYmZmZjAwMTggMDAwMDA5MGYNClNlcCAxOSAxODo0OToxMCBu
-b2RlMjUga2VybmVsOiAgICAgICAgYzFiM2ZmYTAgZTk0N2Y5MGYgZTk0N2Y5
-MGYgYzAxMjU2MDcgYzVkOGMwMDAgZTk0N2YwMDAgZjIxYTI3MGMgYzFiM2Zm
-YTANClNlcCAxOSAxODo0OToxMCBub2RlMjUga2VybmVsOiAgICAgICAgZTBl
-OWI5ODAgZjIxYTI3MGMgZTkwOTIwMDAgZTk0N2YwMDAgZTk0N2YwMDAgYzAx
-NjkxZmEgZTkwOTIwMDAgYmZmZmY2ZTUNClNlcCAxOSAxODo0OToxMCBub2Rl
-MjUga2VybmVsOiBDYWxsIFRyYWNlOiBbYWNjZXNzX3Byb2Nlc3Nfdm0rNDM5
-LzU2MF0gW3Byb2NfcGlkX2Vudmlyb24rMTg2LzIwOF0gW3Byb2NfaW5mb19y
-ZWFkKzk5LzI4OF0gW2ZpbHBfb3Blbis3Ny85Nl0gW3N5c19yZWFkKzE1MC8y
-MDhdDQpTZXAgMTkgMTg6NDk6MTAgbm9kZTI1IGtlcm5lbDogQ2FsbCBUcmFj
-ZTogWzxjMDEyNTYwNz5dIFs8YzAxNjkxZmE+XSBbPGMwMTY5NjUzPl0gWzxj
-MDE0NDJlZD5dIFs8YzAxNDRlNzY+XQ0KU2VwIDE5IDE4OjQ5OjEwIG5vZGUy
-NSBrZXJuZWw6ICAgIFtzeXNfb3BlbisyMDMvMzA0XSBbc3lzdGVtX2NhbGwr
-NTEvNTZdDQpTZXAgMTkgMTg6NDk6MTAgbm9kZTI1IGtlcm5lbDogICAgWzxj
-MDE0NDZkYj5dIFs8YzAxMDc4YWI+XQ0KU2VwIDE5IDE4OjQ5OjEwIG5vZGUy
-NSBrZXJuZWw6DQpTZXAgMTkgMTg6NDk6MTAgbm9kZTI1IGtlcm5lbDogQ29k
-ZTogMGYgMGIgNWUgNWYgOGIgNDMgMTggYTkgODAgMDAgMDAgMDAgNzQgMTAg
-NmEgNTYgNjggNGQgYzcgMjUNClNlcCAyMCAwNDowMjoxNCBub2RlMjUgc3lz
-bG9nZCAxLjQuMTogcmVzdGFydC4NClNlcCAyMCAxNDowMDowMCBub2RlMjUg
-c3NoZChwYW1fdW5peClbMTY1NV06IHNlc3Npb24gb3BlbmVkIGZvciB1c2Vy
-IGJpbmR1IGJ5ICh1aWQ9MCkNClNlcCAyMCAxNDoyNzoxMCBub2RlMjUgc3No
-ZChwYW1fdW5peClbMTY1NV06IHNlc3Npb24gY2xvc2VkIGZvciB1c2VyIGJp
-bmR1DQpTZXAgMjAgMTU6MjI6NTEgbm9kZTI1IHNzaGQocGFtX3VuaXgpWzE2
-ODNdOiBzZXNzaW9uIG9wZW5lZCBmb3IgdXNlciByb290IGJ5ICh1aWQ9MCkN
-ClNlcCAyMCAxNToyMzozNyBub2RlMjUgc3NoZChwYW1fdW5peClbMTczMV06
-IHNlc3Npb24gb3BlbmVkIGZvciB1c2VyIGhlbmtlbiBieSAodWlkPTApDQpT
-ZXAgMjAgMTU6MjM6Mzcgbm9kZTI1IHNzaGQocGFtX3VuaXgpWzE3MzFdOiBz
-ZXNzaW9uIGNsb3NlZCBmb3IgdXNlciBoZW5rZW4NClNlcCAyMCAxNToyMzo0
-NCBub2RlMjUgc3NoZChwYW1fdW5peClbMTczOV06IHNlc3Npb24gb3BlbmVk
-IGZvciB1c2VyIGhlbmtlbiBieSAodWlkPTApDQpTZXAgMjAgMTU6MjM6NDQg
-bm9kZTI1IHNzaGQocGFtX3VuaXgpWzE3MzldOiBzZXNzaW9uIGNsb3NlZCBm
-b3IgdXNlciBoZW5rZW4NCg0KLS0tLS0tLS0tLS0gMi40LjE5IC0tLS0tLQ0K
-DQpTZXAgMjEgMTA6MTU6MzQgbm9kZTI1LmlvLmxpbmlhYy51cGVubi5lZHUg
-a2VybmVsOiBXYXJuaW5nIC0gcnVubmluZyAqcmVhbGx5KiBzaG9ydCBvbiBE
-TUEgYnVmZmVycw0KU2VwIDIxIDEwOjM5OjEwIG5vZGUyNS5pby5saW5pYWMu
-dXBlbm4uZWR1IGxhc3QgbWVzc2FnZSByZXBlYXRlZCAxNTYgdGltZXMNClNl
-cCAyMSAxMDozOToxMCBub2RlMjUuaW8ubGluaWFjLnVwZW5uLmVkdSBrZXJu
-ZWw6IFVuYWJsZSB0byBoYW5kbGUga2VybmVsIE5VTEwgcG9pbnRlciBkZXJl
-ZmVyZW5jZSBhdCB2aXJ0dWFsIGFkZHJlc3MgMDAwMDAwMTANClNlcCAyMSAx
-MDozOToxMCBub2RlMjUuaW8ubGluaWFjLnVwZW5uLmVkdSBrZXJuZWw6ICBw
-cmludGluZyBlaXA6DQpTZXAgMjEgMTA6Mzk6MTAgbm9kZTI1LmlvLmxpbmlh
-Yy51cGVubi5lZHUga2VybmVsOiBmODljZWUyMw0KU2VwIDIxIDEwOjM5OjEw
-IG5vZGUyNS5pby5saW5pYWMudXBlbm4uZWR1IGtlcm5lbDogKnBkZSA9IDAw
-MDAwMDAwDQpTZXAgMjEgMTA6Mzk6MTAgbm9kZTI1LmlvLmxpbmlhYy51cGVu
-bi5lZHUga2VybmVsOiBPb3BzOiAwMDAwDQpTZXAgMjEgMTA6Mzk6MTAgbm9k
-ZTI1LmlvLmxpbmlhYy51cGVubi5lZHUga2VybmVsOiBDUFU6ICAgIDENClNl
-cCAyMSAxMDozOToxMCBub2RlMjUuaW8ubGluaWFjLnVwZW5uLmVkdSBrZXJu
-ZWw6IEVJUDogICAgMDAxMDpbPGY4OWNlZTIzPl0gICAgTm90IHRhaW50ZWQN
-ClNlcCAyMSAxMDozOToxMCBub2RlMjUuaW8ubGluaWFjLnVwZW5uLmVkdSBr
-ZXJuZWw6IEVGTEFHUzogMDAwMTAyMDINClNlcCAyMSAxMDozOToxMCBub2Rl
-MjUuaW8ubGluaWFjLnVwZW5uLmVkdSBrZXJuZWw6IGVheDogMDAwMDAwMDAg
-ICBlYng6IDAwMDAwMDAwICAgZWN4OiAwMDAwMDAwMiAgIGVkeDogZjcwYzAw
-MDANClNlcCAyMSAxMDozOToxMCBub2RlMjUuaW8ubGluaWFjLnVwZW5uLmVk
-dSBrZXJuZWw6IGVzaTogZjcwYzAwMDAgICBlZGk6IDAwMDAwMDAwICAgZWJw
-OiBmZmZmZmZmZiAgIGVzcDogZGFhYmJlOGMNClNlcCAyMSAxMDozOToxMCBu
-b2RlMjUuaW8ubGluaWFjLnVwZW5uLmVkdSBrZXJuZWw6IGRzOiAwMDE4ICAg
-ZXM6IDAwMTggICBzczogMDAxOA0KU2VwIDIxIDEwOjM5OjEwIG5vZGUyNS5p
-by5saW5pYWMudXBlbm4uZWR1IGtlcm5lbDogUHJvY2VzcyBwcyAocGlkOiAy
-MjY2LCBzdGFja3BhZ2U9ZGFhYmIwMDApDQpTZXAgMjEgMTA6Mzk6MTAgbm9k
-ZTI1LmlvLmxpbmlhYy51cGVubi5lZHUga2VybmVsOiBTdGFjazogYzAxNWY1
-MjUgZjcwYzAwMDAgMDAwMDAyY2MgMDAwMDAyY2MgMDAwMDAwMDAgZmZmZmZm
-ZmYgMDAwMDAwMDQgMDAwMDAwMmMNClNlcCAyMSAxMDozOToxMCBub2RlMjUu
-aW8ubGluaWFjLnVwZW5uLmVkdSBrZXJuZWw6ICAgICAgICAwMDAwMDAwMCAw
-MDAwMDA4OCAwMDAwMDAwMCAwMDAwMDAwMiAwMDAwMDAwMCAwMDAwMDAwMCAw
-MDAwMDAwMCAwMDAwMDAxMw0KU2VwIDIxIDEwOjM5OjEwIG5vZGUyNS5pby5s
-aW5pYWMudXBlbm4uZWR1IGtlcm5lbDogICAgICAgIDAwMDAwMDAwIDAwMDAw
-MDAwIDAwMDAwMDAwIDAwNGExOTBjIDAwMDAwMDAwIDAwMDAwMDAwIGZmZmZm
-ZmZmIDAwMDAwMDAwDQpTZXAgMjEgMTA6Mzk6MTAgbm9kZTI1LmlvLmxpbmlh
-Yy51cGVubi5lZHUga2VybmVsOiBDYWxsIFRyYWNlOiAgICBbcHJvY19waWRf
-c3RhdCs2MjkvNzUyXSBbZG9fZXhpdCs3MTkvNzM2XSBbcHJvY19pbmZvX3Jl
-YWQrOTkvMjg4XSBbc3lzX3JlYWQrMTUwLzI3Ml0gW3N5c19vcGVuKzg3LzE2
-MF0NClNlcCAyMSAxMDozOToxMCBub2RlMjUuaW8ubGluaWFjLnVwZW5uLmVk
-dSBrZXJuZWw6IENhbGwgVHJhY2U6ICAgIFs8YzAxNWY1MjU+XSBbPGMwMTFm
-ODZmPl0gWzxjMDE1ZDBhMz5dIFs8YzAxM2RlNzY+XSBbPGMwMTNkODI3Pl0N
-ClNlcCAyMSAxMDozOToxMCBub2RlMjUuaW8ubGluaWFjLnVwZW5uLmVkdSBr
-ZXJuZWw6ICAgW3N5c3RlbV9jYWxsKzUxLzU2XQ0KU2VwIDIxIDEwOjM5OjEw
-IG5vZGUyNS5pby5saW5pYWMudXBlbm4uZWR1IGtlcm5lbDogICBbPGMwMTA4
-Y2ZiPl0NClNlcCAyMSAxMDozOToxMCBub2RlMjUuaW8ubGluaWFjLnVwZW5u
-LmVkdSBrZXJuZWw6DQpTZXAgMjEgMTA6Mzk6MTAgbm9kZTI1LmlvLmxpbmlh
-Yy51cGVubi5lZHUga2VybmVsOiBDb2RlOiA4YiA0MCAxMCBjMyA5MCA4YiA4
-MiA5NCAwMCAwMCAwMCA4YiA0MCA3YyBjMyA4OSBmNiBmNiAwNSA2MA0KDQo=
----559023410-851401618-1032625203=:18289--

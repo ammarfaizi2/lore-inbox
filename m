@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135314AbRDRU3G>; Wed, 18 Apr 2001 16:29:06 -0400
+	id <S135306AbRDRUdg>; Wed, 18 Apr 2001 16:33:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135313AbRDRU24>; Wed, 18 Apr 2001 16:28:56 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:35847 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S135306AbRDRU2m>; Wed, 18 Apr 2001 16:28:42 -0400
-Date: Wed, 18 Apr 2001 22:28:26 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] proc_mknod() should check the mode parameter
-Message-ID: <20010418222826.N6985@arthur.ubicom.tudelft.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S135293AbRDRUd1>; Wed, 18 Apr 2001 16:33:27 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:37853 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S135306AbRDRUdU>;
+	Wed, 18 Apr 2001 16:33:20 -0400
+Date: Wed, 18 Apr 2001 13:33:09 -0700 (PDT)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Steve Hill <steve@navaho.co.uk>
+cc: <linux-kernel@vger.kernel.org>, Roberto Nibali <ratz@tac.ch>
+Subject: Re: Fix for Donald Becker's DP83815 network driver (v1.07)
+In-Reply-To: <Pine.LNX.4.21.0104181227420.4446-100000@sorbus.navaho>
+Message-ID: <Pine.LNX.4.33.0104181330200.32629-100000@age.cs.columbia.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Wed, 18 Apr 2001, Steve Hill wrote:
 
-While documenting the procfs interface (more of that later), I came
-across proc_mknod() which is supposed to be used to create devices in
-the procfs. IMHO it should therefore check if the mode parameter
-contains S_IFBLK or S_IFCHR. Here is a patch (against linux-2.4.4-pre3)
-to do that:
+> Anyway, it wasn't me who wanted to use the starfire driver :)
 
-Index: fs/proc/generic.c
-===================================================================
-RCS file: /home/erik/cvsroot/elinux/fs/proc/generic.c,v
-retrieving revision 1.1.1.16
-diff -u -r1.1.1.16 generic.c
---- fs/proc/generic.c	2001/04/08 23:34:42	1.1.1.16
-+++ fs/proc/generic.c	2001/04/18 20:20:39
-@@ -445,6 +445,9 @@
- 	const char *fn = name;
- 	int len;
- 
-+	if (! (S_ISCHR(mode) || S_ISBLK(mode)))
-+		goto out;
-+
- 	if (!parent && xlate_proc_name(name, &parent, &fn) != 0)
- 		goto out;
- 	len = strlen(fn);
+True, I plead guilty to the "replying at 3:30am" sin. :-) I meant to reply
+to Roberto's mail, and accidentally replied to yours..
 
+Anyway, Roberto, if you could give the starfire driver in 2.2.19 a try, 
+I'd appreciate it. You mentioned looking at the code, did you actually 
+test it?
 
-
-Erik
+Thanks,
+Ion
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+

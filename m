@@ -1,79 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317949AbSGWEeQ>; Tue, 23 Jul 2002 00:34:16 -0400
+	id <S317950AbSGWEet>; Tue, 23 Jul 2002 00:34:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317950AbSGWEeQ>; Tue, 23 Jul 2002 00:34:16 -0400
-Received: from codepoet.org ([166.70.99.138]:57018 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S317949AbSGWEeO>;
-	Tue, 23 Jul 2002 00:34:14 -0400
-Date: Mon, 22 Jul 2002 22:37:24 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Alan Cox <alan@redhat.com>
+	id <S317951AbSGWEes>; Tue, 23 Jul 2002 00:34:48 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:43653 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S317950AbSGWEeV>; Tue, 23 Jul 2002 00:34:21 -0400
+Date: Mon, 22 Jul 2002 22:37:09 -0600
+Message-Id: <200207230437.g6N4b9S23747@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] compile fix for Linux 2.4.19-rc3-ac2
-Message-ID: <20020723043724.GA12088@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-References: <200207230022.g6N0Mgh30698@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200207230022.g6N0Mgh30698@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Subject: Re: Rusty's module talk at the Kernel Summit 
+In-Reply-To: <Pine.GSO.4.21.0207221216240.6045-100000@weyl.math.psu.edu>
+References: <200207190019.g6J0JrM28129@vindaloo.ras.ucalgary.ca>
+	<Pine.GSO.4.21.0207221216240.6045-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Jul 22, 2002 at 08:22:42PM -0400, Alan Cox wrote:
-> o	AMD native powermanagement			(Tony Lindgren,
-> 							 Johnathan Hicks)
-> 	| Replaces amd768_pm as its already far better
+Alexander Viro writes:
+> On Thu, 18 Jul 2002, Richard Gooch wrote:
+> > Can you point to specific problems with the current devfs code?
+> 
+> Sigh...  How many do you want?  Look, couple of days ago I'd done
+> the following: picked a random number in range 1..`wc -l
+> fs/devfs/base.c`, checked what function it was in (devfs_readdir())
+> and spent less than two minutes reading it before finding a bug (a
+> leak - there's a couple of paths that grab an entry and return
+> without releasing it).
 
-Doesn't compile:
+Ouch. I see what you're referring to: if *readdir() fails, the devfs
+entry is not cleaned up. I've fixed that in my tree, as well as made
+the (minor) optimisation of avoiding re-taking the parent lock on
+error.
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -Os -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    -nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=amd76x_pm  -c -o amd76x_pm.o amd76x_pm.c
-amd76x_pm.c: In function `sb_idle_amd_766':
-amd76x_pm.c:137: warning: unused variable `regshort'
-amd76x_pm.c: In function `amd_idle_main':
-amd76x_pm.c:360: `pm_idle' undeclared (first use in this function)
-amd76x_pm.c:360: (Each undeclared identifier is reported only once
-amd76x_pm.c:360: for each function it appears in.)
-amd76x_pm.c: In function `amd_idle_cleanup':
-amd76x_pm.c:377: `pm_idle' undeclared (first use in this function)
-make[3]: *** [amd76x_pm.o] Error 1
-make[3]: Leaving directory `/usr/src/linux/drivers/char'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux/drivers/char'
-make[1]: *** [_subdir_char] Error 2
-make[1]: Leaving directory `/usr/src/linux/drivers'
-make: *** [_dir_drivers] Error 2
+> So tell me how many times I should repeat that exercise and while
+> you are at it, tell me what stops you from doing the same.
 
+Well, I *have* looked at it. But after a while, it gets harder to spot
+bugs because it gets stale. That's why a fresh pair of eyes is so
+valuable.
 
-This trivial patch fixes it:
+> Because you know, reading devfs code is something I'd rather avoid -
+> it's not my idea of fun reading.  IF it will stop you from claiming
+> "Al hadn't done public whippings lately, so devfs is bug-free" for a
+> couple of months - by all means, tell how many bugs do I need to
+> find and report to shut you up for a while.
 
+How about just letting me know about all the bugs you find? I would
+find that helpful.
 
---- drivers/char/amd76x_pm.c.orig	Mon Jul 22 22:32:55 2002
-+++ drivers/char/amd76x_pm.c	Mon Jul 22 22:34:49 2002
-@@ -35,6 +35,7 @@
- #include <linux/slab.h>
- #include <linux/pci.h>
- #include <linux/delay.h>
-+#include <linux/pm.h>
- 
- #include "amd76x_pm.h"
- 
-@@ -134,7 +135,6 @@
- sb_idle_amd_766(int enable)
- {
- 	unsigned int regdword;
--	unsigned short regshort;
- 	unsigned char regbyte;
- 
- 
- -Erik
+> Richard, devfs code is _ripe_ with bugs; you can't spit into it
+> without hitting one.  And excuse me, but when finding one is a
+> matter of two minutes I can't believe that you are incapable of
+> doing that on your own.  It used to be annoying; by now it's beyond
+> annoying - it's ridiculous.
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+I find it hard to believe that the code is ripe with bugs. While there
+may be one or two bugs still lurking, the code overall looks to be in
+pretty good shape. All the work I put into adding the locking and
+refcounting has paid off. Is it just bad luck that you randomly looked
+at devfs_readdir() and found one of the (hopefully few) bugs? Or have
+you actually seen a large number of bugs that justifies the "ripe"
+label?
+
+I could just go and read the code periodically, looking for bugs, but
+I'd quickly burn out, and the incremental benefit would likely be
+minor. A fresh pair of eyeballs is much better. And that is supposed
+to be the power of open source.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

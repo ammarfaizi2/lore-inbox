@@ -1,93 +1,201 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266618AbUGPVCB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266624AbUGPVHf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266618AbUGPVCB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 17:02:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266620AbUGPVCB
+	id S266624AbUGPVHf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 17:07:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266635AbUGPVHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 17:02:01 -0400
-Received: from 216-54-166-5.gen.twtelecom.net ([216.54.166.5]:57503 "EHLO
-	texas.encore.com") by vger.kernel.org with ESMTP id S266618AbUGPVBC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 17:01:02 -0400
-Message-ID: <40F8420C.88E694F2@compro.net>
-Date: Fri, 16 Jul 2004 17:01:00 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.26-ert i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mlockall and mmap of IO devices don't mix
-References: <20031003214411.GA25802@rudolph.ccur.com>
-		<40ADE959.822F1C23@compro.net>
-		<20040521191326.58100086.akpm@osdl.org>
-		<20040525142728.GA10738@tsunami.ccur.com> <20040525124715.5f7e61b6.akpm@osdl.org>
+	Fri, 16 Jul 2004 17:07:32 -0400
+Received: from gprs214-186.eurotel.cz ([160.218.214.186]:55682 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S266624AbUGPVHH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 17:07:07 -0400
+Date: Fri, 16 Jul 2004 23:06:50 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] Re: ext3: bump mount count on journal replay
+Message-ID: <20040716210649.GA15428@elf.ucw.cz>
+References: <20040714131525.GA1369@elf.ucw.cz> <20040714200554.GR23346@schnapps.adilger.int> <20040714203258.GC25802@elf.ucw.cz> <20040716204135.GG6770@schnapps.adilger.int>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20040716204135.GG6770@schnapps.adilger.int>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Hi!
+
+> > > AFAICS, this just means that if you have an ext3 filesystem
+> > > (i.e. has_journal) that you will fsck 5x as often, not so great.  You
+> > > should instead check for INCOMPAT_RECOVER instead of HAS_JOURNAL.
+> > 
+> > Oops, you are right. Updated patch is attached.
 > 
-> Joe Korty <joe.korty@ccur.com> wrote:
-> >
-> > On Fri, May 21, 2004 at 07:13:26PM -0700, Andrew Morton wrote:
-> >  > Mark Hounschell <markh@compro.net> wrote:
-> >  > >
-> >  > > Joe Korty wrote:
-> >  > > >
-> >  > > > 2.6.0-test6: the use of mlockall(2) in a process that has mmap(2)ed
-> >  > > > the registers of an IO device will hang that process uninterruptibly.
-> >  > > > The task runs in an infinite loop in get_user_pages(), invoking
-> >  > > > follow_page() forever.
-> >  > > >
-> >  > > > Using binary search I discovered that the problem was introduced
-> >  > > > in 2.5.14, specifically in ChangeSetKey
-> >  > > >
-> >  > > >     zippel@linux-m68k.org|ChangeSet|20020503210330|37095
-> >  > > >
-> >  > >
-> >  > > I know this is an old thread but can anyone tell me if this problem is
-> >  > > resolved in the current 2.6.6 kernel?
-> >  > >
-> >  >
-> >  > There's an utterly ancient patch in -mm which might fix this.
-> >  >
-> >  > http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-mm4/broken-out/get_user_pages-handle-VM_IO.patch
-> >
-> >  [ 2nd send -- corporate email system in the throes of being scrambled / updated ]
-> >
-> >  Andrew,
-> >  I have been using this patch for ages.  Any chance of it being forwared to
-> >  the official tree?
+> No patch was attached.
+
+Sorry, here it is:
+
+--- clean/fs/ext3/super.c	2004-06-22 12:36:30.000000000 +0200
++++ linux/fs/ext3/super.c	2004-07-14 22:32:20.000000000 +0200
+@@ -919,7 +919,7 @@
+ }
+ 
+ static int ext3_setup_super(struct super_block *sb, struct ext3_super_block *es,
+-			    int read_only)
++			    int read_only, int mount_cost)
+ {
+ 	struct ext3_sb_info *sbi = EXT3_SB(sb);
+ 	int res = 0;
+@@ -960,7 +960,7 @@
+ 	if (!(__s16) le16_to_cpu(es->s_max_mnt_count))
+ 		es->s_max_mnt_count =
+ 			(__s16) cpu_to_le16(EXT3_DFL_MAX_MNT_COUNT);
+-	es->s_mnt_count=cpu_to_le16(le16_to_cpu(es->s_mnt_count) + 1);
++	es->s_mnt_count=cpu_to_le16(le16_to_cpu(es->s_mnt_count) + mount_cost);
+ 	es->s_mtime = cpu_to_le32(get_seconds());
+ 	ext3_update_dynamic_rev(sb);
+ 	EXT3_SET_INCOMPAT_FEATURE(sb, EXT3_FEATURE_INCOMPAT_RECOVER);
+@@ -1214,7 +1214,7 @@
+ 	int hblock;
+ 	int db_count;
+ 	int i;
+-	int needs_recovery;
++	int needs_recovery, mount_cost = 1;
+ 
+ 	sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
+ 	if (!sbi)
+@@ -1478,6 +1478,8 @@
+ 	needs_recovery = (es->s_last_orphan != 0 ||
+ 			  EXT3_HAS_INCOMPAT_FEATURE(sb,
+ 				    EXT3_FEATURE_INCOMPAT_RECOVER));
++	if (needs_recovery)
++		    mount_cost = 5;
+ 
+ 	/*
+ 	 * The first inode we look at is the journal inode.  Don't try
+@@ -1485,8 +1487,8 @@
+ 	 */
+ 	if (!test_opt(sb, NOLOAD) &&
+ 	    EXT3_HAS_COMPAT_FEATURE(sb, EXT3_FEATURE_COMPAT_HAS_JOURNAL)) {
+-		if (ext3_load_journal(sb, es))
+-			goto failed_mount2;
++		    if (ext3_load_journal(sb, es))
++			    goto failed_mount2;
+ 	} else if (journal_inum) {
+ 		if (ext3_create_journal(sb, es, journal_inum))
+ 			goto failed_mount2;
+@@ -1543,7 +1545,7 @@
+ 		goto failed_mount3;
+ 	}
+ 
+-	ext3_setup_super (sb, es, sb->s_flags & MS_RDONLY);
++	ext3_setup_super (sb, es, sb->s_flags & MS_RDONLY, mount_cost);
+ 	/*
+ 	 * akpm: core read_super() calls in here with the superblock locked.
+ 	 * That deadlocks, because orphan cleanup needs to lock the superblock
+@@ -2069,7 +2071,7 @@
+ 			 */
+ 			ext3_clear_journal_err(sb, es);
+ 			sbi->s_mount_state = le16_to_cpu(es->s_state);
+-			if (!ext3_setup_super (sb, es, 0))
++			if (!ext3_setup_super (sb, es, 0, 1))
+ 				sb->s_flags &= ~MS_RDONLY;
+ 		}
+ 	}
+
+
+> > > Instead, you could change this to only increment the mount count after
+> > > a clean unmount 20% of the time (randomly).  Since most people bitch
+> > > about the full fsck anyways this is probably the better choice than
+> > > increasing the frequency of checks and forcing the users to change the
+> > > check interval to get the old behaviour.
+> > 
+> > Nice hack.... would that be acceptable?
 > 
-> That patch had its first birthday last week.  I wrote it in response to
-> some long-forgotten problem, failed to changelog it at the time then forgot
-> why I wrote it.  I kept it in the hope that I'd remember why I wrote it.  I
-> subsequently wrote a best-effort changelog but am unconvinced by it.  Ho
-> hum.
-> 
-> Let me genuflect a bit.  I guess we can be reasonably confident it won't
-> break anything.
+> It's OK by me.  I don't think you'll get complaints from users if it is
+> checked less often (there is still the time-based check).
 
-Strange thing about this patch is "it doesn't seem to work on all
-machines". Originally it worked for me on a dual AMD1900 box. Now I'm
-trying to use it on a Dual P4 box and a dual Opteron in both 32 and 64
-bit modes with no luck at all???? I guess I need to go back to my
-original AMD and reverify it's functionality.
+Hmmm... I guess that using get_random_bytes is pretty easy. Completely
+untested diff (have to sleep now):
 
-The user level code I'm using:
+--- clean/fs/ext3/super.c	2004-06-22 12:36:30.000000000 +0200
++++ linux/fs/ext3/super.c	2004-07-16 23:05:30.000000000 +0200
+@@ -919,7 +919,7 @@
+ }
+ 
+ static int ext3_setup_super(struct super_block *sb, struct ext3_super_block *es,
+-			    int read_only)
++			    int read_only, int mount_cost)
+ {
+ 	struct ext3_sb_info *sbi = EXT3_SB(sb);
+ 	int res = 0;
+@@ -960,7 +960,7 @@
+ 	if (!(__s16) le16_to_cpu(es->s_max_mnt_count))
+ 		es->s_max_mnt_count =
+ 			(__s16) cpu_to_le16(EXT3_DFL_MAX_MNT_COUNT);
+-	es->s_mnt_count=cpu_to_le16(le16_to_cpu(es->s_mnt_count) + 1);
++	es->s_mnt_count=cpu_to_le16(le16_to_cpu(es->s_mnt_count) + mount_cost);
+ 	es->s_mtime = cpu_to_le32(get_seconds());
+ 	ext3_update_dynamic_rev(sb);
+ 	EXT3_SET_INCOMPAT_FEATURE(sb, EXT3_FEATURE_INCOMPAT_RECOVER);
+@@ -1214,7 +1214,11 @@
+ 	int hblock;
+ 	int db_count;
+ 	int i;
+-	int needs_recovery;
++	int needs_recovery, mount_cost;
++	unsigned char random;
++
++	get_random_bytes(&random, 1);
++	mount_cost = (random < 60);
+ 
+ 	sbi = kmalloc(sizeof(*sbi), GFP_KERNEL);
+ 	if (!sbi)
+@@ -1478,6 +1482,8 @@
+ 	needs_recovery = (es->s_last_orphan != 0 ||
+ 			  EXT3_HAS_INCOMPAT_FEATURE(sb,
+ 				    EXT3_FEATURE_INCOMPAT_RECOVER));
++	if (needs_recovery)
++		    mount_cost = 1;
+ 
+ 	/*
+ 	 * The first inode we look at is the journal inode.  Don't try
+@@ -1485,8 +1491,8 @@
+ 	 */
+ 	if (!test_opt(sb, NOLOAD) &&
+ 	    EXT3_HAS_COMPAT_FEATURE(sb, EXT3_FEATURE_COMPAT_HAS_JOURNAL)) {
+-		if (ext3_load_journal(sb, es))
+-			goto failed_mount2;
++		    if (ext3_load_journal(sb, es))
++			    goto failed_mount2;
+ 	} else if (journal_inum) {
+ 		if (ext3_create_journal(sb, es, journal_inum))
+ 			goto failed_mount2;
+@@ -1543,7 +1549,7 @@
+ 		goto failed_mount3;
+ 	}
+ 
+-	ext3_setup_super (sb, es, sb->s_flags & MS_RDONLY);
++	ext3_setup_super (sb, es, sb->s_flags & MS_RDONLY, mount_cost);
+ 	/*
+ 	 * akpm: core read_super() calls in here with the superblock locked.
+ 	 * That deadlocks, because orphan cleanup needs to lock the superblock
+@@ -2069,7 +2075,7 @@
+ 			 */
+ 			ext3_clear_journal_err(sb, es);
+ 			sbi->s_mount_state = le16_to_cpu(es->s_state);
+-			if (!ext3_setup_super (sb, es, 0))
++			if (!ext3_setup_super (sb, es, 0, 1))
+ 				sb->s_flags &= ~MS_RDONLY;
+ 		}
+ 	}
+
+								Pavel
 
 
-    status = mlockall(MCL_CURRENT | MCL_FUTURE);        
-    if (status < 0)
-        perror("mlock all failure");
 
-    dhan = rtom_usec_map(&rtom_microseconds, 0); mmaps rtom usec timer
-
-?????
-
-
-Regards
-Mark
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
